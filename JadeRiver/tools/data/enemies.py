@@ -211,6 +211,11 @@ NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.0
               "drowned_abbot": {"named": [{"item": "drowned_hat", "chance": 0.08}, {"item": "drowned_boots", "chance": 0.08}]},
               "cloudpeak_roc": {"named": [{"item": "crane_trousers", "chance": 0.002}]}}
 
+# Early surprises (docs/research/player_motivation.md item 7, §3.4): the first monsters carry rare rows, a river pearl
+# (sold for coin) and a manual page. `find` marks a rare find: its drop plays the rare-find moment (MomentRules.is_rare).
+_EARLY = [{"item": "pearl", "chance": 0.02, "count": [1, 1], "find": True}, {"item": "manual_page", "chance": 0.005, "count": [1, 1], "find": True}]
+EARLY_FINDS = {"mudshell_crab": _EARLY, "reedtail_rat": _EARLY, "wild_boarlet": _EARLY, "mossback_toad": _EARLY}
+
 
 # P12 par times in seconds (research §6.2 and docs/boss_design.md §2.4).
 BOSS_PAR_S = {"big_toad_tan": 90, "riverbed_serpent": 120, "drowned_abbot": 180, "the_reflection": 90, "hollow_behemoth": 150,
@@ -720,6 +725,7 @@ def build():
         if m["id"] in QUEST_DROPS:
             table["quest_drops"] = QUEST_DROPS[m["id"]]
         table.update(NAMED_ROWS.get(m["id"], {}))
+        table["rare"] = table["rare"] + [dict(x) for x in EARLY_FINDS.get(m["id"], [])]
         # P13a Lost Arts (technique_plan §5.3): a lost manual is never in the random roll; LootRules rolls it like a named
         # row (drop rate does not raise it) and ProgressionAuthority keeps it only while its art is not yet found, sure by
         # the pity-th kill.

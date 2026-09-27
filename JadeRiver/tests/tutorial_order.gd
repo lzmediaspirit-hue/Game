@@ -23,7 +23,12 @@ extends "res://tests/prologue_run.gd"
 ##      Level), and only with none of these a hunting ground;
 ##  10. the weapon slot is open from the start (empty, not locked, a weapon wearable), and the first weapon, dropped by
 ##      the first kill in the Reed Shallows, is offered by the HUD's equip prompt;
-##  11. the first hour pays (research player_motivation P1, P2): the story's own quests and fights carry the character
+##  11. chores after power (docs/research/player_motivation.md item 6, P3): no daily, idle or post system (an unlock
+##      marked `obligation`) is open or on offer at any step of the walk;
+##  12. a gentle early failure (P12): every fall in the walk costs nothing;
+##  13. early surprises (item 7, P7): the first walk onto the Willow Path after the River Token meets a fortune card (the
+##      Remnant Soul in a Ring), and as The Willow Path is done a Spirit Fruit ripens on Willow Path West, announced.
+##  14. the first hour pays (research player_motivation P1, P2): the story's own quests and fights carry the character
 ##      to every realm the story waits on (Bone Forging 2 for chapter 2, 3 for the Weapon Hall) with no test shortcut;
 ##      on the play clock (prologue_run.play_s) something new comes at least every 3 minutes to minute 20 and every 5
 ##      to minute 60 (an item kind, gear worn, a technique, a realm step, a new foe beaten, a title, a choice, coin);
@@ -60,8 +65,10 @@ var foes_seen := {}           # def id -> times a foe of that kind was seen in a
 var bare: Array = []          # foes seen in a fight without their HP bar (or with the HP bar off the HUD)
 var doors_seen := {}          # room id -> true once its ways into buildings were checked
 var hostile_reached: Array = []
-var novelty: Array = []       # [play seconds, kind, what]: the first-hour timeline (invariant 11)
+var novelty: Array = []       # [play seconds, kind, what]: the first-hour timeline (invariant 14)
 var novel_seen := {}
+var surprises: Array = []     # "fortune:<card>@<room>", "fruit@<room>": the early surprises met (invariant 13)
+var falls: Array = []         # falls in the walk that cost something (invariant 12)
 
 func _main() -> void:
 	add_child(views)
@@ -111,6 +118,7 @@ func run() -> void:
 	invariants("The River Token")
 	step_willow_path()
 	invariants("The Willow Path")
+	_early_surprises()
 	step_fair()
 	invariants("The Recruitment Fair")
 	step_entry_trial()
@@ -132,6 +140,7 @@ func run() -> void:
 		"in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [str(offers_in_fight), str(hijacked)])
 	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "the story's guidance was checked at every step (%d steps, %d quests)"
 		% [guidance_steps, c().quests.done.size() + c().quests.active.size()])
+	check(falls.is_empty(), "every fall in the walk cost nothing, before Bone Forging 5 (%s)" % str(falls))
 	hud_probe.player.free()
 	hud_probe.free()
 
@@ -239,7 +248,7 @@ func step_fish_gutting_fists() -> void:
 	check(c().cultivator.state == "bottleneck" or ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3"),
 		"Fish-Gutting Fists fills Bone Forging 2 by itself: the Weapon Hall's realm needs no side errand (%d%%)" % int(100.0 * c().cultivator.progress_fraction()))
 
-# ------------------------------------------------------------------ the first hour (invariant 11)
+# ------------------------------------------------------------------ the first hour (invariant 14)
 ## Something new, on the play clock: an item kind, gear worn, a technique, a realm step, a new foe beaten, a title, the
 ## sect chosen, the first coin, a new place (a region entered the first time), a set piece begun. Each counts once.
 func _on_novelty(n: String, p: Dictionary) -> void:
@@ -262,7 +271,7 @@ func _on_novelty(n: String, p: Dictionary) -> void:
 		check(c().cultivator.realm_key == "bone_forging_1", "the first technique is taught at Bone Forging 1 (%s at %s)" % [what, c().cultivator.realm_key])
 	novelty.append([play_s, what.get_slice(":", 0), what])
 
-## Invariant 11: the gaps between new things on the play clock, and the timeline printed (docs/tutorial_order.md keeps it).
+## Invariant 14: the gaps between new things on the play clock, and the timeline printed (docs/tutorial_order.md keeps it).
 func first_hour() -> void:
 	var worst20 := 0.0
 	var worst60 := 0.0
@@ -391,10 +400,27 @@ func leads_to_next(label: String) -> void:
 	elif want != here and not ContentDB.room(want).get("instanced", false):
 		check(mark == want, "%s: the tracker leads where the story goes next, %s (%s; the mark leads to %s)" % [label, want, why, mark])
 
+## Invariant 13, as The Willow Path is done: the fortune card met on the way in, and the Spirit Fruit ripe here.
+func _early_surprises() -> void:
+	check(surprises.size() >= 1 and str(surprises[0]).begins_with("fortune:remnant_ring@wp_"),
+		"the first walk onto the Willow Path met the Remnant Soul in a Ring (%s)" % str(surprises))
+	check(surprises.has("fruit@wp_west"), "a Spirit Fruit ripened on Willow Path West as The Willow Path was done (%s)" % str(surprises))
+	var tree: Array = ContentDB.room("wp_west").get("objects", []).filter(func(o): return o.get("first", false))
+	check(room() == "wp_west" and not tree.is_empty() and Game.world.object_visible(c(), tree[0]), "its tree stands in view on Willow Path West (room %s)" % room())
+	keep("First Spirit Fruit")
+
+## Invariant 11: no chore (an unlock marked `obligation`) is open or on offer before Qi Kindling 1.
+func _no_chores(label: String) -> void:
+	var open: Array = []
+	for u in ContentDB.all("unlocks"):
+		if u.get("obligation", false) and (Unlocks.is_unlocked(c().id, str(u.id)) or c().cultivator.offered.has(str(u.id))): open.append(str(u.id))
+	check(open.is_empty(), "%s: no daily, idle or post system is open or on offer before Qi Kindling 1 (%s)" % [label, str(open)])
+
 ## Invariants 1 and 3 over every room within reach now.
 func invariants(label: String) -> void:
 	keep(label)
 	leads_to_next(label)
+	_no_chores(label)
 	var reach := routes()
 	for rid in reach:
 		var rd: Dictionary = ContentDB.room(rid)
@@ -425,6 +451,9 @@ func hostile(rd: Dictionary) -> bool:
 
 func _on_event(n: String, p: Dictionary) -> void:
 	if n == "portal_used": _left_early(p)
+	if n == "fortune_encounter": surprises.append("fortune:%s@%s" % [str(p.get("card", "")), str(p.get("room", ""))])
+	if n == "treasure_birth_announced" and p.get("first", false): surprises.append("fruit@%s" % str(p.get("room", "")))
+	if n == "player_gravely_wounded" and not p.get("no_penalty", false): falls.append("%s at %s" % [room(), c().cultivator.realm_key])
 	if n != "room_entered": return
 	if hostile(ContentDB.room(str(p.get("room", "")))):
 		check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:enemy_hp_bars"), "entering %s, a room with foes, the HP bars are on the HUD" % str(p.room))

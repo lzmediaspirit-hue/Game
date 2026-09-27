@@ -4552,6 +4552,7 @@
  },
  "death": {
   "progress_loss": 0.1,
+  "grace_below": "bone_forging_5",
   "wake_hp": 0.5,
   "talisman_hp": 0.3,
   "talisman_invuln_s": 5,

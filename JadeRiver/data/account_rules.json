@@ -181,6 +181,11 @@
   ]
  },
  "skip_prologue_allowed": true,
+ "bank": {
+  "days": 3,
+  "missions_per_day": 5,
+  "activity_per_day": 40
+ },
  "collection_seals": {
   "pages": {
    "valley_shore": [

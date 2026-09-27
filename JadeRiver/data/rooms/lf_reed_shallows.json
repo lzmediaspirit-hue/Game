@@ -423,7 +423,8 @@
    "level": [
     1,
     1
-   ]
+   ],
+   "elite_chance": 0.04
   },
   {
    "enemy": "reedtail_rat",
@@ -451,7 +452,8 @@
    "level": [
     2,
     2
-   ]
+   ],
+   "elite_chance": 0.04
   },
   {
    "enemy": "old_snapper",

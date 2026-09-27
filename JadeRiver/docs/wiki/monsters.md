@@ -32,6 +32,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `mudshell_crab`):
   - [Crab Shell](items.md#item-crab_shell): 30% (group 60%, weight 1 of 2)
   - [River Mud](items.md#item-river_mud): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - [Crab Shell](items.md#item-crab_shell): 100% (only during Crab Trouble)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
@@ -54,6 +56,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `wild_boarlet`):
   - [Boar Hide](items.md#item-boar_hide): 30% (group 60%, weight 1 of 2)
   - [Tough Meat](items.md#item-tough_meat): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
@@ -73,6 +77,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `mossback_toad`):
   - [Toad Oil](items.md#item-toad_oil): 30% (group 60%, weight 1 of 2)
   - [Moss](items.md#item-moss): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
@@ -90,6 +96,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI melee; aggro range 150; move speed 120; patrol 140; flee below 0.25; moves: drop, jump 430. Attacks: bite×1 (windup 0.35s)
 - **Drops** (loot table `reedtail_rat`):
   - [Rat Tail](items.md#item-rat_tail): 60% (group)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 

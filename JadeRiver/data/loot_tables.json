@@ -34,7 +34,26 @@
     "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
    "starter": true,
    "quest_drops": [
     {
@@ -73,7 +92,26 @@
     "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
    "starter": true
   },
   {
@@ -184,7 +222,26 @@
     "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
    "starter": true
   },
   {
@@ -220,7 +277,26 @@
     "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
    "starter": true
   },
   {

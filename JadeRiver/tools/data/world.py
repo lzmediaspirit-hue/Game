@@ -2958,6 +2958,25 @@ def fruit_trees():
                   visible_if=all_of({"kind": "world_event_here", "event": "treasure_birth"}))
 
 
+# Early surprises (docs/research/player_motivation.md item 7): the valley's first fields may turn a common foe into an
+# elite (the existing elite: its marker, its extra loot roll), about one spawn in twenty-five, so one shows in the first
+# hour; and a Spirit Fruit ripens once for each character on Willow Path West when The Willow Path is done (a birth of
+# its own: CalendarAuthority.open_first_fruit, the tree gone once the fruit is taken).
+EARLY_ELITE_CHANCE = 0.04
+EARLY_ELITE_ROOMS = ("lf_reed_shallows", "wp_west")
+FIRST_FRUIT_ROOM = "wp_west"
+
+
+def early_surprises():
+    for rid in EARLY_ELITE_ROOMS:
+        for s in ROOMS[rid].d["spawns"]:
+            if not s.get("elite") and not s.get("requires") and s["max"] > 1:
+                s["elite_chance"] = EARLY_ELITE_CHANCE
+    r = ROOMS[FIRST_FRUIT_ROOM]
+    r.obj("first_fruit_tree", "treasure_birth", [_dry_x(r, 2090, 800), 800], radius=150, prop="nine_bough_jade_tree", first=True,
+          visible_if=all_of(qdone("the_willow_path")), hidden_if=all_of(flag("first_fruit_taken")))
+
+
 def _free_x(r, share, y=880, gap=170):
     """An x on dry ground near `share` of the room's width, `gap` from every other object, portal and spawn."""
     x = int(r.w * share)
@@ -3094,6 +3113,7 @@ def build():
     ice_sheets()       # v1.1 traction: glazed ground in the Frozen Shrine and on Rimefrost
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
+    early_surprises()
     insect_swarms()
     trails_and_altars()
     spirit_mines()

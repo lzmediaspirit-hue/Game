@@ -541,8 +541,8 @@ and early drops) and 6, 7, 9 (obligations, surprises, death) are built separatel
   `WEAPON_HALL_ARTS`). No new art or pose: until the body has a Qi pool (Bone Forging 7) any technique costs no Qi,
   only its cooldown (`stats.json technique_cost.free_without_pool`). Each art taught plays the `technique_learned`
   moment.
-- **4. Pacing.** Bone Forging 1–4 need 600 / 900 / 1,200 / 1,600; Bone Forging 5–9 3,700 each. balance_sim puts Qi
-  Kindling 1 at 5.1 hours (target 5). `quest_qp_pct.prologue` was left alone: prologue quests never paid progress (the
+- **4. Pacing.** Bone Forging 1–4 need 600 / 900 / 1,200 / 1,600; Bone Forging 5–9 3,100 each. balance_sim puts Qi
+  Kindling 1 at 5.2 hours (target 5), the lessons moved to it (item 6) included. `quest_qp_pct.prologue` was left alone: prologue quests never paid progress (the
   hand-in pays only main, guided, side and daily kinds, and only once the Cultivation page is open), so the story's
   quests carry the floors instead, below.
 - **5. Floors.** Chapter 2's floor is Bone Forging 2 and the Entry Trial has no realm step. The Willow Path (35% of a
@@ -560,7 +560,7 @@ and early drops) and 6, 7, 9 (obligations, surprises, death) are built separatel
   Kindling), drawn behind the avatar from plain shapes; the card names it when it changes. Screenshots in
   `docs/ui_p5/early_game/`.
 
-**The first hour as built** (tests/tutorial_order.gd, invariant 11). Minutes are its play clock: the simulated time,
+**The first hour as built** (tests/tutorial_order.gd, invariant 14). Minutes are its play clock: the simulated time,
 walking at a thumb's pace (150 px/s), 15 s to look round each new room, 3 s a line of dialogue: a floor for a focused
 new player, not a measurement. The walk takes Guo first and ends with Strange Tracks under way.
 

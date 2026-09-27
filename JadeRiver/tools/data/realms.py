@@ -93,7 +93,7 @@ MAX_YEARS = {"mortal": 80, "bone_forging": 100, "qi_kindling": 120, "qi_unfurlin
 # Bone Forging front-loaded (docs/research/player_motivation.md §3.2): 600 / 900 / 1,200 / 1,600 progress for Bone
 # Forging 1-4, so the story's own fights carry the first hour to Bone Forging 4; Bone Forging 5-9 take the rest, so Qi
 # Kindling 1 still lands at about 5 hours (balance_sim's pacing row).
-BONE_FORGING_T = [6, 9, 12, 16, 37, 37, 37, 37, 37]
+BONE_FORGING_T = [6, 9, 12, 16, 31, 31, 31, 31, 31]
 
 
 def need(level, t_minutes):

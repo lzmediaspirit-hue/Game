@@ -738,10 +738,11 @@ func _foe_engaged() -> bool:
 func _fight_context() -> bool:
 	return not context.is_empty() and attack_first()
 
-## S50 Keeping Post: beside a node, out of a fight, with another character to play, the Keep Post button shows.
+## S50 Keeping Post: beside a node, out of a fight, the Keep Post button shows. One character is enough: the post works
+## while the game is put away, or for an incense stick burnt at it.
 func _post_chip() -> bool:
 	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not attack_first() \
-		and Unlocks.is_unlocked(Game.active_id, "keeping_post") and Game.characters.size() > 1
+		and Unlocks.is_unlocked(Game.active_id, "keeping_post")
 
 ## S50 node plate: beside a gathering node, the Chance a post there would have for its first output (cached).
 var _plate_key := ""
@@ -1322,8 +1323,7 @@ func _handle(name: String, p: Dictionary) -> void:
 		"fortune_encounter":
 			if str(p.get("actor", "")) == Game.active_id:
 				var card := ContentDB.entry("fortune_deck", str(p.card))
-				vignette = {"title": str(card.get("name", "")), "text": str(card.get("text", "")), "t": 0.0}
-				Audio.play("bell")
+				vignette = {"title": str(card.get("name", "")), "text": str(card.get("text", "")), "t": 0.0}   # the fortune_card moment sounds it
 		"heavenly_phenomenon":
 			if str(p.get("actor", "")) == Game.active_id:
 				add_log(Tx.t("hud.phenomenon_" + str(p.get("kind", "cloud"))), UiKit.PALE_GOLD)
@@ -1767,10 +1767,8 @@ func _draw_icon_row(c) -> void:
 func hub_ready(c) -> bool:
 	if c == null: return false
 	if c.cultivator.state == "bottleneck": return true
-	var act: Dictionary = Game.account.activity
-	if int(act.get("day", -1)) != Clock.reset_day(Clock.now_utc()): return false
 	for row in ContentDB.all("activity"):
-		if int(act.get("points", 0)) >= int(row.points) and not (act.get("claimed", []) as Array).has(str(row.id)): return true
+		if Game.accounts.chest_ready(str(row.id)): return true
 	return false
 
 ## A count on a button: the red pill with its number (the kit's .k-badge).

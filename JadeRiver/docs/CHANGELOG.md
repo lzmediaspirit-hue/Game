@@ -13,7 +13,7 @@ Research docs/research/player_motivation.md, items 3, 4, 5, 8 and 10 of its top 
   (`stats.json technique_cost.free_without_pool`, `CombatAuthority.breath_only`). A technique learned is its own
   moment (`moments.json` row `technique_learned`: its name, "tap it on the skill ring", the light gathering).
 - **Bone Forging 1-4 take 600 / 900 / 1,200 / 1,600 progress** (was 1,200 / 3,200 / 3,200 / 3,200); Bone Forging 5-9
-  take 3,700 each (was 3,200), so Qi Kindling 1 lands at 5.1 hours in balance_sim (target 5). The River Token's
+  take 3,100 each (was 3,200), so Qi Kindling 1 lands at 5.2 hours in balance_sim (target 5), with the chores moved to it. The River Token's
   endowed bar starts at 98% (was 92%), so the boat's fifteen breaths fill it.
 - **Chapter 2 opens at Bone Forging 2, and the story carries every floor.** The Entry Trial has no "Reach Bone Forging
   2" step; the Willow Path (35% of a stage), the fair and the trial (20%) carry Bone Forging 1 to 2, and Fish-Gutting
@@ -39,9 +39,37 @@ Research docs/research/player_motivation.md, items 3, 4, 5, 8 and 10 of its top 
 - **Tests.** `tutorial_order` walks from waking to Strange Tracks with no test shortcut: the story reaches Bone Forging
   2 and 3 by itself, the first technique comes at Bone Forging 1 and the second at the Weapon Hall, and on a play clock
   (`prologue_run.play_s`: the simulated time, walking, a look at each new room, reading) something new comes at least
-  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 11); it prints the timeline. `prologue_run` no
+  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 14); it prints the timeline. `prologue_run` no
   longer grinds to Bone Forging 2. `rules_tests` holds the Next entry's second way. Screenshots of the technique moment
   and the breakthrough cards in `docs/ui_p5/early_game/`.
+
+## Chores after power, early surprises, a gentle first fall
+
+Items 6, 7 and 9 of `docs/research/player_motivation.md`.
+
+- **Dailies, idle tasks and posts open at Qi Kindling 1, optional, and a missed day banks.** The sect board, the
+  contribution shop, field-boss timers, the activity chests (new unlock `activity_chests`), idle tasks, offline
+  seclusion, Keeping Post and insect netting opened at Bone Forging 5–7, before the first technique. They now open at
+  Qi Kindling 1, each unlock row marked `obligation`. Earning Your Keep is a side errand that asks for any one mission;
+  A Second Path completes with an idle task *or* one seclusion; Keeping Post is kept by the same character, which burns
+  Fisher Wen's incense stick at its own post (or puts the game away), so no quest asks for a second character, and the
+  Keep Post button no longer needs one. The First Current no longer asks for seclusion. Missed days bank
+  (`account_rules.bank`): the board keeps unfinished missions and adds each missed day's, up to three days' worth
+  (`QuestState.board_day`); a filled, unopened activity chest waits, and each day away doubles the next activity points
+  up to three days' worth. `data_validation` checks P3, P4 and P5 (no chore before Qi Kindling 1; no main or guided
+  quest asks for a daily mission or a second character; no main-story step, requirement or unlock waits on a chore);
+  `rules_tests` plays the bank; `tutorial_order` holds that no chore is open or offered at any step of the walk, and
+  `valley_run` takes the lessons at Qi Kindling 1.
+- **Early surprises, each with a moment.** The first walk onto the Willow Path after the River Token turns up the
+  Remnant Soul in a Ring (`fortune_deck` `first`: sure, meter or not; the three-hour meter paces every card after it).
+  As The Willow Path is done a Spirit Fruit ripens on Willow Path West, once per character: its guardian alone at the
+  room's Level, then the fruit (`CalendarAuthority.open_first_fruit`). The first monsters (crab, rat, boarlet, toad)
+  have rare rows, a pearl and a manual page, marked `find` (rolled on their own `finds` stream), which play the
+  rare-find moment. Common foes of the Reed
+  Shallows and Willow Path West come as elites one spawn in twenty-five (`elite_chance`, their own `elites` stream).
+  New moments: `fortune_card`, `first_fruit` and `elite_appears`.
+- **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,
+  no injury or heart demon, and you wake whole. The revival page explains it in full on the first fall, then in a line.
 
 ## Starter gear: a weapon from the start
 
