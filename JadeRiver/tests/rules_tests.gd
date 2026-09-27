@@ -108,6 +108,7 @@ func _main() -> void:
 	icon_draw_suite()
 	await ui_suite()
 	fixes_suite()
+	mockup_fixes_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2582,6 +2583,12 @@ func arts_suite() -> void:
 	# Stances: one per family, and only with that weapon in hand.
 	check(not Game.submit({"type": "set_stance", "family": "jian", "stance": "iron_horse"}).get("ok", false), "a stance belongs to its own family")
 	var as0: float = c.stats.value("attack_speed")
+	var wlp_known: bool = cu.techniques_known.has("willow_leaf_parry")
+	cu.techniques_known.erase("willow_leaf_parry")
+	check(str(Game.submit({"type": "set_stance", "family": "jian", "stance": "willow_leaf_parry"}).get("reason", "")) == "technique"
+		and Game.submit({"type": "set_stance", "family": "jian", "stance": "guarding_blade"}).get("ok", false)
+		and float(ProgressionRules.path_flag(c, "parry_counter", 0.0)) == 1.2, "without its technique the jian holds Guarding Blade, not Willow Leaf Parry")
+	cu.techniques_known.append("willow_leaf_parry")
 	check(Game.submit({"type": "set_stance", "family": "jian", "stance": "willow_leaf_parry"}).get("ok", false), "the jian takes Willow Leaf Parry")
 	check(float(ProgressionRules.path_flag(c, "parry_counter", 0.0)) == 2.0 and c.stats.value("attack_speed") < as0, "held: a parry counters for 200%, attacks a little slower")
 	Game.submit({"type": "set_stance", "family": "gauntlets", "stance": "iron_horse"})
@@ -2604,6 +2611,7 @@ func arts_suite() -> void:
 	cu.inner_arts = []
 	cu.inner_arts_known = []
 	cu.stances = {}
+	if not wlp_known: cu.techniques_known.erase("willow_leaf_parry")
 	cu.realm_key = realm_was
 	Game.combat.refresh_stats(c.id)
 
@@ -8510,8 +8518,7 @@ func save_suite() -> void:
 
 # ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
 ## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
-func _fix_world() -> Object:
-	var folder := "user://fixes_suite/"
+func _fix_world(folder := "user://fixes_suite/") -> Object:
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -8732,3 +8739,105 @@ func _fix_page_writes(c) -> void:
 	var legacy := {"uid": "old_2", "species": "reed_otter", "rarity": "rare"}
 	check(int(Game.pets.filled(legacy).get("purity", 0)) == 38 and not legacy.has("purity"),
 		"Spirit Animals reads an older animal with its neutral fields and does not write them")
+
+# ------------------------------------------------------------------ fixes found by the P3 mockups
+## Open items the mockup agents found while drawing (docs/mockups/README.md), each at its rule.
+func mockup_fixes_suite() -> void:
+	var c = _fix_world("user://mockup_fixes/")
+	if c == null:
+		check(false, "the mockup fixes suite needs a character")
+		return
+	_mock_sect_materials(c)
+	_mock_treasury(c)
+	_mock_stat_formats(c)
+	_mock_locked_text(c)
+	_mock_stances(c)
+
+## Every weapon family has a stance a character holds without buying anything (the jian's only stance was Willow Leaf
+## Parry, a technique bought at the library); Willow Leaf Parry stays the better jian stance.
+func _mock_stances(c) -> void:
+	Unlocks.force_unlock(c.id, "stances")
+	var known_was: Array = c.cultivator.techniques_known.duplicate()
+	c.cultivator.techniques_known = []
+	var without: Array = []
+	for wf in ContentDB.all("weapon_families"):
+		var held := false
+		for st in ContentDB.all("stances"):
+			if str(st.family) == str(wf.id) and not held: held = Game.submit({"type": "set_stance", "family": str(wf.id), "stance": str(st.id)}).get("ok", false)
+		if not held: without.append(str(wf.id))
+	check(without.is_empty(), "every weapon family has a stance held without buying anything (none for %s)" % str(without))
+	var wlp := ContentDB.entry("stances", "willow_leaf_parry")
+	var basic := ContentDB.entry("stances", str(c.cultivator.stances.get("jian", "")))
+	check(str(basic.get("id", "")) != "willow_leaf_parry" and float(wlp.flags.parry_counter) > float(basic.get("flags", {}).get("parry_counter", 0.0))
+		and not ProgressionRules.stance_known(c, wlp), "the jian's basic stance is %s; Willow Leaf Parry, counter for counter the better, needs its technique" % basic.get("name", "none"))
+	c.cultivator.stances = {}
+	c.cultivator.techniques_known = known_was
+
+## One rule for why a system is locked: every unmet condition, not only the first; a quest that is all that is left,
+## with its giver (the Bench at bf8 named only Qi Kindling 1; the hub's Works tile at qu5 named Keeping Post, done).
+func _mock_locked_text(c) -> void:
+	var cu = c.cultivator
+	var realm_was: String = cu.realm_key
+	var done_was: Dictionary = c.quests.done.duplicate()
+	var quest_line := func(key: String, quest: String, giver: String) -> String:
+		return Tx.t(key) % [ContentDB.name_of("quests", quest), ContentDB.name_of("npcs", giver)]
+	cu.realm_key = "bone_forging_8"
+	c.quests.done.erase("keeping_post")
+	var both := Unlocks.locked_text("apprentice_bench")
+	check(both == Tx.t("req.reach") % ContentDB.name_of("realms", "qi_kindling_1") + Tx.t("unlock_text.sep") + Tx.t("req.complete") % ContentDB.name_of("quests", "keeping_post"),
+		"the Bench at Bone Forging 8 names both of its conditions (%s)" % both)
+	cu.realm_key = "qi_kindling_1"
+	var one := Unlocks.locked_text("apprentice_bench")
+	check(one == quest_line.call("unlock_text.complete_quest", "keeping_post", "fisher_wen"), "at Qi Kindling 1 Keeping Post is all that is left: it and its giver (%s)" % one)
+	c.quests.done["keeping_post"] = 1
+	var own := Unlocks.locked_text("apprentice_bench")
+	check(own == quest_line.call("unlock_text.take_quest", "an_apprentices_hands", "tinkerer_yu"), "every condition met: the Bench's own quest and its giver (%s)" % own)
+	# qu5: the hub's Works tile (menu_page gates it on post_arts and shows its locked text) waits on Elder Hu's An Idle Art.
+	cu.realm_key = "qi_unfurling_5"
+	var menu = load("res://scripts/ui/pages/menu_page.gd").new()
+	var gate := ""
+	for e in menu.ENTRIES:
+		if str(e[0]) == "works": gate = str(e[3])
+	menu.free()
+	var works := Unlocks.locked_text(gate)
+	check(gate == "post_arts" and works == quest_line.call("unlock_text.take_quest", "an_idle_art", "elder_hu"), "the hub's Works at Qi Unfurling 5 (%s)" % works)
+	cu.realm_key = realm_was
+	c.quests.done = done_was
+
+## A stat's format matches what is shown: a percent stat is a share (a new character's value under 10), and move_speed,
+## shown as the speed itself (242), is a number.
+func _mock_stat_formats(c) -> void:
+	var shares: Array = []
+	for s in ContentDB.stat_const("stats", []):
+		if str(s.get("format", "")) == "percent" and absf(float(c.stats.value(str(s.id)))) >= 10.0: shares.append("%s %.0f" % [s.id, c.stats.value(str(s.id))])
+	check(shares.is_empty(), "every percent stat is a share (%s)" % str(shares))
+	check(UiKit.affix_text({"stat": "move_speed", "op": "flat", "value": 20.0}) == "+20 move speed", "+20 move speed reads as a speed, not 2000%")
+
+## The Treasury's output names what it gives: spaces in the storage chest for each level.
+func _mock_treasury(c) -> void:
+	Unlocks.force_unlock(c.id, "storage")
+	Game.account.sect = {"name": "Test", "level": 1, "prestige": 0, "buildings": {"sect_hall": 1, "treasury": 2}, "queue": []}
+	var per := int(ContentDB.entry("sect_buildings", "treasury").get("output", {}).get("storage_slots_per_level", 0))
+	var base := Game.accounts.storage_size() - Game.sect.treasury_bonus()
+	check(per > 0 and Game.accounts.storage_size() == base + 2 * per, "a Treasury at level 2 adds %d storage spaces a level (%d in all)" % [per, Game.accounts.storage_size()])
+	Game.account.sect = {}
+
+## A sect build takes its materials from the bag, then the Storehouse, then the storage chest (the Treasury was blocked
+## with 49 Copper Ore in storage).
+func _mock_sect_materials(c) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [], "candidates": [],
+		"candidate_day": Clock.reset_day(Clock.now_utc()), "expeditions": [], "disciples": []}
+	Game.economy.apply_currency("silver_tael", 100000, "test")
+	var need := int(Game.sect.building_cost("treasury", 1).materials.copper_ore)
+	Game.inventory.apply_add(c.id, "copper_ore", 3, "test")
+	Game.account.storehouse = {"copper_ore": 5}
+	Game.account.storage = {"items": [{"id": "copper_ore", "count": need - 9}]}
+	check(Game.inventory.count_owned(c, "copper_ore") == need - 1 and str(Game.submit({"type": "upgrade_building", "building": "treasury"}).get("reason", "")) == "materials",
+		"one ore short across the bag, the Storehouse and storage: the Treasury waits")
+	Game.account.storage.items[0].count = need - 8
+	var r := Game.submit({"type": "upgrade_building", "building": "treasury"})
+	check(r.get("ok", false) and c.inventory.count("copper_ore") == 0 and Game.account.storehouse.is_empty() and Game.account.storage.items.is_empty(),
+		"with %d between them the Treasury is raised, and all three are spent (%s)" % [need, str(r)])
+	Game.account.sect = {}
+	Game.account.storage = {"items": []}

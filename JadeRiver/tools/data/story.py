@@ -663,7 +663,7 @@ def unlocks():
       effects=[{"kind": "learn_recipe", "recipe": "bright_mirror"}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     # S47 dual loadout: a spare weapon and the Swap button (R).
-    # S48 stances (one per weapon family) come with Willow Leaf Parry's lessons; Inner Arts with Qi Unfurling.
+    # S48 stances (a basic one for every weapon family; Willow Leaf Parry with its technique); Inner Arts with Qi Unfurling.
     u("stances", "Stances", all_of(realm("qi_kindling_5")), "", [], same_stage_ok=True, toast=False)
     # S48 vows (the Buddhist path): a cultivator steady enough to temper the heart can bind it with a vow.
     u("vows", "Vows", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True, effects=[{"kind": "codex", "entry": "vows"}])

@@ -126,6 +126,9 @@ func data_suite() -> void:
 		check_req(u.get("trigger", {}), where2)
 		check_effects(u.get("effects", []), where2)
 		if str(u.get("quest", "")) != "": check(ContentDB.has_entry("quests", str(u.quest)), "%s: quest %s" % [where2, u.quest])
+		# Unlocks.locked_text names a quest that is all that is left with its giver.
+		for uq in [u.get("quest", "")] + u.get("trigger", {}).get("all", []).filter(func(k): return str(k.get("kind", "")) == "quest_done").map(func(k): return k.quest):
+			if str(uq) != "": check(ContentDB.has_entry("npcs", str(ContentDB.entry("quests", str(uq)).get("giver", ""))), "%s: quest %s has a giver to name" % [where2, uq])
 		if str(u.get("scope", "character")) == "character" and not u.get("same_stage_ok", false):
 			for cond in u.get("trigger", {}).get("all", []):
 				if str(cond.get("kind", "")) == "realm_at_least":
@@ -205,6 +208,12 @@ func data_suite() -> void:
 	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop.
 	var creatures := ContentDB.config("creature_art")
 	for pe in ContentDB.all("pets"): check(creatures.has(str(pe.get("art", pe.id))), "pet %s has creature art" % pe.id)
+	# v1.2 Phase D: the Copperjaw swarm names its creature sheet and the Queen's, and both exist and fly.
+	var swarm_cfg: Dictionary = ContentDB.stat_const("swarm", {})
+	for key in ["art", "queen_art"]:
+		var sheet: Dictionary = creatures.get(str(swarm_cfg.get(key, "")), {})
+		check(not sheet.is_empty() and sheet.get("flying", false) and ResourceLoader.exists(str(sheet.get("file", ""))),
+			"the Copperjaw swarm's %s is a flying creature sheet (%s)" % [key, str(swarm_cfg.get(key, ""))])
 	for en in ContentDB.all("enemies"):
 		if en.get("tameable", false):
 			var sp := str(en.get("tame_species", en.id)).trim_suffix("_chick") if not ContentDB.has_entry("pets", str(en.get("tame_species", en.id))) else str(en.get("tame_species", en.id))
@@ -353,15 +362,27 @@ func data_suite() -> void:
 		# A master's legacy (S49) is passed on, never sold; every other art is taught in a shop.
 		if ia.has("legacy"): check(not shop_learns.has(str(ia.id)), "legacy art %s is not sold" % ia.id)
 		else: check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
-	var stance_fams := {}
+	# Every weapon family has one basic stance, held without buying anything; a better one names the technique it needs.
+	var basic := {}
 	for sn in ContentDB.all("stances"):
-		check(ContentDB.has_entry("weapon_families", str(sn.family)) and not stance_fams.has(str(sn.family)), "stance %s: one for family %s" % [sn.id, sn.family])
-		stance_fams[str(sn.family)] = true
+		check(ContentDB.has_entry("weapon_families", str(sn.family)), "stance %s: family %s" % [sn.id, sn.family])
+		if sn.has("technique"): check(str(ContentDB.entry("techniques", str(sn.technique)).get("family", "")) == str(sn.family), "stance %s: technique %s of its family" % [sn.id, sn.technique])
+		else: basic[str(sn.family)] = int(basic.get(str(sn.family), 0)) + 1
 		for m6 in sn.get("modifiers", []): check(stat_ids.has(str(m6.stat)), "stance %s stat %s" % [sn.id, m6.stat])
+	for wf in ContentDB.all("weapon_families"): check(int(basic.get(str(wf.id), 0)) == 1, "weapon family %s has one basic stance (%d)" % [wf.id, int(basic.get(str(wf.id), 0))])
 	for cb in ContentDB.all("combos"):
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
 	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
+	# Every sect building has a place in the Sect Grounds, shown once it is raised (S25).
+	var placed := {}
+	for so in ContentDB.room("hv_sect_grounds").get("objects", []):
+		for sc in so.get("visible_if", {}).get("all", []):
+			if str(sc.get("kind", "")) == "sect_building_at_least": placed[str(sc.building)] = true
+	for sb in ContentDB.all("sect_buildings"): check(placed.has(str(sb.id)), "sect building %s has a place in the Sect Grounds" % sb.id)
+	# Where a technique is learned reads as a name (techniques.SOURCES, or the quest's), never as its id.
+	for ts in ContentDB.all("techniques"):
+		check(ContentDB.strings.has("technique_source." + str(ts.get("source", ""))), "technique %s: its source %s has a name string" % [ts.id, ts.get("source", "")])
 	# S49: alignment, karma and Fame may gate optional content, never a realm (Part 7 forbidden patterns).
 	var rel_kinds := ["alignment_at_least", "alignment_at_most", "merit_at_least", "fame_at_least", "reputation_at_least"]
 	for rr in ContentDB.all("realms"):

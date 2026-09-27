@@ -720,6 +720,19 @@ func reforge_natal(c, uid: int) -> Dictionary:
 func count(c, item_id: String) -> int:
 	return c.inventory.count(item_id)
 
+## What a character has to spend on a sect build or a Post Vow: the bag, the account's Storehouse and its storage chest.
+func count_owned(c, item_id: String) -> int:
+	var n := count(c, item_id) + int(game.account.storehouse.get(item_id, 0))
+	for s in game.account.storage.get("items", []):
+		if str(s.get("id", "")) == item_id: n += int(s.get("count", 1))
+	return n
+
+## Spends what `count_owned` counts: the bag first, then the Storehouse (Posts), then the storage chest (Account).
+func apply_spend(c, item_id: String, amount: int, source: String) -> void:
+	var left := amount - apply_remove(c.id, item_id, amount, source)
+	if left > 0: left -= game.posts.apply_take_storehouse(c.id, item_id, left, source)
+	if left > 0: game.accounts.apply_take_storage(item_id, left, source)
+
 # ------------------------------------------------------------------ dual loadout (S47, Heart Tempering 1)
 ## A second weapon waits in the spare slot; Swap trades it with the one in hand. Each weapon keeps its own technique
 ## bar (Progression swaps the bars on loadout_swapped).

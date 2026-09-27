@@ -1,633 +1,408 @@
-"""Ores, stones, spirit stones, fuel crystals and beast cores.
+"""Minerals (HD, Style A): ores, stones, spirit stones, fuel crystals, beast cores, essence salts and the Act II and III
+materials at 64 art px, shown 1:1 in the 76 px slot, with a native @32 render for the HUD item ring and the small slots.
 
-Templates: rock chunk (+ nuggets / veins / crystals), faceted crystal, cut gem,
-sphere core.
+Every icon is one drawing `draw(p)` in a 64 x 64 icon space (tools/icons/README.md, "HD drawing model"), the object
+inside the 4-px margin; the same description renders at 64 and at 32. One language per kind: raw ore is its
+material in a chunk of rock (nuggets, veins or a crystal cluster on the rock); an ingot is a bar with its three
+faces and the metal's sheen band; a cut crystal has a table, crown facets and light pooling through its shade side;
+a polished stone is a disc, a stele or a chip with stone grain and an inlay; a spirit stone is a cut gem of Qi; a
+core is a sphere with a bright heart in its element's shape; sand and dust are a heap in a footed dish or on the
+ground. The grade shows by form and trim (a larger stone, more facets, a setting, a richer dish) and, from Mystic
+up, the aura as stepped glow bands; never by colour alone. The templates (rock, nugget, crystal, cut gem, core, dish
+and heap) are driven from the tables (SPIRIT_STONES_HD, CORE_TIERS x CORE_MARKS, ES_TIERS_HD); the rest are one-offs.
 """
 import math
 
 import numpy as np
 
-from pix import WHITE, Canvas, Ramp, dilate4, erode4, move
-from palette import R, M
+from pix import BANDS, WHITE, Ramp, bbox, dilate4, erode4, move, shift
+from palette import GLOW_STRENGTH, M, STAR_GLOW, TEX, mat7
 from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'items', 'minerals'
-ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
+ART = 64   # HD (tools/icons/README.md, "How to convert a family")
+
+# Act II · Sunscar Desert: the Wardens' fired clay and its paint, the desert glass the sun fused
+TERRACOTTA = Ramp(['#4A200F', '#833B1D', '#B96531', '#DC9152', '#F4C088'], '#1F0C05')
+FADED_VERMILION = Ramp(['#5A1A14', '#8E2E24', '#BE4A38', '#D9705A', '#EE9C84'], '#240806')
+SUNGLASS = Ramp(['#5C2E0A', '#9C5A16', '#D8952E', '#F6CB64', '#FFF3C0'], '#261204')
+# Act II · Starsea: the comet's light in the iron
+COMET_GLOW = '#BFE6FF'
+# Act III · Lantern Star Field: clear crystal and deep jade (the currencies)
+CLEAR = Ramp(['#4A5470', '#8290B0', '#BCC8DC', '#E4ECF6', '#FFFFFF'], '#161C2C')
+DEEP_JADE = Ramp(['#0A2A22', '#12473A', '#1D6B55', '#3A9B7C', '#9ADCBF'], '#04140F')
+# S46 beast cores: each element's stuff and its aura
+_CORE_RAMP = {"fire": "fire", "water": "cyan", "wood": "leaf", "earth": "warmstone", "wind": "mist", "thunder": "violet", "soul": "qi",
+              "metal": "silver", "star": "gold", "space": "plum"}
+_CORE_GLOW = {"fire": "#FF8A4A", "water": "#6FD6FF", "wood": "#7FE08A", "earth": "#E0B870", "wind": "#CFE8F0", "thunder": "#B98CFF", "soul": "#A8F0FF",
+              "metal": "#E8EEF2", "star": "#FFF0B0", "space": "#B49CFF"}
+# V10d · essence salts from the Calcination Furnace: six salts and the black lacquer of the richer dishes
+ES_VERMILION = Ramp(['#4E1210', '#8E2416', '#D2402A', '#F2744A', '#FFB48A'], '#220806')
+ES_VERDIGRIS = Ramp(['#123429', '#1F5A45', '#398A68', '#6CBC8E', '#BCE8C8'], '#07170F')
+ES_AZURITE = Ramp(['#0E1A48', '#1A307E', '#2A50B6', '#5886E0', '#B4D0FF'], '#060A22')
+ES_PEARL = Ramp(['#7A6478', '#B49AB2', '#E6D6E2', '#F8EEF3', '#FFFFFF'], '#2C2230')
+ES_AMETHYST = Ramp(['#2A1450', '#4C2690', '#7C48C8', '#B084EE', '#EAD8FF'], '#120828')
+ES_STARSALT = Ramp(['#07081A', '#10133A', '#1C225E', '#303C8C', '#5A6CBC'], '#030410')
+ES_LACQUER = Ramp(['#07080B', '#121419', '#22262F', '#3C4250', '#7D879C'], '#020203')
+# v1.2 Phase C and D: the Orbit Ruins' pale stone, the Ashen Reach's ash and char
+V12C_ORBIT_STONE = Ramp(['#3A4658', '#5E6E84', '#94A4B6', '#C4D0DA', '#EEF4F8'], '#151C26')
+V12D_ASH = Ramp(['#1C1E22', '#2F3236', '#484C51', '#686D72', '#8E9398'], '#0A0C0E')
+V12D_CHAR = Ramp(['#16100E', '#2A1E1A', '#443028', '#5E463A', '#7A6050'], '#080504')
 
 
-# ----------------------------------------------------------------------------- templates
-def rock(c, pts, ramp, top_pts=None, facet_lines=()):
+# ============================================================================= HD (Style A, 64 icon space)
+# The materials, then the shared helpers (a relative-level decal for grain, ridges and crescents), the templates
+# (rock, nugget, crystal, cut gem, core, the salt dish and heap), then the drawings.
+WARMSTONE_HD, STONE_HD, IRON_HD, COPPER_HD, JADE_HD, QI_HD, FIRE_HD, EMBER_HD = (M('warmstone'), M('stone'), M('iron'), M('copper'), M('jade'), M('qi', 'gem'),
+                                                                                  M('fire'), M('ember'))
+GOLD_HD, SILVER_HD, BRONZE_HD, HOLLOW_HD, CLOUDSTEEL_HD, MISTJADE_HD, STORM_HD, SHADOW_HD = (M('gold'), M('silver'), M('bronze'), M('hollow'), M('cloudsteel', 'gem'),
+                                                                                             M('mistjade', 'gem'), M('storm', 'gem'), M('shadow'))
+MOSS_HD, SAND_HD, COMET_HD, STARLIGHT_HD, MIST_HD, YELLOW_HD, INK_HD = (M('moss'), M('sand'), M('cometiron'), M('starlight'), M('mist'), M('yellow'), M('ink'))
+RIVERSTONE_HD = mat7(Ramp(['#27353C', '#3F5560', '#62808C', '#93AFB8', '#CFE2E4'], '#0E171B'), 'matte')
+SPIRIT_HIGH_HD = mat7(Ramp(['#155E76', '#2A93B0', '#5ED6E6', '#B6F6F6', '#FFFFFF'], '#05202D'), 'gem')
+SERPENT_HD = mat7(Ramp(['#12301F', '#1F5236', '#3A8452', '#7DC47A', '#D2F2B0'], '#07150C'), 'gem')
+SENTINEL_HD = mat7(Ramp(['#0F3A44', '#1B6070', '#2E97A4', '#74D2D0', '#D4FAF2'], '#051A20'), 'gem')
+TERRACOTTA_HD, VERMILION_HD, SUNGLASS_HD = mat7(TERRACOTTA, 'clay'), mat7(FADED_VERMILION, 'matte'), mat7(SUNGLASS, 'glass')
+CLEAR_HD, DEEP_JADE_HD, ORBIT_HD, ASH_HD, CHAR_HD = mat7(CLEAR, 'glass'), mat7(DEEP_JADE, 'jade'), mat7(V12C_ORBIT_STONE, 'matte'), mat7(V12D_ASH, 'matte'), mat7(V12D_CHAR, 'matte')
+LACQUER_HD = mat7(ES_LACQUER, 'porcelain')
+
+
+def XY(p):
+    """Pixel centres in icon space."""
+    return p.c.X / p.s, p.c.Y / p.s
+
+
+def lmask(p, pts, w=1.0):
+    """The mask of a stroke through icon-space points, as `PixelPainter.line` draws it (1-px Bresenham at 1:1)."""
+    c = p.c
+    if w <= 1.0 and p.s == 1.0:
+        return c.bres_path([(int(math.floor(x)), int(math.floor(y))) for x, y in pts])
+    return c.polyline(pts, w)
+
+
+def levels_hd(p, mask, mat):
+    """The level of each painted pixel of `mat` in `mask` (-1 where the pixel is another material)."""
+    c = p.c
+    idx = np.full(mask.shape, -1, int)
+    for i, col in enumerate(mat.c):
+        idx[mask & np.all(c.rgb == np.array(col, np.uint8), axis=2)] = i
+    return idx
+
+
+def step_hd(p, mask, mat, k):
+    """Shift the painted pixels of `mat` in `mask` by `k` levels: a relative decal for grain, ridges and crescents."""
+    c = p.c
+    idx = levels_hd(p, mask & c.a, mat)
+    sel = idx >= 0
+    if sel.any():
+        c.rgb[sel] = np.array(mat.c, np.uint8)[np.clip(idx[sel] + k, 0, 6)]
+    return sel
+
+
+def grain_hd(p, m, mat, phase=0):
+    """Stone grain: scattered dark and lit flecks in the stone's own tones, inside the part."""
+    X, Y = XY(p)
+    xi, yi = np.floor(X).astype(int), np.floor(Y).astype(int)
+    inner = erode4(m)
+    step_hd(p, inner & ((xi * 7 + yi * 3 + phase) % 11 == 0), mat, -1)
+    step_hd(p, inner & ((xi * 5 + yi * 11 + phase * 3) % 13 == 0), mat, 1)
+
+
+def throughlit_hd(p, m, mat, start=3):
+    """Light pooling through a crystal or glass part: it gathers along the far (lower-right) inner edge and builds up
+    in steps as it goes round, as the painter's glass texture does, on whatever levels the part already has."""
+    X, Y = XY(p)
+    in2 = erode4(erode4(m))
+    if not in2.any():
+        return
+    far = X + Y
+    x0, y0, x1, y1 = bbox(m)
+    mid = ((x0 + y0) + (x1 + y1)) / 2.0 / p.s
+    for depth, off, k in ((3, start, 1), (2, start + 4, 2), (1, start + 8, 3)):
+        step_hd(p, in2 & ~shift(in2, depth, depth) & (far > mid + off), mat, k)
+
+
+def tilted_ring(p, cx, cy, rx, ry, angle, w):
+    """A ring of the ellipse (rx, ry) about (cx, cy), its long axis raised `angle` degrees to the right, and the
+    signed distance across it (positive on the near, lower side)."""
+    X, Y = XY(p)
+    a = math.radians(angle)
+    dx, dy = X - cx, Y - cy
+    u = dx * math.cos(a) - dy * math.sin(a)
+    v = dx * math.sin(a) + dy * math.cos(a)
+    outer = (u / rx) ** 2 + (v / ry) ** 2 <= 1.0
+    inner = (u / max(0.01, rx - w)) ** 2 + (v / max(0.01, ry - w)) ** 2 <= 1.0
+    return outer & ~inner, v
+
+
+# ----------------------------------------------------------------------------- the templates
+def rock_hd(p, pts, mat, top=None, cracks=(), base=0, grain=True):
+    """A chunk of rock: an angular lump lit from the top left, a flat broken facet on top with its dark edge, fracture
+    lines and stone grain."""
+    c = p.c
     m = c.poly(pts)
-    c.put(m, ramp, 'ray')
-    if top_pts:
-        c.put(c.poly(top_pts) & m, ramp, 'flat', base=3)
-    for (a, b) in facet_lines:
-        c.put(c.bres(*a, *b) & erode4(m), ramp[1], 'flat', out=ramp.out)
+    p.part(m, mat, 'ray', base=base, sep=True)
+    if top:
+        t = c.poly(top) & m
+        p.decal(t, mat, base + 1)
+        p.decal(dilate4(t) & ~t & erode4(m), mat, base - 2)
+    for line in cracks:
+        p.decal(lmask(p, line) & erode4(m), mat, base - 2)
+    if grain:
+        grain_hd(p, m, mat)
     return m
 
 
-def nugget(c, x, y, r, ramp, clip=None):
-    m = c.circle(x, y, r)
+def nugget_hd(p, x, y, r, mat, clip=None):
+    """A nugget of metal in the rock: a small sphere with the metal's sheen and one glint."""
+    m = p.c.circle(x, y, r)
     if clip is not None:
         m &= clip
-    c.put(m, ramp, 'sphere', sep=True)
+    p.part(m, mat, 'sphere', base=0, sep=True, cx=x, cy=y, rx=r, ry=r, tex='metal', spec=(x - r * 0.4, y - r * 0.45))
     return m
 
 
-def crystal(c, bx, by, angle, L, w, ramp, sep=True):
-    """Faceted crystal prism with a pointed tip; lit face on the upper-left side."""
+def crystal_hd(p, bx, by, angle, L, w, mat, base=0, sep=True):
+    """A faceted crystal prism from its base (bx, by) along `angle` (0 right, 90 up), `L` long and `w` to each side:
+    a lit face and a shade face meeting on the ridge, the tip's two facets, light pooling through the shade face,
+    one specular on the lit shoulder."""
+    c = p.c
     a = math.radians(angle)
     dx, dy = math.cos(a), -math.sin(a)
     px, py = -dy, dx
     B = (bx, by)
     Sx, Sy = bx + dx * L * 0.68, by + dy * L * 0.68
     T = (bx + dx * L, by + dy * L)
-    bl = (bx - px * w, by - py * w)
-    br = (bx + px * w, by + py * w)
-    sl = (Sx - px * w, Sy - py * w)
-    sr = (Sx + px * w, Sy + py * w)
+    bl, br = (bx - px * w, by - py * w), (bx + px * w, by + py * w)
+    sl, sr = (Sx - px * w, Sy - py * w), (Sx + px * w, Sy + py * w)
     whole = c.poly([bl, sl, T, sr, br])
-    c.put(whole, ramp, 'flat', base=1, sep=sep)
-    lit_left = (px * -1 + py * -1) > 0  # which side faces the upper-left light
-    faceL = c.poly([bl, B, (Sx, Sy), sl]) & whole
-    faceR = c.poly([B, br, sr, (Sx, Sy)]) & whole
-    tipL = c.poly([sl, (Sx, Sy), T]) & whole
-    tipR = c.poly([(Sx, Sy), sr, T]) & whole
-    if lit_left:
-        c.put(faceL, ramp, 'flat', base=3)
-        c.put(faceR, ramp, 'flat', base=1)
-        c.put(tipL, ramp, 'flat', base=4)
-        c.put(tipR, ramp, 'flat', base=2)
-    else:
-        c.put(faceR, ramp, 'flat', base=3)
-        c.put(faceL, ramp, 'flat', base=1)
-        c.put(tipR, ramp, 'flat', base=4)
-        c.put(tipL, ramp, 'flat', base=2)
+    lit_left = (-px - py) > 0
+    faceL, faceR = c.poly([bl, B, (Sx, Sy), sl]) & whole, c.poly([B, br, sr, (Sx, Sy)]) & whole
+    tipL, tipR = c.poly([sl, (Sx, Sy), T]) & whole, c.poly([(Sx, Sy), sr, T]) & whole
+    lit, shade, tlit, tshade = (faceL, faceR, tipL, tipR) if lit_left else (faceR, faceL, tipR, tipL)
+    p.part(whole, mat, 'flat', base=base - 1, sep=sep)
+    p.decal(lit, mat, base + 1)
+    p.decal(tlit, mat, base + 2)
+    p.decal(tshade, mat, base)
+    p.decal(lmask(p, [B, T]) & whole, mat, base + 2)
+    throughlit_hd(p, shade | tshade, mat)
+    k = 1.0 if lit_left else -1.0
+    p.decal(c.circle(bx + dx * L * 0.56 - px * w * 0.5 * k, by + dy * L * 0.56 - py * w * 0.5 * k, 1.0) & whole, mat, 3)
     return whole
 
 
-def cut_gem(c, cx, cy, rw, rh, ramp, table=0.45):
-    """Octagonal cut gem seen from the front: table, crown facets, dark pavilion."""
+def gem_hd(p, cx, cy, rw, rh, mat, table=0.5, base=0, sep=True):
+    """A cut gem seen from the front: an octagon with a flat table and eight crown facets, lit to the top left and
+    dark to the bottom right, the spokes between them, light pooling through the far facets, a glint on the table."""
+    c = p.c
     k = 0.42
     outer = [(cx - rw * k, cy - rh), (cx + rw * k, cy - rh), (cx + rw, cy - rh * k), (cx + rw, cy + rh * k),
              (cx + rw * k, cy + rh), (cx - rw * k, cy + rh), (cx - rw, cy + rh * k), (cx - rw, cy - rh * k)]
     m = c.poly(outer)
-    c.put(m, ramp, 'ray', base=2, sep=True)
-    tw, th = rw * table, rh * table
-    tab = c.poly([(cx - tw * k * 1.4, cy - th), (cx + tw * k * 1.4, cy - th), (cx + tw, cy - th * k),
-                  (cx + tw, cy + th * k), (cx + tw * k * 1.4, cy + th), (cx - tw * k * 1.4, cy + th),
-                  (cx - tw, cy + th * k), (cx - tw, cy - th * k)])
-    c.put(tab, ramp, 'dgrad', base=3, bands=((0.35, 1), (0.75, 0), (9, -1)))
-    # facet spokes from table corners to outer corners
-    for (ox, oy), sx, sy in ((outer[0], -1, -1), (outer[3], 1, 1), (outer[4], 1, 1), (outer[7], -1, -1)):
-        c.put(c.bres(int(cx + sx * tw * 0.8), int(cy + sy * th * 0.8), int(ox), int(oy)) & erode4(m),
-              ramp[1] if sx > 0 else ramp[3], 'flat', out=ramp.out)
-    return m
-
-
-def core(c, cx, cy, r, ramp, glow=None):
-    m = c.circle(cx, cy, r)
-    c.put(m, ramp, 'sphere', base=2)
-    return m
-
-
-# ----------------------------------------------------------------------------- ores
-def copper_ore():
-    c = Canvas(32)
-    rk = R['warmstone']
-    m = rock(c, [(4, 20), (8, 10), (15, 6), (24, 8), (29, 16), (27, 26), (17, 29), (7, 27)], rk,
-             top_pts=[(8, 11), (15, 7), (23, 9), (19, 14), (11, 15)],
-             facet_lines=[((11, 15), (19, 14)), ((19, 14), (26, 19)), ((11, 15), (7, 24))])
-    for (x, y, r) in ((12.5, 18.5, 3.4), (21.5, 20.5, 2.8), (18, 11.5, 2.3), (8.5, 22.5, 1.8), (22, 13, 1.5)):
-        nugget(c, x, y, r, R['copper'], clip=erode4(m))
-    patina = c.ellipse(25, 24, 2.2, 1.4) & erode4(m)
-    c.put(patina, R['jade'], 'flat', base=3)
-    c.outline()
-    return c
-
-
-def riverstone():
-    c = Canvas(32)
-    rk = R['stone']
-    back = c.ellipse(20, 12.5, 8.5, 5.5)
-    c.put(back, R['warmstone'], 'sphere')
-    front = c.ellipse(14.5, 20.5, 12, 7.5)
-    c.put(front, Ramp(['#27353C', '#3F5560', '#62808C', '#93AFB8', '#CFE2E4'], '#0E171B'), 'sphere', sep=True)
-    band = (c.ellipse(15, 26, 14, 6) & ~c.ellipse(15, 26.8, 14, 5.2)) & front
-    c.put(band, R['paper'], 'flat', base=3)
-    c.put(c.ellipse(11, 16, 3, 1.3) & front, '#E7F4F2', 'flat')
-    c.put(c.ellipse(16.5, 9.5, 2, 1) & back, R['warmstone'][4], 'flat')
-    c.outline()
-    return c
-
-
-def jadeiron():
-    c = Canvas(32)
-    rk = R['iron']
-    m = rock(c, [(3, 19), (9, 9), (17, 5), (26, 9), (29, 18), (24, 27), (13, 29), (5, 26)], rk,
-             top_pts=[(9, 10), (17, 6), (25, 10), (18, 14), (11, 15)],
-             facet_lines=[((11, 15), (18, 14)), ((18, 14), (25, 20)), ((11, 15), (7, 24))])
-    vein = S.bez_line(c, (6, 22), (14, 15), (26, 14), 2.2) | S.bez_line(c, (14, 18), (18, 24), (22, 26), 1.6)
-    c.put(vein & erode4(m), R['jade'], 'flat', base=2)
-    c.put(S.bez_line(c, (6, 21), (14, 14), (26, 13)) & vein & erode4(m), R['jade'][3], 'flat', out=R['jade'].out)
-    crystal(c, 16, 13, 70, 9, 2.4, R['jade'])
-    crystal(c, 21, 14, 35, 6.5, 2.0, R['jade'])
-    c.outline()
-    return c
-
-
-def spirit_stone_shard():
-    c = Canvas(32)
-    ramp = R['qi']
-    crystal(c, 12, 28, 75, 25, 5.2, ramp)
-    crystal(c, 20, 27, 45, 12, 3.0, ramp)
-    chip = c.poly([(5, 25), (8, 21), (10, 26)])
-    c.put(chip, ramp, 'flat', base=3, sep=True)
-    S.sparkle(c, 23, 7, ramp[4], ramp[3], 2)
-    c.outline()
-    return c
-
-
-def refining_essence():
-    """Salvaged Qi of a broken piece: a glowing amber drop with a spark above it."""
-    c = Canvas(32)
-    ramp = R['fire']
-    drop = c.ellipse(16, 20, 8, 8) | c.poly([(9, 17), (16, 3), (23, 17)])
-    c.put(drop, ramp, 'sphere', base=2, cx=13, cy=15, rx=10, ry=12)
-    c.put(c.ellipse(13, 18, 2.2, 3.4), ramp[4], 'flat')
-    S.sparkle(c, 25, 8, ramp[4], ramp[3], 2)
-    c.outline()
-    return c
-
-
-def cloudsteel_ore():
-    c = Canvas(32)
-    rk = R['porcelain']
-    m = rock(c, [(4, 22), (7, 15), (13, 12), (20, 14), (28, 19), (27, 27), (16, 29), (6, 28)], R['hollow'],
-             top_pts=[(7, 16), (13, 13), (20, 15), (16, 19), (9, 20)],
-             facet_lines=[((9, 20), (16, 19)), ((16, 19), (24, 24))])
-    del rk
-    crystal(c, 13, 18, 88, 15, 3.4, R['cloudsteel'])
-    crystal(c, 19, 19, 55, 11, 3.0, R['cloudsteel'])
-    crystal(c, 9, 20, 130, 8, 2.4, R['cloudsteel'])
-    S.sparkle(c, 25, 7, R['cloud'][4], R['cloudsteel'][3], 2)
-    c.outline()
-    return c
-
-
-def mystic_ore():
-    c = Canvas(32)
-    m = rock(c, [(4, 22), (8, 14), (14, 12), (22, 13), (28, 20), (26, 27), (15, 29), (6, 28)], R['shadow'],
-             top_pts=[(8, 15), (14, 13), (21, 14), (16, 18), (10, 19)])
-    crystal(c, 14, 19, 95, 16, 3.6, R['mistjade'])
-    crystal(c, 20, 20, 60, 11, 2.8, R['mistjade'])
-    crystal(c, 9, 21, 135, 8, 2.2, R['mistjade'])
-    c.outline()
-    c.glow('#9B78D1', (110, 45))
-    return c
-
-
-
-def stormsteel_ore():
-    c = Canvas(32)
-    m = rock(c, [(4, 23), (7, 15), (13, 12), (21, 13), (28, 19), (27, 27), (16, 29), (6, 28)], R['shadow'],
-             top_pts=[(7, 16), (13, 13), (21, 14), (16, 19), (9, 20)],
-             facet_lines=[((9, 20), (16, 19)), ((16, 19), (24, 24))])
-    crystal(c, 14, 18, 92, 16, 3.4, R['storm'])
-    crystal(c, 20, 19, 58, 11, 2.8, R['storm'])
-    crystal(c, 9, 20, 132, 8, 2.2, R['storm'])
-    bolt = c.bres_path([(15, 6), (13, 10), (16, 11), (14, 15)])
-    c.put(bolt & c.a, '#F4FBFF', 'flat')
-    c.outline()
-    c.glow('#7FD4FF', (100, 40))
-    return c
-
-# ----------------------------------------------------------------------------- spirit stones
-def _spirit_stone(level):
-    c = Canvas(32)
-    ramp = R['qi'] if level < 2 else Ramp(['#155E76', '#2A93B0', '#5ED6E6', '#B6F6F6', '#FFFFFF'], '#05202D')
-    if level == 0:
-        cut_gem(c, 16, 18, 9, 8, R['jade'])
-        c.put(c.rect(12, 14, 13, 14), R['jade'][4], 'flat')
-    elif level == 1:
-        cut_gem(c, 16, 17, 11.5, 10, ramp)
-        c.put(c.rect(10, 11, 12, 11) | c.rect(10, 12, 10, 12), ramp[4], 'flat')
-        S.sparkle(c, 25, 7, ramp[4], ramp[3], 2)
-    else:
-        cut_gem(c, 16, 16.5, 12.5, 11.5, ramp)
-        c.put(c.rect(9, 10, 12, 10) | c.rect(9, 11, 9, 12), ramp[4], 'flat')
-        # gold setting prongs
-        for (x, y) in ((6, 16), (26, 16), (16, 5), (16, 28)):
-            c.put(c.circle(x + 0.5, y + 0.5, 1.6), R['gold'], 'sphere', sep=True)
-    c.outline()
-    if level == 2:
-        c.glow('#8AEBEE', (120, 50))
-        S.sparkle(c, 26, 6, '#FFFFFF', ramp[3], 2)
-        S.sparkle(c, 5, 26, '#FFFFFF', ramp[3], 1)
-    return c
-
-
-def _fuel(level):
-    c = Canvas(32)
-    ramp = R['fire']
-    if level == 0:
-        crystal(c, 15, 28, 82, 22, 5.0, ramp)
-        base = c.ellipse(15, 28, 6, 2)
-        c.put(base, R['warmstone'], 'ray', sep=True)
-    else:
-        crystal(c, 9, 27, 115, 14, 3.4, ramp)
-        crystal(c, 21, 27, 60, 15, 3.6, ramp)
-        crystal(c, 15.5, 29, 88, 25, 5.0, ramp)
-        base = c.ellipse(16, 28.5, 10, 2.2)
-        c.put(base, R['warmstone'], 'ray', sep=True)
-        fl = S.flame(c, 26, 10, 4, 7, 0.5)
-        c.put(fl, R['fire'], 'vgrad', base=3, bands=((0.35, 1), (0.75, 0), (9, -1)))
-    c.outline()
-    return c
-
-
-def formation_stone():
-    c = Canvas(32)
-    disc = c.ellipse(16, 18, 13, 9.5)
-    side = c.ellipse(16, 20.5, 13, 9.5)
-    c.put(side, R['stone'], 'flat', base=1)
-    c.put(disc, R['stone'], 'ray', base=3, sep=True)
-    ring = c.ring(16, 18, 9.5, 1.2, 6.8)
-    c.put(ring, R['jade'], 'flat', base=3)
-    ring2 = c.ring(16, 18, 5, 1.0, 3.6)
-    c.put(ring2, R['jade'], 'flat', base=3)
-    # trigram ticks between the rings
-    for k in range(8):
-        a = k * math.pi / 4
-        x, y = 16 + math.cos(a) * 7.3, 18 + math.sin(a) * 5.2
-        c.put(c.circle(x, y, 0.9), R['jade'], 'flat', base=4)
-    c.put(c.circle(16, 18, 1.3), R['qi'], 'flat', base=4)
-    c.outline()
-    return c
-
-
-def guardian_stone():
-    c = Canvas(32)
-    base = c.poly([(5, 29), (7, 25), (25, 25), (27, 29)])
-    c.put(base, R['stone'], 'ray')
-    stele = c.poly([(8, 26), (8, 7), (10, 4), (22, 4), (24, 7), (24, 26)])
-    c.put(stele, R['stone'], 'ray', base=2, sep=True)
-    # carved shield glyph
-    sh = c.poly([(11, 9), (21, 9), (21, 15), (16, 22), (11, 15)])
-    c.put(sh, R['stone'], 'flat', base=1)
-    shin = c.poly([(12.5, 10.5), (19.5, 10.5), (19.5, 14.8), (16, 19.8), (12.5, 14.8)])
-    c.put(shin, R['jade'], 'ray', base=3)
-    c.put(c.rect(15, 11, 16, 17) & shin, R['jade'][1], 'flat', out=R['jade'].out)
-    moss = c.ellipse(9, 25, 3.5, 1.5) | c.ellipse(23, 25.5, 3, 1.3)
-    c.put(moss, R['moss'], 'ray', base=3)
-    c.outline()
-    return c
-
-
-def _core(kind):
-    c = Canvas(32)
-    if kind == 'jade':
-        m = core(c, 16, 16, 11, R['jade'])
-        sw = c.arc(16, 16, 6, 1.4, 30, 250) | c.arc(18, 17, 3, 1.2, 200, 60)
-        c.put(sw & m, R['jade'], 'flat', base=4)
-        c.put(c.ellipse(11.5, 10.5, 2.4, 1.6), R['jade'][4], 'flat')
-        c.outline()
-        c.glow('#67D6BD', (110, 45))
-    elif kind == 'pebble':
-        m = core(c, 16, 17, 10.5, R['warmstone'])
-        cr = c.bres_path([(9, 13), (13, 16), (12, 20), (16, 23)]) | c.bres_path([(13, 16), (19, 14), (22, 17)])
-        c.put(cr & erode4(m), R['warmstone'][0], 'flat', out=R['warmstone'].out)
-        glow = c.bres_path([(13, 17), (12, 20)]) | c.bres_path([(15, 15), (19, 14)])
-        c.put(glow & erode4(m), R['gold'], 'flat', base=3)
-        c.put(c.ellipse(12, 11.5, 2.4, 1.4), R['warmstone'][4], 'flat')
-        c.outline()
-    else:
-        ramp = Ramp(['#12301F', '#1F5236', '#3A8452', '#7DC47A', '#D2F2B0'], '#07150C')
-        m = core(c, 16, 16, 11, ramp)
-        pupil = c.ellipse(16, 16, 1.6, 6.5)
-        iris = c.ellipse(16, 16, 5, 7.5) & m
-        c.put(iris, R['yellow'], 'ray', base=3)
-        c.put(pupil, R['ink'], 'flat', base=1)
-        c.put(c.ellipse(11, 10, 2.4, 1.6), ramp[4], 'flat')
-        # coiled scale ring
-        c.put(c.ring(16, 16, 10, 1) & c.sector(16, 16, 12, 200, 340), ramp[1], 'flat', only_on=True)
-        c.outline()
-        c.glow('#9B78D1', (100, 40))
-    return c
-
-
-register(FAM, 'copper_ore', copper_ore, GROUP)
-register(FAM, 'riverstone', riverstone, GROUP)
-register(FAM, 'jadeiron', jadeiron, GROUP)
-register(FAM, 'spirit_stone_shard', spirit_stone_shard, GROUP)
-register(FAM, 'refining_essence', refining_essence, GROUP)
-register(FAM, 'cloudsteel_ore', cloudsteel_ore, GROUP)
-register(FAM, 'mystic_ore', mystic_ore, GROUP)
-register(FAM, 'stormsteel_ore', stormsteel_ore, GROUP)
-register(FAM, 'spirit_stone_low', lambda: _spirit_stone(0), GROUP)
-register(FAM, 'spirit_stone_mid', lambda: _spirit_stone(1), GROUP)
-register(FAM, 'spirit_stone_high', lambda: _spirit_stone(2), GROUP)
-register(FAM, 'fuel_crystal_low', lambda: _fuel(0), GROUP)
-register(FAM, 'fuel_crystal_mid', lambda: _fuel(1), GROUP)
-register(FAM, 'formation_stone', formation_stone, GROUP)
-register(FAM, 'guardian_stone', guardian_stone, GROUP)
-register(FAM, 'jade_core', lambda: _core('jade'), GROUP)
-register(FAM, 'pebble_core', lambda: _core('pebble'), GROUP)
-register(FAM, 'serpent_core', lambda: _core('serpent'), GROUP)
-
-
-def sentinel_core():
-    """The heart of a River Sentinel: a river pebble polished to aquamarine, water swirling inside."""
-    c = Canvas(32)
-    ramp = Ramp(['#0F3A44', '#1B6070', '#2E97A4', '#74D2D0', '#D4FAF2'], '#051A20')
-    m = core(c, 16, 16, 11, ramp)
-    sw = c.arc(16, 16, 6, 1.4, 20, 240) | c.arc(17, 18, 3, 1.2, 190, 50)
-    c.put(sw & m, ramp, 'flat', base=4)
-    c.put(c.ellipse(11.5, 10.5, 2.4, 1.6), ramp[4], 'flat')
-    c.outline()
-    c.glow('#74D2D0', (110, 45))
-    return c
-
-
-register(FAM, 'sentinel_core', sentinel_core, GROUP)
-
-
-# ----------------------------------------------------------------------------- Act II · Sunscar Desert
-TERRACOTTA = Ramp(['#4A200F', '#833B1D', '#B96531', '#DC9152', '#F4C088'], '#1F0C05')
-FADED_VERMILION = Ramp(['#5A1A14', '#8E2E24', '#BE4A38', '#D9705A', '#EE9C84'], '#240806')
-SUNGLASS = Ramp(['#5C2E0A', '#9C5A16', '#D8952E', '#F6CB64', '#FFF3C0'], '#261204')
-
-
-def terracotta_shard():
-    """A broken piece of a Terracotta Warden's lamellar armour, a trace of vermilion paint left on it."""
-    c = Canvas(32)
-    m = c.poly([(4, 9), (10, 8), (16, 7.5), (22, 7.5), (27.5, 8), (26.5, 12), (23.5, 13.5), (25, 17.5), (21, 19.5),
-                (19.5, 24.5), (15.5, 23), (12.5, 28), (9.5, 24.5), (6, 25.5), (5, 20), (3.5, 16), (5.5, 13)])
-    paint = (c.ellipse(9.5, 14, 4.5, 2.6) | c.ellipse(14, 18.5, 2.6, 1.6)) & erode4(m)
-    side = (move(m, 1, 2) | move(m, 0, 2)) & ~m  # thickness of the broken clay
-    c.put(side, TERRACOTTA, 'flat', base=1)
-    c.put(m, TERRACOTTA, 'ray', base=2, sep=True, sep_col=TERRACOTTA[0])
-    # narrow lamellae laced in rows that curve gently around the body
-    cx, cy = 16.0, -24.0
-    u = np.arctan2(c.X - cx, c.Y - cy)
-    v = np.hypot(c.X - cx, c.Y - cy)
-    v0, pitch = 34.0, 6.0
-    for r in range(3):
-        band = m & (v >= v0 + r * pitch) & (v < v0 + (r + 1) * pitch)
-        du = 4.4 / (v0 + (r + 0.5) * pitch)
-        for k in range(-8, 9):
-            cell = band & (u >= (k - 0.5) * du) & (u < (k + 0.5) * du)
-            if cell.sum() < 4:
-                continue
-            ys, xs = np.nonzero(cell)
-            lit = (xs.mean() + ys.mean()) < 28
-            c.put(cell, TERRACOTTA, 'ray', base=3 if lit else 2, sep=True, sep_col=TERRACOTTA[1])
-            c.put(cell & paint, FADED_VERMILION, 'ray', base=2)
-            y = ys.min() + 1
-            row = xs[ys == y]
-            if len(row) >= 3 and (ys.max() - ys.min()) >= 4:
-                c.put(c.rect(row.min() + 1, y, row.min() + 1, y) & erode4(m), TERRACOTTA[4], 'flat', out=TERRACOTTA.out)
-    rows = m & (v >= v0)
-    c.put(rows & (np.floor((v - v0) / pitch) != np.floor((move(v, 0, 1) - v0) / pitch)) & erode4(m), TERRACOTTA[0],
-          'flat', out=TERRACOTTA.out)
-    hem = m & (v < v0)
-    c.put(hem, TERRACOTTA, 'ray', base=3, sep=True)
-    band = hem & erode4(m) & (v >= v0 - 2.2) & (v < v0 - 0.8) & (np.floor(u / 0.09) % 3 != 2) & (c.X < 20)
-    c.put(band, FADED_VERMILION, 'flat', base=3)
-    crack = c.bres_path([(25, 14), (21, 16), (19, 19), (20, 22)])
-    c.put(crack & m, TERRACOTTA[0], 'flat', out=TERRACOTTA.out)
-    c.outline()
-    return c
-
-
-def sunglass_ore():
-    """Amber desert glass the sun fused out of the dunes, a crust of sand still on one side."""
-    c = Canvas(32)
-    m = c.poly([(5, 20), (6.5, 13), (11, 8), (17, 5), (23, 6), (27.5, 11), (28, 18), (25.5, 24), (19, 27), (12, 28),
-                (6.5, 26)])
-    # through-lit glass: dark on the near side, light pooling on the far side
-    c.put(m, SUNGLASS, 'sphere', base=2, light=(0.6, 0.55, 0.6))
-    top = c.poly([(6.5, 13), (11, 8), (17, 5), (23, 6), (27.5, 11), (21, 12.5), (13, 14.5)]) & m
-    c.put(top, SUNGLASS, 'flat', base=3)
-    c.put(S.outline_only(top) & ~S.outline_only(m) & (c.Y > 10), SUNGLASS[1], 'flat', out=SUNGLASS.out)
-    c.put(c.poly([(17, 5), (23, 6), (20, 9)]) & top, SUNGLASS, 'flat', base=4)
-    c.put(c.ellipse(21, 20, 3.0, 2.2) & m, SUNGLASS, 'flat', base=4)
-    c.put(c.bres_path([(14, 17), (16, 20), (15, 23)]) & erode4(m), SUNGLASS[1], 'flat', out=SUNGLASS.out)
-    crust = m & c.poly([(3, 18), (6, 21), (8, 19), (10, 22), (13, 21), (15, 24), (18, 23), (20, 27), (22, 31), (3, 31)])
-    crust |= (c.circle(5, 24, 1.8) | c.circle(8, 27.5, 1.6) | c.circle(13, 28.5, 1.4))
-    c.put(crust, R['sand'], 'ray', base=2, sep=True)
-    c.pxs([(7, 23), (11, 25), (15, 26), (6, 26)], R['sand'][0])
-    c.pxs([(9, 23), (13, 24), (5, 22)], R['sand'][4])
-    c.put(c.bres(9, 12, 12, 9) | c.rect(14, 7, 15, 7), '#FFFFFF', 'flat')
-    c.pxs([(17, 16), (24, 15), (19, 23)], SUNGLASS[4])
-    c.outline()
-    c.glow('#FFC870', (80, 35))
-    S.sparkle(c, 21, 20, '#FFFFFF', SUNGLASS[4], 1)
-    S.sparkle(c, 26, 4, '#FFFFFF', SUNGLASS[3], 2)
-    return c
-
-
-register(FAM, 'terracotta_shard', terracotta_shard, GROUP)
-register(FAM, 'sunglass_ore', sunglass_ore, GROUP)
-
-
-
-# ----------------------------------------------------------------------------- Act II · Starsea
-COMET_GLOW = '#BFE6FF'
-
-
-def comet_iron():
-    """A bar of comet iron: pale blue-grey metal with a bright comet streak along it; it rings."""
-    c = Canvas(32)
-    ramp = R['cometiron']
-    end = c.poly([(23, 12.5), (26, 7), (28, 18.5), (25, 24.5)])
-    c.put(end, ramp, 'flat', base=1)
-    front = c.poly([(6, 12.5), (23, 12.5), (25, 24.5), (4, 24.5)])
-    c.put(front, ramp, 'ray', base=2, sep=True, sep_col=ramp[0])
-    top = c.poly([(9, 7), (26, 7), (23, 12.5), (6, 12.5)])
-    c.put(top, ramp, 'bevel', base=3, sep=True, sep_col=ramp[1])
-    c.put(c.rect(7, 12, 22, 12), ramp[4], 'flat', out=ramp.out)
-    # the comet: a white head near the right end, its tail streaming back along the bar
-    tail = S.taper_curve(c, (5, 22.5), (12, 20.5), (21, 17), 0.9, 3.2)
-    c.put(tail & erode4(front), '#7FC4EA', 'flat', out=ramp.out)
-    c.put(S.taper_curve(c, (9, 21.5), (14, 19.6), (21, 17), 0.7, 2.1) & erode4(front), '#BFE9FF', 'flat', out=ramp.out)
-    c.put(c.rect(19, 16, 22, 17) & front, '#FFFFFF', 'flat', out=ramp.out)
-    c.outline()
-    c.glow(COMET_GLOW, (70, 30))
-    S.sparkle(c, 22, 16, '#FFFFFF', '#BFE9FF', 1)
-    return c
-
-
-register(FAM, 'comet_iron', comet_iron, GROUP)
-
-
-
-# ----------------------------------------------------------------------------- S46 beast cores
-_CORE_RAMP = {"fire": "fire", "water": "cyan", "wood": "leaf", "earth": "warmstone", "wind": "mist", "thunder": "violet", "soul": "qi",
-              "metal": "silver", "star": "gold", "space": "plum"}
-_CORE_GLOW = {"fire": "#FF8A4A", "water": "#6FD6FF", "wood": "#7FE08A", "earth": "#E0B870", "wind": "#CFE8F0", "thunder": "#B98CFF", "soul": "#A8F0FF",
-              "metal": "#E8EEF2", "star": "#FFF0B0", "space": "#B49CFF"}
-
-
-def _beast_core(el, tier):
-    """A beast core: a sphere in its element's colour with a bright heart, its glow widening with the rank tier."""
-    c = Canvas(32)
-    rad = {"low": 8.5, "mid": 9.5, "high": 10.5, "peak": 11.5}[tier]
-    ramp = R[_CORE_RAMP[el]]
-    m = core(c, 16, 17, rad, ramp)
-    heart = c.circle(16, 17, rad * 0.38)
-    c.put(heart & m, ramp, 'sphere', base=3)
-    c.put(c.ellipse(12.5, 12.5, 2.2, 1.5) & m, ramp[4], 'flat')
-    if tier in ("high", "peak"):
-        c.put(c.ring(16, 17, rad - 2.5, 1) & c.sector(16, 17, rad, 200, 330), ramp[4], 'flat', only_on=True)
-    c.outline()
-    bands = {"low": (), "mid": (70,), "high": (110, 45), "peak": (150, 90, 40)}[tier]
-    if bands:
-        c.glow(_CORE_GLOW[el], bands)
-    if tier == "peak":
-        S.sparkle(c, 26, 6, '#FFFFFF', ramp[3], 2)
-    return c
-
-
-for _el in _CORE_RAMP:
-    for _tier in ("low", "mid", "high", "peak"):
-        register(FAM, '%s_core_%s' % (_el, _tier), (lambda e, t: lambda: _beast_core(e, t))(_el, _tier), GROUP)
-
-
-# ----------------------------------------------------------------------------- Act III · Lantern Star Field
-from palette import STAR_GLOW  # noqa: E402
-
-VIOLET_GLASS = Ramp(['#2A1F52', '#46398A', '#7462B8', '#A898DE', '#E6DEFA'], '#120C26')
-TEAL_GLASS = Ramp(['#0E3E4A', '#1A6E7A', '#36A4A8', '#7CD8CC', '#D4FAF0'], '#06181E')
-CLEAR = Ramp(['#4A5470', '#8290B0', '#BCC8DC', '#E4ECF6', '#FFFFFF'], '#161C2C')
-DEEP_JADE = Ramp(['#0A2A22', '#12473A', '#1D6B55', '#3A9B7C', '#9ADCBF'], '#04140F')
-
-
-def star_shard():
-    """A sharp chip of fallen starlight: a pale-gold crystal broken into three facets, a glint caught inside."""
-    c = Canvas(32)
-    ramp = R['starlight']
-    A, B, C, D = (25.5, 3), (27, 13.5), (20.5, 24), (13, 29)
-    E, F, G, H = (10.5, 25.5), (5, 25.5), (5.5, 17), (12.5, 8)
-    P = (16.5, 16)   # where the three facets meet
-    m = c.poly([A, B, C, D, E, F, G, H])
-    c.put(m, ramp, 'flat', base=1)
-    top = c.poly([H, A, P, G]) & m
-    right = c.poly([A, B, C, P]) & m
-    low = m & ~top & ~right
-    c.put(low, ramp, 'ray', base=2, bands=((0.3, 0), (0.75, -1), (9, -2)))
-    c.put(right, ramp, 'ray', base=3, bands=((0.35, 0), (0.8, -1), (9, -1)))
-    c.put(top, ramp, 'ray', base=4, bands=((0.5, 0), (9, -1)))
-    # ridges: bright where the lit face meets the others
-    c.put(c.bres_path([(int(A[0]), int(A[1]) + 1), (16, 15)]) & m, '#FFFFFF', 'flat', out=ramp.out)
-    c.put(c.bres_path([(16, 16), (7, 18)]) & m, ramp[4], 'flat', out=ramp.out)
-    c.put(c.bres_path([(17, 17), (20, 23)]) & m, ramp[1], 'flat', out=ramp.out)
-    c.outline()
-    c.glow(STAR_GLOW, (90, 40))
-    S.sparkle(c, 13, 22, '#FFFFFF', ramp[4], 1)
-    return c
-
-
-def driftglass():
-    """A smooth tumbled lump of sea glass: frosted violet on the near side, teal light pooling where it shines
-    through."""
-    c = Canvas(32)
-    through = (0.6, 0.55, 0.6)   # through-lit: the near side darker, light gathering toward the far side
-    m = c.poly([(3.5, 17.5), (5.5, 12.5), (10, 9.5), (16, 8.5), (21.5, 9.5), (25.5, 12), (27, 16.5), (25.5, 21),
-                (21, 24.5), (14, 25.5), (7.5, 24.5), (4, 21.5)])
-    c.put(m, VIOLET_GLASS, 'sphere', base=2, light=through)
-    teal = m & ((c.xi + c.yi) >= 30)
-    c.put(teal, TEAL_GLASS, 'sphere', base=2, cx=15.5, cy=16.5, rx=12, ry=9, light=through)
-    # the light passing through gathers in a bright crescent inside the far edge
-    inner = erode4(erode4(m))
-    cres = inner & ~move(inner, -2, -2) & ((c.xi + c.yi) >= 27)
-    c.put(cres, TEAL_GLASS, 'flat', base=3)
-    c.put(cres & ~move(inner, -3, -3) & ((c.xi + c.yi) >= 32), TEAL_GLASS, 'flat', base=4)
-    # frosted skin on the lit rim, one small wet gleam
-    rim = S.outline_only(m) & ((c.xi + c.yi) <= 24)
-    c.put(rim, VIOLET_GLASS, 'flat', base=3)
-    c.put(c.bres(7, 13, 9, 11) | c.rect(10, 10, 12, 10), '#FFFFFF', 'flat')
-    c.put(c.rect(8, 15, 8, 15), VIOLET_GLASS[4], 'flat')
-    # a smaller tumbled bead of the same glass in front
-    bead = c.poly([(19.5, 25), (21.5, 21.5), (25.5, 20.5), (28.5, 22.5), (28.5, 26.5), (25, 28.5), (21, 28)])
-    c.put(bead, TEAL_GLASS, 'sphere', base=2, sep=True, light=through)
-    c.put(bead & ((c.xi + c.yi) <= 44), VIOLET_GLASS, 'sphere', base=2, cx=24, cy=24.5, rx=5, ry=4.5, light=through)
-    c.put(c.rect(22, 22, 23, 22), '#FFFFFF', 'flat')
-    c.outline()
-    c.glow('#9C8CE0', (45,))
-    return c
-
-
-def sage_crystal():
-    """Sage Crystal (currency): a clear cut crystal with warm gold light burning at its core."""
-    c = Canvas(32)
-    cx, cy, rw, rh = 16, 16.5, 11.5, 12.5
-    k = 0.42
-    outer = [(cx - rw * k, cy - rh), (cx + rw * k, cy - rh), (cx + rw, cy - rh * k), (cx + rw, cy + rh * k),
-             (cx + rw * k, cy + rh), (cx - rw * k, cy + rh), (cx - rw, cy + rh * k), (cx - rw, cy - rh * k)]
-    m = c.poly(outer)
-    c.put(m, CLEAR, 'flat', base=2)
-    t = 0.5
-    inner = [(cx + (x - cx) * t, cy + (y - cy) * t) for x, y in outer]
-    # crown facets: lit to the upper left, dark to the lower right
+    p.part(m, mat, 'flat', base=base - 1, sep=sep)
+    inner = [(cx + (x - cx) * table, cy + (y - cy) * table) for x, y in outer]
     L = (-0.7071, -0.7071)
     for i in range(8):
         a, b = outer[i], outer[(i + 1) % 8]
         ta, tb = inner[i], inner[(i + 1) % 8]
         mx, my = (a[0] + b[0]) / 2 - cx, (a[1] + b[1]) / 2 - cy
         d = (mx * L[0] + my * L[1]) / (math.hypot(mx, my) or 1)
-        lvl = 4 if d > 0.75 else 3 if d > 0.2 else 2 if d > -0.35 else 1 if d > -0.8 else 0
-        c.put(c.poly([a, b, tb, ta]) & m, CLEAR, 'flat', base=lvl)
-    # the table holds the warm core light: pale gold round a white-hot heart
-    gold = R['starlight']
+        lvl = 2 if d > 0.75 else 1 if d > 0.2 else 0 if d > -0.35 else -1 if d > -0.8 else -2
+        p.decal(c.poly([a, b, tb, ta]) & m, mat, base + lvl)
     tab = c.poly(inner)
-    c.put(tab, gold, 'flat', base=2)
-    c.put(erode4(tab), gold, 'flat', base=3)
-    c.put(c.ellipse(cx, cy, 2.6, 3.0), gold, 'flat', base=4)
-    c.put(c.rect(15, 16, 16, 16), '#FFFFFF', 'flat')
-    # warm light caught in the facets below the core
-    c.pxs([(12, 24), (20, 24), (24, 19), (8, 19)], gold[2])
-    c.put(c.rect(10, 7, 12, 7) | c.rect(9, 8, 9, 9), '#FFFFFF', 'flat')
-    c.outline()
-    c.glow(STAR_GLOW, (120, 50))
-    S.sparkle(c, 27, 5, '#FFFFFF', gold[3], 2)
-    return c
+    p.decal(tab, mat, base + 1)
+    p.decal(c.ellipse(cx - rw * 0.1, cy - rh * 0.1, rw * table * 0.5, rh * table * 0.5) & tab, mat, base + 2)
+    throughlit_hd(p, m, mat, start=4)
+    for i in range(8):
+        d = ((outer[i][0] - cx) * L[0] + (outer[i][1] - cy) * L[1]) / (math.hypot(outer[i][0] - cx, outer[i][1] - cy) or 1)
+        p.decal(lmask(p, [inner[i], outer[i]]) & erode4(m), mat, base + (2 if d > 0.3 else -2))
+    p.decal(c.circle(cx - rw * table * 0.55, cy - rh * table * 0.55, 1.4) & tab, mat, 3)
+    return m
 
 
-def star_jade():
-    """Star Jade (currency): a polished bi disc of deep jade, a star-white star inlaid round its hole."""
-    c = Canvas(32)
-    cx, cy = 16, 15.5
-    side = c.ellipse(cx, cy + 2, 12, 11)
-    c.put(side, DEEP_JADE, 'flat', base=0)
-    top = c.ellipse(cx, cy, 12, 11)
-    c.put(top, DEEP_JADE, 'sphere', base=2, sep=True, cx=12.5, cy=11.5, rx=15, ry=14)
+CORE_BANDS = ((0.9, 2), (0.6, 1), (0.2, 0), (-0.18, -1), (-0.52, -2), (-9, -3))   # a sphere lit more gently than a pill, so its heart is its light
+
+
+def core_hd(p, cx, cy, r, mat, heart=None, band=False, swirl=False, coil=False, spec=True):
+    """A core: a sphere of the element's stuff, its light pooling through it, a bright heart (a shape from CORE_MARKS,
+    or a round one) and, by rank, a band round the middle, a swirl of light inside, or a coil of light round it."""
+    c = p.c
+    m = c.circle(cx, cy, r)
+    if coil:
+        ring, v = tilted_ring(p, cx, cy, r * 1.22, r * 0.42, 22, max(2.0, r * 0.14))
+        p.part(ring & (v < 0) & ~m, mat, 'flat', base=0, sep=False, rim=False)
+    p.part(m, mat, 'sphere', base=0, sep=True, cx=cx, cy=cy, rx=r, ry=r, tex='glass', spec=(cx - r * 0.5, cy - r * 0.5) if spec else None,
+           bands=CORE_BANDS)
+    if band:
+        ring, v = tilted_ring(p, cx, cy, r + 0.5, r * 0.36, 16, max(2.0, r * 0.15))
+        near = ring & (v > 0) & m
+        p.decal(near, mat, -1)
+        p.decal(near & ~shift(near, 0, -1), mat, 1)
+    if swirl:
+        p.decal(c.arc(cx, cy, r * 0.7, max(2.0, r * 0.16), 20, 240) & m, mat, 2)
+        p.decal(c.arc(cx, cy, r * 0.7, max(1.0, r * 0.07), 60, 200) & m, mat, 3)
+        p.decal(c.arc(cx + r * 0.1, cy + r * 0.12, r * 0.42, max(1.6, r * 0.12), 190, 50) & m, mat, 1)
+    if heart:
+        # the heart is the brightest thing in the core, a step darker round it so it holds on a pale sphere too
+        body = heart[0][0] & m
+        p.decal(dilate4(body) & ~body & m, mat, -1)
+        for mask, lv in heart:
+            p.decal(mask & m, mat, lv)
+    if coil:
+        ring, v = tilted_ring(p, cx, cy, r * 1.22, r * 0.42, 22, max(2.0, r * 0.14))
+        near = ring & (v >= 0)
+        p.part(near, mat, 'flat', base=1, sep=True, rim=False)
+        p.decal(near & ~shift(near, 0, -1), mat, 3)
+    return m
+
+
+# The bright heart of a beast core in its element's shape: (c, x, y, s) -> [(mask, level offset), ...], `s` its
+# half-size; the heart is light (+2) with a white-hot point (+3).
+def _dot(c, x, y, s):
+    return c.circle(x, y, s * 0.3)
+
+
+def mk_fire(c, x, y, s):
+    return [(S.flame(c, x, y + s * 1.05, s * 1.6, s * 2.4, 0.15), 2), (c.circle(x - s * 0.1, y + s * 0.3, s * 0.35), 3)]
+
+
+def mk_water(c, x, y, s):
+    pts = [(x - s * 1.1 + s * 2.2 * i / 12.0, s * 0.3 * math.sin(math.pi * i / 3.0)) for i in range(13)]
+    m = c.polyline([(px, y - s * 0.45 + py) for px, py in pts], s * 0.42) | c.polyline([(px, y + s * 0.45 + py) for px, py in pts], s * 0.42)
+    return [(m, 2), (c.circle(x - s * 0.55, y - s * 0.45, s * 0.28), 3)]
+
+
+def mk_wood(c, x, y, s):
+    return [(c.leaf(x - s * 1.0, y + s * 1.0, 45, s * 2.7, s * 1.5, 0.0, tip_power=0.75), 2), (_dot(c, x - s * 0.15, y + s * 0.15, s), 3)]
+
+
+def mk_earth(c, x, y, s):
+    m = c.poly([(x - s * 1.15, y + s * 0.8), (x - s * 0.5, y - s * 0.2), (x - s * 0.15, y + s * 0.25), (x + s * 0.3, y - s * 0.95), (x + s * 1.15, y + s * 0.8)])
+    return [(m, 2), (c.circle(x + s * 0.3, y - s * 0.4, s * 0.28), 3)]
+
+
+def mk_wind(c, x, y, s):
     pts = []
-    for k in range(8):
-        a = math.radians(90 - k * 45)
-        r = 9.0 if k % 2 == 0 else 4.4
-        pts.append((cx + math.cos(a) * r, cy - math.sin(a) * r * 0.93))
-    star = c.poly(pts) & erode4(top)
-    c.put(star, R['starlight'], 'ray', base=3, sep=True, sep_col=DEEP_JADE[0],
-          bands=((0.35, 1), (0.75, 0), (9, -1)))
-    hole = c.ellipse(cx, cy, 2.6, 2.5)
-    c.put(dilate4(hole) & ~hole, DEEP_JADE, 'flat', base=0)
-    c.erase(hole)
-    # polish: a bright arc on the lit rim
-    c.put(c.arc(cx, cy, 11, 1.3, 105, 165, 10) & top, DEEP_JADE[4], 'flat')
-    c.outline()
-    c.glow(STAR_GLOW, (45,))
-    return c
+    for i in range(29):
+        th = 1.55 * 2 * math.pi * i / 28.0
+        r = s * 1.05 * (1.0 - 0.55 * i / 28.0)
+        pts.append((x + r * math.cos(th), y - r * math.sin(th)))
+    return [(c.polyline(pts, s * 0.42), 2), (c.circle(x + s * 0.2, y - s * 0.1, s * 0.3), 3)]
 
 
-register(FAM, 'star_shard', star_shard, GROUP)
-register(FAM, 'driftglass', driftglass, GROUP)
+def mk_thunder(c, x, y, s):
+    m = c.poly([(x + s * 0.35, y - s * 1.15), (x - s * 0.7, y + s * 0.15), (x - s * 0.05, y + s * 0.15), (x - s * 0.35, y + s * 1.15),
+                (x + s * 0.7, y - s * 0.15), (x + s * 0.05, y - s * 0.15)])
+    return [(m, 2), (c.circle(x, y, s * 0.28), 3)]
 
 
-# ============================================================================= HD (Style A, 64 icon space)
+def mk_soul(c, x, y, s):
+    lens = c.circle(x, y - s * 0.65, s * 1.2) & c.circle(x, y + s * 0.65, s * 1.2)
+    return [(lens, 2), (c.circle(x, y, s * 0.42), -1), (c.circle(x - s * 0.15, y - s * 0.15, s * 0.16), 3)]
+
+
+def mk_metal(c, x, y, s):
+    return [(c.diamond(x, y, s * 0.62, s * 1.2), 2), (c.circle(x - s * 0.1, y - s * 0.2, s * 0.26), 3)]
+
+
+def mk_star(c, x, y, s):
+    return [(c.diamond(x, y, s * 1.2, s * 0.34) | c.diamond(x, y, s * 0.34, s * 1.2), 2), (_dot(c, x, y, s), 3)]
+
+
+def mk_space(c, x, y, s):
+    return [(c.ring(x, y, s * 1.0, s * 0.42), 2), (c.circle(x, y, s * 0.3), 3)]
+
+
+def mk_round(c, x, y, s):
+    return [(c.circle(x, y, s * 0.95), 2), (c.circle(x - s * 0.15, y - s * 0.15, s * 0.42), 3)]
+
+
+CORE_MARKS = {'fire': mk_fire, 'water': mk_water, 'wood': mk_wood, 'earth': mk_earth, 'wind': mk_wind, 'thunder': mk_thunder, 'soul': mk_soul,
+              'metal': mk_metal, 'star': mk_star, 'space': mk_space, 'round': mk_round}
+
+
+# ----------------------------------------------------------------------------- ores: the material in its rock
+def ore_copper_hd(p):
+    """Copper ore: nuggets of soft copper in a lump of warm quarry stone, one spot of green patina."""
+    c = p.c
+    m = rock_hd(p, [(7, 40), (13, 21), (29, 12), (47, 15), (57, 31), (54, 51), (34, 58), (13, 54)], WARMSTONE_HD,
+                top=[(13, 22), (29, 13), (46, 16), (38, 27), (22, 29)], cracks=[[(22, 29), (38, 27)], [(38, 27), (52, 38)], [(22, 29), (14, 47)]])
+    clip = erode4(m)
+    for (x, y, r) in ((24.5, 37, 6.4), (43, 40.5, 5.4), (35, 23.5, 4.2), (16, 45.5, 3.4), (44, 27, 3.0), (30, 50, 2.8)):
+        nugget_hd(p, x, y, r, COPPER_HD, clip)
+    p.part(c.ellipse(49, 48, 4.4, 2.8) & clip, JADE_HD, 'flat', base=0, sep=False, rim=False)
+    p.decal(c.ellipse(48, 47.5, 2.2, 1.2) & clip, JADE_HD, 1)
+
+
+def ore_riverstone_hd(p):
+    """Riverstone: two river-polished stones, one behind, a pale quartz band round the front one."""
+    c = p.c
+    back = c.ellipse(40, 25, 17, 11)
+    p.part(back, WARMSTONE_HD, 'sphere', base=0, sep=False, cx=36, cy=22, rx=19, ry=13)
+    grain_hd(p, back, WARMSTONE_HD, 2)
+    p.decal(c.ellipse(33, 19, 4, 2) & back, WARMSTONE_HD, 2)
+    front = c.ellipse(29, 41, 24, 15)
+    p.part(front, RIVERSTONE_HD, 'sphere', base=0, sep=True, cx=24, cy=37, rx=27, ry=18)
+    grain_hd(p, front, RIVERSTONE_HD, 5)
+    band = (c.ellipse(30, 52, 28, 12) & ~c.ellipse(30, 53.6, 28, 10.4)) & erode4(front)
+    p.decal(band, M('paper'), 0)
+    p.decal(band & c.box(0, 0, 30, 64), M('paper'), 1)
+    p.decal(c.ellipse(22, 32, 6, 2.6) & front, RIVERSTONE_HD, 3)
+    p.decal(c.circle(17, 35, 1.0) & front, RIVERSTONE_HD, 3)
+
+
+def ore_jadeiron_hd(p):
+    """Jadeiron: iron rock threaded with veins of jade, two jade crystals grown out of the top facet."""
+    c = p.c
+    m = rock_hd(p, [(6, 38), (18, 18), (34, 10), (52, 18), (58, 36), (48, 54), (26, 58), (10, 52)], IRON_HD,
+                top=[(18, 19), (34, 11), (50, 19), (36, 28), (22, 30)], cracks=[[(22, 30), (36, 28)], [(36, 28), (50, 40)], [(22, 30), (14, 48)]])
+    clip = erode4(m)
+    for (p0, p1, p2, w0, w1) in (((11, 44), (28, 30), (53, 28), 4.6, 3.0), ((28, 36), (36, 48), (46, 52), 3.4, 2.2)):
+        vein = c.taper(p0, p1, p2, w0, w1) & clip
+        p.part(vein, JADE_HD, 'flat', base=-1, sep=True, rim=False, tex='jade')
+        p.decal(lmask(p, S.curve_pts((p0[0], p0[1] - 1), (p1[0], p1[1] - 1), (p2[0], p2[1] - 1), 12)) & vein, JADE_HD, 1)
+    crystal_hd(p, 30, 27, 72, 20, 5.6, JADE_HD)
+    crystal_hd(p, 41, 29, 38, 15, 4.8, JADE_HD)
+
+
+def cluster_ore_hd(p, rock, crystal, rock_pts, top, crystals, base=0):
+    """An ore that grows as a cluster of crystals out of a chunk of rock: the back crystals first, the front last."""
+    m = rock_hd(p, rock_pts, rock, top=top, base=base)
+    for (bx, by, ang, L, w) in crystals:
+        crystal_hd(p, bx, by, ang, L, w, crystal)
+    return m
+
+
+def ore_cloudsteel_hd(p):
+    """Cloudsteel ore: pale, feather-light rock from the sky ledges with a cluster of pale-blue crystals and a glint."""
+    cluster_ore_hd(p, HOLLOW_HD, CLOUDSTEEL_HD, [(7, 44), (14, 30), (26, 24), (40, 28), (56, 38), (54, 54), (32, 58), (12, 56)],
+                   [(14, 31), (26, 25), (40, 29), (32, 38), (18, 40)],
+                   [(26, 36, 88, 30, 6.8), (38, 38, 55, 22, 6.0), (18, 40, 130, 16, 4.8)])
+    p.sparkle(50, 15, 2)
+
+
+def ore_mystic_hd(p):
+    """Mystic ore: dark rock that hums, a cluster of violet mistjade crystals on it, its aura round it."""
+    cluster_ore_hd(p, SHADOW_HD, MISTJADE_HD, [(7, 44), (16, 28), (28, 24), (44, 26), (56, 40), (52, 54), (30, 58), (12, 56)],
+                   [(16, 29), (28, 25), (42, 27), (32, 36), (20, 38)],
+                   [(28, 38, 95, 32, 7.2), (40, 40, 60, 22, 5.6), (18, 42, 135, 16, 4.4)])
+    p.glow('#B18DE2', GLOW_STRENGTH['mystic'])
+
+
+def ore_stormsteel_hd(p):
+    """Stormsteel ore: blue-black rock with storm-blue crystals, a bolt still forking down into it."""
+    cluster_ore_hd(p, SHADOW_HD, STORM_HD, [(7, 46), (14, 30), (26, 24), (42, 26), (56, 38), (54, 54), (32, 58), (12, 56)],
+                   [(14, 31), (26, 25), (42, 27), (32, 38), (18, 40)],
+                   [(28, 36, 92, 32, 6.8), (40, 38, 58, 22, 5.6), (18, 40, 132, 16, 4.4)])
+    bolt = p.c.poly([(31, 6), (25, 18), (30, 18), (26, 30), (35, 16), (30, 16)])
+    p.part(bolt, M('ice'), 'flat', base=3, sep=True, rim=False)
+    p.decal(p.c.poly([(31, 8), (27, 17), (30.5, 17), (28.5, 25), (33, 17.5), (29.5, 17.5)]) & bolt, WHITE, 0)
+    p.glow('#7FD4FF', GLOW_STRENGTH['spirit'])
+
+
 def driftglass_hd(p):
-    """A sea-rounded lump of violet glass with teal light seeping in from the far side, and a small bead."""
+    """Driftglass: a sea-rounded lump of violet glass with teal light seeping in from the far side, and a small bead."""
     c = p.c
     violet, teal = M('driftglass'), M('driftteal')
     far = (c.X + c.Y) / p.s
@@ -646,209 +421,495 @@ def driftglass_hd(p):
     p.glow('#9C8CE0', 0.45)
 
 
-hd('driftglass', driftglass_hd)
-register(FAM, 'sage_crystal', sage_crystal, GROUP)
-register(FAM, 'star_jade', star_jade, GROUP)
+def ore_sunglass_hd(p):
+    """Sunglass: a lump of amber desert glass the sun fused out of the dunes, the light held inside it, a crust of
+    sand still on its lower side."""
+    c = p.c
+    m = c.poly([(10, 40), (13, 26), (22, 16), (34, 10), (46, 12), (55, 22), (56, 36), (51, 48), (38, 54), (24, 56), (13, 52)])
+    p.part(m, SUNGLASS_HD, 'sphere', base=0, sep=False, cx=30, cy=32, rx=27, ry=24, tex='glass')
+    top = c.poly([(13, 26), (22, 16), (34, 10), (46, 12), (55, 22), (42, 25), (26, 29)]) & m
+    p.decal(top, SUNGLASS_HD, 1)
+    p.decal(dilate4(top) & ~top & erode4(m), SUNGLASS_HD, -1)
+    p.decal(c.poly([(34, 11), (46, 13), (40, 19)]) & top, SUNGLASS_HD, 2)
+    p.decal(c.ellipse(42, 40, 6, 4.4) & m, SUNGLASS_HD, 2)
+    p.decal(c.ellipse(43, 39, 3, 2.2) & m, SUNGLASS_HD, 3)
+    p.decal(lmask(p, [(28, 34), (32, 40), (30, 46)]) & erode4(m), SUNGLASS_HD, -1)
+    crust = m & c.poly([(6, 36), (12, 42), (16, 38), (20, 44), (26, 42), (30, 48), (36, 46), (40, 54), (44, 62), (6, 62)])
+    crust |= c.circle(11, 48, 3.6) | c.circle(17, 55, 3.2) | c.circle(27, 57.5, 2.8)
+    p.part(crust, SAND_HD, 'ray', base=-1, sep=True, rim=False)
+    grain_hd(p, crust, SAND_HD, 3)
+    p.decal(lmask(p, [(18, 24), (24, 18)]) | c.box(28, 14, 32, 15), M('paper'), 3)
+    p.sparkle(43, 39, 1)
+    p.sparkle(52, 8, 2)
+    p.glow('#FFC870', GLOW_STRENGTH['sage'])
 
 
-# ============================================================================ V10d · essence salts
-# Essence Salts from the Calcination Furnace: a stepped heap of crystalline salt in a shallow footed dish. The six
-# share the dish and the heap so they read as one family (and apart from ores, gems and pill jars); each tier
-# changes the salt's colour and makes the dish richer: grey earthenware, earthenware with a bronze rim, bronze,
-# black lacquer with a silver rim, black lacquer with a gold rim, gold. The crystal salts (azurite, pearl,
-# amethyst) push faceted points up out of the heap; from the fourth tier the salt glows faintly.
-ES_VERMILION = Ramp(['#4E1210', '#8E2416', '#D2402A', '#F2744A', '#FFB48A'], '#220806')
-ES_VERDIGRIS = Ramp(['#123429', '#1F5A45', '#398A68', '#6CBC8E', '#BCE8C8'], '#07170F')
-ES_AZURITE = Ramp(['#0E1A48', '#1A307E', '#2A50B6', '#5886E0', '#B4D0FF'], '#060A22')
-ES_PEARL = Ramp(['#7A6478', '#B49AB2', '#E6D6E2', '#F8EEF3', '#FFFFFF'], '#2C2230')
-ES_AMETHYST = Ramp(['#2A1450', '#4C2690', '#7C48C8', '#B084EE', '#EAD8FF'], '#120828')
-ES_STARSALT = Ramp(['#07081A', '#10133A', '#1C225E', '#303C8C', '#5A6CBC'], '#030410')
-ES_LACQUER = Ramp(['#07080B', '#121419', '#22262F', '#3C4250', '#7D879C'], '#020203')
+# ----------------------------------------------------------------------------- an ingot, a drop of Qi, a splinter
+def ingot_hd(p, mat):
+    """A bar of metal seen from the front and a little above: the dark end, the front face with the metal's sheen
+    band, the lit top with a bright edge."""
+    c = p.c
+    end = c.poly([(46, 25), (52, 14), (56, 37), (50, 49)])
+    p.part(end, mat, 'flat', base=-2, sep=False, tex='metal')
+    front = c.poly([(12, 25), (46, 25), (50, 49), (8, 49)])
+    p.part(front, mat, 'ray', base=0, sep=True, tex='metal')
+    top = c.poly([(18, 14), (52, 14), (46, 25), (12, 25)])
+    p.part(top, mat, 'bevel', base=1, sep=True, hw=2, sw=1, tex='metal')
+    p.decal(c.box(14, 24, 46, 25) & front, mat, 2)
+    p.decal(c.box(19, 14, 51, 15) & top, mat, 3)
+    return front
 
-ES_TIERS = {
-    'cinnabar': dict(salt=ES_VERMILION, dish=R['warmstone'], rim=None, crystals=0, glow=None),
-    'verdigris': dict(salt=ES_VERDIGRIS, dish=R['warmstone'], rim=R['bronze'], crystals=0, glow=None),
-    'azurite': dict(salt=ES_AZURITE, dish=R['bronze'], rim=None, crystals=2, glow=None),
-    'pearl': dict(salt=ES_PEARL, dish=ES_LACQUER, rim=R['silver'], crystals=2, glow=('#F8D2E0', (55,))),
-    'amethyst': dict(salt=ES_AMETHYST, dish=ES_LACQUER, rim=R['gold'], crystals=3, glow=('#B18DE2', (80,))),
-    'star': dict(salt=ES_STARSALT, dish=R['gold'], rim=None, crystals=0, glow=('#F3E3A6', (100, 40))),
+
+def comet_iron_hd(p):
+    """Comet iron: a bar of pale blue-grey metal, the comet that once passed through it streaking along the front
+    face to a white head near the end."""
+    c = p.c
+    front = ingot_hd(p, COMET_HD)
+    inner = erode4(front)
+    ice = M('ice')
+    p.decal(c.taper((10, 46), (24, 42), (42, 34), 2.0, 7.0) & inner, ice, 0)
+    p.decal(c.taper((16, 44), (28, 40), (42, 34), 1.6, 4.6) & inner, ice, 2)
+    p.decal(c.ellipse(41, 33.5, 3.8, 2.8) & inner, ice, 3)
+    p.decal(c.ellipse(41, 33.5, 2.2, 1.6) & inner, WHITE, 0)
+    p.sparkle(45, 32, 1)
+    p.glow(COMET_GLOW, 0.7)
+
+
+def refining_essence_hd(p):
+    """Refining Essence: the salvaged Qi of a broken piece, an amber drop of light with a spark above it."""
+    c = p.c
+    drop = c.ellipse(31, 40, 16, 16) | c.poly([(17, 34), (31, 7), (45, 34)])
+    p.part(drop, FIRE_HD, 'sphere', base=0, sep=False, cx=27, cy=32, rx=20, ry=26, rim=False)
+    p.decal(c.ellipse(27, 38, 5.6, 7.4) & drop, FIRE_HD, 2)
+    p.decal(c.ellipse(26, 36, 3.0, 4.2) & drop, FIRE_HD, 3)
+    p.decal(lmask(p, [(23, 44), (23, 48)]) & drop, FIRE_HD, 2)
+    p.sparkle(50, 16, 2)
+    p.sparkle(14, 50, 1)
+
+
+def spirit_stone_shard_hd(p):
+    """Spirit Stone Shard: splinters of crystallised Qi, two long ones and a chip, and a glint."""
+    c = p.c
+    crystal_hd(p, 24, 57, 75, 50, 10.4, QI_HD)
+    crystal_hd(p, 41, 55, 45, 24, 6.0, QI_HD)
+    chip = c.poly([(9, 51), (16, 43), (21, 53)])
+    p.part(chip, QI_HD, 'flat', base=0, sep=True)
+    p.decal(c.poly([(9, 51), (16, 43), (14, 51)]) & chip, QI_HD, 2)
+    p.sparkle(48, 14, 2)
+
+
+# ----------------------------------------------------------------------------- spirit stones and fuel crystals
+SPIRIT_STONES_HD = {
+    # level: the Qi's material, the gem's half-size, whether it is set in gold prongs (Mystic), sparkles, the aura
+    'low': dict(mat=JADE_HD, rw=15, rh=14, prongs=False, sparkles=(), glow=None),
+    'mid': dict(mat=QI_HD, rw=19, rh=17.5, prongs=False, sparkles=((51, 13, 2),), glow=None),
+    'high': dict(mat=SPIRIT_HIGH_HD, rw=21, rh=20, prongs=True, sparkles=((53, 11, 2), (10, 53, 1)), glow=('#8AEBEE', GLOW_STRENGTH['mystic'])),
 }
 
 
-def _es_dish(c, T):
-    """The shallow footed dish: foot, outer wall, rim and the dark well the salt sits in."""
+def make_spirit_stone_hd(level):
+    def draw(p):
+        c = p.c
+        T = SPIRIT_STONES_HD[level]
+        cx, cy = 32, 33
+        gem_hd(p, cx, cy, T['rw'], T['rh'], T['mat'])
+        if T['prongs']:
+            for (x, y) in ((cx - T['rw'] - 1.5, cy), (cx + T['rw'] + 1.5, cy), (cx, cy - T['rh'] - 1.5), (cx, cy + T['rh'] + 1.5)):
+                p.part(c.circle(x, y, 3.2), GOLD_HD, 'sphere', base=0, sep=True, tex='metal', spec=(x - 1.2, y - 1.4))
+        for (x, y, arm) in T['sparkles']:
+            p.sparkle(x, y, arm)
+        if T['glow']:
+            p.glow(*T['glow'])
+    return draw
+
+
+def make_fuel_crystal_hd(level):
+    """A fuel crystal: one prism of fire-orange crystal standing on a stone foot; the mid one three, on a wider foot
+    banded in silver, and the fuel already burning above it."""
+    def draw(p):
+        c = p.c
+        if level == 'low':
+            crystal_hd(p, 30, 56, 82, 44, 10.0, FIRE_HD)
+            foot = c.ellipse(30, 56, 12, 4)
+            p.part(foot, WARMSTONE_HD, 'ray', base=0, sep=True)
+        else:
+            crystal_hd(p, 18, 54, 115, 28, 6.8, FIRE_HD)
+            crystal_hd(p, 42, 54, 60, 30, 7.2, FIRE_HD)
+            crystal_hd(p, 31, 58, 88, 50, 10.0, FIRE_HD)
+            foot = c.ellipse(32, 57, 20, 4.4)
+            p.part(foot, WARMSTONE_HD, 'ray', base=0, sep=True)
+            p.part(c.box(12, 55.5, 52, 57.5) & foot, SILVER_HD, 'flat', base=0, sep=True, rim=False, tex='metal')
+            fl = S.flame(c, 52, 22, 8, 14, 0.5)
+            p.part(fl, FIRE_HD, 'vgrad', base=0, sep=True, rim=False, bands=((0.3, 2), (0.6, 1), (9, 0)))
+        grain_hd(p, foot, WARMSTONE_HD)
+    return draw
+
+
+# ----------------------------------------------------------------------------- stones
+def formation_stone_hd(p):
+    """Formation stone: a palm-sized disc of grey stone with two rings of jade inlaid, the eight trigram studs
+    between them and a bead of Qi at the centre."""
+    c = p.c
+    cx, cy = 32, 35
+    side = c.ellipse(cx, cy + 5, 26, 19)
+    p.part(side, STONE_HD, 'flat', base=-2, sep=False)
+    disc = c.ellipse(cx, cy, 26, 19)
+    p.part(disc, STONE_HD, 'ray', base=0, sep=True)
+    grain_hd(p, disc, STONE_HD)
+    for (r, ry, w) in ((19, 13.6, 2.4), (10, 7.2, 2.0)):
+        ring = c.ring(cx, cy, r, w, ry) & disc
+        p.part(ring, JADE_HD, 'flat', base=0, sep=True, rim=False)
+        p.decal(ring & c.sector(cx, cy, 30, 100, 200, 30), JADE_HD, 1)
+    for k in range(8):
+        a = k * math.pi / 4
+        x, y = cx + math.cos(a) * 14.6, cy + math.sin(a) * 10.4
+        p.part(c.circle(x, y, 1.9), JADE_HD, 'sphere', base=1, sep=True, rim=False)
+    p.part(c.circle(cx, cy, 3.2), QI_HD, 'sphere', base=1, sep=True, spec=(cx - 1.2, cy - 1.4))
+
+
+def guardian_stone_hd(p):
+    """Guardian stone: the heart-stone of a Stone Guardian, a small stele on its plinth with a shield carved into
+    it and jade set in the shield, moss at its foot."""
+    c = p.c
+    base = c.poly([(10, 58), (14, 50), (50, 50), (54, 58)])
+    p.part(base, STONE_HD, 'ray', base=0, sep=False)
+    grain_hd(p, base, STONE_HD, 4)
+    stele = c.poly([(16, 52), (16, 14), (20, 8), (44, 8), (48, 14), (48, 52)])
+    p.part(stele, STONE_HD, 'ray', base=0, sep=True)
+    grain_hd(p, stele, STONE_HD)
+    p.decal(lmask(p, [(17, 15), (21, 9)]) & stele, STONE_HD, 2)
+    sh = c.poly([(22, 18), (42, 18), (42, 30), (32, 44), (22, 30)])
+    p.decal(sh, STONE_HD, -2)
+    shin = c.poly([(25, 21), (39, 21), (39, 29.6), (32, 39.6), (25, 29.6)])
+    p.part(shin, JADE_HD, 'ray', base=0, sep=True, tex='jade')
+    p.decal(c.box(31.5, 22, 32.5, 36) & shin, JADE_HD, -2)
+    p.decal(c.box(26, 25, 38, 26) & shin, JADE_HD, -2)
+    moss = c.ellipse(18, 50, 7, 3) | c.ellipse(46, 51, 6, 2.6)
+    p.part(moss, MOSS_HD, 'ray', base=0, sep=True, rim=False)
+
+
+def terracotta_shard_hd(p):
+    """Terracotta shard: a broken piece of a Terracotta Warden's lamellar armour, the clay's thickness on its broken
+    edge, the narrow lamellae laced in curving rows, a trace of vermilion paint left on them, a crack."""
+    c = p.c
+    X, Y = XY(p)
+    m = c.poly([(8, 18), (20, 16), (32, 15), (44, 15), (55, 16), (53, 24), (47, 27), (50, 35), (42, 39), (39, 49), (31, 46), (25, 56), (19, 49), (12, 51),
+                (10, 40), (7, 32), (11, 26)])
+    ox, oy = max(1, int(round(2 * p.s))), max(1, int(round(4 * p.s)))
+    side = (move(m, ox, oy) | move(m, 0, oy) | move(m, ox, 0)) & ~m
+    p.part(side, TERRACOTTA_HD, 'flat', base=-2, sep=False, rim=False)
+    p.part(m, TERRACOTTA_HD, 'ray', base=0, sep=True, tex='clay')
+    paint = (c.ellipse(19, 28, 9, 5.2) | c.ellipse(28, 37, 5.2, 3.2)) & erode4(m)
+    p.part(paint, VERMILION_HD, 'ray_soft', base=0, sep=False, rim=False)
+    # the lamellae: rows that curve round the body, each plate with a lit corner and a dark lace line
+    cx, cy = 32.0, -48.0
+    u = np.arctan2(X - cx, Y - cy)
+    v = np.hypot(X - cx, Y - cy)
+    v0, pitch = 68.0, 12.0
+    rows = m & (v >= v0)
+    row_i = np.floor((v - v0) / pitch)
+    du = 8.8 / (v0 + pitch * 0.5)
+    col_i = np.floor(u / du + 0.5 * (row_i % 2))
+    lines = (rows & (row_i != np.floor((shift(v, 0, 1) - v0) / pitch))) | (rows & (col_i != shift(col_i, 1, 0)))
+    lines &= erode4(m)
+    corner = rows & (row_i != np.floor((shift(v, 0, -1) - v0) / pitch)) & (col_i != shift(col_i, -1, 0)) & erode4(m)
+    for mat, sel in ((TERRACOTTA_HD, ~paint), (VERMILION_HD, paint)):
+        p.decal(lines & sel, mat, -2)
+        p.decal(corner & sel & ~lines, mat, 2)
+    hem = m & (v < v0)
+    p.decal(hem & erode4(m) & (v >= v0 - 4.4) & (v < v0 - 1.6) & (np.floor(u / 0.09) % 3 != 2) & (X < 40), VERMILION_HD, 0)
+    p.decal(lmask(p, [(50, 28), (42, 32), (38, 38), (40, 44)]) & erode4(m), TERRACOTTA_HD, -3)
+    p.glow('#F58A3A', 0.45)
+
+
+def star_shard_hd(p):
+    """Star shard: a sharp chip of fallen starlight broken into three facets, the light caught inside it."""
+    c = p.c
+    A, B, C_, D = (51, 6), (54, 27), (41, 48), (26, 58)
+    E, F, G, H = (21, 51), (10, 51), (11, 34), (25, 16)
+    P = (33, 32)
+    m = c.poly([A, B, C_, D, E, F, G, H])
+    p.part(m, STARLIGHT_HD, 'flat', base=-2, sep=False)
+    top = c.poly([H, A, P, G]) & m
+    right = c.poly([A, B, C_, P]) & m
+    low = m & ~top & ~right
+    p.decal(low, STARLIGHT_HD, -1)
+    p.decal(low & c.poly([G, P, (28, 44), (16, 44)]), STARLIGHT_HD, 0)
+    p.decal(right, STARLIGHT_HD, 0)
+    p.decal(right & c.poly([A, (52, 20), (40, 36), P]), STARLIGHT_HD, 1)
+    p.decal(top, STARLIGHT_HD, 1)
+    p.decal(top & c.poly([H, (40, 14), P, (20, 28)]), STARLIGHT_HD, 2)
+    throughlit_hd(p, right | low, STARLIGHT_HD)
+    p.decal(lmask(p, [(A[0], A[1] + 1), (32, 31)]) & m, WHITE, 0)
+    p.decal(lmask(p, [(32, 32), (14, 36)]) & m, STARLIGHT_HD, 3)
+    p.decal(lmask(p, [(34, 34), (40, 46)]) & m, STARLIGHT_HD, -2)
+    p.sparkle(26, 44, 1)
+    p.glow(STAR_GLOW, GLOW_STRENGTH['sovereign'])
+
+
+def sage_crystal_hd(p):
+    """Sage Crystal (currency): a clear cut crystal with warm gold light burning at its core, lit through."""
+    c = p.c
+    cx, cy = 32, 33
+    m = gem_hd(p, cx, cy, 23, 25, CLEAR_HD, table=0.5)
+    tab = c.poly([(cx - 23 * 0.42 * 0.5, cy - 12.5), (cx + 23 * 0.42 * 0.5, cy - 12.5), (cx + 11.5, cy - 12.5 * 0.42), (cx + 11.5, cy + 12.5 * 0.42),
+                  (cx + 23 * 0.42 * 0.5, cy + 12.5), (cx - 23 * 0.42 * 0.5, cy + 12.5), (cx - 11.5, cy + 12.5 * 0.42), (cx - 11.5, cy - 12.5 * 0.42)])
+    p.decal(tab, STARLIGHT_HD, -1)
+    p.decal(erode4(tab), STARLIGHT_HD, 0)
+    p.decal(c.ellipse(cx, cy, 5.2, 6.0) & tab, STARLIGHT_HD, 2)
+    p.decal(c.ellipse(cx, cy, 2.4, 3.0) & tab, WHITE, 0)
+    for (x, y) in ((24, 48), (40, 48), (48, 38), (16, 38)):
+        p.decal(c.circle(x, y, 1.4) & m, STARLIGHT_HD, -1)
+    p.decal(c.circle(cx - 6, cy - 9, 1.4) & tab, WHITE, 0)
+    p.sparkle(54, 10, 2)
+    p.glow(STAR_GLOW, 1.0)
+
+
+def star_jade_hd(p):
+    """Star Jade (currency): a polished bi disc of deep jade, a star of starlight inlaid round its hole."""
+    c = p.c
+    cx, cy = 32, 31
+    side = c.ellipse(cx, cy + 4, 24, 22)
+    p.part(side, DEEP_JADE_HD, 'flat', base=-3, sep=False)
+    top = c.ellipse(cx, cy, 24, 22)
+    p.part(top, DEEP_JADE_HD, 'sphere', base=0, sep=True, cx=25, cy=23, rx=30, ry=28, tex='jade')
+    pts = []
+    for k in range(8):
+        a = math.radians(90 - k * 45)
+        r = 18.0 if k % 2 == 0 else 8.8
+        pts.append((cx + math.cos(a) * r, cy - math.sin(a) * r * 0.93))
+    star = c.poly(pts) & erode4(top)
+    p.part(star, STARLIGHT_HD, 'ray', base=0, sep=True, tex='glass', bands=((0.18, 2), (0.5, 1), (0.8, 0), (9, -1)))
+    hole = c.ellipse(cx, cy, 5.2, 5.0)
+    p.decal(dilate4(hole) & ~hole, DEEP_JADE_HD, -3)
+    p.erase(hole)
+    p.decal(c.arc(cx, cy, 22, 2.2, 105, 165, 20) & top, DEEP_JADE_HD, 3)
+    p.glow(STAR_GLOW, 0.5)
+
+
+def orbit_stone_chip_hd(p):
+    """Orbit stone chip: a chip of the Orbit Ruins' pale grey-blue stone, one broken-off pebble still circling it on
+    a thin arc that passes behind and in front."""
+    c = p.c
+    A, B, C_, D, E, F, G = (14, 25), (27, 17), (44, 20), (51, 31), (43, 45), (26, 48), (11, 39)
+    ring, v = tilted_ring(p, 31, 33, 27, 9.6, 26, 1.6)
+    m = c.poly([A, B, C_, D, E, F, G])
+    p.part(ring & (v < 0) & ~m, MIST_HD, 'flat', base=-1, sep=False, rim=False)
+    rock_hd(p, [A, B, C_, D, E, F, G], ORBIT_HD, top=[A, B, C_, D, (39, 30), (23, 32)], cracks=[[(30, 34), (32, 40), (28, 46)]])
+    p.decal((lmask(p, [(18, 24), (24, 20)]) | c.box(28, 18, 31, 19)) & m, ORBIT_HD, 3)
+    p.part(ring & (v >= 0), MIST_HD, 'flat', base=1, sep=True, rim=False)
+    pebble = c.circle(54.5, 24, 4.6)
+    p.part(pebble, ORBIT_HD, 'sphere', base=0, sep=True, spec=(52.5, 22))
+    p.glow('#AFC9D1', 0.4)
+
+
+# ----------------------------------------------------------------------------- cores
+def jade_core_hd(p):
+    """Jade core: a sentinel's core of clear jade, light moving inside it in a slow swirl."""
+    core_hd(p, 32, 32, 21, JADE_HD, heart=mk_round(p.c, 33, 33, 6.5), swirl=True)
+
+
+def pebble_core_hd(p):
+    """Pebble core: a Pebble Imp's tiny earth core, a stone ball cracked through, the cracks lit gold from inside."""
+    c = p.c
+    m = c.circle(32, 33, 20)
+    p.part(m, WARMSTONE_HD, 'sphere', base=0, sep=False, cx=32, cy=33, rx=20, ry=20, spec=(23, 24))
+    grain_hd(p, m, WARMSTONE_HD, 1)
+    inner = erode4(m)
+    cr = lmask(p, [(18, 27), (26, 33), (24, 41), (32, 47)]) | lmask(p, [(26, 33), (38, 29), (44, 35)]) | lmask(p, [(38, 29), (40, 20)])
+    p.decal(dilate4(cr) & inner, WARMSTONE_HD, -3)
+    p.decal(cr & inner, GOLD_HD, 0)
+    p.decal((lmask(p, [(26, 34), (24, 40)]) | lmask(p, [(30, 31), (38, 29)])) & inner, GOLD_HD, 2)
+
+
+def serpent_core_hd(p):
+    """Serpent core: the Riverbed Serpent's core, a green sphere with a slit-pupilled yellow eye looking out of it and
+    a coil of scales round its far side."""
+    c = p.c
+    m = core_hd(p, 32, 32, 21, SERPENT_HD, spec=True)
+    iris = c.ellipse(32, 32, 9.5, 14)
+    p.part(iris & m, YELLOW_HD, 'ray', base=0, sep=True, rim=False)
+    p.decal(c.ellipse(30, 28, 3.6, 4.2) & iris, YELLOW_HD, 2)
+    p.part(c.ellipse(32, 32, 3.0, 12.5) & m, INK_HD, 'flat', base=0, sep=False, rim=False)
+    p.decal(c.ellipse(31, 26, 1.2, 2.0), M('paper'), 1)
+    p.decal(c.ring(32, 32, 19.5, 2.0) & c.sector(32, 32, 24, 200, 340) & m, SERPENT_HD, -2)
+
+
+def sentinel_core_hd(p):
+    """Sentinel core: a River Sentinel's heart-stone, a river pebble polished to aquamarine, water turning inside."""
+    c = p.c
+    m = core_hd(p, 32, 32, 22, SENTINEL_HD, spec=True)
+    p.decal(c.arc(32, 32, 12, 2.8, 20, 240) & m, SENTINEL_HD, 2)
+    p.decal(c.arc(34, 36, 6, 2.4, 190, 50) & m, SENTINEL_HD, 2)
+    p.decal(c.arc(32, 32, 12, 1.2, 60, 200) & m, SENTINEL_HD, 3)
+    p.decal(c.ellipse(23, 21, 4.8, 3.2) & m, SENTINEL_HD, 3)
+    p.glow('#74D2D0', GLOW_STRENGTH['spirit'])
+
+
+CORE_TIERS = {
+    # rank tier: the sphere's radius, the heart's half-size, the form that marks the tier, the aura from Mystic up
+    'low': dict(r=13.0, s=5.4, band=False, swirl=False, coil=False, sparkle=False, glow=None),
+    'mid': dict(r=15.5, s=6.0, band=True, swirl=False, coil=False, sparkle=False, glow=None),
+    'high': dict(r=18.0, s=6.8, band=False, swirl=True, coil=False, sparkle=False, glow=GLOW_STRENGTH['mystic']),
+    'peak': dict(r=19.5, s=7.6, band=False, swirl=True, coil=True, sparkle=True, glow=GLOW_STRENGTH['spirit']),
+}
+
+
+def make_beast_core_hd(el, tier):
+    """A beast core: a sphere of its element with a bright heart in the element's shape; by rank tier a larger
+    sphere, then a band round its middle, a swirl of light inside, a coil of light round it and a glint."""
+    def draw(p):
+        T = CORE_TIERS[tier]
+        mat = M(_CORE_RAMP[el], 'gem')
+        cx, cy = 32, 33
+        core_hd(p, cx, cy, T['r'], mat, heart=CORE_MARKS[el](p.c, cx + 0.5, cy + 0.5, T['s']), band=T['band'], swirl=T['swirl'], coil=T['coil'])
+        if T['sparkle']:
+            p.sparkle(cx + T['r'] * 0.9, cy - T['r'] * 0.95, 2)
+        if T['glow']:
+            p.glow(_CORE_GLOW[el], T['glow'])
+    return draw
+
+
+# ----------------------------------------------------------------------------- essence salts: a heap in a footed dish
+ES_TIERS_HD = {
+    'cinnabar': dict(salt=mat7(ES_VERMILION, 'matte'), dish=WARMSTONE_HD, rim=None, crystals=0, glow=None),
+    'verdigris': dict(salt=mat7(ES_VERDIGRIS, 'matte'), dish=WARMSTONE_HD, rim=BRONZE_HD, crystals=0, glow=None),
+    'azurite': dict(salt=mat7(ES_AZURITE, 'gem'), dish=BRONZE_HD, rim=None, crystals=2, glow=None),
+    'pearl': dict(salt=mat7(ES_PEARL, 'gem'), dish=LACQUER_HD, rim=SILVER_HD, crystals=2, glow=('#F8D2E0', 0.5)),
+    'amethyst': dict(salt=mat7(ES_AMETHYST, 'gem'), dish=LACQUER_HD, rim=GOLD_HD, crystals=3, glow=('#B18DE2', 0.7)),
+    'star': dict(salt=mat7(ES_STARSALT, 'matte'), dish=GOLD_HD, rim=None, crystals=0, glow=('#F3E3A6', 0.85)),
+}
+
+
+def es_dish_hd(p, T):
+    """The shallow footed dish: foot, outer wall, lip and the dark well the salt sits in."""
+    c = p.c
     dish, rim = T['dish'], T['rim'] or T['dish']
-    foot = c.ellipse(16, 27.6, 6.5, 1.8)
-    c.put(foot, dish, 'ray', base=1)
-    wall = c.ellipse(16, 22.5, 13, 5.2) & (c.Y > 22)
-    c.put(wall, dish, 'ray', base=2, sep=True)
-    lip = c.ellipse(16, 22, 13, 3.4)
-    c.put(lip, rim, 'ray', base=3, sep=True)
-    well = c.ellipse(16, 22, 11, 2.3)
-    c.put(well, dish, 'flat', base=1 if dish is not ES_LACQUER else 0)
-    c.put(well & (c.Y > 22.5), dish, 'flat', base=0)
+    dtex, rtex = TEX.get(dish.kind), TEX.get(rim.kind)
+    foot = c.ellipse(32, 55.2, 13, 3.6)
+    p.part(foot, dish, 'ray', base=-1, sep=False, tex=dtex)
+    wall = c.ellipse(32, 45, 26, 10.4) & c.box(0, 44, 64, 64)
+    p.part(wall, dish, 'ray', base=0, sep=True, tex=dtex)
+    lip = c.ellipse(32, 44, 26, 6.8)
+    p.part(lip, rim, 'ray', base=1, sep=True, tex=rtex)
+    well = c.ellipse(32, 44, 22, 4.6)
+    p.part(well, dish, 'flat', base=-2 if dish is not LACQUER_HD else -3, sep=True, rim=False)
+    p.decal(well & c.box(0, 45, 64, 64), dish, -3)
     return well
 
 
-ES_OY = 2   # grain rows start here (rows of 3 px, every other row offset by one pixel)
-
-
-def _es_cells(c):
-    row = (c.yi - ES_OY) // 3
-    ly = (c.yi - ES_OY) % 3
-    lx = (c.xi + (row % 2)) % 3
-    return row, lx, ly
-
-
-def _es_heap_mask(c, well, top=7.0):
+def es_heap_hd(p, well, top=14.0):
     """A cone of salt with a rounded crown, its edge nicked and bumped by single grains."""
-    half = 0.8 + (c.Y - top) * 0.7
-    cone = (np.abs(c.X - 16) <= half) & (c.Y >= top) & (np.abs(c.X - 16) <= 11.2)
-    cone &= c.ellipse(16, top + 5.5, 6.5, 5.5) | (c.Y > top + 4)
-    edge = cone & ~erode4(cone) & (c.Y < 21)
-    cone &= ~(edge & ((c.xi * 7 + c.yi * 3) % 5 == 0))
-    bump = dilate4(cone) & ~cone & (c.Y < 20.5) & (c.Y > top + 2) & ((c.xi * 5 + c.yi * 11) % 6 == 0)
-    return (cone | bump) & (well | (c.Y < 22.5))
+    c = p.c
+    X, Y = XY(p)
+    xi, yi = np.floor(X).astype(int), np.floor(Y).astype(int)
+    half = 1.6 + (Y - top) * 0.7
+    cone = (np.abs(X - 32) <= half) & (Y >= top) & (np.abs(X - 32) <= 22.4)
+    cone &= c.ellipse(32, top + 11, 13, 11) | (Y > top + 8)
+    edge = cone & ~erode4(cone) & (Y < 42)
+    cone &= ~(edge & ((xi * 7 + yi * 3) % 5 == 0))
+    bump = dilate4(cone) & ~cone & (Y < 41) & (Y > top + 4) & ((xi * 5 + yi * 11) % 6 == 0)
+    return (cone | bump) & (well | (Y < 45))
 
 
-def _es_grains(c, heap, salt):
-    """Shade the heap round, then break it into grains: each grain a step lighter or darker than its neighbours,
-    a bright facet at its top-left corner and a dark one at its lower right."""
-    idx = c.shade_index(heap, 5, 'sphere', 2, cx=14, cy=15, rx=12, ry=12)
-    row, lx, ly = _es_cells(c)
-    col = (c.xi + (row % 2)) // 3
+def es_grains_hd(p, heap, salt):
+    """Shade the heap round, then break it into grains: each grain a step lighter or darker than its neighbours, a
+    bright facet at its top-left corner and a dark one at its lower right."""
+    c = p.c
+    p.part(heap, salt, 'flat', base=0, sep=True)
+    idx = c.shade_index(heap, 7, 'sphere', 3, cx=28 * p.s, cy=30 * p.s, rx=24 * p.s, ry=24 * p.s, bands=BANDS['sphere'])
+    cell = max(2, int(round(4 * p.s)))
+    row = c.yi // cell
+    sx = c.xi + (row % 2) * (cell // 2)
+    col = sx // cell
+    lx, ly = sx % cell, c.yi % cell
     jitter = np.array([0, 1, 0, -1, 0, -1, 1])[(col * 3 + row * 5 + (col * row) % 4) % 7]
     idx = idx + jitter
     idx = np.where((ly == 0) & (lx == 0), idx + 1, idx)
-    idx = np.where((ly == 2) & (lx == 2), idx - 1, idx)
-    idx = np.clip(idx, 0, 4)
-    for lvl in range(5):
-        c.put(heap & (idx == lvl), salt, 'flat', base=lvl)
+    idx = np.where((ly == cell - 1) & (lx == cell - 1), idx - 1, idx)
+    idx = np.clip(idx, 0, 6)
+    c.rgb[heap] = np.array(salt.c, np.uint8)[idx[heap]]
 
 
-def _es_salt(tier):
-    T = ES_TIERS[tier]
-    salt = T['salt']
-    c = Canvas(32)
-    well = _es_dish(c, T)
-    heap = _es_heap_mask(c, well)
-    _es_grains(c, heap, salt)
-    lit = heap.copy()
-    spec = [(15.5, 12, 94, 10, 2.4), (21, 15, 60, 7, 2.0), (10, 16, 124, 7, 1.9)][:T['crystals']]
-    for (bx, by, ang, L, w) in spec:
-        lit |= crystal(c, bx, by, ang, L, w, salt)
-    c.pxs([(13, 15), (18, 14), (10, 19), (21, 18)], salt[4], out=salt.out)
-    if tier == 'star':
-        c.pxs([(12, 16), (17, 13), (20, 18), (9, 20), (15, 19), (23, 21)], R['gold'][3], out=salt.out)
-        c.pxs([(16, 12), (18, 20)], '#FFF8E2', out=salt.out)
-    c.outline()
-    if T['glow']:
-        from families.beast_parts import halo
-        halo(c, lit, T['glow'][0], T['glow'][1])
-    if tier == 'star':
-        S.sparkle(c, 25, 7, '#FFFFFF', R['gold'][3], 2)
-    return c
+def make_salt_hd(tier):
+    def draw(p):
+        c = p.c
+        T = ES_TIERS_HD[tier]
+        salt = T['salt']
+        well = es_dish_hd(p, T)
+        heap = es_heap_hd(p, well)
+        es_grains_hd(p, heap, salt)
+        for (bx, by, ang, L, w) in [(31, 24, 94, 20, 4.8), (42, 30, 60, 14, 4.0), (20, 32, 124, 14, 3.8)][:T['crystals']]:
+            crystal_hd(p, bx, by, ang, L, w, salt)
+        p.decal(c.pts([(26, 30), (36, 28), (20, 38), (42, 36)]), salt, 3)
+        if tier == 'star':
+            p.decal(c.pts([(24, 32), (34, 26), (40, 36), (18, 40), (30, 38), (46, 42), (28, 22)]), GOLD_HD, 0)
+            p.decal(c.pts([(32, 24), (36, 40)]), M('paper'), 2)
+            p.sparkle(50, 14, 2)
+        if T['glow']:
+            p.glow(*T['glow'])
+    return draw
 
 
-for _es_tier in ES_TIERS:
-    register(FAM, _es_tier + '_salt', (lambda tt: lambda: _es_salt(tt))(_es_tier), GROUP)
+# ----------------------------------------------------------------------------- the Ashen Reach: ash and an ember
+def cinder_ash_hd(p):
+    """Cinder ash: a small heap of cold grey ash, three orange embers still alive in it."""
+    c = p.c
+    heap = c.poly([(6, 55), (12, 49), (19, 44), (25, 39), (30, 36), (35, 37), (41, 41), (48, 47), (57, 55)]) | c.ellipse(32, 53, 26, 5.2)
+    heap &= c.box(0, 0, 64, 57)
+    p.part(heap, ASH_HD, 'sphere', base=0, sep=False, cx=26, cy=42, rx=32, ry=20, rim=False)
+    inner = erode4(heap)
+    p.decal(lmask(p, [(38, 42), (44, 48), (50, 52)]) & inner, ASH_HD, -1)
+    for (x, y) in ((16, 50), (24, 54), (34, 54), (44, 54), (12, 54), (48, 50), (20, 46), (40, 44)):
+        p.decal(c.circle(x, y, 1.1) & inner, ASH_HD, -2)
+    for (x, y) in ((18, 44), (26, 40), (14, 48), (32, 40), (10, 52), (22, 48), (36, 44)):
+        p.decal(c.circle(x, y, 0.9) & inner, ASH_HD, 2)
+    hearts = c.box(28, 46, 33, 49) | c.box(40, 50, 43.5, 52) | c.box(18, 52, 21.5, 54)
+    p.decal(dilate4(dilate4(hearts)) & heap & ~hearts, EMBER_HD, -2)
+    p.decal(dilate4(hearts) & heap & ~hearts, EMBER_HD, -1)
+    p.decal(hearts, EMBER_HD, 1)
+    p.decal(c.box(29, 46, 31, 47) | c.box(40, 50, 41.5, 51), EMBER_HD, 3)
+    p.glow('#F58A3A', 0.45)
 
 
-# ----------------------------------------------------------------------------- v1.2 Phase C · the Orbit Ruins
-# orbit_stone_chip: a chip of the Orbit Ruins' pale grey-blue stone. The ruins' wrong gravity still holds in it, so
-# one pebble broken off it keeps circling it on a thin arc.
-V12C_ORBIT_STONE = Ramp(['#3A4658', '#5E6E84', '#94A4B6', '#C4D0DA', '#EEF4F8'], '#151C26')
+def pyre_ember_hd(p):
+    """Pyre ember: one coal lifted out of an Ashborn pyre, a crust of char cracked open on its orange-red core with
+    a yellow heart, a tongue of flame standing on it."""
+    c = p.c
+    lump = c.poly([(13, 41), (17, 30), (27, 25), (39, 26), (50, 33), (53, 44), (46, 55), (31, 58), (19, 53)])
+    p.part(lump, CHAR_HD, 'ray', base=0, sep=False, bands=((0.3, 1), (0.6, 0), (9, -1)))
+    core = erode4(erode4(lump)) & ~c.poly([(36, 48), (49, 36), (54, 54), (32, 62)]) & ~c.poly([(12, 48), (18, 50), (26, 60), (10, 60)])
+    core &= ~(c.ellipse(39, 32, 5.2, 3.2) | c.ellipse(20, 43, 4.0, 2.8))
+    p.part(core, EMBER_HD, 'sphere', base=0, sep=True, cx=27, cy=39, rx=18, ry=14, rim=False)
+    p.decal(c.ellipse(28, 40, 8.0, 6.0) & core, EMBER_HD, 1)
+    p.decal(c.ellipse(26, 39, 4.4, 3.2) & core, EMBER_HD, 2)
+    p.decal(c.ellipse(25, 38, 2.0, 1.4) & core, WHITE, 0)
+    for pts in ([(42, 40), (48, 46), (46, 52)], [(16, 46), (22, 52)], [(38, 30), (42, 34)]):
+        p.decal(lmask(p, pts) & lump & ~core, EMBER_HD, 1)
+    p.decal(c.pts([(46, 48), (20, 50)]) & lump, EMBER_HD, 2)
+    fl = S.flame(c, 29, 27, 12, 21, 1.4)
+    p.part(fl & ~lump, FIRE_HD, 'vgrad', base=0, sep=True, rim=False, bands=((0.3, -1), (0.62, 0), (9, 1)))
+    p.part(S.flame(c, 29, 27, 5.6, 11, 0.6) & ~lump, FIRE_HD, 'flat', base=2, sep=False, rim=False)
+    p.glow('#F58A3A', GLOW_STRENGTH['will'])
 
 
-def orbit_stone_chip():
-    """A pale grey-blue stone chip, a tiny pebble orbiting it on a thin arc that passes behind and in front of it."""
-    from families.beast_parts import _v12c_tilted_ring
-    c = Canvas(32)
-    ramp = V12C_ORBIT_STONE
-    A, B, C_, D, E, F, G = (7, 12.5), (13.5, 8.5), (22, 10), (25.5, 15.5), (21.5, 22.5), (13, 24), (5.5, 19.5)
-    m = c.poly([A, B, C_, D, E, F, G])
-    c.put(m, ramp, 'ray', base=2)
-    # the flat top facet, lit, over the broken face; a fracture line down the face
-    top = c.poly([A, B, C_, D, (19.5, 15), (11.5, 16)]) & m
-    c.put(top, ramp, 'flat', base=3)
-    c.put(S.outline_only(top) & ~S.outline_only(m) & (c.Y > 12), ramp[1], 'flat', out=ramp.out)
-    c.put(c.bres_path([(15, 17), (16, 20), (14, 23)]) & erode4(m), ramp[1], 'flat', out=ramp.out)
-    c.put((c.bres(9, 12, 12, 10) | c.rect(14, 9, 15, 9)) & top, ramp[4], 'flat', out=ramp.out)
-    # the orbit: the far arc dim behind the chip, the near arc crossing in front of it
-    ring, v = _v12c_tilted_ring(c, 15.5, 16.5, 13.5, 4.8, 26)
-    c.put(ring & (v < 0) & ~m, R['mist'], 'flat', base=1)
-    c.put(ring & (v >= 0), R['mist'], 'flat', base=3, sep=True)
-    # the pebble, hanging on the arc off the chip's shoulder
-    pebble = c.circle(27.3, 12, 2.3)
-    c.put(pebble, ramp, 'sphere', base=2, sep=True)
-    c.put(c.rect(26, 11, 26, 11), ramp[4], 'flat', out=ramp.out)
-    c.outline()
-    return c
+# ----------------------------------------------------------------------------- the family's table
+# The ores by grade, then the Qi stones and fuel, the stones, the cores, the Act II and III materials, the currencies,
+# the salts and the beast cores: one drawing each from the templates above and the tables they read.
+ORES_HD = [('copper_ore', ore_copper_hd), ('riverstone', ore_riverstone_hd), ('jadeiron', ore_jadeiron_hd), ('cloudsteel_ore', ore_cloudsteel_hd),
+           ('mystic_ore', ore_mystic_hd), ('stormsteel_ore', ore_stormsteel_hd), ('sunglass_ore', ore_sunglass_hd), ('driftglass', driftglass_hd)]
+ONE_OFFS_HD = [('spirit_stone_shard', spirit_stone_shard_hd), ('refining_essence', refining_essence_hd),
+               ('formation_stone', formation_stone_hd), ('guardian_stone', guardian_stone_hd),
+               ('pebble_core', pebble_core_hd), ('serpent_core', serpent_core_hd), ('jade_core', jade_core_hd), ('sentinel_core', sentinel_core_hd),
+               ('terracotta_shard', terracotta_shard_hd), ('comet_iron', comet_iron_hd), ('star_shard', star_shard_hd), ('orbit_stone_chip', orbit_stone_chip_hd),
+               ('cinder_ash', cinder_ash_hd), ('pyre_ember', pyre_ember_hd), ('sage_crystal', sage_crystal_hd), ('star_jade', star_jade_hd)]
+MINERALS_HD = (ORES_HD
+               + [('spirit_stone_' + lv, make_spirit_stone_hd(lv)) for lv in SPIRIT_STONES_HD]
+               + [('fuel_crystal_' + lv, make_fuel_crystal_hd(lv)) for lv in ('low', 'mid')]
+               + ONE_OFFS_HD
+               + [(tier + '_salt', make_salt_hd(tier)) for tier in ES_TIERS_HD]
+               + [('%s_core_%s' % (el, tier), make_beast_core_hd(el, tier)) for el in _CORE_RAMP for tier in CORE_TIERS])
 
-
-register(FAM, 'orbit_stone_chip', orbit_stone_chip, GROUP)
-
-
-# ----------------------------------------------------------------------------- v1.2 Phase D · the Ashen Reach
-# cinder_ash: the cold grey ash of an Ashborn pyre, a few embers still alive in it. pyre_ember: one coal lifted out
-# of that fire, its heart still yellow, a small flame standing on it.
-V12D_ASH = Ramp(['#1C1E22', '#2F3236', '#484C51', '#686D72', '#8E9398'], '#0A0C0E')
-V12D_CHAR = Ramp(['#16100E', '#2A1E1A', '#443028', '#5E463A', '#7A6050'], '#080504')
-
-
-def cinder_ash():
-    """A small heap of dark grey ash, three orange embers still glowing in it."""
-    c = Canvas(32)
-    ash = V12D_ASH
-    heap = c.poly([(3, 27.5), (6, 24.5), (9.5, 22), (12.5, 19.5), (15, 18), (17.5, 18.5), (20.5, 20.5), (24, 23.5),
-                   (28.5, 27.5)])
-    heap |= c.ellipse(16, 26.5, 13, 2.6)
-    heap &= c.Y < 28.5
-    c.put(heap, ash, 'sphere', base=2, cx=13, cy=21, rx=16, ry=10)
-    # powder: a slump down the shadow side, dark and light flecks
-    c.put(c.bres_path([(19, 21), (22, 24), (25, 26)]) & erode4(heap), ash[1], 'flat', out=ash.out)
-    for (x, y) in ((8, 25), (12, 27), (17, 27), (22, 27), (6, 27), (24, 25), (10, 23), (20, 22)):
-        c.put(c.rect(x, y, x, y) & erode4(heap), ash[1], 'flat', out=ash.out)
-    for (x, y) in ((9, 22), (13, 20), (7, 24), (16, 20), (5, 26), (11, 24), (18, 22)):
-        c.put(c.rect(x, y, x, y) & erode4(heap), ash[4], 'flat', out=ash.out)
-    # the embers: three coals still alive, each a bright heart in a ring of dull red
-    hearts = c.rect(14, 23, 16, 24) | c.rect(20, 25, 21, 25) | c.rect(9, 26, 10, 26)
-    c.put(dilate4(hearts) & heap & ~hearts, R['ember'], 'flat', base=1)
-    c.put(hearts, R['ember'], 'flat', base=3)
-    c.put(c.rect(15, 23, 15, 23) | c.rect(20, 25, 20, 25), R['ember'], 'flat', base=4)
-    c.outline()
-    c.glow('#F58A3A', (45,))
-    return c
-
-
-def pyre_ember():
-    """A single ember: an angular coal in a crust of char, its orange-red core open to a yellow heart, a small flame
-    licking up from the top."""
-    c = Canvas(32)
-    lump = c.poly([(6.5, 20.5), (8.5, 15), (13.5, 12.5), (19.5, 13), (25, 16.5), (26.5, 22), (23, 27.5), (15.5, 29),
-                   (9.5, 26.5)])
-    char = V12D_CHAR
-    c.put(lump, char, 'ray', base=2, bands=((0.3, 1), (0.6, 0), (9, -1)))
-    # the crust is thick on the shadow side and flakes over the top; the fire shows through the rest
-    core = erode4(erode4(lump)) & ~c.poly([(18, 24), (24.5, 18), (27, 27), (16, 31)]) & ~c.poly([(6, 24), (9, 25), (13, 30), (5, 30)])
-    core &= ~(c.ellipse(19.5, 16, 2.6, 1.6) | c.ellipse(10, 21.5, 2.0, 1.4))
-    c.put(core, R['ember'], 'sphere', base=2, cx=13.5, cy=19.5, rx=9, ry=7)
-    c.put(c.ellipse(14, 20, 4.0, 3.0) & core, R['ember'], 'flat', base=3)
-    c.put(c.ellipse(13, 19.5, 2.2, 1.6) & core, R['ember'], 'flat', base=4)
-    c.put(c.rect(12, 19, 13, 19), '#FFF6C0', 'flat', out=R['ember'].out)
-    # cracks running through the char where the heat shows
-    for pts in ([(21, 20), (24, 23), (23, 26)], [(8, 23), (11, 26)], [(19, 15), (21, 17)]):
-        c.put(c.bres_path(pts) & lump & ~core, R['ember'], 'flat', base=3)
-    c.put(c.pts([(23, 24), (10, 25)]) & lump, R['ember'], 'flat', base=4)
-    # a tongue of flame standing on the top, leaning a little to the right
-    fl = S.flame(c, 14.5, 13.5, 6.0, 10.5, 0.7)
-    c.put(fl & ~lump, R['fire'], 'vgrad', base=2, bands=((0.3, 0), (0.62, 1), (9, 2)))
-    inner = S.flame(c, 14.5, 13.5, 2.8, 5.5, 0.3)
-    c.put(inner & ~lump, R['fire'], 'flat', base=4)
-    c.outline()
-    c.glow('#F58A3A', (80, 35))
-    return c
-
-
-register(FAM, 'cinder_ash', cinder_ash, GROUP)
-register(FAM, 'pyre_ember', pyre_ember, GROUP)
+for _id, _draw in MINERALS_HD:
+    register(FAM, _id, _draw, GROUP)
+    hd(_id, _draw)

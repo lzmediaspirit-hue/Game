@@ -1632,6 +1632,13 @@ func swarm_of(c) -> Dictionary:
 		if bool(settled.get("queen", false)) and not was_queen: emit("swarm_queen", {"actor": c.id})
 	return c.swarm
 
+## The swarm's creature sheet (stats.swarm.art), the Queen's (queen_art) once she has risen: the Swarm tab and the
+## released swarm in the world draw from it.
+func swarm_art(c) -> String:
+	var k := swarm_cfg()
+	var queen := bool(c.swarm.get("queen", false)) if c != null and c.swarm is Dictionary else false
+	return str(k.get("queen_art", k.get("art", ""))) if queen else str(k.get("art", ""))
+
 ## Feed the box ore: each ore gives food by its grade (stats.swarm.ore_food); the swarm eats one an hour.
 func feed_swarm(c, item: String, count: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "beetle_swarm"): return fail("locked", {"text": Unlocks.locked_text("beetle_swarm")})

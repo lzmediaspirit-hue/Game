@@ -1,6 +1,16 @@
 """S09 techniques, Daos and secret arts (Part 8)."""
 from common import entries, titled
 
+# Where a technique is learned (its "source"), as the player reads it: strings technique_source.<id>, read with
+# ContentDB.name_of("technique_sources", id). A source that is a quest reads as the quest's name (economy.strings).
+SOURCES = {"training_hall": "Training hall", "training_hall_jade": "Jade Sect training hall", "training_hall_cloud": "Cloud Sect training hall",
+           "library_1": "Sect library, first floor", "library_2": "Sect library, second floor", "library_3": "Sect library, third floor",
+           "cloud_library": "Cloud Library", "mission_hall": "Mission Hall, for the merit-worthy", "night_peddler": "Peddler Shao's night mat",
+           "bastion_armoury": "Tidebreak Armoury", "lanternwright_han": "Lanternwright Han", "mudwater_manual": "The Mudwater Manual",
+           "drowned_shrine_drop": "A manual from the Drowned Shrine", "gorge_bandit_drop": "A manual from the gorge bandits",
+           "sword_dao_3": "Sword Dao, third tier", "sword_dao_5": "Sword Dao, fifth tier", "soul_dao_1": "Soul Dao, first tier",
+           "soul_dao_2": "Soul Dao, second tier", "soul_dao_3": "Soul Dao, third tier"}
+
 FAMILY_ACTION = {"fists": "punch_2", "jian": "swing_3", "spear": "thrust_3", "short_blade": "thrust_1", "staff": "thrust_3",
                  "bow": "bow", "heavy_sabre": "swing_3", "fan": "swing_2", "flute": "attack", "brush": "swing_2", "bell": "swing_1", "any": None}
 

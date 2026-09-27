@@ -38,6 +38,21 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   digits, chapter_floor, pacing) and plays on to Sphere Lord 3 (133 h); `rules_tests` gains `might_suite`; valley_run
   gains the labelled par-up shortcut at each section start and its checkpoints are regenerated.
 
+## The Copperjaw swarm's creature art (v1.2 Phase D)
+
+- **The swarm has a sheet of its own.** `copperjaw_swarm` (`tools/art/creatures/copperjaw_swarm.py`, flying, cell
+  128): eleven small copper beetles at three depths, each a copper wing-case oval with a seam and pronotum band, a
+  chitin head, pale-gold jaws and, when its cases lift, two pale wing blurs, the cases flicking from beetle to beetle
+  so the cloud buzzes. Idle hangs and drifts, walk streams forward with streaks, windup draws back into a ball inside
+  a tightening copper ring (held), attack lances forward as a spearhead and bites on frame 1, hurt scatters the cloud
+  with copper dust, death rains the beetles down onto their backs and fades. `copperjaw_queen` is the same cloud led
+  by a large gold-cased Queen with a pale-gold crown. The swarm config (`stats.swarm`) names them as `art` and
+  `queen_art`; `Game.pets.swarm_art` picks the Queen's once she has risen. The Swarm tab shows the cloud on the wing
+  on a stage beside its numbers, and while the box is open clouds of beetles circle the bearer in the world (three at
+  fifty beetles, five at thousands, the far half behind the body), drawn from the sheet. `data_validation` checks
+  both sheets exist and fly; `--beetle-swarm` opens the box for previews. The review sheets (2x, 1x, 8x close-ups)
+  and in-game shots from the `ls6_end` checkpoint are in `docs/mockups/creatures/copperjaw_swarm/`.
+
 ## P4b · Icons in Style A: the pipeline and the display (docs/mockups/icon_study)
 
 - **The pipeline** (`tools/icons/`, README "How to convert a family"): `pix.py` gains the HD mode the study
@@ -70,6 +85,37 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   weapons share one diagonal frame and the shaft, blade and grip builders; the button glyphs share the book, bust,
   arrow and chest templates. The ASCII tables and the legacy glyph painter are gone. Sheets and in-game screenshots
   from the valley_run checkpoints in `docs/mockups/icon_families/hud/`.
+- **Herbs in Style A** (`tools/icons/families/herbs.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/herbs/`): the 26 icons (16 herbs, 6 seeds, spring water, spirit soil, the dyed root and
+  rice wine) redrawn at 64 px with native `@32` renders, each herb living plant matter on the clump of earth, stone,
+  snow or water it grows from, with leaf ribs, petals, roots, fruit and stems. The nine species drawers take the age
+  from one table and show it by form, never by colour alone: an older root is larger with more growth rings and root
+  hairs (gold at a hundred years, gold to the tips at a thousand, pale as jade at ten thousand), an older lotus has a
+  taller pair of petals and a fuller seed head, an older orchid a third bloom, an older soulbell a third bell, an older
+  pepper two dark full pods; leaf veins turn gold at a hundred years, and a Mystic herb and above carries its spirit
+  aura as stepped glow bands. The seeds share one hemp pouch with a tag stamped in the herb's colour and their own seeds
+  spilled beside it. The legacy 32 px code is gone.
+- **Techniques in Style A, as composed emblems** (`families/techniques.py`, `ART = 64`; the sheets and in-game shots
+  in `docs/mockups/icon_families/techniques/`): the 66 technique icons are composed by one
+  `emblem(element, form, family, grade, kind, path)` from parts drawn once and kept as tables, the technique plan's
+  emblem grammar (§3.9): eleven element discs (the domed disc with the keyline under the mark), the 24 forms' marks
+  with the family's weapon inset (sixteen weapons and the free hand's palm), rims for the thirteen grades and the four
+  kinds (secret art, keystone, Dao art, lost art), the five path stamps, and hand marks for the arts off the grammar's
+  line. A technique's row comes from `data/techniques.json` and its form from `FORM_OF`; a path art's mark takes the
+  path's colour as well as its stamp. Rendered at 64 with native 48 (the HUD ring) and 32. The 66 hand-drawn legacy
+  marks are gone.
+- **Minerals in Style A** (`tools/icons/families/minerals.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/minerals/`): the 75 icons (9 ores, the spirit stones and shard, the fuel crystals, the
+  stones and cores, the Act II and III materials, the two currencies, the six essence salts and the 40 beast cores)
+  redrawn at 64 px with native `@32` renders, one language per kind: raw ore is its material in a chunk of rock with
+  stone grain (copper nuggets, jade veins, a crystal cluster, a glass lump with its sand crust); the comet-iron ingot
+  shows its three faces and the metal's sheen and reflection bands; a cut crystal or spirit stone has a table, crown
+  facets and light pooling through its shade side; a polished stone is a disc, a stele or a chip with an inlay; a core
+  is a sphere with a bright heart in its element's shape (a flame, waves, a leaf, peaks, a curl, a bolt, an eye, a
+  blade, a star, a ring); the salts are a heap of grains in a footed dish. The templates (rock, nugget, crystal, cut
+  gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
+  by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
+  above carries its aura as stepped glow bands. The legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
@@ -240,6 +286,46 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **The old scrolls' names.** Twenty Codex entries set the common xianxia ladder's names beside Jade River's realms
   (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
   first time the account reaches that great realm (`docs/realm_old_names.md`).
+
+### P3 · Fixes found by the mockups
+The open items the mockup agents listed while drawing (`docs/mockups/README.md`), each with a test in `rules_tests`
+(`mockup_fixes_suite`) or `data_validation` that failed before.
+- **A sect building takes its materials from the Storehouse and storage too.** The Treasury no longer waits while 49
+  Copper Ore sit in storage: a build spends from the bag, then the Storehouse, then the storage chest. One spend path
+  (`InventoryAuthority.count_owned` and `apply_spend`) serves the sect builds and the Post Vows, each store written by
+  its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
+- **Every sect building has a place in the Sect Grounds.** The Herb Terraces (three garden beds before the Treasury),
+  the Expanse Outpost (a watchtower beside the pagoda), the Mirror of Echoes (a bronze mirror before the Meditation
+  Pavilion) and the Ancestral Shrine (an ancestors' altar by the shrine) appear in `hv_sect_grounds` once raised, like
+  the other ten. They pass the room lint, the `room_sweep` and the `overlap_suite`; a `data_validation` rule fails on
+  a sect building with no place there.
+- **The Treasury's output says what it gives.** Its key `taels_per_level` sized the storage chest; it is now
+  `storage_slots_per_level` (20 spaces a level) in the builder, the data and `SectAuthority.treasury_bonus`.
+- **`move_speed` is a number.** `stats.json` gave it the percent format while the Character page shows the speed
+  itself (242), so a flat bonus would have read "+2000% move speed". Its format is `int`; a test holds that every
+  percent stat is a share.
+- **Technique sources have names.** Each of the 26 sources (`library_1`, `night_peddler` …) has a string
+  `technique_source.<id>` ("Sect library, first floor", "Peddler Shao's night mat"; a quest reads as its name), read
+  with `ContentDB.name_of("technique_sources", id)` where a technique's source is shown (an unlearned star's line on
+  the proposed Techniques sky). A `data_validation` rule fails on a source without one.
+- **A locked feature says everything it waits on.** `Unlocks.locked_text` has one rule: a system's own locked text if
+  it has one; else every trigger condition still unmet, in order ("Reach Qi Kindling 1 · Complete "Keeping Post"",
+  where it named only the first); and when a quest is all that is left (the one unmet condition, or the system's own
+  quest once the trigger holds) that quest and who gives it ("Take "An Idle Art" from Elder Hu", where it said "Not
+  yet available"). `RequirementRules.unmet` gives the unmet conditions, and `first_failure_text` is its first.
+  `data_validation` holds that every quest the rule may name has a giver.
+- **The hub's Works tile reads the same rule.** It showed Keeping Post at `qu5`, where Keeping Post is done; the hub
+  asks `Unlocks.locked_text` for its locked tiles, so at `qu5` Works now waits on Elder Hu's An Idle Art.
+- **Every weapon family has a stance held without buying anything** (found by the technique planner). The jian's only
+  stance was Willow Leaf Parry, also a technique bought at the library, and bare fists, the brush and the bell had
+  none. Four basic stances join the eight: Guarding Blade (jian: a parry counters for 120%, attacks 10% slower),
+  Tiger Crouch (fists), Steady Wrist (brush) and Deep Tone (bell). Willow Leaf Parry stays the jian's better stance
+  (200%) and now holds only for one who has learned its technique (`ProgressionRules.stance_known`, used by
+  `set_stance`, the active stance and the Techniques page). `data_validation` holds one basic stance per family.
+- **Found, not fixed: the Copperjaw swarm has no creature art.** No sheet fits: `rock_beetle` is the quarry's grey
+  stone beetle (an enemy) and `jade_scarab_swarm` a jade insect-netting prop. Nothing maps the swarm to art today (the
+  Swarm tab draws none); a new `copperjaw_swarm` sheet in `creature_art.json`, named by an `art` key in the `swarm`
+  config of `stats.json` as `pets.json` names an animal's, is a pixel-art task.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
