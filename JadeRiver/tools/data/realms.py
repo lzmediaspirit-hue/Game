@@ -90,6 +90,12 @@ MAX_YEARS = {"mortal": 80, "bone_forging": 100, "qi_kindling": 120, "qi_unfurlin
              "dao_sigil": 30000, "heavens_threshold": 50000, "inner_heaven": 100000, "world_genesis": 0}
 
 
+# Bone Forging front-loaded (docs/research/player_motivation.md §3.2): 600 / 900 / 1,200 / 1,600 progress for Bone
+# Forging 1-4, so the story's own fights carry the first hour to Bone Forging 4; Bone Forging 5-9 take the rest, so Qi
+# Kindling 1 still lands at about 5 hours (balance_sim's pacing row).
+BONE_FORGING_T = [6, 9, 12, 16, 37, 37, 37, 37, 37]
+
+
 def need(level, t_minutes):
     return 100 * t_minutes
 
@@ -137,9 +143,7 @@ def build():
             e = energy
             if rid == "bone_forging":
                 e = "primal_qi" if sub >= 7 else "none"
-            t_here = t
-            if rid == "bone_forging" and sub == 1:
-                t_here = 12
+            t_here = BONE_FORGING_T[sub - 1] if rid == "bone_forging" else t
             qp = sum(need(level + k, t_here) for k in range(per))
             row = {"id": key, "key": key, "realm": rid, "realm_index": index, "sub": sub,
                    "name": "%s %d" % (name, sub), "level": level, "levels": per, "energy": e,

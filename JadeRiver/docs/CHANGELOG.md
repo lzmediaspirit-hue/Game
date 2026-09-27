@@ -1,5 +1,48 @@
 # Changelog
 
+## A rewarding first hour: techniques early, a faster Bone Forging, the story carries the floors
+
+Research docs/research/player_motivation.md, items 3, 4, 5, 8 and 10 of its top ten; the first hour as built is in its
+"As built" section and in docs/tutorial_order.md.
+- **The first technique at Bone Forging 1, the second at the Weapon Hall.** Lu teaches Flowing Palm on his boat with
+  the first breakthrough (The River Token's reward; its unlock realm is now Bone Forging 1). The skill ring and the
+  Techniques page open at Bone Forging 1, so the palm takes its slot at once. The Weapon Hall, done, teaches the first
+  art of the family in hand, from the arts the training halls and the library already keep: the jian's Cloudpiercing
+  Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, the short blade's Reedcutter Slash and so on.
+  Until the body has a Qi pool (Bone Forging 7) a technique costs no Qi, only its cooldown
+  (`stats.json technique_cost.free_without_pool`, `CombatAuthority.breath_only`). A technique learned is its own
+  moment (`moments.json` row `technique_learned`: its name, "tap it on the skill ring", the light gathering).
+- **Bone Forging 1-4 take 600 / 900 / 1,200 / 1,600 progress** (was 1,200 / 3,200 / 3,200 / 3,200); Bone Forging 5-9
+  take 3,700 each (was 3,200), so Qi Kindling 1 lands at 5.1 hours in balance_sim (target 5). The River Token's
+  endowed bar starts at 98% (was 92%), so the boat's fifteen breaths fill it.
+- **Chapter 2 opens at Bone Forging 2, and the story carries every floor.** The Entry Trial has no "Reach Bone Forging
+  2" step; the Willow Path (35% of a stage), the fair and the trial (20%) carry Bone Forging 1 to 2, and Fish-Gutting
+  Fists (45%, and the title River Rival) carries 2 to 3, the Weapon Hall's realm. Strange Tracks (chapter 2's floor
+  Bone Forging 2; the marsh path opens there too) starts as the mentor's note the moment the Weapon Hall is done. When
+  the story does wait on a Level, the tracker's Next entry names a second way to close it: a lesson or side quest on
+  offer, or meditation and body training (`QuestAuthority._floor_other_way`). A story quest that follows a lesson now
+  waits next (`story_waiting`), so between Fish-Gutting Fists and the Weapon Hall the Next is the Weapon Hall.
+- **Nine early quests cut, merged or rewritten.** Morning Tide is under way from waking, Aunt Ping's tea in hand and the
+  hut's door open (no teas to hunt, no Bag to open first). A Quiet River (Return) is gone: the fourth lesson done, Guo
+  has Crab Trouble at once. Ma's Delivery is one step (sell the net). Fists First asks five on the stump and three on
+  the dummy (was 12 and 5). Crab Trouble wants three shells, which drop every kill while he wants them, and pays the
+  Straw Sandals with the hat. The Willow Path has no stump quota (was 30): Flowing Palm on a boarlet, five boarlets and
+  the herd's elite (a kill objective may now ask for an elite). A Disciple's Chores is a side errand: two spots, and the
+  third is the grey itself, with a cache of two spirit stone shards. Eyes for Qi sits 20 s (was 60) and pays a
+  ten-year Riverreed Ginseng. Mei Qing's Errand asks the grey hides of the Humming Token's boarlets, not copper ore
+  (which needed mining), and they drop every kill while she wants them. The Weapon Hall asks five dummy hits (was 15).
+- **Breakthroughs show what they gave, and the look changes.** Every realm step's moment now carries a card, "What the
+  breakthrough gave", each number that rose before → after with its gain (Level, Max HP, Physical attack...). The
+  character wears an aura by realm (`moments.json auras`: a jade ring at Bone Forging 1, motes at 4, a Qi glow at 7,
+  on to gold at Cloud Stride), drawn behind the avatar from plain shapes (no new pose), still with Reduce motion; the
+  card names it when a breakthrough changes it.
+- **Tests.** `tutorial_order` walks from waking to Strange Tracks with no test shortcut: the story reaches Bone Forging
+  2 and 3 by itself, the first technique comes at Bone Forging 1 and the second at the Weapon Hall, and on a play clock
+  (`prologue_run.play_s`: the simulated time, walking, a look at each new room, reading) something new comes at least
+  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 10); it prints the timeline. `prologue_run` no
+  longer grinds to Bone Forging 2. `rules_tests` holds the Next entry's second way. Screenshots of the technique moment
+  and the breakthrough cards in `docs/ui_p5/early_game/`.
+
 ## Slain foes stay slain
 
 - **Monsters no longer all come back the moment you re-enter a room.** Room load rebuilt every spawn point from the

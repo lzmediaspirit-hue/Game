@@ -11,7 +11,8 @@ extends "res://tests/prologue_run.gd"
 ##   5. what a quest's steps ask the player to press or open is on the HUD once the quest is taken, and the control is
 ##      drawn (the real HUD asked, at rest) while the step is open; the healing slot stays drawn while it holds something;
 ##   6. no room is left before the steps it holds you to are done: a quest whose step is to leave its room keeps its
-##      ways shut (and says why) until it is taken and the steps before it are done (Morning Tide's Bag);
+##      ways shut (and says why) until it is taken and the steps before it are done; and no door is kept shut for a
+##      menu lesson (Morning Tide is under way from waking, its door open);
 ##   7. the story's guidance (prologue_run.story_guidance): the tracker never empty, its targets real rooms the player
 ##      can walk to, between main quests its next one (who gives it and where, or the Level and where to hunt), and
 ##      right after the sect choice the membership recorded and the sect's first quest at the head of the tracker;
@@ -19,7 +20,12 @@ extends "res://tests/prologue_run.gd"
 ##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first);
 ##   9. after every step the tracker and the direction mark lead where the story really goes next (leads_to_next): a
 ##      quest under way, one to take now, a lesson on offer (at Bone Forging 3 the Weapon Hall, not the hunt for the next
-##      Level), and only with none of these a hunting ground.
+##      Level), and only with none of these a hunting ground;
+##  10. the first hour pays (research player_motivation P1, P2): the story's own quests and fights carry the character
+##      to every realm the story waits on (Bone Forging 2 for chapter 2, 3 for the Weapon Hall) with no test shortcut;
+##      on the play clock (prologue_run.play_s) something new comes at least every 3 minutes to minute 20 and every 5
+##      to minute 60 (an item kind, gear worn, a technique, a realm step, a new foe beaten, a title, a choice, coin);
+##      the first technique is taught at Bone Forging 1 and the second at the Weapon Hall. The timeline is printed.
 ## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
 ## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
@@ -51,6 +57,8 @@ var foes_seen := {}           # def id -> times a foe of that kind was seen in a
 var bare: Array = []          # foes seen in a fight without their HP bar (or with the HP bar off the HUD)
 var doors_seen := {}          # room id -> true once its ways into buildings were checked
 var hostile_reached: Array = []
+var novelty: Array = []       # [play seconds, kind, what]: the first-hour timeline (invariant 10)
+var novel_seen := {}
 
 func _main() -> void:
 	add_child(views)
@@ -63,6 +71,7 @@ func run() -> void:
 	start_new("user://test_saves_tutorial/")
 	tick_watch = _watch_fight
 	GameEvents.event.connect(_on_event)
+	GameEvents.event.connect(_on_novelty)
 	watch_story()
 	_bind_hud_probe()
 	invariants("new character")
@@ -84,12 +93,12 @@ func run() -> void:
 	invariants("Ma's Delivery")
 	step_granny()
 	invariants("Granny's Remedy")
-	step_return()
-	invariants("A Quiet River (Return)")
 	step_crabs()
 	if int(foes_seen.get("reedtail_rat", 0)) == 0: _rats()
+	_crabs_by_the_herbs()
 	check(int(foes_seen.get("reedtail_rat", 0)) > 0, "the Reed Shallows' Reedtail Rats were fought, their HP bars watched (%s)" % str(foes_seen))
 	invariants("Crab Trouble")
+	_wear_new_gear()
 	step_evening()
 	invariants("Evening on the River")
 	step_night()
@@ -100,15 +109,17 @@ func run() -> void:
 	invariants("The Willow Path")
 	step_fair()
 	invariants("The Recruitment Fair")
-	step_grind_bf2()
 	step_entry_trial()
 	invariants("Entry Trial")
-	step_chores()
-	invariants("A Disciple's Chores")
 	step_fish_gutting_fists()
 	invariants("Fish-Gutting Fists")
+	step_chores()
+	invariants("A Disciple's Chores")
 	step_weapon_hall()
 	invariants("The Weapon Hall")
+	step_strange_tracks()
+	invariants("Strange Tracks")
+	first_hour()
 	check(bare.is_empty() and foes_seen.size() >= 4, "every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [str(foes_seen), str(bare.slice(0, 6))])
 	check(not hostile_reached.is_empty() and hostile_reached[0] == "lf_reed_shallows",
 		"the first room with foes within reach is the Reed Shallows, with Crab Trouble (%s)" % str(hostile_reached.slice(0, 4)))
@@ -120,35 +131,64 @@ func run() -> void:
 	hud_probe.player.free()
 	hud_probe.free()
 
+## A crab or two more by the shore's herbs, as a player crossing the shallows fights them (invariant 8 needs a fight with
+## a herb in reach; Crab Trouble's three shells may all come from crabs away from them).
+func _crabs_by_the_herbs() -> void:
+	back_to("lf_reed_shallows")
+	for i in 6:
+		if int(offers_in_fight.get("herb_patch", 0)) > 0: break
+		fight("mudshell_crab", 1, 30.0)
+	back_to("lf_village")
+
 ## Take the rats on as well as the crabs, as a player crossing the shallows does (the reported fight).
 func _rats() -> void:
 	back_to("lf_reed_shallows")
 	fight("reedtail_rat", 1, 60.0)
 	back_to("lf_village")
 
-## Chapter 1: sweep the three spots on Gate Street for the steward.
+## A Disciple's Chores, a side errand now (research §3.3): two spots on Gate Street, and the third is the grey itself,
+## with a cache under the flagstone.
 func step_chores() -> void:
 	check(travel("ja_gate_street"), "the Jade Sect's road opens after the Entry Trial (room %s)" % room())
 	check(c().quests.offered.has("a_disciples_chores") or c().quests.is_active("a_disciples_chores"), "A Disciple's Chores offered")
+	check(str(ContentDB.entry("quests", "a_disciples_chores").get("kind", "")) == "side", "A Disciple's Chores is a side errand, not the story")
 	accept("jade_steward", "a_disciples_chores")
 	for i in 3:
 		check(interact("sweep_ja_%d" % i).get("ok", false), "sweep spot %d" % i)
 	hand_in("jade_steward", "a_disciples_chores")
+	check(c().inventory.count("spirit_stone_shard") >= 2, "the third spot's cache: two spirit stone shards")
 
-## The Weapon Hall at Bone Forging 3: taken on the page, its rack, dummies and guard all on the HUD first.
+## Chapter 2 (its floor Bone Forging 2, research §5 change 5) opens the moment the Weapon Hall is done: the mentor's
+## note starts Strange Tracks, three grey patches in the Reed Marsh, then back to the mentor.
+func step_strange_tracks() -> void:
+	check(str(ContentDB.config("quests").get("chapter_floors", {}).get("2", "")) == "bone_forging_2" and c().quests.is_active("strange_tracks"),
+		"chapter 2's floor is Bone Forging 2, and Strange Tracks is under way the moment the Weapon Hall is done (realm %s)" % c().cultivator.realm_key)
+	GameEvents.flush()
+	var nx: Array = Game.quest.tracker(c())
+	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "strange_tracks" and str(nx[0].get("target_room", "")) == "rm_marsh_edge",
+		"the tracker leads with Strange Tracks, to the Marsh Edge (%s)" % str(nx.slice(0, 1)))
+	check(travel("rm_marsh_edge"), "the marsh path is open at Bone Forging 2 (room %s)" % room())
+	check(fight("reed_frog", 1, 90.0, 0.35) == 1, "a Reed Frog beaten on the marsh path")
+	var seen := 0
+	for o in Game.room_rt.def.get("objects", []):
+		if seen < 3 and str(o.get("type", "")) == "inspect" and Game.world.object_visible(c(), o) and interact(str(o.id)).get("ok", false): seen += 1
+	check(seen == 3, "three grey patches inspected (%d)" % seen)
+	check(travel("ja_elder_hu_peak"), "back to the mentor")
+	hand_in("elder_hu", "strange_tracks")
+
+## The gear Crab Trouble paid, worn from the Bag as the equip prompt offers it.
+func _wear_new_gear() -> void:
+	for id in ["plain_straw_hat", "straw_sandals"]:
+		var i: int = c().inventory.first_index(id)
+		if i >= 0: check(submit({"type": "equip", "index": i}).get("ok", false), "wear the %s" % id)
+
+## The Weapon Hall at Bone Forging 3: taken on the page, its rack, dummies and guard all on the HUD first; done, it
+## teaches the first art of the family in hand (the second technique).
 func step_weapon_hall() -> void:
-	var tries := 0
-	while not ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3") and tries < 12:
-		if c().cultivator.state == "bottleneck":
-			submit({"type": "start_breakthrough", "support_items": []})
-			step(4.0)
-		else:
-			Game.progression.apply_progress(c().id, 0.0, "test_shortcut", 1.0)   # test shortcut: the Bone Forging 2 grind
-			step(1.0)
-		tries += 1
-	check(ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3"), "Bone Forging 3 (realm %s)" % c().cultivator.realm_key)
-	# The story waits on Bone Forging 4 next (Strange Tracks), but the step now is the Weapon Hall: the tracker's Next
-	# and the direction mark lead there, not to the Willow Path's boarlets.
+	check(break_through("bone_forging_3"), "the story's own quests and fights carry the character to Bone Forging 3, no hunting (realm %s, %d%%)"
+		% [c().cultivator.realm_key, int(100.0 * c().cultivator.progress_fraction())])
+	# Chapter 2 (Strange Tracks) waits on the Weapon Hall: the tracker's Next and the direction mark lead there, not to
+	# a hunting ground.
 	GameEvents.flush()
 	var nx: Array = Game.quest.tracker(c())
 	var hall := Game.quest.npc_rooms(c(), QuestAuthority.own_npc(c(), ContentDB.entry("quests", "the_weapon_hall").get("giver_any", [])))
@@ -159,8 +199,17 @@ func step_weapon_hall() -> void:
 	keep("Bone Forging 3")
 	check(travel("ja_weapon_hall"), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
 	accept("jade_weapon_master", "the_weapon_hall")
+	var jian: int = c().inventory.first_index("training_jian")
+	check(jian >= 0 and submit({"type": "equip", "index": jian}).get("ok", false), "take the training jian from the rack")
+	hit_object("dummy_wh_0", 5)
+	submit({"type": "guard_start"})
+	step(0.3)
+	submit({"type": "guard_end"})
+	hand_in("jade_weapon_master", "the_weapon_hall")
+	check(c().cultivator.techniques_known.has("cloudpiercing_stroke") and c().cultivator.technique_slots.has("cloudpiercing_stroke"),
+		"the Weapon Hall teaches the jian's first art, slotted beside Flowing Palm (%s)" % str(c().cultivator.technique_slots))
 
-## Chapter 1: Shen Lian's spar at the Fairground, before the Weapon Hall (the order valley_run plays it in).
+## Chapter 1: Shen Lian's spar at the Fairground, the first thing the Entry Trial leads to (the chores are a side errand).
 func step_fish_gutting_fists() -> void:
 	check(travel("sf_fairground"), "back to the Fairground (room %s)" % room())
 	accept("shen_lian", "fish_gutting_fists")
@@ -171,6 +220,50 @@ func step_fish_gutting_fists() -> void:
 	check(won, "beat Shen Lian in a spar")
 	GameEvents.flush()
 	hand_in("shen_lian", "fish_gutting_fists")
+	check(c().cultivator.state == "bottleneck" or ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3"),
+		"Fish-Gutting Fists fills Bone Forging 2 by itself: the Weapon Hall's realm needs no side errand (%d%%)" % int(100.0 * c().cultivator.progress_fraction()))
+
+# ------------------------------------------------------------------ the first hour (invariant 10)
+## Something new, on the play clock: an item kind, gear worn, a technique, a realm step, a new foe beaten, a title, the
+## sect chosen, the first coin, a new place (a region entered the first time), a set piece begun. Each counts once.
+func _on_novelty(n: String, p: Dictionary) -> void:
+	if c() == null or (p.has("actor") and str(p.actor) != str(c().id)): return
+	var what := ""
+	match n:
+		"item_added": what = "item:" + str(p.get("item", ""))
+		"equipment_changed": what = "wear:" + str(p.get("new", ""))
+		"technique_learned": what = "technique:" + str(p.get("technique", ""))
+		"realm_changed": what = "realm:" + str(p.get("to", ""))
+		"title_changed": what = "title:" + str(p.get("title", "")) if p.get("earned", false) else ""
+		"sect_joined": what = "choice:sect"
+		"currency_changed": what = "coin:" + str(p.get("currency", "")) if int(p.get("delta", 0)) > 0 else ""
+		"actor_defeated": what = "foe:" + str(p.get("def", "")) if str(p.get("killer", "")) == str(c().id) else ""
+		"room_entered": what = "place:" + str(ContentDB.room(str(p.get("room", ""))).get("region", ""))
+		"room_event_started": what = "event:" + str(p.get("event", ""))
+	if what == "" or novel_seen.has(what) or what == "wear:": return
+	novel_seen[what] = true
+	if n == "technique_learned" and not novelty.any(func(e): return str(e[1]) == "technique"):
+		check(c().cultivator.realm_key == "bone_forging_1", "the first technique is taught at Bone Forging 1 (%s at %s)" % [what, c().cultivator.realm_key])
+	novelty.append([play_s, what.get_slice(":", 0), what])
+
+## Invariant 10: the gaps between new things on the play clock, and the timeline printed (docs/tutorial_order.md keeps it).
+func first_hour() -> void:
+	var worst20 := 0.0
+	var worst60 := 0.0
+	var last := 0.0
+	var line := PackedStringArray()
+	for e in novelty:
+		var t := float(e[0])
+		if t <= 20.0 * 60.0: worst20 = maxf(worst20, t - last)
+		if t <= 60.0 * 60.0: worst60 = maxf(worst60, t - last)
+		last = t
+		line.append("%d:%02d %s" % [int(t) / 60, int(t) % 60, str(e[2])])
+	print("first hour (play clock, %d new things in %.0f min): %s" % [novelty.size(), play_s / 60.0, ", ".join(line)])
+	var techs := novelty.filter(func(e): return str(e[1]) == "technique")
+	check(techs.size() >= 2, "two techniques in the first hour (%s)" % str(techs.map(func(e): return e[2])))
+	check(worst20 <= 180.0, "something new at least every 3 minutes to minute 20 (longest gap %.1f min)" % (worst20 / 60.0))
+	check(worst60 <= 300.0, "something new at least every 5 minutes to minute 60 (longest gap %.1f min)" % (worst60 / 60.0))
+	check(play_s <= 75.0 * 60.0, "the walk from waking to the Weapon Hall's art fits the first hour and a bit (%.0f min)" % (play_s / 60.0))
 
 # ------------------------------------------------------------------ the page
 ## Every quest is taken on the real dialogue page, which closes itself (or goes on to the same person's next quest).

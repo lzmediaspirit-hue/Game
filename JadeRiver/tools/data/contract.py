@@ -66,7 +66,8 @@ DEPTH = {
                     "epiphany", "soul_escaped", "guqin_played", "chess_solved", "path_changed",
                     "level_changed",   # P6 finding 5: emitted and read by moments, missing from the contract
                     # P13a the element trees and the Lost Arts.
-                    "tree_node_realised", "tree_node_unrealised", "tree_reset", "lost_art_found"],
+                    "tree_node_realised", "tree_node_unrealised", "tree_reset", "lost_art_found",
+                    "technique_learned"],   # read by quests (learn_technique) and moments (technique_learned)
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
@@ -207,6 +208,7 @@ POLLED = {
 PAYLOAD = {
     "breakthrough_started": ["actor", "from", "to", "risk", "duration"],
     "breakthrough_succeeded": ["actor", "from", "to", "major", "formation"],
+    "technique_learned": ["actor", "technique"],
     "breakthrough_failed": ["actor", "failure_id", "losses", "injuries", "recovery"],
     "realm_changed": ["actor", "from", "to", "major", "level"],
     "level_changed": ["actor", "level"],

@@ -34,7 +34,18 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "crab_shell",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "crab_trouble"
+    }
+   ]
   },
   {
    "id": "reedtail_rat",
@@ -474,6 +485,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "grey_hide",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "mei_qings_errand"
     }
    ]
   },

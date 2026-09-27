@@ -529,6 +529,69 @@ existing poses, so the first two phases need no new art.
 
 ---
 
+## As built: items 3, 4, 5, 8 and 10
+
+What was built from §5's items 3, 4, 5, 8 and 10, and where it differs from the plan above. Items 1–2 (the weapon slot
+and early drops) and 6, 7, 9 (obligations, surprises, death) are built separately.
+
+- **3. Techniques.** Lu teaches Flowing Palm with the first breakthrough (The River Token's reward; the skill ring and
+  the Techniques page open at Bone Forging 1). The Weapon Hall, done, teaches the first art of the family in hand, from
+  existing arts: jian Cloudpiercing Stroke, spear Jade Thrust, fists and gauntlets Tiger Rush, short blade Reedcutter
+  Slash, staff Riverstone Sweep, bow Twin Reed Shot, sabre Mountain Cleaver, fan Gale Fan (`story.py`
+  `WEAPON_HALL_ARTS`). No new art or pose: until the body has a Qi pool (Bone Forging 7) any technique costs no Qi,
+  only its cooldown (`stats.json technique_cost.free_without_pool`). Each art taught plays the `technique_learned`
+  moment.
+- **4. Pacing.** Bone Forging 1–4 need 600 / 900 / 1,200 / 1,600; Bone Forging 5–9 3,700 each. balance_sim puts Qi
+  Kindling 1 at 5.1 hours (target 5). `quest_qp_pct.prologue` was left alone: prologue quests never paid progress (the
+  hand-in pays only main, guided, side and daily kinds, and only once the Cultivation page is open), so the story's
+  quests carry the floors instead, below.
+- **5. Floors.** Chapter 2's floor is Bone Forging 2 and the Entry Trial has no realm step. The Willow Path (35% of a
+  stage), the fair and the Entry Trial (20%) carry Bone Forging 1 to 2; Fish-Gutting Fists (45%) carries 2 to 3. Strange
+  Tracks follows the Weapon Hall, as §3.1 has it, and starts as the mentor's note the moment the hall is done. When the
+  story waits on a Level anyway, the Next entry's second line names another way (a lesson or side quest on offer, or
+  meditation and body training).
+- **8. Quests.** Morning Tide (auto from waking, the tea in hand, the door open), A Quiet River (Return) (merged into
+  Crab Trouble), Ma's Delivery (one step), Fists First (5 and 3), Crab Trouble (3 shells at 100% while wanted, Straw
+  Sandals added), The Willow Path (no stumps; Flowing Palm, 5 boarlets, the herd's elite), A Disciple's Chores (side;
+  the third spot is the grey, with a cache), Eyes for Qi (20 s, a ginseng root), Mei Qing's Errand (grey hides, not
+  copper). Guard stays with the Weapon Hall (§5 item 12 is not in this set); the Old Snapper lesson is unchanged.
+- **10. Breakthroughs.** Every step's moment carries a card: each number that rose, before → after, with its gain. The
+  character's aura follows the realm (a jade ring at Bone Forging 1, motes at 4, a Qi glow at 7, halos from Qi
+  Kindling), drawn behind the avatar from plain shapes; the card names it when it changes. Screenshots in
+  `docs/ui_p5/early_game/`.
+
+**The first hour as built** (tests/tutorial_order.gd, invariant 10). Minutes are its play clock: the simulated time,
+walking at a thumb's pace (150 px/s), 15 s to look round each new room, 3 s a line of dialogue: a floor for a focused
+new player, not a measurement. The walk takes Guo first and ends with Strange Tracks under way.
+
+| Min | Step | New |
+|---|---|---|
+| 0:21 | Wake: Morning Tide under way | Herbal Tea in hand, the door open |
+| 3:07 | Race to the Tower | title Fleet-Footed |
+| 3:25 | The Runaway Kite | the kite, a rice ball |
+| 3:42 | Ma's Delivery | first taels, the Old Net sold |
+| 5:49 | Crab Trouble: the Reed Shallows | first foes (Mudshell Crab, Reedtail Rat), crab shells |
+| 7:32 | Old Snapper | first elite, Snapper Claw |
+| 8:05 | Crab Trouble handed in | Plain Straw Hat and Straw Sandals, worn at 10:49 |
+| 11:39 | The Hollow Night | the set piece |
+| 14:13 | The River Token | **Bone Forging 1** (card and jade aura), River Token, **Flowing Palm** at 14:24 |
+| 15:52 | The Willow Path | Willow Path, Wild Boarlets, boar hide, tough meat |
+| 17:12 | Stoneford | a new town |
+| 19:48 | The Recruitment Fair | **the sect chosen**, jade token |
+| 21:04 | Entry Trial | Trial Puppet, entry token, **Bone Forging 2** |
+| 22:21 | Fish-Gutting Fists | title River Rival; Bone Forging 2 full |
+| 23:31 | A Disciple's Chores (side) | the grey under the flagstone, two spirit stone shards, contribution; **Bone Forging 3** |
+| 24:16 | The Weapon Hall | training jian, spear, gauntlets; **Cloudpiercing Stroke** |
+| 26:49 | Strange Tracks | the Reed Marsh, a Reed Frog |
+
+44 new things in 32 minutes on this clock; the longest gap is 2.8 minutes (waking to the race's title; the Hollow
+Night to the breakthrough is 2.6), and the check allows 3 to minute 20 and 5 to minute 60. Bone Forging 4 comes with chapter 2 (the Weapon Hall's share, Strange
+Tracks, The Humming Token), not by minute 60 of this clock. Open point: The Humming Token's Hollowed Boarlets are
+Level 7–12 (the Grey Pools' band), and the story now reaches them at Level 3–4 (at Level 4 before); valley_run plays
+chapter 2 later, so no suite fights them this early.
+
+---
+
 ## Sources
 
 1. Ryan, R. M., Rigby, C. S., & Przybylski, A. (2006). The motivational pull of video games: A self-determination theory approach. *Motivation and Emotion*, 30(4), 347–363. <https://link.springer.com/article/10.1007/s11031-006-9051-8> (PDF: <https://selfdeterminationtheory.org/SDT/documents/2006_RyanRigbyPrzybylski_MandE.pdf>)

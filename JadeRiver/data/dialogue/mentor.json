@@ -9,7 +9,7 @@
       "all": [
        {
         "kind": "realm_below",
-        "realm": "bone_forging_4"
+        "realm": "bone_forging_2"
        }
       ]
      },
@@ -49,7 +49,7 @@
    "nodes": {
     "young": {
      "lines": [
-      "Come back when your body is ready. Bone Forging 4, at least.",
+      "Come back when your body is ready. Bone Forging 2, at least.",
       "Sweep, train, eat. In that order."
      ],
      "choices": [

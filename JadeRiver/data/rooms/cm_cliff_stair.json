@@ -285,7 +285,7 @@
     920
    ],
    "prop": "grey_patch",
-   "text": "Swept clean.",
+   "text": "The stain won't sweep. Under the flagstone the grey goes down into the earth, and beside it someone hid two spirit stone shards.",
    "set_flag": "swept_cm_2",
    "visible_if": {
     "all": [

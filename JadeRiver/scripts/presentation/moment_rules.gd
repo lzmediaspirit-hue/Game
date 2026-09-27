@@ -171,6 +171,19 @@ static func particle_count(n: int) -> int:
 	if st.get("battery_saver", false): return mini(n, int(tier(2).get("spark_count", n)))
 	return n
 
+## The character's aura (moments.json `auras`, research player_motivation §5 change 10): the tier of the highest row whose
+## realm it has reached, 0 before Bone Forging 1. `aura(tier)` is that row.
+static func aura_tier(c) -> int:
+	var n := 0
+	var rows: Array = cfg().get("auras", [])
+	for i in rows.size():
+		if ProgressionRules.at_least(c.cultivator.realm_key, str(rows[i].realm)): n = i + 1
+	return n
+
+static func aura(n: int) -> Dictionary:
+	var rows: Array = cfg().get("auras", [])
+	return rows[n - 1] if n >= 1 and n <= rows.size() else {}
+
 ## UiKit's colour tokens by name, the only colours a row may name.
 static func tokens() -> Dictionary:
 	if _tokens.is_empty():

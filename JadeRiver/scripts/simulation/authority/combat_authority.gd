@@ -532,7 +532,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if free_first: cost = 0.0
 	# S48 Copper Body: a body technique the QI cannot pay for spends HP instead, never below a fifth of it.
 	var hp_cost := body_hp_cost(c, t, cost)
-	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
+	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and not breath_only(c) and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
 	# S48 costly arts (Blood Burning): a share of max HP and a body injury, paid up front.
@@ -584,7 +584,13 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 func in_combat(c) -> bool:
 	return game.sim_time - float(timeline(c.id).get("fight_t", -999.0)) < float(ContentDB.stat_const("gates", {}).get("fight_gap_s", 8.0))
 
+## The body stages (stats.json technique_cost.free_without_pool): with no Qi pool yet a technique costs no Qi, only its
+## cooldown.
+func breath_only(c) -> bool:
+	return bool(ContentDB.stat_const("technique_cost", {}).get("free_without_pool", false)) and c.pools.max_qi <= 0.0
+
 func technique_cost(c, t: Dictionary) -> float:
+	if breath_only(c): return 0.0
 	var st: Dictionary = ContentDB.stat_const("technique_cost", {})
 	var base := float(t.get("qi_cost", 0))
 	var lv := ProgressionRules.level(c)

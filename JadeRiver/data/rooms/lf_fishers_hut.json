@@ -96,46 +96,6 @@
    "label": "Herbal Tea"
   },
   {
-   "id": "tea_shelf",
-   "type": "pickup",
-   "at": [
-    150,
-    700
-   ],
-   "item": "herbal_tea",
-   "count": 1,
-   "prop": "none",
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "morning_tide"
-     }
-    ]
-   },
-   "label": "Herbal Tea"
-  },
-  {
-   "id": "tea_stove",
-   "type": "pickup",
-   "at": [
-    1010,
-    720
-   ],
-   "item": "herbal_tea",
-   "count": 1,
-   "prop": "none",
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "morning_tide"
-     }
-    ]
-   },
-   "label": "Herbal Tea"
-  },
-  {
    "id": "npc_aunt_ping",
    "type": "npc",
    "at": [

@@ -32,6 +32,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `mudshell_crab`):
   - [Crab Shell](items.md#item-crab_shell): 30% (group 60%, weight 1 of 2)
   - [River Mud](items.md#item-river_mud): 30% (group 60%, weight 1 of 2)
+  - [Crab Shell](items.md#item-crab_shell): 100% (only during Crab Trouble)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -117,7 +118,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 - **Sheet**: creature sheet `old_snapper` ([art/creatures/old_snapper.png](../../art/creatures/old_snapper.png), 192 px cells)
 - **Spawns** (1 room spawns):
-  - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 5, item crab_shell)
+  - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 3, item crab_shell)
 - **Also appears**: Account rules (collection seals) (enemy)
 - **Level band**: Lv 3 in `enemies.json`
 - **Stats**: Lv 3: HP 122, Attack 6, Physical Defense 11, Accuracy 19
@@ -282,6 +283,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `hollowed_boarlet`):
   - [Grey Hide](items.md#item-grey_hide): 60% (group)
   - [Hollow Shard](items.md#item-hollow_shard): 12% (rare)
+  - [Grey Hide](items.md#item-grey_hide): 100% (only during Mei Qing's Errand)
   - [Low Earth Core](items.md#item-earth_core_low): 4% (beast core, Lv 10–12)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))

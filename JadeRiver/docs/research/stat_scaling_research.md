@@ -622,7 +622,7 @@ CP       = HP/10 + attack × attacks a second × crit factor × 0.5 + defences/4
 | Chapter | Opens at | Level | Status |
 |---|---|---|---|
 | Prologue, 1 | entry trial | 0–1 | today |
-| 2 | Bone Forging 4 | 4 | today |
+| 2 | Bone Forging 2, once the Weapon Hall is done (player_motivation §5 change 5) | 2 | changed |
 | 3 | Bone Forging 7 (then Qi Kindling 6 for the Caravan Road) | 7 (15) | today |
 | 4 | Qi Kindling 9 | 18 | today (unlock) |
 | 5 | Qi Unfurling 3 | 21 | today (unlock) |

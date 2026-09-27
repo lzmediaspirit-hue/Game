@@ -72,6 +72,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Gathering: Pickup "Straw Sandals" in Old Ma's Store (Lotus Ferry)
+  - Reward: Quest Crab Trouble (prologue, from Uncle Guo), reward
+  - Reward: Skip-the-Prologue start
 
 <a id="item-cloth_boots"></a>
 
@@ -2721,6 +2723,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime.
 
 - **Sources**:
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 100% (only during Crab Trouble)
   - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 30% (group 60%, weight 1 of 2)
 
 <a id="item-frog_leg"></a>
@@ -4281,6 +4284,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Wayfarers' Inn Kitchen (Innkeeper Tang in Wayfarers' Inn (Cloudgate Port)) · at list price in Spirit Stones
   - Reward: Quest Fists First (prologue, from Uncle Guo), reward
   - Reward: Quest Granny's Remedy (prologue, from Granny Liu), reward ×3
+  - Reward: Quest Morning Tide (prologue, from Aunt Ping), on accept
   - Reward: Skip-the-Prologue start ×5
 
 <a id="item-rice_ball"></a>
@@ -4587,6 +4591,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Gathering: Post: Spirit Foraging, gate Lv 9
   - Garden: Garden bed, grown from [Riverreed Ginseng Seed](#item-riverreed_ginseng_seed), harvested at 10 years
   - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward
 
 <a id="item-ember_pepper_100"></a>
 
@@ -4806,6 +4811,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > Hide from a Hollowed beast, grey and cold.
 
 - **Sources**:
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 100% (only during Mei Qing's Errand)
   - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 60% (group)
   - Shop: Greyreed Trade Post (Trader Min in Greyreed Hamlet) · at list price in Silver Taels
 
@@ -6507,6 +6513,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Trade House (Elder Gu in Artisan Row (Stoneford); Madam Hua in Artisan Row (Stoneford)) · at list price in Silver Taels
   - Reward: Daily activity chest at 40 points, reward ×3
   - Reward: Npc in Market Street (Stoneford)
+  - Reward: Quest A Disciple's Chores (side, from Steward Wei), reward ×2
   - Reward: Quest Is It Real? (guided, from Elder Gu), reward ×3
   - Reward: Quest Stones That Move You (guided, from Keeper Shi), reward ×3
   - Reward: Unlock: Teleport stones ×2

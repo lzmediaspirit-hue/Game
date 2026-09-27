@@ -154,11 +154,11 @@
     "all": [
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_4"
+      "realm": "bone_forging_2"
      }
     ]
    },
-   "locked_text": "The marsh path is too dangerous before Bone Forging 4."
+   "locked_text": "The marsh path is too dangerous before Bone Forging 2."
   }
  ],
  "objects": [
@@ -479,7 +479,7 @@
      {
       "kind": "item_owned",
       "item": "crab_shell",
-      "count": 5
+      "count": 3
      }
     ]
    }
