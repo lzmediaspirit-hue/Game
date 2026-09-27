@@ -195,7 +195,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1170,
+    930,
     665
    ],
    "item": "frost_lotus",
@@ -246,7 +246,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    930,
+    1170,
     665
    ],
    "loot": "jar_expanse",

@@ -64,7 +64,7 @@
    "id": "npc_jade_weapon_master",
    "type": "npc",
    "at": [
-    640,
+    480,
     760
    ],
    "npc": "jade_weapon_master",
@@ -74,7 +74,7 @@
    "id": "npc_jade_smith",
    "type": "npc",
    "at": [
-    1000,
+    860,
     760
    ],
    "npc": "jade_smith",

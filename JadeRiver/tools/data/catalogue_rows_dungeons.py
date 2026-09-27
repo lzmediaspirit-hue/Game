@@ -95,15 +95,15 @@ def stockade(R):
         r.solid(sid + "_crate_low", [crate_x, 748, 50, 44], 40, kind="crate")
     tw, te = surf(r, "watchtower_w"), surf(r, "watchtower_e")
     # The Hideout key is the Caravan Road drop that opened the gate: the tower keeps a spare for anyone who lost theirs.
-    r.obj("tower_key", "pickup", spot(tw, -60), alt=180, surface="watchtower_w", item="mudwater_key", count=1, prop="none",
+    r.obj("tower_key", "pickup", spot(tw, -70), alt=180, surface="watchtower_w", item="mudwater_key", count=1, prop="none",
           label="Gate Key", set_flag="stockade_tower_key",
           hidden_if={"any": [W.flag("stockade_tower_key"), {"kind": "item_owned", "item": "mudwater_key", "count": 1}]})
     chest = of_type(r, "chest")[0]
     put(chest, spot(te, -40), 180, "watchtower_e")
     # The yard's second chest (it stood on a generic ledge before this row; its id is kept for saves).
-    r.chest(spot(tw, 0), loot="chest_dungeon", level=20, alt=180, surface="watchtower_w", oid="chest_ledge_mv_1")
+    r.chest(spot(tw, 55), loot="chest_dungeon", level=20, alt=180, surface="watchtower_w", oid="chest_ledge_mv_1")
     jars = of_type(r, "jar", "crate")
-    put(jars[0], spot(tw, 60), 180, "watchtower_w")
+    put(jars[0], spot(tw, -15), 180, "watchtower_w")
     put(jars[1], spot(te, 50), 180, "watchtower_e")
     for o, at in zip(jars[2:], ((300, 900), (1300, 700), (2300, 720))):
         put(o, at)

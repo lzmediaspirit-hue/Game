@@ -537,6 +537,7 @@ func _spar_service(npc: String) -> Dictionary:
 func sec_bf5() -> void:
 	check(reach("bone_forging_5"), "Bone Forging 5")
 	_dummy_beside_npc()
+	_conversations_close()
 	check(start("stone_and_sweat"), "Stone and Sweat accepted")
 	check(unlocked("mining"), "mining unlocks with Stone and Sweat")
 	check(travel("sq_quarry_rim"), "reach the Quarry Rim")
@@ -570,6 +571,8 @@ func sec_bf5() -> void:
 		t += 0.05
 	GameEvents.event.disconnect(heard)
 	check(int(dodges.n) >= 3, "dodge three attacks (%d)" % int(dodges.n))
+	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "hand_in")), "hand_in", "stone_and_sweat"),
+		"Stone and Sweat handed in on the page, and the conversation closes itself or goes on")
 	check(finish("stone_and_sweat"), "Stone and Sweat done")
 	# A Second Path: an idle task counts.
 	check(start("a_second_path"), "A Second Path offered")
@@ -737,8 +740,10 @@ func _furnace() -> void:
 	check(pf.get("ok", false) and Game.posts.flag_sum("lf_reed_shallows", "craft_diligence") > 0.0, "plant a plain flag over the Reed Shallows %s" % str(pf.get("text", "")))
 	check(finish("flags_over_the_posts"), "Flags over the Posts done")
 
-## P1 (M17): Uncle Guo's training dummy stands a stride from him. Beside the dummy the context button does not talk
-## (the attack button strikes it); beside Guo it talks; a blow at the dummy never opens a conversation.
+## P1 and M17: Uncle Guo's training dummy stands a stride from him. Beside the dummy the context button does not talk
+## (the attack button strikes it); beside Guo it talks. Between the two, with the dummy a step ahead and Guo within
+## talking reach behind, the context button talks to Guo and the attack button strikes the dummy, and only the dummy
+## (not Guo, not the stump behind); a blow never opens a conversation.
 func _dummy_beside_npc() -> void:
 	check(travel("lf_village"), "back to the village square")
 	var dummies := objects_of("training_dummy")
@@ -748,16 +753,64 @@ func _dummy_beside_npc() -> void:
 	place(Vector2(float(dummies[0].at[0]), float(dummies[0].at[1]) + 10))
 	var at_dummy: Dictionary = Game.world.query_context(c())
 	check(str(at_dummy.get("type", "")) != "npc", "at the dummy the context button does not talk to Guo (%s)" % str(at_dummy.get("npc", "none")))
-	var opened := {"n": 0}
-	var heard := func(n, _p): if n == "npc_talked": opened.n += 1
-	GameEvents.event.connect(heard)
-	var hit := submit({"type": "basic_attack"})
-	GameEvents.event.disconnect(heard)
-	check(hit.get("ok", false), "strike the dummy %s" % str(hit.get("reason", "")))
-	check(int(opened.n) == 0, "a blow at the dummy opens no conversation")
 	place(Vector2(float(guo[0].at[0]), float(guo[0].at[1]) + 10))
 	var at_guo: Dictionary = Game.world.query_context(c())
 	check(str(at_guo.get("type", "")) == "npc" and str(at_guo.get("npc", "")) == "uncle_guo", "beside Guo it talks (%s)" % str(at_guo.get("npc", "")))
+	var between := Vector2(float(dummies[0].at[0]) - 30, float(dummies[0].at[1]) - 20)
+	check(between.distance_to(Vector2(float(guo[0].at[0]), float(guo[0].at[1]))) < float(guo[0].get("radius", 110)), "the point between stands within Guo's reach")
+	place(between)
+	var ctx: Dictionary = Game.world.query_context(c())
+	check(str(ctx.get("npc", "")) == "uncle_guo", "between them the context button talks to Guo (%s)" % str(ctx))
+	var heard := {"talked": 0, "hit": []}
+	var listen := func(n, p):
+		if n == "npc_talked": heard.talked += 1
+		if n == "object_hit": heard.hit.append(str(p.get("object", "")))
+	GameEvents.event.connect(listen)
+	var hit := submit({"type": "basic_attack", "facing": 1})
+	step(0.6)
+	GameEvents.event.disconnect(listen)
+	check(hit.get("ok", false) and heard.hit == [str(dummies[0].id)], "between them the attack button strikes the dummy, and only the dummy (%s)" % str(heard.hit))
+	check(int(heard.talked) == 0, "a blow at the dummy opens no conversation")
+	var talk := submit({"type": "interact", "object": str(ctx.get("object", ""))})
+	check(str(talk.get("dialogue", {}).get("npc", "")) == "uncle_guo", "and the context button's answer is Guo's")
+
+## M17: a conversation closes itself (dialogue_page.gd), on the real page. A last line with nothing to choose after it
+## closes when tapped. Accepting a quest, and later handing it in, close the page once only a farewell is left (or it
+## goes on to what the NPC says next): nobody has to tap "Farewell".
+func _conversations_close() -> void:
+	var wen := _page({"npc": "fisher_wen", "speaker": ContentDB.name_of("npcs", "fisher_wen"), "lines": [ContentDB.entry("npcs", "fisher_wen").lines[0]], "choices": []})
+	check(wen.closed, "a last line with nothing to choose closes the conversation when tapped")
+	wen.page.queue_free()
+	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "giver")), "accept", "stone_and_sweat"),
+		"Stone and Sweat accepted on the page, and the conversation closes itself or goes on")
+
+## Talk to an NPC by the context button on the real dialogue page, tap to the last line and pick the choice that does
+## `key` (accept or hand_in) for a quest. True when it took, and the page then closed itself or went on to a new
+## conversation with more than a farewell in it.
+func _choose_on_page(npc: String, key: String, qid: String) -> bool:
+	var talk := interact(str(npc_object(npc).get("id", "")))
+	var on := _page(talk.get("dialogue", {}))
+	var before: Dictionary = on.page.convo
+	var choices: Array = before.get("choices", [])
+	for i in choices.size():
+		if str(choices[i].get(key, "")) == qid and not on.closed: on.page.on_action("choose", i)
+	var now: Dictionary = on.page.convo
+	var went_on: bool = now != before and ((now.get("choices", []) as Array).size() > 1 or now.has("quest"))
+	on.page.queue_free()
+	var took: bool = c().quests.is_active(qid) if key == "accept" else c().quests.is_done(qid)
+	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else ("went on" if went_on else "left open")])
+	return took and (on.closed or went_on)
+
+## Open a conversation on the real dialogue page and tap through it to its last line (or until it closes).
+func _page(convo: Dictionary) -> Dictionary:
+	var out := {"page": load(str(load("res://scripts/main.gd").PAGES.dialogue)).new(), "closed": false}
+	out.page.closed.connect(func(_p): out.closed = true)
+	add_child(out.page)
+	out.page.open({"convo": convo})
+	for i in 20:
+		if out.closed or (out.page.at_end() and out.page.shown_chars >= out.page.current().length() and not (out.page.convo.get("choices", []) as Array).is_empty()): break
+		out.page.on_action("advance", null)
+	return out
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:

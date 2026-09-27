@@ -77,11 +77,11 @@
    "id": "npc_granny_liu",
    "type": "npc",
    "at": [
-    640,
-    720
+    500,
+    740
    ],
    "npc": "granny_liu",
-   "facing": -1
+   "facing": 1
   },
   {
    "id": "shrine_granny",

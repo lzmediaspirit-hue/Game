@@ -104,7 +104,7 @@
    "id": "npc_cloud_librarian",
    "type": "npc",
    "at": [
-    640,
+    480,
     760
    ],
    "npc": "cloud_librarian",

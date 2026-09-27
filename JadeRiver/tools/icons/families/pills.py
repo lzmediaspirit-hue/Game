@@ -8,12 +8,13 @@ Grade changes the vessel form and trim (never only colour):
 The paper label carries the effect mark (glyphs.MARKS); the pill sits in front.
 """
 from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+from palette import R, M
+from registry import hd, register
 import glyphs
 import shapes as S
 
 FAM, GROUP = 'items', 'pills'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 PORCELAIN = Ramp(['#5C6A6E', '#98AAAC', '#D6E0DC', '#F2F6F0', '#FFFFFF'], '#1C2426')
 SKYWARE = Ramp(['#2E4E68', '#5A84A4', '#98C0DA', '#D0E8F4', '#F6FCFF'], '#10202C')
@@ -156,3 +157,77 @@ PILLS = [
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:
     register(FAM, _id, make_pill(_grade, _mark, _ramp, _ink), GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+# A pill icon is the grade's vessel, a paper label with the effect mark, and the pill in front (lower right).
+def jar_hd(p):
+    """Common: a squat earthenware jar with a bronze band and lip, a red cloth stopper tied with straw."""
+    c = p.c
+    bronze, red = M('bronze'), M('red')
+    body = c.ellipse(26, 39, 21, 19) | c.box(18, 16, 34, 26)
+    p.part(body, M('clay'), 'sphere', base=0, sep=False, cx=23, cy=34, rx=25, ry=25, tex='clay')
+    p.part(c.box(5, 24, 47, 28) & body, bronze, 'vgrad', base=0, sep=True, tex='metal')
+    p.part(c.box(15, 14, 37, 18), bronze, 'vgrad', base=1, sep=True, tex='metal')
+    cap = c.ellipse(25.5, 10, 9.8, 5.6)
+    p.part(cap, red, 'ray', base=0, sep=True, rim=False)
+    p.part(c.box(17, 12, 34, 14) & cap, M('straw'), 'flat', base=0, sep=True, rim=False)
+    p.line([(20, 7), (27, 6), (32, 8)], red, -1, 1.0)
+    return (16, 31, 36, 49)
+
+
+def censer_hd(p):
+    """Mystic: a round mistjade censer-bottle on a gold foot, gold bands, lid, handles and a violet finial."""
+    c = p.c
+    gold = M('gold')
+    p.part(c.poly([(13, 58), (18, 50), (34, 50), (39, 58)]), gold, 'ray', base=0, sep=False, tex='metal')
+    body = c.ellipse(26, 36.5, 21, 17.5)
+    p.part(body, M('mistjade'), 'sphere', base=0, sep=True, cx=23, cy=31, rx=25, ry=22, tex='glass')
+    for y in (21.5, 49.5):
+        p.part(c.box(4, y, 48, y + 1.8) & body, gold, 'flat', base=1, sep=True, rim=False)
+    p.part((c.ellipse(26, 19, 15, 6.2) & c.box(0, 0, 64, 22)) | c.box(11, 18, 41, 21), gold, 'ray', base=1, sep=True, tex='metal')
+    p.part(c.diamond(26, 10, 4.4, 6.4), M('violet'), 'ray', base=1, sep=True, spec=(24.6, 7.6))
+    for x in (5.5, 46.5):
+        p.part(c.ring(x, 32, 4.6, 2.1), gold, 'ray_soft', base=1, sep=True)
+    return (17, 28, 35, 45)
+
+
+VESSELS_HD = {'common': jar_hd, 'mystic': censer_hd}
+
+
+def heart_hd(p, lab, cx, cy, ink, lv):
+    c = p.c
+    x, y, r = cx, cy - 1, 4.2
+    heart = c.circle(x - r * 0.55, y - r * 0.2, r * 0.6) | c.circle(x + r * 0.55, y - r * 0.2, r * 0.6) | \
+        c.poly([(x - r * 1.1, y), (x + r * 1.1, y), (x, y + r * 1.15)])
+    p.decal(heart & lab, ink, lv)
+    p.decal(c.circle(cx - 2.4, cy - 1.8, 1.0) & lab, ink, lv + 2)
+
+
+def knot_hd(p, lab, cx, cy, ink, lv):
+    p.decal((p.c.ring(cx - 3, cy, 3.8, 1.7) | p.c.ring(cx + 3, cy, 3.8, 1.7)) & lab, ink, lv)
+
+
+MARKS_HD = {'heart': heart_hd, 'knot': knot_hd}
+
+
+def make_pill_hd(grade, mark, pill, ink):
+    """grade: a VESSELS_HD key; mark: a MARKS_HD key; pill: its material name; ink: (material name, level)."""
+    def draw(p):
+        c = p.c
+        x0, y0, x1, y1 = VESSELS_HD[grade](p)
+        lab = c.rrect(x0, y0, x1, y1, 1.5)
+        p.part(lab, M('paper'), 'bevel', base=0, sep=True, hw=1, sw=1, tex='paper', rim=False)
+        MARKS_HD[mark](p, lab, (x0 + x1) / 2.0, (y0 + y1) / 2.0, M(ink[0]), ink[1])
+        mat = M(pill)
+        m = c.circle(50, 50, 9.6)
+        p.part(m, mat, 'sphere', base=0, sep=True, spec=(46.5, 46.5), tex='metal' if mat.kind in ('metal', 'gold') else None)
+        if grade == 'mystic':
+            p.decal(c.ring(50, 50, 6.8, 1.4) & c.box(0, 50, 64, 64) & m, mat, -2)
+            p.glow('#B18DE2', 1.0)
+    return draw
+
+
+for _id, _grade, _mark, _pill, _ink in (('healing_pill', 'common', 'heart', 'red', ('red', 0)),
+                                        ('sage_condensing_pill', 'mystic', 'knot', 'gold', ('plum', -1))):
+    hd(_id, make_pill_hd(_grade, _mark, _pill, _ink))

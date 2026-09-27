@@ -50,3 +50,18 @@ margins `[0, 0, 0, 0]`: draw it unstretched.
 | portrait_frame | 96x96 | normal (transparent centre) | 16 |
 | minimap_frame | 232x140 | normal (22 px header band) | 24 |
 | realm_badge | 64x24 | normal | 8 |
+
+## The world map painting (`build_valley_map.py`)
+
+```
+python3 tools/ui/build_valley_map.py             # -> art/ui/maps/valley_map.png + valley_<region>.png, review sheets
+python3 tools/ui/build_valley_map.py --no-write  # review sheets only (scratchpad art_review/valley_map*.png)
+```
+
+The Jade River Valley as one painted pixel landscape seen from above at an angle (640 x 320 art px, saved x2 as
+1280 x 640), for the world map page (mockup 16, P5). Every region of `data/zones.json` has its landmark drawn where
+its `map` position lies on `MAP_RECT` ((24, 34, 424, 276) art px), so the page draws its nodes straight on the
+painting. Same rules as the kit: ordered-dithered ramps, stepped mist and glows, no blur, no unseeded randomness; a
+rebuild is byte-identical. The vignettes are 128 x 72 art px crops round each landmark (256 x 144 on screen) for the
+page's side card. The other zones' maps (the Azure Expanse, the Lantern Star Field) will be further scenes in the
+same script.

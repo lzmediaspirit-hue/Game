@@ -115,7 +115,7 @@
    "id": "crate_2",
    "type": "crate",
    "at": [
-    1976,
+    2196,
     655
    ],
    "loot": "jar_expanse",
@@ -152,7 +152,7 @@
    "id": "chest_5",
    "type": "chest",
    "at": [
-    2196,
+    1976,
     655
    ],
    "loot": "chest_tomb",

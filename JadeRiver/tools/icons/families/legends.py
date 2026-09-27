@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "data"))
 from legends import CHAINS  # noqa: E402
 
 FAM, GROUP = 'items', 'legends'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 def _ramp(hex_col):

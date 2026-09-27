@@ -105,7 +105,9 @@ on restore (eggs, workshop state), and tools found in old bags move to the key-i
 `tools/data/*.py` are authoring aids that keep formula-driven tables consistent (realm ladder,
 equipment bands, rooms). `python3 tools/data/build_data.py [module...]` writes `data/`. The world
 builder lays out rooms from helpers (surfaces, painted buildings, ladders, portals, spawns, objects)
-and keeps spawns clear of shrines and portals; `story.py` validates quests, NPCs and unlocks.
+and keeps spawns clear of shrines and portals, interactables out of each other's reach and of doors
+(`verticality.in_reach`), and the ground solid under raised steps (`under_steps`); `story.py` validates quests,
+NPCs and unlocks.
 
 After a full build `build_data.py` runs `tools/dev/wiki.py`, which writes `docs/wiki/items.md` (every item: icon,
 slot or type, stats or effect, grade, requirement, and its sources with rates) and `docs/wiki/monsters.md` (every

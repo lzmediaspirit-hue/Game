@@ -19,13 +19,13 @@ func draw_page() -> void:
 	_grid(Rect2(right.position + Vector2(10, 50), right.size - Vector2(20, 60)), "store", items.size(), func(i): return items[i], "withdraw")
 
 func _grid(r: Rect2, area: String, n: int, getter: Callable, action: String) -> void:
-	var cols := 7
-	list(area, r, int(ceil(n / float(cols))), 70, func(row: int, rr: Rect2):
+	var cols := 6
+	list(area, r, int(ceil(n / float(cols))), SLOT + 4, func(row: int, rr: Rect2):
 		for col in cols:
 			var i := row * cols + col
 			if i >= n: break
 			var s = getter.call(i)
-			var sr := Rect2(rr.position.x + col * 72, rr.position.y, 64, 64)
+			var sr := Rect2(rr.position.x + col * (SLOT + 4), rr.position.y, SLOT, SLOT)
 			if s == null: draw_style_box(UiKit.style("slot"), sr)
 			else: slot_box(sr, str(s.id), int(s.get("count", 1)), str(s.get("quality", "")), action, i)
 	)

@@ -29,9 +29,9 @@ func draw_page() -> void:
 	list("cores", r.grow(-10), cores.size(), 66, func(i: int, rr: Rect2):
 		var id: String = cores[i]
 		var cd: Dictionary = ContentDB.item(id).core
-		slot_box(Rect2(rr.position.x + 6, rr.position.y + 5, 56, 56), id, ch.inventory.count(id))
-		text(rr.position + Vector2(76, 28), ContentDB.item_name(id), 18, UiKit.PAPER)
-		text(rr.position + Vector2(76, 52), Tx.t("ui.cores.each") % int(prices.get(str(cd.tier), 1)), 15, UiKit.MIST)
+		slot_box(Rect2(rr.position.x + 6, rr.position.y + 9, SLOT_SMALL, SLOT_SMALL), id, ch.inventory.count(id))
+		text(rr.position + Vector2(64, 28), ContentDB.item_name(id), 18, UiKit.PAPER)
+		text(rr.position + Vector2(64, 52), Tx.t("ui.cores.each") % int(prices.get(str(cd.tier), 1)), 15, UiKit.MIST)
 		btn(Rect2(rr.end.x - 300, rr.position.y + 10, 140, 44), Tx.t("ui.cores.sell_one"), "sell", [id, 1], false, true, "", 17)
 		btn(Rect2(rr.end.x - 150, rr.position.y + 10, 140, 44), Tx.t("ui.cores.sell_all"), "sell", [id, ch.inventory.count(id)], true, true, "", 17)
 	)

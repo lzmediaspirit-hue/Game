@@ -19,7 +19,7 @@ func _init() -> void:
 func setup() -> void:
 	if is_instance_valid(doll): doll.queue_free()
 	doll = Avatar.new()
-	doll.position = Vector2(236, 468)
+	doll.position = Vector2(245, 520)   # the figure centred between the two columns of worn slots
 	doll.scale = Vector2.ONE * 2.0
 	add_child(doll)
 	_refresh_doll()
@@ -54,32 +54,33 @@ func draw_page() -> void:
 	var inv: InventoryState = ch.inventory
 	if str(tabs[tab].id) == "bag":
 		# Equipment around the doll.
+		# The worn slots in two columns either side of the figure (the doll, drawn at 2x between them).
 		panel(Rect2(content.position.x, content.position.y, 360, content.size.y))
 		for slot in SLOT_POS:
 			var gp: Vector2 = SLOT_POS[slot]
-			var r := Rect2(content.position.x + 16 + gp.x * 264, content.position.y + 20 + gp.y * 112, 64, 64)
+			var r := Rect2(content.position.x + 14 + gp.x * 256, content.position.y + 14 + gp.y * 120, SLOT, SLOT)
 			var inst = inv.equipped.get(slot)
 			var why := slot_locked(slot)
 			if inst != null:
 				slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), "slot", slot, sel.get("slot", "") == slot)
 			else:
 				draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
-				if slot == "weapon" and why != "": icon_at(r.grow(-10), "fist")
-				if why != "": _lock_icon(r.position + Vector2(46, 4))
+				if slot == "weapon" and why != "": icon_at(r.grow(-6), "fist")
+				if why != "": _lock_icon(r.position + Vector2(SLOT - 18, 4))
 				region(r, "slot", slot, true)
-			text(Vector2(r.position.x - 10, r.end.y + 20), SLOT_LABEL[slot], 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 84)
-		# Bag grid.
-		var grid := Rect2(content.position.x + 380, content.position.y, 420, content.size.y - 56)
+			text(Vector2(r.position.x - 8, r.end.y + 19), SLOT_LABEL[slot], 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
+		# Bag grid: five columns of the 76 px slot.
+		var grid := Rect2(content.position.x + 380, content.position.y, 414, content.size.y - 56)
 		panel(grid.grow(4))
-		var cols := 6
-		var cell := 66.0
+		var cols := 5
+		var cell := SLOT
 		var rows := int(ceil(float(inv.bag.size()) / cols))
 		list("bag", grid, rows, cell + 4, func(row: int, rr: Rect2):
 			for col in cols:
 				var i := row * cols + col
 				if i >= inv.bag.size(): break
 				var s = inv.bag[i]
-				var r2 := Rect2(rr.position.x + 6 + col * (cell + 2), rr.position.y, cell, cell)
+				var r2 := Rect2(rr.position.x + 6 + col * (cell + 4), rr.position.y, cell, cell)
 				if s == null:
 					draw_style_box(UiKit.style("slot"), r2)
 					region(r2, "bag", i)
@@ -94,11 +95,11 @@ func draw_page() -> void:
 	else:
 		var r := Rect2(content.position.x, content.position.y, 800, content.size.y)
 		panel(r)
-		list("keys", r.grow(-10), inv.key_items.size(), 76, func(i: int, rr: Rect2):
+		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 8, func(i: int, rr: Rect2):
 			var k: Dictionary = inv.key_items[i]
-			slot_box(Rect2(rr.position, Vector2(64, 64)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
-			text(rr.position + Vector2(80, 28), ContentDB.item_name(str(k.id)), 21, UiKit.PAPER)
-			text(rr.position + Vector2(80, 54), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - 96), 16, UiKit.MIST)
+			slot_box(Rect2(rr.position, Vector2(SLOT, SLOT)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
+			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 21, UiKit.PAPER)
+			text(rr.position + Vector2(SLOT + 16, 58), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - SLOT - 32), 16, UiKit.MIST)
 			region(rr, "key", i)
 		)
 		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.inventory.no_key_items"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
@@ -127,10 +128,10 @@ func _draw_detail(r: Rect2) -> void:
 	var q := str(s.get("quality", ""))
 	var name_col := UiKit.quality_color(q) if q != "" else UiKit.grade_color(str(def.get("grade", "plain")))
 	var y := r.position.y + 16
-	slot_box(Rect2(r.position.x + 16, y, 64, 64), id, int(s.get("count", 1)), q)
-	pill_marks(Rect2(r.position.x + 16, y, 64, 64), int(s.get("marks", 0)))
-	para(Rect2(r.position.x + 92, y - 4, r.size.x - 104, 60), ContentDB.item_name(id) + (" +%d" % int(s.enhance) if int(s.get("enhance", 0)) > 0 else ""), 20, name_col, 2)
-	y += 78
+	slot_box(Rect2(r.position.x + 16, y, SLOT, SLOT), id, int(s.get("count", 1)), q)
+	pill_marks(Rect2(r.position.x + 16, y, SLOT, SLOT), int(s.get("marks", 0)))
+	para(Rect2(r.position.x + SLOT + 28, y - 4, r.size.x - SLOT - 40, 72), ContentDB.item_name(id) + (" +%d" % int(s.enhance) if int(s.get("enhance", 0)) > 0 else ""), 20, name_col, 3)
+	y += SLOT + 14
 	var sub := "%s · %s" % [str(def.get("grade", "plain")).capitalize(), str(def.get("slot", def.get("type", ""))).replace("_", " ").capitalize()]
 	if q != "": sub = q.capitalize() + " · " + sub
 	text(Vector2(r.position.x + 16, y), sub, 16, UiKit.MIST)

@@ -206,7 +206,7 @@
    "id": "crate_3",
    "type": "crate",
    "at": [
-    2330,
+    2590,
     655
    ],
    "loot": "jar_lantern",
@@ -243,7 +243,7 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    2590,
+    2330,
     655
    ],
    "loot": "chest_lantern",
