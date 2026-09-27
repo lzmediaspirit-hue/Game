@@ -266,7 +266,7 @@ func ui_suite() -> void:
 				for aid in pg._areas:
 					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
-				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
+				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.window_rect()   # P5: with what it pins beyond its window
 				var buttons: Array = []
 				for r in pg._regions:
 					if r.kind == "scroll": continue
@@ -459,7 +459,8 @@ func _identity_view(pg: Page, where: String, dim_words: Array, unshared: Array, 
 	if not UiKit.SURFACE.has(idn.surface) or not idn.title_mount in ["plaque", "own"] or idn.open_s > Page.OPEN_MOTION_MAX or idn.signature == "":
 		unshared.append("%s declares %s / %s / %.2f s / %s" % [where, idn.surface, idn.title_mount, idn.open_s, idn.signature])
 	var close := Rect2(pg.frame_rect.end.x - 72, pg.frame_rect.position.y + 16, 52, 52)
-	if not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
+	# The one exception: a talk (the Dialogue's strip, row 2 and mockup 21) ends by its own choices, a tap or Esc.
+	if pg.frame_rect != Page.WINDOW_DIALOGUE and not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
 	if pg.title != "" and not pg.text_log.any(func(tx): return str(tx.s) == pg.title and tx.get("outlined", false)): unshared.append("%s has no inked title" % where)
 	var grounds: Array = []
 	for tx in pg.text_log:
@@ -551,6 +552,7 @@ func identity_suite() -> void:
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 	await _bag_checks()
 	await _records_checks()
+	await _records_two_checks()
 	await _post_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
@@ -650,6 +652,107 @@ func _records_checks() -> void:
 	check(go.size() == 1 and str(go[0].data) == "sf_gate" and (go[0].rect as Rect2).size.y >= Page.MIN_TAP and bool(go[0].enabled) == not Game.world.route(c, str(c.position.get("room", "")), "sf_gate").is_empty(),
 		"P5 Calendar: the chosen event's Go there walks to its room by auto_path, shut with its reason when no way leads there")
 	kp.queue_free()
+
+## P5 (the Records family's second part, docs/page_identity.md rows 2, 6, 17 and 21; mockups 21, 12 v2 and 22). The
+## Quests board holds every quest under way or on offer once, on a slip or in a stack that spreads, the story's slip
+## leading with the tracked story quest or the tracker's Next entry, and the slip being read walks to where its quest leads;
+## Done lays the finished slips out a sheet at a time. The Mail stacks every letter as an envelope, seals the unread,
+## ties a parcel under the one that carries something (Claim, and Delete shut until it is claimed). The Notice Board
+## pastes a poster per bounty, the chosen one on top with its Take strip. The talk pins an offered quest above its
+## choices, inside what the page draws, and keeps no close button.
+func _records_two_checks() -> void:
+	var c = Game.active()
+	# The Quests board.
+	var qp: Page = await _open_page("quests")
+	var b: Dictionary = qp.board(c)
+	var on_board: Array = b.story + b.near + b.missions
+	for g in b.groups: on_board.append_array(g.ids)
+	var want: Array = []
+	for q in c.quests.active: want.append(str(q))
+	for q in c.quests.offered:
+		if not c.quests.is_active(q) and Game.quest.can_offer(c, ContentDB.entry("quests", q)): want.append(str(q))
+	for q in c.quests.daily:
+		if not c.quests.is_done(str(q)) and not want.has(str(q)): want.append(str(q))
+	var once: bool = on_board.size() == on_board.reduce(func(a, v): return a if a.has(v) else a + [v], []).size()
+	check(once and want.all(func(q): return on_board.has(q)), "P5 Quests: every quest under way, on offer or on the sect board is on the board once (%d of %d)" % [on_board.size(), want.size()])
+	var story: Array = qp._regions.filter(func(r): return r.id == "sel" and (r.art as Rect2).position == Vector2(96, 116))
+	var lead := ""
+	for q in b.story:
+		if c.quests.is_active(str(q)):
+			lead = str(q)
+			break
+	check(story.size() == 1 and str(story[0].data) == (lead if lead != "" else ("next" if not Game.quest.story_next(c).is_empty() else str(story[0].data))),
+		"P5 Quests: the story's slip carries the story quest under way, else the tracker's Next entry (%s)" % (str(story[0].data) if not story.is_empty() else "none"))
+	var stacks: Array = qp._regions.filter(func(r): return r.id == "spread")
+	if not stacks.is_empty():
+		qp._activate(stacks[0])
+		qp.queue_redraw()
+		await get_tree().process_frame
+		var grp := str(stacks[0].data)
+		var ids: Array = b.near if grp == "near" else (b.missions if grp == "missions" else [])
+		for g in b.groups:
+			if str(g.id) == grp: ids = g.ids
+		var shown: Array = qp._regions.filter(func(r): return r.id == "sel").map(func(r): return str(r.data))
+		check(qp.spread == grp and ids.slice(0, 16).all(func(q): return shown.has(str(q))) and qp._regions.any(func(r): return r.id == "spread" and str(r.data) == ""),
+			"P5 Quests: a tap on a stack spreads its slips across the board, with the way back (%s, %d)" % [grp, ids.size()])
+	var active := ""
+	for q in c.quests.active:
+		if Game.quest.quest_def(c, q).get("kind", "") != "":
+			active = str(q)
+			break
+	if active != "":
+		qp.on_action("sel", active)
+		qp.queue_redraw()
+		await get_tree().process_frame
+		var go: Array = qp._regions.filter(func(r): return r.id == "go")
+		var goal := Game.quest.quest_target(c, Game.quest.quest_def(c, active), c.quests.active[active])
+		check(go.size() == 1 and str(go[0].data) == goal and qp._regions.any(func(r): return r.id == "track" and str(r.data) == active),
+			"P5 Quests: the slip being read walks to where its quest leads (%s) and tracks it" % goal)
+	qp.tab = 1
+	qp.on_action("_tab", "done")
+	qp.queue_redraw()
+	await get_tree().process_frame
+	var done_n: int = qp._done_ids(c).size()
+	check(qp._regions.filter(func(r): return r.id == "sel").size() == mini(done_n, 24) and (done_n <= 24 or qp._regions.any(func(r): return r.id == "sheet")),
+		"P5 Quests: Done lays the finished slips out a sheet at a time (%d done)" % done_n)
+	qp.queue_free()
+	# The Mail: a letter that carries something, unread, on top.
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.mail.apply_send(c.id, str(ContentDB.all("mail_templates")[0].id), [{"currency": "silver_tael", "amount": 5}], {})
+	var mp: Page = await _open_page("mail")
+	var mails: Array = Game.mail.visible(c)
+	var envs: Array = mp._regions.filter(func(r): return r.id == "sel")
+	var top: Dictionary = mails[0]
+	check(envs.size() == mini(mails.size(), 7) and int(mp.sel) == int(top.id) and mp._regions.any(func(r): return r.id == "claim" and int(r.data) == int(top.id))
+		and mp._regions.any(func(r): return r.id == "delete" and not r.enabled and str(r.reason) != ""),
+		"P5 Mail: every letter an envelope in the stack, the newest open with its parcel to claim, Delete shut until it is claimed (%d letters)" % mails.size())
+	mp.queue_free()
+	# The Notice Board's posters.
+	var np: Page = await _open_page("notice_board", {"tab": "bounties"})
+	var rows: Array = Game.relations.fcfg().get("bounties", [])
+	var posters: int = np._regions.filter(func(r): return r.id == "poster").size() + np._regions.filter(func(r): return r.id == "bounty").size() \
+		+ (1 if np.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.notice.bounty_hunting")) else 0)
+	check(posters == rows.size() and np._regions.any(func(r): return r.id == "to_tab"), "P5 Notice Board: a poster per bounty, the chosen one with its Take strip, the handbills in the corner (%d)" % posters)
+	np.queue_free()
+	# The talk: an offered quest pinned above the choices, inside what the page draws.
+	var qid := ""
+	for q in c.quests.offered:
+		var d := ContentDB.entry("quests", q)
+		if not c.quests.is_active(q) and Game.quest.can_offer(c, d): qid = str(q)
+	var convo := {"npc": "", "speaker": "Probe", "portrait": {}, "lines": ["A task for you."], "choices": [{"text": "Accept", "accept": qid}, {"text": "Not now", "close": true}], "quest": qid}
+	var dp: Page = await _open_page("dialogue", {"convo": convo})
+	dp.shown_chars = 9999.0
+	dp.card_at = dp.t - 1.0   # unrolled
+	dp.text_log.clear()
+	dp.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var named: bool = qid == "" or dp.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("quests", qid) and dp.window_rect().encloses(tx.rect))
+	check(named and dp._regions.filter(func(r): return r.id == "choose").size() == 2 and not dp._regions.any(func(r): return r.id == "_close"),
+		"P5 Dialogue: the offered quest is pinned above the choices inside what the talk draws, and the talk keeps no close button (%s)" % qid)
+	dp.queue_free()
+	Unlocks.debug_force_all = force_was
 
 ## P5 (the Post family, docs/page_identity.md rows 12, 14, 23 and 44; mockups 13, 13_first and 14 v4; decisions 11, 21
 ## and 26). The Roll-Call hangs a tablet per character, soonest full first, each with its figure (the live Avatar at a

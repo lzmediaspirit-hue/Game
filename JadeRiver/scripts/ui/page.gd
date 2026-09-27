@@ -129,6 +129,11 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 func _layout() -> void:
 	content = content_rect()
 
+## Where the page draws: its window, and anything it pins beyond it (the Dialogue's offered quest above its strip).
+## The ui_suite holds every word and button inside it.
+func window_rect() -> Rect2:
+	return frame_rect
+
 ## The content area: inside the shared window, under the title and the tabs. A page with its own surface gives its own.
 func content_rect() -> Rect2:
 	var top := TOP if title != "" else TOP_BARE
