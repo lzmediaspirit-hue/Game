@@ -1681,18 +1681,38 @@ func migrate_tree(c) -> void:
 	lost_pages(c)   # the journal pages already gathered count toward the Ferryman's Oar
 	c.cultivator.tree["v"] = 1
 
-## The page's view of one tree: every node with its state (realised, taught, open, or locked and why) and its cost.
+## The page's view of one tree: every node with its state (realised, taught, open, or locked and why), its cost, and
+## what learning it takes in one go (`learn`: the nodes to realise in order, `total` their cost; P13b); and the Dao arts
+## at its gates, taught or waiting on their Dao's tier.
 func tree_view(c, tree: String) -> Dictionary:
 	var ctx: Dictionary = game.ctx(c)
-	var nodes: Array = []
-	for nid in TechniqueTreeRules.nodes_of(tree):
-		var n := TechniqueTreeRules.node(nid)
-		var state := "realised" if TechniqueTreeRules.realised(c).has(nid) else ("taught" if c.cultivator.techniques_known.has(nid) else "")
-		var why := "" if state != "" else TechniqueTreeRules.realise_block(c, nid, ctx)
-		if state == "": state = "open" if why == "" else "locked"
-		nodes.append({"id": nid, "kind": str(n.kind), "family": str(n.get("family", "")), "kin": str(n.get("kin", "")), "ring": int(n.ring),
-			"state": state, "why": why, "cost": TechniqueTreeRules.cost(nid)})
-	return {"tree": tree, "nodes": nodes, "realisations": TechniqueTreeRules.realisations(c)}
+	return {"tree": tree, "nodes": TechniqueTreeRules.nodes_of(tree).map(func(nid): return tree_node(c, str(nid), ctx)), "dao_arts": tree_dao_arts(c, tree),
+		"realisations": TechniqueTreeRules.realisations(c)}
+
+## One node of tree_view (the page asks for the nodes it shows, as it shows them).
+func tree_node(c, nid: String, ctx: Dictionary = {}) -> Dictionary:
+	if ctx.is_empty(): ctx = game.ctx(c)
+	var n := TechniqueTreeRules.node(nid)
+	var state := "realised" if TechniqueTreeRules.realised(c).has(nid) else ("taught" if c.cultivator.techniques_known.has(nid) else "")
+	var plan := {"nodes": [], "cost": TechniqueTreeRules.cost(nid), "why": "" if state != "" else "act_locked"}
+	if state == "" and int(n.act) <= int(TechniqueTreeRules.config().get("act_open", 3)): plan = TechniqueTreeRules.learn_plan(c, nid, ctx)
+	if state == "": state = "open" if str(plan.why) == "" else "locked"
+	return {"id": nid, "kind": str(n.kind), "family": str(n.get("family", "")), "kin": str(n.get("kin", "")), "ring": int(n.ring),
+		"state": state, "why": str(plan.why), "cost": TechniqueTreeRules.cost(nid), "learn": plan.nodes, "total": int(plan.cost)}
+
+## The Dao arts at a tree's gates, each taught or waiting on its Dao's tier.
+func tree_dao_arts(c, tree: String) -> Array:
+	var daos: Array = TechniqueTreeRules.dao_arts(tree)
+	for d in daos: d["state"] = "taught" if c.cultivator.techniques_known.has(str(d.id)) else "locked"
+	return daos
+
+## One node's prerequisites for the page's reading (TechniqueTreeRules.needs).
+func node_needs(c, nid: String) -> Array:
+	return TechniqueTreeRules.needs(c, nid, game.ctx(c))
+
+## The lost manuals carried and not read, as found cards the board shows with Read (TechniqueTreeRules.lost_unread).
+func lost_unread(c) -> Array:
+	return TechniqueTreeRules.lost_unread(c)
 
 ## The trees' tabs (technique_plan §4.10), in the page's order: each tree's name and element, whether its first ring's
 ## Level is reached (Space and Time open late), its realised nodes and the arts of it the character knows.

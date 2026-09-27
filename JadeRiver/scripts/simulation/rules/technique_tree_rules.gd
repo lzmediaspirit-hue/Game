@@ -15,6 +15,7 @@ static var _cells := {}      # "tree|family|ring" -> {"o": [ids], "p": [ids]}
 static var _keys := {}       # "tree|kin|act" -> keystone id
 static var _home := {}       # art id -> {tree, family, ring, slot}
 static var _passives := {}   # "element|family|Level|realised hash" -> passives()
+static var _memo := {}       # "n|<id>" -> node(), "i|<id>" -> inward(): the trees' shape, kept while the index stands
 
 static func config() -> Dictionary:
 	return ContentDB.config("technique_trees")
@@ -81,17 +82,22 @@ static func _index() -> void:
 	var list: Array = ContentDB.all("techniques")
 	if is_same(_built, list): return
 	_built = list
-	_cells.clear(); _keys.clear(); _home.clear()
+	_cells.clear(); _keys.clear(); _home.clear(); _memo.clear()
+	var tree_of := {}   # element -> tree, and each tree's first ring, looked up once for the three thousand rows
+	var firsts := {}
+	for td in config().get("trees", []):
+		tree_of[str(td.element)] = str(td.id)
+		firsts[str(td.id)] = int(td.get("first_ring", 1))
 	for t in list:
 		var kind := str(t.get("kind", ""))
-		var tree := tree_of_element(str(t.get("element", "none")))
+		var tree := str(tree_of.get(str(t.get("element", "none")), ""))
 		if kind == "keystone":
 			_keys["%s|%s|%d" % [tree, str(t.kin), act_of(int(t.ring))]] = str(t.id)
 			_home[str(t.id)] = {"tree": tree, "family": "", "kin": str(t.kin), "ring": int(t.ring), "slot": "k"}
 			continue
 		if kind != "": continue
 		var ring := int(t.get("ring", 0))
-		var slot := "p" if str(t.get("path", "")) != "" and ring > first_ring(tree) else "o"
+		var slot := "p" if str(t.get("path", "")) != "" and ring > int(firsts.get(tree, 1)) else "o"
 		var key := "%s|%s|%d" % [tree, str(t.family), ring]
 		if not _cells.has(key): _cells[key] = {"o": [], "p": []}
 		_cells[key][slot].append(str(t.id))
@@ -118,7 +124,13 @@ static func notable(tree: String, family: String, act: int) -> String:
 	return "n:%s:%s:%d" % [tree, family, act]
 
 ## A node as a dictionary: {kind: passage | notable | art | keystone, tree, family, ring, act, kin, id}; {} if none.
+## Kept once worked out (P13b: the page's view asks for every node of a tree); read it, never change it.
 static func node(nid: String) -> Dictionary:
+	_index()
+	if not _memo.has("n|" + nid): _memo["n|" + nid] = _node(nid)
+	return _memo["n|" + nid]
+
+static func _node(nid: String) -> Dictionary:
 	var p := nid.split(":")
 	if p.size() == 4 and p[0] == "p":
 		return {"kind": "passage", "tree": p[1], "family": p[2], "ring": int(p[3]), "act": act_of(int(p[3])), "id": nid}
@@ -152,9 +164,12 @@ static func nodes_of(tree: String) -> Array:
 			if k != "": out.append(k)
 	return out
 
-## The nodes a node needs one of (its route inward), before any gate, Level or source.
+## The nodes a node needs one of (its route inward), before any gate, Level or source; kept as node() is.
 static func inward(nid: String) -> Array:
-	var n := node(nid)
+	if not _memo.has("i|" + nid): _memo["i|" + nid] = _inward(node(nid))
+	return _memo["i|" + nid]
+
+static func _inward(n: Dictionary) -> Array:
 	match str(n.get("kind", "")):
 		"passage":
 			var ring := int(n.ring)
@@ -214,7 +229,8 @@ static func realisations(c) -> Dictionary:
 
 ## Why a node cannot be realised now, or "" (§4.4): the act not open yet, already lit, the ring's Level, the gate,
 ## the route, the path, the keystone's source, the Realisations. `ctx` is the requirement context (keystones' sources).
-static func realise_block(c, nid: String, ctx: Dictionary) -> String:
+## `assume` names nodes taken as realised and paid for first (an art's passage, in learn_plan).
+static func realise_block(c, nid: String, ctx: Dictionary, assume: Array = []) -> String:
 	var n := node(nid)
 	if n.is_empty(): return "unknown_node"
 	if realised(c).has(nid): return "realised"
@@ -224,13 +240,56 @@ static func realise_block(c, nid: String, ctx: Dictionary) -> String:
 	var inner := inward(nid)
 	if inner.is_empty():
 		if not gate_open(c, str(n.family)): return "gate"
-	elif not inner.any(func(i): return realised(c).has(i)): return "route"
+	elif not inner.any(func(i): return realised(c).has(i) or assume.has(i)): return "route"
 	if str(n.kind) == "art":
 		var t := ContentDB.entry("techniques", nid)
 		if str(n.slot) == "p" and not walks(c, str(t.get("path", ""))): return "path"
 	if str(n.kind) == "keystone" and not RequirementRules.passes(ContentDB.entry("techniques", nid).get("teach", {}), ctx): return "source"
-	if cost(nid) > int(realisations(c).free): return "realisations"
+	var extra := 0
+	for a in assume: extra += cost(str(a))
+	if cost(nid) + extra > int(realisations(c).free): return "realisations"
 	return ""
+
+## What learning a node takes in one go (P13b, the page's Learn): the nodes to realise in order, their cost, and why it
+## cannot be done now ("" when it can). An art whose own passage is the one step missing takes the passage with it.
+static func learn_plan(c, nid: String, ctx: Dictionary) -> Dictionary:
+	var why := realise_block(c, nid, ctx)
+	if why == "route" and str(node(nid).get("kind", "")) == "art":
+		var p: String = inward(nid)[0]
+		var total := cost(p) + cost(nid)
+		if realise_block(c, p, ctx) != "": return {"nodes": [], "cost": total, "why": why}
+		why = realise_block(c, nid, ctx, [p])
+		return {"nodes": [p, nid] if why == "" else [], "cost": total, "why": why}
+	return {"nodes": [nid] if why == "" else [], "cost": cost(nid), "why": why}
+
+## A node's prerequisites as the page lists them, each {kind: ring | route | gate | path | source, ok, arg}: the ring's
+## Level, the node inside it (or the sector's gate), a path art's path and a keystone's source.
+static func needs(c, nid: String, ctx: Dictionary) -> Array:
+	var n := node(nid)
+	if n.is_empty(): return []
+	var lv := int(ring_row(int(n.ring)).get("level", 0))
+	var out: Array = [{"kind": "ring", "ok": ProgressionRules.level(c) >= lv, "arg": lv, "ring": int(n.ring)}]
+	var inner := inward(nid)
+	if inner.is_empty(): out.append({"kind": "gate", "ok": gate_open(c, str(n.family)), "arg": str(n.family)})
+	else: out.append({"kind": "route", "ok": inner.any(func(i): return realised(c).has(i)), "arg": str(inner[0])})
+	var t := ContentDB.entry("techniques", nid)
+	if str(n.kind) == "art" and str(n.slot) == "p": out.append({"kind": "path", "ok": walks(c, str(t.get("path", ""))), "arg": str(t.get("path", ""))})
+	if str(n.kind) == "keystone": out.append({"kind": "source", "ok": RequirementRules.passes(t.get("teach", {}), ctx), "arg": str(t.get("source", ""))})
+	return out
+
+## The Dao arts a tree holds at its sectors' gates (§4.7), each {id, family, dao, tier}: taught at a Dao's tier, never
+## realised. An art of a family off the tree's sectors is left out.
+static func dao_arts(tree: String) -> Array:
+	var out: Array = []
+	for d in ContentDB.all("daos"):
+		var effects: Array = d.get("effects", [])
+		for i in effects.size():
+			if not (effects[i] is Dictionary and effects[i].has("learn_technique")): continue
+			var t := ContentDB.entry("techniques", str(effects[i].learn_technique))
+			var fam := "fists" if str(t.get("family", "")) == "gauntlets" else str(t.get("family", "any"))
+			if t.is_empty() or tree_of_element(str(t.get("element", "none"))) != tree or not fam in sectors(): continue
+			out.append({"id": str(t.id), "family": fam, "dao": str(d.id), "tier": i + 1})
+	return out
 
 ## Every realised node of a tree that is still joined to an open gate through realised nodes, when `without` is
 ## taken away (the check that a respec takes leaves first, §4.5).
@@ -362,6 +421,23 @@ static func lost_view(c) -> Dictionary:
 			lineages[lin].found = int(lineages[lin].found) + 1
 			lineages[lin].arts.append(card)
 	return {"acts": acts, "lineages": lineages.values()}
+
+## The lost manuals the character carries and has not read (P13b: a found manual is read from the board), each as its
+## art's card with {unread: true, item}. Only a manual in hand is named; nothing else of the unfound is.
+static var _manuals := {}   # lost art -> the item that teaches it
+static func lost_unread(c) -> Array:
+	if _manuals.is_empty():
+		for it in ContentDB.all("items"):
+			for e in it.get("use", []):
+				if e is Dictionary and str(e.get("kind", "")) == "learn_lost_art": _manuals[str(e.art)] = str(it.id)
+	var out: Array = []
+	for row in ContentDB.all("lost_arts"):
+		var item := str(_manuals.get(str(row.id), ""))
+		if item == "" or lost_found(c, row) or c.inventory.count(item) <= 0: continue
+		var card := lost_card(row)
+		card.merge({"unread": true, "item": item})
+		out.append(card)
+	return out
 
 ## A found art's card: what it is and what it does, never where it came from.
 static func lost_card(row: Dictionary) -> Dictionary:

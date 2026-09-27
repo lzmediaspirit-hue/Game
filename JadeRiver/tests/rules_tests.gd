@@ -117,6 +117,7 @@ func _main() -> void:
 	await ui_suite()
 	await identity_suite()
 	await map_suite()
+	await techniques_page_suite()
 	fixes_suite()
 	mockup_fixes_suite()
 	max_character_suite()
@@ -10462,3 +10463,130 @@ func tree_queries_suite() -> void:
 	check(near(float(T.passives(c, fp).damage), 0.01) and cost1 < cost0 and cost1 / cost0 > 0.97,
 		"Flowing Palm: +1%% damage from ring 1's passage, and ring 2's cuts its Qi %.1f to %.1f" % [cost0, cost1])
 	cu.restore(snap)
+
+## P13b the Techniques page (docs/technique_plan.md §4.10 and "As built: P13b"; mockups 06_techniques_tree,
+## 06_techniques_tree_learned, 06_techniques_lost_unknown; roadmap §6 decisions 11, 18 and 19). The layout: the whole
+## screen, a seal for every tree and then Lost Arts and Secret Arts, and the dock with its eight technique slots, four
+## Inner Art slots and the stance; the tree laid out whole and only what is in view taking a tap; a family's row in the
+## chooser jumps the view to it. Learn submits realise_node for the art and, when it is the one step missing, its
+## passage, its button naming the Realisations it spends; Let go gives them back. A found manual is read from the board
+## (use_item). Decision 19 on the page itself: with nothing found, no word the Lost Arts tab draws and no tap it takes
+## names an unfound art or says where one is. The free hand's Dao bar follows the tab.
+func techniques_page_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var inv_was: Dictionary = c.inventory.snapshot()
+	var flags_was: Dictionary = c.quests.flags.duplicate(true)
+	var T = TechniqueTreeRules
+	cu.realm_key = "sphere_lord_3"
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.techniques_known = ["flowing_palm"]
+	cu.technique_slots = ["flowing_palm", null, null, null, null, null, null, null]
+	Game.combat.timeline(c.id).fight_t = -999.0
+	Game.submit({"type": "realise_node", "node": T.passage("water", "any", 1)})
+	var pg = load(str(load("res://scripts/main.gd").PAGES.techniques)).new()
+	pg.text_log = []
+	add_child(pg)
+	pg.open({"tab": "water"})
+	var redraw := func() -> void:
+		pg.text_log.clear()
+		pg.queue_redraw()
+		await get_tree().process_frame
+		await get_tree().process_frame
+	await redraw.call()
+	var ids: Array = pg.tabs.map(func(tb): return str(tb.id))
+	check(pg.frame_rect == Page.WINDOW_SCREEN and ids.size() == T.trees().size() + 2 and ids.slice(-2) == ["lost", "secret"] and str(ids[pg.tab]) == "water"
+		and pg._regions.filter(func(r): return r.id == "slot").size() == 8 and pg._regions.filter(func(r): return r.id == "art_slot").size() == 4
+		and pg._regions.any(func(r): return r.id == "drawer"),
+		"the page fills the screen: a seal a tree, Lost Arts and Secret Arts (%s), and the dock's eight slots, four Inner Arts and the stance" % str(ids))
+	var cards: Array = pg._regions.filter(func(r): return r.id == "node")
+	check(pg._items.size() > 250 and cards.size() > 4 and cards.size() < 40 and cards.all(func(r): return pg.CHART.grow(1).encloses(r.rect)),
+		"the tree is laid out whole (%d nodes) and only what is in view takes a tap, inside the chart (%d)" % [pg._items.size(), cards.size()])
+	check(pg.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("techniques", "flowing_palm")) and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.learned")),
+		"Flowing Palm is on the Water tree, Learned")
+	pg.on_action("family", T.sectors().find("jian"))
+	pg.view = pg.goal
+	await redraw.call()
+	check(pg._fam_at_view() == "jian" and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.arts_of_jian") % str(pg.tabs[pg.tab].label)),
+		"the chooser's Jian row jumps the view to the jian's arts")
+	# Learn: an open art whose passage is the one step missing takes both, and says what it spends.
+	pg.on_action("family", 0)
+	pg.view = pg.goal
+	var pick := {}
+	for it in pg._items:
+		if str(it.kind) == "art" and str(it.get("state", "")) == "open" and (it.get("learn", []) as Array).size() == 2: pick = it
+	check(not pick.is_empty(), "an art one passage out is open, its cost with the passage's (%s)" % str(pick.get("id", "")))
+	if not pick.is_empty():
+		var id := str(pick.id)
+		var free0 := int(Game.progression.realisations(c).free)
+		pg.on_action("node", id)
+		await redraw.call()
+		var label := Tx.plural("ui.techniques.learn_for", int(pick.total)) % int(pick.total)
+		check(pg._regions.any(func(r): return r.id == "learn" and r.enabled) and pg.text_log.any(func(tx): return str(tx.s) == label), "its Learn names what it spends: \"%s\"" % label)
+		pg.on_action("learn", id)
+		check(cu.techniques_known.has(id) and T.realised(c).has(str(pick.learn[0])) and int(Game.progression.realisations(c).free) == free0 - int(pick.total),
+			"Learn realises the passage and the art: %d Realisations spent" % int(pick.total))
+		await redraw.call()
+		check(pg._regions.any(func(r): return r.id == "let_go"), "a realised art can be let go")
+		pg.on_action("let_go", id)
+		check(not cu.techniques_known.has(id) and int(Game.progression.realisations(c).free) == free0 - 1, "Let go gives the art's Realisations back")
+	# The Lost Arts board with nothing found, then a manual carried, found and read from it.
+	for row in ContentDB.all("lost_arts"):
+		(cu.inner_arts_known if str(row.kind) == "inner" else (cu.secret_arts if str(row.kind) == "secret" else cu.techniques_known)).erase(str(row.id))
+	for i in c.inventory.bag.size():
+		if c.inventory.bag[i] != null and (ContentDB.item(str(c.inventory.bag[i].id)).get("use", []) as Array).any(func(e): return e is Dictionary and str(e.get("kind", "")) == "learn_lost_art"):
+			c.inventory.bag[i] = null
+	pg.tab = ids.find("lost")
+	pg.on_action("_tab", "lost")
+	var words: Array = []
+	var taps: Array = []
+	for act in [1, 2, 3, 0]:
+		pg.on_action("lost_act", act)
+		await redraw.call()
+		words.append_array(pg.text_log.map(func(tx): return str(tx.get("s", ""))))
+		taps.append_array(pg._regions.map(func(r): return str(r.data)))
+	var leaked: Array = []
+	for row in ContentDB.all("lost_arts"):
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var said: Array = [str(row.id), str(ContentDB.entry(table, str(row.id)).get("name", ""))]
+		for k in ["room", "object", "npc", "enemy", "item", "quest"]:
+			if row.src.has(k): said.append(str(row.src[k]))
+		if row.src.has("item"): said.append(ContentDB.item_name(str(row.src.item)))
+		for w in said:
+			if w != "" and (words.any(func(s): return w in s) or taps.has(w)): leaked.append(w)
+	var act1 := int(Game.progression.lost_arts_view(c).acts[0].total)
+	check(leaked.is_empty() and words.has(Tx.t("ui.techniques.n_found") % [0, act1]),
+		"decision 19 on the page: nothing found, each act only counted, no word or tap names an unfound art or its place (%s)" % str(leaked.slice(0, 6)))
+	pg.on_action("lost_act", 1)
+	await redraw.call()
+	check(pg._regions.filter(func(r): return r.id == "sealed").size() == mini(act1, 20), "Act I's leaf: every art sealed alike, four rows of five in view (%d)" % act1)
+	Game.inventory.apply_add(c.id, "mudwater_manual", 1, "test")
+	await redraw.call()
+	check(pg.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("techniques", "rising_tide")) and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.unread"))
+		and pg._regions.filter(func(r): return r.id == "sealed").size() == mini(act1, 20) - 1, "a manual carried: Rising Tide on its leaf, Unread, one leaf fewer sealed")
+	pg.on_action("lost", "rising_tide")
+	await redraw.call()
+	check(pg._regions.any(func(r): return r.id == "read" and r.enabled), "a found manual has Read")
+	pg.on_action("read", "mudwater_manual")
+	GameEvents.flush()
+	await redraw.call()
+	check(cu.techniques_known.has("rising_tide") and c.inventory.count("mudwater_manual") == 0 and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.learned")),
+		"Read teaches Rising Tide from the manual, and its leaf says Learned")
+	# Every open tab draws; on the Fire tab the free hand's bar is the Fire Dao.
+	for ti in ids.size():
+		if str(pg.tabs[ti].get("locked", "")) != "": continue
+		pg.tab = ti
+		pg.on_action("_tab", ids[ti])
+		await redraw.call()
+	pg.tab = ids.find("fire")
+	pg.on_action("_tab", "fire")
+	await redraw.call()
+	check(pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.dao_line") % [ContentDB.name_of("daos", "fire"), int(cu.daos.get("fire", {}).get("tier", 0))]),
+		"on the Fire tab the free hand's bar is the Fire Dao")
+	pg.queue_free()
+	await get_tree().process_frame
+	cu.restore(snap)
+	c.inventory.restore(inv_was)
+	c.quests.flags = flags_was
