@@ -70,7 +70,9 @@ def render(p):
     if p["repeat"]:
         entry["repeat"] = p["repeat"]
     for k, v in sorted(p["extra"].items()):
-        if k != "opaque":
+        if k == "door":   # a building's doorway, like the frame and anchor in sheet px
+            entry[k] = [int(round(x * SCALE)) for x in v]
+        elif k != "opaque":
             entry[k] = v
     return sheet, entry, frames
 

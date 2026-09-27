@@ -285,11 +285,15 @@ func tick(delta: float) -> void:
 
 func _after_pass() -> void:
 	GameEvents.flush()
-	if GameEvents.unlock_pending:
+	# The unlock service answers what the pass changed. A quest it offers that is taken at once (an auto-accepted lesson)
+	# unlocks its systems in the same pass, not at some later event: a few rounds settle it.
+	var rounds := 0
+	while GameEvents.unlock_pending and rounds < 4:
 		GameEvents.unlock_pending = false
 		if active_id != "": Unlocks.evaluate(active_id)
 		GameEvents.flush()
-		GameEvents.unlock_pending = false
+		rounds += 1
+	GameEvents.unlock_pending = false
 	if GameEvents.save_pending:
 		GameEvents.save_pending = false
 		if autosave_enabled and booted: save_all()

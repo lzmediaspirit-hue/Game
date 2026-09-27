@@ -1271,6 +1271,11 @@ func room_suite() -> void:
 		check(seen.has(rid2) or room.get("instanced", false), "room %s reachable from Lotus Ferry" % rid2)
 		var surfaces: Array = room.get("surfaces", [])
 		for p2 in room.get("portals", []):
+			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): the doorway
+			# its art draws, or a door placed at it (PortalView.entrance).
+			if p2.get("facade", false) or not PortalView.building_front(p2, room).is_empty():
+				check(PortalView.entrance(p2, room) in ["building", "decor"], "%s:%s, a way into a building, stands in a door the player can see (%s, doorway %s)" % [
+					rid2, p2.id, str(p2.get("at", [])), str(PortalView.building_front(p2, room).get("door", "none"))])
 			var to2 := str(p2.get("to", ""))
 			if to2 == "": continue
 			var planned := ["ae_landing"]   # the Azure Expanse arrives with the next zone (v1.1)
@@ -1496,7 +1501,7 @@ func quest_guidance_suite() -> void:
 			if not places.is_empty():
 				# The objectives before this one done: the tracker's mark is this one's.
 				c.quests.active[qid].progress = range(q.objectives.size()).map(func(j): return int(q.objectives[j].get("count", 1)) if j < i else 0)
-				var room := str(Game.quest.tracker(c)[0].target_room)
+				var room := str(_entry_of(c, qid).get("target_room", ""))
 				# A place a door or hidden way leads to is marked itself; the quest's own room stands in only for story instances.
 				var doors: Array = places.filter(func(r): return not WorldRules.rooms_with("to=" + str(r)).is_empty() or not WorldRules.rooms_with("hidden_to=" + str(r)).is_empty())
 				check(room != "" and (room in places or doors.is_empty() and room == str(q.get("target_room", ""))), "%s: '%s' has a direction mark (%s)" % [qid, o.text, room])
@@ -1505,10 +1510,16 @@ func quest_guidance_suite() -> void:
 		var hand_in := Game.quest.hand_in_npc(c, q)
 		if hand_in != "":
 			c.quests.active[qid].state = "ready"
-			var back := str(Game.quest.tracker(c)[0].target_room)
+			var back := str(_entry_of(c, qid).get("target_room", ""))
 			check(_stands_in(c, hand_in, back) and _walks_to(c, back), "%s: the mark leads to its hand-in %s where the player can reach (%s)" % [qid, hand_in, back])
 	Game.characters.erase(c.id)
 	check(quests >= 100, "quest_guidance_suite followed %d guided and main quests" % quests)
+
+## The tracker's entry for a quest under way (the story's "next" entry may stand above it).
+func _entry_of(c, qid: String) -> Dictionary:
+	for e in Game.quest.tracker(c):
+		if str(e.quest) == qid and str(e.kind) != "next": return e
+	return {}
 
 ## Every quest `id` waits on, all the way back.
 func _all_back(waits: Dictionary, id: String) -> Dictionary:

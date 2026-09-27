@@ -235,13 +235,13 @@
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Put Herbal Tea in the Quick-use slot",
+     "text": "Bag: put Herbal Tea in Quick-use",
      "count": 1,
      "system": "set_quick_use"
     },
     {
      "kind": "use_item",
-     "text": "Drink a Herbal Tea",
+     "text": "Drink a Herbal Tea: tap Quick-use",
      "count": 1,
      "item": "herbal_tea"
     },
@@ -265,6 +265,7 @@
    ],
    "offer_text": [
     "Hold still, child. Herbal Tea. Put it where your hand finds it without looking.",
+    "Open your Bag, tap the tea and choose Quick-use: it waits by your fist, marked Quick-use.",
     "Drink one. Then bow at the shrine in the square. It remembers those who visit."
    ],
    "complete_text": [
@@ -355,7 +356,8 @@
     "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."
    ],
    "complete_text": [
-    "Not bad! The East Gate's open for you. Reed Shallows. Crabs. You'll see."
+    "Not bad! Keep those fists warm. Something's stirring past the East Gate.",
+    "Finish helping the others first. Lu will tell you when."
    ],
    "progress_text": [
     "Elbow in! Twelve on the stump, five on the dummy."
@@ -451,6 +453,7 @@
    ],
    "offer_text": [
     "The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+    "The East Gate's open for you now. Reed Shallows, just past it.",
     "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."
    ],
    "complete_text": [
@@ -781,7 +784,14 @@
    "complete_text": [
     "Service Disciple! Report to the steward at your sect's gate."
    ],
-   "offered_by_unlock": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_recruitment_fair"
+     }
+    ]
+   },
    "auto_accept": true,
    "target_room": "sf_fairground",
    "chapter": "bf2"

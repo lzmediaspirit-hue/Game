@@ -113,6 +113,7 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
 	await identity_suite()
@@ -180,7 +181,8 @@ func ui_suite() -> void:
 	Unlocks.debug_force_all = true
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
-		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot()}
+		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot(), "codex": Game.account.codex.duplicate(),
+		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate()}
 	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
 	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
 	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
@@ -343,6 +345,9 @@ func ui_suite() -> void:
 	c.cultivator.secret_arts = keep.arts
 	c.cultivator.daos = keep.daos
 	Game.account.teleports = keep.stones
+	Game.account.codex = keep.codex
+	Game.account.collection = keep.collection
+	Game.account.collection_pages_done = keep.pages_done
 	c.inventory.restore(keep.inventory)
 	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
@@ -368,8 +373,8 @@ func ui_suite() -> void:
 	check(dim_words.is_empty(), "P5: every word on a page with its own surface reads on what it sits on (%d: %s)" % [dim_words.size(), str(dim_words.slice(0, 6))])
 	check(unshared.is_empty(), "P5: a page with its own identity keeps the shared close button, its inked title and a known surface (%s)" % str(unshared.slice(0, 6)))
 	var own_pages := 0
-	for id in main_script.PAGES:
-		var p: Page = load(str(main_script.PAGES[id])).new()
+	for path in main_script.PAGES.values().reduce(func(acc, v): return acc if acc.has(v) else acc + [v], []):   # one page script may open under several ids
+		var p: Page = load(str(path)).new()
 		if p.identity != null: own_pages += 1
 		p.free()
 	check(signatures.size() == own_pages and (own_pages == 0 or own_views > own_pages), "P5: every page with its own identity was drawn, in every tab, with a layout signature no other shares (%d pages, %d views: %s)" % [own_pages, own_views, str(signatures)])
@@ -412,6 +417,14 @@ func _ui_contexts(c) -> Dictionary:
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
 		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}],
+		# P5: the Codex as it is, and with every old scroll rubbed and every card filled past its page's seal (the longest
+		# ladder and the fullest field book).
+		"codex": [{}, {"_setup": func():
+			for e in ContentDB.all("codex"): Game.account.codex[str(e.id)] = true
+			for e in ContentDB.all("enemies"):
+				if e.get("collection") is Dictionary:
+					Game.account.collection[str(e.id)] = 500
+					Game.account.collection_pages_done[str(e.collection.page)] = true}],
 		# The world map's three views (its tabs are the zones and the Heaven Ranking).
 		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}]}
 
@@ -423,9 +436,10 @@ func _ui_contexts(c) -> Dictionary:
 ## signature of its own.
 func _identity_view(pg: Page, where: String, dim_words: Array, unshared: Array, signatures: Dictionary, fills: Dictionary) -> void:
 	var idn: Page.Identity = pg.identity
-	var sig_owner := str(signatures.get(idn.signature, pg.page_id))
-	if sig_owner != pg.page_id: unshared.append("%s shares the signature %s with %s" % [where, idn.signature, sig_owner])
-	signatures[idn.signature] = pg.page_id
+	var script_path := str(pg.get_script().resource_path) if pg.get_script() != null else pg.page_id   # the Codex opens as codex, collection, ...
+	var sig_owner := str(signatures.get(idn.signature, script_path))
+	if sig_owner != script_path: unshared.append("%s shares the signature %s with %s" % [where, idn.signature, sig_owner])
+	signatures[idn.signature] = script_path
 	if not UiKit.SURFACE.has(idn.surface) or not idn.title_mount in ["plaque", "own"] or idn.open_s > Page.OPEN_MOTION_MAX or idn.signature == "":
 		unshared.append("%s declares %s / %s / %.2f s / %s" % [where, idn.surface, idn.title_mount, idn.open_s, idn.signature])
 	var close := Rect2(pg.frame_rect.end.x - 72, pg.frame_rect.position.y + 16, 52, 52)
@@ -520,6 +534,105 @@ func identity_suite() -> void:
 		p.free()
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 	await _bag_checks()
+	await _records_checks()
+
+## A page opened as the game opens it, its words logged, drawn twice.
+func _open_page(id: String, a := {}) -> Page:
+	var pg: Page = load(str(load("res://scripts/main.gd").PAGES[id])).new()
+	pg.page_id = id
+	pg.text_log = []
+	add_child(pg)
+	pg.open(a)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	return pg
+
+## P5 (the Records family; docs/page_identity.md rows 22 and 26, mockups 18, 18_scrolls and 19, decisions 11 and 22):
+## the Codex's field book holds every collection card once, its pages in order, and turns at its corners; the Old
+## Scrolls ink only the rungs the account has reached, gloss each with our realms on it and pin the chosen rung's note;
+## the Calendar lays every world event of the coming week on its day with no two slips touching, and Go there walks.
+func _records_checks() -> void:
+	var c = Game.active()
+	var keep_codex: Dictionary = Game.account.codex.duplicate()
+	# The field book.
+	var cp: Page = await _open_page("collection")
+	var cards: Array = ContentDB.all("enemies").filter(func(e): return e.get("collection") is Dictionary)
+	var bound: Array = []
+	for sp in cp._spreads: bound.append_array(sp.beasts.map(func(e): return str(e.id)))
+	var ids: Array = cards.map(func(e): return str(e.id))
+	check(bound.size() == ids.size() and ids.all(func(i): return bound.has(i)) and cp._pages.size() == cp._pages.map(func(p): return p.id).reduce(func(a, v): return a if a.has(v) else a + [v], []).size(),
+		"P5 Codex: the field book binds every collection card once, a page each (%d cards on %d pages, %d spreads)" % [bound.size(), cp._pages.size(), cp._spreads.size()])
+	cp.leaf["collection"] = 0
+	cp.queue_redraw()
+	await get_tree().process_frame
+	check(cp.title == Tx.t("ui.codex.collection") and cp._regions.any(func(r): return r.id == "leaf" and int(r.data) == 1) and not cp._regions.any(func(r): return r.id == "leaf" and int(r.data) == -1),
+		"P5 Codex: the open ribbon carries the title, and the first spread turns only onward")
+	cp._activate(cp._regions.filter(func(r): return r.id == "leaf")[0])
+	cp.text_log.clear()
+	cp.queue_redraw()
+	await get_tree().process_frame
+	var p2 := str(cp._spreads[1].page)
+	check(int(cp.leaf.collection) == 1 and cp.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.codex.page_" + p2)), "P5 Codex: a corner turns the leaf to the next spread (%s)" % p2)
+	cp._activate(cp._regions.filter(func(r): return r.id == "contents")[0])
+	cp.queue_redraw()
+	await get_tree().process_frame
+	var goto: Array = cp._regions.filter(func(r): return r.id == "goto")
+	check(goto.size() == cp._pages.size(), "P5 Codex: Contents lists every page of the book (%d)" % goto.size())
+	cp._activate(goto[-1])
+	check(str(cp._spreads[int(cp.leaf.collection)].page) == str(cp._pages[-1].id) and not cp.contents, "P5 Codex: a page in Contents turns to it")
+	# The Old Scrolls: an account at Heart Tempering has four rungs rubbed, the rest bare.
+	for k in Game.account.codex.keys(): if str(k).begins_with("old_scrolls"): Game.account.codex.erase(k)
+	for id in ["old_scrolls", "old_scrolls_mortal", "old_scrolls_bone_forging", "old_scrolls_qi_kindling", "old_scrolls_qi_unfurling", "old_scrolls_heart_tempering"]:
+		Game.account.codex[id] = true
+	cp.tab = cp.tabs.map(func(tb): return str(tb.id)).find("old_scrolls")
+	cp.rung = -1
+	cp.text_log.clear()
+	cp.queue_redraw()
+	await get_tree().process_frame
+	var said: Array = cp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var rungs: Array = cp._regions.filter(func(r): return r.id == "rung")
+	check(rungs.size() == 4 and said.has("FOUNDATION ESTABLISHMENT") and not said.has("CORE FORMATION") and said.has("Qi Kindling") and said.has("Qi Unfurling"),
+		"P5 Old Scrolls: only the rungs reached are rubbed, each glossed with our realms on it (%d rungs)" % rungs.size())
+	cp._activate(rungs[2])
+	var first: String = cp.rung_realm
+	cp._activate(rungs[2])
+	cp.text_log.clear()
+	cp.queue_redraw()
+	await get_tree().process_frame
+	check(cp.rung == 2 and first != cp.rung_realm and cp.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.codex.note_" + ("lower" if cp.rung_realm == "qi_kindling" else "upper"))),
+		"P5 Old Scrolls: a rung's note is pinned beside it, and a second tap turns to the other realm on it (%s, %s)" % [first, cp.rung_realm])
+	var dim: Array = []
+	var lost: Array = []
+	_identity_view(cp, "codex old scrolls", dim, lost, {}, {})
+	check(dim.is_empty() and lost.is_empty(), "P5 Old Scrolls: every word reads on the ink, the silk or the note (%s)" % str(dim.slice(0, 4)))
+	check(ContentDB.all("realms").map(func(r): return str(r.realm)).all(func(g): return str(ContentDB.entry("codex", "old_scrolls_" + g).get("rung", "")) != ""),
+		"P5 Old Scrolls: every great realm names its old rung")
+	cp.queue_free()
+	Game.account.codex = keep_codex
+	# The Calendar's week.
+	var kp: Page = await _open_page("calendar")
+	var now := Clock.now_utc()
+	var today := CalendarRules.day_of(now)
+	var want := 0
+	for ev in CalendarRules.events():
+		var o := CalendarRules.upcoming(ev, now, Game.calendar.cal_seed(), Game.calendar.origin())
+		while not o.is_empty() and CalendarRules.day_of(float(o.start)) < today + 7:
+			want += 1
+			o = CalendarRules.occurrence(ev, int(o.k) + 1, Game.calendar.cal_seed(), Game.calendar.origin())
+	var slips: Array = kp._regions.filter(func(r): return r.id == "event" and str(r.data) != "beast_tide")
+	var apart := true
+	for i in slips.size():
+		for j in range(i + 1, slips.size()):
+			if (slips[i].art as Rect2).intersects(slips[j].art): apart = false
+	check(slips.size() == want and want >= CalendarRules.events().size() and apart and kp._regions.any(func(r): return str(r.data) == "beast_tide"),
+		"P5 Calendar: every world event of the coming week lies on its day, no two slips touching, the Beast Tide across the week (%d slips)" % slips.size())
+	kp.on_action("event", "beast_tide")
+	kp.queue_redraw()
+	await get_tree().process_frame
+	var go: Array = kp._regions.filter(func(r): return r.id == "go")
+	check(go.size() == 1 and str(go[0].data) == "sf_gate" and (go[0].rect as Rect2).size.y >= Page.MIN_TAP and bool(go[0].enabled) == not Game.world.route(c, str(c.position.get("room", "")), "sf_gate").is_empty(),
+		"P5 Calendar: the chosen event's Go there walks to its room by auto_path, shut with its reason when no way leads there")
+	kp.queue_free()
 
 ## P5 (the Bag as concept B, decision 24; docs/page_identity.md row 3): the kinds split the bag with nothing lost; the
 ## eight worn slots ride the orbit; a tapped thing's card opens beside its space, clear of it and inside the window, its
@@ -1038,6 +1151,28 @@ func hud_suite() -> void:
 	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
 		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
 		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
+	# At rest the healing slot stays drawn while it holds something to drink (Granny's tea), in its place, and clear of
+	# the open fan's toggles; empty, it is drawn while a quest step asks for it (Granny's Remedy), not otherwise.
+	c.inventory.quick_use = "herbal_tea"
+	var teas: int = c.inventory.count("herbal_tea")
+	if teas == 0: Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	hud.set_state(false, false)
+	var rest_q: Array = at.call("quick", hud.hit_targets())
+	hud.set_state(false, true)
+	var fan_q: Array = at.call("quick", hud.hit_targets())
+	var fan_at: Array = hud._fan_items().map(func(f): return f.center)
+	if teas == 0: Game.inventory.apply_remove(c.id, "herbal_tea", 1, "test")
+	c.inventory.quick_use = ""
+	hud.set_state(false, false)
+	var empty_q: Array = at.call("quick", hud.hit_targets())
+	var quests_was: Dictionary = c.quests.active
+	c.quests.active = {"grannys_remedy": {"state": "active", "progress": [0, 0, 0], "accepted_tick": 0}}
+	var asked_q: Array = at.call("quick", hud.hit_targets())
+	c.quests.active = quests_was
+	check(rest_q.size() == 1 and near.call(rest_q[0], Vector2(970, 518)) and fan_q.size() == 1 and fan_at.size() == 5
+		and fan_at.all(func(p): return (p as Vector2).distance_to(fan_q[0]) >= 60.0) and empty_q.is_empty() and asked_q.size() == 1,
+		"at rest the healing slot is drawn while it holds something to drink (%s), clear of the open fan (%s), and empty only while a quest step asks for it (%s, %s)"
+		% [str(rest_q), str(fan_q), str(empty_q), str(asked_q)])
 	c.cultivator.technique_slots = slots_was
 	c.inventory.quick_use = quick_was
 	c.inventory.treasures = tre_was
@@ -1055,6 +1190,73 @@ func hud_suite() -> void:
 ## views: two NPCs on the same spot (Elder Gu and Madam Hua in Artisan Row), three foes and a boss in a knot, and the
 ## party (a disciple, the puppet and an animal) at one height in a fight, laid out by WorldLabels.place_views as
 ## world.gd does each frame.
+## The attack button's one rule (HUD.attack_first; a fight beside a herb in the Reed Shallows): with a foe in the fight
+## range, or one engaged anywhere in the room, the button attacks even with a resource under the player, and the
+## resource's action stays a tap away in the context slot on ring 2; with no foe about the context takes the button
+## (mockup 02). Auto-hunt attacks by the player's own attack (Autopilot), never through the context.
+func attack_first_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	var node: Dictionary = {}
+	for o in Game.room_rt.def.get("objects", []):
+		if node.is_empty() and str(o.type) == "herb_patch" and not o.has("ripen") and HerbRules.in_season(o, Clock.now_utc()): node = o
+	for uid in Game.room_rt.enemies.keys(): Game.room_rt.enemies.erase(uid)   # the shallows' crabs out of the way
+	Game.room_rt.objects[str(node.id)] = {"state": "ready", "timer": 0.0, "hits": 0}
+	var at := Vector2(float(node.at[0]) - 30.0, float(node.at[1]) + 10.0)
+	Game.actor_state(c.id).plane = at
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\nvar attacks := 0\nfunc attack() -> void:\n\tattacks += 1\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(c.id)
+	stub.plane = at
+	var hud = load("res://scripts/hud.gd").new()
+	hud.visible = false
+	hud.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(hud)
+	hud.player = stub
+	hud.context = {"type": "herb_patch", "object": str(node.id), "label": Tx.t("sim.world.gather")}
+	var roles := func() -> Array: return hud.hit_targets().map(func(tg): return str(tg.role))
+	var tap := func(p: Vector2) -> void:
+		hud.press(9, p)
+		hud.release(9)
+	# No foe about: the context takes the button, and a tap gathers.
+	hud._tick_fight(5.0)
+	var rest_glyph: String = hud._ctx_glyph(c)
+	tap.call(hud.attack_center)
+	check(not hud.attack_first() and rest_glyph == "gather" and not roles.call().has("context") and stub.attacks == 0 and str(hud.channel.object) == str(node.id),
+		"no foe about: the context takes the attack button and a tap gathers (%s, %s)" % [rest_glyph, str(hud.channel)])
+	hud.channel.object = ""
+	# A foe in the fight range: the button attacks; the gather waits in the context slot on ring 2, a tap away.
+	var foe: EnemyState = Game.enemies.spawn_at("mudshell_crab", at + Vector2(200, 0), 2)
+	hud._tick_fight(0.05)
+	var fight_glyph: String = hud._ctx_glyph(c)
+	tap.call(hud.attack_center)
+	var slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
+	check(hud.attack_first() and fight_glyph == "" and stub.attacks == 1 and str(hud.channel.object) == "" and slot.size() == 1,
+		"a foe in range: the attack button attacks beside the herb, the gather moves to ring 2 (%s; attacks %d; %s)" % [fight_glyph, stub.attacks, str(roles.call())])
+	if not slot.is_empty(): tap.call(slot[0].center)
+	check(str(hud.channel.object) == str(node.id), "the gather stays reachable from the ring-2 context slot (%s)" % str(hud.channel))
+	hud.channel.object = ""
+	# A foe engaged from beyond the fight range (turned on the player, or struck a moment ago) keeps the button attacking.
+	foe.plane = at + Vector2(900, 0)
+	foe.ai.state = "aggro"
+	hud.fight = false
+	hud.fight_left = 0.0
+	hud._tick_fight(0.05)
+	tap.call(hud.attack_center)
+	check(hud.attack_first() and stub.attacks == 2 and str(hud.channel.object) == "", "a foe engaged anywhere in the room: the button still attacks (attacks %d)" % stub.attacks)
+	Game.room_rt.enemies.erase(foe.uid)
+	hud.player = null
+	stub.free()
+	hud.free()
+	Unlocks.debug_force_all = force_was
+	Game.world.apply_teleport(c.id, back)
+
 func labels_suite() -> void:
 	var mk := func(id: String, kind: String, r: Rect2, flip: Vector2) -> Dictionary:
 		return {"id": id, "kind": kind, "rect": r, "prev": Vector2.ZERO, "near": 0.0, "flip": flip}
@@ -6708,9 +6910,13 @@ func guidance_suite() -> void:
 	check(not QuestAuthority.marker_calls("progress") and QuestAuthority.marker_calls("again"), "the grey bubble does not call the player over")
 	c.quests.active["the_county_tribute"]["state"] = "ready"
 	check(Game.quest.npc_marker(c, "magistrate_qian") == "ready", "done and ready to hand in: the question mark")
-	# The way there: the tracker names the room, the minimap marks this room's exit on the route.
+	# The way there: the tracker names the room, the minimap marks this room's exit on the route (the story played
+	# through, so no "next" entry of it stands above the tracked quest).
+	var story_done := {}
+	for sq in ContentDB.all("quests"):
+		if str(sq.kind) in QuestAuthority.STORY_KINDS: story_done[str(sq.id)] = 1
 	c.quests.active = {"glowflies": {"state": "active", "progress": [0], "accepted_tick": 0}}
-	c.quests.done = {"fists_first": 1}   # the village's east gate opens after Fists First
+	c.quests.done = story_done.merged({"crab_trouble": 1})   # the village's East Gate opens with Crab Trouble
 	c.quests.tracked = ["glowflies"]
 	Game.world.apply_teleport(c.id, "lf_village")
 	check(Game.world.guide_target(c) == "lf_reed_shallows", "the tracked quest leads to the Reed Shallows")
@@ -6745,8 +6951,60 @@ func guidance_suite() -> void:
 	c.quests.done = {"morning_tide": 1}
 	c.quests.flags["night_active"] = true
 	check(Game.quest.npc_rooms(c, "aunt_ping") == ["lf_village"], "after the Hollow Night Aunt Ping is looked for in the lane (%s)" % str(Game.quest.npc_rooms(c, "aunt_ping")))
+	_next_entry_checks(c)
 	c.quests.restore(q0)
 	Game.world.apply_teleport(c.id, back)
+
+## Between main quests the tracker's first entry is the story's next quest ("next"), and the direction mark and the go
+## button lead to it: who gives it and where, followed back through what the next main quest waits on; or the Level it
+## waits on and a hunting ground for the character's Level. With a main quest under way there is none.
+func _next_entry_checks(c) -> void:
+	var realm_was: String = c.cultivator.realm_key
+	var sect_was: Dictionary = c.training_sect.duplicate(true)
+	var prologue := {}
+	for q in ContentDB.all("quests"):
+		if str(q.get("chapter", "")) == "prologue" and str(q.kind) in QuestAuthority.STORY_KINDS: prologue[str(q.id)] = 1
+	c.quests.flags = {"night_survived": true}
+	c.quests.active = {}
+	c.quests.tracked = []
+	c.training_sect = {}
+	c.cultivator.realm_key = "bone_forging_1"
+	# A quest to take now, reached through what the next main quest waits on (A Disciple's Chores waits on the Entry
+	# Trial, which waits on the fair): the recruiter who gives it, where she stands.
+	c.quests.done = prologue.merged({"the_willow_path": 1})
+	c.quests.offered = {"the_recruitment_fair": true}
+	Game.world.apply_teleport(c.id, "lf_village")
+	var tr: Array = Game.quest.tracker(c)
+	var nx: Dictionary = tr[0] if not tr.is_empty() else {}
+	check(str(nx.get("kind", "")) == "next" and str(nx.get("quest", "")) == "the_recruitment_fair" and str(nx.get("target_room", "")) == "sf_fairground"
+		and ContentDB.name_of("npcs", "recruiter_qing_lan") in str(nx.lines[0].text) and ContentDB.name_of("quests", "the_recruitment_fair") in str(nx.name),
+		"between quests the tracker names the next one, who gives it and where (%s)" % str(nx))
+	check(Game.world.guide_target(c) == "sf_fairground" and not Game.world.guide_step(c).is_empty(), "the direction mark leads toward the recruiter (%s)" % str(Game.world.guide_step(c)))
+	# A Level to reach first: the next main quest (Strange Tracks, Bone Forging 4), the Level, and a hunting ground whose
+	# foes suit the character's Level, the one P12's gap names too.
+	c.quests.done = prologue.merged({"the_willow_path": 1, "the_recruitment_fair": 1, "entry_trial": 1, "a_disciples_chores": 1, "fish_gutting_fists": 1})
+	c.quests.offered = {}
+	c.training_sect = {"id": "jade_sect", "rank": "service_disciple"}
+	c.cultivator.realm_key = "bone_forging_3"
+	tr = Game.quest.tracker(c)
+	nx = tr[0] if not tr.is_empty() else {}
+	var hunt := str(nx.get("target_room", ""))
+	var lr: Array = ContentDB.room(hunt).get("level_range", [0, 0])
+	var lv := ProgressionRules.level(c)
+	check(str(nx.get("quest", "")) == "strange_tracks" and nx.get("hunt", false) and str(nx.lines[0].text) == Tx.t("sim.quest.next_level") % [4, ContentDB.name_of("realms", "bone_forging_4")]
+		and str(ContentDB.room(hunt).get("type", "")) == "field" and lv >= int(lr[0]) and lv <= int(lr[1])
+		and Game.quest.floor_gap(c).fields.any(func(f): return str(f[0]) == hunt),
+		"a main quest waiting on a Level: the Level, and where to hunt for it (%s; Level %d)" % [str(nx), lv])
+	check(Game.world.guide_target(c) == hunt and not Game.world.guide_step(c).is_empty() and not Game.world.route(c, "lf_village", hunt).is_empty() or hunt == "lf_village",
+		"the direction mark and the go button lead to the hunting ground (%s)" % hunt)
+	# A main quest under way: the tracker shows it, and no next entry.
+	c.cultivator.realm_key = "bone_forging_4"
+	c.quests.active = {"strange_tracks": {"state": "active", "progress": ContentDB.entry("quests", "strange_tracks").objectives.map(func(_o): return 0), "accepted_tick": 0}}
+	c.quests.tracked = ["strange_tracks"]
+	check(Game.quest.tracker(c).all(func(e): return str(e.kind) != "next") and str(Game.quest.tracker(c)[0].quest) == "strange_tracks",
+		"with a main quest under way there is no next entry; the quest leads the tracker")
+	c.cultivator.realm_key = realm_was
+	c.training_sect = sect_was
 
 ## v1.2 Phase C: gravity switches in the Orbit Ruins, the Sphere (radius, power, element effects, clash, the Qi it
 ## costs), the Space Dao's six tiers and the Confucian path's gates.

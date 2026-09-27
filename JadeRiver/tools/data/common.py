@@ -67,6 +67,11 @@ def qactive(q):
     return {"kind": "quest_active", "quest": q}
 
 
+def qaccepted(q):
+    """Taken on, under way or done."""
+    return {"kind": "quest_accepted", "quest": q}
+
+
 def flag(f):
     return {"kind": "flag_set", "flag": f}
 

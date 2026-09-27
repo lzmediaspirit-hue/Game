@@ -28,96 +28,134 @@
   },
   {
    "id": "old_scrolls_mortal",
+   "rung": "Mortal",
+   "half": "",
    "title": "Mortal · the old scrolls",
    "body": "The old scrolls have no rung for this: they write \"mortal\" and start counting at the first breath of Qi. A mortal body keeps its eighty years or so, and the scrolls do not pretend otherwise."
   },
   {
    "id": "old_scrolls_bone_forging",
+   "rung": "Body Refining",
+   "half": "",
    "title": "Bone Forging · the old scrolls",
    "body": "The old scrolls call this labour Body Refining and set it below the ladder, a threshold rather than a rung. It is the work we do at the stumps and stones: the bones first, and the first Qi only at the seventh stage."
   },
   {
    "id": "old_scrolls_qi_kindling",
+   "rung": "Qi Refining",
+   "half": "lower",
    "title": "Qi Kindling · the old scrolls",
    "body": "The old scrolls call the first rung of Qi \"Qi Refining\", and count it in layers where we count stages. Our Qi Kindling is its lower layers: the breath is caught and kept, but it does not yet leave the body."
   },
   {
    "id": "old_scrolls_qi_unfurling",
+   "rung": "Qi Refining",
+   "half": "upper",
    "title": "Qi Unfurling · the old scrolls",
    "body": "Our Qi Unfurling is the upper layers of the old scrolls' Qi Refining. They too wash the marrow at its gate, as Heaven's Cleansing does, and they too say the Qi first leaves the hand here."
   },
   {
    "id": "old_scrolls_heart_tempering",
+   "rung": "Foundation Establishment",
+   "half": "",
    "title": "Heart Tempering · the old scrolls",
    "body": "The old scrolls call this rung Foundation Establishment and give it two hundred years, as we do. At its end they set a trial of the heart, where a cultivator meets the demons they carried in; our Heart Trial is that door."
   },
   {
    "id": "old_scrolls_cloud_stride",
+   "rung": "Core Formation",
+   "half": "early",
    "title": "Cloud Stride · the old scrolls",
    "body": "Here the old scrolls say the Qi condenses into a core, and they call the rung Core Formation, or the Golden Core. They grade the core as we do, and a poor grade is carried for the rest of the road. The pill our furnaces call Qi Refining is named for the work it does here, not for the old rung of that name."
   },
   {
    "id": "old_scrolls_spirit_awakening",
+   "rung": "Core Formation",
+   "half": "late",
    "title": "Spirit Awakening · the old scrolls",
    "body": "The old scrolls still count this as Core Formation, its later half, when the core is whole and the spirit's eye opens. They give it five hundred years, and so do we."
   },
   {
    "id": "old_scrolls_heaven_glimpse",
+   "rung": "Nascent Soul",
+   "half": "early",
    "title": "Heaven Glimpse · the old scrolls",
    "body": "Where we glimpse heaven, the old scrolls say a Nascent Soul is born: a small self of spirit that grows out of the core. They divide it in three, as we divide Heaven Glimpse into orders."
   },
   {
    "id": "old_scrolls_sage",
+   "rung": "Nascent Soul",
+   "half": "late",
    "title": "Sage · the old scrolls",
    "body": "The old scrolls keep the Nascent Soul through what we call Sage, and they say what we say: a Sage's soul can leave a broken body and flee to safety. Their thousand years is close to our twelve hundred."
   },
   {
    "id": "old_scrolls_sage_sovereign",
+   "rung": "Spirit Transformation",
+   "half": "early",
    "title": "Sage Sovereign · the old scrolls",
    "body": "The old scrolls call the next rung Spirit Transformation, when the soul, not the body, becomes the centre of the cultivator. They say a trial of will stands at its end, as our Presence Trial does."
   },
   {
    "id": "old_scrolls_will_manifest",
+   "rung": "Spirit Transformation",
+   "half": "late",
    "title": "Will Manifest · the old scrolls",
    "body": "The old scrolls keep Spirit Transformation here too, and write of its later half as the time when a cultivator's will weighs on the weaker. What they call might, we call Presence."
   },
   {
    "id": "old_scrolls_sphere_lord",
+   "rung": "Void Refining",
+   "half": "early",
    "title": "Sphere Lord · the old scrolls",
    "body": "Past the soul the old scrolls set Void Refining, when a cultivator begins to shape the space around them. Our Sphere is that shaping, drawn as a circle."
   },
   {
    "id": "old_scrolls_law_touching",
+   "rung": "Void Refining",
+   "half": "late",
    "title": "Law Touching · the old scrolls",
    "body": "The old scrolls end Void Refining where we begin to touch the Laws: the void is refined until the laws of a world answer. They put eight thousand years on it, as we do."
   },
   {
    "id": "old_scrolls_monarch",
+   "rung": "Body Integration",
+   "half": "",
    "title": "Monarch · the old scrolls",
    "body": "The old scrolls call this rung Body Integration: body, soul and world become one. A Monarch's Weight is their oneness with heaven and earth, and a Throne-Sworn Monarch is their cultivator who has made one world their own."
   },
   {
    "id": "old_scrolls_half_heaven_monarch",
+   "rung": "Great Vehicle",
+   "half": "early",
    "title": "Half-Heaven Monarch · the old scrolls",
    "body": "The old scrolls call the last long rung before the heavens the Great Vehicle, and count its first step as half a step into heaven. Half-Heaven Monarch is that step."
   },
   {
    "id": "old_scrolls_dao_sigil",
+   "rung": "Great Vehicle",
+   "half": "complete",
    "title": "Dao Sigil · the old scrolls",
    "body": "The old scrolls close the Great Vehicle when everything a cultivator is has been pressed into one foundation. Our Dao Sigil is that pressing, with the seven powers set in it one by one."
   },
   {
    "id": "old_scrolls_heavens_threshold",
+   "rung": "Tribulation Crossing",
+   "half": "",
    "title": "Heaven's Threshold · the old scrolls",
    "body": "The old scrolls call this rung Tribulation Crossing: the cultivator stands where the heavens try them one last time before they rise. Ours adds the forming of a world, the one breakthrough that can take back what it gave."
   },
   {
    "id": "old_scrolls_inner_heaven",
+   "rung": "Ascension",
+   "half": "",
    "title": "Inner Heaven · the old scrolls",
    "body": "Here the old scrolls say the cultivator ascends and becomes an immortal, and they count the immortal ranks from the True Immortal upward. Our Inner Heaven is that ascent with a world carried inside; its nine ranks answer to their grades."
   },
   {
    "id": "old_scrolls_world_genesis",
+   "rung": "Dao Ancestor",
+   "half": "",
    "title": "World Genesis · the old scrolls",
    "body": "The old scrolls stop counting here and call one who makes and mends worlds a Dao Ancestor. They give no end of years, and neither do we."
   },

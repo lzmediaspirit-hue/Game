@@ -223,15 +223,13 @@ func _draw_tag() -> void:
 	var label := "%s  %s" % [level_text, name_text] if not boss else name_text
 	var tw := UiKit.text_width(label, 17, true)
 	var box := Rect2(-tw * 0.5 - 4.0, base - 17.0, tw + 8.0, 22.0)
-	var show_hp := hp_timer > 0.0 or elite or boss
-	if Game.is_revealed("hud:enemy_hp_bars") or boss:
-		if show_hp and not boss:
-			var bw := clampf(w * 2.2, 40, 90)
-			var r := Rect2(-bw * 0.5, top + 6, bw, 6)
-			box = box.merge(Rect2(-bw * 0.5 - 2.0, base + 4.0, bw + 4.0, 10.0))
-			ci.draw_rect(r.grow(2), UiKit.INK)
-			ci.draw_rect(r, Color("3a1418"))
-			ci.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0, 1), r.size.y)), UiKit.RED)
+	if shows_hp_bar(e) and not boss:
+		var bw := clampf(w * 2.2, 40, 90)
+		var r := Rect2(-bw * 0.5, top + 6, bw, 6)
+		box = box.merge(Rect2(-bw * 0.5 - 2.0, base + 4.0, bw + 4.0, 10.0))
+		ci.draw_rect(r.grow(2), UiKit.INK)
+		ci.draw_rect(r, Color("3a1418"))
+		ci.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0, 1), r.size.y)), UiKit.RED)
 	var col := UiKit.badge_color(badge)
 	if elite: col = UiKit.GOLD
 	UiKit.draw_outlined(ci, label, Vector2(-130, top), 17, col, HORIZONTAL_ALIGNMENT_CENTER, 260)
@@ -250,6 +248,13 @@ func _draw_tag() -> void:
 		SpriteCache.draw_icon(ci, Rect2(sx, top - 30, 14, 14), str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
 		sx += 14
 	label_box = box
+
+## Does this foe show its HP: a boss always (on the HUD's boss bar); any other foe once the HUD shows foes' HP (Crab
+## Trouble, before the first fight), over its head whenever it is in a fight, was just hurt, or is an elite.
+func shows_hp_bar(e: EnemyState) -> bool:
+	if ally or e == null or not e.alive: return false
+	if boss: return true
+	return Game.is_revealed("hud:enemy_hp_bars") and (hp_timer > 0.0 or elite or e.in_fight())
 
 ## Colour-blind-safe danger badge: shapes say what the colour says (S40 release checklist).
 ## ▲ tougher (5+ levels above), ▲▲ a realm or more above, ▽ weaker (5+ below), none otherwise.

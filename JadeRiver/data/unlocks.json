@@ -333,6 +333,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },
@@ -349,6 +353,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },
@@ -367,6 +375,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },
@@ -385,6 +397,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },
@@ -405,6 +421,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },
@@ -425,6 +445,10 @@
      {
       "kind": "realm_at_least",
       "realm": "bone_forging_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
      }
     ]
    },

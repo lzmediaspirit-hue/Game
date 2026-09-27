@@ -130,21 +130,14 @@ func _choose(i: int) -> void:
 	var needs_authority := ch.has("accept") or ch.has("hand_in") or ch.has("effects") or ch.has("next") or ch.has("spar")
 	if needs_authority:
 		var r := submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
+		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
+			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
+		# The conversation goes on only where the authority hands one back (the next node, or the same person's next
+		# quest to take or hand in, QuestAuthority._then); taking a quest otherwise ends it (M17).
 		if r.get("ok", false) and r.has("dialogue"):
 			args = {"convo": r.dialogue}
 			setup()
 			return
-		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
-			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
-			# Talk again: a giver often has a follow-up line or the next offer.
-			var again := Game.submit({"type": "talk", "npc": npc})
-			if again.get("ok", false) and again.has("dialogue"):
-				var d: Dictionary = again.dialogue
-				var only_farewell: bool = (d.get("choices", []) as Array).size() <= 1 and not d.has("quest")
-				if not only_farewell:
-					args = {"convo": d}
-					setup()
-					return
 	close()
 
 func _unhandled_key_input(event: InputEvent) -> void:
