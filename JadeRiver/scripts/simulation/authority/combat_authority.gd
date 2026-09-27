@@ -1281,10 +1281,10 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	var kb := float(attack.get("knockback", 0.0))
 	if kb > 0.0 and not e.def.get("knockback_immune", false) and not e.is_boss():
 		e.knockback = kb * (facing if facing != 0 else 1)
-	# Hit-stun (S30): a normal monster struck during its wind-up flinches, then shrugs
-	# off further interrupts for a moment so it can never be stun-locked.
+	# Hit-stun (S30): a normal monster struck during its wind-up flinches, by the player's blow or an ally's (pets and
+	# companions interrupt too), then shrugs off further interrupts for a moment so it can never be stun-locked.
 	if e.role == "normal" and not e.def.get("steadfast", false) and str(e.ai.get("state", "")) == "windup" \
-			and float(e.ai.get("stun_guard", 0.0)) <= 0.0 and not attacker.begins_with("ally"):
+			and float(e.ai.get("stun_guard", 0.0)) <= 0.0:
 		game.enemies.stagger(e, float(ContentDB.stat_const("combat.hit_stun_s", 0.35)))
 		e.ai["stun_guard"] = float(ContentDB.stat_const("combat.hit_stun_guard_s", 1.6))
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,

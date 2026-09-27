@@ -193,7 +193,7 @@ owner id; left with bug B8); `var ch` in `progression_authority.gd:972`; the tra
 | B5 | Guild commissions take locked items. | Lock your forged robe; deliver a Forge Guild order for that robe: the locked robe is taken. | Locked items are neither counted nor taken. | `fixes_suite` |
 | B6 | Guild commission boards turn over at 00:00 UTC, not at the daily reset. | Time zone UTC-8: the board changes at 16:00 local, unlike every other daily in the game (04:00 local). | `commission_day()` uses `Clock.reset_day`. | `fixes_suite` |
 | B7 | A Wind Step Talisman's free dodge is spent by a dodge that then fails. | Dodge on cooldown, a free-dodge charge held, standing in shallow water: the dodge fails `in_water` and the charge is gone. | The charge is spent only when the dodge happens. | `fixes_suite` |
-| B8 | Pet and companion blows interrupt a normal monster's wind-up, against the rule's own exclusion. | A spirit animal's hit on a winding-up boarlet staggers it; `not attacker.begins_with("ally")` can never be false because ally hits pass the owner's id. | **Left.** Testing the attack's `ally:` source makes 19 `rules_tests` checks fail: the pet and companion suites expect an animal's blow to break a wind-up. The comment and the tested behaviour disagree, so this is a design call. | — |
+| B8 | Pet and companion blows interrupt a normal monster's wind-up, against the rule's own exclusion. | A spirit animal's hit on a winding-up boarlet staggers it; `not attacker.begins_with("ally")` can never be false because ally hits pass the owner's id. | **Decided: allies interrupt.** The tested behaviour stands (the pet and companion suites expect an animal's blow to break a wind-up; the stun guard still prevents a stun-lock). The dead `ally` test is removed and the comment says what the code does. | — |
 | B9 | "The Dao you know best" differs between systems. | Sword Dao tier 6 (12,500 insight) and a Fist Dao held at its valley cap, tier 5, with 30,000 insight: the Sphere and Dao Echo choose Sword; the hermit's chess problem and the insight sites choose Fist. | One `ProgressionRules.strongest_dao` (tier first, then insight). | `fixes_suite` |
 | B19 | Pages change game state themselves (found in the P2 UI inventory; see 2.1). | Open Works › Calcination Furnace: drawing the page burns Storehouse inputs; keep Roll-Call › Bench open: every frame drawn grants smithing XP; tap a bag slot: the page erases its "new" dot; show an animal from an older save: the page writes its fields. | The intents `mark_item_seen` (Inventory) and `settle_works` (Posts), and `PetAuthority.filled`. | `fixes_suite`; `contract_tests` (pages write nothing) |
 
@@ -218,7 +218,7 @@ intent); `buff_allies` (`enemy_authority.gd:265-269`) multiplies allies' attack 
 
 ## 7. Found but left
 
-- B8 (ally blows and wind-ups): the fix contradicts tested behaviour (see section 5).
+- B8 (ally blows and wind-ups): decided for the tested behaviour; the dead condition removed.
 - D24 page columns, D28/D29 refine and forge checks: each would change tested reason codes or the pages the UI restyle
   is rewriting. D23's last three durations: they differ in wording and rounding.
 - The Works and Bench pages still ask Posts to settle on every frame they are open (now through `settle_works`), as they
