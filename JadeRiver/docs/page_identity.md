@@ -315,3 +315,16 @@ target 48 px or more, nothing clipped.
    explorer's album with one leaf per act (§4).
 7. The new `SURFACE` tokens of §7.
 8. For each drawn mockup, what `docs/mockups/README.md` lists under it.
+
+
+## Decisions taken
+
+Taken as recommended (2026-09-27) so P5 can start; the user can overturn any:
+
+1. The catalogue stands as written.
+2. A page may drop the shared window frame for its own surface; only the close button, primary buttons, text tokens,
+   the type scale and 48 px targets stay shared.
+3. Quests keeps the pinned board. The Techniques' Lost Arts tab becomes an explorer's album, one leaf per act.
+4. "Your bag" is the spirit gourd everywhere, the shop's included.
+5. The Menu's hanging plaques and the Roll-Call's tablets stay as drawn; they read apart.
+6. The `SURFACE` tokens of §7 join the style guide's token table.

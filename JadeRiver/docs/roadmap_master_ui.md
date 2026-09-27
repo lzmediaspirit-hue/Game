@@ -90,8 +90,8 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
 | M10 | A researched item-count target | Present | `docs/item_plan.md` §2: a target of 481 pieces through v1.3 (264 named), per zone and archetype, set against today's counts (§1) | P7 |
-| M11 | Items organised by slot, rarity, realm, element, path synergy and set | Partial | Grades and bands, item levels, affixes, weapon families, three sockets on Sage gear, five sets (`data/sets.json`: `jade_current`, `cloudpiercing`, `mudwater`, `drowned_abbot`, `crane`). No element or path tag on gear; five sets for three zones | P7 |
-| M12 | Distinct build archetypes each with a full gear path | Partial | The archetypes exist as systems (S48 paths, the body ladder, ten weapon families, the Alchemy and Beast Taming Daos), but gear is the same banded set for everyone; only the legendary chains (`legendary_chains.json`) are family-specific | P7 |
+| M11 | Items organised by slot, rarity, realm, element, path synergy and set | Partial | P7b part 1: named tags (archetype, zone, element, path, fixed affixes) in `tools/data/gear.py` / `data/gear.json`; set rows with archetype, tier, element and path; 71 banded bases (brush and bell at every grade, Sovereign and Will). The named sets per archetype come with step 8 | P7 |
+| M12 | Distinct build archetypes each with a full gear path | Partial | P7b part 1: six set lines with their mechanics (Unbroken, Honed Intent, Venom Hand, Kin-Bond, Living Array, Sustained Note) and the one-in-three family bias; each archetype can use 75–81% of drops. The named gear path per archetype is step 8 | P7 |
 | M13 | An Item Wiki, one entry per item (icon, slot, stats, rarity, requirement, sources, lore) | Present | `docs/wiki/items.md`: all 614 items with icon, grade, iLv, stats or effect, requirement, description and every source with its rate, written by `tools/dev/wiki.py` | P7 |
 
 #### Player-experience playthrough (Master 3)
@@ -132,11 +132,11 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
 | M32 | Every monster has an equipment drop table | Partial | 92 of 124 loot tables carry an `equipment` roll (chance and `min_quality`, drawn from the bands) and 35 a `rare` list (`data/loot_tables.json`); 32 tables have none (trial puppets and event foes among them, to be sorted) | P1 |
-| M33 | Drop rates balanced by rarity and tier | Partial | `LootRules` and per-table chances; no documented balance pass and no `balance_sim` check on drops | P7 |
+| M33 | Drop rates balanced by rarity and tier | Present | P7b part 1: the drop rules in `grades.json` read by `LootRules`, and a `balance_sim` drop check: 5.9 pieces an hour of hunting across 29 regions, every grade inside its quality targets | P7 |
 | M34 | A sprite audit of NPCs, equipment, terrain and monsters | Partial | 68 creature sheets for 111 enemies (`data/creature_art.json`), 749 icons, `docs/art-contracts.md`, the animation contract tests and the compatibility gallery. No gap list | P7 |
 | M35 | Enemy sprite diversity per region | Partial | Eleven Act III sheets drawn ahead (CHANGELOG 1.2 A); many valley foes share a sheet with a dye. A per-region count is not written | P7 |
 | M36 | A Monster & Drops Wiki | Present | `docs/wiki/monsters.md`: all 121 enemies by zone with sheet, spawns, level band, stats, attacks, phases and full drop tables | P7 |
-| M37 | Every item has a source; every monster is in the wiki with its drops | Partial | `data_validation` `item_source_suite` checks every item has a source or a `source` mark; 43 known gaps (`KNOWN_SOURCE_GAPS`) are sourced in the P7b data work, and the list may only shrink | P7 |
+| M37 | Every item has a source; every monster is in the wiki with its drops | Present | `data_validation` `item_source_suite`: every item has a source or a mark, and `KNOWN_SOURCE_GAPS` is empty (P7b part 1); every monster is in `docs/wiki/monsters.md` with its drops | P7 |
 
 #### Boss design (Master 7)
 
