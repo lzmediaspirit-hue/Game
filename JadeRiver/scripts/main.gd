@@ -450,6 +450,10 @@ func _handle_preview_args(user_args: Array) -> void:
 				ev.pressed = down
 				ev.position = Vector2(float(xy[0]), float(xy[1]))
 				top_page()._gui_input(ev)
+		if str(a).begins_with("--preview-t=") and top_page() != null and top_page().get("stage") is TechniquePreview:
+			# Debug tools (S38): hold the Techniques page's preview t s into its loop, for shots of its frames.
+			await get_tree().create_timer(0.3).timeout
+			top_page().stage.hold(float(str(a).trim_prefix("--preview-t=")))
 		if str(a).begins_with("--talk="):
 			await get_tree().create_timer(0.8).timeout
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
