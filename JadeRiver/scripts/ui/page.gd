@@ -16,7 +16,8 @@ const SLOT := 76.0
 ## The small slot, for an item named in a list row: a 32 px icon (an HD icon's native 32, a legacy one at 1x).
 const SLOT_SMALL := 44.0
 ## The spacing grid (P4, docs/ui_style_guide.md §2): positions and sizes in steps of 8, the half step 4 inside a dense
-## component. Every window stays inside SAFE_AREA and is one of the standard six.
+## component. Every window stays inside SAFE_AREA and is one of the standard six, but for the one painting that fills the
+## screen (WINDOW_SCREEN, the world map of decision 25), whose frame is the screen's edge.
 const GRID := 8.0
 const SAFE_AREA := Rect2(48, 24, 1184, 672)
 const WINDOW_FULL := Rect2(64, 32, 1152, 656)
@@ -25,7 +26,8 @@ const WINDOW_MEDIUM := Rect2(256, 72, 768, 576)
 const WINDOW_SMALL := Rect2(288, 152, 704, 416)
 const WINDOW_CONFIRM := Rect2(384, 248, 512, 224)
 const WINDOW_DIALOGUE := Rect2(48, 464, 1184, 232)
-const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE]
+const WINDOW_SCREEN := Rect2(0, 0, 1280, 720)
+const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE, WINDOW_SCREEN]
 ## Content insets (the HD window's nine-slice margin at the sides), the title band and the tab row.
 const INSET := 32.0
 const TOP := 80.0

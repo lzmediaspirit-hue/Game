@@ -641,6 +641,44 @@ come next. Where it differs from the plan, the plan's §6 says so.
   and over the head, a second pass holding still, and the real views (foes, a boss, the party's lines, two NPCs on one
   spot). Screenshots from the valley_run checkpoints beside mockups 01 and 02 are in `docs/ui_p5/hud/`.
 
+### P5 · The World map as drawn (mockups 16 and 16_resources, decisions 11, 17 and 25)
+- **The framed painting** (`docs/page_identity.md` row 7). The zone's landscape fills the screen inside a lacquered
+  frame (timber, a bronze fillet, a gold line, cloud-scroll corners): the valley is the painting of
+  `tools/ui/build_valley_map.py`, its nodes where that painting drew each area. The title plate with the map glyph and
+  the pennant hang at the upper left, the zone tags from the top rail beside the Heaven Ranking (a zone not yet set foot
+  in shows its lock and says why), the close button at the top right. `Page.WINDOW_SCREEN` (0, 0, 1280, 720) is the
+  one window that is the screen itself (style guide §2.2); the `ui_suite` allows it.
+- **Areas.** Every area a glowing node: jade where you may walk in (you have been there, or a portal open to you leads
+  there), gold where you stand, a dark disc with a padlock where the way is shut. Dotted routes along the rooms'
+  portals, pale between open areas and dim into a locked one; the way to the chosen area lit gold, dot by dot. Name
+  plates carry the level band ("You are here", "Locked · Lv 28–36"), and a known area's field boss with the time till it
+  rises; a locked area beside none you know shows its padlock alone. The tracked quest's lantern, the world events' plum
+  blossoms (gold under way, violet coming) and the paths above (S43's wind glyph) stand beside their nodes.
+- **No text on the map touches (decision 17).** One layout pass places the marks, then the plates (where you stand,
+  the chosen area, the open areas, the locked), each at the first place round its node, below, above or beside and
+  slid along that side, then a leader step out, clear of every other plate, mark, node and the frame's furniture; a
+  plate with no room drops its last lines, and the ones still without room go first on another pass. It never lays one
+  thing over another.
+- **The card.** Areas: the area's own picture from the painting with what grows there, its kind and band against your
+  Level, Act II's attunement, the tracked quest that leads there with Walk there, its world events, its rooms (you, the
+  quest's room, seen, unknown) with their hazards, paths above and field bosses, and Track Route with the areas it
+  crosses. Resources: Herbs, Ores and Fish, the zone's things of that kind (those in areas not yet reached greyed), the
+  chosen one's rank and craft, its rooms and regrowth, the quest or daily that asks for it, a gold ring and its disc on
+  every area that holds it, and Track Route to the nearest. Objectives: the tracked quests and the zone's events, the
+  chosen one's way lit and Track Route. Track Route and Walk there are the `auto_path` intent; the page writes nothing.
+- **What the painting does not place.** A room in a hidden region shows at the nearest placed area by portals; a
+  region without a `map` position stands at the mean of its placed neighbours, moved clear of the other nodes. The
+  Azure Expanse and the Lantern Star Field have no painting yet: the page draws them from tokens in the same manner
+  (far ranges over a sea of cloud; the star river and drifting lanterns), each area an isle under its node.
+- **Motion:** the card slides in from the frame's edge (0.2 s), the chosen way lights in 0.3 s; under Reduce motion
+  the way shows lit and the page fades; glows at 0.3 with Bright flashes off. Strings through `ui_strings.json`.
+- **Tests:** `rules_tests` `map_suite`: the valley's nodes on the painting's map rect with a picture each; every room of
+  every zone shows at an area of its zone; the pass on a crowd; on the real data, in every zone, view, kind and chosen
+  area, with every area known and with few, at every text size, no plate or mark touches another, a node or the frame's
+  furniture, and every word on the painting sits on a plate (180 views); in the valley no plate is left out; Track Route
+  and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
+  three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
+
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,
   `HEART`, `SKY`, `HUD_LABEL`, `PAPER_INK`, `BAR_TROUGH`, `PLATE`, `DIM` and `SURFACE`, the drawn pages' own materials
