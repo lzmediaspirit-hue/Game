@@ -434,15 +434,20 @@ func hurt(e: EnemyState) -> bool:
 ## The fight on the plane with the real authorities (Combat, Enemies, World) in the prototype room.
 func run_fight(suite, tree: SceneTree) -> void:
 	t = suite
+	var made := {}
+	if Game.active() == null and not Game.characters.is_empty(): Game.active_id = str(Game.characters.keys()[0])
 	if Game.active() == null:   # a stand-in, as the prototype makes one from the title
-		var slot := 1
-		while Game.character("c%d" % slot) != null: slot += 1
-		Game.submit({"type": "create_character", "slot": slot, "name": "Topdown", "appearance": {"hair": "topknot", "shirt": "disciple"}, "skip_prologue": true})
-		Game.submit({"type": "enter_character", "slot": slot})
+		made = Game.submit({"type": "create_character", "slot": 1, "name": "Topdown", "appearance": {"hair": "topknot", "shirt": "disciple"}, "skip_prologue": true})
+		Game.submit({"type": "enter_character", "slot": 1})
 	c = Game.active()
 	if c == null:
-		t.check(false, "topdown fight: a character to fight with")
+		t.check(false, "topdown fight: a character to fight with (%s)" % str(made))
 		return
+	# The stand-in's kit: bare hands and empty first slots, which the room's loadout fills (this is the suite's last use of
+	# the character).
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	for i in 4: c.cultivator.technique_slots[i] = null
 	var forced: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
 	w = TopdownWorld.new()
@@ -516,14 +521,21 @@ func _heights() -> void:
 	fresh(at)
 	var above := foe("wild_boarlet", Vector2(25.5 * 32.0, 11.5 * 32.0), 60)
 	above.aim = Vector2.DOWN
-	var hp0: float = c.pools.hp
 	Game.combat.enemy_strike(above, above.def.attacks[0])
-	var hp1: float = c.pools.hp
+	var from_above := _struck_by(above)
 	var beside := foe("wild_boarlet", at + Vector2(30, 0), 60)
 	beside.aim = Vector2.LEFT
 	Game.combat.enemy_strike(beside, beside.def.attacks[0])
-	t.check(ground_miss and air_hit and hp1 == hp0 and c.pools.hp < hp1,
-		"topdown: a swing misses a foe a level up, a jump strike hits it, and a foe strikes only on its own level (%.0f, %.0f → %.0f)" % [hp0, hp1, c.pools.hp])
+	var from_beside := _struck_by(beside)
+	GameEvents.flush()
+	t.check(ground_miss and air_hit and not from_above and from_beside,
+		"topdown: a swing misses a foe a level up, a jump strike hits it, and a foe strikes only on its own level (from above %s, beside %s)" % [str(from_above), str(from_beside)])
+
+## Did `e`'s strike reach the player (landed, missed on the roll, dodged or parried: its hit test passed)?
+func _struck_by(e: EnemyState) -> bool:
+	for q in GameEvents._queue:
+		if str(q[0]) in ["hit_landed", "hit_missed", "hit_dodged", "parried"] and str((q[1] as Dictionary).get("attacker", "")) == str(e.uid): return true
+	return false
 
 ## Shots fly along the ground plane at the thrower's feet: they strike along the aim, and a face a level up stops them.
 func _shots(base: Vector2) -> void:
