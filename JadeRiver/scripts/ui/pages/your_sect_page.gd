@@ -183,7 +183,7 @@ func _courtyard(ch, s: Dictionary, live: Dictionary) -> void:
 			var pr := prop_rect(str(pl.prop), pl.at)
 			if pr.size == Vector2.ZERO: continue
 			top = pr if top.size == Vector2.ZERO or pr.size.y > top.size.y else top
-			_building(str(pl.prop), pr, fill, bid == picked)
+			_building(str(pl.prop), pr, fill, bid == picked and not s.is_empty())
 			region(pr.intersection(PANO), "pick", bid)
 		if top.size != Vector2.ZERO: tags.append({"id": bid, "rect": top, "lv": lv, "queued": not q.is_empty()})
 	_tags(s, tags, _figures(s, live))
