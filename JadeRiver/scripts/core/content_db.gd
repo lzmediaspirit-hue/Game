@@ -42,10 +42,12 @@ func load_all() -> void:
 		if data.has("entries"):
 			var by_id := {}
 			var ordered: Array = []
+			var defaults: Dictionary = data.get("defaults", {})
 			for entry in data.entries:
 				if not (entry is Dictionary) or not entry.has("id"):
 					load_errors.append("%s: entry without id" % table)
 					continue
+				if not defaults.is_empty(): entry = expand(entry, defaults)
 				if by_id.has(entry.id): load_errors.append("%s: duplicate id %s" % [table, entry.id])
 				by_id[entry.id] = entry
 				ordered.append(entry)
@@ -80,6 +82,27 @@ func load_all() -> void:
 			if not used_in.has(input.item): used_in[input.item] = []
 			used_in[input.item].append(recipe.id)
 	loaded = true
+
+## P13a compact rows (technique_plan §7): a table may carry `defaults`, {key: {value: layer}}; each entry is its layers
+## (the one its own `key` names, in order) with the entry over them. Dictionaries merge, everything else replaces.
+static func expand(entry: Dictionary, defaults: Dictionary) -> Dictionary:
+	var out := {}
+	for key in defaults:
+		var kv = entry.get(key, "")
+		var layer = defaults[key].get(str(int(kv)) if kv is float else str(kv))
+		if layer is Dictionary: _merge(out, layer)
+	_merge(out, entry)
+	return out
+
+static func _merge(into: Dictionary, src: Dictionary) -> void:
+	for k in src:
+		var v = src[k]
+		if v is Dictionary and into.get(k) is Dictionary:
+			var d: Dictionary = (into[k] as Dictionary).duplicate()
+			_merge(d, v)
+			into[k] = d
+		else:
+			into[k] = v.duplicate(true) if v is Dictionary or v is Array else v
 
 func _read_json(path: String):
 	if not FileAccess.file_exists(path): return null

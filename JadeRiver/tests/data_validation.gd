@@ -174,12 +174,14 @@ func moments_data_suite() -> void:
 		for kind in shapes[s]: check(str(kind) in FxLayer.KINDS, "shape %s draws %s, an FxLayer kind" % [s, kind])
 	for st in cfg.get("particles", {}).get("families", {}).values() + cfg.get("particles", {}).get("elements", {}).values():
 		check(str(st) in MomentRules.STYLES, "spark style %s is known" % st)
+	var ring_tier := {}
+	for rg in ContentDB.config("technique_trees").get("rings", []): ring_tier[int(rg.ring)] = int(rg.tier)
 	for t in ContentDB.all("techniques"):
 		var v: Dictionary = t.get("vfx", {})
 		var tier := int(v.get("tier", 0))
 		var want := int(bands[clampi(int(ContentDB.realm(str(t.unlock)).get("realm_index", 0)), 0, bands.size() - 1)]) if not bands.is_empty() else -1
-		check(tier == want and {"common": tier == 1, "earth": tier == 2, "heaven": tier >= 3}.get(str(t.get("grade", "")), false),
-			"technique %s: vfx tier %d is its unlock realm's band (%d, %s)" % [t.id, tier, want, t.get("grade", "")])
+		check(tier == want and tier == int(ring_tier.get(int(t.get("ring", 0)), -1)),
+			"technique %s: vfx tier %d is its unlock realm's band (%d) and its ring's (P13a, ring %s)" % [t.id, tier, want, t.get("ring", "")])
 		check(str(v.get("shape", "")) in MomentRules.SHAPES and str(v.get("particles", "")) in MomentRules.STYLES, "technique %s: a known vfx shape and style" % t.id)
 
 ## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
@@ -507,7 +509,7 @@ func data_suite() -> void:
 		if ia.has("family"): check(ContentDB.has_entry("weapon_families", str(ia.family)), "inner art %s family %s" % [ia.id, ia.family])
 		# A master's legacy (S49) is passed on, never sold; every other art is taught in a shop.
 		if ia.has("legacy"): check(not shop_learns.has(str(ia.id)), "legacy art %s is not sold" % ia.id)
-		else: check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
+		elif not ia.get("lost", false): check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)   # P13a: a lost art is only found
 	# Every weapon family has one basic stance, held without buying anything; a better one names the technique it needs.
 	var basic := {}
 	for sn in ContentDB.all("stances"):
@@ -519,7 +521,10 @@ func data_suite() -> void:
 	for cb in ContentDB.all("combos"):
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
-	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
+	# P13a: a technique's grade is its ring's (technique_plan §1.4, §3.5).
+	var ring_grade := {}
+	for rg in ContentDB.config("technique_trees").get("rings", []): ring_grade[int(rg.ring)] = str(rg.grade)
+	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) == str(ring_grade.get(int(tq.get("ring", 0)), "?")) and ContentDB.stat_const("technique_grades", {}).has(str(tq.grade)), "technique %s grade %s is its ring's" % [tq.id, tq.get("grade", "")])
 	# Every sect building has a place in the Sect Grounds, shown once it is raised (S25).
 	var placed := {}
 	for so in ContentDB.room("hv_sect_grounds").get("objects", []):

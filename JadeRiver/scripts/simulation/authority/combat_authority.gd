@@ -512,6 +512,8 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	var fam := StatRules.family(c)
 	var tfam := str(t.get("family", "any"))
 	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % tfam.replace("_", " ")})
+	# P13a a keystone is its kin group's: any weapon of the group (the Body and Voice group's work with anything held).
+	if not TechniqueTreeRules.kin_holds(t, str(fam.id)): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_kin") % Tx.t("technique.kin." + str(t.kin))})
 	if c.pools.cooldown("tech:" + str(tid)) > 0.0: return fail("cooldown")
 	if c.pools.has_status("qi_seal") and not StatRules.body_flag(c, "qi_seal_immune"): return fail("sealed")
 	# S48 paths as layers: Blood arts need the Blood path; the Golden Body needs a vow held.
@@ -883,6 +885,9 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
 	if dtype == "stance":
+		for b3 in t.get("buffs", []):
+			apply_buff(c.id, {"stat": b3.stat, "op": b3.get("op", "pct_add"), "value": b3.value, "duration": b3.duration, "source": "tech:%s:%s" % [t.id, b3.stat]}, "technique")
+		if float(t.get("shield_hp_pct", 0.0)) > 0.0: raise_shield(c, c.pools.max_hp * float(t.shield_hp_pct), float(t.get("shield_s", 3)))
 		tl.stance = float(t.get("stance_s", 2.0))
 		tl.guard = true
 		tl.guard_t = 0.0
@@ -893,7 +898,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		"mult": t.get("mult", [1, 1]), "range": fam.get("range", [0.9, 1.1]), "dao_tier": _dao_tier(c, str(t.get("dao", ""))),
 		"mastery_tier": tier - 1, "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
 		"sphere_element": game.field.sphere_element(c),
-		"knockback": float(t.get("knockback", 0)), "ignore_armor": t.get("ignore_armor", false),
+		"knockback": float(t.get("knockback", 0)) - float(t.get("pull", 0)), "ignore_armor": t.get("ignore_armor", false), "never_miss": t.get("never_miss", false),
 		"ignore_resistance": float(t.get("ignore_resistance", 0.0)), "penetration_bonus": float(t.get("penetration", 0.0)),
 		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
 	if t.has("armour_break"): attack.armour_break = t.armour_break
@@ -914,10 +919,13 @@ func _resolve_technique(c, t: Dictionary) -> void:
 	if float(t.get("knockup_s", 0.0)) > 0.0: attack.knockup_s = float(t.knockup_s)
 	if float(t.get("sense_lock_s", 0.0)) > 0.0: attack.sense_lock_s = float(t.sense_lock_s)
 	if float(t.get("soul_search_s", 0.0)) > 0.0: attack.soul_search_s = float(t.soul_search_s)
+	if float(t.get("crit", 0.0)) > 0.0: attack.crit_bonus = float(t.crit)   # P13a: Metal's second verb
+	# P13a the Buddhist path: an attack art held with a vow also shields its caster.
+	if float(t.get("shield_hp_pct", 0.0)) > 0.0: raise_shield(c, c.pools.max_hp * float(t.shield_hp_pct), float(t.get("shield_s", 6)))
 	if tier >= 3 and t.has("tier3"):
 		var t3: Dictionary = t.tier3
 		if t3.has("status"): attack.status = t3.status
-		if t3.has("crit"): attack.crit_bonus = float(t3.crit)
+		if t3.has("crit"): attack.crit_bonus = float(attack.get("crit_bonus", 0.0)) + float(t3.crit)
 	# S48 sect role variants: the damage variant and the Edge branch strike harder; the Jade support variant slows.
 	var sigv := ProgressionRules.signature_variant(c, str(t.id))
 	var sig_extra := 0
@@ -1269,7 +1277,7 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	e.flash = 0.12
 	if attacker.begins_with("c"): e.first_hit_by_player = true
 	var kb := float(attack.get("knockback", 0.0))
-	if kb > 0.0 and not e.def.get("knockback_immune", false) and not e.is_boss():
+	if kb != 0.0 and not e.def.get("knockback_immune", false) and not e.is_boss():   # P13a: below 0, a pull (Water, Space)
 		e.knockback = kb * (facing if facing != 0 else 1)
 	# Hit-stun (S30): a normal monster struck during its wind-up flinches, by the player's blow or an ally's (pets and
 	# companions interrupt too), then shrugs off further interrupts for a moment so it can never be stun-locked.

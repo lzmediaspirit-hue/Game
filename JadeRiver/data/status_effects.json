@@ -195,6 +195,12 @@
    "id": "soul_searched",
    "resist": "spirit",
    "icon": "injury_soul"
+  },
+  {
+   "id": "bloom",
+   "resist": "tenacity",
+   "dot": true,
+   "icon": "poison"
   }
  ]
 }

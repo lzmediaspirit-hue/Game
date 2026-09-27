@@ -8,9 +8,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Hammerfall Knuckles",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Palm That Moves Mountains",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -21,14 +21,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "hammerfall_knuckles"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "palm_that_moves_mountains"
     },
     {
      "original": true
@@ -86,9 +88,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Spear Draws the Horizon",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Hundred Point Storm",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -99,14 +101,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "spear_draws_the_horizon"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "hundred_point_storm"
     },
     {
      "original": true
@@ -124,9 +128,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Shadow Knife Relay",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Mountain Parting Sabre",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -137,14 +141,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "shadow_knife_relay"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "mountain_parting_sabre"
     },
     {
      "original": true
@@ -162,9 +168,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Staff Sweeps the Courtyard",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Pillar Holds Up Heaven",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -175,14 +181,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "staff_sweeps_the_courtyard"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "pillar_holds_up_heaven"
     },
     {
      "original": true
@@ -200,9 +208,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Arrow Finds the Heart",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Sky Filled With Arrows",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -213,14 +221,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "arrow_finds_the_heart"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "sky_filled_with_arrows"
     },
     {
      "original": true
@@ -238,9 +248,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Fan Folds the Wind",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Thousand Leaves Fall",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -251,14 +261,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "fan_folds_the_wind"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "thousand_leaves_fall"
     },
     {
      "original": true
@@ -276,9 +288,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Song Across the River",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Bell That Stills the Heart",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -289,14 +301,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "song_across_the_river"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "bell_that_stills_the_heart"
     },
     {
      "original": true
@@ -314,9 +328,9 @@
    "tiers": [
     "+3% attack with the family",
     "Linked techniques -10% QI",
-    "Linked techniques gain their tier-3 effect",
+    "Linked techniques gain their tier-3 effect; learn Characters Leave the Page",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques",
+    "Tier-5 forms of linked techniques; learn Final Stroke of the Master",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -327,14 +341,16 @@
      "cost_pct": -0.1
     },
     {
-     "tier3": true
+     "tier3": true,
+     "learn_technique": "characters_leave_the_page"
     },
     {
      "crit": 0.05,
      "teach": true
     },
     {
-     "tier5": true
+     "tier5": true,
+     "learn_technique": "final_stroke_of_the_master"
     },
     {
      "original": true
@@ -352,9 +368,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Mirror of Still Water",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Great River Turns Back",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -365,14 +381,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "mirror_of_still_water"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "great_river_turns_back"
     },
     {
      "original": true
@@ -391,9 +409,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Spring Rain Greening",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Forest Rises From Ash",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -404,14 +422,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "spring_rain_greening"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "forest_rises_from_ash"
     },
     {
      "original": true
@@ -430,9 +450,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Mountain Does Not Kneel",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Earth Opens Its Mouth",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -443,14 +463,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "mountain_does_not_kneel"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "earth_opens_its_mouth"
     },
     {
      "original": true
@@ -469,9 +491,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Stepping on the Wind",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Gale That Clears the Sky",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -482,14 +504,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "stepping_on_the_wind"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "gale_that_clears_the_sky"
     },
     {
      "original": true
@@ -508,9 +532,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Hearth Fire Kindled",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Sky Set Alight",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -521,14 +545,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "hearth_fire_kindled"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "sky_set_alight"
     },
     {
      "original": true
@@ -547,9 +573,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Hundred Refinings",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Edge Without a Blade",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -560,14 +586,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "hundred_refinings"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "edge_without_a_blade"
     },
     {
      "original": true
@@ -586,9 +614,9 @@
    "tiers": [
     "+5% elemental power",
     "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+10% chance to apply the element's status; learn Drumbeat Before the Storm",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Verdict of the Clouds",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -599,14 +627,16 @@
      "cost_pct": -0.1
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "drumbeat_before_the_storm"
     },
     {
      "resistance": 0.05,
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "verdict_of_the_clouds"
     },
     {
      "original": true
@@ -627,7 +657,7 @@
     "Element techniques -10% QI; learn Phantom Double",
     "+10% chance to apply the element's status; learn Soul Search",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce",
+    "Element techniques gain area or pierce; learn Lantern in the Dark Sea",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
@@ -648,7 +678,8 @@
      "teach": true
     },
     {
-     "area": true
+     "area": true,
+     "learn_technique": "lantern_in_the_dark_sea"
     },
     {
      "original": true
@@ -786,17 +817,21 @@
    "tiers": [
     "+5% penetration",
     "+5% move speed",
-    "+10% evasion",
+    "+10% evasion; learn Folding the Step",
     "+10% Qi attack; can teach it",
-    "+10% crit damage",
+    "+10% crit damage; learn Orbit of Returning Blades",
     "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder. +10% penetration."
    ],
    "effects": [
     {},
     {},
+    {
+     "learn_technique": "folding_the_step"
+    },
     {},
-    {},
-    {},
+    {
+     "learn_technique": "orbit_of_returning_blades"
+    },
     {
      "original": true
     }

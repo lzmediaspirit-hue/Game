@@ -448,7 +448,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: avatar parts (body light, hair topknot, hair color 5, hat none, pants loose, shirt sleeveless, shoes boots, weapon staff)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mudwater Hideout › Boss Den: Lv 18, up to 1, respawn 86400s; boss
-- **Also appears**: Moments: boss_defeated (enemy)
+- **Also appears**: Lost arts: rising_tide (enemy); Moments: boss_defeated (enemy)
 - **Level band**: Lv 18 in `enemies.json`
 - **Stats**: Lv 18: HP 46710, Attack 276, Physical Defense 102, Accuracy 64
 - **Behaviour**: AI boss_tan; aggro range 200; move speed 90; patrol 140; faction mudwater. Attacks: club_swing×1.2 (windup 0.55s, knockback 60); call_bandits×0 (windup 1s, summon mudwater_bandit). Phases: below 50% HP: action drink_wine, breakable wine_jar, heal 0.1
@@ -654,7 +654,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `riverbed_serpent` ([art/creatures/riverbed_serpent.png](../../art/creatures/riverbed_serpent.png), 256 px cells, flying)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Deepwater Bend › Serpent's Shallows: Lv 25, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
+- **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Lost arts: serpent_coil_thrust (enemy); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
 - **Level band**: Lv 25 in `enemies.json`
 - **Stats**: Lv 25: HP 153600, Attack 568, Physical Defense 200, Accuracy 85
 - **Behaviour**: AI boss_serpent; aggro range 200; move speed 90; patrol 140; moves: fly; flying; respawn min 45. Attacks: bite×1.3 (windup 0.6s); tail_flood×1 (windup 1s). Phases: below 50% HP: action flood
@@ -723,7 +723,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (2 room spawns):
   - Jade River Valley › Whitewater Gorge › Gorge Mouth: Lv 29–31, up to 4, respawn 12s
   - Jade River Valley › Whitewater Gorge › Rapids Terraces: Lv 29–33, up to 3, respawn 12s
-- **Also appears**: Trial Tower foe, floors 13, 14, 15; ambush in Gorge Mouth (Whitewater Gorge) (enemy); summoned by [Elder Gu](#enemy-elder_gu)
+- **Also appears**: Lost arts: ember_burst (enemy); Trial Tower foe, floors 13, 14, 15; ambush in Gorge Mouth (Whitewater Gorge) (enemy); summoned by [Elder Gu](#enemy-elder_gu)
 - **Level band**: Lv 29–33 in `enemies.json`
 - **Stats**: Lv 29: HP 2628, Attack 362, Physical Defense 159, Accuracy 97; Lv 33: HP 3678, Attack 488, Physical Defense 203, Accuracy 109
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; guards; faction gorge. Attacks: sword_arc×1.1 (windup 0.45s); crescent×1.2 (windup 0.6s, damage type qi)
@@ -969,6 +969,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: avatar parts (body light, hair long_tied, hair color 1, hat none, pants scholar, shirt scholar, shoes folded, weapon none)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Story › Gu's Warehouse: Lv 53, up to 1, respawn 99999s; boss
+- **Also appears**: Lost arts: tide_palm (enemy)
 - **Level band**: Lv 53 in `enemies.json`
 - **Stats**: Lv 53: HP 439320, Attack 5890, Physical Defense 1094, Accuracy 169
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; invulnerable; flees after s 60. Attacks: tide_palm×1.2 (windup 0.5s, damage type qi). Phases: below 0% HP: action summon, after s 20, summon gorge_bandit_adept, summon level 50; below 0% HP: action enrage, after s 40, cooldown 0.7, damage 1.25
@@ -1201,7 +1202,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `thousand_eye_toad` ([art/creatures/thousand_eye_toad.png](../../art/creatures/thousand_eye_toad.png), 256 px cells)
 - **Spawns** (1 room spawns):
   - Azure Expanse › Mirrorwater Lake › Toad's Hollow: Lv 68, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake)
+- **Also appears**: Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake); Lost arts: many_eyed_pool_air (enemy)
 - **Level band**: Lv 68 in `enemies.json`
 - **Stats**: Lv 68: HP 11153880, Attack 18272, Physical Defense 3345, Accuracy 214
 - **Behaviour**: AI boss_toad; aggro range 200; move speed 90; patrol 140; respawn min 45. Attacks: belly_slam×1.4 (windup 0.8s, knockback 140); tongue_lash×1.2 (windup 0.6s); mirror_gaze×0 (windup 1.2s, summon azure_carp_dragonet). Phases: below 50% HP: action summon
@@ -1412,6 +1413,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `tomb_king` ([art/creatures/tomb_king.png](../../art/creatures/tomb_king.png), 256 px cells)
 - **Spawns** (1 room spawns):
   - Azure Expanse › Tomb of Sunscar › Throne of the Tomb King: Lv 77, up to 1, respawn 86400s; boss
+- **Also appears**: Lost arts: sand_throne_sweep (enemy)
 - **Level band**: Lv 77 in `enemies.json`
 - **Stats**: Lv 77: HP 16767000, Attack 26348, Physical Defense 5364, Accuracy 241
 - **Behaviour**: AI boss_king; aggro range 200; move speed 90; patrol 140; weak to water. Attacks: glaive_sweep×1.35 (windup 0.75s, knockback 120); sand_crescent×1.2 (windup 0.9s, damage type qi); sun_flare×1.5 (windup 1.1s, damage type qi, status {"chance": 0.5, "duration_s": 4, "id": "burn", "power": 0.01}). Phases: below 60% HP: action summon, summon terracotta_warden, summon level 74; below 30% HP: action enrage, cooldown 0.65, damage 1.3
@@ -1700,6 +1702,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: avatar parts (body light, cape solid, hair long_tied, hair color 0, hat guan, pants martial, pants dye ink, shirt vneck, shirt dye indigo, shoes boots, weapon sword)
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Blackmast Haven › Flagship Deck: Lv 90, up to 1, respawn 86400s; boss
+- **Also appears**: Lost arts: broadside_fan (enemy)
 - **Level band**: Lv 90 in `enemies.json`
 - **Stats**: Lv 90: HP 57232560, Attack 61808, Physical Defense 9611, Accuracy 280
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; presence 4. Attacks: starsteel_cutlass×1.35 (windup 0.5s, knockback 90); broadside×1.5 (windup 1.2s, damage type qi); all_hands×0 (windup 1s, summon starsea_pirate). Phases: below 60% HP: action summon, summon pirate_gunner, summon level 88; below 30% HP: action enrage, cooldown 0.7, damage 1.3
@@ -1743,6 +1746,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: avatar parts (body light, cape solid, hair long_tied, hair color 0, hat guan, pants martial, pants dye ink, shirt cardigan, shirt dye crimson, shoes boots, tint #caa294, weapon spear)
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Ashen Reach › Kharn's Pyre: Lv 92, up to 1, respawn 86400s; boss
+- **Also appears**: Lost arts: pyre_generals_lance (enemy)
 - **Level band**: Lv 92 in `enemies.json`
 - **Stats**: Lv 92: HP 71705280, Attack 77641, Physical Defense 11842, Accuracy 286
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; presence 4; surrenders; sphere {"element": "fire", "tier": 4}; faction ashborn. Attacks: cinder_glaive×1.4 (windup 0.55s, knockback 90); leaping_cleave×1.6 (windup 1s, knockback 120); pyre_rings×0.6 (windup 1.4s, damage type qi). Phases: below 60% HP: action summon, summon ashborn_pyre_keeper, summon level 91; below 30% HP: action enrage, cooldown 0.7, damage 1.3
@@ -1811,6 +1815,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `nebula_leviathan` ([art/creatures/nebula_leviathan.png](../../art/creatures/nebula_leviathan.png), 256 px cells, flying)
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Nebula Deep › Leviathan's Maw: Lv 99, up to 1, respawn 2700s; boss; field boss
+- **Also appears**: Lost arts: maw_song (enemy)
 - **Level band**: Lv 99 in `enemies.json`
 - **Stats**: Lv 99: HP 121498500, Attack 105134, Physical Defense 14757, Accuracy 307
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: fly; flying; knockback immune; presence 5; sphere {"element": "space", "tier": 5}. Attacks: current_swallow×0.9 (windup 1.2s, damage type qi); void_breath×1.8 (windup 1.3s, damage type qi); gravity_crash×1.6 (windup 1s, status {"chance": 0.4, "duration_s": 1.0, "id": "stun", "power": 1.0}, knockback 140). Phases: below 60% HP: action summon, summon nebula_eel, summon level 97; below 30% HP: action enrage, cooldown 0.7, damage 1.3
@@ -2439,7 +2444,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 - **Sheet**: avatar parts (body light, cape tattered, hair long_tied, hair color 5, hat headband, pants cuffed, pants dye ink, shirt vneck, shirt dye crimson, shoes boots, weapon sword)
 - **Spawns**: no room spawns it
-- **Also appears**: room event in Sect War: the Alliance Gate (enemy); room event in Sect War: the Alliance Gate (win on kill)
+- **Also appears**: Lost arts: comet_tail_arrow (enemy); room event in Sect War: the Alliance Gate (enemy); room event in Sect War: the Alliance Gate (win on kill)
 - **Level band**: Lv 80 in `enemies.json`
 - **Stats**: Lv 80: HP 19013850, Attack 34027, Physical Defense 4764, Accuracy 250
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140. Attacks: comet_cleave×1.4 (windup 0.6s, knockback 110); anchor_throw×1.25 (windup 0.9s); boarding_call×0 (windup 1s, summon starsea_pirate). Phases: below 40% HP: action enrage, cooldown 0.7, damage 1.25; below 12% HP: action self_detonate, damage 0.6, radius 280, windup 3

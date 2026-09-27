@@ -269,8 +269,9 @@ CORE = {
                       "story_boss": {"hp": 20, "attack": 2.5, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
                       "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
             "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
-    # S48 technique grades: the base multiplier's bonus by grade.
-    "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
+    # S48 technique grades, and P13a the ring grades (technique_plan §3.5): +0, +10 and +20%, flat from Heaven on.
+    "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20, "mystic": 0.20, "spirit": 0.20, "sage": 0.20, "sovereign": 0.20,
+                         "will": 0.20, "sphere": 0.20, "law": 0.20, "monarch": 0.20, "inner_heaven": 0.20, "genesis": 0.20},
 }
 QUALITIES = {"flawed": {"mult": 0.8, "affixes": 0}, "common": {"mult": 1.0, "affixes": 0}, "fine": {"mult": 1.1, "affixes": 1},
              "superior": {"mult": 1.2, "affixes": 2}, "perfect": {"mult": 1.3, "affixes": 3}, "relic": {"mult": 1.35, "affixes": 3}}
@@ -746,6 +747,9 @@ def build():
         # S48 the Soul line: Sense Lock (no evasion, no hiding) and Soul Search (its death gives up its memories).
         {"id": "sense_locked", "resist": "spirit", "icon": "sense_locked", "never_miss": True, "reveals": True},
         {"id": "soul_searched", "resist": "spirit", "icon": "injury_soul"},
+        # P13a the Wood's second verb (technique_plan §3.3): a bloom that takes a share of the foe's health a second,
+        # capped against elites and bosses as every share of health is (hp_share_cap).
+        {"id": "bloom", "resist": "tenacity", "dot": True, "icon": "poison"},
     ])
 
 
@@ -759,7 +763,7 @@ def build():
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8",
                          "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#9a87e3",
                          # P7b: the grades past Sphere; no red (red is the game's danger colour).
-                         "law": "#a8c4ff", "monarch": "#e6b3f2", "inner_heaven": "#f4f7ff"},
+                         "law": "#a8c4ff", "monarch": "#e6b3f2", "inner_heaven": "#f4f7ff", "genesis": "#fff2c0"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
         # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,

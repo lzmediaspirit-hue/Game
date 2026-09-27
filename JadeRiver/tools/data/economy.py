@@ -55,7 +55,7 @@ def shops():
         # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
         from paths import inner_arts
         return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)
-                if not a.get("legacy")]
+                if not a.get("legacy") and not a.get("lost")]
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
@@ -1197,9 +1197,12 @@ def strings():
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
     quest_names = {q["id"]: q["name"] for q in json.load(open(os.path.join(DATA, "quests.json")))["entries"]}
-    for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
-        if t["source"] in TECH_SOURCES or t["source"] in quest_names:
-            S["technique_source." + t["source"]] = TECH_SOURCES.get(t["source"]) or quest_names[t["source"]]
+    import technique_gen   # P13a: the trees' sources (the tree itself, keystones' teachers and trials, the Dao arts)
+    names = dict(TECH_SOURCES, **technique_gen.SOURCE_NAMES)
+    for t in technique_gen.load_rows():
+        if t["source"] in names or t["source"] in quest_names:
+            S["technique_source." + t["source"]] = names.get(t["source"]) or quest_names[t["source"]]
+    S.update(technique_gen.strings())
     # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
     ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
     for k in ui:

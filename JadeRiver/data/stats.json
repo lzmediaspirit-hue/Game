@@ -4329,7 +4329,17 @@
  "technique_grades": {
   "common": 0.0,
   "earth": 0.1,
-  "heaven": 0.2
+  "heaven": 0.2,
+  "mystic": 0.2,
+  "spirit": 0.2,
+  "sage": 0.2,
+  "sovereign": 0.2,
+  "will": 0.2,
+  "sphere": 0.2,
+  "law": 0.2,
+  "monarch": 0.2,
+  "inner_heaven": 0.2,
+  "genesis": 0.2
  },
  "regen_per_s": {
   "hp": 0.005,

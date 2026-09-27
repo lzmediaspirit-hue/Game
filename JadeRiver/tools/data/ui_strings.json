@@ -2670,5 +2670,6 @@
  "world_view.pill_cloud_bark_1": "Who is refining in there?",
  "world_view.pill_cloud_bark_2": "Heaven, what a colour...",
  "world_view.pill_cloud_pill_halo": "Pill Halo",
- "world_view.pill_cloud_pill_soul": "Pill Soul"
+ "world_view.pill_cloud_pill_soul": "Pill Soul",
+ "sim.combat.needs_kin": "Needs a weapon of the %s"
 }
