@@ -30,6 +30,43 @@ STAT_LIST = [
     ("dodge_cooldown", "movement", 0.5, "percent"),
     # S48 vows: healing received moves by this share (Mercy).
     ("healing_received", "recovery", 1.0, "percent"),
+    # P7b (item_plan §3.1): the archetype stats, percent with no cap. Pet damage adds to the animal's strike (PetAuthority),
+    # array power to an Array Plate's time and the killing array's blow, melody power to the melody's slow and heals, the
+    # bell's ring and Clear Heart Melody (CombatAuthority).
+    ("pet_damage", "offense", None, "percent"), ("array_power", "offense", None, "percent"), ("melody_power", "offense", None, "percent"),
+]
+
+
+# S14 affixes: the random pools by slot (LootRules), and the fixed affixes of named pieces (tools/data/gear.py).
+AFFIXES = [
+    {"id": "attack_pct", "slots": ["weapon"], "stat": "physical_attack", "op": "pct_add", "range": [0.03, 0.08]},
+    {"id": "crit", "slots": ["weapon", "hat"], "stat": "crit_chance", "op": "flat", "range": [0.01, 0.03]},
+    {"id": "crit_damage", "slots": ["weapon"], "stat": "crit_damage", "op": "flat", "range": [0.05, 0.15]},
+    {"id": "penetration", "slots": ["weapon"], "stat": "penetration", "op": "flat", "range": [0.02, 0.05]},
+    {"id": "accuracy", "slots": ["weapon", "hat"], "stat": "accuracy", "op": "flat", "range": [3, 10], "per_level": 0.3},
+    {"id": "hp_pct", "slots": ["robe", "trousers"], "stat": "max_hp", "op": "pct_add", "range": [0.03, 0.07]},
+    {"id": "body", "slots": ["robe", "trousers"], "stat": "body", "op": "flat", "range": [1, 4], "per_level": 0.1},
+    {"id": "agility", "slots": ["trousers", "boots"], "stat": "agility", "op": "flat", "range": [1, 4], "per_level": 0.1},
+    {"id": "spirit", "slots": ["hat"], "stat": "spirit", "op": "flat", "range": [1, 4], "per_level": 0.1},
+    {"id": "insight", "slots": ["hat"], "stat": "insight", "op": "flat", "range": [1, 4], "per_level": 0.1},
+    {"id": "tenacity", "slots": ["hat", "trousers"], "stat": "tenacity", "op": "flat", "range": [0.02, 0.05]},
+    {"id": "move_speed", "slots": ["boots"], "stat": "move_speed", "op": "pct_add", "range": [0.02, 0.05]},
+    {"id": "guard", "slots": ["robe"], "stat": "guard", "op": "flat", "range": [0.02, 0.05]},
+    {"id": "evasion", "slots": ["boots", "trousers"], "stat": "evasion", "op": "flat", "range": [2, 8], "per_level": 0.3},
+    {"id": "toxicity_tolerance", "slots": ["gourd"], "stat": "toxicity_tolerance", "op": "flat", "range": [3, 8]},
+    {"id": "coin_find", "slots": ["gourd"], "stat": "coin_find", "op": "flat", "range": [0.03, 0.08]},
+    # P7b (item_plan §3.1): Qi and soul damage on weapons (G9), Essence, knockback and max Soul in the random pools; the
+    # archetype affixes only on named pieces (`named_only`), as their fixed affixes.
+    {"id": "qi_attack_pct", "slots": ["weapon"], "stat": "qi_attack", "op": "pct_add", "range": [0.03, 0.08]},
+    {"id": "soul_attack_pct", "slots": ["weapon", "hat"], "stat": "soul_attack", "op": "pct_add", "range": [0.03, 0.08]},
+    {"id": "essence", "slots": ["robe", "hat"], "stat": "essence", "op": "flat", "range": [1, 4], "per_level": 0.1},
+    {"id": "knockback", "slots": ["robe", "boots"], "stat": "knockback_resistance", "op": "flat", "range": [0.03, 0.08]},
+    {"id": "max_soul_pct", "slots": ["hat", "robe"], "stat": "max_soul", "op": "pct_add", "range": [0.03, 0.07]},
+    {"id": "taming", "slots": ["hat", "gourd"], "stat": "taming_chance", "op": "flat", "range": [0.02, 0.05], "named_only": True},
+    {"id": "craft_control", "slots": ["hat", "gourd"], "stat": "crafting_control", "op": "flat", "range": [0.02, 0.05], "named_only": True},
+    {"id": "pet_damage", "slots": ["weapon", "gourd"], "stat": "pet_damage", "op": "flat", "range": [0.03, 0.08], "named_only": True},
+    {"id": "array_power", "slots": ["weapon", "gourd", "talisman"], "stat": "array_power", "op": "flat", "range": [0.05, 0.12], "named_only": True},
+    {"id": "melody_power", "slots": ["weapon", "gourd", "talisman"], "stat": "melody_power", "op": "flat", "range": [0.05, 0.12], "named_only": True},
 ]
 
 
@@ -308,6 +345,14 @@ def build():
         "sim_end": "sage_sovereign_1",
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
                    ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55], ["sage_1", 70], ["sage_sovereign_1", 110]],
+        # P7b (item_plan §4.4): the equipment an hour of hunting drops, by grade (balance_sim `_drops`): each target is
+        # [value, tolerance]; every region at least `region_floor`; each archetype's usable share inside `usable_share`;
+        # an archetype set's slowest drop piece within `set_hours` of its band's hunting hours (`band_hours` × the fight share).
+        "drops": {"kills_per_hour": 360, "elite_kills_per_slot": 20, "elite_share_cap": 0.33, "hours_per_region": 20,
+                  "targets": {"pieces": [6.0, 0.30], "fine_up": [1.4, 0.30], "superior_up": [0.45, 0.35], "perfect": [0.08, 0.50]},
+                  "region_floor": 3.0, "usable_share": [0.6, 0.85],
+                  "band_hours": {"plain": 4.5, "common": 8, "earth": 17, "heaven": 25, "mystic": 15, "spirit": 40},
+                  "set_hours": [0.3, 0.8]},
     })
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
@@ -513,7 +558,9 @@ def build():
                            "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff",
                            "rare": "#5aa7e8", "epic": "#b07ce8", "primordial": "#e5b84c"},
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8",
-                         "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#8f7ae0"},
+                         "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#8f7ae0",
+                         # P7b: the grades past Sphere; no red (red is the game's danger colour).
+                         "law": "#a8c4ff", "monarch": "#e6b3f2", "inner_heaven": "#f4f7ff"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
         # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,
@@ -541,40 +588,26 @@ def build():
                 {"id": "iron_skin", "kind": "add_modifier", "stat": "physical_defense", "op": "pct_add", "value": 0.1, "duration": 1800, "source": "pill_soul"},
             ]},
         },
-        "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3},
-        "wear_level": {"plain": 0, "common": 10, "earth": 19, "heaven": 37, "mystic": 55, "spirit": 64, "sage": 73},
+        "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3, "sovereign": 3, "will": 3,
+                    "sphere": 3, "law": 3},
+        "wear_level": {"plain": 0, "common": 10, "earth": 19, "heaven": 37, "mystic": 55, "spirit": 64, "sage": 73, "sovereign": 82,
+                       "will": 91, "sphere": 100, "law": 109},
+        # P7b (item_plan §4.1): the equipment roll. A drop's quality from its source's floor (shares of flawed, common,
+        # fine, superior, perfect; each Fortune point moves the roll `fortune_shift` toward the best); `weapon_share` of
+        # rolls make a weapon while weapons are open (`family_bias` of those in the family in hand), the rest one of the
+        # four armour slots; a normal foe spawned as an elite rolls once more at `elite_extra`; a named row drops at its
+        # source's floor raised to `named_floor`; a loot table holds at most `named_rows` rows of each kind (named,
+        # elite_named); the item Level is the foe's ±`level_spread`, capped at the top Level of the highest grade with
+        # banded bases. The pool is banded bases only: no named, set, relic, legend or imitation piece, no pet gear, and
+        # none of `pool_skip_slots`.
+        "drop": {"quality": {"flawed": [0.55, 0.30, 0.12, 0.03, 0.0], "common": [0.0, 0.50, 0.30, 0.15, 0.05],
+                             "fine": [0.0, 0.0, 0.50, 0.35, 0.15], "superior": [0.0, 0.0, 0.0, 0.70, 0.30]},
+                 "fortune_shift": 0.001, "weapon_share": 0.4, "family_bias": 0.3333, "level_spread": 2,
+                 "elite_extra": {"chance": 0.08, "min_quality": "common"}, "named_floor": "common", "named_rows": 2,
+                 "pool_skip_slots": ["gourd", "cape", "talisman", "tool_furnace"]},
     })
 
-    entries("affixes.json", [
-        {"id": "attack_pct", "slots": ["weapon"], "stat": "physical_attack", "op": "pct_add", "range": [0.03, 0.08]},
-        {"id": "crit", "slots": ["weapon", "hat"], "stat": "crit_chance", "op": "flat", "range": [0.01, 0.03]},
-        {"id": "crit_damage", "slots": ["weapon"], "stat": "crit_damage", "op": "flat", "range": [0.05, 0.15]},
-        {"id": "penetration", "slots": ["weapon"], "stat": "penetration", "op": "flat", "range": [0.02, 0.05]},
-        {"id": "accuracy", "slots": ["weapon", "hat"], "stat": "accuracy", "op": "flat", "range": [3, 10], "per_level": 0.3},
-        {"id": "hp_pct", "slots": ["robe", "trousers"], "stat": "max_hp", "op": "pct_add", "range": [0.03, 0.07]},
-        {"id": "body", "slots": ["robe", "trousers"], "stat": "body", "op": "flat", "range": [1, 4], "per_level": 0.1},
-        {"id": "agility", "slots": ["trousers", "boots"], "stat": "agility", "op": "flat", "range": [1, 4], "per_level": 0.1},
-        {"id": "spirit", "slots": ["hat"], "stat": "spirit", "op": "flat", "range": [1, 4], "per_level": 0.1},
-        {"id": "insight", "slots": ["hat"], "stat": "insight", "op": "flat", "range": [1, 4], "per_level": 0.1},
-        {"id": "tenacity", "slots": ["hat", "trousers"], "stat": "tenacity", "op": "flat", "range": [0.02, 0.05]},
-        {"id": "move_speed", "slots": ["boots"], "stat": "move_speed", "op": "pct_add", "range": [0.02, 0.05]},
-        {"id": "guard", "slots": ["robe"], "stat": "guard", "op": "flat", "range": [0.02, 0.05]},
-        {"id": "evasion", "slots": ["boots", "trousers"], "stat": "evasion", "op": "flat", "range": [2, 8], "per_level": 0.3},
-        {"id": "toxicity_tolerance", "slots": ["gourd"], "stat": "toxicity_tolerance", "op": "flat", "range": [3, 8]},
-        {"id": "coin_find", "slots": ["gourd"], "stat": "coin_find", "op": "flat", "range": [0.03, 0.08]},
-    ])
-
-    entries("sets.json", [
-        {"id": "jade_current", "pieces": ["jade_current_hat", "jade_current_robe", "jade_current_trousers", "jade_current_boots"],
-         "bonuses": {"2": [{"stat": "max_qi", "op": "pct_add", "value": 0.05}], "4": [{"stat": "elemental_power", "op": "flat", "value": 0.1, "condition": {"element": "water"}}]}},
-        {"id": "cloudpiercing", "pieces": ["cloudpiercing_hat", "cloudpiercing_robe", "cloudpiercing_trousers", "cloudpiercing_boots"],
-         "bonuses": {"2": [{"stat": "move_speed", "op": "pct_add", "value": 0.05}], "4": [{"stat": "elemental_power", "op": "flat", "value": 0.1, "condition": {"element": "wind"}}]}},
-        {"id": "mudwater", "pieces": ["mudwater_cleaver", "mudwater_robe"], "bonuses": {"2": [{"stat": "coin_find", "op": "flat", "value": 0.1}]}},
-        {"id": "drowned_abbot", "pieces": ["drowned_hat", "drowned_robe", "drowned_boots"],
-         "bonuses": {"2": [{"stat": "soul_defense", "op": "pct_add", "value": 0.1}], "3": [{"stat": "qi_resistance", "op": "pct_add", "value": 0.1}]}},
-        {"id": "crane", "pieces": ["crane_robe", "crane_trousers", "crane_boots"],
-         "bonuses": {"2": [{"stat": "flight_speed", "op": "pct_add", "value": 0.05}], "3": [{"stat": "flight_speed", "op": "pct_add", "value": 0.1}]}},
-    ])
+    entries("affixes.json", AFFIXES)
 
     entries("injuries.json", [
         {"id": "body", "effects": [{"stat": "max_hp", "op": "pct_add", "per_severity": -0.08}, {"stat": "move_speed", "op": "pct_add", "per_severity": -0.05}],

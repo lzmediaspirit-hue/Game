@@ -826,6 +826,34 @@
      }
     },
     {
+     "item": "training_brush"
+    },
+    {
+     "item": "training_bell"
+    },
+    {
+     "item": "iron_brush",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_bell",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
      "item": "recipe_scroll",
      "learn": "moonshadow_jian",
      "price": 2400,
@@ -868,6 +896,28 @@
     },
     {
      "item": "riverstone"
+    },
+    {
+     "item": "cloud_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "mistjade_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heaven_glimpse_1"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -893,6 +943,12 @@
      },
      {
       "item": "jadeiron_flute"
+     },
+     {
+      "item": "jadeiron_brush"
+     },
+     {
+      "item": "jadeiron_bell"
      }
     ]
    }
@@ -1117,6 +1173,39 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "jade_current_hat",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "jade_current_boots",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "jade_current_trousers",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
        }
       ]
      }
@@ -1684,6 +1773,39 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudpiercing_hat",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudpiercing_boots",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudpiercing_trousers",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
        }
       ]
      }
@@ -2406,6 +2528,36 @@
        }
       ]
      }
+    },
+    {
+     "item": "metal_core_low",
+     "price": 4,
+     "currency": "spirit_stone",
+     "daily": 2
+    },
+    {
+     "item": "metal_core_mid",
+     "price": 12,
+     "currency": "spirit_stone",
+     "daily": 2
+    },
+    {
+     "item": "metal_core_high",
+     "price": 32,
+     "currency": "spirit_stone",
+     "daily": 2
+    },
+    {
+     "item": "beast_bag_mist",
+     "price": 6000,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heaven_glimpse_1"
+       }
+      ]
+     }
     }
    ]
   },
@@ -2512,6 +2664,9 @@
        }
       ]
      }
+    },
+    {
+     "item": "mistjade_gourd"
     }
    ],
    "rotation": {
@@ -2768,6 +2923,84 @@
     {
      "item": "will_tempering_pill",
      "price": 6
+    },
+    {
+     "item": "star_core_low",
+     "price": 1,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "star_core_mid",
+     "price": 3,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "star_core_high",
+     "price": 8,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "space_core_low",
+     "price": 1,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "space_core_mid",
+     "price": 3,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "space_core_high",
+     "price": 8,
+     "daily": 2,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -2938,6 +3171,182 @@
     {
      "item": "driftglass",
      "price": 6
+    },
+    {
+     "item": "driftsteel_gauntlets",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_jian",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_spear",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_short_blade",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_staff",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_bow",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_heavy_sabre",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_fan",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_flute",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_brush",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftsteel_bell",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "starsilk_hat",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "starsilk_robe",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "starsilk_trousers",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "starsilk_boots",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "driftglass_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_1"
+       }
+      ]
+     }
     }
    ]
   },
@@ -3039,6 +3448,182 @@
        {
         "kind": "unlock",
         "system": "confucian_path"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_gauntlets",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_jian",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_spear",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_short_blade",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_staff",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_bow",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_heavy_sabre",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_fan",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_flute",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_brush",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsteel_bell",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsilk_hat",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsilk_robe",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsilk_trousers",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lanternsilk_boots",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lantern_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
        }
       ]
      }
@@ -3478,6 +4063,21 @@
        }
       ]
      }
+    },
+    {
+     "item": "sunsteel_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
     }
    ]
   },
@@ -3498,6 +4098,18 @@
     },
     {
      "item": "storm_blood_pill"
+    },
+    {
+     "item": "beast_bag_star",
+     "price": 160,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
     }
    ]
   }

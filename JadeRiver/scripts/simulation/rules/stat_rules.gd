@@ -112,6 +112,17 @@ static func instance_modifiers(slot: String, instance, energy_type: String, c = 
 			out.append({"stat": "soul_defense", "op": "flat", "value": arm * 0.4, "source": src})
 	for a in instance.get("affixes", []):
 		out.append({"stat": str(a.stat), "op": str(a.get("op", "flat")), "value": float(a.value), "source": src + ":affix"})
+	# P7b named pieces (item_plan §2.1): fixed affixes, half again while the wearer holds the piece's path (a set piece's
+	# path doubles its set's 2-piece bonus instead), and +2% elemental power of the piece's element.
+	var nm = def.get("named")
+	if nm is Dictionary:
+		var cfg: Dictionary = ContentDB.config("gear").get("named", {})
+		var boost := float(cfg.get("path_fixed", 1.5)) if not def.has("set") and holds_path(c, str(nm.get("path", ""))) else 1.0
+		for a in nm.get("fixed", []):
+			out.append({"stat": str(a.stat), "op": str(a.get("op", "flat")), "value": float(a.value) * boost, "source": src + ":fixed"})
+		if str(nm.get("element", "")) != "":
+			out.append({"stat": "elemental_power", "op": "flat", "value": float(cfg.get("element_power", 0.02)), "source": src + ":element",
+				"condition": {"element": str(nm.element)}})
 	for j in instance.get("inlays", []):
 		var jd := ContentDB.item(str(j))
 		if jd.has("jade"):
@@ -119,23 +130,47 @@ static func instance_modifiers(slot: String, instance, energy_type: String, c = 
 			out.append({"stat": str(jd.jade.attribute), "op": "flat", "value": float(jd.jade["values"][tier]), "source": "jade:" + slot})
 	return out
 
-static func set_modifiers(c) -> Array:
+## The pieces worn of each set. A set's weapon variants share the weapon slot, so the one in hand counts once.
+static func set_counts(c) -> Dictionary:
 	var counts := {}
 	for slot in c.inventory.equipped:
 		var inst = c.inventory.equipped[slot]
 		if inst == null: continue
 		var s := str(ContentDB.item(inst.id).get("set", ""))
 		if s != "": counts[s] = int(counts.get(s, 0)) + 1
+	return counts
+
+## The stat bonuses of the sets worn; on the set's path its 2-piece bonus counts double (P7b item_plan §2.1). A bonus row
+## with a `flag` is a set mechanic its own rule reads (set_flag).
+static func set_modifiers(c) -> Array:
+	var counts := set_counts(c)
 	var out: Array = []
+	for s in counts:
+		var row := ContentDB.entry("sets", s)
+		var two := float(ContentDB.config("gear").get("named", {}).get("path_set_two", 2.0)) if holds_path(c, str(row.get("path", ""))) else 1.0
+		var bonuses: Dictionary = row.get("bonuses", {})
+		for need in bonuses:
+			if counts[s] < int(need): continue
+			for b in bonuses[need]:
+				if not b.has("stat"): continue
+				var m: Dictionary = b.duplicate(true)
+				if str(need) == "2": m.value = float(m.value) * two
+				m["source"] = "set:%s:%s" % [s, need]
+				out.append(m)
+	return out
+
+## P7b (item_plan §3.1): a set mechanic the wearer's sets give (unbroken, honed_intent, venom_hand, kin_bond,
+## living_array, sustained_note) as its bonus row with the tier's values, or {}.
+static func set_flag(c, flag: String) -> Dictionary:
+	if c == null: return {}
+	var counts := set_counts(c)
 	for s in counts:
 		var bonuses: Dictionary = ContentDB.entry("sets", s).get("bonuses", {})
 		for need in bonuses:
-			if counts[s] >= int(need):
-				for b in bonuses[need]:
-					var m: Dictionary = b.duplicate(true)
-					m["source"] = "set:%s:%s" % [s, need]
-					out.append(m)
-	return out
+			if counts[s] < int(need): continue
+			for b in bonuses[need]:
+				if str(b.get("flag", "")) == flag: return b
+	return {}
 
 ## Attribute track bonuses before modifiers (S10).
 static func attribute_bases(c, lv: int) -> Dictionary:
@@ -365,6 +400,18 @@ static func gate_flag(c, flag: String) -> bool:
 		for need in gates[ch]:
 			if str(gates[ch][need].get("flag", "")) == flag: return int(c.cultivator.meridians.get(ch, 0)) >= int(need)
 	return false
+
+## P7b (item_plan §2.2): whether the wearer holds a gear path (gear.json `paths`); any one of its clauses is enough.
+static func holds_path(c, path: String) -> bool:
+	if c == null or path == "": return false
+	var p: Dictionary = ContentDB.config("gear").get("paths", {}).get(path, {})
+	var cu = c.cultivator
+	if p.has("walks") and bool(cu.paths.get(str(p.walks), false)): return true
+	if p.has("dao") and int(cu.daos.get(str(p.dao), {}).get("tier", 0)) >= int(p.get("tier", 1)) \
+			and not (p.has("dao_until") and ProgressionRules.at_least(cu.realm_key, str(p.dao_until))): return true
+	if p.has("body_tier") and ProgressionRules.body_tier_index(cu) >= int(p.body_tier): return true
+	if p.get("vow", false) and not cu.vows.is_empty(): return true
+	return bool(p.get("poison_art", false)) and ProgressionRules.knows_poison_art(c)
 
 ## S48: a body-tier flag (hp_techniques, qi_seal_immune) held by any tier reached.
 static func body_flag(c, flag: String) -> bool:

@@ -55,8 +55,6 @@ GRANT_KINDS = ("grant_item", "grant_equipment")
 PART_LABELS = {"rewards": ", reward", "on_accept": ", on accept", "on_complete": ", on completion", "on_flawless": ", flawless",
                "heart_rewards": " heart reward", "effects": ""}
 CHANNELS = ["Drop", "Container", "Gathering", "Garden", "Crafting", "Shop", "Reward", "Mail"]
-EQUIP_EXCLUDED_SLOTS = ("gourd", "cape", "talisman", "tool_furnace")   # LootRules.make_equipment
-MAX_DROP_ILV = 81
 # WorldAuthority.apply_tide_result: `cores` beast cores of these elements at the holder's tier.
 TIDE_CORE_ELEMENTS = ("fire", "water", "wood", "earth", "wind", "thunder")
 TIDE_CORE_TIERS = (("low", "below Lv 28"), ("mid", "Lv 28–45"), ("high", "Lv 46 and up"))
@@ -148,6 +146,15 @@ class Data:
 
     def grade_index(self, grade):
         return self.grade_order.index(grade) if grade in self.grade_order else len(self.grade_order)
+
+    def drop(self):
+        """The equipment roll's rules (grades.json `drop`, read by LootRules)."""
+        return self.cfg("grades").get("drop", {})
+
+    def drop_level_cap(self):
+        """LootRules.drop_level_cap: the top Level of the highest grade with banded bases."""
+        grades = {a["grade"] for a in self.entries("artifacts") if banded_eligible(self, a)}
+        return max([int(b[2]) for b in self.cfg("stats").get("grade_bands", []) if b[0] in grades] or [1])
 
     def grade_for_ilv(self, ilv):
         for band in self.cfg("stats").get("grade_bands", []):
@@ -249,6 +256,7 @@ def effect_text(d, e):
 class Sources:
     def __init__(self, d):
         self.d = d
+        self.cap = d.drop_level_cap()
         self.by_item = collections.defaultdict(set)
         self.loot_users = collections.defaultdict(list)   # table -> [(kind, text, Level bands, enemy id)]
         self.enemy_extra = collections.defaultdict(list)   # enemy -> [(item, rate text, note)] outside the table
@@ -391,13 +399,13 @@ class Sources:
         """Grades an equipment roll can make for foes or chests of these Level bands (iLv = Level ±2, capped)."""
         grades = set()
         for lo, hi in bands:
-            clamp = lambda v: max(1, min(MAX_DROP_ILV, v))
+            clamp = lambda v: max(1, min(self.cap, v))
             grades |= {self.d.grade_for_ilv(i) for i in range(clamp(lo - 2), clamp(hi + 2) + 1)}
         return sorted(grades, key=self.d.grade_index)
 
     def banded_equipment(self):
         for a in self.d.entries("artifacts"):
-            if banded_eligible(a) and self.banded.get(a["grade"]):
+            if banded_eligible(self.d, a) and self.banded.get(a["grade"]):
                 self.add(a["id"], "Drop", "banded equipment roll, grade %s: see [Banded equipment drops](#banded-%s)" % (titled(a["grade"]), a["grade"]))
 
     # --- gathering
@@ -547,10 +555,12 @@ class Sources:
                 rooms = sorted(d.npc_rooms.get(nid, []))
                 who.append("%s%s" % (d.npc_name(nid), " in " + join_rooms(d, rooms) if rooms else ""))
             where = "%s (%s)" % (sh.get("name", sid), "; ".join(who) if who else "no NPC offers this shop")
-            cur = d.currency_name(sh.get("currency", "silver_tael"))
             for s in sh.get("stock", []):
+                cur = d.currency_name(s.get("currency", sh.get("currency", "silver_tael")))
                 price = "%s %s" % (s["price"], cur) if "price" in s else "at list price in %s" % cur
                 extra = []
+                if s.get("daily"):
+                    extra.append("%d a day" % s["daily"])
                 if s.get("learn"):
                     extra.append("teaches recipe `%s`" % s["learn"])
                 if s.get("requires"):
@@ -693,8 +703,10 @@ def spawn_levels(sp):
     return (int(lv[0]), int(lv[-1])) if isinstance(lv, list) else (int(lv), int(lv))
 
 
-def banded_eligible(a):
-    return not (a.get("set") or a.get("relic") or a.get("legend") or a.get("imitation") or a.get("named") or a.get("slot") in EQUIP_EXCLUDED_SLOTS or a.get("pet_gear"))
+def banded_eligible(d, a):
+    """LootRules.is_banded: the bases the equipment roll picks from."""
+    return not (a.get("set") or a.get("relic") or a.get("legend") or a.get("imitation") or a.get("named") or a.get("pet_gear")
+                or a.get("slot") in d.drop().get("pool_skip_slots", []))
 
 
 def table_rows(d, t):
@@ -713,6 +725,9 @@ def table_rows(d, t):
         rows.append((r["item"], pct(r.get("chance", 0)) + times(r.get("count", [1, 1])), "rare"))
     for q in t.get("quest_drops", []):
         rows.append((q["item"], pct(q.get("chance", 1.0)) + times(q.get("count", [1, 1])), "only during " + d.quest_name(q.get("quest", ""))))
+    for key, note in (("named", "named"), ("elite_named", "named, elites only")):
+        for r in t.get(key, []):
+            rows.append((r["item"], pct(r.get("chance", 0)), note))
     return rows
 
 
@@ -751,7 +766,9 @@ def item_stats(d, it):
             if it.get(key) not in (None, "", "none", 0):
                 out.append("%s %s" % (titled(key), it[key]))
         if it.get("set"):
-            out.append("set %s" % titled(it["set"]))
+            out.append("set [%s](#set-%s)" % (titled(it["set"]), it["set"]))
+        if it.get("named"):
+            out.append(named_text(it["named"]))
         for key in ("legend", "imitation", "spirit", "gourd", "furnace", "pet_gear"):
             if it.get(key):
                 v = {k: x for k, x in it[key].items() if k != "barks"} if isinstance(it[key], dict) else it[key]   # a spirit's lines are not stats
@@ -772,6 +789,49 @@ def item_stats(d, it):
             v = it[key]
             out.append("%s: %s" % (titled(key), json.dumps(v, sort_keys=True) if isinstance(v, (dict, list)) else num(v)))
     return out
+
+
+def named_text(nm):
+    """A named piece's tags (item_plan §2.1): archetype, zone, element, path and fixed affixes."""
+    parts = ["named: %s, %s" % (titled(nm.get("archetype", "")), titled(nm.get("zone", "")))]
+    if nm.get("element"):
+        parts.append("element %s (+2%% %s power)" % (titled(nm["element"]), nm["element"]))
+    if nm.get("path"):
+        parts.append("path %s" % titled(nm["path"]))
+    for fx in nm.get("fixed", []):
+        parts.append("fixed %s %s" % (titled(fx["stat"]), bonus_value(fx)))
+    return ", ".join(parts)
+
+
+def bonus_value(b):
+    """A stat modifier's value as the game shows it: a share as a percentage, a count as a number."""
+    v = float(b.get("value", 0))
+    return ("+%s%%" % num(round(v * 100, 2))) if b.get("op") != "flat" or abs(v) < 1 else "+%s" % num(v)
+
+
+def sets_section(d):
+    """Every set: its archetype, tier, element and path, its pieces, and its bonuses (a mechanic by its values)."""
+    lines = ['<a id="sets"></a>', "", "## Sets", "",
+             "A set's bonuses count the pieces worn (a set's weapons share the weapon slot); while the wearer holds the set's "
+             "path its 2-piece bonus counts double (`StatRules.set_modifiers`). A bonus with a mechanic is read by the rule that "
+             "owns it (`StatRules.set_flag`).", ""]
+    for st in d.entries("sets"):
+        lines += ['<a id="set-%s"></a>' % st["id"], "", "### %s" % titled(st["id"]), "",
+                  "- **Archetype**: %s · tier %s%s%s" % (titled(st.get("archetype", "")), st.get("tier", "?"),
+                                                         " · element %s" % titled(st["element"]) if st.get("element") else "",
+                                                         " · path %s" % titled(st["path"]) if st.get("path") else ""),
+                  "- **Pieces**: " + ", ".join(item_link(d, p) for p in st.get("pieces", []))]
+        for need in sorted(st.get("bonuses", {}), key=int):
+            rows = []
+            for b in st["bonuses"][need]:
+                if "flag" in b:
+                    rows.append("%s (%s)" % (titled(b["flag"]), json.dumps({k: v for k, v in b.items() if k != "flag"}, sort_keys=True)))
+                else:
+                    cond = " (%s)" % titled(b["condition"]["element"]) if b.get("condition", {}).get("element") else ""
+                    rows.append("%s %s%s" % (bonus_value(b), titled(b["stat"]), cond))
+            lines.append("- **%s pieces**: %s" % (need, "; ".join(rows)))
+        lines.append("")
+    return lines
 
 
 def item_requirement(d, it):
@@ -818,24 +878,42 @@ def items_page(d, s):
              "", "## Contents", ""]
     for g in order:
         lines.append("- [%s](#group-%s) (%d)" % (group_title(g), re.sub(r"[^a-z0-9]+", "-", g).strip("-"), len(groups[g])))
+    lines.append("- [Sets](#sets)")
     lines.append("- [Banded equipment drops](#banded-equipment-drops)")
     lines.append("")
     for g in order:
         lines += ['<a id="group-%s"></a>' % re.sub(r"[^a-z0-9]+", "-", g).strip("-"), "", "## %s (%d)" % (group_title(g), len(groups[g])), ""]
         for it in sorted(groups[g], key=lambda i: (d.grade_index(i.get("grade", "")), int(i.get("ilv", 0)), i.get("name", ""), i["id"])):
             lines += item_entry(d, s, it)
-    lines += ['<a id="banded-equipment-drops"></a>', "", "## Banded equipment drops", "",
-              "A loot table's equipment roll makes a piece at the foe's or chest's Level ±2 (capped at %d) and picks, "
-              "among the equipment of that iLv's grade band, any piece that is not in a set, not a relic, not pet gear and not "
-              "a gourd, cape, talisman or furnace; weapons only once the Weapons system is open (`LootRules.make_equipment`)." % MAX_DROP_ILV, ""]
+    lines += sets_section(d)
+    lines += ['<a id="banded-equipment-drops"></a>', "", "## Banded equipment drops", ""] + drop_rules_text(d) + [""]
     for g in sorted(s.banded, key=d.grade_index):
-        pieces = sorted((a for a in d.entries("artifacts") if a.get("grade") == g and banded_eligible(a)), key=lambda a: a["id"])
+        pieces = sorted((a for a in d.entries("artifacts") if a.get("grade") == g and banded_eligible(d, a)), key=lambda a: a["id"])
         lines += ['<a id="banded-%s"></a>' % g, "", "### %s (%d pieces)" % (titled(g), len(pieces)), "",
                   "Pieces: " + (", ".join(item_link(d, a["id"]) for a in pieces) or "none"), "", "Rolled by:", ""]
         for who in sorted(s.banded[g]):
             lines.append("- " + who)
         lines.append("")
     return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def drop_rules_text(d):
+    """The equipment roll (LootRules, grades.json `drop`) in words."""
+    dr = d.drop()
+    order = d.cfg("grades").get("quality_order", [])
+    floors = []
+    for floor, shares in sorted(dr.get("quality", {}).items(), key=lambda kv: order.index(kv[0])):
+        floors.append("from %s: %s" % (titled(floor), ", ".join("%s %s" % (pct(v), titled(order[i])) for i, v in enumerate(shares) if v)))
+    ex = dr.get("elite_extra", {})
+    return ["A loot table's equipment roll makes a piece at the foe's or chest's Level ±%d, capped at %d (the top Level of the highest "
+            "grade with banded bases). Once the Weapons system is open %s of rolls make a weapon (%s of those in the family in hand), "
+            "the rest one of the four armour slots, among the banded pieces of that iLv's grade: none named, in a set, a relic, a "
+            "legend, an imitation or pet gear, and no %s (`LootRules.make_equipment`)." % (
+                int(dr.get("level_spread", 2)), d.drop_level_cap(), pct(dr.get("weapon_share", 0)), pct(dr.get("family_bias", 0)),
+                ", ".join(titled(x) for x in dr.get("pool_skip_slots", []))), "",
+            "Quality starts at the table's floor (Fortune moves the roll toward the best): %s. A normal kind spawned as an elite has "
+            "one more roll at %s from %s. A named row drops its piece at the source's floor, at least %s." % (
+                "; ".join(floors), pct(ex.get("chance", 0)), titled(ex.get("min_quality", "")), titled(dr.get("named_floor", "")))]
 
 
 def item_entry(d, s, it):
@@ -992,8 +1070,9 @@ def monsters_page(d, s):
              "lowest-level room spawn; foes that no room spawns (trials, spars, events, summons) come last." % (len(d.enemies), len(d.loot)), "",
              "Stats are the `stats.json` mob templates at the band's lowest and highest Level for the foe's role, times its own "
              "multipliers (an elite spawn of a normal foe uses the elite role). Rates are per kill at the base Drop Rate; an elite of "
-             "a normal kind rolls its table twice and has a 25% Fine equipment roll, and each species' first kill rolls the table "
-             "once more. Beast cores (2% a beast rank, rank 2 and up), Spirit Soil and pet books roll outside the table.", "",
+             "a normal kind rolls its table twice and has one more equipment roll at %s from %s, and each species' first kill rolls "
+             "the table once more. Beast cores (2%% a beast rank, rank 2 and up), Spirit Soil and pet books roll outside the table." % (
+                 pct(d.drop().get("elite_extra", {}).get("chance", 0)), titled(d.drop().get("elite_extra", {}).get("min_quality", ""))), "",
              "## Contents", ""]
     for z in order:
         lines.append("- [%s](#zone-%s) (%d)" % (d.zone_name(z) if z else "Not spawned in rooms", z or "none", len(groups[z])))

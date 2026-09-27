@@ -1716,6 +1716,7 @@ def azure_expanse():
     r = field("tp_stormgrass_verge", "Stormgrass Verge", "thunderhorn_plains", 3, [64, 66],
               spawns=[("spark_weasel", 5, [64, 66])], ores=("stormsteel_ore",), jars=4, attunement_required=6,
               hazards=["lightning"], **plains)
+    r.spawn("stormgrass_stag", r.points(3, x0=600, x1=r.w - 600), 2, level=[64, 66])   # P7b: the Stormgrass Stag (item_plan §2.10)
     plains_scenery(r, stones=2)
     r.obj("sign_tp_verge", "signpost", [200, 860], text="Thunderhorn Plains. West: Cloudgate Port · East: the Herders' Camp.")
     r.edge("west", "west", "ae_port_market", "east", y=850)
@@ -1743,6 +1744,7 @@ def azure_expanse():
     r = field("tp_thunderhorn_flats", "Thunderhorn Flats", "thunderhorn_plains", 3, [65, 68],
               spawns=[("thunderhorn_rhino", 3, [65, 68], 16), ("spark_weasel", 3, [64, 66])], ores=("stormsteel_ore",), jars=4,
               attunement_required=10, hazards=["lightning"], **plains)
+    r.spawn("stormgrass_stag", [[r.w // 2 - 400, 860]], 1, respawn=180, level=[68, 68], elite=True)   # P7b: its elite
     plains_scenery(r, stones=3)
     r.edge("west", "west", "tp_herders_camp", "east", y=850)
     r.edge("east", "east", "tp_lightning_scar", "west", y=850)

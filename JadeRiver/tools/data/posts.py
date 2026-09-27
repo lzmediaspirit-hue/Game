@@ -256,6 +256,15 @@ SNARES = [
     ("snare_28d", 3, 2419200, 550, 1150, ""),
 ]
 
+# P7b (item_plan §2.10): the snare kits and rite tablets past the first, forged by any smith (the forge's grade cap
+# gates them by realm).
+KIT_RECIPES = {"iron_snare_kit": [("jadeiron", 3), ("hemp_cord", 6), ("boar_hide", 2)],
+               "silk_snare_kit": [("mystic_ore", 2), ("kite_silk", 3), ("bronze_rivet", 4)],
+               "star_snare_kit": [("driftglass", 2), ("jelly_silk", 3), ("star_shard", 10), ("whetstone", 2)],
+               "jade_rite_tablet": [("jadeiron", 2), ("spirit_wood", 3), ("cinnabar", 2)],
+               "cloud_rite_tablet": [("cloudsteel_ore", 2), ("spirit_wood", 3), ("soul_wax", 1), ("bronze_rivet", 4)],
+               "star_rite_tablet": [("driftglass", 2), ("spirit_wood", 3), ("sky_ink", 2), ("star_shard", 10)]}
+
 # --------------------------------------------------------------------------- V10c · Ancestral Rites (§7.3)
 TABLETS = [("wood_rite_tablet", "common", 0, 4, 4, 1), ("jade_rite_tablet", "earth", 1, 12, 5, 15),
            ("cloud_rite_tablet", "mystic", 2, 24, 6, 30), ("star_rite_tablet", "sovereign", 3, 40, 7, 45)]   # (item, grade, tier, power, speed, gate)

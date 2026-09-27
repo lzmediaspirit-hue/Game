@@ -148,6 +148,12 @@ static func effective_dao_tier(c, dao: String) -> int:
 		tier = mini(tier + 1, maxi(tier, most))
 	return tier
 
+## S48 the Poison path: a poison art known.
+static func knows_poison_art(c) -> bool:
+	for tid in c.cultivator.techniques_known:
+		if bool(ContentDB.entry("techniques", str(tid)).get("poison_path", false)): return true
+	return false
+
 ## A number an active Inner Art or stance sets (sword_intent_max, reach_mult, backstab_crit, still_damage, parry_counter).
 static func path_flag(c, key: String, fallback = null):
 	for art in active_inner_arts(c):

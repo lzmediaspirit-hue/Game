@@ -24,6 +24,7 @@ func _main() -> void:
 	_learn_kinds()
 	data_suite()
 	item_source_suite()
+	gear_suite()
 	room_suite()
 	overlap_suite()
 	movement_suite()
@@ -503,20 +504,9 @@ func data_suite() -> void:
 const SOURCE_MARKS := ["story", "system", "later"]
 const TIDE_CORE_ELEMENTS := ["fire", "water", "wood", "earth", "wind", "thunder"]   # WorldAuthority.apply_tide_result
 const TIDE_CORE_TIERS := ["low", "mid", "high"]
-## Real gaps found by P7a: items nothing hands out, reported for P7b to source (a mark would say the gap is
-## meant; these are bugs). An entry must go as soon as its item has a source, so the list only shrinks.
-const KNOWN_SOURCE_GAPS := [
-	# Beast cores of an element and rank band no beast has (and the Beast Tide does not give).
-	"metal_core_low", "metal_core_mid", "metal_core_high", "star_core_low", "star_core_mid", "star_core_high",
-	"space_core_low", "space_core_mid", "space_core_high", "soul_core_high", "wood_core_peak", "soul_core_peak",
-	"spirit_stone_high", "beast_bag_mist", "beast_bag_star",
-	"hour_incense_2", "hour_incense_4", "hour_incense_12", "hour_incense_24", "hour_incense_72", "wandering_incense",
-	"iron_snare_kit", "silk_snare_kit", "star_snare_kit", "jade_rite_tablet", "cloud_rite_tablet", "star_rite_tablet",
-	"cloud_gourd", "mistjade_gourd", "sunsteel_gourd",
-	# Set pieces: the sect Mission Halls stock only the robes; the other sets have no source but a robe.
-	"jade_current_hat", "jade_current_trousers", "jade_current_boots", "cloudpiercing_hat", "cloudpiercing_trousers", "cloudpiercing_boots",
-	"mudwater_cleaver", "mudwater_robe", "drowned_hat", "drowned_boots", "crane_robe", "crane_trousers", "crane_boots",
-]
+## Real gaps: items nothing hands out, each a bug to source. P7a found 43; P7b gave each a source (item_plan §2.10), so
+## the list is empty. A new unsourced item fails the suite; put it here only while its source is being built.
+const KNOWN_SOURCE_GAPS := []
 
 func item_source_suite() -> void:
 	var got := item_sources()
@@ -564,19 +554,19 @@ func item_sources() -> Dictionary:
 	for ev in ContentDB.all("calendar"):
 		if ev.has("loot"): _rolled(rolled_by, str(ev.loot), [])
 	var grades := {}
+	var cap := LootRules.drop_level_cap()
 	for tid in rolled_by:
 		var t := ContentDB.entry("loot_tables", tid)
-		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []): got[str(g.item)] = true
+		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []): got[str(g.item)] = true
 		for grp in t.get("groups", []):
 			for p in grp.get("pick", []): got[str(p.item)] = true
 		if float(t.get("equipment", {}).get("chance", 0.0)) > 0.0:
 			for band2 in rolled_by[tid]:
 				if band2.is_empty(): continue
-				for ilv in range(clampi(band2[0] - 2, 1, 81), clampi(band2[1] + 2, 1, 81) + 1): grades[LootRules.grade_for_ilv(ilv)] = true
+				for ilv in range(clampi(band2[0] - 2, 1, cap), clampi(band2[1] + 2, 1, cap) + 1): grades[LootRules.grade_for_ilv(ilv)] = true
 	# The banded equipment roll (LootRules.make_equipment picks among these).
 	for a in ContentDB.all("artifacts"):
-		if a.has("set") or a.get("relic", false) or str(a.slot) in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
-		if grades.has(str(a.grade)): got[str(a.id)] = true
+		if LootRules.is_banded(a) and grades.has(str(a.grade)): got[str(a.id)] = true
 	# Gathering: room nodes, fishing, Beast King nests, treasure births, posts.
 	for rid in ContentDB.rooms:
 		for o in ContentDB.room(rid).get("objects", []):
@@ -685,6 +675,125 @@ func _system_reported(system: String) -> bool:
 	# S43 movement arts report as art_used from the solver.
 	if FileAccess.get_file_as_string("res://scripts/simulation/movement_solver.gd").contains('"art":"%s"' % system): return true
 	return false
+
+## P7b (docs/item_plan.md): named gear, sets, the banded ladders and the drop rules.
+##   Named tags: a known archetype, zone, element and path; fixed affixes from the archetype's pool, in the top third of
+##   their range; a named piece never in the random pool.
+##   Sets: archetype, tier, element and path valid; every piece exists, belongs to the set and has a source; enough
+##   slots to complete it; an archetype set holds a weapon in each of its archetype's families.
+##   Banded bases: every grade with bases has all the weapon families and armour slots, a salvage row, a wear level
+##   and sockets. Loot tables: only fields LootRules reads; at most `named_rows` named rows of each kind, each a named
+##   or set piece. Named pieces per archetype and zone (item_plan §2.3): counted and printed, and checked once
+##   ARCHETYPE_COUNTS_ENFORCED is on (item_plan §6 step 8).
+const ARCHETYPE_COUNTS_ENFORCED := false
+const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named"]
+const GEAR_ZONES := ["valley", "expanse", "lantern", "frontier"]
+
+func gear_suite() -> void:
+	var gear := ContentDB.config("gear")
+	var arch: Dictionary = gear.get("archetypes", {})
+	var paths: Dictionary = gear.get("paths", {})
+	var el_cfg := ContentDB.config("elements")
+	var elements: Array = el_cfg.get("generating", []) + el_cfg.get("neutral", []) + (el_cfg.get("parent", {}) as Dictionary).keys()
+	var affixes := {}
+	for a in ContentDB.all("affixes"): affixes[str(a.id)] = a
+	var mechanics: Array = gear.get("lines", {}).values().map(func(l): return str(l.flag.flag))
+	var counts := {}   # zone -> archetype -> named pieces
+	for a in ContentDB.all("artifacts"):
+		var nm = a.get("named")
+		if a.has("named") or a.has("set") or a.get("relic", false) or a.has("legend") or a.has("imitation"):
+			check(not LootRules.is_banded(a), "artifact %s: a named, set, relic, legend or imitation piece is never in the random pool" % a.id)
+		if not a.has("named"): continue
+		check(nm is Dictionary and arch.has(str(nm.get("archetype", ""))) and str(nm.get("zone", "")) in GEAR_ZONES,
+			"artifact %s: named tags name a known archetype and zone (%s)" % [a.id, str(nm)])
+		if not (nm is Dictionary) or not arch.has(str(nm.get("archetype", ""))): continue
+		var zone_counts: Dictionary = counts.get(str(nm.zone), {})
+		zone_counts[str(nm.archetype)] = int(zone_counts.get(str(nm.archetype), 0)) + 1
+		counts[str(nm.zone)] = zone_counts
+		check(str(nm.get("element", "")) == "" or str(nm.element) in elements, "artifact %s: element tag %s is an element" % [a.id, nm.get("element", "")])
+		check(str(nm.get("path", "")) == "" or paths.has(str(nm.path)), "artifact %s: path tag %s is a known path" % [a.id, nm.get("path", "")])
+		for fx in nm.get("fixed", []):
+			var af: Dictionary = affixes.get(str(fx.get("id", "")), {})
+			check(not af.is_empty() and str(fx.id) in arch[str(nm.archetype)].affixes and str(fx.stat) == str(af.stat) and str(fx.get("op", "")) == str(af.op),
+				"artifact %s: fixed affix %s comes from the %s pool" % [a.id, fx.get("id", ""), nm.archetype])
+			if af.is_empty(): continue
+			var lo := float(af.range[0]) + (float(af.range[1]) - float(af.range[0])) * 2.0 / 3.0 + float(af.get("per_level", 0.0)) * float(a.ilv)
+			var hi := float(af.range[1]) + float(af.get("per_level", 0.0)) * float(a.ilv)
+			check(float(fx.value) >= lo - 0.001 and float(fx.value) <= hi + 0.001, "artifact %s: fixed %s %.3f lies in the top third of its range" % [a.id, fx.id, float(fx.value)])
+			check(str(nm.get("path", "")) == str(arch[str(nm.archetype)].path), "artifact %s: its fixed affixes answer its archetype's path" % a.id)
+	# Sets.
+	var sources := item_sources()
+	for st in ContentDB.all("sets"):
+		var where := "set %s" % st.id
+		var a_id := str(st.get("archetype", ""))
+		check(arch.has(a_id) and int(st.get("tier", 0)) >= 1 and int(st.get("tier", 0)) <= GEAR_ZONES.size(), "%s: archetype %s and tier %s" % [where, a_id, st.get("tier", "")])
+		check(str(st.get("element", "")) == "" or str(st.element) in elements, "%s: element %s" % [where, st.get("element", "")])
+		check(str(st.get("path", "")) == str(arch.get(a_id, {}).get("path", "")), "%s: the path of its archetype" % where)
+		var slots := {}
+		var fams := {}
+		for pid in st.get("pieces", []):
+			var p := ContentDB.item(str(pid))
+			check(not p.is_empty() and str(p.get("set", "")) == str(st.id), "%s: piece %s exists and belongs to it" % [where, pid])
+			check(sources.has(str(pid)), "%s: piece %s has a source" % [where, pid])
+			slots[str(p.get("slot", ""))] = true
+			if str(p.get("slot", "")) == "weapon": fams[str(p.get("family", ""))] = true
+		var needs := 0
+		for need in st.get("bonuses", {}):
+			needs = maxi(needs, int(need))
+			for b in st.bonuses[need]:
+				check((b.has("stat") and _stat_known(str(b.stat))) or str(b.get("flag", "")) in mechanics, "%s: bonus %s names a stat or a set mechanic" % [where, str(b)])
+		check(slots.size() >= needs, "%s: %d pieces can be worn at once, for a %d-piece bonus (completable)" % [where, slots.size(), needs])
+		if a_id != "general":
+			for fam in arch[a_id].families: check(fams.has(str(fam)), "%s: a weapon in the %s family" % [where, fam])
+	# The banded ladders: every grade with banded bases has all the families, the four armour slots and its forge rows.
+	var grades := {}
+	var families := {}
+	for f in ContentDB.all("weapon_families"):
+		if str(f.id) != "fists": families[str(f.id)] = true
+	for a in ContentDB.all("artifacts"):
+		if not LootRules.is_banded(a): continue
+		var g: Dictionary = grades.get(str(a.grade), {})
+		g[str(a.get("family", a.slot))] = true
+		grades[str(a.grade)] = g
+	var grade_cfg := ContentDB.config("grades")
+	for g in grades:
+		var missing: Array = (families.keys() + ["hat", "robe", "trousers", "boots"]).filter(func(k): return not grades[g].has(k))
+		check(missing.is_empty(), "grade %s: banded bases in every family and armour slot (missing %s)" % [g, str(missing)])
+		check(ContentDB.has_entry("salvage", g) and grade_cfg.get("wear_level", {}).has(g) and grade_cfg.get("sockets", {}).has(g),
+			"grade %s: a salvage row, a wear level and sockets" % g)
+	# Loot tables: fields LootRules reads, and the named rows.
+	var cap := int(LootRules.drop_cfg().get("named_rows", 2))
+	for t in ContentDB.all("loot_tables"):
+		for k in t: check(str(k) in LOOT_TABLE_FIELDS, "loot %s: field %s is one LootRules reads" % [t.id, k])
+		for key in ["named", "elite_named"]:
+			var rows: Array = t.get(key, [])
+			check(rows.size() <= cap, "loot %s: at most %d %s rows" % [t.id, cap, key])
+			for r in rows:
+				var p := ContentDB.item(str(r.get("item", "")))
+				check((p.has("named") or p.has("set")) and float(r.get("chance", 0.0)) > 0.0 and float(r.get("chance", 0.0)) <= 1.0,
+					"loot %s: %s row %s is a named or set piece with a chance" % [t.id, key, r.get("item", "")])
+	for e in ContentDB.all("enemies"): check(not e.has("unique_drop"), "enemy %s: no unique_drop (nothing reads it; a first defeat or a named row does)" % e.id)
+	# Named pieces per archetype and zone (item_plan §2.3), P9's share counted once its boss signatures are in.
+	for st2 in ContentDB.all("sets"):
+		var zone := str(GEAR_ZONES[clampi(int(st2.get("tier", 1)) - 1, 0, GEAR_ZONES.size() - 1)])
+		for pid in st2.get("pieces", []):
+			if ContentDB.item(str(pid)).has("named"): continue
+			var zc: Dictionary = counts.get(zone, {})
+			zc[str(st2.archetype)] = int(zc.get(str(st2.archetype), 0)) + 1
+			counts[zone] = zc
+	var p9 := ContentDB.all("enemies").any(func(e): return e.get("boss", {}) is Dictionary and e.get("boss", {}).has("signature"))
+	var short: Array = []
+	var targets: Dictionary = gear.get("targets", {})
+	for zone2 in targets:
+		for a2 in targets[zone2]:
+			var need := int(targets[zone2][a2]) - (0 if p9 else int(gear.get("p9_share", {}).get(zone2, {}).get(a2, 0)))
+			var have := int(counts.get(zone2, {}).get(a2, 0))
+			if have < need: short.append("%s %s %d/%d" % [zone2, a2, have, need])
+	print("data_validation: named pieces short of item_plan §2.3 (%s): %s" % ["enforced" if ARCHETYPE_COUNTS_ENFORCED else "not enforced until step 8", ", ".join(short)])
+	check(not ARCHETYPE_COUNTS_ENFORCED or short.is_empty(), "every archetype has its named pieces in every zone (%s)" % ", ".join(short))
+
+func _stat_known(stat: String) -> bool:
+	return ContentDB.stat_const("stats", []).any(func(s): return str(s.id) == stat)
 
 # ------------------------------------------------------------------ rooms
 func room_suite() -> void:

@@ -14,7 +14,12 @@ static func zone_coins(room_id: String, taels: int) -> Dictionary:
 	var scale := float(zone.get("coin_scale", 1.0))
 	return {"currency": currency, "amount": maxi(1, int(round(taels * scale)))}
 
-## Roll a loot table. Returns {items: [{item, count}], coins, equipment: [instance specs]}.
+## P7b (item_plan §4.1): the equipment roll's rules (grades.json `drop`).
+static func drop_cfg() -> Dictionary:
+	return ContentDB.config("grades").get("drop", {})
+
+## Roll a loot table. Returns {items: [{item, count}], coins, equipment: [drop specs]}. `extra`: no_equipment (no
+## equipment and no named piece), needs (quest items still wanted), elite (the foe is an elite, by role or by spawn).
 static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_rate: float, coin_find: float, extra := {}) -> Dictionary:
 	var table := ContentDB.entry("loot_tables", table_id)
 	var out := {"items": [], "coins": 0, "equipment": []}
@@ -40,9 +45,18 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 	var coins: Dictionary = table.get("coins", {})
 	if not coins.is_empty() and rng.randf() < float(coins.get("chance", 0.0)):
 		out.coins = coins_for(level, float(coins.get("mult", 1)), coin_find)
+	if extra.get("no_equipment", false): return out
 	var eq: Dictionary = table.get("equipment", {})
-	if not eq.is_empty() and not extra.get("no_equipment", false) and rng.randf() < float(eq.get("chance", 0.0)) * dr:
+	if not eq.is_empty() and rng.randf() < float(eq.get("chance", 0.0)) * dr:
 		out.equipment.append({"level": level, "min_quality": str(eq.get("min_quality", "flawed"))})
+	# P7b named rows (item_plan §4.2): each rolls on every kill like a rare row, `elite_named` only for an elite; a named
+	# piece drops at its source's quality floor, raised to `named_floor`.
+	var order: Array = ContentDB.config("grades").get("quality_order", [])
+	var floor_q := str(eq.get("min_quality", "flawed"))
+	if order.find(floor_q) < order.find(str(drop_cfg().get("named_floor", "common"))): floor_q = str(drop_cfg().get("named_floor", "common"))
+	for key in (["named", "elite_named"] if extra.get("elite", false) else ["named"]):
+		for r in table.get(key, []):
+			if rng.randf() < float(r.get("chance", 0.0)) * dr: out.equipment.append({"item": str(r.item), "min_quality": floor_q})
 	return out
 
 ## A beast taken whole by the Taming Cauldron (S47): its materials, each at full count, with no roll.
@@ -75,29 +89,66 @@ static func grade_for_ilv(ilv: int) -> String:
 		if ilv >= int(band[1]) and ilv <= int(band[2]): return str(band[0])
 	return "plain"
 
-## Build an equipment instance from a drop spec (S32): iLv = monster Level ± 2 inside
-## the grade band; quality and affixes from the `affix` stream and Fortune.
-static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: String, fortune: float, allow_weapons: bool, uid: int) -> Dictionary:
-	var ilv := clampi(level + rng.randi_range(-2, 2), 1, 81)   # to the Azure Expanse's top Level
-	var grade := grade_for_ilv(ilv)
-	var candidates: Array = []
+## A banded base: what the equipment roll picks from (P7a, P7b). Named pieces come from their own sources, legendary
+## weapons from their chains, imitation relics from the forge; sets, pet gear and the gourd, cape, talisman and furnace
+## slots never drop at random.
+static func is_banded(a: Dictionary) -> bool:
+	return not (a.has("set") or a.get("relic", false) or a.has("legend") or a.has("imitation") or a.has("named") or a.has("pet_gear")
+		or str(a.get("slot", "")) in drop_cfg().get("pool_skip_slots", []))
+
+## The top Level an equipment roll reaches: the last Level of the highest grade that has banded bases.
+static func drop_level_cap() -> int:
+	var grades := {}
 	for a in ContentDB.all("artifacts"):
-		# Legendary weapons come from their chains, imitation relics from the forge and named pieces from their one
-		# source, never from an ordinary drop (P7a, P7b).
-		if a.get("grade") != grade or a.has("set") or a.get("relic", false) or a.has("legend") or a.has("imitation") or a.get("named", false) or a.slot in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
-		if a.slot == "weapon" and not allow_weapons: continue
-		candidates.append(a)
-	if candidates.is_empty(): return {}
-	var base: Dictionary = candidates[rng.randi_range(0, candidates.size() - 1)]
+		if is_banded(a): grades[str(a.grade)] = true
+	var top := 1
+	for band in ContentDB.stat_const("grade_bands", []):
+		if grades.has(str(band[0])): top = maxi(top, int(band[2]))
+	return top
+
+## A drop's quality from its source's floor (grades.json drop.quality: the shares from flawed to perfect); each Fortune
+## point moves the roll toward the best.
+static func roll_quality(rng: RandomNumberGenerator, min_quality: String, fortune: float) -> String:
 	var order: Array = ContentDB.config("grades").get("quality_order", ["flawed", "common", "fine", "superior", "perfect"])
-	var q := order.find(min_quality)
-	var roll := rng.randf() - fortune * 0.001
-	if roll < 0.05: q += 3
-	elif roll < 0.20: q += 2
-	elif roll < 0.50: q += 1
-	q = clampi(q, 0, 4)
-	var quality: String = order[q]
-	return make_instance(base.id, ilv, quality, rng, uid)
+	var shares: Array = drop_cfg().get("quality", {}).get(min_quality, [])
+	var r := rng.randf() - fortune * float(drop_cfg().get("fortune_shift", 0.001))
+	var acc := 0.0
+	for q in range(shares.size() - 1, -1, -1):
+		if float(shares[q]) <= 0.0: continue
+		acc += float(shares[q])
+		if r < acc: return str(order[q])
+	return min_quality
+
+## Build a banded piece from an equipment roll (S32, P7b item_plan §4.1): iLv = the foe's Level ± 2 up to the highest
+## banded grade's top Level; a weapon on `weapon_share` of rolls while weapons are open (one in three of those in the
+## family in hand), else one of the four armour slots, among the banded bases of that iLv's grade.
+static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: String, fortune: float, allow_weapons: bool, uid: int, family := "") -> Dictionary:
+	var cfg := drop_cfg()
+	var spread := int(cfg.get("level_spread", 2))
+	var ilv := clampi(level + rng.randi_range(-spread, spread), 1, drop_level_cap())
+	var grade := grade_for_ilv(ilv)
+	var weapons: Array = []
+	var armour: Array = []
+	for a in ContentDB.all("artifacts"):
+		if a.get("grade") != grade or not is_banded(a): continue
+		if str(a.slot) != "weapon": armour.append(a)
+		elif allow_weapons: weapons.append(a)
+	var pool := armour
+	if not weapons.is_empty() and (armour.is_empty() or rng.randf() < float(cfg.get("weapon_share", 0.4))):
+		pool = weapons
+		var own := weapons.filter(func(a): return str(a.get("family", "")) == family)
+		if not own.is_empty() and rng.randf() < float(cfg.get("family_bias", 0.3333)): pool = own
+	if pool.is_empty(): return {}
+	var base: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
+	return make_instance(base.id, ilv, roll_quality(rng, min_quality, fortune), rng, uid)
+
+## What a drop spec makes: a named piece (`item`) at its own iLv and its source's quality, or a banded piece.
+static func make_drop(rng: RandomNumberGenerator, spec: Dictionary, fortune: float, allow_weapons: bool, uid: int, family := "") -> Dictionary:
+	if not spec.has("item"):
+		return make_equipment(rng, int(spec.get("level", 1)), str(spec.get("min_quality", "flawed")), fortune, allow_weapons, uid, family)
+	var def := ContentDB.item(str(spec.item))
+	if def.is_empty(): return {}
+	return make_instance(str(spec.item), int(def.get("ilv", 1)), roll_quality(rng, str(spec.get("min_quality", "common")), fortune), rng, uid)
 
 static func make_instance(item_id: String, ilv: int, quality: String, rng: RandomNumberGenerator, uid: int) -> Dictionary:
 	var def := ContentDB.item(item_id)
@@ -107,9 +158,7 @@ static func make_instance(item_id: String, ilv: int, quality: String, rng: Rando
 		inst.sealed = true   # S14: found artifacts keep their power sealed until bound
 		if def.has("spirit"): inst.spirit = "dormant"
 	var n := int(ContentDB.config("grades").get("qualities", {}).get(quality, {}).get("affixes", 0))
-	var pool: Array = []
-	for a in ContentDB.all("affixes"):
-		if def.get("slot", "") in a.get("slots", []): pool.append(a)
+	var pool := affix_pool(def, [])
 	for i in n:
 		if pool.is_empty() or rng == null: break
 		var a: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
@@ -118,12 +167,14 @@ static func make_instance(item_id: String, ilv: int, quality: String, rng: Rando
 		inst.affixes.append({"id": a.id, "stat": a.stat, "op": a.op, "value": snappedf(v, 0.001)})
 	return inst
 
+## The random affixes a piece can roll: its slot's, but not the ones only named pieces carry (P7b) or `exclude`.
+static func affix_pool(def: Dictionary, exclude: Array) -> Array:
+	var slot := str(def.get("slot", ""))
+	return ContentDB.all("affixes").filter(func(a): return slot in a.get("slots", []) and not a.get("named_only", false) and not str(a.id) in exclude)
+
 ## One affix for an item from its slot's pool, avoiding ids already on it (S47 reroll).
 static func roll_affix(item_id: String, ilv: int, rng: RandomNumberGenerator, exclude: Array) -> Dictionary:
-	var def := ContentDB.item(item_id)
-	var pool: Array = []
-	for a in ContentDB.all("affixes"):
-		if def.get("slot", "") in a.get("slots", []) and not str(a.id) in exclude: pool.append(a)
+	var pool := affix_pool(ContentDB.item(item_id), exclude)
 	if pool.is_empty() or rng == null: return {}
 	var a: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
 	var v := rng.randf_range(float(a.range[0]), float(a.range[1])) + float(a.get("per_level", 0.0)) * ilv

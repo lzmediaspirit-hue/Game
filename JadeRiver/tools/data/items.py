@@ -1,6 +1,7 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
 from common import entries, titled, req, c
 from legends import CHAINS as LEGENDS, piece_rows
+from gear import ARCHETYPES, tag
 import posts
 
 MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
@@ -759,14 +760,24 @@ def build_items():
 
 FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
                      # S47 v1.1 families
-                     "heavy_sabre": "sabre", "fan": "fan", "flute": "flute"}
+                     "heavy_sabre": "sabre", "fan": "fan", "flute": "flute",
+                     # P7b (item_plan §2.9): the brush and the bell at every grade, so the formation master and the bell musician
+                     # hold a weapon of their own from Level 1 (G4)
+                     "brush": "brush", "bell": "bell"}
+# The attribute a family asks for at each grade (the bow Agility, the staff and heavy sabre Body, the flute and brush
+# Insight, the bell Essence).
+FAMILY_ATTRIBUTE = {"bow": "agility", "staff": "body", "heavy_sabre": "body", "flute": "insight", "brush": "insight", "bell": "essence"}
+ATTRIBUTE_REQ = {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92, "sovereign": 100, "will": 110}
 # Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
 GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
              "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
              "mystic": {"robe": "white", "trousers": "jade"}, "spirit": {"robe": "indigo", "trousers": "cloud"},
-             "sage": {"robe": "ochre", "trousers": "crimson"}}
+             "sage": {"robe": "ochre", "trousers": "crimson"}, "sovereign": {"robe": "rose", "trousers": "indigo"},
+             "will": {"robe": "white", "trousers": "ink"}}
+# P7b (item_plan §2.9, G1): Sovereign and Will, the Lantern Star Field's grades: driftsteel weapons and starsilk armour,
+# lanternsteel and lanternsilk.
 GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade", "spirit": "stormsteel",
-              "sage": "sunsteel"}
+              "sage": "sunsteel", "sovereign": "driftsteel", "will": "lanternsteel"}
 ARMOUR = {
     "plain": {"hat": ("plain_straw_hat", "Plain Straw Hat", "straw"), "robe": ("hemp_robe", "Hemp Robe", "sleeveless"),
               "trousers": ("hemp_trousers", "Hemp Trousers", "loose"), "boots": ("straw_sandals", "Straw Sandals", "slippers")},
@@ -784,7 +795,30 @@ ARMOUR = {
     # Sage grade (Sunscar, Sage Sovereign realm): sunsilk worked with desert glass; the veiled hat keeps the sun off.
     "sage": {"hat": ("sunsilk_hat", "Sunsilk Veil", "weimao"), "robe": ("sunsilk_robe", "Sunsilk Robe", "scholar"),
              "trousers": ("sunsilk_trousers", "Sunsilk Trousers", "cuffed"), "boots": ("sunsilk_boots", "Sunsilk Boots", "folded")},
+    # Sovereign grade (the Drifting Shoals to the Orbit Ruins): starsilk, woven from star jellies' silk.
+    "sovereign": {"hat": ("starsilk_hat", "Starsilk Band", "tied"), "robe": ("starsilk_robe", "Starsilk Robe", "disciple"),
+                  "trousers": ("starsilk_trousers", "Starsilk Trousers", "straight"), "boots": ("starsilk_boots", "Starsilk Slippers", "slippers")},
+    # Will grade (the Ashen Reach to the Lantern Heart): lanternsilk, cut for the Wardens' watch.
+    "will": {"hat": ("lanternsilk_hat", "Lanternsilk Crown", "guan"), "robe": ("lanternsilk_robe", "Lanternsilk Robe", "cardigan"),
+             "trousers": ("lanternsilk_trousers", "Lanternsilk Trousers", "martial"), "boots": ("lanternsilk_boots", "Lanternsilk Boots", "boots")},
 }
+# P7b (item_plan §2.9, G5, G6): banded ladders of pet gear and furnaces, forged at the forge. A pet piece gains 1% of its
+# stat a grade (defence half that) from the first piece of its kind; a furnace's heat, batch, filter and yield by grade.
+PET_LADDER = {"pet_collar": ("Collar", "common", {"hp": 0.10}, "earth", "+{hp}% HP for the animal that wears it."),
+              "pet_talisman": ("Beast Talisman", "earth", {"attack": 0.10, "defence": 0.05}, "common",
+                               "+{attack}% attack and +{defence}% defence for the animal that wears it."),
+              "pet_saddle": ("Saddle", "common", {"mount_speed": 0.10}, "earth", "A mount wearing it carries you {mount_speed}% faster.")}
+PET_STEP = {"hp": 0.01, "attack": 0.01, "defence": 0.005, "mount_speed": 0.01}
+BANDED_FURNACES = [
+    ("stormsteel_furnace", "spirit", "Stormsteel Furnace", "Blue-black stormsteel that drinks the lightning's heat. Ten pills to a batch.",
+     {"band": 0.11, "batch": 10, "filter": 0.33, "yield": 0.16}),
+    ("sunsteel_furnace", "sage", "Sunsteel Furnace", "Sunsteel set with desert glass that holds the fire's glow. Eleven pills to a batch.",
+     {"band": 0.12, "batch": 11, "filter": 0.36, "yield": 0.17}),
+    ("driftsteel_furnace", "sovereign", "Driftsteel Furnace", "Driftsteel walls lined with ground driftglass. Eleven pills to a batch, and little ash gets through.",
+     {"band": 0.13, "batch": 11, "filter": 0.39, "yield": 0.18}),
+    ("lanternsteel_furnace", "will", "Lanternsteel Furnace", "Cast from a lantern cage's metal; the fire in it never quite goes out. Twelve pills to a batch.",
+     {"band": 0.14, "batch": 12, "filter": 0.42, "yield": 0.20}),
+]
 
 
 def artifact(id, slot, grade, name, appearance, family=None, ilv=None, icon=None, **extra):
@@ -810,12 +844,8 @@ def build_artifacts():
                 extra["ilv"] = 5
                 extra["requires"] = req(c("level_at_least", level=3), c("unlock", system="weapons"))
                 extra["source"] = ["weapon_hall"]
-            if fam == "bow":
-                extra["attribute_req"] = {"agility": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
-            if fam in ("staff", "heavy_sabre"):
-                extra["attribute_req"] = {"body": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
-            if fam == "flute":
-                extra["attribute_req"] = {"insight": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
+            if fam in FAMILY_ATTRIBUTE:
+                extra["attribute_req"] = {FAMILY_ATTRIBUTE[fam]: ATTRIBUTE_REQ[grade]}
             rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
     for grade, slots in ARMOUR.items():
         for slot, (id, name, look) in slots.items():
@@ -824,23 +854,35 @@ def build_artifacts():
     gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 25, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 30, 8),
               ("jadeiron_gourd", "earth", "Jadeiron Gourd", 35, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 40, 12),
               ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 50, 16),
-              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 55, 18)]
+              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 55, 18), ("driftglass_gourd", "sovereign", "Driftglass Gourd", 60, 19),
+              ("lantern_gourd", "will", "Lantern Gourd", 65, 20)]
     for id, grade, name, bag, quick in gourds:
         rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None),
                              **({"source": ["story"]} if id == "starter_gourd" else {})))   # the starting kit (AccountAuthority)
-    rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"]))
+    rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"], named=tag("general", "valley")))
     for fid, grade, name, icon, desc, stats in FURNACES:
         extra = {"sell": False} if stats.get("named") else {}
         rows.append(artifact(fid, "tool_furnace", grade, name, "none", icon=icon, desc=desc, furnace=stats, sockets=0,
-                             energy_type="none", ilv=(1 if grade == "plain" else None), **extra))
-    rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none"))
+                             energy_type="none", ilv=(1 if grade == "plain" else None), named=tag("alchemist", "valley"), **extra))
+    for fid, grade, name, desc, stats in BANDED_FURNACES:
+        rows.append(artifact(fid, "tool_furnace", grade, name, "none", desc=desc, furnace=stats, sockets=0, energy_type="none"))
+    rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none", named=tag("general", "valley")))
     # S46 pet gear: a Collar, a Talisman and (for mounts) a Saddle, forged from beast materials and enhanced at the
     # forge (+10% of the base a level). Worn by a spirit animal, never by you.
     for gid, gslot, grade, gname, stats, desc in [
             ("bone_collar", "pet_collar", "common", "Bone Collar", {"hp": 0.10}, "Boar hide and mole claws. +10% HP for the animal that wears it."),
             ("scale_talisman", "pet_talisman", "earth", "Scale Talisman", {"attack": 0.10, "defence": 0.05}, "Serpent and jade scales on a cord. +10% attack and +5% defence for the animal that wears it."),
             ("reed_saddle", "pet_saddle", "common", "Reed Saddle", {"mount_speed": 0.10}, "Woven reed on boar hide. A mount wearing it carries you 10% faster.")]:
-        rows.append(artifact(gid, gslot, grade, gname, "none", desc=desc, pet_gear=stats, sockets=0, energy_type="none", ilv=MID_ILV[grade]))
+        rows.append(artifact(gid, gslot, grade, gname, "none", desc=desc, pet_gear=stats, sockets=0, energy_type="none", ilv=MID_ILV[grade],
+                             named=tag("beast", "valley")))
+    grades = list(MID_ILV)
+    for gslot, (word, base_grade, base, first, text) in PET_LADDER.items():
+        for grade in grades[grades.index(first):grades.index("will") + 1]:
+            if grade == base_grade:
+                continue
+            stats = {k: round(v + PET_STEP[k] * (grades.index(grade) - grades.index(base_grade)), 3) for k, v in base.items()}
+            rows.append(artifact("%s_%s" % (GRADE_WORD[grade], word.lower().replace(" ", "_")), gslot, grade, "%s %s" % (GRADE_WORD[grade].capitalize(), word),
+                                 "none", sockets=0, energy_type="none", pet_gear=stats, desc=text.format(**{k: "%g" % (v * 100) for k, v in stats.items()})))
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):
@@ -848,7 +890,8 @@ def build_artifacts():
             extra = {"dye": dye[0] if slot == "robe" else dye[1]} if slot in ("robe", "trousers") else {}
             rows.append(artifact("%s_%s" % (sect, slot), slot, "earth", "%s %s" % (titled(sect), slot.capitalize()), app,
                                  icon="jadeiron_%s" % slot, set=sect, source=["sect_shop"], **extra))
-    rows.append(artifact("mudwater_cleaver", "weapon", "common", "Mudwater Cleaver", "sword", "jian", icon="iron_jian", set="mudwater", ilv=18))
+    rows.append(artifact("mudwater_cleaver", "weapon", "common", "Mudwater Cleaver", "sword", "jian", icon="iron_jian", set="mudwater", ilv=18,
+                         named=tag("sword", "valley")))
     rows.append(artifact("mudwater_robe", "robe", "common", "Mudwater Robe", "sleeveless", icon="cotton_robe", set="mudwater", ilv=18, dye="earth"))
     for slot, app in [("hat", "tied"), ("robe", "scholar"), ("boots", "slippers")]:
         rows.append(artifact("drowned_%s" % slot, slot, "earth", "Drowned Abbot %s" % slot.capitalize(), app, icon="jadeiron_%s" % slot, set="drowned_abbot", ilv=30,
@@ -858,19 +901,24 @@ def build_artifacts():
                              **({"dye": "white" if slot == "robe" else "cloud"} if slot in ("robe", "trousers") else {})))
     # v1.2 Phase D · the brush and the bell, from the Tidebreak Bastion's armoury (the Lantern Star Field's first weapons
     # of their families): a Sage-grade pair and a Will-grade pair.
-    for wid, fam, grade, name, look, attr, desc in [
+    for wid, fam, grade, name, look, attr, desc, named in [
             ("ink_warden_brush", "brush", "sage", "Ink-Warden's Brush", "brush", "insight",
-             "A Warden scribe's brush, its hairs set in black lacquer. Every technique written with it leaves a talisman on the foe."),
+             "A Warden scribe's brush, its hairs set in black lacquer. Every technique written with it leaves a talisman on the foe.",
+             tag("formation", "lantern", "space", ["qi_attack_pct"], MID_ILV["sage"])),
             ("starwrit_brush", "brush", "will", "Starwrit Brush", "brush", "insight",
-             "Its tip was dipped in lantern ash. The characters it writes glow for a breath after."),
+             "Its tip was dipped in lantern ash. The characters it writes glow for a breath after.",
+             tag("formation", "lantern", "space", ["qi_attack_pct"], MID_ILV["will"])),
             ("wardens_handbell", "bell", "sage", "Warden's Hand-bell", "bell", "essence",
-             "A bronze bell rung on the Tidebreak walls at every change of watch. Its strikes ring out on both sides."),
+             "A bronze bell rung on the Tidebreak walls at every change of watch. Its strikes ring out on both sides.",
+             tag("musician", "lantern", "metal", ["melody_power"], MID_ILV["sage"])),
             ("tidebreak_bell", "bell", "will", "Tidebreak Bell", "bell", "essence",
-             "Cast from a lantern cage that fell in the Breach. The Hollow does not like its note.")]:
-        rows.append(artifact(wid, "weapon", grade, name, look, fam, desc=desc, source=["bastion_armoury"], named=True,
+             "Cast from a lantern cage that fell in the Breach. The Hollow does not like its note.",
+             tag("musician", "lantern", "metal", ["melody_power"], MID_ILV["will"]))]:
+        rows.append(artifact(wid, "weapon", grade, name, look, fam, desc=desc, source=["bastion_armoury"], named=named,
                              attribute_req={attr: {"sage": 92, "will": 110}[grade]}))
     # S47 rogue cultivators drop what they carry in the open.
-    rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30, named=True,
+    rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
+                         named=tag("sword", "valley", "metal", ["penetration"], 30),
                          desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))
     # S47 Artifact Spirit depth: each relic's spirit has a control demand (the Spirit its full power needs), a skill
     # (a strike every so many hits once awake), a favourite gift, the place it wakes and its one-line barks.
@@ -893,21 +941,22 @@ def build_artifacts():
                        "low_hp": ["Do not fall before I have had my fill.", "Get up. We are not finished."],
                        "refuse": ["Soft hands. Soft soul. Put me down."]}}
     rows.append(artifact("moonlit_blade", "weapon", "heaven", "The Moonlit Blade", "sword", "jian", icon="cloudsteel_jian", ilv=50,
-                         relic=True, unique="Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits", spirit=moon))
+                         relic=True, named=tag("sword", "valley"), unique="Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits", spirit=moon))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
-                         relic=True, unique="Awake spirit: +10% crit damage; Waking Edge every 10 hits", spirit=blade))
+                         relic=True, named=tag("sword", "valley"), unique="Awake spirit: +10% crit damage; Waking Edge every 10 hits", spirit=blade))
     # S47 legendary chains: each legend, restored from its three pieces, is Mystic grade with a gift of its own; awakened
     # at +10 it gains its own skill in place of its family's.
     for ch in LEGENDS:
         rows.append(artifact(ch["weapon"], "weapon", "mystic", ch["name"], FAMILY_APPEARANCE[ch["family"]], ch["family"], icon="mistjade_" + ch["family"], ilv=64,
-                             legend={"chain": ch["id"], "effect": ch["effect"], "skill": ch["skill"]}, desc=ch["lore"], sell=False))
+                             legend={"chain": ch["id"], "effect": ch["effect"], "skill": ch["skill"]}, desc=ch["lore"], sell=False,
+                             named=tag(next(a for a, x in ARCHETYPES.items() if ch["family"] in x["families"]), "expanse")))
     # S47 imitation relics (v1.1): a forge copy of a boss relic keeps 60% of its unique effect, always on, with no spirit,
     # no binding and no control demand.
     for iid, name, of, sp in [("moonshadow_jian", "Moonshadow Jian", "moonlit_blade", moon), ("drowsing_edge", "Drowsing Edge", "sleeping_blade", blade)]:
         fx = dict(sp["effect"])
         fx["value"] = round(fx["value"] * 0.6, 4)
         rows.append(artifact(iid, "weapon", "heaven", name, "sword", "jian", icon="cloudsteel_jian", ilv=48,
-                             imitation={"of": of, "share": 0.6, "effect": fx},
+                             imitation={"of": of, "share": 0.6, "effect": fx}, named=tag("sword", "valley"),
                              desc="A forge copy of %s. It keeps six parts in ten of the original's gift, and no spirit." % ("the Moonlit Blade" if of == "moonlit_blade" else "the Sleeping Blade")))
     entries("artifacts.json", rows)
     return rows

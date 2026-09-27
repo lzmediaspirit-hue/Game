@@ -100,6 +100,7 @@ func _main() -> void:
 	emotes_suite()
 	legacy_suite()
 	drop_pool_suite()
+	set_suite()
 	boss_event_suite()
 	text_suite()
 	ui_fixes_suite()
@@ -657,7 +658,8 @@ func forge_upkeep_suite() -> void:
 	var sv := Game.submit({"type": "salvage", "items": [int(a.uid), int(b.uid)]})
 	check(sv.get("ok", false) and (sv.items as Array).size() == 1 and c.inventory.find_uid(int(b.uid)) >= 0 and c.inventory.find_uid(int(a.uid)) < 0,
 		"Salvage takes the free piece and never the locked one")
-	check(c.inventory.count("refining_essence") - ess0 == 3, "an Earth piece gives 2 Jadeiron and 3 Refining Essence")
+	var earth_ess: int = ContentDB.entry("salvage", "earth").returns.filter(func(x): return str(x.item) == "refining_essence")[0].count
+	check(c.inventory.count("refining_essence") - ess0 == earth_ess and earth_ess == 5, "an Earth piece gives 2 Jadeiron and 5 Refining Essence (3, half again since P7b)")
 	c.inventory.locked.erase(int(b.uid))
 	# Reroll: the locked affix stays, the reroll costs double, and the old roll can be kept.
 	var fine: Dictionary = add.call("jadeiron_robe", "superior")
@@ -4234,8 +4236,8 @@ func world_events_suite() -> void:
 	Game.economy.auction_roll("valley")
 	var vlots: Array = Game.economy.auction_lots("valley")
 	check(vlots.size() == 5 and vlots.all(func(l): return float(l.ends) <= float(ad.end) and str(l.get("house", "")) == "valley"), "five lots on the day, all closing with it")
-	var pool_ok := vlots.all(func(l): return str(l.item) in ["recipe_scroll", "spirit_egg", "rare_spirit_egg", "manual_page"] or str(l.item).ends_with("_seed"))
-	check(pool_ok, "seeds, recipe scrolls and eggs")
+	var valley_pool: Array = ContentDB.config("auction").get("valley", {}).get("pool", []).map(func(x): return str(x.item))
+	check(vlots.all(func(l): return str(l.item) in valley_pool), "the lots come from the valley's pool: seeds, recipe scrolls, eggs, incense")
 	var lot: Dictionary = {}
 	for l in vlots:
 		if str(l.get("learn", "")) != "": lot = l
@@ -5338,13 +5340,13 @@ func rooftop_routes_suite() -> void:
 	var contrib0 := int(c.training_sect.get("contribution", 0))
 	var slow := Game.world.finish_route(c, rt, 30.0)
 	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
-	# Under the gold par (10 s) and under the rivals' floor (rival_s 9.5), so first place does not depend on the
-	# week's seeded board.
-	var fast := Game.world.finish_route(c, rt, 9.4)
-	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 9.4)
+	# Under the gold par and under the fastest a rival can draw (`rival_s`), whatever the account's seed drew this week.
+	var quick := minf(float(rt.pars.gold), float(rt.rival_s[0])) - 0.5
+	var fast := Game.world.finish_route(c, rt, quick)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), quick)
 		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
 	var contrib1 := int(c.training_sect.get("contribution", 0))
-	Game.world.finish_route(c, rt, 9.0)
+	Game.world.finish_route(c, rt, quick - 0.5)
 	check(int(c.training_sect.get("contribution", 0)) == contrib1, "medals and the week's reward pay once")
 	# Run it for real: touch the stone, stand at the bell.
 	c.cultivator.realm_key = "bone_forging_3" if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index("bone_forging_3") else c.cultivator.realm_key
@@ -7968,17 +7970,357 @@ func boss_event_suite() -> void:
 	GameEvents.event.disconnect(grab)
 	Game.enemies.wounded_here = false
 
+## P7a, P7b (item_plan §4.1): the equipment roll. Only banded bases, up to the highest banded grade's top Level; 40%
+## weapons, a third of those in the family in hand; qualities from the source's floor; named rows and their floor;
+## the archetype affixes never rolled at random.
 func drop_pool_suite() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
+	var cap := LootRules.drop_level_cap()
 	var bad: Array = []
-	for level in [64, 70, 76, 81]:
+	var top := 0
+	for level in [64, 70, 76, 81, 90, 99]:
 		for i in 400:
 			var inst: Dictionary = LootRules.make_equipment(rng, level, "common", 0.0, true, i)
 			if inst.is_empty(): continue
 			var def: Dictionary = ContentDB.item(str(inst.id))
-			if def.has("legend") or def.has("imitation") or def.get("named", false): bad.append(str(inst.id))
-	check(bad.is_empty(), "no legendary weapon, imitation relic or named piece from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+			top = maxi(top, int(inst.ilv))
+			if def.has("legend") or def.has("imitation") or def.has("named") or def.has("set") or def.has("pet_gear") or str(def.slot) in ["gourd", "cape", "talisman", "tool_furnace"]:
+				bad.append(str(inst.id))
+	check(bad.is_empty(), "no legendary weapon, imitation relic, named, set or pet piece and no gourd, cape, talisman or furnace from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+	var cap_grade := LootRules.grade_for_ilv(cap)
+	check(top == cap and ContentDB.all("artifacts").any(func(a): return LootRules.is_banded(a) and str(a.grade) == cap_grade)
+		and not ContentDB.all("artifacts").any(func(a): return LootRules.is_banded(a) and StatRules.grade_index(str(a.grade)) > StatRules.grade_index(cap_grade)),
+		"the item Level stops at %d, the top of the highest grade with banded bases (%s; highest made %d)" % [cap, cap_grade, top])
+	# Which base: weapons on 40% of rolls, a third of those in the wielded family; armour only with weapons locked.
+	var fams := {}
+	for a in ContentDB.all("artifacts"):
+		if LootRules.is_banded(a) and str(a.slot) == "weapon" and str(a.grade) == "earth": fams[str(a.family)] = true
+	var tally := func(family: String, weapons: bool) -> Dictionary:
+		var t := {"n": 0, "weapon": 0, "own": 0}
+		for i in 3000:
+			var inst: Dictionary = LootRules.make_equipment(rng, 30, "flawed", 0.0, weapons, i, family)
+			var def: Dictionary = ContentDB.item(str(inst.id))
+			t.n += 1
+			if str(def.slot) == "weapon":
+				t.weapon += 1
+				if str(def.family) == "jian": t.own += 1
+		return t
+	var jian: Dictionary = tally.call("jian", true)
+	var any: Dictionary = tally.call("", true)
+	var want := 1.0 / 3.0 + (2.0 / 3.0) / fams.size()
+	check(absf(float(jian.weapon) / jian.n - 0.4) < 0.03, "40%% of rolls make a weapon (%.3f)" % (float(jian.weapon) / jian.n))
+	check(absf(float(jian.own) / jian.weapon - want) < 0.05, "a jian in hand: %.3f of weapon drops are jians (%.3f expected of %d families)" % [float(jian.own) / jian.weapon, want, fams.size()])
+	check(absf(float(any.own) / any.weapon - 1.0 / fams.size()) < 0.04, "bare hands: jians come as often as any family (%.3f)" % (float(any.own) / any.weapon))
+	check(int(tally.call("jian", false).weapon) == 0, "weapons locked: armour only")
+	# Qualities from the source's floor.
+	var shares := {}
+	for i in 4000:
+		var q := LootRules.roll_quality(rng, "flawed", 0.0)
+		shares[q] = int(shares.get(q, 0)) + 1
+	var want_q: Array = LootRules.drop_cfg().get("quality", {}).get("flawed", [])
+	var order: Array = ContentDB.config("grades").get("quality_order", [])
+	var off := 0.0
+	for qi in want_q.size(): off = maxf(off, absf(float(shares.get(order[qi], 0)) / 4000.0 - float(want_q[qi])))
+	check(off < 0.03 and not shares.has("perfect"), "a normal foe's drops: 55%% Flawed, 30%% Common, 12%% Fine, 3%% Superior, no Perfect (%s)" % str(shares))
+	var boss := {}
+	for i in 2000: boss[LootRules.roll_quality(rng, "superior", 0.0)] = true
+	check(boss.keys().all(func(q): return q in ["superior", "perfect"]), "a boss's drops start at Superior")
+	# Named rows: every kill (elite_named only for an elite), at the source's floor raised to Common; none with no_equipment.
+	var t_id := "_named_test"
+	ContentDB.tables["loot_tables"][t_id] = {"id": t_id, "equipment": {"chance": 0.0, "min_quality": "flawed"},
+		"named": [{"item": "serpent_tongue_jian", "chance": 1.0}], "elite_named": [{"item": "ink_warden_brush", "chance": 1.0}]}
+	var plain := LootRules.roll(t_id, rng, 30, 0.0, 0.0)
+	var elite := LootRules.roll(t_id, rng, 30, 0.0, 0.0, {"elite": true})
+	check(plain.equipment.size() == 1 and str(plain.equipment[0].get("item", "")) == "serpent_tongue_jian" and str(plain.equipment[0].min_quality) == "common",
+		"a named row drops its piece at the Common floor (%s)" % str(plain.equipment))
+	check(elite.equipment.size() == 2 and LootRules.roll(t_id, rng, 30, 0.0, 0.0, {"no_equipment": true}).equipment.is_empty(),
+		"an elite rolls the elite_named rows too; a roll with no equipment rolls no named row")
+	ContentDB.tables["loot_tables"].erase(t_id)
+	var named_inst := LootRules.make_drop(rng, plain.equipment[0], 0.0, true, 1)
+	check(str(named_inst.get("id", "")) == "serpent_tongue_jian" and int(named_inst.ilv) == int(ContentDB.item("serpent_tongue_jian").ilv)
+		and str(named_inst.quality) in ["common", "fine", "superior", "perfect"], "a named drop is made at its own iLv (%s)" % str(named_inst))
+	# The archetype affixes are the named pieces' fixed affixes, never a random roll.
+	var only_named: Array = ContentDB.all("affixes").filter(func(a): return a.get("named_only", false)).map(func(a): return str(a.id))
+	var rolled := {}
+	for gid in ["jadeiron_gourd", "sunsteel_gourd", "cloudsilk_hat", "stormsteel_bow"]:
+		for i in 200:
+			for a in LootRules.make_instance(gid, 60, "perfect", rng, i).affixes: rolled[str(a.id)] = true
+			rolled[str(LootRules.roll_affix(gid, 60, rng, []).get("id", ""))] = true
+	check(only_named.size() == 5 and not only_named.any(func(a): return rolled.has(a)), "no named-only affix (%s) from a random roll" % str(only_named))
+	check(rolled.has("qi_attack_pct") and rolled.has("soul_attack_pct") and rolled.has("max_soul_pct"), "the new random affixes roll (%s)" % str(rolled.keys()))
+
+## P7b (item_plan §2.1, §3.1): named pieces and sets. A named piece's fixed affixes (half again on its path) and its
+## element; the paths; a set counted across its weapon variants, its 2-piece doubled on the path; each archetype line's
+## 6-piece mechanic, read by the rule that owns it. The archetype sets come with the named pieces (item_plan §6 step 8),
+## so the test set is built from each line in gear.json.
+func set_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear", "bleed", "poison", "burn"]: Game.combat.cure_status(c.id, sid)
+	var cu: CultivatorState = c.cultivator
+	var equipped_before: Dictionary = c.inventory.equipped.duplicate()
+	var daos_before: Dictionary = cu.daos.duplicate(true)
+	var body_before := str(cu.body_tier)
+	var known_before: Array = cu.techniques_known.duplicate()
+	var vows_before: Array = cu.vows.duplicate()
+	var paths_before: Dictionary = cu.paths.duplicate()
+	var realm_before := str(cu.realm_key)
+	var tox_before: float = cu.toxicity
+	var total := func(mods: Array, stat: String, suffix: String) -> float:
+		var v := 0.0
+		for m in mods:
+			if str(m.stat) == stat and str(m.get("source", "")).ends_with(suffix): v += float(m.value)
+		return v
+	# A named piece: its fixed affix; half again while its path is held; +2% elemental power of its element.
+	var tags: Dictionary = ContentDB.item("serpent_tongue_jian").named
+	var fixed: Dictionary = tags.fixed[0]
+	var jian := LootRules.make_instance("serpent_tongue_jian", 30, "common", null, 1)
+	cu.daos["sword"] = {"tier": 2, "insight": 0.0}
+	var off_path := StatRules.instance_modifiers("weapon", jian, "primal_qi", c)
+	var el: Array = off_path.filter(func(m): return str(m.stat) == "elemental_power")
+	check(near(total.call(off_path, str(fixed.stat), ":fixed"), float(fixed.value), 0.001) and el.size() == 1 and near(float(el[0].value), 0.02, 0.001)
+		and str(el[0].condition.element) == str(tags.element), "the Serpent-Tongue Jian carries its fixed %s and +2%% %s power" % [fixed.stat, tags.element])
+	cu.daos["sword"] = {"tier": 3, "insight": 0.0}
+	check(StatRules.holds_path(c, "sword_dao") and near(total.call(StatRules.instance_modifiers("weapon", jian, "primal_qi", c), str(fixed.stat), ":fixed"), float(fixed.value) * 1.5, 0.001),
+		"Sword Dao 3 holds the sword path: the fixed affix counts half again")
+	# The other paths (gear.json `paths`).
+	cu.body_tier = "mortal"
+	check(not StatRules.holds_path(c, "body_ladder"), "a mortal body holds no body path")
+	cu.body_tier = "copper"
+	check(StatRules.holds_path(c, "body_ladder"), "Copper Body holds the body ladder")
+	cu.techniques_known.erase("venom_needles")
+	check(not StatRules.holds_path(c, "poison") or ProgressionRules.knows_poison_art(c), "no poison path without a poison art")
+	cu.techniques_known.append("venom_needles")
+	check(StatRules.holds_path(c, "poison"), "a poison art known holds the Poison path")
+	cu.vows.clear()
+	cu.daos["music"] = {"tier": 2, "insight": 0.0}
+	check(not StatRules.holds_path(c, "buddhist"), "no vow and Music Dao 2: not on the Buddhist path")
+	cu.daos["music"] = {"tier": 3, "insight": 0.0}
+	check(StatRules.holds_path(c, "buddhist"), "Music Dao 3 stands in for a vow")
+	cu.daos["formation"] = {"tier": 3, "insight": 0.0}
+	cu.paths.erase("confucian")
+	cu.realm_key = "will_manifest_1"
+	check(StatRules.holds_path(c, "confucian"), "before Will Manifest 2, Formation Dao 3 stands in for the Confucian path")
+	cu.realm_key = "will_manifest_2"
+	check(not StatRules.holds_path(c, "confucian"), "from Will Manifest 2 only walking the path counts")
+	cu.paths["confucian"] = true
+	check(StatRules.holds_path(c, "confucian"), "walking the Confucian path holds it")
+	cu.realm_key = realm_before
+	cu.paths = paths_before.duplicate()
+	for d in ["sword", "music", "formation"]:
+		if daos_before.has(d): cu.daos[d] = daos_before[d].duplicate()
+		else: cu.daos.erase(d)
+	cu.body_tier = "mortal"
+	# A test set of each line: two weapon variants and five more pieces; six can be worn at once.
+	var set_id := "_line_test"
+	var ids := {"weapon": ["_lt_jian", "_lt_fan"], "hat": ["_lt_hat"], "robe": ["_lt_robe"], "trousers": ["_lt_trousers"], "boots": ["_lt_boots"], "talisman": ["_lt_charm"]}
+	var pieces: Array = []
+	for slot in ids:
+		for id in ids[slot]:
+			ContentDB.tables["artifacts"][id] = {"id": id, "name": id, "type": "equipment", "slot": slot, "grade": "heaven", "ilv": 45, "set": set_id,
+				"family": "jian" if id == "_lt_jian" else ("fan" if id == "_lt_fan" else ""), "energy_type": "true_qi"}
+			pieces.append(id)
+	var uid := [800000]
+	var wear := func(list: Array) -> void:
+		for slot in ids: c.inventory.equipped[slot] = null
+		for id in list:
+			uid[0] += 1
+			c.inventory.equipped[str(ContentDB.item(id).slot)] = LootRules.make_instance(id, 45, "common", null, uid[0])
+		Game.combat.refresh_stats(c.id)
+	var six := ["_lt_jian", "_lt_hat", "_lt_robe", "_lt_trousers", "_lt_boots", "_lt_charm"]
+	var lines: Dictionary = ContentDB.config("gear").get("lines", {})
+	var archetypes: Dictionary = ContentDB.config("gear").get("archetypes", {})
+	var flags_seen := []
+	for line in lines:
+		var ln: Dictionary = lines[line]
+		var flag_row: Dictionary = {}
+		for k in ln.flag:
+			if k != "tiers": flag_row[k] = ln.flag[k]
+		for k in ln.flag.tiers: flag_row[k] = ln.flag.tiers[k][0]
+		ContentDB.tables["sets"][set_id] = {"id": set_id, "pieces": pieces, "archetype": line, "tier": 1, "path": str(archetypes[line].path),
+			"bonuses": {"2": ln["2"], "4": ln["4"], "6": (ln["6"] as Array) + [flag_row]}}
+		var two: Dictionary = ln["2"][0]
+		wear.call(["_lt_fan", "_lt_hat"])
+		var mods := StatRules.set_modifiers(c)
+		var held := StatRules.holds_path(c, str(archetypes[line].path))
+		check(StatRules.set_counts(c).get(set_id, 0) == 2 and near(total.call(mods, str(two.stat), ":2"), float(two.value) * (2.0 if held else 1.0), 0.0001)
+			and total.call(mods, str(ln["4"][0].stat), ":4") == 0.0, "%s line: two pieces (a weapon variant among them) give the 2-piece bonus" % line)
+		wear.call(six.slice(0, 5))
+		check(StatRules.set_flag(c, str(ln.flag.flag)).is_empty() and near(total.call(StatRules.set_modifiers(c), str(ln["4"][0].stat), ":4"), float(ln["4"][0].value), 0.0001),
+			"%s line: five pieces give the 4-piece bonus and no mechanic" % line)
+		wear.call(six)
+		var fl := StatRules.set_flag(c, str(ln.flag.flag))
+		check(StatRules.set_counts(c).get(set_id, 0) == 6 and not fl.is_empty() and fl.keys().all(func(k): return flag_row[k] == fl[k]),
+			"%s line: six pieces give %s at tier I's values (%s)" % [line, ln.flag.flag, str(fl)])
+		flags_seen.append(str(ln.flag.flag))
+	check(flags_seen.size() == 6, "six lines, six mechanics (%s)" % str(flags_seen))
+	# The path doubling, on the body line: Copper Body doubles the 2-piece's +5% HP.
+	var body_ln: Dictionary = lines.body
+	ContentDB.tables["sets"][set_id] = {"id": set_id, "pieces": pieces, "archetype": "body", "tier": 1, "path": "body_ladder",
+		"bonuses": {"2": body_ln["2"], "6": [{"flag": "unbroken", "below": 0.3, "shield_s": 5, "cooldown_s": 60, "shield": 0.10}]}}
+	wear.call(["_lt_jian", "_lt_hat"])
+	var hp_off: float = total.call(StatRules.set_modifiers(c), "max_hp", ":2")
+	cu.body_tier = "copper"
+	check(near(total.call(StatRules.set_modifiers(c), "max_hp", ":2"), hp_off * 2.0, 0.0001) and near(hp_off, 0.05, 0.0001), "Copper Body: the body set's 2-piece counts double (+10% HP)")
+	cu.body_tier = "mortal"
+	# Unbroken: a blow that would take you below 30% HP raises a 10% shield first; once a minute.
+	wear.call(six)
+	c.pools.shield = 0.0
+	c.pools.cooldowns.erase("unbroken")
+	c.pools.hp = c.pools.max_hp * 0.35
+	Game.combat._damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
+	check(near(c.pools.hp, c.pools.max_hp * 0.35, 0.01) and c.pools.shield > 0.0 and c.pools.cooldown("unbroken") > 59.0,
+		"Unbroken: the blow that would break 30%% lands on a shield of 10%% (hp %.2f)" % (c.pools.hp / c.pools.max_hp))
+	c.pools.shield = 0.0
+	Game.combat._damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
+	check(c.pools.hp < c.pools.max_hp * 0.3 and c.pools.shield == 0.0, "only once a minute")
+	c.pools.hp = c.pools.max_hp
+	c.pools.cooldowns.erase("unbroken")
+	# Honed Intent: two more stacks of Sword Intent, fading half as fast.
+	ContentDB.tables["sets"][set_id].bonuses = {"6": [{"flag": "honed_intent", "fade_mult": 2.0, "stacks": 2}]}
+	wear.call(six)
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 5)
+	Game.combat.sword_intent.erase(c.id)
+	var most := int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))) + 2
+	for i in most + 3: Game.combat._feed_intent(c, foe, {"source": "basic"})
+	check(int(Game.combat.sword_intent[c.id].stacks) == most and near(float(Game.combat.sword_intent[c.id].t), 2.0 * float(ContentDB.stat_const("sword_intent.fade_s", 3.0)), 0.001),
+		"Honed Intent: Sword Intent builds two stacks higher (%d) and holds twice as long" % most)
+	Game.combat.sword_intent.erase(c.id)
+	# Venom Hand: the Poison Body opens at 35% of tolerance; oils take on more hits.
+	ContentDB.tables["sets"][set_id].bonuses = {"6": [{"flag": "venom_hand", "threshold": 0.35, "oil_chance": 1.0}]}
+	var tol: float = c.stats.value("toxicity_tolerance")
+	cu.toxicity = tol * 0.4
+	wear.call([])
+	check(not Game.combat.poison_body_active(c), "at 40% of tolerance the Poison Body is closed")
+	wear.call(six)
+	check(near(Game.combat.poison_body_threshold(c), 0.35, 0.001) and Game.combat.poison_body_active(c), "Venom Hand: it opens at 35%")
+	Game.combat.apply_status(c.id, "viper_oil", 60.0, 1.0)
+	var oiled := 0
+	for i in 12:
+		foe.pools.statuses.clear()
+		Game.combat._oil_strike(c, foe, Game.combat.enemy_view(foe))
+		if foe.pools.has_status("poison"): oiled += 1
+	check(oiled == 12, "Venom Hand's oil takes on the hits its row names (%d of 12 at 100%%)" % oiled)
+	Game.combat.cure_status(c.id, "viper_oil")
+	cu.toxicity = tox_before
+	# Kin-Bond: your animal takes 15% less.
+	ContentDB.tables["sets"][set_id].bonuses = {"6": [{"flag": "kin_bond", "taken": 0.85, "per_band": 0.01}]}
+	var pets_before: Array = c.pets.duplicate()
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var otter: Dictionary = c.pets.back()
+	var mate: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-60, 0), 5)
+	mate.team = "ally"
+	mate.pet_owner = c.id
+	mate.ai["pet"] = str(otter.uid)
+	wear.call([])
+	var taken0 := Game.pets.damage_taken_mult(mate)
+	wear.call(six)
+	check(near(Game.pets.damage_taken_mult(mate), taken0 * 0.85, 0.001), "Kin-Bond: the animal takes 15%% less (%.3f -> %.3f)" % [taken0, Game.pets.damage_taken_mult(mate)])
+	# Pet damage (a stat): the animal's strike grows with it.
+	wear.call([])
+	var pw0 := Game.pets.pet_power(c, otter)
+	var trait_pd := Game.pets._trait_sum(otter, "pet_damage")
+	c.set_meta("extra_modifiers", [{"stat": "pet_damage", "op": "flat", "value": 0.5, "source": "gear:test"}])
+	Game.combat.refresh_stats(c.id)
+	check(near(Game.pets.pet_power(c, otter), pw0 * (1.5 + trait_pd) / (1.0 + trait_pd), 0.001), "pet damage +50%% strengthens the animal's strike (%.1f -> %.1f)" % [pw0, Game.pets.pet_power(c, otter)])
+	c.remove_meta("extra_modifiers")
+	mate.alive = false
+	c.pets = pets_before
+	# Array power (a stat) and Living Array: longer, harder plates; wider rings; the brush's talisman on each foe once.
+	Game.combat.arrays.clear()
+	cu.daos["formation"] = {"tier": 0, "insight": 0.0}
+	Game.combat.deploy_array(c.id, {"array": "killing", "radius": 160, "duration": 10, "mult": 0.5})
+	var base_a: Dictionary = Game.combat.arrays.back()
+	c.set_meta("extra_modifiers", [{"stat": "array_power", "op": "flat", "value": 0.2, "source": "gear:test"}])
+	ContentDB.tables["sets"][set_id].bonuses = {"6": [{"flag": "living_array", "wider": 0.15,
+		"talismans": {"killing": {"id": "sundered", "power": 1, "duration_s": 4.0}, "binding": {"id": "root", "power": 1, "duration_s": 1.0}}}]}
+	wear.call(six)
+	Game.combat.deploy_array(c.id, {"array": "killing", "radius": 160, "duration": 10, "mult": 0.5})
+	var a: Dictionary = Game.combat.arrays.back()
+	check(near(float(a.t), float(base_a.t) * 1.2, 0.001) and near(float(a.mult), float(base_a.mult) * 1.2, 0.001),
+		"array power +20%: the plate lasts and strikes a fifth more")
+	check(near(float(a.radius), 160.0 * 1.15, 0.01), "Living Array: its ring is 15% wider")
+	var inside: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(170, 0), 5)
+	inside.pools.max_hp = 999999.0
+	inside.pools.hp = 999999.0
+	for i in 3:
+		Game.tick(0.05)
+		inside.plane = st.plane + Vector2(170, 0)
+	check(inside.pools.has_status("sundered") and a.marked.has(inside.uid), "a foe inside the killing array's ring is Sundered")
+	inside.pools.statuses.clear()
+	for i in 3:
+		Game.tick(0.05)
+		inside.plane = st.plane + Vector2(170, 0)
+	check(not inside.pools.has_status("sundered"), "once each")
+	inside.alive = false
+	Game.combat.arrays.clear()
+	c.remove_meta("extra_modifiers")
+	# Melody power (a stat) and Sustained Note: the melody's slow and heals grow; its first seconds cost no Composure.
+	ContentDB.tables["sets"][set_id].bonuses = {"6": [{"flag": "sustained_note", "free_s": 3.0, "ally_heal": 0.01}]}
+	ContentDB.tables["artifacts"]["_lt_jian"].family = "flute"
+	wear.call(six)
+	_idle_hands(c)
+	c.pools.composure = 100.0
+	check(Game.submit({"type": "channel_melody", "on": true}).get("ok", false), "the flute of the test set plays")
+	for i in 50: Game.tick(0.05)
+	check(near(c.pools.composure, 100.0, 0.01) or c.pools.composure >= 99.9, "Sustained Note: the first 3 s cost no Composure (%.1f)" % c.pools.composure)
+	for i in 30: Game.tick(0.05)
+	check(c.pools.composure < 99.0, "then the melody drains Composure (%.1f)" % c.pools.composure)
+	Game.submit({"type": "channel_melody", "on": false})
+	var slow_foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(100, 0), 5)
+	c.set_meta("extra_modifiers", [{"stat": "melody_power", "op": "flat", "value": 0.5, "source": "gear:test"}])
+	Game.combat.refresh_stats(c.id)
+	c.pools.composure = 100.0
+	Game.submit({"type": "channel_melody", "on": true})
+	for i in 12:
+		Game.tick(0.05)
+		slow_foe.plane = st.plane + Vector2(100, 0)
+	var slowed: Array = slow_foe.pools.statuses.filter(func(s): return str(s.id) == "slow")
+	check(not slowed.is_empty() and near(float(slowed[0].power), 0.45, 0.001), "melody power +50%%: the melody slows by 45%%, not 30%% (%s)" % str(slowed))
+	Game.submit({"type": "channel_melody", "on": false})
+	slow_foe.alive = false
+	var ally: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-60, 0), 5)
+	ally.team = "ally"
+	ally.pools.hp = ally.pools.max_hp * 0.2
+	var chm := ContentDB.entry("techniques", "clear_heart_melody")
+	Game.combat._resolve_technique(c, chm)
+	var hot: Array = Game.combat.ally_hots.get(ally.uid, [])
+	check(not hot.is_empty() and near(float(hot.back().per_s), ally.pools.max_hp * float(chm.allies_heal_pct) * 1.5, 0.01),
+		"melody power +50%: Clear Heart Melody heals half again")
+	ally.alive = false
+	Game.combat.ally_hots.erase(ally.uid)
+	# The bell's ring carries further with melody power.
+	ContentDB.tables["artifacts"]["_lt_jian"].family = "bell"
+	wear.call(six)
+	var ringer: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-200, 0), 5)
+	ringer.pools.max_hp = 999999.0
+	ringer.stats["evasion"] = 0.0
+	var ring := func() -> float:
+		ringer.pools.hp = 999999.0
+		_idle_hands(c)
+		Game.combat.basic_attack(c, 1)
+		for i in 14:
+			Game.tick(0.05)
+			ringer.plane = st.plane + Vector2(-200, 0)
+		return 999999.0 - ringer.pools.hp
+	var reached: float = ring.call()
+	c.remove_meta("extra_modifiers")
+	Game.combat.refresh_stats(c.id)
+	check(reached > 0.0 and ring.call() == 0.0, "melody power +50%: the bell's ring reaches a foe 200 behind; without it, not (reach 160)")
+	ringer.alive = false
+	# Put everything back.
+	ContentDB.tables["sets"].erase(set_id)
+	for id in pieces: ContentDB.tables["artifacts"].erase(id)
+	c.inventory.equipped = equipped_before
+	cu.daos = daos_before
+	cu.body_tier = body_before
+	cu.techniques_known = known_before
+	cu.vows = vows_before
+	foe.alive = false
+	Game.combat.refresh_stats(c.id)
 
 func legacy_suite() -> void:
 	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")

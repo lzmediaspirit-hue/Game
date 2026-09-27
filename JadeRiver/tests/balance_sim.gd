@@ -68,6 +68,7 @@ func _main() -> void:
 		if k == "bone_forging_1": continue   # set by the Prologue, not by rates
 		check(got > 0.0 and absf(ratio - 1.0) <= tol, "%s reached at %.1f h (target %.1f h ±%d%%)" % [k, got, want, int(tol * 100.0)])
 	_currency(cfg)
+	_drops(cfg)
 	_posts()
 	_account_month()
 	_finish()
@@ -104,6 +105,186 @@ func _taels_per_hour(cfg: Dictionary, lv: int) -> float:
 	var dailies := float(cfg.get("dailies_per_hour", 1.0)) * (10 + lv * 3)
 	return per_kill * kills_h + dailies
 
+## P7b (item_plan §4.4): what an hour of hunting drops. Each hunting room of a field region is hunted
+## `hours_per_region` hours at `kills_per_hour`: its elite slots `elite_kills_per_slot` kills an hour each, or fewer when
+## one respawns slower (at most `elite_share_cap` of the kills), the rest the room's normals by their spawn counts; every
+## kill rolls the real LootRules (the elite extra roll too) for a character wielding each archetype's first family in
+## turn. A region's rates are its rooms' mean. Reports pieces, Fine or better, Superior or better and Perfect an hour per
+## grade and zone tier (a region counts for the grade most of its pieces are) and checks them against balance.json
+## `drops`, with the usable share per archetype, the region floor, the named pieces and Act III's grades. Each archetype
+## set's slowest drop piece must fall within `set_hours` of its band's hunting hours.
+func _drops(cfg: Dictionary) -> void:
+	var dc: Dictionary = cfg.get("drops", {})
+	check(not dc.is_empty(), "balance.json has its drops block")
+	if dc.is_empty(): return
+	var gear := ContentDB.config("gear")
+	var arch: Dictionary = gear.get("archetypes", {})
+	var wielders: Array = []
+	for a in arch:
+		if not (arch[a].families as Array).is_empty(): wielders.append(str(a))
+	var order: Array = ContentDB.config("grades").get("quality_order", [])
+	var hours := float(dc.get("hours_per_region", 20))
+	var kph := float(dc.get("kills_per_hour", 360))
+	var regions := _hunting_regions()
+	var groups := {}      # "grade·tier" -> [per-region rates]
+	var usable := {}      # archetype -> [usable, pieces]
+	var species_kph := {} # "species" / "species*" (as an elite) -> best kills an hour in one region
+	var bad: Array = []
+	var act3 := {}
+	var low_regions: Array = []
+	var per_region := {}  # region -> {rates: [room rates], grades: {grade: pieces}, tier}
+	var names := regions.keys()
+	names.sort()
+	for ri in names.size():
+		var reg: Dictionary = regions[names[ri]]
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 12345 + ri
+		var slots_kph := 0.0
+		for sl in reg.elites: slots_kph += float(sl.weight)
+		var elite_kph := minf(slots_kph, kph * float(dc.get("elite_share_cap", 0.33)))
+		var normal_kph := kph - elite_kph
+		var total_w := 0.0
+		for sl in reg.normals: total_w += float(sl.weight)
+		for sl in reg.normals: species_kph[str(sl.def)] = maxf(float(species_kph.get(str(sl.def), 0.0)), normal_kph * float(sl.weight) / total_w)
+		for sl in reg.elites: species_kph[str(sl.def) + "*"] = maxf(float(species_kph.get(str(sl.def) + "*", 0.0)), elite_kph * float(sl.weight) / slots_kph)
+		var n_elite := int(round(hours * elite_kph))
+		var kills := n_elite + int(round(hours * normal_kph))
+		var t := {"pieces": 0.0, "fine_up": 0.0, "superior_up": 0.0, "perfect": 0.0}
+		var grades := {}
+		for k in kills:
+			var elite := k < n_elite
+			var sl: Dictionary = LootRules.RngService_weighted(rng, reg.elites if elite else reg.normals)
+			var def := ContentDB.entry("enemies", str(sl.def))
+			var lv := rng.randi_range(int(sl.lo), int(sl.hi))
+			var who: String = wielders[k % wielders.size()]
+			var drop := LootRules.roll(str(def.get("loot", sl.def)), rng, lv, 0.0, 0.0, {"elite": elite})
+			if elite and str(def.get("role", "normal")) == "normal":
+				var ex: Dictionary = LootRules.drop_cfg().get("elite_extra", {})
+				if rng.randf() < float(ex.get("chance", 0.0)): drop.equipment.append({"level": lv, "min_quality": str(ex.get("min_quality", "common"))})
+			for spec in drop.equipment:
+				if spec.has("item"): continue   # a named row's piece: the chase, not the flow
+				var inst := LootRules.make_drop(rng, spec, 0.0, true, 0, str(arch[who].families[0]))
+				if inst.is_empty(): continue
+				var pd := ContentDB.item(str(inst.id))
+				if not LootRules.is_banded(pd): bad.append(str(inst.id))
+				var q := order.find(str(inst.quality))
+				t.pieces += 1.0
+				if q >= order.find("fine"): t.fine_up += 1.0
+				if q >= order.find("superior"): t.superior_up += 1.0
+				if q >= order.find("perfect"): t.perfect += 1.0
+				grades[str(pd.grade)] = int(grades.get(str(pd.grade), 0)) + 1
+				var u: Array = usable.get(who, [0, 0])
+				u[1] += 1
+				if str(pd.slot) != "weapon" or str(pd.get("family", "")) in arch[who].families: u[0] += 1
+				usable[who] = u
+		for key in t: t[key] = float(t[key]) / hours
+		var pr: Dictionary = per_region.get(str(reg.region), {"rates": [], "grades": {}, "tier": int(reg.tier)})
+		pr.rates.append(t)
+		for g in grades: pr.grades[g] = int(pr.grades.get(g, 0)) + int(grades[g])
+		per_region[str(reg.region)] = pr
+		if int(reg.tier) == 3:
+			for g in grades: act3[g] = true
+	for region in per_region:
+		var pr: Dictionary = per_region[region]
+		var t := {}
+		for key in ["pieces", "fine_up", "superior_up", "perfect"]:
+			var sum := 0.0
+			for rt in pr.rates: sum += float(rt[key])
+			t[key] = sum / (pr.rates as Array).size()
+		var top := ""
+		for g in pr.grades:
+			if top == "" or int(pr.grades[g]) > int(pr.grades[top]): top = str(g)
+		if top == "": continue
+		var group := "%s · %d" % [top, int(pr.tier)]
+		if not groups.has(group): groups[group] = []
+		groups[group].append(t)
+		if float(t.pieces) < float(dc.get("region_floor", 3.0)): low_regions.append("%s %.1f" % [region, float(t.pieces)])
+	# The report and the checks.
+	var targets: Dictionary = dc.get("targets", {})
+	print("grade · tier       regions  pieces/h  fine+/h  superior+/h  perfect/h")
+	var keys := groups.keys()
+	keys.sort_custom(func(a, b): return StatRules.grade_index(str(a).split(" · ")[0]) * 10 + int(str(a).split(" · ")[1]) < StatRules.grade_index(str(b).split(" · ")[0]) * 10 + int(str(b).split(" · ")[1]))
+	for gk in keys:
+		var mean := {}
+		for key in targets:
+			var sum := 0.0
+			for t in groups[gk]: sum += float(t[key])
+			mean[key] = sum / groups[gk].size()
+		print("%-18s %7d  %8.2f  %7.2f  %11.3f  %9.3f" % [gk, groups[gk].size(), mean.get("pieces", 0), mean.get("fine_up", 0), mean.get("superior_up", 0), mean.get("perfect", 0)])
+		for key in targets:
+			var want := float(targets[key][0])
+			var tol := float(targets[key][1])
+			check(absf(float(mean[key]) / want - 1.0) <= tol, "%s: %s %.3f an hour of hunting (target %.2f ±%d%%)" % [gk, key, float(mean[key]), want, int(tol * 100)])
+	var all_pieces := 0.0
+	var n_regions := 0
+	for gk2 in groups:
+		for t in groups[gk2]:
+			all_pieces += float(t.pieces)
+			n_regions += 1
+	print("all %d field regions: %.2f pieces an hour of hunting" % [n_regions, all_pieces / maxf(1.0, n_regions)])
+	check(low_regions.is_empty(), "every field region drops at least %.0f pieces an hour (%s)" % [float(dc.get("region_floor", 3.0)), ", ".join(low_regions)])
+	var span: Array = dc.get("usable_share", [0.6, 0.85])
+	for who in usable:
+		var share := float(usable[who][0]) / maxf(1.0, float(usable[who][1]))
+		print("  %s: %.0f%% of the pieces fit" % [who, share * 100.0])
+		check(share >= float(span[0]) and share <= float(span[1]), "%s: %.2f of drops are usable (%.2f-%.2f)" % [who, share, float(span[0]), float(span[1])])
+	check(bad.is_empty(), "no named, set, relic, legend or imitation piece from the random roll (%s)" % str(bad.slice(0, 4)))
+	check(act3.has("sovereign") and act3.has("will"), "Act III's regions drop Sovereign and Will gear (%s)" % str(act3.keys()))
+	# Each archetype set's slowest drop piece, in hours of focused hunting, against its band's hunting hours.
+	var fight := float(cfg.get("mix", {}).get("fight", 0.35))
+	var band_hours: Dictionary = dc.get("band_hours", {})
+	var set_span: Array = dc.get("set_hours", [0.3, 0.8])
+	var checked := 0
+	for st in ContentDB.all("sets"):
+		if str(st.get("archetype", "general")) == "general": continue
+		var grade := str(ContentDB.item(str(st.pieces[0])).get("grade", ""))
+		if not band_hours.has(grade): continue   # past Spirit: the Act III simulation gives those bands their hours
+		var slowest := 0.0
+		for pid in st.pieces:
+			var rate := _piece_rate(str(pid), species_kph)
+			if rate >= 0.0: slowest = maxf(slowest, 1.0 / maxf(rate, 0.0001) if rate > 0.0 else 1e9)
+		var share := slowest / (float(band_hours[grade]) * fight)
+		checked += 1
+		check(share >= float(set_span[0]) and share <= float(set_span[1]), "set %s: its slowest piece takes %.1f h of hunting, %.2f of the %s band's (%.2f-%.2f)" % [
+			st.id, slowest, share, grade, float(set_span[0]), float(set_span[1])])
+	print("  archetype sets timed: %d" % checked)
+
+## The hunting rooms: every room that is not safe or instanced and holds ordinary foes, with its normal spawns
+## (weighted by their counts) and its elite slots (weighted by their kills an hour), their Levels, its region and zone
+## tier. Bosses, events, trials and the passive wild animals are not hunted.
+func _hunting_regions() -> Dictionary:
+	var out := {}
+	var per_slot := float(ContentDB.config("balance").get("drops", {}).get("elite_kills_per_slot", 20))
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.room(rid)
+		if room.get("safe", false) or room.get("instanced", false): continue
+		for sp in room.get("spawns", []):
+			var def := ContentDB.entry("enemies", str(sp.get("enemy", "")))
+			var role := str(def.get("role", ""))
+			if not role in ["normal", "elite"] or def.get("passive", false) or sp.get("boss", false): continue
+			if not out.has(rid): out[rid] = {"normals": [], "elites": [], "tier": int(ContentDB.zone_of_room(rid).get("tier", 1)), "region": str(room.get("region", rid))}
+			var lv = sp.get("level", def.get("level", [1, 1]))
+			var band: Array = lv if lv is Array else [lv, lv]
+			var elite: bool = sp.get("elite", false) or role == "elite"
+			var weight: float = minf(per_slot, 3600.0 / maxf(1.0, float(sp.get("respawn_s", 180)))) if elite else float(sp.get("max", 1))
+			out[rid]["elites" if elite else "normals"].append({"def": str(def.id), "lo": int(band[0]), "hi": int(band.back()), "weight": weight})
+	for r in out.keys():
+		if (out[r].normals as Array).is_empty(): out.erase(r)   # a lone elite in a vault is not a hunting ground
+	return out
+
+## A set piece's drops an hour at its best source (named rows: every kill of the species; elite_named: its elite
+## slots), or -1 when a shop, a craft, a quest or the tower hands it out (it costs no hunting).
+func _piece_rate(pid: String, species_kph: Dictionary) -> float:
+	var best := -2.0
+	for e in ContentDB.all("enemies"):
+		var t := ContentDB.entry("loot_tables", str(e.get("loot", e.id)))
+		for key in ["named", "elite_named"]:
+			for r in t.get(key, []):
+				if str(r.item) != pid: continue
+				var k := float(species_kph.get(str(e.id) + ("*" if key == "elite_named" else ""), 0.0))
+				if key == "named": k += float(species_kph.get(str(e.id) + "*", 0.0))
+				best = maxf(best, float(r.chance) * k)
+	return -1.0 if best < -1.0 else best
 ## S50 Keeping Post (docs/idle_gathering_design.md §8): the calibration targets from the real formulas and node data.
 func _posts() -> void:
 	var nodes: Dictionary = ContentDB.config("posts").get("nodes", {})

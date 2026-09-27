@@ -1538,7 +1538,7 @@
    "half_width": 18,
    "height": 90,
    "coin_mult": 2.0,
-   "equipment_chance": 0.05,
+   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -1709,7 +1709,7 @@
    "half_width": 18,
    "height": 90,
    "keep_distance": 260,
-   "equipment_chance": 0.05,
+   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -2329,7 +2329,7 @@
    "height": 90,
    "guards": true,
    "coin_mult": 2.0,
-   "equipment_chance": 0.06,
+   "equipment_chance": 0.024,
    "faction": "gorge",
    "movement": {
     "jump": 530,
@@ -3081,6 +3081,15 @@
       1
      ],
      "weight": 1
+    },
+    {
+     "item": "soul_core_high",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
     }
    ],
    "tameable": false,
@@ -3161,6 +3170,15 @@
     {
      "item": "soul_wax",
      "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "soul_core_high",
+     "chance": 0.03,
      "count": [
       1,
       1
@@ -3623,6 +3641,95 @@
    },
    "half_width": 40,
    "height": 50,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
+  },
+  {
+   "id": "stormgrass_stag",
+   "name": "Stormgrass Stag",
+   "level": [
+    64,
+    68
+   ],
+   "role": "normal",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 120,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "antler_charge",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25,
+     "dash": 140,
+     "knockback": 80
+    }
+   ],
+   "loot": "stormgrass_stag",
+   "drops": [
+    {
+     "item": "tough_meat",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "cloudtop_orchid",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "cloud_stag"
+   },
+   "half_width": 30,
+   "height": 56,
    "movement": {
     "jump": 0,
     "climb": false,
@@ -4465,6 +4572,15 @@
      "count": [
       1,
       2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "soul_core_peak",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
      ],
      "weight": 1
     }
@@ -7547,7 +7663,9 @@
      "breakable": "wine_jar"
     }
    ],
-   "unique_drop": "mudwater_cleaver",
+   "first_defeat": [
+    "mudwater_cleaver"
+   ],
    "hp_mult": 0.6,
    "attack_mult": 0.8,
    "pet_book": {

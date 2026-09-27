@@ -89,5 +89,46 @@
    "sage_sovereign_1",
    110
   ]
- ]
+ ],
+ "drops": {
+  "kills_per_hour": 360,
+  "elite_kills_per_slot": 20,
+  "elite_share_cap": 0.33,
+  "hours_per_region": 20,
+  "targets": {
+   "pieces": [
+    6.0,
+    0.3
+   ],
+   "fine_up": [
+    1.4,
+    0.3
+   ],
+   "superior_up": [
+    0.45,
+    0.35
+   ],
+   "perfect": [
+    0.08,
+    0.5
+   ]
+  },
+  "region_floor": 3.0,
+  "usable_share": [
+   0.6,
+   0.85
+  ],
+  "band_hours": {
+   "plain": 4.5,
+   "common": 8,
+   "earth": 17,
+   "heaven": 25,
+   "mystic": 15,
+   "spirit": 40
+  },
+  "set_hours": [
+   0.3,
+   0.8
+  ]
+ }
 }

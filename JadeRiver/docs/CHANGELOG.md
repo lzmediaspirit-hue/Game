@@ -35,6 +35,53 @@
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
+### P7b · part 1
+The data work of `docs/item_plan.md` §6, steps 1–7, 9 and 11–13 (step 10 for the new bases); the named pieces (step 8)
+come next. Where it differs from the plan, the plan's §6 says so.
+- **Drops are about six pieces an hour of hunting, not fifteen.** Every loot table's chance and quality floor follow
+  §4.1 (normal foes 1.2% from Flawed, elites 8% from Common, chests 30/50/60% from Fine); the quality tables, the weapon
+  share, the elite spawn's extra roll and the named rows' rules sit in `grades.json` `drop`, which `LootRules` and the
+  World read. A weapon drop is in the family in hand one time in three, so about 76% of what drops fits the character.
+  The item Level stops at the top of the highest grade with banded bases: Act III drops Sovereign and Will gear.
+  Salvage gives half as much Refining Essence again.
+- **`balance_sim` measures it:** 29 field regions, each room hunted 20 hours with the real rolls, 5.9 pieces an hour
+  on average and every grade inside its §4.4 targets (pieces, Fine, Superior, Perfect), every region at least 3 an
+  hour, 75–81% of the pieces usable by each archetype, no named piece from the random roll.
+- **Named pieces carry tags** (archetype, zone, element, path, fixed affixes): a fixed affix is always on and counts
+  half again on its archetype's path, and each named piece adds 2% elemental power of its element. The Serpent-Tongue
+  Jian and the Tidebreak Bastion's brushes and bells have theirs; loot tables gain `named` and `elite_named` rows. Big
+  Toad Tan's Mudwater Cleaver comes on his first defeat (the unread `unique_drop` is gone), his robe and the Drowned
+  Abbot's hat and boots are 8% rows, the Crane Trousers a Cloudpeak Roc's 0.2%.
+- **Ten affixes** (Qi and soul attack, Essence, knockback, max Soul in the random pools; taming, crafting control, pet
+  damage, array power and melody power only on named pieces) and **three stats**: pet damage (your animal's strike),
+  array power (an Array Plate's time and the killing array's blow) and melody power (the melody's slow and heals, the
+  bell's ring, Clear Heart Melody).
+- **Sets** move to `tools/data/gear.py` with an archetype, tier, element and path; on its path a set's 2-piece bonus
+  counts double. The six archetype lines and their 6-piece mechanics are in `gear.json`, each read by the rule that owns
+  it: Unbroken (a shield before a blow breaks 30% HP), Honed Intent (two more stacks of Sword Intent, fading half as
+  fast), Venom Hand (the Poison Body at 35%, oils on more hits), Kin-Bond (your animal takes 15% less), Living Array
+  (wider rings that lay the brush's talisman) and Sustained Note (a melody's first 3 s free).
+- **71 banded bases:** the brush and the bell at every grade from Training, so the formation master and the bell
+  musician have a weapon from Level 1; Driftsteel and Lanternsteel weapons in all eleven families, Starsilk and
+  Lanternsilk armour and the Driftglass and Lantern Gourds (Sovereign and Will); collars, beast talismans and saddles up
+  to Will; the Stormsteel to Lanternsteel furnaces. Each has its wear level, sockets, salvage row, forge recipe and a
+  shop, and an icon drawn with its family's existing function (`tools/icons/families/banded.py`).
+- **Every item has a source; `KNOWN_SOURCE_GAPS` is empty.** Hermit Yao sells metal cores and Peddler Ning star and
+  space cores (two a day each: shop rows can now carry a daily limit); the Weeping Lantern, Mirror Wisp and Terracotta
+  Warden carry soul cores; a Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's sheet (the peak wood
+  core); the high Spirit Stone from the Sovereign of Sages achievement, the Nine Peaks auction and the Tomb and Wreck
+  chests; the beast bags, incense sticks, snare kits, rite tablets and gourds from shops, activity chests, the Trial
+  Tower's guardian floors (first clear), auctions and the forge; the sect sets' hats, trousers and boots at their
+  Mission Halls; the Crane Robe from "Crane Falls at Dawn" and the Crane Boots from the Cloud Stepper.
+- **Checks:** `rules_tests` `drop_pool_suite` (family bias, the Level cap, the pool, quality tables, named rows,
+  named-only affixes) and `set_suite` (paths, each line's bonuses and mechanic, the three stats' readers);
+  `data_validation` `gear_suite` (tags, fixed affixes from the archetype's pool, every set sourced and completable, every
+  banded grade whole, loot-table fields and named rows; the named count per archetype and zone waits for step 8).
+- The wiki shows named tags, sets, the drop rules, named rows and shop limits.
+- Two checks that depended on the account's random seed now pass whatever it draws: the Cloud Steps run in `rules_tests`
+  finishes under the fastest time a rival can draw, and valley_run's Hollowed Wyrmlings get to land their grey flame
+  when the fight ends before one has.
+
 ### P7a · The item and monster wikis
 - **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,
   grade, iLv, stats or effect, requirement, description and every source the data gives, with rates: enemy drops,
