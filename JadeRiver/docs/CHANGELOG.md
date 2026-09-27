@@ -67,6 +67,24 @@ Found on the Android build from a new character; each fixed at its cause and hel
   quest is taken. `prologue_run` is split into steps both runs share; `valley_run`'s page check is stricter.
 - **Screenshots** from a new character in `docs/ui_p5/tutorial_fix/`.
 
+## P13b · The Techniques page (docs/technique_plan.md "As built: P13b")
+
+Built to the approved mockups 06 (tree, tree learned, lost arts; decisions 11, 18, 19).
+- **One tree a tab.** The page is the whole screen: a rail of element seals (Time locked until its Level, then Lost
+  Arts and Secret Arts), the chooser, the tree and the reading on carved jade-teal panels, the loadout dock below. A
+  tab lays out the element's whole tree, every family side by side with its rings, notables, keystones and the Dao
+  arts at its gate, on the element's chart; drag to move along it, tap a family to go to its arts, **Learned** to go
+  from one learned art to the next.
+- **The reading.** A chosen art shows your character in its pose, its numbers, its prerequisites ticked and crossed,
+  the cost, and **Learn · N Realisations**: an art one passage out takes the passage with it. A learned art shows its
+  mastery, its slot, Slot or Unslot, Rank up and Let go (its Realisations back); **Let all go** resets a tree.
+- **The Dao bar follows the tab**: the free hand shows the tab's element Dao, a weapon its weapon Dao.
+- **Lost Arts** is an album, one leaf an act: found arts pasted in, a manual you carry marked Unread with **Read**,
+  every other leaf sealed alike and only counted (decision 19).
+- The Inner Arts and stances are worn from the dock's drawer; the Secret Arts keep Concealment's false realms.
+- **Tests**: `rules_tests techniques_page_suite` (layout, tabs, Learn and Let go, Read, decision 19 on the page, the
+  Dao bar); `perf_tests` drags the biggest tree. Screenshots in `docs/ui_p5/techniques/`.
+
 ## P13a · Techniques at scale, the data (docs/technique_plan.md)
 
 The techniques of Acts I–III are written, 3,171 in all: every weapon family and cultivation path has hundreds of arts,

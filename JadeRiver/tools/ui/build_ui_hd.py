@@ -548,6 +548,96 @@ def sky_card():
     return c
 
 
+CLOTH_S = mix(TOKEN["JADE_SHADOW"], TOKEN["INK"], 0.45)    # SURFACE.cloth #0f3435
+
+
+def carved_panel(frame_only=False):
+    """The Techniques page's panels (P13b, mockup 06): carved jade-teal with an ink edge, a jade band, a gold hairline and
+    a gold fitting in each corner (a leg with a curl and a gem). `frame_only` leaves the inside clear, so the chart
+    drawn under it shows through and only its rim is laid over the chart's edge."""
+    c = Canvas(64, 64)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 63.0, 63.0, 6.0)
+    if not frame_only:
+        c.paint(cov(d), c.vgrad([(0, CLOTH_S), (0.6, mix(CLOTH_S, SPACE_S, 0.6)), (1, SPACE_S)], 1.0, 63.0))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    c.paint(band(d, 1.0, 3.0), TOKEN["JADE_SHADOW"])
+    c.paint(band(d, 3.0, 4.0), TOKEN["GOLD"] * np.array([1, 1, 1, 0.85]))
+    c.paint(band(d, 4.0, 5.0), TOKEN["INK"])
+    corner_brackets(c, 3.0, 14.0, 2.2, 2.4, curl=3.0)
+    return c
+
+
+# The seals along the Techniques page's rail (P13b): an element's glyph in its own colour on a dark disc ringed in it;
+# the colours are the element colours of data/elements.json (the emblems' too). Glyphs are drawn in a 24-unit square.
+SEAL_COLOURS = {**json.load(open(os.path.join(ROOT, "data", "elements.json"), encoding="utf-8"))["colors"], "formless": "#e8e1cf",
+                "lost": "#e8e1cf", "secret": "#afc9d1"}
+SEAL_COLOURS["time"] = SEAL_COLOURS["ice"]
+
+
+def _lens(X, Y, cx, cy, ang, length, width):
+    u = (X - cx) * math.cos(ang) + (Y - cy) * math.sin(ang)
+    v = -(X - cx) * math.sin(ang) + (Y - cy) * math.cos(ang)
+    r = (length * length / 4.0 + width * width / 4.0) / width
+    off = r - width / 2.0
+    return np.maximum(np.hypot(u - off, v) - r, np.hypot(u + off, v) - r)
+
+
+def _glyph(X, Y, g):
+    """Glyph `g` as a distance field in units of a 24-unit square centred on 0 (y down)."""
+    seg = lambda pts, w: np.minimum.reduce([sd_segment(X, Y, *a, *b, w) for a, b in zip(pts, pts[1:])])
+    if g == "wood":
+        return np.minimum.reduce([seg([(0, 10), (0, 1), (-7, -7)], 2.2), seg([(0, 1), (7, -8)], 2.2),
+                                  _lens(X, Y, -5, -4, 0.8, 9, 4.5), _lens(X, Y, 5, -5, -0.8, 9, 4.5)])
+    if g == "fire":
+        return np.minimum(sd_circle(X, Y, 0, 4.5, 6.0), _lens(X, Y, 0, -2, 0.0, 20, 9))
+    if g == "earth":
+        return seg([(-11, 9), (-4, -4), (0, 2), (5, -8), (12, 9), (-11, 9)], 2.4)
+    if g == "metal":
+        return np.minimum(np.abs(sd_circle(X, Y, 0, 0, 9.5)) - 1.4, np.abs(sd_rrect(X, Y, -3.5, -3.5, 3.5, 3.5, 0.5)) - 1.2)
+    if g == "water":
+        waves = [np.abs(Y - y0 - 1.8 * np.sin(X * 0.62)) - 1.2 for y0 in (-5.0, 1.0, 7.0)]
+        return np.maximum(np.minimum.reduce(waves), np.abs(X) - 11.0)
+    if g == "wind":
+        return np.minimum.reduce([seg([(-11, -3), (4, -3)], 2.2), sd_arc(X, Y, 4, -7, 4, -math.pi, math.pi / 2, 2.2),
+                                  seg([(-11, 3), (6, 3)], 2.2), sd_arc(X, Y, 6, 7, 4, -math.pi / 2, math.pi, 2.2), seg([(-9, 9), (-2, 9)], 2.2)])
+    if g == "thunder":
+        return seg([(4, -12), (-6, 1), (1, 1), (-4, 12)], 2.8)
+    if g == "soul":
+        return np.minimum.reduce([seg([(-5, -9), (5, -9)], 2.0), seg([(0, -12), (0, -9)], 2.0), sd_arc(X, Y, 0, 0, 8, -0.35, math.pi + 0.35, 2.2),
+                                  _lens(X, Y, 0, 1.5, 0.0, 9, 5)])
+    if g == "formless":
+        return sd_arc(X, Y, 0, 0, 10, -0.9, math.pi * 1.55, 3.0)
+    if g == "space":
+        a = math.radians(-25)
+        u = X * math.cos(a) + Y * math.sin(a)
+        v = -X * math.sin(a) + Y * math.cos(a)
+        ring = (np.hypot(u / 11.0, v / 5.0) - 1.0) * 4.5
+        return np.minimum.reduce([np.abs(ring) - 1.1, sd_circle(X, Y, 0, 0, 3.8), sd_circle(X, Y, 9, -6, 1.8)])
+    if g == "time":
+        return np.minimum(seg([(-7, -10), (7, -10), (-6, 10), (6, 10), (-7, 10)], 2.2), seg([(-7, -10), (6, 10)], 2.2))
+    if g == "lost":
+        return np.minimum.reduce([np.abs(sd_rrect(X, Y, -8, -11, 8, 11, 1.5)) - 1.2] + [seg([(-4.5, y), (4.5, y)], 1.5) for y in (-5, -1, 3, 7)])
+    # secret: two footprints stepping up to the right, and their toes
+    return np.minimum.reduce([_lens(X, Y, -5, 3, 0.35, 11, 5.5), _lens(X, Y, 5, -3, 0.2, 11, 5.5), sd_circle(X, Y, -7, -5.5, 1.6), sd_circle(X, Y, 3, -11, 1.6)])
+
+
+def tech_seal(g):
+    """A seal on the Techniques rail, 44 px: a dark disc lit at the top left, ringed in the element's colour and ink, its
+    glyph in that colour with an ink edge."""
+    c = Canvas(44, 44)
+    col = hexc(SEAL_COLOURS[g])
+    d = sd_circle(c.X, c.Y, 22, 22, 19.0)
+    c.paint(cov(sd_circle(c.X, c.Y, 22, 22, 21.0)), TOKEN["INK"])
+    c.paint(cov(d + 0.0), col)
+    body = d + 2.0
+    shade = np.clip(np.hypot(c.X - 18, c.Y - 17) / 22.0, 0, 1)[..., None]
+    c.paint(cov(body), mix(TOKEN["DEEP_TEAL"], col, 0.12) * (1 - shade) + TOKEN["INK"] * shade)
+    gl = _glyph((c.X - 22) / 0.86, (c.Y - 22) / 0.86, g) * 0.86
+    c.paint(cov(gl - 1.1), TOKEN["INK"])
+    c.paint(cov(gl), col)
+    return c
+
+
 # The honours' motifs, one a stat family (character_page.gd MOTIF): each a gilt boss with its sign sunk in lacquer.
 MOTIFS = ("blade", "shield", "pearl", "cloud", "peak", "lotus", "coin", "cauldron", "star")
 
@@ -645,6 +735,10 @@ ASSETS.update({
     # The Bag's sky (decision 24): the floating tokens (no vertical centre: always 48 tall) and the item card.
     "sky_token": ([24, 24, 24, 24], {"normal": lambda: sky_token(), "selected": lambda: sky_token(True)}),
     "sky_card": ([14, 14, 14, 14], {"normal": lambda: sky_card()}),
+    # The Techniques page (P13b): its carved panels (whole, and the rim alone laid over the chart) and the rail's seals.
+    "carved_panel": ([22, 22, 22, 22], {"normal": lambda: carved_panel(), "frame": lambda: carved_panel(True)}),
+    "tech_seal": ([0, 0, 0, 0], {g: (lambda g=g: tech_seal(g)) for g in ("wood", "fire", "earth", "metal", "water", "wind", "thunder", "soul",
+                                                                        "formless", "space", "time", "lost", "secret")}),
 })
 
 

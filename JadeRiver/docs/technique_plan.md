@@ -1120,3 +1120,46 @@ Crane Fan) and keep their cells (§4.8).
 **Still open.** §6.4's per-band, per-family check (the best eight-art loadout against the band's baseline, no family 10%
 above the median) and the form-pair combos (§6.3) wait for P13b's loadout; the wiki's technique page
 (`docs/wiki/techniques.md`) is not written yet.
+
+## As built: P13b · the page (2026-09-27)
+
+P13b built step 6 (§8) to the approved mockups `06_techniques_tree`, `06_techniques_tree_learned` and
+`06_techniques_lost_unknown` (roadmap §6 decisions 11, 18, 19; `docs/page_identity.md` row 15). CHANGELOG "P13b · The
+Techniques page" lists it for players; screenshots against the mockups are in `docs/ui_p5/techniques/`.
+
+**The review's open points, decided.**
+
+| Point | Decision |
+|---|---|
+| Which Dao bar the chooser shows | It follows the tab: the free hand's bar is the tab's element Dao (Water on Water, Fire on Fire), a weapon family's its weapon Dao; Formless has none |
+| A found manual | A lost art's manual carried and not read is a found leaf, marked Unread, with **Read** (the manual's `use_item`); only a manual in hand is named (`TechniqueTreeRules.lost_unread`) |
+| The learn button | It names what it spends: "Learn · 5 Realisations", never a bare Learn |
+
+**The tree.** One huge tree a tab (decision 11): the families side by side, twelve columns of three lanes (the orthodox
+art on the passage line, the path art beside it alternating side by ring, the kin group's keystone at an act's last
+ring on its first family's right), rings I–VIII, a notable under each act with its channels, the Dao arts at the
+gates; the acts not yet open stay off the chart. It pans by dragging; the chooser's rows jump to a family, **Learned**
+from one learned art to the next, **Let all go** resets the tree (`reset_tree`, with a confirm). The layout is worked
+out once a tab; a node's state is asked of the authority (`ProgressionAuthority.tree_node`) only when it comes into
+view and forgotten when something changes, so a tab of 328 nodes draws the dozen in view (`perf_tests`: a dragged
+frame costs what a still one does; the page opens in about 0.1 s). Each tab's chart is one painter in its element's
+colour; §4.10's eleven projections, zoom, the minimap and the path chips are later work.
+
+**Learn.** An art whose own passage is the one step missing is open, its tag and button counting both
+(`TechniqueTreeRules.learn_plan`: "3 to learn" is the passage's 1 and the art's 2); Learn submits `realise_node` for
+each in turn. The prerequisites are the rules' (`TechniqueTreeRules.needs`: the ring's Level, the passage or gate, a
+path art's path, a keystone's source). A realised art or step has **Let go** (`unrealise_node`).
+
+**Rules added.** `realise_block` takes nodes assumed paid (`learn_plan`'s passage); `node()` and `inward()` are kept
+once worked out and the index makes its lookups once (31 ms against 42); `dao_arts` places the Dao arts on their
+gates; `lost_unread` lists the manuals carried.
+
+**Lost Arts.** An album, one leaf an act: the count, the found arts pasted in (Unread or Learned), every other leaf the
+same sealed face with no name, kind, place or hint, and "N more are out in the world" (decision 19, held on the page
+itself by `rules_tests techniques_page_suite`). A found art is read with what it is and does, and Wear, Slot or Read;
+the board's card never says where it came from (P13a's rule), so the mockup's "Where it was found" is not drawn.
+
+**Kept.** Every function of the page before: the eight slots in two rings of four (Ring II the HUD's 1/2 swap), equip
+by choosing an art and tapping a slot, Unslot, Rank Up, the Inner Arts worn in four slots and the stances (both in the
+dock's drawer), the Secret Arts with Concealment's false realms. The intents are the same, with `realise_node`,
+`unrealise_node`, `reset_tree` and `use_item` added.
