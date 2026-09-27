@@ -88,14 +88,14 @@ func _ready() -> void:
 	camera.position = cam.round()
 
 func _physics_process(delta: float) -> void:
-	if sim_frozen or (Game.paused if Game else false): return
+	if sim_frozen or Game.paused: return
 	for e in player.physics_step(delta): _feedback(e)
 
 func _process(delta: float) -> void:
 	_sync(delta)
 	var m: TopdownMotor = player.motor
 	if m.grounded and m.sink_t < 0.0: cam_z = m.z
-	elif m.z < cam_z: cam_z = maxf(m.z, room.height_at(m.pos) if room.height_at(m.pos) < INF else m.z)
+	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
 	cam = cam.lerp(_cam_target(), k)
 	camera.position = cam.round()

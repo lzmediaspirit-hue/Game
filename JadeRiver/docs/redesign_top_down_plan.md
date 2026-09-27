@@ -382,7 +382,7 @@ unless one of these two entries is used.
 | Long jump | Dodge, then Jump within the dash or 0.12 s after it: 142.5 units (4.5 tiles) at 300 units/s |
 | Landing | squash pose 0.1 s, dust by the fall height, the land sound from a 12-unit fall up |
 | Facing | 8-way vector; the drawn row (S, E, N, W = mirrored E) changes when the stick is 20° nearer another row |
-| Frame | perf runner: the room mounts in 149 ms and runs at 6.84 ms a frame (34 sorted nodes) |
+| Frame | perf runner: the room mounts in 142–149 ms and runs at 6.8–6.9 ms a frame (34 sorted nodes) |
 
 **Tests.** `rules_tests` `topdown_suite` has 35 checks:
 
