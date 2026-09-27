@@ -19,6 +19,13 @@
   five-column grid. The HUD takes an HD technique's native 48 and an item's native 32; a legacy technique shows at 2x
   in its ring, HUD glyphs at 32 (2x). The slot draws a soft grade halo behind Mystic items and above. The kit CSS and
   the kit sheet have the 76 px slot. A `ui_suite` rule checks every icon on every page, and `icon_draw_suite` the fit.
+- **Pills in Style A** (`tools/icons/families/pills.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/pills/`): the 33 pills redrawn at 64 px with native `@32` renders for the HUD item ring,
+  the first family to flip. The vessel is now the kind of pill (a jar heals and restores, a footed bottle is taken at
+  a breakthrough, a gourd is a draught, a round box remakes the body or a method, a paper wrap holds loose pills) and
+  the grade its material and trim (a cloth cap, a jade plug, a silver cloud lid, a domed lid with a gem finial; ring
+  handles and the glow from Mystic up; Law and Monarch in night steel and rose gold), driven from one table; the
+  effect marks are shapes, and the legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 

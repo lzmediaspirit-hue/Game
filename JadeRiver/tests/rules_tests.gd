@@ -361,19 +361,32 @@ func _ui_contexts(c) -> Dictionary:
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
 ## 1x, 2x...; an HD icon at its native 64, 48 or 32 (`<id>@<px>` in the manifest). The ui_suite checks every page.
 func icon_draw_suite() -> void:
+	# The pills are HD (the first family converted); the first legacy item in the manifest stands for the rest until
+	# every family has flipped.
+	var m: Dictionary = ContentDB.configs["icon_manifest"]
+	var legacy := ""
+	for k in m:
+		if not str(k).contains("@") and str(m[k]).begins_with("res://art/icons/items/") and not m.has(str(k) + "@64"):
+			legacy = str(k)
+			break
 	var odd: Array = []
 	for box in range(12, 133):
-		for id in ["healing_pill", "jian", "stun"]:
+		for id in ["healing_pill", legacy, "jian", "stun"]:
+			if id == "": continue
 			var f := SpriteCache.icon_fit(id, box)
 			if f.is_empty() or int(f["px"]) != int(f["art"]) * int(f["scale"]) or int(f["scale"]) < 1 or (int(f["px"]) > box and int(f["scale"]) > 1):
 				odd.append("%s in %d" % [id, box])
-	check(odd.is_empty(), "P4b: an item, a HUD glyph and a status icon fit every box at a whole-number scale of their art (%s)" % str(odd.slice(0, 6)))
-	var in_slot := SpriteCache.icon_fit("healing_pill", Page.SLOT - 12)
-	var in_small := SpriteCache.icon_fit("healing_pill", Page.SLOT_SMALL - 12)
-	check(int(in_slot["px"]) == 64 and int(in_slot["scale"]) == 2 and int(in_small["px"]) == 32 and int(in_small["scale"]) == 1,
-		"P4b: a legacy item shows its 32 art px at 2x in the 76 px slot and at 1x in the small slot")
+	check(odd.is_empty(), "P4b: an HD item, a legacy item, a HUD glyph and a status icon fit every box at a whole-number scale of their art (%s)" % str(odd.slice(0, 6)))
+	var hd_slot := SpriteCache.icon_fit("healing_pill", Page.SLOT - 12)
+	var hd_small := SpriteCache.icon_fit("healing_pill", Page.SLOT_SMALL - 12)
+	check(int(hd_slot["art"]) == 64 and int(hd_slot["scale"]) == 1 and int(hd_small["art"]) == 32 and int(hd_small["scale"]) == 1,
+		"P4b: an HD item shows its 64 at 1:1 in the 76 px slot and its native 32 in the small slot")
+	if legacy != "":
+		var in_slot := SpriteCache.icon_fit(legacy, Page.SLOT - 12)
+		var in_small := SpriteCache.icon_fit(legacy, Page.SLOT_SMALL - 12)
+		check(int(in_slot["px"]) == 64 and int(in_slot["scale"]) == 2 and int(in_small["px"]) == 32 and int(in_small["scale"]) == 1,
+			"P4b: a legacy item (%s) shows its 32 art px at 2x in the 76 px slot and at 1x in the small slot" % legacy)
 	# An HD icon, as the icon build lists one: native renders at 64, 48 and 32.
-	var m: Dictionary = ContentDB.configs["icon_manifest"]
 	var probe := {"probe_hd": m["ember_burst"], "probe_hd@64": m["ember_burst"], "probe_hd@48": m["ember_burst"], "probe_hd@32": m["jian"]}
 	m.merge(probe)
 	SpriteCache._renders.clear()
@@ -383,7 +396,8 @@ func icon_draw_suite() -> void:
 		got[box] = [int(f["art"]), int(f["scale"])]
 	check(got == {64: [64, 1], 48: [48, 1], 32: [32, 1], 60: [48, 1], 100: [48, 2], 128: [64, 2]},
 		"P4b: an HD icon uses its native 64, 48 and 32 renders, and whole multiples above them (%s)" % str(got))
-	check(SpriteCache.icon_hd("probe_hd") and not SpriteCache.icon_hd("healing_pill"), "P4b: the manifest tells an HD icon from a legacy one")
+	check(SpriteCache.icon_hd("probe_hd") and SpriteCache.icon_hd("healing_pill") and (legacy == "" or not SpriteCache.icon_hd(legacy)),
+		"P4b: the manifest tells an HD icon from a legacy one")
 	for k in probe: m.erase(k)
 	SpriteCache._renders.clear()
 	# Nothing but the helper draws an icon texture.
@@ -5324,8 +5338,10 @@ func rooftop_routes_suite() -> void:
 	var contrib0 := int(c.training_sect.get("contribution", 0))
 	var slow := Game.world.finish_route(c, rt, 30.0)
 	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
-	var fast := Game.world.finish_route(c, rt, 10.0)
-	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 10.0)
+	# Under the gold par (10 s) and under the rivals' floor (rival_s 9.5), so first place does not depend on the
+	# week's seeded board.
+	var fast := Game.world.finish_route(c, rt, 9.4)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 9.4)
 		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
 	var contrib1 := int(c.training_sect.get("contribution", 0))
 	Game.world.finish_route(c, rt, 9.0)

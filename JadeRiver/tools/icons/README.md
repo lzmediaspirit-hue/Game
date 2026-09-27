@@ -178,8 +178,8 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
 
    Use the family's shared template where one exists, then pass the new
    species or grade as parameters:
-   - pills: add a row to `PILLS` in `pills.py` with the grade, effect mark
-     and pill ramp.
+   - pills: add a row to `PILLS_HD` in `pills.py` with the kind (its vessel), grade, effect mark, pill
+     material and mark ink.
    - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
    - armour: `CLOTH` grade table.
    - fish: `fish(...)` parameters.
@@ -199,13 +199,15 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
 
 - One bold object, at most one supporting symbol. Upper-left light. A dark outline (legacy: 1 art px of the
   material's dark; HD: the selective outline). No blur and no anti-aliasing (only glow bands use stepped alpha).
-- Pills are read by three things: the vessel silhouette, the pill shape and
-  the effect mark on the label. Grade changes the vessel form and trim, never
+- Pills are read by three things: the vessel silhouette, the pill colour and the effect mark on the label. The
+  vessel is the kind of pill and the grade its material and trim (`pills.VESSEL_OF`, `pills.PILL_GRADES`), never
   only the colour:
-  - Common: squat jar with bronze trim.
-  - Earth: pear-shaped bottle with jade trims.
-  - Heaven: meiping vase with silver bands and a cloud lid.
-  - Mystic: violet vessel with a gold foot, lid and finial, plus a glow.
+  - Jar: what heals and restores. Bottle (on a foot): taken at a breakthrough, a settling or a cleansing. Gourd: a
+    draught that lifts you for a while. Box: remakes the body, a method or an animal. Paper wrap: loose pills.
+  - Common: earthenware, bronze trim, a red cloth cap. Earth: porcelain, jade trims, a jade plug. Heaven: skyware,
+    silver bands, a silver cloud lid. Mystic: mistjade, gold, a violet finial, ring handles, a glow. Sage: sand
+    glaze, gold, an ember finial. Sovereign: driftglass, comet iron, a driftteal finial. Law: night steel with star
+    dots, gold, starlight. Monarch: rose gold set with pearl.
 - Equipment grades:
   - Plain: wood, hemp and straw.
   - Common: iron grey.
