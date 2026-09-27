@@ -9,6 +9,7 @@ import os
 
 from common import DATA, write, entries, realm, unlocked, flag, all_of
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
+from techniques import SOURCES as TECH_SOURCES
 import posts
 
 
@@ -1131,6 +1132,10 @@ def strings():
     })
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
+    quest_names = {q["id"]: q["name"] for q in json.load(open(os.path.join(DATA, "quests.json")))["entries"]}
+    for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
+        if t["source"] in TECH_SOURCES or t["source"] in quest_names:
+            S["technique_source." + t["source"]] = TECH_SOURCES.get(t["source"]) or quest_names[t["source"]]
     # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
     ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
     for k in ui:

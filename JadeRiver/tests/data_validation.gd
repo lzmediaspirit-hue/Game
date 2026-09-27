@@ -361,6 +361,9 @@ func data_suite() -> void:
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
 	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
+	# Where a technique is learned reads as a name (techniques.SOURCES, or the quest's), never as its id.
+	for ts in ContentDB.all("techniques"):
+		check(ContentDB.strings.has("technique_source." + str(ts.get("source", ""))), "technique %s: its source %s has a name string" % [ts.id, ts.get("source", "")])
 	# S49: alignment, karma and Fame may gate optional content, never a realm (Part 7 forbidden patterns).
 	var rel_kinds := ["alignment_at_least", "alignment_at_most", "merit_at_least", "fame_at_least", "reputation_at_least"]
 	for rr in ContentDB.all("realms"):

@@ -155,6 +155,10 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
 - **`move_speed` is a number.** `stats.json` gave it the percent format while the Character page shows the speed
   itself (242), so a flat bonus would have read "+2000% move speed". Its format is `int`; a test holds that every
   percent stat is a share.
+- **Technique sources have names.** Each of the 26 sources (`library_1`, `night_peddler` …) has a string
+  `technique_source.<id>` ("Sect library, first floor", "Peddler Shao's night mat"; a quest reads as its name), read
+  with `ContentDB.name_of("technique_sources", id)` where a technique's source is shown (an unlearned star's line on
+  the proposed Techniques sky). A `data_validation` rule fails on a source without one.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
