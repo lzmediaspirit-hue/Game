@@ -413,5 +413,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 22. **The Calendar** keeps the first mockup (19), not the almanac (19 v2).
 23. **Skills have proper animations**: every technique form has its own animated effect, on the existing body poses
     (`AGENTS.md`).
+24. **The Bag is concept B** (mockups `07_bag_b`, `07_bag_b_card`, `07_bag_b_pill`, `08_bag_b_empty`): the worn figure
+    beside one wide grid, and the small item card. A and C stay as the record.
+25. **The world map mockup is approved** (`16_world_map`, `16_world_map_resources`) and is built as drawn.
+26. **Works: the Seal Scripts section is bigger** (`14_works_v4`): more rows show at once, the shelf gives it room.
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
