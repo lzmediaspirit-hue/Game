@@ -252,8 +252,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 				var tech := str(p.get("technique", ""))
 				if tech != "":
 					var at: Vector2 = p.get("at", player.motor.pos)
-					combat_fx.cast(tech, player_feet(), int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))), float(p.get("windup", -1.0)),
-						lifted(at, room.height_at(at) if room.height_at(at) < INF else player.motor.z), aim)
+					var point := lifted(at, room.height_at(at) if room.height_at(at) < INF else player.motor.z)
+					# A circle at a point plays where it lands (its form's feet anchor is the point, not the caster).
+					var t := ContentDB.entry("techniques", tech)
+					var on_point := TopdownAim.form_of(t) == "point"
+					combat_fx.cast(tech, point if on_point else player_feet(), int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))),
+						float(p.get("windup", -1.0)), point, aim, float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t))
 					Audio.play("technique")
 				else:
 					# A swing's arc along the aim, so each of the eight directions reads (the placeholder body has one strike pose).

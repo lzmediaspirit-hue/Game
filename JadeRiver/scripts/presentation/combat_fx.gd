@@ -13,11 +13,12 @@ func _init(layer: FxLayer, view) -> void:
 	fx = layer
 	host = view
 
-## A technique cast from `at` toward `target` (the foe it lands on, or its point), turned to `aim` on the plane.
-func cast(tech: String, at: Vector2, facing: int, col: Color, windup: float, target: Vector2, aim := Vector2.ZERO) -> void:
+## A technique cast from `at` toward `target` (the foe it lands on, or its point), turned to `aim` on the plane, drawn at
+## `reach` (the hitbox's by default).
+func cast(tech: String, at: Vector2, facing: int, col: Color, windup: float, target: Vector2, aim := Vector2.ZERO, reach := -1.0) -> void:
 	var t := ContentDB.entry("techniques", tech)
 	if float(MomentRules.tier_numbers("tech:" + tech).shake_s) > 0.0: cast_shake["tech:" + tech] = true
-	fx.cast(t, at, facing, col, target, windup, -1.0, aim)
+	fx.cast(t, at, facing, col, target, windup, reach, aim)
 
 ## A blow landed (a hit_landed payload): its number and spark at its tier (§5.2, §5.5), the shakes and the sound.
 func hit(p: Dictionary) -> void:
