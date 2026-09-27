@@ -510,6 +510,53 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Roadmap:** U20 Partial and U21 Present (C8), U15 stays Partial with decision 15's withdrawal recorded; the P5 row
   says what has started.
 
+### P5a · The HUD to the approved mockups
+- **The right thumb, two rings (mockup 01).** Ring 1 at R 132 round the 132 px attack button holds jump, the page's four
+  techniques (64 px, the HD icons at their native 48) and dodge; ring 2 at R 214 holds the fan and, beside it, a toggle
+  that is on, the healing slot, the Draught, the treasures, the in-fight context (or Keep Post) and the weapon swap.
+  The pinned toggle, the healing slot, the first treasure, the context and the swap have their own places; the rest
+  take the next free one, and a heavy load spreads over the arc without two rings touching. A "1/2" tab turns the
+  technique page (a swipe on the ring still does). **An empty or locked slot is not drawn** (review G3): no blank
+  circles, no empty treasure, no swap without a spare.
+- **The fan holds the system toggles (decision 20).** Cultivate, the Presence, the Sphere, Sense and Pet fold into one
+  button; a tap opens it on a paper fan with each toggle named (only the ones the character has, packed from the
+  first place) and a tap closes it. Closed, a toggle that is on stands pinned beside it (a held Presence with its Soul
+  upkeep arc and level; meditation; a raised Sphere), and the fan glows gold at the bottleneck or when a toggle in it
+  is new. At rest the fan keeps the player's choice (open, as mockup 02 draws it, until closed); a foe near folds it,
+  and in a fight a toggle taken from the open fan folds it again.
+- **Rest and fight (mockup 02).** With no foe within 560 px (and no boss in the room) for two seconds, the techniques
+  fold into four beads on the attack ring over 0.25 s (a fade with Reduce motion), the healing slot and the treasures
+  rest, and the attack button becomes the context with its verb and target under it ("Talk · Peddler Ning"). A foe
+  near brings them back. Every existing control, key and reveal is kept.
+- **The rest of the HUD to the mockups.** Party chips beside the panel for the animals beside you and the fellow
+  disciples, each a 48 px ring with its face (a disciple's from their own sprite layers), an HP arc, a red ring for a
+  wound and the name under it; the bag animals and the mount after them. The Hollowing as a meter with its Burden and
+  Seizure stops, its value and which way it runs ("46 ▼ lanterns"). The quest tracker on its plate with a 48 px go
+  button. A count on Mail and a vermilion ready seal on Menu when the bottleneck is reached or a day's chest is full.
+  The purse rests in boss arenas. The boss bar with its name in the display face, "Lv · phase n of m", an ember fill,
+  a notch at each phase (gold once passed, the next lit) and what each brings ("60% · Ashborn Pyre Keeper called ✓",
+  "30% · Enrage"). The progress edge with a stop and a "Lv n" at each Level; at the bottleneck it glows gold with
+  Stored Qi as a bright lane and "◆ Bottleneck reached · breakthrough ready · tap Cultivate". The log above the
+  joystick. The top centre as one stack under the chips (or the boss bar): a run's timer, the room's name, an event or
+  a tribulation, a fortune card, then toasts 408 wide and 8 apart that stop above the clear zone (the rest wait).
+- **World labels never stack (review G4).** Each kind keeps its own offset: a foe's level and name over its head, the
+  party's thin HP lines lower (only in a fight; their names are on the chips), an NPC's plate under the feet, a way's
+  or a thing's plate over its art. Labels draw above every figure. Each frame `world.gd` hands them to
+  `WorldLabels` (`scripts/presentation/world_labels.gd`), which places them in whole rows so none touches another or
+  sits under a HUD control (the HUD writes its controls' rects each frame); a plate under the feet with no room below
+  goes over the head; a label keeps last frame's row while it is still clear.
+- **The clear zone.** No control or panel stands in the lower middle round the player (x 380–900, y 324–656 at 1280 ×
+  720, `hud.gd` `CLEAR_ZONE`), in a fight or at rest with the fan closed, left- or right-handed; the log, the
+  tracker and the toasts keep out of it, and the open fan at rest keeps off the player at the common camera positions.
+- The legacy panel's own Cormorant preload is gone; outlined words are fitted in the face they are drawn in. Debug
+  flags for previews: `--toggle=presence|sphere` and `--fan=open|closed`.
+- **Tests:** `rules_tests` `hud_suite` rewritten for four states (a fight, the fan open or closed, at rest): every hit
+  circle 48 across and its drawn radius + 4, the nearest centre wins, the cluster where the mockups draw it, ring 2's
+  places and a heavy load, rest and fight, the fan's open, close, fold and pin, the clear zone (and mirrored), the
+  toasts' stop, and G3 on a bound character; a new `labels_suite` checks the layout pass on a crowd, under a control
+  and over the head, a second pass holding still, and the real views (foes, a boss, the party's lines, two NPCs on one
+  spot). Screenshots from the valley_run checkpoints beside mockups 01 and 02 are in `docs/ui_p5/hud/`.
+
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,
   `HEART`, `SKY`, `HUD_LABEL`, `PAPER_INK`, `BAR_TROUGH`, `PLATE`, `DIM` and `SURFACE`, the drawn pages' own materials

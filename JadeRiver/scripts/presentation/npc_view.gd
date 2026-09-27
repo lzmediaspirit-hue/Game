@@ -18,6 +18,11 @@ var focus := false
 var t := 0.0
 var def: Dictionary = {}
 var pose_now := ""
+## P5a (G4): the nameplate's box under the feet at no offset, and the offset in whole rows the layout pass gives it.
+var label_box := Rect2()
+var label_offset := Vector2.ZERO
+var label_flip := Vector2.ZERO
+var tag: Node2D   # the nameplate's own canvas item, above every figure (WorldLabels.LABEL_Z)
 
 func setup(o: Dictionary) -> void:
 	def = o
@@ -38,6 +43,7 @@ func setup(o: Dictionary) -> void:
 	avatar.outfit = outfit
 	avatar.facing = int(o.get("facing", n.get("facing", -1)))
 	add_child(avatar)
+	tag = WorldLabels.make_tag(self, _draw_tag)
 	var pose := str(o.get("pose", n.get("pose", "idle")))
 	avatar.play(pose)
 	pose_now = pose
@@ -60,6 +66,7 @@ func _process(delta: float) -> void:
 			bark_time = 4.0
 	bark_time = maxf(0.0, bark_time - delta)
 	queue_redraw()
+	tag.queue_redraw()
 
 ## S43 rule 15: a rooftop thief on the run is wherever his route puts him (the authority's clock), running, leaping
 ## between tiers, or waiting to jeer.
@@ -81,12 +88,18 @@ func _follow_chase(c) -> void:
 func face(x: float) -> void:
 	avatar.facing = 1 if x >= position.x else -1
 
+## The nameplate under the feet, drawn on `tag` above every figure (P5a, G4). With no free row below it (a HUD control,
+## another plate) the layout pass may lift it over the head instead: `label_flip` is that offset, clear of the marker.
+func _draw_tag() -> void:
+	var col := UiKit.PALE_GOLD if focus else UiKit.PAPER
+	var plate := UiKit.draw_nameplate(tag, display_name, title, 26 + label_offset.y, col, UiKit.MIST, 17)
+	label_box = Rect2(plate.position - label_offset, plate.size)
+	label_flip = Vector2(0, -136.0 - label_box.end.y)
+
 func _draw() -> void:
 	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.28))
 	draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
 	draw_set_transform(Vector2.ZERO)
-	var col := UiKit.PALE_GOLD if focus else UiKit.PAPER
-	UiKit.draw_nameplate(self, display_name, title, 26, col, UiKit.MIST, 17)
 	var top := -112.0 + sin(t * 3.0) * 3.0
 	match marker:
 		"main":

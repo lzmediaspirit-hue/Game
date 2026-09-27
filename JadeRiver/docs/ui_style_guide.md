@@ -31,7 +31,7 @@ at 723fc5e still shows.
 |---|---|---|
 | G1, I7 tap targets | Pages fixed (P4a, `Page.MIN_TAP`, `page.gd:13`). Four HUD targets are still under 48 px | §7 |
 | G2 numerals | Fixed (`UiKit.PIXEL_NUMERALS_MIN`, `ui_kit.gd:223`) | §3 |
-| G3, G4 HUD crowding, world labels | Open, owned by P5a | §9 |
+| G3, G4 HUD crowding, world labels | Fixed in P5a (§9 "As built") | §9 |
 | G5 bars without stops | Open, owned by P5 | §9 |
 | G6, I1 two kits, procedural widgets | Open: the empty-slot motif and every HUD ring are still pixel-kit or procedural | §5 |
 | I2 icons at non-integer scales | Open: 66 of 86 literal icon sizes are off the allowed set (audit `icons`); slots show 64 px icons at 52 | §8 |
@@ -640,6 +640,31 @@ Other things P5a carries from the mockups: the legacy panel (`hud.gd:1977-1988`)
 `UiKit` (`hud.gd:10`), goes; the HUD hit radii follow §7; toasts (`hud.gd:1906`) go to 408 wide with an 8 px gap.
 `docs/mockups/kit/README.md`'s HUD table still gives the pre-note panel (bars 222 px at x 138); mockups 01 and 02 and this
 table are the reference.
+
+**As built (P5a).** The table above is built in `hud.gd`, with these choices where the mockups leave room:
+
+- Places come from rings and angles (`RING1_R`, `RING2_R`, `FAN_R`, `_layout`, `_on`), so the left-handed option
+  mirrors them. The pinned toggle stands at 178° (the mockup's point, 951, 612; the table's "182°" is the same point
+  measured the other way round). Ring 2's places are 178°, 204°, 226°, 248°, 270° and 292°: the pin, the healing
+  slot, the first treasure, the context (or Keep Post) and the swap have their own; the second pin, the Draught and
+  the second treasure take the next free one; more than six spread evenly over 178°–294°, never closer than 60 px.
+- The fan (decision 20) holds Cultivate, Presence, Sphere, Sense and Pet, packed from 180° in that order; closed, the
+  toggles that are on are pinned; open at rest by default (mockup 02), folded in a fight. The healing slot and the
+  treasures show only in a fight; at rest they rest with the techniques' beads.
+- Rest and fight: a fight is a living, unhidden foe within 560 px of the player, a boss in the room or a tribulation
+  (`WorldLabels.fight_near`), held two seconds after it ends; the fold takes 0.25 s.
+- The top centre is one stack (a run's timer, the room's name, an event or tribulation, a fortune card, the toasts, a
+  caption) from y 96, or from 184 under a boss bar; toasts that would end in the clear zone wait. The icon row keeps
+  P4's 56 px pitch (the mockups draw 58).
+- **The clear zone** (`CLEAR_ZONE`, x 380–900, y 324–656): the lower middle where the player and the party stand at
+  the common camera positions. No control or panel is drawn in it in a fight or at rest with the fan closed; the open
+  fan at rest keeps off the player's own box. The `hud_suite` checks it.
+- **World labels** (G4): the views keep a box per label at an offset by kind and draw it on a child at z 3600, over
+  every figure and under the effects; `WorldLabels` places the boxes each frame in whole rows round each other and the
+  HUD's rects (`hud.obstacle_rects`), a plate under the feet going over the head when no row below is free. Party
+  members show a 40 px HP line (30 for an animal) only in a fight.
+
+Screenshots of the build beside mockups 01 and 02 are in `docs/ui_p5/hud/`.
 
 ## 10. The token table (the Theme resource plan, C8)
 

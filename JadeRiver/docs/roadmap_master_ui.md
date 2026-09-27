@@ -224,7 +224,7 @@ The prompt's context claims, checked against the project:
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
 | U11 | Problems per screen with severity and location; felt against intended | Present | `docs/review-v12.md` (d) "Per screen": each fault with severity, place and owner; fixed in the P2 bug pass | P2 |
-| U12 | Global issues: consistency, palette, fonts, icons, scale, spacing | Present | `docs/review-v12.md` (d) "Global issues" G1–G6: G1 and G2 fixed in P4a, G3–G6 owned by P4 and P5 | P2 |
+| U12 | Global issues: consistency, palette, fonts, icons, scale, spacing | Present | `docs/review-v12.md` (d) "Global issues" G1–G6: G1 and G2 fixed in P4a. **G3 fixed in P5a**: the technique slots and system toggles left the lower middle for two rings round the attack button and the fan (`hud.gd`, decision 20), an empty slot is not drawn, and nothing of the HUD stands in the clear zone round the player (`rules_tests` `hud_suite`). **G4 fixed in P5a**: world labels keep an offset per kind and a layout pass places them in rows so none touches another or sits under a control (`scripts/presentation/world_labels.gd`, `labels_suite`); evidence in `docs/ui_p5/hud/` (`hud_town.png`, `hud_boss.png`). G5 and G6 stay with P4 and P5 | P2 |
 
 #### Redesign every system to its theme (UI 5)
 
@@ -250,7 +250,7 @@ The prompt's context claims, checked against the project:
 | U25 | Pixel fonts and sizes for headings, body and numbers | Present (conflict C6) | Style guide §3: the scale 14–22 for words and 22–34 for Cormorant, Pixelify for numerals of 20 and up over the world, serif words by the recorded deviation; every word asked for on the scale and at 14 or more, checked on every page and in `hud.gd` (P4 step 3) | — |
 | U26 | Icon rules: size, outline, shading | Present | Style guide §8 and `tools/icons/README.md`: Style A (decision 7), the allowed draw sizes, the 76 and 44 px slots; `SpriteCache.draw_icon` draws only whole-number scales, checked by the `ui_suite` (P4b) | — |
 | U27 | Button states and a minimum touch target | Present | Style guide §6 and §7: normal, pressed (only under the finger), selected, disabled, with option C's inked primary labels (decision 10); 48 px targets on every page (`Page.MIN_TAP`) and on the HUD (`hud.gd hit_targets`, nearest centre wins), checked by the `ui_suite` and the `hud_suite` (P4a, P4 steps 6 and 7) | — |
-| U28 | The final HUD spec with the minimap | Present | Style guide §9 from mockups 01 and 02 (no portrait roundel, decision 6); the P4 parts applied (bar labels, "a / b", the plate, the log, targets); the ring layout is P5a's | — |
+| U28 | The final HUD spec with the minimap | Present | Style guide §9 from mockups 01 and 02 (no portrait roundel, decision 6); the P4 parts applied (bar labels, "a / b", the plate, the log, targets); **built in P5a** (§9 "As built"): the two rings and the fan, rest and fight, the party chips, the Hollowing meter, the tracker's 48 px go button, the Menu seal and Mail count, the boss bar's phase notches, the progress edge's Level stops and bottleneck glow, the top centre's stack; `hud_suite` holds the cluster to the mockups' positions and the clear zone; the build beside mockups 01 and 02 in `docs/ui_p5/hud/compare_*.png` | — |
 | U29 | A Godot Theme resource plan | Present (conflict C8) | Style guide §10: the `UiKit` token table (colour, type, `TEXT_ON`), `Page`'s layout constants and the two kit manifests stand in for a Theme resource, as C8 recommended | — |
 
 #### Prioritised roadmap (UI 7)
@@ -407,7 +407,8 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     the foot). Inspiration only, nothing copied.
 19. **Secret and lost techniques** are unknown until found: no hints, no sources, no silhouettes that tell where they
     are; a found art appears, the rest are counted, not described.
-20. **The HUD's system toggles fold into the fan** (P5a).
+20. **The HUD's system toggles fold into the fan** (P5a). Built: the fan opens and closes with a tap, shows the toggles
+    that are on pinned beside it while closed, folds in a fight and opens again at rest as the player left it.
 21. **Works and posts icons** are drawn better (P4b and P5).
 22. **The Calendar** keeps the first mockup (19), not the almanac (19 v2).
 23. **Skills have proper animations**: every technique form has its own animated effect, on the existing body poses

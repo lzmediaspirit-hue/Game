@@ -48,6 +48,9 @@ var shake_k := 0.0                  # px of shake amplitude per second left
 var camera_hold := {}               # a moment's camera move: {target, t, in, hold, out}
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
+## P5a (G4): the screen rects of the HUD's controls and panels, which hud.gd writes each frame; no world label sits
+## under one (WorldLabels).
+var label_obstacles: Array = []
 
 signal room_changed(room_id: String)
 signal context_changed(ctx: Dictionary)
@@ -312,6 +315,23 @@ func _process(delta: float) -> void:
 	_track_safe(delta)
 	update_occlusion()
 	_update_context()
+	layout_labels()
+
+## P5a (review G4): every name over the world is placed so none stacks on another or sits under a HUD control. The
+## views keep their label boxes at their own offsets by kind; WorldLabels places them on screen in whole rows.
+func layout_labels() -> Dictionary:
+	if not is_inside_tree(): return {}
+	var views: Array = []
+	var px: float = player.position.x if player else 0.0
+	for uid in enemy_views:
+		var v = enemy_views[uid]
+		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": absf(v.position.x - px)})
+	for id in npc_views:
+		var nv = npc_views[id]
+		views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": absf(nv.position.x - px)})
+	for i in portal_views.size(): views.append({"id": "p%d" % i, "view": portal_views[i], "kind": "place", "near": absf(portal_views[i].position.x - px)})
+	for id in object_views: views.append({"id": "o" + str(id), "view": object_views[id], "kind": "place", "near": absf(object_views[id].position.x - px)})
+	return WorldLabels.place_views(views, get_viewport().get_canvas_transform(), label_obstacles)
 
 func _update_context() -> void:
 	var c = Game.active()
