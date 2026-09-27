@@ -1035,3 +1035,75 @@ The questions this page left open take the recommended answer, which the user ca
 | Teaching lost arts | Singles from Dao tier 4; lineages never |
 | Unfound lost and secret arts (roadmap §6 decision 19) | Unknown until found: no hints, no sources, no silhouettes, no Track, no companion's tip; each act's are only counted; a found art shows its full card |
 | Inner Arts and Secret Arts | Inner Arts in the loadout dock with the stance; Secret Arts a tab of their own, last |
+
+## As built: P13a · the data (2026-09-27)
+
+P13a built the data and rules of build steps 1–5 and the data of 7–9 (§8); the page (step 6: the charts, the Lost Arts
+board, the dock) is P13b, and today's Techniques page draws the new arts meanwhile. CHANGELOG "P13a · Techniques at
+scale, the data" lists it for players; what follows is where it differs from this plan or fills in a number it left open.
+
+**Counts.** As §2.5 for v1.2.x: 1,768 arts on the trees and today's five twin cells, 1,773 (1,661 in the cells of Acts
+I–III and 112 keystones; 192 or 193 a tree, Space 40); 138 own arts a family in Acts I–III (the free hand 142). The later
+acts are written too (1,308 cell arts, the Time tree and Acts IV–V of every tree) and locked by their act
+(`technique_trees.json` `act_open`: 3), not stubbed; v1.3's four families have sectors with no cells yet. Dao arts: 38
+(today's five and 33 new, taught at their Dao's tiers 3 and 5). Of the cells of Acts I–III, 889 are orthodox and the
+paths hold Body 152, Blood 150, Buddhist 159, Poison 149, Confucian 162.
+
+**Budgets (§3.5, decision 10).** The grade is +0/+10/+20%, flat from ring 3, as decided. The form budgets rise through
+Act I (0.94, 1.03, 1.13, 1.45 for rings 1–4) and then **ease** instead of staying flat (1.41, 1.30, 1.25, 1.20, 1.18,
+1.10, 0.99, 0.83, 0.72 for rings 5–13): mastery (tiers 3 to 6) and the Dao (tiers 1 to 6) climb faster after Level 60
+than the research's ratio line, so the form's line gives way. Rule 5 holds against these budgets (every generated art
+within ±10% of its form's line at its ring, its verb and its path's budget). The par main art is now the grammar's Arc at
+the band's ring (`technique_grammar.par_art`) with its tree route's share (`par_tree`), and balance_sim measures it with
+the real rules:
+
+| Level | 20 | 30 | 45 | 60 | 72 | 80 | 90 | 99 | 100 | 108 | 117 | 120 | 130 | 150 | 165 | 200 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Technique ÷ basic (§6.1 line) | 1.45 (1.5) | 1.56 (1.5) | 2.26 (2.3) | 3.51 (3.6) | 3.72 (3.7) | 3.74 (3.7) | 4.03 (3.9) | 4.12 (3.9) | 4.19 (4.1) | 4.27 (4.1) | 4.56 (4.4) | 4.66 (4.4) | 4.61 (4.6) | 4.36 (4.6) | 4.71 (4.6) | 4.94 (4.5) |
+| Tree share | 1% | 1% | 2% | 7% | 8% | 12.1% | 13.6% | 15% | 15.2% | 16.4% | 17.7% | 18.2% | 19.7% | 22.7% | 25% | 25% |
+
+At Level 99 the par character hits 130K with a basic blow and 535K with its main art (the research's 136K and 527K).
+The checks allow ±15%; all land within ±7% but Level 200 (+10%).
+
+**Tree numbers.** Costs: a passage 1, an art 2, a notable 3, a keystone 5. Passives: an odd ring's passage +1% damage
+and an even ring's −2% Qi cost for the arts of its tree and sector, a notable +3%, a keystone +2% for its kin group's
+arts; the damage share is capped at 15% × Level/99 to Level 99 and rises to 25% by 165. The Qi cut shares today's 30%
+cap. Realisations = Level + 2 × major breakthroughs + Dao tiers + mastery tiers past 2; a Tester-like character at
+`ls6_end` has 136 (98 + 22 + 12 + 4), 29 of them lit by the migration.
+
+**Keystones.** Water's are this page's, with two changes: Rain Over Nine Ferries is a Procession (rule 6: four
+templates an act), and the Lanternfall tide is named Returning Tide of Lanterns (28 characters). The other trees'
+keystones of Acts I–III are hand-named in `technique_hand.py`, their sources (teachers, trials, a sect library's top
+floor, the Trial Tower) as keystone `teach` requirements.
+
+**Lost Arts.** 62 are written for Acts I–III (60 there, and the Ferryman's Oar's pieces at 25 and 30 pages wait for
+Acts IV and V): 44 singles and three lineages (the Ferryman's Oar, the Sand-King Script, the Orbit Lamp). Their sources
+as built: 7 steles, 27 ruins and lineage pieces and 1 event (28 old writings in 24 rooms), 6 masters, 10 foes' manuals,
+4 quests, the auction and Lu's journal (twenty pages in Acts I–III, twelve of them new). A master's lesson is an aside:
+one more choice beside what the master says (a quest's offer, a scene), shown only once its condition holds. A foe's
+manual is rolled like a named row (drop rate does not raise it) and kept only while the art is lost, the pity counted
+on the character. The tables of §5.7 remain design notes: the data keeps no hints. Not built: teaching a found single to
+another character at Dao tier 4 (decision 13), and a manual found twice as a gift for a disciple (it is a Manual Page).
+
+**Rows and loading.** Four default layers (form, ring, element, family); a row keeps only its own keys, a dictionary
+only the keys that differ, one level deep. ContentDB merges the layers two at a time with a memo per table and merges
+the row natively. `techniques.json` is 948 KB (306 B a row, against the 260 guessed in §7). In the headless test runner
+the 3,171 rows are read and filled in in about 105 ms and a v1.5-size fixture of 4,350 rows in about 160 ms, 55 of it
+the engine's own JSON parse; §7's +60 ms desktop budget is checked against that parse (filling in at most twice the
+parse), since the runner is slower than the reference.
+
+**Emblems.** Today's 56 keep their baked emblems; the other 3,115 are composed from `art/icons/emblems/` (361 layers at
+64, 48 and 32 px, 466 KB in all, imported as Images so the CPU reads them) and `data/emblem_atlas.json`: about 0.6 ms
+at 64 px, then held (up to 768 at once). The atlas matches the composer pixel for pixel.
+
+**Tests.** `data_validation` `technique_suite` (the counts, every built ring filled, rules 1–3, 5 and 6, names and the
+denylist within two edits, reachability, poses) and `lost_art_suite`; `rules_tests` `tree_suite`,
+`tree_migration_suite`, `lost_arts_suite` (with the board's no-leak check) and `tree_queries_suite`; `balance_sim` the
+line above and the trees' share; `perf_tests` the size, the load, the index, the emblems and the Techniques page;
+`contract_tests` the trees' intents and words. Rules 2 and 3 count today's arts first; three pairs of today's arts sit
+side by side with one role (Riverstone Sweep and Earthshaker Wave, Gale Step and Cloud Descent, Gale Fan and Returning
+Crane Fan) and keep their cells (§4.8).
+
+**Still open.** §6.4's per-band, per-family check (the best eight-art loadout against the band's baseline, no family 10%
+above the median) and the form-pair combos (§6.3) wait for P13b's loadout; the wiki's technique page
+(`docs/wiki/techniques.md`) is not written yet.

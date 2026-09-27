@@ -25,6 +25,7 @@ func _main() -> void:
 	data_suite()
 	moments_data_suite()
 	item_source_suite()
+	technique_suite()
 	lost_art_suite()
 	gear_suite()
 	room_suite()
@@ -54,6 +55,165 @@ func _learn_kinds() -> void:
 			for part in line.strip_edges().trim_suffix(":").split(","):
 				req_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	check(effect_kinds.size() > 30 and req_kinds.size() > 30, "rule kinds discovered (%d effects, %d requirements)" % [effect_kinds.size(), req_kinds.size()])
+
+## P13a techniques at scale (docs/technique_plan.md §3.6, §3.8, §4): the counts of the acts built, every cell of a built
+## ring filled, the six rules that keep arts distinct, the names (unique, lexicon-short, clear of every other name and of
+## the denylist, exactly and within two edits), every node reachable from its gate, every art's pose in the catalog.
+func technique_suite() -> void:
+	var T = TechniqueTreeRules
+	var cfg: Dictionary = ContentDB.config("technique_trees")
+	var act_open := int(cfg.get("act_open", 3))
+	var edge := T.edge_ring(act_open)
+	var built: Array = T.sectors()   # the twelve built sectors (v1.3's four wait)
+	var kinds := {}
+	for t in ContentDB.all("techniques"): kinds[str(t.get("kind", ""))] = int(kinds.get(str(t.get("kind", "")), 0)) + 1
+	# Counts (§2.5): the v1.2.x trees hold 1,773 arts, the plan's 1,768 and today's five twins: 1,661 in the cells of Acts
+	# I-III and 112 keystones; beside them 38 Dao arts and 52 lost techniques. The later acts' arts are written and locked.
+	var per_tree := {}
+	var cell_arts := 0
+	var empty: Array = []
+	var no_path: Array = []
+	for tree in T.trees():
+		var n := 0
+		for fam in built:
+			for ring in range(T.first_ring(tree), edge + 1):
+				var cl: Dictionary = T.cell(tree, str(fam), ring)
+				n += (cl.o as Array).size() + (cl.p as Array).size()
+				if (cl.o as Array).is_empty(): empty.append("%s/%s/%d" % [tree, fam, ring])
+				if ring > T.first_ring(tree) and (cl.p as Array).is_empty(): no_path.append("%s/%s/%d" % [tree, fam, ring])
+		per_tree[tree] = n
+		cell_arts += n
+	check(cell_arts == 1661 and cell_arts + int(kinds.get("keystone", 0)) == 1773 and int(kinds.get("keystone", 0)) == 112 and int(kinds.get("dao", 0)) == 38 and int(kinds.get("lost", 0)) == 52,
+		"Acts I-III: 1,661 cell arts and 112 keystones (1,773), 38 Dao arts, 52 lost techniques (%d, %s; %s)" % [cell_arts, str(kinds), str(per_tree)])
+	check(empty.is_empty() and no_path.is_empty(), "every built ring of every sector holds an art, and past its first a path art (%s %s)" % [str(empty.slice(0, 4)), str(no_path.slice(0, 4))])
+	# Rules 1-3 over each cell's first orthodox art.
+	var forms: Dictionary = cfg.get("forms", {})
+	var r1: Array = []
+	var r3: Array = []
+	var per_ring := {}   # family|ring -> form -> trees
+	for tree in T.trees():
+		for fam in built:
+			var seen := {}
+			var last_role := ""
+			var last_today := false
+			for ring in range(T.first_ring(tree), 14):
+				var o: Array = T.cell(tree, str(fam), ring).o
+				if o.is_empty(): continue
+				var f := str(ContentDB.entry("techniques", str(o[0])).get("form", ""))
+				if seen.has(f): r1.append("%s/%s ring %d %s" % [tree, fam, ring, f])
+				seen[f] = true
+				var role := str(forms.get(f, {}).get("role", ""))
+				var today := str(ContentDB.entry("techniques", str(o[0])).get("desc", "")) != ""
+				# Two of today's arts side by side keep their cells (§4.8): Riverstone Sweep and Earthshaker Wave, Gale Step and
+				# Cloud Descent, Gale Fan and Returning Crane Fan.
+				if role == last_role and not (today and last_today): r3.append("%s/%s ring %d %s" % [tree, fam, ring, role])
+				last_role = role
+				last_today = today
+				var key := "%s|%d" % [fam, ring]
+				if not per_ring.has(key): per_ring[key] = {}
+				per_ring[key][f] = int(per_ring[key].get(f, 0)) + 1
+	var r2: Array = []
+	for key in per_ring:
+		for f in per_ring[key]:
+			if int(per_ring[key][f]) > 2: r2.append("%s %s x%d" % [key, f, per_ring[key][f]])
+	check(r1.is_empty(), "rule 1: a sector's rings use different forms (%s)" % str(r1.slice(0, 4)))
+	check(r2.is_empty(), "rule 2: at most two trees put one form on a family's ring (%s)" % str(r2.slice(0, 4)))
+	check(r3.is_empty(), "rule 3: neighbouring rings differ in role (%s)" % str(r3.slice(0, 4)))
+	# Rule 5: a generated art is priced on its form's line at its ring: the ring's budget, the element's verb (Formless's
+	# +10% and every other element's verb on one line) and its path's budget.
+	var em: Dictionary = cfg.get("element_mult", {})
+	check(em.keys().all(func(e): return absf(float(em[e]) - (1.0 + float(cfg.get("verb_value", 0.1)) if str(e) == "none" else 1.0)) < 0.001),
+		"rule 5: Formless's raw +10% and every element's verb land on one line")
+	var lines: Dictionary = ContentDB.config("techniques").get("defaults", {}).get("form", {})
+	var off: Array = []
+	var priced := 0
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) != "" or str(t.get("desc", "")) != "" or not t.has("form"): continue
+		if str(lines.get(str(t.form), {}).get("damage_type", "")) in ["stance", "buff"]: continue   # a counter's riposte, a ward: no line
+		var line: Array = lines.get(str(t.form), {}).get("mult", [0, 0])
+		var m: Array = t.get("mult", [0, 0])
+		if float(line[0]) <= 0.0 or float(m[0]) <= 0.0: continue
+		var want: float = (float(line[0]) + float(line[1])) * float(cfg.budget.get(str(int(t.ring)), 1.0)) * float(em.get(str(t.element), 1.0)) \
+			* float(cfg.path_budget.get(str(t.get("path", "")), 1.0))
+		priced += 1
+		if absf((float(m[0]) + float(m[1])) / want - 1.0) > 0.10: off.append(str(t.id))
+	check(priced > 2000 and off.is_empty(), "rule 5: %d generated arts within ±10%% of their form's line at their ring (%s)" % [priced, str(off.slice(0, 4))])
+	# Rule 6: an act's four keystones of a tree use four templates.
+	var tmpl := {}
+	var r6: Array = []
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) != "keystone": continue
+		var key := "%s|%d" % [T.tree_of_element(str(t.element)), T.act_of(int(t.ring))]
+		if not tmpl.has(key): tmpl[key] = {}
+		if tmpl[key].has(str(t.template)): r6.append("%s %s" % [key, t.template])
+		tmpl[key][str(t.template)] = true
+	check(r6.is_empty() and tmpl.size() == 28, "rule 6: each tree's keystones of an act use four templates (%d acts of trees; %s)" % [tmpl.size(), str(r6)])
+	# Names (§3.8, rule 4): unique, at most 28 characters, no other thing's name, not on the denylist within two edits.
+	var others := {}
+	for table in ["items", "artifacts", "npcs", "titles", "realms", "secret_arts", "inner_arts", "methods"]:
+		for e in ContentDB.all(table): others[str(e.get("name", "")).to_lower()] = table
+	for rid in ContentDB.rooms: others[str(ContentDB.rooms[rid].get("name", "")).to_lower()] = "rooms"
+	var names := {}
+	var bad_names: Array = []
+	var deny: Array = (cfg.get("denylist", []) as Array).map(func(x): return str(x).to_lower())
+	var near: Array = []
+	var cap := int(cfg.get("max_name", 28))
+	for t in ContentDB.all("techniques"):
+		var nm := str(t.get("name", ""))
+		var low := nm.to_lower()
+		if names.has(low) or nm.length() > cap or nm == "" or (others.has(low) and str(t.get("desc", "")) == ""): bad_names.append(nm)
+		names[low] = true
+		if str(t.get("desc", "")) != "" and str(t.get("kind", "")) == "": continue   # today's 56 keep their names
+		for d in deny:
+			if absi(str(d).length() - low.length()) <= 2 and _within_two(low, str(d)): near.append("%s ~ %s" % [nm, d])
+	check(bad_names.is_empty(), "names: unique, at most %d characters, no item's, place's, NPC's, title's or realm's (%s)" % [cap, str(bad_names.slice(0, 6))])
+	check(near.is_empty() and deny.size() >= 100, "names: none on the denylist or within two edits of it (%d entries; %s)" % [deny.size(), str(near.slice(0, 4))])
+	# Every node reachable from its gate: an art's route runs a passage a ring from its sector's first; notables and
+	# keystones have their way in.
+	var lost_route: Array = []
+	for tree in T.trees():
+		for nid in T.nodes_of(tree):
+			var n := T.node(str(nid))
+			if n.is_empty() or int(n.get("act", 99)) > act_open: continue
+			match str(n.kind):
+				"art":
+					var route: Array = T.route_to(str(nid))
+					if route.size() != int(n.ring) - T.first_ring(tree) + 1 or route.any(func(p): return T.node(str(p)).is_empty()): lost_route.append(str(nid))
+				"passage":
+					if int(n.ring) > T.first_ring(tree) and T.inward(str(nid)).is_empty(): lost_route.append(str(nid))
+				_:
+					if T.inward(str(nid)).is_empty(): lost_route.append(str(nid))
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) in ["", "keystone"] and T.home(str(t.id)).is_empty(): lost_route.append(str(t.id))
+	check(lost_route.is_empty(), "every art is on its tree and every node of Acts I-III is reachable from its sector's gate (%s)" % str(lost_route.slice(0, 4)))
+	# Every art's pose is one the character can play (meditate_burst plays the weapon's first stroke, none its third).
+	var acts: Dictionary = ContentDB.parts.get("_actions", {})
+	var poses: Array = []
+	for t in ContentDB.all("techniques"):
+		var a := str(t.get("action")) if t.get("action") != null else ""   # none: the weapon's third stroke
+		if a != "" and a != "meditate_burst" and not a in acts: poses.append("%s %s" % [t.id, a])
+	check(poses.is_empty(), "every art's pose is in the catalog (%s)" % str(poses.slice(0, 4)))
+
+## Levenshtein distance at most 2, on a band two wide either side of the diagonal (names are short).
+func _within_two(a: String, b: String) -> bool:
+	if a == b: return true
+	var n := a.length()
+	var m := b.length()
+	var prev: Array = []
+	for j in m + 1: prev.append(j)
+	for i in range(1, n + 1):
+		var cur: Array = []
+		cur.resize(m + 1)
+		cur.fill(99)
+		cur[0] = i
+		var best := 99
+		for j in range(maxi(1, i - 2), mini(m, i + 2) + 1):
+			var c: int = mini(mini(int(prev[j]) + 1, int(cur[j - 1]) + 1), int(prev[j - 1]) + (0 if a[i - 1] == b[j - 1] else 1))
+			cur[j] = c
+			best = mini(best, c)
+		if best > 2: return false
+		prev = cur
+	return int(prev[m]) <= 2
 
 ## P13a Lost Arts (docs/technique_plan.md §5; roadmap §6 decision 19): every lost art is a known kind of art and is found
 ## somewhere in the world the data says (a stele, a room, a master's lesson, a foe's manual, a quest, an auction lot,

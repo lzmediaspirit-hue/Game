@@ -73,7 +73,10 @@ def assign_forms(fixed):
     out = {}
     for fam in G.SECTORS:
         can = [f for f in G.FORMS if fam in G.FORMS[f]["fams"]]
-        count = {}
+        count = {}   # (ring, form) -> trees: today's arts count first, wherever their tree comes in the order (rule 2)
+        for (_t, f2, r), form in fixed.items():
+            if f2 == fam:
+                count[(r, form)] = count.get((r, form), 0) + 1
         for tree in TREE_ORDER:
             rings = rings_of(tree)
             pinned = {r: fixed[(tree, fam, r)] for r in rings if (tree, fam, r) in fixed}
@@ -104,7 +107,8 @@ def assign_forms(fixed):
                 return False
             assert dfs(0), ("no form assignment", tree, fam)
             for r in rings:
-                count[(r, got[r])] = count.get((r, got[r]), 0) + 1
+                if r not in pinned:
+                    count[(r, got[r])] = count.get((r, got[r]), 0) + 1
                 out[(tree, fam, r)] = got[r]
     return out
 

@@ -558,7 +558,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	c.pools.cooldowns["tech:" + str(tid)] = maxf(0.5, float(t.get("cooldown_s", 5)) + (ProgressionRules.sect_tree_flag(c, "signature_cooldown") if not sig.is_empty() else 0.0))
 	if sig.has("heal_pct") or sig.has("shield_pct"): _sect_support(c, sig)
 	var aim := target_for(c, float(t.hitbox.x[1]), float(t.hitbox.get("depth", 30)), 1 if facing >= 0 else -1)
-	var action := str(t.get("action", ""))
+	var action := str(t.get("action", "")) if t.get("action") != null else ""   # P13a: a null pose read as "<null>" before
 	if action == "" or action == "null": action = str(fam.combo[mini(2, fam.combo.size() - 1)].action)
 	if action == "meditate_burst": action = str(fam.combo[0].action)
 	tl.action = action
