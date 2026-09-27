@@ -583,6 +583,8 @@ def build():
     # (data_validation checks it), and the room lint and reach tests read them.
     write("movement.json", {
         "schema_version": 1,
+        # Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these.
+        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [16, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5},
         "jump": {"impulse": 530, "gravity": 1150, "substep_s": 1 / 120, "apex": 122, "coyote_s": 0.10, "buffer_s": 0.12},
         "double_jump": {"impulse": 430, "apex_from_ground": 202},
         "wall_step": {"kick_speed": 450, "away": 90, "kicks": 3, "reach": 12, "shaft": [60, 160]},
