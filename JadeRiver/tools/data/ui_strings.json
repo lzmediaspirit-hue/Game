@@ -2959,7 +2959,7 @@
  "ui.your_sect.fx_outpost": "+%.1f attunement in the Azure Expanse for each level.",
  "ui.your_sect.fx_mirror": "Opens the Mirror of Echoes' slots, where a post's haul is inscribed.",
  "ui.your_sect.fx_expeditions": "Needed to send expeditions to %s.",
- "ui.your_sect.fx_prestige": "Raising it adds %d prestige and stands it in the courtyard.",
+ "ui.your_sect.fx_prestige": "Raising it gives the sect %d prestige.",
  "ui.your_sect.fx_stands": "It stands in the courtyard; each level adds to the sect's prestige.",
  "ui.your_sect.rooms": "Rooms: %d / %d",
  "ui.your_sect.away_expedition": "Away on an expedition",

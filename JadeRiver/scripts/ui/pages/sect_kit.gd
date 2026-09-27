@@ -78,7 +78,7 @@ static func disciple_outfit(name: String) -> Dictionary:
 
 static var _small: Dictionary = {}
 
-## `tex` (or its `region`) scaled by `k` once, smoothly (Lanczos), and kept: pixel art shown small (the courtyard's
+## `tex` (or its `region`) scaled by `k` once, smoothly, and kept: pixel art shown small (the courtyard's
 ## buildings and backdrop) keeps its shapes instead of dropping every other pixel. Null when the art has no image.
 static func scaled(tex: Texture2D, region: Rect2i, k: float) -> Texture2D:
 	if tex == null: return null
@@ -90,7 +90,11 @@ static func scaled(tex: Texture2D, region: Rect2i, k: float) -> Texture2D:
 			return null
 		if img.is_compressed(): img.decompress()
 		if region.size.x > 0: img = img.get_region(region)
-		img.resize(maxi(1, int(round(img.get_width() * k))), maxi(1, int(round(img.get_height() * k))), Image.INTERPOLATE_LANCZOS)
+		# Halving is a box filter (fast); any other scale halves while it can, then blends the rest.
+		var w := maxi(1, int(round(img.get_width() * k)))
+		var h := maxi(1, int(round(img.get_height() * k)))
+		while img.get_width() >= w * 2 and img.get_height() >= h * 2: img.shrink_x2()
+		if img.get_width() != w or img.get_height() != h: img.resize(w, h, Image.INTERPOLATE_BILINEAR)
 		_small[key] = ImageTexture.create_from_image(img)
 	return _small[key]
 
