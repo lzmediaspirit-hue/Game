@@ -110,7 +110,8 @@ static func resolve(attacker: Dictionary, defender: Dictionary, attack: Dictiona
 	# 5 The damage bucket (P12): damage%, elemental power (capped at 150%) and, against elites and bosses, boss damage, added
 	var el_power := minf(1.5, float(attacker.get("elemental_power", 0.0)) + float(attacker.get("element_power_" + parent_element(element), 0.0)))
 	var boss := float(attacker.get("boss_damage", 0.0)) if str(defender.get("role", "normal")) in BOSS_ROLES else 0.0
-	dmg *= maxf(0.0, 1.0 + float(attacker.get("damage_pct", 0.0)) + el_power + boss)
+	# P13a: a technique's element tree adds its share here too (TechniqueTreeRules.passives, capped by Level).
+	dmg *= maxf(0.0, 1.0 + float(attacker.get("damage_pct", 0.0)) + el_power + boss + float(attack.get("tree_pct", 0.0)))
 	# 5b Final damage F: the product of its few sources
 	dmg *= float(attacker.get("final_damage", 1.0))
 	# 6 Element cycle

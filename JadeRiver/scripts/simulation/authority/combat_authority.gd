@@ -596,6 +596,7 @@ func technique_cost(c, t: Dictionary) -> float:
 	if hollow_burdened(c): comp *= float(ContentDB.stat_const("hollowing.cost_mult", 1.25))   # S28: the Hollowing's burden
 	# S48 Ember Channel: some cost cuts hold only for one element's techniques.
 	var cut: float = c.stats.value("technique_cost") + c.stats.conditional("technique_cost", "element", str(t.get("element", "none")))
+	cut += float(TechniqueTreeRules.passives(c, t).get("cost", 0.0))   # P13a: the tree's even-ring passages (within the 30% cap)
 	return maxf(0.0, base * (1.0 + float(st.get("per_level", 0.04)) * lv) * (1.0 - minf(0.3, cut)) * (1.0 + mastery_red + dao_red) * comp)
 
 func guard(c, on: bool) -> Dictionary:
@@ -904,7 +905,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		"sphere_element": game.field.sphere_element(c),
 		"knockback": float(t.get("knockback", 0)) - float(t.get("pull", 0)), "ignore_armor": t.get("ignore_armor", false), "never_miss": t.get("never_miss", false),
 		"ignore_resistance": float(t.get("ignore_resistance", 0.0)), "penetration_bonus": float(t.get("penetration", 0.0)),
-		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
+		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id),
+		"tree_pct": float(TechniqueTreeRules.passives(c, t).get("damage", 0.0))}   # P13a: the damage bucket's tree share
 	if t.has("armour_break"): attack.armour_break = t.armour_break
 	# v1.2 the brush writes a talisman with every technique: its element's rider (weapon_families.brush.talisman).
 	var tal_def: Dictionary = fam.get("talisman", {})

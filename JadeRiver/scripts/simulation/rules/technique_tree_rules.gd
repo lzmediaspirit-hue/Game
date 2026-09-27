@@ -14,6 +14,7 @@ static var _built = null     # the techniques list the index was built from
 static var _cells := {}      # "tree|family|ring" -> {"o": [ids], "p": [ids]}
 static var _keys := {}       # "tree|kin|act" -> keystone id
 static var _home := {}       # art id -> {tree, family, ring, slot}
+static var _passives := {}   # "element|family|Level|realised hash" -> passives()
 
 static func config() -> Dictionary:
 	return ContentDB.config("technique_trees")
@@ -281,6 +282,11 @@ static func route_to(tid: String) -> Array:
 ## The tree's share of an art's damage (the one additive bucket) and of its Qi cost: the passages, notables and
 ## keystones realised on its own element and sector. The damage share is capped by Level (+15% by 99, +25% by 165).
 static func passives(c, t: Dictionary) -> Dictionary:
+	# The HUD asks for every slotted art's cost each frame: the answer is kept per realised set, Level, element and family.
+	var lv := ProgressionRules.level(c)
+	var memo := "%s|%s|%d|%d" % [str(t.get("element", "none")), str(t.get("family", "any")), lv, realised(c).hash()]
+	if _passives.has(memo): return _passives[memo]
+	if _passives.size() > 256: _passives.clear()
 	var k: Dictionary = config().get("passives", {})
 	var tree := tree_of_element(str(t.get("element", "none")))
 	var fam := str(t.get("family", "any"))
@@ -299,7 +305,8 @@ static func passives(c, t: Dictionary) -> Dictionary:
 				if str(n.family) == fam: dmg += float(k.get("notable", 0.03))
 			"keystone":
 				if str(n.kin) == kin: dmg += float(k.get("keystone", 0.02))
-	return {"damage": minf(dmg, tree_cap(ProgressionRules.level(c))), "cost": cut}
+	_passives[memo] = {"damage": minf(dmg, tree_cap(lv)), "cost": cut}
+	return _passives[memo]
 
 ## The most the trees add to one bucket at a Level: +15% by Level 99 and +25% by 165, rising with the Level.
 static func tree_cap(lv: int) -> float:

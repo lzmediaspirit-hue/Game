@@ -116,6 +116,35 @@ FORMS = F
 ROLES = ("burst", "area", "control", "self", "allies", "movement")
 PAR_FORM = "arc"   # the par character's main art (§6.1): the jian's Qi arc, the line P12's par table is set from
 
+
+def ring_at(lv):
+    return max(r for r in RINGS if RINGS[r][1] <= lv)
+
+
+def par_art(lv):
+    """The par main art's multiplier at a Level, grade included (stats.py's par table and balance_sim read it): the
+    line of PAR_FORM at the band's ring, its verb priced apart (the par blow is struck without an element)."""
+    r = ring_at(lv)
+    return sum(FORMS[PAR_FORM]["mult"]) / 2.0 * RING_BUDGET[r] * (1 + grade_bonus(r))
+
+
+def tree_cap(lv):
+    """The most the trees add to one bucket at a Level (§6.2): +15% by Level 99, +25% by 165 (TechniqueTreeRules.tree_cap)."""
+    c99, c165 = PASSIVES["cap_99"], PASSIVES["cap_165"]
+    return c99 * lv / 99.0 if lv <= 99 else min(c165, c99 + (c165 - c99) * (lv - 99) / 66.0)
+
+
+def par_tree(lv):
+    """What the par character's tree adds to its main art's damage (§6.2): its Realisations placed along its sector's
+    route in the Formless tree (a passage a ring, the power passages on the odd rings, each act's notable and its kin
+    group's keystone), within the Level's cap."""
+    r = ring_at(lv)
+    route = PASSIVES["passage_power"] * ((r + 1) // 2)
+    for act, edge in ACT_EDGE.items():
+        if edge <= r:
+            route += PASSIVES["notable"] + (PASSIVES["keystone"] if act <= BUILT_ACT else 0.0)
+    return min(tree_cap(lv), route)
+
 # ----------------------------------------------------------------------------------------------------------------------
 # The element's verbs (§3.3). control: the status the control forms put on a foe; other: the fields the rest carry;
 # ward: the buff a Ward raises; cost: what the element's arts cost besides Qi; particles: vfx.particles.
