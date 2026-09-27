@@ -183,7 +183,9 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
    - armour: `CLOTH` grade table.
    - fish: `fish(...)` parameters.
-   - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
+   - beast parts (HD): a row in `PARTS_HD` (id, grade, aura colour, drawing) on the kind templates `hide_hd`,
+     `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`; the grade's trim
+     comes from `GRADE_HD`, the pet gear ladders from `PET_GEAR_HD` on the grade kits.
    - techniques: `emblem(element)` + `mark(...)`.
    - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
      `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
