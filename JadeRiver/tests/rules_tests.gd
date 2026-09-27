@@ -200,7 +200,8 @@ func ui_suite() -> void:
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
 		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot(), "codex": Game.account.codex.duplicate(),
-		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate()}
+		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate(),
+		"companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true)}
 	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
 	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
 	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
@@ -366,6 +367,8 @@ func ui_suite() -> void:
 	Game.account.codex = keep.codex
 	Game.account.collection = keep.collection
 	Game.account.collection_pages_done = keep.pages_done
+	c.companions = keep.companions
+	c.relations.affinity = keep.affinity
 	c.inventory.restore(keep.inventory)
 	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
@@ -448,7 +451,14 @@ func _ui_contexts(c) -> Dictionary:
 		# P5, the Market family: the chest with and without the Treasury's tray, the stage with its lots drawn up, and the
 		# Shop in its buy-back view.
 		"storage": [{}, {"_setup": func(): Game.account.sect = sect.duplicate(true).merged({"buildings": {"sect_hall": 1, "treasury": 1}}, true)}],
-		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}]}
+		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}],
+		# P5, the Bonds family: the gift tray over a talk (the talk's other choices beside it) and on its own; the garden
+		# wall with no one yet, then all four friends, two beside you and one at five hearts.
+		"gift": [{"npc": "elder_hu", "convo": Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})}, {"npc": "tie_niu"}],
+		"companions": [{"_setup": func(): c.companions["roster"] = []}, {"_setup": func():
+			c.companions["roster"] = ContentDB.all("companions").map(func(e): return str(e.id))
+			c.companions["active"] = c.companions.roster.slice(0, 2)
+			c.relations.affinity[str(c.companions.roster[1])] = {"points": 500}}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -561,6 +571,7 @@ func identity_suite() -> void:
 	await _records_two_checks()
 	await _post_checks()
 	await _market_checks()
+	await _bonds_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -882,6 +893,87 @@ func _market_checks() -> void:
 	Game.account.sect = keep.sect
 	Game.account.economy = keep.economy
 	Unlocks.debug_force_all = force_was
+
+## P5 (the Bonds family; docs/page_identity.md rows 27, 28 and 42, mockup 21_dialogue_gift): the Gift's lacquered tray is
+## held out over the talk's own strip, the talk's other choices beside it; it holds what the bag can give, what they are
+## known to like first and tagged, and a gift goes through as an intent, the strip answering and Give shutting for the
+## day. The Companions stand one to a moon gate, the chosen friend's actions under their gate alone; bringing a friend
+## along is an intent. The Relations' beam tilts toward the alignment's side, and each tab hangs its boards from it.
+## Every word reads on what it sits on.
+func _bonds_checks() -> void:
+	var c = Game.active()
+	var keep := {"inventory": c.inventory.snapshot(), "companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true),
+		"alignment": c.relations.alignment}
+	var dim: Array = []
+	var lost: Array = []
+	# The Gift, from Elder Hu's talk: a Manual Page they are known to like.
+	Game.inventory.apply_add(c.id, "manual_page", 2, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	c.relations.affinity["elder_hu"] = {"points": 90, "known": {"manual_page": "liked"}}
+	var talk: Dictionary = Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})
+	var gp: Page = await _open_page("gift", {"npc": "elder_hu", "convo": talk})
+	var giftable := 0
+	for s in c.inventory.bag:
+		if s != null and RelationsAuthority.giftable(s): giftable += 1
+	var picks: Array = gp._regions.filter(func(r): return r.id == "pick")
+	var mp: int = c.inventory.first_index("manual_page")
+	var others: int = (talk.get("choices", []) as Array).filter(func(x): return str(x.get("page", "")) != "gift").size()
+	check(picks.size() == mini(giftable, 10) and int(picks[0].data) == mp and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.tag_liked"))
+		and gp.window_rect().encloses(gp.TRAY) and gp.TRAY.end.y <= Page.WINDOW_DIALOGUE.position.y
+		and gp._regions.filter(func(r): return r.id == "choose").size() == clampi(others, 1, 4) and not gp._regions.any(func(r): return r.id == "_close"),
+		"P5 Gift: the tray is held out over the talk's strip with the talk's other choices beside it, what they like first and tagged (%d of %d)" % [picks.size(), giftable])
+	_identity_view(gp, "gift tray", dim, lost, {}, {})
+	gp.on_action("pick", mp)
+	gp.on_action("give", mp)
+	gp.text_log.clear()
+	gp.queue_redraw()
+	await get_tree().process_frame
+	var a: Dictionary = c.relations.affinity.get("elder_hu", {})
+	var give: Array = gp._regions.filter(func(r): return r.id == "give")
+	check(int(a.get("points", 0)) == 90 + int(Game.relations.acfg().get("liked", 40)) and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.reaction_liked") % "Elder Hu")
+		and give.size() == 1 and not give[0].enabled, "P5 Gift: a gift goes through as an intent; the strip answers, the heart bar moves and Give shuts for the day")
+	_identity_view(gp, "gift answered", dim, lost, {}, {})
+	gp.queue_free()
+	# The Companions: a moon gate each, the chosen friend's actions under their gate alone.
+	var roster: Array = ContentDB.all("companions").map(func(e): return str(e.id))
+	c.companions["roster"] = roster
+	c.companions["active"] = roster.slice(0, 1)
+	var cp: Page = await _open_page("companions", {})
+	var gates: Array = cp._regions.filter(func(r): return r.id == "pick")
+	var toggles: Array = cp._regions.filter(func(r): return r.id == "toggle")
+	check(gates.size() == roster.size() and toggles.size() == 1 and str(toggles[0].data) == roster[0] and cp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.plaster),
+		"P5 Companions: a friend in each moon gate of the whitewashed wall (%d), the chosen one's actions under their gate" % gates.size())
+	_identity_view(cp, "companions", dim, lost, {}, {})
+	cp.on_action("pick", roster[2])
+	cp.on_action("toggle", roster[2])
+	cp.text_log.clear()
+	cp.queue_redraw()
+	await get_tree().process_frame
+	toggles = cp._regions.filter(func(r): return r.id == "toggle")
+	check(toggles.size() == 1 and absf((toggles[0].rect as Rect2).get_center().x - (gates[2].rect as Rect2).get_center().x) < 1.0 and c.companions.get("active", []).has(roster[2]),
+		"P5 Companions: choosing a friend moves the actions under their gate; bringing them along is an intent")
+	_identity_view(cp, "companions chosen", dim, lost, {}, {})
+	cp.queue_free()
+	# The Relations: the beam leans to the alignment's side, every tab's boards hung from it.
+	c.relations.alignment = 60
+	var rp: Page = await _open_page("relations", {})
+	rp.opened = 1.0
+	var right_down: bool = rp._tilt(c) > 0.0 and rp._beam_at(c, 1000.0).y > rp._beam_at(c, 300.0).y
+	c.relations.alignment = -60
+	var left_down: bool = rp._tilt(c) < 0.0
+	for ti in rp.tabs.size():
+		rp.tab = ti
+		rp.text_log.clear()
+		rp.queue_redraw()
+		await get_tree().process_frame
+		_identity_view(rp, "relations %s" % rp.tabs[ti].id, dim, lost, {}, {})
+	check(right_down and left_down, "P5 Relations: the steelyard's beam leans toward righteous or demonic with the alignment")
+	rp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Bonds: every word on the Bonds pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	c.inventory.restore(keep.inventory)
+	c.companions = keep.companions
+	c.relations.affinity = keep.affinity
+	c.relations.alignment = keep.alignment
 
 func _post_checks() -> void:
 	var c = Game.active()

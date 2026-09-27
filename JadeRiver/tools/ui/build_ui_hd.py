@@ -834,6 +834,24 @@ def storehouse_lid(w=760, h=184):
     return c
 
 
+# The Bonds family (P5, docs/page_identity.md §2: whitewash and red thread): the Gift page's tray (row 28).
+def gift_tray():
+    """The gift tray held out over the talk (row 28): red lacquer (SURFACE.lacquer) lit from above with a gloss, a raised
+    gold rim bevelled from above, an ink line where the tray's floor drops inside the rim and a lighter lip below it; the
+    page sets its compartments in the floor. It casts a shadow onto the scene."""
+    c = Canvas(64, 64)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 63.0, 60.0, 8.0)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 4.0, 63.0, 63.0, 8.0), 0), 2.5) * 0.55, TOKEN["INK"])
+    face = [(0, mix(LACQUER_S, TOKEN["BLOOD"], 0.22)), (0.5, LACQUER_S), (1, mix(LACQUER_S, TOKEN["INK"], 0.3))]
+    c.paint(cov(d), c.vgrad(face, 1.0, 60.0))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    gold_bevel(c, d, 1.0, 4.5)
+    c.paint(band(d, 4.5, 5.8), TOKEN["INK"] * np.array([1, 1, 1, 0.75]))
+    c.paint(band(d, 5.8, 7.6), mix(LACQUER_S, TOKEN["BLOOD"], 0.4) * np.array([1, 1, 1, 0.7]))
+    c.paint(cov(d + 8.0) * np.clip((24.0 - c.Y) / 24.0, 0, 1) ** 2, TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.06]))
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -887,6 +905,8 @@ ASSETS.update({
     # The Market family (P5): the trader's sign board and the storehouse chest's raised lid.
     "market_plate": ([16, 16, 16, 16], {"normal": lambda: market_plate()}),
     "storehouse_lid": ([0, 0, 0, 0], {"normal": lambda: storehouse_lid()}),
+    # The Bonds family (P5): the Gift page's red-lacquered tray.
+    "gift_tray": ([16, 16, 16, 16], {"normal": lambda: gift_tray()}),
 })
 
 

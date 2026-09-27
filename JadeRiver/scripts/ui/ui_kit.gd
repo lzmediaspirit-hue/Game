@@ -161,6 +161,14 @@ const TEXT_ON := [
 	[&"RED_TEXT", ["surface:lacquer_black"], 14],
 	[&"PAPER_INK", ["surface:board", "surface:bamboo", "surface:scroll"], 14],
 	[&"BLOOD", ["surface:scroll"], 14],
+	# The Bonds family (Companions, Gift, Relations): ink on the whitewash, the gift tray's red lacquer.
+	[&"PAPER_INK", ["surface:plaster"], 14],
+	[&"JADE_SHADOW", ["surface:plaster"], 14],
+	[&"BLOOD", ["surface:plaster"], 14],
+	[&"PAPER", ["gift_tray"], 14],
+	[&"MIST", ["gift_tray"], 14],
+	[&"PALE_GOLD", ["gift_tray"], 14],
+	[&"GOLD", ["gift_tray"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become
