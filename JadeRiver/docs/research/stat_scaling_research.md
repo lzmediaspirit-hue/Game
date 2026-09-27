@@ -829,3 +829,9 @@ Jade River: `scripts/simulation/rules/stat_rules.gd`, `combat_rules.gd`, `progre
 `data/realms.json`, `data/quests.json`, `data/unlocks.json`, `data/rooms/`, `data/zones.json`, `tests/balance_sim.gd`,
 `tests/rules_tests.gd`, `tests/valley_run.gd`, `docs/cultivation_loop.md`, `docs/item_plan.md`, `docs/boss_design.md`,
 `docs/world_plan.md`, `docs/ui_style_guide.md`; the probe `tools/dev/stat_probe.gd`.
+
+## Decisions taken
+
+The recommendations in §7 are taken (2026-09-27) so the build can be planned; the user can overturn any before it
+lands. The build is roadmap phase **P12 · Might**, after P7b part 1 (the banded bases above item Level 81) and before
+v1.3's content is written.
