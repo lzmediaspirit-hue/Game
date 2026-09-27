@@ -4,7 +4,7 @@ extends Page
 
 func _init() -> void:
 	title = Tx.t("ui.fates.title")
-	frame_rect = Rect2(120, 70, 1040, 580)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()
@@ -24,18 +24,18 @@ func draw_page() -> void:
 		draw_rect(cr.grow(-6), Color(UiKit.GOLD, 0.35), false, 1.5)
 		var x := cr.position.x + 20
 		var y := cr.position.y + 16
-		if f.get("rare", false): text(Vector2(cr.end.x - 110, y + 16), Tx.t("ui.fates.rare"), 15, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 90)
-		y += para(Rect2(x, y, cw - 40 - (70 if f.get("rare", false) else 0), 70), str(f.get("name", "")), 23, UiKit.PALE_GOLD, 2) + 30
+		if f.get("rare", false): text(Vector2(cr.end.x - 110, y + 16), Tx.t("ui.fates.rare"), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 90)
+		y += para(Rect2(x, y, cw - 40 - (70 if f.get("rare", false) else 0), 70), str(f.get("name", "")), 22, UiKit.PALE_GOLD, 2) + 30
 		text(Vector2(x, y), Tx.t("ui.fates.gift"), 16, UiKit.MIST)
 		y += 4
-		y += para(Rect2(x, y, cw - 40, 90), str(f.get("gift_text", "")), 19, UiKit.BRIGHT_JADE, 4) + 18
+		y += para(Rect2(x, y, cw - 40, 90), str(f.get("gift_text", "")), 20, UiKit.BRIGHT_JADE, 4) + 18
 		draw_line(Vector2(x, y - 8), Vector2(cr.end.x - 20, y - 8), Color(UiKit.GOLD, 0.25), 1.0)
 		y += 14
 		text(Vector2(x, y), Tx.t("ui.fates.cost"), 16, UiKit.MIST)
 		y += 4
-		y += para(Rect2(x, y, cw - 40, 90), str(f.get("cost_text", "")), 19, Color("e07a7a"), 4) + 16
+		y += para(Rect2(x, y, cw - 40, 90), str(f.get("cost_text", "")), 20, UiKit.RED_TEXT, 4) + 16
 		if not (f.get("realm_modifiers", []) as Array).is_empty():
-			para(Rect2(x, y, cw - 40, 50), Tx.t("ui.fates.this_realm"), 15, UiKit.MIST, 2)
+			para(Rect2(x, y, cw - 40, 50), Tx.t("ui.fates.this_realm"), 16, UiKit.MIST, 2)
 		btn(Rect2(cr.position.x + 20, cr.end.y - 74, cw - 40, 56), Tx.t("ui.fates.choose"), "choose", str(cards[i]), true)
 
 func on_action(id: String, data) -> void:

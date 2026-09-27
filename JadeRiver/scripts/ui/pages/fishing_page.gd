@@ -16,7 +16,7 @@ var result := ""
 func _init() -> void:
 	title = Tx.t("ui.fishing.fishing")
 	modal = true
-	frame_rect = Rect2(340, 150, 600, 420)
+	frame_rect = WINDOW_SMALL
 
 func setup() -> void:
 	object_id = str(args.get("object", ""))
@@ -52,18 +52,18 @@ func _finish(react: float, tension_ok: bool) -> void:
 func draw_page() -> void:
 	var r := content
 	match phase:
-		"wait": text(r.position + Vector2(0, 120), Tx.t("ui.fishing.waiting_for_a_bite"), 26, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+		"wait": text(r.position + Vector2(0, 120), Tx.t("ui.fishing.waiting_for_a_bite"), 22, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 		"bite":
 			text(r.position + Vector2(0, 120), Tx.t("ui.fishing.bite_strike_now"), 34, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
 		"fight":
 			text(r.position + Vector2(0, 60), Tx.t("ui.fishing.hold_to_reel_keep_the"), 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 			var bar_r := Rect2(r.position.x + 40, r.position.y + 110, r.size.x - 80, 40)
-			draw_rect(bar_r, Color(0.05, 0.08, 0.09))
+			draw_rect(bar_r, UiKit.BAR_TROUGH)
 			draw_rect(Rect2(bar_r.position.x + bar_r.size.x * 0.35, bar_r.position.y, bar_r.size.x * 0.4, bar_r.size.y), Color(UiKit.JADE, 0.6))
 			draw_rect(Rect2(bar_r.position.x + bar_r.size.x * tension - 4, bar_r.position.y - 8, 8, bar_r.size.y + 16), UiKit.PAPER)
 			bar(Rect2(r.position.x + 40, r.position.y + 170, r.size.x - 80, 26), timer / 3.5, UiKit.GOLD)
 		"done":
-			text(r.position + Vector2(0, 120), result, 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
+			text(r.position + Vector2(0, 120), result, 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
 			btn(Rect2(r.get_center().x - 220, r.end.y - 70, 200, 56), Tx.t("ui.fishing.again"), "again", null, true)
 			btn(Rect2(r.get_center().x + 20, r.end.y - 70, 200, 56), Tx.t("ui.fishing.done"), "done")
 	if phase in ["bite", "fight"]:

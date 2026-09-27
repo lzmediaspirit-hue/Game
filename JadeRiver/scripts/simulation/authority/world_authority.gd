@@ -486,7 +486,7 @@ func object_available(c, o: Dictionary) -> Dictionary:
 	if o.type == "beast_trial_stone" and int(c.cooldowns.get("grove_day", -1)) == Clock.reset_day(Clock.now_utc()):
 		return {"ok": false, "text": Tx.t("sim.world.grove_done")}
 	if o.type == "beast_tide_drum" and not tide_due(c):
-		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % maxi(1, tide_days_left(c))}
+		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, tide_days_left(c)) * 86400.0)}
 	return {"ok": true, "text": ""}
 
 func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:
@@ -1522,7 +1522,7 @@ func tide_days_left(c) -> int:
 func start_beast_tide(c) -> Dictionary:
 	var cfg := tide_cfg()
 	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "sf_gate")): return fail("not_here")
-	if not tide_due(c): return fail("not_due", {"text": Tx.t("sim.world.tide_not_due") % maxi(1, tide_days_left(c))})
+	if not tide_due(c): return fail("not_due", {"text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, tide_days_left(c)) * 86400.0)})
 	if game.room_rt.event.get("active", false): return fail("busy")
 	var ev := {"id": "beast_tide", "duration": float(cfg.get("duration", 90)), "waves": cfg.get("waves", []),
 		"on_complete": [{"kind": "beast_tide_result", "won": true}]}

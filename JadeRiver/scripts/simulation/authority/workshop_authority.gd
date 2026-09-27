@@ -127,7 +127,7 @@ func place_formation(c, type: String) -> Dictionary:
 	var live := active_formations(c)
 	for f in live:
 		if str(f.type) == type and str(f.room) == room: return fail("already_placed", {"text": Tx.t("sim.workshop.that_formation_already_stands_here")})
-	if live.size() >= int(prof("formations").get("max_active", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_keep_formations_at") % int(prof("formations").get("max_active", 2))})
+	if live.size() >= int(prof("formations").get("max_active", 2)): return fail("too_many", {"text": Tx.plural("sim.workshop.you_can_keep_formations_at", int(prof("formations").get("max_active", 2))) % int(prof("formations").get("max_active", 2))})
 	game.inventory.apply_remove(c.id, fuel, need, "formation")
 	# S48 the Formation Dao: from tier 1 a formation holds a tenth longer.
 	var hours := minf(float(bp.get("max_hours", 24)), float(need) * float(bp.get("hours_per_crystal", 1.0))) * (1.1 if ftier >= 1 else 1.0)
@@ -137,7 +137,7 @@ func place_formation(c, type: String) -> Dictionary:
 	_apply_room_buffs(c)
 	emit("formation_placed", {"actor": c.id, "formation": type, "room": room, "hours": hours})
 	_used(c, "formation_placed", "formations", float(prof("formations").get("xp_per_use", 0)))
-	log_line(c.id, Tx.t("sim.workshop.placed_h_of_fuel") % [str(bp.get("name", type)), int(hours)], "craft")
+	log_line(c.id, Tx.t("sim.workshop.placed_h_of_fuel") % [str(bp.get("name", type)), Tx.span(hours * 3600.0)], "craft")
 	return ok({"hours": hours})
 
 func remove_formation(c, index: int) -> Dictionary:
@@ -227,7 +227,7 @@ func build_puppet(c, id: String) -> Dictionary:
 		log_line(c.id, Tx.t("sim.workshop.built_it_sets_to_work") % str(b.get("name", id)), "craft")
 		return ok({"pet": str(b.pet)})
 	var puppets: Array = _state(c, "puppets", [])
-	if puppets.size() >= int(p.get("max_puppets", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_run_puppets") % int(p.get("max_puppets", 2))})
+	if puppets.size() >= int(p.get("max_puppets", 2)): return fail("too_many", {"text": Tx.plural("sim.workshop.you_can_run_puppets", int(p.get("max_puppets", 2))) % int(p.get("max_puppets", 2))})
 	for inp in b.get("inputs", []):
 		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.workshop.needs") % [int(inp.count), ContentDB.item_name(str(inp.item))]})
 	for inp in b.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "puppet")

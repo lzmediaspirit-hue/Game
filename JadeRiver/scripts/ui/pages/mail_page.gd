@@ -24,7 +24,7 @@ func draw_page() -> void:
 		panel(rr, "minor_panel", "selected" if int(m.id) == sel else "normal")
 		if not m.get("read", false): draw_circle(rr.position + Vector2(16, 32), 6, UiKit.RED)
 		text(rr.position + Vector2(32, 28), str(m.subject), 18, UiKit.PAPER)
-		text(rr.position + Vector2(32, 50), str(m.from), 15, UiKit.MIST)
+		text(rr.position + Vector2(32, 50), str(m.from), 16, UiKit.MIST)
 		if not (m.get("attachments", []) as Array).is_empty() and not m.get("claimed", false): icon_at(Rect2(rr.end.x - 42, rr.position.y + 14, 32, 32), "open")
 		region(rr, "sel", int(m.id))
 	)
@@ -36,8 +36,8 @@ func draw_page() -> void:
 		if int(m.id) == sel: mm = m
 	if mm.is_empty(): return
 	heading(right.position + Vector2(24, 44), str(mm.subject), right.size.x - 48)
-	text(right.position + Vector2(24, 74), Tx.t("ui.mail.from") % str(mm.from), 17, UiKit.MIST)
-	para(Rect2(right.position + Vector2(24, 90), Vector2(right.size.x - 48, 200)), str(mm.body), 19)
+	text(right.position + Vector2(24, 74), Tx.t("ui.mail.from") % str(mm.from), 18, UiKit.MIST)
+	para(Rect2(right.position + Vector2(24, 90), Vector2(right.size.x - 48, 200)), str(mm.body), 20)
 	var x := right.position.x + 24
 	for a in mm.get("attachments", []):
 		if a.has("item"):

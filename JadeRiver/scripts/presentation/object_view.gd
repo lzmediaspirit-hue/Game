@@ -245,8 +245,8 @@ func _draw_sensed() -> void:
 	var text := ""
 	if sn.get("dormant", false): text = Tx.t("ui.herb.sense_dormant") % ContentDB.name_of("seasons", str(sn.season))
 	elif sn.get("spent", false): text = Tx.t("ui.herb.sense_spent")
-	elif sn.get("ripe", false): text = Tx.t("ui.herb.sense_ripe") % UiKit.clock(left)
-	else: text = Tx.t("ui.herb.sense_ripens") % UiKit.clock(left)
+	elif sn.get("ripe", false): text = Tx.t("ui.herb.sense_ripe") % UiKit.span(left)
+	else: text = Tx.t("ui.herb.sense_ripens") % UiKit.span(left)
 	var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 	UiKit.draw_outlined(self, text, Vector2(-120, -h - 30), 15, Color("b9a7ff"), HORIZONTAL_ALIGNMENT_CENTER, 240)
 

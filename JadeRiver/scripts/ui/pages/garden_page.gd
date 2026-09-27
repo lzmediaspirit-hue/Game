@@ -49,36 +49,36 @@ func _supplies(ch, r: Rect2) -> void:
 	if ds.has:
 		icon_at(Rect2(x, r.position.y + 10, 36, 36), "verdant_dew_vial")
 		var dew := Tx.t("ui.garden.dew") % [int(ds.dew), int(ds.cap)]
-		if int(ds.dew) < int(ds.cap): dew += "  ·  " + Tx.t("ui.garden.next_dew") % UiKit.clock(float(ds.next_s))
+		if int(ds.dew) < int(ds.cap): dew += "  ·  " + Tx.t("ui.garden.next_dew") % UiKit.span(float(ds.next_s))
 		text(Vector2(x + 44, r.position.y + 35), dew, 18, UiKit.BRIGHT_JADE)
 
 func _bed_card(ch, key: String, r: Rect2, i: int) -> void:
 	var v: Dictionary = Game.crafting.bed_view(ch, key)
 	panel(r, "minor_panel", "selected" if key == sel else "normal")
 	region(r, "sel", key)
-	text(r.position + Vector2(18, 32), Tx.t("ui.garden.bed") % (i + 1), 21, UiKit.PALE_GOLD)
+	text(r.position + Vector2(18, 32), Tx.t("ui.garden.bed") % (i + 1), 22, UiKit.PALE_GOLD)
 	var grade := Tx.t("ui.garden.grade_" + str(v.grade))
-	text(Vector2(r.end.x - 178, r.position.y + 32), grade, 17, UiKit.GOLD if str(v.grade) != "low" else UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 160)
+	text(Vector2(r.end.x - 178, r.position.y + 32), grade, 18, UiKit.GOLD if str(v.grade) != "low" else UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 160)
 	var cap := str(ContentDB.config("garden").get("field_cap", {}).get(str(v.grade), "earth"))
-	text(r.position + Vector2(18, 56), Tx.t("ui.garden.grows_up_to") % cap.capitalize(), 15, UiKit.MIST)
+	text(r.position + Vector2(18, 56), Tx.t("ui.garden.grows_up_to") % cap.capitalize(), 16, UiKit.MIST)
 	if str(v.herb) == "":
 		para(Rect2(r.position + Vector2(18, 100), Vector2(r.size.x - 36, 80)), Tx.t("ui.garden.empty"), 18, UiKit.MIST, 3)
 		return
 	slot_box(Rect2(r.position.x + 18, r.position.y + 74, SLOT, SLOT), str(v.herb))
 	para(Rect2(r.position + Vector2(106, 82), Vector2(r.size.x - 124, 50)), ContentDB.item_name(str(v.herb)), 18, UiKit.PAPER, 2)
-	text(r.position + Vector2(106, 144), Tx.t("ui.garden.age") % int(v.age), 16, UiKit.GOLD if int(v.age) >= 100 else UiKit.MIST)
+	text(r.position + Vector2(106, 144), Tx.plural("ui.garden.age", int(v.age)) % int(v.age), 16, UiKit.GOLD if int(v.age) >= 100 else UiKit.MIST)
 	var frac := float(v.progress)
 	bar(Rect2(r.position.x + 18, r.position.y + 170, r.size.x - 36, 30), frac, UiKit.BRIGHT_JADE if frac >= 1.0 else UiKit.JADE,
 		Tx.t("ui.garden.ready") if v.ready else "%d%%" % int(frac * 100.0))
-	if not v.ready: text(r.position + Vector2(18, 226), Tx.t("ui.garden.ready_in") % UiKit.clock(float(v.seconds)), 16, UiKit.MIST)
+	if not v.ready: text(r.position + Vector2(18, 226), Tx.t("ui.garden.ready_in") % UiKit.span(float(v.seconds)), 16, UiKit.MIST)
 
 ## What can be done with the selected bed.
 func _actions(ch, r: Rect2, n: int) -> void:
 	panel(r)
 	var v: Dictionary = Game.crafting.bed_view(ch, sel)
 	var head := Tx.t("ui.garden.bed") % n + "  ·  " + (ContentDB.item_name(str(v.herb)) if str(v.herb) != "" else Tx.t("ui.garden.empty_short"))
-	text(r.position + Vector2(18, 32), head, 19, UiKit.PALE_GOLD)
-	text(Vector2(r.end.x - 418, r.position.y + 32), Tx.t("ui.garden.tap_a_bed"), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 400)
+	text(r.position + Vector2(18, 32), head, 20, UiKit.PALE_GOLD)
+	text(Vector2(r.end.x - 418, r.position.y + 32), Tx.t("ui.garden.tap_a_bed"), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 400)
 	var x := r.position.x + 18
 	var y := r.position.y + 52
 	var h := 50.0
@@ -91,21 +91,21 @@ func _actions(ch, r: Rect2, n: int) -> void:
 			any = true
 			slot_box(Rect2(x, y + 3, SLOT_SMALL, SLOT_SMALL), str(s.id), int(s.get("count", 1)), "", "plant", str(s.id))
 			x += SLOT_SMALL + 10
-		if not any: para(Rect2(Vector2(x, y + 8), Vector2(r.end.x - x - 18, h)), Tx.t("ui.garden.no_seeds"), 17, UiKit.MIST, 2)
+		if not any: para(Rect2(Vector2(x, y + 8), Vector2(r.end.x - x - 18, h)), Tx.t("ui.garden.no_seeds"), 18, UiKit.MIST, 2)
 	else:
 		var w := 210.0
-		btn(Rect2(x, y, w, h), Tx.t("ui.garden.harvest"), "harvest", sel, true, bool(v.ready), Tx.t("ui.garden.not_ready"), 19)
+		btn(Rect2(x, y, w, h), Tx.t("ui.garden.harvest"), "harvest", sel, true, bool(v.ready), Tx.t("ui.garden.not_ready"), 20)
 		x += w + 14
 		btn(Rect2(x, y, w, h), Tx.t("ui.garden.water") % ch.inventory.count("spring_water"), "water", sel, false,
-			not v.ready and ch.inventory.count("spring_water") > 0, Tx.t("ui.garden.need_water"), 19)
+			not v.ready and ch.inventory.count("spring_water") > 0, Tx.t("ui.garden.need_water"), 20)
 		x += w + 14
 		var ds: Dictionary = Game.crafting.dew_state(ch)
 		if ds.has:
-			btn(Rect2(x, y, w, h), Tx.t("ui.garden.pour_dew"), "dew", sel, false, int(ds.dew) > 0, Tx.t("ui.garden.no_dew"), 19)
+			btn(Rect2(x, y, w, h), Tx.t("ui.garden.pour_dew"), "dew", sel, false, int(ds.dew) > 0, Tx.t("ui.garden.no_dew"), 20)
 			x += w + 14
 	var grades: Array = ContentDB.config("garden").get("field_grades", ["low", "mid", "high"])
 	if str(v.grade) != str(grades.back()):
-		btn(Rect2(r.end.x - 250, y, 232, h), Tx.t("ui.garden.soil"), "soil", sel, false, ch.inventory.count("spirit_soil") > 0, Tx.t("ui.garden.need_soil"), 19)
+		btn(Rect2(r.end.x - 250, y, 232, h), Tx.t("ui.garden.soil"), "soil", sel, false, ch.inventory.count("spirit_soil") > 0, Tx.t("ui.garden.need_soil"), 20)
 
 # ------------------------------------------------------------------ racks
 ## Two racks: steam herbs (their pills carry 30% less toxicity) or soak them in rice wine (10% more potency).
@@ -122,28 +122,28 @@ func _racks(ch) -> void:
 		panel(r)
 		text(r.position + Vector2(18, 32), Tx.t("ui.garden.rack") % (i + 1), 20, UiKit.PALE_GOLD)
 		if i >= jobs.size():
-			text(r.position + Vector2(18, 70), Tx.t("ui.garden.rack_free"), 17, UiKit.MIST)
+			text(r.position + Vector2(18, 70), Tx.t("ui.garden.rack_free"), 18, UiKit.MIST)
 			continue
 		var job: Dictionary = jobs[i]
 		slot_box(Rect2(r.position.x + 18, r.position.y + 48, SLOT, SLOT), str(job.herb), int(job.count))
-		text(r.position + Vector2(108, 70), fit(Tx.t("ui.garden.rack_job") % [Tx.t("ui.garden.doing_" + str(job.kind)), ContentDB.item_name(str(job.herb))], 17, w - 126), 17, UiKit.PAPER)
+		text(r.position + Vector2(108, 70), fit(Tx.t("ui.garden.rack_job") % [Tx.t("ui.garden.doing_" + str(job.kind)), ContentDB.item_name(str(job.herb))], 18, w - 126), 18, UiKit.PAPER)
 		var total := float(g.get(str(job.kind), {}).get("hours", 1)) * 3600.0
 		var left := maxf(0.0, float(job.done) - now)
 		bar(Rect2(r.position.x + 108, r.position.y + 84, w - 126, 28), 1.0 - left / maxf(1.0, total), UiKit.BRIGHT_JADE,
-			Tx.t("ui.garden.ready") if left <= 0.0 else UiKit.clock(left))
+			Tx.t("ui.garden.ready") if left <= 0.0 else UiKit.span(left))
 	var any_done := jobs.any(func(j): return float(j.done) <= now)
-	btn(Rect2(content.end.x - 240, content.position.y + 160, 240, 48), Tx.t("ui.garden.collect"), "collect", null, true, any_done, Tx.t("ui.garden.nothing_ready"), 19)
+	btn(Rect2(content.end.x - 240, content.position.y + 160, 240, 48), Tx.t("ui.garden.collect"), "collect", null, true, any_done, Tx.t("ui.garden.nothing_ready"), 20)
 	# Start a rack: pick a herb, the kind and how many.
 	var r2 := Rect2(content.position.x, content.position.y + 220, content.size.x, content.end.y - content.position.y - 220)
 	panel(r2)
-	text(r2.position + Vector2(18, 32), Tx.t("ui.garden.rack_start"), 19, UiKit.PALE_GOLD)
+	text(r2.position + Vector2(18, 32), Tx.t("ui.garden.rack_start"), 20, UiKit.PALE_GOLD)
 	var x := r2.position.x + 18
 	var herbs: Array = []
 	for st in ch.inventory.bag:
 		if st == null or str(ContentDB.item(str(st.id)).get("type", "")) != "herb" or str(st.get("prep", "")) != "" or st.get("unappraised", false): continue
 		if not herbs.has(str(st.id)): herbs.append(str(st.id))
 	if herbs.is_empty():
-		para(Rect2(r2.position + Vector2(18, 48), Vector2(r2.size.x - 36, 40)), Tx.t("ui.garden.no_herbs"), 17, UiKit.MIST)
+		para(Rect2(r2.position + Vector2(18, 48), Vector2(r2.size.x - 36, 40)), Tx.t("ui.garden.no_herbs"), 18, UiKit.MIST)
 		return
 	if not rack_herb in herbs: rack_herb = str(herbs[0])
 	for h in herbs.slice(0, 12):
@@ -164,7 +164,7 @@ func _racks(ch) -> void:
 		note += "  " + Tx.t("ui.garden.wine_jars") % [int(ceil(rack_count / float(g.get("wine", {}).get("per", 5)))), ch.inventory.count("rice_wine")]
 	para(Rect2(r2.position + Vector2(18, 196), Vector2(r2.size.x - 300, 60)), note, 16, UiKit.MIST, 2)
 	btn(Rect2(r2.end.x - 258, r2.end.y - 64, 240, 50), Tx.t("ui.garden.start"), "start", null, true,
-		jobs.size() < int(g.get("slots", 2)) and have > 0, Tx.t("ui.garden.racks_busy"), 19)
+		jobs.size() < int(g.get("slots", 2)) and have > 0, Tx.t("ui.garden.racks_busy"), 20)
 
 func on_action(id: String, data) -> void:
 	match id:

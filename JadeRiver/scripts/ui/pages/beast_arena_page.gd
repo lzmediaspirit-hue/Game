@@ -7,7 +7,7 @@ var replay_start := -1.0
 
 func _init() -> void:
 	title = Tx.t("ui.arena.title")
-	frame_rect = Rect2(130, 60, 1020, 600)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()
@@ -26,7 +26,7 @@ func draw_page() -> void:
 		if int(t.rank) == rank: rows.append({"you": true})
 		rows.append(t)
 	if rank >= unranked: rows.append({"you": true})
-	list("ladder", left.grow(-10), rows.size(), 52, func(i: int, rr: Rect2):
+	list("ladder", left.grow(-10), rows.size(), 56, func(i: int, rr: Rect2):
 		var row: Dictionary = rows[i]
 		var shown_rank := i + 1
 		if row.get("you", false):
@@ -38,7 +38,7 @@ func draw_page() -> void:
 		text(rr.position + Vector2(12, 33), str(shown_rank), 20, UiKit.MIST)
 		var solo: Array = row.get("solo", [])
 		if not solo.is_empty(): creature_at(Rect2(rr.position + Vector2(44, 4), Vector2(44, 44)), _art(str(solo[0].species)))
-		text(rr.position + Vector2(96, 33), fit(str(row.name), 17, rr.size.x - 104), 17, UiKit.PAPER)
+		text(rr.position + Vector2(96, 33), fit(str(row.name), 18, rr.size.x - 104), 18, UiKit.PAPER)
 	)
 	# Right: your standing, the tamer above you, the challenge buttons and the last fight.
 	var right := Rect2(left.end.x + 16, content.position.y, content.end.x - left.end.x - 16, content.size.y)
@@ -46,8 +46,7 @@ func draw_page() -> void:
 	var px := right.position.x + 22
 	var fights_left := int(cfg.get("fights_per_day", 5)) - int(a.get("fights", 0))
 	heading(Vector2(px, right.position.y + 40), Tx.t("ui.arena.rank") % rank if rank < unranked else Tx.t("ui.arena.unranked"), right.size.x - 44)
-	text(Vector2(px, right.position.y + 72), fit(Tx.t("ui.arena.fights_left") % [fights_left, int(cfg.get("fights_per_day", 5))] + "  ·  " + _week_line(cfg, rank),
-		15, right.size.x - 44), 15, UiKit.MIST)
+	text(Vector2(px, right.position.y + 72), fit(Tx.t("ui.arena.fights_left") % [fights_left, int(cfg.get("fights_per_day", 5))] + "  ·  " + _week_line(cfg, rank),16, right.size.x - 44), 16, UiKit.MIST)
 	var opp: Dictionary = Game.pets.arena_opponent(ch)
 	var y := right.position.y + 90
 	if opp.is_empty():
@@ -63,7 +62,7 @@ func draw_page() -> void:
 			var tm: Array = opp.get(mode, [])
 			for k in tm.size():
 				creature_at(Rect2(col + Vector2(k * 56, 20), Vector2(52, 52)), _art(str(tm[k].species)))
-				text(col + Vector2(k * 56, 86), Tx.t("ui.arena.lv") % int(tm[k].level), 13, UiKit.MIST)
+				text(col + Vector2(k * 56, 86), Tx.t("ui.arena.lv") % int(tm[k].level), 14, UiKit.MIST)
 		y += 160
 		for mi in 2:
 			var mode2: String = ["solo", "trio"][mi]
@@ -71,21 +70,21 @@ func draw_page() -> void:
 			var need := 1 if mode2 == "solo" else 3
 			var bw := (right.size.x - 44 - 12) / 2.0
 			btn(Rect2(px + mi * (bw + 12), y, bw, 50), Tx.t("ui.arena.challenge_" + mode2), "fight", mode2, mi == 0,
-				fights_left > 0 and team.size() >= need, Tx.t("sim.pet.arena_tired") if fights_left <= 0 else Tx.t("sim.pet.arena_team_" + mode2), 17)
+				fights_left > 0 and team.size() >= need, Tx.t("sim.pet.arena_tired") if fights_left <= 0 else Tx.t("sim.pet.arena_team_" + mode2), 18)
 		y += 62
 	_replay(ch, a, Rect2(px, y, right.size.x - 44, right.end.y - y - 12))
 
 func _week_line(cfg: Dictionary, rank: int) -> String:
 	for rw in cfg.get("rewards", []):
 		if rank >= int(rw.ranks[0]) and rank <= int(rw.ranks[1]):
-			return Tx.t("ui.arena.week_pays") % int(rw.get("spirit_stone", 0))
+			return Tx.plural("ui.arena.week_pays", int(rw.get("spirit_stone", 0))) % int(rw.get("spirit_stone", 0))
 	return Tx.t("ui.arena.week_none")
 
 ## The last fight, replayed at 8x: each side's health bars drain as the log's blows land.
 func _replay(_ch, a: Dictionary, r: Rect2) -> void:
 	var last: Dictionary = a.get("last", {})
 	if last.is_empty() or r.size.y < 80:
-		para(r, Tx.t("ui.arena.help"), 15, UiKit.MIST)   # B18: the room there is, not four lines
+		para(r, Tx.t("ui.arena.help"), 16, UiKit.MIST)   # B18: the room there is, not four lines
 		return
 	if replay_start < 0.0: replay_start = t
 	var rt := (t - replay_start) * 8.0
@@ -97,7 +96,7 @@ func _replay(_ch, a: Dictionary, r: Rect2) -> void:
 		var ti := int(e.target)
 		if ti < (hp[foe] as Array).size(): hp[foe][ti] = maxf(0.0, float(hp[foe][ti]) - float(e.dmg))
 		if e.get("skill", false) and float(e.t) > rt - 1.0: skill_flash = str(e.side)
-	text(r.position + Vector2(0, 16), Tx.t("ui.arena.last") % Tx.t("ui.arena.mode_" + str(last.mode)), 15, UiKit.GOLD)
+	text(r.position + Vector2(0, 16), Tx.t("ui.arena.last") % Tx.t("ui.arena.mode_" + str(last.mode)), 16, UiKit.GOLD)
 	var colw := (r.size.x - 20) / 2.0
 	for si in 2:
 		var side: String = ["a", "b"][si]
@@ -107,7 +106,7 @@ func _replay(_ch, a: Dictionary, r: Rect2) -> void:
 			var yy := r.position.y + 28 + k * 34
 			creature_at(Rect2(x, yy - 2, 30, 30), _art(str(team[k].species)))
 			var frac := float(hp[side][k]) / maxf(1.0, float(team[k].max_hp))
-			bar(Rect2(x + 36, yy + 4, colw - 40, 22), frac, UiKit.BRIGHT_JADE if side == "a" else UiKit.RED, fit(str(team[k].name), 13, colw - 60))
+			bar(Rect2(x + 36, yy + 4, colw - 40, 22), frac, UiKit.BRIGHT_JADE if side == "a" else UiKit.RED, fit(str(team[k].name), 14, colw - 60))
 		if skill_flash == side: text(Vector2(x, r.position.y + 28 + team.size() * 34 + 12), Tx.t("ui.arena.skill"), 14, UiKit.PALE_GOLD)
 	if rt >= float(last.get("t", 0.0)):
 		var won: bool = last.get("won", false)

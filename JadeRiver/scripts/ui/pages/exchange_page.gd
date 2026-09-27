@@ -5,7 +5,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.exchange.exchange")
 	modal = true
-	frame_rect = Rect2(320, 150, 640, 420)
+	frame_rect = WINDOW_SMALL
 
 func _pairs() -> Array:
 	var zone := str(ContentDB.zone_of_room(Game.room_rt.room_id if Game.room_rt else "").get("id", "jade_river_valley"))
