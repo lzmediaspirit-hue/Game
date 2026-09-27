@@ -358,37 +358,6 @@ func meditate(seconds: float) -> void:
 	step(seconds + 1.0)
 	submit({"type": "stop_meditation"})
 
-## Spar through an npc service or a practice post until one spar ends; true when won.
-func spar_with(start_intent: Callable) -> bool:
-	var result := {"done": false, "won": false}
-	var heard := func(n: String, p: Dictionary):
-		if n == "spar_ended":
-			result.done = true
-			result.won = str(p.get("winner", "")) == "player"
-	GameEvents.event.connect(heard)
-	var r: Dictionary = start_intent.call()
-	if not r.get("ok", false): print("  spar start: ", r)
-	var t := 0.0
-	while not result.done and t < 120.0:
-		var foe: EnemyState = null
-		for e in Game.room_rt.living_enemies():
-			if e.def.get("spar", false): foe = e
-		if foe == null:
-			step(0.3)
-			t += 0.3
-			continue
-		if str(foe.ai.get("state", "")) == "windup":
-			place(foe.plane + Vector2(-34, 70 if foe.plane.y < 860 else -70))
-			step(0.6)
-			t += 0.6
-			continue
-		place(foe.plane + Vector2(-34 if st.plane.x <= foe.plane.x else 34, 0))
-		submit({"type": "basic_attack", "facing": 1 if foe.plane.x >= st.plane.x else -1})
-		step(0.2)
-		t += 0.2
-	GameEvents.event.disconnect(heard)
-	return bool(result.won)
-
 ## Fill the progress bar with the test shortcut and break through until `realm`.
 func reach(realm: String, supports: Array = []) -> bool:
 	var guard := 0
@@ -593,12 +562,6 @@ func sec_bf2() -> void:
 	check(plunges(1) == 1, "plunge from the air")
 	check(finish("outer_trial"), "Outer Trial done")
 	check(str(c().training_sect.get("rank", "")) == "outer_disciple", "Outer Disciple")
-
-func _spar_service(npc: String) -> Dictionary:
-	var d := talk(npc)
-	for ch in d.get("choices", []):
-		if ch.has("spar"): return submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
-	return {"ok": false, "reason": "no spar choice"}
 
 # ------------------------------------------------------------------ Bone Forging 5-7
 func sec_bf5() -> void:
