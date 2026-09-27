@@ -197,6 +197,14 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
      `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
      `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
+   - tools (HD): a ladder tool is its builder (`pick_hd`, `sickle_hd`, `rod_hd`, `net_hd`, `snare_hd`) at a tier on
+     `TK(tier)` (the tier's head metal over the weapons' kit, `TIER_GRADE` / `TIER_HEAD`; the rods' and nets' own
+     materials in `ROD_HD` / `NET_HD`, the snares' in `SNARE_HD`); a talisman is `strip_hd` with its glyph from
+     `TALISMAN_GLYPHS` and `seal_hd`; an offering is a dish from `minerals.es_dish_hd`. Every icon is a `TOOLS_HD` row.
+   - misc (HD): a row in `MISC_HD_A` / `MISC_HD_B` on the kind templates `page_hd`, `scroll_hd` + `tag_hd`,
+     `hand_scroll_hd`, `token_hd`, `book_hd`, `bag_hd`, `egg_hd`, `bowl_hd` + `sticks_hd` + `smoke_hd`; the beast bags
+     are `BEAST_BAGS_HD` rows, the hour incense `HOUR_HD` rows (the hours as `digits_hd`), the rite tablets `RITE_HD`
+     rows; the sun seal is `sun_seal_hd`, a chart `star_chart_hd`, an elder's token `elder_token_hd` with its face.
    - status icons and markers: add an ASCII block, using `asciiart.KEY`
      colours.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The
