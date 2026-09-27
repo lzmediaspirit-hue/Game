@@ -1,0 +1,117 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>03 Menu hub</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The hall: a lacquered wall with a lattice frieze, red pillars between the five bays */
+  .hall { position: absolute; left: 92px; top: 108px; width: 1096px; height: 500px; border-radius: 4px;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(229,184,76,.16), rgba(229,184,76,0) 55%),
+      linear-gradient(180deg, #0c2a2f, #081c21 60%, #06161a); box-shadow: inset 0 0 0 1px rgba(154,106,53,.5), inset 0 0 40px rgba(0,0,0,.5); }
+  .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; border-top: 2px solid rgba(154,106,53,.55);
+    background: repeating-linear-gradient(90deg, rgba(175,201,209,.05) 0 1px, transparent 1px 64px), linear-gradient(180deg, rgba(21,81,79,.25), rgba(7,16,21,.4)); }
+  .frieze { position: absolute; left: 0; right: 0; top: 0; height: 14px; opacity: .55;
+    background: repeating-linear-gradient(45deg, rgba(103,214,189,.25) 0 2px, transparent 2px 10px), repeating-linear-gradient(-45deg, rgba(103,214,189,.25) 0 2px, transparent 2px 10px);
+    border-bottom: 2px solid rgba(154,106,53,.7); }
+  .pillar { position: absolute; top: 14px; bottom: 0; width: 10px; margin-left: -5px;
+    background: linear-gradient(90deg, #3d1512, #8a3129 40%, #5a1d17); box-shadow: 0 0 0 1px rgba(7,16,21,.8); }
+  .pillar::before, .pillar::after { content: ""; position: absolute; left: -3px; right: -3px; height: 8px; background: linear-gradient(180deg, var(--pale-gold), var(--bronze)); border-radius: 2px; }
+  .pillar::before { top: 0; } .pillar::after { bottom: 0; }
+  .bay { position: absolute; top: 20px; width: 200px; }
+  .bay > .k-plaque { width: 200px; --h: 46px; padding: 0 40px; }
+  .bay > .k-plaque > span { font-family: var(--f-display); font-weight: 700; font-size: 26px; color: var(--pale-gold); text-shadow: 0 2px 0 rgba(0,0,0,.55); margin-top: -2px; }
+  /* A tablet: one hub entry, 64 px tall, icon, name and (when something waits) a line saying what */
+  .tab-e { position: relative; height: 64px; margin-top: 10px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 10px;
+    border-image: url(../../../art/ui/hd/minor_panel__normal.png) 36 fill / 12px stretch; }
+  .tab-e > .ic { width: 32px; height: 32px; flex: none; margin: 0 6px; }
+  /* the entry's seal: a round medallion behind the 32 px glyph (drawn at 1x, never at a fractional scale) */
+  .tab-e::before { content: ""; position: absolute; left: 6px; top: 9px; width: 46px; height: 46px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #1d5157, #061519); box-shadow: 0 0 0 2px var(--bronze), 0 0 0 3px var(--ink); }
+  .tab-e > * { position: relative; }
+  .tab-e > .k-seal, .tab-e > .k-badge, .tab-e > .k-new { position: absolute; }
+  .cord { position: absolute; top: 60px; width: 2px; margin-left: -1px; background: linear-gradient(180deg, #c89a52, #7a5426); box-shadow: 0 0 0 1px rgba(7,16,21,.6); }
+  .lantern { position: absolute; top: 12px; width: 60px; height: 60px; margin-left: -30px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,214,140,.35), rgba(255,214,140,0) 65%); }
+  .tab-e .nm { font-size: 19px; color: var(--paper); line-height: 1.05; text-shadow: 0 2px 0 rgba(0,0,0,.55), 1px 1px 0 rgba(0,0,0,.45); white-space: nowrap; }
+  .tab-e .sb { font-size: 14px; color: var(--mist); line-height: 1.2; margin-top: 2px; white-space: nowrap; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .tab-e.is-ready { box-shadow: 0 0 0 1px rgba(229,184,76,.0); }
+  .tab-e.is-ready .sb { color: var(--pale-gold); }
+  .tab-e.is-locked { border-image-source: url(../../../art/ui/hd/slot__disabled.png); border-image-slice: 24 fill; border-image-width: 8px; }
+  .tab-e.is-locked > .ic { filter: grayscale(1) brightness(.45); }
+  .tab-e.is-locked::before { filter: grayscale(1) brightness(.6); }
+  .tab-e.is-locked .nm { color: var(--hollow); }
+  .tab-e.is-locked .sb { color: var(--hollow); }
+  .tab-e .k-badge, .tab-e .k-seal, .tab-e .k-new { right: -6px; top: -8px; }
+  .tab-e .lk { position: absolute !important; left: 38px; top: 38px; }
+  .bottom-line { position: absolute; left: 92px; top: 622px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Menu</span></div>
+  <div class="k-page-close k-close"></div>
+</div>
+
+<div class="hall">
+  <div class="floor"></div><div class="frieze"></div>
+  <div class="cord" style="left:108px;height:282px"></div><div class="cord" style="left:328px;height:282px"></div><div class="cord" style="left:548px;height:356px"></div>
+  <div class="cord" style="left:768px;height:282px"></div><div class="cord" style="left:988px;height:282px"></div>
+  <div class="lantern" style="left:218px"></div><div class="lantern" style="left:438px"></div><div class="lantern" style="left:658px"></div><div class="lantern" style="left:878px"></div>
+  <div class="pillar" style="left:218px"></div><div class="pillar" style="left:438px"></div><div class="pillar" style="left:658px"></div><div class="pillar" style="left:878px"></div>
+
+  <!-- Self -->
+  <div class="bay" style="left:8px">
+    <div class="k-plaque"><span>Self</span></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/character.png"><div><div class="nm">Character</div></div></div>
+    <div class="tab-e is-ready"><img class="ic" src="../../../art/icons/hud/cultivation.png"><div><div class="nm">Cultivation</div><div class="sb">Bottleneck reached</div></div><div class="k-seal">✓</div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/techniques.png"><div><div class="nm">Techniques</div><div class="sb">2 of 6 slots set</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/bag.png"><div><div class="nm">Bag</div></div></div>
+  </div>
+  <!-- World -->
+  <div class="bay" style="left:228px">
+    <div class="k-plaque"><span>World</span></div>
+    <div class="tab-e is-ready"><img class="ic" src="../../../art/icons/hud/quest.png"><div><div class="nm">Quests</div><div class="sb">4 chests to claim</div></div><div class="k-seal">✓</div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/world_map.png"><div><div class="nm">Map</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/calendar.png"><div><div class="nm">Calendar</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/codex.png"><div><div class="nm">Codex</div></div></div>
+  </div>
+  <!-- Bonds -->
+  <div class="bay" style="left:448px">
+    <div class="k-plaque"><span>Bonds</span></div>
+    <div class="tab-e is-locked"><img class="ic" src="../../../art/icons/hud/spirit_animals.png"><span class="k-lock-mini lk"></span><div><div class="nm">Spirit Animals</div><div class="sb">At Qi Unfurling 5</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/characters.png"><div><div class="nm">Companions</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/sect.png"><div><div class="nm">Sect</div><div class="sb">Jade Sect · inner disciple</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/account.png"><div><div class="nm">Your Sect</div><div class="sb">Jun asks to join</div></div><div class="k-new" style="right:-4px;top:-4px"></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/characters.png"><div><div class="nm">Characters</div></div></div>
+  </div>
+  <!-- Works -->
+  <div class="bay" style="left:668px">
+    <div class="k-plaque"><span>Works</span></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/crafts.png"><div><div class="nm">Crafts</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/formation.png"><div><div class="nm">Workshop</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/roll_call.png"><div><div class="nm">Roll-Call</div></div></div>
+    <div class="tab-e is-locked"><img class="ic" src="../../../art/icons/hud/works.png"><span class="k-lock-mini lk"></span><div><div class="nm">Works</div><div class="sb">After “Keeping Post”</div></div></div>
+  </div>
+  <!-- System -->
+  <div class="bay" style="left:888px">
+    <div class="k-plaque"><span>System</span></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/mail.png"><div><div class="nm">Mail</div><div class="sb">From your mentor</div></div><div class="k-badge">1</div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/talk.png"><div><div class="nm">Emotes</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/settings.png"><div><div class="nm">Settings</div></div></div>
+    <div class="tab-e"><img class="ic" src="../../../art/icons/hud/back.png"><div><div class="nm">Save &amp; Exit</div></div></div>
+  </div>
+</div>
+
+<!-- the character line and the currencies -->
+<div class="abs flex" style="left:96px;top:624px;gap:12px">
+  <div class="t-lg c-paper">Tester</div><div class="t-lg c-mist">· Qi Unfurling 4 · Lv 22</div>
+</div>
+<div class="abs flex" style="left:780px;top:620px;gap:8px">
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/contribution.png"><span class="v">290</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">0</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">5,908</span></div>
+</div>
+
+</div></body></html>

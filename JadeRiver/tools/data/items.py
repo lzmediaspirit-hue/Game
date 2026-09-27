@@ -324,7 +324,7 @@ def pills():
     pill("cloudstep_pill", "heaven", "arrows", "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.", 8,
          [effect("add_modifier", stat="move_speed", op="pct_add", value=0.10, duration=1200, source="cloudstep_pill")], group="buff")
     pill("murky_pill", "plain", "drop_leaf", "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.", 8,
-         [], group="utility", value_override=1)
+         [], group="utility", value_override=1, source="system")
     return P
 
 
@@ -416,7 +416,7 @@ def build_items():
     rows.append(item("spring_water", "material", "common", 20, "Qi-spring water in a stoppered gourd. Poured on a garden bed, it hurries the herb along by a quarter. A spring gives three bottles a day.",
                      name="Bottled Spring Water"))
     rows.append(item("dyed_root", "material", "plain", 99, "A carrot root dyed and combed to pass for hundred-year ginseng. Worth nothing, except as a lesson.",
-                     name="Dyed Root"))
+                     name="Dyed Root", source="system"))
     rows.append(item("rice_wine", "material", "common", 20, "A clay jar of cloudy rice wine. Herbs soaked in it on a drying rack make stronger pills."))
     rows.append(item("spirit_soil", "material", "heaven", 20, "Black earth that still remembers a spirit vein. Worked into a garden bed, it raises the bed's field grade one step, for good. Strong beasts sometimes carry it in their hides."))
     for o in ORES:
@@ -632,7 +632,7 @@ def build_items():
     rows.append(item("evergreen_heart_seed", "treasure", "heaven", 1,
                      "A seed with a slow pulse. Plant it in rich earth where Qi gathers: a cave abode or your sect's Back Mountain. Never sold.", sell=False))
     rows.append(item("evergreen_heart_fruit", "treasure", "heaven", 3,
-                     "Eat it when gravely wounded to rise where you fell, whole. The tree bears one each season. Never sold.", sell=False))
+                     "Eat it when gravely wounded to rise where you fell, whole. The tree bears one each season. Never sold.", sell=False, source="system"))
     rows.append(item("fuel_crystal_low", "material", "earth", 99, "Formation fuel pressed from Spirit Stone shards."))
     rows.append(item("fuel_crystal_mid", "material", "heaven", 99, "Ten low fuel crystals fused into one."))
     rows.append(item("blank_plate", "material", "earth", 99, "A blank jade plate for portable arrays."))
@@ -750,8 +750,8 @@ def build_items():
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.", sell=False, ilv=95))
     rows.append(item("law_condensing_pill", "pill", "law", 99, "Converts Sage Qi toward Law Qi. (Later zones.)", ilv=105, pill={"mark": "arrows", "toxicity": 20, "group": "utility"}, use=[]))
     rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
-    rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[]))
-    rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[]))
+    rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
+    rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
     entries("items.json", rows)
     entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows
@@ -826,7 +826,8 @@ def build_artifacts():
               ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 50, 16),
               ("sunsteel_gourd", "sage", "Sunsteel Gourd", 55, 18)]
     for id, grade, name, bag, quick in gourds:
-        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None)))
+        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None),
+                             **({"source": ["story"]} if id == "starter_gourd" else {})))   # the starting kit (AccountAuthority)
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"]))
     for fid, grade, name, icon, desc, stats in FURNACES:
         extra = {"sell": False} if stats.get("named") else {}

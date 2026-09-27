@@ -1,0 +1,394 @@
+/* Jade River mockup kit (P3).
+   One stylesheet for every mockup page in docs/mockups/src/. It maps the build's own UI onto CSS:
+   the fonts in art/fonts, the UiKit colour tokens (scripts/ui/ui_kit.gd), the HD nine-slice kit
+   (art/ui/hd, data/ui_assets_hd.json, scale 3: a margin of m screen px slices 3m image px and draws
+   m px wide), the HUD rings drawn by scripts/hud.gd, and the page frame of scripts/ui/page.gd.
+   Every class is documented with a snippet in kit/README.md; the kit sheet is src/00_kit.html.
+   Paths are relative to this file (docs/mockups/kit/), so ../../../art is JadeRiver/art. */
+
+/* ------------------------------------------------------------------ fonts */
+@font-face { font-family: "Cormorant Garamond"; src: url(../../../art/fonts/CormorantGaramond.ttf); font-weight: 300 700; }
+@font-face { font-family: "Source Serif 4"; src: url(../../../art/fonts/SourceSerif4.ttf); font-weight: 200 900; }
+@font-face { font-family: "Pixelify Sans"; src: url(../../../art/fonts/PixelifySans.ttf); font-weight: 400 700; }
+@font-face { font-family: "JadeRiverSymbols"; src: url(../../../art/fonts/JadeRiverSymbols.ttf); }
+
+/* ------------------------------------------------------------------ tokens */
+:root {
+  /* UiKit colour tokens, exactly as scripts/ui/ui_kit.gd */
+  --ink: #071015;
+  --river-night: #0a2027;
+  --deep-teal: #0d3035;
+  --jade-shadow: #15514f;
+  --jade: #2c9e8f;
+  --bright-jade: #67d6bd;
+  --bronze: #9a6a35;
+  --gold: #e5b84c;
+  --pale-gold: #ffe6a1;
+  --paper: #e8e1cf;
+  --mist: #afc9d1;
+  --red: #e45858;
+  --qi: #32bed1;
+  --soul: #9b78d1;
+  --hollow: #87949a;
+
+  /* Colours the HUD and pages use by literal today (hud.gd, page.gd, npc_view.gd); named here so mockups agree */
+  --hp: #c2474f;            /* hud.gd HP fill */
+  --bar-bg: #17242c;        /* hud.gd bar trough */
+  --boss-bg: #3a1418;       /* hud.gd boss bar trough */
+  --hud-label: #d5bd85;     /* hud.gd GOLD: HP / QI / SL bar labels */
+  --ally: #8fd3ff;          /* enemy_view.gd: allied names (companions, pets) */
+  --side: #8fc8ff;          /* hud.gd tracker: side and guided quests */
+  --side-marker: #5aa7e8;   /* npc_view.gd: side-quest head marker */
+  --blood: #b3202e;         /* hud.gd: the Blood path strip */
+  --ring-rim-top: #c6a262; --ring-rim-bottom: #5c4424;        /* hud.gd ring(): the gold rim */
+  --ring-lit-top: #f0d08a; --ring-lit-bottom: #7a5426;        /* ring(): lit rim */
+  --ring-disc-top: #1d5157; --ring-disc-bottom: #061519;      /* ring(): the jade disc */
+  --plate: rgba(5, 15, 19, 0.62);                             /* UiKit.draw_nameplate plate */
+  --dim: rgba(3, 8, 10, 0.72);                                /* page.gd: the play screen behind a page */
+
+  /* UiKit.badge_color (foe level words) */
+  --badge-grey: #8c969a; --badge-green: #67d67a; --badge-white: var(--paper); --badge-orange: #f0a040; --badge-red: var(--red);
+
+  /* Roles (proposed for P4's style guide; they only name existing tokens) */
+  --c-text: var(--paper);
+  --c-text-dim: var(--mist);
+  --c-heading: var(--pale-gold);
+  --c-accent: var(--gold);
+  --c-positive: var(--bright-jade);
+  --c-negative: var(--red);
+  --c-warning: var(--badge-orange);
+  --c-disabled: var(--hollow);
+  --c-seal: var(--red);     /* the "ready" seal on hub entries */
+
+  /* data/grades.json grade_colors (item and technique grades, low to high) */
+  --g-plain: #b9b2a0; --g-common: #e8e1cf; --g-earth: #67d67a; --g-heaven: #6fb8f0; --g-mystic: #b07ce8;
+  --g-spirit: #5ee0e8; --g-sage: #d8c27a; --g-sovereign: #e8a24c; --g-will: #f3e3a6; --g-sphere: #8f7ae0;
+  /* data/grades.json quality_colors */
+  --q-flawed: #9aa3a3; --q-common: #e8e1cf; --q-fine: #67d67a; --q-superior: #5aa7e8; --q-perfect: #b07ce8; --q-relic: #e5b84c;
+  --q-pill-grain: #e5b84c; --q-pill-halo: #e8764c; --q-pill-soul: #f2e6ff;
+
+  /* Layout (scripts/ui/page.gd) */
+  --safe-x: 48px; --safe-y: 24px; --safe-w: 1184px; --safe-h: 672px;
+  --grid: 8px;
+  --touch: 48px;            /* minimum touch target, both sides */
+
+  /* Type faces */
+  --f-display: "Cormorant Garamond", "JadeRiverSymbols", serif;
+  --f-text: "Source Serif 4", "JadeRiverSymbols", serif;
+  --f-num: "Pixelify Sans", "JadeRiverSymbols", monospace;
+  --f-sym: "JadeRiverSymbols", "Source Serif 4", serif;
+
+  /* The ascent's band colours (Early / Middle / Late / Peak), from the tokens */
+  --band-early: var(--jade-shadow); --band-middle: var(--jade); --band-late: var(--bronze); --band-peak: var(--gold);
+}
+
+/* ------------------------------------------------------------------ base */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  width: 1280px; height: 720px; overflow: hidden; background: var(--ink); color: var(--paper);
+  font-family: var(--f-text); font-weight: 600; font-variation-settings: "opsz" 14; font-feature-settings: "lnum" 1;
+  font-size: 20px; line-height: 1.3; -webkit-font-smoothing: antialiased;
+}
+/* A 1280 x 720 screen: every mockup's root. Children are placed with .abs and left/top in screen px. */
+.k-screen { position: relative; width: 1280px; height: 720px; overflow: hidden; background: var(--river-night); }
+.abs { position: absolute !important; }
+.flex { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.center { display: flex; align-items: center; justify-content: center; }
+.nowrap { white-space: nowrap; }
+.dim-screen { position: absolute; inset: 0; background: var(--dim); }
+/* A world backdrop plate (a checkpoint capture or backdrop layer) filling the screen */
+.k-plate { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; image-rendering: pixelated; }
+
+/* ------------------------------------------------------------------ type scale
+   Sizes are final screen px. UiKit draws Cormorant at 1.2x the layout size and never below DISPLAY_MIN (22),
+   so a layout size of 34 (page titles) is 41 px here. Words are Source Serif 4 semi-bold at optical size 14;
+   no text is smaller than MIN_SIZE (14). All text carries the UiKit two-step drop shadow unless .no-shadow. */
+.t-title, .t-display, .t-heading, .t-subhead { font-family: var(--f-display); font-weight: 700; line-height: 1.05; }
+.t-title   { font-size: 41px; color: var(--pale-gold); }      /* layout 34: page titles on the plaque */
+.t-display { font-size: 36px; color: var(--pale-gold); }      /* layout 30: a realm name, a big number's caption */
+.t-heading { font-size: 31px; color: var(--gold); }           /* layout 26: section headings (page.heading) */
+.t-subhead { font-size: 26px; color: var(--gold); }           /* layout 22: the smallest size Cormorant is used at */
+.t-xl { font-size: 22px; }                                    /* buttons */
+.t-lg { font-size: 20px; }                                    /* page text (page.text default) */
+.t-md { font-size: 18px; }                                    /* rows, HUD names */
+.t-sm { font-size: 16px; }                                    /* HUD tracker, log, captions */
+.t-xs { font-size: 14px; }                                    /* MIN_SIZE: hints, sub-labels */
+.t-label { font-family: var(--f-text); font-weight: 700; font-variation-settings: "opsz" 14; }  /* world labels, card titles */
+.t-num { font-family: var(--f-num); font-weight: 500; font-size: 20px; }   /* Pixelify: numbers at 20 px and above only */
+.t-num-lg { font-family: var(--f-num); font-weight: 600; font-size: 26px; } /* damage numbers over the world */
+/* The numeral fix (review G2, UiKit.PIXEL_NUMERALS_MIN = 20): Pixelify's 5 reads as S and its 2 as Z at bar size, so
+   numbers under 20 px (bar values, slot counts, cooldown seconds, badges) use Source Serif 4 Bold with lining tabular
+   figures; Pixelify stays for numbers of 20 px and up (damage numbers, large counts). */
+.t-fig { font-family: var(--f-text); font-weight: 700; font-variation-settings: "opsz" 14; font-feature-settings: "lnum" 1, "tnum" 1; }
+.t-sym { font-family: var(--f-sym); font-weight: 400; }
+/* Colours */
+.c-ink { color: var(--ink); } .c-paper { color: var(--paper); } .c-mist { color: var(--mist); } .c-gold { color: var(--gold); }
+.c-pale { color: var(--pale-gold); } .c-jade { color: var(--bright-jade); } .c-red { color: var(--red); } .c-qi { color: var(--qi); }
+.c-soul { color: var(--soul); } .c-hollow { color: var(--hollow); } .c-bronze { color: var(--bronze); } .c-ally { color: var(--ally); }
+.c-side { color: var(--side); } .c-orange { color: var(--badge-orange); } .c-green { color: var(--badge-green); }
+/* UiKit.draw_text shadow: two soft steps, no hard black edge */
+.t-title, .t-display, .t-heading, .t-subhead, .t-xl, .t-lg, .t-md, .t-sm, .t-xs, .t-num, .t-fig, .shadow {
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55), 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+.no-shadow { text-shadow: none !important; }
+/* UiKit.draw_outlined: world labels and numbers over painted scenes, a thin ink outline and a soft shadow */
+.t-outline { paint-order: stroke fill; -webkit-text-stroke: 4px rgba(7, 16, 21, 0.92); text-shadow: 0 2px 2px rgba(0, 0, 0, 0.35); }
+.t-outline.t-num, .t-outline.t-num-lg { -webkit-text-stroke-width: 5px; }
+/* page.heading: gold Cormorant with a bronze rule under it */
+.k-heading { font-family: var(--f-display); font-weight: 700; font-size: 31px; color: var(--gold); line-height: 1; padding-bottom: 6px;
+  border-bottom: 2px solid var(--bronze); display: inline-block; padding-right: 30px; text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+
+/* ------------------------------------------------------------------ nine-slice kit (HD, scale 3)
+   The element's box is the frame's rect (HdStyleBox draws into the whole rect); use padding for content.
+   border-image-width shrinks evenly when the rect is smaller than two margins, as HdStyleBox does. */
+.k-major-window { border-image: url(../../../art/ui/hd/major_window__normal.png) 96 fill / 32px stretch; padding: 32px; }
+.k-minor-panel  { border-image: url(../../../art/ui/hd/minor_panel__normal.png) 36 fill / 12px stretch; padding: 12px; }
+.k-tooltip      { border-image: url(../../../art/ui/hd/tooltip__normal.png) 30 fill / 10px stretch; padding: 10px 14px; }
+.k-slot         { border-image: url(../../../art/ui/hd/slot__normal.png) 24 fill / 8px stretch; position: relative; }
+.k-slot.is-selected { border-image-source: url(../../../art/ui/hd/slot__selected.png); }
+.k-slot.is-disabled { border-image-source: url(../../../art/ui/hd/slot__disabled.png); }
+/* An empty slot: the pixel kit's cloud-seal motif at 35% (page.gd and hud.gd draw it so), never a blank hole */
+.k-slot.is-empty::after { content: ""; position: absolute; inset: 14%; background: url(../../../art/ui/slot_empty_motif__normal.png) center / contain no-repeat;
+  image-rendering: pixelated; opacity: 0.35; }
+/* The selected-slot glow is an overlay 4 px outside the slot (page.slot_box grows the rect by 4) */
+.k-slot-glow { position: absolute; inset: -4px; border-image: url(../../../art/ui/hd/selected_slot_glow__normal.png) 36 / 12px stretch; pointer-events: none; }
+/* Slot contents: icon inset 6 px, count bottom-right, quality rim 3 px in */
+.k-slot > .ic { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+.k-slot > .k-count { position: absolute; right: 5px; bottom: 1px; }
+.k-slot > .k-qrim { position: absolute; inset: 3px; border: 2px solid var(--q, transparent); border-radius: 3px; }
+.k-slot.is-disabled > .ic { filter: grayscale(0.9) brightness(0.55); }
+
+.k-btn { border-image: url(../../../art/ui/hd/button_primary__normal.png) 42 48 fill / 14px 16px stretch;
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 16px;
+  font-family: var(--f-text); font-weight: 600; font-size: 22px; color: var(--pale-gold); text-shadow: 0 2px 0 rgba(0,0,0,.55), 1px 1px 0 rgba(0,0,0,.45); }
+.k-btn.is-pressed { border-image-source: url(../../../art/ui/hd/button_primary__pressed.png); padding-top: 4px; padding-left: 18px; }
+.k-btn.is-disabled { border-image-source: url(../../../art/ui/hd/button_primary__disabled.png); color: var(--hollow); }
+.k-btn2 { border-image: url(../../../art/ui/hd/button_secondary__normal.png) 36 42 fill / 12px 14px stretch;
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 14px;
+  font-family: var(--f-text); font-weight: 600; font-size: 22px; color: var(--paper); text-shadow: 0 2px 0 rgba(0,0,0,.55), 1px 1px 0 rgba(0,0,0,.45); }
+.k-btn2.is-pressed { border-image-source: url(../../../art/ui/hd/button_secondary__pressed.png); padding-top: 4px; padding-left: 16px; }
+.k-btn2.is-disabled { border-image-source: url(../../../art/ui/hd/button_secondary__disabled.png); color: var(--hollow); }
+/* A disabled button that explains itself on tap carries the lock (page.btn: top-right, 20 px in) */
+.k-btn.is-disabled .k-lock-mini, .k-btn2.is-disabled .k-lock-mini { position: absolute; right: 8px; top: 6px; }
+.k-btn, .k-btn2 { position: relative; white-space: nowrap; }
+
+.k-tabs { display: flex; gap: 6px; align-items: flex-end; }
+.k-tab { border-image: url(../../../art/ui/hd/tab__normal.png) 30 48 fill / 10px 16px stretch; position: relative;
+  min-width: 118px; height: 48px; padding: 0 20px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--paper); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+.k-tab.is-selected { border-image-source: url(../../../art/ui/hd/tab__selected.png); color: var(--pale-gold); }
+.k-tab.is-locked { color: var(--hollow); padding-right: 30px; }
+.k-tab.is-locked .k-lock-mini { position: absolute; right: 10px; top: 8px; }
+
+.k-toast { border-image: url(../../../art/ui/hd/toast__normal.png) 36 60 fill / 12px 20px stretch; padding: 10px 20px; }
+.k-bar-shell { border-image: url(../../../art/ui/hd/bar_shell__normal.png) 24 30 fill / 8px 10px stretch; }
+.k-pill { border-image: url(../../../art/ui/hd/currency_pill__normal.png) 30 60 fill / 10px 20px stretch;
+  height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 8px; }
+.k-pill > .ic { width: 24px; height: 24px; }
+.k-pill > .v { font-family: var(--f-text); font-weight: 700; font-feature-settings: "lnum" 1, "tnum" 1; font-size: 18px; color: var(--pale-gold);
+  text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+.k-dialogue { border-image: url(../../../art/ui/hd/dialogue_box__normal.png) 72 fill / 24px stretch; padding: 24px 28px; color: var(--ink); }
+.k-dialogue * { text-shadow: none; }
+.k-portrait { border-image: url(../../../art/ui/hd/portrait_frame__normal.png) 48 fill / 16px stretch; position: relative; overflow: hidden; }
+.k-minimap { border-image: url(../../../art/ui/hd/minimap_frame__normal.png) 72 fill / 24px stretch; position: relative; }
+.k-minimap > .k-minimap-title { position: absolute; left: 12px; top: 3px; font-family: var(--f-text); font-weight: 700; font-size: 14px; color: var(--pale-gold);
+  text-shadow: 0 2px 0 rgba(0,0,0,.55); white-space: nowrap; }
+.k-realm-badge { border-image: url(../../../art/ui/hd/realm_badge__normal.png) 24 fill / 8px stretch;
+  display: inline-flex; align-items: center; justify-content: center; padding: 2px 10px; }
+/* The title plaque has no vertical centre: HdStyleBox scales it to the rect's height (k = h / 52).
+   Set --h (default 60 px, page.gd's plaque) and the corners scale with it. */
+.k-plaque { --h: 60px; height: var(--h); border-image: url(../../../art/ui/hd/title_plaque__normal.png) 78 144 fill / calc(var(--h) * 0.5) calc(var(--h) * 0.923) stretch;
+  display: flex; align-items: center; justify-content: center; padding: 0 calc(var(--h) * 0.95); }
+.k-plaque > .t-title { margin-top: -2px; }
+/* Close button: fixed 52 x 52 art */
+.k-close { width: 52px; height: 52px; background: url(../../../art/ui/hd/close_button__normal.png) center / 100% 100% no-repeat; }
+.k-close.is-pressed { background-image: url(../../../art/ui/hd/close_button__pressed.png); }
+
+/* ------------------------------------------------------------------ the page frame (page.gd)
+   A full page: frame_rect (64, 32, 1152, 656), the plaque centred at y 42, the close button at (1146, 46), tabs at
+   y 116 (48 px tall here: page.gd draws them 40 with a 48 px tap area), content 28 px in from the frame. */
+.k-page { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; }
+.k-page > .k-major-window { position: absolute; inset: 0; }
+.k-page-title { position: absolute; left: 356px; top: 10px; width: 440px; }
+.k-page-close { position: absolute; right: 18px; top: 14px; }
+.k-page-tabs { position: absolute; left: 32px; top: 84px; }
+.k-page-content { position: absolute; left: 28px; top: 84px; right: 28px; bottom: 24px; }
+.k-page-content.has-tabs { top: 140px; }
+/* A modal (page.gd modal): 700 x 380 centred */
+.k-modal { position: absolute; left: 290px; top: 170px; width: 700px; height: 380px; }
+
+/* ------------------------------------------------------------------ icons
+   Icons are pixel art: 32 px HUD glyphs (art/icons/hud), 64 px items, techniques and equipment. Draw them at 1x or 2x
+   with .ic (nearest neighbour). Sizes: .ic-16 .ic-24 .ic-28 .ic-32 .ic-40 .ic-48 .ic-56 .ic-64 .ic-96 .ic-128. */
+.ic { display: block; image-rendering: pixelated; flex: none; }
+.ic-16 { width: 16px; height: 16px; } .ic-24 { width: 24px; height: 24px; } .ic-28 { width: 28px; height: 28px; }
+.ic-32 { width: 32px; height: 32px; } .ic-40 { width: 40px; height: 40px; } .ic-48 { width: 48px; height: 48px; }
+.ic-56 { width: 56px; height: 56px; } .ic-64 { width: 64px; height: 64px; } .ic-96 { width: 96px; height: 96px; }
+.ic-128 { width: 128px; height: 128px; }
+.ic.is-dim { opacity: 0.35; }
+.ic.is-grey { filter: grayscale(1) brightness(0.6); }
+/* Tint a HUD glyph gold (hud.gd modulates the Cultivate glyph gold at a bottleneck) */
+.ic.is-gold { filter: sepia(1) saturate(3) hue-rotate(-5deg) brightness(1.1); }
+/* page._lock_icon: the small bronze padlock drawn on locked tabs, buttons and entries */
+.k-lock-mini { width: 12px; height: 16px; position: relative; display: inline-block; }
+.k-lock-mini::before { content: ""; position: absolute; left: 2px; top: 0; width: 8px; height: 8px; border: 2px solid var(--bronze); border-bottom: 0; border-radius: 5px 5px 0 0; }
+.k-lock-mini::after { content: ""; position: absolute; left: 0; top: 6px; width: 12px; height: 9px; background: var(--bronze); border-radius: 1px; }
+
+/* ------------------------------------------------------------------ bars
+   .k-bar: the kit's bar shell with an inner trough 6/5 px in (page.bar). Set --v (0..1) for the fill.
+   Colour: .is-jade (default), .is-gold (bottleneck), .is-qi, .is-soul, .is-hp, .is-red, .is-bronze.
+   Reward stops (E4): .k-tick children at --at (0..1); .is-done ticks are gold, the .is-next tick is lit and names
+   its reward in a .k-tick-label; a .k-bar-end label at the bar's end names the next reward. */
+.k-bar { position: relative; height: 32px; --v: 0.5; --fill: var(--jade);
+  border-image: url(../../../art/ui/hd/bar_shell__normal.png) 24 30 fill / 8px 10px stretch; }
+.k-bar > .k-trough { position: absolute; left: 6px; right: 6px; top: 5px; bottom: 5px; background: rgb(5, 13, 15); overflow: hidden; }
+.k-bar > .k-trough > .k-fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v) * 100%); background: var(--fill);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.28); }
+.k-bar > .k-trough > .k-fill2 { position: absolute; left: 0; bottom: 0; height: 3px; width: calc(var(--v2, 0) * 100%); background: var(--pale-gold); }
+.k-bar.is-jade { --fill: var(--jade); } .k-bar.is-gold { --fill: var(--gold); } .k-bar.is-qi { --fill: var(--qi); }
+.k-bar.is-soul { --fill: var(--soul); } .k-bar.is-hp { --fill: var(--hp); } .k-bar.is-red { --fill: var(--red); } .k-bar.is-bronze { --fill: var(--bronze); }
+.k-bar > .k-bar-text { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-size: 16px; }
+/* Ticks sit on the trough; a tick is a 2 px post the trough's height plus 4 px each side, capped by a diamond above */
+.k-bar > .k-tick { position: absolute; left: calc(6px + (100% - 12px) * var(--at)); top: 1px; bottom: 1px; width: 2px; margin-left: -1px;
+  background: rgba(255, 230, 161, 0.55); box-shadow: 0 0 0 1px rgba(7, 16, 21, 0.8); }
+.k-bar > .k-tick::before { content: ""; position: absolute; left: -4px; top: -7px; width: 8px; height: 8px; transform: rotate(45deg);
+  background: var(--deep-teal); border: 1.5px solid var(--pale-gold); }
+.k-bar > .k-tick.is-done { background: var(--gold); }
+.k-bar > .k-tick.is-done::before { background: var(--gold); border-color: var(--pale-gold); }
+.k-bar > .k-tick.is-next::before { background: var(--pale-gold); border-color: #fff; box-shadow: 0 0 8px 2px rgba(255, 230, 161, 0.75); }
+.k-tick-label { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; color: var(--mist); text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+.k-tick-label.is-next { color: var(--pale-gold); }
+/* The HUD's thin bars (hud.gd bar(): an ink edge, a dark trough, the fill and a pale top line) */
+.k-hudbar { position: relative; height: 12px; background: var(--bar-bg); box-shadow: 0 0 0 2px var(--ink); --v: 1; --fill: var(--hp); }
+.k-hudbar > .k-fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v) * 100%); background: var(--fill); box-shadow: inset 0 2px 0 rgba(255, 242, 204, 0.35); }
+.k-hudbar.is-qi { --fill: var(--qi); height: 10px; } .k-hudbar.is-soul { --fill: var(--soul); height: 10px; } .k-hudbar.is-gold { --fill: var(--gold); }
+.k-hudbar > .k-v { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-size: 14px; line-height: 1; }
+.k-hudbar > .k-tick { position: absolute; top: -3px; bottom: -3px; left: calc(var(--at) * 100%); width: 2px; margin-left: -1px; background: var(--pale-gold); box-shadow: 0 0 0 1px var(--ink); }
+
+/* ------------------------------------------------------------------ HUD rings (hud.gd ring())
+   A jade disc in a gold rim with a soft shadow; three sizes (radius 66, 32, 26 = 132, 64, 52 px targets) and three
+   states: normal, .is-pressed and .is-active (lit: brighter rim and a gold glow; hud.gd lights a held toggle, a
+   bottleneck's Cultivate and a revealed element's pulse). Place by centre: set left/top to the centre, the ring
+   centres itself. Put a glyph (.ic) inside; it centres. */
+.k-hud { position: absolute; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); margin: calc(var(--r) * -1px) 0 0 calc(var(--r) * -1px);
+  border-radius: 50%; border: 3px solid transparent; --r: 32;
+  background: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 45%) padding-box,
+              linear-gradient(180deg, var(--ring-disc-top), var(--ring-disc-bottom)) padding-box,
+              linear-gradient(180deg, var(--ring-rim-top), var(--ring-rim-bottom)) border-box;
+  box-shadow: 0 4px 0 3px rgba(0, 5, 8, 0.42); display: flex; align-items: center; justify-content: center; }
+.k-hud::before { content: ""; position: absolute; inset: 2px; border-radius: 50%; border: 1.5px solid rgba(103, 214, 189, 0.22); pointer-events: none; }
+.k-hud-lg { --r: 66; border-width: 4px; } .k-hud-md { --r: 32; } .k-hud-sm { --r: 26; } .k-hud-xs { --r: 24; border-width: 2px; }
+.k-hud.is-active { background: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 45%) padding-box,
+              linear-gradient(180deg, var(--ring-disc-top), var(--ring-disc-bottom)) padding-box,
+              linear-gradient(180deg, var(--ring-lit-top), var(--ring-lit-bottom)) border-box;
+  box-shadow: 0 4px 0 3px rgba(0, 5, 8, 0.42), 0 0 0 5px rgba(229, 184, 76, 0.28), 0 0 0 9px rgba(229, 184, 76, 0.14), 0 0 14px 8px rgba(229, 184, 76, 0.22); }
+.k-hud.is-active::before { border-color: rgba(103, 214, 189, 0.32); }
+.k-hud.is-pressed { background: linear-gradient(180deg, #0b2a2f, #030b0d) padding-box, linear-gradient(180deg, var(--ring-rim-bottom), var(--ring-rim-top)) border-box;
+  box-shadow: 0 1px 0 2px rgba(0, 5, 8, 0.42); transform: translateY(2px); }
+.k-hud.is-dim { opacity: 0.45; }
+.k-hud > .ic { position: relative; }
+/* A cooldown sweep: set --cd (0..1 of the cooldown left); darkens clockwise from 12 o'clock, as hud.gd does */
+.k-hud > .k-cd { position: absolute; inset: 1px; border-radius: 50%; background: conic-gradient(rgba(0, 0, 0, 0.6) 0 calc(var(--cd) * 360deg), transparent 0); }
+.k-hud > .k-cd-num { position: absolute; font-size: 18px; }
+/* A progress arc on a ring's rim (a hold, a channel, Soul upkeep, a companion's HP): set --arc (0..1) and --arc-c.
+   Works inside .k-hud and .k-party. */
+.k-arc { position: absolute; inset: -6px; border-radius: 50%; --arc-c: var(--bright-jade); pointer-events: none;
+  background: conic-gradient(var(--arc-c) 0 calc(var(--arc) * 360deg), rgba(7, 16, 21, 0.55) 0);
+  -webkit-mask: radial-gradient(circle closest-side, transparent calc(100% - 4.5px), #000 calc(100% - 4px));
+  mask: radial-gradient(circle closest-side, transparent calc(100% - 4.5px), #000 calc(100% - 4px)); }
+/* A count or letter on a ring's lower right (Gourd charges, the loadout letter) */
+.k-hud > .k-corner { position: absolute; right: -6px; bottom: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--ink);
+  border: 1.5px solid var(--bronze); font-size: 14px; line-height: 19px; text-align: center; color: var(--paper); }
+/* Party chips beside the portrait panel (hud.gd pet strip): the active animal and the companions, each a 48 px
+   circle holding its art with an HP arc; place by centre. .k-party-art clips a figure or creature image inside. */
+.k-party { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: var(--deep-teal);
+  box-shadow: 0 0 0 2px var(--ink), 0 3px 0 2px rgba(0, 5, 8, 0.4); }
+.k-party > .k-party-art { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+.k-party > .k-party-art > img { position: absolute; image-rendering: pixelated; }
+.k-party > .k-arc { inset: -4px; }
+.k-party-name { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; color: var(--ally); }
+/* A short caption under a ring (Walk, Auto): 14 px, outlined */
+.k-hud-cap { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; }
+
+/* ------------------------------------------------------------------ badges, seals, locks
+   .k-badge: the red count dot (mail, Roll-Call); .k-seal: the vermilion "ready" seal on hub entries (a system with
+   something to claim); .k-new: a jade dot for "new since you last looked". Locks: .k-lock-mini (above) and
+   .k-locked (an entry dimmed with the padlock glyph and its unlock line). */
+.k-badge { position: absolute; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--red);
+  box-shadow: 0 0 0 2px var(--ink); font-family: var(--f-text); font-weight: 700; font-feature-settings: "lnum" 1, "tnum" 1;
+  font-size: 14px; line-height: 22px; text-align: center; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.4); }
+.k-seal { position: absolute; width: 30px; height: 30px; border-radius: 5px; transform: rotate(-8deg); background: var(--red);
+  box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px rgba(255, 230, 161, 0.55); display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-sym); font-size: 17px; color: var(--pale-gold); text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.k-new { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--bright-jade); box-shadow: 0 0 0 2px var(--ink), 0 0 8px 2px rgba(103,214,189,.6); }
+.k-locked { filter: grayscale(0.85) brightness(0.62); }
+
+/* ------------------------------------------------------------------ world labels
+   UiKit.draw_nameplate: a soft ink plate, the name in the bold serif and a MIST sub-line. Place by the plate's
+   bottom centre (left = the figure's x, top = the name's baseline - 17); .k-foe is the foe label (level and name,
+   UiKit.badge_color by level gap, gold for elites with the crown). Labels never sit under a HUD control: the HUD
+   lifts a label that would fall inside a control's rect to the cluster's top edge, with a 1 px leader. */
+.k-nameplate { position: absolute; transform: translateX(-50%); padding: 3px 10px 4px; border-radius: 7px; background: var(--plate);
+  border: 1px solid rgba(229, 191, 102, 0.22); text-align: center; white-space: nowrap; line-height: 1.12; }
+.k-nameplate > .n { font-family: var(--f-text); font-weight: 700; font-size: 17px; color: var(--paper); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+.k-nameplate > .s { font-size: 14px; color: var(--mist); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+.k-foe { position: absolute; transform: translateX(-50%); white-space: nowrap; font-family: var(--f-text); font-weight: 700; font-size: 17px;
+  paint-order: stroke fill; -webkit-text-stroke: 4px rgba(7, 16, 21, 0.92); text-shadow: 0 2px 2px rgba(0,0,0,.35); }
+.k-foe .lv { font-family: var(--f-text); font-feature-settings: "lnum" 1, "tnum" 1; margin-right: 6px; }
+.k-foe.is-elite { color: var(--gold); }
+.k-foe.is-ally { color: var(--ally); }
+.k-crown { display: inline-block; width: 16px; height: 12px; margin-right: 6px; vertical-align: 1px; background: var(--gold);
+  clip-path: polygon(0 100%, 0 25%, 25% 60%, 50% 0, 75% 60%, 100% 25%, 100% 100%); -webkit-text-stroke: 0; }
+.k-leader { position: absolute; width: 1px; background: rgba(255, 230, 161, 0.7); }
+/* Figures: composed avatar and creature frames (tools/dev/render_mockups.py figure / creature) are 384 x 384 with the
+   feet at (192, 254). Set left / top to the feet position. .k-shadow is the oval under a figure (enemy_view.gd). */
+.k-fig { position: absolute; width: 384px; height: 384px; margin: -254px 0 0 -192px; image-rendering: pixelated; pointer-events: none; }
+.k-fig.is-flip { transform: scaleX(-1); }
+.k-shadow { position: absolute; width: 60px; height: 17px; margin: -8px 0 0 -30px; border-radius: 50%; background: rgba(3, 9, 10, 0.35); }
+/* Damage numbers over the world (fx_layer.gd): Pixelify, outlined, crits larger and gold */
+.k-dmg { position: absolute; transform: translateX(-50%); font-family: var(--f-num); font-weight: 600; font-size: 24px; color: var(--paper);
+  paint-order: stroke fill; -webkit-text-stroke: 5px rgba(7, 16, 21, 0.92); white-space: nowrap; }
+.k-dmg.is-crit { font-size: 32px; color: var(--gold); }
+.k-dmg.is-qi { color: var(--qi); }
+
+/* ------------------------------------------------------------------ list rows, cards, key-value rows */
+.k-row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 12px; border-radius: 4px; }
+.k-row + .k-row { border-top: 1px solid rgba(175, 201, 209, 0.12); }
+.k-row.is-selected { background: rgba(44, 158, 143, 0.18); box-shadow: inset 3px 0 0 var(--gold); }
+.k-kv { display: grid; grid-template-columns: 180px 1fr; row-gap: 4px; font-size: 18px; }
+.k-kv > :nth-child(odd) { color: var(--mist); } .k-kv > :nth-child(even) { color: var(--paper); }
+.k-divider { height: 2px; background: linear-gradient(90deg, rgba(154,106,53,0), var(--bronze) 12%, var(--bronze) 88%, rgba(154,106,53,0)); }
+/* A requirement row: a tick (met), a red dot (required, unmet), an orange dot (lowers risk, unmet) */
+.k-req { display: flex; align-items: flex-start; gap: 12px; }
+.k-req > .dot { flex: none; width: 22px; height: 22px; border-radius: 50%; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-sym); font-size: 14px; color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+.k-req.is-met > .dot { background: var(--jade); color: var(--pale-gold); }
+.k-req.is-hard > .dot { background: var(--red); }
+.k-req.is-soft > .dot { background: var(--badge-orange); }
+/* The "next unlock" chip (E5): what the next stage opens, named beside its requirement */
+.k-unlock { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 6px; border-radius: 18px; background: rgba(229, 184, 76, 0.12);
+  border: 1px solid rgba(229, 184, 76, 0.55); color: var(--pale-gold); font-size: 16px; white-space: nowrap; }
+.k-unlock > .ic { width: 24px; height: 24px; }
+/* Band chips for the four stage words (C3): 1-3 Early, 4-6 Middle, 7-8 Late, 9 Peak */
+.k-band { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; font-size: 14px; font-weight: 700; color: var(--paper);
+  background: color-mix(in srgb, var(--b) 45%, var(--ink)); border: 1px solid var(--b); text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+.k-band.is-early { --b: var(--band-early); border-color: var(--jade); } .k-band.is-middle { --b: var(--band-middle); }
+.k-band.is-late { --b: var(--band-late); } .k-band.is-peak { --b: var(--band-peak); color: var(--pale-gold); }
+
+/* ------------------------------------------------------------------ paper and scroll surfaces (themed pages)
+   .k-scroll: a paper scroll panel (the dialogue box's paper, for hall-of-scrolls themes) with dark rollers left and right. */
+.k-paper { background: linear-gradient(180deg, #efe7d3, #e2d7bd); color: var(--ink); border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(154, 106, 53, 0.45), inset 0 0 22px rgba(154, 106, 53, 0.25), 0 3px 0 rgba(0,0,0,.35); }
+.k-paper * { text-shadow: none; }
+.k-scroll { position: relative; }
+.k-scroll::before, .k-scroll::after { content: ""; position: absolute; top: -6px; bottom: -6px; width: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, #3a2412, #9a6a35 45%, #5a3a1c); box-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.k-scroll::before { left: -8px; } .k-scroll::after { right: -8px; }
+/* Ink wash for painted backgrounds inside pages */
+.k-ink-wash { background: radial-gradient(ellipse at 50% 40%, rgba(21, 81, 79, 0.35), rgba(7, 16, 21, 0) 70%); }
+
+/* ------------------------------------------------------------------ annotations (kit sheet only; never on a mockup) */
+.k-note { font-size: 14px; color: var(--mist); }
+.k-swatch { width: 44px; height: 30px; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px rgba(255,255,255,.15); }

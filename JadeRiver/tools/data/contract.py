@@ -22,7 +22,9 @@ CATALOGUE = {
         "hidden_portal_revealed", "teleport_discovered", "zone_entered", "zone_ceiling_reached", "hazard_warned",
         "hazard_struck"],
     "Enemies": [
-        "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated"],
+        "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated",
+        # P9 finding: announced by the Enemies system but missing from the contract, so nothing checked them.
+        "boss_phase", "enemy_summoned", "boss_fled", "boss_defeated"],
     "Crafting": [
         "craft_step_result", "craft_started", "craft_completed", "profession_rank_up", "fish_caught"],
     "Economy": [
@@ -183,6 +185,8 @@ POLLED = {
     "salt_refined": "The Works page's Furnace tab reads the lines and the Storehouse.",
     "flag_changed": "The Works page's Flags tab reads the flags; Diligence and Finesse are computed on demand.",
     "mirror_inscribed": "The Works page's Mirror tab reads the mirror's slots.",
+    "enemy_summoned": "The world scene builds an enemy view for every living enemy in the room each frame.",
+    "boss_fled": "The world scene drops the fleeing boss's view when it leaves the room's living enemies; its loot is on the ground.",
     "post_option_set": "The Roll-Call and the Works page read the options.",
 }
 

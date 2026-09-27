@@ -98,6 +98,9 @@ func _main() -> void:
 	awaken_legend_suite()
 	aggro_cap_suite()
 	emotes_suite()
+	legacy_suite()
+	drop_pool_suite()
+	boss_event_suite()
 	text_suite()
 	ui_fixes_suite()
 	await ui_suite()
@@ -7846,6 +7849,79 @@ func nav_suite() -> void:
 	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
+## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
+## great realms before it existed has them recorded once when it arrives, and each record adds 2% to accumulation.
+## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
+## P9 finding: a dungeon boss's fall is announced as boss_defeated, clean only when no grave wound came first in the
+## room, so the Untouched achievement can be earned.
+func boss_event_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var seen: Array = []
+	var grab := func(n: String, p: Dictionary): if n == "boss_defeated": seen.append(p)
+	GameEvents.event.connect(grab)
+	var room := Game.room_rt.room_id if Game.room_rt else "lf_village"
+	Game.enemies.wounded_here = false
+	Game.enemies._on_defeated({"victim": "e1", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 1 and bool(seen[0].get("clean", false)), "a dungeon boss beaten with no grave wound is a clean boss_defeated")
+	Game.enemies.wounded_here = true
+	Game.enemies._on_defeated({"victim": "e2", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 2 and not bool(seen[1].get("clean", true)), "after a grave wound in the room it is not clean")
+	Game.enemies._on_defeated({"victim": "e3", "victim_kind": "enemy", "def": "mudshell_crab", "role": "normal", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 2, "an ordinary foe announces no boss_defeated")
+	GameEvents.event.disconnect(grab)
+	Game.enemies.wounded_here = false
+
+func drop_pool_suite() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var bad: Array = []
+	for level in [64, 70, 76, 81]:
+		for i in 400:
+			var inst: Dictionary = LootRules.make_equipment(rng, level, "common", 0.0, true, i)
+			if inst.is_empty(): continue
+			var def: Dictionary = ContentDB.item(str(inst.id))
+			if def.has("legend") or def.has("imitation"): bad.append(str(inst.id))
+	check(bad.is_empty(), "no legendary weapon or imitation relic from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+
+func legacy_suite() -> void:
+	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
+	check(str(entry.get("scope", "")) == "account", "the Account Legacy is an account-wide unlock")
+	var c = Game.active()
+	if c == null: return
+	var acc: AccountState = Game.account
+	var legacy_was: Dictionary = acc.legacy.duplicate()
+	var top_was: String = acc.highest_realm
+	var bonus_before: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	acc.highest_realm = "heart_tempering_2"
+	Game.accounts._backfill_legacy(c.id)
+	GameEvents.flush()
+	check(acc.legacy.has("qi_kindling") and acc.legacy.has("qi_unfurling") and acc.legacy.has("heart_tempering"),
+		"the backfill records every great realm the account reached (%s)" % str(acc.legacy.keys()))
+	check(not acc.legacy.has("bone_forging") and not acc.legacy.has("cloud_stride"), "but not Bone Forging, and nothing above the highest")
+	var n := acc.legacy.size()
+	Game.accounts._backfill_legacy(c.id)
+	check(acc.legacy.size() == n, "a second backfill records nothing new")
+	var bonus_three: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	check(near(bonus_three - Game.progression.accumulation_bonus(c), 0.06), "three records add 6% to accumulation")
+	# The old scrolls' names open with the realms the account has reached, and no further.
+	var codex_was: Dictionary = acc.codex.duplicate()
+	for k in acc.codex.keys(): if str(k).begins_with("old_scrolls"): acc.codex.erase(k)
+	Game.accounts._grant_old_scrolls()
+	GameEvents.flush()
+	check(acc.codex.has("old_scrolls") and acc.codex.has("old_scrolls_mortal") and acc.codex.has("old_scrolls_heart_tempering"),
+		"the old scrolls' entries open up to the account's highest realm")
+	check(not acc.codex.has("old_scrolls_cloud_stride") and not acc.codex.has("old_scrolls_world_genesis"), "and later realms stay hidden")
+	acc.codex = codex_was
+	acc.legacy = legacy_was
+	acc.highest_realm = top_was
+	check(near(Game.progression.accumulation_bonus(c), bonus_before), "state restored")
+
 func emotes_suite() -> void:
 	var starting := ContentDB.all("emotes").filter(func(e): return str(e.get("achievement", "")) == "")
 	check(starting.size() >= 6, "six emotes from the start (%d)" % starting.size())

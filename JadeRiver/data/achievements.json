@@ -131,7 +131,8 @@
    "desc": "Defeat a dungeon boss without being gravely wounded",
    "event": "boss_defeated",
    "match": {
-    "clean": true
+    "clean": true,
+    "role": "dungeon_boss"
    },
    "title": "untouched"
   },

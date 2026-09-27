@@ -638,7 +638,8 @@ def build():
         drops = m.get("drops", [])
         table = {"id": m["loot"], "groups": [], "coins": {}, "equipment": {}, "rare": []}
         if role == "normal":
-            table["groups"] = [{"chance": 0.6, "pick": [dict(x, weight=x.get("weight", 1)) for x in drops if x["chance"] > 0.2]}]
+            # A group rolls once and picks one row by weight, so a picked row keeps no chance of its own (P7a).
+            table["groups"] = [{"chance": 0.6, "pick": [dict({k: v for k, v in x.items() if k != "chance"}, weight=x.get("weight", 1)) for x in drops if x["chance"] > 0.2]}]
             table["rare"] = [x for x in drops if x["chance"] <= 0.2 and x["chance"] > 0]
             table["coins"] = {"chance": 0.2 * m.get("coin_mult", 1.0), "mult": 1}
             table["equipment"] = {"chance": m.get("equipment_chance", 0.03), "min_quality": "flawed"}

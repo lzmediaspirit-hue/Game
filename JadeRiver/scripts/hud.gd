@@ -1374,7 +1374,7 @@ func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String) 
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
 	draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(1, 0.95, 0.8, 0.35), 2)
 	UiKit.draw_text(self, label, r.position + Vector2(-34, 13), 16, GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	UiKit.draw_outlined(self, value_text, r.position + Vector2(0, 14), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	UiKit.draw_outlined(self, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func _draw():
 	if not is_instance_valid(player): return
@@ -1483,31 +1483,28 @@ func _draw_player_panel(c) -> void:
 	var soul_row: bool = c.pools.max_soul > 0.0 and shown("soul_bar")
 	var r := Rect2(16, 16, 360, 120 if soul_row else 104)
 	draw_style_box(frame_style, r)
-	# Portrait: a jade roundel with the realm seal.
-	draw_circle(r.position + Vector2(46, 52), 34, UiKit.INK)
-	draw_circle(r.position + Vector2(46, 52), 31, UiKit.DEEP_TEAL)
-	draw_arc(r.position + Vector2(46, 52), 31, 0, TAU, 32, UiKit.GOLD if c.cultivator.state == "bottleneck" else UiKit.JADE, 2)
-	UiKit.draw_text(self, c.name.substr(0, 1).to_upper(), r.position + Vector2(32, 66), 36, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true, true)
-	UiKit.draw_text(self, c.name, r.position + Vector2(90, 30), 18, UiKit.PAPER)
+	# No portrait roundel (the user's note on the P3 mockups): name, realm and the bars take the panel's width; the
+	# bottleneck shows on the Stored Qi bar along the bottom edge.
+	UiKit.draw_text(self, c.name, r.position + Vector2(18, 30), 18, UiKit.PAPER)
 	if shown("realm_badge"):
 		# Concealment's false realm (S48) is the badge the world sees; a veil mark says it is not the true one.
 		var badge := ContentDB.realm_label(Game.progression.shown_realm(c), -1 if c.cultivator.false_realm != "" else ProgressionRules.level(c))
 		var veiled: bool = c.cultivator.false_realm != ""
-		UiKit.draw_text(self, badge, r.position + Vector2(90, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
-		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(96 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
+		UiKit.draw_text(self, badge, r.position + Vector2(18, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
+		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
-		y += 17
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
+		y += 18
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
-		y += 15
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
+		y += 18
 	if soul_row:
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
 	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
 	if ProgressionAuthority.walks(c, "blood"):
-		var strip := Rect2(r.position.x + 122, r.end.y - 9, 222, 4)
+		var strip := Rect2(r.position.x + 56, r.end.y - 6, 288, 3)
 		draw_rect(strip.grow(1), UiKit.INK)
 		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(Game.combat.essence_of(c.id) / 100.0, 0.0, 1.0), strip.size.y)), Color("b3202e"))
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).

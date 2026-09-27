@@ -214,6 +214,24 @@
    "surface": "lotus_rock"
   },
   {
+   "id": "fish_falls",
+   "type": "fishing_spot",
+   "at": [
+    1600,
+    900
+   ],
+   "spot": "falls_pool",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "fishing"
+     }
+    ]
+   },
+   "locked_text": "You have no rod."
+  },
+  {
    "id": "shrine_falls",
    "type": "shrine",
    "at": [

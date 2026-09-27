@@ -576,7 +576,8 @@
    "ilv": 5,
    "stack": 99,
    "icon": "dyed_root",
-   "desc": "A carrot root dyed and combed to pass for hundred-year ginseng. Worth nothing, except as a lesson."
+   "desc": "A carrot root dyed and combed to pass for hundred-year ginseng. Worth nothing, except as a lesson.",
+   "source": "system"
   },
   {
    "id": "rice_wine",
@@ -4055,7 +4056,8 @@
    "stack": 3,
    "icon": "evergreen_heart_fruit",
    "desc": "Eat it when gravely wounded to rise where you fell, whole. The tree bears one each season. Never sold.",
-   "sell": false
+   "sell": false,
+   "source": "system"
   },
   {
    "id": "fuel_crystal_low",
@@ -7189,7 +7191,8 @@
    },
    "use": [],
    "soul_effect": "steady_heart",
-   "value_override": 1
+   "value_override": 1,
+   "source": "system"
   },
   {
    "id": "herbal_tea",
@@ -7659,7 +7662,8 @@
     "toxicity": 25,
     "group": "utility"
    },
-   "use": []
+   "use": [],
+   "source": "later"
   },
   {
    "id": "sigil_anchor_pill",
@@ -7675,7 +7679,8 @@
     "toxicity": 25,
     "group": "utility"
    },
-   "use": []
+   "use": [],
+   "source": "later"
   }
  ]
 }

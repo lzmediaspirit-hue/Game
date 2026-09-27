@@ -1,6 +1,62 @@
 # Changelog
 
+## Wikis and volume (docs/roadmap_master_ui.md, P7)
+
+### P7a · The item and monster wikis
+- **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,
+  grade, iLv, stats or effect, requirement, description and every source the data gives, with rates: enemy drops,
+  jars and chests, the Trial Tower, gathering nodes and posts, gardens, recipes and other crafts, shops and auctions,
+  quest and unlock rewards, mail. Banded equipment names the foes and chests whose roll can make it.
+- **`docs/wiki/monsters.md`**: all 121 enemies by zone, each with its sheet, room spawns, other appearances (events,
+  set pieces, the tower, tides, summons), level band, stats, attacks and phases, and its full drop table with rates.
+- Written by `tools/dev/wiki.py` from `data/` alone and byte-identical on every run; `build_data.py` runs it after a
+  full build.
+- **Every item has a source.** A `data_validation` rule scans the same channels; an item nothing hands out carries an
+  explicit mark instead (`"source": "story"`, `"system"` or `"later"`): the starting gourd, the dyed root, the murky
+  pill, the Evergreen Heart fruit and the two Monarch pills. 43 real gaps are listed in the suite's
+  `KNOWN_SOURCE_GAPS` for P7b: 12 beast cores no beast carries, the high Spirit Stone, two beast bags, five Hour
+  Incenses and the Wandering Incense, six snare kits and rite tablets, three gourds, and 13 set pieces (the sect sets'
+  hats, trousers and boots, and the Mudwater, Drowned Abbot and Crane sets but the Abbot's robe).
+- **Found by the scan, fixed:**
+  - The banded equipment roll could make one of the nine legendary weapons or the two imitation relics as ordinary
+    Mystic or Heaven gear; they come only from their chains and the forge now (`drop_pool_suite`).
+  - Loot group rows carried a `chance` the roll never read (a group rolls once and picks by weight); the rows keep
+    only their weight, and `data_validation` refuses a chance on a group row.
+  - The Lantern Star Field's ledge and cloud chests used the valley's chest tables; each zone's chests now use its own
+    table (`ZONE_CHESTS` in `tools/data/world.py`). The Flame Heart's ledge chest, in a room with no Level of its own,
+    was Level 1; a chest in such a room now takes its region's top Level.
+  - The mist trout's valley spot at the Falls Pool had no fishing spot; it has one in the shallows now.
+- **Left for P7b:** 43 items nothing in the data hands out (12 beast cores, incense sticks, snare kits and rite tablets,
+  three gourds, the sect sets' hats, trousers and boots, pieces of the Mudwater, Drowned and Crane sets,
+  `spirit_stone_high`, two beast bags). `data_validation` lists them in `KNOWN_SOURCE_GAPS`: a new unsourced item
+  fails, and a listed item fails once it gains a source, so the list only shrinks.
+
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
+
+### P9 · The boss design, and what it found
+- `docs/boss_design.md`: all 13 bosses redesigned (phases, a telegraphed arena mechanic each, enrage timers, reward
+  loops, intro and phase cards), the shared marker system, the build order (P9a–P9f) and `boss_suite`.
+- **Untouched can be earned.** Its achievement waited on a `boss_defeated` event nothing sent. A dungeon or story boss's
+  fall now announces it, clean when no grave wound came first in the room; Untouched asks for a clean dungeon boss.
+- `boss_phase`, `enemy_summoned`, `boss_fled` and `boss_defeated` are in the event contract, so `contract_tests`
+  checks who sends and hears them (`boss_event_suite` in `rules_tests`).
+
+### P10 · Findings fixed
+- **The Account Legacy records again.** It waited on an `account_legacy` unlock that was never defined, so its +2%
+  accumulation per recorded great realm was always 0. The unlock now opens for the whole account at Bone Forging 1, and
+  a save that reached great realms before this has them recorded once when it opens (`legacy_suite` in `rules_tests`).
+- **The old scrolls' names.** Twenty Codex entries set the common xianxia ladder's names beside Jade River's realms
+  (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
+  first time the account reaches that great realm (`docs/realm_old_names.md`).
+
+### P3 · The first mockups, approved
+- Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
+  by the user, with two notes, both recorded in `docs/roadmap_master_ui.md` §6.
+- **The portrait roundel is gone.** The HUD's player panel no longer draws a circle with the character's initial: the
+  name and realm sit at the panel's edge, and the HP, Qi and Soul bars take the width it freed (288 px, 14 px tall,
+  their numbers inside and grouped by thousands like every page's). The bottleneck, which the roundel's ring showed,
+  shows on the Stored Qi bar.
+- An icon style study is under way for the user's second note, that every icon in the game should look better.
 
 ### P4a · Touch targets
 - **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its

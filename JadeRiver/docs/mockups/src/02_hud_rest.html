@@ -1,0 +1,130 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>02 HUD at rest</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .mm-line { position: absolute; height: 2px; background: rgba(217, 235, 230, 0.7); }
+  .mm-dot { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; }
+  .bead { position: absolute; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a8f0dc, var(--jade) 60%, var(--jade-shadow));
+    box-shadow: 0 0 0 2px var(--ink); }
+  .fan-cap { position: absolute; font-size: 14px; white-space: nowrap; }
+  .ready-glow { position: absolute; left: 0; top: 660px; width: 1280px; height: 52px;
+    background: linear-gradient(180deg, rgba(229, 184, 76, 0), rgba(229, 184, 76, 0.16) 70%, rgba(255, 230, 161, 0.32)); }
+</style></head>
+<body><div class="k-screen">
+
+<!-- ================= the world: the Harbor Market, Lanternfall Harbor (checkpoint capture, labels hidden) ================= -->
+<img class="k-plate" src="../assets/plate_harbor_market.png">
+<div class="k-shadow" style="left:380px;top:588px"></div>
+<img class="k-fig" style="left:380px;top:588px" src="../assets/fig_lan_yue_idle.png">
+<div class="k-shadow" style="left:470px;top:600px"></div>
+<img class="k-fig" style="left:470px;top:600px" src="../assets/fig_tester_idle.png">
+<div class="k-shadow" style="left:330px;top:612px"></div>
+<img class="k-fig" style="left:330px;top:612px" src="../assets/fig_tie_niu_idle.png">
+<div class="k-shadow" style="left:420px;top:636px;width:50px;margin-left:-25px"></div>
+<img class="k-fig" style="left:420px;top:636px" src="../assets/fig_reed_otter.png">
+<!-- Peddler Ning, the context target: her nameplate under her feet (npc_view.gd), lit, and the talk mark over her head -->
+<div class="k-nameplate" style="left:580px;top:600px"><div class="n c-pale">Peddler Ning</div><div class="s">Harbour peddler</div></div>
+<div class="abs t-outline c-pale" style="left:580px;top:452px;transform:translateX(-50%);font-size:26px;font-weight:700">…</div>
+
+<!-- ================= top left: the player panel (no portrait roundel, the user's note; the bottleneck shows on the Stored Qi edge), party, Hollowing, tracker ================= -->
+<div class="k-minor-panel abs" style="left:16px;top:16px;width:360px;height:120px"></div>
+<div class="abs t-md" style="left:34px;top:26px">Tester</div>
+<div class="abs t-sm c-pale" style="left:34px;top:48px">Sphere Lord 1 · Lv 93</div>
+<div class="abs t-xs t-label" style="left:36px;top:72px;color:var(--hud-label)">HP</div>
+<div class="k-hudbar abs" style="left:72px;top:76px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">26,182 / 26,182</div></div>
+<div class="abs t-xs t-label" style="left:36px;top:91px;color:var(--hud-label)">QI</div>
+<div class="k-hudbar is-qi abs" style="left:72px;top:95px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">11,791 / 11,791</div></div>
+<div class="abs t-xs t-label" style="left:36px;top:108px;color:var(--hud-label)">SL</div>
+<div class="k-hudbar is-soul abs" style="left:72px;top:112px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">4,145 / 4,145</div></div>
+
+<div class="k-party" style="left:408px;top:44px"><div class="k-party-art"><img src="../assets/fig_reed_otter.png" style="left:-166px;top:-208px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:468px;top:44px"><div class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="left:-166px;top:-152px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:528px;top:44px"><div class="k-party-art"><img src="../assets/fig_lan_yue_idle.png" style="left:-166px;top:-148px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party-name t-outline" style="left:408px;top:72px">Otter</div>
+<div class="k-party-name t-outline" style="left:468px;top:72px">Tie Niu</div>
+<div class="k-party-name t-outline" style="left:528px;top:72px">Lan Yue</div>
+
+<!-- the Hollowing meter: stops at 50 (Burden: costs x1.25, Composure drains) and 100 (Seizure); falling near the lanterns -->
+<img class="ic ic-24 abs" style="left:18px;top:144px" src="../../../art/icons/status/hollowing.png">
+<div class="k-hudbar abs" style="left:50px;top:152px;width:170px;height:10px;--v:0.34;--fill:var(--hollow)"><div class="k-fill"></div>
+  <div class="k-tick" style="--at:0.5"></div><div class="k-tick" style="--at:1;background:var(--red)"></div></div>
+<div class="abs t-xs t-outline c-mist" style="left:135px;top:164px;transform:translateX(-50%)">Burden 50</div>
+<div class="abs t-sm t-fig t-outline c-paper" style="left:228px;top:146px">34<span class="c-jade t-sym" style="margin-left:4px">▼</span><span class="t-xs c-jade" style="margin-left:4px">lanterns</span></div>
+<div class="abs flex" style="left:348px;top:144px;gap:4px">
+  <img class="ic ic-24" src="../../../art/icons/status/stability_settling.png">
+  <img class="ic ic-24" src="../../../art/icons/status/heart_demon.png">
+</div>
+
+<div class="abs" style="left:14px;top:188px;width:342px;height:88px;background:rgba(5,15,19,.55);box-shadow:inset 2px 0 0 rgba(229,184,76,.5)"></div>
+<div class="abs t-outline c-gold" style="left:24px;top:192px;font-size:17px"><span class="t-sym">◆</span> The Citadel</div>
+<div class="abs t-xs t-outline c-mist" style="left:32px;top:216px"><span class="t-sym">➤</span> Citadel Gate · Star Warden Citadel</div>
+<div class="abs t-sm t-outline c-paper" style="left:32px;top:238px">· Take the Wardens' skiff to the Citadel</div>
+<div class="k-btn2 abs" style="left:300px;top:194px;width:48px;height:48px;min-height:48px;padding:0;font-size:18px;color:var(--pale-gold)"><span class="t-sym">➤</span></div>
+
+<!-- ================= top right: minimap (with the P1 direction mark), icon row, currency ================= -->
+<div class="k-minimap abs" style="left:1032px;top:16px;width:232px;height:140px">
+  <div class="k-minimap-title">Harbor Market</div>
+  <div class="mm-line" style="left:8px;top:112px;width:216px;opacity:.55"></div>
+  <div class="mm-line" style="left:12px;top:82px;width:30px"></div>
+  <div class="mm-line" style="left:84px;top:82px;width:30px"></div>
+  <div class="mm-dot" style="left:10px;top:108px;width:8px;height:8px;margin:-4px;background:#67d67a;box-shadow:0 0 0 2px var(--gold)"></div>
+  <div class="mm-dot" style="left:45px;top:104px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="mm-dot" style="left:94px;top:104px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="mm-dot" style="left:212px;top:98px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="mm-dot" style="left:222px;top:108px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="abs" style="left:123px;top:103px;width:6px;height:6px;background:var(--bright-jade)"></div>
+  <div class="mm-dot" style="left:64px;top:104px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:118px;top:104px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:137px;top:104px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:163px;top:104px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:52px;top:106px;background:var(--ally)"></div>
+  <div class="abs" style="left:55px;top:100px;width:0;height:0;border-left:9px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+  <!-- P1: a gold chevron on the frame's edge toward the tracked quest's next room -->
+  <div class="abs" style="left:1px;top:100px;width:0;height:0;border-right:10px solid var(--gold);border-top:7px solid transparent;border-bottom:7px solid transparent;filter:drop-shadow(0 0 1px var(--ink))"></div>
+</div>
+<div class="k-hud k-hud-sm" style="left:1058px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/menu.png"><div class="k-seal" style="right:-12px;top:-12px;width:22px;height:22px;font-size:13px">✓</div></div>
+<div class="k-hud k-hud-sm" style="left:1116px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/bag.png"></div>
+<div class="k-hud k-hud-sm" style="left:1174px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/map.png"></div>
+<div class="k-hud k-hud-sm" style="left:1232px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/mail.png"><div class="k-badge" style="right:-8px;top:-8px">1</div></div>
+<div class="k-pill abs" style="left:1040px;top:222px;width:222px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">78,541</span><img class="ic" style="margin-left:8px" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">6,690</span></div>
+
+<!-- ================= the right-hand cluster at rest ================= -->
+<!-- the fan of arts, open: a paper fan behind five toggles; Cultivate lit because the bottleneck is reached -->
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <path d="M964 678 L774.7 694.6 A190 190 0 0 1 980.6 488.7 Z" fill="rgba(232,225,207,0.13)" stroke="rgba(229,184,76,0.55)" stroke-width="2"/>
+  <g stroke="rgba(154,106,53,0.55)" stroke-width="1.5">
+    <line x1="964" y1="678" x2="775" y2="695"/><line x1="964" y1="678" x2="786" y2="620"/><line x1="964" y1="678" x2="818" y2="556"/>
+    <line x1="964" y1="678" x2="869" y2="513"/><line x1="964" y1="678" x2="933" y2="491"/><line x1="964" y1="678" x2="981" y2="489"/>
+  </g>
+  <path d="M774.7 694.6 A190 190 0 0 1 980.6 488.7" fill="none" stroke="rgba(255,230,161,0.5)" stroke-width="3"/>
+</svg>
+<div class="k-hud k-hud-sm is-active" style="left:814px;top:678px"><img class="ic ic-32 is-gold" src="../../../art/icons/hud/cultivate.png"></div>
+<div class="k-hud k-hud-sm" style="left:825px;top:622px"><img class="ic ic-32" src="../../../art/icons/hud/presence.png"><span class="k-corner t-fig">5</span></div>
+<div class="k-hud k-hud-sm" style="left:856px;top:574px"><img class="ic ic-32" src="../../../art/icons/hud/sphere.png"></div>
+<div class="k-hud k-hud-sm" style="left:903px;top:541px"><img class="ic ic-32" src="../../../art/icons/hud/sense.png"></div>
+<div class="k-hud k-hud-sm" style="left:959px;top:528px"><img class="ic ic-32" src="../../../art/icons/hud/pet.png"></div>
+<div class="fan-cap t-outline c-pale" style="left:780px;top:668px;transform:translateX(-100%)">Cultivate</div>
+<div class="fan-cap t-outline c-paper" style="left:791px;top:612px;transform:translateX(-100%)">Presence</div>
+<div class="fan-cap t-outline c-paper" style="left:822px;top:552px;transform:translateX(-100%)">Sphere</div>
+<div class="fan-cap t-outline c-paper" style="left:903px;top:494px;transform:translateX(-50%)">Sense</div>
+<div class="fan-cap t-outline c-paper" style="left:959px;top:481px;transform:translateX(-50%)">Pet</div>
+<div class="k-hud k-hud-sm is-pressed" style="left:964px;top:678px"><img class="ic ic-32" src="../../../art/icons/hud/fan.png"></div>
+<!-- jump and dodge stay; the four techniques fold into beads on the rim until a foe is near; the healing slot and the
+     treasure rest with them -->
+<div class="k-hud k-hud-sm" style="left:1051px;top:671px"><img class="ic ic-32" src="../../../art/icons/hud/jump.png"></div>
+<div class="k-hud k-hud-sm" style="left:1231px;top:491px"><img class="ic ic-32" src="../../../art/icons/hud/dodge.png"></div>
+<div class="k-hud k-hud-lg is-active" style="left:1165px;top:605px"><img class="ic ic-64" src="../../../art/icons/hud/talk.png"></div>
+<div class="bead" style="left:1094px;top:593px"></div><div class="bead" style="left:1106px;top:565px"></div>
+<div class="bead" style="left:1129px;top:544px"></div><div class="bead" style="left:1158px;top:535px"></div>
+<div class="abs t-sm t-outline c-pale" style="left:1165px;top:678px;transform:translateX(-50%);white-space:nowrap">Talk · Peddler Ning</div>
+
+<!-- ================= the bottom edge: Stored Qi, breakthrough ready ================= -->
+<div class="ready-glow"></div>
+<div class="abs" style="left:0;top:710px;width:1280px;height:10px;background:linear-gradient(180deg,#ffe6a1,#e5b84c 45%,#b98a2e);box-shadow:0 0 12px 3px rgba(229,184,76,.55)"></div>
+<div class="abs" style="left:0;top:710px;width:72px;height:3px;background:#fff8e0;box-shadow:0 0 6px 2px rgba(255,230,161,.9)"></div>
+<div class="abs" style="left:421px;top:706px;width:2px;height:14px;background:var(--ink)"></div>
+<div class="abs" style="left:844px;top:706px;width:2px;height:14px;background:var(--ink)"></div>
+<div class="abs t-xs t-outline c-pale" style="left:16px;top:688px">Stored Qi <span class="t-fig">5,633</span></div>
+<div class="abs t-sm t-outline c-gold" style="left:150px;top:686px"><span class="t-sym">◆</span> Bottleneck reached · breakthrough ready <span class="c-pale">· hold Cultivate</span></div>
+
+</div></body></html>

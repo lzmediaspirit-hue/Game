@@ -946,7 +946,7 @@ def achievements():
         {"id": "the_furnace_breathes", "name": "The Furnace Breathes", "desc": "Refine a Pill Soul", "event": "craft_completed", "match": {"craft": "alchemy", "quality": "pill_soul"},
          "rewards": [{"kind": "grant_item", "item": "spirit_stone_mid", "count": 10}]},
         {"id": "deep_roots", "name": "Deep Roots", "desc": "Reach Mining Adept", "event": "profession_rank_up", "match": {"craft": "mining", "rank": "adept"}, "title": "stonebreaker"},
-        {"id": "untouched", "name": "Untouched", "desc": "Defeat a dungeon boss without being gravely wounded", "event": "boss_defeated", "match": {"clean": True}, "title": "untouched"},
+        {"id": "untouched", "name": "Untouched", "desc": "Defeat a dungeon boss without being gravely wounded", "event": "boss_defeated", "match": {"clean": True, "role": "dungeon_boss"}, "title": "untouched"},
         {"id": "collector", "name": "Collector", "desc": "Fill 10 collection cards", "event": "collection_card_filled", "count": 10, "title": "collector"},
         {"id": "traveller", "name": "Traveller", "desc": "Visit every valley room", "event": "room_entered", "match": {"all_valley_rooms": True}, "title": "wanderer"},
         {"id": "patient_heart", "name": "Patient Heart", "desc": "Pass the Heart Trial on the first try", "event": "event_passed", "match": {"event": "heart_trial", "first_try": True}, "title": "still_water"},

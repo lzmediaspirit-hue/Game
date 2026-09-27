@@ -167,7 +167,7 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | M45 | Cultivate converts time into Qi; Qi-rich places are more efficient | Present | `ProgressionRules.meditation_rate` × the room's `qi_density`, Qi springs, ambient Qi, seclusion with its 12-hour cap | — |
 | M46 | Stages Early / Middle / Late / Peak with a bottleneck at each | Partial (conflict C3) | Each great realm has up to nine sub-levels, each ending in a bottleneck ("tap Cultivate to break", `hud.gd:720`), with the Stored Qi cap. There are no four named stages | P10 |
 | M47 | Minor breakthroughs use a stage pill by default, other resources sometimes | Partial (conflict C4) | A minor breakthrough is a tap at the bottleneck; pills, support pills and vessels raise the odds and add marks; some stages ask for an item (`qi_refining_pill` at `realms.json:758`) | P10 |
-| M48 | Major breakthroughs: elixir, materials, sometimes a trial; quality affects success and stats | Present | `major_breakthrough.requirements` per realm (pills, body level, methods, the Heart Trial, Heaven's Cleansing, Core Forging), the risk index and success chance, pill marks +2 % each, the Core Forging grade and heavenly tribulation (S48) | — |
+| M48 | Major breakthroughs: elixir, materials, sometimes a trial; quality affects success and stats | Partial | `major_breakthrough.requirements` per realm (pills, body level, methods, the Heart Trial, Heaven's Cleansing, Core Forging), the risk index and success chance, pill marks +2 % each, the Core Forging grade and heavenly tribulation (S48). Found in P10 (`docs/cultivation_loop.md` §13): a pill's quality and marks change its potency (the Qi it gives, `inventory_authority.gd:386-390`), and stats only through the Core Forging grade; they do not change the success chance. Planned: the breakthrough pill's quality as a term of the risk index, with v1.3 | — |
 
 #### QA pass 2 and the Full Review (Master 11)
 
@@ -355,5 +355,11 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 4. **Mockup approval** (C15): the user approves; the mockups are sent to the user as PNGs in the conversation, and
    kept under `docs/mockups/`.
 5. **The item target** (C12): named gear and sets per archetype and zone (P7b).
+
+6. **The first mockups** (2026-09-26, P3): 00–05 approved, with two notes:
+   - Remove the portrait roundel with the initial ("T") left of the HP and Qi bars. Done in the HUD and in mockups 01
+     and 02: the name, realm and bars take the panel's width; the bottleneck shows on the Stored Qi edge.
+   - The icons across the whole game must look better. A style study goes to the user first (a before-and-after sheet
+     of representative icons in the proposed style); once it is approved, every icon family is redrawn to it (P4b).
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
