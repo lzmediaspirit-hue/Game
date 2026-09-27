@@ -181,10 +181,9 @@ static func draw_worn(pg: Page, ch, at: Dictionary, id: String, name_col: Color,
 			col = UiKit.PALE_GOLD
 		pg.text(Vector2(r.position.x - 8, r.end.y + 18), Tx.t("ui.inventory." + slot), 14, col, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
 
-## Why a worn slot is closed to `ch`, or "" when it is open.
+## Why a worn slot is closed to `ch`, or "" when it is open (the weapon slot always is: bare fists until one is worn).
 static func locked_reason(ch, slot: String) -> String:
 	match slot:
-		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else Tx.t("ui.inventory.fists_only_until_the_weapon")
 		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else Tx.t("ui.inventory.cape_slot_opens_at_heaven")
 		"talisman": return "" if Unlocks.is_unlocked(ch.id, "spirit_sense") else Tx.t("ui.inventory.soul_talisman_slot_opens_at")
 	return ""

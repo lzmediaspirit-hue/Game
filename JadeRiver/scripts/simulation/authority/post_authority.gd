@@ -453,14 +453,15 @@ func sew_pouch(c, cat: String) -> Dictionary:
 	emit("pouch_sewn", {"actor": c.id, "category": cat, "tier": p.tier, "cap": capacity(c, cat)})
 	return ok({"tier": p.tier, "cap": capacity(c, cat)})
 
-## Burn Hour Incense from the active character's bag at another character's post: hours of its work at once.
+## Burn Hour Incense from the active character's bag at a post: another character's, or this one's while it stands at
+## it (no second character needed, player_motivation.md P5). Hours of the post's work at once.
 func burn_incense(target, item_id: String) -> Dictionary:
 	var me = game.active()
 	if me == null or target == null: return fail("no_character")
 	var hi: Dictionary = ContentDB.item(item_id).get("hour_incense", {})
 	if hi.is_empty(): return fail("not_incense")
 	if game.inventory.count(me, item_id) <= 0: return fail("none")
-	if target.id == me.id or not has_post(target) or post_of(target).get("paused", false):
+	if not incense_allowed(target):
 		return fail("no_post", {"text": t("sim.posts.incense_needs_post")})
 	settle_post(target)
 	var hours := float(hi.get("hours", 0.0))
@@ -471,6 +472,13 @@ func burn_incense(target, item_id: String) -> Dictionary:
 	var led := _work(target, hours, "incense")
 	emit("incense_burned", {"actor": me.id, "character": target.id, "item": item_id, "hours": hours})
 	return ok({"hours": hours, "ledger": led})
+
+## Incense can burn at `target`'s post: another character's working post, or the played character's own while it stands
+## at it.
+func incense_allowed(target) -> bool:
+	if target == null or not has_post(target): return false
+	if target.id == game.active_id: return at_post(target)
+	return not post_of(target).get("paused", false)
 
 # ------------------------------------------------------------------ roll-call rows
 ## One row per character for the Roll-Call: post, craft level, rates, pouch fill and hours to full.

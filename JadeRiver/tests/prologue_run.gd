@@ -2,7 +2,10 @@ extends Node
 ## Scripted Prologue run (S27 test): drives the real authorities through intents
 ## only, from a new character to Bone Forging 2, checking the HUD reveal order and
 ## that no weapon appears before the Weapon Hall. Movement is a bound ActorState
-## placed next to targets (the world scene is not needed). Run headless:
+## placed next to targets (the world scene is not needed). The story's own quests and
+## fights carry the character to Bone Forging 2: no test shortcut. `play_s` keeps an
+## estimate of the player's time (the simulated seconds, walking at run speed, and
+## reading the dialogue), which tutorial_order's first-hour pacing check reads. Run headless:
 ##   godot --headless --path . res://tests/prologue_run.tscn
 
 var failures := 0
@@ -11,6 +14,19 @@ var reveal_log: Array = []
 var events: Array = []
 var st: ActorState
 var verbose := false
+## The first-hour clock (research player_motivation P2): an estimate of the seconds a new player spends, as the walk
+## plays. The simulated time the walk steps; the walking between the points it stands at, room by room, at the pace of
+## a thumb on the joystick (a portal's far side is where the walk out ends); a look round each room the first time;
+## and the time to read each line of dialogue and tap on.
+var play_s := 0.0
+var _clock_room := ""
+var _rooms_seen := {}
+const WALK_SPEED := 150.0    # player.gd runs at 205; a thumb on the joystick weaves
+const LOOK_S := 15.0         # a room seen for the first time
+const READ_S := 3.0          # a line of dialogue, read
+const TAP_S := 1.5           # a tap on the dialogue page
+const USE_S := 2.0           # an interaction: pick up, inspect, pray
+const HIT_S := 0.45          # one blow of the combo on a stump or dummy
 
 func check(ok: bool, what: String) -> void:
 	checks += 1
@@ -34,6 +50,7 @@ func _main() -> void:
 var tick_watch := Callable()
 
 func step(seconds: float) -> void:
+	play_s += seconds
 	var t := 0.0
 	while t < seconds:
 		Game.tick(0.05)
@@ -139,6 +156,11 @@ func place(p: Vector2, alt := 0.0) -> void:
 	if st == null:
 		st = ActorState.new()
 		Game.bind_movement(Game.active_id, st)
+	if _clock_room == room(): play_s += st.plane.distance_to(p) / WALK_SPEED   # walking here in the same room
+	_clock_room = room()
+	if not _rooms_seen.has(room()):
+		_rooms_seen[room()] = true
+		play_s += LOOK_S
 	var best: WalkSurface = null
 	for s in Game.room_rt.geometry.surfaces:
 		if s.contains(p) and absf(s.height_at(p) - alt) < 10.0: best = s
@@ -155,6 +177,8 @@ func obj_at(id: String) -> Vector2:
 	return Vector2(float(o.at[0]), float(o.at[1]))
 
 func go(portal: String) -> bool:
+	var pd: Dictionary = Game.room_rt.portal_def(portal) if Game.room_rt else {}
+	if st != null and pd.has("at"): play_s += st.plane.distance_to(Vector2(float(pd.at[0]), float(pd.at[1]))) / WALK_SPEED
 	var r := submit({"type": "use_portal", "portal": portal, "crossing": true})
 	if not r.get("ok", false): print("  portal ", portal, " in ", room(), " failed: ", r)
 	if r.get("ok", false): place(Vector2(float(c().position.x), float(c().position.y)))
@@ -200,6 +224,7 @@ func talk(npc: String) -> Dictionary:
 		return {}
 	place(Vector2(float(o.at[0]) - 50, float(o.at[1]) + 20))
 	var r := submit({"type": "interact", "object": str(o.id)})
+	play_s += READ_S * maxf(1.0, float((r.get("dialogue", {}).get("lines", []) as Array).size()))
 	return r.get("dialogue", {})
 
 ## Talk and pick the first choice that has `key` (accept/hand_in/effects...).
@@ -232,10 +257,13 @@ func _dry_ground_near(p: Vector2) -> Vector2:
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
 	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
+	play_s += USE_S
 	return submit({"type": "interact", "object": id})
 
 func hit_object(id: String, times: int) -> void:
 	var o: Dictionary = Game.room_rt.object_def(id)
+	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
+	play_s += HIT_S * times
 	for i in times: Game.world.apply_object_hit(c().id, o)
 	GameEvents.flush()
 
@@ -360,6 +388,7 @@ func _page(convo: Dictionary) -> Dictionary:
 	for i in 20:
 		if out.closed or (out.page.at_end() and out.page.shown_chars >= out.page.current().length() and not (out.page.convo.get("choices", []) as Array).is_empty()): break
 		out.page.on_action("advance", null)
+		play_s += TAP_S   # a tap: the rest of a line, or the next
 	return out
 
 ## Talk to an NPC by the context button on the real dialogue page, tap to the last line and pick the choice that does
@@ -414,52 +443,31 @@ func start_new(folder: String) -> void:
 	check(c().inventory.equipped.get("weapon") == null, "no weapon at start")
 	check(not Game.is_revealed("hud:attack") and not Game.is_revealed("hud:qi_bar"), "attack and QI hidden at start")
 
-## 1 Morning Tide: three teas, the Bag, out of the door. The door stays shut until each step before "Step outside" is
-## done, and says which (a player who left early skipped the Bag and stood outside with nothing to do).
+## 1 Morning Tide (research player_motivation §3.3): under way the moment the character wakes, Aunt Ping's tea already
+## in hand and the hut's door open: no step before the way out, no door shut for a menu. A second cup waits on the
+## table for whoever looks.
 func step_morning_tide() -> void:
-	held("exit", "Aunt Ping")
-	accept("aunt_ping", "morning_tide")
-	check(Game.is_revealed("hud:bag"), "Bag revealed on accepting Morning Tide")
-	held("exit", "Pick up Herbal Tea")
-	# The hut must show its way out and its three teas plainly (a player stuck in the hut could not see the door,
-	# took the jar props for clods of earth and saw no count while the tracker is hidden).
+	check(c().quests.is_active("morning_tide"), "Morning Tide is under way from the start")
+	check(c().inventory.count("herbal_tea") >= 1, "Aunt Ping's tea is in hand from the start (%d)" % c().inventory.count("herbal_tea"))
+	check(Game.is_revealed("hud:bag"), "Bag revealed with Morning Tide")
+	check(Game.world.portal_state(c(), Game.room_rt.portal_def("exit")).open, "the hut's door is open from the start")
+	# The hut must show its way out and its tea plainly (a player stuck in the hut could not see the door, and took
+	# the jar props for clods of earth).
 	var hut: Dictionary = Game.room_rt.def
 	var exit_view := PortalView.new()
 	exit_view.setup(Game.room_rt.portal_def("exit"), hut)
 	check(exit_view.wall_y != INF and not SpriteCache.prop("door").is_empty(), "the hut's exit draws a door on the back wall")
 	exit_view.free()
-	var teas := 0
 	for o in hut.get("objects", []):
 		if str(o.get("item", "")) == "herbal_tea" and Game.world.object_visible(c(), o):
-			teas += 1
 			check(str(o.get("prop", "")) == "none" and SpriteCache.icon("herbal_tea") != null, "tea %s shows as its icon" % o.id)
-	check(teas == 3, "exactly Aunt Ping's three teas show in the hut (%d)" % teas)
-	var seen: Array = []
-	for id in ["tea_table", "tea_shelf", "tea_stove"]:
-		check(interact(id).get("ok", false), "pick up " + id)
-		var steps: Array = Game.quest.steps_forward(c(), "morning_tide", seen)
-		var have := int(steps[0].have) if not steps.is_empty() else -1
-		check(have == c().inventory.count("herbal_tea"), "each tea shows its count as a step (%d)" % have)
-		seen = (c().quests.active.morning_tide.progress as Array).duplicate()
-	check(c().inventory.count("herbal_tea") == 3, "all three teas are held at once")
-	check(not Game.is_revealed("hud:quest_tracker"), "tracker still hidden: the steps are the only count shown")
-	keep("Morning Tide teas")
-	held("exit", "Open your Bag")
-	submit({"type": "report_page_opened", "page": "inventory"})
+	talk("aunt_ping")   # a word with Aunt Ping on the way out, as a player does
+	check(interact("tea_table").get("ok", false) and c().inventory.count("herbal_tea") == 2, "the second cup on the table is there to take")
+	keep("Morning Tide")
 	check(go("exit") and room() == "lf_village", "step out to Home Lane")
 	check(c().quests.is_done("morning_tide"), "Morning Tide completes on stepping outside")
 	check(c().quests.is_active("a_quiet_river"), "A Quiet River follows automatically")
 	check(Game.is_revealed("hud:minimap") and Game.is_revealed("hud:quest_tracker"), "minimap and tracker revealed")
-
-## A way out a quest holds shut: its door drawn shut with what to do first on it, and a try to leave refused with the
-## same words (naming `first`), the character still in the room.
-func held(portal: String, first: String) -> void:
-	var here := room()
-	var shut: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(portal))
-	var r := submit({"type": "use_portal", "portal": portal, "crossing": true})
-	check(not shut.open and first in str(shut.text) and not r.get("ok", false) and str(r.get("text", "")) == str(shut.text) and room() == here,
-		"%s stays shut until '%s' is done, and says so (%s; %s)" % [portal, first, str(shut), str(r)])
-	if room() != here: travel(here)   # let out all the same: back in, so the walk goes on
 
 ## 2 A Quiet River: Lu at the docks sends you round the village.
 func step_quiet_river() -> void:
@@ -488,7 +496,7 @@ func step_granny() -> void:
 	hand_in("granny_liu", "grannys_remedy")
 	check(go("exit"), "back to the village")
 
-## 4 Ma's Delivery: sell the old net, buy two rice balls.
+## 4 Ma's Delivery: sell the old net (one step); two rice balls bought as a player might, not asked for.
 func step_ma() -> void:
 	back_to("lf_village")
 	check(go("store_door"), "enter Old Ma's store")
@@ -507,10 +515,12 @@ func step_fists() -> void:
 	back_to("lf_village")
 	accept("uncle_guo", "fists_first")
 	check(Game.is_revealed("hud:attack"), "Attack revealed")
-	hit_object("stump_guo", 12)
-	hit_object("dummy_guo", 5)
+	hit_object("stump_guo", 5)
+	hit_object("dummy_guo", 3)
 	hand_in("uncle_guo", "fists_first")
-	check(not Game.world.portal_state(c(), Game.room_rt.portal_def("east_gate")).open or c().quests.is_done("a_quiet_river_return"),
+	var worn = c().inventory.equipped.get("weapon")
+	check(worn != null and str(worn.id) == "training_gauntlets", "Fists First hands out the training gauntlets, worn at once (%s)" % str(worn))
+	check(not Game.world.portal_state(c(), Game.room_rt.portal_def("east_gate")).open or c().quests.is_active("crab_trouble"),
 		"the East Gate stays shut after Fists First until Guo sends you to the crabs")
 
 ## 6 Race to the Tower (optional; fail once, then win).
@@ -524,35 +534,44 @@ func step_race() -> void:
 	hand_in("shen_lian_npc", "race_to_the_tower")
 	check(c().cultivator.titles.has("fleet_footed"), "title Fleet-Footed earned")
 
-## 8 Back to Lu once the four lessons are done.
-func step_return() -> void:
-	back_to("lf_village")
-	check(c().quests.is_active("a_quiet_river_return"), "A Quiet River (Return) offered after the four lessons")
-	talk("lu_boatman")
-	hand_in("lu_boatman", "a_quiet_river_return")
-
-## 9 Crab Trouble: the East Gate opens, five shells and Old Snapper in the Reed Shallows.
+## 9 Crab Trouble: the four lessons done, Guo has it at once (no walk back to Lu); the East Gate opens, three shells,
+## which drop while he wants them, and Old Snapper in the Reed Shallows.
 func step_crabs() -> void:
+	back_to("lf_village")
+	check(c().quests.offered.has("crab_trouble") and Game.quest.npc_marker(c(), "uncle_guo") == "main",
+		"with the fourth lesson done Guo offers Crab Trouble (marker %s)" % Game.quest.npc_marker(c(), "uncle_guo"))
 	accept("uncle_guo", "crab_trouble")
 	check(Game.is_revealed("hud:enemy_hp_bars") and Game.is_revealed("hud:system_log"), "enemy HP bars and log revealed")
 	check(go("east_gate") and room() == "lf_reed_shallows", "the East Gate opens with Crab Trouble")
+	keep("Crab Trouble taken")
+	# The first kill in the first rooms drops the character's first weapon (grades.json drop.starter), marked for its
+	# moment (the first-weapon strip and beam), and it is picked up.
+	var first := {"kills": 0, "at": -1, "item": ""}
+	var seen := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("victim_kind", "")) == "enemy": first.kills += 1
+		if n == "loot_dropped" and p.get("first_weapon", false) and int(first.at) < 0:
+			first.at = int(first.kills)
+			first.item = str((p.items as Array).filter(func(i): return i.get("first", false))[0].item)
+	GameEvents.event.connect(seen)
 	var guard := 0
-	while c().inventory.count("crab_shell") < 5 and guard < 30:
+	while c().inventory.count("crab_shell") < 3 and guard < 30:
 		fight("mudshell_crab", 1, 30.0)
 		step(0.6)
+		for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
 		guard += 1
-	check(c().inventory.count("crab_shell") >= 5, "five crab shells (have %d)" % c().inventory.count("crab_shell"))
+	GameEvents.event.disconnect(seen)
+	var fam := str(LootRules.drop_cfg().get("starter", {}).get("first_family", ""))
+	check(int(first.at) == 1 and str(ContentDB.item(str(first.item)).get("family", "")) == fam and c().inventory.count(str(first.item)) >= 1,
+		"the first kill in the Reed Shallows drops the first weapon, a %s, picked up (%s)" % [fam, str(first)])
+	check(c().inventory.count("crab_shell") >= 3 and guard <= 3, "three crab shells from three crabs (have %d after %d fights)" % [c().inventory.count("crab_shell"), guard])
 	step(1.5)
 	# The first elite is beaten by a player who neither rests first nor reads its claw; reading it only makes it easy.
 	check(fight("old_snapper", 1, 120.0, 0.0, false, false) == 1, "Old Snapper defeated without resting or dodging (hp %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
 	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
-	var weapons_seen := false
-	for s in c().inventory.bag:
-		if s != null and str(ContentDB.item(str(s.id)).get("slot", "")) == "weapon": weapons_seen = true
-	check(not weapons_seen, "no weapon dropped in the Prologue")
 	check(travel("lf_village"), "back to the village")
 	hand_in("uncle_guo", "crab_trouble")
-	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1, "Plain Straw Hat received")
+	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1 and c().inventory.count_including_equipped("straw_sandals") >= 1,
+		"Plain Straw Hat and Straw Sandals received")
 
 ## 10 Evening on the River: dinner, the docks at sunset, and the night falls.
 func step_evening() -> void:
@@ -592,6 +611,10 @@ func step_river_token() -> void:
 	step(4.0)
 	check(c().cultivator.realm_key == "bone_forging_1", "Bone Forging 1 (realm %s)" % c().cultivator.realm_key)
 	hand_in("lu_boatman", "the_river_token")
+	# Research §5 change 3: Lu teaches the first technique with the first breakthrough, in its slot, costing no Qi.
+	check(c().cultivator.techniques_known.has("flowing_palm") and c().cultivator.technique_slots[0] == "flowing_palm" and Game.is_revealed("hud:skills"),
+		"Lu teaches Flowing Palm at Bone Forging 1, slotted on the skill ring (%s)" % str(c().cultivator.technique_slots))
+	check(Game.combat.technique_cost(c(), ContentDB.entry("techniques", "flowing_palm")) == 0.0, "in the body stages Flowing Palm costs no Qi")
 	check(c().pools.max_qi == 0.0, "still no QI pool in the body stages")
 	check(not Game.is_revealed("hud:qi_bar"), "QI bar still hidden at Bone Forging 1")
 
@@ -602,9 +625,17 @@ func step_willow_path() -> void:
 	check(go("deck") and go("west_gate") and room() == "wp_east", "West Gate open after the night")
 	check(go("west") and room() == "wp_west", "Willow Path West")
 	check(interact("shrine_wp").get("ok", false), "pray at the Willow Path shrine")
-	hit_object("stump_0", 30)
+	var palm := {"n": 0}
+	var cast := func(n, p): if n == "technique_used" and str(p.get("technique", "")) == "flowing_palm": palm.n += 1
+	GameEvents.event.connect(cast)
 	check(fight("wild_boarlet", 5, 200.0) >= 5, "five Wild Boarlets")
-	check(c().quests.is_done("the_willow_path"), "The Willow Path complete")
+	var tries := 0
+	while c().quests.is_active("the_willow_path") and tries < 6:
+		fight("wild_boarlet", 1, 120.0, 0.0, true)
+		tries += 1
+	GameEvents.event.disconnect(cast)
+	check(int(palm.n) > 0, "Flowing Palm is cast on the boarlets, with no Qi pool (%d casts)" % int(palm.n))
+	check(c().quests.is_done("the_willow_path"), "The Willow Path complete: no stump quota, the palm, five boarlets and the herd's elite")
 
 ## P7 Stoneford and the Recruitment Fair: both recruiters, then the Jade Sect.
 func step_fair() -> void:
@@ -617,38 +648,19 @@ func step_fair() -> void:
 	check(str(c().training_sect.get("id", "")) == "jade_sect", "member of the Jade Sect")
 	check(c().quests.is_done("the_recruitment_fair"), "Recruitment Fair complete")
 
-## Grind to Bone Forging 2 on the Willow Path.
-func step_grind_bf2() -> void:
-	check(go("east") and go("east") and go("east") and go("east") and room() == "wp_west", "back to Willow Path West (room %s)" % room())
-	var tries := 0
-	if verbose: GameEvents.event.connect(func(n, p): if n == "progress_changed" and tries < 12: print("    progress ", p.source, " ", snappedf(float(p.amount), 0.1), " -> ", snappedf(c().cultivator.qp, 0.1)))
-	var kill_progress := {"n": 0}
-	GameEvents.event.connect(func(n, p): if n == "progress_changed" and str(p.get("source", "")) == "kill": kill_progress.n += 1)
-	while not ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_2") and tries < 160:
-		if tries == 10:
-			check(int(kill_progress.n) > 0, "fights on the Willow Path give realm progress (%d kills counted)" % int(kill_progress.n))
-			# Test shortcut: the rest of the ~40 kills is grinding the scripted fighter is poor at.
-			Game.progression.apply_progress(c().id, 0.0, "test_shortcut", 1.0)
-		if c().cultivator.state == "bottleneck":
-			submit({"type": "start_breakthrough", "support_items": []})
-			step(4.0)
-		else:
-			fight("wild_boarlet", 1, 20.0, 0.4)
-			if c().pools.hp < c().pools.max_hp * 0.7 and room() == "wp_west":
-				# Head to town to recover, then come back.
-				go("west")
-				var heal := 0.0
-				while c().pools.hp < c().pools.max_hp * 0.98 and heal < 150.0:
-					step(1.0)
-					heal += 1.0
-				go("east")
-		tries += 1
-		if verbose and tries % 10 == 0: print("  grind ", tries, ": qp ", snappedf(c().cultivator.qp, 0.1), "/", c().cultivator.need(), " state ", c().cultivator.state, " consolidating ", snappedf(c().cultivator.consolidation_left, 0.1))
-	check(c().cultivator.realm_key == "bone_forging_2", "Bone Forging 2 reached after %d fights" % tries)
+## A realm step the story has filled: break through when the bar is full, as the HUD asks. True once at `realm`.
+func break_through(realm: String) -> bool:
+	for i in 3:
+		if ProgressionRules.at_least(c().cultivator.realm_key, realm): break
+		if c().cultivator.state != "bottleneck": break
+		submit({"type": "start_breakthrough", "support_items": []})
+		step(4.0)
+	return ProgressionRules.at_least(c().cultivator.realm_key, realm)
 
-## P8 The Entry Trial: the bell, then the Trial Puppet.
+## P8 The Entry Trial: the bell, then the Trial Puppet; no realm step to grind for. The story's own quests and fights
+## (the Willow Path, the fair, the trial) carry the character to Bone Forging 2 (research §5 change 5).
 func step_entry_trial() -> void:
-	check(go("west") and go("west") and go("west") and go("west"), "return to the Fairground")
+	if room() != "sf_fairground": check(travel("sf_fairground"), "return to the Fairground")
 	check(c().quests.is_active("entry_trial"), "Entry Trial active")
 	check(go("trial_jade") and room() == "sf_trial_jade", "enter the Jade trial")
 	check(interact("trial_bell").get("ok", false), "reach the trial bell")
@@ -656,7 +668,9 @@ func step_entry_trial() -> void:
 	check(fight("trial_puppet", 1, 120.0) == 1, "Trial Puppet beaten")
 	check(c().quests.is_done("entry_trial"), "Entry Trial complete")
 	check(str(c().training_sect.get("rank", "")) == "service_disciple", "Service Disciple")
-	check(c().inventory.equipped.get("weapon") == null, "still bare fists after the Prologue")
+	check(break_through("bone_forging_2"), "the story's own quests and fights carry the character to Bone Forging 2, no hunting (realm %s, %d%%)"
+		% [c().cultivator.realm_key, int(100.0 * c().cultivator.progress_fraction())])
+	check(c().inventory.equipped.get("weapon") != null, "a weapon in hand through the Prologue (the weapon slot is open from the start)")
 
 # ------------------------------------------------------------------ the run
 func run() -> void:
@@ -668,14 +682,12 @@ func run() -> void:
 	step_ma()
 	step_fists()
 	step_race()
-	step_return()
 	step_crabs()
 	step_evening()
 	step_night()
 	step_river_token()
 	step_willow_path()
 	step_fair()
-	step_grind_bf2()
 	step_entry_trial()
 	# HUD reveal order (S27): each element appears exactly at its step.
 	var order := ["hud:joystick", "hud:context", "hud:bag", "hud:room_banner", "hud:minimap", "hud:quest_tracker", "hud:jump"]

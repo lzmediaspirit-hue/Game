@@ -38,6 +38,7 @@ func run():
 				for anim in layer.animations.values():
 					for path in anim.get("sheets",[]):
 						check(FileAccess.file_exists(path.replace("art_v12/","res://art/")),"Asset exists: "+path)
+	gauntlet_poses()
 	check(p.avatar.scale==Vector2.ONE,"Gameplay character uses smaller native 2x artwork")
 	# Full foreground route passes under every roof without climbing automatically.
 	place(p,world,"river_walk",Vector2(20,845))
@@ -310,6 +311,47 @@ func run():
 	check(main.screen=="selection","Cancel returns safely")
 	print("ENGINE_TESTS: ",count-failures.size(),"/",count," passed")
 	get_tree().quit(0 if failures.is_empty() else 1)
+## Every gauntlet wears a look drawn on the hands in every registered pose, both facings, frame for frame with the
+## body, and only over pixels the body itself draws there (the hands; a gauntlet is never drawn off the figure).
+func gauntlet_poses():
+	var looks := {}
+	for a in ContentDB.all("artifacts"):
+		if str(a.get("family", "")) != "gauntlets": continue
+		var look := str(a.get("appearance", ""))
+		check(Wardrobe.parts.weapon.has(look) and Wardrobe.attack_for({"weapon": look}) == "punch", "gauntlet %s has an avatar look that punches (%s)" % [a.id, look])
+		looks[look] = looks.get(look, []) + [str(a.id)]
+	check(looks.size() > 0 and not looks.has("none"), "gauntlets are drawn, not bare fists (%s)" % str(looks.keys()))
+	var images := {}
+	var sheet := func(path: String) -> Image:
+		if not images.has(path): images[path] = load(path.replace("art_v12/", "res://art/")).get_image()
+		return images[path]
+	for look in looks:
+		if not Wardrobe.parts.weapon.has(look): continue
+		for action in Wardrobe.parts._actions:
+			var frames := int(Wardrobe.parts._actions[action].frames)
+			var body: Array = Wardrobe.parts.body.light.layers.filter(func(l): return float(l.z) < 100.0)
+			var drawn := {}
+			var off_body := 0
+			for layer in Wardrobe.parts.weapon[look].layers:
+				check(layer.animations.has(action), "gauntlets %s: layer %s has an entry for %s" % [look, layer.section, action])
+				var anim: Dictionary = layer.animations.get(action, {"hidden": true})
+				if anim.get("hidden", false): continue
+				var cell := int(anim.cell)
+				var img: Image = sheet.call(str(anim.sheets[0]))
+				check(img.get_width() == frames * cell and img.get_height() == 2 * cell, "gauntlets %s %s: %d frames, two facings" % [look, action, frames])
+				var under: Dictionary = body.filter(func(l): return l.section == layer.section)[0].animations[action]
+				var skin: Image = sheet.call(str(under.sheets[0]))
+				for row in 2:
+					for f in frames:
+						var region := img.get_region(Rect2i(f * cell, row * cell, cell, cell))
+						var used := region.get_used_rect()
+						if used.size == Vector2i.ZERO: continue
+						drawn["%d/%d" % [row, f]] = true
+						for y in range(used.position.y, used.end.y, 2):
+							for x in range(used.position.x, used.end.x, 2):
+								if region.get_pixel(x, y).a > 0 and skin.get_pixel(f * cell + x, row * cell + y).a == 0: off_body += 1
+			check(drawn.size() == frames * 2, "gauntlets %s are drawn in every frame of %s, both facings (%d/%d)" % [look, action, drawn.size(), frames * 2])
+			check(off_body == 0, "gauntlets %s %s sit on the body's hands (%d pixels off it)" % [look, action, off_body])
 
 
 
