@@ -521,8 +521,8 @@
    "id": "npc_little_dou",
    "type": "npc",
    "at": [
-    2250,
-    900
+    2140,
+    910
    ],
    "npc": "little_dou",
    "facing": 1

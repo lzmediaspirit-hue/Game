@@ -156,7 +156,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1063,
+    843,
     655
    ],
    "item": "ember_cactus",
@@ -232,7 +232,7 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    843,
+    1063,
     655
    ],
    "loot": "jar_expanse",

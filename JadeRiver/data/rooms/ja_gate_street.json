@@ -172,7 +172,7 @@
    "id": "board_ja",
    "type": "notice_board",
    "at": [
-    2600,
+    2690,
     700
    ]
   },
@@ -219,7 +219,7 @@
    "id": "npc_jade_disciple_a",
    "type": "npc",
    "at": [
-    1500,
+    1640,
     900
    ],
    "npc": "jade_disciple_a",
@@ -239,7 +239,7 @@
    "id": "dorm_bed_ja",
    "type": "inspect",
    "at": [
-    1200,
+    1500,
     720
    ],
    "prop": "bed",
@@ -511,11 +511,11 @@
    "id": "jade_roof_ladder_1",
    "kind": "ladder",
    "at": [
-    1250,
+    1210,
     745
    ],
    "top_at": [
-    1250,
+    1210,
     702
    ],
    "bottom_alt": 0,

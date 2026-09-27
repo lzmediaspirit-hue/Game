@@ -130,7 +130,7 @@
   {
    "id": "route_4",
    "rect": [
-    2980,
+    3100,
     636,
     240,
     70
@@ -141,25 +141,12 @@
    "open_edges": true
   },
   {
-   "id": "route_5",
-   "rect": [
-    3320,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
    "id": "bridge_0",
    "rect": [
-    2040,
+    760,
     636,
-    360,
-    60
+    340,
+    64
    ],
    "height": 100.0,
    "kind": "rope_bridge",
@@ -194,7 +181,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1370,
+    1130,
     665
    ],
    "item": "star_lotus",
@@ -245,7 +232,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1130,
+    1370,
     665
    ],
    "loot": "jar_lantern",
@@ -305,8 +292,8 @@
    "id": "switch_garden",
    "type": "gravity_switch",
    "at": [
-    2900,
-    700
+    3060,
+    720
    ]
   }
  ],
@@ -591,23 +578,23 @@
  ],
  "climbables": [
   {
-   "id": "ledge_0_rope_1",
+   "id": "ledge_1_rope_1",
    "kind": "rope",
    "at": [
-    1290,
-    735
+    2560,
+    725
    ],
    "top_at": [
-    1290,
-    692
+    2560,
+    682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 200,
    "bottom": "ground",
-   "top": "ledge_0"
+   "top": "ledge_1"
   },
   {
-   "id": "route_0_vine_2",
+   "id": "route_0_vine_3",
    "kind": "vine",
    "at": [
     300,
@@ -623,52 +610,50 @@
    "top": "route_0"
   },
   {
-   "id": "route_1_vine_3",
+   "id": "route_3_vine_4",
    "kind": "vine",
    "at": [
-    640,
+    1920,
     741
    ],
    "top_at": [
-    640,
+    1920,
     698
    ],
    "bottom_alt": 0,
-   "top_alt": 200,
+   "top_alt": 100,
    "bottom": "ground",
-   "top": "route_1"
+   "top": "route_3"
   },
   {
-   "id": "route_4_vine_4",
+   "id": "route_4_vine_5",
    "kind": "vine",
    "at": [
-    3100,
+    3220,
     741
    ],
    "top_at": [
-    3100,
+    3220,
     698
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
    "top": "route_4"
-  },
+  }
+ ],
+ "blocks": [
   {
-   "id": "route_5_vine_5",
-   "kind": "vine",
-   "at": [
-    3480,
-    741
+   "id": "ledge_1_step_2",
+   "rect": [
+    2650,
+    702,
+    60,
+    50
    ],
-   "top_at": [
-    3480,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_5"
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
   }
  ],
  "terrain": [

@@ -53,7 +53,7 @@ def willow_path(R):
     cx = cart["rect"][0] + cart["rect"][2] // 2
     # He stands at the deck's front lip, so he is drawn in front of the cart's side boards, on its bed.
     obj(r, "npc_old_pan_wp").update({"at": [cx, cart["rect"][1] + cart["rect"][3] + 2], "alt": cart["top"], "surface": "merchant_cart"})
-    obj(r, "pan_spot").update({"at": [cx + 110, 790], "prop": "grey_patch"})
+    obj(r, "pan_spot").update({"at": [cx + 110, 860], "prop": "grey_patch"})
     r.painted("roadside_shrine", "hall", 2050, 300, 110, 88, front=700)
     r.decor("incense_burner", [2050, 740])
     clear_blocks_of_spawns(r)
@@ -116,15 +116,16 @@ def market_street(R):
 
 def fairground(R):
     """Fairground: 0 · tent tops 100 · stage 60. Each recruiter tent has a stone stage (60) in front of it, and the
-    recruiter stands on its front step (40), within talking reach of the crowd below (48); the tent's canopy is a top at
-    100 with a guy rope up. The great drum throws you to the festival lanterns hung over it, too high for any jump."""
+    recruiter stands at the east end of its front step (40), within talking reach of the crowd below (48) and out of the
+    reach of the tent's door (M18); the tent's canopy is a top at 100 with a guy rope up. The great drum throws you to
+    the festival lanterns hung over it, too high for any jump."""
     W = _w()
     r = R["sf_fairground"]
     for side, npc in (("jade", "npc_recruiter_qing_lan"), ("cloud", "npc_recruiter_mo_yun")):
         x = next(d["at"][0] for d in r.d["decor"] if d["prop"] == "recruiter_tent_" + side)
         r.solid("stage_" + side, [x - 80, 740, 160, 50], 60, kind="wall")
         r.solid("stage_%s_step" % side, [x - 70, 790, 140, 36], 40, kind="wall")
-        obj(r, npc).update({"at": [x, 810], "alt": 40, "surface": "stage_%s_step" % side})
+        obj(r, npc).update({"at": [x + 60, 810], "alt": 40, "surface": "stage_%s_step" % side})
         r.surface("tent_top_" + side, [x - 82, 612, 164, 62], 100, kind="awning")
         rope_x = x + 75 if side == "jade" else x - 75   # clear of the tent door
         r.ladder("tent_rope_" + side, rope_x, 674, 100, kind="rope", top="tent_top_" + side)

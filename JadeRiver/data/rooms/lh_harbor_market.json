@@ -322,8 +322,8 @@
    "id": "npc_clerk_yu",
    "type": "npc",
    "at": [
-    1960,
-    780
+    1860,
+    800
    ],
    "npc": "clerk_yu",
    "facing": 1
@@ -362,8 +362,8 @@
    "id": "sign_lh_market",
    "type": "signpost",
    "at": [
-    3700,
-    860
+    3660,
+    870
    ],
    "text": "East: the Drifting Shoals (Lv 82-87, Starsea Endurance 20-28) · West: the Arrival Quay."
   }

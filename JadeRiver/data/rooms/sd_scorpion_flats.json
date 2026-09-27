@@ -64,19 +64,6 @@
    "open_edges": true
   },
   {
-   "id": "cloud_mv",
-   "rect": [
-    2132,
-    610,
-    240,
-    70
-   ],
-   "height": 300,
-   "kind": "cloud",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
    "id": "route_0",
    "rect": [
     180,
@@ -118,52 +105,13 @@
   {
    "id": "route_3",
    "rect": [
-    2460,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_4",
-   "rect": [
-    2800,
+    1740,
     636,
     240,
     70
    ],
    "height": 100,
    "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_5",
-   "rect": [
-    3140,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "bridge_0",
-   "rect": [
-    1680,
-    630,
-    452,
-    60
-   ],
-   "height": 200.0,
-   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -195,7 +143,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1650,
+    1430,
     665
    ],
    "item": "ember_cactus",
@@ -271,7 +219,7 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1430,
+    1540,
     665
    ],
    "loot": "jar_expanse",
@@ -284,14 +232,14 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2162,
-    645
+    210,
+    671
    ],
    "loot": "jar_expanse",
    "level": 76,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 300
+   "alt": 100
   },
   {
    "id": "jar_6",
@@ -321,19 +269,19 @@
    "id": "chest_8",
    "type": "chest",
    "at": [
-    2342,
-    645
+    1650,
+    665
    ],
    "loot": "chest_expanse",
    "level": 78,
-   "alt": 300
+   "alt": 200
   },
   {
    "id": "shrine_sd_flats",
    "type": "shrine",
    "at": [
-    2000,
-    700
+    2080,
+    720
    ]
   },
   {
@@ -354,22 +302,10 @@
    "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
   },
   {
-   "id": "chest_cloud_mv",
-   "type": "chest",
-   "at": [
-    2252,
-    665
-   ],
-   "loot": "chest_expanse",
-   "level": 78,
-   "alt": 300,
-   "surface": "cloud_mv"
-  },
-  {
    "id": "swarm_ember_locust",
    "type": "insect_swarm",
    "at": [
-    1386,
+    1686,
     860
    ],
    "item": "ember_locust",
@@ -440,7 +376,7 @@
      874
     ],
     [
-     2440,
+     2860,
      869
     ],
     [
@@ -692,65 +628,17 @@
    "id": "route_3_vine_3",
    "kind": "vine",
    "at": [
-    2580,
+    1860,
     741
    ],
    "top_at": [
-    2580,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_3"
-  },
-  {
-   "id": "route_4_vine_4",
-   "kind": "vine",
-   "at": [
-    2920,
-    741
-   ],
-   "top_at": [
-    2920,
+    1860,
     698
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_4"
-  },
-  {
-   "id": "route_5_vine_5",
-   "kind": "vine",
-   "at": [
-    3260,
-    741
-   ],
-   "top_at": [
-    3260,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_5"
-  },
-  {
-   "id": "bridge_0_ladder_6",
-   "kind": "ladder",
-   "at": [
-    1866,
-    725
-   ],
-   "top_at": [
-    1866,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "bridge_0"
+   "top": "route_3"
   }
  ],
  "terrain": [
