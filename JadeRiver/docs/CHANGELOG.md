@@ -1065,6 +1065,41 @@ come next. Where it differs from the plan, the plan's §6 says so.
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
 
+### P5 · The Bonds family: Companions, Gift and Relations (mockup 21_dialogue_gift; decision 14)
+- **The Gift as a red-lacquered tray held out over the talk** (`docs/page_identity.md` row 28, mockup 21_dialogue_gift).
+  The tray (HD `gift_tray`, lacquer in a gold rim) sits above the Dialogue's own paper strip: "A gift for …", one a day,
+  what they are known to love and like; ten compartments of what the bag can give, the known ones first with a pink
+  "Loves it" or "Likes it" tag, the rest behind "+n"; Give, shut with why, and what the chosen thing would be. The
+  strip keeps the portrait, plaque, hearts and who they are; it answers a gift ("… likes it." and what it taught you),
+  and the heart bar fills with what the gift moved. The page extends the Dialogue: "Give a gift" hands the talk on, so
+  its other choices (four at most, Farewell kept) stay beside the tray, and one that leads on goes back to the talk.
+  A given gift lifts from its compartment toward the speaker (0.3 s). No close button, as the talk has none; a tap
+  outside what a page draws (`Page.window_rect`, the tray and the Dialogue's offer card included) closes it.
+- **Companions as moon gates in a whitewashed wall** (row 27, no mockup). The plaster under a coping of jade tiles, the
+  title on a lacquer board set in it; each friend full-length in a round gate with the garden beyond, lanterns lit over
+  the two beside you (lighting in 0.2 s when one is brought along), their hearts as knots on the red thread beneath
+  (a new one tied in 0.3 s). A tap on a gate chooses the friend; their actions (Bring along, Gift, the duel, the bond
+  their hearts open) stand under their gate alone.
+- **Relations as the karma steelyard** (row 42, no mockup). A timber rafter carries the title and the four tabs as tally
+  tags; from its hook hang your fame's plaque and the beam, merit's gold weight at its right end and sin's black one at
+  its left, leaning with the alignment (the reading beside the hook), the recent deeds notched along it. Each tab's
+  boards hang from the beam: the bonds on red thread, the grudges on black, the ledger and the name on hemp cords. The
+  beam swings to its lean as the page opens (0.35 s).
+- **Shared:** `scripts/ui/pages/bonds_kit.gd` (the wall and coping, threads and knots, lanterns, the hung timber boards,
+  the family's inks); the Dialogue's strip and choices are its own functions now (`_strip`, `_choice_buttons`,
+  `_go_on`), which the Gift draws with; the five hearts no longer touch "who they are". `TEXT_ON` rows for ink on
+  `plaster` and words on `gift_tray`; strings in `tools/data/ui_strings.json`; every intent kept (give_gift,
+  set_active_companions, companion_duel, offer_bond, pay_grudge, answer_challenge).
+- **Tests:** the `identity_suite`'s Bonds part: the tray over the talk with its other choices and no close button, the
+  liked gift first and tagged, a gift given as an intent with the strip answering and Give shut; a gate per friend and
+  the chosen one's actions under their gate, Bring along as an intent; the beam leaning with the alignment; every word
+  read on its ground. The `ui_suite` opens the Gift over a talk and alone, and the Companions empty and with all four.
+  The full suite on the merged tree: room_lint 168 / 0; engine_tests 3908/3908; data_validation 49968 / 0; room_sweep
+  3673 / 0; visibility_suite 6726 / 0; rules_tests 2423 / 0; contract_tests 1060 / 0; balance_sim 163 / 0; perf_tests
+  11 / 0 (run alone; under load five timings missed); prologue_run 100 / 0; tutorial_order 422 / 0; valley_run 3032 / 0.
+- **Screenshots** in `docs/ui_p5/bonds/` on copies of this build's valley_run checkpoints `qu5` and `ls6_end`, with
+  `compare_21_dialogue_gift.png` and what differs.
+
 ### P5 · The Records family, second part: Dialogue, Quests, Mail and the Notice Board (mockups 21, 12 v2, 22; decision 14)
 - **The talk as rice paper under the scene** (`docs/page_identity.md` row 2, mockup 21). The paper strip along the foot
   keeps the portrait, the speaker's plaque and the words in ink; under the name, their hearts and who they are; the
