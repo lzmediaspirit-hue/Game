@@ -789,13 +789,17 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var def := ContentDB.entry("enemies", str(p.def))
 	if def.is_empty(): return
 	var rng := Rng.stream(c.id, "loot")
+	var elite_spawn: bool = bool(p.get("elite", false)) and def.get("role", "normal") == "normal"
 	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate") + game.pets.trait_bonus(c, "drop_chance"), c.stats.value("coin_find"),
-		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons"), "needs": game.quest.item_needs(c)})
-	if bool(p.get("elite", false)) and def.get("role", "normal") == "normal":
-		var extra := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"))
+		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons"), "needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite"})
+	if elite_spawn:
+		# A normal kind spawned as an elite rolls its items again, pays an elite's coins and has one more equipment roll
+		# (P7b: grades.json drop.elite_extra).
+		var extra := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
 		drop.items.append_array(extra.items)
 		drop.coins = LootRules.coins_for(int(p.level), 6.0, c.stats.value("coin_find"))
-		if rng.randf() < 0.25: drop.equipment.append({"level": int(p.level), "min_quality": "fine"})
+		var ex: Dictionary = LootRules.drop_cfg().get("elite_extra", {})
+		if rng.randf() < float(ex.get("chance", 0.0)): drop.equipment.append({"level": int(p.level), "min_quality": str(ex.get("min_quality", "common"))})
 	if bool(p.get("summoned", false)): drop.equipment.clear()
 	# Quest-only items drop only while a quest needs them.
 	drop.items = drop.items.filter(func(it): return not ContentDB.item(it.item).get("quest_item", false) or game.quest.needs_item(c, str(it.item)))
@@ -862,8 +866,9 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 		if here_shard != "" and iid != here_shard and iid in ATTUNEMENT_SHARDS: iid = here_shard
 		drops.append({"item": iid, "count": int(it.count)})
 	var allow_weapons: bool = Unlocks.is_unlocked(c.id, "weapons")
+	var family := StatRules.family_of_weapon(c.inventory.equipped.get("weapon"))
 	for eq in drop.get("equipment", []):
-		var inst := LootRules.make_equipment(Rng.stream(c.id, "affix"), int(eq.level), str(eq.min_quality), c.stats.value("fortune"), allow_weapons, c.inventory.next_uid)
+		var inst := LootRules.make_drop(Rng.stream(c.id, "affix"), eq, c.stats.value("fortune"), allow_weapons, c.inventory.next_uid, family)
 		if inst.is_empty(): continue
 		c.inventory.take_uid()   # the uid it was made with
 		drops.append({"item": inst.id, "count": 1, "instance": inst})
@@ -1666,7 +1671,8 @@ func climb_tower(c, f: int) -> Dictionary:
 	start_room_event(c, ev)
 	return ok({"floor": f})
 
-## A floor cleared: its loot at your feet; the first time, Spirit Stones as well and the next floor opens.
+## A floor cleared: its loot at your feet; the first time, Spirit Stones and the floor's first-clear rewards (P7b: the
+## guardians of floors 15-30 leave a Day's Incense) as well, and the next floor opens.
 func apply_tower_clear(actor_id: String, f: int) -> void:
 	var c = game.character(actor_id)
 	var st: ActorState = game.actor_state(actor_id)
@@ -1677,7 +1683,7 @@ func apply_tower_clear(actor_id: String, f: int) -> void:
 	if st != null and game.room_rt != null:
 		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
 			{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")}), st.plane, 0.0)
-	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}], "tower")
+	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}] + row.get("first", []), "tower")
 	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
 
 ## Sweep: each floor you have cleared gives its loot once a day, straight to the bag, without the fight.

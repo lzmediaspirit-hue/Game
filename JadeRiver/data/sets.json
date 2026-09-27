@@ -3,6 +3,10 @@
  "entries": [
   {
    "id": "jade_current",
+   "archetype": "general",
+   "tier": 1,
+   "element": "water",
+   "path": "",
    "pieces": [
     "jade_current_hat",
     "jade_current_robe",
@@ -31,6 +35,10 @@
   },
   {
    "id": "cloudpiercing",
+   "archetype": "general",
+   "tier": 1,
+   "element": "wind",
+   "path": "",
    "pieces": [
     "cloudpiercing_hat",
     "cloudpiercing_robe",
@@ -59,6 +67,10 @@
   },
   {
    "id": "mudwater",
+   "archetype": "general",
+   "tier": 1,
+   "element": "",
+   "path": "",
    "pieces": [
     "mudwater_cleaver",
     "mudwater_robe"
@@ -75,6 +87,10 @@
   },
   {
    "id": "drowned_abbot",
+   "archetype": "general",
+   "tier": 1,
+   "element": "",
+   "path": "",
    "pieces": [
     "drowned_hat",
     "drowned_robe",
@@ -99,6 +115,10 @@
   },
   {
    "id": "crane",
+   "archetype": "general",
+   "tier": 1,
+   "element": "",
+   "path": "",
    "pieces": [
     "crane_robe",
     "crane_trousers",

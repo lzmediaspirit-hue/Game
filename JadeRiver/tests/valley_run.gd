@@ -2524,6 +2524,15 @@ func sec_ls3() -> void:
 	check(travel("wn_eggshell_terraces"), "on to the Eggshell Terraces")
 	var brood := fight("hollowed_wyrmling", 6, 600.0, 0.3)
 	check(brood >= 6 or _objective("a_hollowed_brood", 0) >= 6, "put six Hollowed Wyrmlings to rest (%d)" % brood)
+	# A quick fight can end before any grey flame lands (the account's seed decides): stand in a wyrmling's reach until one does.
+	var waited_grey := 0.0
+	while c().pools.hollowing <= 0.0 and waited_grey < 90.0:
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == "hollowed_wyrmling" and e.team == "enemy":
+				place(e.plane + Vector2(-50, 0))
+				break
+		step(1.0)
+		waited_grey += 1.0
 	check(c().pools.hollowing > 0.0, "their grey fire leaves Hollowing (%.0f%%)" % c().pools.hollowing)
 	var h0: float = c().pools.hollowing
 	check(submit({"type": "use_item", "index": c().inventory.first_index("lantern_incense"), "confirm": true}).get("ok", false), "burn Lantern Incense")

@@ -159,6 +159,9 @@ def tower():
             guardian = _tower_foes(lv + 4, 1)[0]
             row.update(time_s=120, guardian=guardian, guardian_level=lv + 4,
                        foes=[x for x in _tower_foes(lv, 4) if x != guardian][:2])
+            # P7b (item_plan §2.10): from floor 15 a guardian's first fall leaves a Day's Incense (Hour Incense, 24 h).
+            if f >= 15:
+                row["first"] = [{"kind": "grant_item", "item": "hour_incense_24", "count": 1}]
         rows.append(row)
     return rows
 
@@ -170,9 +173,12 @@ def activity():
         return {"id": "chest_%d" % points, "points": points, "rewards": list(rewards)}
     return [
         tier(20, {"kind": "grant_currency", "currency": "silver_tael", "amount": 150}, {"kind": "grant_item", "item": "healing_pill", "count": 2}),
-        tier(40, {"kind": "grant_currency", "currency": "silver_tael", "amount": 300}, {"kind": "grant_item", "item": "spirit_stone_shard", "count": 3}),
-        tier(60, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 5}, {"kind": "grant_item", "item": "manual_page", "count": 2}),
-        tier(100, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 15}, {"kind": "grant_item", "item": "spirit_jade", "count": 2}),
+        tier(40, {"kind": "grant_currency", "currency": "silver_tael", "amount": 300}, {"kind": "grant_item", "item": "spirit_stone_shard", "count": 3},
+             {"kind": "grant_item", "item": "hour_incense_2", "count": 1}),
+        tier(60, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 5}, {"kind": "grant_item", "item": "manual_page", "count": 2},
+             {"kind": "grant_item", "item": "hour_incense_4", "count": 1}),
+        tier(100, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 15}, {"kind": "grant_item", "item": "spirit_jade", "count": 2},
+             {"kind": "grant_item", "item": "hour_incense_12", "count": 1}),
     ]
 
 

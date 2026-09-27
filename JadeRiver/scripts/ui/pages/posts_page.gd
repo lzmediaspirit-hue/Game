@@ -233,7 +233,7 @@ func _draw_vows() -> void:
 	if not Unlocks.is_unlocked(ch.id, "ancestral_rites"):
 		para(Rect2(content.position + Vector2(0, 20), Vector2(content.size.x, 80)), Unlocks.locked_text("ancestral_rites"), 18, UiKit.HOLLOW)
 		return
-	var wisps := int(ch.inventory.count("spirit_wisp")) + int(Game.account.storehouse.get("spirit_wisp", 0))
+	var wisps := Game.inventory.count_owned(ch, "spirit_wisp")
 	para(Rect2(content.position, Vector2(content.size.x - 240, 50)), Tx.t("ui.posts.vows_note"), 16, UiKit.MIST, 2)
 	icon_at(Rect2(content.end.x - 220, content.position.y + 4, 36, 36), "spirit_wisp")
 	text(Vector2(content.end.x - 176, content.position.y + 30), UiKit.fmt(wisps), 20, UiKit.PALE_GOLD)

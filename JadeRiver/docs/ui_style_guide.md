@@ -205,9 +205,10 @@ reference fill, which leaves room for anti-aliasing and the Small text size (the
 No `JADE_TEXT`: the one place `JADE` colours words (the risk line, `breakthrough_page.gd:51`) takes `BRIGHT_JADE`
 (8.25). The computed variant would be #2ea696 (4.85), too close to `JADE` to earn a token.
 
-Data colours, in `tools/data/stats.py:515`: `sphere` #8f7ae0 → **#9a87e3** (4.81). New: `law` **#e98fc6** (peony, 6.37),
-`monarch` **#ff9a7a** (dawn vermilion, 7.03), `inner_heaven` **#d6f5ff** (heaven white, 12.71). Each is a hue the
-ladder does not use yet.
+Data colours, in `tools/data/stats.py`: `sphere` #8f7ae0 → **#9a87e3** (4.81). The three grades past Sphere were
+proposed here as #e98fc6, #ff9a7a and #d6f5ff; P7b gave them their colours first, and with no red, which is the game's
+danger colour: `law` **#a8c4ff** (8.31), `monarch` **#e6b3f2** (8.37), `inner_heaven` **#f4f7ff** (13.56). They are
+kept.
 
 Kit faces: **decided, option C** (roadmap §6 decision 10, `docs/mockups/00b_button_faces.png`). The bright jade face
 of `button_primary` and `title_plaque` approved in mockups 00 and 04 stays, and the kit is not rebuilt for it. Primary
@@ -677,7 +678,7 @@ what §11 adds.
 | `PLATE` (new) | `Color(0.02, 0.06, 0.075, 0.72)` | Plates over the world |
 | `DIM` (new) | `Color(0.01, 0.03, 0.04)` | The world behind a page, at 0.72 (0.55 modal) |
 | `SURFACE` (new) | dictionary: `scroll`, `scroll_edge`, `sky_scroll`, `sky_scroll_edge`, `talisman`, `talisman_edge`, `brush_ink`, `board`, `board_edge`, `board_line`, `stone_black`, `stone_white`, `stone_white_rim`, `wood`, `wood_dark`, `bridge`, `peg`, `peg_dark`, `hui`, `sky_top`, `sky_bottom`, `ember` | Drawn page surfaces |
-| grade colours | `data/grades.json` `grade_colors` (sphere #9a87e3; new law #e98fc6, monarch #ff9a7a, inner_heaven #d6f5ff) | Item and technique names by grade |
+| grade colours | `data/grades.json` `grade_colors` (sphere #9a87e3; law #a8c4ff, monarch #e6b3f2, inner_heaven #f4f7ff from P7b) | Item and technique names by grade |
 | quality colours | `data/grades.json` `quality_colors` | Names and slot rims by quality |
 
 **Type** (`scripts/ui/ui_kit.gd`): `MIN_SIZE` 14 (`:44`), `DISPLAY_MIN` 22 (`:40`), `PIXEL_NUMERALS_MIN` 20 (`:223`),

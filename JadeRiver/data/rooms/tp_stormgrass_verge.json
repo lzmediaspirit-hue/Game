@@ -393,6 +393,30 @@
     66
    ],
    "elite": true
+  },
+  {
+   "enemy": "stormgrass_stag",
+   "surface": "ground",
+   "points": [
+    [
+     1083,
+     713
+    ],
+    [
+     1925,
+     732
+    ],
+    [
+     2760,
+     727
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    64,
+    66
+   ]
   }
  ],
  "scenery": [],
@@ -580,43 +604,25 @@
   {
    "prop": "pine_tree",
    "at": [
-    223,
-    628
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "storm_menhir",
-   "at": [
-    806,
-    630
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "pine_tree",
-   "at": [
-    1458,
+    221,
     635
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "pine_tree",
+   "prop": "storm_menhir",
    "at": [
-    1910,
+    673,
     628
    ],
    "layer": "play",
    "flip": true
   },
   {
-   "prop": "storm_menhir",
+   "prop": "pine_tree",
    "at": [
-    2610,
+    1373,
     637
    ],
    "layer": "play",
@@ -625,7 +631,7 @@
   {
    "prop": "pine_tree",
    "at": [
-    3206,
+    1969,
     636
    ],
    "layer": "play",
@@ -634,7 +640,25 @@
   {
    "prop": "storm_menhir",
    "at": [
-    1042,
+    2584,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3358,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    1222,
     652
    ],
    "layer": "back",
@@ -643,7 +667,7 @@
   {
    "prop": "storm_menhir",
    "at": [
-    3174,
+    3091,
     652
    ],
    "layer": "back",
@@ -652,7 +676,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    121,
+    120,
     988
    ],
    "layer": "front",
@@ -661,7 +685,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    479,
+    436,
     988
    ],
    "layer": "front",
@@ -670,7 +694,7 @@
   {
    "prop": "rock_small",
    "at": [
-    806,
+    634,
     988
    ],
    "layer": "front",
@@ -679,7 +703,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1067,
+    965,
     988
    ],
    "layer": "front",
@@ -688,7 +712,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1346,
+    1215,
     988
    ],
    "layer": "front",
@@ -697,7 +721,7 @@
   {
    "prop": "rock_small",
    "at": [
-    1617,
+    1495,
     988
    ],
    "layer": "front",
@@ -706,7 +730,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1836,
+    1832,
     988
    ],
    "layer": "front",
@@ -715,7 +739,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2149,
+    2103,
     988
    ],
    "layer": "front",
@@ -724,7 +748,7 @@
   {
    "prop": "rock_small",
    "at": [
-    2377,
+    2344,
     988
    ],
    "layer": "front",
@@ -733,7 +757,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2714,
+    2614,
     988
    ],
    "layer": "front",
@@ -742,7 +766,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2985,
+    2949,
     988
    ],
    "layer": "front",
@@ -751,7 +775,7 @@
   {
    "prop": "rock_small",
    "at": [
-    3226,
+    3185,
     988
    ],
    "layer": "front",
@@ -760,7 +784,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    3496,
+    3447,
     988
    ],
    "layer": "front",
@@ -769,7 +793,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    3831,
+    3690,
     988
    ],
    "layer": "front",
@@ -849,11 +873,11 @@
    "id": "route_4_vine_6",
    "kind": "vine",
    "at": [
-    1960,
+    2000,
     741
    ],
    "top_at": [
-    1960,
+    2000,
     698
    ],
    "bottom_alt": 0,

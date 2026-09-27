@@ -25,6 +25,9 @@ CLOTH = {
                    glow='#B18DE2'),
     'spirit': dict(cloth=R['storm'], trim=R['silver'], sash=R['navy'], plate=None, gem=R['cyan'], glow='#7FD4FF'),
     'sage': dict(cloth=R['sand'], trim=R['gold'], sash=R['red'], plate=None, gem=R['ember'], glow='#FFC870'),
+    # P7b: starsilk (Sovereign) and lanternsilk (Will), the Lantern Star Field's cloth, from the grade kits in palette.py.
+    'sovereign': dict(cloth=R['starsilk'], trim=R['driftteal'], sash=R['navy'], plate=None, gem=R['driftglass'], glow='#E8A24C'),
+    'will': dict(cloth=R['starlight'], trim=R['gold'], sash=R['darkwood'], plate=None, gem=R['nightsteel'], glow='#F3E3A6'),
 }
 
 

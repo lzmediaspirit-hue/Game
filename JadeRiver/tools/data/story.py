@@ -662,7 +662,7 @@ def unlocks():
       effects=[{"kind": "learn_recipe", "recipe": "bright_mirror"}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     # S47 dual loadout: a spare weapon and the Swap button (R).
-    # S48 stances (one per weapon family) come with Willow Leaf Parry's lessons; Inner Arts with Qi Unfurling.
+    # S48 stances (a basic one for every weapon family; Willow Leaf Parry with its technique); Inner Arts with Qi Unfurling.
     u("stances", "Stances", all_of(realm("qi_kindling_5")), "", [], same_stage_ok=True, toast=False)
     # S48 vows (the Buddhist path): a cultivator steady enough to temper the heart can bind it with a vow.
     u("vows", "Vows", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True, effects=[{"kind": "codex", "entry": "vows"}])
@@ -2305,7 +2305,9 @@ def side_quests():
             else:
                 ob = o("reach_room", "Visit the Falls Pool at dawn", room=target)
             rq = all_of({"kind": "companion_owned", "companion": cid}) if prev is None else all_of(qdone(prev))
-            rw = [fx("add_bond", amount=10), taels(80)] + ([item("wisp_banner", 1)] if qid == "bai_lings_formation" else [])
+            # Bai Ling's last favour gives the Wisp Banner; Qiu Feng's dawn at the falls, the Crane Robe (P7b, item_plan §3.4).
+            rw = [fx("add_bond", amount=10), taels(80)] + [item(x, 1) for q, x in (("bai_lings_formation", "wisp_banner"), ("crane_falls_at_dawn", "crane_robe"))
+                                                         if q == qid]
             quest(qid, qname, "side", cid, [ob], rw, requires=rq, chapter="companion",
                   offer=["%s has a favour to ask." % name], complete=["%s smiles. \"Thank you.\"" % name])
             prev = qid

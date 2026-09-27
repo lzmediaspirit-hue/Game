@@ -210,9 +210,7 @@ func _path_cards(ch, area: Rect2) -> void:
 	# B17: the merit line keeps to its card (it ran on under the Poison Body card).
 	para(Rect2(cards[1].position + Vector2(16, 134), Vector2(w - 32, 60)), Tx.t("ui.cultivation.merit_line") % [ch.relations.merit, (int(ch.relations.merit / step) + 1) * step, ch.cultivator.vows.size()], 16, UiKit.PAPER, 3)
 	var open: bool = Game.combat.poison_body_active(ch)
-	var has_art := false
-	for tid in ch.cultivator.techniques_known:
-		if bool(ContentDB.entry("techniques", str(tid)).get("poison_path", false)): has_art = true
+	var has_art := ProgressionRules.knows_poison_art(ch)
 	var tol: float = ch.stats.value("toxicity_tolerance")
 	panel(cards[2], "minor_panel", "selected" if open else "normal")
 	text(cards[2].position + Vector2(16, 30), Tx.t("ui.cultivation.poison_body"), 20, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, -1, true)

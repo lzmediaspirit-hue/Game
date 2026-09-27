@@ -1035,7 +1035,7 @@
    "id": "move_speed",
    "group": "movement",
    "cap": 0.4,
-   "format": "percent"
+   "format": "int"
   },
   {
    "id": "climb_speed",
@@ -1185,6 +1185,24 @@
    "id": "healing_received",
    "group": "recovery",
    "cap": 1.0,
+   "format": "percent"
+  },
+  {
+   "id": "pet_damage",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "array_power",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "melody_power",
+   "group": "offense",
+   "cap": null,
    "format": "percent"
   }
  ]

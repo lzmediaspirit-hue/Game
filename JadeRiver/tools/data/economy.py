@@ -9,7 +9,16 @@ import os
 
 from common import DATA, write, entries, realm, unlocked, flag, all_of
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
+import items
+from techniques import SOURCES as TECH_SOURCES
 import posts
+
+
+def grade_set(grade):
+    """A grade's banded weapons in every family, its four armour pieces and its gourd (for a shop's stock)."""
+    word = items.GRADE_WORD[grade]
+    return (["%s_%s" % (word, f) for f in items.FAMILY_APPEARANCE] + [items.ARMOUR[grade][slot][0] for slot in ("hat", "robe", "trousers", "boots")]
+            + {"sovereign": ["driftglass_gourd"], "will": ["lantern_gourd"]}.get(grade, []))
 
 
 def shops():
@@ -36,6 +45,11 @@ def shops():
                      requires=all_of(realm("heart_tempering_3"), {"kind": "alignment_at_least", "value": 20},
                                      {"kind": "merit_at_least", "value": 50}, {"kind": "reputation_at_least", "value": 0})))
         return out
+
+    def sect_set(set_id):
+        # P7b (item_plan §3.4): the sect set's hat and boots for an Inner Disciple, its trousers for a Core Disciple.
+        return [s("%s_%s" % (set_id, slot), requires=all_of({"kind": "sect_rank_at_least", "rank": rank}))
+                for slot, rank in (("hat", "inner_disciple"), ("boots", "inner_disciple"), ("trousers", "core_disciple"))]
 
     def inner_art_stock():
         # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
@@ -110,12 +124,16 @@ def shops():
                    s("training_heavy_sabre"), s("training_fan"), s("training_flute"),
                    s("iron_heavy_sabre", requires=all_of(realm("qi_kindling_1"))), s("iron_fan", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_flute", requires=all_of(realm("qi_kindling_1"))),
+                   # P7b: the brush and the bell (item_plan §2.9, G4).
+                   s("training_brush"), s("training_bell"),
+                   s("iron_brush", requires=all_of(realm("qi_kindling_1"))), s("iron_bell", requires=all_of(realm("qi_kindling_1"))),
                    # S47 imitation relics: the smith copies a relic only once it has been seen whole.
                    s("recipe_scroll", learn="moonshadow_jian", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:moonlit_blade"})),
                    s("recipe_scroll", learn="drowsing_edge", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:sleeping_blade"})),
-                   s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone")],
+                   s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone"),
+                   s("cloud_gourd", requires=all_of(realm("cloud_stride_1"))), s("mistjade_gourd", requires=all_of(realm("heaven_glimpse_1")))],
          "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd"),
-                                           s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute")]}},
+                                           s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute"), s("jadeiron_brush"), s("jadeiron_bell")]}},
         {"id": "tinkerer", "name": "Tinkerer's Workshop", "currency": "silver_tael",
          "stock": [s("iron_pickaxe"), s("herb_sickle"), s("bamboo_rod"), s("clay_pot"), s("drying_rack", requires=all_of(realm("qi_kindling_8"))),
                    s("spirit_wood", price=30, requires=all_of(realm("cloud_stride_5"))), s("puppet_core", price=300, requires=all_of(realm("cloud_stride_5")))]},
@@ -130,7 +148,7 @@ def shops():
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
                                       s("jade_gourd_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
-                   s("jade_current_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
+                   s("jade_current_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"}))] + sect_set("jade_current") + [
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
@@ -144,7 +162,7 @@ def shops():
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
                                       s("cloud_puff_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
-                   s("cloudpiercing_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
+                   s("cloudpiercing_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"}))] + sect_set("cloudpiercing") + [
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
@@ -166,7 +184,11 @@ def shops():
                    s("pet_book_iron_hide", price=400, requires=all_of(realm("qi_unfurling_1"))),
                    s("pet_book_deep_pockets", price=900, requires=all_of(realm("heart_tempering_1"))),
                    s("beast_bag_reed", price=150, requires=all_of(realm("qi_unfurling_7"))), s("beast_bag_hide", price=900, requires=all_of(realm("heart_tempering_1"))),
-                   s("beast_bag_cloud", price=2400, requires=all_of(realm("cloud_stride_1")))]},
+                   s("beast_bag_cloud", price=2400, requires=all_of(realm("cloud_stride_1"))),
+                   # P7b (item_plan §2.10): cores from beasts of far places, and the Mist Beast Bag.
+                   s("metal_core_low", price=4, currency="spirit_stone", daily=2), s("metal_core_mid", price=12, currency="spirit_stone", daily=2),
+                   s("metal_core_high", price=32, currency="spirit_stone", daily=2),
+                   s("beast_bag_mist", price=6000, requires=all_of(realm("heaven_glimpse_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -176,7 +198,7 @@ def shops():
         {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
                    s("thunderhead_tea", price=3),
-                   s("fuel_crystal_mid", requires=all_of(realm("sage_1")))],
+                   s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("mistjade_gourd")],
          "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("stormsteel_ore"), s("mystic_ore"),
@@ -199,7 +221,10 @@ def shops():
         # Act III · Lanternfall Harbor (v1.2). Sage Crystal prices come from tael prices at the crystal's tael value.
         {"id": "lanternfall_goods", "name": "Peddler Ning's Silk and Sundries", "currency": "sage_crystal", "buys_all": True,
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("revival_talisman"),
-                   s("rice_ball"), s("will_tempering_pill", price=6)],
+                   s("rice_ball"), s("will_tempering_pill", price=6)]
+                  # P7b (item_plan §2.10): star and space cores for star-tier animals hatched young, two a day each.
+                  + [s("%s_core_%s" % (el, tier), price=p, daily=2, requires=all_of(realm("will_manifest_1")))
+                     for el in ("star", "space") for tier, p in (("low", 1), ("mid", 3), ("high", 8))],
          "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), s("jelly_silk", price=2)]}},
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
          "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
@@ -214,7 +239,9 @@ def shops():
                    s("technique_manual", learn="qi_seal_toll", price=70, requires=all_of(realm("sphere_lord_1"))),
                    s("technique_manual", learn="cursive_storm", price=120, requires=all_of(realm("sphere_lord_2"))),
                    s("technique_manual", learn="wardens_call", price=120, requires=all_of(realm("sphere_lord_2"))),
-                   s("lantern_incense", price=4), s("driftglass", price=6)]},
+                   s("lantern_incense", price=4), s("driftglass", price=6)]
+                  # P7b (item_plan §2.9, G1): Sovereign grade, driftsteel and starsilk.
+                  + [s(x, requires=all_of(realm("will_manifest_1"))) for x in grade_set("sovereign")]},
         # v1.2 Phase C · Stargazer Ming cuts another Sphere Comprehension Stone for one who has seen their Sphere and
         # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
         {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
@@ -229,7 +256,9 @@ def shops():
                    s("technique_manual", learn="benevolent_script", price=60,
                      requires=all_of(realm("will_manifest_3"), {"kind": "unlock", "system": "confucian_path"})),
                    s("technique_manual", learn="rite_seal_script", price=90,
-                     requires=all_of(realm("sphere_lord_1"), {"kind": "unlock", "system": "confucian_path"}))]},
+                     requires=all_of(realm("sphere_lord_1"), {"kind": "unlock", "system": "confucian_path"}))]
+                  # P7b (item_plan §2.9, G1): Will grade, lanternsteel and lanternsilk, cast from lantern cages.
+                  + [s(x, requires=all_of(realm("sphere_lord_2"))) for x in grade_set("will")]},
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
@@ -274,9 +303,11 @@ def shops():
                    s("sunsteel_gauntlets", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsteel_staff", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsilk_robe", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
+                   s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsteel_gourd", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone", "buys_all": True,
-         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill")]},
+         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill"),
+                   s("beast_bag_star", price=160, requires=all_of(realm("sage_1")))]},
     ]
     entries("shops", rows)
 
@@ -354,12 +385,18 @@ def recipes():
     bands = {"common": ("iron", "copper_ore", "riverstone", "boar_hide"), "earth": ("jadeiron", "jadeiron", "riverstone", "jade_scale"),
              "heaven": ("cloudsteel", "cloudsteel_ore", "jadeiron", "cloud_feather"), "mystic": ("mistjade", "mystic_ore", "cloudsteel_ore", "roc_feather"),
              "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt"),
-             "sage": ("sunsteel", "sunglass_ore", "stormsteel_ore", "scorpion_stinger")}
+             "sage": ("sunsteel", "sunglass_ore", "stormsteel_ore", "scorpion_stinger"),
+             # P7b (item_plan §2.9): driftsteel from the Driftglass Bank, lanternsteel from the lantern cages' metal; a Master
+             # smith knows both, as the Mistjade Furnace.
+             "sovereign": ("driftsteel", "driftglass", "sunglass_ore", "jelly_silk"),
+             "will": ("lanternsteel", "drone_shell", "driftglass", "cinder_ash")}
+    master = {"requires_ranks": {"smithing": "master"}, "default": True}
     for grade, (prefix, metal, second, binder) in bands.items():
-        for fam in ["gauntlets", "jian", "spear", "short_blade", "staff", "bow", "heavy_sabre", "fan", "flute"]:
-            r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade)
+        for fam in items.FAMILY_APPEARANCE:
+            r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade,
+              **(master if grade in ("sovereign", "will") else {}))
     armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None),
-              "spirit": ("stormsilk", None), "sage": ("sunsilk", None)}
+              "spirit": ("stormsilk", None), "sage": ("sunsilk", None), "sovereign": ("starsilk", None), "will": ("lanternsilk", None)}
     for grade, (prefix, boots) in armour.items():
         metal = bands[grade][1]
         binder = bands[grade][3]
@@ -367,7 +404,7 @@ def recipes():
             out = "%s_%s" % (prefix, slot)
             if grade == "common":
                 out = {"hat": "bamboo_hat", "robe": "cotton_robe", "trousers": "cotton_trousers", "boots": "cloth_boots"}[slot]
-            r("bp_" + out, "smithing", [(metal, 3), (binder, 4)], [(out, 1)], grade)
+            r("bp_" + out, "smithing", [(metal, 3), (binder, 4)], [(out, 1)], grade, **(master if grade in ("sovereign", "will") else {}))
     # Qi jades, fuel crystals, blank plate, revival talisman
     for jade, extra in [("body_jade", ("tortoise_plate", 1)), ("swift_jade", ("frog_leg", 2)), ("essence_jade", ("leech_oil", 2)),
                         ("spirit_jade", ("mirror_dust", 1)), ("insight_jade", ("talisman_paper", 2))]:
@@ -381,6 +418,9 @@ def recipes():
     # V10 Keeping Post: the post tools from tier 1 up, known to every smith; the forge's grade cap gates them by realm.
     for rid, craft, inputs, outputs, grade in posts.tool_recipes():
         r(rid, craft, inputs, outputs, grade, default=True)
+    grade_of = {k[0]: k[1] for k in posts.KITS + posts.TABLETS}
+    for rid, inputs in posts.KIT_RECIPES.items():
+        r(rid, "smithing", inputs, [(rid, 1)], grade_of[rid], default=True)
     # The Bright Mirror: a forge blueprint learned at Heart Tempering 1 (S47, Part 8).
     r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
     # S47 the sword swarm: the Nine Swords Array, a heaven-grade blueprint sold by the Ironroot Clan.
@@ -393,6 +433,12 @@ def recipes():
       "heaven", default=True, requires_ranks={"smithing": "expert"})
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
+    # P7b (item_plan §2.9, G6): the furnace ladder on through Acts II and III.
+    for fid, grade, inputs in [("stormsteel_furnace", "spirit", [("stormsteel_ore", 8), ("thunder_horn", 4), ("snow_ape_hide", 4)]),
+                               ("sunsteel_furnace", "sage", [("sunglass_ore", 8), ("scorpion_stinger", 4), ("worm_glass_tooth", 2)]),
+                               ("driftsteel_furnace", "sovereign", [("driftglass", 8), ("guardian_scale", 4), ("star_powder", 4)]),
+                               ("lanternsteel_furnace", "will", [("drone_shell", 8), ("pyre_ember", 2), ("cinder_ash", 4)])]:
+        r(fid, "smithing", inputs, [(fid, 1)], grade, default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     # S47 legendary chains: an Expert smith makes a legend whole from its three pieces (the chain's quest teaches it).
     for ch in LEGENDS:
@@ -438,6 +484,15 @@ def recipes():
     r("bone_collar", "smithing", [("boar_hide", 2), ("mole_claw", 2)], [("bone_collar", 1)], "common", default=True)
     r("scale_talisman", "smithing", [("serpent_scale", 2), ("jade_scale", 2)], [("scale_talisman", 1)], "earth", default=True)
     r("reed_saddle", "smithing", [("cloth", 3), ("boar_hide", 2)], [("reed_saddle", 1)], "common", default=True)
+    # P7b (item_plan §2.9, G5): the pet gear ladder, forged from each zone's metal and beast parts; the forge's grade cap
+    # gates it by realm.
+    pet_inputs = {"common": [("copper_ore", 2), ("hound_fang", 2)], "earth": [("jadeiron", 2), ("serpent_scale", 2)],
+                  "heaven": [("cloudsteel_ore", 2), ("ape_fur", 2)], "mystic": [("mystic_ore", 2), ("roc_feather", 2)],
+                  "spirit": [("stormsteel_ore", 2), ("snow_ape_hide", 2)], "sage": [("sunglass_ore", 2), ("harpy_plume", 2)],
+                  "sovereign": [("driftglass", 2), ("guardian_scale", 2)], "will": [("drone_shell", 2), ("wyrm_ash", 2)]}
+    for a in json.load(open(os.path.join(DATA, "artifacts.json")))["entries"]:
+        if a.get("pet_gear") and not a.get("named"):
+            r(a["id"], "smithing", pet_inputs[a["grade"]], [(a["id"], 1)], a["grade"], default=True)
     r("beast_marrow_washing_pill", "alchemy", [("riverreed_ginseng_100", 1), ("tough_meat", 3), ("mist_lotus", 1)], [("beast_marrow_washing_pill", 1)], "earth")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
@@ -568,7 +623,9 @@ def auction():
         "pool": [lot("sage_condensing_pill", 70, weight=0.6), lot("spirit_egg", 40), lot("torn_manual", 30), lot("jade_core", 24, 2),
                  lot("mirror_eye", 80, weight=0.5), lot("frost_lotus", 30, 3), lot("stormsteel_ore", 35, 10), lot("clear_mind_pill", 20, 3),
                  lot("fuel_crystal_mid", 30, 5), lot("spirit_stone_mid", 60, 5, weight=0.7), lot("storm_blood_pill", 25, 3),
-                 lot("sentinel_core", 40, 2, weight=0.7), lot("manual_page", 18, 5)],
+                 lot("sentinel_core", 40, 2, weight=0.7), lot("manual_page", 18, 5),
+                 # P7b (item_plan §2.10)
+                 lot("spirit_stone_high", 90, weight=0.4), lot("hour_incense_72", 40, weight=0.5)],
         # S49 Part 8: the valley's own auction day, on Market Street every Saturday (calendar "auction_day"): rare
         # seeds, recipe scrolls (taught when the hammer falls) and eggs, for Spirit Stones. Every lot closes with the day.
         "valley": {"calendar": "auction_day", "lots_open": 5, "duration_h": [3, 9], "npc_limit": [1.3, 2.2],
@@ -579,7 +636,9 @@ def auction():
                             dict(lot("recipe_scroll", 16, weight=0.8), learn="foundation_guard_pill"),
                             dict(lot("recipe_scroll", 12, weight=0.8), learn="cloudtop_orchid_broth"),
                             dict(lot("recipe_scroll", 20, weight=0.6), learn="clear_mind_pill"),
-                            lot("manual_page", 8, 3), lot("longevity_peach", 30, weight=0.5)]},
+                            lot("manual_page", 8, 3), lot("longevity_peach", 30, weight=0.5),
+                            # P7b (item_plan §2.10)
+                            lot("hour_incense_24", 12, weight=0.8), lot("wandering_incense", 20, weight=0.3)]},
     })
 
 
@@ -918,7 +977,7 @@ def achievements():
         {"id": "fleet_footed", "name": "Fleet-Footed", "desc": "Win the race to the tower", "event": "quest_completed", "match": {"quest": "race_to_the_tower"}, "title": "fleet_footed"},
         {"id": "thief_catcher", "name": "Thief-Catcher", "desc": "Catch 10 rooftop thieves", "event": "thief_caught", "count": 10, "title": "thief_catcher"},
         {"id": "cloud_stepper", "name": "Cloud Stepper", "desc": "Run the Cloud Steps inside the gold par", "event": "route_finished",
-         "match": {"route": "cloud_steps", "medal": "gold"}, "title": "cloud_stepper"},
+         "match": {"route": "cloud_steps", "medal": "gold"}, "title": "cloud_stepper", "rewards": [{"kind": "grant_item", "item": "crane_boots", "count": 1}]},
         {"id": "crab_catcher", "name": "Crab Catcher", "desc": "Defeat 100 Mudshell Crabs", "event": "actor_defeated", "match": {"def": "mudshell_crab"}, "count": 100, "title": "shore_warden"},
         {"id": "first_current", "name": "First Current", "desc": "Reach Bone Forging 7", "event": "realm_changed", "match": {"realm_at_least": "bone_forging_7"},
          "rewards": [{"kind": "grant_item", "item": "qi_gathering_pill", "count": 1}]},
@@ -939,6 +998,9 @@ def achievements():
         # Act II · the Azure Expanse
         {"id": "beyond_the_gate", "name": "Beyond the Gate", "desc": "Reach Sage 1 in the Azure Expanse", "event": "realm_changed",
          "match": {"realm_at_least": "sage_1"}, "title": "sage_born"},
+        # P7b (item_plan §2.10)
+        {"id": "sovereign_of_sages", "name": "Sovereign of Sages", "desc": "Reach Sage Sovereign 1", "event": "realm_changed",
+         "match": {"realm_at_least": "sage_sovereign_1"}, "rewards": [{"kind": "grant_item", "item": "spirit_stone_high", "count": 1}]},
         {"id": "weasel_wrangler", "name": "Weasel Wrangler", "desc": "Defeat 100 Spark Weasels", "event": "actor_defeated",
          "match": {"def": "spark_weasel"}, "count": 100, "title": "storm_herder"},
         {"id": "thousand_eyes_closed", "name": "Thousand Eyes Closed", "desc": "Silence the Thousand-Eye Toad", "event": "actor_defeated",
@@ -1070,7 +1132,7 @@ def sect_tables():
          # S50 V10d: the Mirror of Echoes keeps echoing a post's haul into the Storehouse.
          ("mirror_of_echoes", "Mirror of Echoes", 1400, "jadeiron", 25, 4)]
     # What each level gives. A building damaged in a lost raid gives defence.damaged_output of it until repaired.
-    OUTPUT = {"treasury": {"taels_per_level": 20},
+    OUTPUT = {"treasury": {"storage_slots_per_level": 20},
               "meditation_pavilion": {"idle_rate_per_level": 0.1, "idle_cap_hours": [[2, 4], [4, 8], [5, 12]]},
               "guest_house": {"disciples_base": 2, "disciples_per_level": 1},
               "expanse_outpost": {"attunement_per_level": 1.0, "zone": "azure_expanse", "requires_realm": "sage_1"},
@@ -1131,6 +1193,10 @@ def strings():
     })
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
+    quest_names = {q["id"]: q["name"] for q in json.load(open(os.path.join(DATA, "quests.json")))["entries"]}
+    for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
+        if t["source"] in TECH_SOURCES or t["source"] in quest_names:
+            S["technique_source." + t["source"]] = TECH_SOURCES.get(t["source"]) or quest_names[t["source"]]
     # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
     ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
     for k in ui:
@@ -1238,7 +1304,14 @@ def forge_upkeep():
         {"id": "mystic", "metal": "mystic_ore", "returns": [{"item": "mystic_ore", "count": 1}, {"item": "refining_essence", "count": 10}]},
         {"id": "spirit", "metal": "stormsteel_ore", "returns": [{"item": "stormsteel_ore", "count": 2}, {"item": "refining_essence", "count": 12}]},
         {"id": "sage", "metal": "sunglass_ore", "returns": [{"item": "sunglass_ore", "count": 2}, {"item": "refining_essence", "count": 16}]},
+        {"id": "sovereign", "metal": "driftglass", "returns": [{"item": "driftglass", "count": 2}, {"item": "refining_essence", "count": 20}]},
+        {"id": "will", "metal": "pyre_ember", "returns": [{"item": "pyre_ember", "count": 1}, {"item": "refining_essence", "count": 24}]},
     ]
+    # P7b (item_plan §4.5): with about 60% fewer drops, salvage gives half as much essence again (rounded up).
+    for row in rows:
+        for x in row["returns"]:
+            if x["item"] == "refining_essence":
+                x["count"] = int(math.ceil(x["count"] * 1.5))
     entries("salvage", rows)
     write("forge_upkeep.json", {
         "pity_step": 0.05,              # each failed enhancement adds 5% to the next attempt on that item

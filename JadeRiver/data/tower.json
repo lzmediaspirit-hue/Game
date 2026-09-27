@@ -206,7 +206,14 @@
    "stones": 7,
    "time_s": 120,
    "guardian": "mist_vulture",
-   "guardian_level": 36
+   "guardian_level": 36,
+   "first": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_24",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "floor_16",
@@ -275,7 +282,14 @@
    "stones": 8,
    "time_s": 120,
    "guardian": "mist_wolf",
-   "guardian_level": 46
+   "guardian_level": 46,
+   "first": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_24",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "floor_21",
@@ -344,7 +358,14 @@
    "stones": 10,
    "time_s": 120,
    "guardian": "jade_sentinel",
-   "guardian_level": 56
+   "guardian_level": 56,
+   "first": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_24",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "floor_26",
@@ -413,7 +434,14 @@
    "stones": 12,
    "time_s": 120,
    "guardian": "cloudpeak_roc",
-   "guardian_level": 66
+   "guardian_level": 66,
+   "first": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_24",
+     "count": 1
+    }
+   ]
   }
  ],
  "room": "sf_trial_tower",

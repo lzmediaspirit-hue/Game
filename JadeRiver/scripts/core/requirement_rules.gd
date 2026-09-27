@@ -277,7 +277,8 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			ok = false
 			text = Tx.t("req.unknown_requirement") + kind
 	if cond.has("text") and kind not in ["flag_set", "flag_not_set", "unlock", "never", "method_learned"]: text = str(cond.text)
-	return {"ok": ok, "cause": str(cond.get("cause", "")), "hard": bool(cond.get("hard", true)), "text": text, "fix": str(cond.get("fix", "")), "kind": kind}
+	return {"ok": ok, "cause": str(cond.get("cause", "")), "hard": bool(cond.get("hard", true)), "text": text, "fix": str(cond.get("fix", "")), "kind": kind,
+		"cond": cond}
 
 ## The alignment word a value falls in (Demonic ... Righteous), for requirement text.
 static func _alignment_name(v: int) -> String:
@@ -293,9 +294,14 @@ static func method_supports_next(c) -> bool:
 	var target := str(spec.get("to", ContentDB.next_realm(c.cultivator.realm_key)))
 	return ContentDB.realm_position(str(m.get("ceiling", "mortal"))) >= ContentDB.realm_position(target)
 
+## The conditions still unmet, as `check` gives them: the hard ones, or the soft ones once every hard one holds; none
+## when the requirement passes.
+static func unmet(req, ctx: Dictionary) -> Array:
+	var results := check(req, ctx)
+	if passes_results(results, req is Dictionary and req.has("any")): return []
+	var hard := results.filter(func(r): return not r.ok and r.hard)
+	return hard if not hard.is_empty() else results.filter(func(r): return not r.ok)
+
 static func first_failure_text(req, ctx: Dictionary) -> String:
-	for r in check(req, ctx):
-		if not r.ok and r.hard: return r.text
-	for r in check(req, ctx):
-		if not r.ok: return r.text
-	return ""
+	var u := unmet(req, ctx)
+	return str(u[0].text) if not u.is_empty() else ""

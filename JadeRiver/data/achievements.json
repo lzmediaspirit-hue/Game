@@ -28,7 +28,14 @@
     "route": "cloud_steps",
     "medal": "gold"
    },
-   "title": "cloud_stepper"
+   "title": "cloud_stepper",
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "crane_boots",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "crab_catcher",
@@ -189,6 +196,22 @@
     "realm_at_least": "sage_1"
    },
    "title": "sage_born"
+  },
+  {
+   "id": "sovereign_of_sages",
+   "name": "Sovereign of Sages",
+   "desc": "Reach Sage Sovereign 1",
+   "event": "realm_changed",
+   "match": {
+    "realm_at_least": "sage_sovereign_1"
+   },
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_high",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "weasel_wrangler",

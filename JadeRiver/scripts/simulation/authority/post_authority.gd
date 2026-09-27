@@ -419,10 +419,18 @@ func withdraw_storehouse(c, item_id: String, count: int) -> Dictionary:
 	var n := mini(count, have)
 	var added := int(game.inventory.apply_add(c.id, item_id, n, "storehouse", {}, false))
 	if added <= 0: return fail("bag_full", {"text": Tx.t("sim.economy.your_gourd_is_full")})
-	game.account.storehouse[item_id] = have - added
-	if int(game.account.storehouse[item_id]) <= 0: game.account.storehouse.erase(item_id)
-	emit("storehouse_changed", {"actor": c.id, "items": {item_id: -added}, "source": "withdraw"})
+	apply_take_storehouse(c.id, item_id, added, "withdraw")
 	return ok({"count": added})
+
+## Takes up to `count` of an item out of the Storehouse (a withdrawal, a Work's cost, a sect build through
+## `InventoryAuthority.apply_spend`). Returns how many were taken.
+func apply_take_storehouse(actor_id: String, item_id: String, count: int, source: String) -> int:
+	var n := mini(count, int(game.account.storehouse.get(item_id, 0)))
+	if n <= 0: return 0
+	game.account.storehouse[item_id] = int(game.account.storehouse[item_id]) - n
+	if int(game.account.storehouse[item_id]) <= 0: game.account.storehouse.erase(item_id)
+	emit("storehouse_changed", {"actor": actor_id, "items": {item_id: -n}, "source": source})
+	return n
 
 ## Sew a character's pouch for a category up one tier (Tailor Xun): taels and the tier's materials.
 func sew_pouch(c, cat: String) -> Dictionary:
@@ -885,22 +893,15 @@ func vow_sum(c, key: String) -> float:
 		total += float(v.get("boon", {}).get(key, 0.0)) + float(v.get("curse", {}).get(key, 0.0))
 	return total
 
-## Learn a Post Vow for the account with Spirit Wisps (from the bag, then the Storehouse).
+## Learn a Post Vow for the account with Spirit Wisps (from the bag, then the Storehouse, then storage).
 func learn_post_vow(c, id: String) -> Dictionary:
 	var v := post_vow(id)
 	if c == null or v.is_empty(): return fail("unknown_vow")
 	if not Unlocks.is_unlocked(c.id, "ancestral_rites"): return fail("locked", {"text": Unlocks.locked_text("ancestral_rites")})
 	if game.account.post_vows.has(id): return fail("known")
 	var cost := int(v.get("cost", 0))
-	var bag := int(game.inventory.count(c, "spirit_wisp"))
-	var store := int(game.account.storehouse.get("spirit_wisp", 0))
-	if bag + store < cost: return fail("wisps", {"text": Tx.plural("sim.posts.need_wisps", cost) % cost})
-	var from_bag := mini(bag, cost)
-	if from_bag > 0: game.inventory.apply_remove(c.id, "spirit_wisp", from_bag, "post_vow")
-	if cost - from_bag > 0:
-		game.account.storehouse["spirit_wisp"] = store - (cost - from_bag)
-		if int(game.account.storehouse.spirit_wisp) <= 0: game.account.storehouse.erase("spirit_wisp")
-		emit("storehouse_changed", {"actor": c.id, "items": {"spirit_wisp": -(cost - from_bag)}, "source": "post_vow"})
+	if game.inventory.count_owned(c, "spirit_wisp") < cost: return fail("wisps", {"text": Tx.plural("sim.posts.need_wisps", cost) % cost})
+	game.inventory.apply_spend(c, "spirit_wisp", cost, "post_vow")
 	game.account.post_vows[id] = true
 	emit("post_vow_learned", {"actor": c.id, "vow": id})
 	return ok()
@@ -1057,9 +1058,7 @@ func _curve_of(def: Dictionary, lv: float) -> float:
 
 func _pay_storehouse(c, item_id: String, count: int, source: String) -> bool:
 	if int(game.account.storehouse.get(item_id, 0)) < count: return false
-	game.account.storehouse[item_id] = int(game.account.storehouse[item_id]) - count
-	if int(game.account.storehouse[item_id]) <= 0: game.account.storehouse.erase(item_id)
-	emit("storehouse_changed", {"actor": c.id, "items": {item_id: -count}, "source": source})
+	apply_take_storehouse(c.id, item_id, count, source)
 	return true
 
 func _need_text(count: int, item_id: String) -> String:

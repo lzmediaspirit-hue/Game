@@ -752,6 +752,7 @@ func set_stance(c, family: String, stance: String) -> Dictionary:
 		var st := ContentDB.entry("stances", stance)
 		if st.is_empty() or str(st.family) != family: return fail("wrong_stance")
 		if not Unlocks.is_unlocked(c.id, "stances"): return fail("locked", {"text": Unlocks.locked_text("stances")})
+		if not ProgressionRules.stance_known(c, st): return fail("technique", {"text": Tx.t("sim.progression.stance_needs_technique") % ContentDB.name_of("techniques", str(st.technique))})
 		c.cultivator.stances[family] = stance
 	else:
 		c.cultivator.stances.erase(family)
