@@ -20,6 +20,77 @@
   pixel snapping in the real view); perf_tests `_topdown` (mounts in 149 ms, 6.8 ms a frame). Screenshots and frame
   strips are in `docs/redesign/phase1/`.
 
+## A rewarding first hour: techniques early, a faster Bone Forging, the story carries the floors
+
+Research docs/research/player_motivation.md, items 3, 4, 5, 8 and 10 of its top ten; the first hour as built is in its
+"As built" section and in docs/tutorial_order.md.
+- **The first technique at Bone Forging 1, the second at the Weapon Hall.** Lu teaches Flowing Palm on his boat with
+  the first breakthrough (The River Token's reward; its unlock realm is now Bone Forging 1). The skill ring and the
+  Techniques page open at Bone Forging 1, so the palm takes its slot at once. The Weapon Hall, done, teaches the first
+  art of the family in hand, from the arts the training halls and the library already keep: the jian's Cloudpiercing
+  Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, the short blade's Reedcutter Slash and so on.
+  Until the body has a Qi pool (Bone Forging 7) a technique costs no Qi, only its cooldown
+  (`stats.json technique_cost.free_without_pool`, `CombatAuthority.breath_only`). A technique learned is its own
+  moment (`moments.json` row `technique_learned`: its name, "tap it on the skill ring", the light gathering).
+- **Bone Forging 1-4 take 600 / 900 / 1,200 / 1,600 progress** (was 1,200 / 3,200 / 3,200 / 3,200); Bone Forging 5-9
+  take 3,100 each (was 3,200), so Qi Kindling 1 lands at 5.2 hours in balance_sim (target 5), with the chores moved to it. The River Token's
+  endowed bar starts at 98% (was 92%), so the boat's fifteen breaths fill it.
+- **Chapter 2 opens at Bone Forging 2, and the story carries every floor.** The Entry Trial has no "Reach Bone Forging
+  2" step; the Willow Path (35% of a stage), the fair and the trial (20%) carry Bone Forging 1 to 2, and Fish-Gutting
+  Fists (45%, and the title River Rival) carries 2 to 3, the Weapon Hall's realm. Strange Tracks (chapter 2's floor
+  Bone Forging 2; the marsh path opens there too) starts as the mentor's note the moment the Weapon Hall is done. When
+  the story does wait on a Level, the tracker's Next entry names a second way to close it: a lesson or side quest on
+  offer, or meditation and body training (`QuestAuthority._floor_other_way`). A story quest that follows a lesson now
+  waits next (`story_waiting`), so between Fish-Gutting Fists and the Weapon Hall the Next is the Weapon Hall.
+- **Nine early quests cut, merged or rewritten.** Morning Tide is under way from waking, Aunt Ping's tea in hand and the
+  hut's door open (no teas to hunt, no Bag to open first). A Quiet River (Return) is gone: the fourth lesson done, Guo
+  has Crab Trouble at once. Ma's Delivery is one step (sell the net). Fists First asks five on the stump and three on
+  the dummy (was 12 and 5). Crab Trouble wants three shells, which drop every kill while he wants them, and pays the
+  Straw Sandals with the hat. The Willow Path has no stump quota (was 30): Flowing Palm on a boarlet, five boarlets and
+  the herd's elite (a kill objective may now ask for an elite). A Disciple's Chores is a side errand: two spots, and the
+  third is the grey itself, with a cache of two spirit stone shards. Eyes for Qi sits 20 s (was 60) and pays a
+  ten-year Riverreed Ginseng. Mei Qing's Errand asks the grey hides of the Humming Token's boarlets, not copper ore
+  (which needed mining), and they drop every kill while she wants them. The Weapon Hall asks five dummy hits (was 15).
+- **Breakthroughs show what they gave, and the look changes.** Every realm step's moment now carries a card, "What the
+  breakthrough gave", each number that rose before → after with its gain (Level, Max HP, Physical attack...). The
+  character wears an aura by realm (`moments.json auras`: a jade ring at Bone Forging 1, motes at 4, a Qi glow at 7,
+  on to gold at Cloud Stride), drawn behind the avatar from plain shapes (no new pose), still with Reduce motion; the
+  card names it when a breakthrough changes it.
+- **Tests.** `tutorial_order` walks from waking to Strange Tracks with no test shortcut: the story reaches Bone Forging
+  2 and 3 by itself, the first technique comes at Bone Forging 1 and the second at the Weapon Hall, and on a play clock
+  (`prologue_run.play_s`: the simulated time, walking, a look at each new room, reading) something new comes at least
+  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 14); it prints the timeline. `prologue_run` no
+  longer grinds to Bone Forging 2. `rules_tests` holds the Next entry's second way. Screenshots of the technique moment
+  and the breakthrough cards in `docs/ui_p5/early_game/`.
+
+## Chores after power, early surprises, a gentle first fall
+
+Items 6, 7 and 9 of `docs/research/player_motivation.md`.
+
+- **Dailies, idle tasks and posts open at Qi Kindling 1, optional, and a missed day banks.** The sect board, the
+  contribution shop, field-boss timers, the activity chests (new unlock `activity_chests`), idle tasks, offline
+  seclusion, Keeping Post and insect netting opened at Bone Forging 5–7, before the first technique. They now open at
+  Qi Kindling 1, each unlock row marked `obligation`. Earning Your Keep is a side errand that asks for any one mission;
+  A Second Path completes with an idle task *or* one seclusion; Keeping Post is kept by the same character, which burns
+  Fisher Wen's incense stick at its own post (or puts the game away), so no quest asks for a second character, and the
+  Keep Post button no longer needs one. The First Current no longer asks for seclusion. Missed days bank
+  (`account_rules.bank`): the board keeps unfinished missions and adds each missed day's, up to three days' worth
+  (`QuestState.board_day`); a filled, unopened activity chest waits, and each day away doubles the next activity points
+  up to three days' worth. `data_validation` checks P3, P4 and P5 (no chore before Qi Kindling 1; no main or guided
+  quest asks for a daily mission or a second character; no main-story step, requirement or unlock waits on a chore);
+  `rules_tests` plays the bank; `tutorial_order` holds that no chore is open or offered at any step of the walk, and
+  `valley_run` takes the lessons at Qi Kindling 1.
+- **Early surprises, each with a moment.** The first walk onto the Willow Path after the River Token turns up the
+  Remnant Soul in a Ring (`fortune_deck` `first`: sure, meter or not; the three-hour meter paces every card after it).
+  As The Willow Path is done a Spirit Fruit ripens on Willow Path West, once per character: its guardian alone at the
+  room's Level, then the fruit (`CalendarAuthority.open_first_fruit`). The first monsters (crab, rat, boarlet, toad)
+  have rare rows, a pearl and a manual page, marked `find` (rolled on their own `finds` stream), which play the
+  rare-find moment. Common foes of the Reed
+  Shallows and Willow Path West come as elites one spawn in twenty-five (`elite_chance`, their own `elites` stream).
+  New moments: `fortune_card`, `first_fruit` and `elite_appears`.
+- **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,
+  no injury or heart demon, and you wake whole. The revival page explains it in full on the first fall, then in a line.
+
 ## Starter gear: a weapon from the start
 
 - **The weapon slot is open from the start, and the first monsters drop weapons** (`docs/research/player_motivation.md`

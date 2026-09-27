@@ -10,19 +10,6 @@
    "marker": "gold",
    "objectives": [
     {
-     "kind": "collect",
-     "text": "Pick up Herbal Tea",
-     "count": 3,
-     "item": "herbal_tea",
-     "consume": false
-    },
-    {
-     "kind": "open_page",
-     "text": "Open your Bag",
-     "count": 1,
-     "page": "inventory"
-    },
-    {
      "kind": "use_portal",
      "text": "Step outside",
      "count": 1
@@ -31,18 +18,24 @@
    "rewards": [],
    "offer_text": [
     "You're awake! Good. The river's been muttering all night.",
-    "Fetch the three teas I left about the hut, then look in your bag so you know where things are.",
-    "Then out you go. Lu wants you at the docks."
+    "Here, a tea for the road. Lu wants you at the docks."
    ],
    "complete_text": [
-    "There. Now go on, Lu's waiting."
+    "Go on, Lu's waiting."
    ],
    "progress_text": [
-    "Three teas. One on the table, one on the shelf, one by the stove."
+    "Lu's at the docks. Out you go."
    ],
-   "sequential": true,
+   "auto_accept": true,
    "target_room": "lf_fishers_hut",
    "chapter": "prologue",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "herbal_tea",
+     "count": 1
+    }
+   ],
    "next": "a_quiet_river"
   },
   {
@@ -64,7 +57,7 @@
    "complete_text": [
     "You're up. The river is too quiet. Fish gone deep, birds gone high.",
     "Help the village while I watch the water. Little Dou lost his kite, Old Ma needs a hand, Granny Liu has something for you, and Guo wants to see your fists.",
-    "Come back when you've done all four. Gold marks mean the story. Blue mean lessons."
+    "Any order you like. When all four are done, Guo will open the East Gate. Gold marks mean the story. Blue mean lessons."
    ],
    "auto_accept": true,
    "requires": {
@@ -185,12 +178,6 @@
      "text": "Sell the Old Net to Old Ma",
      "count": 1,
      "item": "old_net"
-    },
-    {
-     "kind": "buy_item",
-     "text": "Buy Rice Balls",
-     "count": 2,
-     "item": "rice_ball"
     }
    ],
    "rewards": [
@@ -202,7 +189,7 @@
    ],
    "offer_text": [
     "Aunt Ping's old net has been in my way for a month. It's under the shelf. Sell it back to me, fair and square.",
-    "Then buy two rice balls. That's how trade works: you give, you get."
+    "Spend it how you like. My shelves are open: that's how trade works, you give, you get."
    ],
    "complete_text": [
     "See? Coins go round like the river. Here's a little for your trouble."
@@ -334,13 +321,13 @@
     {
      "kind": "hit_object",
      "text": "Punch the training stump",
-     "count": 12,
+     "count": 5,
      "type": "training_stump"
     },
     {
      "kind": "hit_object",
      "text": "Hit the dummy after its wind-up",
-     "count": 5,
+     "count": 3,
      "type": "training_dummy"
     }
    ],
@@ -360,14 +347,14 @@
    ],
    "offer_text": [
     "Fists first! Jab, cross, jab. Hold the button and they flow.",
-    "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."
+    "Five on the stump. Then the dummy: watch it lean back before it swings. Hit it then, three times."
    ],
    "complete_text": [
     "Not bad! Take my old training gauntlets, they're yours now. Keep those fists warm: something's stirring past the East Gate.",
-    "Finish helping the others first. Lu will tell you when."
+    "Help the others first. When the village is done with you, come back and I'll open the gate."
    ],
    "progress_text": [
-    "Elbow in! Twelve on the stump, five on the dummy."
+    "Elbow in! Five on the stump, three on the dummy."
    ],
    "requires": {
     "all": [
@@ -381,50 +368,6 @@
    "chapter": "prologue"
   },
   {
-   "id": "a_quiet_river_return",
-   "name": "A Quiet River (Return)",
-   "kind": "prologue",
-   "giver": "lu_boatman",
-   "hand_in": "lu_boatman",
-   "marker": "gold",
-   "objectives": [
-    {
-     "kind": "talk_to",
-     "text": "Report to Lu",
-     "count": 1,
-     "npc": "lu_boatman"
-    }
-   ],
-   "rewards": [],
-   "complete_text": [
-    "Kite, net, tea and fists. The village thanks you.",
-    "Guo's fretting about the crabs in the Reed Shallows. Too many, too angry. Go and see him."
-   ],
-   "auto_accept": true,
-   "target_room": "lf_village",
-   "chapter": "prologue",
-   "requires": {
-    "all": [
-     {
-      "kind": "quest_done",
-      "quest": "the_runaway_kite"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "mas_delivery"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "grannys_remedy"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "fists_first"
-     }
-    ]
-   }
-  },
-  {
    "id": "crab_trouble",
    "name": "Crab Trouble",
    "kind": "prologue",
@@ -435,7 +378,7 @@
     {
      "kind": "collect",
      "text": "Collect Crab Shells",
-     "count": 5,
+     "count": 3,
      "item": "crab_shell"
     },
     {
@@ -456,21 +399,39 @@
      "kind": "grant_item",
      "item": "plain_straw_hat",
      "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "straw_sandals",
+     "count": 1
     }
    ],
    "offer_text": [
-    "The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+    "Kite, net, tea and fists. The village thanks you. Now the crabs.",
+    "They came up the shallows in the night. Dozens. Something's pushing them out of the river.",
     "The East Gate's open for you now. Reed Shallows, just past it.",
-    "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."
+    "Bring me three shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."
    ],
    "complete_text": [
-    "Old Snapper! Ha! Here, fifty taels and my old straw hat. Wear it, it keeps the sun out of a fighter's eyes."
+    "Old Snapper! Ha! Here, fifty taels, my old straw hat and a pair of sandals. Keep the sun out of your eyes and the shells off your feet."
    ],
    "requires": {
     "all": [
      {
       "kind": "quest_done",
-      "quest": "a_quiet_river_return"
+      "quest": "the_runaway_kite"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "mas_delivery"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "grannys_remedy"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "fists_first"
      }
     ]
    },
@@ -606,6 +567,10 @@
      "count": 1
     },
     {
+     "kind": "learn_technique",
+     "technique": "flowing_palm"
+    },
+    {
      "kind": "codex",
      "entry": "the_hollowing"
     },
@@ -620,7 +585,8 @@
    ],
    "complete_text": [
     "Bone Forging. Your first step. The body is the cup; Qi will be the water.",
-    "Take this River Token. Go west along the Willow Path. There's a note waiting for you."
+    "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. In the body stages it needs no Qi, only breath.",
+    "Take this River Token. Go west along the Willow Path and try the palm on the boarlets. There's a note waiting for you."
    ],
    "auto_accept": true,
    "requires": {
@@ -640,7 +606,7 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.92
+     "pct_of_need": 0.98
     },
     {
      "kind": "codex",
@@ -664,16 +630,23 @@
      "room": "wp_west"
     },
     {
-     "kind": "hit_object",
-     "text": "Hit a training stump",
-     "count": 30,
-     "type": "training_stump"
+     "kind": "use_technique",
+     "text": "Strike with Flowing Palm",
+     "count": 1,
+     "technique": "flowing_palm"
     },
     {
      "kind": "kill",
      "text": "Defeat Wild Boarlets",
      "count": 5,
      "enemy": "wild_boarlet"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat the herd's elite boarlet",
+     "count": 1,
+     "enemy": "wild_boarlet",
+     "elite": true
     }
    ],
    "rewards": [
@@ -681,6 +654,10 @@
      "kind": "grant_item",
      "item": "rice_ball",
      "count": 3
+    },
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.35
     },
     {
      "kind": "codex",
@@ -751,12 +728,6 @@
    "marker": "blue",
    "objectives": [
     {
-     "kind": "reach_realm",
-     "text": "Reach Bone Forging 2",
-     "count": 1,
-     "realm": "bone_forging_2"
-    },
-    {
      "kind": "set_flag",
      "text": "Climb to the trial bell",
      "count": 1,
@@ -778,6 +749,10 @@
      "kind": "grant_item",
      "item": "entry_token",
      "count": 1
+    },
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
     },
     {
      "kind": "codex",
@@ -806,10 +781,10 @@
   {
    "id": "a_disciples_chores",
    "name": "A Disciple's Chores",
-   "kind": "main",
+   "kind": "side",
    "giver": "jade_steward",
    "hand_in": "jade_steward",
-   "marker": "gold",
+   "marker": "blue",
    "objectives": [
     {
      "kind": "set_flag",
@@ -827,7 +802,7 @@
     },
     {
      "kind": "set_flag",
-     "text": "Sweep the third spot",
+     "text": "Look under the grey stain by the gate",
      "count": 1,
      "flag": "swept_ja_2",
      "alt_flag": "swept_cm_2"
@@ -846,13 +821,20 @@
     {
      "kind": "add_contribution",
      "amount": 20
+    },
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_shard",
+     "count": 2
     }
    ],
    "offer_text": [
-    "Service disciples sweep. Three spots on the street. The grey dust gets everywhere these days."
+    "If you've a moment between trials: two spots want sweeping, and there's a grey stain by the gate that won't come up.",
+    "The grey dust gets everywhere these days. Nobody knows where it blows in from."
    ],
    "complete_text": [
-    "Clean enough. Your bunk is in the dorm: rest there any time."
+    "Grey under the flagstone, and someone's cache with it? Keep the shards. Tell the elders about the grey.",
+    "Your bunk is in the dorm: rest there any time."
    ],
    "offered_by_unlock": true,
    "chapter": "1",
@@ -889,7 +871,11 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "pct_of_need": 0.45
+    },
+    {
+     "kind": "grant_title",
+     "title": "river_rival"
     }
    ],
    "offer_text": [
@@ -902,7 +888,7 @@
     "all": [
      {
       "kind": "quest_done",
-      "quest": "a_disciples_chores"
+      "quest": "entry_trial"
      }
     ]
    },
@@ -926,7 +912,7 @@
     {
      "kind": "hit_object",
      "text": "Try it on the dummies",
-     "count": 15,
+     "count": 5,
      "type": "training_dummy"
     },
     {
@@ -940,6 +926,21 @@
     {
      "kind": "codex",
      "entry": "weapons"
+    },
+    {
+     "kind": "learn_technique_for_weapon",
+     "options": {
+      "none": "tiger_rush",
+      "fists": "tiger_rush",
+      "gauntlets": "tiger_rush",
+      "jian": "cloudpiercing_stroke",
+      "spear": "jade_thrust",
+      "short_blade": "reedcutter_slash",
+      "staff": "riverstone_sweep",
+      "bow": "twin_reed_shot",
+      "heavy_sabre": "mountain_cleaver",
+      "fan": "gale_fan"
+     }
     }
    ],
    "offer_text": [
@@ -947,7 +948,8 @@
     "Guard is the other half of a weapon. Hold it up when they swing."
    ],
    "complete_text": [
-    "Good hands. The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."
+    "Good hands. Now the first form of the weapon you kept: watch once, then it's yours.",
+    "The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."
    ],
    "offered_by_unlock": true,
    "chapter": "1",
@@ -988,8 +990,8 @@
    "objectives": [
     {
      "kind": "meditate_seconds",
-     "text": "Meditate by a Qi spring or glowing spot",
-     "count": 60
+     "text": "Meditate in the Reed Shallows",
+     "count": 20
     },
     {
      "kind": "gather_node",
@@ -1009,14 +1011,19 @@
      "kind": "grant_item",
      "item": "qi_gathering_pill",
      "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "riverreed_ginseng_10",
+     "count": 1
     }
    ],
    "offer_text": [
-    "You're starting to feel Qi in the air. Sit and let it show itself.",
-    "Willow Moss grows in the Reed Shallows. Pick three: Mei Qing will want them."
+    "You're starting to feel Qi in the air. Sit in the Reed Shallows a moment and let it show itself.",
+    "Where it glows, something grows. Willow Moss, and sometimes better. Pick three moss: Mei Qing will want them."
    ],
    "complete_text": [
-    "You see it now. The valley glows, faintly, everywhere."
+    "You see it now. The valley glows, faintly, everywhere. That ginseng root is yours: ten years old, and it knew you were coming."
    ],
    "offered_by_unlock": true,
    "chapter": "1",
@@ -1240,9 +1247,14 @@
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Create a second character or set an idle task",
+     "text": "Set an idle task on the Characters page",
      "count": 1,
      "system": "second_path"
+    },
+    {
+     "kind": "enter_seclusion",
+     "text": "Or enter seclusion once",
+     "count": 1
     }
    ],
    "rewards": [
@@ -1253,11 +1265,12 @@
     }
    ],
    "offer_text": [
-    "(A letter from your mentor) One cultivator can't walk every road. Train a second disciple, or leave this one to train while you rest."
+    "(A letter from your mentor) Even resting, a cultivator can train. Leave yourself a task when you put the road down, or sit in seclusion. Whenever it suits you; nothing waits on it."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf5",
-   "target_room": ""
+   "chapter": "qk1",
+   "target_room": "",
+   "complete_on": "any"
   },
   {
    "id": "keeping_post",
@@ -1275,7 +1288,7 @@
     },
     {
      "kind": "settle_post",
-     "text": "Play someone else, then come back to the one who kept post",
+     "text": "Burn the incense stick at your post (Roll-Call), or put the game away and come back",
      "count": 1
     }
    ],
@@ -1283,7 +1296,7 @@
     {
      "kind": "grant_item",
      "item": "hour_incense_1",
-     "count": 2
+     "count": 1
     },
     {
      "kind": "grant_currency",
@@ -1292,15 +1305,22 @@
     }
    ],
    "offer_text": [
-    "A line left in the water still fishes. When I can't sit by mine, my nephew does, and the basket fills either way.",
-    "Leave one of yours at a vein or a pool while you walk another road. They keep working. Come back and count."
+    "A line left in the water still fishes. When I can't sit by mine, the basket fills all the same.",
+    "Sit at a vein or a pool and keep post. Here's an incense stick: burn it there and an hour's work is done while it burns."
    ],
    "complete_text": [
-    "See? The river doesn't care who holds the rod. The Roll-Call keeps count of who is where."
+    "See? The river doesn't care who holds the rod. The Roll-Call keeps count of what your post brought in."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
-   "target_room": "lf_village"
+   "chapter": "qk1",
+   "target_room": "lf_village",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_1",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "glowflies",
@@ -1337,7 +1357,7 @@
     "Five! Now my lantern glows green. Keep the spare net. Ooh, and there are beetles in the bamboo too..."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
+   "chapter": "qk1",
    "target_room": "lf_reed_shallows"
   },
   {
@@ -1725,15 +1745,15 @@
   {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
-   "kind": "guided",
+   "kind": "side",
    "giver": "jade_deacon",
    "hand_in": "jade_deacon",
    "marker": "blue",
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Finish daily missions",
-     "count": 2,
+     "text": "Finish any one mission from the board, whenever it suits you",
+     "count": 1,
      "system": "daily_mission_done"
     }
    ],
@@ -1744,13 +1764,14 @@
     }
    ],
    "offer_text": [
-    "Missions. Five a day. Hunt, gather, deliver. Contribution buys what money can't."
+    "The sect has more work than hands. The board by the gate lists it: hunts, herbs, deliveries.",
+    "Take what you like, when you like. Days you miss wait on the board for you. Contribution buys what money can't."
    ],
    "complete_text": [
     "The contribution shop is open to you now."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
+   "chapter": "qk1",
    "giver_any": [
     "jade_deacon",
     "cloud_deacon"
@@ -1780,11 +1801,6 @@
      "text": "Meditate in the Lotus Ferry Qi spring",
      "count": 30,
      "near": "qi_spring"
-    },
-    {
-     "kind": "enter_seclusion",
-     "text": "Enter seclusion once",
-     "count": 1
     }
    ],
    "rewards": [
@@ -1800,7 +1816,7 @@
    ],
    "offer_text": [
     "You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
-    "The old spring by Granny Liu's hut has woken. Sit in it. Then learn to cultivate while you sleep."
+    "The old spring by Granny Liu's hut has woken. Sit in it."
    ],
    "complete_text": [
     "Your first current. Don't let it flood you."
@@ -1946,7 +1962,7 @@
     }
    ],
    "offer_text": [
-    "Qi Kindling. Now your Qi can leave your body. Flowing Palm: push Qi through the palm. Twenty times."
+    "Qi Kindling. Now your Qi can leave your body. The palm Lu taught you on the boat: push Qi through it now. Twenty times."
    ],
    "complete_text": [
     "The technique remembers you now. Train it and it grows."
@@ -5241,7 +5257,8 @@
     }
    ],
    "offer_text": [
-    "Disciples report grey patches in the Reed Marsh. Colour drained from the reeds. Look, but touch nothing."
+    "(A note from your mentor) Disciples report grey patches in the Reed Marsh. Colour drained from the reeds.",
+    "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."
    ],
    "complete_text": [
     "Hollowing. It's closer than we hoped."
@@ -5250,11 +5267,15 @@
     "all": [
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_4"
+      "realm": "bone_forging_2"
      },
      {
       "kind": "quest_done",
       "quest": "entry_trial"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall"
      }
     ]
    },
@@ -5267,7 +5288,8 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "rm_marsh_edge"
+   "target_room": "rm_marsh_edge",
+   "auto_accept": true
   },
   {
    "id": "the_humming_token",
@@ -5278,16 +5300,11 @@
    "marker": "gold",
    "objectives": [
     {
-     "kind": "reach_room",
-     "text": "Follow the token to the Grey Pools",
-     "count": 1,
-     "room": "rm_grey_pools"
-    },
-    {
      "kind": "kill",
-     "text": "Defeat Hollowed Boarlets",
+     "text": "Defeat the Hollowed Boarlets at the Marsh Edge",
      "count": 5,
-     "enemy": "hollowed_boarlet"
+     "enemy": "hollowed_boarlet",
+     "room": "rm_marsh_edge"
     }
    ],
    "rewards": [
@@ -5302,7 +5319,8 @@
     }
    ],
    "offer_text": [
-    "Your River Token hums when you face east. Follow it."
+    "Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
+    "You've a weapon in your hands now: the grey will want it."
    ],
    "complete_text": [
     "Lu's token. It knows the grey. Keep it close."
@@ -5315,7 +5333,7 @@
      },
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_4"
+      "realm": "bone_forging_2"
      }
     ]
    },
@@ -5328,7 +5346,7 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "rm_grey_pools"
+   "target_room": "rm_marsh_edge"
   },
   {
    "id": "mei_qings_errand",
@@ -5346,9 +5364,9 @@
     },
     {
      "kind": "collect",
-     "text": "Bring Copper Ore",
+     "text": "Bring Grey Hides from the Hollowed Boarlets",
      "count": 3,
-     "item": "copper_ore"
+     "item": "grey_hide"
     }
    ],
    "rewards": [
@@ -5364,7 +5382,7 @@
     }
    ],
    "offer_text": [
-    "The Hollowed wounds need a new salve. Willow moss and copper dust."
+    "The Hollowed wounds need a new salve. Willow moss, and the grey hide of the things that made the wounds."
    ],
    "complete_text": [
     "This will save lives. Thank you."
@@ -5377,7 +5395,7 @@
      },
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_4"
+      "realm": "bone_forging_2"
      }
     ]
    },
@@ -5420,7 +5438,7 @@
      },
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_4"
+      "realm": "bone_forging_2"
      }
     ]
    },
@@ -11632,7 +11650,7 @@
   }
  ],
  "chapter_floors": {
-  "2": "bone_forging_4",
+  "2": "bone_forging_2",
   "3": "bone_forging_7",
   "4": "qi_kindling_9",
   "5": "qi_unfurling_3",

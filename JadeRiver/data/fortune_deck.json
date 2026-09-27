@@ -177,5 +177,21 @@
   "boss_arena",
   "story"
  ],
+ "first": {
+  "card": "remnant_ring",
+  "trigger": "room_entered",
+  "rooms": [
+   "wp_east",
+   "wp_west"
+  ],
+  "requires": {
+   "all": [
+    {
+     "kind": "quest_done",
+     "quest": "the_river_token"
+    }
+   ]
+  }
+ },
  "wine_grain": 0.25
 }

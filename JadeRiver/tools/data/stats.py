@@ -257,7 +257,10 @@ CORE = {
                 "heavenforce": 1.30},
     "qi_edge_per_purity": 0.01,
     "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
-                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05},
+                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05,
+                       # Research §5 change 3: until the body has a Qi pool (Bone Forging 7) a technique runs on breath and
+                       # muscle: no Qi, only its cooldown. Flowing Palm at Bone Forging 1 and the Weapon Hall's art work at once.
+                       "free_without_pool": True},
     "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
     "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
                   "enhance_per_level": 0.05, "fist_weapon_pct": 0.6,
@@ -456,7 +459,8 @@ def build():
                    "auto_turn_range": 160, "backlash_stun_s": 1.0, "backlash_qi_pct": 0.05, "dodge_distance": 140, "wind_blink_distance": 120, "wind_blink_cooldown_s": 10,
                    "dodge_invuln_s": 0.25, "dodge_cooldown_s": 2.5, "parry_stagger_s": 0.8, "parry_stagger_boss_s": 0.3,
                    "combo_window_s": 0.5, "steadfast_s": 8, "vulnerable": 0.2, "shock": 0.2, "status_duration_tenacity": 0.5},
-        "death": {"progress_loss": 0.10, "wake_hp": 0.5, "talisman_hp": 0.3, "talisman_invuln_s": 5, "talisman_cooldown_s": 300},
+        # grace_below: before this realm a fall costs nothing (player_motivation.md P12, ProgressionRules.death_grace).
+        "death": {"progress_loss": 0.10, "grace_below": "bone_forging_5", "wake_hp": 0.5, "talisman_hp": 0.3, "talisman_invuln_s": 5, "talisman_cooldown_s": 300},
         "toxicity": {"tolerance_base": 30, "drain_per_min": 1, "meditate_drain_mult": 2, "repeat_window_s": 300,
                      "repeat_factor": 0.5},
         # S28 Hollow Tide: held under half in the valley and the Expanse; the Lantern Star Field lets it fill. At half the
