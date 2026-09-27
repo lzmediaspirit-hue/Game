@@ -1006,3 +1006,8 @@ rank's colour), with `band_worn` in the catalogue.
 | 9 | A level gained alone plays a new short gong instead of today's guzheng run | Yes, per F4; the minor breakthrough keeps the run |
 | 10 | The tribulation's storm is laid again every 5 s for the whole rite (today 6 s once) | Yes |
 | 11 | `loot_dropped` gains `source`, a payload key in `world_authority.gd` | Yes: no state or rule changes, and the fountain cannot tell a boss from a jar without it |
+
+## Decisions taken
+
+The recommendations above are taken (2026-09-27) so the build can start. The user can overturn any of them before its
+step lands: 1, 2, 3, 4, 6, 7, 9, 10 and 11 as recommended; 5 goes to P9; 8 is accepted for the gap until P9a.
