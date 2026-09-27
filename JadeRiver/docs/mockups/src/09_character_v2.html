@@ -1,34 +1,35 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>09 v2 Character, the portrait scroll</title>
+<html><head><meta charset="utf-8"><title>09 v2 Character, the jade-slip record</title>
 <link rel="stylesheet" href="../kit/kit.css">
 <style>
-  /* docs/page_identity.md row 13. The page is a wall of the portrait hall (SURFACE.river_lacquer panelling with a
-     GOLD double rule) with the character's portrait hung on it as a mounted scroll: brocade (SURFACE.silk) round a
-     paper centre (scroll), rollers in wood_dark with GOLD caps. The eight worn slots are set into the brocade like
-     collectors' seals. In the build: portrait_scroll (HD nine-slice), the figure the live Avatar at 2.5. */
-  .wall { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 6px;
-    background: linear-gradient(90deg, rgba(255,255,255,0) 0 49.5%, rgba(0,0,0,.18) 49.5% 50.5%, rgba(255,255,255,0) 50.5%) 0 0 / 96px 100%,
-                linear-gradient(180deg, #0f3036 0%, #0c2a2f 40%, #08201f 100%);
-    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 6px #0a1e23, inset 0 0 0 7px #e5b84c, inset 0 0 0 11px #0a1e23, inset 0 0 0 12px #9a6a35, 0 10px 30px rgba(0,0,0,.55); }
-  .brocade { position: absolute; border-radius: 3px;
-    background: radial-gradient(circle at 50% 50%, rgba(232,225,207,.10) 0 2px, rgba(0,0,0,0) 3px) 0 0 / 16px 16px,
-                linear-gradient(90deg, #335f5a, #3b6b66 30%, #3b6b66 70%, #2f5853);
-    box-shadow: inset 0 0 0 2px #1f413e, inset 0 0 0 4px rgba(229,184,76,.55), 0 8px 16px rgba(0,0,0,.45); }
-  .paper { position: absolute; background: radial-gradient(ellipse at 50% 40%, #efe4c8, #e8dcbc 60%, #dccfae);
-    box-shadow: inset 0 0 0 1px rgba(154,106,53,.6), inset 0 0 18px rgba(154,106,53,.25); overflow: hidden; }
-  .roller { position: absolute; height: 18px; border-radius: 9px; background: linear-gradient(180deg, #5a3620, #3b2416 55%, #24160c); box-shadow: 0 3px 0 rgba(0,0,0,.45); }
-  .roller::before, .roller::after { content: ""; position: absolute; top: -3px; width: 16px; height: 24px; border-radius: 5px; background: linear-gradient(180deg, #ffe6a1, #e5b84c 50%, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink); }
-  .roller::before { left: -14px; } .roller::after { right: -14px; }
+  /* docs/page_identity.md row 13. The page is the character's record kept on jade slips, as a sect keeps its
+     disciples' records: one mat of vertical slips (SURFACE.cloth with JADE_SHADOW edges and a lit rim) across the
+     whole window, bound by two GOLD cords. The figure stands on the first slips, washed lighter as if painted there,
+     with the worn slots down the slips either side; the register is written across the rest. All page.gd; the
+     figure is the live Avatar at 2.5. */
+  .mat { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 16px;
+    background:
+      linear-gradient(90deg, rgba(103,214,189,.10) 0 1px, rgba(0,0,0,0) 1px 38px, rgba(0,0,0,.55) 38px 40px) 0 0 / 40px 100%,
+      linear-gradient(180deg, #123c3c 0%, #0f3435 45%, #0c2c2d 100%);
+    box-shadow: 0 0 0 2px var(--ink), 0 10px 30px rgba(0,0,0,.55); }
+  .mat::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 10px; border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, rgba(103,214,189,.25), rgba(103,214,189,0)); }
+  .painted { position: absolute; left: 64px; top: 32px; width: 440px; height: 656px; border-radius: 16px 0 0 16px;
+    background: linear-gradient(90deg, rgba(103,214,189,.10) 0 1px, rgba(0,0,0,0) 1px 38px, rgba(0,0,0,.45) 38px 40px) 0 0 / 40px 100%,
+      radial-gradient(ellipse 200px 280px at 226px 360px, #2a6a62 0%, #1d514d 45%, #153f3e 80%, #123c3c 100%); }
+  .cord { position: absolute; left: 56px; width: 1168px; height: 6px; border-radius: 3px;
+    background: linear-gradient(180deg, #ffe6a1, #e5b84c 45%, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink), 0 3px 0 rgba(0,0,0,.4); }
+  .knot { position: absolute; width: 18px; height: 18px; margin: -6px 0 0 -9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffe6a1, #e5b84c 55%, #9a6a35);
+    box-shadow: 0 0 0 1.5px var(--ink); }
   .fig25 { transform-origin: 192px 254px; transform: scale(2.5); }
-  .seal-l { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; color: var(--paper); text-shadow: 0 1px 0 rgba(0,0,0,.6); }
-  .paper * { text-shadow: none !important; }
+  .seal-l { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; color: var(--paper); }
   .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
     0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
-  .silktab { position: absolute; height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 18px; font-size: 20px; color: var(--paper);
-    background: linear-gradient(180deg, #2f5853, #264a46); border-radius: 0 0 8px 8px; box-shadow: inset 0 0 0 2px #1f413e, 0 3px 0 rgba(0,0,0,.4); }
-  .silktab.on { background: linear-gradient(180deg, #4a857d, #3b6b66); box-shadow: inset 0 0 0 2px #1f413e, inset 0 -3px 0 #e5b84c, 0 3px 0 rgba(0,0,0,.4); }
+  .jtag { position: absolute; height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 20px; color: var(--paper);
+    border-radius: 3px 3px 10px 10px; background: linear-gradient(180deg, #1d514d, #15514f 50%, #103f3d); box-shadow: 0 0 0 1.5px var(--ink), inset 0 1px 0 rgba(103,214,189,.35), 0 3px 0 rgba(0,0,0,.4); }
+  .jtag.on { background: linear-gradient(180deg, #3aa392, #2c9e8f 45%, #1f776c); }
   .reg { position: absolute; font-size: 16px; }
-  .reg .row { display: grid; grid-template-columns: 1fr 64px; padding: 1px 0; line-height: 1.22; border-bottom: 1px solid rgba(154,106,53,.35); }
+  .reg .row { display: grid; grid-template-columns: 1fr 64px; padding: 1px 0; line-height: 1.22; border-bottom: 1px solid rgba(229,184,76,.25); }
   .reg .row > :first-child { color: var(--mist); } .reg .row > :last-child { color: var(--paper); text-align: right; }
   .reg .head { font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--gold); border-bottom: 2px solid var(--bronze); padding-bottom: 2px; margin-bottom: 2px; }
   .plq { position: absolute; height: 48px; padding: 4px 10px; border-radius: 4px; background: linear-gradient(180deg, #5e1d25, #541720 60%, #3f1118);
@@ -40,65 +41,59 @@
 <body><div class="k-screen">
 <img class="k-plate" src="../assets/plate_wardens_hall.png">
 <div class="dim-screen"></div>
-<div class="wall"></div>
-
-<!-- ================= the portrait scroll ================= -->
-<svg class="abs" style="left:0;top:0" width="1280" height="720" viewBox="0 0 1280 720">
-  <path d="M 287 32 L 250 62 M 287 32 L 324 62" stroke="#c8343e" stroke-width="3" fill="none"/>
-  <circle cx="287" cy="32" r="5" fill="#9a6a35" stroke="#071015" stroke-width="2"/>
+<div class="mat"></div>
+<div class="painted"></div>
+<!-- a low ink-wash hill and the figure's shadow, painted on the slips -->
+<svg class="abs" style="left:64px;top:32px" width="440" height="656" viewBox="0 0 440 656">
+  <ellipse cx="226" cy="528" rx="80" ry="12" fill="rgba(7,16,21,.35)"/>
 </svg>
-<div class="roller" style="left:96px;top:58px;width:382px"></div>
-<div class="brocade" style="left:96px;top:66px;width:382px;height:592px"></div>
-<div class="roller" style="left:96px;top:652px;width:382px"></div>
-<!-- the page title on the scroll's silk label strip (the lettering is the shared inked title) -->
-<div class="abs center" style="left:187px;top:76px;width:200px;height:50px;border-radius:3px;background:linear-gradient(180deg,#e8dcbc,#d9ccaa);box-shadow:inset 0 0 0 1.5px #9a6a35, 0 2px 0 rgba(0,0,0,.35)">
-  <span class="t-title inked" style="font-size:36px">Character</span></div>
-<div class="paper" style="left:182px;top:136px;width:210px;height:474px">
-  <!-- an ink-wash hill and pine behind the figure, painted low -->
-  <svg width="210" height="474" viewBox="0 0 210 474" style="position:absolute;left:0;top:0">
-    <path d="M 0 380 C 40 330 70 320 110 350 C 140 330 170 300 210 330 L 210 474 L 0 474 Z" fill="rgba(21,81,79,.14)"/>
-    <path d="M 0 420 C 50 390 120 400 210 380 L 210 474 L 0 474 Z" fill="rgba(21,81,79,.12)"/>
-    <ellipse cx="96" cy="424" rx="70" ry="10" fill="rgba(43,33,24,.12)"/>
-  </svg>
-  <!-- the inscription and the name seal, upper right -->
-  <div class="abs" style="left:112px;top:14px;width:88px;text-align:right;color:var(--ink);font-family:var(--f-display);font-weight:700;font-size:24px;line-height:1.05">Tester</div>
-  <div class="abs" style="left:60px;top:44px;width:140px;text-align:right;color:#2b2118;font-size:14px;line-height:1.3">Sphere Lord <span class="t-fig">3</span><br>Level <span class="t-fig">98</span><br>of the Jade Sect<br>aged <span class="t-fig">16</span>, to live<br><span class="t-fig">5,000</span> years</div>
-  <div class="abs center" style="left:168px;top:142px;width:30px;height:30px;border-radius:3px;background:#b3202e;color:#ffe6a1;font-family:var(--f-display);font-weight:700;font-size:20px;box-shadow:inset 0 0 0 2px rgba(255,230,161,.6);transform:rotate(-4deg)">T</div>
-</div>
-<img class="k-fig fig25" style="left:262px;top:560px" src="../assets/fig_tester_ls6_idle.png">
+<!-- the two gold cords that bind the slips, with their knots -->
+<div class="cord" style="top:92px"></div><div class="cord" style="top:680px"></div>
+<div class="knot" style="left:60px;top:95px"></div><div class="knot" style="left:1220px;top:95px"></div>
+<div class="knot" style="left:60px;top:683px"></div><div class="knot" style="left:1220px;top:683px"></div>
 
-<!-- the worn slots set into the brocade, four a side, like collectors' seals -->
-<div class="abs" style="left:100px;top:148px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
-<div class="seal-l" style="left:138px;top:226px">Hat</div>
-<div class="abs" style="left:100px;top:262px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
-<div class="seal-l" style="left:138px;top:340px">Robe</div>
-<div class="abs" style="left:100px;top:376px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
-<div class="seal-l" style="left:138px;top:454px">Trousers</div>
-<div class="abs" style="left:100px;top:490px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
-<div class="seal-l" style="left:138px;top:568px">Boots</div>
-<div class="abs" style="left:398px;top:148px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
-<div class="seal-l" style="left:436px;top:226px">Weapon</div>
-<div class="abs" style="left:398px;top:262px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
-<div class="seal-l" style="left:436px;top:340px">Gourd</div>
-<div class="abs" style="left:398px;top:376px"><div class="k-slot k-slot76 is-empty"></div></div>
-<div class="seal-l" style="left:436px;top:454px">Cape</div>
-<div class="abs" style="left:398px;top:490px"><div class="k-slot k-slot76 is-empty"></div></div>
-<div class="seal-l" style="left:436px;top:568px">Talisman</div>
-<div class="abs flex" style="left:120px;top:604px;gap:10px">
-  <span class="t-xs c-paper" style="text-shadow:0 1px 0 rgba(0,0,0,.6)">Beside you</span>
+<!-- the title: a jade tag knotted to the upper cord (the lettering is the shared inked title) -->
+<div class="abs center" style="left:180px;top:40px;width:220px;height:50px;border-radius:4px;background:linear-gradient(180deg,#2c9e8f,#1f776c 60%,#15514f);box-shadow:0 0 0 2px var(--ink), inset 0 0 0 2px #e5b84c, 0 4px 0 rgba(0,0,0,.4)">
+  <span class="t-title inked" style="font-size:36px">Character</span></div>
+<div class="abs" style="left:289px;top:88px;width:3px;height:6px;background:#e5b84c"></div>
+
+<!-- the name written down the figure's slips -->
+<div class="abs t-subhead" style="left:196px;top:112px;width:180px;text-align:center;color:var(--pale-gold)">Tester</div>
+<div class="abs t-xs c-mist" style="left:196px;top:142px;width:180px;text-align:center">of the Jade Sect</div>
+<img class="k-fig fig25" style="left:278px;top:528px" src="../assets/fig_tester_ls6_idle.png">
+
+<!-- the worn slots down the slips either side of the figure -->
+<div class="abs" style="left:100px;top:170px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:138px;top:248px">Hat</div>
+<div class="abs" style="left:100px;top:284px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:138px;top:362px">Robe</div>
+<div class="abs" style="left:100px;top:398px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:138px;top:476px">Trousers</div>
+<div class="abs" style="left:100px;top:512px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:138px;top:590px">Boots</div>
+<div class="abs" style="left:398px;top:170px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:436px;top:248px">Weapon</div>
+<div class="abs" style="left:398px;top:284px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:436px;top:362px">Gourd</div>
+<div class="abs" style="left:398px;top:398px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="seal-l" style="left:436px;top:476px">Cape</div>
+<div class="abs" style="left:398px;top:512px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="seal-l" style="left:436px;top:590px">Talisman</div>
+<div class="abs flex" style="left:184px;top:556px;gap:8px">
+  <span class="t-xs c-mist">Beside you</span>
   <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_reed_otter.png" style="width:192px;height:192px;left:-78px;top:-106px"></span></span>
   <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="width:192px;height:192px;left:-78px;top:-78px"></span></span>
   <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_lan_yue_idle.png" style="width:192px;height:192px;left:-78px;top:-78px"></span></span>
-  <span class="t-xs c-paper" style="text-shadow:0 1px 0 rgba(0,0,0,.6)">and Elder Hu</span>
 </div>
+<div class="abs t-xs c-mist" style="left:184px;top:600px;width:212px;text-align:center">Reed Otter · Tie Niu · Lan Yue</div>
 
 <div class="k-close abs" style="left:1146px;top:46px"></div>
 
-<!-- tabs: silk ribbons hung from the top rule -->
-<div class="silktab on" style="left:520px;top:44px">Overview</div>
-<div class="silktab" style="left:656px;top:44px">Aptitude</div>
-<div class="silktab" style="left:790px;top:44px">Attunement</div>
-<div class="silktab" style="left:942px;top:44px">Wardrobe</div>
+<!-- tabs: jade tags knotted to the upper cord -->
+<div class="jtag on" style="left:520px;top:40px"><span class="inked">Overview</span></div>
+<div class="jtag" style="left:654px;top:40px">Aptitude</div>
+<div class="jtag" style="left:786px;top:40px">Attunement</div>
+<div class="jtag" style="left:936px;top:40px">Wardrobe</div>
 
 <!-- ================= the register ================= -->
 <div class="abs t-display" style="left:520px;top:108px">Tester</div>
