@@ -54,6 +54,9 @@ static func icon(id: String) -> Texture2D:
 ## The art sizes an HD icon can be rendered at natively (tools/icons: 64 items, equipment and techniques, 48 and
 ## 32 renders of them, 32 HUD glyphs).
 const ICON_PX := [64, 48, 32]
+## Every native render a drawing may list (`<id>@<px>`): ICON_PX, and 96 for the Works cabinet's objects (P5, mockup
+## 14 v4; tools/icons/families/works.py). Emblems are only composed at ICON_PX.
+const RENDER_PX := [96, 64, 48, 32]
 static var _renders: Dictionary = {}
 ## The ui_suite's record of every icon drawn, [{id, rect, art, scale}]; null (off) in play.
 static var draw_log = null
@@ -66,7 +69,7 @@ static func icon_renders(id: String) -> Dictionary:
 	var manifest: Dictionary = ContentDB.config("icon_manifest")
 	var key := icon_key(id)
 	var out := {}
-	for px in ICON_PX:
+	for px in RENDER_PX:
 		var t := tex(str(manifest.get("%s@%d" % [key, px], "")))
 		if t: out[px] = t
 	if out.is_empty():
@@ -82,7 +85,7 @@ static func icon_renders(id: String) -> Dictionary:
 ## True when the icon is drawn in the HD style (its family has been converted, or it is a composed emblem).
 static func icon_hd(id: String) -> bool:
 	var manifest: Dictionary = ContentDB.config("icon_manifest")
-	return ICON_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px])) or composable(id)
+	return RENDER_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px])) or composable(id)
 
 ## How an icon is drawn in a `box` px square: the render and whole-number scale that give the largest size not over
 ## the box (the larger native render on a tie), or the smallest render at 1x when none fits.

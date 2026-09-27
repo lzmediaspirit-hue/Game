@@ -834,6 +834,47 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
   with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
   proposals the rules do not hold; the build draws the one seal the game keeps).
+### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
+- **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).
+  A pale name tablet per character hangs from the peg rail on a red cord, its arched window holding the character's
+  live figure (the Avatar at 3 px an art px, clipped to the arch: standing while played or working, seated at rest), the
+  craft and its level, the place and a band that says how the post stands (playing now, full and idle for how long,
+  full in how long, on vigil, no post). A tap turns the tablet over (0.25 s) to its back: the level and Finesse, what it
+  brings in an hour, the first output's Chance or Abundance bar and the Hour Incense. Under each tablet the pouch is a
+  woven vessel on the shelf (a basket, a creel or a cage by what the post fills) heaped with the goods to its level and a
+  paper tag with the count (red when full), then one big Settle and a Switch. Soonest full first, four at a time with
+  page arrows past four. Settle all with its goods and ready seal, the Storehouse as a cabinet of drawers under a tiled
+  roof (tap to take 50, Auto-Settle) and the Bench as a work table (what the apprentice made, Collect, points to spend,
+  the craft levels to the next point and apprentice) stand at the right. Board, Crafts and Vows hang as tags on the beam;
+  the Storehouse's and the Bench's plaques open their full views (every drawer and the Granary Seal; the apprentices and
+  the bench points). A new player's board (Keeping Post not yet done) pins a note that teaches the loop in three steps.
+  `PostAuthority.roll_call` rows also carry `cap` and `idle_h`.
+- **Works as the curio cabinet** (row 23, mockup 14 v4; decisions 21 and 26). The seven works are the compartments of
+  an irregular bamboo shelf, and the compartments are the tabs: each object drawn at its native 96 from
+  `tools/icons/families/works.py` (the drawings moved there from the study; the icon build renders them at 64 and
+  `@96`, and `SpriteCache` reads 96 px renders), its state on a hemp label (points to spend, seals the Storehouse can pay
+  for, the highest stele, flags planted, the lit line, favours granted, the mirror), a ready seal where something
+  waits, a locked one dark behind a lattice with what opens it. The chosen work's list lies on the tray below; the Seal
+  Scripts show five rows at once. The inventory slip at the right writes what the works add for the character, craft by
+  craft and at every post, and the Storehouse and silver they are paid with. Every work's actions are kept.
+- **Welcome Back as the incense coil and the winnowing tray** (row 12). The coil on its bronze dish is burnt from its
+  outer end to the time away out of the cap (the account's `idle_cap_h` and the sect's bonus), the ember at the mark
+  (it runs there as the page opens; drawn at its mark under Reduce motion); the goods drop into the round bamboo tray
+  one after another (a tap names one); the rest of the summary and the post's Return Ledger is on a hemp slip; To the
+  Storehouse and Keep in pouch, or Collect, under the tray.
+- **Pouches as the tailor's chalk patterns** (row 44). Seven drawstring pouches chalked on the cutting cloth in two
+  staggered rows, each at its tier's size with the next tier dashed round it and its compartments ruled inside, the
+  category's thing in it, what it holds, the next fold and its price, and Sew, which runs a stitch round the pattern;
+  a bamboo ruler across the corner.
+- **Shared** (`scripts/ui/pages/post_kit.gd`): arches, basketry, paper tags, hemp labels, the lattice screen, planks,
+  dashed outlines and the ready seal. `TEXT_ON` rows for words on `wood_dark`, `wood`, `bridge`, `hemp` and
+  `talisman`. `--welcome-demo` (a debug tool) opens Welcome Back from a real Return Ledger of 7.5 hours at a post.
+- **Tests:** `rules_tests` `identity_suite` (the Post family: a tablet per character, the one played first, soonest full
+  first, Settle and Switch under each post, the tags' counts, the figures whole-pixel and clipped, a tap turns a tablet;
+  the seven compartments as 48 px tabs, each object at its native 96, a closed work saying what opens it, five Seal
+  Scripts at once; the coil burnt to the time away out of the cap and every good in the tray; seven patterns, a deeper
+  pouch larger; every word read on its ground), `icon_draw_suite` (the Works objects' 96 and 64 renders), and the
+  `ui_suite` in every tab. Screenshots beside the mockups in `docs/ui_p5/post/`.
 
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,

@@ -485,17 +485,23 @@ func roll_call() -> Array:
 		var since_h: float = Clock.elapsed_since(float(p.get("since", 0.0))).elapsed / 3600.0 if not p.is_empty() and not p.get("paused", false) else 0.0
 		# Projected from the unsettled hours: what the pouch holds now and how long until the first category fills.
 		var fill := INF
+		var first_full := INF
 		var cats := {}
 		for id in r.get("items", {}):
 			var cat := category_of(str(id))
 			cats[cat] = float(cats.get(cat, 0.0)) + float(r.items[id])
 		var inside := float(pouch_total(c))
+		var cap := 0.0
 		for cat in cats:
 			var fh := PostRules.fill_hours(capacity(c, cat), held(c, cat), float(cats[cat]))
 			fill = minf(fill, maxf(0.0, fh - since_h))
+			first_full = minf(first_full, fh)
 			inside += float(cats[cat]) * minf(since_h, fh)
+			cap += capacity(c, cat)
+		# P5 (the Roll-Call's vessels): what the post's categories hold at most, and how long the pouch has stood full.
 		out.append({"id": c.id, "slot": slot, "name": c.name, "active": c.id == game.active_id, "post": p.duplicate(),
-			"rates": r, "fill_h": fill, "pouch": int(inside), "since_h": since_h})
+			"rates": r, "fill_h": fill, "pouch": int(inside), "since_h": since_h, "cap": cap,
+			"idle_h": maxf(0.0, since_h - first_full) if first_full < INF else 0.0})
 	return out
 
 # ------------------------------------------------------------------ the Vigil (V10b, §7.2)

@@ -16,12 +16,13 @@ FAMILY_SIZE = {
     'hud': 16,
     'status': 12,
     'markers': 12,
+    'works': 32,   # never legacy: the seven Works objects were drawn HD from the start
 }
 # family folder -> HD icon-space size (art px), exported 1:1
-HD_SIZE = {'items': 64, 'equipment': 64, 'techniques': 64, 'hud': 32}
+HD_SIZE = {'items': 64, 'equipment': 64, 'techniques': 64, 'hud': 32, 'works': 64}
 # family folder -> the native renders an HD icon also gets, as `<id>@<px>.png`: 48 for the HUD technique ring,
-# 32 for the HUD item rings and the pages' small slots
-VARIANTS = {'items': (32,), 'equipment': (32,), 'techniques': (48, 32), 'hud': ()}
+# 32 for the HUD item rings and the pages' small slots, 96 for the Works cabinet's compartments (mockup 14 v4)
+VARIANTS = {'items': (32,), 'equipment': (32,), 'techniques': (48, 32), 'hud': (), 'works': (96,)}
 
 REGISTRY = {}   # id -> dict(family, group, fn, module)
 ORDER = []      # registration order (used for contact sheets)

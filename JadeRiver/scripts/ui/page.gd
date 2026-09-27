@@ -584,7 +584,7 @@ func currency_pill(pos: Vector2, currency: String, amount: int) -> float:
 	var s := UiKit.fmt(amount)
 	var w := UiKit.text_width(s, 18) + 54
 	var r := Rect2(pos, Vector2(w, 34))
-	draw_style_box(UiKit.style("currency_pill"), r)
+	face(r, "currency_pill")   # P5: its words are read on the pill, wherever it sits
 	icon_at(Rect2(pos + Vector2(4, 1), Vector2(32, 32)), currency_icon(currency))
 	text(pos + Vector2(40, 24), s, 18, UiKit.PALE_GOLD)
 	return w
