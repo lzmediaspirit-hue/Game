@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>12 v2 Quests, the mission board</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 6. The page is the sect's mission board: dark timber (wood_dark) with grain lines every
+     3 px, paper slips pinned to it (scroll paper, PAPER_INK words), the story's slip headed in cinnabar. The chosen
+     slip is taken down and held large at the right. In the build: the board page.gd, paper_slip an HD nine-slice. */
+  .board { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 6px;
+    background: repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.16) 2px 3px),
+                repeating-linear-gradient(180deg, rgba(90,54,32,0) 0 37px, rgba(122,84,38,.22) 37px 39px, rgba(90,54,32,0) 39px 74px),
+                linear-gradient(90deg, #3b2416, #452a19 30%, #3b2416 60%, #331f12);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 10px #24160c, inset 0 0 0 12px #9a6a35, inset 0 0 0 14px #1c130b, 0 10px 30px rgba(0,0,0,.55); }
+  .slip { position: absolute; background: linear-gradient(180deg, #efe4c8, #e8dcbc 70%, #dfd2b0); color: #2b2118;
+    clip-path: polygon(0 5px, 6% 0, 13% 4px, 22% 1px, 31% 5px, 40% 0, 52% 4px, 61% 1px, 72% 5px, 83% 0, 92% 4px, 100% 1px, 100% 100%, 0 100%);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.45); }
+  .slip * { text-shadow: none !important; }
+  .shadow-under { position: absolute; background: rgba(0,0,0,.45); filter: blur(4px); }
+  .pin { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffe6a1, #e5b84c 45%, #9a6a35 80%); box-shadow: 0 0 0 1.5px var(--ink), 2px 3px 0 rgba(0,0,0,.45); }
+  .pin.bronze { background: radial-gradient(circle at 35% 30%, #d8ad6c, #9a6a35 55%, #5a3620); }
+  .head-cin { background: linear-gradient(180deg, #d24a50, #cc3c43 60%, #b3202e); color: #ffe6a1; }
+  .ink { color: #2b2118; } .red { color: #b3202e; } .jd { color: #15514f; }
+  .plank { position: absolute; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 34px; border-radius: 3px;
+    background: linear-gradient(180deg, #6b4526, #5a3620 60%, #4a2c19); box-shadow: inset 0 0 0 1.5px #9a6a35, 0 2px 0 rgba(0,0,0,.45); white-space: nowrap; }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .chest { position: absolute; width: 52px; height: 48px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #6b4526, #4a2c19); box-shadow: inset 0 0 0 1.5px #e5b84c, 0 3px 0 rgba(0,0,0,.45); }
+  .chest.dim { box-shadow: inset 0 0 0 1.5px #9a6a35, 0 3px 0 rgba(0,0,0,.45); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_starsea_launch.png">
+<div class="dim-screen"></div>
+<div class="board"></div>
+
+<!-- title: carved on a header plank nailed to the board's top rail -->
+<div class="abs center" style="left:520px;top:22px;width:240px;height:58px;border-radius:4px;background:linear-gradient(180deg,#7a4e2a,#5a3620 60%,#43281a);box-shadow:inset 0 0 0 2px #9a6a35, 0 0 0 2px var(--ink), 0 4px 0 rgba(0,0,0,.45)">
+  <span class="t-title inked" style="font-size:38px">Quests</span></div>
+<div class="pin" style="left:534px;top:36px"></div><div class="pin" style="left:746px;top:36px"></div>
+<div class="k-close abs" style="left:1146px;top:46px"></div>
+
+<!-- tabs: two paper index tabs pinned at the board's top left -->
+<div class="slip" style="left:96px;top:46px;width:130px;height:48px;background:linear-gradient(180deg,#fff3d6,#efe4c8)"><div class="center t-lg ink" style="height:48px;font-weight:700">Current</div></div>
+<div class="pin" style="left:161px;top:52px"></div>
+<div class="abs" style="left:234px;top:48px;width:130px;height:44px;border-radius:2px;background:rgba(232,220,188,.55);clip-path:polygon(0 5px, 10% 0, 25% 4px, 40% 1px, 55% 5px, 70% 0, 85% 4px, 100% 1px, 100% 100%, 0 100%)"><div class="center t-lg ink" style="height:44px">Done <span class="t-fig" style="margin-left:6px;font-size:16px">156</span></div></div>
+
+<!-- ================= the story's slip ================= -->
+<div class="shadow-under" style="left:102px;top:126px;width:316px;height:98px"></div>
+<div class="slip" style="left:96px;top:116px;width:318px;height:100px;box-shadow:inset 0 0 0 1px rgba(154,106,53,.45), 0 0 0 3px #ffe6a1">
+  <div class="head-cin" style="height:28px;padding:5px 12px 0;font-size:14px;font-weight:700">Main · Chapter 17 · the story</div>
+  <div style="padding:4px 12px 0;font-family:var(--f-display);font-weight:700;font-size:24px">The Lantern Run</div>
+  <div style="padding:0 12px;font-size:14px" class="jd"><span class="t-sym">◆</span> tracked · step <span class="t-fig">1</span> of <span class="t-fig">2</span> · to the Arrival Quay</div>
+</div>
+<div class="pin" style="left:396px;top:124px"></div>
+
+<!-- ================= near you: the Azure Expanse ================= -->
+<div class="plank" style="left:440px;top:112px"><span class="t-sm c-pale">Near you · Azure Expanse</span><span class="t-fig c-paper" style="font-size:16px">6</span></div>
+<div class="slip" style="left:462px;top:160px;width:180px;height:62px;transform:rotate(-2deg);opacity:.9"></div>
+<div class="slip" style="left:448px;top:156px;width:180px;height:62px"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Clear Skies</div><div style="padding:0 10px;font-size:14px">Dockmaster Fu</div></div>
+<div class="pin bronze" style="left:538px;top:162px"></div>
+<div class="slip" style="left:636px;top:158px;width:172px;height:62px;transform:rotate(1.5deg)"><div style="padding:8px 8px 0;font-weight:700;font-size:14px">A Blade That Answers</div><div style="padding:0 10px;font-size:14px">Smith Hong</div></div>
+<div class="pin bronze" style="left:794px;top:168px"></div>
+
+<!-- ================= today's missions ================= -->
+<div class="plank" style="left:96px;top:238px"><span class="t-sm c-pale">Today's missions</span><span class="t-xs c-paper">each <span class="t-fig">20</span> contribution and <span class="t-fig">127</span> taels</span></div>
+<div class="slip" style="left:96px;top:282px;width:170px;height:66px"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Mist Lotus</div><div style="padding:0 10px;font-size:14px">gather <span class="t-fig">0 / 3</span></div></div>
+<div class="pin bronze" style="left:181px;top:288px"></div>
+<div class="slip" style="left:276px;top:284px;width:170px;height:66px;transform:rotate(-1deg)"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Jadeiron</div><div style="padding:0 10px;font-size:14px">mine <span class="t-fig">0 / 4</span></div></div>
+<div class="pin bronze" style="left:361px;top:290px"></div>
+<div class="slip" style="left:456px;top:282px;width:170px;height:66px"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Kitchen duty</div><div style="padding:0 10px;font-size:14px">cook <span class="t-fig">0 / 3</span></div></div>
+<div class="pin bronze" style="left:541px;top:288px"></div>
+<div class="slip" style="left:636px;top:284px;width:170px;height:66px;transform:rotate(1deg)"><div style="padding:8px 10px 0;font-weight:700;font-size:15px">Teas for the infirmary</div><div style="padding:0 10px;font-size:14px">deliver <span class="t-fig">0 / 3</span></div></div>
+<div class="pin bronze" style="left:721px;top:290px"></div>
+
+<!-- ================= the day's activity: a red cord with four chest charms ================= -->
+<div class="plank" style="left:96px;top:372px"><span class="t-sm c-pale">The day's round</span><span class="t-fig c-paper" style="font-size:16px">86 / 100</span></div>
+<div class="abs t-xs" style="left:344px;top:380px;color:var(--paper)">Next at <span class="t-fig">100</span>: <span class="t-fig">15</span> Spirit Stones, <span class="t-fig">2</span> Spirit Jade · for every character</div>
+<svg class="abs" style="left:96px;top:414px" width="712" height="90" viewBox="0 0 712 90">
+  <path d="M 4 18 Q 356 34 708 18" fill="none" stroke="#071015" stroke-width="7"/>
+  <path d="M 4 18 Q 356 34 708 18" fill="none" stroke="#5a1a20" stroke-width="4"/>
+  <path d="M 4 18 Q 306 31.5 612 23.7" fill="none" stroke="#e45858" stroke-width="4"/>
+  <circle cx="612" cy="23.7" r="6" fill="#ffe6a1" stroke="#071015" stroke-width="2"/>
+  <line x1="145" y1="22" x2="145" y2="36" stroke="#071015" stroke-width="3"/><line x1="287" y1="25" x2="287" y2="36" stroke="#071015" stroke-width="3"/>
+  <line x1="429" y1="25" x2="429" y2="36" stroke="#071015" stroke-width="3"/><line x1="700" y1="18" x2="700" y2="36" stroke="#071015" stroke-width="3"/>
+</svg>
+<div class="chest" style="left:215px;top:450px"><img class="ic ic-32" src="../../../art/icons/hud/open.png"></div><div class="k-seal" style="left:252px;top:440px">✓</div>
+<div class="chest" style="left:357px;top:450px"><img class="ic ic-32" src="../../../art/icons/hud/open.png"></div><div class="k-seal" style="left:394px;top:440px">✓</div>
+<div class="chest" style="left:499px;top:450px"><img class="ic ic-32" src="../../../art/icons/hud/open.png"></div><div class="k-seal" style="left:536px;top:440px">✓</div>
+<div class="chest dim" style="left:770px;top:450px"><img class="ic ic-32 is-grey" src="../../../art/icons/hud/open.png"></div>
+<div class="abs t-fig t-xs c-pale" style="left:229px;top:500px;width:24px;text-align:center">20</div>
+<div class="abs t-fig t-xs c-pale" style="left:371px;top:500px;width:24px;text-align:center">40</div>
+<div class="abs t-fig t-xs c-pale" style="left:513px;top:500px;width:24px;text-align:center">60</div>
+<div class="abs t-fig t-xs c-mist" style="left:780px;top:500px;width:32px;text-align:center">100</div>
+<div class="abs t-xs c-jade" style="left:96px;top:458px;width:110px;line-height:1.3">3 ready to open</div>
+
+<!-- ================= side quests by where they are ================= -->
+<div class="plank" style="left:96px;top:534px"><span class="t-sm c-pale">Companions</span><span class="t-fig c-paper" style="font-size:16px">2</span></div>
+<div class="slip" style="left:110px;top:584px;width:196px;height:66px;transform:rotate(2deg);opacity:.9"></div>
+<div class="slip" style="left:96px;top:580px;width:196px;height:66px"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Iron Ox's Debt</div><div style="padding:0 10px;font-size:14px">Tie Niu</div></div>
+<div class="pin bronze" style="left:194px;top:586px"></div>
+<div class="plank" style="left:318px;top:534px"><span class="t-sm c-pale">Jade River Valley</span><span class="t-fig c-paper" style="font-size:16px">26</span></div>
+<div class="slip" style="left:338px;top:586px;width:220px;height:66px;transform:rotate(-2.5deg);opacity:.85"></div>
+<div class="slip" style="left:330px;top:583px;width:220px;height:66px;transform:rotate(1deg);opacity:.92"></div>
+<div class="slip" style="left:318px;top:580px;width:220px;height:66px"><div style="padding:8px 10px 0;font-weight:700;font-size:16px">Echoes in Bronze</div><div style="padding:0 10px;font-size:14px">Elder Hu · and <span class="t-fig">25</span> more</div></div>
+<div class="pin bronze" style="left:428px;top:586px"></div>
+<div class="abs t-xs c-mist" style="left:570px;top:586px;width:236px;line-height:1.35">Stoneford <span class="t-fig">19</span> · Lotus Ferry <span class="t-fig">5</span><br>Greyreed Hamlet <span class="t-fig">1</span> · Jade Sect <span class="t-fig">1</span><br>Tap a stack to spread it.</div>
+
+<!-- ================= the chosen slip, taken down and held at the right ================= -->
+<div class="shadow-under" style="left:846px;top:124px;width:352px;height:548px"></div>
+<div class="slip" style="left:836px;top:110px;width:354px;height:556px;transform:rotate(0.6deg)">
+  <div class="head-cin" style="height:34px;padding:7px 16px 0;font-size:16px;font-weight:700">Main · Chapter 17</div>
+  <div style="padding:8px 16px 0;font-family:var(--f-display);font-weight:700;font-size:31px;line-height:1.05">The Lantern Run</div>
+  <div style="padding:2px 16px 0;font-size:14px">From Warden He, at the Starsea Launch</div>
+  <svg width="322" height="56" viewBox="0 0 322 56" style="margin:6px 16px 0;display:block">
+    <path d="M 16 34 C 80 4 130 56 190 30 C 230 14 262 24 306 34" fill="none" stroke="#2b2118" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <circle cx="16" cy="34" r="10" fill="#2c9e8f" stroke="#2b2118" stroke-width="2.5"/>
+    <circle cx="306" cy="34" r="10" fill="#e5b84c" stroke="#2b2118" stroke-width="2.5"/>
+    <path d="M 140 30 l 18 0 l -3 8 l -12 0 z M 149 30 l 0 -15 l 9 11 z" fill="#2b2118"/>
+  </svg>
+  <div style="position:absolute;left:14px;top:170px;font-size:14px;width:120px;line-height:1.25"><b>You are here</b><br>Starsea Launch</div>
+  <div style="position:absolute;left:128px;top:152px;font-size:14px;width:80px;text-align:center" class="jd">by skiff</div>
+  <div style="position:absolute;left:190px;top:170px;font-size:14px;width:150px;text-align:right;line-height:1.25"><b>Arrival Quay</b><br>Lanternfall Harbor</div>
+  <div style="position:absolute;left:16px;top:212px;width:322px;font-size:16px;line-height:1.3">Your chart ends at a field of lanterns. The ring has lit for you. Sail, and tell the harbour there who sent you.</div>
+  <div style="position:absolute;left:16px;top:282px;width:322px;font-size:15px;line-height:1.35">
+    <div><span class="red t-sym">➤</span> <b>Sail the Lantern Run from the Starsea Launch</b></div>
+    <div style="margin-top:2px">○ Report to the harbourmaster on the Arrival Quay</div></div>
+  <div style="position:absolute;left:16px;top:368px;font-size:14px;font-weight:700" class="red">Rewards</div>
+  <div style="position:absolute;left:16px;top:388px;width:322px;font-size:15px;line-height:1.4">
+    <div><img src="../../../art/icons/items/sage_crystal.png" style="width:24px;height:24px;vertical-align:-6px;image-rendering:pixelated"> <span class="t-fig">5</span> Sage Crystals</div>
+    <div>A Codex entry: Lanternfall Harbor</div>
+    <div>Realm progress: <span class="t-fig">4%</span> of the stage</div>
+    <div style="margin-top:4px">Then the story goes on: <b>Crystal and Jade</b></div></div>
+</div>
+<div class="pin" style="left:1012px;top:118px"></div>
+<div class="k-btn abs" style="left:852px;top:602px;width:160px;height:52px">Go</div>
+<div class="k-btn2 abs" style="left:1022px;top:604px;width:152px;height:48px;font-size:20px">Untrack</div>
+
+</div></body></html>
