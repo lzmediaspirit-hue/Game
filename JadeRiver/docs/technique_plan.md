@@ -16,7 +16,8 @@ special occasions like quests or monster drops or finding it in the game, like a
    art and save moves in (§4).
 5. It designs Lost Arts: found only in the world, shown before they are found as a silhouette and a hint, with six lost
    lineages, tied to P7b's sources and the world plan's hidden maps (§5).
-6. It says how so many arts avoid power creep, the loadout limits, and what the stat scaling research will set (§6).
+6. It says how so many arts avoid power creep, the loadout limits, and how the stat scaling research's Might and par
+   numbers set the budgets (§6).
 7. It sizes the data and names the headless tests that keep it valid (§7).
 8. It orders the build across v1.2.x, v1.3, v1.4 and v1.5 (§8), then lists the open questions with recommendations and
    the decisions taken.
@@ -353,15 +354,16 @@ path's **foundations**: it can be realised the day the path is walked.
 
 ### 3.5 The ring's budget
 
-| Ring | Grade bonus | Extra targets | Reach | `vfx.tier` |
-|---|---|---|---|---|
-| 1–4 | +0, 5, 10, 15% | — | the family's reach | 1, 2, 3, 3 |
-| 5–8 | +20, 25, 30, 35% | +1 from ring 5 | +2% a ring, within S43's family caps | 4, 4, 5, 5 |
-| 9–13 | +40, 45, 50, 55, 60% | +2 from ring 9 | +2% a ring | 6, 6, 7, 7, 7 |
+| Ring | Grade bonus | Form budget (the par main art's multiplier) | Extra targets | Reach | `vfx.tier` |
+|---|---|---|---|---|---|
+| 1–4 | +0, +10, +20, +20% | rises about 1.2 → 1.5 → 2.0 → 2.2 as heavier forms open | — | the family's reach | 1, 2, 3, 3 |
+| 5–8 | +20% | flat, about 2.2 | +1 from ring 5 | +2% a ring, within S43's family caps | 4, 4, 5, 5 |
+| 9–13 | +20% | flat, about 2.2 | +2 from ring 9 | +2% a ring | 6, 6, 7, 7, 7 |
 
-The grade bonus is one linear term, `g × (ring − 1)` with `g = 0.05` until the stat scaling research sets it (§6).
-Today's +10% (Earth) and +20% (Heaven) are folded into those rows' `mult` at migration, so no existing art changes
-strength.
+The grade bonus is the stat scaling research's skill-bucket grade (`docs/research/stat_scaling_research.md` §6.3):
+today's Common, Earth and Heaven values, +0, +10 and +20%, with every ring from 3 on at +20%. No existing art changes
+strength. Rings past Act I bring new forms, targets, reach and verbs, not a bigger multiplier: the realm's growth is
+Might's (×1.30 a great realm), and the growth of a technique over a basic blow is mastery's and the Dao's (§6.1).
 
 ### 3.6 Rules that keep arts distinct
 
@@ -489,6 +491,9 @@ green #6aa82c, Confucian ink-violet #4a5ab8.
   its name is brushed across the top of the screen for 0.8 s (skipped inside the flash gap). `lost_art_found`: the
   rare-drop row's layers with a rubbing unrolling and the art's name. `keystone_realised`: the chart's ink spreads from
   the node for 1.2 s on the Techniques page.
+- **Numbers**: a technique's damage numbers of 10,000 and more print through `UiKit.short` ("527K"; the research's
+  §6.5); a multi-hit art prints each hit, and one total instead for arts of more than three hits when the player sets it
+  (the research's question 10, with P6's stacking in `docs/moments_design.md` §5.5).
 - **Poses**: every form uses an action in the catalog (§3.2); `data_validation` fails a row whose `action` is not in
   `parts.json` `_actions` (or `meditate_burst`). A technique adds FX, never a pose. Any future pose goes through
   `AGENTS.md`'s full review first.
@@ -500,10 +505,11 @@ The Water tree, the jian sector, ring 2 (Earth grade):
 - **Form**: the generator's pick gives the jian's Arc here. Crescent Arc, the jian's Arc in the Wind tree, sits on the
   same ring and is known to Tester; rule 2 allows this second tree and no third.
 - **Element**: Water adds its second verb, a pull of 40.
-- **Ring**: +5% grade; no extra target until ring 5; `vfx` tier 2.
-- **Row**: `undertow_crescent`, "Undertow Crescent", jian, water, qi, mult 0.95–1.25, 1 hit, 8 targets, cooldown 5,
-  QI 14, projectile 360 along the depth band with pierce 8, `pull: 40`, action `swing_2`, `vfx {tier 2, shape bolt,
-  particles square}`, icon = Water disc × jian Arc mark × Earth rim.
+- **Ring**: Earth grade, +10% when it strikes; no extra target until ring 5; `vfx` tier 2. On the card: 99–132%.
+- **Row**: `undertow_crescent`, "Undertow Crescent", jian, water, qi, mult 0.90–1.20 (the Arc's line; the grade is
+  applied as it strikes), 1 hit, 8 targets, cooldown 5, QI 14, projectile 360 along the depth band with pierce 8,
+  `pull: 40`, action `swing_2`, `vfx {tier 2, shape bolt, particles square}`, icon = Water disc × jian Arc mark × Earth
+  rim.
 - **Path art** in the same cell: the jian's rotation puts Confucian on ring 2 of the Water tree, so
   `upright_undertow_script`, "Upright Undertow Script": a Pillar of written water on one foe, half its multiplier on
   Insight, the Confucian stamp on its emblem.
@@ -647,7 +653,7 @@ The 107 are the tree's opening gift to an established character, shown on the Te
 
 ### 4.10 The page: tabs, and each tab's look
 
-The Techniques page drops the window with panels (the user's note: every page should feel unique). What stays from
+The Techniques page drops the window with panels (decision 14: every page its own). What stays from
 the shared kit: the close button, primary buttons with inked labels (decision 10), the text tokens, 48 px targets and
 the type sizes. Everything else is the page's own.
 
@@ -847,22 +853,56 @@ Totals: singles 20 + 12 + 12 + 14 + 14 + 6 = 78; lineages 6 × 6 = 36; **114 los
 
 ## 6. Balance
 
+The numbers come from the stat scaling research (`docs/research/stat_scaling_research.md`, merged, its recommendations
+taken; roadmap phase P12 · Might). It puts the realm's power in **Might**, ×1.30 a great realm (×1.17 at the major, the
+rest over its Levels), on the player's attacks, HP and defences and on every monster of the same Level. Its par
+character hits **136K** with a basic blow and **527K** with a technique at Level 99 (922K on a crit), 611K and 2.69M at
+Level 120, 5.95M and 27.2M at Level 165. Techniques ride Might through the attack stat; nothing in this plan scales
+with the realm on its own.
+
 ### 6.1 Why four thousand arts need not creep
 
-1. **Budgets by form and ring, not by row.** Every art's expected damage per cast, per Qi and per cooldown second sits
+1. **Might carries the scale, techniques the shape.** The absolute growth (×15 by Level 99, ×153 by 165) is the
+   realm's. A technique's own terms are the research's skill bucket: its multiplier and grade, +8% a mastery tier, +5%
+   a tier of its Dao (`CombatRules.resolve` step 4, unchanged).
+2. **Budgets by form and ring, not by row.** Every art's expected damage per cast, per Qi and per cooldown second sits
    within ±10% of its form's line at its ring (§3.6 rule 5). A new art is a new shape or verb, not more damage.
-2. **Grade is linear and small.** `g × (ring − 1)`: with `g = 0.05` a ring-13 art is 1.6× a ring-1 art at equal
-   mastery, while the attack stat grows by two orders of magnitude over the same Levels (stat scaling research).
-3. **Old arts climb with mastery.** An art's effective ring is `min(the band's ring, home ring + mastery tier − 1)`: a
-   Common palm mastered to tier 5 strikes as a ring-5 art. Favourites stay viable; mastery (and its Manual Pages) is how.
-4. **One stack of each.** Grade, mastery (+8% a tier) and Dao (+5% a tier) stay the only multipliers on an art, as in
-   `CombatRules.resolve` step 4; tree passives are additive inside existing layers; nothing new multiplies.
+3. **The ring's multiplier flattens after Act I.** Grade is +0, +10, +20% (Common, Earth, Heaven) and stays +20% from
+   ring 3; the form budgets rise through Act I as heavier forms open and are flat from ring 4 (§3.5). A ring-12 art is
+   not stronger than a ring-4 art of the same form; it reaches further, strikes more foes and carries a later verb.
+4. **Old arts climb with mastery.** An art's effective ring is `min(the band's ring, home ring + mastery tier − 1)` for
+   its grade, targets and reach: a Common palm mastered to tier 3 strikes with Heaven's +20%. Favourites stay viable;
+   mastery (and its Manual Pages) is how.
+5. **No new multiplier.** Tree passives, keystones' passive halves and path rules feed the research's buckets
+   (damage%, attack%, crit), never Might and never its short **final damage** list (natal treasure, legendary chain,
+   Genesis Mastery).
+
+**The line a par character's main art must meet.** The research's technique hit over its basic hit, which the form
+budgets are tuned to (the par main art is the band's best single-target form at par mastery and Dao: the weapon's Dao at
+tier 1 by Qi Kindling, 3 by Spirit Awakening, 5 by Will Manifest, 6 by Monarch; the art's mastery climbing 3 to 6):
+
+| Level | 20–30 | 45 | 60 | 72–80 | 90–99 | 100–108 | 117–120 | 130–165 | 200 |
+|---|---|---|---|---|---|---|---|---|---|
+| Technique hit ÷ basic hit (research §6.2) | 1.5 | 2.3 | 3.6 | 3.7 | 3.9 | 4.1 | 4.4 | 4.6 | 4.5 |
+| Par technique hit | 420–1,246 | 7,402 | 39.5K | 94.5K–154K | 313K–527K | 726K–999K | 1.77M–2.69M | 4.74M–27.2M | 100M |
+
+From Level 60 the ratio grows by only 27% to Level 165, which mastery (tier 4 to 6: +32% to +48%) and the Dao (tier 3
+to 6: +15% to +30%) nearly give on their own (×1.21); that is why the ring adds no multiplier there.
 
 ### 6.2 Tree passives
 
-Passages, notables and keystones' passive halves add into today's additive stats (`pct_add` elemental power, attack,
-cost reduction, status chance), each capped per character by the stat scaling research. The proposal until then: tree
-passives give at most +30% to any one stat, and a notable's conditional effect counts toward its stat's cap.
+Passages, notables and keystones' passive halves feed the research's buckets: the one additive **damage%** bucket
+(elemental power by element, a family's damage, boss damage from keystones that name it), **attack%** (rarely, from
+notables), crit and crit damage within the cap of ×3.0, cost reduction and status chance. The research's par character
+has +13% damage% at Level 99 and +20% at 165 from sets and named pieces; the trees add at most **+15% by Level 99 and
++25% by Level 165** to any one bucket, a notable's conditional effect counting toward it, and the par character built by
+P12's `balance_sim` places its Realisations along its main family's route so these shares are inside par (monster HP is
+3.5 par basic hits, so time to kill holds). `elemental_power` keeps its cap of 150%.
+
+**Percent-of-HP effects.** Poison (Venom Needles 2% a second, Miasma Palm 3%), the Wood bloom and any path art that
+takes a share of the target's health are capped against elites and bosses at 60% of the caster's attack a second: on a
+Might-scaled boss (the Nebula Leviathan at 127M) an uncapped 2% a second would deal six times par DPS. Shares of the
+caster's own HP (Blood costs, Buddhist shields) scale with Might as HP does and need no cap.
 
 ### 6.3 Loadout limits
 
@@ -881,10 +921,12 @@ passives give at most +30% to any one stat, and a notable's conditional effect c
   Qi against the band's baseline (the stat curve's expected), within ±15%; no family more than 10% above the median
   family of its band; a path art's net value (damage less the value of its HP or Composure cost) within ±10% of its
   cell's orthodox art; every element's verb priced so that Water's pull and Formless's +10% land on one line.
-- **The stat scaling research** (`docs/research/stat_scaling_research.md`, in progress beside this plan) sets the
-  numbers this plan leaves open: the absolute damage curve (a high-level character deals hundreds of thousands), `g`,
-  each form's budget constants, the cap on tree passives, and the rate of Realisations if the curve's pacing asks for it.
-  This plan fixes the shapes and the relative budgets only.
+- **Against the research's par table** (`balance_sim`, once P12 lands): the par character with a par tree and its
+  band's best eight arts meets the par basic and technique hits of §6.1 within ±15% at every Level the table gives
+  (136K and 527K at 99), and the percent-of-HP cap holds on every boss of `docs/boss_design.md`. The trees' form budgets
+  are tuned after P12 (Might) is in; if the trees come first, they are tuned to today's curve and re-run with P12.
+- This plan fixes the shapes, the relative budgets and the caps; the research fixes the absolute curve. If the curve
+  moves (its §7 leaves Might's step and the realm gap open to review), only Might changes and every ratio here holds.
 
 ---
 
@@ -913,7 +955,7 @@ passives give at most +30% to any one stat, and a notable's conditional effect c
 |---|---|
 | `data_validation` `technique_suite` | counts per element, family, path and act equal §2's for the acts built; rules 1–6 of §3.6; every row's `action` in the catalog; every row has `vfx`; every cell of a built ring is filled; every node reachable from its gate; every twin, trunk and channel exception listed; names unique, lexicon-only, not on the denylist, ≤ 28 characters |
 | `data_validation` `lost_art_suite` | every lost art has a source row (loot table, stele, room object, quest reward, event) and three hint strings; every lineage has six pieces with sources; lost manuals are excluded from the random roll |
-| `rules_tests` `tree_suite` | the Realisations formula; realise and unrealise (leaves first, not while slotted, refunds); ring, path, keystone and rest gates; the free reset once a great realm; the heavy-art cap; taught arts light for free; the migration of `ls6_end` (29 placed, 107 to place, every known art still known, mastery unchanged) |
+| `rules_tests` `tree_suite` | the Realisations formula; realise and unrealise (leaves first, not while slotted, refunds); ring, path, keystone and rest gates; the free reset once a great realm; the heavy-art cap; the percent-of-HP cap on a boss; taught arts light for free; the migration of `ls6_end` (29 placed, 107 to place, every known art still known, mastery unchanged) |
 | `balance_sim` technique check | §6.4 |
 | `perf_tests` | load time and chart draw time at the v1.5 size (a generated fixture) |
 | `contract_tests` | the new intents (`realise_node`, `unrealise_node`, `reset_tree`, `read_lost_art`, `track_lost_art`) in the catalog; every generated name and hint string present; no intent the page used before disappears |
@@ -926,13 +968,15 @@ passives give at most +30% to any one stat, and a notable's conditional effect c
 ## 8. Build order
 
 Steps 1–9 land in v1.2.x (as P7c, beside P7b and before v1.3's content is written); 10 with v1.3, 11 with v1.4, 12
-with v1.5. Code changes are marked; the rest is data from `tools/data/*.py` through `build_data.py`.
+with v1.5. Steps 4, 7 and 9 tune their budgets against P12's par character (Might), which lands after P7b part 1 and
+before v1.3; if a step runs before P12, it tunes to today's curve and re-runs its `balance_sim` once P12 is in. Code
+changes are marked; the rest is data from `tools/data/*.py` through `build_data.py`.
 
 | # | Change | Lands in | Tests |
 |---|---|---|---|
-| 1 | Re-tag the 56: `form`, `ring`, `cell`, `kin`, `path`, `source_kind`; the Earth and Heaven bonus folded into `mult`; `lost: true` on four; player-facing source names; the `vfx` block if P6 has not added it | `techniques.py`; strings | `data_validation` fields; `balance_sim` shows no change |
+| 1 | Re-tag the 56: `form`, `ring`, `cell`, `kin`, `path`, `source_kind`; the grade kept as today (+0, +10, +20%) and every ring from 3 at +20%; `lost: true` on four; player-facing source names; the `vfx` block if P6 has not added it | `techniques.py`; strings | `data_validation` fields; `balance_sim` shows no change |
 | 2 | The grammar and the generator: forms, elements, paths, rings, lexicons, budgets, poses, `vfx`, the denylist | `technique_grammar.py`, `technique_gen.py` (new) | generator byte-identical twice; §3.6 rules |
-| 3 | The tree rules and state: `TechniqueTreeRules` (pure), intents, `cultivator.tree`, Realisations, respec, the heavy cap, the save migration | **code**: `scripts/simulation/rules/technique_tree_rules.gd` (new), `progression_authority.gd`, `cultivator_state.gd`, `combat_authority.gd` (heavy cap) | `tree_suite`; the migration on every valley_run checkpoint |
+| 3 | The tree rules and state: `TechniqueTreeRules` (pure), intents, `cultivator.tree`, Realisations, respec, the heavy cap, the percent-of-HP cap against elites and bosses (§6.2), the save migration | **code**: `scripts/simulation/rules/technique_tree_rules.gd` (new), `progression_authority.gd`, `cultivator_state.gd`, `combat_authority.gd` (heavy cap, percent-of-HP cap) | `tree_suite`; the migration on every valley_run checkpoint |
 | 4 | Pilot: the Water tree's Act I (12 sectors, rings 1–4: 88 arts) and its four keystones' sources | data; the Falls Pool trial and the Trial Tower's floor 30 | `balance_sim` rings 1–4; `valley_run` realises a Water art |
 | 5 | Icons: the Style A emblem pipeline (the icon study's conversion step 2), discs, form marks, rims, stamps; the 66 existing technique icons redrawn as emblems; run-time composition | `tools/icons/families/techniques.py`; **code**: `UiKit.emblem` | icon build byte-identical; every row resolves |
 | 6 | The page (P5b's Techniques): `TechniqueChart` and its projections (Water, Wood and Fire first, then the rest), the Lost Arts board, the Secret Arts footwork chart, the loadout dock with Inner Arts and the stance | **code**: `techniques_page.gd`, `technique_chart.gd` (new) | `ui_suite`; `contract_tests`; screenshots against these mockups |
@@ -958,11 +1002,11 @@ with v1.5. Code changes are marked; the rest is data from `tools/data/*.py` thro
 | 7 | Icons composed at run time or baked into PNGs | At run time from one atlas; 4,000 baked icons at two sizes would be about 16 MB |
 | 8 | Heavy arts: one per ring? | Yes; keystones and lost arts share the cap |
 | 9 | Rows baked or expanded from the grammar at load | Baked and compact: tests, the wiki and diffs read them; the defaults come from the form |
-| 10 | `g` and the form budgets | The stat scaling research sets them; `g = 0.05` until then, with the fold at migration so nothing changes on day one |
+| 10 | The grade bonus across thirteen rings | The research's skill-bucket grade: +0, +10, +20% and flat from ring 3; the form budgets rise through Act I and are flat after it, so Might and mastery carry the growth (§6.1) |
 | 11 | The sect tree on the Techniques page | No: it stays on Sect › Role; a seal at the sect element's heart opens it |
 | 12 | Scope, if it must shrink | Halve the path arts (one every other ring from ring 2): about 190 a path and 190 a family, still hundreds; never cut the rings or the keystones |
 | 13 | Can a found lost art be taught to the account's other characters? | Singles yes, once its Dao reaches tier 4 ("can teach it"); lineage arts no |
-| 14 | The new page drops the window with panels (the user's note on unique pages); is a pale Water chart readable in the dark HUD's world? | Yes on the page: ink on paper uses `PAPER_INK` (12.3:1), and the loadout dock stays dark so slots read the same on every tab |
+| 14 | The new page drops the window with panels (decision 14); is a pale Water chart readable in the dark HUD's world? | Yes on the page: ink on paper uses `PAPER_INK` (12.3:1), and the loadout dock stays dark so slots read the same on every tab |
 
 ## Decisions taken
 
@@ -979,7 +1023,7 @@ The questions this page left open take the recommended answer, which the user ca
 | Icons | Composed at run time from one atlas |
 | Heavy arts | One per ring |
 | Rows | Baked, compact |
-| `g` | 0.05 until the stat scaling research sets it |
+| Grade across the rings | +0, +10, +20%, flat from ring 3 (the research's skill bucket); form budgets flat after Act I |
 | Sect tree | Stays on Sect › Role |
 | Scope | Keep the full target; halve the path arts if it must shrink |
 | Teaching lost arts | Singles from Dao tier 4; lineages never |
