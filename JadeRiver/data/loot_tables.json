@@ -1249,7 +1249,17 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_high",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "weeping_lantern",
@@ -1284,7 +1294,17 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_high",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "jade_sentinel",
@@ -1406,6 +1426,12 @@
      ],
      "quest": "legend_heron_reach"
     }
+   ],
+   "named": [
+    {
+     "item": "crane_trousers",
+     "chance": 0.002
+    }
    ]
   },
   {
@@ -1505,6 +1531,51 @@
       1
      ],
      "quest": "legend_stone_drum"
+    }
+   ]
+  },
+  {
+   "id": "stormgrass_stag",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "tough_meat",
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.012,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "cloudtop_orchid",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
     }
    ]
   },
@@ -1937,7 +2008,17 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_peak",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "tomb_king",
@@ -4424,7 +4505,24 @@
     "chance": 1.0,
     "mult": 10
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "hour_incense_72",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ]
+    },
+    {
+     "item": "wandering_incense",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
     "chance": 0.5,
     "min_quality": "fine"
@@ -4485,7 +4583,16 @@
     "chance": 1.0,
     "mult": 16
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "spirit_stone_high",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
     "chance": 0.6,
     "min_quality": "fine"
@@ -4546,7 +4653,16 @@
     "chance": 1.0,
     "mult": 16
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "spirit_stone_high",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
     "chance": 0.6,
     "min_quality": "fine"
@@ -4650,7 +4766,16 @@
     "chance": 1.0,
     "mult": 10
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "wandering_incense",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
     "chance": 0.5,
     "min_quality": "fine"

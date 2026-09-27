@@ -904,6 +904,7 @@
   "sim.economy.lot_closed": "This lot has closed.",
   "sim.economy.not_enough": "Not enough %s",
   "sim.economy.not_enough_stones": "Not enough Spirit Stones.",
+  "sim.economy.sold_out_today": "Sold out for today. More tomorrow.",
   "sim.economy.this_cannot_be_sold": "This cannot be sold",
   "sim.economy.unlock_the_item_first": "Unlock the item first",
   "sim.economy.you_hold_the_lot": "You already hold the top bid.",

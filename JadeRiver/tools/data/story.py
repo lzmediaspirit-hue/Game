@@ -2305,7 +2305,9 @@ def side_quests():
             else:
                 ob = o("reach_room", "Visit the Falls Pool at dawn", room=target)
             rq = all_of({"kind": "companion_owned", "companion": cid}) if prev is None else all_of(qdone(prev))
-            rw = [fx("add_bond", amount=10), taels(80)] + ([item("wisp_banner", 1)] if qid == "bai_lings_formation" else [])
+            # Bai Ling's last favour gives the Wisp Banner; Qiu Feng's dawn at the falls, the Crane Robe (P7b, item_plan §3.4).
+            rw = [fx("add_bond", amount=10), taels(80)] + [item(x, 1) for q, x in (("bai_lings_formation", "wisp_banner"), ("crane_falls_at_dawn", "crane_robe"))
+                                                         if q == qid]
             quest(qid, qname, "side", cid, [ob], rw, requires=rq, chapter="companion",
                   offer=["%s has a favour to ask." % name], complete=["%s smiles. \"Thank you.\"" % name])
             prev = qid

@@ -591,7 +591,8 @@ func forge_upkeep_suite() -> void:
 	var sv := Game.submit({"type": "salvage", "items": [int(a.uid), int(b.uid)]})
 	check(sv.get("ok", false) and (sv.items as Array).size() == 1 and c.inventory.find_uid(int(b.uid)) >= 0 and c.inventory.find_uid(int(a.uid)) < 0,
 		"Salvage takes the free piece and never the locked one")
-	check(c.inventory.count("refining_essence") - ess0 == 3, "an Earth piece gives 2 Jadeiron and 3 Refining Essence")
+	var earth_ess: int = ContentDB.entry("salvage", "earth").returns.filter(func(x): return str(x.item) == "refining_essence")[0].count
+	check(c.inventory.count("refining_essence") - ess0 == earth_ess and earth_ess == 5, "an Earth piece gives 2 Jadeiron and 5 Refining Essence (3, half again since P7b)")
 	c.inventory.locked.erase(int(b.uid))
 	# Reroll: the locked affix stays, the reroll costs double, and the old roll can be kept.
 	var fine: Dictionary = add.call("jadeiron_robe", "superior")
@@ -4168,8 +4169,8 @@ func world_events_suite() -> void:
 	Game.economy.auction_roll("valley")
 	var vlots: Array = Game.economy.auction_lots("valley")
 	check(vlots.size() == 5 and vlots.all(func(l): return float(l.ends) <= float(ad.end) and str(l.get("house", "")) == "valley"), "five lots on the day, all closing with it")
-	var pool_ok := vlots.all(func(l): return str(l.item) in ["recipe_scroll", "spirit_egg", "rare_spirit_egg", "manual_page"] or str(l.item).ends_with("_seed"))
-	check(pool_ok, "seeds, recipe scrolls and eggs")
+	var valley_pool: Array = ContentDB.config("auction").get("valley", {}).get("pool", []).map(func(x): return str(x.item))
+	check(vlots.all(func(l): return str(l.item) in valley_pool), "the lots come from the valley's pool: seeds, recipe scrolls, eggs, incense")
 	var lot: Dictionary = {}
 	for l in vlots:
 		if str(l.get("learn", "")) != "": lot = l

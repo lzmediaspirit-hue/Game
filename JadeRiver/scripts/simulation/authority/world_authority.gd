@@ -1654,7 +1654,8 @@ func climb_tower(c, f: int) -> Dictionary:
 	start_room_event(c, ev)
 	return ok({"floor": f})
 
-## A floor cleared: its loot at your feet; the first time, Spirit Stones as well and the next floor opens.
+## A floor cleared: its loot at your feet; the first time, Spirit Stones and the floor's first-clear rewards (P7b: the
+## guardians of floors 15-30 leave a Day's Incense) as well, and the next floor opens.
 func apply_tower_clear(actor_id: String, f: int) -> void:
 	var c = game.character(actor_id)
 	var st: ActorState = game.actor_state(actor_id)
@@ -1665,7 +1666,7 @@ func apply_tower_clear(actor_id: String, f: int) -> void:
 	if st != null and game.room_rt != null:
 		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
 			{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")}), st.plane, 0.0)
-	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}], "tower")
+	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}] + row.get("first", []), "tower")
 	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
 
 ## Sweep: each floor you have cleared gives its loot once a day, straight to the bag, without the fight.

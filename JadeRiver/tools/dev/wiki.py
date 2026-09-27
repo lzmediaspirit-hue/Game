@@ -555,10 +555,12 @@ class Sources:
                 rooms = sorted(d.npc_rooms.get(nid, []))
                 who.append("%s%s" % (d.npc_name(nid), " in " + join_rooms(d, rooms) if rooms else ""))
             where = "%s (%s)" % (sh.get("name", sid), "; ".join(who) if who else "no NPC offers this shop")
-            cur = d.currency_name(sh.get("currency", "silver_tael"))
             for s in sh.get("stock", []):
+                cur = d.currency_name(s.get("currency", sh.get("currency", "silver_tael")))
                 price = "%s %s" % (s["price"], cur) if "price" in s else "at list price in %s" % cur
                 extra = []
+                if s.get("daily"):
+                    extra.append("%d a day" % s["daily"])
                 if s.get("learn"):
                     extra.append("teaches recipe `%s`" % s["learn"])
                 if s.get("requires"):
@@ -764,7 +766,9 @@ def item_stats(d, it):
             if it.get(key) not in (None, "", "none", 0):
                 out.append("%s %s" % (titled(key), it[key]))
         if it.get("set"):
-            out.append("set %s" % titled(it["set"]))
+            out.append("set [%s](#set-%s)" % (titled(it["set"]), it["set"]))
+        if it.get("named"):
+            out.append(named_text(it["named"]))
         for key in ("legend", "imitation", "spirit", "gourd", "furnace", "pet_gear"):
             if it.get(key):
                 v = {k: x for k, x in it[key].items() if k != "barks"} if isinstance(it[key], dict) else it[key]   # a spirit's lines are not stats
@@ -785,6 +789,49 @@ def item_stats(d, it):
             v = it[key]
             out.append("%s: %s" % (titled(key), json.dumps(v, sort_keys=True) if isinstance(v, (dict, list)) else num(v)))
     return out
+
+
+def named_text(nm):
+    """A named piece's tags (item_plan §2.1): archetype, zone, element, path and fixed affixes."""
+    parts = ["named: %s, %s" % (titled(nm.get("archetype", "")), titled(nm.get("zone", "")))]
+    if nm.get("element"):
+        parts.append("element %s (+2%% %s power)" % (titled(nm["element"]), nm["element"]))
+    if nm.get("path"):
+        parts.append("path %s" % titled(nm["path"]))
+    for fx in nm.get("fixed", []):
+        parts.append("fixed %s %s" % (titled(fx["stat"]), bonus_value(fx)))
+    return ", ".join(parts)
+
+
+def bonus_value(b):
+    """A stat modifier's value as the game shows it: a share as a percentage, a count as a number."""
+    v = float(b.get("value", 0))
+    return ("+%s%%" % num(round(v * 100, 2))) if b.get("op") != "flat" or abs(v) < 1 else "+%s" % num(v)
+
+
+def sets_section(d):
+    """Every set: its archetype, tier, element and path, its pieces, and its bonuses (a mechanic by its values)."""
+    lines = ['<a id="sets"></a>', "", "## Sets", "",
+             "A set's bonuses count the pieces worn (a set's weapons share the weapon slot); while the wearer holds the set's "
+             "path its 2-piece bonus counts double (`StatRules.set_modifiers`). A bonus with a mechanic is read by the rule that "
+             "owns it (`StatRules.set_flag`).", ""]
+    for st in d.entries("sets"):
+        lines += ['<a id="set-%s"></a>' % st["id"], "", "### %s" % titled(st["id"]), "",
+                  "- **Archetype**: %s · tier %s%s%s" % (titled(st.get("archetype", "")), st.get("tier", "?"),
+                                                         " · element %s" % titled(st["element"]) if st.get("element") else "",
+                                                         " · path %s" % titled(st["path"]) if st.get("path") else ""),
+                  "- **Pieces**: " + ", ".join(item_link(d, p) for p in st.get("pieces", []))]
+        for need in sorted(st.get("bonuses", {}), key=int):
+            rows = []
+            for b in st["bonuses"][need]:
+                if "flag" in b:
+                    rows.append("%s (%s)" % (titled(b["flag"]), json.dumps({k: v for k, v in b.items() if k != "flag"}, sort_keys=True)))
+                else:
+                    cond = " (%s)" % titled(b["condition"]["element"]) if b.get("condition", {}).get("element") else ""
+                    rows.append("%s %s%s" % (bonus_value(b), titled(b["stat"]), cond))
+            lines.append("- **%s pieces**: %s" % (need, "; ".join(rows)))
+        lines.append("")
+    return lines
 
 
 def item_requirement(d, it):
@@ -831,12 +878,14 @@ def items_page(d, s):
              "", "## Contents", ""]
     for g in order:
         lines.append("- [%s](#group-%s) (%d)" % (group_title(g), re.sub(r"[^a-z0-9]+", "-", g).strip("-"), len(groups[g])))
+    lines.append("- [Sets](#sets)")
     lines.append("- [Banded equipment drops](#banded-equipment-drops)")
     lines.append("")
     for g in order:
         lines += ['<a id="group-%s"></a>' % re.sub(r"[^a-z0-9]+", "-", g).strip("-"), "", "## %s (%d)" % (group_title(g), len(groups[g])), ""]
         for it in sorted(groups[g], key=lambda i: (d.grade_index(i.get("grade", "")), int(i.get("ilv", 0)), i.get("name", ""), i["id"])):
             lines += item_entry(d, s, it)
+    lines += sets_section(d)
     lines += ['<a id="banded-equipment-drops"></a>', "", "## Banded equipment drops", ""] + drop_rules_text(d) + [""]
     for g in sorted(s.banded, key=d.grade_index):
         pieces = sorted((a for a in d.entries("artifacts") if a.get("grade") == g and banded_eligible(d, a)), key=lambda a: a["id"])

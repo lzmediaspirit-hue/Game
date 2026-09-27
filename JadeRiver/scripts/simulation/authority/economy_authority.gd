@@ -97,9 +97,19 @@ func stock(c, shop_id: String) -> Array:
 		# S49: a keeper who likes you (3 and 5 hearts) gives a little off.
 		var fond: float = game.relations.shop_discount(c, shop_id)
 		if fond > 0.0: price = maxi(1, int(round(price * (1.0 - fond))))
+		# P7b: a row may sell only so many a day (`daily`), counted for the character until the daily reset.
+		var left := -1
+		if s.has("daily"):
+			left = maxi(0, int(s.daily) - bought_today(c, shop_id, item_id))
+			if left == 0 and locked == "": locked = Tx.t("sim.economy.sold_out_today")
 		out.append({"item": item_id, "price": price, "currency": str(s.get("currency", currency)), "locked": locked,
-			"rotating": s.get("rotating", false), "learn": str(s.get("learn", "")), "sealed": s.get("sealed", false)})
+			"rotating": s.get("rotating", false), "learn": str(s.get("learn", "")), "sealed": s.get("sealed", false), "left": left})
 	return out
+
+## How many of a daily-limited row the character has bought since the last daily reset.
+func bought_today(c, shop_id: String, item_id: String) -> int:
+	var rec = c.cooldowns.get("bought:%s:%s" % [shop_id, item_id], {})
+	return int(rec.get("n", 0)) if rec is Dictionary and int(rec.get("day", -1)) == Clock.reset_day(Clock.now_utc()) else 0
 
 func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn := "") -> Dictionary:
 	var shop := ContentDB.entry("shops", shop_id)
@@ -113,6 +123,7 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 			break
 	if entry.is_empty(): return fail("not_sold")
 	if entry.locked != "": return fail("locked", {"text": entry.locked})
+	if int(entry.left) >= 0 and count > int(entry.left): return fail("sold_out", {"text": Tx.t("sim.economy.sold_out_today")})
 	# A confirmation snapshots the price; a changed price is rejected, never charged (10.7).
 	if seen_price >= 0 and seen_price != int(entry.price): return fail("stale_price", {"price": entry.price})
 	var total := int(entry.price) * count
@@ -122,6 +133,8 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 				or c.cultivator.inner_arts_known.has(entry.learn): return fail("already_known")
 	elif c.inventory.room_for(item_id, count) < count and not ContentDB.item(item_id).get("type") in ["key", "tool"]: return fail("bag_full", {"text": Tx.t("sim.economy.your_gourd_is_full")})
 	apply_currency(str(entry.currency), -total, "buy")
+	if int(entry.left) >= 0:
+		c.cooldowns["bought:%s:%s" % [shop_id, item_id]] = {"day": Clock.reset_day(Clock.now_utc()), "n": bought_today(c, shop_id, item_id) + count}
 	if entry.learn != "":
 		if ContentDB.has_entry("techniques", entry.learn): game.progression.apply_learn_technique(c.id, entry.learn)
 		elif ContentDB.has_entry("methods", entry.learn): game.progression.apply_learn_method(c.id, entry.learn)

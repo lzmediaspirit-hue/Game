@@ -293,6 +293,74 @@
    }
   },
   {
+   "id": "training_brush",
+   "name": "Training Brush",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "brush",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "unlock",
+      "system": "weapons",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "insight": 8
+   }
+  },
+  {
+   "id": "training_bell",
+   "name": "Training Bell",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "bell",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "unlock",
+      "system": "weapons",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "essence": 8
+   }
+  },
+  {
    "id": "iron_gauntlets",
    "name": "Iron Gauntlets",
    "slot": "weapon",
@@ -428,6 +496,40 @@
    "family": "flute",
    "attribute_req": {
     "insight": 18
+   }
+  },
+  {
+   "id": "iron_brush",
+   "name": "Iron Brush",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "brush",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 18
+   }
+  },
+  {
+   "id": "iron_bell",
+   "name": "Iron Bell",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "bell",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 18
    }
   },
   {
@@ -569,6 +671,40 @@
    }
   },
   {
+   "id": "jadeiron_brush",
+   "name": "Jadeiron Brush",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "brush",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 30
+   }
+  },
+  {
+   "id": "jadeiron_bell",
+   "name": "Jadeiron Bell",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "bell",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 30
+   }
+  },
+  {
    "id": "cloudsteel_gauntlets",
    "name": "Cloudsteel Gauntlets",
    "slot": "weapon",
@@ -704,6 +840,40 @@
    "family": "flute",
    "attribute_req": {
     "insight": 50
+   }
+  },
+  {
+   "id": "cloudsteel_brush",
+   "name": "Cloudsteel Brush",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "brush",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 50
+   }
+  },
+  {
+   "id": "cloudsteel_bell",
+   "name": "Cloudsteel Bell",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "bell",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 50
    }
   },
   {
@@ -845,6 +1015,40 @@
    }
   },
   {
+   "id": "mistjade_brush",
+   "name": "Mistjade Brush",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "brush",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 65
+   }
+  },
+  {
+   "id": "mistjade_bell",
+   "name": "Mistjade Bell",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "bell",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 65
+   }
+  },
+  {
    "id": "stormsteel_gauntlets",
    "name": "Stormsteel Gauntlets",
    "slot": "weapon",
@@ -983,6 +1187,40 @@
    }
   },
   {
+   "id": "stormsteel_brush",
+   "name": "Stormsteel Brush",
+   "slot": "weapon",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 2,
+   "icon": "stormsteel_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 80
+   }
+  },
+  {
+   "id": "stormsteel_bell",
+   "name": "Stormsteel Bell",
+   "slot": "weapon",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 2,
+   "icon": "stormsteel_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 80
+   }
+  },
+  {
    "id": "sunsteel_gauntlets",
    "name": "Sunsteel Gauntlets",
    "slot": "weapon",
@@ -1118,6 +1356,384 @@
    "family": "flute",
    "attribute_req": {
     "insight": 92
+   }
+  },
+  {
+   "id": "sunsteel_brush",
+   "name": "Sunsteel Brush",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 92
+   }
+  },
+  {
+   "id": "sunsteel_bell",
+   "name": "Sunsteel Bell",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 92
+   }
+  },
+  {
+   "id": "driftsteel_gauntlets",
+   "name": "Driftsteel Gauntlets",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "driftsteel_jian",
+   "name": "Driftsteel Jian",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "sword",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "driftsteel_spear",
+   "name": "Driftsteel Spear",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "spear",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "driftsteel_short_blade",
+   "name": "Driftsteel Short Blade",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "dagger",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "driftsteel_staff",
+   "name": "Driftsteel Staff",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "staff",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 100
+   }
+  },
+  {
+   "id": "driftsteel_bow",
+   "name": "Driftsteel Bow",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "bow",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 100
+   }
+  },
+  {
+   "id": "driftsteel_heavy_sabre",
+   "name": "Driftsteel Heavy Sabre",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "sabre",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 100
+   }
+  },
+  {
+   "id": "driftsteel_fan",
+   "name": "Driftsteel Fan",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "fan",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "driftsteel_flute",
+   "name": "Driftsteel Flute",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "flute",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 100
+   }
+  },
+  {
+   "id": "driftsteel_brush",
+   "name": "Driftsteel Brush",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 100
+   }
+  },
+  {
+   "id": "driftsteel_bell",
+   "name": "Driftsteel Bell",
+   "slot": "weapon",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftsteel_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 100
+   }
+  },
+  {
+   "id": "lanternsteel_gauntlets",
+   "name": "Lanternsteel Gauntlets",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "lanternsteel_jian",
+   "name": "Lanternsteel Jian",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "sword",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "lanternsteel_spear",
+   "name": "Lanternsteel Spear",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "spear",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "lanternsteel_short_blade",
+   "name": "Lanternsteel Short Blade",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "dagger",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "lanternsteel_staff",
+   "name": "Lanternsteel Staff",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "staff",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 110
+   }
+  },
+  {
+   "id": "lanternsteel_bow",
+   "name": "Lanternsteel Bow",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "bow",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 110
+   }
+  },
+  {
+   "id": "lanternsteel_heavy_sabre",
+   "name": "Lanternsteel Heavy Sabre",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "sabre",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 110
+   }
+  },
+  {
+   "id": "lanternsteel_fan",
+   "name": "Lanternsteel Fan",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "fan",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "lanternsteel_flute",
+   "name": "Lanternsteel Flute",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "flute",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 110
+   }
+  },
+  {
+   "id": "lanternsteel_brush",
+   "name": "Lanternsteel Brush",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "attribute_req": {
+    "insight": 110
+   }
+  },
+  {
+   "id": "lanternsteel_bell",
+   "name": "Lanternsteel Bell",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsteel_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "attribute_req": {
+    "essence": 110
    }
   },
   {
@@ -1499,6 +2115,114 @@
    "stack": 1
   },
   {
+   "id": "starsilk_hat",
+   "name": "Starsilk Band",
+   "slot": "hat",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "tied",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "starsilk_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "starsilk_robe",
+   "name": "Starsilk Robe",
+   "slot": "robe",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "disciple",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "starsilk_robe",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "rose"
+  },
+  {
+   "id": "starsilk_trousers",
+   "name": "Starsilk Trousers",
+   "slot": "trousers",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "straight",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "starsilk_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "indigo"
+  },
+  {
+   "id": "starsilk_boots",
+   "name": "Starsilk Slippers",
+   "slot": "boots",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "slippers",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "starsilk_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "lanternsilk_hat",
+   "name": "Lanternsilk Crown",
+   "slot": "hat",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "guan",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsilk_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "lanternsilk_robe",
+   "name": "Lanternsilk Robe",
+   "slot": "robe",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "cardigan",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsilk_robe",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "white"
+  },
+  {
+   "id": "lanternsilk_trousers",
+   "name": "Lanternsilk Trousers",
+   "slot": "trousers",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "martial",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsilk_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "ink"
+  },
+  {
+   "id": "lanternsilk_boots",
+   "name": "Lanternsilk Boots",
+   "slot": "boots",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "boots",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lanternsilk_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
    "id": "starter_gourd",
    "name": "Starter Spirit Gourd",
    "slot": "gourd",
@@ -1618,6 +2342,40 @@
    "gourd": {
     "bag": 55,
     "quick": 18
+   }
+  },
+  {
+   "id": "driftglass_gourd",
+   "name": "Driftglass Gourd",
+   "slot": "gourd",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "driftglass_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 60,
+    "quick": 19
+   }
+  },
+  {
+   "id": "lantern_gourd",
+   "name": "Lantern Gourd",
+   "slot": "gourd",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "lantern_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 65,
+    "quick": 20
    }
   },
   {
@@ -1765,6 +2523,86 @@
    "sell": false
   },
   {
+   "id": "stormsteel_furnace",
+   "name": "Stormsteel Furnace",
+   "slot": "tool_furnace",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "stormsteel_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Blue-black stormsteel that drinks the lightning's heat. Ten pills to a batch.",
+   "furnace": {
+    "band": 0.11,
+    "batch": 10,
+    "filter": 0.33,
+    "yield": 0.16
+   }
+  },
+  {
+   "id": "sunsteel_furnace",
+   "name": "Sunsteel Furnace",
+   "slot": "tool_furnace",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "sunsteel_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Sunsteel set with desert glass that holds the fire's glow. Eleven pills to a batch.",
+   "furnace": {
+    "band": 0.12,
+    "batch": 11,
+    "filter": 0.36,
+    "yield": 0.17
+   }
+  },
+  {
+   "id": "driftsteel_furnace",
+   "name": "Driftsteel Furnace",
+   "slot": "tool_furnace",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "driftsteel_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Driftsteel walls lined with ground driftglass. Eleven pills to a batch, and little ash gets through.",
+   "furnace": {
+    "band": 0.13,
+    "batch": 11,
+    "filter": 0.39,
+    "yield": 0.18
+   }
+  },
+  {
+   "id": "lanternsteel_furnace",
+   "name": "Lanternsteel Furnace",
+   "slot": "tool_furnace",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "lanternsteel_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Cast from a lantern cage's metal; the fire in it never quite goes out. Twelve pills to a batch.",
+   "furnace": {
+    "band": 0.14,
+    "batch": 12,
+    "filter": 0.42,
+    "yield": 0.2
+   }
+  },
+  {
    "id": "cloud_talisman",
    "name": "Cloud Talisman",
    "slot": "talisman",
@@ -1844,6 +2682,370 @@
     "archetype": "beast",
     "zone": "valley"
    }
+  },
+  {
+   "id": "jadeiron_collar",
+   "name": "Jadeiron Collar",
+   "slot": "pet_collar",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "jadeiron_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.11
+   },
+   "desc": "+11% HP for the animal that wears it."
+  },
+  {
+   "id": "cloudsteel_collar",
+   "name": "Cloudsteel Collar",
+   "slot": "pet_collar",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "cloudsteel_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.12
+   },
+   "desc": "+12% HP for the animal that wears it."
+  },
+  {
+   "id": "mistjade_collar",
+   "name": "Mistjade Collar",
+   "slot": "pet_collar",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "mistjade_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.13
+   },
+   "desc": "+13% HP for the animal that wears it."
+  },
+  {
+   "id": "stormsteel_collar",
+   "name": "Stormsteel Collar",
+   "slot": "pet_collar",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "stormsteel_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.14
+   },
+   "desc": "+14% HP for the animal that wears it."
+  },
+  {
+   "id": "sunsteel_collar",
+   "name": "Sunsteel Collar",
+   "slot": "pet_collar",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "sunsteel_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.15
+   },
+   "desc": "+15% HP for the animal that wears it."
+  },
+  {
+   "id": "driftsteel_collar",
+   "name": "Driftsteel Collar",
+   "slot": "pet_collar",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "driftsteel_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.16
+   },
+   "desc": "+16% HP for the animal that wears it."
+  },
+  {
+   "id": "lanternsteel_collar",
+   "name": "Lanternsteel Collar",
+   "slot": "pet_collar",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "lanternsteel_collar",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "hp": 0.17
+   },
+   "desc": "+17% HP for the animal that wears it."
+  },
+  {
+   "id": "iron_beast_talisman",
+   "name": "Iron Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "iron_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.09,
+    "defence": 0.045
+   },
+   "desc": "+9% attack and +4.5% defence for the animal that wears it."
+  },
+  {
+   "id": "cloudsteel_beast_talisman",
+   "name": "Cloudsteel Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "cloudsteel_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.11,
+    "defence": 0.055
+   },
+   "desc": "+11% attack and +5.5% defence for the animal that wears it."
+  },
+  {
+   "id": "mistjade_beast_talisman",
+   "name": "Mistjade Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "mistjade_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.12,
+    "defence": 0.06
+   },
+   "desc": "+12% attack and +6% defence for the animal that wears it."
+  },
+  {
+   "id": "stormsteel_beast_talisman",
+   "name": "Stormsteel Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "stormsteel_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.13,
+    "defence": 0.065
+   },
+   "desc": "+13% attack and +6.5% defence for the animal that wears it."
+  },
+  {
+   "id": "sunsteel_beast_talisman",
+   "name": "Sunsteel Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "sunsteel_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.14,
+    "defence": 0.07
+   },
+   "desc": "+14% attack and +7% defence for the animal that wears it."
+  },
+  {
+   "id": "driftsteel_beast_talisman",
+   "name": "Driftsteel Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "driftsteel_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.15,
+    "defence": 0.075
+   },
+   "desc": "+15% attack and +7.5% defence for the animal that wears it."
+  },
+  {
+   "id": "lanternsteel_beast_talisman",
+   "name": "Lanternsteel Beast Talisman",
+   "slot": "pet_talisman",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "lanternsteel_beast_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "attack": 0.16,
+    "defence": 0.08
+   },
+   "desc": "+16% attack and +8% defence for the animal that wears it."
+  },
+  {
+   "id": "jadeiron_saddle",
+   "name": "Jadeiron Saddle",
+   "slot": "pet_saddle",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "jadeiron_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.11
+   },
+   "desc": "A mount wearing it carries you 11% faster."
+  },
+  {
+   "id": "cloudsteel_saddle",
+   "name": "Cloudsteel Saddle",
+   "slot": "pet_saddle",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "cloudsteel_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.12
+   },
+   "desc": "A mount wearing it carries you 12% faster."
+  },
+  {
+   "id": "mistjade_saddle",
+   "name": "Mistjade Saddle",
+   "slot": "pet_saddle",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "mistjade_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.13
+   },
+   "desc": "A mount wearing it carries you 13% faster."
+  },
+  {
+   "id": "stormsteel_saddle",
+   "name": "Stormsteel Saddle",
+   "slot": "pet_saddle",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "stormsteel_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.14
+   },
+   "desc": "A mount wearing it carries you 14% faster."
+  },
+  {
+   "id": "sunsteel_saddle",
+   "name": "Sunsteel Saddle",
+   "slot": "pet_saddle",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "sunsteel_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.15
+   },
+   "desc": "A mount wearing it carries you 15% faster."
+  },
+  {
+   "id": "driftsteel_saddle",
+   "name": "Driftsteel Saddle",
+   "slot": "pet_saddle",
+   "grade": "sovereign",
+   "ilv": 86,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "driftsteel_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.16
+   },
+   "desc": "A mount wearing it carries you 16% faster."
+  },
+  {
+   "id": "lanternsteel_saddle",
+   "name": "Lanternsteel Saddle",
+   "slot": "pet_saddle",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "lanternsteel_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "pet_gear": {
+    "mount_speed": 0.17
+   },
+   "desc": "A mount wearing it carries you 17% faster."
   },
   {
    "id": "jade_current_hat",

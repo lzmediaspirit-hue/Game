@@ -101,6 +101,18 @@
    "count": 5,
    "start": 18,
    "weight": 1.0
+  },
+  {
+   "item": "spirit_stone_high",
+   "count": 1,
+   "start": 90,
+   "weight": 0.4
+  },
+  {
+   "item": "hour_incense_72",
+   "count": 1,
+   "start": 40,
+   "weight": 0.5
   }
  ],
  "valley": {
@@ -195,6 +207,18 @@
     "count": 1,
     "start": 30,
     "weight": 0.5
+   },
+   {
+    "item": "hour_incense_24",
+    "count": 1,
+    "start": 12,
+    "weight": 0.8
+   },
+   {
+    "item": "wandering_incense",
+    "count": 1,
+    "start": 20,
+    "weight": 0.3
    }
   ]
  }

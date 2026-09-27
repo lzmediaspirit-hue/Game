@@ -108,7 +108,7 @@ _r('mistjade_m', ['#26163E', '#452B70', '#7552AA', '#AC89DE', '#E4D4FF'], '#110A
 _r('silk_navy', ['#18233A', '#26385A', '#3C5584', '#6180B4', '#98B2DC'], '#080C16')
 _r('violetsilk', ['#24163A', '#3E2764', '#5E3F94', '#8A6AC0', '#BCA4E6'], '#0F0819')
 
-GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage']
+GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage', 'sovereign', 'will']
 
 GRADES = {
     'plain': {
@@ -140,5 +140,15 @@ GRADES = {
     'sage': {
         'metal': R['gold'], 'metal2': R['sand'], 'grip': R['clay'], 'wrap': R['red'],
         'accent': R['jade'], 'gem': R['ember'], 'glow': '#FFC870', 'cloth': R['sand'],
+    },
+    # P7b · Sovereign grade (Lantern Star Field): driftsteel, comet iron and driftglass; starsilk, pale as jelly silk.
+    'sovereign': {
+        'metal': R['cometiron'], 'metal2': R['pearl'], 'grip': R['indigo'], 'wrap': R['navy'],
+        'accent': R['starlight'], 'gem': R['ice'], 'glow': '#BFEFFF', 'cloth': R['pearl'],
+    },
+    # P7b · Will grade (Lantern Star Field): lanternsteel, the lantern cages' bronze; lanternsilk in starlight gold.
+    'will': {
+        'metal': R['lanternbronze'], 'metal2': R['starlight'], 'grip': R['shadow'], 'wrap': R['shadow'],
+        'accent': R['gold'], 'gem': R['fire'], 'glow': STAR_GLOW, 'cloth': R['starlight'],
     },
 }

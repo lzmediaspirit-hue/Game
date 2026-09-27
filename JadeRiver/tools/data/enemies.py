@@ -181,6 +181,10 @@ EQUIPMENT = {"normal": (0.012, "flawed"), "elite": (0.08, "common"), "boss": (1.
              "jar": (0.01, "flawed"), "chest": (0.3, "fine"), "chest_deep": (0.5, "fine"), "chest_rich": (0.6, "fine")}
 
 
+def rare(item, chance, count=(1, 1)):
+    return {"item": item, "chance": chance, "count": list(count)}
+
+
 def equipment(kind, chance=None):
     c, q = EQUIPMENT[kind]
     return {"chance": c if chance is None else chance, "min_quality": q}
@@ -189,7 +193,8 @@ def equipment(kind, chance=None):
 # P7b (item_plan §3.4, §4.2): named rows, each rolled on every kill like a rare row (`elite_named`: only by an elite).
 # Big Toad Tan's and the Drowned Abbot's are their boss signatures until P9 adds the pity (boss_design §4.1, §4.3).
 NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.08}]},
-              "drowned_abbot": {"named": [{"item": "drowned_hat", "chance": 0.08}, {"item": "drowned_boots", "chance": 0.08}]}}
+              "drowned_abbot": {"named": [{"item": "drowned_hat", "chance": 0.08}, {"item": "drowned_boots", "chance": 0.08}]},
+              "cloudpeak_roc": {"named": [{"item": "crane_trousers", "chance": 0.002}]}}
 
 
 def build():
@@ -288,10 +293,10 @@ def build():
             ai="humanoid", speed=90, width=28, height=56),
         mob("mist_wolf", (46, 50), "normal", "water", "mist_peak", [d("mist_pelt", 0.5)], [atk("lunge", 0.4, 50, 1.0, dash=60)],
             ai="melee", speed=150, pack=True, tameable=True, width=28, height=34, hidden_in_fog=True),
-        mob("mirror_wisp", (47, 51), "normal", "soul", "mist_peak", [d("mirror_dust", 0.5)],
+        mob("mirror_wisp", (47, 51), "normal", "soul", "mist_peak", [d("mirror_dust", 0.5), d("soul_core_high", 0.02)],
             [atk("soul_flash", 0.6, 240, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
             ai="flyer_ranged", speed=70, flying=True, width=18, height=30),
-        mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4)],
+        mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4), d("soul_core_high", 0.03)],
             [atk("flare", 0.7, 90, 1.0, damage_type="soul", depth=50, both_sides=True,
                  status={"id": "confusion", "chance": 0.3, "power": 1, "duration_s": 2})], ai="flyer", speed=50, flying=True, width=18, height=44,
             elite_first_defeat=["mist_lantern_flame"]),   # the valley's Heavenly Flame (Part 8): the monastery's elite lantern carries it
@@ -310,6 +315,10 @@ def build():
         mob("thunderhorn_rhino", (64, 69), "normal", "thunder", "azure", [d("thunder_horn", 0.4), d("storm_shard", 0.5, (1, 2)), d("tough_meat", 0.4)],
             [atk("thunder_charge", 0.7, 60, 1.35, dash=160, knockback=120, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
             ai="charger", speed=95, width=40, height=50),
+        # P7b (item_plan §2.10, §5.3): the Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's sheet; a wood beast
+        # of rank 8, its core roll gives the peak wood core.
+        mob("stormgrass_stag", (64, 68), "normal", "wood", "azure", [d("tough_meat", 0.45), d("storm_shard", 0.5, (1, 2)), d("cloudtop_orchid", 0.05)],
+            [atk("antler_charge", 0.5, 60, 1.25, dash=140, knockback=80)], ai="charger", speed=120, width=30, height=56, art={"creature": "cloud_stag"}),
         # Azure Expanse (Act II) · Rimefrost Heights and Mirrorwater Lake
         mob("frost_lynx", (67, 70), "normal", "water", "azure", [d("rime_fang", 0.4), d("storm_shard", 0.45), d("frost_lotus", 0.08)],
             [atk("rime_pounce", 0.45, 70, 1.15, dash=120, status={"id": "slow", "chance": 0.35, "power": 0.3, "duration_s": 3})],
@@ -342,7 +351,7 @@ def build():
             [atk("sand_burst", 0.7, 130, 1.5, depth=50, knockback=110),
              atk("glass_spit", 0.8, 300, 1.1, projectile={"speed": 460, "art": "pebble"})],
             ai="burrower", speed=100, width=44, height=80),
-        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2))],
+        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2)), d("soul_core_peak", 0.03)],
             [atk("ge_chop", 0.8, 96, 1.3, depth=36, knockback=90)],
             ai="slow_melee", speed=70, width=22, height=100, race="construct", weak_to="water"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
@@ -713,20 +722,20 @@ def build():
     tables.append({"id": "chest_expanse", "guaranteed": [{"item": "storm_shard", "count": [3, 6], "chance": 1.0},
                                                          {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "stormsteel_ore", "weight": 2, "count": [1, 2]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": equipment("chest_deep")})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [rare("hour_incense_72", 0.03), rare("wandering_incense", 0.02)], "equipment": equipment("chest_deep")})
     tables.append({"id": "chest_tomb", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
                                                       {"item": "sunglass_ore", "count": [2, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
                                                        {"item": "sovereign_settling_pill", "weight": 1, "count": [1, 1]},
                                                        {"item": "ember_cactus", "weight": 1, "count": [1, 2]}]}],
-                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": equipment("chest_rich")})
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [rare("spirit_stone_high", 0.05)], "equipment": equipment("chest_rich")})
     # The pirates' strongbox on the Pirate Deck (chapter 15) and the Starsea Launch's cache.
     tables.append({"id": "chest_wreck", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
                                                        {"item": "comet_iron", "count": [2, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
                                                        {"item": "will_tempering_pill", "weight": 1, "count": [1, 2]},
                                                        {"item": "sky_ink", "weight": 1, "count": [2, 3]}]}],
-                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": equipment("chest_rich")})
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [rare("spirit_stone_high", 0.05)], "equipment": equipment("chest_rich")})
     # v1.2 (S32): jars and chests of the Lantern Star Field. Coins are paid in Sage Crystals (zone coin_scale).
     tables.append({"id": "jar_lantern", "groups": [{"chance": 0.6, "pick": [{"item": "star_shard", "weight": 2, "count": [1, 2]},
                    {"item": "spirit_stone_shard", "weight": 1, "count": [2, 3]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
@@ -735,7 +744,7 @@ def build():
                                                          {"item": "spirit_stone_shard", "count": [3, 5], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]}, {"item": "driftglass", "weight": 2, "count": [1, 2]},
                                                        {"item": "will_tempering_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": equipment("chest_deep")})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [rare("wandering_incense", 0.03)], "equipment": equipment("chest_deep")})
     entries("loot_tables.json", tables)
     return M
 
