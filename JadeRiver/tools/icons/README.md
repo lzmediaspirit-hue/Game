@@ -34,7 +34,7 @@ commit its output (a plain build puts everything back).
 | `items` | 32 (64) | 64 (64, @32) | herbs, minerals, beast parts, fish, misc, tools, talismans, food, pills, qi jades... |
 | `equipment` | 32 (64) | 64 (64, @32) | weapons, armour, cape, soul talisman, gourds |
 | `techniques` | 32 (64) | 64 (64, @48, @32) | round element emblem + motion mark (secret arts: gold rim + studs) |
-| `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline |
+| `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline (converted: `ART = 32`) |
 | `status` | 12 (24) | – | colour-keyed glyphs |
 | `markers` | 12 (24) | – | map / quest markers |
 
@@ -178,14 +178,16 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
 
    Use the family's shared template where one exists, then pass the new
    species or grade as parameters:
-   - pills: add a row to `PILLS` in `pills.py` with the grade, effect mark
-     and pill ramp.
+   - pills: add a row to `PILLS_HD` in `pills.py` with the kind (its vessel), grade, effect mark, pill
+     material and mark ink.
    - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
    - armour: `CLOTH` grade table.
    - fish: `fish(...)` parameters.
    - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
    - techniques: `emblem(element)` + `mark(...)`.
-   - HUD glyphs: add an ASCII block to `hud.G`.
+   - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
+     `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
+     `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
    - status icons and markers: add an ASCII block, using `asciiart.KEY`
      colours.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The
@@ -199,13 +201,15 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
 
 - One bold object, at most one supporting symbol. Upper-left light. A dark outline (legacy: 1 art px of the
   material's dark; HD: the selective outline). No blur and no anti-aliasing (only glow bands use stepped alpha).
-- Pills are read by three things: the vessel silhouette, the pill shape and
-  the effect mark on the label. Grade changes the vessel form and trim, never
+- Pills are read by three things: the vessel silhouette, the pill colour and the effect mark on the label. The
+  vessel is the kind of pill and the grade its material and trim (`pills.VESSEL_OF`, `pills.PILL_GRADES`), never
   only the colour:
-  - Common: squat jar with bronze trim.
-  - Earth: pear-shaped bottle with jade trims.
-  - Heaven: meiping vase with silver bands and a cloud lid.
-  - Mystic: violet vessel with a gold foot, lid and finial, plus a glow.
+  - Jar: what heals and restores. Bottle (on a foot): taken at a breakthrough, a settling or a cleansing. Gourd: a
+    draught that lifts you for a while. Box: remakes the body, a method or an animal. Paper wrap: loose pills.
+  - Common: earthenware, bronze trim, a red cloth cap. Earth: porcelain, jade trims, a jade plug. Heaven: skyware,
+    silver bands, a silver cloud lid. Mystic: mistjade, gold, a violet finial, ring handles, a glow. Sage: sand
+    glaze, gold, an ember finial. Sovereign: driftglass, comet iron, a driftteal finial. Law: night steel with star
+    dots, gold, starlight. Monarch: rose gold set with pearl.
 - Equipment grades:
   - Plain: wood, hemp and straw.
   - Common: iron grey.

@@ -58,10 +58,13 @@ python3 tools/ui/build_valley_map.py             # -> art/ui/maps/valley_map.png
 python3 tools/ui/build_valley_map.py --no-write  # review sheets only (scratchpad art_review/valley_map*.png)
 ```
 
-The Jade River Valley as one painted pixel landscape seen from above at an angle (640 x 320 art px, saved x2 as
-1280 x 640), for the world map page (mockup 16, P5). Every region of `data/zones.json` has its landmark drawn where
-its `map` position lies on `MAP_RECT` ((24, 34, 424, 276) art px), so the page draws its nodes straight on the
-painting. Same rules as the kit: ordered-dithered ramps, stepped mist and glows, no blur, no unseeded randomness; a
-rebuild is byte-identical. The vignettes are 128 x 72 art px crops round each landmark (256 x 144 on screen) for the
-page's side card. The other zones' maps (the Azure Expanse, the Lantern Star Field) will be further scenes in the
-same script.
+The Jade River Valley as one painted pixel landscape seen from above at an angle in late-afternoon light (640 x 320
+art px, saved x2 as 1280 x 640), for the world map page (mockup 16, P5): the river from Crane Falls to Whitewater
+Gorge with a tributary off the range, the northern range behind mist, paddies, terraces, orchards, bamboo, marsh,
+farms, a watermill, roads and bridges between the places, and a dark foreground. Every region of `data/zones.json`
+is an illustrated scene (`sc_<region>`) centred on its `map` position on `MAP_RECT` ((24, 34, 424, 276) art px), so
+the page draws its nodes straight on the painting. The same scene functions paint each region's vignette at twice
+the scale on its own backdrop (`valley_<region>.png`, 128 x 72 art px, 256 x 144 on screen) for the page's side
+card. Same rules as the kit: ordered-dithered ramps, stepped mist and glows, no blur, no unseeded randomness; a
+rebuild is byte-identical. The other zones' maps (the Azure Expanse, the Lantern Star Field) will be further scenes
+in the same script.
