@@ -1,5 +1,40 @@
 # Changelog
 
+## Top-down redesign, Phase 3 begins: the art direction and the prototype room's terrain
+
+- **An art bible for the top-down world** (`docs/redesign/art_bible.md`, decision 31). It sets:
+  - bright ¾ pixel art in the game's own xianxia river-town theme, original throughout;
+  - seven-step material ramps tied to the Style A palette, with a jade river;
+  - one sun in the upper left, and outlines on props only;
+  - 16 px tiles in a 640×360 view, one level = one 16 px face row, a ~38 px body;
+  - six cues on every raised edge: a lit lip, a contact line, a face at most 0.65× its top's value, shade at the foot,
+    side rims, and the body's shadow;
+  - corner-matched path auto-tiles, side-matched shore auto-tiles, and faces from the height grid;
+  - prop rules, water and foliage animation, and what makes it xianxia.
+- **A deterministic tile and prop build** (`tools/art/topdown/build_tiles.py`; `--check` proves two builds
+  byte-identical). It draws a new `art/topdown/proto_tiles.png`:
+  - tops: grass, path, paving, granite, karst rock, pier planks, grey roof tiles, wall caps;
+  - faces with lips: earth bank, retaining wall, cliff, embankment, pier pilings, roof eave, plaster walls with a
+    window and a red door, courtyard wall;
+  - stairs, four frames of jade water, 16 shore cases × 4 frames, 32 grass-to-path transitions and five light
+    overlays.
+- **A new `proto_props.png`.** The house now has a standable-looking tiled roof (decision 29). Willow, lanterns,
+  barrel, crates, notice board, reeds and boat are redrawn. Bamboo, lotus, a red lantern post, an incense burner and a
+  shrub are new.
+- **A Godot TileSet** (`art/topdown/proto_tiles.tres`): terrains for paths (corners) and water (sides), animated water,
+  and every tile's name as custom data.
+- **The manifest** (`data/topdown/proto_tileset.json`, schema 2) adds paint, auto-tile and overlay tables. The Phase 1
+  room and loader are unchanged and now draw the new art. The auto-tiles, rims and prop shadows are drawn by the
+  reference renderer (`compose.py`) and wait for the loader work.
+- **Review images** are in `docs/redesign/phase3/`:
+  - the square mock at 640×360 and ×2;
+  - the whole room and the water loop;
+  - the tile sheet and props at ×4;
+  - the height-levels test in colour and grey;
+  - the loader in the game.
+- **Tests:** `data_validation` `topdown_art_suite` checks the atlas against the loader's names, the props against
+  their sheet, and the TileSet (terrain sets, names, animations).
+
 ## World map plates and the Roll-Call as drawn
 
 - **World map:** each plate names its area and nothing more, and the available and current-area dots are smaller

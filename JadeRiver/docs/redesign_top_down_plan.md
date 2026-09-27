@@ -434,6 +434,23 @@ unless one of these two entries is used.
 - **Gate:** the user approves the body and one outfit in all three facings before any other layer is drawn
   (`AGENTS.md` rule 4).
 
+### As built: Phase 3, first part · art direction and the prototype terrain (2026-09-27)
+
+- **The rules** are in `docs/redesign/art_bible.md` (decision 31). They cover:
+  - the palette ramps and the value plan;
+  - the light, the outlines, and the grid and scale;
+  - the six height cues on every raised edge;
+  - the auto-tile schemes, props, animation, and the xianxia motifs.
+- **The build** is `tools/art/topdown/build_tiles.py`: deterministic, and `--check` proves it. It writes:
+  - the atlas, the prop kit and the manifest (schema 2) that the Phase 1 loader reads, keeping every name, footprint
+    and origin;
+  - a Godot TileSet, `art/topdown/proto_tiles.tres`, for the Phase 4 `TileMapLayer`s: paths match corners, the shore
+    matches sides, the water animates.
+- **`compose.py`** is the reference renderer of the rules. It renders the review images in `docs/redesign/phase3/`.
+- **What waits.** The Phase 1 loader draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
+  contact shade and prop shadows wait for a loader patch after Phase 2, or for the Phase 4 move to `TileMapLayer`s.
+- **Not started:** the body in S/E/N, the weapon and hat rig, and the gallery by facing (the rest of Phase 3).
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:
