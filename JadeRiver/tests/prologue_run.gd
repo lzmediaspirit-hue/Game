@@ -510,6 +510,8 @@ func step_fists() -> void:
 	hit_object("stump_guo", 12)
 	hit_object("dummy_guo", 5)
 	hand_in("uncle_guo", "fists_first")
+	var worn = c().inventory.equipped.get("weapon")
+	check(worn != null and str(worn.id) == "training_gauntlets", "Fists First hands out the training gauntlets, worn at once (%s)" % str(worn))
 	check(not Game.world.portal_state(c(), Game.room_rt.portal_def("east_gate")).open or c().quests.is_done("a_quiet_river_return"),
 		"the East Gate stays shut after Fists First until Guo sends you to the crabs")
 
@@ -536,20 +538,31 @@ func step_crabs() -> void:
 	accept("uncle_guo", "crab_trouble")
 	check(Game.is_revealed("hud:enemy_hp_bars") and Game.is_revealed("hud:system_log"), "enemy HP bars and log revealed")
 	check(go("east_gate") and room() == "lf_reed_shallows", "the East Gate opens with Crab Trouble")
+	keep("Crab Trouble taken")
+	# The first kill in the first rooms drops the character's first weapon (grades.json drop.starter), marked for its
+	# moment (the first-weapon strip and beam), and it is picked up.
+	var first := {"kills": 0, "at": -1, "item": ""}
+	var seen := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("victim_kind", "")) == "enemy": first.kills += 1
+		if n == "loot_dropped" and p.get("first_weapon", false) and int(first.at) < 0:
+			first.at = int(first.kills)
+			first.item = str((p.items as Array).filter(func(i): return i.get("first", false))[0].item)
+	GameEvents.event.connect(seen)
 	var guard := 0
 	while c().inventory.count("crab_shell") < 5 and guard < 30:
 		fight("mudshell_crab", 1, 30.0)
 		step(0.6)
+		for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
 		guard += 1
+	GameEvents.event.disconnect(seen)
+	var fam := str(LootRules.drop_cfg().get("starter", {}).get("first_family", ""))
+	check(int(first.at) == 1 and str(ContentDB.item(str(first.item)).get("family", "")) == fam and c().inventory.count(str(first.item)) >= 1,
+		"the first kill in the Reed Shallows drops the first weapon, a %s, picked up (%s)" % [fam, str(first)])
 	check(c().inventory.count("crab_shell") >= 5, "five crab shells (have %d)" % c().inventory.count("crab_shell"))
 	step(1.5)
 	# The first elite is beaten by a player who neither rests first nor reads its claw; reading it only makes it easy.
 	check(fight("old_snapper", 1, 120.0, 0.0, false, false) == 1, "Old Snapper defeated without resting or dodging (hp %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
 	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
-	var weapons_seen := false
-	for s in c().inventory.bag:
-		if s != null and str(ContentDB.item(str(s.id)).get("slot", "")) == "weapon": weapons_seen = true
-	check(not weapons_seen, "no weapon dropped in the Prologue")
 	check(travel("lf_village"), "back to the village")
 	hand_in("uncle_guo", "crab_trouble")
 	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1, "Plain Straw Hat received")
@@ -656,7 +669,7 @@ func step_entry_trial() -> void:
 	check(fight("trial_puppet", 1, 120.0) == 1, "Trial Puppet beaten")
 	check(c().quests.is_done("entry_trial"), "Entry Trial complete")
 	check(str(c().training_sect.get("rank", "")) == "service_disciple", "Service Disciple")
-	check(c().inventory.equipped.get("weapon") == null, "still bare fists after the Prologue")
+	check(c().inventory.equipped.get("weapon") != null, "a weapon in hand through the Prologue (the weapon slot is open from the start)")
 
 # ------------------------------------------------------------------ the run
 func run() -> void:

@@ -377,6 +377,18 @@ func _handle_preview_args(user_args: Array) -> void:
 					Game.combat._defeat(e, Game.active_id)
 					break
 			if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
+		if str(a).begins_with("--pick-up") and Game.room_rt != null:
+			# Debug tools (S38): --pick-up[=s] picks up everything lying in the room after s seconds (default 1), through the
+			# pick_up intent (previews of the equip prompt a find raises).
+			await get_tree().create_timer(float(str(a).get_slice("=", 1)) if str(a).contains("=") else 1.0).timeout
+			for l in Game.room_rt.loot.duplicate(): Game.submit({"type": "pick_up", "uid": int(l.uid)})
+		if str(a).begins_with("--equip=") and Game.active() != null:
+			# Debug tools (S38): --equip=item wears the newest piece of that item in the bag, through the equip intent.
+			var eb: Array = Game.active().inventory.bag
+			var newest := -1
+			for i in eb.size():
+				if eb[i] != null and str(eb[i].id) == str(a).trim_prefix("--equip=") and (newest < 0 or int(eb[i].get("uid", 0)) > int(eb[newest].get("uid", 0))): newest = i
+			if newest >= 0: Game.submit({"type": "equip", "index": newest})
 		if str(a).begins_with("--cast=") and is_instance_valid(world) and Game.room_rt != null:
 			# Debug tools (S38): --cast=technique[:t] draws a technique's cast and its hits on the foes in reach at its tier
 			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).

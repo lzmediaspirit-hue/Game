@@ -1,5 +1,19 @@
 # Changelog
 
+## Starter gear: a weapon from the start
+
+- **The weapon slot is open from the start, and the first monsters drop weapons** (`docs/research/player_motivation.md`
+  items 1-2). A new character fights bare-handed with the slot drawn empty, not locked (Character and Bag pages); Uncle
+  Guo's Fists First hands out his old Training Gauntlets, worn at once; the `weapons` unlock moves to that lesson and
+  the smiths sell weapons from then on (the weapon Dao stays with the Weapon Hall). The first kill in the Reed Shallows
+  always drops the first weapon, a Training Short Blade, with a "Your first weapon" strip, its beam and the equip
+  prompt. The first rooms' foes (Mudshell Crab, Reedtail Rat, Old Snapper, Wild Boarlet, Mossback Toad) roll starter
+  gear (`grades.json` `drop.starter`, 2% a kill, Old Snapper 25%): training gauntlets, jian, spear or short blade, or
+  plain armour, at the par item Level with a weapon never above par quality, so balance_sim finds no weapon of the
+  first rooms more than 2% over par attack; the character's first three pieces come by the 15th kill without one
+  (`starter_drops`, saved). Tests: rules_tests `starter_gear_suite`, tutorial_order and prologue_run (the slot open,
+  the gauntlets, the first kill's weapon and its equip prompt), balance_sim `_starter_checks`.
+
 ## Slain foes stay slain
 
 - **Monsters no longer all come back the moment you re-enter a room.** Room load rebuilt every spawn point from the

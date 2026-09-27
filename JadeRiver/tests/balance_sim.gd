@@ -72,6 +72,7 @@ func _main() -> void:
 	_posts()
 	_account_month()
 	_par_checks(c, cfg, hours)
+	_starter_checks(c, cfg)
 	_technique_checks(c, cfg)
 	_codex_seals(c)
 	_finish()
@@ -113,6 +114,34 @@ func _par_character(c, lv: int) -> void:
 		{"stat": "crit_chance", "op": "flat", "value": float(crit[0]), "source": "par:crit"},
 		{"stat": "crit_damage", "op": "flat", "value": float(crit[1]), "source": "par:crit"}])
 	StatRules.rebuild(c)
+
+## Starter gear (grades.json drop.starter): no weapon of the first rooms is a power spike. At each Level of their foes,
+## the par character holding Fists First's gauntlets, the first weapon (its affix rolled, the best of 60) or the best
+## starter weapon a foe of that Level drops has a sheet attack within par_tolerance of the par character's own.
+func _starter_checks(c, cfg: Dictionary) -> void:
+	var tol := float(cfg.get("par_tolerance", [0.15, 0.20])[0])
+	var st: Dictionary = LootRules.drop_cfg().get("starter", {})
+	var gift: Dictionary = (ContentDB.entry("quests", "fists_first").get("rewards", []) as Array).filter(func(e): return str(e.get("kind", "")) == "grant_equipment")[0]
+	var rng := RandomNumberGenerator.new()
+	for lv in [1, 2, 3]:
+		_par_character(c, lv)
+		var par_atk: float = c.stats.value("physical_attack")
+		var held := {"gauntlets": LootRules.make_instance(str(gift.item), int(gift.ilv), str(gift.quality), null, 1)}
+		for i in 60:
+			rng.seed = 100 + i
+			held["first %d" % i] = LootRules.make_drop(rng, {"level": lv, "min_quality": str(st.first_quality), "starter": true, "family": str(st.first_family), "first": true}, 0.0, true, 2)
+			for fam in st.get("families", []):
+				held["%s %d" % [fam, i]] = LootRules.make_drop(rng, {"level": lv, "min_quality": "superior", "starter": true, "family": str(fam)}, 0.0, true, 3)
+		var top := 0.0
+		var top_of := ""
+		for k in held:
+			c.inventory.equipped["weapon"] = held[k]
+			StatRules.rebuild(c)
+			if c.stats.value("physical_attack") > top:
+				top = c.stats.value("physical_attack")
+				top_of = "%s (%s %s)" % [k, held[k].id, held[k].quality]
+		print("starter Level %d: par attack %.1f, best starter weapon %.1f, %s" % [lv, par_atk, top, top_of])
+		check(top <= par_atk * (1.0 + tol), "starter gear: at Level %d the best first-room weapon's attack %.1f is within %d%% of par's %.1f (%s)" % [lv, top, int(tol * 100), par_atk, top_of])
 
 ## Decision 27 (research §6.4: no bucket fed from outside its table): every Codex seal's gift together stays inside
 ## the budget account_rules.json sets for each stat, gives no offence stat, and moves the par character's Combat
