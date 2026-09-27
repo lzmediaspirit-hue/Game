@@ -120,6 +120,7 @@ func stats_now() -> Dictionary:
 	for id in ContentDB.config("moments").get("stats", []):
 		match str(id):
 			"level": out[id] = ProgressionRules.level(c)
+			"aura": out[id] = MomentRules.aura_tier(c)
 			"lifespan": out[id] = ProgressionRules.lifespan_of(c)
 			"max_hp", "max_qi", "max_soul": out[id] = float(c.pools.get(str(id)))
 			_: out[id] = c.stats.value(str(id))
@@ -682,27 +683,43 @@ func _draw_card(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 		ci.draw_rect(Rect2(br.position, Vector2(br.size.x * v, br.size.y)), Color(_col(pl, L.bar.get("color"), UiKit.RED), fa))
 		_write(ci, _t(pl, L.bar.label), Vector2(br.end.x + 12.0, br.end.y + 1.0), 14.0, Color(UiKit.MIST, fa), false, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - br.end.x - 16.0)
 
-## The stat rise (§2.3): the numbers that rose since the snapshot, at most seven, one after another.
+## The stat rise (§2.3): each number that rose since the snapshot, before → after with the gain, at most seven, one
+## after another (the aura, when the realm changed the character's look, by name). With `frame`, on a card of that
+## frame under its `title`.
 func _draw_stats(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, still: bool) -> void:
 	var was: Dictionary = pl.slots.get("before", {})
 	var now: Dictionary = pl.slots.get("now", {})
 	var at := Vector2(float(L.at[0]), float(L.at[1]))
-	var n := 0
+	var rose: Array = []
 	for id in ContentDB.config("moments").get("stats", []):
-		if n >= 7: break
-		if not was.has(id) or not now.has(id) or float(now[id]) <= float(was[id]) + 0.0001: continue   # a rise shows what rose
+		if rose.size() < 7 and was.has(id) and now.has(id) and _gain(str(id), float(was[id]), float(now[id])) > 0.0001: rose.append(str(id))
+	if rose.is_empty(): return
+	var row_h := float(L.get("row_h", 36))
+	if str(L.get("frame", "")) != "":
+		var fa := a * _in(lt, 0.0, 0.2)
+		var head := 36.0 if L.has("title") else 0.0
+		var box := Rect2(at.x - 214.0, at.y - 6.0 - head, 500.0, head + 34.0 + rose.size() * row_h)
+		_box(ci, str(L.frame), box, fa)
+		if head > 0.0: _write(ci, _t(pl, L.title), Vector2(box.position.x + 24.0, box.position.y + 32.0), 18.0, Color(UiKit.PALE_GOLD, fa), false,
+			HORIZONTAL_ALIGNMENT_LEFT, box.size.x - 48.0)
+	for n in rose.size():
+		var id: String = rose[n]
 		var k := a * _in(lt, n * float(L.get("gap_s", 0.12)), 0.25)
-		var y := at.y + 20.0 + n * float(L.get("row_h", 36)) + (0.0 if still else 12.0 * (1.0 - k))
-		n += 1
 		if k <= 0.0: continue
-		var val := _stat_text(str(id), float(now[id]))
-		var up := Tx.t("moment.stat.from") % _stat_text(str(id), float(was[id])) if str(id) == "level" else Tx.t("moment.stat.up") % _stat_text(str(id), float(now[id]) - float(was[id]), true)
-		var vw: float = UiKit.body_font().get_string_size(val, HORIZONTAL_ALIGNMENT_LEFT, -1, int(round(20 * UiKit.text_scale()))).x if UiKit.is_numeric(val) else UiKit.text_width(val, 20)
-		UiKit.draw_outlined(ci, Tx.t("moment.stat." + str(id)), Vector2(at.x - 40.0, y), 16, Color(UiKit.MIST, k), HORIZONTAL_ALIGNMENT_RIGHT, 158)
-		UiKit.draw_outlined(ci, val, Vector2(at.x + 128.0, y), 20, Color(UiKit.PAPER, k), HORIZONTAL_ALIGNMENT_LEFT, 200)
-		UiKit.draw_outlined(ci, up, Vector2(at.x + 140.0 + vw, y), 16, Color(UiKit.BRIGHT_JADE, k), HORIZONTAL_ALIGNMENT_LEFT, 200)
+		var y := at.y + 20.0 + n * row_h + (0.0 if still else 12.0 * (1.0 - k))
+		var val := Tx.t("moment.stat.arrow") % [_stat_text(id, float(was[id])), _stat_text(id, float(now[id]))]
+		var up := "" if id in ["level", "aura"] else Tx.t("moment.stat.up") % _stat_text(id, _gain(id, float(was[id]), float(now[id])), true)
+		UiKit.draw_outlined(ci, Tx.t("moment.stat." + id), Vector2(at.x - 40.0, y), 16, Color(UiKit.MIST, k), HORIZONTAL_ALIGNMENT_RIGHT, 158)
+		UiKit.draw_outlined(ci, val, Vector2(at.x + 128.0, y), 20, Color(UiKit.PAPER, k), HORIZONTAL_ALIGNMENT_LEFT, 240)
+		if up != "": UiKit.draw_outlined(ci, up, Vector2(at.x + 140.0 + UiKit.text_width(val, 20), y), 16, Color(UiKit.BRIGHT_JADE, k), HORIZONTAL_ALIGNMENT_LEFT, 200)
+
+## What a stat rose by, as the card writes it: a whole-number stat by its rounded numbers (7 → 10 gains 3, whatever the
+## fractions under them), so a rise that rounds away is not shown.
+static func _gain(id: String, was: float, now: float) -> float:
+	return now - was if UiKit._stat_is_percent(id) or id == "aura" else roundf(now) - roundf(was)
 
 static func _stat_text(id: String, v: float, delta := false) -> String:
+	if id == "aura": return Tx.t("moment.aura.%d" % int(v))
 	if UiKit._stat_is_percent(id): return "%.1f%%" % (v * 100.0)
 	return Tx.t("moment.years") % UiKit.fmt(v) if id == "lifespan" and not delta else UiKit.fmt(v)
 

@@ -423,6 +423,16 @@
    ],
    "polled": "The Lost Arts board reads lost_arts_view when it draws; the art's own learned event carries the toast."
   },
+  "technique_learned": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "technique"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

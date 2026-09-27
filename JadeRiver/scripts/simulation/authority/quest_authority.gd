@@ -608,6 +608,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"kill":
 			if o.has("room") and str(p.get("room", "")) != str(o.room): return 0
 			if o.has("role"): return 1 if str(p.get("role", "")) == str(o.role) else 0
+			if o.get("elite", false) and not p.get("elite", false): return 0   # the herd's elite, not any of its kind
 			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
 		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
 		"settle_post": return 1 if str(p.get("source", "post")) in ["post", "incense"] else 0   # this character's own incense counts (P5)
@@ -752,7 +753,8 @@ static func leads(kind: String) -> bool:
 	return kind in STORY_KINDS or kind == "next"
 
 ## The story's quests that wait next, in story order (chapter, then data order): of `kinds`, not done, not taken, and
-## every quest they name to follow done.
+## every quest of those kinds they name to follow done (one that follows a lesson, as Strange Tracks follows the Weapon
+## Hall, waits next: _story_step follows it to the lesson).
 func story_waiting(c, kinds: Array) -> Array:
 	var keyed: Array = []
 	var all_q: Array = ContentDB.all("quests")
@@ -768,7 +770,8 @@ func story_waiting(c, kinds: Array) -> Array:
 		if c.quests.is_done(str(d.id)) or c.quests.is_active(str(d.id)) or d.get("hidden", false): continue
 		var waits := true
 		for r in d.get("requires", {}).get("all", []):
-			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))): waits = false
+			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))) \
+				and str(ContentDB.entry("quests", str(r.get("quest", ""))).get("kind", "")) in kinds: waits = false
 		if waits: out.append(d)
 	return out
 
@@ -817,9 +820,13 @@ func _story_next(c) -> Dictionary:
 	var d := ContentDB.entry("quests", str(best.quest))
 	var line := ""
 	var room := ""
+	var more: Array = []
 	if best.has("realm"):
 		line = Tx.t("sim.quest.next_level") % [int(ContentDB.realm(str(best.realm)).get("level", 0)), ContentDB.name_of("realms", str(best.realm))]
 		room = objective_room(c, {}, {"kind": "reach_realm", "realm": best.realm})
+		# Research player_motivation §3.6: a Level the story waits on is never only a hunt. A lesson or side quest on
+		# offer closes part of it too; with none, meditation and body training do.
+		more.append({"text": _floor_other_way(c), "have": 0, "need": 1, "done": false})
 	else:
 		# Where the giver stands now, the nearest the character can walk to (Lu on the docks, not in his boat).
 		var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
@@ -827,7 +834,17 @@ func _story_next(c) -> Dictionary:
 		line = str(best.get("text", ""))
 		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
 	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
-		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}], "target_room": room}
+		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
+
+## The other way to close a Level the story waits on (the Next entry's second line): a lesson or side quest on offer
+## (its name and giver), else meditation and body training.
+func _floor_other_way(c) -> String:
+	for kind in ["guided", "side"]:
+		for q in c.quests.offered:
+			var d := ContentDB.entry("quests", str(q))
+			if str(d.get("kind", "")) == kind and can_offer(c, d):
+				return Tx.t("sim.quest.next_or_quest") % [str(d.get("name", q)), ContentDB.name_of("npcs", own_npc(c, d.get("giver_any", d.get("giver", ""))))]
+	return Tx.t("sim.quest.next_or_train")
 
 ## What holds a quest of the story back, followed to what can be done now: {active} when it (or the quest it waits on)
 ## is under way; {quest, rank 0} a quest to take now; {quest, rank 2, realm, realm_at} a realm to reach first; {quest,

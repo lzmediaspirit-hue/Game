@@ -703,10 +703,11 @@ def account_rules():
         "new_start": {"room": "lf_fishers_hut", "x": 330, "y": 780},
         "skip_start": {"room": "sf_fairground", "x": 3500, "y": 820, "realm": "bone_forging_2",
                        "quests_done": ["morning_tide", "a_quiet_river", "the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first",
-                                       "a_quiet_river_return", "crab_trouble", "evening_on_the_river", "the_hollow_night", "the_river_token",
+                                       "crab_trouble", "evening_on_the_river", "the_hollow_night", "the_river_token",
                                        "the_willow_path"],
                        "flags": ["night_survived", "prologue_done", "dou_safe", "granny_safe", "ma_safe"],
-                       "effects": [{"kind": "grant_item", "item": "river_token", "count": 1}, {"kind": "grant_item", "item": "plain_straw_hat", "count": 1},
+                       "effects": [{"kind": "grant_item", "item": "river_token", "count": 1}, {"kind": "learn_technique", "technique": "flowing_palm"},
+                                   {"kind": "grant_item", "item": "plain_straw_hat", "count": 1}, {"kind": "grant_item", "item": "straw_sandals", "count": 1},
                                    {"kind": "grant_item", "item": "herbal_tea", "count": 5}]},
         "skip_prologue_allowed": True,
         # Missed days bank (player_motivation.md item 6, P4): a day away keeps its sect missions on the board and adds
@@ -1066,6 +1067,8 @@ def achievements():
     entries("achievements", A)
     T = [
         {"id": "fleet_footed", "name": "Fleet-Footed", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
+        # Fish-Gutting Fists: Shen Lian beaten in a spar (research player_motivation §3.1, "a rival, and a title").
+        {"id": "river_rival", "name": "River Rival", "modifiers": [{"stat": "coin_find", "op": "flat", "value": 0.01}]},
         # S43 rule 15: the rooftop thieves and the Cloud Steps.
         {"id": "thief_catcher", "name": "Thief-Catcher", "modifiers": [{"stat": "coin_find", "op": "flat", "value": 0.02}]},
         {"id": "cloud_stepper", "name": "Cloud Stepper", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},

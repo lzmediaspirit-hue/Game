@@ -72,10 +72,77 @@ func _main() -> void:
 	_posts()
 	_account_month()
 	_par_checks(c, cfg, hours)
+	_story_fight_bands(hours)
 	_starter_checks(c, cfg)
 	_technique_checks(c, cfg)
 	_codex_seals(c)
 	_finish()
+
+# ------------------------------------------------------------------ story fights against the par character
+## Research player_motivation P1: every fight the story asks for in the first 5 hours (a kill step of a prologue, main
+## or guided quest offered at a realm the sim reaches by then) is against foes whose Levels sit in the full-credit band
+## of the kill gap (stats.json kill_gap_factor: -4 to +4 of the character) around the par character at that step: the
+## Level of the realm the quest is offered at, followed back through what it waits on. The foes are the kill step's
+## spawns in its room (the step's own, else the quest's target room, else every room that spawns them).
+func _story_fight_bands(hours: Dictionary) -> void:
+	var gap: Array = ContentDB.stat_const("kill_gap_factor", [])
+	var hi_d := int(gap[0].min_diff) - 1
+	var lo_d := int(gap[1].min_diff)
+	var max_h := 5.0
+	var memo := {}
+	var bad: Array = []
+	var seen := 0
+	for q in ContentDB.all("quests"):
+		if not str(q.get("kind", "")) in ["prologue", "main", "guided"]: continue
+		var rk := _offer_realm(q, memo, 0)
+		if rk != "mortal" and (not hours.has(rk) or float(hours[rk]) > max_h): continue
+		var lv := int(ContentDB.realm(rk).get("level", 0))
+		for o in q.get("objectives", []):
+			if str(o.get("kind", "")) != "kill" or str(o.get("enemy", "any")) == "any": continue
+			var rooms: Array = [str(o.room)] if o.has("room") else []
+			if rooms.is_empty() and _spawn_levels(str(q.get("target_room", "")), str(o.enemy)).size() > 0: rooms = [str(q.target_room)]
+			if rooms.is_empty(): rooms = ContentDB.rooms.keys().filter(func(r): return _spawn_levels(str(r), str(o.enemy)).size() > 0)
+			for r in rooms:
+				for band in _spawn_levels(str(r), str(o.enemy)):
+					seen += 1
+					if int(band[0]) < lv + lo_d or int(band[1]) > lv + hi_d:
+						var p := StatRules.par(lv)
+						bad.append("%s: %s Lv %d-%d in %s at %s (Level %d; par attack %d, HP %d)" % [q.id, o.enemy, int(band[0]), int(band[1]), r, rk, lv,
+							int(p.get("attack", 0)), int(p.get("max_hp", 0))])
+	print("story fights in the first %.0f h: %d spawn bands checked against the par Level" % [max_h, seen])
+	check(seen >= 8 and bad.is_empty(), "every story fight of the first %.0f hours is within %d..%+d Levels of the par character at its step (%s)" % [max_h, lo_d, hi_d, "; ".join(bad)])
+
+## The realm a story quest is offered at: the highest realm among its requirements, its unlock's trigger and those of
+## every quest it waits on (and the quest whose `next` it is), all the way back.
+func _offer_realm(q: Dictionary, memo: Dictionary, depth: int) -> String:
+	var id := str(q.id)
+	if memo.has(id): return str(memo[id])
+	var best := "mortal"
+	if depth > 30: return best
+	var conds: Array = q.get("requires", {}).get("all", []).duplicate()
+	for u in ContentDB.all("unlocks"):
+		if str(u.get("quest", "")) == id: conds.append_array(u.get("trigger", {}).get("all", []))
+	var before: Array = []
+	for k in conds:
+		match str(k.get("kind", "")):
+			"realm_at_least": if ContentDB.realm_position(str(k.realm)) > ContentDB.realm_position(best): best = str(k.realm)
+			"quest_done", "quest_accepted", "quest_active": before.append(str(k.quest))
+	for p in ContentDB.all("quests"):
+		if str(p.get("next", "")) == id: before.append(str(p.id))
+	for b in before:
+		var r := _offer_realm(ContentDB.entry("quests", b), memo, depth + 1) if ContentDB.has_entry("quests", b) else "mortal"
+		if ContentDB.realm_position(r) > ContentDB.realm_position(best): best = r
+	memo[id] = best
+	return best
+
+## The Level bands [lo, hi] of a room's spawns of `enemy` (a wild pet to tame aside).
+func _spawn_levels(room: String, enemy: String) -> Array:
+	var out: Array = []
+	for sp in ContentDB.room(room).get("spawns", []):
+		if str(sp.get("enemy", "")) == enemy and not sp.get("wild_pet", false):
+			var l = sp.get("level", [1, 1])
+			out.append([int(l[0]), int(l[-1])] if l is Array else [int(l), int(l)])
+	return out
 
 # ------------------------------------------------------------------ P12 the par character (research §6.1, §6.7)
 ## The par character (StatRules.par) built with the real rules at Level `lv` on the sim's character: its realm, the

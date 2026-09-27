@@ -686,7 +686,10 @@ def build():
     QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}],
                    "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
                    "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}],
-                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}]}
+                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}],
+                   # Research §3.3: Guo's three shells and Mei Qing's three grey hides drop every kill while still wanted.
+                   "mudshell_crab": [{"item": "crab_shell", "chance": 1.0, "count": [1, 1], "quest": "crab_trouble"}],
+                   "hollowed_boarlet": [{"item": "grey_hide", "chance": 1.0, "count": [1, 1], "quest": "mei_qings_errand"}]}
     # S47 legendary chains: each piece drops from its foe while that chain's quest still wants it.
     for ch in LEGENDS:
         for pid, pname, src, chance, zone in ch["pieces"]:

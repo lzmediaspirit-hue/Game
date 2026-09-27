@@ -3835,7 +3835,8 @@
   "composure_zero_factor": 1.5,
   "mastery_cost_per_tier": -0.05,
   "mastery_damage_per_tier": 0.08,
-  "dao_damage_per_tier": 0.05
+  "dao_damage_per_tier": 0.05,
+  "free_without_pool": true
  },
  "cp": {
   "hp_div": 10,

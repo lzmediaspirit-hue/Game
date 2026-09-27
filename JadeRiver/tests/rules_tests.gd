@@ -7193,7 +7193,7 @@ func _next_entry_checks(c) -> void:
 	c.quests.tracked = []
 	c.training_sect = {}
 	c.cultivator.realm_key = "bone_forging_1"
-	# A quest to take now, reached through what the next main quest waits on (A Disciple's Chores waits on the Entry
+	# A quest to take now, reached through what the next main quest waits on (Fish-Gutting Fists waits on the Entry
 	# Trial, which waits on the fair): the recruiter who gives it, where she stands.
 	c.quests.done = prologue.merged({"the_willow_path": 1})
 	c.quests.offered = {"the_recruitment_fair": true}
@@ -7204,21 +7204,29 @@ func _next_entry_checks(c) -> void:
 		and ContentDB.name_of("npcs", "recruiter_qing_lan") in str(nx.lines[0].text) and ContentDB.name_of("quests", "the_recruitment_fair") in str(nx.name),
 		"between quests the tracker names the next one, who gives it and where (%s)" % str(nx))
 	check(Game.world.guide_target(c) == "sf_fairground" and not Game.world.guide_step(c).is_empty(), "the direction mark leads toward the recruiter (%s)" % str(Game.world.guide_step(c)))
-	# A Level to reach first: the next main quest (Strange Tracks, Bone Forging 4), the Level, and a hunting ground whose
-	# foes suit the character's Level, the one P12's gap names too.
-	c.quests.done = prologue.merged({"the_willow_path": 1, "the_recruitment_fair": 1, "entry_trial": 1, "a_disciples_chores": 1, "fish_gutting_fists": 1})
+	# A Level to reach first: the next main quest (Strange Tracks) follows the Weapon Hall, which Bone Forging 3 opens:
+	# the Level, a hunting ground whose foes suit the character's Level, and never only the hunt (research
+	# player_motivation §3.6): a second line names a side quest on offer, or meditation and body training.
+	c.quests.done = prologue.merged({"the_willow_path": 1, "the_recruitment_fair": 1, "entry_trial": 1, "fish_gutting_fists": 1})
 	c.quests.offered = {}
 	c.training_sect = {"id": "jade_sect", "rank": "service_disciple"}
-	c.cultivator.realm_key = "bone_forging_3"
+	c.cultivator.realm_key = "bone_forging_2"
 	tr = Game.quest.tracker(c)
 	nx = tr[0] if not tr.is_empty() else {}
 	var hunt := str(nx.get("target_room", ""))
 	var lr: Array = ContentDB.room(hunt).get("level_range", [0, 0])
 	var lv := ProgressionRules.level(c)
-	check(str(nx.get("quest", "")) == "strange_tracks" and nx.get("hunt", false) and str(nx.lines[0].text) == Tx.t("sim.quest.next_level") % [4, ContentDB.name_of("realms", "bone_forging_4")]
-		and str(ContentDB.room(hunt).get("type", "")) == "field" and lv >= int(lr[0]) and lv <= int(lr[1])
-		and Game.quest.floor_gap(c).fields.any(func(f): return str(f[0]) == hunt),
-		"a main quest waiting on a Level: the Level, and where to hunt for it (%s; Level %d)" % [str(nx), lv])
+	check(str(nx.get("quest", "")) == "the_weapon_hall" and nx.get("hunt", false) and str(nx.lines[0].text) == Tx.t("sim.quest.next_level") % [3, ContentDB.name_of("realms", "bone_forging_3")]
+		and str(ContentDB.room(hunt).get("type", "")) == "field" and lv >= int(lr[0]) and lv <= int(lr[1]),
+		"a story step waiting on a Level: the Level, and where to hunt for it (%s; Level %d)" % [str(nx), lv])
+	check(nx.lines.size() == 2 and str(nx.lines[1].text) == Tx.t("sim.quest.next_or_train"), "... and a second way to close it, never the hunt alone (%s)" % str(nx.lines))
+	c.quests.offered = {"a_disciples_chores": true}
+	Game.quest._story_cache = {}
+	nx = Game.quest.tracker(c)[0]
+	check(str(nx.lines[-1].text) == Tx.t("sim.quest.next_or_quest") % [ContentDB.name_of("quests", "a_disciples_chores"), ContentDB.name_of("npcs", "jade_steward")],
+		"... a side quest on offer being that way when there is one (%s)" % str(nx.lines))
+	c.quests.offered = {}
+	Game.quest._story_cache = {}
 	check(Game.world.guide_target(c) == hunt and not Game.world.guide_step(c).is_empty() and not Game.world.route(c, "lf_village", hunt).is_empty() or hunt == "lf_village",
 		"the direction mark and the go button lead to the hunting ground (%s)" % hunt)
 	# A main quest under way: the tracker shows it, and no next entry.

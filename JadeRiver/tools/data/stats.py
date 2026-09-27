@@ -257,7 +257,10 @@ CORE = {
                 "heavenforce": 1.30},
     "qi_edge_per_purity": 0.01,
     "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
-                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05},
+                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05,
+                       # Research §5 change 3: until the body has a Qi pool (Bone Forging 7) a technique runs on breath and
+                       # muscle: no Qi, only its cooldown. Flowing Palm at Bone Forging 1 and the Weapon Hall's art work at once.
+                       "free_without_pool": True},
     "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
     "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
                   "enhance_per_level": 0.05, "fist_weapon_pct": 0.6,

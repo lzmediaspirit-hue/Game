@@ -26,6 +26,13 @@ MENTORS = ["elder_hu", "elder_sung"]
 STEWARDS = ["jade_steward", "cloud_steward"]
 WEAPON_MASTERS = ["jade_weapon_master", "cloud_weapon_master"]
 HALL_MASTERS = ["jade_hall_master", "cloud_hall_master"]
+# The Weapon Hall's second technique (docs/research/player_motivation.md §5 change 3): the first art of the family in
+# hand when the lesson is done, from the arts the training halls and the library's first floor already keep.
+WEAPON_HALL_ARTS = {"none": "tiger_rush", "fists": "tiger_rush", "gauntlets": "tiger_rush", "jian": "cloudpiercing_stroke",
+                    "spear": "jade_thrust", "short_blade": "reedcutter_slash", "staff": "riverstone_sweep", "bow": "twin_reed_shot",
+                    "heavy_sabre": "mountain_cleaver", "fan": "gale_fan"}
+# Lu's four lessons, any order; the fourth done, Guo has Crab Trouble (A Quiet River (Return) is merged into it).
+FOUR_LESSONS = ["the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first"]
 DEACONS = ["jade_deacon", "cloud_deacon"]
 LIBRARIANS = ["jade_librarian", "cloud_librarian"]
 SMITHS = ["jade_smith", "cloud_smith"]
@@ -540,13 +547,16 @@ def unlocks():
     # The weapon slot is open from the start (docs/research/player_motivation.md item 1): Uncle Guo's lesson hands out the
     # training gauntlets and the smiths' weapons are on sale from then on. The weapon Dao stays with the Weapon Hall.
     u("weapons", "Weapons", all_of(qdone("a_quiet_river")), "fists_first", [], prologue=True, toast=False)
-    u("loot", "Loot and Log", all_of(qdone("a_quiet_river_return")), "crab_trouble", ["hud:system_log", "hud:enemy_hp_bars", "hud:elite_marker"], prologue=True)
+    u("loot", "Loot and Log", all_of(*map(qdone, FOUR_LESSONS)), "crab_trouble", ["hud:system_log", "hud:enemy_hp_bars", "hud:elite_marker"], prologue=True)
     u("equipment", "Equipment", all_of(qdone("crab_trouble")), "", ["page:equipment"], prologue=True)
     u("menu", "Menu", all_of(qdone("crab_trouble")), "evening_on_the_river", ["hud:menu"], prologue=True)
     u("cultivate", "Cultivate", all_of(flag("night_survived")), "the_river_token", ["hud:cultivate", "hud:progress_bar", "hud:realm_badge"], prologue=True)
     u("cultivation", "Cultivation page", all_of(flag("night_survived")), "the_river_token", ["page:cultivation"], prologue=True, toast=False)
     u("breakthrough", "Breakthrough", all_of(flag("night_survived")), "the_river_token", [], prologue=True, toast=False)
     u("codex", "Codex", all_of(flag("night_survived")), "the_river_token", ["page:codex"], prologue=True, toast=False)
+    # Lu teaches the first technique with the first breakthrough (docs/research/player_motivation.md §5 change 3): the
+    # skill ring opens at Bone Forging 1, while The River Token is under way, so Flowing Palm takes its slot on hand-in.
+    u("technique_slots_2", "Techniques", all_of(realm("bone_forging_1")), "the_river_token", ["hud:skills", "page:techniques"], same_stage_ok=True)
 
     # Bone Forging
     # The Willow Path follows the River Token (its `next`): it starts once Lu has handed you the token on his boat, not
@@ -630,8 +640,7 @@ def unlocks():
     u("stored_qi", "Stored Qi", all_of(realm("bone_forging_9")), "the_wall", [], same_stage_ok=True, toast=False)
 
     # Qi Kindling
-    u("technique_slots_2", "Techniques", all_of(realm("qi_kindling_1")), "first_technique", ["hud:skills", "page:techniques"])
-    u("dao_tree", "Dao tree", all_of(realm("qi_kindling_1")), "first_technique", ["page:dao"], same_stage_ok=True, toast=False)
+    u("dao_tree", "Dao tree", all_of(realm("qi_kindling_1")), "first_technique", ["page:dao"], toast=False)
     u("storage", "Storage", all_of({"kind": "account_realm", "realm": "qi_kindling_1"}), "", ["page:storage"], scope="account")
     u("alchemy", "Alchemy", all_of(realm("qi_kindling_2")), "mei_qings_furnace", [], effects=[{"kind": "grant_item", "item": "bronze_furnace", "count": 1},
       {"kind": "codex", "entry": "pills_and_the_body"}, {"kind": "codex", "entry": "furnaces_and_fire"}])
@@ -818,22 +827,22 @@ def fx(kind, **kw):
 
 
 def prologue_quests():
+    # Research §3.3: no door shut for a menu lesson. The morning starts under way, Aunt Ping's tea already in hand and
+    # the door open; the Bag is taught when there is something to put on (the equip prompt opens it).
     quest("morning_tide", "Morning Tide", "prologue", "aunt_ping", [
-        o("collect", "Pick up Herbal Tea", 3, item="herbal_tea", consume=False),
-        o("open_page", "Open your Bag", page="inventory"),
         o("use_portal", "Step outside"),
-    ], [], hand_in="", sequential=True, target_room="lf_fishers_hut", chapter="prologue",
-        offer=["You're awake! Good. The river's been muttering all night.", "Fetch the three teas I left about the hut, then look in your bag so you know where things are.",
-               "Then out you go. Lu wants you at the docks."],
-        progress=["Three teas. One on the table, one on the shelf, one by the stove."],
-        complete=["There. Now go on, Lu's waiting."],
+    ], [], hand_in="", auto_accept=True, target_room="lf_fishers_hut", chapter="prologue",
+        on_accept=[item("herbal_tea", 1)],
+        offer=["You're awake! Good. The river's been muttering all night.", "Here, a tea for the road. Lu wants you at the docks."],
+        progress=["Lu's at the docks. Out you go."],
+        complete=["Go on, Lu's waiting."],
         next="a_quiet_river")
     quest("a_quiet_river", "A Quiet River", "prologue", "aunt_ping", [
         o("talk_to", "Find Lu at the Ferry Docks", npc="lu_boatman"),
     ], [], hand_in="lu_boatman", auto_accept=True, requires=all_of(qdone("morning_tide")), target_room="lf_village", chapter="prologue",
         complete=["You're up. The river is too quiet. Fish gone deep, birds gone high.",
                   "Help the village while I watch the water. Little Dou lost his kite, Old Ma needs a hand, Granny Liu has something for you, and Guo wants to see your fists.",
-                  "Come back when you've done all four. Gold marks mean the story. Blue mean lessons."])
+                  "Any order you like. When all four are done, Guo will open the East Gate. Gold marks mean the story. Blue mean lessons."])
     after_lu = all_of(qdone("a_quiet_river"))
     quest("the_runaway_kite", "The Runaway Kite", "prologue", "little_dou", [
         o("deliver", "Fetch the kite from the Ferry Inn roof", item="kite"),
@@ -849,11 +858,10 @@ def prologue_quests():
         complete=["My ladle! I'd have made soup with a spoon for a week."])
     quest("mas_delivery", "Ma's Delivery", "prologue", "old_ma", [
         o("sell_item", "Sell the Old Net to Old Ma", item="old_net"),
-        o("buy_item", "Buy Rice Balls", 2, item="rice_ball"),
     ], [taels(30)], requires=after_lu, target_room="lf_old_ma_store", chapter="prologue", marker="blue",
         on_accept=[taels(10)],
         offer=["Aunt Ping's old net has been in my way for a month. It's under the shelf. Sell it back to me, fair and square.",
-               "Then buy two rice balls. That's how trade works: you give, you get."],
+               "Spend it how you like. My shelves are open: that's how trade works, you give, you get."],
         complete=["See? Coins go round like the river. Here's a little for your trouble."])
     quest("grannys_remedy", "Granny's Remedy", "prologue", "granny_liu", [
         o("use_system", "Bag: put Herbal Tea in Quick-use", system="set_quick_use"),
@@ -870,27 +878,24 @@ def prologue_quests():
         offer=["Race you to the watch tower bell. Loser guts tomorrow's fish.", "Hold the joystick all the way over to sprint. Go!"],
         complete=["What?! ...Fine. Fleet-Footed. Don't let it go to your head."], fail_text="Too slow! Talk to Shen Lian to try again.")
     quest("fists_first", "Fists First", "prologue", "uncle_guo", [
-        o("hit_object", "Punch the training stump", 12, type="training_stump"),
-        o("hit_object", "Hit the dummy after its wind-up", 5, type="training_dummy"),
+        o("hit_object", "Punch the training stump", 5, type="training_stump"),
+        o("hit_object", "Hit the dummy after its wind-up", 3, type="training_dummy"),
     ], [item("herbal_tea", 1), fx("grant_equipment", item="training_gauntlets", ilv=1, quality="flawed", wear=True)],
         requires=after_lu, target_room="lf_village", chapter="prologue",
-        offer=["Fists first! Jab, cross, jab. Hold the button and they flow.", "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."],
-        progress=["Elbow in! Twelve on the stump, five on the dummy."],
+        offer=["Fists first! Jab, cross, jab. Hold the button and they flow.", "Five on the stump. Then the dummy: watch it lean back before it swings. Hit it then, three times."],
+        progress=["Elbow in! Five on the stump, three on the dummy."],
         complete=["Not bad! Take my old training gauntlets, they're yours now. Keep those fists warm: something's stirring past the East Gate.",
-                  "Finish helping the others first. Lu will tell you when."])
-    quest("a_quiet_river_return", "A Quiet River (Return)", "prologue", "lu_boatman", [
-        o("talk_to", "Report to Lu", npc="lu_boatman"),
-    ], [], hand_in="lu_boatman", auto_accept=True, target_room="lf_village", chapter="prologue",
-        requires=all_of(qdone("the_runaway_kite"), qdone("mas_delivery"), qdone("grannys_remedy"), qdone("fists_first")),
-        complete=["Kite, net, tea and fists. The village thanks you.", "Guo's fretting about the crabs in the Reed Shallows. Too many, too angry. Go and see him."])
+                  "Help the others first. When the village is done with you, come back and I'll open the gate."])
     quest("crab_trouble", "Crab Trouble", "prologue", "uncle_guo", [
-        o("collect", "Collect Crab Shells", 5, item="crab_shell"),
+        o("collect", "Collect Crab Shells", 3, item="crab_shell"),
         o("kill", "Defeat Old Snapper", enemy="old_snapper", after=0),
-    ], [taels(50), item("plain_straw_hat", 1)], requires=all_of(qdone("a_quiet_river_return")), target_room="lf_reed_shallows", chapter="prologue",
-        offer=["The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+    ], [taels(50), item("plain_straw_hat", 1), item("straw_sandals", 1)],
+        requires=all_of(*map(qdone, FOUR_LESSONS)), target_room="lf_reed_shallows", chapter="prologue",
+        offer=["Kite, net, tea and fists. The village thanks you. Now the crabs.",
+               "They came up the shallows in the night. Dozens. Something's pushing them out of the river.",
                "The East Gate's open for you now. Reed Shallows, just past it.",
-               "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."],
-        complete=["Old Snapper! Ha! Here, fifty taels and my old straw hat. Wear it, it keeps the sun out of a fighter's eyes."])
+               "Bring me three shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."],
+        complete=["Old Snapper! Ha! Here, fifty taels, my old straw hat and a pair of sandals. Keep the sun out of your eyes and the shells off your feet."])
     quest("evening_on_the_river", "Evening on the River", "prologue", "lu_boatman", [
         o("talk_to", "Have dinner with Aunt Ping", npc="aunt_ping"),
         o("talk_to", "Meet Lu at the docks at sunset", npc="lu_boatman"),
@@ -907,12 +912,14 @@ def prologue_quests():
         o("meditate_seconds", "Meditate on the boat", 15),
         o("open_page", "Look inward (open the Cultivation page)", page="cultivation"),
         o("breakthrough", "Break through to Bone Forging 1"),
-    ], [item("river_token", 1), fx("codex", entry="the_hollowing"), fx("codex", entry="realms")], auto_accept=True,
+    ], [item("river_token", 1), fx("learn_technique", technique="flowing_palm"), fx("codex", entry="the_hollowing"), fx("codex", entry="realms")],
+        auto_accept=True,
         requires=all_of(flag("night_survived")), target_room="lf_lu_boat", chapter="prologue",
-        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", pct_of_need=0.92), fx("codex", entry="lotus_ferry")],
+        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", pct_of_need=0.98), fx("codex", entry="lotus_ferry")],
         offer=["That thing in the water was a Hollowed eel. The grey is spreading.", "You have a gift. I felt it last night. Sit. Breathe as I showed you."],
         complete=["Bone Forging. Your first step. The body is the cup; Qi will be the water.",
-                  "Take this River Token. Go west along the Willow Path. There's a note waiting for you."],
+                  "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. In the body stages it needs no Qi, only breath.",
+                  "Take this River Token. Go west along the Willow Path and try the palm on the boarlets. There's a note waiting for you."],
         next="the_willow_path")
 
 
@@ -920,9 +927,11 @@ def guided_quests():
     M = MENTORS
     quest("the_willow_path", "The Willow Path", "guided", "lu_boatman", [
         o("reach_room", "Reach Willow Path West", room="wp_west"),
-        o("hit_object", "Hit a training stump", 30, type="training_stump"),
+        o("use_technique", "Strike with Flowing Palm", technique="flowing_palm"),
         o("kill", "Defeat Wild Boarlets", 5, enemy="wild_boarlet"),
-    ], [item("rice_ball", 3), fx("codex", entry="body_training")], hand_in="", offered_by_unlock=True, auto_accept=True,
+        o("kill", "Defeat the herd's elite boarlet", enemy="wild_boarlet", elite=True),
+    ], [item("rice_ball", 3), fx("add_progress", pct_of_need=0.35), fx("codex", entry="body_training")], hand_in="", offered_by_unlock=True,
+        auto_accept=True,
         target_room="wp_west", chapter="bf1",
         complete=["(A note in Lu's hand) Good. Now Stoneford. The sects are recruiting at the Fairground."])
     quest("the_recruitment_fair", "The Recruitment Fair", "guided", "recruiter_qing_lan", [
@@ -934,46 +943,49 @@ def guided_quests():
         offer=["The Recruitment Fair! Both sects take new service disciples this week.", "Speak to both of us before you choose. The choice is for life."],
         complete=["Welcome, disciple. Now pass the Entry Trial."])
     quest("entry_trial", "Entry Trial", "guided", "recruiter_qing_lan", [
-        o("reach_realm", "Reach Bone Forging 2", realm="bone_forging_2"),
         o("set_flag", "Climb to the trial bell", flag="trial_climbed"),
         o("kill", "Beat the Trial Puppet", enemy="trial_puppet"),
-    ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects"),
+    ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("add_progress", pct_of_need=0.2), fx("codex", entry="training_sects"),
         fx("set_flag", flag="prologue_done")], hand_in="",
-        # It starts the moment a sect is chosen (the fair's last words send you to it): its first step, Bone Forging 2,
-        # leads to the hunting grounds; the notice board, the return charm and the Character page it teaches open there.
+        # It starts the moment a sect is chosen (the fair's last words send you to it): the bell and the puppet, no realm
+        # to grind for; the notice board, the return charm and the Character page it teaches open with Bone Forging 2.
         requires=all_of(qdone("the_recruitment_fair")), auto_accept=True, target_room="sf_fairground", chapter="bf2",
         complete=["Service Disciple! Report to the steward at your sect's gate."])
-    quest("a_disciples_chores", "A Disciple's Chores", "main", "jade_steward", [
+    quest("a_disciples_chores", "A Disciple's Chores", "side", "jade_steward", [
         o("set_flag", "Sweep the first spot", flag="swept_ja_0", alt_flag="swept_cm_0"),
         o("set_flag", "Sweep the second spot", flag="swept_ja_1", alt_flag="swept_cm_1"),
-        o("set_flag", "Sweep the third spot", flag="swept_ja_2", alt_flag="swept_cm_2"),
-    ], [fx("set_flag", flag="dorm_bed"), taels(40), fx("add_contribution", amount=20)], offered_by_unlock=True, chapter="1",
-        giver_any=STEWARDS, hand_in_any=STEWARDS, target_room="ja_gate_street",
-        offer=["Service disciples sweep. Three spots on the street. The grey dust gets everywhere these days."],
-        complete=["Clean enough. Your bunk is in the dorm: rest there any time."])
+        o("set_flag", "Look under the grey stain by the gate", flag="swept_ja_2", alt_flag="swept_cm_2"),
+    ], [fx("set_flag", flag="dorm_bed"), taels(40), fx("add_contribution", amount=20), item("spirit_stone_shard", 2)], offered_by_unlock=True,
+        chapter="1", giver_any=STEWARDS, hand_in_any=STEWARDS, target_room="ja_gate_street",
+        offer=["If you've a moment between trials: two spots want sweeping, and there's a grey stain by the gate that won't come up.",
+               "The grey dust gets everywhere these days. Nobody knows where it blows in from."],
+        complete=["Grey under the flagstone, and someone's cache with it? Keep the shards. Tell the elders about the grey.",
+                  "Your bunk is in the dorm: rest there any time."])
     quest("fish_gutting_fists", "Fish-Gutting Fists", "main", "shen_lian", [
         o("win_spar", "Beat Shen Lian in a spar", opponent="shen_lian"),
-    ], [taels(40), fx("add_progress", pct_of_need=0.15)], requires=all_of(qdone("a_disciples_chores")), chapter="1",
+    ], [taels(40), fx("add_progress", pct_of_need=0.45), fx("grant_title", title="river_rival")], requires=all_of(qdone("entry_trial")), chapter="1",
         target_room="sf_fairground",
         offer=["Cloud Sect taught me more in a week than the river did in ten years. Spar me."],
         complete=["...Fine. You won. This time. Don't get lazy."])
     quest("the_weapon_hall", "The Weapon Hall", "guided", "jade_weapon_master", [
         o("equip_slot", "Take a training weapon from the rack", slot="weapon"),
-        o("hit_object", "Try it on the dummies", 15, type="training_dummy"),
+        o("hit_object", "Try it on the dummies", 5, type="training_dummy"),
         o("use_system", "Raise your guard", system="guard"),
-    ], [fx("codex", entry="weapons")], offered_by_unlock=True, chapter="1", giver_any=WEAPON_MASTERS, hand_in_any=WEAPON_MASTERS,
+    ], [fx("codex", entry="weapons"), fx("learn_technique_for_weapon", options=WEAPON_HALL_ARTS)], offered_by_unlock=True, chapter="1", giver_any=WEAPON_MASTERS, hand_in_any=WEAPON_MASTERS,
         on_accept=[item("training_jian", 1), item("training_spear", 1), item("training_gauntlets", 1)],
         target_room="ja_weapon_hall",
         offer=["Three training weapons: jian, spear, gauntlets. Try them on the dummies. Keep the one that feels like your own arm.",
                "Guard is the other half of a weapon. Hold it up when they swing."],
-        complete=["Good hands. The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."])
+        complete=["Good hands. Now the first form of the weapon you kept: watch once, then it's yours.",
+                  "The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."])
     quest("eyes_for_qi", "Eyes for Qi", "guided", "elder_hu", [
-        o("meditate_seconds", "Meditate by a Qi spring or glowing spot", 60),
+        o("meditate_seconds", "Meditate in the Reed Shallows", 20),
         o("gather_node", "Gather Willow Moss", 3, item="willow_moss", craft="herb_gathering"),
-    ], [item("herb_sickle", 1), item("qi_gathering_pill", 1)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
+    ], [item("herb_sickle", 1), item("qi_gathering_pill", 1), item("riverreed_ginseng_10", 1)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
         target_room="lf_reed_shallows",
-        offer=["You're starting to feel Qi in the air. Sit and let it show itself.", "Willow Moss grows in the Reed Shallows. Pick three: Mei Qing will want them."],
-        complete=["You see it now. The valley glows, faintly, everywhere."])
+        offer=["You're starting to feel Qi in the air. Sit in the Reed Shallows a moment and let it show itself.",
+               "Where it glows, something grows. Willow Moss, and sometimes better. Pick three moss: Mei Qing will want them."],
+        complete=["You see it now. The valley glows, faintly, everywhere. That ginseng root is yours: ten years old, and it knew you were coming."])
     quest("outer_trial", "Outer Trial", "guided", "elder_hu", [
         o("win_spar", "Win spars at the practice posts", 3),
         o("use_system", "Climb a roof and Plunge to the practice ground", 1, system="plunge"),
@@ -1128,7 +1140,7 @@ def guided_quests():
     ], [item("rice_ball", 5)], offered_by_unlock=True, chapter="qk1", giver_any=HALL_MASTERS, hand_in_any=HALL_MASTERS,
         on_accept=[fx("learn_technique", technique="flowing_palm")],
         target_room="ja_pavilion_rooftops",
-        offer=["Qi Kindling. Now your Qi can leave your body. Flowing Palm: push Qi through the palm. Twenty times."],
+        offer=["Qi Kindling. Now your Qi can leave your body. The palm Lu taught you on the boat: push Qi through it now. Twenty times."],
         complete=["The technique remembers you now. Train it and it grows."])
     quest("mei_qings_furnace", "Mei Qing's Furnace", "guided", "mei_qing", [
         o("collect", "Gather Willow Moss", 4, item="willow_moss", consume=False),
@@ -1488,20 +1500,28 @@ def main_quests():
     M = MENTORS
     quest("strange_tracks", "Strange Tracks", "main", "elder_hu", [
         o("interact_object", "Investigate grey patches in the Reed Marsh", 3, type="inspect", room="rm_marsh_edge"),
-    ], [taels(60)], requires=all_of(realm("bone_forging_4"), qdone("entry_trial")), chapter="2", giver_any=M, hand_in_any=M, target_room="rm_marsh_edge",
-        offer=["Disciples report grey patches in the Reed Marsh. Colour drained from the reeds. Look, but touch nothing."],
+    ], [taels(60)], requires=all_of(realm("bone_forging_2"), qdone("entry_trial"), qdone("the_weapon_hall")), chapter="2", giver_any=M, hand_in_any=M,
+        target_room="rm_marsh_edge",
+        # Chapter 2 opens the moment the Weapon Hall is done (research player_motivation §3.1): the mentor's note is in
+        # hand as the weapon master lets you go, so the walk leads straight to the marsh, not up the peak and back.
+        auto_accept=True,
+        offer=["(A note from your mentor) Disciples report grey patches in the Reed Marsh. Colour drained from the reeds.",
+               "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."],
         complete=["Hollowing. It's closer than we hoped."])
     quest("the_humming_token", "The Humming Token", "main", "elder_hu", [
-        o("reach_room", "Follow the token to the Grey Pools", room="rm_grey_pools"),
-        o("kill", "Defeat Hollowed Boarlets", 5, enemy="hollowed_boarlet"),
+        # Chapter 2 now opens at Bone Forging 3 (Level 3): the grey's first beasts have crept to the Marsh Edge (Level 4-5,
+        # world.py), not the Grey Pools' Level 7-12, which the story reaches later (the Grey Pools side quest).
+        o("kill", "Defeat the Hollowed Boarlets at the Marsh Edge", 5, enemy="hollowed_boarlet", room="rm_marsh_edge"),
     ], [taels(80), fx("codex", entry="hollowed")], requires=all_of(qdone("strange_tracks")), chapter="2", giver_any=M, hand_in_any=M,
-        target_room="rm_grey_pools",
-        offer=["Your River Token hums when you face east. Follow it."], complete=["Lu's token. It knows the grey. Keep it close."])
+        target_room="rm_marsh_edge",
+        offer=["Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
+               "You've a weapon in your hands now: the grey will want it."], complete=["Lu's token. It knows the grey. Keep it close."])
     quest("mei_qings_errand", "Mei Qing's Errand", "main", "mei_qing", [
         o("collect", "Bring Willow Moss", 5, item="willow_moss"),
-        o("collect", "Bring Copper Ore", 3, item="copper_ore"),
+        o("collect", "Bring Grey Hides from the Hollowed Boarlets", 3, item="grey_hide"),
     ], [item("healing_pill", 3), taels(60)], requires=all_of(qdone("the_humming_token")), chapter="2", target_room="sf_artisan_row",
-        offer=["The Hollowed wounds need a new salve. Willow moss and copper dust."], complete=["This will save lives. Thank you."])
+        offer=["The Hollowed wounds need a new salve. Willow moss, and the grey hide of the things that made the wounds."],
+        complete=["This will save lives. Thank you."])
     quest("grey_at_the_edges", "Grey at the Edges", "main", "elder_hu", [
         o("talk_to", "Report to your mentor", npc="elder_hu", npc_any=MENTORS),
     ], [fx("add_progress", pct_of_need=0.2)], requires=all_of(qdone("mei_qings_errand")), chapter="2", giver_any=M, hand_in_any=M, hand_in="",
@@ -2473,10 +2493,10 @@ def dialogue():
 
     def about(back):
         return {"lines": [blurb for _, _, blurb in comps], "choices": [{"text": "I'm ready to choose", "next": back}]}
-    tree("mentor", [{"requires": all_of({"kind": "realm_below", "realm": "bone_forging_4"}), "node": "young"},
+    tree("mentor", [{"requires": all_of({"kind": "realm_below", "realm": "bone_forging_2"}), "node": "young"},
                     {"requires": all_of(qactive("two_hands_full"), noflag("companion_1")), "node": "companion"},
                     {"requires": all_of(qactive("brothers_in_arms"), noflag("companion_2")), "node": "companion_2"}],
-         {"young": {"lines": ["Come back when your body is ready. Bone Forging 4, at least.", "Sweep, train, eat. In that order."],
+         {"young": {"lines": ["Come back when your body is ready. Bone Forging 2, at least.", "Sweep, train, eat. In that order."],
                     "choices": [{"text": "Yes, Elder.", "close": True}]},
           "companion": {"lines": ["Four disciples of your year still walk alone. One of them should walk with you.", "Who will it be?"],
                         "choices": comp_choices("companion_1", "about_1")},
@@ -2794,7 +2814,7 @@ def validate(npc_ids, U):
 # P12 (research §6.6): every main chapter opens at a Level floor, written as a realm floor on each of its main quests
 # (a quest's own higher floor stays). Floors only: no main quest has a ceiling or expires. Chapter 1 and the Prologue
 # open at the entry trial. The quest log shows the gap and the ways to close it (QuestAuthority.floor_gap).
-CHAPTER_FLOORS = {"2": "bone_forging_4", "3": "bone_forging_7", "4": "qi_kindling_9", "5": "qi_unfurling_3", "6": "heart_tempering_1",
+CHAPTER_FLOORS = {"2": "bone_forging_2", "3": "bone_forging_7", "4": "qi_kindling_9", "5": "qi_unfurling_3", "6": "heart_tempering_1",
                   "7": "cloud_stride_1", "8": "spirit_awakening_2", "9": "heaven_glimpse_1", "10": "heaven_glimpse_3",
                   "11": "heaven_glimpse_3", "12": "sage_1", "13": "sage_2", "14": "sage_3", "15": "sage_sovereign_1",
                   "16": "sage_sovereign_2", "17": "sage_sovereign_3", "18": "will_manifest_1", "19": "will_manifest_2",
