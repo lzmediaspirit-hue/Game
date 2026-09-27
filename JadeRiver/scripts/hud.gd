@@ -922,8 +922,8 @@ func toggle_presence() -> void:
 	var r := Game.submit({"type": "toggle_presence"})
 	if not r.get("ok", false): add_log(Tx.t("hud.presence_fail_" + str(r.get("reason", "locked"))), UiKit.MIST)
 
-func add_log(text: String, color = UiKit.PAPER) -> void:
-	log_lines.append({"text": text, "t": 0.0, "color": color})
+func add_log(text: String, color = UiKit.PAPER, always := false) -> void:
+	log_lines.append({"text": text, "t": 0.0, "color": color, "always": always})
 	while log_lines.size() > 5: log_lines.pop_front()
 
 func _pet_name(uid: String) -> String:
@@ -1310,6 +1310,17 @@ func _handle(name: String, p: Dictionary) -> void:
 		"heavenly_phenomenon":
 			if str(p.get("actor", "")) == Game.active_id:
 				add_log(Tx.t("hud.phenomenon_" + str(p.get("kind", "cloud"))), UiKit.PALE_GOLD)
+		"item_used":
+			# A consumable names what it did (UiKit.use_parts): "Herbal Tea: +120 HP over 5 s". It reaches the player before
+			# the log is revealed too (the prologue's tea), and the bars it touched flash.
+			if str(p.get("actor", "")) == Game.active_id:
+				var parts := UiKit.use_parts(p.get("effects", []), p.get("gains", {}))
+				if not parts.is_empty():
+					var words := PackedStringArray()
+					for part in parts: words.append(str(part.text))
+					add_log(Tx.t("hud.use.line") % [ContentDB.item_name(str(p.get("item", ""))), " · ".join(words)], parts[0].color, true)
+					for part in parts:
+						if part.has("pool"): pulses["bar:" + str(part.pool)] = 0.8
 		"draught_expired":
 			toast(Tx.t("hud.draught_expired") % ContentDB.item_name(str(p.get("item", ""))), "danger")
 		"flame_absorbed":
@@ -1651,10 +1662,15 @@ func draw_skill_scroll(k := 1.0) -> void:
 			var fade := minf(clampf((index + 0.35) / 0.35, 0, 1), clampf((3.35 - index) / 0.35, 0, 1))
 			draw_skill_slot(skill_position(index), i + (old_page if page == 0 else skill_page) * 4, fade * k)
 
-func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String) -> void:
+func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String, ahead := 0.0, flash := 0.0) -> void:
 	draw_rect(r.grow(2), UiKit.INK)
 	draw_rect(r, UiKit.BAR_TROUGH)
+	if ahead > 0.0 and frac < 1.0:
+		var a0 := r.size.x * clampf(frac, 0, 1)
+		draw_rect(Rect2(r.position + Vector2(a0, 0), Vector2(r.size.x * clampf(frac + ahead, 0, 1) - a0, r.size.y)), Color(UiKit.BRIGHT_JADE, 0.45))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
+	# A consumable just touched this pool (item_used): the frame glows jade for a moment, full or not.
+	if flash > 0.0: draw_rect(r.grow(2), Color(UiKit.BRIGHT_JADE, clampf(flash / 0.8, 0.0, 1.0)), false, 2.0)
 	draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(UiKit.PALE_GOLD, 0.35), 2)
 	UiKit.draw_text(self, label, r.position + Vector2(-34, 12), 14, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	UiKit.draw_outlined(self, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
@@ -1682,7 +1698,7 @@ func _draw():
 	if shown("currency") and not _boss_arena(): _draw_purse()
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
-	if shown("system_log"): _draw_log()
+	_draw_log()
 	_draw_boss()
 	_draw_top_stack(c)
 	_draw_pet_wheel(c)
@@ -1872,14 +1888,18 @@ func _draw_player_panel(c) -> void:
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 16), 50), 14, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s / %s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
+		# A heal over time still running shows where the bar is going: a pale jade run past the red.
+		var coming := 0.0
+		for h in Game.combat.hots_of(c.id): coming += float(h.per_s) * float(h.left)
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s / %s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp),
+			coming / maxf(1.0, c.pools.max_hp), float(pulses.get("bar:hp", 0.0)))
 		y += 18
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s / %s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s / %s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi), 0.0, float(pulses.get("bar:qi", 0.0)))
 		y += 18
 	if soul_row:
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s / %s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s / %s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul), 0.0, float(pulses.get("bar:soul", 0.0)))
 	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
 	if ProgressionAuthority.walks(c, "blood"):
 		var strip := Rect2(r.position.x + 56, r.end.y - 6, 288, 3)
@@ -1897,12 +1917,24 @@ func _draw_player_panel(c) -> void:
 	if Game.combat.killing_intent_stacks(c.id) >= 5: icons.append("buff_attack")               # S48 Killing Intent
 	if Game.combat.poison_body_active(c): icons.append("poison_body")                          # S48 the Poison Body
 	if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure < 100: icons.append("composure")
+	# Timed entries carry their seconds left, drawn under the icon: a status, a buff, a heal over time (the tea's own
+	# icon while it works, so a tea drunk at full HP still shows it is running).
+	var left := {}
 	for s in c.pools.statuses:
-		if s.id != "spawn_protection": icons.append(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
+		if s.id == "spawn_protection": continue
+		var sic := str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id))
+		if not icons.has(sic): icons.append(sic)
+		left[sic] = maxf(float(left.get(sic, 0.0)), float(s.get("remaining", 0.0)))
 	for m in c.stats.modifiers:
 		if float(m.duration) >= 0 and not str(m.source).begins_with("heal:"):
 			var ic := "buff_attack" if str(m.stat) in ["physical_attack", "qi_attack"] else ("buff_defense" if "defense" in str(m.stat) else "buff_speed")
 			if not icons.has(ic): icons.append(ic)
+			left[ic] = maxf(float(left.get(ic, 0.0)), float(m.get("remaining", m.duration)))
+	for h in Game.combat.hots_of(c.id):
+		var src := str(h.get("source", ""))
+		var hic := src.substr(5) if src.begins_with("item:") and SpriteCache.icon_fit(src.substr(5), 24).size() > 0 else "healing_pill"
+		if not icons.has(hic): icons.append(hic)
+		left[hic] = maxf(float(left.get(hic, 0.0)), float(h.left))
 	# Under the panel (mockups 01, 02): the Hollowing meter first once it has risen, then 24 px icons 4 apart.
 	var row_y := r.end.y + 8.0
 	var x := r.position.x + 4.0
@@ -1910,6 +1942,10 @@ func _draw_player_panel(c) -> void:
 	for ic in icons.slice(0, 12):
 		if x + 24.0 > r.end.x: break
 		glyph(ic, Vector2(x + 12, row_y + 12), 24)
+		if float(left.get(ic, 0.0)) > 0.0:
+			var secs := float(left[ic])
+			UiKit.draw_outlined(self, UiKit.span(secs), Vector2(x - 6, row_y + 40), 14, UiKit.PAPER,
+				HORIZONTAL_ALIGNMENT_CENTER, 36)
 		x += 28
 	# S47 Sword Intent: ten pips along the panel's foot while a jian is in hand and Intent is building.
 	var stacks := int(Game.combat.sword_intent.get(c.id, {}).get("stacks", 0))
@@ -2394,11 +2430,13 @@ func _draw_progress(c) -> void:
 	else: UiKit.draw_outlined(self, pct, Vector2(fx + 6, 700), 14, col, HORIZONTAL_ALIGNMENT_LEFT, 80)
 
 func _draw_log() -> void:
-	# Above the joystick's half (mockup 01), newest at the foot, outlined, and kept out of the clear zone.
+	# Above the joystick's half (mockup 01), newest at the foot, outlined, and kept out of the clear zone. Before the log
+	# is revealed only the lines that must reach the player (what a consumable did) are drawn.
 	var x := 20.0 if not left_handed else 1280.0 - 20.0 - LOG_W
-	var n := log_lines.size()
+	var lines := log_lines if shown("system_log") else log_lines.filter(func(l): return l.get("always", false))
+	var n := lines.size()
 	for i in n:
-		var l: Dictionary = log_lines[i]
+		var l: Dictionary = lines[i]
 		var a = 1.0 if l.t < 5.0 else 6.0 - l.t
 		UiKit.draw_outlined(self, UiKit.fit(str(l.text), 16, LOG_W, true), Vector2(x, LOG_FOOT - (n - 1 - i) * 21.0), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, LOG_W)
 

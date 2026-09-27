@@ -1,5 +1,15 @@
 # Changelog
 
+## Consumables show what they did
+
+- **Every tea, pill, herb, core, draught and food says what it did.** Drinking the Herbal Tea (Granny's Remedy) showed
+  nothing: `item_used` carried no result and nothing drew it; the tea heals over 5 s, only a fifth at once, and at full
+  HP (as the prologue's player is) it changed nothing; the log that could have said so is not revealed yet. Now
+  `InventoryAuthority.apply_use` reports each effect (`item_used.effects`, `gains`); the world floats the heal over the
+  player ("+21 HP", or "HP already full"); the HUD writes "Herbal Tea: +21 HP over 5 s" (shown before the log is
+  revealed), shows the heal still to come on the HP bar, and puts the tea's icon with its seconds left in the status
+  row (buffs and statuses show their time too). Screenshots in `docs/ui_p5/guidance_fix/`.
+
 ## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
 
 Found on the Android build; each fixed at its cause and held by the walks (docs/tutorial_order.md).
