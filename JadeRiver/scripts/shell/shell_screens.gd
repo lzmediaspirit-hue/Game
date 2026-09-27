@@ -29,9 +29,19 @@ class TitleScreen extends Page:
 			btn(Rect2(490, 570, 300, 56), Tx.t("shell.quit"), "quit")
 		text(Vector2(0, 700), Tx.t("shell.version") % str(ProjectSettings.get_setting("application/config/version", "")), 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
 		if OS.has_feature("max_test"): text(Vector2(0, 672), Tx.t("shell.max_test_build"), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280)
+		region(Rect2(520, 672, 240, 48), "version")   # hidden: five taps on the version open the top-down prototype
+
+	var version_taps: Array = []
 
 	func on_action(id: String, _data) -> void:
-		chosen.emit(id)
+		if id != "version":
+			chosen.emit(id)
+			return
+		version_taps = version_taps.filter(func(at): return t - float(at) < 3.0)
+		version_taps.append(t)
+		if version_taps.size() >= 5:
+			version_taps.clear()
+			chosen.emit("topdown_proto")
 
 
 class SelectionScreen extends Page:

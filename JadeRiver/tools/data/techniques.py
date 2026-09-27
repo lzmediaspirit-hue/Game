@@ -83,8 +83,9 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
 def build():
     import technique_gen as TG   # P13a; imported here, after this module, whose particle rule it reads
     T = [
-        # The first technique every disciple learns: a free-hand palm, so it works whatever the weapon.
-        tech("flowing_palm", "qi_kindling_1", "training_hall_jade", "any", "water", "physical", (1.10, 1.30), 2, 1, 3, 8,
+        # The first technique every disciple learns: a free-hand palm, so it works whatever the weapon. Lu teaches it on
+        # his boat with the first breakthrough (The River Token; research player_motivation §5 change 3).
+        tech("flowing_palm", "bone_forging_1", "the_river_token", "any", "water", "physical", (1.10, 1.30), 2, 1, 3, 8,
              "Two flowing palm strikes with the free hand; any weapon. Tier 3: slows the target by 20% for 2 s.",
              tier3={"status": {"id": "slow", "chance": 1.0, "power": 0.2, "duration_s": 2}}, action="punch", dao="fist", reach=80),
         tech("jade_thrust", "qi_kindling_1", "training_hall_cloud", "spear", "none", "physical", (1.40, 1.70), 1, 2, 4, 10,

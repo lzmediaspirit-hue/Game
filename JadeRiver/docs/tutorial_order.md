@@ -11,33 +11,70 @@ direction mark on the minimap and the tracker's go button lead to it.
 
 | # | Quest | Where (giver) | What it reveals or unlocks | The step it prepares | The tracker after it |
 |---|---|---|---|---|---|
-| 0 | (new character) | Fisher's Hut | Move and Talk: joystick, context button | walking, talking, picking up; the hut's door stays shut ("Before you go: Talk to Aunt Ping") | (hidden until A Quiet River) |
-| 1 | Morning Tide | Fisher's Hut (Aunt Ping) | Bag button | pick up three teas, open the Bag, step outside; the door stays shut until the teas and the Bag are done, and says which | A Quiet River: Find Lu at the Ferry Docks |
-| 2 | A Quiet River (auto) | Home Lane to the Ferry Docks (Lu) | room banner, minimap, quest tracker | find Lu; he hands out the four lessons | Next: The Runaway Kite · Talk to Little Dou |
-| 3a | Fists First | Village Square (Uncle Guo) | Attack button, damage numbers | the stump and the dummy. The East Gate stays shut | Next: The Runaway Kite · Talk to Little Dou |
+| 0 | (new character) | Fisher's Hut | Move and Talk: joystick, context button; the weapon slot, open and empty (bare fists; the Character and Bag pages draw it empty, not locked) | walking, talking, picking up; Morning Tide is already under way and the hut's door is open | (hidden until A Quiet River) |
+| 1 | Morning Tide (auto, from waking) | Fisher's Hut (Aunt Ping) | Bag button | Aunt Ping's tea is in hand from the start; a second cup waits on the table; step outside. No door is shut, no menu asked for | A Quiet River: Find Lu at the Ferry Docks |
+| 2 | A Quiet River (auto) | Home Lane to the Ferry Docks (Lu) | room banner, minimap, quest tracker | find Lu; he hands out the four lessons, in any order | Next: The Runaway Kite · Talk to Little Dou |
+| 3a | Fists First | Village Square (Uncle Guo) | Attack button, damage numbers; Weapons: Guo's old Training Gauntlets (Flawed), worn at once | five on the stump, three on the dummy. The East Gate stays shut | Next: The Runaway Kite · Talk to Little Dou |
 | 3b | The Runaway Kite | Village Square (Little Dou) | Jump button | ladder, hall roof, jump to the Ferry Inn roof | Next: Ma's Delivery · Talk to Old Ma (Old Ma's Store) |
-| 3c | Ma's Delivery | Old Ma's Store, by its door (Old Ma) | Coins and Shops: the purse, Trade with shopkeepers | sell the Old Net, buy two rice balls | Next: Granny's Remedy · Talk to Granny Liu (her Herb Hut) |
-| 3d | Granny's Remedy | Granny Liu's Herb Hut (Granny Liu) | Quick-use slot (drawn at rest while the step asks for it, glowing and named "Quick-use", and while it holds a tea), HP bar, player panel; shrines | "Bag: put Herbal Tea in Quick-use", "Drink a Herbal Tea: tap Quick-use", the shrine | A Quiet River (Return): Report to Lu |
+| 3c | Ma's Delivery | Old Ma's Store, by its door (Old Ma) | Coins and Shops: the purse, Trade with shopkeepers | sell the Old Net (one step; buying is the player's own choice) | Next: Granny's Remedy · Talk to Granny Liu (her Herb Hut) |
+| 3d | Granny's Remedy | Granny Liu's Herb Hut (Granny Liu) | Quick-use slot (drawn at rest while the step asks for it, glowing and named "Quick-use", and while it holds a tea), HP bar, player panel; shrines | "Bag: put Herbal Tea in Quick-use", "Drink a Herbal Tea: tap Quick-use", the shrine | Next: Crab Trouble · Talk to Uncle Guo |
 | 3e | Race to the Tower (optional) | Ferry Docks (Shen Lian) | Sprint, the title Fleet-Footed | the watch-tower bell in 25 s | (as before it) |
-| 4 | A Quiet River (Return) (auto) | Ferry Docks (Lu) | after 3a to 3d, in any order | Lu sends you to Guo | Next: Crab Trouble · Talk to Uncle Guo |
-| 5 | Crab Trouble | Village Square (Uncle Guo), then the Reed Shallows | Loot and Log: system log, foes' HP bars, elite marker; the East Gate opens | the first fight: crabs, Reedtail Rats, Old Snapper, beside the shore's herbs (the attack button attacks; the herb waits on ring 2) | Next: Evening on the River · Talk to Lu |
-| 5+ | (Crab Trouble done) | | Equipment page | the Plain Straw Hat | |
-| 6 | Evening on the River | Ferry Docks (Lu) | Menu button | dinner with Aunt Ping, Lu at sunset | The Hollow Night |
-| 7 | The Hollow Night (auto) | Lotus Ferry at Night | | three villagers to the hut, hold out 60 s | The River Token |
-| 8 | The River Token (auto) | Lu's Boat (Lu) | Cultivate button, progress bar, realm badge, Cultivation page, Codex, Breakthrough | meditate, look inward, Bone Forging 1, the token from Lu | The Willow Path: ➤ Willow Path West |
-| 9 | The Willow Path (auto, once Lu has handed you the token) | Willow Path West; the West Gate opens | World map, Mail, Foundation page; body training, progress from fights, shrines remember you | the stump, five Wild Boarlets | Next: The Recruitment Fair · Talk to Qing Lan (Fairground) |
-| 10 | The Recruitment Fair | Stoneford Fairground (Qing Lan, Mo Yun) | Sect page, Town services | both recruiters, choose a sect: the character is recorded as its member (rank, token, method) | Entry Trial: ➤ Hunt at Willow Path West · Reach Bone Forging 2 |
-| 11 | Entry Trial (auto, the moment a sect is chosen) | Willow Path to Bone Forging 2, then the Fairground's trial ground | at Bone Forging 2: Character page, notice board, return charm | the hunt to Bone Forging 2, the trial bell, the Trial Puppet | Next: A Disciple's Chores · Talk to the steward (Gate Street) |
-| 12 | A Disciple's Chores | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | sweep three spots | Next: Fish-Gutting Fists · Talk to Shen Lian (Fairground) |
-| 12b | Fish-Gutting Fists | Stoneford Fairground (Shen Lian) | | beat Shen Lian in a spar | Next: Strange Tracks · Reach Level 4 (Bone Forging 4), ➤ Hunt at Willow Path West |
-| 13 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapons, weapon Dao | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not the hunt for Level 4; then a training weapon, the dummies, raise the guard | The Weapon Hall (the lesson under way leads) |
+| 4 | Crab Trouble | Village Square (Uncle Guo), then the Reed Shallows | Loot and Log: system log, foes' HP bars, elite marker; the East Gate opens; starter gear: the first kill drops the first weapon (a Training Short Blade: "Your first weapon" and its beam, the equip prompt offers it). The fourth lesson done, Guo has it at once: no walk back to Lu (A Quiet River (Return) is merged into it) | the first fight: three crab shells, which drop every kill while Guo wants them; Reedtail Rats; Old Snapper, beside the shore's herbs (the attack button attacks; the herb waits on ring 2) | Next: Evening on the River · Talk to Lu |
+| 4+ | (Crab Trouble done) | | Equipment page | the Plain Straw Hat and Straw Sandals, worn | |
+| 5 | Evening on the River | Ferry Docks (Lu) | Menu button | dinner with Aunt Ping, Lu at sunset | The Hollow Night |
+| 6 | The Hollow Night (auto) | Lotus Ferry at Night | | three villagers to the hut, hold out 60 s | The River Token |
+| 7 | The River Token (auto) | Lu's Boat (Lu) | Cultivate button, progress bar, realm badge, Cultivation page, Codex, Breakthrough; **skill ring and Techniques page** | meditate (the bar starts 98% full), look inward, Bone Forging 1 (the breakthrough card shows what it gave, and the jade aura appears); Lu hands over the token and **teaches Flowing Palm** (the technique's own moment), slotted, costing no Qi in the body stages | The Willow Path: ➤ Willow Path West |
+| 8 | The Willow Path (auto, once Lu has handed you the token) | Willow Path West; the West Gate opens | World map, Mail, Foundation page; body training (optional, with its own counter), progress from fights, shrines remember you | strike with Flowing Palm, five Wild Boarlets and the herd's elite boarlet; no stump quota | Next: The Recruitment Fair · Talk to Qing Lan (Fairground) |
+| 8+ | (early surprises) | Willow Path East on the way in; Willow Path West as The Willow Path is done | a fortune card, the Remnant Soul in a Ring (sure the first time, meter or not, with its moment); a Spirit Fruit tree ripens, announced with its moment | reach for the fruit: its guardian alone, at the room's Level; the fruit is yours once. The first fields' foes sometimes come as elites, and the first monsters can drop a pearl or a manual page (a rare find) | (as before it) |
+| 9 | The Recruitment Fair | Stoneford Fairground (Qing Lan, Mo Yun) | Sect page, Town services | both recruiters, choose a sect: the character is recorded as its member (rank, token, method) | Entry Trial: ➤ the trial ground |
+| 10 | Entry Trial (auto, the moment a sect is chosen) | the Fairground's trial ground | at Bone Forging 2: Character page, notice board, return charm | the trial bell and the Trial Puppet; no realm to grind for. The Willow Path, the fair and the trial carry the character to Bone Forging 2 | Next: Fish-Gutting Fists · Talk to Shen Lian (Fairground) |
+| 11 | Fish-Gutting Fists | Stoneford Fairground (Shen Lian) | the title River Rival | beat Shen Lian in a spar; it fills Bone Forging 2, so Bone Forging 3 follows by itself | Next: The Weapon Hall (the weapon master, Weapon Hall) |
+| 11b | A Disciple's Chores (side) | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | two spots to sweep and a grey stain by the gate: under it the grey goes into the earth, and a cache of two spirit stone shards | (as before it) |
+| 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapon Dao (the weapon slot has been open since the start); **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon, five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
+| 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the Reed Marsh's Marsh Edge (the marsh path opens at Bone Forging 2), then the mentor | | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; hand in to the mentor | Next: The Humming Token · Talk to Elder Hu |
 
 Past the table the story goes on the same way: between main quests the Next entry names the giver and where they
 stand, or the Level a chapter waits on ("Reach Level 21 (Qi Unfurling 3)", "➤ Hunt at Bend Shore") and a hunting
-ground whose foes suit the character's Level (the fields P12's gap names on the Quests page).
+ground whose foes suit the character's Level (the fields P12's gap names on the Quests page). A Level is never the
+only way named: a second line gives a lesson or side quest on offer ("Or: A Disciple's Chores · the steward"), or,
+with none, meditation and body training.
+
+## The first hour, as the walk plays it
+
+`tests/tutorial_order.gd` keeps a play clock (`prologue_run.play_s`): the simulated seconds it steps, walking between
+the points it stands at at 150 px/s (a thumb on the joystick; the run speed is 205), 15 s to look round each room the
+first time, 3 s to read a line of dialogue and 1.5 s a tap, 2 s an interaction and 0.45 s a blow on a stump. It is a
+floor for a focused new player, not a measurement. On it, something new comes at least every 3 minutes to minute 20
+and every 5 to minute 60 (invariant 14); the suite prints the timeline, and docs/research/player_motivation.md "As
+built" keeps it.
+
+**The chores come after the power** (`docs/research/player_motivation.md` item 6). Nothing daily, idle or kept at a
+post opens before Qi Kindling 1, and each is optional when it does. Every such unlock row carries `obligation`, and
+`data_validation` checks that each opens at Qi Kindling 1 or later:
+
+| Realm | Lesson (giver) | What it opens | What it asks |
+|---|---|---|---|
+| Qi Kindling 1 | A Second Path (a letter, guided) | idle tasks (Characters page), offline seclusion | set an idle task, *or* enter seclusion once; never a second character |
+| Qi Kindling 1 | Earning Your Keep (the deacon, a side errand) | the sect board, the contribution shop, field-boss timers, the activity chests | any one mission, whenever |
+| Qi Kindling 1 | Keeping Post (Fisher Wen, guided) | posts and the Roll-Call | keep post at a node, then burn the incense stick Wen gives at it (or put the game away and come back) |
+| Qi Kindling 1 | Little Dou's Glowflies (side) | insect netting | five glowflies |
+
+The Bone Forging lessons that used to hold them keep only their own steps: The First Current (Bone Forging 7) asks for
+the Qi spring and no longer for seclusion. **A missed day banks** (`account_rules.bank`): the sect board keeps a day's
+unfinished missions and adds each missed day's, up to three days' worth, and an activity chest filled and not opened
+waits, while each day away doubles the next activity points up to three days' worth. Nothing resets, expires or breaks.
+
+**A fall costs nothing before Bone Forging 5** (`stats.json` `death.grace_below`): no progress, no injury, no heart
+demon, and you wake whole at the shrine. The revival page says so in full the first time and in a line afterwards.
 
 ## What the walk holds to
 
+- The weapon slot is open from the start: a new character fights bare-handed with the slot drawn empty (never
+  locked), Fists First hands out the training gauntlets worn at once, and the first kill in the Reed Shallows drops
+  the first weapon, which the equip prompt offers. The first rooms' foes (the Reed Shallows, Willow Path West and East)
+  carry starter gear (`grades.json` `drop.starter`): plain training weapons of the four families a Mortal can hold
+  and plain armour at the par item Level, a weapon never above par quality; the character's first three pieces after
+  the first weapon come by the 15th kill without one at the latest (counted on the character).
 - No room with foes is within reach (or entered) before the HP bar and the foes' HP bars are on the HUD. The Reed
   Shallows, the first, open with Crab Trouble, which follows all four lessons (Granny's Remedy among them).
 - Every foe in a fight shows its HP bar over its head (a boss on the HUD's boss bar) from the moment it turns on the
@@ -49,9 +86,10 @@ ground whose foes suit the character's Level (the fields P12's gap names on the 
 - What a quest's steps ask for (a button, a page) is on the HUD when it is taken; Trade appears with Coins and Shops.
   The control a step names is drawn (the real HUD asked, at rest), not only revealed, while the step is open: the
   Quick-use slot while Granny's Remedy asks for it, and afterwards while it holds a tea.
-- No room is left before the steps it holds you to: a quest whose step is to leave its room (Morning Tide's "Step
-  outside") keeps the room's ways shut while it is on offer and until the steps before it are done, the door drawn
-  shut with what to do first on its plate, and a try to leave answered with the same words.
+- No room is left before the steps it holds you to: a quest whose step is to leave its room keeps the room's ways
+  shut while it is on offer and until the steps before it are done, the door drawn shut with what to do first on its
+  plate, and a try to leave answered with the same words. No door is kept shut for a menu lesson: Morning Tide is under
+  way from waking, "Step outside" its only step, the hut's door open.
 - In a fight the attack button attacks, whatever is in reach (a herb, a pickup, a person, a door): the offer waits in
   the context slot on ring 2. At rest the context takes the button.
 - The story's guidance, after every step that moves it: the tracker is never empty; every entry's target (the room
@@ -59,7 +97,19 @@ ground whose foes suit the character's Level (the fields P12's gap names on the 
   leads toward the first story entry's; between main quests the first entry is the Next one (its giver stands where it
   says, or its hunting ground suits the Level); right after the sect choice the membership is recorded and the Entry
   Trial leads the tracker with its target and the mark.
+- No chore is open or on offer at any step of the walk: no unlock marked `obligation` (the sect board, activity chests,
+  idle tasks, seclusion, posts). No main or guided quest asks for a daily mission or a second character, and no step of
+  the main story waits on a daily or idle system (`data_validation`'s chores-after-power suite).
+- Every fall in the walk costs nothing (the early grace, before Bone Forging 5).
+- The first walk onto the Willow Path after the River Token meets the Remnant Soul in a Ring, and as The Willow Path is
+  done a Spirit Fruit ripens on Willow Path West, announced once, its tree in view (the walk keeps a checkpoint there:
+  `--keep="First Spirit Fruit"`).
 - The tracker and the mark lead where the story really goes next, after every step (`leads_to_next`): a quest of the
   story under way, else one to take now, else a lesson under way or on offer (a guided quest its realm opens), and only
-  then the Level the story waits on and a hunting ground for it. At Bone Forging 3, with Strange Tracks waiting on Bone
-  Forging 4, that is the Weapon Hall, not the Willow Path's boarlets.
+  then the Level the story waits on and a hunting ground for it. At Bone Forging 3, with Strange Tracks waiting on the
+  Weapon Hall, that is the Weapon Hall.
+- The first hour pays (research player_motivation P1, P2): the story's own quests and fights carry the character to
+  every realm the story waits on, Bone Forging 2 by the Entry Trial and 3 by Fish-Gutting Fists, with no test shortcut;
+  the first technique is taught at Bone Forging 1 (Flowing Palm, on Lu's boat) and the second at the Weapon Hall; on
+  the play clock something new comes at least every 3 minutes to minute 20 and every 5 to minute 60 (an item kind,
+  gear worn, a technique, a realm step, a new foe beaten, a title, the sect, the first coin, a new region, a set piece).

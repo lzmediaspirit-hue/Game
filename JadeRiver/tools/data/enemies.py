@@ -184,7 +184,10 @@ def d(item, chance=0.6, count=(1, 1), weight=1):
 
 # P7b (item_plan §4.1): each source's equipment roll, its chance and quality floor (about 6 pieces an hour of hunting).
 # A bandit, brigand or pirate carries more (`equipment_chance` on its row).
+# The first rooms' foes (STARTER) roll starter gear a little more often (docs/research/player_motivation.md §3.4); the
+# first weapon and the pity of their first pieces are grades.json drop.starter's.
 EQUIPMENT = {"normal": (0.012, "flawed"), "elite": (0.08, "common"), "boss": (1.0, "superior"), "event": (0.012, "flawed"),
+             "starter": (0.02, "flawed"), "starter_elite": (0.25, "common"),
              "jar": (0.01, "flawed"), "chest": (0.3, "fine"), "chest_deep": (0.5, "fine"), "chest_rich": (0.6, "fine")}
 
 
@@ -197,11 +200,21 @@ def equipment(kind, chance=None):
     return {"chance": c if chance is None else chance, "min_quality": q}
 
 
+# The foes of the valley's first rooms (the Reed Shallows, Willow Path West and East): their tables are marked `starter`
+# (LootRules.make_starter; the first weapon and the pity in WorldAuthority._starter_drop).
+STARTER = {"mudshell_crab", "reedtail_rat", "old_snapper", "wild_boarlet", "mossback_toad"}
+
+
 # P7b (item_plan §3.4, §4.2): named rows, each rolled on every kill like a rare row (`elite_named`: only by an elite).
 # Big Toad Tan's and the Drowned Abbot's are their boss signatures until P9 adds the pity (boss_design §4.1, §4.3).
 NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.08}]},
               "drowned_abbot": {"named": [{"item": "drowned_hat", "chance": 0.08}, {"item": "drowned_boots", "chance": 0.08}]},
               "cloudpeak_roc": {"named": [{"item": "crane_trousers", "chance": 0.002}]}}
+
+# Early surprises (docs/research/player_motivation.md item 7, §3.4): the first monsters carry rare rows, a river pearl
+# (sold for coin) and a manual page. `find` marks a rare find: its drop plays the rare-find moment (MomentRules.is_rare).
+_EARLY = [{"item": "pearl", "chance": 0.02, "count": [1, 1], "find": True}, {"item": "manual_page", "chance": 0.005, "count": [1, 1], "find": True}]
+EARLY_FINDS = {"mudshell_crab": _EARLY, "reedtail_rat": _EARLY, "wild_boarlet": _EARLY, "mossback_toad": _EARLY}
 
 
 # P12 par times in seconds (research §6.2 and docs/boss_design.md §2.4).
@@ -673,7 +686,10 @@ def build():
     QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}],
                    "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
                    "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}],
-                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}]}
+                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}],
+                   # Research §3.3: Guo's three shells and Mei Qing's three grey hides drop every kill while still wanted.
+                   "mudshell_crab": [{"item": "crab_shell", "chance": 1.0, "count": [1, 1], "quest": "crab_trouble"}],
+                   "hollowed_boarlet": [{"item": "grey_hide", "chance": 1.0, "count": [1, 1], "quest": "mei_qings_errand"}]}
     # S47 legendary chains: each piece drops from its foe while that chain's quest still wants it.
     for ch in LEGENDS:
         for pid, pname, src, chance, zone in ch["pieces"]:
@@ -687,11 +703,11 @@ def build():
             table["groups"] = [{"chance": 0.6, "pick": [dict({k: v for k, v in x.items() if k != "chance"}, weight=x.get("weight", 1)) for x in drops if x["chance"] > 0.2]}]
             table["rare"] = [x for x in drops if x["chance"] <= 0.2 and x["chance"] > 0]
             table["coins"] = {"chance": 0.2 * m.get("coin_mult", 1.0), "mult": 1}
-            table["equipment"] = equipment("normal", m.get("equipment_chance"))
+            table["equipment"] = equipment("starter" if m["id"] in STARTER else "normal", m.get("equipment_chance"))
         elif role == "elite":
             table["guaranteed"] = [dict(x) for x in drops]
             table["coins"] = {"chance": 1.0, "mult": 6}
-            table["equipment"] = equipment("elite")
+            table["equipment"] = equipment("starter_elite" if m["id"] in STARTER else "elite")
             table["rare"] = [{"item": "manual_page", "chance": 0.05, "count": [1, 1]}]
         elif role in ("dungeon_boss", "field_boss", "story_boss"):
             table["guaranteed"] = [dict(x) for x in drops]
@@ -704,9 +720,12 @@ def build():
             table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
             # P1: every loot table rolls equipment or says why not. A spar or trial opponent is not looted.
             table["no_equipment"] = "spar"
+        if m["id"] in STARTER:
+            table["starter"] = True
         if m["id"] in QUEST_DROPS:
             table["quest_drops"] = QUEST_DROPS[m["id"]]
         table.update(NAMED_ROWS.get(m["id"], {}))
+        table["rare"] = table["rare"] + [dict(x) for x in EARLY_FINDS.get(m["id"], [])]
         # P13a Lost Arts (technique_plan §5.3): a lost manual is never in the random roll; LootRules rolls it like a named
         # row (drop rate does not raise it) and ProgressionAuthority keeps it only while its art is not yet found, sure by
         # the pity-th kill.

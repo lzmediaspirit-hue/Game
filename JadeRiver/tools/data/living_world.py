@@ -11,7 +11,7 @@ import glob
 import json
 import os
 
-from common import DATA, entries
+from common import DATA, all_of, entries, qdone
 
 
 def rift_rooms():
@@ -282,6 +282,11 @@ def build():
             merit_per=100,
             # Never in the Prologue, a trial, a boss arena or while a room event runs.
             never_in=["prologue", "trial", "boss_arena", "story"],
+            # An early surprise (player_motivation.md item 7): a character's first vignette is sure, the Remnant Soul in a
+            # Ring, the first time it walks onto the Willow Path once Lu has handed it the River Token (about half an
+            # hour in). It skips the meter; the three-hour meter paces every card after it.
+            first={"card": "remnant_ring", "trigger": "room_entered", "rooms": ["wp_east", "wp_west"],
+                   "requires": all_of(qdone("the_river_token"))},
             # The Hundred-Year Wine's blessing: the next batch's rare-pill chances, as if the furnace were this much better.
             wine_grain=0.25)
     entries("calendar", events(),

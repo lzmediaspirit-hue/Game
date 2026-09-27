@@ -517,6 +517,7 @@ func _draw():
 	if state.gliding: _draw_glide()
 	if state.sink_depth > 0.0 or state.water.get("skimming", false): _draw_water_ring()
 	if bound():
+		_draw_aura()
 		if Game.combat.sword_released.has(actor_id): _draw_hover_sword()
 		if Game.combat.swarm_of(actor_id) > 0: _draw_swarm(self, Game.combat.swarm_of(actor_id), false)
 		if Game.pets.swarming.has(actor_id): _draw_beetle_swarm(self, false)
@@ -524,6 +525,27 @@ func _draw():
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
+
+## The realm's aura (moments.json `auras`; research player_motivation §5 change 10): rings at the feet, motes rising
+## and a soft halo behind the body, in the realm's colour, drawn behind the avatar from plain shapes (no body pose
+## changes). With Reduce motion on it holds still.
+func _draw_aura() -> void:
+	var row := MomentRules.aura(MomentRules.aura_tier(Game.character(actor_id)))
+	if row.is_empty() or state.flying: return
+	var col := MomentRules.color(str(row.color))
+	var t := 0.0 if Game.account.settings.get("reduce_motion", false) else Time.get_ticks_msec() / 1000.0
+	var pulse := 0.5 + 0.5 * sin(t * 1.8)
+	if float(row.get("halo", 0.0)) > 0.0:
+		draw_circle(Vector2(0, avatar.position.y - 58), 38.0 + pulse * 4.0, Color(col, float(row.halo)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.32))
+	for i in int(row.get("rings", 0)):
+		draw_arc(Vector2.ZERO, 34.0 + i * 10.0 + pulse * 2.0, 0.0, TAU, 32, Color(col, 0.7 - 0.15 * i), 5.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var n := int(row.get("motes", 0))
+	for i in n:
+		var k := fposmod(t * 0.35 + float(i) / n, 1.0)
+		var p := Vector2(sin(t * 1.3 + i * 2.4) * 24.0, -4.0 - k * 92.0).snapped(Vector2(2, 2))
+		draw_rect(Rect2(p, Vector2(2, 2) * (2 if i % 2 == 0 else 1)), Color(col, 0.85 * (1.0 - k)))
 
 ## S47 weapon awakening: an awakened weapon's glow. A warm halo on the weapon side behind the body, and gold motes
 ## rising in front of it (so a mount or the body never hides it).

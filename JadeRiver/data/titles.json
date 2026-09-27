@@ -13,6 +13,17 @@
    ]
   },
   {
+   "id": "river_rival",
+   "name": "River Rival",
+   "modifiers": [
+    {
+     "stat": "coin_find",
+     "op": "flat",
+     "value": 0.01
+    }
+   ]
+  },
+  {
    "id": "thief_catcher",
    "name": "Thief-Catcher",
    "modifiers": [

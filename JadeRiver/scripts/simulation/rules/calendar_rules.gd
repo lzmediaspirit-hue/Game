@@ -21,6 +21,15 @@ static func day_start(day: int) -> float:
 static func day_of(utc: float) -> int:
 	return int(floor(utc / DAY))
 
+## Missed days bank (account_rules.bank, player_motivation.md P4): the reset days after `last_day` up to `today`, less
+## `skip` (1: not counting today), at most the bank's `days` (0 when nothing was kept yet, `last_day` < 0). The sect
+## board and the activity chests both keep what those days would have offered, so a day away never costs anything.
+static func bank() -> Dictionary:
+	return ContentDB.config("account_rules").get("bank", {})
+
+static func days_banked(last_day: int, today: int, skip := 0) -> int:
+	return 0 if last_day < 0 else clampi(today - last_day - skip, 0, int(bank().get("days", 3)))
+
 ## A draw that depends only on the seed, the event and the occurrence (never on play history).
 static func draw(seed: int, id: String, k: int) -> RandomNumberGenerator:
 	return Rng.keyed(seed, "calendar:%s:%d" % [id, k])

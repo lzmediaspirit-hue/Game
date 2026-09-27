@@ -429,5 +429,11 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     No attack or damage stat; each stat's sum over the book has a budget in `account_rules.json`
     (`collection_seals`), and `balance_sim` holds every seal together under +3% of the par character's Combat Power
     (about +0.6% at Level 99).
+28. **The top-down redesign keeps a Jump button** (2026-09-27, `docs/redesign_top_down_plan.md` §6 item 1). Touch
+    keeps the joystick, Jump, Dodge/Guard and Attack as now. Auto-hop off ledges at speed and the dash-jump over gaps
+    may stay as extras, but jumping is always on the button. Phase 1's prototype room is built to it (the plan's "As
+    built: Phase 1").
 
+29. **Top-down movement (Phase 1 review):** the dash cooldown (2.5 s) stays; walking stops at the water's edge (walking on water
+    comes from a special skill); the player can jump off rooftops (roofs are standable height levels).
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

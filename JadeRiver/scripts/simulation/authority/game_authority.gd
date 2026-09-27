@@ -228,7 +228,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				achievements.apply_title(actor_id, "free_cultivator" if to_free else "alliance_envoy")
 			"join_sect": training.apply_join(actor_id, str(e.sect))
 			"sect_rank": training.apply_rank(actor_id, str(e.rank))
-			"grant_equipment": inventory.apply_add_equipment(actor_id, str(e.item), int(e.get("ilv", 0)), str(e.get("quality", "common")), source)
+			"grant_equipment": inventory.apply_add_equipment(actor_id, str(e.item), int(e.get("ilv", 0)), str(e.get("quality", "common")), source, bool(e.get("wear", false)))
 			"add_companion": companions.apply_add(actor_id, str(e.companion))
 			"grant_pet": pets.apply_grant(actor_id, str(e.species))
 			"choose_starter": pets.choose_starter(character(actor_id), str(e.species))
@@ -270,6 +270,7 @@ func tick(delta: float) -> void:
 	delta = minf(delta, 0.25)
 	sim_time += delta
 	tick_count += 1
+	Clock.advance(delta)
 	combat.tick(delta)
 	field.tick(delta)
 	progression.tick(delta)

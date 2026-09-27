@@ -1,5 +1,5 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
-from common import entries, titled, req, c
+from common import entries, titled
 from legends import CHAINS as LEGENDS, piece_rows
 from gear import ARCHETYPES, tag
 import posts
@@ -781,7 +781,7 @@ def build_items():
     return rows
 
 
-FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
+FAMILY_APPEARANCE = {"gauntlets": "gauntlets", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
                      # S47 v1.1 families
                      "heavy_sabre": "sabre", "fan": "fan", "flute": "flute",
                      # P7b (item_plan §2.9): the brush and the bell at every grade, so the formation master and the bell musician
@@ -864,8 +864,9 @@ def build_artifacts():
             name = "%s %s" % (word.capitalize(), {"short_blade": "Short Blade", "jian": "Jian", "heavy_sabre": "Heavy Sabre"}.get(fam, titled(fam)))
             extra = {}
             if grade == "plain":
+                # The weapon slot is open from the start, and a training weapon asks nothing of its wearer: a first-hour
+                # foe may drop one (grades.json drop.starter), and the Weapon Hall hands out three.
                 extra["ilv"] = 5
-                extra["requires"] = req(c("level_at_least", level=3), c("unlock", system="weapons"))
                 extra["source"] = ["weapon_hall"]
             if fam in FAMILY_ATTRIBUTE:
                 extra["attribute_req"] = {FAMILY_ATTRIBUTE[fam]: ATTRIBUTE_REQ[grade]}
