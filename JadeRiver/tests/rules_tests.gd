@@ -10788,6 +10788,7 @@ func techniques_page_suite() -> void:
 			"Learn realises the passage and the art: %d Realisations spent" % int(pick.total))
 		await redraw.call()
 		check(pg._regions.any(func(r): return r.id == "let_go"), "a realised art can be let go")
+		if cu.technique_slots.has(id): pg.on_action("slot_sel", id)   # learned into a free slot: Unslot first
 		pg.on_action("let_go", id)
 		check(not cu.techniques_known.has(id) and int(Game.progression.realisations(c).free) == free0 - 1, "Let go gives the art's Realisations back")
 	# The Lost Arts board with nothing found, then a manual carried, found and read from it.

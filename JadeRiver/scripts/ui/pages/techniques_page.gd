@@ -469,6 +469,7 @@ func draw_page() -> void:
 	if ch == null: return
 	if _dirty and _is_tree(): _refresh()
 	for pr in [LEFT, RIGHT]: face(pr, "carved_panel")
+	_figure()   # under the chooser, which is laid over its feet
 	match _tab_id():
 		"lost": _chooser_lost(ch)
 		"secret": _chooser_secret(ch)
@@ -515,7 +516,6 @@ func _row(rr: Rect2, icon: String, name: String, value: String, line: String, fr
 func _chooser_tree(ch) -> void:
 	var tree := _tab_id()
 	var rz: Dictionary = _rz if not _rz.is_empty() else {"free": 0, "total": 0}
-	_figure()
 	_head(tree, str(tabs[tab].label), Tx.t("ui.techniques.to_place") % [int(rz.free), int(rz.total)], Tx.t("ui.techniques.families_daos"), true)
 	var fams: Array = TechniqueTreeRules.sectors()
 	var here := _fam_at_view()
@@ -526,7 +526,7 @@ func _chooser_tree(ch) -> void:
 		var d: Dictionary = ch.cultivator.daos.get(dao, {"tier": 0, "insight": 0.0})
 		var need := ProgressionRules.dao_next_need(int(d.get("tier", 0)))
 		var line := Tx.t("ui.techniques.dao_line") % [ContentDB.name_of("daos", dao), int(d.get("tier", 0))] if dao != "" else Tx.t("ui.techniques.no_dao")
-		_row(Rect2(rr.position, rr.size - Vector2(0, 0)), _fam_icon(fam), Tx.t("ui.techniques.fam_" + fam),
+		_row(rr, _fam_icon(fam), Tx.t("ui.techniques.fam_" + fam),
 			"%s / %s" % [UiKit.fmt(float(d.get("insight", 0.0))), UiKit.fmt(need)] if dao != "" and need > 0.0 else "", line, float(d.get("insight", 0.0)) / maxf(1.0, need), fam == here)
 		region(rr, "family", i))
 	var below := fams.size() - 5 - int(float(scroll.get("fams", 0.0)) / 56.0)
@@ -776,7 +776,6 @@ func _chooser_lost(ch) -> void:
 	if acts.size() < 5:
 		var kr := Rect2(20, y, 200, 52)
 		_row(kr, "lock", Tx.t("ui.techniques.acts_later") % [ROMAN[acts.size() + 1], ROMAN[5]], "", Tx.t("ui.techniques.not_reached"), 0.0, false, true)
-	_figure()
 
 ## The album's leaf for the chosen act: its count, the found arts pasted in, every other leaf sealed alike.
 func _board(ch) -> void:
@@ -803,7 +802,7 @@ func _board(ch) -> void:
 			else:
 				_sealed(p)
 				region(Rect2(at - Vector2(20, 0), Vector2(116, 116)), "sealed", lost_act))
-	para(Rect2(260, 608, 612, 30), Tx.t("ui.techniques.more_in_world") % (n.y - n.x) if n.y > n.x else Tx.t("ui.techniques.all_found"), 18, UiKit.PAPER)
+	para(Rect2(252, 604, 628, 34), Tx.t("ui.techniques.more_in_world") % (n.y - n.x) if n.y > n.x else Tx.t("ui.techniques.all_found"), 22, UiKit.PAPER, 1, true)
 
 ## A found art on its leaf: its emblem, its name and Unread or Learned.
 func _leaf(card: Dictionary, p: Rect2) -> void:
@@ -906,7 +905,6 @@ func _free_inner(ch) -> int:
 func _chooser_secret(ch) -> void:
 	var arts: Array = ch.cultivator.secret_arts
 	_head("secret", Tx.t("ui.techniques.secret_arts"), Tx.t("ui.techniques.n_known") % arts.size(), Tx.t("ui.techniques.secret_help"))
-	_figure()
 
 ## The known Secret Arts laid on a woven mat, one footwork line each; the chosen one read at the right.
 func _mat(ch) -> void:
