@@ -49,16 +49,16 @@
   {
    "id": "wardens_hall",
    "rect": [
-    1410,
-    622,
-    180,
-    68
+    1250,
+    598,
+    380,
+    92
    ],
-   "height": 312,
+   "height": 158,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
-   "art": "watch_tower"
+   "art": "village_house"
   },
   {
    "id": "route_0",
@@ -94,7 +94,7 @@
     220,
     70
    ],
-   "height": 176,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -183,7 +183,7 @@
    "id": "hall_door",
    "type": "door",
    "at": [
-    1500,
+    1440,
     704
    ],
    "to": "wc_wardens_hall",
@@ -416,36 +416,20 @@
    "id": "wardens_hall_ladder_1",
    "kind": "ladder",
    "at": [
-    1460,
+    1400,
     725
    ],
    "top_at": [
-    1460,
+    1400,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 312,
+   "top_alt": 158,
    "bottom": "ground",
    "top": "wardens_hall"
   },
   {
-   "id": "wardens_hall_ladder_102",
-   "kind": "ladder",
-   "at": [
-    1540,
-    725
-   ],
-   "top_at": [
-    1540,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 312,
-   "bottom": "ground",
-   "top": "wardens_hall"
-  },
-  {
-   "id": "route_0_ladder_3",
+   "id": "route_0_ladder_2",
    "kind": "ladder",
    "at": [
     290,
@@ -461,7 +445,7 @@
    "top": "route_0"
   },
   {
-   "id": "route_1_ladder_4",
+   "id": "route_1_ladder_3",
    "kind": "ladder",
    "at": [
     780,
@@ -477,7 +461,7 @@
    "top": "route_1"
   },
   {
-   "id": "route_2_ladder_5",
+   "id": "route_2_ladder_4",
    "kind": "ladder",
    "at": [
     1090,
@@ -488,12 +472,12 @@
     698
    ],
    "bottom_alt": 0,
-   "top_alt": 176,
+   "top_alt": 88,
    "bottom": "ground",
    "top": "route_2"
   },
   {
-   "id": "route_6_ladder_6",
+   "id": "route_6_ladder_5",
    "kind": "ladder",
    "at": [
     3230,
@@ -509,7 +493,7 @@
    "top": "route_6"
   },
   {
-   "id": "route_7_ladder_7",
+   "id": "route_7_ladder_6",
    "kind": "ladder",
    "at": [
     3540,

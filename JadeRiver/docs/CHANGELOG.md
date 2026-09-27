@@ -1,5 +1,33 @@
 # Changelog
 
+## Tutorial order: the first fight, foes' HP bars, doors and quest talks (docs/tutorial_order.md)
+
+Found on the Android build from a new character; each fixed at its cause and held by a new suite.
+- **The first fight comes after the HP bars.** The East Gate to the Reed Shallows opened with Fists First, while the
+  HP bar comes with Granny's Remedy and the foes' HP bars with Crab Trouble, so a player who went to Uncle Guo first
+  fought crabs and rats with neither. The gate now opens with Crab Trouble (the quest that sends you there, after all
+  four lessons); Guo's lines say so. Old Ma's and Granny Liu's Trade waits for Coins and Shops (buying needed it and
+  the purse was off the HUD).
+- **Foes in a fight show their HP bar.** Beyond the reveal above (not a regression of the P5a labels), a foe showed
+  its bar only once hurt, so a Reedtail Rat biting you showed none. A foe now shows it from the moment it turns on
+  you (`EnemyState.in_fight`, `EnemyView.shows_hp_bar`).
+- **Every way into a building shows a door.** Old Ma's store drew an open counter and no door. The store's art now has
+  its own plank door under a blue shop curtain in the right bay (`tools/props/defs_buildings.py`); every building prop
+  names its doorway (`door` in `data/prop_art.json`) and `Room.building` stands the door portal in it (the Fisher's
+  Hut's was 44 px off its door; the harbour's and the port's inns and shops too). A door's arrow and plate draw above
+  the facade (they were hidden behind the building). The painted bell towers of the retreat rooms get a door at their
+  foot, the Cloud Library's door moved onto the Sword Court hall's doors, the Beast Trial Grove's way stands clear of
+  the bell tower, and the Wardens' Hall is a house with a door instead of a watch tower. `data_validation` holds every
+  room to it (`PortalView.entrance`).
+- **Taking a quest ends the talk.** The dialogue page talked again after an accept and stayed open on a shop, a gift
+  or a farewell. `choose_dialogue` now hands back a conversation only when the same person has the next quest to give
+  or take back (`QuestAuthority._then`); otherwise the page closes. Every quest-giver alike.
+- **Tests**: `tutorial_order` (new) walks the Prologue and the start of Act I fists-first on the real dialogue page and
+  checks after every step and tick: no room with foes in reach before the HP bars, every foe in a fight showing its bar,
+  a door at every way into a building, the talk closing after each quest taken, each step's control on the HUD when its
+  quest is taken. `prologue_run` is split into steps both runs share; `valley_run`'s page check is stricter.
+- **Screenshots** from a new character in `docs/ui_p5/tutorial_fix/`.
+
 ## P13a · Techniques at scale, the data (docs/technique_plan.md)
 
 The techniques of Acts I–III are written, 3,171 in all: every weapon family and cultivation path has hundreds of arts,

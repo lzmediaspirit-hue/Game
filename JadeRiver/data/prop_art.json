@@ -1435,6 +1435,10 @@
       236
     ],
     "building": true,
+    "door": [
+      136,
+      180
+    ],
     "file": "res://art/props/herb_hut.png",
     "frame": [
       340,
@@ -3009,6 +3013,10 @@
       276
     ],
     "building": true,
+    "door": [
+      136,
+      176
+    ],
     "file": "res://art/props/stilt_house.png",
     "frame": [
       380,
@@ -3314,6 +3322,10 @@
       236
     ],
     "building": true,
+    "door": [
+      124,
+      168
+    ],
     "file": "res://art/props/thatched_hut.png",
     "frame": [
       360,
@@ -3465,6 +3477,10 @@
       246
     ],
     "building": true,
+    "door": [
+      160,
+      220
+    ],
     "file": "res://art/props/village_house.png",
     "frame": [
       380,
@@ -3484,6 +3500,10 @@
       256
     ],
     "building": true,
+    "door": [
+      246,
+      298
+    ],
     "file": "res://art/props/village_store.png",
     "frame": [
       400,
@@ -3633,6 +3653,10 @@
       256
     ],
     "building": true,
+    "door": [
+      160,
+      280
+    ],
     "file": "res://art/props/warehouse.png",
     "frame": [
       440,

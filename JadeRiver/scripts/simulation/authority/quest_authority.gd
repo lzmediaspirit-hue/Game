@@ -305,6 +305,8 @@ func talk(c, npc: String) -> Dictionary:
 	for s in n.get("services", []):
 		var svc := str(s)
 		if svc.begins_with("shop:"):
+			# Trade waits for Coins and Shops (Ma's Delivery): buying needs it, and the purse is not on the HUD before it.
+			if not Unlocks.is_unlocked(c.id, "shop"): continue
 			var shop := ContentDB.entry("shops", svc.trim_prefix("shop:"))
 			if shop.is_empty() or (shop.has("requires") and not RequirementRules.passes(shop.requires, game.ctx(c))): continue
 			var shops_n := (n.get("services", []) as Array).filter(func(x): return str(x).begins_with("shop:")).size()
@@ -367,13 +369,22 @@ func choose(c, npc: String, choice: Dictionary) -> Dictionary:
 				if ch.has("requires") and not RequirementRules.passes(ch.requires, game.ctx(c)): return fail("not_allowed")
 				game.apply_effects(c.id, ch.get("effects", []), "dialogue:" + npc)
 		if not found: return fail("bad_choice")
-	if choice.has("accept"): return accept(c, str(choice.accept))
-	if choice.has("hand_in"): return hand_in(c, str(choice.hand_in))
+	if choice.has("accept"): return _then(c, npc, accept(c, str(choice.accept)))
+	if choice.has("hand_in"): return _then(c, npc, hand_in(c, str(choice.hand_in)))
 	if choice.has("next") and choice.get("tree", "") != "":
 		var tree2: Dictionary = ContentDB.dialogue.get(str(choice.tree), {})
 		return ok({"dialogue": _tree_node(c, npc, ContentDB.entry("npcs", npc), tree2, str(choice.next))})
 	if choice.has("spar"): return start_spar(c, str(choice.spar))
 	return ok()
+
+## M17 · After a quest is taken or handed in, the conversation ends there (nobody taps "Farewell"), unless the same
+## person has another quest to offer or to take back now: then it goes on to that (`dialogue`). They are spoken to
+## again either way, as a player tapping them again would (a talk objective about them counts).
+func _then(c, npc: String, r: Dictionary) -> Dictionary:
+	if not r.get("ok", false) or npc == "" or ContentDB.entry("npcs", npc).is_empty(): return r
+	var again: Dictionary = talk(c, npc).get("dialogue", {})
+	if again.has("quest"): r.dialogue = again
+	return r
 
 # ------------------------------------------------------------------ lifecycle
 func accept(c, qid: String) -> Dictionary:

@@ -6704,7 +6704,7 @@ func guidance_suite() -> void:
 	check(Game.quest.npc_marker(c, "magistrate_qian") == "ready", "done and ready to hand in: the question mark")
 	# The way there: the tracker names the room, the minimap marks this room's exit on the route.
 	c.quests.active = {"glowflies": {"state": "active", "progress": [0], "accepted_tick": 0}}
-	c.quests.done = {"fists_first": 1}   # the village's east gate opens after Fists First
+	c.quests.done = {"crab_trouble": 1}   # the village's East Gate opens with Crab Trouble
 	c.quests.tracked = ["glowflies"]
 	Game.world.apply_teleport(c.id, "lf_village")
 	check(Game.world.guide_target(c) == "lf_reed_shallows", "the tracked quest leads to the Reed Shallows")
