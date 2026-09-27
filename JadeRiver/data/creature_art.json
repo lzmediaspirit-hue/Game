@@ -773,6 +773,178 @@
     "flying": true,
     "hit_frame": 1
   },
+  "copperjaw_queen": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      64,
+      64
+    ],
+    "bounds": {
+      "0": [
+        36,
+        40,
+        60,
+        46
+      ],
+      "1": [
+        22,
+        42,
+        78,
+        42
+      ],
+      "2": [
+        38,
+        44,
+        54,
+        40
+      ],
+      "3": [
+        30,
+        48,
+        74,
+        32
+      ],
+      "4": [
+        16,
+        34,
+        78,
+        60
+      ],
+      "5": [
+        18,
+        34,
+        78,
+        60
+      ]
+    },
+    "cell": 128,
+    "file": "res://art/creatures/copperjaw_queen.png",
+    "flying": true,
+    "hit_frame": 1
+  },
+  "copperjaw_swarm": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      64,
+      64
+    ],
+    "bounds": {
+      "0": [
+        36,
+        40,
+        60,
+        46
+      ],
+      "1": [
+        22,
+        42,
+        78,
+        42
+      ],
+      "2": [
+        38,
+        44,
+        54,
+        40
+      ],
+      "3": [
+        30,
+        48,
+        74,
+        32
+      ],
+      "4": [
+        16,
+        34,
+        78,
+        60
+      ],
+      "5": [
+        18,
+        34,
+        78,
+        60
+      ]
+    },
+    "cell": 128,
+    "file": "res://art/creatures/copperjaw_swarm.png",
+    "flying": true,
+    "hit_frame": 1
+  },
   "dune_worm": {
     "actions": {
       "attack": {
