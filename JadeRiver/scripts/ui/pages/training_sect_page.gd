@@ -24,9 +24,9 @@ func draw_page() -> void:
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.training_sect.you_are_unaffiliated_the_jade"), 22, UiKit.PAPER)
 		return
 	var sect := ContentDB.entry("sects", str(ts.id))
-	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 566, true)
 	var ranks: Dictionary = ContentDB.config("sect_ranks")
-	var rank_name := str(ts.get("rank", "")).replace("_", " ").capitalize()
+	var rank_name := ContentDB.rank_name(str(ts.get("rank", "")))
 	text(r.position + Vector2(30, 90), Tx.t("ui.training_sect.rank") % rank_name, 22)
 	currency_pill(r.position + Vector2(30, 110), "contribution", int(ts.get("contribution", 0)))
 	# S48 the Blood path lowers the sect's regard; below zero the Mission Hall lends no manuals.
@@ -44,8 +44,9 @@ func draw_page() -> void:
 			text(Vector2(r.position.x + 300, y), RequirementRules.first_failure_text(rk.get("requires", {}), Game.ctx(ch)) if not ok else Tx.t("ui.training_sect.ready"), 17, UiKit.PAPER if ok else UiKit.MIST)
 			btn(Rect2(r.position.x + 640, y - 30, 220, 46), Tx.t("ui.training_sect.promotion_trial"), "promote", null, true, ok, Tx.t("ui.training_sect.not_yet"))
 		y += 40
-	btn(Rect2(r.end.x - 260, r.end.y - 76, 230, 56), Tx.t("ui.training_sect.sect_shop"), "shop", null, false, Unlocks.is_unlocked(ch.id, "contribution_shop"), Unlocks.locked_text("contribution_shop"))
-	btn(Rect2(r.end.x - 520, r.end.y - 76, 230, 56), Tx.t("ui.training_sect.missions"), "missions")
+	# B5: the ranks fill the panel's height, so these sit at its top right, clear of the Promotion trial on any rank's row.
+	btn(Rect2(r.end.x - 260, r.position.y + 24, 230, 56), Tx.t("ui.training_sect.sect_shop"), "shop", null, false, Unlocks.is_unlocked(ch.id, "contribution_shop"), Unlocks.locked_text("contribution_shop"))
+	btn(Rect2(r.end.x - 520, r.position.y + 24, 230, 56), Tx.t("ui.training_sect.missions"), "missions")
 
 ## S48 sect role variants: the signature line's damage or support variant, and the sect tree bought with contribution.
 func _role(ch) -> void:
@@ -98,13 +99,16 @@ func _role(ch) -> void:
 			var nr := Rect2(x, right.position.y + 90 + ni * nh, colw, nh - 8)
 			var owned := ni < lvl
 			panel(nr, "minor_panel", "selected" if owned else "normal")
-			para(Rect2(nr.position + Vector2(10, 4), Vector2(nr.size.x - 20, nr.size.y - 30)), str(nd.get("desc", "")), 14, UiKit.PAPER if owned else UiKit.MIST, 2)
+			# B18: three lines where no Buy button takes the foot (the owned mark sits in the top corner), else two.
+			var buy := not owned and ni == lvl
+			para(Rect2(nr.position + Vector2(10, 4), Vector2(nr.size.x - (38 if owned else 20), nr.size.y - (30 if buy else 8))), str(nd.get("desc", "")), 14,
+				UiKit.PAPER if owned else UiKit.MIST, 2 if buy else 3)
 			if owned:
-				text(nr.position + Vector2(10, nr.size.y - 12), "✓", 18, UiKit.BRIGHT_JADE)
+				text(Vector2(nr.end.x - 24, nr.position.y + 20), "✓", 18, UiKit.BRIGHT_JADE)
 			elif ni == lvl:
 				var why := ""
 				if nd.has("rank") and not RequirementRules.passes({"all": [{"kind": "sect_rank_at_least", "rank": str(nd.rank)}]}, Game.ctx(ch)):
-					why = Tx.t("req.sect_rank") % str(nd.rank).replace("_", " ").capitalize()
+					why = Tx.t("req.sect_rank") % ContentDB.rank_name(str(nd.rank))
 				elif int(ts.get("contribution", 0)) < int(nd.get("cost", 0)): why = Tx.t("sim.training_sect.not_enough_contribution") % int(nd.get("cost", 0))
 				btn(Rect2(nr.end.x - 86, nr.end.y - 32, 78, 28), Tx.t("ui.training_sect.buy") % int(nd.get("cost", 0)), "node", str(b.id), true, why == "", why, 14)
 

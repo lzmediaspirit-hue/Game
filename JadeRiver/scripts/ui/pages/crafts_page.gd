@@ -192,7 +192,7 @@ func draw_page() -> void:
 		_deduce(ch, right)
 		return
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge",
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": Tx.t("ui.crafts.furnace_word"), "smithing": Tx.t("ui.crafts.forge_word"),
 			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 19, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
@@ -594,7 +594,7 @@ func _auto(ch, right: Rect2) -> void:
 	for b in q:
 		y += 30
 		var left := int(float(b.done_utc) - Clock.now_utc())
-		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), "ready" if left <= 0 else "%dm" % (left / 60 + 1)], 17)
+		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), Tx.t("ui.crafts.batch_ready") if left <= 0 else UiKit.span(left)], 17)
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 # ------------------------------------------------------------------ S44 experiments, Deduce and the guild

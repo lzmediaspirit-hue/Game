@@ -87,21 +87,23 @@ func draw_page() -> void:
 		panel(r)
 		var arts: Array = cu.secret_arts if cu.get("secret_arts") != null else []
 		if arts.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.techniques.no_secret_arts_yet"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-		for i in arts.size():
+		# B4: a scrolling list, so every art (and Concealment's buttons) stays in reach.
+		list("secret", r.grow(-10), arts.size(), 64, func(i: int, rr: Rect2):
 			var d := ContentDB.entry("secret_arts", str(arts[i]))
-			text(r.position + Vector2(24, 44 + i * 64), str(d.get("name", arts[i])), 22, UiKit.PALE_GOLD)
-			text(r.position + Vector2(24, 68 + i * 64), str(d.get("desc", "")), 16, UiKit.MIST)
+			text(rr.position + Vector2(14, 30), str(d.get("name", arts[i])), 22, UiKit.PALE_GOLD)
+			var bx := rr.end.x - 14.0
 			# S48: Concealment can show a false realm, up to two great realms lower.
 			if str(arts[i]) == "concealment":
 				var choices: Array = [""] + Game.progression.false_realm_choices(ch)
-				var bx := r.end.x - 24.0
 				for j in range(choices.size() - 1, -1, -1):
 					var key := str(choices[j])
 					var label := Tx.t("ui.techniques.true_realm") if key == "" else ContentDB.realm_label(key)
 					var w := maxf(120.0, UiKit.text_width(label, 16) + 28.0)
 					bx -= w
-					btn(Rect2(bx, r.position.y + 26 + i * 64, w, 40), label, "false_realm", key, cu.false_realm == key, true, "", 16)
+					btn(Rect2(bx, rr.position.y + 6, w, 48), label, "false_realm", key, cu.false_realm == key, true, "", 16)
 					bx -= 8.0
+			text(rr.position + Vector2(14, 54), str(d.get("desc", "")), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, bx - rr.position.x - 24)
+		)
 		return
 	# Equipped slots across the top.
 	var n := ProgressionRules.technique_slot_count(ch)

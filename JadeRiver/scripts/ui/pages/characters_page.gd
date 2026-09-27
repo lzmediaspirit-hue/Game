@@ -22,9 +22,9 @@ func draw_page() -> void:
 			text(rr.position + Vector2(20, 48), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 19, UiKit.HOLLOW)
 			return
 		text(rr.position + Vector2(20, 34), str(other.name), 22, UiKit.PALE_GOLD if other == ch else UiKit.PAPER)
-		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key), 16, UiKit.MIST)
-		var task := str(other.idle_task.get("task", "")) if other != ch else Tx.t("ui.characters.playing")
-		text(rr.position + Vector2(300, 48), task.capitalize() if task != "" else Tx.t("ui.characters.idle_none"), 17, UiKit.BRIGHT_JADE)
+		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key, ProgressionRules.level(other)), 16, UiKit.MIST)
+		text(rr.position + Vector2(300, 48), task_line(other) if other != ch else Tx.t("ui.characters.playing"), 17, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT,
+			rr.size.x - 300 - (170 if other != ch else 20))
 		if other != ch: btn(Rect2(rr.end.x - 160, rr.position.y + 14, 140, 50), Tx.t("ui.characters.switch"), "switch", slot)
 	)
 	var right := Rect2(r.end.x + 20, content.position.y, content.end.x - r.end.x - 20, content.size.y)
@@ -43,6 +43,24 @@ func draw_page() -> void:
 			why = Tx.t("sim.account.idle_room_" + str(tk[0]))
 		btn(Rect2(right.position.x + 20, y, right.size.x - 40, 50), tk[1], "task", tk[0], cur == tk[0], ok, why)
 		y += 58
+
+## What a character not being played does: its post, else its idle task. B20: Keeping Post (S50) moved hunting and
+## gathering idlers to posts and clears idle_task, so a character at its post read "Idle: none".
+func task_line(other) -> String:
+	var post := post_line(other)
+	if post != "": return post
+	var task := str(other.idle_task.get("task", ""))
+	for tk in TASKS:
+		if tk[0] == task: return tk[1]
+	return task.capitalize() if task != "" else Tx.t("ui.characters.idle_none")
+
+## "Post: Delving at Willow Path West", "Vigil at Reed Marsh", or "" for a character keeping no post.
+static func post_line(other) -> String:
+	var post: Dictionary = Game.posts.post_of(other)
+	if post.is_empty(): return ""
+	var room := ContentDB.name_of("rooms", str(post.get("room", "")))
+	if str(post.get("kind", "")) == "vigil": return Tx.t("ui.characters.vigil_at") % room
+	return Tx.t("ui.characters.post_at") % [str(ContentDB.entry("posts", str(post.get("craft", ""))).get("short", "")), room]
 
 func on_action(id: String, data) -> void:
 	match id:

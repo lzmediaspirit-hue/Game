@@ -129,10 +129,38 @@ static func line_height(size: int) -> float:
 static func style(asset: String, state := "normal", content_margin := -1.0) -> StyleBox:
 	var key := asset + ":" + state + ":" + str(content_margin)
 	if _styles.has(key): return _styles[key]
+	var derived := DERIVED_TINT.has(state) and not _has_state(asset, state)
+	_styles[key] = _derived_style(asset, state, content_margin) if derived else _kit_style(asset, state, content_margin)
+	return _styles[key]
+
+## States neither kit draws for an asset (minor_panel is drawn only `normal`) are made from its normal art, so a
+## selected or disabled row still reads as one (B3): selected wears the kit's selected glow, disabled is dimmed,
+## pressed is darkened a little.
+const DERIVED_TINT := {"selected": Color.WHITE, "disabled": Color(0.5, 0.56, 0.58, 0.8), "pressed": Color(0.82, 0.86, 0.86)}
+
+static func _has_state(asset: String, state: String) -> bool:
+	return (ContentDB.config("ui_assets_hd").get(asset, {}) as Dictionary).has(state) or (ContentDB.config("ui_assets").get(asset, {}) as Dictionary).has(state)
+
+static func _derived_style(asset: String, state: String, content_margin: float) -> StyleBox:
+	var base := _kit_style(asset, "normal", content_margin)   # a fresh box: the cached normal one stays untinted
+	var tint: Color = DERIVED_TINT[state]
+	if base is HdStyleBox: base.modulate = tint
+	elif base is StyleBoxTexture: base.modulate_color = tint
+	if state != "selected": return base
+	var lb := LayeredBox.new()
+	lb.layers = [[base, 0.0], [style("selected_slot_glow"), 3.0]]
+	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]: lb.set_content_margin(side, base.get_content_margin(side))
+	return lb
+
+## Style boxes drawn one over another, each on the rect grown by its own margin.
+class LayeredBox extends StyleBox:
+	var layers: Array = []   # [[StyleBox, grow px]]
+	func _draw(to_canvas_item: RID, rect: Rect2) -> void:
+		for l in layers: (l[0] as StyleBox).draw(to_canvas_item, rect.grow(float(l[1])))
+
+static func _kit_style(asset: String, state: String, content_margin: float) -> StyleBox:
 	var hd := _hd_style(asset, state, content_margin)
-	if hd:
-		_styles[key] = hd
-		return hd
+	if hd: return hd
 	var e: Dictionary = ContentDB.config("ui_assets").get(asset, {})
 	var path := str(e.get(state, e.get("normal", "")))
 	var texture: Texture2D = SpriteCache.tex(path)
@@ -141,7 +169,6 @@ static func style(asset: String, state := "normal", content_margin := -1.0) -> S
 		flat.bg_color = RIVER_NIGHT
 		flat.border_color = JADE
 		flat.set_border_width_all(2)
-		_styles[key] = flat
 		return flat
 	var sb := StyleBoxTexture.new()
 	sb.texture = texture
@@ -155,7 +182,6 @@ static func style(asset: String, state := "normal", content_margin := -1.0) -> S
 	sb.content_margin_right = cm
 	sb.content_margin_top = cm * 0.6
 	sb.content_margin_bottom = cm * 0.6
-	_styles[key] = sb
 	return sb
 
 ## The HD kit's version of an asset (data/ui_assets_hd.json), or null when it has none.
@@ -240,6 +266,19 @@ static func text_width(text: String, size: int, display := false) -> float:
 	_widths[key] = w
 	return w
 
+static var _fitted: Dictionary = {}   # fitted lines drawn every frame are shortened once
+
+## `s` shortened with an ellipsis so it fits `width` at `size`, measured at the size it is drawn (never under MIN_SIZE).
+static func fit(s: String, size: int, width: float, display := false) -> String:
+	if text_width(s, size, display) <= width: return s
+	var key := "%d|%s|%d|%.2f|%s" % [size, display, int(width), text_scale(), s]
+	if _fitted.has(key): return _fitted[key]
+	var n := s.length()
+	while n > 1 and text_width(s.left(n) + "…", size, display) > width: n -= 1
+	if _fitted.size() > 2000: _fitted.clear()
+	_fitted[key] = s.left(n).strip_edges() + "…"
+	return _fitted[key]
+
 static func quality_color(q: String) -> Color:
 	return Color(str(ContentDB.config("grades").get("quality_colors", {}).get(q, "#e8e1cf")))
 
@@ -272,6 +311,20 @@ static func clock(seconds: float) -> String:
 	if s >= 86400: return Tx.t("ui.clock_days") % [s / 86400, (s % 86400) / 3600]
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
+
+## A time left in words: "2 d 5 h", "1 h 6 m", "12 m", "45 s" (the calendar's style; I14 proposes it for every
+## duration but the ticking countdowns, which keep `clock`).
+static func span(seconds: float) -> String:
+	var s := maxi(0, int(ceil(seconds)))
+	if s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
+	if s >= 3600: return Tx.t("ui.span_hm") % [s / 3600, (s % 3600) / 60]
+	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
+	return Tx.t("ui.span_s") % s
+
+## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
+## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.
+static func pool_values(cur: float, most: float) -> Array:
+	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
 
 static func fmt(n: float) -> String:
 	var v := int(round(n))

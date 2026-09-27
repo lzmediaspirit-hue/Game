@@ -49,10 +49,11 @@ func draw_page() -> void:
 		for cat in led.get("full", {}):
 			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % _dur(float(led.full[cat]) * 3600.0)])
 	if rows.is_empty(): rows.append([Tx.t("ui.welcome.nothing_gathered"), Tx.t("ui.welcome.set_seclusion_or_an_idle")])
-	for r in rows:
-		text(Vector2(content.position.x + 20, y + 24), str(r[0]), 21, UiKit.PAPER)
-		text(Vector2(content.position.x, y + 24), str(r[1]), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, content.size.x - 20)
-		y += 36
+	# A long Return Ledger scrolls above the buttons instead of running under them.
+	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 36, func(i: int, rr: Rect2):
+		text(Vector2(rr.position.x + 20, rr.position.y + 24), str(rows[i][0]), 21, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
+		text(Vector2(rr.position.x, rr.position.y + 24), str(rows[i][1]), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
+	)
 	if not args.get("post", {}).is_empty() and not (args.post.get("items", {}) as Dictionary).is_empty():
 		btn(Rect2(content.get_center().x - 260, content.end.y - 60, 250, 58), Tx.t("ui.welcome.to_storehouse"), "store", null, true)
 		btn(Rect2(content.get_center().x + 10, content.end.y - 60, 250, 58), Tx.t("ui.welcome.keep_in_pouch"), "ok")

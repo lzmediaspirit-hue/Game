@@ -4,6 +4,7 @@ extends RefCounted
 ## Each screen is a frameless Page drawn over the river backdrop.
 
 const Avatar = preload("res://scripts/avatar.gd")
+const CharactersPage = preload("res://scripts/ui/pages/characters_page.gd")
 
 
 class TitleScreen extends Page:
@@ -26,7 +27,7 @@ class TitleScreen extends Page:
 		btn(Rect2(490, 500, 300, 56), Tx.t("shell.settings"), "settings")
 		if OS.get_name() not in ["Android", "iOS", "Web"]:
 			btn(Rect2(490, 570, 300, 56), Tx.t("shell.quit"), "quit")
-		text(Vector2(0, 700), Tx.t("shell.v1_0_jade_river_valley"), 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
+		text(Vector2(0, 700), Tx.t("shell.version") % str(ProjectSettings.get_setting("application/config/version", "")), 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
 		if OS.has_feature("max_test"): text(Vector2(0, 672), Tx.t("shell.max_test_build"), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280)
 
 	func on_action(id: String, _data) -> void:
@@ -81,12 +82,13 @@ class SelectionScreen extends Page:
 			draw_style_box(UiKit.style("major_window" if slot == chosen and ch != null else "minor_panel"), r)
 			if ch != null:
 				text(r.position + Vector2(0, 312), str(ch.name), 26, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-				text(r.position + Vector2(0, 342), ContentDB.realm_label(ch.cultivator.realm_key), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+				text(r.position + Vector2(0, 342), ContentDB.realm_label(ch.cultivator.realm_key, ProgressionRules.level(ch)), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				var sect_name := ContentDB.name_of("sects", str(ch.training_sect.get("id", ""))) if str(ch.training_sect.get("id", "")) != "" else ContentDB.text("ui.unaffiliated")
 				text(r.position + Vector2(0, 368), sect_name, 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				var status := ""
 				if ch.cultivator.state == "bottleneck": status = Tx.t("shell.at_a_bottleneck")
 				elif not ch.cultivator.injuries.is_empty(): status = Tx.t("shell.injured")
+				elif Game.posts.has_post(ch): status = CharactersPage.post_line(ch)   # B20: a character at its post
 				elif not ch.idle_task.is_empty(): status = Tx.t("shell.idle") % str(ch.idle_task.get("task", "")).capitalize()
 				if status != "": text(r.position + Vector2(0, 396), status, 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				region(r, "select", slot)

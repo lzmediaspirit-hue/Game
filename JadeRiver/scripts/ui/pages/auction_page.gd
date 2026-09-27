@@ -37,10 +37,12 @@ func draw_page() -> void:
 		var who := Tx.t("ui.auction.you") if mine else (str(bidders[int(l.npc) % bidders.size()]) if str(l.bidder) == "npc" and not bidders.is_empty() else Tx.t("ui.auction.another"))
 		var price: int = Game.economy.auction_price(l)
 		text(Vector2(rr.position.x + rr.size.x * 0.45, rr.position.y + 34), Tx.t("ui.auction.stands_at") % UiKit.fmt(price), 20, UiKit.PALE_GOLD)
-		text(Vector2(rr.position.x + rr.size.x * 0.45, rr.position.y + 62), fit(Tx.t("ui.auction.held_by") % who, 16, rr.size.x * 0.3), 16, UiKit.BRIGHT_JADE if mine else UiKit.MIST)
+		# B16: "Held by" stops short of the two Bid buttons (it was fitted to a share of the row that ran under them).
+		var bw := 150.0
+		var held_w := (rr.end.x - 2 * bw - 36 if not mine else rr.end.x - 16) - (rr.position.x + rr.size.x * 0.45)
+		text(Vector2(rr.position.x + rr.size.x * 0.45, rr.position.y + 62), Tx.t("ui.auction.held_by") % who, 16, UiKit.BRIGHT_JADE if mine else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, held_w)
 		if not mine:
 			var need: int = Game.economy.auction_min_bid(l)
-			var bw := 150.0
 			btn(Rect2(rr.end.x - 2 * bw - 24, rr.position.y + 22, bw, 52), Tx.t("ui.auction.bid") % UiKit.fmt(need), "bid", [str(l.id), need], true, true, "", 18)
 			var big := int(ceil(price * 1.5))
 			btn(Rect2(rr.end.x - bw - 12, rr.position.y + 22, bw, 52), Tx.t("ui.auction.bid") % UiKit.fmt(big), "bid", [str(l.id), big], false, true, "", 18)

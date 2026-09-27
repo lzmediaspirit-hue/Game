@@ -9,6 +9,7 @@ var texture: Texture2D          # a CanvasTexture carrying the linear filter
 var size_px := Vector2.ONE      # the source image size in texels
 var margins := [8.0, 8.0, 8.0, 8.0]
 var scale := 3.0
+var modulate := Color.WHITE    # a derived state's tint (UiKit.DERIVED_TINT)
 
 func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	if texture == null: return
@@ -19,7 +20,7 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	RenderingServer.canvas_item_add_set_transform(ci, Transform2D(Vector2(1.0 / s, 0.0), Vector2(0.0, 1.0 / s), rect.position))
 	var dest := Rect2(Vector2.ZERO, rect.size * s)
 	if fixed:
-		RenderingServer.canvas_item_add_texture_rect_region(ci, dest, texture.get_rid(), Rect2(Vector2.ZERO, size_px))
+		RenderingServer.canvas_item_add_texture_rect_region(ci, dest, texture.get_rid(), Rect2(Vector2.ZERO, size_px), modulate)
 	else:
 		# Margins never exceed the rect, so small boxes shrink their corners evenly. Art with no
 		# centre along an axis (a plaque whose margins cover its full height) scales to fit instead.
@@ -34,5 +35,5 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 			RenderingServer.canvas_item_add_set_transform(ci, Transform2D(Vector2(k / s, 0.0), Vector2(0.0, k / s), rect.position))
 			dest = Rect2(Vector2.ZERO, rect.size * s / k)
 		RenderingServer.canvas_item_add_nine_patch(ci, dest, Rect2(Vector2.ZERO, size_px), texture.get_rid(), tl, br,
-			RenderingServer.NINE_PATCH_STRETCH, RenderingServer.NINE_PATCH_STRETCH, true)
+			RenderingServer.NINE_PATCH_STRETCH, RenderingServer.NINE_PATCH_STRETCH, true, modulate)
 	RenderingServer.canvas_item_add_set_transform(ci, Transform2D.IDENTITY)

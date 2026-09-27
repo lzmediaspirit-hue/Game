@@ -1488,20 +1488,20 @@ func _draw_player_panel(c) -> void:
 	UiKit.draw_text(self, c.name, r.position + Vector2(18, 30), 18, UiKit.PAPER)
 	if shown("realm_badge"):
 		# Concealment's false realm (S48) is the badge the world sees; a veil mark says it is not the true one.
-		var badge := ContentDB.realm_label(Game.progression.shown_realm(c))
+		var badge := ContentDB.realm_label(Game.progression.shown_realm(c), -1 if c.cultivator.false_realm != "" else ProgressionRules.level(c))
 		var veiled: bool = c.cultivator.false_realm != ""
 		UiKit.draw_text(self, badge, r.position + Vector2(18, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % [UiKit.fmt(int(c.pools.hp)), UiKit.fmt(int(c.pools.max_hp))])
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
 		y += 18
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % [UiKit.fmt(int(c.pools.qi)), UiKit.fmt(int(c.pools.max_qi))])
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
 		y += 18
 	if soul_row:
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % [UiKit.fmt(int(c.pools.soul)), UiKit.fmt(int(c.pools.max_soul))])
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
 	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
 	if ProgressionAuthority.walks(c, "blood"):
 		var strip := Rect2(r.position.x + 56, r.end.y - 6, 288, 3)
@@ -1560,7 +1560,7 @@ func _draw_tracker(c) -> void:
 	for q in entries:
 		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else Color("8fc8ff")
 		if q.kind == "guided": col = Color("8fc8ff")
-		UiKit.draw_text(self, ("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), Vector2(22, y), 17, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
+		UiKit.draw_text(self, UiKit.fit(("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), 17, 258), Vector2(22, y), 17, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
 		# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
 		var goal := str(q.get("target_room", ""))
 		if goal != "" and goal != here:
@@ -1573,15 +1573,21 @@ func _draw_tracker(c) -> void:
 		y += UiKit.line_height(17) * 0.9
 		# P1: the tracker names where the quest leads.
 		if goal != "" and goal != here:
-			UiKit.draw_text(self, "➤ " + WorldAuthority.place_name(goal), Vector2(30, y), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
+			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(goal), 15, 290), Vector2(30, y), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
 			y += UiKit.line_height(15) * 0.88
 		for line in q.lines:
-			var txt := str(line.text)
-			if int(line.need) > 1: txt += "  %d/%d" % [int(line.have), int(line.need)]
-			UiKit.draw_text(self, ("✓ " if line.done else "· ") + txt, Vector2(30, y), 16, UiKit.BRIGHT_JADE if line.done else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 290)
+			var count := "%d/%d" % [int(line.have), int(line.need)] if int(line.need) > 1 else ""
+			var lc := UiKit.BRIGHT_JADE if line.done else UiKit.PAPER
+			UiKit.draw_text(self, tracker_objective(("✓ " if line.done else "· ") + str(line.text), count, 290.0), Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_LEFT, 290)
+			if count != "": UiKit.draw_text(self, count, Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_RIGHT, 290)
 			y += UiKit.line_height(16) * 0.88
 		y += 4
 		if y > 290: break
+
+## B11: an objective beside its count on a tracker line `width` wide: the count keeps its place at the right end and
+## the words give way with an ellipsis (the count was appended and cut: "…Shallows  0" for 0/5).
+static func tracker_objective(words: String, count: String, width: float) -> String:
+	return UiKit.fit(words, 16, width - (UiKit.text_width(count, 16) + 10.0 if count != "" else 0.0))
 
 ## S43 rule 15: while a thief runs or a timed route is on, the seconds sit at the top of the screen.
 func _draw_run_banner(c) -> void:

@@ -65,21 +65,23 @@ func draw_page() -> void:
 				btn(Rect2(r.end.x - 190, y + 4, 160, 44), Tx.t("ui.your_sect.recruit"), "recruit", i)
 				y += 52
 		"expeditions":
+			# B4: one scrolling list, the running expeditions (and their Collect) first, then the regions to send to.
 			var exs: Array = ContentDB.all("expeditions")
-			var y2 := r.position.y + 80
-			for e in exs:
-				text(Vector2(r.position.x + 30, y2 + 24), Tx.t("ui.your_sect.danger") % [str(e.name), int(e.danger_level)], 18)
-				var x := r.end.x - 20
+			var out: Array = s.get("expeditions", [])
+			list("expeditions", Rect2(r.position + Vector2(10, 64), r.size - Vector2(20, 74)), out.size() + exs.size(), 56, func(i: int, rr: Rect2):
+				if i < out.size():
+					var ex: Dictionary = out[i]
+					var left := int(float(ex.done_utc) - Clock.now_utc())
+					text(Vector2(rr.position.x + 20, rr.position.y + 32), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % (left / 60 + 1)], 17, UiKit.MIST)
+					if left <= 0: btn(Rect2(rr.end.x - 180, rr.position.y + 2, 160, 48), Tx.t("ui.your_sect.collect"), "collect", i, true)
+					return
+				var e: Dictionary = exs[i - out.size()]
+				text(Vector2(rr.position.x + 20, rr.position.y + 32), Tx.t("ui.your_sect.danger") % [str(e.name), int(e.danger_level)], 18)
+				var x := rr.end.x - 10
 				for h in e.get("hours", []):
 					x -= 100
-					btn(Rect2(x, y2, 90, 40), "%dh" % int(h), "send", [str(e.id), int(h)])
-				y2 += 50
-			for i in s.get("expeditions", []).size():
-				var ex: Dictionary = s.expeditions[i]
-				var left := int(float(ex.done_utc) - Clock.now_utc())
-				text(Vector2(r.position.x + 30, y2 + 24), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % (left / 60 + 1)], 17, UiKit.MIST)
-				if left <= 0: btn(Rect2(r.end.x - 190, y2, 160, 40), Tx.t("ui.your_sect.collect"), "collect", i, true)
-				y2 += 46
+					btn(Rect2(x, rr.position.y + 2, 90, 48), Tx.t("ui.your_sect.hours") % int(h), "send", [str(e.id), int(h)])
+			)
 		"territory":
 			_draw_territory(r, s)
 

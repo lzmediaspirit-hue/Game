@@ -170,7 +170,7 @@ func draw_page() -> void:
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))
 				var left_s := int(until - Clock.now_utc())
-				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % ("ready" if left_s <= 0 else "%dm" % (left_s / 60 + 1)), 15, UiKit.RED)
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 15, UiKit.RED)
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break
@@ -206,8 +206,8 @@ func _draw_valley(map_r: Rect2) -> void:
 	for i in 41:
 		var f := i / 40.0
 		river.append(map_r.position + Vector2(map_r.size.x * (1.0 - f), map_r.size.y * (0.62 + 0.10 * sin(f * 7.0))))
-	draw_polyline(river, Color("2c9e8f"), 14.0)
-	draw_polyline(river, Color("67d6bd"), 4.0)
+	draw_polyline(river, UiKit.JADE, 14.0)
+	draw_polyline(river, UiKit.BRIGHT_JADE, 4.0)
 
 ## The Expanse: soft cloud bands, and each region an island adrift under its marker.
 func _draw_cloud_sea(map_r: Rect2, pts: Dictionary) -> void:
@@ -263,7 +263,6 @@ func _draw_ranking(ch) -> void:
 		var me: bool = o.get("player", false)
 		var rr := Rect2(x, y, r.size.x - 56, 48)
 		panel(rr, "minor_panel", "selected" if me else "normal")
-		if me: draw_rect(rr.grow(-3), Color(UiKit.BRIGHT_JADE, 0.7), false, 2.0)
 		text(Vector2(cols[0], y + 32), "%d" % (i + 1), 22, UiKit.GOLD if i < 3 else UiKit.PAPER)
 		text(Vector2(cols[1], y + 22), fit(str(o.name), 19, cols[2] - cols[1] - 20), 19, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
 		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 13, cols[2] - cols[1] - 20), 13, UiKit.MIST)

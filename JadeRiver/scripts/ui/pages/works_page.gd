@@ -140,11 +140,12 @@ func _draw_favours() -> void:
 	var ch = c()
 	para(Rect2(content.position, Vector2(content.size.x - 230, 50)), Tx.t("ui.works.favours_note"), 16, UiKit.MIST, 2)
 	currency_pill(Vector2(content.end.x - 210, content.position.y + 6), "silver_tael", Game.economy.balance("silver_tael", ch))
-	var y := content.position.y + 64
-	for f in ContentDB.config("posts").get("favours", []):
+	# B4: a scrolling list; the fourth favour ran past the window.
+	var favours: Array = ContentDB.config("posts").get("favours", [])
+	list("favours", Rect2(content.position + Vector2(0, 64), content.size - Vector2(0, 64)), favours.size(), 122, func(i: int, r: Rect2):
+		var f: Dictionary = favours[i]
 		var id := str(f.id)
 		var held := Game.posts.has_favour(id)
-		var r := Rect2(content.position.x, y, content.size.x, 112)
 		panel(r, "minor_panel", "selected" if held else "normal")
 		text(r.position + Vector2(16, 32), str(f.name), 19, UiKit.PALE_GOLD if held else UiKit.PAPER)
 		text(r.position + Vector2(16, 60), fit(str(f.text), 15, r.size.x - 220), 15, UiKit.MIST)
@@ -159,7 +160,7 @@ func _draw_favours() -> void:
 				if have < int(need.count): can = false
 			text(r.position + Vector2(16, 90), fit(Tx.t("ui.works.tribute") % ", ".join(parts), 14, r.size.x - 220), 14, UiKit.BRIGHT_JADE)
 			btn(Rect2(r.end.x - 190, r.position.y + 28, 174, 54), Tx.t("ui.works.seek"), "favour", id, true, can, Tx.t("ui.works.cannot_pay"), 17)
-		y += 122
+	)
 
 # ------------------------------------------------------------------ the Calcination Furnace
 func _draw_furnace() -> void:

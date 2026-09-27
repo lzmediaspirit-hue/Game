@@ -436,7 +436,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	elif not hard_ok: blocked = Tx.t("sim.progression.a_hard_requirement_is_unmet")
 	return {"from": cu.realm_key, "to": to, "major": major, "results": results, "risk": word, "reasons": reasons,
 		"success": ProgressionRules.success_chance(word) if major else 1.0, "can": can, "blocked": blocked,
-		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok, "hollow": hollow, "heart_demon_steps": demon_steps, "merit": merit, "supports_used": supports_used}
+		"event": str(spec.event) if major and spec.get("event") != null else "", "zone_ok": zone_ok, "hollow": hollow, "heart_demon_steps": demon_steps, "merit": merit, "supports_used": supports_used}
 
 func start_breakthrough(c, support_items: Array) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "cultivation"): return fail("locked")

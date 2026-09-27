@@ -102,6 +102,7 @@ func _main() -> void:
 	drop_pool_suite()
 	boss_event_suite()
 	text_suite()
+	ui_fixes_suite()
 	await ui_suite()
 	max_character_suite()
 	save_suite()
@@ -154,44 +155,281 @@ func aggro_cap_suite() -> void:
 ## its Light default), no word is set below the floor, and the text size setting scales every word and line.
 ## P4 (`docs/ui_style_guide.md`): on every page and tab, every tap target is at least 48 px on a side and no two
 ## buttons share a point, and no text is drawn under the minimum size.
+## The P2 inventory's bugs add: pages that need a context open with a real one (an NPC's words, every shop, a fishing
+## spot, every teleport stone known, a welcome with a post ledger), on a full character (every title and secret art,
+## a Dao at every tier), and every view is also checked for buttons and words past the window (B4), words under a
+## button (B16) and button labels wider than their button (B21).
 func ui_suite() -> void:
 	var main_script = load("res://scripts/main.gd")
 	var force_was: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
+	var c = Game.active()
+	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
+		"stones": Game.account.teleports.duplicate()}
+	c.cultivator.titles = ContentDB.all("titles").map(func(e): return str(e.id))
+	c.cultivator.secret_arts = ContentDB.all("secret_arts").map(func(e): return str(e.id))
+	var dao_ids: Array = ContentDB.all("daos").map(func(e): return str(e.id))
+	c.cultivator.daos = {}
+	for tier in 7: c.cultivator.daos[dao_ids[tier]] = {"tier": tier, "insight": ProgressionRules.dao_next_need(tier - 1) if tier > 0 else 12.0}
+	for s in ContentDB.all("teleport_stones"): Game.account.teleports[str(s.id)] = true
+	var sect_was: Dictionary = Game.account.sect.duplicate(true)
+	var ts_was: Dictionary = c.training_sect.duplicate(true)
+	var seclusion_was: Dictionary = c.seclusion.duplicate(true)
+	var contexts := _ui_contexts(c)
 	var small: Array = []
 	var overlaps: Array = []
+	var outside: Array = []
+	var under: Array = []
+	var labels: Array = []
+	var crossing: Array = []
+	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
+	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var views := 0
 	for id in main_script.PAGES:
-		if str(id) in ["dialogue", "revival", "welcome", "shop", "fishing", "teleport"]: continue   # need a context
-		var pg: Page = load(str(main_script.PAGES[id])).new()
-		pg.page_id = str(id)
-		add_child(pg)
-		pg.open({})
-		for ti in maxi(1, pg.tabs.size()):
-			if not pg.tabs.is_empty(): pg.tab = ti
-			pg.queue_redraw()
-			await get_tree().process_frame
-			await get_tree().process_frame
-			views += 1
-			var where := "%s:%s" % [id, str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
-			var buttons: Array = []
-			for r in pg._regions:
-				if r.kind == "scroll": continue
-				var full: Rect2 = r.get("full", r.rect)
-				if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
-					small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
-				if r.kind == "button": buttons.append(r)
-			for i in buttons.size():
-				for j in range(i + 1, buttons.size()):
-					var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
-					if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
-		pg.queue_free()
+		for a in contexts.get(str(id), [{}]):
+			if a.has("_setup"): (a._setup as Callable).call()
+			a = a.duplicate()
+			a.erase("_setup")
+			var pg: Page = load(str(main_script.PAGES[id])).new()
+			pg.page_id = str(id)
+			pg.text_log = []
+			add_child(pg)
+			pg.open(a)
+			if str(id) == "dialogue":   # the last line, typed out: the choices show
+				var dp = pg
+				dp.line = maxi(0, dp.lines().size() - 1)
+				dp.shown_chars = 9999.0
+			for ti in maxi(1, pg.tabs.size()):
+				if not pg.tabs.is_empty(): pg.tab = ti
+				pg.text_log.clear()
+				pg.queue_redraw()
+				await get_tree().process_frame
+				await get_tree().process_frame
+				views += 1
+				var where := "%s%s:%s" % [id, "(%s)" % str(a.values()[0]).left(24) if not a.is_empty() else "", str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
+				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
+				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
+				var buttons: Array = []
+				for r in pg._regions:
+					if r.kind == "scroll": continue
+					var full: Rect2 = r.get("full", r.rect)
+					if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
+						small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
+					if r.kind == "button": buttons.append(r)
+					if not window.grow(4).encloses(r.art): outside.append("%s %s at %s" % [where, r.id, str(r.art)])
+				for i in buttons.size():
+					for j in range(i + 1, buttons.size()):
+						var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+				for tx in pg.text_log:
+					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
+					var tr: Rect2 = tx.rect
+					if tx.get("panel", false):
+						if not inside.grow(4).encloses(tr): outside.append("%s panel at %s" % [where, str(tr)])
+						continue
+					if tx.button != Rect2():
+						if tr.size.x > (tx.button as Rect2).size.x - 6: labels.append("%s \"%s\" %d in %d" % [where, tx.s, int(tr.size.x), int(tx.button.size.x)])
+						continue
+					if not window.grow(4).encloses(tr): outside.append("%s \"%s\"" % [where, str(tx.s).left(30)])
+					for b in buttons:
+						var hit: Rect2 = tr.intersection(b.art)
+						if hit.size.x > 3 and hit.size.y > 3 and not (b.art as Rect2).encloses(tr): under.append("%s \"%s\" under %s" % [where, str(tx.s).left(30), b.id])
+					# Words that start in one card and run on into another, or over its edge (B17, B22).
+					for pn in pg.text_log:
+						if not pn.get("panel", false): continue
+						var over: Rect2 = tr.intersection(pn.rect)
+						if over.size.x > 3 and over.size.y > 3 and not (pn.rect as Rect2).grow(2).encloses(tr): crossing.append("%s \"%s\" over a card's edge" % [where, str(tx.s).left(30)])
+			pg.queue_free()
 	await get_tree().process_frame
+	# B1: every Dao row, from Unaware to the top tier, draws its bar and its Contemplate button.
+	var cp: Page = load(str(main_script.PAGES.cultivation)).new()
+	add_child(cp)
+	cp.open({"tab": "dao"})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rows: int = cp._regions.filter(func(r): return r.id == "contemplate").size()
+	check(rows == mini(7, int((cp.content.size.y - 28.0) / 76.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
+	cp.queue_free()
+	# B2: the Key Items tab offers the guqin's Play.
+	var ip = load(str(main_script.PAGES.inventory)).new()
+	add_child(ip)
+	ip.open({"tab": "key"})
+	for i in c.inventory.key_items.size():
+		if str(c.inventory.key_items[i].id) == "guqin": ip.sel = {"key": i}
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(ip._regions.any(func(r): return r.id == "use_key" and r.enabled), "B2: the guqin in the key-item pouch has a Play button")
+	ip.queue_free()
+	# B18: a paragraph cut short by its lines, and a line longer than its width, end with an ellipsis and keep to the width.
+	var probe := GDScript.new()
+	probe.source_code = "extends Page\nvar words := \"\"\nfunc draw_page() -> void:\n\tpara(Rect2(100, 100, 220, 400), words, 16, UiKit.PAPER, 2)\n" \
+		+ "\ttext(Vector2(100, 400), words, 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 220)\n\tpara(Rect2(100, 500, 220, 400), \"A short one.\", 16)\n"
+	probe.reload()
+	var pp = probe.new()
+	pp.frameless = true
+	pp.text_log = []
+	pp.words = Tx.t("ui.cultivation.body_hint")
+	add_child(pp)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var said: Array = pp.text_log.map(func(tx): return str(tx.s))
+	check(said.size() == 4 and not said[0].ends_with("…") and said[1].ends_with("…") and said[2].ends_with("…") and said[3] == "A short one."
+		and pp.text_log.all(func(tx): return tx.rect.size.x <= 221.0), "B18: cut words end with an ellipsis inside their width (%s)" % str(said))
+	pp.queue_free()
+	# B15: the Menu names the same Level as the Cultivation badge (ProgressionRules.level), not the stage's first.
+	var realm_was: String = c.cultivator.realm_key
+	var qp_was: float = c.cultivator.qp
+	c.cultivator.realm_key = "sphere_lord_3"
+	c.cultivator.qp = c.cultivator.need() * 0.5
+	var mp: Page = load(str(main_script.PAGES.menu)).new()
+	mp.text_log = []
+	add_child(mp)
+	mp.open({})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var want := ContentDB.realm_label("sphere_lord_3", ProgressionRules.level(c))
+	check(mp.text_log.any(func(tx): return str(tx.s).ends_with(want)), "B15: the Menu says %s" % want)
+	mp.queue_free()
+	c.cultivator.realm_key = realm_was
+	c.cultivator.qp = qp_was
+	await get_tree().process_frame
+	c.cultivator.titles = keep.titles
+	c.cultivator.secret_arts = keep.arts
+	c.cultivator.daos = keep.daos
+	Game.account.teleports = keep.stones
+	Game.account.sect = sect_was
+	c.training_sect = ts_was
+	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
-	check(views >= 100, "the ui_suite opened every page and tab (%d views)" % views)
+	for o in overlaps + outside + under + labels + crossing: print("  ui_suite: ", o)
+	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
 	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
+	check(outside.is_empty(), "B4: no button or word runs past the window (%d: %s)" % [outside.size(), str(outside.slice(0, 8))])
+	check(under.is_empty(), "B16: no words run under a button (%d: %s)" % [under.size(), str(under.slice(0, 8))])
+	check(labels.is_empty(), "B21: every button label fits its button (%d: %s)" % [labels.size(), str(labels.slice(0, 8))])
+	check(crossing.is_empty(), "B17, B22: no words run over the edge of a card (%d: %s)" % [crossing.size(), str(crossing.slice(0, 8))])
+	check(cut.is_empty(), "B18: the Body hint and trials, the path cards, the arena help and the sect tree say all they have to (%s)" % str(cut))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+
+## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
+func _ui_contexts(c) -> Dictionary:
+	var talk := Game.submit({"type": "talk", "npc": "warden_commander_yao"})
+	var convo: Dictionary = talk.get("dialogue", {})
+	# A giver with three quests to offer: three Accepts and Not now, the most choices a conversation shows.
+	var offers := convo.duplicate(true)
+	offers.choices = []
+	for q in ContentDB.all("quests").slice(0, 3): offers.choices.append({"text": Tx.t("sim.quest.accept") % str(q.get("name", q.id)), "accept": str(q.id)})
+	offers.choices.append({"text": Tx.t("sim.quest.not_now"), "close": true})
+	var items := {}
+	for it in ContentDB.all("items").slice(0, 8): items[str(it.id)] = 12
+	var welcome := {"gains": {"qp": 5200.0, "insight": 40.0, "coins": 380, "coin_currency": "silver_tael", "post": true}, "hours": 7.5, "capped": true,
+		"post": {"kind": "post", "craft": "delving", "room": "wp_west", "hours": 7.5, "diligence": 0.6, "exp": 420.0, "level": 5, "level_before": 4,
+			"items": items, "full": {"ore": 6.0}}}
+	var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+	# Your own sect, before founding and then founded with disciples, candidates and expeditions out (one back).
+	var now := Clock.now_utc()
+	var ds: Array = []
+	for n in ["Wei", "Lan", "Qiu", "Hua", "Bo", "Mei"]: ds.append({"name": n, "level": 4, "trait": "green_thumb"})
+	var ex: Array = ContentDB.all("expeditions").slice(0, 3).map(func(e): return {"region": str(e.id), "hours": 2, "disciples": [0], "done_utc": now + 3600.0})
+	ex[0].done_utc = now - 60.0
+	var sect := {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 120, "buildings": {"sect_hall": 1}, "queue": [], "disciples": ds,
+		"candidates": ds.slice(0, 3).map(func(d): return {"name": d.name, "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}),
+		"expeditions": ex, "candidate_day": Clock.reset_day(now)}
+	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome],
+		"shop": ContentDB.all("shops").map(func(sh): return {"shop": str(sh.id)}), "fishing": [{"object": "fish_9"}], "teleport": [{}],
+		"your_sect": [{"_setup": func(): Game.account.sect = {}}, {"_setup": func(): Game.account.sect = sect.duplicate(true)}],
+		# An Elder of the Jade Sect: the next rank, Sect Master, is at the foot of the list (B5).
+		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
+		# In seclusion: the line that says so sits under the focus cards (B22).
+		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+
+## The P2 UI inventory's bugs (docs/ui_inventory.md, "Found while inventorying"), each at its rule.
+func ui_fixes_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	# B1: tier n + 1 needs dao_tiers[n] insight in all; the top tier has no next target (the Dao tab indexed one ahead).
+	var steps: Array = ContentDB.curve("dao_tiers", [])
+	var agree := true
+	for t in steps.size():
+		var need := ProgressionRules.dao_next_need(t)
+		if need != float(steps[t]) or ProgressionRules.dao_tier_for(need) != t + 1 or ProgressionRules.dao_tier_for(need - 1.0) != t: agree = false
+	check(agree and ProgressionRules.dao_next_need(steps.size()) == 0.0, "B1: a Dao's next target is the next tier's threshold, and none at the top")
+	# B2: the guqin is a tool in the key-item pouch, and from there it opens its page.
+	Game.inventory.apply_add(c.id, "guqin", 1, "test")
+	var gi := -1
+	for i in c.inventory.key_items.size():
+		if str(c.inventory.key_items[i].id) == "guqin": gi = i
+	var gr := Game.submit({"type": "use_item", "key": gi})
+	check(gi >= 0 and gr.get("ok", false) and str(gr.get("open_page", "")) == "guqin", "B2: the guqin in the key-item pouch opens its page")
+	check(not Game.submit({"type": "use_item", "key": c.inventory.key_items.size()}).get("ok", false), "B2: an empty key slot uses nothing")
+	# B3: a state neither kit drew is made from the normal art (it fell back to it silently): a selected row wears the
+	# kit's glow, a disabled one is dimmed; a state the kit has keeps its own art.
+	var plain := UiKit.style("minor_panel")
+	var chosen := UiKit.style("minor_panel", "selected")
+	var off := UiKit.style("minor_panel", "disabled")
+	var tint: Color = off.modulate if off is HdStyleBox else (off.modulate_color if off is StyleBoxTexture else Color.WHITE)
+	check(chosen is UiKit.LayeredBox and chosen != plain and off != plain and tint.v < 0.8, "B3: a selected panel glows and a disabled one is dimmed")
+	check(not (UiKit.style("slot", "selected") is UiKit.LayeredBox) and not (UiKit.style("tab", "selected") is UiKit.LayeredBox), "B3: drawn states keep their art")
+	check((plain.modulate if plain is HdStyleBox else Color.WHITE) == Color.WHITE, "B3: the normal panel stays untinted")
+	# B12: a great breakthrough with no trial event names none (str(null) printed "Trial: <null>").
+	var realm_was: String = c.cultivator.realm_key
+	var qp_was: float = c.cultivator.qp
+	var wrong: Array = []
+	for key in ContentDB.realm_order:
+		if not ProgressionRules.is_major(key): continue
+		c.cultivator.realm_key = key
+		var want = ProgressionRules.breakthrough_spec(key).get("event")
+		if str(Game.progression.query_breakthrough(c).get("event", "?")) != ("" if want == null else str(want)): wrong.append(key)
+	check(wrong.is_empty(), "B12: the breakthrough's trial is its event, or none (%s)" % str(wrong))
+	# B15: a stage from Heaven Glimpse on spans three Levels; a character's own label carries its Level in the stage.
+	c.cultivator.realm_key = "sphere_lord_3"
+	c.cultivator.qp = c.cultivator.need() * 0.5
+	var lv := ProgressionRules.level(c)
+	check(lv == int(ContentDB.realm("sphere_lord_3").level) + 1 and ContentDB.realm_label("sphere_lord_3", lv).ends_with(str(lv))
+		and ContentDB.realm_label("sphere_lord_3").ends_with(str(int(ContentDB.realm("sphere_lord_3").level))), "B15: halfway through Sphere Lord 3 is Level %d, and says so" % lv)
+	c.cultivator.realm_key = realm_was
+	c.cultivator.qp = qp_was
+	# B11: a tracker objective keeps its count whole at the right end; the words give way.
+	var hud_script = load("res://scripts/hud.gd")
+	var words: String = hud_script.tracker_objective("· Net glowflies at the Reed Shallows beside the lotus ferry", "0/5", 290.0)
+	check(words.ends_with("…") and UiKit.text_width(words, 16) + 10.0 + UiKit.text_width("0/5", 16) <= 290.0
+		and hud_script.tracker_objective("· Talk to Aunt Ping", "0/5", 290.0) == "· Talk to Aunt Ping", "B11: the count stays whole beside \"%s\"" % words)
+	# B21: words are measured at the size they are drawn: asked for under UiKit.MIN_SIZE, both are at the minimum (and
+	# btn() stops stepping its label down there, then shortens it; the ui_suite checks every label fits its button).
+	check(UiKit.text_width("Talisman", 12) == UiKit.text_width("Talisman", UiKit.MIN_SIZE) and UiKit.fit("Talisman", 12, 40) == UiKit.fit("Talisman", UiKit.MIN_SIZE, 40)
+		and UiKit.text_width(UiKit.fit("Talisman", 12, 40), UiKit.MIN_SIZE) <= 40.0, "B21: a word is fitted at the size it is drawn")
+	# B25: with no floor cleared, the Sweep button says why it sweeps none (it said every floor was swept).
+	var tower = load("res://scripts/ui/pages/tower_page.gd")
+	check(tower.sweep_label(0, 0) == Tx.t("ui.tower.sweep_none") and tower.sweep_label(0, 4) == Tx.t("ui.tower.swept_all")
+		and tower.sweep_label(3, 4) == Tx.t("ui.tower.sweep") % 3 and tower.sweep_label(1, 4) == Tx.t("ui.tower.sweep_one") % 1, "B25: the Sweep label follows the floors cleared")
+	# B20: a character keeping a post (S50 clears its idle task) shows its post on Characters, not "Idle: none".
+	var chars = load("res://scripts/ui/pages/characters_page.gd").new()
+	var post_was: Dictionary = Game.posts.state(c).post.duplicate(true)
+	var idle_was: Dictionary = c.idle_task.duplicate(true)
+	Game.posts.state(c).post = {"kind": "craft", "craft": "delving", "room": "wp_west", "object": "", "since": Clock.now_utc(), "paused": false}
+	c.idle_task = {}
+	var at_post: String = chars.task_line(c)
+	Game.posts.state(c).post = {"kind": "vigil", "craft": "vigil", "room": "wp_west", "object": "", "since": Clock.now_utc(), "paused": false}
+	var at_vigil: String = chars.task_line(c)
+	Game.posts.state(c).post = {}
+	check(at_post == Tx.t("ui.characters.post_at") % [str(ContentDB.entry("posts", "delving").get("short", "")), ContentDB.name_of("rooms", "wp_west")]
+		and at_vigil == Tx.t("ui.characters.vigil_at") % ContentDB.name_of("rooms", "wp_west") and chars.task_line(c) == Tx.t("ui.characters.idle_none"),
+		"B20: a post shows as the character's task (%s; %s)" % [at_post, at_vigil])
+	Game.posts.state(c).post = post_was
+	c.idle_task = idle_was
+	chars.free()
+	# I10: a sect rank reads by its name in sect_ranks.json; I11: pools show rounded and grouped, never above their most;
+	# I12: a count of one takes the singular.
+	var rk: Dictionary = ContentDB.config("sect_ranks").ranks[2]
+	check(ContentDB.rank_name(str(rk.id)) == str(rk.name), "I10: rank %s reads as %s" % [rk.id, rk.name])
+	check(UiKit.pool_values(31750.6, 31750.6) == ["31,751", "31,751"] and UiKit.pool_values(0.3, 100.0) == ["1", "100"]
+		and UiKit.pool_values(31750.2, 31750.4) == ["31,750", "31,750"], "I11: pool values are grouped and agree with their most")
+	check(Tx.plural("ui.teleport.shard", 1) == Tx.t("ui.teleport.shard_one") and Tx.plural("ui.teleport.shard", 5) == Tx.t("ui.teleport.shard")
+		and Tx.plural("ui.teleport.shard", 0) == Tx.t("ui.teleport.shard") and Tx.plural("ui.tower.sweep", 1) % 1 == Tx.t("ui.tower.sweep_one") % 1, "I12: one shard, five shards")
+	# B8 / I14: a time left in words, in the one style.
+	check(UiKit.span(45) == Tx.t("ui.span_s") % 45 and UiKit.span(12 * 60) == Tx.t("ui.span_m") % 12 and UiKit.span(3960) == Tx.t("ui.span_hm") % [1, 6]
+		and UiKit.span(2 * 86400 + 5 * 3600) == Tx.t("ui.span_dh") % [2, 5], "B8, I14: UiKit.span writes a duration in words")
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"
