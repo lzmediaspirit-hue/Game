@@ -1045,6 +1045,52 @@ come next. Where it differs from the plan, the plan's §6 says so.
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
 
+### P5 · The Records family, second part: Dialogue, Quests, Mail and the Notice Board (mockups 21, 12 v2, 22; decision 14)
+- **The talk as rice paper under the scene** (`docs/page_identity.md` row 2, mockup 21). The paper strip along the foot
+  keeps the portrait, the speaker's plaque and the words in ink; under the name, their hearts and who they are; the
+  choices stacked at the right, each numbered on a pale gold key (1–4 answer them). A quest the talk offers (or takes
+  back) is pinned above the choices as a small scroll with its kind, name, first steps and rewards, read before
+  choosing; it unrolls downward (0.2 s). Everything recent is kept: a quest taken or handed in closes the talk or goes on
+  to the same person's next quest (M17), a last line with nothing to choose closes on a tap. The talk has no close
+  button, the one page without (§8).
+- **Quests as the sect's mission board** (row 6, mockup 12 v2). Two tabs, Current and Done, as paper index slips. Slips
+  pinned to dark timber: the story's slip under a red head (the tracked story quest with its step and where it leads,
+  or, between chapters, the tracker's Next entry with its lines and the chapter floor's ways); the side quests near you;
+  today's missions (the banked days' others in a stack); the day's round as a red cord with its chest charms, lit when
+  one can be opened (banked ones too), from the Activity Chests; the other side quests stacked under their nameboards,
+  the companions' first, then each zone's with its regions counted. A tap on a stack spreads it across the board
+  (sixteen a sheet, the way back). The chosen slip is taken down and held at the right: its head, name, giver and
+  where they stand, the route from here with how many regions away, what it says, its steps (➤ now, ✓ done), its
+  rewards and the story's next quest, then **Go** (the `auto_path` intent), Track or Untrack, and Abandon for side quests
+  and missions. Done lays the finished slips out stamped, 24 a sheet. The slips settle as it opens (0.25 s); a chosen
+  slip lifts to the reading place (0.2 s).
+- **Mail as the letter case** (row 17, mockup 22). A lacquer name plate with the count of letters, unread and those that
+  carry something; the envelopes in a fanned stack on the desk, newest on top, sealed in red wax until read, the
+  string's knot on those that carry something, the chosen one slid out; its letter unfolded on the felt (the creases
+  open, 0.3 s), the words in ink and the sender's name with a red seal at its foot, a paperweight across its head; what
+  it carries tied beneath as a parcel, Claim unties it; Delete is shut, with why, until it is claimed; Claim all · n.
+- **The Notice Board as the town wall** (row 21, no mockup). Grey brick under a timber lintel and a black signboard;
+  the tabs two handbills. Bounties: the wanted posters pasted over each other, torn strips of older ones between, the
+  chosen one on top with the target drawn from its own layers, its band and place, what it did, the reward stamped in
+  red and its Take strip (shut with the realm it needs; "Hunting" stamped once taken); the missions and requests
+  summed up on handbills in the corner. Board: the missions and requests as handbills in two columns, the posters
+  stacked in the corner. The chosen poster is slapped on as the page opens (0.2 s).
+- **Shared** (`scripts/ui/pages/records_kit.gd`): the paper inks the Codex now takes from it too, timber, pins, torn
+  slips, red heads, planks, stamps, wax seals and the string and bow. New HD paper (`tools/ui/build_ui_hd.py`, byte-
+  identical on two builds): `paper_slip`, `envelope` (and its lit state), `letter_sheet`, `poster`, with their
+  `TEXT_ON` rows, and brick and lacquer rows. `Page.regions_away` and `go_reason` are the Calendar's route, shared with
+  the Quests' Go; `Page.move` moves a part with its HD faces (`HdStyleBox.base`: the nine-slices used to drop the
+  page's transform); `Page.window_rect` names what a page pins beyond its window.
+- **Tests:** the `identity_suite`'s Records part two: every quest under way, on offer or on the sect board on the board
+  once; the story's slip carries the story quest under way or the Next entry; a stack spreads with the way back; the
+  slip being read walks to its quest's target and tracks it; Done a sheet at a time; every letter an envelope, the
+  newest open with its parcel to claim and Delete shut; a poster per bounty; the offered quest pinned inside what the
+  talk draws, with no close button. The `ui_suite` opens all four in every tab and measures every word on its paper.
+  The full suite on the merged tree: room_lint 168 / 0; engine_tests 3908/3908; data_validation 49847 / 0; room_sweep
+  3673 / 0; visibility_suite 6726 / 0; rules_tests 2170 / 0; contract_tests 1060 / 0; balance_sim 163 / 0; perf_tests 11 / 0;
+  prologue_run 100 / 0; tutorial_order 422 / 0; valley_run 3032 / 0.
+- **Screenshots** in `docs/ui_p5/records/` on copies of this build's valley_run checkpoints `ae_end`, `ls6_end`, `bf5`
+  and `qu5`, with `compare_21_dialogue.png`, `compare_12_quests_v2.png` and `compare_22_mail.png` and what still differs.
 ### P5 · The Records family: the Codex, its Old Scrolls and the Calendar (mockups 18, 18_scrolls, 19; decisions 11, 14, 22)
 - **The Codex as the field book** (`docs/page_identity.md` row 26). A bound book open on the reading desk: a jade cloth
   cover, the page block's edges, two pages with the gutter's shadow and foxing. The sections are silk ribbons standing
