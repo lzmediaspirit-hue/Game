@@ -36,7 +36,10 @@ proposal and the numbers measured on the valley_run checkpoints before and after
 - **Saves**: an old save's health grows by the Might of its Level, once (character minor version 1).
 - **Tests**: `balance_sim` gains the research's ten checks (par_hit, ttk, blow, boss_par, smooth, realm_step, cp_rec,
   digits, chapter_floor, pacing) and plays on to Sphere Lord 3 (133 h); `rules_tests` gains `might_suite`; valley_run
-  gains the labelled par-up shortcut at each section start and its checkpoints are regenerated.
+  gains the labelled par-up shortcut at each section start from Qi Kindling 1 and a labelled "par pace" for bosses
+  (sized to 20 s of its own blows: the scripted fighter neither strikes with a main art at par nor dodges), and its
+  checkpoints are regenerated. On them a Level 98 blow went from 2,850 to 85K and a normal foe's blow from 2.9% to 5.7%
+  of health.
 
 ## The Copperjaw swarm's creature art (v1.2 Phase D)
 

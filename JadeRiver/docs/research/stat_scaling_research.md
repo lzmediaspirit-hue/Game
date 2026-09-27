@@ -792,13 +792,51 @@ and lands within 1% of the table.
     floor made The Tide Breaks and The Copperjaw Box open together; the box now follows The Tide Breaks.
 12. **`damage_pct` and `boss_damage`** exist as stats; no affix rows yet (they come with the Frontier's named pieces
     and the Worthy Foes seals).
-13. **valley_run's par-up** also puts the par affixes on the weapon (attack, damage%, crits) and raises the Sword Dao to
-    its par tier, and the canyon side stories get more sorties.
+13. **valley_run's par-up** starts at Qi Kindling 1 (Bone Forging keeps today's gear, so it stays within 5%), also puts
+    the par affixes on the weapon (attack, damage%, crits) and raises the Sword Dao to its par tier; the canyon side
+    stories get more sorties. A second labelled shortcut, **par pace**, sizes every boss with a par time that spawns
+    during the run to 20 s of the run's own basic blows: the par time assumes a player who strikes with a main art at
+    par and steps out of the markers, and the scripted fighter does neither (the Tomb King's blows took a fifth of its
+    health each, and a boss heals whole when its target falls). A fought `boss_suite` should measure par times with a
+    player who dodges.
+14. **Finding for the monster tables**: the attack table is set against par's physical armour; a boss's Qi and Soul
+    strikes meet the lower Qi resistance and soul defence, so they take about 1.4 times the plain blow's share.
 
-**Measured on the valley_run checkpoints** (`tools/dev/stat_probe.gd`; hits before crits; the "before" run is the
-build branch at P7b part 1, the "after" run the regenerated checkpoints with the par-up shortcut):
+**Measured on the valley_run checkpoints** (`tools/dev/stat_probe.gd` on copies of the progressed Tester; hits before
+crits against the Level's own normal foes, averaged; the "technique" is the best slotted one, Flowing Palm per hit until
+the ceiling row's Glimpse of Heaven at mastery 6; the "before" run is the build branch at P7b part 1, the "after" run
+the regenerated checkpoints with the par-up shortcut). Bone Forging moves by at most 5% (Might 1.05 at Level 9). At
+Level 98 the run's plain blow is two thirds of par's (85K against 125K): its attack is 70% of par's, since its
+meridians and attributes are its own; its best road (the ceiling row) meets the technique targets, 564K and 931K on a
+crit. Normal foes fall to 4-5 blows and hit for 5-7% of health from Level 40 to the end, where they had drifted to 3
+blows and 3%.
 
-MEASURED_TABLE
+| Checkpoint | Level (before → after) | Max HP | Attack (physical) | Basic hit | Technique hit | Technique crit | Normal foe HP | Blows to kill | Foe's blow | CP (room's) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| new (Mortal) | 0 | 74 → 74 | 7 → 7 | 7 → 7 | 0 → 0 | 0 → 0 | 30 → 30 | 4 → 4 | 5.9% → 5.9% | 19 (38) → 19 (20) |
+| new, set to Bone Forging 1 | 1 | 96 → 96 | 7 → 7 | 7 → 7 | 0 → 0 | 0 → 0 | 46 → 46 | 6 → 6 | 6.8% → 6.8% | 21 (38) → 21 (20) |
+| bf2 | 2 | 134 → 134 | 9 → 9 | 8 → 8 | 0 → 0 | 0 → 0 | 64 → 64 | 7 → 7 | 7.3% → 7.2% | 27 (40) → 27 (23) |
+| bf5 | 4 | 195 → 199 | 29 → 29 | 30 → 30 | 0 → 0 | 0 → 0 | 107 → 107 | 4 → 4 | 8.7% → 8.6% | 44 (92) → 44 (39) |
+| bf8 | 7 | 310 → 322 | 30 → 31 | 30 → 32 | 0 → 0 | 0 → 0 | 204 → 204 | 7 → 7 | 9.0% → 8.6% | 57 (110) → 59 (67) |
+| qk1 | 9 | 400 → 420 | 30 → 32 | 31 → 32 | 0 → 0 | 0 → 0 | 254 → 254 | 8 → 8 | 8.9% → 8.5% | 67 (146) → 70 (77) |
+| qk5 | 13 | 697 → 958 | 90 → 141 | 91 → 142 | 109 → 170 | 163 → 255 | 410 → 411 | 5 → 3 | 6.3% → 7.2% | 144 (236) → 211 (173) |
+| qu1 | 19 | 1,141 → 1,965 | 95 → 220 | 83 → 202 | 102 → 235 | 153 → 353 | 712 → 861 | 9 → 5 | 7.2% → 8.6% | 196 (326) → 378 (299) |
+| qu5 | 22 | 1,730 → 2,756 | 269 → 308 | 265 → 319 | 264 → 302 | 396 → 453 | 892 → 1,208 | 4 → 4 | 4.7% → 5.4% | 384 (362) → 523 (461) |
+| ht1 | 27 | 2,342 → 4,429 | 281 → 612 | 274 → 625 | 391 → 818 | 587 → 1,227 | 1,236 → 1,942 | 5 → 3 | 4.8% → 4.9% | 456 (524) → 925 (1,078) |
+| ht5 | 31 | 3,126 → 7,198 | 286 → 799 | 234 → 720 | 334 → 897 | 502 → 1,346 | 1,552 → 3,196 | 7 → 5 | 4.5% → 4.8% | 540 (524) → 1,353 (1,159) |
+| cs1 | 36 | 4,010 → 9,953 | 298 → 1,184 | 241 → 1,054 | 405 → 1,545 | 607 → 2,318 | 1,496 → 3,554 | 6 → 4 | 4.5% → 4.8% | 640 (596) → 1,925 (1,547) |
+| cs5 | 40 | 4,816 → 14.7K | 322 → 2,051 | 379 → 2,126 | 541 → 2,650 | 811 → 4,241 | 2,390 → 7,718 | 6 → 4 | 4.5% → 4.9% | 1,107 (686) → 3,076 (2,894) |
+| sa1 | 45 | 5,953 → 19.4K | 334 → 2,767 | 388 → 3,062 | 416 → 2,867 | 625 → 4,588 | 2,932 → 11.2K | 8 → 4 | 3.3% → 3.7% | 1,294 (740) → 4,110 (3,284) |
+| sa5 | 49 | 7,080 → 27.7K | 339 → 4,180 | 391 → 4,792 | 473 → 4,855 | 710 → 7,768 | 3,406 → 17.8K | 9 → 4 | 4.3% → 5.0% | 1,473 (848) → 6,058 (5,550) |
+| hg1 | 53 | 8,215 → 33.9K | 350 → 5,191 | 499 → 5,897 | 498 → 6,153 | 747 → 9,846 | 3,914 → 22.0K | 8 → 4 | 4.9% → 5.8% | 1,678 (920) → 7,547 (7,326) |
+| ae1 | 63 | 9,905 → 54.7K | 374 → 10.1K | 521 → 12.2K | 596 → 13.5K | 894 → 21.5K | 5,340 → 43.8K | 10 → 4 | 4.8% → 6.2% | 1,968 (1,172) → 13.6K (19.1K) |
+| ae3 | 68 | 13.7K → 85.6K | 1,412 → 15.1K | 2,110 → 18.9K | 1,996 → 17.9K | 2,995 → 31.3K | 6,136 → 71.8K | 3 → 4 | 3.5% → 6.0% | 4,230 (1,226) → 21.0K (23.0K) |
+| ae5 | 75 | 16.8K → 124K | 1,830 → 25.5K | 2,693 → 31.4K | 2,732 → 31.9K | 4,098 → 55.8K | 7,342 → 118K | 3 → 4 | 3.4% → 6.6% | 5,346 (1,352) → 33.3K (38.0K) |
+| ae_end | 80 | 20.2K → 185K | 1,887 → 28.1K | 2,746 → 34.2K | 2,911 → 36.3K | 4,367 → 63.5K | 8,270 → 145K | 3 → 4 | 3.5% → 6.1% | 6,000 (1,442) → 41.6K (47.7K) |
+| ls2_end | 87 | 24.2K → 262K | 1,967 → 42.1K | 2,822 → 50.5K | 3,851 → 66.5K | 5,777 → 116K | 9,660 → 241K | 4 → 5 | 2.8% → 5.6% | 6,815 (1,550) → 61.2K (73.5K) |
+| ls4_end | 93 | 27.9K → 405K | 2,035 → 61.7K | 2,919 → 74.1K | 3,725 → 91.2K | 5,588 → 160K | 10.9K → 350K | 4 → 5 | 3.0% → 5.6% | 7,563 (1,658) → 92.2K (109K) |
+| ls6_end | 98 | 31.2K → 485K | 2,092 → 74.8K | 2,850 → 85.3K | 3,203 → 92.5K | 4,804 → 162K | 12.1K → 438K | 4 → 5 | 2.9% → 5.7% | 8,234 (1,784) → 112K (143K) |
+| ceiling (ls6_end, best road) | 98 | 31.7K → 487K | 4,407 → 90.1K | 6,242 → 94.5K | 40.8K → 564K | 67.4K → 931K | 12.1K → 438K | 2 → 5 | 2.5% → 5.3% | 11.7K (1,784) → 122K (143K) |
 
 ---
 
