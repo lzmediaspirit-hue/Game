@@ -5,7 +5,7 @@ extends Page
 ## (islands in a sea of cloud; dark isles under the star field's lanterns). Every area is a glowing node where zones.json
 ## places it (jade if you may walk in, gold where you stand, a padlock if locked) on dotted routes along the rooms'
 ## portals, the chosen area's way lit gold. The tracked quest's lantern, the world events' blossoms and the paths above
-## mark their areas; name plates carry the level band and the field boss. One layout pass places every mark and plate
+## mark their areas; a plate names each area, no more. One layout pass places every mark and plate
 ## so none touches another, a node or the frame's furniture (decision 17). The card at the right shows the chosen area
 ## (its picture, band, the quest and event there, its rooms with hazards, paths above and bosses), where each herb, ore
 ## and fish is found (Resources), or the tracked quests and events (Objectives), each with Track Route. The zone tags
@@ -22,8 +22,9 @@ const BANNER := Rect2(66, 84, 56, 132)
 ## Zones with a painting of their own: zone -> the stem of art/ui/maps/<stem>_map.png and <stem>_<region>.png.
 const PAINTED := {"jade_river_valley": "valley"}
 const STARRY := ["lantern_star_field"]
-const NODE_R := {"here": 17.0, "open": 15.0, "locked": 13.0}
-const RING := 9.0                       # the chosen node's ring, outside its disc
+const NODE_R := {"here": 11.0, "open": 9.0, "locked": 13.0}
+const PLATE_TEXT := 16                  # a plate's name
+const RING := 7.0                       # the chosen node's ring, outside its disc
 const TOUCH := 2.0                      # nothing on the painting comes nearer another than this
 const LEADER := 14.0                    # each step farther out a mark or plate may stand, on a leader
 const VIEWS := ["areas", "resources", "objectives"]
@@ -44,9 +45,9 @@ const SLIDE := 6.0
 const MARK_WAYS := {"lantern": ["r", "ur", "dr", "l", "ul", "dl", "t", "b"], "blossom": ["l", "ul", "dl", "r", "ur", "dr", "t", "b"],
 	"wind": ["ur", "ul", "t", "r", "l", "dr", "dl", "b"], "res": ["r", "l", "ur", "ul", "dr", "dl", "t", "b"]}
 ## The legend along the foot for each view, and the width of each key's glyph.
-const LEGEND := {"areas": ["available", "here", "locked", "route", "tracked", "event", "boss"], "resources": ["herbs", "ores", "fish", "holds", "locked", "route"],
+const LEGEND := {"areas": ["available", "here", "locked", "route", "tracked", "event"], "resources": ["available", "here", "holds", "locked", "route"],
 	"objectives": ["tracked", "event", "here", "locked", "route"]}
-const LEGEND_W := {"route": 26.0, "boss": 24.0, "herbs": 24.0, "ores": 24.0, "fish": 24.0, "locked": 12.0, "tracked": 12.0}
+const LEGEND_W := {"route": 26.0, "locked": 12.0, "tracked": 12.0}
 const MARK_SIZE := {"lantern": Vector2(22, 30), "blossom": Vector2(22, 22), "wind": Vector2(40, 24), "res": Vector2(44, 44)}
 ## The frame's cloud-scroll corner (72 px, drawn at the top left and mirrored): cubic curves in its own px.
 const CURLS := [[Vector2(14, 58), Vector2(14, 34), Vector2(34, 14), Vector2(58, 14)], [Vector2(20, 44), Vector2(20, 34), Vector2(26, 28), Vector2(34, 28)],
@@ -60,7 +61,7 @@ var res_kind := "herb_patch"
 var res_item := ""
 var goal := ""                 # the chosen objective: a quest id, or "@" and an event id
 var chosen_at := -10.0         # when the chosen area changed: its way lights dot by dot
-## The last layout pass (drawn from, and read by the tests): {plates: {rid: {rect, far, way, rows}}, marks: {id: {rect, kind,
+## The last layout pass (drawn from, and read by the tests): {plates: {rid: {rect, far, way, name}}, marks: {id: {rect, kind,
 ## live}}, pins: [Rect2], keep: [Rect2], bounds: Rect2, hidden: [the areas whose plate found no place]}.
 var layout := {}
 var _layout_key := ""
@@ -526,7 +527,7 @@ func draw_page() -> void:
 	for rid in placed.plates:
 		var pl: Dictionary = placed.plates[rid]
 		if int(pl.far) > 0 or str(pl.way).length() == 2: _leader(m.z.anchor[rid], float(NODE_R[m.state[rid]]), pl.rect)
-		_plate(pl.rect, pl.rows)
+		_plate(pl.rect, str(pl.name), m.state[rid] == "locked")
 		region(pl.rect, "sel", rid)
 	for rid in m.z.order: region(Rect2(m.z.anchor[rid] - Vector2(30, 30), Vector2(60, 60)), "sel", rid)
 	# The card slides in from the frame's edge as the page opens.
@@ -625,27 +626,11 @@ func _leader(at: Vector2, r: float, rect: Rect2) -> void:
 	draw_line(from, to, Color(UiKit.PALE_GOLD, 0.7), 1.5, true)
 
 # ------------------------------------------------------------------ plates and the layout pass (decision 17)
-## What an area's plate says, as rows: its name, then its level band ("You are here", "Locked · Lv 28–36"), and, known,
-## its field boss with the time till it rises; on Resources the kinds it holds. A locked area beside none you know has
-## no plate (its padlock alone).
-func _plate_rows(ch, m: Dictionary, rid: String) -> Array:
-	var st := str(m.state[rid])
-	if st == "locked" and not visited(rid) and not m.z.links.any(func(l): return rid in l and visited(l[0] if l[1] == rid else l[1])): return []
-	var reg := _region(rid)
-	var dim := st == "locked"
-	var rows: Array = [{"s": str(reg.name), "size": 16, "col": UiKit.HOLLOW if dim else UiKit.PAPER}]
-	if view == "resources":
-		var icons: Array = KINDS.keys().filter(func(k): return _res()[k].values().any(func(e): return e.at.has(rid))).map(func(k): return KINDS[k][1])
-		if not icons.is_empty(): rows.append({"icons": icons})
-		return rows
-	if dim: rows.append({"s": Tx.t("ui.map.locked_band") % _band(reg), "size": 14, "col": UiKit.HOLLOW})
-	elif st == "here": rows.append({"s": Tx.t("ui.map.you_are_here"), "size": 14, "col": UiKit.BRIGHT_JADE})
-	else: rows.append({"s": _band(reg), "size": 14, "col": UiKit.MIST})
-	if visited(rid) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
-		for b in _bosses(region_rooms(rid)):
-			rows.append({"icon": "boss_skull", "s": str(b.name), "size": 14, "col": UiKit.PAPER})
-			rows.append({"s": str(b.when), "size": 14, "col": UiKit.RED_TEXT if b.ready else UiKit.MIST})
-	return rows
+## What an area's plate says: its name alone, dim while locked (the band, the field boss and what grows there are on
+## the card). A locked area beside none you know has no plate, its padlock alone: "".
+func _plate_name(m: Dictionary, rid: String) -> String:
+	if m.state[rid] == "locked" and not visited(rid) and not m.z.links.any(func(l): return rid in l and visited(l[0] if l[1] == rid else l[1])): return ""
+	return str(_region(rid).name)
 
 ## The field bosses in `rooms`: [{name, when: "ready" or the time till it rises, ready}].
 func _bosses(rooms: Array) -> Array:
@@ -663,21 +648,9 @@ func _band(reg: Dictionary) -> String:
 	if int(lv[1]) == 0: return Tx.t("ui.map.safe")
 	return Tx.t("ui.map.lv_at") % int(lv[0]) if int(lv[0]) == int(lv[1]) else Tx.t("ui.map.lv") % [int(lv[0]), int(lv[1])]
 
-## The size of a plate showing its first `n` rows.
-static func _plate_size(rows: Array, n: int) -> Vector2:
-	var w := 0.0
-	var h := 7.0
-	for i in n:
-		var rs := _row_size(rows[i])
-		w = maxf(w, rs.x)
-		h += rs.y
-	return Vector2(ceilf(w + 20.0), ceilf(h))
-
-static func _row_size(row: Dictionary) -> Vector2:
-	if row.has("icons"): return Vector2(row.icons.size() * 28.0 - 4.0, 26.0)
-	var lh := UiKit.size_for(str(row.s), int(row.size), true) * 1.12
-	var w := UiKit.text_width(str(row.s), int(row.size), true)
-	return Vector2(w + 29.0, maxf(lh, 24.0)) if row.has("icon") else Vector2(w, lh)
+## The size of a plate round a name.
+static func _plate_size(name: String) -> Vector2:
+	return Vector2(ceilf(UiKit.text_width(name, PLATE_TEXT, true) + 20.0), ceilf(UiKit.size_for(name, PLATE_TEXT, true) * 1.12 + 7.0))
 
 ## The marks and plates of this view, placed by the one pass: marks first beside their nodes, then the plates of the
 ## area you stand in, the chosen one and the rest (open before locked), each in reading order. Kept while nothing that
@@ -706,19 +679,13 @@ func _place(ch, m: Dictionary) -> Dictionary:
 			if visited(rid) and known_paths.keys().any(func(id): return z.node_of[id] == rid): kinds.append("wind")
 		for k in kinds: marks.append({"id": "%s:%s" % [k, rid], "kind": k, "at": p, "r": r, "sizes": [MARK_SIZE[k]], "ways": MARK_WAYS[k],
 			"live": k == "blossom" and m.events[rid].any(func(o): return o.live)})
-		var rows := _plate_rows(ch, m, rid)
-		if rows.is_empty(): continue
-		var sizes: Array = []
-		var counts: Array = []
-		for n in [rows.size(), mini(2, rows.size()), 1]:
-			if n in counts: continue
-			counts.append(n)
-			sizes.append(_plate_size(rows, n))
+		var name := _plate_name(m, rid)
+		if name == "": continue
 		var rank := 0 if m.state[rid] == "here" else (1 if rid == sel else (2 if m.state[rid] == "open" else 3))
-		plates.append({"id": rid, "at": p, "r": r, "sizes": sizes, "counts": counts, "ways": PLATE_WAYS, "rows": rows, "rank": rank})
+		plates.append({"id": rid, "at": p, "r": r, "sizes": [_plate_size(name)], "ways": PLATE_WAYS, "name": name, "rank": rank})
 	plates.sort_custom(func(a, b): return a.rank < b.rank if a.rank != b.rank else (a.at.y < b.at.y if a.at.y != b.at.y else a.at.x < b.at.x))
 	var bounds := Rect2(EDGE + 3.0, EDGE + 3.0, CARD.position.x - 8.0 - EDGE - 3.0, FOOT - 3.0 - EDGE - 3.0)
-	var key := str([zone_id, view, sel, res_item, UiKit.text_scale(), m.state, m.rings.keys(), marks.map(func(x): return x.id), plates.map(func(x): return [x.id, x.rows])])
+	var key := str([zone_id, view, sel, res_item, UiKit.text_scale(), m.state, m.rings.keys(), marks.map(func(x): return x.id), plates.map(func(x): return [x.id, x.name])])
 	if key != _layout_key:
 		_layout_key = key
 		var got := place(marks, pins + keep, bounds)
@@ -732,13 +699,13 @@ func _place(ch, m: Dictionary) -> Dictionary:
 				layout.hidden.append(it.id)
 				continue
 			var g: Dictionary = got_plates[it.id]
-			layout.plates[it.id] = {"rect": g.rect, "far": g.far, "way": g.way, "rows": (it.rows as Array).slice(0, it.counts[g.size])}
+			layout.plates[it.id] = {"rect": g.rect, "far": g.far, "way": g.way, "name": it.name}
 	return layout
 
 ## The one layout pass (decision 17). Each item takes the first place round its pin (its `ways`, each slid along its side
 ## a step at a time, at the pin and then one and two LEADER steps out) that lies inside `bounds` and keeps TOUCH clear of
-## every rect in `blocked` and every item placed before it; one that finds none tries its smaller sizes (a plate drops
-## its last rows). Items that found no room, or only a smaller size, go first on another pass (four at most), and the
+## every rect in `blocked` and every item placed before it; one that finds none tries its smaller sizes, if it has
+## any. Items that found no room, or only a smaller size, go first on another pass (four at most), and the
 ## pass that left out and cut the least is kept; one that still fits nowhere is left out (its node answers a tap and the
 ## card names it). So nothing placed ever touches.
 ## items: [{id, at, r, sizes: [Vector2], ways: [String]}] -> {id: {rect, size, far, way}}.
@@ -799,30 +766,14 @@ static func spot(at: Vector2, r: float, size: Vector2, way: String, far: int, sl
 		"ul": p = at + Vector2(-d, -d) * 0.72 - size
 	return Rect2(p.round(), size)
 
-## A name plate: ink laid over the painting in a fine gold edge, the rows centred on it.
-func _plate(r: Rect2, rows: Array) -> void:
+## A name plate: ink laid over the painting in a fine gold edge, the name centred on it (dim while the area is locked).
+func _plate(r: Rect2, name: String, dim: bool) -> void:
 	rounded(r.grow(1), 7.0, Color(UiKit.GOLD, 0.35))
 	rounded(r, 6.0, Color(UiKit.INK, 0.9))
 	# The words are measured on the plate over the painting's brightest (its snow and foam).
 	ground(r, UiKit.INK.lerp(Color.WHITE, 0.1))
-	var y := r.position.y + 3.0
-	for row in rows:
-		var rs := _row_size(row)
-		if row.has("icons"):
-			var x := r.get_center().x - rs.x * 0.5
-			for ic in row.icons:
-				icon_at(Rect2(x, y + 1, 24, 24), str(ic))
-				x += 28.0
-		else:
-			var px := float(UiKit.size_for(str(row.s), int(row.size), true))
-			var base := y + rs.y * 0.5 + px * 0.36
-			if row.has("icon"):
-				var x0 := roundf(r.get_center().x - rs.x * 0.5)
-				icon_at(Rect2(x0, y + (rs.y - 24.0) * 0.5, 24, 24), str(row.icon))
-				text(Vector2(x0 + 29.0, base), str(row.s), int(row.size), row.col, HORIZONTAL_ALIGNMENT_LEFT, -1.0, true)
-			else:
-				text(Vector2(r.position.x, base), str(row.s), int(row.size), row.col, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
-		y += rs.y
+	var base := r.get_center().y + 0.5 + float(UiKit.size_for(name, PLATE_TEXT, true)) * 0.36
+	text(Vector2(r.position.x, base), name, PLATE_TEXT, UiKit.HOLLOW if dim else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
 
 ## The rooms of the zone with a path above your arts now open that you have not stood on (S43): {room: [the arts]}.
 func _paths_open(ch) -> Dictionary:
@@ -922,7 +873,7 @@ func _card_area(ch, m: Dictionary, r: Rect2) -> void:
 	var reg := _region(sel)
 	if reg.is_empty(): return
 	var st := str(m.state[sel])
-	var named := st != "locked" or not _plate_rows(ch, m, sel).is_empty()
+	var named := st != "locked" or _plate_name(m, sel) != ""
 	var grows: Array = []
 	for k in KINDS:
 		for item in _res()[k]:
@@ -1170,16 +1121,14 @@ func _legend_glyph(k: String, c: Vector2) -> void:
 	match k:
 		"available", "here":
 			var col := UiKit.BRIGHT_JADE if k == "available" else UiKit.GOLD
-			glow(Rect2(c - Vector2(10, 10), Vector2(20, 20)), Color(col, 0.6 * _halo()))
-			draw_circle(c, 7.5, UiKit.INK, true, -1.0, true)
-			draw_circle(c, 6.0, col, true, -1.0, true)
+			glow(Rect2(c - Vector2(8, 8), Vector2(16, 16)), Color(col, 0.6 * _halo()))
+			draw_circle(c, 6.0, UiKit.INK, true, -1.0, true)
+			draw_circle(c, 4.5, col, true, -1.0, true)
 		"locked": _lock_icon(c - Vector2(6, 8))
 		"route":
 			for i in 4: draw_circle(c + Vector2(-12 + i * 8, 0), 1.8, UiKit.PALE_GOLD, true, -1.0, true)
 		"tracked": _lantern(c, 0.55)
 		"event": _blossom(c, true, 0.7)
-		"boss": icon_at(Rect2(c - Vector2(12, 12), Vector2(24, 24)), "boss_skull")
-		"herbs", "ores", "fish": icon_at(Rect2(c - Vector2(12, 12), Vector2(24, 24)), {"herbs": "herb_marker", "ores": "ore_marker", "fish": "fish_marker"}[k])
 		"holds":
 			draw_arc(c, 6.5, 0.0, TAU, 24, UiKit.INK, 4.0, true)
 			draw_arc(c, 6.5, 0.0, TAU, 24, UiKit.PALE_GOLD, 2.0, true)

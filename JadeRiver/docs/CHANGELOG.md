@@ -1,5 +1,17 @@
 # Changelog
 
+## World map plates and the Roll-Call as drawn
+
+- **World map:** each plate names its area and nothing more, and the available and current-area dots are smaller
+  (9 and 11 px radius). The level band, "You are here", the field boss and the kinds of resources stay on the card. The
+  legend drops the marks that no longer appear on the painting. `map_suite` checks every plate is one line holding its
+  area's name. Screenshots in `docs/ui_p5/map/`.
+- **Roll-Call:** the board fills the screen at mockup 13's size and places: the beam, cartouche and tags with their
+  glyphs; tablets 184 x 268 set 200 apart; vessels, shelf and brackets; Settle with the goods' glyph; Settle all in
+  two sizes; the roofed cabinet with the Auto-Settle switch; the Bench on its legs with the craft-level diamonds. A
+  turned tablet hangs askew and carries its own Switch and Incense. The Board tag now shows only while another view is
+  open. Buttons can carry a 32 px icon (`Page.btn`). Screenshots in `docs/ui_p5/post/`.
+
 ## Visibility: gates, doors, hidden ways and things set on roofs and decks show themselves in every room
 
 Some gates and map items could not be seen. A new suite found every case in all 168 rooms, and each one is fixed at

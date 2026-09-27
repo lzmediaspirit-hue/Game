@@ -20,10 +20,10 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path .
 
 | Picture | Checkpoint | Extra arguments | What it shows |
 |---|---|---|---|
-| `map_areas_qu5.png` | qu5 | `--open-page=world_map --tap=218,443` | The valley with the Drowned Shrine chosen, as mockup 16: its way from the Academy lit gold (4 areas), the tracked quest's lantern and the event's gold blossom beside its node, Deepwater Bend's plate with the Riverbed Serpent ready, the card with the Shrine's picture, the quest with Walk there, the event, its rooms and Track Route |
-| `map_resources_qu5.png` | qu5 | `--open-page=world_map:resources --tap=1088,274` | Resources, Ores, Copper, as mockup 16_resources: the kinds on every plate, the quarry ringed with the copper disc, the ores (Cloudsteel and Mystic Ore greyed, in areas not yet reached), Copper's rank, rooms and regrowth, the daily that asks for it, Track Route (2 areas) |
+| `map_areas_qu5.png` | qu5 | `--open-page=world_map --tap=218,443` | The valley with the Drowned Shrine chosen, as mockup 16: its way from the Academy lit gold (4 areas), the tracked quest's lantern and the event's gold blossom beside its node, each plate the area's name alone, the card with the Shrine's picture, the quest with Walk there, the event, its rooms and Track Route |
+| `map_resources_qu5.png` | qu5 | `--open-page=world_map:resources --tap=1088,274` | Resources, Ores, Copper, as mockup 16_resources: the quarry ringed with the copper disc, the ores (Cloudsteel and Mystic Ore greyed, in areas not yet reached), Copper's rank, rooms and regrowth, the daily that asks for it, Track Route (2 areas) |
 | `map_objectives_qu5.png` | qu5 | `--open-page=world_map:objectives` | Objectives (no mockup): the tracked quest and the valley's world events a row each, the chosen one's area in the picture, its way lit and Track Route |
-| `map_areas_bf5.png` | bf5 | `--open-page=world_map` | Early: most of the valley locked, a locked area beside a known one with its name and band, farther ones a padlock alone; Track Route shut with its lock on the area you stand in |
+| `map_areas_bf5.png` | bf5 | `--open-page=world_map` | Early: most of the valley locked, a locked area beside a known one with its name (dim), farther ones a padlock alone; Track Route shut with its lock on the area you stand in |
 | `map_text_large_qu5.png` | qu5 | `--text-size=2 --open-page=world_map --tap=218,443` | Settings › Text size › Large: every plate larger and still clear of the rest, the zone tags a step smaller to fit, the legend on two lines, the quest's line cut with an ellipsis |
 | `map_valley_ls6_end.png` | ls6_end | `--open-page=world_map --tap=488,50` | The valley late: every area open, the paths above marked with the wind glyph, the way from the Lantern Star Field lit from the gorge |
 | `map_star_field_ls6_end.png` | ls6_end | `--open-page=world_map` | The Lantern Star Field, drawn from tokens until it has a painting: the star river, drifting lanterns, each area an isle under its node |
@@ -36,8 +36,7 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path .
 Matches: the painting filling the screen in its lacquered frame with the four cloud-scroll corners; the title plate
 ("World map" over the zone's name) and the pennant; the zone tags hung from the top rail, the locked ones dim with
 their lock, and the Heaven Ranking; every area's node where the painting drew it (jade, gold, a padlock), the selection
-ring, the dotted routes and the way lit gold; plates with the name and band, "You are here", "Locked · Safe", the field
-boss with "ready"; the lantern and the event blossoms beside their nodes; the card with the area's picture and what
+ring, the dotted routes and the way lit gold; the lantern and the event blossoms beside their nodes; the card with the area's picture and what
 grows there, the chips, the quest with Walk there, the event, the rooms with the hazard, Track Route with its count;
 the Areas, Resources and Objectives tablets and the legend changing with the view; on Resources the kind filters, the
 two-column list, the chosen ore's line, its daily and the ringed area with its disc.
@@ -57,6 +56,11 @@ Differences, each on purpose:
    names are the items' own, cut with an ellipsis where the mockup shortened them by hand ("Spirit Stone…").
 6. **The foot's tablets start at x 48**, inside the safe area (style guide §2), where the mockup had 30.
 7. **A locked tag's padlock** sits at the tag's upper right (Page's shared lock mark), not after its name.
+8. **The plates name the area and nothing more**, and the dots are smaller (an available area's 9 px across its
+   radius, the area you stand in 11, where the mockup drew 15 and 17). The mockup's second and third lines (the level
+   band, "You are here", "Locked · Safe", the field boss and "ready", the kinds on Resources) are on the card when the
+   area is chosen; the legend drops the field boss and the kinds, which no longer mark the painting. The `map_suite`
+   holds every plate, in every view and text size, to one line with its area's name.
 
 Not shown in a still: the opening (the card slides in from the frame's edge over 0.2 s; the chosen way lights dot by
 dot over 0.3 s; with Reduce motion on the way shows lit and the page only fades in), which the `identity_suite`'s rules

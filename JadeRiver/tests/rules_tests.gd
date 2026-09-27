@@ -842,7 +842,8 @@ func _bag_checks() -> void:
 ## P5 (docs/page_identity.md row 7, mockups 16 and 16_resources, decisions 17 and 25): the world map as the framed
 ## painting. The valley's nodes stand where tools/ui/build_valley_map.py painted each area, and every room of every
 ## zone shows at an area of its zone. The one layout pass leaves no plate or mark touching another, a node or the
-## frame's furniture, and every word on the painting sits on a plate: on the real data, in every zone, view, kind and
+## frame's furniture, and every word on the painting sits on a plate, each plate one line with its area's name and no
+## more: on the real data, in every zone, view, kind and
 ## chosen area, with every area known and with few, at every text size; in the valley no plate is left out. Track Route
 ## and Walk there travel by auto_path and close the map; a locked zone's tag says why.
 func map_suite() -> void:
@@ -882,6 +883,7 @@ func map_suite() -> void:
 	pg.open({})
 	var faults: Array = []
 	var left_out: Array = []
+	var wordy: Array = []
 	var views := 0
 	for known in ["all", "few"]:
 		Game.account.visited_rooms = {}
@@ -913,11 +915,18 @@ func map_suite() -> void:
 							for tx in pg.text_log:
 								var at: Vector2 = (tx.rect as Rect2).get_center()
 								if tx.has("ground") or not (L.bounds as Rect2).has_point(at) or at.x >= 912.0 or L.keep.any(func(k): return k.has_point(at)): continue
-								if not L.plates.values().any(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect)): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+								var on: Array = L.plates.values().filter(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect))
+								if on.is_empty(): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+								elif str(tx.s) != str(on[0].name): wordy.append("%s \"%s\"" % [where, str(tx.s)])
+							for rid in L.plates:
+								var pl: Dictionary = L.plates[rid]
+								if str(pl.name) != str(pg._region(rid).name) or (pl.rect as Rect2).size != map_script._plate_size(str(pl.name)): wordy.append("%s %s" % [where, rid])
 							if str(pg.tabs[ti].id) == "jade_river_valley" and not L.hidden.is_empty(): left_out.append("%s %s" % [where, str(L.hidden)])
 	for f in faults.slice(0, 12): print("  map_suite: ", f)
 	check(views >= 180 and faults.is_empty(), "P5 map: no plate or mark touches another, a node or the frame's furniture, and every word on the painting is on its plate, in every zone, view and text size (%d views, %d faults)" % [views, faults.size()])
 	check(left_out.is_empty(), "P5 map: in the valley every plate finds a place (%s)" % str(left_out.slice(0, 4)))
+	check(wordy.is_empty() and map_script.NODE_R.here < 12.0 and map_script.NODE_R.open < 10.0,
+		"P5 map: a plate says its area's name on one line and nothing more, over small nodes (%s)" % str(wordy.slice(0, 4)))
 	Game.account.visited_rooms = visited_was
 	Game.account.settings["text_size"] = size_was
 	# Travel: from the Willow Path, Track Route walks to Stoneford's nearest room by auto_path and closes the map.
