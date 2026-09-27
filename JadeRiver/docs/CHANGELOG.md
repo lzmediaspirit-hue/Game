@@ -35,6 +35,14 @@ its cause.
   a thing with no prop marks art the room draws, and that an open way's plate is on screen. It found 118 failures
   before the fixes and finds none after. `room_sweep` reads prop pixels through the same model.
 - **Screenshots** (before and after) in `docs/ui_p5/visibility_fix/`.
+## Points to spend show on the HUD
+
+- **A "+" badge by the HP panel for each system with points to spend.** Meridian points (Foundation), Realisations
+  (the trees), bench points and Post Arts points each get a small badge in a row at the panel's top right. Each badge
+  has its own colour, shape and symbol, is a 48 px target and pops in (with Reduce motion it just appears). A tap opens
+  the page and tab where the points are spent. A badge is hidden while its system is locked or at 0. There is one
+  table, `HUD.POINT_SYSTEMS`, and the counts come from the authorities' getters. Screenshots are in
+  `docs/ui_p5/points_badges/`.
 
 ## Top-down redesign, Phase 1: a prototype room and the new controller
 

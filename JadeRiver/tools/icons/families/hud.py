@@ -949,3 +949,86 @@ def works_hd(p):
     ink_hd(p, c.box(8.5, 17, 23.5, 27.5))                                                # the seal face
     mark_hd(p, c.box(11, 18.5, 21, 20.5) | c.box(15, 20.5, 17, 24) | c.box(11, 24, 21, 26), 1)   # the character for work
     glint_hd(p, 14.2, 4.6)
+
+
+# --------------------------------------------------------------------------- points-to-spend badges (by the HP panel)
+# One small badge a point system (the HUD's POINT_SYSTEMS table): a plate in the system's own colour and shape, its
+# symbol in pale gold on it, and the gold "+" knob at the top right that every badge shares. Colour, shape and symbol
+# each tell them apart, so none relies on colour alone. The plate sits lower left so the knob overlaps its corner.
+def _plate_mat(cols):
+    return mat7(Ramp(cols, INK), 'matte')
+
+
+PLATE_HD = {
+    'jade': _plate_mat(['#0E3B31', '#17604D', '#23876A', '#45B08D', '#8FDDBE']),
+    'violet': _plate_mat(['#2C1A4A', '#46307A', '#6446A6', '#8D6FCF', '#C3B0EE']),
+    'bronze': _plate_mat(['#3E2410', '#6A3F1C', '#98612E', '#C28A4A', '#E8BD82']),
+    'crimson': _plate_mat(['#3F1016', '#6C1C26', '#9A2B36', '#C65059', '#EE9A9C']),
+}
+PLATE_C = (14.0, 18.0)     # the plate's centre
+PLATE_R = 11.5             # and its half-size
+
+
+def _hexagon(c, cx, cy, r):
+    return c.poly([(cx + r * math.cos(math.radians(30 + 60 * k)), cy + r * math.sin(math.radians(30 + 60 * k))) for k in range(6)])
+
+
+PLATE_SHAPE = {
+    'circle': lambda c, x, y, r: c.circle(x, y, r),
+    'diamond': lambda c, x, y, r: c.diamond(x, y, r + 1.5),
+    'square': lambda c, x, y, r: c.rrect(x - r + 1, y - r + 1, x + r - 1, y + r - 1, 2.5),
+    'hexagon': lambda c, x, y, r: _hexagon(c, x, y, r + 0.5),
+}
+
+
+def _sym_meridian(p, x, y):
+    """A meridian: a channel winding down through three lit points."""
+    c = p.c
+    face_hd(p, c.polyline([(x - 2.5, y - 6.0), (x + 1.5, y - 2.5), (x - 1.5, y + 2.5), (x + 2.5, y + 6.0)], 1.4))
+    for dx, dy in ((-2.5, -6.0), (0.0, 0.0), (2.5, 6.0)):
+        face_hd(p, c.circle(x + dx, y + dy, 2.1))
+
+
+def _sym_realisation(p, x, y):
+    """A Realisation: the five-point star of an insight."""
+    face_hd(p, star_hd(p.c, x, y + 0.8, 5, 7.6, 3.2))
+
+
+def _sym_bench(p, x, y):
+    """The bench's hammer."""
+    c = p.c
+    warm_hd(p, c.seg(x - 5.5, y + 6.0, x + 2.0, y - 1.5, 1.7))                          # the handle
+    hx, hy, d, n = x + 2.2, y - 1.8, (0.707, -0.707), (0.707, 0.707)
+    face_hd(p, c.poly([(hx + a * 6.0 * n[0] + b * 2.6 * d[0], hy + a * 6.0 * n[1] + b * 2.6 * d[1])
+                       for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1))]))                  # the head across it
+
+
+def _sym_post_art(p, x, y):
+    """A Post Art: a scroll on its two rollers."""
+    c = p.c
+    face_hd(p, c.box(x - 4.5, y - 5.0, x + 4.5, y + 5.0))
+    for yy in (y - 5.5, y + 5.5):
+        warm_hd(p, c.rrect(x - 6.5, yy - 1.3, x + 6.5, yy + 1.3, 1.0))
+    for yy in (y - 2.0, y + 1.0):
+        ink_hd(p, c.box(x - 2.8, yy, x + 2.8, yy + 1.0))
+
+
+def points_badge_hd(p, plate, shape, symbol):
+    c = p.c
+    x, y = PLATE_C
+    p.part(PLATE_SHAPE[shape](c, x, y, PLATE_R), PLATE_HD[plate], 'bevel', base=0, sep=True, hw=1, sw=1, rim=False)
+    symbol(p, x, y)
+    face_hd(p, c.circle(24.5, 7.5, 5.6))                                                 # the "+" knob
+    ink_hd(p, c.box(21.6, 6.8, 27.4, 8.2) | c.box(23.8, 4.6, 25.2, 10.4))
+    glint_hd(p, 22.4, 5.0, 0.7)
+
+
+# id, plate colour, plate shape, symbol: a row a point system, as the HUD's POINT_SYSTEMS lists them.
+POINT_BADGES = (
+    ('points_meridian', 'jade', 'circle', _sym_meridian),
+    ('points_realisation', 'violet', 'diamond', _sym_realisation),
+    ('points_bench', 'bronze', 'square', _sym_bench),
+    ('points_post_art', 'crimson', 'hexagon', _sym_post_art),
+)
+for _id, _plate, _shape, _sym in POINT_BADGES:
+    glyph(_id)(lambda p, _plate=_plate, _shape=_shape, _sym=_sym: points_badge_hd(p, _plate, _shape, _sym))

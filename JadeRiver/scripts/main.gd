@@ -604,6 +604,14 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--fan=") and is_instance_valid(hud):
 			hud.fan_open = str(a).trim_prefix("--fan=") == "open"
 			hud.fan_rest_open = hud.fan_open
+		if str(a).begins_with("--tap-points=") and is_instance_valid(hud):
+			# Debug tools (S38): tap a points badge through the HUD, as the player does (its page opens on its tab).
+			await get_tree().create_timer(1.0).timeout
+			var pid := "points:" + str(a).trim_prefix("--tap-points=")
+			for tg in hud.hit_targets():
+				if str(tg.role) == pid:
+					hud.press(90, tg.center)
+					hud.release(90)
 		if str(a).begins_with("--use-item=") and Game.active() != null and is_instance_valid(hud):
 			# Debug tools (S38): --use-item=item[:hp] sets the HP share (default as it is), puts the item in Quick-use and
 			# taps it through the HUD, as the player does; with --capture the shot is taken 0.5 s after (feedback previews).
