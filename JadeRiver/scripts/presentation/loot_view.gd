@@ -47,10 +47,7 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.3))
 	draw_circle(Vector2.ZERO, 12, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO)
-	var ic: Texture2D = SpriteCache.icon("coin" if coins > 0 else item)
-	if ic:
-		draw_texture_rect(ic, Rect2(-16, -30 + y, 32, 32), false)
-	else:
+	if SpriteCache.draw_icon(self, Rect2(-16, roundf(-30 + y), 32, 32), "coin" if coins > 0 else item) == Rect2():
 		draw_circle(Vector2(0, -14 + y), 8, col)
 	var c = Game.active()
 	var st: ActorState = Game.actor_state(c.id) if c else null

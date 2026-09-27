@@ -108,7 +108,7 @@ func draw_page() -> void:
 	# Equipped slots across the top.
 	var n := ProgressionRules.technique_slot_count(ch)
 	for i in 8:
-		var r2 := Rect2(content.position.x + i * 92, content.position.y, 80, 80)
+		var r2 := Rect2(content.position.x + i * 92, content.position.y, SLOT, SLOT)
 		var tid = cu.technique_slots[i] if i < cu.technique_slots.size() else null
 		if i >= n:
 			draw_style_box(UiKit.style("slot", "disabled"), r2)
@@ -116,9 +116,9 @@ func draw_page() -> void:
 			region(r2, "slot", i, false, Tx.t("ui.techniques.more_slots_open_with_your"))
 		else:
 			slot_box(r2, "", 0, "", "", null)
-			if tid != null: icon_at(r2.grow(-8), str(tid))
+			if tid != null: icon_at(r2.grow(-6), str(tid))
 			region(r2, "slot", i)
-		text(Vector2(r2.position.x, r2.end.y + 18), str(i + 1), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 80)
+		text(Vector2(r2.position.x, r2.end.y + 18), str(i + 1), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT)
 	if picked != "": text(Vector2(content.position.x + 760, content.position.y + 48), Tx.t("ui.techniques.tap_a_slot_to_equip"), 18, UiKit.GOLD)
 	var list_r := Rect2(content.position.x, content.position.y + 116, content.size.x, content.size.y - 116)
 	panel(list_r)

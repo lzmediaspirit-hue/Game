@@ -142,8 +142,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1180,
-    760
+    1200,
+    880
    ],
    "item": "riverreed_ginseng_10",
    "prop": "riverreed_ginseng_patch",

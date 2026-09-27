@@ -176,8 +176,7 @@ func _draw_badge() -> void:
 	badge.draw_circle(c, 29.0 + 3.0 * pulse, Color(1.0, 0.84, 0.42, 0.16 + 0.10 * pulse))
 	badge.draw_circle(c, 23.0, Color(0.03, 0.08, 0.09, 0.72))
 	badge.draw_arc(c, 23.0, 0.0, TAU, 40, Color(UiKit.PALE_GOLD, 0.65 + 0.35 * pulse), 2.5, true)
-	var ic := SpriteCache.icon(str(def.get("item", "")))
-	if ic: badge.draw_texture_rect(ic, Rect2(c - Vector2(19, 19), Vector2(38, 38)), false)
+	SpriteCache.draw_icon(badge, Rect2((c - Vector2(16, 16)).round(), Vector2(32, 32)), str(def.get("item", "")))
 	for i in 3:
 		var a := t * 1.8 + i * TAU / 3.0
 		var sp := c + Vector2(cos(a) * 32.0, sin(a) * 32.0 * 0.8)

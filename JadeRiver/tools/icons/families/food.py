@@ -7,6 +7,7 @@ from registry import register
 import shapes as S
 
 FAM, GROUP = 'items', 'food'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 CELADON = Ramp(['#2A4A40', '#487462', '#7EAA92', '#B6D8C0', '#E8F6EA'], '#0F1D18')
 BLUEWARE = Ramp(['#3A4E66', '#6C84A0', '#C0D0DE', '#EAF0F4', '#FFFFFF'], '#141C26')

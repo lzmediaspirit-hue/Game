@@ -203,10 +203,10 @@ func _draw() -> void:
 		var cx := -UiKit.text_width(label, 16) * 0.5 - 12
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 4), Vector2(cx - 7, top - 12), Vector2(cx - 3, top - 8),
 			Vector2(cx, top - 14), Vector2(cx + 3, top - 8), Vector2(cx + 7, top - 12), Vector2(cx + 7, top - 4)]), UiKit.GOLD)
+	# Status icons at 1x (12 art px, crisp), 14 apart.
 	var sx := -float(e.pools.statuses.size()) * 7.0
 	for s in e.pools.statuses:
-		var ic := SpriteCache.icon(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
-		if ic: draw_texture_rect(ic, Rect2(sx, top - 30, 14, 14), false)
+		SpriteCache.draw_icon(self, Rect2(sx, top - 30, 14, 14), str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
 		sx += 14
 
 ## Colour-blind-safe danger badge: shapes say what the colour says (S40 release checklist).

@@ -5,12 +5,15 @@ Combat techniques use a plain dark rim; secret arts use a gold rim with four stu
 """
 import math
 
-from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+import numpy as np
+
+from pix import WHITE, Canvas, Frame, Ramp, dilate4, erode4, move
+from palette import R, M, mat7
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'techniques', 'techniques'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 EL = {  # disc ramp, mark ramp
     'water': (['#081E2C', '#0F3A52', '#18607C', '#2E8AA6', '#62BCD0'],
@@ -1010,3 +1013,72 @@ V12D_TECHS = [('splashed_ink', splashed_ink), ('cursive_storm', cursive_storm), 
               ('qi_seal_toll', qi_seal_toll), ('wardens_call', wardens_call)]
 for _v12d_id, _v12d_fn in V12D_TECHS:
     register(FAM, _v12d_id, _v12d_fn, GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+# The emblem: a domed disc in the element colour inside a rim (gold with four studs for secret arts); the mark
+# is pale, with a dark keyline round it and a shadow under its lower-right side so it stands off the dome.
+DOME = ((0.93, 2), (0.74, 1), (0.44, 0), (0.1, -1), (-0.3, -2), (-9, -3))
+
+
+def emblem_hd(p, element, secret=False):
+    """Paint the emblem; returns (inner disc mask, mark material)."""
+    c = p.c
+    disc_c, mark_c = EL[element]
+    disc = mat7(Ramp(disc_c, '#05080B'), 'matte')
+    rim = M('gold') if secret else mat7(Ramp(disc_c, '#05080B'), 'metal')
+    p.part(c.circle(32, 32, 30), rim, 'sphere', base=-1, sep=False, rim=False)
+    inner = c.circle(32, 32, 26)
+    p.part(inner, disc, 'sphere', base=0, sep=True, bands=DOME, rim=False)
+    p.decal(c.arc(32, 32, 22.5, 2.2, 108, 160) & inner, disc, 2)      # the dome's gloss, top-left
+    p.decal(inner & ~erode4(inner), disc, -3)
+    p.decal(c.ring(32, 32, 27.6, 1.0), rim, 1)
+    if secret:
+        for (x, y) in ((32, 4.5), (59.5, 32), (32, 59.5), (4.5, 32)):
+            p.part(c.diamond(x, y, 3.4), M('gold'), 'ray', base=2, sep=True, rim=False)
+    return inner, mat7(Ramp(mark_c, disc_c[0]), 'light')
+
+
+def keyline(p, m, mk):
+    """The mark's dark keyline, a pixel wider on the lower right (the shadow under it)."""
+    ring = dilate4(m) & ~m
+    p.decal(ring | (move(ring, 1, 1) & ~m), mk.out, 0)
+
+
+def mark_hd(p, m, mk, base=0, mode='ray', **kw):
+    keyline(p, m, mk)
+    return p.part(m, mk, mode, base=base, sep=False, rim=False, **kw)
+
+
+def ember_burst_hd(p):
+    c = p.c
+    inner, mk = emblem_hd(p, 'fire')
+    pts = []
+    for k in range(16):
+        a = k * math.pi / 8 + 0.2
+        r = 22 if k % 2 == 0 else 10
+        pts.append((32 + r * math.cos(a), 32 + r * math.sin(a)))
+    mark_hd(p, c.poly(pts) & inner, mk)
+    p.part(c.circle(32, 32, 7), mk, 'sphere', base=2, sep=False, rim=False)
+    p.decal(c.circle(31, 31, 2.6), WHITE, 0)
+    for (x, y) in ((17, 14), (49, 13), (52, 47), (14, 48)):
+        p.part(c.circle(x, y, 1.4) & inner, mk, 'flat', base=1, sep=False, rim=False)
+
+
+def jade_thrust_hd(p):
+    c = p.c
+    inner, mk = emblem_hd(p, 'jade')
+    steel = mat7(Ramp(EL['metal'][1], EL['jade'][0][0]), 'metal')
+    fr = Frame((16.0, 48.0), 45.0)
+    blade = fr.prof(c, [(0.0, 3.6), (30.0, 3.6), (40.0, 0.0)])
+    guard = fr.prof(c, [(-2.5, 7.5), (0.5, 7.5)]) | fr.prof(c, [(-9.0, 2.2), (-2.0, 2.2)])
+    keyline(p, (blade | guard) & inner, mk)
+    p.cylinder(fr, blade & inner, lambda t: np.where(t > 30, np.clip(3.6 * (40 - t) / 10, 0, 3.6), 3.6), steel, ridge=True, sep=False, rim=False)
+    p.part(guard & inner, mk, 'ray', base=0, sep=False, rim=False)
+    for (x, y) in ((14, 30), (24, 50), (9, 40)):
+        p.part(c.seg(x, y, x - 7, y + 7, 1.6) & inner, mk, 'flat', base=-1, sep=False, rim=False)
+    p.sparkle(*fr.P(37.0, 0.0), 1, WHITE)
+
+
+hd('ember_burst', ember_burst_hd)
+hd('jade_thrust', jade_thrust_hd)

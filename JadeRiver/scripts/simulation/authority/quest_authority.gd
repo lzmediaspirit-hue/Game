@@ -81,11 +81,87 @@ func is_hand_in(def: Dictionary, npc: String) -> bool:
 func hand_in_npc(c, def: Dictionary) -> String:
 	var list: Array = def.get("hand_in_any", [])
 	if list.is_empty(): return str(def.get("hand_in", def.get("giver", "")))
+	return own_npc(c, list)
+
+## One NPC of a role given as an id or a list: the character's own sect's when the role has one in each sect.
+static func own_npc(c, value) -> String:
+	var list: Array = value if value is Array else [value]
 	var my_sect := str(c.training_sect.get("id", "")) if c else ""
 	for npc in list:
 		var ns := str(ContentDB.entry("npcs", str(npc)).get("sect", ""))
 		if ns == "" or ns == my_sect: return str(npc)
-	return str(list[0])
+	return str(list[0]) if not list.is_empty() else ""
+
+## The rooms where an NPC stands shown to this character now (a placement can wait on a quest or a flag), its own
+## sect's grounds first.
+func npc_rooms(c, npc: String) -> Array:
+	var sect := str(c.training_sect.get("id", "")) if c else ""
+	var own: Array = []
+	var other: Array = []
+	for rid in WorldRules.rooms_with("npc=" + npc):
+		var room := ContentDB.room(str(rid))
+		if not room.get("objects", []).any(func(o): return str(o.get("npc", "")) == npc and game.world.object_visible(c, o)): continue
+		(own if str(room.get("sect", sect)) == sect else other).append(str(rid))
+	return own + other
+
+## Where an objective is done (M20): the rooms that hold what it asks for (the room it names, the NPC it sends you to,
+## the foe, the object that sets its flag, the rite that starts its event, the node, pickup or foe's quest drop that
+## gives its item), [] when it can be done anywhere.
+func objective_places(c, o: Dictionary) -> Array:
+	if o.has("room"): return [str(o.room)]
+	match str(o.get("kind", "")):
+		"talk_to", "deliver": return npc_rooms(c, own_npc(c, o.get("npc_any", o.get("npc", ""))))
+		"kill", "judge_foe": return WorldRules.rooms_with("enemy=" + str(o.enemy))
+		"set_flag": return WorldRules.rooms_with("set_flag=" + str(o.flag))
+		"pass_event", "survive_timer": return WorldRules.event_rooms(str(o.event))
+		"win_spar":
+			if not o.has("opponent"): return WorldRules.rooms_with("type=spar_post")
+			return npc_rooms(c, str(o.opponent)) + WorldRules.rooms_with("opponent=" + str(o.opponent))
+		"collect", "gather_node": return WorldRules.rooms_with("item=" + str(o.item)) + WorldRules.rooms_with("drop=" + str(o.item))
+		"catch_fish": return WorldRules.rooms_with("type=fishing_spot")
+		"hit_object", "interact_object": return WorldRules.rooms_with("type=" + str(o.type))
+	return []
+
+var _hops_cache: Dictionary = {}
+
+## The room the direction mark leads to for an objective: the quest's own target when the objective can be done there
+## or anywhere; else, of its places a way leads into (not a story instance entered by its event), the nearest the
+## character can walk to now, its own sect's first.
+func objective_room(c, def: Dictionary, o: Dictionary) -> String:
+	var target := str(def.get("target_room", ""))
+	var places := objective_places(c, o)
+	if places.is_empty() or target in places: return target
+	var my_sect := str(c.training_sect.get("id", "")) if c else ""
+	var hops := _hops(c)
+	var best := target
+	var best_score := INF
+	for rid in places:
+		if WorldRules.rooms_with("to=" + str(rid)).is_empty() and WorldRules.rooms_with("hidden_to=" + str(rid)).is_empty(): continue
+		var score := float(hops.get(str(rid), 1000)) + (0.5 if str(ContentDB.room(str(rid)).get("sect", my_sect)) != my_sect else 0.0)
+		if score < best_score:
+			best = str(rid)
+			best_score = score
+	return best
+
+## Rooms by the ways between them and where the character stands, through the ways open to it (kept a few seconds,
+## like the direction mark, for this room and this much of the story).
+func _hops(c) -> Dictionary:
+	var here := str(c.position.get("room", "")) if c else ""
+	var key := "%s|%s|%s|%d|%d" % [c.id if c else "", here, c.cultivator.realm_key if c else "", c.quests.done.size() if c else 0, c.quests.flags.size() if c else 0]
+	if str(_hops_cache.get("key", "")) != key or Clock.now_utc() - float(_hops_cache.get("at", 0.0)) > 5.0:
+		_hops_cache = {"key": key, "at": Clock.now_utc(), "hops": WorldRules.hops(here, func(room_id: String, p: Dictionary) -> bool: return game.world.portal_open(c, room_id, p))}
+	return _hops_cache.hops
+
+## Where the direction mark leads for a quest under way: the room of its first open objective still to do, or where
+## its hand-in NPC stands now once it is ready.
+func quest_target(c, def: Dictionary, st: Dictionary) -> String:
+	if st.get("state", "") == "ready":
+		var back := npc_rooms(c, hand_in_npc(c, def))
+		return str(back[0]) if not back.is_empty() else ""
+	for i in def.get("objectives", []).size():
+		if _objective_open(c, def, st, i) and int(st.progress[i]) < int(def.objectives[i].get("count", 1)):
+			return objective_room(c, def, def.objectives[i])
+	return str(def.get("target_room", ""))
 
 func quest_def(c, id: String) -> Dictionary:
 	var d := ContentDB.entry("quests", id)
@@ -544,10 +620,9 @@ func tracker(c) -> Array:
 		if st.state == "ready":
 			var npc_name := ContentDB.name_of("npcs", hand_in_npc(c, def))
 			lines = [{"text": Tx.t("sim.quest.return_to") % npc_name, "have": 0, "need": 1, "done": false}]
-		# S49 auto-path: where the quest leads now (the hand-in NPC's room once it is ready).
-		var target := WorldRules.npc_room(hand_in_npc(c, def)) if st.state == "ready" else str(def.get("target_room", ""))
+		# S49 auto-path: where the quest leads now (its current objective's room, the hand-in NPC's once it is ready).
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
-			"target_room": target})
+			"target_room": quest_target(c, def, st)})
 	return out
 
 # ------------------------------------------------------------------ set pieces, spars, dailies

@@ -1,0 +1,258 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>13 Roll-Call, the first post</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The Roll-Call board: the sect's duty board in the storehouse hall. Each character is a wooden name tablet hung on
+     the peg rail (the tablet turns over when tapped to show the post); under it, on the shelf, their pouch as a real
+     vessel filled to its level with what it holds; under that, the one big action. The Storehouse is the cabinet on the
+     right and the Apprentice Bench the table under it. Surfaces use the style guide's SURFACE colours (§1.6). */
+  :root { --wood-dark: #3b2416; --wood: #5a3620; --peg-dark: #1b1410; --peg: #b8894a; --bridge: #d8c08a;
+    --board-edge: #c99a58; --board-line: #4a3218; --talisman: #efe3c2; --talisman-edge: #8a6a3a; --paper-ink: #2b2118;
+    --red-text: #e87070; }
+  .board { position: absolute; left: 24px; top: 8px; width: 1232px; height: 704px; border-radius: 10px;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,.28)),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 94px, rgba(27,20,16,.55) 94px 96px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,0) 3px 11px, rgba(0,0,0,.05) 11px 13px, rgba(0,0,0,0) 13px 23px),
+      linear-gradient(180deg, #5f3a22, var(--wood) 60%, #4c2d1a);
+    box-shadow: inset 0 0 0 10px var(--peg-dark), inset 0 0 0 12px rgba(229,184,76,.55), inset 0 0 0 14px var(--peg-dark),
+      inset 0 0 60px 20px rgba(0,0,0,.45), 0 10px 30px rgba(0,0,0,.6); }
+  /* the carved beam along the top, with the title cut into a gilt cartouche */
+  .beam { position: absolute; left: 36px; top: 20px; width: 1208px; height: 64px; border-radius: 4px;
+    background: linear-gradient(180deg, #4a2c19, var(--wood-dark) 55%, #241409);
+    box-shadow: inset 0 2px 0 rgba(216,192,138,.25), inset 0 -3px 0 rgba(0,0,0,.45), 0 4px 0 rgba(0,0,0,.35); }
+  .cartouche { position: absolute; left: 440px; top: 12px; width: 400px; height: 80px; border-radius: 40px / 14px;
+    background: linear-gradient(180deg, #24140a, #3a2213); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 3px #7a5426, 0 0 0 5px var(--gold), 0 0 0 7px #5c4424, 0 6px 0 7px rgba(0,0,0,.35); }
+  .cartouche .t-title { margin-top: -4px; }
+  .tag-tab { position: absolute; top: 28px; height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px 0 10px;
+    border-radius: 6px; background: linear-gradient(180deg, #6b4526, #4e3019); color: var(--paper); font-size: 18px; font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(216,192,138,.35), 0 0 0 2px var(--peg-dark), 0 3px 0 2px rgba(0,0,0,.35); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .rail { position: absolute; left: 48px; top: 100px; width: 808px; height: 10px; border-radius: 5px;
+    background: linear-gradient(180deg, #7a5230, #3b2416); box-shadow: 0 3px 0 rgba(0,0,0,.4); }
+  .peg { position: absolute; top: 96px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #e0b878, var(--peg) 45%, #5c4424); box-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .cord { position: absolute; width: 3px; margin-left: -1.5px; background: linear-gradient(90deg, #6e1a22, var(--blood), #6e1a22); }
+
+  /* a name tablet: pale wood with an arched top, hung by a cord through its crown */
+  .tab { position: absolute; top: 120px; width: 184px; height: 268px; border-radius: 92px 92px 10px 10px / 34px 34px 10px 10px;
+    background:
+      repeating-linear-gradient(90deg, rgba(74,50,24,0) 0 7px, rgba(74,50,24,.07) 7px 8px, rgba(74,50,24,0) 8px 19px),
+      linear-gradient(180deg, #e6d09e, var(--bridge) 40%, #c9ab72);
+    box-shadow: inset 0 0 0 3px rgba(138,106,58,.9), inset 0 0 0 6px rgba(239,227,194,.35), inset 0 -10px 18px rgba(74,50,24,.25),
+      0 6px 0 rgba(0,0,0,.35), 0 10px 18px rgba(0,0,0,.35); color: var(--paper-ink); }
+  .tab * { text-shadow: none; }
+  .tab .hole { position: absolute; left: 86px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--peg-dark);
+    box-shadow: inset 0 2px 0 rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.3); }
+  .tab .win { position: absolute; left: 30px; top: 24px; width: 124px; height: 112px; border-radius: 62px 62px 8px 8px;
+    overflow: hidden; box-shadow: inset 0 0 0 3px var(--talisman-edge), inset 0 3px 8px rgba(0,0,0,.45); }
+  .tab .win.herb { background: radial-gradient(ellipse at 50% 110%, #4f7a3a 0 40%, rgba(0,0,0,0) 41%), linear-gradient(180deg, #a9c7b8, #7fa58b 70%, #4f7a3a 71%); }
+  .tab .win.fish { background: linear-gradient(180deg, #b8cdd2, #8fb1b9 55%, #3f7f86 56%, #2c6a73); }
+  .tab .win.bug { background: repeating-linear-gradient(90deg, rgba(34,70,40,0) 0 14px, rgba(34,70,40,.35) 14px 18px, rgba(34,70,40,0) 18px 30px),
+      linear-gradient(180deg, #b9d0a6, #86ad78 70%, #5b8450 71%); }
+  .tab .win.lamp { background: radial-gradient(circle at 50% 45%, #fff1c2, #f0c96a 35%, #b8812f 70%, #6b4520); }
+  .tab .win.none { background: linear-gradient(180deg, #d9c7a0, #bca275); }
+  .tab .win img { position: absolute; width: 384px; height: 384px; image-rendering: pixelated; }
+  .tab .nm { position: absolute; left: 0; right: 0; top: 142px; text-align: center; font-weight: 700; font-size: 20px; line-height: 1.1; white-space: nowrap; }
+  .tab .craft { position: absolute; left: 0; right: 0; top: 166px; display: flex; justify-content: center; align-items: center; gap: 6px;
+    font-size: 16px; font-weight: 700; color: #1f4d44; white-space: nowrap; }
+  .tab .craft .gl { width: 36px; height: 36px; border-radius: 50%; background: #2a3a36; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 2px var(--talisman-edge); }
+  .tab .craft .gl img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .tab .place { position: absolute; left: 0; right: 0; top: 205px; text-align: center; font-size: 15px; font-weight: 600; color: #5b4a33; white-space: nowrap; }
+  /* the state band across the tablet's foot: word, icon and the one timer */
+  .band { position: absolute; left: 6px; right: 6px; bottom: 6px; height: 36px; border-radius: 0 0 6px 6px; display: flex; align-items: center;
+    justify-content: center; gap: 6px; font-size: 16px; font-weight: 700; white-space: nowrap; }
+  .band.full { background: linear-gradient(180deg, #a3303a, #7c1f28); color: #fff3e0; }
+  .band.fill { background: linear-gradient(180deg, #1f6b62, #15514f); color: #eafff8; }
+  .band.play { background: linear-gradient(180deg, #e5b84c, #b8862e); color: var(--paper-ink); }
+  .band.none { background: linear-gradient(180deg, #8d8a80, #6c6a62); color: #fbf6ea; }
+  .band .t-fig { font-size: 16px; }
+  .turn { position: absolute; right: 12px; top: 30px; width: 24px; height: 24px; border-radius: 50%; border: 3px solid rgba(91,74,51,.75);
+    border-right-color: transparent; }
+  .turn::after { content: ""; position: absolute; right: -6px; top: -2px; border: 5px solid transparent; border-bottom-color: rgba(91,74,51,.75);
+    transform: rotate(40deg); }
+  .tassel { position: absolute; width: 14px; height: 30px; margin-left: -7px; border-radius: 3px 3px 7px 7px;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 2px, rgba(0,0,0,0) 2px 4px), var(--c);
+    box-shadow: 0 -8px 0 -4px var(--c); }
+
+  /* the back of a tablet (turned over): dark wood with what the post yields and the tablet's own buttons */
+  .tab.back { background: repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 9px, rgba(0,0,0,.12) 9px 10px, rgba(0,0,0,0) 10px 21px),
+      linear-gradient(180deg, #6b4526, #4e3019 60%, #3b2416); color: var(--paper);
+    box-shadow: inset 0 0 0 3px #2a170c, inset 0 0 0 5px rgba(229,184,76,.45), 0 6px 0 rgba(0,0,0,.35), 0 10px 18px rgba(0,0,0,.35);
+    transform: rotate(-2deg); }
+  .tab.back * { text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+
+  /* the shelf the vessels stand on */
+  .shelf { position: absolute; left: 44px; top: 548px; width: 816px; height: 22px; border-radius: 3px;
+    background: linear-gradient(180deg, #8a6038 0 6px, #6b4526 6px, #4e3019); box-shadow: 0 6px 0 rgba(0,0,0,.4); }
+  .bracket { position: absolute; top: 570px; width: 16px; height: 22px; background: linear-gradient(90deg, #3b2416, #5a3620); clip-path: polygon(0 0, 100% 0, 100% 100%); }
+
+  /* vessels: a herb basket, a fish creel, an insect cage. Each is open-woven, so the goods inside show through the
+     gaps and the level reads at a glance; a full one is heaped and glows. */
+  .vessel { position: absolute; width: 136px; height: 128px; }
+  .vessel > div { position: absolute; }
+  .goods { overflow: hidden; }
+  .goods img { position: absolute; width: 32px; height: 32px; image-rendering: pixelated; }
+  .basket .back { left: 0; top: 28px; width: 136px; height: 100px; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 3px, rgba(0,0,0,0) 3px 12px), linear-gradient(180deg, #3b2416, #2a170c); }
+  .basket .goods { left: 0; top: 0; width: 136px; height: 128px;
+    clip-path: polygon(0 0, 100% 0, 100% 21.9%, 88% 100%, 12% 100%, 0 21.9%); }
+  .basket .weave { left: 0; top: 28px; width: 136px; height: 100px; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+    background: linear-gradient(90deg, rgba(27,20,16,.55), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 78%, rgba(27,20,16,.55)),
+      repeating-linear-gradient(0deg, #c99a58 0 4px, #8a6a3a 4px 5px, rgba(0,0,0,0) 5px 17px),
+      repeating-linear-gradient(90deg, #b8894a 0 4px, rgba(0,0,0,0) 4px 20px); }
+  .basket .rim { left: -4px; top: 22px; width: 144px; height: 12px; border-radius: 6px;
+    background: linear-gradient(180deg, #e0b878, #8a6a3a); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
+  .basket .foot { left: 14px; top: 120px; width: 108px; height: 8px; border-radius: 2px; background: #6b4526; }
+  .creel .back, .creel .goods, .creel .weave { left: 6px; top: 34px; width: 124px; height: 94px; border-radius: 44% 44% 36% 36% / 38% 38% 30% 30%; }
+  .creel .back { background: linear-gradient(180deg, #3b2416, #2a170c); }
+  .creel .weave { background: radial-gradient(ellipse at 40% 35%, rgba(0,0,0,0) 40%, rgba(27,20,16,.55)),
+      repeating-linear-gradient(45deg, #c99a58 0 3px, rgba(0,0,0,0) 3px 15px), repeating-linear-gradient(-45deg, #b8894a 0 3px, rgba(0,0,0,0) 3px 15px); }
+  .creel .neck { left: 40px; top: 20px; width: 56px; height: 22px; border-radius: 6px 6px 0 0;
+    background: repeating-linear-gradient(90deg, #8a6a3a 0 2px, rgba(0,0,0,0) 2px 8px), linear-gradient(90deg, #a77a45, #d8ad6c, #a77a45); }
+  .creel .rim { left: 34px; top: 14px; width: 68px; height: 10px; border-radius: 5px; background: linear-gradient(180deg, #e0b878, #8a6a3a); }
+  .creel .strap { left: 0; top: 30px; width: 136px; height: 70px; border: 4px solid #6e1a22; border-bottom: 0; border-radius: 68px 68px 0 0; }
+  .cage .back, .cage .goods { left: 10px; top: 18px; width: 116px; height: 100px; border-radius: 58px 58px 4px 4px / 40px 40px 4px 4px; }
+  .cage .back { background: rgba(27,40,32,.8); }
+  .cage .bars { left: 8px; top: 16px; width: 120px; height: 104px; border-radius: 60px 60px 6px 6px / 42px 42px 6px 6px;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 10px, #c99a58 10px 13px, #8a6a3a 13px 14px, rgba(0,0,0,0) 14px 17px);
+    box-shadow: inset 0 0 0 3px #8a6a3a; }
+  .cage .base { left: 0; top: 116px; width: 136px; height: 12px; border-radius: 3px; background: linear-gradient(180deg, #8a6a3a, #4e3019); }
+  .cage .knob { left: 60px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #e0b878, #8a6a3a); }
+  .lid { left: -6px; top: 14px; width: 148px; height: 18px; border-radius: 50% 50% 4px 4px / 100% 100% 4px 4px;
+    background: linear-gradient(180deg, #d8ad6c, #8a6a3a); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+  .pause { left: 50px; top: 60px; width: 36px; height: 36px; border-radius: 50%; background: rgba(27,20,16,.85); box-shadow: 0 0 0 2px var(--peg); }
+  .pause::before, .pause::after { content: ""; position: absolute; top: 10px; width: 5px; height: 16px; border-radius: 1px; background: var(--paper); }
+  .pause::before { left: 11px; } .pause::after { left: 20px; }
+  .glow { position: absolute; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,230,161,.5), rgba(255,230,161,0) 70%); }
+  .ghost { position: absolute; width: 136px; height: 100px; top: 448px; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+    background: repeating-linear-gradient(90deg, rgba(216,192,138,.28) 0 6px, rgba(0,0,0,0) 6px 12px); }
+  /* the count on a paper tag tied to the vessel */
+  .ptag { position: absolute; height: 40px; padding: 2px 10px 0 20px; border-radius: 3px 8px 8px 3px; background: var(--talisman); color: var(--paper-ink);
+    box-shadow: inset 0 0 0 2px var(--talisman-edge), 0 3px 0 rgba(0,0,0,.35); display: flex; align-items: baseline; gap: 2px; white-space: nowrap; }
+  .ptag * { text-shadow: none; }
+  .ptag .n { font-family: var(--f-text); font-weight: 800; font-size: 26px; line-height: 38px; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .ptag .of { font-weight: 700; font-size: 14px; color: #5b4a33; }
+  .ptag.full { background: #fbe1d6; box-shadow: inset 0 0 0 2px #a3303a, 0 3px 0 rgba(0,0,0,.35); }
+  .ptag.full .n { color: #9c2a36; }
+  .ptag::before { content: ""; position: absolute; left: 6px; top: 17px; width: 6px; height: 6px; border-radius: 50%; background: var(--peg-dark); }
+  .string { position: absolute; height: 2px; background: #8a6a3a; transform-origin: 0 50%; }
+
+  .act { position: absolute; top: 584px; height: 56px; }
+  .k-btn .ic, .k-btn2 .ic { margin-right: 8px; }
+  .swap { width: 56px; height: 56px; padding: 0; }
+  .float { position: absolute; font-family: var(--f-text); font-weight: 800; font-size: 24px; color: var(--bright-jade);
+    paint-order: stroke fill; -webkit-text-stroke: 5px rgba(7,16,21,.92); }
+  .ripple { position: absolute; border-radius: 12px; border: 3px solid rgba(255,230,161,.7); box-shadow: 0 0 12px 2px rgba(255,230,161,.35); }
+
+  /* the right column: Settle all, the Storehouse cabinet, the Apprentice Bench */
+  .cab { position: absolute; left: 880px; top: 196px; width: 344px; height: 268px; border-radius: 4px;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 40px, rgba(0,0,0,.18) 40px 42px), linear-gradient(180deg, #6b4526, #4e3019);
+    box-shadow: inset 0 0 0 3px var(--peg-dark), inset 0 0 0 5px rgba(184,137,74,.5), 0 8px 0 rgba(0,0,0,.4); }
+  .roof { position: absolute; left: 868px; top: 172px; width: 368px; height: 34px; clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+    background: repeating-linear-gradient(90deg, #1f3b3c 0 14px, #15292b 14px 16px), #1f3b3c; box-shadow: inset 0 -4px 0 rgba(0,0,0,.4); }
+  .roof-ridge { position: absolute; left: 896px; top: 164px; width: 312px; height: 10px; border-radius: 5px; background: linear-gradient(180deg, #2c5456, #15292b); }
+  .plq { position: absolute; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 10px; height: 40px; border-radius: 4px;
+    background: linear-gradient(180deg, #2a170c, #1b1410); box-shadow: 0 0 0 2px var(--peg), 0 3px 0 2px rgba(0,0,0,.4); }
+  .drawer { position: absolute; }
+  .bench-top { position: absolute; left: 872px; top: 588px; width: 360px; height: 20px; border-radius: 4px;
+    background: linear-gradient(180deg, #a77a45 0 5px, #6b4526 5px, #4e3019); box-shadow: 0 6px 0 rgba(0,0,0,.4); }
+  .leg { position: absolute; top: 608px; width: 18px; height: 88px; background: linear-gradient(90deg, #3b2416, #5a3620, #3b2416); }
+  .toggle { display: inline-block; width: 44px; height: 24px; border-radius: 12px; background: var(--ink); box-shadow: inset 0 0 0 2px var(--hollow); position: relative; }
+  .toggle::after { content: ""; position: absolute; left: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--hollow); }
+
+  /* the first-time note pinned to the board */
+  .note { position: absolute; background: linear-gradient(180deg, #f3ead3, var(--talisman)); color: var(--paper-ink); border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(138,106,58,.6), inset 0 0 26px rgba(154,106,53,.22), 0 6px 0 rgba(0,0,0,.35), 0 10px 20px rgba(0,0,0,.3);
+    transform: rotate(1.2deg); }
+  .note * { text-shadow: none; }
+  .nail { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #d8d2c2, #6c6a62 60%, #2a2a28); box-shadow: 0 2px 0 rgba(0,0,0,.4); }
+  .step { position: absolute; display: flex; align-items: center; gap: 12px; }
+  .step .ring { flex: none; width: 48px; height: 48px; border-radius: 50%; background: #2a3a36; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 3px var(--talisman-edge); }
+  .step .num { position: absolute; left: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%; background: #9c2a36; color: #fff3e0;
+    font-size: 14px; font-weight: 800; line-height: 22px; text-align: center; }
+  .step .tx { font-size: 16px; font-weight: 700; line-height: 1.25; }
+  .step .tx span { font-weight: 600; color: #5b4a33; font-size: 14px; }
+  .empty-peg { position: absolute; top: 120px; width: 184px; height: 268px; border-radius: 92px 92px 10px 10px / 34px 34px 10px 10px;
+    border: 3px dashed rgba(216,192,138,.35); }
+
+  .k-plaque-title { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_lotus_ferry_village.png">
+<div class="dim-screen" style="background:rgba(3,8,10,.6)"></div>
+<div class="board"></div>
+<div class="beam"></div>
+<div class="cartouche abs"><span class="t-title k-plaque-title">Roll-Call</span></div>
+<div class="tag-tab" style="left:52px"><img class="ic ic-32" src="../../../art/icons/hud/crafts.png">Crafts</div>
+<div class="tag-tab" style="left:180px"><img class="ic ic-32" src="../../../art/icons/hud/post.png">Vows</div>
+<div class="k-close abs" style="left:1176px;top:26px"></div>
+<div class="rail"></div>
+<div class="shelf"></div><div class="bracket" style="left:80px"></div><div class="bracket" style="left:820px;transform:scaleX(-1)"></div>
+
+
+<div class="peg" style="left:148px"></div><div class="cord" style="left:148px;top:106px;height:22px"></div>
+<div class="tab abs" style="left:56px">
+  <div class="hole"></div><div class="turn"></div>
+  <div class="win lamp"><img src="../assets/fig_rc_tester_bf8.png" style="left:-130px;top:-150px"></div>
+  <div class="nm">Tester</div>
+  <div class="craft"><span style="color:#6c6a62">No post</span></div>
+  <div class="place">Lotus Ferry Village</div>
+  <div class="band play"><span class="t-sym">▶</span>Playing now</div>
+</div>
+<div class="tassel" style="left:148px;top:390px;--c:var(--gold)"></div>
+
+<div class="peg" style="left:348px"></div><div class="cord" style="left:348px;top:106px;height:22px"></div>
+<div class="tab abs" style="left:256px">
+  <div class="hole"></div><div class="turn"></div>
+  <div class="win herb"><img src="../assets/fig_rc_second_work.png" style="left:-130px;top:-150px"></div>
+  <div class="nm">Second Disciple</div>
+  <div class="craft"><span class="gl"><img src="../../../art/icons/hud/craft_foraging.png"></span>Foraging 1</div>
+  <div class="place">Willow Path West</div>
+  <div class="band fill">Full in <span class="t-fig">8 m 29 s</span></div>
+</div>
+<div class="tassel" style="left:348px;top:390px;--c:var(--jade)"></div>
+<div class="ripple" style="left:398px;top:150px;width:40px;height:40px;border-radius:50%"></div>
+<svg class="abs" style="left:76px;top:440px" width="144" height="112"><path d="M4 10 L140 10 L124 106 L20 106 Z" fill="rgba(27,20,16,.25)" stroke="#d8c08a" stroke-opacity=".6" stroke-width="3" stroke-dasharray="9 7"/></svg>
+<img class="ic ic-32 abs" src="../../../art/icons/hud/post.png" style="left:132px;top:470px;opacity:.8">
+<div class="abs t-sm c-paper" style="left:56px;top:596px;width:184px;text-align:center;line-height:1.25">Keep Post at a node<br><span class="c-mist">to put a basket here</span></div>
+<div class="vessel basket" style="left:280px;top:420px"><div class="back"></div><div class="goods"><img src="../../../art/icons/items/spirit_wood.png" style="left:0px;top:91px"><img src="../../../art/icons/items/willow_moss.png" style="left:25px;top:89px"><img src="../../../art/icons/items/spirit_wood.png" style="left:51px;top:92px"><img src="../../../art/icons/items/willow_moss.png" style="left:75px;top:88px"><img src="../../../art/icons/items/willow_moss.png" style="left:96px;top:89px"><img src="../../../art/icons/items/willow_moss.png" style="left:9px;top:76px"><img src="../../../art/icons/items/spirit_wood.png" style="left:36px;top:76px"><img src="../../../art/icons/items/willow_moss.png" style="left:62px;top:76px"><img src="../../../art/icons/items/willow_moss.png" style="left:81px;top:72px"><img src="../../../art/icons/items/willow_moss.png" style="left:105px;top:73px"><img src="../../../art/icons/items/willow_moss.png" style="left:1px;top:59px"><img src="../../../art/icons/items/spirit_wood.png" style="left:23px;top:60px"><img src="../../../art/icons/items/willow_moss.png" style="left:51px;top:60px"><img src="../../../art/icons/items/willow_moss.png" style="left:70px;top:59px"><img src="../../../art/icons/items/willow_moss.png" style="left:93px;top:59px"><img src="../../../art/icons/items/willow_moss.png" style="left:14px;top:43px"><img src="../../../art/icons/items/willow_moss.png" style="left:37px;top:42px"><img src="../../../art/icons/items/willow_moss.png" style="left:59px;top:44px"><img src="../../../art/icons/items/willow_moss.png" style="left:83px;top:40px"></div><div class="weave"></div><div class="rim"></div><div class="foot"></div></div>
+<div class="ptag" style="left:356px;top:494px"><span class="n">25</span><span class="of">/40</span></div>
+<div class="k-btn2 act" style="left:256px;width:120px"><img class="ic ic-32" src="../../../art/icons/items/willow_moss.png">Settle</div>
+<div class="k-btn2 act swap" style="left:384px"><img class="ic ic-32" style="margin:0" src="../../../art/icons/hud/characters.png"></div>
+<div class="abs t-sm c-paper" style="left:256px;top:648px;width:184px;text-align:center"><span class="t-fig">97</span> Willow Moss an hour</div>
+<div class="note" style="left:460px;top:124px;width:388px;height:412px">
+  <div class="nail" style="left:187px;top:8px"></div>
+  <div class="abs" style="left:24px;top:30px;font-family:var(--f-display);font-weight:700;font-size:31px;line-height:1">Your first post</div>
+  <div class="abs t-sm" style="left:24px;top:66px;width:340px;line-height:1.3;color:#5b4a33">Everyone you are not playing keeps working.</div>
+  <div class="step" style="left:28px;top:124px"><div class="ring" style="position:relative"><img class="ic ic-32" src="../../../art/icons/hud/post.png"><span class="num">1</span></div>
+    <div class="tx">Keep post at a node<br><span>ore, herbs, a fishing spot or a swarm</span></div></div>
+  <div class="step" style="left:28px;top:194px"><div class="ring" style="position:relative"><img class="ic ic-32" src="../../../art/icons/hud/characters.png"><span class="num">2</span></div>
+    <div class="tx">Play someone else<br><span>the basket fills while you are away</span></div></div>
+  <div class="step" style="left:28px;top:264px"><div class="ring" style="position:relative"><img class="ic ic-32" src="../../../art/icons/hud/storehouse.png"><span class="num">3</span></div>
+    <div class="tx">Come back and Settle<br><span>the haul goes to the Storehouse</span></div></div>
+  <div class="abs flex" style="left:24px;top:344px;gap:10px;height:40px;padding:0 12px;border-radius:20px;background:rgba(21,81,79,.14);box-shadow:inset 0 0 0 1px rgba(21,81,79,.5)">
+    <img class="ic ic-32" src="../../../art/icons/hud/quest.png" style="filter:brightness(.35)"><span class="t-sm" style="font-weight:700">Keeping Post</span><span class="t-xs" style="color:#1f4d44;font-weight:700">step 2 of 2</span></div>
+</div>
+<div class="k-btn abs" style="left:880px;top:100px;width:344px;height:64px;font-size:24px">Settle all<span class="t-md" style="margin-left:12px;color:var(--paper)">· <span class="t-fig">25</span> goods</span></div>
+<div class="roof-ridge"></div><div class="roof"></div><div class="cab"></div>
+<div class="plq" style="left:896px;top:212px"><img class="ic ic-32" src="../../../art/icons/hud/storehouse.png"><span class="t-subhead">Storehouse</span></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:896px;top:268px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:976px;top:268px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:1056px;top:268px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:1136px;top:268px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:896px;top:352px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:976px;top:352px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:1056px;top:352px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:1136px;top:352px"></div>
+<div class="abs t-md c-paper" style="left:896px;top:442px;width:312px;text-align:center">Empty. Settle a post to fill it.</div>
+<div class="k-locked">
+<div class="plq" style="left:896px;top:508px"><img class="ic ic-32" src="../../../art/icons/hud/bench.png"><span class="t-subhead">Bench</span></div>
+<div class="bench-top" style="top:612px"></div><div class="leg" style="left:888px;top:632px;height:64px"></div><div class="leg" style="left:1198px;top:632px;height:64px"></div>
+</div>
+<div class="abs flex" style="left:896px;top:560px;gap:10px"><span class="k-lock-mini" style="transform:scale(1.5);margin:0 6px"></span><span class="t-md c-paper">Reach Qi Kindling 1</span></div>
+<div class="abs t-sm c-mist" style="left:930px;top:586px">and finish Keeping Post</div>
+<div class="abs t-xs c-mist" style="left:896px;top:644px;width:312px;line-height:1.3">Apprentices make components while you are away.</div>
+</div></body></html>

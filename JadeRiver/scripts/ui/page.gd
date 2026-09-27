@@ -11,6 +11,10 @@ signal navigate(page: String, args: Dictionary)
 
 ## The smallest tap target on a side, in screen px (P4, `docs/ui_style_guide.md`).
 const MIN_TAP := 48.0
+## The item slot (P4b): a 64 px icon at 1:1 (an HD icon, or a legacy icon's 32 art px at 2x) inside a 6 px inset.
+const SLOT := 76.0
+## The small slot, for an item named in a list row: a 32 px icon (an HD icon's native 32, a legacy one at 1x).
+const SLOT_SMALL := 44.0
 
 var page_id := ""
 var title := ""
@@ -274,15 +278,15 @@ func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
 	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "panel": true})
 
-## Item slot with icon, count, quality edge and state overlays.
+## Item slot with icon, count, quality edge and state overlays. Use SLOT (a 64 px icon) or SLOT_SMALL (32): the icon
+## is drawn at a whole-number scale in the 6 px inset, so another size only adds margin round it.
 func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "", data = null, selected := false, locked := false) -> void:
 	draw_style_box(UiKit.style("slot", "pressed" if (id != "" and _is_pressed(id, data)) else "normal"), rect)
 	if item_id != "":
-		var tex := SpriteCache.icon(item_id)
 		var inner := rect.grow(-6)
 		if quality.begins_with("pill_"): _pill_glow(rect, quality)
-		if tex: draw_texture_rect(tex, inner, false)
-		else:
+		else: _grade_halo(rect, item_id)
+		if SpriteCache.draw_icon(self, inner, item_id) == Rect2():
 			draw_rect(inner, UiKit.DEEP_TEAL)
 			text(inner.position + Vector2(0, inner.size.y * 0.6), ContentDB.item_name(item_id).left(3), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x)
 		if quality != "" and quality != "plain" and quality != "common":
@@ -305,6 +309,15 @@ func pill_marks(rect: Rect2, marks: int) -> void:
 		draw_rect(lr.grow(1), Color(UiKit.INK, 0.8))
 		draw_rect(lr, UiKit.GOLD)
 
+## P4b: a soft steady halo in the grade's colour behind an item of Mystic grade and above (the soft glow of the icon
+## study's Style B, drawn by the slot rather than baked into the icon).
+func _grade_halo(rect: Rect2, item_id: String) -> void:
+	var g := str(ContentDB.item(item_id).get("grade", "plain"))
+	if StatRules.grade_index(g) < StatRules.grade_index("mystic"): return
+	var col := UiKit.grade_color(g)
+	for i in 3:
+		draw_circle(rect.get_center(), rect.size.x * (0.30 + 0.06 * i), Color(col.r, col.g, col.b, 0.11 - 0.03 * i))
+
 ## Pill Grain, Halo and Soul (S15): a soft pulsing halo behind the icon and a corner mark
 ## (dot, ring, star) so the quality reads without relying on colour.
 func _pill_glow(rect: Rect2, quality: String) -> void:
@@ -321,9 +334,10 @@ func _pill_glow(rect: Rect2, quality: String) -> void:
 			for a in 4:
 				draw_line(m - Vector2.from_angle(a * PI / 4.0) * 5.0, m + Vector2.from_angle(a * PI / 4.0) * 5.0, col, 1.6)
 
-func icon_at(rect: Rect2, icon_id: String) -> void:
-	var tex := SpriteCache.icon(icon_id)
-	if tex: draw_texture_rect(tex, rect, false)
+## An icon centred in `rect` at the largest whole-number scale of its art that fits (SpriteCache.draw_icon):
+## give 32 or 64 for an item, 32 for a HUD glyph, 24 for a status icon.
+func icon_at(rect: Rect2, icon_id: String, modulate := Color.WHITE) -> void:
+	SpriteCache.draw_icon(self, rect, icon_id, modulate)
 
 ## One creature-sheet frame fitted into `rect`, feet on its bottom edge. `action`
 ## loops with the page clock. Returns false when the creature has no sheet.
@@ -332,11 +346,11 @@ func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate :=
 
 func currency_pill(pos: Vector2, currency: String, amount: int) -> float:
 	var s := UiKit.fmt(amount)
-	var w := UiKit.text_width(s, 18) + 52
+	var w := UiKit.text_width(s, 18) + 54
 	var r := Rect2(pos, Vector2(w, 34))
 	draw_style_box(UiKit.style("currency_pill"), r)
-	icon_at(Rect2(pos + Vector2(8, 5), Vector2(24, 24)), currency_icon(currency))
-	text(pos + Vector2(38, 24), s, 18, UiKit.PALE_GOLD)
+	icon_at(Rect2(pos + Vector2(4, 1), Vector2(32, 32)), currency_icon(currency))
+	text(pos + Vector2(40, 24), s, 18, UiKit.PALE_GOLD)
 	return w
 
 ## The icon of a currency (currencies.json; taels show the silver coin).

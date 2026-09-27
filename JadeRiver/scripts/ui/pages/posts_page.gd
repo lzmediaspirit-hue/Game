@@ -62,8 +62,8 @@ func _draw_roll() -> void:
 			var k := 0
 			for id in r.get("items", {}):
 				if k >= 3: break
-				icon_at(Rect2(x, rr.position.y + 16 + k * 26, 24, 24), str(id))
-				text(Vector2(x + 30, rr.position.y + 35 + k * 26), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(r.items[id]), 0.1)), 15, UiKit.PAPER)
+				icon_at(Rect2(x, rr.position.y + 6 + k * 30, 32, 32), str(id))
+				text(Vector2(x + 38, rr.position.y + 28 + k * 30), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(r.items[id]), 0.1)), 15, UiKit.PAPER)
 				k += 1
 			var fill := float(row.fill_h)
 			var fill_txt := Tx.t("ui.posts.pouch_full") if fill <= 0.0 else (Tx.t("ui.posts.full_in") % _dur(fill) if fill < INF else "")
@@ -207,9 +207,9 @@ func _draw_bench() -> void:
 		panel(r)
 		text(r.position + Vector2(16, 30), Tx.t("ui.posts.apprentice") % (i + 1), 18, UiKit.PAPER)
 		if cur != "":
-			icon_at(Rect2(r.position + Vector2(200, 12), Vector2(48, 48)), cur)
-			text(r.position + Vector2(260, 32), ContentDB.item_name(cur), 18, UiKit.PAPER)
-			text(r.position + Vector2(260, 60), Tx.t("ui.posts.bench_rate") % [snappedf(Game.posts.bench_rate_of(ch, cur), 0.1), UiKit.fmt(int(float(b.stock.get(cur, 0.0))))], 15, UiKit.MIST)
+			icon_at(Rect2(r.position + Vector2(196, 6), Vector2(64, 64)), cur)
+			text(r.position + Vector2(272, 32), ContentDB.item_name(cur), 18, UiKit.PAPER)
+			text(r.position + Vector2(272, 60), Tx.t("ui.posts.bench_rate") % [snappedf(Game.posts.bench_rate_of(ch, cur), 0.1), UiKit.fmt(int(float(b.stock.get(cur, 0.0))))], 15, UiKit.MIST)
 		else:
 			text(r.position + Vector2(200, 44), Tx.t("ui.posts.bench_idle"), 17, UiKit.HOLLOW)
 		btn(Rect2(r.end.x - 170, r.position.y + 14, 154, 48), Tx.t("ui.posts.bench_change"), "bench_next", [i, cur], false, true, "", 17)
@@ -273,12 +273,12 @@ func _draw_store() -> void:
 	var cell := 110.0
 	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
 	var nrows := int(ceil(ids.size() / float(cols)))
-	list("store", area, nrows, cell + 26, func(ri: int, rr: Rect2):
+	list("store", area, nrows, SLOT + 30, func(ri: int, rr: Rect2):
 		for k in cols:
 			var idx := ri * cols + k
 			if idx >= ids.size(): break
 			var id := str(ids[idx])
-			var sr := Rect2(rr.position + Vector2(k * (cell + 10), 0), Vector2(cell - 20, cell - 20))
+			var sr := Rect2(rr.position + Vector2(k * (cell + 10) + (cell - 20 - SLOT) * 0.5, 0), Vector2(SLOT, SLOT))
 			slot_box(sr, id, 0, "", "withdraw", id)
 			UiKit.draw_outlined(self, UiKit.fmt(int(Game.account.storehouse[id])), sr.position + Vector2(0, sr.size.y + 20), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, sr.size.x)
 	)

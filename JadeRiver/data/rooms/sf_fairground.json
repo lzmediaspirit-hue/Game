@@ -333,7 +333,7 @@
    "id": "npc_recruiter_qing_lan",
    "type": "npc",
    "at": [
-    900,
+    960,
     810
    ],
    "npc": "recruiter_qing_lan",
@@ -345,7 +345,7 @@
    "id": "npc_recruiter_mo_yun",
    "type": "npc",
    "at": [
-    1700,
+    1760,
     810
    ],
    "npc": "recruiter_mo_yun",

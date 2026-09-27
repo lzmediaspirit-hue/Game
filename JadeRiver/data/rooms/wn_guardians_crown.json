@@ -170,7 +170,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1730,
+    1430,
     655
    ],
    "item": "star_lotus",
@@ -221,7 +221,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1430,
+    1730,
     655
    ],
    "loot": "jar_lantern",
@@ -234,7 +234,7 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    2162,
+    2342,
     645
    ],
    "loot": "jar_lantern",
@@ -283,7 +283,7 @@
    "id": "chest_8",
    "type": "chest",
    "at": [
-    2342,
+    2162,
     645
    ],
    "loot": "chest_lantern",

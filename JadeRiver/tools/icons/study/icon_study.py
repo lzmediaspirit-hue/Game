@@ -14,12 +14,10 @@ Deterministic: same code -> byte-identical output. Nothing here touches art/icon
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 
-import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -27,111 +25,12 @@ sys.path.insert(0, os.path.normpath(os.path.join(HERE, '..')))
 
 import study_lib as L  # noqa: E402
 import study_icons as I  # noqa: E402
+from review import (BRONZE, DEEP_TEAL, GOLD, GRADE_COL, HOLLOW, MIST, PALE_GOLD, PAPER, RIVER_NIGHT, button2, font, kit,  # noqa: E402
+                    major_window, minor_panel, para, plaque, qrim, slot, slot_glow, tab, text, with_alpha)
 
 PROJECT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 ART = os.path.join(PROJECT, 'art')
 OUT = os.path.join(PROJECT, 'docs', 'mockups', 'icon_study')
-
-# UiKit tokens
-INK = (7, 16, 21)
-RIVER_NIGHT = (10, 32, 39)
-DEEP_TEAL = (13, 48, 53)
-JADE = (44, 158, 143)
-BRIGHT_JADE = (103, 214, 189)
-BRONZE = (154, 106, 53)
-GOLD = (229, 184, 76)
-PALE_GOLD = (255, 230, 161)
-PAPER = (232, 225, 207)
-MIST = (175, 201, 209)
-HOLLOW = (135, 148, 154)
-RED = (228, 88, 88)
-
-FONT_TEXT = os.path.join(ART, 'fonts', 'SourceSerif4.ttf')
-FONT_DISPLAY = os.path.join(ART, 'fonts', 'CormorantGaramond.ttf')
-_fonts = {}
-
-
-def font(kind, size):
-    key = (kind, size)
-    if key in _fonts:
-        return _fonts[key]
-    if kind in ('title', 'display'):
-        f = ImageFont.truetype(FONT_DISPLAY, size)
-        f.set_variation_by_name('Bold')
-    else:
-        f = ImageFont.truetype(FONT_TEXT, size)
-        f.set_variation_by_name('Bold' if kind == 'bold' else 'SemiBold')
-    _fonts[key] = f
-    return f
-
-
-def text(d, xy, s, kind='text', size=16, col=PAPER, anchor='la', shadow=True, outline=False):
-    f = font(kind, size)
-    x, y = xy
-    if outline:
-        for dx in (-2, -1, 0, 1, 2):
-            for dy in (-2, -1, 0, 1, 2):
-                if dx * dx + dy * dy <= 4:
-                    d.text((x + dx, y + dy), s, font=f, fill=INK, anchor=anchor)
-    elif shadow:
-        d.text((x, y + 2), s, font=f, fill=(0, 0, 0, 140), anchor=anchor)
-        d.text((x + 1, y + 1), s, font=f, fill=(0, 0, 0, 115), anchor=anchor)
-    d.text((x, y), s, font=f, fill=col, anchor=anchor)
-
-
-def para(d, xy, s, width, kind='text', size=14, col=MIST, leading=None):
-    """Word-wrapped paragraph; returns the y below it."""
-    f = font(kind, size)
-    words = s.split(' ')
-    lines, cur = [], ''
-    for w in words:
-        trial = (cur + ' ' + w).strip()
-        if d.textlength(trial, font=f) <= width or not cur:
-            cur = trial
-        else:
-            lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    x, y = xy
-    lh = leading or int(size * 1.35)
-    for ln in lines:
-        text(d, (x, y), ln, kind, size, col)
-        y += lh
-    return y
-
-
-# ----------------------------------------------------------------------------- kit pieces
-def kit(name):
-    return Image.open(os.path.join(ART, 'ui', 'hd', name + '.png')).convert('RGBA')
-
-
-def slot(size, state='normal'):
-    return L.nine_slice(kit('slot__' + state), size, size, 24, 8)
-
-
-def slot_glow(size):
-    return L.nine_slice(kit('selected_slot_glow__normal'), size + 8, size + 8, 36, 12)
-
-
-def minor_panel(w, h):
-    return L.nine_slice(kit('minor_panel__normal'), w, h, 36, 12)
-
-
-def major_window(w, h):
-    return L.nine_slice(kit('major_window__normal'), w, h, 96, 32)
-
-
-def plaque(w, h=60):
-    return L.nine_slice(kit('title_plaque__normal'), w, h, (144, 78), (int(round(h * 0.923)), int(round(h * 0.5))))
-
-
-def tab(w, selected=False):
-    return L.nine_slice(kit('tab__selected' if selected else 'tab__normal'), w, 48, (48, 30), (16, 10))
-
-
-def button2(w, h=48):
-    return L.nine_slice(kit('button_secondary__normal'), w, h, (42, 36), (14, 12))
 
 
 def today_icon(family, ident):
@@ -140,20 +39,6 @@ def today_icon(family, ident):
 
 def empty_motif_today():
     return Image.open(os.path.join(ART, 'ui', 'slot_empty_motif__normal.png')).convert('RGBA')
-
-
-def with_alpha(img, a):
-    arr = np.asarray(img, np.uint8).copy()
-    arr[..., 3] = (arr[..., 3].astype(np.float32) * a).astype(np.uint8)
-    return Image.fromarray(arr, 'RGBA')
-
-
-def qrim(size, col, inset=3, w=2):
-    """page.gd: draw_rect(rect.grow(-3), colour, false, 2) - the quality / grade rim."""
-    im = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    d.rectangle([inset, inset, size - 1 - inset, size - 1 - inset], outline=col, width=w)
-    return im
 
 
 # ----------------------------------------------------------------------------- rendering the study icons
@@ -292,7 +177,7 @@ def sheet_grade_ladder(icons):
             im.alpha_composite(slot(76), (x, y0 + 36))
             im.alpha_composite(ic, (x + 6, y0 + 42))
             if g != 'common':
-                im.alpha_composite(qrim(76, tuple(int(I.GRADE_COL[g].lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))), (x, y0 + 36))
+                im.alpha_composite(qrim(76, GRADE_COL[g]), (x, y0 + 36))
             text(d, (x + 38, y0 + 116), names[g], 'text', 13, MIST, anchor='ma')
             big = ic.resize((128, 128), Image.Resampling.NEAREST if style == 'A' else Image.Resampling.BICUBIC)
             im.alpha_composite(big, (x - 26 + 38, y0 + 136 - 8))
@@ -434,7 +319,7 @@ def sheet_bag(icons, style):
         im.alpha_composite(icons[style + '_' + ident], (x + 6, y + 6))
         g = grade_of.get(ident, 'common')
         if g not in ('plain', 'common'):
-            im.alpha_composite(qrim(SLOT, tuple(int(I.GRADE_COL[g].lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))), (x, y))
+            im.alpha_composite(qrim(SLOT, GRADE_COL[g]), (x, y))
         if count > 1:
             text(d, (x + SLOT - 6, y + SLOT - 22), str(count), 'bold', 16, PAPER, anchor='ra', outline=True)
         if ident == selected:
@@ -468,7 +353,7 @@ def sheet_bag(icons, style):
             im.alpha_composite(icons[style + '_' + ident], (x + 6, y + 6))
             g = grade_of[ident]
             if g not in ('plain', 'common'):
-                im.alpha_composite(qrim(SLOT, tuple(int(I.GRADE_COL[g].lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))), (x, y))
+                im.alpha_composite(qrim(SLOT, GRADE_COL[g]), (x, y))
         else:
             im.alpha_composite(with_alpha(icons[style + '_empty'], 0.35), (x + 6, y + 6))
         text(d, (x + SLOT // 2, y + SLOT + 4), cap, 'text', 14, MIST, anchor='ma')

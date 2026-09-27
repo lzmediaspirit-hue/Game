@@ -85,7 +85,7 @@ func _draw_seals() -> void:
 		var mx := int(sd.get("max", 10))
 		panel(rr, "minor_panel", "selected" if lv > 0 else "normal")
 		var craft := str(sd.get("craft", ""))
-		icon_at(Rect2(rr.position + Vector2(12, 14), Vector2(52, 52)), str(ContentDB.entry("posts", craft).get("icon", "")) if craft != "" else str(sd.ladder[0]))
+		icon_at(Rect2(rr.position + Vector2(8, 8), Vector2(64, 64)), str(ContentDB.entry("posts", craft).get("icon", "")) if craft != "" else str(sd.ladder[0]))
 		text(rr.position + Vector2(78, 30), str(sd.name), 18, UiKit.PALE_GOLD if lv > 0 else UiKit.PAPER)
 		var eff := Game.posts._curve_of(sd, lv)
 		var what := Tx.t("ui.works.seal_" + str(sd.gives[0])) % str(snappedf(eff, 0.1))
@@ -118,7 +118,7 @@ func _draw_steles() -> void:
 		var lv := Game.posts.stele_level(craft)
 		var mx := int(st.get("max", 40))
 		panel(rr, "minor_panel", "selected" if lv > 0 else "normal")
-		icon_at(Rect2(rr.position + Vector2(12, 14), Vector2(52, 52)), str(cr.get("icon", "")))
+		icon_at(Rect2(rr.position + Vector2(8, 8), Vector2(64, 64)), str(cr.get("icon", "")))
 		text(rr.position + Vector2(78, 30), Tx.t("ui.works.stele_of") % str(cr.name), 18, UiKit.PALE_GOLD if lv > 0 else UiKit.PAPER)
 		text(rr.position + Vector2(78, 58), Tx.t("ui.works.level_of") % [lv, mx] + " · " + Tx.t("ui.works.stele_power") % str(snappedf(Game.posts.stele_power(craft), 0.1)), 15, UiKit.MIST)
 		if lv >= mx:
@@ -176,7 +176,7 @@ func _draw_furnace() -> void:
 		var open := Game.posts.line_open(id)
 		var rank := int(ln.rank)
 		panel(rr, "minor_panel", "selected" if ln.get("on", false) else "normal")
-		icon_at(Rect2(rr.position + Vector2(12, 18), Vector2(56, 56)), id)
+		icon_at(Rect2(rr.position + Vector2(10, 14), Vector2(64, 64)), id)
 		text(rr.position + Vector2(82, 30), "%s · %s" % [ContentDB.item_name(id), Tx.t("ui.works.rank") % rank], 18, UiKit.PALE_GOLD if ln.get("on", false) else UiKit.PAPER)
 		if not open:
 			text(rr.position + Vector2(82, 62), Tx.t("sim.posts.line_closed") % int(PostRules.rule_calc("open_rank", 3)), 15, UiKit.HOLLOW)

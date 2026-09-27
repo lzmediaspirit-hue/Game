@@ -2,12 +2,13 @@
 vials, pouches and shards, each with species parameters."""
 import math
 
-from pix import Canvas, Ramp, dilate4, dilate8, erode4, move, rgb
-from palette import R
-from registry import register
+from pix import Canvas, Ramp, dilate4, dilate8, erode4, move, rgb, shift
+from palette import R, M
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'items', 'beast_parts'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 # ============================================================================ templates
@@ -648,6 +649,36 @@ register(FAM, 'jade_scale', lambda: _scale('jade'), GROUP)
 register(FAM, 'tide_shell', tide_shell, GROUP)
 register(FAM, 'pearl', pearl, GROUP)
 register(FAM, 'lizard_scale', lambda: _scale('lizard'), GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+def shield_hd(c, sx, sy, hw, hh):
+    """A scale's shield outline: a notched top and a pointed foot."""
+    top = sy - hh
+    return c.poly([(sx - hw, top + hh * 0.18), (sx - hw * 0.5, top), (sx, top + hh * 0.12), (sx + hw * 0.5, top),
+                   (sx + hw, top + hh * 0.18), (sx + hw * 0.92, sy + hh * 0.35), (sx, sy + hh), (sx - hw * 0.92, sy + hh * 0.35)])
+
+
+def jade_scale_hd(p):
+    """A through-lit jade scale with two growth ridges, a lit edge and a glint."""
+    c = p.c
+    jade = M('jade')
+    m = shield_hd(c, 32, 32, 24, 26)
+    p.part(m, jade, 'ray', base=0, sep=False, tex='jade')
+    for k in (1, 2):
+        f = 1.0 - k * 0.3
+        inner = shield_hd(c, 32, 32 + 52 * 0.1 * k, 24 * f, 26 * f)
+        ridge = inner & ~erode4(inner) & c.box(0, 32 - 26 * 0.2 + 5.2 * k, 64, 64) & m
+        p.decal(ridge, jade, -2)
+        p.decal(shift(ridge, 0, 1) & m & ~ridge, jade, 1)
+    p.line([(17, 19), (16, 27)], jade, 3, 1.4)
+    p.line([(20, 16), (23, 15)], jade, 3, 1.2)
+    p.decal(c.ellipse(40, 44, 5, 3) & erode4(erode4(m)), jade, 1)
+    p.sparkle(19, 22, 1)
+    p.glow('#67D6BD', 0.7)
+
+
+hd('jade_scale', jade_scale_hd)
 register(FAM, 'serpent_scale', lambda: _scale('serpent'), GROUP)
 register(FAM, 'vulture_plume', lambda: _feather('vulture'), GROUP)
 register(FAM, 'cloud_feather', lambda: _feather('cloud'), GROUP)
