@@ -30,8 +30,21 @@ VFX_TIERS = [dict(zip(["tier"] + _TIER_COLS, r)) for r in [
 # §5.5 multi-hit numbers (a stack: one target, one technique, within stack_s) and §5.7 the numbers shortened from 10,000.
 NUMBERS = {"stack_s": 0.3, "step_s": 0.06, "step_px": 18, "sway_px": 12, "cap": 6, "total_from": 3, "total_after_s": 0.1,
            "total_up_px": 24, "total_plus_px": 2, "short_from": 10000}
-# §2.3 the stat rise, in order; only the numbers that changed are shown, at most seven.
-STATS = ["level", "max_hp", "max_qi", "max_soul", "physical_attack", "qi_attack", "soul_attack", "crit_chance", "lifespan"]
+# §2.3 the stat rise, in order; only the numbers that changed are shown, before and after, at most seven. "aura" is the
+# look the realm gives the character (AURAS), so a breakthrough that changes it says so on the card.
+STATS = ["level", "max_hp", "max_qi", "max_soul", "physical_attack", "qi_attack", "soul_attack", "crit_chance", "lifespan", "aura"]
+# Research player_motivation §5 change 10: the realm shows on the character. Each row is the realm from which the aura
+# holds (the highest one reached wins): its UiKit colour, the rings at the feet, the motes rising and the halo behind
+# the body. Drawn by the player node from the existing FX shapes (a ring, motes, a soft disc); no new body pose.
+AURAS = [
+    {"realm": "bone_forging_1", "color": "BRIGHT_JADE", "rings": 1, "motes": 0, "halo": 0.0},
+    {"realm": "bone_forging_4", "color": "BRIGHT_JADE", "rings": 1, "motes": 4, "halo": 0.0},
+    {"realm": "bone_forging_7", "color": "QI", "rings": 2, "motes": 6, "halo": 0.10},
+    {"realm": "qi_kindling_1", "color": "QI", "rings": 2, "motes": 8, "halo": 0.14},
+    {"realm": "qi_unfurling_1", "color": "PALE_GOLD", "rings": 2, "motes": 10, "halo": 0.16},
+    {"realm": "heart_tempering_1", "color": "PALE_GOLD", "rings": 3, "motes": 12, "halo": 0.18},
+    {"realm": "cloud_stride_1", "color": "GOLD", "rings": 3, "motes": 14, "halo": 0.20},
+]
 # §6: a Dao's effects take its element's colour; the other families take these.
 DAO_COLOURS = {"weapon": "PALE_GOLD", "craft": "BRIGHT_JADE", "rare": "SOUL"}
 # §5.8 the loot fountain by the drop's source: apex and flight as [base, per item, cap], the gap between launches, and a
@@ -144,9 +157,11 @@ def rows():
         row("breakthrough_channel", "breakthrough_started", ACTIVE, 0, 3.0,
             [fx(0.0, "ring", color="QI", radius=90, dur="payload.duration")],
             {"actor": "c1", "from": "qi_kindling_9", "to": "qi_unfurling_1", "risk": "low", "duration": 3.0}, "P6a"),
-        row("breakthrough_minor", "breakthrough_succeeded", dict(ACTIVE, major=False), 60, 1.8,
+        # Research §5 change 10: every realm step shows what it gave, before and after, on a card beside the strip.
+        row("breakthrough_minor", "breakthrough_succeeded", dict(ACTIVE, major=False), 60, 3.6,
             [strip(0.1, 170, {"transition": ["payload.from", "payload.to"]}, 30, "PALE_GOLD",
                    sub=key("moment.level_up", "slot.level.level", if_slot="level"), sub_size=20, sub_color="BRIGHT_JADE"),
+             {"t": 0.4, "kind": "stats", "at": [880, 318], "row_h": 36, "gap_s": 0.12, "frame": "toast", "title": key("moment.stats.title")},
              OPENS, fx(0.0, "spiral", color="PALE_GOLD", offset=[0, -20], dur=1.6), fx(0.0, "ring", color="PALE_GOLD", radius=70, dur=0.5),
              sound(0.0, "level"), buzz(0.0, 60)],
             {"actor": "c1", "from": "qi_kindling_3", "to": "qi_kindling_4", "major": False, "formation": ""}, "P6b",
@@ -168,7 +183,7 @@ def rows():
                         {"text": key("moment.tribulation.line", "slot.last.tribulation_started.waves", "slot.tribulation.bolts",
                                      "slot.tribulation.struck"), "size": 15, "color": "PAPER"}],
               "bar": {"value": "slot.now.hp_pct", "label": key("moment.tribulation.hp_kept", "slot.now.hp_pct"), "color": "RED"}},
-             {"t": 1.4, "kind": "stats", "at": [880, 318], "row_h": 36, "gap_s": 0.12},
+             {"t": 1.4, "kind": "stats", "at": [880, 318], "row_h": 36, "gap_s": 0.12, "frame": "toast", "title": key("moment.stats.title")},
              dict(OPENS, t=2.0), sound(2.0, "unlock", bus="UI", if_slot="unlocks")],
             {"actor": "c1", "from": "will_manifest_3", "to": "sphere_lord_1", "major": True, "formation": ""}, "P6b",
             lock_s=1.5, skip="tap", skip_to_s=2.4,
@@ -216,6 +231,15 @@ def rows():
             variants=[{"when": {"tier": 6}, "duration_s": 2.4, "layers": [
                 band(0.0, 150, key("moment.dao.title", DAO, "payload.tier"), 64, "PALE_GOLD", glow="GOLD", sub=DAO_LINE, sub_color="MIST"),
                 fx(0.0, "converge", color="dao:payload.dao", count=16, radius=160, dur=0.6), sound(0.4, "bell")]}]),
+        # Research §5 change 3: a technique taught (Lu's Flowing Palm, the Weapon Hall's art) is its own moment: its name
+        # on the strip, where to find it under it, and the light gathering into the hands.
+        row("technique_learned", "technique_learned", ACTIVE, 55, 2.2,
+            [strip(0.0, 200, {"name_of": "techniques", "id": "payload.technique"}, 30, "PALE_GOLD",
+                   sub=key("moment.technique.sub"), sub_size=20, sub_color="BRIGHT_JADE"),
+             fx(0.0, "converge", color="PALE_GOLD", offset=[0, -40], count=14, radius=150, dur=0.6),
+             fx(0.5, "ring", color="BRIGHT_JADE", radius=70, dur=0.5), sound(0.0, "unlock", bus="UI"), buzz(0.0, 40)],
+            {"actor": "c1", "technique": "flowing_palm"}, "P6b", in_fight="toast",
+            toast=key("moment.technique.toast", {"name_of": "techniques", "id": "payload.technique"})),
         row("title_earned", "title_changed", dict(ACTIVE, earned=True), 40, 1.6,
             [strip(0.0, 200, {"name_of": "titles", "id": "payload.title"}, 30, "PALE_GOLD", sub={"affixes_of": "titles", "id": "payload.title"}),
              {"t": 0.25, "kind": "seal", "at": "strip", "size": 40, "angle": -8, "color": "RED", "text": key("moment.title.seal")}, sound(0.25, "seal_press")],
@@ -280,15 +304,20 @@ def rows():
             {"room": "dw_serpents_shallows", "enemy": "riverbed_serpent"}, "P6c", toast=key("hud.is_defeated", {"name_of": "enemies", "id": "payload.enemy"})),
         row("loot_fountain", "loot_dropped", {"source_in": sorted(FOUNTAIN)}, 0, 0.9,
             [{"t": 0.0, "kind": "fountain"}, sound(0.0, "coin")],
-            {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss"}, "P6c"),
+            {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss", "first_weapon": False}, "P6c"),
         # A rare find: its names on a strip, a beam over each rare piece until it is picked up. Rare drops within
         # merge_rare_s join one strip (three names, then "+N"); it waits longer than most, as a find is worth seeing late.
         row("rare_drop", "loot_dropped", {"rare": True}, 40, 1.8,
             [strip(0.0, 206, key("moment.rare.title"), 18, "GOLD", names="rare", sub_size=24),
              {"t": 0.0, "kind": "beam", "height": 240, "width": 10, "pulse_hz": 0.6}, sound(0.0, "rare_chime"), buzz(0.0, 40)],
             {"room": "mh_boss_den", "items": [{"uid": 1, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}],
-             "x": 640.0, "y": 820.0, "source": "boss"}, "P6d", in_fight="toast", stale_s=8.0, join_s=SETTINGS["merge_rare_s"],
-            toast=key("moment.rare.toast", {"item": "slot.rare.item"})),
+             "x": 640.0, "y": 820.0, "source": "boss", "first_weapon": False}, "P6d", in_fight="toast", stale_s=8.0, join_s=SETTINGS["merge_rare_s"],
+            toast=key("moment.rare.toast", {"item": "slot.rare.item"}),
+            # A character's first weapon (grades.json drop.starter) is a find of its own: its beam and strip say so.
+            variants=[{"when": {"first_weapon": True}, "layers": [
+                strip(0.0, 206, key("moment.first_weapon.title"), 18, "GOLD", names="rare", sub_size=24),
+                {"t": 0.0, "kind": "beam", "height": 240, "width": 10, "pulse_hz": 0.6}, sound(0.0, "rare_chime"), buzz(0.0, 40)],
+                "toast": key("moment.first_weapon.toast", {"item": "slot.rare.item"})}]),
         # The main quest that closes a chapter, after its dialogue page closes.
         row("story_beat", "quest_completed", {"actor": "active", "kind": "main", "chapter_end": True}, 60, 2.6,
             [{"t": 0.0, "kind": "letterbox", "height": 48, "slide_s": 0.3},
@@ -297,6 +326,24 @@ def rows():
              sound(0.0, "bell")],
             {"actor": "c1", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main"}, "P6d", in_fight="toast",
             toast=key("moment.story.toast", {"payload": "payload.name"})),
+        # Early surprises (docs/research/player_motivation.md item 7): a fortune card, the first Spirit Fruit, and a
+        # common foe come as an elite. (A rare find from the first monsters plays rare_drop above.)
+        row("fortune_card", "fortune_encounter", ACTIVE, 50, 2.0,
+            [strip(0.0, 190, key("moment.fortune.title"), 18, "GOLD", sub={"name_of": "fortune_deck", "id": "payload.card"}, sub_size=28,
+                   sub_color="PALE_GOLD"),
+             fx(0.0, "converge", color="PALE_GOLD", count=12, radius=140, dur=0.6), sound(0.0, "rare_chime"), buzz(0.0, 40)],
+            {"actor": "c1", "card": "remnant_ring", "trigger": "room_entered", "room": "wp_east"}, "P6d", in_fight="toast",
+            toast=key("moment.fortune.toast", {"name_of": "fortune_deck", "id": "payload.card"})),
+        row("first_fruit", "treasure_birth_announced", {"first": True}, 50, 2.2,
+            [strip(0.0, 190, key("moment.fruit.title"), 30, "PALE_GOLD", sub=key("moment.fruit.sub"), sub_size=20, sub_color="BRIGHT_JADE"),
+             sound(0.0, "bell")],
+            {"room": "wp_west", "item": "spirit_fruit", "ends": 0.0, "first": True}, "P6d", in_fight="toast", scope="room",
+            toast=key("moment.fruit.title")),
+        row("elite_appears", "elite_spawned", {"random": True}, 30, 1.4,
+            [strip(0.0, 190, key("moment.elite.title"), 18, "GOLD", sub={"name_of": "enemies", "id": "payload.def"}, sub_size=26, sub_color="PAPER"),
+             sound(0.0, "boss_sting")],
+            {"room": "wp_west", "enemy": 1, "def": "wild_boarlet", "level": 2, "random": True}, "P6d", in_fight="toast", scope="room",
+            toast=key("moment.elite.title")),
         row("trial_opens", "room_event_started", ACTIVE, 60, 1.8,
             [band(0.0, 170, key("event.", suffix="payload.event"), 34, "PALE_GOLD", wipe_s=0.3), sound(0.0, "bell")],
             {"actor": "c1", "room": "wp_west", "event": "heart_trial", "duration": 90.0}, "P6d", scope="room",
@@ -305,6 +352,6 @@ def rows():
 
 
 def build():
-    write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
+    write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "auras": AURAS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
                            "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS, "vfx_bands": TIER_BY_REALM, "vfx_shapes": VFX_SHAPES,
                            "particles": PARTICLES, "numbers": NUMBERS})

@@ -1,0 +1,173 @@
+{
+ "schema_version": 1,
+ "id": "td_proto_square",
+ "name": "Riverside Square (top-down prototype)",
+ "size": [
+  48,
+  30
+ ],
+ "spawn": [
+  22,
+  18
+ ],
+ "legend": {
+  "levels": "0-9 height level (1 level = 1 tile = 32 units), ~ water (level -1)",
+  "paint": "g grass, f grass with flowers, d dirt path, p paving, s stone top, w wood deck, r rock, ~ water"
+ },
+ "levels": [
+  "333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000011111000000000000000",
+  "000000000000000000000000000011111000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~000~~~000~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~000~~~000~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggfgggggggdddddgggggggggfggggggggggfggggggggg",
+  "gggfgggggggggdddddgggggggfggggggggggfggggggggggf",
+  "gfggggggggggfdddddgggggfggggggggggfggggggggggfgg",
+  "ggggggggggfggdddddgggfggggggggggfggggggggggfgggg",
+  "ggggggggfggggdddddgfggggggggggfggggggggggfgggggg",
+  "ggggggfggggggdddddggggggggggfggggggggggfgggggggg",
+  "ggggfggggggggdddddggggggggfggggggggggfgggggggggg",
+  "ggfggggggggggdddddggggggfggggggggggfggggggggggfg",
+  "fggggggggggfgdddddggggfggggggggggfggggggggggfggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppppppsssssppppppppppppppp",
+  "ppppppppppppppppppppppppppppsssssppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ssssssssssssssssssssssssssssssssssssssssssssssss",
+  "~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~www~~~www~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~www~~~www~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 14,
+   "y": 12,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "house",
+   "x": 3,
+   "y": 15
+  },
+  {
+   "kind": "barrel",
+   "x": 10,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 10,
+   "y": 16
+  },
+  {
+   "kind": "willow",
+   "x": 7,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 12,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 10
+  },
+  {
+   "kind": "notice",
+   "x": 20,
+   "y": 13
+  },
+  {
+   "kind": "crates",
+   "x": 40,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 35,
+   "y": 21
+  },
+  {
+   "kind": "barrel",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 22
+  },
+  {
+   "kind": "lantern",
+   "x": 23,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 5,
+   "y": 23
+  },
+  {
+   "kind": "reeds",
+   "x": 12,
+   "y": 23
+  },
+  {
+   "kind": "reeds",
+   "x": 30,
+   "y": 23
+  },
+  {
+   "kind": "boat",
+   "x": 34,
+   "y": 25
+  }
+ ]
+}

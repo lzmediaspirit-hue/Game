@@ -140,7 +140,6 @@
    "mas_delivery",
    "grannys_remedy",
    "fists_first",
-   "a_quiet_river_return",
    "crab_trouble",
    "evening_on_the_river",
    "the_hollow_night",
@@ -161,8 +160,17 @@
     "count": 1
    },
    {
+    "kind": "learn_technique",
+    "technique": "flowing_palm"
+   },
+   {
     "kind": "grant_item",
     "item": "plain_straw_hat",
+    "count": 1
+   },
+   {
+    "kind": "grant_item",
+    "item": "straw_sandals",
     "count": 1
    },
    {
@@ -173,6 +181,11 @@
   ]
  },
  "skip_prologue_allowed": true,
+ "bank": {
+  "days": 3,
+  "missions_per_day": 5,
+  "activity_per_day": 40
+ },
  "collection_seals": {
   "pages": {
    "valley_shore": [

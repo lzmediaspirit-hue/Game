@@ -532,8 +532,8 @@ func sec_bf2() -> void:
 	# Bone Forging 3: the Weapon Hall.
 	check(reach("bone_forging_3"), "Bone Forging 3")
 	check(start("the_weapon_hall"), "The Weapon Hall accepted")
-	check(unlocked("weapons"), "weapons unlock with The Weapon Hall at Bone Forging 3")
-	check(equip_first("training_jian"), "equip the training jian")
+	check(unlocked("weapons"), "weapons open since Fists First, before The Weapon Hall")
+	check(equip_newest("training_jian"), "equip the training jian the Weapon Hall hands out")
 	check(travel("ja_weapon_hall"), "reach the Weapon Hall")
 	var dummies := objects_of("training_dummy")
 	if not dummies.is_empty(): hit_object(str(dummies[0].id), 15)
@@ -604,61 +604,73 @@ func sec_bf5() -> void:
 	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "hand_in")), "hand_in", "stone_and_sweat"),
 		"Stone and Sweat handed in on the page, and the conversation closes itself or goes on")
 	check(finish("stone_and_sweat"), "Stone and Sweat done")
-	# A Second Path: an idle task counts.
-	check(start("a_second_path"), "A Second Path offered")
-	var idle := submit({"type": "set_idle_task", "task": {"task": "train"}})
-	if not idle.get("ok", false): print("  idle task: ", idle)
-	c().idle_task = {}
-	check(finish("a_second_path"), "A Second Path done")
-	# Bone Forging 6: daily missions.
+	# Item 6 (player_motivation.md): no board, idle task or post before Qi Kindling 1 (sec_qk1 takes them).
 	check(reach("bone_forging_6"), "Bone Forging 6")
-	check(start("earning_your_keep"), "Earning Your Keep accepted")
-	if verbose: print("  after accept: active=", c().quests.active.keys(), " daily=", c().quests.daily.keys())
-	var done := 0
-	for qid in c().quests.daily.keys():
-		if done >= 2: break
-		if _do_mission(str(qid)): done += 1
-	check(done >= 2 or c().quests.active.get("earning_your_keep", {}).get("state", "") == "ready", "finish two daily missions (%d scripted)" % done)
-	check(finish("earning_your_keep"), "Earning Your Keep done")
-	_keeping_post()
-	# Bone Forging 7: the QI pool opens.
+	for chore in ["daily_missions", "idle_tasks", "keeping_post", "seclusion", "activity_chests"]:
+		check(not unlocked(chore) and not c().cultivator.offered.has(chore), "%s waits for Qi Kindling 1" % chore)
+	# Bone Forging 7: the QI pool opens; The First Current asks only for the spring (seclusion comes with the idle lessons).
 	check(reach("bone_forging_7"), "Bone Forging 7")
 	check(start("the_first_current"), "The First Current accepted")
 	check(c().pools.max_qi > 0.0, "QI pool exists from Bone Forging 7")
-	check(unlocked("seclusion"), "offline seclusion unlocks")
 	check(travel("lf_village"), "back to Lotus Ferry")
 	var springs := objects_of("qi_spring")
 	check(not springs.is_empty(), "Lotus Ferry has a Qi spring")
 	if not springs.is_empty():
 		place(Vector2(float(springs[0].at[0]), float(springs[0].at[1]) + 10))
 		meditate(32.0)
-	var sec := submit({"type": "enter_seclusion", "focus": "accumulate"})
-	if not sec.get("ok", false): print("  seclusion: ", sec)
-	submit({"type": "claim_offline", "elapsed": 3600.0})
 	check(finish("the_first_current"), "The First Current done")
 
-## S50 Keeping Post (V10): Fisher Wen's lesson. The first disciple keeps post at a willow moss patch in the Reed
-## Shallows while a second disciple is played; coming back settles the post. Then Little Dou's glowflies and a net.
+## Item 6 (player_motivation.md): at Qi Kindling 1 the idle lessons, the sect board and the posts open, each optional,
+## none asking for a second character.
+func _chores_after_power() -> void:
+	# A Second Path: an idle task counts (or one seclusion), and seclusion opens with it.
+	check(start("a_second_path"), "A Second Path offered")
+	check(unlocked("seclusion") and unlocked("idle_tasks"), "idle tasks and offline seclusion open with A Second Path")
+	var idle := submit({"type": "set_idle_task", "task": {"task": "train"}})
+	if not idle.get("ok", false): print("  idle task: ", idle)
+	c().idle_task = {}
+	check(finish("a_second_path"), "A Second Path done")
+	# Earning Your Keep: the board, the contribution shop and the activity chests; one mission, whenever.
+	check(start("earning_your_keep"), "Earning Your Keep accepted")
+	check(unlocked("daily_missions") and unlocked("contribution_shop") and unlocked("activity_chests"), "the board, the shop and the chests open on accepting it")
+	if verbose: print("  after accept: active=", c().quests.active.keys(), " daily=", c().quests.daily.keys())
+	var done := 0
+	for qid in c().quests.daily.keys():
+		if done >= 1: break
+		if _do_mission(str(qid)): done += 1
+	check(done >= 1 or c().quests.active.get("earning_your_keep", {}).get("state", "") == "ready", "finish one mission (%d scripted)" % done)
+	check(finish("earning_your_keep"), "Earning Your Keep done")
+	_keeping_post()
+
+## S50 Keeping Post (V10): Fisher Wen's lesson. The disciple keeps post at a willow moss patch in the Reed Shallows and
+## burns Wen's incense stick there: an hour's work settles at once, with no second character. Then Little Dou's
+## glowflies and a net.
 func _keeping_post() -> void:
 	check(start("keeping_post"), "Keeping Post accepted")
-	check(unlocked("keeping_post"), "Keeping Post unlocks once a second disciple can take over")
+	check(unlocked("keeping_post") and c().inventory.count("hour_incense_1") >= 1, "Keeping Post unlocks, with Fisher Wen's incense stick")
 	check(travel("lf_reed_shallows"), "to the Reed Shallows")
 	var moss := objects_of("herb_patch", "item", "willow_moss")
 	check(not moss.is_empty(), "willow moss grows in the Reed Shallows")
 	if moss.is_empty(): return
 	place(Vector2(float(moss[0].at[0]), float(moss[0].at[1]) + 10))
 	check(submit({"type": "take_post", "object": str(moss[0].id)}).get("ok", false), "keep post at the willow moss")
+	check(Game.characters.size() == 1, "one character keeps post alone")
+	var inc := submit({"type": "burn_incense", "character": c().id, "item": "hour_incense_1"})
+	var ledger: Dictionary = inc.get("ledger", {})
+	check(inc.get("ok", false) and float(ledger.get("exp", 0.0)) > 0.0, "the incense burns at the disciple's own post: %.1f hours of work %s" % [float(inc.get("hours", 0.0)), str(ledger.get("items", {}))])
+	check(finish("keeping_post"), "Keeping Post done")
+	submit({"type": "send_to_storehouse", "character": c().id})   # the hour's haul, so the pouch has room again
+	# The later works (Post Arts, the furnace) switch between two disciples; that is play, never a quest's ask.
 	if not Game.characters.has("c2"):
 		submit({"type": "create_character", "slot": 2, "name": "Second Disciple", "skip_prologue": true})
 	check(submit({"type": "switch_character", "slot": 2}).get("ok", false), "switch to a second disciple, straight from the post")
 	Clock.debug_offset_s += 3.0 * 3600.0
 	var home := submit({"type": "switch_character", "slot": 1})
-	var ledger: Dictionary = home.get("welcome", {}).get("post", {})
-	check(home.get("ok", false) and int(ledger.get("items", {}).get("willow_moss", 0)) > 0 and float(ledger.get("exp", 0.0)) > 0.0,
-		"three hours later the first disciple comes back with %d willow moss and Foraging EXP" % int(ledger.get("items", {}).get("willow_moss", 0)))
+	var back: Dictionary = home.get("welcome", {}).get("post", {})
+	check(home.get("ok", false) and int(back.get("items", {}).get("willow_moss", 0)) > 0 and float(back.get("exp", 0.0)) > 0.0,
+		"three hours later the first disciple comes back with %d willow moss and Foraging EXP" % int(back.get("items", {}).get("willow_moss", 0)))
 	submit({"type": "enter_world"})
 	place(Vector2(float(c().position.x), float(c().position.y)))
-	check(finish("keeping_post"), "Keeping Post done")
 	submit({"type": "send_to_storehouse", "character": c().id})
 	check(int(Game.account.storehouse.get("willow_moss", 0)) > 0, "the haul goes to the Storehouse")
 	submit({"type": "leave_post"})
@@ -936,6 +948,7 @@ func sec_qk1() -> void:
 		step(1.6)
 	check(used >= 20, "use Flowing Palm twenty times (%d)" % used)
 	check(finish("first_technique"), "First Technique done")
+	_chores_after_power()
 	# Qi Kindling 2: Mei Qing's furnace.
 	check(reach("qi_kindling_2"), "Qi Kindling 2")
 	check(start("mei_qings_furnace"), "Mei Qing's Furnace accepted")
@@ -1026,8 +1039,8 @@ func sec_qk5() -> void:
 		if interact(str(o.id)).get("ok", false): seen += 1
 	check(finish("strange_tracks"), "Strange Tracks done (inspected %d)" % seen)
 	check(start("the_humming_token"), "The Humming Token accepted")
-	check(travel("rm_grey_pools"), "reach the Grey Pools")
-	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "defeat five Hollowed Boarlets")
+	check(travel("rm_marsh_edge"), "reach the Marsh Edge")
+	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "defeat five Hollowed Boarlets at the Marsh Edge")
 	check(finish("the_humming_token"), "The Humming Token done")
 	check(start("mei_qings_errand"), "Mei Qing's Errand accepted")
 	if c().inventory.count("willow_moss") < 5:
@@ -1224,10 +1237,14 @@ func sec_qu1() -> void:
 	check(start("seeds_of_the_valley"), "Seeds of the Valley accepted")
 	check(travel("ja_herb_terraces"), "reach the Herb Terraces")
 	var planted := 0
+	var why := ""   # the first bed's refusal, for the check's message
 	for o in objects_of("garden_bed"):
 		interact(str(o.id))
-		if submit({"type": "plant_seed", "bed": Game.room_rt.room_id + ":" + str(o.id), "seed": "willow_moss_seed"}).get("ok", false): planted += 1
-	check(planted == 3, "plant the three willow moss seeds Gardener Ji gives (%d)" % planted)
+		var pr := submit({"type": "plant_seed", "bed": Game.room_rt.room_id + ":" + str(o.id), "seed": "willow_moss_seed"})
+		if pr.get("ok", false): planted += 1
+		elif why == "": why = "%s %s" % [pr.get("reason", ""), pr.get("text", "")]
+	check(planted == 3, "plant the three willow moss seeds Gardener Ji gives (%d; %s; %d seeds, %d beds, bag free %d)"
+		% [planted, why, c().inventory.count("willow_moss_seed"), objects_of("garden_bed").size(), c().inventory.free_slots()])
 	check(finish("seeds_of_the_valley"), "Seeds of the Valley done")
 	# Two hours on, the moss is grown: harvest one bed.
 	Clock.debug_offset_s += 2.0 * 3600.0 + 60.0
@@ -1787,7 +1804,7 @@ func sec_hg1() -> void:
 	GameEvents.flush()
 	check(c().quests.is_done("the_ascension_gate"), "Act I complete: the Ascension Gate")
 	# Unlock order (Part 4): each system unlocks in timeline order.
-	var expected := ["weapons", "herb_gathering", "mining", "daily_missions", "qi_pool", "cooking", "first_technique_slots", "alchemy",
+	var expected := ["weapons", "herb_gathering", "mining", "qi_pool", "cooking", "first_technique_slots", "daily_missions", "alchemy",
 		"teleport_stones", "companions", "appraisal", "auto_refine", "spirit_animals", "taming", "formations", "healing", "spirit_eggs",
 		"guard_formation", "puppetry", "spirit_sense", "research", "teaching", "cape_slot"]
 	var last := -1

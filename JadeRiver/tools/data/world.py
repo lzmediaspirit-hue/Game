@@ -417,6 +417,11 @@ def interior(rid, name, region, wall="wall_wood", floor="wood", **kw):
 
 # ---------------------------------------------------------------------------------------------
 # Lotus Ferry (Prologue P1-P5)
+# A Disciple's Chores (a side errand): two spots sweep clean; the third is the grey itself, chapter 2's first hint.
+SWEEP_TEXT = ["Swept clean.", "Swept clean.",
+              "The stain won't sweep. Under the flagstone the grey goes down into the earth, and beside it someone hid two spirit stone shards."]
+
+
 def lotus_ferry():
     # P1 Fisher's Hut
     r = interior("lf_fishers_hut", "Fisher's Hut", "lotus_ferry", music="home", spawn_point=[330, 780])
@@ -427,13 +432,9 @@ def lotus_ferry():
     r.decor("table", [640, 770])
     r.decor("shelf", [140, 660])
     r.decor("rug", [640, 820])
-    # The teas show as their own icon over a pool of light (a jar prop read as a clod of earth); the table's cup
-    # stands just in front of the table, raised to its top, so the table does not hide it.
+    # Aunt Ping hands you a tea as you wake (Morning Tide); a second cup waits on the table for whoever looks. It shows
+    # as its own icon over a pool of light, just in front of the table and raised to its top, so the table does not hide it.
     r.obj("tea_table", "pickup", [640, 774], item="herbal_tea", count=1, prop="none", alt=30,
-          visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
-    r.obj("tea_shelf", "pickup", [150, 700], item="herbal_tea", count=1, prop="none",
-          visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
-    r.obj("tea_stove", "pickup", [1010, 720], item="herbal_tea", count=1, prop="none",
           visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
     r.npc("aunt_ping", [520, 720], facing=-1, hidden_if=all_of(flag("night_active")))
     r.obj("net", "inspect", [860, 700], text="Lu's old net. Half the knots are yours, from when you were small.", prop="none")
@@ -543,7 +544,7 @@ def lotus_ferry():
     # The rats keep to the west and middle of the shallows, well clear of Old Snapper's bank (x 2200), and come back slowly.
     r.spawn("reedtail_rat", [[1050, 700], [1300, 700], [1550, 720], [1720, 690]], 4, respawn=20, level=[2, 2])
     r.spawn("old_snapper", [[2200, 860]], 1, respawn=180, level=[3, 3], elite=True, mini_boss=True,
-            requires=all_of(qactive("crab_trouble"), {"kind": "item_owned", "item": "crab_shell", "count": 5}))
+            requires=all_of(qactive("crab_trouble"), {"kind": "item_owned", "item": "crab_shell", "count": 3}))
     for p in [[400, 720], [980, 930], [1560, 700], [2240, 720], [2420, 900]]:
         r.breakable(p)
     r.herb("willow_moss", [700, 690])
@@ -559,8 +560,9 @@ def lotus_ferry():
     r.decor("boulder_moss", [2480, 660])
     front_grass(r, ("reeds", "tall_grass"), step=260)
     r.edge("west", "west", "lf_village", "east_gate", y=820)
-    r.edge("east", "east", "rm_marsh_edge", "west", y=820, ptype="sealed", requires=all_of(realm("bone_forging_4")),
-           locked_text="The marsh path is too dangerous before Bone Forging 4.")
+    # Chapter 2 opens at Bone Forging 2 (Strange Tracks), and so does the marsh path.
+    r.edge("east", "east", "rm_marsh_edge", "west", y=820, ptype="sealed", requires=all_of(realm("bone_forging_2")),
+           locked_text="The marsh path is too dangerous before Bone Forging 2.")
 
     # P4 Night in the village (instanced set piece; survival 60 s)
     r = Room("lf_village_night", "Lotus Ferry at Night", "story", "lotus_ferry", 2, material="earth", backdrop="valley_night",
@@ -888,7 +890,7 @@ def sects():
     r.obj("dorm_bed_ja", "inspect", [1500, 720], prop="bed", text="Your bunk in the service dorm.", rest=True,
           visible_if=all_of(qdone("a_disciples_chores")))
     for i, x in enumerate([1000, 1400, 1900]):
-        r.obj("sweep_ja_%d" % i, "inspect", [x, 900], prop="grey_patch", text="Swept clean.", set_flag="swept_ja_%d" % i,
+        r.obj("sweep_ja_%d" % i, "inspect", [x, 900], prop="grey_patch", text=SWEEP_TEXT[i], set_flag="swept_ja_%d" % i,
               visible_if=all_of(qactive("a_disciples_chores"), noflag("swept_ja_%d" % i)))
     r.portal("stoneford", "gate", [40, 850], "sf_fairground", "jade_road", label="Stoneford")
     r.edge("east", "east", "ja_pavilion_rooftops", "west", y=850)
@@ -1014,7 +1016,7 @@ def sects():
     r.obj("dorm_bed_cm", "inspect", [1600, 900], prop="bed", text="Your bunk in the service dorm.", rest=True,
           visible_if=all_of(qdone("a_disciples_chores")))
     for i, x in enumerate([900, 1400, 2100]):
-        r.obj("sweep_cm_%d" % i, "inspect", [x, 920], prop="grey_patch", text="Swept clean.", set_flag="swept_cm_%d" % i,
+        r.obj("sweep_cm_%d" % i, "inspect", [x, 920], prop="grey_patch", text=SWEEP_TEXT[i], set_flag="swept_cm_%d" % i,
               visible_if=all_of(qactive("a_disciples_chores"), noflag("swept_cm_%d" % i)))
     r.decor("paifang_gate", [300, 650])
     r.decor("pine_tree", [2400, 640])
@@ -1197,6 +1199,10 @@ def valley():
               platforms=[(800, 700, 180, 70), (1500, 720, 180, 90)], fishing="marsh_edge")
     r.area("shallows", [400, 860, 1700, 100])
     r.spawn("reed_otter", [[1900, 900]], 1, respawn=600, level=[19, 19], wild_pet=True, requires=all_of(unlock("taming")))
+    # The grey's first beasts (The Humming Token, Mei Qing's hides): boarlets gone grey among the drained reeds, at the
+    # marsh's own Levels while the story wants them; the Grey Pools keep their Level 7-12 herd.
+    r.spawn("hollowed_boarlet", [[900, 880], [1400, 900], [1800, 870]], 3, respawn=8, level=[4, 5],
+            requires=any_of(qactive("the_humming_token"), qactive("mei_qings_errand")))
     for i, x in enumerate([700, 1300, 2000]):
         r.obj("grey_patch_%d" % i, "inspect", [x, 910], prop="grey_patch", text="The reeds here are grey and brittle, as if the colour was drunk out of them.",
               set_flag="grey_patch_%d" % i, visible_if=all_of(qactive("strange_tracks")))
@@ -2961,6 +2967,25 @@ def fruit_trees():
                   visible_if=all_of({"kind": "world_event_here", "event": "treasure_birth"}))
 
 
+# Early surprises (docs/research/player_motivation.md item 7): the valley's first fields may turn a common foe into an
+# elite (the existing elite: its marker, its extra loot roll), about one spawn in twenty-five, so one shows in the first
+# hour; and a Spirit Fruit ripens once for each character on Willow Path West when The Willow Path is done (a birth of
+# its own: CalendarAuthority.open_first_fruit, the tree gone once the fruit is taken).
+EARLY_ELITE_CHANCE = 0.04
+EARLY_ELITE_ROOMS = ("lf_reed_shallows", "wp_west")
+FIRST_FRUIT_ROOM = "wp_west"
+
+
+def early_surprises():
+    for rid in EARLY_ELITE_ROOMS:
+        for s in ROOMS[rid].d["spawns"]:
+            if not s.get("elite") and not s.get("requires") and s["max"] > 1:
+                s["elite_chance"] = EARLY_ELITE_CHANCE
+    r = ROOMS[FIRST_FRUIT_ROOM]
+    r.obj("first_fruit_tree", "treasure_birth", [_dry_x(r, 2090, 800), 800], radius=150, prop="nine_bough_jade_tree", first=True,
+          visible_if=all_of(qdone("the_willow_path")), hidden_if=all_of(flag("first_fruit_taken")))
+
+
 def _free_x(r, share, y=880, gap=170):
     """An x on dry ground near `share` of the room's width, `gap` from every other object, portal and spawn."""
     x = int(r.w * share)
@@ -3097,6 +3122,7 @@ def build():
     ice_sheets()       # v1.1 traction: glazed ground in the Frozen Shrine and on Rimefrost
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
+    early_surprises()
     insect_swarms()
     trails_and_altars()
     spirit_mines()

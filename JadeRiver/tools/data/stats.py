@@ -257,7 +257,10 @@ CORE = {
                 "heavenforce": 1.30},
     "qi_edge_per_purity": 0.01,
     "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
-                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05},
+                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05,
+                       # Research §5 change 3: until the body has a Qi pool (Bone Forging 7) a technique runs on breath and
+                       # muscle: no Qi, only its cooldown. Flowing Palm at Bone Forging 1 and the Weapon Hall's art work at once.
+                       "free_without_pool": True},
     "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
     "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
                   "enhance_per_level": 0.05, "fist_weapon_pct": 0.6,
@@ -287,7 +290,7 @@ def build():
          "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
                    {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
                    {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
-        {"id": "gauntlets", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
+        {"id": "gauntlets", "appearance": ["gauntlets"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
          "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
          "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
          "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
@@ -456,7 +459,8 @@ def build():
                    "auto_turn_range": 160, "backlash_stun_s": 1.0, "backlash_qi_pct": 0.05, "dodge_distance": 140, "wind_blink_distance": 120, "wind_blink_cooldown_s": 10,
                    "dodge_invuln_s": 0.25, "dodge_cooldown_s": 2.5, "parry_stagger_s": 0.8, "parry_stagger_boss_s": 0.3,
                    "combo_window_s": 0.5, "steadfast_s": 8, "vulnerable": 0.2, "shock": 0.2, "status_duration_tenacity": 0.5},
-        "death": {"progress_loss": 0.10, "wake_hp": 0.5, "talisman_hp": 0.3, "talisman_invuln_s": 5, "talisman_cooldown_s": 300},
+        # grace_below: before this realm a fall costs nothing (player_motivation.md P12, ProgressionRules.death_grace).
+        "death": {"progress_loss": 0.10, "grace_below": "bone_forging_5", "wake_hp": 0.5, "talisman_hp": 0.3, "talisman_invuln_s": 5, "talisman_cooldown_s": 300},
         "toxicity": {"tolerance_base": 30, "drain_per_min": 1, "meditate_drain_mult": 2, "repeat_window_s": 300,
                      "repeat_factor": 0.5},
         # S28 Hollow Tide: held under half in the valley and the Expanse; the Lantern Star Field lets it fill. At half the
@@ -553,6 +557,14 @@ def build():
         # Bandit ambushes on the roads (S48): the chance per entry, x2 while a false realm shows, never past `reach`
         # levels above the gang, and a cooldown between them.
         "ambush": {"chance": 0.06, "concealed_mult": 2.0, "reach": 8, "cooldown_s": 900, "offset": 360},
+        # A slain foe's spawn point (EnemyAuthority.return_s): the character remembers the kill and the point stays empty
+        # this long in game time (Clock), in the room or away and across saves. A common foe: its spawn's respawn_s x
+        # `normal_mult`, held to `normal_min_s`..`normal_max_s` (a spawn slower than that keeps its own); an elite at least
+        # `elite_min_s`; a boss its own respawn_s (a field boss its account-wide timer). A foe a kill step under way asks
+        # for comes back at its spawn's respawn_s. respawn_s itself stays the refill pace the Vigil's maths assume.
+        # While the player is in the room a foe comes back only at a point at least `offscreen_x` from them (the view is
+        # 1280 wide), unless a kill step asks for it; with no such point it waits.
+        "respawn": {"normal_mult": 6.0, "normal_min_s": 60, "normal_max_s": 180, "elite_min_s": 600, "offscreen_x": 700},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
         # S48 body ladder: body techniques spend HP when QI is short (Copper Body), never below this share; P12: the same
         # share of max HP as the share of max QI the technique costs (Might scales HP, not QI).
@@ -571,6 +583,8 @@ def build():
     # (data_validation checks it), and the room lint and reach tests read them.
     write("movement.json", {
         "schema_version": 1,
+        # Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these.
+        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [16, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5},
         "jump": {"impulse": 530, "gravity": 1150, "substep_s": 1 / 120, "apex": 122, "coyote_s": 0.10, "buffer_s": 0.12},
         "double_jump": {"impulse": 430, "apex_from_ground": 202},
         "wall_step": {"kick_speed": 450, "away": 90, "kicks": 3, "reach": 12, "shaft": [60, 160]},
@@ -814,7 +828,15 @@ def build():
                              "fine": [0.0, 0.0, 0.50, 0.35, 0.15], "superior": [0.0, 0.0, 0.0, 0.70, 0.30]},
                  "fortune_shift": 0.001, "weapon_share": 0.4, "family_bias": 0.3333, "level_spread": 2,
                  "elite_extra": {"chance": 0.08, "min_quality": "common"}, "named_floor": "common", "named_rows": 2,
-                 "pool_skip_slots": ["gourd", "cape", "talisman", "tool_furnace"]},
+                 "pool_skip_slots": ["gourd", "cape", "talisman", "tool_furnace"],
+                 # Starter gear (docs/tutorial_order.md, docs/research/player_motivation.md §3.4): the first rooms'
+                 # foes (a loot table marked `starter`) drop the plain bases of `families` (the Weapon Hall's families
+                 # a Mortal can hold: no attribute asked) and the four armour slots, at the par character's item Level,
+                 # a weapon never above par quality, so no weapon outruns early par. A character's first such kill
+                 # drops its first weapon, a `first_family` piece at `first_quality`; then, for its first
+                 # `pity_pieces` pieces, the `pity`-th kill without one gives one. The counts are kept on the character.
+                 "starter": {"families": ["gauntlets", "jian", "spear", "short_blade"], "first_family": "short_blade",
+                             "first_quality": "common", "pity": 15, "pity_pieces": 3}},
     })
 
     entries("affixes.json", AFFIXES)

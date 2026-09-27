@@ -38,6 +38,7 @@ func _main() -> void:
 	await _pages()
 	await _crowd()
 	await _techniques()
+	await _topdown()
 	print("perf_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -226,3 +227,21 @@ func _techniques() -> void:
 	print("techniques page, the %s tree (%d nodes): %.2f ms a frame dragged, %.2f still; %d nodes in view" % [biggest, laid, ms_pan, still, drawn])
 	check(laid >= 250 and drawn < 40 and ms_pan - still < 5.0 and ms_pan < 33.3,
 		"the biggest tree's tab (%s, %d nodes) draws only what is in view (%d): dragged %.2f ms a frame against %.2f still" % [biggest, laid, drawn, ms_pan, still])
+
+## Redesign Phase 1: the top-down prototype room under the HUD (its rules are rules_tests' topdown_suite). It mounts
+## inside the room-load gate and holds the 60 fps budget while the body walks a circle and jumps.
+func _topdown() -> void:
+	var t0 := Time.get_ticks_usec()
+	main.enter_topdown_proto(false)
+	await get_tree().process_frame
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	var p = main.world.player
+	var drive := func(i: int) -> void:
+		p.movement = Vector2.from_angle(i * 0.05)
+		if i % 40 == 0: p.jump()
+	var per := await _frames(120, drive)
+	var nodes: int = main.world.sorted.get_child_count()
+	print("topdown prototype: mounted in %.0f ms, %.2f ms per frame, %d sorted nodes" % [ms, per, nodes])
+	check(main.world is TopdownWorld and ms < 300.0 and per < 16.6, "the top-down prototype room mounts in under 0.3 s (%.0f ms) and runs at 60 fps (%.2f ms)" % [ms, per])
+	main.return_to_selection()
+	await get_tree().process_frame
