@@ -727,9 +727,24 @@ func data_suite() -> void:
 		for it in ContentDB.all(table):
 			var path := SpriteCache.icon_path(str(it.id))
 			check(path != "" and ResourceLoader.exists(path), "%s %s has an icon" % [table, it.id])
+	# P13a: every technique has its emblem, today's baked or composed in the game from the atlas's layers (§3.9).
+	var composed := 0
 	for tech in ContentDB.all("techniques"):
-		var tpath := SpriteCache.icon_path(str(tech.get("icon", tech.id)))
-		check(tpath != "" and ResourceLoader.exists(tpath), "technique %s has an icon" % tech.id)
+		var tpath := SpriteCache.icon_path(str(tech.id))
+		var baked: bool = tpath != "" and ResourceLoader.exists(tpath)
+		if not baked: composed += 1
+		check(baked or (SpriteCache.composable(str(tech.id)) and SpriteCache.emblem_whole(str(tech.id))), "technique %s has an emblem, baked or composed" % tech.id)
+	check(composed >= 3000, "the generated arts' emblems are composed (%d)" % composed)
+	# One composed art of each kind (an orthodox and a path art of a cell, a keystone, a Dao art, a lost art) at each size.
+	var samples := {}
+	for tech in ContentDB.all("techniques"):
+		var sort := str(tech.get("kind", "")) if str(tech.get("kind", "")) != "" else ("path" if str(tech.get("path", "")) != "" else "orthodox")
+		if not samples.has(sort) and SpriteCache.composable(str(tech.id)): samples[sort] = str(tech.id)
+	check(samples.size() == 5, "a composed art of every kind (%s)" % str(samples.keys()))
+	for sid in samples.values():
+		for px in [64, 48, 32]:
+			var img := SpriteCache.emblem_image(sid, px)
+			check(img != null and img.get_width() == px and img.get_pixel(px / 2, px / 2).a > 0.9, "technique %s's emblem composes at %d px" % [sid, px])
 	# Dialogue trees
 	for tid in ContentDB.dialogue:
 		var tree: Dictionary = ContentDB.dialogue[tid]

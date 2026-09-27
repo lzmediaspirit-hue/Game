@@ -72,18 +72,36 @@ static func icon_renders(id: String) -> Dictionary:
 	if out.is_empty():
 		var t := tex(str(manifest.get(key, "")))
 		if t: out[int(t.get_width() * 0.5)] = t
+	if out.is_empty() and composable(id):
+		for px in ICON_PX:
+			var e := emblem(id, px)
+			if e: out[px] = e
 	_renders[id] = out
 	return out
 
-## True when the icon is drawn in the HD style (its family has been converted).
+## True when the icon is drawn in the HD style (its family has been converted, or it is a composed emblem).
 static func icon_hd(id: String) -> bool:
 	var manifest: Dictionary = ContentDB.config("icon_manifest")
-	return ICON_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px]))
+	return ICON_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px])) or composable(id)
 
 ## How an icon is drawn in a `box` px square: the render and whole-number scale that give the largest size not over
 ## the box (the larger native render on a tie), or the smallest render at 1x when none fits.
 ## {tex, art, scale, px: the drawn size}; {} when it has no art.
 static func icon_fit(id: String, box: float) -> Dictionary:
+	if composable(id) and not _renders.has(id):
+		# A composed emblem is composed at the one size the box takes, not at all three.
+		var art := 0
+		var k := 0
+		for px in ICON_PX:
+			var kk := int(floor(box / float(px) + 0.001))
+			if kk >= 1 and (art == 0 or px * kk > art * k):
+				art = px
+				k = kk
+		if art == 0:
+			art = int(ICON_PX.min())
+			k = 1
+		var e := emblem(id, art)
+		return {} if e == null else {"tex": e, "art": art, "scale": k, "px": art * k}
 	var renders := icon_renders(id)
 	var best := {}
 	for art in renders:
@@ -181,3 +199,110 @@ static func new_flash_material() -> ShaderMaterial:
 static func element_color(el: String) -> Color:
 	var colors: Dictionary = ContentDB.config("elements").get("colors", {})
 	return Color(str(colors.get(CombatRules.parent_element(el), colors.get(el, "#e8e1cf"))))
+
+# ------------------------------------------------------------------ P13a composed technique emblems
+## Every technique without a baked emblem (all but today's 56 arts) is composed from the emblem atlas (technique_plan
+## §3.9, tools/icons/emblem_atlas.py): the element's disc under its grade's or kind's rim, the form's mark with its key
+## colours swapped for the element's (or the path's), the path's stamp and a lost art's tear. Composed once per id and
+## size, then kept (the plan's 256 held; a full cache starts again).
+static var _emblems: Dictionary = {}
+static var _sheets: Dictionary = {}
+static var _pals: Dictionary = {}
+const EMBLEMS_HELD := 256
+
+static func composable(id: String) -> bool:
+	return not ContentDB.config("icon_manifest").has(id) and ContentDB.has_entry("techniques", id) and ContentDB.config("emblem_atlas").has("cells")
+
+## The layers of a technique's emblem: {base, mark, stamp, element, path}; the atlas builder's rule (emblem_atlas.spec)
+## from the tables its index carries.
+static func emblem_spec(t: Dictionary) -> Dictionary:
+	var A := ContentDB.config("emblem_atlas")
+	var el := str(A.get("element_of", {}).get(str(t.get("element", "none")), str(t.get("element", "none"))))
+	var kind := str(t.get("kind", ""))
+	var rim := str({"keystone": "keystone", "dao": "dao"}.get(kind, str(t.get("grade", "common"))))
+	var mark := "form:" + str(t.form) if t.has("form") else str(A.get("templates", {}).get(str(t.get("template", "")), ""))
+	var fam := str(A.get("kin_family", {}).get(str(t.get("kin", "voice")), "any")) if kind == "keystone" else str(t.get("family", "any"))
+	var path := str(t.get("path", "")) if not kind in ["keystone", "dao"] else ""
+	return {"base": "base:%s:%s%s" % [el, rim, ":torn" if kind == "lost" else ""], "mark": "%s:%s" % [mark, "any" if mark.begins_with("hand:") else fam],
+		"stamp": "stamp:" + path if path != "" else "", "element": el, "path": path}
+
+## True when every layer of the technique's emblem is in the atlas.
+static func emblem_whole(id: String) -> bool:
+	var cells: Dictionary = ContentDB.config("emblem_atlas").get("cells", {})
+	var s := emblem_spec(ContentDB.entry("techniques", id))
+	return cells.has(s.base) and cells.has(s.mark) and (str(s.stamp) == "" or cells.has(s.stamp)) and (not str(s.base).ends_with(":torn") or cells.has("tear"))
+
+## The emblem of technique `id` at `px` art px (64, 48 or 32), or null.
+static func emblem(id: String, px: int) -> Texture2D:
+	var key := "%s@%d" % [id, px]
+	if _emblems.has(key): return _emblems[key]
+	var img := emblem_image(id, px)
+	if img == null: return null
+	var out := ImageTexture.create_from_image(img)
+	if _emblems.size() >= EMBLEMS_HELD * 3: _emblems.clear()
+	_emblems[key] = out
+	return out
+
+## The composed emblem as an Image (the tests read its pixels), or null.
+static func emblem_image(id: String, px: int) -> Image:
+	var A := ContentDB.config("emblem_atlas")
+	var sheet := _sheet(px)
+	var s := emblem_spec(ContentDB.entry("techniques", id))
+	var cells: Dictionary = A.get("cells", {})
+	if sheet == null or not cells.has(s.base) or not cells.has(s.mark): return null
+	var data := sheet.get_region(_cell(cells[s.base], px)).get_data()
+	var mark := sheet.get_region(_cell(cells[s.mark], px)).get_data()
+	var pal := _palette(A, str(s.element), str(s.path))
+	for i in range(0, mark.size(), 4):
+		if mark[i + 3] == 0: continue
+		var c: int = pal.get((mark[i] << 16) | (mark[i + 1] << 8) | mark[i + 2], (mark[i] << 16) | (mark[i + 1] << 8) | mark[i + 2])
+		data[i] = (c >> 16) & 255
+		data[i + 1] = (c >> 8) & 255
+		data[i + 2] = c & 255
+		data[i + 3] = 255
+	if str(s.stamp) != "" and cells.has(s.stamp):
+		var st := sheet.get_region(_cell(cells[s.stamp], px)).get_data()
+		for i in range(0, st.size(), 4):
+			if st[i + 3] > 0:
+				for j in 4: data[i + j] = st[i + j]
+	if str(s.base).ends_with(":torn") and cells.has("tear"):
+		var tear := sheet.get_region(_cell(cells["tear"], px)).get_data()
+		for i in range(0, tear.size(), 4):
+			if tear[i + 3] > 0:
+				for j in 4: data[i + j] = 0
+	return Image.create_from_data(px, px, false, Image.FORMAT_RGBA8, data)
+
+static func _cell(at: Array, px: int) -> Rect2i:
+	return Rect2i(int(at[0]) * px, int(at[1]) * px, px, px)
+
+## The atlas at `px` as an Image: imported as an Image (its .import says so), so it is read on the CPU, headless too.
+static func _sheet(px: int) -> Image:
+	if not _sheets.has(px):
+		var path := str(ContentDB.config("emblem_atlas").get("files", {}).get(str(px), ""))
+		var res = load(path) if path != "" and ResourceLoader.exists(path) else null
+		var img: Image = res if res is Image else (res.get_image() if res is Texture2D else null)
+		if img:
+			img = img.duplicate()
+			img.decompress()
+			img.convert(Image.FORMAT_RGBA8)
+		_sheets[px] = img
+	return _sheets[px]
+
+## Key colour -> the element's colour (a path art's mark takes the path's levels over its element's).
+static func _palette(A: Dictionary, el: String, path: String) -> Dictionary:
+	var key := el + "|" + path
+	if _pals.has(key): return _pals[key]
+	var P: Dictionary = A.get("palettes", {})
+	var mark: Array = (P.get(el, {}).get("mark", []) as Array).duplicate()
+	if P.has("path:" + path):
+		var levels: Array = P["path:" + path]
+		for i in mini(levels.size(), mark.size()): mark[i] = levels[i]
+	var out := {}
+	for pair in [[P.get("key_mark", []), mark], [P.get("key_steel", []), P.get(el, {}).get("steel", [])]]:
+		for i in mini((pair[0] as Array).size(), (pair[1] as Array).size()):
+			out[_rgb24(str(pair[0][i]))] = _rgb24(str(pair[1][i]))
+	_pals[key] = out
+	return out
+
+static func _rgb24(hex: String) -> int:
+	return Color.html(hex).to_rgba32() >> 8

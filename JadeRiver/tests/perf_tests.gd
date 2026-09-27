@@ -37,6 +37,7 @@ func _main() -> void:
 	await _rooms()
 	await _pages()
 	await _crowd()
+	await _techniques()
 	print("perf_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -135,3 +136,72 @@ func _frames(n: int, each: Callable) -> float:
 		Game.tick(1.0 / 60.0)
 		await get_tree().process_frame
 	return (Time.get_ticks_usec() - t0) / 1000.0 / n
+
+## P13a techniques at scale (docs/technique_plan.md §7): techniques.json on disk, read and expanded at today's size and
+## at v1.5's (a fixture of 4,350 rows made from today's under new ids), the trees' index, the emblems composed at run
+## time from the atlas, and the Techniques page opened on a character who knows sixty composed arts.
+func _techniques() -> void:
+	var path := "res://data/techniques.json"
+	var kb := FileAccess.get_file_as_bytes(path).size() / 1024.0
+	var t0 := Time.get_ticks_usec()
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var rows: Array = data.entries
+	var memo := {}
+	for e in rows: ContentDB.expand(e, data.defaults, memo)
+	var ms_now := (Time.get_ticks_usec() - t0) / 1000.0
+	rows = (JSON.parse_string(FileAccess.get_file_as_string(path)) as Dictionary).entries   # compact again (expand uses its rows up)
+	var fixture := {"schema_version": 1, "defaults": data.defaults, "entries": []}
+	var i := 0
+	while (fixture.entries as Array).size() < 4350:
+		var e: Dictionary = (rows[i % rows.size()] as Dictionary).duplicate(true)
+		e.id = "%s_v%d" % [e.id, i / rows.size()]
+		fixture.entries.append(e)
+		i += 1
+	var text := JSON.stringify(fixture)
+	var t1 := Time.get_ticks_usec()
+	var parsed: Dictionary = JSON.parse_string(text)
+	var ms_parse := (Time.get_ticks_usec() - t1) / 1000.0
+	var memo2 := {}
+	for e in parsed.entries: ContentDB.expand(e, parsed.defaults, memo2)
+	var ms_v15 := (Time.get_ticks_usec() - t1) / 1000.0
+	var t2 := Time.get_ticks_usec()
+	TechniqueTreeRules._built = null
+	TechniqueTreeRules.cell("water", "any", 1)
+	var ms_index := (Time.get_ticks_usec() - t2) / 1000.0
+	print("techniques.json: %d rows, %.0f KB (%.0f B a row); read and expanded in %.0f ms; v1.5's 4,350 rows (%.0f KB) in %.0f ms (%.0f of it parsing); the trees' index in %.1f ms"
+		% [rows.size(), kb, kb * 1024.0 / rows.size(), ms_now, text.length() / 1024.0, ms_v15, ms_parse, ms_index])
+	check(kb < 1100.0, "techniques.json stays under 1.1 MB (%.0f KB)" % kb)
+	# Measured against the engine's own JSON parse on the same machine, so a slow or busy runner does not fail it: filling
+	# in the defaults costs at most twice the parse, and the whole stays under 0.4 s.
+	check(ms_v15 - ms_parse <= 2.0 * ms_parse + 20.0 and ms_v15 < 400.0 and ms_index < 80.0,
+		"v1.5's 4,350 rows load in %.0f ms (defaults %.0f ms against a %.0f ms parse) and the trees index in %.1f ms" % [ms_v15, ms_v15 - ms_parse, ms_parse, ms_index])
+	# Emblems: a hundred composed arts at 64 px and at 48 (the HUD ring's), each composed once and then held.
+	var ids: Array = []
+	for t in ContentDB.all("techniques"):
+		if ids.size() >= 100: break
+		if SpriteCache.composable(str(t.id)): ids.append(str(t.id))
+	var per := {}
+	for px in [64, 48]:
+		var t3 := Time.get_ticks_usec()
+		for id in ids: SpriteCache.emblem(str(id), px)
+		per[px] = (Time.get_ticks_usec() - t3) / 1000.0 / maxf(1.0, ids.size())
+	var t4 := Time.get_ticks_usec()
+	for id in ids: SpriteCache.emblem(str(id), 64)
+	var held := (Time.get_ticks_usec() - t4) / 1000.0 / maxf(1.0, ids.size())
+	print("emblems: composed in %.2f ms at 64 px, %.2f ms at 48; held, %.4f ms" % [per[64], per[48], held])
+	check(ids.size() == 100 and float(per[64]) < 6.0 and float(per[48]) < 4.0 and held < 0.05, "an emblem composes in under 6 ms at 64 px (%.2f) and 4 at 48 (%.2f), then is held" % [per[64], per[48]])
+	# The Techniques page on a character with sixty composed arts known (twelve in the list at once).
+	var cu = Game.active().cultivator
+	var known_was: Array = cu.techniques_known.duplicate()
+	SpriteCache._emblems.clear()
+	SpriteCache._renders.clear()
+	for id in ids.slice(0, 60): cu.techniques_known.append(str(id))
+	var t5 := Time.get_ticks_usec()
+	main.open_page("techniques", {})
+	await get_tree().process_frame
+	var ms_page := (Time.get_ticks_usec() - t5) / 1000.0
+	main.close_all_pages()
+	await get_tree().process_frame
+	cu.techniques_known = known_was
+	print("techniques page with sixty composed arts: %.0f ms" % ms_page)
+	check(ms_page < 150.0, "the Techniques page opens in under 0.15 s with sixty composed arts known (%.0f ms)" % ms_page)

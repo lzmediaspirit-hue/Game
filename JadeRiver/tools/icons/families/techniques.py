@@ -1004,7 +1004,7 @@ def rows():
     for e in entries:
         tid = str(e['id'])
         if e.get('icon') != tid:
-            continue   # P13a: a generated art borrows its form's drawing until its emblem is composed
+            continue   # P13a: every other art's emblem is composed in the game from the atlas (emblem_atlas.py)
         if tid not in FORM_OF:
             raise ValueError('techniques.py: no form for technique %s (add it to FORM_OF)' % tid)
         kind = 'secret' if e.get('secret') else ('dao' if '_dao_' in str(e.get('source', '')) else None)

@@ -43,11 +43,12 @@ func load_all() -> void:
 			var by_id := {}
 			var ordered: Array = []
 			var defaults: Dictionary = data.get("defaults", {})
+			var memo := {}   # the table's merged pairs of layers (expand)
 			for entry in data.entries:
 				if not (entry is Dictionary) or not entry.has("id"):
 					load_errors.append("%s: entry without id" % table)
 					continue
-				if not defaults.is_empty(): entry = expand(entry, defaults)
+				if not defaults.is_empty(): entry = expand(entry, defaults, memo)
 				if by_id.has(entry.id): load_errors.append("%s: duplicate id %s" % [table, entry.id])
 				by_id[entry.id] = entry
 				ordered.append(entry)
@@ -84,14 +85,43 @@ func load_all() -> void:
 	loaded = true
 
 ## P13a compact rows (technique_plan §7): a table may carry `defaults`, {key: {value: layer}}; each entry is its layers
-## (the one its own `key` names, in order) with the entry over them. Dictionaries merge, everything else replaces.
-static func expand(entry: Dictionary, defaults: Dictionary) -> Dictionary:
+## (the one its own `key` names, in order; dictionaries merge) with the entry's own keys over them, a dictionary of the
+## entry merging one level into the layers' (technique_gen.compact writes them so). The layers merge two at a time and
+## each merged pair is kept in `memo` (one per table: its rows share few pairs, a form with a ring, an element with a
+## family), so a row costs a native copy, a small merge and a native merge of its own keys. The entry, fresh from the
+## file, is used up.
+static func expand(entry: Dictionary, defaults: Dictionary, memo := {}) -> Dictionary:
 	var out := {}
-	for key in defaults:
-		var kv = entry.get(key, "")
-		var layer = defaults[key].get(str(int(kv)) if kv is float else str(kv))
-		if layer is Dictionary: _merge(out, layer)
-	_merge(out, entry)
+	var keys: Array = defaults.keys()
+	for i in range(0, keys.size(), 2):
+		var v1 = entry.get(keys[i], "")
+		var sel: String = str(i) + ":" + (str(int(v1)) if v1 is float else str(v1))
+		if i + 1 < keys.size():
+			var v2 = entry.get(keys[i + 1], "")
+			sel += "|" + (str(int(v2)) if v2 is float else str(v2))
+		if not memo.has(sel):
+			var pair := {}
+			for key in keys.slice(i, i + 2):
+				var kv = entry.get(key, "")
+				var layer = defaults[key].get(str(int(kv)) if kv is float else str(kv))
+				if layer is Dictionary: _merge(pair, layer)
+			memo[sel] = pair
+		if out.is_empty(): out = (memo[sel] as Dictionary).duplicate(true)
+		else: _merge(out, memo[sel])
+	if not memo.has(""):   # the keys some layer gives a dictionary to (hitbox, vfx, mastery)
+		var nested: Array = []
+		for key in defaults:
+			for layer in (defaults[key] as Dictionary).values():
+				for k in layer:
+					if layer[k] is Dictionary and not nested.has(k): nested.append(k)
+		memo[""] = nested
+	for k in memo[""]:
+		var ev = entry.get(k)
+		if ev is Dictionary and out.get(k) is Dictionary:
+			var d: Dictionary = out[k]
+			d.merge(ev, true)
+			entry[k] = d
+	out.merge(entry, true)
 	return out
 
 static func _merge(into: Dictionary, src: Dictionary) -> void:

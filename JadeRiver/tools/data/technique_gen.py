@@ -264,7 +264,7 @@ def keystone_row(tree, kin, act, name, template, desc):
     ring = G.ACT_EDGE[act]
     b = G.RING_BUDGET[ring]
     dtype = "soul" if element == "soul" else "qi"
-    row = {"id": snake(name), "name": name, "family": "any", "kin": kin, "element": element, "ring": ring, "kind": "keystone", "icon": TEMPLATE_ICON[template],
+    row = {"id": snake(name), "name": name, "family": "any", "kin": kin, "element": element, "ring": ring, "kind": "keystone",
            "template": template, "heavy": True, "action": "meditate_burst", "dao": G.TREES[tree][2] or "none", "desc": desc,
            "windup_s": 0.3, "active_s": 0.3, "soul_cost": 0, "composure_cost": 0, "mastery": MASTERY}
     ctrl = verb_fields("snare", element)
@@ -298,15 +298,7 @@ def keystone_row(tree, kin, act, name, template, desc):
 
 
 MASTERY = {"dmg_per_tier": 0.08, "cost_per_tier": -0.05}
-# The drawing an art borrows until its emblem is composed (step 6): today's art of its form or template.
-FORM_ICON = {"strike": "mountain_cleaver", "flurry": "flowing_palm", "thrust": "jade_thrust", "lunge": "tiger_rush", "sweep": "riverstone_sweep",
-             "arc": "crescent_arc", "volley": "twin_reed_shot", "rain": "rain_of_reeds", "pillar": "mirror_mind_spike", "wave": "earthshaker_wave",
-             "burst": "ember_burst", "seeker": "flying_blades", "return": "returning_crane_fan", "snare": "vine_snare", "counter": "willow_leaf_parry",
-             "ward": "stone_skin", "chorus": "clear_heart_melody", "blink": "shadowstep_cut", "plunge": "cloud_descent", "release": "sword_release",
-             "swarm": "sword_swarm", "domain": "sanguine_lotus", "seal": "qi_seal_toll", "echo": "palm_wave"}
 TEMPLATE_SHAPE = {"constructs": "bolt", "field": "domain", "avatar": "domain", "finisher": "pillar", "mirror": "domain", "procession": "domain"}
-TEMPLATE_ICON = {"constructs": "sword_swarm", "field": "rite_seal_script", "avatar": "golden_body", "finisher": "glimpse_of_heaven",
-                 "mirror": "phantom_double", "procession": "blood_burning"}
 FAMILY_COMBO = {}
 
 
@@ -318,7 +310,7 @@ def form_defaults():
                   "windup_s": 0.2, "active_s": 0.2, "soul_cost": 0, "composure_cost": 0, "mastery": MASTERY,
                   "mult": [0, 0] if F["mult"][0] == 0 else list(F["mult"]),
                   "hitbox": {"depth": F["extra"].get("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
-                  "vfx": {"shape": F["shape"]}, "icon": FORM_ICON[f]}
+                  "vfx": {"shape": F["shape"]}}   # no icon: the emblem is composed from its id (emblem_atlas)
     return out
 
 
@@ -655,23 +647,24 @@ def write_compact(name, head, rows):
 
 
 def compact(row):
-    """Drop what the row's form, ring, element and family give it anyway (ContentDB fills them back in at load)."""
-    base = expand({k: row[k] for k in DEFAULTS if k in row}, DEFAULTS)
-
-    def strip(r, b):
-        out = {}
-        for k, v in r.items():
-            if k in b and b[k] == v and k not in DEFAULTS:
-                continue
-            if isinstance(v, dict) and isinstance(b.get(k), dict):
-                sub = strip(v, b[k])
-                if sub:
-                    out[k] = sub
-                continue
+    """Drop what the row's form, ring, element and family give it anyway (ContentDB fills them back in at load): the
+    row as built, read over its layers, keeps only its own keys, and of a dictionary only the keys that differ."""
+    full = {}
+    for key, layers in DEFAULTS.items():
+        _merge(full, layers.get(str(row.get(key, "")), {}))
+    _merge(full, row)
+    base = expand({k: full[k] for k in DEFAULTS if k in full}, DEFAULTS)
+    out = {}
+    for k, v in full.items():
+        if k in DEFAULTS or k not in base:
             out[k] = v
-        return out
-    out = strip(row, base)
-    assert expand(out, DEFAULTS) == expand(row, DEFAULTS), ("compaction loses", row.get("id"))
+        elif isinstance(v, dict) and isinstance(base[k], dict):
+            sub = {kk: vv for kk, vv in v.items() if kk not in base[k] or base[k][kk] != vv}
+            if sub:
+                out[k] = sub
+        elif base[k] != v:
+            out[k] = v
+    assert expand(out, DEFAULTS) == full, ("compaction loses", row.get("id"))
     return out
 
 
@@ -686,11 +679,13 @@ DEFAULTS = {"form": FORM_DEFAULTS, "ring": RING_DEFAULTS, "element": ELEMENT_DEF
 
 
 def expand(row, defaults):
-    """What ContentDB does at load: the layers in order, then the row; dictionaries merge, everything else replaces."""
+    """What ContentDB does at load: the layers in order, dictionaries merging, then the row's own keys over them (a
+    dictionary of the row merging one level into the layers')."""
     out = {}
     for key, layers in defaults.items():
         _merge(out, layers.get(str(row.get(key, "")), {}))
-    _merge(out, row)
+    for k, v in json.loads(json.dumps(row)).items():
+        out[k] = dict(out[k], **v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
     return out
 
 
