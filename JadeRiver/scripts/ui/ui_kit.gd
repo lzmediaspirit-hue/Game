@@ -161,6 +161,11 @@ const TEXT_ON := [
 	[&"RED_TEXT", ["surface:lacquer_black"], 14],
 	[&"PAPER_INK", ["surface:board", "surface:bamboo", "surface:scroll"], 14],
 	[&"BLOOD", ["surface:scroll"], 14],
+	# The Beasts family (Spirit Animals, Core Exchange, Beast Arena): ink on the bestiary leaf, on the arena's sand and on
+	# the straw; the Beast Hall's rough timber and its boards carry PAPER, MIST and PALE_GOLD (the `wood` rows above).
+	[&"PAPER_INK", ["bestiary_leaf", "surface:sand", "surface:straw"], 14],
+	[&"BLOOD", ["bestiary_leaf"], 14],
+	[&"JADE_SHADOW", ["bestiary_leaf"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

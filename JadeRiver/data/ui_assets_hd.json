@@ -8,6 +8,15 @@
     ],
     "normal": "res://art/ui/hd/bar_shell__normal.png"
   },
+  "bestiary_leaf": {
+    "margins": [
+      20,
+      14,
+      20,
+      14
+    ],
+    "normal": "res://art/ui/hd/bestiary_leaf__normal.png"
+  },
   "button_primary": {
     "disabled": "res://art/ui/hd/button_primary__disabled.png",
     "margins": [
@@ -49,6 +58,15 @@
     ],
     "normal": "res://art/ui/hd/close_button__normal.png",
     "pressed": "res://art/ui/hd/close_button__pressed.png"
+  },
+  "core_urn": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/core_urn__normal.png"
   },
   "currency_pill": {
     "margins": [

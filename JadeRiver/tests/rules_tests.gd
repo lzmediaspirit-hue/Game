@@ -561,6 +561,7 @@ func identity_suite() -> void:
 	await _records_two_checks()
 	await _post_checks()
 	await _market_checks()
+	await _beasts_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -881,6 +882,112 @@ func _market_checks() -> void:
 	c.inventory.restore(keep.inventory)
 	Game.account.sect = keep.sect
 	Game.account.economy = keep.economy
+	Unlocks.debug_force_all = force_was
+
+## P5 (the Beasts family; docs/page_identity.md rows 16, 34 and 36, mockup 10): Spirit Animals is the bestiary, the
+## animals beside you on their posts and the stable down the left, the chosen one's leaf in the middle with its foot
+## turning the lower half to Grow, Feed, Teach, Breed and Fuse (and Gear from an empty gear place), the tack wall at the
+## right; choosing a stall and a role go through as intents. The Core Exchange stands your cores on shelves by tier,
+## the chosen one at the urn's mouth with Sell one and Sell all, and counts the day on the tally. The Beast Arena rings
+## its pit with the eleven banners of the ladder, every name whole, and replays the last fight inside it. Every word
+## reads on what it sits on.
+func _beasts_checks() -> void:
+	var c = Game.active()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var keep := {"inventory": c.inventory.snapshot(), "pets": c.pets.duplicate(true), "active": c.active_pet, "party": c.party_pets.duplicate(),
+		"bag": c.pet_bag.duplicate(), "eggs": c.eggs.duplicate(true), "arena": c.beast_arena.duplicate(true), "crafting": c.crafting.duplicate(true)}
+	var dim: Array = []
+	var lost: Array = []
+	Game.pets.apply_grant(c.id, "ember_fox")
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var fox: Dictionary = c.pets[c.pets.size() - 2]
+	var otter: Dictionary = c.pets[c.pets.size() - 1]
+	c.active_pet = str(fox.uid)
+	Game.inventory.apply_add(c.id, "fire_core_low", 2, "test")
+	Game.inventory.apply_add(c.id, "water_core_mid", 1, "test")
+	# Spirit Animals: the stable, the leaf and the tack wall.
+	var sp: Page = await _open_page("spirit_animals", {})
+	var stalls: Array = sp._regions.filter(func(r): return r.id == "sel" and (r.rect as Rect2).position.y >= 324.0)
+	var foot: Array = sp._regions.filter(func(r): return r.id == "view" and r.kind == "button")
+	check(sp.sel == str(fox.uid) and stalls.size() == mini(c.pets.size(), 6) and stalls.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP)
+		and foot.size() == 5 and sp._regions.filter(func(r): return r.id == "role").size() >= 3 and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "bestiary_leaf:normal"),
+		"P5 Spirit Animals: the stable a stall a row, the chosen animal's leaf with its five views at the foot, the roles on the tack wall")
+	_identity_view(sp, "spirit animals leaf", dim, lost, {}, {})
+	var views_ok := true
+	for v in ["grow", "feed", "teach", "breed", "fuse", "gear"]:
+		sp.on_action("view", v)
+		sp.text_log.clear()
+		sp.queue_redraw()
+		await get_tree().process_frame
+		if v == "feed": views_ok = views_ok and sp._regions.any(func(r): return r.id == "devour" and str(r.data) == "fire_core_low")
+		if v == "fuse": views_ok = views_ok and sp._regions.any(func(r): return r.id == "fuse")
+		_identity_view(sp, "spirit animals " + v, dim, lost, {}, {})
+		sp.on_action("view", v)
+	check(views_ok and sp.view == "", "P5 Spirit Animals: Feed offers the fox its own element's core, Fuse the other animal; each view turns back with its own button")
+	# The nest: an egg warming takes its three inputs; a ready one its Hatch.
+	c.eggs = [{"species": "reed_otter", "hatch_utc": Clock.now_utc() + 3600.0, "inputs": []}]
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	var infusing: int = sp._regions.filter(func(r): return r.id == "infuse").size()
+	_identity_view(sp, "spirit animals nest", dim, lost, {}, {})
+	c.eggs[0].hatch_utc = Clock.now_utc() - 1.0
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(infusing == 3 and sp._regions.any(func(r): return r.id == "hatch"), "P5 Spirit Animals: the nest's egg takes blood, a core or a reroll while it warms, and hatches when ready")
+	c.eggs = []
+	# A combat puppet (S48): its leaf has no bond, growth or views, and its care no roles.
+	Game.pets.apply_grant(c.id, "combat_puppet")
+	sp.on_action("sel", str(c.pets[c.pets.size() - 1].uid))
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(not sp._regions.any(func(r): return r.id in ["view", "role"]) and sp.text_log.any(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.pets.skills"))),
+		"P5 Spirit Animals: a construct's leaf names its strikes and how it is kept, with nothing to grow, feed or assign")
+	_identity_view(sp, "spirit animals construct", dim, lost, {}, {})
+	c.pets.pop_back()
+	sp.on_action("sel", str(fox.uid))
+	sp.on_action("role", "gatherer")
+	sp.on_action("sel", str(otter.uid))
+	check(str(fox.role) == "gatherer" and sp.sel == str(otter.uid) and sp.chose_t >= 0.0, "P5 Spirit Animals: a role and a chosen stall go through (the animal walks out onto its leaf)")
+	sp.queue_free()
+	# The Core Exchange.
+	var ce: Page = await _open_page("core_exchange", {})
+	var picks: Array = ce._regions.filter(func(r): return r.id == "pick")
+	check(picks.size() >= 2 and picks.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP) and ce._regions.filter(func(r): return r.id == "sell").size() == 2
+		and ce.chosen != "" and ce.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.cores.tally") % [60 - Game.pets.exchange_left(c), 60]),
+		"P5 Core Exchange: the cores on their shelves by tier, the chosen one at the urn with Sell one and Sell all, the day's tally")
+	_identity_view(ce, "core exchange", dim, lost, {}, {})
+	ce.queue_free()
+	# The Beast Arena: the ladder round the pit, then a fight replayed inside it.
+	c.beast_arena = {}
+	var ar: Page = await _open_page("beast_arena", {})
+	var said: Array = ar.text_log.map(func(tx): return str(tx.get("s", "")))
+	var tamers: Array = Game.pets.arena_cfg().get("tamers", [])
+	check(tamers.all(func(tm): return said.has(str(tm.name))) and said.has("10") and ar._regions.filter(func(r): return r.id == "fight").size() == 2
+		and not said.any(func(s): return s.ends_with("…")), "P5 Beast Arena: the ten tamers' banners round the pit, every name whole, 1v1 and 3v3 at the gate")
+	_identity_view(ar, "beast arena", dim, lost, {}, {})
+	fox.level = 60
+	ar.on_action("fight", "solo")
+	ar.replay_start = ar.t - 100.0
+	ar.text_log.clear()
+	ar.queue_redraw()
+	await get_tree().process_frame
+	var fought: bool = not c.beast_arena.get("last", {}).is_empty()
+	check(fought and ar.text_log.any(func(tx): return str(tx.get("s", "")) == str(fox.name)) and ar.raised_t >= 0.0,
+		"P5 Beast Arena: a challenge goes through and its fight replays in the pit, your banner raised")
+	_identity_view(ar, "beast arena replay", dim, lost, {}, {})
+	ar.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Beasts: every word on the beasts' pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	c.inventory.restore(keep.inventory)
+	c.pets = keep.pets
+	c.active_pet = keep.active
+	c.party_pets = keep.party
+	c.pet_bag = keep.bag
+	c.eggs = keep.eggs
+	c.beast_arena = keep.arena
+	c.crafting = keep.crafting
 	Unlocks.debug_force_all = force_was
 
 func _post_checks() -> void:
