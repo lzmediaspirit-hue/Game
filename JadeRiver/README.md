@@ -111,6 +111,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |
 | `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`); no player-facing text is written in the scripts |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
+| `tutorial_order` | The Prologue and the start of Act I taken fists-first on the real dialogue page (`docs/tutorial_order.md`): no room with foes in reach before the HP bars, every foe in a fight shows its HP bar, every way into a building shows a door, taking a quest closes the talk, each step's control is on the HUD when its quest is taken |
 | `valley_run` | Acts I–III, from a new character through the Ascension Gate, the Tomb King, the Presence Trial and the Lantern Run to Greyfall, through intents only |
 
 `valley_run` saves a checkpoint at the start of each section, so one part can be replayed:

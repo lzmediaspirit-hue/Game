@@ -113,6 +113,7 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
 	await identity_suite()
@@ -1143,6 +1144,28 @@ func hud_suite() -> void:
 	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
 		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
 		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
+	# At rest the healing slot stays drawn while it holds something to drink (Granny's tea), in its place, and clear of
+	# the open fan's toggles; empty, it is drawn while a quest step asks for it (Granny's Remedy), not otherwise.
+	c.inventory.quick_use = "herbal_tea"
+	var teas: int = c.inventory.count("herbal_tea")
+	if teas == 0: Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	hud.set_state(false, false)
+	var rest_q: Array = at.call("quick", hud.hit_targets())
+	hud.set_state(false, true)
+	var fan_q: Array = at.call("quick", hud.hit_targets())
+	var fan_at: Array = hud._fan_items().map(func(f): return f.center)
+	if teas == 0: Game.inventory.apply_remove(c.id, "herbal_tea", 1, "test")
+	c.inventory.quick_use = ""
+	hud.set_state(false, false)
+	var empty_q: Array = at.call("quick", hud.hit_targets())
+	var quests_was: Dictionary = c.quests.active
+	c.quests.active = {"grannys_remedy": {"state": "active", "progress": [0, 0, 0], "accepted_tick": 0}}
+	var asked_q: Array = at.call("quick", hud.hit_targets())
+	c.quests.active = quests_was
+	check(rest_q.size() == 1 and near.call(rest_q[0], Vector2(970, 518)) and fan_q.size() == 1 and fan_at.size() == 5
+		and fan_at.all(func(p): return (p as Vector2).distance_to(fan_q[0]) >= 60.0) and empty_q.is_empty() and asked_q.size() == 1,
+		"at rest the healing slot is drawn while it holds something to drink (%s), clear of the open fan (%s), and empty only while a quest step asks for it (%s, %s)"
+		% [str(rest_q), str(fan_q), str(empty_q), str(asked_q)])
 	c.cultivator.technique_slots = slots_was
 	c.inventory.quick_use = quick_was
 	c.inventory.treasures = tre_was
@@ -1160,6 +1183,73 @@ func hud_suite() -> void:
 ## views: two NPCs on the same spot (Elder Gu and Madam Hua in Artisan Row), three foes and a boss in a knot, and the
 ## party (a disciple, the puppet and an animal) at one height in a fight, laid out by WorldLabels.place_views as
 ## world.gd does each frame.
+## The attack button's one rule (HUD.attack_first; a fight beside a herb in the Reed Shallows): with a foe in the fight
+## range, or one engaged anywhere in the room, the button attacks even with a resource under the player, and the
+## resource's action stays a tap away in the context slot on ring 2; with no foe about the context takes the button
+## (mockup 02). Auto-hunt attacks by the player's own attack (Autopilot), never through the context.
+func attack_first_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	var node: Dictionary = {}
+	for o in Game.room_rt.def.get("objects", []):
+		if node.is_empty() and str(o.type) == "herb_patch" and not o.has("ripen") and HerbRules.in_season(o, Clock.now_utc()): node = o
+	for uid in Game.room_rt.enemies.keys(): Game.room_rt.enemies.erase(uid)   # the shallows' crabs out of the way
+	Game.room_rt.objects[str(node.id)] = {"state": "ready", "timer": 0.0, "hits": 0}
+	var at := Vector2(float(node.at[0]) - 30.0, float(node.at[1]) + 10.0)
+	Game.actor_state(c.id).plane = at
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\nvar attacks := 0\nfunc attack() -> void:\n\tattacks += 1\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(c.id)
+	stub.plane = at
+	var hud = load("res://scripts/hud.gd").new()
+	hud.visible = false
+	hud.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(hud)
+	hud.player = stub
+	hud.context = {"type": "herb_patch", "object": str(node.id), "label": Tx.t("sim.world.gather")}
+	var roles := func() -> Array: return hud.hit_targets().map(func(tg): return str(tg.role))
+	var tap := func(p: Vector2) -> void:
+		hud.press(9, p)
+		hud.release(9)
+	# No foe about: the context takes the button, and a tap gathers.
+	hud._tick_fight(5.0)
+	var rest_glyph: String = hud._ctx_glyph(c)
+	tap.call(hud.attack_center)
+	check(not hud.attack_first() and rest_glyph == "gather" and not roles.call().has("context") and stub.attacks == 0 and str(hud.channel.object) == str(node.id),
+		"no foe about: the context takes the attack button and a tap gathers (%s, %s)" % [rest_glyph, str(hud.channel)])
+	hud.channel.object = ""
+	# A foe in the fight range: the button attacks; the gather waits in the context slot on ring 2, a tap away.
+	var foe: EnemyState = Game.enemies.spawn_at("mudshell_crab", at + Vector2(200, 0), 2)
+	hud._tick_fight(0.05)
+	var fight_glyph: String = hud._ctx_glyph(c)
+	tap.call(hud.attack_center)
+	var slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
+	check(hud.attack_first() and fight_glyph == "" and stub.attacks == 1 and str(hud.channel.object) == "" and slot.size() == 1,
+		"a foe in range: the attack button attacks beside the herb, the gather moves to ring 2 (%s; attacks %d; %s)" % [fight_glyph, stub.attacks, str(roles.call())])
+	if not slot.is_empty(): tap.call(slot[0].center)
+	check(str(hud.channel.object) == str(node.id), "the gather stays reachable from the ring-2 context slot (%s)" % str(hud.channel))
+	hud.channel.object = ""
+	# A foe engaged from beyond the fight range (turned on the player, or struck a moment ago) keeps the button attacking.
+	foe.plane = at + Vector2(900, 0)
+	foe.ai.state = "aggro"
+	hud.fight = false
+	hud.fight_left = 0.0
+	hud._tick_fight(0.05)
+	tap.call(hud.attack_center)
+	check(hud.attack_first() and stub.attacks == 2 and str(hud.channel.object) == "", "a foe engaged anywhere in the room: the button still attacks (attacks %d)" % stub.attacks)
+	Game.room_rt.enemies.erase(foe.uid)
+	hud.player = null
+	stub.free()
+	hud.free()
+	Unlocks.debug_force_all = force_was
+	Game.world.apply_teleport(c.id, back)
+
 func labels_suite() -> void:
 	var mk := func(id: String, kind: String, r: Rect2, flip: Vector2) -> Dictionary:
 		return {"id": id, "kind": kind, "rect": r, "prev": Vector2.ZERO, "near": 0.0, "flip": flip}
@@ -6811,9 +6901,13 @@ func guidance_suite() -> void:
 	check(not QuestAuthority.marker_calls("progress") and QuestAuthority.marker_calls("again"), "the grey bubble does not call the player over")
 	c.quests.active["the_county_tribute"]["state"] = "ready"
 	check(Game.quest.npc_marker(c, "magistrate_qian") == "ready", "done and ready to hand in: the question mark")
-	# The way there: the tracker names the room, the minimap marks this room's exit on the route.
+	# The way there: the tracker names the room, the minimap marks this room's exit on the route (the story played
+	# through, so no "next" entry of it stands above the tracked quest).
+	var story_done := {}
+	for sq in ContentDB.all("quests"):
+		if str(sq.kind) in QuestAuthority.STORY_KINDS: story_done[str(sq.id)] = 1
 	c.quests.active = {"glowflies": {"state": "active", "progress": [0], "accepted_tick": 0}}
-	c.quests.done = {"fists_first": 1}   # the village's east gate opens after Fists First
+	c.quests.done = story_done.merged({"crab_trouble": 1})   # the village's East Gate opens with Crab Trouble
 	c.quests.tracked = ["glowflies"]
 	Game.world.apply_teleport(c.id, "lf_village")
 	check(Game.world.guide_target(c) == "lf_reed_shallows", "the tracked quest leads to the Reed Shallows")
@@ -6848,8 +6942,60 @@ func guidance_suite() -> void:
 	c.quests.done = {"morning_tide": 1}
 	c.quests.flags["night_active"] = true
 	check(Game.quest.npc_rooms(c, "aunt_ping") == ["lf_village"], "after the Hollow Night Aunt Ping is looked for in the lane (%s)" % str(Game.quest.npc_rooms(c, "aunt_ping")))
+	_next_entry_checks(c)
 	c.quests.restore(q0)
 	Game.world.apply_teleport(c.id, back)
+
+## Between main quests the tracker's first entry is the story's next quest ("next"), and the direction mark and the go
+## button lead to it: who gives it and where, followed back through what the next main quest waits on; or the Level it
+## waits on and a hunting ground for the character's Level. With a main quest under way there is none.
+func _next_entry_checks(c) -> void:
+	var realm_was: String = c.cultivator.realm_key
+	var sect_was: Dictionary = c.training_sect.duplicate(true)
+	var prologue := {}
+	for q in ContentDB.all("quests"):
+		if str(q.get("chapter", "")) == "prologue" and str(q.kind) in QuestAuthority.STORY_KINDS: prologue[str(q.id)] = 1
+	c.quests.flags = {"night_survived": true}
+	c.quests.active = {}
+	c.quests.tracked = []
+	c.training_sect = {}
+	c.cultivator.realm_key = "bone_forging_1"
+	# A quest to take now, reached through what the next main quest waits on (A Disciple's Chores waits on the Entry
+	# Trial, which waits on the fair): the recruiter who gives it, where she stands.
+	c.quests.done = prologue.merged({"the_willow_path": 1})
+	c.quests.offered = {"the_recruitment_fair": true}
+	Game.world.apply_teleport(c.id, "lf_village")
+	var tr: Array = Game.quest.tracker(c)
+	var nx: Dictionary = tr[0] if not tr.is_empty() else {}
+	check(str(nx.get("kind", "")) == "next" and str(nx.get("quest", "")) == "the_recruitment_fair" and str(nx.get("target_room", "")) == "sf_fairground"
+		and ContentDB.name_of("npcs", "recruiter_qing_lan") in str(nx.lines[0].text) and ContentDB.name_of("quests", "the_recruitment_fair") in str(nx.name),
+		"between quests the tracker names the next one, who gives it and where (%s)" % str(nx))
+	check(Game.world.guide_target(c) == "sf_fairground" and not Game.world.guide_step(c).is_empty(), "the direction mark leads toward the recruiter (%s)" % str(Game.world.guide_step(c)))
+	# A Level to reach first: the next main quest (Strange Tracks, Bone Forging 4), the Level, and a hunting ground whose
+	# foes suit the character's Level, the one P12's gap names too.
+	c.quests.done = prologue.merged({"the_willow_path": 1, "the_recruitment_fair": 1, "entry_trial": 1, "a_disciples_chores": 1, "fish_gutting_fists": 1})
+	c.quests.offered = {}
+	c.training_sect = {"id": "jade_sect", "rank": "service_disciple"}
+	c.cultivator.realm_key = "bone_forging_3"
+	tr = Game.quest.tracker(c)
+	nx = tr[0] if not tr.is_empty() else {}
+	var hunt := str(nx.get("target_room", ""))
+	var lr: Array = ContentDB.room(hunt).get("level_range", [0, 0])
+	var lv := ProgressionRules.level(c)
+	check(str(nx.get("quest", "")) == "strange_tracks" and nx.get("hunt", false) and str(nx.lines[0].text) == Tx.t("sim.quest.next_level") % [4, ContentDB.name_of("realms", "bone_forging_4")]
+		and str(ContentDB.room(hunt).get("type", "")) == "field" and lv >= int(lr[0]) and lv <= int(lr[1])
+		and Game.quest.floor_gap(c).fields.any(func(f): return str(f[0]) == hunt),
+		"a main quest waiting on a Level: the Level, and where to hunt for it (%s; Level %d)" % [str(nx), lv])
+	check(Game.world.guide_target(c) == hunt and not Game.world.guide_step(c).is_empty() and not Game.world.route(c, "lf_village", hunt).is_empty() or hunt == "lf_village",
+		"the direction mark and the go button lead to the hunting ground (%s)" % hunt)
+	# A main quest under way: the tracker shows it, and no next entry.
+	c.cultivator.realm_key = "bone_forging_4"
+	c.quests.active = {"strange_tracks": {"state": "active", "progress": ContentDB.entry("quests", "strange_tracks").objectives.map(func(_o): return 0), "accepted_tick": 0}}
+	c.quests.tracked = ["strange_tracks"]
+	check(Game.quest.tracker(c).all(func(e): return str(e.kind) != "next") and str(Game.quest.tracker(c)[0].quest) == "strange_tracks",
+		"with a main quest under way there is no next entry; the quest leads the tracker")
+	c.cultivator.realm_key = realm_was
+	c.training_sect = sect_was
 
 ## v1.2 Phase C: gravity switches in the Orbit Ruins, the Sphere (radius, power, element effects, clash, the Qi it
 ## costs), the Space Dao's six tiers and the Confucian path's gates.

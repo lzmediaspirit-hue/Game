@@ -1,5 +1,72 @@
 # Changelog
 
+## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
+
+Found on the Android build; each fixed at its cause and held by the walks (docs/tutorial_order.md).
+- **After the sect choice the sect's first quest is under way.** The choice was recorded (sect, rank, token, method),
+  but nothing took it up: the Entry Trial, which the fair's last words send you to, waited for Bone Forging 2 behind
+  three unlocks, so at Bone Forging 1 no quest was active and the tracker went blank. The Entry Trial now starts the
+  moment a sect is chosen; its first step, Bone Forging 2, leads to a hunting ground ("➤ Hunt at Willow Path West"),
+  and the lessons it teaches still open at Bone Forging 2. The Willow Path likewise starts once Lu has handed you the
+  River Token (it started at the breakthrough a moment before, pointing ashore while the boat was still shut), and an
+  auto-taken lesson now unlocks its systems in the same pass (`GameAuthority._after_pass`).
+- **Between main quests the tracker shows the story's Next entry, never a blank plate** (`QuestAuthority.story_next`):
+  who gives the next quest and where ("Next: Fish-Gutting Fists · Talk to Shen Lian", ➤ Fairground), or what it still
+  waits on and where to get it: another quest first (followed back through requirements and unlock triggers), or a
+  Level ("Reach Level 21 (Qi Unfurling 3)", ➤ Hunt at Bend Shore: a field whose foes suit the character's Level, the
+  ones P12's gap names). It is a tracker entry like the others, so the P1 direction mark, the P5a plate, the go button
+  and the world map lead to it; the story's quests and lessons are always tracked (a full tracker drops a side quest).
+  Race to the Tower's bell step threw a script error in the tracker (an objective by object id); fixed.
+- **The Quick-use slot is on the HUD.** P5a rested the healing slot outside a fight, so Granny's Remedy asked for a
+  slot the player never saw. At rest it is now drawn while a quest step asks for it (glowing, named "Quick-use"; a tap
+  on the empty slot opens the Bag) and while it holds something to drink, clear of the open fan. The steps say what
+  the player sees: "Bag: put Herbal Tea in Quick-use", "Drink a Herbal Tea: tap Quick-use".
+- **The first quest cannot be skipped.** A quest whose step is to leave its room (Morning Tide's "Step outside") keeps
+  the room's ways shut while it is on offer and until the steps before it are done, and says which on the door and on
+  a try: "Before you go: Open your Bag" (`QuestAuthority.room_hold`, `WorldAuthority.portal_state`). The hut's door
+  stays drawn as itself, shut. Taken pickups stay taken on a reload (Aunt Ping's teas came back).
+- **In a fight the attack button attacks.** A herb, pickup, person or door in reach took the button whenever no foe
+  was aggroed within 400 px (a foe walked up to, or one between blows, did not count). One rule now
+  (`HUD.attack_first`): in the P5a fight state (a foe within the fight range, one engaged anywhere in the room, held a
+  moment after) the button attacks and the offer waits in ring 2's context slot with its own glyph; at rest the context
+  takes the button (mockup 02). Auto-hunt attacks directly and is unchanged.
+- "Ready to hand in" no longer flashes for a quest that completes itself (the fair).
+- **Tests**: `tutorial_order` holds every step to three more invariants (the control a step names drawn on the real
+  HUD, no room left early, the attack button in every fight beside the Reed Shallows' herbs) and, with `valley_run`
+  over every main quest of Acts I–III, to the story's guidance (`prologue_run.story_guidance`: the tracker never
+  empty, every target a real room the player can walk to, the mark toward it, the Next entry's giver or hunting ground,
+  the sect's first quest right after the choice). `rules_tests`: the Next entry (a giver through a chain, a Level),
+  the healing slot at rest, the attack-first rule. Each fix, reverted, fails its suite.
+- **Screenshots** from a new character (and one `valley_run` checkpoint) in `docs/ui_p5/guidance_fix/`.
+
+## Tutorial order: the first fight, foes' HP bars, doors and quest talks (docs/tutorial_order.md)
+
+Found on the Android build from a new character; each fixed at its cause and held by a new suite.
+- **The first fight comes after the HP bars.** The East Gate to the Reed Shallows opened with Fists First, while the
+  HP bar comes with Granny's Remedy and the foes' HP bars with Crab Trouble, so a player who went to Uncle Guo first
+  fought crabs and rats with neither. The gate now opens with Crab Trouble (the quest that sends you there, after all
+  four lessons); Guo's lines say so. Old Ma's and Granny Liu's Trade waits for Coins and Shops (buying needed it and
+  the purse was off the HUD).
+- **Foes in a fight show their HP bar.** Beyond the reveal above (not a regression of the P5a labels), a foe showed
+  its bar only once hurt, so a Reedtail Rat biting you showed none. A foe now shows it from the moment it turns on
+  you (`EnemyState.in_fight`, `EnemyView.shows_hp_bar`).
+- **Every way into a building shows a door.** Old Ma's store drew an open counter and no door. The store's art now has
+  its own plank door under a blue shop curtain in the right bay (`tools/props/defs_buildings.py`); every building prop
+  names its doorway (`door` in `data/prop_art.json`) and `Room.building` stands the door portal in it (the Fisher's
+  Hut's was 44 px off its door; the harbour's and the port's inns and shops too). A door's arrow and plate draw above
+  the facade (they were hidden behind the building). The painted bell towers of the retreat rooms get a door at their
+  foot, the Cloud Library's door moved onto the Sword Court hall's doors, the Beast Trial Grove's way stands clear of
+  the bell tower, and the Wardens' Hall is a house with a door instead of a watch tower. `data_validation` holds every
+  room to it (`PortalView.entrance`).
+- **Taking a quest ends the talk.** The dialogue page talked again after an accept and stayed open on a shop, a gift
+  or a farewell. `choose_dialogue` now hands back a conversation only when the same person has the next quest to give
+  or take back (`QuestAuthority._then`); otherwise the page closes. Every quest-giver alike.
+- **Tests**: `tutorial_order` (new) walks the Prologue and the start of Act I fists-first on the real dialogue page and
+  checks after every step and tick: no room with foes in reach before the HP bars, every foe in a fight showing its bar,
+  a door at every way into a building, the talk closing after each quest taken, each step's control on the HUD when its
+  quest is taken. `prologue_run` is split into steps both runs share; `valley_run`'s page check is stricter.
+- **Screenshots** from a new character in `docs/ui_p5/tutorial_fix/`.
+
 ## P13a · Techniques at scale, the data (docs/technique_plan.md)
 
 The techniques of Acts I–III are written, 3,171 in all: every weapon family and cultivation path has hundreds of arts,
