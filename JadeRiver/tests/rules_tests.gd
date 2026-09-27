@@ -141,6 +141,7 @@ func topdown_suite() -> void:
 	var td = load("res://tests/topdown_suite.gd").new()
 	td.run_all(self)
 	await td.run_view(self, get_tree())
+	await td.run_fight(self, get_tree())
 	print("topdown measured: ", td.measured)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro

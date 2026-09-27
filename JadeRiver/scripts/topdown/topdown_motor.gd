@@ -31,6 +31,13 @@ var sink_t := -1.0         ## >= 0 while a splash plays, then back to the safe s
 var safe := Vector2.ZERO
 var safe_z := 0.0
 var events: Array = []     ## {type: jumped | landed | dashed | fell | splashed | reset, ...}, drained by the view
+## Phase 2. Walking on water is a special skill (decision 29): off by default, the player turns it on for a character
+## who knows the Water Skimming art; then the water's surface is a floor at the bank's height.
+var water_walk := false
+var push_v := Vector2.ZERO ## a knockback or a technique's dash: this velocity for push_t seconds, no steering
+var push_t := 0.0
+var lock_face := false     ## an attack or cast keeps the facing on its aim
+var speed_k := 1.0         ## the combat authority's move factor (an attack on the ground walks at x0.3)
 
 var walk: float
 var tiptoe_axis: float
@@ -90,7 +97,7 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 ## Stand on the floor at a ground point.
 func place(p: Vector2) -> void:
 	pos = p
-	z = room.height_at(p)
+	z = floor_at(p)
 	vz = 0.0
 	vel = Vector2.ZERO
 	grounded = true
@@ -112,8 +119,25 @@ func step(dt: float, axis: Vector2, jump := false, dash := false) -> void:
 		_substep(h, axis)
 		left -= h
 
+## The floor under a ground point, the water's surface included for a body that walks on it.
+func floor_at(p: Vector2) -> float:
+	var h := room.height_at(p)
+	return 0.0 if water_walk and h == TopdownRoom.WATER_Z else h
+
+## Can a dash start now (on the ground or within coyote time, not sinking)? The combat dodge asks before it spends its
+## cooldown.
+func can_dash() -> bool:
+	return sink_t < 0.0 and (grounded or coyote > 0.0)
+
+## Carry the body at `v` for `secs` (a knockback away from the attacker, a technique's dash): it may push off an open
+## edge to the floor below; walls and the bank stop it as they stop walking.
+func push(v: Vector2, secs: float) -> void:
+	if sink_t >= 0.0: return
+	push_v = v
+	push_t = secs
+
 func _start_dash(axis: Vector2) -> void:
-	if dash_cd > 0.0 or sink_t >= 0.0 or not (grounded or coyote > 0.0): return
+	if dash_cd > 0.0 or not can_dash(): return
 	var moving := axis.length() > 0.2
 	dash_dir = axis.normalized() if moving else -dir
 	dash_t = (dash_distance if moving else back_step) / dash_speed
@@ -138,16 +162,20 @@ func _substep(h: float, axis: Vector2) -> void:
 	if buffer > 0.0 and (grounded or coyote > 0.0): _jump()
 	# Horizontal velocity: the dash holds its own; otherwise accelerate toward the stick (tiptoe below 0.6), with a
 	# third of that control in the air, where no input keeps the momentum (and a long jump keeps its carry).
-	if dash_t > 0.0:
+	if push_t > 0.0:
+		push_t -= h
+		vel = push_v
+		if push_t <= 0.0: vel = Vector2.ZERO
+	elif dash_t > 0.0:
 		dash_t -= h
 		vel = dash_dir * dash_speed
 		if dash_t <= 0.0 and grounded: vel = dash_dir * walk if axis.length() > 0.2 else Vector2.ZERO
 	else:
 		var mag := minf(1.0, axis.length())
-		var target := axis.normalized() * walk * (tiptoe if mag <= tiptoe_axis else 1.0) if mag > 0.05 else Vector2.ZERO
+		var target := axis.normalized() * walk * speed_k * (tiptoe if mag <= tiptoe_axis else 1.0) if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
 		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target, accel * air_control * h)
-	if axis.length() > 0.2 and dash_t <= 0.0: _face(axis)
+	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face: _face(axis)
 	_move(Vector2(vel.x * h, 0.0), axis)
 	_move(Vector2(0.0, vel.y * h), axis)
 	_vertical(h)
@@ -166,7 +194,7 @@ func _jump() -> void:
 	events.append({"type": "jumped", "long": long_jump, "z": z})
 
 func _vertical(h: float) -> void:
-	var ground := room.height_at(pos)
+	var ground := floor_at(pos)
 	if grounded:
 		if ground < z - step_up:
 			grounded = false
@@ -185,7 +213,7 @@ func _vertical(h: float) -> void:
 	vz -= gravity * h
 	peak = maxf(peak, z)
 	_push_out()
-	ground = room.height_at(pos)
+	ground = floor_at(pos)
 	if z <= ground:
 		z = ground
 		if vz <= 0.0: _land()
@@ -196,7 +224,7 @@ func _land() -> void:
 	vz = 0.0
 	long_jump = false
 	var cp := TopdownRoom.cell_of(pos)
-	if room.is_water(cp.x, cp.y):
+	if room.is_water(cp.x, cp.y) and not water_walk:
 		sink_t = 0.0
 		vel = Vector2.ZERO
 		events.append({"type": "splashed", "fall": fall})
@@ -208,7 +236,7 @@ func _land() -> void:
 ## A point is clear of the edges when every corner of the foot box is on the same floor as its centre.
 func _clear_ground() -> bool:
 	for c in _corners(pos):
-		if absf(room.height_at(c) - z) > 0.5: return false
+		if absf(floor_at(c) - z) > 0.5: return false
 	return true
 
 func _corners(p: Vector2) -> Array:
@@ -219,8 +247,8 @@ func _corners(p: Vector2) -> Array:
 func _corner_blocks(c: Vector2) -> bool:
 	var cp := TopdownRoom.cell_of(c)
 	if room.level(cp.x, cp.y) == TopdownRoom.SOLID: return true
-	if grounded and room.is_water(cp.x, cp.y): return true
-	return room.height_at(c) > z + (step_up if grounded else mantle)
+	if grounded and room.is_water(cp.x, cp.y) and not water_walk: return true
+	return floor_at(c) > z + (step_up if grounded else mantle)
 
 func blocked_at(p: Vector2) -> bool:
 	for c in _corners(p):
@@ -257,7 +285,7 @@ func _push_out() -> void:
 		var moved := false
 		for c in _corners(pos):
 			var cp := TopdownRoom.cell_of(c)
-			if not (room.level(cp.x, cp.y) == TopdownRoom.SOLID or room.height_at(c) > z + mantle): continue
+			if not (room.level(cp.x, cp.y) == TopdownRoom.SOLID or floor_at(c) > z + mantle): continue
 			var cell := Rect2(Vector2(cp) * TopdownRoom.TILE, Vector2.ONE * TopdownRoom.TILE)
 			var px: float = (cell.position.x - c.x - 0.01) if c.x > pos.x else (cell.end.x - c.x + 0.01)
 			var py: float = (cell.position.y - c.y - 0.01) if c.y > pos.y else (cell.end.y - c.y + 0.01)
@@ -265,6 +293,10 @@ func _push_out() -> void:
 			moved = true
 			break
 		if not moved: return
+
+## Turn to face `v` at once (an attack's aim), with the drawn row's hysteresis.
+func face(v: Vector2) -> void:
+	if v.length() > 0.01: _face(v)
 
 ## 8-way analog facing; the drawn row (S, E, N, W) changes only when the stick sits 20° nearer another row (plan §1.4).
 func _face(axis: Vector2) -> void:

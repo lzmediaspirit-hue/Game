@@ -70,6 +70,11 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	if def.get("passive", false):
 		_wander(auth, e, delta, 0.4)
 		return
+	# Redesign Phase 2: on a top-down height grid, noticing, chasing, fleeing and going home steer on the plane
+	# (TopdownBrain); the wind-up, the blow and the recovery below are the same rules everywhere.
+	if auth.game.room_rt != null and auth.game.room_rt.topdown != null and str(ai.state) in TopdownBrain.STATES:
+		TopdownBrain.think(auth, e, delta)
+		return
 	# Fear drives a monster away from its foe; Confusion leaves it stumbling back and forth, striking nothing
 	# (S13 statuses on monsters; the flute's melody and Sword Intent lay them).
 	if ai.state == "aggro" and (e.pools.has_status("fear") or e.pools.has_status("confusion")):
@@ -83,21 +88,15 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 		auth.move_enemy(e, delta)
 		return
 	var tgt := target_position(auth, e)
-	var aggro_r := float(def.get("ai", {}).get("aggro_range", 200))
-	var c = auth.game.active()
-	if c != null and "concealment" in c.cultivator.secret_arts: aggro_r *= 0.5
-	# A fuelled Concealment formation hides the player until struck; Restraint slows monsters (S16).
-	var hidden: bool = c != null and e.team == "enemy" and (auth.game.workshop.formation_effect(c, "conceal") > 0.0 or c.pools.has_status("veiled"))   # S47 Veil Talisman
-	if hidden: aggro_r = 0.0
+	var seen := sight(auth, e)
+	var aggro_r := float(seen.range)
+	var hidden: bool = seen.hidden
 	match str(ai.state):
 		"idle", "patrol":
 			if not tgt.is_empty():
 				var d: Vector2 = tgt.pos - e.plane
 				var sees := absf(d.x) <= aggro_r and absf(d.y) <= float(ContentDB.stat_const("combat.sight_depth", 100))
-				if (sees and may_join(auth, e)) or e.threat.size() > 0:
-					_set_state(auth, e, "aggro", 0.0)
-					auth.emit("enemy_aggro", {"enemy": e.uid, "target": tgt.id, "def": e.def_id})
-					return
+				if notices(auth, e, tgt, sees): return
 			if ai.state == "idle":
 				e.velocity = Vector2.ZERO
 				e.action = "idle"
@@ -109,18 +108,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			else:
 				_wander(auth, e, delta, 0.5)
 		"aggro":
-			if tgt.is_empty() or (hidden and e.threat.is_empty()):
-				_set_state(auth, e, "return", 6.0)
-				return
-			if e.plane.distance_to(e.spawn_point) > float(ContentDB.stat_const("combat.leash", 600)) and not e.is_boss():
-				e.threat.clear()
-				_set_state(auth, e, "return", 6.0)
-				return
-			var flee := float(def.get("ai", {}).get("flee_below", 0.0))
-			if flee > 0.0 and e.pools.hp < e.pools.max_hp * flee and not ai.get("fled", false):
-				ai.fled = true
-				_set_state(auth, e, "flee", 2.5)
-				return
+			if gives_up(auth, e, tgt, hidden): return
 			var attacks: Array = def.get("attacks", [])
 			if attacks.is_empty(): return
 			if _chase_on_graph(auth, e, tgt, delta): return
@@ -139,14 +127,9 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			var in_y := absf(d.y) <= depth * 0.8
 			if bool(def.get("flying", false)): in_y = absf(d.y) <= depth * 0.8 + 10
 			if in_x and in_y and float(ai.timer) <= 0.0:
-				ai.attack = attacks.find(attack)
-				ai.counter = false
-				_set_state(auth, e, "windup", float(attack.windup_s))
-				ai.hit_done = false
-				auth.emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": attack.id, "windup": float(attack.windup_s), "facing": e.facing})
+				wind_up(auth, e, attacks, attack)
 				return
-			var speed := float(def.get("ai", {}).get("move_speed", 90)) * (0.6 if e.pools.has_status("slow") else 1.0) * (1.0 - FieldAuthority.enemy_loss(e))
-			if c != null and e.team == "enemy": speed *= 1.0 - clampf(auth.game.workshop.formation_effect(c, "enemy_slow"), 0.0, 0.9)
+			var speed := chase_speed(auth, e)
 			var want: Vector2 = Vector2.ZERO
 			if keep > 0.0 and absf(d.x) < keep:
 				want.x = -signf(d.x)
@@ -170,7 +153,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			if float(ai.dash_left) > 0.0:
 				var step := minf(float(ai.dash_left), 520.0 * delta)
 				ai.dash_left = float(ai.dash_left) - step
-				e.velocity = Vector2(e.facing * step / delta, 0)
+				e.velocity = e.aim_dir() * step / delta
 				auth.move_enemy(e, delta)
 				if not ai.hit_done:
 					auth.game.combat.enemy_strike(e, def.attacks[int(ai.attack)])
@@ -249,6 +232,53 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			e.action = "windup"
 			if float(ai.timer) <= 0.0: _set_state(auth, e, "aggro", 0.0)
 
+## How far a foe notices the player (its aggro range, halved by Concealment) and whether the player is hidden from it
+## (a fuelled Concealment formation or a Veil Talisman, until struck: S16, S47).
+static func sight(auth, e: EnemyState) -> Dictionary:
+	var aggro_r := float(e.def.get("ai", {}).get("aggro_range", 200))
+	var c = auth.game.active()
+	if c != null and "concealment" in c.cultivator.secret_arts: aggro_r *= 0.5
+	var hidden: bool = c != null and e.team == "enemy" and (auth.game.workshop.formation_effect(c, "conceal") > 0.0 or c.pools.has_status("veiled"))
+	return {"range": 0.0 if hidden else aggro_r, "hidden": hidden}
+
+## An idle or patrolling foe turns on the player it sees (when the crowd cap lets it) or that struck it.
+static func notices(auth, e: EnemyState, tgt: Dictionary, sees: bool) -> bool:
+	if not ((sees and may_join(auth, e)) or e.threat.size() > 0): return false
+	_set_state(auth, e, "aggro", 0.0)
+	auth.emit("enemy_aggro", {"enemy": e.uid, "target": tgt.id, "def": e.def_id})
+	return true
+
+## A foe in a fight gives up (the target gone or hidden, past the 600 leash: home) or turns to flee at its flee share.
+static func gives_up(auth, e: EnemyState, tgt: Dictionary, hidden: bool) -> bool:
+	if tgt.is_empty() or (hidden and e.threat.is_empty()):
+		_set_state(auth, e, "return", 6.0)
+		return true
+	if e.plane.distance_to(e.spawn_point) > float(ContentDB.stat_const("combat.leash", 600)) and not e.is_boss():
+		e.threat.clear()
+		_set_state(auth, e, "return", 6.0)
+		return true
+	var flee := float(e.def.get("ai", {}).get("flee_below", 0.0))
+	if flee > 0.0 and e.pools.hp < e.pools.max_hp * flee and not e.ai.get("fled", false):
+		e.ai.fled = true
+		_set_state(auth, e, "flee", 2.5)
+		return true
+	return false
+
+## Begin an attack's readable wind-up (S13).
+static func wind_up(auth, e: EnemyState, attacks: Array, attack: Dictionary) -> void:
+	e.ai.attack = attacks.find(attack)
+	e.ai.counter = false
+	_set_state(auth, e, "windup", float(attack.windup_s))
+	e.ai.hit_done = false
+	auth.emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": attack.id, "windup": float(attack.windup_s), "facing": e.facing})
+
+## Its chase speed: slowed by a slow, a stronger Presence (S28) and a Restraint formation (S16).
+static func chase_speed(auth, e: EnemyState) -> float:
+	var speed := float(e.def.get("ai", {}).get("move_speed", 90)) * (0.6 if e.pools.has_status("slow") else 1.0) * (1.0 - FieldAuthority.enemy_loss(e))
+	var c = auth.game.active()
+	if c != null and e.team == "enemy": speed *= 1.0 - clampf(auth.game.workshop.formation_effect(c, "enemy_slow"), 0.0, 0.9)
+	return speed
+
 static func _choose_attack(auth, e: EnemyState, attacks: Array) -> int:
 	if attacks.size() == 1: return 0
 	# Prefer ranged attacks when far, melee when close; summons on a slow timer.
@@ -290,6 +320,15 @@ static func _has_ranged(e: EnemyState) -> bool:
 		if float(a.get("hitbox", {}).get("x", [0, 0])[1]) > 200.0: return true
 	return false
 
+## S43 rule 11: after 6 s unable to reach its target a melee foe gives up and goes home, healing on the way.
+static func out_of_reach_too_long(auth, e: EnemyState) -> bool:
+	if float(e.ai.get("unreach", 0.0)) < 6.0: return false
+	e.threat.clear()
+	e.ai.leashed = true
+	auth.emit("enemy_leashed", {"enemy": e.uid, "reason": "out_of_reach"})
+	_set_state(auth, e, "return", 8.0)
+	return true
+
 ## Chase a target standing on another surface along the navigation graph. Returns true when this frame's
 ## movement is handled here (following an edge, waiting beneath an unreachable target, or giving up).
 static func _chase_on_graph(auth, e: EnemyState, tgt: Dictionary, delta: float) -> bool:
@@ -315,12 +354,7 @@ static func _chase_on_graph(auth, e: EnemyState, tgt: Dictionary, delta: float) 
 		return true
 	e.ai.unreach = float(e.ai.get("unreach", 0.0)) + delta
 	if _has_ranged(e): return false   # imps and apes throw rubble up at it
-	if float(e.ai.unreach) >= 6.0:
-		e.threat.clear()
-		e.ai.leashed = true
-		auth.emit("enemy_leashed", {"enemy": e.uid, "reason": "out_of_reach"})
-		_set_state(auth, e, "return", 8.0)
-		return true
+	if out_of_reach_too_long(auth, e): return true
 	# Pace beneath it, waiting for it to come down.
 	var dx := tpos.x - e.plane.x
 	e.facing = 1 if dx >= 0 else -1
@@ -344,14 +378,14 @@ static func _follow_edge(auth, e: EnemyState, edge: Dictionary, delta: float) ->
 	auth.move_enemy(e, delta)
 	if e.plane.distance_to(before) < 0.01: _start_hop(auth, e, edge)   # blocked short of the spot: go from here
 
-static func _start_hop(_auth, e: EnemyState, edge: Dictionary) -> void:
-	var g := MovementSolver.GRAVITY
+## `g` and `impulse` (> 0) stand in for the side view's gravity and the species' jump (the top-down grid's own, Phase 2).
+static func _start_hop(_auth, e: EnemyState, edge: Dictionary, g := MovementSolver.GRAVITY, impulse := -1.0) -> void:
 	var a0 := e.altitude
 	var a1 := float(edge.to_alt)
-	var h := {"edge": edge, "t": 0.0, "from": e.plane, "to": edge.to_pt, "a0": a0, "a1": a1, "kind": str(edge.kind), "v": 0.0, "T": 0.3}
+	var h := {"edge": edge, "t": 0.0, "from": e.plane, "to": edge.to_pt, "a0": a0, "a1": a1, "kind": str(edge.kind), "v": 0.0, "T": 0.3, "g": g}
 	match str(edge.kind):
 		"jump":
-			var v := float(movement_of(e).get("jump", 530))
+			var v := impulse if impulse > 0.0 else float(movement_of(e).get("jump", 530))
 			h.v = v
 			h.T = (v + sqrt(maxf(0.0, v * v - 2.0 * g * (a1 - a0)))) / g
 		"drop": h.T = 0.1 + sqrt(2.0 * maxf(1.0, a0 - a1) / g)
@@ -366,9 +400,10 @@ static func _hop(auth, e: EnemyState, delta: float) -> void:
 	var t := float(h.t)
 	var k := clampf(t / maxf(0.01, float(h.T)), 0.0, 1.0)
 	e.plane = (h.from as Vector2).lerp(h.to, k)
+	var g := float(h.get("g", MovementSolver.GRAVITY))
 	match str(h.kind):
-		"jump": e.altitude = float(h.a0) + float(h.v) * t - 0.5 * MovementSolver.GRAVITY * t * t
-		"drop": e.altitude = maxf(float(h.a1), float(h.a0) - 0.5 * MovementSolver.GRAVITY * maxf(0.0, t - 0.1) * maxf(0.0, t - 0.1))
+		"jump": e.altitude = float(h.a0) + float(h.v) * t - 0.5 * g * t * t
+		"drop": e.altitude = maxf(float(h.a1), float(h.a0) - 0.5 * g * maxf(0.0, t - 0.1) * maxf(0.0, t - 0.1))
 		_: e.altitude = lerpf(float(h.a0), float(h.a1), k)
 	e.velocity = Vector2.ZERO
 	e.action = "walk"

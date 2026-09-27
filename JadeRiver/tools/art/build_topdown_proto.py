@@ -2,8 +2,9 @@
 
 Draws, at native art resolution (1 art px = 1 px of the 640x360 world viewport, nearest neighbour):
   art/topdown/proto_tiles.png      16x16 floor tops, cliff faces, stairs and four water frames
-  art/topdown/proto_props.png      a riverside house, a willow, lanterns, barrels, crates, a notice board, reeds, a boat
-  art/topdown/placeholder_body.png PLACEHOLDER body: S, E, N (W mirrors E) x idle 2, walk 4, jump 3, dash 2
+  art/topdown/proto_props.png      a riverside house, a storehouse, a willow, lanterns, barrels, crates, a notice board, reeds, a boat
+  art/topdown/placeholder_body.png PLACEHOLDER body: S, E, N (W mirrors E) x idle 2, walk 4, jump 3, dash 2, strike 2
+  art/topdown/placeholder_foes.png PLACEHOLDER foes (Phase 2): crab, rat, boarlet, E (W mirrors) x idle, walk, windup, attack, hurt
   data/topdown/proto_tileset.json  where each tile, prop and frame sits, prop footprints and origins
 Everything is original to Jade River and uses its palette tokens (docs/art-contracts.md) plus local hues. No
 randomness: noise comes from a coordinate hash, and the PNGs carry no metadata, so a rebuild is byte-identical.
@@ -193,6 +194,18 @@ TILES = ["grass_a", "grass_b", "grass_flowers", "paving_a", "paving_b", "dirt", 
          "earth_face_top", "earth_face", "stone_face_top", "stone_face", "rock_face_top", "rock_face", "wood_face_top", "wood_face",
          "bank_face_top", "bank_face"]
 
+# Each paint mark of a room: its top tiles (a second is a variant picked per cell) and the face kind its raised edge shows
+# (`<kind>_face_top`, `<kind>_face`; over water a face shows the bank's unless `keep_face`).
+PAINT = {
+    "g": {"top": ["grass_a", "grass_b"], "face": "earth"},
+    "f": {"top": ["grass_flowers"], "face": "earth"},
+    "d": {"top": ["dirt"], "face": "earth"},
+    "p": {"top": ["paving_a", "paving_b"], "face": "stone"},
+    "s": {"top": ["stone_top"], "face": "stone"},
+    "w": {"top": ["wood"], "face": "wood", "keep_face": True},
+    "r": {"top": ["rock"], "face": "rock"},
+}
+
 def build_tiles() -> tuple[Sheet, dict]:
     s = Sheet(8 * T, 4 * T)
     at = {}
@@ -222,31 +235,40 @@ def build_tiles() -> tuple[Sheet, dict]:
     return s, at
 
 # --------------------------------------------------------------------------------------------- props
-def house(s: Sheet, ox: int, oy: int) -> None:
-    """A riverside house, footprint 6 x 3 tiles (96 x 48), walls two levels (32 px), a grey-tiled roof whose ridge ends
-    curl up. The sprite is 104 x 92; the footprint's south-west corner sits at (4, 88)."""
-    W, H, fx, fy = 104, 92, 4, 88
+HOUSE_LAYOUT = {  # by width in tiles: timber posts, the door, the lattice windows, the two red lanterns (x in the wall)
+    6: {"posts": (0, 22, 42, 52, 72, 94), "door": 44, "windows": (8, 28, 60, 80), "lanterns": (38, 56)},
+    4: {"posts": (0, 20, 26, 36, 42, 62), "door": 28, "windows": (6, 48), "lanterns": (22, 40)},
+}
+
+def house(s: Sheet, ox: int, oy: int, tw: int = 6) -> None:
+    """A riverside house, footprint tw x 3 tiles (tw*16 x 48), walls two levels (32 px), a grey-tiled roof whose ridge
+    ends curl up. The sprite is tw*16+8 x 92; the footprint's south-west corner sits at (4, 88). Its roof top is a
+    floor two levels up (decision 29: you stand on it and jump off it)."""
+    L = HOUSE_LAYOUT[tw]
+    FW = tw * T
+    W, H, fx, fy = FW + 8, 92, 4, 88
     wall_top = fy - 32
     # Stone base and plaster walls with timber posts.
-    s.rect(ox + fx, oy + fy - 4, 96, 4, STONE[1])
-    s.rect(ox + fx, oy + fy - 4, 96, 1, STONE[3])
-    s.rect(ox + fx, oy + wall_top, 96, 28, PLASTER[1])
-    for x in (0, 22, 42, 52, 72, 94):
+    s.rect(ox + fx, oy + fy - 4, FW, 4, STONE[1])
+    s.rect(ox + fx, oy + fy - 4, FW, 1, STONE[3])
+    s.rect(ox + fx, oy + wall_top, FW, 28, PLASTER[1])
+    for x in L["posts"]:
         s.rect(ox + fx + x, oy + wall_top, 2, 28, TIMBER[1])
         s.rect(ox + fx + x, oy + wall_top, 1, 28, TIMBER[2])
-    s.rect(ox + fx, oy + wall_top + 3, 96, 2, TIMBER[1])
-    s.rect(ox + fx + 44, oy + wall_top + 8, 8, 20, TIMBER[0])   # the door
-    s.rect(ox + fx + 45, oy + wall_top + 9, 3, 19, WOOD[1])
-    s.rect(ox + fx + 48, oy + wall_top + 9, 3, 19, WOOD[2])
-    s.put(ox + fx + 47, oy + wall_top + 18, GOLD)
-    s.put(ox + fx + 48, oy + wall_top + 18, GOLD)
-    for wx in (8, 28, 60, 80):   # lattice windows
+    s.rect(ox + fx, oy + wall_top + 3, FW, 2, TIMBER[1])
+    d = L["door"]
+    s.rect(ox + fx + d, oy + wall_top + 8, 8, 20, TIMBER[0])   # the door
+    s.rect(ox + fx + d + 1, oy + wall_top + 9, 3, 19, WOOD[1])
+    s.rect(ox + fx + d + 4, oy + wall_top + 9, 3, 19, WOOD[2])
+    s.put(ox + fx + d + 3, oy + wall_top + 18, GOLD)
+    s.put(ox + fx + d + 4, oy + wall_top + 18, GOLD)
+    for wx in L["windows"]:   # lattice windows
         s.rect(ox + fx + wx, oy + wall_top + 10, 10, 9, TIMBER[0])
         for i in range(1, 9):
             for j in range(1, 8):
                 if i % 3 and j % 3: s.put(ox + fx + wx + i, oy + wall_top + 10 + j, c("C9A15E"))
     # Two red lanterns under the eaves by the door.
-    for lx in (38, 56):
+    for lx in L["lanterns"]:
         s.ellipse(ox + fx + lx + 1, oy + wall_top + 10, 2.6, 3.2, c("C8483A"))
         s.put(ox + fx + lx, oy + wall_top + 9, c("F08A62"))
         s.put(ox + fx + lx + 1, oy + wall_top + 13, GOLD)
@@ -266,11 +288,11 @@ def house(s: Sheet, ox: int, oy: int) -> None:
             s.put(ox + i, oy + j, col)
     s.rect(ox + 2, oy + ridge - 1, W - 4, 2, ROOF[0])            # the ridge beam
     s.rect(ox + 2, oy + ridge - 2, W - 4, 1, ROOF[3])
-    for end, d in ((1, -1), (W - 2, 1)):                        # upturned ridge ends
+    for end, dd in ((1, -1), (W - 2, 1)):                       # upturned ridge ends
         for k in range(5):
-            s.put(ox + end + d * (k // 2), oy + ridge - 2 - k, ROOF[0] if k else GOLD)
+            s.put(ox + end + dd * (k // 2), oy + ridge - 2 - k, ROOF[0] if k else GOLD)
     s.rect(ox, oy + eave, W, 2, ROOF[0])                          # the eave's edge and its shadow on the wall
-    s.rect(ox + fx, oy + eave + 2, 96, 2, c("8E8672"))
+    s.rect(ox + fx, oy + eave + 2, FW, 2, c("8E8672"))
     s.outline(ox, oy, W, H)
 
 def willow(s: Sheet, ox: int, oy: int) -> None:
@@ -365,28 +387,32 @@ PROPS = {
     "notice": (notice, 32, 32, 2, 1, [0, 30], True),
     "reeds": (reeds, 16, 20, 1, 1, [0, 18], False),
     "boat": (boat, 48, 20, 3, 1, [0, 18], False),
+    "storehouse": (lambda s, ox, oy: house(s, ox, oy, 4), 72, 92, 4, 3, [4, 88], True),
 }
+# Phase 2 (decision 29): props whose top is a floor you stand on, in levels over their ground.
+TOPS = {"house": 2, "storehouse": 2, "crates": 1}
 
 def build_props() -> tuple[Sheet, dict]:
-    s = Sheet(256, 128)
+    s = Sheet(256, 192)
     at, x, y, row_h = {}, 0, 0, 0
     for kind, (draw, w, h, fw, fh, origin, solid) in PROPS.items():
         if x + w > s.w:
             x, y, row_h = 0, y + row_h, 0
         draw(s, x, y)
         at[kind] = {"rect": [x, y, w, h], "footprint": [fw, fh], "origin": origin, "solid": solid}
+        if kind in TOPS: at[kind]["top"] = TOPS[kind]
         x, row_h = x + w, max(row_h, h)
     return s, at
 
 # --------------------------------------------------------------------------------------------- the placeholder body
 CELL_W, CELL_H, FOOT = 32, 48, (16, 46)
-BODY_ANIMS = {"idle": 2, "walk": 4, "jump": 3, "dash": 2}
+BODY_ANIMS = {"idle": 2, "walk": 4, "jump": 3, "dash": 2, "strike": 2}   # strike (Phase 2): wind-up, then the arm out
 SKIN, SKIN_D, HAIR = c("E3B48C"), c("B9855F"), c("1B1614")
 
 def body_frame(s: Sheet, ox: int, oy: int, facing: str, anim: str, f: int) -> None:
     """A plain stand-in figure ~38 px tall: topknot, jade robe with a gold sash, dark trousers. Not final art."""
     fx, fy = ox + FOOT[0], oy + FOOT[1]
-    bob = {"idle": (0, 1), "walk": (0, 1, 0, 1), "jump": (2, -1, 3), "dash": (1, 1)}[anim][f]
+    bob = {"idle": (0, 1), "walk": (0, 1, 0, 1), "jump": (2, -1, 3), "dash": (1, 1), "strike": (0, 0)}[anim][f]
     lean = 2 if anim == "dash" and facing == "e" else 0
     stride = {"walk": (3, 0, -3, 0), "dash": (4, 4)}.get(anim, (0,) * 4)[f]
     tuck = anim == "jump" and f == 1
@@ -414,9 +440,25 @@ def body_frame(s: Sheet, ox: int, oy: int, facing: str, anim: str, f: int) -> No
     arm_dy = -5 if anim == "jump" and f == 0 else 0
     for side in (-1, 1):
         if facing == "e" and side < 0: continue
+        if anim == "strike" and side > 0:   # the striking arm, drawn below
+            continue
         ax = fx + side * 6 + lean if facing != "e" else fx + 2 - stride // 2 + lean
         s.rect(ax - 1, top + 9 + arm_dy, 2, 8, JSHADOW if side > 0 else JADE)
         s.rect(ax - 1, top + 17 + arm_dy, 2, 2, SKIN)
+    if anim == "strike":   # f 0 draws the arm back, f 1 thrusts it out along the facing, the palm open
+        if facing == "e":
+            if f == 0:
+                s.rect(fx - 5, top + 10, 6, 2, JSHADOW)
+                s.rect(fx - 7, top + 10, 2, 2, SKIN)
+            else:
+                s.rect(fx + 2, top + 11, 9, 2, JSHADOW)
+                s.rect(fx + 11, top + 10, 2, 4, SKIN)
+        elif facing == "s":
+            s.rect(fx + 5, top + (5 if f == 0 else 12), 2, 7 if f == 0 else 10, JSHADOW)
+            s.rect(fx + 4, top + (3 if f == 0 else 22), 4, 2, SKIN)
+        else:
+            s.rect(fx + 5, top + (8 if f == 0 else 1), 2, 7 if f == 0 else 9, JSHADOW)
+            s.rect(fx + 5, top + (15 if f == 0 else 0), 2, 2, SKIN)
     hx, hy = fx + lean + (1 if facing == "e" else 0), top + 3
     s.ellipse(hx, hy + 1, 4.6, 4.8, SKIN)
     if facing == "s":
@@ -455,14 +497,97 @@ def build_body() -> tuple[Sheet, dict]:
     return s, {"placeholder": True, "cell": [CELL_W, CELL_H], "foot": list(FOOT), "frames": frames,
                "note": "PLACEHOLDER body for the Phase 1 controller; the layered set is Phase 5"}
 
+# --------------------------------------------------------------------------------------------- PLACEHOLDER foes (Phase 2)
+FOE_CELL, FOE_FOOT = (32, 24), (16, 21)
+FOE_ANIMS = {"idle": 2, "walk": 2, "windup": 1, "attack": 1, "hurt": 1}
+FOES = ("mudshell_crab", "reedtail_rat", "wild_boarlet")
+
+def _lit(col, hurt: bool):
+    """A hurt frame flashes pale: each colour half-way to paper."""
+    return tuple((a + b) // 2 for a, b in zip(col[:3], PAPER[:3])) + (col[3],) if hurt else col
+
+def foe_frame(s: Sheet, ox: int, oy: int, species: str, anim: str, f: int) -> None:
+    """Stand-in foes seen from the three-quarter view, facing east (west mirrors): a mud crab, a reed rat and a boarlet
+    at the size of their side-view sheets (crab 20 x 13, rat 22 x 11, boarlet 26 x 15). Not final art (Phase 3/5)."""
+    fx, fy = ox + FOE_FOOT[0], oy + FOE_FOOT[1]
+    bob = (0, 1)[f] if anim == "idle" else 0
+    step = (1, -1)[f] if anim == "walk" else 0
+    lunge = {"windup": -2, "attack": 3}.get(anim, 0)
+    h = anim == "hurt"
+    L = lambda col: _lit(col, h)
+    cx = fx + lunge
+    if species == "mudshell_crab":
+        for k in range(3):   # three legs a side, stepping
+            for side in (-1, 1):
+                s.rect(cx - 6 + k * 4 + (step if (k + (side > 0)) % 2 else -step), fy - 3 + (1 if side > 0 else -1), 2, 2, L(EARTH[0]))
+        s.ellipse(cx, fy - 6 + bob, 8, 5, L(c("5A4633")))
+        s.ellipse(cx - 1, fy - 7 + bob, 6, 3, L(c("7C6446")))
+        s.rect(cx - 3, fy - 9 + bob, 4, 1, L(c("9C8260")))
+        claw_y = -3 if anim == "windup" else 0
+        reach = 2 if anim == "attack" else 0
+        for dy in (-9, -3):
+            s.ellipse(cx + 9 + reach, fy + dy + claw_y + bob, 2.6, 2.2, L(c("8A5A3E")))
+            s.put(cx + 11 + reach, fy + dy + claw_y + bob, L(INK))
+        s.put(cx + 4, fy - 11 + bob, L(INK))
+        s.put(cx + 6, fy - 10 + bob, L(INK))
+    elif species == "reedtail_rat":
+        for i in range(7):   # the tail, curling back
+            s.put(cx - 8 - i, fy - 5 - (i * i) // 12 + (step if i > 3 else 0), L(c("B98E7A")))
+        for k, dx in enumerate((-4, 3)):
+            s.rect(cx + dx + (step if k else -step), fy - 2, 2, 2, L(c("2A2320")))
+        s.ellipse(cx - 1, fy - 5 + bob, 7, 4, L(c("6E6258")))
+        s.ellipse(cx - 2, fy - 6 + bob, 5, 2, L(c("8A7E72")))
+        s.ellipse(cx + 6, fy - 6 + bob, 3.5, 3, L(c("7A6E62")))
+        s.put(cx + 5, fy - 10 + bob, L(c("C99A8E")))
+        s.put(cx + 7, fy - 7 + bob, L(INK))
+        s.put(cx + 10, fy - 6 + bob, L(c("D98A8A")))
+        if anim == "attack":
+            s.put(cx + 10, fy - 4 + bob, L(PAPER))
+    else:   # wild_boarlet
+        for k, dx in enumerate((-7, -3, 4, 8)):
+            s.rect(cx + dx + (step if k % 2 else -step), fy - 3, 2, 3, L(c("2B1E16")))
+        s.ellipse(cx - 1, fy - 8 + bob, 10, 6, L(c("6B4A30")))
+        for i in (-6, -2, 2):   # a young boar's stripes
+            s.rect(cx + i, fy - 12 + bob, 2, 6, L(c("8C6A46")))
+        s.ellipse(cx + 8, fy - 8 + bob, 4, 4, L(c("5E4029")))
+        s.rect(cx + 11, fy - 8 + bob, 2, 3, L(c("A77A62")))
+        s.put(cx + 11, fy - 5 + bob, L(PAPER))          # the tusk
+        s.put(cx + 9, fy - 10 + bob, L(INK))
+        s.put(cx + 6, fy - 13 + bob, L(c("4A3222")))   # the ear
+        if anim == "windup":
+            for i in range(3):
+                s.put(cx - 12 - i * 2, fy - 2, L(EARTH[2]))   # pawing the ground
+
+def build_foes() -> tuple[Sheet, dict]:
+    cols = sum(FOE_ANIMS.values())
+    s = Sheet(cols * FOE_CELL[0], len(FOES) * FOE_CELL[1])
+    species = {}
+    for r, sp in enumerate(FOES):
+        col = 0
+        for anim, n in FOE_ANIMS.items():
+            species.setdefault(sp, {})[anim] = [[(col + f) * FOE_CELL[0], r * FOE_CELL[1]] for f in range(n)]
+            for f in range(n):
+                foe_frame(s, (col + f) * FOE_CELL[0], r * FOE_CELL[1], sp, anim, f)
+                s.outline((col + f) * FOE_CELL[0], r * FOE_CELL[1], FOE_CELL[0], FOE_CELL[1])
+            col += n
+    return s, {"placeholder": True, "cell": list(FOE_CELL), "foot": list(FOE_FOOT), "species": species,
+               "note": "PLACEHOLDER foes for the Phase 2 fights (east drawn, west mirrored); the top-down creature sheets are Phase 3/5"}
+
 def main() -> None:
     tiles, tile_at = build_tiles()
     props, prop_at = build_props()
     body, body_at = build_body()
+    foes, foes_at = build_foes()
     tiles.save(ROOT / "art/topdown/proto_tiles.png")
     props.save(ROOT / "art/topdown/proto_props.png")
     body.save(ROOT / "art/topdown/placeholder_body.png")
-    manifest = {"schema_version": 1, "tile": T, "tiles": tile_at, "props": prop_at, "body": body_at}
+    foes.save(ROOT / "art/topdown/placeholder_foes.png")
+    # Decision 31: the room view reads everything from this manifest (the atlases' files, where each tile, prop and
+    # frame sits, and which tiles each paint mark draws), so the Phase 3 art replaces these sheets and rows, not code.
+    manifest = {"schema_version": 1, "tile": T, "tiles": tile_at, "props": prop_at, "body": body_at, "foes": foes_at,
+                "atlas": {"tiles": "res://art/topdown/proto_tiles.png", "props": "res://art/topdown/proto_props.png",
+                          "body": "res://art/topdown/placeholder_body.png", "foes": "res://art/topdown/placeholder_foes.png"},
+                "paint": PAINT, "bank_face": "bank"}
     out = ROOT / "data/topdown/proto_tileset.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(manifest, indent=1, sort_keys=True) + "\n")

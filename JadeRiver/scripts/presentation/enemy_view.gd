@@ -28,6 +28,8 @@ var label_box := Rect2()
 var label_kind := "foe"
 var label_offset := Vector2.ZERO
 var tag: Node2D   # the label's own canvas item, above every figure (WorldLabels.LABEL_Z)
+## Redesign Phase 2: only the label (level, name, HP bar, the tell, statuses); the top-down room draws the figure.
+var label_only := false
 
 func setup(e: EnemyState) -> void:
 	uid = e.uid
@@ -39,7 +41,8 @@ func setup(e: EnemyState) -> void:
 	label_kind = "ally" if ally else ("boss" if boss else ("elite" if elite else "foe"))
 	name_text = e.display_name()
 	var art: Dictionary = e.def.get("art", {"creature": e.def_id})
-	if art.has("avatar"):
+	if label_only: pass   # the top-down room draws the figure itself (redesign Phase 2)
+	elif art.has("avatar"):
 		avatar = Avatar.new()
 		var outfit = art.avatar
 		if outfit is String and outfit == "player":
@@ -167,6 +170,7 @@ func e_facing() -> int:
 	return e.facing if e else 1
 
 func _draw() -> void:
+	if label_only: return
 	var rt: RoomRuntime = Game.room_rt
 	var e: EnemyState = rt.enemies.get(uid) if rt else null
 	if e == null: return

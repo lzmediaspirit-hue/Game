@@ -12,7 +12,10 @@
  ],
  "legend": {
   "levels": "0-9 height level (1 level = 1 tile = 32 units), ~ water (level -1)",
-  "paint": "g grass, f grass with flowers, d dirt path, p paving, s stone top, w wood deck, r rock, ~ water"
+  "paint": "g grass, f grass with flowers, d dirt path, p paving, s stone top, w wood deck, r rock, ~ water",
+  "props": "a prop with a top in the tile set (house, storehouse, crates) is a floor that many levels up: stand on it, jump off it",
+  "spawns": "foes by enemy id, their points in tiles (cell centres); the rest as a side-view room spawn",
+  "loadout": "techniques the prototype puts in the stand-in character's empty slots, one per aim form (cone, line, point, a shot)"
  },
  "levels": [
   "333333333333333333333333333333333333333333333333",
@@ -126,8 +129,8 @@
   },
   {
    "kind": "crates",
-   "x": 40,
-   "y": 13
+   "x": 38,
+   "y": 14
   },
   {
    "kind": "lantern",
@@ -168,6 +171,64 @@
    "kind": "boat",
    "x": 34,
    "y": 25
+  },
+  {
+   "kind": "storehouse",
+   "x": 34,
+   "y": 12
   }
+ ],
+ "type": "field",
+ "region": "prototype",
+ "spawns": [
+  {
+   "enemy": "mudshell_crab",
+   "points": [
+    [
+     8,
+     20
+    ],
+    [
+     26,
+     21
+    ],
+    [
+     40,
+     19
+    ]
+   ]
+  },
+  {
+   "enemy": "reedtail_rat",
+   "points": [
+    [
+     24,
+     7
+    ],
+    [
+     37,
+     6
+    ]
+   ]
+  },
+  {
+   "enemy": "wild_boarlet",
+   "points": [
+    [
+     16,
+     18
+    ],
+    [
+     30,
+     20
+    ]
+   ]
+  }
+ ],
+ "loadout": [
+  "flowing_palm",
+  "updraft_rending_rolling_wave",
+  "rising_tide",
+  "venom_needles"
  ]
 }

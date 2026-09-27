@@ -23,6 +23,7 @@ var clock := 0.0            # seconds of this layer's own time (stacks are timed
 var fixed_step := 0.0       # debug (--cast --capture): when > 0, every frame advances this many seconds, not the real delta
 var number_scale := 1.0     # numbers and words at this share of their size (a staged layer drawn larger than the room)
 var world := true           # the room's layer: also draws Combat's arrays and fires, a held Presence and the projectiles
+var chest := 56.0           # a figure's chest over its feet, where a cast's chest-high forms sit (the top-down body is shorter)
                             # from state; false for a layer staged on a page (the Techniques page's preview)
 
 func _ready() -> void:
@@ -33,7 +34,8 @@ func add(kind: String, pos: Vector2, extra := {}) -> void:
 	var e := {"kind": kind, "pos": pos, "t": -float(extra.get("delay", 0.0)), "dur": float(extra.get("dur", 0.4)), "color": extra.get("color", UiKit.PAPER),
 		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", DEFAULTS.get(kind, {}).get("size", 20))),
 		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", DEFAULTS.get(kind, {}).get("radius", 30))), "count": int(extra.get("count", 0)),
-		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10))}
+		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10)),
+		"turn": float(extra.get("turn", 0.0))}   # a slash's or a form's turn off the facing (the top-down aim, redesign Phase 2)
 	if kind == "tint" and not _tint_allowed(e): return
 	if kind == "anim":
 		for k in ["form", "row", "scale", "scale_y", "start", "travel", "tiles", "alpha"]: e[k] = extra.get(k)
@@ -79,6 +81,7 @@ func play_form(form: String, element: String, tier: int, pos: Vector2, facing: i
 	var e := {"form": form, "row": form_row(element, band), "scale": float(extra.get("scale", 1.0)), "start": float(extra.get("start", 0.0)),
 		"scale_y": float(extra.get("scale_y", extra.get("scale", 1.0))),
 		"travel": extra.get("travel", Vector2.ZERO), "tiles": int(extra.get("tiles", 1)), "alpha": float(extra.get("alpha", 1.0)), "facing": facing,
+		"turn": float(extra.get("turn", 0.0)),
 		"delay": float(extra.get("delay", 0.0)), "dur": float(a.frames) / float(a.fps) - float(extra.get("start", 0.0))}
 	if e.dur <= 0.0: return {}
 	add("anim", pos, e)
@@ -94,26 +97,33 @@ func play_form(form: String, element: String, tier: int, pos: Vector2, facing: i
 ## the procedural shape, timed so its impact frame lands on the pose's hit frame (`windup`, the timeline's hit_at),
 ## facing the cast, sized to the hitbox and at its tier's band; an area's edge (a ring at the true reach, §5.4) and
 ## a heal's radius are still drawn at the reach. The procedural shapes remain for a technique without a sheet.
-func cast(t: Dictionary, at: Vector2, facing: int, col: Color, target: Vector2, windup := -1.0, reach := -1.0) -> void:
+## On the top-down plane (redesign Phase 2) the cast follows its `aim`: the sheets and shapes turn to it, mirrored so none
+## draws upside down.
+func cast(t: Dictionary, at: Vector2, facing: int, col: Color, target: Vector2, windup := -1.0, reach := -1.0, aim := Vector2.ZERO) -> void:
 	var n := MomentRules.tier_numbers("tech:" + str(t.get("id", "")))
 	var tier := int(t.get("vfx", {}).get("tier", 1))
 	if reach < 0.0: reach = float(t.hitbox.x[1])
+	var turn := 0.0
+	if aim != Vector2.ZERO:
+		facing = 1 if aim.x >= 0.0 else -1
+		turn = (aim * facing).angle()
+	var up := Vector2(0, -(chest - 6.0))
 	if float(n.cast_ring_r) > 0.0: add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
 	if float(n.tint_alpha) > 0.0 and world: add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
 	var shape := str(t.get("vfx", {}).get("shape", "strike"))
 	var form := str(t.get("vfx", {}).get("anim", ""))
 	if not form_spec(form).is_empty():
-		_cast_form(t, form, facing, tier, reach, at, target, windup)
+		_cast_form(t, form, facing, tier, reach, at, target, windup, turn)
 		if shape == "ring": add("wave", at, {"color": col, "radius": reach, "size": n.wave_width, "dur": 0.45})
 		if shape == "domain" and t.has("heal_radius"): add("ring", at, {"color": Color(col, 0.7), "radius": float(t.heal_radius), "dur": 0.6})
 		return
 	match shape:
-		"strike": add("slash", at + Vector2(facing * 40, -50), {"color": col, "facing": facing, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
-		"wave": add("talisman_wave", at + Vector2(0, -50), {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
+		"strike": add("slash", at + Vector2(facing * 40, 0).rotated(turn) + up, {"color": col, "facing": facing, "turn": turn, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
+		"wave": add("talisman_wave", at + up, {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
 		"ring":
 			for i in int(n.echoes) + 1:
 				add("wave", at, {"color": col, "radius": reach * [1.0, 0.7, 0.4, 0.55][i], "size": n.wave_width, "dur": 0.45, "delay": 0.08 * i})
-		"rain": add("rain", at + Vector2(facing * reach * 0.5, 0), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
+		"rain": add("rain", at + Vector2(facing * reach * 0.5, 0).rotated(turn), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
 			"count": MomentRules.particle_count(3 * int(t.get("hits", 1)) + 2 * tier)})
 		"pillar": add("pillar", target, {"color": col, "radius": 12.0 + 4.0 * tier, "height": 300.0, "dur": 0.35})
 		"domain":
@@ -124,11 +134,11 @@ func cast(t: Dictionary, at: Vector2, facing: int, col: Color, target: Vector2, 
 ## `size` rule (band: bigger by tier, never past a strike's reach; reach: snapped down so a ring or a line never
 ## passes the hitbox; tile: repeated across the reach; travel: the crest crosses the reach over its life), and
 ## started so its impact frame lands on the hit frame: later when the wind-up is long, part-way in when it is short.
-func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: float, at: Vector2, target: Vector2, windup: float) -> void:
+func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: float, at: Vector2, target: Vector2, windup: float, turn := 0.0) -> void:
 	var a := form_spec(form)
 	var band := band_of(tier)
 	var span := float(a.span)
-	var extra := {}
+	var extra := {"turn": turn}
 	var s := 1.0
 	match str(a.size):
 		"band":
@@ -143,13 +153,13 @@ func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: floa
 			extra.tiles = maxi(1, ceili(reach / (float(a.cell[0]) * s)))
 		"travel":
 			s = float(BAND_SCALE[band])
-			extra.travel = Vector2(facing * maxf(0.0, reach - span * s * 0.5), 0)
+			extra.travel = Vector2(facing * maxf(0.0, reach - span * s * 0.5), 0).rotated(turn)
 	extra.scale = s
 	var pos := at
 	match str(a.at):
-		"chest": pos = at + Vector2(0, -56)
+		"chest": pos = at + Vector2(0, -chest)
 		"target": pos = target
-		"target_chest": pos = target + Vector2(facing * 30, -50)
+		"target_chest": pos = target + Vector2(facing * 30, 0).rotated(turn) + Vector2(0, -(chest - 6.0))
 	if windup >= 0.0:
 		var lead := windup - float(a.impact) / float(a.fps)
 		if lead >= 0.0: extra.delay = lead
@@ -179,16 +189,17 @@ static func form_frame(a: Dictionary, t: float) -> int:
 
 ## Draw one frame of a form sheet: `anchor` on `at`, mirrored for a left facing, `scale` whole halves (a stretched line
 ## keeps `scale_y` and takes its exact length along the reach).
-func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0) -> void:
-	draw_form_on(self, a, at, frame, row, facing, scale, alpha, scale_y)
+## `turn`: the top-down aim's turn off the facing (redesign Phase 2).
+func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
+	draw_form_on(self, a, at, frame, row, facing, scale, alpha, scale_y, turn)
 
 ## The same frame on any canvas (a page's card shows its art's impact frame).
-static func draw_form_on(ci: CanvasItem, a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0) -> void:
+static func draw_form_on(ci: CanvasItem, a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
 	var tex := SpriteCache.tex(str(a.file))
 	if tex == null: return
 	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
 	var anchor := Vector2(float(a.anchor[0]), float(a.anchor[1]))
-	ci.draw_set_transform(at.snapped(Vector2(2, 2)), 0.0, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
+	ci.draw_set_transform(at.snapped(Vector2(2, 2)), turn, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
 	ci.draw_texture_rect_region(tex, Rect2(-anchor, cell), Rect2(Vector2(frame * cell.x, row * cell.y), cell), Color(1, 1, 1, alpha))
 	ci.draw_set_transform(Vector2.ZERO)
 
@@ -295,7 +306,7 @@ func _draw_fx() -> void:
 				var pts := PackedVector2Array()
 				for i in 9:
 					var ang := lerpf(-1.1, 1.0, i / 8.0)
-					pts.append(e.pos + Vector2(cos(ang) * f, sin(ang)) * float(e.radius))
+					pts.append(e.pos + Vector2(cos(ang) * f, sin(ang)).rotated(float(e.turn)) * float(e.radius))
 				draw_polyline(pts, Color(c, 1.0 - k), 6.0 * (1.0 - k) + 2.0)
 				draw_polyline(pts, Color(1, 1, 1, 0.7 * (1.0 - k)), 2.0)
 			"dust":
@@ -454,7 +465,8 @@ func _draw_fx() -> void:
 					var head: Vector2 = e.pos + (e.travel as Vector2) * k
 					var s := float(e.scale)
 					for i in maxi(1, int(e.tiles)):
-						draw_form(a, head + Vector2(float(e.facing) * i * float(a.cell[0]) * s, 0), frame, int(e.row), int(e.facing), s, float(e.alpha), float(e.scale_y))
+						draw_form(a, head + Vector2(float(e.facing) * i * float(a.cell[0]) * s, 0).rotated(float(e.turn)), frame, int(e.row), int(e.facing), s,
+							float(e.alpha), float(e.scale_y), float(e.turn))
 
 ## A hit spark (§5.2, §5.6): `count` bits flying out to `radius` (its tier's reach; 28 at tier 1), `size` px shrinking
 ## to 2, and a white core of `core`; the style draws them as squares, rising embers, falling shards, ink drops falling
@@ -651,9 +663,22 @@ func _draw_note(at: Vector2, col: Color, alpha: float, sc: float) -> void:
 static func _hash(i: int, salt: int) -> float:
 	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
 
+## A shot on the top-down plane (redesign Phase 2) flies along its `aim`: its drawing turns to it, kept upright by
+## mirroring the ones that fly left.
 func _draw_projectile(p: Dictionary) -> void:
 	var pos := Vector2(float(p.x), float(p.y) - float(p.alt)).snapped(Vector2(2, 2))
-	var dir := float(p.dir)
+	if not p.has("aim"):
+		_draw_shot(p, pos, float(p.dir), 0.0)
+		return
+	var aim: Vector2 = p.aim
+	var dir := 1.0 if aim.x >= 0.0 else -1.0
+	var turn := (aim * dir).angle()
+	draw_set_transform(pos, turn)
+	_draw_shot(p, Vector2.ZERO, dir, turn, pos)
+	draw_set_transform(Vector2.ZERO)
+
+## `pos` in the current transform; `turn` and `at` (the shot's place) for a form's bolt, which sets its own.
+func _draw_shot(p: Dictionary, pos: Vector2, dir: float, turn: float, at := Vector2.INF) -> void:
 	# Decision 23: a technique's Qi bolt is its form's projectile loop (arc, volley, seeker, return), in its element's
 	# row; the weapon arts (an arrow, a fan, a note, a needle, the released jian) stay their own drawings.
 	if str(p.get("art", "")).begins_with("qi_") and p.has("technique"):
@@ -662,7 +687,9 @@ func _draw_projectile(p: Dictionary) -> void:
 		if a.has("bolt"):
 			var b: Dictionary = a.bolt
 			var band := band_of(int(t.get("vfx", {}).get("tier", 1)))
-			draw_form(b, pos, int(float(p.get("travelled", 0.0)) / 24.0) % int(b.frames), form_row(str(p.get("element", "none")), band), int(dir), 1.0 if band < 2 else 1.5)
+			draw_form(b, pos if at == Vector2.INF else at, int(float(p.get("travelled", 0.0)) / 24.0) % int(b.frames), form_row(str(p.get("element", "none")), band), int(dir),
+				1.0 if band < 2 else 1.5, 1.0, -1.0, turn)
+			if at != Vector2.INF: draw_set_transform(at, turn)
 			return
 	match str(p.get("art", "arrow")):
 		"arrow":

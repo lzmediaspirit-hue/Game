@@ -28,7 +28,71 @@
   "camera_look_ahead": 0.2,
   "camera_settle_s": 0.3,
   "land_squash_s": 0.1,
-  "water_reset_s": 0.5
+  "water_reset_s": 0.5,
+  "combat": {
+   "hit_band": [
+    -12,
+    12
+   ],
+   "air_band": [
+    -56,
+    12
+   ],
+   "shot_wall": 24,
+   "chest": 40,
+   "knock_s": 0.15,
+   "body_height": 76
+  },
+  "aim": {
+   "cone_deg": 120,
+   "snap_deg": 15,
+   "range": 160,
+   "hold_s": 0.18,
+   "dead_px": 18,
+   "cancel_px": 40,
+   "drag_px": 120,
+   "point_radius": 48,
+   "cone_half_deg": 45,
+   "forms": {
+    "line": [
+     "thrust",
+     "volley",
+     "wave",
+     "seeker",
+     "return",
+     "swarm",
+     "lunge",
+     "blink",
+     "release"
+    ],
+    "point": [
+     "burst",
+     "rain",
+     "pillar",
+     "seal",
+     "snare",
+     "plunge"
+    ],
+    "self": [
+     "domain",
+     "ward",
+     "chorus"
+    ],
+    "cone": [
+     "sweep",
+     "arc",
+     "strike",
+     "flurry",
+     "counter",
+     "echo"
+    ]
+   }
+  },
+  "foes": {
+   "replan_s": 0.4,
+   "impulse": 400,
+   "radius": 8
+  }
  },
  "jump": {
   "impulse": 530,
