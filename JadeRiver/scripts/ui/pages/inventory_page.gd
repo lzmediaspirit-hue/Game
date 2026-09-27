@@ -64,14 +64,8 @@ func setup() -> void:
 	if ch == null: return
 	_refresh_doll()
 	tier = maxi(0, (ch.inventory.capacity() - ch.inventory.bonus_slots - 25) / 5)
-	stars.clear()
-	for i in 150 + tier * 50:
-		var s := _hash(i, 3)
-		var at := Vector2(_hash(i, 1) * 1280.0, pow(_hash(i, 2), 1.35) * 640.0)
-		# A few burn bright with a cross of light, but never among the words and spaces.
-		var bright := s > 0.985 and not Rect2(FIELD - Vector2(12, 72), Vector2(FIELD_W + 32, 600)).has_point(at) and not Rect2(56, 40, 320, 80).has_point(at)
-		stars.append([at, 1.4 if s > 0.9 else (1.0 if s > 0.6 else 0.7),
-			Color([UiKit.PALE_GOLD, UiKit.PAPER, UiKit.MIST][0 if s > 0.8 else (1 if s > 0.4 else 2)], 0.25 + _hash(i, 4) * 0.6), bright])
+	# A few burn bright with a cross of light, but never among the words and spaces.
+	stars = scatter_stars(150 + tier * 50, Rect2(0, 0, 1280, 640), [Rect2(FIELD - Vector2(12, 72), Vector2(FIELD_W + 32, 600)), Rect2(56, 40, 320, 80)])
 	# Opened on a worn slot (from the Character page) or on a thing in the bag.
 	if WORN.has(str(args.get("tab", ""))) and ch.inventory.equipped.get(str(args.tab)) != null: sel = {"slot": str(args.tab)}
 	if args.has("index"): sel = {"bag": int(args.index)}
@@ -91,53 +85,93 @@ func on_event(name: String, _p: Dictionary) -> void:
 static func _hash(i: int, k: int) -> float:
 	return fposmod(sin(i * 12.9898 + k * 78.233) * 43758.5453, 1.0)
 
+# ------------------------------------------------------------------ the sky's pieces, shared (page_identity §8.6)
+## "Your bag" beside another page (the Shop, the Storage; decision 24) is a patch of this same heaven, drawn from these.
+
+## `n` stars scattered steadily over `area`, [position, radius, colour, bright]; the bright ones keep out of `clear`.
+static func scatter_stars(n: int, area: Rect2, clear: Array) -> Array:
+	var out: Array = []
+	for i in n:
+		var s := _hash(i, 3)
+		var at := area.position + Vector2(_hash(i, 1) * area.size.x, pow(_hash(i, 2), 1.35) * area.size.y)
+		var bright := s > 0.985 and not clear.any(func(r): return (r as Rect2).has_point(at))
+		out.append([at, 1.4 if s > 0.9 else (1.0 if s > 0.6 else 0.7),
+			Color([UiKit.PALE_GOLD, UiKit.PAPER, UiKit.MIST][0 if s > 0.8 else (1 if s > 0.4 else 2)], 0.25 + _hash(i, 4) * 0.6), bright])
+	return out
+
+## The night over `r`: deepening from INK to the gourd's jade-dark and down to the sky's lightest.
+static func night(pg: Page, r: Rect2) -> void:
+	var half := roundf(r.size.y * 0.5)
+	pg.vshade(Rect2(r.position, Vector2(r.size.x, half)), UiKit.INK, UiKit.SURFACE.space)
+	pg.vshade(Rect2(r.position.x, r.position.y + half, r.size.x, r.size.y - half), UiKit.SURFACE.space, UiKit.SURFACE.sky)
+
+static func draw_stars(pg: Page, stars: Array) -> void:
+	for s in stars:
+		if s[3]:
+			pg.glow(Rect2(s[0] - Vector2(7, 7), Vector2(14, 14)), Color(UiKit.PALE_GOLD, 0.8))
+			pg.draw_line(s[0] - Vector2(7, 0), s[0] + Vector2(7, 0), Color(UiKit.PAPER, 0.7), 1.0)
+			pg.draw_line(s[0] - Vector2(0, 7), s[0] + Vector2(0, 7), Color(UiKit.PAPER, 0.7), 1.0)
+		else: pg.draw_circle(s[0], s[1], s[2], true, -1.0, true)
+
+## Light falling from the gourd's mouth far above, two shafts spreading down from `top` (x, the shafts' centre) to `foot` (y).
+static func mouth_light(pg: Page, x: float, foot: float, spread := 1.0) -> void:
+	for sh in [[-60.0, 60.0, -230.0, 310.0, foot], [-10.0, 20.0, -90.0, 100.0, foot * 0.8125]]:
+		pg.draw_polygon(PackedVector2Array([Vector2(x + sh[0], -10), Vector2(x + sh[1], -10), Vector2(x + sh[3] * spread, sh[4]), Vector2(x + sh[2] * spread, sh[4])]),
+			PackedColorArray([Color(UiKit.PALE_GOLD, 0.1), Color(UiKit.PALE_GOLD, 0.1), Color(UiKit.PALE_GOLD, 0.0), Color(UiKit.PALE_GOLD, 0.0)]))
+
+## The sea of cloud along the foot of `r` (the band from `top` down): a pale wash and three soft banks.
+static func cloud_sea(pg: Page, r: Rect2, top: float) -> void:
+	var w := r.size.x
+	for sea in [[0.14, 74.0, 0.415, 84.0, UiKit.PAPER, 0.12], [0.59, 92.0, 0.57, 98.0, UiKit.PAPER, 0.13], [0.906, 64.0, 0.46, 70.0, UiKit.MIST, 0.12]]:
+		var c := Vector2(r.position.x + w * float(sea[0]), top + float(sea[1]))
+		var sz := Vector2(w * float(sea[2]), float(sea[3]))
+		pg.glow(Rect2(c - sz * 0.5, sz), Color(sea[4], sea[5]))
+	pg.vshade(Rect2(r.position.x, top, w, r.end.y - top), Color(UiKit.SURFACE.silk, 0.0), Color(UiKit.SURFACE.silk, 0.26))
+
+## A thing's space in the sky: an empty one lets the sky show through; a locked one (the next gourd's) is dark with its lock.
+static func empty_space(pg: Page, r: Rect2) -> void:
+	pg.rounded(r, 5.0, Color(UiKit.SURFACE.space, 0.55))
+	pg.draw_rect(r.grow(-1.5), Color(UiKit.JADE, 0.45), false, 1.5)
+
+static func locked_space(pg: Page, r: Rect2) -> void:
+	pg.rounded(r, 6.0, Color(UiKit.INK, 0.45))
+	pg.draw_rect(r.grow(-1), Color(UiKit.HOLLOW, 0.2), false, 1.0)
+	pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
+
+## The ink shadow a floating thing casts on the cloud below its space.
+static func float_shadow(pg: Page, r: Rect2) -> void:
+	pg.glow(Rect2(r.position + Vector2(-8, 46), Vector2(92, 46)), Color(UiKit.INK, 0.55))
+
 # ------------------------------------------------------------------ the sky
 ## The world inside the gourd over the whole screen: night deepening to the gourd's jade-dark, the lights of the sky,
 ## its stars, light from the mouth far above once the gourd is large, far islands, the sea of cloud, the figure's island
 ## and the orbit its worn slots ride.
 func draw_surface(_r: Rect2) -> void:
 	var w := size.x
-	_band(Rect2(0, 0, w, 360), UiKit.INK, UiKit.SURFACE.space)
-	_band(Rect2(0, 360, w, size.y - 360), UiKit.SURFACE.space, UiKit.SURFACE.sky)
+	night(self, Rect2(Vector2.ZERO, size))
 	for gl in [[Vector2(700, -60), Vector2(728, 420), UiKit.PALE_GOLD, 0.14], [Vector2(1040, 250), Vector2(868, 504), UiKit.SOUL, 0.12],
 			[Vector2(330, 180), Vector2(784, 448), UiKit.QI, 0.08], [Vector2(760, 520), Vector2(1260, 588), UiKit.JADE, 0.1]]:
 		glow(Rect2(gl[0] - gl[1] * 0.5, gl[1]), Color(gl[2], gl[3]))
-	for s in stars:
-		if s[3]:
-			glow(Rect2(s[0] - Vector2(7, 7), Vector2(14, 14)), Color(UiKit.PALE_GOLD, 0.8))
-			draw_line(s[0] - Vector2(7, 0), s[0] + Vector2(7, 0), Color(UiKit.PAPER, 0.7), 1.0)
-			draw_line(s[0] - Vector2(0, 7), s[0] + Vector2(0, 7), Color(UiKit.PAPER, 0.7), 1.0)
-		else: draw_circle(s[0], s[1], s[2], true, -1.0, true)
-	if tier >= 3:
-		for sh in [[640.0, 760.0, 470.0, 1010.0, 640.0], [690.0, 720.0, 610.0, 800.0, 520.0]]:
-			draw_polygon(PackedVector2Array([Vector2(sh[0], -10), Vector2(sh[1], -10), Vector2(sh[3], sh[4]), Vector2(sh[2], sh[4])]),
-				PackedColorArray([Color(UiKit.PALE_GOLD, 0.1), Color(UiKit.PALE_GOLD, 0.1), Color(UiKit.PALE_GOLD, 0.0), Color(UiKit.PALE_GOLD, 0.0)]))
+	draw_stars(self, stars)
+	if tier >= 3: mouth_light(self, 700.0, 640.0)
 	var far: Array = ISLES.slice(0, clampi(tier, 1, ISLES.size()))
 	far.sort_custom(func(a, b): return a[2] > b[2])
-	for i in far.size(): _island(far[i][0], far[i][1], far[i][2], i + 1)
-	for sea in [[Vector2(180, 694), Vector2(532, 84), UiKit.PAPER, 0.12], [Vector2(760, 712), Vector2(728, 98), UiKit.PAPER, 0.13],
-			[Vector2(1160, 684), Vector2(588, 70), UiKit.MIST, 0.12]]:
-		glow(Rect2(sea[0] - sea[1] * 0.5, sea[1]), Color(sea[2], sea[3]))
-	_band(Rect2(0, 620, w, size.y - 620), Color(UiKit.SURFACE.silk, 0.0), Color(UiKit.SURFACE.silk, 0.26))
+	for i in far.size(): island(self, far[i][0], far[i][1], far[i][2], i + 1)
+	cloud_sea(self, Rect2(Vector2.ZERO, size), 620.0)
 	ground(Rect2(Vector2.ZERO, size), UiKit.SURFACE.sky)
 	ground(Rect2(0, size.y - 64, w, 64), UiKit.SURFACE.sea)
 	# The figure's own island, its shadow, and the gold orbit through the worn slots.
 	glow(Rect2(FEET + Vector2(-120, -8), Vector2(240, 60)), Color(UiKit.JADE, 0.12))
-	_island(FEET + Vector2(4, 4), 188.0, 0.0, 0)
+	island(self, FEET + Vector2(4, 4), 188.0, 0.0, 0)
 	var ring := PackedVector2Array()
 	for i in 97: ring.append(ORBIT + Vector2(sin(i * TAU / 96.0), -cos(i * TAU / 96.0)) * ORBIT_R)
 	draw_polyline(ring, Color(UiKit.GOLD, 0.16), 7.0, true)
 	for i in 144: draw_circle(ORBIT + Vector2(sin(i * TAU / 144.0), -cos(i * TAU / 144.0)) * ORBIT_R, 1.0, Color(UiKit.GOLD, 0.75), true, -1.0, true)
 
-## A vertical wash from `top` to `foot` over `r`.
-func _band(r: Rect2, top: Color, foot: Color) -> void:
-	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]),
-		PackedColorArray([top, top, foot, foot]))
-
 ## A floating rock `w` wide centred on `at`: a gently domed top and a jagged underside tapering to a point. Far ones
 ## (depth towards 1) are smaller in the eye, hazier and carry pines, the big ones a pavilion; depth 0 is the figure's,
 ## with a lit jade top to stand on.
-func _island(at: Vector2, w: float, depth: float, k: int) -> void:
+static func island(pg: Page, at: Vector2, w: float, depth: float, k: int) -> void:
 	var a := 1.0 - depth * 0.55
 	var top := PackedVector2Array()
 	var outline := PackedVector2Array()
@@ -151,10 +185,10 @@ func _island(at: Vector2, w: float, depth: float, k: int) -> void:
 		outline.append(at + Vector2(w * (u - 0.5) + (_hash(k * 31 + i, 6) - 0.5) * w * 0.05, sin(PI * u) * w * 0.62 * (0.55 + _hash(k * 31 + i, 7) * 0.45)))
 	var rock_top: Color = UiKit.SURFACE.silk.lerp(UiKit.SURFACE.sky, depth * 0.5)
 	for i in outline.size(): cols.append(Color(rock_top if i < 10 else UiKit.SURFACE.space, a))
-	glow(Rect2(at + Vector2(-w * 0.6, w * 0.16), Vector2(w * 1.2, w * 0.32)), Color(UiKit.JADE, 0.05 + (1.0 - depth) * 0.05))
-	draw_polygon(outline, cols)
+	pg.glow(Rect2(at + Vector2(-w * 0.6, w * 0.16), Vector2(w * 1.2, w * 0.32)), Color(UiKit.JADE, 0.05 + (1.0 - depth) * 0.05))
+	pg.draw_polygon(outline, cols)
 	outline.append(outline[0])
-	draw_polyline(outline, Color(UiKit.BRIGHT_JADE, (0.18 + (1.0 - depth) * 0.2) * a), 1.0, true)
+	pg.draw_polyline(outline, Color(UiKit.BRIGHT_JADE, (0.18 + (1.0 - depth) * 0.2) * a), 1.0, true)
 	if depth == 0.0:
 		var face := PackedVector2Array()
 		var fc := PackedColorArray()
@@ -162,25 +196,25 @@ func _island(at: Vector2, w: float, depth: float, k: int) -> void:
 			var p := at + Vector2(cos(i * TAU / 48.0) * w * 0.5, 2.0 + sin(i * TAU / 48.0) * w * 0.075)
 			face.append(p)
 			fc.append(UiKit.JADE.lerp(UiKit.JADE_SHADOW, clampf((p.y - at.y + w * 0.075) / (w * 0.15), 0.0, 1.0)))
-		draw_polygon(face, fc)
+		pg.draw_polygon(face, fc)
 		face.append(face[0])
-		draw_polyline(face, UiKit.BRIGHT_JADE, 1.5, true)
+		pg.draw_polyline(face, UiKit.BRIGHT_JADE, 1.5, true)
 		return
-	draw_polyline(top, Color(UiKit.JADE, a), maxf(2.0, w * 0.035), true)
+	pg.draw_polyline(top, Color(UiKit.JADE, a), maxf(2.0, w * 0.035), true)
 	for t in maxi(1, roundi(w / 60.0)):
 		var tx := at.x - w * 0.3 + _hash(k * 7 + t, 8) * w * 0.6
 		var th := w * (0.12 + _hash(k * 7 + t, 9) * 0.08)
 		var tree := PackedVector2Array([Vector2(tx, at.y - th), Vector2(tx + th * 0.35, at.y - 1), Vector2(tx - th * 0.35, at.y - 1)])
-		draw_colored_polygon(tree, Color(UiKit.JADE_SHADOW, a))
+		pg.draw_colored_polygon(tree, Color(UiKit.JADE_SHADOW, a))
 		tree.append(tree[0])
-		draw_polyline(tree, Color(UiKit.BRIGHT_JADE, 0.35 * a), 1.0, true)
+		pg.draw_polyline(tree, Color(UiKit.BRIGHT_JADE, 0.35 * a), 1.0, true)
 	if w > 110.0:
 		var px := at.x + w * 0.12
 		var pw := w * 0.2
-		draw_rect(Rect2(px - pw * 0.3, at.y - pw * 0.5, pw * 0.6, pw * 0.5), Color(UiKit.SURFACE.wood_dark, a))
-		draw_colored_polygon(PackedVector2Array([Vector2(px - pw * 0.62, at.y - pw * 0.46), Vector2(px + pw * 0.62, at.y - pw * 0.46),
+		pg.draw_rect(Rect2(px - pw * 0.3, at.y - pw * 0.5, pw * 0.6, pw * 0.5), Color(UiKit.SURFACE.wood_dark, a))
+		pg.draw_colored_polygon(PackedVector2Array([Vector2(px - pw * 0.62, at.y - pw * 0.46), Vector2(px + pw * 0.62, at.y - pw * 0.46),
 			Vector2(px + pw * 0.4, at.y - pw * 0.8), Vector2(px - pw * 0.4, at.y - pw * 0.8)]), Color(UiKit.BRONZE, a))
-		draw_circle(Vector2(px, at.y - pw * 0.25), pw * 0.09, Color(UiKit.GOLD, a), true, -1.0, true)
+		pg.draw_circle(Vector2(px, at.y - pw * 0.25), pw * 0.09, Color(UiKit.GOLD, a), true, -1.0, true)
 
 func title_rect() -> Rect2:
 	return Rect2(68, 44, ceilf(UiKit.text_width(title, UiKit.D_TITLE, true)) + 24, 48)
@@ -196,23 +230,23 @@ func tab_rects() -> Array:
 	return [Rect2(FIELD.x, TOKEN_Y, w0, TAB_H), Rect2(FIELD.x + w0 + 16, TOKEN_Y, w1, TAB_H)]
 
 func draw_tab(r: Rect2, i: int, state: String) -> void:
-	_token(r, str(tabs[i].label), _pouch_count() if i == 1 else "", state == "selected", state == "disabled", POUCH_ICON if i == 1 else "")
+	token(self, r, str(tabs[i].label), _pouch_count() if i == 1 else "", state == "selected", state == "disabled", POUCH_ICON if i == 1 else "")
 
 func _pouch_count() -> String:
 	return str(c().inventory.key_items.size()) if c() != null else ""
 
 ## A jade token floating in the sky (a tab, a kind): its label and count; the chosen one lit, its label inked.
-func _token(r: Rect2, label: String, count: String, on: bool, dim := false, icon := "") -> void:
-	if on: glow(r.grow(12), Color(UiKit.GOLD, 0.22))
-	face(r, "sky_token", "selected" if on else "normal")
+static func token(pg: Page, r: Rect2, label: String, count: String, on: bool, dim := false, icon := "") -> void:
+	if on: pg.glow(r.grow(12), Color(UiKit.GOLD, 0.22))
+	pg.face(r, "sky_token", "selected" if on else "normal")
 	var x := r.position.x + 20
 	if icon != "":
-		icon_at(Rect2(x - 4, r.position.y + 8, 32, 32), icon)
+		pg.icon_at(Rect2(x - 4, r.position.y + 8, 32, 32), icon)
 		x += 34
 	var y := r.position.y + 31
-	if on: inked(Vector2(x, y), label, 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
-	else: text(Vector2(x, y), label, 18, UiKit.HOLLOW if dim else UiKit.PAPER)
-	if count != "": text(Vector2(x + UiKit.text_width(label, 18) + 8, y), count, 16, UiKit.PALE_GOLD if on else (UiKit.HOLLOW if dim else UiKit.MIST))
+	if on: pg.inked(Vector2(x, y), label, 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
+	else: pg.text(Vector2(x, y), label, 18, UiKit.HOLLOW if dim else UiKit.PAPER)
+	if count != "": pg.text(Vector2(x + UiKit.text_width(label, 18) + 8, y), count, 16, UiKit.PALE_GOLD if on else (UiKit.HOLLOW if dim else UiKit.MIST))
 
 # ------------------------------------------------------------------ drawing
 func draw_page() -> void:
@@ -242,7 +276,7 @@ func draw_page() -> void:
 			var label := Tx.t("ui.inventory.kind_" + k)
 			var n := _kind_count(inv, k)
 			var r := Rect2(x, KIND_Y, ceilf(UiKit.text_width(label, 18) + UiKit.text_width(str(n), 16)) + 48, TAB_H)
-			_token(r, label, str(n), kind == k, n == 0)
+			token(self, r, label, str(n), kind == k, n == 0)
 			region(r, "kind", k)
 			x = r.end.x + 8
 		btn(Rect2(FIELD.x + FIELD_W - 96, KIND_Y, 96, BTN_H), Tx.t("ui.inventory.sort"), "sort", null, false, true, "", 20)
@@ -299,7 +333,7 @@ func _grid(ch, spaces: Array) -> float:
 	if nxt < rows:
 		var y := FIELD.y + nxt * PITCH - off
 		_row(ch, spaces, nxt, Vector2(FIELD.x, y), false)
-		_band(Rect2(FIELD.x - 8, y - 6, FIELD_W + 16, PITCH + 2), Color(UiKit.SURFACE.sky, 0.0), Color(UiKit.SURFACE.sky, 0.9))
+		vshade(Rect2(FIELD.x - 8, y - 6, FIELD_W + 16, PITCH + 2), Color(UiKit.SURFACE.sky, 0.0), Color(UiKit.SURFACE.sky, 0.9))
 		foot = y + PITCH - 4
 	draw_set_transform(Vector2.ZERO)
 	return foot
@@ -317,17 +351,14 @@ func _row(ch, spaces: Array, row: int, at: Vector2, live: bool) -> void:
 		var s = null if i < 0 else (inv.key_items[i] if key else inv.bag[i])
 		if i < 0:
 			# One of the next gourd's spaces: locked, and a tap names the gourd that opens it.
-			rounded(r, 6.0, Color(UiKit.INK, 0.45))
-			draw_rect(r.grow(-1), Color(UiKit.HOLLOW, 0.2), false, 1.0)
-			_lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
+			locked_space(self, r)
 			if live: region(r, "next_space", null, false, _next_line(ch))
 		elif s == null:
 			# An empty space: the sky shows through it.
-			rounded(r, 5.0, Color(UiKit.SURFACE.space, 0.55))
-			draw_rect(r.grow(-1.5), Color(UiKit.JADE, 0.45), false, 1.5)
+			empty_space(self, r)
 			if live: region(r, id, i)
 		else:
-			glow(Rect2(r.position + Vector2(-8, 46), Vector2(92, 46)), Color(UiKit.INK, 0.55))
+			float_shadow(self, r)
 			var chosen := int(sel.get(id, -1)) == i
 			slot_box(r, str(s.id), int(s.get("count", 1)), str(s.get("quality", "")), id if live else "", i, chosen,
 				not key and inv.locked.has(int(s.get("uid", -1))))

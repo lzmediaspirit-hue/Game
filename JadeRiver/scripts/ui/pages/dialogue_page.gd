@@ -38,16 +38,20 @@ func setup() -> void:
 	var outfit: Dictionary = convo.get("portrait", {})
 	if not outfit.is_empty():
 		portrait = Avatar.new()
-		var o := outfit.duplicate()
-		for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
-			if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")
-		if not o.has("hair_color"): o.hair_color = 0
-		portrait.outfit = o
+		portrait.outfit = full_outfit(outfit)
 		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - 12)
 		portrait.scale = Vector2.ONE * 1.35
 		portrait.facing = 1
 		add_child(portrait)
 		portrait.play("idle")
+
+## An NPC's outfit (npcs.json) with every layer the figure needs: what it leaves out is the villager's default.
+static func full_outfit(outfit: Dictionary) -> Dictionary:
+	var o := outfit.duplicate()
+	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
+		if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")
+	if not o.has("hair_color"): o.hair_color = 0
+	return o
 
 func lines() -> Array:
 	return convo.get("lines", [])

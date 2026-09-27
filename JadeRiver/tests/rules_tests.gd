@@ -444,7 +444,11 @@ func _ui_contexts(c) -> Dictionary:
 					Game.account.collection[str(e.id)] = 500
 					Game.account.collection_pages_done[str(e.collection.page)] = true}],
 		# The world map's three views (its tabs are the zones and the Heaven Ranking).
-		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}]}
+		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}],
+		# P5, the Market family: the chest with and without the Treasury's tray, the stage with its lots drawn up, and the
+		# Shop in its buy-back view.
+		"storage": [{}, {"_setup": func(): Game.account.sect = sect.duplicate(true).merged({"buildings": {"sect_hall": 1, "treasury": 1}}, true)}],
+		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -556,6 +560,7 @@ func identity_suite() -> void:
 	await _records_checks()
 	await _records_two_checks()
 	await _post_checks()
+	await _market_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -764,6 +769,120 @@ func _records_two_checks() -> void:
 ## on whole pixels, a locked one answering with what opens it, and the Seal Scripts show five rows at once. Welcome Back
 ## burns the coil to the time away out of the cap and lays every good in the tray. The Pouches chalk seven patterns, a
 ## deeper pouch larger.
+## P5 (the Market family; docs/page_identity.md rows 8, 19, 33, 37 and 38, mockup 17, decisions 11, 14 and 24): the Shop is
+## the stall with no tabs, its wares priced on the shelves and "your bag" beside it in the gourd's heaven, each thing with
+## what it sells for, and buy-back a token that turns the same spaces to the last sales; a sale and its buy-back go
+## through as intents. The Storage's chest shows the Treasury's spaces (storage_slots_per_level) as a second tray; the
+## Exchange rates its pairs over the barred window; the County Hall stands today's jobs as warrant sticks and reads the
+## relief fund from its box; the Auction brings a lot to its pedestal with a tap. Every word reads on what it sits on.
+func _market_checks() -> void:
+	var c = Game.active()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var keep := {"inventory": c.inventory.snapshot(), "sect": Game.account.sect.duplicate(true), "economy": Game.account.economy.duplicate(true)}
+	var dim: Array = []
+	var lost: Array = []
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	# The Shop.
+	var sp: Page = await _open_page("shop", {"shop": "old_ma"})
+	var stock: Array = Game.economy.stock(c, "old_ma")
+	var wares: Array = sp._regions.filter(func(r): return r.id == "pick")
+	var cells: Array = sp._regions.filter(func(r): return r.id == "pick_sell")
+	var in_view: int = c.inventory.bag.slice(0, 20).filter(func(s): return s != null).size()
+	check(sp.tabs.is_empty() and wares.size() == mini(stock.size(), 10) and wares.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Shop: no tabs; the wares stand on the shelves, five a shelf, two shelves in view (%d of %d)" % [wares.size(), stock.size()])
+	var said: Array = sp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var hp: int = c.inventory.first_index("healing_pill")
+	check(cells.size() == in_view and said.has(UiKit.fmt(LootRules.sell_price("healing_pill"))) and sp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.sky)
+		and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "sky_token:selected"),
+		"P5 Shop: your bag floats beside the stall in the gourd's heaven (decision 24), each thing with what it sells for")
+	_identity_view(sp, "shop stall", dim, lost, {}, {})
+	sp.on_action("pick", 0)
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(sp.text_log.any(func(tx): return str(tx.get("s", "")) == ContentDB.item_name(str(stock[0].item))) and sp._regions.any(func(r): return r.id == "buy"),
+		"P5 Shop: a tapped ware is laid on the counter with its Buy")
+	_identity_view(sp, "shop counter", dim, lost, {}, {})
+	var silver: int = Game.economy.balance("silver_tael", c)
+	var n_hp: int = c.inventory.count("healing_pill")
+	sp.on_action("pick_sell", hp)
+	sp.on_action("sell", 1)
+	var sold_ok: bool = c.inventory.count("healing_pill") == n_hp - 1 and Game.economy.balance("silver_tael", c) == silver + LootRules.sell_price("healing_pill")
+	sp.on_action("bag_side", true)
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	var backs: Array = sp._regions.filter(func(r): return r.id == "pick_back")
+	_identity_view(sp, "shop buy-back", dim, lost, {}, {})
+	sp.on_action("pick_back", 0)
+	sp.on_action("buyback", 0)
+	check(sold_ok and not backs.is_empty() and c.inventory.count("healing_pill") == n_hp and Game.economy.balance("silver_tael", c) == silver,
+		"P5 Shop: Sell and buy-back go through as intents; buy-back is a token, not a column (decision 11), turning the spaces to the last sales")
+	sp.queue_free()
+	# The Storage: the chest's own tray, and the Treasury's under its partition.
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 0, "buildings": {"sect_hall": 1, "treasury": 1}, "queue": [], "disciples": [], "candidates": [],
+		"expeditions": [], "candidate_day": 0}
+	var size: int = Game.accounts.storage_size()
+	var st: Page = await _open_page("storage", {})
+	var deposits: Array = st._regions.filter(func(r): return r.id == "deposit")
+	st.scroll["store"] = 99999.0
+	st.text_log.clear()
+	st.queue_redraw()
+	await get_tree().process_frame
+	var per := int(ContentDB.entry("sect_buildings", "treasury").get("output", {}).get("storage_slots_per_level", 0))
+	check(size == 40 + per and per > 0 and not deposits.is_empty() and st.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.storage.treasury_tray") % (size - 40)),
+		"P5 Storage: the Treasury's %d spaces a level are a second tray in the chest, under its partition (%d in all)" % [per, size])
+	_identity_view(st, "storage", dim, lost, {}, {})
+	st.queue_free()
+	# The Exchange.
+	var ex: Page = await _open_page("exchange", {})
+	var trades: Array = ex._regions.filter(func(r): return r.id == "ex")
+	check(trades.size() >= 4 and ex.text_log.any(func(tx): return str(tx.get("s", "")).contains(Page.currency_name("silver_tael"))), "P5 Exchange: the rate board over the window and the trades under its slot (%d)" % trades.size())
+	_identity_view(ex, "exchange", dim, lost, {}, {})
+	ex.queue_free()
+	# The County Hall.
+	var ct: Page = await _open_page("county", {})
+	var jobs: Array = c.relations.mortal.get("jobs", [])
+	var sticks: Array = ct._regions.filter(func(r): return r.id == "stick")
+	check(sticks.size() == jobs.size() and sticks.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP) and ct._regions.any(func(r): return r.id == "_tab" and r.data == 1 and (r.rect as Rect2).size.x > 200),
+		"P5 County Hall: today's jobs stand as warrant sticks in the tube (%d), and the relief box opens the fund" % sticks.size())
+	_identity_view(ct, "county jobs", dim, lost, {}, {})
+	if jobs.size() > 1:
+		ct.on_action("stick", 1)
+		ct.text_log.clear()
+		ct.queue_redraw()
+		await get_tree().process_frame
+		check(ct.text_log.any(func(tx): return str(tx.get("s", "")) == str(Game.quest.quest_def(c, str(jobs[1])).get("name", ""))), "P5 County Hall: a stick drawn up hangs its warrant to read")
+	ct.tab = 1
+	ct.text_log.clear()
+	ct.queue_redraw()
+	await get_tree().process_frame
+	check(ct._regions.filter(func(r): return r.id == "donate").size() == (Game.relations.mcfg().get("donations", []) as Array).size(), "P5 County Hall: the relief ledger gives each size of gift its Give")
+	_identity_view(ct, "county relief", dim, lost, {}, {})
+	ct.queue_free()
+	# The Auction.
+	Game.economy.auction_roll("pavilion")
+	var lots: Array = Game.economy.auction_lots("pavilion").filter(func(l): return not l.get("closed", false))
+	var au: Page = await _open_page("auction", {})
+	var small: Array = au._regions.filter(func(r): return r.id == "lot")
+	var up := true
+	if lots.size() > 1:
+		au.on_action("lot", str(lots[1].id))
+		au.text_log.clear()
+		au.queue_redraw()
+		await get_tree().process_frame
+		up = au.chosen == str(lots[1].id) and au.text_log.any(func(tx): return str(tx.get("s", "")).left(6) == au._lot_name(lots[1]).left(6))
+	check(not lots.is_empty() and small.size() == lots.size() and up and (au._regions.filter(func(r): return r.id == "bid").size() in [0, 2]),
+		"P5 Auction: every lot on a small pedestal along the stage's front, a tap bringing it to the lit pedestal, two paddles to bid")
+	_identity_view(au, "auction", dim, lost, {}, {})
+	au.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Market: every word on the market pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	c.inventory.restore(keep.inventory)
+	Game.account.sect = keep.sect
+	Game.account.economy = keep.economy
+	Unlocks.debug_force_all = force_was
+
 func _post_checks() -> void:
 	var c = Game.active()
 	var main_script = load("res://scripts/main.gd")

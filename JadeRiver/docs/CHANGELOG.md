@@ -1153,6 +1153,42 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
   with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
   proposals the rules do not hold; the build draws the one seal the game keeps).
+### P5 · The Market family: Shop, Storage, Exchange, County Hall, Auction (decisions 11, 14 and 24)
+- **The Shop as the merchant's stall** (row 8, mockup 17; `17_shop_buyback` rejected). A red and cream awning with the
+  shop's name on a black lacquer sign; the merchant behind her counter at the left (her own layers at 2.5) with her
+  nameplate and a bark of hers in a bubble; the wares on two plank shelves, five a shelf, each on a jade mat with a paper
+  price tag (the rotating ones flagged "today"; more shelves a drag away); the deal on the counter plank (the ware on its
+  cloth, its grade and how many you hold, what it does, − n + ×10, the total and what is left after, Buy n); the purses
+  on the counter's front, the shop's own coin ringed. No tabs: beside the stall "your bag" is a patch of the Bag's
+  heaven (decision 24), the gourd's spaces floating five across with what each sells for under it, and Sell 1 · All n on
+  the sea of cloud. Buy-back is a small token in the bag's header (decision 11): it turns the same spaces to the last
+  sales, each with its buy-back price. A bought ware slides down to the counter (0.25 s).
+- **Storage as the storehouse chest** (row 19). The camphor chest's lid thrown open over the right two-thirds (HD
+  `storehouse_lid`, swinging up as the page opens), the account's things in its lacquer tray, and the Treasury's spaces
+  (`storage_slots_per_level` a level) as a second tray under a partition; the chest's front says how full it is and what
+  the Treasury adds, or would. The gourd's side at the left is the Bag's heaven lit from the gourd's mouth. A tap moves a
+  thing across, arcing over (0.2 s).
+- **The Exchange as the money-changer's barred window** (row 33): the rate board, each pair's rate on its rail, the
+  changer's coin trays behind brass bars, the coin slot, your purses on the counter and the trades under the slot.
+- **The County Hall as the magistrate's bench** (row 37): the plaque over a painted screen of sea and sun; county favour
+  as a cinnabar banner with its tiers written on its paper (sealed once held); today's jobs as warrant sticks in the tube
+  on the desk (tipped red, gold once done), the chosen one drawn up and its warrant hung at the right; the relief box on
+  the desk opens the relief ledger; the tabs are two red placards.
+- **The Auction as the stage** (row 38): the chosen lot on a pedestal in a cone of light (its slot at 2×), the lot board
+  with its price, holder, time and premium, two numbered bid paddles, and every lot on a small pedestal along the
+  stage's front, a tap bringing it up (0.3 s).
+- **Shared:** `scripts/ui/pages/market_kit.gd` (planks, brass fittings, the lacquer board, price tags, the gourd's heaven
+  and its floating grid, a thing in flight); the Bag's sky pieces are statics of `inventory_page.gd` now, which the Bag
+  itself draws from (its look unchanged); `DialoguePage.full_outfit` fills an NPC's outfit for the dialogue portrait and
+  the merchant. HD `market_plate` and `storehouse_lid` in `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for words on
+  `lacquer_black`, `lacquer`, `market_plate`, `board`, `bamboo` and `scroll`. Every intent is kept (buy, sell, buy-back,
+  deposit, withdraw, exchange, county jobs, relief, bids).
+- **Tests:** `rules_tests` `identity_suite` (the Market family: the stall with no tabs and its wares in view, the bag in
+  the heaven with its sale prices, a tapped ware on the counter, a sale and its buy-back through the token as intents;
+  the Treasury's tray; the rates and trades; a stick per job and its warrant, the relief ledger's Give per gift; every lot
+  on a small pedestal and a tap bringing it up; every word read on its ground), the `ui_suite` with the chest with a
+  Treasury and the stage with its lots. Screenshots beside mockup 17 in `docs/ui_p5/market/`.
+
 ### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
 - **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).
   A pale name tablet per character hangs from the peg rail on a red cord, its arched window holding the character's

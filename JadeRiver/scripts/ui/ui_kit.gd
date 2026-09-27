@@ -150,6 +150,17 @@ const TEXT_ON := [
 	[&"PALE_GOLD", ["surface:lacquer"], 14],
 	[&"PAPER", ["surface:stone", "surface:lacquer"], 14],
 	[&"PALE_GOLD", ["surface:stone"], 14],
+	# The Market family (Shop, Storage, Exchange, County Hall, Auction): black lacquer and the sign boards, the red lacquer
+	# placards and ribbons, the stall's counter plank, the warrant sticks and the favour banner's paper.
+	[&"PAPER", ["surface:lacquer_black", "market_plate", "surface:lacquer"], 14],
+	[&"MIST", ["surface:lacquer_black", "market_plate", "surface:lacquer"], 14],
+	[&"PALE_GOLD", ["surface:lacquer_black", "market_plate", "surface:lacquer"], 14],
+	[&"GOLD", ["surface:lacquer_black", "market_plate", "surface:lacquer"], 14],
+	[&"BRIGHT_JADE", ["surface:lacquer_black"], 14],
+	[&"HOLLOW", ["surface:lacquer_black"], 14],
+	[&"RED_TEXT", ["surface:lacquer_black"], 14],
+	[&"PAPER_INK", ["surface:board", "surface:bamboo", "surface:scroll"], 14],
+	[&"BLOOD", ["surface:scroll"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

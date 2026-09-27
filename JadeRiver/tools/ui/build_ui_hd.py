@@ -770,6 +770,70 @@ def honour_seal(motif):
     return c
 
 
+# The Market family (P5, docs/page_identity.md §2: brass fittings and paper price tags on trade timber and black lacquer).
+TOKEN.update({k: hexc(v) for k, v in {"WOOD": "#5a3620", "WOOD_DARK": "#3b2416"}.items()})
+LACQUER_BLACK_S = mix(TOKEN["INK"], TOKEN["BRONZE"], 0.10)   # SURFACE.lacquer_black #161918
+
+
+def market_plate():
+    """A trader's sign board (the Shop's name over the awning, the County Hall's plaque): black lacquer with a gloss,
+    framed in a bevelled brass fillet, a brass stud in each corner."""
+    c = Canvas(64, 56)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 63.0, 53.0, 5.0)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 3.0, 63.0, 55.0, 5.0), 0), 2.0) * 0.5, TOKEN["INK"])
+    face = [(0, mix(LACQUER_BLACK_S, TOKEN["BRONZE"], 0.14)), (0.45, LACQUER_BLACK_S), (1, mix(LACQUER_BLACK_S, TOKEN["INK"], 0.4))]
+    c.paint(cov(d), c.vgrad(face, 1.0, 53.0))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    gold_bevel(c, d, 1.0, 4.0)
+    c.paint(band(d, 4.0, 5.0), TOKEN["INK"] * np.array([1, 1, 1, 0.7]))
+    for x, y in ((9.0, 9.0), (55.0, 9.0), (9.0, 45.0), (55.0, 45.0)):
+        c.paint(cov(sd_circle(c.X, c.Y, x, y + 0.6, 2.6)), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+        c.paint(cov(sd_circle(c.X, c.Y, x, y, 2.4)), c.vgrad([(0, TOKEN["PALE_GOLD"]), (1, TOKEN["BRONZE"])], y - 2.4, y + 2.4))
+    return c
+
+
+def storehouse_lid(w=760, h=184):
+    """The Storage page's chest lid thrown open (row 19): the raised lid in perspective, its far edge narrower, a camphor
+    rim bound in bronze at the corners and hinges, the red lacquer lining inside framed by a gold line."""
+    c = Canvas(w, h)
+    inset, y0, y1 = 30.0, 4.0, h - 6.0
+
+    def trap(pad):
+        # The lid's outline shrunk by `pad` px: the far edge at the top, the hinge edge at the foot.
+        t = np.clip((c.Y - y0) / (y1 - y0), 0.0, 1.0)
+        half = (w / 2 - 2.0) - inset * (1.0 - t) - pad
+        side = np.abs(c.X - w / 2) - half
+        return np.maximum(side, np.maximum(y0 + pad - c.Y, c.Y - (y1 - pad)))
+
+    outer = trap(0.0)
+    c.paint(cov(outer), c.vgrad([(0, mix(TOKEN["WOOD"], TOKEN["BRONZE"], 0.25)), (0.5, TOKEN["WOOD"]), (1, TOKEN["WOOD_DARK"])], y0, y1))
+    for i in range(1, 7):   # the camphor's grain along the rim
+        c.paint(band(trap(i * 2.6), 0.0, 0.5) * 0.25, TOKEN["WOOD_DARK"])
+    c.paint(band(outer, 0.0, 1.2), TOKEN["INK"])
+    lining = trap(20.0)
+    c.paint(cov(lining - 1.5), TOKEN["INK"])
+    c.paint(cov(lining), c.vgrad([(0, mix(LACQUER_S, TOKEN["BLOOD"], 0.18)), (0.6, LACQUER_S), (1, mix(LACQUER_S, TOKEN["INK"], 0.35))], y0 + 20, y1 - 20))
+    c.paint(band(lining, 7.0, 8.2), TOKEN["GOLD"] * np.array([1, 1, 1, 0.7]))
+    c.paint(cov(lining) * np.clip((h * 0.45 - c.Y) / (h * 0.45), 0, 1) ** 2, TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.07]))
+    # Bronze corner straps on the rim, and the two hinges on the foot.
+    for sx in (-1, 1):
+        for yy, t in ((y0, 0.0), (y1, 1.0)):
+            x = w / 2 + sx * ((w / 2 - 2.0) - inset * (1.0 - t))
+            dy = 1 if yy == y0 else -1
+            d = np.minimum(sd_segment(c.X, c.Y, x - sx * 3, yy + dy * 3, x - sx * 40, yy + dy * 3, 6.0),
+                           sd_segment(c.X, c.Y, x - sx * 3, yy + dy * 3, x - sx * (3 + inset * 0.2), yy + dy * 40, 6.0))
+            c.paint(cov(d - 0.6), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+            c.paint(cov(d), c.vgrad([(0, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])], min(yy, yy + dy * 40), max(yy, yy + dy * 40)))
+            for k in (14.0, 30.0):
+                c.paint(cov(sd_circle(c.X, c.Y, x - sx * k, yy + dy * 3, 1.6)), TOKEN["PALE_GOLD"])
+    for hx in (w * 0.25, w * 0.75):
+        d = sd_rrect(c.X, c.Y, hx - 26, y1 - 12, hx + 26, y1 + 3, 3.0)
+        c.paint(cov(d - 0.6), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+        c.paint(cov(d), c.vgrad([(0, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])], y1 - 12, y1 + 3))
+        c.paint(cov(sd_rrect(c.X, c.Y, hx - 4, y1 - 12, hx + 4, y1 + 3, 1.5)), mix(TOKEN["BRONZE"], TOKEN["INK"], 0.4))
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -820,6 +884,9 @@ ASSETS.update({
     "envelope": ([10, 10, 10, 16], {"normal": lambda: envelope("normal"), "selected": lambda: envelope("selected")}),
     "letter_sheet": ([18, 18, 18, 18], {"normal": lambda: letter_sheet()}),
     "poster": ([16, 16, 16, 16], {"normal": lambda: poster()}),
+    # The Market family (P5): the trader's sign board and the storehouse chest's raised lid.
+    "market_plate": ([16, 16, 16, 16], {"normal": lambda: market_plate()}),
+    "storehouse_lid": ([0, 0, 0, 0], {"normal": lambda: storehouse_lid()}),
 })
 
 
