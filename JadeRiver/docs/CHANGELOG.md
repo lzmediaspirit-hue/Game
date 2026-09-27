@@ -32,6 +32,16 @@
   weapons share one diagonal frame and the shaft, blade and grip builders; the button glyphs share the book, bust,
   arrow and chest templates. The ASCII tables and the legacy glyph painter are gone. Sheets and in-game screenshots
   from the valley_run checkpoints in `docs/mockups/icon_families/hud/`.
+- **Herbs in Style A** (`tools/icons/families/herbs.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/herbs/`): the 26 icons (16 herbs, 6 seeds, spring water, spirit soil, the dyed root and
+  rice wine) redrawn at 64 px with native `@32` renders, each herb living plant matter on the clump of earth, stone,
+  snow or water it grows from, with leaf ribs, petals, roots, fruit and stems. The nine species drawers take the age
+  from one table and show it by form, never by colour alone: an older root is larger with more growth rings and root
+  hairs (gold at a hundred years, gold to the tips at a thousand, pale as jade at ten thousand), an older lotus has a
+  taller pair of petals and a fuller seed head, an older orchid a third bloom, an older soulbell a third bell, an older
+  pepper two dark full pods; leaf veins turn gold at a hundred years, and a Mystic herb and above carries its spirit
+  aura as stepped glow bands. The seeds share one hemp pouch with a tag stamped in the herb's colour and their own seeds
+  spilled beside it. The legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
