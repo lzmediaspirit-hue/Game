@@ -282,6 +282,14 @@
    ],
    "layer": "play",
    "alt": 60
+  },
+  {
+   "prop": "door",
+   "at": [
+    1900,
+    692
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],

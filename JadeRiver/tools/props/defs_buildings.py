@@ -18,8 +18,11 @@ from registry import prop
 from defs_structures import stone_block
 
 
-def building(pid, w, h, roof_px, ground=2, states=(("idle", 1, 0),)):
-    return prop(pid, w, h, states=states, ground=ground, building=True, roof_split=round(roof_px / h, 3))
+def building(pid, w, h, roof_px, ground=2, states=(("idle", 1, 0),), door=None):
+    """`door` = (x0, x1): the doorway's span in art px, frame included. A building with a door portal must have one;
+    the room builder stands the portal in its middle (tools/data/world.py Room.building, room_lint "doors")."""
+    extra = {"door": list(door)} if door else {}
+    return prop(pid, w, h, states=states, ground=ground, building=True, roof_split=round(roof_px / h, 3), **extra)
 
 
 # ------------------------------------------------------------------ building parts
@@ -252,7 +255,7 @@ def grass_row(cv, x0, x1, by, seed, step=9):
 
 
 # ------------------------------------------------------------------ thatched fisher's hut
-@building("thatched_hut", 180, 120, roof_px=58)
+@building("thatched_hut", 180, 120, roof_px=58, door=(62, 84))
 def thatched_hut(state, f):
     W, H = 180, 120
     cv = Canvas(W, H)
@@ -310,7 +313,7 @@ def thatched_hut(state, f):
 
 
 # ------------------------------------------------------------------ village store
-@building("village_store", 200, 130, roof_px=46)
+@building("village_store", 200, 130, roof_px=46, door=(123, 149))
 def village_store(state, f):
     W, H = 200, 130
     cv = Canvas(W, H)
@@ -320,15 +323,15 @@ def village_store(state, f):
     # side walls (plaster with timber)
     plaster_wall(cv, 8, 44, 46, 118, seed="vs_l")
     plaster_wall(cv, 154, 44, 192, 118, seed="vs_r")
-    # shop interior
-    inside = m_rect(W, H, 47, 44, 153, 118)
+    # shop interior: the open counter in the left bays (the right bay is the door, below)
+    inside = m_rect(W, H, 47, 44, 117, 118)
     shade(cv, inside, WOOD, R=1, base=0.18, gain=0.4)
     for sy in (62, 78, 94):
-        plank_h(cv, 48, sy, 152, sy + 1, WOOD, grain=False, base=0.55)
+        plank_h(cv, 48, sy, 116, sy + 1, WOOD, grain=False, base=0.55)
     g = rng("vs_goods")
     for sy in (62, 78):
         x = 50
-        while x < 148:
+        while x < 108:
             k = int(g.integers(0, 4))
             if k == 0:
                 v = lathe(W, H, x + 3, [(sy - 7, 1.5), (sy - 6, 3), (sy - 1, 3)])
@@ -347,25 +350,36 @@ def village_store(state, f):
             else:
                 x += 4
     # counter
-    ctr = m_rect(W, H, 50, 98, 150, 118)
+    ctr = m_rect(W, H, 50, 98, 114, 118)
     shade(cv, ctr, WOOD, contour=True, R=1, base=0.5)
-    for px in range(58, 150, 12):
+    for px in range(58, 114, 12):
         cv.fill(ctr & (xx == px) & (yy > 101), WOOD[2])
-    plank_h(cv, 48, 96, 152, 99, WOOD, seed="vs_top", base=0.65)
+    plank_h(cv, 48, 96, 116, 99, WOOD, seed="vs_top", base=0.65)
     # goods on counter: abacus, scale, baskets
-    ab = m_rect(W, H, 60, 88, 76, 95)
+    ab = m_rect(W, H, 52, 88, 66, 95)
     shade(cv, ab, WOOD, contour=True, R=1, base=0.4)
     for ry in (90, 93):
-        for bx in range(62, 75, 2):
+        for bx in range(54, 65, 2):
             cv.put(bx, ry, [CLOTH_RED[4], PAPER_R[4]][(bx // 2) % 2])
-    for i, bx in enumerate((92, 112, 132)):
+    for i, bx in enumerate((70, 84, 98)):
         bas = lathe(W, H, bx + 5, [(90, 7), (95, 6)])
         shade(cv, bas, STRAW, contour=True, mode="cyl")
         for k in range(5):
             pal = [CLOTH_RED, LEAF, GOLD][i]
             cv.fill(m_ellipse(W, H, bx + 1 + k * 2, 88 - (k % 2), 1.5, 1.4), pal[4])
+    # the door bay: plaster like the side walls, the shop's own plank door (ajar) under a blue shop curtain, a step
+    plaster_wall(cv, 118, 44, 153, 118, seed="vs_door")
+    plank_door(cv, 127, 72, 145, 117, WOOD, ajar=4)
+    noren = m_rect(W, H, 125, 68, 147, 78)
+    cv.fill(noren, CLOTH_BLUE[3])
+    cv.fill(noren & (yy >= 76), CLOTH_BLUE[2])
+    cv.fill(noren & (yy <= 69), CLOTH_BLUE[4])
+    cv.fill(noren & ((xx == 132) | (xx == 140)) & (yy >= 71), CLOTH_BLUE[1])
+    cv.fill(m_rect(W, H, 134, 71, 138, 74), PAPER_R[4])
+    cv.fill(m_rect(W, H, 124, 67, 148, 67), WOOD[2])
+    stone_block(cv, 122, 116, 150, 119, "vs_step", chip=True)
     # timber posts
-    for px in (6, 45, 153, 191):
+    for px in (6, 45, 116, 153, 191):
         timber(cv, px, 42, px + 3, 119, WOOD, seed=("vsp", px))
     # vertical shop sign on the left wall (no readable text)
     vs = m_rect(W, H, 20, 56, 30, 100)
@@ -407,7 +421,7 @@ def village_store(state, f):
 
 
 # ------------------------------------------------------------------ herb hut
-@building("herb_hut", 170, 120, roof_px=56)
+@building("herb_hut", 170, 120, roof_px=56, door=(68, 90))
 def herb_hut(state, f):
     W, H = 170, 120
     cv = Canvas(W, H)
@@ -470,7 +484,7 @@ def herb_hut(state, f):
 
 
 # ------------------------------------------------------------------ stilt house
-@building("stilt_house", 190, 150, roof_px=52, ground=12)
+@building("stilt_house", 190, 150, roof_px=52, ground=12, door=(68, 88))
 def stilt_house(state, f):
     W, H = 190, 150
     cv = Canvas(W, H)
@@ -557,7 +571,7 @@ def stilt_house(state, f):
 
 
 # ------------------------------------------------------------------ village house
-@building("village_house", 190, 125, roof_px=46)
+@building("village_house", 190, 125, roof_px=46, door=(80, 110))
 def village_house(state, f):
     W, H = 190, 125
     cv = Canvas(W, H)
@@ -761,7 +775,7 @@ def stockade_wall(state, f):
 
 
 # ------------------------------------------------------------------ warehouse
-@building("warehouse", 220, 130, roof_px=46)
+@building("warehouse", 220, 130, roof_px=46, door=(80, 140))
 def warehouse(state, f):
     W, H = 220, 130
     cv = Canvas(W, H)

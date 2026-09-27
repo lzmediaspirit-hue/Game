@@ -156,7 +156,7 @@
    "id": "library",
    "type": "door",
    "at": [
-    1460,
+    1360,
     704
    ],
    "to": "cm_cloud_library",

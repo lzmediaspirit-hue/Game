@@ -1,0 +1,302 @@
+extends "res://tests/prologue_run.gd"
+## Tutorial order (docs/tutorial_order.md): a brand-new character plays the Prologue and the start of Act I in the
+## order a player who heads for the fighting first would take it (Uncle Guo's fists before Granny Liu's remedy, the race
+## early, Old Ma before Granny), taking and handing in every quest on the real dialogue page. After every step, and on
+## every tick of the simulation, the tutorial's invariants hold:
+##   1. no room with hostile foes is within reach, or entered, before the HP bar and the foes' HP bars are on the HUD;
+##   2. every foe in a fight shows its HP bar, and the player's HP bar shows (the first fight: the Reed Shallows' crabs
+##      and Reedtail Rats);
+##   3. every way into a building in the rooms within reach shows a door (PortalView.entrance);
+##   4. taking a quest closes the conversation, unless the same person has the next quest to give or take back;
+##   5. what a quest's steps ask the player to press or open is on the HUD once the quest is taken, and the control is
+##      drawn (the real HUD asked, at rest) while the step is open; the healing slot stays drawn while it holds something;
+##   6. no room is left before the steps it holds you to are done: a quest whose step is to leave its room keeps its
+##      ways shut (and says why) until it is taken and the steps before it are done (Morning Tide's Bag);
+##   7. the story's guidance (prologue_run.story_guidance): the tracker never empty, its targets real rooms the player
+##      can walk to, between main quests its next one (who gives it and where, or the Level and where to hunt), and
+##      right after the sect choice the membership recorded and the sect's first quest at the head of the tracker;
+##   8. in a fight the attack button attacks, whatever the world offers in reach (the first fight is beside the Reed
+##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first).
+## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
+## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
+## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
+## points inside them prologue_run names ("Morning Tide teas", "Granny's Remedy taken", "Both recruiters met"), to
+## user://tutorial_cp/<step>/, for screenshots from a brand-new character (main.gd --load=... --load-slot).
+
+## What each kind of step asks the player to press or open (invariant 5). A page or a system named by the step is
+## looked up in PAGE_NEEDS and SYSTEM_NEEDS; QUEST_NEEDS adds what a step's kind does not say.
+const NEEDS := {"collect": ["hud:context"], "talk_to": ["hud:context"], "use_portal": ["hud:context"], "deliver": ["hud:context"],
+	"interact_object": ["hud:context"], "set_flag": ["hud:context"], "hit_object": ["hud:attack"],
+	"kill": ["hud:attack", "hud:hp_bar", "hud:enemy_hp_bars"], "survive_timer": ["hud:attack", "hud:hp_bar", "hud:enemy_hp_bars"],
+	"sell_item": ["hud:currency"], "buy_item": ["hud:currency"], "meditate_seconds": ["hud:cultivate"],
+	"breakthrough": ["hud:cultivate", "hud:progress_bar"], "equip_slot": ["page:equipment"]}
+const PAGE_NEEDS := {"inventory": "hud:bag", "cultivation": "page:cultivation"}
+const SYSTEM_NEEDS := {"set_quick_use": "hud:quick_use", "guard": "hud:guard"}
+const QUEST_NEEDS := {"the_runaway_kite": ["hud:jump"], "the_recruitment_fair": ["page:training_sect"]}
+## The HUD's own control for each element a step can name (its role in HUD.hit_targets): drawn, not only revealed.
+const CONTROLS := {"hud:quick_use": "quick", "hud:jump": "jump", "hud:guard": "guard", "hud:bag": "icon:bag", "hud:menu": "icon:menu",
+	"hud:map": "icon:map", "hud:cultivate": "meditate"}
+
+var views := Node2D.new()     # the EnemyViews the watcher asks, never processed or drawn
+var hud_probe: Control        # the real HUD, bound to the character through a stand-in player; asked, never drawn
+var left_early: Array = []    # rooms left before the steps they hold you to were done
+var offers_in_fight := {}     # context type -> ticks of a fight with it in reach (invariant 8)
+var hijacked: Array = []      # fight ticks when an offer in reach took the attack button
+var foe_views := {}           # enemy uid -> EnemyView, for the room the character is in
+var watched_room := ""
+var foes_seen := {}           # def id -> times a foe of that kind was seen in a fight
+var bare: Array = []          # foes seen in a fight without their HP bar (or with the HP bar off the HUD)
+var doors_seen := {}          # room id -> true once its ways into buildings were checked
+var hostile_reached: Array = []
+
+func _main() -> void:
+	add_child(views)
+	run()
+	print("tutorial_order: %d checks, %d failures" % [checks, failures])
+	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ the walk
+func run() -> void:
+	start_new("user://test_saves_tutorial/")
+	tick_watch = _watch_fight
+	GameEvents.event.connect(_on_event)
+	watch_story()
+	_bind_hud_probe()
+	invariants("new character")
+	step_morning_tide()
+	invariants("Morning Tide")
+	_no_trade_before_the_lesson()
+	step_quiet_river()
+	invariants("A Quiet River")
+	step_fists()   # a player who goes to Guo first
+	check(not Game.is_revealed("hud:hp_bar"), "Fists First alone does not put the HP bar on the HUD (Granny's Remedy does)")
+	check(not routes().has("lf_reed_shallows"), "the Reed Shallows are out of reach after Fists First, before Granny's Remedy")
+	invariants("Fists First")
+	step_race()
+	invariants("Race to the Tower")
+	step_kite()
+	invariants("The Runaway Kite")
+	step_ma()
+	_trade_after_the_lesson()
+	invariants("Ma's Delivery")
+	step_granny()
+	invariants("Granny's Remedy")
+	step_return()
+	invariants("A Quiet River (Return)")
+	step_crabs()
+	if int(foes_seen.get("reedtail_rat", 0)) == 0: _rats()
+	check(int(foes_seen.get("reedtail_rat", 0)) > 0, "the Reed Shallows' Reedtail Rats were fought, their HP bars watched (%s)" % str(foes_seen))
+	invariants("Crab Trouble")
+	step_evening()
+	invariants("Evening on the River")
+	step_night()
+	invariants("The Hollow Night")
+	step_river_token()
+	invariants("The River Token")
+	step_willow_path()
+	invariants("The Willow Path")
+	step_fair()
+	invariants("The Recruitment Fair")
+	step_grind_bf2()
+	step_entry_trial()
+	invariants("Entry Trial")
+	step_chores()
+	invariants("A Disciple's Chores")
+	step_weapon_hall()
+	invariants("The Weapon Hall")
+	check(bare.is_empty() and foes_seen.size() >= 4, "every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [str(foes_seen), str(bare.slice(0, 6))])
+	check(not hostile_reached.is_empty() and hostile_reached[0] == "lf_reed_shallows",
+		"the first room with foes within reach is the Reed Shallows, with Crab Trouble (%s)" % str(hostile_reached.slice(0, 4)))
+	check(left_early.is_empty(), "no room was left before the steps it holds you to were done (%s)" % str(left_early))
+	check(hijacked.is_empty() and int(offers_in_fight.get("herb_patch", 0)) > 0,
+		"in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [str(offers_in_fight), str(hijacked)])
+	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "the story's guidance was checked at every step (%d steps, %d quests)"
+		% [guidance_steps, c().quests.done.size() + c().quests.active.size()])
+	hud_probe.player.free()
+	hud_probe.free()
+
+## Take the rats on as well as the crabs, as a player crossing the shallows does (the reported fight).
+func _rats() -> void:
+	back_to("lf_reed_shallows")
+	fight("reedtail_rat", 1, 60.0)
+	back_to("lf_village")
+
+## Chapter 1: sweep the three spots on Gate Street for the steward.
+func step_chores() -> void:
+	check(travel("ja_gate_street"), "the Jade Sect's road opens after the Entry Trial (room %s)" % room())
+	check(c().quests.offered.has("a_disciples_chores") or c().quests.is_active("a_disciples_chores"), "A Disciple's Chores offered")
+	accept("jade_steward", "a_disciples_chores")
+	for i in 3:
+		check(interact("sweep_ja_%d" % i).get("ok", false), "sweep spot %d" % i)
+	hand_in("jade_steward", "a_disciples_chores")
+
+## The Weapon Hall at Bone Forging 3: taken on the page, its rack, dummies and guard all on the HUD first.
+func step_weapon_hall() -> void:
+	var tries := 0
+	while not ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3") and tries < 12:
+		if c().cultivator.state == "bottleneck":
+			submit({"type": "start_breakthrough", "support_items": []})
+			step(4.0)
+		else:
+			Game.progression.apply_progress(c().id, 0.0, "test_shortcut", 1.0)   # test shortcut: the Bone Forging 2 grind
+			step(1.0)
+		tries += 1
+	check(ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3"), "Bone Forging 3 (realm %s)" % c().cultivator.realm_key)
+	check(travel("ja_weapon_hall"), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
+	accept("jade_weapon_master", "the_weapon_hall")
+
+# ------------------------------------------------------------------ the page
+## Every quest is taken on the real dialogue page, which closes itself (or goes on to the same person's next quest).
+func accept(npc: String, quest: String) -> void:
+	check(_choose_on_page(npc, "accept", quest), "%s taken from %s on the dialogue page, and the talk closes itself (or goes on to their next quest)" % [quest, npc])
+	_needs_on_hud(quest)
+
+func hand_in(npc: String, quest: String) -> void:
+	check(_choose_on_page(npc, "hand_in", quest), "%s handed in to %s on the dialogue page, and the talk closes itself (or goes on to their next quest)" % [quest, npc])
+
+## Invariant 5: what the quest's steps ask for is on the HUD now that it is taken, its controls drawn.
+func _needs_on_hud(quest: String) -> void:
+	var need := _step_needs(quest, [])
+	var missing := need.filter(func(el): return not Game.is_revealed(str(el)))
+	check(missing.is_empty(), "%s: what its steps ask for is on the HUD when it is taken (missing %s)" % [quest, str(missing)])
+	_controls_drawn(quest, need)
+
+## What the steps of a quest ask the player to press or open (the elements of NEEDS, PAGE_NEEDS, SYSTEM_NEEDS and
+## QUEST_NEEDS), of all its steps or, with `progress`, of those still to do.
+func _step_needs(quest: String, progress: Array) -> Array:
+	var need: Array = QUEST_NEEDS.get(quest, []).duplicate() if progress.is_empty() else []
+	var objs: Array = ContentDB.entry("quests", quest).get("objectives", [])
+	for i in objs.size():
+		var o: Dictionary = objs[i]
+		if not progress.is_empty() and int(progress[i]) >= int(o.get("count", 1)): continue
+		need.append_array(NEEDS.get(str(o.kind), []))
+		if str(o.kind) == "open_page": need.append(str(PAGE_NEEDS.get(str(o.get("page", "")), "page:" + str(o.get("page", "")))))
+		if str(o.kind) == "use_system" and SYSTEM_NEEDS.has(str(o.get("system", ""))): need.append(str(SYSTEM_NEEDS[str(o.system)]))
+		if str(o.kind) == "use_item" and str(o.get("item", "")) == str(c().inventory.quick_use): need.append("hud:quick_use")
+	return need
+
+## The controls of `need` are drawn on the real HUD at rest (the fan as the player leaves it), not only revealed.
+func _controls_drawn(what: String, need: Array) -> void:
+	hud_probe.set_state(false, hud_probe.fan_rest_open)
+	var drawn: Array = hud_probe.hit_targets().map(func(tg): return str(tg.role))
+	var hidden := need.filter(func(el): return CONTROLS.has(str(el)) and not drawn.has(str(CONTROLS[str(el)])))
+	check(hidden.is_empty(), "%s: the controls its steps name are drawn on the HUD at rest (not drawn: %s; drawn: %s)" % [what, str(hidden), str(drawn)])
+
+## The real HUD, bound to the character through a stand-in for the player (as the hud_suite binds it): asked what it
+## draws, never processed or drawn itself.
+func _bind_hud_probe() -> void:
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	hud_probe = load("res://scripts/hud.gd").new()
+	hud_probe.visible = false
+	hud_probe.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(hud_probe)
+	hud_probe.player = stub_src.new()
+	hud_probe.player.actor_id = str(Game.active_id)
+	check(hud_probe.bound(), "the HUD probe is bound to the character")
+
+## Invariant 6: a way out used while a quest whose step is to leave that room still holds it (not taken, or a step
+## before the leaving one still to do).
+func _left_early(p: Dictionary) -> void:
+	var from := str(p.get("room", ""))
+	for qid in c().quests.active.keys() + c().quests.offered.keys():
+		var d: Dictionary = Game.quest.quest_def(c(), str(qid))
+		var objs: Array = d.get("objectives", [])
+		var leave := objs.map(func(o): return str(o.get("kind", ""))).find("use_portal")
+		if str(d.get("target_room", "")) != from or leave < 0: continue
+		var prog: Array = c().quests.active.get(qid, {}).get("progress", [])
+		if prog.is_empty() or range(leave).any(func(j): return int(prog[j]) < int(objs[j].get("count", 1))): left_early.append("%s (%s)" % [from, qid])
+
+## Old Ma's Trade waits for Coins and Shops (the purse is not on the HUD before it): nothing to buy before the lesson.
+func _no_trade_before_the_lesson() -> void:
+	check(go("store_door") and room() == "lf_old_ma_store", "Old Ma's store can be entered from the start")
+	var d: Dictionary = talk("old_ma")
+	check(not (d.get("choices", []) as Array).any(func(ch): return ch.has("shop")), "no Trade with Old Ma before Ma's Delivery (%s)" % str(d.get("choices", [])))
+	check(go("exit"), "back out of the store")
+
+## ... and it opens with the lesson.
+func _trade_after_the_lesson() -> void:
+	check(go("store_door"), "back into Old Ma's store")
+	var d: Dictionary = talk("old_ma")
+	check((d.get("choices", []) as Array).any(func(ch): return ch.has("shop")), "Trade with Old Ma once Ma's Delivery is done (%s)" % str(d.get("choices", [])))
+	check(go("exit"), "back out of the store")
+
+# ------------------------------------------------------------------ the invariants
+## Invariants 1 and 3 over every room within reach now.
+func invariants(label: String) -> void:
+	keep(label)
+	var reach := routes()
+	for rid in reach:
+		var rd: Dictionary = ContentDB.room(rid)
+		if hostile(rd):
+			if not hostile_reached.has(rid): hostile_reached.append(rid)
+			check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:enemy_hp_bars"),
+				"%s: %s has foes, and is within reach only once the HP bar and the foes' HP bars are on the HUD" % [label, rid])
+		if doors_seen.has(rid): continue
+		doors_seen[rid] = true
+		for p in rd.get("portals", []):
+			if p.get("facade", false) or not PortalView.building_front(p, rd).is_empty():
+				check(PortalView.entrance(p, rd) in ["building", "decor"], "%s: the way into a building %s:%s shows a door" % [label, rid, p.id])
+	# Invariant 5, while the steps are open: the controls the steps still to do name are drawn; the healing slot stays
+	# drawn, at rest too, while it holds something to drink (Granny's tea).
+	var open: Array = []
+	for qid in c().quests.active: open.append_array(_step_needs(str(qid), c().quests.active[qid].progress))
+	if Game.is_revealed("hud:quick_use") and c().inventory.count(str(c().inventory.quick_use)) > 0: open.append("hud:quick_use")
+	_controls_drawn(label, open)
+
+## Foes the room would set on the character now: a spawn that is not passive and whose condition holds, or an event's.
+func hostile(rd: Dictionary) -> bool:
+	for sp in rd.get("spawns", []):
+		if ContentDB.entry("enemies", str(sp.enemy)).get("passive", false): continue
+		if sp.has("requires") and not RequirementRules.passes(sp.requires, Game.ctx()): continue
+		return true
+	var ev: Dictionary = rd.get("event", {})
+	return (ev.has("wave") or ev.has("fixed_spawns")) and RequirementRules.passes(ev.get("requires", {}), Game.ctx())
+
+func _on_event(n: String, p: Dictionary) -> void:
+	if n == "portal_used": _left_early(p)
+	if n != "room_entered": return
+	if hostile(ContentDB.room(str(p.get("room", "")))):
+		check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:enemy_hp_bars"), "entering %s, a room with foes, the HP bars are on the HUD" % str(p.room))
+
+## Invariant 2, on every tick: each foe in a fight (the real EnemyView asked, kept in step with it) shows its HP bar,
+## and so does the player.
+func _watch_fight() -> void:
+	var rt: RoomRuntime = Game.room_rt
+	if rt == null: return
+	if rt.room_id != watched_room:
+		for v in foe_views.values(): v.free()
+		foe_views.clear()
+		watched_room = rt.room_id
+	for e in rt.living_enemies():
+		if e.team != "enemy" or not e.in_fight(): continue
+		var v: EnemyView = foe_views.get(e.uid)
+		if v == null:
+			v = EnemyView.new()
+			v.setup(e)
+			v.set_process(false)
+			views.add_child(v)
+			foe_views[e.uid] = v
+			foes_seen[e.def_id] = int(foes_seen.get(e.def_id, 0)) + 1
+		v.sync(e, 0.05)
+		if (not v.shows_hp_bar(e) or not Game.is_revealed("hud:hp_bar")) and bare.size() < 40: bare.append("%s in %s" % [e.def_id, rt.room_id])
+	_attack_holds()
+
+## Invariant 8, on every tick of a fight: whatever the world offers where the player stands (the shore's herbs in the
+## Reed Shallows, a pickup, a person, a door), the attack button attacks (HUD.attack_first), and the offer waits in the
+## context slot on ring 2.
+func _attack_holds() -> void:
+	var rt: RoomRuntime = Game.room_rt
+	var me: ActorState = Game.actor_state(c().id)
+	if hud_probe == null or me == null or not Unlocks.is_unlocked(c().id, "attack") or not rt.living_enemies().any(func(e): return e.team == "enemy" and e.in_fight()): return
+	var ctx: Dictionary = Game.world.query_context(c())
+	if ctx.is_empty(): return
+	hud_probe.player.plane = me.plane
+	hud_probe.context = ctx
+	hud_probe.fight_override = null
+	hud_probe._tick_fight(0.05)
+	offers_in_fight[str(ctx.get("type", ""))] = int(offers_in_fight.get(str(ctx.get("type", "")), 0)) + 1
+	var slot: bool = hud_probe.hit_targets().any(func(tg): return str(tg.role) == "context")
+	if (not hud_probe.attack_first() or hud_probe._ctx_glyph(c()) != "" or not slot) and hijacked.size() < 20:
+		hijacked.append("%s:%s in %s" % [str(ctx.get("type", "")), str(ctx.get("object", ctx.get("portal", ""))), rt.room_id])

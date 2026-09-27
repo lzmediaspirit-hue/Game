@@ -204,7 +204,7 @@
    "id": "grove",
    "type": "door",
    "at": [
-    2440,
+    2490,
     700
    ],
    "to": "sf_beast_grove",

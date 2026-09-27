@@ -316,6 +316,9 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
+	# A quest whose step is to leave this room keeps its ways shut until the steps before it are done, and says which.
+	var hold: String = game.quest.room_hold(c, game.room_rt.room_id) if game.room_rt != null else ""
+	if hold != "": return {"open": false, "text": Tx.t("sim.world.step_first") % hold}
 	if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
 		return {"open": false, "text": "", "hidden": true}
 	return {"open": true, "text": ContentDB.name_of("rooms", target)}
@@ -444,6 +447,7 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 			st.state = "depleted"
 			st.timer = float(mem.nodes[id]) - now
 		if o.type in ["chest"] and mem.opened.has(open_key(o)): st.state = "open"
+		if o.type == "pickup" and mem.opened.has(id): st.state = "open"   # taken once (Aunt Ping's teas stay taken on a reload)
 		if o.type in BREAKABLES and float(mem.broken.get(id, 0.0)) > now:
 			st.state = "broken"
 			st.timer = float(mem.broken[id]) - now
@@ -1855,7 +1859,8 @@ func guide_step(c) -> Dictionary:
 	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
 	return step
 
-## The room the tracked quests lead to (the main story's first), other than where the character stands.
+## The room the tracker leads to (the main story's first: its quest under way, or its next one between quests), other
+## than where the character stands.
 func guide_target(c) -> String:
 	if c == null: return ""
 	var here := str(c.position.get("room", ""))
@@ -1863,8 +1868,8 @@ func guide_target(c) -> String:
 	for q in game.quest.tracker(c):
 		var t := str(q.get("target_room", ""))
 		if t == "" or t == here: continue
-		if goal == "" or str(q.kind) in ["main", "prologue"]: goal = t
-		if str(q.kind) in ["main", "prologue"]: break
+		if goal == "" or QuestAuthority.leads(str(q.kind)): goal = t
+		if QuestAuthority.leads(str(q.kind)): break
 	return goal
 
 ## "Room · Region" for a room id, as the tracker and the map name a destination.

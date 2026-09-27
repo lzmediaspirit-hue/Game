@@ -48,7 +48,7 @@ each physics frame; the tests call it directly without any scene.
 | `EnemyAuthority` + `EnemyBrain` | Spawning, monster AI, boss phases, fleeing story bosses |
 | `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49), the lantern defence's light (v1.2 Phase D), idle-room eligibility, auto-hunt and quest auto-path routes (`WorldRules.route`; the presentation `Autopilot` drives the joystick) |
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
-| `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops |
+| `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops; the tracker and the story's next step between main quests (`story_next`: who gives it and where, or the Level and the hunting ground), a room a quest step holds you in (`room_hold`) |
 | `EconomyAuthority` | Currencies, shops, buyback, exchange |
 | `CraftingAuthority` | Recipes, professions, gathering, fishing, cooking, alchemy (the five-screen furnace: `start_refine`, `refine_input`, `cancel_refine`), the forge, array plates |
 | `WorkshopAuthority` | Appraisal, formations, infirmary healing, puppets, manual restoration, teaching |

@@ -174,7 +174,7 @@
    "id": "inn_door",
    "type": "door",
    "at": [
-    1520,
+    1480,
     704
    ],
    "to": "ae_wayfarers_inn",
@@ -449,11 +449,11 @@
    "id": "wayfarers_inn_ladder_2",
    "kind": "ladder",
    "at": [
-    1480,
+    1440,
     725
    ],
    "top_at": [
-    1480,
+    1440,
     682
    ],
    "bottom_alt": 0,

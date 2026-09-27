@@ -27,6 +27,8 @@ func _main() -> void:
 	GameEvents.event.connect(func(n, p):
 		if n == "system_unlocked": unlock_log.append(str(p.get("system", "")))
 		if n == "enemy_spawned": par_pace(p))
+	# Every main quest of Acts I-III is held to the story's guidance (prologue_run.story_guidance) as it is played.
+	watch_story()
 	if from == "":
 		run()
 		from = SECTIONS[0]
@@ -47,15 +49,14 @@ func _main() -> void:
 		call("sec_" + s)
 		if failures > before: print("   section ", s, ": ", failures - before, " failure(s)")
 		if only: break
+	if not only:
+		var left: Array = ContentDB.all("quests").filter(func(q): return str(q.kind) == "main" and not q.get("hidden", false) and not c().quests.is_done(str(q.id)))
+		check(left.is_empty() and guidance_steps > 0, "every main quest of Acts I-III was played, each step held to the story's guidance (%d steps; not played: %s)"
+			% [guidance_steps, str(left.map(func(q): return str(q.id)))])
 	print("valley_run: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
 # ------------------------------------------------------------------ checkpoints
-func _copy_dir(from: String, to: String) -> void:
-	DirAccess.make_dir_recursive_absolute(to)
-	for f in DirAccess.get_files_at(to): DirAccess.remove_absolute(to + f)
-	for f in DirAccess.get_files_at(from): DirAccess.copy_absolute(from + f, to + f)
-
 func checkpoint(name: String) -> void:
 	Game.save_all()
 	_copy_dir(Saves.repo.root, CP_ROOT + name + "/")
@@ -841,42 +842,14 @@ func _dummy_beside_npc() -> void:
 	check(str(talk.get("dialogue", {}).get("npc", "")) == "uncle_guo", "and the context button's answer is Guo's")
 
 ## M17: a conversation closes itself (dialogue_page.gd), on the real page. A last line with nothing to choose after it
-## closes when tapped. Accepting a quest, and later handing it in, close the page once only a farewell is left (or it
-## goes on to what the NPC says next): nobody has to tap "Farewell".
+## closes when tapped. Accepting a quest, and later handing it in, close the page (or it goes on to that person's next
+## quest): nobody has to tap "Farewell" (prologue_run._choose_on_page).
 func _conversations_close() -> void:
 	var wen := _page({"npc": "fisher_wen", "speaker": ContentDB.name_of("npcs", "fisher_wen"), "lines": [ContentDB.entry("npcs", "fisher_wen").lines[0]], "choices": []})
 	check(wen.closed, "a last line with nothing to choose closes the conversation when tapped")
 	wen.page.queue_free()
 	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "giver")), "accept", "stone_and_sweat"),
-		"Stone and Sweat accepted on the page, and the conversation closes itself or goes on")
-
-## Talk to an NPC by the context button on the real dialogue page, tap to the last line and pick the choice that does
-## `key` (accept or hand_in) for a quest. True when it took, and the page then closed itself or went on to a new
-## conversation with more than a farewell in it.
-func _choose_on_page(npc: String, key: String, qid: String) -> bool:
-	var talk := interact(str(npc_object(npc).get("id", "")))
-	var on := _page(talk.get("dialogue", {}))
-	var before: Dictionary = on.page.convo
-	var choices: Array = before.get("choices", [])
-	for i in choices.size():
-		if str(choices[i].get(key, "")) == qid and not on.closed: on.page.on_action("choose", i)
-	var now: Dictionary = on.page.convo
-	var went_on: bool = now != before and ((now.get("choices", []) as Array).size() > 1 or now.has("quest"))
-	on.page.queue_free()
-	var took: bool = c().quests.is_active(qid) if key == "accept" else c().quests.is_done(qid)
-	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else ("went on" if went_on else "left open")])
-	return took and (on.closed or went_on)
-
-## Open a conversation on the real dialogue page and tap through it to its last line (or until it closes).
-func _page(convo: Dictionary) -> Dictionary:
-	var out := {"page": load(str(load("res://scripts/main.gd").PAGES.dialogue)).new(), "closed": false}
-	out.page.closed.connect(func(_p): out.closed = true)
-	add_child(out.page)
-	out.page.open({"convo": convo})
-	for i in 20:
-		if out.closed or (out.page.at_end() and out.page.shown_chars >= out.page.current().length() and not (out.page.convo.get("choices", []) as Array).is_empty()): break
-		out.page.on_action("advance", null)
-	return out
+		"Stone and Sweat accepted on the page, and the conversation closes itself or goes on to the next quest")
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:

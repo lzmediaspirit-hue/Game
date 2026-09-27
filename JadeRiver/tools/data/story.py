@@ -7,7 +7,7 @@ the world (a river valley, sects, a slow climb through realms).
 import json
 import os
 
-from common import DATA, write, entries, realm, qdone, qactive, flag, noflag, unlocked, sect, all_of, any_of
+from common import DATA, write, entries, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 from realms import level_of
@@ -546,7 +546,9 @@ def unlocks():
     u("codex", "Codex", all_of(flag("night_survived")), "the_river_token", ["page:codex"], prologue=True, toast=False)
 
     # Bone Forging
-    bf1 = all_of(realm("bone_forging_1"))
+    # The Willow Path follows the River Token (its `next`): it starts once Lu has handed you the token on his boat, not
+    # at the breakthrough a moment before, when the boat's way ashore is still shut (the tracker would lead nowhere).
+    bf1 = all_of(realm("bone_forging_1"), qdone("the_river_token"))
     u("body_training", "Body training", bf1, "the_willow_path", [])
     u("kill_progress", "Progress from fights", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
     u("shrine_respawn", "Shrines remember you", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
@@ -747,7 +749,7 @@ def unlocks():
     u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
     # P12: Chapter 21 opens at Sphere Lord 1, so The Tide Breaks and this box open together; Tinker Mei waits in the
     # Tidebreak Bastion, which The Tide Breaks opens, so the box follows it.
-    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), {"kind": "quest_accepted", "quest": "the_tide_breaks"}),
+    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), qaccepted("the_tide_breaks")),
       "the_copperjaw_box", [], same_stage_ok=True)
     u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
       same_stage_ok=True)
@@ -842,11 +844,13 @@ def prologue_quests():
                "Then buy two rice balls. That's how trade works: you give, you get."],
         complete=["See? Coins go round like the river. Here's a little for your trouble."])
     quest("grannys_remedy", "Granny's Remedy", "prologue", "granny_liu", [
-        o("use_system", "Put Herbal Tea in the Quick-use slot", system="set_quick_use"),
-        o("use_item", "Drink a Herbal Tea", item="herbal_tea"),
+        o("use_system", "Bag: put Herbal Tea in Quick-use", system="set_quick_use"),
+        o("use_item", "Drink a Herbal Tea: tap Quick-use", item="herbal_tea"),
         o("interact_object", "Pray at the village shrine", type="shrine"),
     ], [item("herbal_tea", 3)], requires=after_lu, target_room="lf_village", chapter="prologue", marker="blue",
-        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.", "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
+        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.",
+               "Open your Bag, tap the tea and choose Quick-use: it waits by your fist, marked Quick-use.",
+               "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
         complete=["Good. The shrine will patch you up when you're hurt. Tea when you can't reach it."])
     quest("race_to_the_tower", "Race to the Tower", "side", "shen_lian_npc", [
         o("interact_object", "Ring the watch-tower bell", object="tower_bell"),
@@ -859,7 +863,8 @@ def prologue_quests():
     ], [item("herbal_tea", 1)], requires=after_lu, target_room="lf_village", chapter="prologue",
         offer=["Fists first! Jab, cross, jab. Hold the button and they flow.", "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."],
         progress=["Elbow in! Twelve on the stump, five on the dummy."],
-        complete=["Not bad! The East Gate's open for you. Reed Shallows. Crabs. You'll see."])
+        complete=["Not bad! Keep those fists warm. Something's stirring past the East Gate.",
+                  "Finish helping the others first. Lu will tell you when."])
     quest("a_quiet_river_return", "A Quiet River (Return)", "prologue", "lu_boatman", [
         o("talk_to", "Report to Lu", npc="lu_boatman"),
     ], [], hand_in="lu_boatman", auto_accept=True, target_room="lf_village", chapter="prologue",
@@ -870,6 +875,7 @@ def prologue_quests():
         o("kill", "Defeat Old Snapper", enemy="old_snapper", after=0),
     ], [taels(50), item("plain_straw_hat", 1)], requires=all_of(qdone("a_quiet_river_return")), target_room="lf_reed_shallows", chapter="prologue",
         offer=["The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+               "The East Gate's open for you now. Reed Shallows, just past it.",
                "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."],
         complete=["Old Snapper! Ha! Here, fifty taels and my old straw hat. Wear it, it keeps the sun out of a fighter's eyes."])
     quest("evening_on_the_river", "Evening on the River", "prologue", "lu_boatman", [
@@ -920,7 +926,9 @@ def guided_quests():
         o("kill", "Beat the Trial Puppet", enemy="trial_puppet"),
     ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects"),
         fx("set_flag", flag="prologue_done")], hand_in="",
-        offered_by_unlock=True, auto_accept=True, target_room="sf_fairground", chapter="bf2",
+        # It starts the moment a sect is chosen (the fair's last words send you to it): its first step, Bone Forging 2,
+        # leads to the hunting grounds; the notice board, the return charm and the Character page it teaches open there.
+        requires=all_of(qdone("the_recruitment_fair")), auto_accept=True, target_room="sf_fairground", chapter="bf2",
         complete=["Service Disciple! Report to the steward at your sect's gate."])
     quest("a_disciples_chores", "A Disciple's Chores", "main", "jade_steward", [
         o("set_flag", "Sweep the first spot", flag="swept_ja_0", alt_flag="swept_cm_0"),

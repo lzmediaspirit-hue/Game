@@ -243,7 +243,7 @@
    "id": "hut_door",
    "type": "door",
    "at": [
-    430,
+    386,
     704
    ],
    "to": "lf_fishers_hut",
@@ -256,7 +256,7 @@
    "id": "granny_door",
    "type": "door",
    "at": [
-    1000,
+    988,
     704
    ],
    "to": "lf_granny_liu_hut",
@@ -288,7 +288,7 @@
    "id": "store_door",
    "type": "door",
    "at": [
-    1760,
+    1792,
     704
    ],
    "to": "lf_old_ma_store",
@@ -330,12 +330,12 @@
    "requires": {
     "all": [
      {
-      "kind": "quest_done",
-      "quest": "fists_first"
+      "kind": "quest_accepted",
+      "quest": "crab_trouble"
      }
     ]
    },
-   "locked_text": "Uncle Guo won't let you past without learning to punch."
+   "locked_text": "Uncle Guo keeps the East Gate shut. Help the village first; he'll send you out when you're ready."
   }
  ],
  "objects": [
@@ -423,7 +423,7 @@
    "id": "storage_village",
    "type": "storage_chest",
    "at": [
-    1870,
+    1910,
     700
    ],
    "requires": {
