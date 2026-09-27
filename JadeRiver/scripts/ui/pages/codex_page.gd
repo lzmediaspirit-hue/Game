@@ -3,10 +3,11 @@ extends Page
 ## page. P5 (docs/page_identity.md row 26, mockups 18 and 18_scrolls, decision 11): the field book, a bound book open on
 ## the reading desk, its sections silk ribbons standing out of the top edge (the open one's name inked on it, the
 ## page's title) and its curled corners turning the leaves. The Collection is a naturalist's field book, a spread for
-## each collection page: each beast a drawing on squared paper taped in, its count on an ink bar, and the page's seal.
+## each collection page: each beast a drawing on squared paper taped in, its count on an ink bar, and the page's two
+## seals with their gifts (decision 27), claimed with the one intent the page sends, claim_collection_seal.
 ## The Old Scrolls look like nothing else in the game: a black stone rubbing mounted as a hanging scroll, inked from the
 ## top down as the account climbs, each rung glossed in vermilion with our realms that stand on it, and the chosen
-## rung's note pinned beside it. The page reads only; it submits no intent.
+## rung's note pinned beside it. Apart from a seal's claim the page reads only.
 
 const BOOK := Rect2(52, 76, 1176, 612)
 const SPINE := 640.0
@@ -26,6 +27,8 @@ var contents := false     # the Collection's contents on the right page
 var rung := -1            # the Old Scrolls' chosen rung, and which of our realms on it
 var rung_realm := ""
 var turned_at := 0.0      # when the last leaf turned (or a rung was dabbed)
+var stamped := {}         # "page:seal" -> when its claim stamped it (decision 27)
+const STAMP_S := 0.3      # a claimed seal dabbed in
 
 ## Ink on paper (page_identity §7: the Records family). Each is a token or a mix of two, measured on the paper.
 var INK := UiKit.PAPER_INK
@@ -51,12 +54,14 @@ func setup() -> void:
 	for i in tabs.size():
 		if str(tabs[i].id) == page_id: tab = i
 	_build()
-	# The Collection opens at the first page still being filled.
+	# The Collection opens at the first page with a seal to claim, else at the first page still being filled.
+	var claim := -1
+	var filling := -1
 	for i in _spreads.size():
 		var pg: Dictionary = _spreads[i]
-		if not Game.account.collection_pages_done.has(pg.page) and pg.beasts.any(func(e): return _kills(e) > 0):
-			leaf["collection"] = i
-			break
+		if claim < 0 and int(pg.part) == 0 and [1, 2].any(func(n): return Game.accounts.seal_progress(pg.page, n).open): claim = i
+		if filling < 0 and not Game.account.collection_pages_done.has(pg.page) and pg.beasts.any(func(e): return _kills(e) > 0): filling = i
+	if claim >= 0 or filling >= 0: leaf["collection"] = claim if claim >= 0 else filling
 	turned_at = t
 
 func content_rect() -> Rect2:
@@ -164,14 +169,18 @@ func _heads(left: String, left_r: String, right: String, right_r: String) -> voi
 func _rule(x: float, y: float, w: float, a := 0.7) -> void:
 	hshade(Rect2(x, y, w, 2), Color(BROWN, a), Color(BROWN, 0.0))
 
-## An ink-drawn bar: a pencil outline, a wash to `frac`, an ink diamond at its end (filled once reached, gold while next).
-func _ink_bar(r: Rect2, frac: float, gold := false) -> void:
+## An ink-drawn bar: a pencil outline, a wash to `frac`, an ink diamond at its end (filled once reached, gold while next)
+## and, with `stop`, a smaller ink diamond at that share (a stop passed).
+func _ink_bar(r: Rect2, frac: float, gold := false, stop := -1.0) -> void:
 	draw_rect(r, Color(UiKit.PAPER, 0.4))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0.0, 1.0), r.size.y)), UiKit.BRONZE.lerp(UiKit.GOLD, 0.35) if gold else UiKit.JADE_SHADOW.lerp(UiKit.JADE, 0.35))
 	draw_rect(r, INK, false, 2.0)
-	var p := Vector2(r.end.x, r.position.y)
-	var d := PackedVector2Array([p + Vector2(0, -7), p + Vector2(7, 0), p + Vector2(0, 7), p + Vector2(-7, 0)])
-	draw_colored_polygon(d, INK if frac >= 1.0 else UiKit.GOLD)
+	if stop > 0.0 and stop < 1.0: _diamond(Vector2(r.position.x + r.size.x * stop, r.position.y + r.size.y * 0.5), 6.0, INK)
+	_diamond(Vector2(r.end.x, r.position.y), 7.0, INK if frac >= 1.0 else UiKit.GOLD)
+
+func _diamond(p: Vector2, s: float, fill: Color) -> void:
+	var d := PackedVector2Array([p + Vector2(0, -s), p + Vector2(s, 0), p + Vector2(0, s), p + Vector2(-s, 0)])
+	draw_colored_polygon(d, fill)
 	d.append(d[0])
 	draw_polyline(d, INK, 2.0, true)
 
@@ -282,6 +291,9 @@ func _kills(e: Dictionary) -> int:
 func _fill(e: Dictionary) -> int:
 	return int(e.collection.get("kills_to_fill", 50))
 
+func _master(e: Dictionary) -> int:
+	return int(e.collection.get("kills_to_master", _fill(e)))
+
 func _page_name(id: String) -> String:
 	return Tx.t("ui.codex.page_" + id)
 
@@ -328,18 +340,17 @@ func _collection() -> void:
 	text(Vector2(cb.position.x + 40, cb.position.y + 30), Tx.t("ui.codex.contents"), 16, INK)
 	region(cb, "contents")
 	_rule(LEFT_X, 216, TEXT_W)
-	# The page: its name, how many beasts and when a card fills, its seal.
-	var sealed: bool = Game.account.collection_pages_done.has(sp.page)
+	# The page: its name, how many beasts and when a card fills, its two seals.
 	text(Vector2(LEFT_X, 256), _page_name(sp.page), 30, INK, HORIZONTAL_ALIGNMENT_LEFT, 300, true)
 	var nx := LEFT_X + minf(300.0, UiKit.text_width(_page_name(sp.page), 30, true)) + 12
-	text(Vector2(nx, 252), Tx.plural("ui.codex.beasts_fill", beasts.size()) % [beasts.size(), _fill(beasts[0])], 16, BROWN, HORIZONTAL_ALIGNMENT_LEFT, 548 - nx)
-	_seal(Rect2(556, 226, 34, 34), sealed)
+	text(Vector2(nx, 252), Tx.plural("ui.codex.beasts_fill", beasts.size()) % [beasts.size(), _fill(beasts[0])], 16, BROWN, HORIZONTAL_ALIGNMENT_LEFT, 506 - nx)
+	for n in [1, 2]: _seal(Rect2(512 + (n - 1) * 44, 226, 34, 34), sp.page, n)
 	for i in sp.beasts.size():
 		if contents and i >= 2: break
 		var at := Vector2(LEFT_X, 276 + i * 180) if i < 2 else Vector2(RIGHT_X, 128 + (i - 2) * 176)
 		_beast(sp.beasts[i], at)
 	if contents: _contents()
-	else: _page_seal(beasts, sealed)
+	else: _page_seals(sp.page)
 	_turn(_spreads.size(), _page_name(_spreads[maxi(0, k - 1)].page), _page_name(_spreads[mini(_spreads.size() - 1, k + 1)].page))
 
 ## One field-book entry: the beast drawn on squared paper and taped in (a shadow while not yet met), its name, rank,
@@ -364,12 +375,11 @@ func _beast(e: Dictionary, at: Vector2) -> void:
 		draw_rect(Rect2(0, 0, 44, 16), Color(UiKit.SURFACE.bridge, 0.75))
 		draw_set_transform(Vector2.ZERO)
 	var fill := _fill(e)
-	if kills >= fill:   # the card is filled: its count stamped on the drawing
+	if kills >= fill:   # the card is filled: its mark stamped on the drawing (the fill, then the mark for seal II)
 		var st := Rect2(spec.end.x - 58, spec.position.y + 10, 50, 50)
-		rounded(st, 6.0, Color(UiKit.BLOOD, 0.9))
-		draw_rect(st.grow(-4), Color(UiKit.PAPER, 0.6), false, 2.0)
-		ground(st, UiKit.BLOOD)
-		text(Vector2(st.position.x, st.position.y + 34), str(fill), 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, st.size.x)
+		_stamp(st)
+		var mark := _master(e) if kills >= _master(e) else fill
+		text(Vector2(st.position.x, st.position.y + 34), str(mark), 22 if mark < 100 else 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, st.size.x)
 	var tx := at.x + 204
 	var tw := TEXT_W - 204
 	var lv: Array = _lv(e)
@@ -400,34 +410,59 @@ func _beast(e: Dictionary, at: Vector2) -> void:
 	var cnt := str(kills) if kills >= fill else "%d / %d" % [kills, fill]
 	text(Vector2(at.x, at.y + 162), cnt, 22, INK)
 	if kills >= fill: text(Vector2(at.x + UiKit.text_width(cnt, 22) + 8, at.y + 161), Tx.t("ui.codex.defeated_word"), 16, BROWN)
-	_ink_bar(Rect2(at.x + 150, at.y + 148, TEXT_W - 150, 18), kills / float(fill), kills >= fill)
+	# A filled card's bar runs on to its mark for seal II (decision 27), the fill a stop on it.
+	var master := _master(e)
+	if kills >= fill: _ink_bar(Rect2(at.x + 150, at.y + 148, TEXT_W - 150, 18), kills / float(master), true, fill / float(master))
+	else: _ink_bar(Rect2(at.x + 150, at.y + 148, TEXT_W - 150, 18), kills / float(fill))
 
-## A seal: stamped in vermilion once earned, a dashed outline of it until then.
-func _seal(r: Rect2, set_: bool) -> void:
-	if set_:
-		rounded(r, 6.0, Color(UiKit.BLOOD, 0.9))
-		draw_rect(r.grow(-3), Color(UiKit.PAPER, 0.6), false, 2.0)
-		draw_rect(r.grow(-r.size.x * 0.3), Color(UiKit.PAPER, 0.7), false, 3.0)
-	else:
-		for s in [[r.position, Vector2(r.end.x, r.position.y)], [Vector2(r.end.x, r.position.y), r.end], [r.end, Vector2(r.position.x, r.end.y)], [Vector2(r.position.x, r.end.y), r.position]]:
-			draw_dashed_line(s[0], s[1], Color(RED_INK, 0.75), 3.0, 6.0)
+## A vermilion stamp with its paper rim (`k` fades it in).
+func _stamp(r: Rect2, k := 1.0) -> void:
+	rounded(r, 6.0, Color(UiKit.BLOOD, 0.9 * k))
+	ground(r, UiKit.BLOOD)
+	draw_rect(r.grow(-3), Color(UiKit.PAPER, 0.6 * k), false, 2.0)
 
-## The page's seal (collection_pages_done): every card on the page filled.
-func _page_seal(beasts: Array, sealed: bool) -> void:
+## A page's seal `n` (decision 27, mockup 18): stamped in vermilion with its numeral once claimed (dabbed in over
+## STAMP_S after the claim); a dashed vermilion outline while it waits, glowing once it can be claimed; a faded brown
+## outline for seal II until seal I is claimed.
+func _seal(r: Rect2, page: String, n: int) -> void:
+	var pr: Dictionary = Game.accounts.seal_progress(page, n)
+	var num := Tx.t("ui.codex.seal_%d" % n)
+	var size := 14 if r.size.x < 30 else (18 if r.size.x < 48 else 26)
+	if pr.claimed:
+		var k := clampf((t - float(stamped.get("%s:%d" % [page, n], -9.0))) / STAMP_S, 0.0, 1.0)
+		if UiKit.reduce_motion(): k = 1.0
+		var sr := Rect2(r.get_center() - r.size * (1.5 - 0.5 * k) * 0.5, r.size * (1.5 - 0.5 * k))
+		_stamp(sr, k)
+		text(Vector2(sr.position.x, sr.get_center().y + size * 0.36), num, size, Color(UiKit.PAPER, k), HORIZONTAL_ALIGNMENT_CENTER, sr.size.x, true)
+		return
+	var col := RED_INK if pr.after_ok else BROWN
+	if pr.open: glow(r.grow(r.size.x * 0.35), Color(UiKit.GOLD, 0.35 + 0.25 * _pulse()))
+	for s in [[r.position, Vector2(r.end.x, r.position.y)], [Vector2(r.end.x, r.position.y), r.end], [r.end, Vector2(r.position.x, r.end.y)], [Vector2(r.position.x, r.end.y), r.position]]:
+		draw_dashed_line(s[0], s[1], Color(col, 0.75 if pr.after_ok else 0.5), 3.0, 6.0)
+	text(Vector2(r.position.x, r.get_center().y + size * 0.36), num, size, col, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
+
+## The page's seals (decision 27, mockup 18): each with its rule, its gift, its cards on an ink bar, and Claim once
+## earned (the Account authority's claim_collection_seal); a claimed seal is stamped and says so.
+func _page_seals(page: String) -> void:
 	_rule(RIGHT_X, 476, TEXT_W)
-	text(Vector2(RIGHT_X, 512), Tx.t("ui.codex.seal_head"), 26, INK, HORIZONTAL_ALIGNMENT_LEFT, TEXT_W, true)
-	_seal(Rect2(RIGHT_X + 4, 530, 68, 68), sealed)
-	var got := 0
-	var need := 0
-	for e in beasts:
-		got += mini(_kills(e), _fill(e))
-		need += _fill(e)
-	var tx := RIGHT_X + 92
-	text(Vector2(tx, 546), Tx.t("ui.codex.seal_rule") % _fill(beasts[0]), 18, INK, HORIZONTAL_ALIGNMENT_LEFT, 300)
-	if sealed: text(Vector2(tx + 300, 546), Tx.t("ui.codex.sealed"), 18, RED_INK, HORIZONTAL_ALIGNMENT_RIGHT, 108)
-	_ink_bar(Rect2(tx, 560, 280, 18), got / float(maxi(1, need)))
-	text(Vector2(tx + 292, 575), "%s / %s" % [UiKit.fmt(got), UiKit.fmt(need)], 16, INK, HORIZONTAL_ALIGNMENT_LEFT, 120)
-	text(Vector2(tx, 604), Tx.t("ui.codex.seal_cards") % [beasts.filter(func(e): return _kills(e) >= _fill(e)).size(), beasts.size()], 14, BROWN)
+	text(Vector2(RIGHT_X, 504), Tx.t("ui.codex.seal_head"), 26, INK, HORIZONTAL_ALIGNMENT_LEFT, TEXT_W, true)
+	for n in [1, 2]:
+		var pr: Dictionary = Game.accounts.seal_progress(page, n)
+		var y := 514.0 + 60.0 * int(n - 1)
+		_seal(Rect2(RIGHT_X + 4, y + 2, 50, 50), page, n)
+		var tx := RIGHT_X + 70
+		var rule_s := Tx.t("ui.codex.seal_rule") % int(pr.mark) if int(pr.mark) > 0 else Tx.t("ui.codex.seal_rule_mixed")
+		if n == 2: rule_s = Tx.t("ui.codex.seal_after") % [rule_s, Tx.t("ui.codex.seal_1")]
+		text(Vector2(tx, y + 16), rule_s, 18, INK if pr.after_ok else BROWN, HORIZONTAL_ALIGNMENT_LEFT, 300)
+		var gift_w := TEXT_W - 70
+		if pr.open:   # Claim stands at the row's end in place of its count
+			btn(Rect2(RIGHT_X + TEXT_W - 112, y + 4, 112, 48), Tx.t("ui.codex.claim"), "claim_seal", [page, n], true, true, "", 18)
+			gift_w -= 124
+		elif pr.claimed: text(Vector2(tx + 300, y + 16), Tx.t("ui.codex.sealed"), 16, RED_INK, HORIZONTAL_ALIGNMENT_RIGHT, TEXT_W - 370)
+		else: text(Vector2(tx + 300, y + 16), Tx.t("ui.codex.seal_cards" if n == 1 else "ui.codex.seal_cards_studied") % [int(pr.done), int(pr.cards)], 14, BROWN, HORIZONTAL_ALIGNMENT_RIGHT, TEXT_W - 370)
+		text(Vector2(tx, y + 36), UiKit.seal_gift(ContentDB.collection_seal(page, n), false), 16, JADE_INK, HORIZONTAL_ALIGNMENT_LEFT, gift_w)
+		_ink_bar(Rect2(tx, y + 44, 280, 12), int(pr.got) / float(maxi(1, int(pr.need))), pr.claimed)
+		if not pr.open: text(Vector2(tx + 292, y + 56), "%s / %s" % [UiKit.fmt(int(pr.got)), UiKit.fmt(int(pr.need))], 16, INK if pr.after_ok else BROWN, HORIZONTAL_ALIGNMENT_LEFT, TEXT_W - 362)
 
 ## Contents: every page of the book in two columns, its cards filled and its seal; a tap turns to it.
 func _contents() -> void:
@@ -443,7 +478,7 @@ func _contents() -> void:
 		_rule(r.position.x, r.end.y, r.size.x, 0.35)
 		text(Vector2(r.position.x + 8, r.position.y + 33), _page_name(pg.id), 16, INK, HORIZONTAL_ALIGNMENT_LEFT, 160)
 		text(Vector2(r.end.x - 76, r.position.y + 33), "%d / %d" % [n, pg.beasts.size()], 14, BROWN, HORIZONTAL_ALIGNMENT_RIGHT, 44)
-		_seal(Rect2(r.end.x - 26, r.position.y + 14, 22, 22), Game.account.collection_pages_done.has(pg.id))
+		_seal(Rect2(r.end.x - 26, r.position.y + 14, 22, 22), pg.id, 2 if Game.account.collection_seals.has(pg.id + ":1") else 1)
 		region(r, "goto", at)
 
 # ------------------------------------------------------------------ Achievements and Paths Above: rows on the pages
@@ -472,7 +507,9 @@ func _achievements() -> void:
 		text(p + Vector2(0, 52), str(a.get("desc", "")), 16, BROWN, HORIZONTAL_ALIGNMENT_LEFT, 380)
 		if done:
 			text(p + Vector2(380, 52), Tx.t("ui.codex.complete"), 16, JADE_INK, HORIZONTAL_ALIGNMENT_RIGHT, 120)
-			_seal(Rect2(p.x - 30, p.y + 10, 20, 20), true)
+			var ar := Rect2(p.x - 30, p.y + 10, 20, 20)
+			_stamp(ar)
+			draw_rect(ar.grow(-6), Color(UiKit.PAPER, 0.7), false, 3.0)
 		elif int(a.get("count", 1)) > 1: text(p + Vector2(380, 52), "%d / %d" % [n, int(a.count)], 16, INK, HORIZONTAL_ALIGNMENT_RIGHT, 120)
 		_rule(p.x, p.y + 70, TEXT_W, 0.3)
 	_turn(int(ceil(list_a.size() / float(ROWS_PAGE * 2))), Tx.t("ui.codex.turn_back"), Tx.t("ui.codex.turn_on"))
@@ -759,6 +796,9 @@ func on_action(id: String, data) -> void:
 			leaf[_id()] = int(leaf.get(_id(), 0)) + int(data)
 			turned_at = t
 		"contents": contents = not contents
+		"claim_seal":   # decision 27: the Account authority grants the seal's gift; the page stamps it in
+			if submit({"type": "claim_collection_seal", "page": str(data[0]), "seal": int(data[1])}).get("ok", false):
+				stamped["%s:%d" % [data[0], int(data[1])]] = t
 		"goto":
 			leaf["collection"] = int(data)
 			contents = false

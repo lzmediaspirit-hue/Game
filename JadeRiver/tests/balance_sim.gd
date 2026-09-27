@@ -73,6 +73,7 @@ func _main() -> void:
 	_account_month()
 	_par_checks(c, cfg, hours)
 	_technique_checks(c, cfg)
+	_codex_seals(c)
 	_finish()
 
 # ------------------------------------------------------------------ P12 the par character (research §6.1, §6.7)
@@ -112,6 +113,31 @@ func _par_character(c, lv: int) -> void:
 		{"stat": "crit_chance", "op": "flat", "value": float(crit[0]), "source": "par:crit"},
 		{"stat": "crit_damage", "op": "flat", "value": float(crit[1]), "source": "par:crit"}])
 	StatRules.rebuild(c)
+
+## Decision 27 (research §6.4: no bucket fed from outside its table): every Codex seal's gift together stays inside
+## the budget account_rules.json sets for each stat, gives no offence stat, and moves the par character's Combat
+## Power at Levels 30, 99 and 165 by no more than `par_cp_max`, all through the real stat rules.
+func _codex_seals(c) -> void:
+	var rules: Dictionary = ContentDB.config("account_rules").get("collection_seals", {})
+	var budget: Dictionary = rules.get("budget", {})
+	var group := {}
+	for s in ContentDB.stat_const("stats", []): group[str(s.id)] = str(s.get("group", ""))
+	var sums := {}
+	var all := AccountState.new()
+	for page in rules.get("pages", {}):
+		for seal in rules.pages[page]:
+			all.collection_seals["%s:%d" % [page, int(seal.seal)]] = true
+			for m in seal.get("modifiers", []): sums[str(m.stat)] = float(sums.get(str(m.stat), 0.0)) + float(m.value)
+	for stat in sums:
+		check(budget.has(stat) and float(sums[stat]) <= float(budget.get(stat, 0.0)) + 0.0001 and str(group.get(stat, "")) != "offense",
+			"codex seals: %s +%.0f%% over the book (budget %.0f%%, group %s)" % [stat, 100.0 * float(sums[stat]), 100.0 * float(budget.get(stat, 0.0)), str(group.get(stat, "?"))])
+	for lv in [30, 99, 165]:
+		_par_character(c, lv)
+		var cp0 := float(StatRules.combat_power(c))
+		StatRules.rebuild(c, all)
+		var gain := float(StatRules.combat_power(c)) / maxf(1.0, cp0) - 1.0
+		print("codex seals: Level %d par Combat Power %d, with every seal %+.2f%%" % [lv, int(cp0), 100.0 * gain])
+		check(gain >= 0.0 and gain <= float(rules.get("par_cp_max", 0.03)), "codex seals: every seal claimed moves Level %d par Combat Power by %.2f%% (at most %.0f%%)" % [lv, 100.0 * gain, 100.0 * float(rules.get("par_cp_max", 0.03))])
 
 ## The banded base of a slot (the jian for the weapon) with the highest item Level at or under `ilv`, else the lowest.
 func _par_base(slot: String, ilv: int) -> String:

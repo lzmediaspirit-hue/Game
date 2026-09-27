@@ -1681,6 +1681,18 @@
     "account_authority"
    ]
   },
+  "collection_seal_ready": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "collection_seal_claimed": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
   "mail_received": {
    "system": "Mail",
    "files": [

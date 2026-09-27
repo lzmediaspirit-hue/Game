@@ -87,7 +87,9 @@ DEPTH = {
     "Calendar": ["world_event_scheduled", "world_event_started", "world_event_ended", "season_changed", "weather_changed", "rift_opened",
                  "treasure_claimed", "gathering_trial_ranked", "heavenly_phenomenon", "fortune_encounter", "ranking_changed"],
     # S49 daily activity chests (account level).
-    "Account": ["activity_chest_ready", "activity_chest_claimed"],
+    "Account": ["activity_chest_ready", "activity_chest_claimed",
+                # Decision 27: a Codex page seal earned (claim it in the Codex) and claimed (its gift kept for good).
+                "collection_seal_ready", "collection_seal_claimed"],
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
                   "young_master_challenge", "affinity_changed", "bond_formed", "grudge_changed", "hunter_dispatched", "bounty_taken",

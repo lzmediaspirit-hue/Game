@@ -418,5 +418,16 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     beside one wide grid, and the small item card. A and C stay as the record.
 25. **The world map mockup is approved** (`16_world_map`, `16_world_map_resources`) and is built as drawn.
 26. **Works: the Seal Scripts section is bigger** (`14_works_v4`): more rows show at once, the shelf gives it room.
+27. **Codex page-completion rewards** (2026-09-27, mockup 18's two seals). Every collection page has two seals. Seal I:
+    every card on the page filled (50 defeated). Seal II: every card studied through, 500 for a common beast, 200 for an
+    elite and 100 for a boss (`kills_to_master` in `enemies.json`), claimed after seal I. The Account authority owns
+    them: a seal is earned the kill its condition first holds (a toast says so), claimed once for the account by the
+    intent `claim_collection_seal` (Claim on the book page, which stamps it) and saved (`collection_seals`). Each gift
+    is small and permanent, kept by every character through the stat rules (source `collection:`): seal I one
+    defensive or finding stat (Hollow Ward +2%, tenacity +1%, max HP +1%, drop rate +1%, coin find +2%), seal II
+    healing received +1%, knockback resistance +5% or mastery gain +2%, and a Bestiary Leaf of one of the page's beasts.
+    No attack or damage stat; each stat's sum over the book has a budget in `account_rules.json`
+    (`collection_seals`), and `balance_sim` holds every seal together under +3% of the par character's Combat Power
+    (about +0.6% at Level 99).
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

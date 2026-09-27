@@ -237,6 +237,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_purity": progression.apply_purity(actor_id, float(e.amount))
 			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
 			"codex": quest.apply_codex(str(e.entry))
+			"add_leaf": posts.apply_leaf(actor_id, str(e.enemy), int(e.get("count", 1)))   # decision 27: a Codex seal's Bestiary Leaf
 			"start_daily":
 				quest.start_daily(true)
 				quest.start_weekly(true)
@@ -325,7 +326,7 @@ func boot() -> Dictionary:
 			c.id = "c%d" % c.slot
 			characters[c.id] = c
 			Rng.restore(c.id, c.rng_state, c.rng_seed if c.rng_seed != 0 else hash(c.id))
-			StatRules.rebuild(c)
+			StatRules.rebuild(c, account)
 	Rng.restore("account", account.rng_state, account.rng_seed if account.rng_seed != 0 else 1)
 	report.recovered = Saves.recovered_files().duplicate()
 	booted = true

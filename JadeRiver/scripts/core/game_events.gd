@@ -19,7 +19,7 @@ const UNLOCK_TRIGGERS := ["realm_changed", "quest_accepted", "quest_completed", 
 ## Events that request an immediate save checkpoint (Part 2 · Persistence).
 const SAVE_TRIGGERS := ["breakthrough_succeeded", "breakthrough_failed", "craft_completed", "quest_completed",
 	"system_unlocked", "slot_unlocked", "character_switched", "item_bought", "item_sold", "sect_founded",
-	"character_created", "player_revived"]
+	"character_created", "player_revived", "collection_seal_claimed"]
 
 var _queue: Array = []
 var _subscribers: Dictionary = {}   # name -> Array[[priority, order, Callable]]

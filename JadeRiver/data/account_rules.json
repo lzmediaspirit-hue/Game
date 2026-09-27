@@ -173,6 +173,483 @@
   ]
  },
  "skip_prologue_allowed": true,
+ "collection_seals": {
+  "pages": {
+   "valley_shore": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "coin_find",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "old_snapper",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "willow_path": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "tenacity",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "mossback_toad",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "quarry": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "max_hp",
+       "op": "pct_add",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "knockback_resistance",
+       "op": "flat",
+       "value": 0.05
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "ironclaw_mole",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "marsh": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "hollow_ward",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "hollowed_boarlet",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "bamboo": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "drop_rate",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "mastery_gain",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "thornback_boar",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "road": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "tenacity",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "mud_hound",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "bend": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "coin_find",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "knockback_resistance",
+       "op": "flat",
+       "value": 0.05
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "riverbed_serpent",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "shrine": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "hollow_ward",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "paper_talisman_ghost",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "gorge": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "drop_rate",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "mastery_gain",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "mist_vulture",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "cliffs": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "tenacity",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "cliff_ape",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "mist_peak": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "hollow_ward",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "weeping_lantern",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "summit": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "max_hp",
+       "op": "pct_add",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "knockback_resistance",
+       "op": "flat",
+       "value": 0.05
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "cloudpeak_roc",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "azure": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "hollow_ward",
+       "op": "flat",
+       "value": 0.02
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "thousand_eye_toad",
+       "count": 1
+      }
+     ]
+    }
+   ],
+   "lantern": [
+    {
+     "seal": 1,
+     "needs": "kills_to_fill",
+     "modifiers": [
+      {
+       "stat": "drop_rate",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": []
+    },
+    {
+     "seal": 2,
+     "needs": "kills_to_master",
+     "after": 1,
+     "modifiers": [
+      {
+       "stat": "healing_received",
+       "op": "flat",
+       "value": 0.01
+      }
+     ],
+     "effects": [
+      {
+       "kind": "add_leaf",
+       "enemy": "nebula_leviathan",
+       "count": 1
+      }
+     ]
+    }
+   ]
+  },
+  "budget": {
+   "hollow_ward": 0.08,
+   "healing_received": 0.1,
+   "coin_find": 0.04,
+   "drop_rate": 0.03,
+   "tenacity": 0.03,
+   "max_hp": 0.02,
+   "knockback_resistance": 0.15,
+   "mastery_gain": 0.04
+  },
+  "par_cp_max": 0.03
+ },
  "name_max": 24,
  "creator": {
   "hair": [

@@ -100,6 +100,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	legacy_suite()
+	codex_seals_suite()
 	drop_pool_suite()
 	set_suite()
 	boss_event_suite()
@@ -9989,6 +9990,98 @@ func set_suite() -> void:
 	cu.vows = vows_before
 	foe.alive = false
 	Game.combat.refresh_stats(c.id)
+
+## Decision 27 · Codex page-completion rewards: a page's seal I is earned the kill that fills its last card and seal II
+## the kill that brings its last card to its mark, not one kill sooner; each is claimed once, seal II after seal I,
+## through the Account authority's intent; the gift's stats reach the character through StatRules and survive a
+## save; seal II's Bestiary Leaf goes to the account.
+func codex_seals_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var acc: AccountState = Game.account
+	var keep := {"collection": acc.collection.duplicate(), "done": acc.collection_pages_done.duplicate(), "seals": acc.collection_seals.duplicate(),
+		"leaves": acc.leaves.duplicate()}
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	GameEvents.flush()
+	var page := "marsh"
+	var beasts: Array = ContentDB.all("enemies").filter(func(e): return e.get("collection") is Dictionary and str(e.collection.page) == page)
+	var rules: Dictionary = ContentDB.config("account_rules").get("collection_seals", {})
+	var pages := {}
+	for e in ContentDB.all("enemies"):
+		if e.get("collection") is Dictionary: pages[str(e.collection.page)] = true
+	check(pages.keys().all(func(p): return not ContentDB.collection_seal(str(p), 1).is_empty() and not ContentDB.collection_seal(str(p), 2).is_empty())
+		and rules.get("pages", {}).size() == pages.size(), "decision 27: every collection page has its two seals (%d pages)" % pages.size())
+	for e in beasts: acc.collection.erase(str(e.id))
+	acc.collection_pages_done.erase(page)
+	acc.collection_seals.erase(page + ":1")
+	acc.collection_seals.erase(page + ":2")
+	acc.leaves.erase("hollowed_boarlet")
+	var kill := func(id: String, n: int) -> Array:
+		GameEvents.flush()
+		for i in n: Game.accounts._on_actor_defeated({"victim_kind": "enemy", "killer": c.id, "def": id})
+		var names: Array = GameEvents._queue.filter(func(q): return str(q[0]) == "collection_seal_ready").map(func(q): return int(q[1].seal))
+		GameEvents.flush()
+		return names
+	var claim := func(n: int) -> Dictionary: return Game.submit({"type": "claim_collection_seal", "page": page, "seal": n})
+	# Seal I: every card on the page filled (50); the last card one short holds it back.
+	for e in beasts.slice(0, beasts.size() - 1): kill.call(str(e.id), 50)
+	var last := str(beasts[-1].id)
+	kill.call(last, 49)
+	check(not Game.accounts.seal_progress(page, 1).earned and str(claim.call(1).get("reason", "")) == "short",
+		"decision 27: seal I waits while one card is a kill short (%d of %d cards)" % [int(Game.accounts.seal_progress(page, 1).done), beasts.size()])
+	var ready: Array = kill.call(last, 1)
+	check(Game.accounts.seal_progress(page, 1).earned and Game.accounts.seal_progress(page, 1).open and ready == [1] and acc.collection_pages_done.has(page),
+		"decision 27: the kill that fills the last card earns seal I and says so once (%s)" % str(ready))
+	check(str(claim.call(2).get("reason", "")) == "short", "decision 27: seal II waits for every card at its mark")
+	var ward0: float = c.stats.value("hollow_ward")
+	var r1: Dictionary = claim.call(1)
+	var gift1: Dictionary = ContentDB.collection_seal(page, 1).modifiers[0]
+	check(r1.get("ok", false) and acc.collection_seals.has(page + ":1") and is_equal_approx(c.stats.value(str(gift1.stat)) - ward0, float(gift1.value)),
+		"decision 27: seal I claimed gives %s through the stat rules (%.3f -> %.3f)" % [UiKit.affix_text(gift1), ward0, c.stats.value("hollow_ward")])
+	check(str(claim.call(1).get("reason", "")) == "claimed" and is_equal_approx(c.stats.value("hollow_ward") - ward0, float(gift1.value)),
+		"decision 27: a seal is claimed once, its gift not doubled")
+	# Seal II: every card at its mark (500 a common beast), after seal I.
+	for e in beasts.slice(0, beasts.size() - 1): kill.call(str(e.id), int(e.collection.kills_to_master) - 50)
+	kill.call(last, int(beasts[-1].collection.kills_to_master) - 51)
+	check(not Game.accounts.seal_progress(page, 2).earned, "decision 27: seal II waits while one card is a kill short of %d" % int(beasts[-1].collection.kills_to_master))
+	ready = kill.call(last, 1)
+	check(Game.accounts.seal_progress(page, 2).open and ready == [2], "decision 27: the kill that brings the last card to its mark earns seal II (%s)" % str(ready))
+	var heal0: float = c.stats.value("healing_received")
+	var leaf: Dictionary = ContentDB.collection_seal(page, 2).effects[0]
+	check(claim.call(2).get("ok", false) and int(acc.leaves.get(str(leaf.enemy), 0)) == 1 and c.stats.value("healing_received") - heal0 > 0.0
+		and str(claim.call(2).get("reason", "")) == "claimed", "decision 27: seal II claimed once: %s" % UiKit.seal_gift(ContentDB.collection_seal(page, 2)))
+	# The order: seal II of another page cannot be claimed before its seal I.
+	var other := "quarry"
+	var keep_other := {}
+	for e in ContentDB.all("enemies"):
+		if e.get("collection") is Dictionary and str(e.collection.page) == other:
+			keep_other[str(e.id)] = acc.collection.get(str(e.id))
+			acc.collection[str(e.id)] = int(e.collection.kills_to_master)
+	var had_other: bool = acc.collection_seals.has(other + ":1")
+	acc.collection_seals.erase(other + ":1")
+	acc.collection_seals.erase(other + ":2")
+	check(str(Game.submit({"type": "claim_collection_seal", "page": other, "seal": 2}).get("reason", "")) == "order", "decision 27: seal II only after seal I")
+	for id in keep_other:
+		if keep_other[id] == null: acc.collection.erase(id)
+		else: acc.collection[id] = keep_other[id]
+	if had_other: acc.collection_seals[other + ":1"] = true
+	# Saved and loaded: the claims come back, and the stat rules give the same gifts.
+	var hw: float = c.stats.value("hollow_ward")
+	var back := AccountState.new()
+	back.restore(JSON.parse_string(JSON.stringify(acc.snapshot())))
+	check(back.collection_seals.has(page + ":1") and back.collection_seals.has(page + ":2"), "decision 27: the seals claimed are saved with the account")
+	StatRules.rebuild(c, back)
+	var hw_back: float = c.stats.value("hollow_ward")
+	StatRules.rebuild(c)
+	check(is_equal_approx(hw_back, hw) and c.stats.value("hollow_ward") < hw_back, "decision 27: after a load the gifts come back through the stat rules (%.3f)" % hw_back)
+	acc.collection = keep.collection
+	acc.collection_pages_done = keep.done
+	acc.collection_seals = keep.seals
+	acc.leaves = keep.leaves
+	Unlocks.debug_force_all = force_was
+	Game.combat.refresh_stats(c.id)
+	GameEvents.flush()
 
 func legacy_suite() -> void:
 	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
