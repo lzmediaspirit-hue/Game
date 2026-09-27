@@ -6,12 +6,13 @@ antiques; the fake reads as glass (bubbles, a chip) beside the real carving.
 """
 import math
 
-from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+from pix import Canvas, Frame, Ramp, dilate4, erode4, move
+from palette import R, M
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'items', 'workshop'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 INKC = '#2B2A30'
 
 
@@ -337,3 +338,46 @@ for _id, _fn in (('manual_stonebody_canon', _method_manual('earth')),
                  ('killing_array_plate', _array_plate('killing')), ('binding_array_plate', _array_plate('binding')),
                  ('sphere_comprehension_stone', sphere_comprehension_stone)):
     register(FAM, _id, _fn, GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+def water_mark_hd(p):
+    """Three waves on the tag."""
+    for k, y in enumerate((44.0, 48.5, 53.0)):
+        p.line([(36 + x, y + 1.4 * math.sin((x + k * 2) / 3.2)) for x in range(0, 18)], M('qi'), 1 if k else 2, 1.4)
+
+
+ELEMENT_MARKS_HD = {'water': water_mark_hd}
+
+
+def manual_hd(p, element='water', tie='red'):
+    """A closed technique scroll on the diagonal: rolled edge and roller knob, a tie band, a cord to a
+    talisman tag carrying the element's mark."""
+    c = p.c
+    paper, wood, band_m, tag_m = M('paper'), M('darkwood'), M(tie), M('talisman')
+    a, b = (13.0, 49.0), (46.0, 13.0)
+    ang = math.degrees(math.atan2(-(b[1] - a[1]), b[0] - a[0]))
+    fr = Frame(a, ang)
+    L = math.hypot(b[0] - a[0], b[1] - a[1])
+    body = fr.prof(c, [(-2.0, 7.4), (L + 1.0, 7.4)])
+    p.cylinder(fr, body, 7.4, paper, sep=False, tex='paper')
+    # the rolled edge (a spiral) at the far end, and the roller knob at the near end
+    e = c.circle(b[0], b[1], 7.0)
+    p.part(e, paper, 'flat', base=-1, sep=True, rim=False)
+    p.decal(c.ring(b[0], b[1], 4.8, 1.2) & e, paper, -3)
+    p.decal(c.ring(b[0], b[1], 2.2, 1.2) & e, paper, -3)
+    p.part(c.circle(b[0] - 1.0, b[1] + 1.0, 2.2), wood, 'sphere', base=0, sep=True)
+    p.part(c.circle(a[0] - 2.5, a[1] + 2.5, 5.6), wood, 'sphere', base=0, sep=True, tex='wood', axis=ang, spec=(a[0] - 4.5, a[1] + 0.5))
+    # the tie band across the middle and the cord to the tag
+    mt = L / 2.0
+    band = fr.prof(c, [(mt - 2.4, 7.6), (mt + 2.4, 7.6)]) & (body | dilate4(body))
+    p.part(band, band_m, 'ray_soft', base=0, sep=True, rim=False)
+    p.decal(fr.prof(c, [(mt - 0.5, 7.6), (mt + 0.5, 7.6)]) & band, band_m, -2)
+    kx, ky = fr.P(mt, 7.8)
+    p.line([(kx, ky), (kx + 4, ky + 6), (40, 38)], band_m, 0, 1.4, only_on=False)
+    p.part(c.rrect(33, 36, 56, 58, 1.8), tag_m, 'bevel', base=0, sep=True, hw=1, sw=1, tex='paper', rim=False)
+    p.decal(c.circle(44.5, 39.5, 1.1), tag_m, -3)
+    ELEMENT_MARKS_HD[element](p)
+
+
+hd('inner_art_manual', manual_hd)

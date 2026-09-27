@@ -1,9 +1,10 @@
 """Palette tokens (docs/art-contracts.md) and shared hue-shifted ramps.
 
 Ramps run dark -> light. Five-step ramps use index 2 as the base colour,
-3 as the lit side and 4 as the specular / rim highlight.
+3 as the lit side and 4 as the specular / rim highlight. HD icons paint with
+`Mat`, the same ramps extended to seven steps (`mat7`, `M`) with a material kind.
 """
-from pix import Ramp, hramp, rgb, mix  # noqa: F401
+from pix import INK as _INK, WHITE as _WHITE, Ramp, hramp, rgb, mix  # noqa: F401
 
 # Contract tokens --------------------------------------------------------------
 INK = '#071015'
@@ -28,6 +29,7 @@ R = {}
 
 def _r(name, cols, out=None):
     R[name] = Ramp(cols, out)
+    R[name].name = name
     return R[name]
 
 
@@ -107,8 +109,17 @@ _r('cloudsteel', ['#2A4760', '#4D7797', '#8BB4D0', '#C8E2F1', '#F6FCFF'], '#101D
 _r('mistjade_m', ['#26163E', '#452B70', '#7552AA', '#AC89DE', '#E4D4FF'], '#110A1E')
 _r('silk_navy', ['#18233A', '#26385A', '#3C5584', '#6180B4', '#98B2DC'], '#080C16')
 _r('violetsilk', ['#24163A', '#3E2764', '#5E3F94', '#8A6AC0', '#BCA4E6'], '#0F0819')
+# Act III · Lantern Star Field: driftglass (violet glass with teal light seeping in from the far side), the
+# Sovereign grade's material; night steel, the Will grade's lanternsteel blade with a starlight edge
+_r('driftglass', ['#2A1E4A', '#4A3A80', '#7A66B8', '#B4A6E0', '#E6DEFF'], '#120C24')
+_r('driftteal', ['#0C3A40', '#166A6E', '#2AA6A4', '#78DCD2', '#D2FAF2'], '#051A1C')
+_r('nightsteel', ['#151A2E', '#22304C', '#3A4E78', '#6478A8', '#B8C6E6'], '#080B16')
+_r('starsilk', ['#141A30', '#222C4E', '#39467A', '#6A74A8', '#B4BAE0'], '#070A16')
+# v1.3 · the Star Frontier (Sphere grade): orchardsteel, a dusk-violet steel with rose-gold fittings
+_r('orchardsteel', ['#241A3A', '#3E2E66', '#6552A0', '#9A88D2', '#DCD2FA'], '#0E0A1A')
+_r('rosegold', ['#4A2420', '#7E4234', '#BC7458', '#E6A888', '#FCDCC4'], '#200E0C')
 
-GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage']
+GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage', 'sovereign', 'will', 'sphere']
 
 GRADES = {
     'plain': {
@@ -141,4 +152,84 @@ GRADES = {
         'metal': R['gold'], 'metal2': R['sand'], 'grip': R['clay'], 'wrap': R['red'],
         'accent': R['jade'], 'gem': R['ember'], 'glow': '#FFC870', 'cloth': R['sand'],
     },
+    # Sovereign grade (Act III): driftsteel, pale comet iron set with driftglass; starsilk armour.
+    'sovereign': {
+        'metal': R['cometiron'], 'metal2': R['driftglass'], 'grip': R['starsilk'], 'wrap': R['navy'],
+        'accent': R['driftteal'], 'gem': R['driftglass'], 'glow': '#E8A24C', 'cloth': R['starsilk'],
+    },
+    # Will grade (Act III): lanternsteel, a night steel with a starlight edge, gold fittings; lanternsilk armour.
+    'will': {
+        'metal': R['nightsteel'], 'metal2': R['starlight'], 'grip': R['shadow'], 'wrap': R['darkwood'],
+        'accent': R['gold'], 'gem': R['starlight'], 'glow': '#F3E3A6', 'cloth': R['starlight'],
+    },
+    # Sphere grade (v1.3, the Star Frontier): orchardsteel, dusk-violet steel with rose-gold fittings.
+    'sphere': {
+        'metal': R['orchardsteel'], 'metal2': R['rosegold'], 'grip': R['plum'], 'wrap': R['violetsilk'],
+        'accent': R['rosegold'], 'gem': R['pearl'], 'glow': '#8F7AE0', 'cloth': R['plum'],
+    },
 }
+# The tassel or cord on a weapon at each grade (HD kits; the legacy weapons pick their own).
+for _g, _t in (('plain', 'red'), ('common', 'red'), ('earth', 'red'), ('heaven', 'sky'), ('mystic', 'violet'), ('spirit', 'sky'),
+               ('sage', 'red'), ('sovereign', 'driftteal'), ('will', 'starlight'), ('sphere', 'rosegold')):
+    GRADES[_g]['tassel'] = R[_t]
+
+
+# HD materials ---------------------------------------------------------------------
+# A material kind sets how strongly the rim light takes on the part's shadow edge (1-px, mist blue).
+KINDS = {'matte': 0.25, 'metal': 0.60, 'gold': 0.55, 'glass': 0.70, 'jade': 0.60, 'wood': 0.25, 'cloth': 0.20, 'clay': 0.30,
+         'paper': 0.15, 'porcelain': 0.45, 'gem': 0.60, 'leather': 0.30, 'ink': 0.20, 'light': 0.0, 'silk': 0.35}
+# The kind of each ramp in R (unlisted ramps are matte); M(name, kind) overrides it for one use.
+KIND = {**dict.fromkeys(('iron', 'bronze', 'silver', 'storm', 'jadeiron', 'cloudsteel', 'cometiron', 'lanternbronze', 'copper',
+                         'nightsteel', 'orchardsteel'), 'metal'),
+        **dict.fromkeys(('gold', 'rosegold'), 'gold'), **dict.fromkeys(('jade', 'mistjade_m'), 'jade'),
+        **dict.fromkeys(('driftglass', 'driftteal', 'ice'), 'glass'),
+        **dict.fromkeys(('violet', 'cyan', 'ember', 'starlight', 'pearl'), 'gem'),
+        **dict.fromkeys(('wood', 'darkwood', 'bamboo'), 'wood'), **dict.fromkeys(('leather', 'fur', 'greyfur'), 'leather'),
+        **dict.fromkeys(('deepjade', 'hemp'), 'cloth'),
+        **dict.fromkeys(('red', 'navy', 'indigo', 'plum', 'shadow', 'silk_navy', 'violetsilk', 'sky', 'starsilk', 'lotuspink', 'pink'), 'silk'),
+        **dict.fromkeys(('clay', 'earth', 'mud'), 'clay'), **dict.fromkeys(('paper', 'talisman', 'rice'), 'paper'),
+        **dict.fromkeys(('porcelain', 'mistjade'), 'porcelain'), 'ink': 'ink', **dict.fromkeys(('qi', 'fire'), 'light')}
+
+
+# The pixel texture (PixelPainter.part tex=) a template gives a part of each kind when it paints a kit material.
+TEX = {'metal': 'metal', 'gold': 'metal', 'glass': 'glass', 'jade': 'jade', 'gem': 'glass', 'porcelain': 'glass', 'wood': 'wood',
+       'cloth': 'cloth', 'silk': 'cloth', 'paper': 'paper', 'clay': 'clay'}
+
+
+class Mat(Ramp):
+    """Seven colours dark -> light (index 3 = base; 0 a deep shadow, 6 a specular), an outline tone and a kind."""
+
+    def __init__(self, cols, out=None, kind='matte'):
+        super().__init__(cols, out)
+        assert len(self.c) == 7
+        if out is None:
+            self.out = mix(self.c[1], _INK, 0.55)
+        self.kind = kind
+        self.rim = KINDS[kind]
+
+
+def mat7(ramp, kind=None, out=None):
+    """Extend a 5-step palette ramp to 7: a deeper shadow below, a specular above. The kind defaults to the
+    ramp's own (KIND)."""
+    c = ramp.c if isinstance(ramp, Ramp) else [rgb(x) for x in ramp]
+    o = out if out is not None else (ramp.out if isinstance(ramp, Ramp) else None)
+    kind = kind or KIND.get(getattr(ramp, 'name', ''), 'matte')
+    return Mat([mix(c[0], _INK, 0.42)] + list(c) + [mix(c[4], _WHITE, 0.55)], o, kind)
+
+
+def M(name, kind=None):
+    """The 7-step material of palette ramp `name`."""
+    return mat7(R[name], kind)
+
+
+GLOW_STRENGTH = {'mystic': 0.8, 'spirit': 0.9, 'sage': 0.9, 'sovereign': 1.0, 'will': 1.0, 'sphere': 1.0}
+
+
+def kit(grade):
+    """A grade's HD material kit: blade, guard (and pommel), grip, wrap, gem (None below Earth), tassel, cloth and
+    metal2 as Mats, and glow: (colour, strength) for Mystic and above, else None. A grade changes the form and the
+    trim with its kit, never the colour alone."""
+    g = GRADES[grade]
+    parts = dict(g, blade=R['wood'] if grade == 'plain' else g['metal'], guard=R['darkwood'] if grade == 'plain' else g['accent'],
+                 glow=(g['glow'], GLOW_STRENGTH[grade]) if g['glow'] else None)
+    return {k: (mat7(v) if isinstance(v, Ramp) else v) for k, v in parts.items() if k not in ('metal', 'accent')}

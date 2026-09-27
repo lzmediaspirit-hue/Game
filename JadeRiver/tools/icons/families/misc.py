@@ -11,6 +11,7 @@ from registry import register
 import shapes as S
 
 FAM, GROUP = 'items', 'misc'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 # ============================================================================ templates

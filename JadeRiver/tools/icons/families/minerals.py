@@ -7,12 +7,13 @@ import math
 
 import numpy as np
 
-from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+from pix import WHITE, Canvas, Ramp, dilate4, erode4, move
+from palette import R, M
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'items', 'minerals'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 # ----------------------------------------------------------------------------- templates
@@ -622,6 +623,30 @@ def star_jade():
 
 register(FAM, 'star_shard', star_shard, GROUP)
 register(FAM, 'driftglass', driftglass, GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+def driftglass_hd(p):
+    """A sea-rounded lump of violet glass with teal light seeping in from the far side, and a small bead."""
+    c = p.c
+    violet, teal = M('driftglass'), M('driftteal')
+    far = (c.X + c.Y) / p.s
+    m = c.poly([(7, 35), (11, 25), (20, 19), (32, 17), (43, 19), (51, 24), (54, 33), (51, 42), (42, 49), (28, 51), (15, 49), (8, 43)])
+    p.part(m, violet, 'sphere', base=0, sep=False, cx=30, cy=34, rx=26, ry=19, tex='glass')
+    p.part(m & (far >= 62), teal, 'sphere', base=0, sep=False, cx=31, cy=33, rx=24, ry=18, tex='glass')
+    # frosted skin on the lit rim, one wet gleam
+    p.decal(m & ~erode4(erode4(m)) & (far <= 50), violet, 1)
+    p.line([(14, 27), (19, 22), (26, 20)], WHITE, 0, 1.2)
+    p.decal(c.circle(16, 31, 0.9), WHITE, 0)
+    bead = c.poly([(39, 51), (43, 44), (51, 42), (57, 46), (57, 54), (50, 58), (42, 57)])
+    p.part(bead, teal, 'sphere', base=0, sep=True, tex='glass')
+    p.part(bead & (far <= 92), violet, 'sphere', base=0, sep=False, cx=48, cy=50, rx=10, ry=9, tex='glass')
+    p.decal(c.circle(45.5, 46, 1.0), WHITE, 0)
+    p.sparkle(50, 30, 1)
+    p.glow('#9C8CE0', 0.45)
+
+
+hd('driftglass', driftglass_hd)
 register(FAM, 'sage_crystal', sage_crystal, GROUP)
 register(FAM, 'star_jade', star_jade, GROUP)
 

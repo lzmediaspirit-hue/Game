@@ -232,13 +232,16 @@ Each snippet is the minimum; add `abs` and a `style="left:..;top:..;width:.."` t
 <div class="k-close abs"></div>  <div class="k-close is-pressed abs"></div>
 ```
 
-**Slots**: `normal`, `.is-selected` (add `.k-slot-glow` inside), `.is-disabled`, `.is-empty` (the cloud-seal motif at
-35%, never a blank hole). A quality rim is `.k-qrim` with `--q`:
+**Slots** (P4b, `Page.SLOT`): 76 px with the icon at 1:1 in a 6 px inset (64 px: an HD icon, or a legacy icon's 32 art
+px at 2x); `.is-small` is `Page.SLOT_SMALL`, 44 px with a 32 px icon, for items named in a list row. States: `normal`,
+`.is-selected` (add `.k-slot-glow` inside), `.is-disabled`, `.is-empty` (the cloud-seal motif at 35%, never a blank
+hole). A quality rim is `.k-qrim` with `--q`:
 ```html
-<div class="k-slot abs" style="width:64px;height:64px"><img class="ic" src="../../../art/icons/items/herbal_tea.png"><span class="k-count t-fig t-sm t-outline">38</span></div>
-<div class="k-slot is-selected abs" style="width:64px;height:64px"><img class="ic" src="…"><div class="k-slot-glow"></div></div>
-<div class="k-slot abs" …><img class="ic" src="…"><div class="k-qrim" style="--q:var(--q-superior)"></div></div>
-<div class="k-slot is-empty abs" style="width:64px;height:64px"></div>
+<div class="k-slot abs"><img class="ic" src="../../../art/icons/items/herbal_tea.png"><span class="k-count t-fig t-sm t-outline">38</span></div>
+<div class="k-slot is-selected abs"><img class="ic" src="…"><div class="k-slot-glow"></div></div>
+<div class="k-slot abs"><img class="ic" src="…"><div class="k-qrim" style="--q:var(--q-superior)"></div></div>
+<div class="k-slot is-empty abs"></div>
+<div class="k-slot is-small abs"><img class="ic" src="…@32.png or a legacy 64 px PNG"></div>
 ```
 
 **Buttons**: `.k-btn` (primary) and `.k-btn2` (secondary), each `normal`, `.is-pressed`, `.is-disabled`; at least 48 px
@@ -299,8 +302,11 @@ for what the next stage opens (E5), with its icon.
 `.k-ink-wash` (a soft jade wash behind a diagram), `.k-plate` (a world plate), `.dim-screen`.
 
 **Icons**: `<img class="ic ic-32" src="../../../art/icons/hud/bag.png">`. Sizes `.ic-16 … .ic-128`; `.is-dim`,
-`.is-grey`, `.is-gold` (the HUD's gold modulate). HUD glyphs are 32 px: draw at 32 or 64. Items, techniques and
-equipment are 64 px: draw at 64, or at 48 where the HUD does. Status icons are 32 px, drawn at 24 in the HUD.
+`.is-grey`, `.is-gold` (the HUD's gold modulate). Draw an icon only at a whole-number scale of its art, as the game
+does (`SpriteCache.draw_icon`): a legacy item, technique or equipment PNG (64 px) holds 32 art px, so draw it at 32 or
+64; a legacy HUD glyph (32 px) holds 16, so 32, 48 or 64; a status icon (24 px) holds 12, so 24 in the HUD. An HD icon
+is 1:1 at 64 and has native `<id>@48.png` (techniques, the HUD technique ring) and `<id>@32.png` (the item rings, small
+slots) renders; a legacy technique shows at 64 in the technique ring (2x), never at 48.
 
 **Utilities**: `.abs` (absolute; wins over component positions), `.flex`, `.col`, `.center`, `.nowrap`,
 `.k-note` and `.k-swatch` (kit sheet only).

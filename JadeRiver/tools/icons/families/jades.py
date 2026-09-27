@@ -8,6 +8,7 @@ from registry import register
 import shapes as S
 
 FAM, GROUP = 'items', 'qi_jades'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 def faceted(c, outer, ramp, table=0.5, bezel=None):

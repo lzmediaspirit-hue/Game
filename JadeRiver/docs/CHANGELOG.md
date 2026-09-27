@@ -1,5 +1,25 @@
 # Changelog
 
+## P4b · Icons in Style A: the pipeline and the display (docs/mockups/icon_study)
+
+- **The pipeline** (`tools/icons/`, README "How to convert a family"): `pix.py` gains the HD mode the study
+  prototyped (`SCanvas`, `Frame`, 7-level bands, `PixelPainter` with its texture, rim-light and selective-outline
+  passes); `palette.py` gains `Mat` / `mat7` / `M`, material kinds, and grade kits from Plain to Sphere (Sovereign,
+  Will and Sphere are new). Each family module declares `ART`: 32 (legacy) until every icon in it has an HD drawing,
+  then 64 (HUD glyphs 32). An HD family builds its icons at 1:1 plus native `@48` (techniques) and `@32` renders, and
+  the manifest lists them as `<id>@<px>`. `--only <family> --review-dir` writes the family in the 76 px slot at 1x and
+  2x and in context (a Bag grid, the HUD rings); `--preview-hd` shows an unfinished family in the game.
+- **The study's twelve icons** are the first HD drawings, in their own families (weapons, armour, pills, herbs,
+  minerals, beast parts, workshop, techniques, HUD), behind each family's `ART`, so nothing on screen changes until a
+  family flips. The study's Style A library is folded in (the study now renders from the families); from Style B come
+  the domed technique disc with a shadow under the mark and a glass crescent in more steps.
+- **The display**: every icon is drawn through `SpriteCache.draw_icon`, at a whole-number scale of its art and on
+  whole pixels, never filtered (review I2). Page slots are 76 px (`Page.SLOT`: a 64 px icon at 1:1, a legacy icon at
+  2x) or 44 px in list rows (`Page.SLOT_SMALL`: 32 px); the Bag keeps the figure between its worn slots, with a
+  five-column grid. The HUD takes an HD technique's native 48 and an item's native 32; a legacy technique shows at 2x
+  in its ring, HUD glyphs at 32 (2x). The slot draws a soft grade halo behind Mystic items and above. The kit CSS and
+  the kit sheet have the 76 px slot. A `ui_suite` rule checks every icon on every page, and `icon_draw_suite` the fit.
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7a · The item and monster wikis
