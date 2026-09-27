@@ -129,6 +129,7 @@ var attack_pressed := false
 var attack_hold := 0.0
 const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
+var equip_prompt := EquipPrompt.new()   # a better piece picked up or received, offered at the right for 10 s
 var t := 0.0
 var _faces: Dictionary = {}        # companion id -> its idle frame's layers, for the party chips
 var _hollow_last := -1.0
@@ -220,6 +221,7 @@ func _process(delta: float) -> void:
 		_try_melody()
 	_tick_channel(delta)
 	_tick_tap(delta)
+	if bound(): equip_prompt.tick(Game.active(), delta)
 	if bound() and world: context = world.context
 	_tick_fight(delta)
 	# G4: the world's names keep clear of the HUD's controls, and the party's HP lines show only in a fight.
@@ -444,6 +446,7 @@ func obstacle_rects() -> Array:
 	if shown("player_panel"): out.append(panel_rect(c))
 	if shown("minimap"): out.append(minimap_rect)
 	if tracker_rect.size.x > 0.0: out.append(tracker_rect)
+	if not equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
 	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
 	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
 	return out
@@ -463,6 +466,9 @@ static func go_hit(drawn: Rect2) -> Rect2:
 	return Rect2(drawn.get_center() - Vector2(24, 24), Vector2(48, 48))
 
 func role_at(p: Vector2) -> String:
+	# The equip prompt's two buttons (clear of every control; the rest of its card lets a tap through).
+	var prompt := equip_prompt.role_at(p) if bound() else ""
+	if prompt != "": return prompt
 	# Where round controls overlap, the nearest centre wins (§7).
 	var best := ""
 	var best_d := INF
@@ -538,6 +544,10 @@ func press(id: int, p: Vector2):
 		"post": keep_post()
 		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
 		"swap": swap_weapon()
+		"prompt:equip":
+			var er := equip_prompt.equip(Game.active())
+			if not er.get("ok", false) and er.has("text"): add_log(str(er.text), UiKit.MIST)
+		"prompt:close": equip_prompt.dismiss()
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
 		"tracker": open_page.emit("quests", {})
@@ -990,6 +1000,8 @@ func _handle(name: String, p: Dictionary) -> void:
 		"item_added":
 			if str(p.get("actor", "")) == Game.active_id and shown("system_log"):
 				add_log(Tx.t("hud.obtained") % [ContentDB.item_name(str(p.item)), int(p.count)], UiKit.quality_color(str(p.get("quality", "common"))))
+			# A piece better than the one worn (or for an empty slot): the equip prompt offers it (EquipPrompt).
+			if str(p.get("actor", "")) == Game.active_id and shown("bag"): equip_prompt.offer(p)
 		"currency_changed":
 			if int(p.get("delta", 0)) > 0 and shown("system_log") and str(p.get("source", "")) != "sell":
 				add_log("+%d %s" % [int(p.delta), ContentDB.text("currency." + str(p.currency))], UiKit.PALE_GOLD)
@@ -1685,6 +1697,7 @@ func _draw():
 	if shown("system_log"): _draw_log()
 	_draw_boss()
 	_draw_top_stack(c)
+	equip_prompt.draw(self, Game.account.settings.get("reduce_motion", false))
 	_draw_pet_wheel(c)
 	# The harvest ring (S45) sits over every other control while it runs.
 	if tapping.object != "": _draw_tap_ring()

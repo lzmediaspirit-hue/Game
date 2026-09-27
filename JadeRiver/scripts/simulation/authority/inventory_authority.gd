@@ -469,7 +469,8 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 		c.inventory.claim_uid(copy)   # an instance from another bag may carry a uid already used here
 		c.inventory.bag[free] = copy
 		c.inventory.new_items[str(inst.id)] = true
-		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
+		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common")),
+			"uid": int(copy.get("uid", -1))})   # the piece itself (the HUD's equip prompt finds it by uid)
 		return 1
 	emit("bag_full", {"actor": c.id, "items": [{"item": inst.id, "count": 1}]})
 	if overflow:
