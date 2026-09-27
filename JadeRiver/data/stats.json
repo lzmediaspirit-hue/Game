@@ -1035,7 +1035,7 @@
    "id": "move_speed",
    "group": "movement",
    "cap": 0.4,
-   "format": "percent"
+   "format": "int"
   },
   {
    "id": "climb_speed",

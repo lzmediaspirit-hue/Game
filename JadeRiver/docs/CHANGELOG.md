@@ -152,6 +152,9 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
   its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
 - **The Treasury's output says what it gives.** Its key `taels_per_level` sized the storage chest; it is now
   `storage_slots_per_level` (20 spaces a level) in the builder, the data and `SectAuthority.treasury_bonus`.
+- **`move_speed` is a number.** `stats.json` gave it the percent format while the Character page shows the speed
+  itself (242), so a flat bonus would have read "+2000% move speed". Its format is `int`; a test holds that every
+  percent stat is a share.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved

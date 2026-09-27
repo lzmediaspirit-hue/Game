@@ -8274,6 +8274,16 @@ func mockup_fixes_suite() -> void:
 		return
 	_mock_sect_materials(c)
 	_mock_treasury(c)
+	_mock_stat_formats(c)
+
+## A stat's format matches what is shown: a percent stat is a share (a new character's value under 10), and move_speed,
+## shown as the speed itself (242), is a number.
+func _mock_stat_formats(c) -> void:
+	var shares: Array = []
+	for s in ContentDB.stat_const("stats", []):
+		if str(s.get("format", "")) == "percent" and absf(float(c.stats.value(str(s.id)))) >= 10.0: shares.append("%s %.0f" % [s.id, c.stats.value(str(s.id))])
+	check(shares.is_empty(), "every percent stat is a share (%s)" % str(shares))
+	check(UiKit.affix_text({"stat": "move_speed", "op": "flat", "value": 20.0}) == "+20 move speed", "+20 move speed reads as a speed, not 2000%")
 
 ## The Treasury's output names what it gives: spaces in the storage chest for each level.
 func _mock_treasury(c) -> void:
