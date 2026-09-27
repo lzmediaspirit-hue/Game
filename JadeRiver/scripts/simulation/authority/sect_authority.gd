@@ -60,7 +60,7 @@ func outpost_attunement(zone_id: String) -> float:
 	return float(output("expanse_outpost", "attunement_per_level")) * level_building("expanse_outpost") * output_mult("expanse_outpost")
 
 func treasury_bonus() -> int:
-	return int(float(output("treasury", "taels_per_level")) * level_building("treasury") * output_mult("treasury"))
+	return int(float(output("treasury", "storage_slots_per_level")) * level_building("treasury") * output_mult("treasury"))
 
 func disciple_cap() -> int:
 	return int(output("guest_house", "disciples_base", 2)) + int(output("guest_house", "disciples_per_level", 1)) * level_building("guest_house")

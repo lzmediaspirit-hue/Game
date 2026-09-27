@@ -150,6 +150,8 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
   Copper Ore sit in storage: a build spends from the bag, then the Storehouse, then the storage chest. One spend path
   (`InventoryAuthority.count_owned` and `apply_spend`) serves the sect builds and the Post Vows, each store written by
   its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
+- **The Treasury's output says what it gives.** Its key `taels_per_level` sized the storage chest; it is now
+  `storage_slots_per_level` (20 spaces a level) in the builder, the data and `SectAuthority.treasury_bonus`.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved

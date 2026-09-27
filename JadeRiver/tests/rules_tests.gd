@@ -8273,6 +8273,16 @@ func mockup_fixes_suite() -> void:
 		check(false, "the mockup fixes suite needs a character")
 		return
 	_mock_sect_materials(c)
+	_mock_treasury(c)
+
+## The Treasury's output names what it gives: spaces in the storage chest for each level.
+func _mock_treasury(c) -> void:
+	Unlocks.force_unlock(c.id, "storage")
+	Game.account.sect = {"name": "Test", "level": 1, "prestige": 0, "buildings": {"sect_hall": 1, "treasury": 2}, "queue": []}
+	var per := int(ContentDB.entry("sect_buildings", "treasury").get("output", {}).get("storage_slots_per_level", 0))
+	var base := Game.accounts.storage_size() - Game.sect.treasury_bonus()
+	check(per > 0 and Game.accounts.storage_size() == base + 2 * per, "a Treasury at level 2 adds %d storage spaces a level (%d in all)" % [per, Game.accounts.storage_size()])
+	Game.account.sect = {}
 
 ## A sect build takes its materials from the bag, then the Storehouse, then the storage chest (the Treasury was blocked
 ## with 49 Copper Ore in storage).
