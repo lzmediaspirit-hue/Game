@@ -11272,6 +11272,95 @@ func tree_queries_suite() -> void:
 ## passage, its button naming the Realisations it spends; Let go gives them back. A found manual is read from the board
 ## (use_item). Decision 19 on the page itself: with nothing found, no word the Lost Arts tab draws and no tap it takes
 ## names an unfound art or says where one is. The free hand's Dao bar follows the tab.
+## The Techniques page's live preview (TechniquePreview): each form cast in its pose with its sheet at the pack its
+## form asks for, how the foes meet it, a restart on another art, nothing for a passage or an unfound lost art, the
+## still under Reduce motion, and what a frame costs with the page open.
+func _technique_preview_suite(pg, c) -> void:
+	var cu: CultivatorState = c.cultivator
+	var st: TechniquePreview = pg.stage
+	var cfg: Dictionary = MomentRules.cfg().technique_preview
+	var settings_was: Dictionary = Game.account.settings.duplicate()
+	Game.account.settings.reduce_motion = false
+	Game.account.settings.damage_numbers = true
+	var pick := func(form: String) -> String:
+		for t in ContentDB.all("techniques"):
+			if str(t.vfx.get("anim", "")) == form and str(t.get("source", "")) == "tree" and not ContentDB.has_entry("lost_arts", str(t.id)): return str(t.id)
+		return ""
+	pg.tab = pg.tabs.map(func(tb): return str(tb.id)).find("water")
+	pg.on_action("_tab", "water")
+	var seen := {}
+	for form in ["strike", "flurry", "rain", "ward", "counter", "snare"]:
+		var id: String = pick.call(form)
+		if id == "": continue
+		if not cu.techniques_known.has(id): cu.techniques_known.append(id)
+		pg.on_action("node", id)
+		pg.queue_redraw()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var t := ContentDB.entry("techniques", id)
+		var want_pose := str(t.vfx.get("pose", "idle"))
+		var pose_ok := st.pose == TechniquePreview.pose_of(t, c, st.caster.outfit) and (want_pose.begins_with("combo_") or st.pose == want_pose or st.pose == "idle")
+		var n_ok := st.foes.size() == int(cfg.foes[form])
+		st.restart()
+		while st.clock < st.impact + 0.12: st._advance(1.0 / 60.0)
+		var anim: Array = st.fx.fx.filter(func(e): return str(e.kind) == "anim" and str(e.form) == form)
+		var hurt: bool = str(st.foes[0].sprite.action) in ["hurt", "walk"]
+		var nums: int = st.fx.fx.filter(func(e): return str(e.kind) == "number").size()
+		var meet := {"hit": hurt and (nums > 0) == (int(t.hits) > 0), "counter": hurt and nums > 0, "bind": st.foes[0].bound, "ward": not hurt and nums == 0}
+		seen[form] = [st.art == id, st.form == form, pose_ok, n_ok, not anim.is_empty(), bool(meet[st.plays]), st.caster.action == st.pose]
+	check(seen.size() >= 5 and seen.values().all(func(v): return not v.has(false)),
+		"the preview casts each art in its pose with its form's sheet, at the pack its form asks (one for a strike, three for a flurry or a rain), the foes hurt, bound, parried or warded off (%s)" % str(seen))
+	# Another art restarts the loop; a passage casts nothing.
+	var ids: Array = seen.keys().map(func(f): return pick.call(f))
+	for i in 20: st._advance(1.0 / 60.0)
+	pg.on_action("node", ids[0])
+	pg.queue_redraw()
+	await get_tree().process_frame
+	var restarted := st.art == ids[0] and st.clock < 0.1
+	pg.on_action("node", TechniqueTreeRules.passage("water", "any", 1))
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(restarted and st.art == "" and st.foes.is_empty(), "another art starts the preview again; a passage casts nothing and no imp stands")
+	# Reduce motion: one frame at the impact, held.
+	Game.account.settings.reduce_motion = true
+	pg.on_action("node", ids[0])
+	pg.queue_redraw()
+	await get_tree().process_frame
+	var clock0 := st.clock
+	var a0: Array = st.fx.fx.filter(func(e): return str(e.kind) == "anim")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var spec := FxLayer.form_spec(st.form)
+	check(st.still and not st.is_processing() and near(st.clock, clock0) and st.clock >= st.impact and st.clock < st.impact + 0.05 and not a0.is_empty()
+		and FxLayer.form_frame(spec, float(a0[0].t) + float(a0[0].start)) == int(spec.impact) and str(st.foes[0].sprite.action) == "hurt",
+		"Reduce motion: the preview holds one frame, the sheet at its impact frame and the imp hurt")
+	Game.account.settings.reduce_motion = false
+	# A frame with the page open: the preview's step and the whole frame, with a pack of three.
+	pg.on_action("node", ids[1])
+	pg.queue_redraw()
+	await get_tree().process_frame
+	var t0 := Time.get_ticks_usec()
+	for i in 240: st._advance(1.0 / 60.0)
+	var step_ms := (Time.get_ticks_usec() - t0) / 1000.0 / 240.0
+	var t1 := Time.get_ticks_usec()
+	for i in 30: await get_tree().process_frame
+	var frame_ms := (Time.get_ticks_usec() - t1) / 1000.0 / 30.0
+	print("technique preview: %.3f ms a step, %.2f ms a frame with the page open" % [step_ms, frame_ms])
+	check(st.foes.size() == 3 and step_ms < 0.5 and frame_ms < 33.3, "the preview costs little: %.3f ms a step, %.2f ms a frame with the page open" % [step_ms, frame_ms])
+	# A Lost Arts leaf not found shows nothing of itself.
+	pg.tab = pg.tabs.map(func(tb): return str(tb.id)).find("lost")
+	pg.on_action("_tab", "lost")
+	var hidden := ""
+	for row in ContentDB.all("lost_arts"):
+		if str(row.kind) == "technique" and not cu.techniques_known.has(str(row.id)): hidden = str(row.id)
+	pg.sel = hidden
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(hidden != "" and st.art == "" and st.foes.is_empty(), "an unfound lost art (decision 19) casts nothing in the preview")
+	for k in ["reduce_motion", "damage_numbers"]:
+		if settings_was.has(k): Game.account.settings[k] = settings_was[k]
+		else: Game.account.settings.erase(k)
+
 func techniques_page_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -11386,6 +11475,7 @@ func techniques_page_suite() -> void:
 	await redraw.call()
 	check(pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.dao_line") % [ContentDB.name_of("daos", "fire"), int(cu.daos.get("fire", {}).get("tier", 0))]),
 		"on the Fire tab the free hand's bar is the Fire Dao")
+	await _technique_preview_suite(pg, c)
 	pg.queue_free()
 	await get_tree().process_frame
 	cu.restore(snap)

@@ -67,8 +67,8 @@ func pose_frame() -> int:
 func _draw():
 	draw_on(self)
 ## The figure drawn on `ci`: its own canvas, or a page that layers it among its own drawing (the Bag draws it under its
-## item card) with the feet at `at` and `k` screen px per sheet px.
-func draw_on(ci: CanvasItem, at := Vector2.ZERO, k := 1.0):
+## item card) with the feet at `at`, `k` screen px per sheet px and every layer multiplied by `tint`.
+func draw_on(ci: CanvasItem, at := Vector2.ZERO, k := 1.0, tint := Color.WHITE):
 	refresh_entries()
 	var frame=pose_frame()
 	if thumbnail_size != Vector2.ZERO and thumbnail_bounds.size != Vector2.ZERO:
@@ -85,5 +85,5 @@ func draw_on(ci: CanvasItem, at := Vector2.ZERO, k := 1.0):
 		var row = 0 if facing < 0 else 1
 		var source = Rect2((frame % frames) * cell, row * cell, cell, cell)
 		var offset = (cell - 256) * 0.5
-		ci.draw_texture_rect_region(tex, Rect2(-128 - offset, -190 - offset + bob, cell, cell), source)
+		ci.draw_texture_rect_region(tex, Rect2(-128 - offset, -190 - offset + bob, cell, cell), source, tint)
 	if ci != self: ci.draw_set_transform(Vector2.ZERO)

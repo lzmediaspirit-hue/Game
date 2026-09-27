@@ -1,5 +1,19 @@
 # Changelog
 
+## The Techniques page: closer to its mockup, and each art cast live
+
+- **The chosen art is cast under the chooser.** The character, a little smaller, performs the art as a fight does
+  (`TechniquePreview`: its `vfx.pose`, its form's sheet through the room's own `FxLayer.cast`, now shared with
+  `World._cast`, and its hits through `FxLayer.hit`) against pebble imps (the creature sprite a foe's view draws) that
+  flinch, flash, are knocked back and show their numbers: one imp for a single strike, a pack for a multi-hit or area
+  form, an imp's blow turned by a ward's dome, parried by a counter, held by a snare or a seal. It loops with a pause,
+  starts again on another art, holds one still frame at the impact under Reduce motion, steps at 30 fps under Battery
+  saver, and plays only while the page is open; a passage, an Inner Art or an art still unfound shows nothing.
+- **Nearer the mockup** (`docs/ui_p5/techniques/README.md`): cards show the art's picture (the character in its pose
+  with its form's impact frame, composed at run time) instead of the emblem; no head strip over the chart (rows 139 px
+  apart, Learned and Let all go small at its top right); name plaques with gold diamonds; locks and the Realisations
+  mark in the tags; closed Learn plain with the reason in gold; lighter section names in the reading.
+
 ## Slain foes stay slain
 
 - **Monsters no longer all come back the moment you re-enter a room.** Room load rebuilt every spawn point from the

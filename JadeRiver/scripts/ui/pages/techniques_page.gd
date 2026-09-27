@@ -10,24 +10,26 @@ extends Page
 ## an art: a found art pasted in (a manual not yet read has Read), every other leaf sealed alike and only counted
 ## (decision 19). The dock holds Ring I and II, the Inner Arts and the stance; a tap on an Inner Art or the stance opens
 ## the drawer of known Inner Arts and stances in the reading. The page reads the Progression authority's views
-## (tree_tabs, tree_view, node_needs, lost_arts_view, lost_unread) and submits intents only.
+## (tree_tabs, tree_view, node_needs, lost_arts_view, lost_unread) and submits intents only. Under the chooser the
+## character casts the chosen art at a pack of imps (TechniquePreview); each card's picture is that art's pose and form.
 
 const Avatar = preload("res://scripts/avatar.gd")
 const LEFT := Rect2(12, 70, 216, 580)
 const MID := Rect2(236, 70, 660, 580)
 const RIGHT := Rect2(904, 70, 364, 580)
 const CHART := Rect2(241, 75, 650, 570)     # the tree's window on its chart
-const VIS := Rect2(241, 127, 650, 518)      # the part of it under the chart's head strip
+const VIS := CHART                         # where a card's words may be written
+const HEAD := 31.0                          # the plaque's depth over the chart: a family's first row starts under it
 const DOCK := Rect2(0, 656, 1280, 64)
 var rail_tone := UiKit.SURFACE.cloth.lerp(UiKit.SURFACE.space, 0.6)   # the lacquer rail at its lightest
 const FAM_W := 600.0                        # a family's column: three lanes 200 apart
 const LANE := 200.0
-const ROW_H := 132.0                        # a ring's row
+const ROW_H := 139.0                        # a ring's row
 const NOTE_H := 80.0                        # the notables' band after an act's last ring
 const GATE_TOP := 24.0                      # the gate row (the Dao arts) at the chart's top
 const CARD := Vector2(190, 115)
 const PIC := 76.0
-const FEET := Vector2(120, 646)
+const STAGE := Rect2(16, 466, 208, 180)     # the preview under the chooser, inside the chooser's panel
 const ROMAN := ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII"]
 const KINDS := {"technique": "ui.techniques.kind_technique", "inner": "ui.techniques.kind_inner", "secret": "ui.techniques.kind_secret"}
 
@@ -38,7 +40,7 @@ var goal := Vector2.ZERO      # where the view is gliding to
 var lost_act := 1             # the Lost Arts leaf shown (0: the lineages)
 var drawer := false           # the reading shows the Inner Arts and stances
 var picked_art := ""          # an Inner Art chosen to wear: tap a slot
-var doll: Node2D              # the character under the chooser
+var stage: TechniquePreview  # under the chooser: the character casting the chosen art at a pack of imps
 var pic: Node2D               # the character in the chosen art's pose
 var _laid := ""               # the tree laid out in _items
 var _rz := {}                 # the Realisations pool: {total, spent, free}
@@ -50,6 +52,7 @@ var _rows := {}               # ring -> row top; "n<act>" -> the notables' band
 var _dirty := true
 var _pan := false
 var _learned_i := -1
+var _posers := {}             # pose -> the character held in that pose for the cards' pictures
 
 func _init() -> void:
 	title = Tx.t("ui.techniques.techniques")
@@ -67,12 +70,14 @@ func setup() -> void:
 		tabs.append({"id": str(tb.tree), "label": str(tb.name), "locked": "" if bool(tb.open) else Tx.t("ui.techniques.tree_opens") % lv})
 	tabs.append({"id": "lost", "label": Tx.t("ui.techniques.lost_arts")})
 	tabs.append({"id": "secret", "label": Tx.t("ui.techniques.secret_arts")})
-	for k in ["doll", "pic"]:
-		var a := Avatar.new()
-		a.visible = false
-		a.externally_timed = k == "pic"
-		add_child(a)
-		set(k, a)
+	pic = Avatar.new()
+	pic.visible = false
+	pic.externally_timed = true
+	add_child(pic)
+	stage = TechniquePreview.new()
+	stage.position = STAGE.position
+	stage.size = STAGE.size
+	add_child(stage)
 	_dress()
 	var want := last_tab
 	if want == "" and ch != null:
@@ -84,10 +89,12 @@ func setup() -> void:
 
 func _dress() -> void:
 	if c() == null: return
-	for a in [doll, pic]:
-		a.outfit = InventoryAuthority.outfit_for(c())
-		a.last_key = ""
-	doll.play("idle")
+	pic.outfit = InventoryAuthority.outfit_for(c())
+	pic.last_key = ""
+	for a in _posers.values(): a.queue_free()
+	_posers.clear()
+	stage.dress(pic.outfit.duplicate())
+	stage.restart()
 
 func on_event(name: String, _p: Dictionary) -> void:
 	if name == "equipment_changed": _dress()
@@ -126,7 +133,7 @@ func _glide(to: Vector2, now := false) -> void:
 
 ## Centre the view on a family's column, at the rows around `ring` (its first by default).
 func _jump(fam_i: int, y := -1.0, now := false) -> void:
-	var at_y: float = y if y >= 0.0 else float(_rows.get(TechniqueTreeRules.first_ring(_tab_id()), 0.0)) - (VIS.position.y - CHART.position.y) - 1.0
+	var at_y: float = y if y >= 0.0 else float(_rows.get(TechniqueTreeRules.first_ring(_tab_id()), 0.0)) - HEAD
 	_glide(Vector2(fam_i * FAM_W + FAM_W * 0.5 - CHART.size.x * 0.5, at_y), now)
 
 # ------------------------------------------------------------------ the tree laid out
@@ -357,8 +364,8 @@ func _chart() -> void:
 	_areas[aid].active = false
 	_chart_labels(ec)
 
-## The ring soundings down the chart's right edge; the head strip over the chart: the rings in view, the family in view
-## on its plaque, Learned (the next learned art) and Let all go (the tree's reset).
+## The ring soundings down the chart's right edge; over the chart's head, the rings in view, the family in view on its
+## plaque, and at the right Learned (the next learned art) and Let all go (the tree's reset).
 func _chart_labels(_ec: Color) -> void:
 	var T = TechniqueTreeRules
 	var lo := 99
@@ -366,23 +373,31 @@ func _chart_labels(_ec: Color) -> void:
 	for key in _rows:
 		if str(key).begins_with("n"): continue
 		var y := float(_rows[key]) - view.y + CHART.position.y
-		if y + 60 < VIS.position.y or y > VIS.end.y - 20: continue
+		if y + 60 < VIS.position.y + HEAD or y > VIS.end.y - 20: continue
 		lo = mini(lo, int(key))
 		hi = maxi(hi, int(key))
 		var g := str(T.ring_row(int(key)).get("grade", "common"))
-		if y + 14 >= VIS.position.y and y + 64 <= VIS.end.y:
+		if y + 14 >= VIS.position.y + HEAD and y + 64 <= VIS.end.y:
 			text(Vector2(VIS.end.x - 66, y + 40), ROMAN[int(key)], 26, Color(UiKit.MIST, 0.85), HORIZONTAL_ALIGNMENT_CENTER, 60, true)
 			text(Vector2(VIS.end.x - 72, y + 60), Tx.t("ui.techniques.grade_" + g), 14, UiKit.grade_color(g), HORIZONTAL_ALIGNMENT_CENTER, 72)
-	var head := Rect2(CHART.position, Vector2(CHART.size.x, VIS.position.y - CHART.position.y))
-	_band(head, UiKit.SURFACE.cloth, UiKit.SURFACE.space)
-	draw_line(Vector2(head.position.x, head.end.y), head.end, Color(UiKit.GOLD, 0.6), 1.0)
-	ground(head, UiKit.SURFACE.cloth)
-	var plq := Rect2(VIS.position.x + 176, 80, 250, 34)
-	face(plq, "jade_label")
-	inked(Vector2(plq.position.x, plq.position.y + 25), Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plq.size.x)
-	if hi >= lo: text(Vector2(VIS.position.x + 12, 104), Tx.t("ui.techniques.act_rings") % [ROMAN[T.act_of(lo)], ROMAN[lo], ROMAN[hi]], 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 172)
-	btn(Rect2(VIS.end.x - 216, 77, 86, 48), Tx.t("ui.techniques.next_learned"), "next_learned", null, false, not _learned().is_empty(), Tx.t("ui.techniques.none_learned"), 16)
-	btn(Rect2(VIS.end.x - 124, 77, 120, 48), Tx.t("ui.techniques.let_all_go"), "reset", _tab_id(), false, _realised_here > 0, Tx.t("sim.tree.nothing"), 16)
+	_name_plaque(Rect2(VIS.position.x + 176, 78, 296, 28), Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
+	if hi >= lo: text(Vector2(VIS.position.x + 14, 98), Tx.t("ui.techniques.act_rings") % [ROMAN[T.act_of(lo)], ROMAN[lo], ROMAN[hi]], 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 160)
+	btn(Rect2(VIS.end.x - 175, 78, 70, 28), Tx.t("ui.techniques.next_learned"), "next_learned", null, false, not _learned().is_empty(), Tx.t("ui.techniques.none_learned"), 14)
+	btn(Rect2(VIS.end.x - 103, 78, 100, 28), Tx.t("ui.techniques.let_all_go"), "reset", _tab_id(), false, _realised_here > 0, Tx.t("sim.tree.nothing"), 14)
+
+## A name on its plaque (the tree's family in view, the reading's art): jade in a gold rim, a gold diamond at each end.
+func _name_plaque(r: Rect2, name: String) -> void:
+	glow(r.grow(6), Color(UiKit.INK, 0.5))
+	rounded(r.grow(1), 4.0, UiKit.INK)
+	rounded(r, 3.0, UiKit.GOLD)
+	rounded(r.grow(-1.5), 2.0, UiKit.SURFACE.cloth)
+	var size := 22
+	while size > 16 and UiKit.text_width(name, size, true) > r.size.x - 56: size -= 2
+	var w := minf(UiKit.text_width(name, size, true), r.size.x - 56)
+	for sx in [-1.0, 1.0]:
+		var d := r.get_center() + Vector2(sx * (w * 0.5 + 16), 0)
+		draw_colored_polygon(PackedVector2Array([d + Vector2(0, -5), d + Vector2(5, 0), d + Vector2(0, 5), d + Vector2(-5, 0)]), UiKit.GOLD)
+	inked(Vector2(r.position.x, r.get_center().y + size * 0.36), name, size, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func _state_col(it: Dictionary) -> Color:
 	match str(it.get("state", "")):
@@ -416,8 +431,9 @@ func _diamond(at: Vector2, r: float, it: Dictionary) -> void:
 	draw_polyline(pts, UiKit.PAPER if st == "realised" else _state_col(it), 1.6, true)
 	if str(it.kind) == "notable": draw_circle(at, r * 0.35, _state_col(it), true, -1.0, true)
 
-## A node card: the art's emblem in its frame (jade learned, gold open, slate locked, a keystone in a gold double frame),
-## its name and its state under it. Only words wholly inside the chart are written.
+## A node card: the art's picture in its frame (jade learned, gold open, slate locked, a keystone in a gold double frame),
+## its name and its state under it (a closed one with a lock, an open one with the Realisations mark). Only words wholly
+## inside the chart are written.
 func _card(it: Dictionary, rect: Rect2) -> void:
 	var id := str(it.id)
 	var st := str(it.state)
@@ -428,7 +444,7 @@ func _card(it: Dictionary, rect: Rect2) -> void:
 	rounded(p, 4.0, _state_col(it) if sel != id else UiKit.PALE_GOLD)
 	rounded(p.grow(-2), 3.0, UiKit.INK)
 	if str(it.kind) == "keystone": draw_rect(p.grow(3), UiKit.GOLD, false, 1.5)
-	icon_at(p.grow(-6), id, Color.WHITE if st != "locked" else UiKit.MIST)
+	_card_picture(id, p.grow(-2), st == "locked")
 	if learned:
 		var tier := int(it.tier)
 		var d := p.end - Vector2(4, 4)
@@ -439,15 +455,52 @@ func _card(it: Dictionary, rect: Rect2) -> void:
 		ground(name_r.grow(4), UiKit.SURFACE.space)
 		text(Vector2(rect.position.x, rect.position.y + 92), str(it.name), 16, UiKit.PALE_GOLD if sel == id else (UiKit.PAPER if st != "locked" else UiKit.HOLLOW), HORIZONTAL_ALIGNMENT_CENTER, CARD.x)
 	var tag := str(it.tag)
-	var tw := UiKit.text_width(tag, 14) + 22.0
+	var tw := UiKit.text_width(tag, 14) + (22.0 if learned else 36.0)
 	var tr := Rect2(rect.get_center().x - tw * 0.5, rect.position.y + 96, tw, 19)
 	if VIS.encloses(tr):
 		rounded(tr, 9.0, UiKit.INK)
 		rounded(tr.grow(-1), 8.0, _state_col(it))
 		rounded(tr.grow(-2), 7.0, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
 		ground(tr, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
-		text(Vector2(tr.position.x, tr.position.y + 15), tag, 14, UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tw)
+		var mark := 0.0 if learned else 14.0
+		if st == "open": _rz_mark(Vector2(tr.position.x + 14, tr.get_center().y), 0.8)
+		elif not learned: _lock_icon(Vector2(tr.position.x + 8, tr.position.y + 3), 0.8)
+		text(Vector2(tr.position.x + mark, tr.position.y + 15), tag, 14, UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tw - mark)
 	region(Rect2(rect.position.x + 20, rect.position.y, CARD.x - 40, CARD.y), "node", id)
+
+## A card's picture, as the reading's is (the character in the art's pose on its element's ground) and with the art's
+## form at its impact frame, small: 3,171 arts, each composed at run time from its pose, its form and its element. A
+## closed art's picture is dimmed.
+func _card_picture(id: String, r: Rect2, dim: bool) -> void:
+	var t := ContentDB.entry("techniques", id)
+	var el := str(t.get("element", "none"))
+	var ec := SpriteCache.element_color(el)
+	vshade(r, Color(ec.darkened(0.55), 1.0), UiKit.INK)
+	glow(Rect2(r.position + Vector2(8, 30), Vector2(r.size.x - 16, 40)), Color(ec, 0.3 if not dim else 0.12))
+	draw_line(Vector2(r.position.x + 4, r.end.y - 8), Vector2(r.end.x - 4, r.end.y - 8), Color(ec, 0.5), 1.0)
+	var pose := _pose(t)
+	if not _posers.has(pose):
+		var a := Avatar.new()
+		a.visible = false
+		a.externally_timed = true
+		a.outfit = pic.outfit
+		a.play(pose)
+		a.elapsed = 0.3
+		add_child(a)
+		_posers[pose] = a
+	_posers[pose].draw_on(self, Vector2(r.get_center().x - 4, r.end.y - 6), 0.5, Color(0.5, 0.55, 0.58) if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3))
+	_form_still(t, r, 0.5, 0.4 if dim else 0.85)
+
+## An art's form at its impact frame (its sheet in its element's row at its tier's band), the whole cell fitted into `r`
+## at `most` scale and centred on it: the cards' pictures and the reading's.
+func _form_still(t: Dictionary, r: Rect2, most: float, alpha: float) -> void:
+	var a := FxLayer.form_spec(str(t.get("vfx", {}).get("anim", "")))
+	if a.is_empty(): return
+	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
+	var k := minf(most, minf((r.size.x - 2.0) / cell.x, (r.size.y - 2.0) / cell.y))
+	var at := r.get_center() - (cell * 0.5 - Vector2(float(a.anchor[0]), float(a.anchor[1]))) * k
+	var row := FxLayer.form_row(str(t.get("element", "none")), FxLayer.band_of(int(t.get("vfx", {}).get("tier", 1))))
+	FxLayer.draw_form_on(self, a, at, int(a.impact), row, 1, k, alpha)
 
 ## The words under a card: Learned, what learning it spends, or why it is closed.
 func _tag(it: Dictionary) -> String:
@@ -490,10 +543,25 @@ func _head(seal: String, name: String, a: String, b: String, mark := false) -> v
 	text(Vector2(26 + (16 if mark else 0), 132), a, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 196)
 	text(Vector2(26, 152), b, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 196)
 
-## The character under the chooser.
+## The character under the chooser, casting the chosen art (TechniquePreview) at a pack of imps; alone when nothing
+## castable is chosen. It draws itself over the page (its own nodes), so it is hidden while a question is asked.
 func _figure() -> void:
-	glow(Rect2(FEET + Vector2(-80, -12), Vector2(160, 28)), Color(UiKit.BRIGHT_JADE, 0.25))
-	doll.draw_on(self, FEET, 2.0)
+	stage.show_art(_preview_art(), c())
+	stage.visible = confirm.is_empty()
+	var f := stage.feet()
+	glow(Rect2(f + Vector2(-60, -10), Vector2(120, 22)), Color(UiKit.BRIGHT_JADE, 0.25))
+
+## The art the preview casts: the chosen art when it is a technique the page may show (a tree's art, one the character
+## knows, or a lost art found); a passage, an Inner Art, a secret art or an art still unknown (decision 19) casts nothing.
+func _preview_art() -> String:
+	if drawer or sel == "" or not ContentDB.has_entry("techniques", sel): return ""
+	var ch = c()
+	if ch.cultivator.techniques_known.has(sel): return sel
+	if _is_tree(): return sel if _by.has(sel) and str(_by[sel].kind) in ["art", "keystone", "dao"] else ""
+	if _tab_id() == "lost":
+		for a in _found(ch, lost_act, Game.progression.lost_arts_view(ch)):
+			if str(a.id) == sel and str(a.kind) == "technique": return sel
+	return ""
 
 ## A chooser row: its icon in a well, its name and a value, the line under it and a thin bar.
 func _row(rr: Rect2, icon: String, name: String, value: String, line: String, frac: float, on: bool, locked := false) -> void:
@@ -539,10 +607,8 @@ func _learned() -> Array:
 # ------------------------------------------------------------------ the reading
 ## The reading's name plaque and the line under it.
 func _plaque(name: String, runs: Array) -> void:
-	var r := Rect2(RIGHT.position.x + 20, 80, 324, 34)
-	face(r, "jade_label")
-	inked(Vector2(r.position.x, r.position.y + 25), name, 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	ground(Rect2(RIGHT.position, Vector2(RIGHT.size.x, 60)).grow(-4), UiKit.SURFACE.cloth)
+	_name_plaque(Rect2(RIGHT.position.x + 20, 80, 324, 30), name)
 	rich(Rect2(RIGHT.position.x + 16, 118, 332, 20), runs, 14, true)
 
 ## The picture: the character in the art's pose on its element's ground, in a gold frame.
@@ -558,21 +624,11 @@ func _picture(t: Dictionary, action := "") -> void:
 	pic.elapsed = 0.3
 	# A stroke reaches forward, so its figure stands back to keep the blade in the frame; a still one stands centred.
 	pic.draw_on(self, Vector2(r.position.x + (75.0 if str(pic.action) in ["idle", "meditate"] else 44.0), r.end.y - 18), 1.0)
+	if action == "": _form_still(t, r.grow(-4), 1.0, 0.85)
 
-## The body pose an art is shown in: its own action, or a combo step of the family's (the free hand's, of the weapon in
-## hand), when every layer the character wears has it; else the idle stance.
+## The body pose an art is shown in (TechniquePreview.pose_of).
 func _pose(t: Dictionary) -> String:
-	var pose := str(t.get("vfx", {}).get("pose", t.get("action", "idle")))
-	if pose.begins_with("combo_"):
-		var fam := str(t.get("family", "any"))
-		if fam == "any": fam = str(StatRules.family(c()).get("id", "fists"))
-		var combo: Array = ContentDB.entry("weapon_families", fam).get("combo", [])
-		pose = str(combo[mini(int(pose.right(1)) - 1, combo.size() - 1)].action) if not combo.is_empty() else "idle"
-	for cat in pic.outfit:
-		var item: Dictionary = Wardrobe.parts.get(cat, {}).get(str(pic.outfit[cat]), {}) if cat in Wardrobe.CATEGORIES else {}
-		for layer in item.get("layers", []):
-			if not layer.animations.has(pose): return "idle"
-	return pose
+	return TechniquePreview.pose_of(t, c(), pic.outfit)
 
 ## The facts beside the picture: the emblem, its form and element or family, then the numbers.
 func _facts(id: String, t: Dictionary, lines: Array) -> void:
@@ -610,7 +666,7 @@ func _read_node(ch) -> void:
 	elif known: lines.append([[Tx.plural("ui.techniques.used", int(ch.cultivator.technique_use.get(sel, 0))) % int(ch.cultivator.technique_use.get(sel, 0)), UiKit.MIST]])
 	_facts(sel, t, lines)
 	para(Rect2(920, 302, 332, 64), TechniqueTreeRules.describe(t), 16, UiKit.PAPER, 3)
-	_rule(370)
+	_rule(362)
 	if known: _read_known(ch, t, it)
 	else: _read_learn(ch, t, it)
 
@@ -620,40 +676,44 @@ func _kind_line(t: Dictionary) -> String:
 		"dao": return Tx.t("ui.techniques.dao_art")
 	return Tx.t("ui.techniques.path_art_of" if str(t.get("path", "")) != "" else "ui.techniques.orthodox_of") % Tx.t("ui.techniques.fam_" + str(t.get("family", "any")))
 
+## A section's name in the reading (Prerequisites, Cost): gold, in the display face, without a rule under it.
+func _section(pos: Vector2, s: String) -> void:
+	text(pos, s, 22, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, 140, true)
+
 func _rule(y: float) -> void:
 	draw_line(Vector2(916, y), Vector2(1256, y), Color(UiKit.GOLD, 0.6), 1.0)
 
 ## An art not yet learned: its prerequisites ticked and crossed, the cost, and Learn naming the Realisations it spends.
 func _read_learn(ch, t: Dictionary, it: Dictionary) -> void:
-	heading(Vector2(920, 400), Tx.t("ui.techniques.prerequisites"), 330)
-	var y := 410.0
+	_section(Vector2(920, 388), Tx.t("ui.techniques.prerequisites"))
+	var y := 396.0
 	if str(it.get("kind", "")) == "dao":
 		_need(y, "dao", Tx.t("ui.techniques.dao_tier") % [ContentDB.name_of("daos", str(it.dao)), int(it.dao_tier)], "%d / %d" % [int(ch.cultivator.daos.get(str(it.dao), {}).get("tier", 0)), int(it.dao_tier)], false)
-		_rule(518)
+		_rule(506)
 		para(Rect2(920, 520, 332, 110), Tx.t("ui.techniques.dao_taught"), 16, UiKit.MIST)
 		return
 	for n in Game.progression.node_needs(ch, sel):
 		_need(y, str(n.kind), _need_text(n), _need_value(ch, n), bool(n.ok))
 		y += 36.0
-	_rule(518)
-	heading(Vector2(920, 548), Tx.t("ui.techniques.cost"), 70)
+	_rule(506)
+	_section(Vector2(920, 530), Tx.t("ui.techniques.cost"))
 	var rz: Dictionary = Game.progression.realisations(ch)
 	var total := int(it.get("total", TechniqueTreeRules.cost(sel)))
-	_rz_mark(Vector2(1000, 538))
-	rich(Rect2(1012, 528, 250, 20), [[str(total) + " ", UiKit.PALE_GOLD], [Tx.t("ui.techniques.realisations_of") % int(rz.free), UiKit.MIST]], 16)
-	rich(Rect2(1000, 550, 250, 20), [[str(int(round(Game.combat.technique_cost(ch, t)))) + " ", UiKit.QI], [Tx.t("ui.techniques.qi_each"), UiKit.MIST]], 16)
+	_rz_mark(Vector2(1000, 523))
+	rich(Rect2(1012, 513, 250, 20), [[str(total) + " ", UiKit.PALE_GOLD], [Tx.t("ui.techniques.realisations_of") % int(rz.free), UiKit.MIST]], 16)
+	rich(Rect2(1000, 535, 250, 20), [[str(int(round(Game.combat.technique_cost(ch, t)))) + " ", UiKit.QI], [Tx.t("ui.techniques.qi_each"), UiKit.MIST]], 16)
 	_learn_btn(it, total)
 
-## Learn: primary, naming what it spends; closed, it carries the lock and says why under it.
+## Learn: primary, naming what it spends when it can; closed, plain Learn with the lock, and why in gold under it.
 func _learn_btn(it: Dictionary, total: int) -> void:
 	var ok := str(it.get("state", "")) == "open"
 	var why := "" if ok else Tx.t("sim.tree." + str(it.get("why", "route")))
-	btn(Rect2(950, 574, 272, 52), Tx.plural("ui.techniques.learn_for", total) % total, "learn", sel, true, ok, why, 22)
-	if not ok: text(Vector2(916, 642), why, 14, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_CENTER, 340)
+	btn(Rect2(950, 562, 272, 52), Tx.plural("ui.techniques.learn_for", total) % total if ok else Tx.t("ui.techniques.learn"), "learn", sel, true, ok, why, 22)
+	if not ok: text(Vector2(916, 632), why, 14, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 340)
 
-func _rz_mark(at: Vector2) -> void:
-	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -7), at + Vector2(7, 0), at + Vector2(0, 7), at + Vector2(-7, 0)]), UiKit.PALE_GOLD)
-	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -5), at + Vector2(5, 0), at + Vector2(0, 5), at + Vector2(-5, 0)]), UiKit.JADE)
+func _rz_mark(at: Vector2, k := 1.0) -> void:
+	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -7) * k, at + Vector2(7, 0) * k, at + Vector2(0, 7) * k, at + Vector2(-7, 0) * k]), UiKit.PALE_GOLD)
+	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -5) * k, at + Vector2(5, 0) * k, at + Vector2(0, 5) * k, at + Vector2(-5, 0) * k]), UiKit.JADE)
 
 ## A prerequisite row: its sign, what it asks, how far along, and a tick or a cross.
 func _need(y: float, kind: String, what: String, value: String, ok: bool) -> void:
@@ -695,21 +755,21 @@ func _read_step(ch, it: Dictionary) -> void:
 		else (Tx.t("ui.techniques.gives_damage") % [roundi(float(k.get("passage_power", 0.01)) * 100), str(tabs[tab].label), fam] if ring % 2 == 1
 		else Tx.t("ui.techniques.gives_cost") % [roundi(-float(k.get("passage_cost", -0.02)) * 100), str(tabs[tab].label), fam])
 	para(Rect2(920, 150, 332, 120), what + " " + Tx.t("ui.techniques.notable_help" if notable else "ui.techniques.passage_help"), 16, UiKit.PAPER)
-	_rule(370)
+	_rule(362)
 	if str(it.state) == "realised":
 		heading(Vector2(920, 400), Tx.t("ui.techniques.realised"), 330)
 		para(Rect2(920, 416, 332, 80), Tx.t("ui.techniques.let_go_help"), 16, UiKit.MIST)
 		btn(Rect2(950, 574, 272, 52), Tx.t("ui.techniques.let_go_for") % int(it.cost), "let_go", sel, false, true, "", 20)
 		return
-	heading(Vector2(920, 400), Tx.t("ui.techniques.prerequisites"), 330)
-	var y := 410.0
+	_section(Vector2(920, 388), Tx.t("ui.techniques.prerequisites"))
+	var y := 396.0
 	for n in Game.progression.node_needs(ch, sel):
 		_need(y, str(n.kind), _need_text(n), _need_value(ch, n), bool(n.ok))
 		y += 36.0
-	_rule(518)
-	heading(Vector2(920, 548), Tx.t("ui.techniques.cost"), 70)
-	_rz_mark(Vector2(1000, 538))
-	rich(Rect2(1012, 528, 250, 20), [[str(int(it.cost)) + " ", UiKit.PALE_GOLD], [Tx.t("ui.techniques.realisations_of") % int(_rz.get("free", 0)), UiKit.MIST]], 16)
+	_rule(506)
+	_section(Vector2(920, 530), Tx.t("ui.techniques.cost"))
+	_rz_mark(Vector2(1000, 523))
+	rich(Rect2(1012, 513, 250, 20), [[str(int(it.cost)) + " ", UiKit.PALE_GOLD], [Tx.t("ui.techniques.realisations_of") % int(_rz.get("free", 0)), UiKit.MIST]], 16)
 	_learn_btn(it, int(it.cost))
 
 ## A learned art: its mastery, where it is slotted, Slot or Unslot, Rank Up and (a realised one) Let go.
@@ -786,8 +846,7 @@ func _board(ch) -> void:
 	var n := _lost_counts(ch, v, lost_act)
 	var found := _found(ch, lost_act, v)
 	var plq := Rect2(MID.get_center().x - 160, 76, 320, 34)
-	face(plq, "jade_label")
-	inked(Vector2(plq.position.x, plq.position.y + 25), Tx.t("ui.techniques.act_title") % [ROMAN[lost_act], Tx.t("ui.techniques.act_name_%d" % lost_act)], 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plq.size.x)
+	_name_plaque(Rect2(plq.position.x, 78, plq.size.x, 30), Tx.t("ui.techniques.act_title") % [ROMAN[lost_act], Tx.t("ui.techniques.act_name_%d" % lost_act)])
 	ground(Rect2(MID.position, Vector2(MID.size.x, 48)), UiKit.SURFACE.cloth)
 	text(Vector2(256, 98), Tx.t("ui.techniques.n_found") % [n.x, n.y], 14, UiKit.PAPER)
 	text(Vector2(700, 98), Tx.t("ui.techniques.n_sealed") % (n.y - n.x), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 180)
@@ -841,8 +900,7 @@ func _art_icon(id: String, kind: String, r: Rect2) -> void:
 func _lineages(v: Dictionary) -> void:
 	var lins: Array = v.get("lineages", [])
 	var plq := Rect2(MID.get_center().x - 160, 76, 320, 34)
-	face(plq, "jade_label")
-	inked(Vector2(plq.position.x, plq.position.y + 25), Tx.t("ui.techniques.lineages"), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plq.size.x)
+	_name_plaque(Rect2(plq.position.x, 78, plq.size.x, 30), Tx.t("ui.techniques.lineages"))
 	ground(MID.grow(-6), UiKit.SURFACE.cloth)
 	if lins.is_empty():
 		para(Rect2(272, 140, 590, 80), Tx.t("ui.techniques.no_lineage"), 18, UiKit.MIST)
