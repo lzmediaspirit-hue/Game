@@ -375,23 +375,28 @@ func inked(pos: Vector2, s: String, size: int, col := UiKit.PALE_GOLD, align := 
 	if text_log != null: _log_text(pos, s, size, align, width, display, Rect2(), col, true)
 
 ## Words in several colours wrapped to `rect`'s width, `runs` [[text, Color], ...] (a lead phrase and its line, an
-## item's quality, grade and kind). Words past the rect's foot are not drawn. Returns the height used.
-func rich(rect: Rect2, runs: Array, size := 18) -> float:
+## item's quality, grade and kind), each line from the left or `centred`. Words past the rect's foot are not drawn.
+## Returns the height used.
+func rich(rect: Rect2, runs: Array, size := 18, centred := false) -> float:
 	var lh := UiKit.line_height(size)
 	var gap := UiKit.text_width("a b", size) - UiKit.text_width("ab", size)
-	var x := rect.position.x
-	var lines := 1
+	var lines: Array = [[]]   # each line's words: [word, colour, x from the line's start, width]
+	var x := 0.0
 	for run in runs:
 		for w in str(run[0]).split(" ", false):
 			var ww := UiKit.text_width(w, size)
-			if x > rect.position.x and x + ww > rect.end.x:
-				x = rect.position.x
-				lines += 1
-			var y := rect.position.y + size * UiKit.text_scale() + (lines - 1) * lh
-			if y > rect.end.y + 2: return (lines - 1) * lh
-			text(Vector2(x, y), w, size, run[1])
+			if x > 0.0 and x + ww > rect.size.x:
+				lines.append([])
+				x = 0.0
+			lines[-1].append([w, run[1], x, ww])
 			x += ww + gap
-	return lines * lh
+	for i in lines.size():
+		var y := rect.position.y + size * UiKit.text_scale() + i * lh
+		if y > rect.end.y + 2: return i * lh
+		var ln: Array = lines[i]
+		var shift := (rect.size.x - float(ln[-1][2]) - float(ln[-1][3])) * 0.5 if centred and not ln.is_empty() else 0.0
+		for w in ln: text(Vector2(rect.position.x + shift + float(w[2]), y), w[0], size, w[1])
+	return lines.size() * lh
 
 ## The ui_suite's record of the words a page drew, [{rect, s}]; null (off) in play.
 var text_log = null

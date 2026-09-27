@@ -84,6 +84,8 @@ const SURFACE := {
 	"soil": Color("2b1e16"),             # wood_dark + 0.30 INK
 	"water": Color("185660"),            # QI + 0.60 INK
 	"clay": Color("ac663e"),             # BRONZE + 0.25 RED
+	"sky": Color("0d2b2d"),              # JADE_SHADOW + 0.58 INK: the Bag's night at its lightest behind words
+	"sea": Color("27484e"),              # DEEP_TEAL + 0.16 MIST: the sea of cloud under the Bag's sky, at its lightest
 }
 ## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
 ## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
@@ -116,6 +118,17 @@ const TEXT_ON := [
 	[&"GOLD", ["surface:cloth", "honour_tablet", "honour_tablet:selected"], 14],
 	[&"BRIGHT_JADE", ["surface:cloth"], 14],
 	[&"HOLLOW", ["surface:cloth"], 20],
+	# The Bag's sky (decision 24): its night and sea of cloud, the floating tokens and the item card.
+	[&"PAPER", ["surface:sky", "surface:sea", "sky_token", "sky_card"], 14],
+	[&"MIST", ["surface:sky", "surface:sea", "sky_token", "sky_card"], 14],
+	[&"PALE_GOLD", ["surface:sky", "surface:sea", "sky_token:selected", "sky_card"], 14],
+	[&"PALE_GOLD", ["sky_token:selected@ink"], 14],
+	[&"GOLD", ["surface:sky", "sky_card"], 14],
+	[&"BRIGHT_JADE", ["surface:sky", "sky_card"], 14],
+	[&"HOLLOW", ["surface:sky", "sky_token"], 14],
+	[&"RED_TEXT", ["sky_card"], 14],
+	[&"SOUL_TEXT", ["sky_card"], 14],
+	[&"WARNING", ["sky_card"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

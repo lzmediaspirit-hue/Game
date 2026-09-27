@@ -783,6 +783,25 @@ func unequip(c, slot: String) -> Dictionary:
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": inst.id, "new": ""})
 	return ok()
 
+## P5 (the Bag's filters, decision 24): the kind a thing is shown under, "gear", "pills", "materials" or "other"
+## (items.json `bag_kinds`, by type; gear is every equipment piece).
+static func bag_kind(item_id: String) -> String:
+	if ContentDB.is_equipment(item_id): return "gear"
+	var kinds: Dictionary = ContentDB.config("items").get("bag_kinds", {})
+	var t := str(ContentDB.item(item_id).get("type", ""))
+	for k in kinds:
+		if t in kinds[k]: return str(k)
+	return "other"
+
+## The next Spirit Gourd up the ladder from the one worn: the smallest that holds more ({} at the top).
+static func next_gourd(c) -> Dictionary:
+	var holds: int = c.inventory.capacity() - c.inventory.bonus_slots
+	var best := {}
+	for a in ContentDB.all("artifacts"):
+		var n := int(a.get("gourd", {}).get("bag", 0))
+		if n > holds and (best.is_empty() or n < int(best.gourd.bag)): best = a
+	return best
+
 ## Avatar outfit from the creator look plus equipped appearances (S14).
 static func outfit_for(c) -> Dictionary:
 	var a: Dictionary = c.appearance

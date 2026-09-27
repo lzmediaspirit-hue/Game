@@ -175,7 +175,11 @@ func ui_suite() -> void:
 	Unlocks.debug_force_all = true
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
-		"stones": Game.account.teleports.duplicate()}
+		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot()}
+	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
+	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("iron_jian")})
 	c.cultivator.titles = ContentDB.all("titles").map(func(e): return str(e.id))
 	c.cultivator.secret_arts = ContentDB.all("secret_arts").map(func(e): return str(e.id))
 	var dao_ids: Array = ContentDB.all("daos").map(func(e): return str(e.id))
@@ -334,6 +338,8 @@ func ui_suite() -> void:
 	c.cultivator.secret_arts = keep.arts
 	c.cultivator.daos = keep.daos
 	Game.account.teleports = keep.stones
+	c.inventory.restore(keep.inventory)
+	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
 	c.training_sect = ts_was
 	c.seclusion = seclusion_was
@@ -387,7 +393,14 @@ func _ui_contexts(c) -> Dictionary:
 	var sect := {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 120, "buildings": {"sect_hall": 1}, "queue": [], "disciples": ds,
 		"candidates": ds.slice(0, 3).map(func(d): return {"name": d.name, "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}),
 		"expeditions": ex, "candidate_day": Clock.reset_day(now)}
-	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome],
+	# P5 (decision 24): the Bag as it opens, and with its card open on the worn weapon, on a piece and on a pill in the bag.
+	var bag: Array = [{}, {"tab": "weapon"}]
+	for want in ["gear", "pills"]:
+		for i in c.inventory.bag.size():
+			if c.inventory.bag[i] != null and InventoryAuthority.bag_kind(str(c.inventory.bag[i].id)) == want:
+				bag.append({"index": i})
+				break
+	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome], "inventory": bag,
 		"shop": ContentDB.all("shops").map(func(sh): return {"shop": str(sh.id)}), "fishing": [{"object": "fish_9"}], "teleport": [{}],
 		"your_sect": [{"_setup": func(): Game.account.sect = {}}, {"_setup": func(): Game.account.sect = sect.duplicate(true)}],
 		# An Elder of the Jade Sect: the next rank, Sect Master, is at the foot of the list (B5).
@@ -499,6 +512,84 @@ func identity_suite() -> void:
 		if p.identity != null and p.identity.open_s > Page.OPEN_MOTION_MAX: slow.append(id)
 		p.free()
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
+	await _bag_checks()
+
+## P5 (the Bag as concept B, decision 24; docs/page_identity.md row 3): the kinds split the bag with nothing lost; the
+## eight worn slots ride the orbit; a tapped thing's card opens beside its space, clear of it and inside the window, its
+## actions 48 px, its words read on the card; a piece's card shows what the rules say wearing it would do
+## (StatRules.equip_change: it leaves the character untouched, its "before" is the character as it stands and its
+## "after" what equipping the piece really gives); "···" brings Lock and Discard; a pill's card offers Use and Quick-use.
+func _bag_checks() -> void:
+	var c = Game.active()
+	var keep: Dictionary = c.inventory.snapshot()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.inventory.apply_add(c.id, "iron_jian", 1, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	Game.combat.refresh_stats(c.id)
+	var wi: int = c.inventory.first_index("iron_jian")
+	var pi: int = c.inventory.first_index("healing_pill")
+	var stat_ids: Array = ContentDB.stat_const("stats", []).map(func(s): return str(s.id))
+	var was: Array = stat_ids.map(func(s): return c.stats.value(s))
+	var max_hp: float = c.pools.max_hp
+	var rows: Array = StatRules.equip_change(c, "weapon", c.inventory.bag[wi])
+	check(stat_ids.map(func(s): return c.stats.value(s)) == was and c.pools.max_hp == max_hp and c.inventory.bag[wi] != null,
+		"P5 Bag: working out what a piece would change leaves the character untouched")
+	check(rows.size() > 1 and str(rows[-1].stat) == "combat_power" and is_equal_approx(float(rows[-1].before), StatRules.combat_power(c))
+		and rows.slice(0, -1).all(func(r): return is_equal_approx(float(r.before), c.stats.value(str(r.stat)))),
+		"P5 Bag: the card's 'before' is the character as it stands (%d stats change)" % (rows.size() - 1))
+	var CharacterPage = load("res://scripts/ui/pages/character_page.gd")
+	var pg: Page = load(str(load("res://scripts/main.gd").PAGES.inventory)).new()
+	pg.text_log = []
+	pg.page_id = "inventory"
+	add_child(pg)
+	pg.open({"index": wi})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var kinds: Array = ["gear", "pills", "materials", "other"].map(func(k): return pg._kind_count(c.inventory, k))
+	check(kinds.reduce(func(a, b): return a + b, 0) == pg._kind_count(c.inventory, "all") and int(kinds[0]) >= 1 and int(kinds[1]) >= 1,
+		"P5 Bag: the kinds split the bag with nothing lost (%s)" % str(kinds))
+	check(pg._regions.filter(func(r): return r.id == "slot").size() == 8, "P5 Bag: the eight worn slots ride the orbit round the figure")
+	var card: Array = pg._regions.filter(func(r): return r.id == "_card")
+	var cell: Array = pg._regions.filter(func(r): return r.id == "bag" and int(r.data) == wi)
+	check(card.size() == 1 and cell.size() == 1 and not (card[0].rect as Rect2).intersects(cell[0].rect) and pg.frame_rect.encloses(card[0].rect),
+		"P5 Bag: a tapped piece's card opens beside its space, clear of it and inside the window")
+	var acts: Array = pg._regions.filter(func(r): return r.id in ["equip", "spare", "more"])
+	check(acts.size() == 3 and acts.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Bag: the piece's card offers Equip, Set as spare and '···', each 48 px or more")
+	var said: Array = pg.text_log.map(func(tx): return str(tx.get("s", "")))
+	var shown: Array = rows.filter(func(r): return pg._stat_key(str(r.stat)) != "" and str(r.stat) != "combat_power").slice(0, 3) + [rows[-1]]
+	check(shown.all(func(r): return said.has(CharacterPage.stat_text(str(r.stat), float(r.after)))),
+		"P5 Bag: the card shows the totals StatRules.equip_change gives (%s)" % str(shown.map(func(r): return CharacterPage.stat_text(str(r.stat), float(r.after)))))
+	var dim: Array = []
+	var lost: Array = []
+	_identity_view(pg, "inventory card", dim, lost, {}, {})
+	pg.more = true
+	pg.text_log.clear()
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(pg._regions.any(func(r): return r.id == "lock") and pg._regions.any(func(r): return r.id == "discard"), "P5 Bag: '···' brings Lock and Discard")
+	_identity_view(pg, "inventory more", dim, lost, {}, {})
+	pg.on_action("bag", pi)
+	pg.text_log.clear()
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(pg._regions.any(func(r): return r.id == "use" and r.enabled) and pg._regions.any(func(r): return r.id == "quick") and not pg.more,
+		"P5 Bag: a pill's card offers Use and Quick-use, the '···' actions folded again")
+	_identity_view(pg, "inventory pill", dim, lost, {}, {})
+	check(dim.is_empty() and lost.is_empty(), "P5 Bag: every word on its cards reads on what it sits on (%s)" % str(dim.slice(0, 4)))
+	pg.queue_free()
+	var after: Array = rows.slice(0, -1).map(func(r): return float(r.after))
+	var cp_after := float(rows[-1].after)
+	Game.submit({"type": "equip", "index": wi})
+	Game.combat.refresh_stats(c.id)
+	var real: Array = rows.slice(0, -1).map(func(r): return c.stats.value(str(r.stat)))
+	var near := func(a: float, b: float) -> bool: return absf(a - b) <= maxf(0.001, absf(b) * 0.0001)
+	check(str(c.inventory.equipped.weapon.id) == "iron_jian" and range(real.size()).all(func(i): return near.call(real[i], after[i])) and near.call(StatRules.combat_power(c), cp_after),
+		"P5 Bag: equipping the piece gives what its card said (Combat Power %d, said %d)" % [StatRules.combat_power(c), int(cp_after)])
+	c.inventory.restore(keep)
+	Game.combat.refresh_stats(c.id)
+	Unlocks.debug_force_all = force_was
 
 ## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
 ## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every

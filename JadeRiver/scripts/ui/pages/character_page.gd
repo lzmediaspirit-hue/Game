@@ -9,7 +9,6 @@ extends Page
 ## Wardrobe are written on the same slips.
 
 const Avatar = preload("res://scripts/avatar.gd")
-const InventoryPage = preload("res://scripts/ui/pages/inventory_page.gd")
 ## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 2.5 is 5 each), feet on the slips.
 const FIGURE_SCALE := 2.5
 const FEET := Vector2(278, 528)
@@ -150,14 +149,15 @@ func _overview(ch) -> void:
 	_titles(ch)
 
 ## The worn slots at `at` (slot -> the 76 px slot's top-left), each with its name under it, round the figure (decision
-## 8): the self family's slots, for the Character page and for the Bag to come. A closed slot shows its lock and answers
-## a tap with what opens it; an empty one glows jade while the bag holds a piece the character may wear there. A tap on
-## an open slot is region `id` with the slot's name.
-static func draw_worn(pg: Page, ch, at: Dictionary, id: String, name_col: Color) -> void:
+## 8): the self family's slots, for the Character page and the Bag. A closed slot shows its lock and answers a tap with
+## what opens it; an empty one glows jade while the bag holds a piece the character may wear there. A tap on an open slot
+## is region `id` with the slot's name. `ringed` is the slot the Bag's card is about (the one tapped, or the one a
+## chosen piece would go in): a dashed gold ring round it and its name in pale gold.
+static func draw_worn(pg: Page, ch, at: Dictionary, id: String, name_col: Color, ringed := "") -> void:
 	for slot in at:
 		var r := Rect2(at[slot], Vector2(SLOT, SLOT))
 		var inst = ch.inventory.equipped.get(slot)
-		var why := InventoryPage.locked_reason(ch, slot)
+		var why := locked_reason(ch, slot)
 		var col := name_col
 		if inst != null:
 			pg.slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), id, slot)
@@ -166,21 +166,36 @@ static func draw_worn(pg: Page, ch, at: Dictionary, id: String, name_col: Color)
 			if why != "":
 				pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
 				col = UiKit.HOLLOW
-			elif _wearable_in_bag(ch, slot):
+			elif wearable_in_bag(ch, slot) != "":
 				# A hint, not a selection: a jade edge and halo (the selection glow is gold).
 				for k in 3: pg.draw_rect(r.grow(2.0 + k * 3.0), Color(UiKit.BRIGHT_JADE, 0.3 - k * 0.09), false, 3.0)
 				pg.draw_rect(r.grow(1), UiKit.BRIGHT_JADE, false, 2.0)
 				col = UiKit.BRIGHT_JADE
 			pg.region(r, id, slot, why == "", why)
+		if slot == ringed:
+			var g := r.grow(6)
+			pg.draw_rect(g.grow(2), Color(UiKit.GOLD, 0.25), false, 4.0)
+			for e in [[g.position, Vector2(g.end.x, g.position.y)], [Vector2(g.end.x, g.position.y), g.end], [g.end, Vector2(g.position.x, g.end.y)],
+					[Vector2(g.position.x, g.end.y), g.position]]:
+				pg.draw_dashed_line(e[0], e[1], UiKit.GOLD, 2.0, 5.0)
+			col = UiKit.PALE_GOLD
 		pg.text(Vector2(r.position.x - 8, r.end.y + 18), Tx.t("ui.inventory." + slot), 14, col, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
 
-## True when the bag holds a piece for `slot` that `ch` may put on.
-static func _wearable_in_bag(ch, slot: String) -> bool:
+## Why a worn slot is closed to `ch`, or "" when it is open.
+static func locked_reason(ch, slot: String) -> String:
+	match slot:
+		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else Tx.t("ui.inventory.fists_only_until_the_weapon")
+		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else Tx.t("ui.inventory.cape_slot_opens_at_heaven")
+		"talisman": return "" if Unlocks.is_unlocked(ch.id, "spirit_sense") else Tx.t("ui.inventory.soul_talisman_slot_opens_at")
+	return ""
+
+## A piece in the bag for `slot` that `ch` may put on (its id), or "".
+static func wearable_in_bag(ch, slot: String) -> String:
 	for s in ch.inventory.bag:
 		if s == null: continue
 		var def := ContentDB.item(str(s.id))
-		if str(def.get("slot", "")) == slot and RequirementRules.passes(def.get("requires", {}), Game.ctx(ch)): return true
-	return false
+		if str(def.get("slot", "")) == slot and RequirementRules.passes(def.get("requires", {}), Game.ctx(ch)): return str(s.id)
+	return ""
 
 ## Who walks beside: the active spirit animal and companions in small round chips, their names under them.
 func _party(ch) -> void:
@@ -275,12 +290,15 @@ func _column(ch, at: Vector2, head: String, rows: Array) -> void:
 ## A stat as the register writes it: counts grouped, chances and damage as percents, attack speed as a bonus, and
 ## HP and Qi regeneration together.
 static func stat_shown(ch, stat: String) -> String:
-	var v: float = ch.stats.value(stat) if stat != "regen" else 0.0
+	if stat == "regen": return "%.1f%% · %.1f%%" % [ch.stats.value("hp_regen") * 100.0, ch.stats.value("qi_regen") * 100.0]
+	return stat_text(stat, ch.stats.value(stat))
+
+## A stat's value `v` as the register writes it (the Bag's card writes its changes the same way).
+static func stat_text(stat: String, v: float) -> String:
 	match stat:
 		"crit_chance": return "%.1f%%" % (v * 100.0)
 		"crit_damage": return "%d%%" % int(round(v * 100.0))
 		"attack_speed": return "%+d%%" % int(round(v * 100.0))
-		"regen": return "%.1f%% · %.1f%%" % [ch.stats.value("hp_regen") * 100.0, ch.stats.value("qi_regen") * 100.0]
 	return UiKit.fmt(v)
 
 ## The titles as honours (decision 16): each a red lacquer tablet with its motif on a gilt boss, its name and its gift
