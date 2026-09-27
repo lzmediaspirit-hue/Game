@@ -27,6 +27,12 @@ VFX_TIERS = [dict(zip(["tier"] + _TIER_COLS, r)) for r in [
 STATS = ["level", "max_hp", "max_qi", "max_soul", "physical_attack", "qi_attack", "soul_attack", "crit_chance", "lifespan"]
 # §6: a Dao's effects take its element's colour; the other families take these.
 DAO_COLOURS = {"weapon": "PALE_GOLD", "craft": "BRIGHT_JADE", "rare": "SOUL"}
+# §5.8 the loot fountain by the drop's source: apex and flight as [base, per item, cap], the gap between launches, and a
+# flash at the drop for a boss. Any other source (a foe, a jar) keeps today's bounce.
+_BOSS_FOUNTAIN = {"apex": [120, 14, 200], "flight": [0.55, 0.04, 0.9], "gap": 0.05, "flash": "PALE_GOLD"}
+_CHEST_FOUNTAIN = {"apex": [80, 10, 140], "flight": [0.45, 0.03, 0.7], "gap": 0.04}
+FOUNTAIN = {"boss": _BOSS_FOUNTAIN, "field_boss": _BOSS_FOUNTAIN, "chest": _CHEST_FOUNTAIN, "tower": _CHEST_FOUNTAIN, "rift": _CHEST_FOUNTAIN}
+BOSS_ROLES = ["field_boss", "dungeon_boss", "story_boss"]
 
 
 # ------------------------------------------------------------------ layer and text helpers
@@ -204,10 +210,40 @@ def rows():
         row("rare_pill", "pill_cloud", {}, 0, 3.5,
             [fx(0.0, "pill_cloud", color="quality:payload.quality", offset=[0, -70], dur=3.5),
              text(0.0, key("world_view.pill_cloud_", suffix="payload.quality"), 26, "quality:payload.quality", offset=[0, -190], dur=3.0),
-             shake(0.0, 0.12), sound(0.0, "breakthrough"), bark(0.0, "world_view.pill_cloud_bark", 700, 3.5)],
-            {"actor": "c1", "recipe": "qi_gathering_pill", "quality": "pill_halo"}, "P6a"),
-        row("boss_phase", "boss_phase", {}, 90, 1.2, [shake(0.0, 0.3), sound(0.0, "boss_roar")],
-            {"enemy": 1, "phase": 2, "action": "summon"}, "P6a", stale_s=1.0),
+             shake(0.0, 0.12), sound(0.0, "rare_chime"), bark(0.0, "world_view.pill_cloud_bark", 700, 3.5)],
+            {"actor": "c1", "recipe": "qi_gathering_pill", "quality": "pill_halo"}, "P6c"),
+        # §2.4 until P9a: the first aggro of a boss since the room was entered; the boss does not wait, so no lock.
+        row("boss_intro", "enemy_aggro", {"target": "active", "role_in": BOSS_ROLES, "first_in_room": True}, 90, 2.0,
+            [{"t": 0.0, "kind": "letterbox", "height": 64, "slide_s": 0.3},
+             {"t": 0.1, "kind": "card", "frame": "", "align": "center", "rect": [140, 212, 1000, 120],
+              "lines": [{"text": {"name_of": "enemies", "id": "payload.def"}, "size": 56, "color": "PALE_GOLD", "display": True},
+                        {"text": {"first": [{"boss": "epithet", "id": "payload.def"}, key("moment.boss.level", "enemy.level")]},
+                         "size": 22, "color": "MIST"}]},
+             {"t": 0.3, "kind": "subtitle", "y": 610, "text": {"boss": "intro", "id": "payload.def"}},
+             sound(0.0, "boss_sting"), {"t": 0.0, "kind": "caption", "text": key("hud.caption.boss_sting")}],
+            {"enemy": 1, "target": "c1", "def": "big_toad_tan"}, "P6c", stale_s=1.5, scope="room"),
+        # The fight's stage in a numeral under the boss bar (P9 adds the phase's own card); a late one drops silently.
+        row("boss_phase", "boss_phase", {}, 90, 1.2,
+            [band(0.0, 176, key("moment.numeral.", suffix="payload.phase"), 40, "GOLD", wipe_s=0.2),
+             shake(0.0, 0.3), sound(0.0, "boss_roar")],
+            {"enemy": 1, "phase": 2, "action": "summon"}, "P6c", stale_s=1.0),
+        row("boss_defeated", "boss_defeated", {}, 70, 2.4,
+            [{"t": 0.0, "kind": "flash", "color": "PALE_GOLD", "alpha": 0.35, "dur": 0.25},
+             band(0.0, 230, {"name_of": "enemies", "id": "payload.enemy"}, 44, "PALE_GOLD", wipe_s=0.3, sub=key("moment.boss.defeated"),
+                  sub_size=22, sub_color="GOLD", more=[key("moment.boss.untouched", **{"if": "clean"})], more_color="BRIGHT_JADE"),
+             shake(0.0, 0.25), sound(0.0, "boss_fall")],
+            {"room": "mh_boss_den", "enemy": "big_toad_tan", "role": "dungeon_boss", "clean": True}, "P6c",
+            merge=[merge("achievement_unlocked", "untouched", when={"id": "untouched"})],
+            toast=key("hud.is_defeated", {"name_of": "enemies", "id": "payload.enemy"})),
+        row("field_boss_defeated", "field_boss_defeated", {}, 70, 2.4,
+            [{"t": 0.0, "kind": "flash", "color": "PALE_GOLD", "alpha": 0.35, "dur": 0.25},
+             band(0.0, 230, {"name_of": "enemies", "id": "payload.enemy"}, 44, "PALE_GOLD", wipe_s=0.3, sub=key("moment.boss.defeated"),
+                  sub_size=22, sub_color="GOLD"),
+             shake(0.0, 0.25), sound(0.0, "boss_fall")],
+            {"room": "dw_serpents_shallows", "enemy": "riverbed_serpent"}, "P6c", toast=key("hud.is_defeated", {"name_of": "enemies", "id": "payload.enemy"})),
+        row("loot_fountain", "loot_dropped", {"source_in": sorted(FOUNTAIN)}, 0, 0.9,
+            [{"t": 0.0, "kind": "fountain"}, sound(0.0, "coin")],
+            {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss"}, "P6c"),
         row("trial_opens", "room_event_started", ACTIVE, 60, 1.8,
             [text(0.0, key("event.", suffix="payload.event"), 30, "RED", at="camera", offset=[0, -180], dur=3.0)],
             {"actor": "c1", "room": "wp_west", "event": "heart_trial", "duration": 90.0}, "P6a", scope="room"),
@@ -215,4 +251,5 @@ def rows():
 
 
 def build():
-    write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "dao_colours": DAO_COLOURS, "vfx_tiers": VFX_TIERS})
+    write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
+                           "vfx_tiers": VFX_TIERS})

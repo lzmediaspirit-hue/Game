@@ -27,7 +27,8 @@ var logged: Array = []            # {t, row, layer, ...}: every layer as it star
 var toasts_posted: Array = []
 var fight_override = null         # tests: true or false stands in for the room
 var pages_override = null         # tests: true or false stands in for the page stack
-var hold_at := -1.0               # --moment=<id>:<t> stops the rows' clock at t
+var hold_at := -1.0               # --moment=<id>:<t>, --hold=<t>[:<row>]: the rows' clock stops at t (for one row, if named)
+var hold_row := ""
 var clock := 0.0
 var seen: Dictionary = {}         # enemy uids met since the room was entered (first_in_room)
 var heard: Dictionary = {}        # sfx -> clock when last played (the same sound within 0.1 s plays once)
@@ -93,7 +94,7 @@ func _process(delta: float) -> void:
 
 ## One frame: the running rows' world layers, then this frame's events, then the screen slot and the lock.
 func advance(delta: float) -> void:
-	if hold_at >= 0.0 and playing != null and float(playing.st) >= hold_at: delta = 0.0
+	if hold_at >= 0.0 and playing != null and float(playing.st) >= hold_at and hold_row in ["", str(playing.row.id)]: delta = 0.0
 	clock += delta
 	for pl in active.duplicate(): _run_world(pl, delta)
 	_resolve()
@@ -194,6 +195,7 @@ func _resolve() -> void:
 					pl.slots[into] = pl.slots.get(into, []) + [evs[j][1]]
 				elif into != "": pl.slots[into] = evs[j][1]
 				gone[j] = true
+				if hud: hud.drop_toasts_from(evs[j][1])   # what the row says for it, the HUD need not say again
 	for pl in plays:
 		if not gone.has(pl.i): _accept(pl)
 
@@ -314,6 +316,10 @@ func _fire(pl: Dictionary, L: Dictionary) -> void:
 				world.fx.add("text", pos, {"text": e.text, "color": MomentRules.color(L.color, p, pl.slots), "size": int(L.size), "dur": float(L.get("dur", 2.0))})
 		"bark":
 			if world: _bark(str(L.key), float(L.radius), float(L.dur))
+		"fountain":
+			var f: Dictionary = MomentRules.cfg().get("fountain", {}).get(str(p.get("source", "")), {})
+			e.bounce = f.is_empty() or s.get("reduce_motion", false)   # Reduce motion keeps today's bounce
+			if world and not e.bounce: _fountain(p, f)
 	e.skipped = world == null or (kind in ["fx", "text", "camera"] and at.is_empty())
 	logged.append(e)
 	if logged.size() > 200: logged.pop_front()
@@ -345,6 +351,27 @@ func _anchors(L: Dictionary, p: Dictionary) -> Array:
 					out.append(world.enemy_views[uid].position)
 	var off: Array = L.get("offset", [0, 0])
 	return out.map(func(v): return v + Vector2(float(off[0]), float(off[1])))
+
+## The loot fountain (§5.8): each piece's view leaves the drop point in turn, the rare ones last so they land on top
+## (the first of them chimes as it lands); the bigger the drop, the higher and longer the arc, up to its caps.
+func _fountain(p: Dictionary, f: Dictionary) -> void:
+	var items: Array = p.get("items", [])
+	var n := float(items.size())
+	var ap: Array = f.apex
+	var fl: Array = f.flight
+	var apex := minf(float(ap[0]) + float(ap[1]) * n, float(ap[2]))
+	var flight := minf(float(fl[0]) + float(fl[1]) * n, float(fl[2]))
+	var views := {}
+	for v in world.room_layer.get_children():
+		if v is LootView: views[v.uid] = v
+	var order: Array = items.filter(func(i): return not MomentRules.is_rare(i)) + items.filter(func(i): return MomentRules.is_rare(i))
+	var drop := Vector2(float(p.get("x", 0.0)), float(p.get("y", 0.0)))
+	var chimed := false
+	for i in order.size():
+		var rare := MomentRules.is_rare(order[i])
+		if views.has(int(order[i].uid)): views[int(order[i].uid)].launch(drop, i * float(f.gap), apex, flight, "rare_chime" if rare and not chimed else "")
+		chimed = chimed or rare
+	if f.has("flash"): world.fx.add("flash", drop + Vector2(0, -30), {"color": MomentRules.color(f.flash), "radius": 90.0, "dur": 0.3})
 
 ## The people nearby say something (three lines by `prefix`_0.._2).
 func _bark(prefix: String, radius: float, dur: float) -> void:
@@ -552,7 +579,11 @@ func _draw_band(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 		for i in 8: _write(ci, title, Vector2(0, y + px * 0.8) + Vector2(4, 0).rotated(TAU * i / 8.0), px, g, true, HORIZONTAL_ALIGNMENT_CENTER, 1280.0, false)
 	_write(ci, title, Vector2(0, y + px * 0.8), px, Color(_col(pl, L.get("color"), UiKit.PALE_GOLD), ta), true)
 	var sub := _t(pl, L.get("sub", {}))
-	if sub != "": _write(ci, sub, Vector2(0, y + px * 1.35 + 16.0), float(L.get("sub_size", 20)), Color(_col(pl, L.get("sub_color"), UiKit.PAPER), a * _in(lt, 0.5, 0.2)))
+	var sy := y + px * 1.35 + 16.0
+	if sub != "": _write(ci, sub, Vector2(0, sy), float(L.get("sub_size", 20)), Color(_col(pl, L.get("sub_color"), UiKit.PAPER), a * _in(lt, 0.5, 0.2)))
+	for line in _more(pl, L):
+		sy += 26.0
+		_write(ci, line, Vector2(0, sy), 18.0, Color(_col(pl, L.get("more_color"), UiKit.MIST), a * _in(lt, 0.6, 0.2)))
 
 ## A line of capitals letter-spaced by `spacing` px, centred on the screen.
 func _spaced(ci: Node2D, s: String, baseline: float, px: float, col: Color, spacing: float) -> void:
@@ -586,7 +617,7 @@ func _draw_strip(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float,
 		_write(ci, sub, Vector2(0, y), float(L.get("sub_size", 18)), Color(_col(pl, L.get("sub_color"), UiKit.MIST), ta))
 	for line in _more(pl, L):
 		y += 24.0
-		_write(ci, line, Vector2(0, y), 17.0, Color(UiKit.MIST, ta))
+		_write(ci, line, Vector2(0, y), 17.0, Color(_col(pl, L.get("more_color"), UiKit.MIST), ta))
 
 ## A card in the kit's toast frame (the tribulation weathered): its lines and a bar, sliding in.
 func _draw_card(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, still: bool) -> void:
@@ -594,12 +625,18 @@ func _draw_card(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 	var rr: Array = L.rect
 	var r := Rect2(float(rr[0]), float(rr[1]), float(rr[2]), float(rr[3]))
 	if not still and str(L.get("slide_from", "")) == "left": r.position.x -= r.end.x * pow(1.0 - _in(lt, 0.0, 0.3), 2.0)
-	var fa := a * (_in(lt, 0.0, 0.2) if still else 1.0)
-	_box(ci, "toast", r, fa)
+	var fa := a * (_in(lt, 0.0, 0.2) if still or str(L.get("frame", "toast")) == "" else 1.0)
+	if str(L.get("frame", "toast")) != "": _box(ci, str(L.get("frame", "toast")), r, fa)
+	var centre := str(L.get("align", "")) == "center"
 	var y := r.position.y + 30.0
 	for line in L.get("lines", []):
-		_write(ci, _t(pl, line.text), Vector2(r.position.x + 20.0, y), float(line.get("size", 16)), Color(_col(pl, line.get("color"), UiKit.PAPER), fa), false, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 40.0)
-		y += float(line.get("size", 16)) * 1.35
+		var px := float(line.get("size", 16))
+		var s := _t(pl, line.text)
+		if s == "": continue
+		if centre: y += px * 0.5
+		_write(ci, s, Vector2(r.position.x + (0.0 if centre else 20.0), y), px, Color(_col(pl, line.get("color"), UiKit.PAPER), fa), line.get("display", false),
+			HORIZONTAL_ALIGNMENT_CENTER if centre else HORIZONTAL_ALIGNMENT_LEFT, r.size.x - (0.0 if centre else 40.0))
+		y += px * (0.85 if centre else 1.35)
 	if L.has("bar"):
 		var v := clampf(float(MomentRules.value(L.bar.value, pl.p, pl.slots)) / 100.0, 0.0, 1.0)
 		var br := Rect2(r.position.x + 20.0, r.end.y - 26.0, 220.0, 10.0)
@@ -607,7 +644,7 @@ func _draw_card(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 		ci.draw_rect(Rect2(br.position, Vector2(br.size.x * v, br.size.y)), Color(_col(pl, L.bar.get("color"), UiKit.RED), fa))
 		_write(ci, _t(pl, L.bar.label), Vector2(br.end.x + 12.0, br.end.y + 1.0), 14.0, Color(UiKit.MIST, fa), false, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - br.end.x - 16.0)
 
-## The stat rise (§2.3): the numbers that changed since the snapshot, at most seven, one after another.
+## The stat rise (§2.3): the numbers that rose since the snapshot, at most seven, one after another.
 func _draw_stats(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, still: bool) -> void:
 	var was: Dictionary = pl.slots.get("before", {})
 	var now: Dictionary = pl.slots.get("now", {})

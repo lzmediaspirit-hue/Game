@@ -220,7 +220,7 @@ PAYLOAD = {
     "boss_phase": ["enemy", "phase", "action"],
     "boss_defeated": ["room", "enemy", "role", "clean"],
     "field_boss_defeated": ["room", "enemy"],
-    "loot_dropped": ["room", "items", "x", "y"],
+    "loot_dropped": ["room", "items", "x", "y", "source"],
     "quest_completed": ["actor", "quest", "name", "kind"],
     "room_event_started": ["actor", "room", "event", "duration"],
 }

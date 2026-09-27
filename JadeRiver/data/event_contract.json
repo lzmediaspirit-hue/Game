@@ -586,7 +586,8 @@
     "room",
     "items",
     "x",
-    "y"
+    "y",
+    "source"
    ]
   },
   "room_left": {

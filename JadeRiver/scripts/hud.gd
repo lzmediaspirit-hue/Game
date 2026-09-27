@@ -678,8 +678,14 @@ func _draw_caption() -> void:
 	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
 func toast(text: String, kind := "unlock", sub := "") -> void:
-	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0})
+	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0, "from": _from})
 	while toasts.size() > 3: toasts.pop_front()
+
+## P6: a moment that takes an event into itself (a breakthrough's unlock, a tribulation's result) takes back the toast
+## the HUD made for it; `_from` is the payload of the event being handled while the toast was made.
+var _from = null
+func drop_toasts_from(p: Dictionary) -> void:
+	toasts = toasts.filter(func(tt): return not is_same(tt.get("from"), p))
 
 ## Before the quest tracker is revealed (the prologue), a new quest's first step rides under its toast...
 func _first_step(qid: String) -> String:
@@ -702,6 +708,11 @@ func _objective_toast(qid: String) -> void:
 	objective_seen[qid] = (st.progress as Array).duplicate()
 
 func _on_event(name: String, p: Dictionary) -> void:
+	_from = p
+	_handle(name, p)
+	_from = null
+
+func _handle(name: String, p: Dictionary) -> void:
 	if not bound(): return
 	if CAPTIONS.has(name) and Game.account.settings.get("captions", false) and _caption_worthy(name, p):
 		caption = {"text": Tx.t("hud.caption." + str(CAPTIONS[name])), "t": 0.0}
@@ -1225,8 +1236,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.the_egg_hatched_a") % ContentDB.name_of("pets", str(p.species)), "gold")
 		"bond_changed":
 			add_log(Tx.t("hud.hearts") % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED)
-		"field_boss_defeated":
-			toast(Tx.t("hud.is_defeated") % ContentDB.name_of("enemies", str(p.enemy)), "gold")
 		"defence_warning":
 			toast(Tx.t("hud.raiders_at_the_gates_hold"), "danger")
 		"defence_result":

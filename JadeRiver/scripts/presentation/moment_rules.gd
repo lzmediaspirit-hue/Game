@@ -61,15 +61,27 @@ static func value(ref, p: Dictionary, slots := {}):
 			node = (node as Dictionary).get(part, 0) if node is Dictionary else 0
 		return node
 	if ref.begins_with("item."): return ContentDB.item(str(p.get("item", ""))).get(ref.trim_prefix("item."), "")
+	if ref.begins_with("enemy."):   # the payload's enemy as the room has it (a boss's level), read only
+		var e = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
+		return e.get(ref.trim_prefix("enemy.")) if e != null else 0
 	return ref
+
+## A payload value as a key part: a whole number read back from JSON (2.0) is "2".
+static func id_of(v) -> String:
+	return str(int(v)) if v is float and v == floorf(v) else str(v)
 
 ## A text source (§3.4) as the words the player reads; "" when it names nothing, or when its `if_slot` is empty.
 static func text(src, p: Dictionary, slots := {}) -> String:
 	if not (src is Dictionary): return str(value(src, p, slots))
-	if src.is_empty() or (src.has("if_slot") and not slots.has(str(src.if_slot))): return ""
+	if src.is_empty() or (src.has("if_slot") and not slots.has(str(src.if_slot))) or (src.has("if") and not p.get(str(src.if), false)): return ""
+	if src.has("first"):   # the first source that says something (a boss's epithet, else its level)
+		for s in src.first:
+			var t := text(s, p, slots)
+			if t != "": return t
+		return ""
 	var v = value(src.values()[0], p, slots)
 	if src.has("key"):
-		var s := Tx.t(str(src.key) + (str(value(src.suffix, p, slots)) if src.has("suffix") else ""))
+		var s := Tx.t(str(src.key) + (id_of(value(src.suffix, p, slots)) if src.has("suffix") else ""))
 		var args: Array = (src.get("args", []) as Array).map(func(a): return text(a, p, slots) if a is Dictionary else value(a, p, slots))
 		return s % args if not args.is_empty() else s
 	if src.has("realm"): return ContentDB.realm_label(str(v))

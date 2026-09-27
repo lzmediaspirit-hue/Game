@@ -83,6 +83,7 @@ func moments_data_suite() -> void:
 			elif s.begins_with("slot.now.") or s.begins_with("slot.before."): check(part[2] in cfg.get("stats", []) or part[2] == "hp_pct", "%s reads %s, a snapshot number" % [where, s])
 			elif s.begins_with("slot."): check(part.size() == 3 and part[2] in slots.get(part[1], []), "%s reads %s, from a merged event that declares it" % [where, s])
 			elif s.begins_with("item."): check("item" in keys, "%s reads %s: its event names an item" % [where, s])
+			elif s.begins_with("enemy."): check("enemy" in keys and s.trim_prefix("enemy.") in ["level", "elite", "def_id"], "%s reads %s: its event names an enemy" % [where, s])
 		check(float(r.lock_s) <= float(cfg.settings.max_lock_s) and (float(r.lock_s) == 0.0 or float(r.lock_s) < float(r.duration_s)), "%s: its lock is within %s s and the row" % [where, cfg.settings.max_lock_s])
 		check(float(r.get("skip_to_s", 0.0)) < float(r.duration_s) and str(r.skip) in ["", "tap"] and str(r.in_fight) in ["play", "toast"] and str(r.scope) in ["actor", "room"], "%s: skip, in_fight and scope are known, the skip point inside the row" % where)
 		check(r.get("hold_until", []).is_empty() == (float(r.get("max_s", 0.0)) == 0.0), "%s: a held row has hold_until and max_s" % where)
@@ -114,6 +115,12 @@ func moments_data_suite() -> void:
 	for cr in crafts: check(ContentDB.strings.has("craft." + str(cr)), "craft.%s is a string" % cr)
 	for f in ContentDB.all("failures"): check(ContentDB.strings.has("failure." + str(f.id)), "failure.%s is a string (finding 8)" % f.id)
 	for st in cfg.get("stats", []): check(ContentDB.strings.has("moment.stat." + str(st)), "moment.stat.%s is a string" % st)
+	for en in ContentDB.all("enemies"):
+		for i in (en.get("phases", []) as Array).size(): check(ContentDB.strings.has("moment.numeral.%d" % (i + 1)), "%s's phase %d has a numeral" % [en.id, i + 1])
+	for src in cfg.get("fountain", {}):
+		var fo: Dictionary = cfg.fountain[src]
+		check((fo.apex as Array).size() == 3 and (fo.flight as Array).size() == 3 and float(fo.gap) > 0.0 and (not fo.has("flash") or MomentRules.tokens().has(str(fo.flash))),
+			"the %s fountain has its apex, flight, gap and a token flash" % src)
 	for fam in cfg.get("dao_colours", {}): check(MomentRules.tokens().has(str(cfg.dao_colours[fam])), "the %s Daos' colour is a UiKit token" % fam)
 	var elems: Dictionary = ContentDB.config("elements").get("colors", {})
 	var grades: Dictionary = ContentDB.config("grades")
@@ -133,7 +140,7 @@ func moments_data_suite() -> void:
 			var tb := str(t.src.get("name_of", t.src.get("field_of", "")))
 			check(ContentDB.tables.has(tb), "moments text source reads %s, a table" % tb)
 			continue
-		var k := str(t.src.key) + (str(t.sample.get(str(t.src.suffix).trim_prefix("payload."), "")) if t.src.has("suffix") else "")
+		var k := str(t.src.key) + (MomentRules.id_of(t.sample.get(str(t.src.suffix).trim_prefix("payload."), "")) if t.src.has("suffix") else "")
 		check(ContentDB.strings.has(k), "moments text %s is a string (not the fallback)" % k)
 	var tiers: Array = cfg.get("vfx_tiers", [])
 	check(tiers.size() == 7, "the escalation curve has 7 tiers")
@@ -155,7 +162,8 @@ func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -
 			if k in ["color", "glow"]: colours.append(v)
 			if v is String:
 				var r: String = v.get_slice(":", 1) if v.contains(":") else v
-				if r.begins_with("payload.") or r.begins_with("slot.") or r.begins_with("item."): refs.append(r)
+				if r.begins_with("payload.") or r.begins_with("slot.") or r.begins_with("item.") or r.begins_with("enemy."): refs.append(r)
+				if k == "if": refs.append("payload." + v)   # a line shown only when the payload says so
 			_moment_walk(v, refs, colours, texts, sample)
 	elif node is Array:
 		for v in node: _moment_walk(v, refs, colours, texts, sample)

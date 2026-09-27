@@ -2,6 +2,32 @@
 
 ## Moments (docs/roadmap_master_ui.md, P6)
 
+### P6c · Bosses and the loot fountain
+- **The boss intro** (`boss_intro`): the first time a boss turns on you in a visit, two ink bars close in top and
+  bottom (under the HUD, so its controls stay live), its name is written large with its Level under it, and war drums
+  and a falling gong sound (`boss_sting`, new; captioned). The boss does not wait for it and nothing locks, so you keep
+  control; until P9 gives the bosses epithets and lines, the Level stands in. It never plays twice in one visit.
+- **The phase card** (`boss_phase`): the fight's stage as a gold numeral on an ink band under the boss bar, with the
+  shake and the roar it had; one that would come late drops silently.
+- **A boss's fall** (`boss_defeated`, `field_boss_defeated`): a pale-gold flash, its name on a band with "Defeated", and
+  for a clean dungeon kill the Untouched line (it takes the Untouched achievement's toast into itself); `boss_fall`
+  (new) sounds. The HUD's field-boss toast is now the row's fallback.
+- **The loot fountain** (`loot_fountain`, §5.8): a boss's, a field boss's, a chest's, a Trial Tower floor's or a rift's
+  drop leaves the drop point one piece after another and arcs to where it really lies, higher and longer the more
+  there is (capped); rare pieces go last so they land on top, and the first rings `rare_chime` (new) as it lands; a
+  boss's coins burst as six and close into one, with a pale-gold flash at the drop. A foe's or a jar's drop bounces as
+  before, and so does every drop with Reduce motion. `LootView.launch` flies them.
+- **`loot_dropped` says where the loot came from** (finding 6), the one simulation edit of P6: `source` is enemy,
+  elite, boss, field_boss, fled, jar, chest, rift or tower, a payload key and nothing else.
+- A moment that takes an event into itself now takes back the HUD's toast for it too (a breakthrough's unlock, its
+  tribulation, the Untouched achievement). The pill cloud rings `rare_chime`, not the breakthrough gong.
+- Previews: `--hold=t[:row]` holds a real moment at t, `--defeat-foe[=s]` defeats the first foe through Combat with its
+  real drop, `--foe=` takes an HP share, and `--room=` works with `--load-slot`.
+- **Tests:** `moments_suite` plays Big Toad Tan's den for real: his first aggro opens the intro and the second does not,
+  his 49% opens the phase card, a phase cuts the major breakthrough (case 5), leaving the den ends his intro with no
+  toast (case 8), his clean fall takes the Untouched line, his drop says `boss` and flies (and only bounces with Reduce
+  motion), a jar's does not fly. `moments_data_suite`: a numeral for every boss phase, the fountain table.
+
 ### P6b · The breakthrough and the progression cards
 - **The major breakthrough, as mockup 05 draws it** (`breakthrough_major`): the world darkens round you and the HUD
   recedes, sixteen motes gather into you, a column of light rises and three rings open at your feet (0–0.6 s); the

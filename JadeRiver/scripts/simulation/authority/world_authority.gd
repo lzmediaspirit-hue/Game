@@ -517,7 +517,7 @@ func apply_object_hit(actor_id: String, o: Dictionary) -> void:
 		_room_mem(c, game.room_rt.room_id).broken[id] = Clock.now_utc() + st.timer
 		var drop := LootRules.roll(str(o.get("loot", "jar_valley_low")), Rng.stream(actor_id, "loot"), int(o.get("level", 1)),
 			c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
+		_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "jar")
 		emit("object_broken", {"actor": actor_id, "object": id, "type": o.type})
 
 ## `pick` (S45): go straight to the harvest at a rare herb, past the Pick / Dig it up choice.
@@ -573,7 +573,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
 				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
-			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
+			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
 		"teleport_stone":
 			var sid := str(o.get("stone", object_id))
 			if not game.account.teleports.has(sid):
@@ -841,7 +841,9 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		if c.quests.has_flag(flag): continue
 		game.quest.apply_flag(c.id, flag)
 		drop.items.append({"item": str(it), "count": 1})
-	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)))
+	var role := str(p.get("role", ""))
+	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)),
+		"field_boss" if role == "field_boss" else ("boss" if role in ["dungeon_boss", "story_boss"] else ("elite" if p.get("elite", false) else "enemy")))
 
 const ATTUNEMENT_SHARDS := ["storm_shard", "star_shard"]
 
@@ -850,7 +852,9 @@ static func zone_shard(room_id: String) -> String:
 	var att = ContentDB.zone_of_room(room_id).get("attunement")
 	return str(att.get("shard", "")) if att is Dictionary else ""
 
-func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
+## `source` says what left the loot (P6: the loot fountain tells a boss's drop from a jar's): enemy, elite, boss,
+## field_boss, fled, jar, chest, rift or tower. It only goes into the event.
+func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void:
 	var rt: RoomRuntime = game.room_rt
 	var rng := Rng.stream(c.id, "loot")
 	var drops: Array = []
@@ -880,7 +884,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 		items_out.append(entry.duplicate())
 		i += 1
 	if not items_out.is_empty():
-		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y})
+		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source})
 
 func pick_up(c, uid: int) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
@@ -1379,7 +1383,7 @@ func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
 	if c == null or st == null: return
 	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"),
 		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
-	_drop_loot(c, drop, st.plane, 0.0)
+	_drop_loot(c, drop, st.plane, 0.0, "rift")
 
 func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return
@@ -1676,7 +1680,7 @@ func apply_tower_clear(actor_id: String, f: int) -> void:
 	if first: c.tower["cleared"] = f
 	if st != null and game.room_rt != null:
 		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
-			{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")}), st.plane, 0.0)
+			{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")}), st.plane, 0.0, "tower")
 	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}], "tower")
 	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
 

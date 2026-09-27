@@ -1434,7 +1434,7 @@
     {
      "t": 0.0,
      "kind": "sound",
-     "sfx": "breakthrough"
+     "sfx": "rare_chime"
     },
     {
      "t": 0.0,
@@ -1450,7 +1450,109 @@
     "recipe": "qi_gathering_pill",
     "quality": "pill_halo"
    },
-   "step": "P6a"
+   "step": "P6c"
+  },
+  {
+   "id": "boss_intro",
+   "event": "enemy_aggro",
+   "when": {
+    "target": "active",
+    "role_in": [
+     "field_boss",
+     "dungeon_boss",
+     "story_boss"
+    ],
+    "first_in_room": true
+   },
+   "priority": 90,
+   "duration_s": 2.0,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 1.5,
+   "in_fight": "play",
+   "scope": "room",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "letterbox",
+     "height": 64,
+     "slide_s": 0.3
+    },
+    {
+     "t": 0.1,
+     "kind": "card",
+     "frame": "",
+     "align": "center",
+     "rect": [
+      140,
+      212,
+      1000,
+      120
+     ],
+     "lines": [
+      {
+       "text": {
+        "name_of": "enemies",
+        "id": "payload.def"
+       },
+       "size": 56,
+       "color": "PALE_GOLD",
+       "display": true
+      },
+      {
+       "text": {
+        "first": [
+         {
+          "boss": "epithet",
+          "id": "payload.def"
+         },
+         {
+          "key": "moment.boss.level",
+          "args": [
+           "enemy.level"
+          ]
+         }
+        ]
+       },
+       "size": 22,
+       "color": "MIST"
+      }
+     ]
+    },
+    {
+     "t": 0.3,
+     "kind": "subtitle",
+     "y": 610,
+     "text": {
+      "boss": "intro",
+      "id": "payload.def"
+     }
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "boss_sting"
+    },
+    {
+     "t": 0.0,
+     "kind": "caption",
+     "text": {
+      "key": "hud.caption.boss_sting"
+     }
+    }
+   ],
+   "art": [],
+   "sample": {
+    "enemy": 1,
+    "target": "c1",
+    "def": "big_toad_tan"
+   },
+   "step": "P6c"
   },
   {
    "id": "boss_phase",
@@ -1471,6 +1573,18 @@
    "layers": [
     {
      "t": 0.0,
+     "kind": "band",
+     "y": 176,
+     "title": {
+      "key": "moment.numeral.",
+      "suffix": "payload.phase"
+     },
+     "size": 40,
+     "color": "GOLD",
+     "wipe_s": 0.2
+    },
+    {
+     "t": 0.0,
      "kind": "shake",
      "s": 0.3
     },
@@ -1480,13 +1594,216 @@
      "sfx": "boss_roar"
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "enemy": 1,
     "phase": 2,
     "action": "summon"
    },
-   "step": "P6a"
+   "step": "P6c"
+  },
+  {
+   "id": "boss_defeated",
+   "event": "boss_defeated",
+   "when": {},
+   "priority": 70,
+   "duration_s": 2.4,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "achievement_unlocked",
+     "when": {
+      "id": "untouched"
+     },
+     "into": "untouched",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "hud.is_defeated",
+    "args": [
+     {
+      "name_of": "enemies",
+      "id": "payload.enemy"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "flash",
+     "color": "PALE_GOLD",
+     "alpha": 0.35,
+     "dur": 0.25
+    },
+    {
+     "t": 0.0,
+     "kind": "band",
+     "y": 230,
+     "title": {
+      "name_of": "enemies",
+      "id": "payload.enemy"
+     },
+     "size": 44,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.3,
+     "sub": {
+      "key": "moment.boss.defeated"
+     },
+     "sub_size": 22,
+     "sub_color": "GOLD",
+     "more": [
+      {
+       "key": "moment.boss.untouched",
+       "if": "clean"
+      }
+     ],
+     "more_color": "BRIGHT_JADE"
+    },
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.25
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "boss_fall"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "room": "mh_boss_den",
+    "enemy": "big_toad_tan",
+    "role": "dungeon_boss",
+    "clean": true
+   },
+   "step": "P6c"
+  },
+  {
+   "id": "field_boss_defeated",
+   "event": "field_boss_defeated",
+   "when": {},
+   "priority": 70,
+   "duration_s": 2.4,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "hud.is_defeated",
+    "args": [
+     {
+      "name_of": "enemies",
+      "id": "payload.enemy"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "flash",
+     "color": "PALE_GOLD",
+     "alpha": 0.35,
+     "dur": 0.25
+    },
+    {
+     "t": 0.0,
+     "kind": "band",
+     "y": 230,
+     "title": {
+      "name_of": "enemies",
+      "id": "payload.enemy"
+     },
+     "size": 44,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.3,
+     "sub": {
+      "key": "moment.boss.defeated"
+     },
+     "sub_size": 22,
+     "sub_color": "GOLD"
+    },
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.25
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "boss_fall"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "room": "dw_serpents_shallows",
+    "enemy": "riverbed_serpent"
+   },
+   "step": "P6c"
+  },
+  {
+   "id": "loot_fountain",
+   "event": "loot_dropped",
+   "when": {
+    "source_in": [
+     "boss",
+     "chest",
+     "field_boss",
+     "rift",
+     "tower"
+    ]
+   },
+   "priority": 0,
+   "duration_s": 0.9,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fountain"
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "coin"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "room": "mh_boss_den",
+    "items": [],
+    "x": 640.0,
+    "y": 820.0,
+    "source": "boss"
+   },
+   "step": "P6c"
   },
   {
    "id": "trial_opens",
@@ -1560,6 +1877,75 @@
   "weapon": "PALE_GOLD",
   "craft": "BRIGHT_JADE",
   "rare": "SOUL"
+ },
+ "fountain": {
+  "boss": {
+   "apex": [
+    120,
+    14,
+    200
+   ],
+   "flight": [
+    0.55,
+    0.04,
+    0.9
+   ],
+   "gap": 0.05,
+   "flash": "PALE_GOLD"
+  },
+  "field_boss": {
+   "apex": [
+    120,
+    14,
+    200
+   ],
+   "flight": [
+    0.55,
+    0.04,
+    0.9
+   ],
+   "gap": 0.05,
+   "flash": "PALE_GOLD"
+  },
+  "chest": {
+   "apex": [
+    80,
+    10,
+    140
+   ],
+   "flight": [
+    0.45,
+    0.03,
+    0.7
+   ],
+   "gap": 0.04
+  },
+  "tower": {
+   "apex": [
+    80,
+    10,
+    140
+   ],
+   "flight": [
+    0.45,
+    0.03,
+    0.7
+   ],
+   "gap": 0.04
+  },
+  "rift": {
+   "apex": [
+    80,
+    10,
+    140
+   ],
+   "flight": [
+    0.45,
+    0.03,
+    0.7
+   ],
+   "gap": 0.04
+  }
  },
  "vfx_tiers": [
   {

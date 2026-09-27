@@ -8243,6 +8243,83 @@ func moments_suite() -> void:
 	cu.breakthrough_cooldown = keep[3]
 	Unlocks.debug_force_all = keep[4]
 	Game.combat.refresh_stats(c.id)
+	# P6c: Big Toad Tan's den. A real aggro opens the intro once a visit; his 49% opens the phase card; a fall cuts nothing.
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else "lf_village"
+	Game.world.load_room(c, "mh_boss_den", "")
+	GameEvents.flush()
+	var st2: ActorState = Game.actor_state(c.id)
+	var toad: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "big_toad_tan": toad = e
+	if toad == null: toad = Game.enemies.spawn_at("big_toad_tan", st2.plane + Vector2(160, 0), 18)
+	fresh.call()
+	mv.advance(0.0)
+	c.pools.hp = c.pools.max_hp
+	for sid in ["stun", "slow", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	st2.plane = toad.plane + Vector2(-140, 0)
+	for i in 40:
+		Game.tick(0.05)
+		c.pools.hp = c.pools.max_hp
+		mv.advance(0.05)
+		if not played.call("boss_intro").is_empty(): break
+	check((mv.playing != null and mv.playing.row.id == "boss_intro") or played.call("boss_intro").any(func(e): return str(e.get("sfx", "")) == "boss_sting"),
+		"Big Toad Tan's first aggro in his den opens the boss intro")
+	check(MomentRules.text({"first": [{"boss": "epithet", "id": "payload.def"}, {"key": "moment.boss.level", "args": ["enemy.level"]}]},
+		{"enemy": toad.uid, "def": "big_toad_tan"}) == Tx.t("moment.boss.level") % toad.level, "before P9's epithets the intro names his level")
+	var stings := func() -> int: return mv.logged.filter(func(e): return str(e.get("sfx", "")) == "boss_sting").size()
+	var intros: int = stings.call()
+	feed.call("enemy_aggro", {"enemy": toad.uid, "target": "", "def": "big_toad_tan"})
+	run.call(2.1)
+	check(stings.call() == intros and mv.playing == null, "his second aggro in the same visit opens nothing")
+	toad.pools.hp = toad.pools.max_hp * 0.49
+	Game.enemies._check_phases(toad)
+	GameEvents.flush()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_phase", "at 49%% his phase card cuts in (%s)" % str(mv.playing.row.id if mv.playing else ""))
+	# Case 5 on the real rows: a boss phase 1.0 s into the major breakthrough cuts it, and it leaves its toast.
+	fresh.call()
+	burst.call()
+	run.call(1.0)
+	feed.call("boss_phase", {"enemy": toad.uid, "phase": 1, "action": ""})
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_phase" and mv.fading != null and mv.toasts_posted.size() == 1, "a phase card cuts the breakthrough, which leaves its toast")
+	# Case 8 on the real rows: leaving the room ends the intro with no toast.
+	fresh.call()
+	feed.call("room_entered", {"actor": c.id, "room": "mh_boss_den"})
+	feed.call("enemy_aggro", {"enemy": toad.uid, "target": "", "def": "big_toad_tan"})
+	mv.advance(0.0)
+	feed.call("room_left", {"actor": c.id, "room": "mh_boss_den", "portal": ""})
+	mv.advance(0.0)
+	check(mv.playing == null and mv.toasts_posted.is_empty(), "leaving the den ends his intro, with no toast")
+	# The fall: a clean kill writes the Untouched line and takes the achievement in; the drop says it is a boss's.
+	fresh.call()
+	var drops: Array = []
+	var grab := func(n: String, p: Dictionary): if n == "loot_dropped": drops.append(p)
+	GameEvents.event.connect(grab)
+	Game.world._on_actor_defeated({"victim": str(toad.uid), "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id,
+		"x": toad.plane.x, "y": toad.plane.y, "level": toad.level})
+	GameEvents.flush()
+	GameEvents.event.disconnect(grab)
+	check(not drops.is_empty() and drops.all(func(p): return str(p.get("source", "")) == "boss"), "a boss's drop says so (source boss)")
+	feed.call("boss_defeated", {"room": "mh_boss_den", "enemy": "big_toad_tan", "role": "dungeon_boss", "clean": true})
+	feed.call("achievement_unlocked", {"actor": "", "id": "untouched", "name": "Untouched"})
+	for d in drops: mv._on_event("loot_dropped", d)
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_defeated" and mv.playing.slots.has("untouched")
+		and MomentRules.text({"key": "moment.boss.untouched", "if": "clean"}, mv.playing.p) != "", "his fall is written with the Untouched line")
+	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and not e.bounce), "his drop flies out in a fountain")
+	put.call("reduce_motion", true)
+	fresh.call()
+	for d in drops: mv._on_event("loot_dropped", d)
+	mv.advance(0.0)
+	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and e.bounce), "with Reduce motion the drop only bounces")
+	Game.account.settings["reduce_motion"] = was.get("reduce_motion", false)
+	fresh.call()
+	mv._on_event("loot_dropped", {"room": "x", "items": [], "x": 0.0, "y": 0.0, "source": "jar"})
+	mv.advance(0.0)
+	check(played.call("loot_fountain").is_empty(), "a jar's drop keeps today's bounce")
+	Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
 	mv.queue_free()
 
 func boss_event_suite() -> void:

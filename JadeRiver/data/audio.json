@@ -126,8 +126,16 @@
    "file": "res://art/audio/sfx/bell.wav",
    "volume_db": -4
   },
+  "boss_fall": {
+   "file": "res://art/audio/sfx/boss_fall.wav",
+   "volume_db": -4
+  },
   "boss_roar": {
    "file": "res://art/audio/sfx/boss_roar.wav",
+   "volume_db": -4
+  },
+  "boss_sting": {
+   "file": "res://art/audio/sfx/boss_sting.wav",
    "volume_db": -4
   },
   "break": {
@@ -256,6 +264,10 @@
   },
   "quest_complete": {
    "file": "res://art/audio/sfx/quest_complete.wav",
+   "volume_db": -4
+  },
+  "rare_chime": {
+   "file": "res://art/audio/sfx/rare_chime.wav",
    "volume_db": -4
   },
   "rockfall": {

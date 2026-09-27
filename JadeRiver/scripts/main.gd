@@ -163,12 +163,11 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--room="): room = str(a).trim_prefix("--room=")
 		# Debug tools (S38): preview at a text size (0 small, 1 normal, 2 large).
 		if str(a).begins_with("--text-size="): Game.account.settings["text_size"] = clampi(int(str(a).trim_prefix("--text-size=")), 0, 2)
-	if "--load-slot" in user_args:
-		enter_world(1)
-	elif "--preview-world" in user_args or room != "":
-		if Game.character("c1") == null:
+	var loaded := "--load-slot" in user_args   # --room= with it starts the loaded character in that room
+	if loaded or "--preview-world" in user_args or room != "":
+		if not loaded and Game.character("c1") == null:
 			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}})
-		if room != "":
+		if room != "" and Game.character("c1") != null:
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
 			for a in user_args:
@@ -186,6 +185,7 @@ func _handle_preview_args(user_args: Array) -> void:
 					"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 		enter_world(1)
 	var shot := screen
+	var moment_t := -1.0   # P6: with --capture, the shot is taken this many seconds after a moment starts
 	for a in user_args:
 		if str(a).begins_with("--pet=") and Game.active() != null:
 			# Debug tools (S38): --pet=species[:stage[:purity[:hearts]]] grants an animal and makes it active (S46 previews).
@@ -358,11 +358,28 @@ func _handle_preview_args(user_args: Array) -> void:
 					if str(rk) == ja[1]: break
 			Game.training.apply_contribution(jc.id, 2000, "debug")
 		if str(a).begins_with("--foe=") and Game.active() != null and Game.actor_state(Game.active_id) != null:
-			# Debug tools (S38): --foe=enemy[:count] sets foes in front of the player (combat previews).
+			# Debug tools (S38): --foe=enemy[:count[:hp]] sets foes in front of the player (combat previews), at a share of
+			# their HP if given (a boss past a phase, P6).
 			var fa := str(a).trim_prefix("--foe=").split(":")
 			var fst: ActorState = Game.actor_state(Game.active_id)
 			for k in (int(fa[1]) if fa.size() > 1 else 1):
-				Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
+				var foe: EnemyState = Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
+				if foe and fa.size() > 2: foe.pools.hp = foe.pools.max_hp * float(fa[2])
+		if str(a).begins_with("--defeat-foe") and Game.room_rt != null:
+			# Debug tools (S38): --defeat-foe[=s] defeats the first foe in the room after s seconds (default 1) through
+			# Combat, with its real drop (P6 previews of a boss's fall and the loot fountain).
+			await get_tree().create_timer(float(str(a).get_slice("=", 1)) if str(a).contains("=") else 1.0).timeout
+			for e in Game.room_rt.living_enemies():
+				if e.team == "enemy":
+					Game.combat._defeat(e, Game.active_id)
+					break
+			if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
+		if str(a).begins_with("--hold=") and is_instance_valid(moments):
+			# Debug tools (S38): --hold=t[:row] holds the moment on screen (or only that row) once it reaches t s (captures
+			# of real ones).
+			var ho := str(a).trim_prefix("--hold=").split(":")
+			moments.hold_at = float(ho[0])
+			moments.hold_row = ho[1] if ho.size() > 1 else ""
 		if str(a).begins_with("--body=") and Game.active() != null:
 			# Debug tools (S38): --body=level[:tier[:trials]] sets the body ladder for previews (S48).
 			var bd := str(a).trim_prefix("--body=").split(":")
@@ -517,7 +534,6 @@ func _handle_preview_args(user_args: Array) -> void:
 		await get_tree().create_timer(1.0).timeout
 		hud.pet_wheel = true
 		hud.pet_pick = 1
-	var moment_t := -1.0
 	for a in user_args:
 		if str(a).begins_with("--moment=") and is_instance_valid(moments):
 			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
