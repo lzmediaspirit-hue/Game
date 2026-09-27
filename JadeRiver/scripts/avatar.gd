@@ -65,12 +65,17 @@ func pose_frame() -> int:
 	var index=int(elapsed*spec.fps)
 	return mini(index,int(spec.frames)-1) if not spec.get("loop",action not in ["jump","swing","attack","punch","bow"]) else index%int(spec.frames)
 func _draw():
+	draw_on(self)
+## The figure drawn on `ci`: its own canvas, or a page that layers it among its own drawing (the Bag draws it under its
+## item card) with the feet at `at` and `k` screen px per sheet px.
+func draw_on(ci: CanvasItem, at := Vector2.ZERO, k := 1.0):
 	refresh_entries()
 	var frame=pose_frame()
 	if thumbnail_size != Vector2.ZERO and thumbnail_bounds.size != Vector2.ZERO:
 		frame=0
 		var fit=minf(thumbnail_size.x/thumbnail_bounds.size.x,thumbnail_size.y/thumbnail_bounds.size.y)
-		draw_set_transform(-thumbnail_bounds.get_center()*fit,0,Vector2.ONE*fit)
+		ci.draw_set_transform(-thumbnail_bounds.get_center()*fit,0,Vector2.ONE*fit)
+	elif ci != self: ci.draw_set_transform(at, 0, Vector2.ONE * k)
 	var bob = -8 + sin(elapsed * TAU / 2.8) * 3 if action == "meditate" else 0.0
 	for entry in entries:
 		if hide_bow_arrow and action=="bow" and entry.held_arrow: continue
@@ -80,4 +85,5 @@ func _draw():
 		var row = 0 if facing < 0 else 1
 		var source = Rect2((frame % frames) * cell, row * cell, cell, cell)
 		var offset = (cell - 256) * 0.5
-		draw_texture_rect_region(tex, Rect2(-128 - offset, -190 - offset + bob, cell, cell), source)
+		ci.draw_texture_rect_region(tex, Rect2(-128 - offset, -190 - offset + bob, cell, cell), source)
+	if ci != self: ci.draw_set_transform(Vector2.ZERO)

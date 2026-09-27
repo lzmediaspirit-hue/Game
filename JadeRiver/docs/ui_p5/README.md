@@ -61,6 +61,5 @@ fades in over 0.2 s), which the `identity_suite` checks.
 
 ## The Bag
 
-The Bag was built as the spirit gourd of mockups 07 and 08 v2 and withdrawn before it merged, by decision 15 (no
-gourd drawing; the inventory should feel like a big space, with a small card for the chosen item; new concepts go to
-the user first). It keeps its P4 page (`docs/ui_after_p4/inventory.png`), so it has no pictures here.
+The spirit gourd of mockups 07 and 08 v2 was withdrawn by decision 15; the Bag is built as concept B, the heaven in the
+gourd (decision 24). Its pictures and the comparisons with its mockups are in [`bag/`](bag/README.md).

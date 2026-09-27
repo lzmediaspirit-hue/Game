@@ -212,6 +212,25 @@
     ],
     "normal": "res://art/ui/hd/selected_slot_glow__normal.png"
   },
+  "sky_card": {
+    "margins": [
+      14,
+      14,
+      14,
+      14
+    ],
+    "normal": "res://art/ui/hd/sky_card__normal.png"
+  },
+  "sky_token": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/hd/sky_token__normal.png",
+    "selected": "res://art/ui/hd/sky_token__selected.png"
+  },
   "slot": {
     "disabled": "res://art/ui/hd/slot__disabled.png",
     "margins": [

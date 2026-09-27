@@ -4,6 +4,11 @@ from legends import CHAINS as LEGENDS, piece_rows
 from gear import ARCHETYPES, tag
 import posts
 
+# P5 (the Bag, decision 24): the kinds its filters show, by item type. Gear is every equipment piece (artifacts.json);
+# a type not listed here is "other".
+BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", "ore", "hollow", "herb", "fish", "insect", "critter", "jade",
+                                              "wisp", "oil", "legend_piece"]}
+
 MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
 
 
@@ -753,7 +758,7 @@ def build_items():
     rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
     rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
     rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
-    entries("items.json", rows)
+    entries("items.json", rows, bag_kinds=BAG_KINDS)
     entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows
 

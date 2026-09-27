@@ -510,6 +510,42 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Roadmap:** U20 Partial and U21 Present (C8), U15 stays Partial with decision 15's withdrawal recorded; the P5 row
   says what has started.
 
+### P5 · The Bag as the heaven in the gourd (concept B, decisions 8, 15 and 24)
+- **The page** (`docs/page_identity.md` row 3; mockups 07_bag_b, _card, _pill, 08_bag_b_empty). No gourd is drawn and
+  no frame: the page is the world inside the Spirit Gourd, a night sky over a sea of cloud with far islands, and a
+  bigger gourd is a wider heaven (more stars and islands, the light from its mouth once it holds 40). The figure stands
+  at 2.5 on its own island with the eight worn slots riding a gold orbit round it (`CharacterPage.draw_worn`, which the
+  Bag now shares; the figure is drawn by the page, `Avatar.draw_on`, so the card lies over it). What is carried floats
+  as one grid ten across, five rows in view and the next fading into the cloud, the next gourd's spaces locked at its
+  end with the gourd that opens them; the Spirit Gourd and Key Pouch tokens, the purses (the rarer ones give way when
+  room is short), the kinds (All, Gear, Pills, Materials, Other; items.json `bag_kinds`) and Sort; "Space n / m" and
+  the next gourd under the grid; while the gourd is small, the hint in the open sky (how things come in, a loose find
+  and what a trader pays, the piece that fits an empty slot, what opens the locked ones). The grid rises out of the
+  cloud and the worn slots ride in along the orbit as it opens (0.3 s; a fade under Reduce motion).
+- **The small card** (decision 15) opens beside a tapped space with a pointer to it: below it on the top row, to its
+  right from the first columns and beside the orbit for a worn piece, else to its left, above the line under the grid
+  while it fits. The head (icon, name and count, quality, grade, kind, item level); for a piece in the bag what wearing
+  it would make of your own totals against the one worn (the three that change most, and Combat Power, each after the
+  change with ▲ or ▼ beside it), for a worn one what it gives you; what else is true of it (the rolls, a pill's
+  toxicity against yours, what quick-use holds, a furnace's batch, a relic's spirit, a treasure's cost); its action and
+  partner (Equip and Set as spare, Use and Quick-use, the Treasure buttons, Unequip and Swap, Ride, Play) and "···" for
+  Lock, Discard, Self-detonate and Appraise. A tap on open sky puts it away. Every P4 action and intent is kept.
+- **Rules** (pages submit intents only): `StatRules.equip_change` works out the comparison by `rebuild` on scratch
+  copies of the character, so the character is never touched and the numbers are the Character page's;
+  `InventoryAuthority.bag_kind` and `next_gourd`.
+- **Art and tokens.** `build_ui_hd.py` (byte-identical twice): `sky_token` (normal, selected) and `sky_card`; the sky,
+  stars, islands, orbit and sea are drawn by the page from tokens. `SURFACE.sky` and `SURFACE.sea` with their
+  `TEXT_ON` rows. `Page.rich` can centre its lines.
+- **Tests:** `rules_tests` `ui_suite` opens the Bag with its card on a worn jian, a carried one and a pill; the
+  `identity_suite`'s Bag part checks the kinds split the bag with nothing lost, the eight worn slots, the card beside
+  its space and inside the window with 48 px actions and words that read on it, that `equip_change` leaves the character
+  untouched, that its "before" is the character as it stands and that equipping the piece gives what the card said,
+  "···", and a pill's Use and Quick-use. The full suite: room_lint 168 / 0; engine_tests 3785/3785; data_validation
+  23287 / 0; room_sweep 3568 / 0; rules_tests 1860 / 0; contract_tests 1032 / 0; balance_sim 124 / 0; perf_tests 5 / 0;
+  prologue_run 107 / 0; valley_run 1257 / 0.
+- **Screenshots** in `docs/ui_p5/bag/`, on copies of this build's valley_run checkpoints `ls6_end` and `bf2`, beside
+  each mockup, with why each difference is there. Roadmap U15 Present.
+
 ### P5a · The HUD to the approved mockups
 - **The right thumb, two rings (mockup 01).** Ring 1 at R 132 round the 132 px attack button holds jump, the page's four
   techniques (64 px, the HD icons at their native 48) and dodge; ring 2 at R 214 holds the fan and, beside it, a toggle

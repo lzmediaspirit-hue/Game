@@ -7682,5 +7682,25 @@
    "use": [],
    "source": "later"
   }
- ]
+ ],
+ "bag_kinds": {
+  "pills": [
+   "pill"
+  ],
+  "materials": [
+   "material",
+   "beast_part",
+   "core",
+   "ore",
+   "hollow",
+   "herb",
+   "fish",
+   "insect",
+   "critter",
+   "jade",
+   "wisp",
+   "oil",
+   "legend_piece"
+  ]
+ }
 }

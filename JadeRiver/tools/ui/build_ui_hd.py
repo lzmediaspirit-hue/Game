@@ -462,7 +462,7 @@ HUD_RING_SIZES = (132, 64, 52, 48)
 # ------------------------------------------------------------------ P5 page surfaces (docs/page_identity.md §5, §7)
 # Each colour is a UiKit token or a SURFACE mix of two tokens (page_identity §7), so no new hue enters.
 TOKEN = {k: hexc(v) for k, v in {"INK": "#071015", "JADE_SHADOW": "#15514f", "JADE": "#2c9e8f", "BRIGHT_JADE": "#67d6bd",
-         "BRONZE": "#9a6a35", "GOLD": "#e5b84c", "PALE_GOLD": "#ffe6a1", "BLOOD": "#b3202e"}.items()}
+         "BRONZE": "#9a6a35", "GOLD": "#e5b84c", "PALE_GOLD": "#ffe6a1", "BLOOD": "#b3202e", "DEEP_TEAL": "#0d3035"}.items()}
 
 
 def mix(a, b, t):
@@ -471,6 +471,8 @@ def mix(a, b, t):
 
 
 LACQUER_S = mix(TOKEN["BLOOD"], TOKEN["INK"], 0.55)        # SURFACE.lacquer #541720
+SPACE_S = mix(TOKEN["DEEP_TEAL"], TOKEN["INK"], 0.55)      # SURFACE.space #0a1e23
+SKY_S = mix(TOKEN["JADE_SHADOW"], TOKEN["INK"], 0.58)      # SURFACE.sky #0d2b2d
 
 
 def jade_tag(w, h, faces, gold=False, shadow=True):
@@ -517,6 +519,32 @@ def honour_tablet(w, h, worn=False):
             gem(c, x, y, 2.2, jade=False)
     else:
         c.paint(band(d, 3.0, 3.8), TOKEN["GOLD"] * np.array([1, 1, 1, 0.75]))
+    return c
+
+
+def sky_token(selected=False):
+    """A token floating in the Bag's sky (decision 24: its tabs, kinds and Key Pouch): a pill of the gourd's night, see-
+    through, ringed in jade and lit along its top; the chosen one glows jade inside a gold ring. 56 x 48, the ends round."""
+    c = Canvas(56, 48)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 55.0, 47.0, 23.0)
+    if selected:
+        c.paint(cov(d), c.vgrad([(0, TOKEN["JADE"] * np.array([1, 1, 1, 0.55])), (1, TOKEN["JADE_SHADOW"] * np.array([1, 1, 1, 0.8]))], 1.0, 47.0))
+        c.paint(band(d, 0.0, 1.6), TOKEN["GOLD"])
+    else:
+        c.paint(cov(d), SPACE_S * np.array([1, 1, 1, 0.8]))
+        c.paint(band(d, 0.0, 1.0), TOKEN["BRIGHT_JADE"] * np.array([1, 1, 1, 0.45]))
+    c.paint(band(d, 1.6, 2.6) * (c.Y < 8.0), TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.1]))
+    return c
+
+
+def sky_card():
+    """The Bag's item card (decision 15, a small card for a chosen thing): a slip of the sky's own dark jade, ringed in
+    bright jade with a faint gold line inside."""
+    c = Canvas(48, 48)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 47.0, 47.0, 10.0)
+    c.paint(cov(d), c.vgrad([(0, SKY_S), (1, SPACE_S)], 1.0, 47.0))
+    c.paint(band(d, 0.0, 1.5), TOKEN["BRIGHT_JADE"] * np.array([1, 1, 1, 0.65]))
+    c.paint(band(d, 2.5, 3.3), TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.12]))
     return c
 
 
@@ -614,6 +642,9 @@ ASSETS.update({
                                                                         (1, TOKEN["JADE_SHADOW"])], gold=True)}),
     "honour_tablet": ([12, 12, 12, 12], {"normal": lambda: honour_tablet(48, 48), "selected": lambda: honour_tablet(48, 48, worn=True)}),
     "honour_seal": ([0, 0, 0, 0], {m: (lambda m=m: honour_seal(m)) for m in MOTIFS}),
+    # The Bag's sky (decision 24): the floating tokens (no vertical centre: always 48 tall) and the item card.
+    "sky_token": ([24, 24, 24, 24], {"normal": lambda: sky_token(), "selected": lambda: sky_token(True)}),
+    "sky_card": ([14, 14, 14, 14], {"normal": lambda: sky_card()}),
 })
 
 
