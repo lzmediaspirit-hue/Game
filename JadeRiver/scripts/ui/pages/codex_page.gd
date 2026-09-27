@@ -54,8 +54,8 @@ func _codex() -> void:
 			var y0 := right.position.y + 100 + used
 			text(Vector2(right.position.x + 24, y0), Tx.t("ui.codex.par_title") % ContentDB.realm_label(c().cultivator.realm_key, lv), 20, UiKit.PALE_GOLD)
 			para(Rect2(right.position.x + 24, y0 + 14, right.size.x - 48, 200), Tx.t("ui.codex.par_body") % ["%.2f" % float(p.get("might", 1.0)),
-				UiKit.fmt(float(p.get("attack", 0))), UiKit.fmt(float(p.get("basic", 0))), UiKit.fmt(float(p.get("technique", 0))),
-				UiKit.fmt(float(p.get("technique_crit", 0))), UiKit.fmt(float(p.get("max_hp", 0))), UiKit.fmt(float(p.get("cp", 0)))], 18, UiKit.MIST)
+				UiKit.short(float(p.get("attack", 0))), UiKit.short(float(p.get("basic", 0))), UiKit.short(float(p.get("technique", 0))),
+				UiKit.short(float(p.get("technique_crit", 0))), UiKit.short(float(p.get("max_hp", 0))), UiKit.short(float(p.get("cp", 0)))], 18, UiKit.MIST)
 		# S44: the experiment log, shared by every character on the account.
 		if sel == "experiments":
 			var y := right.position.y + 90 + used

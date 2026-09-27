@@ -405,7 +405,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif str(p.get("type", "")) == "qi": color = UiKit.QI
 			elif str(p.get("type", "")) == "soul": color = UiKit.SOUL
 			if Game.is_revealed("hud:damage_numbers") or kind == "player":
-				fx.number(pos, str(amount), color, 22, bool(p.get("crit", false)))
+				fx.number(pos, UiKit.short(amount), color, 22, bool(p.get("crit", false)))   # P12: "136K", "1.27M"
 			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25})
 			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: shake = 0.25
 			if p.get("crit", false): shake = maxf(shake, 0.12)

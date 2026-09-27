@@ -323,10 +323,29 @@ static func span(seconds: float, days := true) -> String:
 
 ## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
 ## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.
+## P12: a bar of 100,000 or more shows `short` ("427K/427K").
 static func pool_values(cur: float, most: float) -> Array:
-	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
+	var f := short if most >= 100000.0 else fmt
+	return [f.call(minf(ceilf(cur), roundf(most))), f.call(most)]
 
+## P12 (research §6.5): a number in five characters or fewer. Under 10,000 it is `fmt` ("9,876"); from 10,000 three
+## significant figures and a unit ("18.2K", "136K", "1.27M", "191M", "1.20B", "3.40T"). The units are string keys
+## (ui.num.*), so a translation can count in its own (万, 亿).
+static func short(n: float) -> String:
+	var a := absf(n)
+	if a < 10000.0: return fmt(n)
+	var units := ["k", "m", "b", "t"]
+	var i := 0
+	var v := a / 1000.0
+	while v >= 999.5 and i < units.size() - 1:
+		v /= 1000.0
+		i += 1
+	var dec := 2 if v < 9.995 else (1 if v < 99.95 else 0)
+	return ("-" if n < 0.0 else "") + ("%." + str(dec) + "f") % v + Tx.t("ui.num." + units[i])
+
+## A grouped number ("118,803"); from ten million on, `short` ("12.5M"), as pages show them (research §6.5).
 static func fmt(n: float) -> String:
+	if absf(n) >= 10000000.0: return short(n)
 	var v := int(round(n))
 	var s := str(absi(v))
 	var out := ""
