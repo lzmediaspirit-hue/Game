@@ -129,11 +129,11 @@ uses beyond the five, so the pages still read as one game.
 | 41 | **Mercy** (`mercy_page.gd`) · now and then · Stone and bronze · brief | Spare or finish a foe who has yielded | The sword planted in the earth between you and the kneeling foe | A steel blade (pixel, a large weapon drawing) in `SURFACE.soil`; the foe's portrait from its layers | The sword standing upright down the middle of the window; Spare on the left (merit, and who may remember it), Finish on the right (sin, and their kin); the foe kneeling behind the blade | The blade glints once (0.3 s). Reduce: no glint | Primary and secondary buttons |
 | 42 | **Relations** (`relations_page.gd`) · now and then · Bonds · brief | What the world remembers: karma, bonds, grudges, fame | The karma steelyard: merit and sin weighed on one beam, the threads of bonds and grudges hanging below | A `wood_dark` beam with `GOLD` merit weights and `INK` sin weights (pixel steelyard); `RED` threads for bonds, `INK` threads for grudges (page.gd) | A steelyard beam across the top half, tilted toward righteous or demonic by merit and sin, recent deeds as notches along it; threads hanging from it below, red to those bound to you and black to those who want you dead; fame as the plaque on the hook | The beam settles to its tilt (0.5 s, damped); threads sway. Reduce: drawn at its tilt, still | Primary buttons |
 | 43 | **Settings** (`settings_page.gd`) · now and then · Shell · **drawn here** (23) | Sound, controls, accessibility, data | A lacquered cabinet of small drawers | `SURFACE.river_lacquer` drawer fronts with `GOLD` ring pulls; the open drawer's tray in `wood_dark`. Audio as racks of chime bells, toggles as brass latches (page.gd, all of it) | A column of four drawer fronts down the left (Audio, Controls, Accessibility, Data); the open drawer pulled out to the right as a tray holding its controls | The drawer slides out (0.2 s); a bell step chimes (sound). Reduce: the drawer fades | Primary and secondary buttons |
-| 44 | **Pouches** (`pouches_page.gd`) · now and then · The post · brief | Tailor Xun deepens one category's pouch at a time | The tailor's chalked patterns on a bolt of cloth | `SURFACE.cloth` with chalk lines in `PAPER` at 70%, a bamboo ruler (page.gd); pouch icons (existing) | Seven pouch patterns chalked on dark cloth, each drawn as its compartments with the next tier dashed round it; the ruler along the top edge marks the tiers; Sew at each pattern's foot | Sewing runs a stitch round the pattern (0.4 s). Reduce: the pattern turns solid | Primary buttons |
+| 44 | **Pouches** (`pouches_page.gd`) · now and then · The post · brief | Tailor Xun deepens one category's pouch at a time | The tailor's chalked patterns on a bolt of cloth | `SURFACE.cloth` with chalk lines in `PAPER` at 70%, a bamboo ruler (page.gd); the pouch's category icon inside each outline (existing) | The seven pouches chalked on the cutting cloth as pouch outlines (a drawstring bag's shape) scattered in two staggered rows, each at its tier's size with the next tier dashed round it and its compartments ruled inside; the ruler laid slantwise across a corner; Sew under each | Sewing runs a stitch round the pattern (0.4 s). Reduce: the pattern turns solid | Primary buttons |
 | 45 | **Emotes** (`emotes_page.gd`) · now and then · Leisure arts · brief | Pick a gesture | The shadow-puppet screen | A lamp-lit paper screen (`scroll` warmed by `ember`) in a `wood` frame; each emote's glyph as an `INK` silhouette (existing emote icons tinted) | A lit screen with each emote's puppet standing along it in two rows; locked emotes as grey outlines with their achievement | The chosen puppet hops (0.2 s). Reduce: no hop | Secondary buttons |
 | 46 | **Chess** (`chess_page.gd`) · now and then · Leisure arts · brief | Solve today's problem | The Go board at the insight stone | `board`, `board_edge`, `board_line`, the stones (page.gd, as today) | A square 9 × 9 board in the centre with the four lettered points; the answers beneath | A stone is placed with a click. Reduce: as is | Primary buttons |
 | 47 | **Guqin** (`guqin_page.gd`) · now and then · Leisure arts · brief | Play a short piece | The zither | `wood`, `wood_dark`, `bridge`, `peg`, `hui` (page.gd, as today) | Five strings across the page, notes gliding to the bridge at the left, the pegs as the buttons | Strings shiver when plucked (the game). Reduce: notes still glide; the shiver is smaller | Primary button |
-| 48 | **Create Disciple** (`shell_screens.gd` creator) · now and then · Shell · brief | Make a new character: look, origin, name | The dyer's yard by the river: long dyed cloths hung to dry from a bamboo pole, the new disciple standing before them | The river backdrop (existing); a bamboo pole across the top (`SURFACE.bamboo`); long cloths in the game's own dye colours (`parts.json` `_dyes`, drawn page.gd); the figure (Avatar); the name on a paper tag | Tall cloths hanging in a row from one pole across the upper half, one each for Hair, Robe, Trousers, Shoes and Origin, with ◀ ▶ at each cloth's foot and the dyes as short strips on the hair cloth; the figure stands in front at the centre; the name tag at its feet; Begin at the right | A changed cloth lifts in the breeze (0.2 s). Reduce: no breeze | Primary and secondary buttons |
+| 48 | **Create Disciple** (`shell_screens.gd` creator) · now and then · Shell · brief | Make a new character: look, origin, name | The dyer's yard by the river: long dyed cloths hung to dry from a bamboo pole, the new disciple standing before them | The river backdrop (existing); a bamboo pole and a drying line (`SURFACE.bamboo`, `SURFACE.hemp`); long cloths in the game's own dye colours (`parts.json` `_dyes`, drawn page.gd); the figure (Avatar); the name on a paper tag | A drying line strung slantwise from a bamboo pole at the upper left down toward the right, five cloths of different lengths draped on it (Hair, Robe, Trousers, Shoes, Origin) with ◀ ▶ under each and the hair dyes as short strips; the figure stands large at the right below the line's low end, the name tag at its feet, Begin beside it | A changed cloth lifts in the breeze (0.2 s). Reduce: no breeze | Primary and secondary buttons |
 
 ---
 
@@ -167,14 +167,18 @@ uses beyond the five, so the pages still read as one game.
    | A big sheet with a stack: first drafts of the Calendar (a tear-off pad) and the Notice Board (a stack of posters), and the Mail (envelopes) | The Calendar became one broad ruled sheet and the Notice Board a collage; only the Mail keeps a fanned stack |
    | Fans from a point: Fates (sticks) and a first draft of Emotes (a folding fan) | Emotes became the puppet screen |
    | Grids of receptacles: Bag, Storage, the revised Shop's bag bundle, and first drafts of Characters (a token case) and Core Exchange (a board of wells) | Characters became the handscroll and Core Exchange the urn; the Bag's grid sits in a calabash, the Storage's under a raised lid, the Shop's in a quilted cloth on a crate beside the stall |
+   | Rows of tall columns, found by the squint test on the contact sheets: the Menu's five bays (approved), and first drafts of the Pouches (seven tall patterns in a row) and Create Disciple (five cloths on a level pole) | The Pouches became pouch outlines scattered in two staggered rows, the creator's cloths hang from a slanting line with the figure large at its low end; the Menu keeps its bays |
    | Vertical stacks: Trial Tower (pagoda), Cultivation (stair) and a first draft of the Beast Arena (a ladder of banners) | The arena became the pit; the stair is diagonal and the pagoda a narrow column with eaves |
    | Painted places: the revised World map (a framed painting), Your Sect, Title | The map fills the window inside its frame with a card at the right and tablets at the foot; Your Sect is the room itself in a strip with cards below; the Title is one cliff face |
    | Figure with the worn slots: Bag and Character (decision 8 asks for both) | The Bag rings the figure with its slots on a dais beside the calabash; the Character stands the figure on the jade slips with the slots down the slips either side, in two straight columns |
    | Paper pages in one family (Records, seven pages) | A strip, a board of slips, a framed painting, an envelope stack, a ruled sheet, a pasted collage and a book: no two share a silhouette |
 
 3. **The contact sheets.** Every row's layout signature is drawn as a thumbnail in `docs/mockups/page_identity_sheet.png`
-   and its two companions (§8). The sheets were looked at at 1x, and again blurred and in grey (a squint test: a
-   Gaussian blur of 6 px), which leaves only the silhouettes; no two thumbnails blur to the same shape.
+   and its two companions (§8). The sheets were looked at at 1x, and again in grey with a Gaussian blur of 6 px (a squint
+   test), which leaves only the silhouettes. The first render failed it once (the row of tall columns above); after
+   that change no two thumbnails blur to the same shape. The pairs that come closest, and are left for the user's eye,
+   are the Menu and the Roll-Call (both hang tablets, in bays against a single row over baskets) and the three pages
+   with a light slip at the right (Quests, Works, the Old Scrolls), whose left sides differ.
 
 ---
 
@@ -275,13 +279,15 @@ coloured words. `BLOOD` is the one red for words on paper (4.58 on `almanac`, 4.
 
 Rendered with `tools/dev/render_mockups.py` from `docs/mockups/src/`; numbers from the valley_run character's
 checkpoints, taken as frozen copies of `user://valley_cp/<section>` at 01:33 UTC on 2026-09-27 and read from the save
-and from a capture of the real page on that copy (the build at this page's commit). Listed in `docs/mockups/README.md`.
+and from captures of the real pages on those copies (the build at 41d15ae). Listed in `docs/mockups/README.md` under
+"P5 page identity". Each was looked at at 1x, and its dense parts cropped and enlarged: no text under 14 px, every tap
+target 48 px or more, nothing clipped.
 
 | PNG | Page |
 |---|---|
 | `page_identity_sheet.png`, `page_identity_sheet_2.png`, `page_identity_sheet_3.png` | The contact sheets: every row of §3 as a labelled thumbnail of its concept, in the order of §3 |
 | `07_bag_full_v2.png`, `08_bag_empty_v2.png` | Bag: the spirit gourd, full (ls6_end) and early (bf2) |
-| `09_character_v2.png` | Character: the portrait scroll (ls6_end) |
+| `09_character_v2.png` | Character: the jade-slip record (ls6_end) |
 | `12_quests_v2.png` | Quests: the mission board (ae_end) |
 | `14_works_v2.png` | Works: the curio cabinet (ls6_end) |
 | `19_calendar_v2.png` | Calendar: the almanac (qu5) |
@@ -293,12 +299,16 @@ and from a capture of the real page on that copy (the build at this page's commi
 ## 9. For the user to decide
 
 1. The catalogue as a whole: the concept and layout signature of each row, and the families.
-2. Whether a page may drop the shared `major_window` frame for its own surface (as the drawn mockups do), keeping the
-   close button, the title's lettering and the standard window rect; or whether the frame stays and only the inside
-   changes.
-3. The rows for pages being redrawn elsewhere (6 Techniques, 13 Roll-Call, 16 World Map, 17 Shop, 18 Codex and Old
-   Scrolls) state an identity for each; they are to be reconciled with those redraws when they land, and the Old
-   Scrolls rubbing proposed here is the "nothing else looks like it" surface only if the redraw does not choose
-   another.
-4. The new `SURFACE` tokens of §7.
-5. For each drawn mockup, what `docs/mockups/README.md` lists under it.
+2. Whether a page may give up the shared `major_window` frame for its own surface (as the drawn mockups and the revised
+   13, 16, 17 and 18 do), keeping the close button, the inked title lettering, primary buttons, the text tokens, the
+   type scale, 48 px targets and the standard window rect; or whether the frame stays and only the inside changes.
+3. The Character page as jade slips (09 v2). It was first drafted as a hanging portrait scroll; the revised Old Scrolls
+   is a rubbing mounted as a hanging scroll, and decision 11 asks that the Old Scrolls look like nothing else.
+4. "Your bag" as one thing: the revised Shop shows it as a quilted cloth bundle on a crate, the Bag page as the gourd.
+   The recommendation is the gourd everywhere the bag appears beside another page (Shop, Storage, Gift).
+5. The Menu (approved) and the revised Roll-Call both hang tablets. They read apart at a glance; the user may still
+   want one of them changed.
+6. Techniques (06) is still being redrawn; its row (the star chart) is what it must stay distinct from, and is to be
+   reconciled when it lands.
+7. The new `SURFACE` tokens of §7.
+8. For each drawn mockup, what `docs/mockups/README.md` lists under it.
