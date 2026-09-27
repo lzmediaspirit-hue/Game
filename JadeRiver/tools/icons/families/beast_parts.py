@@ -1399,8 +1399,8 @@ for _id, _grade, _aura, _draw in PARTS_HD:
 
 
 # ============================================================================= legacy helpers other families still use
-# Three 32-px Canvas helpers that the unconverted families import (misc: `vial`; insects, critters, minerals and
-# misc: `halo`; minerals: `_v12c_tilted_ring`), kept here unchanged until those families' own Style A pass.
+# Two 32-px Canvas helpers that the unconverted families import (misc: `vial`; insects, critters and misc: `halo`),
+# kept here unchanged until those families' own Style A pass.
 from pix import dilate8, rgb  # noqa: E402
 
 
@@ -1440,14 +1440,3 @@ def halo(c, mask, col, alphas=(110, 50)):
         c.rgb[free] = rgb(col)
         c.alpha[free] = al
         cur |= ring
-
-
-def _v12c_tilted_ring(c, cx, cy, rx, ry, angle):
-    """Legacy: a 1-px ring of the ellipse (rx, ry) about (cx, cy) with its long axis raised `angle` degrees to the
-    right, and the signed distance across it: positive on the near (lower) side, negative on the far side."""
-    a = math.radians(angle)
-    X, Y = c.X - cx, c.Y - cy
-    u = X * math.cos(a) - Y * math.sin(a)
-    v = X * math.sin(a) + Y * math.cos(a)
-    fill = (u / rx) ** 2 + (v / ry) ** 2 <= 1.0
-    return fill & ~erode4(fill), v
