@@ -187,12 +187,29 @@ func room_hold(c, room_id: String) -> String:
 ## (`use_item`, "herbal_tea")? The HUD shows the control it names while it does, at rest too.
 func asks_for(c, kind: String, what: String) -> bool:
 	if c == null or what == "": return false
+	return _any_open_step(c, func(o: Dictionary) -> bool: return str(o.get("kind", "")) == kind and str(o.get("system", o.get("item", ""))) == what)
+
+## Does a step still to do of a quest under way ask for this foe in this room: a kill step, or a collect or deliver
+## step whose item its loot drops? Its spawn points then come back at their quick pace (EnemyAuthority.return_s), so a
+## kill-count or shell-gathering quest always has foes to fight.
+func hunts(c, enemy: String, room: String, role := "") -> bool:
+	if c == null or enemy == "": return false
+	var p := {"def": enemy, "room": room, "role": role}
+	var table := str(ContentDB.entry("enemies", enemy).get("loot", enemy))
+	return _any_open_step(c, func(o: Dictionary) -> bool:
+		match str(o.get("kind", "")):
+			"kill": return _match(c, o, p, "actor_defeated") > 0
+			"collect", "deliver": return c.inventory.count(str(o.get("item", ""))) < int(o.get("count", 1)) and LootRules.drops_item(table, str(o.get("item", "")))
+		return false)
+
+## Whether any open step still to do of a quest under way passes `pred` (the step's objective).
+func _any_open_step(c, pred: Callable) -> bool:
 	for qid in c.quests.active:
 		var def := quest_def(c, qid)
 		var st: Dictionary = c.quests.active[qid]
 		for i in def.get("objectives", []).size():
 			var o: Dictionary = def.objectives[i]
-			if str(o.get("kind", "")) == kind and str(o.get("system", o.get("item", ""))) == what and int(st.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def, st, i): return true
+			if int(st.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def, st, i) and pred.call(o): return true
 	return false
 
 ## The objective a quest under way is at: its first open one still to do (-1 when none is).

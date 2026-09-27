@@ -435,7 +435,23 @@ func sense_pulse(c) -> Dictionary:
 # ------------------------------------------------------------------ objects
 func _room_mem(c, room_id: String) -> Dictionary:
 	if not c.rooms.has(room_id): c.rooms[room_id] = {"nodes": {}, "opened": {}, "broken": {}}
+	if not c.rooms[room_id].has("slain"): c.rooms[room_id]["slain"] = {}   # older saves
 	return c.rooms[room_id]
+
+## The foes this character has slain in a room and not yet seen return: spawn point key -> the Clock time of the kill
+## (EnemyAuthority reads it on entry to hold those points empty until they are due, however long the player was away).
+func slain_foes(c, room_id: String) -> Dictionary:
+	if c == null or not c.rooms.has(room_id): return {}
+	return c.rooms[room_id].get("slain", {})
+
+## Enemies: a spawn point's foe was slain (or tamed); the character remembers it with the room.
+func apply_foe_slain(c, room_id: String, key: String) -> void:
+	if c == null: return
+	_room_mem(c, room_id).slain[key] = Clock.now_utc()
+
+## Enemies: the spawn point's foe is back; the memory of its kill is let go.
+func apply_foe_returned(c, room_id: String, key: String) -> void:
+	if c != null and c.rooms.has(room_id): c.rooms[room_id].get("slain", {}).erase(key)
 
 func _restore_object_states(c, rt: RoomRuntime) -> void:
 	var mem := _room_mem(c, rt.room_id)

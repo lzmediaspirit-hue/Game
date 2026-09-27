@@ -553,6 +553,14 @@ def build():
         # Bandit ambushes on the roads (S48): the chance per entry, x2 while a false realm shows, never past `reach`
         # levels above the gang, and a cooldown between them.
         "ambush": {"chance": 0.06, "concealed_mult": 2.0, "reach": 8, "cooldown_s": 900, "offset": 360},
+        # A slain foe's spawn point (EnemyAuthority.return_s): the character remembers the kill and the point stays empty
+        # this long in game time (Clock), in the room or away and across saves. A common foe: its spawn's respawn_s x
+        # `normal_mult`, held to `normal_min_s`..`normal_max_s` (a spawn slower than that keeps its own); an elite at least
+        # `elite_min_s`; a boss its own respawn_s (a field boss its account-wide timer). A foe a kill step under way asks
+        # for comes back at its spawn's respawn_s. respawn_s itself stays the refill pace the Vigil's maths assume.
+        # While the player is in the room a foe comes back only at a point at least `offscreen_x` from them (the view is
+        # 1280 wide), unless a kill step asks for it; with no such point it waits.
+        "respawn": {"normal_mult": 6.0, "normal_min_s": 60, "normal_max_s": 180, "elite_min_s": 600, "offscreen_x": 700},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
         # S48 body ladder: body techniques spend HP when QI is short (Copper Body), never below this share; P12: the same
         # share of max HP as the share of max QI the technique costs (Might scales HP, not QI).

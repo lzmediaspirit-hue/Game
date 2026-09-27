@@ -2,6 +2,8 @@ class_name EnemyAuthority
 extends Authority
 ## S13 · Owns EnemyState for every live monster in the loaded room, spawn slots
 ## and respawn timers. Monsters use the same stats and combat rules as players.
+## A slain foe's spawn point stays empty for return_s of game time: the character remembers the kill with the room
+## (World's room memory, saved), so leaving and coming back does not refill the room; the time runs while away.
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -67,11 +69,54 @@ func _on_room_entered(_p: Dictionary) -> void:
 	populate()
 
 func _on_state_change(_p: Dictionary) -> void:
-	# Conditional spawns (Old Snapper after five shells) appear when their requirement holds.
+	# Conditional spawns (Old Snapper after five shells) appear when their requirement holds (once due, if slain).
 	if game.room_rt == null: return
 	for slot in game.room_rt.spawn_slots:
-		if int(slot.uid) == 0 and float(slot.timer) > 900.0 and _spawn_allowed(slot.spec):
-			slot.timer = 1.0
+		if int(slot.uid) == 0 and slot.get("held", false) and _spawn_allowed(slot.spec):
+			slot.held = false
+			slot.entry = true   # a scripted appearance, not a respawn: it may show in view
+			slot.timer = maxf(1.0, _due_in(slot, game.active()))
+
+## A spawn point waiting on its requirement (or a field boss on its timer): it does not count down.
+func _hold(slot: Dictionary) -> void:
+	slot.held = true
+	slot.timer = 99999.0
+
+## The key of a spawn point in the character's room memory.
+static func slot_key(slot: Dictionary) -> String:
+	return "%s#%d" % [str(slot.spec.get("enemy", "")), int(slot.index)]
+
+static func _boss_spec(spec: Dictionary, def: Dictionary) -> bool:
+	return spec.get("boss", false) or spec.get("field_boss", false) or str(def.get("role", "")) in ["field_boss", "dungeon_boss", "story_boss"]
+
+## Does a kill step under way ask for this spawn's foe here (never a boss)? Then it keeps its quick pace and may
+## come back in view.
+func _quick(spec: Dictionary, c) -> bool:
+	if c == null or game.room_rt == null: return false
+	var def := ContentDB.entry("enemies", str(spec.get("enemy", "")))
+	if _boss_spec(spec, def): return false
+	return game.quest.hunts(c, str(spec.get("enemy", "")), game.room_rt.room_id, "elite" if spec.get("elite", false) else str(def.get("role", "normal")))
+
+## How long a slain foe's spawn point stays empty, in seconds of game time (stats.json `respawn`): a boss its own
+## respawn_s (a field boss waits on its account-wide timer instead), a foe a kill step under way asks for its spawn's
+## respawn_s, an elite at least elite_min_s, a common foe respawn_s x normal_mult held to normal_min_s..normal_max_s
+## (a slower spawn, such as a wild pet, keeps its own). A spawn's own `return_s` overrides all of these.
+func return_s(spec: Dictionary, c = null) -> float:
+	if spec.has("return_s"): return float(spec.return_s)
+	var own := float(spec.get("respawn_s", 12.0))
+	var def := ContentDB.entry("enemies", str(spec.get("enemy", "")))
+	if _boss_spec(spec, def) or _quick(spec, c): return own
+	var k: Dictionary = ContentDB.stat_const("respawn", {})
+	if spec.get("elite", false) or str(def.get("role", "")) == "elite": return maxf(own, float(k.get("elite_min_s", 600)))
+	if own >= float(k.get("normal_max_s", 180)): return own
+	return clampf(own * float(k.get("normal_mult", 6.0)), float(k.get("normal_min_s", 60)), float(k.get("normal_max_s", 180)))
+
+## Seconds until a remembered kill's spawn point is due again (0 or less when it is, or nothing is remembered).
+func _due_in(slot: Dictionary, c) -> float:
+	var slain: Dictionary = game.world.slain_foes(c, game.room_rt.room_id)
+	var key := slot_key(slot)
+	if not slain.has(key): return 0.0
+	return float(slain[key]) + return_s(slot.spec, c) - Clock.now_utc()
 
 func _spawn_allowed(spec: Dictionary) -> bool:
 	if spec.has("requires") and not RequirementRules.passes(spec.requires, game.ctx()): return false
@@ -97,6 +142,7 @@ func populate() -> void:
 		if rt.enemies[uid].summoned: keep[uid] = rt.enemies[uid]
 	rt.enemies = keep
 	rt.spawn_slots.clear()
+	var c = game.active()
 	var index := 0
 	for spec in rt.def.get("spawns", []):
 		var points: Array = spec.get("points", [])
@@ -104,8 +150,15 @@ func populate() -> void:
 		var count := int(spec.get("max", points.size()))
 		for i in count:
 			var p: Array = points[i % points.size()]
-			rt.spawn_slots.append({"spec": spec, "index": index, "point": Vector2(float(p[0]), float(p[1])), "uid": 0,
-				"timer": 0.2 + i * 0.15 if _spawn_allowed(spec) else 99999.0})
+			# `entry`: filled as the player comes in (may show in view); a point slain and not yet due stays empty.
+			var slot := {"spec": spec, "index": index, "point": Vector2(float(p[0]), float(p[1])), "uid": 0, "timer": 0.2 + i * 0.15,
+				"held": false, "entry": true}
+			var left := _due_in(slot, c)
+			if left > 0.0:
+				slot.timer = left
+				slot.entry = false
+			if not _spawn_allowed(spec): _hold(slot)
+			rt.spawn_slots.append(slot)
 			index += 1
 
 func tick(delta: float) -> void:
@@ -114,11 +167,15 @@ func tick(delta: float) -> void:
 	# A trial that clears the ground (S48 Temper trials) holds the room's own foes back until it ends.
 	var held: bool = rt.event.get("active", false) and rt.event.get("clear_room", false)
 	for slot in rt.spawn_slots:
-		if int(slot.uid) != 0 or held: continue
+		if int(slot.uid) != 0 or held or slot.get("held", false): continue
 		slot.timer = float(slot.timer) - delta
 		if float(slot.timer) <= 0.0:
-			if _spawn_allowed(slot.spec): _spawn(slot)
-			else: slot.timer = 99999.0
+			if not _spawn_allowed(slot.spec):
+				_hold(slot)
+				continue
+			var at := _spawn_point(slot)
+			if at.is_finite(): _spawn(slot, at)
+			else: slot.timer = 2.0   # every point is in view: look again shortly
 	for uid in rt.enemies.keys():
 		var e: EnemyState = rt.enemies[uid]
 		if e.team == "ally": continue
@@ -168,7 +225,21 @@ func tick(delta: float) -> void:
 				e.hover = 0.0
 				e.ai.erase("lifted")
 
-func _spawn(slot: Dictionary) -> EnemyState:
+## Where a spawn point's foe appears: its own point, else another of its spawn's points out of the player's view
+## (stats.json respawn.offscreen_x). A foe coming back while the player is in the room appears only out of view, so the
+## room never refills before their eyes, unless it fills on entry or a kill step asks for it; else it waits (INF).
+func _spawn_point(slot: Dictionary) -> Vector2:
+	var point: Vector2 = slot.point
+	var st: ActorState = game.actor_state(game.active_id)
+	var far := float(ContentDB.stat_const("respawn.offscreen_x", 700))
+	if st == null or absf(point.x - st.plane.x) >= far: return point
+	for p in slot.spec.get("points", []):
+		var cand := Vector2(float(p[0]), float(p[1]))
+		if absf(cand.x - st.plane.x) >= far: return cand
+	if slot.get("entry", false) or int(slot.index) < 0 or _quick(slot.spec, game.active()): return point
+	return Vector2.INF
+
+func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	var rt: RoomRuntime = game.room_rt
 	var spec: Dictionary = slot.spec
 	var def := ContentDB.entry("enemies", str(spec.enemy))
@@ -187,15 +258,6 @@ func _spawn(slot: Dictionary) -> EnemyState:
 	e.pools.max_hp = float(e.stats.max_hp)
 	e.pools.hp = e.pools.max_hp
 	e.spawn_index = int(slot.index)
-	var point: Vector2 = slot.point
-	# Respawn at an empty point out of view when possible.
-	var st: ActorState = game.actor_state(game.active_id)
-	if st != null and absf(point.x - st.plane.x) < 500.0 and spec.get("points", []).size() > 1:
-		for p in spec.points:
-			var cand := Vector2(float(p[0]), float(p[1]))
-			if absf(cand.x - st.plane.x) >= 500.0:
-				point = cand
-				break
 	e.plane = point
 	e.spawn_point = point
 	var surf: WalkSurface = rt.geometry.index.get(str(spec.get("surface", "ground")))
@@ -212,6 +274,8 @@ func _spawn(slot: Dictionary) -> EnemyState:
 		"hit_done": false, "phase": -1, "dash_left": 0.0, "summon_cd": 8.0}
 	e.hidden = bool(def.get("hidden_in_fog", false)) and not Unlocks.is_unlocked(game.active_id, "spirit_sense")
 	slot.uid = e.uid
+	slot.entry = false
+	if int(slot.index) >= 0: game.world.apply_foe_returned(game.active(), rt.room_id, slot_key(slot))
 	rt.enemies[e.uid] = e
 	_apply_king_buff(e)
 	var event_name := "elite_spawned" if e.elite else ("field_boss_spawned" if e.role == "field_boss" else "enemy_spawned")
@@ -229,7 +293,7 @@ func spawn_at(def_id: String, point: Vector2, level := -1, extra := {}) -> Enemy
 	var lv: Array = def.get("level", [1, 1])
 	var slot := {"spec": {"enemy": def_id, "level": [level, level] if level > 0 else lv, "points": [[point.x, point.y]], "elite": extra.get("elite", false)},
 		"index": -1, "point": point, "uid": 0, "timer": 0.0}
-	var e := _spawn(slot)
+	var e := _spawn(slot, point)
 	if e:
 		e.summoned = true
 		if extra.has("team"): e.team = str(extra.team)
@@ -370,19 +434,30 @@ func defeat(e: EnemyState, killer: String) -> Dictionary:
 	e.dead_time = 0.0
 	var rt: RoomRuntime = game.room_rt
 	for slot in rt.spawn_slots:
-		if int(slot.uid) == e.uid:
-			slot.uid = 0
-			var spec: Dictionary = slot.spec
-			slot.timer = 180.0 if e.elite else float(spec.get("respawn_s", rng.randf_range(7.0, 12.0)))
-			if spec.get("field_boss", false):
-				var timers: Dictionary = game.account.rooms.get("field_boss_timers", {})
-				timers[e.def_id] = Clock.now_utc() + float(e.def.get("respawn_min", 45)) * 60.0
-				game.account.rooms["field_boss_timers"] = timers
-				slot.timer = 99999.0
+		if int(slot.uid) == e.uid: _empty_slot(slot, e, true)
 	var payload := {"victim": str(e.uid), "victim_kind": "enemy", "def": e.def_id, "level": e.level, "role": e.role, "elite": e.elite,
 		"killer": killer, "room": rt.room_id, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude, "first_hit_by_player": e.first_hit_by_player,
 		"summoned": e.summoned}
 	return payload
+
+## A spawn point's foe is gone (`beaten`: slain; else tamed or fled). The point stays empty for return_s and the
+## character remembers it, so leaving and coming back does not refill it. A slain field boss waits on its account-wide
+## timer instead; a boss that fled was not beaten and comes back at its own pace, unremembered.
+func _empty_slot(slot: Dictionary, e: EnemyState, beaten: bool) -> void:
+	slot.uid = 0
+	var spec: Dictionary = slot.spec
+	if beaten and spec.get("field_boss", false):
+		var timers: Dictionary = game.account.rooms.get("field_boss_timers", {})
+		timers[e.def_id] = Clock.now_utc() + float(e.def.get("respawn_min", 45)) * 60.0
+		game.account.rooms["field_boss_timers"] = timers
+		_hold(slot)
+		return
+	if not beaten and _boss_spec(spec, e.def):
+		slot.timer = float(spec.get("respawn_s", 12.0))
+		return
+	var c = game.active()
+	slot.timer = return_s(spec, c)
+	game.world.apply_foe_slain(c, game.room_rt.room_id, slot_key(slot))
 
 func _flee(e: EnemyState) -> void:
 	var c = game.active()
@@ -399,9 +474,7 @@ func release(e: EnemyState) -> void:
 	e.action = "death"
 	e.dead_time = 0.0
 	for slot in game.room_rt.spawn_slots:
-		if int(slot.uid) == e.uid:
-			slot.uid = 0
-			slot.timer = float(slot.spec.get("respawn_s", 12.0))
+		if int(slot.uid) == e.uid: _empty_slot(slot, e, false)
 	emit("actor_released", {"uid": e.uid, "def": e.def_id})
 
 func end_spar(e: EnemyState, winner_actor: String) -> void:
