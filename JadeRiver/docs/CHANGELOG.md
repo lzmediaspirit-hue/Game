@@ -65,6 +65,9 @@ come next. Where it differs from the plan, the plan's §6 says so.
   `data_validation` `gear_suite` (tags, fixed affixes from the archetype's pool, every set sourced and completable, every
   banded grade whole, loot-table fields and named rows; the named count per archetype and zone waits for step 8).
 - The wiki shows named tags, sets, the drop rules, named rows and shop limits.
+- Two checks that depended on the account's random seed now pass whatever it draws: the Cloud Steps run in `rules_tests`
+  finishes under the fastest time a rival can draw, and valley_run's Hollowed Wyrmlings get to land their grey flame
+  when the fight ends before one has.
 
 ### P7a · The item and monster wikis
 - **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,

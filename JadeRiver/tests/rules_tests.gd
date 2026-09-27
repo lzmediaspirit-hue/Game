@@ -5326,11 +5326,13 @@ func rooftop_routes_suite() -> void:
 	var contrib0 := int(c.training_sect.get("contribution", 0))
 	var slow := Game.world.finish_route(c, rt, 30.0)
 	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
-	var fast := Game.world.finish_route(c, rt, 10.0)
-	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 10.0)
+	# Under the gold par and under the fastest a rival can draw (`rival_s`), whatever the account's seed drew this week.
+	var quick := minf(float(rt.pars.gold), float(rt.rival_s[0])) - 0.5
+	var fast := Game.world.finish_route(c, rt, quick)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), quick)
 		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
 	var contrib1 := int(c.training_sect.get("contribution", 0))
-	Game.world.finish_route(c, rt, 9.0)
+	Game.world.finish_route(c, rt, quick - 0.5)
 	check(int(c.training_sect.get("contribution", 0)) == contrib1, "medals and the week's reward pay once")
 	# Run it for real: touch the stone, stand at the bell.
 	c.cultivator.realm_key = "bone_forging_3" if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index("bone_forging_3") else c.cultivator.realm_key
