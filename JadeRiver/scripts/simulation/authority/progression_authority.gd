@@ -1614,6 +1614,17 @@ func apply_insight_best(actor_id: String, amount: float, context := "fortune") -
 func realisations(c) -> Dictionary:
 	return TechniqueTreeRules.realisations(c)
 
+## The Realisations there are to place now: the free ones, once a tree has opened (the HUD's points badge reads it).
+func realisations_free(c) -> int:
+	if c == null: return 0
+	var lv := ProgressionRules.level(c)
+	if not TechniqueTreeRules.trees().any(func(tree): return lv >= int(TechniqueTreeRules.ring_row(TechniqueTreeRules.first_ring(str(tree))).get("level", 1))): return 0
+	return int(TechniqueTreeRules.realisations(c).free)
+
+## The meridian points not yet spent on the Foundation tab (the HUD's points badge reads it).
+func meridian_points_free(c) -> int:
+	return int(c.cultivator.unspent_meridian_points) if c != null else 0
+
 ## Realise a node out of combat: it costs its Realisations, and an art's node teaches its art (§4.3, §4.4).
 func realise_node(c, nid: String) -> Dictionary:
 	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})

@@ -117,6 +117,7 @@ func _main() -> void:
 	ui_style_suite()
 	hud_suite()
 	equip_prompt_suite()
+	await points_badges_suite()
 	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
@@ -1434,6 +1435,118 @@ func hud_suite() -> void:
 ## the right with the gain the Bag's card names first and Combat Power; a worse or equal piece is not; Equip is the equip
 ## intent and wears it; the card goes by itself at 10 s; several wait their turn; its place keeps clear of every control,
 ## the purse and the clear zone, only its buttons take a tap, and with Reduce motion it stands still.
+## Points to spend (HUD.POINT_SYSTEMS): for each system, unlocked with points its badge shows in the row at the top
+## right of the player panel and a tap opens its page on its tab; with 0 points, or locked, it is hidden. The row is
+## 48 px targets that touch nothing else of the HUD (the controls, the party chips, the tracker, the clear zone); a
+## badge pops in, standing still with Reduce motion. The authorities' getters give the counts the pages spend.
+func points_badges_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	hud.set_state(false, true)
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = false
+	var unlocked_was: Dictionary = c.cultivator.unlocked.duplicate()
+	var revealed_was: Dictionary = c.cultivator.revealed.duplicate()
+	for el in ["player_panel", "pet", "quest_tracker", "minimap", "menu", "bag", "map", "mail", "jump", "guard", "fan", "hp_bar"]: c.cultivator.revealed["hud:" + el] = true
+	var asked: Array = []
+	hud.open_page.connect(func(pg: String, a: Dictionary): asked.append([pg, a]))
+	var rows: Array = hud.POINT_SYSTEMS
+	var bad: Array = []
+	var opened: Array = []   # [id, page, args, tab] each tap asked for, opened once the state is put back
+	for row in rows:
+		var id := str(row.id)
+		for other in rows: hud.points_override[str(other.id)] = 0
+		c.cultivator.unlocked[str(row.unlock)] = true
+		hud.points_override[id] = 3
+		var shown: Array = hud.point_badges(c)
+		var tg: Array = hud.hit_targets().filter(func(t): return str(t.role) == "points:" + id)
+		if shown.size() != 1 or tg.size() != 1 or float(tg[0].r) < 24.0: bad.append("%s not shown alone (%d)" % [id, shown.size()])
+		else:
+			asked.clear()
+			hud.press(3, tg[0].center)
+			hud.release(3)
+			var want: Dictionary = {"tab": str(row.tab)} if str(row.tab) != "" else {}
+			if asked.size() != 1 or asked[0][0] != str(row.page) or asked[0][1] != want: bad.append("%s asked %s" % [id, str(asked)])
+			else: opened.append([id, str(row.page), want, str(row.tab)])
+		hud.points_override[id] = 0
+		if not hud.point_badges(c).is_empty(): bad.append("%s shown with 0 points" % id)
+		hud.points_override[id] = 3
+		c.cultivator.unlocked.erase(str(row.unlock))
+		if not hud.point_badges(c).is_empty(): bad.append("%s shown while locked" % id)
+	check(bad.is_empty(), "Points badges: each system's badge shows with points and unlocked, its tap asks for its page and tab, 0 or locked hides it (%s)" % str(bad))
+	# All four at once: a neat row leftward from the panel's top right, each a 48 px target touching no other control,
+	# the party chips, the tracker, the minimap, the log or the clear zone, in a fight and at rest.
+	for row in rows:
+		c.cultivator.unlocked[str(row.unlock)] = true
+		hud.points_override[str(row.id)] = 2
+	var clash: Array = []
+	var badges: Array = []
+	for st in [[true, false], [false, true], [false, false]]:
+		hud.set_state(st[0], st[1])
+		var all_t: Array = hud.hit_targets()
+		badges = all_t.filter(func(t): return str(t.role).begins_with("points:"))
+		for b in badges:
+			for o in all_t:
+				if o == b or str(o.role).begins_with("points:"): continue
+				if (b.center as Vector2).distance_to(o.center) < float(b.r) + float(o.r): clash.append("%s/%s" % [b.role, o.role])
+			var box := Rect2(b.center - Vector2(b.r, b.r), Vector2(b.r, b.r) * 2.0)
+			for r in [hud.CLEAR_ZONE, hud.minimap_rect, Rect2(14, hud.panel_rect(c).end.y + hud.TRACKER_DROP, 342, 200), Rect2(20, 300, hud.LOG_W, hud.LOG_FOOT - 300)]:
+				if box.intersects(r): clash.append("%s/%s" % [b.role, str(r)])
+			if hud.role_at(b.center) != str(b.role): clash.append("%s tap went to %s" % [b.role, hud.role_at(b.center)])
+	var row_ok: bool = badges.size() == rows.size()
+	for i in badges.size():
+		row_ok = row_ok and is_equal_approx(badges[i].center.y, hud.panel_rect(c).position.y + 2.0) and badges[i].center.x < hud.panel_rect(c).end.x
+		if i > 0: row_ok = row_ok and is_equal_approx(badges[i - 1].center.x - badges[i].center.x, 48.0)
+	check(row_ok and clash.is_empty(), "Points badges: all %d in one row at the panel's top right, 48 px apart, clear of every other HUD part (%s)" % [badges.size(), str(clash)])
+	# The pop: a badge newly shown starts small and settles at full size; with Reduce motion it stands still. A badge
+	# appearing after the first look writes its line to the log.
+	hud.points_override["bench"] = 0
+	hud._tick_points()
+	hud.log_lines = []
+	hud.points_override["bench"] = 2
+	hud._tick_points()
+	var logged: bool = hud.log_lines.size() == 1 and str(hud.log_lines[0].text) == Tx.t("hud.points_bench")
+	var popping: bool = hud.points_pop("bench") < 1.0
+	var rm_was = Game.account.settings.get("reduce_motion", false)
+	Game.account.settings["reduce_motion"] = true
+	var still: bool = hud.points_pop("bench") == 1.0
+	Game.account.settings["reduce_motion"] = rm_was
+	check(logged and popping and still, "Points badges: a new badge pops in and logs its line; with Reduce motion it stands still at full size")
+	# The counts are the authorities': the meridian points unspent, the Realisations free once a tree is open, the
+	# bench's and the Post Arts' points free.
+	var mer_was: int = c.cultivator.unspent_meridian_points
+	c.cultivator.unspent_meridian_points = 4
+	var mer: bool = Game.progression.meridian_points_free(c) == 4
+	c.cultivator.unspent_meridian_points = mer_was
+	var rz: int = Game.progression.realisations_free(c)
+	var tree_open: bool = Game.progression.tree_tabs(c).any(func(tb): return bool(tb.open))
+	check(mer and rz == (int(Game.progression.realisations(c).free) if tree_open else 0) and Game.posts.bench_points_free(c) >= 0 and Game.posts.art_points_free(c) >= 0,
+		"Points badges: the counts come from the authorities' getters (meridian 4, Realisations %d)" % rz)
+	c.cultivator.unlocked = unlocked_was
+	c.cultivator.revealed = revealed_was
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
+	hud.queue_free()
+	# Each tap's page, opened as the shell opens it: on the tab where the points are spent (Techniques on a tree).
+	var wrong: Array = []
+	for o in opened:
+		var pg: Page = await _open_page(str(o[1]), o[2])
+		var on: String = str(pg.tabs[pg.tab].id) if pg.tab < pg.tabs.size() else ""
+		if (str(o[3]) != "" and on != str(o[3])) or (str(o[1]) == "techniques" and not pg._is_tree()): wrong.append("%s opened on %s" % [o[0], on])
+		pg.queue_free()
+	await get_tree().process_frame
+	check(opened.size() == rows.size() and wrong.is_empty(), "Points badges: each tap opens its page on the tab where the points are spent (%s)" % str(wrong))
+
 func equip_prompt_suite() -> void:
 	var c = Game.active()
 	if c == null: return

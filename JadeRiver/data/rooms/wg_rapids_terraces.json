@@ -468,7 +468,7 @@
    "id": "mine_rapids_terrace_vein",
    "type": "spirit_mine",
    "at": [
-    2700,
+    3140,
     860
    ],
    "mine": "rapids_terrace_vein",
@@ -744,7 +744,7 @@
   {
    "prop": "sack_pile",
    "at": [
-    2604,
+    3044,
     842
    ],
    "layer": "play"
@@ -752,7 +752,7 @@
   {
    "prop": "barrel",
    "at": [
-    2850,
+    3290,
     838
    ],
    "layer": "play"
