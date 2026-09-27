@@ -273,7 +273,7 @@ func _draw_store() -> void:
 	var cell := 110.0
 	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
 	var nrows := int(ceil(ids.size() / float(cols)))
-	list("store", area, nrows, SLOT + 30, func(ri: int, rr: Rect2):
+	list("store", area, nrows, SLOT + 36, func(ri: int, rr: Rect2):
 		for k in cols:
 			var idx := ri * cols + k
 			if idx >= ids.size(): break

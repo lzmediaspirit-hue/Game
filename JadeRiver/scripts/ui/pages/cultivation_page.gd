@@ -169,12 +169,12 @@ func _vows(ch) -> void:
 	for i in vows.size():
 		var v: Dictionary = vows[i]
 		var held := str(v.id) in cu.vows
-		var vr := Rect2(r.position.x + 20, top + i * h, r.size.x - 40, h - 10)
+		var vr := Rect2(r.position.x + 20, top + i * h, r.size.x - 40, h - 8)
 		panel(vr, "minor_panel", "selected" if held else "normal")
 		var mid := vr.size.y * 0.5
 		text(vr.position + Vector2(18, mid + 8), str(v.get("name", "")), 22, UiKit.PALE_GOLD if held else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 200, true)
-		text(vr.position + Vector2(230, mid - 4), str(v.get("desc", "")), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
-		text(vr.position + Vector2(230, mid + 20), str(v.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if held else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
+		text(vr.position + Vector2(230, mid - 5), str(v.get("desc", "")), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
+		text(vr.position + Vector2(230, mid + 16), str(v.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if held else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
 		if held:
 			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 48) * 0.5, 172, 48), Tx.t("ui.cultivation.break_vow"), "vow_off", str(v.id), false, true, "", 18)
 		else:
@@ -318,7 +318,7 @@ func _methods(ch) -> void:
 	if cu.methods_known.is_empty():
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.cultivation.you_know_no_cultivation_method"), 22, UiKit.MIST)
 		return
-	list("methods", r.grow(-14), cu.methods_known.size(), 110, func(i: int, rr: Rect2):
+	list("methods", r.grow(-14), cu.methods_known.size(), 112, func(i: int, rr: Rect2):
 		var mid := str(cu.methods_known[i])
 		var m := ProgressionRules.method(mid)
 		var active := mid == cu.method_id
@@ -340,7 +340,7 @@ func _dao(ch) -> void:
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.cultivation.no_dao_insight_yet_use"), 22, UiKit.MIST)
 		return
 	var tiers := [Tx.t("ui.cultivation.unaware"), Tx.t("ui.cultivation.observation"), Tx.t("ui.cultivation.imitation"), Tx.t("ui.cultivation.reliable_execution"), Tx.t("ui.cultivation.explanation"), Tx.t("ui.cultivation.adaptation"), Tx.t("ui.cultivation.original_application")]
-	list("daos", r.grow(-14), ids.size(), 76, func(i: int, rr: Rect2):
+	list("daos", r.grow(-14), ids.size(), 80, func(i: int, rr: Rect2):
 		var d := str(ids[i])
 		var st: Dictionary = cu.daos[d]
 		var tier := int(st.get("tier", 0))

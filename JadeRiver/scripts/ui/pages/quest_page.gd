@@ -64,7 +64,7 @@ func draw_page() -> void:
 	if str(tabs[tab].id) == "daily":
 		list_rect.size.y -= 188
 		_activity(ch, Rect2(left.position.x + 18, left.end.y - 184, left.size.x - 36, 172))   # I9: the note clears the frame
-	list("q", list_rect, ids.size(), 62, func(i: int, rr: Rect2):
+	list("q", list_rect, ids.size(), 64, func(i: int, rr: Rect2):
 		var q := str(ids[i])
 		var d := Game.quest.quest_def(ch, q)
 		var active: bool = ch.quests.is_active(q)

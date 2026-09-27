@@ -4,7 +4,7 @@ extends Page
 
 func _init() -> void:
 	title = Tx.t("ui.cores.title")
-	frame_rect = Rect2(170, 70, 940, 580)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()
@@ -26,7 +26,7 @@ func draw_page() -> void:
 	if cores.is_empty():
 		para(Rect2(r.position + Vector2(18, 24), Vector2(r.size.x - 36, 80)), Tx.t("ui.cores.none"), 18, UiKit.MIST)
 		return
-	list("cores", r.grow(-10), cores.size(), 66, func(i: int, rr: Rect2):
+	list("cores", r.grow(-10), cores.size(), 72, func(i: int, rr: Rect2):
 		var id: String = cores[i]
 		var cd: Dictionary = ContentDB.item(id).core
 		slot_box(Rect2(rr.position.x + 6, rr.position.y + 9, SLOT_SMALL, SLOT_SMALL), id, ch.inventory.count(id))

@@ -16,7 +16,7 @@ var result := ""
 func _init() -> void:
 	title = Tx.t("ui.fishing.fishing")
 	modal = true
-	frame_rect = Rect2(340, 150, 600, 420)
+	frame_rect = WINDOW_SMALL
 
 func setup() -> void:
 	object_id = str(args.get("object", ""))

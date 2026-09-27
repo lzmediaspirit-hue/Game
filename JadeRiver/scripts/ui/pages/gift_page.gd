@@ -7,7 +7,7 @@ var sel := -1
 
 func _init() -> void:
 	title = Tx.t("ui.gift.title")
-	frame_rect = Rect2(150, 60, 980, 600)
+	frame_rect = WINDOW_LARGE
 
 func setup() -> void:
 	npc = str(args.get("npc", args.get("tab", "")))   # --open-page=gift:npc passes it as the tab

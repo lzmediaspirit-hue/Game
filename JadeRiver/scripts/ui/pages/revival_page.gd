@@ -5,7 +5,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.revival.gravely_wounded")
 	modal = true
-	frame_rect = Rect2(300, 110, 680, 500)
+	frame_rect = WINDOW_MEDIUM
 
 func draw_page() -> void:
 	var ch = c()

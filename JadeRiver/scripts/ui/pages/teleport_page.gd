@@ -4,7 +4,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.teleport.teleport_stones")
 	modal = true
-	frame_rect = Rect2(300, 72, 680, 576)
+	frame_rect = WINDOW_MEDIUM
 
 func draw_page() -> void:
 	var ch = c()
@@ -14,7 +14,7 @@ func draw_page() -> void:
 	text(Vector2(content.position.x, y + 20), Tx.t("ui.teleport.shards") % ch.inventory.count("spirit_stone_shard"), 20, UiKit.MIST)
 	y += 36
 	# B7: full-height buttons in a scrolling list, however many stones there are (they were squeezed to 27 px).
-	list("stones", Rect2(content.position.x, y, content.size.x, content.end.y - y), stones.size(), 58, func(i: int, rr: Rect2):
+	list("stones", Rect2(content.position.x, y, content.size.x, content.end.y - y), stones.size(), 64, func(i: int, rr: Rect2):
 		var s: Dictionary = stones[i]
 		var known: bool = Game.account.teleports.has(str(s.id))
 		var here: bool = Game.room_rt != null and Game.room_rt.room_id == str(s.room)

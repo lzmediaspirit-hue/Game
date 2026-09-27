@@ -66,7 +66,7 @@ func _inner(ch) -> void:
 	var can := Unlocks.is_unlocked(ch.id, "stances")
 	var stances: Array = ContentDB.all("stances")
 	# A scrolled list, so each stance keeps a full-height (48 px) button however many families there are.
-	list("stances", Rect2(sx - 8, sy + 4, right.end.x - sx - 2, right.end.y - sy - 12), stances.size(), 58, func(i: int, rr: Rect2):
+	list("stances", Rect2(sx - 8, sy + 4, right.end.x - sx - 2, right.end.y - sy - 12), stances.size(), 64, func(i: int, rr: Rect2):
 		var st: Dictionary = stances[i]
 		var on := str(cu.stances.get(str(st.family), "")) == str(st.id)
 		var here := str(st.family) == fam

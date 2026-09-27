@@ -40,7 +40,7 @@ var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the 
 var tracker_paths: Array = []            # S49: [{rect, target}] the tracker's auto-path buttons this frame
 var draught_center := Vector2(843, 512)  # S44: the Draught slot, shown while a liquid medicine is fresh (key V)
 var minimap_rect := Rect2(1032, 16, 232, 140)
-var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
+var icon_row := [["menu", Vector2(1064, 188)], ["bag", Vector2(1120, 188)], ["map", Vector2(1176, 188)], ["mail", Vector2(1232, 188)]]   # pitch 56 (P4 §2.1)
 
 signal page_changed(page: int)
 signal open_page(page: String, args: Dictionary)

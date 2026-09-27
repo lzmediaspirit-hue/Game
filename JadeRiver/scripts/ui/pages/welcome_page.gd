@@ -4,7 +4,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.welcome.welcome_back")
 	modal = true
-	frame_rect = Rect2(260, 90, 760, 560)
+	frame_rect = WINDOW_MEDIUM
 
 func draw_page() -> void:
 	var w: Dictionary = args.get("gains", {})
@@ -50,7 +50,7 @@ func draw_page() -> void:
 			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % UiKit.span(float(led.full[cat]) * 3600.0)])
 	if rows.is_empty(): rows.append([Tx.t("ui.welcome.nothing_gathered"), Tx.t("ui.welcome.set_seclusion_or_an_idle")])
 	# A long Return Ledger scrolls above the buttons instead of running under them.
-	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 36, func(i: int, rr: Rect2):
+	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 40, func(i: int, rr: Rect2):
 		text(Vector2(rr.position.x + 20, rr.position.y + 24), str(rows[i][0]), 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
 		text(Vector2(rr.position.x, rr.position.y + 24), str(rows[i][1]), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
 	)

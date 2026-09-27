@@ -2,6 +2,14 @@ extends Page
 ## Character (S10, S11, S18, S34): overview, stats with Combat Power, aptitude, titles and attunement.
 
 const Avatar = preload("res://scripts/avatar.gd")
+const InventoryPage = preload("res://scripts/ui/pages/inventory_page.gd")
+## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 3 is 6 px each), as large as
+## the page allows beside its worn slots (decision 8).
+const FIGURE_SCALE := 3.0
+## The worn slots round the figure: two columns 368 px apart, 96 px down, the figure's feet between them.
+const WORN_ORIGIN := Vector2(24, 16)
+const WORN_STEP := Vector2(368, 96)
+const FEET := Vector2(232, 380)
 var STATS := [["max_hp", Tx.t("ui.character.max_hp")], ["max_qi", Tx.t("ui.character.max_qi")], ["max_soul", Tx.t("ui.character.max_soul")], ["physical_attack", Tx.t("ui.character.physical_attack")],
 	["qi_attack", Tx.t("ui.character.qi_attack")], ["physical_defense", Tx.t("ui.character.physical_defence")], ["qi_resistance", Tx.t("ui.character.qi_resistance")], ["accuracy", Tx.t("ui.character.accuracy")],
 	["evasion", Tx.t("ui.character.evasion")], ["crit_chance", Tx.t("ui.character.critical_chance")], ["crit_damage", Tx.t("ui.character.critical_damage")], ["attack_speed", Tx.t("ui.character.attack_speed")],
@@ -17,15 +25,15 @@ func _init() -> void:
 func setup() -> void:
 	doll = Avatar.new()
 	doll.outfit = InventoryAuthority.outfit_for(c())
-	doll.position = Vector2(300, 520)
-	doll.scale = Vector2.ONE * 2.4
+	doll.position = content.position + FEET
+	doll.scale = Vector2.ONE * FIGURE_SCALE
 	add_child(doll)
 
 func _process(delta: float) -> void:
 	super._process(delta)
 	if is_instance_valid(doll):
 		doll.visible = str(tabs[tab].id) in ["overview", "wardrobe"]
-		doll.position = Vector2(300, 520) if str(tabs[tab].id) == "overview" else Vector2(200, 540)
+		doll.position = content.position + (FEET if str(tabs[tab].id) == "overview" else Vector2(184, FEET.y))
 
 func draw_page() -> void:
 	var ch = c()
@@ -56,6 +64,7 @@ func draw_page() -> void:
 				Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch)), 16, rb.size.x), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, rb.size.x)
 			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 20, UiKit.BRIGHT_JADE)
 			_vitals(ch, Rect2(x, r.position.y + 322, r.end.x - x - 30, r.end.y - r.position.y - 340))
+			InventoryPage.draw_worn(self, ch, r.position + WORN_ORIGIN, WORN_STEP, "", "worn")
 			_party(ch, Rect2(r.position.x + 30, r.end.y - 80, 420, 70))
 		"stats":
 			for i in STATS.size():
@@ -195,6 +204,7 @@ func _party(ch, r: Rect2) -> void:
 
 func on_action(id: String, data) -> void:
 	if id == "relations": navigate.emit("relations", {})
+	if id == "worn": navigate.emit("inventory", {"tab": str(data)})   # a worn slot opens the Bag on it
 	if id == "title": submit({"type": "set_title", "title": str(data)})
 	if id == "attune": submit({"type": "attune_jade", "zone": str(data[0]), "index": int(data[1])})
 	if id == "look":

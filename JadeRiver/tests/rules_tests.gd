@@ -187,6 +187,8 @@ func ui_suite() -> void:
 	var crossing: Array = []
 	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
 	var off_scale: Array = []   # P4: words asked for off the type scale or under UiKit.MIN_SIZE
+	var windows: Array = []   # P4: windows off the standard set or outside the safe area
+	var pitches: Array = []   # P4: list rows off the 8 px grid
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
 	var icons_drawn := 0
@@ -220,6 +222,10 @@ func ui_suite() -> void:
 					var dr: Rect2 = d.rect
 					if float(d.scale) < 1.0 or float(d.scale) != floorf(float(d.scale)) or dr.position != dr.position.round():
 						blurred.append("%s %s %s at %.2fx" % [where, d.id, str(dr), float(d.scale)])
+				# P4 (§2): a standard window inside the safe area, and list rows on the 8 px grid.
+				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not Page.SAFE_AREA.encloses(pg.frame_rect)): windows.append("%s %s" % [where, str(pg.frame_rect)])
+				for aid in pg._areas:
+					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
 				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
 				var buttons: Array = []
@@ -263,7 +269,7 @@ func ui_suite() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rows: int = cp._regions.filter(func(r): return r.id == "contemplate").size()
-	check(rows == mini(7, int((cp.content.size.y - 28.0) / 76.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
+	check(rows == mini(7, int((cp.content.size.y - 28.0) / 80.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
 	cp.queue_free()
 	# B2: the Key Items tab offers the guqin's Play.
 	var ip = load(str(main_script.PAGES.inventory)).new()
@@ -317,7 +323,7 @@ func ui_suite() -> void:
 	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
 	SpriteCache.draw_log = null
-	for o in overlaps + outside + under + labels + crossing + blurred + off_scale: print("  ui_suite: ", o)
+	for o in overlaps + outside + under + labels + crossing + blurred + off_scale + windows + pitches: print("  ui_suite: ", o)
 	check(icons_drawn > 1000 and blurred.is_empty(), "P4b: every icon on every page is drawn at a whole-number scale of its art, on whole pixels (%d drawn: %s)" % [icons_drawn, str(blurred.slice(0, 6))])
 	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
@@ -329,6 +335,8 @@ func ui_suite() -> void:
 	check(cut.is_empty(), "B18: the Body hint and trials, the path cards, the arena help and the sect tree say all they have to (%s)" % str(cut))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
 	check(off_scale.is_empty(), "P4: every word on every page is asked for on the type scale, none under %d (%d: %s)" % [UiKit.MIN_SIZE, off_scale.size(), str(off_scale.slice(0, 8))])
+	check(windows.is_empty(), "P4: every window is a standard one, inside the safe area (%s)" % str(windows.slice(0, 6)))
+	check(pitches.is_empty(), "P4: every list's rows are on the 8 px grid (%s)" % str(pitches.slice(0, 6)))
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
 func _ui_contexts(c) -> Dictionary:

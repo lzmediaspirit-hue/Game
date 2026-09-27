@@ -14,7 +14,7 @@ func draw_page() -> void:
 	panel(r)
 	var slots: Array = []
 	for i in range(1, Game.account.slots_unlocked + 1): slots.append(i)
-	list("slots", r.grow(-10), slots.size(), 84, func(i: int, rr: Rect2):
+	list("slots", r.grow(-10), slots.size(), 88, func(i: int, rr: Rect2):
 		var slot := int(slots[i])
 		var other = Game.character("c%d" % slot)
 		panel(rr, "minor_panel", "selected" if other == ch else "normal")

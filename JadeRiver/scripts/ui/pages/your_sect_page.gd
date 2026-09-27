@@ -14,10 +14,9 @@ func setup() -> void:
 		name_field = LineEdit.new()
 		name_field.max_length = 20
 		name_field.placeholder_text = Tx.t("ui.your_sect.sect_name")
-		name_field.position = Vector2(440, 300)
-		name_field.size = Vector2(400, 50)
+		name_field.size = Vector2(400, 48)
 		name_field.add_theme_font_override("font", UiKit.text_font())
-		name_field.add_theme_font_size_override("font_size", 24)
+		name_field.add_theme_font_size_override("font_size", 22)
 		name_field.add_theme_stylebox_override("normal", UiKit.style("slot"))
 		add_child(name_field)
 
@@ -28,14 +27,16 @@ func draw_page() -> void:
 	panel(r)
 	var s: Dictionary = Game.sect.sect()
 	if s.is_empty():
-		para(Rect2(r.position + Vector2(30, 30), Vector2(r.size.x - 60, 120)), Tx.t("ui.your_sect.the_hidden_vale_beyond_crane"), 22)
-		btn(Rect2(540, 380, 200, 56), Tx.t("ui.your_sect.found"), "found", null, true, Unlocks.is_unlocked(ch.id, "your_sect"), Unlocks.locked_text("your_sect"))
+		para(Rect2(r.position + Vector2(32, 32), Vector2(r.size.x - 64, 120)), Tx.t("ui.your_sect.the_hidden_vale_beyond_crane"), 22)
+		# The name field and Found sit under the words, placed from the content (P4: never in screen coordinates).
+		if is_instance_valid(name_field): name_field.position = Vector2(r.get_center().x - 200, r.position.y + 176)
+		btn(Rect2(r.get_center().x - 100, r.position.y + 248, 200, 56), Tx.t("ui.your_sect.found"), "found", null, true, Unlocks.is_unlocked(ch.id, "your_sect"), Unlocks.locked_text("your_sect"))
 		return
 	text(r.position + Vector2(30, 44), Tx.t("ui.your_sect.level_prestige") % [str(s.name), int(s.level), UiKit.fmt(int(s.prestige))], 22, UiKit.PALE_GOLD)
 	match str(tabs[tab].id):
 		"hall":
 			var bs: Array = ContentDB.all("sect_buildings")
-			list("b", Rect2(r.position + Vector2(10, 64), r.size - Vector2(20, 74)), bs.size(), 70, func(i: int, rr: Rect2):
+			list("b", Rect2(r.position + Vector2(10, 64), r.size - Vector2(20, 74)), bs.size(), 72, func(i: int, rr: Rect2):
 				var b: Dictionary = bs[i]
 				var lv := Game.sect.level_building(str(b.id))
 				var hurt: bool = s.get("damaged", {}).has(str(b.id))

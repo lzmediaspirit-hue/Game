@@ -15,6 +15,36 @@ const MIN_TAP := 48.0
 const SLOT := 76.0
 ## The small slot, for an item named in a list row: a 32 px icon (an HD icon's native 32, a legacy one at 1x).
 const SLOT_SMALL := 44.0
+## The spacing grid (P4, docs/ui_style_guide.md §2): positions and sizes in steps of 8, the half step 4 inside a dense
+## component. Every window stays inside SAFE_AREA and is one of the standard six.
+const GRID := 8.0
+const SAFE_AREA := Rect2(48, 24, 1184, 672)
+const WINDOW_FULL := Rect2(64, 32, 1152, 656)
+const WINDOW_LARGE := Rect2(128, 56, 1024, 608)
+const WINDOW_MEDIUM := Rect2(256, 72, 768, 576)
+const WINDOW_SMALL := Rect2(288, 152, 704, 416)
+const WINDOW_CONFIRM := Rect2(384, 248, 512, 224)
+const WINDOW_DIALOGUE := Rect2(48, 464, 1184, 232)
+const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE]
+## Content insets (the HD window's nine-slice margin at the sides), the title band and the tab row.
+const INSET := 32.0
+const TOP := 80.0
+const TOP_BARE := 24.0
+const BOTTOM := 24.0
+const TAB_H := 48.0
+const TAB_GAP := 8.0
+const TAB_MIN_W := 120.0
+## Lists: the gap under each row and the scroll gutter at the right.
+const ROW_GAP := 4.0
+const GUTTER := 8.0
+## Gaps: related controls, groups and cards, and the padding inside a card.
+const GAP := 8.0
+const GROUP_GAP := 16.0
+const PAD := 16.0
+## Button heights: compact and in rows, standard, a page's main action.
+const BTN_H := 48.0
+const BTN_H_STANDARD := 56.0
+const BTN_H_MAIN := 64.0
 
 var page_id := ""
 var title := ""
@@ -23,7 +53,7 @@ var tab := 0
 var args: Dictionary = {}
 var modal := false              # small centred dialog instead of the full window
 var frameless := false          # shell screens draw their own layout over the backdrop
-var frame_rect := Rect2(64, 32, 1152, 656)
+var frame_rect := WINDOW_FULL
 var content := Rect2()
 var t := 0.0
 var toast := ""
@@ -44,7 +74,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	GameEvents.event.connect(_on_game_event)
-	if modal and frame_rect == Rect2(64, 32, 1152, 656): frame_rect = Rect2(290, 170, 700, 380)
+	if modal and frame_rect == WINDOW_FULL: frame_rect = WINDOW_SMALL
 	_layout()
 
 func _exit_tree() -> void:
@@ -69,9 +99,9 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 	on_event(name, p)
 
 func _layout() -> void:
-	var top := 84.0 if title != "" else 24.0
-	if not tabs.is_empty(): top += 44.0
-	content = Rect2(frame_rect.position.x + 28, frame_rect.position.y + top, frame_rect.size.x - 56, frame_rect.size.y - top - 24)
+	var top := TOP if title != "" else TOP_BARE
+	if not tabs.is_empty(): top += TAB_H + TAB_GAP
+	content = Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
 
 func _process(delta: float) -> void:
 	t += delta
@@ -117,7 +147,7 @@ func _draw() -> void:
 		var plaque := Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
 		draw_style_box(UiKit.style("title_plaque"), plaque)
 		UiKit.draw_inked(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
-	var close_rect := Rect2(frame_rect.end.x - 70, frame_rect.position.y + 14, 52, 52)
+	var close_rect := Rect2(frame_rect.end.x - 72, frame_rect.position.y + 16, 52, 52)
 	_register(close_rect, "_close", null, true, "", "button")
 	draw_style_box(UiKit.style("close_button", "pressed" if _is_pressed("_close") else "normal"), close_rect)
 	_draw_x(close_rect.get_center(), 11, UiKit.PAPER)
@@ -129,7 +159,7 @@ func _draw() -> void:
 func _draw_toast() -> void:
 	if toast_t > 0.0 and toast != "":
 		var w := minf(760.0, UiKit.text_width(toast, 20) + 60)
-		var r := Rect2(640 - w * 0.5, minf(frame_rect.end.y, 690) - 70, w, 46)
+		var r := Rect2(640 - w * 0.5, minf(frame_rect.end.y, 696) - 72, w, 48)
 		draw_style_box(UiKit.style("toast"), r)
 		UiKit.draw_text(self, toast, r.position + Vector2(0, 30), 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
 
@@ -140,19 +170,19 @@ func _draw_x(center: Vector2, r: float, col: Color) -> void:
 	draw_line(center - Vector2(r, -r), center + Vector2(r, -r), col, 3)
 
 func _draw_tabs() -> void:
-	var x := frame_rect.position.x + 32
-	var y := frame_rect.position.y + (84.0 if title != "" else 20.0)
+	var x := frame_rect.position.x + INSET
+	var y := frame_rect.position.y + (TOP if title != "" else TOP_BARE)
 	for i in tabs.size():
 		var tb: Dictionary = tabs[i]
-		var w := maxf(118.0, UiKit.text_width(str(tb.label), 20) + 40)
-		var r := Rect2(x, y, w, 40)
+		var w := maxf(TAB_MIN_W, UiKit.text_width(str(tb.label), 20) + 40)
+		var r := Rect2(x, y, w, TAB_H)
 		var locked := str(tb.get("locked", "")) != ""
 		draw_style_box(UiKit.style("tab", "selected" if i == tab else ("disabled" if locked else "normal")), r)
-		UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 27), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
+		UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 31), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
 			HORIZONTAL_ALIGNMENT_CENTER, w)
 		if locked: _lock_icon(r.position + Vector2(w - 16, 8))
 		_register(r, "_tab", i, not locked, str(tb.get("locked", "")), "button")
-		x += w + 6
+		x += w + TAB_GAP
 
 func _lock_icon(p: Vector2) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6), Vector2(12, 9)), UiKit.BRONZE)
@@ -388,19 +418,19 @@ func list(area: String, rect: Rect2, count: int, row_h: float, draw_row: Callabl
 	var max_scroll := maxf(0.0, total - rect.size.y)
 	var off := clampf(float(scroll.get(area, 0.0)), 0.0, max_scroll)
 	scroll[area] = off
-	_areas[area] = {"rect": rect, "max": max_scroll, "active": false}
+	_areas[area] = {"rect": rect, "max": max_scroll, "active": false, "pitch": row_h}
 	_regions.append({"rect": rect, "id": "_scroll", "data": area, "enabled": true, "reason": "", "kind": "scroll"})
 	var first := int(off / row_h)
 	var last := mini(count - 1, int((off + rect.size.y) / row_h))
 	_areas[area].active = true
 	for i in range(first, last + 1):
 		var y := rect.position.y + i * row_h - off
-		var rr := Rect2(rect.position.x, y, rect.size.x - 10, row_h - 4)
+		var rr := Rect2(rect.position.x, y, rect.size.x - GUTTER, row_h - ROW_GAP)
 		if rr.position.y < rect.position.y - 1 or rr.end.y > rect.end.y + 1: continue
 		draw_row.call(i, rr)
 	_areas[area].active = false
 	if max_scroll > 0:
-		var track := Rect2(rect.end.x - 6, rect.position.y, 4, rect.size.y)
+		var track := Rect2(rect.end.x - 4, rect.position.y, 4, rect.size.y)
 		draw_rect(track, Color(UiKit.PAPER, 0.08))
 		var h := maxf(24.0, rect.size.y * rect.size.y / total)
 		draw_rect(Rect2(track.position.x, rect.position.y + (rect.size.y - h) * off / max_scroll, 4, h), UiKit.JADE)
@@ -410,11 +440,11 @@ func ask(text_: String, id: String, data = null, danger := false) -> void:
 
 func _draw_confirm() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.5))
-	var r := Rect2(390, 250, 500, 220)
+	var r := WINDOW_CONFIRM
 	draw_style_box(UiKit.style("major_window"), r)
-	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 22)
-	btn(Rect2(r.position.x + 40, r.end.y - 76, 190, 54), Tx.t("ui.page.cancel"), "_confirm_no")
-	btn(Rect2(r.end.x - 230, r.end.y - 76, 190, 54), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
+	para(Rect2(r.position + Vector2(INSET, INSET), Vector2(r.size.x - INSET * 2.0, 104)), str(confirm.text), 22)
+	btn(Rect2(r.position.x + INSET, r.end.y - 80, 192, BTN_H_STANDARD), Tx.t("ui.page.cancel"), "_confirm_no")
+	btn(Rect2(r.end.x - INSET - 192, r.end.y - 80, 192, BTN_H_STANDARD), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
 
 # ------------------------------------------------------------------ input
 func _hit(p: Vector2) -> int:

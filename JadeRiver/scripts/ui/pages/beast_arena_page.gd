@@ -7,7 +7,7 @@ var replay_start := -1.0
 
 func _init() -> void:
 	title = Tx.t("ui.arena.title")
-	frame_rect = Rect2(130, 60, 1020, 600)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()
@@ -26,7 +26,7 @@ func draw_page() -> void:
 		if int(t.rank) == rank: rows.append({"you": true})
 		rows.append(t)
 	if rank >= unranked: rows.append({"you": true})
-	list("ladder", left.grow(-10), rows.size(), 52, func(i: int, rr: Rect2):
+	list("ladder", left.grow(-10), rows.size(), 56, func(i: int, rr: Rect2):
 		var row: Dictionary = rows[i]
 		var shown_rank := i + 1
 		if row.get("you", false):

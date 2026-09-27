@@ -5,7 +5,7 @@ extends Page
 func _init() -> void:
 	modal = true
 	title = Tx.t("ui.mercy.title")
-	frame_rect = Rect2(300, 150, 680, 400)
+	frame_rect = WINDOW_SMALL
 
 func draw_page() -> void:
 	var def := str(args.get("def", args.get("tab", "")))   # --open-page=mercy:def passes it as the tab

@@ -5,8 +5,6 @@ extends Page
 const Avatar = preload("res://scripts/avatar.gd")
 const SLOT_POS := {"hat": Vector2(0, 0), "robe": Vector2(0, 1), "trousers": Vector2(0, 2), "boots": Vector2(0, 3),
 	"weapon": Vector2(1, 0), "gourd": Vector2(1, 1), "cape": Vector2(1, 2), "talisman": Vector2(1, 3)}
-var SLOT_LABEL := {"weapon": Tx.t("ui.inventory.weapon"), "hat": Tx.t("ui.inventory.hat"), "robe": Tx.t("ui.inventory.robe"), "trousers": Tx.t("ui.inventory.trousers"), "boots": Tx.t("ui.inventory.boots"), "gourd": Tx.t("ui.inventory.gourd"),
-	"cape": Tx.t("ui.inventory.cape"), "talisman": Tx.t("ui.inventory.talisman")}
 
 var sel := {}          # {"bag": index} | {"slot": name} | {"key": index}
 var doll: Node2D
@@ -19,7 +17,7 @@ func _init() -> void:
 func setup() -> void:
 	if is_instance_valid(doll): doll.queue_free()
 	doll = Avatar.new()
-	doll.position = Vector2(245, 520)   # the figure centred between the two columns of worn slots
+	doll.position = content.position + Vector2(160, 360)   # the figure between the two columns of worn slots (at 2x)
 	doll.scale = Vector2.ONE * 2.0
 	add_child(doll)
 	_refresh_doll()
@@ -36,7 +34,10 @@ func on_event(name: String, _p: Dictionary) -> void:
 	queue_redraw()
 
 func slot_locked(slot: String) -> String:
-	var ch = c()
+	return locked_reason(c(), slot)
+
+## Why a worn slot is closed to `ch`, or "" when it is open.
+static func locked_reason(ch, slot: String) -> String:
 	match slot:
 		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else Tx.t("ui.inventory.fists_only_until_the_weapon")
 		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else Tx.t("ui.inventory.cape_slot_opens_at_heaven")
@@ -56,21 +57,9 @@ func draw_page() -> void:
 		# Equipment around the doll.
 		# The worn slots in two columns either side of the figure (the doll, drawn at 2x between them).
 		panel(Rect2(content.position.x, content.position.y, 360, content.size.y))
-		for slot in SLOT_POS:
-			var gp: Vector2 = SLOT_POS[slot]
-			var r := Rect2(content.position.x + 14 + gp.x * 256, content.position.y + 14 + gp.y * 120, SLOT, SLOT)
-			var inst = inv.equipped.get(slot)
-			var why := slot_locked(slot)
-			if inst != null:
-				slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), "slot", slot, sel.get("slot", "") == slot)
-			else:
-				draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
-				if slot == "weapon" and why != "": icon_at(r.grow(-6), "fist")
-				if why != "": _lock_icon(r.position + Vector2(SLOT - 18, 4))
-				region(r, "slot", slot, true)
-			text(Vector2(r.position.x - 8, r.end.y + 19), SLOT_LABEL[slot], 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
-		# Bag grid: five columns of the 76 px slot.
-		var grid := Rect2(content.position.x + 380, content.position.y, 414, content.size.y - 56)
+		draw_worn(self, ch, content.position + Vector2(14, 14), Vector2(256, 120), str(sel.get("slot", "")), "slot")
+		# Bag grid: five columns of the 76 px slot on the 80 px pitch; its panel ends 16 px before the detail panel.
+		var grid := Rect2(content.position.x + 372, content.position.y, 408, content.size.y - 56)
 		panel(grid.grow(4))
 		var cols := 5
 		var cell := SLOT
@@ -80,7 +69,7 @@ func draw_page() -> void:
 				var i := row * cols + col
 				if i >= inv.bag.size(): break
 				var s = inv.bag[i]
-				var r2 := Rect2(rr.position.x + 6 + col * (cell + 4), rr.position.y, cell, cell)
+				var r2 := Rect2(rr.position.x + 4 + col * (cell + 4), rr.position.y, cell, cell)
 				if s == null:
 					draw_style_box(UiKit.style("slot"), r2)
 					region(r2, "bag", i)
@@ -95,7 +84,7 @@ func draw_page() -> void:
 	else:
 		var r := Rect2(content.position.x, content.position.y, 800, content.size.y)
 		panel(r)
-		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 8, func(i: int, rr: Rect2):
+		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 12, func(i: int, rr: Rect2):
 			var k: Dictionary = inv.key_items[i]
 			slot_box(Rect2(rr.position, Vector2(SLOT, SLOT)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
 			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 22, UiKit.PAPER)
@@ -103,7 +92,24 @@ func draw_page() -> void:
 			region(rr, "key", i)
 		)
 		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.inventory.no_key_items"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-	_draw_detail(Rect2(content.end.x - 290, content.position.y, 290, content.size.y))
+	_draw_detail(Rect2(content.end.x - 288, content.position.y, 288, content.size.y))
+
+## The worn slots in two columns `step.x` apart and `step.y` down from `origin`, each with its name under it: the Bag
+## draws them either side of the figure, and the Character page round its own (decision 8). A tap is region `id`.
+static func draw_worn(pg: Page, ch, origin: Vector2, step: Vector2, selected := "", id := "slot") -> void:
+	for slot in SLOT_POS:
+		var gp: Vector2 = SLOT_POS[slot]
+		var r := Rect2(origin + gp * step, Vector2(SLOT, SLOT))
+		var inst = ch.inventory.equipped.get(slot)
+		var why := locked_reason(ch, slot)
+		if inst != null:
+			pg.slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), id, slot, selected == slot)
+		else:
+			pg.draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
+			if slot == "weapon" and why != "": pg.icon_at(r.grow(-6), "fist")
+			if why != "": pg._lock_icon(r.position + Vector2(SLOT - 18, 4))
+			pg.region(r, id, slot, true)
+		pg.text(Vector2(r.position.x - 8, r.end.y + 19), Tx.t("ui.inventory." + slot), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
 
 func selected_item():
 	var inv: InventoryState = c().inventory

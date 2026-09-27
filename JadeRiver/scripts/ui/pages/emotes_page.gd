@@ -5,7 +5,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.emotes.emotes")
 	modal = true
-	frame_rect = Rect2(340, 90, 600, 540)
+	frame_rect = WINDOW_MEDIUM
 
 func draw_page() -> void:
 	var ch = c()

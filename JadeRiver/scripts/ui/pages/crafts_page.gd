@@ -161,7 +161,7 @@ func draw_page() -> void:
 		extra.append_array(Game.crafting.ancient_in_progress(ch))
 	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
 	text(Vector2(list_r.position.x + 16, list_r.end.y - 14), "%s · %s" % [str(prof.rank).capitalize(), UiKit.fmt(float(prof.xp))], 16, UiKit.MIST)
-	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 62, func(i: int, rr: Rect2):
+	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 64, func(i: int, rr: Rect2):
 		if i < extra.size():
 			var xid: String = extra[i]
 			panel(rr, "minor_panel", "selected" if sel == xid else "normal")
@@ -279,7 +279,7 @@ func _forge(ch, area: Rect2) -> void:
 	var gear := _gear(ch)
 	var list_r := Rect2(area.position.x, area.position.y, 420, area.size.y)
 	panel(list_r)
-	list("gear", list_r.grow(-8), gear.size(), 62, func(i: int, rr: Rect2):
+	list("gear", list_r.grow(-8), gear.size(), 64, func(i: int, rr: Rect2):
 		var g: Dictionary = gear[i]
 		var inst: Dictionary = g.inst
 		var uid := int(inst.get("uid", -1))

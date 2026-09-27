@@ -78,7 +78,7 @@ func _karma(ch) -> void:
 	if r.ledger.is_empty():
 		para(Rect2(x, y + 4, right.size.x - 48, 60), Tx.t("ui.relations.no_deeds"), 18, UiKit.MIST, 3)
 	else:
-		list("deeds", Rect2(x, y + 4, right.size.x - 40, deeds_h), r.ledger.size(), 36, func(i: int, rr: Rect2):
+		list("deeds", Rect2(x, y + 4, right.size.x - 40, deeds_h), r.ledger.size(), 40, func(i: int, rr: Rect2):
 			var e: Dictionary = r.ledger[i]
 			var name := _deed_name(str(e.get("reason", "")), int(e.get("merit", 0)) > 0)
 			var amt := ""
@@ -160,7 +160,7 @@ func _bonds(ch) -> void:
 		para(Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 44, 60), Tx.t("ui.relations.no_friends"), 18, UiKit.MIST, 2)
 		return
 	var colw := (low.size.x - 44) / 2.0
-	list("friends", Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 34, low.size.y - 66), int(ceil(rows.size() / 2.0)), 38, func(row: int, rr: Rect2):
+	list("friends", Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 34, low.size.y - 66), int(ceil(rows.size() / 2.0)), 40, func(row: int, rr: Rect2):
 		for k in 2:
 			var j := row * 2 + k
 			if j >= rows.size(): break

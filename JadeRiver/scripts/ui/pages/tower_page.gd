@@ -24,7 +24,7 @@ func draw_page() -> void:
 	panel(left)
 	panel(right)
 	# Left: every floor, the highest first; cleared ones marked, the next one bright, the rest dim.
-	list("floors", Rect2(left.position.x + 10, left.position.y + 10, left.size.x - 20, left.size.y - 96), floors.size(), 58, func(i: int, rr: Rect2):
+	list("floors", Rect2(left.position.x + 10, left.position.y + 10, left.size.x - 20, left.size.y - 96), floors.size(), 64, func(i: int, rr: Rect2):
 		var row: Dictionary = floors[floors.size() - 1 - i]
 		var f := int(row.floor)
 		panel(rr, "minor_panel", "selected" if sel == f else "normal")

@@ -35,7 +35,7 @@ func _buy(ch) -> void:
 	var stock: Array = Game.economy.stock(ch, shop_id)
 	var left := Rect2(content.position.x, content.position.y, 700, content.size.y)
 	panel(left)
-	list("stock", left.grow(-10), stock.size(), SLOT + 8, func(i: int, rr: Rect2):
+	list("stock", left.grow(-10), stock.size(), SLOT + 12, func(i: int, rr: Rect2):
 		var s: Dictionary = stock[i]
 		panel(rr, "minor_panel", "selected" if sel_buy == i else ("disabled" if str(s.locked) != "" else "normal"))
 		slot_box(Rect2(rr.position + Vector2(4, 2), Vector2(SLOT, SLOT)), str(s.item))
@@ -72,7 +72,7 @@ func _sell(ch) -> void:
 		if bag[i] != null: idx.append(i)
 	var left := Rect2(content.position.x, content.position.y, 700, content.size.y)
 	panel(left)
-	list("sell", left.grow(-10), idx.size(), SLOT + 8, func(j: int, rr: Rect2):
+	list("sell", left.grow(-10), idx.size(), SLOT + 12, func(j: int, rr: Rect2):
 		var i := int(idx[j])
 		var s: Dictionary = bag[i]
 		var price := LootRules.sell_price(str(s.id), s if ContentDB.is_equipment(str(s.id)) else null)
@@ -98,7 +98,7 @@ func _buyback(ch) -> void:
 	var r := Rect2(content.position, content.size)
 	panel(r)
 	if bb.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.shop.nothing_sold"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-	list("bb", r.grow(-10), bb.size(), SLOT + 8, func(i: int, rr: Rect2):
+	list("bb", r.grow(-10), bb.size(), SLOT + 12, func(i: int, rr: Rect2):
 		var e: Dictionary = bb[i]
 		var ent: Dictionary = e.get("entry", {})
 		panel(rr)

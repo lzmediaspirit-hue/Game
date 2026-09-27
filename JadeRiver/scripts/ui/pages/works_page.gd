@@ -54,7 +54,7 @@ func _draw_arts() -> void:
 		not Game.posts.arts(ch).is_empty(), Tx.t("ui.works.no_arts"), 16)
 	var arts: Array = ContentDB.config("posts").get("post_arts", [])
 	var area := Rect2(content.position + Vector2(0, 64), Vector2(content.size.x, content.size.y - 64))
-	list("arts", area, arts.size(), 78, func(i: int, rr: Rect2):
+	list("arts", area, arts.size(), 80, func(i: int, rr: Rect2):
 		var a: Dictionary = arts[i]
 		var id := str(a.id)
 		var lv := Game.posts.art_level(ch, id)
@@ -78,7 +78,7 @@ func _draw_seals() -> void:
 	para(Rect2(content.position, Vector2(content.size.x, 50)), Tx.t("ui.works.seals_note"), 16, UiKit.MIST, 2)
 	var seals: Array = ContentDB.config("posts").get("seals", [])
 	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
-	list("seals", area, seals.size(), 84, func(i: int, rr: Rect2):
+	list("seals", area, seals.size(), 88, func(i: int, rr: Rect2):
 		var sd: Dictionary = seals[i]
 		var id := str(sd.id)
 		var lv := Game.posts.seal_level(id)
@@ -112,7 +112,7 @@ func _draw_steles() -> void:
 	var crafts: Array = Game.posts.crafts()
 	var st: Dictionary = ContentDB.config("posts").get("steles", {})
 	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
-	list("steles", area, crafts.size(), 84, func(i: int, rr: Rect2):
+	list("steles", area, crafts.size(), 88, func(i: int, rr: Rect2):
 		var cr: Dictionary = crafts[i]
 		var craft := str(cr.id)
 		var lv := Game.posts.stele_level(craft)
@@ -142,7 +142,7 @@ func _draw_favours() -> void:
 	currency_pill(Vector2(content.end.x - 210, content.position.y + 6), "silver_tael", Game.economy.balance("silver_tael", ch))
 	# B4: a scrolling list; the fourth favour ran past the window.
 	var favours: Array = ContentDB.config("posts").get("favours", [])
-	list("favours", Rect2(content.position + Vector2(0, 64), content.size - Vector2(0, 64)), favours.size(), 122, func(i: int, r: Rect2):
+	list("favours", Rect2(content.position + Vector2(0, 64), content.size - Vector2(0, 64)), favours.size(), 128, func(i: int, r: Rect2):
 		var f: Dictionary = favours[i]
 		var id := str(f.id)
 		var held := Game.posts.has_favour(id)

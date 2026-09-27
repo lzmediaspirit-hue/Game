@@ -65,7 +65,7 @@ func _collection() -> void:
 	panel(r)
 	var cols := 5
 	var rows := int(ceil(foes.size() / float(cols)))
-	list("col", r.grow(-10), rows, 150, func(row: int, rr: Rect2):
+	list("col", r.grow(-10), rows, 152, func(row: int, rr: Rect2):
 		for col in cols:
 			var i := row * cols + col
 			if i >= foes.size(): break

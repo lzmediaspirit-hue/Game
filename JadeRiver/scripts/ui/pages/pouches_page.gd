@@ -9,7 +9,7 @@ const CAT_ICON := {"ore": "copper_ore", "herb": "willow_moss", "fish": "river_mi
 func _init() -> void:
 	title = Tx.t("ui.pouches.title")
 	modal = true
-	frame_rect = Rect2(140, 40, 1000, 640)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()

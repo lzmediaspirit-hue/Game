@@ -27,7 +27,7 @@ func draw_page() -> void:
 	if not ch.pets.is_empty() and not ch.pets.any(func(p): return str(p.uid) == sel):
 		sel = ch.active_pet if ch.active_pet != "" else str(ch.pets[0].uid)
 	var eggs_h := 150.0 if not ch.eggs.is_empty() else 0.0
-	list("pets", Rect2(left.position, left.size - Vector2(0, eggs_h)).grow(-10), ch.pets.size(), 70, func(i: int, rr: Rect2):
+	list("pets", Rect2(left.position, left.size - Vector2(0, eggs_h)).grow(-10), ch.pets.size(), 72, func(i: int, rr: Rect2):
 		var p: Dictionary = ch.pets[i]
 		panel(rr, "minor_panel", "selected" if sel == str(p.uid) else "normal")
 		creature_at(Rect2(rr.position + Vector2(6, 4), Vector2(62, 60)), _art(p))
@@ -259,7 +259,7 @@ func _fusion(ch, pet: Dictionary, r: Rect2) -> void:
 	var others: Array = ch.pets.filter(func(o): return str(o.uid) != sel)
 	var where: String = Game.pets.fusion_blocked(ch, pet, others[0]) if not others.is_empty() else ""
 	var at_hall: bool = where != Tx.t("sim.pet.fuse_where")
-	list("fuse", Rect2(px, r.position.y + 76, colw, r.size.y - 132), others.size(), 52, func(i: int, rr: Rect2):
+	list("fuse", Rect2(px, r.position.y + 76, colw, r.size.y - 132), others.size(), 56, func(i: int, rr: Rect2):
 		var o: Dictionary = others[i]
 		panel(rr, "minor_panel")
 		text(rr.position + Vector2(12, 22), fit(str(o.name), 18, rr.size.x - 170), 18)

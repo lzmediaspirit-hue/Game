@@ -4,7 +4,7 @@ extends Page
 
 func _init() -> void:
 	title = Tx.t("ui.fates.title")
-	frame_rect = Rect2(120, 70, 1040, 580)
+	frame_rect = WINDOW_LARGE
 
 func draw_page() -> void:
 	var ch = c()
