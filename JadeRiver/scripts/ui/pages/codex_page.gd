@@ -87,7 +87,7 @@ func _collection() -> void:
 			else:
 				var art2 = e.get("art", {})
 				var cid2 := str(art2.get("creature", "")) if art2 is Dictionary else ""
-				if cid2 == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid2, "idle", Color(0, 0, 0, 0.6)):
+				if cid2 == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid2, "idle", Color(UiKit.INK, 0.6)):
 					text(cr.position + Vector2(0, 80), "?", 40, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 				text(cr.position + Vector2(0, 116), "? ? ?", 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 	)

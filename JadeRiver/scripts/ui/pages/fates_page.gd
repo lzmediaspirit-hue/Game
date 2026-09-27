@@ -33,7 +33,7 @@ func draw_page() -> void:
 		y += 14
 		text(Vector2(x, y), Tx.t("ui.fates.cost"), 16, UiKit.MIST)
 		y += 4
-		y += para(Rect2(x, y, cw - 40, 90), str(f.get("cost_text", "")), 19, Color("e07a7a"), 4) + 16
+		y += para(Rect2(x, y, cw - 40, 90), str(f.get("cost_text", "")), 19, UiKit.RED_TEXT, 4) + 16
 		if not (f.get("realm_modifiers", []) as Array).is_empty():
 			para(Rect2(x, y, cw - 40, 50), Tx.t("ui.fates.this_realm"), 15, UiKit.MIST, 2)
 		btn(Rect2(cr.position.x + 20, cr.end.y - 74, cw - 40, 56), Tx.t("ui.fates.choose"), "choose", str(cards[i]), true)

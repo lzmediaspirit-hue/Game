@@ -513,7 +513,8 @@ def build():
                            "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff",
                            "rare": "#5aa7e8", "epic": "#b07ce8", "primordial": "#e5b84c"},
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8",
-                         "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#8f7ae0"},
+                         "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#9a87e3",
+                         "law": "#e98fc6", "monarch": "#ff9a7a", "inner_heaven": "#d6f5ff"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
         # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,

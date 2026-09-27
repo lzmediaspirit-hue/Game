@@ -171,7 +171,7 @@ func _attunement(ch, r: Rect2) -> void:
 ## Pools (QI and Soul only once the character has them), four headline stats and who travels along.
 func _vitals(ch, r: Rect2) -> void:
 	var y := r.position.y
-	var pools := [["hp", ch.pools.hp, ch.pools.max_hp, UiKit.RED, Tx.t("ui.character.hp_bar")]]
+	var pools := [["hp", ch.pools.hp, ch.pools.max_hp, UiKit.HP, Tx.t("ui.character.hp_bar")]]
 	if ch.pools.max_qi > 0.0: pools.append(["qi", ch.pools.qi, ch.pools.max_qi, UiKit.QI, Tx.t("ui.character.qi_bar")])
 	if ch.pools.max_soul > 0.0: pools.append(["soul", ch.pools.soul, ch.pools.max_soul, UiKit.SOUL, Tx.t("ui.character.soul_bar")])
 	for p in pools:
@@ -234,7 +234,7 @@ func _aptitude(ch, r: Rect2) -> void:
 		text(Vector2(x, y + 24), label, 19, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 260)
 		if a.get("revealed", false):
 			var v := float(a.get("value", 0.0))
-			text(Vector2(x + 280, y + 24), "%s%d%%" % ["+" if v >= 0.0 else "-", int(round(absf(v) * 100))], 19, UiKit.BRIGHT_JADE if v > 0.0 else (UiKit.RED if v < 0.0 else UiKit.PAPER))
+			text(Vector2(x + 280, y + 24), "%s%d%%" % ["+" if v >= 0.0 else "-", int(round(absf(v) * 100))], 19, UiKit.BRIGHT_JADE if v > 0.0 else (UiKit.RED_TEXT if v < 0.0 else UiKit.PAPER))
 		else:
 			var at := str(reveal.get(key, "bone_forging_7"))
 			text(Vector2(x + 280, y + 24), Tx.t("ui.character.apt_hidden_at") % ContentDB.name_of("realms", at) if at != "" else Tx.t("ui.character.unknown_revealed_as_you_grow"), 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 330)
@@ -252,7 +252,7 @@ func _aptitude(ch, r: Rect2) -> void:
 			var gift := str(ph.get("gift_text", ""))
 			text(Vector2(rx, ry + 48), gift, 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
 			var gw := UiKit.text_width(gift + "  ", 15)
-			text(Vector2(rx + gw, ry + 48), str(ph.get("drawback_text", "")), 15, Color("e07a7a"), HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, right.size.x - 48 - gw))
+			text(Vector2(rx + gw, ry + 48), str(ph.get("drawback_text", "")), 15, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, right.size.x - 48 - gw))
 		else:
 			var prog := ""
 			if ph.has("count"): prog = "  (%s / %s)" % [UiKit.fmt(float(cu.lifetime_stats.get(str(ph.earned), 0.0))), UiKit.fmt(float(ph.count))]

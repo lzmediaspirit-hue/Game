@@ -41,7 +41,7 @@ func draw_page() -> void:
 				var hurt: bool = s.get("damaged", {}).has(str(b.id))
 				panel(rr, "minor_panel", "disabled" if hurt else "normal")
 				text(rr.position + Vector2(20, 30), str(b.name), 20)
-				text(rr.position + Vector2(20, 54), Tx.t("ui.your_sect.damaged_in_a_raid_output") if hurt else Tx.t("ui.your_sect.level_needs_sect_level") % [lv, int(b.get("sect_level", 1))], 15, UiKit.RED if hurt else UiKit.MIST)
+				text(rr.position + Vector2(20, 54), Tx.t("ui.your_sect.damaged_in_a_raid_output") if hurt else Tx.t("ui.your_sect.level_needs_sect_level") % [lv, int(b.get("sect_level", 1))], 15, UiKit.RED_TEXT if hurt else UiKit.MIST)
 				if hurt:
 					btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 48), Tx.t("ui.your_sect.repair"), "repair", str(b.id), true)
 					return
@@ -117,7 +117,7 @@ func _draw_territory(r: Rect2, s: Dictionary) -> void:
 			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_yours") % [stored, cap], 17, UiKit.BRIGHT_JADE)
 			var when := Tx.t("ui.your_sect.mine_contested") % [str(rv.get("name", "")), UiKit.span(float(st.until) - now)] if contested \
 				else Tx.t("ui.your_sect.mine_next") % UiKit.span(float(st.get("contest", now)) - now)
-			text(Vector2(x0 + 250, rr.position.y + 74), when, 16, UiKit.RED if contested else UiKit.MIST)
+			text(Vector2(x0 + 250, rr.position.y + 74), when, 16, UiKit.RED_TEXT if contested else UiKit.MIST)
 			var gs: Array = st.get("guards", [])
 			var names: Array = gs.map(func(d): return str(s.disciples[int(d)].get("name", "")) if int(d) < s.disciples.size() else "")
 			text(Vector2(x0, rr.position.y + 95), Tx.t("ui.your_sect.mine_guards") % [", ".join(names) if not names.is_empty() else Tx.t("ui.your_sect.no_guards"),
@@ -135,7 +135,7 @@ func _draw_territory(r: Rect2, s: Dictionary) -> void:
 			para(Rect2(x0, rr.position.y + 80, rr.size.x - 300, 22), str(rv.get("desc", "")), 14, UiKit.MIST, 1)
 			var why: String = Game.sect.assault_block(c(), id)
 			btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 42), Tx.t("ui.your_sect.go"), "mine_go", str(m.room), why == "", true)
-			if why != "": text(Vector2(rr.end.x - 360, rr.position.y + 74), why, 14, UiKit.RED, HORIZONTAL_ALIGNMENT_RIGHT, 340)
+			if why != "": text(Vector2(rr.end.x - 360, rr.position.y + 74), why, 14, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_RIGHT, 340)
 	)
 
 ## The first disciple free to stand guard (not away on an expedition, not guarding another mine), or -1.

@@ -97,16 +97,16 @@ func draw_page() -> void:
 	text(Vector2(r.position.x + 28, r.position.y + 44), Tx.t("ui.guqin.how"), 18, UiKit.MIST)
 	# The instrument: a long lacquered body, five silk strings, the bridge near the pegs.
 	var b := _body()
-	draw_rect(b, Color("3b2416"))
-	draw_rect(b.grow(-6), Color("5a3620"))
+	draw_rect(b, UiKit.SURFACE.wood_dark)
+	draw_rect(b.grow(-6), UiKit.SURFACE.wood)
 	var bridge_x := b.position.x + 110.0
-	draw_rect(Rect2(bridge_x - 3, b.position.y + 14, 6, b.size.y - 28), Color("d8c08a"))
+	draw_rect(Rect2(bridge_x - 3, b.position.y + 14, 6, b.size.y - 28), UiKit.SURFACE.bridge)
 	for lane in lanes:
 		var y := _string_y(lane)
-		draw_line(Vector2(bridge_x, y), Vector2(b.end.x - 16, y), Color("efe3c2"), 2.0)
+		draw_line(Vector2(bridge_x, y), Vector2(b.end.x - 16, y), UiKit.SURFACE.silk, 2.0)
 		var peg := _peg(lane)
-		draw_circle(peg.get_center(), 24, Color("1b1410"))
-		draw_circle(peg.get_center(), 21, Color("b8894a"))
+		draw_circle(peg.get_center(), 24, UiKit.SURFACE.peg_dark)
+		draw_circle(peg.get_center(), 21, UiKit.SURFACE.peg)
 		text(Vector2(peg.position.x, peg.position.y + 34), str(lane + 1), 20, UiKit.INK, HORIZONTAL_ALIGNMENT_CENTER, peg.size.x)
 	for f in flashes:
 		var fy := _string_y(int(f.lane))
@@ -118,7 +118,7 @@ func draw_page() -> void:
 		var x := bridge_x + (float(nt.at) - clock) * SPEED
 		if x > b.end.x - 10 or x < b.position.x: continue
 		var y2 := _string_y(int(nt.lane))
-		draw_circle(Vector2(x, y2), 13, Color("12352d"))
+		draw_circle(Vector2(x, y2), 13, UiKit.SURFACE.hui)
 		draw_circle(Vector2(x, y2), 10, UiKit.HOLLOW if nt.hit == "miss" else UiKit.BRIGHT_JADE)
 	# Below: start, the score, or why the hands must rest.
 	var y := b.end.y + 40

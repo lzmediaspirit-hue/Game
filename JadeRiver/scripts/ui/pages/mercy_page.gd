@@ -17,8 +17,8 @@ func draw_page() -> void:
 	var kill := ContentDB.entry("karma", "killed_yielded")
 	var bw := (content.size.x - 40 - 16) / 2.0
 	var by := content.end.y - 120
-	text(Vector2(x, by - 10), Tx.t("ui.mercy.spare_cost") % int(spare.get("merit", 0)), 16, Color("e8c872"))
-	text(Vector2(x + bw + 16, by - 10), Tx.t("ui.mercy.kill_cost") % int(kill.get("sin", 0)), 16, Color("e07a7a"))
+	text(Vector2(x, by - 10), Tx.t("ui.mercy.spare_cost") % int(spare.get("merit", 0)), 16, UiKit.GOLD)
+	text(Vector2(x + bw + 16, by - 10), Tx.t("ui.mercy.kill_cost") % int(kill.get("sin", 0)), 16, UiKit.RED_TEXT)
 	btn(Rect2(x, by, bw, 58), Tx.t("ui.mercy.spare"), "judge", true, true)
 	btn(Rect2(x + bw + 16, by, bw, 58), Tx.t("ui.mercy.kill"), "judge", false)
 	para(Rect2(x, content.end.y - 50, content.size.x - 40, 44), Tx.t("ui.mercy.note"), 15, UiKit.MIST, 2)

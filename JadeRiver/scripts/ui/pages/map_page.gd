@@ -63,8 +63,8 @@ func draw_page() -> void:
 		return
 	var map_r := Rect2(content.position.x, content.position.y, 780, content.size.y)
 	var sky := zone_id != "jade_river_valley"
-	draw_rect(map_r, Color("c9d6dc") if sky else Color("d9ccaa"))
-	draw_rect(map_r.grow(-6), Color("e2ebee") if sky else Color("e8dcbc"))
+	draw_rect(map_r, UiKit.SURFACE.sky_scroll_edge if sky else UiKit.SURFACE.scroll_edge)
+	draw_rect(map_r.grow(-6), UiKit.SURFACE.sky_scroll if sky else UiKit.SURFACE.scroll)
 	draw_rect(map_r, UiKit.BRONZE, false, 3)
 	var pts := {}
 	for r in regions():
@@ -78,7 +78,7 @@ func draw_page() -> void:
 			for p in ContentDB.room(id).get("portals", []):
 				var to_region := str(ContentDB.room(str(p.get("to", ""))).get("region", ""))
 				if to_region != "" and to_region != str(r.id) and pts.has(to_region) and str(r.id) < to_region:
-					draw_line(pts[str(r.id)], pts[to_region], Color(0.35, 0.25, 0.12, 0.55), 3)
+					draw_line(pts[str(r.id)], pts[to_region], UiKit.SURFACE.route, 3)
 	var here := str(ContentDB.room(str(ch.position.get("room", ""))).get("region", ""))
 	# P1: the region the tracked quest leads to carries a pulsing gold quest mark.
 	var goal_room: String = Game.world.guide_target(ch)
@@ -96,23 +96,23 @@ func draw_page() -> void:
 		var p: Vector2 = pts[rid]
 		var seen := visited(rid)
 		var planned: bool = r.get("planned", false)
-		var col := UiKit.BRONZE if seen else Color(0.45, 0.42, 0.36)
-		draw_circle(p, 17, UiKit.INK if not planned else Color(0.3, 0.34, 0.38, 0.6))
-		draw_circle(p, 14, (col if rid != sel else UiKit.GOLD) if not planned else Color(0.62, 0.68, 0.72, 0.8))
+		var col: Color = UiKit.BRONZE if seen else UiKit.SURFACE.node_unseen
+		draw_circle(p, 17, UiKit.INK if not planned else UiKit.SURFACE.node_planned_rim)
+		draw_circle(p, 14, (col if rid != sel else UiKit.GOLD) if not planned else UiKit.SURFACE.node_planned)
 		if rid == here:
 			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -34), p + Vector2(10, -20), p + Vector2(-10, -20)]), UiKit.RED)
 		if seen and _open_paths(ch, rid) > 0: _wind_glyph(p + Vector2(20, -26))
 		if rid == goal_region:
 			var gq := p + Vector2(26, 2)
-			draw_circle(gq, 13.0 + 2.0 * sin(t * 4.0), Color(1.0, 0.85, 0.4, 0.3))
+			draw_circle(gq, 13.0 + 2.0 * sin(t * 4.0), Color(UiKit.GOLD, 0.3))
 			draw_colored_polygon(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0)]), UiKit.GOLD)
 			draw_polyline(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0), gq + Vector2(0, -10)]), UiKit.INK, 1.5)
 			UiKit.draw_text(self, "!", gq + Vector2(-3, 5), 13, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
 		if events_at.has(rid):
 			var live: bool = (events_at[rid] as Array).any(func(o): return now >= float(o.start))
 			var mk := p + Vector2(-24, -24)
-			var mc := UiKit.GOLD if live else Color(0.55, 0.45, 0.7)
-			if live: draw_circle(mk, 11.0 + 2.0 * sin(t * 4.0), Color(1.0, 0.85, 0.4, 0.3))
+			var mc := UiKit.GOLD if live else UiKit.SOUL
+			if live: draw_circle(mk, 11.0 + 2.0 * sin(t * 4.0), Color(UiKit.GOLD, 0.3))
 			draw_colored_polygon(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0)]), mc)
 			draw_polyline(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0), mk + Vector2(0, -8)]), UiKit.INK, 1.5)
 		var name_ := str(r.name) if seen else "?"
@@ -135,7 +135,7 @@ func draw_page() -> void:
 		var have: float = Game.progression.attunement_value(ch, zone_id) if str(ContentDB.zone_of_room(str(ch.position.get("room", ""))).get("id", "")) == zone_id else float(ch.cultivator.attunement.get(zone_id, 0.0))
 		var need := float(reg.attunement)
 		text(Vector2(right.position.x + 20, y + 10), Tx.t("ui.map.attunement_need") % [str(att.get("name", "")), int(need), int(have)], 17,
-			UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+			UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT)
 		y += 28
 	if reg.get("planned", false):
 		para(Rect2(right.position.x + 20, y + 4, right.size.x - 40, 80), Tx.t("ui.map.way_not_open"), 17, UiKit.HOLLOW)
@@ -144,7 +144,7 @@ func draw_page() -> void:
 		var ev := CalendarRules.event(str(o.id))
 		var live2: bool = now >= float(o.start)
 		text(Vector2(right.position.x + 24, y + 22), Tx.t("ui.map.event_live") % [str(ev.get("name", o.id)), ContentDB.name_of("rooms", str(o.room))] if live2
-			else Tx.t("ui.map.event_soon") % [str(ev.get("name", o.id)), ContentDB.name_of("rooms", str(o.room))], 16, UiKit.GOLD if live2 else Color(0.7, 0.62, 0.86))
+			else Tx.t("ui.map.event_soon") % [str(ev.get("name", o.id)), ContentDB.name_of("rooms", str(o.room))], 16, UiKit.GOLD if live2 else UiKit.SOUL_TEXT)
 		y += 24
 	for id in region_rooms(sel):
 		var seen2: bool = Game.account.visited_rooms.has(id)
@@ -158,7 +158,7 @@ func draw_page() -> void:
 		if seen2:
 			for e in ContentDB.all("paths_above"):
 				if str(e.room) == id and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)):
-					text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.path_above") % str(e.art_name), 15, Color(0.4, 0.62, 0.66))
+					text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.path_above") % str(e.art_name), 15, UiKit.MIST)
 					y += 20
 		# S18 room data: its hazards and the attribute that answers them.
 		if seen2:
@@ -170,7 +170,7 @@ func draw_page() -> void:
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))
 				var left_s := int(until - Clock.now_utc())
-				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 15, UiKit.RED)
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 15, UiKit.RED_TEXT)
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break
@@ -188,7 +188,7 @@ func _open_paths(ch, rid: String) -> int:
 
 ## The faint wind glyph: three drifting strokes and a curl (S43, "the World map marks them").
 func _wind_glyph(p: Vector2) -> void:
-	var col := Color(0.25, 0.45, 0.5, 0.6)
+	var col: Color = UiKit.SURFACE.wind
 	for i in 3:
 		var pts := PackedVector2Array()
 		for k in 9:
@@ -201,7 +201,7 @@ func _draw_valley(map_r: Rect2) -> void:
 	for i in 9:
 		var bx := map_r.position.x + 40 + i * 88
 		var by := map_r.position.y + 70 + (i % 3) * 8
-		draw_colored_polygon(PackedVector2Array([Vector2(bx - 44, by + 20), Vector2(bx, by - 30 - (i % 2) * 14), Vector2(bx + 44, by + 20)]), Color(0.35, 0.42, 0.40, 0.35))
+		draw_colored_polygon(PackedVector2Array([Vector2(bx - 44, by + 20), Vector2(bx, by - 30 - (i % 2) * 14), Vector2(bx + 44, by + 20)]), UiKit.SURFACE.mountain)
 	var river := PackedVector2Array()
 	for i in 41:
 		var f := i / 40.0
@@ -221,8 +221,8 @@ func _draw_cloud_sea(map_r: Rect2, pts: Dictionary) -> void:
 	for rid in pts:
 		var p: Vector2 = pts[rid]
 		var isle := PackedVector2Array([p + Vector2(-34, 8), p + Vector2(34, 8), p + Vector2(18, 20), p + Vector2(4, 38), p + Vector2(-10, 24), p + Vector2(-26, 18)])
-		draw_colored_polygon(isle, Color(0.42, 0.48, 0.60, 0.55))
-		draw_line(p + Vector2(-34, 8), p + Vector2(34, 8), Color(0.45, 0.62, 0.50, 0.8), 4)
+		draw_colored_polygon(isle, UiKit.SURFACE.isle)
+		draw_line(p + Vector2(-34, 8), p + Vector2(34, 8), UiKit.SURFACE.isle_grass, 4)
 
 func on_action(id: String, data) -> void:
 	if id == "sel": sel = str(data)
@@ -270,7 +270,7 @@ func _draw_ranking(ch) -> void:
 		text(Vector2(cols[3], y + 31), UiKit.fmt(int(o.cp)), 18, UiKit.PAPER)
 		if not me:
 			var was := prev.find(str(o.id))
-			if was >= 0 and was != npc_i: text(Vector2(cols[3] + 86, y + 31), "▲" if was > npc_i else "▼", 15, UiKit.BRIGHT_JADE if was > npc_i else UiKit.RED)
+			if was >= 0 and was != npc_i: text(Vector2(cols[3] + 86, y + 31), "▲" if was > npc_i else "▼", 15, UiKit.BRIGHT_JADE if was > npc_i else UiKit.RED_TEXT)
 			npc_i += 1
 		if not above.is_empty() and str(above.id) == str(o.id):
 			btn(Rect2(cols[4], y + 6, rr.end.x - cols[4] - 8, 36), Tx.t("ui.map.rank_challenge"), "challenge", str(o.id), true, true, "", 18)

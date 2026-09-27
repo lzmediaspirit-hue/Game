@@ -104,6 +104,7 @@ func _main() -> void:
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
+	ui_style_suite()
 	await ui_suite()
 	fixes_suite()
 	max_character_suite()
@@ -356,6 +357,30 @@ func _ui_contexts(c) -> Dictionary:
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
 		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+
+## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
+## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
+## grade has its colour.
+func ui_style_suite() -> void:
+	var sources: Array = ["res://scripts/hud.gd", "res://scripts/ui/page.gd"]
+	for f in DirAccess.get_files_at("res://scripts/ui/pages/"):
+		if f.ends_with(".gd"): sources.append("res://scripts/ui/pages/" + f)
+	var hex := RegEx.create_from_string("Color\\(\\s*\"#?[0-9a-fA-F]{6,8}\"")
+	var flt := RegEx.create_from_string("Color\\(\\s*-?[0-9.]+\\s*,\\s*-?[0-9.]+")
+	var white := RegEx.create_from_string("^Color\\(\\s*1(\\.0)?\\s*,\\s*1(\\.0)?\\s*,\\s*1(\\.0)?\\s*[,)]")
+	var literals: Array = []
+	for path in sources:
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			var ln := lines[i]
+			if ln.strip_edges().begins_with("#"): continue
+			for m in hex.search_all(ln): literals.append("%s:%d %s" % [path.get_file(), i + 1, m.get_string()])
+			for m in flt.search_all(ln):
+				if white.search(ln.substr(m.get_start())) == null: literals.append("%s:%d %s" % [path.get_file(), i + 1, m.get_string()])
+	check(literals.is_empty(), "P4: no page, the HUD or Page draws an off-token colour (%d: %s)" % [literals.size(), str(literals.slice(0, 6))])
+	var g: Dictionary = ContentDB.config("grades")
+	var bare: Array = (g.get("order", []) as Array).filter(func(k): return not (g.get("grade_colors", {}) as Dictionary).has(k))
+	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at

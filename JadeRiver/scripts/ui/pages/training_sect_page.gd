@@ -31,7 +31,7 @@ func draw_page() -> void:
 	currency_pill(r.position + Vector2(30, 110), "contribution", int(ts.get("contribution", 0)))
 	# S48 the Blood path lowers the sect's regard; below zero the Mission Hall lends no manuals.
 	var regard := int(ts.get("reputation", {}).get(str(ts.id), 0))
-	text(r.position + Vector2(330, 140), Tx.t("ui.training_sect.regard") % regard, 20, UiKit.PAPER if regard >= 0 else UiKit.RED)
+	text(r.position + Vector2(330, 140), Tx.t("ui.training_sect.regard") % regard, 20, UiKit.PAPER if regard >= 0 else UiKit.RED_TEXT)
 	var order: Array = ranks.get("order", [])
 	var i := order.find(str(ts.get("rank", "")))
 	var y := r.position.y + 180

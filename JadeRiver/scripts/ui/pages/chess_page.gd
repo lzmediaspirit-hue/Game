@@ -24,11 +24,11 @@ func draw_page() -> void:
 	# The board: warm wood, a nine-line grid, the star points, the stones and the lettered points.
 	var n := int(ContentDB.config("chess").get("size", 9))
 	var wood := left.grow(-22)
-	draw_rect(wood, Color("c99a58"))
-	draw_rect(wood.grow(-4), Color("d8ad6c"))
+	draw_rect(wood, UiKit.SURFACE.board_edge)
+	draw_rect(wood.grow(-4), UiKit.SURFACE.board)
 	var grid := wood.grow(-34)
 	var cell := grid.size.x / float(n - 1)
-	var line_col := Color("4a3218")
+	var line_col: Color = UiKit.SURFACE.board_line
 	for i in n:
 		draw_line(grid.position + Vector2(i * cell, 0), grid.position + Vector2(i * cell, grid.size.y), line_col, 2.0)
 		draw_line(grid.position + Vector2(0, i * cell), grid.position + Vector2(grid.size.x, i * cell), line_col, 2.0)
@@ -36,21 +36,21 @@ func draw_page() -> void:
 		draw_circle(grid.position + Vector2(sp[0], sp[1]) * cell, 5.0, line_col)
 	var at := func(p: Array) -> Vector2: return grid.position + Vector2(float(p[0]), float(p[1])) * cell
 	for p in pz.get("black", []):
-		draw_circle(at.call(p) + Vector2(2, 3), cell * 0.44, Color(0, 0, 0, 0.3))
-		draw_circle(at.call(p), cell * 0.44, Color("1c1b20"))
+		draw_circle(at.call(p) + Vector2(2, 3), cell * 0.44, Color(UiKit.INK, 0.3))
+		draw_circle(at.call(p), cell * 0.44, UiKit.SURFACE.stone_black)
 		draw_circle(at.call(p) + Vector2(-cell * 0.14, -cell * 0.14), cell * 0.1, Color(1, 1, 1, 0.18))
 	for p in pz.get("white", []):
-		draw_circle(at.call(p) + Vector2(2, 3), cell * 0.44, Color(0, 0, 0, 0.25))
-		draw_circle(at.call(p), cell * 0.44, Color("6f6a5e"))
-		draw_circle(at.call(p), cell * 0.41, Color("f1ece0"))
+		draw_circle(at.call(p) + Vector2(2, 3), cell * 0.44, Color(UiKit.INK, 0.25))
+		draw_circle(at.call(p), cell * 0.44, UiKit.SURFACE.stone_white_rim)
+		draw_circle(at.call(p), cell * 0.41, UiKit.SURFACE.stone_white)
 	var opts: Dictionary = pz.get("options", {})
 	for letter in opts:
 		var pt: Vector2 = at.call(opts[letter])
 		var col := UiKit.GOLD
 		if not answer.is_empty():
 			if str(letter) == str(answer.get("answer", "")): col = UiKit.BRIGHT_JADE
-			elif str(letter) == str(answer.get("choice", "")): col = UiKit.RED
-		draw_circle(pt, cell * 0.34, Color(0.08, 0.1, 0.1, 0.85))
+			elif str(letter) == str(answer.get("choice", "")): col = UiKit.RED_TEXT
+		draw_circle(pt, cell * 0.34, Color(UiKit.INK, 0.85))
 		draw_arc(pt, cell * 0.34, 0, TAU, 32, col, 3.0)
 		text(Vector2(pt.x - 20, pt.y + 8), str(letter), 22, col, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	# Right: the problem, the four answers, and the verdict.

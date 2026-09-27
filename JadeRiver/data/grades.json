@@ -73,7 +73,10 @@
   "sage": "#d8c27a",
   "sovereign": "#e8a24c",
   "will": "#f3e3a6",
-  "sphere": "#8f7ae0"
+  "sphere": "#9a87e3",
+  "law": "#e98fc6",
+  "monarch": "#ff9a7a",
+  "inner_heaven": "#d6f5ff"
  },
  "pill_qualities": {
   "flawed": 0.5,

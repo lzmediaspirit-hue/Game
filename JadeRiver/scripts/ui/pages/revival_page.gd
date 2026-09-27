@@ -10,7 +10,7 @@ func _init() -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	draw_rect(Rect2(0, 0, 1280, 720), Color(0.3, 0.02, 0.02, 0.12))
+	draw_rect(Rect2(0, 0, 1280, 720), Color(UiKit.BLOOD, 0.06))
 	var y := content.position.y
 	var prologue: bool = not Unlocks.is_unlocked(ch.id, "kill_progress")
 	var loss_text := Tx.t("ui.revival.no_penalty_in_the_prologue") if prologue else Tx.t("ui.revival.you_lose_10_of_this")

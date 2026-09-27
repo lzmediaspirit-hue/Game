@@ -51,7 +51,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.18))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.18))
 	draw_page()
 	_draw_toast()
 
@@ -94,7 +94,7 @@ func _ink_para(rect: Rect2, s: String, size: int) -> void:
 	var y := rect.position.y + size * UiKit.text_scale()
 	for ln in _wrap(s, size, rect.size.x):
 		if y > rect.end.y + 2: break
-		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, Color("2b2118"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
 		y += UiKit.line_height(size) * 1.04
 
 func on_action(id: String, data) -> void:

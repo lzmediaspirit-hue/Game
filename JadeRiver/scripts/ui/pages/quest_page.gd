@@ -160,7 +160,7 @@ func _activity(ch, r: Rect2) -> void:
 		panel(box, "minor_panel", "selected" if ready else "normal")
 		var ico := Rect2(box.get_center() - Vector2(16, 16), Vector2(32, 32))
 		icon_at(ico, "open")
-		if not ready: draw_rect(box.grow(-2), Color(0.02, 0.05, 0.06, 0.55))
+		if not ready: draw_rect(box.grow(-2), Color(UiKit.INK, 0.55))
 		if claimed: text(Vector2(box.position.x, box.position.y + 32), "✓", 24, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
 		region(box, "chest", str(tr.id), ready, Tx.t("ui.quest.chest_locked") % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
 		text(Vector2(box.position.x, br.end.y + 20), str(int(tr.points)), 15, UiKit.PALE_GOLD if pts >= int(tr.points) else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)

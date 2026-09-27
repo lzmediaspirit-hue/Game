@@ -34,7 +34,7 @@ func draw_page() -> void:
 	y += 30
 	var per := int(Game.relations.acfg().get("per_heart", 100))
 	if ch.relations.hearts_of(id) < int(Game.relations.acfg().get("max_hearts", 5)):
-		bar(Rect2(x, y, left.size.x - 44, 24), float(int(a.get("points", 0)) % per) / float(per), Color("e05a6e"), Tx.t("ui.gift.next_heart") % [int(a.get("points", 0)) % per, per])
+		bar(Rect2(x, y, left.size.x - 44, 24), float(int(a.get("points", 0)) % per) / float(per), UiKit.HEART, Tx.t("ui.gift.next_heart") % [int(a.get("points", 0)) % per, per])
 	y += 44
 	var loves: Array = []
 	var likes: Array = []

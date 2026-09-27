@@ -111,7 +111,7 @@ func _draw() -> void:
 		_draw_toast()
 		return
 	# Dim the play screen behind the page.
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.03, 0.04, 0.55 if modal else 0.72))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.DIM, 0.55 if modal else 0.72))
 	draw_style_box(UiKit.style("major_window"), frame_rect)
 	if title != "":
 		var plaque := Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
@@ -269,7 +269,7 @@ func _wrap(s: String, size: int, width: float) -> Array:
 func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 	draw_style_box(UiKit.style("bar_shell"), rect)
 	var inner := rect.grow_individual(-6, -5, -6, -5)
-	draw_rect(inner, Color(0.02, 0.05, 0.06))
+	draw_rect(inner, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), inner.size.y)), col)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), 2)), col.lightened(0.35))
 	if label != "": UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 7), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
@@ -384,7 +384,7 @@ func list(area: String, rect: Rect2, count: int, row_h: float, draw_row: Callabl
 	_areas[area].active = false
 	if max_scroll > 0:
 		var track := Rect2(rect.end.x - 6, rect.position.y, 4, rect.size.y)
-		draw_rect(track, Color(1, 1, 1, 0.08))
+		draw_rect(track, Color(UiKit.PAPER, 0.08))
 		var h := maxf(24.0, rect.size.y * rect.size.y / total)
 		draw_rect(Rect2(track.position.x, rect.position.y + (rect.size.y - h) * off / max_scroll, 4, h), UiKit.JADE)
 
@@ -392,7 +392,7 @@ func ask(text_: String, id: String, data = null, danger := false) -> void:
 	confirm = {"text": text_, "id": id, "data": data, "danger": danger}
 
 func _draw_confirm() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.5))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.5))
 	var r := Rect2(390, 250, 500, 220)
 	draw_style_box(UiKit.style("major_window"), r)
 	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 21)

@@ -163,7 +163,7 @@ func _draw_detail(r: Rect2) -> void:
 		# S47 natal treasure: its level and growth, or that it is broken.
 		if s.get("natal", false):
 			var nl := Tx.t("ui.forge.natal_broken") if s.get("broken", false) else Tx.t("ui.inventory.natal_line") % [int(s.get("natal_level", 0)), int(s.get("ilv_eff", s.get("ilv", 1)))]
-			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED if s.get("broken", false) else UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED_TEXT if s.get("broken", false) else UiKit.GOLD)
 			y += 22
 		# S47 weapon awakening: an awakened weapon's own skill.
 		if s.get("awakened", false):
@@ -176,7 +176,7 @@ func _draw_detail(r: Rect2) -> void:
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
 		var tox_mult := InventoryAuthority.pill_toxicity_mult(s)
-		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED)
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED_TEXT)
 		y += 22
 	if not def.get("pill", {}).is_empty() and q != "":
 		# S15: quality sets potency; a Pill Halo also shows what dense-Qi seclusion has added.
@@ -286,7 +286,7 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	var by := r.end.y - 176
 	var prog: float = Game.inventory.binding_progress(ch.id)
 	if s.get("sealed", false):
-		text(Vector2(bx, y + 22), Tx.t("ui.inventory.sealed_bind_it_to_wake"), 16, UiKit.RED)
+		text(Vector2(bx, y + 22), Tx.t("ui.inventory.sealed_bind_it_to_wake"), 16, UiKit.RED_TEXT)
 		if prog >= 0.0:
 			bar(Rect2(bx, by, bw, 34), prog, UiKit.JADE, Tx.t("ui.inventory.binding"))
 		else:
@@ -298,12 +298,12 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	var sp: Dictionary = def.get("spirit", {})
 	var awake := spirit == "awake"
 	var line := Tx.t("ui.inventory.spirit_awake") % str(def.get("unique", "")) if awake else Tx.t("ui.inventory.spirit_sleeps_named") % str(sp.get("name", ""))
-	y += para(Rect2(bx, y + 4, bw, 44), line, 16, UiKit.PALE_GOLD if awake else UiKit.SOUL, 2)
+	y += para(Rect2(bx, y + 4, bw, 44), line, 16, UiKit.PALE_GOLD if awake else UiKit.SOUL_TEXT, 2)
 	var aff := float(s.get("spirit_affinity", 0.0))
 	bar(Rect2(bx, y + 4, bw, 28), aff / 100.0, UiKit.SOUL, Tx.t("ui.inventory.spirit_affinity") % [int(aff), int(s.get("spirit_level", 0))])
 	y += 34
 	if awake and not StatRules.spirit_controlled(ch, s):
-		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 15, UiKit.RED, 2)
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 15, UiKit.RED_TEXT, 2)
 	elif not awake:
 		var need := int(InventoryAuthority.spirit_cfg().get("wake_affinity", 30))
 		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 15, UiKit.MIST, 2)

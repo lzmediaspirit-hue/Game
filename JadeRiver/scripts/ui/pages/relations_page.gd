@@ -3,8 +3,8 @@ extends Page
 ## alignment, recent deeds and named debts), Bonds (Dao Companion, master, sworn siblings), Grudges (factions
 ## that want you dead) and Fame (the named tier, what it opens, and a young master's challenge when one waits).
 
-const MERIT := Color("e8c872")
-const SIN := Color("e07a7a")
+const MERIT := UiKit.GOLD
+const SIN := UiKit.RED_TEXT
 
 func _init() -> void:
 	title = Tx.t("ui.relations.title")

@@ -21,13 +21,13 @@ func draw_page() -> void:
 	panel(left)
 	text(left.position + Vector2(24, 44), "%s  →  %s" % [ContentDB.name_of("realms", str(q.from)), ContentDB.name_of("realms", str(q.to))], 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	if str(q.get("event", "")) != "":
-		text(left.position + Vector2(24, 76), Tx.t("ui.breakthrough.trial") % ContentDB.text("event." + str(q.event)), 19, UiKit.SOUL)
+		text(left.position + Vector2(24, 76), Tx.t("ui.breakthrough.trial") % ContentDB.text("event." + str(q.event)), 19, UiKit.SOUL_TEXT)
 	var y := left.position.y + 100
 	if not q.major:
 		para(Rect2(left.position.x + 24, y, 590, 100), Tx.t("ui.breakthrough.a_minor_step_within_the"), 20)
 	for r in q.get("results", []):
 		var ok: bool = r.ok
-		draw_circle(Vector2(left.position.x + 36, y + 16), 10, UiKit.JADE if ok else (UiKit.RED if r.hard else Color("f0a040")))
+		draw_circle(Vector2(left.position.x + 36, y + 16), 10, UiKit.JADE if ok else (UiKit.RED if r.hard else UiKit.WARNING))
 		if ok: draw_line(Vector2(left.position.x + 31, y + 16), Vector2(left.position.x + 36, y + 21), UiKit.INK, 2)
 		text(Vector2(left.position.x + 58, y + 22), str(r.text), 19, UiKit.PAPER)
 		text(Vector2(left.position.x + 58, y + 44), (Tx.t("ui.breakthrough.required") if r.hard else Tx.t("ui.breakthrough.soft_raises_risk_if_unmet")) + " · " + str(r.cause).capitalize(), 15, UiKit.MIST)
@@ -48,7 +48,7 @@ func draw_page() -> void:
 	for reason in q.get("reasons", []):
 		text(Vector2(right.position.x + 24, yy), "· " + str(reason), 16, UiKit.MIST)
 		yy += 22
-	var risk_col = {"none": UiKit.JADE, "low": UiKit.JADE, "moderate": Color("f0a040"), "high": UiKit.RED, "severe": UiKit.RED}.get(str(q.risk), UiKit.PAPER)
+	var risk_col = {"none": UiKit.BRIGHT_JADE, "low": UiKit.BRIGHT_JADE, "moderate": UiKit.WARNING, "high": UiKit.RED_TEXT, "severe": UiKit.RED_TEXT}.get(str(q.risk), UiKit.PAPER)
 	text(Vector2(right.position.x + 24, right.end.y - 96), Tx.t("ui.breakthrough.risk") % str(q.risk).capitalize(), 24, risk_col, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	text(Vector2(right.position.x + 24, right.end.y - 70), Tx.t("ui.breakthrough.success") % int(float(q.success) * 100), 19, UiKit.PAPER)
 	btn(Rect2(right.end.x - 250, right.end.y - 76, 226, 58), Tx.t("ui.breakthrough.break_through"), "go", null, true, bool(q.can), str(q.blocked))

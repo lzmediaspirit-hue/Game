@@ -44,7 +44,7 @@ func draw_page() -> void:
 		var ic := Rect2(r.get_center().x - 32, r.position.y + minf(18.0, ch_h - 102.0), 64, 64)
 		icon_at(ic, e[2])
 		if locked:
-			draw_rect(ic, Color(0.02, 0.05, 0.06, 0.55))
+			draw_rect(ic, Color(UiKit.INK, 0.55))
 			_lock_icon(ic.end - Vector2(16, 18))
 		text(Vector2(r.position.x, r.position.y + minf(112.0, ch_h - 10.0)), e[1], 20, UiKit.HOLLOW if locked else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 		if e[0] == "mail" and not locked and Game.mail.unread(ch) > 0:

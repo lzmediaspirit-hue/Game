@@ -148,7 +148,7 @@ func _puppets(ch) -> void:
 	for pp in ch.pets:
 		if not PetAuthority.is_construct(pp): continue
 		var broken: bool = pp.get("wounded", false)
-		text(Vector2(right.position.x + 24, yy2 + 20), str(pp.name) + "  ·  " + (Tx.t("ui.workshop.puppet_wounded") if broken else Tx.t("ui.workshop.puppet_ready")), 19, UiKit.RED if broken else UiKit.BRIGHT_JADE)
+		text(Vector2(right.position.x + 24, yy2 + 20), str(pp.name) + "  ·  " + (Tx.t("ui.workshop.puppet_wounded") if broken else Tx.t("ui.workshop.puppet_ready")), 19, UiKit.RED_TEXT if broken else UiKit.BRIGHT_JADE)
 		if broken: btn(Rect2(right.end.x - 170, yy2 - 6, 150, 44), Tx.t("ui.workshop.repair"), "repair_puppet", null, true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
 		yy2 += 48
 	var got: Array = Game.workshop.puppet_yield(ch)

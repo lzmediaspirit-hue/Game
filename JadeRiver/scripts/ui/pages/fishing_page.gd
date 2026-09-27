@@ -58,7 +58,7 @@ func draw_page() -> void:
 		"fight":
 			text(r.position + Vector2(0, 60), Tx.t("ui.fishing.hold_to_reel_keep_the"), 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 			var bar_r := Rect2(r.position.x + 40, r.position.y + 110, r.size.x - 80, 40)
-			draw_rect(bar_r, Color(0.05, 0.08, 0.09))
+			draw_rect(bar_r, UiKit.BAR_TROUGH)
 			draw_rect(Rect2(bar_r.position.x + bar_r.size.x * 0.35, bar_r.position.y, bar_r.size.x * 0.4, bar_r.size.y), Color(UiKit.JADE, 0.6))
 			draw_rect(Rect2(bar_r.position.x + bar_r.size.x * tension - 4, bar_r.position.y - 8, 8, bar_r.size.y + 16), UiKit.PAPER)
 			bar(Rect2(r.position.x + 40, r.position.y + 170, r.size.x - 80, 26), timer / 3.5, UiKit.GOLD)

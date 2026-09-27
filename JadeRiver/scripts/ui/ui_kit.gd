@@ -23,6 +23,39 @@ const RED := Color("e45858")
 const QI := Color("32bed1")
 const SOUL := Color("9b78d1")
 const HOLLOW := Color("87949a")
+## P4 (docs/ui_style_guide.md §1.5, §10): the roles the palette above left to literals. RED, SOUL and JADE are fills;
+## words take RED_TEXT, SOUL_TEXT and BRIGHT_JADE, which pass 4.5:1 on the lightest page fill.
+const RED_TEXT := Color("e87070")      # negative words: danger, unmet needs, costs, sin
+const SOUL_TEXT := Color("a586d6")     # Soul words
+const WARNING := Color("f0a040")       # a soft need, moderate risk, a meter past its mark
+const HP := Color("c2474f")            # the player's HP fill
+const BLOOD := Color("b3202e")         # the Blood path, the heart demon, the boss trough
+const HEART := Color("e05a6e")         # affection
+const SKY := Color("8fd3ff")           # allies, side quests, tribulation bolts
+const HUD_LABEL := Color("d5bd85")     # the HUD's bar labels
+const PAPER_INK := Color("2b2118")     # words on paper
+const BAR_TROUGH := Color("17242c")    # bar troughs
+## Plates over the world (the tracker, nameplates, banners): at 0.72 MIST still reads 4.5:1 over a white sky.
+const PLATE := Color(0.02, 0.06, 0.075, 0.72)
+## The world dimmed behind a page (at 0.72, or 0.55 behind a modal).
+const DIM := Color(0.01, 0.03, 0.04)
+## Drawn page surfaces (the map scroll, the Go board, the zither, talisman paper, the tribulation sky, the furnace):
+## their own materials, named here so no page carries a colour literal.
+const SURFACE := {
+	"scroll": Color("e8dcbc"), "scroll_edge": Color("d9ccaa"), "sky_scroll": Color("e2ebee"), "sky_scroll_edge": Color("c9d6dc"),
+	"route": Color(0.35, 0.25, 0.12, 0.55), "mountain": Color(0.35, 0.42, 0.40, 0.35), "isle": Color(0.42, 0.48, 0.60, 0.55),
+	"isle_grass": Color(0.45, 0.62, 0.50, 0.8), "wind": Color(0.25, 0.45, 0.5, 0.6), "node_unseen": Color(0.45, 0.42, 0.36),
+	"node_planned": Color(0.62, 0.68, 0.72, 0.8), "node_planned_rim": Color(0.3, 0.34, 0.38, 0.6),
+	"talisman": Color("efe3c2"), "talisman_edge": Color("8a6a3a"), "brush_ink": Color("1c1a18"), "cinnabar": Color(0.75, 0.2, 0.18),
+	"board": Color("d8ad6c"), "board_edge": Color("c99a58"), "board_line": Color("4a3218"),
+	"stone_black": Color("1c1b20"), "stone_white": Color("f1ece0"), "stone_white_rim": Color("6f6a5e"),
+	"wood": Color("5a3620"), "wood_dark": Color("3b2416"), "bridge": Color("d8c08a"), "peg": Color("b8894a"), "peg_dark": Color("1b1410"),
+	"hui": Color("12352d"), "silk": Color("efe3c2"),
+	"sky_top": Color(0.03, 0.04, 0.09), "sky_bottom": Color(0.086, 0.082, 0.118), "cloud": Color(0.18, 0.2, 0.3), "cloud_lit": Color(0.22, 0.24, 0.34),
+	"ember": Color(0.95, 0.45, 0.18), "flame": Color(0.95, 0.75, 0.18), "furnace_mouth": Color(0.08, 0.05, 0.04),
+	"ash": Color(0.5, 0.48, 0.44), "cinder": Color(0.12, 0.1, 0.1), "glow": Color(1.0, 0.85, 0.45), "soul_spark": Color(1.0, 0.95, 0.7),
+	"map_line": Color(0.85, 0.92, 0.9),
+}
 
 static var _display: Font
 static var _text: Font
@@ -207,6 +240,21 @@ static func _hd_style(asset: String, state: String, content_margin: float) -> St
 	sb.content_margin_bottom = cm * 0.6
 	return sb
 
+static var _hd_textures: Dictionary = {}
+
+## Fixed-size HD art (margins 0, such as `hud_ring_<size>`) as a linear-filtered texture, for callers that scale it or
+## fade it (draw_texture_rect with a modulate). Null when the kit has no such asset.
+static func hd_texture(asset: String, state := "normal") -> Texture2D:
+	var key := asset + ":" + state
+	if not _hd_textures.has(key):
+		var sb := _hd_style(asset, state, -1.0)
+		_hd_textures[key] = (sb as HdStyleBox).texture if sb is HdStyleBox else null
+	return _hd_textures[key]
+
+## The HUD ring sizes the HD kit draws (face diameters, tools/ui/build_ui_hd.py HUD_RING_SIZES) and the pad round each.
+const HUD_RINGS := [132, 64, 52, 48]
+const HUD_RING_PAD := 14.0
+
 static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, shadow := true, display := false) -> void:
 	var f := font_for(text, display, size)
 	var px := size_for(text, size, display)
@@ -230,6 +278,19 @@ static func draw_outlined(ci: CanvasItem, text: String, pos: Vector2, size: int,
 	ci.draw_string_outline(f, pos, text, align, width, px, 3 if not pixel else 4, Color(INK, 0.92 * color.a))
 	ci.draw_string(f, pos, text, align, width, px, color)
 
+## Words on a bright face: primary button labels and titles on the plaque (decision 10, option C of
+## docs/mockups/00b_button_faces.png). The face stays the bright jade the mockups approved; a 2 px ink outline under the
+## letters carries the contrast, so the words read against ink (PALE_GOLD 15.6:1, a disabled HOLLOW 6.2:1) however
+## light the enamel behind them.
+const INK_OUTLINE := 2
+
+static func draw_inked(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PALE_GOLD, align := HORIZONTAL_ALIGNMENT_CENTER, width := -1.0, display := false) -> void:
+	var f := font_for(text, display, size)
+	var px := size_for(text, size, display)
+	ci.draw_string_outline(f, pos + Vector2(0, 2), text, align, width, px, INK_OUTLINE + 2, Color(INK, 0.35 * color.a))
+	ci.draw_string_outline(f, pos, text, align, width, px, INK_OUTLINE, Color(INK, color.a))
+	ci.draw_string(f, pos, text, align, width, px, color)
+
 static var _plate: StyleBoxFlat
 
 ## A world nameplate: name (and an optional second line) on a soft translucent ink plate,
@@ -237,9 +298,9 @@ static var _plate: StyleBoxFlat
 static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: float, color := PAPER, sub_color := MIST, size := 16) -> Rect2:
 	if _plate == null:
 		_plate = StyleBoxFlat.new()
-		_plate.bg_color = Color(0.02, 0.06, 0.075, 0.62)
+		_plate.bg_color = Color(PLATE, 0.62)
 		_plate.set_corner_radius_all(7)
-		_plate.border_color = Color(0.9, 0.75, 0.4, 0.22)
+		_plate.border_color = Color(GOLD, 0.22)
 		_plate.set_border_width_all(1)
 		_plate.anti_aliasing = true
 	var sub_size := size - 3
@@ -286,7 +347,7 @@ static func grade_color(g: String) -> Color:
 	return Color(str(ContentDB.config("grades").get("grade_colors", {}).get(g, "#e8e1cf")))
 
 static func badge_color(kind: String) -> Color:
-	return {"grey": Color("8c969a"), "green": Color("67d67a"), "white": PAPER, "orange": Color("f0a040"), "red": RED}.get(kind, PAPER)
+	return {"grey": HOLLOW, "green": BRIGHT_JADE, "white": PAPER, "orange": WARNING, "red": RED_TEXT}.get(kind, PAPER)
 
 ## A stat modifier (an affix, a title, a physique) as a line: "+24 accuracy", "+3% physical attack", "-10% fire power".
 static func affix_text(a: Dictionary) -> String:
@@ -373,8 +434,8 @@ static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> R
 static func draw_hearts(ci: CanvasItem, pos: Vector2, filled: int, total: int, r := 10.0) -> void:
 	for i in total:
 		var c := pos + Vector2(r + i * r * 2.5, 0)
-		_heart(ci, c, r + 1.5, Color(0.08, 0.03, 0.04, 0.85))
-		_heart(ci, c, r, Color("e05a6e") if i < filled else Color(0.32, 0.16, 0.2, 0.9))
+		_heart(ci, c, r + 1.5, Color(INK, 0.85))
+		_heart(ci, c, r, HEART if i < filled else Color(HEART.darkened(0.6), 0.9))
 		if i < filled: ci.draw_circle(c + Vector2(-r * 0.45, -r * 0.4), r * 0.18, Color(1, 1, 1, 0.55))
 
 static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:

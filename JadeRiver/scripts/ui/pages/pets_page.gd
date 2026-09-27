@@ -91,7 +91,7 @@ func _construct_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 	para(Rect2(px, r.position.y + 30, colw, 70), Tx.t("ui.pets.construct_care"), 16, UiKit.MIST)
 	var y := r.position.y + 104
 	if pet.get("wounded", false):
-		text(Vector2(px, y), fit(Tx.t("ui.workshop.puppet_wounded"), 15, colw), 15, UiKit.RED)
+		text(Vector2(px, y), fit(Tx.t("ui.workshop.puppet_wounded"), 15, colw), 15, UiKit.RED_TEXT)
 		y += 16
 	var aw := (colw - 16.0) / 3.0
 	btn(Rect2(px, y, aw, 50), fit(Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), 17, aw - 12), "active", sel, ch.active_pet != sel, true, "", 17)
@@ -113,7 +113,7 @@ func _care_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 	text(Vector2(px, r.position.y + 64), fit(Tx.t("ui.pets.traits") + " · ".join(shown), 16, colw), 16, UiKit.PALE_GOLD)
 	var y := r.position.y + 80
 	if pet.get("wounded", false):
-		text(Vector2(px, y + 8), fit(Tx.t("ui.pets.wounded"), 15, colw), 15, UiKit.RED)
+		text(Vector2(px, y + 8), fit(Tx.t("ui.pets.wounded"), 15, colw), 15, UiKit.RED_TEXT)
 		y += 20
 	var roles := ["combat", "gatherer", "cultivation"]
 	if Game.pets.mountable(pet): roles.append("mount")

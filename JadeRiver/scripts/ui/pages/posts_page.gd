@@ -45,7 +45,7 @@ func _draw_roll() -> void:
 		if p.is_empty():
 			text(rr.position + Vector2(18, 62), Tx.t("ui.posts.no_post"), 17, UiKit.HOLLOW)
 		elif str(p.get("kind", "")) == "vigil":
-			text(rr.position + Vector2(18, 60), fit(Tx.t("ui.posts.vigil_at") % str(ContentDB.room(str(p.get("room", ""))).get("name", "")), 17, 330), 17, UiKit.RED.lightened(0.3))
+			text(rr.position + Vector2(18, 60), fit(Tx.t("ui.posts.vigil_at") % str(ContentDB.room(str(p.get("room", ""))).get("name", "")), 17, 330), 17, UiKit.RED_TEXT)
 			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % _dur(float(row.since_h))
 			text(rr.position + Vector2(18, 86), state, 15, UiKit.MIST)
 			text(Vector2(rr.position.x + 360, rr.position.y + 35), Tx.t("ui.posts.kills_h") % UiKit.fmt(int(float(r.get("kills_h", 0.0)))), 15, UiKit.PAPER)
@@ -68,7 +68,7 @@ func _draw_roll() -> void:
 			var fill := float(row.fill_h)
 			var fill_txt := Tx.t("ui.posts.pouch_full") if fill <= 0.0 else (Tx.t("ui.posts.full_in") % _dur(fill) if fill < INF else "")
 			text(Vector2(rr.position.x + 540, rr.position.y + 35), Tx.t("ui.posts.in_pouch") % UiKit.fmt(int(row.pouch)), 15, UiKit.PAPER)
-			text(Vector2(rr.position.x + 540, rr.position.y + 60), fill_txt, 15, UiKit.RED if fill <= 0.0 else UiKit.MIST)
+			text(Vector2(rr.position.x + 540, rr.position.y + 60), fill_txt, 15, UiKit.RED_TEXT if fill <= 0.0 else UiKit.MIST)
 		if not row.active:
 			btn(Rect2(rr.end.x - 150, rr.position.y + 10, 136, 40), Tx.t("ui.posts.switch"), "switch", int(row.slot), false, true, "", 18)
 			if not p.is_empty():

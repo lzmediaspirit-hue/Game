@@ -42,7 +42,6 @@ var draught_center := Vector2(843, 512)  # S44: the Draught slot, shown while a 
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
 
-const GOLD := Color("d5bd85")
 signal page_changed(page: int)
 signal open_page(page: String, args: Dictionary)
 signal dialogue_requested(convo: Dictionary)
@@ -386,8 +385,8 @@ func _pet_wheel_do(choice: String) -> void:
 
 func _draw_pet_wheel(c) -> void:
 	if not pet_wheel: return
-	draw_circle(pet_center, 152.0, Color(0.02, 0.07, 0.08, 0.86))
-	draw_arc(pet_center, 152.0, 0, TAU, 64, Color(0.78, 0.62, 0.3, 0.6), 2.0)
+	draw_circle(pet_center, 152.0, Color(UiKit.PLATE, 0.86))
+	draw_arc(pet_center, 152.0, 0, TAU, 64, Color(UiKit.GOLD, 0.6), 2.0)
 	var cur := str(Game.pets.commands.get(c.id, "follow"))
 	for i in PET_WHEEL.size():
 		var id := str(PET_WHEEL[i])
@@ -661,7 +660,7 @@ func _draw_caption() -> void:
 	if caption.text == "" or float(caption.t) > 2.6: return
 	var a := clampf((2.6 - float(caption.t)) / 0.4, 0.0, 1.0)
 	var w := 520.0
-	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(0, 0, 0, 0.55 * a))
+	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(UiKit.INK, 0.55 * a))
 	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
 func toast(text: String, kind := "unlock", sub := "") -> void:
@@ -726,7 +725,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"bottleneck_reached":
 			toast(Tx.t("hud.bottleneck_tap_cultivate_to_break") if not p.get("major", false) else Tx.t("hud.bottleneck_reached_see_the_cultivation"), "gold")
 		"breakthrough_failed":
-			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
+			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED_TEXT)
 		"achievement_unlocked":
 			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
 		"talisman_crafted":
@@ -758,22 +757,22 @@ func _on_event(name: String, p: Dictionary) -> void:
 				var ni := int(p.node) - 1
 				add_log(Tx.t("hud.sect_node_bought") % [str(br.get("name", {}).get(str(p.sect), p.branch)), str(nodes[ni].get("desc", "")) if ni >= 0 and ni < nodes.size() else ""], UiKit.PALE_GOLD)
 		"path_changed":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.path_blood_on" if p.get("on", false) else "hud.path_blood_off"), UiKit.RED)
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.path_blood_on" if p.get("on", false) else "hud.path_blood_off"), UiKit.RED_TEXT)
 		"illusion_cast":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.illusion_cast"), UiKit.SOUL)
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.illusion_cast"), UiKit.SOUL_TEXT)
 		"illusion_broken":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("reason", "")) in ["struck", "time"]: add_log(Tx.t("hud.illusion_broken"), UiKit.MIST)
 		"soul_searched":
 			if str(p.get("actor", "")) == Game.active_id:
 				var mem := str(p.get("memory", ""))
-				add_log(Tx.t("hud.soul_searched") % str(ContentDB.entry("codex", mem).get("title", "")) if mem != "" else Tx.t("hud.soul_searched_none"), UiKit.SOUL)
+				add_log(Tx.t("hud.soul_searched") % str(ContentDB.entry("codex", mem).get("title", "")) if mem != "" else Tx.t("hud.soul_searched_none"), UiKit.SOUL_TEXT)
 		"melody_changed":
 			if str(p.get("actor", "")) == Game.active_id and not p.get("on", false) and str(p.get("reason", "")) in ["composure", "broken"]:
 				add_log(Tx.t("hud.melody_spent" if str(p.reason) == "composure" else "hud.melody_broken"), UiKit.MIST)
 		"sword_intent_changed":
 			if int(p.get("stacks", 0)) >= 10: add_log(Tx.t("hud.sword_intent_full"), UiKit.GOLD)
 		"artifact_detonated":
-			add_log(Tx.t("hud.detonated") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("targets", 0))], UiKit.RED)
+			add_log(Tx.t("hud.detonated") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("targets", 0))], UiKit.RED_TEXT)
 		"items_salvaged":
 			add_log(Tx.t("hud.salvaged") % (p.get("items", []) as Array).size(), UiKit.PALE_GOLD)
 		"enhancement_inherited":
@@ -785,7 +784,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"mail_received":
 			if Unlocks.is_unlocked(Game.active_id, "mail"): add_log(Tx.t("hud.a_letter_arrived"), UiKit.PALE_GOLD)
 		"bag_full":
-			add_log(Tx.t("hud.your_gourd_is_full"), UiKit.RED)
+			add_log(Tx.t("hud.your_gourd_is_full"), UiKit.RED_TEXT)
 		"system_log":
 			add_log(str(p.text), UiKit.PAPER)
 		"portal_blocked":
@@ -794,7 +793,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var def := ContentDB.entry("enemies", str(p.def))
 			toast(Tx.t("hud.appears") % str(def.get("name", "")), "danger")
 		"injury_added":
-			add_log(Tx.t("hud.injury_severity") % [str(p.kind).capitalize(), int(p.severity)], UiKit.RED)
+			add_log(Tx.t("hud.injury_severity") % [str(p.kind).capitalize(), int(p.severity)], UiKit.RED_TEXT)
 		"aptitude_revealed":
 			toast(Tx.t("hud.aptitude_revealed") % str(p.aptitude).replace("_", " ").capitalize(), "gold")
 		"craft_completed":
@@ -823,7 +822,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"merit_changed":
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta), UiKit.PALE_GOLD)
 		"sin_changed":
-			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), Color("e07a7a"))
+			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), UiKit.RED_TEXT)
 		# S49: alignment and Fame; a young master's challenge opens the Fame tab, where it is answered.
 		"alignment_changed":
 			if p.get("word_changed", false): toast(Tx.t("hud.alignment_now") % Tx.t("ui.relations.align_" + str(p.word)), "gold")
@@ -839,7 +838,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var fname := ContentDB.name_of("factions", str(p.faction))
 			if p.get("hunted", false) and int(p.get("delta", 0)) > 0: toast(Tx.t("hud.grudge_hunted") % fname, "danger")
 			elif int(p.get("value", 0)) == 0: add_log(Tx.t("hud.grudge_settled") % fname, UiKit.BRIGHT_JADE)
-			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.grudge_rises") % fname, Color("e07a7a"))
+			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.grudge_rises") % fname, UiKit.RED_TEXT)
 		"hunter_dispatched":
 			toast(Tx.t("hud.hunter_found_you") % ContentDB.name_of("enemies", str(p.enemy)), "danger")
 		"bounty_taken":
@@ -904,19 +903,19 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var why := str(p.get("reason", "choice"))
 				if p.get("on", false): add_log(Tx.t("hud.presence_on") % int(p.get("level", 1)), UiKit.PALE_GOLD)
-				elif why == "soul": add_log(Tx.t("hud.presence_soul"), UiKit.RED)
+				elif why == "soul": add_log(Tx.t("hud.presence_soul"), UiKit.RED_TEXT)
 				else: add_log(Tx.t("hud.presence_off"), UiKit.MIST)
 		"presence_leveled":
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.presence_level") % int(p.level), "gold", Tx.t("hud.presence_level_sub"))
 		"presence_clash":
 			if str(p.get("actor", "")) == Game.active_id:
-				add_log(Tx.t("hud.presence_clash_" + str(p.get("winner", "even"))) % str(p.get("name", "")), UiKit.GOLD if str(p.get("winner", "")) == "you" else UiKit.RED)
+				add_log(Tx.t("hud.presence_clash_" + str(p.get("winner", "even"))) % str(p.get("name", "")), UiKit.GOLD if str(p.get("winner", "")) == "you" else UiKit.RED_TEXT)
 		"sphere_toggled":
 			if str(p.get("actor", "")) == Game.active_id:
 				var sw := str(p.get("reason", ""))
 				if p.get("on", false): add_log(Tx.t("hud.sphere_domain") if p.get("domain", false) else Tx.t("hud.sphere_on") % Tx.t("hud.el_" + str(p.get("element", "none"))), UiKit.PALE_GOLD)
 				elif sw == "broken": toast(Tx.t("hud.sphere_broken"), "danger", Tx.t("hud.sphere_broken_sub"))
-				elif sw == "qi": add_log(Tx.t("hud.sphere_qi"), UiKit.RED)
+				elif sw == "qi": add_log(Tx.t("hud.sphere_qi"), UiKit.RED_TEXT)
 				else: add_log(Tx.t("hud.sphere_off"), UiKit.MIST)
 		"sphere_clash":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("winner", "")) == "you":
@@ -934,7 +933,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_fed") % int(p.get("food", 0)), UiKit.MIST)
 		"lantern_light":
 			if str(p.get("actor", "")) == Game.active_id and float(p.get("light", 100.0)) <= 30.0 and int(p.get("near", 0)) > 0:
-				add_log(Tx.t("hud.lantern_guttering"), UiKit.RED)
+				add_log(Tx.t("hud.lantern_guttering"), UiKit.RED_TEXT)
 		# S43 rule 15: the rooftop thief and the Cloud Steps.
 		"chase_started":
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.chase_started"), "quest", Tx.t("hud.chase_hint"))
@@ -1101,7 +1100,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"soul_escaped":
 			toast(Tx.t("hud.soul_escaped_death"), "danger")
 		"killing_intent_changed":
-			if int(p.stacks) >= int(ContentDB.stat_const("killing_intent", {}).get("max", 10)): add_log(Tx.t("hud.killing_intent_full"), Color("e07a7a"))
+			if int(p.stacks) >= int(ContentDB.stat_const("killing_intent", {}).get("max", 10)): add_log(Tx.t("hud.killing_intent_full"), UiKit.RED_TEXT)
 		"combo_landed":
 			add_log(Tx.t("hud.combo") % [ContentDB.name_of("techniques", str(p.first)), ContentDB.name_of("techniques", str(p.second))], UiKit.GOLD)
 		# Gap report G2: treasures and talismans.
@@ -1222,7 +1221,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"egg_hatched":
 			toast(Tx.t("hud.the_egg_hatched_a") % ContentDB.name_of("pets", str(p.species)), "gold")
 		"bond_changed":
-			add_log(Tx.t("hud.hearts") % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED)
+			add_log(Tx.t("hud.hearts") % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED_TEXT)
 		"field_boss_defeated":
 			toast(Tx.t("hud.is_defeated") % ContentDB.name_of("enemies", str(p.enemy)), "gold")
 		"defence_warning":
@@ -1239,25 +1238,25 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.reputation") % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
 		"dismounted":
 			if str(p.get("reason", "")) == "climb": add_log(Tx.t("hud.dismount_climb"), UiKit.MIST)
-			else: add_log(Tx.t("hud.dismounted"), UiKit.RED)
+			else: add_log(Tx.t("hud.dismounted"), UiKit.RED_TEXT)
 		"item_bound":
 			toast(Tx.t("hud.item_bound") % ContentDB.item_name(str(p.item)), "gold")
 		"binding_interrupted":
-			add_log(Tx.t("hud.binding_broken"), UiKit.RED)
+			add_log(Tx.t("hud.binding_broken"), UiKit.RED_TEXT)
 		"artifact_spirit_awakened":
 			toast(Tx.t("hud.spirit_awake") % ContentDB.item_name(str(p.item)), "gold")
 		"spirit_affinity_changed":
 			# S47: every tenth point of affinity, and the gifts, are worth a line.
 			var aff := float(p.get("affinity", 0.0))
 			if str(p.get("why", "")) != "use" or int(aff) % 10 == 0:
-				add_log(Tx.t("hud.spirit_affinity") % [ContentDB.item_name(str(p.item)), int(aff)], UiKit.SOUL)
+				add_log(Tx.t("hud.spirit_affinity") % [ContentDB.item_name(str(p.item)), int(aff)], UiKit.SOUL_TEXT)
 		"artifact_spirit_grew":
 			toast(Tx.t("hud.spirit_grew") % [ContentDB.item_name(str(p.item)), int(p.get("level", 0))], "gold")
 		"artifact_spirit_spoke":
-			add_log(Tx.t("hud.spirit_says") % [str(ContentDB.item(str(p.item)).get("spirit", {}).get("name", "")), str(p.get("line", ""))], UiKit.SOUL)
+			add_log(Tx.t("hud.spirit_says") % [str(ContentDB.item(str(p.item)).get("spirit", {}).get("name", "")), str(p.get("line", ""))], UiKit.SOUL_TEXT)
 		"artifact_skill_used":
 			if p.get("awakened", false): add_log(Tx.t("hud.awakened_skill") % str(p.get("skill", "")), UiKit.GOLD)
-			else: add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL)
+			else: add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL_TEXT)
 		"weapon_awakened":
 			toast(Tx.t("hud.weapon_awakened") % ContentDB.item_name(str(p.item)), "gold", Tx.t("hud.weapon_awakened_sub") % str(p.get("skill", "")))
 		"pet_evolved":
@@ -1271,7 +1270,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"pet_returned":
 			add_log(Tx.t("hud.your_spirit_animal_is_back"), UiKit.MIST)
 		"companion_downed":
-			add_log(Tx.t("hud.is_down") % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.RED)
+			add_log(Tx.t("hud.is_down") % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.RED_TEXT)
 		"companion_revived":
 			add_log(Tx.t("hud.is_back_on_their_feet") % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.MIST)
 		"building_damaged":
@@ -1286,31 +1285,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.auction_won") % ContentDB.item_name(str(p.get("item", ""))), "gold")
 
 # ------------------------------------------------------------------ drawing
-## A HUD button: jade-enamel face with a vertical sheen, a thin gold bezel, a gloss arc
-## and, when active, a soft gold halo. Everything is anti-aliased so it stays round at any scale.
-func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false) -> void:
-	var tint := Color(1, 1, 1, opacity)
-	var lit := active or gold
-	draw_circle(center + Vector2(0, 4), radius + 4, Color(0, 0.02, 0.03, 0.42) * tint, true, -1.0, true)
-	if lit:
-		for i in 3:
-			draw_arc(center, radius + 5 + i * 3, 0, TAU, 72, Color(UiKit.GOLD, (0.30 - i * 0.09) * opacity), 3.0, true)
-	_disc(center, radius + 2.5, Color("f0d08a") if lit else Color("c6a262"), Color("7a5426") if lit else Color("5c4424"), tint)
-	_disc(center, radius, Color("1d5157"), Color("061519"), tint)
-	draw_arc(center, radius - 3.5, 0, TAU, 72, Color(0.40, 0.84, 0.74, 0.30 if lit else 0.2) * tint, 1.5, true)
-	draw_arc(center, radius - 2.0, PI * 1.15, PI * 1.85, 36, Color(1, 1, 1, 0.12) * tint, maxf(2.0, radius * 0.07), true)
-
-## Filled circle shaded from `top` to `bottom`.
-func _disc(center: Vector2, radius: float, top: Color, bottom: Color, tint := Color.WHITE) -> void:
-	var pts := PackedVector2Array()
-	var cols := PackedColorArray()
-	for i in 64:
-		var a := TAU * i / 64.0
-		var p := center + Vector2(cos(a), sin(a)) * radius
-		pts.append(p)
-		cols.append(top.lerp(bottom, (sin(a) + 1.0) * 0.5) * tint)
-	draw_polygon(pts, cols)
-	draw_arc(center, radius, 0, TAU, 64, bottom.lerp(top, 0.3) * tint, 1.0, true)
+## A HUD button: the HD kit's hud_ring (tools/ui/build_ui_hd.py: a jade-enamel face with a vertical sheen, a thin gold
+## bezel, a gloss arc and, when active, a soft gold halo), the nearest of its sizes scaled to `radius`. `pressed` sinks
+## the face while a finger holds the button.
+func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false, pressed := false) -> void:
+	var size: int = UiKit.HUD_RINGS[0]
+	for s in UiKit.HUD_RINGS:
+		if absf(float(s) - radius * 2.0) < absf(float(size) - radius * 2.0): size = s
+	var tex := UiKit.hd_texture("hud_ring_%d" % size, "active" if active or gold else ("pressed" if pressed else "normal"))
+	if tex == null: return
+	var half := (size * 0.5 + UiKit.HUD_RING_PAD) * radius * 2.0 / float(size)
+	draw_texture_rect(tex, Rect2(center - Vector2(half, half), Vector2(half, half) * 2.0), false, Color(1, 1, 1, opacity))
 
 ## A HUD glyph or icon centred on `center`, at a whole-number scale of its art in a `size` box (SpriteCache.draw_icon):
 ## 32 for a glyph in a button ring (a legacy glyph's 16 art px at 2x, an HD glyph 1:1), 64 in the attack ring,
@@ -1334,7 +1319,7 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	if tid == null or str(tid) == "":
 		# An open slot: a faint cloud seal, so it reads as "waiting for a technique", not as broken.
 		var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
-		if motif: draw_texture_rect(motif, Rect2(center - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35 * opacity))
+		if motif: draw_texture_rect(motif, Rect2(center - Vector2(16, 16), Vector2(32, 32)), false, Color(UiKit.BRIGHT_JADE, 0.35 * opacity))
 		return
 	var tdef := ContentDB.entry("techniques", str(tid))
 	var fam := str(StatRules.family(c).get("id", "fists"))
@@ -1350,7 +1335,7 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 		for i in 25:
 			var ang := -PI / 2 + TAU * frac * (i / 24.0)
 			pts.append(center + Vector2(cos(ang), sin(ang)) * 30)
-		if frac > 0.02: draw_colored_polygon(pts, Color(0, 0, 0, 0.6 * opacity))
+		if frac > 0.02: draw_colored_polygon(pts, Color(UiKit.INK, 0.6 * opacity))
 		UiKit.draw_outlined(self, str(int(ceil(cd))), center + Vector2(-20, 7), 18, Color(UiKit.PAPER, opacity), HORIZONTAL_ALIGNMENT_CENTER, 40)
 	elif c.pools.max_qi > 0 and c.pools.qi < Game.combat.technique_cost(c, tdef):
 		draw_arc(center, 30, 0, TAU, 32, Color(UiKit.QI, 0.5 * opacity), 3)
@@ -1370,10 +1355,10 @@ func draw_skill_scroll() -> void:
 
 func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String) -> void:
 	draw_rect(r.grow(2), UiKit.INK)
-	draw_rect(r, Color("17242c"))
+	draw_rect(r, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
-	draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(1, 0.95, 0.8, 0.35), 2)
-	UiKit.draw_text(self, label, r.position + Vector2(-34, 13), 16, GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(UiKit.PALE_GOLD, 0.35), 2)
+	UiKit.draw_text(self, label, r.position + Vector2(-34, 13), 16, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	UiKit.draw_outlined(self, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func _draw():
@@ -1494,7 +1479,7 @@ func _draw_player_panel(c) -> void:
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
 		y += 18
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
@@ -1506,7 +1491,7 @@ func _draw_player_panel(c) -> void:
 	if ProgressionAuthority.walks(c, "blood"):
 		var strip := Rect2(r.position.x + 56, r.end.y - 6, 288, 3)
 		draw_rect(strip.grow(1), UiKit.INK)
-		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(Game.combat.essence_of(c.id) / 100.0, 0.0, 1.0), strip.size.y)), Color("b3202e"))
+		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(Game.combat.essence_of(c.id) / 100.0, 0.0, 1.0), strip.size.y)), UiKit.BLOOD)
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).
 	var icons: Array = []
 	for kind in c.cultivator.injuries: icons.append("injury_" + kind)
@@ -1534,7 +1519,7 @@ func _draw_player_panel(c) -> void:
 		for i in 10:
 			var pc := Vector2(r.position.x + 130 + i * 21, r.end.y - 7)
 			var dia := PackedVector2Array([pc + Vector2(0, -5), pc + Vector2(5, 0), pc + Vector2(0, 5), pc + Vector2(-5, 0)])
-			if i < stacks: draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else Color("cfe6f0"))
+			if i < stacks: draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else UiKit.MIST)
 			draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.INK, 1.5)
 
 func _auto_hunt_shown(c) -> bool:
@@ -1555,18 +1540,17 @@ func _draw_tracker(c) -> void:
 		h += UiKit.line_height(17) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
 		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(15) * 0.88
 	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
-	draw_rect(panel, Color(0.02, 0.06, 0.075, 0.55))
+	draw_rect(panel, Color(UiKit.PLATE, 0.55))
 	draw_rect(Rect2(panel.position, Vector2(2, panel.size.y)), Color(UiKit.GOLD, 0.5))
 	for q in entries:
-		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else Color("8fc8ff")
-		if q.kind == "guided": col = Color("8fc8ff")
+		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else UiKit.SKY
 		UiKit.draw_text(self, UiKit.fit(("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), 17, 258), Vector2(22, y), 17, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
 		# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
 		var goal := str(q.get("target_room", ""))
 		if goal != "" and goal != here:
 			var br := Rect2(286, y - 17, 30, 22)
 			var going: bool = Game.world.auto_path_target(Game.active()) == goal
-			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(0, 0, 0, 0.45))
+			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(UiKit.INK, 0.45))
 			draw_rect(br, Color(UiKit.PALE_GOLD, 0.9), false, 1.5)
 			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 15, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
 			tracker_paths.append({"rect": br, "target": goal})
@@ -1609,7 +1593,7 @@ func _draw_run_banner(c) -> void:
 	var text := "%s   %.1f s" % [label, secs]
 	var w := UiKit.text_width(text, 22) + 40
 	var r := Rect2(640 - w * 0.5, 14, w, 40)
-	draw_rect(r, Color(0.02, 0.06, 0.075, 0.7))
+	draw_rect(r, Color(UiKit.PLATE, 0.7))
 	draw_rect(r, Color(UiKit.GOLD, 0.7), false, 1.5)
 	UiKit.draw_text(self, text, r.position + Vector2(0, 28), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
@@ -1640,21 +1624,21 @@ func _draw_minimap(c) -> void:
 		if s.is_block:
 			# S43: blocks as small squares, climbables as vertical lines, movers as dashed lines.
 			var mid := (y0 + y1) * 0.5
-			draw_rect(Rect2(mid - Vector2(2.5, 2.5), Vector2(5, 5)), Color(0.85, 0.92, 0.9, 0.8))
+			draw_rect(Rect2(mid - Vector2(2.5, 2.5), Vector2(5, 5)), Color(UiKit.SURFACE.map_line, 0.8))
 		elif s.moving:
-			draw_dashed_line(y0, y1, Color(0.95, 0.85, 0.55, 0.9), 2.0, 3.0)
+			draw_dashed_line(y0, y1, Color(UiKit.PALE_GOLD, 0.9), 2.0, 3.0)
 		else:
-			draw_line(y0, y1, Color(0.85, 0.92, 0.9, 0.55 if s.stratum == "ground" else 0.8), 2)
+			draw_line(y0, y1, Color(UiKit.SURFACE.map_line, 0.55 if s.stratum == "ground" else 0.8), 2)
 	for cb in Game.room_rt.geometry.climbables if Game.room_rt else []:
 		var ca: Array = cb.at
 		var foot: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.bottom_alt))
 		var head: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.top_alt))
-		draw_line(foot, head, Color(0.8, 0.7, 0.45, 0.9), 1.5)
+		draw_line(foot, head, Color(UiKit.GOLD, 0.9), 1.5)
 	for p in room.get("portals", []):
 		var at: Array = p.at
 		var st: Dictionary = Game.world.portal_state(c, p)
 		if st.get("hidden", false): continue
-		draw_circle(to_map.call(Vector2(float(at[0]), float(at[1])), 0.0), 4, Color("67d67a") if st.open else Color("7a8a8a"))
+		draw_circle(to_map.call(Vector2(float(at[0]), float(at[1])), 0.0), 4, UiKit.BRIGHT_JADE if st.open else UiKit.HOLLOW)
 	# P1 quest direction: the exit toward the tracked quest pulses gold, and a chevron on the frame's edge points
 	# the way from where you stand.
 	var gs: Dictionary = Game.world.guide_step(c)
@@ -1677,27 +1661,27 @@ func _draw_minimap(c) -> void:
 		var mp: Vector2 = to_map.call(Vector2(float(at2[0]), float(at2[1])), float(o.get("alt", 0)))
 		if o.type == "npc":
 			var mk: String = Game.quest.npc_marker(c, str(o.npc))
-			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else Color("f0e070")))
+			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else UiKit.PALE_GOLD))
 			if QuestAuthority.marker_calls(mk): draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
 		elif o.type in ["shrine", "qi_spring", "teleport_stone"]:
 			draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
 		elif o.type == "treasure_birth":
 			# S45: a Spirit Fruit ripening here stands up as a pillar of light on the minimap.
 			var pa := 0.55 + 0.25 * sin(t * 3.0)
-			draw_rect(Rect2(Vector2(mp.x - 3.0, inner.position.y + 2.0), Vector2(6.0, mp.y - inner.position.y - 2.0)), Color(1.0, 0.86, 0.45, pa * 0.35))
-			draw_line(Vector2(mp.x, inner.position.y + 2.0), mp, Color(1.0, 0.93, 0.7, pa), 1.5)
+			draw_rect(Rect2(Vector2(mp.x - 3.0, inner.position.y + 2.0), Vector2(6.0, mp.y - inner.position.y - 2.0)), Color(UiKit.GOLD, pa * 0.35))
+			draw_line(Vector2(mp.x, inner.position.y + 2.0), mp, Color(UiKit.PALE_GOLD, pa), 1.5)
 			draw_circle(mp, 3.5, UiKit.GOLD)
 		elif o.type == "spirit_mine":
 			# S49 territory: a mine shows in its holder's colour; yours glints jade.
 			var mid := str(o.get("mine", ""))
-			var mc := UiKit.BRIGHT_JADE if Game.sect.holds(mid) else Color(str(Game.sect.rival(str(ContentDB.entry("territory", mid).get("sect", ""))).get("color", "#AFC9D1"))).lightened(0.3)
+			var mc := UiKit.BRIGHT_JADE if Game.sect.holds(mid) else Color(str(Game.sect.rival(str(ContentDB.entry("territory", mid).get("sect", ""))).get("color", UiKit.MIST.to_html(false)))).lightened(0.3)
 			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -4), mp + Vector2(4, 0), mp + Vector2(0, 4), mp + Vector2(-4, 0)]), mc)
 		elif o.type == "herb_patch" and o.has("ripen"):
 			# S45: a rare herb shows as a leaf, gold while ripe, with the time left (or until it ripens).
 			var hs: Dictionary = Game.world.herb_state(o)
 			var spent: bool = Game.room_rt.objects.get(str(o.id), {}).get("state", "ready") == "depleted"
 			var ripe: bool = hs.ripe and not hs.dormant and not spent
-			var lc := UiKit.GOLD if ripe else Color(0.55, 0.62, 0.6, 0.9)
+			var lc := UiKit.GOLD if ripe else Color(UiKit.HOLLOW, 0.9)
 			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -5), mp + Vector2(3.5, 0), mp + Vector2(0, 4), mp + Vector2(-3.5, 0)]), lc)
 			if ripe: draw_arc(mp, 6.5 + sin(t * 5.0), 0, TAU, 12, UiKit.GOLD, 1)
 			if not hs.dormant and not spent:
@@ -1706,7 +1690,7 @@ func _draw_minimap(c) -> void:
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
 			var ep: Vector2 = to_map.call(e.plane, e.altitude)
-			var col = Color("8fd3ff") if e.team == "ally" else (UiKit.GOLD if e.elite or e.is_boss() else UiKit.RED)
+			var col = UiKit.SKY if e.team == "ally" else (UiKit.GOLD if e.elite or e.is_boss() else UiKit.RED)
 			draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(player.plane, player.altitude)
 	draw_colored_polygon(PackedVector2Array([pp + Vector2(player.facing * 5, 0), pp + Vector2(-player.facing * 3, -4), pp + Vector2(-player.facing * 3, 4)]), Color.WHITE)
@@ -1719,7 +1703,7 @@ func _draw_tap_ring() -> void:
 	var at_f := func(x: float) -> float: return lerpf(outer, inner, clampf(x, 0.0, 1.0))
 	var lo: float = at_f.call(float(tapping.target) + float(tapping.window) * 0.5)
 	var hi: float = at_f.call(float(tapping.target) - float(tapping.window) * 0.5)
-	draw_circle(attack_center, outer + 6.0, Color(0.02, 0.06, 0.07, 0.55))
+	draw_circle(attack_center, outer + 6.0, Color(UiKit.PLATE, 0.55))
 	draw_arc(attack_center, outer + 6.0, 0, TAU, 64, Color(UiKit.GOLD, 0.35), 1.5)
 	draw_arc(attack_center, (lo + hi) * 0.5, 0, TAU, 64, Color(UiKit.GOLD, 0.55), maxf(2.0, hi - lo))
 	draw_arc(attack_center, lo, 0, TAU, 64, UiKit.GOLD, 1.5)
@@ -1737,7 +1721,7 @@ func _draw_controls(c) -> void:
 			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
 			"beast_trail": "gather", "ancestral_altar": "open"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
-		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"))
+		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"), attack_pressed)
 		if ctx_glyph != "":
 			glyph(ctx_glyph, attack_center, 64)
 			UiKit.draw_outlined(self, str(context.get("label", "")) + _node_plate(c), attack_center + Vector2(-70, 50), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 140)
@@ -1749,13 +1733,13 @@ func _draw_controls(c) -> void:
 	if shown("skills"):
 		draw_skill_scroll()
 		if Unlocks.is_unlocked(c.id, "technique_page_2"):
-			for i in 2: draw_circle(Vector2(1113 + i * 16, 501) if not left_handed else Vector2(167 - i * 16, 501), 3, GOLD if i == skill_page else Color("344d52"))
+			for i in 2: draw_circle(Vector2(1113 + i * 16, 501) if not left_handed else Vector2(167 - i * 16, 501), 3, UiKit.HUD_LABEL if i == skill_page else Color(UiKit.HOLLOW, 0.5))
 	if shown("jump"):
 		ring(jump_center, 32, false, 1.0, pulses.has("hud:jump"))
 		glyph("jump", jump_center)
 	if shown("cultivate"):
 		var gold: bool = c.cultivator.state == "bottleneck"
-		ring(meditate_center, 32, c.cultivator.meditating, 1.0, gold or pulses.has("hud:cultivate"))
+		ring(meditate_center, 32, c.cultivator.meditating, 1.0, gold or pulses.has("hud:cultivate"), cultivate_pressed)
 		if gold: draw_arc(meditate_center, 38 + sin(t * 4.0) * 2, 0, TAU, 40, Color(UiKit.GOLD, 0.6), 3)
 		glyph("cultivate", meditate_center, 32, UiKit.GOLD if gold else Color.WHITE)
 		if cultivate_pressed and cultivate_hold > 0.1:
@@ -1786,7 +1770,7 @@ func _draw_controls(c) -> void:
 			var cd := 0.0
 			for k in c.pools.cooldowns:
 				if str(k).begins_with("item:"): cd = maxf(cd, float(c.pools.cooldowns[k]))
-			if cd > 0: draw_circle(quick_center, 24, Color(0, 0, 0, 0.5))
+			if cd > 0: draw_circle(quick_center, 24, Color(UiKit.INK, 0.5))
 		else:
 			glyph("quick_use", quick_center, 32)
 	# S44: the Draught slot, with the minutes left before the liquid goes flat.
@@ -1798,7 +1782,7 @@ func _draw_controls(c) -> void:
 		draw_arc(draught_center, 22, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 2)
 		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 19), 15, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("pet"):
-		ring(pet_center, 26)
+		ring(pet_center, 26, false, 1.0, false, pet_pressed)
 		glyph("pet", pet_center, 32)
 	for ti in 2:
 		if not shown("treasure_%d" % (ti + 1)): continue
@@ -1808,7 +1792,7 @@ func _draw_controls(c) -> void:
 		ring(tc, 26, false, 1.0, pulses.has("hud:treasure_%d" % (ti + 1)))
 		if tid == "":
 			var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
-			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35))
+			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(UiKit.BRIGHT_JADE, 0.35))
 			continue
 		var tdef: Dictionary = CombatAuthority.treasure_of(tid)
 		var short: bool = c.pools.qi < float(tdef.get("qi", 0)) or c.pools.soul < CombatAuthority.treasure_soul_cost(c, tdef)
@@ -1818,7 +1802,7 @@ func _draw_controls(c) -> void:
 			var frac := clampf(tcd / maxf(1.0, float(tdef.get("cooldown_s", 20))), 0.0, 1.0)
 			var pts := PackedVector2Array([tc])
 			for k in 25: pts.append(tc + Vector2.from_angle(-PI / 2 + TAU * frac * (k / 24.0)) * 24.0)
-			draw_colored_polygon(pts, Color(0, 0, 0, 0.55))
+			draw_colored_polygon(pts, Color(UiKit.INK, 0.55))
 			UiKit.draw_outlined(self, str(int(ceil(tcd))), tc + Vector2(-20, 7), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 40)
 		if tdef.has("charges"):
 			# A talisman treasure shows the charges it has left.
@@ -1839,7 +1823,7 @@ func _draw_controls(c) -> void:
 		glyph("enter", context_center, 32)
 		UiKit.draw_outlined(self, str(context.get("label", "")), context_center + Vector2(-50, 40), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
 	if shown("guard"):
-		ring(guard_center, 26, Game.combat.timeline(c.id).guard)
+		ring(guard_center, 26, Game.combat.timeline(c.id).guard, 1.0, false, guard_pressed)
 		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 32)
 		var dcd = c.pools.cooldown("dodge")
 		if dcd > 0: draw_arc(guard_center, 22, -PI / 2, -PI / 2 + TAU * (1.0 - dcd / 2.5), 20, UiKit.MIST, 3)
@@ -1847,8 +1831,8 @@ func _draw_controls(c) -> void:
 func _draw_progress(c) -> void:
 	var cu: CultivatorState = c.cultivator
 	var r := Rect2(0, 712, 1280, 8)
-	draw_rect(r, Color(0, 0, 0, 0.6))
-	var col = UiKit.GOLD if cu.state == "bottleneck" else UiKit.QI if c.pools.max_qi > 0 else Color("e8c89a")
+	draw_rect(r, Color(UiKit.INK, 0.6))
+	var col = UiKit.GOLD if cu.state == "bottleneck" else UiKit.QI if c.pools.max_qi > 0 else UiKit.PALE_GOLD
 	draw_rect(Rect2(r.position, Vector2(r.size.x * cu.progress_fraction(), r.size.y)), col)
 	if cu.stored_qi > 0:
 		draw_rect(Rect2(0, 710, 1280 * clampf(cu.stored_qi / maxf(1.0, cu.need()), 0, 1), 2), UiKit.PALE_GOLD)
@@ -1904,7 +1888,7 @@ func _draw_toasts() -> void:
 		var r := Rect2(810, y, 410, 48 if sub == "" else 74)
 		var st = UiKit.style("toast")
 		draw_style_box(st, r)
-		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED if tt.kind == "danger" else UiKit.BRIGHT_JADE)
+		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED_TEXT if tt.kind == "danger" else UiKit.BRIGHT_JADE)
 		UiKit.draw_text(self, str(tt.text), r.position + Vector2(16, 31), 19, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
 		if sub != "": UiKit.draw_text(self, sub, r.position + Vector2(16, 58), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
 		y += r.size.y + 6
@@ -1917,7 +1901,7 @@ func _draw_boss() -> void:
 	if boss == null: return
 	var r := Rect2(340, 118, 600, 14)
 	draw_rect(r.grow(3), UiKit.INK)
-	draw_rect(r, Color("3a1418"))
+	draw_rect(r, Color(UiKit.BLOOD, 0.3))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(boss.pools.hp / boss.pools.max_hp, 0, 1), r.size.y)), UiKit.RED)
 	UiKit.draw_outlined(self, Tx.t("hud.lv") % [boss.display_name(), boss.level], Vector2(340, 112), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 600)
 
@@ -1954,7 +1938,7 @@ func _draw_event(c) -> void:
 	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
-	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED_TEXT if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 
 ## S48 heavenly tribulation: bolts struck and to come, and whether a ring is closing now.
 func _draw_tribulation(c) -> void:
@@ -1968,18 +1952,18 @@ func _draw_tribulation(c) -> void:
 	var w := (r.size.x - 28) / maxf(1.0, float(n))
 	for i in n:
 		var cell := Rect2(r.position.x + 14 + i * w, r.position.y + 32, maxf(2.0, w - 2), 6)
-		draw_rect(cell, Color("8fd6ff") if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
+		draw_rect(cell, UiKit.SKY if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
 	if not (tv.warn as Dictionary).is_empty():
-		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 15, UiKit.RED, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 15, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))
 	for row in 2:
 		var y = 40 + row * 32
 		var amount = player.hp if row == 0 else player.qi
-		draw_string(font, Vector2(38, y + 13), Tx.t("hud.hp") if row == 0 else Tx.t("hud.qi"), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, GOLD)
-		draw_rect(Rect2(75, y, 237, 16), Color("17242c"))
-		draw_rect(Rect2(77, y + 2, 233 * amount / 100, 12), Color("ae5360") if row == 0 else Color("4bafaa"))
+		draw_string(font, Vector2(38, y + 13), Tx.t("hud.hp") if row == 0 else Tx.t("hud.qi"), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UiKit.HUD_LABEL)
+		draw_rect(Rect2(75, y, 237, 16), UiKit.BAR_TROUGH)
+		draw_rect(Rect2(77, y + 2, 233 * amount / 100, 12), UiKit.HP if row == 0 else UiKit.QI)
 	draw_skill_scroll()
 	ring(attack_center, 66, player.attack_time > 0)
 	ring(jump_center, 32)

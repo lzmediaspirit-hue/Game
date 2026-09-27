@@ -66,5 +66,5 @@ func draw_page() -> void:
 		if str(ev.get("cap_below", "")) != "":
 			var ok := not ProgressionRules.at_least(ch.cultivator.realm_key, str(ev.cap_below))
 			text(Vector2(rr.end.x - 16 - 320, rr.position.y + 54), Tx.t("ui.calendar.cap_ok") if ok else Tx.t("ui.calendar.cap_past"), 14,
-				UiKit.BRIGHT_JADE if ok else UiKit.RED, HORIZONTAL_ALIGNMENT_RIGHT, 320)
+				UiKit.BRIGHT_JADE if ok else UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_RIGHT, 320)
 	)

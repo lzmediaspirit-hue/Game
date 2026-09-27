@@ -90,7 +90,7 @@ func _overview(ch) -> void:
 	else:
 		for r in q.get("results", []):
 			var ok: bool = r.ok
-			draw_circle(Vector2(right.position.x + 36, yy + 14), 9, UiKit.JADE if ok else (UiKit.RED if r.hard else Color("f0a040")))
+			draw_circle(Vector2(right.position.x + 36, yy + 14), 9, UiKit.JADE if ok else (UiKit.RED if r.hard else UiKit.WARNING))
 			text(Vector2(right.position.x + 56, yy + 20), str(r.text), 18, UiKit.PAPER if ok else UiKit.PALE_GOLD)
 			text(Vector2(right.position.x + 56, yy + 40), (Tx.t("ui.cultivation.required") if r.hard else Tx.t("ui.cultivation.lowers_risk")) + " · " + str(r.cause).capitalize(), 14, UiKit.MIST)
 			yy += 52
@@ -189,7 +189,7 @@ func _path_cards(ch, area: Rect2) -> void:
 	for i in n: cards.append(Rect2(area.position + Vector2((w + 12) * i, 0), Vector2(w, area.size.y)))
 	var walking := ProgressionAuthority.walks(ch, "blood")
 	panel(cards[0], "minor_panel", "selected" if walking else "normal")
-	text(cards[0].position + Vector2(16, 30), Tx.t("ui.cultivation.blood_path"), 21, UiKit.RED if walking else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(cards[0].position + Vector2(16, 30), Tx.t("ui.cultivation.blood_path"), 21, UiKit.RED_TEXT if walking else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	para(Rect2(cards[0].position + Vector2(16, 40), Vector2(w - 32, 92)), Tx.t("ui.cultivation.blood_path_desc"), 14, UiKit.MIST, 5)
 	if walking:
 		text(cards[0].position + Vector2(16, 140), Tx.t("ui.cultivation.blood_on") % [int(round(Game.combat.blood_lifesteal(ch) * 100.0)), int(Game.combat.essence_of(ch.id))], 15, UiKit.PAPER,
@@ -247,14 +247,14 @@ func _heart(ch) -> void:
 	y += 26
 	var hb := Rect2(x, y, left.size.x - 48, 30)
 	# Red once it adds a risk step at great breakthroughs (25 and more, S48); a dull rose below that.
-	bar(hb, cu.heart_demon / 100.0, Color("d0283c") if ProgressionRules.heart_demon_steps(cu) > 0 else Color("7a4a56"), "%d / 100" % int(cu.heart_demon))
+	bar(hb, cu.heart_demon / 100.0, UiKit.BLOOD if ProgressionRules.heart_demon_steps(cu) > 0 else Color(UiKit.BLOOD, 0.45), "%d / 100" % int(cu.heart_demon))
 	for k in [25, 50, 75]:
 		var tx: float = hb.position.x + hb.size.x * float(k) / 100.0
 		draw_line(Vector2(tx, hb.position.y - 4), Vector2(tx, hb.end.y + 4), Color(UiKit.PALE_GOLD, 0.7), 2)
 	y += 62
 	var steps := ProgressionRules.heart_demon_steps(cu)
 	para(Rect2(x, y - 20, left.size.x - 48, 70), Tx.t("ui.cultivation.heart_demon_steps") % steps if steps > 0 else Tx.t("ui.cultivation.heart_calm"), 17,
-		UiKit.RED if steps > 0 else UiKit.MIST, 3)
+		UiKit.RED_TEXT if steps > 0 else UiKit.MIST, 3)
 	y += 70
 	# The karma ledger belongs to Relations (S49); the Heart shows what it does to a breakthrough, and links there.
 	heading(Vector2(x, y), Tx.t("ui.cultivation.karma"), left.size.x - 48)
@@ -262,7 +262,7 @@ func _heart(ch) -> void:
 	y += 40
 	var rel: RelationsState = ch.relations
 	text(Vector2(x, y), Tx.t("ui.cultivation.merit") % rel.merit, 21, UiKit.PALE_GOLD)
-	text(Vector2(x + 250, y), Tx.t("ui.cultivation.sin") % rel.sin, 21, Color("e07a7a"))
+	text(Vector2(x + 250, y), Tx.t("ui.cultivation.sin") % rel.sin, 21, UiKit.RED_TEXT)
 	y += 28
 	var merit_ready := ProgressionRules.merit_step(ch) > 0
 	text(Vector2(x, y), Tx.t("ui.cultivation.merit_ready") if merit_ready else Tx.t("ui.cultivation.merit_not_ready") % int(Game.relations.cfg().get("merit_step", 100)),
@@ -287,18 +287,18 @@ func _heart(ch) -> void:
 	var share := ProgressionRules.foundation_share(cu)
 	var hollow_at := float(ContentDB.stat_const("pill_life", {}).get("hollow_share", 0.3))
 	var fb := Rect2(x, y, right.size.x - 48, 30)
-	bar(fb, share, Color("c8923e") if share > hollow_at else UiKit.JADE, "%d%%" % int(round(share * 100)))
+	bar(fb, share, UiKit.WARNING if share > hollow_at else UiKit.JADE, "%d%%" % int(round(share * 100)))
 	var hx := fb.position.x + fb.size.x * hollow_at
 	draw_line(Vector2(hx, fb.position.y - 4), Vector2(hx, fb.end.y + 4), UiKit.RED, 2)
 	y += 60
 	para(Rect2(x, y - 20, right.size.x - 48, 60), Tx.t("ui.cultivation.foundation_hollow") if share > hollow_at else Tx.t("ui.cultivation.foundation_sound"), 16,
-		Color("e0a860") if share > hollow_at else UiKit.MIST, 2)
+		UiKit.WARNING if share > hollow_at else UiKit.MIST, 2)
 	y += 56
 	heading(Vector2(x, y), Tx.t("ui.cultivation.residue"), right.size.x - 48)
 	y += 36
 	var pen := int(round(ProgressionRules.residue_penalty(cu) * 100))
 	text(Vector2(x, y), Tx.t("ui.cultivation.residue_value") % [cu.residue, pen] if pen > 0 else Tx.t("ui.cultivation.residue_harmless") % cu.residue, 18,
-		UiKit.PAPER if pen == 0 else Color("e0a860"))
+		UiKit.PAPER if pen == 0 else UiKit.WARNING)
 	y += 44
 	heading(Vector2(x, y), Tx.t("ui.cultivation.pill_resistance"), right.size.x - 48)
 	y += 36

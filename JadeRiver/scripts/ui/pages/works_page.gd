@@ -97,7 +97,7 @@ func _draw_seals() -> void:
 		var cost: Dictionary = Game.posts.seal_next_cost(id)
 		var have := int(Game.account.storehouse.get(str(cost.item), 0))
 		icon_at(Rect2(rr.end.x - 380, rr.position.y + 18, 40, 40), str(cost.item))
-		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED)
+		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
 		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 13, 150), 13, UiKit.MIST)
 		btn(Rect2(rr.end.x - 170, rr.position.y + 16, 154, 50), Tx.t("ui.works.inscribe"), "seal", id, true, have >= int(cost.count),
 			Tx.t("sim.posts.needs_stored") % [int(cost.count), ContentDB.item_name(str(cost.item))], 17)
@@ -129,7 +129,7 @@ func _draw_steles() -> void:
 		var can := have >= int(cost.count) and Game.economy.balance("silver_tael", ch) >= int(cost.taels)
 		text(Vector2(rr.end.x - 470, rr.position.y + 36), Tx.t("ui.works.taels") % UiKit.fmt(int(cost.taels)), 15, UiKit.PAPER)
 		icon_at(Rect2(rr.end.x - 380, rr.position.y + 18, 40, 40), str(cost.item))
-		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED)
+		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
 		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 13, 150), 13, UiKit.MIST)
 		btn(Rect2(rr.end.x - 170, rr.position.y + 16, 154, 50), Tx.t("ui.works.raise"), "stele", craft, true, can, Tx.t("ui.works.cannot_pay"), 17)
 	)
@@ -223,7 +223,7 @@ func _draw_flags() -> void:
 		if not nc.is_empty() and lv < int(fl.get("max_level", 20)):
 			var have := int(Game.account.storehouse.get(str(nc.salt), 0))
 			icon_at(Rect2(r.end.x - 470, r.position.y + 22, 40, 40), str(nc.salt))
-			text(Vector2(r.end.x - 422, r.position.y + 48), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(nc.salt_count))], 15, UiKit.PAPER if have >= int(nc.salt_count) else UiKit.RED)
+			text(Vector2(r.end.x - 422, r.position.y + 48), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(nc.salt_count))], 15, UiKit.PAPER if have >= int(nc.salt_count) else UiKit.RED_TEXT)
 			btn(Rect2(r.end.x - 330, r.position.y + 18, 150, 50), Tx.t("ui.works.raise"), "flag_raise", i, true, have >= int(nc.salt_count), Tx.t("ui.works.cannot_pay"), 16)
 		btn(Rect2(r.end.x - 170, r.position.y + 18, 154, 50), Tx.t("ui.works.uproot"), "flag_uproot", i, false, true, "", 16)
 		y += 96
