@@ -1201,6 +1201,7 @@
  "ui.character.hp_bar": "HP %s / %s",
  "ui.character.jade_full": "At its peak for this land",
  "ui.character.jade_level": "Level %d / %d",
+ "ui.character.leans_to": "leans to %s",
  "ui.character.level": "Lv %d",
  "ui.character.move_speed": "Move speed",
  "ui.character.needs_more_shards": "Not enough shards",

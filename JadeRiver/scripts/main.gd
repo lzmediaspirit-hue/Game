@@ -412,6 +412,16 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(0.8).timeout
 			var spec := str(a).trim_prefix("--open-page=").split(":")
 			open_page(spec[0], {"tab": spec[1]} if spec.size() > 1 else {})
+		if str(a).begins_with("--tap=") and top_page() != null:
+			# Debug tools (S38): tap the top page at x,y (a press and a release), for previews of a page's states.
+			await get_tree().create_timer(0.6).timeout
+			var xy := str(a).trim_prefix("--tap=").split(",")
+			for down in [true, false]:
+				var ev := InputEventMouseButton.new()
+				ev.button_index = MOUSE_BUTTON_LEFT
+				ev.pressed = down
+				ev.position = Vector2(float(xy[0]), float(xy[1]))
+				top_page()._gui_input(ev)
 		if str(a).begins_with("--talk="):
 			await get_tree().create_timer(0.8).timeout
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})

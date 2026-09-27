@@ -235,18 +235,23 @@ func _record(ch) -> void:
 	text(Vector2(900, 152), UiKit.fmt(StatRules.combat_power(ch)), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 140, true)
 	btn(Rect2(1052, 108, 136, 48), Tx.t("ui.character.relations"), "relations", null, false, true, "", 18)
 	# S49: the Relations page (karma, bonds, grudges, Fame) lives under Character.
-	text(Vector2(1052, 174), Tx.t("ui.relations.fame_" + str(Game.relations.fame_tier(ch).get("id", "unknown"))) + " · " +
-		Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch)), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 136)
+	var fame := Tx.t("ui.relations.fame_" + str(Game.relations.fame_tier(ch).get("id", "unknown"))) + " · " + Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch))
+	text(Vector2(1188 - maxf(136.0, UiKit.text_width(fame, 14)), 174), fame, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, maxf(136.0, UiKit.text_width(fame, 14)))
 	# S49 lifespan as flavour: your age and the most years your realm grants (never a clock).
 	var span := ProgressionRules.lifespan_of(ch)
 	var age := ProgressionRules.age_of(ch, Clock.now_utc())
 	text(Vector2(900, 204), Tx.t("ui.character.age_span") % [age, UiKit.fmt(span)] if span > 0 else Tx.t("ui.character.age_endless") % age, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 288)
-	# The origin and what it gave.
+	# The origin and what it gave: its own words where they fit the line, else what it gave in short.
 	var origin := ContentDB.entry("origins", cu.origin)
 	var oname := str(origin.get("name", cu.origin))
+	var odesc := "· " + str(origin.get("desc", ""))
+	if UiKit.text_width(oname + " " + odesc, 16) > 668:
+		var gave: Array = (origin.get("bonus", {}) as Dictionary).keys().map(func(k): return "+%d %s" % [int(origin.bonus[k]), str(k).capitalize()])
+		if str(origin.get("element_nudge", "")) != "": gave.append(Tx.t("ui.character.leans_to") % str(origin.element_nudge))
+		odesc = "· " + ", ".join(gave)
 	text(Vector2(REG, 234), oname, 16, UiKit.GOLD)
 	var ow := UiKit.text_width(oname + " ", 16)
-	text(Vector2(REG + ow, 234), "· " + str(origin.get("desc", "")), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 668 - ow)
+	text(Vector2(REG + ow, 234), odesc, 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 668 - ow)
 	# The pools (Qi and Soul once the character has them).
 	var y := 246.0
 	for p in [[ch.pools.hp, ch.pools.max_hp, UiKit.HP, "ui.character.hp_bar"], [ch.pools.qi, ch.pools.max_qi, UiKit.QI, "ui.character.qi_bar"],

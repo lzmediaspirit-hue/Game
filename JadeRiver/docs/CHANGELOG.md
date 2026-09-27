@@ -389,6 +389,55 @@ come next. Where it differs from the plan, the plan's §6 says so.
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P5 · The first pages with their own identity (`docs/page_identity.md`, decisions 14–16)
+- **The foundation** (`docs/page_identity.md` §8, How a page takes its identity). A page declares what it is,
+  `Page.Identity`: its `SURFACE` material, whether the shared window frame stays round it, its own title mount, its
+  layout signature and its opening. Page then draws the page's surface in the standard window rect in place of the
+  shared window, inks the title on the page's own mount and draws the tabs in the page's own form, while the close
+  button, Esc and a tap outside, primary buttons with inked labels, the text tokens, the type scale and the 48 px
+  targets stay Page's. Pages that declare nothing keep today's look exactly.
+- **Every word is measured on what it sits on.** A page with its own surface names its grounds as it draws them
+  (`ground`, `face`, `panel`), and the `ui_suite` measures every plain word it draws on the ground under it (4.5:1, or
+  3:1 from 20 px). It found the washed slips too light for `MIST` (4.21), so words there are `PAPER`.
+- **Motion by the reduced-motion rule** (`docs/moments_design.md` §4.6, page_identity §6): `unfold()` runs a page's
+  opening over its declared time (0.35 s at most) and a tap finishes it; under Reduce motion nothing moves and the
+  page only fades in, over 0.2 s. Every target is live from the first frame.
+- **Tokens.** The twenty `SURFACE` materials of page_identity §7 join `UiKit` (and `cloth_wash`, the washed slips), each
+  a mix of two tokens, with `TEXT_ON` rows for those words are drawn on; the talisman's red ink and the zither's
+  strings, which had the names `cinnabar` and `silk`, are `cinnabar_ink` and `qin_silk`, unchanged in colour. New Page
+  helpers: `rich` (words in several colours), `rounded`, `glow`, and `grade_rims` (slots ring an item in its grade's
+  colour and mark a rolled quality with a gem).
+- **The Character page as the jade-slip record** (row 13, mockup 09 v2). One mat of vertical jade slips bound by two
+  gold cords, fanning open from a bundle as the page opens; the title and the four tabs are jade tags on the upper
+  cord. The figure stands at 2.5 on the first slips, washed lighter as if painted there, with the eight worn slots down
+  the slips either side (decision 8), a closed slot showing its lock and what opens it, an empty one glowing jade while
+  the bag holds a piece for it; who walks beside in round chips. The register is written across the rest: the name,
+  the realm with its Level and stage pips, sect, rank and worn title, Combat Power, Relations and age, the origin and
+  what it gave, the three pools, and offence and defence in ruled columns with Soul attack, Soul defence and Will
+  added. Stats and Titles fold into the Overview, so the tabs are Overview, Aptitude, Attunement and Wardrobe.
+- **The titles as honours** (decision 16). Each title is a red lacquer tablet with cut corners and a gold inlay line;
+  its motif (blade, shield, pearl, cloud, peak, lotus, coin, cauldron or star, by the stat its gift raises) on a
+  gilt boss; its name in pale gold and its gift inscribed in gold on a sunk band. The worn title comes first, in a
+  gilded frame with a stud at each corner and the gold ◆ of the style guide's "you" mark. Five to a page and a button
+  to the next five; a tap wears one (`set_title`, as before).
+- **Art** (`tools/ui/build_ui_hd.py`, byte-identical twice): `jade_tag`, `jade_label`, `honour_tablet` and
+  `honour_seal`'s nine motifs; the slips, cords, knots and wash are drawn by the page from tokens.
+- **The Bag** was built as the spirit gourd of mockups 07 and 08 v2 and withdrawn before it merged, by decision 15 (no
+  gourd drawing; a big space with a small card for the chosen item, new concepts to the user first). The Bag keeps its
+  P4 page; the general pieces it used are the foundation above.
+- **Tests:** `rules_tests` `ui_suite` (every word on a page with its own surface read on its ground, the close button
+  and inked title kept, a signature no other page shares, in every tab), the new `identity_suite` (on a probe page: a
+  word too dim for its ground caught, the tabs' targets and the inked title kept, the regions live from the first frame,
+  the opening and a tap, Reduce motion's fade; a page with no identity opening at once), `ui_style_suite` (the new
+  surfaces and faces measured); every target 48 px or more and every word on the type scale, as before. The full
+  suite on this build: room_lint 168 / 0; engine_tests 3785/3785; data_validation 23287 / 0; room_sweep 3568 / 0;
+  rules_tests 1830 / 0; contract_tests 1032 / 0; balance_sim 124 / 0; perf_tests 5 / 0; prologue_run 107 / 0;
+  valley_run 1257 / 0; check_scripts 0 failures.
+- **Screenshots** in `docs/ui_p5/`, on copies of the valley_run checkpoints `ls6_end` and `bf2` taken on this build, with
+  the comparison against mockup 09 v2 and why each difference is there; `--tap=x,y` (a debug tool) taps the top page.
+- **Roadmap:** U20 Partial and U21 Present (C8), U15 stays Partial with decision 15's withdrawal recorded; the P5 row
+  says what has started.
+
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,
   `HEART`, `SKY`, `HUD_LABEL`, `PAPER_INK`, `BAR_TROUGH`, `PLATE`, `DIM` and `SURFACE`, the drawn pages' own materials
