@@ -47,7 +47,7 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 
 ## The prop an object draws: its own, else its type's.
 static func prop_of(o: Dictionary) -> String:
-	return str(o.get("prop", DEFAULT_PROP.get(str(o.type), "")))
+	return str(o.get("prop", DEFAULT_PROP.get(str(o.get("type", "")), "")))
 
 ## The depth an object draws at: by its foot, over the roof, deck or terrace it is set on (ZoneGeometry.depth_at), or
 ## behind everything with `z_back`. A flat decal (a ripple, a circle, a patch) lies under the figures standing on it:

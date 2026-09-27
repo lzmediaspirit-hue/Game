@@ -1789,8 +1789,11 @@ def azure_expanse():
     for i, x in enumerate((700, 1500, 2600)):
         r.obj("grey_tracks_%d" % i, "inspect", [x, 880], prop="grey_patch", text="Footprints in the scorched grass. Where each one falls, the colour has drained away.",
               visible_if=all_of(qactive("shards_for_sale")))
-    r.obj("insight_thunder", "insight_stone", [2040, 720], element="thunder", requires=all_of(unlock("insight_sites")),
+    r.obj("insight_thunder", "insight_stone", [1900, 720], element="thunder", requires=all_of(unlock("insight_sites")),
           locked_text="A glassy stone, fused by lightning.")
+    for o in r.d["objects"]:   # a jar just behind the stone stands clear of it (the stone hid it)
+        if o["type"] == "jar" and abs(o["at"][0] - 1900) < 80 and 0 < 720 - o["at"][1] < 60:
+            o["at"] = [o["at"][0] - 150, o["at"][1]]
     r.edge("west", "west", "tp_thunderhorn_flats", "east", y=850)
     r.edge("east", "east", "rf_frostpine_climb", "west", y=850, ptype="sealed", requires=all_of(realm("sage_1")),
            locked_text="Rimefrost's cold stops any heart that has not reached Sage.")

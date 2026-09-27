@@ -152,6 +152,9 @@ func place(p: Vector2, alt := 0.0) -> void:
 
 func obj_at(id: String) -> Vector2:
 	var o: Dictionary = Game.room_rt.object_def(id)
+	if o.is_empty():
+		print("  no object ", id, " in ", room())
+		return Vector2.ZERO
 	return Vector2(float(o.at[0]), float(o.at[1]))
 
 func go(portal: String) -> bool:
@@ -231,6 +234,7 @@ func _dry_ground_near(p: Vector2) -> Vector2:
 
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
+	if o.is_empty(): return {"ok": false, "reason": "no_object", "text": "no %s in %s" % [id, room()]}
 	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
 	return submit({"type": "interact", "object": id})
 

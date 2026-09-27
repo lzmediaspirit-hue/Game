@@ -22,8 +22,8 @@ its cause.
   behind the surface under them. Only a decal prop now lies flat under figures, so an inspected notice board, mat or
   scope stands like any other thing (the Beast Arena ladder was behind the warehouse). Decal decor on the ground (a
   rug, flowers, planks) draws under everything standing on it: the abode and retreat mats were under their rugs.
-- **Placed clear of what hid them.** Two Marsh Edge jars were under reed bundles. The Lightning Scar insight stone
-  stood in front of a jar. The Stoneford tide gong was inside a gate step. The tunnel's shard vein was behind the
+- **Placed clear of what hid them.** Two Marsh Edge jars were under reed bundles. A Lightning Scar jar stood behind
+  the insight stone. The Stoneford tide gong was inside a gate step. The tunnel's shard vein was behind the
   rubble heap and now sits on top of it. Gate Street's notice board was behind the library front. The Rapids spirit
   mine was behind the salmon stone (`spirit_mines` now keeps a mine out from behind a block). The abode's scroll rack
   stood in front of the terrace door.

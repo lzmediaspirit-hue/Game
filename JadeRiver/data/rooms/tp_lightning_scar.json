@@ -119,13 +119,52 @@
   {
    "id": "route_2",
    "rect": [
-    1760,
+    2420,
     636,
     240,
     70
    ],
    "height": 200,
    "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2760,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3100,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1673,
+    620,
+    459,
+    60
+   ],
+   "height": 200.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -243,7 +282,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1921,
+    1771,
     700
    ],
    "loot": "jar_expanse",
@@ -344,7 +383,7 @@
    "id": "insight_thunder",
    "type": "insight_stone",
    "at": [
-    2040,
+    1900,
     720
    ],
    "element": "thunder",
@@ -966,39 +1005,7 @@
    "top": "ledge_mv_0"
   },
   {
-   "id": "ledge_mv_1_rope_2",
-   "kind": "rope",
-   "at": [
-    1533,
-    725
-   ],
-   "top_at": [
-    1533,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "ledge_mv_1"
-  },
-  {
-   "id": "cloud_mv_rope_3",
-   "kind": "rope",
-   "at": [
-    2252,
-    715
-   ],
-   "top_at": [
-    2252,
-    672
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "cloud_mv"
-  },
-  {
-   "id": "route_1_vine_4",
+   "id": "route_1_vine_2",
    "kind": "vine",
    "at": [
     1060,
@@ -1014,34 +1021,68 @@
    "top": "route_1"
   },
   {
-   "id": "route_2_vine_5",
+   "id": "route_2_vine_3",
    "kind": "vine",
    "at": [
-    1880,
+    2500,
     741
    ],
    "top_at": [
-    1880,
+    2500,
     698
    ],
    "bottom_alt": 0,
    "top_alt": 200,
    "bottom": "ground",
    "top": "route_2"
-  }
- ],
- "blocks": [
+  },
   {
-   "id": "route_2_step_6",
-   "rect": [
-    1770,
-    718,
-    60,
-    50
+   "id": "route_3_vine_4",
+   "kind": "vine",
+   "at": [
+    2880,
+    741
    ],
-   "base": 0,
-   "top": 40,
-   "kind": "rock"
+   "top_at": [
+    2880,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_5",
+   "kind": "vine",
+   "at": [
+    3220,
+    741
+   ],
+   "top_at": [
+    3220,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "bridge_0_ladder_6",
+   "kind": "ladder",
+   "at": [
+    1942,
+    715
+   ],
+   "top_at": [
+    1942,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bridge_0"
   }
  ],
  "terrain": [
