@@ -63,7 +63,8 @@
    "tameable": false,
    "collection": {
     "page": "valley_shore",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mudshell_crab"
@@ -132,7 +133,8 @@
    "tameable": false,
    "collection": {
     "page": "valley_shore",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "reedtail_rat"
@@ -202,7 +204,8 @@
    "tameable": false,
    "collection": {
     "page": "valley_shore",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 200
    },
    "art": {
     "creature": "old_snapper"
@@ -479,7 +482,8 @@
    "tameable": false,
    "collection": {
     "page": "willow_path",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "wild_boarlet"
@@ -557,7 +561,8 @@
    "tameable": true,
    "collection": {
     "page": "willow_path",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mossback_toad"
@@ -636,7 +641,8 @@
    "tameable": false,
    "collection": {
     "page": "quarry",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "rock_beetle"
@@ -718,7 +724,8 @@
    "tameable": false,
    "collection": {
     "page": "quarry",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "pebble_imp"
@@ -799,7 +806,8 @@
    "tameable": false,
    "collection": {
     "page": "quarry",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "stone_tortoise"
@@ -878,7 +886,8 @@
    "tameable": true,
    "collection": {
     "page": "quarry",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "ironclaw_mole"
@@ -957,7 +966,8 @@
    "tameable": false,
    "collection": {
     "page": "marsh",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "reed_frog"
@@ -1028,7 +1038,8 @@
    "tameable": false,
    "collection": {
     "page": "marsh",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "marsh_leech"
@@ -1098,7 +1109,8 @@
    "tameable": false,
    "collection": {
     "page": "marsh",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "greyfin"
@@ -1179,7 +1191,8 @@
    "tameable": true,
    "collection": {
     "page": "marsh",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "hollowed_boarlet"
@@ -1254,7 +1267,8 @@
    "tameable": true,
    "collection": {
     "page": "bamboo",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "bamboo_monkey"
@@ -1341,7 +1355,8 @@
    "tameable": true,
    "collection": {
     "page": "bamboo",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "green_viper"
@@ -1422,7 +1437,8 @@
    "tameable": false,
    "collection": {
     "page": "bamboo",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 200
    },
    "art": {
     "creature": "thornback_boar"
@@ -1520,7 +1536,8 @@
    "tameable": false,
    "collection": {
     "page": "road",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -1610,7 +1627,8 @@
    "tameable": false,
    "collection": {
     "page": "road",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "stone_guardian"
@@ -1691,7 +1709,8 @@
    "tameable": false,
    "collection": {
     "page": "road",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -1771,7 +1790,8 @@
    "tameable": true,
    "collection": {
     "page": "road",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mud_hound"
@@ -1852,7 +1872,8 @@
    "tameable": false,
    "collection": {
     "page": "bend",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "jade_carp"
@@ -1930,7 +1951,8 @@
    "tameable": false,
    "collection": {
     "page": "bend",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "tide_crab"
@@ -2028,7 +2050,8 @@
    "tameable": false,
    "collection": {
     "page": "shrine",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -2120,7 +2143,8 @@
    "tameable": false,
    "collection": {
     "page": "shrine",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "paper_talisman_ghost"
@@ -2200,7 +2224,8 @@
    "tameable": false,
    "collection": {
     "page": "gorge",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "rapids_lizard"
@@ -2310,7 +2335,8 @@
    "tameable": false,
    "collection": {
     "page": "gorge",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -2615,7 +2641,8 @@
    "tameable": false,
    "collection": {
     "page": "gorge",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "boulder_serpent"
@@ -2685,7 +2712,8 @@
    "tameable": true,
    "collection": {
     "page": "gorge",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mist_vulture"
@@ -2757,7 +2785,8 @@
    "tameable": false,
    "collection": {
     "page": "cliffs",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "cloudwing_crane"
@@ -2834,7 +2863,8 @@
    "tameable": false,
    "collection": {
     "page": "cliffs",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "stormwing_hawk"
@@ -2940,7 +2970,8 @@
    "tameable": false,
    "collection": {
     "page": "cliffs",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "cliff_ape"
@@ -3010,7 +3041,8 @@
    "tameable": true,
    "collection": {
     "page": "mist_peak",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mist_wolf"
@@ -3095,7 +3127,8 @@
    "tameable": false,
    "collection": {
     "page": "mist_peak",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "mirror_wisp"
@@ -3189,7 +3222,8 @@
    "tameable": false,
    "collection": {
     "page": "mist_peak",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "weeping_lantern"
@@ -3269,7 +3303,8 @@
    "tameable": false,
    "collection": {
     "page": "mist_peak",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "jade_sentinel"
@@ -3347,7 +3382,8 @@
    "tameable": true,
    "collection": {
     "page": "summit",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "hollow_stag"
@@ -3429,7 +3465,8 @@
    "tameable": false,
    "collection": {
     "page": "summit",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "cloudpeak_roc"
@@ -3538,7 +3575,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "spark_weasel"
@@ -3634,7 +3672,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "thunderhorn_rhino"
@@ -3723,7 +3762,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "cloud_stag"
@@ -3817,7 +3857,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "frost_lynx"
@@ -3934,7 +3975,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "snow_ape"
@@ -4017,7 +4059,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "azure_carp_dragonet"
@@ -4097,7 +4140,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "river_sentinel"
@@ -4175,7 +4219,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "wind_kite"
@@ -4286,7 +4331,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "canyon_harpy"
@@ -4398,7 +4444,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "sandstorm_scorpion"
@@ -4500,7 +4547,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "dune_worm"
@@ -4588,7 +4636,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "terracotta_warden"
@@ -4725,7 +4774,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "creature": "tomb_king"
@@ -4968,7 +5018,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -5077,7 +5128,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -5361,7 +5413,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "star_jellyfish"
@@ -5447,7 +5500,8 @@
    "tameable": true,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "comet_sparrow"
@@ -5569,7 +5623,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -5684,7 +5739,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "nest_guardian"
@@ -5798,7 +5854,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "hollowed_wyrmling"
@@ -5947,7 +6004,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "avatar": {
@@ -6090,7 +6148,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "gravity_golem"
@@ -6199,7 +6258,8 @@
    "tameable": true,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "orbit_moth"
@@ -6302,7 +6362,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "avatar": {
@@ -6431,7 +6492,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 200
    },
    "art": {
     "avatar": {
@@ -6557,7 +6619,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "hollow_drone"
@@ -6721,7 +6784,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "avatar": {
@@ -6859,7 +6923,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "nebula_eel"
@@ -6957,7 +7022,8 @@
    "tameable": true,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 500
    },
    "art": {
     "creature": "void_crab"
@@ -7101,7 +7167,8 @@
    "tameable": false,
    "collection": {
     "page": "lantern",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "creature": "nebula_leviathan"
@@ -7762,7 +7829,8 @@
    "tameable": false,
    "collection": {
     "page": "bend",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "creature": "riverbed_serpent"
@@ -7897,7 +7965,8 @@
    "tameable": false,
    "collection": {
     "page": "azure",
-    "kills_to_fill": 50
+    "kills_to_fill": 50,
+    "kills_to_master": 100
    },
    "art": {
     "creature": "thousand_eye_toad"

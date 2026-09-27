@@ -12,7 +12,7 @@ var hitstop := 0.0
 const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "injury_added", "injury_healed", "title_changed",
 	"attributes_changed", "method_changed", "dao_tier_up", "body_level_changed", "purity_changed", "soul_changed",
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened",
-	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen", "sect_node_bought"]
+	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen", "sect_node_bought", "collection_seal_claimed"]
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
@@ -76,7 +76,7 @@ func apply_weather(actor_id: String, weather: String) -> void:
 func refresh_stats(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var changed := StatRules.rebuild(c)
+	var changed := StatRules.rebuild(c, game.account)
 	if not changed.is_empty():
 		emit("stats_changed", {"actor": c.id, "changed_ids": changed})
 		for pool in ["hp", "qi", "soul"]:

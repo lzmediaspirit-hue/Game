@@ -647,6 +647,46 @@ def auction():
     })
 
 
+# Decision 27 · Codex page-completion rewards (mockup 18). Each collection page has two seals: seal I when every card on
+# it is filled (kills_to_fill, 50), seal II when every card is studied through (kills_to_master: 500, an elite 200, a
+# boss 100), claimed after seal I. A seal is claimed once for the account (the Account authority's claim_collection_seal)
+# and its gift is kept for good: small account-wide stats every character carries (StatRules, source "collection:"),
+# never an attack or damage stat, and a Bestiary Leaf of one of the page's beasts with seal II. The budget caps each
+# stat's sum over the whole book (balance_sim checks it and the par character's Combat Power with every seal).
+SEAL_II_HEAL = {"stat": "healing_received", "op": "flat", "value": 0.01}
+SEAL_PAGES = [   # page, seal I's stat and value (op flat unless named), seal II's stat, the leaf's beast
+    ("valley_shore", ("coin_find", 0.02), SEAL_II_HEAL, "old_snapper"),
+    ("willow_path", ("tenacity", 0.01), SEAL_II_HEAL, "mossback_toad"),
+    ("quarry", ("max_hp", 0.01, "pct_add"), ("knockback_resistance", 0.05), "ironclaw_mole"),
+    ("marsh", ("hollow_ward", 0.02), SEAL_II_HEAL, "hollowed_boarlet"),
+    ("bamboo", ("drop_rate", 0.01), ("mastery_gain", 0.02), "thornback_boar"),
+    ("road", ("tenacity", 0.01), SEAL_II_HEAL, "mud_hound"),
+    ("bend", ("coin_find", 0.02), ("knockback_resistance", 0.05), "riverbed_serpent"),
+    ("shrine", ("hollow_ward", 0.02), SEAL_II_HEAL, "paper_talisman_ghost"),
+    ("gorge", ("drop_rate", 0.01), ("mastery_gain", 0.02), "mist_vulture"),
+    ("cliffs", ("tenacity", 0.01), SEAL_II_HEAL, "cliff_ape"),
+    ("mist_peak", ("hollow_ward", 0.02), SEAL_II_HEAL, "weeping_lantern"),
+    ("summit", ("max_hp", 0.01, "pct_add"), ("knockback_resistance", 0.05), "cloudpeak_roc"),
+    ("azure", ("hollow_ward", 0.02), SEAL_II_HEAL, "thousand_eye_toad"),
+    ("lantern", ("drop_rate", 0.01), SEAL_II_HEAL, "nebula_leviathan"),
+]
+SEAL_BUDGET = {"hollow_ward": 0.08, "healing_received": 0.10, "coin_find": 0.04, "drop_rate": 0.03, "tenacity": 0.03,
+               "max_hp": 0.02, "knockback_resistance": 0.15, "mastery_gain": 0.04}
+
+
+def collection_seals():
+    def mod(m):
+        if isinstance(m, dict):
+            return dict(m)
+        return {"stat": m[0], "op": m[2] if len(m) > 2 else "flat", "value": m[1]}
+    pages = {}
+    for page, one, two, leaf in SEAL_PAGES:
+        pages[page] = [{"seal": 1, "needs": "kills_to_fill", "modifiers": [mod(one)], "effects": []},
+                       {"seal": 2, "needs": "kills_to_master", "after": 1, "modifiers": [mod(two)],
+                        "effects": [{"kind": "add_leaf", "enemy": leaf, "count": 1}]}]
+    return {"pages": pages, "budget": SEAL_BUDGET, "par_cp_max": 0.03}
+
+
 def account_rules():
     def acc(r):
         return {"all": [{"kind": "account_realm", "realm": r}]}
@@ -669,6 +709,7 @@ def account_rules():
                        "effects": [{"kind": "grant_item", "item": "river_token", "count": 1}, {"kind": "grant_item", "item": "plain_straw_hat", "count": 1},
                                    {"kind": "grant_item", "item": "herbal_tea", "count": 5}]},
         "skip_prologue_allowed": True,
+        "collection_seals": collection_seals(),
         "name_max": 24,
         "creator": {"hair": ["short_knot", "topknot", "ponytail", "high_pony", "long_tied", "flowing"], "hair_color": 6,
                     "robe": ["disciple", "vneck", "cardigan", "scholar", "sleeveless"], "trousers": ["loose", "straight", "cuffed", "scholar", "martial"],

@@ -24,6 +24,19 @@
   before the Level (`QuestAuthority._story_next`), and one under way leads the tracker itself. The `tutorial_order`
   walk now spars Shen Lian before the Weapon Hall, as a player does, and holds after every step that the tracker and
   the mark lead where the story goes next (invariant 9).
+## Codex page-completion rewards (decision 27, mockup 18's two seals)
+- **Every collection page has two seals, each with a gift, claimed once for the account.** Seal I: every card filled
+  (50). Seal II: every card studied through (500, an elite 200, a boss 100: `kills_to_master`), after seal I. Earned
+  the kill the condition first holds (a toast), claimed by the Account authority's `claim_collection_seal` from Claim
+  on the book page (the seal stamps in, a toast lists the gift), saved as `collection_seals`. Gifts are data
+  (`tools/data/economy.py`, `account_rules.json` `collection_seals`): one small defensive or finding stat for seal I,
+  healing received, knockback resistance or mastery gain and a Bestiary Leaf of a page beast for seal II, every stat
+  given to each character by `StatRules.rebuild` (source `collection:`); no attack or damage stat. The Codex draws
+  both seals on the page head, the page's seals with rule, gift, bar and Claim, a filled card's bar on to its seal II
+  mark, and Contents the seal to come; it opens at a page with a seal to claim. Tests: `rules_tests`' codex seals
+  (earned exactly on the kill, once, in order, saved and loaded, gifts through the stat rules), `balance_sim`'s
+  per-stat budgets and par Combat Power with every seal (+0.9% at Level 30, +0.6% at 99, +0.7% at 165; at most 3%).
+  Screenshots in `docs/ui_p5/records/` (`codex_seals_*`).
 
 ## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
 

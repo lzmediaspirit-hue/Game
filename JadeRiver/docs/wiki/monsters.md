@@ -65,7 +65,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `mossback_toad` ([art/creatures/mossback_toad.png](../../art/creatures/mossback_toad.png), 128 px cells)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Willow Path › Willow Path West: Lv 2–3, up to 3, respawn 12s
-- **Also appears**: Set pieces: Copper Body Trial (enemy)
+- **Also appears**: Account rules (collection seals) (enemy); Set pieces: Copper Body Trial (enemy)
 - **Level band**: Lv 2–3 in `enemies.json`
 - **Stats**: Lv 2: HP 64, Attack 10, Physical Defense 6, Accuracy 16; Lv 3: HP 85, Attack 12, Physical Defense 7, Accuracy 19
 - **Behaviour**: AI ranged_melee; aggro range 200; move speed 50; patrol 140; moves: drop, jump 430; tameable. Attacks: tongue_lash×0.9 (windup 0.4s)
@@ -118,6 +118,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `old_snapper` ([art/creatures/old_snapper.png](../../art/creatures/old_snapper.png), 192 px cells)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 5, item crab_shell)
+- **Also appears**: Account rules (collection seals) (enemy)
 - **Level band**: Lv 3 in `enemies.json`
 - **Stats**: Lv 3: HP 122, Attack 6, Physical Defense 11, Accuracy 19
 - **Behaviour**: AI snapper; aggro range 200; move speed 45; patrol 140; moves: drop; appears after {"count": 5, "item": "crab_shell"}. Attacks: claw_slam×1.4 (windup 0.6s, knockback 40). Phases: below 50% HP: action dig_in, duration 3, invulnerable True
@@ -198,7 +199,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Stonewall Quarry › Collapsed Tunnel: Lv 6–7, up to 2, respawn 12s
   - Jade River Valley › Stonewall Quarry › Collapsed Tunnel: Lv 7, up to 1, respawn 180s; elite
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 5–7, up to 4, respawn 12s
-- **Also appears**: Trial Tower foe, floor 3
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floor 3
 - **Level band**: Lv 5–7 in `enemies.json`
 - **Stats**: Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; as an elite at Lv 7: HP 1133, Attack 38, Physical Defense 21, Accuracy 31
 - **Behaviour**: AI burrower; aggro range 200; move speed 70; patrol 140; moves: drop; tameable. Attacks: burst_claw×1.2 (windup 0.6s)
@@ -274,7 +275,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
-- **Also appears**: Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
 - **Level band**: Lv 7–12 in `enemies.json`
 - **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
 - **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
@@ -336,7 +337,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `thornback_boar` ([art/creatures/thornback_boar.png](../../art/creatures/thornback_boar.png), 192 px cells)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Bamboo Grove › Thicket Heart: Lv 13–15, up to 1, respawn 180s
-- **Also appears**: Trial Tower foe, floor 6; guards the herb patch in Thicket Heart (Bamboo Grove)
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floor 6; guards the herb patch in Thicket Heart (Bamboo Grove)
 - **Level band**: Lv 13–15 in `enemies.json`
 - **Stats**: Lv 13: HP 2466, Attack 120, Physical Defense 52, Accuracy 49; Lv 15: HP 3012, Attack 150, Physical Defense 63, Accuracy 55
 - **Behaviour**: AI charger; aggro range 200; move speed 80; patrol 140; moves: drop; thorns 0.1. Attacks: thorn_charge×1.2 (windup 0.55s, knockback 60)
@@ -406,7 +407,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (2 room spawns):
   - Jade River Valley › Mudwater Hideout › Stockade: Lv 16–18, up to 3, respawn 12s
   - Jade River Valley › Mudwater Hideout › Tunnels: Lv 16–20, up to 3, respawn 12s
-- **Also appears**: Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); Defence (waves) (enemy); Trial Tower foe, floor 9
+- **Also appears**: Account rules (collection seals) (enemy); Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); Defence (waves) (enemy); Trial Tower foe, floor 9
 - **Level band**: Lv 16–20 in `enemies.json`
 - **Stats**: Lv 16: HP 552, Attack 112, Physical Defense 46, Accuracy 58; Lv 20: HP 948, Attack 144, Physical Defense 74, Accuracy 70
 - **Behaviour**: AI melee; aggro range 200; move speed 130; patrol 140; moves: drop, jump 430; pack; tameable; tame species mud_hound. Attacks: bite×1 (windup 0.35s)
@@ -615,7 +616,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Drowned Shrine › Scripture Well: Lv 23–26, up to 1, respawn 12s
   - Jade River Valley › Drowned Shrine › Scripture Well: Lv 23–26, up to 1, respawn 12s
   - Jade River Valley › Drowned Shrine › Scripture Well: Lv 23–26, up to 2, respawn 12s
-- **Also appears**: Trial Tower foe, floor 12; Trial Tower guardian, floor 10; summoned by [Drowned Abbot](#enemy-drowned_abbot)
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floor 12; Trial Tower guardian, floor 10; summoned by [Drowned Abbot](#enemy-drowned_abbot)
 - **Level band**: Lv 22–26 in `enemies.json`
 - **Stats**: Lv 22: HP 1208, Attack 174, Physical Defense 86, Accuracy 76; Lv 26: HP 1792, Attack 248, Physical Defense 114, Accuracy 88
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying; weak to fire; phases walls. Attacks: talisman_throw×1 (windup 0.5s, damage type soul)
@@ -654,7 +655,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `riverbed_serpent` ([art/creatures/riverbed_serpent.png](../../art/creatures/riverbed_serpent.png), 256 px cells, flying)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Deepwater Bend › Serpent's Shallows: Lv 25, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Lost arts: serpent_coil_thrust (enemy); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
+- **Also appears**: Account rules (collection seals) (enemy); Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Lost arts: serpent_coil_thrust (enemy); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
 - **Level band**: Lv 25 in `enemies.json`
 - **Stats**: Lv 25: HP 153600, Attack 568, Physical Defense 200, Accuracy 85
 - **Behaviour**: AI boss_serpent; aggro range 200; move speed 90; patrol 140; moves: fly; flying; respawn min 45. Attacks: bite×1.3 (windup 0.6s); tail_flood×1 (windup 1s). Phases: below 50% HP: action flood
@@ -766,7 +767,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `mist_vulture` ([art/creatures/mist_vulture.png](../../art/creatures/mist_vulture.png), 192 px cells, flying)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 34–36, up to 3, respawn 12s
-- **Also appears**: Set pieces: Jade Body Trial (enemy); Trial Tower foe, floors 16, 17; Trial Tower guardian, floor 15
+- **Also appears**: Account rules (collection seals) (enemy); Set pieces: Jade Body Trial (enemy); Trial Tower foe, floors 16, 17; Trial Tower guardian, floor 15
 - **Level band**: Lv 34–36 in `enemies.json`
 - **Stats**: Lv 34: HP 3962, Attack 522, Physical Defense 214, Accuracy 112; Lv 36: HP 4739, Attack 606, Physical Defense 240, Accuracy 118
 - **Behaviour**: AI flyer; aggro range 200; move speed 100; patrol 140; moves: fly; flying; tameable; tame species mist_vulture. Attacks: dive×1.2 (windup 0.6s)
@@ -848,7 +849,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `cliff_ape` ([art/creatures/cliff_ape.png](../../art/creatures/cliff_ape.png), 192 px cells)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Crane Cliffs › Sky Ledges: Lv 41–45, up to 4, respawn 12s
-- **Also appears**: Trial Tower foe, floors 20, 21, 22
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 20, 21, 22
 - **Level band**: Lv 41–45 in `enemies.json`
 - **Stats**: Lv 41: HP 8222, Attack 993, Physical Defense 360, Accuracy 133; Lv 45: HP 11249, Attack 1266, Physical Defense 438, Accuracy 145
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: smash×1.2 (windup 0.5s); boulder_throw×1.3 (windup 0.7s)
@@ -930,7 +931,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (2 room spawns):
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 50–55, up to 4, respawn 12s
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 55, up to 1, respawn 180s; elite
-- **Also appears**: Trial Tower foe, floors 25, 26
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 25, 26
 - **Level band**: Lv 50–55 in `enemies.json`
 - **Stats**: Lv 50: HP 18750, Attack 1983, Physical Defense 639, Accuracy 160; Lv 55: HP 28164, Attack 3039, Physical Defense 918, Accuracy 175; as an elite at Lv 55: HP 168984, Attack 4558, Physical Defense 1377, Accuracy 175
 - **Behaviour**: AI flyer; aggro range 200; move speed 50; patrol 140; moves: fly; flying. Attacks: flare×1 (windup 0.7s, damage type soul, status {"chance": 0.3, "duration_s": 2, "id": "confusion", "power": 1})
@@ -1013,7 +1014,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Summit Ridge › Frozen Shrine: Lv 58–63, up to 4, respawn 12s
   - Jade River Valley › Summit Ridge › Frozen Shrine: Lv 63, up to 1, respawn 180s; elite
   - Jade River Valley › Summit Ridge › Windswept Ridge: Lv 58–63, up to 3, respawn 12s
-- **Also appears**: Trial Tower foe, floors 28, 29; Trial Tower guardian, floor 30
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 28, 29; Trial Tower guardian, floor 30
 - **Level band**: Lv 58–63 in `enemies.json`
 - **Stats**: Lv 58: HP 32893, Attack 3561, Physical Defense 1041, Accuracy 184; Lv 63: HP 43810, Attack 4920, Physical Defense 1274, Accuracy 199; as an elite at Lv 63: HP 262860, Attack 7380, Physical Defense 1910, Accuracy 199
 - **Behaviour**: AI flyer; aggro range 200; move speed 110; patrol 140; moves: fly; flying. Attacks: wing_gust×1 (windup 0.7s, knockback 120)
@@ -1204,7 +1205,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `thousand_eye_toad` ([art/creatures/thousand_eye_toad.png](../../art/creatures/thousand_eye_toad.png), 256 px cells)
 - **Spawns** (1 room spawns):
   - Azure Expanse › Mirrorwater Lake › Toad's Hollow: Lv 68, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake); Lost arts: many_eyed_pool_air (enemy)
+- **Also appears**: Account rules (collection seals) (enemy); Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake); Lost arts: many_eyed_pool_air (enemy)
 - **Level band**: Lv 68 in `enemies.json`
 - **Stats**: Lv 68: HP 11153880, Attack 18272, Physical Defense 3345, Accuracy 214
 - **Behaviour**: AI boss_toad; aggro range 200; move speed 90; patrol 140; respawn min 45. Attacks: belly_slam×1.4 (windup 0.8s, knockback 140); tongue_lash×1.2 (windup 0.6s); mirror_gaze×0 (windup 1.2s, summon azure_carp_dragonet). Phases: below 50% HP: action summon
@@ -1821,7 +1822,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `nebula_leviathan` ([art/creatures/nebula_leviathan.png](../../art/creatures/nebula_leviathan.png), 256 px cells, flying)
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Nebula Deep › Leviathan's Maw: Lv 99, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Lost arts: maw_song (enemy)
+- **Also appears**: Account rules (collection seals) (enemy); Lost arts: maw_song (enemy)
 - **Level band**: Lv 99 in `enemies.json`
 - **Stats**: Lv 99: HP 121498500, Attack 105134, Physical Defense 14757, Accuracy 307
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: fly; flying; knockback immune; presence 5; sphere {"element": "space", "tier": 5}. Attacks: current_swallow×0.9 (windup 1.2s, damage type qi); void_breath×1.8 (windup 1.3s, damage type qi); gravity_crash×1.6 (windup 1s, status {"chance": 0.4, "duration_s": 1.0, "id": "stun", "power": 1.0}, knockback 140). Phases: below 60% HP: action summon, summon nebula_eel, summon level 97; below 30% HP: action enrage, cooldown 0.7, damage 1.3

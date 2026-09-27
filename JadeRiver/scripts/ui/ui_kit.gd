@@ -479,6 +479,13 @@ static func affix_text(a: Dictionary) -> String:
 	elif el != "": label = el + " " + label
 	return "%s%s %s" % ["-" if v < 0.0 else "+", mag, label]
 
+## A Codex page seal's gift in one line (decision 27): its stats, then a Bestiary Leaf and, when `named`, whose.
+static func seal_gift(rule: Dictionary, named := true) -> String:
+	var parts: Array = (rule.get("modifiers", []) as Array).map(func(m): return affix_text(m))
+	for e in rule.get("effects", []):
+		if str(e.get("kind", "")) == "add_leaf": parts.append(Tx.t("ui.codex.gift_leaf") % ContentDB.name_of("enemies", str(e.enemy)) if named else Tx.t("ui.codex.gift_leaf_plain"))
+	return " · ".join(parts)
+
 static func _stat_is_percent(stat: String) -> bool:
 	for s in ContentDB.stat_const("stats", []):
 		if str(s.get("id", "")) == stat: return str(s.get("format", "")) == "percent"

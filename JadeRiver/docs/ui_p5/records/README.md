@@ -17,7 +17,8 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path .
 
 | Picture | Checkpoint | Extra arguments | What it shows |
 |---|---|---|---|
-| `codex_collection_ls6_end.png` | ls6_end | `--open-page=codex:collection --tap=527,152 --tap=1000,226` | Contents, then Reed Marsh: the spread of mockup 18 (page 4 of 14, leaves 7 and 8, the corners to Stonewall Quarry and Bamboo Grove); four beasts drawn on squared paper, the Hollowed Boarlet's card filled and stamped 50; the page's seal |
+| `codex_collection_ls6_end.png` | ls6_end | `--open-page=codex:collection --tap=527,152 --tap=1000,226` | Contents, then Reed Marsh: the spread of mockup 18 (page 4 of 14, leaves 7 and 8, the corners to Stonewall Quarry and Bamboo Grove); four beasts drawn on squared paper, the Hollowed Boarlet's card filled and stamped 50; the page's two seals, each with its gift (decision 27) |
+| `codex_seals_claim_ls6_end.png`, `codex_seals_claimed_ls6_end.png` | ls6_end, Reed Marsh's four counts set to 500 in the copy (a stand-in for the hunting after the story; no valley_run reaches a full page) | `--open-page=codex:collection`, then `--tap=1128,542 --tap=1128,602` | Decision 27: the book opens at the page with a seal to claim, seal I glowing with Claim and seal II waiting on it; then both claimed through the intent, stamped, "Sealed", each gift listed |
 | `codex_contents_ls6_end.png` | ls6_end | `--open-page=codex:collection --tap=527,152` | Contents on the right page: the fourteen pages, cards filled and each page's seal; the book opens at the first page still being filled (Willow Path) |
 | `codex_collection_bf5.png` | bf5 | `--open-page=codex:collection` | Early: every beast a shadow with where it lives once you have been there, no card filled |
 | `codex_scrolls_ls6_end.png` | ls6_end | `--open-page=codex:old_scrolls` | The Old Scrolls as mockup 18_scrolls: eight rungs rubbed, the gloss with "you" by Sphere Lord and "? ? ?" for Law Touching, Void Refining ringed and its note pinned |
@@ -43,10 +44,11 @@ the neighbouring pages' names.
 
 Differences, each on purpose:
 
-1. **One page seal, not two.** The game seals a page when every card on it is filled (`collection_pages_done`) and
-   gives nothing for it; 18's second seal (every card at 500) and both seals' gifts (Hollow Ward +2, healing received
-   +1% and a Bestiary Leaf) were proposals the rules do not hold, so the build draws one seal, its count and its cards
-   filled, and a card's bar ends at its fill. The user may want the gifts and the second seal made rules.
+1. **The two seals are rules now (decision 27)**, drawn as 18 draws them with a Claim button: seal I every card at 50
+   (Reed Marsh's gift +2% Hollow Ward), seal II every card at 500 after seal I (+1% healing received and a Bestiary
+   Leaf; the toast on the claim names whose). The gifts are written as the game's other stat gifts are ("+2% hollow
+   ward"). A filled card's bar runs on to 500 with the fill a stop on it, and its stamp says 500 once there. Contents
+   shows each page's next seal.
 2. **The beasts in data order** (Reed Frog, Marsh Leech, Greyfin, Hollowed Boarlet) and four a spread; a page with more
    (the Azure Expanse has 16) runs over several spreads. The ls6_end save has met all four Reed Marsh beasts, so none
    is a shadow here (see `codex_collection_bf5.png` for shadows).

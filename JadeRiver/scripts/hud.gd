@@ -1270,6 +1270,11 @@ func _handle(name: String, p: Dictionary) -> void:
 			toast(Tx.plural("hud.activity_ready", int(p.points)) % int(p.points), "gold", Tx.t("hud.activity_ready_hint"))
 		"activity_chest_claimed":
 			add_log(Tx.plural("hud.activity_claimed", int(p.points)) % int(p.points), UiKit.PALE_GOLD)
+		"collection_seal_ready":   # decision 27
+			toast(Tx.t("hud.seal_ready") % [Tx.t("ui.codex.page_" + str(p.page)), Tx.t("ui.codex.seal_%d" % int(p.seal))], "gold", Tx.t("hud.seal_ready_hint"))
+		"collection_seal_claimed":
+			toast(Tx.t("hud.seal_claimed") % [Tx.t("ui.codex.page_" + str(p.page)), Tx.t("ui.codex.seal_%d" % int(p.seal))], "gold",
+				UiKit.seal_gift(ContentDB.collection_seal(str(p.page), int(p.seal))))
 		"ranking_changed":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("beaten", "")) != "":
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
