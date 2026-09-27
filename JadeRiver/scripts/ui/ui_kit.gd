@@ -142,6 +142,14 @@ const TEXT_ON := [
 	[&"PAPER_INK", ["surface:bridge", "surface:hemp", "surface:talisman"], 14],
 	[&"JADE_SHADOW", ["surface:bridge", "surface:hemp"], 14],
 	[&"BLOOD", ["surface:talisman"], 14],
+	# The Records family (Dialogue, Quests, Mail, Notice Board): ink on the paper strip, the mission slips, the envelopes,
+	# the open letter and the posters; the red heads and seals; the brick of the town wall.
+	[&"PAPER_INK", ["surface:scroll", "paper_slip", "envelope", "envelope:selected", "letter_sheet", "poster"], 14],
+	[&"BLOOD", ["surface:scroll", "paper_slip", "letter_sheet", "poster"], 14],
+	[&"JADE_SHADOW", ["surface:scroll", "paper_slip", "letter_sheet"], 14],
+	[&"PALE_GOLD", ["surface:lacquer"], 14],
+	[&"PAPER", ["surface:stone", "surface:lacquer"], 14],
+	[&"PALE_GOLD", ["surface:stone"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

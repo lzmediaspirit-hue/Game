@@ -335,6 +335,24 @@ func vshade(r: Rect2, top: Color, bottom: Color) -> void:
 func hshade(r: Rect2, left: Color, right: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([left, right, right, left]))
 
+var _way := {}   # the last route asked for: key -> regions it crosses (a route is walked once per choice)
+
+## How many regions the way to `room` crosses from where the character stands, by the portals open to it; 0 when there
+## is none (or it stands there). The Calendar's and the Quests' Go there walk it by the auto_path intent.
+func regions_away(ch, room: String) -> int:
+	if ch == null or room == "": return 0
+	var from := str(ch.position.get("room", ""))
+	var key := "%s|%s|%d" % [room, from, Game.account.visited_rooms.size()]
+	if not _way.has(key):
+		var regions := {}
+		for s in Game.world.route(ch, from, room): regions[str(ContentDB.room(str(s.to)).get("region", ""))] = true
+		_way = {key: regions.size()}
+	return int(_way[key])
+
+## Why Go there is shut for `room`: the character stands there, or no way leads there.
+func go_reason(ch, room: String) -> String:
+	return Tx.t("sim.world.auto_path_here") if ch != null and str(ch.position.get("room", "")) == room else Tx.t("sim.world.auto_path_none")
+
 func _lock_icon(p: Vector2, k := 1.0) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
 	draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)

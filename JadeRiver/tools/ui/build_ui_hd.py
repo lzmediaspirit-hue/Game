@@ -638,6 +638,81 @@ def tech_seal(g):
     return c
 
 
+# The Records family's paper (docs/page_identity.md §2, §5): the Quests' slips, the Mail's envelopes and letter, the
+# Notice Board's posters. `scroll` and its edge, PAPER and PAPER_INK are UiKit tokens; each face is lit from above and
+# its ornaments stay inside the corner squares (the edge check), so the torn tops and folds are drawn by the pages.
+SCROLL_T = hexc("#e8dcbc")                                  # SURFACE.scroll
+SCROLL_EDGE_T = hexc("#d9ccaa")                             # SURFACE.scroll_edge
+PAPER_T = hexc("#e8e1cf")                                   # PAPER
+PAPER_INK_T = hexc("#2b2118")                               # PAPER_INK
+PAPER_LIT = mix(SCROLL_T, PAPER_T, 0.5)                     # the paper where the light falls
+
+
+def paper_face(w, h, r, lit, shade, edge_alpha=0.55, shadow=2.0):
+    """A sheet of paper: a soft ink shadow under it, lit from above, a fine bronze edge and a darker rim inside it."""
+    c = Canvas(w, h)
+    y1 = h - shadow - 1.0
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, w - 1.0, y1, r)
+    if shadow > 0:
+        c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 1.0 + shadow, w - 1.0, y1 + shadow, r), 0), 2.5) * (d > 0) * 0.45, TOKEN["INK"])
+    c.paint(cov(d), c.vgrad([(0, lit), (0.7, SCROLL_T), (1, shade)], 1.0, y1))
+    c.paint(band(d, 0.0, 1.0), TOKEN["BRONZE"] * np.array([1, 1, 1, edge_alpha]))
+    c.paint(band(d, 1.0, 3.5), SCROLL_EDGE_T * np.array([1, 1, 1, 0.35]))
+    return c, d
+
+
+def paper_slip():
+    """A mission slip (the Quests board): paper whose top is torn off the pad (the page draws the teeth above it), lit
+    from above; the slips cast a shadow onto the board."""
+    c, _ = paper_face(48, 48, 1.5, PAPER_LIT, SCROLL_EDGE_T)
+    return c
+
+
+def envelope(state):
+    """A letter in its envelope (the Mail's stack): the flap's fold across the top, a darker pocket seam in each lower
+    corner; the chosen one's edge lit in pale gold."""
+    c, d = paper_face(48, 48, 2.0, PAPER_LIT, mix(SCROLL_T, SCROLL_EDGE_T, 0.8))
+    c.paint(cov(sd_rrect(c.X, c.Y, 1.0, 1.0, 47.0, 7.0, 1.0)) * cov(d), mix(SCROLL_EDGE_T, TOKEN["BRONZE"], 0.25) * np.array([1, 1, 1, 0.35]))
+    c.paint(cov(np.abs(c.Y - 7.5) - 0.4) * cov(d + 1.0), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.45]))
+    for x0, sx in ((1.0, 1.0), (47.0, -1.0)):
+        seam = np.abs((c.X - x0) * sx - (45.0 - c.Y)) / math.sqrt(2) - 0.35
+        c.paint(cov(seam) * (c.Y > 37.0) * cov(d + 1.0), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.3]))
+    if state == "selected":
+        c.paint(band(d, 0.0, 2.2), TOKEN["PALE_GOLD"])
+    return c
+
+
+def letter_sheet():
+    """The open letter (the Mail's desk): a larger sheet, the light pooled in its middle and the corners a little
+    darker, as unfolded paper lies; the page draws the two fold creases over it."""
+    c, d = paper_face(64, 64, 1.5, PAPER_LIT, SCROLL_EDGE_T, shadow=3.0)
+    for x, y in ((1.0, 1.0), (63.0, 1.0), (1.0, 60.0), (63.0, 60.0)):
+        c.paint(np.clip(1.0 - np.hypot(c.X - x, c.Y - y) / 14.0, 0, 1) ** 2 * cov(d), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.16]))
+    return c
+
+
+def poster():
+    """A wanted poster pasted on the town wall (the Notice Board): paper with paste stains in its corners, its top right
+    corner torn away and its lower left corner curling off the brick."""
+    c = Canvas(64, 64)
+    y1 = 61.0
+    # The torn top right corner: a ragged diagonal, all of it inside the corner square.
+    tear = (c.X - 51.0) - c.Y + 1.1 * np.sin(c.Y * 2.3) + 0.7 * np.sin(c.Y * 5.1 + 1.0)
+    d = np.maximum(sd_rrect(c.X, c.Y, 1.0, 1.0, 63.0, y1, 1.0), tear)
+    lifted = np.maximum(sd_rrect(c.X, c.Y, 2.0, 3.0, 63.0, y1 + 2.0, 1.0), tear + 2.0)
+    c.paint(soft(np.maximum(lifted, 0), 2.5) * (d > 0) * 0.4, TOKEN["INK"])
+    c.paint(cov(d), c.vgrad([(0, PAPER_LIT), (0.6, SCROLL_T), (1, mix(SCROLL_T, SCROLL_EDGE_T, 0.9))], 1.0, y1))
+    for x, y, r in ((8.0, 9.0, 7.0), (55.0, 53.0, 8.0), (10.0, 52.0, 5.0)):   # paste stains
+        c.paint(np.clip(1.0 - np.hypot(c.X - x, c.Y - y) / r, 0, 1) ** 1.5 * cov(d), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.18]))
+    c.paint(band(d, 0.0, 1.0), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.5]))
+    # The curl at the lower left: a lifted triangle, its underside darker.
+    curl = (c.X - 1.0) + (y1 - c.Y) - 12.0
+    under = cov(curl) * cov(d)
+    c.paint(under, mix(SCROLL_EDGE_T, TOKEN["BRONZE"], 0.35))
+    c.paint(cov(np.abs(curl) - 0.5) * cov(d), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.6]))
+    return c
+
+
 # The honours' motifs, one a stat family (character_page.gd MOTIF): each a gilt boss with its sign sunk in lacquer.
 MOTIFS = ("blade", "shield", "pearl", "cloud", "peak", "lotus", "coin", "cauldron", "star")
 
@@ -739,6 +814,12 @@ ASSETS.update({
     "carved_panel": ([22, 22, 22, 22], {"normal": lambda: carved_panel(), "frame": lambda: carved_panel(True)}),
     "tech_seal": ([0, 0, 0, 0], {g: (lambda g=g: tech_seal(g)) for g in ("wood", "fire", "earth", "metal", "water", "wind", "thunder", "soul",
                                                                         "formless", "space", "time", "lost", "secret")}),
+    # The Records family (P5): the Quests' slips, the Mail's envelopes (the chosen one lit) and open letter, the Notice
+    # Board's posters.
+    "paper_slip": ([8, 8, 8, 10], {"normal": lambda: paper_slip()}),
+    "envelope": ([10, 10, 10, 16], {"normal": lambda: envelope("normal"), "selected": lambda: envelope("selected")}),
+    "letter_sheet": ([18, 18, 18, 18], {"normal": lambda: letter_sheet()}),
+    "poster": ([16, 16, 16, 16], {"normal": lambda: poster()}),
 })
 
 
