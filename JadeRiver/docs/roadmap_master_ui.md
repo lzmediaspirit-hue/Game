@@ -362,4 +362,14 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
    - The icons across the whole game must look better. A style study goes to the user first (a before-and-after sheet
      of representative icons in the proposed style); once it is approved, every icon family is redrawn to it (P4b).
 
+7. **The icon style** (2026-09-27, P4b): **Style A, "HD pixel"**, from the study in `docs/mockups/icon_study/`. It uses 64
+   art px shown 1:1 on pages and 32 px HUD glyphs, with native 48 and 32 re-renders for the HUD rings. It has
+   seven-step material ramps, a selective outline, one light from the top-left with a rim on metal, glass and jade, and
+   grade shown by material and stepped glow. Page slots become 76 px so the icon shows 1:1 (I2). Every family is redrawn
+   through the study's pipeline, family by family, each sheet going to the user.
+8. **Equipment on the character** (2026-09-27, P5a): the Bag and Character pages show the character's full figure
+   wearing the equipped pieces, drawn from the real sprite layers, with the slots around it. A row of slots with no
+   figure is not enough.
+9. **The version** (2026-09-27): the game and the APK both show 1.2, from `project.godot` (B9).
+
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

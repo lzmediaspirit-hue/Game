@@ -33,6 +33,24 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### The code review (`docs/review-code.md`)
+- **Bugs fixed, each with a `fixes_suite` test that failed before:** the Relations and Calendar authorities now tick.
+  Buyback returns the stack as sold and charges only for what fits. Every item instance keeps its own uid across bags
+  and splits. A full bag beside loot is announced once, not every tick. Guild orders never take locked pieces and turn
+  over with the daily reset. A Wind Step charge is spent only by a dodge that happens. One answer to "the Dao you know
+  best" (`ProgressionRules.strongest_dao`) serves the Sphere, Dao Echo, the chess problems and the insight sites. The
+  fall cost moved from `world.gd` into Combat.
+- **Each authority writes only its own state; pages only submit intents (B19).** Two new intents, `mark_item_seen` and
+  `settle_works`, replace the pages' own writes. A `contract_tests` check fails if a page, the HUD or the shell writes
+  character or account state.
+- **Duplication removed:** one way to mint a uid and find a piece, one dodge cooldown, one defeat path, one in-game day,
+  one dotted config lookup, one node yield for gathering and harvest, one duration helper (`UiKit.span`), and the data
+  builders' requirement constructors and reach table written once. Dead code removed. `scripts/` and `tools/` are 210
+  lines shorter, and `data/` rebuilds byte-identical.
+- **Left, with reasons in the review:** whether an ally's blow breaks a monster's wind-up (the pet and companion tests
+  say it should; a design call), the three durations whose wording differs, and the two-column page layout (the
+  restyle rewrites those pages).
+
 ### P2 · The UI bug pass (B1–B25 of `docs/review-v12.md`)
 - **Broken, now working:** a Dao at tier 5 or 6 no longer throws a script error every frame, and each Dao row shows
   its own next target (B1). The guqin plays from the key-item pouch (B2). "Trial: <null>" is gone from great
