@@ -388,5 +388,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 13. **Stat scaling** (2026-09-27): research how 2D MMORPGs scale stats and gate main quests by level, compared with
     Jade River's curves. A high-level character should deal hundreds of thousands of damage
     (`docs/research/stat_scaling_research.md`).
+14. **Every page its own** (2026-09-27, P5): each page is a thing from the world with its own concept, material and
+    layout signature (the Codex a book, the map a painted landscape, and so on); no two pages share one. Only the
+    close button, primary buttons, text tokens, the type scale and 48 px targets stay shared. Catalogued in
+    `docs/page_identity.md`.
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
