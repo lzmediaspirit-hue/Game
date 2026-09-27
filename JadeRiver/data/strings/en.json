@@ -3690,6 +3690,7 @@
   "hud.use.stat.attunement_bonus": "Attunement",
   "hud.use.stat.insight_rate": "Insight rate",
   "hud.use.stat.accumulation_rate": "Cultivation rate",
-  "hud.use.stat.will": "Will"
+  "hud.use.stat.will": "Will",
+  "topdown.caption": "Top-down prototype · Phase 1 · placeholder body · no combat yet"
  }
 }

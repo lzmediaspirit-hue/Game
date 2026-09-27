@@ -128,8 +128,17 @@ func _main() -> void:
 	mockup_fixes_suite()
 	max_character_suite()
 	save_suite()
+	await topdown_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ redesign Phase 1: the top-down prototype
+## The height-grid room, the TopdownMotor's movement rules and the prototype room's view (tests/topdown_suite.gd).
+func topdown_suite() -> void:
+	var td = load("res://tests/topdown_suite.gd").new()
+	td.run_all(self)
+	await td.run_view(self, get_tree())
+	print("topdown measured: ", td.measured)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the

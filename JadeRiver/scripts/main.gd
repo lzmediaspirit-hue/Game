@@ -6,6 +6,9 @@ extends Control
 const World = preload("res://scripts/world.gd")
 const Hud = preload("res://scripts/hud.gd")
 const Backdrop = preload("res://scripts/backdrop.gd")
+const TopdownWorldScript = preload("res://scripts/topdown/topdown_world.gd")
+## The top-down prototype (redesign Phase 1) from the title screen plays on its own saves, never the player's.
+const PROTO_SAVES := "user://topdown_proto_saves/"
 
 const PAGES := {
 	"menu": "res://scripts/ui/pages/menu_page.gd",
@@ -85,6 +88,9 @@ var pages: Array = []
 var preview_mode := false
 var boot_report: Dictionary = {}
 var creator: Page
+var topdown := false            ## the world mounted is the top-down prototype room (redesign Phase 1)
+var proto_isolated := false     ## opened from the title screen on PROTO_SAVES; leaving it restores the player's saves
+var _proto_force_was := false
 
 # Creator access kept for the engine checks.
 var draft: Dictionary:
@@ -159,6 +165,8 @@ func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_game_event): GameEvents.event.disconnect(_on_game_event)
 
 func _handle_preview_args(user_args: Array) -> void:
+	# Redesign Phase 1: --topdown-proto opens the top-down prototype room (a preview character, the real HUD).
+	if "--topdown-proto" in user_args: enter_topdown_proto(false)
 	if "--preview-selection" in user_args: show_selection()
 	if "--preview-create" in user_args: show_creation(1)
 	var room := ""
@@ -669,6 +677,7 @@ func _on_title(action: String) -> void:
 			if Game.characters.is_empty(): show_creation(1)
 			else: show_selection()
 		"settings": open_page("settings", {})
+		"topdown_proto": enter_topdown_proto(true)
 		"quit": save_and_quit()
 
 func show_selection() -> void:
@@ -721,10 +730,14 @@ func enter_world(slot: int) -> void:
 func _mount_world() -> void:
 	_unmount_world()
 	Game.in_world = true
-	world = World.new()
-	world.room_mode = true
+	if topdown:
+		world = TopdownWorldScript.new()
+	else:
+		world = World.new()
+		world.room_mode = true
 	add_child(world)
-	backdrop.world = world
+	backdrop.world = null if topdown else world
+	backdrop.visible = not topdown
 	hud = Hud.new()
 	hud.player = world.player
 	hud.world = world
@@ -733,6 +746,10 @@ func _mount_world() -> void:
 	hud.dialogue_requested.connect(func(convo: Dictionary): open_page("dialogue", {"convo": convo}))
 	hud.fishing_requested.connect(func(obj: String): open_page("fishing", {"object": obj}))
 	hud_layer.add_child(hud)
+	if topdown:   # no moments in the prototype room (no side-view rig to play them on); the fan starts folded
+		hud.fan_open = false
+		hud.fan_rest_open = false
+		return
 	# P6 moments live only while the world is mounted: events raised while a save loads or offline gains settle never play.
 	moments = MomentView.new()
 	moments.world = world
@@ -757,7 +774,35 @@ func _unmount_world() -> void:
 	backdrop.world = null
 	Game.in_world = false
 
+## Redesign Phase 1: the top-down prototype room under the real HUD. From the title (`isolated`) it runs on its own
+## saves with a stand-in character, so the player's are never touched; --topdown-proto uses the preview saves.
+func enter_topdown_proto(isolated: bool) -> void:
+	if isolated:
+		Game.save_all()
+		Saves.use_folder(PROTO_SAVES)
+		Game.boot()
+		proto_isolated = true
+	_proto_force_was = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	if Game.character("c1") == null:
+		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}, "skip_prologue": true})
+	topdown = true
+	enter_world(1)
+
+func _leave_topdown_proto() -> void:
+	topdown = false
+	Unlocks.debug_force_all = _proto_force_was
+	if proto_isolated:
+		proto_isolated = false
+		Saves.use_folder("user://")
+		Game.boot()
+
 func return_to_selection() -> void:
+	if topdown:
+		if screen == "world": _unmount_world()
+		_leave_topdown_proto()
+		show_title()
+		return
 	if screen == "world":
 		Game.submit({"type": "app_paused"})
 		Game.save_all()

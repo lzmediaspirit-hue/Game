@@ -630,8 +630,13 @@ func release(id: int):
 	if info.get("role", "") == "guard" and bound() and guard_pressed:
 		guard_pressed = false
 		if guard_hold <= 0.18:
-			Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
+			_dodge()
 		Game.submit({"type": "guard_end"})
+
+## A tap of Dodge: the combat authority's dodge, or the top-down prototype's own dash (redesign Phase 1).
+func _dodge() -> void:
+	if player.has_method("dodge"): player.dodge()
+	else: Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
 
 ## Where each choice of the pet command wheel sits around the Pet button.
 func _wheel_pos(i: int) -> Vector2:
@@ -917,7 +922,7 @@ func _input(event):
 			if kc in [KEY_J, KEY_ENTER]: _attack_up()
 			if kc == KEY_K and guard_pressed:
 				guard_pressed = false
-				if guard_hold <= 0.18: Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
+				if guard_hold <= 0.18: _dodge()
 				Game.submit({"type": "guard_end"})
 
 # ------------------------------------------------------------------ events
@@ -1703,7 +1708,7 @@ func _draw():
 	_draw_player_panel(c)
 	_draw_party(c)
 	if shown("quest_tracker"): _draw_tracker(c)
-	if shown("minimap") and Game.account.settings.get("minimap", true): _draw_minimap(c)
+	if shown("minimap") and Game.account.settings.get("minimap", true) and (not is_instance_valid(world) or world.get("hud_minimap") != false): _draw_minimap(c)
 	_draw_icon_row(c)
 	# S49 auto-hunt: a small toggle, only in rooms where idle Hunt is allowed.
 	if _auto_hunt_shown(c):

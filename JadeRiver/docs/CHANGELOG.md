@@ -1,5 +1,25 @@
 # Changelog
 
+## Top-down redesign, Phase 1: a prototype room and the new controller
+
+- **A top-down room you can play beside the current game** (`docs/redesign_top_down_plan.md`, "As built: Phase 1").
+  Open it with `--topdown-proto`, or tap the title screen's version line five times. From the title it plays on its
+  own saves with a stand-in character. Riverside Square is a ¾ top-down room drawn at 640×360 and shown ×2 under the
+  unchanged HUD. It has a terrace and a paved square one level apart, stairs, a ledge to drop from, a house to walk
+  behind (a jade silhouette shows you through it), a low wall to jump onto, the river with a pier, a one-tile gap and a
+  three-tile gap, and props.
+- **The controller** (`TopdownMotor`): 8-way analog walking at 154 units/s, with a tiptoe band and 0.08 s / 0.06 s
+  acceleration and stop. The Jump button (decision 28) clears one level (apex 47, 0.47 s). Walking off any edge
+  falls. Coyote time is 0.10 s and the input buffer 0.12 s. A landing shows a squash pose, dust and a sound. A dash
+  covers 96 units, or is a back-step standing still; Jump during it makes a 4.5-tile long jump. Collision works per
+  height level with corner sliding. The blob shadow shrinks with height, and the camera follows the ground (not the
+  arc) on whole pixels. The joystick, Jump, Dodge and Attack buttons drive it.
+- **Original art** from `tools/art/build_topdown_proto.py`: 16-px tiles, cliff faces, stairs, water, props, and a
+  **placeholder** body in S/E/N (the layered set is Phase 5). The side-view game and its rooms are unchanged.
+- Tests: rules_tests `topdown_suite` (35 checks: movement, collision, jump, fall, height rules, depth-sort order and
+  pixel snapping in the real view); perf_tests `_topdown` (mounts in 149 ms, 6.8 ms a frame). Screenshots and frame
+  strips are in `docs/redesign/phase1/`.
+
 ## Starter gear: a weapon from the start
 
 - **The weapon slot is open from the start, and the first monsters drop weapons** (`docs/research/player_motivation.md`
