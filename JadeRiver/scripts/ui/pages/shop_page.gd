@@ -97,7 +97,7 @@ func _buyback(ch) -> void:
 	var bb: Array = Game.account.economy.get("buyback", [])
 	var r := Rect2(content.position, content.size)
 	panel(r)
-	if bb.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.shop.nothing_sold_today"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	if bb.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.shop.nothing_sold"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	list("bb", r.grow(-10), bb.size(), 70, func(i: int, rr: Rect2):
 		var e: Dictionary = bb[i]
 		var ent: Dictionary = e.get("entry", {})

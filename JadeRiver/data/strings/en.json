@@ -2481,7 +2481,7 @@
   "ui.shop.cannot_sell": "Cannot sell",
   "ui.shop.each": "%s each",
   "ui.shop.not_enough": "Not enough %s",
-  "ui.shop.nothing_sold_today": "Nothing sold today.",
+  "ui.shop.nothing_sold": "Nothing sold yet. Your last 20 sales wait here to be bought back.",
   "ui.shop.price_contribution": "contrib.",
   "ui.shop.price_sage_crystal": "crystals",
   "ui.shop.price_silver_tael": "taels",
