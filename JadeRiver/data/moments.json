@@ -2750,5 +2750,47 @@
   "total_up_px": 24,
   "total_plus_px": 2,
   "short_from": 10000
+ },
+ "technique_preview": {
+  "foe": "pebble_imp",
+  "foe_scale": 0.75,
+  "scale": 1.25,
+  "lead_s": 0.4,
+  "after_s": 0.9,
+  "pause_s": 0.8,
+  "battery_pause_s": 1.6,
+  "battery_fps": 30,
+  "foes": {
+   "strike": 1,
+   "thrust": 2,
+   "lunge": 2,
+   "blink": 1,
+   "pillar": 1,
+   "echo": 2,
+   "counter": 1,
+   "seal": 1,
+   "snare": 1,
+   "ward": 1,
+   "flurry": 3,
+   "volley": 3,
+   "rain": 3,
+   "sweep": 3,
+   "wave": 3,
+   "burst": 3,
+   "swarm": 3,
+   "chorus": 3,
+   "domain": 3,
+   "arc": 3,
+   "seeker": 3,
+   "return": 3,
+   "plunge": 3,
+   "release": 3
+  },
+  "plays": {
+   "ward": "ward",
+   "counter": "counter",
+   "snare": "bind",
+   "seal": "bind"
+  }
  }
 }
