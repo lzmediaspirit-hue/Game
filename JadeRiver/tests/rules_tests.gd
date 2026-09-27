@@ -381,6 +381,97 @@ func ui_style_suite() -> void:
 	var g: Dictionary = ContentDB.config("grades")
 	var bare: Array = (g.get("order", []) as Array).filter(func(k): return not (g.get("grade_colors", {}) as Dictionary).has(k))
 	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))
+	# Contrast (§1.4, decision 10): every text colour on every fill UiKit.TEXT_ON lists, measured on the HD kit's own art:
+	# the lightest texel (95th percentile) inside the fill's nine-slice centre, over INK. Inked words are measured on INK.
+	var fills := {}
+	var low: Array = []
+	var pairs := 0
+	var tokens: Dictionary = (load("res://scripts/ui/ui_kit.gd") as GDScript).get_script_constant_map()
+	var rows: Array = UiKit.TEXT_ON.duplicate()
+	var g2: Dictionary = ContentDB.config("grades")
+	for kind in ["grade_colors", "quality_colors"]:
+		for k in g2.get(kind, {}): rows.append([Color(str(g2[kind][k])), ["@page"], 14, "%s %s" % [kind, k]])
+	for row in rows:
+		var col: Color = row[0] if row[0] is Color else tokens[str(row[0])]
+		for f in row[1]:
+			for fill in (["major_window", "minor_panel", "slot", "toast", "currency_pill"] if f == "@page" else [f]):
+				var inked: bool = str(fill).ends_with("@ink")
+				var bg: Color = UiKit.INK if inked else _fill_light(str(fill), fills)
+				var need := 3.0 if int(row[2]) >= 20 else 4.5
+				var r := _contrast(col, bg)
+				pairs += 1
+				if r < need: low.append("%s on %s %.2f < %.1f" % [row[3] if row.size() > 3 else row[0], fill, r, need])
+	check(pairs > 80 and low.is_empty(), "P4: every text colour reads on every fill it is drawn on (%d pairs: %s)" % [pairs, str(low.slice(0, 6))])
+	# Words over the world: plates at PLATE's alpha keep MIST at 4.5:1 over a white sky, and the HUD log is outlined.
+	var over_white := Color(UiKit.PLATE.r * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.g * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.b * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a))
+	var hud_src := FileAccess.get_file_as_string("res://scripts/hud.gd")
+	var log_fn := hud_src.substr(hud_src.find("func _draw_log()"), 600)
+	check(_contrast(UiKit.MIST, over_white) >= 4.5 and log_fn.contains("UiKit.draw_outlined(") and not log_fn.contains("UiKit.draw_text("),
+		"P4: plates over the world keep MIST at 4.5:1 over white (%.2f), and the HUD log is outlined" % _contrast(UiKit.MIST, over_white))
+
+
+## WCAG 2 contrast of two opaque colours.
+func _contrast(a: Color, b: Color) -> float:
+	var la := _lum(a)
+	var lb := _lum(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+func _lum(c: Color) -> float:
+	var ch := func(v: float) -> float: return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4)
+	return 0.2126 * ch.call(c.r) + 0.7152 * ch.call(c.g) + 0.0722 * ch.call(c.b)
+
+## The lightest texel (95th percentile of luminance) a fill shows under text, composited over INK: the HD kit's art
+## inside its nine-slice centre (the title plaque, which has none, from a fifth to seven tenths of its height; the
+## minimap's header band for "minimap_frame:header"). A derived state (UiKit.DERIVED_TINT) is its normal art tinted
+## over the window's mean, as UiKit draws it. The same sampling as tools/dev/ui_style_audit.py.
+func _fill_light(spec: String, cache: Dictionary) -> Color:
+	spec = spec.trim_suffix("@ink")
+	if cache.has(spec): return cache[spec][0]
+	var asset := spec.get_slice(":", 0)
+	var state := spec.get_slice(":", 1) if spec.contains(":") else "normal"
+	var kit: Dictionary = ContentDB.config("ui_assets_hd")
+	var e: Dictionary = kit.get(asset, {})
+	var derived: bool = UiKit.DERIVED_TINT.has(state) and not e.has(state)
+	var img: Image = (load(str(e.get("normal" if derived or state == "header" else state, ""))) as Texture2D).get_image()
+	if img.is_compressed(): img.decompress()
+	var k := int(kit.get("scale", 3))
+	var m: Array = e.get("margins", [8, 8, 8, 8])
+	var w := img.get_width()
+	var h := img.get_height()
+	var x0 := int(m[0]) * k
+	var x1 := w - int(m[2]) * k
+	var y0 := int(m[1]) * k
+	var y1 := h - int(m[3]) * k
+	if state == "header":
+		x0 = 24 * k
+		x1 = w - 24 * k
+		y0 = 4 * k
+		y1 = 20 * k
+	if y1 <= y0:
+		y0 = int(h * 0.2)
+		y1 = int(h * 0.7)
+	if x1 <= x0:
+		x0 = w / 2 - 1
+		x1 = w / 2 + 1
+	var step := maxi(1, int(sqrt(float((x1 - x0) * (y1 - y0)) / 4000.0)))
+	var seen: Array = []
+	var total := Color(0, 0, 0)
+	for y in range(y0, y1, step):
+		for x in range(x0, x1, step):
+			var px := img.get_pixel(x, y)
+			var c := Color(UiKit.INK.r + (px.r - UiKit.INK.r) * px.a, UiKit.INK.g + (px.g - UiKit.INK.g) * px.a, UiKit.INK.b + (px.b - UiKit.INK.b) * px.a)
+			seen.append([_lum(c), c])
+			total += c
+	var mean := total / float(seen.size())
+	seen.sort_custom(func(p, q): return p[0] < q[0])
+	var light: Color = seen[int(seen.size() * 0.95)][1]
+	if derived:
+		var tint: Color = UiKit.DERIVED_TINT[state]
+		if not cache.has("major_window"): _fill_light("major_window", cache)
+		var win: Color = cache["major_window"][1]
+		light = Color(light.r * tint.r * tint.a + win.r * (1.0 - tint.a), light.g * tint.g * tint.a + win.g * (1.0 - tint.a), light.b * tint.b * tint.a + win.b * (1.0 - tint.a))
+	cache[spec] = [light, mean]
+	return light
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
@@ -5349,8 +5440,9 @@ func rooftop_routes_suite() -> void:
 	var contrib0 := int(c.training_sect.get("contribution", 0))
 	var slow := Game.world.finish_route(c, rt, 30.0)
 	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
-	var fast := Game.world.finish_route(c, rt, 10.0)
-	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 10.0)
+	# Under the rivals' fastest possible time (rival_s starts at 9.5), so first place whatever week the clock is in.
+	var fast := Game.world.finish_route(c, rt, 9.4)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 9.4)
 		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
 	var contrib1 := int(c.training_sect.get("contribution", 0))
 	Game.world.finish_route(c, rt, 9.0)

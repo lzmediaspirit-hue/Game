@@ -1540,7 +1540,7 @@ func _draw_tracker(c) -> void:
 		h += UiKit.line_height(17) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
 		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(15) * 0.88
 	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
-	draw_rect(panel, Color(UiKit.PLATE, 0.55))
+	draw_rect(panel, UiKit.PLATE)
 	draw_rect(Rect2(panel.position, Vector2(2, panel.size.y)), Color(UiKit.GOLD, 0.5))
 	for q in entries:
 		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else UiKit.SKY
@@ -1593,7 +1593,7 @@ func _draw_run_banner(c) -> void:
 	var text := "%s   %.1f s" % [label, secs]
 	var w := UiKit.text_width(text, 22) + 40
 	var r := Rect2(640 - w * 0.5, 14, w, 40)
-	draw_rect(r, Color(UiKit.PLATE, 0.7))
+	draw_rect(r, UiKit.PLATE)
 	draw_rect(r, Color(UiKit.GOLD, 0.7), false, 1.5)
 	UiKit.draw_text(self, text, r.position + Vector2(0, 28), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
@@ -1845,7 +1845,8 @@ func _draw_log() -> void:
 	for i in log_lines.size():
 		var l: Dictionary = log_lines[i]
 		var a = 1.0 if l.t < 5.0 else 6.0 - l.t
-		UiKit.draw_text(self, str(l.text), Vector2(x, y + i * 20 - (log_lines.size() - 1) * 20 + 80), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, 460)
+		# Words over the world are outlined (docs/ui_style_guide.md §1.4 rule 3): the log has no plate under it.
+		UiKit.draw_outlined(self, str(l.text), Vector2(x, y + i * 20 - (log_lines.size() - 1) * 20 + 80), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, 460)
 
 func _draw_banner() -> void:
 	if banner.text == "" or banner.t > 3.4 or not shown("room_banner"): return

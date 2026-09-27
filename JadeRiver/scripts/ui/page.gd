@@ -116,7 +116,7 @@ func _draw() -> void:
 	if title != "":
 		var plaque := Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
 		draw_style_box(UiKit.style("title_plaque"), plaque)
-		UiKit.draw_text(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true, true)
+		UiKit.draw_inked(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
 	var close_rect := Rect2(frame_rect.end.x - 70, frame_rect.position.y + 14, 52, 52)
 	_register(close_rect, "_close", null, true, "", "button")
 	draw_style_box(UiKit.style("close_button", "pressed" if _is_pressed("_close") else "normal"), close_rect)
@@ -173,7 +173,9 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 		# B21: words are never drawn under UiKit.MIN_SIZE, so the steps stop there and a label still too long is shortened.
 		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size -= 1
 		label = fit(label, size, room)
-	UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	# Decision 10 (option C): a primary label, in every state, carries a 2 px ink outline on the bright jade face.
+	if primary: UiKit.draw_inked(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	else: UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
@@ -209,6 +211,12 @@ var _prev_regions: Array = []
 func text(pos: Vector2, s: String, size := 20, col := UiKit.PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, display := false) -> void:
 	if width > 0.0: s = fit(s, size, width, display)
 	UiKit.draw_text(self, s, pos, size, col, align, width, true, display)
+	if text_log != null: _log_text(pos, s, size, align, width, display)
+
+## A title on the plaque (decision 10): the words with a 2 px ink outline (UiKit.draw_inked), shortened to `width`.
+func inked(pos: Vector2, s: String, size: int, col := UiKit.PALE_GOLD, align := HORIZONTAL_ALIGNMENT_CENTER, width := -1.0, display := true) -> void:
+	if width > 0.0: s = fit(s, size, width, display)
+	UiKit.draw_inked(self, s, pos, size, col, align, width, display)
 	if text_log != null: _log_text(pos, s, size, align, width, display)
 
 ## The ui_suite's record of the words a page drew, [{rect, s}]; null (off) in play.

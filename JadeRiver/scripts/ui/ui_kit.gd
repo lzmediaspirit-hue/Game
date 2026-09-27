@@ -56,6 +56,29 @@ const SURFACE := {
 	"ash": Color(0.5, 0.48, 0.44), "cinder": Color(0.12, 0.1, 0.1), "glow": Color(1.0, 0.85, 0.45), "soul_spark": Color(1.0, 0.95, 0.7),
 	"map_line": Color(0.85, 0.92, 0.9),
 }
+## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
+## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
+## fill "asset:state" is that state of the HD kit ("minor_panel:disabled" and "tab:disabled" are the derived dim, and
+## "minimap_frame:header" the band that holds the room name); a fill ending "@ink" carries words drawn with an ink
+## outline (draw_inked, draw_outlined), which are measured on INK. The ui_suite measures every pair on the kit's own
+## art: 4.5:1, or 3:1 where the colour is only drawn at 20 px and up. Grade and quality colours are measured on "@page".
+const TEXT_ON := [
+	[&"PAPER", ["@page", "tab", "button_secondary", "button_secondary:pressed", "minor_panel:disabled"], 14],
+	[&"MIST", ["@page"], 14],
+	[&"PALE_GOLD", ["@page", "tab:selected", "minimap_frame:header", "realm_badge"], 14],
+	[&"PALE_GOLD", ["button_primary@ink", "button_primary:pressed@ink", "title_plaque@ink"], 14],
+	[&"GOLD", ["@page"], 14],
+	[&"BRIGHT_JADE", ["@page"], 14],
+	[&"QI", ["@page"], 14],
+	[&"HOLLOW", ["@page", "tab:disabled", "minor_panel:disabled", "button_secondary:disabled"], 14],
+	[&"HOLLOW", ["button_primary:disabled@ink"], 14],
+	[&"RED_TEXT", ["@page"], 14],
+	[&"SOUL_TEXT", ["@page"], 14],
+	[&"WARNING", ["@page"], 14],
+	[&"SKY", ["@page"], 14],
+	[&"HUD_LABEL", ["minor_panel"], 14],
+	[&"PAPER_INK", ["dialogue_box"], 20],
+]
 
 static var _display: Font
 static var _text: Font
@@ -298,7 +321,7 @@ static var _plate: StyleBoxFlat
 static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: float, color := PAPER, sub_color := MIST, size := 16) -> Rect2:
 	if _plate == null:
 		_plate = StyleBoxFlat.new()
-		_plate.bg_color = Color(PLATE, 0.62)
+		_plate.bg_color = PLATE
 		_plate.set_corner_radius_all(7)
 		_plate.border_color = Color(GOLD, 0.22)
 		_plate.set_border_width_all(1)
@@ -310,7 +333,7 @@ static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: fl
 	var sub_px := float(size_for(sub, sub_size)) if sub != "" else 0.0
 	var h := name_px + (sub_px + 2 if sub != "" else 0.0)
 	var rect := Rect2(-w * 0.5 - 10, y - name_px * 0.95, w + 20, h + 8)
-	_plate.bg_color.a = 0.62 * color.a
+	_plate.bg_color.a = PLATE.a * color.a
 	ci.draw_style_box(_plate, rect)
 	draw_text(ci, name_text, Vector2(-w * 0.5 - 20, y), size, color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true, true)
 	if sub != "":

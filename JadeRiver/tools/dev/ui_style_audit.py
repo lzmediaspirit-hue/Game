@@ -53,33 +53,28 @@ set_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 BODY, LARGE = 4.5, 3.0
 GRID = 8
 
-# Colours drawn as text today that are not UiKit tokens (the hex literals of I5), with what they colour.
-LITERAL_TEXT = {
-    "HUD_LABEL": ("d5bd85", "hud.gd's own GOLD: the HP, QI and SL bar labels"),
-    "SIN": ("e07a7a", "sin, grudges, costs (relations, mercy, fates, cultivation, character pages; the HUD log)"),
-    "MERIT": ("e8c872", "merit (relations and mercy pages)"),
-    "WARNING": ("f0a040", "soft requirements, moderate risk (breakthrough and cultivation pages, UiKit.badge_color)"),
-    "HOLLOW_WARN": ("e0a860", "the Hollow share over its mark (cultivation page)"),
-    "SIDE_QUEST": ("8fc8ff", "side and guided quests in the HUD tracker"),
-    "ALLY": ("8fd3ff", "allies on the minimap and over the world"),
-    "DIALOGUE_INK": ("2b2118", "words on the dialogue paper"),
-}
+# Colours drawn as text that are not UiKit tokens (the hex literals of I5), with what they colour. Empty since the P4
+# apply step 1 made every one a token (RED_TEXT, WARNING, SKY, HUD_LABEL, PAPER_INK...); an old export measured with
+# --root still has them as literals, and the literals section lists them.
+LITERAL_TEXT: dict = {}
 
 # The fills any text colour is drawn on (pages, cards, rows, slots, toasts, pills): a text colour must pass on the
 # lightest of these. (`tooltip` is in the kit but drawn nowhere; the realm badge carries one label, below.)
 PAGE_FILLS = ["major_window", "minor_panel", "slot", "toast", "currency_pill"]
 
-# Fills that carry one label colour each, at the size it is drawn (px after UiKit.size_for; Cormorant is 1.2x).
+# Fills that carry one label colour each, at the size it is drawn (px after UiKit.size_for; Cormorant is 1.2x). A fill
+# ending "@ink" carries words drawn with the 2 px ink outline (UiKit.draw_inked, decision 10 option C): they are
+# measured on INK, and the face alone is printed beside them.
 LABEL_PAIRS = [
-    ("PALE_GOLD", "title_plaque", 41, "page title, Page._draw (layout 34)"),
-    ("PALE_GOLD", "title_plaque", 31, "dialogue speaker, dialogue_page.gd (layout 26)"),
+    ("PALE_GOLD", "title_plaque@ink", 41, "page title, Page._draw (layout 34), inked"),
+    ("PALE_GOLD", "title_plaque@ink", 31, "dialogue speaker, dialogue_page.gd (layout 26), inked"),
     ("PALE_GOLD", "tab:selected", 20, "selected tab, Page._draw_tabs"),
     ("PAPER", "tab", 20, "tab, Page._draw_tabs"),
     ("HOLLOW", "tab:disabled", 20, "locked tab, Page._draw_tabs (disabled)"),
-    ("PALE_GOLD", "button_primary", 22, "primary label, Page.btn (steps down to 14)"),
-    ("PALE_GOLD", "button_primary", 14, "primary label stepped down to MIN_SIZE"),
-    ("PALE_GOLD", "button_primary:pressed", 22, "primary label, pressed"),
-    ("HOLLOW", "button_primary:disabled", 22, "disabled primary label, Page.btn (disabled)"),
+    ("PALE_GOLD", "button_primary@ink", 22, "primary label, Page.btn (steps down to 14), inked"),
+    ("PALE_GOLD", "button_primary@ink", 14, "primary label stepped down to MIN_SIZE, inked"),
+    ("PALE_GOLD", "button_primary:pressed@ink", 22, "primary label, pressed, inked"),
+    ("HOLLOW", "button_primary:disabled@ink", 22, "disabled primary label, Page.btn (disabled), inked"),
     ("PAPER", "button_secondary", 22, "secondary label, Page.btn"),
     ("PAPER", "button_secondary", 14, "secondary label stepped down to MIN_SIZE"),
     ("PAPER", "button_secondary:pressed", 22, "secondary label, pressed"),
@@ -88,7 +83,7 @@ LABEL_PAIRS = [
     ("PALE_GOLD", "realm_badge", 38, "level on the Cultivation badge (layout 32, Cormorant)"),
     ("PALE_GOLD", "currency_pill", 18, "silver, Page.currency_pill and the HUD pill"),
     ("BRIGHT_JADE", "currency_pill", 18, "spirit stones, the HUD pill"),
-    ("DIALOGUE_INK", "dialogue_box", 20, "dialogue words, dialogue_page.gd"),
+    ("PAPER_INK", "dialogue_box", 20, "dialogue words, dialogue_page.gd"),
     ("HOLLOW", "minor_panel:disabled", 20, "a disabled row's text (disabled)"),
     ("PAPER", "minor_panel:disabled", 20, "a disabled row's name"),
 ]
@@ -153,6 +148,12 @@ def tokens() -> dict:
 def grades() -> dict:
     g = json.loads(read(os.path.join(ROOT, "data", "grades.json")))
     return {"grade": g.get("grade_colors", {}), "quality": g.get("quality_colors", {}), "order": g.get("order", [])}
+
+
+def ui_kit_plate() -> tuple:
+    """UiKit.PLATE as (r, g, b, a): the plate under words over the world."""
+    m = re.search(r"const PLATE := Color\(([0-9.]+), ([0-9.]+), ([0-9.]+), ([0-9.]+)\)", read(UI_KIT))
+    return tuple(float(v) for v in m.groups()) if m else (0.02, 0.06, 0.075, 0.55)
 
 
 def ui_kit_int(name: str) -> int:
@@ -256,14 +257,20 @@ def sec_contrast(tk, gr, fl):
     for n, f, px, where in LABEL_PAIRS:
         c = hex_rgb(cols[n])
         need = LARGE if px >= 20 else BODY
-        lo, mid = ratio(c, fl[f]["light"]), ratio(c, fl[f]["mean"])
+        face = f.replace("@ink", "")
+        if f.endswith("@ink"):
+            lo = mid = ratio(c, ink)
+            where += " (the face alone: %.2f)" % ratio(c, fl[face]["light"])
+        else:
+            lo, mid = ratio(c, fl[face]["light"]), ratio(c, fl[face]["mean"])
         res = "pass" if lo >= need else ("mean only" if mid >= need else "FAIL")
         print("| %s | %s | %d | %.2f | %.2f | %.1f | %s | %s |" % (n, f, px, lo, mid, need, res, where))
     # The guide proposes the 4.8:1 variant: a margin for anti-aliasing and the Small text size.
     print("\n### Text colours under 4.5:1 on the reference fill, and variants that pass (hue and saturation kept)\n")
     print("| Colour | Now | Ratio | 4.5:1 variant | Ratio | 4.8:1 variant (proposed) | Ratio |\n|---|---|---|---|---|---|---|")
     for n, h in cols.items():
-        if n in ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "DIALOGUE_INK"): continue   # fills, and ink for paper
+        if n in ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "PAPER_INK", "BAR_TROUGH"): continue   # fills, and ink for paper
+        if n in ("JADE", "BRONZE", "RED", "SOUL", "HP", "BLOOD", "HEART"): continue   # fills only (§1.4 rule 2)
         c = hex_rgb(h)
         r = ratio(c, ref)
         if r >= BODY: continue
@@ -271,7 +278,8 @@ def sec_contrast(tk, gr, fl):
         print("| %s | `#%s` | %.2f | `%s` | %.2f | `%s` | %.2f |" % (n, h, r, rgb_hex(v), ratio(v, ref), rgb_hex(v8), ratio(v8, ref)))
     # Translucent plates over the world: the HUD tracker (hud.gd _draw_tracker) and the nameplate (UiKit.draw_nameplate).
     print()
-    for name, rgba in (("tracker plate", (0.02, 0.06, 0.075, 0.55)), ("nameplate", (0.02, 0.06, 0.075, 0.62))):
+    plate = ui_kit_plate()
+    for name, rgba in (("tracker plate (PLATE)", plate), ("nameplate (PLATE)", plate)):
         plate = np.array(rgba[:3]) * 255
         for bgn, bg in (("white", (255, 255, 255)), ("mid grey", (128, 128, 128))):
             over = tuple(plate * rgba[3] + np.array(bg, float) * (1 - rgba[3]))
