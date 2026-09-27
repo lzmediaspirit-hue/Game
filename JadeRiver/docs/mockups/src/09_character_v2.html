@@ -1,0 +1,149 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>09 v2 Character, the portrait scroll</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 13. The page is a wall of the portrait hall (SURFACE.river_lacquer panelling with a
+     GOLD double rule) with the character's portrait hung on it as a mounted scroll: brocade (SURFACE.silk) round a
+     paper centre (scroll), rollers in wood_dark with GOLD caps. The eight worn slots are set into the brocade like
+     collectors' seals. In the build: portrait_scroll (HD nine-slice), the figure the live Avatar at 2.5. */
+  .wall { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 6px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0 49.5%, rgba(0,0,0,.18) 49.5% 50.5%, rgba(255,255,255,0) 50.5%) 0 0 / 96px 100%,
+                linear-gradient(180deg, #0f3036 0%, #0c2a2f 40%, #08201f 100%);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 6px #0a1e23, inset 0 0 0 7px #e5b84c, inset 0 0 0 11px #0a1e23, inset 0 0 0 12px #9a6a35, 0 10px 30px rgba(0,0,0,.55); }
+  .brocade { position: absolute; border-radius: 3px;
+    background: radial-gradient(circle at 50% 50%, rgba(232,225,207,.10) 0 2px, rgba(0,0,0,0) 3px) 0 0 / 16px 16px,
+                linear-gradient(90deg, #335f5a, #3b6b66 30%, #3b6b66 70%, #2f5853);
+    box-shadow: inset 0 0 0 2px #1f413e, inset 0 0 0 4px rgba(229,184,76,.55), 0 8px 16px rgba(0,0,0,.45); }
+  .paper { position: absolute; background: radial-gradient(ellipse at 50% 40%, #efe4c8, #e8dcbc 60%, #dccfae);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.6), inset 0 0 18px rgba(154,106,53,.25); overflow: hidden; }
+  .roller { position: absolute; height: 18px; border-radius: 9px; background: linear-gradient(180deg, #5a3620, #3b2416 55%, #24160c); box-shadow: 0 3px 0 rgba(0,0,0,.45); }
+  .roller::before, .roller::after { content: ""; position: absolute; top: -3px; width: 16px; height: 24px; border-radius: 5px; background: linear-gradient(180deg, #ffe6a1, #e5b84c 50%, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink); }
+  .roller::before { left: -14px; } .roller::after { right: -14px; }
+  .fig25 { transform-origin: 192px 254px; transform: scale(2.5); }
+  .seal-l { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 14px; color: var(--paper); text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .paper * { text-shadow: none !important; }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .silktab { position: absolute; height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 18px; font-size: 20px; color: var(--paper);
+    background: linear-gradient(180deg, #2f5853, #264a46); border-radius: 0 0 8px 8px; box-shadow: inset 0 0 0 2px #1f413e, 0 3px 0 rgba(0,0,0,.4); }
+  .silktab.on { background: linear-gradient(180deg, #4a857d, #3b6b66); box-shadow: inset 0 0 0 2px #1f413e, inset 0 -3px 0 #e5b84c, 0 3px 0 rgba(0,0,0,.4); }
+  .reg { position: absolute; font-size: 16px; }
+  .reg .row { display: grid; grid-template-columns: 1fr 64px; padding: 1px 0; line-height: 1.22; border-bottom: 1px solid rgba(154,106,53,.35); }
+  .reg .row > :first-child { color: var(--mist); } .reg .row > :last-child { color: var(--paper); text-align: right; }
+  .reg .head { font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--gold); border-bottom: 2px solid var(--bronze); padding-bottom: 2px; margin-bottom: 2px; }
+  .plq { position: absolute; height: 48px; padding: 4px 10px; border-radius: 4px; background: linear-gradient(180deg, #5e1d25, #541720 60%, #3f1118);
+    box-shadow: inset 0 0 0 1.5px #e5b84c, 0 2px 0 rgba(0,0,0,.45); }
+  .plq .n { font-weight: 700; font-size: 15px; color: var(--pale-gold); white-space: nowrap; line-height: 1.2; }
+  .plq .b { font-size: 14px; color: var(--paper); white-space: nowrap; line-height: 1.2; }
+  .pip { display: inline-block; width: 22px; height: 8px; border-radius: 4px; background: var(--gold); box-shadow: 0 0 0 1.5px var(--ink); margin-right: 3px; vertical-align: 2px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+<div class="wall"></div>
+
+<!-- ================= the portrait scroll ================= -->
+<svg class="abs" style="left:0;top:0" width="1280" height="720" viewBox="0 0 1280 720">
+  <path d="M 287 32 L 250 62 M 287 32 L 324 62" stroke="#c8343e" stroke-width="3" fill="none"/>
+  <circle cx="287" cy="32" r="5" fill="#9a6a35" stroke="#071015" stroke-width="2"/>
+</svg>
+<div class="roller" style="left:96px;top:58px;width:382px"></div>
+<div class="brocade" style="left:96px;top:66px;width:382px;height:592px"></div>
+<div class="roller" style="left:96px;top:652px;width:382px"></div>
+<!-- the page title on the scroll's silk label strip (the lettering is the shared inked title) -->
+<div class="abs center" style="left:187px;top:76px;width:200px;height:50px;border-radius:3px;background:linear-gradient(180deg,#e8dcbc,#d9ccaa);box-shadow:inset 0 0 0 1.5px #9a6a35, 0 2px 0 rgba(0,0,0,.35)">
+  <span class="t-title inked" style="font-size:36px">Character</span></div>
+<div class="paper" style="left:182px;top:136px;width:210px;height:474px">
+  <!-- an ink-wash hill and pine behind the figure, painted low -->
+  <svg width="210" height="474" viewBox="0 0 210 474" style="position:absolute;left:0;top:0">
+    <path d="M 0 380 C 40 330 70 320 110 350 C 140 330 170 300 210 330 L 210 474 L 0 474 Z" fill="rgba(21,81,79,.14)"/>
+    <path d="M 0 420 C 50 390 120 400 210 380 L 210 474 L 0 474 Z" fill="rgba(21,81,79,.12)"/>
+    <ellipse cx="96" cy="424" rx="70" ry="10" fill="rgba(43,33,24,.12)"/>
+  </svg>
+  <!-- the inscription and the name seal, upper right -->
+  <div class="abs" style="left:112px;top:14px;width:88px;text-align:right;color:var(--ink);font-family:var(--f-display);font-weight:700;font-size:24px;line-height:1.05">Tester</div>
+  <div class="abs" style="left:60px;top:44px;width:140px;text-align:right;color:#2b2118;font-size:14px;line-height:1.3">Sphere Lord <span class="t-fig">3</span><br>Level <span class="t-fig">98</span><br>of the Jade Sect<br>aged <span class="t-fig">16</span>, to live<br><span class="t-fig">5,000</span> years</div>
+  <div class="abs center" style="left:168px;top:142px;width:30px;height:30px;border-radius:3px;background:#b3202e;color:#ffe6a1;font-family:var(--f-display);font-weight:700;font-size:20px;box-shadow:inset 0 0 0 2px rgba(255,230,161,.6);transform:rotate(-4deg)">T</div>
+</div>
+<img class="k-fig fig25" style="left:262px;top:560px" src="../assets/fig_tester_ls6_idle.png">
+
+<!-- the worn slots set into the brocade, four a side, like collectors' seals -->
+<div class="abs" style="left:100px;top:148px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:138px;top:226px">Hat</div>
+<div class="abs" style="left:100px;top:262px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:138px;top:340px">Robe</div>
+<div class="abs" style="left:100px;top:376px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:138px;top:454px">Trousers</div>
+<div class="abs" style="left:100px;top:490px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:138px;top:568px">Boots</div>
+<div class="abs" style="left:398px;top:148px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="seal-l" style="left:436px;top:226px">Weapon</div>
+<div class="abs" style="left:398px;top:262px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="seal-l" style="left:436px;top:340px">Gourd</div>
+<div class="abs" style="left:398px;top:376px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="seal-l" style="left:436px;top:454px">Cape</div>
+<div class="abs" style="left:398px;top:490px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="seal-l" style="left:436px;top:568px">Talisman</div>
+<div class="abs flex" style="left:120px;top:604px;gap:10px">
+  <span class="t-xs c-paper" style="text-shadow:0 1px 0 rgba(0,0,0,.6)">Beside you</span>
+  <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_reed_otter.png" style="width:192px;height:192px;left:-78px;top:-106px"></span></span>
+  <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="width:192px;height:192px;left:-78px;top:-78px"></span></span>
+  <span class="k-party" style="position:relative;margin:0;left:0;top:0;width:36px;height:36px"><span class="k-party-art"><img src="../assets/fig_lan_yue_idle.png" style="width:192px;height:192px;left:-78px;top:-78px"></span></span>
+  <span class="t-xs c-paper" style="text-shadow:0 1px 0 rgba(0,0,0,.6)">and Elder Hu</span>
+</div>
+
+<div class="k-close abs" style="left:1146px;top:46px"></div>
+
+<!-- tabs: silk ribbons hung from the top rule -->
+<div class="silktab on" style="left:520px;top:44px">Overview</div>
+<div class="silktab" style="left:656px;top:44px">Aptitude</div>
+<div class="silktab" style="left:790px;top:44px">Attunement</div>
+<div class="silktab" style="left:942px;top:44px">Wardrobe</div>
+
+<!-- ================= the register ================= -->
+<div class="abs t-display" style="left:520px;top:108px">Tester</div>
+<div class="abs flex" style="left:520px;top:152px;gap:10px"><span class="k-realm-badge"><span class="t-sm c-pale">Sphere Lord <span class="t-fig">3</span></span></span><span class="t-md c-paper">Lv <span class="t-fig">98</span></span><span><span class="pip"></span><span class="pip"></span><span class="pip" style="background:var(--pale-gold)"></span></span></div>
+<div class="abs t-md c-paper" style="left:520px;top:186px">Jade Sect · Sect Master <span class="c-mist">·</span> <span class="c-jade"><span class="t-sym c-gold">◆</span> Fleet-Footed</span></div>
+<div class="abs" style="left:900px;top:106px;width:140px;text-align:right"><div class="t-xs c-mist">Combat Power</div><div class="t-fig c-pale" style="font-size:30px;line-height:1.1">8,240</div></div>
+<div class="k-btn2 abs" style="left:1052px;top:108px;width:136px;height:48px;font-size:18px">Relations</div>
+<div class="abs t-xs c-mist" style="left:1052px;top:160px;width:136px;text-align:center">Rising · Upright</div>
+<div class="abs t-sm c-paper nowrap" style="left:520px;top:216px"><span class="c-gold">Fisher's Child</span> <span class="c-mist">· raised among the river's boats: +3 Body, +2 Essence, leans to water</span></div>
+
+<div class="k-bar is-hp abs" style="left:520px;top:246px;width:668px;height:26px;--v:1"><div class="k-trough"><div class="k-fill"></div></div><div class="k-bar-text t-fig t-outline">HP 32,131 / 32,131</div></div>
+<div class="k-bar is-qi abs" style="left:520px;top:276px;width:668px;height:26px;--v:1"><div class="k-trough"><div class="k-fill"></div></div><div class="k-bar-text t-fig t-outline">Qi 13,313 / 13,313</div></div>
+<div class="k-bar is-soul abs" style="left:520px;top:306px;width:668px;height:26px;--v:1"><div class="k-trough"><div class="k-fill"></div></div><div class="k-bar-text t-fig t-outline">Soul 4,945 / 4,945</div></div>
+
+<div class="reg" style="left:520px;top:340px;width:324px">
+  <div class="head">Offence</div>
+  <div class="row"><span>Physical attack</span><span class="t-fig">2,047</span></div>
+  <div class="row"><span>Qi attack</span><span class="t-fig">3,138</span></div>
+  <div class="row"><span>Soul attack</span><span class="t-fig">5,018</span></div>
+  <div class="row"><span>Accuracy</span><span class="t-fig">395</span></div>
+  <div class="row"><span>Critical chance</span><span class="t-fig">17.4%</span></div>
+  <div class="row"><span>Critical damage</span><span class="t-fig">150%</span></div>
+  <div class="row"><span>Attack speed</span><span class="t-fig">+18%</span></div>
+</div>
+<div class="reg" style="left:864px;top:340px;width:324px">
+  <div class="head">Defence</div>
+  <div class="row"><span>Physical defence</span><span class="t-fig">456</span></div>
+  <div class="row"><span>Qi resistance</span><span class="t-fig">109</span></div>
+  <div class="row"><span>Soul defence</span><span class="t-fig">186</span></div>
+  <div class="row"><span>Evasion</span><span class="t-fig">110</span></div>
+  <div class="row"><span>Will</span><span class="t-fig">209</span></div>
+  <div class="row" style="grid-template-columns:1fr 110px"><span>Regen, HP · Qi</span><span class="t-fig">0.7% · 0.6%</span></div>
+  <div class="row"><span>Move speed</span><span class="t-fig">242</span></div>
+</div>
+
+<!-- the titles as a rack of small lacquer plaques -->
+<div class="abs t-subhead" style="left:520px;top:544px">Titles</div>
+<div class="abs t-xs c-mist" style="left:598px;top:552px">20 earned of 46 · tap one to wear it</div>
+<div class="plq" style="left:520px;top:582px;width:156px;box-shadow:inset 0 0 0 2px #ffe6a1, 0 0 10px 2px rgba(229,184,76,.45)"><div class="n">Fleet-Footed · worn</div><div class="b">+1% move speed</div></div>
+<div class="plq" style="left:684px;top:582px;width:156px"><div class="n">Steady Hands</div><div class="b">+1% craft control</div></div>
+<div class="plq" style="left:848px;top:582px;width:156px"><div class="n">Untouched</div><div class="b">+1% evasion</div></div>
+<div class="plq" style="left:1012px;top:582px;width:176px"><div class="n">Valley Champion</div><div class="b">+1% physical attack</div></div>
+<div class="plq" style="left:520px;top:636px;width:156px;height:36px;padding-top:7px"><div class="n">Beast Friend</div></div>
+<div class="plq" style="left:684px;top:636px;width:156px;height:36px;padding-top:7px"><div class="n">Sage-Born</div></div>
+<div class="plq" style="left:848px;top:636px;width:156px;height:36px;padding-top:7px"><div class="n">Alliance Envoy</div></div>
+<div class="k-btn2 abs" style="left:1012px;top:630px;width:176px;height:48px;font-size:18px">14 more ›</div>
+
+</div></body></html>
