@@ -390,6 +390,15 @@ func ui_style_suite() -> void:
 			for m in flt.search_all(ln):
 				if white.search(ln.substr(m.get_start())) == null: literals.append("%s:%d %s" % [path.get_file(), i + 1, m.get_string()])
 	check(literals.is_empty(), "P4: no page, the HUD or Page draws an off-token colour (%d: %s)" % [literals.size(), str(literals.slice(0, 6))])
+	# States (§6): the pressed art is only the finger's. A page draws "pressed" where the press is read (_is_pressed), or on
+	# the hot controls the furnace holds while a finger is down (`held`).
+	var pressed_else: Array = []
+	for path in sources:
+		var plines := FileAccess.get_file_as_string(path).split("\n")
+		for i in plines.size():
+			if plines[i].contains("\"pressed\"") and not plines[i].contains("_is_pressed(") and not plines[i].contains("if held") and not plines[i].contains("state == \"pressed\"") and path.get_file() != "hud.gd":
+				pressed_else.append("%s:%d" % [path.get_file(), i + 1])
+	check(pressed_else.is_empty(), "P4: no page draws the pressed state but under the finger (%s)" % str(pressed_else))
 	var g: Dictionary = ContentDB.config("grades")
 	var bare: Array = (g.get("order", []) as Array).filter(func(k): return not (g.get("grade_colors", {}) as Dictionary).has(k))
 	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))

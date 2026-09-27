@@ -262,9 +262,12 @@ func _draw_ranking(ch) -> void:
 		var o: Dictionary = table[i]
 		var me: bool = o.get("player", false)
 		var rr := Rect2(x, y, r.size.x - 56, 48)
-		panel(rr, "minor_panel", "selected" if me else "normal")
+		# P4 (§6): your row is a mark, not a selection: the normal panel, a gold ◆ and your name in pale gold.
+		panel(rr, "minor_panel")
 		text(Vector2(cols[0], y + 32), "%d" % (i + 1), 22, UiKit.GOLD if i < 3 else UiKit.PAPER)
-		text(Vector2(cols[1], y + 22), fit(str(o.name), 20, cols[2] - cols[1] - 20), 20, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
+		var nx: float = cols[1] + (22.0 if me else 0.0)
+		if me: text(Vector2(cols[1], y + 22), "◆", 18, UiKit.GOLD)
+		text(Vector2(nx, y + 22), fit(str(o.name), 20, cols[2] - nx - 20), 20, UiKit.PALE_GOLD if me else UiKit.PAPER)
 		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 14, cols[2] - cols[1] - 20), 14, UiKit.MIST)
 		text(Vector2(cols[2], y + 31), "%d" % int(o.level), 18, UiKit.PAPER)
 		text(Vector2(cols[3], y + 31), UiKit.fmt(int(o.cp)), 18, UiKit.PAPER)

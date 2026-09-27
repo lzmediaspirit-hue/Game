@@ -135,12 +135,13 @@ func _body(ch) -> void:
 		var t: Dictionary = tiers[i]
 		var cr := Rect2(x + i * (cw + gap), y, cw, r.end.y - y - 20)
 		var reached := i < here
-		panel(cr, "minor_panel", "selected" if i == here else ("normal" if reached else "disabled"))
+		# P4 (§6): the rung you climb now is a mark, not a selection: the normal panel, its name in pale gold and a gold ◆.
+		panel(cr, "minor_panel", "normal" if reached or i == here else "disabled")
 		var cx := cr.position.x + 16
 		var cy := cr.position.y + 36
 		text(Vector2(cx, cy), str(t.get("name", "")), 22, UiKit.PALE_GOLD if reached or i == here else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 110, true)
 		if reached: text(Vector2(cr.end.x - 106, cy - 2), Tx.t("ui.cultivation.reached"), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 90)
-		elif i == here: text(Vector2(cr.end.x - 106, cy - 2), Tx.t("ui.cultivation.next_rung"), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 90)
+		elif i == here: text(Vector2(cr.end.x - 106, cy - 2), "◆ " + Tx.t("ui.cultivation.next_rung"), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 90)
 		cy += 22
 		var checks := [[Tx.t("ui.cultivation.body_need_level") % int(t.need), cu.body_level >= int(t.need)],
 			[Tx.t("ui.cultivation.body_need_trial"), str(t.id) in cu.body_trials],

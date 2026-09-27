@@ -31,7 +31,8 @@ func draw_page() -> void:
 				for step in 11:
 					var r := Rect2(x + 220 + step * 56, y + 2, 48, 48)
 					var on := step <= int(round(v * 10))
-					draw_style_box(UiKit.style("slot", "pressed" if on else "normal"), r)
+					# P4 (§6): a step that is on wears the selected art; pressed is only ever the finger.
+					draw_style_box(UiKit.style("slot", "selected" if on else ("pressed" if _is_pressed("vol", [s[0], step / 10.0]) else "normal")), r)
 					if on: draw_rect(r.grow(-8), UiKit.JADE)
 					region(r, "vol", [s[0], step / 10.0])
 				y += 64
@@ -87,8 +88,9 @@ func _toggle(p: Vector2, key: String, label: String) -> void:
 	var on := _is_on(key)
 	text(p + Vector2(0, 32), label, 22)
 	var r := Rect2(p.x + 360, p.y + 4, 110, 48)
-	draw_style_box(UiKit.style("button_secondary", "pressed" if on else "normal"), r)
-	text(r.position + Vector2(0, 30), Tx.t("ui.settings.on") if on else Tx.t("ui.settings.off"), 20, UiKit.PALE_GOLD if on else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	# P4 (§6): on is its own state, the selected art; Off is secondary words, not the disabled grey.
+	draw_style_box(UiKit.style("button_secondary", "selected" if on else ("pressed" if _is_pressed("toggle", key) else "normal")), r)
+	text(r.position + Vector2(0, 31), Tx.t("ui.settings.on") if on else Tx.t("ui.settings.off"), 20, UiKit.PALE_GOLD if on else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	region(r, "toggle", key)
 
 func on_action(id: String, data) -> void:
