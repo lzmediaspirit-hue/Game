@@ -709,6 +709,10 @@ def account_rules():
                        "effects": [{"kind": "grant_item", "item": "river_token", "count": 1}, {"kind": "grant_item", "item": "plain_straw_hat", "count": 1},
                                    {"kind": "grant_item", "item": "herbal_tea", "count": 5}]},
         "skip_prologue_allowed": True,
+        # Missed days bank (player_motivation.md item 6, P4): a day away keeps its sect missions on the board and adds
+        # its catch-up to the activity chests, up to `days` days; nothing is lost. The board lists `missions_per_day` a
+        # day; a banked day's catch-up doubles activity points until `activity_per_day` extra points are spent.
+        "bank": {"days": 3, "missions_per_day": 5, "activity_per_day": 40},
         "collection_seals": collection_seals(),
         "name_max": 24,
         "creator": {"hair": ["short_knot", "topknot", "ponytail", "high_pony", "long_tied", "flowing"], "hair_color": 6,

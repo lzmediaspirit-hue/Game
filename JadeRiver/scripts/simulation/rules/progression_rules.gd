@@ -27,6 +27,11 @@ static func realm_index_for_level(lv: int) -> int:
 static func at_least(key: String, target: String) -> bool:
 	return ContentDB.realm_position(key) >= ContentDB.realm_position(target)
 
+## Gentle early failure (player_motivation.md P12): below stats.json death.grace_below (Bone Forging 5) a fall costs
+## no progress and leaves no injury or heart demon; the revival page says so, in full the first time.
+static func death_grace(key: String) -> bool:
+	return not at_least(key, str(ContentDB.stat_const("death.grace_below", "bone_forging_5")))
+
 ## Body stages (Mortal to Bone Forging 6) grow mainly by training; meditation gives ×0.3.
 static func is_body_stage(key: String) -> bool:
 	return ContentDB.realm_position(key) <= ContentDB.realm_position(str(ContentDB.curve("body_stage_until", "bone_forging_6")))

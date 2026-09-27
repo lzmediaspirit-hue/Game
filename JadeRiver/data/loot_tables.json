@@ -34,7 +34,26 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ]
   },
   {
    "id": "reedtail_rat",
@@ -61,7 +80,26 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ]
   },
   {
    "id": "old_snapper",
@@ -170,7 +208,26 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ]
   },
   {
    "id": "mossback_toad",
@@ -205,7 +262,26 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ]
   },
   {
    "id": "rock_beetle",

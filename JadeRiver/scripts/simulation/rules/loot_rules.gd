@@ -36,7 +36,7 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 			if not p.is_empty(): out.items.append({"item": p.item, "count": rng.randi_range(int(p.count[0]), int(p.count[1]))})
 	for r in table.get("rare", []):
 		if rng.randf() < float(r.get("chance", 0.0)) * dr:
-			out.items.append({"item": r.item, "count": rng.randi_range(int(r.count[0]), int(r.count[1]))})
+			out.items.append({"item": r.item, "count": rng.randi_range(int(r.count[0]), int(r.count[1])), "find": bool(r.get("find", false))})
 	# P13a lost manuals (technique_plan §5.3, §5.6): rolled on every kill like a named row, never raised by drop rate,
 	# and never handed out here: ProgressionAuthority.lost_drops keeps one only while its art is still lost (with pity).
 	for r in table.get("lost", []):

@@ -1,5 +1,32 @@
 # Changelog
 
+## Chores after power, early surprises, a gentle first fall
+
+Items 6, 7 and 9 of `docs/research/player_motivation.md`.
+
+- **Dailies, idle tasks and posts open at Qi Kindling 1, optional, and a missed day banks.** The sect board, the
+  contribution shop, field-boss timers, the activity chests (new unlock `activity_chests`), idle tasks, offline
+  seclusion, Keeping Post and insect netting opened at Bone Forging 5–7, before the first technique. They now open at
+  Qi Kindling 1, each unlock row marked `obligation`. Earning Your Keep is a side errand that asks for any one mission;
+  A Second Path completes with an idle task *or* one seclusion; Keeping Post is kept by the same character, which burns
+  Fisher Wen's incense stick at its own post (or puts the game away), so no quest asks for a second character, and the
+  Keep Post button no longer needs one. The First Current no longer asks for seclusion. Missed days bank
+  (`account_rules.bank`): the board keeps unfinished missions and adds each missed day's, up to three days' worth
+  (`QuestState.board_day`); a filled, unopened activity chest waits, and each day away doubles the next activity points
+  up to three days' worth. `data_validation` checks P3, P4 and P5 (no chore before Qi Kindling 1; no main or guided
+  quest asks for a daily mission or a second character; no main-story step, requirement or unlock waits on a chore);
+  `rules_tests` plays the bank; `tutorial_order` holds that no chore is open or offered at any step of the walk, and
+  `valley_run` takes the lessons at Qi Kindling 1.
+- **Early surprises, each with a moment.** The first walk onto the Willow Path after the River Token turns up the
+  Remnant Soul in a Ring (`fortune_deck` `first`: sure, meter or not; the three-hour meter paces every card after it).
+  As The Willow Path is done a Spirit Fruit ripens on Willow Path West, once per character: its guardian alone at the
+  room's Level, then the fruit (`CalendarAuthority.open_first_fruit`). The first monsters (crab, rat, boarlet, toad)
+  have rare rows, a pearl and a manual page, marked `find`, which play the rare-find moment. Common foes of the Reed
+  Shallows and Willow Path West come as elites one spawn in twenty-five (`elite_chance`, their own `elites` stream).
+  New moments: `fortune_card`, `first_fruit` and `elite_appears`.
+- **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,
+  no injury or heart demon, and you wake whole. The revival page explains it in full on the first fall, then in a line.
+
 ## Slain foes stay slain
 
 - **Monsters no longer all come back the moment you re-enter a room.** Room load rebuilt every spawn point from the

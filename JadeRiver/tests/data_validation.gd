@@ -33,6 +33,7 @@ func _main() -> void:
 	movement_suite()
 	auto_path_suite()
 	quest_guidance_suite()
+	chores_after_power_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -1591,3 +1592,71 @@ func _walks_to(c, room: String) -> bool:
 	var hidden: Array = WorldRules.rooms_with("hidden_to=" + room)
 	if open.call(room) or WorldRules.rooms_with("to=" + room).is_empty() and hidden.is_empty(): return true
 	return Unlocks.is_unlocked(c.id, "hidden_portals") and hidden.any(func(h): return open.call(str(h)))
+
+# ------------------------------------------------------------------ chores after power (player_motivation.md item 6)
+## docs/research/player_motivation.md §4, P3, P4 and P5: every unlock marked `obligation` (the sect board, the activity
+## chests, idle tasks, seclusion, posts and what hangs on them) waits for Qi Kindling 1, after the first technique, the
+## first weapon and Bone Forging 4. No main or guided quest asks for a daily mission or a second character, and no step
+## of the main story waits on a daily or idle system: not its objectives, its requirements or the unlock that offers it.
+const CHORE_GATE := "qi_kindling_1"
+const CHORES := ["daily_missions", "contribution_shop", "field_boss_timers", "activity_chests", "idle_tasks", "seclusion", "keeping_post",
+	"insect_netting", "beast_snaring", "ancestral_rites", "apprentice_bench", "pouch_sewing"]
+const CHORE_STEPS := {"enter_seclusion": true, "claim_offline": true, "settle_post": true, "use_system:daily_mission_done": true,
+	"use_system:second_path": true, "use_system:post": true, "use_system:snare": true, "use_system:snare_catch": true,
+	"use_system:rites": true, "use_system:bench": true, "use_system:sew_pouch": true}
+const SECOND_CHARACTER := ["second character", "second disciple", "someone else", "another character", "play another"]
+
+func chores_after_power_suite() -> void:
+	var chores := {}          # unlock id -> true
+	var chore_quests := {}    # the quests that open a chore
+	for u in ContentDB.all("unlocks"):
+		if not u.get("obligation", false): continue
+		chores[str(u.id)] = true
+		if str(u.get("quest", "")) != "": chore_quests[str(u.quest)] = true
+		var at := _req_floor(u.get("trigger", {}))
+		check(ProgressionRules.at_least(at, CHORE_GATE), "P3: the chore %s opens at %s or later (%s)" % [u.id, CHORE_GATE, at])
+	for want in CHORES: check(chores.has(want), "P3: %s is marked a chore (obligation)" % want)
+	# Power first: the first technique, the first weapon and Bone Forging 4 come no later than any chore.
+	for power in ["technique_slots_2", "weapons"]:
+		var p_at := _req_floor(ContentDB.entry("unlocks", power).get("trigger", {}))
+		check(ProgressionRules.at_least(CHORE_GATE, p_at), "P3: %s (%s) opens no later than the chores (%s)" % [power, p_at, CHORE_GATE])
+	check(ProgressionRules.at_least(CHORE_GATE, "bone_forging_4"), "P3: the chores wait past Bone Forging 4")
+	# The main story: none of its steps is a chore, and none of it waits on one.
+	var offered_by := {}   # quest -> the unlock rows that offer it
+	for u in ContentDB.all("unlocks"):
+		if str(u.get("quest", "")) != "": offered_by[str(u.quest)] = offered_by.get(str(u.quest), []) + [u]
+	for q in ContentDB.all("quests"):
+		var kind := str(q.get("kind", ""))
+		if not kind in ["prologue", "main", "guided"]: continue
+		for o in q.get("objectives", []):
+			var step := str(o.kind) + (":" + str(o.get("system", "")) if str(o.kind) == "use_system" else "")
+			var text := str(o.get("text", "")).to_lower()
+			check(not SECOND_CHARACTER.any(func(w): return text.contains(w)), "P5: %s never asks for a second character (\"%s\")" % [q.id, o.get("text", "")])
+			if step == "use_system:daily_mission_done": check(false, "P4: %s (%s) asks for no daily mission" % [q.id, kind])
+			if step == "use_system:second_path" and not chore_quests.has(str(q.id)): check(false, "P5: only the idle lesson counts an idle task (%s)" % q.id)
+			if kind in ["prologue", "main"]: check(not CHORE_STEPS.has(step), "item 6: the main story's %s has no chore step (%s)" % [q.id, step])
+		if not kind in ["prologue", "main"]: continue
+		var reqs: Array = [q.get("requires", {})]
+		for u in offered_by.get(str(q.id), []): reqs.append(u.get("trigger", {}))
+		for r in reqs:
+			var blocked := _req_names(r).filter(func(n): return chores.has(str(n)) or chore_quests.has(str(n)))
+			check(blocked.is_empty(), "item 6: the main story's %s waits on no daily or idle system (%s)" % [q.id, str(blocked)])
+
+## The highest realm a requirement asks for, character or account ("mortal" when none).
+func _req_floor(req: Dictionary) -> String:
+	var best := "mortal"
+	for cond in req.get("all", []) + req.get("any", []):
+		var r := ""
+		if cond.has("all") or cond.has("any"): r = _req_floor(cond)
+		elif str(cond.get("kind", "")) in ["realm_at_least", "account_realm"]: r = str(cond.realm)
+		if r != "" and ContentDB.realm_position(r) > ContentDB.realm_position(best): best = r
+	return best
+
+## Every unlock and quest a requirement names, nested groups included.
+func _req_names(req: Dictionary) -> Array:
+	var out: Array = []
+	for cond in req.get("all", []) + req.get("any", []):
+		if cond.has("all") or cond.has("any"): out.append_array(_req_names(cond))
+		elif str(cond.get("kind", "")) == "unlock": out.append(str(cond.system))
+		elif str(cond.get("kind", "")) in ["quest_done", "quest_active", "quest_accepted"]: out.append(str(cond.quest))
+	return out

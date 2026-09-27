@@ -26,6 +26,7 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 7 | The Hollow Night (auto) | Lotus Ferry at Night | | three villagers to the hut, hold out 60 s | The River Token |
 | 8 | The River Token (auto) | Lu's Boat (Lu) | Cultivate button, progress bar, realm badge, Cultivation page, Codex, Breakthrough | meditate, look inward, Bone Forging 1, the token from Lu | The Willow Path: ➤ Willow Path West |
 | 9 | The Willow Path (auto, once Lu has handed you the token) | Willow Path West; the West Gate opens | World map, Mail, Foundation page; body training, progress from fights, shrines remember you | the stump, five Wild Boarlets | Next: The Recruitment Fair · Talk to Qing Lan (Fairground) |
+| 9+ | (early surprises) | Willow Path East on the way in; Willow Path West as The Willow Path is done | a fortune card, the Remnant Soul in a Ring (sure the first time, meter or not, with its moment); a Spirit Fruit tree ripens, announced with its moment | reach for the fruit: its guardian alone, at the room's Level; the fruit is yours once. The first fields' foes sometimes come as elites, and the first monsters can drop a pearl or a manual page (a rare find) | (as before it) |
 | 10 | The Recruitment Fair | Stoneford Fairground (Qing Lan, Mo Yun) | Sect page, Town services | both recruiters, choose a sect: the character is recorded as its member (rank, token, method) | Entry Trial: ➤ Hunt at Willow Path West · Reach Bone Forging 2 |
 | 11 | Entry Trial (auto, the moment a sect is chosen) | Willow Path to Bone Forging 2, then the Fairground's trial ground | at Bone Forging 2: Character page, notice board, return charm | the hunt to Bone Forging 2, the trial bell, the Trial Puppet | Next: A Disciple's Chores · Talk to the steward (Gate Street) |
 | 12 | A Disciple's Chores | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | sweep three spots | Next: Fish-Gutting Fists · Talk to Shen Lian (Fairground) |
@@ -35,6 +36,25 @@ direction mark on the minimap and the tracker's go button lead to it.
 Past the table the story goes on the same way: between main quests the Next entry names the giver and where they
 stand, or the Level a chapter waits on ("Reach Level 21 (Qi Unfurling 3)", "➤ Hunt at Bend Shore") and a hunting
 ground whose foes suit the character's Level (the fields P12's gap names on the Quests page).
+
+**The chores come after the power** (`docs/research/player_motivation.md` item 6). Nothing daily, idle or kept at a
+post opens before Qi Kindling 1, and each is optional when it does. Every such unlock row carries `obligation`, and
+`data_validation` checks that each opens at Qi Kindling 1 or later:
+
+| Realm | Lesson (giver) | What it opens | What it asks |
+|---|---|---|---|
+| Qi Kindling 1 | A Second Path (a letter, guided) | idle tasks (Characters page), offline seclusion | set an idle task, *or* enter seclusion once; never a second character |
+| Qi Kindling 1 | Earning Your Keep (the deacon, a side errand) | the sect board, the contribution shop, field-boss timers, the activity chests | any one mission, whenever |
+| Qi Kindling 1 | Keeping Post (Fisher Wen, guided) | posts and the Roll-Call | keep post at a node, then burn the incense stick Wen gives at it (or put the game away and come back) |
+| Qi Kindling 1 | Little Dou's Glowflies (side) | insect netting | five glowflies |
+
+The Bone Forging lessons that used to hold them keep only their own steps: The First Current (Bone Forging 7) asks for
+the Qi spring and no longer for seclusion. **A missed day banks** (`account_rules.bank`): the sect board keeps a day's
+unfinished missions and adds each missed day's, up to three days' worth, and an activity chest filled and not opened
+waits, while each day away doubles the next activity points up to three days' worth. Nothing resets, expires or breaks.
+
+**A fall costs nothing before Bone Forging 5** (`stats.json` `death.grace_below`): no progress, no injury, no heart
+demon, and you wake whole at the shrine. The revival page says so in full the first time and in a line afterwards.
 
 ## What the walk holds to
 
@@ -59,6 +79,13 @@ ground whose foes suit the character's Level (the fields P12's gap names on the 
   leads toward the first story entry's; between main quests the first entry is the Next one (its giver stands where it
   says, or its hunting ground suits the Level); right after the sect choice the membership is recorded and the Entry
   Trial leads the tracker with its target and the mark.
+- No chore is open or on offer at any step of the walk: no unlock marked `obligation` (the sect board, activity chests,
+  idle tasks, seclusion, posts). No main or guided quest asks for a daily mission or a second character, and no step of
+  the main story waits on a daily or idle system (`data_validation`'s chores-after-power suite).
+- Every fall in the walk costs nothing (the early grace, before Bone Forging 5).
+- The first walk onto the Willow Path after the River Token meets the Remnant Soul in a Ring, and as The Willow Path is
+  done a Spirit Fruit ripens on Willow Path West, announced once, its tree in view (the walk keeps a checkpoint there:
+  `--keep="First Spirit Fruit"`).
 - The tracker and the mark lead where the story really goes next, after every step (`leads_to_next`): a quest of the
   story under way, else one to take now, else a lesson under way or on offer (a guided quest its realm opens), and only
   then the Level the story waits on and a hunting ground for it. At Bone Forging 3, with Strange Tracks waiting on Bone

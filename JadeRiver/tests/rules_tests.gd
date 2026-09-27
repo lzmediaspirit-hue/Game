@@ -124,6 +124,7 @@ func _main() -> void:
 	await techniques_page_suite()
 	fixes_suite()
 	respawn_suite()
+	early_game_suite()
 	mockup_fixes_suite()
 	max_character_suite()
 	save_suite()
@@ -5693,7 +5694,8 @@ func tower_activity_ranking_suite() -> void:
 	var sw := Game.world.sweep_tower(c)
 	check(sw.get("ok", false) and int(sw.floors) == 2 and Game.economy.balance("silver_tael") > silver0, "sweeping gives both cleared floors' loot")
 	check(str(Game.world.sweep_tower(c).get("reason", "")) == "nothing", "once a day")
-	# Daily activity: sources, caps, the four chests.
+	# Daily activity: sources, caps, the four chests (open from Qi Kindling 1).
+	Unlocks.force_unlock(c.id, "activity_chests")
 	Game.account.activity = {}
 	var a0: Dictionary = Game.accounts.activity()
 	check(int(a0.points) == 0 and (a0.claimed as Array).is_empty(), "the day starts with no activity")
@@ -10832,6 +10834,202 @@ func respawn_suite() -> void:
 		enter.call("mh_boss_den")
 		check(foes.call().filter(func(e): return e.is_boss()).is_empty(), "a beaten boss is not back on entry %d h later" % h)
 	Clock.override_utc = utc0
+
+# ------------------------------------------------------------------ the early game (player_motivation.md items 6, 7, 9)
+## The principle checks of docs/research/player_motivation.md §4 that play on the rules: P4 the chores bank (the sect
+## board and the activity chests keep a missed day, up to account_rules.bank.days, and nothing is lost), P12 a fall
+## before Bone Forging 5 costs nothing (told in full once), and P7 the early surprises (a sure first fortune card on the
+## Willow Path, the first Spirit Fruit, rare finds on the first monsters, a common foe come as an elite), each with its
+## moment.
+func early_game_suite() -> void:
+	var utc0 := Clock.override_utc
+	Clock.override_utc = 1767225600.0
+	var c = _fix_world("user://early_game_suite/")
+	if c == null:
+		check(false, "the early game suite needs a character")
+		return
+	var heard: Array = []
+	var ear := func(n: String, p: Dictionary) -> void: heard.append([n, p.duplicate(true)])
+	GameEvents.event.connect(ear)
+	_early_bank(c)
+	_early_grace(c)
+	_early_surprises(c, heard)
+	GameEvents.event.disconnect(ear)
+	Clock.override_utc = utc0
+
+## P4: missed days bank on the sect board and in the activity chests.
+func _early_bank(c) -> void:
+	var bank := CalendarRules.bank()
+	var per_day := int(bank.get("missions_per_day", 5))
+	var days := int(bank.get("days", 3))
+	check(days >= 3 and per_day >= 1, "the bank keeps at least three days (%s)" % str(bank))
+	check(not Unlocks.is_unlocked(c.id, "daily_missions") and not Unlocks.is_unlocked(c.id, "activity_chests"), "a new character has no board and no chests")
+	Unlocks.force_unlock(c.id, "daily_missions")
+	Unlocks.force_unlock(c.id, "activity_chests")
+	c.cultivator.realm_key = "qi_kindling_1"
+	var board := func() -> Array: return c.quests.daily.keys().filter(func(q): return str(q).begins_with("daily_"))
+	var today := Clock.reset_day(Clock.now_utc())
+	# Five days away: the board offers the bank's three days of missions, no more.
+	for q in c.quests.daily.keys(): Game.quest.apply_drop(c.id, q)
+	c.quests.board_day = today - 5
+	Game.quest.start_daily(false)
+	var full: int = board.call().size()
+	var days_on := {}
+	for q in board.call(): days_on[str(q).get_slice("_", 1)] = true
+	# (a day's board lists different jobs only, so a Level with few may list a job or two fewer)
+	check(days_on.size() == days and full > per_day * (days - 1) and full <= per_day * days,
+		"after five days away the board holds the bank's %d days of missions, no more (%d from %d days)" % [days, full, days_on.size()])
+	check(board.call().all(func(q): return c.quests.is_active(str(q))), "each banked mission is taken and under way")
+	Game.quest.start_daily(false)
+	check(board.call().size() == full, "the same day again adds nothing (%d)" % board.call().size())
+	# Unfinished missions are kept at the next dawn; the new day adds its own, up to the bank.
+	var some: Array = board.call().slice(0, per_day + 2)
+	for q in some: Game.quest.apply_drop(c.id, str(q))
+	var kept: Array = board.call()
+	Clock.override_utc += 86400.0
+	Game.quest.start_daily(false)
+	var added: int = board.call().size() - kept.size()
+	check(kept.all(func(q): return c.quests.daily.has(str(q))), "a day's unfinished missions stay on the board: no day is lost")
+	check(added > per_day - 2 and added <= per_day, "and the next dawn adds its own day (%d, kept %d)" % [added, kept.size()])
+	check(int(c.quests.board_day) == today + 1, "the board remembers the day it filled")
+	today += 1
+	var saved := QuestState.new()
+	saved.restore(c.quests.snapshot())
+	check(int(saved.board_day) == today, "the board's day is saved")
+	# The activity chests: a chest filled and not opened waits; each day away doubles the next points, up to the bank.
+	var per_pts := int(bank.get("activity_per_day", 40))
+	Game.account.activity = {"day": today - 4, "points": 45, "by": {}, "claimed": ["chest_20"]}
+	var a: Dictionary = Game.accounts.activity()
+	check((a.banked as Array) == ["chest_40"] and int(a.points) == 0, "yesterday's unopened chest is kept (%s)" % str(a.get("banked", [])))
+	check(int(a.catch_up) == per_pts * days, "three missed days bank %d catch-up points, capped (%d)" % [per_pts * days, int(a.catch_up)])
+	check(Game.accounts.chest_ready("chest_40") and not Game.accounts.chest_ready("chest_60"), "the banked chest can be opened today")
+	check(Game.submit({"type": "claim_activity_chest", "tier": "chest_40"}).get("ok", false) and not Game.accounts.chest_ready("chest_40"), "and opens once")
+	GameEvents.emit_event("quest_completed", {"actor": c.id, "quest": "daily_x", "name": "x", "kind": "daily"})
+	GameEvents.flush()
+	check(int(Game.accounts.activity().points) == 20 and int(Game.accounts.activity().catch_up) == per_pts * days - 10, "a mission's 10 points come back as 20 while the catch-up lasts (%d)" % int(Game.accounts.activity().points))
+	Game.account.activity = {}
+	for q in c.quests.daily.keys(): Game.quest.apply_drop(c.id, q)
+
+## P12: a fall before Bone Forging 5 costs nothing, and the revival page says it in full once; from Bone Forging 5 it
+## costs 10% of the stage.
+func _early_grace(c) -> void:
+	var cu: CultivatorState = c.cultivator
+	Unlocks.force_unlock(c.id, "kill_progress")
+	for realm in ["bone_forging_1", "bone_forging_4"]:
+		cu.realm_key = realm
+		cu.state = "accumulating"
+		cu.qp = cu.need() * 0.5
+		cu.injuries.clear()
+		cu.heart_demon = 0.0
+		check(ProgressionRules.death_grace(realm), "%s is under the early grace" % realm)
+		Game.combat._gravely_wound(c, "hp")
+		GameEvents.flush()
+		check(near(cu.qp, cu.need() * 0.5) and cu.injuries.is_empty() and cu.heart_demon == 0.0, "a fall at %s costs no progress, no injury, no heart demon (%.3f)" % [realm, cu.qp / cu.need()])
+		check(bool(Game.combat.wounded.get(c.id, {}).get("grace", false)), "the fall at %s is marked as the grace's" % realm)
+		var told: bool = c.quests.has_flag("death_grace_told")
+		check(told == (realm != "bone_forging_1"), "the revival page explains the grace in full only on the first fall (told before: %s)" % told)
+		check(Game.submit({"type": "choose_revival", "where": "shrine"}).get("ok", false), "back at the shrine")
+		check(c.pools.hp >= c.pools.max_hp - 0.01, "the grace wakes you whole")
+		check(c.quests.has_flag("death_grace_told"), "after the first revival the grace has been told")
+	cu.realm_key = "bone_forging_5"
+	cu.qp = cu.need() * 0.5
+	check(not ProgressionRules.death_grace("bone_forging_5"), "the grace ends at Bone Forging 5")
+	Game.combat._gravely_wound(c, "hp")
+	GameEvents.flush()
+	check(near(cu.qp, cu.need() * 0.4), "from Bone Forging 5 a fall costs 10%% of the stage (%.3f)" % (cu.qp / cu.need()))
+	Game.submit({"type": "choose_revival", "where": "shrine"})
+	cu.injuries.clear()
+	cu.heart_demon = 0.0
+	cu.realm_key = "mortal"
+	cu.qp = 0.0
+
+## P7: the early surprises, each with a moment that plays on it.
+func _early_surprises(c, heard: Array) -> void:
+	var rows: Array = ContentDB.all("moments")
+	var moment_for := func(ev: String, p: Dictionary) -> String:
+		for r in rows:
+			if str(r.event) == ev and MomentRules.matches(r.when, p, {"active": c.id, "seen": {}}): return str(r.id)
+		return ""
+	var last := func(ev: String) -> Dictionary:
+		for i in range(heard.size() - 1, -1, -1):
+			if heard[i][0] == ev: return heard[i][1]
+		return {}
+	# The sure first fortune card: the Remnant Soul in a Ring, the first time onto the Willow Path after the River Token.
+	c.relations.fortune = {"meter": 0.0}
+	Game.world.load_room(c, "wp_east", "")
+	GameEvents.flush()
+	check(not (c.relations.fortune.get("seen", {}) as Dictionary).has("remnant_ring"), "before the River Token the Willow Path turns up no card")
+	c.quests.done["the_river_token"] = 1
+	var pages: int = c.inventory.count("manual_page")
+	Game.world.load_room(c, "lf_village", "")
+	Game.world.load_room(c, "wp_east", "")
+	GameEvents.flush()
+	var fe: Dictionary = last.call("fortune_encounter")
+	check(str(fe.get("card", "")) == "remnant_ring" and c.inventory.count("manual_page") >= pages + 3, "the first walk onto the Willow Path meets the Remnant Soul in a Ring, with an empty meter (%s)" % str(fe))
+	check(moment_for.call("fortune_encounter", fe) == "fortune_card", "and the fortune card plays its moment")
+	heard.clear()
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	check(last.call("fortune_encounter").is_empty(), "after it the three-hour meter paces the cards again")
+	# The first Spirit Fruit: ripe on Willow Path West once The Willow Path is done, its guardian alone, taken once.
+	var tree: Dictionary = {}
+	for o in ContentDB.room("wp_west").get("objects", []):
+		if o.get("first", false): tree = o
+	check(not tree.is_empty() and str(tree.get("type", "")) == "treasure_birth", "Willow Path West holds a first Spirit Fruit tree")
+	check(not Game.world.object_visible(c, tree) and last.call("treasure_birth_announced").is_empty(), "it is bare before The Willow Path is done")
+	c.quests.done["the_willow_path"] = 1
+	GameEvents.emit_event("quest_completed", {"actor": c.id, "quest": "the_willow_path", "name": "The Willow Path", "kind": "main"})
+	GameEvents.flush()
+	var ann: Dictionary = last.call("treasure_birth_announced")
+	check(Game.world.object_visible(c, tree) and bool(ann.get("first", false)) and str(ann.get("room", "")) == "wp_west",
+		"as The Willow Path is done there, the fruit ripens and is announced (%s)" % str(ann))
+	check(moment_for.call("treasure_birth_announced", ann) == "first_fruit", "with its moment")
+	heard.clear()
+	Game.world.load_room(c, "lf_village", "")
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	check(last.call("treasure_birth_announced").is_empty(), "announced once")
+	var fruit: int = c.inventory.count("spirit_fruit")
+	check(Game.calendar.open_treasure(c, tree).get("first", false) and Game.room_rt.event.get("active", false), "reaching for it wakes its guardian")
+	var guards: Array = Game.room_rt.living_enemies().filter(func(e): return e.team == "enemy")
+	check(guards.size() == 1 and guards[0].def_id == "fruit_guardian" and guards[0].level == 3, "one guardian, at the room's own top Level, no rivals (%s)" % str(guards.map(func(e): return "%s %d" % [e.def_id, e.level])))
+	for e in guards: Game.combat.apply_execute(e, c.id)
+	GameEvents.flush()
+	for i in 10: Game.tick(0.1)
+	GameEvents.flush()
+	check(c.inventory.count("spirit_fruit") == fruit + 1 and c.quests.has_flag("first_fruit_taken"), "the fruit is yours")
+	check(not Game.world.object_visible(c, tree), "and the tree is bare again")
+	check(str(Game.calendar.open_treasure(c, tree).get("reason", "")) == "gone", "one first fruit per character")
+	# Rare finds on the first monsters: a pearl or a manual page, each a rare find that plays the rare-drop moment.
+	var rng := Rng.keyed(77, "early_finds")
+	var finds := {}
+	for foe in ["mudshell_crab", "reedtail_rat", "wild_boarlet"]:
+		for i in 2000:
+			for it in LootRules.roll(foe, rng, 1, 0.0, 0.0, {"no_equipment": true}).items:
+				if it.get("find", false): finds[str(it.item)] = int(finds.get(str(it.item), 0)) + 1
+	check(int(finds.get("pearl", 0)) >= 60 and int(finds.get("manual_page", 0)) >= 10, "6,000 kills of the first monsters find pearls and manual pages (%s)" % str(finds))
+	var drop := {"room": "lf_reed_shallows", "items": [{"uid": 1, "item": "pearl", "count": 1, "coins": 0, "quality": "common", "find": true}], "x": 600.0, "y": 800.0, "source": "enemy"}
+	check(moment_for.call("loot_dropped", drop) == "rare_drop" and not MomentRules.is_rare({"item": "pearl", "count": 1}), "a find plays the rare-drop moment; the same pearl from a later foe does not")
+	# A common foe of the first fields comes as an elite now and then: about one spawn in twenty-five.
+	var chances: Array = []
+	for rid in ["lf_reed_shallows", "wp_west"]:
+		for sp in ContentDB.room(rid).get("spawns", []): chances.append(float(sp.get("elite_chance", 0.0)))
+	check(chances.filter(func(x): return x >= 0.03).size() >= 3, "the first fields' common foes may come as elites (%s)" % str(chances))
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	GameEvents.flush()
+	heard.clear()
+	var spec: Dictionary = {}
+	for sp in ContentDB.room("lf_reed_shallows").get("spawns", []):
+		if str(sp.enemy) == "mudshell_crab": spec = sp.duplicate(true)
+	spec["elite_chance"] = 1.0
+	var elite: EnemyState = Game.enemies._spawn({"spec": spec, "index": -1, "point": Vector2(1500, 880), "uid": 0, "timer": 0.0}, Vector2(1500, 880))
+	GameEvents.flush()
+	var es: Dictionary = last.call("elite_spawned")
+	check(elite != null and elite.elite and elite.role == "elite" and bool(es.get("random", false)), "a crab comes as an elite (%s)" % str(es))
+	check(moment_for.call("elite_spawned", es) == "elite_appears", "and says so with its moment")
+	check(moment_for.call("elite_spawned", {"room": "wp_west", "enemy": 1, "def": "wild_boarlet", "level": 2, "random": false}) == "", "a placed elite plays no surprise")
+	if elite != null: Game.combat.apply_execute(elite, c.id)
+	GameEvents.flush()
 
 # ------------------------------------------------------------------ fixes found by the P3 mockups
 ## Open items the mockup agents found while drawing (docs/mockups/README.md), each at its rule.

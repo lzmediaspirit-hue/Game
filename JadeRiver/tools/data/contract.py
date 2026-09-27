@@ -231,6 +231,9 @@ PAYLOAD = {
     "loot_dropped": ["room", "items", "x", "y", "source"],
     "quest_completed": ["actor", "quest", "name", "kind"],
     "room_event_started": ["actor", "room", "event", "duration"],
+    "fortune_encounter": ["actor", "card", "trigger", "room"],
+    "treasure_birth_announced": ["room", "item", "ends", "first"],
+    "elite_spawned": ["room", "enemy", "def", "level", "random?"],
 }
 
 

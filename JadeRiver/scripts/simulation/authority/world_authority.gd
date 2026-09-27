@@ -32,12 +32,25 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered_fates, 51)
 	GameEvents.subscribe("room_entered", _on_room_entered_ambush, 52)
 	GameEvents.subscribe("world_event_started", _on_world_event_started, 50)
+	for ev in ["room_entered", "quest_completed"]: GameEvents.subscribe(ev, _announce_first_fruit, 96)
 
 ## S45 treasure births (on the S49 calendar): World announces the fruit ripening in its room.
 func _on_world_event_started(p: Dictionary) -> void:
 	if str(p.get("event", "")) != "treasure_birth": return
 	emit("treasure_birth_announced", {"room": str(p.get("room", "")), "item": str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit")),
-		"ends": float(p.get("ends", 0.0))})
+		"ends": float(p.get("ends", 0.0)), "first": false})
+
+## The character's own first Spirit Fruit (an early surprise, CalendarAuthority.open_first_fruit): announced once, the
+## moment its tree shows in the room the character stands in (on arrival, or as The Willow Path is done there).
+func _announce_first_fruit(_p := {}) -> void:
+	var c = game.active()
+	if c == null or game.room_rt == null or c.quests.has_flag("first_fruit_seen"): return
+	for o in game.room_rt.def.get("objects", []):
+		if not o.get("first", false) or str(o.get("type", "")) != "treasure_birth" or not object_visible(c, o): continue
+		game.quest.apply_flag(c.id, "first_fruit_seen")
+		emit("treasure_birth_announced", {"room": game.room_rt.room_id, "item": str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit")),
+			"ends": 0.0, "first": true})
+		return
 
 ## S48 Wandering Eye (a fate): one hidden way in each room entered shows itself.
 func _on_room_entered_fates(p: Dictionary) -> void:
@@ -663,7 +676,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		"rift_tear":
 			return game.calendar.open_rift(c)
 		"treasure_birth":
-			return game.calendar.open_treasure(c)
+			return game.calendar.open_treasure(c, o)
 		"beast_trial_stone":
 			return start_beast_trial(c)
 		"treasure_plot":
@@ -896,7 +909,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 		var iid := str(it.item)
 		# S18 v1.2: a foe that roams two zones (the Starsea pirates) leaves the attunement shards of the zone it dies in.
 		if here_shard != "" and iid != here_shard and iid in ATTUNEMENT_SHARDS: iid = here_shard
-		drops.append({"item": iid, "count": int(it.count)})
+		drops.append({"item": iid, "count": int(it.count), "find": bool(it.get("find", false))})
 	var allow_weapons: bool = Unlocks.is_unlocked(c.id, "weapons")
 	var family := StatRules.family_of_weapon(c.inventory.equipped.get("weapon"))
 	for eq in drop.get("equipment", []):
@@ -913,6 +926,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 			"instance": d.get("instance", {}), "x": at.x + spread, "y": clampf(at.y + rng.randf_range(-6, 6), 626, 956), "alt": alt,
 			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
 		entry.quality = str(d.get("instance", {}).get("quality", "common"))
+		if d.get("find", false): entry.find = true   # a rare row marked as a find (an early surprise): the rare-find moment
 		rt.loot.append(entry)
 		items_out.append(entry.duplicate())
 		i += 1

@@ -778,24 +778,6 @@
    "toast": false
   },
   {
-   "id": "idle_tasks",
-   "label": "Idle tasks",
-   "trigger": {
-    "all": [
-     {
-      "kind": "account_realm",
-      "realm": "bone_forging_5"
-     }
-    ]
-   },
-   "reveals": [
-    "page:characters"
-   ],
-   "effects": [],
-   "scope": "account",
-   "quest": "a_second_path"
-  },
-  {
    "id": "account_legacy",
    "label": "Account Legacy",
    "trigger": {
@@ -809,66 +791,6 @@
    "reveals": [],
    "effects": [],
    "scope": "account",
-   "toast": false
-  },
-  {
-   "id": "daily_missions",
-   "label": "Sect missions",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_6"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "entry_trial"
-     }
-    ]
-   },
-   "reveals": [],
-   "effects": [],
-   "scope": "character",
-   "quest": "earning_your_keep"
-  },
-  {
-   "id": "contribution_shop",
-   "label": "Contribution shop",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_6"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "entry_trial"
-     }
-    ]
-   },
-   "reveals": [],
-   "effects": [],
-   "scope": "character",
-   "quest": "earning_your_keep",
-   "same_stage_ok": true,
-   "toast": false
-  },
-  {
-   "id": "field_boss_timers",
-   "label": "Field-boss timers",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_6"
-     }
-    ]
-   },
-   "reveals": [],
-   "effects": [],
-   "scope": "character",
-   "quest": "earning_your_keep",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -888,25 +810,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_first_current"
-  },
-  {
-   "id": "seclusion",
-   "label": "Offline seclusion",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_7"
-     }
-    ]
-   },
-   "reveals": [
-    "page:seclusion"
-   ],
-   "effects": [],
-   "scope": "character",
-   "quest": "the_first_current",
-   "same_stage_ok": true
   },
   {
    "id": "qi_springs",
@@ -989,13 +892,134 @@
    "same_stage_ok": true
   },
   {
+   "id": "daily_missions",
+   "label": "Sect missions",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "obligation": true
+  },
+  {
+   "id": "contribution_shop",
+   "label": "Contribution shop",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "toast": false,
+   "obligation": true
+  },
+  {
+   "id": "field_boss_timers",
+   "label": "Field-boss timers",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "toast": false,
+   "obligation": true
+  },
+  {
+   "id": "activity_chests",
+   "label": "Activity chests",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "obligation": true
+  },
+  {
+   "id": "idle_tasks",
+   "label": "Idle tasks",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:characters"
+   ],
+   "effects": [],
+   "scope": "account",
+   "quest": "a_second_path",
+   "obligation": true
+  },
+  {
+   "id": "seclusion",
+   "label": "Offline seclusion",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:seclusion"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_second_path",
+   "same_stage_ok": true,
+   "obligation": true
+  },
+  {
    "id": "keeping_post",
    "label": "Keeping post",
    "trigger": {
     "all": [
      {
       "kind": "account_realm",
-      "realm": "bone_forging_6"
+      "realm": "qi_kindling_1"
      }
     ]
    },
@@ -1004,7 +1028,8 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "keeping_post"
+   "quest": "keeping_post",
+   "obligation": true
   },
   {
    "id": "insect_netting",
@@ -1013,7 +1038,7 @@
     "all": [
      {
       "kind": "realm_at_least",
-      "realm": "bone_forging_6"
+      "realm": "qi_kindling_1"
      }
     ]
    },
@@ -1027,7 +1052,8 @@
    ],
    "scope": "character",
    "quest": "glowflies",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "obligation": true
   },
   {
    "id": "pouch_sewing",
@@ -1050,7 +1076,8 @@
    "effects": [],
    "scope": "character",
    "quest": "a_pouch_for_the_road",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "obligation": true
   },
   {
    "id": "beast_snaring",
@@ -1077,7 +1104,8 @@
    ],
    "scope": "character",
    "quest": "snares_before_swords",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "obligation": true
   },
   {
    "id": "ancestral_rites",
@@ -1104,7 +1132,8 @@
    ],
    "scope": "character",
    "quest": "the_ancestors_regard",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "obligation": true
   },
   {
    "id": "apprentice_bench",
@@ -1125,7 +1154,8 @@
    "effects": [],
    "scope": "character",
    "quest": "an_apprentices_hands",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "obligation": true
   },
   {
    "id": "post_arts",

@@ -19,7 +19,12 @@ extends "res://tests/prologue_run.gd"
 ##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first);
 ##   9. after every step the tracker and the direction mark lead where the story really goes next (leads_to_next): a
 ##      quest under way, one to take now, a lesson on offer (at Bone Forging 3 the Weapon Hall, not the hunt for the next
-##      Level), and only with none of these a hunting ground.
+##      Level), and only with none of these a hunting ground;
+##  10. chores after power (docs/research/player_motivation.md item 6, P3): no daily, idle or post system (an unlock
+##      marked `obligation`) is open or on offer at any step of the walk;
+##  11. a gentle early failure (P12): every fall in the walk costs nothing;
+##  12. early surprises (item 7, P7): the first walk onto the Willow Path after the River Token meets a fortune card (the
+##      Remnant Soul in a Ring), and as The Willow Path is done a Spirit Fruit ripens on Willow Path West, announced.
 ## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
 ## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
@@ -51,6 +56,8 @@ var foes_seen := {}           # def id -> times a foe of that kind was seen in a
 var bare: Array = []          # foes seen in a fight without their HP bar (or with the HP bar off the HUD)
 var doors_seen := {}          # room id -> true once its ways into buildings were checked
 var hostile_reached: Array = []
+var surprises: Array = []     # "fortune:<card>@<room>", "fruit@<room>": the early surprises met (invariant 12)
+var falls: Array = []         # falls in the walk that cost something (invariant 11)
 
 func _main() -> void:
 	add_child(views)
@@ -98,6 +105,7 @@ func run() -> void:
 	invariants("The River Token")
 	step_willow_path()
 	invariants("The Willow Path")
+	_early_surprises()
 	step_fair()
 	invariants("The Recruitment Fair")
 	step_grind_bf2()
@@ -117,6 +125,7 @@ func run() -> void:
 		"in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [str(offers_in_fight), str(hijacked)])
 	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "the story's guidance was checked at every step (%d steps, %d quests)"
 		% [guidance_steps, c().quests.done.size() + c().quests.active.size()])
+	check(falls.is_empty(), "every fall in the walk cost nothing, before Bone Forging 5 (%s)" % str(falls))
 	hud_probe.player.free()
 	hud_probe.free()
 
@@ -282,10 +291,27 @@ func leads_to_next(label: String) -> void:
 	elif want != here and not ContentDB.room(want).get("instanced", false):
 		check(mark == want, "%s: the tracker leads where the story goes next, %s (%s; the mark leads to %s)" % [label, want, why, mark])
 
+## Invariant 12, as The Willow Path is done: the fortune card met on the way in, and the Spirit Fruit ripe here.
+func _early_surprises() -> void:
+	check(surprises.size() >= 1 and str(surprises[0]).begins_with("fortune:remnant_ring@wp_"),
+		"the first walk onto the Willow Path met the Remnant Soul in a Ring (%s)" % str(surprises))
+	check(surprises.has("fruit@wp_west"), "a Spirit Fruit ripened on Willow Path West as The Willow Path was done (%s)" % str(surprises))
+	var tree: Array = ContentDB.room("wp_west").get("objects", []).filter(func(o): return o.get("first", false))
+	check(room() == "wp_west" and not tree.is_empty() and Game.world.object_visible(c(), tree[0]), "its tree stands in view on Willow Path West (room %s)" % room())
+	keep("First Spirit Fruit")
+
+## Invariant 10: no chore (an unlock marked `obligation`) is open or on offer before Qi Kindling 1.
+func _no_chores(label: String) -> void:
+	var open: Array = []
+	for u in ContentDB.all("unlocks"):
+		if u.get("obligation", false) and (Unlocks.is_unlocked(c().id, str(u.id)) or c().cultivator.offered.has(str(u.id))): open.append(str(u.id))
+	check(open.is_empty(), "%s: no daily, idle or post system is open or on offer before Qi Kindling 1 (%s)" % [label, str(open)])
+
 ## Invariants 1 and 3 over every room within reach now.
 func invariants(label: String) -> void:
 	keep(label)
 	leads_to_next(label)
+	_no_chores(label)
 	var reach := routes()
 	for rid in reach:
 		var rd: Dictionary = ContentDB.room(rid)
@@ -316,6 +342,9 @@ func hostile(rd: Dictionary) -> bool:
 
 func _on_event(n: String, p: Dictionary) -> void:
 	if n == "portal_used": _left_early(p)
+	if n == "fortune_encounter": surprises.append("fortune:%s@%s" % [str(p.get("card", "")), str(p.get("room", ""))])
+	if n == "treasure_birth_announced" and p.get("first", false): surprises.append("fruit@%s" % str(p.get("room", "")))
+	if n == "player_gravely_wounded" and not p.get("no_penalty", false): falls.append("%s at %s" % [room(), c().cultivator.realm_key])
 	if n != "room_entered": return
 	if hostile(ContentDB.room(str(p.get("room", "")))):
 		check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:enemy_hp_bars"), "entering %s, a room with foes, the HP bars are on the HUD" % str(p.room))

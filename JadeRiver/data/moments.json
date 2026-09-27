@@ -1956,6 +1956,189 @@
    "step": "P6d"
   },
   {
+   "id": "fortune_card",
+   "event": "fortune_encounter",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 2.0,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.fortune.toast",
+    "args": [
+     {
+      "name_of": "fortune_deck",
+      "id": "payload.card"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 190,
+     "title": {
+      "key": "moment.fortune.title"
+     },
+     "size": 18,
+     "color": "GOLD",
+     "sub": {
+      "name_of": "fortune_deck",
+      "id": "payload.card"
+     },
+     "sub_size": 28,
+     "sub_color": "PALE_GOLD"
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "converge",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "count": 12,
+     "radius": 140,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "rare_chime"
+    },
+    {
+     "t": 0.0,
+     "kind": "buzz",
+     "ms": 40
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "card": "remnant_ring",
+    "trigger": "room_entered",
+    "room": "wp_east"
+   },
+   "step": "P6d"
+  },
+  {
+   "id": "first_fruit",
+   "event": "treasure_birth_announced",
+   "when": {
+    "first": true
+   },
+   "priority": 50,
+   "duration_s": 2.2,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "room",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.fruit.title"
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 190,
+     "title": {
+      "key": "moment.fruit.title"
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "key": "moment.fruit.sub"
+     },
+     "sub_size": 20,
+     "sub_color": "BRIGHT_JADE"
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "bell"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "room": "wp_west",
+    "item": "spirit_fruit",
+    "ends": 0.0,
+    "first": true
+   },
+   "step": "P6d"
+  },
+  {
+   "id": "elite_appears",
+   "event": "elite_spawned",
+   "when": {
+    "random": true
+   },
+   "priority": 30,
+   "duration_s": 1.4,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "room",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.elite.title"
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 190,
+     "title": {
+      "key": "moment.elite.title"
+     },
+     "size": 18,
+     "color": "GOLD",
+     "sub": {
+      "name_of": "enemies",
+      "id": "payload.def"
+     },
+     "sub_size": 26,
+     "sub_color": "PAPER"
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "boss_sting"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "room": "wp_west",
+    "enemy": 1,
+    "def": "wild_boarlet",
+    "level": 2,
+    "random": true
+   },
+   "step": "P6d"
+  },
+  {
    "id": "trial_opens",
    "event": "room_event_started",
    "when": {
