@@ -270,7 +270,7 @@ the text colours allowed on it; a surface marked "no words" carries none.
 
 Grade and quality colours were made for the dark fills and fail on paper (Superior #5aa7e8 on `scroll` is 2.4:1).
 On a light surface a grade shows as a small chip in its colour with the word in `INK`, or by the slot's rim, never as
-coloured words. `BLOOD` is the one red for words on paper (4.58 on `almanac`, 4.87 on `scroll`). The audit
+coloured words. `BLOOD` is the red for words on paper (4.58 on `almanac`, 4.87 on `scroll`); where the paper is tinted (the almanac's live day) red words take `BLOOD` mixed 15% toward `INK`, #991e2a (5.24 on the tint, where `BLOOD` falls to 4.26). The audit
 (`tools/dev/ui_style_audit.py`) measures each new surface before it ships (style guide §1.4 rule 4).
 
 ---
