@@ -98,14 +98,14 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| M14 | A new-player playthrough log, start to current end | Partial | `prologue_run` and `valley_run` play the Prologue to Act III chapter 19 headlessly with checkpoints; `docs/review-v08.md`, `review-v09.md`, `review-v13.md` review movement and art. No narrative UX log | P2 |
-| M15 | UI friction, unclear feedback, confusing menus logged and fixed | Missing | No UI review exists (the reviews above are movement and art) | P2 |
+| M14 | A new-player playthrough log, start to current end | Present | `docs/review-v12.md` (a): `prologue_run` and `valley_run` play a new character from the Prologue to the end of Act III by intents; ten Act III findings, each with root cause, fix and test | P2 |
+| M15 | UI friction, unclear feedback, confusing menus logged and fixed | Present | `docs/review-v12.md` (d) and `docs/ui_inventory.md` §5: 25 faults (B1–B25) and 14 inconsistencies logged with file, line and screenshot; the P2 bug pass fixed B1–B25 (B19 to the code review), the `ui_suite` checks sizes, overlaps and label fit on every page | P2 |
 | M16 | Collision problems, invisible walls and terrain snags | Partial | The movement suites (`tests/movement_v07.gd`, `landing_matrix.gd`, `room_gates.gd`, `obstacle_review.gd`) and the room lint cover reach and gates; a play-through pass has not been logged | P2 |
 | M17 | Interaction conflicts (the training dummy answering as talk; conversations forced closed by hand) | Partial | One context per frame from `WorldAuthority.query_context` (`world.gd:_update_context`); the attack button is separate from the context button, and the dummy answers blows (`progression_authority.gd:1027`). A conversation closes itself when its last line ends with no choices, and after an accept or hand-in with only a farewell left (`dialogue_page.gd:99-146`). The dummy case must still be played to confirm | P2 |
 | M18 | Overlapping objects that block interaction | Partial | The world builder keeps spawns clear of shrines and portals (`architecture.md` Data builders); nothing checks objects against each other | P2 |
 | M19 | Houses and shops with no visible door | Present | Doors are portals of kind `door` (96) drawn with a plate and an arrow, and interior doors stand on the back wall (`portal_view.gd:4-54`) | — |
 | M20 | Quest flow gaps, dead ends, missing guidance | Partial | `story.py` validates quests, NPCs and unlocks; V9f3 fixed one quest that could never start; `valley_run` checkpoints each chapter. A guidance review from the player's side is not done | P2 |
-| M21 | Long-term engagement: daily reasons to log in, social loops, "one more level" | Partial | Daily missions, four activity chests, the weekly mission, the calendar's events and seasons, the Saturday auction, the weekly Beast Tide, the Trial Tower's daily sweep, the Heaven Ranking, county jobs, Keeping Post's daily round. No written retention plan, and no social loop until v2.0 Online | P2 |
+| M21 | Long-term engagement: daily reasons to log in, social loops, "one more level" | Present | `docs/review-v12.md` (e) "The engagement plan" (E1–E6) and `docs/research/retention_notes.md`; the daily and weekly loops listed above. The social loop waits for v2.0 Online | P2 |
 
 #### Game psychology and sensory design (Master 4)
 
@@ -115,7 +115,7 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | M23 | Multi-hit numbers, particles and screen shake | Partial | Damage numbers with crits larger and gold (`fx_layer.gd:24`), screen shake on heavy hits, crits and boss phases with a settings toggle (`world.gd:304-307, 413-414`), hit-stop 0.05 s / 0.08 s on crit (`combat_authority.gd:325, 1053`), the heavy sabre's cleave and the 36-sword swarm. No screen-filling effects; particles are eight sparks | P6 |
 | M24 | Colour psychology: rarity coding, damage-number colours, biome palettes | Partial | 10 grade colours and 12 quality colours (`data/grades.json` → `UiKit.grade_color`); crit gold, Soul violet, Qi teal numbers (`fx_layer.gd:3-4`); a backdrop set per region. No written palette rule for biomes or a check that the colours read on a phone | P4 |
 | M25 | Feedback loops: hit-stop, sound, knockback, loot fountains, level-up fanfare | Partial | Hit-stop, `Audio`, per-attack `knockback`, loot that bounces and glows. No loot fountain or fanfare sequence; a breakthrough is a flash and a sound | P6 |
-| M26 | An implementation plan for each finding | Missing | — | P2 |
+| M26 | An implementation plan for each finding | Present | `docs/review-v12.md` (e) tables and (f): every finding has a fix, a phase and files | P2 |
 
 #### Quest guidance and side content (Master 5)
 
@@ -175,7 +175,7 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 |---|---|---|---|---|
 | M49 | A second full QA pass with every bug fixed | Missing | — | P11 |
 | M50 | The Full Review Document (all sections, prompt-engineering style, no open bug list) | Missing | — | P2, P11 |
-| M51 | Every system split into Single Player and Online tracks | Partial | `architecture.md` "Extension contract" and "Explicitly not implemented" describe the server boundary once for movement and once for the rest; not per system | P2, P11 |
+| M51 | Every system split into Single Player and Online tracks | Present | `docs/architecture.md` "Single Player and Online, per system" and `docs/review-v12.md` (e); P11 revisits it for v2.0 | P2, P11 |
 | M52 | The roadmap updated, with the review itself as a deliverable | Partial | This page; the review is registered as P2 and P11 | — |
 
 ### 2.2 UI Designer Prompt items
@@ -198,19 +198,19 @@ The prompt's context claims, checked against the project:
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| U1 | Every system: purpose, the player's goal, data and progression, connections | Partial | `architecture.md` lists the authorities and what they own; `README.md` the content. Nothing states the player's goal per system | P2 |
-| U2 | Every screen's elements and what they do, with paths | Missing | 44 pages in `scripts/ui/pages/` plus the shell screens and the HUD, none documented. Note: pages are immediate-mode `Page` subclasses (`page.gd`: `btn`, `region`, `list`, `panel`) that draw in `_draw`; there are no Control scenes, so "scene/node path" becomes "page file and region id" | P2 |
-| U3 | A navigation map with tap counts | Missing | The hub is `menu_page.gd` (21 entries, locked ones dimmed); the HUD icon row is Menu, Bag, Map, Mail (`hud.gd:42`); pages open other pages by id | P2 |
-| U4 | The art/UI inventory: palette, fonts, pixel scale, inconsistencies | Partial | `tools/ui/README.md` (palette, the 20-asset kit and its nine-slice margins), `UiKit` tokens (15 colours), fonts (Cormorant Garamond for headings ≥ 22 px, Source Serif 4 for words, Pixelify Sans for numbers), two kits (the pixel kit at 2 px per art px and the HD analytic kit, `tools/ui/build_ui_hd.py`). No inconsistency list | P2 |
-| U5 | Screenshots of every screen | Partial | `--open-page=<page>[:<preview>]` opens any page headlessly (`main.gd:388`), and the furnace has preview states; no captured set exists | P2 |
-| U6 | Open questions, then stop | — | A human gate; §6 lists the questions | P2 |
+| U1 | Every system: purpose, the player's goal, data and progression, connections | Present | `docs/ui_inventory.md` §1: every authority with its purpose, the player's goal, data, progression and connections | P2 |
+| U2 | Every screen's elements and what they do, with paths | Present | `docs/ui_inventory.md` §2: every page, the shell and the HUD, element by element with paths | P2 |
+| U3 | A navigation map with tap counts | Present | `docs/ui_inventory.md` §3: the navigation map with tap counts | P2 |
+| U4 | The art/UI inventory: palette, fonts, pixel scale, inconsistencies | Present | `docs/ui_inventory.md` §4: palette, fonts, pixel scale, the two kits and the inconsistencies I1–I14 | P2 |
+| U5 | Screenshots of every screen | Present | `docs/ui_inventory/*.png`: 122 screenshots, every page and tab, taken as the `valley_run` character on the current build | P2 |
+| U6 | Open questions, then stop | Present | §6 lists the questions; the answers are recorded there | P2 |
 
 #### Reference analysis (UI 2)
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| U7 | HUD, hub, themed screens, frames and feedback of each reference, with sources | Missing | `docs/research/idle_gathering_research.md` covers IdleOn's AFK mechanics, not its UI | P2 |
-| U8 | A comparison table, Jade River system against its closest reference | Missing | — | P2 |
+| U7 | HUD, hub, themed screens, frames and feedback of each reference, with sources | Present | `docs/research/ui_reference_notes.md` §2–§11: HUD, hub, system screens, feedback and bosses of eight references, with sources | P2 |
+| U8 | A comparison table, Jade River system against its closest reference | Present | `docs/research/ui_reference_notes.md` §12 | P2 |
 
 #### Mockups (UI 3)
 
@@ -223,8 +223,8 @@ The prompt's context claims, checked against the project:
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| U11 | Problems per screen with severity and location; felt against intended | Missing | — | P2 |
-| U12 | Global issues: consistency, palette, fonts, icons, scale, spacing | Missing | — | P2 |
+| U11 | Problems per screen with severity and location; felt against intended | Present | `docs/review-v12.md` (d) "Per screen": each fault with severity, place and owner; fixed in the P2 bug pass | P2 |
+| U12 | Global issues: consistency, palette, fonts, icons, scale, spacing | Present | `docs/review-v12.md` (d) "Global issues" G1–G6: G1 and G2 fixed in P4a, G3–G6 owned by P4 and P5 | P2 |
 
 #### Redesign every system to its theme (UI 5)
 
@@ -257,7 +257,7 @@ The prompt's context claims, checked against the project:
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| U30 | Every change ordered by impact against effort, with files | Partial | §3 and §4 of this page order the phases; the per-change list comes out of P2 | P2 |
+| U30 | Every change ordered by impact against effort, with files | Present | `docs/review-v12.md` (f): 17 changes ranked by impact against effort, with files and phase | P2 |
 
 ### 2.3 Totals
 
