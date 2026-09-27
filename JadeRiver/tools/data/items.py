@@ -881,9 +881,8 @@ def build_artifacts():
             if grade == base_grade:
                 continue
             stats = {k: round(v + PET_STEP[k] * (grades.index(grade) - grades.index(base_grade)), 3) for k, v in base.items()}
-            gid = "%s_%s" % (GRADE_WORD.get(grade, "iron"), word.lower().replace(" ", "_"))
-            rows.append(artifact(gid, gslot, grade, "%s %s" % (GRADE_WORD.get(grade, "iron").capitalize(), word), "none", sockets=0, energy_type="none",
-                                 pet_gear=stats, desc=text.format(**{k: ("%g" % (v * 100)) for k, v in stats.items()})))
+            rows.append(artifact("%s_%s" % (GRADE_WORD[grade], word.lower().replace(" ", "_")), gslot, grade, "%s %s" % (GRADE_WORD[grade].capitalize(), word),
+                                 "none", sockets=0, energy_type="none", pet_gear=stats, desc=text.format(**{k: "%g" % (v * 100) for k, v in stats.items()})))
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):
