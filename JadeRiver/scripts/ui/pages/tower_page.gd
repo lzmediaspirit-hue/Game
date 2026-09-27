@@ -50,7 +50,7 @@ func draw_page() -> void:
 	heading(Vector2(x, y), Tx.t("ui.tower.floor_title") % [sel, Tx.t("ui.tower.kind_" + str(row2.kind))], right.size.x - 56)
 	y += 44
 	text(Vector2(x, y), Tx.t("ui.arena.lv") % int(row2.level), 20, UiKit.PALE_GOLD)
-	text(Vector2(right.end.x - 28 - 300, y), Tx.t("ui.tower.cleared_to") % cleared, 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 300)
+	text(Vector2(right.end.x - 28 - 300, y), Tx.t("ui.tower.cleared_to") % cleared, 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 300)
 	y += 16
 	y += para(Rect2(x, y, right.size.x - 56, 80), Tx.t("ui.tower.rule_" + str(row2.kind)) % [int(row2.get("count", 0)), int(row2.get("time_s", 0))]
 		if str(row2.kind) in ["clear", "swift"] else Tx.t("ui.tower.rule_" + str(row2.kind)) % int(row2.get("time_s", 0)), 18, UiKit.PAPER, 3) + 18
@@ -62,7 +62,7 @@ func draw_page() -> void:
 	text(Vector2(x, y + 4), Tx.t("ui.tower.rewards"), 16, UiKit.MIST)
 	y += 14
 	var first := sel > cleared
-	para(Rect2(x, y, right.size.x - 56, 60), (Tx.t("ui.tower.reward_first") % int(row2.get("stones", 2))) if first else Tx.t("ui.tower.reward_again"), 17,
+	para(Rect2(x, y, right.size.x - 56, 60), (Tx.t("ui.tower.reward_first") % int(row2.get("stones", 2))) if first else Tx.t("ui.tower.reward_again"), 18,
 		UiKit.PALE_GOLD if first else UiKit.MIST, 2)
 	var can := sel <= cleared + 1
 	btn(Rect2(right.position.x + 28, right.end.y - 80, right.size.x - 56, 60), Tx.t("ui.tower.climb") % sel if sel > cleared else Tx.t("ui.tower.again") % sel,

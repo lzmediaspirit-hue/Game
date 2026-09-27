@@ -51,8 +51,8 @@ func draw_page() -> void:
 	if rows.is_empty(): rows.append([Tx.t("ui.welcome.nothing_gathered"), Tx.t("ui.welcome.set_seclusion_or_an_idle")])
 	# A long Return Ledger scrolls above the buttons instead of running under them.
 	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 36, func(i: int, rr: Rect2):
-		text(Vector2(rr.position.x + 20, rr.position.y + 24), str(rows[i][0]), 21, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
-		text(Vector2(rr.position.x, rr.position.y + 24), str(rows[i][1]), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
+		text(Vector2(rr.position.x + 20, rr.position.y + 24), str(rows[i][0]), 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
+		text(Vector2(rr.position.x, rr.position.y + 24), str(rows[i][1]), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
 	)
 	if not args.get("post", {}).is_empty() and not (args.post.get("items", {}) as Dictionary).is_empty():
 		btn(Rect2(content.get_center().x - 260, content.end.y - 60, 250, 58), Tx.t("ui.welcome.to_storehouse"), "store", null, true)

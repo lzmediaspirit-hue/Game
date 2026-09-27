@@ -55,14 +55,14 @@ func draw_page() -> void:
 			btn(Rect2(x, y + 96, 240, 54), Tx.t("ui.settings.save_now"), "save", null, true)
 			btn(Rect2(x + 256, y + 96, 240, 54), Tx.t("ui.settings.export_save"), "export")
 			btn(Rect2(x + 512, y + 96, 240, 54), Tx.t("ui.settings.export_log"), "export_log")
-			para(Rect2(x, y + 164, 960, 60), Tx.t("ui.settings.saves_are_written_every_few"), 17, UiKit.MIST, 2)
+			para(Rect2(x, y + 164, 960, 60), Tx.t("ui.settings.saves_are_written_every_few"), 18, UiKit.MIST, 2)
 			# Moving phones: restore one of the exports found on this device.
 			text(Vector2(x, y + 250), Tx.t("ui.settings.restore_an_export"), 20, UiKit.GOLD)
-			if exports.is_empty(): text(Vector2(x, y + 282), Tx.t("ui.settings.no_exports_yet"), 17, UiKit.HOLLOW)
+			if exports.is_empty(): text(Vector2(x, y + 282), Tx.t("ui.settings.no_exports_yet"), 18, UiKit.HOLLOW)
 			for i in mini(3, exports.size()):
 				var e: Dictionary = exports[i]
 				text(Vector2(x, y + 290 + i * 56), fit(str(e.name), 18, 560), 18, UiKit.PAPER)
-				btn(Rect2(x + 600, y + 262 + i * 56, 180, 46), Tx.t("ui.settings.restore"), "restore", str(e.path), false, true, "", 17)
+				btn(Rect2(x + 600, y + 262 + i * 56, 180, 46), Tx.t("ui.settings.restore"), "restore", str(e.path), false, true, "", 18)
 
 func setup() -> void:
 	exports = Saves.list_exports()

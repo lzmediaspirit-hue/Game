@@ -19,9 +19,9 @@ func draw_page() -> void:
 	var q: Dictionary = Game.progression.query_breakthrough(ch, supports)
 	var left := Rect2(content.position.x, content.position.y, 640, content.size.y)
 	panel(left)
-	text(left.position + Vector2(24, 44), "%s  →  %s" % [ContentDB.name_of("realms", str(q.from)), ContentDB.name_of("realms", str(q.to))], 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(left.position + Vector2(24, 44), "%s  →  %s" % [ContentDB.name_of("realms", str(q.from)), ContentDB.name_of("realms", str(q.to))], 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	if str(q.get("event", "")) != "":
-		text(left.position + Vector2(24, 76), Tx.t("ui.breakthrough.trial") % ContentDB.text("event." + str(q.event)), 19, UiKit.SOUL_TEXT)
+		text(left.position + Vector2(24, 76), Tx.t("ui.breakthrough.trial") % ContentDB.text("event." + str(q.event)), 20, UiKit.SOUL_TEXT)
 	var y := left.position.y + 100
 	if not q.major:
 		para(Rect2(left.position.x + 24, y, 590, 100), Tx.t("ui.breakthrough.a_minor_step_within_the"), 20)
@@ -29,8 +29,8 @@ func draw_page() -> void:
 		var ok: bool = r.ok
 		draw_circle(Vector2(left.position.x + 36, y + 16), 10, UiKit.JADE if ok else (UiKit.RED if r.hard else UiKit.WARNING))
 		if ok: draw_line(Vector2(left.position.x + 31, y + 16), Vector2(left.position.x + 36, y + 21), UiKit.INK, 2)
-		text(Vector2(left.position.x + 58, y + 22), str(r.text), 19, UiKit.PAPER)
-		text(Vector2(left.position.x + 58, y + 44), (Tx.t("ui.breakthrough.required") if r.hard else Tx.t("ui.breakthrough.soft_raises_risk_if_unmet")) + " · " + str(r.cause).capitalize(), 15, UiKit.MIST)
+		text(Vector2(left.position.x + 58, y + 22), str(r.text), 20, UiKit.PAPER)
+		text(Vector2(left.position.x + 58, y + 44), (Tx.t("ui.breakthrough.required") if r.hard else Tx.t("ui.breakthrough.soft_raises_risk_if_unmet")) + " · " + str(r.cause).capitalize(), 16, UiKit.MIST)
 		var fix := str(r.get("fix", ""))
 		if not ok and fix.begins_with("page:"): btn(Rect2(left.end.x - 130, y + 4, 110, 40), Tx.t("ui.breakthrough.go"), "fix", fix.trim_prefix("page:"))
 		y += 58
@@ -49,8 +49,8 @@ func draw_page() -> void:
 		text(Vector2(right.position.x + 24, yy), "· " + str(reason), 16, UiKit.MIST)
 		yy += 22
 	var risk_col = {"none": UiKit.BRIGHT_JADE, "low": UiKit.BRIGHT_JADE, "moderate": UiKit.WARNING, "high": UiKit.RED_TEXT, "severe": UiKit.RED_TEXT}.get(str(q.risk), UiKit.PAPER)
-	text(Vector2(right.position.x + 24, right.end.y - 96), Tx.t("ui.breakthrough.risk") % str(q.risk).capitalize(), 24, risk_col, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	text(Vector2(right.position.x + 24, right.end.y - 70), Tx.t("ui.breakthrough.success") % int(float(q.success) * 100), 19, UiKit.PAPER)
+	text(Vector2(right.position.x + 24, right.end.y - 96), Tx.t("ui.breakthrough.risk") % str(q.risk).capitalize(), 22, risk_col, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(Vector2(right.position.x + 24, right.end.y - 70), Tx.t("ui.breakthrough.success") % int(float(q.success) * 100), 20, UiKit.PAPER)
 	btn(Rect2(right.end.x - 250, right.end.y - 76, 226, 58), Tx.t("ui.breakthrough.break_through"), "go", null, true, bool(q.can), str(q.blocked))
 
 func _core_checklist(ch, r: Rect2) -> void:
@@ -60,7 +60,7 @@ func _core_checklist(ch, r: Rect2) -> void:
 		if pt.met: met += 1
 	var flawless: bool = ch.quests.has_flag("cleansing_flawless")
 	var best := ProgressionRules.core_grade(met, flawless)
-	text(r.position + Vector2(0, 20), Tx.t("ui.breakthrough.core_forging") % best, 19, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x)
+	text(r.position + Vector2(0, 20), Tx.t("ui.breakthrough.core_forging") % best, 20, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x)
 	var y := r.position.y + 30
 	var step := minf(24.0, (r.end.y - y) / float(pts.size() + (1 if flawless else 0)))
 	for pt in pts:

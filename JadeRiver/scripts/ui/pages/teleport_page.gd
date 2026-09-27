@@ -11,7 +11,7 @@ func draw_page() -> void:
 	if ch == null: return
 	var stones: Array = ContentDB.all("teleport_stones")
 	var y := content.position.y + 6
-	text(Vector2(content.position.x, y + 20), Tx.t("ui.teleport.shards") % ch.inventory.count("spirit_stone_shard"), 19, UiKit.MIST)
+	text(Vector2(content.position.x, y + 20), Tx.t("ui.teleport.shards") % ch.inventory.count("spirit_stone_shard"), 20, UiKit.MIST)
 	y += 36
 	# B7: full-height buttons in a scrolling list, however many stones there are (they were squeezed to 27 px).
 	list("stones", Rect2(content.position.x, y, content.size.x, content.end.y - y), stones.size(), 58, func(i: int, rr: Rect2):

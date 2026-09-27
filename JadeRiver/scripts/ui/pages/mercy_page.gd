@@ -12,7 +12,7 @@ func draw_page() -> void:
 	var x := content.position.x + 20
 	var y := content.position.y + 10
 	text(Vector2(x, y + 30), ContentDB.name_of("enemies", def), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	para(Rect2(x, y + 48, content.size.x - 40, 90), Tx.t("ui.mercy.line"), 19, UiKit.PAPER, 3)
+	para(Rect2(x, y + 48, content.size.x - 40, 90), Tx.t("ui.mercy.line"), 20, UiKit.PAPER, 3)
 	var spare := ContentDB.entry("karma", "spared_foe")
 	var kill := ContentDB.entry("karma", "killed_yielded")
 	var bw := (content.size.x - 40 - 16) / 2.0
@@ -21,7 +21,7 @@ func draw_page() -> void:
 	text(Vector2(x + bw + 16, by - 10), Tx.t("ui.mercy.kill_cost") % int(kill.get("sin", 0)), 16, UiKit.RED_TEXT)
 	btn(Rect2(x, by, bw, 58), Tx.t("ui.mercy.spare"), "judge", true, true)
 	btn(Rect2(x + bw + 16, by, bw, 58), Tx.t("ui.mercy.kill"), "judge", false)
-	para(Rect2(x, content.end.y - 50, content.size.x - 40, 44), Tx.t("ui.mercy.note"), 15, UiKit.MIST, 2)
+	para(Rect2(x, content.end.y - 50, content.size.x - 40, 44), Tx.t("ui.mercy.note"), 16, UiKit.MIST, 2)
 
 func on_action(id: String, data) -> void:
 	if id == "judge":

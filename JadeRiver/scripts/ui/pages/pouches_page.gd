@@ -29,16 +29,16 @@ func draw_page() -> void:
 		var p: Dictionary = Game.posts.pouch(ch, cat)
 		var tier := int(p.get("tier", 0))
 		var tier_name := Tx.t("ui.pouches.unsewn") if tier == 0 else str(rows[tier - 1].name)
-		text(r.position + Vector2(56, 28), "%s · %s" % [Tx.t("ui.pouches.cat_" + cat), tier_name], 17, UiKit.PAPER)
+		text(r.position + Vector2(56, 28), "%s · %s" % [Tx.t("ui.pouches.cat_" + cat), tier_name], 18, UiKit.PAPER)
 		text(r.position + Vector2(56, 52), Tx.t("ui.pouches.holds") % [UiKit.fmt(int(Game.posts.capacity(ch, cat))), UiKit.fmt(int(Game.posts.held(ch, cat)))], 14, UiKit.MIST)
 		if tier >= rows.size():
-			text(r.position + Vector2(56, 80), Tx.t("ui.pouches.finest"), 15, UiKit.PALE_GOLD)
+			text(r.position + Vector2(56, 80), Tx.t("ui.pouches.finest"), 16, UiKit.PALE_GOLD)
 		else:
 			var nx: Dictionary = rows[tier]
 			var parts: Array = []
 			for need in nx.items: parts.append("%d %s" % [int(need.count), ContentDB.item_name(str(need.item))])
 			var cost := Tx.t("ui.pouches.cost_list") % [UiKit.fmt(int(nx.taels)), ", ".join(parts)]
-			text(r.position + Vector2(56, 80), fit(Tx.t("ui.pouches.next") % [str(nx.name), UiKit.fmt(int(nx.cap) * 4)] + " · " + cost, 13, colw - 190), 13, UiKit.BRIGHT_JADE)
+			text(r.position + Vector2(56, 80), fit(Tx.t("ui.pouches.next") % [str(nx.name), UiKit.fmt(int(nx.cap) * 4)] + " · " + cost, 14, colw - 190), 14, UiKit.BRIGHT_JADE)
 			btn(Rect2(r.end.x - 118, r.position.y + 24, 106, 48), Tx.t("ui.pouches.sew"), "sew", cat, true, true, "", 18)
 
 func on_action(id: String, data) -> void:

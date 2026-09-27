@@ -31,7 +31,7 @@ func draw_page() -> void:
 		para(Rect2(r.position + Vector2(30, 30), Vector2(r.size.x - 60, 120)), Tx.t("ui.your_sect.the_hidden_vale_beyond_crane"), 22)
 		btn(Rect2(540, 380, 200, 56), Tx.t("ui.your_sect.found"), "found", null, true, Unlocks.is_unlocked(ch.id, "your_sect"), Unlocks.locked_text("your_sect"))
 		return
-	text(r.position + Vector2(30, 44), Tx.t("ui.your_sect.level_prestige") % [str(s.name), int(s.level), UiKit.fmt(int(s.prestige))], 24, UiKit.PALE_GOLD)
+	text(r.position + Vector2(30, 44), Tx.t("ui.your_sect.level_prestige") % [str(s.name), int(s.level), UiKit.fmt(int(s.prestige))], 22, UiKit.PALE_GOLD)
 	match str(tabs[tab].id):
 		"hall":
 			var bs: Array = ContentDB.all("sect_buildings")
@@ -41,7 +41,7 @@ func draw_page() -> void:
 				var hurt: bool = s.get("damaged", {}).has(str(b.id))
 				panel(rr, "minor_panel", "disabled" if hurt else "normal")
 				text(rr.position + Vector2(20, 30), str(b.name), 20)
-				text(rr.position + Vector2(20, 54), Tx.t("ui.your_sect.damaged_in_a_raid_output") if hurt else Tx.t("ui.your_sect.level_needs_sect_level") % [lv, int(b.get("sect_level", 1))], 15, UiKit.RED_TEXT if hurt else UiKit.MIST)
+				text(rr.position + Vector2(20, 54), Tx.t("ui.your_sect.damaged_in_a_raid_output") if hurt else Tx.t("ui.your_sect.level_needs_sect_level") % [lv, int(b.get("sect_level", 1))], 16, UiKit.RED_TEXT if hurt else UiKit.MIST)
 				if hurt:
 					btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 48), Tx.t("ui.your_sect.repair"), "repair", str(b.id), true)
 					return
@@ -55,13 +55,13 @@ func draw_page() -> void:
 			text(r.position + Vector2(30, 90), Tx.t("ui.your_sect.disciples_2") % ds.size(), 20)
 			var y := r.position.y + 110
 			for d in ds:
-				text(Vector2(r.position.x + 30, y + 22), Tx.t("ui.your_sect.lv") % [str(d.get("name", "")), int(d.get("level", 1)), _traits(d)], 17)
+				text(Vector2(r.position.x + 30, y + 22), Tx.t("ui.your_sect.lv") % [str(d.get("name", "")), int(d.get("level", 1)), _traits(d)], 18)
 				y += 30
 			text(Vector2(r.position.x + 30, y + 30), Tx.t("ui.your_sect.candidates_today"), 20, UiKit.GOLD)
 			y += 40
 			for i in cands.size():
 				var cd: Dictionary = cands[i]
-				text(Vector2(r.position.x + 30, y + 30), Tx.t("ui.your_sect.strength_spirit_craft") % [str(cd.get("name", "")), int(cd.get("strength", 1)), int(cd.get("spirit", 1)), int(cd.get("craft", 1)), _traits(cd)], 17)
+				text(Vector2(r.position.x + 30, y + 30), Tx.t("ui.your_sect.strength_spirit_craft") % [str(cd.get("name", "")), int(cd.get("strength", 1)), int(cd.get("spirit", 1)), int(cd.get("craft", 1)), _traits(cd)], 18)
 				btn(Rect2(r.end.x - 190, y + 4, 160, 44), Tx.t("ui.your_sect.recruit"), "recruit", i)
 				y += 52
 		"expeditions":
@@ -72,7 +72,7 @@ func draw_page() -> void:
 				if i < out.size():
 					var ex: Dictionary = out[i]
 					var left := int(float(ex.done_utc) - Clock.now_utc())
-					text(Vector2(rr.position.x + 20, rr.position.y + 32), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % (left / 60 + 1)], 17, UiKit.MIST)
+					text(Vector2(rr.position.x + 20, rr.position.y + 32), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % (left / 60 + 1)], 18, UiKit.MIST)
 					if left <= 0: btn(Rect2(rr.end.x - 180, rr.position.y + 2, 160, 48), Tx.t("ui.your_sect.collect"), "collect", i, true)
 					return
 				var e: Dictionary = exs[i - out.size()]
@@ -107,14 +107,14 @@ func _draw_territory(r: Rect2, s: Dictionary) -> void:
 		var tx: Texture2D = SpriteCache.tex(str(e.get("file", ""))) if not e.is_empty() else null
 		if tx: draw_texture_rect_region(tx, Rect2(rr.position + Vector2(14, 8), Vector2(48, 88)), Rect2(0, 4, 48, 88))
 		var x0 := rr.position.x + 80
-		text(Vector2(x0, rr.position.y + 28), str(m.name), 21, UiKit.PALE_GOLD if mine else UiKit.PAPER)
+		text(Vector2(x0, rr.position.y + 28), str(m.name), 22, UiKit.PALE_GOLD if mine else UiKit.PAPER)
 		var rate := Tx.t("ui.your_sect.rate_one") if int(m.rate) == 1 else Tx.t("ui.your_sect.rate") % int(m.rate)
 		text(Vector2(x0, rr.position.y + 50), Tx.t("ui.your_sect.mine_meta") % [ContentDB.name_of("rooms", str(m.room)), int(m.level), rate,
-			int(m.get("sect_level", 1))], 15, UiKit.MIST)
+			int(m.get("sect_level", 1))], 16, UiKit.MIST)
 		if mine:
 			var cap := int(cap_h * float(m.rate))
 			var stored := Game.sect.mine_stored(id, now)
-			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_yours") % [stored, cap], 17, UiKit.BRIGHT_JADE)
+			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_yours") % [stored, cap], 18, UiKit.BRIGHT_JADE)
 			var when := Tx.t("ui.your_sect.mine_contested") % [str(rv.get("name", "")), UiKit.span(float(st.until) - now)] if contested \
 				else Tx.t("ui.your_sect.mine_next") % UiKit.span(float(st.get("contest", now)) - now)
 			text(Vector2(x0 + 250, rr.position.y + 74), when, 16, UiKit.RED_TEXT if contested else UiKit.MIST)
@@ -131,7 +131,7 @@ func _draw_territory(r: Rect2, s: Dictionary) -> void:
 				btn(Rect2(rr.end.x - 330, rr.position.y + 56, 150, 42), Tx.t("ui.your_sect.recall_guard"), "mine_guard", [id, int(gs[gs.size() - 1])])
 			if contested: btn(Rect2(rr.end.x - 170, rr.position.y + 56, 150, 42), Tx.t("ui.your_sect.go"), "mine_go", str(m.room), true)
 		else:
-			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_held_by") % str(rv.get("name", "")), 17, Color(str(rv.get("color", "#AFC9D1"))).lightened(0.35))
+			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_held_by") % str(rv.get("name", "")), 18, Color(str(rv.get("color", "#AFC9D1"))).lightened(0.35))
 			para(Rect2(x0, rr.position.y + 80, rr.size.x - 300, 22), str(rv.get("desc", "")), 14, UiKit.MIST, 1)
 			var why: String = Game.sect.assault_block(c(), id)
 			btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 42), Tx.t("ui.your_sect.go"), "mine_go", str(m.room), why == "", true)

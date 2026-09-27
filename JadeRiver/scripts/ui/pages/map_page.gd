@@ -107,7 +107,7 @@ func draw_page() -> void:
 			draw_circle(gq, 13.0 + 2.0 * sin(t * 4.0), Color(UiKit.GOLD, 0.3))
 			draw_colored_polygon(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0)]), UiKit.GOLD)
 			draw_polyline(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0), gq + Vector2(0, -10)]), UiKit.INK, 1.5)
-			UiKit.draw_text(self, "!", gq + Vector2(-3, 5), 13, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
+			UiKit.draw_text(self, "!", gq + Vector2(-3, 5), 14, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
 		if events_at.has(rid):
 			var live: bool = (events_at[rid] as Array).any(func(o): return now >= float(o.start))
 			var mk := p + Vector2(-24, -24)
@@ -116,7 +116,7 @@ func draw_page() -> void:
 			draw_colored_polygon(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0)]), mc)
 			draw_polyline(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0), mk + Vector2(0, -8)]), UiKit.INK, 1.5)
 		var name_ := str(r.name) if seen else "?"
-		UiKit.draw_outlined(self, name_, p + Vector2(-90, 36), 15, UiKit.PAPER if seen else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, 180)
+		UiKit.draw_outlined(self, name_, p + Vector2(-90, 36), 16, UiKit.PAPER if seen else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, 180)
 		region(Rect2(p - Vector2(30, 30), Vector2(60, 60)), "sel", rid)
 	# Details.
 	var right := Rect2(map_r.end.x + 20, content.position.y, content.end.x - map_r.end.x - 20, content.size.y)
@@ -134,11 +134,11 @@ func draw_page() -> void:
 	if att is Dictionary and reg.has("attunement"):
 		var have: float = Game.progression.attunement_value(ch, zone_id) if str(ContentDB.zone_of_room(str(ch.position.get("room", ""))).get("id", "")) == zone_id else float(ch.cultivator.attunement.get(zone_id, 0.0))
 		var need := float(reg.attunement)
-		text(Vector2(right.position.x + 20, y + 10), Tx.t("ui.map.attunement_need") % [str(att.get("name", "")), int(need), int(have)], 17,
+		text(Vector2(right.position.x + 20, y + 10), Tx.t("ui.map.attunement_need") % [str(att.get("name", "")), int(need), int(have)], 18,
 			UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT)
 		y += 28
 	if reg.get("planned", false):
-		para(Rect2(right.position.x + 20, y + 4, right.size.x - 40, 80), Tx.t("ui.map.way_not_open"), 17, UiKit.HOLLOW)
+		para(Rect2(right.position.x + 20, y + 4, right.size.x - 40, 80), Tx.t("ui.map.way_not_open"), 18, UiKit.HOLLOW)
 		return
 	for o in events_at.get(sel, []):
 		var ev := CalendarRules.event(str(o.id))
@@ -158,19 +158,19 @@ func draw_page() -> void:
 		if seen2:
 			for e in ContentDB.all("paths_above"):
 				if str(e.room) == id and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)):
-					text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.path_above") % str(e.art_name), 15, UiKit.MIST)
+					text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.path_above") % str(e.art_name), 16, UiKit.MIST)
 					y += 20
 		# S18 room data: its hazards and the attribute that answers them.
 		if seen2:
 			for hz in HazardRules.summary(ch, room):
-				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.hazard") % [str(hz.name), Tx.t("ui.cultivation." + str(hz.stat)), int(hz.need)], 15,
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.hazard") % [str(hz.name), Tx.t("ui.cultivation." + str(hz.stat)), int(hz.need)], 16,
 					UiKit.BRIGHT_JADE if hz.answered else UiKit.PALE_GOLD)
 				y += 20
 		for sp in room.get("spawns", []):
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))
 				var left_s := int(until - Clock.now_utc())
-				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 15, UiKit.RED_TEXT)
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 16, UiKit.RED_TEXT)
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break
@@ -250,8 +250,8 @@ func _draw_ranking(ch) -> void:
 	var x := r.position.x + 28
 	var cols := [x + 12, x + 64, r.end.x - 470, r.end.x - 340, r.end.x - 196]
 	heading(Vector2(x, r.position.y + 40), Tx.t("ui.map.ranking_week") % (Game.calendar.rank_week() + 1), cols[2] - x - 40)
-	text(Vector2(cols[2], r.position.y + 40), Tx.t("ui.map.rank_level"), 15, UiKit.MIST)
-	text(Vector2(cols[3], r.position.y + 40), Tx.t("ui.map.rank_cp"), 15, UiKit.MIST)
+	text(Vector2(cols[2], r.position.y + 40), Tx.t("ui.map.rank_level"), 16, UiKit.MIST)
+	text(Vector2(cols[3], r.position.y + 40), Tx.t("ui.map.rank_cp"), 16, UiKit.MIST)
 	var now := Clock.now_utc()
 	var table: Array = Game.calendar.ranking(ch)
 	var prev: Array = CalendarRules.rank_table(now - 604800.0, Game.calendar.cal_seed(), Game.calendar.origin()).map(func(o): return str(o.id))
@@ -264,17 +264,17 @@ func _draw_ranking(ch) -> void:
 		var rr := Rect2(x, y, r.size.x - 56, 48)
 		panel(rr, "minor_panel", "selected" if me else "normal")
 		text(Vector2(cols[0], y + 32), "%d" % (i + 1), 22, UiKit.GOLD if i < 3 else UiKit.PAPER)
-		text(Vector2(cols[1], y + 22), fit(str(o.name), 19, cols[2] - cols[1] - 20), 19, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
-		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 13, cols[2] - cols[1] - 20), 13, UiKit.MIST)
+		text(Vector2(cols[1], y + 22), fit(str(o.name), 20, cols[2] - cols[1] - 20), 20, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
+		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 14, cols[2] - cols[1] - 20), 14, UiKit.MIST)
 		text(Vector2(cols[2], y + 31), "%d" % int(o.level), 18, UiKit.PAPER)
 		text(Vector2(cols[3], y + 31), UiKit.fmt(int(o.cp)), 18, UiKit.PAPER)
 		if not me:
 			var was := prev.find(str(o.id))
-			if was >= 0 and was != npc_i: text(Vector2(cols[3] + 86, y + 31), "▲" if was > npc_i else "▼", 15, UiKit.BRIGHT_JADE if was > npc_i else UiKit.RED_TEXT)
+			if was >= 0 and was != npc_i: text(Vector2(cols[3] + 86, y + 31), "▲" if was > npc_i else "▼", 16, UiKit.BRIGHT_JADE if was > npc_i else UiKit.RED_TEXT)
 			npc_i += 1
 		if not above.is_empty() and str(above.id) == str(o.id):
 			btn(Rect2(cols[4], y + 6, rr.end.x - cols[4] - 8, 36), Tx.t("ui.map.rank_challenge"), "challenge", str(o.id), true, true, "", 18)
 		y += 52
 	if not table.any(func(o): return o.get("player", false)):
 		var low := int(table.back().cp) if not table.is_empty() else 0
-		para(Rect2(x, y + 2, r.size.x - 56, 50), Tx.t("ui.map.rank_enter") % [UiKit.fmt(low), UiKit.fmt(StatRules.combat_power(ch))], 17, UiKit.MIST, 2)
+		para(Rect2(x, y + 2, r.size.x - 56, 50), Tx.t("ui.map.rank_enter") % [UiKit.fmt(low), UiKit.fmt(StatRules.combat_power(ch))], 18, UiKit.MIST, 2)

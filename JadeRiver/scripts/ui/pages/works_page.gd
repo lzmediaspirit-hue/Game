@@ -48,7 +48,7 @@ func _draw_arts() -> void:
 	var x := content.position.x
 	var y := content.position.y
 	para(Rect2(Vector2(x, y), Vector2(content.size.x - 480, 50)), Tx.t("ui.works.arts_note"), 16, UiKit.MIST, 2)
-	text(Vector2(content.end.x - 470, y + 32), Tx.t("ui.works.art_points") % Game.posts.art_points_free(ch), 19, UiKit.PALE_GOLD)
+	text(Vector2(content.end.x - 470, y + 32), Tx.t("ui.works.art_points") % Game.posts.art_points_free(ch), 20, UiKit.PALE_GOLD)
 	var cost := int(ContentDB.config("posts").get("arts", {}).get("reset_taels", 1000))
 	btn(Rect2(content.end.x - 230, y, 230, 50), Tx.t("ui.works.art_reset") % UiKit.fmt(cost), "art_reset", null, false,
 		not Game.posts.arts(ch).is_empty(), Tx.t("ui.works.no_arts"), 16)
@@ -60,15 +60,15 @@ func _draw_arts() -> void:
 		var lv := Game.posts.art_level(ch, id)
 		var mx := int(a.get("max", 1))
 		panel(rr, "minor_panel", "selected" if lv > 0 else "normal")
-		text(rr.position + Vector2(16, 30), str(a.name), 19, UiKit.PALE_GOLD if lv > 0 else UiKit.PAPER)
+		text(rr.position + Vector2(16, 30), str(a.name), 20, UiKit.PALE_GOLD if lv > 0 else UiKit.PAPER)
 		text(rr.position + Vector2(300, 30), Tx.t("ui.works.level_of") % [lv, mx], 16, UiKit.MIST)
 		var now := Game.posts._curve_of(a, lv)
 		var line := _effect(str(a.text), now) if lv > 0 else Tx.t("ui.works.not_learned")
 		if lv < mx: line += "   " + Tx.t("ui.works.next") % _effect(str(a.text), Game.posts._curve_of(a, lv + 1))
-		text(rr.position + Vector2(16, 60), fit(line, 15, rr.size.x - 200), 15, UiKit.BRIGHT_JADE if lv > 0 else UiKit.MIST)
+		text(rr.position + Vector2(16, 60), fit(line, 16, rr.size.x - 200), 16, UiKit.BRIGHT_JADE if lv > 0 else UiKit.MIST)
 		if lv < mx:
 			btn(Rect2(rr.end.x - 170, rr.position.y + 14, 154, 50), Tx.t("ui.works.learn"), "art", id, true, Game.posts.art_points_free(ch) > 0,
-				Tx.t("sim.posts.no_art_points"), 17)
+				Tx.t("sim.posts.no_art_points"), 18)
 	)
 
 # ------------------------------------------------------------------ Seal Scripts
@@ -90,17 +90,17 @@ func _draw_seals() -> void:
 		var eff := Game.posts._curve_of(sd, lv)
 		var what := Tx.t("ui.works.seal_" + str(sd.gives[0])) % str(snappedf(eff, 0.1))
 		if craft != "": what += " · " + Tx.t("ui.works.seal_yours") % Game.posts.seal_effective(ch, sd)
-		text(rr.position + Vector2(78, 58), fit(Tx.t("ui.works.level_of") % [lv, mx] + " · " + what, 15, rr.size.x - 470), 15, UiKit.MIST)
+		text(rr.position + Vector2(78, 58), fit(Tx.t("ui.works.level_of") % [lv, mx] + " · " + what, 16, rr.size.x - 470), 16, UiKit.MIST)
 		if lv >= mx:
 			text(Vector2(rr.end.x - 200, rr.position.y + 48), Tx.t("ui.works.deepest"), 16, UiKit.PALE_GOLD)
 			return
 		var cost: Dictionary = Game.posts.seal_next_cost(id)
 		var have := int(Game.account.storehouse.get(str(cost.item), 0))
 		icon_at(Rect2(rr.end.x - 380, rr.position.y + 18, 40, 40), str(cost.item))
-		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
-		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 13, 150), 13, UiKit.MIST)
+		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 16, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
+		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 14, 150), 14, UiKit.MIST)
 		btn(Rect2(rr.end.x - 170, rr.position.y + 16, 154, 50), Tx.t("ui.works.inscribe"), "seal", id, true, have >= int(cost.count),
-			Tx.t("sim.posts.needs_stored") % [int(cost.count), ContentDB.item_name(str(cost.item))], 17)
+			Tx.t("sim.posts.needs_stored") % [int(cost.count), ContentDB.item_name(str(cost.item))], 18)
 	)
 
 # ------------------------------------------------------------------ Guardian Steles
@@ -120,18 +120,18 @@ func _draw_steles() -> void:
 		panel(rr, "minor_panel", "selected" if lv > 0 else "normal")
 		icon_at(Rect2(rr.position + Vector2(8, 8), Vector2(64, 64)), str(cr.get("icon", "")))
 		text(rr.position + Vector2(78, 30), Tx.t("ui.works.stele_of") % str(cr.name), 18, UiKit.PALE_GOLD if lv > 0 else UiKit.PAPER)
-		text(rr.position + Vector2(78, 58), Tx.t("ui.works.level_of") % [lv, mx] + " · " + Tx.t("ui.works.stele_power") % str(snappedf(Game.posts.stele_power(craft), 0.1)), 15, UiKit.MIST)
+		text(rr.position + Vector2(78, 58), Tx.t("ui.works.level_of") % [lv, mx] + " · " + Tx.t("ui.works.stele_power") % str(snappedf(Game.posts.stele_power(craft), 0.1)), 16, UiKit.MIST)
 		if lv >= mx:
 			text(Vector2(rr.end.x - 200, rr.position.y + 48), Tx.t("ui.works.highest"), 16, UiKit.PALE_GOLD)
 			return
 		var cost := PostRules.stele_cost(lv)
 		var have := int(Game.account.storehouse.get(str(cost.item), 0))
 		var can := have >= int(cost.count) and Game.economy.balance("silver_tael", ch) >= int(cost.taels)
-		text(Vector2(rr.end.x - 470, rr.position.y + 36), Tx.t("ui.works.taels") % UiKit.fmt(int(cost.taels)), 15, UiKit.PAPER)
+		text(Vector2(rr.end.x - 470, rr.position.y + 36), Tx.t("ui.works.taels") % UiKit.fmt(int(cost.taels)), 16, UiKit.PAPER)
 		icon_at(Rect2(rr.end.x - 380, rr.position.y + 18, 40, 40), str(cost.item))
-		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 15, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
-		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 13, 150), 13, UiKit.MIST)
-		btn(Rect2(rr.end.x - 170, rr.position.y + 16, 154, 50), Tx.t("ui.works.raise"), "stele", craft, true, can, Tx.t("ui.works.cannot_pay"), 17)
+		text(Vector2(rr.end.x - 332, rr.position.y + 36), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(cost.count))], 16, UiKit.PAPER if have >= int(cost.count) else UiKit.RED_TEXT)
+		text(Vector2(rr.end.x - 332, rr.position.y + 60), fit(ContentDB.item_name(str(cost.item)), 14, 150), 14, UiKit.MIST)
+		btn(Rect2(rr.end.x - 170, rr.position.y + 16, 154, 50), Tx.t("ui.works.raise"), "stele", craft, true, can, Tx.t("ui.works.cannot_pay"), 18)
 	)
 
 # ------------------------------------------------------------------ Magistrate's Favours
@@ -147,10 +147,10 @@ func _draw_favours() -> void:
 		var id := str(f.id)
 		var held := Game.posts.has_favour(id)
 		panel(r, "minor_panel", "selected" if held else "normal")
-		text(r.position + Vector2(16, 32), str(f.name), 19, UiKit.PALE_GOLD if held else UiKit.PAPER)
-		text(r.position + Vector2(16, 60), fit(str(f.text), 15, r.size.x - 220), 15, UiKit.MIST)
+		text(r.position + Vector2(16, 32), str(f.name), 20, UiKit.PALE_GOLD if held else UiKit.PAPER)
+		text(r.position + Vector2(16, 60), fit(str(f.text), 16, r.size.x - 220), 16, UiKit.MIST)
 		if held:
-			text(Vector2(r.end.x - 190, r.position.y + 60), Tx.t("ui.works.granted"), 17, UiKit.PALE_GOLD)
+			text(Vector2(r.end.x - 190, r.position.y + 60), Tx.t("ui.works.granted"), 18, UiKit.PALE_GOLD)
 		else:
 			var parts: Array = [Tx.t("ui.works.taels") % UiKit.fmt(int(f.taels))]
 			var can := Game.economy.balance("silver_tael", ch) >= int(f.taels)
@@ -159,7 +159,7 @@ func _draw_favours() -> void:
 				parts.append("%s %s (%s)" % [UiKit.fmt(int(need.count)), ContentDB.item_name(str(need.item)), UiKit.fmt(have)])
 				if have < int(need.count): can = false
 			text(r.position + Vector2(16, 90), fit(Tx.t("ui.works.tribute") % ", ".join(parts), 14, r.size.x - 220), 14, UiKit.BRIGHT_JADE)
-			btn(Rect2(r.end.x - 190, r.position.y + 28, 174, 54), Tx.t("ui.works.seek"), "favour", id, true, can, Tx.t("ui.works.cannot_pay"), 17)
+			btn(Rect2(r.end.x - 190, r.position.y + 28, 174, 54), Tx.t("ui.works.seek"), "favour", id, true, can, Tx.t("ui.works.cannot_pay"), 18)
 	)
 
 # ------------------------------------------------------------------ the Calcination Furnace
@@ -179,7 +179,7 @@ func _draw_furnace() -> void:
 		icon_at(Rect2(rr.position + Vector2(10, 14), Vector2(64, 64)), id)
 		text(rr.position + Vector2(82, 30), "%s · %s" % [ContentDB.item_name(id), Tx.t("ui.works.rank") % rank], 18, UiKit.PALE_GOLD if ln.get("on", false) else UiKit.PAPER)
 		if not open:
-			text(rr.position + Vector2(82, 62), Tx.t("sim.posts.line_closed") % int(PostRules.rule_calc("open_rank", 3)), 15, UiKit.HOLLOW)
+			text(rr.position + Vector2(82, 62), Tx.t("sim.posts.line_closed") % int(PostRules.rule_calc("open_rank", 3)), 16, UiKit.HOLLOW)
 			return
 		var parts: Array = []
 		for inp in sd.get("inputs", []):
@@ -203,8 +203,8 @@ func _draw_flags() -> void:
 	para(Rect2(Vector2(x, y), Vector2(content.size.x - 460, 60)), Tx.t("ui.works.flags_note") % int(fl.get("max", 2)), 16, UiKit.MIST, 3)
 	var here := str(ch.position.get("room", ""))
 	var cost := UiKit.fmt(int(fl.get("plant_taels", 500)))
-	btn(Rect2(content.end.x - 450, y, 220, 52), Tx.t("ui.works.plant_plain") % cost, "plant", "plain", true, true, "", 15)
-	btn(Rect2(content.end.x - 220, y, 220, 52), Tx.t("ui.works.plant_deep") % cost, "plant", "deep", false, true, "", 15)
+	btn(Rect2(content.end.x - 450, y, 220, 52), Tx.t("ui.works.plant_plain") % cost, "plant", "plain", true, true, "", 16)
+	btn(Rect2(content.end.x - 220, y, 220, 52), Tx.t("ui.works.plant_deep") % cost, "plant", "deep", false, true, "", 16)
 	y += 76
 	var list_flags: Array = Game.posts.flags()
 	if list_flags.is_empty():
@@ -218,12 +218,12 @@ func _draw_flags() -> void:
 		var lv := int(f.get("level", 0))
 		text(r.position + Vector2(16, 32), "%s · %s" % [Tx.t("ui.works.flag_" + kind), str(ContentDB.room(str(f.room)).get("name", ""))], 18, UiKit.PALE_GOLD)
 		var eff := Tx.t("ui.works.flag_eff_" + kind) % str(snappedf(PostRules.flag_value(kind, lv), 0.1))
-		text(r.position + Vector2(16, 62), Tx.t("ui.works.level_of") % [lv, int(fl.get("max_level", 20))] + " · " + eff, 15, UiKit.MIST)
+		text(r.position + Vector2(16, 62), Tx.t("ui.works.level_of") % [lv, int(fl.get("max_level", 20))] + " · " + eff, 16, UiKit.MIST)
 		var nc := PostRules.flag_cost(lv)
 		if not nc.is_empty() and lv < int(fl.get("max_level", 20)):
 			var have := int(Game.account.storehouse.get(str(nc.salt), 0))
 			icon_at(Rect2(r.end.x - 470, r.position.y + 22, 40, 40), str(nc.salt))
-			text(Vector2(r.end.x - 422, r.position.y + 48), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(nc.salt_count))], 15, UiKit.PAPER if have >= int(nc.salt_count) else UiKit.RED_TEXT)
+			text(Vector2(r.end.x - 422, r.position.y + 48), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(nc.salt_count))], 16, UiKit.PAPER if have >= int(nc.salt_count) else UiKit.RED_TEXT)
 			btn(Rect2(r.end.x - 330, r.position.y + 18, 150, 50), Tx.t("ui.works.raise"), "flag_raise", i, true, have >= int(nc.salt_count), Tx.t("ui.works.cannot_pay"), 16)
 		btn(Rect2(r.end.x - 170, r.position.y + 18, 154, 50), Tx.t("ui.works.uproot"), "flag_uproot", i, false, true, "", 16)
 		y += 96
@@ -242,7 +242,7 @@ func _draw_mirror() -> void:
 		text(Vector2(x, y + 30), Tx.t("ui.works.mirror_unbuilt"), 18, UiKit.HOLLOW)
 		return
 	var share := Game.posts.art_sum(ch, "echo_share") * (1.0 + float(ContentDB.config("posts").get("mirror", {}).get("per_level", 0.05)) * lv)
-	text(Vector2(x, y + 24), Tx.t("ui.works.mirror_level") % [lv, str(snappedf(share, 0.1))], 17, UiKit.PALE_GOLD)
+	text(Vector2(x, y + 24), Tx.t("ui.works.mirror_level") % [lv, str(snappedf(share, 0.1))], 18, UiKit.PALE_GOLD)
 	y += 44
 	var slots: Array = Game.posts.mirror_slots()
 	for i in Game.posts.mirror_slot_count():
@@ -251,17 +251,17 @@ func _draw_mirror() -> void:
 		panel(r, "minor_panel", "selected" if not sl.is_empty() else "normal")
 		text(r.position + Vector2(16, 32), Tx.t("ui.works.mirror_slot") % (i + 1), 18, UiKit.PAPER)
 		if sl.is_empty():
-			text(r.position + Vector2(16, 64), Tx.t("ui.works.mirror_empty"), 15, UiKit.HOLLOW)
+			text(r.position + Vector2(16, 64), Tx.t("ui.works.mirror_empty"), 16, UiKit.HOLLOW)
 		else:
 			text(r.position + Vector2(200, 32), fit(str(sl.get("name", "")), 16, 300), 16, UiKit.PALE_GOLD)
 			var k := 0
 			for id in sl.get("items", {}):
 				if k >= 3: break
 				icon_at(Rect2(r.position.x + 16 + k * 190, r.position.y + 50, 32, 32), str(id))
-				text(Vector2(r.position.x + 54 + k * 190, r.position.y + 72), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(sl.items[id]), 0.1)), 15, UiKit.PAPER)
+				text(Vector2(r.position.x + 54 + k * 190, r.position.y + 72), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(sl.items[id]), 0.1)), 16, UiKit.PAPER)
 				k += 1
 		btn(Rect2(r.end.x - 250, r.position.y + 22, 234, 52), Tx.t("ui.works.mirror_inscribe") % str(ch.name), "echo", i, true,
-			Game.posts.art_level(ch, "echo_sampling") > 0 and Game.posts.has_post(ch), Tx.t("sim.posts.needs_echo"), 15)
+			Game.posts.art_level(ch, "echo_sampling") > 0 and Game.posts.has_post(ch), Tx.t("sim.posts.needs_echo"), 16)
 		y += 104
 
 func _dur_s(secs: float) -> String:

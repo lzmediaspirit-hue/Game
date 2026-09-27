@@ -186,6 +186,7 @@ func ui_suite() -> void:
 	var labels: Array = []
 	var crossing: Array = []
 	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
+	var off_scale: Array = []   # P4: words asked for off the type scale or under UiKit.MIN_SIZE
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
 	var icons_drawn := 0
@@ -235,6 +236,8 @@ func ui_suite() -> void:
 						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
 				for tx in pg.text_log:
 					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
+					if tx.has("size") and (int(tx.size) < UiKit.MIN_SIZE or not UiKit.on_scale(int(tx.size), bool(tx.display))):
+						off_scale.append("%s \"%s\" at %d" % [where, str(tx.s).left(24), int(tx.size)])
 					var tr: Rect2 = tx.rect
 					if tx.get("panel", false):
 						if not inside.grow(4).encloses(tr): outside.append("%s panel at %s" % [where, str(tr)])
@@ -314,7 +317,7 @@ func ui_suite() -> void:
 	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
 	SpriteCache.draw_log = null
-	for o in overlaps + outside + under + labels + crossing + blurred: print("  ui_suite: ", o)
+	for o in overlaps + outside + under + labels + crossing + blurred + off_scale: print("  ui_suite: ", o)
 	check(icons_drawn > 1000 and blurred.is_empty(), "P4b: every icon on every page is drawn at a whole-number scale of its art, on whole pixels (%d drawn: %s)" % [icons_drawn, str(blurred.slice(0, 6))])
 	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
@@ -325,6 +328,7 @@ func ui_suite() -> void:
 	check(crossing.is_empty(), "B17, B22: no words run over the edge of a card (%d: %s)" % [crossing.size(), str(crossing.slice(0, 8))])
 	check(cut.is_empty(), "B18: the Body hint and trials, the path cards, the arena help and the sect tree say all they have to (%s)" % str(cut))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+	check(off_scale.is_empty(), "P4: every word on every page is asked for on the type scale, none under %d (%d: %s)" % [UiKit.MIN_SIZE, off_scale.size(), str(off_scale.slice(0, 8))])
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
 func _ui_contexts(c) -> Dictionary:
@@ -381,6 +385,21 @@ func ui_style_suite() -> void:
 	var g: Dictionary = ContentDB.config("grades")
 	var bare: Array = (g.get("order", []) as Array).filter(func(k): return not (g.get("grade_colors", {}) as Dictionary).has(k))
 	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))
+	# Type (§3): the HUD's words are asked for on the scale and never under UiKit.MIN_SIZE (the pages are checked as they
+	# draw, in the ui_suite).
+	var call := RegEx.create_from_string("UiKit\\.(draw_text|draw_outlined|draw_inked)\\(self")
+	var size_arg := RegEx.create_from_string(",\\s*(\\d+),\\s*(UiKit\\.|Color\\(|lc\\b|col\\b|ring_col\\b|$)")
+	var hud_lines := FileAccess.get_file_as_string("res://scripts/hud.gd").split("\n")
+	var hud_calls := 0
+	var hud_off: Array = []
+	for i in hud_lines.size():
+		if call.search(hud_lines[i]) == null: continue
+		hud_calls += 1
+		var sm := size_arg.search(hud_lines[i])
+		var sz := int(sm.get_string(1)) if sm != null else -1
+		var display := hud_lines[i].contains(", true, true)")
+		if sm == null or sz < UiKit.MIN_SIZE or not UiKit.on_scale(sz, display): hud_off.append("hud.gd:%d at %d" % [i + 1, sz])
+	check(hud_calls >= 40 and hud_off.is_empty(), "P4: every word on the HUD is asked for on the type scale, none under %d (%d calls: %s)" % [UiKit.MIN_SIZE, hud_calls, str(hud_off)])
 	# Contrast (§1.4, decision 10): every text colour on every fill UiKit.TEXT_ON lists, measured on the HD kit's own art:
 	# the lightest texel (95th percentile) inside the fill's nine-slice centre, over INK. Inked words are measured on INK.
 	var fills := {}

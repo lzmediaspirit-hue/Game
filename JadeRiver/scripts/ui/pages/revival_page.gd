@@ -17,7 +17,7 @@ func draw_page() -> void:
 	# S48 nascent-soul escape: from Sage the soul flees to the shrine and half as much is lost.
 	if not prologue and ProgressionRules.at_least(ch.cultivator.realm_key, str(ContentDB.stat_const("soul_escape", {}).get("from", "sage_1"))):
 		loss_text = Tx.t("ui.revival.soul_escape")
-	para(Rect2(content.position.x + 10, y + 6, content.size.x - 20, 80), Tx.t("ui.revival.your_vision_greys") + loss_text, 21, UiKit.PAPER)
+	para(Rect2(content.position.x + 10, y + 6, content.size.x - 20, 80), Tx.t("ui.revival.your_vision_greys") + loss_text, 22, UiKit.PAPER)
 	var shrine := str(ch.last_shrine.get("room", ""))
 	var where := ContentDB.name_of("rooms", shrine) if shrine != "" else ContentDB.name_of("rooms", str(ch.last_town if ch.last_town != "" else "lf_village"))
 	btn(Rect2(content.position.x + 40, y + 110, content.size.x - 80, 62), Tx.t("ui.revival.return_to") % where, "choose", "shrine", true)

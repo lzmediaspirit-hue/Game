@@ -43,10 +43,10 @@ func draw_page() -> void:
 		else: likes.append(ContentDB.item_name(str(it)))
 	text(Vector2(x, y), Tx.t("ui.gift.loves"), 16, UiKit.MIST)
 	y += 10
-	y += para(Rect2(x, y, left.size.x - 44, 60), ", ".join(loves) if not loves.is_empty() else Tx.t("ui.gift.unknown"), 17, UiKit.PALE_GOLD if not loves.is_empty() else UiKit.HOLLOW, 2) + 22
+	y += para(Rect2(x, y, left.size.x - 44, 60), ", ".join(loves) if not loves.is_empty() else Tx.t("ui.gift.unknown"), 18, UiKit.PALE_GOLD if not loves.is_empty() else UiKit.HOLLOW, 2) + 22
 	text(Vector2(x, y), Tx.t("ui.gift.likes"), 16, UiKit.MIST)
 	y += 10
-	y += para(Rect2(x, y, left.size.x - 44, 80), ", ".join(likes) if not likes.is_empty() else Tx.t("ui.gift.unknown"), 17, UiKit.PAPER if not likes.is_empty() else UiKit.HOLLOW, 3) + 16
+	y += para(Rect2(x, y, left.size.x - 44, 80), ", ".join(likes) if not likes.is_empty() else Tx.t("ui.gift.unknown"), 18, UiKit.PAPER if not likes.is_empty() else UiKit.HOLLOW, 3) + 16
 	para(Rect2(x, left.end.y - 150, left.size.x - 44, 140), Tx.t("ui.gift.given_today") if gifted_today else Tx.t("ui.gift.rules"), 16,
 		UiKit.PALE_GOLD if gifted_today else UiKit.MIST, 6)
 	# Right: the bag's giftable things.

@@ -19,18 +19,18 @@ func draw_page() -> void:
 		var other = Game.character("c%d" % slot)
 		panel(rr, "minor_panel", "selected" if other == ch else "normal")
 		if other == null:
-			text(rr.position + Vector2(20, 48), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 19, UiKit.HOLLOW)
+			text(rr.position + Vector2(20, 48), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 20, UiKit.HOLLOW)
 			return
 		text(rr.position + Vector2(20, 34), str(other.name), 22, UiKit.PALE_GOLD if other == ch else UiKit.PAPER)
 		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key, ProgressionRules.level(other)), 16, UiKit.MIST)
-		text(rr.position + Vector2(300, 48), task_line(other) if other != ch else Tx.t("ui.characters.playing"), 17, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT,
+		text(rr.position + Vector2(300, 48), task_line(other) if other != ch else Tx.t("ui.characters.playing"), 18, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT,
 			rr.size.x - 300 - (170 if other != ch else 20))
 		if other != ch: btn(Rect2(rr.end.x - 160, rr.position.y + 14, 140, 50), Tx.t("ui.characters.switch"), "switch", slot)
 	)
 	var right := Rect2(r.end.x + 20, content.position.y, content.end.x - r.end.x - 20, content.size.y)
 	panel(right)
 	heading(right.position + Vector2(20, 40), Tx.t("ui.characters.when_you_switch_away"), right.size.x - 40)
-	para(Rect2(right.position + Vector2(20, 60), Vector2(right.size.x - 40, 90)), Tx.t("ui.characters.the_character_you_leave_keeps"), 17, UiKit.MIST)
+	para(Rect2(right.position + Vector2(20, 60), Vector2(right.size.x - 40, 90)), Tx.t("ui.characters.the_character_you_leave_keeps"), 18, UiKit.MIST)
 	var cur := str(ch.idle_task.get("task", ""))
 	var y := right.position.y + 160
 	for tk in TASKS:

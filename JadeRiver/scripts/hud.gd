@@ -397,8 +397,8 @@ func _draw_pet_wheel(c) -> void:
 		if active: draw_arc(pos, 38, 0, TAU, 32, UiKit.GOLD, 2.0)
 		var label := Tx.t("hud.pet_cmd_" + id)
 		if id == "ride": label = Tx.t("hud.pet_cmd_dismount") if c.mount_pet != "" and c.riding else Tx.t("hud.pet_cmd_ride")
-		UiKit.draw_outlined(self, label, pos + Vector2(-44, 6), 15, UiKit.GOLD if on else (UiKit.PALE_GOLD if active else UiKit.PAPER), HORIZONTAL_ALIGNMENT_CENTER, 88)
-	UiKit.draw_outlined(self, Tx.t("hud.pet_cmd_title"), pet_center + Vector2(-150, -162), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300)
+		UiKit.draw_outlined(self, label, pos + Vector2(-44, 6), 16, UiKit.GOLD if on else (UiKit.PALE_GOLD if active else UiKit.PAPER), HORIZONTAL_ALIGNMENT_CENTER, 88)
+	UiKit.draw_outlined(self, Tx.t("hud.pet_cmd_title"), pet_center + Vector2(-150, -162), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300)
 
 func tap_cultivate() -> void:
 	var c = Game.active()
@@ -661,7 +661,7 @@ func _draw_caption() -> void:
 	var a := clampf((2.6 - float(caption.t)) / 0.4, 0.0, 1.0)
 	var w := 520.0
 	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(UiKit.INK, 0.55 * a))
-	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
+	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
 func toast(text: String, kind := "unlock", sub := "") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0})
@@ -1358,7 +1358,7 @@ func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String) 
 	draw_rect(r, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
 	draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(UiKit.PALE_GOLD, 0.35), 2)
-	UiKit.draw_text(self, label, r.position + Vector2(-34, 13), 16, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	UiKit.draw_text(self, label, r.position + Vector2(-34, 12), 14, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	UiKit.draw_outlined(self, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func _draw():
@@ -1414,7 +1414,7 @@ func _draw():
 	# The harvest ring (S45) sits over every other control while it runs.
 	if tapping.object != "": _draw_tap_ring()
 	for k in ["tap:perfect", "tap:miss"]:
-		if pulses.has(k): UiKit.draw_outlined(self, Tx.t("hud." + k.replace(":", "_")), attack_center + Vector2(-90, -150), 26,
+		if pulses.has(k): UiKit.draw_outlined(self, Tx.t("hud." + k.replace(":", "_")), attack_center + Vector2(-90, -150), 22,
 			UiKit.GOLD if k == "tap:perfect" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 180)
 	if joystick_id != -999:
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
@@ -1458,7 +1458,7 @@ func _draw_pet_strip(c) -> void:
 			if p.get("wounded", false): ring_col = UiKit.RED
 		elif pc.kind == "mount":
 			ring_col = UiKit.GOLD if c.riding else UiKit.MIST
-			UiKit.draw_outlined(self, Tx.t("hud.walk") if c.riding else Tx.t("hud.ride"), cen + Vector2(-34, r + 17), 15, ring_col, HORIZONTAL_ALIGNMENT_CENTER, 60)
+			UiKit.draw_outlined(self, Tx.t("hud.walk") if c.riding else Tx.t("hud.ride"), cen + Vector2(-34, r + 17), 16, ring_col, HORIZONTAL_ALIGNMENT_CENTER, 60)
 		if pc.kind != "active": draw_arc(cen, r + 1, 0, TAU, 32, ring_col, 2)
 
 func _draw_player_panel(c) -> void:
@@ -1475,8 +1475,8 @@ func _draw_player_panel(c) -> void:
 		# Concealment's false realm (S48) is the badge the world sees; a veil mark says it is not the true one.
 		var badge := ContentDB.realm_label(Game.progression.shown_realm(c), -1 if c.cultivator.false_realm != "" else ProgressionRules.level(c))
 		var veiled: bool = c.cultivator.false_realm != ""
-		UiKit.draw_text(self, badge, r.position + Vector2(18, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
-		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
+		UiKit.draw_text(self, badge, r.position + Vector2(18, 50), 16, UiKit.MIST if veiled else UiKit.PALE_GOLD)
+		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 16), 50), 14, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
 		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
@@ -1537,14 +1537,14 @@ func _draw_tracker(c) -> void:
 	var h := 0.0
 	for q in entries:
 		if y + h > 290: break
-		h += UiKit.line_height(17) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
-		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(15) * 0.88
+		h += UiKit.line_height(18) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
+		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(16) * 0.88
 	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
 	draw_rect(panel, UiKit.PLATE)
 	draw_rect(Rect2(panel.position, Vector2(2, panel.size.y)), Color(UiKit.GOLD, 0.5))
 	for q in entries:
 		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else UiKit.SKY
-		UiKit.draw_text(self, UiKit.fit(("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), 17, 258), Vector2(22, y), 17, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
+		UiKit.draw_text(self, UiKit.fit(("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), 18, 258), Vector2(22, y), 18, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
 		# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
 		var goal := str(q.get("target_room", ""))
 		if goal != "" and goal != here:
@@ -1552,13 +1552,13 @@ func _draw_tracker(c) -> void:
 			var going: bool = Game.world.auto_path_target(Game.active()) == goal
 			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(UiKit.INK, 0.45))
 			draw_rect(br, Color(UiKit.PALE_GOLD, 0.9), false, 1.5)
-			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 15, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
+			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 16, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
 			tracker_paths.append({"rect": br, "target": goal})
-		y += UiKit.line_height(17) * 0.9
+		y += UiKit.line_height(18) * 0.9
 		# P1: the tracker names where the quest leads.
 		if goal != "" and goal != here:
-			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(goal), 15, 290), Vector2(30, y), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
-			y += UiKit.line_height(15) * 0.88
+			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(goal), 16, 290), Vector2(30, y), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
+			y += UiKit.line_height(16) * 0.88
 		for line in q.lines:
 			var count := "%d/%d" % [int(line.have), int(line.need)] if int(line.need) > 1 else ""
 			var lc := UiKit.BRIGHT_JADE if line.done else UiKit.PAPER
@@ -1685,7 +1685,7 @@ func _draw_minimap(c) -> void:
 			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -5), mp + Vector2(3.5, 0), mp + Vector2(0, 4), mp + Vector2(-3.5, 0)]), lc)
 			if ripe: draw_arc(mp, 6.5 + sin(t * 5.0), 0, TAU, 12, UiKit.GOLD, 1)
 			if not hs.dormant and not spent:
-				UiKit.draw_text(self, UiKit.clock(float(hs.seconds)), mp + Vector2(-20, 14), 10, lc, HORIZONTAL_ALIGNMENT_CENTER, 40)
+				UiKit.draw_text(self, UiKit.clock(float(hs.seconds)), mp + Vector2(-20, 14), 14, lc, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -1756,7 +1756,7 @@ func _draw_controls(c) -> void:
 		var held: bool = Game.field.is_on(c.id)
 		ring(presence_center, 26, held, 1.0, pulses.has("hud:presence"))
 		glyph("presence", presence_center, 32, UiKit.PALE_GOLD if held else Color.WHITE)
-		UiKit.draw_outlined(self, str(Game.field.presence_level(c)), presence_center + Vector2(10, 22), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
+		UiKit.draw_outlined(self, str(Game.field.presence_level(c)), presence_center + Vector2(10, 22), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("sphere"):
 		var raised: bool = Game.field.sphere_on(c.id)
 		ring(sphere_center, 26, raised, 1.0, pulses.has("hud:sphere"))
@@ -1780,7 +1780,7 @@ func _draw_controls(c) -> void:
 		glyph(str(dr.id), draught_center, 32)
 		var left: float = Game.inventory.draught_left(c)
 		draw_arc(draught_center, 22, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 2)
-		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 19), 15, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
+		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 19), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("pet"):
 		ring(pet_center, 26, false, 1.0, false, pet_pressed)
 		glyph("pet", pet_center, 32)
@@ -1817,7 +1817,7 @@ func _draw_controls(c) -> void:
 			glyph(str(spare.id), swap_center, 32, Color(1, 1, 1, 0.9))
 		for side in [-1.0, 1.0]:
 			draw_arc(swap_center, 21, PI * (0.15 if side > 0 else 1.15), PI * (0.75 if side > 0 else 1.75), 10, Color(UiKit.PALE_GOLD, 0.9 if spare != null else 0.35), 2.0)
-		UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), swap_center + Vector2(10, 27), 15, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
+		UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), swap_center + Vector2(10, 27), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
 	if _fight_context():
 		ring(context_center, 26, false, 1.0, true)
 		glyph("enter", context_center, 32)
@@ -1866,7 +1866,7 @@ func _draw_vignette() -> void:
 	var cur := ""
 	for word in str(vignette.text).split(" "):
 		var cand: String = word if cur == "" else cur + " " + word
-		if UiKit.text_width(cand, 17) > w - 48 and cur != "":
+		if UiKit.text_width(cand, 18) > w - 48 and cur != "":
 			lines.append(cur)
 			cur = word
 		else: cur = cand
@@ -1878,7 +1878,7 @@ func _draw_vignette() -> void:
 	UiKit.draw_text(self, str(vignette.title), r.position + Vector2(24, 58), 22, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_LEFT, w - 48, true, true)
 	var y := r.position.y + 86
 	for ln in lines:
-		UiKit.draw_text(self, str(ln), Vector2(r.position.x + 24, y), 17, Color(UiKit.PAPER, a))
+		UiKit.draw_text(self, str(ln), Vector2(r.position.x + 24, y), 18, Color(UiKit.PAPER, a))
 		y += 23
 
 func _draw_toasts() -> void:
@@ -1890,8 +1890,8 @@ func _draw_toasts() -> void:
 		var st = UiKit.style("toast")
 		draw_style_box(st, r)
 		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED_TEXT if tt.kind == "danger" else UiKit.BRIGHT_JADE)
-		UiKit.draw_text(self, str(tt.text), r.position + Vector2(16, 31), 19, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
-		if sub != "": UiKit.draw_text(self, sub, r.position + Vector2(16, 58), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
+		UiKit.draw_text(self, str(tt.text), r.position + Vector2(16, 31), 20, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
+		if sub != "": UiKit.draw_text(self, sub, r.position + Vector2(16, 58), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
 		y += r.size.y + 6
 
 func _draw_boss() -> void:
@@ -1934,7 +1934,7 @@ func _draw_event(c) -> void:
 	draw_style_box(UiKit.style("toast"), r)
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
 	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
-	UiKit.draw_text(self, ev_name, r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+	UiKit.draw_text(self, ev_name, r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
 	UiKit.draw_text(self, "%d:%02d" % [int(left) / 60, int(left) % 60], r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
 	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
@@ -1947,15 +1947,15 @@ func _draw_tribulation(c) -> void:
 	if tv.is_empty(): return
 	var r := Rect2(470, 142, 340, 52)
 	draw_style_box(UiKit.style("toast"), r)
-	UiKit.draw_text(self, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
-	UiKit.draw_text(self, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
+	UiKit.draw_text(self, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
+	UiKit.draw_text(self, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
 	var n := int(tv.total)
 	var w := (r.size.x - 28) / maxf(1.0, float(n))
 	for i in n:
 		var cell := Rect2(r.position.x + 14 + i * w, r.position.y + 32, maxf(2.0, w - 2), 6)
 		draw_rect(cell, UiKit.SKY if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
 	if not (tv.warn as Dictionary).is_empty():
-		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 15, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))

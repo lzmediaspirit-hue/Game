@@ -167,11 +167,12 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	var off := Vector2(1, 2) if state == "pressed" else Vector2.ZERO
 	var col := UiKit.PALE_GOLD if primary else UiKit.PAPER
 	if not enabled: col = UiKit.HOLLOW
-	# A long label steps its size down to sit inside the button (and clear the lock icon) rather than touch the frame.
+	# A long label steps its size down the type scale to sit inside the button (and clear the lock icon) rather than
+	# touch the frame.
 	var room := rect.size.x - (44.0 if not enabled and reason != "" else 20.0)
 	if label.length() * size * 0.6 > room:   # only a label that could overflow is measured
 		# B21: words are never drawn under UiKit.MIN_SIZE, so the steps stop there and a label still too long is shortened.
-		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size -= 1
+		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size = UiKit.step_down(size)
 		label = fit(label, size, room)
 	# Decision 10 (option C): a primary label, in every state, carries a 2 px ink outline on the bright jade face.
 	if primary: UiKit.draw_inked(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
@@ -228,21 +229,24 @@ func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, dis
 	var x := pos.x
 	if width > 0.0 and align == HORIZONTAL_ALIGNMENT_CENTER: x += (width - w) * 0.5
 	elif width > 0.0 and align == HORIZONTAL_ALIGNMENT_RIGHT: x += width - w
-	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button})
+	# P4: the size asked for, so the ui_suite can hold every word to the type scale.
+	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button, "size": size, "display": display})
 
 ## `s` shortened with an ellipsis so it fits `width` at `size` (UiKit.fit).
 func fit(s: String, size: int, width: float, display := false) -> String:
 	return UiKit.fit(s, size, width, display)
 
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
-	# A long heading steps its size down to fit its width rather than being cut off at the edge.
+	# A long heading steps down the display scale, 26 to 22, to fit its width, and past that ends in an ellipsis.
 	var size := 26
-	while size > 20 and UiKit.text_width(s, size, true) > width: size -= 1
+	if UiKit.text_width(s, size, true) > width: size = 22
+	s = fit(s, size, width, true)
 	UiKit.draw_text(self, s, pos, size, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
+	if text_log != null: _log_text(pos, s, size, HORIZONTAL_ALIGNMENT_LEFT, width, true)
 	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, size, true) + 30), 8), UiKit.BRONZE, 2)
 
 ## Word-wrapped paragraph. Returns the height used.
-func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -1) -> float:
+func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -1) -> float:
 	var lines := _wrap(s, size, rect.size.x)
 	var lh := UiKit.line_height(size)
 	var y := rect.position.y + size * UiKit.text_scale()
@@ -274,13 +278,18 @@ func _wrap(s: String, size: int, width: float) -> Array:
 		out.append(cur)
 	return out
 
+## The words on a bar (Page.bar): a caption on the type scale that sits inside a 22 px bar.
+const BAR_LABEL := 16
+
 func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 	draw_style_box(UiKit.style("bar_shell"), rect)
 	var inner := rect.grow_individual(-6, -5, -6, -5)
 	draw_rect(inner, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), inner.size.y)), col)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), 2)), col.lightened(0.35))
-	if label != "": UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 7), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	if label != "":
+		UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 6), BAR_LABEL, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+		if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + 6), label, BAR_LABEL, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
 
 func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
@@ -403,7 +412,7 @@ func _draw_confirm() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.5))
 	var r := Rect2(390, 250, 500, 220)
 	draw_style_box(UiKit.style("major_window"), r)
-	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 21)
+	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 22)
 	btn(Rect2(r.position.x + 40, r.end.y - 76, 190, 54), Tx.t("ui.page.cancel"), "_confirm_no")
 	btn(Rect2(r.end.x - 230, r.end.y - 76, 190, 54), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
 

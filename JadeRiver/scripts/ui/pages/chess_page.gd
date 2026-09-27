@@ -58,8 +58,8 @@ func draw_page() -> void:
 	var y := right.position.y + 40
 	heading(Vector2(x, y), str(pz.get("name", "")), right.size.x - 48)
 	y += 18
-	y += para(Rect2(x, y, right.size.x - 48, 80), str(pz.get("question", "")), 19, UiKit.PAPER, 3) + 12
-	para(Rect2(x, y, right.size.x - 48, 60), Tx.t("ui.chess.note"), 15, UiKit.MIST, 3)
+	y += para(Rect2(x, y, right.size.x - 48, 80), str(pz.get("question", "")), 20, UiKit.PAPER, 3) + 12
+	para(Rect2(x, y, right.size.x - 48, 60), Tx.t("ui.chess.note"), 16, UiKit.MIST, 3)
 	var open: bool = Game.progression.chess_open(ch, site)
 	var bw := (right.size.x - 48 - 12) / 2.0
 	var i := 0
@@ -72,7 +72,7 @@ func draw_page() -> void:
 		para(Rect2(x, right.end.y - 72, right.size.x - 48, 60), Tx.t("ui.chess.right") if right_ans else Tx.t("ui.chess.wrong") % str(answer.get("answer", "")), 18,
 			UiKit.BRIGHT_JADE if right_ans else UiKit.MIST, 2)
 	elif not open:
-		para(Rect2(x, right.end.y - 72, right.size.x - 48, 60), Tx.t("sim.progression.chess_done"), 17, UiKit.MIST, 2)
+		para(Rect2(x, right.end.y - 72, right.size.x - 48, 60), Tx.t("sim.progression.chess_done"), 18, UiKit.MIST, 2)
 
 func on_action(id: String, data) -> void:
 	if id == "pick":

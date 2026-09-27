@@ -68,7 +68,7 @@ func draw_page() -> void:
 				if slot == "weapon" and why != "": icon_at(r.grow(-6), "fist")
 				if why != "": _lock_icon(r.position + Vector2(SLOT - 18, 4))
 				region(r, "slot", slot, true)
-			text(Vector2(r.position.x - 8, r.end.y + 19), SLOT_LABEL[slot], 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
+			text(Vector2(r.position.x - 8, r.end.y + 19), SLOT_LABEL[slot], 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
 		# Bag grid: five columns of the 76 px slot.
 		var grid := Rect2(content.position.x + 380, content.position.y, 414, content.size.y - 56)
 		panel(grid.grow(4))
@@ -98,7 +98,7 @@ func draw_page() -> void:
 		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 8, func(i: int, rr: Rect2):
 			var k: Dictionary = inv.key_items[i]
 			slot_box(Rect2(rr.position, Vector2(SLOT, SLOT)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
-			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 21, UiKit.PAPER)
+			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 22, UiKit.PAPER)
 			text(rr.position + Vector2(SLOT + 16, 58), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - SLOT - 32), 16, UiKit.MIST)
 			region(rr, "key", i)
 		)
@@ -136,7 +136,7 @@ func _draw_detail(r: Rect2) -> void:
 	if q != "": sub = q.capitalize() + " · " + sub
 	text(Vector2(r.position.x + 16, y), sub, 16, UiKit.MIST)
 	y += 10
-	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 17, UiKit.PAPER, 5)
+	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 18, UiKit.PAPER, 5)
 	if def.has("slot"):
 		for m in StatRules.instance_modifiers(str(def.slot), s, ch.cultivator.energy_type, ch):
 			if y > r.end.y - 150: break
@@ -251,7 +251,7 @@ func _draw_detail(r: Rect2) -> void:
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
 		var spare = ch.inventory.loadout.get("spare")
 		if str(sel.slot) == "weapon" and spare != null:
-			text(Vector2(bx, by - 8), Tx.t("ui.inventory.spare_weapon") % ContentDB.item_name(str(spare.id)), 17, UiKit.PALE_GOLD)
+			text(Vector2(bx, by - 8), Tx.t("ui.inventory.spare_weapon") % ContentDB.item_name(str(spare.id)), 18, UiKit.PALE_GOLD)
 			btn(Rect2(bx, by - 62 - 8, bw, 46), Tx.t("ui.inventory.swap_now"), "swap", null, true)
 			btn(Rect2(bx + bw + 10, by - 62 - 8, bw, 46), Tx.t("ui.inventory.spare_out"), "spare_out")
 
@@ -303,10 +303,10 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	bar(Rect2(bx, y + 4, bw, 28), aff / 100.0, UiKit.SOUL, Tx.t("ui.inventory.spirit_affinity") % [int(aff), int(s.get("spirit_level", 0))])
 	y += 34
 	if awake and not StatRules.spirit_controlled(ch, s):
-		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 15, UiKit.RED_TEXT, 2)
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 16, UiKit.RED_TEXT, 2)
 	elif not awake:
 		var need := int(InventoryAuthority.spirit_cfg().get("wake_affinity", 30))
-		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 15, UiKit.MIST, 2)
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 16, UiKit.MIST, 2)
 	# The contest, a gift and a meal: only for the relic in hand. Stacked, or two to a row when space is short.
 	if not (sel.has("slot") and str(sel.slot) == "weapon"): return
 	var rows: Array = []
@@ -324,7 +324,7 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	for i in rows.size():
 		var row: Array = rows[i]
 		var rr := Rect2(bx + (i % per) * (cw + 8), y + 8 + int(i / per) * 46, cw, 40)
-		btn(rr, fit(str(row[0]), 15, cw - 16), str(row[1]), row[2], bool(row[4]), bool(row[3]), "", 15)
+		btn(rr, fit(str(row[0]), 16, cw - 16), str(row[1]), row[2], bool(row[4]), bool(row[3]), "", 16)
 
 ## The gift the spirit would like most that is in the bag: its favourite first, then the richest.
 func _best_gift(ch, sp: Dictionary) -> String:

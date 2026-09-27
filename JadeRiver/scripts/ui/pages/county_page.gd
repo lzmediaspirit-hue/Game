@@ -24,8 +24,8 @@ func draw_page() -> void:
 	var tier: Dictionary = Game.relations.favour_tier(ch)
 	var nxt: Dictionary = Game.relations.next_favour_tier(ch)
 	y += 48
-	text(Vector2(x, y), Tx.t("ui.county.tier_" + str(tier.get("id", "stranger"))), 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	text(Vector2(left.end.x - 24 - 160, y), Tx.t("ui.county.favour_pts") % Game.relations.favour(ch), 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 160)
+	text(Vector2(x, y), Tx.t("ui.county.tier_" + str(tier.get("id", "stranger"))), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(Vector2(left.end.x - 24 - 160, y), Tx.t("ui.county.favour_pts") % Game.relations.favour(ch), 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 160)
 	y += 16
 	if not nxt.is_empty():
 		var lo := int(tier.get("min", 0))
@@ -39,7 +39,7 @@ func draw_page() -> void:
 		text(Vector2(left.end.x - 24 - 90, y + 18), Tx.t("ui.county.favour_pts") % int(t2.get("min", 0)), 14, UiKit.MIST if got else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_RIGHT, 90)
 		text(Vector2(x + 14, y + 38), fit(Tx.t("ui.county.brings_" + str(t2.id)), 14, left.size.x - 62), 14, UiKit.PAPER if got else UiKit.HOLLOW)
 		y += 48
-	para(Rect2(x, y + 6, left.size.x - 48, left.end.y - y - 12), Tx.t("ui.county.note"), 15, UiKit.MIST, 4)
+	para(Rect2(x, y + 6, left.size.x - 48, left.end.y - y - 12), Tx.t("ui.county.note"), 16, UiKit.MIST, 4)
 	# Right: the jobs or the relief fund.
 	x = right.position.x + 24
 	y = right.position.y + 40
@@ -48,7 +48,7 @@ func draw_page() -> void:
 		y += 24
 		var jobs: Array = ch.relations.mortal.get("jobs", [])
 		if jobs.is_empty():
-			para(Rect2(x, y, right.size.x - 48, 60), Tx.t("ui.county.no_jobs"), 17, UiKit.MIST, 3)
+			para(Rect2(x, y, right.size.x - 48, 60), Tx.t("ui.county.no_jobs"), 18, UiKit.MIST, 3)
 			return
 		for qid in jobs:
 			var def := Game.quest.quest_def(ch, str(qid))
@@ -62,11 +62,11 @@ func draw_page() -> void:
 			if not objs.is_empty():
 				var o: Dictionary = objs[0]
 				var have := int((st.get("progress", [0]) as Array)[0]) if not st.is_empty() else (int(o.get("count", 1)) if done else 0)
-				text(card.position + Vector2(18, 62), fit("%s  %d/%d" % [str(o.get("text", "")), have, int(o.get("count", 1))], 17, card.size.x - 36), 17, UiKit.PAPER)
+				text(card.position + Vector2(18, 62), fit("%s  %d/%d" % [str(o.get("text", "")), have, int(o.get("count", 1))], 18, card.size.x - 36), 18, UiKit.PAPER)
 			var silver := 0
 			for rw in def.get("rewards", []):
 				if str(rw.get("kind", "")) == "grant_currency": silver = int(rw.get("amount", 0))
-			text(card.position + Vector2(18, 92), Tx.t("ui.county.pays") % [silver, int(Game.relations.mcfg().get("reward", {}).get("favour", 10))], 15, UiKit.MIST)
+			text(card.position + Vector2(18, 92), Tx.t("ui.county.pays") % [silver, int(Game.relations.mcfg().get("reward", {}).get("favour", 10))], 16, UiKit.MIST)
 			y += 122
 		return
 	heading(Vector2(x, y), Tx.t("ui.county.relief_title"), right.size.x - 48)
@@ -77,13 +77,13 @@ func draw_page() -> void:
 	for d in Game.relations.mcfg().get("donations", []):
 		var card2 := Rect2(x, y, right.size.x - 48, 90)
 		panel(card2, "minor_panel", "normal")
-		text(card2.position + Vector2(18, 36), Tx.t("ui.county.give") % UiKit.fmt(int(d.silver)), 21, UiKit.PALE_GOLD)
+		text(card2.position + Vector2(18, 36), Tx.t("ui.county.give") % UiKit.fmt(int(d.silver)), 22, UiKit.PALE_GOLD)
 		var merit := int(ContentDB.entry("karma", str(d.get("deed", ""))).get("merit", 0))
-		text(card2.position + Vector2(18, 66), Tx.t("ui.county.gives_back") % [merit, int(d.get("favour", 0))], 15, UiKit.MIST)
+		text(card2.position + Vector2(18, 66), Tx.t("ui.county.gives_back") % [merit, int(d.get("favour", 0))], 16, UiKit.MIST)
 		var gave: bool = int(given.get(str(d.id), -1)) == today
 		var can: bool = not gave and Game.economy.balance("silver_tael") >= int(d.silver)
 		btn(Rect2(card2.end.x - 18 - 170, card2.position.y + 18, 170, 54), Tx.t("ui.county.given") if gave else Tx.t("ui.county.donate"), "donate", str(d.id), true, can,
-			Tx.t("ui.county.given_today") if gave else Tx.t("ui.county.need_silver") % UiKit.fmt(int(d.silver)), 19)
+			Tx.t("ui.county.given_today") if gave else Tx.t("ui.county.need_silver") % UiKit.fmt(int(d.silver)), 20)
 		y += 100
 
 func on_action(id: String, data) -> void:

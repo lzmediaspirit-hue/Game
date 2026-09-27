@@ -94,6 +94,29 @@ const WORD_SCALE := 1.2
 const TEXT_SCALE := 1.0
 ## Headings below this size are set in the bold serif: Cormorant's hairlines fade when small.
 const DISPLAY_MIN := 22
+## The type scale (docs/ui_style_guide.md §3): words at 14, 16, 18, 20 and 22; display (Cormorant) at 22, 26, 30 and 34.
+const T_HINT := 14
+const T_CAPTION := 16
+const T_ROW := 18
+const T_BODY := 20
+const T_BUTTON := 22
+const D_SUB := 22
+const D_HEADING := 26
+const D_DISPLAY := 30
+const D_TITLE := 34
+const WORD_SCALE_STEPS := [14, 16, 18, 20, 22]
+const DISPLAY_STEPS := [22, 26, 30, 34]
+
+## True when `size` is a step of the scale (a display size only when set in Cormorant, from 22 up).
+static func on_scale(size: int, display := false) -> bool:
+	return size in (DISPLAY_STEPS if display and size >= DISPLAY_MIN else WORD_SCALE_STEPS)
+
+## The next step down the word scale (never under MIN_SIZE).
+static func step_down(size: int) -> int:
+	for i in range(WORD_SCALE_STEPS.size() - 1, -1, -1):
+		if WORD_SCALE_STEPS[i] < size: return WORD_SCALE_STEPS[i]
+	return MIN_SIZE
+
 ## Settings text_size 0/1/2.
 const TEXT_SIZES := [0.92, 1.0, 1.12]
 ## No word or figure is set smaller than this (before the text size setting): below it a phone blurs it.
@@ -326,7 +349,7 @@ static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: fl
 		_plate.border_color = Color(GOLD, 0.22)
 		_plate.set_border_width_all(1)
 		_plate.anti_aliasing = true
-	var sub_size := size - 3
+	var sub_size := step_down(size)
 	var w := text_width(name_text, size, true)
 	if sub != "": w = maxf(w, text_width(sub, sub_size))
 	var name_px := float(size_for(name_text, size, true))
