@@ -308,6 +308,28 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   Warden's Hand-bell its bronze and cloud scroll, the Tidebreak Bell its cage lattice and cold blue mouth. The legacy
   32 px drawings and the recolour rows are gone; `banded.py` keeps only the Sovereign and Will armour, hats and gourds
   and the four furnaces.
+- **Fish, insects, critters and food in Style A** (`tools/icons/families/fish.py`, `insects.py`, `critters.py`,
+  `food.py`, each `ART = 64`; the sheets and in-game shots in `docs/mockups/icon_families/<family>/`): the posts'
+  catches and the dishes, 41 icons, redrawn at 64 px with native `@32` renders, each catch the living animal drawn
+  with care in its species' colours (after its sprite where it has one). The seven fish are side views on one
+  template in a body frame (`fish.Axis`): the body profile, a forked tail and the dorsal, pectoral, pelvic and anal
+  fins with their rays, rows of overlapping scales, the gill cover, a lateral line, the eye with its ring and
+  catch-light, and the species' marks (the perch's bars and spiny dorsal, the trout's spots and pink band, the carp's
+  gold-edged scales and barbels, the salmon's kype and spray, the moon carp's crescent, the minnows' shoal, the eel's
+  ribbon fin and rings). The eight insects are specimens from above, the side or three-quarter on, with jointed legs,
+  antennae, compound eyes and segmented abdomens (the firefly's lit tail with its own halo, the cicada's clear veined
+  wings, the scarab's jade-sheened shell, the moth's eyespots and comb antennae, the mantis's raised spined forelegs
+  and spark, the cricket's cocked hind leg, the locust's fanned ember wings, the mote's star-dusted points). The nine
+  critters are bodies from a spine of discs with fur in strands, faces with ringed eyes, noses and whiskers, ears
+  with their pink, paws with toes (the frog's gold eyes, the hare's misty ear tips, the marmot's cloud tail, the
+  hedgehog's sparking quills, the stoat's black tail tip, the fox's sail ears, the gecko's star spots, the tied
+  pearly pelt). The grade is form and trim on `beast_parts.GRADE_HD`, never colour alone: a plain catch as it came;
+  from Common a stringer loop at a fish's jaw, a thread round an insect's waist or a cord at a critter's neck, hemp
+  at Common and the grade's silk with a metal bead from Earth; the aura from Mystic up. The 17 dishes are their
+  vessel and contents with steam and gloss on shared cup, bowl, plate and pot templates, in the grade's ware
+  (`WARE_HD`, after the pills' ladder: bare earthenware, a bronze band, porcelain with jade, skyware with silver,
+  storm glaze and sand glaze with their aura; a pot takes the grade's metal for its handles and band). Every icon
+  comes from its module's table. The legacy 32 px code of the four families is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
