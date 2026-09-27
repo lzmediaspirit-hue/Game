@@ -345,6 +345,14 @@ def build():
         "sim_end": "sage_sovereign_1",
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
                    ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55], ["sage_1", 70], ["sage_sovereign_1", 110]],
+        # P7b (item_plan §4.4): the equipment an hour of hunting drops, by grade (balance_sim `_drops`): each target is
+        # [value, tolerance]; every region at least `region_floor`; each archetype's usable share inside `usable_share`;
+        # an archetype set's slowest drop piece within `set_hours` of its band's hunting hours (`band_hours` × the fight share).
+        "drops": {"kills_per_hour": 360, "elite_kills_per_slot": 20, "elite_share_cap": 0.33, "hours_per_region": 20,
+                  "targets": {"pieces": [6.0, 0.30], "fine_up": [1.4, 0.30], "superior_up": [0.45, 0.35], "perfect": [0.08, 0.50]},
+                  "region_floor": 3.0, "usable_share": [0.6, 0.85],
+                  "band_hours": {"plain": 4.5, "common": 8, "earth": 17, "heaven": 25, "mystic": 15, "spirit": 40},
+                  "set_hours": [0.3, 0.8]},
     })
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
