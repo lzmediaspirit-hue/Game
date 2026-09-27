@@ -140,32 +140,60 @@ func open_rift(c) -> Dictionary:
 # ------------------------------------------------------------------ treasure births (Part 8: the Spirit Fruit)
 ## Reach for the ripe fruit: two rival cultivators and its guardian stand in the way (the room's own beasts
 ## withdraw). Beat all three and the fruit is yours, once per birth.
-func open_treasure(c) -> Dictionary:
+func open_treasure(c, o := {}) -> Dictionary:
+	if o.get("first", false): return open_first_fruit(c, o)
 	var rt = game.room_rt
 	var ev := CalendarRules.event("treasure_birth")
 	var occ: Dictionary = active_of("treasure_birth")
 	if rt == null or occ.is_empty() or str(occ.room) != rt.room_id: return fail("gone", {"text": Tx.t("sim.calendar.fruit_gone")})
 	if int(c.cooldowns.get("birth_k", -1)) == int(occ.k): return fail("taken", {"text": Tx.t("sim.calendar.fruit_taken")})
 	if rt.event.get("active", false): return fail("busy")
-	var top := 1
-	for spec in rt.def.get("spawns", []):
-		if not spec.get("boss", false): top = maxi(top, int((spec.get("level", [1]) as Array).back()))
-	var lv := top + int(ev.get("level_bonus", 2))
+	var lv := _room_top(rt) + int(ev.get("level_bonus", 2))
 	var tree_x := 800.0
-	for o in rt.def.get("objects", []):
-		if str(o.type) == "treasure_birth": tree_x = float(o.at[0])
+	for t in rt.def.get("objects", []):
+		if str(t.type) == "treasure_birth" and not t.get("first", false): tree_x = float(t.at[0])
 	var spawns: Array = [{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x - 320.0, 120.0, rt.width() - 120.0), 860], "level": lv},
 		{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x + 320.0, 120.0, rt.width() - 120.0), 860], "level": lv},
 		{"enemy": str(ev.get("guardian", "fruit_guardian")), "at": [tree_x, 880], "level": lv}]
+	return _wake_guardians(c, spawns, int(occ.k))
+
+## An early surprise (player_motivation.md item 7): each character's own first Spirit Fruit, ripe on Willow Path West
+## once The Willow Path is done (the tree's visible_if). Only its guardian wakes, at the room's own top Level, with no
+## rivals; the fruit is taken once (the flag first_fruit_taken hides the tree).
+func open_first_fruit(c, o: Dictionary) -> Dictionary:
+	var rt = game.room_rt
+	if rt == null or not game.world.object_visible(c, o): return fail("gone", {"text": Tx.t("sim.calendar.fruit_gone")})
+	if rt.event.get("active", false): return fail("busy")
+	var x := clampf(float(o.at[0]) + 260.0, 120.0, rt.width() - 120.0)
+	var r := _wake_guardians(c, [{"enemy": str(CalendarRules.event("treasure_birth").get("guardian", "fruit_guardian")), "at": [x, 880],
+		"level": _room_top(rt)}], FIRST_FRUIT)
+	r["first"] = true
+	return r
+
+const FIRST_FRUIT := -2   # the claim of a character's first fruit (open_first_fruit), not a calendar occurrence
+
+## The highest Level of the room's own foes (its bosses left out).
+static func _room_top(rt) -> int:
+	var top := 1
+	for spec in rt.def.get("spawns", []):
+		if not spec.get("boss", false): top = maxi(top, int((spec.get("level", [1]) as Array).back()))
+	return top
+
+## The birth's fight: the room's own beasts withdraw, `spawns` stand in the way, and beating them all claims fruit `k`.
+func _wake_guardians(c, spawns: Array, k: int) -> Dictionary:
 	game.world.start_room_event(c, {"id": "treasure_birth", "duration": 150.0, "clear_room": true, "fixed_spawns": spawns,
-		"kill_count": {"enemy": "*", "count": spawns.size()}, "on_complete": [{"kind": "treasure_claim", "k": int(occ.k)}]})
+		"kill_count": {"enemy": "*", "count": spawns.size()}, "on_complete": [{"kind": "treasure_claim", "k": k}]})
 	return ok({"birth": true})
 
 ## The rivals and the guardian are down: the fruit is yours.
 func apply_treasure_claim(actor_id: String, k: int) -> void:
 	var c = game.character(actor_id)
-	if c == null or int(c.cooldowns.get("birth_k", -1)) == k: return
-	c.cooldowns["birth_k"] = k
+	if c == null: return
+	if k == FIRST_FRUIT:
+		if c.quests.has_flag("first_fruit_taken"): return
+		game.quest.apply_flag(c.id, "first_fruit_taken")
+	elif int(c.cooldowns.get("birth_k", -1)) == k: return
+	else: c.cooldowns["birth_k"] = k
 	var item := str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit"))
 	game.inventory.apply_add(c.id, item, 1, "treasure_birth")
 	emit("treasure_claimed", {"actor": c.id, "item": item, "room": game.room_rt.room_id if game.room_rt else ""})

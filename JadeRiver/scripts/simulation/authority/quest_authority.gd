@@ -187,12 +187,29 @@ func room_hold(c, room_id: String) -> String:
 ## (`use_item`, "herbal_tea")? The HUD shows the control it names while it does, at rest too.
 func asks_for(c, kind: String, what: String) -> bool:
 	if c == null or what == "": return false
+	return _any_open_step(c, func(o: Dictionary) -> bool: return str(o.get("kind", "")) == kind and str(o.get("system", o.get("item", ""))) == what)
+
+## Does a step still to do of a quest under way ask for this foe in this room: a kill step, or a collect or deliver
+## step whose item its loot drops? Its spawn points then come back at their quick pace (EnemyAuthority.return_s), so a
+## kill-count or shell-gathering quest always has foes to fight.
+func hunts(c, enemy: String, room: String, role := "") -> bool:
+	if c == null or enemy == "": return false
+	var p := {"def": enemy, "room": room, "role": role}
+	var table := str(ContentDB.entry("enemies", enemy).get("loot", enemy))
+	return _any_open_step(c, func(o: Dictionary) -> bool:
+		match str(o.get("kind", "")):
+			"kill": return _match(c, o, p, "actor_defeated") > 0
+			"collect", "deliver": return c.inventory.count(str(o.get("item", ""))) < int(o.get("count", 1)) and LootRules.drops_item(table, str(o.get("item", "")))
+		return false)
+
+## Whether any open step still to do of a quest under way passes `pred` (the step's objective).
+func _any_open_step(c, pred: Callable) -> bool:
 	for qid in c.quests.active:
 		var def := quest_def(c, qid)
 		var st: Dictionary = c.quests.active[qid]
 		for i in def.get("objectives", []).size():
 			var o: Dictionary = def.objectives[i]
-			if str(o.get("kind", "")) == kind and str(o.get("system", o.get("item", ""))) == what and int(st.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def, st, i): return true
+			if int(st.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def, st, i) and pred.call(o): return true
 	return false
 
 ## The objective a quest under way is at: its first open one still to do (-1 when none is).
@@ -591,9 +608,10 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"kill":
 			if o.has("room") and str(p.get("room", "")) != str(o.room): return 0
 			if o.has("role"): return 1 if str(p.get("role", "")) == str(o.role) else 0
+			if o.get("elite", false) and not p.get("elite", false): return 0   # the herd's elite, not any of its kind
 			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
 		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
-		"settle_post": return 1 if str(p.get("source", "post")) == "post" else 0
+		"settle_post": return 1 if str(p.get("source", "post")) in ["post", "incense"] else 0   # this character's own incense counts (P5)
 		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
 		"survive_timer": return 1 if str(p.get("event", "")) == str(o.event) else 0
 		"judge_foe": return 1 if str(p.get("def", "")) == str(o.enemy) else 0
@@ -735,7 +753,8 @@ static func leads(kind: String) -> bool:
 	return kind in STORY_KINDS or kind == "next"
 
 ## The story's quests that wait next, in story order (chapter, then data order): of `kinds`, not done, not taken, and
-## every quest they name to follow done.
+## every quest of those kinds they name to follow done (one that follows a lesson, as Strange Tracks follows the Weapon
+## Hall, waits next: _story_step follows it to the lesson).
 func story_waiting(c, kinds: Array) -> Array:
 	var keyed: Array = []
 	var all_q: Array = ContentDB.all("quests")
@@ -751,7 +770,8 @@ func story_waiting(c, kinds: Array) -> Array:
 		if c.quests.is_done(str(d.id)) or c.quests.is_active(str(d.id)) or d.get("hidden", false): continue
 		var waits := true
 		for r in d.get("requires", {}).get("all", []):
-			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))): waits = false
+			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))) \
+				and str(ContentDB.entry("quests", str(r.get("quest", ""))).get("kind", "")) in kinds: waits = false
 		if waits: out.append(d)
 	return out
 
@@ -800,9 +820,13 @@ func _story_next(c) -> Dictionary:
 	var d := ContentDB.entry("quests", str(best.quest))
 	var line := ""
 	var room := ""
+	var more: Array = []
 	if best.has("realm"):
 		line = Tx.t("sim.quest.next_level") % [int(ContentDB.realm(str(best.realm)).get("level", 0)), ContentDB.name_of("realms", str(best.realm))]
 		room = objective_room(c, {}, {"kind": "reach_realm", "realm": best.realm})
+		# Research player_motivation §3.6: a Level the story waits on is never only a hunt. A lesson or side quest on
+		# offer closes part of it too; with none, meditation and body training do.
+		more.append({"text": _floor_other_way(c), "have": 0, "need": 1, "done": false})
 	else:
 		# Where the giver stands now, the nearest the character can walk to (Lu on the docks, not in his boat).
 		var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
@@ -810,7 +834,17 @@ func _story_next(c) -> Dictionary:
 		line = str(best.get("text", ""))
 		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
 	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
-		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}], "target_room": room}
+		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
+
+## The other way to close a Level the story waits on (the Next entry's second line): a lesson or side quest on offer
+## (its name and giver), else meditation and body training.
+func _floor_other_way(c) -> String:
+	for kind in ["guided", "side"]:
+		for q in c.quests.offered:
+			var d := ContentDB.entry("quests", str(q))
+			if str(d.get("kind", "")) == kind and can_offer(c, d):
+				return Tx.t("sim.quest.next_or_quest") % [str(d.get("name", q)), ContentDB.name_of("npcs", own_npc(c, d.get("giver_any", d.get("giver", ""))))]
+	return Tx.t("sim.quest.next_or_train")
 
 ## What holds a quest of the story back, followed to what can be done now: {active} when it (or the quest it waits on)
 ## is under way; {quest, rank 0} a quest to take now; {quest, rank 2, realm, realm_at} a realm to reach first; {quest,
@@ -919,19 +953,37 @@ func start_weekly(force: bool) -> void:
 		"qp": "weekly"})
 	accept(c, id)
 
+## The sect board at the daily reset (or when Earning Your Keep opens it). Missed days bank (account_rules.bank, P4):
+## unfinished missions stay on the board, and each day since the board last filled adds its day's missions, until
+## the board holds `days` days' worth. A day away costs nothing; there is no streak to break.
 func start_daily(force: bool) -> void:
 	var c = game.active()
 	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
-	for qid in c.quests.daily.keys():
-		if not str(qid).begins_with("daily_"): continue   # the weekly mission keeps its week
-		apply_drop(c.id, qid)
+	var today := Clock.reset_day(Clock.now_utc())
+	var bank := CalendarRules.bank()
+	var per_day := int(bank.get("missions_per_day", 5))
+	var owed := maxi(1, CalendarRules.days_banked(int(c.quests.board_day), today))
+	if int(c.quests.board_day) == today and not force: return
+	c.quests.board_day = today
+	var kept: int = c.quests.daily.keys().filter(func(q): return str(q).begins_with("daily_")).size()   # the weekly keeps its week
+	var space: int = per_day * int(bank.get("days", 3)) - kept
+	var made := 0
+	for day in range(today - owed + 1, today + 1):
+		made += _fill_board(c, day, mini(per_day, space - made))
+	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
+	emit("missions_refreshed", {"actor": c.id, "count": made})
+
+## Up to `count` missions for reset day `day`, each a different job, ids daily_<day>_<n> (a day already on the board or
+## done keeps its own). Returns how many were added.
+func _fill_board(c, day: int, count: int) -> int:
 	var rng := Rng.stream(c.id, "world")
 	var templates: Array = ContentDB.all("mission_templates")
 	var lv := ProgressionRules.level(c)
 	var made := 0
+	var n := 0
 	var guard := 0
-	var picked := {}   # mission name -> true: the board never lists the same job twice
-	while made < 5 and guard < 40 and not templates.is_empty():
+	var picked := {}   # mission name -> true: the board never lists the same job twice in a day
+	while made < count and guard < 40 and not templates.is_empty():
 		guard += 1
 		var tpl: Dictionary = templates[rng.randi_range(0, templates.size() - 1)]
 		if tpl.has("requires") and not RequirementRules.passes(tpl.requires, game.ctx(c)): continue
@@ -942,11 +994,12 @@ func start_daily(force: bool) -> void:
 		var mname := str(op.get("name", tpl.get("name", Tx.t("sim.quest.sect_mission"))))
 		if picked.has(mname): continue
 		picked[mname] = true
-		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]
+		var id := "daily_%d_%d" % [day, n]
+		n += 1
+		if c.quests.daily.has(id) or c.quests.done.has(id): continue
 		var obj: Dictionary = op.objective.duplicate(true)
 		apply_generated(c.id, {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true})
 		made += 1
-	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
-	emit("missions_refreshed", {"actor": c.id, "count": made})
+	return made

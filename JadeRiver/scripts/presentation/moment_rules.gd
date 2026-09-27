@@ -40,13 +40,15 @@ static func matches(when: Dictionary, p: Dictionary, ctx: Dictionary) -> bool:
 	return true
 
 ## A rare find (§3.4): a Perfect or Relic piece, a legend piece, a spirit animal's book, a treasure, or one of the named
-## drops (a boss's unique drop, a first-defeat reward, a set piece, a legendary chain's piece). Coins never.
+## drops (a boss's unique drop, a first-defeat reward, a set piece, a legendary chain's piece), and a character's first
+## weapon (`first`, WorldAuthority._starter_drop). Coins never.
 static func is_rare(i: Dictionary) -> bool:
 	if int(i.get("coins", 0)) > 0: return false
+	if i.get("first", false): return true
 	var r: Dictionary = cfg().get("rare", {})
 	var id := str(i.get("item", ""))
 	return str(i.get("quality", "")) in r.get("qualities", []) or str(ContentDB.item(id).get("type", "")) in r.get("types", []) \
-		or (r.get("items", {}) as Dictionary).has(id)
+		or (r.get("items", {}) as Dictionary).has(id) or bool(i.get("find", false))
 
 ## A loot entry's colour: its quality's, or for a common piece its item's grade (§6 rule 4).
 static func item_color(i: Dictionary) -> Color:
@@ -170,6 +172,19 @@ static func particle_count(n: int) -> int:
 	if st.get("reduce_motion", false): return mini(n, int(tier(1).get("spark_count", n)))
 	if st.get("battery_saver", false): return mini(n, int(tier(2).get("spark_count", n)))
 	return n
+
+## The character's aura (moments.json `auras`, research player_motivation §5 change 10): the tier of the highest row whose
+## realm it has reached, 0 before Bone Forging 1. `aura(tier)` is that row.
+static func aura_tier(c) -> int:
+	var n := 0
+	var rows: Array = cfg().get("auras", [])
+	for i in rows.size():
+		if ProgressionRules.at_least(c.cultivator.realm_key, str(rows[i].realm)): n = i + 1
+	return n
+
+static func aura(n: int) -> Dictionary:
+	var rows: Array = cfg().get("auras", [])
+	return rows[n - 1] if n >= 1 and n <= rows.size() else {}
 
 ## UiKit's colour tokens by name, the only colours a row may name.
 static func tokens() -> Dictionary:

@@ -19,7 +19,7 @@ func draw_page() -> void:
 	heading(left.position + Vector2(20, 40), Tx.t("ui.notice.sect_missions"), left.size.x - 40)
 	var y := left.position.y + 60
 	if ch.quests.daily.is_empty():
-		para(Rect2(left.position.x + 20, y, left.size.x - 40, 100), Tx.t("ui.notice.missions_open_at_bone_forging") if not Unlocks.is_unlocked(ch.id, "daily_missions") else Tx.t("ui.notice.all_of_today_missions_are"), 18, UiKit.MIST)
+		para(Rect2(left.position.x + 20, y, left.size.x - 40, 100), Tx.t("ui.notice.missions_open_at_qi_kindling") if not Unlocks.is_unlocked(ch.id, "daily_missions") else Tx.t("ui.notice.all_of_today_missions_are"), 18, UiKit.MIST)
 	for q in ch.quests.daily:
 		var d: Dictionary = ch.quests.daily[q]
 		var st: Dictionary = ch.quests.active.get(q, {})

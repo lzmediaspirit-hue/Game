@@ -3835,7 +3835,8 @@
   "composure_zero_factor": 1.5,
   "mastery_cost_per_tier": -0.05,
   "mastery_damage_per_tier": 0.08,
-  "dao_damage_per_tier": 0.05
+  "dao_damage_per_tier": 0.05,
+  "free_without_pool": true
  },
  "cp": {
   "hp_div": 10,
@@ -4551,6 +4552,7 @@
  },
  "death": {
   "progress_loss": 0.1,
+  "grace_below": "bone_forging_5",
   "wake_hp": 0.5,
   "talisman_hp": 0.3,
   "talisman_invuln_s": 5,
@@ -4853,6 +4855,13 @@
   "reach": 8,
   "cooldown_s": 900,
   "offset": 360
+ },
+ "respawn": {
+  "normal_mult": 6.0,
+  "normal_min_s": 60,
+  "normal_max_s": 180,
+  "elite_min_s": 600,
+  "offscreen_x": 700
  },
  "qi_deviation": {
   "duration_s": 600,

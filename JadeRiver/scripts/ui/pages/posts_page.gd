@@ -308,7 +308,7 @@ func _back(row: Dictionary, r: Rect2) -> void:
 			var yv := PostRules.yield_of(float(rt.get("finesse", 0.0)), float(nd.get("toughness", 1.0)))
 			if float(yv.chance) < 1.0: bar(Rect2(x, y + 104, w, 24), float(yv.chance), UiKit.BRIGHT_JADE, Tx.t("ui.posts.chance") % int(round(float(yv.chance) * 100.0)))
 			else: bar(Rect2(x, y + 104, w, 24), float(yv.abundance_progress), UiKit.GOLD, Tx.t("ui.posts.abundance") % int(yv.abundance))
-	if not row.active:
+	if not row.active or Game.posts.incense_allowed(Game.character(str(row.id))):   # the played one, at its own post
 		var inc := _incense()
 		btn(Rect2(x, r.end.y - 58, w, 48), Tx.t("ui.posts.incense"), "incense", str(row.id), false, inc != "", Tx.t("ui.posts.no_incense"), 18)
 

@@ -31,10 +31,41 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
+   "starter": true,
+   "quest_drops": [
+    {
+     "item": "crab_shell",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "crab_trouble"
+    }
+   ]
   },
   {
    "id": "reedtail_rat",
@@ -58,10 +89,30 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
+   "starter": true
   },
   {
    "id": "old_snapper",
@@ -71,7 +122,7 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.08,
+    "chance": 0.25,
     "min_quality": "common"
    },
    "rare": [
@@ -94,7 +145,8 @@
      ],
      "weight": 1
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "hollow_minnow",
@@ -167,10 +219,30 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
+   "starter": true
   },
   {
    "id": "mossback_toad",
@@ -202,10 +274,30 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.005,
+     "count": [
+      1,
+      1
+     ],
+     "find": true
+    }
+   ],
+   "starter": true
   },
   {
    "id": "rock_beetle",
@@ -474,6 +566,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "grey_hide",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "mei_qings_errand"
     }
    ]
   },

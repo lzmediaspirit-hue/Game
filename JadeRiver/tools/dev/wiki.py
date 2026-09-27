@@ -1205,7 +1205,13 @@ def drops_text(d, s, eid):
     if coins and float(coins.get("chance", 0)) > 0:
         out.append("  - coins: %s, ×%s the Level's purse, in the zone's everyday currency" % (pct(coins["chance"]), num(coins.get("mult", 1))))
     eq = t.get("equipment", {})
-    if eq and float(eq.get("chance", 0)) > 0:
+    if eq and float(eq.get("chance", 0)) > 0 and t.get("starter"):
+        st = d.drop()["starter"]
+        out.append("  - equipment: %s, starter gear: a Plain %s or armour piece at the par item Level, no better than par quality; "
+                   "a character's first kill in the first rooms drops a %s %s, and its first %d pieces come by the %dth kill "
+                   "without one at the latest" % (pct(eq["chance"]), ", ".join(titled(f) for f in st["families"]), titled(st["first_quality"]),
+                                                  titled(st["first_family"]), st["pity_pieces"], st["pity"]))
+    elif eq and float(eq.get("chance", 0)) > 0:
         grades = s.grades_for([s.enemy_levels(eid)])
         out.append("  - equipment: %s, a banded piece of %s (min quality %s; see [Banded equipment drops](items.md#banded-equipment-drops))" % (
             pct(eq["chance"]), " or ".join(titled(g) for g in grades), eq.get("min_quality", "flawed")))

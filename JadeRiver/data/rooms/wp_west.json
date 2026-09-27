@@ -384,6 +384,33 @@
    }
   },
   {
+   "id": "first_fruit_tree",
+   "type": "treasure_birth",
+   "at": [
+    2090,
+    800
+   ],
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "first": true,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_willow_path"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "first_fruit_taken"
+     }
+    ]
+   }
+  },
+  {
    "id": "swarm_glowfly",
    "type": "insect_swarm",
    "at": [
@@ -471,7 +498,8 @@
    "level": [
     1,
     2
-   ]
+   ],
+   "elite_chance": 0.04
   },
   {
    "enemy": "mossback_toad",
@@ -495,7 +523,8 @@
    "level": [
     2,
     3
-   ]
+   ],
+   "elite_chance": 0.04
   },
   {
    "enemy": "wild_boarlet",

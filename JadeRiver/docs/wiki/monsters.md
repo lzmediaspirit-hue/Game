@@ -32,8 +32,11 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `mudshell_crab`):
   - [Crab Shell](items.md#item-crab_shell): 30% (group 60%, weight 1 of 2)
   - [River Mud](items.md#item-river_mud): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
+  - [Crab Shell](items.md#item-crab_shell): 100% (only during Crab Trouble)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-wild_boarlet"></a>
 
@@ -53,8 +56,10 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `wild_boarlet`):
   - [Boar Hide](items.md#item-boar_hide): 30% (group 60%, weight 1 of 2)
   - [Tough Meat](items.md#item-tough_meat): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-mossback_toad"></a>
 
@@ -72,8 +77,10 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `mossback_toad`):
   - [Toad Oil](items.md#item-toad_oil): 30% (group 60%, weight 1 of 2)
   - [Moss](items.md#item-moss): 30% (group 60%, weight 1 of 2)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-reedtail_rat"></a>
 
@@ -89,8 +96,10 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI melee; aggro range 150; move speed 120; patrol 140; flee below 0.25; moves: drop, jump 430. Attacks: bite×1 (windup 0.35s)
 - **Drops** (loot table `reedtail_rat`):
   - [Rat Tail](items.md#item-rat_tail): 60% (group)
+  - [Pearl](items.md#item-pearl): 2% (rare)
+  - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-trial_puppet"></a>
 
@@ -117,7 +126,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 - **Sheet**: creature sheet `old_snapper` ([art/creatures/old_snapper.png](../../art/creatures/old_snapper.png), 192 px cells)
 - **Spawns** (1 room spawns):
-  - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 5, item crab_shell)
+  - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 3, item crab_shell)
 - **Also appears**: Account rules (collection seals) (enemy)
 - **Level band**: Lv 3 in `enemies.json`
 - **Stats**: Lv 3: HP 122, Attack 6, Physical Defense 11, Accuracy 19
@@ -126,7 +135,29 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Snapper Claw](items.md#item-snapper_claw): 100% (guaranteed)
   - [Manual Page](items.md#item-manual_page): 5% (rare)
   - coins: 100%, ×6 the Level's purse, in the zone's everyday currency
-  - equipment: 8%, a banded piece of Plain (min quality common; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 25%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
+
+<a id="enemy-hollowed_boarlet"></a>
+
+### Hollowed Boarlet
+
+`hollowed_boarlet` · Normal · Lv 4–12 · Hollow earth · beast · energy none · beast rank 1
+
+- **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
+- **Spawns** (2 room spawns):
+  - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–5, up to 3, respawn 8s; needs during The Humming Token or during Mei Qing's Errand
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
+- **Level band**: Lv 7–12 in `enemies.json`; Lv 4–12 with its room spawns
+- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
+- **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
+- **Drops** (loot table `hollowed_boarlet`):
+  - [Grey Hide](items.md#item-grey_hide): 60% (group)
+  - [Hollow Shard](items.md#item-hollow_shard): 12% (rare)
+  - [Grey Hide](items.md#item-grey_hide): 100% (only during Mei Qing's Errand)
+  - [Low Earth Core](items.md#item-earth_core_low): 4% (beast core, Lv 10–12)
+  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
+  - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
 <a id="enemy-pebble_imp"></a>
 
@@ -263,26 +294,6 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `greyfin`):
   - [Tiny Hollow Shard](items.md#item-tiny_hollow_shard): 60% (group)
   - [Low Water Core](items.md#item-water_core_low): 4% (beast core, Lv 10–11)
-  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
-
-<a id="enemy-hollowed_boarlet"></a>
-
-### Hollowed Boarlet
-
-`hollowed_boarlet` · Normal · Lv 7–12 · Hollow earth · beast · energy none · beast rank 1
-
-- **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
-- **Spawns** (1 room spawns):
-  - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
-- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
-- **Level band**: Lv 7–12 in `enemies.json`
-- **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
-- **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
-- **Drops** (loot table `hollowed_boarlet`):
-  - [Grey Hide](items.md#item-grey_hide): 60% (group)
-  - [Hollow Shard](items.md#item-hollow_shard): 12% (rare)
-  - [Low Earth Core](items.md#item-earth_core_low): 4% (beast core, Lv 10–12)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
