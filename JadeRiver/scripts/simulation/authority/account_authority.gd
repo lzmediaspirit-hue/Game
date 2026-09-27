@@ -9,7 +9,7 @@ var reset_timer := 0.0
 
 func intents() -> Array:
 	return ["create_character", "switch_character", "set_idle_task", "collect_idle", "deposit", "withdraw", "delete_character",
-		"app_paused", "app_resumed", "set_setting", "enter_character", "claim_activity_chest"]
+		"app_paused", "app_resumed", "set_setting", "enter_character", "claim_activity_chest", "claim_collection_seal"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("realm_changed", _on_realm_changed, 70)
@@ -43,6 +43,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			emit("settings_changed", {"key": str(intent.get("key", "")), "value": intent.get("value")})
 			return ok()
 		"claim_activity_chest": return claim_activity_chest(game.character(str(intent.get("actor", ""))), str(intent.get("tier", "")))
+		"claim_collection_seal": return claim_collection_seal(game.character(str(intent.get("actor", ""))), str(intent.get("page", "")), int(intent.get("seal", 0)))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ characters
@@ -91,7 +92,7 @@ func create_character(intent: Dictionary) -> Dictionary:
 	c.skip_prologue = skip
 	var start: Dictionary = ContentDB.config("account_rules").get("skip_start" if skip else "new_start", {})
 	c.position = {"room": str(start.get("room", "lf_fishers_hut")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
-	StatRules.rebuild(c)
+	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
 	game.account.characters[str(slot)] = summary(c)
 	emit("character_created", {"slot": slot, "actor": c.id, "skip_prologue": skip})
@@ -112,7 +113,7 @@ func _apply_skip_prologue(c, start: Dictionary) -> void:
 	c.cultivator.meridian_levels_granted = ProgressionRules.level(c)
 	c.cultivator.unspent_meridian_points = 2 * ProgressionRules.level(c)
 	for e in start.get("effects", []): game.apply_effects(c.id, [e], "skip_prologue")
-	StatRules.rebuild(c)
+	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
 
 # ------------------------------------------------------------------ Max Test character (debug tools, S38)
@@ -225,7 +226,7 @@ func create_max_character(slot: int, name: String) -> Dictionary:
 	for rid in ContentDB.rooms: game.account.visited_rooms[rid] = true
 	game.economy.apply_currency("silver_tael", 10000000, "debug")
 	game.economy.apply_currency("spirit_stone", 1000000, "debug")
-	StatRules.rebuild(c)
+	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
 	c.pools.qi = c.pools.max_qi
 	c.pools.soul = c.pools.max_soul
@@ -282,7 +283,7 @@ func enter_character(slot: int) -> Dictionary:
 	game.active_id = c.id
 	game.account.active_slot = slot
 	Rng.restore(c.id, c.rng_state, c.rng_seed if c.rng_seed != 0 else hash(c.id))
-	StatRules.rebuild(c)
+	StatRules.rebuild(c, game.account)
 	var welcome := {}
 	game.posts.migrate_idle(c)   # S50: an old idle Gather task becomes a post before anything is collected
 	game.progression.migrate_tree(c)   # P13a: a save from before the element trees lights the routes to its arts
@@ -542,16 +543,55 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var acc: AccountState = game.account
 	var kills := int(acc.collection.get(str(p.def), 0)) + 1
 	acc.collection[str(p.def)] = kills
+	var page := str(col.page)
 	if kills == int(col.get("kills_to_fill", 50)):
 		emit("collection_card_filled", {"enemy": str(p.def)})
-		var page := str(col.page)
-		var full := true
-		for e in ContentDB.all("enemies"):
-			var ec = e.get("collection")
-			if ec != null and str(ec.get("page", "")) == page and int(acc.collection.get(e.id, 0)) < int(ec.get("kills_to_fill", 50)): full = false
-		if full and not acc.collection_pages_done.has(page):
+		if not acc.collection_pages_done.has(page) and seal_progress(page, 1).earned:
 			acc.collection_pages_done[page] = true
 			emit("collection_page_completed", {"page": page, "actor": str(p.killer)})
+			emit("collection_seal_ready", {"page": page, "seal": 1, "actor": str(p.killer)})
+	if kills == int(col.get("kills_to_master", 0)) and seal_progress(page, 2).earned:
+		emit("collection_seal_ready", {"page": page, "seal": 2, "actor": str(p.killer)})
+
+# ------------------------------------------------------------------ the Codex page seals (decision 27)
+## A collection page's seal (1: every card filled, 2: every card studied through): each card counted up to its mark
+## (`got` of `need`), the cards at it (`done` of `cards`), the mark when every card shares one (else 0), and whether
+## the seal is earned, claimed and open to claim (seal 2 only once seal 1 is claimed).
+func seal_progress(page: String, seal: int) -> Dictionary:
+	var rule := ContentDB.collection_seal(page, seal)
+	var key := str(rule.get("needs", "kills_to_fill" if seal == 1 else "kills_to_master"))
+	var out := {"got": 0, "need": 0, "cards": 0, "done": 0, "mark": -1}
+	for e in ContentDB.all("enemies"):
+		var col = e.get("collection")
+		if not col is Dictionary or str(col.get("page", "")) != page: continue
+		var mark := int(col.get(key, 0))
+		var n := int(game.account.collection.get(str(e.id), 0))
+		out.got += mini(n, mark)
+		out.need += mark
+		out.cards += 1
+		if n >= mark: out.done += 1
+		out.mark = mark if int(out.mark) in [-1, mark] else 0
+	var after := int(rule.get("after", 0))
+	out.earned = int(out.cards) > 0 and out.done == out.cards
+	out.claimed = game.account.collection_seals.has("%s:%d" % [page, seal])
+	out.after_ok = after == 0 or game.account.collection_seals.has("%s:%d" % [page, after])
+	out.open = not rule.is_empty() and out.earned and not out.claimed and out.after_ok
+	return out
+
+## Claim a page's seal once for the account: its stats go to every character through StatRules (the Combat authority
+## rebuilds the claimer's on the event, the others as they load), its effects (a Bestiary Leaf) to the account.
+func claim_collection_seal(c, page: String, seal: int) -> Dictionary:
+	if c == null: return fail("no_character")
+	var rule := ContentDB.collection_seal(page, seal)
+	if rule.is_empty(): return fail("no_seal")
+	var pr := seal_progress(page, seal)
+	if pr.claimed: return fail("claimed", {"text": Tx.t("sim.account.seal_claimed")})
+	if not pr.earned: return fail("short", {"text": Tx.t("sim.account.seal_short") % [int(pr.done), int(pr.cards)]})
+	if not pr.after_ok: return fail("order", {"text": Tx.t("sim.account.seal_order")})
+	game.account.collection_seals["%s:%d" % [page, seal]] = true
+	game.apply_effects(c.id, rule.get("effects", []), "collection_seal:%s:%d" % [page, seal])
+	emit("collection_seal_claimed", {"actor": c.id, "page": page, "seal": seal})
+	return ok({"page": page, "seal": seal})
 
 # ------------------------------------------------------------------ daily activity chests (S49 v1.0)
 ## Points from the day's missions, dungeon clears, crafts, harvests, spars, tower floors and beast fights fill four

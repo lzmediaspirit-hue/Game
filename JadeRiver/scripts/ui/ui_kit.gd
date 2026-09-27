@@ -129,6 +129,19 @@ const TEXT_ON := [
 	[&"RED_TEXT", ["sky_card"], 14],
 	[&"SOUL_TEXT", ["sky_card"], 14],
 	[&"WARNING", ["sky_card"], 14],
+	# The Post family (Roll-Call, Works, Welcome Back, Pouches): the board and tray in dark timber, a tablet's back, the
+	# pale name tablets, the hemp labels and slips, the paper tags.
+	[&"PAPER", ["surface:wood_dark", "surface:wood"], 14],
+	[&"MIST", ["surface:wood_dark"], 14],
+	[&"PALE_GOLD", ["surface:wood_dark", "surface:wood"], 14],
+	[&"GOLD", ["surface:wood_dark"], 14],
+	[&"BRIGHT_JADE", ["surface:wood_dark", "surface:wood"], 14],
+	[&"RED_TEXT", ["surface:wood_dark"], 14],
+	[&"HOLLOW", ["surface:wood_dark"], 14],
+	[&"WARNING", ["surface:wood_dark"], 14],
+	[&"PAPER_INK", ["surface:bridge", "surface:hemp", "surface:talisman"], 14],
+	[&"JADE_SHADOW", ["surface:bridge", "surface:hemp"], 14],
+	[&"BLOOD", ["surface:talisman"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become
@@ -466,6 +479,13 @@ static func affix_text(a: Dictionary) -> String:
 	elif el != "": label = el + " " + label
 	return "%s%s %s" % ["-" if v < 0.0 else "+", mag, label]
 
+## A Codex page seal's gift in one line (decision 27): its stats, then a Bestiary Leaf and, when `named`, whose.
+static func seal_gift(rule: Dictionary, named := true) -> String:
+	var parts: Array = (rule.get("modifiers", []) as Array).map(func(m): return affix_text(m))
+	for e in rule.get("effects", []):
+		if str(e.get("kind", "")) == "add_leaf": parts.append(Tx.t("ui.codex.gift_leaf") % ContentDB.name_of("enemies", str(e.enemy)) if named else Tx.t("ui.codex.gift_leaf_plain"))
+	return " · ".join(parts)
+
 static func _stat_is_percent(stat: String) -> bool:
 	for s in ContentDB.stat_const("stats", []):
 		if str(s.get("id", "")) == stat: return str(s.get("format", "")) == "percent"
@@ -482,6 +502,49 @@ static func clock(seconds: float) -> String:
 ## duration; I14). The ticking countdowns the player races keep `clock`.
 static func span(seconds: float, days := true) -> String:
 	return Tx.span(seconds, days)
+
+## What a consumable did, in words (item_used's `effects` and `gains`, from InventoryAuthority.apply_use): one part per
+## effect, each {text, color, pool}. The HUD joins them into its log line, the world floats the first ones over the
+## player, and the status row carries what runs on. A heal at full HP says so rather than nothing.
+static func use_parts(effects: Array, gains: Dictionary) -> Array:
+	var out: Array = []
+	for e in effects:
+		var kind := str(e.get("kind", ""))
+		match kind:
+			"heal":
+				var gives := float(e.get("gives", 0.0))
+				if gives < 1.0: out.append({"text": Tx.t("hud.use.full") % Tx.t("hud.use.pool.hp"), "color": MIST, "pool": "hp"})
+				elif float(e.get("over_s", 0.0)) > 0.0:
+					out.append({"text": Tx.t("hud.use.gain_over") % [fmt(gives), Tx.t("hud.use.pool.hp"), span(float(e.over_s))], "color": BRIGHT_JADE, "pool": "hp", "float": Tx.t("hud.use.gain") % [fmt(gives), Tx.t("hud.use.pool.hp")]})
+				else: out.append({"text": Tx.t("hud.use.gain") % [fmt(gives), Tx.t("hud.use.pool.hp")], "color": BRIGHT_JADE, "pool": "hp", "float": Tx.t("hud.use.gain") % [fmt(gives), Tx.t("hud.use.pool.hp")]})
+			"restore":
+				var pool := str(e.get("pool", "qi"))
+				var d := float(gains.get(pool, 0.0))
+				var col: Color = {"qi": QI, "soul": SOUL_TEXT, "hollowing": PAPER}.get(pool, BRIGHT_JADE)
+				if absf(d) < 0.5: out.append({"text": Tx.t("hud.use.full" if pool != "hollowing" else "hud.use.clear") % Tx.t("hud.use.pool." + pool), "color": MIST, "pool": pool})
+				elif d < 0.0: out.append({"text": Tx.t("hud.use.drop") % [fmt(-d), Tx.t("hud.use.pool." + pool)], "color": col, "pool": pool, "float": Tx.t("hud.use.drop") % [fmt(-d), Tx.t("hud.use.pool." + pool)]})
+				else: out.append({"text": Tx.t("hud.use.gain") % [fmt(d), Tx.t("hud.use.pool." + pool)], "color": col, "pool": pool, "float": Tx.t("hud.use.gain") % [fmt(d), Tx.t("hud.use.pool." + pool)]})
+			"buff":
+				var v := float(e.get("value", 0.0))
+				# A share (pct ops, and flat rates under 1: regen, insight, cultivation) reads as a percent.
+				var num := ("%+d%%" % int(round(v * 100.0))) if str(e.get("op", "flat")) != "flat" or absf(v) < 1.0 else "%+.0f" % v
+				out.append({"text": Tx.t("hud.use.timed") % [Tx.t("hud.use.stat." + str(e.stat)) + " " + num, span(float(e.get("duration", 60)))], "color": PALE_GOLD,
+					"float": Tx.t("hud.use.stat." + str(e.stat)) + " " + num})
+			"status":
+				out.append({"text": Tx.t("hud.use.timed") % [Tx.t("hud.use.status." + str(e.status)), span(float(e.get("duration", 1)))], "color": PALE_GOLD,
+					"float": Tx.t("hud.use.status." + str(e.status))})
+			"cure_status": out.append({"text": Tx.t("hud.use.cured") % Tx.t("hud.use.status." + str(e.status)), "color": BRIGHT_JADE})
+			"cure_injury": out.append({"text": Tx.t("hud.use.eased") % Tx.t("hud.use.injury." + str(e.injury)), "color": BRIGHT_JADE})
+			"progress", "body_xp", "soul":
+				out.append({"text": Tx.t("hud.use." + kind) % fmt(float(e.get("amount", 0))), "color": QI if kind == "progress" else (BODY if kind == "body_xp" else SOUL_TEXT),
+					"float": "+" + fmt(float(e.get("amount", 0)))})
+			"heart_demon", "toxicity":
+				var a := float(e.get("amount", 0))
+				out.append({"text": Tx.t("hud.use." + kind) % (("-" if a < 0.0 else "+") + fmt(absf(a))), "color": BRIGHT_JADE if a < 0.0 else RED_TEXT})
+			"longevity": out.append({"text": Tx.plural("hud.use.longevity", int(e.get("amount", 0))) % int(e.get("amount", 0)), "color": PALE_GOLD})
+			"reset_meridians", "settle_consolidation", "grain_blessing": out.append({"text": Tx.t("hud.use." + kind), "color": PALE_GOLD})
+	# What moved a bar leads (the heal before the cure it came with), then the rest in the item's order.
+	return out.filter(func(x): return x.has("pool")) + out.filter(func(x): return not x.has("pool"))
 
 ## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
 ## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.

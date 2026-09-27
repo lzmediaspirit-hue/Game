@@ -442,9 +442,10 @@ func drink_draught(c) -> Dictionary:
 	if int(d.count) <= 0: c.inventory.draught = null
 	c.pools.cooldowns["item:healing"] = float(COOLDOWN_GROUPS.get("healing", 15.0))
 	# Half a pill's toxicity (S44): the data carries it already halved.
+	var tox0: float = c.cultivator.toxicity
 	game.progression.apply_toxicity(c.id, float(def.get("draught", {}).get("toxicity", 0)))
-	game.apply_effects(c.id, def.get("use", []), "item:" + str(d.id))
-	emit("item_used", {"actor": c.id, "item": str(d.id), "factor": 1.0})
+	var shown := apply_use(c, def.get("use", []), "item:" + str(d.id), c.cultivator.toxicity - tox0)
+	emit("item_used", {"actor": c.id, "item": str(d.id), "factor": 1.0, "effects": shown.effects, "gains": shown.gains})
 	return ok({"item": str(d.id)})
 
 ## A piece's durability (S44: a furnace loses 10 to a blast and is mended at the forge).
@@ -469,7 +470,8 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 		c.inventory.claim_uid(copy)   # an instance from another bag may carry a uid already used here
 		c.inventory.bag[free] = copy
 		c.inventory.new_items[str(inst.id)] = true
-		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
+		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common")),
+			"uid": int(copy.get("uid", -1))})   # the piece itself (the HUD's equip prompt finds it by uid)
 		return 1
 	emit("bag_full", {"actor": c.id, "items": [{"item": inst.id, "count": 1}]})
 	if overflow:
@@ -823,6 +825,48 @@ static func outfit_for(c) -> Dictionary:
 	return o
 
 # ------------------------------------------------------------------ use (S15 limits)
+const SHOWN_POOLS := ["hp", "qi", "soul", "composure", "hollowing"]
+
+## A consumable's effects applied, and what they did for the player to see (item_used's `effects` and `gains`): the
+## pools before and after (a heal's first fifth, a Qi pill), and each effect's own part, its planned total and time for
+## what runs on (a heal over time, a buff, a status). The HUD writes the log line and the status row from it, the
+## world the number over the player: a tea drunk at full HP still says so. `took_toxicity` is what the pill itself added.
+func apply_use(c, effects: Array, source: String, took_toxicity := 0.0) -> Dictionary:
+	var before := {}
+	for k in SHOWN_POOLS: before[k] = c.pools.get_value(k)
+	var missing: float = c.pools.max_hp - c.pools.hp
+	var shown: Array = []
+	for e in effects:
+		var kind := str(e.get("kind", ""))
+		match kind:
+			"heal":
+				var total: float = CombatAuthority.heal_total(c, float(e.get("pct", 0)), float(e.get("amount", 0)))
+				shown.append({"kind": "heal", "pool": "hp", "total": total, "gives": minf(total, maxf(0.0, missing)), "over_s": float(e.get("over_s", 0))})
+			"restore_resource", "add_composure":
+				shown.append({"kind": "restore", "pool": str(e.get("pool", "composure"))})
+			"cleanse_hollowing": shown.append({"kind": "restore", "pool": "hollowing"})
+			"add_modifier":
+				shown.append({"kind": "buff", "stat": str(e.stat), "op": str(e.get("op", "flat")), "value": float(e.value), "duration": float(e.get("duration", 60))})
+			"apply_status": shown.append({"kind": "status", "status": str(e.status), "duration": float(e.get("duration", 1))})
+			"cure_status": shown.append({"kind": "cure_status", "status": str(e.status)})
+			"cure_injury": shown.append({"kind": "cure_injury", "injury": str(e.injury)})
+			"add_progress":
+				shown.append({"kind": "progress", "amount": float(e.get("amount", 0)) + float(e.get("pct_of_need", 0)) * c.cultivator.need()})
+			"add_body_xp": shown.append({"kind": "body_xp", "amount": float(e.get("amount", 0))})
+			"add_soul": shown.append({"kind": "soul", "amount": float(e.get("amount", 0))})
+			"add_heart_demon": shown.append({"kind": "heart_demon", "amount": float(e.get("amount", 0))})
+			"add_toxicity": shown.append({"kind": "toxicity", "amount": float(e.get("amount", 0))})
+			"add_longevity": shown.append({"kind": "longevity", "amount": float(e.get("years", 0))})
+			"reset_meridians", "settle_consolidation", "grain_blessing": shown.append({"kind": kind})
+	# A pill's own toxicity (a support pill eaten has nothing else to show): "Toxicity +10".
+	if took_toxicity >= 0.5: shown.append({"kind": "toxicity", "amount": took_toxicity})
+	game.apply_effects(c.id, effects, source)
+	var gains := {}
+	for k in SHOWN_POOLS:
+		var d: float = c.pools.get_value(k) - float(before[k])
+		if absf(d) >= 0.5: gains[k] = d
+	return {"effects": shown, "gains": gains}
+
 func use_warning(c, def: Dictionary) -> String:
 	var p: Dictionary = def.get("pill", {})
 	if p.is_empty() and def.has("raw"): return Tx.t("sim.inventory.eat_raw_warning") % int(def.raw.get("toxicity", 10))
@@ -884,6 +928,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	var warning := use_warning(c, def)
 	if warning != "" and not confirm: return fail("confirm", {"text": warning})
 	var factor := 1.0
+	var tox0: float = c.cultivator.toxicity
 	var p: Dictionary = def.get("pill", {})
 	var quality := str(s.get("quality", "common"))
 	var pill_cfg: Dictionary = ContentDB.config("grades").get("pill", {})
@@ -911,6 +956,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 			return ok({"result": "injury"})
 		if c.cultivator.toxicity + tox > c.stats.value("toxicity_tolerance"): factor *= 0.3
 		game.progression.apply_toxicity(c.id, tox)
+	var took: float = c.cultivator.toxicity - tox0   # the pill's own toxicity, shown with what it did
 	apply_remove_index(c.id, index, 1, "use")
 	c.pools.cooldowns[cd_key] = float(COOLDOWN_GROUPS.get(group, 5.0))
 	var effects: Array = []
@@ -919,7 +965,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		for k in ["pct", "amount", "value", "pct_of_need"]:
 			if ed.has(k) and factor != 1.0: ed[k] = float(ed[k]) * factor
 		effects.append(ed)
-	game.apply_effects(c.id, effects, "item:" + str(s.id))
+	var shown := apply_use(c, effects, "item:" + str(s.id), took)
 	if once:
 		c.cultivator.treasure_uses[str(s.id)] = great_realm
 		emit("natural_treasure_used", {"actor": c.id, "treasure": str(s.id)})
@@ -931,7 +977,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 			soul_effect = str(extra.id)
 			game.apply_effects(c.id, [extra], "pill_soul:" + str(s.id))
 			emit("pill_soul_awakened", {"actor": c.id, "item": s.id, "effect": soul_effect})
-	emit("item_used", {"actor": c.id, "item": s.id, "factor": factor})
+	emit("item_used", {"actor": c.id, "item": s.id, "factor": factor, "effects": shown.effects, "gains": shown.gains})
 	if def.has("pill"): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality, "family": family,
 		"resistance": ProgressionRules.resistance_count(c.cultivator, family)})
 	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect, "family": family})

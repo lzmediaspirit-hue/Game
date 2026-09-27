@@ -777,13 +777,25 @@ func story_next(c) -> Dictionary:
 	return _story_cache.entry
 
 func _story_next(c) -> Dictionary:
+	var lesson := false   # a lesson of the story (a guided quest: the Weapon Hall) under way
 	for q in c.quests.active:
-		if str(quest_def(c, q).get("kind", "")) in STORY_KINDS: return {}
+		var kind := str(quest_def(c, q).get("kind", ""))
+		if kind in STORY_KINDS: return {}
+		if kind == "guided": lesson = true
 	var best := {}
 	for d in story_waiting(c, STORY_KINDS):
 		var s := _story_step(c, d, 0)
 		if s.get("active", false): return {}
 		if not s.is_empty() and (best.is_empty() or [int(s.rank), int(s.get("realm_at", 0))] < [int(best.rank), int(best.get("realm_at", 0))]): best = s
+	# With no quest of the story to take now, the lesson its realm opens comes before the Level the story waits on next
+	# (at Bone Forging 3 the Weapon Hall, not the hunt for Bone Forging 4): under way, it leads the tracker itself; on
+	# offer, it is the next step, from its giver.
+	if best.is_empty() or int(best.rank) > 0:
+		if lesson: return {}
+		for d in story_waiting(c, ["guided"]):
+			if c.quests.offered.has(str(d.id)):
+				best = {"quest": str(d.id), "rank": 0}
+				break
 	if best.is_empty(): return {}
 	var d := ContentDB.entry("quests", str(best.quest))
 	var line := ""

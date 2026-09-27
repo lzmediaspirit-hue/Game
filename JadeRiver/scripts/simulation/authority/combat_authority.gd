@@ -12,7 +12,7 @@ var hitstop := 0.0
 const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "injury_added", "injury_healed", "title_changed",
 	"attributes_changed", "method_changed", "dao_tier_up", "body_level_changed", "purity_changed", "soul_changed",
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened",
-	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen", "sect_node_bought"]
+	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen", "sect_node_bought", "collection_seal_claimed"]
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
@@ -22,7 +22,7 @@ var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
 var gliding: Dictionary = {}         # actor -> true while Falling Leaf Glide holds them (S43); 2 QI a second
 var treasure_fx: Dictionary = {}     # actor -> {reflect, gourd, gourd_r, wisps}: a treasure's lingering effect (G2)
-var hots: Dictionary = {}            # actor -> [{per_s, left}]: heals over time, in a fight or out of one (S15)
+var hots: Dictionary = {}            # actor -> [{per_s, left, total, source}]: heals over time, in a fight or out of one (S15)
 var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
 var sword_released: Dictionary = {}  # actor -> {t, next}: the jian flies on its own (S47 Sword Release; not saved)
 var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from consecutive jian hits (S47; not saved)
@@ -76,7 +76,7 @@ func apply_weather(actor_id: String, weather: String) -> void:
 func refresh_stats(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var changed := StatRules.rebuild(c)
+	var changed := StatRules.rebuild(c, game.account)
 	if not changed.is_empty():
 		emit("stats_changed", {"actor": c.id, "changed_ids": changed})
 		for pool in ["hp", "qi", "soul"]:
@@ -2418,15 +2418,23 @@ func _hollow_seizure(c) -> void:
 func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, source: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var total = (amount + c.pools.max_hp * pct) * (1.0 + c.stats.value("healing_received"))   # S48 Mercy
+	var total := heal_total(c, pct, amount)
 	if over_s > 0.0:
 		# A fifth at once, the rest spread over the time given; it runs in a fight too, and resting does not multiply it.
 		apply_resource_change(actor_id, "hp", total * 0.2, source)
 		var list: Array = hots.get(actor_id, [])
-		list.append({"per_s": total * 0.8 / over_s, "left": over_s})
+		list.append({"per_s": total * 0.8 / over_s, "left": over_s, "total": over_s, "source": source})
 		hots[actor_id] = list
 	else:
 		apply_resource_change(actor_id, "hp", total, source)
+
+## The HP a heal of `pct` of max HP plus `amount` gives this character (S48 Mercy raises it).
+static func heal_total(c, pct: float, amount: float) -> float:
+	return (amount + c.pools.max_hp * pct) * (1.0 + c.stats.value("healing_received"))
+
+## The heals over time still running on a character, for the HUD's status row: [{source, left, total, per_s}].
+func hots_of(actor_id: String) -> Array:
+	return hots.get(actor_id, [])
 
 func apply_buff(actor_id: String, e: Dictionary, source: String) -> void:
 	var c = game.character(actor_id)

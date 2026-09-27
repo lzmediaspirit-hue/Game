@@ -452,6 +452,18 @@ func _handle_preview_args(user_args: Array) -> void:
 				oc.posts = {"post": {"kind": "craft", "craft": Game.posts.craft_of_object(nodes[k]), "room": Game.room_rt.room_id,
 					"object": str(nodes[k].id), "since": Clock.now_utc() - 3600.0 * (2.5 + 9.0 * k), "paused": false}, "crafts": {}, "pouch": {}}
 				oc.position.room = Game.room_rt.room_id
+		if str(a) == "--welcome-demo" and Game.active() != null and Game.room_rt != null:
+			# Debug tools (S38): the active character comes in from 7.5 hours at its post (or at this room's first node),
+			# for Welcome Back previews (P5): the real Return Ledger of the post authority, opened as entering the world does.
+			var wc = Game.active()
+			var node: Array = Game.room_rt.def.get("objects", []).filter(func(o): return Game.posts.craft_of_object(o) != "")
+			if not Game.posts.has_post(wc) and not node.is_empty():
+				wc.posts["post"] = {"kind": "craft", "craft": Game.posts.craft_of_object(node[0]), "room": Game.room_rt.room_id, "object": str(node[0].id)}
+			if Game.posts.has_post(wc): Game.posts.post_of(wc).merge({"paused": false, "since": Clock.now_utc() - 3600.0 * 7.5}, true)
+			var welcome := {}
+			AccountAuthority._with_ledger(welcome, Game.posts.on_entered(wc))
+			await get_tree().create_timer(0.8).timeout
+			if not welcome.is_empty(): open_page("welcome", welcome)
 		if str(a) == "--guide-demo" and Game.active() != null:
 			# Debug tools (S38): quest states that show every head marker in Lotus Ferry and a tracked quest leading out (P1).
 			var gq = Game.active().quests
@@ -572,6 +584,18 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--fan=") and is_instance_valid(hud):
 			hud.fan_open = str(a).trim_prefix("--fan=") == "open"
 			hud.fan_rest_open = hud.fan_open
+		if str(a).begins_with("--use-item=") and Game.active() != null and is_instance_valid(hud):
+			# Debug tools (S38): --use-item=item[:hp] sets the HP share (default as it is), puts the item in Quick-use and
+			# taps it through the HUD, as the player does; with --capture the shot is taken 0.5 s after (feedback previews).
+			var ua := str(a).trim_prefix("--use-item=").split(":")
+			var uc = Game.active()
+			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection
+			if uc.inventory.count(ua[0]) <= 0: Game.inventory.apply_add(uc.id, ua[0], 1, "debug")
+			if ua.size() > 1: uc.pools.hp = uc.pools.max_hp * float(ua[1])
+			Game.submit({"type": "set_quick_use", "item": ua[0]})
+			uc.pools.cooldowns.clear()
+			hud.use_quick()
+			moment_t = 0.5
 	for a in user_args:
 		if str(a).begins_with("--moment=") and is_instance_valid(moments):
 			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with

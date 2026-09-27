@@ -205,3 +205,24 @@ func _techniques() -> void:
 	cu.techniques_known = known_was
 	print("techniques page with sixty composed arts: %.0f ms" % ms_page)
 	check(ms_page < 150.0, "the Techniques page opens in under 0.15 s with sixty composed arts known (%.0f ms)" % ms_page)
+	# P13b: the biggest tree's tab, dragged across its whole width and depth, draws only what is in view: a dragged frame
+	# costs about what a still one does (the tree's size does not show) and stays inside a 30 fps frame on the runner.
+	var biggest := ""
+	var most := 0
+	for tree in TechniqueTreeRules.trees():
+		var n := TechniqueTreeRules.nodes_of(tree).filter(func(nid): return TechniqueTreeRules.act_of(int(TechniqueTreeRules.node(nid).get("ring", 99))) <= 3).size()
+		if n > most:
+			biggest = tree
+			most = n
+	main.open_page("techniques", {"tab": biggest})
+	await get_tree().process_frame
+	var pg = main.top_page()
+	var still := await _frames(60, Callable())
+	var ms_pan := await _frames(120, func(i: int): pg._glide(Vector2(i * 64.0, (i % 30) * 40.0), true))
+	var drawn: int = pg._regions.filter(func(r): return r.id == "node").size()
+	var laid: int = pg._items.size()
+	main.close_all_pages()
+	await get_tree().process_frame
+	print("techniques page, the %s tree (%d nodes): %.2f ms a frame dragged, %.2f still; %d nodes in view" % [biggest, laid, ms_pan, still, drawn])
+	check(laid >= 250 and drawn < 40 and ms_pan - still < 5.0 and ms_pan < 33.3,
+		"the biggest tree's tab (%s, %d nodes) draws only what is in view (%d): dragged %.2f ms a frame against %.2f still" % [biggest, laid, drawn, ms_pan, still])

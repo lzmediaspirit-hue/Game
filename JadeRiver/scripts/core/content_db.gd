@@ -158,6 +158,13 @@ func config(name: String) -> Dictionary:
 func room(id: String) -> Dictionary:
 	return rooms.get(id, {})
 
+## Decision 27: a collection page's seal `seal` (1 or 2) from account_rules.json: its condition, its gift's modifiers
+## and effects. Empty for a page or seal the data does not hold.
+func collection_seal(page: String, seal: int) -> Dictionary:
+	for s in config("account_rules").get("collection_seals", {}).get("pages", {}).get(page, []):
+		if int(s.get("seal", 0)) == seal: return s
+	return {}
+
 func zone(id: String) -> Dictionary:
 	return entry("zones", id)
 

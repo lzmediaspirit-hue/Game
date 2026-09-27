@@ -241,7 +241,7 @@ func _draw_tag() -> void:
 		box = box.merge(Rect2(cx - 8.0, base - 15.0, 16.0, 12.0))
 		ci.draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 4), Vector2(cx - 7, top - 12), Vector2(cx - 3, top - 8),
 			Vector2(cx, top - 14), Vector2(cx + 3, top - 8), Vector2(cx + 7, top - 12), Vector2(cx + 7, top - 4)]), UiKit.GOLD)
-	# Status icons at 1x (12 art px, crisp), 14 apart.
+	# Status icons at their native 12 px render, 14 apart.
 	var sx := -float(e.pools.statuses.size()) * 7.0
 	if not e.pools.statuses.is_empty(): box = box.merge(Rect2(sx, base - 30.0, 14.0 * e.pools.statuses.size(), 14.0))
 	for s in e.pools.statuses:

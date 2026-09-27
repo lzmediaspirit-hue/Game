@@ -33,6 +33,7 @@ func _main() -> void:
 	pets_suite()
 	weekly_suite()
 	pills_suite()
+	consumable_feedback_suite()
 	treasures_suite()
 	hazards_suite()
 	starsea_suite()
@@ -100,6 +101,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	legacy_suite()
+	codex_seals_suite()
 	drop_pool_suite()
 	set_suite()
 	boss_event_suite()
@@ -113,11 +115,13 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	equip_prompt_suite()
 	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
 	await identity_suite()
 	await map_suite()
+	await techniques_page_suite()
 	fixes_suite()
 	mockup_fixes_suite()
 	max_character_suite()
@@ -535,6 +539,7 @@ func identity_suite() -> void:
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 	await _bag_checks()
 	await _records_checks()
+	await _post_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -633,6 +638,116 @@ func _records_checks() -> void:
 	check(go.size() == 1 and str(go[0].data) == "sf_gate" and (go[0].rect as Rect2).size.y >= Page.MIN_TAP and bool(go[0].enabled) == not Game.world.route(c, str(c.position.get("room", "")), "sf_gate").is_empty(),
 		"P5 Calendar: the chosen event's Go there walks to its room by auto_path, shut with its reason when no way leads there")
 	kp.queue_free()
+
+## P5 (the Post family, docs/page_identity.md rows 12, 14, 23 and 44; mockups 13, 13_first and 14 v4; decisions 11, 21
+## and 26). The Roll-Call hangs a tablet per character, soonest full first, each with its figure (the live Avatar at a
+## whole 3 px an art px, clipped to its window), a Settle and a Switch under a character at a post, its vessel's tag
+## reading what the pouch holds against what it can; a tap turns a tablet to its back, whose words read too. The Works
+## cabinet's seven compartments are its tabs, each 48 px or more, each object drawn from its own drawing at its native 96
+## on whole pixels, a locked one answering with what opens it, and the Seal Scripts show five rows at once. Welcome Back
+## burns the coil to the time away out of the cap and lays every good in the tray. The Pouches chalk seven patterns, a
+## deeper pouch larger.
+func _post_checks() -> void:
+	var c = Game.active()
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var open := func(id: String, a: Dictionary) -> Page:
+		var pg: Page = load(str(main_script.PAGES[id])).new()
+		pg.page_id = id
+		pg.text_log = []
+		add_child(pg)
+		pg.open(a)
+		return pg
+	var dim: Array = []
+	var lost: Array = []
+	# The Roll-Call.
+	var rc: Page = open.call("posts", {})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rs: Array = rc.rows()
+	var shown: Array = rs.slice(0, rc.SHOWN)
+	var tablets: Array = rc._regions.filter(func(r): return r.id == "turn")
+	check(not rs.is_empty() and bool(rs[0].active) and tablets.size() == shown.size() and tablets.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Roll-Call: a tablet per character on the rail, the one you play first (%d of %d)" % [tablets.size(), rs.size()])
+	var keyed: Array = rs.slice(1).map(func(r): return 1e12 if (r.post as Dictionary).is_empty() else minf(1e11, float(r.fill_h)))
+	check(range(keyed.size() - 1).all(func(i): return float(keyed[i]) <= float(keyed[i + 1])), "P5 Roll-Call: soonest full first (%s)" % str(keyed))
+	var posted: Array = shown.filter(func(r): return not r.active and not (r.post as Dictionary).is_empty() and str(r.post.get("kind", "")) != "vigil")
+	var settles: Array = rc._regions.filter(func(g): return g.id == "settle" and (g.rect as Rect2).size.y >= Page.MIN_TAP).map(func(g): return str(g.data))
+	var switches: Array = rc._regions.filter(func(g): return g.id == "switch").map(func(g): return int(g.data))
+	check(posted.all(func(r): return settles.has(str(r.id)) and switches.has(int(r.slot))), "P5 Roll-Call: a Settle and a Switch under each character at a post")
+	var said: Array = rc.text_log.map(func(tx): return str(tx.get("s", "")))
+	check(posted.all(func(r): return said.has(UiKit.fmt(int(r.pouch))) and float(r.cap) > 0.0), "P5 Roll-Call: each vessel's tag says what its pouch holds")
+	var figs: Array = rc.figs.values()
+	var crisp := func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY and (f.doll as Node2D).scale == Vector2(1.5, 1.5) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()
+	check(figs.size() == shown.size() and figs.all(crisp),
+		"P5 Roll-Call: each tablet shows its character's live figure at 3 px an art px on whole pixels, clipped to its window")
+	_identity_view(rc, "posts board", dim, lost, {}, {})
+	rc.on_action("turn", str(rs[0].id))
+	rc.opened = 9.0
+	rc.t += 1.0
+	rc.text_log.clear()
+	rc.queue_redraw()
+	await get_tree().process_frame
+	var back_name: bool = rc.text_log.any(func(tx): return str(tx.get("s", "")) == str(rs[0].name) and tx.get("col") == UiKit.PALE_GOLD)
+	check(bool(rc.turned.get(str(rs[0].id), false)) and back_name
+		and not (rc.figs[str(rs[0].id)].mask as Node2D).visible, "P5 Roll-Call: a tap turns a tablet to its back, the figure put away")
+	_identity_view(rc, "posts back", dim, lost, {}, {})
+	rc.queue_free()
+	# Works: the curio cabinet.
+	SpriteCache.draw_log = []
+	var wk: Page = open.call("works", {"tab": "seals"})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cells: Array = wk._regions.filter(func(r): return r.id == "_tab")
+	var objects: Array = SpriteCache.draw_log.filter(func(d): return str(d.id).begins_with("work_"))
+	check(cells.size() == 7 and cells.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Works: the seven works are the cabinet's seven compartments, each a 48 px target")
+	var native := func(d): return int(d.art) == 96 and float(d.scale) == 1.0 and (d.rect as Rect2).position == (d.rect as Rect2).position.round()
+	var kinds := {}
+	for d in objects: kinds[str(d.id)] = true
+	check(kinds.size() == 7 and objects.all(native),
+		"P5 Works: each object is drawn from its own drawing at its native 96, on whole pixels (%s)" % str(objects.slice(0, 7).map(func(d): return [d.id, d.art, d.scale])))
+	var seals: Dictionary = wk._areas.get("seals", {})
+	check(not seals.is_empty() and int(((seals.rect as Rect2).size.y + Page.ROW_GAP) / float(seals.pitch)) >= 5, "P5 Works: the Seal Scripts show five rows at once (decision 26)")
+	_identity_view(wk, "works seals", dim, lost, {}, {})
+	Unlocks.debug_force_all = false
+	wk.setup()
+	var closed_cells: Array = wk.tabs.filter(func(tb): return str(tb.get("locked", "")) != "")
+	wk.queue_redraw()
+	await get_tree().process_frame
+	var reasons: Array = wk._regions.filter(func(r): return r.id == "_tab" and not r.enabled).map(func(r): return str(r.reason))
+	check(closed_cells.all(func(tb): return reasons.has(str(tb.locked))),
+		"P5 Works: a work not yet open answers a tap with what opens it (%d closed)" % closed_cells.size())
+	Unlocks.debug_force_all = true
+	wk.queue_free()
+	SpriteCache.draw_log = null
+	# Welcome Back: the coil and the tray.
+	var ctx: Dictionary = _ui_contexts(c).welcome[0]
+	var wb: Page = open.call("welcome", ctx)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cap := float(ContentDB.curve("idle_cap_h", 12)) + float(Game.sect.idle_cap_bonus())
+	var goods: Array = wb.ledger().goods
+	check(is_equal_approx(wb.burnt(), clampf(float(ctx.hours) / cap, 0.0, 1.0)) and goods.size() == (ctx.post.items as Dictionary).size()
+		and wb._regions.filter(func(r): return r.id == "item").size() == mini(goods.size(), 19) and wb._regions.any(func(r): return r.id == "store") and wb._regions.any(func(r): return r.id == "ok"),
+		"P5 Welcome Back: the coil burnt to the time away out of the cap (%.2f), every good in the tray, the two choices under it" % wb.burnt())
+	_identity_view(wb, "welcome", dim, lost, {}, {})
+	wb.queue_free()
+	# The Pouches: the chalk patterns.
+	var pp: Page = open.call("pouches", {})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var tiers: int = (ContentDB.config("posts").get("sewing", []) as Array).size()
+	var sews: int = pp._regions.filter(func(r): return r.id == "sew" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size()
+	var finest: int = pp.CATS.filter(func(k): return int(Game.posts.pouch(c, k).get("tier", 0)) >= tiers).size()
+	check(sews + finest == 7 and range(tiers).all(func(i): return pp.size_of(i + 1, tiers) > pp.size_of(i, tiers)),
+		"P5 Pouches: seven patterns chalked, each with its Sew, a deeper pouch larger")
+	_identity_view(pp, "pouches", dim, lost, {}, {})
+	pp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Post family: every word reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 3))])
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
 
 ## P5 (the Bag as concept B, decision 24; docs/page_identity.md row 3): the kinds split the bag with nothing lost; the
 ## eight worn slots ride the orbit; a tapped thing's card opens beside its space, clear of it and inside the window, its
@@ -1184,6 +1299,107 @@ func hud_suite() -> void:
 	c.pools.max_soul = soul_was
 	hud.queue_free()
 
+## The HUD's equip prompt (EquipPrompt): a piece better than the one worn (an empty slot counts as worse) is offered at
+## the right with the gain the Bag's card names first and Combat Power; a worse or equal piece is not; Equip is the equip
+## intent and wears it; the card goes by itself at 10 s; several wait their turn; its place keeps clear of every control,
+## the purse and the clear zone, only its buttons take a tap, and with Reduce motion it stands still.
+func equip_prompt_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	hud.process_mode = Node.PROCESS_MODE_DISABLED
+	var keep: Dictionary = c.inventory.snapshot()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var InventoryPage = load("res://scripts/ui/pages/inventory_page.gd")
+	var give := func(ilv: int) -> int:
+		var inst := LootRules.make_instance("jadeiron_jian", ilv, "common", null, c.inventory.take_uid())
+		Game.inventory.apply_add_instance(c.id, inst, "loot")
+		GameEvents.flush()
+		var s = null
+		for k in c.inventory.bag.size():
+			if c.inventory.bag[k] != null and str(c.inventory.bag[k].id) == "jadeiron_jian" and int(c.inventory.bag[k].get("ilv", 0)) == ilv: s = c.inventory.bag[k]
+		return int(s.uid) if s != null else -1
+	c.inventory.equipped["weapon"] = null
+	c.inventory.loadout["spare"] = null
+	for k in c.inventory.bag.size(): c.inventory.bag[k] = null
+	Game.combat.refresh_stats(c.id)
+	hud.equip_prompt = EquipPrompt.new()
+	# Better than an empty slot: offered, with the Bag card's first rising stat and Combat Power.
+	var uid1: int = give.call(28)
+	hud.equip_prompt.tick(c, 0.0)
+	var cur: Dictionary = hud.equip_prompt.current
+	var rows: Array = InventoryPage.card_rows(StatRules.equip_change(c, "weapon", c.inventory.bag[EquipPrompt.bag_index(c, uid1)]))
+	var rising: Array = rows.slice(0, -1).filter(func(rw): return float(rw.after) > float(rw.before))
+	var cp_up := float(rows[-1].after) > float(rows[-1].before) + 0.5
+	check(int(cur.get("uid", -1)) == uid1 and cur.get("empty", false) and (cur.get("cp", {}) as Dictionary).is_empty() != cp_up
+		and (rising.is_empty() or str((cur.gain as Dictionary).get("stat", "")) == str(rising[0].stat)),
+		"Equip prompt: a piece for an empty slot is always offered, with the Bag card's gain (%s)" % hud.equip_prompt.gain_text())
+	# Its place: clear of the clear zone, the purse, the panels and every control, in a fight and at rest; its buttons 48 px.
+	var box: Rect2 = EquipPrompt.RECT
+	var clash: Array = []
+	for st in [[true, false], [false, true], [false, false]]:
+		hud.set_state(st[0], st[1])
+		for tg in hud.hit_targets():
+			var d := float(tg.r)
+			if Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0).intersects(box): clash.append(str(tg.role))
+	for r in [hud.CLEAR_ZONE, Rect2(1040, 222, 222, 34), hud.minimap_rect, hud.panel_rect(c), Rect2(14, 0, 342, hud.TRACKER_FOOT), Rect2(20, 0, hud.LOG_W, hud.LOG_FOOT)]:
+		if (r as Rect2).intersects(box): clash.append(str(r))
+	check(clash.is_empty() and EquipPrompt.equip_hit().size.y >= 48.0 and EquipPrompt.close_hit().size.y >= 48.0 and box.encloses(EquipPrompt.equip_hit())
+		and box.encloses(EquipPrompt.close_hit()), "Equip prompt: it stands clear of every control, the purse, the panels and the clear zone (%s)" % str(clash))
+	# Only its buttons take a tap: the attack button, and a tap on the card's face, go where they went before.
+	hud.set_state(true, false)
+	check(hud.role_at(hud.attack_center) == "attack" and hud.role_at(box.position + Vector2(20, 60)) not in ["prompt:equip", "prompt:close"]
+		and hud.role_at(EquipPrompt.equip_hit().get_center()) == "prompt:equip" and hud.role_at(EquipPrompt.close_hit().get_center()) == "prompt:close",
+		"Equip prompt: only Equip and × take a tap; the fight's controls answer as before")
+	# Reduce motion: in place at once; otherwise it slides in from the edge.
+	check(hud.equip_prompt.rect(true) == box and hud.equip_prompt.rect(false).position.x > box.position.x, "Equip prompt: it slides in, or with Reduce motion stands in place")
+	# Equip: the intent wears it, and the card goes.
+	hud.press(9, EquipPrompt.equip_hit().get_center())
+	hud.release(9)
+	check(c.inventory.equipped.get("weapon") != null and int(c.inventory.equipped.weapon.uid) == uid1 and hud.equip_prompt.current.is_empty(),
+		"Equip prompt: Equip wears the piece (the equip intent) and the card goes")
+	Game.combat.refresh_stats(c.id)
+	# Worse and equal: nothing.
+	give.call(19)
+	hud.equip_prompt.tick(c, 0.0)
+	var worse: bool = hud.equip_prompt.current.is_empty()
+	give.call(28)
+	hud.equip_prompt.tick(c, 0.0)
+	check(worse and hud.equip_prompt.current.is_empty() and hud.equip_prompt.queue.is_empty(), "Equip prompt: a worse or an equal piece is not offered")
+	# Two better ones: one at a time; the first goes by itself at 10 s, then the second.
+	var uid9: int = give.call(36)
+	var uid8: int = give.call(34)
+	hud.equip_prompt.tick(c, 0.0)
+	var first_up: bool = int(hud.equip_prompt.current.get("uid", -1)) == uid9 and hud.equip_prompt.queue == [uid8]
+	var rows9: Array = InventoryPage.card_rows(StatRules.equip_change(c, "weapon", c.inventory.bag[EquipPrompt.bag_index(c, uid9)]))
+	var cp9: Dictionary = hud.equip_prompt.current.get("cp", {})
+	var rise9: Array = rows9.slice(0, -1).filter(func(rw): return float(rw.after) > float(rw.before))
+	check(not cp9.is_empty() and is_equal_approx(float(cp9.after) - float(cp9.before), float(rows9[-1].after) - float(rows9[-1].before)) and float(cp9.after) > float(cp9.before)
+		and (rise9.is_empty() or str((hud.equip_prompt.current.gain as Dictionary).get("stat", "")) == str(rise9[0].stat)) and hud.equip_prompt.gain_text().contains("▲"),
+		"Equip prompt: a piece better than the worn one is offered with the Bag card's gain (%s)" % hud.equip_prompt.gain_text())
+	hud.equip_prompt.tick(c, 9.9)
+	var still_up: bool = int(hud.equip_prompt.current.get("uid", -1)) == uid9
+	hud.equip_prompt.tick(c, 0.2)
+	check(first_up and still_up and int(hud.equip_prompt.current.get("uid", -1)) == uid8, "Equip prompt: several wait their turn, and each goes by itself at 10 s")
+	hud.press(9, EquipPrompt.close_hit().get_center())
+	hud.release(9)
+	check(hud.equip_prompt.current.is_empty() and int(c.inventory.equipped.weapon.uid) == uid1, "Equip prompt: × closes it, nothing worn changes")
+	c.inventory.restore(keep)
+	Game.combat.refresh_stats(c.id)
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
+	hud.queue_free()
+
 ## P5a (review G4): world names never stack. WorldLabels.resolve places a crowd of labels in whole rows so no two
 ## touch and none sits under a HUD control; a plate under the feet with no room below goes over the head; labels
 ## that touch nothing keep their places; a second pass with last frame's rows gives the same places. Then the real
@@ -1352,8 +1568,8 @@ func labels_suite() -> void:
 	await get_tree().process_frame
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
-## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
-## 1x, 2x...; an HD icon at its native 64, 48 or 32 (`<id>@<px>` in the manifest). The ui_suite checks every page.
+## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG) draws at 1x, 2x...; an HD icon at its native 64,
+## 48, 32, 24 or 12 (`<id>@<px>` in the manifest). The ui_suite checks every page.
 func icon_draw_suite() -> void:
 	# The pills are HD (the first family converted); the first legacy item in the manifest stands for the rest until
 	# every family has flipped.
@@ -1375,6 +1591,12 @@ func icon_draw_suite() -> void:
 	var hd_small := SpriteCache.icon_fit("healing_pill", Page.SLOT_SMALL - 12)
 	check(int(hd_slot["art"]) == 64 and int(hd_slot["scale"]) == 1 and int(hd_small["art"]) == 32 and int(hd_small["scale"]) == 1,
 		"P4b: an HD item shows its 64 at 1:1 in the 76 px slot and its native 32 in the small slot")
+	var st_row := SpriteCache.icon_fit("stun", 24)
+	var st_foe := SpriteCache.icon_fit("stun", 14)
+	var mk_map := SpriteCache.icon_fit("boss_skull", 24)
+	check(int(st_row["art"]) == 24 and int(st_row["scale"]) == 1 and int(st_foe["art"]) == 12 and int(st_foe["scale"]) == 1
+		and int(mk_map["art"]) == 24 and int(mk_map["scale"]) == 1,
+		"P4b: a status icon shows its 24 at 1:1 in the HUD's status row and its native 12 over an enemy; a marker its 24 on the map")
 	if legacy != "":
 		var in_slot := SpriteCache.icon_fit(legacy, Page.SLOT - 12)
 		var in_small := SpriteCache.icon_fit(legacy, Page.SLOT_SMALL - 12)
@@ -1392,6 +1614,10 @@ func icon_draw_suite() -> void:
 		"P4b: an HD icon uses its native 64, 48 and 32 renders, and whole multiples above them (%s)" % str(got))
 	check(SpriteCache.icon_hd("probe_hd") and SpriteCache.icon_hd("healing_pill") and (legacy == "" or not SpriteCache.icon_hd(legacy)),
 		"P4b: the manifest tells an HD icon from a legacy one")
+	# P5 (decision 21): the seven Works objects render natively at 96 for the cabinet, and at 64.
+	var works := ["work_post_arts", "work_seal", "work_stele", "work_favour", "work_furnace", "work_flag", "work_mirror"]
+	var both := func(w): return m.has(w + "@96") and int(SpriteCache.icon_fit(w, 96)["art"]) == 96 and int(SpriteCache.icon_fit(w, 96)["scale"]) == 1 and int(SpriteCache.icon_fit(w, 64)["art"]) == 64
+	check(works.all(both), "P5: the Works objects have native 96 and 64 renders")
 	for k in probe: m.erase(k)
 	SpriteCache._renders.clear()
 	# Nothing but the helper draws an icon texture.
@@ -7740,6 +7966,125 @@ func _use_fresh(c, index: int) -> Dictionary:
 	c.cultivator.pill_memory.clear()
 	return Game.inventory.use_item(c, index, true)
 
+## Every consumable says what it did (the Herbal Tea bug: drunk at full HP in the prologue it showed nothing). Each
+## tea, pill, herb, core, draught, food and incense, used at half HP, announces item_used with the parts the HUD and the
+## world show (a heal number, a Qi number, a buff, a status, a cure, the pill's toxicity), all in words from the strings;
+## what runs on is in the status row's sources (a heal over time, a timed buff, a status); the HUD writes the log line
+## before the log is revealed; and the tea at full HP still says "HP already full" and shows its heal running.
+const CONSUMABLE_TYPES := ["pill", "food", "herb", "core", "draught"]
+
+func consumable_feedback_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var keep: Dictionary = c.snapshot()
+	var realm_was: String = c.cultivator.realm_key
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	var heard: Array = []
+	var listen := func(n: String, pl: Dictionary):
+		if n == "item_used": heard.append(pl)
+	GameEvents.event.connect(listen)
+	var silent: Array = []
+	var unnamed: Array = []
+	var unlisted: Array = []
+	var unlogged: Array = []
+	var tested := 0
+	for def in ContentDB.all("items"):
+		if not def.has("use") or str(def.get("use_action", "")) != "": continue
+		var kinds: Array = (def.use as Array).map(func(u): return str(u.get("kind", "")))
+		var consumable: bool = str(def.get("type", "")) in CONSUMABLE_TYPES
+		for k in kinds:
+			if k in ["heal", "restore_resource", "add_modifier", "add_composure", "cleanse_hollowing", "apply_status"]: consumable = true
+		if not consumable: continue
+		var id := str(def.id)
+		for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+		c.cultivator.realm_key = _realm_for_grade(str(def.get("grade", "plain")))   # a pill two grades up only injures
+		c.cultivator.vows = []
+		c.cultivator.treasure_uses = {}
+		c.cultivator.injuries = {"body": {"severity": 1, "time_left": 600.0}, "meridian": {"severity": 1, "time_left": 600.0}, "soul": {"severity": 1, "time_left": 600.0}}
+		c.pools.statuses = [{"id": "poison", "remaining": 5.0, "power": 1.0, "delay": 0.0}]
+		Game.combat.hots.erase(c.id)
+		Game.combat.refresh_stats(c.id)
+		c.pools.hp = c.pools.max_hp * 0.5
+		c.pools.qi = c.pools.max_qi * 0.5
+		c.pools.composure = 50.0
+		c.pools.hollowing = 30.0
+		Game.inventory.apply_add(c.id, id, 1, "test")
+		heard.clear()
+		hud.log_lines = []
+		var r: Dictionary = _use_fresh(c, c.inventory.first_index(id))
+		GameEvents.flush()
+		tested += 1
+		if not r.get("ok", false) or heard.is_empty():
+			silent.append("%s (%s)" % [id, str(r.get("reason", "no item_used"))])
+			continue
+		var parts: Array = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {}))
+		if parts.is_empty(): silent.append(id + " (no parts)")
+		for part in parts:
+			if "hud.use." in str(part.text) or "hud.use." in str(part.get("float", "")): unnamed.append("%s: %s" % [id, part.text])
+		var line: String = str(hud.log_lines[-1].text) if not hud.log_lines.is_empty() else ""
+		if not (line.begins_with(ContentDB.item_name(id)) and hud.log_lines[-1].get("always", false)): unlogged.append("%s: %s" % [id, line])
+		for u in def.use:
+			var k := str(u.get("kind", ""))
+			if k == "heal" and float(u.get("over_s", 0)) > 0.0 and Game.combat.hots_of(c.id).is_empty(): unlisted.append(id + " heal over time")
+			if k == "add_modifier" and not c.stats.modifiers.any(func(m): return float(m.get("remaining", 0)) > 0.0): unlisted.append(id + " buff")
+			if k == "apply_status" and not c.pools.statuses.any(func(st): return str(st.id) == str(u.status)): unlisted.append(id + " status")
+	check(tested >= 60, "consumables: every tea, pill, herb, core, draught and food is tried (%d)" % tested)
+	check(silent.is_empty(), "consumables: each one used announces what it did (%s)" % str(silent.slice(0, 6)))
+	check(unnamed.is_empty(), "consumables: every part is named from the strings (%s)" % str(unnamed.slice(0, 6)))
+	check(unlogged.is_empty(), "consumables: the HUD writes a log line naming the item, shown before the log is revealed (%s)" % str(unlogged.slice(0, 6)))
+	check(unlisted.is_empty(), "consumables: what runs on is there for the status row, with its time (%s)" % str(unlisted.slice(0, 6)))
+	# The prologue's case: the tea at full HP.
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.combat.hots.erase(c.id)
+	c.pools.hp = c.pools.max_hp
+	Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	heard.clear()
+	_use_fresh(c, c.inventory.first_index("herbal_tea"))
+	GameEvents.flush()
+	var tea: Array = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {})) if not heard.is_empty() else []
+	check(not tea.is_empty() and str(tea[0].text) == Tx.t("hud.use.full") % Tx.t("hud.use.pool.hp"), "the tea at full HP says so (%s)" % str(tea))
+	var hot: Array = Game.combat.hots_of(c.id)
+	check(hot.size() == 1 and str(hot[0].source) == "item:herbal_tea" and near(float(hot[0].left), 5.0), "and its heal runs 5 s under the tea's icon (%s)" % str(hot))
+	# Half HP: the number is the heal the tea gives, a fifth now and the rest over 5 s.
+	Game.combat.hots.erase(c.id)
+	c.pools.hp = c.pools.max_hp * 0.5
+	c.pools.cooldowns.clear()
+	Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	heard.clear()
+	var hp0: float = c.pools.hp
+	_use_fresh(c, c.inventory.first_index("herbal_tea"))
+	GameEvents.flush()
+	var gives := CombatAuthority.heal_total(c, 0.25, 0.0)
+	tea = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {})) if not heard.is_empty() else []
+	check(not tea.is_empty() and str(tea[0].get("float", "")) == Tx.t("hud.use.gain") % [UiKit.fmt(gives), Tx.t("hud.use.pool.hp")] and near(c.pools.hp - hp0, gives * 0.2),
+		"the tea at half HP: +%s over the player, a fifth at once (%s)" % [UiKit.fmt(gives), str(tea)])
+	GameEvents.event.disconnect(listen)
+	hud.player = null
+	stub.free()
+	hud.queue_free()
+	Game.combat.hots.erase(c.id)
+	c.stats.modifiers = c.stats.modifiers.filter(func(m): return float(m.duration) < 0)
+	c.stats.dirty = true
+	c.pools.statuses = []
+	c.restore(keep)
+	c.cultivator.realm_key = realm_was
+	Game.combat.refresh_stats(c.id)
+
+## The first realm whose Level's grade is at most one under `grade` (so using an item of it is no grade-gap injury).
+func _realm_for_grade(grade: String) -> String:
+	var want := StatRules.grade_index(grade) - 1
+	for rr in ContentDB.all("realms"):
+		if StatRules.grade_index(LootRules.grade_for_ilv(maxi(1, int(rr.get("level", 1))))) >= want: return str(rr.key)
+	return "heart_tempering_1"
+
 func pills_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -9990,6 +10335,98 @@ func set_suite() -> void:
 	foe.alive = false
 	Game.combat.refresh_stats(c.id)
 
+## Decision 27 · Codex page-completion rewards: a page's seal I is earned the kill that fills its last card and seal II
+## the kill that brings its last card to its mark, not one kill sooner; each is claimed once, seal II after seal I,
+## through the Account authority's intent; the gift's stats reach the character through StatRules and survive a
+## save; seal II's Bestiary Leaf goes to the account.
+func codex_seals_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var acc: AccountState = Game.account
+	var keep := {"collection": acc.collection.duplicate(), "done": acc.collection_pages_done.duplicate(), "seals": acc.collection_seals.duplicate(),
+		"leaves": acc.leaves.duplicate()}
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	GameEvents.flush()
+	var page := "marsh"
+	var beasts: Array = ContentDB.all("enemies").filter(func(e): return e.get("collection") is Dictionary and str(e.collection.page) == page)
+	var rules: Dictionary = ContentDB.config("account_rules").get("collection_seals", {})
+	var pages := {}
+	for e in ContentDB.all("enemies"):
+		if e.get("collection") is Dictionary: pages[str(e.collection.page)] = true
+	check(pages.keys().all(func(p): return not ContentDB.collection_seal(str(p), 1).is_empty() and not ContentDB.collection_seal(str(p), 2).is_empty())
+		and rules.get("pages", {}).size() == pages.size(), "decision 27: every collection page has its two seals (%d pages)" % pages.size())
+	for e in beasts: acc.collection.erase(str(e.id))
+	acc.collection_pages_done.erase(page)
+	acc.collection_seals.erase(page + ":1")
+	acc.collection_seals.erase(page + ":2")
+	acc.leaves.erase("hollowed_boarlet")
+	var kill := func(id: String, n: int) -> Array:
+		GameEvents.flush()
+		for i in n: Game.accounts._on_actor_defeated({"victim_kind": "enemy", "killer": c.id, "def": id})
+		var names: Array = GameEvents._queue.filter(func(q): return str(q[0]) == "collection_seal_ready").map(func(q): return int(q[1].seal))
+		GameEvents.flush()
+		return names
+	var claim := func(n: int) -> Dictionary: return Game.submit({"type": "claim_collection_seal", "page": page, "seal": n})
+	# Seal I: every card on the page filled (50); the last card one short holds it back.
+	for e in beasts.slice(0, beasts.size() - 1): kill.call(str(e.id), 50)
+	var last := str(beasts[-1].id)
+	kill.call(last, 49)
+	check(not Game.accounts.seal_progress(page, 1).earned and str(claim.call(1).get("reason", "")) == "short",
+		"decision 27: seal I waits while one card is a kill short (%d of %d cards)" % [int(Game.accounts.seal_progress(page, 1).done), beasts.size()])
+	var ready: Array = kill.call(last, 1)
+	check(Game.accounts.seal_progress(page, 1).earned and Game.accounts.seal_progress(page, 1).open and ready == [1] and acc.collection_pages_done.has(page),
+		"decision 27: the kill that fills the last card earns seal I and says so once (%s)" % str(ready))
+	check(str(claim.call(2).get("reason", "")) == "short", "decision 27: seal II waits for every card at its mark")
+	var ward0: float = c.stats.value("hollow_ward")
+	var r1: Dictionary = claim.call(1)
+	var gift1: Dictionary = ContentDB.collection_seal(page, 1).modifiers[0]
+	check(r1.get("ok", false) and acc.collection_seals.has(page + ":1") and is_equal_approx(c.stats.value(str(gift1.stat)) - ward0, float(gift1.value)),
+		"decision 27: seal I claimed gives %s through the stat rules (%.3f -> %.3f)" % [UiKit.affix_text(gift1), ward0, c.stats.value("hollow_ward")])
+	check(str(claim.call(1).get("reason", "")) == "claimed" and is_equal_approx(c.stats.value("hollow_ward") - ward0, float(gift1.value)),
+		"decision 27: a seal is claimed once, its gift not doubled")
+	# Seal II: every card at its mark (500 a common beast), after seal I.
+	for e in beasts.slice(0, beasts.size() - 1): kill.call(str(e.id), int(e.collection.kills_to_master) - 50)
+	kill.call(last, int(beasts[-1].collection.kills_to_master) - 51)
+	check(not Game.accounts.seal_progress(page, 2).earned, "decision 27: seal II waits while one card is a kill short of %d" % int(beasts[-1].collection.kills_to_master))
+	ready = kill.call(last, 1)
+	check(Game.accounts.seal_progress(page, 2).open and ready == [2], "decision 27: the kill that brings the last card to its mark earns seal II (%s)" % str(ready))
+	var heal0: float = c.stats.value("healing_received")
+	var leaf: Dictionary = ContentDB.collection_seal(page, 2).effects[0]
+	check(claim.call(2).get("ok", false) and int(acc.leaves.get(str(leaf.enemy), 0)) == 1 and c.stats.value("healing_received") - heal0 > 0.0
+		and str(claim.call(2).get("reason", "")) == "claimed", "decision 27: seal II claimed once: %s" % UiKit.seal_gift(ContentDB.collection_seal(page, 2)))
+	# The order: seal II of another page cannot be claimed before its seal I.
+	var other := "quarry"
+	var keep_other := {}
+	for e in ContentDB.all("enemies"):
+		if e.get("collection") is Dictionary and str(e.collection.page) == other:
+			keep_other[str(e.id)] = acc.collection.get(str(e.id))
+			acc.collection[str(e.id)] = int(e.collection.kills_to_master)
+	var had_other: bool = acc.collection_seals.has(other + ":1")
+	acc.collection_seals.erase(other + ":1")
+	acc.collection_seals.erase(other + ":2")
+	check(str(Game.submit({"type": "claim_collection_seal", "page": other, "seal": 2}).get("reason", "")) == "order", "decision 27: seal II only after seal I")
+	for id in keep_other:
+		if keep_other[id] == null: acc.collection.erase(id)
+		else: acc.collection[id] = keep_other[id]
+	if had_other: acc.collection_seals[other + ":1"] = true
+	# Saved and loaded: the claims come back, and the stat rules give the same gifts.
+	var hw: float = c.stats.value("hollow_ward")
+	var back := AccountState.new()
+	back.restore(JSON.parse_string(JSON.stringify(acc.snapshot())))
+	check(back.collection_seals.has(page + ":1") and back.collection_seals.has(page + ":2"), "decision 27: the seals claimed are saved with the account")
+	StatRules.rebuild(c, back)
+	var hw_back: float = c.stats.value("hollow_ward")
+	StatRules.rebuild(c)
+	check(is_equal_approx(hw_back, hw) and c.stats.value("hollow_ward") < hw_back, "decision 27: after a load the gifts come back through the stat rules (%.3f)" % hw_back)
+	acc.collection = keep.collection
+	acc.collection_pages_done = keep.done
+	acc.collection_seals = keep.seals
+	acc.leaves = keep.leaves
+	Unlocks.debug_force_all = force_was
+	Game.combat.refresh_stats(c.id)
+	GameEvents.flush()
+
 func legacy_suite() -> void:
 	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
 	check(str(entry.get("scope", "")) == "account", "the Account Legacy is an account-wide unlock")
@@ -10720,3 +11157,131 @@ func tree_queries_suite() -> void:
 	check(near(float(T.passives(c, fp).damage), 0.01) and cost1 < cost0 and cost1 / cost0 > 0.97,
 		"Flowing Palm: +1%% damage from ring 1's passage, and ring 2's cuts its Qi %.1f to %.1f" % [cost0, cost1])
 	cu.restore(snap)
+
+## P13b the Techniques page (docs/technique_plan.md §4.10 and "As built: P13b"; mockups 06_techniques_tree,
+## 06_techniques_tree_learned, 06_techniques_lost_unknown; roadmap §6 decisions 11, 18 and 19). The layout: the whole
+## screen, a seal for every tree and then Lost Arts and Secret Arts, and the dock with its eight technique slots, four
+## Inner Art slots and the stance; the tree laid out whole and only what is in view taking a tap; a family's row in the
+## chooser jumps the view to it. Learn submits realise_node for the art and, when it is the one step missing, its
+## passage, its button naming the Realisations it spends; Let go gives them back. A found manual is read from the board
+## (use_item). Decision 19 on the page itself: with nothing found, no word the Lost Arts tab draws and no tap it takes
+## names an unfound art or says where one is. The free hand's Dao bar follows the tab.
+func techniques_page_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var inv_was: Dictionary = c.inventory.snapshot()
+	var flags_was: Dictionary = c.quests.flags.duplicate(true)
+	var T = TechniqueTreeRules
+	cu.realm_key = "sphere_lord_3"
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.techniques_known = ["flowing_palm"]
+	cu.technique_slots = ["flowing_palm", null, null, null, null, null, null, null]
+	Game.combat.timeline(c.id).fight_t = -999.0
+	Game.submit({"type": "realise_node", "node": T.passage("water", "any", 1)})
+	var pg = load(str(load("res://scripts/main.gd").PAGES.techniques)).new()
+	pg.text_log = []
+	add_child(pg)
+	pg.open({"tab": "water"})
+	var redraw := func() -> void:
+		pg.text_log.clear()
+		pg.queue_redraw()
+		await get_tree().process_frame
+		await get_tree().process_frame
+	await redraw.call()
+	var ids: Array = pg.tabs.map(func(tb): return str(tb.id))
+	check(pg.frame_rect == Page.WINDOW_SCREEN and ids.size() == T.trees().size() + 2 and ids.slice(-2) == ["lost", "secret"] and str(ids[pg.tab]) == "water"
+		and pg._regions.filter(func(r): return r.id == "slot").size() == 8 and pg._regions.filter(func(r): return r.id == "art_slot").size() == 4
+		and pg._regions.any(func(r): return r.id == "drawer"),
+		"the page fills the screen: a seal a tree, Lost Arts and Secret Arts (%s), and the dock's eight slots, four Inner Arts and the stance" % str(ids))
+	var cards: Array = pg._regions.filter(func(r): return r.id == "node")
+	check(pg._items.size() > 250 and cards.size() > 4 and cards.size() < 40 and cards.all(func(r): return pg.CHART.grow(1).encloses(r.rect)),
+		"the tree is laid out whole (%d nodes) and only what is in view takes a tap, inside the chart (%d)" % [pg._items.size(), cards.size()])
+	check(pg.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("techniques", "flowing_palm")) and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.learned")),
+		"Flowing Palm is on the Water tree, Learned")
+	pg.on_action("family", T.sectors().find("jian"))
+	pg.view = pg.goal
+	await redraw.call()
+	check(pg._fam_at_view() == "jian" and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.arts_of_jian") % str(pg.tabs[pg.tab].label)),
+		"the chooser's Jian row jumps the view to the jian's arts")
+	# Learn: an open art whose passage is the one step missing takes both, and says what it spends.
+	pg.on_action("family", 0)
+	pg.view = pg.goal
+	var pick := {}
+	for it in pg._items:
+		if str(it.kind) == "art" and str(it.get("state", "")) == "open" and (it.get("learn", []) as Array).size() == 2: pick = it
+	check(not pick.is_empty(), "an art one passage out is open, its cost with the passage's (%s)" % str(pick.get("id", "")))
+	if not pick.is_empty():
+		var id := str(pick.id)
+		var free0 := int(Game.progression.realisations(c).free)
+		pg.on_action("node", id)
+		await redraw.call()
+		var label := Tx.plural("ui.techniques.learn_for", int(pick.total)) % int(pick.total)
+		check(pg._regions.any(func(r): return r.id == "learn" and r.enabled) and pg.text_log.any(func(tx): return str(tx.s) == label), "its Learn names what it spends: \"%s\"" % label)
+		pg.on_action("learn", id)
+		check(cu.techniques_known.has(id) and T.realised(c).has(str(pick.learn[0])) and int(Game.progression.realisations(c).free) == free0 - int(pick.total),
+			"Learn realises the passage and the art: %d Realisations spent" % int(pick.total))
+		await redraw.call()
+		check(pg._regions.any(func(r): return r.id == "let_go"), "a realised art can be let go")
+		if cu.technique_slots.has(id): pg.on_action("slot_sel", id)   # learned into a free slot: Unslot first
+		pg.on_action("let_go", id)
+		check(not cu.techniques_known.has(id) and int(Game.progression.realisations(c).free) == free0 - 1, "Let go gives the art's Realisations back")
+	# The Lost Arts board with nothing found, then a manual carried, found and read from it.
+	for row in ContentDB.all("lost_arts"):
+		(cu.inner_arts_known if str(row.kind) == "inner" else (cu.secret_arts if str(row.kind) == "secret" else cu.techniques_known)).erase(str(row.id))
+	for i in c.inventory.bag.size():
+		if c.inventory.bag[i] != null and (ContentDB.item(str(c.inventory.bag[i].id)).get("use", []) as Array).any(func(e): return e is Dictionary and str(e.get("kind", "")) == "learn_lost_art"):
+			c.inventory.bag[i] = null
+	pg.tab = ids.find("lost")
+	pg.on_action("_tab", "lost")
+	var words: Array = []
+	var taps: Array = []
+	for act in [1, 2, 3, 0]:
+		pg.on_action("lost_act", act)
+		await redraw.call()
+		words.append_array(pg.text_log.map(func(tx): return str(tx.get("s", ""))))
+		taps.append_array(pg._regions.map(func(r): return str(r.data)))
+	var leaked: Array = []
+	for row in ContentDB.all("lost_arts"):
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var said: Array = [str(row.id), str(ContentDB.entry(table, str(row.id)).get("name", ""))]
+		for k in ["room", "object", "npc", "enemy", "item", "quest"]:
+			if row.src.has(k): said.append(str(row.src[k]))
+		if row.src.has("item"): said.append(ContentDB.item_name(str(row.src.item)))
+		for w in said:
+			if w != "" and (words.any(func(s): return w in s) or taps.has(w)): leaked.append(w)
+	var act1 := int(Game.progression.lost_arts_view(c).acts[0].total)
+	check(leaked.is_empty() and words.has(Tx.t("ui.techniques.n_found") % [0, act1]),
+		"decision 19 on the page: nothing found, each act only counted, no word or tap names an unfound art or its place (%s)" % str(leaked.slice(0, 6)))
+	pg.on_action("lost_act", 1)
+	await redraw.call()
+	check(pg._regions.filter(func(r): return r.id == "sealed").size() == mini(act1, 20), "Act I's leaf: every art sealed alike, four rows of five in view (%d)" % act1)
+	Game.inventory.apply_add(c.id, "mudwater_manual", 1, "test")
+	await redraw.call()
+	check(pg.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("techniques", "rising_tide")) and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.unread"))
+		and pg._regions.filter(func(r): return r.id == "sealed").size() == mini(act1, 20) - 1, "a manual carried: Rising Tide on its leaf, Unread, one leaf fewer sealed")
+	pg.on_action("lost", "rising_tide")
+	await redraw.call()
+	check(pg._regions.any(func(r): return r.id == "read" and r.enabled), "a found manual has Read")
+	pg.on_action("read", "mudwater_manual")
+	GameEvents.flush()
+	await redraw.call()
+	check(cu.techniques_known.has("rising_tide") and c.inventory.count("mudwater_manual") == 0 and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.learned")),
+		"Read teaches Rising Tide from the manual, and its leaf says Learned")
+	# Every open tab draws; on the Fire tab the free hand's bar is the Fire Dao.
+	for ti in ids.size():
+		if str(pg.tabs[ti].get("locked", "")) != "": continue
+		pg.tab = ti
+		pg.on_action("_tab", ids[ti])
+		await redraw.call()
+	pg.tab = ids.find("fire")
+	pg.on_action("_tab", "fire")
+	await redraw.call()
+	check(pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.dao_line") % [ContentDB.name_of("daos", "fire"), int(cu.daos.get("fire", {}).get("tier", 0))]),
+		"on the Fire tab the free hand's bar is the Fire Dao")
+	pg.queue_free()
+	await get_tree().process_frame
+	cu.restore(snap)
+	c.inventory.restore(inv_was)
+	c.quests.flags = flags_was

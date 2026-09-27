@@ -690,3 +690,42 @@ func run() -> void:
 	check(reveal_log.find("hud:cultivate") > reveal_log.find("hud:menu"), "Cultivate after Menu")
 	if verbose:
 		for e in events: print(e)
+
+## Spar through an npc service or a practice post until one spar ends; true when won.
+func spar_with(start_intent: Callable) -> bool:
+	var result := {"done": false, "won": false}
+	var heard := func(n: String, p: Dictionary):
+		if n == "spar_ended":
+			result.done = true
+			result.won = str(p.get("winner", "")) == "player"
+	GameEvents.event.connect(heard)
+	var r: Dictionary = start_intent.call()
+	if not r.get("ok", false): print("  spar start: ", r)
+	var t := 0.0
+	while not result.done and t < 120.0:
+		var foe: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.def.get("spar", false): foe = e
+		if foe == null:
+			step(0.3)
+			t += 0.3
+			continue
+		if str(foe.ai.get("state", "")) == "windup":
+			place(foe.plane + Vector2(-34, 70 if foe.plane.y < 860 else -70))
+			step(0.6)
+			t += 0.6
+			continue
+		place(foe.plane + Vector2(-34 if st.plane.x <= foe.plane.x else 34, 0))
+		submit({"type": "basic_attack", "facing": 1 if foe.plane.x >= st.plane.x else -1})
+		step(0.2)
+		t += 0.2
+	GameEvents.event.disconnect(heard)
+	return bool(result.won)
+
+## A spar offered in `npc`'s talk (Shen Lian's, an arena master's), chosen.
+func _spar_service(npc: String) -> Dictionary:
+	var d := talk(npc)
+	for ch in d.get("choices", []):
+		if ch.has("spar"): return submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
+	return {"ok": false, "reason": "no spar choice"}
+

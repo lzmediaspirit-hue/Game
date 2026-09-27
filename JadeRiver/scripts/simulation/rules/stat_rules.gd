@@ -223,7 +223,8 @@ static func attribute_bases(c, lv: int) -> Dictionary:
 	return out
 
 ## Rebuild every permanent modifier and base value. Returns the changed stat ids.
-static func rebuild(c) -> Array:
+## `acc` is the AccountState whose account-wide gifts the character carries (the Codex seals claimed, decision 27).
+static func rebuild(c, acc = null) -> Array:
 	var sb: StatBlock = c.stats
 	var before := sb.finals.duplicate()
 	var lv := ProgressionRules.level(c)
@@ -253,6 +254,13 @@ static func rebuild(c) -> Array:
 		sb.add_modifier({"stat": title.stat, "op": str(title.get("op", "pct_add")), "value": float(title.get("value", 0.01)), "source": "title:" + title.id})
 	for m in title.get("modifiers", []):
 		sb.add_modifier({"stat": str(m.stat), "op": str(m.get("op", "pct_add")), "value": float(m.value), "source": "title:%s:%s" % [title.id, m.stat]})
+	# Decision 27: every Codex seal the account has claimed ("page:seal") gives each character its gift for good.
+	if acc != null:
+		for key in acc.collection_seals:
+			var at := str(key).rfind(":")
+			var cmods: Array = ContentDB.collection_seal(str(key).left(at), int(str(key).substr(at + 1))).get("modifiers", [])
+			for i in cmods.size():
+				sb.add_modifier({"stat": str(cmods[i].stat), "op": str(cmods[i].get("op", "flat")), "value": float(cmods[i].value), "source": "collection:%s:%d" % [key, i]})
 	# S48 body ladder: every tier reached keeps its gift; physiques add their gift and their drawback.
 	for tid in body_tiers_reached(c):
 		for m in ContentDB.entry("body_tiers", tid).get("modifiers", []):

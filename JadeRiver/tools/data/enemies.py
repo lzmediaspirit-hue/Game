@@ -12,15 +12,20 @@ def atk(id, windup, reach, mult=1.0, depth=26, alt=(-30, 60), **extra):   # S43 
     return d
 
 
+# Decision 27: a card fills at 50 and is studied through at its mark here (the page's second seal): 500 for a common
+# beast, fewer for an elite and a boss, which cannot be met as often.
+MASTER = {"normal": 500, "elite": 200}
+
+
 def mob(id, levels, role, element, page, drops, attacks, ai="melee", art=None, width=22, height=40, **extra):
-    lv = levels if isinstance(levels, (list, tuple)) else (levels, levels)
+    lv =levels if isinstance(levels, (list, tuple)) else (levels, levels)
     row = {"id": id, "name": extra.pop("name", titled(id)), "level": list(lv), "role": role, "element": element,
            "race": extra.pop("race", "beast"), "energy": extra.pop("energy", "none"),
            "ai": {"profile": ai, "aggro_range": extra.pop("aggro", 200), "flee_below": extra.pop("flee", 0.0),
                   "move_speed": extra.pop("speed", 90), "patrol": extra.pop("patrol", 140)},
            "attacks": attacks, "loot": extra.pop("loot", id), "drops": drops,
            "tameable": extra.pop("tameable", False),
-           "collection": {"page": page, "kills_to_fill": 50} if page else None,
+           "collection": {"page": page, "kills_to_fill": 50, "kills_to_master": MASTER.get(role, 100)} if page else None,
            "art": art or {"creature": id}, "half_width": width, "height": height}
     row.update(extra)
     # S43 rule 11: how the species gets about a vertical room (the navigation graph uses it).

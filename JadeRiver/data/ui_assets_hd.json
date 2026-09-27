@@ -30,6 +30,16 @@
     "normal": "res://art/ui/hd/button_secondary__normal.png",
     "pressed": "res://art/ui/hd/button_secondary__pressed.png"
   },
+  "carved_panel": {
+    "frame": "res://art/ui/hd/carved_panel__frame.png",
+    "margins": [
+      22,
+      22,
+      22,
+      22
+    ],
+    "normal": "res://art/ui/hd/carved_panel__normal.png"
+  },
   "close_button": {
     "margins": [
       0,
@@ -251,6 +261,27 @@
     ],
     "normal": "res://art/ui/hd/tab__normal.png",
     "selected": "res://art/ui/hd/tab__selected.png"
+  },
+  "tech_seal": {
+    "earth": "res://art/ui/hd/tech_seal__earth.png",
+    "fire": "res://art/ui/hd/tech_seal__fire.png",
+    "formless": "res://art/ui/hd/tech_seal__formless.png",
+    "lost": "res://art/ui/hd/tech_seal__lost.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metal": "res://art/ui/hd/tech_seal__metal.png",
+    "secret": "res://art/ui/hd/tech_seal__secret.png",
+    "soul": "res://art/ui/hd/tech_seal__soul.png",
+    "space": "res://art/ui/hd/tech_seal__space.png",
+    "thunder": "res://art/ui/hd/tech_seal__thunder.png",
+    "time": "res://art/ui/hd/tech_seal__time.png",
+    "water": "res://art/ui/hd/tech_seal__water.png",
+    "wind": "res://art/ui/hd/tech_seal__wind.png",
+    "wood": "res://art/ui/hd/tech_seal__wood.png"
   },
   "title_plaque": {
     "margins": [
