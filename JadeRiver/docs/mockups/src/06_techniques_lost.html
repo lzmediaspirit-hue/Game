@@ -1,0 +1,298 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>06 Techniques, Lost Arts</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The page's own frame: a dark lacquer rail at the top (title, seal tabs, close) and the loadout dock at the foot.
+     Only the close button, primary buttons, text tokens, 48 px targets and type sizes come from the shared kit. */
+  .rail { position: absolute; left: 0; top: 0; width: 1280px; height: 88px;
+    background: linear-gradient(180deg, #10262c 0%, #0a1a1f 70%, #081418 100%);
+    box-shadow: 0 1px 0 rgba(229,184,76,.55), 0 3px 8px rgba(0,0,0,.45); z-index: 5; }
+  .dock { position: absolute; left: 0; top: 612px; width: 1280px; height: 108px;
+    background: linear-gradient(180deg, #0c1f24 0%, #08161a 100%);
+    box-shadow: 0 -1px 0 rgba(229,184,76,.55), 0 -3px 8px rgba(0,0,0,.4); z-index: 5; }
+  .ptitle { position: absolute; left: 24px; top: 20px; font-family: var(--f-display); font-weight: 700; font-size: 41px; line-height: 1;
+    color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); z-index: 6; }
+  .seal { position: absolute; top: 6px; width: 66px; height: 78px; z-index: 6; }
+  .seal .disc { position: absolute; left: 11px; top: 4px; width: 44px; height: 44px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #1b4148, #081518 75%); box-shadow: 0 0 0 2px var(--c), 0 0 0 4px var(--ink); }
+  .seal svg { position: absolute; left: 11px; top: 4px; }
+  .seal .lab { position: absolute; left: -6px; top: 54px; width: 78px; text-align: center; font-size: 14px; font-weight: 700;
+    color: var(--mist); white-space: nowrap; text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .seal.is-sel .disc { left: 9px; top: 2px; width: 48px; height: 48px; box-shadow: 0 0 0 3px var(--pale-gold), 0 0 0 5px var(--ink), 0 0 16px 5px rgba(255,230,161,.45); }
+  .seal.is-sel svg { left: 13px; top: 6px; }
+  .seal.is-sel .lab { color: var(--pale-gold); }
+  .seal.is-locked .disc { background: radial-gradient(circle at 40% 35%, #2a3236, #0e1417 75%); box-shadow: 0 0 0 2px #56615f, 0 0 0 4px var(--ink); }
+  .seal.is-locked svg { opacity: .35; }
+  .seal.is-locked .lab { color: var(--hollow); }
+  .seal .k-lock-mini { position: absolute; left: 46px; top: 34px; }
+  .seal .cnt { position: absolute; left: 44px; top: -2px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--red);
+    font-size: 14px; line-height: 20px; text-align: center; color: #fff; font-weight: 700; box-shadow: 0 0 0 2px var(--ink); }
+  .grpgap { position: absolute; top: 18px; width: 1px; height: 52px; background: rgba(229,184,76,.35); z-index: 6; }
+  .dlab { position: absolute; font-size: 14px; font-weight: 700; white-space: nowrap; z-index: 6; }
+  .well { position: absolute; width: 56px; height: 56px; border-radius: 6px; z-index: 6;
+    background: radial-gradient(circle at 50% 40%, #12343a, #071216 80%); box-shadow: inset 0 0 0 1px rgba(229,184,76,.5), 0 0 0 2px var(--ink); }
+  .well.is-empty::after { content: ""; position: absolute; inset: 4px; background: url(../icon_study/icons/A_empty.png) center / 48px 48px no-repeat; opacity: .35; }
+  .well > img { position: absolute; left: 4px; top: 4px; width: 48px; height: 48px; }
+  .dock .k-hud { z-index: 6; }
+
+  /* the Lost Arts tab: a dark wood board with manuscript fragments, stele rubbings and letters pinned to it */
+  .board { position: absolute; left: 0; top: 88px; width: 1280px; height: 524px; overflow: hidden;
+    background:
+      repeating-linear-gradient(92deg, rgba(0,0,0,.10) 0 2px, transparent 2px 9px, rgba(255,210,160,.035) 9px 11px, transparent 11px 23px),
+      repeating-linear-gradient(88deg, rgba(0,0,0,.08) 0 1px, transparent 1px 37px),
+      linear-gradient(180deg, #3a2618, #2c1c12 60%, #24160e); }
+  .board::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 70px rgba(0,0,0,.55); }
+  .ink2 { position: absolute; font-family: var(--f-text); font-variation-settings: "opsz" 14; line-height: 1.2; text-shadow: none; }
+  .ink2 .t-fig { text-shadow: none; }
+  .scrap { position: absolute; width: 128px; height: 82px; border-radius: 2px; color: #2b2118;
+    background: linear-gradient(180deg, #e7dcbf, #d8c9a4); box-shadow: 0 3px 6px rgba(0,0,0,.5);
+    clip-path: polygon(0 3%, 7% 0, 30% 2%, 55% 0, 80% 3%, 100% 0, 99% 30%, 100% 60%, 98% 100%, 70% 97%, 40% 100%, 12% 97%, 0 100%, 2% 60%); }
+  .scrap.k-stele { background: radial-gradient(ellipse at 50% 55%, #3a3632, #1d1b19 80%); color: #f1ece0; clip-path: none; border-radius: 1px; }
+  .scrap.k-master { background: linear-gradient(180deg, #f3ecd8, #e4d8bb); clip-path: none; border-radius: 2px; }
+  .scrap.k-master::before { content: ""; position: absolute; right: 8px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #d9604c, #9a2a1e); box-shadow: 0 0 0 1px rgba(90,20,10,.5); }
+  .scrap.k-event { background: linear-gradient(180deg, #f1e6d2, #e3d3b6); clip-path: none; box-shadow: inset 0 0 0 3px rgba(184,57,42,.8), 0 3px 6px rgba(0,0,0,.5); }
+  .scrap.k-ruin { background: linear-gradient(180deg, #d6d4c0, #bdbca6); }
+  .scrap.is-found { background: linear-gradient(180deg, #f7f0dc, #eadcb8); }
+  .scrap.is-other { opacity: .6; }
+  .scrap.is-other .nm { text-decoration: line-through; }
+  .scrap.is-sel { outline: 3px solid #ffe6a1; outline-offset: 2px; box-shadow: 0 0 0 7px rgba(255,230,161,.25), 0 0 18px 6px rgba(255,230,161,.45), 0 3px 6px rgba(0,0,0,.5); }
+  .scrap .kw { position: absolute; left: 8px; top: 5px; font-size: 14px; font-weight: 700; opacity: .8; white-space: nowrap; }
+  .scrap .ed { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-left: 3px; box-shadow: 0 0 0 1.5px rgba(43,33,24,.7); vertical-align: 0; }
+  .scrap.k-stele .ed { box-shadow: 0 0 0 1.5px rgba(241,236,224,.7); }
+  .scrap .art { position: absolute; left: 8px; top: 30px; width: 40px; height: 40px; }
+  .scrap img.art { image-rendering: pixelated; }
+  .scrap img.art.sil { filter: grayscale(1) invert(1) contrast(2.4) brightness(1.05); mix-blend-mode: multiply; opacity: .9; }
+  .scrap .nm { position: absolute; left: 54px; top: 28px; width: 70px; font-size: 14px; font-weight: 700; line-height: 1.1; }
+  .scrap .ht { position: absolute; left: 54px; top: 58px; width: 74px; font-size: 14px; font-weight: 600; line-height: 1.05; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+  .scrap.is-found .ht { display: none; }
+  .scrap.is-other .ht { top: 60px; }
+  .scrap .ht.only { top: 30px; white-space: normal; line-height: 1.15; opacity: .9; }
+  .scrap .nm.top { left: 8px; top: 5px; width: 112px; white-space: nowrap; }
+  .scrap .kw.low { left: 54px; top: 30px; }
+  .scrap .stamp { position: absolute; left: 52px; top: 52px; padding: 1px 5px; font-size: 14px; font-weight: 700; color: #b8392a; border: 2px solid #b8392a;
+    border-radius: 3px; transform: rotate(-8deg); background: rgba(255,248,236,.5); }
+  .scrap .stamp.jade { color: #15665c; border-color: #15665c; }
+  .pinb { position: absolute; left: 94px; top: -3px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1c2, #c9953a 55%, #6e4a1c); box-shadow: 0 2px 2px rgba(0,0,0,.5); }
+  .actab { position: absolute; top: 98px; height: 48px; border-radius: 3px; padding: 4px 12px 0; background: linear-gradient(180deg, #e9dfc4, #d6c7a2);
+    box-shadow: 0 0 0 1.5px #5a4128, 0 3px 5px rgba(0,0,0,.45); color: #2b2118; }
+  .actab .a { font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+  .actab .b { font-size: 14px; font-weight: 600; opacity: .8; white-space: nowrap; }
+  .actab.is-sel { background: linear-gradient(180deg, #fff6dc, #efe0b8); box-shadow: 0 0 0 2.5px #e5b84c, 0 0 12px 3px rgba(229,184,76,.45), 0 3px 5px rgba(0,0,0,.45); }
+  .actab.is-locked { background: linear-gradient(180deg, #7d7566, #625b4f); color: #d9d2c0; }
+  .kchip { position: absolute; left: 14px; width: 176px; height: 48px; border-radius: 3px; background: rgba(233,223,196,.12);
+    box-shadow: inset 0 0 0 1.5px rgba(229,184,76,.45); color: #e8e1cf; display: flex; align-items: center; padding: 0 12px; justify-content: space-between; }
+  .kchip.is-sel { background: rgba(255,230,161,.18); box-shadow: inset 0 0 0 2px #e5b84c; color: #ffe6a1; }
+  .kchip .l { font-size: 16px; font-weight: 700; }
+  .kchip .n { font-size: 16px; font-weight: 700; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .kchip.is-empty { color: #87949a; }
+  .lens { position: absolute; left: 914px; top: 98px; width: 352px; height: 508px; border-radius: 3px; color: #2b2118;
+    background: repeating-linear-gradient(180deg, transparent 0 27px, rgba(90,65,40,.10) 27px 28px), linear-gradient(180deg, #f5eedb, #e9dec2);
+    box-shadow: 0 0 0 1.5px #5a4128, 0 8px 18px rgba(0,0,0,.55); }
+  .rub { position: absolute; left: 930px; top: 128px; width: 320px; height: 124px; background: radial-gradient(ellipse at 50% 50%, #3b3733, #1c1a18 80%);
+    box-shadow: 0 2px 5px rgba(0,0,0,.45); }
+  .veil { display: inline-block; height: 12px; border-radius: 6px; background: repeating-linear-gradient(90deg, rgba(43,33,24,.35) 0 7px, rgba(43,33,24,.18) 7px 10px); vertical-align: -1px; }
+  .pbtn2 { position: absolute; height: 50px; border-radius: 6px; background: linear-gradient(180deg, #faf5e8, #e2d6b8); color: #2b2118;
+    box-shadow: 0 0 0 2px #5a4128, 0 2px 4px rgba(0,0,0,.3); font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .strip { position: absolute; left: 204px; top: 530px; width: 694px; height: 74px; border-radius: 2px; color: #2b2118;
+    background: linear-gradient(180deg, #efe4c8, #ddcda6); box-shadow: 0 3px 6px rgba(0,0,0,.5); }
+  .slip { position: absolute; top: 538px; width: 64px; height: 58px; border-radius: 2px; background: linear-gradient(180deg, #d8ccae, #c7b890);
+    box-shadow: 0 2px 3px rgba(0,0,0,.4); }
+  .slip svg { position: absolute; left: 12px; top: 4px; }
+  .slip .p { position: absolute; left: 0; width: 64px; top: 40px; text-align: center; font-size: 14px; font-weight: 700; color: #4a3a26; font-feature-settings: "lnum" 1, "tnum" 1; }
+
+</style></head>
+<body><div class="k-screen">
+<!-- The Lost Arts tab (docs/technique_plan.md section 5): a dark wood board of pinned fragments. Act I's twenty singles
+     (section 5.7) as scraps by kind (stele rubbings, torn manuals, letters, notices), found ones with their art and a stamp,
+     the rest as ink silhouettes with the first line of their hint; the Ferryman's Oar lineage on a red thread; the selected
+     stele read closely with its three hint lines. Tester at ls6_end: Lotus Mind learned (Elder Hu's legacy), Blood Burning
+     learned (Act II), the Mudwater Manual (3) and the Rain of Reeds manual unread in storage, Lu's pages 3 of 30. -->
+<div class="rail"></div>
+<div class="ptitle">Techniques</div>
+<div class="seal" style="left:236px;--c:#67d67a"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#67d67a" stroke="#67d67a" stroke-linejoin="round"><path d="M0 10 C0 2 -1 -2 -8 -8 C-2 -9 3 -6 3 1 M0 10 C0 3 2 -3 8 -9" fill="none" stroke-width="2.6"/><path d="M-8 -8 C-3 -8 1 -5 1 1 C-4 1 -8 -3 -8 -8Z M8 -9 C8 -3 5 0 1 0 C1 -5 4 -8 8 -9Z" stroke-width="1.2"/></g></svg><div class="lab">Wood</div></div>
+<div class="seal" style="left:302px;--c:#f08a3c"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#f08a3c" stroke="#f08a3c" stroke-linejoin="round"><path d="M0 11 C-7 11 -9 5 -7 0 C-5 -4 -2 -5 -2 -10 C3 -7 3 -3 2 0 C4 -1 5 -3 5 -5 C9 0 8 11 0 11Z" stroke-width="1"/></g></svg><div class="lab">Fire</div></div>
+<div class="seal" style="left:368px;--c:#c9a060"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#c9a060" stroke="#c9a060" stroke-linejoin="round"><path d="M-11 9 L-4 -4 L0 2 L5 -8 L12 9 Z" stroke-width="1"/></g></svg><div class="lab">Earth</div></div>
+<div class="seal" style="left:434px;--c:#d8dde0"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#d8dde0" stroke="#d8dde0" stroke-linejoin="round"><circle cx="0" cy="0" r="10" fill="none" stroke-width="3"/><rect x="-3.5" y="-3.5" width="7" height="7" fill="none" stroke-width="2.6"/></g></svg><div class="lab">Metal</div></div>
+<div class="seal" style="left:500px;--c:#32bed1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#32bed1" stroke="#32bed1" stroke-linejoin="round"><path d="M-11 -4 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 2 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 8 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0" fill="none" stroke-width="2.4"/></g></svg><div class="lab">Water</div></div>
+<div class="seal" style="left:566px;--c:#cfe8e6"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#cfe8e6" stroke="#cfe8e6" stroke-linejoin="round"><path d="M-11 -3 H4 a4 4 0 1 0 -4 -4 M-11 3 H8 a4 4 0 1 1 -4 4 M-9 9 H-2" fill="none" stroke-width="2.4" stroke-linecap="round"/></g></svg><div class="lab">Wind</div></div>
+<div class="seal" style="left:632px;--c:#e8d24c"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8d24c" stroke="#e8d24c" stroke-linejoin="round"><path d="M3 -12 L-7 2 L-1 2 L-4 12 L7 -3 L1 -3 Z" stroke-width="1"/></g></svg><div class="lab">Thunder</div></div>
+<div class="seal" style="left:698px;--c:#9b78d1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#9b78d1" stroke="#9b78d1" stroke-linejoin="round"><path d="M-5 -9 h10 M0 -12 v3 M-6 -9 C-9 -2 -9 4 -5 8 H5 C9 4 9 -2 6 -9" fill="none" stroke-width="2.2"/><path d="M0 -3 C-3 1 -3 4 0 6 C3 4 3 1 0 -3Z" stroke-width="0.8"/></g></svg><div class="lab">Soul</div></div>
+<div class="seal" style="left:764px;--c:#e8e1cf"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8e1cf" stroke="#e8e1cf" stroke-linejoin="round"><path d="M7 -8 C1 -13 -10 -9 -10 1 C-10 10 1 12 7 7 C10 4 11 -1 9 -5" fill="none" stroke-width="3" stroke-linecap="round"/></g></svg><div class="lab">Formless</div></div>
+<div class="seal" style="left:830px;--c:#8f7ae0"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#8f7ae0" stroke="#8f7ae0" stroke-linejoin="round"><ellipse cx="0" cy="0" rx="11" ry="5" transform="rotate(-25)" fill="none" stroke-width="2.2"/><circle cx="0" cy="0" r="4" stroke-width="0.8"/><circle cx="9" cy="-6" r="1.8" stroke-width="0.6"/></g></svg><div class="lab">Space</div></div>
+<div class="seal is-locked" style="left:896px;--c:#d6f5ff"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#d6f5ff" stroke="#d6f5ff" stroke-linejoin="round"><path d="M-7 -10 H7 M-7 10 H7 M-6 -10 C-6 -3 6 3 6 10 M6 -10 C6 -3 -6 3 -6 10" fill="none" stroke-width="2.2"/><path d="M-3 7 L3 7 L0 3 Z" stroke-width="0.6"/></g></svg><div class="lab">Time</div><span class="k-lock-mini"></span></div>
+<div class="grpgap" style="left:966px"></div>
+<div class="seal is-sel" style="left:974px;--c:#e8e1cf"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8e1cf" stroke="#e8e1cf" stroke-linejoin="round"><path d="M-8 -11 H6 L9 -7 L6 -4 L9 0 L6 3 L9 7 L7 11 H-8 Z" stroke-width="1"/><path d="M-5 -6 H3 M-5 -2 H2 M-5 2 H3 M-5 6 H0" fill="none" stroke-width="1.4" stroke="#6b5a3e"/></g></svg><div class="lab">Lost Arts</div></div>
+<div class="seal" style="left:1052px;--c:#afc9d1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#afc9d1" stroke="#afc9d1" stroke-linejoin="round"><path d="M-7 -1 C-9 -7 -6 -12 -3 -10 C-1 -8 -2 -3 -4 1 Z M3 9 C1 3 4 -2 7 0 C9 2 8 7 6 11 Z" stroke-width="0.8"/><circle cx="-6" cy="4" r="1.6"/><circle cx="4" cy="-5" r="1.6"/></g></svg><div class="lab">Secret Arts</div></div>
+<div class="k-close abs" style="left:1168px;top:18px;z-index:6"></div>
+<div class="board"></div>
+<div class="actab is-sel" style="left:204px;width:206px"><div class="a">Act I · the valley</div><div class="b">3 of 20 found</div></div>
+<div class="actab" style="left:420px;width:196px"><div class="a">Act II · the Expanse</div><div class="b">1 of 12 found</div></div>
+<div class="actab" style="left:626px;width:224px"><div class="a">Act III · the Lantern Field</div><div class="b">0 of 12 found</div></div>
+<div class="kchip is-sel" style="top:156px"><span class="l">All</span><span class="n">20</span></div>
+<div class="kchip" style="top:210px"><span class="l">Steles</span><span class="n">4</span></div>
+<div class="kchip" style="top:264px"><span class="l">Ruins</span><span class="n">7</span></div>
+<div class="kchip" style="top:318px"><span class="l">Masters</span><span class="n">3</span></div>
+<div class="kchip" style="top:372px"><span class="l">Rare drops</span><span class="n">5</span></div>
+<div class="kchip is-empty" style="top:426px"><span class="l">Quests</span><span class="n">0</span></div>
+<div class="kchip" style="top:480px"><span class="l">Events</span><span class="n">1</span></div>
+<div class="ink2" style="left:14px;top:538px;width:180px;font-size:14px;font-weight:600;color:#e8e1cf;line-height:1.3">Acts I–III: <b class="t-fig" style="color:#ffe6a1">4</b> of <span class="t-fig">62</span> found<br><span class="t-fig">2</span> learned · <span class="t-fig">2</span> to read<br><span style="color:#afc9d1">tap a scrap to read it</span></div>
+<div class="scrap k-drop is-found" style="left:204px;top:156px;transform:rotate(-2.2deg)">
+<div class="nm top">Rising Tide</div>
+<div class="kw low">Rare drop <span class="ed" style="background:#32bed1"></span></div>
+<img class="art" src="../../../art/icons/techniques/rising_tide.png">
+<div class="stamp jade">Unread</div>
+<div class="pinb"></div></div>
+<div class="scrap k-stele is-sel" style="left:343px;top:156px;transform:rotate(1.4deg)">
+<div class="kw">Stele <span class="ed" style="background:#32bed1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#f4f1e6" stroke-width="2" stroke-dasharray="3 3"/><g fill="#f4f1e6" stroke="#f4f1e6" stroke-width="0.6" stroke-linejoin="round"><path d="M-9 -2 C-11 -9 -7 -14 -4 -12 C-1 -10 -2 -4 -5 0 Z M3 11 C1 4 5 -1 8 1 C11 3 10 8 7 13 Z"/><circle cx="-8" cy="4" r="2"/><circle cx="5" cy="-5" r="2"/></g></svg>
+<div class="ht only">Behind falling water</div>
+<div class="pinb"></div></div>
+<div class="scrap k-master is-found" style="left:482px;top:156px;transform:rotate(-0.8deg)">
+<div class="nm top">Lotus Mind</div>
+<div class="kw low">Master <span class="ed" style="background:#9b78d1"></span></div>
+<img class="art" src="../icon_study/icons/A_inner_art_manual.png">
+<div class="stamp">Learned</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:621px;top:156px;transform:rotate(2.0deg)">
+<div class="kw">Ruin <span class="ed" style="background:#9b78d1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-2 -13 h4 v3 h-4z M-8 6 C-8 -4 -6 -10 0 -10 C6 -10 8 -4 8 6 L10 9 H-10 Z M-2 10 h4 v3 h-4z"/></g></svg>
+<div class="ht only">A well never drained</div>
+<div class="pinb"></div></div>
+<div class="scrap k-drop" style="left:760px;top:156px;transform:rotate(-1.6deg)">
+<div class="kw">Rare drop <span class="ed" style="background:#f08a3c"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/></svg>
+<img class="art sil" src="../icon_study/icons/A_ember_burst.png">
+<div class="ht only">Torn copies in the gorge</div>
+<div class="pinb"></div></div>
+<div class="scrap k-stele" style="left:204px;top:248px;transform:rotate(0.9deg)">
+<div class="kw">Stele <span class="ed" style="background:#67d67a"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#f4f1e6" stroke-width="2" stroke-dasharray="3 3"/><g fill="#f4f1e6" stroke="#f4f1e6" stroke-width="0.6" stroke-linejoin="round"><path d="M-10 -9 C-2 -12 6 -10 9 -6 C4 -7 -2 -6 -6 -3 C0 -3 5 0 6 4 C1 2 -5 3 -9 8 C-6 1 -8 -4 -10 -9Z"/></g></svg>
+<div class="ht only">A carved stone on a peak</div>
+<div class="pinb"></div></div>
+<div class="scrap k-drop is-found" style="left:343px;top:248px;transform:rotate(-2.4deg)">
+<div class="nm top">Rain of Reeds</div>
+<div class="kw low">Rare drop <span class="ed" style="background:#67d67a"></span></div>
+<img class="art" src="../../../art/icons/techniques/rain_of_reeds.png">
+<div class="stamp jade">Unread</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:482px;top:248px;transform:rotate(1.8deg)">
+<div class="kw">Ruin <span class="ed" style="background:#c9a060"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-11 11 L9 -9 L11 -11 L10 -7 L-9 12 Z"/><circle cx="-9" cy="10" r="2.5"/><circle cx="9" cy="-9" r="2.5"/></g></svg>
+<div class="ht only">Old abbey on the peak</div>
+<div class="pinb"></div></div>
+<div class="scrap k-master is-other" style="left:621px;top:248px;transform:rotate(-1.0deg)">
+<div class="kw">Master <span class="ed" style="background:#cfe8e6"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="none"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-10 4 C-13 4 -13 -2 -9 -2 C-9 -8 -2 -9 0 -5 C2 -9 9 -8 9 -3 C13 -3 13 4 9 4 Z"/></g></svg>
+<div class="nm">Drifting Cloud</div>
+<div class="ht">Cloud Sect</div>
+<div class="pinb"></div></div>
+<div class="scrap k-drop" style="left:760px;top:248px;transform:rotate(2.3deg)">
+<div class="kw">Rare drop <span class="ed" style="background:#32bed1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/></svg>
+<img class="art sil" src="../assets/emblemA_tide_palm.png">
+<div class="ht only">The smuggler's vault</div>
+<div class="pinb"></div></div>
+<div class="scrap k-stele" style="left:204px;top:340px;transform:rotate(1.1deg)">
+<div class="kw">Stele <span class="ed" style="background:#cfe8e6"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#f4f1e6" stroke-width="2" stroke-dasharray="3 3"/><g fill="#f4f1e6" stroke="#f4f1e6" stroke-width="0.6" stroke-linejoin="round"><path d="M-10 10 L6 -6 L10 -10 L8 -4 L-8 12 Z M-12 6 L-6 12"/></g></svg>
+<div class="ht only">A stone worn to a blade</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:343px;top:340px;transform:rotate(-1.9deg)">
+<div class="kw">Ruin <span class="ed" style="background:#c9a060"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-9 -6 h18 v14 c0 3 -3 5 -6 5 h-7 c-3 0 -5 -2 -5 -5z M-9 -6 v-4 h4 v4 M-4 -6 v-5 h4 v5 M1 -6 v-5 h4 v5 M6 -6 v-4 h3 v4"/></g></svg>
+<div class="ht only">Deep in the quarry</div>
+<div class="pinb"></div></div>
+<div class="scrap k-master" style="left:482px;top:340px;transform:rotate(0.6deg)">
+<div class="kw">Master <span class="ed" style="background:#c9a060"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-9 -6 h18 v14 c0 3 -3 5 -6 5 h-7 c-3 0 -5 -2 -5 -5z M-9 -6 v-4 h4 v4 M-4 -6 v-5 h4 v5 M1 -6 v-5 h4 v5 M6 -6 v-4 h3 v4"/></g></svg>
+<div class="ht only">The marsh hermit</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:621px;top:340px;transform:rotate(-2.1deg)">
+<div class="kw">Ruin <span class="ed" style="background:#d8dde0"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-8 8 L4 -4 L10 -10 L6 -2 L-6 10 Z M-11 6 L-5 12"/><path d="M4 8 C8 6 10 2 9 -2" fill="none" stroke-width="2"/></g></svg>
+<div class="ht only">A grotto facing the moon</div>
+<div class="pinb"></div></div>
+<div class="scrap k-stele" style="left:760px;top:340px;transform:rotate(1.7deg)">
+<div class="kw">Stele <span class="ed" style="background:#9b78d1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#f4f1e6" stroke-width="2" stroke-dasharray="3 3"/><g fill="#f4f1e6" stroke="#f4f1e6" stroke-width="0.6" stroke-linejoin="round"><path d="M-6 -12 h12 v3 h-12z M-8 -8 C-11 0 -9 7 -5 10 H5 C9 7 11 0 8 -8Z"/></g></svg>
+<div class="ht only">Warm stone in the mist</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:204px;top:432px;transform:rotate(-0.7deg)">
+<div class="kw">Ruin <span class="ed" style="background:#67d67a"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-11 11 L5 -5 L3 -9 L12 -12 L9 -3 L5 -5 M-11 11 L-9 13"/></g></svg>
+<div class="ht only">Above your own vale</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:343px;top:432px;transform:rotate(2.2deg)">
+<div class="kw">Ruin <span class="ed" style="background:#32bed1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-10 10 L8 -8 L11 -11 L10 -7 L-8 11 Z M-12 5 L-5 12 M-14 12 L-10 14"/></g></svg>
+<div class="ht only">The ridge shrine, in winter</div>
+<div class="pinb"></div></div>
+<div class="scrap k-drop" style="left:482px;top:432px;transform:rotate(-1.3deg)">
+<div class="kw">Rare drop <span class="ed" style="background:#32bed1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M0 0 m-9 0 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M0 0 m-5 0 a5 5 0 1 0 10 0" fill="none" stroke-width="3"/><path d="M8 -10 L13 -13 L11 -8 Z"/></g></svg>
+<div class="ht only">The serpent of the bend</div>
+<div class="pinb"></div></div>
+<div class="scrap k-ruin" style="left:621px;top:432px;transform:rotate(0.8deg)">
+<div class="kw">Ruin <span class="ed" style="background:#cfe8e6"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-12 8 L8 -12 L11 -9 L-9 11 Z"/><circle cx="-4" cy="3" r="1.6" fill="#000"/><circle cx="0" cy="-1" r="1.6"/><circle cx="4" cy="-5" r="1.6"/></g></svg>
+<div class="ht only">One note at the cliffs</div>
+<div class="pinb"></div></div>
+<div class="scrap k-event" style="left:760px;top:432px;transform:rotate(-2.0deg)">
+<div class="kw">Event <span class="ed" style="background:#32bed1"></span></div>
+<svg class="art" width="40" height="40" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#2b2118" stroke-width="2" stroke-dasharray="3 3"/><g fill="#2b2118" stroke="#2b2118" stroke-width="0.6" stroke-linejoin="round"><path d="M-2 -13 h4 v3 h-4z M-8 6 C-8 -4 -6 -10 0 -10 C6 -10 8 -4 8 6 L10 9 H-10 Z M-2 10 h4 v3 h-4z"/></g></svg>
+<div class="ht only">When the shrine rises</div>
+<div class="pinb"></div></div>
+<div class="strip"></div>
+<div class="pinb" style="left:220px;top:526px"></div><div class="pinb" style="left:870px;top:526px"></div>
+<div class="ink2" style="left:216px;top:538px;font-family:var(--f-display);font-weight:700;font-size:22px;color:#2b2118;line-height:1">The Ferryman’s Oar</div>
+<div class="ink2" style="left:216px;top:562px;width:224px;font-size:14px;font-weight:600;color:#4a3a26;line-height:1.2">Lu’s lost school, in his journal:<br>pages <b class="t-fig" style="color:#b8392a">3</b> of <span class="t-fig">30</span>, an art every <span class="t-fig">5</span></div>
+<svg class="abs" style="left:0;top:0;z-index:1" width="1280" height="720"><path d="M444 548 Q480 560 516 548 Q552 560 588 548 Q624 560 660 548 Q696 560 732 548 Q768 560 804 548 Q840 560 876 548" fill="none" stroke="#b8283a" stroke-width="2"/></svg>
+<div class="slip" style="left:448px;box-shadow:0 0 0 2px #e5b84c,0 2px 3px rgba(0,0,0,.4);"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><path d="M-11 6 L9 -9 L11 -7 L-9 8 Z M6 -9 C9 -12 13 -10 12 -6 Z"/></g></svg><div class="p"><span style="color:#b8392a">3</span> / 5</div></div>
+<div class="slip" style="left:520px;"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><path d="M-11 6 L9 -9 L11 -7 L-9 8 Z M6 -9 C9 -12 13 -10 12 -6 Z"/></g></svg><div class="p">10</div></div>
+<div class="slip" style="left:592px;"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><path d="M-2 -10 H2 V10 H-2Z"/></g></svg><div class="p">15</div></div>
+<div class="slip" style="left:664px;"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><path d="M-8 -3 C-10 -8 -6 -11 -3 -9 C-1 -7 -2 -3 -4 0 Z M2 9 C0 4 3 0 6 2 C8 4 7 7 5 10 Z"/></g></svg><div class="p">20</div></div>
+<div class="slip" style="left:736px;"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><path d="M-6 -10 h12 v3 h-12z M-7 -6 C-9 0 -8 6 -4 8 H4 C8 6 9 0 7 -6Z"/></g></svg><div class="p">25</div></div>
+<div class="slip" style="left:808px;"><svg width="40" height="36" viewBox="-20 -18 40 36"><circle r="15" fill="none" stroke="#4a3a26" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#4a3a26"><circle r="7"/></g></svg><div class="p">30</div></div>
+<div class="ink2" style="left:872px;top:582px;font-size:14px;font-weight:700;color:#4a3a26;display:none"></div>
+<div class="lens"></div><div class="pinb" style="left:990px;top:94px"></div><div class="pinb" style="left:1180px;top:94px"></div>
+<div class="ink2" style="left:930px;top:106px;font-size:14px;font-weight:700;color:#5a4128">Stele rubbing · Act I · the Jade River Valley</div>
+<div class="rub"></div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720"><path d="M946 146 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M1174 150 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M952 226 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M1170 232 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M960 186 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M1190 196 q6 -4 12 0 t12 0" fill="none" stroke="rgba(241,236,224,.35)" stroke-width="3" stroke-linecap="round"/><path d="M1000 140 v14 M995 145 h10" fill="none" stroke="rgba(241,236,224,.28)" stroke-width="3" stroke-linecap="round"/><path d="M1206 214 v14 M1201 219 h10" fill="none" stroke="rgba(241,236,224,.28)" stroke-width="3" stroke-linecap="round"/><path d="M1010 222 v14 M1005 227 h10" fill="none" stroke="rgba(241,236,224,.28)" stroke-width="3" stroke-linecap="round"/><path d="M1150 140 v14 M1145 145 h10" fill="none" stroke="rgba(241,236,224,.28)" stroke-width="3" stroke-linecap="round"/></svg>
+<svg class="abs" style="left:1058px;top:158px" width="64" height="64" viewBox="-20 -20 40 40"><circle r="18" fill="none" stroke="#f4f1e6" stroke-width="1.6" stroke-dasharray="3 3"/><g fill="#f4f1e6" stroke="#f4f1e6" stroke-width="0.6"><path d="M-9 -2 C-11 -9 -7 -14 -4 -12 C-1 -10 -2 -4 -5 0 Z M3 11 C1 4 5 -1 8 1 C11 3 10 8 7 13 Z"/><circle cx="-8" cy="4" r="2"/><circle cx="5" cy="-5" r="2"/></g></svg>
+<div class="ink2" style="left:930px;top:262px;font-family:var(--f-display);font-weight:700;font-size:26px;color:#2b2118;line-height:1.05">A lost Secret Art of Water</div>
+<div class="ink2" style="left:930px;top:292px;font-size:14px;font-weight:600;color:#5a4128">Its name is on the stele · sure, once per character</div>
+<div class="ink2" style="left:930px;top:318px;font-size:16px;font-weight:700;color:#2b2118">What is known</div>
+<div class="ink2" style="left:930px;top:340px;width:322px;font-size:16px;font-weight:600;color:#2b2118;line-height:1.3;font-style:italic">“A stele behind falling water remembers a step the water cannot follow.”</div>
+<div class="ink2" style="left:930px;top:388px;width:322px;font-size:16px;font-weight:700;color:#2b2118;line-height:1.3"><span class="t-sym" style="color:#15665c">✓</span> Behind the Falls, Crane Falls.</div>
+<div class="ink2" style="left:948px;top:409px;width:304px;font-size:14px;font-weight:600;color:#5a4128">You have walked Crane Falls</div>
+<div class="ink2" style="left:930px;top:434px;width:322px;font-size:16px;font-weight:700;color:#2b2118;line-height:1.3"><span class="veil" style="width:70px"></span> <span class="veil" style="width:40px"></span> <span class="veil" style="width:96px"></span> <span class="veil" style="width:54px"></span></div>
+<div class="ink2" style="left:930px;top:456px;width:322px;font-size:14px;font-weight:600;color:#5a4128;line-height:1.25">A Spirit Sense pulse behind the falls, or a companion’s tip, shows the rest</div>
+<div class="abs" style="left:930px;top:496px;width:320px;height:1px;background:rgba(90,65,40,.45)"></div>
+<div class="ink2" style="left:930px;top:504px;width:322px;font-size:14px;font-weight:700;color:#2b2118;line-height:1.25">Needs a Rubbing Kit · <span style="color:#b8392a">none held</span><br><span style="font-weight:600;color:#5a4128">Stoneford General Store</span></div>
+<div class="k-btn abs" style="left:930px;top:546px;width:152px;height:50px;font-size:22px">Track</div>
+<div class="pbtn2" style="left:1094px;top:546px;width:158px">Ask Lan Yue</div>
+<div class="dock"></div>
+<div class="dlab c-gold" style="left:24px;top:618px">Ring I <span class="c-mist" style="font-weight:600">· the Sunsteel Jian's bar</span></div>
+<div class="k-hud k-hud-md is-active" style="left:58px;top:672px;z-index:6"><img class="ic ic-32" src="../../../art/icons/hud/jian.png"></div>
+<div class="k-hud k-hud-md" style="left:134px;top:674px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/flowing_palm.png"></div>
+<div class="k-hud k-hud-md" style="left:204px;top:668px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/crescent_arc.png"></div>
+<div class="k-hud k-hud-md" style="left:274px;top:668px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/still_water_focus.png"></div>
+<div class="k-hud k-hud-md" style="left:344px;top:674px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/cloud_descent.png"></div>
+<div class="dlab c-gold" style="left:414px;top:618px">Ring II <span class="c-mist" style="font-weight:600">· the 1/2 swap</span></div>
+<div class="k-hud k-hud-md" style="left:446px;top:674px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/mirror_mind_spike.png"></div>
+<div class="k-hud k-hud-md" style="left:516px;top:668px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/soul_lantern_ward.png"></div>
+<div class="k-hud k-hud-md" style="left:586px;top:668px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/sword_release.png"></div>
+<div class="k-hud k-hud-md" style="left:656px;top:674px;z-index:6"><img class="ic ic-48" src="../../../art/icons/techniques/sword_swarm.png"></div>
+<div class="dlab c-mist" style="left:414px;top:596px;display:none"></div>
+<div class="dlab c-mist" style="left:694px;top:640px;font-weight:600;line-height:1.3">Heavy arts<br><span class="t-fig c-paper">0</span> of <span class="t-fig c-paper">2</span>, one a ring</div>
+<div class="dlab c-gold" style="left:820px;top:618px">Inner Arts <span class="c-jade" style="font-weight:600">· Lotus Mind known</span></div>
+<div class="well is-empty" style="left:820px;top:644px"></div>
+<div class="well is-empty" style="left:884px;top:644px"></div>
+<div class="well is-empty" style="left:948px;top:644px"></div>
+<div class="well is-empty" style="left:1012px;top:644px"></div>
+<div class="k-new abs" style="left:866px;top:648px;z-index:7"></div>
+<div class="dlab c-gold" style="left:1090px;top:618px">Jian stance</div>
+<div class="well is-empty" style="left:1090px;top:644px"></div>
+<div class="dlab c-mist" style="left:1154px;top:648px;font-weight:600;line-height:1.3;white-space:normal;width:84px">None known;<br>see Wood</div>
+</div></body></html>
