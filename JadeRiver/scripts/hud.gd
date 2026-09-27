@@ -67,6 +67,18 @@ const LOG_W := 356.0
 ## The party chips' face crop: this far above the feet on the idle frame, this big.
 const FACE_AT := Vector2(2, -80)
 const FACE_BOX := 30.0
+## Points to spend: one row a point system the player spends by hand. The HUD reads its count from its authority
+## ([authority, getter], given the character), shows the badge `points_<id>` (tools/icons, its own colour, shape and
+## symbol) at the top right of the player panel while the unlock is open and the count is above 0, and a tap asks the
+## shell for its page and tab. Its log line on appearing is `hud.points_<id>`.
+const POINT_SYSTEMS := [
+	{"id": "meridian", "unlock": "foundation", "count": ["progression", "meridian_points_free"], "page": "cultivation", "tab": "foundation"},
+	{"id": "realisation", "unlock": "technique_slots_2", "count": ["progression", "realisations_free"], "page": "techniques", "tab": ""},
+	{"id": "bench", "unlock": "apprentice_bench", "count": ["posts", "bench_points_free"], "page": "posts", "tab": "bench"},
+	{"id": "post_art", "unlock": "post_arts", "count": ["posts", "art_points_free"], "page": "works", "tab": "arts"},
+]
+const POINTS_PITCH := 48.0    # the badges' row, leftward from the panel's top right corner, a 48 px target each
+const POINTS_POP_S := 0.3     # a badge appears with a small pop (none with Reduce motion)
 
 var attack_center := Vector2(1165, 605)
 var jump_center := Vector2(1051, 671)
@@ -132,6 +144,9 @@ var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var equip_prompt := EquipPrompt.new()   # a better piece picked up or received, offered at the right for 10 s
 var t := 0.0
 var _faces: Dictionary = {}        # companion id -> its idle frame's layers, for the party chips
+var _points_seen: Dictionary = {}  # points badge id -> HUD time it appeared (its pop)
+var _points_primed := false        # the badges showing when the HUD was bound pop but write no log line
+var points_override: Dictionary = {}   # tests and previews: points badge id -> the count to show in place of its getter
 var _hollow_last := -1.0
 var _hollow_dir := 0.0
 
@@ -224,6 +239,7 @@ func _process(delta: float) -> void:
 	if bound(): equip_prompt.tick(Game.active(), delta)
 	if bound() and world: context = world.context
 	_tick_fight(delta)
+	_tick_points()
 	# G4: the world's names keep clear of the HUD's controls, and the party's HP lines show only in a fight.
 	WorldLabels.party_fight = bound() and fight
 	if bound() and is_instance_valid(world) and "label_obstacles" in world: world.label_obstacles = obstacle_rects()
@@ -433,7 +449,58 @@ func hit_targets() -> Array:
 		if shown(ic[0]): add.call("icon:" + str(ic[0]), ic[1], 26.0)
 	for pc in _party_chips(c): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
 	if _auto_hunt_shown(c): add.call("auto_hunt", auto_center, 26.0)
+	for pb in point_badges(c): add.call("points:" + str(pb.id), pb.center, 16.0, POINTS_PITCH * 0.5)
 	return out
+
+## The points badges showing now, in POINT_SYSTEMS order: {id, count, center, page, tab}. Bound only (the counts are
+## the character's); a system not yet unlocked or with nothing to spend has none.
+func point_badges(c) -> Array:
+	var out: Array = []
+	if c == null or not bound() or not shown("player_panel"): return out
+	var panel := panel_rect(c)
+	for row in POINT_SYSTEMS:
+		if not Unlocks.is_unlocked(c.id, str(row.unlock)): continue
+		var n := int(points_override[row.id]) if points_override.has(row.id) else int(Game.get(str(row.count[0])).call(str(row.count[1]), c))
+		if n <= 0: continue
+		out.append({"id": str(row.id), "count": n, "page": str(row.page), "tab": str(row.tab),
+			"center": Vector2(panel.end.x - 22.0 - out.size() * POINTS_PITCH, panel.position.y + 2.0)})
+	return out
+
+## A tap on a points badge asks the shell for its system's page, on the tab where the points are spent.
+func open_points(id: String) -> void:
+	for row in POINT_SYSTEMS:
+		if str(row.id) != id: continue
+		open_page.emit(str(row.page), {"tab": str(row.tab)} if str(row.tab) != "" else {})
+		Audio.ui("ui_open")
+
+## Each frame: a badge newly shown starts its pop, and (after the first look) writes its line to the log.
+func _tick_points() -> void:
+	var now := {}
+	for pb in point_badges(Game.active() if bound() else null):
+		now[pb.id] = true
+		if not _points_seen.has(pb.id):
+			_points_seen[pb.id] = t
+			if _points_primed: add_log(Tx.t("hud.points_" + str(pb.id)), UiKit.PALE_GOLD)
+	for id in _points_seen.keys():
+		if not now.has(id): _points_seen.erase(id)
+	_points_primed = bound()
+
+## A badge's pop: how far in (0 .. 1) since it appeared, 1 at once with Reduce motion.
+func points_pop(id: String) -> float:
+	if UiKit.reduce_motion(): return 1.0
+	return clampf((t - float(_points_seen.get(id, -99.0))) / POINTS_POP_S, 0.0, 1.0)
+
+## The badges in their row, each popping in as it appears: from small past full size and back, fading in.
+func _draw_points(c) -> void:
+	for pb in point_badges(c):
+		var k := points_pop(str(pb.id))
+		if k >= 1.0:
+			glyph("points_" + str(pb.id), pb.center, 32)
+			continue
+		var s := lerpf(0.4, 1.2, k / 0.6) if k < 0.6 else lerpf(1.2, 1.0, (k - 0.6) / 0.4)
+		draw_set_transform(pb.center, 0.0, Vector2(s, s))
+		glyph("points_" + str(pb.id), Vector2.ZERO, 32, Color(1, 1, 1, clampf(k * 2.5, 0.0, 1.0)))
+		draw_set_transform(Vector2.ZERO)
 
 ## The screen rects the HUD covers now (its round controls as drawn, its panels and plates), which the world's names
 ## keep clear of (G4).
@@ -557,6 +624,7 @@ func press(id: int, p: Vector2):
 			if not ah.get("ok", false) and ah.has("text"): add_log(str(ah.text), UiKit.MIST)
 		"progress": open_page.emit("cultivation", {})
 		_:
+			if role.begins_with("points:") and bound(): open_points(role.trim_prefix("points:"))
 			if role.begins_with("pets:") and bound():
 				var parts := role.split(":")
 				var res := {}
@@ -1701,6 +1769,7 @@ func _draw():
 	tracker_rect = Rect2()
 	tracker_paths = []
 	_draw_player_panel(c)
+	_draw_points(c)
 	_draw_party(c)
 	if shown("quest_tracker"): _draw_tracker(c)
 	if shown("minimap") and Game.account.settings.get("minimap", true): _draw_minimap(c)
