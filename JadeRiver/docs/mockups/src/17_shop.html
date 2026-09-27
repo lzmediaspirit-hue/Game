@@ -1,0 +1,116 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>17 Shop</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* A market stall as one counter: her shelf on the left, the deal in the middle, your bag and what you sold today
+     on the right. No tabs: buying, selling and buying back are all in sight. */
+  .col { position: absolute; top: 172px; height: 492px; }
+  .sh { position: absolute; left: 12px; width: 416px; height: 58px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px; }
+  .sh.is-selected { background: rgba(44,158,143,.18); box-shadow: inset 3px 0 0 var(--gold); border-radius: 4px; }
+  .sh + .sh { border-top: 1px solid rgba(175,201,209,.12); }
+  .sh .nm { font-size: 18px; font-weight: 700; white-space: nowrap; }
+  .sh .ds { font-size: 14px; color: var(--mist); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+  .sh .pr { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 700; color: var(--pale-gold); }
+  .med { flex: none; width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 45% 40%, #1d5157, #061519); box-shadow: 0 0 0 2px var(--q, var(--bronze)), 0 0 0 3px var(--ink); }
+  .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; font-size: 14px; font-weight: 700; margin-left: 8px;
+    background: rgba(155,120,209,.22); border: 1px solid rgba(181,150,224,.7); color: #d9c8f5; vertical-align: 2px; }
+  .price { display: inline-flex; align-items: center; gap: 6px; }
+  .bag { position: absolute; display: grid; grid-template-columns: repeat(3, 76px); gap: 6px; }
+  .bag .k-slot { width: 76px; height: 76px; }
+  .hd { position: absolute; left: 16px; top: 12px; display: flex; align-items: center; gap: 10px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_harbor_market.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Silk and Sundries</span></div>
+  <div class="k-page-close k-close"></div>
+</div>
+
+<!-- the keeper and the purses: the zone's own currency first -->
+<div class="abs" style="left:98px;top:106px;width:56px;height:56px;border-radius:8px;background:radial-gradient(circle at 50% 40%, #1d5157, #061519);box-shadow:0 0 0 2px var(--bronze), 0 0 0 3px var(--ink);overflow:hidden"><img class="abs" src="../assets/bust_peddler_ning.png" style="left:0;top:2px;width:56px;height:56px;image-rendering:pixelated"></div>
+<div class="abs t-md c-pale" style="left:168px;top:110px">Peddler Ning</div>
+<div class="abs t-xs c-mist" style="left:168px;top:134px">Harbour peddler · Lanternfall Harbor · prices in Sage Crystals</div>
+<div class="abs flex" style="left:1188px;top:118px;gap:8px;transform:translateX(-100%)">
+  <div class="k-pill" style="box-shadow:0 0 0 2px rgba(229,184,76,.55), 0 0 10px 2px rgba(229,184,76,.3);border-radius:17px"><img class="ic" src="../../../art/icons/items/sage_crystal.png"><span class="v">1,227</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">57,935</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">6,492</span></div>
+</div>
+
+<!-- ============ her shelf (buy) ============ -->
+<div class="col k-minor-panel" style="left:92px;width:440px"></div>
+<div class="abs t-subhead" style="left:108px;top:180px">Her shelf</div>
+<div class="abs t-xs c-mist" style="left:384px;top:190px">each, in</div><img class="ic ic-24 abs" style="left:442px;top:186px" src="../../../art/icons/items/sage_crystal.png">
+<div class="abs" style="left:92px;top:216px">
+  <div class="sh" style="top:0"><span class="med"><img class="ic ic-32" src="../../../art/icons/items/star_shard.png"></span>
+    <div><div class="nm" style="color:var(--g-sovereign)">Star Shard<span class="tag">today</span></div><div class="ds">Levels Starsea Endurance jades.</div></div>
+    <div class="pr t-fig">1</div></div>
+  <div class="sh" style="top:58px"><span class="med"><img class="ic ic-32" src="../../../art/icons/items/jelly_silk.png"></span>
+    <div><div class="nm" style="color:var(--g-sovereign)">Jelly Silk<span class="tag">today</span></div><div class="ds">A Star Jellyfish's trailing silk.</div></div>
+    <div class="pr t-fig">2</div></div>
+  <div class="sh is-selected" style="top:116px"><span class="med" style="--q:var(--gold)"><img class="ic ic-32" src="../../../art/icons/items/will_tempering_pill.png"></span>
+    <div><div class="nm" style="color:var(--g-sage)">Will Tempering Pill</div><div class="ds">+40 Will for 30 minutes.</div></div>
+    <div class="pr t-fig">6</div></div>
+  <div class="sh" style="top:174px"><span class="med"><img class="ic ic-32" src="../assets/iconA32_healing_pill.png"></span>
+    <div><div class="nm c-paper">Healing Pill</div><div class="ds">Cures a minor body injury, 30% HP.</div></div>
+    <div class="pr t-fig">1</div></div>
+  <div class="sh" style="top:232px"><span class="med"><img class="ic ic-32" src="../../../art/icons/items/qi_restoration_pill.png"></span>
+    <div><div class="nm c-paper">Qi Restoration Pill</div><div class="ds">Restores 40% QI.</div></div>
+    <div class="pr t-fig">1</div></div>
+  <div class="sh" style="top:290px"><span class="med"><img class="ic ic-32" src="../../../art/icons/items/revival_talisman.png"></span>
+    <div><div class="nm c-paper">Revival Talisman</div><div class="ds">Revive where you fall. Once per 5 m.</div></div>
+    <div class="pr t-fig">1</div></div>
+  <div class="sh" style="top:348px"><span class="med"><img class="ic ic-32" src="../../../art/icons/items/return_charm.png"></span>
+    <div><div class="nm" style="color:var(--g-plain)">Return Charm</div><div class="ds">Teleports you to the last town.</div></div>
+    <div class="pr t-fig">1</div></div>
+</div>
+<div class="abs" style="left:520px;top:218px;width:4px;height:120px;border-radius:2px;background:var(--jade)"></div>
+<div class="abs t-xs c-mist" style="left:108px;top:634px">+2 more below · the two marked today change at dawn</div>
+
+<!-- ============ the counter: the deal ============ -->
+<div class="col k-minor-panel" style="left:548px;width:304px"></div>
+<div class="k-slot is-selected abs" style="left:564px;top:188px;width:76px;height:76px"><img class="ic" src="../../../art/icons/items/will_tempering_pill.png"><div class="k-slot-glow"></div></div>
+<div class="abs t-lg" style="left:652px;top:194px;width:186px;line-height:1.15;color:var(--g-sage);font-weight:700">Will Tempering Pill</div>
+<div class="abs t-xs c-mist" style="left:652px;top:244px">Sage grade · you hold 30</div>
+<div class="abs t-sm c-paper" style="left:566px;top:276px;width:270px;line-height:1.35">+40 Will for 30 minutes: another's Presence weighs less on you.</div>
+<div class="k-divider abs" style="left:566px;top:342px;width:270px"></div>
+<div class="k-btn2 abs" style="left:566px;top:358px;width:56px;height:52px;font-size:26px">−</div>
+<div class="abs t-num-lg c-paper" style="left:622px;top:366px;width:56px;text-align:center">3</div>
+<div class="k-btn2 abs" style="left:678px;top:358px;width:56px;height:52px;font-size:26px">+</div>
+<div class="k-btn2 abs" style="left:742px;top:358px;width:94px;height:52px;font-size:20px">×10</div>
+<div class="abs t-md c-paper" style="left:566px;top:428px;width:270px;line-height:1.35">3 Will Tempering Pills<br><span class="price t-fig c-pale" style="font-size:22px"><img class="ic ic-24" src="../../../art/icons/items/sage_crystal.png">18 Sage Crystals</span></div>
+<div class="abs t-xs c-mist t-fig" style="left:566px;top:496px">6 each · 1,209 left after</div>
+<div class="k-btn abs" style="left:566px;top:590px;width:270px;height:56px">Buy 3</div>
+
+<!-- ============ your bag (sell) and what you sold today (buy back) ============ -->
+<div class="col k-minor-panel" style="left:868px;width:320px"></div>
+<div class="hd" style="left:884px;top:180px"><span class="t-subhead">Your bag</span><span class="t-xs c-mist">tap to sell</span></div>
+<div class="bag" style="left:884px;top:216px">
+  <div class="k-slot"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--q-common)"></div></div>
+  <div class="k-slot"><img class="ic" src="../../../art/icons/items/storm_shard.png"><span class="k-count t-fig t-sm t-outline c-paper">89</span></div>
+  <div class="k-slot"><img class="ic" src="../../../art/icons/items/comet_plume.png"><span class="k-count t-fig t-sm t-outline c-paper">6</span></div>
+  <div class="k-slot is-selected"><img class="ic" src="../icon_study/icons/A_healing_pill.png"><span class="k-count t-fig t-sm t-outline c-paper">5</span><div class="k-slot-glow"></div></div>
+  <div class="k-slot"><img class="ic" src="../../../art/icons/items/jelly_silk.png"><span class="k-count t-fig t-sm t-outline c-paper">8</span></div>
+  <div class="k-slot"><img class="ic" src="../../../art/icons/items/star_powder.png"><span class="k-count t-fig t-sm t-outline c-paper">9</span></div>
+</div>
+<div class="abs t-xs c-mist" style="left:1144px;top:222px">+35</div>
+<div class="abs t-md c-paper" style="left:884px;top:384px">Healing Pill<span class="t-xs c-mist t-fig" style="margin-left:8px">×5 · 44 taels each</span></div>
+<div class="k-btn2 abs" style="left:884px;top:410px;width:140px;height:48px;font-size:17px">Sell 1 · 44</div>
+<div class="k-btn2 abs" style="left:1032px;top:410px;width:140px;height:48px;font-size:17px">Sell all 5 · 220</div>
+<div class="abs t-xs c-mist" style="left:884px;top:462px">Sales pay a quarter, in Silver Taels.</div>
+<div class="k-divider abs" style="left:884px;top:486px;width:288px"></div>
+<div class="abs t-md c-gold" style="left:884px;top:494px">Buy back</div><div class="abs t-xs c-mist" style="left:972px;top:499px">your last 20 sales</div>
+<div class="abs flex" style="left:884px;top:524px;gap:8px;width:288px;height:48px">
+  <span class="med" style="--q:var(--q-fine)"><img class="ic ic-32" src="../../../art/icons/equipment/sunsilk_trousers.png"></span>
+  <div style="line-height:1.2;white-space:nowrap"><div class="t-sm c-paper">Sunsilk Trousers</div><div class="t-xs c-pale t-fig">2,926 taels</div></div>
+  <div class="k-btn2" style="margin-left:auto;width:88px;height:48px;font-size:17px;padding:0 8px;flex:none">Buy back</div></div>
+<div class="abs flex" style="left:884px;top:578px;gap:8px;width:288px;height:48px">
+  <span class="med"><img class="ic ic-32" src="../../../art/icons/items/kite_silk.png"></span>
+  <div style="line-height:1.2"><div class="t-sm c-paper">Kite Silk ×4</div><div class="t-xs c-pale t-fig">224 taels</div></div>
+  <div class="k-btn2" style="margin-left:auto;width:88px;height:48px;font-size:17px;padding:0 8px;flex:none">Buy back</div></div>
+<div class="abs t-xs c-mist" style="left:884px;top:634px">+18 more</div>
+
+</div></body></html>

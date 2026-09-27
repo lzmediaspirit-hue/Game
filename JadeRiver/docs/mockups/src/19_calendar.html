@@ -1,0 +1,92 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>19 Calendar</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The season as a strip of four, the week as seven days with the events laid on them, and one way of writing time
+     (I14): the two largest units, a space before each unit, zero units dropped: "23 h 57 m", "1 d 12 h", "45 m", "3 d". */
+  .sea { position: absolute; top: 112px; width: 268px; height: 136px; padding: 12px 16px; }
+  .sea .nm { font-family: var(--f-display); font-weight: 700; font-size: 26px; line-height: 1; }
+  .sea .ds { font-size: 14px; line-height: 1.3; color: var(--mist); margin-top: 6px; }
+  .sea.now { box-shadow: 0 0 0 2px rgba(229,184,76,.6), 0 0 14px 2px rgba(229,184,76,.25); border-radius: 4px; }
+  .sea.now .nm { color: var(--pale-gold); }
+  .sea.later .nm { color: var(--paper); } .sea.far { opacity: .62; } .sea.far .nm { color: var(--mist); }
+  .wk { position: absolute; left: 92px; top: 260px; width: 1096px; height: 256px; }
+  .day { position: absolute; top: 266px; width: 152px; height: 246px; }
+  .day .dn { position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 16px; font-weight: 700; color: var(--paper); }
+  .day .dd { position: absolute; left: 0; right: 0; top: 26px; text-align: center; font-size: 14px; color: var(--mist); }
+  .day.today { background: rgba(44,158,143,.12); border-radius: 4px; }
+  .day.today .dn { color: var(--pale-gold); }
+  .col-line { position: absolute; top: 270px; width: 1px; height: 236px; background: rgba(175,201,209,.14); }
+  .ev { position: absolute; height: 40px; border-radius: 6px; padding: 3px 10px; white-space: nowrap; overflow: hidden; }
+  .ev .t { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .ev .s { font-size: 14px; line-height: 1.15; }
+  .ev.live { background: linear-gradient(180deg, rgba(229,184,76,.42), rgba(154,106,53,.4)); box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .ev.live .t { color: var(--pale-gold); } .ev.live .s { color: var(--paper); }
+  .ev.soon { background: rgba(155,120,209,.22); box-shadow: inset 0 0 0 1.5px rgba(181,150,224,.75); }
+  .ev.soon .t { color: #e2d6f7; } .ev.soon .s { color: var(--mist); }
+  .ev.week { background: rgba(44,158,143,.18); box-shadow: inset 0 0 0 1.5px rgba(103,214,189,.55); }
+  .ev.week .t { color: var(--bright-jade); } .ev.week .s { color: var(--mist); }
+  .ev.sel { box-shadow: inset 0 0 0 1.5px var(--gold), 0 0 0 2px var(--pale-gold); }
+  .now-line { position: absolute; top: 310px; width: 2px; height: 198px; background: var(--red); box-shadow: 0 0 6px 1px rgba(228,88,88,.6); }
+  .wx { display: flex; align-items: center; height: 30px; gap: 10px; font-size: 16px; white-space: nowrap; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Calendar</span></div>
+  <div class="k-page-close k-close"></div>
+</div>
+
+<!-- ============ the season: four, one lit, the next named ============ -->
+<div class="sea now k-minor-panel" style="left:92px"><div class="flex" style="justify-content:space-between"><span class="nm">Spring</span><span class="t-sm c-pale t-fig">1 d 3 h left</span></div>
+  <div class="ds" style="margin-top:32px">Orchids open on the high ledges; the Sky Ledges' hundred-year orchid flowers.</div>
+  <div class="k-bar is-gold abs" style="left:16px;right:16px;top:40px;height:22px;--v:0.84"><div class="k-trough" style="top:4px;bottom:4px"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div></div></div>
+<div class="sea later k-minor-panel" style="left:368px"><div class="flex" style="justify-content:space-between"><span class="nm">Summer</span><span class="t-sm c-mist t-fig">in 1 d 3 h</span></div>
+  <div class="ds">The river runs warm. Hundred-year ember peppers redden and the thousand-year root wakes.</div></div>
+<div class="sea far k-minor-panel" style="left:644px"><div class="flex" style="justify-content:space-between"><span class="nm">Autumn</span><span class="t-sm c-mist t-fig">in 8 d 3 h</span></div>
+  <div class="ds">Mist settles on the slopes and the old soulbells ring.</div></div>
+<div class="sea far k-minor-panel" style="left:920px"><div class="flex" style="justify-content:space-between"><span class="nm">Winter</span><span class="t-sm c-mist t-fig">in 15 d 3 h</span></div>
+  <div class="ds">Most rare herbs sleep. The ones without a season keep their own time.</div></div>
+
+<!-- ============ the week ============ -->
+<div class="wk k-minor-panel"></div>
+<div class="day today" style="left:100px"><div class="dn">Today</div><div class="dd">Sunday</div></div>
+<div class="day" style="left:254px"><div class="dn">Monday</div></div>
+<div class="day" style="left:408px"><div class="dn">Tuesday</div></div>
+<div class="day" style="left:562px"><div class="dn">Wednesday</div></div>
+<div class="day" style="left:716px"><div class="dn">Thursday</div></div>
+<div class="day" style="left:870px"><div class="dn">Friday</div></div>
+<div class="day" style="left:1024px"><div class="dn">Saturday</div></div>
+<div class="col-line" style="left:253px"></div><div class="col-line" style="left:407px"></div><div class="col-line" style="left:561px"></div>
+<div class="col-line" style="left:715px"></div><div class="col-line" style="left:869px"></div><div class="col-line" style="left:1023px"></div>
+<div class="now-line" style="left:101px"></div>
+
+<div class="ev live sel" style="left:104px;top:310px;width:146px"><div class="t">Drowned Shrine</div><div class="s t-fig">23 h 57 m left</div></div>
+<div class="ev soon" style="left:258px;top:358px;width:146px"><div class="t">Spatial Rift</div><div class="s t-fig">1 h · in 1 d 12 h</div></div>
+<div class="ev soon" style="left:412px;top:310px;width:146px"><div class="t">Waterfall Cave</div><div class="s t-fig">in 1 d 23 h</div></div>
+<div class="ev soon" style="left:566px;top:406px;width:146px"><div class="t">Terraces Trial</div><div class="s t-fig">in 2 d 23 h</div></div>
+<div class="ev soon" style="left:874px;top:310px;width:146px;opacity:.8"><div class="t">Drowned Shrine</div><div class="s t-fig">in 4 d 23 h</div></div>
+<div class="ev soon" style="left:1028px;top:406px;width:146px"><div class="t">Auction Day</div><div class="s t-fig">in 5 d 23 h</div></div>
+<div class="ev week" style="left:104px;top:458px;width:1070px"><div class="t">Beast Tide <span class="s" style="font-weight:600;margin-left:8px">this week's tide waits at Stoneford Gate: ring the gong before the weekly reset</span></div></div>
+
+<!-- ============ the chosen event, and the valley's weather ============ -->
+<div class="k-minor-panel abs" style="left:92px;top:524px;width:640px;height:140px"></div>
+<svg class="abs" style="left:108px;top:538px" width="26" height="26" viewBox="-11 -11 22 22"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>
+<div class="abs t-md c-pale" style="left:144px;top:538px">The Drowned Shrine Surfaces</div>
+<div class="abs t-sm c-jade t-fig" style="left:144px;top:564px">Under way · 23 h 57 m left · Abbot's Sanctum</div>
+<div class="abs t-xs c-paper" style="left:108px;top:594px;width:440px;line-height:1.35">Every fifth day the shrine rises for a day and the Abbot wakes again. Repeat runs open to you (Qi Unfurling 9 and below).</div>
+<div class="k-btn abs" style="left:560px;top:540px;width:156px;height:52px;font-size:20px">Go there</div>
+<div class="abs t-xs c-mist" style="left:568px;top:604px">4 regions away</div>
+
+<div class="k-minor-panel abs" style="left:748px;top:524px;width:440px;height:140px"></div>
+<div class="abs t-md c-gold" style="left:766px;top:534px">Weather in the valley<span class="t-xs c-mist t-fig" style="margin-left:10px">next change in 2 h 57 m</span></div>
+<div class="abs" style="left:766px;top:562px;width:404px">
+  <div class="wx"><span class="c-mist" style="width:150px">Reed Marsh</span><span class="c-paper" style="width:64px">Clear</span></div>
+  <div class="wx"><span class="c-mist" style="width:150px">Whitewater Gorge</span><span class="c-paper" style="width:64px">Clear</span></div>
+  <div class="wx"><span class="c-mist" style="width:150px">Summit Ridge</span><span class="c-pale" style="width:64px">Storm</span><span class="t-xs c-jade">thunder arts +10% power</span></div>
+</div>
+
+</div></body></html>

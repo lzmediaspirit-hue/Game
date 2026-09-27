@@ -1,0 +1,119 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>18 Codex, the Collection</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The Collection as a bestiary: its pages on the left (one per region), the open page on the right with its cards
+     and its two seals. Every long bar carries its stops and names the next one (E4); a finished page can be sealed a
+     second time at ten times the count (E3). */
+  .pg { position: absolute; left: 100px; width: 264px; height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 4px; }
+  .pg + .pg { border-top: 1px solid rgba(175,201,209,.12); }
+  .pg.is-selected { background: rgba(44,158,143,.18); box-shadow: inset 3px 0 0 var(--gold); }
+  .pg .n { font-size: 17px; font-weight: 700; white-space: nowrap; }
+  .pg .c { margin-left: auto; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .sl { width: 16px; height: 16px; border-radius: 3px; transform: rotate(-8deg); box-shadow: 0 0 0 1.5px var(--ink); flex: none; }
+  .sl.off { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(135,148,154,.6); }
+  .sl.on { background: var(--red); box-shadow: 0 0 0 1.5px var(--ink), inset 0 0 0 1.5px rgba(255,230,161,.55); }
+  .book { position: absolute; left: 388px; top: 172px; width: 800px; height: 492px; }
+  .card { position: absolute; top: 236px; width: 176px; height: 236px; border-radius: 4px; overflow: hidden;
+    background: linear-gradient(180deg, #f1e9d6, #e3d8bd); box-shadow: inset 0 0 0 1px rgba(154,106,53,.6), 0 3px 0 rgba(0,0,0,.3); color: var(--ink); }
+  .card .art { position: absolute; left: 8px; top: 8px; width: 160px; height: 120px; border-radius: 3px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 70%, rgba(21,81,79,.25), rgba(21,81,79,0) 70%); }
+  .card .art img { position: absolute; width: 768px; height: 768px; image-rendering: pixelated; }
+  .card .art.unk img { filter: brightness(0); opacity: .38; }
+  .card .nm { position: absolute; left: 0; right: 0; top: 132px; text-align: center; font-size: 17px; font-weight: 700; white-space: nowrap; }
+  .card .sb { position: absolute; left: 0; right: 0; top: 154px; text-align: center; font-size: 14px; color: #5b4a33; white-space: nowrap; }
+  .card .k-bar { position: absolute; left: 10px; right: 10px; top: 180px; height: 26px; }
+  .card .k-bar > .k-trough { top: 5px; bottom: 5px; }
+  .card .k-bar .k-bar-text { font-size: 14px; }
+  .card .ft { position: absolute; left: 0; right: 0; top: 210px; text-align: center; font-size: 14px; white-space: nowrap; }
+  .card .stamp { position: absolute; right: 10px; top: 12px; width: 44px; height: 44px; border-radius: 6px; transform: rotate(-10deg);
+    border: 3px solid rgba(179,32,46,.85); color: rgba(179,32,46,.9); font-family: var(--f-display); font-weight: 700; font-size: 15px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; text-align: center; }
+  .seal-row { position: absolute; left: 408px; width: 760px; }
+  .seal-ic { position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 6px; transform: rotate(-8deg); display: flex; align-items: center; justify-content: center;
+    font-family: var(--f-display); font-weight: 700; font-size: 20px; }
+  .seal-ic.i { background: rgba(228,88,88,.18); border: 2px dashed rgba(228,88,88,.7); color: var(--red); }
+  .seal-ic.ii { background: rgba(135,148,154,.1); border: 2px dashed rgba(135,148,154,.55); color: var(--hollow); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Codex</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab">Codex</div><div class="k-tab is-selected">Collection</div><div class="k-tab">Old Scrolls</div><div class="k-tab">Achievements</div>
+    <div class="k-tab">Paths Above</div><div class="k-tab">Seasons</div>
+  </div>
+</div>
+
+<!-- ============ the bestiary's pages, and the whole book's bar ============ -->
+<div class="k-minor-panel abs" style="left:92px;top:172px;width:280px;height:492px"></div>
+<div class="abs t-md c-paper" style="left:108px;top:182px">Cards filled <span class="t-fig c-pale">2 / 68</span></div>
+<div class="k-bar is-jade abs" style="left:106px;top:210px;width:252px;height:26px;--v:0.2">
+  <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div></div>
+<div class="abs t-xs c-pale" style="left:108px;top:240px">Next at 10: Collector title, drops +1%</div>
+<div class="k-divider abs" style="left:104px;top:266px;width:256px"></div>
+<div class="abs" style="left:0;top:274px">
+  <div class="pg" style="top:0"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Valley Shore</span><span class="c t-fig">0 of 3</span></div>
+  <div class="pg" style="top:48px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Willow Path</span><span class="c t-fig">0 of 2</span></div>
+  <div class="pg" style="top:96px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Stonewall Quarry</span><span class="c t-fig">0 of 4</span></div>
+  <div class="pg is-selected" style="top:144px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-pale">Reed Marsh</span><span class="c t-fig c-pale">1 of 4</span></div>
+  <div class="pg" style="top:192px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Bamboo Grove</span><span class="c t-fig">0 of 3</span></div>
+  <div class="pg" style="top:240px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Caravan Road</span><span class="c t-fig">0 of 4</span></div>
+  <div class="pg" style="top:288px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Azure Expanse</span><span class="c t-fig">1 of 15</span></div>
+</div>
+<div class="abs t-xs c-mist" style="left:108px;top:634px">+7 more pages below</div>
+
+<!-- ============ the open page: Reed Marsh ============ -->
+<div class="book k-minor-panel"></div>
+<div class="abs t-heading" style="left:408px;top:184px">Reed Marsh</div>
+<div class="abs t-sm c-mist" style="left:586px;top:196px">4 beasts · each card fills at 50</div>
+
+<!-- cards: a filled one (its first seal stamped, now counting to the page's second seal), two met, one not yet met -->
+<div class="card" style="left:408px">
+  <div class="art"><img src="../assets/cr_reed_frog_unknown.png" style="left:-306px;top:-396px"></div>
+  <div class="nm" style="color:rgba(7,16,21,.5)">? ? ?</div><div class="sb">Not yet met</div>
+  <div class="k-bar" style="--v:0"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">0 / 50</div></div>
+  <div class="ft" style="color:#5b4a33">Lives at Marsh Edge</div></div>
+<div class="card" style="left:598px">
+  <div class="art"><img src="../assets/cr_marsh_leech_unknown.png" style="left:-294px;top:-400px"></div>
+  <div class="nm" style="color:rgba(7,16,21,.5)">? ? ?</div><div class="sb">Not yet met</div>
+  <div class="k-bar" style="--v:0"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">0 / 50</div></div>
+  <div class="ft" style="color:#5b4a33">Lives at Marsh Edge</div></div>
+<div class="card" style="left:788px">
+  <div class="art"><img src="../assets/cr_greyfin.png" style="left:-306px;top:-400px"></div>
+  <div class="nm">Greyfin</div><div class="sb">Rank 1 spirit beast</div>
+  <div class="k-bar" style="--v:0.08"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">4 / 50</div></div>
+  <div class="ft" style="color:#5b4a33">46 more to fill</div></div>
+<div class="card" style="left:978px">
+  <div class="art"><img src="../assets/cr_hollowed_boarlet.png" style="left:-306px;top:-398px"></div>
+  <div class="stamp">50</div>
+  <div class="nm">Hollowed Boarlet</div><div class="sb">Rank 1 Hollowed</div>
+  <div class="k-bar is-gold" style="--v:0.11"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-done" style="--at:0.1"></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">55 / 500</div></div>
+  <div class="ft" style="color:#7a4f22;font-weight:700">Filled · on to seal II</div></div>
+
+<!-- the page's two seals: I when every card is filled, II at ten times the count (E3) -->
+<div class="seal-row" style="top:486px">
+  <div class="seal-ic i">I</div>
+  <div class="abs t-md c-paper" style="left:56px;top:0">Seal I<span class="t-sm c-mist" style="margin-left:10px">every card at 50</span></div>
+  <div class="abs t-sm c-jade" style="left:540px;top:2px;width:220px;text-align:right">Hollow Ward +2</div>
+  <div class="k-bar is-jade abs" style="left:56px;top:26px;width:704px;height:26px;--v:0.27">
+    <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div>
+    <div class="k-tick is-next" style="--at:1"></div>
+    <div class="k-bar-text t-fig t-outline c-paper" style="font-size:14px">54 / 200 · 1 of 4 cards</div></div>
+</div>
+<div class="seal-row" style="top:562px">
+  <div class="seal-ic ii">II</div>
+  <div class="abs t-md c-hollow" style="left:56px;top:0">Seal II<span class="t-sm" style="margin-left:10px">every card at 500, after seal I</span></div>
+  <div class="abs t-sm c-mist" style="left:470px;top:2px;width:290px;text-align:right">Healing +1% · a Bestiary Leaf</div>
+  <div class="k-bar abs" style="left:56px;top:26px;width:704px;height:26px;--v:0.0295;opacity:.7">
+    <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div>
+    <div class="k-tick" style="--at:1"></div>
+    <div class="k-bar-text t-fig t-outline c-mist" style="font-size:14px">59 / 2,000</div></div>
+</div>
+<div class="abs t-xs c-mist" style="left:408px;top:630px">Each seal is set once and pays once. Seal II keeps a finished page worth hunting.</div>
+
+</div></body></html>

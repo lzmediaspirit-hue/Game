@@ -1,0 +1,98 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>20 States</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* A sheet of the states every page shares, each drawn at its real size. Sheet labels (gold) are the sheet's own,
+     as on the kit sheet; everything else is what the player sees. */
+  .lab { position: absolute; font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--gold); white-space: nowrap; }
+  .lab small { font-family: var(--f-text); font-weight: 600; font-size: 14px; color: var(--mist); margin-left: 8px; }
+  .cell { position: absolute; border-radius: 6px; background: linear-gradient(180deg, rgba(13,48,53,.55), rgba(7,16,21,.35)); box-shadow: inset 0 0 0 1px rgba(154,106,53,.35); overflow: hidden; }
+  .world { position: absolute; inset: 0; background: url(../assets/plate_harbor_market.png) -300px -300px / 1280px 720px; filter: brightness(.55) saturate(.8); }
+  .grey-world { position: absolute; left: 760px; top: 0; width: 520px; height: 720px; background: url(../assets/plate_kharns_pyre.png) -600px 0 / 1280px 720px; filter: grayscale(.9) brightness(.45); }
+  .lost, .kept { display: flex; gap: 10px; align-items: flex-start; font-size: 16px; line-height: 1.3; }
+  .lost .dot, .kept .dot { flex: none; width: 20px; height: 20px; border-radius: 50%; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-family: var(--f-sym); font-size: 14px; box-shadow: 0 0 0 2px var(--ink); }
+  .lost .dot { background: var(--red); color: var(--ink); } .kept .dot { background: var(--jade); color: var(--pale-gold); }
+</style></head>
+<body><div class="k-screen" style="background:var(--ink)">
+<div class="grey-world"></div>
+<div class="abs" style="left:760px;top:0;width:520px;height:720px;background:radial-gradient(ellipse at 50% 50%, rgba(80,10,12,.25), rgba(30,4,6,.55))"></div>
+
+<!-- ============ 1 · the unlock toast (E5): what opened, and what the next stage opens ============ -->
+<div class="lab" style="left:24px;top:14px">Unlock toast<small>top centre over play, 4 s, tap to go</small></div>
+<div class="cell" style="left:16px;top:48px;width:352px;height:190px"><div class="world"></div></div>
+<div class="k-toast abs" style="left:28px;top:64px;width:328px;height:88px;padding:10px 16px 10px 70px">
+  <div class="t-md c-pale">Spirit Animals opened</div>
+  <div class="t-xs c-paper">Qi Unfurling 5 · your first beast waits in the reeds</div></div>
+<div class="k-hud k-hud-sm is-active" style="left:62px;top:108px"><img class="ic ic-32" src="../../../art/icons/hud/spirit_animals.png"></div>
+<div class="k-unlock abs" style="left:28px;top:166px"><img class="ic" src="../../../art/icons/hud/techniques.png">Next: eight technique slots</div>
+<div class="abs t-xs c-mist" style="left:30px;top:204px">at Qi Unfurling 6, with the Cloud Ladder Step</div>
+
+<!-- ============ 2 · a locked tab and its reason ============ -->
+<div class="lab" style="left:392px;top:14px">Locked tab<small>stays visible; a tap says why</small></div>
+<div class="cell" style="left:384px;top:48px;width:360px;height:190px"></div>
+<div class="k-tabs abs" style="left:398px;top:62px;gap:6px">
+  <div class="k-tab" style="min-width:104px;padding:0 12px">Cooking</div><div class="k-tab is-selected" style="min-width:104px;padding:0 12px">Alchemy</div><div class="k-tab is-locked is-pressed" style="min-width:118px">Arrays<span class="k-lock-mini"></span></div>
+</div>
+<div class="k-tooltip abs" style="left:516px;top:118px;width:216px;padding:10px 14px">
+  <div class="t-sm c-pale">Arrays</div>
+  <div class="t-xs c-paper" style="line-height:1.35">Open at Heart Tempering 1. You are Qi Unfurling 4.</div></div>
+
+<!-- ============ 3 · a disabled button explains itself ============ -->
+<div class="lab" style="left:24px;top:252px">Disabled button<small>the lock, and on tap the reason</small></div>
+<div class="cell" style="left:16px;top:286px;width:352px;height:190px"></div>
+<div class="k-toast abs" style="left:28px;top:300px;width:328px;height:68px;padding:10px 16px">
+  <div class="t-sm c-paper" style="line-height:1.35">Not at the bottleneck yet: 3,787 more Qi to fill Heart Tempering 4.</div></div>
+<div class="k-btn is-disabled is-pressed abs" style="left:92px;top:392px;width:200px;height:56px">Break Through<span class="k-lock-mini"></span></div>
+<div class="abs t-xs c-mist" style="left:96px;top:452px">Heart Tempering 4 · the Overview</div>
+
+<!-- ============ 4 · an empty list ============ -->
+<div class="lab" style="left:392px;top:252px">Empty list<small>the motif, and how it fills</small></div>
+<div class="cell k-minor-panel" style="left:384px;top:286px;width:360px;height:190px;background:none;box-shadow:none"></div>
+<div class="abs t-md c-gold" style="left:402px;top:298px">Buy back</div>
+<div class="k-slot abs" style="left:526px;top:322px;width:76px;height:76px"><img class="ic" style="opacity:.35" src="../icon_study/icons/A_empty.png"></div>
+<div class="abs t-md c-hollow" style="left:384px;top:406px;width:360px;text-align:center">Nothing sold yet.</div>
+<div class="abs t-xs c-mist" style="left:384px;top:432px;width:360px;text-align:center">Your last 20 sales can be bought back here.</div>
+
+<!-- ============ 5 · the bag is full ============ -->
+<div class="lab" style="left:24px;top:490px">Full bag<small>on the HUD, and where the loot went</small></div>
+<div class="cell" style="left:16px;top:524px;width:728px;height:180px"><div class="world" style="background-position:-160px -420px"></div></div>
+<div class="k-hud k-hud-sm" style="left:686px;top:568px"><img class="ic ic-32" src="../../../art/icons/hud/bag.png"><div class="k-arc" style="--arc:1;--arc-c:var(--red)"></div></div>
+<div class="k-hud k-hud-sm" style="left:628px;top:568px"><img class="ic ic-32" src="../../../art/icons/hud/menu.png"></div>
+<div class="abs t-xs t-outline c-red t-fig" style="left:686px;top:600px;transform:translateX(-50%)">50 / 50</div>
+<div class="k-toast abs" style="left:34px;top:544px;width:470px;height:88px;padding:10px 16px 10px 84px">
+  <div class="t-md c-pale">Your gourd is full · 50 of 50</div>
+  <div class="t-xs c-paper">Storm Shard ×3 stays on the ground for 1 m. Sell, store or drop something to make room.</div></div>
+<img class="ic ic-64 abs" style="left:44px;top:556px" src="../../../art/icons/items/storm_shard.png">
+<div class="k-btn2 abs" style="left:34px;top:642px;width:170px;height:48px;font-size:18px">Open the bag</div>
+
+<!-- ============ 6 · the wound screen (F6): what was lost and what was kept ============ -->
+<div class="lab" style="left:776px;top:14px">The wound<small style="color:var(--paper)">what was lost and kept</small></div>
+<div class="k-major-window abs" style="left:776px;top:48px;width:488px;height:656px"></div>
+<div class="k-plaque abs" style="left:826px;top:36px;width:388px;--h:52px"><span class="t-title" style="font-size:34px">Gravely Wounded</span></div>
+<div class="abs t-md c-paper" style="left:812px;top:104px;width:420px;line-height:1.4">Your vision greys. Your nascent soul fled to the shrine.</div>
+
+<div class="abs t-sm t-label c-red" style="left:812px;top:160px">LOST</div>
+<div class="abs" style="left:812px;top:184px;width:420px">
+  <div class="lost"><span class="dot t-sym">−</span><div><span class="c-paper">5% of this stage:</span> <span class="t-fig c-pale">4,995 Qi</span></div></div>
+</div>
+<div class="k-bar is-jade abs" style="left:844px;top:210px;width:388px;height:24px;--v:0.383">
+  <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div><div class="abs" style="left:38.3%;width:5%;top:0;bottom:0;background:repeating-linear-gradient(45deg, #e45858 0 3px, rgba(228,88,88,.35) 3px 6px);box-shadow:0 0 0 1px rgba(255,200,200,.5)"></div></div></div>
+<div class="abs t-xs c-mist t-fig" style="left:844px;top:236px">Sphere Lord 3 · now 38.3%, was 43.3%</div>
+<div class="abs" style="left:812px;top:262px;width:420px">
+  <div class="lost" style="margin-bottom:8px"><span class="dot t-sym">−</span><div class="c-paper">A minor body injury<div class="t-xs c-mist">A Healing Pill cures it; you carry 5</div></div></div>
+  <div class="lost" style="margin-bottom:8px"><span class="dot t-sym">−</span><div class="c-paper">Heart demon <span class="t-fig">+3</span></div></div>
+  <div class="lost"><span class="dot t-sym">−</span><div class="c-paper">Your Presence let go</div></div>
+</div>
+
+<div class="abs t-sm t-label c-jade" style="left:812px;top:380px">KEPT</div>
+<div class="abs" style="left:812px;top:404px;width:420px">
+  <div class="kept" style="margin-bottom:8px"><span class="dot t-sym">✓</span><div class="c-paper">Your realm and level <span class="t-xs c-mist t-fig">Sphere Lord 3 · Lv 97</span></div></div>
+  <div class="kept" style="margin-bottom:8px"><span class="dot t-sym">✓</span><div class="c-paper">Everything you carry and wear</div></div>
+  <div class="kept"><span class="dot t-sym">✓</span><div class="c-paper">Your companions, your otter, your quests</div></div>
+</div>
+
+<div class="k-btn abs" style="left:812px;top:512px;width:420px;height:60px">Return to Tidebreak Bastion</div>
+<div class="k-btn2 is-disabled abs" style="left:812px;top:582px;width:420px;height:56px">Revive here · Revival Talisman ×2<span class="k-lock-mini"></span></div>
+<div class="abs t-sm c-mist t-fig" style="left:812px;top:646px;width:420px;text-align:center">The talisman recovers in 4 m 12 s</div>
+
+</div></body></html>

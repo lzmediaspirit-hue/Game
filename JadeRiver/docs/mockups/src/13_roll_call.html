@@ -1,0 +1,198 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>13 Roll-Call</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* A duty tablet: one character at their post. Columns: who, what the post yields, the pouch, the actions. */
+  .duty { position: absolute; left: 92px; width: 728px; height: 112px; }
+  .duty.is-active { border-image-source: url(../../../art/ui/hd/minor_panel__normal.png); box-shadow: inset 0 0 0 2px rgba(229,184,76,.55); }
+  .duty.is-full::before { content: ""; position: absolute; left: 4px; top: 10px; bottom: 10px; width: 4px; border-radius: 2px; background: var(--red); box-shadow: 0 0 8px 1px rgba(228,88,88,.5); }
+  .who { position: absolute; left: 16px; top: 10px; width: 156px; }
+  .who .nm { font-weight: 700; font-size: 19px; line-height: 1.1; white-space: nowrap; }
+  .who .ln { font-size: 14px; line-height: 1.35; white-space: nowrap; color: var(--mist); }
+  .who .craft { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 16px; color: var(--bright-jade); white-space: nowrap; }
+  .yield { position: absolute; left: 182px; top: 8px; width: 230px; }
+  .out { position: relative; height: 48px; }
+  .out > .ic { position: absolute; left: 0; top: 0; width: 32px; height: 32px; }
+  .out .on { position: absolute; left: 40px; top: 2px; right: 0; font-size: 16px; white-space: nowrap; }
+  .out .on .r { position: absolute; right: 8px; top: 2px; color: var(--paper); font-size: 14px; }
+  .out .k-bar { position: absolute; left: 0; right: 0; top: 27px; height: 22px; }
+  .out .k-bar > .k-trough { top: 4px; bottom: 4px; }
+  .out .k-bar > .k-bar-text { font-size: 14px; }
+  .out .k-bar > .k-tick { top: 1px; bottom: 1px; }
+  .out .k-bar > .k-tick::before { top: -5px; width: 7px; height: 7px; left: -3.5px; }
+  .out .gate { position: absolute; left: 40px; top: 26px; font-size: 14px; color: var(--hollow); white-space: nowrap; }
+  .pouch { position: absolute; left: 424px; top: 12px; width: 132px; }
+  .pouch .lb { font-size: 14px; color: var(--mist); }
+  .pouch .v { font-size: 20px; font-weight: 700; white-space: nowrap; }
+  .pouch .k-bar { height: 22px; margin-top: 2px; }
+  .pouch .k-bar > .k-trough { top: 4px; bottom: 4px; }
+  .pouch .st { font-size: 14px; margin-top: 4px; white-space: nowrap; line-height: 1.25; }
+  .acts { position: absolute; right: 12px; top: 4px; width: 152px; height: 104px; }
+  .chip { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; font-size: 14px; font-weight: 700; }
+  .side { position: absolute; left: 836px; width: 352px; }
+  .side .k-minor-panel { position: absolute; left: 0; width: 352px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Roll-Call</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab is-selected">Roll-Call</div><div class="k-tab">Crafts</div><div class="k-tab">Storehouse</div><div class="k-tab">Bench<div class="k-new" style="right:10px;top:9px"></div></div><div class="k-tab">Vows</div>
+  </div>
+</div>
+
+<!-- ============ the roster: the one you play pinned on top, then the soonest-full pouch first ============ -->
+<!-- Tester: playing; the post is paused while played -->
+<div class="duty k-minor-panel is-active abs" style="top:172px">
+  <div class="who">
+    <div class="nm c-pale">Tester</div>
+    <div class="craft"><img class="ic ic-32" src="../../../art/icons/hud/craft_foraging.png">Foraging Lv 11</div>
+    <div class="ln">Herb Terraces</div>
+    <div class="ln c-pale">Sphere Lord 3 · Lv 97</div>
+  </div>
+  <div class="yield">
+    <div class="out"><img class="ic" src="../../../art/icons/items/willow_moss.png"><div class="on">Willow Moss<span class="r t-fig">131 an hour</span></div>
+      <div class="k-bar is-gold" style="--v:0.029"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+        <div class="k-bar-text t-fig t-outline c-pale">Abundance ×1</div></div></div>
+    <div class="out"><img class="ic" src="../../../art/icons/items/spirit_wood.png"><div class="on">Spirit Wood<span class="r t-fig">7 an hour</span></div>
+      <div class="gate" style="color:var(--mist)">One for every 20 cuttings</div></div>
+  </div>
+  <div class="pouch">
+    <div class="lb">Herb pouch</div>
+    <div class="v t-fig c-paper">0 / 40</div>
+    <div class="k-bar" style="--v:0"><div class="k-trough"><div class="k-fill"></div></div></div>
+    <div class="st c-mist">Paused while played</div>
+  </div>
+  <div class="acts"><span class="chip abs" style="right:0;top:8px;background:rgba(229,184,76,.16);border:1px solid rgba(229,184,76,.6);color:var(--pale-gold)">Playing now</span></div>
+</div>
+
+<!-- Bai Lin: pouch full the longest -->
+<div class="duty k-minor-panel is-full abs" style="top:290px">
+  <div class="who">
+    <div class="nm c-paper">Bai Lin</div>
+    <div class="craft"><img class="ic ic-32" src="../../../art/icons/hud/craft_angling.png">Angling Lv 9</div>
+    <div class="ln">Reed Shallows</div>
+    <div class="ln">At the post <span class="t-fig c-paper">9 h 24 m</span></div>
+  </div>
+  <div class="yield">
+    <div class="out"><img class="ic" src="../../../art/icons/items/river_minnow.png"><div class="on">River Minnow<span class="r t-fig">43 an hour</span></div>
+      <div class="k-bar is-jade" style="--v:0.516"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+        <div class="k-bar-text t-fig t-outline c-paper">Chance 52%</div></div></div>
+    <div class="out"><img class="ic" src="../../../art/icons/items/reed_perch.png"><div class="on">Reed Perch<span class="r t-fig">17 an hour</span></div>
+      <div class="k-bar is-jade" style="--v:0.349"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+        <div class="k-bar-text t-fig t-outline c-paper">Chance 35%</div></div></div>
+  </div>
+  <div class="pouch">
+    <div class="lb">Fish pouch</div>
+    <div class="v t-fig c-red">400 / 400</div>
+    <div class="k-bar is-red" style="--v:1"><div class="k-trough"><div class="k-fill"></div></div></div>
+    <div class="st c-red">Full · idle 2 h 45 m</div>
+  </div>
+  <div class="acts">
+    <div class="k-btn2 is-disabled abs" style="left:0;top:0;width:48px;height:48px;padding:0"><img class="ic ic-32" style="filter:grayscale(1) brightness(.55)" src="../../../art/icons/items/hour_incense_1.png"><span class="k-lock-mini" style="right:3px;top:3px"></span></div>
+    <div class="k-btn abs" style="left:56px;top:0;width:112px;height:48px;font-size:20px">Settle</div>
+    <div class="k-btn2 abs" style="left:56px;top:56px;width:112px;height:48px;font-size:20px">Switch</div>
+  </div>
+</div>
+
+<!-- Second Disciple -->
+<div class="duty k-minor-panel is-full abs" style="top:408px">
+  <div class="who">
+    <div class="nm c-paper">Second Disciple</div>
+    <div class="craft"><img class="ic ic-32" src="../../../art/icons/hud/craft_foraging.png">Foraging Lv 8</div>
+    <div class="ln">Willow Path West</div>
+    <div class="ln">At the post <span class="t-fig c-paper">5 h 18 m</span></div>
+  </div>
+  <div class="yield">
+    <div class="out"><img class="ic" src="../../../art/icons/items/willow_moss.png"><div class="on">Willow Moss<span class="r t-fig">102 an hour</span></div>
+      <div class="k-bar is-jade" style="--v:0.783"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+        <div class="k-bar-text t-fig t-outline c-paper">Chance 78%</div></div></div>
+    <div class="out"><img class="ic" src="../../../art/icons/items/spirit_wood.png"><div class="on">Spirit Wood<span class="r t-fig">5 an hour</span></div>
+      <div class="gate" style="color:var(--mist)">One for every 20 cuttings</div></div>
+  </div>
+  <div class="pouch">
+    <div class="lb">Herb pouch</div>
+    <div class="v t-fig c-red">400 / 400</div>
+    <div class="k-bar is-red" style="--v:1"><div class="k-trough"><div class="k-fill"></div></div></div>
+    <div class="st c-red">Full · idle 1 h 22 m</div>
+  </div>
+  <div class="acts">
+    <div class="k-btn2 is-disabled abs" style="left:0;top:0;width:48px;height:48px;padding:0"><img class="ic ic-32" style="filter:grayscale(1) brightness(.55)" src="../../../art/icons/items/hour_incense_1.png"><span class="k-lock-mini" style="right:3px;top:3px"></span></div>
+    <div class="k-btn abs" style="left:56px;top:0;width:112px;height:48px;font-size:20px">Settle</div>
+    <div class="k-btn2 abs" style="left:56px;top:56px;width:112px;height:48px;font-size:20px">Switch</div>
+  </div>
+</div>
+
+<!-- Wen Ruo: still filling -->
+<div class="duty k-minor-panel abs" style="top:526px">
+  <div class="who">
+    <div class="nm c-paper">Wen Ruo</div>
+    <div class="craft"><img class="ic ic-32" src="../../../art/icons/hud/craft_netting.png">Netting Lv 9</div>
+    <div class="ln">Whispering Bamboo</div>
+    <div class="ln">At the post <span class="t-fig c-paper">1 h 36 m</span></div>
+  </div>
+  <div class="yield">
+    <div class="out"><img class="ic" src="../../../art/icons/items/reed_cicada.png"><div class="on">Reed Cicada<span class="r t-fig">63 an hour</span></div>
+      <div class="k-bar is-jade" style="--v:0.444"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+        <div class="k-bar-text t-fig t-outline c-paper">Chance 44%</div></div></div>
+    <div class="out"><img class="ic is-grey" src="../../../art/icons/items/jade_scarab.png"><div class="on c-hollow">Jade Scarab</div>
+      <div class="gate"><span class="k-lock-mini" style="vertical-align:-2px;margin-right:6px"></span>Opens at Netting Lv 12</div></div>
+  </div>
+  <div class="pouch">
+    <div class="lb">Insect pouch</div>
+    <div class="v t-fig c-paper">100 / 1,000</div>
+    <div class="k-bar" style="--v:0.1"><div class="k-trough"><div class="k-fill"></div></div></div>
+    <div class="st c-mist">Full in 14 h 17 m</div>
+  </div>
+  <div class="acts">
+    <div class="k-btn2 is-disabled abs" style="left:0;top:0;width:48px;height:48px;padding:0"><img class="ic ic-32" style="filter:grayscale(1) brightness(.55)" src="../../../art/icons/items/hour_incense_1.png"><span class="k-lock-mini" style="right:3px;top:3px"></span></div>
+    <div class="k-btn2 abs" style="left:56px;top:0;width:112px;height:48px;font-size:20px">Settle</div>
+    <div class="k-btn2 abs" style="left:56px;top:56px;width:112px;height:48px;font-size:20px">Switch</div>
+  </div>
+</div>
+<div class="abs t-xs c-mist" style="left:96px;top:643px">Soonest-full first. Jade Chance fills with Finesse; past 100% the gold Abundance bar adds extra.</div>
+
+<!-- ============ the side: settle everything, the Storehouse, the Apprentice Bench ============ -->
+<div class="k-btn abs" style="left:836px;top:172px;width:352px;height:56px">Settle all<span class="t-md" style="margin-left:10px;color:var(--paper)">· 2 pouches full</span></div>
+<div class="k-seal" style="left:1170px;top:162px">✓</div>
+
+<div class="side" style="top:240px">
+  <div class="k-minor-panel" style="top:0;height:224px"></div>
+  <div class="abs flex" style="left:16px;top:12px;gap:10px"><img class="ic ic-32" src="../../../art/icons/hud/storehouse.png"><span class="t-subhead">Storehouse</span></div>
+  <div class="abs t-xs c-mist" style="right:16px;top:20px">+1 more</div>
+  <div class="abs flex" style="left:16px;top:52px;gap:5px">
+    <div class="k-slot" style="width:76px;height:76px"><img class="ic" src="../../../art/icons/items/copper_ore.png"><span class="k-count t-fig t-sm t-outline c-pale">58</span></div>
+    <div class="k-slot" style="width:76px;height:76px"><img class="ic" src="../../../art/icons/items/willow_moss.png"><span class="k-count t-fig t-sm t-outline c-pale">43</span></div>
+    <div class="k-slot" style="width:76px;height:76px"><img class="ic" src="../../../art/icons/items/cinnabar_salt.png"><span class="k-count t-fig t-sm t-outline c-pale">4</span></div>
+    <div class="k-slot" style="width:76px;height:76px"><img class="ic" src="../../../art/icons/items/spirit_wood.png"><span class="k-count t-fig t-sm t-outline c-pale">4</span></div>
+  </div>
+  <div class="abs t-xs c-mist" style="left:16px;top:134px;width:320px">Settling all adds 927 goods. Tap one to take 50.</div>
+  <div class="k-btn2 abs" style="left:16px;top:162px;width:320px;height:48px;justify-content:flex-start;padding-left:12px;font-size:18px">
+    <span style="display:inline-block;width:40px;height:22px;border-radius:11px;background:var(--ink);box-shadow:inset 0 0 0 2px var(--hollow);position:relative;margin-right:12px"><span style="position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--hollow)"></span></span>
+    Auto-Settle <span class="c-mist t-sm" style="margin-left:8px">off</span></div>
+</div>
+
+<div class="side" style="top:476px">
+  <div class="k-minor-panel" style="top:0;height:188px"></div>
+  <div class="abs flex" style="left:16px;top:10px;gap:10px"><img class="ic ic-32" src="../../../art/icons/hud/bench.png"><span class="t-subhead">Apprentice Bench</span></div>
+  <div class="k-slot abs" style="left:16px;top:48px;width:76px;height:76px"><img class="ic" src="../../../art/icons/items/hemp_cord.png"><span class="k-count t-fig t-sm t-outline c-red">20</span></div>
+  <div class="abs" style="left:102px;top:52px;line-height:1.25">
+    <div class="t-md c-paper">Hemp Cord</div>
+    <div class="t-xs c-mist t-fig">36 an hour</div>
+    <div class="t-xs c-red t-fig">20 / 20 · full</div>
+  </div>
+  <div class="k-btn abs" style="left:224px;top:62px;width:112px;height:48px;font-size:20px">Collect</div>
+  <!-- craft levels across all crafts, with the bench's stops: a point every 5 levels, apprentices at 60 and 150 -->
+  <div class="k-bar is-jade abs" style="left:16px;top:132px;width:320px;height:24px;--v:0.2067">
+    <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div>
+    <div class="k-tick is-next" style="--at:0.2333"></div><div class="k-tick" style="--at:0.4"></div><div class="k-tick" style="--at:1"></div>
+    <div class="k-bar-text t-fig t-outline c-paper" style="font-size:14px">Craft levels 31</div>
+  </div>
+  <div class="abs t-xs c-mist t-fig" style="left:16px;top:160px">Next point at 35 · a 2nd apprentice at 60</div>
+</div>
+
+</div></body></html>

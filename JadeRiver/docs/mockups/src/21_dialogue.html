@@ -1,0 +1,76 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>21 Dialogue, a quest offer</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .mm-line { position: absolute; height: 2px; background: rgba(217, 235, 230, 0.7); }
+  .mm-dot { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; }
+  /* The talk: the paper box keeps the bottom; the choices sit in it at 52 px each (I7); an offered quest opens as a
+     scroll card above the choices, so what is asked and what it gives are read before choosing. */
+  .ch { position: absolute; left: 872px; width: 352px; height: 48px; font-size: 19px; justify-content: flex-start; padding-left: 16px; }
+  .ch .k { width: 26px; height: 26px; margin-right: 12px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--ink); background: var(--pale-gold); box-shadow: 0 0 0 2px var(--ink); flex: none; }
+  .heart { display: inline-block; width: 18px; height: 16px; margin-right: 3px; background: #e05a6e;
+    clip-path: polygon(50% 100%, 0 38%, 0 16%, 14% 0, 36% 0, 50% 16%, 64% 0, 86% 0, 100% 16%, 100% 38%); }
+  .card-row { display: flex; align-items: flex-start; gap: 10px; font-size: 16px; line-height: 1.3; color: var(--ink); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_elder_hu_peak_party.png">
+
+<!-- ================= the HUD's top edge stays; the lower cluster yields to the talk ================= -->
+<div class="k-minor-panel abs" style="left:16px;top:16px;width:360px;height:120px"></div>
+<div class="abs t-md" style="left:34px;top:26px">Tester</div>
+<div class="abs t-sm c-pale" style="left:34px;top:48px">Sphere Lord 3 · Lv 97</div>
+<div class="abs t-xs t-label" style="left:36px;top:72px;color:var(--hud-label)">HP</div>
+<div class="k-hudbar abs" style="left:72px;top:76px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">29,431 / 29,431</div></div>
+<div class="abs t-xs t-label" style="left:36px;top:91px;color:var(--hud-label)">QI</div>
+<div class="k-hudbar is-qi abs" style="left:72px;top:95px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">13,312 / 13,312</div></div>
+<div class="abs t-xs t-label" style="left:36px;top:108px;color:var(--hud-label)">SL</div>
+<div class="k-hudbar is-soul abs" style="left:72px;top:112px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">4,945 / 4,945</div></div>
+<div class="k-party" style="left:408px;top:44px"><div class="k-party-art"><img src="../assets/fig_reed_otter.png" style="left:-166px;top:-208px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:468px;top:44px"><div class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="left:-166px;top:-152px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:528px;top:44px"><div class="k-party-art"><img src="../assets/fig_lan_yue_idle.png" style="left:-166px;top:-148px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party-name t-outline" style="left:408px;top:72px">Otter</div>
+<div class="k-party-name t-outline" style="left:468px;top:72px">Tie Niu</div>
+<div class="k-party-name t-outline" style="left:528px;top:72px">Lan Yue</div>
+<div class="k-minimap abs" style="left:1032px;top:16px;width:232px;height:140px">
+  <div class="k-minimap-title">Elder Hu's Peak</div>
+  <div class="mm-line" style="left:8px;top:112px;width:216px;opacity:.55"></div>
+  <div class="mm-line" style="left:40px;top:70px;width:50px"></div><div class="mm-line" style="left:120px;top:62px;width:60px"></div>
+  <div class="mm-dot" style="left:14px;top:106px;width:8px;height:8px;margin:-4px;background:#67d67a;box-shadow:0 0 0 2px var(--gold)"></div>
+  <div class="mm-dot" style="left:212px;top:106px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="mm-dot" style="left:112px;top:106px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:92px;top:106px;background:var(--ally)"></div><div class="mm-dot" style="left:84px;top:106px;background:var(--ally)"></div>
+  <div class="abs" style="left:98px;top:101px;width:0;height:0;border-left:9px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+</div>
+<div class="k-hud k-hud-sm" style="left:1058px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/menu.png"></div>
+<div class="k-hud k-hud-sm" style="left:1116px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/bag.png"></div>
+<div class="k-hud k-hud-sm" style="left:1174px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/map.png"></div>
+<div class="k-hud k-hud-sm" style="left:1232px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/mail.png"></div>
+<div class="k-pill abs" style="left:1040px;top:222px;width:222px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">57,935</span><img class="ic" style="margin-left:8px" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">6,492</span></div>
+
+<!-- ================= the offered quest, as a scroll above the choices ================= -->
+<div class="k-paper k-scroll abs" style="left:880px;top:270px;width:336px;height:206px"></div>
+<div class="abs no-shadow" style="left:898px;top:280px;font-size:14px;font-weight:700;color:#7a4f22;letter-spacing:.04em">QUEST OFFERED · SIDE</div>
+<img class="ic ic-24 abs" style="left:896px;top:304px;width:24px;height:24px" src="../../../art/icons/markers/quest_side.png">
+<div class="abs no-shadow" style="left:926px;top:300px;font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--ink);line-height:1">Echoes in Bronze</div>
+<div class="abs" style="left:898px;top:340px;width:300px">
+  <div class="card-row" style="margin-bottom:6px"><span style="flex:none;width:16px;height:16px;margin-top:2px;border:2px solid #7a4f22;border-radius:3px"></span><span>Inscribe a post's echo into the Mirror of Echoes</span></div>
+  <div class="card-row" style="margin-bottom:8px"><img class="ic ic-24" style="flex:none" src="../../../art/icons/hud/coin.png"><span><b>300</b> Silver Taels</span></div>
+</div>
+<div class="k-unlock abs" style="left:898px;top:426px;background:rgba(154,106,53,.16);border-color:rgba(122,79,34,.7);color:#5b3a16"><img class="ic" src="../../../art/icons/items/bright_mirror.png">Opens: the Mirror of Echoes</div>
+
+<!-- ================= the talk ================= -->
+<div class="k-dialogue abs" style="left:40px;top:486px;width:1200px;height:218px"></div>
+<div class="k-portrait abs" style="left:56px;top:452px;width:184px;height:236px;background:radial-gradient(ellipse at 50% 40%, #1d5157, #061519)">
+  <img class="abs" src="../assets/portrait_elder_hu.png" style="left:-4px;top:0;width:192px;height:240px;image-rendering:pixelated"></div>
+<div class="k-plaque abs" style="left:252px;top:462px;width:260px;--h:48px"><span style="font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--pale-gold);text-shadow:0 2px 0 rgba(0,0,0,.55)">Elder Hu</span></div>
+<div class="abs flex no-shadow" style="left:268px;top:518px;gap:0;font-size:16px;color:#5b4a33"><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span style="margin-left:10px">Jade Sect elder · 5 hearts</span></div>
+<div class="abs no-shadow" style="left:268px;top:548px;width:580px;font-size:21px;line-height:1.45;color:var(--ink)">Build a Mirror of Echoes in your sect's hall. A disciple who knows the art of Echo Sampling can leave a share of their post in it.</div>
+<div class="abs no-shadow t-sym" style="left:826px;top:674px;font-size:14px;color:#9a6a35">▼</div>
+
+<div class="k-btn abs ch" style="top:496px"><span class="k">1</span>I will build it</div>
+<div class="k-btn2 abs ch" style="top:548px"><span class="k">2</span>What is Echo Sampling?</div>
+<div class="k-btn2 abs ch" style="top:600px"><span class="k">3</span>Give a gift</div>
+<div class="k-btn2 abs ch" style="top:652px"><span class="k">4</span>Farewell</div>
+
+</div></body></html>

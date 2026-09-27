@@ -1,0 +1,60 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>18 Codex, the old scrolls</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The Old Scrolls: the old ladder's rungs beside Jade River's realms, one tappable row per old rung; a realm's
+     entry opens on the scroll. Rungs and realms not yet reached stay veiled. */
+  .rung { position: absolute; left: 100px; width: 472px; height: 50px; display: flex; align-items: center; padding: 0 12px; border-radius: 4px; }
+  .rung + .rung { border-top: 1px solid rgba(175,201,209,.12); }
+  .rung.is-selected { background: rgba(44,158,143,.18); box-shadow: inset 3px 0 0 var(--gold); }
+  .rung .old { width: 214px; font-family: var(--f-display); font-weight: 700; font-size: 22px; line-height: 1; color: var(--pale-gold); white-space: nowrap; }
+  .rung .ours { flex: 1; font-size: 16px; line-height: 1.25; color: var(--paper); }
+  .rung .ours .h { color: var(--mist); font-size: 14px; }
+  .rung .br { width: 14px; height: 30px; margin-right: 12px; border: 2px solid var(--bronze); border-left: 0; border-radius: 0 6px 6px 0; }
+  .rung .br.one { height: 2px; border-width: 2px 0 0 0; border-radius: 0; }
+  .rung.veil .old, .rung.veil .ours { color: var(--hollow); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Codex</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab">Codex</div><div class="k-tab">Collection</div><div class="k-tab is-selected">Old Scrolls<div class="k-new" style="right:8px;top:8px"></div></div><div class="k-tab">Achievements</div>
+    <div class="k-tab">Paths Above</div><div class="k-tab">Seasons</div>
+  </div>
+</div>
+
+<!-- ============ the two ladders ============ -->
+<div class="k-minor-panel abs" style="left:92px;top:172px;width:488px;height:492px"></div>
+<div class="abs t-xs t-label c-mist" style="left:112px;top:184px;letter-spacing:.06em">THE OLD SCROLLS</div>
+<div class="abs t-xs t-label c-mist" style="left:350px;top:184px;letter-spacing:.06em">OUR REALMS</div>
+<div class="abs" style="left:0;top:206px">
+  <div class="rung" style="top:0"><span class="old">Mortal</span><span class="br one"></span><span class="ours">Mortal</span></div>
+  <div class="rung" style="top:50px"><span class="old">Body Refining</span><span class="br one"></span><span class="ours">Bone Forging</span></div>
+  <div class="rung" style="top:100px"><span class="old">Qi Refining</span><span class="br"></span><span class="ours">Qi Kindling <span class="h">lower</span><br>Qi Unfurling <span class="h">upper</span></span></div>
+  <div class="rung" style="top:150px"><span class="old">Foundation<br>Establishment</span><span class="br one"></span><span class="ours">Heart Tempering</span></div>
+  <div class="rung" style="top:200px"><span class="old">Core Formation</span><span class="br"></span><span class="ours">Cloud Stride <span class="h">early</span><br>Spirit Awakening <span class="h">late</span></span></div>
+  <div class="rung" style="top:250px"><span class="old">Nascent Soul</span><span class="br"></span><span class="ours">Heaven Glimpse <span class="h">early</span><br>Sage <span class="h">late</span></span></div>
+  <div class="rung" style="top:300px"><span class="old">Spirit<br>Transformation</span><span class="br"></span><span class="ours">Sage Sovereign <span class="h">early</span><br>Will Manifest <span class="h">late</span></span></div>
+  <div class="rung is-selected" style="top:350px"><span class="old">Void Refining</span><span class="br"></span><span class="ours"><span class="c-pale">Sphere Lord</span> <span class="h">early · you</span><br><span class="c-hollow">? ? ?</span> <span class="h">late</span></span></div>
+  <div class="rung veil" style="top:400px"><span class="old">? ? ?</span><span class="br one" style="border-color:var(--hollow)"></span><span class="ours t-sm">Written as you reach them</span></div>
+</div>
+
+<!-- ============ the entry, on the scroll ============ -->
+<div class="k-paper k-scroll abs" style="left:612px;top:180px;width:560px;height:340px"></div>
+<div class="abs no-shadow" style="left:640px;top:198px;font-family:var(--f-display);font-weight:700;font-size:36px;color:var(--ink);line-height:1">Sphere Lord</div>
+<div class="abs no-shadow" style="left:642px;top:238px;font-size:16px;color:#7a4f22;font-weight:700">the old scrolls: Void Refining, its early half</div>
+<div class="abs" style="left:640px;top:266px;width:504px;height:2px;background:linear-gradient(90deg, rgba(154,106,53,.8), rgba(154,106,53,0))"></div>
+<div class="abs no-shadow" style="left:640px;top:280px;width:504px;font-size:20px;line-height:1.5;color:var(--ink)">Past the soul the old scrolls set Void Refining, when a cultivator begins to shape the space around them. Our Sphere is that shaping, drawn as a circle.</div>
+<div class="abs no-shadow t-fig" style="left:640px;top:470px;font-size:16px;color:#5b4a33">Levels 91–99 · three orders · 5,000 years</div>
+
+<!-- the register's own note, and what it is for -->
+<div class="k-minor-panel abs" style="left:604px;top:536px;width:584px;height:128px"></div>
+<div class="abs t-md c-gold" style="left:622px;top:548px">The old scrolls</div>
+<div class="abs t-sm c-paper" style="left:622px;top:576px;width:548px;line-height:1.4">Scrolls copied far from this valley name the realms by an older ladder. Its rungs are wider than ours, so two of our realms often stand on one of theirs.</div>
+
+</div></body></html>

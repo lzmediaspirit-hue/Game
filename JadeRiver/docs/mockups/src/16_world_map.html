@@ -1,0 +1,140 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>16 World map</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the zone as a painted ink scroll: paper, rollers, ink mountains, the river as a jade wash, regions as seals */
+  .scroll { position: absolute; left: 104px; top: 176px; width: 684px; height: 484px; overflow: visible; }
+  .rg { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #3b4a48, #0d1719 70%); box-shadow: 0 0 0 2px #e9dfc4, 0 0 0 4px rgba(7,16,21,.85); }
+  .rg.safe { background: radial-gradient(circle at 40% 35%, #2f7a70, #0e3a36 70%); }
+  .rg.here { background: radial-gradient(circle at 40% 35%, #f07a6a, #9c2a22 70%); width: 30px; height: 30px; margin: -15px 0 0 -15px;
+    box-shadow: 0 0 0 2px #f3e6c8, 0 0 0 4px rgba(7,16,21,.85), 0 0 12px 4px rgba(228,88,88,.45); }
+  .rg.unk { background: none; box-shadow: none; border: 2px dashed rgba(7,16,21,.35); color: rgba(7,16,21,.45);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+  .rg.sel::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid var(--bronze); box-shadow: 0 0 0 2px rgba(229,184,76,.5); }
+  .ml { position: absolute; transform: translateX(-50%); white-space: nowrap; text-align: center; line-height: 1.15; color: var(--ink); text-shadow: none; }
+  .ml .n { font-size: 15px; font-weight: 700; }
+  .ml .l { font-size: 14px; font-weight: 600; color: #7a4f22; }
+  .ml.dim .n { color: rgba(7,16,21,.55); }
+  .mk { position: absolute; }
+  .lantern { position: absolute; width: 22px; height: 30px; margin: -15px 0 0 -11px; border-radius: 8px 8px 9px 9px;
+    background: radial-gradient(circle at 50% 45%, #fff3c0, var(--gold) 55%, #b3202e 100%); box-shadow: 0 0 0 2px var(--ink), 0 0 14px 6px rgba(229,184,76,.55); }
+  .lantern::before { content: ""; position: absolute; left: 6px; top: -6px; width: 10px; height: 5px; background: var(--ink); border-radius: 2px; }
+  .blossom { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; }
+  .skull { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; image-rendering: pixelated; }
+  .side { position: absolute; left: 812px; top: 172px; width: 376px; height: 492px; }
+  .rm { display: flex; align-items: center; gap: 8px; height: 30px; font-size: 16px; white-space: nowrap; }
+  .rm .sy { width: 18px; text-align: center; font-family: var(--f-sym); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Jade River Valley</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab is-selected">Jade River Valley</div>
+    <div class="k-tab is-locked">Azure Expanse<span class="k-lock-mini"></span></div>
+    <div class="k-tab is-locked">Lantern Star Field<span class="k-lock-mini"></span></div>
+    <div class="k-tab">Heaven Ranking</div>
+  </div>
+</div>
+
+<!-- ============ the scroll ============ -->
+<div class="scroll k-paper k-scroll"></div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <defs>
+    <linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f3d3a" stop-opacity=".55"/><stop offset="1" stop-color="#2f3d3a" stop-opacity="0"/></linearGradient>
+  </defs>
+  <!-- ink mountains along the top, heavier at the north-west peaks -->
+  <path d="M112 300 L150 236 L176 262 L214 196 L256 250 L296 208 L338 248 L372 186 L420 246 L448 226 L478 262 L520 230 L560 270 L600 222 L640 262 L680 232 L730 270 L780 236 L780 330 L112 330 Z" fill="url(#mtn)"/>
+  <path d="M150 236 L176 262 L214 196 L256 250 L296 208 L338 248 L372 186 L420 246" fill="none" stroke="rgba(7,16,21,.55)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M520 230 L560 270 L600 222 L640 262 L680 232 L730 270 L780 236" fill="none" stroke="rgba(7,16,21,.4)" stroke-width="2" stroke-linejoin="round"/>
+  <!-- the Jade River, east to west, a wash and a line -->
+  <path d="M790 548 C 730 520 690 470 640 478 C 590 486 570 530 520 536 C 470 542 450 500 400 504 C 350 508 330 470 280 466 C 230 462 200 520 150 526 C 130 528 118 520 104 514"
+    fill="none" stroke="rgba(44,158,143,.45)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M790 548 C 730 520 690 470 640 478 C 590 486 570 530 520 536 C 470 542 450 500 400 504 C 350 508 330 470 280 466 C 230 462 200 520 150 526 C 130 528 118 520 104 514"
+    fill="none" stroke="rgba(21,81,79,.8)" stroke-width="2"/>
+  <!-- routes between regions (portals): walked ones inked, unknown ones faint -->
+  <g stroke="rgba(7,16,21,.62)" stroke-width="2.5" stroke-dasharray="7 5" fill="none" stroke-linecap="round">
+    <line x1="723" y1="434" x2="676" y2="339"/><line x1="723" y1="434" x2="692" y2="588"/><line x1="317" y1="529" x2="208" y2="493"/>
+    <line x1="317" y1="529" x2="270" y2="588"/><line x1="317" y1="529" x2="427" y2="493"/><line x1="614" y1="255" x2="676" y2="339"/>
+    <line x1="208" y1="493" x2="177" y2="565"/><line x1="380" y1="386" x2="427" y2="493"/><line x1="630" y1="505" x2="692" y2="588"/>
+    <line x1="630" y1="505" x2="536" y2="505"/><line x1="427" y1="493" x2="450" y2="600"/><line x1="427" y1="493" x2="536" y2="505"/>
+  </g>
+  <g stroke="rgba(7,16,21,.25)" stroke-width="2" stroke-dasharray="3 6" fill="none">
+    <line x1="489" y1="339" x2="427" y2="493"/><line x1="161" y1="303" x2="270" y2="231"/><line x1="161" y1="303" x2="130" y2="410"/>
+    <line x1="676" y1="339" x2="770" y2="291"/><line x1="208" y1="493" x2="130" y2="410"/><line x1="747" y1="636" x2="692" y2="588"/><line x1="270" y1="231" x2="364" y2="196"/>
+  </g>
+</svg>
+
+<!-- regions: walked (an ink seal and its name), safe towns (jade), here (vermilion), unknown (a dashed ring) -->
+<div class="rg safe" style="left:630px;top:505px"></div><div class="ml" style="left:630px;top:522px"><div class="n">Lotus Ferry</div></div>
+<div class="rg" style="left:536px;top:505px"></div><div class="ml" style="left:536px;top:522px"><div class="n">Willow Path</div><div class="l t-fig">Lv 1–3</div></div>
+<div class="rg safe" style="left:427px;top:493px"></div><div class="ml" style="left:420px;top:450px"><div class="n">Stoneford</div></div>
+<div class="rg here" style="left:380px;top:386px"></div><div class="ml" style="left:380px;top:405px"><div class="n" style="color:#9c2a22">Jade Sect Academy</div><div class="l">You are here</div></div>
+<div class="rg unk" style="left:489px;top:339px">?</div>
+<div class="rg" style="left:450px;top:600px"></div><div class="ml" style="left:450px;top:617px"><div class="n">Stonewall Quarry</div></div>
+<div class="rg" style="left:692px;top:588px"></div><div class="ml" style="left:692px;top:605px"><div class="n">Reed Marsh</div><div class="l t-fig">Lv 4–12</div></div>
+<div class="rg unk" style="left:747px;top:636px">?</div>
+<div class="rg" style="left:723px;top:434px"></div><div class="ml" style="left:716px;top:451px"><div class="n">Bamboo Grove</div><div class="l t-fig">Lv 10–15</div></div>
+<div class="rg safe" style="left:676px;top:339px"></div><div class="ml" style="left:676px;top:356px"><div class="n">Crane Falls</div></div>
+<div class="rg" style="left:317px;top:529px"></div><div class="ml" style="left:329px;top:546px"><div class="n">Caravan Road</div><div class="l t-fig">Lv 14–19</div></div>
+<div class="rg" style="left:270px;top:588px"></div><div class="ml" style="left:282px;top:605px"><div class="n">Mudwater Hideout</div><div class="l t-fig">Lv 14–20</div></div>
+<div class="rg" style="left:614px;top:255px"></div><div class="ml" style="left:614px;top:272px"><div class="n">Cleansing Peak</div><div class="l t-fig">Lv 17–19</div></div>
+<div class="rg" style="left:208px;top:493px"></div><div class="ml" style="left:230px;top:430px"><div class="n">Deepwater Bend</div><div class="l t-fig">Lv 19–25</div></div>
+<div class="rg sel" style="left:177px;top:565px"></div><div class="ml" style="left:177px;top:582px"><div class="n">Drowned Shrine</div><div class="l t-fig">Lv 21–27</div></div>
+<div class="rg unk" style="left:130px;top:410px">?</div>
+<div class="rg unk" style="left:161px;top:303px">?</div>
+<div class="rg unk" style="left:270px;top:231px">?</div>
+<div class="rg unk" style="left:364px;top:196px">?</div>
+<div class="rg unk" style="left:770px;top:291px">?</div>
+
+<!-- marks: the tracked quest's lantern, world events (a plum blossom: gold under way, violet soon), the field boss -->
+<div class="lantern" style="left:203px;top:545px"></div>
+<svg class="blossom" style="left:153px;top:545px" viewBox="-11 -11 22 22"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2">
+  <circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>
+<svg class="blossom" style="left:356px;top:364px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2">
+  <circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<svg class="blossom" style="left:451px;top:510px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2">
+  <circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<svg class="blossom" style="left:154px;top:390px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2">
+  <circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<img class="skull" style="left:246px;top:494px" src="../../../art/icons/markers/boss_skull.png">
+<div class="ml" style="left:264px;top:484px;transform:none;text-align:left"><div class="l" style="color:#9c2a22;font-weight:700">ready</div></div>
+
+<!-- the legend in the scroll's corner -->
+<div class="abs flex no-shadow" style="left:606px;top:186px;gap:6px;font-size:14px;font-weight:700;color:var(--ink);background:rgba(239,231,211,.85);padding:2px 8px;border-radius:4px">
+  <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 1.5px var(--ink)"></span>you
+  <span style="margin-left:6px;color:#8a6fc0" class="t-sym">✿</span>event
+  <img class="ic ic-16" style="margin-left:6px" src="../../../art/icons/markers/boss_skull.png">boss</div>
+
+<!-- ============ the selected region ============ -->
+<div class="side k-minor-panel"></div>
+<div class="abs t-heading" style="left:832px;top:186px">Drowned Shrine</div>
+<div class="abs t-sm c-mist t-fig" style="left:832px;top:224px">Monster Level 21–27 · you are Lv 22</div>
+<div class="k-divider abs" style="left:832px;top:252px;width:336px"></div>
+<!-- the tracked quest leads here -->
+<div class="abs flex" style="left:832px;top:264px;gap:12px;width:336px">
+  <div class="lantern" style="position:relative;margin:0 4px 0 6px;flex:none"></div>
+  <div><div class="t-md c-gold">The Drowned Abbot</div><div class="t-xs c-paper">Defeat the Drowned Abbot</div></div>
+</div>
+<div class="k-btn abs" style="left:832px;top:316px;width:336px;height:52px;font-size:20px">Walk there<span class="t-sm c-paper" style="margin-left:10px">· 4 regions</span></div>
+<!-- the event under way -->
+<div class="abs flex" style="left:832px;top:382px;gap:10px;width:336px">
+  <svg width="22" height="22" viewBox="-11 -11 22 22" style="flex:none"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>
+  <div><div class="t-sm c-gold">The Drowned Shrine Surfaces</div><div class="t-xs c-jade t-fig">Under way · 23 h 57 m left · repeat runs open</div></div>
+</div>
+<div class="abs t-xs t-label c-mist" style="left:832px;top:440px">ROOMS</div>
+<div class="abs" style="left:832px;top:460px;width:336px">
+  <div class="rm"><span class="sy c-gold">◆</span><span class="c-pale">Abbot's Sanctum</span><span class="t-xs c-mist">the Abbot</span></div>
+  <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Flooded Gate</span></div>
+  <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Hall of Lanterns</span></div>
+  <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Scripture Well</span></div>
+  <div class="rm"><span class="sy c-hollow">?</span><span class="c-hollow">Unknown</span><span class="t-xs" style="color:var(--pale-gold)">! Deep water · Body</span></div>
+</div>
+<div class="abs t-xs c-mist" style="left:832px;top:622px;width:336px;line-height:1.3">Field boss at Deepwater Bend: Riverbed Serpent, <span class="c-red">ready</span>. Back 45 m after a kill.</div>
+
+</div></body></html>
