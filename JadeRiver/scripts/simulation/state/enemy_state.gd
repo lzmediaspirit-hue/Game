@@ -30,13 +30,20 @@ var action := "idle"                  # presentation hint: idle walk windup atta
 var action_time := 0.0
 var flash := 0.0
 var dead_time := 0.0
-var knockback := 0.0
+var knockback := 0.0                    # along knock_dir (the side view pushes along x only)
+var knock_dir := Vector2.RIGHT         # Phase 2 top-down: a knockback away from the attacker on the plane
+var aim := Vector2.ZERO                # Phase 2 top-down: the direction it strikes in (zero: along its facing)
+var vz := 0.0                          # Phase 2 top-down: falling off a ledge
 var first_hit_by_player := false
 var summoned := false
 var invulnerable := false
 var hidden := false
 var pet_owner := ""                   # wild pets and tamed forms
 var team := "enemy"
+
+## The direction its blows go: its aim on the plane (top-down), else along its facing.
+func aim_dir() -> Vector2:
+	return aim if aim != Vector2.ZERO else Vector2(facing, 0)
 
 func half_width() -> float:
 	return float(def.get("half_width", 20))

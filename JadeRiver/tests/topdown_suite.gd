@@ -39,6 +39,9 @@ func run_all(suite) -> void:
 	_dash()
 	_sort_keys()
 	_facing()
+	_water_skill()
+	_roofs()
+	_aim_rules()
 
 func _walk() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(80, 192))
@@ -258,9 +261,90 @@ func _facing() -> void:
 		rows.append(m.row)
 	t.check(rows == ["e", "e", "s", "s", "w", "n", "n"], "topdown: facing picks S/E/N/W with 20° hysteresis on diagonals (%s)" % str(rows))
 
+# ------------------------------------------------------------------ Phase 2 (decisions 29 and 30)
+## Walking stops at the water's edge; walking on water is a special skill (Water Skimming), off by default.
+func _water_skill() -> void:
+	var off := TopdownMotor.new(_water_room(3), Vector2(3.0 * 32.0, 6.0 * 32.0))
+	var ev_off := run(off, 1.5, Vector2.RIGHT)
+	var on := TopdownMotor.new(_water_room(3), Vector2(3.0 * 32.0, 6.0 * 32.0))
+	on.water_walk = true
+	var ev_on := run(on, 1.5, Vector2.RIGHT)
+	t.check(not off.water_walk and off.pos.x < 5.0 * 32.0 and not "splashed" in types(ev_off) and on.pos.x > 8.0 * 32.0 and on.grounded and on.z == 0.0 \
+		and not "splashed" in types(ev_on) and not "fell" in types(ev_on),
+		"topdown: water stops a walk (x %.0f) unless the skill is on, which walks across it on the surface (x %.0f, z %.0f)" % [off.pos.x, on.pos.x, on.z])
+
+## Roofs are floors (decision 29): the storehouse's roof two levels up is a wall from the square, reached from the
+## terrace a level below it or from the crates beside it, and dropping off its edge falls to the square.
+func _roofs() -> void:
+	var room := TopdownRoom.load_room("td_proto_square")
+	var sh: Dictionary = room.props.filter(func(q): return q.kind == "storehouse")[0]
+	var cell: Vector2i = sh.cell
+	var from_terrace := TopdownMotor.new(room, Vector2((cell.x + 1.5) * 32.0, (cell.y - 0.5) * 32.0))
+	run(from_terrace, 0.6, Vector2.DOWN)
+	var stopped_z := from_terrace.z
+	var stopped_y := from_terrace.pos.y
+	run(from_terrace, 0.3, Vector2.DOWN, [0])
+	while not from_terrace.grounded: from_terrace.step(1.0 / 120.0, Vector2.ZERO)
+	from_terrace.drain()
+	var on_roof := from_terrace.z
+	var roof_key := room.sort_key(from_terrace.pos, from_terrace.z)
+	var ev := run(from_terrace, 1.2, Vector2.DOWN)
+	var land: Array = ev.filter(func(e): return e.type == "landed")
+	measured.roof_drop = float(land[0].fall) if not land.is_empty() else -1.0
+	t.check(stopped_z == 32.0 and stopped_y < cell.y * 32.0 and on_roof == 64.0 and roof_key > (cell.y + 3) * 16.0 + 0.5 and "fell" in types(ev)
+		and from_terrace.z == 0.0 and from_terrace.grounded and not land.is_empty() and absf(float(land[0].fall) - 64.0) < 1.0,
+		"topdown: the roof is a wall from the terrace (z %.0f), a jump lands on it (z %.0f, drawn over the building), and walking off its edge drops %.0f to the square" % [stopped_z, on_roof, measured.roof_drop])
+	var crates: Dictionary = room.props.filter(func(q): return q.kind == "crates")[0]
+	var cc: Vector2i = crates.cell
+	var climber := TopdownMotor.new(room, Vector2((cc.x + 0.5) * 32.0, (cc.y + 2.5) * 32.0))
+	run(climber, 0.8, Vector2.UP)
+	var blocked := climber.z
+	# Tiptoe (stick at half) so a jump lands on a one-tile-deep top instead of carrying over it.
+	run(climber, 0.38, Vector2(0, -0.5), [0])
+	run(climber, 0.2, Vector2.ZERO)
+	var on_crates := climber.z
+	run(climber, 0.4, Vector2(-0.5, 0), [0])
+	run(climber, 0.2, Vector2.ZERO)
+	t.check(blocked == 0.0 and on_crates == 32.0 and climber.z == 64.0 and climber.grounded,
+		"topdown: from the square the crates (one level) and then the roof (two) are each a jump up (z %.0f → %.0f → %.0f)" % [blocked, on_crates, climber.z])
+
+## The aim rules (TopdownAim): the height band, the four forms and the gesture a thumb makes on a button.
+func _aim_rules() -> void:
+	t.check(TopdownAim.compatible(0.0) and TopdownAim.compatible(10.0) and not TopdownAim.compatible(32.0) and not TopdownAim.compatible(-32.0)
+		and TopdownAim.compatible(-47.0, true) and not TopdownAim.compatible(-64.0, true),
+		"topdown: blows land between compatible heights: a level up or down is out of reach, a jump strike reaches down onto one")
+	var o := Vector2.ZERO
+	var r := Vector2.RIGHT
+	var line_ok := TopdownAim.contains("line", o, r, o, 200.0, 20.0, Vector2(150, 10), 8.0) and not TopdownAim.contains("line", o, r, o, 200.0, 20.0, Vector2(150, 60), 8.0)
+	var cone_ok := TopdownAim.contains("cone", o, r, o, 100.0, 0.0, Vector2(60, 50), 8.0) and not TopdownAim.contains("cone", o, r, o, 100.0, 0.0, Vector2(20, 80), 8.0)
+	var at := TopdownAim.point_at(o, r, 150.0, 200.0)
+	var point_ok := TopdownAim.contains("point", o, r, at, 200.0, 0.0, Vector2(160, 20), 8.0) and not TopdownAim.contains("point", o, r, at, 200.0, 0.0, Vector2(30, 0), 8.0)
+	var self_ok := TopdownAim.contains("self", o, r, o, 100.0, 0.0, Vector2(-80, 30), 8.0) and not TopdownAim.contains("self", o, r, o, 100.0, 0.0, Vector2(-120, 30), 8.0)
+	var forms := ["updraft_rending_rolling_wave", "flowing_palm", "rising_tide", "hundred_springs_rising", "venom_needles"].map(func(id): return TopdownAim.form_of(ContentDB.entry("techniques", id)))
+	t.check(line_ok and cone_ok and point_ok and self_ok and forms == ["line", "cone", "point", "self", "line"],
+		"topdown: aim shapes per form: a wave is a line, a flurry a cone, a burst a circle at a point, a domain round the caster, a shot a line (%s)" % str(forms))
+	# The thumb: a quick tap, a hold and a drag that aims, a drag back onto the button that cancels; left-handed or not.
+	var tap := AimGesture.new("attack", Vector2(1165, 605))
+	tap.advance(0.08)
+	var aimed := AimGesture.new("attack", Vector2(1165, 605))
+	aimed.advance(0.2)
+	aimed.drag(Vector2(1165 - 60, 605 - 60))
+	var back := AimGesture.new("skill", Vector2(1033, 605), 0)
+	back.drag(Vector2(1033, 605 - 90))
+	back.drag(Vector2(1033 + 10, 605 - 5))
+	var lefty := AimGesture.new("attack", Vector2(1280 - 1165, 605))
+	lefty.drag(Vector2(1280 - 1165 + 90, 605))
+	var far := AimGesture.new("skill", Vector2(1033, 605), 2)
+	far.drag(Vector2(1033, 605 + 200))
+	t.check(tap.release() == "tap" and aimed.release() == "aim" and aimed.dir().is_equal_approx(Vector2(-1, -1).normalized()) and back.release() == "cancel"
+		and lefty.release() == "aim" and lefty.dir() == Vector2.RIGHT and is_equal_approx(far.reach_k(), 1.0),
+		"topdown: a tap is a tap; held and dragged it aims along the drag (%s); back on the button it cancels; the left-handed button aims the same" % str(aimed.dir()))
+
 ## The prototype room's view: its layout, the silhouette behind the house, sort order and whole-pixel placement.
 func run_view(suite, tree: SceneTree) -> void:
 	t = suite
+	var was: String = Game.active_id
+	Game.active_id = ""   # the view alone (the motor's rules), no character or foes: run_fight has those
 	var w = TopdownWorld.new()
 	tree.root.add_child(w)
 	await tree.process_frame
@@ -306,3 +390,319 @@ func run_view(suite, tree: SceneTree) -> void:
 	t.check(worst <= 1.0, "topdown: a jump in place does not move the camera (%.0f px)" % worst)
 	w.queue_free()
 	await tree.process_frame
+	Game.active_id = was
+
+# ------------------------------------------------------------------ Phase 2: the fight in the prototype room
+var w            # the TopdownWorld under test
+var c            # the character
+var hud
+
+## Frames of the simulation as the world runs them (the body's step, then Game.tick), at 60 fps.
+func frames(n: int) -> void:
+	for i in n:
+		w.player.physics_step(1.0 / 60.0)
+		Game.tick(1.0 / 60.0)
+
+## An empty room, the body at `at` on its floor, whole and ready (no cooldown, no protection, no blow under way).
+func fresh(at: Vector2) -> void:
+	var rt: RoomRuntime = Game.room_rt
+	rt.enemies.clear()
+	rt.spawn_slots.clear()
+	rt.loot.clear()
+	rt.projectiles.clear()
+	w.player.motor.place(at)
+	w.player.motor.dir = Vector2.DOWN
+	w.player.physics_step(0.0001)
+	c.pools.hp = c.pools.max_hp
+	c.pools.cooldowns.clear()
+	for sid in ["spawn_protection", "stun", "slow", "root"]: Game.combat.cure_status(c.id, sid)
+	Game.combat.wounded.erase(c.id)
+	Game.combat.actors.erase(c.id)
+	Game.combat.hitstop = 0.0
+
+## A foe of `def` standing at `p` on the grid's floor, doing nothing until something happens to it.
+func foe(def: String, p: Vector2, level := 1) -> EnemyState:
+	var e: EnemyState = Game.enemies.spawn_at(def, p, level)
+	e.altitude = w.room.height_at(p)
+	e.ai.state = "idle"
+	e.ai.timer = 99.0
+	return e
+
+func hurt(e: EnemyState) -> bool:
+	return e.pools.hp < e.pools.max_hp
+
+## The fight on the plane with the real authorities (Combat, Enemies, World) in the prototype room.
+func run_fight(suite, tree: SceneTree) -> void:
+	t = suite
+	var made := {}
+	if Game.active() == null and not Game.characters.is_empty(): Game.active_id = str(Game.characters.keys()[0])
+	if Game.active() == null:   # a stand-in, as the prototype makes one from the title
+		made = Game.submit({"type": "create_character", "slot": 1, "name": "Topdown", "appearance": {"hair": "topknot", "shirt": "disciple"}, "skip_prologue": true})
+		Game.submit({"type": "enter_character", "slot": 1})
+	c = Game.active()
+	if c == null:
+		t.check(false, "topdown fight: a character to fight with (%s)" % str(made))
+		return
+	# The stand-in's kit: bare hands and empty first slots, which the room's loadout fills (this is the suite's last use of
+	# the character).
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	for i in 4: c.cultivator.technique_slots[i] = null
+	var forced: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	w = TopdownWorld.new()
+	w.sim_frozen = true   # the suite steps the simulation itself
+	tree.root.add_child(w)
+	await tree.process_frame
+	t.check(w.player.bound() and Game.room_rt.topdown == w.room and Game.room_rt.def.get("view") == "topdown" and Game.actor_state(c.id) == w.player.state,
+		"topdown: the prototype room runs on the authorities (a RoomRuntime on the grid, the body bound)")
+	var slots: Array = c.cultivator.technique_slots.slice(0, 4)
+	t.check(slots == ["flowing_palm", "updraft_rending_rolling_wave", "rising_tide", "venom_needles"], "topdown: the stand-in's empty slots take the room's loadout, one technique per aim form (%s)" % str(slots))
+	frames(90)
+	var kinds := {}
+	for e in Game.room_rt.enemies.values(): kinds[e.def_id] = true
+	t.check(kinds.has("mudshell_crab") and kinds.has("reedtail_rat") and kinds.has("wild_boarlet") and w.foe_views.size() == Game.room_rt.enemies.size() and w.label_views.size() == Game.room_rt.enemies.size(),
+		"topdown: the room's foes spawn by the Enemies authority, each with a placeholder figure and a label (%s)" % str(kinds.keys()))
+	var base := Vector2(22.5, 19.5) * 32.0
+	_eight_ways(base)
+	_heights()
+	_shots(base)
+	_push_and_dodge(base)
+	await _chase_and_leash(base)
+	await _drops_and_prompt(tree)
+	await _hud_aim(tree, base)
+	w.queue_free()
+	if is_instance_valid(hud): hud.queue_free()
+	await tree.process_frame
+	Unlocks.debug_force_all = forced
+
+## A blow lands in each of the eight directions it is aimed, and only there.
+func _eight_ways(base: Vector2) -> void:
+	var landed := 0
+	for i in 8:
+		fresh(base)
+		var dir := Vector2.from_angle(i * PI / 4.0)
+		var e := foe("mudshell_crab", base + dir * 34.0)
+		var behind := foe("mudshell_crab", base - dir * 34.0)
+		var r: Dictionary = w.player.aim_attack(dir)
+		frames(30)
+		if r.get("ok", false) and hurt(e) and not hurt(behind) and (w.player.motor.dir as Vector2).dot(dir) > 0.99: landed += 1
+	measured.hit_dirs = landed
+	t.check(landed == 8, "topdown: an aimed blow lands in all eight directions and not behind (%d of 8), the body turned to it" % landed)
+	# A tap soft-locks the nearest foe in the cone round the facing.
+	fresh(base)
+	w.player.motor.dir = Vector2.RIGHT
+	var near := foe("mudshell_crab", base + Vector2(40, 30))
+	var off := foe("mudshell_crab", base + Vector2(-60, 0))
+	w.player.attack()
+	var aim: Vector2 = Game.combat.timeline(c.id).aim
+	frames(30)
+	t.check(aim.is_equal_approx((near.plane - base).normalized()) and hurt(near) and not hurt(off), "topdown: a tap turns to the nearest foe in the cone (%s) and strikes it" % str(aim))
+
+## Heights (decision 29 and the plan's §2.2): a swing does not reach a foe a level up; a jump strike does; a foe does
+## not reach down a level either.
+func _heights() -> void:
+	var at := Vector2(25.5 * 32.0, 12.45 * 32.0)
+	fresh(at)
+	var up := foe("mudshell_crab", Vector2(25.5 * 32.0, 11.5 * 32.0))
+	w.player.aim_attack(Vector2.UP)
+	frames(30)
+	var ground_miss := not hurt(up)
+	fresh(at)
+	up = foe("mudshell_crab", Vector2(25.5 * 32.0, 11.5 * 32.0))
+	w.player.jump()
+	var tries := 0
+	while w.player.motor.z < 22.0 and tries < 30:
+		frames(1)
+		tries += 1
+	var r: Dictionary = w.player.aim_attack(Vector2.UP)
+	frames(20)
+	var air_hit: bool = r.get("air", false) and hurt(up)
+	fresh(at)
+	var above := foe("wild_boarlet", Vector2(25.5 * 32.0, 11.5 * 32.0), 60)
+	above.aim = Vector2.DOWN
+	Game.combat.enemy_strike(above, above.def.attacks[0])
+	var from_above := _struck_by(above)
+	var beside := foe("wild_boarlet", at + Vector2(30, 0), 60)
+	beside.aim = Vector2.LEFT
+	Game.combat.enemy_strike(beside, beside.def.attacks[0])
+	var from_beside := _struck_by(beside)
+	GameEvents.flush()
+	t.check(ground_miss and air_hit and not from_above and from_beside,
+		"topdown: a swing misses a foe a level up, a jump strike hits it, and a foe strikes only on its own level (from above %s, beside %s)" % [str(from_above), str(from_beside)])
+
+## Did `e`'s strike reach the player (landed, missed on the roll, dodged or parried: its hit test passed)?
+func _struck_by(e: EnemyState) -> bool:
+	for q in GameEvents._queue:
+		if str(q[0]) in ["hit_landed", "hit_missed", "hit_dodged", "parried"] and str((q[1] as Dictionary).get("attacker", "")) == str(e.uid): return true
+	return false
+
+## Shots fly along the ground plane at the thrower's feet: they strike along the aim, and a face a level up stops them.
+func _shots(base: Vector2) -> void:
+	fresh(base)
+	var dir := Vector2(0.6, 0.8)
+	var e := foe("wild_boarlet", base + dir * 110.0)
+	var aside := foe("wild_boarlet", base + Vector2(-0.6, 0.8) * 110.0)
+	var r: Dictionary = w.player.aim_technique(3, dir)
+	var turned := false
+	for i in 60:
+		frames(1)
+		for p in Game.room_rt.projectiles: turned = turned or (p.has("aim") and (p.aim as Vector2).dot(dir) > 0.99)
+	t.check(r.get("ok", false) and turned and hurt(e) and not hurt(aside), "topdown: a shot flies along its aim on the plane and strikes there (%s)" % str(r.get("reason", "")))
+	fresh(Vector2(30.5 * 32.0, 13.5 * 32.0))
+	var ledge := foe("wild_boarlet", Vector2(30.5 * 32.0, 9.5 * 32.0), 60)
+	w.player.aim_technique(3, Vector2.UP)
+	frames(60)
+	t.check(not hurt(ledge) and Game.room_rt.projectiles.is_empty(), "topdown: a shot from the square stops at the terrace's face, the foe on it untouched")
+	# A technique's circle lands at its point: the foe there, not the one beside the caster.
+	fresh(base)
+	var there := foe("wild_boarlet", base + Vector2(100, 0))
+	var here := foe("wild_boarlet", base + Vector2(-26, 0))
+	var rp: Dictionary = w.player.aim_technique(2, Vector2.RIGHT, 0.5)
+	frames(40)
+	t.check(rp.get("ok", false) and hurt(there) and not hurt(here) and Game.combat.timeline(c.id).at.distance_to(base + Vector2(100, 0)) < 1.0,
+		"topdown: a burst aimed half its reach lands its circle there (%s)" % str(rp.get("reason", "")))
+
+## A knockback drives a foe away along the plane; the dodge's i-frames slip a blow; hit-stop holds the fight.
+func _push_and_dodge(base: Vector2) -> void:
+	fresh(base)
+	var e := foe("wild_boarlet", base + Vector2(20, 20), 60)
+	var from := e.plane
+	Game.combat._player_hits_enemy(c, Game.combat.player_view(c), e, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "knockback": 60, "never_miss": true, "source": "test"}, 1)
+	var stop := Game.combat.hitstop
+	var held: bool = Game.combat.hold_for_hitstop(1.0 / 60.0)
+	for i in 8: Game.enemies.tick(1.0 / 60.0)
+	var moved := e.plane - from
+	measured.knockback = moved.length()
+	t.check(stop > 0.0 and held and moved.length() > 30.0 and moved.normalized().dot(Vector2(1, 1).normalized()) > 0.95,
+		"topdown: a blow's hit-stop holds the fight (%.2f s) and its knockback drives the foe away on the plane (%.0f units along %s)" % [stop, moved.length(), str(moved.normalized())])
+	fresh(base)
+	var striker := foe("wild_boarlet", base + Vector2(30, 0), 60)
+	striker.aim = Vector2.LEFT
+	w.player.dodge()
+	var dashed: bool = w.player._dash
+	frames(1)
+	var hp0: float = c.pools.hp
+	Game.combat.enemy_strike(striker, striker.def.attacks[0])
+	var again: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1, "moves": false})
+	t.check(dashed and c.pools.hp == hp0 and str(again.get("reason", "")) == "cooldown" and Game.combat.forced_motion(c.id).is_empty(),
+		"topdown: the dodge is Combat's (its i-frames slip the blow, its 2.5 s cooldown holds) and the motor's dash carries it")
+
+## Foes chase on the grid, give up past the leash, wait beneath a roof they cannot reach, and a jumper hops a level.
+func _chase_and_leash(base: Vector2) -> void:
+	fresh(base)
+	var boar := foe("wild_boarlet", base + Vector2(150, 0), 60)
+	boar.ai.timer = 0.0
+	boar.threat[c.id] = 1.0
+	frames(60)
+	var closer := boar.plane.distance_to(w.player.motor.pos)
+	t.check(closer < 110.0 and str(boar.ai.state) in ["aggro", "windup", "attack", "recover"], "topdown: a boarlet that noticed the player chases it on the plane (%.0f units off)" % closer)
+	fresh(base)
+	var far := foe("wild_boarlet", base + Vector2(640, 0), 60)
+	far.spawn_point = base
+	far.ai.state = "aggro"
+	far.ai.timer = 5.0
+	w.player.motor.place(far.plane + Vector2(40, 0))
+	frames(2)
+	t.check(str(far.ai.state) == "return", "topdown: past its 600 leash a foe gives up and goes home (%s)" % str(far.ai.state))
+	# On the storehouse roof, out of a ground-bound boarlet's reach: it waits beneath, then goes home healing.
+	var sh: Dictionary = w.room.props.filter(func(q): return q.kind == "storehouse")[0]
+	var roof := (Vector2(sh.cell) + Vector2(1.5, 1.5)) * 32.0
+	fresh(roof)
+	var under := foe("wild_boarlet", roof + Vector2(0, 96), 60)
+	under.ai.state = "aggro"
+	under.ai.timer = 5.0
+	under.threat[c.id] = 1.0
+	frames(120)
+	var waiting := float(under.ai.get("unreach", 0.0)) > 1.0 and under.altitude == 0.0 and str(under.ai.state) == "aggro"
+	frames(300)
+	t.check(w.player.motor.z == 64.0 and waiting and str(under.ai.state) in ["return", "idle"],
+		"topdown: a ground-bound foe waits beneath a roof it cannot reach, then gives up and goes home (%s, waited %s, z %.0f)" % [str(under.ai.state), str(waiting), under.altitude])
+	# A jumper (the rat) hops the terrace's edge to reach the player on it.
+	fresh(Vector2(30.5 * 32.0, 10.0 * 32.0))
+	var rat := foe("reedtail_rat", Vector2(30.5 * 32.0, 13.5 * 32.0), 60)
+	rat.ai.state = "aggro"
+	rat.ai.timer = 5.0
+	rat.threat[c.id] = 1.0
+	var hopped := false
+	for i in 240:
+		frames(1)
+		hopped = hopped or not rat.hop.is_empty()
+		if rat.altitude >= 32.0 and rat.hop.is_empty(): break
+	t.check(hopped and rat.altitude == 32.0, "topdown: a rat (a jumper) hops a level up to the terrace to reach the player (z %.0f)" % rat.altitude)
+
+## A slain foe's loot falls where it died on the plane (a rat on the terrace, far above the side view's walk strip),
+## the body picks it up, and a better piece is offered by the equip popup.
+func _drops_and_prompt(tree: SceneTree) -> void:
+	var spot := Vector2(24.5 * 32.0, 7.5 * 32.0)
+	fresh(spot + Vector2(0, 90))
+	var dropped: Array = []
+	for i in 6:
+		var rat := foe("reedtail_rat", spot)
+		Game.combat._damage_enemy(rat, rat.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+		Game.tick(1.0 / 60.0)
+		dropped = Game.room_rt.loot.duplicate()
+		if not dropped.is_empty(): break
+	var where_ok := not dropped.is_empty() and dropped.all(func(l): return absf(float(l.y) - spot.y) < 10.0 and float(l.alt) == 32.0)
+	t.check(where_ok and w.loot_layer.get_child_count() >= dropped.size(), "topdown: a rat's loot falls where it died on the terrace (%d drops at y %s)" % [dropped.size(), str(dropped.map(func(l): return int(l.y)))])
+	hud = load("res://scripts/hud.gd").new()
+	hud.player = w.player
+	hud.world = w
+	tree.root.add_child(hud)
+	await tree.process_frame
+	fresh(spot)
+	Game.world._drop_loot(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), 32.0, "enemy")
+	var uid := -1
+	for l in Game.room_rt.loot: uid = int((l.instance as Dictionary).get("uid", -1))
+	frames(40)
+	t.check(Game.room_rt.loot.is_empty() and (hud.equip_prompt.queue.has(uid) or int(hud.equip_prompt.current.get("uid", -2)) == uid),
+		"topdown: the body picks up a dropped piece and the equip popup offers it (loot left %d, uid %d, queue %s, current %s)" % [Game.room_rt.loot.size(), uid, str(hud.equip_prompt.queue), str(hud.equip_prompt.current.get("uid", -1))])
+
+## The HUD drives it (decision 30): Attack held and dragged aims (the arrow shows, it snaps to a foe near the line) and
+## strikes that way on release; a technique shows its form; back on the button cancels; the fight ring comes out.
+func _hud_aim(tree: SceneTree, base: Vector2) -> void:
+	fresh(base)
+	hud.set_state(true)
+	var foe_near := foe("wild_boarlet", base + Vector2.from_angle(deg_to_rad(-8.0)) * 60.0)
+	var foe_wide := foe("wild_boarlet", base + Vector2.from_angle(deg_to_rad(90.0)) * 60.0)
+	var ac: Vector2 = hud.attack_center
+	hud.press(7, ac)
+	hud.drag(7, ac + Vector2(90, 0))
+	hud._tick_aims(0.2)
+	var shown: Dictionary = w.player.aim.duplicate()
+	hud.release(7)
+	var snapped: Vector2 = Game.combat.timeline(c.id).aim
+	frames(30)
+	t.check(str(shown.get("kind", "")) == "attack" and shown.get("target") == foe_near and snapped.is_equal_approx((foe_near.plane - base).normalized()) and hurt(foe_near) and not hurt(foe_wide) and w.player.aim.is_empty(),
+		"topdown: Attack held and dragged right aims, snaps to the foe 8° off the line, and strikes it on release (%s, %s, aim %s, hurt %s/%s)" % [str(shown.get("kind", "")), str(shown.get("target") == foe_near), str(snapped), str(hurt(foe_near)), str(hurt(foe_wide))])
+	fresh(base)
+	hud.set_state(true)
+	foe("wild_boarlet", base + Vector2(0, 60), 60)
+	hud.press(8, ac)
+	hud.drag(8, ac + Vector2(0, -90))
+	hud._tick_aims(0.2)
+	hud.release(8)
+	var up_aim: Vector2 = Game.combat.timeline(c.id).aim
+	t.check(up_aim.is_equal_approx(Vector2.UP), "topdown: with no foe near the line, the blow goes exactly where it was dragged (%s)" % str(up_aim))
+	var forms: Array = []
+	for s in 4:
+		var sc: Vector2 = hud.slots[s]
+		hud.press(20 + s, sc)
+		hud.drag(20 + s, sc + Vector2(-80, 0))
+		hud._tick_aims(0.2)
+		forms.append(str(w.player.aim.get("form", "")))
+		hud.drag(20 + s, sc)
+		var cd: int = c.pools.cooldowns.size()
+		hud.release(20 + s)
+		if c.pools.cooldowns.size() != cd: forms.append("cast!")
+	t.check(forms == ["cone", "line", "point", "line"], "topdown: each technique shows its form while aimed, and dragged back onto its button it cancels (%s)" % str(forms))
+	hud.set_state(false)
+	fresh(base)
+	hud.fight_override = null
+	hud._settled = false
+	hud._tick_fight(0.1)
+	var rest: bool = hud.fight
+	foe("wild_boarlet", base + Vector2(200, 0), 60)
+	hud._tick_fight(0.1)
+	t.check(not rest and hud.fight, "topdown: the HUD's rest and fight ring follows the room's foes")
+

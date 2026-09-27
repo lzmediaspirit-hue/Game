@@ -78,6 +78,26 @@ func _draw() -> void:
 
 func draw_page() -> void:
 	var fr := frame_rect
+	_strip()
+	var s := current()
+	var visible := s.left(int(shown_chars))
+	var choices: Array = convo.get("choices", [])
+	var text_w := 580.0 if at_end() and not choices.is_empty() else 900.0
+	para(Rect2(fr.position.x + 220, fr.position.y + 90, text_w, 132), visible, 20, RecordsKit.INK, 4)
+	region(fr, "advance")
+	if at_end() and shown_chars >= s.length():
+		if choices.is_empty():
+			text(Vector2(fr.end.x - 72, fr.end.y - 12), "▼", 16, RecordsKit.BROWN)
+		else:
+			_choice_buttons(choices)
+			_offer_card()
+	elif shown_chars >= s.length():
+		text(Vector2(fr.end.x - 72, fr.end.y - 12 + (0.0 if UiKit.reduce_motion() else sin(t * 5.0) * 3)), "▼", 16, RecordsKit.BROWN)
+
+## The paper strip itself: the dialogue box along the foot, the speaker's portrait frame at its left, their name on the
+## plaque, and under it their hearts and who they are. The Gift page lays its tray over the same strip.
+func _strip() -> void:
+	var fr := frame_rect
 	var box := Rect2(fr.position.x, fr.position.y + 32, fr.size.x, fr.size.y - 32)
 	face(box, "dialogue_box")
 	var pf := Rect2(fr.position.x + 16, fr.position.y, 176, 216)
@@ -92,32 +112,23 @@ func draw_page() -> void:
 	var hx := fr.position.x + 220
 	if convo.has("hearts"):
 		UiKit.draw_hearts(self, Vector2(hx + 4, fr.position.y + 72), int(convo.hearts), 5, 9.0)
-		hx += 110
+		hx += 124
 		who = (who + " · " if who != "" else "") + Tx.plural("ui.dialogue.hearts", int(convo.hearts)) % int(convo.hearts)
 	if who != "": text(Vector2(hx, fr.position.y + 78), who, 16, RecordsKit.BROWN, HORIZONTAL_ALIGNMENT_LEFT, 560)
-	var s := current()
-	var visible := s.left(int(shown_chars))
-	var choices: Array = convo.get("choices", [])
-	var text_w := 580.0 if at_end() and not choices.is_empty() else 900.0
-	para(Rect2(fr.position.x + 220, fr.position.y + 90, text_w, 132), visible, 20, RecordsKit.INK, 4)
-	region(fr, "advance")
-	if at_end() and shown_chars >= s.length():
-		if choices.is_empty():
-			text(Vector2(fr.end.x - 72, fr.end.y - 12), "▼", 16, RecordsKit.BROWN)
-		else:
-			# Every choice a full 48 px high (I7), numbered for the keys; past four they rise above the strip.
-			var h := 52.0
-			var y := minf(fr.position.y + 32, fr.end.y + 4 - h * choices.size())
-			for i in choices.size():
-				var ch: Dictionary = choices[i]
-				var primary := ch.has("accept") or ch.has("hand_in")
-				var r := Rect2(fr.end.x - 360, y, 352, h - 4)
-				btn(r, str(ch.get("text", "...")), "choose", i, primary, true, "", 20)
-				if i < 4: _key(r.position + Vector2(24, r.size.y * 0.5), i + 1)
-				y += h
-			_offer_card()
-	elif shown_chars >= s.length():
-		text(Vector2(fr.end.x - 72, fr.end.y - 12 + (0.0 if UiKit.reduce_motion() else sin(t * 5.0) * 3)), "▼", 16, RecordsKit.BROWN)
+
+## The choices stacked at the strip's right, every one a full 48 px high (I7), numbered for the keys; past four they
+## rise above the strip.
+func _choice_buttons(choices: Array) -> void:
+	var fr := frame_rect
+	var h := 52.0
+	var y := minf(fr.position.y + 32, fr.end.y + 4 - h * choices.size())
+	for i in choices.size():
+		var ch: Dictionary = choices[i]
+		var primary := ch.has("accept") or ch.has("hand_in")
+		var r := Rect2(fr.end.x - 360, y, 352, h - 4)
+		btn(r, str(ch.get("text", "...")), "choose", i, primary, true, "", 20)
+		if i < 4: _key(r.position + Vector2(24, r.size.y * 0.5), i + 1)
+		y += h
 
 ## A choice's key (1 to 4), a pale gold disc with its number in ink.
 func _key(c: Vector2, n: int) -> void:
@@ -203,7 +214,9 @@ func _choose(i: int) -> void:
 		close()
 		return
 	if ch.has("page"):
-		navigate.emit(str(ch.page), ch.get("args", {"npc": npc}))
+		var a: Dictionary = (ch.get("args", {"npc": npc}) as Dictionary).duplicate()
+		if str(ch.page) == "gift": a["convo"] = convo   # the gift tray sits over this talk, its other choices beside it
+		navigate.emit(str(ch.page), a)
 		close()
 		return
 	# A choice that is itself an intent (S45: dig up a rare herb); its authority validates it.
@@ -219,10 +232,14 @@ func _choose(i: int) -> void:
 		# The conversation goes on only where the authority hands one back (the next node, or the same person's next
 		# quest to take or hand in, QuestAuthority._then); taking a quest otherwise ends it (M17).
 		if r.get("ok", false) and r.has("dialogue"):
-			args = {"convo": r.dialogue}
-			setup()
+			_go_on(r.dialogue)
 			return
 	close()
+
+## The talk goes on with the node the authority handed back.
+func _go_on(next: Dictionary) -> void:
+	args = {"convo": next}
+	setup()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and not event.echo:

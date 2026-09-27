@@ -417,6 +417,117 @@ unless one of these two entries is used.
   - enemy nav across levels (it waits beneath targets it cannot reach);
   - `contract_tests` unchanged.
 
+### As built: Phase 2 (2026-09-27)
+
+**What it is.** The prototype room now fights. With a character, `TopdownWorld` enters Riverside Square through the
+World authority (`enter_grid_room`): a `RoomRuntime` whose `topdown` is the height grid. From then on the room runs on
+the same authorities as every side-view room: Combat (damage, Might, techniques, hit-stop, knockback, i-frames),
+Enemies (spawns, respawn memory, the S13 states), World (loot, pickup). The body's step goes first, then `Game.tick`.
+The side-view game is unchanged; nothing loads the grid code unless the prototype is opened.
+
+**Decisions 29 and 30 applied first.**
+
+- The dash cooldown stays 2.5 s. It is Combat's dodge now, carried by the motor's dash (`moves: false`).
+- Walking stops at the water's edge. `TopdownMotor.water_walk` makes the water's surface a floor at the bank's height.
+  It is off by default, and the player turns it on only for a character who knows the Water Skimming art.
+- Roofs are floors. A prop with a `top` in the tile set is a raised floor that many levels over its ground: the house
+  and a new storehouse at 2, the crates at 1. It is a wall from below and a surface on top. A body on it sorts over the
+  building (its footprint's south edge + 0.75). Walking off its edge falls with the normal landing.
+  - The rooftop route: the terrace (level 1) → a jump onto the storehouse roof (level 2) → across it → off its edge to
+    the square (a 64-unit drop).
+  - A second way up from the square: the crates (a jump, one level), then the roof (a jump, one more).
+
+**What was built.**
+
+| Piece | File | Notes |
+|---|---|---|
+| Aim rules | `scripts/topdown/topdown_aim.gd` (`TopdownAim`) | The one source for hits and previews: the height band, soft lock and snap, the four forms and their containment tests |
+| Hit test on the plane | `CombatAuthority.hit_test` | A view with an `aim` runs the range along the aim and the depth across it. Its `band` replaces the altitude overlap: the target's feet within [−12, +12] of the attacker's, or [−56, +12] for a strike from the air. Without an aim it is the side view's test exactly |
+| Combat on the plane | `combat_authority.gd` | `basic_attack` / `use_technique` take `aim`, `aimed` and `dist`. `_target_on_plane` does the soft lock or snap. `_form_targets` gives a technique's foes by form. Shots fly along the aim at the thrower's feet and stop at a face 24 over them (`_aim_shot`, `_shot_view`, `_shot_stops`). A knockback pushes away from the attacker on the plane (`away`, `EnemyState.knock_dir`), the player's through the motor. `hold_for_hitstop` freezes the view |
+| Foes on the grid | `scripts/simulation/ai/topdown_brain.gd` (`TopdownBrain`) | EnemyBrain keeps the wind-up, blow, recovery and stagger, and hands idle, patrol, aggro, flee and return to the grid. The shared rules are factored out of EnemyBrain: `sight`, `notices`, `gives_up`, `wind_up`, `chase_speed`. The chase goes straight when the line is clear, else along `TopdownRoom.find_path` (A* on 8-way cells: walk, stairs, drops, and a hop one level up for a jumper). A foe with no way waits beneath, and after 6 s goes home healing. Sight reaches one level up or down |
+| Foes in the room | `data/topdown/td_proto_square.json` `spawns` | Crabs on the square, rats on the terrace (jumpers), boarlets on the square. The room's `loadout` fills the stand-in's empty slots with one technique per form |
+| Views | `topdown_world.gd` | The foes' **PLACEHOLDER** figures sort with the room (`FoeView`). An overlay at the HUD's resolution follows the camera and holds: the effects layer (`FxLayer`: the forms from `art/fx/`, turned to the aim), the foes' labels and HP bars (`EnemyView` in label mode, placed by `WorldLabels` round the HUD), loot, and the aim (`AimView`). Camera shake uses `ShakeRig` |
+| Shared effects | `FxLayer.cast` / `FxLayer.hit`, `scripts/presentation/combat_fx.gd` (`CombatFx`), `shake_rig.gd` | The effects layer draws a cast and a hit for both views. `cast` takes the aim: its forms, slashes and shots turn to it, with the body's `chest` height. `CombatFx` is the view's glue round them (the Heaven-grade first-hit shake, the heavy-blow shake, the sound, Miss/Immune/Evade) |
+| Art as data (decision 31) | `data/topdown/proto_tileset.json` | The view reads its atlases' files (`atlas`), every tile, prop, body and foe rect, and which tiles each paint mark draws (`paint`) from the manifest. The Phase 3 art replaces sheets and rows, not code |
+| Touch | `scripts/topdown/aim_gesture.gd` (`AimGesture`), `hud.gd` | Attack and technique touches read as a tap or an aim (see below) |
+| Art | `tools/art/build_topdown_proto.py` | The storehouse. A 2-frame strike pose on the placeholder body. `art/topdown/placeholder_foes.png`: crab, rat and boarlet, east drawn and west mirrored, with idle, walk, wind-up, attack and hurt. The manifest marks it `"placeholder": true`; the full art is Phase 3/5 |
+
+**Aiming (decision 30; research in `docs/research/alabaster_dawn_2_5d.md` §3.8).**
+
+- **Tap** (let go within 0.18 s, inside 18 px): attack or cast at the soft lock. That is the nearest foe in a 120° cone
+  round the stick, else the facing, within 160 units, on a compatible height. A faint ring marks it in a fight.
+- **Hold or drag:** the aim shows on the ground from the feet:
+  - an arrow for a blow;
+  - a line for thrust, volley, wave and every shot;
+  - a 90° cone for sweep, arc, strike and flurry;
+  - a circle at a point for burst, rain and pillar, placed by the drag's length up to the reach;
+  - a circle round the caster for domain and ward.
+
+  It snaps to a foe within 15° of the drag (a gold ring). Release fires along it.
+- **Cancel:** drag out, then back onto the button (within 40 px).
+- **Other rules:**
+  - A tap now attacks on release in the top-down room, so a touch can become an aim.
+  - The side view is unchanged.
+  - It works left-handed (the direction is read from the button's own centre), and nothing animates under Reduce
+    motion.
+  - No button was added, and nothing is drawn in the HUD's clear zone (the aim draws in the world).
+- **Proposal, not built (open):** drag zones on Attack for more actions, using what exists:
+  - a drag past 120 px = the combo's finisher step at once;
+  - a drag down (toward the camera) in the air = Plunge;
+  - a hold without a drag = guard / the stance technique.
+
+  Each changes combat rules, so it waits for the user.
+
+**Measured.** From `rules_tests` `topdown_suite`, which prints them, and `perf_tests` `_topdown`:
+
+| What | Number |
+|---|---|
+| Aimed blows | land in 8 of 8 directions, never behind; a tap turns to the nearest foe in the cone |
+| Heights | a swing misses a foe a level up; a jump strike (z ≥ 20) hits it; a foe a level up cannot strike down |
+| Shots | fly along the aim on the plane; a face one level up stops them |
+| Knockback | about 50 units away from the attacker along the plane (60 knockback); hit-stop 0.05 s holds the fight |
+| Roof | a jump from the terrace lands on the roof at z 64; walking off drops 64 to the square |
+| Foes | a boarlet closes 150 → under 110 units in 1 s; past the 600 leash it goes home; under a roof it waits, then goes home at 6 s; a rat hops one level up to the terrace |
+| Frame | perf runner, on a shared machine (load about 15 on 4 cores): the room mounts in 161–272 ms and walks at 6.9–7.3 ms a frame. With 22 foes fighting (15 added round the player, plus the room's 7), blows every 20 frames and a technique every 45 (up to 44 effects at once), a frame takes 7.8–13.5 ms against the 16.6 ms budget (10.1 ms in the final run) |
+
+**Tests.** `rules_tests` `topdown_suite` has 35 Phase 1 checks and 27 new ones (62 in all):
+
+- water and the Water Skimming gate;
+- the roof from the terrace and from the crates, and the drop off it;
+- the height band;
+- aim shapes per form;
+- tap / hold / drag / cancel / left-handed gestures;
+- the room on the authorities, the loadout, the foes' views;
+- the eight directions and the soft lock;
+- heights for blows and for foes;
+- shots along the plane and stopped by a face;
+- the point circle;
+- knockback on the plane and hit-stop;
+- the dodge's i-frames and cooldown;
+- the chase, the leash, waiting beneath a roof, a rat's hop;
+- drops on the terrace and the equip popup;
+- the HUD's aimed attack with its snap, an unsnapped drag, each technique's form and its cancel;
+- the fight/rest ring.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --phase2`, in `docs/redesign/phase2/`):
+
+- `01_fight_three_foes.png`;
+- `02_technique_strip.png` (a line: the rolling wave) and `02_technique.png` (a burst at its point);
+- `03_rooftop_jump_strip.png`;
+- `04_water_edge_strip.png`;
+- `05_aimed_attack.png`;
+- `06_aimed_technique.png`.
+
+**Not yet built:**
+
+- doors on any side;
+- the ally follow rule;
+- context reach on the plane;
+- flanking slots;
+- creature art in 4 facings;
+- a knockback that avoids void in safe rooms (the prototype has no void);
+- the position sync to saves (Phase 7).
+
 ### Phase 3 · The art pipeline (L)
 
 - `docs/art-contracts.md` v2 fixes the rules: the 16-px tile, the ¾ view, faces, overhangs, the character cell,
@@ -442,12 +553,12 @@ unless one of these two entries is used.
   - the six height cues on every raised edge;
   - the auto-tile schemes, props, animation, and the xianxia motifs.
 - **The build** is `tools/art/topdown/build_tiles.py`: deterministic, and `--check` proves it. It writes:
-  - the atlas, the prop kit and the manifest (schema 2) that the Phase 1 loader reads, keeping every name, footprint
-    and origin;
+  - the atlas, the prop kit and the manifest (schema 2) that the room view reads, keeping every name, footprint, prop
+    top and the Phase 2 schema;
   - a Godot TileSet, `art/topdown/proto_tiles.tres`, for the Phase 4 `TileMapLayer`s: paths match corners, the shore
     matches sides, the water animates.
 - **`compose.py`** is the reference renderer of the rules. It renders the review images in `docs/redesign/phase3/`.
-- **What waits.** The Phase 1 loader draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
+- **What waits.** The room view draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
   contact shade and prop shadows wait for a loader patch after Phase 2, or for the Phase 4 move to `TileMapLayer`s.
 - **Not started:** the body in S/E/N, the weapon and hat rig, and the gallery by facing (the rest of Phase 3).
 
@@ -534,3 +645,8 @@ player build ships only whole acts in the new view.
 3. **Character height:** ~38 art px (recommended) or keep ~50 (bigger on a phone, but less world on screen)?
 4. **Home courtyard:** build it (recommended) or keep systems in towns only?
 5. **Release strategy:** convert Act I and ship it as a slice, or convert everything before release?
+6. **Movement review (decision 29, 2026-09-27):** the dash cooldown stays; water stops a walk (walking on it is the
+   Water Skimming art's); roofs are floors you stand on and jump off. Built in Phase 2.
+7. **Aiming (decision 30, 2026-09-27):** a tap soft-locks; held and dragged, Attack and techniques aim with a preview
+   of their form on the ground and snap to a foe near the line; back on the button cancels. Built in Phase 2. Still
+   open: extra actions on drag zones of the Attack button (proposal in "As built: Phase 2").

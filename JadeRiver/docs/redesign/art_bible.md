@@ -118,8 +118,9 @@ a darker fissure on the east side. A level-3 cliff shows three rows: `rock_face_
 
 **Standable roofs (decision 29).** A roof top is an even, bright plane of grey tile ribs, with no gradient that would
 suggest a slope you slide off. It has a clean lit verge on the west, a shaded verge on the east, a low crest you walk
-over, and a row of round tile ends as its lip. The house prop is drawn to these rules. So is a house built on the height
-grid: paint `t` gives `roof_top`, and its faces are `roof_face_top` (eave, tile ends, the eave's shadow on the wall)
+over, and a row of round tile ends as its lip. The house and storehouse props are drawn to these rules; their manifest `top` of 2
+makes the roof a floor in the room view. The crates' lids read the same way at one level. So is a house built on the
+height grid: paint `t` gives `roof_top`, and its faces are `roof_face_top` (eave, tile ends, the eave's shadow on the wall)
 over `roof_face` / `plaster_face_window` / `plaster_face_door`.
 
 **Height assist (later, Settings).** If a level still misreads on a phone, the plan's height assist tints each level's
@@ -188,8 +189,8 @@ was checked in Godot 4.5.1).
 - **Colour.** Built things are wood, granite, plaster and grey tile. Red lacquer and gold are kept for doors, posts
   and lanterns.
 
-The kit so far: house, willow, stone lantern, red lantern post, barrel, crates, notice board, reeds, boat, bamboo,
-lotus, incense burner, shrub.
+The kit so far: house, storehouse, willow, stone lantern, red lantern post, barrel, crates (standable), notice
+board, reeds, boat, bamboo, lotus, incense burner, shrub.
 
 ## 9. What makes it xianxia (and Jade River's)
 
@@ -222,7 +223,7 @@ same build.
 | `art/topdown/proto_tiles.png` | the atlas: 32 × 7 cells |
 | `art/topdown/proto_props.png` | the prop kit |
 | `art/topdown/proto_tiles.tres` | a Godot TileSet: terrain set 0 (corners: grass, dirt, paving), terrain set 1 (sides: water), 4-frame water animations, each tile's name in custom data 0 |
-| `data/topdown/proto_tileset.json` | the manifest, schema 2: `tiles`, `props` and `body` as in Phase 1, plus `paint` (letter → tops and face kind), `autotile`, `overlays` and `tileset` |
+| `data/topdown/proto_tileset.json` | the manifest, schema 2, which the room view reads for everything it draws: `atlas` (the sheets' files), `tiles`, `props` (with `top`, the levels of a standable top: house and storehouse 2, crates 1), `body`, `foes`, `paint` (a mark's tops, face kind and `keep_face`) and `bank_face`, as in Phases 1–2; plus `autotile`, `overlays` and `tileset` for what comes next |
 
 **Determinism.** Noise comes from a coordinate hash, and the PNGs are written without metadata. `--check` builds
 twice in memory and fails unless every output is byte-identical. `data_validation` checks the result:
@@ -233,18 +234,19 @@ twice in memory and fails unless every output is byte-identical. `data_validatio
 - the TileSet loads with its two terrain sets, every tile named where the manifest puts it, and 17 animated water
   tiles.
 
-**What the Phase 1 loader uses today.** Without code changes, `topdown_world.gd` draws with the new art. It uses:
+**What the room view uses today.** Without code changes, `topdown_world.gd` (Phases 1–2) draws with the new art,
+because it reads everything from the manifest. It uses:
 
-- the base tops (`grass_a/b`, `grass_flowers`, `dirt`, `paving_a/b`, `stone_top`, `wood`, `rock`);
-- the faces and the four water frames;
-- the stairs and the redrawn props.
+- each paint mark's first two tops, and its faces;
+- the four water frames and the stairs;
+- the redrawn props, whose roofs and crate lids are standable tops.
 
 It does not yet draw:
 
 - the path and shore auto-tiles;
 - the rims, `ao_n`, `shade_w` and face end rims (it draws its own 1 px side rim);
 - the prop shadows;
-- the `t` / `l` paint letters.
+- the further top variants.
 
 `compose.py` does all of these. It is the spec for the loader work: either a small patch to `top_tile` / `WaterView`
 once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in Phase 4.
@@ -269,4 +271,4 @@ once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in
 | `04_tile_sheet_x4.png` | every tile at ×4, named and grouped |
 | `05_props_x4.png` | the prop kit at ×4 |
 | `06_height_levels_test.png` | levels −½ to 4 with a body on each, in colour and in grey, at ×2 |
-| `07_ingame_square.png` | the Phase 1 loader drawing the new atlas in the game |
+| `07_ingame_square.png` | the room view (with the Phase 2 fight) drawing the new art in the game |

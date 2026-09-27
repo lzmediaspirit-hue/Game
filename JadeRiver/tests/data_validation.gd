@@ -1688,13 +1688,20 @@ func topdown_art_suite() -> void:
 	var props_img: Texture2D = load("res://art/topdown/proto_props.png")
 	var tiles: Dictionary = man.get("tiles", {})
 	var missing: Array = []
-	for n in ["grass_a", "grass_b", "grass_flowers", "paving_a", "paving_b", "dirt", "wood", "rock", "stone_top", "water_0",
-			"water_1", "water_2", "water_3", "stairs"]:
+	var needed := ["water_0", "water_1", "water_2", "water_3", "stairs"]
+	var faces := [str(man.get("bank_face", "bank"))]
+	var paint: Dictionary = man.get("paint", {})
+	for mark in paint:
+		needed.append_array(paint[mark].get("top", []))
+		faces.append(str(paint[mark].get("face", "stone")))
+	for k in faces:
+		needed.append(k + "_face_top")
+		needed.append(k + "_face")
+	for n in needed:
 		if not tiles.has(n): missing.append(n)
-	for k in ["earth", "stone", "rock", "wood", "bank"]:
-		for suffix in ["_face_top", "_face"]:
-			if not tiles.has(k + suffix): missing.append(k + suffix)
-	check(missing.is_empty(), "topdown art: every tile the Phase 1 loader draws is in the atlas (missing %s)" % str(missing))
+	for kind in ["tiles", "props", "body", "foes"]:
+		if not ResourceLoader.exists(str(man.get("atlas", {}).get(kind, ""))): missing.append("atlas " + kind)
+	check(missing.is_empty() and paint.size() >= 7, "topdown art: every tile the paint table and the loader draw is in the atlas (missing %s)" % str(missing))
 	var outside: Array = []
 	for n in tiles:
 		var r: Array = tiles[n]

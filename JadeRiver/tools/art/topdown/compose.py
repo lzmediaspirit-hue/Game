@@ -15,11 +15,20 @@ from canvas import T, Img
 from palette import NIGHT, SHADE, alpha
 
 WATER = -1
-FACE_OF = {"g": "earth", "f": "earth", "d": "earth", "p": "pave", "s": "stone", "w": "wood", "r": "rock", "t": "roof",
-           "l": "wall"}
-TOPS = {"g": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "f": ["grass_flowers"], "d": ["dirt", "dirt_b"],
-        "p": ["paving_a", "paving_b", "paving_a", "paving_c", "paving_b", "paving_a", "paving_d"], "s": ["stone_top", "stone_top", "stone_top_b"],
-        "w": ["wood", "wood_b"], "r": ["rock", "rock_b"], "t": ["roof_top", "roof_top_b"], "l": ["wall_top"]}
+# The paint table, in the manifest's schema (TopdownWorld.top_tile / face_tile read it): the tops a mark draws (the
+# Phase 1-2 loader picks between the first two per cell, this renderer among all), its face kind, and `keep_face` for a
+# mark whose face stays its own over water (a pier's pilings).
+PAINT = {
+    "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth"},
+    "f": {"top": ["grass_flowers"], "face": "earth"},
+    "d": {"top": ["dirt", "dirt_b"], "face": "earth"},
+    "p": {"top": ["paving_a", "paving_b", "paving_a", "paving_c", "paving_b", "paving_a", "paving_d"], "face": "pave"},
+    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone"},
+    "w": {"top": ["wood", "wood_b"], "face": "wood", "keep_face": True},
+    "r": {"top": ["rock", "rock_b"], "face": "rock"},
+    "t": {"top": ["roof_top", "roof_top_b"], "face": "roof"},
+    "l": {"top": ["wall_top"], "face": "wall"},
+}
 GRASSY = "gf"
 UNDER = {"d": "grass_dirt", "p": "grass_paving"}
 
@@ -91,7 +100,7 @@ def top_name(room: Room, x: int, y: int) -> str:
             corners.append(g)
         if any(corners):
             return room_auto[UNDER[p]]["".join(map(str, corners))]
-    names = TOPS.get(p, TOPS["g"])
+    names = PAINT.get(p, PAINT["g"])["top"]
     return names[(x * 7 + y * 13 + (x * y) % 5) % len(names)]
 
 
@@ -99,8 +108,9 @@ room_auto: dict = {}
 
 
 def face_name(room: Room, x: int, y: int, first: bool, over_water: bool) -> str:
-    kind = FACE_OF.get(room.pt(x, y), "stone")
-    if over_water and kind not in ("wood",):
+    paint = PAINT.get(room.pt(x, y), {})
+    kind = paint.get("face", "stone")
+    if over_water and not paint.get("keep_face", False):
         kind = "bank"
     if kind == "roof" and not first:
         return "roof_face" if (x % 3) else "plaster_face_window"

@@ -4,7 +4,8 @@ and Godot TileSet, and optionally the style review images.
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/proto_tiles.png      the terrain atlas (tops, faces, stairs, water frames, overlays, auto-tile sets)
   art/topdown/proto_props.png      the prop kit
-  art/topdown/placeholder_body.png the Phase 1 placeholder body (unchanged; drawn by tools/art/build_topdown_proto.py)
+  art/topdown/placeholder_body.png the placeholder body and foes (unchanged; drawn by tools/art/build_topdown_proto.py)
+  art/topdown/placeholder_foes.png
   art/topdown/proto_tiles.tres     a Godot TileSet over the atlas: terrain sets for paths and shores, animated water,
                                    and every tile's name as custom data
   data/topdown/proto_tileset.json  the manifest the Phase 1 loader reads (tiles, props, body), plus the auto-tile
@@ -38,12 +39,13 @@ from canvas import T  # noqa: E402
 TILES_PNG = "art/topdown/proto_tiles.png"
 PROPS_PNG = "art/topdown/proto_props.png"
 BODY_PNG = "art/topdown/placeholder_body.png"
+FOES_PNG = "art/topdown/placeholder_foes.png"
 TRES = "art/topdown/proto_tiles.tres"
 MANIFEST = "data/topdown/proto_tileset.json"
 REVIEW = ROOT / "docs/redesign/phase3"
 
 # The paint letters of the `topdown` room format: the tops a letter draws (a fixed per-cell pick) and its face kind.
-PAINT = {letter: {"tops": compose.TOPS[letter], "face": compose.FACE_OF[letter]} for letter in compose.TOPS}
+PAINT = compose.PAINT
 
 # Terrain sets of the TileSet (art bible §6).
 GROUND_TERRAINS = ["grass", "dirt", "paving"]
@@ -57,17 +59,22 @@ def png_bytes(img: Image.Image) -> bytes:
 
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
-    import build_topdown_proto as proto   # the placeholder body stays where Phase 1 drew it
+    import build_topdown_proto as proto   # the placeholder body and foes stay where Phases 1-2 drew them
     sheet, at, auto = atlas.build()
     psheet, pat = props.build()
     body, body_at = proto.build_body()
+    foes, foes_at = proto.build_foes()
     manifest = {
         "schema_version": 2,
         "tile": T,
         "tiles": at,
         "props": pat,
         "body": body_at,
+        "foes": foes_at,
+        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "body": "res://" + BODY_PNG,
+                  "foes": "res://" + FOES_PNG},
         "paint": PAINT,
+        "bank_face": "bank",
         "tileset": "res://" + TRES,
         "autotile": {
             "grass_dirt": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "a path cell's corner is grass "
@@ -85,6 +92,7 @@ def build_all() -> dict:
         TILES_PNG: png_bytes(sheet.img),
         PROPS_PNG: png_bytes(psheet.img),
         BODY_PNG: png_bytes(body.img),
+        FOES_PNG: png_bytes(foes.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
     }
@@ -160,7 +168,7 @@ def tileset_tres(at: dict, auto: dict) -> str:
 DRESSING = ([dict(kind="bamboo", x=x, y=y) for x, y in ((2, 9), (3, 10), (26, 10), (44, 8), (45, 9))]
             + [dict(kind="lotus", x=x, y=y) for x, y in ((8, 26), (13, 28), (28, 27), (40, 25), (42, 28))]
             + [dict(kind="lantern_red", x=17, y=21), dict(kind="lantern_red", x=21, y=21), dict(kind="incense", x=24, y=13),
-               dict(kind="shrub", x=11, y=17), dict(kind="shrub", x=33, y=13), dict(kind="shrub", x=22, y=6)])
+               dict(kind="shrub", x=11, y=17), dict(kind="shrub", x=31, y=14), dict(kind="shrub", x=22, y=6)])
 
 HEIGHT_TEST = {
     # 30 x 18: a rock cliff (levels 4 and 3), a grass terrace (2), a stone terrace (1), the square (0) with a house whose

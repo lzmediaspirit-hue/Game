@@ -236,6 +236,7 @@ func _process(delta: float) -> void:
 		_try_melody()
 	_tick_channel(delta)
 	_tick_tap(delta)
+	_tick_aims(delta)
 	if bound(): equip_prompt.tick(Game.active(), delta)
 	if bound() and world: context = world.context
 	_tick_fight(delta)
@@ -563,6 +564,11 @@ func role_at(p: Vector2) -> String:
 func press(id: int, p: Vector2):
 	var role := role_at(p)
 	touches[id] = {"role": role, "start": p, "swiped": false}
+	# Top-down redesign, Phase 2 (decision 30): Attack and the techniques aim. A touch is read as a tap (on release) or,
+	# held or dragged, as an aim (AimGesture); the world shows the aim on the ground while the thumb is down.
+	if _aims() and (role == "attack" or role == "skill"):
+		touches[id]["gesture"] = AimGesture.new(role, attack_center if role == "attack" else _nearest_slot_center(p))
+		if role == "attack": return
 	match role:
 		"joystick":
 			if joystick_id == -999:
@@ -658,6 +664,8 @@ func drag(id: int, p: Vector2):
 		var delta = p - joystick_origin
 		joystick_pos = p
 		player.movement = delta.limit_length(76) / 76 if delta.length() > 9 else Vector2.ZERO
+	elif touches[id].has("gesture"):
+		(touches[id].gesture as AimGesture).drag(p)
 	elif touches[id].role == "pet" and pet_wheel:
 		pet_pick = _wheel_pick(p)
 	elif touches[id].role == "skill" and not touches[id].swiped:
@@ -679,10 +687,11 @@ func release(id: int):
 			cultivate_pressed = false
 			tap_cultivate()
 		cultivate_pressed = false
+	if info.has("gesture"):
+		_release_aim(info)
+		return
 	if info.get("role", "") == "skill" and not info.get("swiped", false) and info.has("slot") and bound():
-		var r: Dictionary = player.use_technique(int(info.slot))
-		if not r.ok and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
-			add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
+		_technique_said(player.use_technique(int(info.slot)))
 	if info.get("role", "") == "pet" and bound() and pet_pressed:
 		pet_pressed = false
 		if pet_wheel:
@@ -700,6 +709,52 @@ func release(id: int):
 		if guard_hold <= 0.18:
 			_dodge()
 		Game.submit({"type": "guard_end"})
+
+## A technique refused says why in the log (no Qi, not ready, the wrong weapon, sealed, only in flight).
+func _technique_said(r: Dictionary) -> void:
+	if not r.get("ok", false) and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
+		add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
+
+## The player aims on the plane (the top-down room, redesign Phase 2); the side view's facing is only left or right.
+func _aims() -> bool:
+	return is_instance_valid(player) and player.has_method("aim_attack")
+
+## The drawn technique slot of the page nearest `p` (its aim starts from that button's centre).
+func _nearest_slot_center(p: Vector2) -> Vector2:
+	var best: Vector2 = slots[0]
+	for i in slots.size():
+		if _slot_filled(i + skill_page * 4) and p.distance_to(slots[i]) < p.distance_to(best): best = slots[i]
+	return best
+
+## Each held Attack or technique touch that aims shows its aim on the ground (the player's preview, the world's drawing).
+func _tick_aims(delta: float) -> void:
+	if not _aims(): return
+	var shown_aim := false
+	for id in touches:
+		var g = touches[id].get("gesture")
+		if g == null: continue
+		g.advance(delta)
+		if g.aiming and not shown_aim:
+			player.preview_aim(g.kind, int(touches[id].get("slot", -1)), g.dir(), g.reach_k())
+			shown_aim = true
+	if not shown_aim: player.aim = {}
+
+## Letting go of an aiming touch: a tap attacks or casts at the soft lock, an aim along its direction, a cancel does
+## nothing.
+func _release_aim(info: Dictionary) -> void:
+	var g: AimGesture = info.gesture
+	var what := g.release()
+	player.aim = {}
+	if info.role == "attack":
+		match what:
+			"tap": primary()
+			"aim":
+				if bound() and Unlocks.is_unlocked(Game.active_id, "attack"): player.aim_attack(g.dir())
+		_attack_up()
+	elif info.has("slot") and bound():
+		match what:
+			"tap": _technique_said(player.use_technique(int(info.slot)))
+			"aim": _technique_said(player.aim_technique(int(info.slot), g.dir(), g.reach_k()))
 
 ## A tap of Dodge: the combat authority's dodge, or the top-down prototype's own dash (redesign Phase 1).
 func _dodge() -> void:

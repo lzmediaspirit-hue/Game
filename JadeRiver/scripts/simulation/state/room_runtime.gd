@@ -21,6 +21,7 @@ var first_visit := false
 var hazards: Dictionary = {}          # hazard id -> {phase, t, dur, spots: [[x, y, alt]], dir, pulse, inside}
 var hazard_drift := Vector2.ZERO      # the push the room's hazards put on the active character this tick
 var hazard_pulse: Dictionary = {}      # S43 hazard volumes: seconds to each one's next pulse
+var topdown: TopdownRoom = null       # redesign Phase 2: a room on the height grid (its foes steer on it, not on surfaces)
 
 func uid() -> int:
 	next_uid += 1

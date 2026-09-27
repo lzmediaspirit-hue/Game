@@ -43,8 +43,7 @@ var npc_views: Dictionary = {}
 var portal_views: Array = []
 var context: Dictionary = {}
 var up_hold := 0.0
-var shake := 0.0                    # seconds of camera shake left; add_shake is its one writer (P6 camera rig)
-var shake_k := 0.0                  # px of shake amplitude per second left
+var shake := ShakeRig.new()         # the camera's shake; add_shake is its one writer (P6 camera rig)
 var camera_hold := {}               # a moment's camera move: {target, t, in, hold, out}
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
@@ -63,6 +62,7 @@ func _ready() -> void:
 	add_child(camera)
 	fx = FxLayer.new()
 	add_child(fx)
+	combat_fx = CombatFx.new(fx, self)
 	if room_mode:
 		GameEvents.event.connect(_on_event)
 		player = Player.new()
@@ -309,8 +309,7 @@ func _process(delta: float) -> void:
 		if float(h.t) >= ends: camera_hold = {}
 	# Across at the old pace; up and down it settles in about 0.4 s after a landing.
 	camera.position = Vector2(lerpf(camera.position.x, ct.x, 1.0 - exp(-delta * 6.0)), lerpf(camera.position.y, ct.y, 1.0 - exp(-delta * 7.5)))
-	shake = maxf(0.0, shake - delta)
-	camera.offset = Vector2(randf_range(-1, 1), randf_range(-0.75, 0.75)) * shake_k * shake if shake > 0.0 else Vector2.ZERO
+	camera.offset = shake.offset(delta)
 	camera.position = camera.position.snapped(Vector2(2, 2))
 	_track_safe(delta)
 	update_occlusion()
@@ -372,22 +371,17 @@ func _fame_greeting() -> void:
 	best.bark = Tx.t("world_view.fame_greet_" + tier) % c.name
 	best.bark_time = 4.0
 
-## The camera rig's one writer of the shake (P6): the longer shake and the stronger amplitude win. `amp` is the starting
-## amplitude in px (default s × shake_amp_per_s: 4 px at 0.25 s); none with Screen shake off or Reduce motion on.
+## The camera rig's one writer of the shake (P6, ShakeRig).
 func add_shake(s: float, amp := -1.0) -> void:
-	var a := MomentRules.shake_amp(s, amp)
-	if a <= 0.0 or s <= 0.0: return
-	shake_k = maxf(shake_k if shake > 0.0 else 0.0, a / s)
-	shake = maxf(shake, s)
+	shake.add(s, amp)
 
-## P6e / decision 23: a technique cast, drawn by the effects layer (FxLayer.cast) toward the foe in reach; its first
-## hit shakes once from tier 3 (cast_shake).
-var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
 var sim_frozen := false           # debug (--cast --capture): the simulation holds still while the effect plays, so the shot is the effect
+var combat_fx: CombatFx           # a cast's and a blow's effects around the effects layer (shared with the top-down room)
+
+## P6e / decision 23: a technique cast, drawn by the effects layer (FxLayer.cast through CombatFx) toward the foe in
+## reach; its first hit shakes once from tier 3.
 func _cast(tech: String, facing: int, col: Color, windup := -1.0) -> void:
-	var t := ContentDB.entry("techniques", tech)
-	if float(MomentRules.tier_numbers("tech:" + tech).shake_s) > 0.0: cast_shake["tech:" + tech] = true
-	fx.cast(t, player.position, facing, col, _foe_in_reach(player.position, facing, float(t.hitbox.x[1])), windup)
+	combat_fx.cast(tech, player.position, facing, col, windup, _foe_in_reach(player.position, facing, float(ContentDB.entry("techniques", tech).hitbox.x[1])))
 
 ## Where a single-target cast lands: the nearest foe in front within reach, else halfway along it.
 func _foe_in_reach(at: Vector2, facing: int, reach: float) -> Vector2:
@@ -478,21 +472,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("text", player.position + Vector2(0, -130), {"text": Tx.t("hud.fell"), "color": UiKit.MIST, "size": 18, "dur": 1.4})
 		"hit_landed":
 			if str(p.get("target_kind", "")) == "player" and str(p.get("target", "")) == player.actor_id: player.knock_off_climb()
-			var pos := Vector2(float(p.get("x", 0)), float(p.get("y", 0)) - float(p.get("alt", 60)))
-			var kind := str(p.get("target_kind", "enemy"))
-			# P6e: a technique's hit draws at its tier (§5.2): the number's size, the spark's count, size, reach and style; the
-			# hits of one cast on one foe stack (§5.5); the first hit of a Heaven-grade cast shakes once.
-			var src := str(p.get("source", ""))
-			var n := MomentRules.tier_numbers(src)
-			fx.hit(pos, float(int(p.get("amount", 0))), src, str(p.get("element", "none")), str(p.get("type", "")), bool(p.get("crit", false)), str(p.get("target", "")),
-				Game.is_revealed("hud:damage_numbers") or kind == "player", kind == "player")
-			var amount := int(p.get("amount", 0))
-			if cast_shake.has(src):
-				cast_shake.erase(src)
-				add_shake(float(n.shake_s), float(n.shake_amp))
-			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: add_shake(0.25)
-			if p.get("crit", false): add_shake(0.12)
-			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
+			combat_fx.hit(p)   # P6e: its number and spark at its tier (FxLayer.hit), the shakes and the sound (CombatFx)
 		"hazard_warned":
 			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
 			Audio.play(str(sfx.get(str(p.hazard), "tell")))
@@ -502,12 +482,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				var over := player.position + Vector2(0, -130)
 				if p.get("answered", false): fx.label(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
 				elif int(p.get("amount", 0)) == 0: fx.label(over, hname, UiKit.PALE_GOLD, 17)
-		"hit_missed":
-			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
-		"hit_immune":
-			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), Tx.t("world_view.immune"), UiKit.MIST, 18)
-		"hit_dodged":
-			fx.label(player.position + Vector2(0, -100), Tx.t("world_view.evade"), UiKit.BRIGHT_JADE, 18)
+		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player.position)
 		"parried":
 			fx.parry(player.position, player.facing)
 			Audio.play("parry")

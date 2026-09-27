@@ -78,6 +78,15 @@
     "normal": "res://art/ui/hd/envelope__normal.png",
     "selected": "res://art/ui/hd/envelope__selected.png"
   },
+  "gift_tray": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/gift_tray__normal.png"
+  },
   "honour_seal": {
     "blade": "res://art/ui/hd/honour_seal__blade.png",
     "cauldron": "res://art/ui/hd/honour_seal__cauldron.png",

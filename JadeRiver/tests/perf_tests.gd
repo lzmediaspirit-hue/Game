@@ -243,5 +243,29 @@ func _topdown() -> void:
 	var nodes: int = main.world.sorted.get_child_count()
 	print("topdown prototype: mounted in %.0f ms, %.2f ms per frame, %d sorted nodes" % [ms, per, nodes])
 	check(main.world is TopdownWorld and ms < 300.0 and per < 16.6, "the top-down prototype room mounts in under 0.3 s (%.0f ms) and runs at 60 fps (%.2f ms)" % [ms, per])
+	# Phase 2: fifteen foes fighting the player, with its blows and techniques (the forms from art/fx/) going off.
+	var w = main.world
+	var kinds := ["mudshell_crab", "reedtail_rat", "wild_boarlet"]
+	p.motor.place(Vector2(22.5, 18.5) * 32.0)
+	for i in 15:
+		var at: Vector2 = p.motor.pos + Vector2.from_angle(TAU * i / 15.0) * (70.0 + 12.0 * (i % 3))
+		var e: EnemyState = Game.enemies.spawn_at(kinds[i % 3], at, 5)
+		if e == null: continue
+		e.altitude = w.room.height_at(at)
+		e.threat[Game.active_id] = 1.0
+	var peak := {"fx": 0}
+	var fight := func(i: int) -> void:
+		peak.fx = maxi(int(peak.fx), w.effects.fx.size())
+		p.movement = Vector2.from_angle(i * 0.07) * 0.3
+		Game.active().pools.hp = Game.active().pools.max_hp
+		Game.combat.wounded.erase(Game.active_id)
+		if i % 20 == 0: p.aim_attack(Vector2.from_angle(i * 0.4))
+		if i % 45 == 10:
+			Game.active().pools.cooldowns.clear()
+			p.aim_technique((i / 45) % 4, Vector2.from_angle(i * 0.3), 0.6)
+	var per_fight := await _frames(180, fight)
+	var foes := Game.room_rt.living_enemies().size()
+	print("topdown prototype: %d foes fighting, %.2f ms per frame, %d effects at once at most" % [foes, per_fight, int(peak.fx)])
+	check(foes >= 15 and int(peak.fx) > 0 and per_fight < 16.6, "the top-down room holds 60 fps with %d foes and the fight's effects (%.2f ms)" % [foes, per_fight])
 	main.return_to_selection()
 	await get_tree().process_frame

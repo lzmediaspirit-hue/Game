@@ -18,13 +18,13 @@
     window and a red door, courtyard wall;
   - stairs, four frames of jade water, 16 shore cases × 4 frames, 32 grass-to-path transitions and five light
     overlays.
-- **A new `proto_props.png`.** The house now has a standable-looking tiled roof (decision 29). Willow, lanterns,
-  barrel, crates, notice board, reeds and boat are redrawn. Bamboo, lotus, a red lantern post, an incense burner and a
+- **A new `proto_props.png`.** The house and storehouse have tiled roofs that read as floors, and the crates have
+  lids that do too (decision 29). Willow, lanterns, barrel, notice board, reeds and boat are redrawn. Bamboo, lotus, a red lantern post, an incense burner and a
   shrub are new.
 - **A Godot TileSet** (`art/topdown/proto_tiles.tres`): terrains for paths (corners) and water (sides), animated water,
   and every tile's name as custom data.
-- **The manifest** (`data/topdown/proto_tileset.json`, schema 2) adds paint, auto-tile and overlay tables. The Phase 1
-  room and loader are unchanged and now draw the new art. The auto-tiles, rims and prop shadows are drawn by the
+- **The manifest** (`data/topdown/proto_tileset.json`, schema 2) keeps the Phase 2 schema (atlas, paint, prop tops,
+  foes) and adds auto-tile and overlay tables. The room and its view are unchanged and now draw the new art. The auto-tiles, rims and prop shadows are drawn by the
   reference renderer (`compose.py`) and wait for the loader work.
 - **Review images** are in `docs/redesign/phase3/`:
   - the square mock at 640×360 and ×2;
@@ -32,8 +32,32 @@
   - the tile sheet and props at ×4;
   - the height-levels test in colour and grey;
   - the loader in the game.
-- **Tests:** `data_validation` `topdown_art_suite` checks the atlas against the loader's names, the props against
-  their sheet, and the TileSet (terrain sets, names, animations).
+- **Tests:** `data_validation` `topdown_art_suite` checks the atlas against the paint table and the view's names, the
+  props against their sheet, and the TileSet (terrain sets, names, animations).
+
+## Top-down redesign, Phase 2: fights, foes and aiming in the prototype room
+
+- **Riverside Square fights** (`docs/redesign_top_down_plan.md`, "As built: Phase 2"). The room now runs on the same
+  Combat, Enemies and World authorities as every room. Blows, techniques and the dodge work in eight directions with
+  the existing damage, Might, hit-stop, knockback (now pushing away on the plane) and i-frames. The technique forms
+  from `art/fx/` turn to the aim.
+- **Heights count.** A blow lands only on a foe whose feet are within a few units of yours: a foe a level up is out
+  of reach until you jump at it, and it cannot strike you below either. Shots fly along the ground and stop at a
+  face.
+- **Foes on the grid.** Crabs, rats and boarlets use **placeholder** sprites; their full art is Phase 3/5. They spawn
+  and respawn by the usual rules. They chase along a path over the height grid: stairs, drops, and a hop one level up
+  for the rat. They flee, leash at 600, and wait beneath a roof they cannot reach before going home. They have HP bars
+  and labels, and drop loot, with the equip popup for a better piece.
+- **Aiming** (decision 30; research in `docs/research/alabaster_dawn_2_5d.md` §3.8). A tap strikes the nearest foe in
+  front, marked by a faint ring. Hold and drag Attack or a technique to aim it: a line, a cone, a circle at a point, or
+  a circle round you, snapping to a foe near the line. Drag back onto the button to cancel.
+- **Decision 29.** Water stops a walk unless the character knows Water Skimming. Roofs and crates are floors: climb
+  from the terrace onto the new storehouse's roof, cross it, and jump down to the square. The dash cooldown stays
+  2.5 s.
+- The side-view game is unchanged. Its cast and hit effects and camera shake now come from shared `CombatFx` and
+  `ShakeRig`.
+- Tests: `topdown_suite` 62 checks (27 new). `perf_tests` holds 15+ foes and the fight's effects at 60 fps.
+  Screenshots are in `docs/redesign/phase2/`.
 
 ## World map plates and the Roll-Call as drawn
 
@@ -1112,6 +1136,41 @@ come next. Where it differs from the plan, the plan's §6 says so.
   furniture, and every word on the painting sits on a plate (180 views); in the valley no plate is left out; Track Route
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
+
+### P5 · The Bonds family: Companions, Gift and Relations (mockup 21_dialogue_gift; decision 14)
+- **The Gift as a red-lacquered tray held out over the talk** (`docs/page_identity.md` row 28, mockup 21_dialogue_gift).
+  The tray (HD `gift_tray`, lacquer in a gold rim) sits above the Dialogue's own paper strip: "A gift for …", one a day,
+  what they are known to love and like; ten compartments of what the bag can give, the known ones first with a pink
+  "Loves it" or "Likes it" tag, the rest behind "+n"; Give, shut with why, and what the chosen thing would be. The
+  strip keeps the portrait, plaque, hearts and who they are; it answers a gift ("… likes it." and what it taught you),
+  and the heart bar fills with what the gift moved. The page extends the Dialogue: "Give a gift" hands the talk on, so
+  its other choices (four at most, Farewell kept) stay beside the tray, and one that leads on goes back to the talk.
+  A given gift lifts from its compartment toward the speaker (0.3 s). No close button, as the talk has none; a tap
+  outside what a page draws (`Page.window_rect`, the tray and the Dialogue's offer card included) closes it.
+- **Companions as moon gates in a whitewashed wall** (row 27, no mockup). The plaster under a coping of jade tiles, the
+  title on a lacquer board set in it; each friend full-length in a round gate with the garden beyond, lanterns lit over
+  the two beside you (lighting in 0.2 s when one is brought along), their hearts as knots on the red thread beneath
+  (a new one tied in 0.3 s). A tap on a gate chooses the friend; their actions (Bring along, Gift, the duel, the bond
+  their hearts open) stand under their gate alone.
+- **Relations as the karma steelyard** (row 42, no mockup). A timber rafter carries the title and the four tabs as tally
+  tags; from its hook hang your fame's plaque and the beam, merit's gold weight at its right end and sin's black one at
+  its left, leaning with the alignment (the reading beside the hook), the recent deeds notched along it. Each tab's
+  boards hang from the beam: the bonds on red thread, the grudges on black, the ledger and the name on hemp cords. The
+  beam swings to its lean as the page opens (0.35 s).
+- **Shared:** `scripts/ui/pages/bonds_kit.gd` (the wall and coping, threads and knots, lanterns, the hung timber boards,
+  the family's inks); the Dialogue's strip and choices are its own functions now (`_strip`, `_choice_buttons`,
+  `_go_on`), which the Gift draws with; the five hearts no longer touch "who they are". `TEXT_ON` rows for ink on
+  `plaster` and words on `gift_tray`; strings in `tools/data/ui_strings.json`; every intent kept (give_gift,
+  set_active_companions, companion_duel, offer_bond, pay_grudge, answer_challenge).
+- **Tests:** the `identity_suite`'s Bonds part: the tray over the talk with its other choices and no close button, the
+  liked gift first and tagged, a gift given as an intent with the strip answering and Give shut; a gate per friend and
+  the chosen one's actions under their gate, Bring along as an intent; the beam leaning with the alignment; every word
+  read on its ground. The `ui_suite` opens the Gift over a talk and alone, and the Companions empty and with all four.
+  The full suite on the merged tree: room_lint 168 / 0; engine_tests 3908/3908; data_validation 49968 / 0; room_sweep
+  3673 / 0; visibility_suite 6726 / 0; rules_tests 2423 / 0; contract_tests 1060 / 0; balance_sim 163 / 0; perf_tests
+  11 / 0 (run alone; under load five timings missed); prologue_run 100 / 0; tutorial_order 422 / 0; valley_run 3032 / 0.
+- **Screenshots** in `docs/ui_p5/bonds/` on copies of this build's valley_run checkpoints `qu5` and `ls6_end`, with
+  `compare_21_dialogue_gift.png` and what differs.
 
 ### P5 · The Records family, second part: Dialogue, Quests, Mail and the Notice Board (mockups 21, 12 v2, 22; decision 14)
 - **The talk as rice paper under the scene** (`docs/page_identity.md` row 2, mockup 21). The paper strip along the foot

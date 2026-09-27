@@ -584,7 +584,24 @@ def build():
     write("movement.json", {
         "schema_version": 1,
         # Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these.
-        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [16, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5},
+        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [16, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5,
+            # Phase 2 (decisions 29-30): combat on the plane. A blow lands only between compatible heights: the target's
+            # feet within `hit_band` of the attacker's (a jump strike reaches down `air_band`); a shot flies along the
+            # ground plane at its thrower's feet and stops at a face higher than `shot_wall` over them.
+            "combat": {"hit_band": [-12, 12], "air_band": [-56, 12], "shot_wall": 24, "chest": 40, "knock_s": 0.15,
+                       "body_height": 76},
+            # Aiming (decision 30): a tap soft-locks the nearest foe in a `cone_deg` cone of the facing within `range`;
+            # a dragged aim snaps to a foe within `snap_deg`. Each technique form aims as a line, a cone, a circle at a
+            # point within its reach, or a circle round the caster (`self`); a projectile always flies as a line.
+            "aim": {"cone_deg": 120, "snap_deg": 15, "range": 160, "hold_s": 0.18, "dead_px": 18, "cancel_px": 40,
+                    "drag_px": 120, "point_radius": 48, "cone_half_deg": 45,
+                    "forms": {"line": ["thrust", "volley", "wave", "seeker", "return", "swarm", "lunge", "blink", "release"],
+                              "point": ["burst", "rain", "pillar", "seal", "snare", "plunge"],
+                              "self": ["domain", "ward", "chorus"],
+                              "cone": ["sweep", "arc", "strike", "flurry", "counter", "echo"]}},
+            # Foes on the height grid: re-plan every `replan_s`; a jumper hops one level at `impulse`; a foe's body is a
+            # `radius` circle on the plane.
+            "foes": {"replan_s": 0.4, "impulse": 400, "radius": 8}},
         "jump": {"impulse": 530, "gravity": 1150, "substep_s": 1 / 120, "apex": 122, "coyote_s": 0.10, "buffer_s": 0.12},
         "double_jump": {"impulse": 430, "apex_from_ground": 202},
         "wall_step": {"kick_speed": 450, "away": 90, "kicks": 3, "reach": 12, "shaft": [60, 160]},

@@ -20,78 +20,89 @@ def _curl(s: Img, x: int, y: int, d: int) -> None:
     s.put(x + d * 1, y - 2, ROOF[3])
 
 
-def house(s: Img) -> None:
-    """A river-town house, footprint 6 x 3 tiles, walls two levels high. The roof's top is the footprint raised by the
+def house(s: Img, tw: int = 6, store: bool = False) -> None:
+    """A river-town house, footprint tw x 3 tiles, walls two levels high. The roof's top is the footprint raised by the
     walls: an even plane of grey tiles with a low crest along it, so it reads as a floor you can land on (decision
-    29). Under it: a row of round tile ends, whitewashed walls in a dark timber frame, lattice windows, a red lacquer
-    door between red columns, two paper lanterns, a granite plinth. Sprite 104 x 92; footprint's south-west corner
-    at (4, 90)."""
+    29; the manifest's `top` makes it one). Under it: a row of round tile ends, whitewashed walls in a dark timber
+    frame, lattice windows beside the door bay, a granite plinth. A house has a red lacquer door between red columns
+    and two paper lanterns; a storehouse (`store`) has barred timber doors and high vents. Sprite tw*16+8 x 92; the
+    footprint's south-west corner at (4, 90)."""
     fx, fy = 4, 90
+    W = tw * 16 + 8
     R0 = fy - 32 - 48 - 2
+    left, right = tw // 2 - 1, tw // 2
     # Walls (y fy-32 .. fy), drawn from the face tiles so a house built on the height grid looks the same.
-    for k in range(6):
+    for k in range(tw):
         x = fx + k * 16
-        kind = "door" if k in (2, 3) else "window" if k in (1, 4) else "plain"
-        panel = tl.plaster_face(30 + k, kind)
-        if kind == "door":
-            panel = tl.plaster_face(30 + k, "plain")
-        s.paste(panel, x, fy - 16)
+        kind = "window" if (k in (left - 1, right + 1) and not store) else "plain"
+        s.paste(tl.plaster_face(30 + k, kind), x, fy - 16)
         s.paste(tl.plaster_face(40 + k, "plain", False), x, fy - 32)
-    # The door bay: red columns and a double door across the two middle bays.
-    d0 = fx + 34
-    s.rect(d0, fy - 28, 28, 25, RED[1])
+        if store and k not in (left, right):
+            for i in range(0, 6, 2):                           # a high vent
+                s.rect(x + 5 + i, fy - 23, 1, 3, DARKWOOD[1])
+    # The door bay across the two middle bays.
+    d0 = fx + left * 16 + 2
+    leaf = (RED[1], RED[3], RED[4], RED[0]) if not store else (DARKWOOD[1], WOOD[3], WOOD[4], DARKWOOD[0])
+    s.rect(d0, fy - 28, 28, 25, leaf[0])
     for x0 in (d0 + 3, d0 + 14):
-        s.rect(x0, fy - 24, 11, 21, RED[3])
-        s.vline(x0, fy - 24, 21, RED[4])
+        s.rect(x0, fy - 24, 11, 21, leaf[1])
+        s.vline(x0, fy - 24, 21, leaf[2])
         for yy in (fy - 18, fy - 11):
-            s.put(x0 + 8, yy, GOLDR[2])
-    s.vline(d0 + 14, fy - 24, 21, RED[0])
-    for cx in (d0 - 2, d0 + 28):
-        s.rect(cx, fy - 30, 3, 27, RED[2])
-        s.vline(cx, fy - 30, 27, RED[4])
-        s.vline(cx + 2, fy - 30, 27, RED[1])
-    s.rect(d0 + 8, fy - 29, 12, 4, DARKWOOD[1])            # the name board: gold frame, no writing
-    s.rect(d0 + 9, fy - 28, 10, 2, GOLDR[1])
-    s.hline(d0 + 1, fy - 3, 26, STONE[5])                  # the threshold
-    # The lattice windows on the side bays of the upper panels are left plain; windows sit on the lower row.
-    # The eave's shadow on the wall.
-    for i in range(fx, fx + 96):
+            s.put(x0 + 8, yy, GOLDR[2] if not store else DARKWOOD[1])
+    s.vline(d0 + 14, fy - 24, 21, leaf[3])
+    if store:
+        s.rect(d0 + 3, fy - 15, 22, 2, DARKWOOD[2])            # the bar across the doors
+        s.hline(d0 + 3, fy - 15, 22, WOOD[5])
+    else:
+        for cx in (d0 - 2, d0 + 28):                           # red columns
+            s.rect(cx, fy - 30, 3, 27, RED[2])
+            s.vline(cx, fy - 30, 27, RED[4])
+            s.vline(cx + 2, fy - 30, 27, RED[1])
+        s.rect(d0 + 8, fy - 29, 12, 4, DARKWOOD[1])            # the name board: gold frame, no writing
+        s.rect(d0 + 9, fy - 28, 10, 2, GOLDR[1])
+        for lx in (d0 - 7, d0 + 32):                           # paper lanterns under the eave
+            s.vline(lx + 1, fy - 28, 2, DARKWOOD[1])
+            s.ellipse(lx + 1.5, fy - 23, 2.6, 3.2, LANTERN[2], (LANTERN[4], LANTERN[0]))
+            s.put(lx + 1, fy - 24, LANTERN[5])
+            s.put(lx + 1, fy - 19, GOLDR[2])
+    s.hline(d0 + 1, fy - 3, 26, STONE[5])                      # the threshold
+    for i in range(fx, fx + tw * 16):                          # the eave's shadow on the wall
         for r, a in enumerate((150, 110, 70, 35)):
             s.blend(i, fy - 32 + r, c("0B2A30"), a)
-    # Roof plane: 104 wide (4 px of overhang each side), 50 deep, tiles from the atlas's roof top.
+    # Roof plane: 4 px of overhang each side, 50 deep, tiles from the atlas's roof top.
     roof = tl.roof_top(9)
     for y in range(R0, fy - 30):
-        for x in range(0, 104):
-            col = roof.get(x % 16, (y - R0) % 16)
-            s.put(x, y, col)
-    # The north strip beyond the crest leans away: a step darker.
+        for x in range(0, W):
+            s.put(x, y, roof.get(x % 16, (y - R0) % 16))
     ridge = R0 + 12
-    for y in range(R0, ridge):
-        for x in range(0, 104):
+    for y in range(R0, ridge):                                 # the strip beyond the crest leans away: a step darker
+        for x in range(0, W):
             s.blend(x, y, c("0B2A30"), 70)
-    # Verges: a lit west edge, a shaded east edge.
-    for y in range(R0, fy - 30):
+    for y in range(R0, fy - 30):                               # verges: lit west, shaded east
         s.put(0, y, ROOF[6])
         s.put(1, y, ROOF[5])
-        s.put(102, y, ROOF[2])
-        s.put(103, y, ROOF[1])
-    # The crest: a low ridge of stacked tiles with openwork, curled ends.
-    s.rect(2, ridge - 2, 100, 1, ROOF[5])
-    s.rect(2, ridge - 1, 100, 2, ROOF[3])
-    s.rect(2, ridge + 1, 100, 1, ROOF[1])
-    for x in range(6, 98, 8):
+        s.put(W - 2, y, ROOF[2])
+        s.put(W - 1, y, ROOF[1])
+    s.rect(2, ridge - 2, W - 4, 1, ROOF[5])                    # the crest: stacked tiles with openwork, curled ends
+    s.rect(2, ridge - 1, W - 4, 2, ROOF[3])
+    s.rect(2, ridge + 1, W - 4, 1, ROOF[1])
+    for x in range(6, W - 6, 8):
         s.put(x, ridge - 1, ROOF[1])
         s.put(x + 1, ridge - 1, ROOF[1])
-    s.rect(50, ridge - 4, 4, 3, JADE)                      # a jade pearl at the crest's middle
-    s.put(51, ridge - 4, BJADE)
+    if not store:
+        s.rect(W // 2 - 2, ridge - 4, 4, 3, JADE)              # a jade pearl at the crest's middle
+        s.put(W // 2 - 1, ridge - 4, BJADE)
     _curl(s, 2, ridge - 2, -1)
-    _curl(s, 101, ridge - 2, 1)
-    # The eave's front: a lit verge and round tile ends (the same drawing as the eave face tile).
-    eave = tl.eave_face(16)
-    for x in range(0, 104):
+    _curl(s, W - 3, ridge - 2, 1)
+    eave = tl.eave_face(16)                                    # the eave's front: lit verge and round tile ends
+    for x in range(0, W):
         for r in range(6):
             s.put(x, fy - 30 + r, eave.get(x % 16, r))
     s.outline()
+
+
+def storehouse(s: Img) -> None:
+    house(s, 4, True)
 
 
 def willow(s: Img) -> None:
@@ -187,22 +198,36 @@ def barrel(s: Img) -> None:
 
 
 def crates(s: Img) -> None:
-    """Crates and a rice sack, footprint 2 x 1. 32 x 30; base corner (0, 28)."""
-    def box(bx: int, by: int, w: int, h: int) -> None:
-        s.rect(bx, by, w, 4, WOOD[4])                 # the lid, seen from above
-        s.hline(bx, by, w, WOOD[5])
-        s.rect(bx, by + 4, w, h - 4, WOOD[3])          # the front
-        s.vline(bx, by + 4, h - 4, WOOD[4])
-        s.vline(bx + w - 1, by + 4, h - 4, WOOD[2])
-        s.hline(bx, by + 4, w, DARKWOOD[2])
-        for k in range(h - 6):
-            s.put(bx + 1 + k * (w - 3) // max(1, h - 7), by + 5 + k, WOOD[2])
-    box(1, 13, 15, 15)
-    box(10, 2, 13, 12)
-    s.ellipse(24, 21, 6, 7, DIRT[5], (DIRT[6], DIRT[3]))      # a rice sack, tied at the neck
-    s.rect(22, 13, 4, 2, DIRT[4])
-    s.hline(21, 15, 6, DIRT[2])
-    s.rect(22, 21, 4, 3, RED[3])                             # its red seal
+    """Two lashed crates, footprint 2 x 1, one level high: their lids are a floor you can jump onto (the manifest's
+    `top`). Lids of east-west planks seen from above, fronts with a frame and a diagonal brace, a rope over both, a
+    merchant's red seal. 32 x 34; base corner (0, 32)."""
+    for bx in (0, 16):
+        for j in range(16):                                    # the lid: the footprint raised one level
+            for i in range(16):
+                k = j % 4
+                col = WOOD[5] if k == 0 else WOOD[4] if k < 3 else WOOD[2]
+                if i == 0 or j == 0:
+                    col = WOOD[6]
+                elif i == 15:
+                    col = WOOD[3]
+                s.put(bx + i, j, col)
+        for j in range(16, 32):                                # the front
+            for i in range(16):
+                col = WOOD[3]
+                if i in (0, 1) or j in (17, 18):
+                    col = WOOD[4]
+                elif i in (14, 15) or j in (30, 31):
+                    col = WOOD[2]
+                s.put(bx + i, j, col)
+        for k in range(11):                                    # the brace
+            s.put(bx + 3 + k, 29 - k, WOOD[5])
+            s.put(bx + 3 + k, 28 - k, WOOD[2])
+        s.hline(bx, 16, 16, DARKWOOD[1])
+    s.vline(16, 0, 32, DARKWOOD[1])
+    for j in range(0, 32):                                     # the rope
+        s.put(22, j, DIRT[5] if j % 3 else DIRT[3])
+    s.rect(3, 4, 5, 4, RED[3])
+    s.hline(3, 4, 5, RED[4])
     s.outline()
 
 
@@ -340,10 +365,11 @@ def shrub(s: Img) -> None:
 # kind: (draw, w, h, footprint w, h, origin, solid, shadow [dx, dy, rx, ry])
 PROPS = {
     "house": (house, 104, 92, 6, 3, [4, 90], True, [100, -8, 8, 10]),
+    "storehouse": (storehouse, 72, 92, 4, 3, [4, 90], True, [68, -8, 8, 10]),
     "willow": (willow, 48, 64, 1, 1, [16, 62], True, [12, -2, 16, 6]),
     "lantern": (lantern, 16, 32, 1, 1, [0, 30], True, [10, -2, 6, 3]),
     "barrel": (barrel, 16, 20, 1, 1, [0, 18], True, [10, -2, 6, 3]),
-    "crates": (crates, 32, 30, 2, 1, [0, 28], True, [20, -2, 12, 4]),
+    "crates": (crates, 32, 34, 2, 1, [0, 32], True, [31, -4, 5, 6]),
     "notice": (notice, 32, 32, 2, 1, [0, 30], True, [20, -2, 11, 3]),
     "reeds": (reeds, 16, 20, 1, 1, [0, 18], False, None),
     "boat": (boat, 48, 20, 3, 1, [0, 18], False, None),
@@ -353,6 +379,10 @@ PROPS = {
     "incense": (incense, 16, 28, 1, 1, [0, 26], True, [10, -2, 6, 3]),
     "shrub": (shrub, 20, 18, 1, 1, [2, 16], True, [12, -2, 8, 3]),
 }
+
+
+# Props whose top is a floor you stand on, in levels over their ground (decision 29; TopdownRoom reads `top`).
+TOPS = {"house": 2, "storehouse": 2, "crates": 1}
 
 
 def build() -> tuple[Img, dict]:
@@ -367,6 +397,8 @@ def build() -> tuple[Img, dict]:
         entry = {"rect": [x, y, w, h], "footprint": [fw, fh], "origin": origin, "solid": solid}
         if shadow:
             entry["shadow"] = shadow
+        if kind in TOPS:
+            entry["top"] = TOPS[kind]
         at[kind] = entry
         x, row_h = x + w, max(row_h, h)
     assert y + row_h <= sheet.h, "props overflow the sheet"
