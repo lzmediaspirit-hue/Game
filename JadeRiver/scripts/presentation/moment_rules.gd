@@ -40,9 +40,11 @@ static func matches(when: Dictionary, p: Dictionary, ctx: Dictionary) -> bool:
 	return true
 
 ## A rare find (§3.4): a Perfect or Relic piece, a legend piece, a spirit animal's book, a treasure, or one of the named
-## drops (a boss's unique drop, a first-defeat reward, a set piece, a legendary chain's piece). Coins never.
+## drops (a boss's unique drop, a first-defeat reward, a set piece, a legendary chain's piece), and a character's first
+## weapon (`first`, WorldAuthority._starter_drop). Coins never.
 static func is_rare(i: Dictionary) -> bool:
 	if int(i.get("coins", 0)) > 0: return false
+	if i.get("first", false): return true
 	var r: Dictionary = cfg().get("rare", {})
 	var id := str(i.get("item", ""))
 	return str(i.get("quality", "")) in r.get("qualities", []) or str(ContentDB.item(id).get("type", "")) in r.get("types", []) \

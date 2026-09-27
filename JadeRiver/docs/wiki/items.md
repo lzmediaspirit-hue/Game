@@ -1190,7 +1190,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_bell` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family bell; Appearance bell
-- **Requires**: Level 3 and unlock Weapons; Essence 8
+- **Requires**: Essence 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1202,7 +1202,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_bow` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family bow; Appearance bow
-- **Requires**: Level 3 and unlock Weapons; Agility 8
+- **Requires**: Agility 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1214,7 +1214,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_brush` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family brush; Appearance brush
-- **Requires**: Level 3 and unlock Weapons; Insight 8
+- **Requires**: Insight 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1226,7 +1226,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_fan` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family fan; Appearance fan
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1238,7 +1237,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_flute` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family flute; Appearance flute
-- **Requires**: Level 3 and unlock Weapons; Insight 8
+- **Requires**: Insight 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1250,10 +1249,10 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_gauntlets` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Appearance gauntlets
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest Fists First (prologue, from Uncle Guo), reward (iLv 1, flawed)
   - Reward: Quest The Weapon Hall (guided, from Master Kong), on accept
 
 <a id="item-training_heavy_sabre"></a>
@@ -1263,7 +1262,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_heavy_sabre` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family heavy_sabre; Appearance sabre
-- **Requires**: Level 3 and unlock Weapons; Body 8
+- **Requires**: Body 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1275,7 +1274,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_jian` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family jian; Appearance sword
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1288,7 +1286,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_short_blade` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family short_blade; Appearance dagger
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1300,7 +1297,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_spear` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family spear; Appearance spear
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1313,7 +1309,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_staff` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family staff; Appearance staff
-- **Requires**: Level 3 and unlock Weapons; Body 8
+- **Requires**: Body 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -9460,15 +9456,15 @@ Rolled by:
 - [Ironclaw Mole](monsters.md#enemy-ironclaw_mole) (Lv 5–7) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
 - [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 5–7) · 1.2%
-- [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 1.2%
-- [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 1.2%
-- [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 8%
+- [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 2%
+- [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 2%
+- [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 25%
 - [Pebble Imp](monsters.md#enemy-pebble_imp) (Lv 4–6) · 1.2%
 - [Reed Frog](monsters.md#enemy-reed_frog) (Lv 4–6) · 1.2%
-- [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 1.2%
+- [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2%
 - [Rock Beetle](monsters.md#enemy-rock_beetle) (Lv 4–5) · 1.2%
 - [Stone Tortoise](monsters.md#enemy-stone_tortoise) (Lv 5–7) · 1.2%
-- [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 1.2%
+- [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 2%
 
 <a id="banded-common"></a>
 

@@ -35,7 +35,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Pearl](items.md#item-pearl): 2% (rare)
   - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-wild_boarlet"></a>
 
@@ -58,7 +58,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Pearl](items.md#item-pearl): 2% (rare)
   - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-mossback_toad"></a>
 
@@ -79,7 +79,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Pearl](items.md#item-pearl): 2% (rare)
   - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-reedtail_rat"></a>
 
@@ -98,7 +98,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Pearl](items.md#item-pearl): 2% (rare)
   - [Manual Page](items.md#item-manual_page): 0.5% (rare)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 2%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-trial_puppet"></a>
 
@@ -134,7 +134,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Snapper Claw](items.md#item-snapper_claw): 100% (guaranteed)
   - [Manual Page](items.md#item-manual_page): 5% (rare)
   - coins: 100%, ×6 the Level's purse, in the zone's everyday currency
-  - equipment: 8%, a banded piece of Plain (min quality common; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 25%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
 <a id="enemy-pebble_imp"></a>
 

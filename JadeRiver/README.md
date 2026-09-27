@@ -52,8 +52,9 @@ Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the 
 | Economy | Sage Crystals from loot and Star Jade for savings, Starsea Endurance jades, the Law pills' recipes for the step past the Field's ceiling |
 | Growth | Star-tier beasts, the Hatchling Wyrm (the first Primordial line), the Copperjaw Beetle swarm that grows while you are away, Sect Master rank, the Lantern Heart's Heavenly Flame, gravity switches in the Orbit Ruins |
 
-No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). Weapons appear only
-at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system that introduces it.
+No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). The weapon slot is open from
+the start: Uncle Guo's Fists First hands out training gauntlets, and the first kill in the Reed Shallows drops a first
+weapon. Every HUD button is revealed by the system that introduces it.
 
 ## Controls
 

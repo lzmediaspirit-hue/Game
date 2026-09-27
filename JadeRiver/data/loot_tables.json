@@ -31,7 +31,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": [
@@ -53,7 +53,8 @@
      ],
      "find": true
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "reedtail_rat",
@@ -77,7 +78,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": [
@@ -99,7 +100,8 @@
      ],
      "find": true
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "old_snapper",
@@ -109,7 +111,7 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.08,
+    "chance": 0.25,
     "min_quality": "common"
    },
    "rare": [
@@ -132,7 +134,8 @@
      ],
      "weight": 1
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "hollow_minnow",
@@ -205,7 +208,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": [
@@ -227,7 +230,8 @@
      ],
      "find": true
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "mossback_toad",
@@ -259,7 +263,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.012,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": [
@@ -281,7 +285,8 @@
      ],
      "find": true
     }
-   ]
+   ],
+   "starter": true
   },
   {
    "id": "rock_beetle",

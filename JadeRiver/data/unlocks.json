@@ -182,6 +182,25 @@
    "same_stage_ok": true
   },
   {
+   "id": "weapons",
+   "label": "Weapons",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "fists_first",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "loot",
    "label": "Loot and Log",
    "trigger": {
@@ -603,27 +622,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_weapon_hall"
-  },
-  {
-   "id": "weapons",
-   "label": "Weapons",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_3"
-     },
-     {
-      "kind": "quest_done",
-      "quest": "entry_trial"
-     }
-    ]
-   },
-   "reveals": [],
-   "effects": [],
-   "scope": "character",
-   "quest": "the_weapon_hall",
-   "same_stage_ok": true
   },
   {
    "id": "weapon_dao",

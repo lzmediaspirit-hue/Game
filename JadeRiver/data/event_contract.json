@@ -615,7 +615,8 @@
     "items",
     "x",
     "y",
-    "source"
+    "source",
+    "first_weapon"
    ]
   },
   "room_left": {

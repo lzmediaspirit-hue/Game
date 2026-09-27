@@ -52,7 +52,7 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 	if extra.get("no_equipment", false): return out
 	var eq: Dictionary = table.get("equipment", {})
 	if not eq.is_empty() and rng.randf() < float(eq.get("chance", 0.0)) * dr:
-		out.equipment.append({"level": level, "min_quality": str(eq.get("min_quality", "flawed"))})
+		out.equipment.append({"level": level, "min_quality": str(eq.get("min_quality", "flawed")), "starter": bool(table.get("starter", false))})
 	# P7b named rows (item_plan §4.2): each rolls on every kill like a rare row, `elite_named` only for an elite; a named
 	# piece drops at its source's quality floor, raised to `named_floor`.
 	var order: Array = ContentDB.config("grades").get("quality_order", [])
@@ -140,13 +140,9 @@ static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: 
 	var cfg := drop_cfg()
 	var spread := int(cfg.get("level_spread", 2))
 	var ilv := clampi(level + rng.randi_range(-spread, spread), 1, drop_level_cap())
-	var grade := grade_for_ilv(ilv)
-	var weapons: Array = []
-	var armour: Array = []
-	for a in ContentDB.all("artifacts"):
-		if a.get("grade") != grade or not is_banded(a): continue
-		if str(a.slot) != "weapon": armour.append(a)
-		elif allow_weapons: weapons.append(a)
+	var bases := banded_bases(grade_for_ilv(ilv))
+	var weapons: Array = bases.weapons if allow_weapons else []
+	var armour: Array = bases.armour
 	var pool := armour
 	if not weapons.is_empty() and (armour.is_empty() or rng.randf() < float(cfg.get("weapon_share", 0.4))):
 		pool = weapons
@@ -156,8 +152,46 @@ static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: 
 	var base: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
 	return make_instance(base.id, ilv, roll_quality(rng, min_quality, fortune), rng, uid)
 
-## What a drop spec makes: a named piece (`item`) at its own iLv and its source's quality, or a banded piece.
+## The banded bases of a grade: {weapons, armour}.
+static func banded_bases(grade: String) -> Dictionary:
+	var out := {"weapons": [], "armour": []}
+	for a in ContentDB.all("artifacts"):
+		if a.get("grade") != grade or not is_banded(a): continue
+		(out.weapons if str(a.slot) == "weapon" else out.armour).append(a)
+	return out
+
+## Starter gear (grades.json drop.starter): a first-room foe's piece from a spec (`level`, `min_quality`), one of the
+## plain bases of the starter families or of the four armour slots (a weapon on `weapon_share` of rolls), at the par
+## character's item Level for the foe's Level, a weapon never above par quality there, so no weapon outruns early par
+## (docs/research/stat_scaling_research.md §6). The first weapon (`first`, of `family`) is exactly its `min_quality`.
+static func make_starter(rng: RandomNumberGenerator, spec: Dictionary, fortune: float, uid: int) -> Dictionary:
+	var level := int(spec.get("level", 1))
+	var ilv := starter_ilv(level)
+	var bases := banded_bases(grade_for_ilv(ilv))
+	var families: Array = [spec.family] if spec.has("family") else drop_cfg().get("starter", {}).get("families", [])
+	var weapons: Array = bases.weapons.filter(func(a): return str(a.get("family", "")) in families)
+	var pool: Array = weapons if spec.has("family") or rng.randf() < float(drop_cfg().get("weapon_share", 0.4)) else bases.armour
+	if pool.is_empty(): return {}
+	var base: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
+	var q := str(spec.get("min_quality", "flawed"))
+	if not spec.get("first", false): q = roll_quality(rng, q, fortune)
+	if str(base.slot) == "weapon": q = starter_quality(q, level)
+	return make_instance(base.id, ilv, q, rng, uid)
+
+## A starter piece's item Level: the par character's at the foe's Level (its weapon `par.weapon_lag` Levels behind).
+static func starter_ilv(level: int) -> int:
+	return maxi(1, level - int(ContentDB.stat_const("par.weapon_lag", 3)))
+
+## A starter weapon's quality: the one rolled, lowered to the par character's at the foe's Level.
+static func starter_quality(rolled: String, level: int) -> String:
+	var order: Array = ContentDB.config("grades").get("quality_order", [])
+	var top := str(StatRules.par_step("quality", level))
+	return top if order.find(rolled) > order.find(top) else rolled
+
+## What a drop spec makes: a named piece (`item`) at its own iLv and its source's quality, starter gear (`starter`) or
+## a banded piece.
 static func make_drop(rng: RandomNumberGenerator, spec: Dictionary, fortune: float, allow_weapons: bool, uid: int, family := "") -> Dictionary:
+	if spec.get("starter", false): return make_starter(rng, spec, fortune, uid)
 	if not spec.has("item"):
 		return make_equipment(rng, int(spec.get("level", 1)), str(spec.get("min_quality", "flawed")), fortune, allow_weapons, uid, family)
 	var def := ContentDB.item(str(spec.item))

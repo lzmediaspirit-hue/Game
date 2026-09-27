@@ -103,6 +103,7 @@ func _main() -> void:
 	legacy_suite()
 	codex_seals_suite()
 	drop_pool_suite()
+	starter_gear_suite()
 	set_suite()
 	boss_event_suite()
 	moments_suite()
@@ -9985,6 +9986,63 @@ func boss_event_suite() -> void:
 	check(seen.size() == 2, "an ordinary foe announces no boss_defeated")
 	GameEvents.event.disconnect(grab)
 	Game.enemies.wounded_here = false
+
+## Starter gear (grades.json drop.starter, docs/research/player_motivation.md items 1-2): the first rooms' foes carry
+## starter tables and nothing later does; a starter piece is a plain base of the starter families or the armour slots,
+## at the par item Level, a weapon never above par quality; the first first-room kill drops the first weapon, and the
+## character's first pieces come by the pity-th kill without one, then only by chance; a save from before has none.
+func starter_gear_suite() -> void:
+	var cfg: Dictionary = LootRules.drop_cfg().get("starter", {})
+	var fams: Array = cfg.get("families", [])
+	var starters: Array = ContentDB.all("loot_tables").filter(func(t): return t.get("starter", false)).map(func(t): return str(t.id))
+	starters.sort()
+	check(starters == ["mossback_toad", "mudshell_crab", "old_snapper", "reedtail_rat", "wild_boarlet"]
+		and starters.all(func(t): return float(ContentDB.entry("loot_tables", t).get("equipment", {}).get("chance", 0.0)) > 0.0),
+		"the first rooms' foes (the Reed Shallows, Willow Path West and East) roll starter gear (%s)" % str(starters))
+	check(float(ContentDB.entry("loot_tables", "mudshell_crab").equipment.chance) > float(ContentDB.entry("loot_tables", "rock_beetle").equipment.chance),
+		"a first-room foe drops gear more often than the next region's")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var seen := {}
+	var bad: Array = []
+	for level in [1, 2, 3]:
+		for i in 600:
+			var inst := LootRules.make_drop(rng, {"level": level, "min_quality": "flawed", "starter": true}, 0.0, true, i)
+			var def := ContentDB.item(str(inst.get("id", "")))
+			var order: Array = ContentDB.config("grades").get("quality_order", [])
+			if str(def.get("grade", "")) != "plain" or int(inst.ilv) != LootRules.starter_ilv(level) \
+					or (str(def.slot) == "weapon" and order.find(str(inst.quality)) > order.find(str(StatRules.par_step("quality", level)))) \
+					or (str(def.slot) == "weapon" and not str(def.get("family", "")) in fams) or not str(def.slot) in ["weapon", "hat", "robe", "trousers", "boots"]:
+				bad.append("%s %s %d" % [inst.get("id", ""), inst.get("quality", ""), int(inst.get("ilv", 0))])
+			seen[str(def.get("family", def.slot))] = true
+	check(bad.is_empty() and fams.all(func(f): return seen.has(f)) and seen.has("hat") and seen.has("robe"),
+		"starter drops: plain %s and armour at the par item Level, a weapon never above par quality (%s; bad %s)" % [str(fams), str(seen.keys()), str(bad.slice(0, 3))])
+	var first := LootRules.make_drop(rng, {"level": 1, "min_quality": str(cfg.first_quality), "starter": true, "family": str(cfg.first_family), "first": true}, 0.0, true, 1)
+	check(str(ContentDB.item(str(first.id)).get("family", "")) == str(cfg.first_family) and str(first.quality) == str(cfg.first_quality) and int(first.ilv) == 1,
+		"the first weapon is a %s %s at item Level 1 (%s)" % [cfg.first_quality, cfg.first_family, str(first)])
+	# The count on the character: the first kill, then the pity for the first pieces, then chance alone.
+	var c := GameCharacter.new()
+	var table := ContentDB.entry("loot_tables", "mudshell_crab")
+	var kill := func(with_piece: bool) -> Array:
+		var drop := {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "flawed", "starter": true}] if with_piece else []}
+		Game.world._starter_drop(c, table, 1, drop)
+		return drop.equipment
+	var eq0: Array = kill.call(false)
+	check(eq0.size() == 1 and eq0[0].get("first", false) and str(eq0[0].get("family", "")) == str(cfg.first_family), "the first first-room kill drops the first weapon (%s)" % str(eq0))
+	var later := {"items": [], "coins": 0, "equipment": []}
+	Game.world._starter_drop(c, ContentDB.entry("loot_tables", "rock_beetle"), 5, later)
+	check(later.equipment.is_empty() and int(c.starter_drops.get("kills", 0)) == 0, "a later foe's kill neither drops starter gear nor counts")
+	var at: Array = []
+	for k in range(1, 200):
+		if not (kill.call(k == 20) as Array).is_empty(): at.append(k)
+	var p := int(cfg.pity)
+	check(at == [p, 20, 20 + p] and int(c.starter_drops.pieces) == int(cfg.pity_pieces),
+		"then a piece by the %dth kill without one (a drop by chance starts the count again), for the first %d pieces, then chance alone (%s)" % [p, int(cfg.pity_pieces), str(at)])
+	var old := GameCharacter.new()
+	old.restore({"id": "c9", "slot": 9})
+	var none := {"items": [], "coins": 0, "equipment": []}
+	Game.world._starter_drop(old, table, 1, none)
+	check(none.equipment.is_empty() and GameCharacter.new().snapshot().has("starter_drops"), "a character saved before starter gear gets no first weapon now; the count is saved")
 
 ## P7a, P7b (item_plan §4.1): the equipment roll. Only banded bases, up to the highest banded grade's top Level; 40%
 ## weapons, a third of those in the family in hand; qualities from the source's floor; named rows and their floor;
