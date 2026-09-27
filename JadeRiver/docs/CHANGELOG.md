@@ -33,6 +33,34 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P2 · The close-out: rooms walked, objects apart, the mark follows the objective (M16–M18, M20)
+- **Every room walked (M16).** A new suite, `room_sweep`, walks every room headless with the real movement solver. It
+  checks that every door and interactable can be reached from every way in and that every arrival reaches a way out.
+  It walks the route between every pair of them and fails on a body held in place, and it fails on any solid
+  footprint that sticks out past its art (an invisible wall). It takes about 18 s.
+- **No more walking in under the steps.** In the Herb Terraces, the East Terrace, the Pavilion Rooftops and the Cliff
+  Stair the ground ran on under the raised stairs and landings. A walker along the back row ended up inside the
+  staircase, and pressing up did nothing there. The ground is now solid under any raised ground surface more than 8
+  above it (`under_steps()` in `tools/data/world.py`).
+- **No interactable hides another (M18).** A `data_validation` rule fails when one interactable would take the
+  context button from another where it stands, or from a door. It found 41: NPCs in six interior doorways and on three
+  anvils, chests over ledge herbs, signposts on sealed ways, the Gate Street bunk on the Weapon Hall's door, the
+  recruiters on their tent doors, a gravity switch on a herb. All were moved in the builders. Nodes and chests lifted
+  onto a tier now keep out of each other's reach.
+- **The context button looks at height.** A chest on a ledge could take the button from the herb below it and then
+  say "out of reach". The button now skips anything more than 48 above or below, as the interaction already did.
+- **The dummy case, played (M17).** As the valley_run character: between Uncle Guo and his dummy the button talks to
+  Guo and a blow strikes the dummy only. On the dialogue page a last line with nothing to choose, an accept and a
+  hand-in (Stone and Sweat, played on the page) all close the conversation by themselves.
+- **The direction mark follows the objective (M20).** It leads to the current objective's place: the room it names,
+  the NPC where they stand now and in your own sect, the nearest room with the foe or the herb, the room where a
+  dropped item drops. It goes as far as the room that hides a hidden way. Before, 18 main and guided quests had no
+  mark and 27 marked one room for every objective. Hand-in marks could point at the Weapon Master's yard before he
+  moves there, at Aunt Ping's hut after the Hollow Night, and at the other sect's arena.
+- Tests: `room_sweep`; `data_validation` `overlap_suite` and `quest_guidance_suite`, which plays every guided and main
+  quest on a probe set at the point where the story offers it (giver, marker, offer, each objective's mark and route,
+  the hand-in); `rules_tests` `guidance_suite`; `valley_run` bf5.
+
 ### P2 · The UI bug pass (B1–B25 of `docs/review-v12.md`)
 - **Broken, now working:** a Dao at tier 5 or 6 no longer throws a script error every frame, and each Dao row shows
   its own next target (B1). The guqin plays from the key-item pouch (B2). "Trial: <null>" is gone from great
