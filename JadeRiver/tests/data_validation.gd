@@ -23,6 +23,7 @@ func _ready() -> void:
 func _main() -> void:
 	_learn_kinds()
 	data_suite()
+	moments_data_suite()
 	item_source_suite()
 	room_suite()
 	movement_suite()
@@ -49,6 +50,90 @@ func _learn_kinds() -> void:
 			for part in line.strip_edges().trim_suffix(":").split(","):
 				req_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	check(effect_kinds.size() > 30 and req_kinds.size() > 30, "rule kinds discovered (%d effects, %d requirements)" % [effect_kinds.size(), req_kinds.size()])
+
+## P6 moments (docs/moments_design.md §3.8): every row of data/moments.json against the event contract (its trigger,
+## merges and every payload key it reads), FxLayer's kinds, data/audio.json, the strings, UiKit's colours, the closed
+## lists of MomentRules and the timing rules (a lock of at most max_lock_s, every screen layer inside the row).
+func moments_data_suite() -> void:
+	var contract: Dictionary = ContentDB.config("event_contract").get("events", {})
+	var cfg: Dictionary = ContentDB.config("moments")
+	var rows: Array = ContentDB.all("moments")
+	check(rows.size() >= 11 and cfg.has("settings"), "moments.json has its rows and settings (%d rows)" % rows.size())
+	var declared := func(ev: String) -> Array: return (contract.get(ev, {}).get("payload", []) as Array).map(func(k): return str(k).trim_suffix("?"))
+	for r in rows:
+		var where := "moment " + str(r.id)
+		var keys: Array = declared.call(str(r.event))
+		check(contract.has(str(r.event)) and not keys.is_empty(), "%s: its event %s is in the contract with a declared payload" % [where, r.event])
+		var slots := {}
+		for m in r.get("merge", []):
+			check(contract.has(str(m.event)), "%s: merged event %s is in the contract" % [where, m.event])
+			slots[str(m.get("into", ""))] = declared.call(str(m.event))
+			for k in m.get("when", {}): check(k in MomentRules.MATCHERS or k in declared.call(str(m.event)), "%s: merge %s reads a declared key (%s)" % [where, m.event, k])
+		for k in r.get("when", {}): check(k in MomentRules.MATCHERS or k in keys, "%s: matcher %s is known or a declared key" % [where, k])
+		for h in r.get("hold_until", []): check(contract.has(str(h)), "%s: held until %s, an event in the contract" % [where, h])
+		var refs := []
+		_moment_walk(r, refs)
+		for ref in refs:
+			var s := str(ref)
+			if s.begins_with("payload."): check(s.trim_prefix("payload.") in keys, "%s reads %s, declared by %s" % [where, s, r.event])
+			elif s.begins_with("slot."): check(s.get_slice(".", 2) in slots.get(s.get_slice(".", 1), []), "%s reads %s, from a merged event that declares it" % [where, s])
+			elif s.begins_with("item."): check("item" in keys, "%s reads %s: its event names an item" % [where, s])
+		var dur := float(r.duration_s)
+		check(float(r.lock_s) <= float(cfg.settings.max_lock_s) and (float(r.lock_s) == 0.0 or float(r.lock_s) < dur), "%s: its lock is within %s s and the row" % [where, cfg.settings.max_lock_s])
+		check(float(r.get("skip_to_s", 0.0)) < dur and str(r.skip) in ["", "tap"] and str(r.in_fight) in ["play", "toast"] and str(r.scope) in ["actor", "room"], "%s: skip, in_fight and scope are known, the skip point inside the row" % where)
+		check(r.get("hold_until", []).is_empty() == (float(r.get("max_s", 0.0)) == 0.0), "%s: a held row has hold_until and max_s" % where)
+		for L in r.layers:
+			var kind := str(L.kind)
+			check(MomentRules.LAYER_KINDS.has(kind), "%s: layer kind %s is known" % [where, kind])
+			if MomentRules.LAYER_KINDS.get(kind, "") in ["under", "over"]: check(float(L.t) < dur, "%s: its %s layer starts inside the row" % [where, kind])
+			if kind == "fx": check(str(L.fx) in FxLayer.KINDS, "%s: fx %s is an FxLayer kind" % [where, L.fx])
+			if kind == "sound": check(ContentDB.config("audio").get("sfx", {}).has(str(L.sfx)), "%s: sound %s is in data/audio.json" % [where, L.sfx])
+			if kind == "bark":
+				for i in 3: check(ContentDB.strings.has("%s_%d" % [L.key, i]), "%s: bark line %s_%d" % [where, L.key, i])
+			for a in ["at", "to"]:
+				if L.has(a): check(str(L[a]) in MomentRules.ANCHORS, "%s: anchor %s is known" % [where, L[a]])
+		for k in keys:
+			check(r.sample.has(k), "%s: its sample carries %s" % [where, k])
+	var elems: Dictionary = ContentDB.config("elements").get("colors", {})
+	var grades: Dictionary = ContentDB.config("grades")
+	var tokens := MomentRules.tokens()
+	var colours := []
+	_moment_walk(rows, [], colours)
+	for c in colours:
+		var s := str(c)
+		var id := s.get_slice(":", 1)
+		var ok := tokens.has(s)
+		if s.contains(":"): ok = id.contains(".") or {"element": elems, "grade": grades.get("grade_colors", {}), "quality": grades.get("quality_colors", {})}.get(s.get_slice(":", 0), {}).has(id)
+		check(ok, "moments colour %s is a UiKit token or a data id" % s)
+	var texts := []
+	_moment_walk(rows, [], [], texts)
+	for t in texts:
+		var k := str(t.src.key) + (str(t.sample.get(str(t.src.suffix).trim_prefix("payload."), "")) if t.src.has("suffix") else "")
+		check(ContentDB.strings.has(k), "moments text %s is a string (not the fallback)" % k)
+	var tiers: Array = cfg.get("vfx_tiers", [])
+	check(tiers.size() == 7, "the escalation curve has 7 tiers")
+	for i in range(1, tiers.size()):
+		for col in tiers[i]:
+			check(float(tiers[i][col]) >= float(tiers[i - 1][col]), "vfx tier %d: %s does not fall" % [i + 1, col])
+		check(int(tiers[i].spark_count) > int(tiers[i - 1].spark_count), "vfx tier %d: more sparks than tier %d" % [i + 1, i])
+	for t in tiers:
+		check(int(t.number_size) + 8 <= 40 and float(t.shake_s) <= 0.15 and float(t.tint_alpha) <= 0.2, "vfx tier %d stays within the limits" % int(t.tier))
+
+## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
+func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
+	if node is Dictionary:
+		if node.has("sample") and node.has("layers"): sample = node.sample
+		if node.has("key") and not node.has("kind"): texts.append({"src": node, "sample": sample})
+		for k in node:
+			if k == "sample": continue
+			var v = node[k]
+			if k in ["color", "glow"]: colours.append(v)
+			if v is String:
+				var r: String = v.get_slice(":", 1) if v.contains(":") else v
+				if r.begins_with("payload.") or r.begins_with("slot.") or r.begins_with("item."): refs.append(r)
+			_moment_walk(v, refs, colours, texts, sample)
+	elif node is Array:
+		for v in node: _moment_walk(v, refs, colours, texts, sample)
 
 func item_ok(id: String) -> bool:
 	return ContentDB.has_entry("items", id) or ContentDB.has_entry("artifacts", id)

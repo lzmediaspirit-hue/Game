@@ -1,0 +1,718 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "breakthrough_channel",
+   "event": "breakthrough_started",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 0,
+   "duration_s": 3.0,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "ring",
+     "at": "actor",
+     "color": "QI",
+     "radius": 90,
+     "dur": "payload.duration"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "from": "qi_kindling_9",
+    "to": "qi_unfurling_1",
+    "risk": "low",
+    "duration": 3.0
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "breakthrough_minor",
+   "event": "breakthrough_succeeded",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 60,
+   "duration_s": 1.8,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "level_changed",
+     "when": {},
+     "into": "level",
+     "keep_sound": false
+    },
+    {
+     "event": "realm_changed",
+     "when": {},
+     "into": "",
+     "keep_sound": false
+    },
+    {
+     "event": "system_unlocked",
+     "when": {},
+     "into": "unlocks",
+     "keep_sound": false,
+     "max": 2
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "spiral",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "offset": [
+      0,
+      -20
+     ],
+     "dur": 1.6
+    },
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "realm": "payload.to"
+     },
+     "size": 28,
+     "color": "PALE_GOLD",
+     "at": "actor",
+     "offset": [
+      0,
+      -150
+     ],
+     "dur": 2.5
+    },
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.2
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "breakthrough"
+    },
+    {
+     "t": 0.0,
+     "kind": "buzz",
+     "ms": 120
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "from": "qi_kindling_3",
+    "to": "qi_kindling_4",
+    "major": false,
+    "formation": ""
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "breakthrough_failed",
+   "event": "breakthrough_failed",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 60,
+   "duration_s": 2.4,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "tribulation_result",
+     "when": {
+      "survived": false
+     },
+     "into": "tribulation",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "key": "world_view.breakthrough_failed"
+     },
+     "size": 24,
+     "color": "RED",
+     "at": "actor",
+     "offset": [
+      0,
+      -150
+     ],
+     "dur": 2.5
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "fail"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "failure_id": "energy_instability",
+    "losses": 0.2,
+    "injuries": [
+     "meridian"
+    ],
+    "recovery": "Rest, restoration pill"
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "realm_phenomenon",
+   "event": "heavenly_phenomenon",
+   "when": {
+    "actor": "active",
+    "kind": "cloud"
+   },
+   "priority": 0,
+   "duration_s": 5.5,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "heaven_cloud",
+     "at": "actor",
+     "color": "HEAVEN_CLOUD",
+     "offset": [
+      0,
+      -20
+     ],
+     "dur": 5.5
+    },
+    {
+     "t": 0.0,
+     "kind": "bark",
+     "key": "world_view.phenomenon_cloud",
+     "radius": 900,
+     "dur": 4.0
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "kind": "cloud",
+    "realm": "qi_unfurling_1",
+    "room": "wp_west",
+    "people": 2
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "tribulation",
+   "event": "tribulation_started",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 80,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "heavenly_phenomenon",
+     "when": {
+      "kind": "lightning"
+     },
+     "into": "",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [
+    "tribulation_result"
+   ],
+   "max_s": 120.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "heaven_storm",
+     "at": "actor",
+     "color": "HEAVEN_BOLT",
+     "offset": [
+      0,
+      -20
+     ],
+     "dur": 6.0
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "thunder"
+    },
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.25
+    },
+    {
+     "t": 0.0,
+     "kind": "bark",
+     "key": "world_view.phenomenon_storm",
+     "radius": 900,
+     "dur": 4.0
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "from": "cloud_stride_9",
+    "to": "spirit_awakening_1",
+    "bolts": 9,
+    "waves": 3
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "level_up",
+   "event": "level_changed",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 0,
+   "duration_s": 1.0,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "key": "world_view.level",
+      "args": [
+       "payload.level"
+      ]
+     },
+     "size": 22,
+     "color": "PALE_GOLD",
+     "at": "actor",
+     "offset": [
+      0,
+      -160
+     ],
+     "dur": 2.0
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "level"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "level": 12
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "body_level",
+   "event": "body_level_changed",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 0,
+   "duration_s": 2.0,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "key": "world_view.body_level",
+      "args": [
+       "payload.value"
+      ]
+     },
+     "size": 20,
+     "color": "BODY",
+     "at": "actor",
+     "offset": [
+      0,
+      -140
+     ],
+     "dur": 2.0
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "value": 4
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "weapon_awakened",
+   "event": "weapon_awakened",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "wave",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "radius": 140,
+     "dur": 0.8
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "breakthrough"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "item": "stone_drum_gauntlets",
+    "skill": "Mountain Drum",
+    "legend": true
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "rare_pill",
+   "event": "pill_cloud",
+   "when": {},
+   "priority": 0,
+   "duration_s": 3.5,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "pill_cloud",
+     "at": "actor",
+     "color": "quality:payload.quality",
+     "offset": [
+      0,
+      -70
+     ],
+     "dur": 3.5
+    },
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "key": "world_view.pill_cloud_",
+      "suffix": "payload.quality"
+     },
+     "size": 26,
+     "color": "quality:payload.quality",
+     "at": "actor",
+     "offset": [
+      0,
+      -190
+     ],
+     "dur": 3.0
+    },
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.12
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "breakthrough"
+    },
+    {
+     "t": 0.0,
+     "kind": "bark",
+     "key": "world_view.pill_cloud_bark",
+     "radius": 700,
+     "dur": 3.5
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "recipe": "qi_gathering_pill",
+    "quality": "pill_halo"
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "boss_phase",
+   "event": "boss_phase",
+   "when": {},
+   "priority": 90,
+   "duration_s": 1.2,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 1.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "shake",
+     "s": 0.3
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "boss_roar"
+    }
+   ],
+   "art": [],
+   "sample": {
+    "enemy": 1,
+    "phase": 2,
+    "action": "summon"
+   },
+   "step": "P6a"
+  },
+  {
+   "id": "trial_opens",
+   "event": "room_event_started",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 60,
+   "duration_s": 1.8,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "room",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {},
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "text",
+     "text": {
+      "key": "event.",
+      "suffix": "payload.event"
+     },
+     "size": 30,
+     "color": "RED",
+     "at": "camera",
+     "offset": [
+      0,
+      -180
+     ],
+     "dur": 3.0
+    }
+   ],
+   "art": [],
+   "sample": {
+    "actor": "c1",
+    "room": "wp_west",
+    "event": "heart_trial",
+    "duration": 90.0
+   },
+   "step": "P6a"
+  }
+ ],
+ "settings": {
+  "max_lock_s": 1.5,
+  "queue_max": 4,
+  "stale_s": 6.0,
+  "cut_fade_s": 0.15,
+  "flash_gap_s": 1.0,
+  "shake_amp_per_s": 16,
+  "fight_radius": 400,
+  "snapshot_s": 1.0,
+  "merge_rare_s": 1.5
+ },
+ "vfx_tiers": [
+  {
+   "tier": 1,
+   "spark_count": 8,
+   "spark_size": 6,
+   "spark_reach": 28,
+   "core_r": 10,
+   "cast_ring_r": 0,
+   "wave_width": 8,
+   "echoes": 0,
+   "number_size": 22,
+   "shake_s": 0.0,
+   "shake_amp": 0.0,
+   "tint_alpha": 0.0
+  },
+  {
+   "tier": 2,
+   "spark_count": 10,
+   "spark_size": 6,
+   "spark_reach": 32,
+   "core_r": 12,
+   "cast_ring_r": 40,
+   "wave_width": 9,
+   "echoes": 0,
+   "number_size": 22,
+   "shake_s": 0.0,
+   "shake_amp": 0.0,
+   "tint_alpha": 0.0
+  },
+  {
+   "tier": 3,
+   "spark_count": 12,
+   "spark_size": 8,
+   "spark_reach": 38,
+   "core_r": 16,
+   "cast_ring_r": 60,
+   "wave_width": 10,
+   "echoes": 1,
+   "number_size": 24,
+   "shake_s": 0.06,
+   "shake_amp": 1.0,
+   "tint_alpha": 0.06
+  },
+  {
+   "tier": 4,
+   "spark_count": 14,
+   "spark_size": 8,
+   "spark_reach": 44,
+   "core_r": 20,
+   "cast_ring_r": 80,
+   "wave_width": 12,
+   "echoes": 1,
+   "number_size": 24,
+   "shake_s": 0.08,
+   "shake_amp": 1.5,
+   "tint_alpha": 0.08
+  },
+  {
+   "tier": 5,
+   "spark_count": 16,
+   "spark_size": 10,
+   "spark_reach": 50,
+   "core_r": 24,
+   "cast_ring_r": 100,
+   "wave_width": 14,
+   "echoes": 2,
+   "number_size": 26,
+   "shake_s": 0.1,
+   "shake_amp": 2.0,
+   "tint_alpha": 0.1
+  },
+  {
+   "tier": 6,
+   "spark_count": 18,
+   "spark_size": 10,
+   "spark_reach": 56,
+   "core_r": 28,
+   "cast_ring_r": 120,
+   "wave_width": 16,
+   "echoes": 2,
+   "number_size": 28,
+   "shake_s": 0.12,
+   "shake_amp": 2.0,
+   "tint_alpha": 0.14
+  },
+  {
+   "tier": 7,
+   "spark_count": 20,
+   "spark_size": 12,
+   "spark_reach": 64,
+   "core_r": 32,
+   "cast_ring_r": 140,
+   "wave_width": 18,
+   "echoes": 3,
+   "number_size": 30,
+   "shake_s": 0.14,
+   "shake_amp": 2.5,
+   "tint_alpha": 0.18
+  }
+ ]
+}

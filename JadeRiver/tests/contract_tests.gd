@@ -50,6 +50,9 @@ func _main() -> void:
 		check(foreign.is_empty(), "%s is emitted only by %s, not %s" % [ev, row.get("system", "?"), ", ".join(foreign)])
 		var by_data := data_text.contains("\"event\": " + q)
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
+	_declared_payloads(contract)
+	_fx_kinds()
+	_moments_read_only()
 	_strings_gate()
 	_format_words_gate()
 	_forbidden_patterns()
@@ -67,6 +70,55 @@ func _read_scripts(dir: String) -> void:
 		if f.ends_with(".gd"):
 			sources[f.get_basename()] = FileAccess.get_file_as_string(dir + f).split("\n")
 
+## P6: every emit site of an event whose payload the contract declares names each declared key in its dict literal
+## (the emit line and its continuation lines); a key ending in "?" is optional.
+func _declared_payloads(contract: Dictionary) -> void:
+	var missing: Array = []
+	var sites := 0
+	for ev in contract:
+		var keys: Array = contract[ev].get("payload", [])
+		if keys.is_empty(): continue
+		var call := RegEx.create_from_string("\\bemit(_event)?\\(\"%s\"" % ev)
+		for name in sources:
+			var lines: Array = sources[name]
+			for i in lines.size():
+				if call.search(lines[i]) == null: continue
+				sites += 1
+				var body := ""
+				var depth := 0
+				for j in range(i, mini(i + 8, lines.size())):
+					body += str(lines[j])
+					depth += str(lines[j]).count("(") - str(lines[j]).count(")")
+					if depth <= 0: break
+				for k in keys:
+					if not str(k).ends_with("?") and not body.contains("\"%s\":" % k): missing.append("%s:%d %s.%s" % [name, i + 1, ev, k])
+	check(sites >= 25 and missing.is_empty(), "every emit site names its event's declared payload keys (%d sites) %s" % [sites, str(missing)])
+
+## P6: FxLayer.KINDS and the arms of fx_layer.gd's _draw match list the same kinds (moments.json names only KINDS).
+func _fx_kinds() -> void:
+	var arms: Array = []
+	var in_draw := false
+	var arm := RegEx.create_from_string("^\\t{3}\"([a-z_]+)\":")
+	for line in sources.get("fx_layer", []):
+		if str(line).begins_with("func "): in_draw = str(line).begins_with("func _draw()")
+		var m := arm.search(str(line)) if in_draw else null
+		if m: arms.append(m.get_string(1))
+	arms.sort()
+	var kinds: Array = FxLayer.KINDS.duplicate()
+	kinds.sort()
+	check(arms == kinds, "FxLayer.KINDS lists every kind _draw draws (%s against %s)" % [str(kinds), str(arms)])
+
+## P6 presentation only: the moments scripts call nothing that changes the simulation and assign to no Game member.
+func _moments_read_only() -> void:
+	var bad := RegEx.create_from_string("Game\\.submit\\(|\\bemit\\(|emit_event\\(|GameEvents\\.subscribe\\(|\\.apply_\\w+\\(|\\bRng\\.|\\bClock\\.|\\bGame\\.[\\w.\\[\\]\"]*\\s*[-+*/]?=(?!=)")
+	var found: Array = []
+	for name in ["moment_view", "moment_rules"]:
+		var lines: Array = sources.get(name, [])
+		check(not lines.is_empty(), "%s.gd exists" % name)
+		for i in lines.size():
+			if not str(lines[i]).strip_edges().begins_with("#") and bad.search(str(lines[i])) != null: found.append("%s:%d" % [name, i + 1])
+	check(found.is_empty(), "the moments scripts never write game state %s" % str(found))
+
 ## Data rules that react to events (achievements, quest objectives) name them as "event": "…".
 func _data_text() -> String:
 	var out := ""
@@ -80,7 +132,8 @@ func _data_text() -> String:
 ## a comparison, a membership list, a const, a signature default or debug output.
 const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
 	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
-	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/simulation/authority/",
+	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
+	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
 	"res://scripts/core/requirement_rules.gd", "res://scripts/core/unlock_service.gd"]
 const TECH := ["UI", "SFX", "Music", "Ambience", "Master", "MobileHUD", "Room", "HUD"]
 

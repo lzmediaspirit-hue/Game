@@ -101,6 +101,7 @@ func _main() -> void:
 	legacy_suite()
 	drop_pool_suite()
 	boss_event_suite()
+	moments_suite()
 	text_suite()
 	ui_fixes_suite()
 	await ui_suite()
@@ -7855,6 +7856,209 @@ func nav_suite() -> void:
 ## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
 ## P9 finding: a dungeon boss's fall is announced as boss_defeated, clean only when no grave wound came first in the
 ## room, so the Untouched achievement can be earned.
+# ------------------------------------------------------------------ P6 moments
+## docs/moments_design.md §7.1: a MomentView with no world and no HUD, fed through its event handler and stepped by
+## hand. Case 1 runs every real row; cases 3–10 run on fixture rows, so the gather, merge, queue, cut, lock and settings
+## are proved before the real rows have screen parts.
+func moments_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var was: Dictionary = Game.account.settings.duplicate(true)
+	var mv := MomentView.new()
+	add_child(mv)
+	mv.set_process(false)
+	mv.fight_override = false
+	mv.pages_override = false
+	var run := func(s: float) -> void:
+		for i in int(round(s * 60.0)): mv.advance(1.0 / 60.0)
+	var feed := func(ev: String, p: Dictionary) -> void:
+		var q := p.duplicate(true)
+		for k in ["actor", "target"]:
+			if q.has(k): q[k] = c.id
+		mv._on_event(ev, q)
+	var played := func(id: String) -> Array: return mv.logged.filter(func(e): return str(e.row) == id)
+	# 1. Every real row fires from its sample and ends on time, each layer logged within a frame of its t.
+	var real: Array = ContentDB.all("moments")
+	for r in real:
+		mv.load_rows(real)
+		mv.logged.clear()
+		feed.call(str(r.event), r.sample)
+		mv.advance(0.0)
+		var on: bool = (mv.playing != null and mv.playing.row.id == r.id) or mv.queue.any(func(q): return q.row.id == r.id) or not played.call(str(r.id)).is_empty()
+		check(on, "moment %s plays from its sample" % r.id)
+		run.call(float(r.duration_s) + 0.1)
+		for h in r.get("hold_until", []): feed.call(str(h), {"actor": c.id, "survived": true})
+		run.call(2.0 / 60.0)
+		check(mv.playing == null and mv.queue.is_empty() and not mv.active.any(func(q): return q.row.id == r.id), "moment %s ends on time and frees the screen" % r.id)
+		var late: Array = []
+		for L in r.layers:
+			if L.has("if_slot") or str(L.kind) in ["caption", "camera"]: continue
+			if not played.call(str(r.id)).any(func(e): return str(e.layer) == str(L.kind) and absf(float(e.t) - float(L.t)) <= 1.0 / 60.0 + 0.001): late.append("%s@%s" % [L.kind, L.t])
+		check(late.is_empty(), "moment %s: every layer starts within a frame of its time %s" % [r.id, str(late)])
+	# Fixture rows for cases 3-10.
+	var fx_row := func(id: String, event: String, pri: int, dur: float, layers: Array, extra := {}) -> Dictionary:
+		var r := {"id": id, "event": event, "when": {}, "priority": pri, "duration_s": dur, "lock_s": 0.0, "skip": "", "skip_to_s": 0.0,
+			"stale_s": 6.0, "in_fight": "play", "scope": "actor", "merge": [], "hold_until": [], "max_s": 0.0,
+			"toast": {"key": "world_view.level", "args": [pri]}, "layers": layers, "art": [], "sample": {}, "step": "test"}
+		r.merge(extra, true)
+		return r
+	var band := {"t": 0.0, "kind": "band", "y": 138}
+	var fixtures: Array = [
+		fx_row.call("major", "breakthrough_succeeded", 70, 4.0, [{"t": 0.0, "kind": "dim", "alpha": 0.45}, {"t": 0.0, "kind": "sound", "sfx": "breakthrough"},
+			{"t": 0.0, "kind": "fx", "fx": "spark", "at": "actor", "count": 16}, {"t": 0.0, "kind": "buzz", "ms": 120}, {"t": 0.0, "kind": "camera", "to": "actor"},
+			{"t": 0.2, "kind": "flash", "alpha": 0.35}, {"t": 0.6, "kind": "shake", "s": 0.2}, {"t": 0.6, "kind": "band", "y": 138},
+			{"t": 0.6, "kind": "letterbox", "height": 64}],
+			{"when": {"actor": "active", "major": true}, "lock_s": 1.5, "skip": "tap", "skip_to_s": 2.4,
+			"merge": [{"event": "level_changed", "into": "level"}, {"event": "realm_changed", "into": ""}, {"event": "system_unlocked", "into": "unlocks", "max": 2}]}),
+		fx_row.call("cloud", "heavenly_phenomenon", 0, 5.5, [{"t": 0.0, "kind": "fx", "fx": "heaven_cloud", "at": "actor"}], {"when": {"kind": "cloud"}}),
+		fx_row.call("level", "level_changed", 0, 1.0, [{"t": 0.0, "kind": "sound", "sfx": "level"}]),
+		fx_row.call("title", "title_changed", 40, 1.2, [band], {"when": {"earned": true}, "in_fight": "toast"}),
+		fx_row.call("dao", "dao_tier_up", 50, 1.2, [band], {"in_fight": "toast"}),
+		fx_row.call("rare", "loot_dropped", 40, 1.2, [band], {"in_fight": "toast", "stale_s": 9.0}),
+		fx_row.call("phase", "boss_phase", 90, 1.2, [band, {"t": 0.0, "kind": "sound", "sfx": "boss_roar"}], {"stale_s": 1.0, "toast": {}}),
+		fx_row.call("intro", "enemy_aggro", 90, 2.0, [{"t": 0.0, "kind": "letterbox", "height": 64}], {"scope": "room", "stale_s": 1.5, "toast": {}}),
+		fx_row.call("trial", "room_event_started", 60, 1.8, [band], {"scope": "room"}),
+		fx_row.call("long", "quest_completed", 95, 8.0, [band], {"toast": {}})]
+	mv.load_rows(fixtures)
+	var burst := func() -> void:
+		feed.call("breakthrough_succeeded", {"actor": "", "from": "will_manifest_3", "to": "sphere_lord_1", "major": true, "formation": ""})
+		feed.call("level_changed", {"actor": "", "level": 91})
+		feed.call("realm_changed", {"actor": "", "from": "will_manifest_3", "to": "sphere_lord_1", "major": true, "level": 91})
+		feed.call("system_unlocked", {"actor": "", "system": "sphere", "toast": true, "label": "the Sphere"})
+		feed.call("system_unlocked", {"actor": "", "system": "sphere_domain", "toast": true, "label": "the Domain"})
+		feed.call("heavenly_phenomenon", {"actor": "", "kind": "cloud", "realm": "sphere_lord_1", "room": "x", "people": 0})
+		feed.call("title_changed", {"actor": "", "title": "sphere_lord", "earned": true})
+	# 3. Gather and merge.
+	mv.logged.clear()
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "major" and mv.playing.slots.has("level") and (mv.playing.slots.get("unlocks", []) as Array).size() == 2,
+		"one pass: the major breakthrough plays with its level and two unlocks absorbed")
+	check(mv.logged.filter(func(e): return str(e.get("sfx", "")) != "").size() == 1 and played.call("cloud").size() == 1 and played.call("level").is_empty(),
+		"the breakthrough's sound plays once; the phenomenon's clouds play; the absorbed level plays nothing of its own")
+	check(mv.queue.size() == 1 and mv.queue[0].row.id == "title", "the title waits for the screen")
+	# 4. Queue order: priority, then arrival.
+	feed.call("loot_dropped", {"room": "x", "items": [], "x": 0, "y": 0})
+	feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": 3})
+	var order: Array = []
+	for i in 600:
+		mv.advance(1.0 / 60.0)
+		if mv.playing != null and (order.is_empty() or order.back() != mv.playing.row.id): order.append(mv.playing.row.id)
+	check(order == ["major", "dao", "title", "rare"], "after the breakthrough: the Dao tier, then the title and the rare drop by arrival (%s)" % str(order))
+	# 5. A cut: a boss phase 1.0 s into the breakthrough.
+	mv.clear()
+	mv.toasts_posted.clear()
+	burst.call()
+	run.call(1.0)
+	feed.call("boss_phase", {"enemy": 7, "phase": 2, "action": ""})
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "phase" and mv.fading != null and mv.fading.row.id == "major" and mv.toasts_posted.size() == 1,
+		"a boss phase cuts the breakthrough, which leaves its toast")
+	run.call(0.15)
+	check(mv.fading == null, "the cut row fades out within 0.15 s")
+	run.call(8.0)
+	check(not mv.logged.any(func(e): return str(e.row) == "major" and float(e.t) > 1.1 and str(e.layer) == "band"), "the cut row does not come back")
+	# 6. Stale and full.
+	mv.clear()
+	mv.toasts_posted.clear()
+	feed.call("quest_completed", {"actor": "", "quest": "q", "name": "Q", "kind": "main"})
+	mv.advance(0.0)
+	for i in 3: feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": i + 1})
+	for i in 2: feed.call("title_changed", {"actor": "", "title": "t%d" % i, "earned": true})
+	mv.advance(0.0)
+	check(mv.queue.size() == 4 and mv.toasts_posted.size() == 1, "a fifth waiting row drops the lowest to its toast at once")
+	feed.call("boss_phase", {"enemy": 7, "phase": 3, "action": ""})
+	mv.advance(0.0)
+	run.call(1.1)
+	check(not mv.queue.any(func(q): return q.row.id == "phase") and mv.toasts_posted.size() == 2, "a waiting boss phase drops after 1.0 s, with no toast")
+	run.call(6.0)
+	check(mv.queue.is_empty() and mv.toasts_posted.size() == 5, "every row that waited past its stale time drops to its toast (%d)" % mv.toasts_posted.size())
+	# 7. Pages and fights.
+	mv.clear()
+	mv.logged.clear()
+	mv.pages_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing == null and not played.call("major").is_empty() and mv.queue.any(func(q): return q.row.id == "major"), "under a page the world layers play and the screen part waits")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "major", "the screen part starts when the page closes")
+	mv.clear()
+	mv.toasts_posted.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.toasts_posted.size() == 1 and not mv.queue.any(func(q): return q.row.id == "title") and mv.lock_left() == 0.0,
+		"in a fight the title is a toast, and the breakthrough takes no lock")
+	mv.fight_override = false
+	# 8. Room change.
+	mv.clear()
+	mv.toasts_posted.clear()
+	feed.call("enemy_aggro", {"enemy": 3, "target": "", "def": "big_toad_tan"})
+	mv.advance(0.0)
+	feed.call("room_event_started", {"actor": "", "room": "x", "event": "heart_trial", "duration": 60})
+	feed.call("title_changed", {"actor": "", "title": "t9", "earned": true})
+	mv.advance(0.0)
+	feed.call("room_left", {"actor": c.id, "room": "x", "portal": ""})
+	mv.advance(0.0)
+	check(not (mv.playing != null and mv.playing.row.id == "intro") and not mv.queue.any(func(q): return q.row.id == "trial") and mv.toasts_posted.is_empty()
+		and ((mv.playing != null and mv.playing.row.id == "title") or mv.queue.any(func(q): return q.row.id == "title")),
+		"leaving the room ends the boss intro and the waiting trial with no toast; the title survives")
+	# 9. Settings.
+	var put := func(k: String, v) -> void: Game.account.settings[k] = v
+	mv.clear()
+	mv.logged.clear()
+	put.call("screen_shake", false)
+	put.call("flashes", false)
+	put.call("reduce_motion", true)
+	put.call("haptics", false)
+	burst.call()
+	run.call(1.0)
+	var shakes: Array = played.call("major").filter(func(e): return str(e.layer) == "shake")
+	check(not shakes.is_empty() and shakes.all(func(e): return float(e.amp) == 0.0), "with Screen shake off every shake is still")
+	var flash: Array = played.call("major").filter(func(e): return str(e.layer) == "flash")
+	check(flash.size() == 1 and near(float(flash[0].alpha), 0.35 * 0.3), "with Bright flashes off a flash is 0.3 of its alpha")
+	check(not played.call("major").any(func(e): return str(e.layer) in ["camera", "buzz"]), "with Reduce motion no camera move, with Vibration off no buzz")
+	check(played.call("major").filter(func(e): return str(e.layer) in ["band", "letterbox"]).all(func(e): return not e.motion), "with Reduce motion bands and letterboxes do not slide")
+	var sp: Array = played.call("major").filter(func(e): return str(e.layer) == "fx")
+	check(sp.size() == 1 and int(sp[0].count) == int(MomentRules.tier(1).spark_count), "with Reduce motion a burst has tier 1's particles")
+	put.call("damage_numbers", false)
+	var fl := FxLayer.new()
+	fl.number(Vector2.ZERO, "12", UiKit.PAPER)
+	fl.label(Vector2.ZERO, Tx.t("world_view.miss"), UiKit.MIST)
+	check(fl.fx.size() == 1, "with Damage numbers off no damage number rises; Miss still does")
+	fl.free()
+	for k in ["screen_shake", "flashes", "reduce_motion", "haptics", "damage_numbers"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	if not was.has("reduce_motion"): Game.account.settings.erase("reduce_motion")
+	# 10. The lock.
+	for r in fixtures:
+		mv.clear()
+		mv.load_rows([r])
+		feed.call(str(r.event), {"actor": "", "major": true, "earned": true, "kind": "cloud", "enemy": 1, "target": ""})
+		var most := 0.0
+		for i in int(float(r.duration_s) * 60.0) + 2:
+			mv.advance(1.0 / 60.0)
+			most = maxf(most, mv.lock_left())
+			if mv.playing != null and float(mv.playing.st) > float(r.lock_s) + 1.0 / 60.0 and mv.lock_left() > 0.0: most = 99.0
+		check(most <= minf(float(r.lock_s), 1.5), "moment %s holds input at most its lock (%.2f s)" % [r.id, most])
+	mv.load_rows(fixtures)
+	burst.call()
+	run.call(0.5)
+	check(mv.lock_left() > 0.0 and mv.press() and mv.lock_left() == 0.0 and near(float(mv.playing.st), 2.4), "a tap during the breakthrough's lock skips to 2.4 s and gives input back")
+	mv.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.lock_left() == 0.0, "no lock starts in a fight")
+	mv.fight_override = false
+	mv.clear()
+	burst.call()
+	run.call(0.3)
+	mv.fight_override = true
+	mv.advance(1.0 / 60.0)
+	check(mv.lock_left() == 0.0, "a running lock ends the frame a fight starts")
+	mv.queue_free()
+
 func boss_event_suite() -> void:
 	var c = Game.active()
 	if c == null: return

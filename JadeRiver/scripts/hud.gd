@@ -560,13 +560,24 @@ func use_quick() -> void:
 
 ## Pages and dialogue block world input; held controls are released at once.
 var blocked := false
+## A moment holds world input for a moment (P6, at most 1.5 s); kept apart from `blocked` so a page closing never ends it.
+var moment_lock := false
+var moments: Node = null   # the MomentView: a press during its lock goes to it (a tap skips a skippable moment)
 
 func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	blocked = value
 
+func set_moment_lock(value: bool) -> void:
+	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	moment_lock = value
+
 func _input(event):
 	if blocked: return
+	if moment_lock:
+		var pressed: bool = (event is InputEventScreenTouch or event is InputEventMouseButton or event is InputEventKey) and event.pressed and not event.is_echo()
+		if pressed and moments: moments.press()
+		return
 	if event is InputEventMouse and event.device == -1: return
 	if event is InputEventScreenTouch:
 		if event.pressed and not event.canceled: press(event.index, event.position)
@@ -800,8 +811,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"craft_completed":
 			add_log(Tx.t("hud.crafted") % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 			if str(p.quality).begins_with("pill_"): toast(Tx.t("hud.rare_pill") % str(p.quality).capitalize(), "gold")
-		"breakthrough_succeeded":
-			_buzz(120)
 		"player_gravely_wounded":
 			_buzz(200)
 		"pets_bred":
@@ -1068,7 +1077,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.core_graded") % int(p.grade), "gold")
 		"tribulation_started":
 			toast(Tx.t("hud.tribulation_started") % int(p.bolts), "danger", Tx.t("hud.tribulation_hint"))
-			Audio.play("thunder")
 		"tribulation_bolt":
 			if str(p.phase) == "strike":
 				Audio.play("thunder")

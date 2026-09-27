@@ -73,6 +73,7 @@ const PAGES := {
 var backdrop: Control
 var world: Node2D
 var hud: Control
+var moments: MomentView
 var hud_layer: CanvasLayer
 var page_layer: CanvasLayer
 var shell_layer: CanvasLayer
@@ -516,8 +517,17 @@ func _handle_preview_args(user_args: Array) -> void:
 		await get_tree().create_timer(1.0).timeout
 		hud.pet_wheel = true
 		hud.pet_pick = 1
+	var moment_t := -1.0
+	for a in user_args:
+		if str(a).begins_with("--moment=") and is_instance_valid(moments):
+			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
+			# --capture the shot is taken at t (P6 previews).
+			var mo := str(a).trim_prefix("--moment=").split(":")
+			await get_tree().create_timer(1.0).timeout
+			moment_t = float(mo[1]) if mo.size() > 1 else 2.0
+			moments.preview(mo[0], moment_t)
 	if "--capture" in user_args:
-		await get_tree().create_timer(2.5).timeout
+		await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
 		for a in user_args:
 			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
 			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})
@@ -621,9 +631,19 @@ func _mount_world() -> void:
 	hud.dialogue_requested.connect(func(convo: Dictionary): open_page("dialogue", {"convo": convo}))
 	hud.fishing_requested.connect(func(obj: String): open_page("fishing", {"object": obj}))
 	hud_layer.add_child(hud)
+	# P6 moments live only while the world is mounted: events raised while a save loads or offline gains settle never play.
+	moments = MomentView.new()
+	moments.world = world
+	moments.hud = hud
+	hud.moments = moments
+	add_child(moments)
 
 func _unmount_world() -> void:
 	close_all_pages()
+	if is_instance_valid(moments):
+		remove_child(moments)
+		moments.queue_free()
+	moments = null
 	if is_instance_valid(hud):
 		hud_layer.remove_child(hud)
 		hud.queue_free()

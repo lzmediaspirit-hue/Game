@@ -1,5 +1,40 @@
 # Changelog
 
+## Moments (docs/roadmap_master_ui.md, P6)
+
+### P6a · The table and the view
+- **`data/moments.json`** from the new `tools/data/moments.py` (run by `build_data.py` before the contract): one row per
+  moment kind with its trigger event, filters, priority, duration, input lock, queue rule, layers, art and a sample
+  payload, and the settings the view plays them by (`docs/moments_design.md` §3). The first eleven rows carry today's
+  effects: the breakthrough channel, the breakthrough (every one, until P6b gives the major one its own row), a failed
+  breakthrough, the realm phenomenon's clouds, the tribulation's storm, a level, a body level, an awakened weapon, a
+  Halo or Soul pill, a boss's phase and a trial opening. The escalation curve's seven tiers are in the file too.
+- **`MomentView`** (`scripts/presentation/moment_view.gd`, mounted with the world by `main.gd`) plays the rows:
+  it gathers the events of one pass and resolves them together, so a breakthrough takes its level and its unlocks
+  into itself; world layers run on the row's own clock; screen parts take one slot by priority, wait for pages, cut
+  or queue, go stale into a toast, and end on leaving a room. `MomentRules` holds the matchers, the rare rule and the
+  text and colour sources. Neither writes game state (`contract_tests`), and the headless suites run without them.
+- **Moved out of `world.gd`, the HUD and the audio director into rows**, with nothing to see changed: the
+  breakthrough's spiral, name, shake, sound and buzz; the channel ring; the failure line; the phenomenon's clouds and
+  storm with the townsfolk's words; the level and body-level lines; the awakened weapon's wave; the pill cloud; the
+  boss phase's shake and roar; a trial's name. The one change: **the doubled sounds play once** — a major breakthrough
+  no longer rings `breakthrough` twice (once more for its clouds), and a tribulation no longer thunders twice; a
+  breakthrough's level no longer rings its own chime under the breakthrough's. The pill cloud takes its quality's
+  colour (Halo orange, Soul pale violet) as the grades do (M24).
+- **A camera rig in `world.gd`:** `add_shake(s, amp)` is the one writer of the shake (the hazards call it too), and
+  every shake stops with Screen shake off; `hold_camera` eases to a point and back for later rows.
+- **The Damage numbers setting works** (finding 2): off, no damage number rises; Miss, Immune, Evade and Parry still do
+  (`FxLayer.label`).
+- **The contract:** `level_changed` and `room_event_started` join the catalogue; the payload keys of every event a
+  moment reads are declared, and `contract_tests` checks every emit site names them. `FxLayer.KINDS` lists its kinds.
+  `UiKit` names the three colours that left `world.gd` (`HEAVEN_CLOUD`, `HEAVEN_BOLT`, `BODY`).
+- **`--moment=<id>[:t]`** plays a row with its sample payload for previews and screenshots.
+- **Tests:** `data_validation` `moments_data_suite` (every trigger, merge, payload key, FX kind, sound, string, colour,
+  anchor, lock and timing; the curve rises); `contract_tests` (declared payloads, `FxLayer.KINDS`, the moments scripts
+  read only); `rules_tests` `moments_suite` (every real row plays from its sample and ends on time; the gather and
+  merge, the queue order, a cut, stale and full queues, pages and fights, a room change, the settings and the lock on
+  fixture rows).
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7a · The item and monster wikis

@@ -6,9 +6,12 @@ extends Node2D
 ## Presentation only: nothing here changes game state.
 
 const ARRAY_COLOURS := {"guard": Color("8aebee"), "killing": Color("e45858"), "binding": Color("b18de2")}   # as their plates are engraved
+## Every transient kind `add` takes, one per arm of _draw's match (contract_tests keeps the two in step; moments.json
+## names only these).
+const KINDS := ["number", "spark", "slash", "dust", "ring", "note", "wave", "spiral", "motes", "flash", "pagoda", "seal_slam",
+	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text"]
 
 var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, z}
-var numbers_enabled := true
 
 func _ready() -> void:
 	z_index = 4000
@@ -21,10 +24,15 @@ func add(kind: String, pos: Vector2, extra := {}) -> void:
 	fx.append(e)
 	if fx.size() > 160: fx.pop_front()
 
+## A damage number; none with Settings › Damage numbers off (P6 finding 2).
 func number(pos: Vector2, text: String, color: Color, size := 22, crit := false) -> void:
-	if not numbers_enabled: return
-	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": size + (8 if crit else 0), "dur": 1.0,
-		"vel": Vector2(randf_range(-12, 12), -70.0 if not crit else -90.0)})
+	if not Game.account.settings.get("damage_numbers", true): return
+	label(pos, text, color, size + (8 if crit else 0), crit)
+
+## A word that rises like a number (Miss, Evade, Parry, a foe's "!"), whatever the Damage numbers setting.
+func label(pos: Vector2, text: String, color: Color, size := 22, fast := false) -> void:
+	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": size, "dur": 1.0,
+		"vel": Vector2(randf_range(-12, 12), -90.0 if fast else -70.0)})
 
 func _process(delta: float) -> void:
 	for e in fx.duplicate():

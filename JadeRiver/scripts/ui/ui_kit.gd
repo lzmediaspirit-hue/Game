@@ -23,6 +23,10 @@ const RED := Color("e45858")
 const QI := Color("32bed1")
 const SOUL := Color("9b78d1")
 const HOLLOW := Color("87949a")
+## P6 moments: the three colours that moved out of world.gd with their rows, named here for the style guide to rename.
+const HEAVEN_CLOUD := Color("f5c86a")   # a realm phenomenon's auspicious clouds
+const HEAVEN_BOLT := Color("9fc4ff")    # a tribulation's lightning
+const BODY := Color("f0a060")           # the body ladder
 
 static var _display: Font
 static var _text: Font
