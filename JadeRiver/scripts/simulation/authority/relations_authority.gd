@@ -625,6 +625,7 @@ func fortune_check(c, trigger: String, forced := "") -> Dictionary:
 	var fc := fortune_cfg()
 	var rt = game.room_rt
 	if str(rt.def.get("type", "")) in fc.get("never_in", []) or rt.event.get("active", false): return {}
+	if forced == "": forced = first_card(c, trigger)
 	if forced == "" and fortune_meter(c) < 1.0: return {}
 	var rng := Rng.stream(c.id, "fortune")
 	var cards := fortune_cards(c, trigger)
@@ -641,6 +642,14 @@ func fortune_check(c, trigger: String, forced := "") -> Dictionary:
 	emit("fortune_encounter", {"actor": c.id, "card": str(card.id), "trigger": trigger, "room": rt.room_id})
 	game.apply_effects(c.id, card.get("effects", []), "fortune:" + str(card.id))
 	return card
+
+## The sure first vignette (fortune_deck `first`, an early surprise): its card while the character has met none, at its
+## trigger in one of its rooms once its requirement holds; else "".
+func first_card(c, trigger: String) -> String:
+	var f: Dictionary = fortune_cfg().get("first", {})
+	if f.is_empty() or not (c.relations.fortune.get("seen", {}) as Dictionary).is_empty() or trigger != str(f.get("trigger", "")): return ""
+	if game.room_rt == null or not game.room_rt.room_id in f.get("rooms", []): return ""
+	return str(f.card) if RequirementRules.passes(f.get("requires", {}), game.ctx(c)) else ""
 
 func _on_fortune_room(_p: Dictionary) -> void:
 	fortune_check(game.active(), "room_entered")

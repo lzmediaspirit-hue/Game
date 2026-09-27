@@ -14,6 +14,9 @@ func draw_page() -> void:
 	var y := content.position.y
 	var prologue: bool = not Unlocks.is_unlocked(ch.id, "kill_progress")
 	var loss_text := Tx.t("ui.revival.no_penalty_in_the_prologue") if prologue else Tx.t("ui.revival.you_lose_10_of_this")
+	# The early grace (P12): told in full on the first fall, then in a line.
+	if not prologue and ProgressionRules.death_grace(ch.cultivator.realm_key):
+		loss_text = Tx.t("ui.revival.early_grace_short" if ch.quests.has_flag("death_grace_told") else "ui.revival.early_grace")
 	# S48 nascent-soul escape: from Sage the soul flees to the shrine and half as much is lost.
 	if not prologue and ProgressionRules.at_least(ch.cultivator.realm_key, str(ContentDB.stat_const("soul_escape", {}).get("from", "sage_1"))):
 		loss_text = Tx.t("ui.revival.soul_escape")

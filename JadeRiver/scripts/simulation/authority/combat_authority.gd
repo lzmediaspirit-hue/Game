@@ -532,7 +532,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if free_first: cost = 0.0
 	# S48 Copper Body: a body technique the QI cannot pay for spends HP instead, never below a fifth of it.
 	var hp_cost := body_hp_cost(c, t, cost)
-	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
+	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and not breath_only(c) and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
 	# S48 costly arts (Blood Burning): a share of max HP and a body injury, paid up front.
@@ -584,7 +584,13 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 func in_combat(c) -> bool:
 	return game.sim_time - float(timeline(c.id).get("fight_t", -999.0)) < float(ContentDB.stat_const("gates", {}).get("fight_gap_s", 8.0))
 
+## The body stages (stats.json technique_cost.free_without_pool): with no Qi pool yet a technique costs no Qi, only its
+## cooldown.
+func breath_only(c) -> bool:
+	return bool(ContentDB.stat_const("technique_cost", {}).get("free_without_pool", false)) and c.pools.max_qi <= 0.0
+
 func technique_cost(c, t: Dictionary) -> float:
+	if breath_only(c): return 0.0
 	var st: Dictionary = ContentDB.stat_const("technique_cost", {})
 	var base := float(t.get("qi_cost", 0))
 	var lv := ProgressionRules.level(c)
@@ -1504,9 +1510,11 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		_gravely_wound(c, "soul" if pool == "soul" else "hp")
 
 func _gravely_wound(c, cause: String) -> void:
-	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27).
-	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
-	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty}
+	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27), and nor does a fall
+	# before Bone Forging 5 (the early grace, P12).
+	var grace: bool = Unlocks.is_unlocked(c.id, "kill_progress") and ProgressionRules.death_grace(c.cultivator.realm_key)
+	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or grace or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
+	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty, "grace": grace}
 	var tl := timeline(c.id)
 	tl.action = ""
 	tl.guard = false
@@ -1531,6 +1539,7 @@ func choose_revival(c, where: String) -> Dictionary:
 	if not wounded.has(c.id): return fail("not_wounded")
 	var info: Dictionary = wounded[c.id]
 	var death: Dictionary = ContentDB.stat_const("death", {})
+	if info.get("grace", false): game.quest.apply_flag(c.id, "death_grace_told")   # the revival page has explained it once
 	if where == "fruit":
 		var fruit := fruit_revival_allowed(c)
 		if not fruit.ok: return fail("not_allowed", {"text": fruit.text})

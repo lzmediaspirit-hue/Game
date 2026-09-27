@@ -565,6 +565,42 @@
    }
   },
   {
+   "enemy": "hollowed_boarlet",
+   "surface": "ground",
+   "points": [
+    [
+     900,
+     880
+    ],
+    [
+     1400,
+     900
+    ],
+    [
+     1800,
+     870
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 8,
+   "level": [
+    4,
+    5
+   ],
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_humming_token"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "mei_qings_errand"
+     }
+    ]
+   }
+  },
+  {
    "enemy": "reed_frog",
    "surface": "stilt_nets",
    "points": [

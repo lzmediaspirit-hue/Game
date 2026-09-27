@@ -72,6 +72,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Gathering: Pickup "Straw Sandals" in Old Ma's Store (Lotus Ferry)
+  - Reward: Quest Crab Trouble (prologue, from Uncle Guo), reward
+  - Reward: Skip-the-Prologue start
 
 <a id="item-cloth_boots"></a>
 
@@ -1190,7 +1192,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_bell` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family bell; Appearance bell
-- **Requires**: Level 3 and unlock Weapons; Essence 8
+- **Requires**: Essence 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1202,7 +1204,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_bow` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family bow; Appearance bow
-- **Requires**: Level 3 and unlock Weapons; Agility 8
+- **Requires**: Agility 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1214,7 +1216,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_brush` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family brush; Appearance brush
-- **Requires**: Level 3 and unlock Weapons; Insight 8
+- **Requires**: Insight 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1226,7 +1228,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_fan` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family fan; Appearance fan
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1238,7 +1239,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_flute` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family flute; Appearance flute
-- **Requires**: Level 3 and unlock Weapons; Insight 8
+- **Requires**: Insight 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1249,11 +1250,11 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `training_gauntlets` · Equipment, weapon · Plain · iLv 5 · stack 1
 
-- **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets
-- **Requires**: Level 3 and unlock Weapons
+- **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest Fists First (prologue, from Uncle Guo), reward (iLv 1, flawed)
   - Reward: Quest The Weapon Hall (guided, from Master Kong), on accept
 
 <a id="item-training_heavy_sabre"></a>
@@ -1263,7 +1264,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_heavy_sabre` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family heavy_sabre; Appearance sabre
-- **Requires**: Level 3 and unlock Weapons; Body 8
+- **Requires**: Body 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1275,7 +1276,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_jian` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family jian; Appearance sword
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1288,7 +1288,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_short_blade` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family short_blade; Appearance dagger
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1300,7 +1299,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_spear` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family spear; Appearance spear
-- **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1313,7 +1311,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 `training_staff` · Equipment, weapon · Plain · iLv 5 · stack 1
 
 - **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family staff; Appearance staff
-- **Requires**: Level 3 and unlock Weapons; Body 8
+- **Requires**: Body 8
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
@@ -1388,7 +1386,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `iron_gauntlets` · Equipment, weapon · Common · iLv 14 · stack 1
 
-- **Stats**: Weapon Attack 73.5 at iLv 14, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi
+- **Stats**: Weapon Attack 73.5 at iLv 14, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Common: see [Banded equipment drops](#banded-common)
   - Crafting: Recipe `iron_gauntlets` (Smithing, Common): Copper ×6, Riverstone ×3, Boar Hide ×2
@@ -1535,7 +1533,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `jadeiron_gauntlets` · Equipment, weapon · Earth · iLv 27 · stack 1
 
-- **Stats**: Weapon Attack 176.5 at iLv 27, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Sockets 1
+- **Stats**: Weapon Attack 176.5 at iLv 27, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Sockets 1; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Earth: see [Banded equipment drops](#banded-earth)
   - Crafting: Recipe `jadeiron_gauntlets` (Smithing, Earth): Jadeiron ×6, Riverstone ×4, Jade Scale ×2
@@ -1677,7 +1675,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `cloudsteel_gauntlets` · Equipment, weapon · Heaven · iLv 45 · stack 1
 
-- **Stats**: Weapon Attack 386 at iLv 45, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 1
+- **Stats**: Weapon Attack 386 at iLv 45, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 1; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Heaven: see [Banded equipment drops](#banded-heaven)
   - Crafting: Recipe `cloudsteel_gauntlets` (Smithing, Heaven): Cloudsteel Ore ×6, Jadeiron ×4, Cloud Feather ×2
@@ -1848,7 +1846,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `mistjade_gauntlets` · Equipment, weapon · Mystic · iLv 59 · stack 1
 
-- **Stats**: Weapon Attack 602.7 at iLv 59, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2
+- **Stats**: Weapon Attack 602.7 at iLv 59, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `mistjade_gauntlets` (Smithing, Mystic): Mystic Ore ×6, Cloudsteel Ore ×4, Roc Feather ×2
@@ -2016,7 +2014,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 > A monk of the old river temple beat these like a drum, and the mountain answered.
 
-- **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; named: Body, Expanse; Legend: {"chain": "stone_drum", "effect": {"op": "pct_add", "stat": "physical_defense", "value": 0.08}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 10, "mult": 2.4, "name": "Mountain Drum", "reach": 170, "shape": "ring"}}
+- **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; Appearance gauntlets; named: Body, Expanse; Legend: {"chain": "stone_drum", "effect": {"op": "pct_add", "stat": "physical_defense", "value": 0.08}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 10, "mult": 2.4, "name": "Mountain Drum", "reach": 170, "shape": "ring"}}
 - **Notes**: cannot be sold
 - **Sources**:
   - Crafting: Recipe `stone_drum_gauntlets` (Smithing, Mystic): Stone Drum Knuckle ×1, Stone Drum Cuff ×1, Stone Drum Heart ×1, Mystic Ore ×4, Refining Essence ×8
@@ -2102,7 +2100,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `stormsteel_gauntlets` · Equipment, weapon · Spirit · iLv 68 · stack 1
 
-- **Stats**: Weapon Attack 766.9 at iLv 68, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 2
+- **Stats**: Weapon Attack 766.9 at iLv 68, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 2; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Spirit: see [Banded equipment drops](#banded-spirit)
   - Crafting: Recipe `stormsteel_gauntlets` (Smithing, Spirit): Stormsteel Ore ×6, Mystic Ore ×4, Spark Pelt ×2
@@ -2251,7 +2249,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `sunsteel_gauntlets` · Equipment, weapon · Sage · iLv 77 · stack 1
 
-- **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Sage: see [Banded equipment drops](#banded-sage)
   - Crafting: Recipe `sunsteel_gauntlets` (Smithing, Sage): Sunglass ×6, Stormsteel Ore ×4, Scorpion Stinger ×2
@@ -2400,7 +2398,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `driftsteel_gauntlets` · Equipment, weapon · Sovereign · iLv 86 · stack 1
 
-- **Stats**: Weapon Attack 1153.5 at iLv 86, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 1153.5 at iLv 86, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Sovereign: see [Banded equipment drops](#banded-sovereign)
   - Crafting: Recipe `driftsteel_gauntlets` (Smithing, Sovereign): Driftglass ×6, Sunglass ×4, Jelly Silk ×2; known by default
@@ -2538,7 +2536,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `lanternsteel_gauntlets` · Equipment, weapon · Will · iLv 95 · stack 1
 
-- **Stats**: Weapon Attack 1376 at iLv 95, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 1376 at iLv 95, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Will: see [Banded equipment drops](#banded-will)
   - Crafting: Recipe `lanternsteel_gauntlets` (Smithing, Will): Drone Shell ×6, Driftglass ×4, Cinder Ash ×2; known by default
@@ -2721,6 +2719,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime.
 
 - **Sources**:
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 100% (only during Crab Trouble)
   - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 30% (group 60%, weight 1 of 2)
 
 <a id="item-frog_leg"></a>
@@ -2921,8 +2920,12 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Sources**:
   - Drop: [Ferryman Lou](monsters.md#enemy-ferryman_lou) (Lv 27) · 100% (guaranteed)
+  - Drop: [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 2% (rare)
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 2% (rare)
   - Drop: [Rapids Lizard](monsters.md#enemy-rapids_lizard) (Lv 28–31) · 10% (rare)
+  - Drop: [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2% (rare)
   - Drop: [Tide Crab](monsters.md#enemy-tide_crab) (Lv 20–23) · 15% (rare)
+  - Drop: [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 2% (rare)
   - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · 40 Silver Taels; needs Heart Tempering 5
   - Reward: Expedition Deepwater Bend (4/8 h)
 
@@ -3317,7 +3320,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Add progress (pct of need 0.1); Core: {"element": "earth", "qp_pct": 0.1, "rank": 2, "tier": "low"}; Raw: {"toxicity": 12}; Family: accumulation
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 4% (beast core)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 4% (beast core)
   - Drop: [Mud Hound](monsters.md#enemy-mud_hound) (Lv 16–20) · 4%–6% (beast core)
   - Reward: Beast Tide at Stoneford Gate (Stoneford), one of 3 beast cores of a random element at the holder's tier (below Lv 28)
 
@@ -4281,6 +4284,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Wayfarers' Inn Kitchen (Innkeeper Tang in Wayfarers' Inn (Cloudgate Port)) · at list price in Spirit Stones
   - Reward: Quest Fists First (prologue, from Uncle Guo), reward
   - Reward: Quest Granny's Remedy (prologue, from Granny Liu), reward ×3
+  - Reward: Quest Morning Tide (prologue, from Aunt Ping), on accept
   - Reward: Skip-the-Prologue start ×5
 
 <a id="item-rice_ball"></a>
@@ -4587,6 +4591,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Gathering: Post: Spirit Foraging, gate Lv 9
   - Garden: Garden bed, grown from [Riverreed Ginseng Seed](#item-riverreed_ginseng_seed), harvested at 10 years
   - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward
 
 <a id="item-ember_pepper_100"></a>
 
@@ -4806,7 +4811,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > Hide from a Hollowed beast, grey and cold.
 
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 60% (group)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 100% (only during Mei Qing's Errand)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 60% (group)
   - Shop: Greyreed Trade Post (Trader Min in Greyreed Hamlet) · at list price in Silver Taels
 
 <a id="item-tiny_hollow_shard"></a>
@@ -4831,7 +4837,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: [Hollow Drone](monsters.md#enemy-hollow_drone) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Drop: [Hollow Stag](monsters.md#enemy-hollow_stag) (Lv 55–59) · 20% (rare)
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 12% (rare)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 12% (rare)
   - Drop: [Hollowed Wyrmling](monsters.md#enemy-hollowed_wyrmling) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Reward: Expedition Reed Marsh (4/8 h)
 
@@ -6507,6 +6513,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Trade House (Elder Gu in Artisan Row (Stoneford); Madam Hua in Artisan Row (Stoneford)) · at list price in Silver Taels
   - Reward: Daily activity chest at 40 points, reward ×3
   - Reward: Npc in Market Street (Stoneford)
+  - Reward: Quest A Disciple's Chores (side, from Steward Wei), reward ×2
   - Reward: Quest Is It Real? (guided, from Elder Gu), reward ×3
   - Reward: Quest Stones That Move You (guided, from Keeper Shi), reward ×3
   - Reward: Unlock: Teleport stones ×2
@@ -6639,7 +6646,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Hour incense: {"hours": 1}
 - **Sources**:
-  - Reward: Quest Keeping Post (guided, from Fisher Wen), reward ×2
+  - Reward: Quest Keeping Post (guided, from Fisher Wen), on accept
+  - Reward: Quest Keeping Post (guided, from Fisher Wen), reward
 
 <a id="item-hour_incense_2"></a>
 
@@ -7408,9 +7416,12 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Knife-Hand Sui](monsters.md#enemy-knife_hand_sui) (Lv 34) · 5% (rare)
   - Drop: [Kuai Shan](monsters.md#enemy-kuai_shan) (Lv 20) · 5% (rare)
   - Drop: [Lieutenant Kuai](monsters.md#enemy-mudwater_lieutenant) (Lv 19) · 5% (rare)
+  - Drop: [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 0.5% (rare)
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 0.5% (rare)
   - Drop: [Mudwater Cutthroat](monsters.md#enemy-mudwater_cutthroat) (Lv 18) · 5% (rare)
   - Drop: [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 5% (rare)
   - Drop: [One-Eye Pang](monsters.md#enemy-one_eye_pang) (Lv 20) · 5% (rare)
+  - Drop: [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 0.5% (rare)
   - Drop: [Rogue Cultivator](monsters.md#enemy-rogue_cultivator) (Lv 24–26) · 5% (rare)
   - Drop: [Rogue Treasure Adept](monsters.md#enemy-rogue_treasure_adept) (Lv 48–50) · 5% (rare)
   - Drop: [Thornback Boar](monsters.md#enemy-thornback_boar) (Lv 13–15) · 5% (rare)
@@ -7419,6 +7430,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 25% (guaranteed)
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 5% (rare)
   - Drop: [Warden Rong Yan](monsters.md#enemy-scarlet_kiln_warden) (Lv 66) · 5% (rare)
+  - Drop: [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 0.5% (rare)
   - Container: Chest in Abbot's Sanctum (Drowned Shrine) (Lv 27) · 50% ×1–2 (group 100%, weight 1 of 2)
   - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 25% ×2–3 (group 100%, weight 1 of 4)
   - Container: Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 50% ×1–2 (group 100%, weight 1 of 2)
@@ -9446,20 +9458,20 @@ Rolled by:
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
 - [Hollow Minnow](monsters.md#enemy-hollow_minnow) (Lv 1) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironclaw Mole](monsters.md#enemy-ironclaw_mole) (Lv 5–7) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
 - [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 5–7) · 1.2%
-- [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 1.2%
-- [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 1.2%
-- [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 8%
+- [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 2%
+- [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 2%
+- [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 25%
 - [Pebble Imp](monsters.md#enemy-pebble_imp) (Lv 4–6) · 1.2%
 - [Reed Frog](monsters.md#enemy-reed_frog) (Lv 4–6) · 1.2%
-- [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 1.2%
+- [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2%
 - [Rock Beetle](monsters.md#enemy-rock_beetle) (Lv 4–5) · 1.2%
 - [Stone Tortoise](monsters.md#enemy-stone_tortoise) (Lv 5–7) · 1.2%
-- [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 1.2%
+- [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 2%
 
 <a id="banded-common"></a>
 
@@ -9485,7 +9497,7 @@ Rolled by:
 - [Fruit-Guardian Boar](monsters.md#enemy-fruit_guardian) (Lv 20) · 8%
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
 - [Jade Carp](monsters.md#enemy-jade_carp) (Lv 19–22) · 1.2%

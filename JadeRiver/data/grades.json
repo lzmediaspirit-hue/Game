@@ -276,6 +276,18 @@
    "cape",
    "talisman",
    "tool_furnace"
-  ]
+  ],
+  "starter": {
+   "families": [
+    "gauntlets",
+    "jian",
+    "spear",
+    "short_blade"
+   ],
+   "first_family": "short_blade",
+   "first_quality": "common",
+   "pity": 15,
+   "pity_pieces": 3
+  }
  }
 }

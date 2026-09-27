@@ -251,6 +251,11 @@ func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	var lv_range: Array = spec.get("level", def.get("level", [1, 1]))
 	e.level = rng.randi_range(int(lv_range[0]), int(lv_range[lv_range.size() - 1]))
 	e.elite = bool(spec.get("elite", false))
+	# An early surprise (world.py early_surprises): a common foe of the first fields sometimes comes as an elite.
+	# Its own stream, so the room's other draws (levels, facings, timers) stay as they were.
+	var chanced: bool = not e.elite and float(spec.get("elite_chance", 0.0)) > 0.0 and game.active_id != "" \
+		and Rng.stream(game.active_id, "elites").randf() < float(spec.elite_chance)
+	e.elite = e.elite or chanced
 	e.role = "elite" if e.elite else str(def.get("role", "normal"))
 	e.element = str(def.get("element", "none"))
 	e.realm_index = ProgressionRules.realm_index_for_level(e.level)
@@ -279,7 +284,7 @@ func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	rt.enemies[e.uid] = e
 	_apply_king_buff(e)
 	var event_name := "elite_spawned" if e.elite else ("field_boss_spawned" if e.role == "field_boss" else "enemy_spawned")
-	emit(event_name, {"room": rt.room_id, "enemy": e.uid, "def": e.def_id, "level": e.level})
+	emit(event_name, {"room": rt.room_id, "enemy": e.uid, "def": e.def_id, "level": e.level, "random": chanced})
 	var kd := ContentDB.entry("beast_kings", e.def_id)
 	if not kd.is_empty(): emit("beast_king_spawned", {"king": e.def_id, "zone": str(kd.get("zone", "")), "room": rt.room_id, "buff": float(kd.get("buff", 0.1))})
 	if event_name != "enemy_spawned": emit("enemy_spawned", {"room": rt.room_id, "enemy": e.uid, "def": e.def_id, "level": e.level})
