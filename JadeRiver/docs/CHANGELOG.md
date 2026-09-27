@@ -290,6 +290,24 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   grade's metal, the gem, and the grade's mark (jadeiron plates and scales, cloud scrolls, gold lines, a lightning
   stitch, desert-glass beads, driftglass studs, star dots, pearls), with the aura from Mystic up; the gourds carry the
   same ladder. The legacy 32 px code is gone.
+- **Weapons in Style A** (`tools/icons/families/weapons.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/weapons/`): the 103 weapon icons (eleven families at nine grades, Training to
+  Lanternsteel, the Sovereign and Will ladders and the brush and bell ladders taken over from `banded.py`, and the
+  Wardens' four pieces) redrawn at 64 px with native `@32` renders. Every weapon lies on the study's diagonal frame
+  (the bell mouth down-right, the gauntlet a fist over its cuff) and every family is one builder on the shared tassel,
+  grip, fitting, blade and gem builders, so the family is the silhouette, after the held sprite: the jian's straight
+  blade under a winged guard, the sabre broad and curved under a disc with a ring pommel, the short blade a leaf, the
+  spear's leaf head with its tassel on a long shaft, the staff's crook, the recurve bow on its string, the fan open on
+  its sticks, the flute with its holes and cord, the brush with its tuft dipped in ink, the bell with its cord and
+  clapper. The grade is the kit (`palette.kit`, Plain to Sphere) as material, fittings and work, never a colour
+  alone: a wooden blade with its grain and a hemp lattice, iron with a plain fuller, a jade inlay, silver cloud
+  curls, gold runes down a dark fuller, a lightning zigzag, desert-glass beads on an ember line, driftglass diamonds
+  in a driftteal line, star dots with a starlight edge; a gem in the guard from Earth, a metal bead on the tassel and
+  the glow from Mystic; the same work runs along a bow's limb, a fan's leaf, a cuff or a bell's waist. The Ink-Warden's
+  Brush keeps its black lacquer collar and falling drop, the Starwrit Brush its lantern-ash tip lit at the point, the
+  Warden's Hand-bell its bronze and cloud scroll, the Tidebreak Bell its cage lattice and cold blue mouth. The legacy
+  32 px drawings and the recolour rows are gone; `banded.py` keeps only the Sovereign and Will armour, hats and gourds
+  and the four furnaces.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 

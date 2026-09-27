@@ -2,10 +2,9 @@
 functions and the grade kits in palette.py (they are redrawn with their families in the Style A pass; the Sovereign
 and Will armour, hats and gourds have moved to families/armour.py with its conversion):
 
-- the brush and the bell at every grade: the Bastion's Sage brush and bell, their materials swapped for each grade's;
-- Sovereign (driftsteel) and Will (lanternsteel) weapons: each family drawn at Sage and its kit swapped for the grade's;
-- four furnaces. (The pet gear ladders, collars, beast talismans and saddles, are HD drawings with their family now:
-  `beast_parts.PET_GEAR_HD`.)
+- four furnaces. (The weapon ladders, the brush and the bell at every grade and the Sovereign and Will weapons, are
+  HD drawings with their family now: `weapons.BUILDERS` x `weapons.GRADE_WORDS`; the pet gear ladders, collars,
+  beast talismans and saddles, are with theirs: `beast_parts.PET_GEAR_HD`.)
 
 `recolor` swaps whole material ramps (every shade and the outline) on a finished canvas, and a glow colour, so a
 swapped icon keeps its drawing exactly.
@@ -13,11 +12,10 @@ swapped icon keeps its drawing exactly.
 from pix import rgb
 from palette import R, GRADES
 from registry import register
-from families import treasures, weapons
+from families import treasures
 
 ART = 32   # legacy, as the families these drawings come from
 
-GRADE_WORDS = weapons.GRADE_WORDS + [('driftsteel', 'sovereign'), ('lanternsteel', 'will')]
 KIT_KEYS = ('metal', 'metal2', 'grip', 'wrap', 'accent', 'gem', 'cloth')
 
 
@@ -56,17 +54,6 @@ def regrade(draw, src_grade, dst_grade, extra=()):
         return recolor(c, list(extra) + kit_pairs(src_grade, dst_grade), (GRADES[src_grade]['glow'], GRADES[dst_grade]['glow']))
     return fn
 
-
-# ------------------------------------------------------------------ weapons: Sovereign and Will in the nine families
-for _fam, _build in weapons.BUILDERS.items():
-    for _word, _grade in (('driftsteel', 'sovereign'), ('lanternsteel', 'will')):
-        register('equipment', '%s_%s' % (_word, _fam), regrade(lambda b=_build: b('sage'), 'sage', _grade), 'weapons')
-
-# ------------------------------------------------------------------ the brush and the bell at every grade
-for _word, _grade in GRADE_WORDS:
-    _bronze = () if _grade == 'plain' else ((R['bronze'], GRADES[_grade]['metal']),)
-    register('equipment', '%s_brush' % _word, regrade(lambda: weapons._v12d_brush(False), 'sage', _grade), 'weapons')
-    register('equipment', '%s_bell' % _word, regrade(lambda: weapons._v12d_bell(False), 'sage', _grade, _bronze), 'weapons')
 
 
 # ------------------------------------------------------------------ the furnace ladder on through Acts II and III

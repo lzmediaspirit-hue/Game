@@ -180,7 +180,9 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    species or grade as parameters:
    - pills: add a row to `PILLS_HD` in `pills.py` with the kind (its vessel), grade, effect mark, pill
      material and mark ink.
-   - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
+   - weapons (HD): `weapons.GRADE_WORDS` × `BUILDERS`, one builder per family on the shared diagonal `WFRAME` and the
+     tassel, grip, fitting, blade and gem builders, painting with the grade's kit (`K(grade)`); the grade's work
+     along a line of points is `work_hd`. A named piece is a builder with a `look` (the Wardens' brushes and bells).
    - armour (HD): a piece's row in `data/artifacts.json` (slot, grade, `appearance`, `dye`) picks its template (robe,
      trousers, boots, `HATS`) and the cloth the figure wears (palette `dye_*`); the grade's trim, fittings, plates, gem,
      mark and glow are `kit_hd` (`TRIM`, `WORK`) on `palette.kit`; a spirit gourd is a `GOURDS` row.
