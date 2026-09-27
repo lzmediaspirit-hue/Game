@@ -1694,6 +1694,25 @@ func tree_view(c, tree: String) -> Dictionary:
 			"state": state, "why": why, "cost": TechniqueTreeRules.cost(nid)})
 	return {"tree": tree, "nodes": nodes, "realisations": TechniqueTreeRules.realisations(c)}
 
+## The trees' tabs (technique_plan §4.10), in the page's order: each tree's name and element, whether its first ring's
+## Level is reached (Space and Time open late), its realised nodes and the arts of it the character knows.
+func tree_tabs(c) -> Array:
+	var lv := ProgressionRules.level(c)
+	var realised_in := {}
+	for nid in TechniqueTreeRules.realised(c):
+		var t := str(TechniqueTreeRules.node(str(nid)).get("tree", ""))
+		realised_in[t] = int(realised_in.get(t, 0)) + 1
+	var known_in := {}
+	for tid in c.cultivator.techniques_known:
+		var t2 := TechniqueTreeRules.tree_of_element(str(ContentDB.entry("techniques", str(tid)).get("element", "none")))
+		known_in[t2] = int(known_in.get(t2, 0)) + 1
+	var out: Array = []
+	for tree in TechniqueTreeRules.trees():
+		var ring := TechniqueTreeRules.first_ring(tree)
+		out.append({"tree": tree, "name": ContentDB.text("technique.tree." + tree), "element": str(TechniqueTreeRules.tree_def(tree).get("element", "")),
+			"open": lv >= int(TechniqueTreeRules.ring_row(ring).get("level", 1)), "realised": int(realised_in.get(tree, 0)), "known": int(known_in.get(tree, 0))})
+	return out
+
 ## The Lost Arts board (roadmap decision 19): counts per act and the found arts' cards, nothing of an unfound one.
 func lost_arts_view(c) -> Dictionary:
 	return TechniqueTreeRules.lost_view(c)

@@ -107,6 +107,7 @@ func _main() -> void:
 	tree_suite()
 	tree_migration_suite()
 	lost_arts_suite()
+	tree_queries_suite()
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
@@ -9789,3 +9790,45 @@ func lost_arts_suite() -> void:
 	c.inventory.bag = bag_was
 	c.quests.flags = flags_was
 	Game.combat.refresh_stats(c.id)
+
+## P13a the page's reads (technique_plan §4.10): the trees' tabs and one tree's nodes, each with its state and why it
+## is closed, as the authority answers them (the page builds on these in P13b).
+func tree_queries_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var T = TechniqueTreeRules
+	cu.realm_key = "heart_tempering_3"
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.daos = {}
+	cu.techniques_known = ["flowing_palm"]
+	cu.technique_slots = [null, null, null, null, null, null, null, null]
+	Game.combat.timeline(c.id).fight_t = -999.0
+	var tabs: Array = Game.progression.tree_tabs(c)
+	var by := {}
+	for tab in tabs: by[str(tab.tree)] = tab
+	check(tabs.size() == 11 and str(tabs[0].tree) == str(T.trees()[0]) and by.has("formless") and str(by.formless.element) == "none",
+		"eleven tabs in the trees' order, Formless for the element-less arts (%s)" % str(tabs.map(func(t): return t.tree)))
+	check(bool(by.water.open) and not bool(by.space.open) and not bool(by.time.open) and int(by.water.known) == 1 and str(by.water.name) != "",
+		"at Level %d the nine element trees are open, Space and Time not yet; Water knows Flowing Palm" % ProgressionRules.level(c))
+	var p1 := T.passage("water", "any", 1)
+	Game.submit({"type": "realise_node", "node": p1})
+	check(int(Game.progression.tree_tabs(c)[T.trees().find("water")].realised) == 1, "a realised node counts on its tab")
+	var view: Dictionary = Game.progression.tree_view(c, "water")
+	var nodes := {}
+	for n in view.nodes: nodes[str(n.id)] = n
+	var p2 := T.passage("water", "any", 2)
+	var p9 := T.passage("water", "any", 9)
+	check(nodes.size() == T.nodes_of("water").size() and str(nodes[p1].state) == "realised" and str(nodes["flowing_palm"].state) == "taught"
+		and str(nodes[p2].state) == "open" and int(nodes[p2].cost) == T.cost(p2), "the tree's view: realised, taught and open nodes, with their costs")
+	check(str(nodes[p9].state) == "locked" and str(nodes[p9].why) == "act_locked" and int(view.realisations.spent) == 1,
+		"a later act's ring is locked and says why; the view carries the Realisations")
+	# The tree reaches the fight (§6.2): ring 1's passage adds to the art's damage bucket, ring 2's cuts its Qi.
+	var fp := ContentDB.entry("techniques", "flowing_palm")
+	var cost0: float = Game.combat.technique_cost(c, fp)
+	Game.submit({"type": "realise_node", "node": p2})
+	var cost1: float = Game.combat.technique_cost(c, fp)
+	check(near(float(T.passives(c, fp).damage), 0.01) and cost1 < cost0 and cost1 / cost0 > 0.97,
+		"Flowing Palm: +1%% damage from ring 1's passage, and ring 2's cuts its Qi %.1f to %.1f" % [cost0, cost1])
+	cu.restore(snap)
