@@ -544,7 +544,7 @@ func identity_suite() -> void:
 		"P5: a page moves over its opening and a tap finishes it (%s)" % str(off))
 	check(float(on.unfold0) == 1.0 and float(on.alpha0) == 0.0 and float(on.alpha_02) == 1.0, "P5: under Reduce motion nothing moves and the page fades in over 0.2 s (%s)" % str(on))
 	var main_script = load("res://scripts/main.gd")
-	var plain: Page = load(str(main_script.PAGES.menu)).new()
+	var plain: Page = load(str(main_script.PAGES.settings)).new()
 	add_child(plain)
 	plain.open({})
 	await get_tree().process_frame
