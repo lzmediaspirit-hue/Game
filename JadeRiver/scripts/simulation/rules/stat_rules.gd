@@ -6,10 +6,23 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:", "sworn:"]
+	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:", "sworn:", "might"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
+
+## A row of a by-Level table in stats.json (Levels 0-200); past its end the last row holds.
+static func by_level(path: String, lv: int, fallback = 1.0):
+	var t: Array = ContentDB.stat_const(path, [])
+	return t[clampi(lv, 0, t.size() - 1)] if not t.is_empty() else fallback
+
+## P12 Might (docs/research/stat_scaling_research.md §6.2): the realm's power step at a Level, shared by the player
+## and every monster of that Level.
+static func might_at(lv: int) -> float:
+	return float(by_level("might.table", lv))
+
+static func might(c) -> float:
+	return might_at(ProgressionRules.level(c))
 
 static func pool_base(pool: String, lv: int, realm_key: String) -> float:
 	var spec: Dictionary = ContentDB.stat_const("pools.%s" % pool, {})
@@ -303,6 +316,10 @@ static func rebuild(c) -> Array:
 		var eb: Dictionary = ContentDB.config("pet_growth").get("incubation", {}).get("blood", {})
 		sb.add_modifier({"stat": "max_hp", "op": "pct_add", "value": float(eb.get("max_hp_pct", -0.1)), "source": "essence_blood"})
 	for m in c.get_meta("extra_modifiers", []): sb.add_modifier(m)
+	# P12: Might multiplies the attacks, max HP and the defences, whatever feeds them; max Qi and max Soul never.
+	var mt := might_at(lv)
+	if mt > 1.0:
+		for stat in ContentDB.stat_const("might.stats", []): sb.add_modifier({"stat": str(stat), "op": "pct_mul", "value": mt - 1.0, "source": "might"})
 	# Attributes first.
 	var attr_base := attribute_bases(c, lv)
 	for attr in attr_base: sb.set_base(attr, attr_base[attr])
@@ -441,12 +458,13 @@ static func mob_stats(def: Dictionary, lv: int, elite := false) -> Dictionary:
 	var mob: Dictionary = ContentDB.stat_const("mob", {})
 	var role := "elite" if elite else str(def.get("role", "normal"))
 	var r: Dictionary = mob.get("roles", {}).get(role, {"hp": 1, "attack": 1, "defence": 0.8})
-	var hp := poly(mob.hp, lv) * float(r.hp) * float(def.get("hp_mult", 1.0))
+	var mt := might_at(lv)   # P12: a monster has the Might of a player of its Level
+	var hp := poly(mob.hp, lv) * mt * float(r.hp) * float(def.get("hp_mult", 1.0))
 	if def.has("hp_override"): hp = float(def.hp_override)
-	var attack := poly(mob.attack, lv) * float(r.attack) * float(def.get("attack_mult", 1.0))
+	var attack := poly(mob.attack, lv) * mt * float(r.attack) * float(def.get("attack_mult", 1.0))
 	var acc := poly(mob.accuracy, lv)
 	var eva := acc * float(mob.get("agile_evasion_pct" if def.get("agile", false) else "evasion_pct", 0.3))
-	var defence := armour_defence(lv) * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)
+	var defence := armour_defence(lv) * mt * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)
 	return {"max_hp": hp, "attack": attack, "accuracy": acc, "evasion": eva, "physical_defense": defence,
 		"qi_resistance": defence * 0.6, "soul_defense": defence * 0.5, "crit_chance": 0.05, "crit_damage": 1.5,
-		"tenacity": 0.3 if role in ["field_boss", "dungeon_boss", "story_boss"] else 0.0, "role": role}
+		"tenacity": 0.3 if role in ["field_boss", "dungeon_boss", "story_boss"] else 0.0, "role": role, "might": mt}

@@ -82,15 +82,7 @@ func _fresh() -> void:
 
 # ------------------------------------------------------------------ measuring
 func _enemy_view(def: Dictionary, lv: int) -> Dictionary:
-	var s := StatRules.mob_stats(def, lv)
-	var el := str(def.get("element", "none"))
-	var v := {"kind": "enemy", "id": str(def.get("id", "generic")), "level": lv, "realm_index": ProgressionRules.realm_index_for_level(lv),
-		"element": el, "physical_attack": float(s.attack), "qi_attack": float(s.attack), "soul_attack": float(s.attack),
-		"accuracy": float(s.accuracy), "crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0,
-		"energy_mult": 1.0, "tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
-		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense), "guarding": 0.0, "max_hp": float(s.max_hp)}
-	v["resist_" + CombatRules.parent_element(el)] = float(ContentDB.stat_const("mob.own_element_resistance", 0.3))
-	return v
+	return CombatRules.foe(StatRules.mob_stats(def, lv), lv, str(def.get("element", "none")))
 
 ## The normal foes whose Level band holds `lv` (the ones a character of that Level fights), or a generic one.
 func _foes_at(lv: int) -> Array:
@@ -172,10 +164,16 @@ func _measure(label: String, c) -> void:
 	var taken_sum := 0.0
 	var basic_max := 0
 	var tech_max := 0
+	var nc := pv.duplicate()   # the same blows with crits taken out: the par table's "before crits"
+	nc.crit_chance = -10.0
+	var basic_nc := 0.0
+	var tech_nc := 0.0
 	for i in foes.size():
 		var ev := _enemy_view(foes[i], lv)
 		var b := _avg_hit(pv, ev, basic, 1000 + i)
 		var t := _avg_hit(pv, ev, tech_attack, 2000 + i) if not tech_attack.is_empty() else {"per_hit": 0.0}
+		basic_nc += float(_avg_hit(nc, ev, basic, 1000 + i).per_hit)
+		if not tech_attack.is_empty(): tech_nc += float(_avg_hit(nc, ev, tech_attack, 2000 + i).per_hit)
 		var m := _avg_hit(ev, pv, {"damage_type": "physical", "element": str(foes[i].get("element", "none")), "mult": [1.0, 1.0]}, 3000 + i)
 		hp_sum += float(ev.max_hp)
 		hit_sum += float(b.per_hit)
@@ -192,6 +190,7 @@ func _measure(label: String, c) -> void:
 	var weapon = c.inventory.equipped.get("weapon")
 	var rec := {
 		"label": label, "name": str(c.name), "realm": str(c.cultivator.realm_key), "level": lv, "energy": str(c.cultivator.energy_type),
+		"might": snappedf(StatRules.might(c), 0.001),
 		"energy_mult": snappedf(ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity), 0.001),
 		"weapon": str(weapon.id) if weapon != null else "fists",
 		"weapon_ilv": int(weapon.get("ilv", ContentDB.item(str(weapon.id)).get("ilv", 0))) if weapon != null else 0,
@@ -205,6 +204,8 @@ func _measure(label: String, c) -> void:
 		"cp": StatRules.combat_power(c), "attunement_dealt": dealt,
 		"foes": rows, "mob_hp": int(mob_hp), "basic_hit": int(hit_sum / n), "basic_dps": int(dps),
 		"technique": str(tech.get("id", "")), "technique_hit": int(tech_sum / n), "basic_max": basic_max, "technique_max": tech_max,
+		"basic_nocrit": int(basic_nc / n), "technique_nocrit": int(tech_nc / n),
+		"technique_crit": int(tech_nc / n * clampf(sb.value("crit_damage"), 1.0, float(ContentDB.stat_const("crit.damage_cap", 3.0)))),
 		"ttk_s": snappedf(mob_hp / maxf(1.0, dps), 0.01), "hits_to_kill": ceili(mob_hp / maxf(1.0, hit_sum / n)),
 		"mob_blow": int(taken_sum / n), "mob_blow_pct": snappedf(taken_sum / n / maxf(1.0, sb.value("max_hp")), 0.001),
 		"blows_to_fall": ceili(sb.value("max_hp") / maxf(1.0, taken_sum / n)),
@@ -214,9 +215,10 @@ func _measure(label: String, c) -> void:
 		if str(mm.get("stat", "")) == "crit_chance": crit_sources[str(mm.get("source", ""))] = float(mm.get("value", 0.0))
 	rec["crit_sources"] = crit_sources
 	out.characters.append(rec)
-	print("%-28s Lv%3d %-20s HP %7d  atk %6d/%6d  crit %.2f x%.2f  E %.2f  CP %6d (rec %5d)  hit %7d  tech %7d (%s)  dps %7d  mobHP %8d  TTK %5.2fs  blow %5.1f%%" % [
-		label, lv, rec.realm, rec.max_hp, rec.physical_attack, rec.qi_attack, rec.crit_chance, rec.crit_damage, rec.energy_mult, rec.cp,
-		rec.recommended_cp, rec.basic_hit, rec.technique_hit, rec.technique, rec.basic_dps, rec.mob_hp, rec.ttk_s, 100.0 * rec.mob_blow_pct])
+	print("%-28s Lv%3d %-20s HP %7d  atk %6d/%6d  crit %.2f x%.2f  M %.2f E %.2f  CP %6d (rec %5d)  hit %7d (%7d)  tech %7d (%7d, crit %7d; %s)  dps %7d  mobHP %8d  TTK %5.2fs  blow %5.1f%%" % [
+		label, lv, rec.realm, rec.max_hp, rec.physical_attack, rec.qi_attack, rec.crit_chance, rec.crit_damage, rec.might, rec.energy_mult, rec.cp,
+		rec.recommended_cp, rec.basic_hit, rec.basic_nocrit, rec.technique_hit, rec.technique_nocrit, rec.technique_crit, rec.technique, rec.basic_dps,
+		rec.mob_hp, rec.ttk_s, 100.0 * rec.mob_blow_pct])
 
 ## The same Level 98 character with the best its road offers under today's rules (in memory only): every piece Perfect
 ## and +10, the weapon's three affixes at their tops, Glimpse of Heaven slotted at mastery tier 6, the Sword Dao at 6.

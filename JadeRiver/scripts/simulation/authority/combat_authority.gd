@@ -370,37 +370,24 @@ func _tick_glide(c, delta: float) -> void:
 
 # ------------------------------------------------------------------ views
 func player_view(c) -> Dictionary:
-	var sb: StatBlock = c.stats
 	var tl := timeline(c.id)
 	var st: ActorState = game.actor_state(c.id)
-	var v := {"kind": "player", "id": c.id, "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
-		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")),
-		"physical_attack": sb.value("physical_attack"), "qi_attack": sb.value("qi_attack"), "soul_attack": sb.value("soul_attack"),
-		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance") + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01)),
-		"crit_damage": sb.value("crit_damage"),
-		"penetration": sb.value("penetration") + intent_penetration(c), "elemental_power": sb.value("elemental_power"),
-		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity),
-		"tenacity": sb.value("tenacity"), "evasion": sb.value("evasion"), "physical_defense": sb.value("physical_defense"),
-		"qi_resistance": sb.value("qi_resistance"), "soul_defense": sb.value("soul_defense"),
-		"vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
-		"guarding": sb.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
-		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0}
-	for el in ["water", "wood", "fire", "earth", "metal", "yin", "yang"]:
-		v["resist_" + el] = sb.conditional("elemental_resistance", "element", el)
-		v["element_power_" + el] = sb.conditional("elemental_power", "element", el)
+	var v := CombatRules.fighter(c)
+	v.merge({"id": c.id, "vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
+		"guarding": c.stats.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
+		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0})
+	v.crit_chance = float(v.crit_chance) + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
+	v.penetration = float(v.penetration) + intent_penetration(c)
 	return v
 
 func enemy_view(e: EnemyState) -> Dictionary:
-	var s := e.stats
-	return {"kind": "enemy", "id": str(e.uid), "level": e.level, "realm_index": e.realm_index, "element": e.element,
-		"physical_attack": float(s.attack), "qi_attack": float(s.attack), "soul_attack": float(s.attack), "accuracy": float(s.accuracy),
-		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0, "energy_mult": 1.0,
-		"tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
-		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense),
+	var v := CombatRules.foe(e.stats, e.level, e.element)
+	v.erase("max_hp")
+	v.merge({"id": str(e.uid), "realm_index": e.realm_index, "role": e.role,
 		"vulnerable": e.pools.has_status("vulnerable"), "shocked": e.pools.has_status("shock"), "sundered": e.pools.has_status("sundered"),
-		"resist_" + CombatRules.parent_element(e.element): float(ContentDB.stat_const("mob.own_element_resistance", 0.3)),
 		"guarding": float(e.def.get("front_guard", 0.0)) if e.ai.state == "guard" else 0.0,
-		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}
+		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}, true)
+	return v
 
 ## 2.5D hit test (S12): x range in the facing direction, depth band, altitude overlap.
 static func hit_test(a: Dictionary, facing: int, hitbox: Dictionary, t: Dictionary, both_sides := false) -> bool:
@@ -2482,7 +2469,8 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 	if c == null or not e.alive or e.invulnerable: return
 	var view := {"level": a.level, "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key), "element": "none",
 		"physical_attack": attack_power * (1.0 + (float(ContentDB.stat_const("sphere.pet_bonus", 0.1)) if Unlocks.is_unlocked(owner, "sphere") else 0.0)),
-		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0}   # v1.2: a small Sphere for the pets of a Sphere Lord
+		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0,   # v1.2: a small Sphere for the pets of a Sphere Lord
+		"might": StatRules.might(c)}   # P12: an ally strikes with its owner's Might against armour
 	var r := CombatRules.resolve(view, enemy_view(e), {"damage_type": "physical", "mult": [1.0, 1.0], "range": [0.85, 1.15]}, Rng.stream(owner, "pet"))
 	if r.miss:
 		emit("hit_missed", {"attacker": str(a.uid), "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})

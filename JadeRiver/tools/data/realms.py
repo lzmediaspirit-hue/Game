@@ -94,6 +94,19 @@ def need(level, t_minutes):
     return 100 * t_minutes
 
 
+def energy_at(level):
+    """The energy a character of this Level cultivates, as the ladder below gives it (P12's par character reads it)."""
+    if level >= 121:
+        return "heavenforce"
+    if level >= ADVANCED[0][2]:
+        return "monarch_qi"
+    energy = "none"
+    for _, _, _, _, first, e, _, _ in REALMS:
+        if level >= first:
+            energy = e
+    return energy
+
+
 def build():
     rows = []
     rows.append({"id": "mortal", "key": "mortal", "realm": "mortal", "realm_index": 0, "sub": 0,

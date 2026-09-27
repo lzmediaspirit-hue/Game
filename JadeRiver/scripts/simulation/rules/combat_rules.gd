@@ -37,10 +37,36 @@ static func realm_gap_factor(att_realm: int, def_realm: int) -> float:
 	if diff < 0: return 1.0 - minf(float(g.get("down_max_reduction", 0.6)), float(g.get("down_per_realm", 0.2)) * -diff)
 	return 1.0
 
-static func defence_reduction(defence: float, attacker_level: int, penetration: float) -> float:
+## P12: the constant grows with the attacker's Might as defences do, so a same-Level cut stays what it was.
+static func defence_reduction(defence: float, attacker_level: int, penetration: float, attacker_might := 1.0) -> float:
 	var d: Dictionary = ContentDB.stat_const("defence", {})
 	var def := maxf(0.0, defence * (1.0 - clampf(penetration, 0.0, 0.4)))
-	return minf(float(d.get("cap", 0.75)), def / (def + float(d.get("k_flat", 100)) + float(d.get("k_level", 15)) * attacker_level))
+	var k := (float(d.get("k_flat", 100)) + float(d.get("k_level", 15)) * attacker_level) * maxf(1.0, attacker_might)
+	return minf(float(d.get("cap", 0.75)), def / (def + k))
+
+## A character as the pipeline sees it, from its stats alone (Combat adds the moment: position, guard, statuses).
+static func fighter(c) -> Dictionary:
+	var sb: StatBlock = c.stats
+	var v := {"kind": "player", "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
+		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")), "might": StatRules.might(c),
+		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity)}
+	for s in ["physical_attack", "qi_attack", "soul_attack", "accuracy", "crit_chance", "crit_damage", "penetration", "elemental_power",
+			"tenacity", "evasion", "physical_defense", "qi_resistance", "soul_defense"]:
+		v[s] = sb.value(s)
+	for el in ["water", "wood", "fire", "earth", "metal", "yin", "yang"]:
+		v["resist_" + el] = sb.conditional("elemental_resistance", "element", el)
+		v["element_power_" + el] = sb.conditional("elemental_power", "element", el)
+	return v
+
+## A monster of Level `lv` with its `StatRules.mob_stats` sheet `s`, as the pipeline sees it.
+static func foe(s: Dictionary, lv: int, element: String) -> Dictionary:
+	return {"kind": "enemy", "level": lv, "realm_index": ProgressionRules.realm_index_for_level(lv), "element": element,
+		"physical_attack": float(s.attack), "qi_attack": float(s.attack), "soul_attack": float(s.attack), "accuracy": float(s.accuracy),
+		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0, "energy_mult": 1.0,
+		"tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
+		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense), "max_hp": float(s.max_hp),
+		"might": float(s.get("might", 1.0)), "role": str(s.get("role", "normal")),
+		"resist_" + parent_element(element): float(ContentDB.stat_const("mob.own_element_resistance", 0.3))}
 
 static func crit_chance(attacker: Dictionary, defender: Dictionary) -> float:
 	var c: Dictionary = ContentDB.stat_const("crit", {})
@@ -92,7 +118,7 @@ static func resolve(attacker: Dictionary, defender: Dictionary, attack: Dictiona
 		var pen := float(attacker.get("penetration", 0.0)) + float(attack.get("penetration_bonus", 0.0)) + float(attack.get("ignore_resistance", 0.0))
 		# S47 v1.1: armour broken by a heavy sabre lets every blow through a quarter of it.
 		if defender.get("sundered", false): pen += float(ContentDB.entry("status_effects", "sundered").get("pierce_defence", 0.25))
-		dmg *= 1.0 - defence_reduction(float(defender.get(def_stat, 0.0)), int(attacker.get("level", 1)), pen)
+		dmg *= 1.0 - defence_reduction(float(defender.get(def_stat, 0.0)), int(attacker.get("level", 1)), pen, float(attacker.get("might", 1.0)))
 	# 12 Elemental resistance
 	var res := float(defender.get("resist_" + parent_element(element), 0.0))
 	dmg *= 1.0 - clampf(res, 0.0, 0.75)
