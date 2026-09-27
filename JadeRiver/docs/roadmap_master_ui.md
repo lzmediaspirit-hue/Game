@@ -396,5 +396,21 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     layout signature (the Codex a book, the map a painted landscape, and so on); no two pages share one. Only the
     close button, primary buttons, text tokens, the type scale and 48 px targets stay shared. Catalogued in
     `docs/page_identity.md`.
+15. **The Bag** (2026-09-27): no gourd drawing. The inventory must feel like a big space, with a small information
+    card for a chosen item instead of a large detail panel. New concepts go to the user before the Bag is built.
+16. **Character titles** (2026-09-27): the titles on the Overview look and feel more fancy (each a named honour, not
+    a plain row).
+17. **World map text** never overlaps: name plates, levels, boss and event marks are placed so no two touch.
+18. **Techniques pages** (2026-09-27): styled after the user's skill-tree reference (a central tree of illustrated
+    node cards joined by arrows, each with its status; a selector panel with mastery bars and the character; a detail
+    panel with a large illustration, prerequisites with ticks and crosses, the cost and Learn; the equipped bar along
+    the foot). Inspiration only, nothing copied.
+19. **Secret and lost techniques** are unknown until found: no hints, no sources, no silhouettes that tell where they
+    are; a found art appears, the rest are counted, not described.
+20. **The HUD's system toggles fold into the fan** (P5a).
+21. **Works and posts icons** are drawn better (P4b and P5).
+22. **The Calendar** keeps the first mockup (19), not the almanac (19 v2).
+23. **Skills have proper animations**: every technique form has its own animated effect, on the existing body poses
+    (`AGENTS.md`).
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
