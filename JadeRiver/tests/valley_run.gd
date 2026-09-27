@@ -1237,10 +1237,14 @@ func sec_qu1() -> void:
 	check(start("seeds_of_the_valley"), "Seeds of the Valley accepted")
 	check(travel("ja_herb_terraces"), "reach the Herb Terraces")
 	var planted := 0
+	var why := ""   # the first bed's refusal, for the check's message
 	for o in objects_of("garden_bed"):
 		interact(str(o.id))
-		if submit({"type": "plant_seed", "bed": Game.room_rt.room_id + ":" + str(o.id), "seed": "willow_moss_seed"}).get("ok", false): planted += 1
-	check(planted == 3, "plant the three willow moss seeds Gardener Ji gives (%d)" % planted)
+		var pr := submit({"type": "plant_seed", "bed": Game.room_rt.room_id + ":" + str(o.id), "seed": "willow_moss_seed"})
+		if pr.get("ok", false): planted += 1
+		elif why == "": why = "%s %s" % [pr.get("reason", ""), pr.get("text", "")]
+	check(planted == 3, "plant the three willow moss seeds Gardener Ji gives (%d; %s; %d seeds, %d beds, bag free %d)"
+		% [planted, why, c().inventory.count("willow_moss_seed"), objects_of("garden_bed").size(), c().inventory.free_slots()])
 	check(finish("seeds_of_the_valley"), "Seeds of the Valley done")
 	# Two hours on, the moss is grown: harvest one bed.
 	Clock.debug_offset_s += 2.0 * 3600.0 + 60.0
