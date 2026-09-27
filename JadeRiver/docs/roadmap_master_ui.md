@@ -244,14 +244,14 @@ The prompt's context claims, checked against the project:
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| U22 | A palette with roles (primary, rarity tiers, positive and negative, disabled) | Partial | `UiKit` constants and `grades.json` colours exist; roles are not written down, and nothing names the disabled or negative colour as such (`HOLLOW`, `RED`, `MIST` are used by convention) | P4 |
-| U23 | Nine-slice panels with xianxia motifs | Present | The pixel kit (jade lines, gold and bronze trim, corner ornaments) and the HD kit (`art/ui/`, `art/ui/hd/`, 50 files) | — |
-| U24 | Pixel scale, grid and spacing rules | Partial | The kit is authored at 2 screen px per art px; `Page.SAFE` and `frame_rect` fix the window; no spacing rule | P4 |
-| U25 | Pixel fonts and sizes for headings, body and numbers | Partial (conflict C6) | Pixelify Sans for numbers only; serif words by deliberate deviation (`v2_audit.md` Deviations); `MIN_SIZE` 14, `DISPLAY_MIN` 22, three text sizes | P4 |
-| U26 | Icon rules: size, outline, shading | Partial | 749 icons from `tools/icons`; 64 px slots, 48 px HUD; the rules live in the pipeline, not in a guide | P4 |
-| U27 | Button states and a minimum touch target | Partial | `button_primary` and `button_secondary` in normal, pressed and disabled; HUD hit radii 30–74 px; no written minimum, and `btn` accepts any rect | P4 |
-| U28 | The final HUD spec with the minimap | Present | v2 S24 positions in `hud.gd:25-42`, audited in `docs/v2_audit/p8_changes.md` §S24 | — |
-| U29 | A Godot Theme resource plan | Missing (conflict C8) | See U21 | P4 |
+| U22 | A palette with roles (primary, rarity tiers, positive and negative, disabled) | Present | `docs/ui_style_guide.md` §1 names every role (primary `PAPER`, secondary `MIST`, heading `GOLD`, positive `BRIGHT_JADE`, negative `RED_TEXT`, warning `WARNING`, disabled `HOLLOW`) and the grade and quality tiers; `UiKit` holds them as tokens, every grade has a colour (`tools/data/stats.py`), no page or the HUD carries a colour literal, and `rules_tests` measures every text token on the kit art it sits on (P4 steps 1 and 2) | — |
+| U23 | Nine-slice panels with xianxia motifs | Present | The HD kit (`tools/ui/build_ui_hd.py`, `art/ui/hd/`) draws every frame, now with the HUD's `hud_ring` too; the pixel kit keeps the motifs inside them (style guide §5) | — |
+| U24 | Pixel scale, grid and spacing rules | Present | Style guide §2: the 8 px grid, the safe area and six standard windows as `Page` constants; every window standard and every list pitch on the grid, checked by the `ui_suite` (P4 step 5); icons and figures only at whole-number scales (§8, P4b) | — |
+| U25 | Pixel fonts and sizes for headings, body and numbers | Present (conflict C6) | Style guide §3: the scale 14–22 for words and 22–34 for Cormorant, Pixelify for numerals of 20 and up over the world, serif words by the recorded deviation; every word asked for on the scale and at 14 or more, checked on every page and in `hud.gd` (P4 step 3) | — |
+| U26 | Icon rules: size, outline, shading | Present | Style guide §8 and `tools/icons/README.md`: Style A (decision 7), the allowed draw sizes, the 76 and 44 px slots; `SpriteCache.draw_icon` draws only whole-number scales, checked by the `ui_suite` (P4b) | — |
+| U27 | Button states and a minimum touch target | Present | Style guide §6 and §7: normal, pressed (only under the finger), selected, disabled, with option C's inked primary labels (decision 10); 48 px targets on every page (`Page.MIN_TAP`) and on the HUD (`hud.gd hit_targets`, nearest centre wins), checked by the `ui_suite` and the `hud_suite` (P4a, P4 steps 6 and 7) | — |
+| U28 | The final HUD spec with the minimap | Present | Style guide §9 from mockups 01 and 02 (no portrait roundel, decision 6); the P4 parts applied (bar labels, "a / b", the plate, the log, targets); the ring layout is P5a's | — |
+| U29 | A Godot Theme resource plan | Present (conflict C8) | Style guide §10: the `UiKit` token table (colour, type, `TEXT_ON`), `Page`'s layout constants and the two kit manifests stand in for a Theme resource, as C8 recommended | — |
 
 #### Prioritised roadmap (UI 7)
 
@@ -267,7 +267,9 @@ The prompt's context claims, checked against the project:
 | UI Designer Prompt (U1–U30) | 4 | 13 | 11 | 28 (U6 and U10 are gates, not counted) |
 | **Both** | **11** | **44** | **25** | **80** |
 
-Two of the Missing rows (M43 realm renaming, U29 the Theme resource) are recommended to stay missing (§5).
+Two of the Missing rows (M43 realm renaming, U29 the Theme resource) were recommended to stay missing (§5). U29 is now
+met the way C8 recommended, by the `UiKit` token table and the kit manifests (P4); the table above is the audit as first
+taken.
 
 ---
 

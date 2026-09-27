@@ -27,6 +27,62 @@ const HOLLOW := Color("87949a")
 const HEAVEN_CLOUD := Color("f5c86a")   # a realm phenomenon's auspicious clouds
 const HEAVEN_BOLT := Color("9fc4ff")    # a tribulation's lightning
 const BODY := Color("f0a060")           # the body ladder
+## P4 (docs/ui_style_guide.md §1.5, §10): the roles the palette above left to literals. RED, SOUL and JADE are fills;
+## words take RED_TEXT, SOUL_TEXT and BRIGHT_JADE, which pass 4.5:1 on the lightest page fill.
+const RED_TEXT := Color("e87070")      # negative words: danger, unmet needs, costs, sin
+const SOUL_TEXT := Color("a586d6")     # Soul words
+const WARNING := Color("f0a040")       # a soft need, moderate risk, a meter past its mark
+const HP := Color("c2474f")            # the player's HP fill
+const BLOOD := Color("b3202e")         # the Blood path, the heart demon, the boss trough
+const HEART := Color("e05a6e")         # affection
+const SKY := Color("8fd3ff")           # allies, side quests, tribulation bolts
+const HUD_LABEL := Color("d5bd85")     # the HUD's bar labels
+const PAPER_INK := Color("2b2118")     # words on paper
+const BAR_TROUGH := Color("17242c")    # bar troughs
+## Plates over the world (the tracker, nameplates, banners): at 0.72 MIST still reads 4.5:1 over a white sky.
+const PLATE := Color(0.02, 0.06, 0.075, 0.72)
+## The world dimmed behind a page (at 0.72, or 0.55 behind a modal).
+const DIM := Color(0.01, 0.03, 0.04)
+## Drawn page surfaces (the map scroll, the Go board, the zither, talisman paper, the tribulation sky, the furnace):
+## their own materials, named here so no page carries a colour literal.
+const SURFACE := {
+	"scroll": Color("e8dcbc"), "scroll_edge": Color("d9ccaa"), "sky_scroll": Color("e2ebee"), "sky_scroll_edge": Color("c9d6dc"),
+	"route": Color(0.35, 0.25, 0.12, 0.55), "mountain": Color(0.35, 0.42, 0.40, 0.35), "isle": Color(0.42, 0.48, 0.60, 0.55),
+	"isle_grass": Color(0.45, 0.62, 0.50, 0.8), "wind": Color(0.25, 0.45, 0.5, 0.6), "node_unseen": Color(0.45, 0.42, 0.36),
+	"node_planned": Color(0.62, 0.68, 0.72, 0.8), "node_planned_rim": Color(0.3, 0.34, 0.38, 0.6),
+	"talisman": Color("efe3c2"), "talisman_edge": Color("8a6a3a"), "brush_ink": Color("1c1a18"), "cinnabar": Color(0.75, 0.2, 0.18),
+	"board": Color("d8ad6c"), "board_edge": Color("c99a58"), "board_line": Color("4a3218"),
+	"stone_black": Color("1c1b20"), "stone_white": Color("f1ece0"), "stone_white_rim": Color("6f6a5e"),
+	"wood": Color("5a3620"), "wood_dark": Color("3b2416"), "bridge": Color("d8c08a"), "peg": Color("b8894a"), "peg_dark": Color("1b1410"),
+	"hui": Color("12352d"), "silk": Color("efe3c2"),
+	"sky_top": Color(0.03, 0.04, 0.09), "sky_bottom": Color(0.086, 0.082, 0.118), "cloud": Color(0.18, 0.2, 0.3), "cloud_lit": Color(0.22, 0.24, 0.34),
+	"ember": Color(0.95, 0.45, 0.18), "flame": Color(0.95, 0.75, 0.18), "furnace_mouth": Color(0.08, 0.05, 0.04),
+	"ash": Color(0.5, 0.48, 0.44), "cinder": Color(0.12, 0.1, 0.1), "glow": Color(1.0, 0.85, 0.45), "soul_spark": Color(1.0, 0.95, 0.7),
+	"map_line": Color(0.85, 0.92, 0.9),
+}
+## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
+## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
+## fill "asset:state" is that state of the HD kit ("minor_panel:disabled" and "tab:disabled" are the derived dim, and
+## "minimap_frame:header" the band that holds the room name); a fill ending "@ink" carries words drawn with an ink
+## outline (draw_inked, draw_outlined), which are measured on INK. The ui_suite measures every pair on the kit's own
+## art: 4.5:1, or 3:1 where the colour is only drawn at 20 px and up. Grade and quality colours are measured on "@page".
+const TEXT_ON := [
+	[&"PAPER", ["@page", "tab", "button_secondary", "button_secondary:pressed", "minor_panel:disabled"], 14],
+	[&"MIST", ["@page"], 14],
+	[&"PALE_GOLD", ["@page", "tab:selected", "minimap_frame:header", "realm_badge"], 14],
+	[&"PALE_GOLD", ["button_primary@ink", "button_primary:pressed@ink", "title_plaque@ink"], 14],
+	[&"GOLD", ["@page"], 14],
+	[&"BRIGHT_JADE", ["@page"], 14],
+	[&"QI", ["@page"], 14],
+	[&"HOLLOW", ["@page", "tab:disabled", "minor_panel:disabled", "button_secondary:disabled"], 14],
+	[&"HOLLOW", ["button_primary:disabled@ink"], 14],
+	[&"RED_TEXT", ["@page"], 14],
+	[&"SOUL_TEXT", ["@page"], 14],
+	[&"WARNING", ["@page"], 14],
+	[&"SKY", ["@page"], 14],
+	[&"HUD_LABEL", ["minor_panel"], 14],
+	[&"PAPER_INK", ["dialogue_box"], 20],
+]
 
 static var _display: Font
 static var _text: Font
@@ -42,6 +98,29 @@ const WORD_SCALE := 1.2
 const TEXT_SCALE := 1.0
 ## Headings below this size are set in the bold serif: Cormorant's hairlines fade when small.
 const DISPLAY_MIN := 22
+## The type scale (docs/ui_style_guide.md §3): words at 14, 16, 18, 20 and 22; display (Cormorant) at 22, 26, 30 and 34.
+const T_HINT := 14
+const T_CAPTION := 16
+const T_ROW := 18
+const T_BODY := 20
+const T_BUTTON := 22
+const D_SUB := 22
+const D_HEADING := 26
+const D_DISPLAY := 30
+const D_TITLE := 34
+const WORD_SCALE_STEPS := [14, 16, 18, 20, 22]
+const DISPLAY_STEPS := [22, 26, 30, 34]
+
+## True when `size` is a step of the scale (a display size only when set in Cormorant, from 22 up).
+static func on_scale(size: int, display := false) -> bool:
+	return size in (DISPLAY_STEPS if display and size >= DISPLAY_MIN else WORD_SCALE_STEPS)
+
+## The next step down the word scale (never under MIN_SIZE).
+static func step_down(size: int) -> int:
+	for i in range(WORD_SCALE_STEPS.size() - 1, -1, -1):
+		if WORD_SCALE_STEPS[i] < size: return WORD_SCALE_STEPS[i]
+	return MIN_SIZE
+
 ## Settings text_size 0/1/2.
 const TEXT_SIZES := [0.92, 1.0, 1.12]
 ## No word or figure is set smaller than this (before the text size setting): below it a phone blurs it.
@@ -101,10 +180,10 @@ static func body_font() -> Font:
 		_body = f
 	return _body
 
-## True for strings of digits and signs only ("84/84", "+12%", "3 / 28").
+## True for strings of digits and signs only ("84/84", "+12%", "3 / 28"), and numbers shortened by `short` ("18.2K").
 static func is_numeric(s: String) -> bool:
 	if _numeric.has(s): return _numeric[s]
-	if _num_re == null: _num_re = RegEx.create_from_string("^[0-9\\s.,:/%+\\-−×()#]+$")
+	if _num_re == null: _num_re = RegEx.create_from_string("^[0-9\\s.,:/%+\\-−×()#]+[KMBT]?$")
 	if _numeric.size() > 4000: _numeric.clear()
 	_numeric[s] = _num_re.search(s) != null
 	return _numeric[s]
@@ -211,6 +290,21 @@ static func _hd_style(asset: String, state: String, content_margin: float) -> St
 	sb.content_margin_bottom = cm * 0.6
 	return sb
 
+static var _hd_textures: Dictionary = {}
+
+## Fixed-size HD art (margins 0, such as `hud_ring_<size>`) as a linear-filtered texture, for callers that scale it or
+## fade it (draw_texture_rect with a modulate). Null when the kit has no such asset.
+static func hd_texture(asset: String, state := "normal") -> Texture2D:
+	var key := asset + ":" + state
+	if not _hd_textures.has(key):
+		var sb := _hd_style(asset, state, -1.0)
+		_hd_textures[key] = (sb as HdStyleBox).texture if sb is HdStyleBox else null
+	return _hd_textures[key]
+
+## The HUD ring sizes the HD kit draws (face diameters, tools/ui/build_ui_hd.py HUD_RING_SIZES) and the pad round each.
+const HUD_RINGS := [132, 64, 52, 48]
+const HUD_RING_PAD := 14.0
+
 static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, shadow := true, display := false) -> void:
 	var f := font_for(text, display, size)
 	var px := size_for(text, size, display)
@@ -234,6 +328,19 @@ static func draw_outlined(ci: CanvasItem, text: String, pos: Vector2, size: int,
 	ci.draw_string_outline(f, pos, text, align, width, px, 3 if not pixel else 4, Color(INK, 0.92 * color.a))
 	ci.draw_string(f, pos, text, align, width, px, color)
 
+## Words on a bright face: primary button labels and titles on the plaque (decision 10, option C of
+## docs/mockups/00b_button_faces.png). The face stays the bright jade the mockups approved; a 2 px ink outline under the
+## letters carries the contrast, so the words read against ink (PALE_GOLD 15.6:1, a disabled HOLLOW 6.2:1) however
+## light the enamel behind them.
+const INK_OUTLINE := 2
+
+static func draw_inked(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PALE_GOLD, align := HORIZONTAL_ALIGNMENT_CENTER, width := -1.0, display := false) -> void:
+	var f := font_for(text, display, size)
+	var px := size_for(text, size, display)
+	ci.draw_string_outline(f, pos + Vector2(0, 2), text, align, width, px, INK_OUTLINE + 2, Color(INK, 0.35 * color.a))
+	ci.draw_string_outline(f, pos, text, align, width, px, INK_OUTLINE, Color(INK, color.a))
+	ci.draw_string(f, pos, text, align, width, px, color)
+
 static var _plate: StyleBoxFlat
 
 ## A world nameplate: name (and an optional second line) on a soft translucent ink plate,
@@ -241,19 +348,19 @@ static var _plate: StyleBoxFlat
 static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: float, color := PAPER, sub_color := MIST, size := 16) -> Rect2:
 	if _plate == null:
 		_plate = StyleBoxFlat.new()
-		_plate.bg_color = Color(0.02, 0.06, 0.075, 0.62)
+		_plate.bg_color = PLATE
 		_plate.set_corner_radius_all(7)
-		_plate.border_color = Color(0.9, 0.75, 0.4, 0.22)
+		_plate.border_color = Color(GOLD, 0.22)
 		_plate.set_border_width_all(1)
 		_plate.anti_aliasing = true
-	var sub_size := size - 3
+	var sub_size := step_down(size)
 	var w := text_width(name_text, size, true)
 	if sub != "": w = maxf(w, text_width(sub, sub_size))
 	var name_px := float(size_for(name_text, size, true))
 	var sub_px := float(size_for(sub, sub_size)) if sub != "" else 0.0
 	var h := name_px + (sub_px + 2 if sub != "" else 0.0)
 	var rect := Rect2(-w * 0.5 - 10, y - name_px * 0.95, w + 20, h + 8)
-	_plate.bg_color.a = 0.62 * color.a
+	_plate.bg_color.a = PLATE.a * color.a
 	ci.draw_style_box(_plate, rect)
 	draw_text(ci, name_text, Vector2(-w * 0.5 - 20, y), size, color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true, true)
 	if sub != "":
@@ -290,7 +397,7 @@ static func grade_color(g: String) -> Color:
 	return Color(str(ContentDB.config("grades").get("grade_colors", {}).get(g, "#e8e1cf")))
 
 static func badge_color(kind: String) -> Color:
-	return {"grey": Color("8c969a"), "green": Color("67d67a"), "white": PAPER, "orange": Color("f0a040"), "red": RED}.get(kind, PAPER)
+	return {"grey": HOLLOW, "green": BRIGHT_JADE, "white": PAPER, "orange": WARNING, "red": RED_TEXT}.get(kind, PAPER)
 
 ## A stat modifier (an affix, a title, a physique) as a line: "+24 accuracy", "+3% physical attack", "-10% fire power".
 static func affix_text(a: Dictionary) -> String:
@@ -316,29 +423,30 @@ static func clock(seconds: float) -> String:
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
 
-## A time left in words: "2 d 5 h" (unless `days` is false), "1 h 6 m", "12 m", "45 s" (the calendar's style; I14
-## proposes it for every duration but the ticking countdowns, which keep `clock`).
+## A time left in words: "2 d 5 h", "1 h 6 m", "12 m", "45 s" (Tx.span, the one style for every wait, cooldown and
+## duration; I14). The ticking countdowns the player races keep `clock`.
 static func span(seconds: float, days := true) -> String:
-	var s := maxi(0, int(ceil(seconds)))
-	if days and s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
-	if s >= 3600: return Tx.t("ui.span_hm") % [s / 3600, (s % 3600) / 60]
-	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
-	return Tx.t("ui.span_s") % s
+	return Tx.span(seconds, days)
 
 ## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
 ## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.
 static func pool_values(cur: float, most: float) -> Array:
 	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
 
-## A number over the world in three figures from 10,000 ("12.4K", "124K", "1.25M"; style guide §4, mockup 01);
-## below that, grouped as `fmt` does. The unit letters are strings, as a unit is a word the player reads.
+## Numbers over the world shortened to three figures from 10,000 (docs/ui_style_guide.md §4 rule 3, mockup 01):
+## "18.2K", "123K", "1.25M"; under 10,000 grouped as `fmt` writes them.
+const SHORT_UNITS := [[1e12, "T"], [1e9, "B"], [1e6, "M"], [1e3, "K"]]
+
 static func short(n: float) -> String:
-	var a := absf(n)
+	var a := absf(roundf(n))
 	if a < 10000.0: return fmt(n)
-	var big := a >= 999500.0
-	var x := a / (1000000.0 if big else 1000.0)
-	var digits := "%.2f" % x if x < 9.995 else ("%.1f" % x if x < 99.95 else "%d" % int(round(x)))
-	return ("-" if n < 0.0 else "") + Tx.t("ui.num.million" if big else "ui.num.thousand") % digits
+	for u in SHORT_UNITS:
+		# Three figures are rounded first, so 999,960 reads 1.00M rather than 1000K.
+		if a >= float(u[0]) * 0.9995:
+			var v := a / float(u[0])
+			var d := 0 if v >= 99.95 else (1 if v >= 9.995 else 2)
+			return ("-" if n < 0.0 else "") + ("%." + str(d) + "f") % v + str(u[1])
+	return fmt(n)
 
 static func fmt(n: float) -> String:
 	var v := int(round(n))
@@ -387,8 +495,8 @@ static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> R
 static func draw_hearts(ci: CanvasItem, pos: Vector2, filled: int, total: int, r := 10.0) -> void:
 	for i in total:
 		var c := pos + Vector2(r + i * r * 2.5, 0)
-		_heart(ci, c, r + 1.5, Color(0.08, 0.03, 0.04, 0.85))
-		_heart(ci, c, r, Color("e05a6e") if i < filled else Color(0.32, 0.16, 0.2, 0.9))
+		_heart(ci, c, r + 1.5, Color(INK, 0.85))
+		_heart(ci, c, r, HEART if i < filled else Color(HEART.darkened(0.6), 0.9))
 		if i < filled: ci.draw_circle(c + Vector2(-r * 0.45, -r * 0.4), r * 0.18, Color(1, 1, 1, 0.55))
 
 static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:

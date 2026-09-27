@@ -58,6 +58,50 @@
     ],
     "normal": "res://art/ui/hd/dialogue_box__normal.png"
   },
+  "hud_ring_132": {
+    "active": "res://art/ui/hd/hud_ring_132__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/hud_ring_132__normal.png",
+    "pressed": "res://art/ui/hd/hud_ring_132__pressed.png"
+  },
+  "hud_ring_48": {
+    "active": "res://art/ui/hd/hud_ring_48__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/hud_ring_48__normal.png",
+    "pressed": "res://art/ui/hd/hud_ring_48__pressed.png"
+  },
+  "hud_ring_52": {
+    "active": "res://art/ui/hd/hud_ring_52__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/hud_ring_52__normal.png",
+    "pressed": "res://art/ui/hd/hud_ring_52__pressed.png"
+  },
+  "hud_ring_64": {
+    "active": "res://art/ui/hd/hud_ring_64__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/hud_ring_64__normal.png",
+    "pressed": "res://art/ui/hd/hud_ring_64__pressed.png"
+  },
   "ink_band": {
     "margins": [
       120,

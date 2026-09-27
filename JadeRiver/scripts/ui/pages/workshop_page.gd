@@ -32,7 +32,7 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	if str(tabs[tab].get("locked", "")) != "":
-		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 21, UiKit.MIST)
+		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 22, UiKit.MIST)
 		return
 	match str(tabs[tab].id):
 		"formations": _formations(ch)
@@ -57,10 +57,10 @@ func _formations(ch) -> void:
 		var ok := Unlocks.is_unlocked(ch.id, str(bp.get("unlock", "formations")))
 		var r := Rect2(rr.position, Vector2(rr.size.x, 118))
 		panel(r, "minor_panel")
-		text(r.position + Vector2(16, 32), str(bp.name), 21, UiKit.PAPER if ok else UiKit.MIST)
+		text(r.position + Vector2(16, 32), str(bp.name), 22, UiKit.PAPER if ok else UiKit.MIST)
 		para(Rect2(r.position + Vector2(16, 42), Vector2(330, 60)), str(bp.get("desc", "")), 16, UiKit.MIST, 2)
 		var need := int(bp.get("nodes", 3)) * int(bp.get("fuel_per_node", 1))
-		text(r.position + Vector2(16, 108), Tx.t("ui.workshop.nodes") % [int(bp.nodes), need, ContentDB.item_name(str(bp.fuel))], 15, UiKit.PALE_GOLD)
+		text(r.position + Vector2(16, 108), Tx.plural("ui.workshop.nodes", int(bp.nodes)) % [int(bp.nodes), need, ContentDB.item_name(str(bp.fuel))], 16, UiKit.PALE_GOLD)
 		btn(Rect2(r.end.x - 160, r.position.y + 34, 144, 50), Tx.t("ui.workshop.place"), "place", str(bp.id), true, ok, Unlocks.locked_text(str(bp.get("unlock", "formations"))))
 	)
 	_rank_line(ch, "formations", Vector2(left.position.x + 16, left.end.y - 14))
@@ -76,8 +76,8 @@ func _formations(ch) -> void:
 		var hours := maxf(0.0, (float(f.until_utc) - Clock.now_utc()) / 3600.0)
 		var r2 := Rect2(right.position.x + 14, yy, right.size.x - 28, 70)
 		panel(r2, "minor_panel")
-		text(r2.position + Vector2(14, 30), str(ContentDB.entry("formations", str(f.type)).get("name", f.type)), 19)
-		text(r2.position + Vector2(14, 56), Tx.t("ui.workshop.1f_h_of_fuel") % [ContentDB.room(str(f.room)).get("name", f.room), hours], 15, UiKit.MIST)
+		text(r2.position + Vector2(14, 30), str(ContentDB.entry("formations", str(f.type)).get("name", f.type)), 20)
+		text(r2.position + Vector2(14, 56), Tx.t("ui.workshop.1f_h_of_fuel") % [ContentDB.room(str(f.room)).get("name", f.room), UiKit.span(hours * 3600.0)], 16, UiKit.MIST)
 		btn(Rect2(r2.end.x - 120, r2.position.y + 12, 106, 46), Tx.t("ui.workshop.dispel"), "dispel", i)
 		yy += 80
 
@@ -127,13 +127,13 @@ func _puppets(ch) -> void:
 	for b in p.get("blueprints", []):
 		var r := Rect2(left.position.x + 14, y, left.size.x - 28, 112)
 		panel(r, "minor_panel")
-		text(r.position + Vector2(16, 30), str(b.name), 21)
+		text(r.position + Vector2(16, 30), str(b.name), 22)
 		var need := ""
 		for inp in b.inputs: need += "%d %s  " % [int(inp.count), ContentDB.item_name(str(inp.item))]
-		text(r.position + Vector2(16, 56), need, 15, UiKit.PALE_GOLD)
+		text(r.position + Vector2(16, 56), need, 16, UiKit.PALE_GOLD)
 		var yl := ""
 		for yy in b.get("yield", []): yl += "%d %s/h  " % [int(yy.per_hour), ContentDB.item_name(str(yy.item))]
-		text(r.position + Vector2(16, 82), (Tx.t("ui.workshop.gathers") + yl) if b.get("pet", "") == "" else Tx.t("ui.workshop.fights_beside_you"), 15, UiKit.MIST)
+		text(r.position + Vector2(16, 82), (Tx.t("ui.workshop.gathers") + yl) if b.get("pet", "") == "" else Tx.t("ui.workshop.fights_beside_you"), 16, UiKit.MIST)
 		btn(Rect2(r.end.x - 160, r.position.y + 32, 144, 48), Tx.t("ui.workshop.build"), "build", str(b.id), true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
 		y += 120
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -142,19 +142,19 @@ func _puppets(ch) -> void:
 	var ps: Array = ch.crafting.get("puppets", [])
 	var yy2 := right.position.y + 70
 	for pu in ps:
-		text(Vector2(right.position.x + 24, yy2 + 20), str(Game.workshop.blueprint(str(pu.blueprint)).get("name", pu.blueprint)), 19)
+		text(Vector2(right.position.x + 24, yy2 + 20), str(Game.workshop.blueprint(str(pu.blueprint)).get("name", pu.blueprint)), 20)
 		yy2 += 34
 	# S48 the combat puppet: it fights beside you; three knockouts leave it broken until repaired here.
 	for pp in ch.pets:
 		if not PetAuthority.is_construct(pp): continue
 		var broken: bool = pp.get("wounded", false)
-		text(Vector2(right.position.x + 24, yy2 + 20), str(pp.name) + "  ·  " + (Tx.t("ui.workshop.puppet_wounded") if broken else Tx.t("ui.workshop.puppet_ready")), 19, UiKit.RED if broken else UiKit.BRIGHT_JADE)
+		text(Vector2(right.position.x + 24, yy2 + 20), str(pp.name) + "  ·  " + (Tx.t("ui.workshop.puppet_wounded") if broken else Tx.t("ui.workshop.puppet_ready")), 20, UiKit.RED_TEXT if broken else UiKit.BRIGHT_JADE)
 		if broken: btn(Rect2(right.end.x - 170, yy2 - 6, 150, 44), Tx.t("ui.workshop.repair"), "repair_puppet", null, true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
 		yy2 += 48
 	var got: Array = Game.workshop.puppet_yield(ch)
 	var summary := ""
 	for g in got: summary += "%d %s  " % [int(g.count), ContentDB.item_name(str(g.item))]
-	para(Rect2(right.position.x + 24, yy2 + 10, right.size.x - 48, 80), Tx.t("ui.workshop.waiting") + (summary if summary != "" else Tx.t("ui.workshop.nothing_yet")), 17, UiKit.MIST)
+	para(Rect2(right.position.x + 24, yy2 + 10, right.size.x - 48, 80), Tx.t("ui.workshop.waiting") + (summary if summary != "" else Tx.t("ui.workshop.nothing_yet")), 18, UiKit.MIST)
 	btn(Rect2(right.position.x + 24, right.end.y - 80, 220, 54), Tx.t("ui.workshop.collect"), "collect", null, true, not got.is_empty(), Tx.t("ui.workshop.nothing_gathered_yet"))
 	_rank_line(ch, "puppetry", Vector2(left.position.x + 16, left.end.y - 14))
 
@@ -167,7 +167,7 @@ func _research(ch) -> void:
 	var x := r.position.x + 24
 	for inp in p.get("inputs", []):
 		slot_box(Rect2(x + 4, r.position.y + 154, SLOT, SLOT), str(inp.item), ch.inventory.count(str(inp.item)))
-		text(Vector2(x, r.position.y + 256), Tx.t("ui.workshop.need") % int(inp.count), 15, UiKit.MIST)
+		text(Vector2(x, r.position.y + 256), Tx.t("ui.workshop.need") % int(inp.count), 16, UiKit.MIST)
 		x += 110
 	var here: bool = Game.workshop.npc_here(ch, p.get("npcs", []))
 	btn(Rect2(r.position.x + 24, r.position.y + 290, 240, 56), Tx.t("ui.workshop.restore"), "restore", null, true, here, Tx.t("ui.workshop.use_the_library_bench"))
@@ -187,7 +187,7 @@ func _teaching(ch) -> void:
 	list("teach", Rect2(r.position + Vector2(16, 130), Vector2(r.size.x - 32, r.size.y - 170)), ds.size(), 64, func(i: int, rr: Rect2):
 		var d: Dictionary = ds[i]
 		panel(rr, "minor_panel")
-		text(rr.position + Vector2(16, 38), Tx.t("ui.workshop.lv") % [str(d.get("name", Tx.t("ui.workshop.disciple"))), int(d.get("level", 1))], 19)
+		text(rr.position + Vector2(16, 38), Tx.t("ui.workshop.lv") % [str(d.get("name", Tx.t("ui.workshop.disciple"))), int(d.get("level", 1))], 20)
 		btn(Rect2(rr.end.x - 150, rr.position.y + 7, 136, 48), Tx.t("ui.workshop.teach"), "teach", i, true, not daos.is_empty(), Tx.t("ui.workshop.no_dao_at_explanation"))
 	)
 
@@ -195,7 +195,7 @@ func on_action(id: String, data) -> void:
 	match id:
 		"place":
 			var r := submit({"type": "place_formation", "formation": str(data)})
-			if r.get("ok", false): flash(Tx.t("ui.workshop.formation_placed_h_of_fuel") % int(r.get("hours", 0)))
+			if r.get("ok", false): flash(Tx.t("ui.workshop.formation_placed_h_of_fuel") % UiKit.span(float(r.get("hours", 0)) * 3600.0))
 		"dispel": submit({"type": "remove_formation", "index": int(data)})
 		"appraise":
 			var r2 := submit({"type": "appraise_item", "index": int(data)})

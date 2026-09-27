@@ -25,15 +25,15 @@ func draw_page() -> void:
 		var st: Dictionary = ch.quests.active.get(q, {})
 		var o: Dictionary = d.objectives[0]
 		var have := int(st.get("progress", [0])[0]) if not st.is_empty() else 0
-		text(Vector2(left.position.x + 20, y + 24), str(d.name), 19)
-		text(Vector2(left.position.x + 20, y + 46), "%s (%d/%d)" % [str(o.get("text", "")), have, int(o.get("count", 1))], 16, UiKit.MIST)
+		text(Vector2(left.position.x + 20, y + 24), str(d.name), 20)
+		text(Vector2(left.position.x + 20, y + 46), "%s (%d / %d)" % [str(o.get("text", "")), have, int(o.get("count", 1))], 16, UiKit.MIST)
 		y += 60
 	heading(right.position + Vector2(20, 40), Tx.t("ui.notice.requests"), right.size.x - 40)
 	var yy := right.position.y + 60
 	for qid in ch.quests.offered:
 		var d2 := ContentDB.entry("quests", qid)
 		if d2.is_empty() or str(d2.get("kind", "")) != "side" or not Game.quest.can_offer(ch, d2): continue
-		text(Vector2(right.position.x + 20, yy + 24), str(d2.name), 19)
+		text(Vector2(right.position.x + 20, yy + 24), str(d2.name), 20)
 		text(Vector2(right.position.x + 20, yy + 46), Tx.t("ui.notice.ask") % ContentDB.name_of("npcs", str(d2.giver)), 16, UiKit.MIST)
 		yy += 60
 		if yy > right.end.y - 60: break

@@ -590,6 +590,7 @@
     "args": [
      "payload.bolts"
     ],
+    "plural": "payload.bolts",
     "kind": "danger"
    },
    "layers": [
@@ -601,7 +602,8 @@
       "key": "hud.tribulation_started",
       "args": [
        "payload.bolts"
-      ]
+      ],
+      "plural": "payload.bolts"
      },
      "size": 34,
      "color": "PALE_GOLD",

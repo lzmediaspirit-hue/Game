@@ -24,14 +24,14 @@ func draw_page() -> void:
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.training_sect.you_are_unaffiliated_the_jade"), 22, UiKit.PAPER)
 		return
 	var sect := ContentDB.entry("sects", str(ts.id))
-	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 566, true)
+	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 566, true)
 	var ranks: Dictionary = ContentDB.config("sect_ranks")
 	var rank_name := ContentDB.rank_name(str(ts.get("rank", "")))
 	text(r.position + Vector2(30, 90), Tx.t("ui.training_sect.rank") % rank_name, 22)
 	currency_pill(r.position + Vector2(30, 110), "contribution", int(ts.get("contribution", 0)))
 	# S48 the Blood path lowers the sect's regard; below zero the Mission Hall lends no manuals.
 	var regard := int(ts.get("reputation", {}).get(str(ts.id), 0))
-	text(r.position + Vector2(330, 140), Tx.t("ui.training_sect.regard") % regard, 20, UiKit.PAPER if regard >= 0 else UiKit.RED)
+	text(r.position + Vector2(330, 140), Tx.t("ui.training_sect.regard") % regard, 20, UiKit.PAPER if regard >= 0 else UiKit.RED_TEXT)
 	var order: Array = ranks.get("order", [])
 	var i := order.find(str(ts.get("rank", "")))
 	var y := r.position.y + 180
@@ -41,7 +41,7 @@ func draw_page() -> void:
 		text(Vector2(r.position.x + 30, y), ("◆ " if done else "◇ ") + str(rk.name), 20, UiKit.GOLD if done else UiKit.MIST)
 		if j == i + 1:
 			var ok := RequirementRules.passes(rk.get("requires", {}), Game.ctx(ch))
-			text(Vector2(r.position.x + 300, y), RequirementRules.first_failure_text(rk.get("requires", {}), Game.ctx(ch)) if not ok else Tx.t("ui.training_sect.ready"), 17, UiKit.PAPER if ok else UiKit.MIST)
+			text(Vector2(r.position.x + 300, y), RequirementRules.first_failure_text(rk.get("requires", {}), Game.ctx(ch)) if not ok else Tx.t("ui.training_sect.ready"), 18, UiKit.PAPER if ok else UiKit.MIST)
 			btn(Rect2(r.position.x + 640, y - 30, 220, 46), Tx.t("ui.training_sect.promotion_trial"), "promote", null, true, ok, Tx.t("ui.training_sect.not_yet"))
 		y += 40
 	# B5: the ranks fill the panel's height, so these sit at its top right, clear of the Promotion trial on any rank's row.
@@ -63,7 +63,7 @@ func _role(ch) -> void:
 	panel(left)
 	var names: Array = []
 	for tid in roles.get("signature", []): names.append(ContentDB.name_of("techniques", str(tid)))
-	para(Rect2(left.position + Vector2(20, 14), Vector2(left.size.x - 40, 50)), Tx.t("ui.training_sect.signature_line") % ", ".join(names), 17, UiKit.PALE_GOLD, 2)
+	para(Rect2(left.position + Vector2(20, 14), Vector2(left.size.x - 40, 50)), Tx.t("ui.training_sect.signature_line") % ", ".join(names), 18, UiKit.PALE_GOLD, 2)
 	var role := str(ts.get("role", ""))
 	var y := left.position.y + 70
 	for key in ["damage", "support"]:
@@ -72,13 +72,13 @@ func _role(ch) -> void:
 		var mine: bool = role == str(key)
 		panel(vr, "minor_panel", "selected" if mine else "normal")
 		text(vr.position + Vector2(16, 30), "%s · %s" % [Tx.t("ui.training_sect." + key), str(v.get("name", ""))], 20, UiKit.GOLD if mine else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-		para(Rect2(vr.position + Vector2(16, 42), Vector2(vr.size.x - 32, 60)), str(v.get("desc", "")), 15, UiKit.MIST, 3)
+		para(Rect2(vr.position + Vector2(16, 42), Vector2(vr.size.x - 32, 60)), str(v.get("desc", "")), 16, UiKit.MIST, 3)
 		btn(Rect2(vr.end.x - 150, vr.end.y - 50, 136, 40), Tx.t("ui.training_sect.chosen") if mine else Tx.t("ui.training_sect.choose"), "role", key, not mine, not mine, "", 16)
 		y += 162
 	var note := Tx.t("ui.training_sect.switch_cost") % int(cfg.get("switch_cost", 50)) if role != "" else ""
 	var sup := int(round((Game.combat.sect_support_mult(ch) - 1.0) * 100.0))
 	if sup > 0: note += ("  " if note != "" else "") + Tx.t("ui.training_sect.support_scaling") % sup
-	para(Rect2(left.position.x + 20, y, left.size.x - 40, 44), note, 15, UiKit.MIST, 2)
+	para(Rect2(left.position.x + 20, y, left.size.x - 40, 44), note, 16, UiKit.MIST, 2)
 	# The tree: three branches of five nodes, bought in order.
 	var right := Rect2(left.end.x + 14, r.position.y, r.size.x - left.size.x - 14, r.size.y)
 	panel(right)

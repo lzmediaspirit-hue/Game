@@ -133,7 +133,7 @@ func draw_page() -> void:
 	if ch == null: return
 	var craft := str(tabs[tab].id)
 	if str(tabs[tab].get("locked", "")) != "":
-		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 21, UiKit.MIST)
+		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 22, UiKit.MIST)
 		return
 	if craft == "smithing":
 		var mw := (content.size.x) / FORGE_MODES.size()
@@ -161,7 +161,7 @@ func draw_page() -> void:
 		extra.append_array(Game.crafting.ancient_in_progress(ch))
 	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
 	text(Vector2(list_r.position.x + 16, list_r.end.y - 14), "%s · %s" % [str(prof.rank).capitalize(), UiKit.fmt(float(prof.xp))], 16, UiKit.MIST)
-	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 62, func(i: int, rr: Rect2):
+	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 64, func(i: int, rr: Rect2):
 		if i < extra.size():
 			var xid: String = extra[i]
 			panel(rr, "minor_panel", "selected" if sel == xid else "normal")
@@ -193,19 +193,19 @@ func draw_page() -> void:
 		return
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": Tx.t("ui.crafts.furnace_word"), "smithing": Tx.t("ui.crafts.forge_word"),
-			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 19, UiKit.MIST)
+			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 20, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
 	var rec := ContentDB.entry("recipes", sel)
 	var out2 := str(rec.outputs[0].item)
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(SLOT, SLOT)),out2, int(rec.outputs[0].count))
-	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
+	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 22, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
 	var alch := craft == "alchemy"
 	if alch:
 		var steps_all := _screens(sel)
 		var at := steps_all.find(screen) + 1
-		text(Vector2(right.end.x - 324, right.position.y + 30), Tx.t("ui.crafts.step_of") % [at, steps_all.size(), _screen_label(screen)], 15, UiKit.PALE_GOLD,
+		text(Vector2(right.end.x - 324, right.position.y + 30), Tx.t("ui.crafts.step_of") % [at, steps_all.size(), _screen_label(screen)], 16, UiKit.PALE_GOLD,
 			HORIZONTAL_ALIGNMENT_RIGHT, 300)
 	if alch and screen == "furnace":
 		_furnace_screen(ch, right)
@@ -220,7 +220,7 @@ func draw_page() -> void:
 		var need := int(inp.count) * count
 		slot_box(Rect2(right.position.x + 24, y, SLOT_SMALL, SLOT_SMALL), str(inp.item))
 		var name_y := y + 22 if alch else y + 30
-		text(Vector2(right.position.x + 90, name_y), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+		text(Vector2(right.position.x + 90, name_y), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT)
 		if alch:
 			# S44: each slot's role, the herb's nature, and what stands in for what.
 			var bits: Array = []
@@ -238,7 +238,7 @@ func draw_page() -> void:
 	if alch:
 		var clash: Dictionary = Game.crafting.conflict_in(inputs)
 		if not clash.is_empty() and (ch.crafting.get("known_conflicts", []) as Array).has(str(clash.id)):
-			text(Vector2(right.end.x - 24 - UiKit.text_width(Tx.t("ui.crafts.conflict_warning"), 15), right.position.y + 118 - 6), Tx.t("ui.crafts.conflict_warning"), 15, UiKit.RED)
+			text(Vector2(right.end.x - 24 - UiKit.text_width(Tx.t("ui.crafts.conflict_warning"), 16), right.position.y + 118 - 6), Tx.t("ui.crafts.conflict_warning"), 16, UiKit.RED_TEXT)
 	if craft in ["cooking", "alchemy", "formations"]:
 		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
 		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
@@ -279,7 +279,7 @@ func _forge(ch, area: Rect2) -> void:
 	var gear := _gear(ch)
 	var list_r := Rect2(area.position.x, area.position.y, 420, area.size.y)
 	panel(list_r)
-	list("gear", list_r.grow(-8), gear.size(), 62, func(i: int, rr: Rect2):
+	list("gear", list_r.grow(-8), gear.size(), 64, func(i: int, rr: Rect2):
 		var g: Dictionary = gear[i]
 		var inst: Dictionary = g.inst
 		var uid := int(inst.get("uid", -1))
@@ -288,13 +288,13 @@ func _forge(ch, area: Rect2) -> void:
 		panel(rr, "minor_panel", "selected" if chosen else ("normal" if usable else "disabled"))
 		slot_box(Rect2(rr.position + Vector2(6, 7), Vector2(SLOT_SMALL, SLOT_SMALL)),str(inst.id), 0, str(inst.get("quality", "")))
 		var grade := str(ContentDB.item(str(inst.id)).get("grade", "plain"))
-		text(rr.position + Vector2(66, 28), fit(_gear_name(inst), 17, rr.size.x - 150), 17, UiKit.grade_color(grade) if usable else UiKit.HOLLOW)
+		text(rr.position + Vector2(66, 28), fit(_gear_name(inst), 18, rr.size.x - 150), 18, UiKit.grade_color(grade) if usable else UiKit.HOLLOW)
 		var sub := (Tx.t("ui.forge.in_furnace_slot") if ContentDB.item(str(inst.id)).has("furnace") else Tx.t("ui.forge.worn")) if g.worn else ""
 		if float(inst.get("pity", 0.0)) > 0.0: sub += ("  " if sub != "" else "") + Tx.t("ui.forge.pity") % int(round(float(inst.pity) * 100))
 		if ch.inventory.locked.has(uid): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.locked_item")
 		if inst.get("awakened", false): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.awakened_tag")
 		text(rr.position + Vector2(66, 50), sub, 14, UiKit.MIST)
-		if forge_mode == "salvage" and picked.has(uid): text(rr.position + Vector2(rr.size.x - 34, 38), "✓", 24, UiKit.BRIGHT_JADE)
+		if forge_mode == "salvage" and picked.has(uid): text(rr.position + Vector2(rr.size.x - 34, 38), "✓", 22, UiKit.BRIGHT_JADE)
 		region(rr, "gear", uid, usable, Tx.t("ui.forge.cannot_salvage"))
 	)
 	var right := Rect2(list_r.end.x + 20, area.position.y, area.end.x - list_r.end.x - 20, area.size.y)
@@ -308,24 +308,24 @@ func _forge(ch, area: Rect2) -> void:
 
 func _piece_header(r: Rect2, inst: Dictionary) -> float:
 	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(SLOT, SLOT)),str(inst.id), 0, str(inst.get("quality", "")))
-	text(r.position + Vector2(110, 56), _gear_name(inst), 24, UiKit.grade_color(str(ContentDB.item(str(inst.id)).get("grade", "plain"))))
+	text(r.position + Vector2(110, 56), _gear_name(inst), 22, UiKit.grade_color(str(ContentDB.item(str(inst.id)).get("grade", "plain"))))
 	text(r.position + Vector2(110, 84), str(inst.get("quality", "common")).capitalize(), 16, UiKit.MIST)
 	return r.position.y + 120
 
 func _cost_line(r: Rect2, y: float, item_id: String, need: int) -> float:
 	var have: int = c().inventory.count(item_id)
 	slot_box(Rect2(r.position.x + 24, y, SLOT_SMALL, SLOT_SMALL),item_id)
-	text(Vector2(r.position.x + 80, y + 30), "%s  %d / %d" % [ContentDB.item_name(item_id), have, need], 17, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+	text(Vector2(r.position.x + 80, y + 30), "%s  %d / %d" % [ContentDB.item_name(item_id), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT)
 	return y + 50
 
 func _forge_enhance(ch, r: Rect2) -> void:
 	var inst := _find(ch, pick_uid)
 	if inst.is_empty():
-		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.enhance_help"), 19, UiKit.MIST)
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.enhance_help"), 20, UiKit.MIST)
 		return
 	var y := _piece_header(r, inst)
 	if int(inst.get("enhance", 0)) >= 10:
-		text(Vector2(r.position.x + 24, y + 20), Tx.t("ui.forge.max"), 19, UiKit.GOLD)
+		text(Vector2(r.position.x + 24, y + 20), Tx.t("ui.forge.max"), 20, UiKit.GOLD)
 		_awaken_section(ch, r, inst, y + 36)
 		return
 	var risky := int(inst.get("enhance", 0)) >= int(Game.crafting.upkeep("risky_from", 5))
@@ -339,10 +339,10 @@ func _forge_enhance(ch, r: Rect2) -> void:
 	var cost: Dictionary = Game.crafting.enhance_cost(inst)
 	y = _cost_line(r, y + 8, str(cost.metal), int(cost.count))
 	if int(cost.shards) > 0: y = _cost_line(r, y, "spirit_stone_shard", int(cost.shards))
-	text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels), 17, UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
+	text(Vector2(r.position.x + 24, y + 24), Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels), 18, UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED_TEXT)
 	y += 36
 	if risky:
-		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.essence") % [essence, int(round(essence * float(Game.crafting.upkeep("essence_step", 0.025)) * 100))], 17, UiKit.PAPER)
+		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.essence") % [essence, int(round(essence * float(Game.crafting.upkeep("essence_step", 0.025)) * 100))], 18, UiKit.PAPER)
 		btn(Rect2(r.end.x - 164, y, 56, 44), "−", "essence", -1)
 		btn(Rect2(r.end.x - 84, y, 56, 44), "+", "essence", 1, false, essence < int(Game.crafting.upkeep("essence_max", 4)) and ch.inventory.count("refining_essence") > essence)
 	var why: String = Game.crafting.enhance_check(ch, inst, essence)
@@ -350,7 +350,7 @@ func _forge_enhance(ch, r: Rect2) -> void:
 	# A furnace (S44): each level steadies its heat 1%; a blast costs it durability, mended here.
 	if str(ContentDB.item(str(inst.id)).get("slot", "")) == "tool_furnace":
 		var dur := int(inst.get("durability", 100))
-		text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.forge.furnace_line") % [dur, int(inst.get("enhance", 0))], 16, UiKit.MIST if dur > 0 else UiKit.RED)
+		text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.forge.furnace_line") % [dur, int(inst.get("enhance", 0))], 16, UiKit.MIST if dur > 0 else UiKit.RED_TEXT)
 		if dur < 100:
 			var mc: Dictionary = Game.crafting.mend_cost(inst)
 			var mwhy := "" if ch.inventory.count(str(mc.metal)) >= int(mc.count) else Tx.t("sim.crafting.needs_2") % [int(mc.count), ContentDB.item_name(str(mc.metal))]
@@ -365,11 +365,11 @@ func _awaken_section(ch, r: Rect2, inst: Dictionary, y: float) -> void:
 	var x := r.position.x + 24
 	var w := r.size.x - 48
 	if inst.get("awakened", false):
-		y += para(Rect2(x, y + 6, w, 60), Tx.t("ui.forge.awakened_line") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.GOLD, 2)
+		y += para(Rect2(x, y + 6, w, 60), Tx.plural("ui.forge.awakened_line", int(sk.get("every_hits", 12))) % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.GOLD, 2)
 		return
 	heading(Vector2(x, y + 34), Tx.t("ui.forge.awaken_title"), w)
 	y += 44
-	y += para(Rect2(x, y + 4, w, 60), Tx.t("ui.forge.awaken_skill") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 17, UiKit.PALE_GOLD, 2)
+	y += para(Rect2(x, y + 4, w, 60), Tx.plural("ui.forge.awaken_skill", int(sk.get("every_hits", 12))) % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.PALE_GOLD, 2)
 	var fam := ContentDB.entry("weapon_families", str(ContentDB.item(str(inst.id)).get("family", "")))
 	var dao := str(fam.get("dao", ""))
 	var tier := int(ch.cultivator.daos.get(dao, {}).get("tier", 0))
@@ -377,7 +377,7 @@ func _awaken_section(ch, r: Rect2, inst: Dictionary, y: float) -> void:
 	for row in [[tier >= 4, Tx.t("ui.forge.awaken_need_dao") % [ContentDB.name_of("daos", dao), tier]],
 			[have > 0, Tx.t("ui.forge.awaken_need_crystal") % have],
 			[Game.crafting.station_near(ch, ["forge_anvil"]), Tx.t("ui.forge.awaken_need_forge")]]:
-		text(Vector2(x, y + 22), ("✓ " if row[0] else "· ") + str(row[1]), 17, UiKit.BRIGHT_JADE if row[0] else UiKit.MIST)
+		text(Vector2(x, y + 22), ("✓ " if row[0] else "· ") + str(row[1]), 18, UiKit.BRIGHT_JADE if row[0] else UiKit.MIST)
 		y += 26
 	var why: String = Game.crafting.awaken_check(ch, inst)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.awaken"), "do_awaken", null, true, why == "", why)
@@ -385,12 +385,12 @@ func _awaken_section(ch, r: Rect2, inst: Dictionary, y: float) -> void:
 func _forge_inherit(ch, r: Rect2) -> void:
 	var from := _find(ch, pick_uid)
 	var to := _find(ch, to_uid)
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.inherit_help"), 17, UiKit.MIST)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.inherit_help"), 18, UiKit.MIST)
 	var y := r.position.y + 90
 	for pair in [[Tx.t("ui.forge.from"), from], [Tx.t("ui.forge.to"), to]]:
 		text(Vector2(r.position.x + 24, y + 30), str(pair[0]), 18, UiKit.MIST)
 		var inst: Dictionary = pair[1]
-		if inst.is_empty(): text(Vector2(r.position.x + 120, y + 30), Tx.t("ui.forge.choose_left"), 17, UiKit.HOLLOW)
+		if inst.is_empty(): text(Vector2(r.position.x + 120, y + 30), Tx.t("ui.forge.choose_left"), 18, UiKit.HOLLOW)
 		else:
 			slot_box(Rect2(r.position.x + 110, y + 3, SLOT_SMALL, SLOT_SMALL), str(inst.id), 0, str(inst.get("quality", "")))
 			text(Vector2(r.position.x + 166, y + 32), _gear_name(inst), 18, UiKit.PAPER)
@@ -404,26 +404,26 @@ func _forge_inherit(ch, r: Rect2) -> void:
 		elif moved <= int(to.get("enhance", 0)): why = Tx.t("sim.crafting.inherit_nothing")
 	if why == "":
 		var stones := moved * int(Game.crafting.upkeep("inherit_stones_per_level", 2))
-		text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.forge.inherit_preview") % [moved, stones], 19, UiKit.PAPER)
+		text(Vector2(r.position.x + 24, y + 26), Tx.plural("ui.forge.inherit_preview", stones) % [moved, stones], 20, UiKit.PAPER)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.inherit"), "do_inherit", null, true, why == "", why)
 	btn(Rect2(r.position.x + 24, r.end.y - 76, 160, 58), Tx.t("ui.forge.clear"), "clear_pick")
 
 func _forge_salvage(ch, r: Rect2) -> void:
 	var pv: Dictionary = Game.crafting.salvage_preview(ch, picked.keys())
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.salvage_help"), 17, UiKit.MIST)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.salvage_help"), 18, UiKit.MIST)
 	var y := r.position.y + 96
-	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.salvage_count") % pv.items.size(), 19, UiKit.PAPER)
+	text(Vector2(r.position.x + 24, y), Tx.plural("ui.forge.salvage_count", pv.items.size()) % pv.items.size(), 20, UiKit.PAPER)
 	y += 16
 	for item_id in pv.returns:
 		slot_box(Rect2(r.position.x + 24, y, SLOT_SMALL, SLOT_SMALL),str(item_id), int(pv.returns[item_id]))
-		text(Vector2(r.position.x + 80, y + 30), "%s ×%d" % [ContentDB.item_name(str(item_id)), int(pv.returns[item_id])], 17, UiKit.BRIGHT_JADE)
+		text(Vector2(r.position.x + 80, y + 30), "%s ×%d" % [ContentDB.item_name(str(item_id)), int(pv.returns[item_id])], 18, UiKit.BRIGHT_JADE)
 		y += 50
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.salvage"), "do_salvage", null, true, not pv.items.is_empty(), Tx.t("ui.forge.choose_pieces"))
 
 func _forge_reroll(ch, r: Rect2) -> void:
 	var inst := _find(ch, pick_uid)
 	if inst.is_empty():
-		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.reroll_help"), 19, UiKit.MIST)
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.reroll_help"), 20, UiKit.MIST)
 		return
 	var y := _piece_header(r, inst)
 	var affs: Array = inst.get("affixes", [])
@@ -454,8 +454,8 @@ func _forge_reroll(ch, r: Rect2) -> void:
 		text(Vector2(r.position.x + 24, y + 34), Tx.t("ui.forge.free_reroll"), 18, UiKit.BRIGHT_JADE)   # S10 Insight 25
 	else:
 		y = _cost_line(r, y + 10, "refining_essence", int(cost.essence))
-		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 17,
-			UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
+		text(Vector2(r.position.x + 24, y + 24), Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 18,
+			UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED_TEXT)
 	var why2: String = Game.crafting.reroll_check(ch, inst)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reroll"), "do_reroll", null, true, why2 == "", why2)
 
@@ -463,11 +463,11 @@ func _forge_reroll(ch, r: Rect2) -> void:
 func _forge_natal(ch, r: Rect2) -> void:
 	var inst := _find(ch, pick_uid)
 	if inst.is_empty() or str(ContentDB.item(str(inst.id)).get("slot", "")) != "weapon":
-		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.natal_help"), 19, UiKit.MIST)
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.natal_help"), 20, UiKit.MIST)
 		return
 	var y := _piece_header(r, inst)
 	if not inst.get("natal", false):
-		para(Rect2(r.position.x + 24, y, r.size.x - 48, 120), Tx.t("ui.forge.natal_help"), 17, UiKit.MIST)
+		para(Rect2(r.position.x + 24, y, r.size.x - 48, 120), Tx.t("ui.forge.natal_help"), 18, UiKit.MIST)
 		btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.make_natal"), "natal_flag", null, true, Unlocks.is_unlocked(ch.id, "natal"), Unlocks.locked_text("natal"))
 		return
 	var lv := int(inst.get("natal_level", 0))
@@ -477,14 +477,14 @@ func _forge_natal(ch, r: Rect2) -> void:
 	bar(Rect2(r.position.x + 24, y, r.size.x - 48, 24), 1.0 if lv >= 10 else xp / maxf(1.0, nxt), UiKit.GOLD,
 		Tx.t("ui.forge.natal_level") % [lv, int(xp), int(nxt)] if lv < 10 else Tx.t("ui.forge.natal_full"))
 	y += 40
-	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_ilv") % [int(inst.get("ilv_eff", inst.get("ilv", 1))), Game.inventory.natal_cap(inst)], 17, UiKit.PAPER)
+	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_ilv") % [int(inst.get("ilv_eff", inst.get("ilv", 1))), Game.inventory.natal_cap(inst)], 18, UiKit.PAPER)
 	y += 26
 	var demand: float = Game.combat.natal_demand(inst)
 	var spirit: float = StatRules.attribute(ch, "spirit")
-	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_demand") % [int(demand), int(spirit)], 17, UiKit.BRIGHT_JADE if spirit >= demand else UiKit.RED)
+	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_demand") % [int(demand), int(spirit)], 18, UiKit.BRIGHT_JADE if spirit >= demand else UiKit.RED_TEXT)
 	y += 26
 	if inst.get("broken", false):
-		text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_broken"), 18, UiKit.RED)
+		text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_broken"), 18, UiKit.RED_TEXT)
 		y += 26
 	# Feed: the best ore in the bag, one or five at a time.
 	var ore := ""
@@ -507,14 +507,14 @@ func _template(r: Rect2) -> PackedVector2Array:
 func _draw_trace(right: Rect2) -> void:
 	var side := minf(right.size.x - 48, right.size.y - 150)
 	trace_rect = Rect2(right.position.x + (right.size.x - side) / 2.0, right.position.y + 110, side, side)
-	draw_rect(trace_rect, Color("efe3c2"))
-	draw_rect(trace_rect, Color("8a6a3a"), false, 3.0)
+	draw_rect(trace_rect, UiKit.SURFACE.talisman)
+	draw_rect(trace_rect, UiKit.SURFACE.talisman_edge, false, 3.0)
 	var tpl := _template(trace_rect)
 	if tpl.size() > 1:
-		draw_polyline(tpl, Color(0.75, 0.2, 0.18, 0.35), 14.0)
-		draw_circle(tpl[0], 9, Color(0.75, 0.2, 0.18, 0.7))
-	if trace_pts.size() > 1: draw_polyline(PackedVector2Array(trace_pts), Color("1c1a18"), 7.0)
-	text(Vector2(right.position.x + 24, right.end.y - 24), Tx.t("ui.crafts.trace_hint"), 17, UiKit.MIST)
+		draw_polyline(tpl, Color(UiKit.SURFACE.cinnabar, 0.35), 14.0)
+		draw_circle(tpl[0], 9, Color(UiKit.SURFACE.cinnabar, 0.7))
+	if trace_pts.size() > 1: draw_polyline(PackedVector2Array(trace_pts), UiKit.SURFACE.brush_ink, 7.0)
+	text(Vector2(right.position.x + 24, right.end.y - 24), Tx.t("ui.crafts.trace_hint"), 18, UiKit.MIST)
 	btn(Rect2(right.end.x - 164, right.position.y + 40, 140, 46), Tx.t("ui.crafts.stop_tracing"), "trace_cancel", null, false, true, "", 16)
 
 ## How the stroke went: its mean and worst distance from the path (as a share of the paper), whether it began at
@@ -590,16 +590,16 @@ func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
 	if q.is_empty(): return
 	var y := right.position.y + 120
-	text(Vector2(right.position.x + 24, y), Tx.t("ui.crafts.auto_refine_batches"), 19, UiKit.GOLD)
+	text(Vector2(right.position.x + 24, y), Tx.t("ui.crafts.auto_refine_batches"), 20, UiKit.GOLD)
 	for b in q:
 		y += 30
 		var left := int(float(b.done_utc) - Clock.now_utc())
-		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), Tx.t("ui.crafts.batch_ready") if left <= 0 else UiKit.span(left)], 17)
+		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), Tx.t("ui.crafts.batch_ready") if left <= 0 else UiKit.span(left)], 18)
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 # ------------------------------------------------------------------ S44 experiments, Deduce and the guild
 func _experiment(ch, r: Rect2) -> void:
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 70)), Tx.t("ui.crafts.experiment_help"), 17, UiKit.MIST)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 70)), Tx.t("ui.crafts.experiment_help"), 18, UiKit.MIST)
 	var herbs: Array = []
 	for it in ContentDB.all("items"):
 		if str(it.get("type", "")) == "herb" and ch.inventory.count(str(it.id)) > 0: herbs.append(str(it.id))
@@ -609,32 +609,32 @@ func _experiment(ch, r: Rect2) -> void:
 		var hr := Rect2(r.position.x + 24 + (i % cols) * 108, r.position.y + 96 + (i / cols) * 96, 96, 86)
 		panel(hr, "minor_panel", "selected" if exp_herbs.has(h) else "normal")
 		slot_box(Rect2(hr.position + Vector2(26, 8), Vector2(SLOT_SMALL, SLOT_SMALL)), h, ch.inventory.count(h))
-		text(hr.position + Vector2(0, 76), fit(ContentDB.item_name(h), 13, 94), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 96)
+		text(hr.position + Vector2(0, 76), fit(ContentDB.item_name(h), 14, 94), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 96)
 		region(hr, "exp_herb", h)
 	var y := r.position.y + 96 + ceili(herbs.size() / float(cols)) * 96 + 10
-	if herbs.is_empty(): para(Rect2(r.position.x + 24, r.position.y + 100, r.size.x - 48, 60), Tx.t("ui.crafts.experiment_no_herbs"), 17, UiKit.HOLLOW)
+	if herbs.is_empty(): para(Rect2(r.position.x + 24, r.position.y + 100, r.size.x - 48, 60), Tx.t("ui.crafts.experiment_no_herbs"), 18, UiKit.HOLLOW)
 	var why := ""
 	if exp_herbs.size() < 2: why = Tx.t("sim.crafting.experiment_count")
 	else:
 		var seen: Dictionary = Game.crafting.experiment_logged(CraftingAuthority.experiment_key(exp_herbs))
 		if not seen.is_empty(): why = Tx.t("sim.crafting.experiment_tried") % Game.crafting.experiment_result_text(seen)
 	if why != "" and exp_herbs.size() >= 2: text(Vector2(r.position.x + 24, y + 20), why, 16, UiKit.GOLD)
-	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.crafts.experiment_log") % Game.account.experiments.size(), 15, UiKit.MIST)
+	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.plural("ui.crafts.experiment_log", Game.account.experiments.size()) % Game.account.experiments.size(), 16, UiKit.MIST)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.experiment_go"), "experiment", null, true, why == "", why)
 
 func _deduce(ch, r: Rect2) -> void:
 	var rec := ContentDB.entry("recipes", sel)
 	var out := str(rec.outputs[0].item)
 	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(SLOT, SLOT)),out)
-	text(r.position + Vector2(110, 56), ContentDB.item_name(out), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
+	text(r.position + Vector2(110, 56), ContentDB.item_name(out), 22, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	var held: int = Game.crafting.pages_held(ch, sel)
 	text(r.position + Vector2(110, 84), Tx.t("ui.crafts.pages_held") % [held, int(rec.get("fragments", 1))], 16, UiKit.MIST)
-	para(Rect2(r.position + Vector2(24, 116), Vector2(r.size.x - 48, 90)), Tx.t("ui.crafts.deduce_help"), 17, UiKit.MIST)
+	para(Rect2(r.position + Vector2(24, 116), Vector2(r.size.x - 48, 90)), Tx.t("ui.crafts.deduce_help"), 18, UiKit.MIST)
 	var y := r.position.y + 210
 	for inp in rec.inputs:
 		y = _cost_line(r, y, str(inp.item), int(inp.count))
 	var chance: float = Game.crafting.deduce_chance(ch, sel)
-	text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.crafts.deduce_chance") % int(round(chance * 100)), 19, UiKit.PAPER)
+	text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.crafts.deduce_chance") % int(round(chance * 100)), 20, UiKit.PAPER)
 	var why := ""
 	for inp in rec.inputs:
 		if ch.inventory.count(str(inp.item)) < int(inp.count): why = Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
@@ -669,8 +669,8 @@ func _guild(ch, content_r: Rect2) -> void:
 		var card := Rect2(left.position.x + 12, y, left.size.x - 24, ch_h)
 		var passed: bool = _rank_at_least(craft, rank, str(rk.id))
 		panel(card, "minor_panel", "selected" if passed else "normal")
-		text(card.position + Vector2(14, 26), _rank_name(craft, str(rk.id)), 19, UiKit.PALE_GOLD if passed else UiKit.PAPER)
-		text(card.position + Vector2(14, 48), fit(_exam_task(rk), 15, card.size.x - 28), 15, UiKit.MIST)
+		text(card.position + Vector2(14, 26), _rank_name(craft, str(rk.id)), 20, UiKit.PALE_GOLD if passed else UiKit.PAPER)
+		text(card.position + Vector2(14, 48), fit(_exam_task(rk), 16, card.size.x - 28), 16, UiKit.MIST)
 		var rew := Tx.t("ui.guild.reward_title") % str(ContentDB.entry("titles", str(rk.get("title", ""))).get("name", ""))
 		for e in rk.get("rewards", []):
 			if str(e.get("kind", "")) == "learn_recipe": rew += " · " + ContentDB.name_of("recipes", str(e.recipe))
@@ -681,7 +681,7 @@ func _guild(ch, content_r: Rect2) -> void:
 			text(Vector2(card.position.x, status_y), Tx.t("ui.guild.passed"), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, card.size.x - 16)
 		elif not ex.is_empty() and str(ex.craft) == craft and str(ex.rank) == str(rk.id):
 			var left_s: float = Game.crafting.exam_left(ch)
-			text(Vector2(card.position.x, status_y), Tx.t("ui.guild.exam_running") % [int(ex.made), int(rk.count), int(left_s / 60.0), int(left_s) % 60], 15,
+			text(Vector2(card.position.x, status_y), Tx.t("ui.guild.exam_running") % [int(ex.made), int(rk.count), int(left_s / 60.0), int(left_s) % 60], 16,
 				UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, card.size.x - 16)
 		elif str(nxt.get("id", "")) == str(rk.id):
 			var why: String = Game.crafting.exam_block(ch, rk)
@@ -697,7 +697,7 @@ func _guild(ch, content_r: Rect2) -> void:
 		return
 	var paid: int = Game.crafting.commission_paid_today(ch, craft)
 	var cap: int = Game.crafting.commission_cap(ch, craft)
-	text(right.position + Vector2(20, 58), Tx.t("ui.guild.cap_line") % [paid, cap], 15, UiKit.MIST)
+	text(right.position + Vector2(20, 58), Tx.t("ui.guild.cap_line") % [paid, cap], 16, UiKit.MIST)
 	var oy := right.position.y + 72
 	var orders: Array = Game.crafting.commissions(ch, craft)
 	var oh := minf(110.0, (right.end.y - oy - 8.0) / maxf(1.0, orders.size()) - 8.0)
@@ -705,12 +705,12 @@ func _guild(ch, content_r: Rect2) -> void:
 		var card2 := Rect2(right.position.x + 12, oy, right.size.x - 24, oh)
 		panel(card2, "minor_panel", "disabled" if o.get("done", false) else ("selected" if o.get("accepted", false) else "normal"))
 		slot_box(Rect2(card2.position + Vector2(10, 13), Vector2(SLOT_SMALL, SLOT_SMALL)), str(o.item))
-		text(card2.position + Vector2(72, 28), fit("%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 17, card2.size.x - 84), 17, UiKit.PAPER)
-		text(card2.position + Vector2(72, 50), Tx.t("ui.guild.pay") % int(o.pay), 15, UiKit.GOLD)
+		text(card2.position + Vector2(72, 28), fit("%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 18, card2.size.x - 84), 18, UiKit.PAPER)
+		text(card2.position + Vector2(72, 50), Tx.plural("ui.guild.pay", int(o.pay)) % int(o.pay), 16, UiKit.GOLD)
 		if o.get("done", false):
-			text(card2.position + Vector2(72, card2.size.y - 14), Tx.t("ui.guild.delivered"), 15, UiKit.BRIGHT_JADE)
+			text(card2.position + Vector2(72, card2.size.y - 14), Tx.t("ui.guild.delivered"), 16, UiKit.BRIGHT_JADE)
 		elif not o.get("accepted", false):
-			btn(Rect2(card2.end.x - 148, card2.end.y - 46, 136, 38), Tx.t("ui.guild.accept"), "c_accept", str(o.id), false, true, "", 15)
+			btn(Rect2(card2.end.x - 148, card2.end.y - 46, 136, 38), Tx.t("ui.guild.accept"), "c_accept", str(o.id), false, true, "", 16)
 		else:
 			var have := 0
 			for s2 in ch.inventory.bag:
@@ -728,7 +728,7 @@ func _rank_name(craft: String, rank: String) -> String:
 
 ## What an exam asks for, in one line.
 func _exam_task(rk: Dictionary) -> String:
-	var mins := int(float(rk.time_s) / 60.0)
+	var mins := UiKit.span(float(rk.time_s))
 	if rk.has("recipe"):
 		var item := ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item))
 		if str(rk.get("quality", "common")) == "common": return Tx.t("ui.guild.exam_task_count") % [item, int(rk.count), mins]
@@ -768,43 +768,43 @@ func _draw_tribulation(r: Rect2) -> void:
 	# A storm sky: darker at the top, the furnace's glow below.
 	for k in 8:
 		var band := Rect2(r.position.x, r.position.y + k * r.size.y / 8.0, r.size.x, r.size.y / 8.0 + 1)
-		draw_rect(band, Color(0.03 + k * 0.008, 0.04 + k * 0.006, 0.09 + k * 0.004))
+		draw_rect(band, (UiKit.SURFACE.sky_top as Color).lerp(UiKit.SURFACE.sky_bottom, k / 7.0))
 	draw_rect(r, Color(UiKit.GOLD, 0.35), false, 1.0)
 	var el := _trib_elapsed()
 	var ground := r.end.y - 34
 	if str(trib.stage) == "bolts":
 		var times: Array = trib.times
-		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_tribulation") % [mini(int(trib.next) + 1, times.size()), times.size()], 17, UiKit.PALE_GOLD)
+		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_tribulation") % [mini(int(trib.next) + 1, times.size()), times.size()], 18, UiKit.PALE_GOLD)
 		for i in times.size():
 			var cx := r.position.x + (i + 0.5) * r.size.x / times.size()
 			var cloud := Vector2(cx, r.position.y + 58)
 			var node := Vector2(cx, ground)
-			draw_circle(cloud + Vector2(-12, 2), 12, Color(0.18, 0.2, 0.3))
-			draw_circle(cloud + Vector2(8, 0), 15, Color(0.22, 0.24, 0.34))
-			draw_circle(cloud + Vector2(20, 5), 10, Color(0.18, 0.2, 0.3))
+			draw_circle(cloud + Vector2(-12, 2), 12, UiKit.SURFACE.cloud)
+			draw_circle(cloud + Vector2(8, 0), 15, UiKit.SURFACE.cloud_lit)
+			draw_circle(cloud + Vector2(20, 5), 10, UiKit.SURFACE.cloud)
 			if i < (trib.results as Array).size():
 				# Answered: a shield arc that held, or the bolt that got through.
 				if trib.results[i]:
 					draw_arc(node, 26, PI, TAU, 24, UiKit.BRIGHT_JADE, 4)
 				else:
-					_bolt(cloud + Vector2(0, 14), node, Color(1.0, 0.45, 0.4))
+					_bolt(cloud + Vector2(0, 14), node, UiKit.RED_TEXT)
 				continue
 			draw_circle(node, 7, Color(UiKit.GOLD, 0.8))
 			var until := float(times[i]) - el
 			if i == int(trib.next) and until < 1.2:
 				# The telegraph: a ring closing on the strike, the sky flickering as it comes.
 				var rad := 12.0 + maxf(0.0, until) * 60.0
-				draw_arc(node, rad, 0, TAU, 32, Color(0.75, 0.85, 1.0, 0.9), 3)
-				if until < 0.25: _bolt(cloud + Vector2(0, 14), node, Color(0.85, 0.9, 1.0, 0.9))
+				draw_arc(node, rad, 0, TAU, 32, Color(UiKit.SKY, 0.9), 3)
+				if until < 0.25: _bolt(cloud + Vector2(0, 14), node, Color(UiKit.SKY, 0.9))
 	else:
-		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_soul"), 17, UiKit.PALE_GOLD)
+		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_soul"), 18, UiKit.PALE_GOLD)
 		var mark_x := r.position.x + r.size.x * 0.7
 		r = Rect2(r.position.x, r.position.y + 40, r.size.x, r.size.y - 40)
 		draw_line(Vector2(mark_x, r.position.y + 10), Vector2(mark_x, r.end.y - 10), Color(UiKit.GOLD, 0.8), 2)
 		var f := clampf(el / maxf(0.1, float(trib.catch_at)), 0.0, 1.6) * 0.7
 		var p := Vector2(r.position.x + r.size.x * f, r.position.y + r.size.y * 0.5 + sin(el * 9.0) * 22.0)
-		draw_circle(p, 12, Color(1.0, 0.95, 0.7))
-		draw_circle(p, 20, Color(1.0, 0.9, 0.5, 0.3))
+		draw_circle(p, 12, UiKit.SURFACE.soul_spark)
+		draw_circle(p, 20, Color(UiKit.SURFACE.glow, 0.3))
 
 ## A jagged bolt from a cloud to the ground.
 func _bolt(a: Vector2, b: Vector2, col: Color) -> void:
@@ -816,7 +816,7 @@ func _bolt(a: Vector2, b: Vector2, col: Color) -> void:
 	draw_polyline(pts, col, 3.0)
 
 func _draw_minigame(r: Rect2) -> void:
-	draw_rect(r, Color(0.05, 0.08, 0.09))
+	draw_rect(r, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(r.position.x + r.size.x * band.x, r.position.y, r.size.x * (band.y - band.x), r.size.y), Color(UiKit.GOLD, 0.55))
 	var nx := r.position.x + r.size.x * needle
 	draw_rect(Rect2(nx - 3, r.position.y - 6, 6, r.size.y + 12), UiKit.PAPER)
@@ -1002,7 +1002,7 @@ func on_action(id: String, data) -> void:
 			var r5 := submit({"type": "salvage", "items": picked.keys()})
 			if r5.get("ok", false):
 				Audio.play("forge", "UI")
-				flash(Tx.t("ui.forge.salvaged") % (r5.items as Array).size())
+				flash(Tx.plural("ui.forge.salvaged", (r5.items as Array).size()) % (r5.items as Array).size())
 				picked = {}
 		"lock_affix": submit({"type": "lock_affix", "uid": pick_uid, "affix": int(data)})
 		"do_reroll":
@@ -1069,14 +1069,14 @@ func _furnace_screen(ch, right: Rect2) -> void:
 	var y := right.position.y + 136
 	var fu: Dictionary = Game.crafting.furnace_of(ch)
 	if fu.get("cracked", false):
-		text(Vector2(x, y), ContentDB.item_name(str(fu.id)), 18, UiKit.RED)
-		text(Vector2(x, y + 24), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 15, UiKit.RED)
+		text(Vector2(x, y), ContentDB.item_name(str(fu.id)), 18, UiKit.RED_TEXT)
+		text(Vector2(x, y + 24), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 16, UiKit.RED_TEXT)
 	elif str(fu.get("id", "")) != "":
 		text(Vector2(x, y), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 18, UiKit.PALE_GOLD)
 		text(Vector2(x, y + 24), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
-			int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
+			int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 16, UiKit.MIST)
 	else:
-		text(Vector2(x, y + 12), Tx.t("ui.crafts.no_furnace"), 15, UiKit.MIST)
+		text(Vector2(x, y + 12), Tx.t("ui.crafts.no_furnace"), 16, UiKit.MIST)
 	# The fire, and how wide it (with the furnace, your control and the array) makes the heat band.
 	var have: Array = Game.crafting.fires_available(ch)
 	if not fire in have: fire = "charcoal"
@@ -1089,17 +1089,17 @@ func _furnace_screen(ch, right: Rect2) -> void:
 	var fw := (right.size.x - 48 - 24) / 4.0
 	for i in FIRES.size():
 		var f: String = FIRES[i]
-		btn(Rect2(x + i * (fw + 8), y + 10, fw, 48), Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 17)
+		btn(Rect2(x + i * (fw + 8), y + 10, fw, 48), Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 18)
 	# The array: the one that answers the principal herb widens every heat band.
 	y += 90
 	var suits: String = Game.crafting.suited_array(sel, subst)
 	text(Vector2(x, y), Tx.t("ui.crafts.array"), 16, UiKit.GOLD)
-	if suits != "": text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.array_suits") % Tx.t("ui.crafts.array_" + suits), 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 300)
+	if suits != "": text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.array_suits") % Tx.t("ui.crafts.array_" + suits), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 300)
 	var aw := (right.size.x - 48 - 8) / 2.0
 	for i in 2:
 		var a: String = ["water", "flame"][i]
-		btn(Rect2(x + i * (aw + 8), y + 10, aw, 48), Tx.t("ui.crafts.array_" + a), "arr", a, array == a, true, "", 17)
-	para(Rect2(x, y + 70, right.size.x - 48, 44), Tx.t("ui.crafts.array_hint_" + ({"water": "hot", "flame": "cold"}.get(suits, "neutral") as String)), 15, UiKit.MIST, 2)
+		btn(Rect2(x + i * (aw + 8), y + 10, aw, 48), Tx.t("ui.crafts.array_" + a), "arr", a, array == a, true, "", 18)
+	para(Rect2(x, y + 70, right.size.x - 48, 44), Tx.t("ui.crafts.array_hint_" + ({"water": "hot", "flame": "cold"}.get(suits, "neutral") as String)), 16, UiKit.MIST, 2)
 	btn(Rect2(x, right.end.y - 76, 200, 58), Tx.t("ui.crafts.back_ingredients"), "to_ingredients", null, false, true, "", 18)
 	var why: String = Game.crafting.refine_block(ch, sel, count, fire, subst)
 	btn(Rect2(right.end.x - 264, right.end.y - 76, 240, 58), Tx.t("ui.crafts.light"), "light", null, true, why == "", why)
@@ -1128,7 +1128,7 @@ func _furnace_full(ch) -> void:
 	text(Vector2(r.position.x + 80, r.position.y + 94), ContentDB.item_name(out), 20, UiKit.grade_color(str(ContentDB.entry("recipes", recipe).get("grade", "plain"))))
 	if not rs.is_empty():
 		text(Vector2(r.position.x + 80, r.position.y + 116), Tx.t("ui.crafts.batch_line") % [int(rs.count), Tx.t("ui.crafts.fire_" + str(rs.fire)),
-			Tx.t("ui.crafts.array_" + str(rs.array))], 15, UiKit.MIST)
+			Tx.t("ui.crafts.array_" + str(rs.array))], 16, UiKit.MIST)
 		btn(Rect2(r.end.x - 214, r.position.y + 70, 194, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
 	var area := Rect2(r.position.x + 20, r.position.y + 130, r.size.x - 40, r.size.y - 146)
 	if not trib.is_empty():
@@ -1166,7 +1166,7 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 		var hy := area.position.y + 40 + j * 64
 		var h: Dictionary = herbs[j]
 		slot_box(Rect2(area.position.x, hy + 4, SLOT_SMALL, SLOT_SMALL), str(h.item))
-		text(Vector2(area.position.x + 56, hy + 22),fit(ContentDB.item_name(str(h.item)), 15, 196), 15, UiKit.PAPER if j <= i else UiKit.MIST)
+		text(Vector2(area.position.x + 56, hy + 22),fit(ContentDB.item_name(str(h.item)), 16, 196), 16, UiKit.PAPER if j <= i else UiKit.MIST)
 		var st := Tx.t("ui.crafts.herb_waiting")
 		var col := UiKit.HOLLOW
 		if j < (rs.extraction as Array).size():
@@ -1174,7 +1174,7 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 			col = UiKit.BRIGHT_JADE
 		elif j == i and play.get("scorched", false):
 			st = Tx.t("ui.crafts.scorched")
-			col = UiKit.RED
+			col = UiKit.RED_TEXT
 		elif j == i:
 			# Hot herbs sit their band high on the gauge, cold ones low (S44).
 			st = Tx.t("ui.crafts.herb_in_fire") + ("  ·  " + Tx.t("ui.crafts.nature_" + str(h.nature)) if str(h.nature) in ["hot", "cold"] else "")
@@ -1182,13 +1182,13 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 		text(Vector2(area.position.x + 62, hy + 44), st, 14, col)
 	# The heat gauge: the gold band sways; the heat rises while the flame is fanned.
 	var g := Rect2(area.position.x + 270, area.position.y + 40, 64, area.size.y - 84)
-	draw_rect(g, Color(0.04, 0.06, 0.07))
+	draw_rect(g, UiKit.BAR_TROUGH)
 	var heat := float(play.get("heat", 0.3))
 	var mid := _band_mid(herb, pt)
 	var half := float(herb.width) * 0.5
 	var inside := absf(heat - mid) <= half
 	draw_rect(Rect2(g.position.x, g.end.y - g.size.y * (mid + half), g.size.x, g.size.y * half * 2.0), Color(UiKit.GOLD, 0.75 if inside else 0.45))
-	draw_rect(Rect2(g.position.x + 18, g.end.y - g.size.y * heat, g.size.x - 36, g.size.y * heat), Color(0.95, 0.42, 0.2, 0.85))
+	draw_rect(Rect2(g.position.x + 18, g.end.y - g.size.y * heat, g.size.x - 36, g.size.y * heat), Color(UiKit.SURFACE.ember, 0.85))
 	draw_rect(Rect2(g.position.x - 6, g.end.y - g.size.y * heat - 2, g.size.x + 12, 4), UiKit.PAPER)
 	draw_rect(g, Color(UiKit.BRONZE, 0.9), false, 2.0)
 	bar(Rect2(g.position.x, area.end.y - 24, area.size.x - 290 - 270, 14), clampf(pt / secs, 0.0, 1.0), UiKit.JADE)
@@ -1196,8 +1196,8 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 	var rad := minf(150.0, (area.size.y - 90) * 0.5)
 	var centre := Vector2(g.end.x + 60 + rad, area.position.y + 40 + rad)
 	draw_circle(centre, rad + 10, Color(UiKit.BRONZE, 0.9))
-	draw_circle(centre, rad, Color(0.08, 0.05, 0.04))
-	draw_circle(centre, rad * (0.35 + 0.6 * heat), Color(0.95, 0.45 + 0.3 * heat, 0.18, 0.25 + 0.35 * heat))
+	draw_circle(centre, rad, UiKit.SURFACE.furnace_mouth)
+	draw_circle(centre, rad * (0.35 + 0.6 * heat), Color((UiKit.SURFACE.ember as Color).lerp(UiKit.SURFACE.flame, heat), 0.25 + 0.35 * heat))
 	var gone: Dictionary = play.get("gone", {})
 	var specks: Array = herb.specks
 	for j in specks.size():
@@ -1205,8 +1205,8 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 		if gone.has(j) or pt < float(sp.t) or pt > float(sp.t) + float(k.get("speck_s", 1.2)): continue
 		var at := centre + Vector2((float(sp.x) - 0.5) * rad * 1.6, (float(sp.y) - 0.5) * rad * 1.6)
 		var a := 0.3 if sp.get("faint", false) else 1.0
-		draw_circle(at, 17, Color(0.5, 0.48, 0.44, 0.35 * a))
-		draw_circle(at, 11, Color(0.12, 0.1, 0.1, a))
+		draw_circle(at, 17, Color(UiKit.SURFACE.ash, 0.35 * a))
+		draw_circle(at, 11, Color(UiKit.SURFACE.cinder, a))
 		region(Rect2(at - Vector2(26, 26), Vector2(52, 52)), "speck", j)
 	if pt < 0.0 and not play.get("scorched", false):
 		text(Vector2(centre.x - 150, centre.y + 12), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
@@ -1214,7 +1214,7 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 		var box := Rect2(centre.x - 190, centre.y - 70, 380, 150)
 		panel(box)
 		para(Rect2(box.position + Vector2(18, 16), Vector2(box.size.x - 36, 60)), Tx.t("ui.crafts.scorched_retry") if play.get("retry", false) else Tx.t("ui.crafts.scorched_none"), 16, UiKit.PAPER, 3)
-		if play.get("retry", false): btn(Rect2(box.position.x + 18, box.end.y - 60, 160, 46), Tx.t("ui.crafts.try_again"), "retry_herb", null, true, true, "", 17)
+		if play.get("retry", false): btn(Rect2(box.position.x + 18, box.end.y - 60, 160, 46), Tx.t("ui.crafts.try_again"), "retry_herb", null, true, true, "", 18)
 		btn(Rect2(box.end.x - 178, box.end.y - 60, 160, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
 		return
 	_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.fan"), "fan", fanning)
@@ -1228,7 +1228,7 @@ func _ring_slot(rs: Dictionary, j: int) -> int:
 	return sorted_keys.find(keys[j])
 
 static func _nature_color(nature: String) -> Color:
-	return Color(0.95, 0.5, 0.25) if nature == "hot" else (Color(0.45, 0.7, 1.0) if nature == "cold" else UiKit.BRIGHT_JADE)
+	return UiKit.WARNING if nature == "hot" else (UiKit.SKY if nature == "cold" else UiKit.BRIGHT_JADE)
 
 ## Screen 4 · Fusion: tap the essences into the core in the recipe's order; then turn the array as the needle crosses
 ## each mark.
@@ -1241,7 +1241,7 @@ func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
 	var orbit := (area.size.y - 44) * 0.5 - 44
 	var core := Vector2(area.position.x + 210, area.position.y + 36 + (area.size.y - 44) * 0.5)
 	var glow := 0.15 + 0.6 * merged.size() / maxf(1.0, herbs.size())
-	for g in 4: draw_circle(core, 60 - g * 12, Color(1.0, 0.8, 0.4, glow * (0.25 + g * 0.2)))
+	for g in 4: draw_circle(core, 60 - g * 12, Color(UiKit.SURFACE.glow, glow * (0.25 + g * 0.2)))
 	draw_arc(core, 60, 0, TAU, 48, Color(UiKit.GOLD, 0.9), 3.0)
 	for j in herbs.size():
 		var h: Dictionary = herbs[j]
@@ -1264,7 +1264,7 @@ func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
 		slot_box(Rect2(mx + n * 52, area.position.y + 74, SLOT_SMALL, SLOT_SMALL), str(h2.item))
 	# The array's turns: a needle crosses the bar; each mark wants a turn as it passes.
 	var bar_r := Rect2(mx, area.position.y + 190, area.end.x - mx, 26)
-	draw_rect(bar_r, Color(0.04, 0.06, 0.07))
+	draw_rect(bar_r, UiKit.BAR_TROUGH)
 	var offs: Array = play.get("offs", [])
 	var marks: Array = rs.marks
 	var win := float(_fg("fusion").get("window", 0.1))
@@ -1280,7 +1280,7 @@ func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
 		var f := clampf(float(play.get("t", 0.0)) / float(_fg("fusion").get("seconds", 3.6)), 0.0, 1.0)
 		draw_rect(Rect2(bar_r.position.x + bar_r.size.x * f - 3, bar_r.position.y - 10, 6, bar_r.size.y + 20), UiKit.PAPER)
 		if float(play.get("t", 0.0)) < 0.0:
-			text(Vector2(mx, bar_r.end.y + 40), Tx.t("ui.crafts.ready"), 24, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+			text(Vector2(mx, bar_r.end.y + 40), Tx.t("ui.crafts.ready"), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 		_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.turn"), "turn")
 	draw_rect(bar_r, Color(UiKit.BRONZE, 0.9), false, 2.0)
 
@@ -1301,7 +1301,7 @@ func _screen_condensation(rs: Dictionary, area: Rect2) -> void:
 	elif off > 0.0: col = UiKit.RED
 	var out := str(ContentDB.entry("recipes", str(rs.recipe)).outputs[0].item)
 	draw_arc(centre, rs0, 0, TAU, 64, Color(UiKit.HOLLOW, 0.3), 1.5)
-	for g in 3: draw_circle(centre, rp + 26 - g * 9, Color(1.0, 0.85, 0.45, (0.05 + 0.12 * clampf(pt / secs, 0.0, 1.0)) * (g + 1)))
+	for g in 3: draw_circle(centre, rp + 26 - g * 9, Color(UiKit.SURFACE.glow, (0.05 + 0.12 * clampf(pt / secs, 0.0, 1.0)) * (g + 1)))
 	icon_at(Rect2(centre - Vector2(rp, rp) * 0.8, Vector2(rp, rp) * 1.6), str(ContentDB.item(out).get("icon", out)))
 	draw_arc(centre, rp, 0, TAU, 48, Color(UiKit.PALE_GOLD, 0.8), 2.0)
 	if pt >= 0.0: draw_arc(centre, maxf(4.0, rad), 0, TAU, 64, col, 4.0)
@@ -1434,7 +1434,7 @@ func _refine_done(r2: Dictionary) -> void:
 		flash(Tx.t("ui.crafts.tribulation_begins"))
 	elif r2.get("ok", false):
 		var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
-		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
+		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.plural("ui.crafts.marks", int(r2.marks)) % int(r2.marks)
 		flash(made)
 
 func _band_mult(craft: String) -> float:

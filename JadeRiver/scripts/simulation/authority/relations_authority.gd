@@ -54,7 +54,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"companion_duel":
 			var cid := str(intent.get("companion", ""))
 			if not (c.companions.get("roster", []) as Array).has(cid): return fail("not_companion")
-			if hearts(c, cid) < int(acfg().get("duel_hearts", 3)): return fail("hearts", {"text": Tx.t("sim.relations.duel_hearts") % int(acfg().get("duel_hearts", 3))})
+			if hearts(c, cid) < int(acfg().get("duel_hearts", 3)): return fail("hearts", {"text": Tx.plural("sim.relations.duel_hearts", int(acfg().get("duel_hearts", 3))) % int(acfg().get("duel_hearts", 3))})
 			return game.quest.start_spar(c, "duel_" + cid, ProgressionRules.level(c))
 	return fail("unknown_intent")
 
@@ -394,7 +394,7 @@ func offer_bond(c, kind: String, npc: String) -> Dictionary:
 	if b.is_empty() or str(b.get("from", "")) != "companions": return fail("unknown_bond")
 	if not (c.companions.get("roster", []) as Array).has(npc): return fail("not_companion", {"text": Tx.t("sim.relations.not_companion")})
 	var need := int(b.get("hearts", 5))
-	if hearts(c, npc) < need: return fail("hearts", {"text": Tx.t("sim.relations.bond_hearts") % need})
+	if hearts(c, npc) < need: return fail("hearts", {"text": Tx.plural("sim.relations.bond_hearts", need) % need})
 	var r: RelationsState = c.relations
 	if kind == "dao_companion":
 		if str(r.bonds.get("dao_companion", "")) != "": return fail("taken", {"text": Tx.t("sim.relations.dao_taken")})

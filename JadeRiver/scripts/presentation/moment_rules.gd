@@ -85,8 +85,9 @@ static func text(src, p: Dictionary, slots := {}) -> String:
 			if t != "": return t
 		return ""
 	var v = value(src.values()[0], p, slots)
-	if src.has("key"):
-		var s := Tx.t(str(src.key) + (id_of(value(src.suffix, p, slots)) if src.has("suffix") else ""))
+	if src.has("key"):   # with `plural`, the count that picks the key's "_one" twin (Tx.plural)
+		var k := str(src.key) + (id_of(value(src.suffix, p, slots)) if src.has("suffix") else "")
+		var s := Tx.plural(k, int(value(src.plural, p, slots))) if src.has("plural") else Tx.t(k)
 		var args: Array = (src.get("args", []) as Array).map(func(a): return text(a, p, slots) if a is Dictionary else value(a, p, slots))
 		return s % args if not args.is_empty() else s
 	if src.has("realm"): return ContentDB.realm_label(str(v))

@@ -26,11 +26,11 @@ func _inner(ch) -> void:
 		var art := str(cu.inner_arts[i]) if i < cu.inner_arts.size() else ""
 		if i >= n:
 			draw_style_box(UiKit.style("slot", "disabled"), r2)
-			text(r2.position + Vector2(0, 42), Tx.t("ui.techniques.inner_slot_locked") % ContentDB.name_of("realms", _slot_realm(i)), 15, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r2.size.x)
+			text(r2.position + Vector2(0, 42), Tx.t("ui.techniques.inner_slot_locked") % ContentDB.name_of("realms", _slot_realm(i)), 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r2.size.x)
 			continue
 		panel(r2, "minor_panel", "selected" if picked_art != "" else "normal")
 		if art == "":
-			text(r2.position + Vector2(0, 42), Tx.t("ui.techniques.inner_slot_empty"), 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r2.size.x)
+			text(r2.position + Vector2(0, 42), Tx.t("ui.techniques.inner_slot_empty"), 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r2.size.x)
 		else:
 			var d := ContentDB.entry("inner_arts", art)
 			var sleeping := str(d.get("family", "")) != "" and str(d.family) != fam
@@ -55,7 +55,7 @@ func _inner(ch) -> void:
 			var worn := aid in cu.inner_arts
 			panel(rr, "minor_panel", "selected" if picked_art == aid else "normal")
 			text(rr.position + Vector2(14, 26), str(d.get("name", aid)) + ("  ·  " + Tx.t("ui.techniques.worn") if worn else ""), 18, UiKit.PALE_GOLD if worn else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 28)
-			text(rr.position + Vector2(14, 50), fit(str(d.get("desc", "")), 15, rr.size.x - 28), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 28)
+			text(rr.position + Vector2(14, 50), fit(str(d.get("desc", "")), 16, rr.size.x - 28), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 28)
 			region(rr, "pick_art", aid)
 		)
 	# Stances: a basic one for every weapon family (and Willow Leaf Parry), held only with that weapon in hand.
@@ -66,11 +66,11 @@ func _inner(ch) -> void:
 	var can := Unlocks.is_unlocked(ch.id, "stances")
 	var stances: Array = ContentDB.all("stances")
 	# A scrolled list, so each stance keeps a full-height (48 px) button however many families there are.
-	list("stances", Rect2(sx - 8, sy + 4, right.end.x - sx - 2, right.end.y - sy - 12), stances.size(), 58, func(i: int, rr: Rect2):
+	list("stances", Rect2(sx - 8, sy + 4, right.end.x - sx - 2, right.end.y - sy - 12), stances.size(), 64, func(i: int, rr: Rect2):
 		var st: Dictionary = stances[i]
 		var on := str(cu.stances.get(str(st.family), "")) == str(st.id)
 		var here := str(st.family) == fam
-		text(rr.position + Vector2(8, 20), str(st.get("name", "")) + "  ·  " + str(st.family).replace("_", " ").capitalize(), 17, UiKit.PALE_GOLD if on and here else (UiKit.PAPER if here else UiKit.MIST), HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
+		text(rr.position + Vector2(8, 20), str(st.get("name", "")) + "  ·  " + str(st.family).replace("_", " ").capitalize(), 18, UiKit.PALE_GOLD if on and here else (UiKit.PAPER if here else UiKit.MIST), HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
 		text(rr.position + Vector2(8, 40), fit(str(st.get("desc", "")), 14, rr.size.x - 130), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
 		var known := ProgressionRules.stance_known(ch, st)   # Willow Leaf Parry needs its technique; one held can still be let go
 		btn(Rect2(rr.end.x - 104, rr.position.y + 3, 100, 48), Tx.t("ui.techniques.stance_on") if on else Tx.t("ui.techniques.stance_off"), "stance", str(st.id), on, can and (known or on),
@@ -120,7 +120,7 @@ func draw_page() -> void:
 			slot_box(r2, "", 0, "", "", null)
 			if tid != null: icon_at(r2.grow(-6), str(tid))
 			region(r2, "slot", i)
-		text(Vector2(r2.position.x, r2.end.y + 18), str(i + 1), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT)
+		text(Vector2(r2.position.x, r2.end.y + 18), str(i + 1), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT)
 	if picked != "": text(Vector2(content.position.x + 760, content.position.y + 48), Tx.t("ui.techniques.tap_a_slot_to_equip"), 18, UiKit.GOLD)
 	var list_r := Rect2(content.position.x, content.position.y + 116, content.size.x, content.size.y - 116)
 	panel(list_r)
@@ -136,9 +136,9 @@ func draw_page() -> void:
 		icon_at(Rect2(rr.position + Vector2(12, 12), Vector2(64, 64)), tid)
 		text(rr.position + Vector2(92, 32), str(d.get("name", tid)), 22, UiKit.PAPER)
 		var g := str(d.get("grade", "common"))
-		text(rr.position + Vector2(92 + UiKit.text_width(str(d.get("name", tid)), 22) + 14, 32), Tx.t("ui.techniques.grade_" + g), 15, UiKit.grade_color(g))
-		text(rr.position + Vector2(92, 56), Tx.t("ui.techniques.qi_ds") % [str(d.get("family", "")).capitalize(), str(d.get("element", "none")).capitalize(), int(d.get("qi_cost", 0)), int(d.get("cooldown_s", 0))], 15, UiKit.MIST)
-		text(rr.position + Vector2(92, 80), fit(str(d.get("desc", "")), 15, rr.size.x - 110), 15, UiKit.PAPER)
+		text(rr.position + Vector2(92 + UiKit.text_width(str(d.get("name", tid)), 22) + 14, 32), Tx.t("ui.techniques.grade_" + g), 16, UiKit.grade_color(g))
+		text(rr.position + Vector2(92, 56), Tx.t("ui.techniques.qi_ds") % [str(d.get("family", "")).capitalize(), str(d.get("element", "none")).capitalize(), int(d.get("qi_cost", 0)), UiKit.span(float(d.get("cooldown_s", 0)))], 16, UiKit.MIST)
+		text(rr.position + Vector2(92, 80), fit(str(d.get("desc", "")), 16, rr.size.x - 110), 16, UiKit.PAPER)
 		var tier := int(m.get("tier", 1))
 		bar(Rect2(rr.end.x - 330, rr.position.y + 14, 200, 26), float(m.get("points", 0.0)) / ProgressionRules.mastery_needed(tier), UiKit.GOLD, Tx.t("ui.techniques.tier") % tier)
 		if tier >= 3 and tier < 6: btn(Rect2(rr.end.x - 120, rr.position.y + 10, 104, 40), Tx.t("ui.techniques.rank_up"), "rank", tid)
