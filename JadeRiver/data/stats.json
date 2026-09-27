@@ -4854,6 +4854,13 @@
   "cooldown_s": 900,
   "offset": 360
  },
+ "respawn": {
+  "normal_mult": 6.0,
+  "normal_min_s": 60,
+  "normal_max_s": 180,
+  "elite_min_s": 600,
+  "offscreen_x": 700
+ },
  "qi_deviation": {
   "duration_s": 600,
   "elements": [

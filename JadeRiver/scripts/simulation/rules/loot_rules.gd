@@ -65,18 +65,28 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 
 ## A beast taken whole by the Taming Cauldron (S47): its materials, each at full count, with no roll.
 static func capture_materials(table_id: String) -> Array:
-	var table := ContentDB.entry("loot_tables", table_id)
-	var sources: Array = table.get("guaranteed", []).duplicate()
-	for group in table.get("groups", []): sources.append_array(group.get("pick", []))
 	var out: Array = []
 	var seen := {}
-	for g in sources:
+	for g in _material_rows(ContentDB.entry("loot_tables", table_id)):
 		var id := str(g.get("item", ""))
 		var def := ContentDB.item(id)
 		if id == "" or seen.has(id) or def.get("quest_item", false) or str(def.get("type", "")) in ["egg", "scroll", "manual"]: continue
 		seen[id] = true
 		out.append({"item": id, "count": int(g.get("count", [1, 1])[1])})
 	return out
+
+## A table's material rows: the guaranteed ones and every group's picks.
+static func _material_rows(table: Dictionary) -> Array:
+	var rows: Array = table.get("guaranteed", []).duplicate()
+	for group in table.get("groups", []): rows.append_array(group.get("pick", []))
+	return rows
+
+## Can a kill on this table drop this item (a material row or a quest drop)?
+static func drops_item(table_id: String, item: String) -> bool:
+	var table := ContentDB.entry("loot_tables", table_id)
+	for r in _material_rows(table) + table.get("quest_drops", []):
+		if str(r.get("item", "")) == item: return true
+	return false
 
 static func RngService_weighted(rng: RandomNumberGenerator, entries: Array) -> Dictionary:
 	var total := 0.0

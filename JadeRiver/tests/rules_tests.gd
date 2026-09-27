@@ -121,6 +121,7 @@ func _main() -> void:
 	await map_suite()
 	await techniques_page_suite()
 	fixes_suite()
+	respawn_suite()
 	mockup_fixes_suite()
 	max_character_suite()
 	save_suite()
@@ -10531,6 +10532,111 @@ func _fix_page_writes(c) -> void:
 	var legacy := {"uid": "old_2", "species": "reed_otter", "rarity": "rare"}
 	check(int(Game.pets.filled(legacy).get("purity", 0)) == 38 and not legacy.has("purity"),
 		"Spirit Animals reads an older animal with its neutral fields and does not write them")
+
+# ------------------------------------------------------------------ slain foes stay slain (respawn memory)
+## Kill everything in the Reed Shallows, step out and straight back in: nobody is back. Each spawn point comes back
+## when its own time is due, in game time (Clock), so time away counts, and the memory survives a save and load. A
+## boss never comes back on entry; a foe a quest step asks for keeps its quick pace, so the quest stays completable.
+func respawn_suite() -> void:
+	var utc0 := Clock.override_utc
+	Clock.override_utc = 1767225600.0
+	var c = _fix_world("user://respawn_suite/")
+	if c == null:
+		check(false, "the respawn suite needs a character")
+		return
+	var room := "lf_reed_shallows"
+	var out := str(ContentDB.room(room).portals[0].to)
+	var foes := func() -> Array: return Game.room_rt.living_enemies().filter(func(e): return not e.summoned and e.team == "enemy")
+	var count_of := func(def_id: String) -> int: return foes.call().filter(func(e): return e.def_id == def_id).size()
+	var enter := func(rid: String) -> void:
+		Game.world.load_room(c, rid, "")
+		GameEvents.flush()
+		for i in 20: Game.tick(0.1)
+		GameEvents.flush()
+	var slay := func() -> int:
+		var all: Array = foes.call()
+		for e in all: Game.combat.apply_execute(e, c.id)
+		GameEvents.flush()
+		for i in 30: Game.tick(0.1)
+		GameEvents.flush()
+		return all.size()
+	var spec_of := func(rid: String, def_id: String) -> Dictionary:
+		for sp in ContentDB.room(rid).get("spawns", []):
+			if str(sp.enemy) == def_id: return sp
+		return {}
+	var hunted: bool = Game.quest.hunts(c, "mudshell_crab", room) or Game.quest.hunts(c, "reedtail_rat", room)
+	check(not hunted, "a fresh character hunts nothing in the Reed Shallows yet")
+	# The rules: a common foe 1-3 minutes from its spawn's own pace, an elite at least 10 minutes, a boss its own.
+	var crab: Dictionary = spec_of.call(room, "mudshell_crab")
+	var rat: Dictionary = spec_of.call(room, "reedtail_rat")
+	var snapper: Dictionary = spec_of.call(room, "old_snapper")
+	var toad: Dictionary = spec_of.call("mh_boss_den", "big_toad_tan")
+	check(near(Game.enemies.return_s(crab, c), 60.0) and near(Game.enemies.return_s(rat, c), 120.0) and near(Game.enemies.return_s(snapper, c), 600.0)
+		and near(Game.enemies.return_s(toad, c), float(toad.respawn_s)),
+		"a crab is back after 60 s, a rat 120 s, Old Snapper (elite) 600 s, Big Toad Tan his own %d s" % int(toad.get("respawn_s", 0)))
+	enter.call(room)
+	var n: int = slay.call()
+	check(n >= 10 and foes.call().is_empty(), "the Reed Shallows cleared (%d foes)" % n)
+	check((c.rooms.get(room, {}).get("slain", {}) as Dictionary).size() == n, "the character remembers every kill with the room")
+	enter.call(out)
+	enter.call(room)
+	check(foes.call().is_empty(), "stepping out and straight back in, nobody is back (%d)" % foes.call().size())
+	Clock.override_utc += 30.0
+	enter.call(out)
+	enter.call(room)
+	check(foes.call().is_empty(), "half a minute later, still nobody")
+	# A save and a load keep the memory.
+	Game.save_all()
+	var back := GameCharacter.new()
+	back.restore(Saves.load_character(int(c.slot)))
+	check((back.rooms.get(room, {}).get("slain", {}) as Dictionary).size() == n, "the kills are saved with the character")
+	c.rooms = back.rooms.duplicate(true)
+	enter.call(out)
+	enter.call(room)
+	check(foes.call().is_empty(), "after a save and load, nobody is back")
+	# Time away counts: the crabs are due after a minute, the rats after two.
+	Clock.override_utc += 31.0
+	enter.call(out)
+	enter.call(room)
+	check(count_of.call("mudshell_crab") == int(crab.max) and count_of.call("reedtail_rat") == 0,
+		"a minute after the kills the crabs are back, the rats not yet (%d, %d)" % [count_of.call("mudshell_crab"), count_of.call("reedtail_rat")])
+	Clock.override_utc += 60.0
+	enter.call(out)
+	enter.call(room)
+	check(foes.call().size() == n and (c.rooms[room].slain as Dictionary).is_empty(), "two minutes after, everyone is back and forgotten (%d)" % foes.call().size())
+	# While the player stands in the room, a foe comes back only out of view.
+	var st: ActorState = Game.actor_state(c.id)
+	st.plane = Vector2(1300, 800)
+	for e in foes.call(): Game.combat.apply_execute(e, c.id)
+	GameEvents.flush()
+	for s in Game.room_rt.spawn_slots:
+		if int(s.uid) == 0 and not s.get("held", false): s.timer = 0.05
+	for i in 20: Game.tick(0.1)
+	GameEvents.flush()
+	var seen: Array = foes.call().filter(func(e): return absf(e.plane.x - st.plane.x) < float(ContentDB.stat_const("respawn.offscreen_x", 700)))
+	check(not foes.call().is_empty() and seen.is_empty(), "a foe due while the player is in the room comes back out of view (%d back, %d in view)" % [foes.call().size(), seen.size()])
+	# A quest step that needs the crabs (Crab Trouble's shells) keeps them at their quick pace.
+	Game.quest.apply_start(c.id, "crab_trouble")
+	GameEvents.flush()
+	check(Game.quest.hunts(c, "mudshell_crab", room) and near(Game.enemies.return_s(crab, c), float(crab.respawn_s))
+		and near(Game.enemies.return_s(snapper, c), 600.0), "with Crab Trouble under way the crabs come back at their own %d s; Old Snapper, not asked for yet, still 600 s" % int(crab.respawn_s))
+	enter.call(room)
+	slay.call()
+	Clock.override_utc += float(crab.respawn_s) + 1.0
+	enter.call(out)
+	enter.call(room)
+	check(count_of.call("mudshell_crab") == int(crab.max), "so a quest that needs them always has crabs to fight (%d)" % count_of.call("mudshell_crab"))
+	# A boss beaten stays beaten on entry.
+	enter.call("mh_boss_den")
+	var boss: Array = foes.call().filter(func(e): return e.is_boss())
+	check(boss.size() == 1, "Big Toad Tan waits in his den")
+	slay.call()
+	for h in [0, 1, 7]:
+		Clock.override_utc = 1767225600.0 + 121.0 + float(crab.respawn_s) + 1.0 + h * 3600.0
+		enter.call(out)
+		enter.call("mh_boss_den")
+		check(foes.call().filter(func(e): return e.is_boss()).is_empty(), "a beaten boss is not back on entry %d h later" % h)
+	Clock.override_utc = utc0
 
 # ------------------------------------------------------------------ fixes found by the P3 mockups
 ## Open items the mockup agents found while drawing (docs/mockups/README.md), each at its rule.

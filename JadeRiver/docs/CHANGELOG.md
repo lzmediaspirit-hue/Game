@@ -1,5 +1,15 @@
 # Changelog
 
+## Slain foes stay slain
+
+- **Monsters no longer all come back the moment you re-enter a room.** Room load rebuilt every spawn point from the
+  room data with no memory of kills (the respawn timers lived only in the loaded room). Now the character remembers
+  each kill with the room (`rooms.<room>.slain`, saved), and a spawn point stays empty for its own time in game time
+  (Clock), so time away counts: a common foe 1–3 minutes (its spawn's pace x6), an elite at least 10 minutes, a boss
+  its own long timer (a field boss its account-wide one), so no boss returns on entry. Foes a quest step still needs
+  (a kill count, Crab Trouble's shells) keep their quick pace. While you are in the room a foe returns only out of
+  view. The Vigil's and balance maths keep their own `respawn_s`. A beaten boss also no longer returned after a loot pickup.
+
 ## Consumables show what they did
 
 - **Every tea, pill, herb, core, draught and food says what it did.** Drinking the Herbal Tea (Granny's Remedy) showed
