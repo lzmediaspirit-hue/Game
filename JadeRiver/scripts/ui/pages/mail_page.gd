@@ -103,14 +103,14 @@ func _letter(mm: Dictionary) -> void:
 	var k := 1.0 if opened_at < 0.0 or UiKit.reduce_motion() else clampf((t - opened_at) / UNFOLD_S, 0.0, 1.0)
 	k = 1.0 - pow(1.0 - k, 3.0)
 	# The sheet opens from its left third: the two creases open one after the other.
-	draw_set_transform(SHEET.position, 0.0, Vector2(lerpf(1.0 / 3.0, 1.0, k), 1.0))
+	move(SHEET.position, 0.0, Vector2(lerpf(1.0 / 3.0, 1.0, k), 1.0))
 	face(Rect2(Vector2.ZERO, SHEET.size), "letter_sheet")
 	for f in [1.0 / 3.0, 2.0 / 3.0]:
 		var x := roundf(SHEET.size.x * f)
 		draw_rect(Rect2(x - 1, 6, 1, SHEET.size.y - 14), Color(UiKit.BRONZE, 0.22))
 		draw_rect(Rect2(x, 6, 2, SHEET.size.y - 14), Color(UiKit.PAPER, 0.35))
 		hshade(Rect2(x - 14, 6, 14, SHEET.size.y - 14), Color(UiKit.BRONZE, 0.0), Color(UiKit.BRONZE, 0.07))
-	draw_set_transform(Vector2.ZERO)
+	move()
 	# Under Reduce motion the letter fades in instead (the felt laid over it, thinning).
 	if UiKit.reduce_motion() and opened_at >= 0.0:
 		var fade := clampf((t - opened_at) / UiKit.MOTION_FADE_S, 0.0, 1.0)

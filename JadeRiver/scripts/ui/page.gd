@@ -184,6 +184,7 @@ func submit(intent: Dictionary) -> Dictionary:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
+	HdStyleBox.base = Transform2D.IDENTITY
 	if text_log != null: text_log.clear()
 	_layout()
 	if frameless:
@@ -331,6 +332,12 @@ func _blossom(c: Vector2, live: bool, k: float) -> void:
 	for layer in [[5.1, UiKit.INK], [4.5, col]]:
 		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
 	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
+
+## Draw what follows moved by `pos`, turned by `rot` and scaled by `scl` (a part in motion); the HD faces move with it.
+## `move()` with no arguments puts it back. Regions stay where the part comes to rest (page_identity §8.5).
+func move(pos := Vector2.ZERO, rot := 0.0, scl := Vector2.ONE) -> void:
+	draw_set_transform(pos, rot, scl)
+	HdStyleBox.base = Transform2D(rot, scl, 0.0, pos)
 
 ## A vertical gradient over `r` from `top` to `bottom` (a desk, a wall, a paper's shade).
 func vshade(r: Rect2, top: Color, bottom: Color) -> void:

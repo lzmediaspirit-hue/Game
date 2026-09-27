@@ -10,6 +10,9 @@ var size_px := Vector2.ONE      # the source image size in texels
 var margins := [8.0, 8.0, 8.0, 8.0]
 var scale := 3.0
 var modulate := Color.WHITE    # a derived state's tint (UiKit.DERIVED_TINT)
+## The transform the page is drawing under (Page.move): the box draws inside it and hands it back when done, so a face
+## moves with the rest of a page's moving part (a slip settling, a letter unfolding).
+static var base := Transform2D.IDENTITY
 
 func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	if texture == null: return
@@ -17,7 +20,7 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	# Fixed-size art (no margins) keeps its proportions inside the rect.
 	var fixed: bool = margins[0] == 0.0 and margins[1] == 0.0 and margins[2] == 0.0 and margins[3] == 0.0
 	var ci := to_canvas_item
-	RenderingServer.canvas_item_add_set_transform(ci, Transform2D(Vector2(1.0 / s, 0.0), Vector2(0.0, 1.0 / s), rect.position))
+	RenderingServer.canvas_item_add_set_transform(ci, base * Transform2D(Vector2(1.0 / s, 0.0), Vector2(0.0, 1.0 / s), rect.position))
 	var dest := Rect2(Vector2.ZERO, rect.size * s)
 	if fixed:
 		RenderingServer.canvas_item_add_texture_rect_region(ci, dest, texture.get_rid(), Rect2(Vector2.ZERO, size_px), modulate)
@@ -32,8 +35,8 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 		var br := Vector2(margins[2], margins[3]) * s
 		if not is_equal_approx(k, 1.0):
 			# Shrink the drawn rect's scale instead of distorting the corners.
-			RenderingServer.canvas_item_add_set_transform(ci, Transform2D(Vector2(k / s, 0.0), Vector2(0.0, k / s), rect.position))
+			RenderingServer.canvas_item_add_set_transform(ci, base * Transform2D(Vector2(k / s, 0.0), Vector2(0.0, k / s), rect.position))
 			dest = Rect2(Vector2.ZERO, rect.size * s / k)
 		RenderingServer.canvas_item_add_nine_patch(ci, dest, Rect2(Vector2.ZERO, size_px), texture.get_rid(), tl, br,
 			RenderingServer.NINE_PATCH_STRETCH, RenderingServer.NINE_PATCH_STRETCH, true, modulate)
-	RenderingServer.canvas_item_add_set_transform(ci, Transform2D.IDENTITY)
+	RenderingServer.canvas_item_add_set_transform(ci, base)

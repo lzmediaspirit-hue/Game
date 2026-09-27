@@ -12,7 +12,10 @@ const BIG := Vector2(312, 470)              # the chosen poster
 const SMALL := Vector2(236, 330)            # the others
 const HANDBILL := Vector2(350, 64)
 
+const Avatar = preload("res://scripts/avatar.gd")
+
 var chosen := ""          # the bounty whose poster is on top
+var likeness: Node2D      # the target's figure on the chosen poster, drawn from its own layers
 var took_at := -1.0       # when a strip was torn off (the poster is slapped on as the page opens)
 
 func _init() -> void:
@@ -73,6 +76,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	if likeness != null: likeness.visible = false
 	if str(tabs[tab].id) == "bounties":
 		_bounties(ch)
 		_handbills(ch, CORNER, true)
@@ -90,22 +94,23 @@ func _bounties(ch) -> void:
 	if rows.is_empty(): return
 	if chosen == "" or not rows.any(func(b): return str(b.id) == chosen): chosen = str(rows[0].id)
 	# Older posters torn away, strips of them left on the brick.
-	for s in [[Vector2(120, 150), -0.08, Vector2(180, 90)], [Vector2(560, 560), 0.06, Vector2(210, 70)], [Vector2(700, 140), 0.1, Vector2(120, 150)]]:
-		draw_set_transform(s[0], s[1])
-		draw_rect(Rect2(Vector2.ZERO, s[2]), UiKit.SURFACE.scroll.lerp(UiKit.SURFACE.stone, 0.55))
-		draw_rect(Rect2(Vector2(0, s[2].y - 10), Vector2(s[2].x, 10)), UiKit.SURFACE.scroll.lerp(UiKit.SURFACE.stone, 0.7))
-	draw_set_transform(Vector2.ZERO)
-	var spots := [Vector2(100, 140), Vector2(578, 150), Vector2(330, 196)]
+	for s in [[Vector2(430, 560), -0.05, Vector2(200, 80)], [Vector2(640, 520), 0.06, Vector2(170, 110)], [Vector2(700, 118), 0.1, Vector2(120, 120)]]:
+		move(s[0], s[1])
+		draw_rect(Rect2(Vector2.ZERO, s[2]), UiKit.SURFACE.scroll.lerp(UiKit.SURFACE.stone, 0.35))
+		for k in range(0, int(s[2].x), 9): draw_rect(Rect2(k, s[2].y - float(k * 7 % 5) - 2.0, 9, float(k * 7 % 5) + 2.0), UiKit.SURFACE.stone)
+		draw_rect(Rect2(8, 8, s[2].x * 0.6, 6), Color(RecordsKit.INK, 0.12))
+	move()
+	var spots := [Vector2(440, 132), Vector2(596, 228), Vector2(452, 300)]
 	var others := rows.filter(func(b): return str(b.id) != chosen)
 	for i in others.size():
-		_poster(ch, others[i], Rect2(spots[i % 2], SMALL), false)
+		_poster(ch, others[i], Rect2(spots[i % spots.size()], SMALL), false)
 	var top: Dictionary = rows.filter(func(b): return str(b.id) == chosen)[0]
-	var at := Vector2(clampf(100.0 + rows.find(top) * 240.0, 100.0, 816.0 - BIG.x), 124)
+	var at := Vector2(100, 124)
 	# The chosen poster is slapped on as the page opens (a fade under Reduce motion).
 	var k := 1.0 - unfold()
-	draw_set_transform(-(at + BIG * 0.5) * 0.06 * k, 0.0, Vector2.ONE * (1.0 + 0.06 * k))
+	move(-(at + BIG * 0.5) * 0.06 * k, 0.0, Vector2.ONE * (1.0 + 0.06 * k))
 	_poster(ch, top, Rect2(at, BIG), true)
-	draw_set_transform(Vector2.ZERO)
+	move()
 
 ## One wanted poster: WANTED, the target's likeness, its name and band, what it did, the reward stamped in red; the
 ## chosen one carries its Take strip at the foot.
@@ -117,8 +122,14 @@ func _poster(ch, b: Dictionary, r: Rect2, big: bool, tap := true) -> void:
 	var pic := Rect2(r.position.x + 30, r.position.y + (60 if big else 50), r.size.x - 60, 150.0 if big else 110.0)
 	draw_rect(pic, UiKit.SURFACE.scroll.lerp(UiKit.BRONZE, 0.18))
 	draw_rect(pic, Color(RecordsKit.INK, 0.6), false, 2.0)
-	if not creature_at(pic.grow(-8), str(b.target), "idle", Color(RecordsKit.INK.lerp(UiKit.BRONZE, 0.2), 0.9) if not big else Color.WHITE):
-		text(Vector2(pic.position.x, pic.get_center().y + 12), "?", 34, RecordsKit.FADED, HORIZONTAL_ALIGNMENT_CENTER, pic.size.x, true)
+	var art: Dictionary = ContentDB.entry("enemies", str(b.target)).get("art", {})
+	if big and art.get("avatar") is Dictionary: _likeness(art.avatar, Vector2(pic.get_center().x, pic.end.y - 4))
+	elif not creature_at(pic.grow(-8), str(b.target)):
+		# A sketch of the head and shoulders where no likeness can be drawn (a poster half hidden under another).
+		var hc := Vector2(pic.get_center().x, pic.position.y + pic.size.y * 0.4)
+		draw_circle(hc, pic.size.y * 0.2, Color(RecordsKit.INK, 0.35), true, -1.0, true)
+		draw_colored_polygon(PackedVector2Array([Vector2(hc.x - pic.size.y * 0.42, pic.end.y - 2), Vector2(hc.x - pic.size.y * 0.3, hc.y + pic.size.y * 0.24),
+			Vector2(hc.x + pic.size.y * 0.3, hc.y + pic.size.y * 0.24), Vector2(hc.x + pic.size.y * 0.42, pic.end.y - 2)]), Color(RecordsKit.INK, 0.35))
 	var y := pic.end.y + (36 if big else 30)
 	text(Vector2(x, y), ContentDB.name_of("enemies", str(b.target)), 26 if big else 22, RecordsKit.INK, HORIZONTAL_ALIGNMENT_CENTER, w, true)
 	var rw: Dictionary = b.get("reward", {})
@@ -145,6 +156,19 @@ func _poster(ch, b: Dictionary, r: Rect2, big: bool, tap := true) -> void:
 		for dx in range(0, int(strip.size.x), 12): draw_line(Vector2(strip.position.x + dx, strip.position.y - 6), Vector2(strip.position.x + dx + 6, strip.position.y - 6), Color(RecordsKit.INK, 0.5), 1.5)
 		var ok_realm := ProgressionRules.at_least(ch.cultivator.realm_key, str(b.get("realm", "")))
 		btn(strip, Tx.t("ui.notice.take_bounty"), "bounty", str(b.id), true, ok_realm, Tx.t("req.reach") % ContentDB.name_of("realms", str(b.get("realm", ""))), 20)
+
+## The target's own figure standing in the chosen poster's picture, at a whole 1 px an art px.
+func _likeness(outfit: Dictionary, feet: Vector2) -> void:
+	if likeness == null:
+		likeness = Avatar.new()
+		add_child(likeness)
+		likeness.play("idle")
+	var o: Dictionary = Wardrobe.defaults().duplicate()
+	o.merge(outfit, true)
+	o.erase("name")
+	if likeness.outfit != o: likeness.outfit = o
+	likeness.position = feet
+	likeness.visible = true
 
 ## The Board tab's corner: the posters, small, in a stack; a tap turns to them.
 func _posters_corner(ch) -> void:

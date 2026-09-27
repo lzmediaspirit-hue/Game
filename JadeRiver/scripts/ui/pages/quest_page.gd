@@ -59,7 +59,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 		ground(r, faded)
 	var words := str(tabs[i].label)
 	var count := ""
-	if str(tabs[i].id) == "done" and c() != null: count = UiKit.fmt(c().quests.done.size())
+	if str(tabs[i].id) == "done" and c() != null: count = UiKit.fmt(_done_ids(c()).size())
 	var w := UiKit.text_width(words, 20) + (UiKit.text_width(count, 16) + 8.0 if count != "" else 0.0)
 	var x := r.get_center().x - w * 0.5
 	text(Vector2(x, r.position.y + 33), words, 20, RecordsKit.INK)
@@ -142,7 +142,7 @@ func draw_page() -> void:
 		or (sel == "next" and _next(ch).is_empty()):
 		sel = _first(ch, b)
 	# The slips are pinned as the page opens: they settle onto the board from a little above.
-	draw_set_transform(Vector2(0, -roundf((1.0 - unfold()) * 16.0)))
+	move(Vector2(0, -roundf((1.0 - unfold()) * 16.0)))
 	if str(tabs[tab].id) == "done": _done(ch)
 	else:
 		_story(ch, b)
@@ -152,7 +152,7 @@ func draw_page() -> void:
 			_missions(ch, b)
 			_round(ch)
 			_stacks(ch, b)
-	draw_set_transform(Vector2.ZERO)
+	move()
 	_reading(ch)
 
 func _first(ch, b: Dictionary) -> String:
@@ -169,7 +169,7 @@ func _first(ch, b: Dictionary) -> String:
 
 ## A small slip on the board: its name and one line under it (the giver, a mission's count), a mark before the name
 ## (! on offer, ? to hand in, ◆ tracked), and a stack of `more` slips under it that spreads its group.
-func _small(ch, r: Rect2, q: String, stack := 0, group := "") -> void:
+func _small(ch, r: Rect2, q: String, stack := 0, group := "", stamped := false) -> void:
 	var tilt := float(int(r.position.x + r.position.y) % 5 - 2)
 	for k in mini(stack, 2):
 		rounded(Rect2(r.position + Vector2(8 + k * 6, 4 + k * 3 + tilt), r.size), 2.0, RecordsKit.PAPER_LIT.lerp(UiKit.SURFACE.wood_dark, 0.25 + 0.1 * k))
@@ -182,10 +182,12 @@ func _small(ch, r: Rect2, q: String, stack := 0, group := "") -> void:
 		text(Vector2(x, r.position.y + 32), mark, 16, RecordsKit.RED_INK if mark != "◆" else RecordsKit.JADE_INK)
 		x += UiKit.text_width(mark, 16) + 6
 	var nm := str(d.get("name", q))
-	text(Vector2(x, r.position.y + 32), nm, 16 if UiKit.text_width(nm, 16) <= r.end.x - 8 - x else 14, RecordsKit.INK, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - 8 - x)
+	var room := 40.0 if stamped else 0.0   # a finished slip's stamp sits at its right
+	text(Vector2(x, r.position.y + 32), nm, 16 if UiKit.text_width(nm, 16) <= r.end.x - 8 - x - room else 14, RecordsKit.INK, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - 8 - x - room)
 	var sub := _sub(ch, q, d)
 	if stack > 0: sub = Tx.t("ui.quest.and_more") % stack if sub == "" else sub + " · " + Tx.t("ui.quest.and_more") % stack
-	text(Vector2(r.position.x + 10, r.position.y + 54), sub, 14, RecordsKit.BROWN, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20)
+	text(Vector2(r.position.x + 10, r.position.y + 54), sub, 14, RecordsKit.BROWN, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20 - room)
+	if stamped: RecordsKit.stamp(self, r.end - Vector2(24, 26), "", 14.0)
 	if stack > 0: region(r, "spread", group)
 	else: region(r, "sel", q)
 
@@ -434,8 +436,7 @@ func _done(ch) -> void:
 	for i in range(sheet * per, mini(ids.size(), (sheet + 1) * per)):
 		var k := i - sheet * per
 		var r := Rect2(Vector2(96 + (k % COLS) * PITCH, 112 + (k / COLS) * 80), Vector2(SLIP.x, 72))
-		_small(ch, r, str(ids[i]))
-		RecordsKit.stamp(self, r.end - Vector2(24, 24), "", 14.0)
+		_small(ch, r, str(ids[i]), 0, "", true)
 	_sheets(sheets, Vector2(96, 640))
 
 # ------------------------------------------------------------------ the slip being read
@@ -443,7 +444,7 @@ func _reading(ch) -> void:
 	if sel == "": return
 	var r := READ
 	var lift := 1.0 if lifted_at < 0.0 or UiKit.reduce_motion() else clampf((t - lifted_at) / 0.2, 0.0, 1.0)
-	draw_set_transform(Vector2(-(1.0 - lift) * 48.0, (1.0 - lift) * 20.0))
+	move(Vector2(-(1.0 - lift) * 48.0, (1.0 - lift) * 20.0))
 	rounded(Rect2(r.position + Vector2(10, 14), r.size - Vector2(4, 4)), 4.0, Color(UiKit.INK, 0.45))
 	RecordsKit.slip(self, r)
 	var nx := _next(ch) if sel == "next" else {}
@@ -492,7 +493,7 @@ func _reading(ch) -> void:
 		if active:
 			btn(Rect2(x + gw + 8, by + 2, (w - gw - 8) if not abandon else 100.0, 48), Tx.t("ui.quest.untrack") if ch.quests.tracked.has(q) else Tx.t("ui.quest.track"), "track", q, false, true, "", 20)
 		if abandon: btn(Rect2(r.end.x - 16 - 96, by + 2, 96, 48), Tx.t("ui.quest.abandon"), "abandon", q, false, true, "", 18)
-	draw_set_transform(Vector2.ZERO)
+	move()
 
 ## The route across the slip: you are here (jade) to where it leads (gold), dotted, and how many regions away.
 func _route_line(ch, r: Rect2, here: String, goal: String) -> void:

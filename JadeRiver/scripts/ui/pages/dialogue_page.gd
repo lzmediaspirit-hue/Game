@@ -66,6 +66,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
+	HdStyleBox.base = Transform2D.IDENTITY
 	if text_log != null: text_log.clear()
 	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.18))
 	draw_page()
@@ -140,13 +141,13 @@ func _offer_card() -> void:
 	var ready: bool = ch.quests.is_active(q) and str(ch.quests.active[q].get("state", "")) == "ready"
 	if card_at == INF: card_at = t
 	var k := 1.0 if UiKit.reduce_motion() else clampf((t - card_at) / OFFER_S, 0.0, 1.0)
-	draw_set_transform(CARD.position, 0.0, Vector2(1.0, lerpf(0.12, 1.0, k)))
+	move(CARD.position, 0.0, Vector2(1.0, lerpf(0.12, 1.0, k)))
 	var r := Rect2(Vector2.ZERO, CARD.size)
 	rounded(Rect2(r.position + Vector2(4, 6), r.size), 4.0, Color(UiKit.INK, 0.4))
 	draw_style_box(UiKit.style("paper_slip"), r)
 	for yy in [-4.0, r.size.y - 8.0]:   # the scroll's rods
 		rounded(Rect2(-6, yy, r.size.x + 12, 12), 5.0, UiKit.SURFACE.wood)
-	draw_set_transform(Vector2.ZERO)
+	move()
 	if k < 1.0: return
 	ground(CARD, UiKit.SURFACE.scroll)
 	var x := CARD.position.x + 18
