@@ -159,6 +159,14 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
   `technique_source.<id>` ("Sect library, first floor", "Peddler Shao's night mat"; a quest reads as its name), read
   with `ContentDB.name_of("technique_sources", id)` where a technique's source is shown (an unlearned star's line on
   the proposed Techniques sky). A `data_validation` rule fails on a source without one.
+- **A locked feature says everything it waits on.** `Unlocks.locked_text` has one rule: a system's own locked text if
+  it has one; else every trigger condition still unmet, in order ("Reach Qi Kindling 1 · Complete "Keeping Post"",
+  where it named only the first); and when a quest is all that is left (the one unmet condition, or the system's own
+  quest once the trigger holds) that quest and who gives it ("Take "An Idle Art" from Elder Hu", where it said "Not
+  yet available"). `RequirementRules.unmet` gives the unmet conditions, and `first_failure_text` is its first.
+  `data_validation` holds that every quest the rule may name has a giver.
+- **The hub's Works tile reads the same rule.** It showed Keeping Post at `qu5`, where Keeping Post is done; the hub
+  asks `Unlocks.locked_text` for its locked tiles, so at `qu5` Works now waits on Elder Hu's An Idle Art.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved

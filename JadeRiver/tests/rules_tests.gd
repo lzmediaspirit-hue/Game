@@ -8275,6 +8275,38 @@ func mockup_fixes_suite() -> void:
 	_mock_sect_materials(c)
 	_mock_treasury(c)
 	_mock_stat_formats(c)
+	_mock_locked_text(c)
+
+## One rule for why a system is locked: every unmet condition, not only the first; a quest that is all that is left,
+## with its giver (the Bench at bf8 named only Qi Kindling 1; the hub's Works tile at qu5 named Keeping Post, done).
+func _mock_locked_text(c) -> void:
+	var cu = c.cultivator
+	var realm_was: String = cu.realm_key
+	var done_was: Dictionary = c.quests.done.duplicate()
+	var quest_line := func(key: String, quest: String, giver: String) -> String:
+		return Tx.t(key) % [ContentDB.name_of("quests", quest), ContentDB.name_of("npcs", giver)]
+	cu.realm_key = "bone_forging_8"
+	c.quests.done.erase("keeping_post")
+	var both := Unlocks.locked_text("apprentice_bench")
+	check(both == Tx.t("req.reach") % ContentDB.name_of("realms", "qi_kindling_1") + Tx.t("unlock_text.sep") + Tx.t("req.complete") % ContentDB.name_of("quests", "keeping_post"),
+		"the Bench at Bone Forging 8 names both of its conditions (%s)" % both)
+	cu.realm_key = "qi_kindling_1"
+	var one := Unlocks.locked_text("apprentice_bench")
+	check(one == quest_line.call("unlock_text.complete_quest", "keeping_post", "fisher_wen"), "at Qi Kindling 1 Keeping Post is all that is left: it and its giver (%s)" % one)
+	c.quests.done["keeping_post"] = 1
+	var own := Unlocks.locked_text("apprentice_bench")
+	check(own == quest_line.call("unlock_text.take_quest", "an_apprentices_hands", "tinkerer_yu"), "every condition met: the Bench's own quest and its giver (%s)" % own)
+	# qu5: the hub's Works tile (menu_page gates it on post_arts and shows its locked text) waits on Elder Hu's An Idle Art.
+	cu.realm_key = "qi_unfurling_5"
+	var menu = load("res://scripts/ui/pages/menu_page.gd").new()
+	var gate := ""
+	for e in menu.ENTRIES:
+		if str(e[0]) == "works": gate = str(e[3])
+	menu.free()
+	var works := Unlocks.locked_text(gate)
+	check(gate == "post_arts" and works == quest_line.call("unlock_text.take_quest", "an_idle_art", "elder_hu"), "the hub's Works at Qi Unfurling 5 (%s)" % works)
+	cu.realm_key = realm_was
+	c.quests.done = done_was
 
 ## A stat's format matches what is shown: a percent stat is a share (a new character's value under 10), and move_speed,
 ## shown as the speed itself (242), is a number.

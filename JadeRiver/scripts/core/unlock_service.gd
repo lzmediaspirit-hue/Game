@@ -30,11 +30,20 @@ func is_revealed(actor_id: String, element: String) -> bool:
 	if c == null: return false
 	return c.cultivator.revealed.has(element)
 
+## Why a system is still locked, by one rule: its own locked_text if it has one; else every trigger condition still
+## unmet, in order ("Reach Qi Kindling 1 · Complete "Keeping Post""); and when a quest is all that is left (the one
+## unmet condition, or the system's own quest once the trigger holds), that quest and who gives it.
 func locked_text(system: String) -> String:
 	var entry := ContentDB.entry("unlocks", system)
 	if entry.has("locked_text"): return str(entry.locked_text)
-	var r := RequirementRules.first_failure_text(entry.get("trigger", {}), {"char": Game.active(), "account": Game.account})
-	return r if r != "" else Tx.t("unlock_text.not_yet_available")
+	var unmet := RequirementRules.unmet(entry.get("trigger", {}), {"char": Game.active(), "account": Game.account})
+	if unmet.is_empty() and str(entry.get("quest", "")) != "": return _quest_line("unlock_text.take_quest", str(entry.quest))
+	if unmet.size() == 1 and str(unmet[0].get("kind", "")) == "quest_done": return _quest_line("unlock_text.complete_quest", str(unmet[0].cond.quest))
+	var parts := unmet.map(func(r): return str(r.text)).filter(func(t): return t != "")
+	return Tx.t("unlock_text.sep").join(parts) if not parts.is_empty() else Tx.t("unlock_text.not_yet_available")
+
+func _quest_line(key: String, quest: String) -> String:
+	return Tx.t(key) % [ContentDB.name_of("quests", quest), ContentDB.name_of("npcs", str(ContentDB.entry("quests", quest).get("giver", "")))]
 
 ## Re-evaluate every entry for one character (called once at the end of an event pass).
 func evaluate(actor_id: String) -> void:

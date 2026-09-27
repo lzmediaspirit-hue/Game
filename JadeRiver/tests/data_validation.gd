@@ -125,6 +125,9 @@ func data_suite() -> void:
 		check_req(u.get("trigger", {}), where2)
 		check_effects(u.get("effects", []), where2)
 		if str(u.get("quest", "")) != "": check(ContentDB.has_entry("quests", str(u.quest)), "%s: quest %s" % [where2, u.quest])
+		# Unlocks.locked_text names a quest that is all that is left with its giver.
+		for uq in [u.get("quest", "")] + u.get("trigger", {}).get("all", []).filter(func(k): return str(k.get("kind", "")) == "quest_done").map(func(k): return k.quest):
+			if str(uq) != "": check(ContentDB.has_entry("npcs", str(ContentDB.entry("quests", str(uq)).get("giver", ""))), "%s: quest %s has a giver to name" % [where2, uq])
 		if str(u.get("scope", "character")) == "character" and not u.get("same_stage_ok", false):
 			for cond in u.get("trigger", {}).get("all", []):
 				if str(cond.get("kind", "")) == "realm_at_least":
