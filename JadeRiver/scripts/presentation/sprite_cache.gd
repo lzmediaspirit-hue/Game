@@ -144,15 +144,21 @@ static func draw_prop(ci: CanvasItem, id: String, state: String, t: float, pos: 
 	var fh := int(e.frame[1])
 	var frames := int(st.get("frames", 1))
 	var col := int(st.get("col", 0)) + (int(t * float(st.get("fps", 6))) % frames if frames > 1 else 0)
-	var anchor := Vector2(float(e.anchor[0]), float(e.anchor[1]))
 	var src := Rect2(col * fw, 0, fw, fh)
 	if flip:
 		ci.draw_set_transform(pos, 0.0, Vector2(-1, 1))
-		ci.draw_texture_rect_region(texture, Rect2(-anchor, Vector2(fw, fh)), src, modulate)
+		ci.draw_texture_rect_region(texture, prop_rect(id, Vector2.ZERO), src, modulate)
 		ci.draw_set_transform(Vector2.ZERO)
 	else:
-		ci.draw_texture_rect_region(texture, Rect2(pos - anchor, Vector2(fw, fh)), src, modulate)
+		ci.draw_texture_rect_region(texture, prop_rect(id, pos), src, modulate)
 	return true
+
+## Where draw_prop draws a prop's frame with its anchor at `pos` (unflipped; a flip mirrors it about `pos.x`).
+## Rect2() when it has no art.
+static func prop_rect(id: String, pos: Vector2) -> Rect2:
+	var e := prop(id)
+	if e.is_empty(): return Rect2()
+	return Rect2(pos - Vector2(float(e.anchor[0]), float(e.anchor[1])), Vector2(float(e.frame[0]), float(e.frame[1])))
 
 static func prop_size(id: String) -> Vector2:
 	var e := prop(id)

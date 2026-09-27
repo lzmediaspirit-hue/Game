@@ -80,8 +80,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    570,
-    661
+    377,
+    690
    ],
    "item": "jadeiron",
    "prop": "jadeiron_vein",
@@ -99,15 +99,14 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand.",
-   "alt": 100
+   "locked_text": "The stone is too hard to work by hand."
   },
   {
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
     985,
-    660
+    715
    ],
    "item": "spirit_stone_shard",
    "prop": "spirit_shard_vein",
@@ -126,13 +125,14 @@
     ]
    },
    "locked_text": "The stone is too hard to work by hand.",
-   "alt": 0
+   "alt": 80,
+   "surface": "rubble_heap_high"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    710,
+    850,
     661
    ],
    "loot": "jar_valley_low",
@@ -145,7 +145,7 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    640,
+    710,
     661
    ],
    "loot": "jar_valley_low",
@@ -182,7 +182,7 @@
    "id": "chest_7",
    "type": "chest",
    "at": [
-    850,
+    570,
     661
    ],
    "loot": "chest_dungeon",

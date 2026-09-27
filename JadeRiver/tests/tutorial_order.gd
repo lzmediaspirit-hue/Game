@@ -74,11 +74,11 @@ func _main() -> void:
 	add_child(views)
 	run()
 	print("tutorial_order: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ the walk
 func run() -> void:
-	start_new("user://test_saves_tutorial/")
+	start_new("saves/")
 	tick_watch = _watch_fight
 	GameEvents.event.connect(_on_event)
 	GameEvents.event.connect(_on_novelty)

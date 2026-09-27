@@ -6,6 +6,18 @@ extends Node
 var debug_offset_s := 0.0          # debug console: shift time forward
 var override_utc := -1.0           # tests: pin the clock
 var override_tz_offset_s := -99999 # tests: pin the local time zone offset
+## Tests: a simulated clock. Once pinned with `simulate`, "now" moves only as the simulation ticks (Game.tick calls
+## `advance`) and by the debug offset, never with the wall clock, so a scripted run plays the same on a busy machine.
+var simulated := false
+
+func simulate(utc: float, tz_offset_s := 0) -> void:
+	override_utc = utc
+	override_tz_offset_s = tz_offset_s
+	debug_offset_s = 0.0
+	simulated = true
+
+func advance(delta: float) -> void:
+	if simulated and override_utc >= 0.0: override_utc += delta
 
 func now_utc() -> float:
 	if override_utc >= 0.0: return override_utc + debug_offset_s

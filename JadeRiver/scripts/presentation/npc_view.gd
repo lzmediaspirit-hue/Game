@@ -24,7 +24,7 @@ var label_offset := Vector2.ZERO
 var label_flip := Vector2.ZERO
 var tag: Node2D   # the nameplate's own canvas item, above every figure (WorldLabels.LABEL_Z)
 
-func setup(o: Dictionary) -> void:
+func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	def = o
 	object_id = str(o.id)
 	npc_id = str(o.npc)
@@ -34,7 +34,7 @@ func setup(o: Dictionary) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
-	z_index = 1500 + int(float(at[1]))
+	z_index = ObjectView.depth(o, geo)
 	avatar = Avatar.new()
 	var outfit: Dictionary = n.get("outfit", {}).duplicate()
 	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:

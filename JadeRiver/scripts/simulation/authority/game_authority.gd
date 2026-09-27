@@ -270,6 +270,7 @@ func tick(delta: float) -> void:
 	delta = minf(delta, 0.25)
 	sim_time += delta
 	tick_count += 1
+	Clock.advance(delta)
 	combat.tick(delta)
 	field.tick(delta)
 	progression.tick(delta)

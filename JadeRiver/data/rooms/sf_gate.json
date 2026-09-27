@@ -154,7 +154,7 @@
    "type": "door",
    "at": [
     660,
-    700
+    720
    ],
    "to": "sq_quarry_rim",
    "to_portal": "south",
@@ -223,8 +223,8 @@
    "id": "tide_gong",
    "type": "beast_tide_drum",
    "at": [
-    860,
-    720
+    900,
+    800
    ],
    "requires": {
     "all": [
