@@ -44,7 +44,7 @@ REGIONS = [
     {"id": "tidebreak_front", "name": "Tidebreak Front", "levels": [90, 99], "attunement": 70, "map": [0.12, 0.40]},
     {"id": "nebula_deep", "name": "Nebula Deep", "levels": [94, 99], "attunement": 80, "map": [0.30, 0.10]},
     {"id": "lantern_heart", "name": "The Lantern Heart", "levels": [97, 99], "attunement": 90, "map": [0.52, 0.14]},
-    {"id": "lantern_crossing", "name": "The Lantern Run", "levels": [81, 83], "map": [0.94, 0.86], "hidden": True},
+    {"id": "lantern_crossing", "name": "The Lantern Run", "levels": [79, 81], "map": [0.94, 0.86], "hidden": True},
 ]
 
 
@@ -648,14 +648,16 @@ def lantern_heart():
 
 
 def crossing():
-    """The Lantern Run's deck under the open Starsea (instanced): the voyage lasts as long as the vessel takes to cross."""
+    """The Lantern Run's deck under the open Starsea (instanced): the voyage lasts as long as the vessel takes to cross.
+    Chapter 17 opens at Sage Sovereign 3 (Level 79, stat_scaling_research §6.6), so the deck's foes come at that floor: a
+    plain blow stays in the 4-8% of par HP band (at Level 82 it took 10%, and a party at par could lose the crossing)."""
     w = _w()
     r = w.Room("ss_lantern_crossing", "The Lantern Run", "story", "lantern_crossing", 3, backdrop="starsea", material="wood", tint="#b8a58a",
-               music="starsea", ambience="wind_ambience", instanced=True, safe=False, crossing=True, levels=[81, 83],
+               music="starsea", ambience="wind_ambience", instanced=True, safe=False, crossing=True, levels=[79, 81],
                spawn_point=[900, 820], hazards=["star_wind"], no_flight=True, dungeon_exit="",
                event={"id": "starsea_crossing", "duration": 90,
-                      "waves": [{"enemy": "comet_sparrow", "every_s": 11, "max": 2, "first_s": 8, "points": [[3300, 780], [3500, 820]], "level": 82},
-                                {"enemy": "star_jellyfish", "every_s": 16, "max": 2, "first_s": 20, "points": [[2800, 760], [3200, 800]], "level": 82}],
+                      "waves": [{"enemy": "comet_sparrow", "every_s": 11, "max": 2, "first_s": 8, "points": [[3300, 780], [3500, 820]], "level": 79},
+                                {"enemy": "star_jellyfish", "every_s": 16, "max": 2, "first_s": 20, "points": [[2800, 760], [3200, 800]], "level": 79}],
                       "on_complete": [{"kind": "voyage_arrive"}]}, **LS)
     r.decor("sky_ship", [3300, 600], layer="back", flip=True)
     r.decor("broken_mast", [1500, 690])

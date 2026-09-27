@@ -7,12 +7,14 @@ extends "res://tests/prologue_run.gd"
 ## step (travel, talk, fights, crafts, spars, breakthroughs) goes through the real
 ## authorities. The state at the start of each section is saved, so a later section
 ## can be re-run alone:
-##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
+##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--only] [--cp=<folder>] [--verbose]
+## The checkpoints of a full run stay in the run's own folder (run_root), removed at the end, unless --cp names a
+## folder to keep them in (e.g. --cp=user://valley_cp/, for previews); --from resumes from --cp (by default that one).
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
 	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4", "ls5", "ls6"]
-const CP_ROOT := "user://valley_cp/"
-const WORK := "user://valley_work/"
+var CP_ROOT := ""   # where the section checkpoints are kept (--cp, or this run's own folder)
+var WORK := ""      # the resumed run's working saves (this run's own folder)
 
 var unlock_log: Array = []
 var fates_offered := 0          # S48: fate cards offered after great breakthroughs
@@ -23,7 +25,10 @@ func _main() -> void:
 	var only := false
 	for a in OS.get_cmdline_user_args():
 		if str(a).begins_with("--from="): from = str(a).trim_prefix("--from=")
+		if str(a).begins_with("--cp="): CP_ROOT = str(a).trim_prefix("--cp=").trim_suffix("/") + "/"
 		if str(a) == "--only": only = true
+	if CP_ROOT == "": CP_ROOT = "user://valley_cp/" if from != "" else run_root() + "cp/"
+	WORK = run_root() + "work/"
 	GameEvents.event.connect(func(n, p):
 		if n == "system_unlocked": unlock_log.append(str(p.get("system", "")))
 		if n == "enemy_spawned": par_pace(p))
@@ -54,21 +59,25 @@ func _main() -> void:
 		check(left.is_empty() and guidance_steps > 0, "every main quest of Acts I-III was played, each step held to the story's guidance (%d steps; not played: %s)"
 			% [guidance_steps, str(left.map(func(q): return str(q.id)))])
 	print("valley_run: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ checkpoints
 func checkpoint(name: String) -> void:
 	Game.save_all()
 	_copy_dir(Saves.repo.root, CP_ROOT + name + "/")
-	# The run's clock skips go with the saves, so timed state (auction lots, cooldowns) resumes in step.
+	# The run's simulated clock and its skips go with the saves, so timed state (auction lots, cooldowns) resumes in step.
 	var f := FileAccess.open(CP_ROOT + name + ".clock", FileAccess.WRITE)
-	if f != null: f.store_string(str(Clock.debug_offset_s))
+	if f != null: f.store_string(JSON.stringify({"utc": "%.3f" % Clock.override_utc, "offset": "%.3f" % Clock.debug_offset_s}))
 
 func resume(name: String) -> bool:
 	if not DirAccess.dir_exists_absolute(CP_ROOT + name + "/"): return false
 	_copy_dir(CP_ROOT + name + "/", WORK)
+	Clock.simulate(START_UTC)
 	if FileAccess.file_exists(CP_ROOT + name + ".clock"):
-		Clock.debug_offset_s = float(FileAccess.get_file_as_string(CP_ROOT + name + ".clock"))
+		var saved = JSON.parse_string(FileAccess.get_file_as_string(CP_ROOT + name + ".clock"))
+		if saved is Dictionary:
+			Clock.override_utc = float(str(saved.get("utc", START_UTC)))
+			Clock.debug_offset_s = float(str(saved.get("offset", 0.0)))
 	Saves.use_folder(WORK)
 	Game.boot()
 	Game.autosave_enabled = false
@@ -1878,7 +1887,7 @@ func sec_ae1() -> void:
 	check(finish("sage"), "Sage done: chapter 11 complete")
 	# Loot in the Expanse pays Spirit Stones, not taels.
 	check(LootRules.zone_coins("tp_thunderhorn_flats", 100).currency == "spirit_stone", "the Expanse pays loot coins in Spirit Stones")
-	# A cross-zone stone costs five times the fee; the end state is kept for previews (--load=…/valley_cp/ae_end).
+	# A cross-zone stone costs five times the fee; the end state is kept for previews (run with --cp=user://valley_cp/, then --load=…/valley_cp/ae_end).
 	Game.account.teleports["cloudgate"] = true
 	check(Game.world.teleport_fee("stoneford") == 5 * int(ContentDB.entry("teleport_stones", "stoneford").get("fee_shards", 1)), "teleporting back to the valley costs five times the fee")
 	travel("tp_herders_camp")

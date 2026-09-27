@@ -6,8 +6,8 @@
  "name": "The Lantern Run",
  "type": "story",
  "level_range": [
-  81,
-  83
+  79,
+  81
  ],
  "recommended_cp": 0,
  "element": "none",
@@ -168,7 +168,7 @@
       820
      ]
     ],
-    "level": 82
+    "level": 79
    },
    {
     "enemy": "star_jellyfish",
@@ -185,7 +185,7 @@
       800
      ]
     ],
-    "level": 82
+    "level": 79
    }
   ],
   "on_complete": [
