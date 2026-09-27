@@ -3247,8 +3247,12 @@
  "ui.shop.buy_back_hint": "Anything you sold can be bought back for what it fetched.",
  "ui.storage.tap_to_store": "Tap a thing to put it in the chest",
  "ui.storage.chest_holds": "The chest holds %d / %d · tap to take",
- "ui.storage.treasury_adds": "Treasury level %d: %d more spaces",
- "ui.storage.treasury_would": "A sect Treasury adds %d spaces a level",
- "ui.storage.treasury_tray": "The Treasury's tray · %d spaces",
- "ui.exchange.rate_line": "%s at %s %s each, less the fee"
+ "ui.storage.treasury_adds": "Treasury level %d: +%d to the chest",
+ "ui.storage.treasury_would": "A sect Treasury: +%d to the chest a level",
+ "ui.storage.treasury_tray": "The Treasury's tray · +%d",
+ "ui.exchange.rate_line": "%s at %s %s each, less the fee",
+ "ui.shop.price_contribution": "contrib.",
+ "ui.shop.price_sage_crystal": "crystals",
+ "ui.shop.price_silver_tael": "taels",
+ "ui.shop.price_spirit_stone": "stones"
 }
