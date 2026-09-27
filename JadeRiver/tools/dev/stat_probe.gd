@@ -49,7 +49,10 @@ func _load(section: String) -> bool:
 	for f in DirAccess.get_files_at(from): DirAccess.copy_absolute(from + f, WORK + f)
 	Clock.debug_offset_s = 0.0
 	if FileAccess.file_exists(CP_ROOT + section + ".clock"):
-		Clock.debug_offset_s = float(FileAccess.get_file_as_string(CP_ROOT + section + ".clock"))
+		# valley_run writes {"utc", "offset"} (its simulated clock); older checkpoints hold the offset alone.
+		var txt := FileAccess.get_file_as_string(CP_ROOT + section + ".clock")
+		var saved_clock = JSON.parse_string(txt)
+		Clock.debug_offset_s = float(str(saved_clock.get("offset", 0.0))) if saved_clock is Dictionary else float(txt)
 	# Pin the clock to the moment the checkpoint was saved, so no offline time is claimed and timed buffs and the
 	# calendar stand as they were.
 	var acc = JSON.parse_string(FileAccess.get_file_as_string(WORK + "account.json"))

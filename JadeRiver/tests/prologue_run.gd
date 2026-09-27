@@ -43,7 +43,30 @@ func _ready() -> void:
 func _main() -> void:
 	run()
 	print("prologue_run: %d checks, %d failures" % [checks, failures])
+	end_suite()
+
+## End the suite: drop this run's own save folder and quit with the result.
+func end_suite() -> void:
+	_remove_tree(run_root())
 	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ determinism
+## Every scripted run plays the same on any machine under any load: the dice are seeded (start_new), the clock is
+## simulated (Clock.simulate: "now" starts at START_UTC and moves only as Game.tick steps the fixed 0.05 s simulation,
+## never with the wall clock), every wait is counted in simulated seconds, and the saves live in a folder of this run's
+## own (run_root), never one shared with another run of the suite on the same machine.
+const START_UTC := 1789997760.0   # the start of an in-game morning (a multiple of the 48-minute day)
+const RUN_SEED := 20260925
+
+## This run's own folder under user:// (other runs of the suite, in other checkouts too, share user://).
+func run_root() -> String:
+	return "user://test_runs/%s_%d/" % [str(get_script().resource_path).get_file().get_basename(), OS.get_process_id()]
+
+func _remove_tree(dir: String) -> void:
+	if not DirAccess.dir_exists_absolute(dir): return
+	for d in DirAccess.get_directories_at(dir): _remove_tree(dir + d + "/")
+	for f in DirAccess.get_files_at(dir): DirAccess.remove_absolute(dir + f)
+	DirAccess.remove_absolute(dir)
 
 # ------------------------------------------------------------------ helpers
 ## Called after every tick of the simulation (tests/tutorial_order.gd watches what the HUD shows of each fight).
@@ -174,6 +197,9 @@ func place(p: Vector2, alt := 0.0) -> void:
 
 func obj_at(id: String) -> Vector2:
 	var o: Dictionary = Game.room_rt.object_def(id)
+	if o.is_empty():
+		print("  no object ", id, " in ", room())
+		return Vector2.ZERO
 	return Vector2(float(o.at[0]), float(o.at[1]))
 
 func go(portal: String) -> bool:
@@ -256,6 +282,7 @@ func _dry_ground_near(p: Vector2) -> Vector2:
 
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
+	if o.is_empty(): return {"ok": false, "reason": "no_object", "text": "no %s in %s" % [id, room()]}
 	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
 	play_s += USE_S
 	return submit({"type": "interact", "object": id})
@@ -423,14 +450,16 @@ func back_to(target: String) -> void:
 
 ## A new character in the Fisher's Hut, on a fixed seed (every run plays the same dice).
 func start_new(folder: String) -> void:
+	folder = run_root() + folder
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
+	Clock.simulate(START_UTC)
 	Game.boot()
 	Game.autosave_enabled = false
 	# A fixed seed: every run of the suite plays the same dice (character streams derive from it).
-	Game.account.rng_seed = 20260925
-	Rng.restore("account", {}, 20260925)
+	Game.account.rng_seed = RUN_SEED
+	Rng.restore("account", {}, RUN_SEED)
 	GameEvents.event.connect(func(n, p):
 		if n == "hud_element_revealed": reveal_log.append(str(p.element))
 		if n in ["quest_accepted", "quest_completed", "system_unlocked", "realm_changed", "room_entered", "quest_failed"]: events.append([n, p]))
@@ -674,7 +703,7 @@ func step_entry_trial() -> void:
 
 # ------------------------------------------------------------------ the run
 func run() -> void:
-	start_new("user://test_saves_prologue/")
+	start_new("saves/")
 	step_morning_tide()
 	step_quiet_river()
 	step_kite()

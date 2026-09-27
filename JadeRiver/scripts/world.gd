@@ -146,12 +146,12 @@ func _build_room() -> void:
 	for o in room_def.get("objects", []):
 		if o.type == "npc":
 			var nv = NpcView.new()
-			nv.setup(o)
+			nv.setup(o, geometry)
 			room_layer.add_child(nv)
 			npc_views[str(o.id)] = nv
 		elif o.type != "decor":
 			var ov = ObjectView.new()
-			ov.setup(o)
+			ov.setup(o, geometry)
 			room_layer.add_child(ov)
 			object_views[str(o.id)] = ov
 	for p in room_def.get("portals", []):
@@ -666,15 +666,7 @@ func update_occlusion() -> void:
 
 func update_sorting() -> void:
 	for visual in terrain_visuals:
-		var s: WalkSurface = visual.surface
-		if s.stratum == "ground" and ((map_theme == "" and not room_mode) or (s.base == 0 and s.rise == 0)):
-			visual.z_index = -1800 if s.kind == "stairs" else -2000 + int(s.base)
-		else:
-			visual.z_index = 1500 + int(s.bounds.end.y)
-			if s.kind == "roof":
-				for obstacle in geometry.obstacles:
-					if obstacle.get("surface", "") == s.id:
-						visual.z_index = 1500 + int(obstacle.get("front_y", s.bounds.end.y))
+		visual.z_index = Terrain.sort_z(visual.surface, geometry, map_theme == "" and not room_mode)
 
 func spawn_arrow(origin: Vector2, elevation: float, direction: int) -> void:
 	var projectile := Arrow.new()

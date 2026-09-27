@@ -784,7 +784,12 @@ Q = []
 
 
 def o(kind, text, count=1, **kw):
+    """An objective. Items a quest asks for are either handed over when it is turned in (`consume`, and every deliver)
+    or only counted (proof you gathered them, or a craft step's ingredients): each collect says which."""
     d = {"kind": kind, "text": text, "count": count}
+    if kind == "deliver":
+        d["consume"] = True
+    assert kind != "collect" or isinstance(kw.get("consume"), bool), "collect objective %r must say consume=True/False" % text
     d.update(kw)
     return d
 
@@ -887,7 +892,7 @@ def prologue_quests():
         complete=["Not bad! Take my old training gauntlets, they're yours now. Keep those fists warm: something's stirring past the East Gate.",
                   "Help the others first. When the village is done with you, come back and I'll open the gate."])
     quest("crab_trouble", "Crab Trouble", "prologue", "uncle_guo", [
-        o("collect", "Collect Crab Shells", 3, item="crab_shell"),
+        o("collect", "Bring Crab Shells", 3, item="crab_shell", consume=True),
         o("kill", "Defeat Old Snapper", enemy="old_snapper", after=0),
     ], [taels(50), item("plain_straw_hat", 1), item("straw_sandals", 1)],
         requires=all_of(*map(qdone, FOUR_LESSONS)), target_room="lf_reed_shallows", chapter="prologue",
@@ -1313,7 +1318,7 @@ def guided_quests():
         offer=["A formation you can carry. Etch one plate."], complete=["Take these blanks."])
     quest("skipping_stones", "Skipping Stones", "side", "hermit_yao", [
         o("use_system", "Sprint across the pond under the stilt house", 1, system="water_skimming"),
-        o("collect", "Pick the Mist Lotus on the pond's rock", item="mist_lotus"),
+        o("collect", "Pick the Mist Lotus on the pond's rock", item="mist_lotus", consume=False),
     ], [taels(300)], requires=all_of(realm("qi_unfurling_8")), target_room="rm_hermit_stilt_house",
         on_accept=[fx("learn_secret_art", art="water_skimming")],
         offer=["A stone skips if it is fast and flat. So can you. Sprint at the pond and do not stop.",
@@ -1517,8 +1522,8 @@ def main_quests():
         offer=["Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
                "You've a weapon in your hands now: the grey will want it."], complete=["Lu's token. It knows the grey. Keep it close."])
     quest("mei_qings_errand", "Mei Qing's Errand", "main", "mei_qing", [
-        o("collect", "Bring Willow Moss", 5, item="willow_moss"),
-        o("collect", "Bring Grey Hides from the Hollowed Boarlets", 3, item="grey_hide"),
+        o("collect", "Bring Willow Moss", 5, item="willow_moss", consume=True),
+        o("collect", "Bring Grey Hides from the Hollowed Boarlets", 3, item="grey_hide", consume=True),
     ], [item("healing_pill", 3), taels(60)], requires=all_of(qdone("the_humming_token")), chapter="2", target_room="sf_artisan_row",
         offer=["The Hollowed wounds need a new salve. Willow moss, and the grey hide of the things that made the wounds."],
         complete=["This will save lives. Thank you."])
@@ -1636,7 +1641,7 @@ def act2_quests():
                   "One more thing, free: the alchemist in the Condensing Hall can make a Sage of you. She'll want thunder."],
         next="horns_for_the_furnace")
     quest("horns_for_the_furnace", "Horns for the Furnace", "main", "alchemist_fen", [
-        o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn"),
+        o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn", consume=True),
     ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill"), spirit_stones(40)],
         requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")),
         chapter="11", target_room="tp_thunderhorn_flats",
@@ -2262,7 +2267,7 @@ def act2_side_quests():
 
 def side_quests():
     # Small valley threads for the people who had none (optional; Part 8 "about 35 side quests").
-    quest("nets_and_shells", "Nets and Shells", "side", "fisher_wen", [o("collect", "Bring Mudshell Crab shells", 5, item="crab_shell")],
+    quest("nets_and_shells", "Nets and Shells", "side", "fisher_wen", [o("collect", "Bring Mudshell Crab shells", 5, item="crab_shell", consume=True)],
           [taels(40), item("roast_fish", 2)], requires=all_of(realm("bone_forging_2")), target_room="lf_reed_shallows",
           offer=["The crabs cut my nets to ribbons. Bring me their shells and I'll patch the nets with them. Fair's fair."],
           complete=["Ha! Crab-shell floats. They'll never live it down. Here, supper."])
@@ -2270,11 +2275,11 @@ def side_quests():
           [taels(40)], requires=all_of(realm("bone_forging_3")), target_room="lf_reed_shallows",
           offer=["Rats in the reeds again. They chew the lines and drag the washing through the mud. Six of them, at least."],
           complete=["Clean sheets for once. Bless you."])
-    quest("beetle_shell_lacquer", "Beetle Shell Lacquer", "side", "storekeeper_fang", [o("collect", "Bring Rock Beetle shells", 6, item="beetle_shell")],
+    quest("beetle_shell_lacquer", "Beetle Shell Lacquer", "side", "storekeeper_fang", [o("collect", "Bring Rock Beetle shells", 6, item="beetle_shell", consume=True)],
           [taels(90)], requires=all_of(realm("bone_forging_5")), target_room="sq_quarry_rim",
           offer=["Ground beetle shell makes the finest lacquer in the valley. The quarry beetles are too tough for my porters."],
           complete=["Look at that shine. The Jade Sect will pay double for boxes like these."])
-    quest("copper_for_the_bellows", "Copper for the Bellows", "side", "smith_bao", [o("collect", "Bring Copper ore", 8, item="copper_ore")],
+    quest("copper_for_the_bellows", "Copper for the Bellows", "side", "smith_bao", [o("collect", "Bring Copper ore", 8, item="copper_ore", consume=True)],
           [taels(100), item("forge_hammer", 1)], requires=all_of(realm("bone_forging_5")),
           offer=["My bellows need new copper fittings and the quarry price doubled. Mine me some, would you?"],
           complete=["Good ore. Take my old hammer. It still rings true."])
@@ -2307,10 +2312,10 @@ def side_quests():
           [fx("grant_title", title="rivals_respect")], requires=all_of(qdone("the_valley_finals")),
           offer=["The finals were luck. Face me again, here, with no crowd to cheer for you."],
           complete=["...Not luck, then. Next time I'll be ready."])
-    quest("guos_old_wound", "Guo's Old Wound", "side", "uncle_guo", [o("collect", "Bring Willow Salve", item="willow_salve")],
+    quest("guos_old_wound", "Guo's Old Wound", "side", "uncle_guo", [o("collect", "Bring Willow Salve", item="willow_salve", consume=True)],
           [taels(80)], requires=all_of(realm("qi_kindling_3")), target_room="lf_village",
           offer=["My old meridian wound aches. Granny's salve helps."], complete=["Ahh. Better."])
-    quest("the_broken_kindling", "The Broken Kindling", "side", "uncle_guo", [o("collect", "Bring Qi Gathering Pills", 2, item="qi_gathering_pill")],
+    quest("the_broken_kindling", "The Broken Kindling", "side", "uncle_guo", [o("collect", "Bring Qi Gathering Pills", 2, item="qi_gathering_pill", consume=True)],
           [taels(120)], requires=all_of(qdone("guos_old_wound")), offer=["I want to try again. Kindling. Help me?"], complete=["We'll see."])
     quest("a_second_try", "A Second Try", "side", "uncle_guo", [o("talk_to", "Watch Uncle Guo meditate", npc="uncle_guo")],
           [fx("grant_title", title="guos_student")], requires=all_of(qdone("the_broken_kindling"), realm("qi_unfurling_1")),
@@ -2359,7 +2364,7 @@ def side_quests():
             if kind == "kill":
                 ob = o("kill", "Defeat %s" % target.replace("_", " ").title(), n, enemy=target)
             elif kind == "collect":
-                ob = o("collect", "Gather %s" % target.replace("_", " ").title(), n, item=target)
+                ob = o("collect", "Bring %s" % target.replace("_", " ").title(), n, item=target, consume=True)
             else:
                 ob = o("reach_room", "Visit the Falls Pool at dawn", room=target)
             rq = all_of({"kind": "companion_owned", "companion": cid}) if prev is None else all_of(qdone(prev))

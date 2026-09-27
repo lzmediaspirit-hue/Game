@@ -466,6 +466,13 @@ func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -
 	elif node is Array:
 		for v in node: _moment_walk(v, refs, colours, texts, sample)
 
+## An objective asking for items says whether turning it in hands them over (`consume`), and what is handed over is
+## never something worn: the hand-in counts only the bag, so a worn piece is never taken without a word.
+func _check_handover(o: Dictionary, where: String) -> void:
+	if not (str(o.get("kind", "")) in ["collect", "deliver"]): return
+	check(o.get("consume") is bool, "%s: '%s' says whether it hands its items over (consume)" % [where, o.get("text", "")])
+	if QuestAuthority.hands_over(o): check(ContentDB.item(str(o.item)).get("type", "") != "equipment", "%s: hands over %s, which is not equipment" % [where, o.item])
+
 func item_ok(id: String) -> bool:
 	return ContentDB.has_entry("items", id) or ContentDB.has_entry("artifacts", id)
 
@@ -532,6 +539,12 @@ func data_suite() -> void:
 			if o.has("recipe") and str(o.recipe) != "any": check(ContentDB.has_entry("recipes", str(o.recipe)), "%s: recipe %s" % [where, o.recipe])
 			if o.has("technique") and str(o.technique) != "any": check(ContentDB.has_entry("techniques", str(o.technique)), "%s: technique %s" % [where, o.technique])
 			if str(o.kind) == "use_system": check(_system_reported(str(o.system)), "%s: nothing reports system '%s'" % [where, o.system])
+			_check_handover(o, where)
+	# Generated missions (the sect board, the county magistrate) say the same of what they ask for.
+	for tpl in ContentDB.all("mission_templates"):
+		for op in tpl.get("options", []): _check_handover(op.objective, "mission " + str(op.get("name", "")))
+	for job in ContentDB.config("karma").get("mortal", {}).get("jobs", []):
+		for op2 in job.get("options", []): _check_handover(op2.objective, "county job " + str(op2.get("name", "")))
 	# Unlocks: one per-character guided quest per realm stage (same_stage_ok marks the intended pairs).
 	var per_stage := {}
 	for u in ContentDB.all("unlocks"):

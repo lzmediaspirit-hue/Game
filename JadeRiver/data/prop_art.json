@@ -1469,6 +1469,24 @@
       }
     }
   },
+  "hidden_way": {
+    "anchor": [
+      48,
+      140
+    ],
+    "file": "res://art/props/hidden_way.png",
+    "frame": [
+      96,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "hollow_crystal": {
     "anchor": [
       30,
@@ -2407,6 +2425,23 @@
         "frames": 1
       },
       "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "road_gate": {
+    "anchor": [
+      56,
+      148
+    ],
+    "file": "res://art/props/road_gate.png",
+    "frame": [
+      112,
+      152
+    ],
+    "states": {
+      "idle": {
         "col": 0,
         "frames": 1
       }

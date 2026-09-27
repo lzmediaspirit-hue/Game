@@ -117,6 +117,7 @@ func _main() -> void:
 	ui_style_suite()
 	hud_suite()
 	equip_prompt_suite()
+	await points_badges_suite()
 	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
@@ -124,6 +125,7 @@ func _main() -> void:
 	await map_suite()
 	await techniques_page_suite()
 	fixes_suite()
+	hand_in_suite()   # on the character fixes_suite made
 	respawn_suite()
 	early_game_suite()
 	mockup_fixes_suite()
@@ -267,7 +269,7 @@ func ui_suite() -> void:
 				for aid in pg._areas:
 					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
-				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
+				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.window_rect()   # P5: with what it pins beyond its window
 				var buttons: Array = []
 				for r in pg._regions:
 					if r.kind == "scroll": continue
@@ -443,7 +445,11 @@ func _ui_contexts(c) -> Dictionary:
 					Game.account.collection[str(e.id)] = 500
 					Game.account.collection_pages_done[str(e.collection.page)] = true}],
 		# The world map's three views (its tabs are the zones and the Heaven Ranking).
-		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}]}
+		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}],
+		# P5, the Market family: the chest with and without the Treasury's tray, the stage with its lots drawn up, and the
+		# Shop in its buy-back view.
+		"storage": [{}, {"_setup": func(): Game.account.sect = sect.duplicate(true).merged({"buildings": {"sect_hall": 1, "treasury": 1}}, true)}],
+		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -460,7 +466,8 @@ func _identity_view(pg: Page, where: String, dim_words: Array, unshared: Array, 
 	if not UiKit.SURFACE.has(idn.surface) or not idn.title_mount in ["plaque", "own"] or idn.open_s > Page.OPEN_MOTION_MAX or idn.signature == "":
 		unshared.append("%s declares %s / %s / %.2f s / %s" % [where, idn.surface, idn.title_mount, idn.open_s, idn.signature])
 	var close := Rect2(pg.frame_rect.end.x - 72, pg.frame_rect.position.y + 16, 52, 52)
-	if not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
+	# The one exception: a talk (the Dialogue's strip, row 2 and mockup 21) ends by its own choices, a tap or Esc.
+	if pg.frame_rect != Page.WINDOW_DIALOGUE and not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
 	if pg.title != "" and not pg.text_log.any(func(tx): return str(tx.s) == pg.title and tx.get("outlined", false)): unshared.append("%s has no inked title" % where)
 	var grounds: Array = []
 	for tx in pg.text_log:
@@ -552,7 +559,9 @@ func identity_suite() -> void:
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 	await _bag_checks()
 	await _records_checks()
+	await _records_two_checks()
 	await _post_checks()
+	await _market_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -652,6 +661,107 @@ func _records_checks() -> void:
 		"P5 Calendar: the chosen event's Go there walks to its room by auto_path, shut with its reason when no way leads there")
 	kp.queue_free()
 
+## P5 (the Records family's second part, docs/page_identity.md rows 2, 6, 17 and 21; mockups 21, 12 v2 and 22). The
+## Quests board holds every quest under way or on offer once, on a slip or in a stack that spreads, the story's slip
+## leading with the tracked story quest or the tracker's Next entry, and the slip being read walks to where its quest leads;
+## Done lays the finished slips out a sheet at a time. The Mail stacks every letter as an envelope, seals the unread,
+## ties a parcel under the one that carries something (Claim, and Delete shut until it is claimed). The Notice Board
+## pastes a poster per bounty, the chosen one on top with its Take strip. The talk pins an offered quest above its
+## choices, inside what the page draws, and keeps no close button.
+func _records_two_checks() -> void:
+	var c = Game.active()
+	# The Quests board.
+	var qp: Page = await _open_page("quests")
+	var b: Dictionary = qp.board(c)
+	var on_board: Array = b.story + b.near + b.missions
+	for g in b.groups: on_board.append_array(g.ids)
+	var want: Array = []
+	for q in c.quests.active: want.append(str(q))
+	for q in c.quests.offered:
+		if not c.quests.is_active(q) and Game.quest.can_offer(c, ContentDB.entry("quests", q)): want.append(str(q))
+	for q in c.quests.daily:
+		if not c.quests.is_done(str(q)) and not want.has(str(q)): want.append(str(q))
+	var once: bool = on_board.size() == on_board.reduce(func(a, v): return a if a.has(v) else a + [v], []).size()
+	check(once and want.all(func(q): return on_board.has(q)), "P5 Quests: every quest under way, on offer or on the sect board is on the board once (%d of %d)" % [on_board.size(), want.size()])
+	var story: Array = qp._regions.filter(func(r): return r.id == "sel" and (r.art as Rect2).position == Vector2(96, 116))
+	var lead := ""
+	for q in b.story:
+		if c.quests.is_active(str(q)):
+			lead = str(q)
+			break
+	check(story.size() == 1 and str(story[0].data) == (lead if lead != "" else ("next" if not Game.quest.story_next(c).is_empty() else str(story[0].data))),
+		"P5 Quests: the story's slip carries the story quest under way, else the tracker's Next entry (%s)" % (str(story[0].data) if not story.is_empty() else "none"))
+	var stacks: Array = qp._regions.filter(func(r): return r.id == "spread")
+	if not stacks.is_empty():
+		qp._activate(stacks[0])
+		qp.queue_redraw()
+		await get_tree().process_frame
+		var grp := str(stacks[0].data)
+		var ids: Array = b.near if grp == "near" else (b.missions if grp == "missions" else [])
+		for g in b.groups:
+			if str(g.id) == grp: ids = g.ids
+		var shown: Array = qp._regions.filter(func(r): return r.id == "sel").map(func(r): return str(r.data))
+		check(qp.spread == grp and ids.slice(0, 16).all(func(q): return shown.has(str(q))) and qp._regions.any(func(r): return r.id == "spread" and str(r.data) == ""),
+			"P5 Quests: a tap on a stack spreads its slips across the board, with the way back (%s, %d)" % [grp, ids.size()])
+	var active := ""
+	for q in c.quests.active:
+		if Game.quest.quest_def(c, q).get("kind", "") != "":
+			active = str(q)
+			break
+	if active != "":
+		qp.on_action("sel", active)
+		qp.queue_redraw()
+		await get_tree().process_frame
+		var go: Array = qp._regions.filter(func(r): return r.id == "go")
+		var goal := Game.quest.quest_target(c, Game.quest.quest_def(c, active), c.quests.active[active])
+		check(go.size() == 1 and str(go[0].data) == goal and qp._regions.any(func(r): return r.id == "track" and str(r.data) == active),
+			"P5 Quests: the slip being read walks to where its quest leads (%s) and tracks it" % goal)
+	qp.tab = 1
+	qp.on_action("_tab", "done")
+	qp.queue_redraw()
+	await get_tree().process_frame
+	var done_n: int = qp._done_ids(c).size()
+	check(qp._regions.filter(func(r): return r.id == "sel").size() == mini(done_n, 24) and (done_n <= 24 or qp._regions.any(func(r): return r.id == "sheet")),
+		"P5 Quests: Done lays the finished slips out a sheet at a time (%d done)" % done_n)
+	qp.queue_free()
+	# The Mail: a letter that carries something, unread, on top.
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.mail.apply_send(c.id, str(ContentDB.all("mail_templates")[0].id), [{"currency": "silver_tael", "amount": 5}], {})
+	var mp: Page = await _open_page("mail")
+	var mails: Array = Game.mail.visible(c)
+	var envs: Array = mp._regions.filter(func(r): return r.id == "sel")
+	var top: Dictionary = mails[0]
+	check(envs.size() == mini(mails.size(), 7) and int(mp.sel) == int(top.id) and mp._regions.any(func(r): return r.id == "claim" and int(r.data) == int(top.id))
+		and mp._regions.any(func(r): return r.id == "delete" and not r.enabled and str(r.reason) != ""),
+		"P5 Mail: every letter an envelope in the stack, the newest open with its parcel to claim, Delete shut until it is claimed (%d letters)" % mails.size())
+	mp.queue_free()
+	# The Notice Board's posters.
+	var np: Page = await _open_page("notice_board", {"tab": "bounties"})
+	var rows: Array = Game.relations.fcfg().get("bounties", [])
+	var posters: int = np._regions.filter(func(r): return r.id == "poster").size() + np._regions.filter(func(r): return r.id == "bounty").size() \
+		+ (1 if np.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.notice.bounty_hunting")) else 0)
+	check(posters == rows.size() and np._regions.any(func(r): return r.id == "to_tab"), "P5 Notice Board: a poster per bounty, the chosen one with its Take strip, the handbills in the corner (%d)" % posters)
+	np.queue_free()
+	# The talk: an offered quest pinned above the choices, inside what the page draws.
+	var qid := ""
+	for q in c.quests.offered:
+		var d := ContentDB.entry("quests", q)
+		if not c.quests.is_active(q) and Game.quest.can_offer(c, d): qid = str(q)
+	var convo := {"npc": "", "speaker": "Probe", "portrait": {}, "lines": ["A task for you."], "choices": [{"text": "Accept", "accept": qid}, {"text": "Not now", "close": true}], "quest": qid}
+	var dp: Page = await _open_page("dialogue", {"convo": convo})
+	dp.shown_chars = 9999.0
+	dp.card_at = dp.t - 1.0   # unrolled
+	dp.text_log.clear()
+	dp.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var named: bool = qid == "" or dp.text_log.any(func(tx): return str(tx.s) == ContentDB.name_of("quests", qid) and dp.window_rect().encloses(tx.rect))
+	check(named and dp._regions.filter(func(r): return r.id == "choose").size() == 2 and not dp._regions.any(func(r): return r.id == "_close"),
+		"P5 Dialogue: the offered quest is pinned above the choices inside what the talk draws, and the talk keeps no close button (%s)" % qid)
+	dp.queue_free()
+	Unlocks.debug_force_all = force_was
+
 ## P5 (the Post family, docs/page_identity.md rows 12, 14, 23 and 44; mockups 13, 13_first and 14 v4; decisions 11, 21
 ## and 26). The Roll-Call hangs a tablet per character, soonest full first, each with its figure (the live Avatar at a
 ## whole 3 px an art px, clipped to its window), a Settle and a Switch under a character at a post, its vessel's tag
@@ -660,6 +770,120 @@ func _records_checks() -> void:
 ## on whole pixels, a locked one answering with what opens it, and the Seal Scripts show five rows at once. Welcome Back
 ## burns the coil to the time away out of the cap and lays every good in the tray. The Pouches chalk seven patterns, a
 ## deeper pouch larger.
+## P5 (the Market family; docs/page_identity.md rows 8, 19, 33, 37 and 38, mockup 17, decisions 11, 14 and 24): the Shop is
+## the stall with no tabs, its wares priced on the shelves and "your bag" beside it in the gourd's heaven, each thing with
+## what it sells for, and buy-back a token that turns the same spaces to the last sales; a sale and its buy-back go
+## through as intents. The Storage's chest shows the Treasury's spaces (storage_slots_per_level) as a second tray; the
+## Exchange rates its pairs over the barred window; the County Hall stands today's jobs as warrant sticks and reads the
+## relief fund from its box; the Auction brings a lot to its pedestal with a tap. Every word reads on what it sits on.
+func _market_checks() -> void:
+	var c = Game.active()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var keep := {"inventory": c.inventory.snapshot(), "sect": Game.account.sect.duplicate(true), "economy": Game.account.economy.duplicate(true)}
+	var dim: Array = []
+	var lost: Array = []
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	# The Shop.
+	var sp: Page = await _open_page("shop", {"shop": "old_ma"})
+	var stock: Array = Game.economy.stock(c, "old_ma")
+	var wares: Array = sp._regions.filter(func(r): return r.id == "pick")
+	var cells: Array = sp._regions.filter(func(r): return r.id == "pick_sell")
+	var in_view: int = c.inventory.bag.slice(0, 20).filter(func(s): return s != null).size()
+	check(sp.tabs.is_empty() and wares.size() == mini(stock.size(), 10) and wares.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Shop: no tabs; the wares stand on the shelves, five a shelf, two shelves in view (%d of %d)" % [wares.size(), stock.size()])
+	var said: Array = sp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var hp: int = c.inventory.first_index("healing_pill")
+	check(cells.size() == in_view and said.has(UiKit.fmt(LootRules.sell_price("healing_pill"))) and sp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.sky)
+		and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "sky_token:selected"),
+		"P5 Shop: your bag floats beside the stall in the gourd's heaven (decision 24), each thing with what it sells for")
+	_identity_view(sp, "shop stall", dim, lost, {}, {})
+	sp.on_action("pick", 0)
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(sp.text_log.any(func(tx): return str(tx.get("s", "")) == ContentDB.item_name(str(stock[0].item))) and sp._regions.any(func(r): return r.id == "buy"),
+		"P5 Shop: a tapped ware is laid on the counter with its Buy")
+	_identity_view(sp, "shop counter", dim, lost, {}, {})
+	var silver: int = Game.economy.balance("silver_tael", c)
+	var n_hp: int = c.inventory.count("healing_pill")
+	sp.on_action("pick_sell", hp)
+	sp.on_action("sell", 1)
+	var sold_ok: bool = c.inventory.count("healing_pill") == n_hp - 1 and Game.economy.balance("silver_tael", c) == silver + LootRules.sell_price("healing_pill")
+	sp.on_action("bag_side", true)
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	var backs: Array = sp._regions.filter(func(r): return r.id == "pick_back")
+	_identity_view(sp, "shop buy-back", dim, lost, {}, {})
+	sp.on_action("pick_back", 0)
+	sp.on_action("buyback", 0)
+	check(sold_ok and not backs.is_empty() and c.inventory.count("healing_pill") == n_hp and Game.economy.balance("silver_tael", c) == silver,
+		"P5 Shop: Sell and buy-back go through as intents; buy-back is a token, not a column (decision 11), turning the spaces to the last sales")
+	sp.queue_free()
+	# The Storage: the chest's own tray, and the Treasury's under its partition.
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 0, "buildings": {"sect_hall": 1, "treasury": 1}, "queue": [], "disciples": [], "candidates": [],
+		"expeditions": [], "candidate_day": 0}
+	var size: int = Game.accounts.storage_size()
+	var st: Page = await _open_page("storage", {})
+	var deposits: Array = st._regions.filter(func(r): return r.id == "deposit")
+	st.scroll["store"] = 99999.0
+	st.text_log.clear()
+	st.queue_redraw()
+	await get_tree().process_frame
+	var per := int(ContentDB.entry("sect_buildings", "treasury").get("output", {}).get("storage_slots_per_level", 0))
+	check(size == 40 + per and per > 0 and not deposits.is_empty() and st.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.storage.treasury_tray") % (size - 40)),
+		"P5 Storage: the Treasury's %d spaces a level are a second tray in the chest, under its partition (%d in all)" % [per, size])
+	_identity_view(st, "storage", dim, lost, {}, {})
+	st.queue_free()
+	# The Exchange.
+	var ex: Page = await _open_page("exchange", {})
+	var trades: Array = ex._regions.filter(func(r): return r.id == "ex")
+	check(trades.size() >= 4 and ex.text_log.any(func(tx): return str(tx.get("s", "")).contains(Page.currency_name("silver_tael"))), "P5 Exchange: the rate board over the window and the trades under its slot (%d)" % trades.size())
+	_identity_view(ex, "exchange", dim, lost, {}, {})
+	ex.queue_free()
+	# The County Hall.
+	var ct: Page = await _open_page("county", {})
+	var jobs: Array = c.relations.mortal.get("jobs", [])
+	var sticks: Array = ct._regions.filter(func(r): return r.id == "stick")
+	check(sticks.size() == jobs.size() and sticks.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP) and ct._regions.any(func(r): return r.id == "_tab" and r.data == 1 and (r.rect as Rect2).size.x > 200),
+		"P5 County Hall: today's jobs stand as warrant sticks in the tube (%d), and the relief box opens the fund" % sticks.size())
+	_identity_view(ct, "county jobs", dim, lost, {}, {})
+	if jobs.size() > 1:
+		ct.on_action("stick", 1)
+		ct.text_log.clear()
+		ct.queue_redraw()
+		await get_tree().process_frame
+		check(ct.text_log.any(func(tx): return str(tx.get("s", "")) == str(Game.quest.quest_def(c, str(jobs[1])).get("name", ""))), "P5 County Hall: a stick drawn up hangs its warrant to read")
+	ct.tab = 1
+	ct.text_log.clear()
+	ct.queue_redraw()
+	await get_tree().process_frame
+	check(ct._regions.filter(func(r): return r.id == "donate").size() == (Game.relations.mcfg().get("donations", []) as Array).size(), "P5 County Hall: the relief ledger gives each size of gift its Give")
+	_identity_view(ct, "county relief", dim, lost, {}, {})
+	ct.queue_free()
+	# The Auction.
+	Game.economy.auction_roll("pavilion")
+	var lots: Array = Game.economy.auction_lots("pavilion").filter(func(l): return not l.get("closed", false))
+	var au: Page = await _open_page("auction", {})
+	var small: Array = au._regions.filter(func(r): return r.id == "lot")
+	var up := true
+	if lots.size() > 1:
+		au.on_action("lot", str(lots[1].id))
+		au.text_log.clear()
+		au.queue_redraw()
+		await get_tree().process_frame
+		up = au.chosen == str(lots[1].id) and au.text_log.any(func(tx): return str(tx.get("s", "")).left(6) == au._lot_name(lots[1]).left(6))
+	check(not lots.is_empty() and small.size() == lots.size() and up and (au._regions.filter(func(r): return r.id == "bid").size() in [0, 2]),
+		"P5 Auction: every lot on a small pedestal along the stage's front, a tap bringing it to the lit pedestal, two paddles to bid")
+	_identity_view(au, "auction", dim, lost, {}, {})
+	au.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Market: every word on the market pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	c.inventory.restore(keep.inventory)
+	Game.account.sect = keep.sect
+	Game.account.economy = keep.economy
+	Unlocks.debug_force_all = force_was
+
 func _post_checks() -> void:
 	var c = Game.active()
 	var main_script = load("res://scripts/main.gd")
@@ -842,7 +1066,8 @@ func _bag_checks() -> void:
 ## P5 (docs/page_identity.md row 7, mockups 16 and 16_resources, decisions 17 and 25): the world map as the framed
 ## painting. The valley's nodes stand where tools/ui/build_valley_map.py painted each area, and every room of every
 ## zone shows at an area of its zone. The one layout pass leaves no plate or mark touching another, a node or the
-## frame's furniture, and every word on the painting sits on a plate: on the real data, in every zone, view, kind and
+## frame's furniture, and every word on the painting sits on a plate, each plate one line with its area's name and no
+## more: on the real data, in every zone, view, kind and
 ## chosen area, with every area known and with few, at every text size; in the valley no plate is left out. Track Route
 ## and Walk there travel by auto_path and close the map; a locked zone's tag says why.
 func map_suite() -> void:
@@ -882,6 +1107,7 @@ func map_suite() -> void:
 	pg.open({})
 	var faults: Array = []
 	var left_out: Array = []
+	var wordy: Array = []
 	var views := 0
 	for known in ["all", "few"]:
 		Game.account.visited_rooms = {}
@@ -913,11 +1139,18 @@ func map_suite() -> void:
 							for tx in pg.text_log:
 								var at: Vector2 = (tx.rect as Rect2).get_center()
 								if tx.has("ground") or not (L.bounds as Rect2).has_point(at) or at.x >= 912.0 or L.keep.any(func(k): return k.has_point(at)): continue
-								if not L.plates.values().any(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect)): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+								var on: Array = L.plates.values().filter(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect))
+								if on.is_empty(): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+								elif str(tx.s) != str(on[0].name): wordy.append("%s \"%s\"" % [where, str(tx.s)])
+							for rid in L.plates:
+								var pl: Dictionary = L.plates[rid]
+								if str(pl.name) != str(pg._region(rid).name) or (pl.rect as Rect2).size != map_script._plate_size(str(pl.name)): wordy.append("%s %s" % [where, rid])
 							if str(pg.tabs[ti].id) == "jade_river_valley" and not L.hidden.is_empty(): left_out.append("%s %s" % [where, str(L.hidden)])
 	for f in faults.slice(0, 12): print("  map_suite: ", f)
 	check(views >= 180 and faults.is_empty(), "P5 map: no plate or mark touches another, a node or the frame's furniture, and every word on the painting is on its plate, in every zone, view and text size (%d views, %d faults)" % [views, faults.size()])
 	check(left_out.is_empty(), "P5 map: in the valley every plate finds a place (%s)" % str(left_out.slice(0, 4)))
+	check(wordy.is_empty() and map_script.NODE_R.here < 12.0 and map_script.NODE_R.open < 10.0,
+		"P5 map: a plate says its area's name on one line and nothing more, over small nodes (%s)" % str(wordy.slice(0, 4)))
 	Game.account.visited_rooms = visited_was
 	Game.account.settings["text_size"] = size_was
 	# Travel: from the Willow Path, Track Route walks to Stoneford's nearest room by auto_path and closes the map.
@@ -1316,6 +1549,118 @@ func hud_suite() -> void:
 ## the right with the gain the Bag's card names first and Combat Power; a worse or equal piece is not; Equip is the equip
 ## intent and wears it; the card goes by itself at 10 s; several wait their turn; its place keeps clear of every control,
 ## the purse and the clear zone, only its buttons take a tap, and with Reduce motion it stands still.
+## Points to spend (HUD.POINT_SYSTEMS): for each system, unlocked with points its badge shows in the row at the top
+## right of the player panel and a tap opens its page on its tab; with 0 points, or locked, it is hidden. The row is
+## 48 px targets that touch nothing else of the HUD (the controls, the party chips, the tracker, the clear zone); a
+## badge pops in, standing still with Reduce motion. The authorities' getters give the counts the pages spend.
+func points_badges_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	hud.set_state(false, true)
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = false
+	var unlocked_was: Dictionary = c.cultivator.unlocked.duplicate()
+	var revealed_was: Dictionary = c.cultivator.revealed.duplicate()
+	for el in ["player_panel", "pet", "quest_tracker", "minimap", "menu", "bag", "map", "mail", "jump", "guard", "fan", "hp_bar"]: c.cultivator.revealed["hud:" + el] = true
+	var asked: Array = []
+	hud.open_page.connect(func(pg: String, a: Dictionary): asked.append([pg, a]))
+	var rows: Array = hud.POINT_SYSTEMS
+	var bad: Array = []
+	var opened: Array = []   # [id, page, args, tab] each tap asked for, opened once the state is put back
+	for row in rows:
+		var id := str(row.id)
+		for other in rows: hud.points_override[str(other.id)] = 0
+		c.cultivator.unlocked[str(row.unlock)] = true
+		hud.points_override[id] = 3
+		var shown: Array = hud.point_badges(c)
+		var tg: Array = hud.hit_targets().filter(func(t): return str(t.role) == "points:" + id)
+		if shown.size() != 1 or tg.size() != 1 or float(tg[0].r) < 24.0: bad.append("%s not shown alone (%d)" % [id, shown.size()])
+		else:
+			asked.clear()
+			hud.press(3, tg[0].center)
+			hud.release(3)
+			var want: Dictionary = {"tab": str(row.tab)} if str(row.tab) != "" else {}
+			if asked.size() != 1 or asked[0][0] != str(row.page) or asked[0][1] != want: bad.append("%s asked %s" % [id, str(asked)])
+			else: opened.append([id, str(row.page), want, str(row.tab)])
+		hud.points_override[id] = 0
+		if not hud.point_badges(c).is_empty(): bad.append("%s shown with 0 points" % id)
+		hud.points_override[id] = 3
+		c.cultivator.unlocked.erase(str(row.unlock))
+		if not hud.point_badges(c).is_empty(): bad.append("%s shown while locked" % id)
+	check(bad.is_empty(), "Points badges: each system's badge shows with points and unlocked, its tap asks for its page and tab, 0 or locked hides it (%s)" % str(bad))
+	# All four at once: a neat row leftward from the panel's top right, each a 48 px target touching no other control,
+	# the party chips, the tracker, the minimap, the log or the clear zone, in a fight and at rest.
+	for row in rows:
+		c.cultivator.unlocked[str(row.unlock)] = true
+		hud.points_override[str(row.id)] = 2
+	var clash: Array = []
+	var badges: Array = []
+	for st in [[true, false], [false, true], [false, false]]:
+		hud.set_state(st[0], st[1])
+		var all_t: Array = hud.hit_targets()
+		badges = all_t.filter(func(t): return str(t.role).begins_with("points:"))
+		for b in badges:
+			for o in all_t:
+				if o == b or str(o.role).begins_with("points:"): continue
+				if (b.center as Vector2).distance_to(o.center) < float(b.r) + float(o.r): clash.append("%s/%s" % [b.role, o.role])
+			var box := Rect2(b.center - Vector2(b.r, b.r), Vector2(b.r, b.r) * 2.0)
+			for r in [hud.CLEAR_ZONE, hud.minimap_rect, Rect2(14, hud.panel_rect(c).end.y + hud.TRACKER_DROP, 342, 200), Rect2(20, 300, hud.LOG_W, hud.LOG_FOOT - 300)]:
+				if box.intersects(r): clash.append("%s/%s" % [b.role, str(r)])
+			if hud.role_at(b.center) != str(b.role): clash.append("%s tap went to %s" % [b.role, hud.role_at(b.center)])
+	var row_ok: bool = badges.size() == rows.size()
+	for i in badges.size():
+		row_ok = row_ok and is_equal_approx(badges[i].center.y, hud.panel_rect(c).position.y + 2.0) and badges[i].center.x < hud.panel_rect(c).end.x
+		if i > 0: row_ok = row_ok and is_equal_approx(badges[i - 1].center.x - badges[i].center.x, 48.0)
+	check(row_ok and clash.is_empty(), "Points badges: all %d in one row at the panel's top right, 48 px apart, clear of every other HUD part (%s)" % [badges.size(), str(clash)])
+	# The pop: a badge newly shown starts small and settles at full size; with Reduce motion it stands still. A badge
+	# appearing after the first look writes its line to the log.
+	hud.points_override["bench"] = 0
+	hud._tick_points()
+	hud.log_lines = []
+	hud.points_override["bench"] = 2
+	hud._tick_points()
+	var logged: bool = hud.log_lines.size() == 1 and str(hud.log_lines[0].text) == Tx.t("hud.points_bench")
+	var popping: bool = hud.points_pop("bench") < 1.0
+	var rm_was = Game.account.settings.get("reduce_motion", false)
+	Game.account.settings["reduce_motion"] = true
+	var still: bool = hud.points_pop("bench") == 1.0
+	Game.account.settings["reduce_motion"] = rm_was
+	check(logged and popping and still, "Points badges: a new badge pops in and logs its line; with Reduce motion it stands still at full size")
+	# The counts are the authorities': the meridian points unspent, the Realisations free once a tree is open, the
+	# bench's and the Post Arts' points free.
+	var mer_was: int = c.cultivator.unspent_meridian_points
+	c.cultivator.unspent_meridian_points = 4
+	var mer: bool = Game.progression.meridian_points_free(c) == 4
+	c.cultivator.unspent_meridian_points = mer_was
+	var rz: int = Game.progression.realisations_free(c)
+	var tree_open: bool = Game.progression.tree_tabs(c).any(func(tb): return bool(tb.open))
+	check(mer and rz == (int(Game.progression.realisations(c).free) if tree_open else 0) and Game.posts.bench_points_free(c) >= 0 and Game.posts.art_points_free(c) >= 0,
+		"Points badges: the counts come from the authorities' getters (meridian 4, Realisations %d)" % rz)
+	c.cultivator.unlocked = unlocked_was
+	c.cultivator.revealed = revealed_was
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
+	hud.queue_free()
+	# Each tap's page, opened as the shell opens it: on the tab where the points are spent (Techniques on a tree).
+	var wrong: Array = []
+	for o in opened:
+		var pg: Page = await _open_page(str(o[1]), o[2])
+		var on: String = str(pg.tabs[pg.tab].id) if pg.tab < pg.tabs.size() else ""
+		if (str(o[3]) != "" and on != str(o[3])) or (str(o[1]) == "techniques" and not pg._is_tree()): wrong.append("%s opened on %s" % [o[0], on])
+		pg.queue_free()
+	await get_tree().process_frame
+	check(opened.size() == rows.size() and wrong.is_empty(), "Points badges: each tap opens its page on the tab where the points are spent (%s)" % str(wrong))
+
 func equip_prompt_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -10554,6 +10899,82 @@ func emotes_suite() -> void:
 	if not had: done.erase("valley_champion")
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)
+# ------------------------------------------------------------------ quest hand-ins
+## Turning a quest in hands over exactly the items it asks for, with its reward, and cannot be done without them; an
+## objective that only counts takes nothing. Every quest that asks for items is turned in here.
+func hand_in_suite() -> void:
+	var c = Game.active()
+	check(c != null, "a character to turn quests in with")
+	if c == null: return
+	var q0: Dictionary = c.quests.snapshot()
+	var inv0: Dictionary = c.inventory.snapshot()
+	var handing := 0
+	for q in ContentDB.all("quests"):
+		var qid := str(q.id)
+		var gives: Array = QuestAuthority.handover(q)
+		var counted: Array = q.objectives.filter(func(o): return str(o.kind) in ["collect", "deliver"] and not QuestAuthority.hands_over(o))
+		if gives.is_empty() and counted.is_empty(): continue
+		if not gives.is_empty(): handing += 1
+		var asked := {}   # item -> what the objectives ask for, handed over or not
+		for o in q.objectives:
+			if str(o.kind) in ["collect", "deliver"]: asked[str(o.item)] = int(asked.get(str(o.item), 0)) + int(o.get("count", 1))
+		var rewarded := {}
+		for r in q.get("rewards", []):
+			if str(r.kind) == "grant_item": rewarded[str(r.item)] = int(rewarded.get(str(r.item), 0)) + int(r.get("count", 1))
+		_hand_in_ready(c, q)
+		# One short of the first item handed over: refused, and nothing leaves the bag.
+		var short := "" if gives.is_empty() else str(gives[0].item)
+		for item in asked: Game.inventory.apply_add(c.id, item, int(asked[item]) - 1 if item == short else int(asked[item]) + 2, "test")
+		GameEvents.flush()
+		if not gives.is_empty():
+			c.quests.active[qid].state = "ready"
+			var before: int = c.inventory.count(str(gives[0].item))
+			var no: Dictionary = Game.quest.hand_in(c, qid)
+			check(not no.ok and str(no.get("reason", "")) == "missing_items" and str(no.get("text", "")).contains(ContentDB.item_name(short)),
+				"%s: cannot be turned in one %s short, and says what is missing (%s)" % [qid, short, no.get("text", no.get("reason", "ok"))])
+			check(c.quests.active.has(qid) and c.inventory.count(str(gives[0].item)) == before and not c.quests.done.has(qid),
+				"%s: a refused hand-in takes nothing and gives nothing" % qid)
+			Game.inventory.apply_add(c.id, short, 3, "test")
+			GameEvents.flush()
+		# With all of it (and two of each to spare): exactly what is asked leaves, the reward arrives with it.
+		c.quests.active[qid].state = "ready"
+		var said: Dictionary = Game.quest.talk(c, str(Game.quest.hand_in_npc(c, q))) if str(Game.quest.hand_in_npc(c, q)) != "" else {}
+		if not gives.is_empty() and said.get("dialogue", {}).get("quest", "") == qid:
+			check(str(said.dialogue.choices[0].text).contains(QuestAuthority.handover_text(gives)), "%s: the hand-in choice names what it gives (%s)" % [qid, said.dialogue.choices[0].text])
+		c.quests.active[qid].state = "ready"   # talking re-counts objectives this probe marked met without playing them
+		var r: Dictionary = Game.quest.hand_in(c, qid)
+		check(r.ok and c.quests.done.has(qid), "%s: turned in with the items (%s)" % [qid, r.get("reason", "")])
+		for item2 in asked:
+			var gone := 0
+			for g in gives.filter(func(x): return str(x.item) == item2): gone = int(g.count)
+			var left: int = c.inventory.count(item2)
+			check(left == int(asked[item2]) + 2 - gone + int(rewarded.get(item2, 0)),
+				"%s: %s left %d of %d (%s)" % [qid, item2, left, int(asked[item2]) + 2, "handed over %d" % gone if gone > 0 else "only counted, none taken"])
+		GameEvents.flush()
+	check(handing >= 30, "every quest that hands items over was turned in (%d)" % handing)
+	# The toast and the dialogue say what went: "Gave 5 Willow Moss, 3 Grey Hide".
+	var errand := QuestAuthority.handover_text(QuestAuthority.handover(ContentDB.entry("quests", "mei_qings_errand")))
+	check(errand == "5 Willow Moss, 3 " + ContentDB.item_name("grey_hide"), "Mei Qing's Errand hands over 5 Willow Moss and 3 Grey Hide (%s)" % errand)
+	check(Tx.t("hud.gave") % "5 Willow Moss" == "Gave 5 Willow Moss", "the completion toast reads Gave 5 Willow Moss")
+	# A piece being worn never goes silently: the hand-in counts the bag only and says to take it off first.
+	var worn := {"id": "worn_test", "name": "Worn", "kind": "side", "hand_in": "", "rewards": [],
+		"objectives": [{"kind": "collect", "item": "plain_straw_hat", "count": 1, "consume": true, "text": "Bring a straw hat"}]}
+	_hand_in_ready(c, worn)
+	c.quests.active["worn_test"].def = worn
+	c.inventory.equipped["hat"] = {"uid": 9901, "id": "plain_straw_hat"}
+	var w: Dictionary = Game.quest.hand_in(c, "worn_test")
+	check(not w.ok and str(w.reason) == "item_worn" and c.inventory.equipped["hat"] != null, "a worn hat is not handed over; the player is told to take it off (%s)" % w.get("text", ""))
+	GameEvents.flush()
+	c.quests.restore(q0)
+	c.inventory.restore(inv0)
+
+## An empty bag and the quest ready to hand in, as though its objectives were met.
+func _hand_in_ready(c, q: Dictionary) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	c.inventory.key_items = []
+	c.quests.active = {str(q.id): {"state": "ready", "progress": q.objectives.map(func(o): return int(o.get("count", 1))), "accepted_tick": 0}}
+	c.quests.done.erase(str(q.id))
+
 func save_suite() -> void:
 	var folder := "user://save_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)

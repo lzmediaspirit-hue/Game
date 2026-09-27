@@ -172,9 +172,13 @@ func landing_contact(point: Vector2,previous_height: float,next_height: float,de
 			best_distance=distance
 	return best
 func render_depth(state: ActorState) -> int:
-	var depth=1500+int(state.plane.y)
+	return depth_at(state.plane,state.altitude)
+## The draw depth of a figure or thing at `plane` and `altitude`: by its foot on the plane, and over every raised or
+## sloped surface it stands on (a thing set on a roof or a terrace draws over that roof's art, not behind it).
+func depth_at(plane: Vector2,altitude: float) -> int:
+	var depth=1500+int(plane.y)
 	for candidate in surfaces:
-		if (candidate.stratum=="platform" or candidate.base>0 or candidate.rise!=0) and candidate.contains(state.plane) and state.altitude>=candidate.height_at(state.plane)-0.001:
+		if (candidate.stratum=="platform" or candidate.base>0 or candidate.rise!=0) and candidate.contains(plane) and altitude>=candidate.height_at(plane)-0.001:
 			depth=maxi(depth,1502+int(candidate.bounds.end.y))
 	return depth
 

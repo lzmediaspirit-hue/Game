@@ -27,15 +27,15 @@ static func weave(pg: Page, r: Rect2, col: Color, pitch := 16.0) -> void:
 
 ## A paper tag tied on with a string: the big count and the small word after it ("400 full", "0 /40"). Returns its rect.
 static func tag(pg: Page, at: Vector2, big: String, small: String, full := false) -> Rect2:
-	var w := UiKit.text_width(big, 20) + UiKit.text_width(small, 14) + 34.0
-	var r := Rect2(at, Vector2(w, 36))
+	var w := UiKit.text_width(big, 26) + UiKit.text_width(small, 14) + 34.0
+	var r := Rect2(at, Vector2(w, 40))
 	var paper: Color = UiKit.SURFACE.talisman.lerp(UiKit.RED, 0.12) if full else UiKit.SURFACE.talisman
 	pg.rounded(r.grow(2), 6.0, UiKit.BLOOD if full else UiKit.SURFACE.talisman_edge)
 	pg.rounded(r, 5.0, paper)
 	pg.ground(r, paper)
-	pg.draw_circle(r.position + Vector2(10, 18), 3.0, UiKit.SURFACE.peg_dark)
-	pg.text(r.position + Vector2(18, 26), big, 20, UiKit.BLOOD if full else UiKit.PAPER_INK)
-	pg.text(r.position + Vector2(22 + UiKit.text_width(big, 20), 26), small, 14, UiKit.BLOOD if full else UiKit.PAPER_INK)
+	pg.draw_circle(r.position + Vector2(10, 20), 3.0, UiKit.SURFACE.peg_dark)
+	pg.text(r.position + Vector2(18, 30), big, 26, UiKit.BLOOD if full else UiKit.PAPER_INK)
+	pg.text(r.position + Vector2(22 + UiKit.text_width(big, 26), 30), small, 14, UiKit.BLOOD if full else UiKit.PAPER_INK)
 	return r
 
 ## A hemp label or slip with a fine bronze edge: words on it are PAPER_INK.
@@ -67,9 +67,9 @@ static func lattice(pg: Page, r: Rect2, col: Color, pitch := 44.0) -> void:
 		k += pitch
 	pg.draw_rect(r, col.lerp(UiKit.INK, 0.3), false, 3.0)
 
-## Planks of dark timber across `r` with their seams and grain (the Roll-Call's board, the Welcome table).
-static func planks(pg: Page, r: Rect2, pitch := 96.0, vertical := true) -> void:
-	pg.rounded(r, 10.0, UiKit.SURFACE.wood_dark)
+## Planks of timber (dark by default) across `r` with their seams and grain (the Roll-Call's board, the Welcome table).
+static func planks(pg: Page, r: Rect2, pitch := 96.0, vertical := true, col: Color = UiKit.SURFACE.wood_dark) -> void:
+	pg.rounded(r, 10.0, col)
 	var n := int((r.size.x if vertical else r.size.y) / pitch)
 	for i in range(1, n + 1):
 		var p := (r.position.x if vertical else r.position.y) + i * pitch

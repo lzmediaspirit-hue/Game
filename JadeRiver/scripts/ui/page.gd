@@ -129,6 +129,11 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 func _layout() -> void:
 	content = content_rect()
 
+## Where the page draws: its window, and anything it pins beyond it (the Dialogue's offered quest above its strip).
+## The ui_suite holds every word and button inside it.
+func window_rect() -> Rect2:
+	return frame_rect
+
 ## The content area: inside the shared window, under the title and the tabs. A page with its own surface gives its own.
 func content_rect() -> Rect2:
 	var top := TOP if title != "" else TOP_BARE
@@ -179,6 +184,7 @@ func submit(intent: Dictionary) -> Dictionary:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
+	HdStyleBox.base = Transform2D.IDENTITY
 	if text_log != null: text_log.clear()
 	_layout()
 	if frameless:
@@ -226,6 +232,7 @@ func _draw_x(center: Vector2, r: float, col: Color) -> void:
 func _draw_tabs() -> void:
 	var rects := tab_rects()
 	for i in tabs.size():
+		if not tab_shown(i): continue
 		var tb: Dictionary = tabs[i]
 		var r: Rect2 = rects[i]
 		var locked := str(tb.get("locked", "")) != ""
@@ -249,6 +256,10 @@ func tab_rects() -> Array:
 		out.append(Rect2(x, frame_rect.position.y + (TOP if title != "" else TOP_BARE), w, TAB_H))
 		x += w + TAB_GAP
 	return out
+
+## Whether tab `i` hangs now (a page may keep one off the row while it has nowhere to lead).
+func tab_shown(_i: int) -> bool:
+	return true
 
 ## A tab in the page's own form (state: normal, selected or disabled). Page keeps its target, lock and reason.
 func draw_tab(r: Rect2, i: int, state: String) -> void:
@@ -327,6 +338,12 @@ func _blossom(c: Vector2, live: bool, k: float) -> void:
 		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
 	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
 
+## Draw what follows moved by `pos`, turned by `rot` and scaled by `scl` (a part in motion); the HD faces move with it.
+## `move()` with no arguments puts it back. Regions stay where the part comes to rest (page_identity §8.5).
+func move(pos := Vector2.ZERO, rot := 0.0, scl := Vector2.ONE) -> void:
+	draw_set_transform(pos, rot, scl)
+	HdStyleBox.base = Transform2D(rot, scl, 0.0, pos)
+
 ## A vertical gradient over `r` from `top` to `bottom` (a desk, a wall, a paper's shade).
 func vshade(r: Rect2, top: Color, bottom: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([top, top, bottom, bottom]))
@@ -335,12 +352,31 @@ func vshade(r: Rect2, top: Color, bottom: Color) -> void:
 func hshade(r: Rect2, left: Color, right: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([left, right, right, left]))
 
+var _way := {}   # the last route asked for: key -> regions it crosses (a route is walked once per choice)
+
+## How many regions the way to `room` crosses from where the character stands, by the portals open to it; 0 when there
+## is none (or it stands there). The Calendar's and the Quests' Go there walk it by the auto_path intent.
+func regions_away(ch, room: String) -> int:
+	if ch == null or room == "": return 0
+	var from := str(ch.position.get("room", ""))
+	var key := "%s|%s|%d" % [room, from, Game.account.visited_rooms.size()]
+	if not _way.has(key):
+		var regions := {}
+		for s in Game.world.route(ch, from, room): regions[str(ContentDB.room(str(s.to)).get("region", ""))] = true
+		_way = {key: regions.size()}
+	return int(_way[key])
+
+## Why Go there is shut for `room`: the character stands there, or no way leads there.
+func go_reason(ch, room: String) -> String:
+	return Tx.t("sim.world.auto_path_here") if ch != null and str(ch.position.get("room", "")) == room else Tx.t("sim.world.auto_path_none")
+
 func _lock_icon(p: Vector2, k := 1.0) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
 	draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)
 
-## Button: registers a tap region. Disabled buttons still answer taps with their reason.
-func btn(rect: Rect2, label: String, id: String, data = null, primary := false, enabled := true, reason := "", size := 22) -> void:
+## Button: registers a tap region. Disabled buttons still answer taps with their reason. An `icon` stands at 32 px before
+## the label (or alone, centred, with no label).
+func btn(rect: Rect2, label: String, id: String, data = null, primary := false, enabled := true, reason := "", size := 22, icon := "") -> void:
 	var state := "normal"
 	if not enabled: state = "disabled"
 	elif _is_pressed(id, data): state = "pressed"
@@ -350,15 +386,27 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	if not enabled: col = UiKit.HOLLOW
 	# A long label steps its size down the type scale to sit inside the button (and clear the lock icon) rather than
 	# touch the frame.
-	var room := rect.size.x - (44.0 if not enabled and reason != "" else 20.0)
-	if label.length() * size * 0.6 > room:   # only a label that could overflow is measured
+	var iw := 38.0 if icon != "" else 0.0   # the icon and its gap
+	var room := rect.size.x - (44.0 if not enabled and reason != "" else (10.0 if icon != "" else 20.0)) - iw
+	if label != "" and label.length() * size * 0.6 > room:   # only a label that could overflow is measured
 		# B21: words are never drawn under UiKit.MIN_SIZE, so the steps stop there and a label still too long is shortened.
 		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size = UiKit.step_down(size)
 		label = fit(label, size, room)
+	# The label's span: the whole face, or after the icon with the two centred together.
+	var lx := rect.position.x
+	var lw := rect.size.x
+	if icon != "":
+		var tw := UiKit.text_width(label, size) if label != "" else -8.0
+		var x0 := roundf(rect.get_center().x - (iw + tw) * 0.5)
+		icon_at(Rect2(Vector2(x0, roundf(rect.get_center().y - 16.0)) + off, Vector2(32, 32)), icon, Color.WHITE if enabled else Color(1, 1, 1, 0.45))
+		lx = x0 + iw
+		lw = maxf(tw, 1.0)
+	var at := Vector2(lx, rect.position.y + rect.size.y * 0.5 + size * 0.35)
 	# Decision 10 (option C): a primary label, in every state, carries a 2 px ink outline on the bright jade face.
-	if primary: UiKit.draw_inked(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
-	else: UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
-	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect, col, primary)
+	if label != "":
+		if primary: UiKit.draw_inked(self, label, at + off, size, col, HORIZONTAL_ALIGNMENT_CENTER, lw)
+		else: UiKit.draw_text(self, label, at + off, size, col, HORIZONTAL_ALIGNMENT_CENTER, lw)
+		if text_log != null: _log_text(at, label, size, HORIZONTAL_ALIGNMENT_CENTER, lw, false, rect, col, primary)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
 

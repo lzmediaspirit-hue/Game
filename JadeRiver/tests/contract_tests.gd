@@ -74,7 +74,7 @@ const DURATION_PROSE := ["hud.beast_tide_started_sub", "hud.route_hint", "ui.tow
 	"ui.tower.rule_survive", "ui.tower.rule_swift", "ui.cultivation.choose_what_to_cultivate_while", "ui.codex.ripens"]
 const COUNT_OF_TOTAL := ["hud.route_finished", "hud.tribulation_survived", "sim.sect.mine_yours_line", "ui.arena.fights_left", "moment.tribulation.struck",
 	"ui.codex.of_entries_discovered", "ui.codex.entries_count", "ui.codex.pages_sealed", "ui.codex.seal_cards", "sim.account.seal_short", "ui.crafts.pages_held", "ui.guild.cap_line", "ui.guqin.playing", "ui.pets.swarm_pop",
-	"ui.quest.activity_points", "ui.settings.characters_slots", "ui.your_sect.mine_yours",
+	"ui.settings.characters_slots", "ui.your_sect.mine_yours",
 	# Not a noun after the count ("%d answers it", "%d merit eases"), and a list of three counts in one line.
 	"hud.hazard", "ui.cultivation.merit_not_ready", "hud.pets_fused_sub"]
 

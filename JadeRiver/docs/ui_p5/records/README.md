@@ -93,3 +93,47 @@ Differences, each on purpose:
 Not shown in a still: the leaf turning over the spread (0.35 s) on a turn, a new section and the opening; the newest
 rung dabbed in as the Old Scrolls open (0.4 s); the Calendar's slips dropping onto their days (0.3 s) and a live slip's
 breathing glow. Under Reduce motion none of these run and the page fades in over 0.2 s (the `identity_suite`'s rules).
+
+---
+
+# P5 · The Records family, second part: Dialogue, Quests, Mail and the Notice Board
+
+The talk as rice paper under the scene (row 2, mockup 21), the Quests page as the sect's mission board (row 6, mockup
+12 v2), the Mail as the letter case (row 17, mockup 22) and the Notice Board as the town wall (row 21, no mockup: drawn
+from its row). Captured as above, on frozen copies of this build's valley_run checkpoints `ae_end` (the checkpoint of
+12 v2), `ls6_end` (of 21 and 22), `bf5` and `qu5`, in a data folder of their own; none uses the Max Test character.
+
+| Picture | Checkpoint | Extra arguments | What it shows |
+|---|---|---|---|
+| `quests_ae_end.png` | ae_end | `--open-page=quests` | The board: the story's slip (The Lantern Run, tracked, its step and where it leads), near you in the Azure Expanse, today's missions (the fourth a stack of the banked days' others), the day's round on its red cord with three banked chests lit, the companions' and the valley's stacks with the valley's regions; The Lantern Run held at the right with its route, steps, rewards, Go and Untrack |
+| `quests_spread_ae_end.png` | ae_end | `… --tap=362,612` | The Jade River Valley's stack spread across the board, sixteen slips a sheet, with the way back |
+| `quests_done_ae_end.png` | ae_end | `… --tap=309,70` | Done: the finished slips stamped, 24 a sheet, the newest read at the right with its stamp |
+| `quests_bf5.png` | bf5 | `--open-page=quests` | Early: Chapter 2's slip, the missions not yet open (with why), no round before the Activity Chests |
+| `dialogue_ls6_end.png` | ls6_end | `--talk=elder_hu --tap=640,600` three times | Elder Hu offering Echoes in Bronze: the card pinned above the numbered choices |
+| `dialogue_offer_ls6_end.png` | ls6_end | `--talk=aunt_ping --tap=640,600` three times | A side quest with an item and a currency reward on its card |
+| `mail_ls6_end.png`, `mail_qu5.png` | ls6_end, qu5 | `--open-page=mail` | The stack (sealed unread, broken wax once read, the string's knot on those that carry something), the letter unfolded on the felt, the parcel with Claim; Delete shut until it is claimed |
+| `notice_bounties_ls6_end.png` | ls6_end | `--open-page=notice_board:bounties` | The wanted posters pasted over each other, the chosen one on top with the target's own figure, its reward stamped and its Take strip; the handbills in the corner |
+| `notice_board_ls6_end.png` | ls6_end | `--open-page=notice_board` | The Board tab: missions and requests as handbills in two columns, the posters stacked in the corner |
+| `compare_21_dialogue.png`, `compare_12_quests_v2.png`, `compare_22_mail.png` | — | — | Each mockup above, the build below |
+
+## What still differs from the mockups
+
+1. **21 Dialogue.** The portrait is the speaker's whole figure from their layers (the page's existing portrait), not
+   the mockup's head-and-shoulders painting. Hearts and "5 hearts" show only where the talk carries them (people who
+   take gifts, outside a dialogue tree), so Elder Hu's line reads "Jade Sect elder". The card's quest mark and the
+   "Opens: …" chip are not drawn: no quest data says what a quest opens. Choice labels stay centred on their buttons,
+   the key disc at the left. `21_dialogue_gift.png`'s tray belongs to the Gift page (row 28, the Bonds family), not to
+   the talk, and is left for that part.
+2. **12 v2 Quests.** Banked chests (missed days bank, from the build branch) are lit, so "0 / 100" can sit beside
+   three lit charms. "Near you" and the stacks are the save's own groups (zones by where each giver stands, the
+   companions' first); the route says how many regions away (the Calendar's measure), not "by skiff". Mission slips
+   name the task's kind ("craft 0 / 3"); the mockup's shared rewards line for the missions is not drawn. An item's name
+   in a reward is not pluralised ("2 Healing Pill"), as elsewhere in the game.
+3. **22 Mail.** The envelopes lie straight with a small sideways fan (tilted, their words would leave the grounds they
+   are measured on); a date is "today" or the span ago; the item's second line is its grade only.
+4. **Notice Board** has no mockup; a poster not on top shows a sketched head (a live figure there would draw over the
+   poster above it).
+
+Not shown in a still: the slips settle onto the board (0.25 s) and a tapped slip lifts to the reading place (0.2 s);
+the letter unfolds from its thirds (0.3 s); the offer card unrolls (0.2 s); the chosen poster is slapped on (0.2 s).
+Under Reduce motion each page only fades in, and the letter fades in on the felt.

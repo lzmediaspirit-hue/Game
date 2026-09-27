@@ -83,6 +83,7 @@
      "kind": "deliver",
      "text": "Fetch the kite from the Ferry Inn roof",
      "count": 1,
+     "consume": true,
      "item": "kite"
     }
    ],
@@ -126,6 +127,7 @@
      "kind": "deliver",
      "text": "Fetch Aunt Ping's ladle from the hut roof",
      "count": 1,
+     "consume": true,
      "item": "aunt_pings_ladle"
     }
    ],
@@ -377,9 +379,10 @@
    "objectives": [
     {
      "kind": "collect",
-     "text": "Collect Crab Shells",
+     "text": "Bring Crab Shells",
      "count": 3,
-     "item": "crab_shell"
+     "item": "crab_shell",
+     "consume": true
     },
     {
      "kind": "kill",
@@ -3224,7 +3227,8 @@
      "kind": "collect",
      "text": "Pick the Mist Lotus on the pond's rock",
      "count": 1,
-     "item": "mist_lotus"
+     "item": "mist_lotus",
+     "consume": false
     }
    ],
    "rewards": [
@@ -5360,13 +5364,15 @@
      "kind": "collect",
      "text": "Bring Willow Moss",
      "count": 5,
-     "item": "willow_moss"
+     "item": "willow_moss",
+     "consume": true
     },
     {
      "kind": "collect",
      "text": "Bring Grey Hides from the Hollowed Boarlets",
      "count": 3,
-     "item": "grey_hide"
+     "item": "grey_hide",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6220,7 +6226,8 @@
      "kind": "collect",
      "text": "Bring Mudshell Crab shells",
      "count": 5,
-     "item": "crab_shell"
+     "item": "crab_shell",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6301,7 +6308,8 @@
      "kind": "collect",
      "text": "Bring Rock Beetle shells",
      "count": 6,
-     "item": "beetle_shell"
+     "item": "beetle_shell",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6339,7 +6347,8 @@
      "kind": "collect",
      "text": "Bring Copper ore",
      "count": 8,
-     "item": "copper_ore"
+     "item": "copper_ore",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6381,6 +6390,7 @@
      "kind": "deliver",
      "text": "Bring Riverfish Soup",
      "count": 2,
+     "consume": true,
      "item": "riverfish_soup"
     }
    ],
@@ -6627,7 +6637,8 @@
      "kind": "collect",
      "text": "Bring Willow Salve",
      "count": 1,
-     "item": "willow_salve"
+     "item": "willow_salve",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6669,7 +6680,8 @@
      "kind": "collect",
      "text": "Bring Qi Gathering Pills",
      "count": 2,
-     "item": "qi_gathering_pill"
+     "item": "qi_gathering_pill",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6750,6 +6762,7 @@
      "kind": "deliver",
      "text": "Bring a Cloud Feather for the new kite",
      "count": 1,
+     "consume": true,
      "item": "cloud_feather"
     }
    ],
@@ -6934,6 +6947,7 @@
      "kind": "deliver",
      "text": "Deliver Rice",
      "count": 10,
+     "consume": true,
      "item": "rice"
     }
    ],
@@ -6971,6 +6985,7 @@
      "kind": "deliver",
      "text": "Bring Ember Peppers",
      "count": 5,
+     "consume": true,
      "item": "ember_pepper"
     }
    ],
@@ -7008,6 +7023,7 @@
      "kind": "deliver",
      "text": "Bring a Pearl",
      "count": 1,
+     "consume": true,
      "item": "pearl"
     }
    ],
@@ -7045,6 +7061,7 @@
      "kind": "deliver",
      "text": "Bring Mist Lotus",
      "count": 2,
+     "consume": true,
      "item": "mist_lotus"
     }
    ],
@@ -7121,9 +7138,10 @@
    "objectives": [
     {
      "kind": "collect",
-     "text": "Gather Riverreed Ginseng 10",
+     "text": "Bring Riverreed Ginseng 10",
      "count": 5,
-     "item": "riverreed_ginseng_10"
+     "item": "riverreed_ginseng_10",
+     "consume": true
     }
    ],
    "rewards": [
@@ -7205,9 +7223,10 @@
    "objectives": [
     {
      "kind": "collect",
-     "text": "Gather Copper Ore",
+     "text": "Bring Copper Ore",
      "count": 10,
-     "item": "copper_ore"
+     "item": "copper_ore",
+     "consume": true
     }
    ],
    "rewards": [
@@ -7462,9 +7481,10 @@
    "objectives": [
     {
      "kind": "collect",
-     "text": "Gather Formation Stone",
+     "text": "Bring Formation Stone",
      "count": 3,
-     "item": "formation_stone"
+     "item": "formation_stone",
+     "consume": true
     }
    ],
    "rewards": [
@@ -7546,9 +7566,10 @@
    "objectives": [
     {
      "kind": "collect",
-     "text": "Gather Formation Stone",
+     "text": "Bring Formation Stone",
      "count": 6,
-     "item": "formation_stone"
+     "item": "formation_stone",
+     "consume": true
     }
    ],
    "rewards": [
@@ -7874,7 +7895,8 @@
      "kind": "collect",
      "text": "Bring Thunderhorn horns from the Flats",
      "count": 3,
-     "item": "thunder_horn"
+     "item": "thunder_horn",
+     "consume": true
     }
    ],
    "rewards": [

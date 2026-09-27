@@ -24,6 +24,70 @@
 - Tests: `topdown_suite` 62 checks (27 new). `perf_tests` holds 15+ foes and the fight's effects at 60 fps.
   Screenshots are in `docs/redesign/phase2/`.
 
+## World map plates and the Roll-Call as drawn
+
+- **World map:** each plate names its area and nothing more, and the available and current-area dots are smaller
+  (9 and 11 px radius). The level band, "You are here", the field boss and the kinds of resources stay on the card. The
+  legend drops the marks that no longer appear on the painting. `map_suite` checks every plate is one line holding its
+  area's name. Screenshots in `docs/ui_p5/map/`.
+- **Roll-Call:** the board fills the screen at mockup 13's size and places: the beam, cartouche and tags with their
+  glyphs; tablets 184 x 268 set 200 apart; vessels, shelf and brackets; Settle with the goods' glyph; Settle all in
+  two sizes; the roofed cabinet with the Auto-Settle switch; the Bench on its legs with the craft-level diamonds. A
+  turned tablet hangs askew and carries its own Switch and Incense. The Board tag now shows only while another view is
+  open. Buttons can carry a 32 px icon (`Page.btn`). Screenshots in `docs/ui_p5/post/`.
+
+## Visibility: gates, doors, hidden ways and things set on roofs and decks show themselves in every room
+
+Some gates and map items could not be seen. A new suite found every case in all 168 rooms, and each one is fixed at
+its cause.
+- **Every way draws something where it stands.** An open `gate` (the village's West and East Gates, Stoneford's roads,
+  the stockade, the tomb, the vale and the hamlet) drew only its plate. It now stands as a road gate, a timber gateway
+  under a glazed roof with its leaves swung back (new art, `road_gate`, `tools/props/defs_structures.py`). A hidden way
+  found by Spirit Sense or the Wandering Eye drew nothing at all. It now shows a cleft in the rock with a breathing
+  jade rim (`hidden_way`). Sixty-six `door` ways drew nothing when open. A door way with no building doorway
+  and no door placed at it now stands as a door: cave and dungeon exits, trial exits, skiff landings and paths
+  (`PortalView.TYPE_ART`, `entrance` "door"). A boat, a sky ship, a tent, a swirl or an arch placed at a way shows it
+  (`PortalView.WAY_DECOR`). A gate standing in a painted gate's arch (the Ascension Gate) is shown by its arch.
+- **Doors stand in their building's doorway, in front of the facade** (the door rule of the tutorial fix, now in every
+  room). Gate Street's Weapon Hall, Alchemy Hall and Library doors stood 6 px behind the hall fronts, so they drew
+  behind them. They now stand in the doorways (y 724). The Quarry Road door stood behind the town wall's face and now
+  stands at its foot.
+- **A thing set on a roof, deck or terrace draws over it** (`ZoneGeometry.depth_at`, the player's rule, now shared by
+  `ObjectView` and `NpcView`). Lu's float in the hut loft, the star mat on the boat's cabin roof, the hermit's mat and
+  tea on his stilt deck, the Bend Shore and Rapids fishing spots, and the grey lantern on the granary roof all drew
+  behind the surface under them. Only a decal prop now lies flat under figures, so an inspected notice board, mat or
+  scope stands like any other thing (the Beast Arena ladder was behind the warehouse). Decal decor on the ground (a
+  rug, flowers, planks) draws under everything standing on it: the abode and retreat mats were under their rugs.
+- **Placed clear of what hid them.** Two Marsh Edge jars were under reed bundles. A Lightning Scar jar stood behind
+  the insight stone. The Stoneford tide gong was inside a gate step. The tunnel's shard vein was behind the
+  rubble heap and now sits on top of it. Gate Street's notice board was behind the library front. The Rapids spirit
+  mine was behind the salmon stone (`spirit_mines` now keeps a mine out from behind a block). The abode's scroll rack
+  stood in front of the terrace door.
+- **Tests**: `visibility_suite` (new, in `tools/run_tests.sh` and `Test.ps1`) builds each room's draw list in the order
+  and at the depths `world.gd` uses (`tests/draw_model.gd`, from the views' own `depth`, `prop_rect`,
+  `building_pieces`, `sort_z` and `art_for`). It checks every way (open and shut), object, person and solid prop:
+  its art exists and has a non-zero size with opaque pixels, it stands in the room where the camera can show it, and
+  at least half of its pixels are not covered by a layer drawn after it. It also checks that a doorway is clear, that
+  a thing with no prop marks art the room draws, and that an open way's plate is on screen. It found 118 failures
+  before the fixes and finds none after. `room_sweep` reads prop pixels through the same model.
+- **Screenshots** (before and after) in `docs/ui_p5/visibility_fix/`.
+## Points to spend show on the HUD
+
+- **A "+" badge by the HP panel for each system with points to spend.** Meridian points (Foundation), Realisations
+  (the trees), bench points and Post Arts points each get a small badge in a row at the panel's top right. Each badge
+  has its own colour, shape and symbol, is a 48 px target and pops in (with Reduce motion it just appears). A tap opens
+  the page and tab where the points are spent. A badge is hidden while its system is locked or at 0. There is one
+  table, `HUD.POINT_SYSTEMS`, and the counts come from the authorities' getters. Screenshots are in
+  `docs/ui_p5/points_badges/`.
+## Quests that ask for items take them
+
+- **Turning in a "bring" quest hands the items over.** `QuestAuthority.hand_in` took a collect objective's items only
+  when it was marked `consume`, and most were not, so "Bring Willow Moss" (Mei Qing's Errand) and 11 other quests left the
+  items in the bag. Every collect objective now says whether it hands over or only counts (`story.o` refuses one that
+  does not; data_validation checks quests, sect missions and county jobs); 33 quests hand items over. The hand-in
+  checks everything first and takes it with the reward, is refused with what is still missing, never takes a worn
+  piece ("Take off your ... first"), names the items on its choice and toasts "Gave 5 Willow Moss".
+
 ## Top-down redesign, Phase 1: a prototype room and the new controller
 
 - **A top-down room you can play beside the current game** (`docs/redesign_top_down_plan.md`, "As built: Phase 1").
@@ -114,6 +178,17 @@ Items 6, 7 and 9 of `docs/research/player_motivation.md`.
   New moments: `fortune_card`, `first_fruit` and `elite_appears`.
 - **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,
   no injury or heart demon, and you wake whole. The revival page explains it in full on the first fall, then in a line.
+## Deterministic playthrough suites
+
+- **valley_run, prologue_run and tutorial_order play the same on any machine, under any load.** The run's clock was the
+  wall clock (the account seed at boot, time of day, weather, herb ripening, respawn timers and cooldowns all moved with
+  how fast the machine ran), and every run on the machine shared `user://test_saves_*`, `valley_cp` and `valley_work`.
+  Now `Clock.simulate` pins "now" to a fixed start and `Game.tick` advances it by the fixed step; the seed is fixed; the
+  enemy authority's fallback dice are seeded; every wait counts simulated seconds; each run keeps its saves and
+  checkpoints in its own `user://test_runs/<suite>_<pid>/`, removed at the end (`--cp=user://valley_cp/` keeps
+  valley_run's checkpoints for previews and `--from`). **The Lantern Run's deck** fought at Level 82 against a party
+  that reaches it at Level 79-80 (chapter 17's floor): a plain blow took 10% of par HP, outside the 4-8% band, and a
+  par party lost the crossing on 1 seed in 12; its foes now come at 79 (deck Lv 79-81), and 18 seeds keep 73%+ HP.
 
 ## Starter gear: a weapon from the start
 
@@ -1014,6 +1089,52 @@ come next. Where it differs from the plan, the plan's §6 says so.
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
 
+### P5 · The Records family, second part: Dialogue, Quests, Mail and the Notice Board (mockups 21, 12 v2, 22; decision 14)
+- **The talk as rice paper under the scene** (`docs/page_identity.md` row 2, mockup 21). The paper strip along the foot
+  keeps the portrait, the speaker's plaque and the words in ink; under the name, their hearts and who they are; the
+  choices stacked at the right, each numbered on a pale gold key (1–4 answer them). A quest the talk offers (or takes
+  back) is pinned above the choices as a small scroll with its kind, name, first steps and rewards, read before
+  choosing; it unrolls downward (0.2 s). Everything recent is kept: a quest taken or handed in closes the talk or goes on
+  to the same person's next quest (M17), a last line with nothing to choose closes on a tap. The talk has no close
+  button, the one page without (§8).
+- **Quests as the sect's mission board** (row 6, mockup 12 v2). Two tabs, Current and Done, as paper index slips. Slips
+  pinned to dark timber: the story's slip under a red head (the tracked story quest with its step and where it leads,
+  or, between chapters, the tracker's Next entry with its lines and the chapter floor's ways); the side quests near you;
+  today's missions (the banked days' others in a stack); the day's round as a red cord with its chest charms, lit when
+  one can be opened (banked ones too), from the Activity Chests; the other side quests stacked under their nameboards,
+  the companions' first, then each zone's with its regions counted. A tap on a stack spreads it across the board
+  (sixteen a sheet, the way back). The chosen slip is taken down and held at the right: its head, name, giver and
+  where they stand, the route from here with how many regions away, what it says, its steps (➤ now, ✓ done), its
+  rewards and the story's next quest, then **Go** (the `auto_path` intent), Track or Untrack, and Abandon for side quests
+  and missions. Done lays the finished slips out stamped, 24 a sheet. The slips settle as it opens (0.25 s); a chosen
+  slip lifts to the reading place (0.2 s).
+- **Mail as the letter case** (row 17, mockup 22). A lacquer name plate with the count of letters, unread and those that
+  carry something; the envelopes in a fanned stack on the desk, newest on top, sealed in red wax until read, the
+  string's knot on those that carry something, the chosen one slid out; its letter unfolded on the felt (the creases
+  open, 0.3 s), the words in ink and the sender's name with a red seal at its foot, a paperweight across its head; what
+  it carries tied beneath as a parcel, Claim unties it; Delete is shut, with why, until it is claimed; Claim all · n.
+- **The Notice Board as the town wall** (row 21, no mockup). Grey brick under a timber lintel and a black signboard;
+  the tabs two handbills. Bounties: the wanted posters pasted over each other, torn strips of older ones between, the
+  chosen one on top with the target drawn from its own layers, its band and place, what it did, the reward stamped in
+  red and its Take strip (shut with the realm it needs; "Hunting" stamped once taken); the missions and requests
+  summed up on handbills in the corner. Board: the missions and requests as handbills in two columns, the posters
+  stacked in the corner. The chosen poster is slapped on as the page opens (0.2 s).
+- **Shared** (`scripts/ui/pages/records_kit.gd`): the paper inks the Codex now takes from it too, timber, pins, torn
+  slips, red heads, planks, stamps, wax seals and the string and bow. New HD paper (`tools/ui/build_ui_hd.py`, byte-
+  identical on two builds): `paper_slip`, `envelope` (and its lit state), `letter_sheet`, `poster`, with their
+  `TEXT_ON` rows, and brick and lacquer rows. `Page.regions_away` and `go_reason` are the Calendar's route, shared with
+  the Quests' Go; `Page.move` moves a part with its HD faces (`HdStyleBox.base`: the nine-slices used to drop the
+  page's transform); `Page.window_rect` names what a page pins beyond its window.
+- **Tests:** the `identity_suite`'s Records part two: every quest under way, on offer or on the sect board on the board
+  once; the story's slip carries the story quest under way or the Next entry; a stack spreads with the way back; the
+  slip being read walks to its quest's target and tracks it; Done a sheet at a time; every letter an envelope, the
+  newest open with its parcel to claim and Delete shut; a poster per bounty; the offered quest pinned inside what the
+  talk draws, with no close button. The `ui_suite` opens all four in every tab and measures every word on its paper.
+  The full suite on the merged tree: room_lint 168 / 0; engine_tests 3908/3908; data_validation 49847 / 0; room_sweep
+  3673 / 0; visibility_suite 6726 / 0; rules_tests 2170 / 0; contract_tests 1060 / 0; balance_sim 163 / 0; perf_tests 11 / 0;
+  prologue_run 100 / 0; tutorial_order 422 / 0; valley_run 3032 / 0.
+- **Screenshots** in `docs/ui_p5/records/` on copies of this build's valley_run checkpoints `ae_end`, `ls6_end`, `bf5`
+  and `qu5`, with `compare_21_dialogue.png`, `compare_12_quests_v2.png` and `compare_22_mail.png` and what still differs.
 ### P5 · The Records family: the Codex, its Old Scrolls and the Calendar (mockups 18, 18_scrolls, 19; decisions 11, 14, 22)
 - **The Codex as the field book** (`docs/page_identity.md` row 26). A bound book open on the reading desk: a jade cloth
   cover, the page block's edges, two pages with the gutter's shadow and foxing. The sections are silk ribbons standing
@@ -1056,6 +1177,42 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
   with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
   proposals the rules do not hold; the build draws the one seal the game keeps).
+### P5 · The Market family: Shop, Storage, Exchange, County Hall, Auction (decisions 11, 14 and 24)
+- **The Shop as the merchant's stall** (row 8, mockup 17; `17_shop_buyback` rejected). A red and cream awning with the
+  shop's name on a black lacquer sign; the merchant behind her counter at the left (her own layers at 2.5) with her
+  nameplate and a bark of hers in a bubble; the wares on two plank shelves, five a shelf, each on a jade mat with a paper
+  price tag (the rotating ones flagged "today"; more shelves a drag away); the deal on the counter plank (the ware on its
+  cloth, its grade and how many you hold, what it does, − n + ×10, the total and what is left after, Buy n); the purses
+  on the counter's front, the shop's own coin ringed. No tabs: beside the stall "your bag" is a patch of the Bag's
+  heaven (decision 24), the gourd's spaces floating five across with what each sells for under it, and Sell 1 · All n on
+  the sea of cloud. Buy-back is a small token in the bag's header (decision 11): it turns the same spaces to the last
+  sales, each with its buy-back price. A bought ware slides down to the counter (0.25 s).
+- **Storage as the storehouse chest** (row 19). The camphor chest's lid thrown open over the right two-thirds (HD
+  `storehouse_lid`, swinging up as the page opens), the account's things in its lacquer tray, and the Treasury's spaces
+  (`storage_slots_per_level` a level) as a second tray under a partition; the chest's front says how full it is and what
+  the Treasury adds, or would. The gourd's side at the left is the Bag's heaven lit from the gourd's mouth. A tap moves a
+  thing across, arcing over (0.2 s).
+- **The Exchange as the money-changer's barred window** (row 33): the rate board, each pair's rate on its rail, the
+  changer's coin trays behind brass bars, the coin slot, your purses on the counter and the trades under the slot.
+- **The County Hall as the magistrate's bench** (row 37): the plaque over a painted screen of sea and sun; county favour
+  as a cinnabar banner with its tiers written on its paper (sealed once held); today's jobs as warrant sticks in the tube
+  on the desk (tipped red, gold once done), the chosen one drawn up and its warrant hung at the right; the relief box on
+  the desk opens the relief ledger; the tabs are two red placards.
+- **The Auction as the stage** (row 38): the chosen lot on a pedestal in a cone of light (its slot at 2×), the lot board
+  with its price, holder, time and premium, two numbered bid paddles, and every lot on a small pedestal along the
+  stage's front, a tap bringing it up (0.3 s).
+- **Shared:** `scripts/ui/pages/market_kit.gd` (planks, brass fittings, the lacquer board, price tags, the gourd's heaven
+  and its floating grid, a thing in flight); the Bag's sky pieces are statics of `inventory_page.gd` now, which the Bag
+  itself draws from (its look unchanged); `DialoguePage.full_outfit` fills an NPC's outfit for the dialogue portrait and
+  the merchant. HD `market_plate` and `storehouse_lid` in `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for words on
+  `lacquer_black`, `lacquer`, `market_plate`, `board`, `bamboo` and `scroll`. Every intent is kept (buy, sell, buy-back,
+  deposit, withdraw, exchange, county jobs, relief, bids).
+- **Tests:** `rules_tests` `identity_suite` (the Market family: the stall with no tabs and its wares in view, the bag in
+  the heaven with its sale prices, a tapped ware on the counter, a sale and its buy-back through the token as intents;
+  the Treasury's tray; the rates and trades; a stick per job and its warrant, the relief ledger's Give per gift; every lot
+  on a small pedestal and a tap bringing it up; every word read on its ground), the `ui_suite` with the chest with a
+  Treasury and the stage with its lots. Screenshots beside mockup 17 in `docs/ui_p5/market/`.
+
 ### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
 - **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).
   A pale name tablet per character hangs from the peg rail on a red cord, its arched window holding the character's

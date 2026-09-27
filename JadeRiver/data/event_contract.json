@@ -1586,7 +1586,8 @@
     "actor",
     "quest",
     "name",
-    "kind"
+    "kind",
+    "gave"
    ]
   },
   "flag_set": {

@@ -337,7 +337,10 @@ func talk(c, npc: String) -> Dictionary:
 		var def := quest_def(c, q)
 		if c.quests.active[q].get("state") == "ready" and is_hand_in(def, npc):
 			convo.lines = def.get("complete_text", [Tx.t("sim.quest.well_done")]).duplicate()
-			convo.choices = [{"text": Tx.t("sim.quest.hand_in") % def.get("name", q), "hand_in": q}]
+			var gives := handover(def)
+			var label: String = Tx.t("sim.quest.hand_in") % def.get("name", q)
+			if not gives.is_empty(): label = Tx.t("sim.quest.hand_in_giving") % [def.get("name", q), handover_text(gives)]
+			convo.choices = [{"text": label, "hand_in": q}]
 			convo.quest = q
 			return ok({"dialogue": convo})
 	if n.has("tree") and ContentDB.dialogue.has(str(n.tree)):
@@ -511,7 +514,7 @@ func _recount(c, qid: String) -> void:
 		match str(o.kind):
 			"collect", "deliver":
 				v = mini(c.inventory.count(str(o.item)), int(o.get("count", 1)))
-				if not bool(o.get("consume", true)): v = maxi(v, int(st.progress[i]))
+				if not hands_over(o): v = maxi(v, int(st.progress[i]))   # count-only: once shown, it stays met
 			"reach_realm": v = 1 if ProgressionRules.at_least(c.cultivator.realm_key, str(o.realm)) else 0
 			"reach_body_level": v = mini(c.cultivator.body_level, int(o.get("count", 1)))
 			"set_flag": v = 1 if c.quests.has_flag(str(o.flag)) or (o.has("alt_flag") and c.quests.has_flag(str(o.alt_flag))) else 0
@@ -554,18 +557,24 @@ func hand_in(c, qid: String) -> Dictionary:
 	var def := quest_def(c, qid)
 	var st: Dictionary = c.quests.active.get(qid, {})
 	if st.is_empty() or st.get("state") != "ready": return fail("not_ready")
-	for i in def.get("objectives", []).size():
-		var o: Dictionary = def.objectives[i]
-		if o.kind in ["collect", "deliver"] and o.get("consume", o.kind == "deliver"):
-			game.inventory.apply_remove(c.id, str(o.item), int(o.get("count", 1)), "quest:" + qid)
+	# Everything asked for is checked before anything is taken, so the items and the reward go together or not at all.
+	var gives := handover(def)
+	for g in gives:
+		var have: int = c.inventory.count(str(g.item))   # the bag and quest pouch; what is worn never counts
+		if have >= int(g.count): continue
+		var iname := ContentDB.item_name(str(g.item))
+		if c.inventory.count_including_equipped(str(g.item)) >= int(g.count): return fail("item_worn", {"text": Tx.t("sim.quest.take_off_first") % iname})
+		return fail("missing_items", {"text": Tx.t("sim.quest.still_need") % item_count_text(int(g.count) - have, str(g.item))})
 	c.quests.active.erase(qid)
+	for g in gives: game.inventory.apply_remove(c.id, str(g.item), int(g.count), "quest:" + qid)
 	c.quests.tracked.erase(qid)
 	c.quests.done[qid] = int(c.quests.done.get(qid, 0)) + 1
 	var qp_kind := str(def.get("qp", {"main": "main", "guided": "guided", "side": "side", "daily": "daily"}.get(str(def.get("kind", "side")), "")))
 	var pct := float(ContentDB.curve("quest_qp_pct.%s" % qp_kind, 0.0))
 	if pct > 0.0 and Unlocks.is_unlocked(c.id, "cultivation"): game.progression.apply_progress(c.id, 0.0, "quest", pct)
 	game.apply_effects(c.id, def.get("rewards", []), "quest:" + qid)
-	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
+	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")),
+		"gave": handover_text(gives)})
 	if c.quests.daily.has(qid):
 		c.quests.daily.erase(qid)
 		if qid.begins_with("daily_"): emit("system_used", {"actor": c.id, "system": "daily_mission_done"})
@@ -573,7 +582,33 @@ func hand_in(c, qid: String) -> Dictionary:
 	if nxt != "":
 		var ndef := ContentDB.entry("quests", nxt)
 		if not ndef.is_empty() and ndef.get("auto_accept", false) and can_offer(c, ndef): accept(c, nxt)
-	return ok()
+	return ok({"gave": gives})
+
+## Items a quest asks for are handed over when it is turned in, or only counted (proof you gathered them, or a later
+## craft step's ingredients). The data marks each collect objective (`consume`); a deliver always hands over.
+static func hands_over(o: Dictionary) -> bool:
+	return str(o.get("kind", "")) in ["collect", "deliver"] and bool(o.get("consume", str(o.get("kind", "")) == "deliver"))
+
+## What turning a quest in takes: [{item, count}], one row per item (two objectives asking for the same item add up).
+static func handover(def: Dictionary) -> Array:
+	var out: Array = []
+	var row := {}
+	for o in def.get("objectives", []):
+		if not hands_over(o): continue
+		var id := str(o.item)
+		if not row.has(id):
+			row[id] = {"item": id, "count": 0}
+			out.append(row[id])
+		row[id].count += int(o.get("count", 1))
+	return out
+
+## "5 Willow Moss" (the one form for a single item: "1 Kite").
+static func item_count_text(n: int, item: String) -> String:
+	return Tx.t("sim.quest.item_count") % [n, ContentDB.item_name(item)]
+
+## "5 Willow Moss, 3 Copper Ore"; "" when nothing is handed over.
+static func handover_text(gives: Array) -> String:
+	return ", ".join(PackedStringArray(gives.map(func(g): return item_count_text(int(g.count), str(g.item)))))
 
 func _on_event(p: Dictionary, ev: String) -> void:
 	var c = game.active()

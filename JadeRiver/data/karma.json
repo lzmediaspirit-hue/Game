@@ -640,7 +640,8 @@
        "kind": "deliver",
        "item": "rice",
        "count": 5,
-       "text": "Bring rice for the hamlet"
+       "text": "Bring rice for the hamlet",
+       "consume": true
       },
       "min_level": 0,
       "max_level": 999
@@ -651,7 +652,8 @@
        "kind": "deliver",
        "item": "herbal_tea",
        "count": 3,
-       "text": "Bring herbal tea for the infirmary"
+       "text": "Bring herbal tea for the infirmary",
+       "consume": true
       },
       "min_level": 0,
       "max_level": 999

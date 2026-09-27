@@ -5,7 +5,8 @@ extends Authority
 ## A slain foe's spawn point stays empty for return_s of game time: the character remembers the kill with the room
 ## (World's room memory, saved), so leaving and coming back does not refill the room; the time runs while away.
 
-var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+## A fixed seed until a room populates from the character's own "world" stream (never an unseeded draw).
+var rng: RandomNumberGenerator = Rng.keyed(1, "enemies")
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 40)

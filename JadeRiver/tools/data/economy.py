@@ -1160,8 +1160,8 @@ def missions():
             opt("Copper for the forge", {"kind": "gather_node", "item": "copper_ore", "count": 6, "text": "Mine Copper"}, 0, 20),
             opt("Jadeiron", {"kind": "gather_node", "item": "jadeiron", "count": 4, "text": "Mine Jadeiron"}, 12, 70)]},
         {"id": "deliver", "name": "Deliver", "options": [
-            opt("Rice for the kitchen", {"kind": "deliver", "item": "rice_ball", "count": 3, "text": "Deliver Rice Balls"}, 0, 70),
-            opt("Teas for the infirmary", {"kind": "deliver", "item": "herbal_tea", "count": 3, "text": "Deliver Herbal Teas"}, 0, 70)]},
+            opt("Rice for the kitchen", {"kind": "deliver", "item": "rice_ball", "count": 3, "text": "Deliver Rice Balls", "consume": True}, 0, 70),
+            opt("Teas for the infirmary", {"kind": "deliver", "item": "herbal_tea", "count": 3, "text": "Deliver Herbal Teas", "consume": True}, 0, 70)]},
         {"id": "craft", "name": "Craft", "requires": all_of(unlocked("cooking")), "options": [
             opt("Kitchen duty", {"kind": "craft", "craft": "cooking", "count": 3, "text": "Cook three dishes"}, 0, 70)]},
         {"id": "spar", "name": "Spar", "options": [

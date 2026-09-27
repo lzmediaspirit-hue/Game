@@ -324,7 +324,7 @@ def rows():
              band(0.0, 300, {"payload": "payload.name"}, 44, "PALE_GOLD", over={"chapter_of": "payload.quest"}, over_size=22,
                   over_color="GOLD", sub=key("moment.story.done"), sub_color="MIST", wipe_s=0.3),
              sound(0.0, "bell")],
-            {"actor": "c1", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main"}, "P6d", in_fight="toast",
+            {"actor": "c1", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main", "gave": ""}, "P6d", in_fight="toast",
             toast=key("moment.story.toast", {"payload": "payload.name"})),
         # Early surprises (docs/research/player_motivation.md item 7): a fortune card, the first Spirit Fruit, and a
         # common foe come as an elite. (A rare find from the first monsters plays rare_drop above.)

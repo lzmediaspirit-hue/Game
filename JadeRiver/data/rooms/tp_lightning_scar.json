@@ -282,7 +282,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1921,
+    1771,
     700
    ],
    "loot": "jar_expanse",
@@ -1072,11 +1072,11 @@
    "id": "bridge_0_ladder_6",
    "kind": "ladder",
    "at": [
-    1822,
+    1942,
     715
    ],
    "top_at": [
-    1822,
+    1942,
     672
    ],
    "bottom_alt": 0,

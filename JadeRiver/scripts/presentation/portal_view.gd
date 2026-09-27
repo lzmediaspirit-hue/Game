@@ -9,6 +9,13 @@ extends Node2D
 ## in a building's front is never hidden by the facade it stands in.
 
 const Terrain = preload("res://scripts/terrain.gd")
+## The art an open way draws by its type when it names none: an edge or a way into a dungeon swirls, a road's gate
+## stands open, a hidden way once found shows its cleft, and a door with no building's doorway or door of its own at it
+## stands as a door (PortalView.entrance "door").
+const TYPE_ART := {"edge": "portal_swirl", "sealed": "sealed_gate", "dungeon": "portal_swirl", "gate": "road_gate", "hidden": "hidden_way", "door": "door"}
+## Decor that is itself a way in where a door or gate stands at it: a door, a boat or a sky ship to board, a tent's
+## open front, a swirl or an arch.
+const WAY_DECOR := ["door", "lu_boat", "sky_ship", "cloud_skiff", "recruiter_tent_jade", "recruiter_tent_cloud", "portal_swirl", "paifang_gate"]
 
 var def: Dictionary = {}
 var t := 0.0
@@ -21,6 +28,7 @@ var label_dx := 0.0    # a way at the room's edge names itself a little inside, 
 var label_box := Rect2()
 var label_offset := Vector2.ZERO
 var tag: Node2D   # the arrow and the plate, above every figure (WorldLabels.LABEL_Z)
+var shows := ""   # what shows the way (entrance)
 
 func setup(p: Dictionary, room_def: Dictionary = {}) -> void:
 	def = p
@@ -31,6 +39,7 @@ func setup(p: Dictionary, room_def: Dictionary = {}) -> void:
 	if _wall_door(p, room_def):
 		wall_y = minf(0.0, float(room_def.wall.get("bottom", at[1])) - float(at[1]))
 	door_top = (wall_y - 128.0) if wall_y != INF else -96.0
+	shows = entrance(p, room_def)
 	var b: Array = room_def.get("bounds", [])
 	if b.size() >= 3:
 		label_dx = clampf(position.x, float(b[0]) + 150.0, float(b[0]) + float(b[2]) - 150.0) - position.x
@@ -43,7 +52,7 @@ static func _wall_door(p: Dictionary, room_def: Dictionary) -> bool:
 ## The building a door stands at the foot of (a roof's front, a portal on the plane): {id, art, door: the doorway its
 ## art draws, [x0, x1] in room x, [] when it draws none}. {} for every other way: a road, a boat, a cave, a back wall.
 static func building_front(p: Dictionary, room_def: Dictionary) -> Dictionary:
-	if str(p.get("type", "")) != "door" or p.has("surface") or not room_def.get("wall", {}).is_empty(): return {}
+	if not str(p.get("type", "")) in ["door", "gate"] or p.has("surface") or not room_def.get("wall", {}).is_empty(): return {}
 	var at: Array = p.get("at", [0, 0])
 	var x := float(at[0])
 	var y := float(at[1])
@@ -55,22 +64,33 @@ static func building_front(p: Dictionary, room_def: Dictionary) -> Dictionary:
 		return {"id": str(s.get("id", "")), "art": str(s.get("art", "")), "door": Terrain.doorway(s)}
 	return {}
 
-## What shows the player a way in, open (S17; a closed door shows the sealed gate, a back-wall door itself shut): "art"
-## (its own gate or swirl), "wall" (an interior's door on the back wall), "decor" (a door placed in the room at it: a cave
-## abode, a raised door), "building" (it stands in the doorway its building's art draws), or "" (nothing but the arrow
-## and the plate). A way into a building must show "decor" or "building" (tests/tutorial_order.gd, data_validation).
+## What shows the player a way in, open (S17; a closed way shows the sealed gate, a back-wall door itself shut): "art"
+## (its own art, or its type's: a swirl, a road gate, a found hidden way), "wall" (an interior's door on the back wall),
+## "decor" (a way placed in the room at it: a door, a boat, a tent), "building" (it stands in the doorway its building's
+## art draws), or "door" (a door drawn where it stands). A way into a building must show "decor" or "building"
+## (tests/tutorial_order.gd, data_validation); every way shows something (tests/visibility_suite.gd).
 static func entrance(p: Dictionary, room_def: Dictionary) -> String:
 	var type := str(p.get("type", "edge"))
-	if not str(p.get("art", "")) in ["", "none"] or type in ["edge", "sealed", "dungeon"]: return "art"
-	if type != "door": return ""
+	if not str(p.get("art", "")) in ["", "none"]: return "art"
 	if _wall_door(p, room_def): return "wall"
-	var at: Array = p.get("at", [0, 0])
-	for d in room_def.get("decor", []):
-		var da: Array = d.get("at", [0, 0])
-		if str(d.get("prop", "")) == "door" and absf(float(da[0]) - float(at[0])) <= 24.0 and absf(float(da[1]) - float(at[1])) <= 40.0: return "decor"
-	var door: Array = building_front(p, room_def).get("door", [])
-	if door.size() == 2 and float(at[0]) >= float(door[0]) and float(at[0]) <= float(door[1]): return "building"
-	return ""
+	if type in ["door", "gate"]:
+		var at: Array = p.get("at", [0, 0])
+		for d in room_def.get("decor", []):
+			var da: Array = d.get("at", [0, 0])
+			if str(d.get("prop", "")) in WAY_DECOR and absf(float(da[0]) - float(at[0])) <= 24.0 and absf(float(da[1]) - float(at[1])) <= 40.0: return "decor"
+		var door: Array = building_front(p, room_def).get("door", [])
+		if door.size() == 2 and float(at[0]) >= float(door[0]) and float(at[0]) <= float(door[1]): return "building"
+	return "door" if type == "door" else "art"
+
+## The prop a way draws where it stands: its own `art`, else its type's (TYPE_ART) when nothing else shows it
+## (`shows`, entrance). A closed way shows the sealed gate; an interior's own door on its back wall stays itself, shut
+## (a quest holds it until a step is done, Morning Tide's Bag), its plate saying what to do first. "" draws none.
+static func art_for(p: Dictionary, open: bool, shown_by: String) -> String:
+	var type := str(p.get("type", "edge"))
+	var art := str(p.get("art", ""))
+	if art != "": return "" if art == "none" else art
+	if type != "edge" and not open and shown_by != "wall": return "sealed_gate"
+	return str(TYPE_ART.get(type, "")) if shown_by in ["art", "door"] else ""
 
 func _process(delta: float) -> void:
 	t += delta
@@ -84,14 +104,11 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var type := str(def.get("type", "edge"))
-	var art := str(def.get("art", ""))
-	if art == "":
-		art = {"edge": "portal_swirl", "sealed": "sealed_gate", "dungeon": "portal_swirl"}.get(type, "")
-		# A closed way shows the sealed gate; an interior's own door on its back wall stays itself, shut (a quest holds it
-		# until a step is done, Morning Tide's Bag), its plate saying what to do first.
-		if type != "edge" and not state.open and wall_y == INF: art = "sealed_gate"
+	var art := art_for(def, state.open, shows)
 	var bob := 0.5 + 0.5 * sin(t * 4.0)
-	if art != "none" and art != "":
+	if art == "door":
+		SpriteCache.draw_prop(self, art, "open" if near and state.open else "closed", t, Vector2.ZERO)
+	elif art != "":
 		SpriteCache.draw_prop(self, art, "idle", t, Vector2.ZERO, false, Color(0.6, 0.6, 0.65) if not state.open and art == "portal_swirl" else Color.WHITE)
 	elif type == "door" and wall_y != INF:
 		# An interior exit: a double door on the back wall that swings open as the player comes to it.

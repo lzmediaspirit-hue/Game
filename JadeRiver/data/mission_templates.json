@@ -210,7 +210,8 @@
       "kind": "deliver",
       "item": "rice_ball",
       "count": 3,
-      "text": "Deliver Rice Balls"
+      "text": "Deliver Rice Balls",
+      "consume": true
      },
      "min_level": 0,
      "max_level": 70
@@ -221,7 +222,8 @@
       "kind": "deliver",
       "item": "herbal_tea",
       "count": 3,
-      "text": "Deliver Herbal Teas"
+      "text": "Deliver Herbal Teas",
+      "consume": true
      },
      "min_level": 0,
      "max_level": 70
