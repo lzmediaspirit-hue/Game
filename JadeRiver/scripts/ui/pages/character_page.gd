@@ -2,6 +2,14 @@ extends Page
 ## Character (S10, S11, S18, S34): overview, stats with Combat Power, aptitude, titles and attunement.
 
 const Avatar = preload("res://scripts/avatar.gd")
+const InventoryPage = preload("res://scripts/ui/pages/inventory_page.gd")
+## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 3 is 6 px each), as large as
+## the page allows beside its worn slots (decision 8).
+const FIGURE_SCALE := 3.0
+## The worn slots round the figure: two columns 368 px apart, 96 px down, the figure's feet between them.
+const WORN_ORIGIN := Vector2(24, 16)
+const WORN_STEP := Vector2(368, 96)
+const FEET := Vector2(232, 380)
 var STATS := [["max_hp", Tx.t("ui.character.max_hp")], ["max_qi", Tx.t("ui.character.max_qi")], ["max_soul", Tx.t("ui.character.max_soul")], ["physical_attack", Tx.t("ui.character.physical_attack")],
 	["qi_attack", Tx.t("ui.character.qi_attack")], ["physical_defense", Tx.t("ui.character.physical_defence")], ["qi_resistance", Tx.t("ui.character.qi_resistance")], ["accuracy", Tx.t("ui.character.accuracy")],
 	["evasion", Tx.t("ui.character.evasion")], ["crit_chance", Tx.t("ui.character.critical_chance")], ["crit_damage", Tx.t("ui.character.critical_damage")], ["attack_speed", Tx.t("ui.character.attack_speed")],
@@ -17,15 +25,15 @@ func _init() -> void:
 func setup() -> void:
 	doll = Avatar.new()
 	doll.outfit = InventoryAuthority.outfit_for(c())
-	doll.position = Vector2(300, 520)
-	doll.scale = Vector2.ONE * 2.4
+	doll.position = content.position + FEET
+	doll.scale = Vector2.ONE * FIGURE_SCALE
 	add_child(doll)
 
 func _process(delta: float) -> void:
 	super._process(delta)
 	if is_instance_valid(doll):
 		doll.visible = str(tabs[tab].id) in ["overview", "wardrobe"]
-		doll.position = Vector2(300, 520) if str(tabs[tab].id) == "overview" else Vector2(200, 540)
+		doll.position = content.position + (FEET if str(tabs[tab].id) == "overview" else Vector2(184, FEET.y))
 
 func draw_page() -> void:
 	var ch = c()
@@ -39,7 +47,7 @@ func draw_page() -> void:
 			var true_realm := ContentDB.realm_label(ch.cultivator.realm_key, ProgressionRules.level(ch))
 			text(Vector2(x, r.position.y + 86), true_realm, 20, UiKit.GOLD)
 			if ch.cultivator.false_realm != "":
-				text(Vector2(x + UiKit.text_width(true_realm, 20) + 12, r.position.y + 86), Tx.t("ui.character.shown_as") % ContentDB.realm_label(ch.cultivator.false_realm), 15, UiKit.MIST)
+				text(Vector2(x + UiKit.text_width(true_realm, 20) + 12, r.position.y + 86), Tx.t("ui.character.shown_as") % ContentDB.realm_label(ch.cultivator.false_realm), 16, UiKit.MIST)
 			var sect_id := str(ch.training_sect.get("id", ""))
 			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + ContentDB.rank_name(str(ch.training_sect.get("rank", "")))) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
@@ -48,14 +56,15 @@ func draw_page() -> void:
 			var age := ProgressionRules.age_of(ch, Clock.now_utc())
 			text(Vector2(x, r.position.y + 178), Tx.t("ui.character.age_span") % [age, UiKit.fmt(span)] if span > 0 else Tx.t("ui.character.age_endless") % age, 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 210), Tx.t("ui.character.combat_power"), 20, UiKit.MIST)
-			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 44, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 			# S49: the Relations page (karma, bonds, grudges, Fame) lives under Character.
 			var rb := Rect2(r.end.x - 250, r.position.y + 196, 220, 52)
 			btn(rb, Tx.t("ui.character.relations"), "relations", null, false, true, "", 20)
 			text(Vector2(rb.position.x, rb.end.y + 22), fit(Tx.t("ui.relations.fame_" + str(Game.relations.fame_tier(ch).get("id", "unknown"))) + "  ·  " +
-				Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch)), 15, rb.size.x), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, rb.size.x)
-			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 19, UiKit.BRIGHT_JADE)
+				Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch)), 16, rb.size.x), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, rb.size.x)
+			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 20, UiKit.BRIGHT_JADE)
 			_vitals(ch, Rect2(x, r.position.y + 322, r.end.x - x - 30, r.end.y - r.position.y - 340))
+			InventoryPage.draw_worn(self, ch, r.position + WORN_ORIGIN, WORN_STEP, "", "worn")
 			_party(ch, Rect2(r.position.x + 30, r.end.y - 80, 420, 70))
 		"stats":
 			for i in STATS.size():
@@ -90,7 +99,7 @@ func _wardrobe(ch, r: Rect2) -> void:
 		return
 	var x := r.position.x + 380
 	var y := r.position.y + 34
-	text(Vector2(x, y), Tx.t("ui.character.wardrobe_help"), 17, UiKit.MIST)
+	text(Vector2(x, y), Tx.t("ui.character.wardrobe_help"), 18, UiKit.MIST)
 	y += 22
 	for pair in WARDROBE_SLOTS:
 		var slot: String = pair[0]
@@ -102,11 +111,11 @@ func _wardrobe(ch, r: Rect2) -> void:
 		var cur := str(ch.inventory.appearance_override.get(slot, ""))
 		text(Vector2(x, y + 34), Tx.t("ui.character.wardrobe_" + slot), 18, UiKit.PALE_GOLD)
 		var bx := x + 130.0
-		btn(Rect2(bx, y + 4, 120, 48), Tx.t("ui.character.own_look"), "look", [slot, ""], cur == "", true, "", 15)
+		btn(Rect2(bx, y + 4, 120, 48), Tx.t("ui.character.own_look"), "look", [slot, ""], cur == "", true, "", 16)
 		bx += 128
 		for lk in looks:
 			if bx + 120 > r.end.x - 20: break
-			btn(Rect2(bx, y + 4, 120, 48), str(lk).replace("_", " ").capitalize(), "look", [slot, lk], cur == lk, true, "", 15)
+			btn(Rect2(bx, y + 4, 120, 48), str(lk).replace("_", " ").capitalize(), "look", [slot, lk], cur == lk, true, "", 16)
 			bx += 128
 		y += 58
 
@@ -130,7 +139,7 @@ func _attunement(ch, r: Rect2) -> void:
 		var need: float = Game.progression.attunement_required(str(ch.position.get("room", "")))
 		var f: Dictionary = Game.progression.attunement_factors(ch)
 		line += "   " + Tx.t("ui.character.attunement_here") % [int(need), int(round(float(f.dealt) * 100.0)), int(round(float(f.taken) * 100.0))]
-	text(Vector2(x, r.position.y + 84), fit(line, 19, r.size.x - 72), 19, UiKit.MIST)
+	text(Vector2(x, r.position.y + 84), fit(line, 20, r.size.x - 72), 20, UiKit.MIST)
 	var unlocked := Unlocks.is_unlocked(ch.id, str(att.get("unlock", "")))
 	var shard := str(att.get("shard", ""))
 	icon_at(Rect2(r.end.x - 250, r.position.y + 26, 36, 36), shard)
@@ -142,17 +151,17 @@ func _attunement(ch, r: Rect2) -> void:
 		var jr := Rect2(x + i * (cw + 16), r.position.y + 104, cw, 236)
 		panel(jr, "minor_panel")
 		icon_at(Rect2(jr.position.x + (cw - 88) / 2.0, jr.position.y + 12, 88, 88), "ward_" + str(jades[i].id))
-		text(Vector2(jr.position.x, jr.position.y + 128), str(jades[i].name), 19, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cw)
+		text(Vector2(jr.position.x, jr.position.y + 128), str(jades[i].name), 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cw)
 		var lv := int(levels[i]) if i < levels.size() else 0
 		var top := int(att.get("jade_max", 15))
 		bar(Rect2(jr.position.x + 14, jr.position.y + 142, cw - 28, 20), float(lv) / maxf(1.0, top), UiKit.QI, Tx.t("ui.character.jade_level") % [lv, top])
 		if lv >= top:
-			text(Vector2(jr.position.x, jr.position.y + 204), Tx.t("ui.character.jade_full"), 17, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, cw)
+			text(Vector2(jr.position.x, jr.position.y + 204), Tx.t("ui.character.jade_full"), 18, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, cw)
 		else:
 			var cost: int = Game.progression.jade_cost(zone_id, lv)
 			var can: bool = unlocked and ch.inventory.count(shard) >= cost
 			btn(Rect2(jr.position.x + 14, jr.position.y + 174, cw - 28, 48), Tx.plural("ui.character.raise_jade", cost) % cost, "attune", [zone_id, i], false, can,
-				Unlocks.locked_text(str(att.get("unlock", ""))) if not unlocked else Tx.t("ui.character.needs_more_shards"), 17)
+				Unlocks.locked_text(str(att.get("unlock", ""))) if not unlocked else Tx.t("ui.character.needs_more_shards"), 18)
 	# What each region asks for, ticked when the total meets it.
 	var y := r.position.y + 366
 	text(Vector2(x, y), Tx.t("ui.character.regions_ask"), 18, UiKit.GOLD)
@@ -162,7 +171,7 @@ func _attunement(ch, r: Rect2) -> void:
 		if not reg.has("attunement"): continue
 		var met := total >= float(reg.attunement)
 		var at := Vector2(x + col * ((r.size.x - 72) / 2.0), y + 30)
-		text(at, fit(("✓ " if met else "· ") + "%s  %d" % [str(reg.name), int(reg.attunement)], 17, (r.size.x - 72) / 2.0 - 12), 17, UiKit.BRIGHT_JADE if met else UiKit.MIST)
+		text(at, fit(("✓ " if met else "· ") + "%s  %d" % [str(reg.name), int(reg.attunement)], 18, (r.size.x - 72) / 2.0 - 12), 18, UiKit.BRIGHT_JADE if met else UiKit.MIST)
 		col += 1
 		if col == 2:
 			col = 0
@@ -171,7 +180,7 @@ func _attunement(ch, r: Rect2) -> void:
 ## Pools (QI and Soul only once the character has them), four headline stats and who travels along.
 func _vitals(ch, r: Rect2) -> void:
 	var y := r.position.y
-	var pools := [["hp", ch.pools.hp, ch.pools.max_hp, UiKit.RED, Tx.t("ui.character.hp_bar")]]
+	var pools := [["hp", ch.pools.hp, ch.pools.max_hp, UiKit.HP, Tx.t("ui.character.hp_bar")]]
 	if ch.pools.max_qi > 0.0: pools.append(["qi", ch.pools.qi, ch.pools.max_qi, UiKit.QI, Tx.t("ui.character.qi_bar")])
 	if ch.pools.max_soul > 0.0: pools.append(["soul", ch.pools.soul, ch.pools.max_soul, UiKit.SOUL, Tx.t("ui.character.soul_bar")])
 	for p in pools:
@@ -190,11 +199,12 @@ func _vitals(ch, r: Rect2) -> void:
 func _party(ch, r: Rect2) -> void:
 	var pet: Dictionary = Game.pets.active_pet(ch)
 	var mates: Array = (ch.companions.get("active", []) as Array).map(func(cid): return ContentDB.name_of("companions", str(cid)))
-	if not pet.is_empty(): text(Vector2(r.position.x, r.position.y + 20), fit(Tx.t("ui.character.spirit_animal") % str(pet.name), 17, r.size.x), 17, UiKit.BRIGHT_JADE)
-	if not mates.is_empty(): text(Vector2(r.position.x, r.position.y + 48), fit(Tx.t("ui.character.companions") % ", ".join(mates), 17, r.size.x), 17, UiKit.BRIGHT_JADE)
+	if not pet.is_empty(): text(Vector2(r.position.x, r.position.y + 20), fit(Tx.t("ui.character.spirit_animal") % str(pet.name), 18, r.size.x), 18, UiKit.BRIGHT_JADE)
+	if not mates.is_empty(): text(Vector2(r.position.x, r.position.y + 48), fit(Tx.t("ui.character.companions") % ", ".join(mates), 18, r.size.x), 18, UiKit.BRIGHT_JADE)
 
 func on_action(id: String, data) -> void:
 	if id == "relations": navigate.emit("relations", {})
+	if id == "worn": navigate.emit("inventory", {"tab": str(data)})   # a worn slot opens the Bag on it
 	if id == "title": submit({"type": "set_title", "title": str(data)})
 	if id == "attune": submit({"type": "attune_jade", "zone": str(data[0]), "index": int(data[1])})
 	if id == "look":
@@ -212,7 +222,7 @@ func _aptitude(ch, r: Rect2) -> void:
 	var y := left.position.y + 20
 	var root := ProgressionRules.root_name(cu)
 	if root != "":
-		text(Vector2(x, y + 30), Tx.t("ui.character.root." + root), 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 48, true)
+		text(Vector2(x, y + 30), Tx.t("ui.character.root." + root), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 48, true)
 		y += 40
 		y += para(Rect2(x, y, left.size.x - 48, 60), Tx.t("ui.character.root_desc." + root), 16, UiKit.MIST, 2) + 10
 	else:
@@ -231,10 +241,10 @@ func _aptitude(ch, r: Rect2) -> void:
 		var a: Dictionary = cu.aptitude[k]
 		var key := str(k)
 		var label := Tx.t("ui.character.apt." + key) if not key.begins_with("element_") else Tx.t("ui.character.apt_element") % key.trim_prefix("element_").capitalize()
-		text(Vector2(x, y + 24), label, 19, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 260)
+		text(Vector2(x, y + 24), label, 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 260)
 		if a.get("revealed", false):
 			var v := float(a.get("value", 0.0))
-			text(Vector2(x + 280, y + 24), "%s%d%%" % ["+" if v >= 0.0 else "-", int(round(absf(v) * 100))], 19, UiKit.BRIGHT_JADE if v > 0.0 else (UiKit.RED if v < 0.0 else UiKit.PAPER))
+			text(Vector2(x + 280, y + 24), "%s%d%%" % ["+" if v >= 0.0 else "-", int(round(absf(v) * 100))], 20, UiKit.BRIGHT_JADE if v > 0.0 else (UiKit.RED_TEXT if v < 0.0 else UiKit.PAPER))
 		else:
 			var at := str(reveal.get(key, "bone_forging_7"))
 			text(Vector2(x + 280, y + 24), Tx.t("ui.character.apt_hidden_at") % ContentDB.name_of("realms", at) if at != "" else Tx.t("ui.character.unknown_revealed_as_you_grow"), 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 330)
@@ -250,11 +260,11 @@ func _aptitude(ch, r: Rect2) -> void:
 		text(Vector2(rx, ry + 26), str(ph.get("name", "")), 20, UiKit.PALE_GOLD if have else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
 		if have:
 			var gift := str(ph.get("gift_text", ""))
-			text(Vector2(rx, ry + 48), gift, 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
-			var gw := UiKit.text_width(gift + "  ", 15)
-			text(Vector2(rx + gw, ry + 48), str(ph.get("drawback_text", "")), 15, Color("e07a7a"), HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, right.size.x - 48 - gw))
+			text(Vector2(rx, ry + 48), gift, 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
+			var gw := UiKit.text_width(gift + "  ", 16)
+			text(Vector2(rx + gw, ry + 48), str(ph.get("drawback_text", "")), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, right.size.x - 48 - gw))
 		else:
 			var prog := ""
 			if ph.has("count"): prog = "  (%s / %s)" % [UiKit.fmt(float(cu.lifetime_stats.get(str(ph.earned), 0.0))), UiKit.fmt(float(ph.count))]
-			text(Vector2(rx, ry + 48), str(ph.get("earned_text", "")) + prog, 15, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
+			text(Vector2(rx, ry + 48), str(ph.get("earned_text", "")) + prog, 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
 		ry += 62

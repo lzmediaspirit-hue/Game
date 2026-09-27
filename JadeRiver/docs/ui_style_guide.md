@@ -19,7 +19,8 @@ Conventions:
   durations. Re-run it after every change in §11.
 - Contrast is the WCAG 2 ratio. Body text needs 4.5:1. Text drawn at 20 px or larger needs 3:1. Disabled labels are
   exempt in WCAG; this guide sets a 3:1 floor for them anyway, so a player can read the reason.
-- Nothing in `scripts/`, `data/` or `art/` changes with this page. §11 is the list for the second step.
+- Nothing in `scripts/`, `data/` or `art/` changes with this page. §11 is the list for the second step, which has
+  landed: §12 records what each step changed and what the audit measures now.
 
 ## 0. What is still open from the P2 review
 
@@ -204,23 +205,25 @@ reference fill, which leaves room for anti-aliasing and the Small text size (the
 No `JADE_TEXT`: the one place `JADE` colours words (the risk line, `breakthrough_page.gd:51`) takes `BRIGHT_JADE`
 (8.25). The computed variant would be #2ea696 (4.85), too close to `JADE` to earn a token.
 
-Data colours, in `tools/data/stats.py:515`: `sphere` #8f7ae0 → **#9a87e3** (4.81). New: `law` **#e98fc6** (peony, 6.37),
-`monarch` **#ff9a7a** (dawn vermilion, 7.03), `inner_heaven` **#d6f5ff** (heaven white, 12.71). Each is a hue the
-ladder does not use yet.
+Data colours, in `tools/data/stats.py`: `sphere` #8f7ae0 → **#9a87e3** (4.81). The three grades past Sphere were
+proposed here as #e98fc6, #ff9a7a and #d6f5ff; P7b gave them their colours first, and with no red, which is the game's
+danger colour: `law` **#a8c4ff** (8.31), `monarch` **#e6b3f2** (8.37), `inner_heaven` **#f4f7ff** (13.56). They are
+kept.
 
-Kit faces, in `tools/ui/build_ui_hd.py`. Each candidate was measured by rendering it with the builder's own functions;
-once the kit is rebuilt, the audit's `contrast` section measures the new PNGs.
+Kit faces: **decided, option C** (roadmap §6 decision 10, `docs/mockups/00b_button_faces.png`). The bright jade face
+of `button_primary` and `title_plaque` approved in mockups 00 and 04 stays, and the kit is not rebuilt for it. Primary
+labels (normal, pressed and disabled) and the titles on the plaque (page titles, the dialogue speaker) are drawn with
+**a 2 px ink outline**, `UiKit.draw_inked` (`INK_OUTLINE` 2), and are measured against `INK`:
 
-| Face | Line | Now (top, middle, bottom) | Proposed | Label ratio now → proposed |
+| Label | Fill | On the face alone (lightest texel) | Inked, on `INK` | Needs |
 |---|---|---|---|---|
-| `button_primary` normal | 234 | #5fd4bf, #2c9e8f, #155e56 | #27897b, #166059, #0c3d38 | `PALE_GOLD` 2.13 → 4.64 |
-| `button_primary` pressed | 232 | #2f9a89, #1c6f66, #0f4640 | #1f7a6d, #135650, #0a3632 | 3.82 → 5.59 |
-| `button_primary` disabled | 230 | #56615f, #3c4746, #29312f | #434c4b, #2f3837, #20272a | `HOLLOW` 2.64 → 3.48 |
-| `title_plaque` | 317 | #2f9887, #17625a, #0d3f3b | #237e71, #145953, #0c3b36 | `PALE_GOLD` 2.99 → 3.81 |
+| `PALE_GOLD`, primary normal | `button_primary` | 2.13 | 15.6 | 4.5 (the label steps down to 14) |
+| `PALE_GOLD`, primary pressed | `button_primary` pressed | 3.82 | 15.6 | 4.5 |
+| `HOLLOW`, primary disabled | `button_primary` disabled | 2.64 | 6.2 | 3.0 (the floor) |
+| `PALE_GOLD`, title and speaker | `title_plaque` | 2.99 | 15.6 | 3.0 (drawn at 31 and 41) |
 
-The darker primary face changes the look approved in mockups 00 and 04. The kit sheet 00 is re-rendered and shown to
-the user with the P4 screenshots before it ships (§11 step 2). The fallback that keeps the bright face: primary labels
-drawn with `draw_outlined`, which measures against `INK`.
+The option B faces (the deeper jade #27897b → #0c3d38, measured at 4.64, 5.59, 3.48 and 3.81) were not built; their
+preview PNGs, which only served the choice, are gone, and `00b_button_faces.png` stays as the record.
 
 ### 1.6 Literals and the token that replaces each (I5)
 
@@ -675,7 +678,7 @@ what §11 adds.
 | `PLATE` (new) | `Color(0.02, 0.06, 0.075, 0.72)` | Plates over the world |
 | `DIM` (new) | `Color(0.01, 0.03, 0.04)` | The world behind a page, at 0.72 (0.55 modal) |
 | `SURFACE` (new) | dictionary: `scroll`, `scroll_edge`, `sky_scroll`, `sky_scroll_edge`, `talisman`, `talisman_edge`, `brush_ink`, `board`, `board_edge`, `board_line`, `stone_black`, `stone_white`, `stone_white_rim`, `wood`, `wood_dark`, `bridge`, `peg`, `peg_dark`, `hui`, `sky_top`, `sky_bottom`, `ember` | Drawn page surfaces |
-| grade colours | `data/grades.json` `grade_colors` (sphere #9a87e3; new law #e98fc6, monarch #ff9a7a, inner_heaven #d6f5ff) | Item and technique names by grade |
+| grade colours | `data/grades.json` `grade_colors` (sphere #9a87e3; law #a8c4ff, monarch #e6b3f2, inner_heaven #f4f7ff from P7b) | Item and technique names by grade |
 | quality colours | `data/grades.json` `quality_colors` | Names and slot rims by quality |
 
 **Type** (`scripts/ui/ui_kit.gd`): `MIN_SIZE` 14 (`:44`), `DISPLAY_MIN` 22 (`:40`), `PIXEL_NUMERALS_MIN` 20 (`:223`),
@@ -702,10 +705,10 @@ what §11 adds.
 | `minor_panel` | normal (+ derived selected, disabled, pressed) | 12 | Cards, rows, the HUD player panel |
 | `slot` | normal, selected, disabled (+ derived pressed) | 8 | Item slots, volume steps, name fields |
 | `selected_slot_glow` | normal | 12 | The selection glow |
-| `button_primary` | normal, pressed, disabled | 16 × 14 | Primary buttons (faces changed, §1.5) |
+| `button_primary` | normal, pressed, disabled | 16 × 14 | Primary buttons (the face kept; labels inked, §1.5) |
 | `button_secondary` | normal, pressed, disabled | 14 × 12 | Secondary buttons |
 | `tab` | normal, selected (+ derived disabled) | 16 × 10 | Tabs |
-| `title_plaque` | normal | 48 × 26 | Window titles, the dialogue speaker (face changed, §1.5) |
+| `title_plaque` | normal | 48 × 26 | Window titles, the dialogue speaker (the face kept; titles inked, §1.5) |
 | `close_button` | normal, pressed | fixed 52 | Close |
 | `toast` | normal | 20 × 12 | Toasts and HUD cards |
 | `bar_shell` | normal | 10 × 8 | `Page.bar` |
@@ -735,8 +738,8 @@ re-run. Screenshots are re-taken at the end and compared with the mockups (roadm
      and on any float `Color(r, g, b…)` that is not `Color(UiKit.X, a)` or a white modulate.
    - `ui_suite`: every grade in `grades.json` `order` has a colour.
 2. **Contrast.**
-   - `tools/ui/build_ui_hd.py:230`, `:232`, `:234`, `:317`: the faces of §1.5. Build twice, byte-identical. Re-render
-     the kit sheet 00 and show it to the user.
+   - Option C (decision 10, §1.5): primary labels in every state, page titles and the dialogue speaker drawn with a
+     2 px ink outline (`UiKit.draw_inked`); the kit faces stay as they are.
    - `hud.gd:1556`, `ui_kit.gd:240`: plates in `PLATE`. `hud.gd:1866`: log words outlined.
    - `ui_suite`: **the contrast of every text token on its panel**. A table in `UiKit`, `TEXT_ON`, lists each text token
      with the fills it is drawn on and the smallest size it is drawn at. The check samples each fill's HD image inside its
@@ -806,3 +809,38 @@ re-run. Screenshots are re-taken at the end and compared with the mockups (roadm
     - Re-take every screenshot in `docs/ui_inventory/` and compare with mockups 00–05.
     - A `docs/CHANGELOG.md` entry under "The UI review and restyle".
     - The roadmap rows U22–U29 set to Present.
+
+## 12. Applied
+
+The apply list landed in seven steps, each with its check in `tests/` and the full suite green; decision 10 (option C)
+replaced step 2's darker faces, and the icon pipeline had already done most of steps 6 and 9. What each step changed:
+
+| Step | What landed | Its check |
+|---|---|---|
+| 1 Tokens | The tokens of §10 and `SURFACE` in `UiKit`; every hex and float literal in the pages, `Page` and `hud.gd` a token, `Color(token, a)` or a white modulate; `RED` and `SOUL` words `RED_TEXT` and `SOUL_TEXT`; `hud.gd`'s own `GOLD` gone; the grade colours of §1.5 in `tools/data/stats.py`; the HUD rings drawn from the HD kit's `hud_ring_132`, `_64`, `_52` and `_48` (normal, pressed, active) | `rules_tests` `ui_style_suite`: no off-token colour; every grade has a colour |
+| 2 Contrast | Option C: primary labels in every state, page titles and the dialogue speaker inked (`UiKit.draw_inked`, 2 px); `PLATE` at 0.72 under the tracker, the run banner and nameplates; the HUD log outlined; `UiKit.TEXT_ON` | Every `TEXT_ON` pair, and every grade and quality colour, measured on the kit's own art |
+| 3 Type | Every literal size on the scale of §3; nothing asked for under 14; `Page.btn` and `Page.heading` step down the scale; `Page.para` 18; `Page.bar`'s label 16; the HUD realm 16 and bar labels 14 | Every word every page draws, and every HUD text call, on the scale and at 14 or more |
+| 4 Numbers, durations, plurals | `UiKit.short` ("18.2K") on the damage numbers; "a / b" with spaces; `Tx.span` the one duration writer (`UiKit.span` calls it; a whole hour or day drops its zero); every place of §4 and every string that wrote its own time unit takes a span; 75 new `_one` twins, called through `Tx.plural` | `contract_tests`: no string prints a count before a time unit but the span's own and eight rule lengths in prose; every counted plural has its twin or counts a total |
+| 5 Spacing | The layout constants of §10 in `Page`; content 32 in and 80 under the title, tabs 48 tall and 8 apart, the confirm dialog, toast and list gutter of §2.1; the twelve windows of their own standard, the dialogue strip inside the safe area; the 22 list pitches; the Bag grid 16 px from its detail panel; the HUD icon row on a 56 px pitch. The Character page figure at 3x (from 2.4) with the worn slots round it, drawn by the Bag's own `InventoryPage.draw_worn` | Every window standard and inside the safe area; every list pitch on the grid |
+| 6 States | Settings' on in the selected art, Off in `MIST`; "you" and "now" as a gold ◆ with the name in `PALE_GOLD` on the Heaven Ranking, the Body tab, Roll-Call and Characters | No page draws pressed but under the finger |
+| 7 Touch | `hud.gd` `hit_targets`: every round control at least 24 and its drawn radius + 4 (the Draught, the bag animals, the icon row); where circles overlap the nearest centre wins; the tracker's go button 48 × 48; the player panel's target follows its height | `rules_tests` `hud_suite` |
+
+The audit (`tools/dev/ui_style_audit.py`) before the first step and after the last:
+
+| Measure | Before | After |
+|---|---|---|
+| Hex colour literals in the pages and `hud.gd` | 64 | 0 |
+| Float `Color()` literals there | 55 | 0 |
+| Grades with no colour | 3 (law, monarch, inner_heaven) | 0 |
+| Text colours under 4.5:1 on the lightest page fill | 5 (`JADE`, `BRONZE`, `RED`, `SOUL`, `sphere`) | 0 (the first four colour fills only; words take `BRIGHT_JADE`, `RED_TEXT`, `SOUL_TEXT`) |
+| Label pairs short of their mark (§1.4) | 5 (the primary label twice, the titles twice, the disabled primary) | 0 |
+| `MIST` on a plate over a white sky | 2.47 (tracker, 0.55), 3.15 (nameplate, 0.62) | 4.56 (`PLATE`, 0.72) |
+| Text sizes asked for under 14 | 15 | 0 |
+| Pages with a window of their own | 13 | 0 |
+| `list()` pitches off the 8 px grid | 22 | 0 |
+| Plural keys with a `_one` twin / without | 9 / 105 | 84 / 15 (the reviewed count-of-total list) |
+| Literal icon boxes off the allowed sizes | 11 | 11: boxes that `SpriteCache.draw_icon` fills at a whole-number scale; the `ui_suite` checks every icon as drawn |
+
+What is left stays with its phase: the HUD's ring layout, party chips and boss bar of §9 (P5a); the empty-slot motif and
+the pixel kit's copies of the HD assets (the rest of step 9); and the literal icon boxes above. The re-taken screenshots
+are in `docs/ui_after_p4/`.

@@ -3,8 +3,8 @@ extends Page
 ## alignment, recent deeds and named debts), Bonds (Dao Companion, master, sworn siblings), Grudges (factions
 ## that want you dead) and Fame (the named tier, what it opens, and a young master's challenge when one waits).
 
-const MERIT := Color("e8c872")
-const SIN := Color("e07a7a")
+const MERIT := UiKit.GOLD
+const SIN := UiKit.RED_TEXT
 
 func _init() -> void:
 	title = Tx.t("ui.relations.title")
@@ -36,8 +36,8 @@ func _karma(ch) -> void:
 	for i in 2:
 		var box := Rect2(x + i * (half + 16), y, half, 92)
 		panel(box, "minor_panel")
-		text(box.position + Vector2(16, 30), Tx.t("ui.relations.merit") if i == 0 else Tx.t("ui.relations.sin"), 17, UiKit.MIST)
-		text(box.position + Vector2(16, 76), str(r.merit if i == 0 else r.sin), 36, MERIT if i == 0 else SIN, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+		text(box.position + Vector2(16, 30), Tx.t("ui.relations.merit") if i == 0 else Tx.t("ui.relations.sin"), 18, UiKit.MIST)
+		text(box.position + Vector2(16, 76), str(r.merit if i == 0 else r.sin), 34, MERIT if i == 0 else SIN, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	y += 108
 	var step := int(Game.relations.cfg().get("merit_step", 100))
 	var ready := ProgressionRules.merit_step(ch) > 0
@@ -59,7 +59,7 @@ func _karma(ch) -> void:
 	y += 30
 	text(Vector2(x, y + 14), Tx.t("ui.relations.align_demonic"), 14, UiKit.MIST)
 	_rtext(scale.end.x, y + 14, Tx.t("ui.relations.align_righteous"), 14, UiKit.MIST)
-	para(Rect2(x, y + 24, left.size.x - 48, left.end.y - y - 30), Tx.t("ui.relations.alignment_note"), 15, UiKit.MIST, 3)
+	para(Rect2(x, y + 24, left.size.x - 48, left.end.y - y - 30), Tx.t("ui.relations.alignment_note"), 16, UiKit.MIST, 3)
 	# Right: the Fortune meter (S49), recent deeds, then named debts.
 	x = right.position.x + 24
 	y = right.position.y + 40
@@ -69,16 +69,16 @@ func _karma(ch) -> void:
 	for k in r.fortune.get("seen", {}): met += int(r.fortune.seen[k])
 	bar(Rect2(x, y + 16, right.size.x - 48, 26), meter, UiKit.GOLD,
 		Tx.t("ui.relations.fortune_ready") if meter >= 1.0 else Tx.t("ui.relations.fortune_in") % UiKit.span(Game.relations.fortune_ready_in(ch), false))
-	text(Vector2(x, y + 66), fit(Tx.t("ui.relations.fortune_note") % met, 15, right.size.x - 48), 15, UiKit.MIST)
+	text(Vector2(x, y + 66), fit(Tx.t("ui.relations.fortune_note") % met, 16, right.size.x - 48), 16, UiKit.MIST)
 	y += 118
 	heading(Vector2(x, y), Tx.t("ui.relations.recent"), right.size.x - 48)
 	y += 16
 	var debts: Array = r.debts.keys()
 	var deeds_h := right.size.y - 188 - (40 + debts.size() * 30 if not debts.is_empty() else 0)
 	if r.ledger.is_empty():
-		para(Rect2(x, y + 4, right.size.x - 48, 60), Tx.t("ui.relations.no_deeds"), 17, UiKit.MIST, 3)
+		para(Rect2(x, y + 4, right.size.x - 48, 60), Tx.t("ui.relations.no_deeds"), 18, UiKit.MIST, 3)
 	else:
-		list("deeds", Rect2(x, y + 4, right.size.x - 40, deeds_h), r.ledger.size(), 36, func(i: int, rr: Rect2):
+		list("deeds", Rect2(x, y + 4, right.size.x - 40, deeds_h), r.ledger.size(), 40, func(i: int, rr: Rect2):
 			var e: Dictionary = r.ledger[i]
 			var name := _deed_name(str(e.get("reason", "")), int(e.get("merit", 0)) > 0)
 			var amt := ""
@@ -87,8 +87,8 @@ func _karma(ch) -> void:
 			if int(e.get("sin", 0)) != 0:
 				amt = Tx.t("ui.relations.sin_amt") % int(e.sin)
 				col = SIN
-			text(rr.position + Vector2(0, 24), fit(name, 17, rr.size.x - 150), 17, UiKit.PAPER)
-			_rtext(rr.end.x - 8, rr.position.y + 24, amt, 17, col)
+			text(rr.position + Vector2(0, 24), fit(name, 18, rr.size.x - 150), 18, UiKit.PAPER)
+			_rtext(rr.end.x - 8, rr.position.y + 24, amt, 18, col)
 		)
 	if not debts.is_empty():
 		y = right.end.y - 24 - debts.size() * 30
@@ -96,7 +96,7 @@ func _karma(ch) -> void:
 		y += 8
 		for id in debts:
 			var d: Dictionary = r.debts[id]
-			text(Vector2(x, y + 14), fit(Tx.t("ui.cultivation.debt_" + str(id)), 17, right.size.x - 180), 17, UiKit.PAPER)
+			text(Vector2(x, y + 14), fit(Tx.t("ui.cultivation.debt_" + str(id)), 18, right.size.x - 180), 18, UiKit.PAPER)
 			_rtext(right.end.x - 24, y + 14, Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
 				UiKit.MIST if d.get("paid", false) else UiKit.PALE_GOLD)
 			y += 30
@@ -144,10 +144,10 @@ func _bonds(ch) -> void:
 		var x := box.position.x + 22
 		heading(Vector2(x, box.position.y + 40), Tx.t("ui.relations.bond_" + kind), w - 44)
 		if who == "":
-			text(Vector2(x, box.position.y + 90), Tx.t("ui.relations.bond_none"), 21, UiKit.MIST)
+			text(Vector2(x, box.position.y + 90), Tx.t("ui.relations.bond_none"), 22, UiKit.MIST)
 		else:
-			text(Vector2(x, box.position.y + 90), fit(who if kind == "sworn" else ContentDB.name_of("npcs", who), 21, w - 44), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-		para(Rect2(x, box.position.y + 106, w - 44, top_h - 116), Tx.t("ui.relations.bond_" + kind + "_note"), 15, UiKit.MIST, 5)
+			text(Vector2(x, box.position.y + 90), fit(who if kind == "sworn" else ContentDB.name_of("npcs", who), 22, w - 44), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+		para(Rect2(x, box.position.y + 106, w - 44, top_h - 116), Tx.t("ui.relations.bond_" + kind + "_note"), 16, UiKit.MIST, 5)
 	# Below: everyone who knows you well enough to have hearts.
 	var low := Rect2(content.position.x, content.position.y + top_h + gap, content.size.x, content.size.y - top_h - gap)
 	panel(low)
@@ -157,10 +157,10 @@ func _bonds(ch) -> void:
 		if int(r.affinity[id].get("points", 0)) > 0: rows.append(str(id))
 	rows.sort_custom(func(a, b): return int(r.affinity[a].points) > int(r.affinity[b].points))
 	if rows.is_empty():
-		para(Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 44, 60), Tx.t("ui.relations.no_friends"), 17, UiKit.MIST, 2)
+		para(Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 44, 60), Tx.t("ui.relations.no_friends"), 18, UiKit.MIST, 2)
 		return
 	var colw := (low.size.x - 44) / 2.0
-	list("friends", Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 34, low.size.y - 66), int(ceil(rows.size() / 2.0)), 38, func(row: int, rr: Rect2):
+	list("friends", Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 34, low.size.y - 66), int(ceil(rows.size() / 2.0)), 40, func(row: int, rr: Rect2):
 		for k in 2:
 			var j := row * 2 + k
 			if j >= rows.size(): break
@@ -180,7 +180,7 @@ func _grudges(ch) -> void:
 	for f in ContentDB.all("factions"):
 		if int(r.grudges.get(str(f.id), 0)) > 0: rows.append(f)
 	if rows.is_empty():
-		para(Rect2(x, box.position.y + 64, box.size.x - 56, 60), Tx.t("ui.relations.no_grudges"), 19, UiKit.MIST, 2)
+		para(Rect2(x, box.position.y + 64, box.size.x - 56, 60), Tx.t("ui.relations.no_grudges"), 20, UiKit.MIST, 2)
 	else:
 		list("grudges", Rect2(x, box.position.y + 60, box.size.x - 48, box.size.y - 160), rows.size(), 96, func(i: int, rr: Rect2):
 			var f: Dictionary = rows[i]
@@ -188,7 +188,7 @@ func _grudges(ch) -> void:
 			var th := int(f.get("threshold", 30))
 			panel(rr, "minor_panel", "selected" if v >= th else "normal")
 			text(rr.position + Vector2(16, 32), fit(str(f.name), 20, 300), 20, UiKit.PAPER)
-			text(rr.position + Vector2(16, 60), Tx.t("ui.relations.hunted") if v >= th else Tx.t("ui.relations.grudge_below") % th, 15,
+			text(rr.position + Vector2(16, 60), Tx.t("ui.relations.hunted") if v >= th else Tx.t("ui.relations.grudge_below") % th, 16,
 				SIN if v >= th else UiKit.MIST)
 			var bar_r := Rect2(rr.position.x + 330, rr.position.y + 16, rr.size.x - 330 - 470, 26)
 			bar(bar_r, v / 100.0, SIN, str(v))
@@ -197,14 +197,14 @@ func _grudges(ch) -> void:
 			var bx := rr.end.x - 454
 			var bm: Dictionary = f.get("blood_money", {})
 			if not bm.is_empty():
-				btn(Rect2(bx, rr.position.y + 18, 216, 56), Tx.t("ui.relations.pay") % int(bm.amount), "pay", [str(f.id), "blood_money"], false,
-					Game.economy.balance(str(bm.currency), ch) >= int(bm.amount), Tx.t("sim.relations.cannot_pay") % int(bm.amount), 17)
+				btn(Rect2(bx, rr.position.y + 18, 216, 56), Tx.plural("ui.relations.pay", int(bm.amount)) % int(bm.amount), "pay", [str(f.id), "blood_money"], false,
+					Game.economy.balance(str(bm.currency), ch) >= int(bm.amount), Tx.t("sim.relations.cannot_pay") % int(bm.amount), 18)
 			if str(f.get("duel", "")) != "":
 				btn(Rect2(bx + 226, rr.position.y + 18, 216, 56), Tx.t("ui.relations.duel") % ContentDB.name_of("enemies", str(f.duel)), "pay", [str(f.id), "duel"], true, true, "", 16)
 			elif str(f.get("quest", "")) != "":
-				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_quest") % ContentDB.name_of("quests", str(f.quest)), 15, UiKit.PALE_GOLD, 3)
+				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_quest") % ContentDB.name_of("quests", str(f.quest)), 16, UiKit.PALE_GOLD, 3)
 			elif not f.get("story", {}).is_empty():
-				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_story"), 15, UiKit.MIST, 3)
+				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_story"), 16, UiKit.MIST, 3)
 		)
 	para(Rect2(x, box.end.y - 96, box.size.x - 56, 80), Tx.t("ui.relations.grudges_note"), 16, UiKit.MIST, 3)
 
@@ -238,7 +238,7 @@ func _fame(ch) -> void:
 		text(Vector2(x, y + 18), Tx.t("ui.relations.fame_" + str(t2.id)), 18, UiKit.GOLD if got else UiKit.HOLLOW)
 		text(Vector2(x + 130, y + 18), fit(Tx.t("ui.relations.fame_brings_" + str(t2.id)), 16, left.size.x - 178), 16, UiKit.PAPER if got else UiKit.HOLLOW)
 		y += 32
-	para(Rect2(x, y + 4, left.size.x - 48, left.end.y - y - 12), Tx.t("ui.relations.fame_note"), 15, UiKit.MIST, 3)
+	para(Rect2(x, y + 4, left.size.x - 48, left.end.y - y - 12), Tx.t("ui.relations.fame_note"), 16, UiKit.MIST, 3)
 	# Right: a challenge waiting here, or how young masters find you.
 	x = right.position.x + 24
 	y = right.position.y + 40
@@ -247,7 +247,7 @@ func _fame(ch) -> void:
 	var chal: Dictionary = Game.relations.challenge_of(ch)
 	if chal.is_empty():
 		var need := int(Game.relations.cfg().get("young_master", {}).get("fame", 150))
-		para(Rect2(x, y, right.size.x - 48, 160), Tx.t("ui.relations.no_challenge") if r.fame >= need else Tx.t("ui.relations.challenge_later") % need, 17, UiKit.MIST, 6)
+		para(Rect2(x, y, right.size.x - 48, 160), Tx.t("ui.relations.no_challenge") if r.fame >= need else Tx.t("ui.relations.challenge_later") % need, 18, UiKit.MIST, 6)
 		return
 	var card := Rect2(x, y, right.size.x - 48, right.end.y - y - 20)
 	panel(card, "minor_panel", "selected")

@@ -332,7 +332,7 @@ func auction_bid(c, lot_id: String, amount: int, house := "pavilion") -> Diction
 	if l.is_empty() or l.get("closed", false) or Clock.now_utc() >= float(l.ends): return fail("closed", {"text": Tx.t("sim.economy.lot_closed")})
 	if str(l.bidder) == c.id: return fail("leading", {"text": Tx.t("sim.economy.you_hold_the_lot")})
 	var need := auction_min_bid(l)
-	if amount < need: return fail("too_low", {"text": Tx.t("sim.economy.bid_at_least") % need})
+	if amount < need: return fail("too_low", {"text": Tx.plural("sim.economy.bid_at_least", need) % need})
 	var cost := int(ceil(amount * (1.0 + auction_fee(c, house))))
 	if balance("spirit_stone") < cost: return fail("insufficient_funds", {"text": Tx.t("sim.economy.not_enough_stones")})
 	emit("system_used", {"actor": c.id, "system": "auction_bid"})

@@ -396,6 +396,42 @@ def bar_shell(w, h):
     return c
 
 
+HUD_RING_PAD = 14.0  # px round the ring's face for the drop shadow and the active halo
+
+
+def hud_ring(size: int, state: str):
+    """A HUD button (P4, docs/ui_style_guide.md §5): a jade-enamel face `size` px across with a vertical sheen, a thin
+    gold bezel, an inner jade line and a gloss arc; `active` lights the bezel and adds a soft gold halo, `pressed`
+    sinks the face a pixel and dims its gloss. The art is the face plus HUD_RING_PAD on each side; hud.gd ring() scales
+    it to the radius it draws."""
+    w = size + 2 * HUD_RING_PAD
+    c = Canvas(w, w)
+    cx = cy = w / 2
+    r = size / 2
+    lit, pressed = state == "active", state == "pressed"
+    if pressed:
+        cy += 1.0
+    c.paint(cov(sd_circle(c.X, c.Y, cx, cy + (3.0 if pressed else 4.0), r + 4.0)), INK * np.array([1, 1, 1, 0.42]))
+    if lit:
+        for i in range(3):
+            c.paint(cov(np.abs(sd_circle(c.X, c.Y, cx, cy, r + 5.0 + i * 3.0)) - 1.5), GOLD * np.array([1, 1, 1, 0.30 - i * 0.09]))
+    rim_top, rim_bot = (hexc("#f0d08a"), hexc("#7a5426")) if lit else (hexc("#c6a262"), hexc("#5c4424"))
+    rim = sd_circle(c.X, c.Y, cx, cy, r + 2.5)
+    c.paint(cov(rim), c.vgrad([(0, rim_top), (1, rim_bot)], cy - r - 2.5, cy + r + 2.5))
+    c.paint(band(rim, 0.0, 1.0), rim_bot * 0.7 + rim_top * 0.3)
+    face = sd_circle(c.X, c.Y, cx, cy, r)
+    face_top, face_bot = (hexc("#17454b"), hexc("#041013")) if pressed else (hexc("#1d5157"), hexc("#061519"))
+    c.paint(cov(face), c.vgrad([(0, face_top), (1, face_bot)], cy - r, cy + r))
+    c.paint(cov(np.abs(sd_circle(c.X, c.Y, cx, cy, r - 3.5)) - 0.75), JADE_HI * np.array([1, 1, 1, 0.30 if lit else 0.2]))
+    gloss = sd_arc(c.X, c.Y, cx, cy, r - 2.0, math.pi * 1.15, math.pi * 1.85, max(2.0, r * 0.07))
+    c.paint(cov(gloss), WHITE * np.array([1, 1, 1, 0.06 if pressed else 0.12]))
+    return c
+
+
+# The HUD's ring sizes (face diameters): the attack button, the technique and action rings, the small toggles and the
+# item rings. hud.gd picks the nearest and scales it to the radius it draws.
+HUD_RING_SIZES = (132, 64, 52, 48)
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -417,6 +453,8 @@ ASSETS = {
     "minimap_frame": ([24, 24, 24, 24], {"normal": lambda: minimap_frame(96, 72)}),
     "bar_shell": ([10, 8, 10, 8], {"normal": lambda: bar_shell(64, 24)}),
 }
+for _size in HUD_RING_SIZES:
+    ASSETS["hud_ring_%d" % _size] = ([0, 0, 0, 0], {s: (lambda s=s, z=_size: hud_ring(z, s)) for s in ("normal", "pressed", "active")})
 
 
 def _check_edges(name, state, img, margins):

@@ -5,8 +5,6 @@ extends Page
 const Avatar = preload("res://scripts/avatar.gd")
 const SLOT_POS := {"hat": Vector2(0, 0), "robe": Vector2(0, 1), "trousers": Vector2(0, 2), "boots": Vector2(0, 3),
 	"weapon": Vector2(1, 0), "gourd": Vector2(1, 1), "cape": Vector2(1, 2), "talisman": Vector2(1, 3)}
-var SLOT_LABEL := {"weapon": Tx.t("ui.inventory.weapon"), "hat": Tx.t("ui.inventory.hat"), "robe": Tx.t("ui.inventory.robe"), "trousers": Tx.t("ui.inventory.trousers"), "boots": Tx.t("ui.inventory.boots"), "gourd": Tx.t("ui.inventory.gourd"),
-	"cape": Tx.t("ui.inventory.cape"), "talisman": Tx.t("ui.inventory.talisman")}
 
 var sel := {}          # {"bag": index} | {"slot": name} | {"key": index}
 var doll: Node2D
@@ -19,7 +17,7 @@ func _init() -> void:
 func setup() -> void:
 	if is_instance_valid(doll): doll.queue_free()
 	doll = Avatar.new()
-	doll.position = Vector2(245, 520)   # the figure centred between the two columns of worn slots
+	doll.position = content.position + Vector2(160, 360)   # the figure between the two columns of worn slots (at 2x)
 	doll.scale = Vector2.ONE * 2.0
 	add_child(doll)
 	_refresh_doll()
@@ -36,7 +34,10 @@ func on_event(name: String, _p: Dictionary) -> void:
 	queue_redraw()
 
 func slot_locked(slot: String) -> String:
-	var ch = c()
+	return locked_reason(c(), slot)
+
+## Why a worn slot is closed to `ch`, or "" when it is open.
+static func locked_reason(ch, slot: String) -> String:
 	match slot:
 		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else Tx.t("ui.inventory.fists_only_until_the_weapon")
 		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else Tx.t("ui.inventory.cape_slot_opens_at_heaven")
@@ -56,21 +57,9 @@ func draw_page() -> void:
 		# Equipment around the doll.
 		# The worn slots in two columns either side of the figure (the doll, drawn at 2x between them).
 		panel(Rect2(content.position.x, content.position.y, 360, content.size.y))
-		for slot in SLOT_POS:
-			var gp: Vector2 = SLOT_POS[slot]
-			var r := Rect2(content.position.x + 14 + gp.x * 256, content.position.y + 14 + gp.y * 120, SLOT, SLOT)
-			var inst = inv.equipped.get(slot)
-			var why := slot_locked(slot)
-			if inst != null:
-				slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), "slot", slot, sel.get("slot", "") == slot)
-			else:
-				draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
-				if slot == "weapon" and why != "": icon_at(r.grow(-6), "fist")
-				if why != "": _lock_icon(r.position + Vector2(SLOT - 18, 4))
-				region(r, "slot", slot, true)
-			text(Vector2(r.position.x - 8, r.end.y + 19), SLOT_LABEL[slot], 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
-		# Bag grid: five columns of the 76 px slot.
-		var grid := Rect2(content.position.x + 380, content.position.y, 414, content.size.y - 56)
+		draw_worn(self, ch, content.position + Vector2(14, 14), Vector2(256, 120), str(sel.get("slot", "")), "slot")
+		# Bag grid: five columns of the 76 px slot on the 80 px pitch; its panel ends 16 px before the detail panel.
+		var grid := Rect2(content.position.x + 372, content.position.y, 408, content.size.y - 56)
 		panel(grid.grow(4))
 		var cols := 5
 		var cell := SLOT
@@ -80,7 +69,7 @@ func draw_page() -> void:
 				var i := row * cols + col
 				if i >= inv.bag.size(): break
 				var s = inv.bag[i]
-				var r2 := Rect2(rr.position.x + 6 + col * (cell + 4), rr.position.y, cell, cell)
+				var r2 := Rect2(rr.position.x + 4 + col * (cell + 4), rr.position.y, cell, cell)
 				if s == null:
 					draw_style_box(UiKit.style("slot"), r2)
 					region(r2, "bag", i)
@@ -95,15 +84,32 @@ func draw_page() -> void:
 	else:
 		var r := Rect2(content.position.x, content.position.y, 800, content.size.y)
 		panel(r)
-		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 8, func(i: int, rr: Rect2):
+		list("keys", r.grow(-10), inv.key_items.size(), SLOT + 12, func(i: int, rr: Rect2):
 			var k: Dictionary = inv.key_items[i]
 			slot_box(Rect2(rr.position, Vector2(SLOT, SLOT)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
-			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 21, UiKit.PAPER)
+			text(rr.position + Vector2(SLOT + 16, 32), ContentDB.item_name(str(k.id)), 22, UiKit.PAPER)
 			text(rr.position + Vector2(SLOT + 16, 58), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - SLOT - 32), 16, UiKit.MIST)
 			region(rr, "key", i)
 		)
 		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.inventory.no_key_items"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-	_draw_detail(Rect2(content.end.x - 290, content.position.y, 290, content.size.y))
+	_draw_detail(Rect2(content.end.x - 288, content.position.y, 288, content.size.y))
+
+## The worn slots in two columns `step.x` apart and `step.y` down from `origin`, each with its name under it: the Bag
+## draws them either side of the figure, and the Character page round its own (decision 8). A tap is region `id`.
+static func draw_worn(pg: Page, ch, origin: Vector2, step: Vector2, selected := "", id := "slot") -> void:
+	for slot in SLOT_POS:
+		var gp: Vector2 = SLOT_POS[slot]
+		var r := Rect2(origin + gp * step, Vector2(SLOT, SLOT))
+		var inst = ch.inventory.equipped.get(slot)
+		var why := locked_reason(ch, slot)
+		if inst != null:
+			pg.slot_box(r, str(inst.id), 1, str(inst.get("quality", "")), id, slot, selected == slot)
+		else:
+			pg.draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
+			if slot == "weapon" and why != "": pg.icon_at(r.grow(-6), "fist")
+			if why != "": pg._lock_icon(r.position + Vector2(SLOT - 18, 4))
+			pg.region(r, id, slot, true)
+		pg.text(Vector2(r.position.x - 8, r.end.y + 19), Tx.t("ui.inventory." + slot), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 16)
 
 func selected_item():
 	var inv: InventoryState = c().inventory
@@ -136,7 +142,7 @@ func _draw_detail(r: Rect2) -> void:
 	if q != "": sub = q.capitalize() + " · " + sub
 	text(Vector2(r.position.x + 16, y), sub, 16, UiKit.MIST)
 	y += 10
-	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 17, UiKit.PAPER, 5)
+	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 18, UiKit.PAPER, 5)
 	if def.has("slot"):
 		for m in StatRules.instance_modifiers(str(def.slot), s, ch.cultivator.energy_type, ch):
 			if y > r.end.y - 150: break
@@ -163,12 +169,12 @@ func _draw_detail(r: Rect2) -> void:
 		# S47 natal treasure: its level and growth, or that it is broken.
 		if s.get("natal", false):
 			var nl := Tx.t("ui.forge.natal_broken") if s.get("broken", false) else Tx.t("ui.inventory.natal_line") % [int(s.get("natal_level", 0)), int(s.get("ilv_eff", s.get("ilv", 1)))]
-			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED if s.get("broken", false) else UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED_TEXT if s.get("broken", false) else UiKit.GOLD)
 			y += 22
 		# S47 weapon awakening: an awakened weapon's own skill.
 		if s.get("awakened", false):
 			var ak := CraftingAuthority.awakened_skill(id)
-			text(Vector2(r.position.x + 16, y + 20), fit(Tx.t("ui.forge.awakened_line") % [str(ak.get("name", "")), int(ak.get("every_hits", 12))], 16, r.size.x - 32), 16, UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), fit(Tx.plural("ui.forge.awakened_line", int(ak.get("every_hits", 12))) % [str(ak.get("name", "")), int(ak.get("every_hits", 12))], 16, r.size.x - 32), 16, UiKit.GOLD)
 			y += 22
 		# S47: failed enhancements leave pity on the piece; the forge adds it to the next try.
 		if float(s.get("pity", 0.0)) > 0.0:
@@ -176,14 +182,14 @@ func _draw_detail(r: Rect2) -> void:
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
 		var tox_mult := InventoryAuthority.pill_toxicity_mult(s)
-		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED)
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED_TEXT)
 		y += 22
 	if not def.get("pill", {}).is_empty() and q != "":
 		# S15: quality sets potency; a Pill Halo also shows what dense-Qi seclusion has added.
 		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.potency") % int(round(InventoryAuthority.pill_potency(s) * 100.0)), 16, name_col)
 		y += 22
 		if int(s.get("marks", 0)) > 0:
-			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.pill_marks") % [int(s.marks), int(s.marks) * 2], 16, UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), Tx.plural("ui.inventory.pill_marks", int(s.marks)) % [int(s.marks), int(s.marks) * 2], 16, UiKit.GOLD)
 			y += 22
 		if q == "pill_halo":
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
@@ -251,7 +257,7 @@ func _draw_detail(r: Rect2) -> void:
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
 		var spare = ch.inventory.loadout.get("spare")
 		if str(sel.slot) == "weapon" and spare != null:
-			text(Vector2(bx, by - 8), Tx.t("ui.inventory.spare_weapon") % ContentDB.item_name(str(spare.id)), 17, UiKit.PALE_GOLD)
+			text(Vector2(bx, by - 8), Tx.t("ui.inventory.spare_weapon") % ContentDB.item_name(str(spare.id)), 18, UiKit.PALE_GOLD)
 			btn(Rect2(bx, by - 62 - 8, bw, 46), Tx.t("ui.inventory.swap_now"), "swap", null, true)
 			btn(Rect2(bx + bw + 10, by - 62 - 8, bw, 46), Tx.t("ui.inventory.spare_out"), "spare_out")
 
@@ -261,9 +267,9 @@ func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> 
 	var tr := CombatAuthority.treasure_of(str(s.id))
 	if not tr.is_empty():
 		var soul := int(CombatAuthority.treasure_soul_cost(ch, tr))
-		var line := Tx.t("ui.inventory.treasure_charges") % int(s.get("charges", int(tr.charges))) if tr.has("charges") \
-			else (Tx.t("ui.inventory.treasure_cost_soul") % [int(tr.get("qi", 0)), soul, int(tr.get("cooldown_s", 0))] if soul > 0
-			else Tx.t("ui.inventory.treasure_cost") % [int(tr.get("qi", 0)), int(tr.get("cooldown_s", 0))])
+		var line := Tx.plural("ui.inventory.treasure_charges", int(s.get("charges", int(tr.charges)))) % int(s.get("charges", int(tr.charges))) if tr.has("charges") \
+			else (Tx.t("ui.inventory.treasure_cost_soul") % [int(tr.get("qi", 0)), soul, UiKit.span(float(tr.get("cooldown_s", 0)))] if soul > 0
+			else Tx.t("ui.inventory.treasure_cost") % [int(tr.get("qi", 0)), UiKit.span(float(tr.get("cooldown_s", 0)))])
 		text(Vector2(x, y + 20), line, 16, UiKit.BRIGHT_JADE if not tr.has("charges") else UiKit.PALE_GOLD)
 		y += 22
 	if def.has("flight"):
@@ -286,27 +292,27 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	var by := r.end.y - 176
 	var prog: float = Game.inventory.binding_progress(ch.id)
 	if s.get("sealed", false):
-		text(Vector2(bx, y + 22), Tx.t("ui.inventory.sealed_bind_it_to_wake"), 16, UiKit.RED)
+		text(Vector2(bx, y + 22), Tx.t("ui.inventory.sealed_bind_it_to_wake"), 16, UiKit.RED_TEXT)
 		if prog >= 0.0:
 			bar(Rect2(bx, by, bw, 34), prog, UiKit.JADE, Tx.t("ui.inventory.binding"))
 		else:
 			var secs := float(ContentDB.stat_const("binding", {}).get("seconds", {}).get(str(def.get("grade", "common")), 10))
-			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % int(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
+			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % UiKit.span(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
 		return
 	var spirit := str(s.get("spirit", ""))
 	if spirit == "": return
 	var sp: Dictionary = def.get("spirit", {})
 	var awake := spirit == "awake"
 	var line := Tx.t("ui.inventory.spirit_awake") % str(def.get("unique", "")) if awake else Tx.t("ui.inventory.spirit_sleeps_named") % str(sp.get("name", ""))
-	y += para(Rect2(bx, y + 4, bw, 44), line, 16, UiKit.PALE_GOLD if awake else UiKit.SOUL, 2)
+	y += para(Rect2(bx, y + 4, bw, 44), line, 16, UiKit.PALE_GOLD if awake else UiKit.SOUL_TEXT, 2)
 	var aff := float(s.get("spirit_affinity", 0.0))
 	bar(Rect2(bx, y + 4, bw, 28), aff / 100.0, UiKit.SOUL, Tx.t("ui.inventory.spirit_affinity") % [int(aff), int(s.get("spirit_level", 0))])
 	y += 34
 	if awake and not StatRules.spirit_controlled(ch, s):
-		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 15, UiKit.RED, 2)
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 16, UiKit.RED_TEXT, 2)
 	elif not awake:
 		var need := int(InventoryAuthority.spirit_cfg().get("wake_affinity", 30))
-		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 15, UiKit.MIST, 2)
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 16, UiKit.MIST, 2)
 	# The contest, a gift and a meal: only for the relic in hand. Stacked, or two to a row when space is short.
 	if not (sel.has("slot") and str(sel.slot) == "weapon"): return
 	var rows: Array = []
@@ -324,7 +330,7 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	for i in rows.size():
 		var row: Array = rows[i]
 		var rr := Rect2(bx + (i % per) * (cw + 8), y + 8 + int(i / per) * 46, cw, 40)
-		btn(rr, fit(str(row[0]), 15, cw - 16), str(row[1]), row[2], bool(row[4]), bool(row[3]), "", 15)
+		btn(rr, fit(str(row[0]), 16, cw - 16), str(row[1]), row[2], bool(row[4]), bool(row[3]), "", 16)
 
 ## The gift the spirit would like most that is in the bag: its favourite first, then the richest.
 func _best_gift(ch, sp: Dictionary) -> String:

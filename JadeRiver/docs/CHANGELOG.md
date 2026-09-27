@@ -159,6 +159,43 @@ come next. Where it differs from the plan, the plan's §6 says so.
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
+- **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,
+  `HEART`, `SKY`, `HUD_LABEL`, `PAPER_INK`, `BAR_TROUGH`, `PLATE`, `DIM` and `SURFACE`, the drawn pages' own materials
+  (the map scroll, the Go board, the zither, talisman paper, the tribulation sky, the furnace). Every hex and float
+  colour literal in the pages, `Page` and the HUD is a token now (64 and 55 of them); red and violet words take the
+  text tokens that pass 4.5:1. Sphere's name colour is #9a87e3 (4.81:1, from 4.17); the three grades past it keep the
+  colours P7b gave them, and every grade is checked to have one. The HUD's buttons are the HD kit's new `hud_ring` (132, 64, 52 and 48 px; normal, pressed and
+  active), and a held button sinks.
+- **Contrast, option C (decision 10).** The bright jade primary face stays; primary labels in every state, page titles
+  and the dialogue speaker carry a 2 px ink outline (pale gold 15.6:1, a disabled label 6.2:1, where the face alone gave
+  2.13 and 2.64). Plates over the world are 0.72 (`PLATE`: secondary words 4.56:1 over a white sky), and the HUD log is
+  outlined. The option B previews are gone; `00b_button_faces.png` stays as the record.
+- **Type.** Every word is asked for on the scale (14, 16, 18, 20, 22; Cormorant 22, 26, 30, 34) and none under 14;
+  buttons and headings step down the scale; paragraphs default to 18; the HUD realm is 16 and its bar labels 14.
+- **Numbers, durations, plurals.** Numbers over the world shorten to three figures from 10,000 ("18.2K"); a value of a
+  total reads "a / b". Every time left, wait and cooldown is written by one `Tx.span` ("1 h 6 m", "3 h", "2 d 5 h"),
+  in the simulation's messages too; six duration strings retire. 75 counted strings gain their singular ("1 heart").
+- **Spacing and windows.** Page layout on the 8 px grid: content 32 px in and 80 under the title, 48 px tabs 8 apart,
+  a 512 × 224 confirm dialog; the twelve pages with windows of their own take one of the six standard windows, and the
+  dialogue strip sits inside the safe area; list rows on the grid; the Bag grid 16 px from its detail panel.
+- **The figure on the Character page (decision 8)** is drawn at 3x, crisp, with the worn slots round it (the Bag's own
+  drawing); a tap on a slot opens the Bag on it.
+- **States.** Settings' toggles are on in the selected art and Off in secondary grey-blue, not the disabled grey. The
+  character you play, your row in the Heaven Ranking and the Body rung you climb are marked with a gold ◆ rather than
+  the selection glow.
+- **Touch.** Every HUD control answers in a circle at least 48 across and its drawn radius + 4 (the Draught, the bag
+  animals and the icon row were short); where two overlap the nearest centre wins; the tracker's go button is 48 × 48,
+  and the Soul row opens Character.
+- **Found in the screenshots, fixed:** the quest tracker's plate hid the status icons (it now starts under them); menu
+  tile names touched their frames; a Welcome row's words ran into its value; the vow rows were shorter than their
+  buttons.
+- **Checks:** `rules_tests` `ui_style_suite` (no off-token colour, every grade coloured, every text colour measured on the
+  kit art it sits on, the HUD's text sizes, pressed only under the finger) and `hud_suite` (the HUD's targets); the
+  `ui_suite` holds every page to the type scale, the standard windows and the grid; `contract_tests` holds durations to
+  the span and every counted plural to its twin. The audit before and after is in the guide's §12; the pages and the HUD
+  re-taken from the valley_run checkpoint `ls6_end` are in `docs/ui_after_p4/`.
+
 ### P2 · The close-out: rooms walked, objects apart, the mark follows the objective (M16–M18, M20)
 - **Every room walked (M16).** A new suite, `room_sweep`, walks every room headless with the real movement solver. It
   checks that every door and interactable can be reached from every way in and that every arrival reaches a way out.

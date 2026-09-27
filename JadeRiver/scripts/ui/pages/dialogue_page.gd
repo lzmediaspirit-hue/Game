@@ -12,7 +12,7 @@ var portrait: Node2D
 
 func _init() -> void:
 	modal = true
-	frame_rect = Rect2(40, 470, 1200, 232)
+	frame_rect = WINDOW_DIALOGUE
 
 func setup() -> void:
 	convo = args.get("convo", {})
@@ -28,7 +28,7 @@ func setup() -> void:
 			if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")
 		if not o.has("hair_color"): o.hair_color = 0
 		portrait.outfit = o
-		portrait.position = Vector2(142, 690)
+		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - 12)
 		portrait.scale = Vector2.ONE * 1.35
 		portrait.facing = 1
 		add_child(portrait)
@@ -51,50 +51,51 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.18))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.18))
 	draw_page()
 	_draw_toast()
 
 func draw_page() -> void:
-	var box := Rect2(40, 500, 1200, 204)
+	var fr := frame_rect
+	var box := Rect2(fr.position.x, fr.position.y + 32, fr.size.x, fr.size.y - 32)
 	draw_style_box(UiKit.style("dialogue_box"), box)
-	var pf := Rect2(56, 470, 176, 220)
+	var pf := Rect2(fr.position.x + 16, fr.position.y, 176, 216)
 	draw_style_box(UiKit.style("portrait_frame"), pf)
 	# The plaque's ribbon ends take ~44 px a side: leave the name room inside the enamel.
-	var plaque := Rect2(250, 470, maxf(240, UiKit.text_width(str(convo.get("speaker", "")), 26, true) + 130), 48)
+	var plaque := Rect2(fr.position.x + 208, fr.position.y, maxf(240, UiKit.text_width(str(convo.get("speaker", "")), 26, true) + 130), 48)
 	draw_style_box(UiKit.style("title_plaque"), plaque)
-	text(plaque.position + Vector2(0, 34), str(convo.get("speaker", "")), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
+	inked(plaque.position + Vector2(0, 34), str(convo.get("speaker", "")), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x)
 	# S49: how this person feels about you, as hearts beside their name.
 	if convo.has("hearts"): UiKit.draw_hearts(self, Vector2(plaque.end.x + 12, plaque.position.y + 26), int(convo.hearts), 5, 10.0)
 	var s := current()
 	var visible := s.left(int(shown_chars))
 	var choices: Array = convo.get("choices", [])
 	var text_w := 560.0 if at_end() and not choices.is_empty() else 900.0
-	_ink_para(Rect2(262, 532, text_w, 150), visible, 22)
-	region(Rect2(40, 470, 1200, 234), "advance")
+	_ink_para(Rect2(fr.position.x + 216, fr.position.y + 64, text_w, 144), visible, 22)
+	region(fr, "advance")
 	if at_end() and shown_chars >= s.length():
 		if choices.is_empty():
-			text(Vector2(1160, 690), "▼", 18, UiKit.GOLD)
+			text(Vector2(fr.end.x - 72, fr.end.y - 8), "▼", 18, UiKit.GOLD)
 		else:
 			# Every choice a full 48 px high (I7): four of them rise above the box's top rather than shrink.
 			var h := 52.0
-			var y := minf(520.0, 698.0 - h * choices.size())
+			var y := minf(fr.position.y + 48, fr.end.y - 8 - h * choices.size())
 			for i in choices.size():
 				var ch: Dictionary = choices[i]
 				var primary := ch.has("accept") or ch.has("hand_in")
-				btn(Rect2(846, y, 370, h - 4), str(ch.get("text", "...")), "choose", i, primary, true, "", 20)
+				btn(Rect2(fr.end.x - 384, y, 368, h - 4), str(ch.get("text", "...")), "choose", i, primary, true, "", 20)
 				y += h
 	elif shown_chars < s.length():
 		pass
 	else:
-		text(Vector2(1160, 690 + sin(t * 5.0) * 3), "▼", 18, UiKit.GOLD)
+		text(Vector2(fr.end.x - 72, fr.end.y - 8 + sin(t * 5.0) * 3), "▼", 18, UiKit.GOLD)
 
 ## Dialogue lines are ink on the paper box: dark, no drop shadow.
 func _ink_para(rect: Rect2, s: String, size: int) -> void:
 	var y := rect.position.y + size * UiKit.text_scale()
 	for ln in _wrap(s, size, rect.size.x):
 		if y > rect.end.y + 2: break
-		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, Color("2b2118"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
 		y += UiKit.line_height(size) * 1.04
 
 func on_action(id: String, data) -> void:

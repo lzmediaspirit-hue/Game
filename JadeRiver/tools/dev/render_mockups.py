@@ -69,8 +69,13 @@ def render(name):
     print("%s  %dx%d" % (os.path.relpath(out, ROOT), size[0], size[1]))
 
 
+# Mockups kept as the record of a decision and never re-rendered: 00b previewed the option B button faces, whose PNGs
+# went once option C was chosen (roadmap §6 decision 10).
+RECORDS = {"00b_button_faces"}
+
+
 def all_names():
-    return sorted(os.path.basename(p)[:-5] for p in glob.glob(os.path.join(SRC, "*.html")))
+    return sorted(n for n in (os.path.basename(p)[:-5] for p in glob.glob(os.path.join(SRC, "*.html"))) if n not in RECORDS)
 
 
 def list_mockups():

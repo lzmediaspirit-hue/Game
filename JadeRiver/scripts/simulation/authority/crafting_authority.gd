@@ -755,7 +755,7 @@ func refine_block(c, recipe_id: String, count: int, fire: String, substitute: Di
 	var furnace := furnace_of(c)
 	if furnace.get("cracked", false): return Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(furnace.id))
 	if count > int(furnace.get("batch", 1)):
-		return Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]
+		return Tx.plural("sim.crafting.furnace_batch", int(furnace.get("batch", 1))) % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]
 	var need_fire := str(r.get("fire", ""))
 	if need_fire != "" and fire != need_fire: return Tx.t("sim.crafting.needs_fire") % Tx.t("ui.crafts.fire_" + need_fire)
 	if not substitute.is_empty():
@@ -978,7 +978,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		# The furnace sets the batch (G1); the fire must be one you have here.
 		if furnace.get("cracked", false): return fail("cracked", {"text": Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(furnace.id))})
 		if count > int(furnace.get("batch", 1)):
-			return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
+			return fail("batch", {"text": Tx.plural("sim.crafting.furnace_batch", int(furnace.get("batch", 1))) % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
 		if not fire in fires_available(c): fire = "charcoal"
 		# Some pills take only one fire (S48: the Heavenly Flame Pill).
 		var need_fire := str(ContentDB.entry("recipes", recipe_id).get("fire", ""))
@@ -1357,7 +1357,7 @@ func tend_treasure_plot(c, o: Dictionary) -> Dictionary:
 		emit("treasure_harvested", {"actor": c.id, "treasure": "evergreen_heart_tree", "item": "evergreen_heart_fruit"})
 		return ok({"text": Tx.t("sim.crafting.you_pick_the_fruit")})
 	var hours := maxf(1.0, ceilf((float(st.next_utc) - Clock.now_utc()) / 3600.0))
-	return ok({"text": Tx.t("sim.crafting.next_fruit_in") % int(hours)})
+	return ok({"text": Tx.t("sim.crafting.next_fruit_in") % Tx.span(hours * 3600.0)})
 
 ## Pill Grain, Halo and Soul (S15): a perfect run (every strike perfect, from Heart Tempering 1)
 ## plus luck; a special furnace and the Alchemy Dao improve the odds.
@@ -1400,7 +1400,7 @@ func queue_auto(c, recipe_id: String, count: int) -> Dictionary:
 	if c.crafting.auto_queue.size() >= 5: return fail("queue_full")
 	var why := recipe_check(c, recipe_id, count, "alchemy")
 	if why != "": return fail("cannot_craft", {"text": why})
-	if count > int(furnace_of(c).get("batch", 1)): return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace_of(c).get("id", ""))), int(furnace_of(c).get("batch", 1))]})
+	if count > int(furnace_of(c).get("batch", 1)): return fail("batch", {"text": Tx.plural("sim.crafting.furnace_batch", int(furnace_of(c).get("batch", 1))) % [ContentDB.item_name(str(furnace_of(c).get("id", ""))), int(furnace_of(c).get("batch", 1))]})
 	var r := ContentDB.entry("recipes", recipe_id)
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "auto_refine")
 	c.crafting.auto_queue.append({"recipe": recipe_id, "count": count, "done_utc": Clock.now_utc() + float(r.get("time_s", 300)) * count, "quality": "common"})
@@ -1465,7 +1465,7 @@ func enhance_check(c, inst: Dictionary, essence := 0) -> String:
 	if int(inst.get("enhance", 0)) >= 10: return Tx.t("ui.forge.max")
 	var cost := enhance_cost(inst)
 	if c.inventory.count(str(cost.metal)) < int(cost.count): return Tx.t("sim.crafting.needs_2") % [int(cost.count), ContentDB.item_name(str(cost.metal))]
-	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.t("ui.forge.taels") % int(cost.taels)
+	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels)
 	if int(cost.shards) > 0 and c.inventory.count("spirit_stone_shard") < int(cost.shards): return Tx.t("sim.crafting.needs_spirit_stone_shards")
 	if c.inventory.count("refining_essence") < essence: return Tx.t("sim.crafting.needs_2") % [essence, ContentDB.item_name("refining_essence")]
 	return ""
@@ -1475,7 +1475,7 @@ func reroll_check(c, inst: Dictionary) -> String:
 	if (inst.get("affixes", []) as Array).is_empty(): return Tx.t("sim.crafting.no_affixes")
 	var cost := reroll_cost(inst, c)
 	if c.inventory.count("refining_essence") < int(cost.essence): return Tx.t("sim.crafting.needs_2") % [int(cost.essence), ContentDB.item_name("refining_essence")]
-	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.t("ui.forge.taels") % int(cost.taels)
+	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels)
 	return ""
 
 ## Enhance (S14, S47): never destroys an item or takes a level. A failure spends the materials and adds 5% pity to
@@ -1525,7 +1525,7 @@ func inherit(c, from_uid: int, to_uid: int) -> Dictionary:
 	var moved := int(a.inst.get("enhance", 0)) - int(upkeep("inherit_loss", 2))
 	if moved <= int(b.inst.get("enhance", 0)): return fail("nothing_to_move", {"text": Tx.t("sim.crafting.inherit_nothing")})
 	var stones := moved * int(upkeep("inherit_stones_per_level", 2))
-	if game.economy.balance("spirit_stone") < stones: return fail("insufficient_funds", {"text": Tx.t("sim.crafting.inherit_stones") % stones})
+	if game.economy.balance("spirit_stone") < stones: return fail("insufficient_funds", {"text": Tx.plural("sim.crafting.inherit_stones", stones) % stones})
 	game.economy.apply_currency("spirit_stone", -stones, "inherit")
 	game.inventory.apply_enhance(c.id, b.inst, moved, str(b.slot))
 	game.inventory.apply_enhance(c.id, a.inst, 0, str(a.slot))
