@@ -119,7 +119,7 @@ def build():
              "A spike of will that ignores armour; 20% confusion.", soul=15, ignore_armor=True, reach=260,
              status={"id": "confusion", "chance": 0.2, "power": 1, "duration_s": 2}, action="meditate_burst"),
         tech("soul_lantern_ward", "spirit_awakening_5", "the_mentors_gift", "any", "soul", "buff", (0, 0), 0, 0, 30, 0,
-             "A ward that absorbs damage equal to 20% max Soul for 6 s.", soul=20, shield_soul_pct=0.2, shield_s=6, action="meditate_burst"),
+             "A ward that absorbs damage equal to 10% of your max HP for 6 s.", soul=20, shield_hp_pct=0.1, shield_s=6, action="meditate_burst"),
         # S48 the Soul line (v1.0), taught by the Soul Dao's first three tiers: a lock the eyes of the soul put on a foe,
         # an illusion that draws foes off you, and a search of an elite's soul for its memories and what it hid.
         tech("sense_lock", "spirit_awakening_1", "soul_dao_1", "any", "soul", "soul", (0.60, 0.80), 1, 1, 14, 0,

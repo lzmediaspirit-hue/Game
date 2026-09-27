@@ -257,7 +257,7 @@ func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Di
 func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
 	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
 	var k: Dictionary = ContentDB.stat_const("body_path", {})
-	var hp := qi_cost * float(k.get("hp_per_qi", 1.5))
+	var hp: float = c.pools.max_hp * qi_cost / maxf(1.0, c.pools.max_qi) * float(k.get("hp_share_per_qi_share", 1.0))   # P12: shares, as Might scales HP only
 	return hp if c.pools.hp - hp >= c.pools.max_hp * float(k.get("hp_floor", 0.2)) else 0.0
 
 ## The flight vessel ridden (S47): what the air costs.
@@ -868,9 +868,10 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			apply_buff(c.id, {"stat": b.stat, "op": b.get("op", "pct_add"), "value": b.value, "duration": b.duration, "source": "tech:" + str(t.id)}, "technique")
 		for b2 in t.get("buffs", []):
 			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
-		# Soul Lantern Ward: a shield of a share of max Soul that takes blows of any kind until its time is up.
-		if float(t.get("shield_soul_pct", 0.0)) > 0.0 and c.pools.max_soul > 0.0:
-			raise_shield(c, c.pools.max_soul * float(t.shield_soul_pct), float(t.get("shield_s", 6)))
+		# Soul Lantern Ward: a shield of a share of max HP (P12: blows grow with Might, max Soul does not) that takes blows
+		# of any kind until its time is up.
+		if float(t.get("shield_hp_pct", 0.0)) > 0.0:
+			raise_shield(c, c.pools.max_hp * float(t.shield_hp_pct), float(t.get("shield_s", 6)))
 		var healed := 0
 		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
 			var song: float = 1.0 + (c.stats.value("melody_power") if str(t.get("dao", "")) == "music" else 0.0)

@@ -547,8 +547,9 @@ def build():
         # levels above the gang, and a cooldown between them.
         "ambush": {"chance": 0.06, "concealed_mult": 2.0, "reach": 8, "cooldown_s": 900, "offset": 360},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
-        # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
-        "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},
+        # S48 body ladder: body techniques spend HP when QI is short (Copper Body), never below this share; P12: the same
+        # share of max HP as the share of max QI the technique costs (Might scales HP, not QI).
+        "body_path": {"hp_share_per_qi_share": 1.0, "hp_floor": 0.2, "air_metre_px": 50},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
         # and a strike still deals this share of its damage.
         "hazard": {"partial": 0.5, "answered_damage": 0.35, "shelter_radius": 220, "flyer_push": 1.5},
