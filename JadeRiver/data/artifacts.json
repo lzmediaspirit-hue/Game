@@ -2079,6 +2079,7 @@
    "source": [
     "bastion_armoury"
    ],
+   "named": true,
    "attribute_req": {
     "insight": 92
    }
@@ -2100,6 +2101,7 @@
    "source": [
     "bastion_armoury"
    ],
+   "named": true,
    "attribute_req": {
     "insight": 110
    }
@@ -2121,6 +2123,7 @@
    "source": [
     "bastion_armoury"
    ],
+   "named": true,
    "attribute_req": {
     "essence": 92
    }
@@ -2142,6 +2145,7 @@
    "source": [
     "bastion_armoury"
    ],
+   "named": true,
    "attribute_req": {
     "essence": 110
    }
@@ -2159,6 +2163,7 @@
    "type": "equipment",
    "stack": 1,
    "family": "jian",
+   "named": true,
    "desc": "A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."
   },
   {

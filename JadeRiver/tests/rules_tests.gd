@@ -7646,8 +7646,8 @@ func drop_pool_suite() -> void:
 			var inst: Dictionary = LootRules.make_equipment(rng, level, "common", 0.0, true, i)
 			if inst.is_empty(): continue
 			var def: Dictionary = ContentDB.item(str(inst.id))
-			if def.has("legend") or def.has("imitation"): bad.append(str(inst.id))
-	check(bad.is_empty(), "no legendary weapon or imitation relic from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+			if def.has("legend") or def.has("imitation") or def.get("named", false): bad.append(str(inst.id))
+	check(bad.is_empty(), "no legendary weapon, imitation relic or named piece from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
 
 func legacy_suite() -> void:
 	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")

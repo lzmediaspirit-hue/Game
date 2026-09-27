@@ -867,10 +867,10 @@ def build_artifacts():
              "A bronze bell rung on the Tidebreak walls at every change of watch. Its strikes ring out on both sides."),
             ("tidebreak_bell", "bell", "will", "Tidebreak Bell", "bell", "essence",
              "Cast from a lantern cage that fell in the Breach. The Hollow does not like its note.")]:
-        rows.append(artifact(wid, "weapon", grade, name, look, fam, desc=desc, source=["bastion_armoury"],
+        rows.append(artifact(wid, "weapon", grade, name, look, fam, desc=desc, source=["bastion_armoury"], named=True,
                              attribute_req={attr: {"sage": 92, "will": 110}[grade]}))
     # S47 rogue cultivators drop what they carry in the open.
-    rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
+    rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30, named=True,
                          desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))
     # S47 Artifact Spirit depth: each relic's spirit has a control demand (the Spirit its full power needs), a skill
     # (a strike every so many hits once awake), a favourite gift, the place it wakes and its one-line barks.

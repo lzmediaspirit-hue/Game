@@ -694,7 +694,7 @@ def spawn_levels(sp):
 
 
 def banded_eligible(a):
-    return not (a.get("set") or a.get("relic") or a.get("legend") or a.get("imitation") or a.get("slot") in EQUIP_EXCLUDED_SLOTS or a.get("pet_gear"))
+    return not (a.get("set") or a.get("relic") or a.get("legend") or a.get("imitation") or a.get("named") or a.get("slot") in EQUIP_EXCLUDED_SLOTS or a.get("pet_gear"))
 
 
 def table_rows(d, t):

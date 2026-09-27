@@ -680,10 +680,10 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI boss_abbot; aggro range 200; move speed 90; patrol 140; weak to fire. Attacks: bell_shockwave×1.2 (windup 0.7s, knockback 80); summon_ghosts×0 (windup 1.2s, summon paper_talisman_ghost). Phases: below 66% HP: action flood; below 33% HP: action summon
 - **Drops** (loot table `drowned_abbot`):
   - [Riverbreath Scroll](items.md#item-riverbreath_scroll): 100% (guaranteed)
-  - [Drowned Abbot Robe](items.md#item-drowned_robe): 100% (guaranteed)
   - [Riverlight Hilt](items.md#item-riverlight_hilt): 100% (only during Riverlight Jian)
   - [Bronze Bell](items.md#item-bronze_bell): 100% (first defeat, once per character)
   - [Shattered Moon Blade](items.md#item-shattered_moon_blade): 100% (first defeat, once per character)
+  - [Drowned Abbot Robe](items.md#item-drowned_robe): 100% (first defeat, once per character)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Earth (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
 

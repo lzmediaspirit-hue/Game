@@ -3080,15 +3080,6 @@
       1
      ],
      "weight": 1
-    },
-    {
-     "item": "drowned_robe",
-     "chance": 1.0,
-     "count": [
-      1,
-      1
-     ],
-     "weight": 1
     }
    ],
    "quest_drops": [

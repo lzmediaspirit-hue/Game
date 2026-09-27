@@ -11,8 +11,12 @@ This page is the plan half of P7b (`docs/roadmap_master_ui.md` §3, items M10–
 5. It lists the sprite gaps per region and ranks a backlog for the art pipelines.
 6. It orders P7b's data work and says where each change lands.
 
-It also gives a source to each of the 43 items `data_validation` lists in `KNOWN_SOURCE_GAPS` (§2.9) and specifies the
-consolidation pill that makes Solid stability reachable (§2.10, `docs/cultivation_loop.md` §13 F2 and §15).
+It also gives a source to each of the 43 items `data_validation` lists in `KNOWN_SOURCE_GAPS` (§2.10) and specifies the
+consolidation pill that makes Solid stability reachable (§2.11, `docs/cultivation_loop.md` §13 F2 and §15).
+
+Bosses follow P9's reward loop (`docs/boss_design.md` §3.11 and §4): one signature item per boss, with its rate and
+pity. This page counts P9's six equipment signatures in its targets and hangs no other named row on a boss; every set
+piece has a source that is not a boss.
 
 Counts are taken from `data/` at commit 1a4e8b8 (after P7a): `artifacts.json` (142 equipment bases), `sets.json`,
 `affixes.json`, `grades.json`, `loot_tables.json` (134 tables), `enemies.json` (121 foes), `data/rooms/` (the spawns),
@@ -127,11 +131,12 @@ unlocked). Quality starts at the table's minimum and steps up on one roll (`Loot
 
 | Source | Tables | Equipment chance | Minimum quality | Quality spread |
 |---|---|---|---|---|
-| Normal foe | 69 | 3% (bandits 5–6%) | Flawed | 50% Flawed · 30% Common · 15% Fine · 5% Superior |
+| Normal foe | 67 | 3% | Flawed | 50% Flawed · 30% Common · 15% Fine · 5% Superior |
+| Bandit, brigand, pirate (humanoid normals) | 3 | 5–6% | Flawed | as a normal |
 | A normal spawned as an elite (41 species) | — | its own roll, plus 25% (`world_authority.gd:774-777`) | Fine | 50% Fine · 30% Superior · 20% Perfect |
 | Elite (role) | 17 | 25% | Fine | as above |
 | Field, dungeon and story boss | 13 | 100% | Superior | 50% Superior · 50% Perfect |
-| Event foe | — | 3% | Flawed | as a normal |
+| Event foe | 2 | 3% | Flawed | as a normal |
 | Jars | 4 | 2% | Flawed | as a normal |
 | Chests: valley / dungeon, Expanse, Lantern / Tomb, Wreck | 1 / 3 / 2 | 30% / 60% / 80% | Fine | as an elite |
 | Spar and trial opponents, set rewards | 22 | none (`no_equipment`) | — | — |
@@ -173,7 +178,7 @@ and bell join the pool.
 | G11 | **Drops flood** (§1.6): 14.5–17.3 pieces and 2.2–3.7 Superior or better an hour of hunting, flat across bands. The quality steps are constants in `LootRules`, the elite extra roll a constant in `world_authority.gd` | `loot_rules.gd:94-98`, `world_authority.gd:774-777` |
 | G12 | **Two named pieces drop on every kill.** The Rogue Cultivator (an elite that respawns every 3 minutes) always drops the Serpent-Tongue Jian; the Drowned Abbot always drops the Drowned Robe | `loot_tables.json` |
 | G13 | **Named pieces still roll as ordinary drops.** P7a removed the legends and imitations from the random pool; the Serpent-Tongue Jian (Earth) and the Ink-Warden's Brush and Warden's Hand-bell (Sage) remain, so Expanse foes drop Act III's Bastion weapons | `loot_rules.gd:85-86` |
-| G14 | **No repeatable boss in the valley's Heaven band** (Levels 37–54, 25 hours of play): the Drowned Abbot is Level 27 and the Gate Guardian 63 and fought once. Named pieces of that band hang on elites and the Trial Tower until P9 adds a boss | `enemies.json`, `tower.json` |
+| G14 | **No daily or field boss in the valley's Heaven band** (Levels 37–54, 25 hours of play): the Drowned Abbot is Level 27 and the Gate Guardian 63. P9's Recollection makes Elder Gu (53) a weekly replay; the band's named pieces hang on elites and the Trial Tower | `enemies.json`, `tower.json`, `boss_design.md` §3.11 |
 
 ---
 
@@ -211,9 +216,10 @@ by grade) plus:
 - Named pieces never come from the random roll (the pool excludes `named`, `set`, `relic`, `legend`, `imitation`).
 - A named piece reuses an appearance and dye already in `parts.json` (hats: headband, tied, straw, guan, weimao;
   shirts: sleeveless, vneck, cardigan, scholar, disciple; pants: martial, cuffed, loose, scholar, straight; shoes:
-  boots, folded, slippers; capes: solid, tattered; dyes on shirt and pants only). Every such pair is already in the
-  compatibility gallery, so AGENTS.md needs no new pose review. A weapon takes its family's appearance. The art cost
-  of a named piece is its icon.
+  boots, folded, slippers; capes: solid, tattered; dyes on shirt and pants only). Dyes are a palette pass over looks
+  already reviewed in every action (`tools/art/bake_dyes.py`), so a named piece adds no pose; the compatibility gallery
+  is still re-rendered and inspected once for each look and dye pair the named pieces use (AGENTS.md rule 3). A weapon
+  takes its family's appearance. The art cost of a named piece is its icon.
 
 ### 2.2 Element and path tags
 
@@ -226,36 +232,38 @@ by grade) plus:
 | Formation master | `confucian` | the Confucian path; before Will Manifest 2, Formation Dao tier 3 | Earth | Earth | Space | Earth |
 | Musician | `buddhist` | a vow held (the Buddhist path); or Music Dao tier 3 | Water | Wind | Metal | Life and Death |
 
-Elements follow each zone's Laws (`zones.json` `laws`; the Frontier's worlds favour two each). Two signatures carry
-the `blood` path instead (Kharn's Cinder Glaive, the Frayed-Verge Twinblades): on the Blood path their fixed affix
-counts half again.
+Elements follow each zone's Laws (`zones.json` `laws`; the Frontier's worlds favour two each). The Frayed-Verge
+Twinblades carry the `blood` path instead, and P9's Cinder Oath Glaive (Kharn's signature) should too: on the Blood
+path their fixed affix counts half again.
 
 ### 2.3 Counts per zone, today against target
 
-| Zone | Named today | New named | Named target | Sets today | Archetype sets target | Banded today | New banded | Banded target |
-|---|---|---|---|---|---|---|---|---|
-| Act I · Jade River Valley | 31 | 56 | 87 | 5 (general) | 5 general + 6 | 70 | 19 | 89 |
-| Act II · Azure Expanse | 9 | 47 | 56 | 0 | 6 | 28 | 12 | 40 |
-| Act III · Lantern Star Field | 4 | 49 | 53 | 0 | 6 | 0 | 40 | 40 |
-| v1.3 · Star Frontier | — | 64 | 64 | — | 6 | — | 48 | 48 |
-| **Through v1.3** | **44** | **216** | **260** | **5** | **29** | **98** | **119** | **217** |
-| v1.4 · Outer Heavens (outline) | — | 112 | 112 | — | 12 | — | 48 | 48 |
-| v1.5 · World Genesis (outline) | — | 57 | 57 | — | 6 | — | 24 | 24 |
+| Zone | Named today | New here | From P9 | Named target | Sets today | Archetype sets target | Banded today | New banded | Banded target |
+|---|---|---|---|---|---|---|---|---|---|
+| Act I · Jade River Valley | 31 | 55 | 2 | 88 | 5 (general) | 5 general + 6 | 70 | 19 | 89 |
+| Act II · Azure Expanse | 9 | 47 | 2 | 58 | 0 | 6 | 28 | 12 | 40 |
+| Act III · Lantern Star Field | 4 | 48 | 2 | 54 | 0 | 6 | 0 | 40 | 40 |
+| v1.3 · Star Frontier | — | 64 | — | 64 | — | 6 | — | 48 | 48 |
+| **Through v1.3** | **44** | **214** | **6** | **264** | **5** | **29** | **98** | **119** | **217** |
+| v1.4 · Outer Heavens (outline) | — | 112 | — | 112 | — | 12 | — | 48 | 48 |
+| v1.5 · World Genesis (outline) | — | 57 | — | 57 | — | 6 | — | 24 | 24 |
 
-Equipment grows from 142 bases to 477 through v1.3 and about 720 through v1.5.
+Equipment grows from 142 bases to 481 through v1.3 and about 720 through v1.5. "From P9" are the equipment signatures
+of `docs/boss_design.md` §4 (the Hollow-Tusk Gauntlets, the Gatekeeper's Ring-Staff, the Sunscar Crown, the Comet-Hook
+Blade, the Blackmast Starsteel Sabre, the Cinder Oath Glaive); P9's jades, treasure arts and manual are not equipment.
 
 Named target per archetype and zone (sets with their weapon variants, plus signatures):
 
 | Archetype | Valley | Expanse | Lantern | Frontier | Through v1.3 |
 |---|---|---|---|---|---|
-| Body cultivator | 12 (set 9, signatures 3) | 14 (set 9, signature 1, legends 4) | 11 (9 + 2) | 11 (9 + 2) | 48 |
+| Body cultivator | 13 (set 9, new 2, P9 2) | 14 (set 9, new 1, legends 4) | 12 (set 9, new 1, P9 2) | 11 (9 + 2) | 50 |
 | Sword Dao | 13 (set 6, new 1, existing 6) | 8 (6 + 1 + legend) | 8 (6 + 2) | 9 (7 + 2) | 38 |
-| Alchemist | 13 (set 6, new 2, furnaces 5) | 8 (6 + 1 + legend) | 8 (6 + 2) | 9 (7 + 2) | 38 |
+| Alchemist | 13 (set 6, new 2, furnaces 5) | 9 (6 + 1 + legend + P9) | 8 (6 + 2) | 9 (7 + 2) | 39 |
 | Beast tamer | 12 (set 6, new 3, pet gear 3) | 8 (6 + 1 + legend) | 8 (6 + 2) | 9 (7 + 2) | 37 |
-| Formation master | 10 (set 7, signatures 3) | 9 (7 + 1 + legend) | 9 (7 + 2 existing) | 10 (8 + 2) | 38 |
-| Musician | 10 (set 7, signatures 3) | 9 (7 + 1 + legend) | 9 (7 + 2 existing) | 9 (7 + 2) | 37 |
+| Formation master | 10 (set 7, new 3) | 10 (7 + 1 + legend + P9) | 9 (7 + 2 existing) | 10 (8 + 2) | 39 |
+| Musician | 10 (set 7, new 3) | 9 (7 + 1 + legend) | 9 (7 + 2 existing) | 9 (7 + 2) | 37 |
 | General | 17 (the five sets, cape, talisman) | 0 | 0 | 7 (Well-Warden mantles) | 24 |
-| **Total** | **87** | **56** | **53** | **64** | **260** |
+| **Total** | **88** | **58** | **54** | **64** | **264** |
 
 The sets are listed piece by piece in §3.3. The signatures follow.
 
@@ -265,25 +273,26 @@ Sets (§3.3): **Pilgrim-Stair** (body), **Mistcutter** (sword), **Willow-Dew** (
 **Compass-Flag** (formation), **Falls-Echo** (musician), all Heaven grade (iLv 44–49), dropping in the Crane Cliffs and
 on Mist Peak, sold at the valley's halls and guilds, crafted at them, and given by the Trial Tower's floor 20.
 
-New signatures (15). Rates are per kill; `E` marks a row rolled only by elites (§4.2).
+New signatures (14). Rates are per kill; `E` marks a row rolled only by elites (§4.2). P9 adds two more for the body
+cultivator at Mystic grade: the **Hollow-Tusk Gauntlets** (the Hollow Behemoth) and the **Gatekeeper's Ring-Staff** (the
+Gate Guardian), both 15% a weekly Recollection (pity 6).
 
 | Archetype | Name | Slot · grade · iLv | Element | Source (rate) | What makes it the archetype's piece |
 |---|---|---|---|---|---|
-| Body | **Boar-Tusk Knuckles** | Gauntlets · Common · 15 | Earth | Thornback Boar, Bamboo Grove (E 5%) | Tusks lashed over the knuckles: the third punch knocks back twice as far; fixed +Body |
-| Body | **Serpent-Coil Sabre** | Heavy sabre · Earth · 25 | Water | Riverbed Serpent, field boss and Beast King (20%) | Cut from the rock the serpent coils on: Sundered lasts 2 s longer; fixed +attack |
-| Body | **Hollow-Antler Knuckles** | Gauntlets · Mystic · 58 | Wood | Hollow Stag, Summit Ridge (0.2%) | Grey antler over the fist: +knockback resistance and +HP; a Copper Body wears the HP twice over |
+| Body | **Boar-Tusk Knuckles** | Gauntlets · Common · 15 | Wood | Thornback Boar, Bamboo Grove (E 5%) | Tusks lashed over the knuckles: the third punch knocks back twice as far; fixed +Body |
+| Body | **Serpent-Coil Sabre** | Heavy sabre · Earth · 33 | Earth | Boulder Serpent, Whitewater Gorge (E 2.5%) | Cut from the rock a boulder serpent coils on: Sundered lasts 2 s longer; fixed +attack |
 | Sword | **Roc-Quill Jian** | Jian · Mystic · 60 | Wind | Cloudpeak Roc, Summit Ridge (E 2.5%) | Long and light as a roc's flight feather: Sword Release reaches 25% further; fixed +penetration |
 | Alchemist | **Viper-Fang Dirk** | Short blade · Common · 13 | Wood | Green Viper, Bamboo Grove (E 5%) | A fang set in a bone grip: viper oil takes on 30% of hits instead of 20% |
-| Alchemist | **Abbot's Medicine Gourd** | Gourd · Earth · 27 | Water | the Drowned Abbot (25%) | The Abbot's own: +toxicity tolerance, and pills from quick-use restore 10% more |
+| Alchemist | **Abbot's Medicine Gourd** | Gourd · Earth · 27 | Water | Drowned Acolyte, Drowned Shrine (0.2%) | The Abbot's pattern, still carried by his acolytes: +toxicity tolerance, and pills from quick-use restore 10% more |
 | Beast tamer | **Marsh-Hunter's Bow** | Bow · Common · 11 | Water | Greyfin, Reed Marsh (E 5%) | Strung with otter gut: +pet damage; the animal strikes first at what you shot |
-| Beast tamer | **Serpent-King Collar** | Pet collar · Earth · 25 | Water | Riverbed Serpent (20%) | Worn by your animal: +12% HP and the King's water resistance |
+| Beast tamer | **Serpent-King Collar** | Pet collar · Earth · 25 | Water | Hermit Yao's recipe: serpent scale ×4, serpent core ×1, jadeiron ×2 | Sewn from the King's shed scales: +12% HP for your animal and the King's water resistance |
 | Beast tamer | **Roc-Plume Saddle** | Pet saddle · Mystic · 60 | Wind | Cloudpeak Roc (0.2%) | A mount wearing it carries you 15% faster and glides off ledges |
-| Formation | **Chalkline Brush** | Brush · Common · 16 | Earth | Old Scribe Bai's first talisman lesson (quest reward) | The scribe's first brush: the talismans it writes last 1 s longer |
-| Formation | **Talisman-Ghost Veil** | Hat (weimao) · Earth · 25 | Earth | Paper Talisman Ghost, Drowned Shrine (0.2%) | Paper strips sewn into the brim: +array power, fixed +Insight |
+| Formation | **Chalkline Brush** | Brush · Common · 16 | Earth | Old Scribe Bai's "Ink and Paper" (Qi Kindling 6), quest reward | The scribe's first brush: the talismans it writes last 1 s longer |
+| Formation | **Talisman-Ghost Veil** | Hat (weimao) · Earth · 25 | Soul | Paper Talisman Ghost, Drowned Shrine (0.2%) | Paper strips sewn into the brim: +array power, fixed +Insight |
 | Formation | **Wisp-Mirror Fan** | Fan · Mystic · 58 | Water | Trial Tower floor 30, first clear (10% later) | Its launch writes a binding talisman on the foe it lifts; fixed +Qi attack |
 | Musician | **Marsh-Reed Flute** | Flute · Common · 12 | Water | Greyreed Hamlet trader (taels, Qi Kindling 5) | Cut from Greyreed's tallest reed: the melody reaches 20% further |
 | Musician | **Sunken-Chime Bell** | Bell · Earth · 27 | Water | Drowned Acolyte, Drowned Shrine (0.2%) | A chime from the drowned temple: each ring seals a foe's Qi for 0.5 s |
-| Musician | **Soulbell Circlet** | Hat (tied) · Mystic · 59 | Wood | Weeping Lantern, Mist Peak (0.2%) | Woven with soulbell petals: +soul attack; the melody confuses 4% more often |
+| Musician | **Soulbell Circlet** | Hat (tied) · Mystic · 59 | Soul | Weeping Lantern, Mist Peak (0.2%) | Woven with soulbell petals: +soul attack; the melody confuses 4% more often |
 
 Existing valley named pieces kept: the Mudwater Cleaver, Serpent-Tongue Jian, Moonlit and Sleeping Blades and their
 imitations (sword); the five furnaces (alchemist); the Bone Collar, Scale Talisman and Reed Saddle (beast tamer); the
@@ -294,15 +303,17 @@ five general sets, the Mistjade Cape and the Cloud Talisman (general).
 Sets (§3.3): **Stormhide** (body, Spirit, iLv 68), **Azure Fin** (beast tamer, Spirit, 72), **Kite-String** (musician,
 Sage, 76), **Sandking Seal** (formation, Sage, 77), **Amber-Sting** (alchemist, Sage, 78), **Riven-Sky** (sword, Sage, 79).
 
-New signatures (6); the nine legends count as the other.
+New signatures (6); the nine legends count as the other. P9 adds two: the **Sunscar Crown** (the Tomb King; a Sage hat,
+Earth; tagged the formation master's here, beside the Sandking Seal) and the **Comet-Hook Blade** (Comet Captain Rao; a
+short blade, Metal; the alchemist's).
 
 | Archetype | Name | Slot · grade · iLv | Element | Source (rate) | What makes it the archetype's piece |
 |---|---|---|---|---|---|
-| Body | **Snow-Ape Mantle** | Cape (solid) · Spirit · 70 | Water | Snow Ape, Rimefrost Heights (E 2.5%) | A white hide over the shoulders: +knockback resistance, and cold slides off |
+| Body | **Snow-Ape Mantle** | Cape (solid) · Spirit · 70 | Earth | Snow Ape, Rimefrost Heights (E 2.5%) | A white hide over the shoulders: +knockback resistance, and cold slides off |
 | Sword | **Harpy-Crest Band** | Hat (tied) · Sage · 76 | Wind | Canyon Harpy, Gale Canyons (E 2.5%) | A russet crest bound at the brow: +crit, and Sword Intent fades 1 s slower |
-| Alchemist | **Mirror-Eye Cauldron** | Furnace · Spirit · 70 | Water | Thousand-Eye Toad, field boss (20%) | A named furnace: band +0.12, ten pills a batch, Water pills +5% quality |
+| Alchemist | **Mirror-Eye Cauldron** | Furnace · Spirit · 70 | Water | Condensing Hall recipe (smithing): mirror eye ×1 (the Thousand-Eye Toad's sure drop), dragonet scale ×3, stormsteel ore ×4 | A named furnace: band +0.12, ten pills a batch, Water pills +5% quality |
 | Beast tamer | **Thunderhorn Harness** | Pet saddle · Spirit · 67 | Thunder | Thunderhorn Rhino (0.2%) | A mount wearing it tramples small foes it runs through |
-| Formation | **Storm-Ward Compass** | Talisman · Spirit · 68 | Wind | Herder Suo's quest on the Thunderhorn Plains | A lodestone that points into the wind: Array Plates hold 20% longer; +2 Storm Ward |
+| Formation | **Storm-Ward Compass** | Talisman · Spirit · 68 | Wind | Herders' Camp shop (Herder Suo, Spirit Stones, Storm Ward 20) | A lodestone that points into the wind: Array Plates hold 20% longer; +2 Storm Ward |
 | Musician | **Frost-Lynx Flute** | Flute · Spirit · 70 | Water | Frost Lynx, Rimefrost Heights (E 2.5%) | Every third melody pulse freezes a slowed foe for 0.5 s |
 
 ### 2.6 Act III · the Lantern Star Field (Levels 82–99)
@@ -311,14 +322,15 @@ Sets (§3.3): **Driftsilk** (alchemist, Sovereign, 86), **Wyrm-Cradle** (beast t
 (formation, Will, 92), **Cinder-Palisade** (body, Will, 94), **Watchbell** (musician, Will, 95), **Nightcurrent** (sword,
 Will, 96).
 
-New signatures (8); the Bastion's Ink-Warden's Brush, Starwrit Brush, Warden's Hand-bell and Tidebreak Bell are the
-formation master's and musician's (they leave the random pool, G13).
+New signatures (7); the Bastion's Ink-Warden's Brush, Starwrit Brush, Warden's Hand-bell and Tidebreak Bell are the
+formation master's and musician's (they leave the random pool, G13). P9 adds two for the body cultivator: the
+**Blackmast Starsteel Sabre** (Admiral Voss; heavy sabre, Metal) and the **Cinder Oath Glaive** (General Kharn; spear,
+Fire), both 8% (pity 12).
 
 | Archetype | Name | Slot · grade · iLv | Element | Source (rate) | What makes it the archetype's piece |
 |---|---|---|---|---|---|
 | Body | **Broadside Knuckles** | Gauntlets · Sovereign · 88 | Fire | Pirate Gunner, Blackmast Haven (E 2.5%) | Hand-cannon brass over the fist: +knockback resistance; blows shove a foe one step further |
-| Body | **Kharn's Cinder Glaive** | Spear · Will · 92 | Fire | Restored at the Bastion armoury from three of Kharn's glaive shards and two pyre embers | The Ashborn general's glaive, relit: +attack, burning ground where the third thrust lands; Blood path tag |
-| Sword | **Flagship Jian** | Jian · Sovereign · 90 | Metal | Admiral Voss (25%) | Voss's parade blade: Sword Intent starts at 2 stacks in a Presence clash |
+| Sword | **Blackmast Boarding Jian** | Jian · Sovereign · 90 | Metal | Pirate Gunner, Blackmast Haven (E 2.5%) | Carried by the fleet's boarding crews: Sword Intent starts at 2 stacks in a Presence clash |
 | Sword | **Lantern-Heart Jian** | Jian · Will · 98 | Fire | The Flame Heart's ledge chest, Lantern Heart (15%) | Lit from the first lantern: the flying sword leaves a burn |
 | Alchemist | **Pyre-Keeper's Furnace** | Furnace · Will · 93 | Fire | Ashborn Pyre Keeper, Ashen Reach (E 2.5%) | A named furnace that never cools: band +0.14, twelve pills a batch, Fire pills +5% quality |
 | Alchemist | **Powder-Horn Gourd** | Gourd · Sovereign · 88 | Fire | Pirate Gunner (0.2%) | A gunner's horn turned pill gourd: throwables +20% damage, +toxicity tolerance |
@@ -336,7 +348,7 @@ New signatures (12) and the Seven Wells' mantles (7, general):
 
 | Archetype | Name | Slot · grade · iLv | Element | Source (rate) | What makes it the archetype's piece |
 |---|---|---|---|---|---|
-| Body | **Throne-Weight Knuckles** | Gauntlets · Law · 113 | Life and Death | the Remnant Monarch (25%) | They carry a little of the Monarch's Weight: blows press a foe's Will; +knockback resistance |
+| Body | **Throne-Weight Knuckles** | Gauntlets · Law · 113 | Life and Death | the Remnant Monarch's signature (P9's rate for its role) | They carry a little of the Monarch's Weight: blows press a foe's Will; +knockback resistance |
 | Body | **Sunroc Mantle** | Cape (solid) · Law · 114 | Fire | Sun Roc, Twinlight Marches (E 2.5%) | Gold-barred plumes: +HP; Unbroken's shield +4% of max HP |
 | Sword | **Hour-Between Jian** | Jian · Law · 116 | Space | The Hour Between's chest (eclipse only, 25%) | Forged in the moment sun and moon cross: Sword Intent does not fade for 3 s after a kill |
 | Sword | **Frayed-Verge Twinblades** | Dual blades · Law · 115 | Space | Hollowed Legionnaire, the Unwinding (E 2.5%) | Two blades that were one before the Tide: +penetration; Blood path tag |
@@ -345,10 +357,10 @@ New signatures (12) and the Seven Wells' mantles (7, general):
 | Beast tamer | **Radiant-Lion Whip** | Whip · Law · 113 | Fire | Radiant Lion, Twinlight Marches (E 2.5%) | A lash of lion mane: +pet damage; the animal roars when you crack it |
 | Beast tamer | **Moon-Moth Saddle** | Pet saddle · Law · 112 | Water | Moon Moth, Twinlight Marches (0.2%) | A mount wearing it flies at night side speed in the day and glides further |
 | Formation | **Contest-Floor Parasol** | Umbrella · Law · 112 | Metal | The throne contest, won (Throne-Sworn) | The canopy the contest's judge sat under: an Array Plate opened under it lasts 20% longer |
-| Formation | **Ledger-Vault Seal** | Talisman · Law · 118 | Metal | Hollow Elder Gu (25%) | The seal Gu stamped his ledger with: +array power; foes inside an array take Vulnerable |
+| Formation | **Ledger-Vault Seal** | Talisman · Law · 118 | Metal | Hollow Elder Gu's signature (P9's rate for its role) | The seal Gu stamped his ledger with: +array power; foes inside an array take Vulnerable |
 | Musician | **Eclipse Bell** | Bell · Law · 114 | Space | The eclipse set piece, Twinlight Marches (reward) | Rung at the crossing: its ring flips the favoured Law's bonus to you for 3 s |
 | Musician | **Moonfen Flute** | Flute · Law · 111 | Water | Moon Moth (E 2.5%) | Cut from moonfen reed: the melody heals allies 0.5% more a second |
-| General | **Greenwood, Ember, Loam, Brightsteel, Coldspring, Shade and Noon Well-Warden's Mantles** | Cape · Law · 119 | one each (Wood, Fire, Earth, Metal, Water, Yin, Yang) | Each Element Warden (30%) | +10% resistance and +6% elemental power of its element |
+| General | **Greenwood, Ember, Loam, Brightsteel, Coldspring, Shade and Noon Well-Warden's Mantles** | Cape · Law · 119 | one each: Wood, Fire, Earth, Metal, Water; Shade and Noon carry Yin and Yang, which v1.3's Dao Sigil must add as element keys | Each Element Warden's signature, 8% (pity 12) | +10% resistance and +6% elemental power of its element |
 
 ### 2.8 v1.4 and v1.5 in outline
 
@@ -385,7 +397,7 @@ gets one source here; P7b's data work adds it and removes the item from the list
 | `soul_core_high` | Rare loot rows | Weeping Lantern 3%, Mirror Wisp 2% (Mist Peak) | `enemies.py` |
 | `soul_core_peak` | Rare loot row | Terracotta Warden 3% (Tomb of Sunscar) | `enemies.py` |
 | `wood_core_peak` | A wild **Stormgrass Stag** (wood, Levels 64–68) on the existing `cloud_stag` sheet, in the Stormgrass Verge and Thunderhorn Flats; the core roll gives 16% at rank 8 | two spawn slots, one of them elite | `enemies.py` (the row), `world.py` (spawns); no new art |
-| `spirit_stone_high` | Achievement reward; auction lot; chest rows | "Sovereign of Sages" (reach Sage Sovereign 1) gives 1; Nine Peaks auction (weight 0.4, start 90); `chest_tomb` and `chest_wreck` rare 5% | `economy.py`, `enemies.py` |
+| `spirit_stone_high` | Achievement reward; auction lot; chest rows | a new achievement, "Sovereign of Sages" (reach Sage Sovereign 1), gives 1; Nine Peaks auction (weight 0.4, start 90); `chest_tomb` and `chest_wreck` rare 5% | `economy.py`, `enemies.py` |
 | `beast_bag_mist` | Hermit Yao's Beast Hall | 6,000 taels, from Heaven Glimpse 1 (the Reed, Hide and Cloud bags already sell there) | `economy.py` |
 | `beast_bag_star` | The Herders' Camp (Herder Suo), Thunderhorn Plains | 160 Spirit Stones, from Sage 1 | `economy.py` |
 | `hour_incense_2` | Daily activity chest at 40 points | +1 | `living_world.py` (activity) |
@@ -406,10 +418,9 @@ gets one source here; P7b's data work adds it and removes the item from the list
 | `jade_current_hat`, `_boots` | Jade Sect Mission Hall | contribution, Inner Disciple (as the robe) | `economy.py` |
 | `jade_current_trousers` | Jade Sect Mission Hall | contribution, Core Disciple, so the 4-piece asks the higher rank | `economy.py` |
 | `cloudpiercing_hat`, `_boots`, `_trousers` | Cloud Sect Mission Hall | as the Jade Current pieces | `economy.py` |
-| `mudwater_cleaver` | Big Toad Tan's loot table (the dead `unique_drop` field goes) | 25% a kill | `enemies.py` |
-| `mudwater_robe` | Lieutenant Kuai (elite), Mudwater Hideout | 5% | `enemies.py` |
-| `drowned_hat` | Drowned Acolyte, Drowned Shrine | 0.2% | `enemies.py` |
-| `drowned_boots` | Rogue Cultivator (elite), Drowned Shrine | 2.5% | `enemies.py` |
+| `mudwater_cleaver` | Big Toad Tan's first defeat, as P9 §4.1 lists it (a `first_defeat` entry; the dead `unique_drop` field goes) | once | `enemies.py` |
+| `mudwater_robe` | Big Toad Tan's signature, "a piece of the Mudwater set" (P9 §4.1) | 8% a kill; P9 adds the pity of 12 | `enemies.py` |
+| `drowned_hat`, `drowned_boots` | The Drowned Abbot's signature, "a piece of the Drowned Abbot set you lack" (P9 §4.3) | 8% a kill; P9 adds the pity of 10 | `enemies.py` |
 | `crane_robe` | "Crane Falls at Dawn", quest reward | once | `story.py` |
 | `crane_trousers` | Cloudpeak Roc, Summit Ridge | 0.2% | `enemies.py` |
 | `crane_boots` | Achievement "Cloud Stepper" (the Cloud Steps inside the gold par) | once | `economy.py` (achievements) |
@@ -508,12 +519,12 @@ Against the other gifts in the build:
 | Jade Current 4-piece (today) | +10% Water elemental power |
 | A named piece's element | +2% elemental power each, +12% for six |
 
-Caps hold with every bonus stacked: a Level 95 sword build reaches about 40% crit (cap 75%) and 29% penetration at full
-Honed Intent (cap 40%); a body build's knockback resistance reaches about 55% with Iron Body, the 4-piece and two
-`knockback` affixes (cap 90%); taming chance stays under its 90% cap. Unbroken's shield (10–16% of max HP, once a
-minute) sits under the Iron Wall Talisman's 20% for 6 s. Kin-Bond's band clause is live once Soul Bands land in v1.3
-(`docs/soul_bands_design.md`); the Frontier's Twin-Leash at seven bands gives +17.5% pet damage, inside the 60–90%
-share of a comparable technique that Soul Bands are tuned to.
+Caps hold with every bonus stacked: a Level 95 sword build with its meridians in Agility reaches 40–55% crit (cap 75%)
+and about 22% penetration at full Honed Intent (cap 40%); a body build's knockback resistance reaches 70–85% with a
+high Body, Iron Body, the 4-piece and two `knockback` affixes (cap 90%); taming chance stays under its 90% cap.
+Unbroken's shield (10–16% of max HP, once a minute) sits under the Iron Wall Talisman's 20% for 6 s. Kin-Bond's band
+clause is live once Soul Bands land in v1.3 (`docs/soul_bands_design.md`); the Frontier's Twin-Leash with eight bands
+(Law Touching) adds +20% pet damage, as much as the 4- and 6-piece pet lines together.
 
 ### 3.3 The sets, piece by piece
 
@@ -606,7 +617,7 @@ clears 10%. Weapons marked with several families drop in the family you wield, o
 
 | Piece | Name | Look (dye) | Source | Line |
 |---|---|---|---|---|
-| Weapon | Azure Fin Bow | bow | Thousand-Eye Toad, field boss (20%) | Strung with a dragonet's whisker; fixed +pet damage |
+| Weapon | Azure Fin Bow | bow | Azure Carp Dragonet (E 2.5%) | Strung with a dragonet's whisker; fixed +pet damage |
 | Hat | Azure Fin Hat | straw | Azure Carp Dragonet (0.2%) | Scaled like the lake; fixed +taming |
 | Robe | Azure Fin Coat | cardigan (jade) | Herders' Camp (Herder Suo, Spirit Stones) | Worn by the herders who raise lake beasts; fixed +HP% |
 | Trousers | Azure Fin Leggings | loose (indigo) | Azure Carp Dragonet (E 2.5%) | Dry after wading; fixed +Agility |
@@ -628,7 +639,7 @@ clears 10%. Weapons marked with several families drop in the family you wield, o
 
 | Piece | Name | Look (dye) | Source | Line |
 |---|---|---|---|---|
-| Weapon | Sandking Seal Fan · Brush | family's | the Tomb King (25%) | Carved with the Hall of Sand Kings' seal-script; fixed +Qi Attack |
+| Weapon | Sandking Seal Fan · Brush | family's | Tomb chest (`chest_tomb`, 10%) | Carved with the Hall of Sand Kings' seal-script; fixed +Qi Attack |
 | Hat | Sandking Seal Guan | guan | Terracotta Warden (0.2%) | A clay crest, warm as if fired yesterday; fixed +Insight |
 | Robe | Sandking Seal Robe | cardigan (ochre) | Nine Peaks free market (Broker Mu) | Sun-gold thread; fixed +Essence |
 | Trousers | Sandking Seal Trousers | straight (earth) | Terracotta Warden (0.2%) | Stiff with tomb dust; fixed +tenacity |
@@ -696,7 +707,7 @@ clears 10%. Weapons marked with several families drop in the family you wield, o
 
 | Piece | Name | Look (dye) | Source | Line |
 |---|---|---|---|---|
-| Weapon | Cinder-Palisade Knuckles · Cleaver · Staff · Pike | family's | General Kharn (25%) | Tempered in cinder ash; fixed +attack |
+| Weapon | Cinder-Palisade Knuckles · Cleaver · Staff · Pike | family's | Ashborn Raider (E 2.5%) | Tempered in cinder ash; fixed +attack |
 | Hat | Cinder-Palisade Headband | headband | Ashborn Raider (0.2%) | Ashborn red; fixed +Body |
 | Robe | Cinder-Palisade Vest | sleeveless (crimson) | Bastion armoury (Quartermaster Bai) | Scale over bare shoulders; fixed +knockback |
 | Trousers | Cinder-Palisade Wraps | martial (ink) | Ashborn Pyre Keeper (elite, 2.5%) | Fire-proof bindings; fixed +Body |
@@ -718,7 +729,7 @@ clears 10%. Weapons marked with several families drop in the family you wield, o
 
 | Piece | Name | Look (dye) | Source | Line |
 |---|---|---|---|---|
-| Weapon | Nightcurrent Jian | sword | the Nebula Leviathan, field boss (20%) | It cuts the space between; fixed +penetration |
+| Weapon | Nightcurrent Jian | sword | Void Crab (E 2.5%) | It cuts the space between; fixed +penetration |
 | Hat | Nightcurrent Crown | guan | Nebula Eel (0.2%) | An eel-bright thread in the crest; fixed +crit |
 | Robe | Nightcurrent Robe | vneck (white) | Observatory (Stargazer Ming) | Cut for the Eel Currents; fixed +Essence |
 | Trousers | Nightcurrent Trousers | cuffed (indigo) | Void Crab (E 2.5%) | Deeper than they are thick; fixed +Agility |
@@ -730,19 +741,24 @@ clears 10%. Weapons marked with several families drop in the family you wield, o
 Every piece has a source on each road: main (the Ashborn road: Emberwane, Iron Orchard) / alternate (the Barrow road:
 Rainroot Mere, Kingsgrave Barrows). All Sphere grade, iLv 104. Robes sell at both roads' rest shops; gourds are Keep
 Market recipes from each set's materials. The Frontier's foes and their materials come with v1.3 (`frontier.py`).
+Set weapons that name a boss are **smithing recipes** at the Keep or the road's smith that take one of that boss's
+sure drops (Pyreback's heart-ember, the Bloom Mother's seed-pod, the Forge-Tree Warden's heartwood, the Barrow Marshal's
+banner-iron; v1.3 materials): the boss matters, and no set waits on a boss's signature roll.
 
 | Set | Weapon | Hat | Trousers | Boots | Line |
 |---|---|---|---|---|---|
-| **Magmaback** (body, Fire) | Knuckles · Cleaver · Staff · Pike: Pyreback 20% / Barrow Marshal 20% | Magma Behemoth 0.2% / Remnant Will 0.2% | Ash Legionnaire E 2.5% / Remnant Will E 2.5% | Cinder Hound E 2.5% / Rust Wraith E 2.5% | Hide from a behemoth's back, still warm |
-| **Ironbark** (sword, Metal) | Jian · Twinblades: Forge-Tree Warden 25% / Barrow Marshal 20% | Iron Mantis 0.2% / Rust Wraith 0.2% | Iron Mantis E 2.5% / Remnant Will E 2.5% | Rust Wraith E 2.5% (both roads) | Blades grown on an iron tree |
-| **Drowned-Bloom** (alchemist, Wood) | Dirk · Rope Dart: Pyreback 20% / Bloom Mother 20% | Cinder Hound 0.2% / Bloom Siren 0.2% | Ash Legionnaire E 2.5% / Bloom Siren E 2.5% | The Cold Hearth's chest / the Sunken Library's chest | Poison of blooms that open under rain |
+| **Magmaback** (body, Fire) | Knuckles · Cleaver · Staff · Pike: recipe with Pyreback's heart-ember / the Barrow Marshal's banner-iron | Magma Behemoth 0.2% / Remnant Will 0.2% | Ash Legionnaire E 2.5% / Remnant Will E 2.5% | Cinder Hound E 2.5% / Rust Wraith E 2.5% | Hide from a behemoth's back, still warm |
+| **Ironbark** (sword, Metal) | Jian · Twinblades: recipe with the Forge-Tree Warden's heartwood / the Barrow Marshal's banner-iron | Iron Mantis 0.2% / Rust Wraith 0.2% | Iron Mantis E 2.5% / Remnant Will E 2.5% | Rust Wraith E 2.5% (both roads) | Blades grown on an iron tree |
+| **Drowned-Bloom** (alchemist, Wood) | Dirk · Rope Dart: recipe with Pyreback's heart-ember / the Bloom Mother's seed-pod | Cinder Hound 0.2% / Bloom Siren 0.2% | Ash Legionnaire E 2.5% / Bloom Siren E 2.5% | The Cold Hearth's chest / the Sunken Library's chest | Poison of blooms that open under rain |
 | **Twin-Leash** (beast tamer, Water) | Bow · Whip: Magma Behemoth E 2.5% / Tidal Colossus E 2.5% | Magma Behemoth 0.2% / Tidal Colossus 0.2% | Cinder Hound 0.2% / Bloom Siren 0.2% | Beast Taming Dao tier 5 quest (Law Touching 2, either road) | One leash for a hound, one for a colossus |
-| **Root-Lattice** (formation, Earth) | Fan · Brush · Parasol: Forge-Tree Warden 25% / The Remnant Battlefield (event reward) | Rust Wraith 0.2% (both roads) | Iron Mantis E 2.5% / Remnant Will 0.2% | The Rust Harvest / The Remnant Battlefield (event rewards) | Arrays drawn like roots through stone |
-| **Barrow-Choir** (musician, Life and Death) | Flute · Bell: Magma Behemoth E 2.5% / Bloom Mother 20% | Iron Mantis 0.2% / Tidal Colossus 0.2% | Cinder Hound E 2.5% / Tidal Colossus E 2.5% | Keep the Hearth / The Drowned Choir (event rewards) | Sung over barrows and drowned halls |
+| **Root-Lattice** (formation, Earth) | Fan · Brush · Parasol: recipe with the Forge-Tree Warden's heartwood / The Remnant Battlefield (event reward) | Rust Wraith 0.2% (both roads) | Iron Mantis E 2.5% / Remnant Will 0.2% | The Rust Harvest / The Remnant Battlefield (event rewards) | Arrays drawn like roots through stone |
+| **Barrow-Choir** (musician, Life and Death) | Flute · Bell: Magma Behemoth E 2.5% / recipe with the Bloom Mother's seed-pod | Iron Mantis 0.2% / Tidal Colossus 0.2% | Cinder Hound E 2.5% / Tidal Colossus E 2.5% | Keep the Hearth / The Drowned Choir (event rewards) | Sung over barrows and drowned halls |
 
 Names follow the valley's pattern (Magmaback Headband, Vest, Wraps, Boots, Gourd; Ironbark Crown, Robe, Trousers,
 Boots, Gourd; and so on), with each piece's fixed affix from §3.1. No loot table carries more than two named rows of
-each kind.
+each kind. Each of the four world bosses' P9 signature is "a piece of its world's set you lack" (Pyreback: Magmaback;
+the Bloom Mother: Drowned-Bloom; the Forge-Tree Warden: Ironbark; the Barrow Marshal: Barrow-Choir), a second route
+beside the table's.
 
 ### 3.4 The general sets, fixed
 
@@ -751,8 +767,8 @@ The five general sets stay as they are; each gets its missing sources (§2.10) a
 | Set | Change |
 |---|---|
 | Jade Current, Cloudpiercing | Hat and boots at Inner Disciple, trousers at Core Disciple, in each sect's Mission Hall |
-| Mudwater | Cleaver: Big Toad Tan 25%; robe: Lieutenant Kuai 5% |
-| Drowned Abbot | Robe: the Abbot 35% (was every kill); hat: Drowned Acolyte 0.2%; boots: Rogue Cultivator 2.5% |
+| Mudwater | Cleaver: Big Toad Tan's first defeat; robe: his signature, 8% (P9 §4.1) |
+| Drowned Abbot | Robe: his first defeat only (was every kill, P9 §4.3); hat and boots: his signature, 8% |
 | Crane | Robe: "Crane Falls at Dawn"; trousers: Cloudpeak Roc 0.2%; boots: the Cloud Stepper achievement |
 | (not a set) Serpent-Tongue Jian | Rogue Cultivator: first defeat, then 10% (was every kill); marked `named`, out of the random pool |
 
@@ -804,8 +820,7 @@ an elite, by role or by spawn). At most two of each per table.
 |---|---|---|---|
 | Normal foe (`named`) | 0.2% (early valley bands 0.4%) | 120–180 of one species | 2.8–4.2 |
 | Elite (`elite_named`) | 2.5% (early valley bands 5%) | 20 an elite slot | 2.0 |
-| Field boss | 20% | on its timer | 5 kills |
-| Dungeon boss | 25% | by its key | 4 runs |
+| Boss: its one signature (P9 §3.11) | dungeon 8% (pity 12), field 3% (pity 30), story replay 15% (pity 6) | daily, every 45 minutes, weekly | at most 12, 30 and 6 kills |
 | Secret or dungeon chest | 10–15% | once a reset | — |
 | Trial, tower floor, event | first clear; 10% after | — | — |
 | Quest, shop, recipe | fixed | — | — |
@@ -828,9 +843,9 @@ Modelled as in §1.6, per hour of hunting:
 | Sage · 2 | 5.5 (14.5) | 1.25 (5.9) | 0.37 (2.4) | 0.060 (0.75) |
 | Sovereign and Will · 3 (Sage today) | 5.8 (15.6) | 1.46 (7.3) | 0.46 (3.1) | 0.083 (1.04) |
 
-What the player sees: a mixed session (35% fighting) finds about two pieces an hour; in the Earth band (17 hours) about
-nine Fine or better pieces fit their slots, two or three Superior pieces drop, and a Perfect piece is a once-a-band
-event. Named pieces are the chase. Region spread: 4.3 pieces an hour where a region has no elite slot (Cleansing Peak,
+What the player sees: a mixed session (35% fighting) finds about two pieces an hour. In the Earth band (17 hours, 6 of
+them fighting) about seven Fine or better pieces drop and five or six fit the character; two Superior pieces drop; a
+Perfect piece comes once in one to three bands. Named pieces are the chase. Region spread: 4.3 pieces an hour where a region has no elite slot (Cleansing Peak,
 the Tomb) to 8.8 on the Caravan Road's bandits.
 
 ### 4.4 The `balance_sim` drop check
@@ -985,13 +1000,13 @@ data from `tools/data/*.py` through `build_data.py`.
 | 5 | Stats `pet_damage`, `array_power`, `melody_power` | `stats.py` `STAT_LIST`; **code**: `pet_authority.gd:498`, the `deploy_array` effect, the flute channel, the bell's ring, Clear Heart Melody | `rules_tests` per reader |
 | 6 | Set rows gain `archetype`, `tier`, `element`, `path`; bonus rows may carry a `flag` with values; the path doubling; `sets.json` moves to a new `tools/data/gear.py` | `gear.py` (new, called by `build_data.py`); **code**: `StatRules.set_modifiers`, a `set_flags(c)`, and the readers of Unbroken, Honed Intent, Venom Hand, Kin-Bond, Living Array, Sustained Note | `rules_tests` `set_suite`: each flag at 6 pieces, the path doubling, counts across weapon variants |
 | 7 | Banded bases: brush and bell at every grade; Sovereign and Will weapons, armour and gourds; pet gear and furnace ladders; wear levels, sockets, salvage rows, smithing recipes, shop rows | `items.py` (`FAMILY_APPEARANCE`, `GRADE_WORD`, `ARMOUR`, gourds, the energy and socket maps), `stats.py` (`grades.json`), `economy.py` (salvage, recipes, shops) | `data_validation`; `balance_sim` step 11 |
-| 8 | Named gear, Acts I–III: the 152 pieces of §2.4–2.6 and §3.3 with their loot rows, shop rows, recipes, quest and trial rewards; a Cliff Ape elite slot in the Crane Cliffs; Tower 20's boots rule and floor 30's fan | `gear.py` (rows, appended by `items.build_artifacts`), `enemies.py` (rows), `economy.py` (shops, recipes, achievements), `story.py` (quest rewards), `living_world.py` (tower), `world.py` (the spawn) | `data_validation`: every named piece sourced; every set completable |
+| 8 | Named gear, Acts I–III: the 150 pieces of §2.4–2.6 and §3.3 with their loot rows, shop rows, recipes, quest and trial rewards (P9's six signatures land with P9); a Cliff Ape elite slot in the Crane Cliffs; Tower 20's boots rule and floor 30's fan | `gear.py` (rows, appended by `items.build_artifacts`), `enemies.py` (rows), `economy.py` (shops, recipes, achievements), `story.py` (quest rewards), `living_world.py` (tower), `world.py` (the spawn) | `data_validation`: every named piece sourced; every set completable |
 | 9 | The 43 sources of §2.10, and the Stormgrass Stag | `economy.py`, `living_world.py`, `enemies.py`, `world.py`, `story.py`; recipes for the kits and tablets from `posts.py` | `KNOWN_SOURCE_GAPS` empty |
 | 10 | Icons for every new base and named piece | `tools/icons/families/weapons.py`, `armour.py`, `misc.py` (gourds, pet gear, furnaces); `icon_manifest.json` | the icon build byte-identical twice |
 | 11 | `balance.json` `drops` and `_drops()` | `stats.py`; `tests/balance_sim.gd` | `balance_sim` green (§4.4) |
 | 12 | Validation rules: no named piece in the random pool; each archetype has at least its §2.3 count per zone; every archetype set has a source for each piece and a weapon in each of the archetype's families | `tests/data_validation.gd` | — |
 | 13 | Wiki and Codex: the new fields and rows; the wiki rebuilt byte-identical; CHANGELOG entry | `tools/dev/wiki.py`, `build_data.py` | wiki rebuild check |
-| 14 | **With v1.3:** the Frontier's sets, signatures and Well mantles; Sphere and Law bases with the four new families; the Bedrock Pill (§2.10) | `gear.py`, `items.py`, `enemies.py`, `economy.py` with `frontier.py`; **code**: the `solid` stability word and its gate | `balance_sim` over the Frontier bands; `rules_tests` for the pill |
+| 14 | **With v1.3:** the Frontier's sets, signatures and Well mantles; Sphere and Law bases with the four new families; the Bedrock Pill (§2.11) | `gear.py`, `items.py`, `enemies.py`, `economy.py` with `frontier.py`; **code**: the `solid` stability word and its gate | `balance_sim` over the Frontier bands; `rules_tests` for the pill |
 
 A new module keeps `items.py` (918 lines) from doubling: `tools/data/gear.py` holds `NAMED` (by zone) and `SETS`, and
 `items.build_artifacts` appends its rows.
@@ -1007,5 +1022,24 @@ A new module keeps `items.py` (918 lines) from doubling: `tools/data/gear.py` ho
 | 3 | The guqin: a weapon or a tool? | A tool. A held guqin needs seated attack poses in every garment (AGENTS.md); the musician's third instrument stays the teahouse's meditation piece |
 | 4 | Weapon drops biased to the wielded family (one in three)? | Yes: usable drops rise from 38% to 76%, which is what lets the drop volume fall |
 | 5 | Drops cut from about 15 to about 6 pieces an hour of hunting, with salvage essence raised by half | Yes. The flood makes every banded piece vendor fodder; fewer, better drops and named pieces give the chase |
-| 6 | The scope: 216 new named pieces through v1.3 (a set and two or three signatures per archetype per zone) | Keep the full target. If it must shrink, build the sets first (152 set pieces with variants) and the signatures with each act's next content pass |
-| 7 | A repeatable boss in the valley's Heaven band (G14)? | Yes, in P9's boss work: a field boss on the Crane Cliffs or Mist Peak takes the valley sets' weapon rows from the elites |
+| 6 | The scope: 214 new named pieces through v1.3, 264 named in all with the existing 44 and P9's six (a set and two or three signatures per archetype per zone) | Keep the full target. If it must shrink, build the sets first (123 set pieces with their weapon variants in Acts I–III, 45 more in v1.3) and the signatures with each act's next content pass |
+| 7 | A daily or field boss in the valley's Heaven band (G14)? P9 designs the thirteen existing bosses and adds none | Yes, as a later boss pass after P9: a field boss on the Crane Cliffs or Mist Peak, whose signature is "a piece of the valley set you lack". Until then the band's named pieces come from elites, shops, crafts and the Trial Tower, which this plan already gives them |
+
+## Decisions taken
+
+The questions this page left open take the recommended answer, which the user can overturn before P7b's data work:
+
+| Question | Decision |
+|---|---|
+| v1.3's four new weapon families | Dual blades (Sword Dao), rope dart (alchemist), whip (beast tamer), umbrella (formation master) |
+| Brush and bell at every grade from Training | Yes (data and icons; the sprite sheets exist) |
+| The guqin | Stays a tool |
+| Weapon drops biased to the wielded family | Yes, one in three |
+| Drops cut from about 15 to about 6 pieces an hour | Yes, with salvage essence raised by half |
+| The 214 new named pieces | Kept; the sets first if it must shrink |
+| A field boss for the valley's Heaven band (37–54) | In a later boss pass |
+
+Two findings were acted on at once (see `docs/CHANGELOG.md`, P7b): named pieces carry `named: true` and never come from
+the banded equipment roll (G13), and the Drowned Abbot's robe drops on his first defeat only (G12). The Rogue Cultivator's
+jian stays a sure drop, as Build Prompt v2 (S47) asks; its room respawns it every 30 minutes (`respawn=1800` in
+`tools/data/world.py`), not every 3, so G12's rate change for it is not taken.

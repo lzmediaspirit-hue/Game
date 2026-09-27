@@ -33,6 +33,14 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P7b · The item and archetype plan
+- `docs/item_plan.md`: today's gear counted by zone, grade, slot and archetype; a target of 481 pieces through v1.3
+  (264 named); 24 archetype sets; drop rates cut to about 6 pieces an hour of hunting with a `balance_sim` drop check;
+  a source for each of the 43 unsourced items; the Bedrock Pill (Solid stability); and the sprite gaps by region.
+- **Named pieces leave the random pool.** The Serpent-Tongue Jian and the Tidebreak Bastion's brushes and bells carry
+  `named` and never come from the banded equipment roll; Expanse foes dropped Act III's Bastion weapons before.
+- **The Drowned Abbot's robe** drops on his first defeat only, not on every kill.
+
 ### P9 · The boss design, and what it found
 - `docs/boss_design.md`: all 13 bosses redesigned (phases, a telegraphed arena mechanic each, enrage timers, reward
   loops, intro and phase cards), the shared marker system, the build order (P9a–P9f) and `boss_suite`.

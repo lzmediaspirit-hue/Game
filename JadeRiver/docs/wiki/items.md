@@ -498,7 +498,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Stats**: Physical Defense 37.6 at iLv 30, Common quality (armour_defence × robe slot share); Energy type primal_qi; Sockets 1; Appearance scholar; Dye ink; set Drowned abbot
 - **Sources**:
-  - Drop: [Drowned Abbot](monsters.md#enemy-drowned_abbot) (Lv 27) · 100% (guaranteed)
+  - Drop: [Drowned Abbot](monsters.md#enemy-drowned_abbot) (Lv 27) · first defeat, once
 
 <a id="item-cloudsilk_robe"></a>
 
@@ -1101,7 +1101,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 206 at iLv 30, Common quality (`stats.json` equipment.weapon_attack); Family jian; Energy type primal_qi; Sockets 1; Appearance sword
 - **Sources**:
   - Drop: [Rogue Cultivator](monsters.md#enemy-rogue_cultivator) (Lv 24–26) · 100% (guaranteed)
-  - Drop: banded equipment roll, grade Earth: see [Banded equipment drops](#banded-earth)
 
 <a id="item-cloudsteel_bow"></a>
 
@@ -1603,7 +1602,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family brush; Energy type sage_qi; Sockets 3; Appearance brush
 - **Requires**: Insight 92
 - **Sources**:
-  - Drop: banded equipment roll, grade Sage: see [Banded equipment drops](#banded-sage)
   - Shop: Tidebreak Armoury (Quartermaster Bai in Tidebreak Bastion (Tidebreak Front)) · 120 Sage Crystals
 
 <a id="item-sunsteel_bow"></a>
@@ -1724,7 +1722,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family bell; Energy type sage_qi; Sockets 3; Appearance bell
 - **Requires**: Essence 92
 - **Sources**:
-  - Drop: banded equipment roll, grade Sage: see [Banded equipment drops](#banded-sage)
   - Shop: Tidebreak Armoury (Quartermaster Bai in Tidebreak Bastion (Tidebreak Front)) · 120 Sage Crystals
 
 <a id="item-starwrit_brush"></a>
@@ -8398,9 +8395,9 @@ Rolled by:
 
 <a id="banded-earth"></a>
 
-### Earth (14 pieces)
+### Earth (13 pieces)
 
-Pieces: [Jadeiron Greaves](#item-jadeiron_boots), [Jadeiron Bow](#item-jadeiron_bow), [Jadeiron Fan](#item-jadeiron_fan), [Jadeiron Flute](#item-jadeiron_flute), [Jadeiron Gauntlets](#item-jadeiron_gauntlets), [Jadeiron Circlet](#item-jadeiron_hat), [Jadeiron Heavy Sabre](#item-jadeiron_heavy_sabre), [Jadeiron Jian](#item-jadeiron_jian), [Jadeiron-Trimmed Robe](#item-jadeiron_robe), [Jadeiron Short Blade](#item-jadeiron_short_blade), [Jadeiron Spear](#item-jadeiron_spear), [Jadeiron Staff](#item-jadeiron_staff), [Jadeiron-Trimmed Trousers](#item-jadeiron_trousers), [Serpent-Tongue Jian](#item-serpent_tongue_jian)
+Pieces: [Jadeiron Greaves](#item-jadeiron_boots), [Jadeiron Bow](#item-jadeiron_bow), [Jadeiron Fan](#item-jadeiron_fan), [Jadeiron Flute](#item-jadeiron_flute), [Jadeiron Gauntlets](#item-jadeiron_gauntlets), [Jadeiron Circlet](#item-jadeiron_hat), [Jadeiron Heavy Sabre](#item-jadeiron_heavy_sabre), [Jadeiron Jian](#item-jadeiron_jian), [Jadeiron-Trimmed Robe](#item-jadeiron_robe), [Jadeiron Short Blade](#item-jadeiron_short_blade), [Jadeiron Spear](#item-jadeiron_spear), [Jadeiron Staff](#item-jadeiron_staff), [Jadeiron-Trimmed Trousers](#item-jadeiron_trousers)
 
 Rolled by:
 
@@ -8532,9 +8529,9 @@ Rolled by:
 
 <a id="banded-sage"></a>
 
-### Sage (15 pieces)
+### Sage (13 pieces)
 
-Pieces: [Ink-Warden's Brush](#item-ink_warden_brush), [Sunsilk Boots](#item-sunsilk_boots), [Sunsilk Veil](#item-sunsilk_hat), [Sunsilk Robe](#item-sunsilk_robe), [Sunsilk Trousers](#item-sunsilk_trousers), [Sunsteel Bow](#item-sunsteel_bow), [Sunsteel Fan](#item-sunsteel_fan), [Sunsteel Flute](#item-sunsteel_flute), [Sunsteel Gauntlets](#item-sunsteel_gauntlets), [Sunsteel Heavy Sabre](#item-sunsteel_heavy_sabre), [Sunsteel Jian](#item-sunsteel_jian), [Sunsteel Short Blade](#item-sunsteel_short_blade), [Sunsteel Spear](#item-sunsteel_spear), [Sunsteel Staff](#item-sunsteel_staff), [Warden's Hand-bell](#item-wardens_handbell)
+Pieces: [Sunsilk Boots](#item-sunsilk_boots), [Sunsilk Veil](#item-sunsilk_hat), [Sunsilk Robe](#item-sunsilk_robe), [Sunsilk Trousers](#item-sunsilk_trousers), [Sunsteel Bow](#item-sunsteel_bow), [Sunsteel Fan](#item-sunsteel_fan), [Sunsteel Flute](#item-sunsteel_flute), [Sunsteel Gauntlets](#item-sunsteel_gauntlets), [Sunsteel Heavy Sabre](#item-sunsteel_heavy_sabre), [Sunsteel Jian](#item-sunsteel_jian), [Sunsteel Short Blade](#item-sunsteel_short_blade), [Sunsteel Spear](#item-sunsteel_spear), [Sunsteel Staff](#item-sunsteel_staff)
 
 Rolled by:
 
