@@ -126,8 +126,16 @@
    "file": "res://art/audio/sfx/bell.wav",
    "volume_db": -4
   },
+  "boss_fall": {
+   "file": "res://art/audio/sfx/boss_fall.wav",
+   "volume_db": -4
+  },
   "boss_roar": {
    "file": "res://art/audio/sfx/boss_roar.wav",
+   "volume_db": -4
+  },
+  "boss_sting": {
+   "file": "res://art/audio/sfx/boss_sting.wav",
    "volume_db": -4
   },
   "break": {
@@ -136,6 +144,10 @@
   },
   "breakthrough": {
    "file": "res://art/audio/sfx/breakthrough.wav",
+   "volume_db": -4
+  },
+  "brush_stroke": {
+   "file": "res://art/audio/sfx/brush_stroke.wav",
    "volume_db": -4
   },
   "charge": {
@@ -184,6 +196,10 @@
   },
   "gather": {
    "file": "res://art/audio/sfx/gather.wav",
+   "volume_db": -4
+  },
+  "gong_short": {
+   "file": "res://art/audio/sfx/gong_short.wav",
    "volume_db": -4
   },
   "gust": {
@@ -250,12 +266,20 @@
    "file": "res://art/audio/sfx/quest_complete.wav",
    "volume_db": -4
   },
+  "rare_chime": {
+   "file": "res://art/audio/sfx/rare_chime.wav",
+   "volume_db": -4
+  },
   "rockfall": {
    "file": "res://art/audio/sfx/rockfall.wav",
    "volume_db": -4
   },
   "rumble": {
    "file": "res://art/audio/sfx/rumble.wav",
+   "volume_db": -4
+  },
+  "seal_press": {
+   "file": "res://art/audio/sfx/seal_press.wav",
    "volume_db": -4
   },
   "surge": {

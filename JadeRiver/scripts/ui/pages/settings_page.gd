@@ -4,9 +4,11 @@ extends Page
 var SLIDERS := [["music", Tx.t("ui.settings.music")], ["ambience", Tx.t("ui.settings.ambience")], ["sfx", Tx.t("ui.settings.effects")], ["ui", Tx.t("ui.settings.interface")]]
 var TOGGLES := [["left_handed", Tx.t("ui.settings.left_handed_controls")], ["screen_shake", Tx.t("ui.settings.screen_shake")], ["damage_numbers", Tx.t("ui.settings.damage_numbers")],
 	["notifications", Tx.t("ui.settings.notifications")], ["minimap", Tx.t("ui.settings.show_minimap")], ["auto_pickup", Tx.t("ui.settings.auto_pick_up")]]
-# Accessibility (S40): flashes, haptics and captions for sound-only cues; captions start off.
-var ACCESS := [["flashes", Tx.t("ui.settings.bright_flashes")], ["haptics", Tx.t("ui.settings.vibration")], ["captions", Tx.t("ui.settings.sound_captions")]]
-const DEFAULT_OFF := ["left_handed", "captions"]
+# Accessibility (S40): flashes, haptics and captions for sound-only cues; captions start off. P6: Reduce motion (no camera
+# moves or shakes, fewer particles, cards that fade instead of sliding), off by default.
+var ACCESS := [["flashes", Tx.t("ui.settings.bright_flashes")], ["haptics", Tx.t("ui.settings.vibration")], ["captions", Tx.t("ui.settings.sound_captions")],
+	["reduce_motion", Tx.t("ui.settings.reduce_motion")]]
+const DEFAULT_OFF := ["left_handed", "captions", "reduce_motion"]
 var exports: Array = []
 
 func _init() -> void:

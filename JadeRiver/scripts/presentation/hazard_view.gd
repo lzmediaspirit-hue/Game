@@ -83,7 +83,7 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 			else:
 				impacts.append({"kind": "scorch", "pos": at, "t": 0.0, "dur": 3.0})
 				Audio.play("thunder")
-		if world and _near_player(hs.spots, 260.0): world.shake = maxf(world.shake, 0.2)
+		if world and _near_player(hs.spots, 260.0): world.add_shake(0.2)
 
 # ------------------------------------------------------------------ S48 heavenly tribulation
 var trib_strike := {}     # the last bolt's flash: {x, y, t}
@@ -112,7 +112,7 @@ func _track_tribulation(delta: float) -> void:
 		var w0: Dictionary = last_phase._trib
 		trib_strike = {"x": float(w0.x), "y": float(w0.y), "t": 0.0}
 		impacts.append({"kind": "scorch", "pos": Vector2(float(w0.x), float(w0.y)), "t": 0.0, "dur": 3.0})
-		if world: world.shake = maxf(world.shake, 0.35)
+		if world: world.add_shake(0.35)
 	last_phase["_trib"] = warn.duplicate()
 
 func _detonating(rt: RoomRuntime) -> bool:

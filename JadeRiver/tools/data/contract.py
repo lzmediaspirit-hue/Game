@@ -63,7 +63,8 @@ DEPTH = {
     "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
                     "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
-                    "epiphany", "soul_escaped", "guqin_played", "chess_solved", "path_changed"],
+                    "epiphany", "soul_escaped", "guqin_played", "chess_solved", "path_changed",
+                    "level_changed"],   # P6 finding 5: emitted and read by moments, missing from the contract
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
@@ -101,7 +102,8 @@ DEPTH = {
               # S43 rule 15: the rooftop thief chases and timed routes (the Cloud Steps).
               "chase_started", "thief_caught", "thief_escaped", "route_started", "route_finished",
               # v1.2 the Orbit Ruins' jade switches; the lantern defence (the Hollow Tide battle).
-              "gravity_switched", "lantern_light"],
+              "gravity_switched", "lantern_light",
+              "room_event_started"],   # P6 finding 5: a trial or siege opening (moments row trial_opens)
     # S28 v1.2 field powers: Presence (Will Manifest) and, later, the Sphere (Sphere Lord).
     "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended", "sphere_toggled", "sphere_clash", "sphere_pulse"],
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
@@ -191,8 +193,42 @@ POLLED = {
 }
 
 
+# P6: the payload keys of every event a moment reads (docs/moments_design.md §2.1, §3.7). contract_tests checks that
+# each emit site names every key; data_validation that a moment reads only declared keys. A key ending in "?" is
+# optional: some emit sites leave it out (title_changed carries `earned` only when a title is earned).
+PAYLOAD = {
+    "breakthrough_started": ["actor", "from", "to", "risk", "duration"],
+    "breakthrough_succeeded": ["actor", "from", "to", "major", "formation"],
+    "breakthrough_failed": ["actor", "failure_id", "losses", "injuries", "recovery"],
+    "realm_changed": ["actor", "from", "to", "major", "level"],
+    "level_changed": ["actor", "level"],
+    "heavenly_phenomenon": ["actor", "kind", "realm", "room", "people"],
+    "tribulation_started": ["actor", "from", "to", "bolts", "waves"],
+    "tribulation_result": ["actor", "survived", "struck", "absorbed", "bolts", "failure"],
+    "body_level_changed": ["actor", "value"],
+    "body_tier_reached": ["actor", "tier", "name"],
+    "dao_tier_up": ["actor", "dao", "tier"],
+    "title_changed": ["actor", "title", "earned?"],
+    "profession_rank_up": ["actor", "craft", "rank"],
+    "guild_rank_changed": ["actor", "craft", "rank", "title"],
+    "pet_evolved": ["actor", "pet", "from", "stage", "branch"],
+    "weapon_awakened": ["actor", "item", "skill", "legend"],
+    "pill_cloud": ["actor", "recipe", "quality"],
+    "system_unlocked": ["actor", "system", "toast", "label"],
+    "achievement_unlocked": ["actor", "id", "name"],
+    "enemy_aggro": ["enemy", "target", "def"],
+    "boss_phase": ["enemy", "phase", "action"],
+    "boss_defeated": ["room", "enemy", "role", "clean"],
+    "field_boss_defeated": ["room", "enemy"],
+    "loot_dropped": ["room", "items", "x", "y", "source"],
+    "quest_completed": ["actor", "quest", "name", "kind"],
+    "room_event_started": ["actor", "room", "event", "duration"],
+}
+
+
 def build():
     events = {}
+    assert set(PAYLOAD) <= {n for names in CATALOGUE.values() for n in names}, "a declared payload for an event outside the catalogue"
     for system, names in CATALOGUE.items():
         for n in names:
             files = list(SYSTEMS[system])
@@ -203,5 +239,7 @@ def build():
                 row["note"] = ALSO[n][1]
             if n in POLLED:
                 row["polled"] = POLLED[n]
+            if n in PAYLOAD:
+                row["payload"] = PAYLOAD[n]
             events[n] = row
     write("event_contract.json", {"schema_version": 1, "events": events})

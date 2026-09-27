@@ -448,6 +448,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: avatar parts (body light, hair topknot, hair color 5, hat none, pants loose, shirt sleeveless, shoes boots, weapon staff)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mudwater Hideout › Boss Den: Lv 18, up to 1, respawn 86400s; boss
+- **Also appears**: Moments: boss_defeated (enemy)
 - **Level band**: Lv 18 in `enemies.json`
 - **Stats**: Lv 18: HP 46710, Attack 276, Physical Defense 102, Accuracy 64
 - **Behaviour**: AI boss_tan; aggro range 200; move speed 90; patrol 140; faction mudwater. Attacks: club_swing×1.2 (windup 0.55s, knockback 60); call_bandits×0 (windup 1s, summon mudwater_bandit). Phases: below 50% HP: action drink_wine, breakable wine_jar, heal 0.1
@@ -653,7 +654,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `riverbed_serpent` ([art/creatures/riverbed_serpent.png](../../art/creatures/riverbed_serpent.png), 256 px cells, flying)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Deepwater Bend › Serpent's Shallows: Lv 25, up to 1, respawn 2700s; boss; field boss
-- **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); guards the herb patch in Serpent's Shallows (Deepwater Bend)
+- **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
 - **Level band**: Lv 25 in `enemies.json`
 - **Stats**: Lv 25: HP 153600, Attack 568, Physical Defense 200, Accuracy 85
 - **Behaviour**: AI boss_serpent; aggro range 200; move speed 90; patrol 140; moves: fly; flying; respawn min 45. Attacks: bite×1.3 (windup 0.6s); tail_flood×1 (windup 1s). Phases: below 50% HP: action flood

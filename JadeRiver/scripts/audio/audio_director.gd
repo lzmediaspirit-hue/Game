@@ -4,10 +4,11 @@ extends Node
 ## no rule code plays audio. Missing files are silent.
 
 const BUSES := ["Music", "Ambience", "SFX", "UI"]
+## A level gained and a boss's phase sound through their moments (data/moments.json), which know what else plays.
 const EVENT_SFX := {"quest_accepted": "quest_accept", "quest_completed": "quest_complete", "system_unlocked": "unlock",
-	"level_changed": "level", "mail_received": "mail", "meditation_started": "meditate", "qi_backlash": "backlash",
+	"mail_received": "mail", "meditation_started": "meditate", "qi_backlash": "backlash",
 	"node_gathered": "gather", "fish_caught": "fish_bite", "craft_completed": "forge", "room_entered": "portal",
-	"boss_phase": "boss_roar", "field_boss_spawned": "boss_roar", "item_bought": "coin", "item_sold": "coin"}
+	"field_boss_spawned": "boss_roar", "item_bought": "coin", "item_sold": "coin"}
 
 ## Room data names music and ambience by mood; these map moods onto the synthesized tracks.
 const MUSIC_ALIAS := {"home": "village_day", "reeds_day": "river", "night_hollow": "village_night", "field_earth": "field",
