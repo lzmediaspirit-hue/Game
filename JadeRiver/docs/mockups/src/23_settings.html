@@ -1,0 +1,90 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>23 Settings, the cabinet of drawers</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 43. The page is a lacquered cabinet of drawers (SURFACE.river_lacquer, GOLD ring pulls):
+     the four tabs are four drawer fronts down the left, each saying what is inside; the open drawer is pulled out to
+     the right as a tray (wood_dark) holding its controls. Toggles are brass latches (closed On, open Off, words never
+     by colour alone); volume steps are chime bells on a rack. All page.gd. */
+  .cab { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 8px;
+    background: linear-gradient(180deg, #103339 0%, #0c2a2f 50%, #0a2227 100%);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 8px #0a2027, inset 0 0 0 10px #e5b84c, inset 0 0 0 12px #0a2027, 0 10px 30px rgba(0,0,0,.55); }
+  .front { position: absolute; left: 88px; width: 336px; height: 124px; border-radius: 4px;
+    background: linear-gradient(180deg, #14393f, #0f3036 60%, #0c2a2f); box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px rgba(229,184,76,.45), inset 0 3px 0 rgba(255,255,255,.05); }
+  .front.open { background: linear-gradient(180deg, #081a1e, #061418); box-shadow: 0 0 0 2px var(--ink), inset 0 6px 14px rgba(0,0,0,.8); }
+  .pull { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 4px solid #e5b84c; box-shadow: 0 0 0 1.5px var(--ink), inset 0 0 0 1.5px var(--ink), 0 3px 0 rgba(0,0,0,.4); }
+  .pullplate { position: absolute; width: 22px; height: 14px; border-radius: 3px; background: linear-gradient(180deg, #ffe6a1, #e5b84c 50%, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink); }
+  .front .nm { position: absolute; left: 20px; top: 14px; font-family: var(--f-display); font-weight: 700; font-size: 26px; color: var(--gold); }
+  .front .sm { position: absolute; left: 20px; top: 52px; width: 240px; font-size: 15px; color: var(--mist); line-height: 1.35; }
+  .tray { position: absolute; left: 448px; top: 116px; width: 744px; height: 556px; border-radius: 4px;
+    background: repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 3px, rgba(0,0,0,.14) 3px 4px), linear-gradient(180deg, #3b2416, #33200f);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 10px #5a3620, inset 0 0 0 12px #24160c, inset 0 12px 18px rgba(0,0,0,.55); }
+  .rail { position: absolute; top: 116px; height: 556px; width: 10px; background: linear-gradient(90deg, #9a6a35, #5a3620); box-shadow: 0 0 0 1.5px var(--ink); }
+  .row { position: absolute; left: 480px; width: 684px; height: 56px; border-bottom: 1px solid rgba(154,106,53,.4); }
+  .row .l { position: absolute; left: 0; top: 14px; font-size: 20px; color: var(--paper); white-space: nowrap; }
+  .row .h { position: absolute; left: 0; top: 38px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .latch { position: absolute; right: 0; top: 4px; width: 124px; height: 48px; border-radius: 6px;
+    background: linear-gradient(180deg, #1a1d1c, #161918); box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1.5px #9a6a35; }
+  .latch .plate { position: absolute; left: 10px; top: 10px; width: 28px; height: 28px; border-radius: 4px; background: linear-gradient(180deg, #ffe6a1, #e5b84c 50%, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink); }
+  .latch .hasp { position: absolute; left: 30px; top: 18px; width: 30px; height: 12px; border-radius: 3px; background: linear-gradient(180deg, #e5b84c, #9a6a35); box-shadow: 0 0 0 1.5px var(--ink); transform-origin: 4px 6px; }
+  .latch.off .hasp { transform: rotate(-38deg); background: linear-gradient(180deg, #87949a, #4d595e); }
+  .latch .w { position: absolute; left: 70px; top: 11px; font-size: 20px; font-weight: 700; }
+  .latch.on .w { color: var(--pale-gold); } .latch.off .w { color: var(--mist); }
+  .seg { position: absolute; top: 4px; height: 48px; width: 116px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--paper);
+    background: linear-gradient(180deg, #1a1d1c, #161918); box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1.5px #9a6a35; }
+  .seg.on { color: var(--pale-gold); background: linear-gradient(180deg, #2c9e8f, #1f776c); box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px #ffe6a1; }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .bell { display: inline-block; width: 10px; height: 14px; border-radius: 5px 5px 2px 2px; margin-right: 2px; background: #e5b84c; box-shadow: 0 0 0 1px var(--ink); vertical-align: -2px; }
+  .bell.dim { background: #4d595e; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+<div class="cab"></div>
+
+<!-- the cabinet's crown with the title on a gold plate -->
+<div class="abs center" style="left:88px;top:44px;width:336px;height:60px;border-radius:4px;background:linear-gradient(180deg,#e5b84c,#b98c38 60%,#9a6a35);box-shadow:0 0 0 2px var(--ink), inset 0 0 0 2px #ffe6a1, 0 4px 0 rgba(0,0,0,.4)">
+  <span class="t-title inked">Settings</span></div>
+<div class="abs t-sm c-mist" style="left:452px;top:62px">Saved on this device as you change them</div>
+<div class="k-close abs" style="left:1146px;top:46px"></div>
+
+<!-- ================= the drawer fronts: the tabs ================= -->
+<div class="front" style="top:116px"><span class="nm">Audio</span>
+  <div class="sm">Music <span class="t-fig c-paper">7</span> · Ambience <span class="t-fig c-paper">6</span><br>Effects <span class="t-fig c-paper">8</span> · Interface <span class="t-fig c-paper">7</span></div></div>
+<div class="pull" style="left:373px;top:162px"></div>
+<div class="front" style="top:256px"><span class="nm">Controls</span>
+  <div class="sm">Right-handed · shake on<br>damage numbers on</div></div>
+<div class="pull" style="left:373px;top:302px"></div>
+<div class="front open" style="top:396px"><span class="nm" style="color:var(--pale-gold)">Accessibility</span>
+  <div class="sm" style="color:var(--paper)">text Normal · <span class="t-fig">5</span> of <span class="t-fig">7</span> on</div></div>
+<div class="front" style="top:536px"><span class="nm">Data</span>
+  <div class="sm">Account local-1790472498<br><span class="t-fig">2</span> of <span class="t-fig">8</span> slots · no exports yet</div></div>
+<div class="pull" style="left:373px;top:582px"></div>
+
+<!-- ================= the open drawer: Accessibility ================= -->
+<div class="rail" style="left:432px"></div>
+<div class="tray"></div>
+<div class="abs flex" style="left:480px;top:130px;gap:12px"><span class="t-heading" style="font-size:28px">Accessibility</span><span class="t-xs c-mist">how the game reads and moves</span></div>
+
+<div class="row" style="top:172px"><span class="l">Text size</span><span class="h">every word, after the type scale</span>
+  <div class="seg" style="left:316px">Small</div><div class="seg on" style="left:440px">Normal</div><div class="seg" style="left:564px">Large</div></div>
+<div class="row" style="top:236px"><span class="l">Reduce motion</span><span class="h">slides and swings become fades; no shake <span class="k-new" style="position:relative;display:inline-block;margin-left:6px;vertical-align:-1px;width:10px;height:10px"></span> new</span>
+  <div class="latch off"><span class="plate"></span><span class="hasp"></span><span class="w">Off</span></div></div>
+<div class="row" style="top:292px"><span class="l">Bright flashes</span><span class="h">off: flashes at a third of their light</span>
+  <div class="latch on"><span class="plate"></span><span class="hasp"></span><span class="w">On</span></div></div>
+<div class="row" style="top:348px"><span class="l">Captions for sounds</span><span class="h">a line for every sound-only cue</span>
+  <div class="latch off"><span class="plate"></span><span class="hasp"></span><span class="w">Off</span></div></div>
+<div class="row" style="top:404px"><span class="l">Vibration</span><span class="h">a buzz on hits and breakthroughs</span>
+  <div class="latch on"><span class="plate"></span><span class="hasp"></span><span class="w">On</span></div></div>
+<div class="row" style="top:460px"><span class="l">Notifications</span><span class="h">batches, defence, expeditions, the seclusion cap, animals</span>
+  <div class="latch on"><span class="plate"></span><span class="hasp"></span><span class="w">On</span></div></div>
+<div class="row" style="top:516px"><span class="l">Show minimap</span><span class="h">the room at the HUD's top right</span>
+  <div class="latch on"><span class="plate"></span><span class="hasp"></span><span class="w">On</span></div></div>
+<div class="row" style="top:572px;border-bottom:0"><span class="l">Auto pick-up</span><span class="h">walk over a drop to take it</span>
+  <div class="latch on"><span class="plate"></span><span class="hasp"></span><span class="w">On</span></div></div>
+<!-- the drawer's front lip -->
+<div class="abs" style="left:448px;top:640px;width:744px;height:32px;border-radius:0 0 4px 4px;background:linear-gradient(180deg,#14393f,#0c2a2f);box-shadow:0 0 0 2px var(--ink), inset 0 0 0 2px rgba(229,184,76,.45)"></div>
+<div class="pullplate" style="left:809px;top:650px"></div><div class="pull" style="left:806px;top:642px;width:28px;height:22px;border-radius:0 0 14px 14px;border-top:0"></div>
+
+</div></body></html>
