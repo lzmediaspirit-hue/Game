@@ -12,6 +12,8 @@ Rooms marked vertical="authored" were built by hand to their catalogue row and a
 """
 import math
 
+import room_lint
+
 STD_BLOCKS = (40, 60, 80, 110)
 NATURAL = {"rock_ledge", "branch", "cloud", "tree_branch"}
 BUILT = {"balcony", "deck"}
@@ -19,14 +21,17 @@ WALKWAYS = {"bridge", "rope_bridge", "walkway"}
 BREAKABLES = {"jar", "crate", "wine_jar"}
 NODES = {"herb_patch", "ore_vein"}
 LINT_TYPES = {"field", "path", "town"}
-LATER_ART = [("double_jump", 202), ("wall_step", 370), ("flight", 340)]
+LATER_ART = [(art, room_lint.ART_RISE[art]) for art in ("double_jump", "wall_step", "flight")]
 
 
 def band(level):
-    """(required rise, required gap, flight) for a room whose lowest level is `level` (S43 reach table)."""
-    rise = 160 if level >= 24 else 100
-    gap = 300 if level >= 24 else (250 if level >= 16 else 150)
-    return rise, gap, level >= 37
+    """(required rise, required gap, flight) for a room whose lowest level is `level`, from the S43 reach table
+    (room_lint.BANDS); a flying band keeps the rise and gap of the last band on foot for the tiers it still builds."""
+    rise, gap, arts = room_lint.band(level)
+    flight = "flight" in arts
+    if flight:
+        rise, gap = next((r, g) for lv, r, g, a in reversed(room_lint.BANDS) if "flight" not in a)
+    return rise, gap, flight
 
 
 class T:

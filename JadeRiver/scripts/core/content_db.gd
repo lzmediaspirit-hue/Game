@@ -152,24 +152,19 @@ func item(id: String) -> Dictionary:
 func is_equipment(id: String) -> bool:
 	return has_entry("artifacts", id)
 
+## Dotted lookup into stats.json, e.g. "crit.base".
 func stat_const(path: String, fallback = 0.0):
-	# Dotted lookup into stats.json, e.g. "crit.base".
-	var node = config("stats")
-	for part in path.split("."):
-		if node is Dictionary and node.has(part): node = node[part]
-		else: return fallback
-	return node
+	return _dotted(config("stats"), path, fallback)
 
 ## Dotted lookup into movement.json (S43: every traversal constant), e.g. "glide.qi_per_s".
 func movement(path: String, fallback = 0.0):
-	var node = config("movement")
-	for part in path.split("."):
-		if node is Dictionary and node.has(part): node = node[part]
-		else: return fallback
-	return node
+	return _dotted(config("movement"), path, fallback)
 
+## Dotted lookup into curves.json, e.g. "resets.daily_hour".
 func curve(path: String, fallback = 0.0):
-	var node = config("curves")
+	return _dotted(config("curves"), path, fallback)
+
+func _dotted(node, path: String, fallback):
 	for part in path.split("."):
 		if node is Dictionary and node.has(part): node = node[part]
 		else: return fallback
@@ -194,12 +189,3 @@ func name_of(table: String, id: String) -> String:
 func item_name(id: String) -> String:
 	var e := item(id)
 	return str(e.get("name", id.replace("_", " ").capitalize()))
-
-# ---------------------------------------------------------------- validation
-## Cross-reference validation (Part 7 · Data validation). Returns readable errors.
-func validate() -> Array[String]:
-	var errors: Array[String] = []
-	errors.append_array(load_errors)
-	var validator = load("res://scripts/core/data_validator.gd")
-	if validator: errors.append_array(validator.validate(self))
-	return errors

@@ -54,9 +54,6 @@ func level() -> int:
 func realm_key() -> String:
 	return cultivator.realm_key
 
-func has_qi_pool() -> bool:
-	return pools.max_qi > 0.0
-
 func snapshot() -> Dictionary:
 	return {"version": VERSION, "slot": slot, "id": id, "name": name, "appearance": appearance.duplicate(true),
 		"origin": cultivator.origin, "cultivator": cultivator.snapshot(), "relations": relations.snapshot(), "pools": pools.snapshot(),

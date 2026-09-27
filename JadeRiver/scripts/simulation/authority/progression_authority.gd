@@ -11,7 +11,6 @@ var sec_accum: Dictionary = {}      # actor -> fractional second for per-second 
 var contemplate: Dictionary = {}    # actor -> dao id
 var tribulations: Dictionary = {}   # actor -> heavenly tribulation under way (S48; not saved: leaving ends it)
 var streaks: Dictionary = {}        # actor -> {n, t}: kills in a row (Blood Memory; Killing Intent grows from it)
-var last_level: Dictionary = {}
 
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
@@ -777,7 +776,7 @@ func choose_fate(c, card: String) -> Dictionary:
 	var f := ContentDB.entry("fates", card)
 	var rec := {"id": card, "realm": ProgressionRules.great_realm(cu.realm_key)}
 	if f.has("next"): rec.next = (f.next as Dictionary).duplicate()
-	if "dao_echo" in f.get("flags", []): rec.dao = _strongest_dao(c)
+	if "dao_echo" in f.get("flags", []): rec.dao = ProgressionRules.strongest_dao(c)
 	cu.fates.append(rec)
 	cu.fate_offer = []
 	game.apply_effects(c.id, f.get("effects", []), "fate:" + card)
@@ -834,16 +833,6 @@ func fate_flag(c, flag: String) -> bool:
 	for rec in c.cultivator.fates:
 		if flag in ContentDB.entry("fates", str(rec.get("id", ""))).get("flags", []): return true
 	return false
-
-func _strongest_dao(c) -> String:
-	var best := ""
-	var best_v := -1.0
-	for d in c.cultivator.daos:
-		var v := float(c.cultivator.daos[d].get("tier", 0)) * 1000000.0 + float(c.cultivator.daos[d].get("insight", 0.0))
-		if v > best_v:
-			best = str(d)
-			best_v = v
-	return best
 
 func is_channeling(actor_id: String) -> bool:
 	return channels.has(actor_id)
@@ -969,7 +958,6 @@ func _on_hit_landed(p: Dictionary) -> void:
 		game.combat.apply_backlash(c.id)
 		emit("qi_backlash", {"actor": c.id})
 	if channels.has(c.id):
-		var ch: Dictionary = channels[c.id]
 		channels.erase(c.id)
 		_fail_breakthrough(c, "interruption", Rng.stream(c.id, "breakthrough"))
 
@@ -1106,7 +1094,7 @@ func add_lifetime(c, key: String, amount: float) -> void:
 ## Yin Vessel: a night counts once the character has sat through a minute of it at the Falls Pool.
 func _falls_pool_second(c) -> void:
 	var ls: Dictionary = c.cultivator.lifetime_stats
-	var night := int(Clock.now_utc() / (float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0))
+	var night := Clock.game_day(Clock.now_utc())
 	if int(ls.get("falls_pool_night", -1)) != night:
 		ls["falls_pool_night"] = night
 		ls["falls_pool_s"] = 0.0
@@ -1605,12 +1593,6 @@ func solve_chess(c, site: String, choice: String) -> Dictionary:
 func apply_insight_best(actor_id: String, amount: float, context := "fortune") -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var best := ""
-	var top := -1.0
-	for dao in c.cultivator.daos:
-		var v := float(c.cultivator.daos[dao].get("insight", 0.0)) + 1000.0 * int(c.cultivator.daos[dao].get("tier", 0))
-		if v > top:
-			top = v
-			best = str(dao)
+	var best := ProgressionRules.strongest_dao(c)
 	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
 	else: apply_progress(c.id, 0.0, context, 0.02)

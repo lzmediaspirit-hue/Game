@@ -145,6 +145,10 @@ func ensure_fields(p: Dictionary) -> Dictionary:
 	p.locked = false
 	return p
 
+## An animal as a page shows it: one from an older save reads with the neutral fields, and is not written.
+func filled(p: Dictionary) -> Dictionary:
+	return p if p.has("purity") else ensure_fields(p.duplicate(true))
+
 ## A newborn or newly tamed animal's bloodline: purity by rarity, hidden growth and aptitude, a 1% colour variant.
 func _roll_bloodline(c, p: Dictionary) -> void:
 	ensure_fields(p)

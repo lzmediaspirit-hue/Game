@@ -8,5 +8,3 @@ static func neighbour(theme: String,direction: int) -> String:
 	var index=REGIONS.find(theme)
 	if index<0: return "village"
 	return REGIONS[posmod(index+direction,REGIONS.size())]
-static func valid_theme(theme: String) -> bool:
-	return MapGenerator.profiles().has(theme)

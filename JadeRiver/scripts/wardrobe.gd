@@ -44,23 +44,6 @@ func load_slots():
 	slots=[null,null,null]
 	for i in mini(3,data.slots.size()):
 		if data.slots[i] is Dictionary: slots[i]=validate(data.slots[i])
-func save_slot(index: int,value: Dictionary) -> Error:
-	if index<0 or index>=3: return ERR_INVALID_PARAMETER
-	var next=slots.duplicate(true)
-	next[index]=validate(value)
-	var file=FileAccess.open(save_path+".tmp",FileAccess.WRITE)
-	if file==null: return FileAccess.get_open_error()
-	file.store_string(JSON.stringify({"version":2,"slots":next},"\t"))
-	file.flush()
-	var result=file.get_error()
-	file.close()
-	if result!=OK: return result
-	if not read_save(save_path).is_empty():
-		result=DirAccess.copy_absolute(save_path,save_path+".bak")
-		if result!=OK: return result
-	result=DirAccess.rename_absolute(save_path+".tmp",save_path)
-	if result==OK: slots=next
-	return result
 func texture(path: String) -> Texture2D:
 	path=path.replace("art_v12/","res://art/")
 	if not textures.has(path): textures[path]=load(path)

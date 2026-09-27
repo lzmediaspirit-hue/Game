@@ -31,10 +31,6 @@ func play(next: String, restart := false) -> void:
 		action = next
 		t = 0.0
 
-func frame_count(act: String) -> int:
-	var e := SpriteCache.creature(creature_id)
-	return int(e.get("actions", {}).get(act, {}).get("frames", 1))
-
 func _process(delta: float) -> void:
 	t += delta
 	queue_redraw()

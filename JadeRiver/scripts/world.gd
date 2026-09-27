@@ -35,10 +35,8 @@ var save_slot_index := -1
 var skill_page := 0
 var save_timer := 0.0
 var last_safe: Dictionary = {}
-var save_error: Error = OK
 var map_theme := ""
 var map_seed := 1
-var transitions_enabled := false
 var enemy_views: Dictionary = {}
 var object_views: Dictionary = {}
 var npc_views: Dictionary = {}
@@ -49,7 +47,6 @@ var shake := 0.0
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
 
-signal region_exit(theme: String, seed_value: int, direction: int)
 signal room_changed(room_id: String)
 signal context_changed(ctx: Dictionary)
 
@@ -766,13 +763,8 @@ func recover_to_safe() -> void:
 	player.state.drowned = false
 	if player.bound() and Game.combat.is_gliding(player.actor_id): Game.submit({"type": "glide", "on": false})
 	travel.reset(player.plane, player.altitude)
-	# S43 rule 6: a fall costs 5% of max HP (never below 1), except in the Prologue, towns and safe rooms.
+	# Combat takes the fall's cost when it hears fell_out (S43 rule 6).
 	if room_mode and player.bound():
-		var c = Game.character(player.actor_id)
-		var free_fall: bool = bool(room_def.get("safe", false)) or str(room_def.get("region", "")) == "lotus_ferry" or str(room_def.get("type", "")) in ["town", "prologue"]
-		if c != null and not free_fall:
-			var cost: float = minf(c.pools.max_hp * float(ContentDB.stat_const("move.fall_cost_pct", 0.05)), c.pools.hp - 1.0)
-			if cost > 0.0: Game.combat.apply_resource_change(c.id, "hp", -cost, "fall")
 		player.authority.fell_out({"x": player.plane.x, "y": player.plane.y, "surface": player.surface.id})
 
 func save_game() -> Error:

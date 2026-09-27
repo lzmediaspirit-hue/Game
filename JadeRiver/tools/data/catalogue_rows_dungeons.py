@@ -8,23 +8,7 @@ Every portal, quest object, event and spawn the story and the tests use stays wh
   - Lu's inscriptions, the Riverbreath rite circle and its wave points, the Abbot's bells and vault, the monastery's
     insight stone and jade tree, the story events' fixed spawns and waves all keep their places on dry ground.
 """
-
-
-def _w():
-    import world
-    return world
-
-
-def authored(r):
-    r.d["vertical"] = "authored"
-
-
-def surf(r, sid):
-    return next(s for s in r.d["surfaces"] if s["id"] == sid)
-
-
-def obj(r, oid):
-    return next(o for o in r.d["objects"] if o["id"] == oid)
+from catalogue import _w, authored, drop_decor, drop_surfaces, obj, surf
 
 
 def of_type(r, *types):
@@ -42,20 +26,6 @@ def put(o, at, alt=0, sid=None):
         o.pop("alt", None)
         o.pop("surface", None)
     return o
-
-
-def drop_surfaces(r, ids):
-    """Remove surfaces and everything that hangs on them (climbables, movers, crumble volumes)."""
-    ids = set(ids)
-    r.d["surfaces"] = [s for s in r.d["surfaces"] if s["id"] not in ids]
-    r.d["climbables"] = [c for c in r.d.get("climbables", []) if c.get("top") not in ids and c.get("bottom") not in ids]
-    r.d["movers"] = [m for m in r.d.get("movers", []) if m["surface"] not in ids]
-    r.d["volumes"] = [v for v in r.d.get("volumes", []) if v.get("surface") not in ids]
-
-
-def drop_decor(r, prop, near=None, radius=60):
-    r.d["decor"] = [d for d in r.d["decor"] if not (d["prop"] == prop and (
-        near is None or abs(d["at"][0] - near[0]) + abs(d["at"][1] - near[1]) <= radius))]
 
 
 def crumble(r, sid, break_s=0.8, return_s=5.0):
@@ -463,6 +433,7 @@ def siege(R):
     keep their ground to the east."""
     r = R["si_siege"]
     drop_surfaces(r, ["rampart_0", "rampart_1"])
+    r.d.setdefault("volumes", [])   # the room file has always listed its (empty) volumes
     drop_decor(r, "stockade_wall")
     drop_decor(r, "banner_cloud")
     r.surface("battlement", [640, 620, 1560, 70], 160, kind="walltop")

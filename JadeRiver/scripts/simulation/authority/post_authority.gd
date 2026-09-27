@@ -11,7 +11,7 @@ func intents() -> Array:
 	return ["take_post", "take_vigil", "leave_post", "settle_post", "settle_all", "send_to_storehouse", "withdraw_storehouse", "sew_pouch", "burn_incense",
 		"set_snare", "collect_snare", "cancel_snare", "hold_rite", "learn_post_vow", "pledge_post_vow", "bench_assign", "bench_point", "bench_collect",
 		"learn_post_art", "reset_post_arts", "inscribe_seal", "raise_stele", "seek_favour", "calcine_line", "refine_line", "plant_flag", "raise_flag",
-		"uproot_flag", "echo_inscribe", "set_post_option"]
+		"uproot_flag", "echo_inscribe", "set_post_option", "settle_works"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	match str(intent.type):
@@ -45,6 +45,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"uproot_flag": return uproot_flag(char_of(intent), int(intent.get("index", 0)))
 		"echo_inscribe": return echo_inscribe(game.character(str(intent.get("character", game.active_id))), int(intent.get("slot", 0)))
 		"set_post_option": return set_post_option(game.character(str(intent.get("character", game.active_id))), str(intent.get("key", "")), bool(intent.get("on", true)))
+		"settle_works": return settle_works(char_of(intent), str(intent.get("part", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ state
@@ -413,10 +414,8 @@ func withdraw_storehouse(c, item_id: String, count: int) -> Dictionary:
 	if c == null: return fail("no_character")
 	var have := int(game.account.storehouse.get(item_id, 0))
 	if have <= 0 or count <= 0: return fail("empty")
-	if game.room_rt != null:
-		var ty := str(game.room_rt.def.get("type", ""))
-		if not (ty in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false)):
-			return fail("not_here", {"text": t("sim.posts.withdraw_in_town")})
+	if game.room_rt != null and not WorldRules.safe_room(game.room_rt.def):
+		return fail("not_here", {"text": t("sim.posts.withdraw_in_town")})
 	var n := mini(count, have)
 	var added := int(game.inventory.apply_add(c.id, item_id, n, "storehouse", {}, false))
 	if added <= 0: return fail("bag_full", {"text": Tx.t("sim.economy.your_gourd_is_full")})
@@ -1046,6 +1045,16 @@ func _to_storehouse(c, items: Dictionary, source: String) -> void:
 func settle_account() -> void:
 	calcination_settle()
 	mirror_settle()
+
+## The Apprentice Bench, the Calcination Furnace or the Mirror of Echoes catches up to now; their pages ask while open,
+## so what they show is current.
+func settle_works(c, part: String) -> Dictionary:
+	match part:
+		"bench": _bench_settle(c)
+		"furnace": calcination_settle()
+		"mirror": mirror_settle()
+		_: return fail("unknown_part")
+	return ok()
 
 func _curve_of(def: Dictionary, lv: float) -> float:
 	return PostRules.curve(str(def.get("curve", "add")), float(def.get("x1", 0.0)), float(def.get("x2", 0.0)), lv, float(def.get("base", 0.0)))

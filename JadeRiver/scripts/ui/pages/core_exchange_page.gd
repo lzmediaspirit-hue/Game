@@ -15,7 +15,7 @@ func draw_page() -> void:
 	text(top.position + Vector2(18, 30), Tx.t("ui.cores.today") % Game.pets.exchange_left(ch), 19, UiKit.PALE_GOLD)
 	para(Rect2(top.position + Vector2(18, 40), Vector2(top.size.x - 300, 30)), Tx.t("ui.cores.prices") % [int(prices.get("low", 1)), int(prices.get("mid", 3)),
 		int(prices.get("high", 8)), int(prices.get("peak", 20))], 15, UiKit.MIST, 1)
-	var wounded: bool = ch.pets.any(func(p): return Game.pets.ensure_fields(p).get("wounded", false))
+	var wounded: bool = ch.pets.any(func(p): return p.get("wounded", false))
 	btn(Rect2(top.end.x - 260, top.position.y + 11, 244, 48), Tx.t("ui.cores.rest"), "rest", null, wounded, wounded, Tx.t("ui.cores.none_wounded"), 18)
 	var cores: Array = []
 	for st in ch.inventory.bag:

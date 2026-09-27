@@ -27,9 +27,6 @@ func handle(intent: Dictionary) -> Dictionary:
 		return ok()
 	return fail("unknown_intent")
 
-func is_companion(id: String) -> bool:
-	return id.begins_with("comp:")
-
 func apply_add(actor_id: String, companion: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("companions", companion) or c.companions.roster.has(companion): return

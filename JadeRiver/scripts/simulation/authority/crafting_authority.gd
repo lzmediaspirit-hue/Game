@@ -171,13 +171,8 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	var craft: String = NODE_CRAFT[str(o.type)]
 	if craft == "herb_gathering": return _harvest(c, o, timing)
 	var rng := Rng.stream(c.id, "crafting")
-	var y: Array = o.get("yield", [1, 2])
 	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, {"herb_gathering": "gathering", "insect_netting": "insect_netting"}.get(craft, "mining")))
-	var count := rng.randi_range(int(y[0]), int(y[1]))
-	if rng.randf() < (power - 1.0) * 0.5: count += 1
-	if craft != "star_charting" and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
-	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield") if craft == "herb_gathering" else 0.0
-	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
+	var count := _node_yield(c, o, rng, power, craft != "star_charting")
 	var item := str(o.get("item", ""))
 	if o.has("outputs"): item = str(Rng.weighted(rng, o.outputs).get("item", item))   # V10: a swarm's insects by weight
 	game.inventory.apply_add(c.id, item, count, craft)
@@ -186,6 +181,15 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	game.posts.apply_hand_harvest(c.id, item, count)   # S50: the hand trains the post craft too
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
 	return ok({"item": item, "count": count})
+
+## A node's haul: its yield roll, one more on a better tool's chance, and one more on a gathering animal's (none under
+## the stars).
+func _node_yield(c, o: Dictionary, rng: RandomNumberGenerator, power: float, animal: bool) -> int:
+	var y: Array = o.get("yield", [1, 2])
+	var count := rng.randi_range(int(y[0]), int(y[1]))
+	if rng.randf() < (power - 1.0) * 0.5: count += 1
+	if animal and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	return count
 
 ## S45 harvest: a perfect tap keeps the herb's full age and may find a seed; a miss drops one age tier, and so does
 ## picking a rare herb before it ripens (never below ten years). A rare node grows back with its next ripening.
@@ -198,11 +202,7 @@ func _harvest(c, o: Dictionary, timing: float) -> Dictionary:
 	var early: bool = o.has("ripen") and not bool(HerbRules.ripen_state(o, now).ripe)
 	var perfect := HerbRules.tap_perfect(timing, rank_of(c, "herb_gathering"))
 	var item := HerbRules.aged_down(str(o.get("item", "")), (1 if early else 0) + (0 if perfect else 1))
-	var y: Array = o.get("yield", [1, 2])
-	var power := maxf(1.0, tool_power(c, "gathering"))
-	var count := rng.randi_range(int(y[0]), int(y[1]))
-	if rng.randf() < (power - 1.0) * 0.5: count += 1
-	if game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	var count := _node_yield(c, o, rng, maxf(1.0, tool_power(c, "gathering")), true)
 	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield")
 	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	game.inventory.apply_add(c.id, item, count, "herb_gathering")
@@ -669,7 +669,7 @@ func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire :=
 	var score := clampf(1.0 - absf(offset) / tolerance, 0.0, 1.0)
 	session.scores.append(score)
 	steps[c.id] = session
-	var grade := "perfect" if score >= float(k.get("perfect", 0.85)) else ("good" if score >= float(k.get("good", 0.5)) else "miss")
+	var grade := _step_grade(score)
 	emit("craft_step_result", {"actor": c.id, "recipe": recipe_id, "step": session.scores.size(), "score": score, "grade": grade})
 	return ok({"score": score, "grade": grade, "step": session.scores.size()})
 
@@ -1062,8 +1062,7 @@ func _grant(c, recipe_id: String, count: int, quality: String, fire: String, cra
 		if craft_kind == "smithing" and ContentDB.is_equipment(str(out.item)):
 			var def := ContentDB.item(str(out.item))
 			for i in n:
-				var inst := LootRules.make_instance(str(out.item), int(def.get("ilv", 1)), quality, Rng.stream(c.id, "affix"), c.inventory.next_uid)
-				c.inventory.next_uid += 1
+				var inst := LootRules.make_instance(str(out.item), int(def.get("ilv", 1)), quality, Rng.stream(c.id, "affix"), c.inventory.take_uid())
 				game.inventory.apply_add_instance(c.id, inst, "forge")
 		elif craft_kind == "alchemy" and ContentDB.item(str(out.item)).has("draught"):
 			game.inventory.apply_draught(c.id, str(out.item), n, "craft")   # a liquid goes to the Draught slot (S44)
@@ -1437,16 +1436,10 @@ func grade_row(item_id: String) -> Dictionary:
 	var rows: Array = ContentDB.all("salvage")
 	return rows[-1] if not rows.is_empty() else {"metal": "copper_ore", "returns": []}
 
-## An equipment instance by uid, whether worn or in the bag: {inst, slot, index}; {} when it is not there.
-func locate(c, uid: int) -> Dictionary:
-	if uid < 0: return {}
-	for sl in c.inventory.equipped:
-		var e = c.inventory.equipped[sl]
-		if e != null and int(e.get("uid", -2)) == uid: return {"inst": e, "slot": str(sl), "index": -1}
-	if c.inventory.furnace != null and int(c.inventory.furnace.get("uid", -2)) == uid: return {"inst": c.inventory.furnace, "slot": "tool_furnace", "index": -1}
-	var i: int = c.inventory.find_uid(uid)
-	if i >= 0 and c.inventory.bag[i] != null: return {"inst": c.inventory.bag[i], "slot": "", "index": i}
-	return {}
+## The piece an intent names: by uid, worn or carried, else by worn slot or bag index ({inst, slot, index}, or {}).
+func _target(c, intent: Dictionary) -> Dictionary:
+	var at: Dictionary = c.inventory.locate(int(intent.get("uid", -1)))
+	return at if not at.is_empty() else c.inventory.at_slot(str(intent.get("slot", "")), int(intent.get("index", -1)))
 
 func _uid_at(c, index: int) -> int:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return -1
@@ -1490,12 +1483,7 @@ func reroll_check(c, inst: Dictionary) -> String:
 ## The roll is on the affix stream, so it is deterministic per character.
 func enhance(c, intent: Dictionary) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
-	var at := locate(c, int(intent.get("uid", -1)))
-	if at.is_empty():
-		var slot := str(intent.get("slot", ""))
-		var index := int(intent.get("index", -1))
-		if slot != "" and c.inventory.equipped.get(slot) != null: at = {"inst": c.inventory.equipped[slot], "slot": slot, "index": -1}
-		elif index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] != null: at = {"inst": c.inventory.bag[index], "slot": "", "index": index}
+	var at := _target(c, intent)
 	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
 	var inst: Dictionary = at.inst
 	var lvl := int(inst.get("enhance", 0))
@@ -1527,8 +1515,8 @@ func enhance(c, intent: Dictionary) -> Dictionary:
 ## Stones a level moved. The old piece goes back to +0; the new one keeps its own level if that is higher.
 func inherit(c, from_uid: int, to_uid: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
-	var a := locate(c, from_uid)
-	var b := locate(c, to_uid)
+	var a: Dictionary = c.inventory.locate(from_uid)
+	var b: Dictionary = c.inventory.locate(to_uid)
 	if a.is_empty() or b.is_empty() or from_uid == to_uid: return fail("not_equipment")
 	var da := ContentDB.item(str(a.inst.id))
 	var db := ContentDB.item(str(b.inst.id))
@@ -1592,7 +1580,7 @@ func free_reroll_ready(c) -> bool:
 ## beside the old one until you choose which to keep.
 func reroll(c, uid: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
-	var at := locate(c, uid)
+	var at: Dictionary = c.inventory.locate(uid)
 	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
 	var inst: Dictionary = at.inst
 	if (inst.get("affixes", []) as Array).is_empty(): return fail("no_affixes", {"text": Tx.t("sim.crafting.no_affixes")})
@@ -1622,7 +1610,7 @@ func reroll(c, uid: int) -> Dictionary:
 
 ## Keep the new roll or the old one; either way the pending roll is gone.
 func choose_affixes(c, uid: int, keep_new: bool) -> Dictionary:
-	var at := locate(c, uid)
+	var at: Dictionary = c.inventory.locate(uid)
 	if at.is_empty() or not at.inst.has("pending_affixes"): return fail("nothing_pending")
 	if keep_new: game.inventory.apply_affixes(c.id, at.inst, at.inst.pending_affixes, str(at.slot))
 	at.inst.erase("pending_affixes")
@@ -1630,7 +1618,7 @@ func choose_affixes(c, uid: int, keep_new: bool) -> Dictionary:
 
 ## Lock one affix against the next rerolls (-1 unlocks).
 func lock_affix(c, uid: int, affix: int) -> Dictionary:
-	var at := locate(c, uid)
+	var at: Dictionary = c.inventory.locate(uid)
 	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
 	if affix >= (at.inst.get("affixes", []) as Array).size(): return fail("no_affix")
 	if affix < 0: at.inst.erase("locked_affix")
@@ -1675,8 +1663,7 @@ func restore_relic(c, index: int) -> Dictionary:
 	game.economy.apply_currency("silver_tael", -3000, "restore_relic")
 	game.inventory.apply_remove_index(c.id, c.inventory.first_index(shard), 1, "restore_relic")
 	var def := ContentDB.item(target)
-	var inst := LootRules.make_instance(target, int(def.get("ilv", 1)), "fine", Rng.stream(c.id, "affix"), c.inventory.next_uid)
-	c.inventory.next_uid += 1
+	var inst := LootRules.make_instance(target, int(def.get("ilv", 1)), "fine", Rng.stream(c.id, "affix"), c.inventory.take_uid())
 	game.inventory.apply_add_instance(c.id, inst, "restore_relic")
 	emit("relic_restored", {"actor": c.id, "item": target, "from": shard})
 	emit("system_used", {"actor": c.id, "system": "restore_relic"})
@@ -1707,12 +1694,7 @@ func awaken_check(c, inst: Dictionary) -> String:
 	return ""
 
 func awaken_weapon(c, intent: Dictionary) -> Dictionary:
-	var at := locate(c, int(intent.get("uid", -1)))
-	if at.is_empty():
-		var slot := str(intent.get("slot", ""))
-		var index := int(intent.get("index", -1))
-		if slot != "" and c.inventory.equipped.get(slot) != null: at = {"inst": c.inventory.equipped[slot], "slot": slot, "index": -1}
-		elif index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] != null: at = {"inst": c.inventory.bag[index], "slot": "", "index": index}
+	var at := _target(c, intent)
 	if at.is_empty(): return fail("not_equipment")
 	var inst: Dictionary = at.inst
 	var why := awaken_check(c, inst)
@@ -1732,7 +1714,7 @@ func mend_cost(inst: Dictionary) -> Dictionary:
 	return {"metal": str(grade_row(str(inst.id)).get("metal", "copper_ore")), "count": maxi(1, int(ceil(lost / 10.0)) * 2), "lost": lost}
 
 func mend_furnace(c, uid: int) -> Dictionary:
-	var at := locate(c, uid)
+	var at: Dictionary = c.inventory.locate(uid)
 	if at.is_empty() and c.inventory.furnace != null: at = {"inst": c.inventory.furnace, "slot": "tool_furnace", "index": -1}
 	if at.is_empty() or str(ContentDB.item(str(at.inst.id)).get("slot", "")) != "tool_furnace": return fail("not_a_furnace")
 	var cost := mend_cost(at.inst)
@@ -1954,9 +1936,9 @@ func _pass_exam(c, craft: String, rk: Dictionary) -> void:
 	emit("guild_rank_changed", {"actor": c.id, "craft": craft, "rank": str(rk.id), "title": str(rk.get("title", ""))})
 
 # ------------------------------------------------------------------ S44/S49 commissions
-## The day's number (commissions refresh each morning).
+## The day's number (commissions refresh each morning, with the daily reset).
 static func commission_day() -> int:
-	return int(floor(Clock.now_utc() / 86400.0))
+	return Clock.reset_day(Clock.now_utc())
 
 ## Where a guild's board keeps its day (the Alchemist Guild's keeps its first key, so old saves carry on).
 static func _board_key(craft: String) -> String:
@@ -2025,16 +2007,19 @@ func deliver_commission(c, id: String, pay: String) -> Dictionary:
 	var o: Dictionary = found.order
 	var craft: String = found.craft
 	if not o.get("accepted", false): return fail("not_accepted", {"text": Tx.t("sim.crafting.commission_accept_first")})
-	# Pieces or pills of the order's quality or better, from any stacks.
+	# Pieces or pills of the order's quality or better, from any stacks; a locked piece is never handed over.
+	var fits := func(s) -> bool:
+		return s != null and str(s.id) == str(o.item) and quality_rank(str(s.get("quality", "common"))) >= quality_rank(str(o.quality)) \
+			and not c.inventory.locked.has(int(s.get("uid", -1)))
 	var have := 0
 	for s in c.inventory.bag:
-		if s != null and str(s.id) == str(o.item) and quality_rank(str(s.get("quality", "common"))) >= quality_rank(str(o.quality)): have += int(s.get("count", 1))
+		if fits.call(s): have += int(s.get("count", 1))
 	if have < int(o.count): return fail("materials", {"text": Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item))})
 	var left := int(o.count)
 	for i in c.inventory.bag.size():
 		if left <= 0: break
 		var s = c.inventory.bag[i]
-		if s == null or str(s.id) != str(o.item) or quality_rank(str(s.get("quality", "common"))) < quality_rank(str(o.quality)): continue
+		if not fits.call(s): continue
 		var take := mini(left, int(s.get("count", 1)))
 		game.inventory.apply_remove_index(c.id, i, take, "commission")
 		left -= take
@@ -2060,4 +2045,3 @@ func tick(_delta: float) -> void:
 		var ex: Dictionary = ac.crafting.guild_exam
 		ac.crafting["guild_exam"] = {}
 		emit("guild_exam_failed", {"actor": ac.id, "craft": str(ex.craft), "rank": str(ex.rank), "made": int(ex.made)})
-	pass

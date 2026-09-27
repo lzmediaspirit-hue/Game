@@ -7,7 +7,6 @@ const WIDTH=5400.0
 const REAR=620.0
 const GROUND_REAR=480.0
 const FRONT=960.0
-const LANE=Rect2(0,790,WIDTH,130)
 static func profiles() -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string("res://data/map_themes.json"))
 static func surface(id: String,rect: Array,height: float,kind: String,stratum="platform") -> Dictionary:

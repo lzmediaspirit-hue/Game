@@ -68,7 +68,7 @@ func _karma(ch) -> void:
 	var met := 0
 	for k in r.fortune.get("seen", {}): met += int(r.fortune.seen[k])
 	bar(Rect2(x, y + 16, right.size.x - 48, 26), meter, UiKit.GOLD,
-		Tx.t("ui.relations.fortune_ready") if meter >= 1.0 else Tx.t("ui.relations.fortune_in") % _span(Game.relations.fortune_ready_in(ch)))
+		Tx.t("ui.relations.fortune_ready") if meter >= 1.0 else Tx.t("ui.relations.fortune_in") % UiKit.span(Game.relations.fortune_ready_in(ch), false))
 	text(Vector2(x, y + 66), fit(Tx.t("ui.relations.fortune_note") % met, 15, right.size.x - 48), 15, UiKit.MIST)
 	y += 118
 	heading(Vector2(x, y), Tx.t("ui.relations.recent"), right.size.x - 48)
@@ -100,11 +100,6 @@ func _karma(ch) -> void:
 			_rtext(right.end.x - 24, y + 14, Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
 				UiKit.MIST if d.get("paid", false) else UiKit.PALE_GOLD)
 			y += 30
-
-## "2 h 10 m" or "12 m".
-func _span(sec: float) -> String:
-	var m := int(ceil(maxf(0.0, sec) / 60.0))
-	return Tx.t("ui.calendar.span_hm") % [m / 60, m % 60] if m >= 60 else Tx.t("ui.calendar.span_m") % maxi(1, m)
 
 ## Text whose right edge sits at x.
 func _rtext(x: float, y: float, s: String, size: int, col: Color) -> void:

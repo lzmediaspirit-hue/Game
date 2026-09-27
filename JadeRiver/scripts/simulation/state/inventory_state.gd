@@ -35,11 +35,6 @@ func capacity() -> int:
 	if g == null: return 25 + bonus_slots
 	return int(ContentDB.item(g.id).get("gourd", {}).get("bag", 25)) + bonus_slots
 
-func quick_capacity() -> int:
-	var g = equipped.get("gourd")
-	if g == null: return 5
-	return int(ContentDB.item(g.id).get("gourd", {}).get("quick", 5))
-
 func resize(n: int) -> void:
 	while bag.size() < n: bag.append(null)
 	# Never drop items when a smaller gourd is equipped; extra slots stay until emptied.
@@ -70,6 +65,36 @@ func find_uid(uid: int) -> int:
 	for i in bag.size():
 		if bag[i] != null and int(bag[i].get("uid", -1)) == uid: return i
 	return -1
+
+## An instance by uid, worn or carried: {inst, slot ("" in the bag, a worn slot, "tool_furnace", or "spare" when `spare`
+## is asked for), index (in the bag, else -1)}; {} when it is not here.
+func locate(uid: int, spare := false) -> Dictionary:
+	if uid < 0: return {}
+	for sl in equipped:
+		var e = equipped[sl]
+		if e is Dictionary and int(e.get("uid", -2)) == uid: return {"inst": e, "slot": str(sl), "index": -1}
+	if furnace is Dictionary and int(furnace.get("uid", -2)) == uid: return {"inst": furnace, "slot": "tool_furnace", "index": -1}
+	var sp = loadout.get("spare")
+	if spare and sp is Dictionary and int(sp.get("uid", -2)) == uid: return {"inst": sp, "slot": "spare", "index": -1}
+	var i := find_uid(uid)
+	return {"inst": bag[i], "slot": "", "index": i} if i >= 0 else {}
+
+## An instance by worn slot (when that slot holds one) or else by bag index: {inst, slot, index}, or {}.
+func at_slot(slot: String, index: int) -> Dictionary:
+	if slot != "" and equipped.get(slot) is Dictionary: return {"inst": equipped[slot], "slot": slot, "index": -1}
+	if index >= 0 and index < bag.size() and bag[index] is Dictionary: return {"inst": bag[index], "slot": "", "index": index}
+	return {}
+
+## A fresh instance uid: every uid minted for this inventory comes from here.
+func take_uid() -> int:
+	next_uid += 1
+	return next_uid - 1
+
+## An instance arriving from elsewhere (another character's chest deposit, a letter, a buyback) keeps its uid while
+## nothing here holds it, and takes a fresh one otherwise; later uids start past it.
+func claim_uid(inst: Dictionary) -> void:
+	if not inst.has("uid") or not locate(int(inst.uid), true).is_empty(): inst.uid = take_uid()
+	next_uid = maxi(next_uid, int(inst.uid) + 1)
 
 func first_index(id: String) -> int:
 	for i in bag.size():
@@ -133,6 +158,7 @@ func restore(d: Dictionary) -> void:
 		if s != null and s.has("uid"): next_uid = maxi(next_uid, int(s.uid) + 1)
 	for s in SLOTS:
 		if equipped[s] != null and equipped[s].has("uid"): next_uid = maxi(next_uid, int(equipped[s].uid) + 1)
+	if loadout.spare != null: next_uid = maxi(next_uid, int(loadout.spare.get("uid", 0)) + 1)
 	var fu = d.get("furnace")
 	furnace = fu.duplicate(true) if fu is Dictionary and str(ContentDB.item(str(fu.get("id", ""))).get("slot", "")) == "tool_furnace" else null
 	if furnace != null: next_uid = maxi(next_uid, int(furnace.get("uid", 0)) + 1)
@@ -150,8 +176,7 @@ func _migrate_furnaces() -> void:
 			key_items.erase(k)
 	found.sort_custom(func(a, b): return int(ContentDB.item(a).get("furnace", {}).get("batch", 1)) > int(ContentDB.item(b).get("furnace", {}).get("batch", 1)))
 	for id in found:
-		var inst := LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, next_uid)
-		next_uid += 1
+		var inst := LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, take_uid())
 		if furnace == null:
 			furnace = inst
 			continue

@@ -47,9 +47,19 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
 	GameEvents.subscribe("room_entered", func(_p): _clear_room_marks(), 20)
 	GameEvents.subscribe("actor_defeated", _feed_blood_essence, 20)
+	GameEvents.subscribe("fell_out", _on_fell_out, 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
+
+## S43 rule 6: a fall out of the room costs 5% of max HP (never below 1), except in the Prologue, towns and safe rooms.
+func _on_fell_out(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	var room: Dictionary = game.room_rt.def if game.room_rt != null else {}
+	if c == null or room.is_empty() or room.get("safe", false) or str(room.get("region", "")) == "lotus_ferry" or str(room.get("type", "")) in ["town", "prologue"]:
+		return
+	var cost: float = minf(c.pools.max_hp * float(ContentDB.stat_const("move.fall_cost_pct", 0.05)), c.pools.hp - 1.0)
+	if cost > 0.0: apply_resource_change(c.id, "hp", -cost, "fall")
 
 ## S49 weather (v1.1): the sky over this room lends its modifiers (calendar.json weather_effects); never gating.
 func apply_weather(actor_id: String, weather: String) -> void:
@@ -613,14 +623,14 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("stunned")
 	# S10 Agility 50: a second dodge charge, on its own cooldown.
 	var charge := "dodge"
+	var free := false
 	if c.pools.cooldown("dodge") > 0.0:
 		if StatRules.gate_flag(c, "dodge_second_charge") and c.pools.cooldown("dodge_2") <= 0.0:
 			charge = "dodge_2"
 		else:
 			# A Wind Step Talisman's charge (S47) spends itself on a dodge the cooldown would refuse.
-			var fx0: Dictionary = treasure_fx.get(c.id, {})
-			if float(fx0.get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
-			fx0.erase("free_dodge")
+			if float(treasure_fx.get(c.id, {}).get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
+			free = true
 	var dir: Vector2 = direction if direction is Vector2 and direction.length() > 0.2 else Vector2(1 if facing >= 0 else -1, 0)
 	dir = dir.normalized()
 	var conf: Dictionary = ContentDB.stat_const("combat", {})
@@ -631,6 +641,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	# Shallow water drags at the feet: no dodging in it (S43 volumes).
 	if st != null and st.surface != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "water_shallow").is_empty():
 		return fail("in_water")
+	if free: treasure_fx[c.id].erase("free_dodge")   # spent only by a dodge that happens
 	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
 	# once per airtime. It shares the dodge's cooldown.
 	if st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \
@@ -641,9 +652,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 			var dash_s := float(ContentDB.movement("air_dash.hold_s", 0.25))
 			tl.forced = Vector2(ax, 0) * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
 			tl.forced_t = dash_s
-			var dcd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
-			if int(c.cultivator.meridians.get("agility", 0)) >= 25: dcd *= 0.8
-			c.pools.cooldowns["dodge"] = dcd
+			c.pools.cooldowns["dodge"] = _dodge_cooldown(c)
 			LocalAuthority.announce(st, c.id)
 			return ok({"air_dash": true})
 	if st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
@@ -660,12 +669,15 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	tl.forced = dir * dist / 0.22
 	tl.forced_t = 0.22
 	tl.dodge_t = float(conf.get("dodge_invuln_s", 0.25))
-	var cd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))   # S48 Swallow's Breath
-	if int(c.cultivator.meridians.get("agility", 0)) >= 25: cd *= 0.8
-	c.pools.cooldowns[charge] = cd
+	c.pools.cooldowns[charge] = _dodge_cooldown(c)
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
 	emit("dodged", {"actor": c.id, "direction": dir})
 	return ok()
+
+## The dodge's cooldown: Swallow's Breath (S48) shortens it, and so does the Agility 25 meridian gate (S10).
+func _dodge_cooldown(c) -> float:
+	var cd: float = float(ContentDB.stat_const("combat", {}).get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
+	return cd * 0.8 if StatRules.gate_flag(c, "dodge_cooldown_20") else cd
 
 # ------------------------------------------------------------------ tick
 func tick(delta: float) -> void:
@@ -1299,16 +1311,16 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 			game.enemies.stagger(e, sub)
 			emit("beast_subdued", {"actor": qc.id, "enemy": e.uid, "def": e.def_id, "seconds": sub})
 			return
-	if e.pools.hp <= 0.0:
-		var payload: Dictionary = game.enemies.defeat(e, attacker)
-		if not payload.is_empty(): emit("actor_defeated", payload)
-		var killer = game.character(attacker)
-		if killer != null: _gain_killing_intent(killer, e)
+	if e.pools.hp <= 0.0: _defeat(e, attacker)
 
 ## S49: the victor finishes a foe who yielded (Relations' judgement). The death is Combat's to announce.
 func apply_execute(e: EnemyState, attacker: String) -> void:
 	if not e.alive: return
 	e.pools.hp = 0.0
+	_defeat(e, attacker)
+
+## A foe falls to `attacker`: Enemies records the defeat, Combat announces it, and a kill feeds Killing Intent.
+func _defeat(e: EnemyState, attacker: String) -> void:
 	var payload: Dictionary = game.enemies.defeat(e, attacker)
 	if not payload.is_empty(): emit("actor_defeated", payload)
 	var killer = game.character(attacker)
@@ -1445,7 +1457,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	if ProgressionRules.path_flag(c, "knockback_immune", false): kb = 0.0   # Iron Horse
 	if amount >= p.max_hp * float(ContentDB.stat_const("combat.flinch_pct", 0.2)) or kb >= 60:
 		tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
-		if kb > 0 and e != null and not (int(c.cultivator.meridians.get("body", 0)) >= 50 and is_busy(c.id)):
+		if kb > 0 and e != null and not (StatRules.gate_flag(c, "knockback_immune_attacking") and is_busy(c.id)):
 			tl.forced = Vector2(signf(game.actor_state(c.id).plane.x - e.plane.x) * kb / 0.18, 0) if game.actor_state(c.id) else Vector2.ZERO
 			tl.forced_t = 0.18
 	# v1.2 the Gravity Golem's well: a blow that drags the body toward the one who struck it (into the slam).
@@ -1469,7 +1481,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		apply_heal(c.id, 0.10, 0.0, 5.0, "lotus_heart_breathing")
 		emit("system_used", {"actor": c.id, "system": "lotus_heart_breathing"})
 	if p.get_value(pool) <= 0.0:
-		if int(c.cultivator.meridians.get("body", 0)) >= 100 and not tl.get("survived_lethal", false):
+		if StatRules.gate_flag(c, "survive_lethal") and not tl.get("survived_lethal", false):
 			tl.survived_lethal = true
 			p.set_value(pool, 1.0)
 			return
@@ -1822,9 +1834,6 @@ func deploy_array(actor_id: String, e: Dictionary) -> void:
 	arrays.append(a)
 	game.progression.apply_insight(c.id, "formation", 3.0, "array_plate")
 	emit("array_deployed", {"actor": c.id, "kind": a.kind, "x": a.x, "y": a.y, "radius": a.radius, "duration": secs})
-
-func arrays_inside(pos: Vector2, kind: String) -> Array:
-	return arrays.filter(func(a): return str(a.kind) == kind and pos.distance_to(Vector2(float(a.x), float(a.y))) <= float(a.radius))
 
 func _tick_arrays(delta: float) -> void:
 	if arrays.is_empty(): return
@@ -2462,5 +2471,8 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 func begin_spar(actor_id: String) -> void:
 	spar[actor_id] = true
 
+## A spar is over, won or lost: nobody is hurt by it, and the player is made whole.
 func end_spar(actor_id: String) -> void:
 	spar.erase(actor_id)
+	var c = game.character(actor_id)
+	if c != null: apply_resource_change(actor_id, "hp", c.pools.max_hp, "spar")

@@ -42,6 +42,21 @@ def obj_near(r, otype, x, y=None):
     return min(cands, key=lambda o: abs(o["at"][0] - x) + (abs(o["at"][1] - y) if y is not None else 0))
 
 
+def drop_surfaces(r, ids):
+    """Remove surfaces and everything that hangs on them (climbables, movers, volumes); whatever stood on them comes
+    down to the ground."""
+    ids = set(ids)
+    for o in r.d["objects"]:
+        if o.get("surface") in ids:
+            o["alt"] = 0
+            o.pop("surface", None)
+    r.d["surfaces"] = [s for s in r.d["surfaces"] if s["id"] not in ids]
+    r.d["climbables"] = [c for c in r.d.get("climbables", []) if c.get("top") not in ids and c.get("bottom") not in ids]
+    r.d["movers"] = [m for m in r.d.get("movers", []) if m["surface"] not in ids]
+    if "volumes" in r.d:
+        r.d["volumes"] = [v for v in r.d["volumes"] if v.get("surface") not in ids]
+
+
 def clear_tiers(r, keep=()):
     """Drop a room's raised surfaces (all but `keep`) and the climbables to them; whatever stood on them
     comes down to the ground behind, for the passes to lift again."""

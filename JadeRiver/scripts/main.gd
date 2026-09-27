@@ -311,8 +311,7 @@ func _handle_preview_args(user_args: Array) -> void:
 			# the spirit speak once (S47 Artifact Spirit previews).
 			var rc = Game.active()
 			var ra := str(a).trim_prefix("--relic=").split(":")
-			var rinst := LootRules.make_instance(ra[0], int(ContentDB.item(ra[0]).get("ilv", 50)), "fine", null, rc.inventory.next_uid)
-			rc.inventory.next_uid += 1
+			var rinst := LootRules.make_instance(ra[0], int(ContentDB.item(ra[0]).get("ilv", 50)), "fine", null, rc.inventory.take_uid())
 			rinst.erase("sealed")
 			rinst.bound = true
 			if ra.size() > 1 and ra[1] == "awake": rinst.spirit = "awake"
@@ -332,8 +331,7 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Crystal in the bag, awakened already with ":awake" (S47 weapon awakening previews).
 			var kc = Game.active()
 			var ka := str(a).trim_prefix("--awaken=").split(":")
-			var kinst := LootRules.make_instance(ka[0], int(ContentDB.item(ka[0]).get("ilv", 45)), "fine", null, kc.inventory.next_uid)
-			kc.inventory.next_uid += 1
+			var kinst := LootRules.make_instance(ka[0], int(ContentDB.item(ka[0]).get("ilv", 45)), "fine", null, kc.inventory.take_uid())
 			kinst.enhance = 10
 			if ka.size() > 1 and ka[1] == "awake": kinst.awakened = true
 			var kwas = kc.inventory.equipped.get("weapon")

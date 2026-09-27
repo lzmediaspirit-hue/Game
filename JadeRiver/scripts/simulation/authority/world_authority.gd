@@ -9,7 +9,6 @@ const PORTAL_RADIUS := Vector2(64, 44)
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
 
-var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
 ## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
 ## A way to a room not built yet stays "Coming soon".
 var debug_open_ways := false
@@ -45,7 +44,7 @@ func _on_room_entered_fates(p: Dictionary) -> void:
 	if c == null or game.room_rt == null or not game.progression.fate_flag(c, "reveal_hidden"): return
 	for pt in game.room_rt.def.get("portals", []):
 		if str(pt.get("type", "")) != "hidden": continue
-		var f: String = "seen_" + game.room_rt.room_id + "_" + str(pt.id)
+		var f := seen_flag(game.room_rt.room_id, str(pt.id))
 		if c.quests.has_flag(f): continue
 		game.quest.apply_flag(c.id, f)
 		emit("hidden_portal_revealed", {"actor": c.id, "portal": str(pt.id), "room": game.room_rt.room_id, "source": "wandering_eye"})
@@ -305,6 +304,10 @@ func portal_near(c, portal: Dictionary) -> bool:
 	var r: Vector2 = PORTAL_RADIUS * float(portal.get("radius_scale", 1.0))
 	return absf(st.plane.x - float(at[0])) <= r.x and absf(st.plane.y - float(at[1])) <= r.y
 
+## The flag a character carries once a hidden way in a room has shown itself to them.
+static func seen_flag(room_id: String, portal_id: String) -> String:
+	return "seen_" + room_id + "_" + portal_id
+
 func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
@@ -312,7 +315,7 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
-	if portal.get("type", "") == "hidden" and not c.quests.has_flag("seen_" + game.room_rt.room_id + "_" + str(portal.id)):
+	if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
 		return {"open": false, "text": "", "hidden": true}
 	return {"open": true, "text": ContentDB.name_of("rooms", target)}
 
@@ -391,7 +394,7 @@ func sense_pulse(c) -> Dictionary:
 	var cost := 10.0
 	if StatRules.gate_flag(c, "sense_cost_25"): cost *= float(ContentDB.stat_const("gates", {}).get("sense_cost_mult", 0.75))   # S10 Spirit 25
 	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": Tx.t("sim.world.not_enough_soul")})
-	c.pools.set_value("soul", c.pools.get_value("soul") - cost)
+	game.combat.apply_resource_change(c.id, "soul", -cost, "spirit_sense")
 	c.pools.cooldowns["sense"] = 6.0
 	var st: ActorState = game.actor_state(c.id)
 	var here: Vector2 = st.plane if st else Vector2(float(c.position.x), float(c.position.y))
@@ -401,7 +404,7 @@ func sense_pulse(c) -> Dictionary:
 		for p in game.room_rt.def.get("portals", []):
 			if p.get("type", "") != "hidden" or not Unlocks.is_unlocked(c.id, "hidden_portals"): continue
 			var at: Array = p.get("at", [0, 0])
-			var f = "seen_" + game.room_rt.room_id + "_" + str(p.id)
+			var f := seen_flag(game.room_rt.room_id, str(p.id))
 			if here.distance_to(Vector2(float(at[0]), float(at[1]))) <= radius and not c.quests.has_flag(f):
 				game.quest.apply_flag(c.id, f)
 				emit("hidden_portal_revealed", {"actor": c.id, "portal": str(p.id), "room": game.room_rt.room_id})
@@ -591,7 +594,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			if o.has("page_args"): result.page_args = o.page_args
 			# Some things teach you something the first time you look (a Codex entry): once per character.
 			if o.has("effects") and not c.quests.has_flag("inspected_" + object_id):
-				c.quests.flags["inspected_" + object_id] = true
+				game.quest.apply_flag(c.id, "inspected_" + object_id)
 				game.apply_effects(c.id, o.effects, "inspect:" + object_id)
 		"rite_circle":
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
@@ -845,7 +848,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 	for eq in drop.get("equipment", []):
 		var inst := LootRules.make_equipment(Rng.stream(c.id, "affix"), int(eq.level), str(eq.min_quality), c.stats.value("fortune"), allow_weapons, c.inventory.next_uid)
 		if inst.is_empty(): continue
-		c.inventory.next_uid += 1
+		c.inventory.take_uid()   # the uid it was made with
 		drops.append({"item": inst.id, "count": 1, "instance": inst})
 	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(LootRules.zone_coins(rt.room_id, int(drop.coins)).amount)})
 	var i := 0
@@ -917,7 +920,11 @@ func tick(delta: float) -> void:
 		l.age = float(l.age) + delta
 		if st != null and not game.combat.is_wounded(c.id) and float(l.age) > 0.45:
 			if Vector2(float(l.x), float(l.y)).distance_to(st.plane) <= PICKUP_RADIUS * (1.6 if game.pets.gatherer_active(c.id) else 1.0) and absf(float(l.alt) - st.altitude) < 60:
-				if _collect(c, l).ok: continue
+				# A stack the bag refused is tried again once the bag changes, not every tick (each try says the bag is full).
+				var bag_now := "%d|%d" % [c.inventory.free_slots(), c.inventory.count(str(l.item))]
+				if str(l.get("refused", "")) != bag_now:
+					if _collect(c, l).ok: continue
+					l.refused = bag_now
 		if float(l.age) >= float(l.ttl):
 			rt.loot.erase(l)
 			if int(l.coins) == 0 and (ContentDB.item(str(l.item)).get("quest_item", false) or l.get("quality", "common") in ["fine", "superior", "perfect", "relic"]):
@@ -1736,7 +1743,7 @@ func _tick_auto_hunt(c, delta: float) -> void:
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
-	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag("seen_" + room_id + "_" + str(p.id)): return false
+	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
 	return true
 
 ## The shortest way between two rooms through the portals open to this character (its realm, quests and arts):
@@ -1763,15 +1770,20 @@ func auto_path_step(c) -> Dictionary:
 	if ap.is_empty() or game.room_rt == null: return {}
 	for s in ap.route:
 		if str(s.room) != game.room_rt.room_id: continue
-		if s.get("dock", false):
-			for o in game.room_rt.def.get("objects", []):
-				if str(o.id) == str(s.portal): return {"dock": str(o.id), "x": float(o.at[0]), "y": float(o.at[1]), "press_up": false, "surface": ""}
-			return {}
-		var p = game.room_rt.portal_def(str(s.portal))
-		if p.is_empty(): return {}
-		return {"portal": str(s.portal), "x": float(p.at[0]), "y": float(p.at[1]), "press_up": bool(p.get("press_up", false)),
-			"surface": str(p.get("surface", ""))}
+		var at := _step_point(s)
+		if at.is_empty(): return {}
+		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": false, "surface": ""}
+		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": bool(at.p.get("press_up", false)), "surface": str(at.p.get("surface", ""))}
 	return {}
+
+## Where a route step starts in this room: its dock object or its portal ({x, y, p: the portal}), {} when it is not here.
+func _step_point(s: Dictionary) -> Dictionary:
+	if s.get("dock", false):
+		for o in game.room_rt.def.get("objects", []):
+			if str(o.id) == str(s.portal): return {"x": float(o.at[0]), "y": float(o.at[1]), "p": {}}
+		return {}
+	var p = game.room_rt.portal_def(str(s.portal))
+	return {} if p.is_empty() else {"x": float(p.at[0]), "y": float(p.at[1]), "p": p}
 
 ## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).
 func toggle_gravity(c, object_id: String) -> Dictionary:
@@ -1798,22 +1810,8 @@ func guide_step(c) -> Dictionary:
 	var step := {}
 	var r := route(c, here, goal)
 	if not r.is_empty() and str(r[0].room) == here:
-		var x := 0.0
-		var y := 0.0
-		var found := false
-		if r[0].get("dock", false):
-			for o in game.room_rt.def.get("objects", []):
-				if str(o.id) == str(r[0].portal):
-					x = float(o.at[0])
-					y = float(o.at[1])
-					found = true
-		else:
-			var p = game.room_rt.portal_def(str(r[0].portal))
-			if not p.is_empty():
-				x = float(p.at[0])
-				y = float(p.at[1])
-				found = true
-		if found: step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": x, "y": y}
+		var at := _step_point(r[0])
+		if not at.is_empty(): step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": float(at.x), "y": float(at.y)}
 	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
 	return step
 

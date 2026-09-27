@@ -101,7 +101,7 @@ func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: Str
 	emit("debt_recorded", {"actor": c.id, "debt": debt_id})
 
 func _debt_due(c, d: Dictionary) -> bool:
-	if d.has("due_quest"): return c.quests.is_done(str(d.due_quest)) or c.quests.is_active(str(d.due_quest)) and bool(d.get("on_accept", false))
+	if d.has("due_quest"): return c.quests.is_done(str(d.due_quest))
 	return Clock.now_utc() >= float(d.get("due_utc", 0.0))
 
 func settle_debts(c) -> void:
@@ -156,15 +156,23 @@ func apply_fame(actor_id: String, delta: int, reason: String) -> void:
 
 ## The named Fame tier this character stands at (Unknown, Noted, Rising, Renowned, Legendary).
 func fame_tier(c) -> Dictionary:
-	var best := {}
-	for t in cfg().get("fame_tiers", []):
-		if c.relations.fame >= int(t.get("min", 0)): best = t
-	return best
+	return _tier_at(cfg().get("fame_tiers", []), c.relations.fame)
 
 ## The next tier up, or {} at Legendary.
 func next_fame_tier(c) -> Dictionary:
-	for t in cfg().get("fame_tiers", []):
-		if c.relations.fame < int(t.get("min", 0)): return t
+	return _tier_after(cfg().get("fame_tiers", []), c.relations.fame)
+
+## The last of `tiers` (ordered by "min") that `value` reaches, or {}.
+static func _tier_at(tiers: Array, value: int) -> Dictionary:
+	var best := {}
+	for t in tiers:
+		if value >= int(t.get("min", 0)): best = t
+	return best
+
+## The first of `tiers` that `value` has not reached, or {}.
+static func _tier_after(tiers: Array, value: int) -> Dictionary:
+	for t in tiers:
+		if value < int(t.get("min", 0)): return t
 	return {}
 
 ## Demonic, shadowed, balanced, upright or righteous.
@@ -625,15 +633,7 @@ func fortune_check(c, trigger: String, forced := "") -> Dictionary:
 	elif rng.randf() >= float(fc.get("chance", {}).get(trigger, 0.0)) * (1.0 + float(fc.get("fortune_chance", 0.02)) * c.stats.value("fortune")):
 		return {}
 	if cards.is_empty(): return {}
-	var total := 0.0
-	for o in cards: total += float(o.w)
-	var roll := rng.randf() * total
-	var card: Dictionary = cards.back().card
-	for o in cards:
-		roll -= float(o.w)
-		if roll < 0.0:
-			card = o.card
-			break
+	var card: Dictionary = Rng.weighted(rng, cards, "w").card
 	c.relations.fortune["meter"] = maxf(0.0, fortune_meter(c) - 1.0)
 	var seen: Dictionary = c.relations.fortune.get("seen", {})
 	seen[str(card.id)] = int(seen.get(str(card.id), 0)) + 1
@@ -663,10 +663,6 @@ func apply_fortune_grotto(actor_id: String) -> void:
 	c.relations.fortune["grotto_n"] = int(c.relations.fortune.get("grotto_n", 0)) + 1
 	game.world.load_room(c, "hg_hidden_grotto", "")
 
-## The hermit's chess problem: insight into the Dao you know best (Progression works it out).
-func apply_insight_best(actor_id: String, amount: float) -> void:
-	game.progression.apply_insight_best(actor_id, amount, "fortune")
-
 # ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
 ## The sky answered your breakthrough where people could see it: sometimes a jealous senior cannot let it pass.
 func _on_phenomenon(p: Dictionary) -> void:
@@ -690,15 +686,10 @@ func favour(c) -> int:
 	return int(c.relations.mortal.get("favour", 0))
 
 func favour_tier(c) -> Dictionary:
-	var best := {}
-	for t in mcfg().get("favour_tiers", []):
-		if favour(c) >= int(t.get("min", 0)): best = t
-	return best
+	return _tier_at(mcfg().get("favour_tiers", []), favour(c))
 
 func next_favour_tier(c) -> Dictionary:
-	for t in mcfg().get("favour_tiers", []):
-		if favour(c) < int(t.get("min", 0)): return t
-	return {}
+	return _tier_after(mcfg().get("favour_tiers", []), favour(c))
 
 func apply_favour(actor_id: String, delta: int, reason: String) -> void:
 	var c = game.character(actor_id)
@@ -721,10 +712,7 @@ func county_jobs(c) -> Array:
 	var m: Dictionary = c.relations.mortal
 	var day := Clock.reset_day(Clock.now_utc())
 	if int(m.get("day", -1)) == day: return m.get("jobs", [])
-	for qid in m.get("jobs", []):
-		c.quests.active.erase(qid)
-		c.quests.tracked.erase(qid)
-		c.quests.daily.erase(qid)
+	for qid in m.get("jobs", []): game.quest.apply_drop(c.id, str(qid))
 	m["day"] = day
 	var made: Array = []
 	var rng := Rng.keyed(int(c.rng_seed), "county:%d" % day)
@@ -742,10 +730,10 @@ func county_jobs(c) -> Array:
 		if fit.is_empty(): continue
 		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
 		var id := "mortal_%d_%d" % [day, made.size()]
-		c.quests.daily[id] = {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
+		game.quest.apply_generated(c.id, {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
 			"hand_in": "", "auto_complete": true, "qp": "daily",
 			"rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": int(rw.get("silver_base", 20)) + lv * int(rw.get("silver_per_level", 4))},
-				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]}
+				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]})
 		made.append(id)
 	m["jobs"] = made
 	for qid in made: game.quest.accept(c, qid)

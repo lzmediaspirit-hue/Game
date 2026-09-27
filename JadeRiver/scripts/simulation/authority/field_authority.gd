@@ -107,15 +107,8 @@ func sphere_of(c) -> Dictionary:
 	if c == null: return {}
 	var k: Dictionary = ContentDB.stat_const("sphere", {})
 	var map: Dictionary = k.get("dao_element", {})
-	var best := ""
-	var best_v := -1.0
-	for d in c.cultivator.daos:
-		var fam := str(ContentDB.entry("daos", str(d)).get("family", ""))
-		if not (fam in ["weapon", "element"] or map.has(str(d))): continue
-		var v := float(c.cultivator.daos[d].get("tier", 0)) * 1000000.0 + float(c.cultivator.daos[d].get("insight", 0.0))
-		if v > best_v:
-			best_v = v
-			best = str(d)
+	var best := ProgressionRules.strongest_dao(c, func(d: String) -> bool:
+		return str(ContentDB.entry("daos", d).get("family", "")) in ["weapon", "element"] or map.has(d))
 	if best == "": return {}
 	var tier := int(c.cultivator.daos[best].get("tier", 0))
 	if tier <= 0: return {}

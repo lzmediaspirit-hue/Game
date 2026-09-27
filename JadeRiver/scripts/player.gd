@@ -157,10 +157,6 @@ func _hold_jump(c) -> void:
 	if Unlocks.is_unlocked(actor_id, "flight") and Game.combat.flight_allowed(actor_id) and take_off(true): return
 	Game.submit({"type": "glide", "on": true})
 
-func land_from_flight(reason: String) -> void:
-	if state.flying: authority.fly(false)
-	if bound() and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": reason})
-
 func attack():
 	if bound():
 		# S43 Plunge: joystick toward the camera + Attack in the air.
@@ -292,7 +288,7 @@ func step(delta: float, axis: Vector2):
 	var busy: bool = Game.combat.is_busy(actor_id)
 	var wounded: bool = Game.combat.is_wounded(actor_id)
 	if axis.length() > 0.12 and meditating:
-		if int(c.cultivator.meridians.get("agility", 0)) < 100 or channel_time > 1.0:
+		if not StatRules.gate_flag(c, "move_keeps_cultivate") or channel_time > 1.0:
 			Game.submit({"type": "stop_meditation", "reason": "moved"})
 	if axis.length() > 0.12: channel_time = 0.0
 	if wounded: axis = Vector2.ZERO

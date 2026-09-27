@@ -75,9 +75,7 @@ var attack_pressed := false
 var attack_hold := 0.0
 const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
-var boss_uid := 0
 var t := 0.0
-var hint_timer := 0.0
 
 func _ready() -> void:
 	frame_style = UiKit.style("minor_panel")

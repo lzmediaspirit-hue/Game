@@ -132,8 +132,8 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 		var chance := float(ContentDB.config("garden").get("fakes", {}).get("chance", 0.3))
 		var rng := Rng.stream(c.id, "garden")
 		for i in count:
-			c.inventory.next_uid += 1
-			game.inventory.apply_add(c.id, item_id, 1, "shop:" + shop_id, {"unappraised": true, "fake": rng.randf() < chance, "seal": c.inventory.next_uid})
+			var seal: int = c.inventory.take_uid() + 1
+			game.inventory.apply_add(c.id, item_id, 1, "shop:" + shop_id, {"unappraised": true, "fake": rng.randf() < chance, "seal": seal})
 	else:
 		game.inventory.apply_add(c.id, item_id, count, "shop:" + shop_id)
 	emit("item_bought", {"actor": c.id, "shop": shop_id, "item": item_id, "count": count, "price": total})
@@ -165,12 +165,19 @@ func buyback(c, index: int) -> Dictionary:
 	var e: Dictionary = bb[index]
 	if balance("silver_tael") < int(e.price): return fail("insufficient_funds")
 	var entry: Dictionary = e.entry
+	var n := int(entry.get("count", 1))
 	var added := 0
+	# The stack comes back as it was sold (quality, Halo, marks, prep, seal).
 	if ContentDB.is_equipment(str(entry.id)): added = game.inventory.apply_add_instance(c.id, entry, "buyback", false)
-	else: added = game.inventory.apply_add(c.id, str(entry.id), int(entry.get("count", 1)), "buyback", {}, false)
+	else: added = game.inventory.apply_add(c.id, str(entry.id), n, "buyback", entry, false)
 	if added <= 0: return fail("bag_full")
-	apply_currency("silver_tael", -int(e.price), "buyback")
-	bb.remove_at(index)
+	# What does not fit stays on the list at its share of the price.
+	var paid := int(e.price) if added >= n else int(round(float(e.price) * added / n))
+	apply_currency("silver_tael", -paid, "buyback")
+	if added >= n: bb.remove_at(index)
+	else:
+		entry.count = n - added
+		e.price = int(e.price) - paid
 	emit("buyback_changed", {})
 	return ok()
 

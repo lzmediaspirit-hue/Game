@@ -9,7 +9,7 @@ const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "u
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag", "drink_draught",
 		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon", "set_appearance", "flag_natal", "feed_natal",
-		"reforge_natal", "gift_spirit", "devour_gear"]
+		"reforge_natal", "gift_spirit", "devour_gear", "mark_item_seen"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
@@ -170,7 +170,7 @@ func tick(delta: float) -> void:
 		if float(b.left) > 0.0: continue
 		binding.erase(actor)
 		var c = game.character(actor)
-		var found := _instance_by_uid(c, int(b.uid)) if c else {}
+		var found: Dictionary = c.inventory.locate(int(b.uid)) if c else {}
 		if found.is_empty(): continue
 		found.inst.erase("sealed")
 		found.inst.bound = true
@@ -179,28 +179,11 @@ func tick(delta: float) -> void:
 		emit("system_used", {"actor": actor, "system": "bind"})
 		if found.slot != "": emit("equipment_changed", {"actor": actor, "slot": found.slot, "old": found.inst.id, "new": found.inst.id})
 
-## {inst, slot} for an equipped slot or a bag index.
-func _instance(c, slot: String, index: int) -> Dictionary:
-	if slot != "":
-		var e = c.inventory.equipped.get(slot)
-		return {"inst": e, "slot": slot} if e is Dictionary else {}
-	if index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] is Dictionary:
-		return {"inst": c.inventory.bag[index], "slot": ""}
-	return {}
-
-func _instance_by_uid(c, uid: int) -> Dictionary:
-	for slot in c.inventory.equipped:
-		var e = c.inventory.equipped[slot]
-		if e is Dictionary and int(e.get("uid", -1)) == uid: return {"inst": e, "slot": str(slot)}
-	for it in c.inventory.bag:
-		if it is Dictionary and int(it.get("uid", -1)) == uid: return {"inst": it, "slot": ""}
-	return {}
-
 ## S14 binding: a timed channel by grade; a hit breaks it.
 func bind_item(c, slot: String, index: int) -> Dictionary:
 	var cfg: Dictionary = ContentDB.stat_const("binding", {})
 	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "binding"))): return fail("locked", {"text": Unlocks.locked_text("binding")})
-	var found := _instance(c, slot, index)
+	var found: Dictionary = c.inventory.at_slot(slot, index)
 	if found.is_empty() or not found.inst.get("sealed", false): return fail("not_sealed")
 	if binding.has(c.id): return fail("busy")
 	var grade := str(ContentDB.item(str(found.inst.id)).get("grade", "common"))
@@ -216,7 +199,7 @@ func binding_progress(actor_id: String) -> float:
 ## Waking an Artifact Spirit: the owner's Spirit against the spirit's strength. A failed contest bruises the soul.
 func subdue_spirit(c, slot: String, index: int) -> Dictionary:
 	var cfg: Dictionary = ContentDB.stat_const("binding", {})
-	var found := _instance(c, slot, index)
+	var found: Dictionary = c.inventory.at_slot(slot, index)
 	if found.is_empty() or found.inst.get("sealed", false) or str(found.inst.get("spirit", "")) != "dormant": return fail("no_spirit")
 	if spirit_cd.has(c.id): return fail("cooldown", {"text": Tx.t("sim.inventory.the_spirit_is_still_wary")})
 	# S47 Artifact Spirit depth: a spirit answers only a wielder it knows (affinity 30), and only where it once slept.
@@ -283,9 +266,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var i := int(intent.get("index", -1))
 			if i < 0 or i >= c.inventory.bag.size() or c.inventory.bag[i] == null: return fail("empty")
 			var inst: Dictionary = c.inventory.bag[i]
-			if not inst.has("uid"):
-				inst.uid = c.inventory.next_uid
-				c.inventory.next_uid += 1
+			if not inst.has("uid"): inst.uid = c.inventory.take_uid()
 			if c.inventory.locked.has(int(inst.uid)): c.inventory.locked.erase(int(inst.uid))
 			else: c.inventory.locked[int(inst.uid)] = true
 			emit("item_locked", {"actor": c.id, "index": i})
@@ -294,6 +275,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"discard": return discard(c, int(intent.get("index", -1)), int(intent.get("count", 1)))
 		"split_stack": return split(c, int(intent.get("index", -1)), int(intent.get("count", 1)))
 		"sort_bag": return sort_bag(c, str(intent.get("by", "type")))
+		"mark_item_seen":   # the Bag's "new" dot goes once the piece has been looked at
+			c.inventory.new_items.erase(str(intent.get("item", "")))
+			return ok()
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ apply commands
@@ -318,8 +302,7 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 	if ContentDB.is_equipment(item_id):
 		var added := 0
 		for i in count:
-			var inst := LootRules.make_instance(item_id, int(fields.get("ilv", def.get("ilv", 1))), str(fields.get("quality", "common")), null, c.inventory.next_uid)
-			c.inventory.next_uid += 1
+			var inst := LootRules.make_instance(item_id, int(fields.get("ilv", def.get("ilv", 1))), str(fields.get("quality", "common")), null, c.inventory.take_uid())
 			if fields.has("appearance"): inst.appearance = fields.appearance
 			if apply_add_instance(actor_id, inst, source, overflow) > 0: added += 1
 		return added
@@ -475,24 +458,19 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 	# The first furnace goes straight into the empty furnace slot (S44), so Mei Qing's gift works at once.
 	if c.inventory.furnace == null and str(ContentDB.item(str(inst.id)).get("slot", "")) == "tool_furnace":
 		var f := inst.duplicate(true)
-		if not f.has("uid"):
-			f.uid = c.inventory.next_uid
-			c.inventory.next_uid += 1
+		c.inventory.claim_uid(f)
 		c.inventory.furnace = f
 		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
 		emit("equipment_changed", {"actor": c.id, "slot": "tool_furnace", "old": "", "new": str(inst.id)})
 		return 1
-	var bag: Array = c.inventory.bag
-	for i in bag.size():
-		if bag[i] == null:
-			var copy := inst.duplicate(true)
-			if not copy.has("uid"):
-				copy.uid = c.inventory.next_uid
-				c.inventory.next_uid += 1
-			bag[i] = copy
-			c.inventory.new_items[str(inst.id)] = true
-			emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
-			return 1
+	var free: int = c.inventory.bag.find(null)
+	if free >= 0:
+		var copy := inst.duplicate(true)
+		c.inventory.claim_uid(copy)   # an instance from another bag may carry a uid already used here
+		c.inventory.bag[free] = copy
+		c.inventory.new_items[str(inst.id)] = true
+		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
+		return 1
 	emit("bag_full", {"actor": c.id, "items": [{"item": inst.id, "count": 1}]})
 	if overflow:
 		game.mail.apply_overflow(c.id, [{"item": inst.id, "count": 1, "instance": inst}])
@@ -503,8 +481,7 @@ func apply_add_equipment(actor_id: String, item_id: String, ilv: int, quality: S
 	var c = game.character(actor_id)
 	if c == null: return
 	var def := ContentDB.item(item_id)
-	var inst := LootRules.make_instance(item_id, ilv if ilv > 0 else int(def.get("ilv", 1)), quality, Rng.stream(actor_id, "affix"), c.inventory.next_uid)
-	c.inventory.next_uid += 1
+	var inst := LootRules.make_instance(item_id, ilv if ilv > 0 else int(def.get("ilv", 1)), quality, Rng.stream(actor_id, "affix"), c.inventory.take_uid())
 	apply_add_instance(actor_id, inst, source)
 
 func apply_remove(actor_id: String, item_id: String, count: int, source: String) -> int:
@@ -673,7 +650,7 @@ func refresh_natal(c) -> void:
 
 func flag_natal(c, uid: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "natal"): return fail("locked", {"text": Unlocks.locked_text("natal")})
-	var inst := _find_uid(c, uid)
+	var inst: Dictionary = c.inventory.locate(uid, true).get("inst", {})
 	if inst.is_empty() or str(ContentDB.item(str(inst.id)).get("slot", "")) != "weapon": return fail("not_weapon", {"text": Tx.t("sim.inventory.natal_weapon_only")})
 	var old := natal_of(c)
 	if not old.is_empty() and old != inst:
@@ -698,7 +675,7 @@ func add_natal_xp(c, amount: float) -> void:
 
 ## Feed ore to the natal weapon at the forge: each ore gives 20 XP a grade step.
 func feed_natal(c, uid: int, item_id: String, count: int) -> Dictionary:
-	var inst := _find_uid(c, uid)
+	var inst: Dictionary = c.inventory.locate(uid, true).get("inst", {})
 	if inst.is_empty() or not inst.get("natal", false): return fail("not_natal")
 	var def := ContentDB.item(item_id)
 	if str(def.get("type", "")) != "ore" or item_id == "spirit_stone_shard": return fail("not_ore", {"text": Tx.t("sim.inventory.natal_eats_ore")})
@@ -722,7 +699,7 @@ func natal_break(c, cause: String) -> void:
 
 ## Re-forge: mends a broken natal weapon, or (at its level cap) carries it into the next grade band with its growth.
 func reforge_natal(c, uid: int) -> Dictionary:
-	var inst := _find_uid(c, uid)
+	var inst: Dictionary = c.inventory.locate(uid, true).get("inst", {})
 	if inst.is_empty() or not inst.get("natal", false): return fail("not_natal")
 	var capped := int(inst.get("ilv_eff", inst.get("ilv", 1))) >= natal_cap(inst) and ProgressionRules.level(c) > natal_cap(inst)
 	if not inst.get("broken", false) and not capped: return fail("nothing_to_do", {"text": Tx.t("sim.inventory.natal_whole")})
@@ -742,12 +719,6 @@ func reforge_natal(c, uid: int) -> Dictionary:
 
 func count(c, item_id: String) -> int:
 	return c.inventory.count(item_id)
-
-func _find_uid(c, uid: int) -> Dictionary:
-	if uid < 0: return {}
-	for inst in [c.inventory.equipped.get("weapon"), c.inventory.loadout.get("spare")] + c.inventory.equipped.values() + c.inventory.bag:
-		if inst is Dictionary and int(inst.get("uid", -2)) == uid: return inst
-	return {}
 
 # ------------------------------------------------------------------ dual loadout (S47, Heart Tempering 1)
 ## A second weapon waits in the spare slot; Swap trades it with the one in hand. Each weapon keeps its own technique
@@ -772,11 +743,7 @@ func set_spare_weapon(c, index: int) -> Dictionary:
 	var old = c.inventory.loadout.get("spare")
 	if index < 0:
 		if old == null: return fail("empty")
-		var free := -1
-		for i in c.inventory.bag.size():
-			if c.inventory.bag[i] == null:
-				free = i
-				break
+		var free: int = c.inventory.bag.find(null)
 		if free < 0: return fail("bag_full")
 		c.inventory.bag[free] = old
 		c.inventory.loadout["spare"] = null
@@ -795,11 +762,7 @@ func unequip(c, slot: String) -> Dictionary:
 	var inst = c.inventory.furnace if slot == "tool_furnace" else c.inventory.equipped.get(slot)
 	if inst == null: return fail("empty")
 	if slot == "gourd": return fail("gourd_required", {"text": Tx.t("sim.inventory.you_always_carry_a_spirit")})
-	var free := -1
-	for i in c.inventory.bag.size():
-		if c.inventory.bag[i] == null:
-			free = i
-			break
+	var free: int = c.inventory.bag.find(null)
 	if free < 0: return fail("bag_full")
 	c.inventory.bag[free] = inst
 	if slot == "tool_furnace": c.inventory.furnace = null
@@ -813,7 +776,7 @@ static func outfit_for(c) -> Dictionary:
 	var o := {"name": c.name, "body": str(a.get("body", "light")), "hair": str(a.get("hair", "topknot")), "hair_color": int(a.get("hair_color", 0)),
 		"shirt": str(a.get("shirt", "cardigan")), "pants": str(a.get("pants", "loose")), "shoes": str(a.get("shoes", "boots")),
 		"weapon": "none", "hat": "none", "cape": "none"}
-	var map := {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
+	var map := WARDROBE_CATEGORY
 	for slot in map:
 		var inst = c.inventory.equipped.get(slot)
 		if inst == null: continue
@@ -991,15 +954,15 @@ func split(c, index: int, count: int) -> Dictionary:
 	if index < 0 or index >= bag.size() or bag[index] == null: return fail("empty")
 	var s: Dictionary = bag[index]
 	if int(s.get("count", 1)) <= count or count <= 0: return fail("bad_count")
-	for i in bag.size():
-		if bag[i] == null:
-			var part: Dictionary = s.duplicate()
-			part.count = count
-			bag[i] = part
-			s.count = int(s.count) - count
-			emit("bag_changed", {"actor": c.id})
-			return ok()
-	return fail("bag_full")
+	var free := bag.find(null)
+	if free < 0: return fail("bag_full")
+	var part: Dictionary = s.duplicate()
+	part.erase("uid")   # a new stack, not a second holder of the first one's lock
+	part.count = count
+	bag[free] = part
+	s.count = int(s.count) - count
+	emit("bag_changed", {"actor": c.id})
+	return ok()
 
 func sort_bag(c, by: String) -> Dictionary:
 	var items: Array = c.inventory.bag.filter(func(x): return x != null)

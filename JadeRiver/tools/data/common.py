@@ -54,6 +54,43 @@ def c(kind, cause=None, hard=True, fix=None, **fields):
     return d
 
 
+# Requirement constructors (the conditions quests, unlocks, rooms and shops are gated by).
+def realm(r):
+    return {"kind": "realm_at_least", "realm": r}
+
+
+def qdone(q):
+    return {"kind": "quest_done", "quest": q}
+
+
+def qactive(q):
+    return {"kind": "quest_active", "quest": q}
+
+
+def flag(f):
+    return {"kind": "flag_set", "flag": f}
+
+
+def noflag(f):
+    return {"kind": "flag_not_set", "flag": f}
+
+
+def unlocked(s):
+    return {"kind": "unlock", "system": s}
+
+
+def sect(s):
+    return {"kind": "training_sect", "sect": s}
+
+
+def all_of(*conds):
+    return {"all": list(conds)}
+
+
+def any_of(*conds):
+    return {"any": list(conds)}
+
+
 def titled(snake):
     small = {"of", "the", "and", "in", "to", "a", "on"}
     words = snake.split("_")

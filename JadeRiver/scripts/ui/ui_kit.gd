@@ -312,11 +312,11 @@ static func clock(seconds: float) -> String:
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
 
-## A time left in words: "2 d 5 h", "1 h 6 m", "12 m", "45 s" (the calendar's style; I14 proposes it for every
-## duration but the ticking countdowns, which keep `clock`).
-static func span(seconds: float) -> String:
+## A time left in words: "2 d 5 h" (unless `days` is false), "1 h 6 m", "12 m", "45 s" (the calendar's style; I14
+## proposes it for every duration but the ticking countdowns, which keep `clock`).
+static func span(seconds: float, days := true) -> String:
 	var s := maxi(0, int(ceil(seconds)))
-	if s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
+	if days and s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
 	if s >= 3600: return Tx.t("ui.span_hm") % [s / 3600, (s % 3600) / 60]
 	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
 	return Tx.t("ui.span_s") % s
@@ -381,6 +381,3 @@ static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
 	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)
-
-static func draw_frame(ci: CanvasItem, rect: Rect2, asset := "minor_panel", state := "normal") -> void:
-	ci.draw_style_box(style(asset, state), rect)

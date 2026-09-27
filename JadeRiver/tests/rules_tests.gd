@@ -104,6 +104,7 @@ func _main() -> void:
 	text_suite()
 	ui_fixes_suite()
 	await ui_suite()
+	fixes_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -7962,3 +7963,228 @@ func save_suite() -> void:
 	Saves.repo = saved_repo
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
+
+# ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
+## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
+func _fix_world() -> Object:
+	var folder := "user://fixes_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	Game.account.slots_unlocked = 2
+	Game.submit({"type": "create_character", "slot": 1, "name": "Fixes"})
+	Game.submit({"type": "enter_character", "slot": 1})
+	var c = Game.active()
+	Game.submit({"type": "enter_world"})
+	var st := ActorState.new()
+	Game.bind_movement(c.id, st)
+	st.surface = Game.room_rt.geometry.surfaces[0]
+	st.plane = Vector2(float(c.position.x), float(c.position.y))
+	for sid in ["spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	return c
+
+func fixes_suite() -> void:
+	var utc0 := Clock.override_utc
+	var tz0 := Clock.override_tz_offset_s
+	Clock.override_utc = 1767225600.0
+	var c = _fix_world()
+	if c == null:
+		check(false, "the fixes suite needs a character")
+		return
+	_fix_ticks(c)
+	_fix_buyback(c)
+	_fix_uids(c)
+	_fix_full_bag(c)
+	_fix_commissions(c)
+	_fix_wind_step(c)
+	_fix_strongest_dao(c)
+	_fix_fall(c)
+	_fix_page_writes(c)
+	Clock.override_utc = utc0
+	Clock.override_tz_offset_s = tz0
+	HerbRules.origin_week = 0
+
+## B1: the Relations and Calendar authorities run with the game clock.
+func _fix_ticks(c) -> void:
+	var meter := Game.relations.fortune_meter(c)
+	for i in 20: Game.tick(0.25)
+	check(Game.relations.fortune_meter(c) > meter, "playing fills the Fortune meter (Game.tick runs Relations)")
+	check(Game.account.calendar.has("season"), "the calendar keeps the season as the game runs (Game.tick runs the Calendar)")
+	check(HerbRules.origin_week == Clock.reset_week(Game.account.created_utc), "and counts the seasons from the account's first week")
+
+## B2: buyback gives back the stack that was sold, and only charges for what fits.
+func _fix_buyback(c) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.economy.apply_currency("silver_tael", 100000, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test", {"quality": "superior", "marks": 2})
+	check(Game.economy.sell(c, _bag_index(c, "healing_pill"), 3).get("ok", false), "three Superior pills sell")
+	check(Game.economy.buyback(c, 0).get("ok", false), "and are bought back")
+	var i := _bag_index(c, "healing_pill")
+	check(i >= 0 and str(c.inventory.bag[i].get("quality", "")) == "superior" and int(c.inventory.bag[i].get("marks", 0)) == 2
+		and int(c.inventory.bag[i].count) == 3, "a bought-back stack keeps its quality and marks (%s)" % str(c.inventory.bag[i] if i >= 0 else {}))
+	# Room for one of three: one comes back, two stay on the list, and one is paid for.
+	var stack := int(ContentDB.item("healing_pill").get("stack", 99))
+	c.inventory.bag[i] = {"id": "healing_pill", "count": stack - 1, "quality": "superior", "marks": 2}
+	for j in c.inventory.bag.size():
+		if c.inventory.bag[j] == null: c.inventory.bag[j] = {"id": "healing_pill", "count": stack, "quality": "flawed"}
+	Game.account.economy.buyback = [{"entry": {"id": "healing_pill", "count": 3, "quality": "superior", "marks": 2}, "price": 300, "day": 0}]
+	var silver := Game.economy.balance("silver_tael")
+	check(Game.economy.buyback(c, 0).get("ok", false), "a buyback with room for one of three goes through")
+	var left: Array = Game.account.economy.buyback
+	check(int(c.inventory.bag[i].count) == stack and silver - Game.economy.balance("silver_tael") == 100 and left.size() == 1
+		and int(left[0].entry.count) == 2 and int(left[0].price) == 200, "one comes back for a third of the price; two wait on the list (%s)" % str(left))
+	for j in c.inventory.bag.size(): c.inventory.bag[j] = null
+	Game.account.economy.buyback = []
+
+## B3: every instance in a bag has its own uid (a withdrawal from the shared chest, a split of a locked stack).
+func _uids_unique(ch) -> bool:
+	var seen := {}
+	for inst in ch.inventory.bag + ch.inventory.equipped.values() + [ch.inventory.furnace]:
+		if not (inst is Dictionary) or not inst.has("uid"): continue
+		if seen.has(int(inst.uid)): return false
+		seen[int(inst.uid)] = true
+	return true
+
+func _fix_uids(c) -> void:
+	Unlocks.force_unlock(c.id, "storage")
+	Game.submit({"type": "create_character", "slot": 2, "name": "Second"})
+	var c2 = Game.character("c2")
+	check(c2 != null, "a second character for the shared chest")
+	if c2 == null: return
+	Game.inventory.apply_add_equipment(c.id, "training_jian", 1, "common", "test")
+	var n_store: int = Game.account.storage.get("items", []).size()
+	check(Game.accounts.deposit(c, _bag_index(c, "training_jian"), 1).get("ok", false), "the first character stores a jian")
+	Game.inventory.apply_add_equipment(c2.id, "hemp_robe", 1, "common", "test")
+	var robe: Dictionary = c2.inventory.bag[_bag_index(c2, "hemp_robe")]
+	c2.inventory.locked[int(robe.uid)] = true
+	check(Game.accounts.withdraw(c2, n_store).get("ok", false), "the second character takes it out")
+	var jian: Dictionary = c2.inventory.bag[_bag_index(c2, "training_jian")]
+	check(_uids_unique(c2) and not c2.inventory.locked.has(int(jian.uid)), "the jian gets a uid of its own in the new bag (%d, robe %d)" % [int(jian.uid), int(robe.uid)])
+	var fresh := LootRules.make_instance("training_spear", 1, "common", null, c2.inventory.next_uid)
+	Game.inventory.apply_add_instance(c2.id, fresh, "test")
+	check(_uids_unique(c2), "and the next piece minted there does not collide with it")
+	# A split of a locked stack is a new, unlocked stack.
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.inventory.apply_add(c.id, "healing_pill", 10, "test")
+	Game.submit({"type": "lock_item", "index": 0})
+	check(Game.submit({"type": "split_stack", "index": 0, "count": 4}).get("ok", false), "a locked stack splits")
+	var part = c.inventory.bag[1]
+	check(part != null and not part.has("uid") and _uids_unique(c), "the new part carries no copy of the lock's uid (%s)" % str(part))
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+
+## B4: standing by loot with a full bag says so once, not every tick.
+func _fix_full_bag(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	var rt: RoomRuntime = Game.room_rt
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = {"id": "healing_pill", "count": 99, "quality": "flawed"}
+	rt.loot.append({"uid": rt.uid(), "item": "rice_ball", "count": 1, "coins": 0, "instance": {}, "x": st.plane.x, "y": st.plane.y, "alt": st.altitude,
+		"ttl": 60.0, "age": 1.0, "quality": "common"})
+	var seen := [0]
+	var count_full := func(name: String, _p: Dictionary) -> void:
+		if name == "bag_full": seen[0] += 1
+	GameEvents.event.connect(count_full)
+	for i in 30: Game.tick(0.05)
+	GameEvents.event.disconnect(count_full)
+	check(seen[0] == 1, "a full bag beside loot is announced once, not every tick (%d)" % seen[0])
+	c.inventory.bag[0] = null
+	for i in 3: Game.tick(0.05)
+	check(c.inventory.count("rice_ball") == 1, "and the loot is picked up as soon as there is room")
+	rt.loot.clear()
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+
+## B5 and B6: a guild order never takes a locked piece, and the board turns over with the daily reset.
+func _fix_commissions(c) -> void:
+	c.crafting["guild"] = {"smithing": "adept"}
+	var day := CraftingAuthority.commission_day()
+	c.crafting["commission_state_smithing"] = {"day": day, "paid": 0, "orders": [{"id": "smithing_t_0", "item": "hemp_robe", "count": 1, "quality": "common",
+		"pay": 50, "accepted": true, "done": false}]}
+	Game.inventory.apply_add_equipment(c.id, "hemp_robe", 1, "common", "test")
+	var i := _bag_index(c, "hemp_robe")
+	c.inventory.locked[int(c.inventory.bag[i].uid)] = true
+	var r := Game.crafting.deliver_commission(c, "smithing_t_0", "taels")
+	check(not r.get("ok", false) and c.inventory.count("hemp_robe") == 1, "a locked piece is never handed to a guild order (%s)" % str(r))
+	for j in c.inventory.bag.size(): c.inventory.bag[j] = null
+	Clock.override_tz_offset_s = -8 * 3600
+	var noon := 1767225600.0 + 20.0 * 3600.0   # 20:00 UTC is 12:00 at UTC-8
+	Clock.override_utc = noon
+	var a := CraftingAuthority.commission_day()
+	Clock.override_utc = noon + 5.0 * 3600.0     # 01:00 UTC the next day is 17:00 the same local day
+	check(CraftingAuthority.commission_day() == a, "the guild boards turn over with the daily reset, not at midnight UTC")
+	Clock.override_utc = 1767225600.0
+	Clock.override_tz_offset_s = -99999
+
+## B7: a Wind Step charge is spent only by a dodge that happens.
+func _fix_wind_step(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	Unlocks.force_unlock(c.id, "dodge_dash")
+	c.pools.cooldowns["dodge"] = 5.0
+	Game.combat.treasure_fx[c.id] = {"free_dodge": 1.0}
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	geo.volumes.append({"id": "test_shallows", "kind": "water_shallow", "rect": Rect2(st.plane - Vector2(50, 50), Vector2(100, 100)), "lo": -20.0, "hi": 20.0})
+	var r := Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
+	check(str(r.get("reason", "")) == "in_water" and float(Game.combat.treasure_fx[c.id].get("free_dodge", 0.0)) > 0.0,
+		"a dodge refused in shallow water keeps the Wind Step charge (%s)" % str(r))
+	geo.volumes.pop_back()
+	check(Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1}).get("ok", false) and not Game.combat.treasure_fx[c.id].has("free_dodge"),
+		"on dry ground the charge is spent on the dodge")
+	c.pools.cooldowns.clear()
+	Game.combat.treasure_fx.erase(c.id)
+	Game.combat.timeline(c.id).forced_t = 0.0
+
+## B9: one answer to "the Dao you know best": the highest tier first, then the most insight.
+func _fix_strongest_dao(c) -> void:
+	Unlocks.force_unlock(c.id, "dao_tree")
+	c.cultivator.daos = {"sword": {"tier": 6, "insight": 12500.0}, "fist": {"tier": 5, "insight": 30000.0}}
+	check(str(Game.field.sphere_of(c).get("dao", "")) == "sword", "the Sphere is drawn from the tier-6 Dao")
+	Game.progression.apply_insight_best(c.id, 10.0, "chess")
+	check(float(c.cultivator.daos.sword.insight) > 12500.0 and near(float(c.cultivator.daos.fist.insight), 30000.0),
+		"and the chess problem teaches the same Dao (%s)" % str(c.cultivator.daos))
+	c.cultivator.daos = {}
+
+## The fall's cost is Combat's answer to fell_out (the world scene no longer writes HP): 5% of max HP on the road,
+## nothing in the Prologue's village.
+func _fix_fall(c) -> void:
+	c.pools.hp = c.pools.max_hp
+	GameEvents.emit_event("fell_out", {"actor": c.id, "recovered_to": {}})
+	GameEvents.flush()
+	check(near(c.pools.hp, c.pools.max_hp), "a fall in the Prologue's village costs nothing")
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.flush()
+	c.pools.hp = c.pools.max_hp
+	GameEvents.emit_event("fell_out", {"actor": c.id, "recovered_to": {}})
+	GameEvents.flush()
+	check(near(c.pools.hp, c.pools.max_hp * (1.0 - float(ContentDB.stat_const("move.fall_cost_pct", 0.05)))),
+		"a fall on the Willow Path costs 5%% of max HP (%.1f of %.1f)" % [c.pools.hp, c.pools.max_hp])
+	c.pools.hp = c.pools.max_hp
+
+## B19: what the Bag, Works, Roll-Call's Bench and Spirit Animals pages wrote themselves, their authorities now write
+## behind intents (and contract_tests checks the pages write nothing).
+func _fix_page_writes(c) -> void:
+	Game.inventory.apply_add(c.id, "spirit_stone_shard", 1, "test")
+	check(c.inventory.new_items.has("spirit_stone_shard"), "a piece just picked up is new in the Bag")
+	check(Game.submit({"type": "mark_item_seen", "item": "spirit_stone_shard"}).get("ok", false) and not c.inventory.new_items.has("spirit_stone_shard"),
+		"looking at it takes the dot away (mark_item_seen)")
+	var now := Clock.now_utc()
+	var posts: Dictionary = ContentDB.config("posts")
+	Unlocks.force_unlock(c.id, "apprentice_bench")
+	var b: Dictionary = Game.posts.bench(c)
+	var part := str(posts.bench.components[0].item)
+	b.slots = [part]
+	b.updated = now - 3600.0
+	check(Game.submit({"type": "settle_works", "part": "bench"}).get("ok", false) and near(float(b.updated), now) and float(b.stock.get(part, 0.0)) > 0.0,
+		"the Apprentice Bench settles an hour's work when its page asks")
+	var sd: Dictionary = posts.salts[0]
+	var ln: Dictionary = Game.posts.salt_line(str(sd.id))
+	ln.on = true
+	ln.since = now - 7200.0
+	check(Game.submit({"type": "settle_works", "part": "furnace"}).get("ok", false) and float(ln.since) > now - float(sd.get("cycle_s", 900)),
+		"the Calcination Furnace catches up when its page asks")
+	var m: Dictionary = Game.posts.works().mirror
+	m.since = now - 3600.0
+	check(Game.submit({"type": "settle_works", "part": "mirror"}).get("ok", false) and near(float(m.since), now), "so does the Mirror of Echoes")
+	check(not Game.submit({"type": "settle_works", "part": "garden"}).get("ok", true), "an unknown work is refused")
+	var legacy := {"uid": "old_2", "species": "reed_otter", "rarity": "rare"}
+	check(int(Game.pets.filled(legacy).get("purity", 0)) == 38 and not legacy.has("purity"),
+		"Spirit Animals reads an older animal with its neutral fields and does not write them")
