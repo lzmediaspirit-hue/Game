@@ -31,8 +31,9 @@
   18 px and 0.06 s apart on alternating sides then a total; seven hits show six and total seven; two, no total), and
   the large-number forms; `moments_data_suite` checks every technique's tier against its realm's band and grade, its
   shape and style, and that every shape draws `FxLayer` kinds; `perf_tests` plays the crowd under the major
-  breakthrough and again with a Sword Swarm and a Cursive Storm striking every foe each tenth of a second, inside the
-  frame budget and the FX cap, and prints the view's share (MomentView.advance about 0.08 ms a frame).
+  breakthrough and again with a Sword Swarm and a Cursive Storm cast each tenth of a second (each striking as many foes
+  as many times as it does), inside the frame budget and the FX cap, and prints the view's share (MomentView.advance
+  about 0.08 ms a frame; the whole moment, drawn, about 1–2 ms on a desktop).
 
 ### P6d · Rare finds, story beats and trials
 - **A rare find** (`rare_drop`) is seen from across the room: a tall beam in the piece's colour stands over it and breathes

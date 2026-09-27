@@ -96,8 +96,8 @@ func _crowd() -> void:
 	print("crowd: %d monsters, %.2f ms per frame" % [Game.room_rt.living_enemies().size(), per])
 	check(per < 16.6, "a frame with fifteen monsters fits the 60 fps budget (%.2f ms)" % per)
 	# P6e (docs/moments_design.md §7.3): the same crowd under the major breakthrough, then with a Sword Swarm and a Cursive
-	# Storm cast every tenth of a second and every foe struck. The frame, MomentView and FxLayer included, stays in
-	# budget; the FX cap holds; the view's own share is printed.
+	# Storm cast every tenth of a second, each striking as many foes as many times as it does. The frame, MomentView and
+	# FxLayer included, stays in budget; the FX cap holds; the view's own share is printed.
 	var w = main.world
 	var mv: MomentView = main.moments
 	var spent := [0, 0]   # usec in MomentView.advance, most FX alive
@@ -109,10 +109,12 @@ func _crowd() -> void:
 		view.call(i)
 		if i % 6 != 0: return
 		for tech in ["sword_swarm", "cursive_storm"]:
+			var t := ContentDB.entry("techniques", tech)
 			w._cast(tech, 1, UiKit.GOLD)
-			for e in Game.room_rt.living_enemies():
-				w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": i % 12 == 0,
-					"element": "metal", "x": e.plane.x, "y": e.plane.y, "alt": 60.0, "source": "tech:" + tech})
+			for e in Game.room_rt.living_enemies().slice(0, int(t.max_targets)):
+				for h in int(t.hits):
+					w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,
+						"element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": 60.0, "source": "tech:" + tech})
 		spent[1] = maxi(spent[1], w.fx.fx.size())
 	mv.set_process(false)
 	mv.preview("breakthrough_major")
