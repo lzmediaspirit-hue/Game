@@ -1265,6 +1265,36 @@ come next. Where it differs from the plan, the plan's §6 says so.
   the nest's inputs and Hatch, a construct's leaf, a role and a chosen stall through as intents; the shelves, the urn's
   Sell one and Sell all and the tally; every tamer's name whole round the pit and a challenge replayed inside it).
   Screenshots beside mockup 10 in `docs/ui_p5/beasts/`.
+### P5 · The Workshop family: Crafts, Workshop, Garden (mockup 15; decision 14)
+- **Crafts as the hearth** (row 18, mockup 15). The trade's vessel stands centred over its fire on a brick hearth: your
+  own furnace (its icon at 192) or the station's prop at a whole scale (the pot, the anvil, the chart table), the blank
+  plate, the spirit paper; the fire burns in the hearth's arched mouth, hot, steady or banked by trade, in the chosen
+  fire's colour under the furnace, with the array's rings round its foot. The recipe's ingredients sit on the rim above
+  it with what you hold of them (in the furnace also role, nature, stand-ins, Spirit Sense and a tap to swap). The steps
+  run as a strip across the top (the furnace's five or six screens; else Recipe, Materials and the making), each with
+  what it asks; the controls at the right change with the step and nothing else moves: the recipe book with the batch
+  and the craft button, the fire and array, the strike band, and once lit the step's hint, the herb's time and the timed
+  control (Fan the flame, Turn the array, Condense, Raise shield) at the foot. The five-screen game is played on the
+  hearth: the heat gauge at its left, the specks at the furnace's mouth, the essences circling it, the ring closing over
+  it, the storm above it. The Forge's upkeep and the Guild keep their lists on the wall with their modes or guilds on the
+  strip; the Experiment bench lays your herbs on the rim. The vessel settles onto its fire as the page opens; a finished
+  craft lifts out in a puff (0.4 s, none under Reduce motion); the flames hold still under Reduce motion and the battery
+  saver, their height the heat.
+- **The Workshop as the tool wall over the bench** (row 30). The six tabs are six tools hung on a pegboard (HD
+  `workshop_tool`), each over its outline painted in ink; choosing one takes it off its hooks and lays it on the bench
+  (0.2 s), the outline staying. The jobs lie on the dark bench below; the puppet blueprints scroll.
+- **The Garden as terraced beds** (row 29). The beds step down the hillside on stone walls, soil darker the richer the
+  field, each herb at its stage (shoots, then its icon at 32 and at 64, glowing when ready) with its field's grade on a
+  staked tag; the water, Spirit Soil and dew in a basket at the top; the chosen bed's tending on a board at the right;
+  the Racks tab as two bamboo racks with woven trays. The terraces settle into place as the page opens.
+- **Shared:** `scripts/ui/pages/workshop_kit.gd` (the plank wall and beam, the timber board, brick courses, the fire,
+  soil beds, pegs and the tags hung as tabs); HD `timber_sign`, `timber_tag` and `workshop_tool` in
+  `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for the sign, the tags and `soil`. Every intent is kept (cook, refine and the
+  furnace's inputs, forge and the strikes, the Forge's upkeep, inscribe, trace, chart, build, experiments, Deduce, the
+  guild, formations, appraisal, healing, puppets, restoration, teaching, planting, watering, dew, soil, harvest, racks).
+- **Tests:** the `ui_suite` and `identity_suite` measure every word of the three on its ground and hold the new
+  signatures apart; the furnace suite plays the page's five screens as before. Screenshots beside mockup 15 in
+  `docs/ui_p5/workshop/`.
 
 ### P5 · The Market family: Shop, Storage, Exchange, County Hall, Auction (decisions 11, 14 and 24)
 - **The Shop as the merchant's stall** (row 8, mockup 17; `17_shop_buyback` rejected). A red and cream awning with the
