@@ -205,34 +205,69 @@ func _notification(what):
 			player.reset_sprint()
 
 # ------------------------------------------------------------------ input
-func role_at(p: Vector2) -> String:
-	if p.distance_to(attack_center) < 74: return "attack"
-	if p.distance_to(jump_center) < 36 and shown("jump"): return "jump"
-	if p.distance_to(meditate_center) < 36 and shown("cultivate"): return "meditate"
-	if p.distance_to(sense_center) < 36 and shown("sense"): return "sense"
-	if p.distance_to(presence_center) < 30 and shown("presence"): return "presence"
-	if p.distance_to(sphere_center) < 30 and shown("sphere"): return "sphere"
-	if p.distance_to(quick_center) < 30 and shown("quick_use"): return "quick"
-	if p.distance_to(draught_center) < 22 and _has_draught(): return "draught"
-	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
-	if p.distance_to(guard_center) < 30 and shown("guard"): return "guard"
-	if p.distance_to(context_center) < 30 and _fight_context(): return "context"
-	if p.distance_to(context_center) < 30 and _post_chip(): return "post"
+## The smallest HUD hit circle's radius (P4, docs/ui_style_guide.md §7): 48 px across, and never less than the drawn
+## radius + 4.
+const HIT_MIN := 24.0
+
+## Every round control the HUD shows now, as a hit circle {role, center, drawn, r}. The hud_suite in rules_tests holds
+## the table to HIT_MIN and the drawn radius + 4.
+func hit_targets() -> Array:
+	var out: Array = []
+	var add := func(role: String, center: Vector2, drawn: float, hit := 0.0) -> void:
+		out.append({"role": role, "center": center, "drawn": drawn, "r": maxf(maxf(HIT_MIN, drawn + 4.0), hit)})
+	add.call("attack", attack_center, 66.0, 74.0)
+	if shown("jump"): add.call("jump", jump_center, 32.0, 36.0)
+	if shown("cultivate"): add.call("meditate", meditate_center, 32.0, 36.0)
+	if shown("sense"): add.call("sense", sense_center, 32.0, 36.0)
+	if shown("presence"): add.call("presence", presence_center, 26.0)
+	if shown("sphere"): add.call("sphere", sphere_center, 26.0)
+	if shown("quick_use"): add.call("quick", quick_center, 26.0)
+	if _has_draught(): add.call("draught", draught_center, 20.0)
+	if shown("pet"): add.call("pet", pet_center, 26.0)
+	if shown("guard"): add.call("guard", guard_center, 26.0)
+	if _fight_context(): add.call("context", context_center, 26.0)
+	elif _post_chip(): add.call("post", context_center, 26.0)
 	for ti in 2:
-		if p.distance_to(treasure_centers[ti]) < 30 and shown("treasure_%d" % (ti + 1)): return "treasure:%d" % ti
-	if p.distance_to(swap_center) < 30 and shown("weapon_swap"): return "swap"
-	for center in slots:
-		if p.distance_to(center) < 43 and shown("skills"): return "skill"
-	if minimap_rect.has_point(p) and shown("minimap"): return "minimap"
+		if shown("treasure_%d" % (ti + 1)): add.call("treasure:%d" % ti, treasure_centers[ti], 26.0)
+	if shown("weapon_swap"): add.call("swap", swap_center, 26.0)
+	if shown("skills"):
+		for center in slots: add.call("skill", center, 33.0, 43.0)
 	for ic in icon_row:
-		if p.distance_to(ic[1]) < 27 and shown(ic[0]): return "icon:" + str(ic[0])
-	for pc in _pet_strip(Game.active()):
-		if p.distance_to(pc.center) < float(pc.r) + 4: return "pets:" + str(pc.kind) + ":" + str(pc.uid)
-	if Rect2(16, 16, 360, 104).has_point(p) and shown("player_panel"): return "portrait"
+		if shown(ic[0]): add.call("icon:" + str(ic[0]), ic[1], 26.0)
+	for pc in _pet_strip(Game.active()): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
+	if _auto_hunt_shown(Game.active()): add.call("auto_hunt", auto_center, 26.0)
+	return out
+
+## The player panel, one row taller once the Soul bar shows: it draws there, and the whole of it opens Character.
+func panel_rect(c) -> Rect2:
+	var soul_row: bool = c != null and c.pools.max_soul > 0.0 and shown("soul_bar")
+	return Rect2(16, 16, 360, 120 if soul_row else 104)
+
+## A tracker line's go button hit area: 48 x 48 round the drawn button (P4 §7).
+static func go_hit(drawn: Rect2) -> Rect2:
+	return Rect2(drawn.get_center() - Vector2(24, 24), Vector2(48, 48))
+
+func role_at(p: Vector2) -> String:
+	# Where round controls overlap, the nearest centre wins (§7).
+	var best := ""
+	var best_d := INF
+	for tg in hit_targets():
+		var d := p.distance_to(tg.center)
+		if d < float(tg.r) and d < best_d:
+			best = str(tg.role)
+			best_d = d
+	if best != "": return best
+	if minimap_rect.has_point(p) and shown("minimap"): return "minimap"
+	var panel := panel_rect(Game.active())
+	if panel.has_point(p) and shown("player_panel"): return "portrait"
+	var go := ""
+	var go_d := INF
 	for tp in tracker_paths:
-		if (tp.rect as Rect2).grow(6).has_point(p) and shown("quest_tracker"): return "path:" + str(tp.target)
-	if p.distance_to(auto_center) < 27 and _auto_hunt_shown(Game.active()): return "auto_hunt"
-	if Rect2(16, 128, 300, 150).has_point(p) and shown("quest_tracker"): return "tracker"
+		if (tp.rect as Rect2).has_point(p) and shown("quest_tracker") and p.distance_to((tp.rect as Rect2).get_center()) < go_d:
+			go = "path:" + str(tp.target)
+			go_d = p.distance_to((tp.rect as Rect2).get_center())
+	if go != "": return go
+	if Rect2(16, panel.end.y + 8, 300, 150).has_point(p) and shown("quest_tracker"): return "tracker"
 	if Rect2(0, 704, 1280, 16).has_point(p) and shown("progress_bar"): return "progress"
 	if (p.x < 640) != left_handed: return "joystick"
 	return "none"
@@ -1465,7 +1500,7 @@ func _draw_player_panel(c) -> void:
 	_draw_pet_strip(c)
 	# The panel grows by one row once the Soul bar exists (Spirit Awakening).
 	var soul_row: bool = c.pools.max_soul > 0.0 and shown("soul_bar")
-	var r := Rect2(16, 16, 360, 120 if soul_row else 104)
+	var r := panel_rect(c)
 	draw_style_box(frame_style, r)
 	# No portrait roundel (the user's note on the P3 mockups): name, realm and the bars take the panel's width; the
 	# bottleneck shows on the Stored Qi bar along the bottom edge.
@@ -1552,7 +1587,7 @@ func _draw_tracker(c) -> void:
 			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(UiKit.INK, 0.45))
 			draw_rect(br, Color(UiKit.PALE_GOLD, 0.9), false, 1.5)
 			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 16, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
-			tracker_paths.append({"rect": br, "target": goal})
+			tracker_paths.append({"rect": go_hit(br), "target": goal})
 		y += UiKit.line_height(18) * 0.9
 		# P1: the tracker names where the quest leads.
 		if goal != "" and goal != here:

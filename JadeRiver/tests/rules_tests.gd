@@ -105,6 +105,7 @@ func _main() -> void:
 	ui_fixes_suite()
 	icon_draw_suite()
 	ui_style_suite()
+	hud_suite()
 	await ui_suite()
 	fixes_suite()
 	max_character_suite()
@@ -508,6 +509,42 @@ func _fill_light(spec: String, cache: Dictionary) -> Color:
 		light = Color(light.r * tint.r * tint.a + win.r * (1.0 - tint.a), light.g * tint.g * tint.a + win.g * (1.0 - tint.a), light.b * tint.b * tint.a + win.b * (1.0 - tint.a))
 	cache[spec] = [light, mean]
 	return light
+
+## P4 (docs/ui_style_guide.md §7): the HUD's touch targets. Every round control's hit circle is at least 48 across and
+## at least its drawn radius + 4; where two circles overlap a tap goes to the nearer centre; a tracker line's go button
+## is 48 x 48; and the player panel's whole height, the Soul row too, opens Character (it opened the tracker).
+func hud_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)   # with no player bound every element shows, so every control is in the table
+	var draught_was = c.inventory.draught
+	var soul_was: float = c.pools.max_soul
+	c.inventory.draught = {"id": "healing_pill", "count": 1}
+	c.pools.max_soul = maxf(1.0, soul_was)
+	var targets: Array = hud.hit_targets()
+	var small: Array = targets.filter(func(tg): return float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0).map(func(tg): return "%s r%d" % [tg.role, int(tg.r)])
+	check(targets.size() >= 21 and small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4 (%d controls; %s)" % [targets.size(), str(small)])
+	var roles: Array = targets.map(func(tg): return str(tg.role))
+	check(roles.has("draught") and roles.has("icon:mail") and roles.has("attack"), "P4: the table holds the Draught, the icon row and Attack")
+	var overlaps := 0
+	var wrong: Array = []
+	for x in range(360, 1280, 6):
+		for y in range(0, 720, 6):
+			var p := Vector2(x, y)
+			var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
+			if inside.is_empty(): continue
+			if inside.size() > 1: overlaps += 1
+			inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
+			var got: String = hud.role_at(p)
+			if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s at %s (%s)" % [got, str(p), inside[0].role])
+	check(overlaps > 0 and wrong.is_empty(), "P4: where HUD circles overlap, a tap goes to the nearest centre (%d points in overlaps; %s)" % [overlaps, str(wrong)])
+	var go: Rect2 = hud.go_hit(Rect2(286, 100, 30, 22))
+	check(go.size == Vector2(48, 48) and go.encloses(Rect2(286, 100, 30, 22)), "P4: the tracker's go button is a 48 x 48 target")
+	check(hud.panel_rect(c).size.y == 120.0 and hud.role_at(Vector2(100, 128)) == "portrait", "P4: the Soul row is part of the player panel's target")
+	c.inventory.draught = draught_was
+	c.pools.max_soul = soul_was
+	hud.queue_free()
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
