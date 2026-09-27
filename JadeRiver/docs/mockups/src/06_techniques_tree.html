@@ -1,0 +1,271 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>06 Techniques, the Water tree (a keystone chosen)</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The Techniques page (docs/page_identity.md row 15, roadmap decision 18). Its own frame: a lacquer rail of element
+     seals across the top, three carved jade-teal panels with gold fittings (the chooser, the tree, the reading) and
+     the loadout dock across the foot. The tree panel is laid on the element's own chart (Water: a tide chart's
+     soundings and currents), so each tab keeps its element's ground. Shared from the kit: the close button, primary
+     buttons with inked labels, the text tokens, the type scale and 48 px targets. */
+  .ground { position: absolute; inset: 0; background:
+      radial-gradient(ellipse at 50% 40%, rgba(21,81,79,.28), rgba(7,16,21,0) 70%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 7px),
+      linear-gradient(180deg, #0b2126, #081619); }
+  .rail { position: absolute; left: 0; top: 0; width: 1280px; height: 64px;
+    background: linear-gradient(180deg, #10272d 0%, #0a1a1f 72%, #081418 100%);
+    box-shadow: 0 1px 0 #b8913f, 0 2px 0 var(--ink), 0 4px 10px rgba(0,0,0,.5); }
+  .ptitle { position: absolute; left: 22px; top: 10px; font-family: var(--f-display); font-weight: 700; font-size: 38px; line-height: 1;
+    color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .seal { position: absolute; top: 2px; width: 62px; height: 60px; }
+  .seal .disc { position: absolute; left: 12px; top: 3px; width: 38px; height: 38px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #1b4148, #081518 75%); box-shadow: 0 0 0 2px var(--c), 0 0 0 4px var(--ink); }
+  .seal svg { position: absolute; left: 9px; top: 0px; }
+  .seal .lab { position: absolute; left: -8px; top: 43px; width: 78px; text-align: center; font-size: 14px; line-height: 16px; font-weight: 700;
+    color: var(--mist); white-space: nowrap; text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .seal.is-sel .disc { box-shadow: 0 0 0 3px var(--pale-gold), 0 0 0 5px var(--ink), 0 0 16px 5px rgba(255,230,161,.45); }
+  .seal.is-sel .lab { color: var(--pale-gold); }
+  .seal.is-locked .disc { background: radial-gradient(circle at 40% 35%, #2a3236, #0e1417 75%); box-shadow: 0 0 0 2px #56615f, 0 0 0 4px var(--ink); }
+  .seal.is-locked svg { opacity: .35; }
+  .seal.is-locked .lab { color: var(--hollow); }
+  .seal .k-lock-mini { position: absolute; left: 44px; top: 26px; }
+  .grpgap { position: absolute; top: 10px; width: 1px; height: 46px; background: rgba(229,184,76,.35); }
+
+  /* the carved panels: an ink edge, a jade-teal band, a gold hairline, gold corner fittings */
+  .pnl { position: absolute; border-radius: 6px; background: linear-gradient(180deg, #0f2e33 0%, #0c2529 60%, #0a2024 100%);
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 3px #1b504b, inset 0 0 0 4px #b8913f, inset 0 0 0 5px #071015, 0 6px 16px rgba(0,0,0,.45); }
+  .cnr { position: absolute; width: 26px; height: 26px; }
+  .plq { position: absolute; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #16433f, #0f302d); box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 1px #b8913f, 0 2px 0 rgba(0,0,0,.4);
+    font-family: var(--f-display); font-weight: 700; font-size: 23px; color: var(--pale-gold); white-space: nowrap;
+    text-shadow: -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 1px 1px 0 var(--ink), 0 2px 0 rgba(0,0,0,.5); }
+  .plq .fl { display: inline-block; width: 8px; height: 8px; transform: rotate(45deg); background: #b8913f; margin: 0 12px; box-shadow: 0 0 0 1px var(--ink); }
+
+  /* the chooser: families with their Dao as a mastery bar, the figure under them */
+  .fam { position: absolute; left: 20px; width: 200px; height: 52px; border-radius: 5px; background: rgba(7,16,21,.35);
+    box-shadow: inset 0 0 0 1px rgba(184,145,63,.35); }
+  .fam.is-sel { background: linear-gradient(180deg, rgba(44,158,143,.28), rgba(21,81,79,.30));
+    box-shadow: inset 0 0 0 2px var(--pale-gold), 0 0 12px 2px rgba(229,184,76,.35); }
+  .fam .well { position: absolute; left: 6px; top: 6px; width: 40px; height: 40px; border-radius: 4px; background: radial-gradient(circle at 45% 40%, #1a4a48, #081a1c 80%);
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 1px rgba(184,145,63,.6); }
+  .fam .well img { position: absolute; left: 4px; top: 4px; width: 32px; height: 32px; image-rendering: pixelated; }
+  .fam .n { position: absolute; left: 54px; top: 3px; font-size: 16px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .fam.is-sel .n { color: var(--pale-gold); }
+  .fam .d { position: absolute; left: 54px; top: 22px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .fam .v { position: absolute; right: 8px; top: 4px; font-size: 14px; color: var(--paper); white-space: nowrap; }
+  .fam .bar { position: absolute; left: 54px; top: 41px; width: 138px; height: 5px; border-radius: 3px; background: #06121a; box-shadow: 0 0 0 1px rgba(184,145,63,.45); }
+  .fam .bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(180deg, #67d6bd, #2c9e8f); }
+  .scrolltrack { position: absolute; width: 4px; border-radius: 2px; background: rgba(175,201,209,.14); }
+  .scrolltrack > i { position: absolute; left: 0; width: 4px; border-radius: 2px; background: var(--jade); }
+
+  /* the tree: node cards (a picture of the art in action, its name, its state), arrows, passages */
+  .chartbg { position: absolute; overflow: hidden; border-radius: 3px; }
+  .card { position: absolute; width: 190px; height: 117px; margin-left: -95px; }
+  .card .pic { position: absolute; left: 57px; top: 0; width: 76px; height: 76px; border-radius: 4px; background: #071015;
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 2px var(--fc, #56615f); }
+  .card .pic img { position: absolute; left: 2px; top: 2px; width: 72px; height: 72px; border-radius: 2px; }
+  .card .nm { position: absolute; left: 0; top: 78px; width: 190px; text-align: center; font-size: 15px; line-height: 18px; font-weight: 700;
+    color: var(--paper); white-space: nowrap; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+  .card .tag { position: absolute; top: 98px; left: 95px; transform: translateX(-50%); height: 19px; padding: 0 9px; border-radius: 10px;
+    font-size: 14px; line-height: 19px; font-weight: 700; white-space: nowrap; background: #0a1c20; color: var(--mist);
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 1px var(--tc, #56615f); text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .card.st-learned { --fc: #2c9e8f; --tc: #2c9e8f; }
+  .card.st-learned .tag { background: #0f3d3b; color: var(--bright-jade); }
+  .card.st-lit { --fc: #d8b86a; --tc: #b8913f; }
+  .card.st-lit .tag { color: var(--pale-gold); }
+  .card.st-locked { --fc: #4a5658; --tc: #4a5658; }
+  .card.st-locked .nm { color: #9aa6aa; }
+  .card.st-locked .tag { color: var(--hollow); }
+  .card.st-keystone .pic { box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 2px #e5b84c, 0 0 0 3px #6e4a1c, 0 0 0 4px var(--ink); }
+  .card.is-sel .pic { box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 2px var(--pale-gold), 0 0 0 3px var(--pale-gold), 0 0 0 5px var(--ink), 0 0 18px 6px rgba(255,230,161,.5); }
+  .card.is-sel .nm { color: var(--pale-gold); }
+  .card .tier { position: absolute; left: 115px; top: 56px; width: 22px; height: 22px; }
+  .card .tier span { position: absolute; left: 0; top: 0; width: 22px; line-height: 22px; text-align: center; font-size: 14px; font-weight: 700; color: var(--pale-gold);
+    font-feature-settings: "lnum" 1, "tnum" 1; text-shadow: 0 1px 0 var(--ink); }
+  .card .pstamp { position: absolute; left: 60px; top: 3px; width: 16px; height: 16px; border-radius: 3px; background: var(--p);
+    box-shadow: 0 0 0 1.5px var(--ink), inset 0 0 0 1px rgba(255,255,255,.35); }
+  .card .lk { position: absolute; left: 116px; top: 56px; }
+  .tag .k-lock-mini { transform: scale(.8); vertical-align: -3px; margin-right: 4px; }
+  .rz { display: inline-block; vertical-align: -2px; margin-right: 4px; }
+  .snd { position: absolute; font-family: var(--f-display); font-weight: 700; font-style: italic; font-size: 24px; line-height: 1; text-align: center; width: 36px; }
+  .sndg { position: absolute; font-size: 14px; font-weight: 700; text-align: center; width: 60px; white-space: nowrap; }
+
+  /* the reading: the chosen art */
+  .illus { position: absolute; width: 150px; height: 150px; border-radius: 4px; background: #071015;
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 3px #b8913f, 0 0 0 4px #6e4a1c, 0 0 0 5px var(--ink); }
+  .illus img { position: absolute; left: 3px; top: 3px; width: 144px; height: 144px; }
+  .fact { position: absolute; font-size: 15px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .fact .l { color: var(--mist); font-weight: 600; }
+  .rh { position: absolute; font-family: var(--f-display); font-weight: 700; font-size: 23px; color: var(--gold); line-height: 1; }
+  .rule { position: absolute; height: 1px; background: linear-gradient(90deg, rgba(184,145,63,0), rgba(184,145,63,.8) 12%, rgba(184,145,63,.8) 88%, rgba(184,145,63,0)); }
+  .req { position: absolute; left: 918px; width: 336px; height: 34px; }
+  .req img { position: absolute; left: 0; top: 1px; width: 32px; height: 32px; image-rendering: pixelated; }
+  .req .rq-t { position: absolute; left: 40px; top: 6px; font-size: 16px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .req .rq-v { position: absolute; right: 30px; top: 6px; font-size: 16px; font-weight: 700; white-space: nowrap; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .req .rq-m { position: absolute; right: 2px; top: 3px; width: 22px; text-align: center; font-family: var(--f-sym); font-size: 22px; }
+  .why { position: absolute; font-size: 14px; font-weight: 700; color: #f08c80; text-align: center; white-space: nowrap; }
+
+  /* the dock: Ring I, Ring II, the Inner Arts and the stance, labelled; a line of verse at the end */
+  .dock { position: absolute; left: 0; top: 656px; width: 1280px; height: 64px;
+    background: linear-gradient(180deg, #0f262b 0%, #0a1b1f 100%); box-shadow: 0 -1px 0 #b8913f, 0 -2px 0 var(--ink), 0 -4px 10px rgba(0,0,0,.45); }
+  .dl { position: absolute; top: 664px; font-size: 14px; line-height: 17px; font-weight: 700; color: var(--gold); white-space: nowrap; text-align: right; }
+  .dl .s { display: block; color: var(--mist); font-weight: 600; }
+  .slot { position: absolute; top: 662px; width: 52px; height: 52px; border-radius: 5px; background: radial-gradient(circle at 50% 42%, #133a3e, #071417 80%);
+    box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 1px rgba(184,145,63,.7); }
+  .slot img { position: absolute; left: 2px; top: 2px; width: 48px; height: 48px; }
+  .slot.is-empty::after { content: ""; position: absolute; left: 2px; top: 2px; width: 48px; height: 48px; background: url(../icon_study/icons/A_empty.png) center / 48px 48px no-repeat; opacity: .35; }
+  .slot.is-sel { box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 2px var(--pale-gold), 0 0 0 3px var(--pale-gold), 0 0 14px 4px rgba(255,230,161,.55); }
+  .slot.is-target { box-shadow: 0 0 0 1px var(--ink), inset 0 0 0 2px var(--bright-jade), 0 0 12px 3px rgba(103,214,189,.55); }
+  .slot .num { position: absolute; left: 3px; top: 1px; font-size: 14px; line-height: 14px; font-weight: 700; color: var(--pale-gold); text-shadow: 0 1px 0 var(--ink), 1px 0 0 var(--ink), -1px 0 0 var(--ink), 0 -1px 0 var(--ink); }
+  .dsep { position: absolute; top: 664px; width: 1px; height: 48px; background: rgba(184,145,63,.4); }
+  .verse { position: absolute; top: 661px; font-family: var(--f-display); font-style: italic; font-weight: 700; font-size: 17px; line-height: 17px; color: #cfe3de; white-space: nowrap; }
+</style></head>
+<body><div class="k-screen">
+<div class="ground"></div>
+<div class="rail"></div>
+<div class="ptitle">Techniques</div>
+<div class="seal" style="left:214px;--c:#67d67a"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#67d67a" stroke="#67d67a" stroke-linejoin="round" transform="scale(.86)"><path d="M0 10 C0 2 -1 -2 -8 -8 C-2 -9 3 -6 3 1 M0 10 C0 3 2 -3 8 -9" fill="none" stroke-width="2.6"/><path d="M-8 -8 C-3 -8 1 -5 1 1 C-4 1 -8 -3 -8 -8Z M8 -9 C8 -3 5 0 1 0 C1 -5 4 -8 8 -9Z" stroke-width="1.2"/></g></svg><div class="lab">Wood</div></div>
+<div class="seal" style="left:276px;--c:#f08a3c"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#f08a3c" stroke="#f08a3c" stroke-linejoin="round" transform="scale(.86)"><path d="M0 11 C-7 11 -9 5 -7 0 C-5 -4 -2 -5 -2 -10 C3 -7 3 -3 2 0 C4 -1 5 -3 5 -5 C9 0 8 11 0 11Z" stroke-width="1"/></g></svg><div class="lab">Fire</div></div>
+<div class="seal" style="left:338px;--c:#c9a060"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#c9a060" stroke="#c9a060" stroke-linejoin="round" transform="scale(.86)"><path d="M-11 9 L-4 -4 L0 2 L5 -8 L12 9 Z" stroke-width="1"/></g></svg><div class="lab">Earth</div></div>
+<div class="seal" style="left:400px;--c:#d8dde0"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#d8dde0" stroke="#d8dde0" stroke-linejoin="round" transform="scale(.86)"><circle cx="0" cy="0" r="10" fill="none" stroke-width="3"/><rect x="-3.5" y="-3.5" width="7" height="7" fill="none" stroke-width="2.6"/></g></svg><div class="lab">Metal</div></div>
+<div class="seal is-sel" style="left:462px;--c:#32bed1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#32bed1" stroke="#32bed1" stroke-linejoin="round" transform="scale(.86)"><path d="M-11 -4 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 2 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 8 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0" fill="none" stroke-width="2.4"/></g></svg><div class="lab">Water</div></div>
+<div class="seal" style="left:524px;--c:#cfe8e6"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#cfe8e6" stroke="#cfe8e6" stroke-linejoin="round" transform="scale(.86)"><path d="M-11 -3 H4 a4 4 0 1 0 -4 -4 M-11 3 H8 a4 4 0 1 1 -4 4 M-9 9 H-2" fill="none" stroke-width="2.4" stroke-linecap="round"/></g></svg><div class="lab">Wind</div></div>
+<div class="seal" style="left:586px;--c:#e8d24c"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8d24c" stroke="#e8d24c" stroke-linejoin="round" transform="scale(.86)"><path d="M3 -12 L-7 2 L-1 2 L-4 12 L7 -3 L1 -3 Z" stroke-width="1"/></g></svg><div class="lab">Thunder</div></div>
+<div class="seal" style="left:648px;--c:#9b78d1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#9b78d1" stroke="#9b78d1" stroke-linejoin="round" transform="scale(.86)"><path d="M-5 -9 h10 M0 -12 v3 M-6 -9 C-9 -2 -9 4 -5 8 H5 C9 4 9 -2 6 -9" fill="none" stroke-width="2.2"/><path d="M0 -3 C-3 1 -3 4 0 6 C3 4 3 1 0 -3Z" stroke-width="0.8"/></g></svg><div class="lab">Soul</div></div>
+<div class="seal" style="left:710px;--c:#e8e1cf"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8e1cf" stroke="#e8e1cf" stroke-linejoin="round" transform="scale(.86)"><path d="M7 -8 C1 -13 -10 -9 -10 1 C-10 10 1 12 7 7 C10 4 11 -1 9 -5" fill="none" stroke-width="3" stroke-linecap="round"/></g></svg><div class="lab">Formless</div></div>
+<div class="seal" style="left:772px;--c:#8f7ae0"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#8f7ae0" stroke="#8f7ae0" stroke-linejoin="round" transform="scale(.86)"><ellipse cx="0" cy="0" rx="11" ry="5" transform="rotate(-25)" fill="none" stroke-width="2.2"/><circle cx="0" cy="0" r="4" stroke-width="0.8"/><circle cx="9" cy="-6" r="1.8" stroke-width="0.6"/></g></svg><div class="lab">Space</div></div>
+<div class="seal is-locked" style="left:834px;--c:#d6f5ff"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#d6f5ff" stroke="#d6f5ff" stroke-linejoin="round" transform="scale(.86)"><path d="M-7 -10 H7 M-7 10 H7 M-6 -10 C-6 -3 6 3 6 10 M6 -10 C6 -3 -6 3 -6 10" fill="none" stroke-width="2.2"/><path d="M-3 7 L3 7 L0 3 Z" stroke-width="0.6"/></g></svg><div class="lab">Time</div><span class="k-lock-mini"></span></div>
+<div class="grpgap" style="left:910px"></div>
+<div class="seal" style="left:916px;--c:#e8e1cf"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#e8e1cf" stroke="#e8e1cf" stroke-linejoin="round" transform="scale(.86)"><path d="M-8 -11 H6 L9 -7 L6 -4 L9 0 L6 3 L9 7 L7 11 H-8 Z" stroke-width="1"/><path d="M-5 -6 H3 M-5 -2 H2 M-5 2 H3 M-5 6 H0" fill="none" stroke-width="1.4" stroke="#6b5a3e"/></g></svg><div class="lab">Lost Arts</div></div>
+<div class="seal" style="left:998px;--c:#afc9d1"><div class="disc"></div><svg width="44" height="44" viewBox="-22 -22 44 44" style="overflow:visible"><g fill="#afc9d1" stroke="#afc9d1" stroke-linejoin="round" transform="scale(.86)"><path d="M-7 -1 C-9 -7 -6 -12 -3 -10 C-1 -8 -2 -3 -4 1 Z M3 9 C1 3 4 -2 7 0 C9 2 8 7 6 11 Z" stroke-width="0.8"/><circle cx="-6" cy="4" r="1.6"/><circle cx="4" cy="-5" r="1.6"/></g></svg><div class="lab">Secret Arts</div></div>
+<div class="k-close abs" style="left:1210px;top:6px"></div>
+<div class="pnl" style="left:12px;top:70px;width:216px;height:580px"></div>
+<svg class="cnr" style="left:9px;top:67px;transform:scale(1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:205px;top:67px;transform:scale(-1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:9px;top:627px;transform:scale(1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:205px;top:627px;transform:scale(-1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<div class="abs" style="left:26px;top:82px"><svg width="30" height="30" viewBox="-15 -15 30 30"><circle r="13" fill="#0c2a30" stroke="#32bed1" stroke-width="2"/><g transform="scale(.62)" fill="none" stroke="#32bed1" stroke-width="2.6"><path d="M-11 -4 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 2 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0 M-11 8 q3 -4 5.5 0 t5.5 0 t5.5 0 t5.5 0"/></g></svg></div>
+<div class="abs t-subhead c-gold" style="left:64px;top:82px;font-size:26px">Water</div>
+<div class="abs" style="left:26px;top:116px;font-size:14px;font-weight:700;color:var(--mist);white-space:nowrap"><svg class="rz" width="14" height="14" viewBox="-7 -7 14 14"><path d="M0 -6.2 L6.2 0 L0 6.2 L-6.2 0Z" fill="#2c9e8f" stroke="#ffe6a1" stroke-width="1.4"/><path d="M0 -3.4 L3.4 0 L0 3.4" fill="none" stroke="#cff7e6" stroke-width="1"/></svg><span class="t-fig c-pale">107</span> to place of <span class="t-fig c-paper">136</span></div>
+<div class="abs" style="left:26px;top:136px;font-size:14px;font-weight:600;color:var(--mist);white-space:nowrap">Families and their Daos</div>
+<div class="fam is-sel" style="top:158px"><div class="well"><img src="../../../art/icons/hud/meridian.png"></div><div class="n">Free hand</div><div class="v t-fig">79 / 100</div><div class="d">Water Dao 0</div><div class="bar"><i style="width:109.0px"></i></div></div>
+<div class="fam" style="top:214px"><div class="well"><img src="../../../art/icons/hud/fist.png"></div><div class="n">Fists</div><div class="v t-fig">364 / 800</div><div class="d">Fist Dao 2</div><div class="bar"><i style="width:62.8px"></i></div></div>
+<div class="fam" style="top:270px"><div class="well"><img src="../../../art/icons/hud/flute.png"></div><div class="n">Flute</div><div class="v t-fig">0 / 100</div><div class="d">Music Dao 0</div><div class="bar"><i style="width:0.0px"></i></div></div>
+<div class="fam" style="top:326px"><div class="well"><img src="../../../art/icons/hud/bell.png"></div><div class="n">Bell</div><div class="v t-fig">0 / 100</div><div class="d">Music Dao 0</div><div class="bar"><i style="width:0.0px"></i></div></div>
+<div class="fam" style="top:382px"><div class="well"><img src="../../../art/icons/hud/jian.png"></div><div class="n">Jian</div><div class="v t-fig">7,047 / 12,000</div><div class="d">Sword Dao 5</div><div class="bar"><i style="width:81.0px"></i></div></div>
+<div class="scrolltrack" style="left:222px;top:158px;height:276px"><i style="top:0;height:118px"></i></div>
+<div class="abs" style="left:26px;top:438px;font-size:14px;font-weight:600;color:var(--mist);white-space:nowrap">7 more below</div>
+<div class="abs" style="left:14px;top:462px;width:212px;height:186px;overflow:hidden"><div class="abs" style="left:26px;top:156px;width:160px;height:22px;border-radius:50%;background:radial-gradient(ellipse, rgba(103,214,189,.30), rgba(103,214,189,0) 70%)"></div><img class="abs" style="left:-278px;top:-338px;width:768px;height:768px;image-rendering:pixelated" src="../assets/fig_tester_ls6_idle.png"></div>
+<div class="pnl" style="left:236px;top:70px;width:660px;height:580px"></div>
+<svg class="cnr" style="left:233px;top:67px;transform:scale(1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:873px;top:67px;transform:scale(-1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:233px;top:627px;transform:scale(1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:873px;top:627px;transform:scale(-1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<div class="chartbg" style="left:241px;top:75px;width:650px;height:570px">
+<svg width="650" height="570" style="position:absolute;left:0;top:0">
+<polyline points="0.0,162.0 10.0,161.6 20.0,161.0 30.0,160.3 40.0,159.5 50.0,158.7 60.0,157.9 70.0,157.1 80.0,156.5 90.0,156.1 100.0,155.8 110.0,155.8 120.0,156.0 130.0,156.4 140.0,157.0 150.0,157.7 160.0,158.5 170.0,159.4 180.0,160.2 190.0,160.9 200.0,161.5 210.0,161.9 220.0,162.2 230.0,162.2 240.0,162.0 250.0,161.6 260.0,161.0 270.0,160.2 280.0,159.4 290.0,158.6 300.0,157.8 310.0,157.1 320.0,156.5 330.0,156.0 340.0,155.8 350.0,155.8 360.0,156.1 370.0,156.5 380.0,157.1 390.0,157.8 400.0,158.6 410.0,159.5 420.0,160.3 430.0,161.0 440.0,161.6 450.0,162.0 460.0,162.2 470.0,162.2 480.0,161.9 490.0,161.5 500.0,160.9 510.0,160.1 520.0,159.3 530.0,158.5 540.0,157.7 550.0,157.0 560.0,156.4 570.0,156.0 580.0,155.8 590.0,155.8 600.0,156.1 610.0,156.5 620.0,157.2 630.0,157.9 640.0,158.7 650.0,159.6" fill="none" stroke="rgba(143,214,228,.20)" stroke-width="1.2" stroke-dasharray="7 6"/>
+<polyline points="0.0,299.4 10.0,298.6 20.0,297.8 30.0,296.9 40.0,296.2 50.0,295.6 60.0,295.1 70.0,294.9 80.0,294.8 90.0,295.0 100.0,295.4 110.0,295.9 120.0,296.7 130.0,297.5 140.0,298.3 150.0,299.1 160.0,299.9 170.0,300.5 180.0,300.9 190.0,301.2 200.0,301.2 210.0,301.0 220.0,300.6 230.0,300.0 240.0,299.3 250.0,298.5 260.0,297.7 270.0,296.8 280.0,296.1 290.0,295.5 300.0,295.1 310.0,294.8 320.0,294.8 330.0,295.0 340.0,295.4 350.0,296.0 360.0,296.7 370.0,297.6 380.0,298.4 390.0,299.2 400.0,299.9 410.0,300.5 420.0,301.0 430.0,301.2 440.0,301.2 450.0,301.0 460.0,300.5 470.0,299.9 480.0,299.2 490.0,298.4 500.0,297.6 510.0,296.7 520.0,296.0 530.0,295.4 540.0,295.0 550.0,294.8 560.0,294.8 570.0,295.1 580.0,295.5 590.0,296.1 600.0,296.8 610.0,297.7 620.0,298.5 630.0,299.3 640.0,300.0 650.0,300.6" fill="none" stroke="rgba(143,214,228,.20)" stroke-width="1.2" stroke-dasharray="7 6"/>
+<polyline points="0.0,436.0 10.0,435.2 20.0,434.6 30.0,434.1 40.0,433.9 50.0,433.8 60.0,434.0 70.0,434.3 80.0,434.9 90.0,435.6 100.0,436.4 110.0,437.2 120.0,438.1 130.0,438.8 140.0,439.4 150.0,439.9 160.0,440.1 170.0,440.2 180.0,440.0 190.0,439.6 200.0,439.1 210.0,438.4 220.0,437.6 230.0,436.7 240.0,435.9 250.0,435.2 260.0,434.5 270.0,434.1 280.0,433.8 290.0,433.8 300.0,434.0 310.0,434.4 320.0,435.0 330.0,435.7 340.0,436.5 350.0,437.3 360.0,438.1 370.0,438.9 380.0,439.5 390.0,439.9 400.0,440.2 410.0,440.2 420.0,440.0 430.0,439.6 440.0,439.0 450.0,438.3 460.0,437.5 470.0,436.6 480.0,435.8 490.0,435.1 500.0,434.5 510.0,434.0 520.0,433.8 530.0,433.8 540.0,434.0 550.0,434.5 560.0,435.1 570.0,435.8 580.0,436.6 590.0,437.4 600.0,438.2 610.0,439.0 620.0,439.6 630.0,440.0 640.0,440.2 650.0,440.2" fill="none" stroke="rgba(143,214,228,.20)" stroke-width="1.2" stroke-dasharray="7 6"/>
+<path d="M70 0 C88 140 54 260 76 400 S90 520 66 570" fill="none" stroke="rgba(50,190,209,.08)" stroke-width="10"/>
+<path d="M70 0 C88 140 54 260 76 400 S90 520 66 570" fill="none" stroke="rgba(143,214,228,.12)" stroke-width="1.2"/>
+<path d="M190 0 C208 140 174 260 196 400 S210 520 186 570" fill="none" stroke="rgba(50,190,209,.08)" stroke-width="10"/>
+<path d="M190 0 C208 140 174 260 196 400 S210 520 186 570" fill="none" stroke="rgba(143,214,228,.12)" stroke-width="1.2"/>
+<path d="M460 0 C478 140 444 260 466 400 S480 520 456 570" fill="none" stroke="rgba(50,190,209,.08)" stroke-width="10"/>
+<path d="M460 0 C478 140 444 260 466 400 S480 520 456 570" fill="none" stroke="rgba(143,214,228,.12)" stroke-width="1.2"/>
+<path d="M580 0 C598 140 564 260 586 400 S600 520 576 570" fill="none" stroke="rgba(50,190,209,.08)" stroke-width="10"/>
+<path d="M580 0 C598 140 564 260 586 400 S600 520 576 570" fill="none" stroke="rgba(143,214,228,.12)" stroke-width="1.2"/>
+</svg></div>
+<div class="snd" style="left:846px;top:126px;color:rgba(175,221,230,.72)">I</div>
+<div class="sndg" style="left:834px;top:152px;color:#e8e1cf">Common</div>
+<div class="snd" style="left:846px;top:265px;color:rgba(175,221,230,.72)">II</div>
+<div class="sndg" style="left:834px;top:291px;color:#67d67a">Earth</div>
+<div class="snd" style="left:846px;top:404px;color:rgba(175,221,230,.72)">III</div>
+<div class="sndg" style="left:834px;top:430px;color:#6fb8f0">Heaven</div>
+<div class="snd" style="left:846px;top:543px;color:rgba(175,221,230,.72)">IV</div>
+<div class="sndg" style="left:834px;top:569px;color:#b07ce8">Mystic</div>
+<div class="plq" style="left:416px;top:76px;width:300px"><span class="fl"></span>Free-hand arts of Water<span class="fl"></span></div>
+<div class="abs" style="left:256px;top:82px;font-size:14px;font-weight:700;color:var(--mist)">Act I · rings I–IV</div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+<defs><marker id="ahl" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8Z" fill="#67d6bd" stroke="#071015" stroke-width=".8"/></marker><marker id="aho" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8Z" fill="#c9b37a" stroke="#071015" stroke-width=".8"/></marker><marker id="ahs" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8Z" fill="#56615f" stroke="#071015" stroke-width=".8"/></marker></defs>
+<path d="M566 223 L566 224" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 223 L566 224" fill="none" stroke="#67d6bd" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M566 236 L566 242" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 236 L566 242" fill="none" stroke="#67d6bd" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#ahl)"/>
+<path d="M560 230 L366 230 L366 242" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M560 230 L366 230 L366 242" fill="none" stroke="#56615f" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ahs)"/>
+<path d="M566 362 L566 363" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 362 L566 363" fill="none" stroke="#c9b37a" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M566 375 L566 381" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 375 L566 381" fill="none" stroke="#c9b37a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#aho)"/>
+<path d="M572 369 L766 369 L766 381" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M572 369 L766 369 L766 381" fill="none" stroke="#c9b37a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#aho)"/>
+<path d="M566 501 L566 502" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 501 L566 502" fill="none" stroke="#56615f" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M566 514 L566 520" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M566 514 L566 520" fill="none" stroke="#56615f" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ahs)"/>
+<path d="M560 508 L366 508 L366 520" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M560 508 L366 508 L366 520" fill="none" stroke="#56615f" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ahs)"/>
+<path d="M572 508 L766 508 L766 520" fill="none" stroke="#071015" stroke-width="5" stroke-linejoin="round"/>
+<path d="M572 508 L766 508 L766 520" fill="none" stroke="#56615f" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ahs)"/>
+<path d="M566 224 l6 6 l-6 6 l-6 -6Z" fill="#2c9e8f" stroke="#071015" stroke-width="4"/>
+<path d="M566 224 l6 6 l-6 6 l-6 -6Z" fill="#2c9e8f" stroke="#cff7e6" stroke-width="1.6"/>
+<path d="M566 363 l6 6 l-6 6 l-6 -6Z" fill="#10272b" stroke="#071015" stroke-width="4"/>
+<path d="M566 363 l6 6 l-6 6 l-6 -6Z" fill="#10272b" stroke="#e5b84c" stroke-width="1.6"/>
+<path d="M566 502 l6 6 l-6 6 l-6 -6Z" fill="#10181b" stroke="#071015" stroke-width="4"/>
+<path d="M566 502 l6 6 l-6 6 l-6 -6Z" fill="#10181b" stroke="#56615f" stroke-width="1.6"/>
+</svg>
+<div class="card st-learned" style="left:566px;top:106px"><div class="pic"><img src="../assets/techcard_flowing_palm.png"></div><div class="tier"><svg width="22" height="22" viewBox="-11 -11 22 22"><path d="M0 -10 L10 0 L0 10 L-10 0Z" fill="#15514f" stroke="#071015" stroke-width="3"/><path d="M0 -10 L10 0 L0 10 L-10 0Z" fill="none" stroke="#67d6bd" stroke-width="1.4"/></svg><span>5</span></div><div class="nm">Flowing Palm</div><div class="tag">Learned</div></div>
+<div class="card st-locked" style="left:366px;top:245px"><div class="pic"><img src="../assets/techcard_lotus_dew_hymn.png"></div><svg class="abs" style="left:60px;top:3px" width="20" height="18" viewBox="-10 -9 20 18"><path d="M0 6 C-3 2 -3 -3 0 -7 C3 -3 3 2 0 6Z M0 6 C-5 5 -8 1 -8 -3 C-4 -3 -1 1 0 6Z M0 6 C5 5 8 1 8 -3 C4 -3 1 1 0 6Z" fill="#d9a632" stroke="#071015" stroke-width="1.6" stroke-linejoin="round"/></svg><div class="nm">Lotus Dew Hymn</div><div class="tag"><span class="k-lock-mini"></span>Needs a vow</div></div>
+<div class="card st-learned" style="left:566px;top:245px"><div class="pic"><img src="../assets/techcard_still_water_focus.png"></div><div class="tier"><svg width="22" height="22" viewBox="-11 -11 22 22"><path d="M0 -10 L10 0 L0 10 L-10 0Z" fill="#15514f" stroke="#071015" stroke-width="3"/><path d="M0 -10 L10 0 L0 10 L-10 0Z" fill="none" stroke="#67d6bd" stroke-width="1.4"/></svg><span>2</span></div><div class="nm">Still Water Focus</div><div class="tag">Learned</div></div>
+<div class="card st-lit" style="left:566px;top:384px"><div class="pic"><img src="../assets/techcard_deep_pool_bloom.png"></div><div class="nm">Deep Pool Bloom</div><div class="tag"><svg class="rz" width="13" height="13" viewBox="-7 -7 14 14"><path d="M0 -6.2 L6.2 0 L0 6.2 L-6.2 0Z" fill="#2c9e8f" stroke="#ffe6a1" stroke-width="1.4"/><path d="M0 -3.4 L3.4 0 L0 3.4" fill="none" stroke="#cff7e6" stroke-width="1"/></svg><span class="t-fig">3</span> to learn</div></div>
+<div class="card st-lit" style="left:766px;top:384px"><div class="pic"><img src="../assets/techcard_upright_eddy_seal.png"></div><svg class="abs" style="left:60px;top:3px" width="18" height="18" viewBox="-9 -9 18 18"><rect x="-7" y="-7" width="14" height="14" rx="1.5" fill="#4a5ab8" stroke="#071015" stroke-width="1.6"/><path d="M-4 -3.5 H4 M0 -3.5 V4 M-4 4 H4" stroke="#c6cef8" stroke-width="1.4" fill="none"/></svg><div class="nm">Upright Eddy Seal</div><div class="tag"><svg class="rz" width="13" height="13" viewBox="-7 -7 14 14"><path d="M0 -6.2 L6.2 0 L0 6.2 L-6.2 0Z" fill="#2c9e8f" stroke="#ffe6a1" stroke-width="1.4"/><path d="M0 -3.4 L3.4 0 L0 3.4" fill="none" stroke="#cff7e6" stroke-width="1"/></svg><span class="t-fig">3</span> to learn</div></div>
+<div class="card st-locked" style="left:366px;top:523px"><div class="pic"><img src="../assets/techcard_crimson_undertow_rush.png"></div><svg class="abs" style="left:61px;top:3px" width="16" height="19" viewBox="-8 -10 16 19"><path d="M0 -8 C3 -3 6 0 6 3 C6 6.5 3 8 0 8 C-3 8 -6 6.5 -6 3 C-6 0 -3 -3 0 -8Z" fill="#b8283a" stroke="#071015" stroke-width="1.6"/><path d="M-2.5 2 C-2.5 4 -1.5 5 0 5.5" stroke="#ff9c86" stroke-width="1.2" fill="none"/></svg><div class="nm">Crimson Undertow Rush</div><div class="tag"><span class="k-lock-mini"></span>Blood path</div></div>
+<div class="card st-locked" style="left:566px;top:523px"><div class="pic"><img src="../assets/techcard_kingfisher_step.png"></div><div class="nm">Kingfisher Step</div><div class="tag"><span class="k-lock-mini"></span>Locked</div></div>
+<div class="card st-locked st-keystone is-sel" style="left:766px;top:523px"><div class="pic"><img src="../assets/techcard_hundred_springs_rising.png"></div><div class="nm">Hundred Springs Rising</div><div class="tag"><span class="k-lock-mini"></span>Keystone</div></div>
+<div class="pnl" style="left:904px;top:70px;width:364px;height:580px"></div>
+<svg class="cnr" style="left:901px;top:67px;transform:scale(1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:1245px;top:67px;transform:scale(-1,1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:901px;top:627px;transform:scale(1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<svg class="cnr" style="left:1245px;top:627px;transform:scale(-1,-1)" viewBox="0 0 26 26"><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#071015" stroke-width="5"/><path d="M2 24 V9 Q2 2 9 2 H24" fill="none" stroke="#e5b84c" stroke-width="2.4"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#071015" stroke-width="3.6" stroke-linecap="round"/><path d="M8 15 C8 9 13 8 15 11 C17 14 13 16 12 13" fill="none" stroke="#e5b84c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 24 l3 -3 M24 2 l-3 3" stroke="#071015" stroke-width="3"/><rect x="-2.6" y="-2.6" width="5.2" height="5.2" transform="translate(5.5 5.5) rotate(45)" fill="#ffe6a1" stroke="#071015" stroke-width="1.2"/></svg>
+<div class="plq" style="left:924px;top:80px;width:324px;font-size:24px"><span class="fl"></span>Hundred Springs Rising<span class="fl"></span></div>
+<div class="abs" style="left:920px;top:116px;width:332px;text-align:center;font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap">Keystone of Body and Voice · ring IV, <span style="color:#b07ce8">Mystic</span></div>
+<div class="illus" style="left:922px;top:142px"><img src="../assets/techart_hundred_springs_rising.png"></div>
+<img class="abs" style="left:1090px;top:142px;width:64px;height:64px" src="../assets/emblemA_hundred_springs_rising.png">
+<div class="fact" style="left:1164px;top:150px;line-height:20px">Field<br><span class="l">Water</span></div>
+<div class="fact" style="left:1090px;top:214px;line-height:21px"><span class="t-fig c-qi">QI 22</span> <span class="l">·</span> <span class="t-fig">16 s</span><br><span class="t-fig">6 s</span> <span class="l">·</span> up to <span class="t-fig">8</span> foes<br><span class="l">a heavy art: one a ring</span></div>
+<div class="abs" style="left:920px;top:302px;width:332px;font-size:16px;line-height:21px;color:var(--paper)">Springs rise under every foe near you for <span class="t-fig">6&nbsp;s</span>; each one slows its foe by <span class="t-fig">20%</span>.</div>
+<div class="rule" style="left:916px;top:352px;width:340px"></div>
+<div class="rh" style="left:920px;top:360px">Prerequisites</div>
+<div class="req" style="top:388px"><img src="../../../art/icons/hud/cultivation.png"><div class="rq-t">Ring IV reached · Level 55</div><div class="rq-v c-jade">98 / 55</div><div class="rq-m" style="color:#67d6bd">✓</div></div>
+<div class="req" style="top:424px"><svg class="abs" style="left:0;top:1px" width="32" height="32" viewBox="-16 -16 32 32"><path d="M0 -11 L11 0 L0 11 L-11 0Z" fill="#10272b" stroke="#071015" stroke-width="4"/><path d="M0 -11 L11 0 L0 11 L-11 0Z" fill="#10272b" stroke="#e5b84c" stroke-width="2"/><path d="M0 -5 L5 0 L0 5 L-5 0Z" fill="#e5b84c"/></svg><div class="rq-t">Passage IV of Body and Voice</div><div class="rq-v c-red">0 / 1</div><div class="rq-m" style="color:#e45858">✗</div></div>
+<div class="req" style="top:460px"><img src="../../../art/icons/hud/quest.png"><div class="rq-t">The Falls Pool night trial</div><div class="rq-v c-red">0 / 1</div><div class="rq-m" style="color:#e45858">✗</div></div>
+<div class="rule" style="left:916px;top:498px;width:340px"></div>
+<div class="rh" style="left:920px;top:506px">Cost</div>
+<div class="abs" style="left:990px;top:508px;font-size:16px;font-weight:700;color:var(--paper);white-space:nowrap"><svg class="rz" width="16" height="16" viewBox="-7 -7 14 14"><path d="M0 -6.2 L6.2 0 L0 6.2 L-6.2 0Z" fill="#2c9e8f" stroke="#ffe6a1" stroke-width="1.4"/><path d="M0 -3.4 L3.4 0 L0 3.4" fill="none" stroke="#cff7e6" stroke-width="1"/></svg><span class="t-fig c-pale">5</span> Realisations <span class="c-mist" style="font-weight:600">of <span class="t-fig">107</span> to place</span></div>
+<div class="abs" style="left:990px;top:530px;font-size:16px;font-weight:700;color:var(--paper);white-space:nowrap"><span class="t-fig c-qi">22</span> Qi <span class="c-mist" style="font-weight:600">each cast</span></div>
+<div class="k-btn is-disabled abs" style="left:950px;top:560px;width:272px;height:54px;font-size:24px">Learn<span class="k-lock-mini"></span></div>
+<div class="why" style="left:916px;top:620px;width:340px">Walk a ring IV passage and pass the trial first</div>
+<div class="dock"></div>
+<div class="dl" style="left:10px;width:86px">Ring I<span class="s">Sunsteel Jian</span></div>
+<div class="slot" style="left:104px"><img src="../../../art/icons/techniques/flowing_palm@48.png"><span class="num">1</span></div>
+<div class="slot" style="left:159px"><img src="../../../art/icons/techniques/crescent_arc@48.png"><span class="num">2</span></div>
+<div class="slot" style="left:214px"><img src="../../../art/icons/techniques/still_water_focus@48.png"><span class="num">3</span></div>
+<div class="slot" style="left:269px"><img src="../../../art/icons/techniques/cloud_descent@48.png"><span class="num">4</span></div>
+<div class="dsep" style="left:326px"></div>
+<div class="dl" style="left:330px;width:86px">Ring II<span class="s">the 1/2 swap</span></div>
+<div class="slot" style="left:422px"><img src="../../../art/icons/techniques/mirror_mind_spike@48.png"><span class="num">1</span></div>
+<div class="slot" style="left:477px"><img src="../../../art/icons/techniques/soul_lantern_ward@48.png"><span class="num">2</span></div>
+<div class="slot" style="left:532px"><img src="../../../art/icons/techniques/sword_release@48.png"><span class="num">3</span></div>
+<div class="slot" style="left:587px"><img src="../../../art/icons/techniques/sword_swarm@48.png"><span class="num">4</span></div>
+<div class="dsep" style="left:644px"></div>
+<div class="dl" style="left:648px;width:80px">Inner Arts<span class="s"><span class="t-fig">0</span> of <span class="t-fig">4</span> worn</span></div>
+<div class="slot is-empty" style="left:736px"></div>
+<div class="k-new abs" style="left:778px;top:658px"></div>
+<div class="slot is-empty" style="left:791px"></div>
+<div class="slot is-empty" style="left:846px"></div>
+<div class="slot is-empty" style="left:901px"></div>
+<div class="dsep" style="left:958px"></div>
+<div class="dl" style="left:962px;width:66px">Stance<span class="s">jian: none</span></div>
+<div class="slot is-empty" style="left:1036px"></div>
+<div class="verse" style="left:1100px;width:176px">“A spring is small;<br>&nbsp;a hundred springs<br>&nbsp;are a river.”</div>
+</div></body></html>
