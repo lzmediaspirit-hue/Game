@@ -58,6 +58,33 @@
     ],
     "normal": "res://art/ui/hd/dialogue_box__normal.png"
   },
+  "honour_seal": {
+    "blade": "res://art/ui/hd/honour_seal__blade.png",
+    "cauldron": "res://art/ui/hd/honour_seal__cauldron.png",
+    "cloud": "res://art/ui/hd/honour_seal__cloud.png",
+    "coin": "res://art/ui/hd/honour_seal__coin.png",
+    "lotus": "res://art/ui/hd/honour_seal__lotus.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "peak": "res://art/ui/hd/honour_seal__peak.png",
+    "pearl": "res://art/ui/hd/honour_seal__pearl.png",
+    "shield": "res://art/ui/hd/honour_seal__shield.png",
+    "star": "res://art/ui/hd/honour_seal__star.png"
+  },
+  "honour_tablet": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/honour_tablet__normal.png",
+    "selected": "res://art/ui/hd/honour_tablet__selected.png"
+  },
   "hud_ring_132": {
     "active": "res://art/ui/hd/hud_ring_132__active.png",
     "margins": [
@@ -110,6 +137,25 @@
       60
     ],
     "normal": "res://art/ui/hd/ink_band__normal.png"
+  },
+  "jade_label": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/jade_label__normal.png"
+  },
+  "jade_tag": {
+    "margins": [
+      10,
+      8,
+      10,
+      12
+    ],
+    "normal": "res://art/ui/hd/jade_tag__normal.png",
+    "selected": "res://art/ui/hd/jade_tag__selected.png"
   },
   "major_window": {
     "margins": [
@@ -165,6 +211,25 @@
       12
     ],
     "normal": "res://art/ui/hd/selected_slot_glow__normal.png"
+  },
+  "sky_card": {
+    "margins": [
+      14,
+      14,
+      14,
+      14
+    ],
+    "normal": "res://art/ui/hd/sky_card__normal.png"
+  },
+  "sky_token": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/hd/sky_token__normal.png",
+    "selected": "res://art/ui/hd/sky_token__selected.png"
   },
   "slot": {
     "disabled": "res://art/ui/hd/slot__disabled.png",

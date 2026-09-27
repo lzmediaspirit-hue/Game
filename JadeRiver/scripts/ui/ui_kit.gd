@@ -45,20 +45,47 @@ const PLATE := Color(0.02, 0.06, 0.075, 0.72)
 const DIM := Color(0.01, 0.03, 0.04)
 ## Drawn page surfaces (the map scroll, the Go board, the zither, talisman paper, the tribulation sky, the furnace):
 ## their own materials, named here so no page carries a colour literal.
+## P5 (docs/page_identity.md §7): the materials of the pages that take their own identity, each a mix of two tokens
+## (`a` + t `b`, written beside it) so no new hue enters; P5 added `cloth_wash` (the Character page's painted slips).
+## The talisman's red ink and the zither's strings, which held the names `cinnabar` and `silk` before §7 gave them out,
+## are `cinnabar_ink` and `qin_silk`.
 const SURFACE := {
 	"scroll": Color("e8dcbc"), "scroll_edge": Color("d9ccaa"), "sky_scroll": Color("e2ebee"), "sky_scroll_edge": Color("c9d6dc"),
 	"route": Color(0.35, 0.25, 0.12, 0.55), "mountain": Color(0.35, 0.42, 0.40, 0.35), "isle": Color(0.42, 0.48, 0.60, 0.55),
 	"isle_grass": Color(0.45, 0.62, 0.50, 0.8), "wind": Color(0.25, 0.45, 0.5, 0.6), "node_unseen": Color(0.45, 0.42, 0.36),
 	"node_planned": Color(0.62, 0.68, 0.72, 0.8), "node_planned_rim": Color(0.3, 0.34, 0.38, 0.6),
-	"talisman": Color("efe3c2"), "talisman_edge": Color("8a6a3a"), "brush_ink": Color("1c1a18"), "cinnabar": Color(0.75, 0.2, 0.18),
+	"talisman": Color("efe3c2"), "talisman_edge": Color("8a6a3a"), "brush_ink": Color("1c1a18"), "cinnabar_ink": Color(0.75, 0.2, 0.18),
 	"board": Color("d8ad6c"), "board_edge": Color("c99a58"), "board_line": Color("4a3218"),
 	"stone_black": Color("1c1b20"), "stone_white": Color("f1ece0"), "stone_white_rim": Color("6f6a5e"),
 	"wood": Color("5a3620"), "wood_dark": Color("3b2416"), "bridge": Color("d8c08a"), "peg": Color("b8894a"), "peg_dark": Color("1b1410"),
-	"hui": Color("12352d"), "silk": Color("efe3c2"),
+	"hui": Color("12352d"), "qin_silk": Color("efe3c2"),
 	"sky_top": Color(0.03, 0.04, 0.09), "sky_bottom": Color(0.086, 0.082, 0.118), "cloud": Color(0.18, 0.2, 0.3), "cloud_lit": Color(0.22, 0.24, 0.34),
 	"ember": Color(0.95, 0.45, 0.18), "flame": Color(0.95, 0.75, 0.18), "furnace_mouth": Color(0.08, 0.05, 0.04),
 	"ash": Color(0.5, 0.48, 0.44), "cinder": Color(0.12, 0.1, 0.1), "glow": Color(1.0, 0.85, 0.45), "soul_spark": Color(1.0, 0.95, 0.7),
 	"map_line": Color(0.85, 0.92, 0.9),
+	"gourd": Color("b4853d"),            # BRONZE + 0.35 GOLD
+	"gourd_dark": Color("584227"),       # BRONZE + 0.45 INK
+	"space": Color("0a1e23"),            # DEEP_TEAL + 0.55 INK
+	"lacquer": Color("541720"),          # BLOOD + 0.55 INK
+	"lacquer_black": Color("161918"),    # INK + 0.10 BRONZE
+	"river_lacquer": Color("0c2a2f"),    # RIVER_NIGHT + 0.20 JADE_SHADOW
+	"bamboo": Color("b9ba8b"),           # bridge + 0.18 JADE
+	"hemp": Color("d1bda1"),             # PAPER + 0.30 BRONZE
+	"almanac": Color("e7d5a8"),          # PAPER + 0.30 GOLD
+	"cinnabar": Color("cc3c43"),         # RED + 0.50 BLOOD
+	"rubbing": Color("171f22"),          # INK + 0.07 PAPER
+	"stone": Color("4d595e"),            # HOLLOW + 0.45 INK
+	"plaster": Color("dadbd0"),          # PAPER + 0.25 MIST
+	"cloth": Color("0f3435"),            # JADE_SHADOW + 0.45 INK
+	"cloth_wash": Color("1a605c"),       # JADE_SHADOW + 0.20 JADE: the figure's slips, washed lighter
+	"silk": Color("3b6b66"),             # JADE_SHADOW + 0.18 PAPER
+	"sand": Color("c5ab8a"),             # PAPER + 0.45 BRONZE
+	"straw": Color("c8aa75"),            # bridge + 0.25 BRONZE
+	"soil": Color("2b1e16"),             # wood_dark + 0.30 INK
+	"water": Color("185660"),            # QI + 0.60 INK
+	"clay": Color("ac663e"),             # BRONZE + 0.25 RED
+	"sky": Color("0d2b2d"),              # JADE_SHADOW + 0.58 INK: the Bag's night at its lightest behind words
+	"sea": Color("27484e"),              # DEEP_TEAL + 0.16 MIST: the sea of cloud under the Bag's sky, at its lightest
 }
 ## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
 ## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
@@ -82,7 +109,34 @@ const TEXT_ON := [
 	[&"SKY", ["@page"], 14],
 	[&"HUD_LABEL", ["minor_panel"], 14],
 	[&"PAPER_INK", ["dialogue_box"], 20],
+	# P5 (docs/page_identity.md §7): words on the pages' own surfaces ("surface:<key>", a flat SURFACE colour) and on
+	# their tags and tablets. The ui_suite also measures every word a page with its own surface draws on what it sits on.
+	[&"PAPER", ["surface:cloth", "surface:cloth_wash", "jade_tag", "honour_tablet", "honour_tablet:selected"], 14],
+	[&"MIST", ["surface:cloth"], 14],
+	[&"PALE_GOLD", ["surface:cloth", "surface:cloth_wash", "honour_tablet", "honour_tablet:selected"], 14],
+	[&"PALE_GOLD", ["jade_tag:selected@ink", "jade_label@ink"], 14],
+	[&"GOLD", ["surface:cloth", "honour_tablet", "honour_tablet:selected"], 14],
+	[&"BRIGHT_JADE", ["surface:cloth"], 14],
+	[&"HOLLOW", ["surface:cloth"], 20],
+	# The Bag's sky (decision 24): its night and sea of cloud, the floating tokens and the item card.
+	[&"PAPER", ["surface:sky", "surface:sea", "sky_token", "sky_card"], 14],
+	[&"MIST", ["surface:sky", "surface:sea", "sky_token", "sky_card"], 14],
+	[&"PALE_GOLD", ["surface:sky", "surface:sea", "sky_token:selected", "sky_card"], 14],
+	[&"PALE_GOLD", ["sky_token:selected@ink"], 14],
+	[&"GOLD", ["surface:sky", "sky_card"], 14],
+	[&"BRIGHT_JADE", ["surface:sky", "sky_card"], 14],
+	[&"HOLLOW", ["surface:sky", "sky_token"], 14],
+	[&"RED_TEXT", ["sky_card"], 14],
+	[&"SOUL_TEXT", ["sky_card"], 14],
+	[&"WARNING", ["sky_card"], 14],
 ]
+
+## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become
+## fades of MOTION_FADE_S; decoration that only moves goes. Pages read it through Page.unfold and their opening fade.
+const MOTION_FADE_S := 0.2
+
+static func reduce_motion() -> bool:
+	return Game != null and Game.account != null and bool(Game.account.settings.get("reduce_motion", false))
 
 static var _display: Font
 static var _text: Font

@@ -3,6 +3,7 @@ import json
 import os
 
 from common import DATA, entries, titled, write
+from technique_anim import add_animation
 
 # P6e the escalation curve (docs/moments_design.md §5): every technique's `vfx` block. Its tier is the band of the realm
 # that teaches it (realm index -> tier, written to moments.json as vfx_bands); its shape what it draws on cast (VFX_SHAPES); its
@@ -262,6 +263,7 @@ def build():
     # of Acts I-III and the later acts' locked rings, adds the keystones, the Dao arts and the Lost Arts, and writes the
     # rows compact over their form's and ring's defaults (docs/technique_plan.md §3, §7).
     rows, lost_table, lineages = TG.build(T)
+    add_animation(rows)   # every art plays its form's effect on an existing pose (technique_anim.py)
     TG.write_compact("techniques.json", {"defaults": TG.DEFAULTS}, [TG.compact(r) for r in rows])
     write("technique_trees.json", TG.trees_config())
     entries("lost_arts.json", lost_table, lineages=lineages, journal_flags=TG.H.JOURNAL_FLAGS)

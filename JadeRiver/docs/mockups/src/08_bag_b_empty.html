@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>08 Bag, concept B: early</title>
+<meta name="mockup-check" content=".tok, .worn, .k-pill, .k-btn, .k-btn2, .k-close, .space, .field, .hint">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="bag_b.css">
+<script src="bag_data.js"></script>
+<script src="bag_b.js"></script>
+<style>
+  .hint { position: absolute; left: 420px; top: 470px; width: 796px; text-align: center; }
+  .hint .ln { font-size: 18px; line-height: 1.35; color: var(--paper); white-space: nowrap; }
+  .hint .ln + .ln { margin-top: 10px; }
+  .hint .st { font-family: var(--f-sym); color: var(--gold); margin-right: 8px; }
+  .hint .later { font-size: 16px; line-height: 1.35; color: var(--mist); margin-top: 18px; white-space: nowrap; }
+</style>
+</head>
+<body><div class="k-screen">
+<!-- The same heaven early (checkpoint bf2: Bone Forging 2, 8 of 25 in the Starter Spirit Gourd, a Bamboo Gourd holds
+     30). A small gourd holds a small sky: fewer stars, one far island, no light from above; the grid is three rows and
+     the rest of the sky is open room, where the hint floats. The Plain Straw Hat is new (the jade dot) and fits the
+     empty hat slot, which is ringed on the orbit; weapon, cape and talisman are locked, with what opens each. -->
+<div class="hint">
+  <div class="ln"><span class="st">✦</span><span class="c-pale">Walk over what falls:</span> it floats into the first empty space.</div>
+  <div class="ln"><span class="st">✦</span><span class="c-pale">Sell loose finds</span> to a trader: a Snapper Claw fetches <span class="t-fig">40</span> taels.</div>
+  <div class="ln"><span class="st">✦</span><span class="c-pale">Tap a thing</span> to see what it does. The new Plain Straw Hat fits your empty hat slot.</div>
+  <div class="later"><span class="c-gold">Opens later:</span> the weapon slot at the Weapon Hall (Bone Forging <span class="t-fig">3</span>),<br>the cape at Heaven Glimpse <span class="t-fig">1</span>, the talisman at Spirit Awakening <span class="t-fig">1</span>.</div>
+</div>
+</div>
+<script>
+buildPageB({cp: "bf2", fig: "fig_tester_bf2_idle.png", subtitle: "The heaven inside your Starter Spirit Gourd",
+  purses: [["hud/coin", "163"], ["hud/spirit_stone", "0"]],
+  sky: {seed: 5, stars: 150, shafts: false, islands: [[190, 598, 200, 0], [1150, 660, 70, 0.7]]},
+  locked: 5, fresh: 6, glow: "hat", spaceTop: 414,
+  spaceLine: 'a Bamboo Gourd holds <span class="t-fig">30</span>: five more spaces, a wider sky'});
+</script>
+</body></html>

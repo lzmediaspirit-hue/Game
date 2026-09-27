@@ -384,7 +384,8 @@ func _technique_intents() -> void:
 		check(Game.handlers.has(t) and Game.handlers[t] == Game.progression, "the trees' intent %s is the Progression authority's" % t)
 	check(not Game.handlers.keys().any(func(k): return str(k).contains("track") and (str(k).contains("lost") or str(k).contains("art"))),
 		"no intent tracks a lost art (decision 19)")
-	var re := RegEx.create_from_string("submit\\(\\{\\s*\"type\"\\s*:\\s*\"([a-z_0-9]+)\"")
+	# A literal name only: a name built at the call ("toggle_" + the flag's) is the debug console's.
+	var re := RegEx.create_from_string("submit\\(\\{\\s*\"type\"\\s*:\\s*\"([a-z_0-9]+)\"(?!\\s*\\+)")
 	var unrouted: Array = []
 	for name in sources:
 		for line in sources[name]:

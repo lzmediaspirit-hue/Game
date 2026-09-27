@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "scale": 2,
+  "elements": [
+    "water",
+    "wood",
+    "fire",
+    "earth",
+    "metal",
+    "wind",
+    "thunder",
+    "soul",
+    "formless",
+    "space",
+    "time"
+  ],
+  "bands": [
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      5,
+      6,
+      7
+    ]
+  ],
+  "element_of": {
+    "none": "formless",
+    "ice": "water",
+    "tide": "water",
+    "lava": "fire",
+    "crystal": "earth",
+    "sand": "earth",
+    "star": "metal",
+    "blade": "metal",
+    "hollow": "formless",
+    "life_death": "soul"
+  },
+  "forms": {
+    "arc": {
+      "file": "res://art/fx/arc.png",
+      "cell": [
+        192,
+        128
+      ],
+      "anchor": [
+        32,
+        64
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 2,
+      "span": 120,
+      "at": "chest",
+      "size": "band",
+      "bolt": {
+        "file": "res://art/fx/arc_bolt.png",
+        "cell": [
+          96,
+          48
+        ],
+        "anchor": [
+          76,
+          24
+        ],
+        "frames": 4,
+        "fps": 12
+      }
+    },
+    "blink": {
+      "file": "res://art/fx/blink.png",
+      "cell": [
+        192,
+        96
+      ],
+      "anchor": [
+        160,
+        40
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 4,
+      "span": 48,
+      "at": "target_chest",
+      "size": "band",
+      "fit": true
+    },
+    "burst": {
+      "file": "res://art/fx/burst.png",
+      "cell": [
+        192,
+        128
+      ],
+      "anchor": [
+        96,
+        96
+      ],
+      "frames": 8,
+      "fps": 12,
+      "impact": 2,
+      "span": 184,
+      "at": "feet",
+      "size": "reach"
+    },
+    "chorus": {
+      "file": "res://art/fx/chorus.png",
+      "cell": [
+        192,
+        128
+      ],
+      "anchor": [
+        96,
+        104
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 3,
+      "span": 176,
+      "at": "feet",
+      "size": "reach"
+    },
+    "counter": {
+      "file": "res://art/fx/counter.png",
+      "cell": [
+        96,
+        128
+      ],
+      "anchor": [
+        48,
+        60
+      ],
+      "frames": 6,
+      "fps": 14,
+      "impact": 1,
+      "span": 80,
+      "at": "chest",
+      "size": "band"
+    },
+    "domain": {
+      "file": "res://art/fx/domain.png",
+      "cell": [
+        224,
+        128
+      ],
+      "anchor": [
+        112,
+        96
+      ],
+      "frames": 12,
+      "fps": 10,
+      "impact": 3,
+      "span": 208,
+      "at": "feet",
+      "size": "reach"
+    },
+    "echo": {
+      "file": "res://art/fx/echo.png",
+      "cell": [
+        128,
+        128
+      ],
+      "anchor": [
+        28,
+        68
+      ],
+      "frames": 12,
+      "fps": 14,
+      "impact": 3,
+      "span": 64,
+      "at": "chest",
+      "size": "band",
+      "fit": true
+    },
+    "flurry": {
+      "file": "res://art/fx/flurry.png",
+      "cell": [
+        128,
+        96
+      ],
+      "anchor": [
+        20,
+        48
+      ],
+      "frames": 10,
+      "fps": 16,
+      "impact": 2,
+      "span": 100,
+      "at": "chest",
+      "size": "band",
+      "fit": true
+    },
+    "lunge": {
+      "file": "res://art/fx/lunge.png",
+      "cell": [
+        240,
+        96
+      ],
+      "anchor": [
+        140,
+        44
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 3,
+      "span": 88,
+      "at": "chest",
+      "size": "band",
+      "fit": true
+    },
+    "pillar": {
+      "file": "res://art/fx/pillar.png",
+      "cell": [
+        96,
+        224
+      ],
+      "anchor": [
+        48,
+        208
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 3,
+      "span": 200,
+      "at": "target",
+      "size": "band"
+    },
+    "plunge": {
+      "file": "res://art/fx/plunge.png",
+      "cell": [
+        192,
+        112
+      ],
+      "anchor": [
+        96,
+        88
+      ],
+      "frames": 8,
+      "fps": 12,
+      "impact": 2,
+      "span": 184,
+      "at": "feet",
+      "size": "reach"
+    },
+    "rain": {
+      "file": "res://art/fx/rain.png",
+      "cell": [
+        128,
+        192
+      ],
+      "anchor": [
+        64,
+        176
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 5,
+      "span": 128,
+      "at": "feet",
+      "size": "tile"
+    },
+    "release": {
+      "file": "res://art/fx/release.png",
+      "cell": [
+        128,
+        160
+      ],
+      "anchor": [
+        64,
+        88
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 4,
+      "span": 120,
+      "at": "chest",
+      "size": "band"
+    },
+    "return": {
+      "file": "res://art/fx/return.png",
+      "cell": [
+        192,
+        96
+      ],
+      "anchor": [
+        28,
+        48
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 3,
+      "span": 120,
+      "at": "chest",
+      "size": "band",
+      "bolt": {
+        "file": "res://art/fx/return_bolt.png",
+        "cell": [
+          96,
+          48
+        ],
+        "anchor": [
+          68,
+          24
+        ],
+        "frames": 4,
+        "fps": 12
+      }
+    },
+    "seal": {
+      "file": "res://art/fx/seal.png",
+      "cell": [
+        128,
+        128
+      ],
+      "anchor": [
+        64,
+        104
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 3,
+      "span": 112,
+      "at": "target",
+      "size": "band"
+    },
+    "seeker": {
+      "file": "res://art/fx/seeker.png",
+      "cell": [
+        192,
+        96
+      ],
+      "anchor": [
+        24,
+        48
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 2,
+      "span": 120,
+      "at": "chest",
+      "size": "band",
+      "bolt": {
+        "file": "res://art/fx/seeker_bolt.png",
+        "cell": [
+          96,
+          48
+        ],
+        "anchor": [
+          76,
+          24
+        ],
+        "frames": 4,
+        "fps": 12
+      }
+    },
+    "snare": {
+      "file": "res://art/fx/snare.png",
+      "cell": [
+        160,
+        112
+      ],
+      "anchor": [
+        80,
+        96
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 4,
+      "span": 120,
+      "at": "target",
+      "size": "band"
+    },
+    "strike": {
+      "file": "res://art/fx/strike.png",
+      "cell": [
+        128,
+        128
+      ],
+      "anchor": [
+        28,
+        68
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 3,
+      "span": 64,
+      "at": "chest",
+      "size": "band",
+      "fit": true
+    },
+    "swarm": {
+      "file": "res://art/fx/swarm.png",
+      "cell": [
+        192,
+        128
+      ],
+      "anchor": [
+        96,
+        60
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 3,
+      "span": 160,
+      "at": "chest",
+      "size": "band"
+    },
+    "sweep": {
+      "file": "res://art/fx/sweep.png",
+      "cell": [
+        192,
+        96
+      ],
+      "anchor": [
+        96,
+        72
+      ],
+      "frames": 8,
+      "fps": 12,
+      "impact": 3,
+      "span": 176,
+      "at": "feet",
+      "size": "reach"
+    },
+    "thrust": {
+      "file": "res://art/fx/thrust.png",
+      "cell": [
+        192,
+        64
+      ],
+      "anchor": [
+        8,
+        32
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 3,
+      "span": 176,
+      "at": "chest",
+      "size": "stretch"
+    },
+    "volley": {
+      "file": "res://art/fx/volley.png",
+      "cell": [
+        192,
+        96
+      ],
+      "anchor": [
+        20,
+        48
+      ],
+      "frames": 8,
+      "fps": 14,
+      "impact": 2,
+      "span": 120,
+      "at": "chest",
+      "size": "band",
+      "bolt": {
+        "file": "res://art/fx/volley_bolt.png",
+        "cell": [
+          96,
+          48
+        ],
+        "anchor": [
+          80,
+          24
+        ],
+        "frames": 4,
+        "fps": 12
+      }
+    },
+    "ward": {
+      "file": "res://art/fx/ward.png",
+      "cell": [
+        160,
+        160
+      ],
+      "anchor": [
+        80,
+        136
+      ],
+      "frames": 10,
+      "fps": 12,
+      "impact": 4,
+      "span": 136,
+      "at": "feet",
+      "size": "band"
+    },
+    "wave": {
+      "file": "res://art/fx/wave.png",
+      "cell": [
+        128,
+        96
+      ],
+      "anchor": [
+        64,
+        80
+      ],
+      "frames": 8,
+      "fps": 12,
+      "impact": 3,
+      "span": 80,
+      "at": "feet",
+      "size": "travel"
+    }
+  }
+}

@@ -497,6 +497,14 @@ green #6aa82c, Confucian ink-violet #4a5ab8.
 - **Poses**: every form uses an action in the catalog (§3.2); `data_validation` fails a row whose `action` is not in
   `parts.json` `_actions` (or `meditate_burst`). A technique adds FX, never a pose. Any future pose goes through
   `AGENTS.md`'s full review first.
+- **Animations** (decision 23, built): every form has a frame-by-frame effect sheet under `art/fx/` (drawn by
+  `tools/art/fx/build_fx.py`, described in `data/fx_art.json`: 24 forms, eleven element rows each at three richness
+  bands for the vfx tiers 1–2, 3–4 and 5–7, plus a projectile loop for Arc, Volley, Seeker and Return), and every
+  row carries `vfx.anim` (its form) and `vfx.pose` (the catalogue action the effect is timed to, or `combo_1` /
+  `combo_3` for the wielded family's step that `meditate_burst` and a null action resolve to), written by
+  `tools/data/technique_anim.py`. `World._cast` plays the sheet at the pose's hit frame, facing the cast, sized to the
+  hitbox, at the element's row and the tier's band; `data_validation` fails a row whose form is not built or whose
+  pose does not exist.
 
 ### 3.11 A worked example: one cell
 
@@ -1085,9 +1093,14 @@ manual is rolled like a named row (drop rate does not raise it) and kept only wh
 on the character. The tables of §5.7 remain design notes: the data keeps no hints. Not built: teaching a found single to
 another character at Dao tier 4 (decision 13), and a manual found twice as a gift for a disciple (it is a Manual Page).
 
+**Animations.** Every art carries its form's effect and pose (`vfx.anim`, `vfx.pose`: the technique animations of
+roadmap decision 23, `tools/data/technique_anim.py`); the form's layer gives the pose most of its families take. An art
+drawn from a keystone template plays its template's form: Constructs the Swarm, a Field the Domain, a Finisher the
+Pillar, a Procession the Chorus, an Avatar or a Mirror the Ward (as Golden Body and Phantom Double do).
+
 **Rows and loading.** Four default layers (form, ring, element, family); a row keeps only its own keys, a dictionary
 only the keys that differ, one level deep. ContentDB merges the layers two at a time with a memo per table and merges
-the row natively. `techniques.json` is 948 KB (306 B a row, against the 260 guessed in §7). In the headless test runner
+the row natively. `techniques.json` is 974 KB (307 B a row, against the 260 guessed in §7). In the headless test runner
 the 3,171 rows are read and filled in in about 105 ms and a v1.5-size fixture of 4,350 rows in about 160 ms, 55 of it
 the engine's own JSON parse; §7's +60 ms desktop budget is checked against that parse (filling in at most twice the
 parse), since the runner is slower than the reference.

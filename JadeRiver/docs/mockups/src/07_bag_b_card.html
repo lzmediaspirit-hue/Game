@@ -1,0 +1,42 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>07 Bag, concept B: the card on a gear piece</title>
+<meta name="mockup-check" content=".tok, .worn, .k-pill, .k-btn, .k-btn2, .k-close, .space, .field, .card">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="bag_b.css">
+<script src="bag_data.js"></script>
+<script src="bag_b.js"></script>
+</head>
+<body><div class="k-screen">
+<!-- The Lanternsteel Jian tapped (Superior, rolled twice): its card opens beside it and the worn Sunsteel Jian is
+     ringed on the orbit. Numbers: what equipping it does to Tester's own totals at ls6_end (the build's StatRules,
+     measured on a copy of the checkpoint), and the two rolls as UiKit.affix_text writes them. -->
+<div class="card" data-ov-float style="left:578px;top:322px;width:308px">
+  <div class="pt" style="right:-8px;top:112px"></div>
+  <div class="hd"><img class="ic ic-32" src="../../../art/icons/equipment/lanternsteel_jian@32.png">
+    <div><div class="nm" style="color:var(--q-superior)">Lanternsteel Jian</div>
+      <div class="sub"><span style="color:var(--q-superior)">Superior</span> · <span style="color:var(--g-will)">Will</span> · Jian · iLv <span class="t-fig">98</span></div></div></div>
+  <div class="rule"></div>
+  <div class="lb">Against your Sunsteel Jian</div>
+  <div class="cmp">
+    <span class="k">Soul attack</span><span class="v">148,711</span><span class="up"><span class="t-sym">▲</span> 72,883</span>
+    <span class="k">Qi attack</span><span class="v">95,148</span><span class="up"><span class="t-sym">▲</span> 46,677</span>
+    <span class="k">Physical attack</span><span class="v">58,079</span><span class="up"><span class="t-sym">▲</span> 26,451</span>
+    <span class="k">Combat Power</span><span class="v">92,554</span><span class="up"><span class="t-sym">▲</span> 19,363</span>
+  </div>
+  <div class="note" style="color:var(--pale-gold)">Rolled: +7% soul attack · +7% qi attack</div>
+  <div class="row">
+    <div class="k-btn" style="flex:1;height:48px;font-size:20px">Equip</div>
+    <div class="k-btn2" style="width:112px;height:48px;font-size:16px;padding:0 8px">Set as spare</div>
+    <div class="k-btn2" style="width:48px;height:48px;padding:0;font-size:20px">···</div>
+  </div>
+</div>
+</div>
+<script>
+buildPageB({cp: "ls6_end", fig: "fig_tester_ls6_idle.png", subtitle: "The heaven inside your Sunsteel Gourd",
+  purses: [["hud/coin", "55,955"], ["hud/spirit_stone", "6,497"], ["items/sage_crystal", "1,231"]],
+  sky: {seed: 11, stars: 460, shafts: true, islands: [[190, 598, 200, 0], [330, 118, 78, 0.65], [58, 668, 88, 0.5],
+    [1086, 708, 96, 0.55], [1206, 664, 120, 0.3], [1258, 330, 60, 0.8]]},
+  locked: 5, rows: 5, sel: 36, glow: "weapon",
+  spaceLine: 'a Driftglass Gourd holds <span class="t-fig">60</span>: five more spaces, a wider sky'});
+</script>
+</body></html>

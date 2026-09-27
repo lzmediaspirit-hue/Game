@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>07 Bag, concept B: the card on a pill</title>
+<meta name="mockup-check" content=".tok, .worn, .k-pill, .k-btn, .k-btn2, .k-close, .space, .field, .card">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="bag_b.css">
+<script src="bag_data.js"></script>
+<script src="bag_b.js"></script>
+</head>
+<body><div class="k-screen">
+<!-- The Healing Pills tapped (6 carried): the card opens below them. What it does is the item's own line; toxicity is
+     the pill's (Tester carries none at ls6_end); quick-use holds Herbal Tea and none is left, so the card says so
+     beside Quick-use, the one tap that fixes it. -->
+<div class="card" data-ov-float style="left:908px;top:252px;width:308px">
+  <div class="pt" style="left:262px;top:-8px;box-shadow:-1.5px -1.5px 0 0 rgba(103,214,189,.65)"></div>
+  <div class="hd"><img class="ic ic-32" src="../../../art/icons/items/healing_pill@32.png">
+    <div><div class="nm c-paper">Healing Pill <span class="t-fig c-mist" style="font-size:16px">×6</span></div>
+      <div class="sub">Common · Pill · iLv <span class="t-fig">14</span></div></div></div>
+  <div class="rule"></div>
+  <div class="fx">Cures a minor body injury and restores <span class="t-fig">30%</span> HP over <span class="t-fig">5</span> s.</div>
+  <div class="note">Toxicity <span class="t-fig" style="color:#e87070">5</span> a pill · yours is <span class="t-fig">0</span> now</div>
+  <div class="note">Quick-use holds Herbal Tea: <span class="c-orange">none left</span></div>
+  <div class="row">
+    <div class="k-btn" style="flex:1;height:48px;font-size:20px">Use</div>
+    <div class="k-btn2" style="width:112px;height:48px;font-size:16px;padding:0 8px">Quick-use</div>
+    <div class="k-btn2" style="width:48px;height:48px;padding:0;font-size:20px">···</div>
+  </div>
+</div>
+</div>
+<script>
+buildPageB({cp: "ls6_end", fig: "fig_tester_ls6_idle.png", subtitle: "The heaven inside your Sunsteel Gourd",
+  purses: [["hud/coin", "55,955"], ["hud/spirit_stone", "6,497"], ["items/sage_crystal", "1,231"]],
+  sky: {seed: 11, stars: 460, shafts: true, islands: [[190, 598, 200, 0], [330, 118, 78, 0.65], [58, 668, 88, 0.5],
+    [1086, 708, 96, 0.55], [1206, 664, 120, 0.3], [1258, 330, 60, 0.8]]},
+  locked: 5, rows: 5, sel: 9,
+  spaceLine: 'a Driftglass Gourd holds <span class="t-fig">60</span>: five more spaces, a wider sky'});
+</script>
+</body></html>

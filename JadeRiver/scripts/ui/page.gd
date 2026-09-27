@@ -16,7 +16,8 @@ const SLOT := 76.0
 ## The small slot, for an item named in a list row: a 32 px icon (an HD icon's native 32, a legacy one at 1x).
 const SLOT_SMALL := 44.0
 ## The spacing grid (P4, docs/ui_style_guide.md §2): positions and sizes in steps of 8, the half step 4 inside a dense
-## component. Every window stays inside SAFE_AREA and is one of the standard six.
+## component. Every window stays inside SAFE_AREA and is one of the standard six, but for the one painting that fills the
+## screen (WINDOW_SCREEN, the world map of decision 25), whose frame is the screen's edge.
 const GRID := 8.0
 const SAFE_AREA := Rect2(48, 24, 1184, 672)
 const WINDOW_FULL := Rect2(64, 32, 1152, 656)
@@ -25,7 +26,8 @@ const WINDOW_MEDIUM := Rect2(256, 72, 768, 576)
 const WINDOW_SMALL := Rect2(288, 152, 704, 416)
 const WINDOW_CONFIRM := Rect2(384, 248, 512, 224)
 const WINDOW_DIALOGUE := Rect2(48, 464, 1184, 232)
-const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE]
+const WINDOW_SCREEN := Rect2(0, 0, 1280, 720)
+const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE, WINDOW_SCREEN]
 ## Content insets (the HD window's nine-slice margin at the sides), the title band and the tab row.
 const INSET := 32.0
 const TOP := 80.0
@@ -46,6 +48,29 @@ const BTN_H := 48.0
 const BTN_H_STANDARD := 56.0
 const BTN_H_MAIN := 64.0
 
+## P5 page identity (docs/page_identity.md §8). A page that is a thing from the world declares it in `_init`; Page then
+## draws the page's own surface (draw_surface) in place of the shared window, its title on the page's own mount
+## (draw_title_mount at title_rect) and its tabs in the page's own form (tab_rects, draw_tab), lays its content out in
+## content_rect, and plays its opening (unfold). Whatever the identity, Page keeps the shared parts: the dimmed world,
+## the close button at the window's top right, Esc and a tap outside, primary buttons with inked labels and the inked
+## title lettering, the text tokens, the type scale, the 48 px targets, the confirm dialog and the toast. A page with
+## no identity keeps the shared major_window, plaque and tabs as they were.
+class Identity:
+	var surface: String      ## the SURFACE key of the page's material: the ground under its words where it names none
+	var framed: bool         ## true: the shared major_window stays round the surface; false: the surface is the window
+	var title_mount: String  ## "plaque", the shared title plaque; "own", the page's mount (draw_title_mount)
+	var signature: String    ## the layout signature of docs/page_identity.md §3 as an id; no two pages share one
+	var open_s: float        ## the opening motion's length, at most OPEN_MOTION_MAX
+	func _init(surface_key: String, framed_: bool, mount: String, signature_: String, open_s_ := 0.25) -> void:
+		surface = surface_key
+		framed = framed_
+		title_mount = mount
+		signature = signature_
+		open_s = open_s_
+
+## page_identity §6: an opening lasts 0.35 s at most, and a tap during it finishes it.
+const OPEN_MOTION_MAX := 0.35
+
 var page_id := ""
 var title := ""
 var tabs: Array = []            # [{id, label, locked?: text}]
@@ -53,9 +78,12 @@ var tab := 0
 var args: Dictionary = {}
 var modal := false              # small centred dialog instead of the full window
 var frameless := false          # shell screens draw their own layout over the backdrop
+var identity: Identity = null   # P5: the page's own identity, or null for the shared window
+var grade_rims := false         # P5: slots ring every item in its grade's colour and mark a quality with a gem
 var frame_rect := WINDOW_FULL
 var content := Rect2()
 var t := 0.0
+var opened := 0.0               # seconds since the page opened (a tap sets it past the opening)
 var toast := ""
 var toast_t := 0.0
 var confirm: Dictionary = {}    # {text, id, data, danger}
@@ -99,15 +127,33 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 	on_event(name, p)
 
 func _layout() -> void:
+	content = content_rect()
+
+## The content area: inside the shared window, under the title and the tabs. A page with its own surface gives its own.
+func content_rect() -> Rect2:
 	var top := TOP if title != "" else TOP_BARE
 	if not tabs.is_empty(): top += TAB_H + TAB_GAP
-	content = Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
+	return Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
 
 func _process(delta: float) -> void:
 	t += delta
+	opened += delta
+	if identity != null: modulate.a = _open_alpha()
 	if toast_t > 0.0:
 		toast_t -= delta
 	queue_redraw()
+
+## How far the page's opening has run, 0 to 1 over `dur` s (the identity's open_s by default), eased out: a page moves
+## its parts by (1 - unfold()). Under Reduce motion nothing moves, so it is 1 from the first frame and the page only
+## fades in (docs/moments_design.md §4.6); a tap sets it to 1 (page_identity §6).
+func unfold(dur := -1.0) -> float:
+	if identity == null or UiKit.reduce_motion(): return 1.0
+	var k := clampf(opened / maxf(0.01, dur if dur > 0.0 else identity.open_s), 0.0, 1.0)
+	return 1.0 - pow(1.0 - k, 3.0)
+
+## The page's alpha while it opens: over its opening, or over MOTION_FADE_S under Reduce motion.
+func _open_alpha() -> float:
+	return clampf(opened / maxf(0.01, UiKit.MOTION_FADE_S if UiKit.reduce_motion() else identity.open_s), 0.0, 1.0)
 
 func c():
 	return Game.active()
@@ -142,11 +188,19 @@ func _draw() -> void:
 		return
 	# Dim the play screen behind the page.
 	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.DIM, 0.55 if modal else 0.72))
-	draw_style_box(UiKit.style("major_window"), frame_rect)
+	if identity == null or identity.framed: draw_style_box(UiKit.style("major_window"), frame_rect)
+	if identity != null: draw_surface(frame_rect)
 	if title != "":
-		var plaque := Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
-		draw_style_box(UiKit.style("title_plaque"), plaque)
-		UiKit.draw_inked(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
+		var mount := title_rect()
+		if identity == null or identity.title_mount == "plaque":
+			draw_style_box(UiKit.style("title_plaque"), mount)
+			UiKit.draw_inked(self, title, mount.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, mount.size.x, true)
+		else:
+			# The page's own mount under the shared lettering: the title inked, stepping down the display scale to fit.
+			draw_title_mount(mount)
+			var ts := UiKit.D_TITLE
+			while ts > UiKit.D_SUB and UiKit.text_width(title, ts, true) > mount.size.x - 24: ts -= 4
+			inked(mount.position + Vector2(0, mount.size.y * 0.5 + ts * 0.42), title, ts, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, mount.size.x)
 	var close_rect := Rect2(frame_rect.end.x - 72, frame_rect.position.y + 16, 52, 52)
 	_register(close_rect, "_close", null, true, "", "button")
 	draw_style_box(UiKit.style("close_button", "pressed" if _is_pressed("_close") else "normal"), close_rect)
@@ -170,23 +224,95 @@ func _draw_x(center: Vector2, r: float, col: Color) -> void:
 	draw_line(center - Vector2(r, -r), center + Vector2(r, -r), col, 3)
 
 func _draw_tabs() -> void:
-	var x := frame_rect.position.x + INSET
-	var y := frame_rect.position.y + (TOP if title != "" else TOP_BARE)
+	var rects := tab_rects()
 	for i in tabs.size():
 		var tb: Dictionary = tabs[i]
-		var w := maxf(TAB_MIN_W, UiKit.text_width(str(tb.label), 20) + 40)
-		var r := Rect2(x, y, w, TAB_H)
+		var r: Rect2 = rects[i]
 		var locked := str(tb.get("locked", "")) != ""
-		draw_style_box(UiKit.style("tab", "selected" if i == tab else ("disabled" if locked else "normal")), r)
-		UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 31), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
-			HORIZONTAL_ALIGNMENT_CENTER, w)
-		if locked: _lock_icon(r.position + Vector2(w - 16, 8))
+		var state := "selected" if i == tab else ("disabled" if locked else "normal")
+		if identity == null:
+			draw_style_box(UiKit.style("tab", state), r)
+			UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 31), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
+				HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+		else:
+			draw_tab(r, i, state)
+		if locked: _lock_icon(r.position + Vector2(r.size.x - 16, 8))
 		_register(r, "_tab", i, not locked, str(tb.get("locked", "")), "button")
-		x += w + TAB_GAP
 
-func _lock_icon(p: Vector2) -> void:
-	draw_rect(Rect2(p + Vector2(0, 6), Vector2(12, 9)), UiKit.BRONZE)
-	draw_arc(p + Vector2(6, 6), 4, PI, TAU, 8, UiKit.BRONZE, 2)
+# ------------------------------------------------------------------ P5: what a page with its own identity overrides
+## Where the tabs sit: a row under the title, each as wide as its label (TAB_MIN_W at least) and TAB_H tall.
+func tab_rects() -> Array:
+	var out: Array = []
+	var x := frame_rect.position.x + INSET
+	for tb in tabs:
+		var w := maxf(TAB_MIN_W, UiKit.text_width(str(tb.label), 20) + 40)
+		out.append(Rect2(x, frame_rect.position.y + (TOP if title != "" else TOP_BARE), w, TAB_H))
+		x += w + TAB_GAP
+	return out
+
+## A tab in the page's own form (state: normal, selected or disabled). Page keeps its target, lock and reason.
+func draw_tab(r: Rect2, i: int, state: String) -> void:
+	draw_style_box(UiKit.style("tab", state), r)
+	text(r.position + Vector2(0, 31), str(tabs[i].label), 20, UiKit.PALE_GOLD if state == "selected" else (UiKit.HOLLOW if state == "disabled" else UiKit.PAPER),
+		HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+
+## The page's own material inside the window rect `r`: by default a flat fill of the identity's SURFACE colour.
+func draw_surface(r: Rect2) -> void:
+	draw_rect(r, UiKit.SURFACE[identity.surface])
+	ground(r, UiKit.SURFACE[identity.surface])
+
+## Where the title's mount sits: the shared plaque centred at the window's top.
+func title_rect() -> Rect2:
+	return Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
+
+## The page's own mount for the title (the lettering is Page's, inked).
+func draw_title_mount(r: Rect2) -> void:
+	face(r, "title_plaque")
+
+## The colour under the words drawn inside `rect` from here on: the lightest tone of the surface there. A page with its
+## own surface names each ground as it draws it, and the ui_suite measures every word on the ground it sits on.
+func ground(rect: Rect2, col: Color) -> void:
+	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "ground": col})
+
+## A face from the HD kit that words sit on (a tag, a plaque): drawn, and named as their ground (`asset:state`).
+func face(rect: Rect2, asset: String, state := "normal") -> void:
+	draw_style_box(UiKit.style(asset, state), rect)
+	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "ground": "%s:%s" % [asset, state]})
+
+static var _rounds: Dictionary = {}
+static var _glows: Dictionary = {}
+
+## A filled rounded rectangle with anti-aliased corners (a surface's rim, a slip), cached per radius and colour.
+func rounded(rect: Rect2, radius: float, col: Color) -> void:
+	var key := "%d|%s" % [int(radius), col.to_html()]
+	if not _rounds.has(key):
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = col
+		sb.set_corner_radius_all(int(radius))
+		sb.anti_aliasing = true
+		_rounds[key] = sb
+	draw_style_box(_rounds[key], rect)
+
+## A soft radial glow of `col` fading out to the rect's edge (an ellipse in a wide rect): a lit centre, a dais, a shadow.
+func glow(rect: Rect2, col: Color) -> void:
+	var key := col.to_html()
+	if not _glows.has(key):
+		var g := Gradient.new()
+		g.set_color(0, col)
+		g.set_color(1, Color(col, 0.0))
+		var tex := GradientTexture2D.new()
+		tex.gradient = g
+		tex.fill = GradientTexture2D.FILL_RADIAL
+		tex.fill_from = Vector2(0.5, 0.5)
+		tex.fill_to = Vector2(0.5, 0.0)
+		tex.width = 128
+		tex.height = 128
+		_glows[key] = tex
+	draw_texture_rect(_glows[key], rect, false)
+
+func _lock_icon(p: Vector2, k := 1.0) -> void:
+	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
+	draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)
 
 ## Button: registers a tap region. Disabled buttons still answer taps with their reason.
 func btn(rect: Rect2, label: String, id: String, data = null, primary := false, enabled := true, reason := "", size := 22) -> void:
@@ -207,7 +333,7 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	# Decision 10 (option C): a primary label, in every state, carries a 2 px ink outline on the bright jade face.
 	if primary: UiKit.draw_inked(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 	else: UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
-	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
+	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect, col, primary)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
 
@@ -242,25 +368,50 @@ var _prev_regions: Array = []
 func text(pos: Vector2, s: String, size := 20, col := UiKit.PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, display := false) -> void:
 	if width > 0.0: s = fit(s, size, width, display)
 	UiKit.draw_text(self, s, pos, size, col, align, width, true, display)
-	if text_log != null: _log_text(pos, s, size, align, width, display)
+	if text_log != null: _log_text(pos, s, size, align, width, display, Rect2(), col)
 
 ## A title on the plaque (decision 10): the words with a 2 px ink outline (UiKit.draw_inked), shortened to `width`.
 func inked(pos: Vector2, s: String, size: int, col := UiKit.PALE_GOLD, align := HORIZONTAL_ALIGNMENT_CENTER, width := -1.0, display := true) -> void:
 	if width > 0.0: s = fit(s, size, width, display)
 	UiKit.draw_inked(self, s, pos, size, col, align, width, display)
-	if text_log != null: _log_text(pos, s, size, align, width, display)
+	if text_log != null: _log_text(pos, s, size, align, width, display, Rect2(), col, true)
+
+## Words in several colours wrapped to `rect`'s width, `runs` [[text, Color], ...] (a lead phrase and its line, an
+## item's quality, grade and kind), each line from the left or `centred`. Words past the rect's foot are not drawn.
+## Returns the height used.
+func rich(rect: Rect2, runs: Array, size := 18, centred := false) -> float:
+	var lh := UiKit.line_height(size)
+	var gap := UiKit.text_width("a b", size) - UiKit.text_width("ab", size)
+	var lines: Array = [[]]   # each line's words: [word, colour, x from the line's start, width]
+	var x := 0.0
+	for run in runs:
+		for w in str(run[0]).split(" ", false):
+			var ww := UiKit.text_width(w, size)
+			if x > 0.0 and x + ww > rect.size.x:
+				lines.append([])
+				x = 0.0
+			lines[-1].append([w, run[1], x, ww])
+			x += ww + gap
+	for i in lines.size():
+		var y := rect.position.y + size * UiKit.text_scale() + i * lh
+		if y > rect.end.y + 2: return i * lh
+		var ln: Array = lines[i]
+		var shift := (rect.size.x - float(ln[-1][2]) - float(ln[-1][3])) * 0.5 if centred and not ln.is_empty() else 0.0
+		for w in ln: text(Vector2(rect.position.x + shift + float(w[2]), y), w[0], size, w[1])
+	return lines.size() * lh
 
 ## The ui_suite's record of the words a page drew, [{rect, s}]; null (off) in play.
 var text_log = null
 
-func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, display: bool, button := Rect2()) -> void:
+func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, display: bool, button := Rect2(), col := Color.TRANSPARENT, outlined := false) -> void:
 	var w := UiKit.text_width(s, size, display)
 	var px := float(UiKit.size_for(s, size, display))
 	var x := pos.x
 	if width > 0.0 and align == HORIZONTAL_ALIGNMENT_CENTER: x += (width - w) * 0.5
 	elif width > 0.0 and align == HORIZONTAL_ALIGNMENT_RIGHT: x += width - w
-	# P4: the size asked for, so the ui_suite can hold every word to the type scale.
-	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button, "size": size, "display": display})
+	# P4: the size asked for, so the ui_suite can hold every word to the type scale; P5: the colour, and whether it is
+	# outlined in ink (measured on INK), so it can measure each word on its ground.
+	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button, "size": size, "display": display, "col": col, "outlined": outlined})
 
 ## `s` shortened with an ellipsis so it fits `width` at `size` (UiKit.fit).
 func fit(s: String, size: int, width: float, display := false) -> String:
@@ -272,12 +423,12 @@ func heading(pos: Vector2, s: String, width := 400.0) -> void:
 	if UiKit.text_width(s, size, true) > width: size = 22
 	s = fit(s, size, width, true)
 	UiKit.draw_text(self, s, pos, size, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
-	if text_log != null: _log_text(pos, s, size, HORIZONTAL_ALIGNMENT_LEFT, width, true)
+	if text_log != null: _log_text(pos, s, size, HORIZONTAL_ALIGNMENT_LEFT, width, true, Rect2(), UiKit.GOLD)
 	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, size, true) + 30), 8), UiKit.BRONZE, 2)
 
 ## Word-wrapped paragraph. Returns the height used.
-func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -1) -> float:
-	var lines := _wrap(s, size, rect.size.x)
+func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -1, display := false) -> float:
+	var lines := _wrap(s, size, rect.size.x, display)
 	var lh := UiKit.line_height(size)
 	var y := rect.position.y + size * UiKit.text_scale()
 	var n := 0
@@ -287,20 +438,20 @@ func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -
 		var ln := str(lines[i])
 		# B18: a paragraph cut short by its line count or its height ends its last line with an ellipsis.
 		var cut := (max_lines > 0 and n + 1 >= max_lines) or y + lh > rect.end.y + 2
-		if cut and lines.slice(i + 1).any(func(rest): return str(rest).strip_edges() != ""): ln = fit(ln + "…", size, rect.size.x)
-		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, col)
-		if text_log != null: _log_text(Vector2(rect.position.x, y), ln, size, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+		if cut and lines.slice(i + 1).any(func(rest): return str(rest).strip_edges() != ""): ln = fit(ln + "…", size, rect.size.x, display)
+		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, col, HORIZONTAL_ALIGNMENT_LEFT, -1.0, true, display)
+		if text_log != null: _log_text(Vector2(rect.position.x, y), ln, size, HORIZONTAL_ALIGNMENT_LEFT, -1.0, display, Rect2(), col)
 		y += lh
 		n += 1
 	return n * lh
 
-func _wrap(s: String, size: int, width: float) -> Array:
+func _wrap(s: String, size: int, width: float, display := false) -> Array:
 	var out: Array = []
 	for raw in s.split("\n"):
 		var cur := ""
 		for w in raw.split(" "):
 			var cand := w if cur == "" else cur + " " + w
-			if UiKit.text_width(cand, size) > width and cur != "":
+			if UiKit.text_width(cand, size, display) > width and cur != "":
 				out.append(cur)
 				cur = w
 			else:
@@ -319,11 +470,11 @@ func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), 2)), col.lightened(0.35))
 	if label != "":
 		UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 6), BAR_LABEL, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
-		if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + 6), label, BAR_LABEL, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
+		if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + 6), label, BAR_LABEL, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect, UiKit.PAPER, true)
 
 func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
-	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "panel": true})
+	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "panel": true, "ground": "%s:%s" % [asset, state]})
 
 ## Item slot with icon, count, quality edge and state overlays. Use SLOT (a 64 px icon) or SLOT_SMALL (32): the icon
 ## is drawn at a whole-number scale in the 6 px inset, so another size only adds margin round it.
@@ -336,13 +487,26 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 		if SpriteCache.draw_icon(self, inner, item_id) == Rect2():
 			draw_rect(inner, UiKit.DEEP_TEAL)
 			text(inner.position + Vector2(0, inner.size.y * 0.6), ContentDB.item_name(item_id).left(3), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x)
-		if quality != "" and quality != "plain" and quality != "common":
+		var graded := quality != "" and quality != "plain" and quality != "common"
+		if grade_rims:
+			# P5 (mockups 07, 09 v2): every item wears its grade on the rim, so a full grid sorts itself by eye; a rolled
+			# quality is a gem in the corner (a pill keeps its glow and mark).
+			draw_rect(rect.grow(-3), UiKit.grade_color(str(ContentDB.item(item_id).get("grade", "plain"))), false, 2)
+			if graded and not quality.begins_with("pill_"): _gem(rect.position + Vector2(11, 11), UiKit.quality_color(quality))
+		elif graded:
 			draw_rect(rect.grow(-3), UiKit.quality_color(quality), false, 2)
 		if count > 1:
 			UiKit.draw_outlined(self, str(count), rect.end - Vector2(rect.size.x, 5), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 5)
-		if locked: _lock_icon(rect.position + Vector2(4, 4))
+		if locked: _lock_icon(rect.position + (Vector2(5, rect.size.y - 21) if grade_rims else Vector2(4, 4)))
 	if selected: draw_style_box(UiKit.style("selected_slot_glow"), rect.grow(4))
 	if id != "": region(rect, id, data)
+
+## A quality gem: a small diamond in the quality's colour with an ink edge.
+func _gem(c: Vector2, col: Color) -> void:
+	for layer in [[7.5, UiKit.INK], [5.5, col]]:
+		var r: float = layer[0]
+		draw_colored_polygon(PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)]), layer[1])
+	draw_circle(c + Vector2(-1.5, -1.5), 1.2, Color(UiKit.PAPER, 0.8))
 
 ## Pill marks (G1): one short gold line per mark along the slot's foot, 0-9.
 func pill_marks(rect: Rect2, marks: int) -> void:
@@ -472,6 +636,7 @@ func _gui_input(event: InputEvent) -> void:
 			return
 		if event.button_index != MOUSE_BUTTON_LEFT: return
 		if event.pressed:
+			opened = maxf(opened, OPEN_MOTION_MAX)   # a tap finishes the opening (page_identity §6 rule 1)
 			_pressed = _hit(event.position)
 			_press_pos = event.position
 			_dragged = false

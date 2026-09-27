@@ -44,18 +44,18 @@ func run():
 	drag(1,Vector2(276,530))
 	await process_frame
 	check(main.world.player.movement.x>0.9,"Viewport maps joystick drag")
-	touch(2,Vector2(933,640),true)
+	touch(2,Vector2(1051,671),true)
 	await process_frame
 	check(main.world.player.surface==null,"Viewport maps simultaneous jump touch")
-	touch(2,Vector2(933,640),false)
+	touch(2,Vector2(1051,671),false)
 	touch(1,Vector2(276,530),false)
 	await process_frame
 	check(main.world.player.movement==Vector2.ZERO,"Viewport forwards release")
-	touch(3,Vector2(1036,634),true)
-	drag(3,Vector2(1036,560))
+	touch(3,Vector2(1033,605),true)
+	drag(3,Vector2(1033,531))
 	await process_frame
 	check(main.hud.skill_page==1,"Viewport maps skill swipe")
-	touch(3,Vector2(1036,560),false)
+	touch(3,Vector2(1033,531),false)
 	check(stage.get_node("GameViewport").size==Vector2i(1280,720),"Native render target preserves artwork and UI detail")
 	root.go_back_requested.emit()
 	await process_frame

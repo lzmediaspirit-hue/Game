@@ -469,6 +469,40 @@ static func combat_power(c) -> int:
 		+ defences / float(cp_conf.get("defence_div", 4))
 	return int(round(cp))
 
+## P5 (the Bag's card, decision 24): what wearing `inst` in `slot`, in place of the piece worn there, would make of `c`'s
+## own totals. Both sides are `rebuild` on a scratch copy of the character, so `c` is never touched and the numbers are
+## the ones the Character page shows. Every stat of stats.json that changes, as {stat, before, after, whole}: the
+## whole-number stats first, each group by the size of its change; Combat Power last, as "combat_power".
+static func equip_change(c, slot: String, inst) -> Array:
+	var was := _wearing(c, slot, c.inventory.equipped.get(slot))
+	var now := _wearing(c, slot, inst)
+	var rows: Array = []
+	for s in ContentDB.stat_const("stats", []):
+		var id := str(s.id)
+		if absf(float(now[id]) - float(was[id])) > 0.0005:
+			rows.append({"stat": id, "before": float(was[id]), "after": float(now[id]), "whole": str(s.get("format", "")) == "int"})
+	rows.sort_custom(func(a, b): return a.whole if a.whole != b.whole else absf(a.after - a.before) > absf(b.after - b.before))
+	rows.append({"stat": "combat_power", "before": float(was.combat_power), "after": float(now.combat_power), "whole": true})
+	return rows
+
+## `c`'s totals (every stat, and "combat_power") with `inst` worn in `slot`: `rebuild` on a scratch character that shares
+## `c`'s sources and has its own stat block, pools and worn pieces.
+static func _wearing(c, slot: String, inst) -> Dictionary:
+	var s = c.get_script().new()
+	for p in c.get_property_list():
+		if p.usage & PROPERTY_USAGE_SCRIPT_VARIABLE: s.set(p.name, c.get(p.name))
+	for m in c.get_meta_list(): s.set_meta(m, c.get_meta(m))
+	s.stats = StatBlock.new()
+	s.stats.modifiers = c.stats.modifiers.duplicate(true)
+	s.pools = ResourcePool.new()
+	s.inventory = InventoryState.new()
+	s.inventory.equipped = c.inventory.equipped.duplicate()
+	s.inventory.equipped[slot] = inst
+	rebuild(s)
+	var out := {"combat_power": combat_power(s)}
+	for st in ContentDB.stat_const("stats", []): out[str(st.id)] = s.stats.value(str(st.id))
+	return out
+
 ## Monster stat templates by Level and role (S13).
 static func mob_stats(def: Dictionary, lv: int, elite := false) -> Dictionary:
 	var mob: Dictionary = ContentDB.stat_const("mob", {})

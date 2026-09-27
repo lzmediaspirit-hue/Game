@@ -13,6 +13,9 @@ var state: Dictionary = {"open": true, "text": ""}
 var wall_y := INF      # an interior door stands on the back wall's foot, this far above `at`
 var door_top := -96.0  # where the arrow and plate sit
 var label_dx := 0.0    # a way at the room's edge names itself a little inside, not half off-screen
+## P5a (G4): the plate's box (local, at no offset) and the offset in whole rows the world's label pass gives it.
+var label_box := Rect2()
+var label_offset := Vector2.ZERO
 
 func setup(p: Dictionary, room_def: Dictionary = {}) -> void:
 	def = p
@@ -65,11 +68,13 @@ func _draw_arrow(p: Vector2, bob: float) -> void:
 
 func _draw_label(type: String) -> void:
 	var label := str(state.text)
+	label_box = Rect2()
 	if label == "" or (not state.open and not near): return
 	var y := (door_top - 30.0) if type == "door" else -150.0
 	var col := UiKit.PALE_GOLD if state.open else UiKit.MIST
 	if not near: col = Color(col, 0.82)
 	var size := 19 if near else 17
 	draw_set_transform(Vector2(label_dx, 0))
-	UiKit.draw_nameplate(self, ("▲ " if state.open and near else "") + label, "", y, col, UiKit.MIST, size)
+	var plate := UiKit.draw_nameplate(self, ("▲ " if state.open and near else "") + label, "", y + label_offset.y, col, UiKit.MIST, size)
+	label_box = Rect2(plate.position + Vector2(label_dx, -label_offset.y), plate.size)
 	draw_set_transform(Vector2.ZERO)

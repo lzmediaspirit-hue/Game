@@ -186,7 +186,16 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - armour (HD): a piece's row in `data/artifacts.json` (slot, grade, `appearance`, `dye`) picks its template (robe,
      trousers, boots, `HATS`) and the cloth the figure wears (palette `dye_*`); the grade's trim, fittings, plates, gem,
      mark and glow are `kit_hd` (`TRIM`, `WORK`) on `palette.kit`; a spirit gourd is a `GOURDS` row.
-   - fish: `fish(...)` parameters.
+   - fish (HD): a row in `FISH_HD` (id, grade, aura colour, drawing) on `fish_hd(p, g, ...)`, the side-view template
+     (body profile, fins with their rays, `scales_hd`, the eye, a species pattern) in a `fish.Axis` body frame; the
+     eel has its own body. The grade's stringer loop at the jaw is `beast_parts.loop_hd` on `GRADE_HD`.
+   - insects (HD): a row in `INSECTS_HD` on the `fish.Axis` frame with the `legs_hd`, `antennae_hd`, `eye_hd` and
+     `segments_hd` helpers; the grade's thread round the waist is `tie_hd`, a part's own light `halo_hd`.
+   - critters (HD): a row in `CRITTERS_HD`: a body from `spine_hd` (discs along a spine) with `beast_parts.fur_hd`,
+     `eye_hd`, `nose_hd`, `whiskers_hd` and `toes_hd`; the grade's cord at the neck is `collar_hd`.
+   - food (HD): a row in `FOOD_HD` (id, grade, drawing) on the vessels `cup_hd`, `bowl_hd`, `plate_hd` and `pot_hd`
+     in the grade's ware (`WARE_HD`: body, trim and aura), with `steam_hd` and `gloss_hd`; the roast fish is
+     `fish.fish_hd`.
    - beast parts (HD): a row in `PARTS_HD` (id, grade, aura colour, drawing) on the kind templates `hide_hd`,
      `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`; the grade's trim
      comes from `GRADE_HD`, the pet gear ladders from `PET_GEAR_HD` on the grade kits.
@@ -197,6 +206,27 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
      `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
      `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
+   - treasures (HD): a row in `TREASURES_HD` (id, group, drawing) on the shared builders `bell_hd` (an upright bell),
+     `ding_hd` (a three-legged vessel), `talisman_hd`, `flame_hd` and `dish_hd`; a furnace is a `FURNACES_HD` row
+     (id, grade, look) on `furnace_hd`, which takes the grade's kit and the weapons' `work_hd`; a Heavenly Flame a
+     `FLAMES_HD` row (grade and its three colours).
+   - legends (HD): a piece is read from `data/legends.py` CHAINS; give its id a template in `PIECES_HD` (the piece
+     kinds: hilt, blade, heart, spearhead, shaft, tassel, sheath, cap, knot, guard, rib, silk, pin, mouthpiece, flute
+     body, limb, string, sight, knuckle, cuff), drawn on the weapons' builders with `chain_kit` (the chain's tint as
+     the material, silk and gem; `broken_hd` for a jagged break).
+   - qi jades (HD): a cut stone is `cut_hd(outline, material, table, bezel)`; a ward is `bi_hd` (the disc) with its
+     sign through `sign_hd`.
+   - workshop (HD): a bound book is `book_hd(cover, emblem, torn, stain)`, a scroll `manual_hd(element, tie, paper,
+     stained)`, both taking a mark from `EMBLEMS_HD` (earth, wood, fire, water, wind, reed, paw); an array plate
+     `array_plate_hd(kind)`; the trinkets use `jades.bi_hd` and the curio `treasures.ding_hd`.
+   - tools (HD): a ladder tool is its builder (`pick_hd`, `sickle_hd`, `rod_hd`, `net_hd`, `snare_hd`) at a tier on
+     `TK(tier)` (the tier's head metal over the weapons' kit, `TIER_GRADE` / `TIER_HEAD`; the rods' and nets' own
+     materials in `ROD_HD` / `NET_HD`, the snares' in `SNARE_HD`); a talisman is `strip_hd` with its glyph from
+     `TALISMAN_GLYPHS` and `seal_hd`; an offering is a dish from `minerals.es_dish_hd`. Every icon is a `TOOLS_HD` row.
+   - misc (HD): a row in `MISC_HD_A` / `MISC_HD_B` on the kind templates `page_hd`, `scroll_hd` + `tag_hd`,
+     `hand_scroll_hd`, `token_hd`, `book_hd`, `bag_hd`, `egg_hd`, `bowl_hd` + `sticks_hd` + `smoke_hd`; the beast bags
+     are `BEAST_BAGS_HD` rows, the hour incense `HOUR_HD` rows (the hours as `digits_hd`), the rite tablets `RITE_HD`
+     rows; the sun seal is `sun_seal_hd`, a chart `star_chart_hd`, an elder's token `elder_token_hd` with its face.
    - status icons and markers: add an ASCII block, using `asciiart.KEY`
      colours.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The

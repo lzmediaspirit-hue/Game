@@ -9,13 +9,18 @@ const ARRAY_COLOURS := {"guard": Color("8aebee"), "killing": Color("e45858"), "b
 ## Every transient kind `add` takes, one per arm of _draw's match (contract_tests keeps the two in step; moments.json
 ## names only these).
 const KINDS := ["number", "spark", "slash", "dust", "ring", "note", "wave", "spiral", "motes", "flash", "pagoda", "seal_slam",
-	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text", "pillar", "converge", "rain", "tint"]
+	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text", "pillar", "converge", "rain", "tint", "anim"]
 ## Defaults by kind: a spark's bit (6 px) and reach (28 px, tier 1), a wave's stroke (8 px); else size 20 (a talisman wave's height), radius 30.
 const DEFAULTS := {"spark": {"size": 6, "radius": 28}, "wave": {"size": 8}}
+## Technique animations (data/fx_art.json, drawn by tools/art/fx): the sprite scale of a band-sized form by its
+## richness band, and the band of a vfx tier (1-2, 3-4, 5-7). Reduce motion plays every form at the calmest band
+## and Battery saver at the middle one at most.
+const BAND_SCALE := [1.0, 1.5, 2.0]
 
 var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, radius, count, height, style, core}; t < 0 waits
 var stacks: Dictionary = {} # P6e multi-hit numbers: stack key -> {n, sum, last, top (its highest number's entry), at, size}
 var clock := 0.0            # seconds of this layer's own time (stacks are timed on it)
+var fixed_step := 0.0       # debug (--cast --capture): when > 0, every frame advances this many seconds, not the real delta
 
 func _ready() -> void:
 	z_index = 4000
@@ -27,8 +32,69 @@ func add(kind: String, pos: Vector2, extra := {}) -> void:
 		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", DEFAULTS.get(kind, {}).get("radius", 30))), "count": int(extra.get("count", 0)),
 		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10))}
 	if kind == "tint" and not _tint_allowed(e): return
+	if kind == "anim":
+		for k in ["form", "row", "scale", "scale_y", "start", "travel", "tiles", "alpha"]: e[k] = extra.get(k)
 	fx.append(e)
 	if fx.size() > 160: fx.pop_front()
+
+# ------------------------------------------------------------------ technique animations (decision 23)
+## The sheet spec of a form (data/fx_art.json), {} when no sheet is built for it.
+static func form_spec(form: String) -> Dictionary:
+	return ContentDB.config("fx_art").get("forms", {}).get(form, {})
+
+## The richness band (0-2) a vfx tier plays at, under Reduce motion (the calmest) and Battery saver (the middle at most).
+static func band_of(tier: int) -> int:
+	var s: Dictionary = Game.account.settings
+	if s.get("reduce_motion", false): return 0
+	var bands: Array = ContentDB.config("fx_art").get("bands", [])
+	var band := 0
+	for i in bands.size():
+		if (bands[i] as Array).any(func(t): return int(t) == tier): band = i   # JSON reads its tiers as floats
+	return mini(band, 1) if s.get("battery_saver", false) else band
+
+## The sheet row of an element at a band: the manifest's element (a sub-element takes its parent's, `none` formless).
+static func form_row(element: String, band: int) -> int:
+	var a: Dictionary = ContentDB.config("fx_art")
+	var els: Array = a.get("elements", [])
+	var el := str(a.get("element_of", {}).get(element, element))
+	if not el in els: el = str(a.get("element_of", {}).get(CombatRules.parent_element(element), "formless"))
+	return band * els.size() + maxi(0, els.find(el))
+
+## A sprite scale snapped to halves, so every art pixel stays a whole number of screen pixels; `down` never rounds past `px`.
+static func snap_scale(s: float, down := false) -> float:
+	var v := floorf(s * 2.0) / 2.0 if down else roundf(s * 2.0) / 2.0
+	return clampf(v, 0.5, 4.0)
+
+## Play a form's animation at `pos` (its anchor on the effect's anchor), facing `facing`, at its element's row and the
+## tier's band. extra: scale (1; scale_y when a line is stretched along the reach only), delay (s before it starts),
+## start (s into it to begin, when the hit frame must land before the sheet's impact), travel (px it moves over its
+## life), tiles (copies side by side along the facing), alpha.
+func play_form(form: String, element: String, tier: int, pos: Vector2, facing: int, extra := {}) -> Dictionary:
+	var a := form_spec(form)
+	if a.is_empty(): return {}
+	var band := band_of(tier)
+	var e := {"form": form, "row": form_row(element, band), "scale": float(extra.get("scale", 1.0)), "start": float(extra.get("start", 0.0)),
+		"scale_y": float(extra.get("scale_y", extra.get("scale", 1.0))),
+		"travel": extra.get("travel", Vector2.ZERO), "tiles": int(extra.get("tiles", 1)), "alpha": float(extra.get("alpha", 1.0)), "facing": facing,
+		"delay": float(extra.get("delay", 0.0)), "dur": float(a.frames) / float(a.fps) - float(extra.get("start", 0.0))}
+	if e.dur <= 0.0: return {}
+	add("anim", pos, e)
+	return e
+
+## The frame of a form's sheet at `t` seconds in (held on the last frame).
+static func form_frame(a: Dictionary, t: float) -> int:
+	return clampi(int(t * float(a.fps)), 0, int(a.frames) - 1)
+
+## Draw one frame of a form sheet: `anchor` on `at`, mirrored for a left facing, `scale` whole halves (a stretched line
+## keeps `scale_y` and takes its exact length along the reach).
+func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0) -> void:
+	var tex := SpriteCache.tex(str(a.file))
+	if tex == null: return
+	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
+	var anchor := Vector2(float(a.anchor[0]), float(a.anchor[1]))
+	draw_set_transform(at.snapped(Vector2(2, 2)), 0.0, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
+	draw_texture_rect_region(tex, Rect2(-anchor, cell), Rect2(Vector2(frame * cell.x, row * cell.y), cell), Color(1, 1, 1, alpha))
+	draw_set_transform(Vector2.ZERO)
 
 ## A screen tint (a Heaven-grade technique, §5.2): none with Reduce motion or Battery saver, 0.3 of its alpha with Bright
 ## flashes off, and at most one flash or tint a second from every source (the flash limiter, §5.10).
@@ -67,6 +133,7 @@ func label(pos: Vector2, text: String, color: Color, size := 22, fast := false) 
 		"vel": Vector2(randf_range(-12, 12), -90.0 if fast else -70.0)})
 
 func _process(delta: float) -> void:
+	if fixed_step > 0.0: delta = fixed_step
 	clock += delta
 	for e in fx.duplicate():
 		e.t = float(e.t) + delta
@@ -266,6 +333,16 @@ func _draw() -> void:
 				# P6e: the screen washed in a Heaven-grade technique's colour for a moment (the view, wherever the camera is).
 				var view := get_canvas_transform().affine_inverse() * get_viewport_rect()
 				draw_rect(view, Color(c, c.a * (1.0 - k)))
+			"anim":
+				# Decision 23: a technique form's frames from its sheet, at its element's row and its tier's band, moving
+				# along `travel` over its life (a wave's crest) or repeated `tiles` times along the facing (a rain).
+				var a := form_spec(str(e.form))
+				if not a.is_empty():
+					var frame := form_frame(a, float(e.t) + float(e.start))
+					var head: Vector2 = e.pos + (e.travel as Vector2) * k
+					var s := float(e.scale)
+					for i in maxi(1, int(e.tiles)):
+						draw_form(a, head + Vector2(float(e.facing) * i * float(a.cell[0]) * s, 0), frame, int(e.row), int(e.facing), s, float(e.alpha), float(e.scale_y))
 
 ## A hit spark (§5.2, §5.6): `count` bits flying out to `radius` (its tier's reach; 28 at tier 1), `size` px shrinking
 ## to 2, and a white core of `core`; the style draws them as squares, rising embers, falling shards, ink drops falling
@@ -465,6 +542,16 @@ static func _hash(i: int, salt: int) -> float:
 func _draw_projectile(p: Dictionary) -> void:
 	var pos := Vector2(float(p.x), float(p.y) - float(p.alt)).snapped(Vector2(2, 2))
 	var dir := float(p.dir)
+	# Decision 23: a technique's Qi bolt is its form's projectile loop (arc, volley, seeker, return), in its element's
+	# row; the weapon arts (an arrow, a fan, a note, a needle, the released jian) stay their own drawings.
+	if str(p.get("art", "")).begins_with("qi_") and p.has("technique"):
+		var t := ContentDB.entry("techniques", str(p.technique))
+		var a := form_spec(str(t.get("vfx", {}).get("anim", "")))
+		if a.has("bolt"):
+			var b: Dictionary = a.bolt
+			var band := band_of(int(t.get("vfx", {}).get("tier", 1)))
+			draw_form(b, pos, int(float(p.get("travelled", 0.0)) / 24.0) % int(b.frames), form_row(str(p.get("element", "none")), band), int(dir), 1.0 if band < 2 else 1.5)
+			return
 	match str(p.get("art", "arrow")):
 		"arrow":
 			draw_line(pos + Vector2(-dir * 18, 0), pos + Vector2(dir * 12, 0), Color("d6b779"), 2)

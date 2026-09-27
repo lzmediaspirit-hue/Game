@@ -9,7 +9,8 @@ is P13b; today's Techniques page is kept and draws the new arts' emblems.
   FORM (24) × FAMILY (12 built, 16 planned) × ELEMENT (11) × PATH (five and the orthodox) × RING (13). The forms carry
   the shape and the line, the element its verb (Water pulls, Wood blooms, Formless strikes 10% harder with no verb),
   the path its rule and cost, the ring its grade, reach, extra targets and effect tier. Rows are baked and compact
-  (`techniques.json`, 948 KB): a row keeps only what its form, ring, element and family do not give it.
+  (`techniques.json`, 974 KB): a row keeps only what its form, ring, element and family do not give it. Every art
+  plays its form's effect (the technique animations, decision 23); a keystone plays its template's.
 - **Counts**: the trees of v1.2.x hold 1,773 arts (the plan's 1,768 and today's five twin cells): 1,661 in the cells of
   Acts I–III and 112 hand-named keystones; beside them 38 Dao arts and 52 lost techniques (62 lost arts with the Inner
   and Secret ones); the later acts' 1,308 arts are written and locked behind their act. Per tree 192 or 193 (Space 40);
@@ -45,6 +46,53 @@ is P13b; today's Techniques page is kept and draws the new arts' emblems.
   index, emblem composition and the Techniques page; `contract_tests` the trees' intents and words.
 - **Fixed on the way**: an art with no pose (Blood River Slash, Venom Needles) played "<null>"; it now plays the
   weapon's third stroke.
+## Technique animations (docs/roadmap_master_ui.md, decision 23)
+
+- **An FX animation library**: one frame-by-frame pixel-art effect per technique form, the 24 of
+  `docs/technique_plan.md` §3.2, drawn by a deterministic generator (`tools/art/fx/`: `fxpix.py` the palette-index
+  rasteriser, `elements.py` the eleven element palettes and flourishes, `forms.py` the 24 drawers, `build_fx.py` the
+  build) into `art/fx/<form>.png` and `data/fx_art.json`. Slash arcs with smear frames, three-cut flurries, thrust
+  trails with a point flash, lunges with afterimages, low sweeping crescents, crescents that form and launch, volleys
+  from a muzzle flash, rain that falls and splashes, pillars that rise and flare, a crest that curls and travels,
+  bursts that pop into a ring, seekers that gather and fly, a blade that spins out and is called back, snares that
+  rise and knot, a counter's guard flash, a ward's dome closing, a chorus's sound rings and notes, blink afterimages
+  and the arrival cut, a plunge's crater and cracks, the released sword's streak, an orbit of swarm blades, a seal
+  stamp that falls and slams, a domain drawing itself, and an echo's ghost strike; four projectile loops (arc, volley,
+  seeker, return).
+- **Every element reads as itself** on every form, by a palette swap and its own flourishes: water in droplets and
+  ripples, wood in leaves, fire in flame tongues and embers, earth in rock and dust, metal in shards and glints, wind
+  in streaks, thunder in forked bolts, soul in thin rings and wisps, formless in plain ink flicks, space in stars
+  over a dark rift, time in clock ticks and a half-there ghost of the frame before. Colours sit on the element
+  colours and the Style A emblem ramps, so an art's effect matches its icon.
+- **Three richness bands** per form for the vfx tiers 1–2, 3–4 and 5–7: thicker strokes, more particles, extra
+  layers; the sprite itself grows 1×, 1.5×, 2× for the forms sized by tier, never past a strike's reach. 28 sheets,
+  3.6 MB; a rebuild is byte-identical (`build_fx.py --verify`).
+- **Wiring** (presentation only): every technique carries `vfx.anim` (its form) and `vfx.pose` (the catalogue action
+  the effect is timed to; `combo_1` / `combo_3` for the wielded family's step that `meditate_burst` and a null
+  action resolve to), written by `tools/data/technique_anim.py` from the plan's form table (a row P13 tags with
+  `form` takes that). `World._cast` plays the sheet through a new `FxLayer` kind, `anim`, timed so its impact frame
+  lands on the pose's hit frame (`attack_started`'s `windup`), mirrored for the facing, at the element's row and the
+  tier's band, sized to the hitbox: a ring form snapped down so it never passes the true reach (a procedural ring
+  still marks the edge), a wave's crest travelling the reach, a rain tiled across it, a pillar or a seal on the foe in
+  reach. A technique's Qi bolt is drawn from its form's projectile loop. Reduce motion plays the calmest band and
+  Battery saver the middle one at most; the sheets never fill the screen, so the flash limiter stays with the tint.
+- **Preview**: `--cast=<technique>[:t]` now also holds the pose the cast would play on the avatar, resolved as the
+  timeline resolves it, and lands its hits at the hit frame; with `--capture` the effect and the pose step a sixtieth
+  a frame and the simulation holds still from the cast (`World.sim_frozen`, `FxLayer.fixed_step`), so a shot lands on
+  the frame `t` names whatever the renderer's pace and shows the effect on the pose, not a boarlet's counter-attack.
+  `--load=<folder>` now copies into `user://loaded_<folder name>/` rather than one shared `loaded_copy`, so two
+  previews of different checkpoints run at once no longer clobber each other's copy.
+- **Review**: `docs/mockups/fx/`: every form × element at each band's impact frame at 1× and 2×, a strip of every
+  frame per form, the projectile loops, and in-game captures of one technique per form at four moments of the cast
+  from the `ls6_end` checkpoint (its README lists them).
+- **Tests**: `data_validation` `_fx_art_suite` (the 24 sheets exist at the size their spec says, a hit frame inside
+  each, known anchor and size rules; every technique's animation is a built form and its pose an existing action or
+  a combo alias every weapon family resolves); `rules_tests` `moments_suite` case 15 (bands by tier and under Reduce
+  motion and Battery saver, element rows, half-step scales, an anim's facing, delay, length and row, a form without a
+  sheet); `contract_tests` keeps `anim` in `FxLayer.KINDS`; `perf_tests` casts through the same path.
+- **Not done, by design (`AGENTS.md`)**: no new body pose. Every form maps to an existing action; two poses would
+  serve some forms better and are listed as follow-ups in the report (a true plunge from the air, a stance hold for
+  Counter and Ward).
 
 ## Moments (docs/roadmap_master_ui.md, P6)
 
@@ -354,6 +402,78 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   Warden's Hand-bell its bronze and cloud scroll, the Tidebreak Bell its cage lattice and cold blue mouth. The legacy
   32 px drawings and the recolour rows are gone; `banded.py` keeps only the Sovereign and Will armour, hats and gourds
   and the four furnaces.
+- **Fish, insects, critters and food in Style A** (`tools/icons/families/fish.py`, `insects.py`, `critters.py`,
+  `food.py`, each `ART = 64`; the sheets and in-game shots in `docs/mockups/icon_families/<family>/`): the posts'
+  catches and the dishes, 41 icons, redrawn at 64 px with native `@32` renders, each catch the living animal drawn
+  with care in its species' colours (after its sprite where it has one). The seven fish are side views on one
+  template in a body frame (`fish.Axis`): the body profile, a forked tail and the dorsal, pectoral, pelvic and anal
+  fins with their rays, rows of overlapping scales, the gill cover, a lateral line, the eye with its ring and
+  catch-light, and the species' marks (the perch's bars and spiny dorsal, the trout's spots and pink band, the carp's
+  gold-edged scales and barbels, the salmon's kype and spray, the moon carp's crescent, the minnows' shoal, the eel's
+  ribbon fin and rings). The eight insects are specimens from above, the side or three-quarter on, with jointed legs,
+  antennae, compound eyes and segmented abdomens (the firefly's lit tail with its own halo, the cicada's clear veined
+  wings, the scarab's jade-sheened shell, the moth's eyespots and comb antennae, the mantis's raised spined forelegs
+  and spark, the cricket's cocked hind leg, the locust's fanned ember wings, the mote's star-dusted points). The nine
+  critters are bodies from a spine of discs with fur in strands, faces with ringed eyes, noses and whiskers, ears
+  with their pink, paws with toes (the frog's gold eyes, the hare's misty ear tips, the marmot's cloud tail, the
+  hedgehog's sparking quills, the stoat's black tail tip, the fox's sail ears, the gecko's star spots, the tied
+  pearly pelt). The grade is form and trim on `beast_parts.GRADE_HD`, never colour alone: a plain catch as it came;
+  from Common a stringer loop at a fish's jaw, a thread round an insect's waist or a cord at a critter's neck, hemp
+  at Common and the grade's silk with a metal bead from Earth; the aura from Mystic up. The 17 dishes are their
+  vessel and contents with steam and gloss on shared cup, bowl, plate and pot templates, in the grade's ware
+  (`WARE_HD`, after the pills' ladder: bare earthenware, a bronze band, porcelain with jade, skyware with silver,
+  storm glaze and sand glaze with their aura; a pot takes the grade's metal for its handles and band). Every icon
+  comes from its module's table. The legacy 32 px code of the four families is gone.
+
+- **Treasures, legends, Qi jades and the workshop in Style A** (`tools/icons/families/treasures.py`, `legends.py`,
+  `jades.py`, `workshop.py`, each `ART = 64`; the sheets and in-game shots in `docs/mockups/icon_families/<family>/`):
+  98 icons redrawn at 64 px with native `@32` renders. The 31 treasures are each the object the item is, on shared
+  builders: the upright temple bell (a plain iron practice bell against the bronze bell studded with jade), the
+  three-legged vessel (the taming cauldron with its gold claw, the grimed curio, the furnaces), the paper talisman
+  strip, the Heavenly Flame on its dish (the Lantern Heart in its bronze cage); the pagoda's jade roofs with silver
+  ridges, the mirror with its gold bosses, the mountain seal's beast and red face, the wisp banner with its three
+  lights, the sealing gourd under the pills' silver cloud lid, the nine swords fanned from their lacquer case, the
+  needles, knives and pellet, the flying sword streaming Qi, the cloud, the jade gourd and the maple leaf. The furnace
+  ladder (`furnace_hd` on `palette.kit`, the four Act II and III furnaces taken over from `banded.py`, now deleted)
+  shows the grade as the walls' metal, the grade's work round the belly (the weapons' `work_hd`), the trim of the rim
+  and ears and the jewel as the lid's finial, the Nine-Dragon Cauldron with its gold dragons; the aura from Mystic up
+  in the object's own light. The 28 legend pieces are the thing each is named (`legends.PIECES_HD`: a knuckle, a
+  cuff, a heart; a hilt, a blade, a soul bead; a spearhead, a shaft, a tassel; an edge, a grip, a sheath; an iron
+  cap, an oak shaft, a knot; a spine, an edge, a guard; a rib, a silk, a pin; a mouthpiece, a jade body, a tassel; a
+  limb, a string, a sight), built from the weapons' builders in the chain's tint (`chain_kit`) with gold Mystic
+  fittings, a lit jagged break where a piece was broken (`broken_hd`) and the Mystic aura in the tint; the Weapon
+  Soul Crystal is a gold crystal with an ember flame in it. The 13 jades: five cut stones in bezels (`cut_hd`, any
+  outline: a cushion, a marquise, a twelve-sided round, a hexagon, a kite with an eye) and eight bi discs (`bi_hd`)
+  carved with their signs in their own light. The 26 workshop goods: thread-bound books (`book_hd`, the cover's
+  cloth naming the element, a paw for the pet skill books; the torn manual with its corner gone) and tied scrolls
+  with element tags (`EMBLEMS_HD`), the grimed ding, the river-jade bi against its glass fake with a chip and
+  bubbles, old coins on a string, the spirit wood with Qi in its grain, the puppet's jade heart in its pegged frame,
+  the three array plates with their arrays lit, and the Sphere Comprehension Stone with its folded world and the Will
+  aura. The legacy 32 px drawings of all four modules are gone.
+
+- **Miscellany and tools in Style A** (`tools/icons/families/misc.py` and `tools.py`, both `ART = 64`; the sheets and
+  in-game shots in `docs/mockups/icon_families/misc/` and `tools/`): the 93 miscellany icons and the 65 tools and
+  talismans redrawn at 64 px with native `@32` renders, one language per kind. Miscellany: a manual or a page is paper
+  with its laid lines and columns of script (a stance figure, a seal, a river sketch), a closed scroll lies on the
+  diagonal with its tie and tag, a hand scroll opens between its rollers; a token hangs upright from a cord loop and
+  bead with a tassel, its face carved inside a keyline or a gold rim (the sect discs, the alliance summits, the entry
+  gate, the elders' knots and crests); a bag is a drawstring pouch tied at the neck (the storage pouch's seal slip, the
+  five beast bags with the paw sewn on in straw, hide, cloud silk, deep jade and starweave); the eggs sit in their
+  nests, the wyrm egg on its night cushion; incense stands in a bowl or, for the Roll-Call's hour incense, a tall cup
+  whose label carries the hours in pixel numerals over a holder that grows from clay to bronze, porcelain, jade and
+  gold; the rite tablets stand in stepped pedestals with their crests; the Keeping Post's components (cord, rivets, the
+  brick, lacquer, the whetstone, spirit glue), the Starsea charts and ships, the sun seal and its pieces, the treasures
+  and the Ash and Tide pieces are one-offs on the shared builders (the weapons' tassel, the beast parts' cords, vials
+  and heaps, the herbs' leaves and lotus, the minerals' dish). Tools: the four Keeping Post ladders (picks, sickles,
+  rods, hoop nets, nine tiers each) and the snare kits are one builder each on the weapons' diagonal frame and kit
+  builders, painting with the tier's head metal (copper, iron, jadeiron, cloudsteel, mistjade, stormsteel, then
+  sunglass and driftglass through-lit) over the grade's kit, so a tier shows as material, fittings and work, never as
+  colour alone: a hemp grip on plain wood, then leather on darkwood with the guard metal's butt cap, eye ring, ferrule
+  or reel, a gem at the eye from Earth, the grade's work down the head (a fuller, a jade inlay, cloud curls, gold
+  runes, a lightning zigzag, ember beads, driftglass diamonds), capped points from Mystic and the aura as stepped glow
+  bands; a net's mesh grows finer up the ladder. A talisman is a strip of yellow paper with red bars, its glyph traced
+  in the element's ink over the maker's seal; the offerings sit on the minerals' footed dish. The legacy 32 px code is
+  gone from both modules.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
@@ -434,6 +554,176 @@ come next. Where it differs from the plan, the plan's §6 says so.
   fails, and a listed item fails once it gains a source, so the list only shrinks.
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
+
+### P5 · The first pages with their own identity (`docs/page_identity.md`, decisions 14–16)
+- **The foundation** (`docs/page_identity.md` §8, How a page takes its identity). A page declares what it is,
+  `Page.Identity`: its `SURFACE` material, whether the shared window frame stays round it, its own title mount, its
+  layout signature and its opening. Page then draws the page's surface in the standard window rect in place of the
+  shared window, inks the title on the page's own mount and draws the tabs in the page's own form, while the close
+  button, Esc and a tap outside, primary buttons with inked labels, the text tokens, the type scale and the 48 px
+  targets stay Page's. Pages that declare nothing keep today's look exactly.
+- **Every word is measured on what it sits on.** A page with its own surface names its grounds as it draws them
+  (`ground`, `face`, `panel`), and the `ui_suite` measures every plain word it draws on the ground under it (4.5:1, or
+  3:1 from 20 px). It found the washed slips too light for `MIST` (4.21), so words there are `PAPER`.
+- **Motion by the reduced-motion rule** (`docs/moments_design.md` §4.6, page_identity §6): `unfold()` runs a page's
+  opening over its declared time (0.35 s at most) and a tap finishes it; under Reduce motion nothing moves and the
+  page only fades in, over 0.2 s. Every target is live from the first frame.
+- **Tokens.** The twenty `SURFACE` materials of page_identity §7 join `UiKit` (and `cloth_wash`, the washed slips), each
+  a mix of two tokens, with `TEXT_ON` rows for those words are drawn on; the talisman's red ink and the zither's
+  strings, which had the names `cinnabar` and `silk`, are `cinnabar_ink` and `qin_silk`, unchanged in colour. New Page
+  helpers: `rich` (words in several colours), `rounded`, `glow`, and `grade_rims` (slots ring an item in its grade's
+  colour and mark a rolled quality with a gem).
+- **The Character page as the jade-slip record** (row 13, mockup 09 v2). One mat of vertical jade slips bound by two
+  gold cords, fanning open from a bundle as the page opens; the title and the four tabs are jade tags on the upper
+  cord. The figure stands at 2.5 on the first slips, washed lighter as if painted there, with the eight worn slots down
+  the slips either side (decision 8), a closed slot showing its lock and what opens it, an empty one glowing jade while
+  the bag holds a piece for it; who walks beside in round chips. The register is written across the rest: the name,
+  the realm with its Level and stage pips, sect, rank and worn title, Combat Power, Relations and age, the origin and
+  what it gave, the three pools, and offence and defence in ruled columns with Soul attack, Soul defence and Will
+  added. Stats and Titles fold into the Overview, so the tabs are Overview, Aptitude, Attunement and Wardrobe.
+- **The titles as honours** (decision 16). Each title is a red lacquer tablet with cut corners and a gold inlay line;
+  its motif (blade, shield, pearl, cloud, peak, lotus, coin, cauldron or star, by the stat its gift raises) on a
+  gilt boss; its name in pale gold and its gift inscribed in gold on a sunk band. The worn title comes first, in a
+  gilded frame with a stud at each corner and the gold ◆ of the style guide's "you" mark. Five to a page and a button
+  to the next five; a tap wears one (`set_title`, as before).
+- **Art** (`tools/ui/build_ui_hd.py`, byte-identical twice): `jade_tag`, `jade_label`, `honour_tablet` and
+  `honour_seal`'s nine motifs; the slips, cords, knots and wash are drawn by the page from tokens.
+- **The Bag** was built as the spirit gourd of mockups 07 and 08 v2 and withdrawn before it merged, by decision 15 (no
+  gourd drawing; a big space with a small card for the chosen item, new concepts to the user first). The Bag keeps its
+  P4 page; the general pieces it used are the foundation above.
+- **Tests:** `rules_tests` `ui_suite` (every word on a page with its own surface read on its ground, the close button
+  and inked title kept, a signature no other page shares, in every tab), the new `identity_suite` (on a probe page: a
+  word too dim for its ground caught, the tabs' targets and the inked title kept, the regions live from the first frame,
+  the opening and a tap, Reduce motion's fade; a page with no identity opening at once), `ui_style_suite` (the new
+  surfaces and faces measured); every target 48 px or more and every word on the type scale, as before. The full
+  suite on this build: room_lint 168 / 0; engine_tests 3785/3785; data_validation 23287 / 0; room_sweep 3568 / 0;
+  rules_tests 1830 / 0; contract_tests 1032 / 0; balance_sim 124 / 0; perf_tests 5 / 0; prologue_run 107 / 0;
+  valley_run 1257 / 0; check_scripts 0 failures.
+- **Screenshots** in `docs/ui_p5/`, on copies of the valley_run checkpoints `ls6_end` and `bf2` taken on this build, with
+  the comparison against mockup 09 v2 and why each difference is there; `--tap=x,y` (a debug tool) taps the top page.
+- **Roadmap:** U20 Partial and U21 Present (C8), U15 stays Partial with decision 15's withdrawal recorded; the P5 row
+  says what has started.
+
+### P5 · The Bag as the heaven in the gourd (concept B, decisions 8, 15 and 24)
+- **The page** (`docs/page_identity.md` row 3; mockups 07_bag_b, _card, _pill, 08_bag_b_empty). No gourd is drawn and
+  no frame: the page is the world inside the Spirit Gourd, a night sky over a sea of cloud with far islands, and a
+  bigger gourd is a wider heaven (more stars and islands, the light from its mouth once it holds 40). The figure stands
+  at 2.5 on its own island with the eight worn slots riding a gold orbit round it (`CharacterPage.draw_worn`, which the
+  Bag now shares; the figure is drawn by the page, `Avatar.draw_on`, so the card lies over it). What is carried floats
+  as one grid ten across, five rows in view and the next fading into the cloud, the next gourd's spaces locked at its
+  end with the gourd that opens them; the Spirit Gourd and Key Pouch tokens, the purses (the rarer ones give way when
+  room is short), the kinds (All, Gear, Pills, Materials, Other; items.json `bag_kinds`) and Sort; "Space n / m" and
+  the next gourd under the grid; while the gourd is small, the hint in the open sky (how things come in, a loose find
+  and what a trader pays, the piece that fits an empty slot, what opens the locked ones). The grid rises out of the
+  cloud and the worn slots ride in along the orbit as it opens (0.3 s; a fade under Reduce motion).
+- **The small card** (decision 15) opens beside a tapped space with a pointer to it: below it on the top row, to its
+  right from the first columns and beside the orbit for a worn piece, else to its left, above the line under the grid
+  while it fits. The head (icon, name and count, quality, grade, kind, item level); for a piece in the bag what wearing
+  it would make of your own totals against the one worn (the three that change most, and Combat Power, each after the
+  change with ▲ or ▼ beside it), for a worn one what it gives you; what else is true of it (the rolls, a pill's
+  toxicity against yours, what quick-use holds, a furnace's batch, a relic's spirit, a treasure's cost); its action and
+  partner (Equip and Set as spare, Use and Quick-use, the Treasure buttons, Unequip and Swap, Ride, Play) and "···" for
+  Lock, Discard, Self-detonate and Appraise. A tap on open sky puts it away. Every P4 action and intent is kept.
+- **Rules** (pages submit intents only): `StatRules.equip_change` works out the comparison by `rebuild` on scratch
+  copies of the character, so the character is never touched and the numbers are the Character page's;
+  `InventoryAuthority.bag_kind` and `next_gourd`.
+- **Art and tokens.** `build_ui_hd.py` (byte-identical twice): `sky_token` (normal, selected) and `sky_card`; the sky,
+  stars, islands, orbit and sea are drawn by the page from tokens. `SURFACE.sky` and `SURFACE.sea` with their
+  `TEXT_ON` rows. `Page.rich` can centre its lines.
+- **Tests:** `rules_tests` `ui_suite` opens the Bag with its card on a worn jian, a carried one and a pill; the
+  `identity_suite`'s Bag part checks the kinds split the bag with nothing lost, the eight worn slots, the card beside
+  its space and inside the window with 48 px actions and words that read on it, that `equip_change` leaves the character
+  untouched, that its "before" is the character as it stands and that equipping the piece gives what the card said,
+  "···", and a pill's Use and Quick-use. The full suite: room_lint 168 / 0; engine_tests 3785/3785; data_validation
+  23287 / 0; room_sweep 3568 / 0; rules_tests 1860 / 0; contract_tests 1032 / 0; balance_sim 124 / 0; perf_tests 5 / 0;
+  prologue_run 107 / 0; valley_run 1257 / 0.
+- **Screenshots** in `docs/ui_p5/bag/`, on copies of this build's valley_run checkpoints `ls6_end` and `bf2`, beside
+  each mockup, with why each difference is there. Roadmap U15 Present.
+
+### P5a · The HUD to the approved mockups
+- **The right thumb, two rings (mockup 01).** Ring 1 at R 132 round the 132 px attack button holds jump, the page's four
+  techniques (64 px, the HD icons at their native 48) and dodge; ring 2 at R 214 holds the fan and, beside it, a toggle
+  that is on, the healing slot, the Draught, the treasures, the in-fight context (or Keep Post) and the weapon swap.
+  The pinned toggle, the healing slot, the first treasure, the context and the swap have their own places; the rest
+  take the next free one, and a heavy load spreads over the arc without two rings touching. A "1/2" tab turns the
+  technique page (a swipe on the ring still does). **An empty or locked slot is not drawn** (review G3): no blank
+  circles, no empty treasure, no swap without a spare.
+- **The fan holds the system toggles (decision 20).** Cultivate, the Presence, the Sphere, Sense and Pet fold into one
+  button; a tap opens it on a paper fan with each toggle named (only the ones the character has, packed from the
+  first place) and a tap closes it. Closed, a toggle that is on stands pinned beside it (a held Presence with its Soul
+  upkeep arc and level; meditation; a raised Sphere), and the fan glows gold at the bottleneck or when a toggle in it
+  is new. At rest the fan keeps the player's choice (open, as mockup 02 draws it, until closed); a foe near folds it,
+  and in a fight a toggle taken from the open fan folds it again.
+- **Rest and fight (mockup 02).** With no foe within 560 px (and no boss in the room) for two seconds, the techniques
+  fold into four beads on the attack ring over 0.25 s (a fade with Reduce motion), the healing slot and the treasures
+  rest, and the attack button becomes the context with its verb and target under it ("Talk · Peddler Ning"). A foe
+  near brings them back. Every existing control, key and reveal is kept.
+- **The rest of the HUD to the mockups.** Party chips beside the panel for the animals beside you and the fellow
+  disciples, each a 48 px ring with its face (a disciple's from their own sprite layers), an HP arc, a red ring for a
+  wound and the name under it; the bag animals and the mount after them. The Hollowing as a meter with its Burden and
+  Seizure stops, its value and which way it runs ("46 ▼ lanterns"). The quest tracker on its plate with a 48 px go
+  button. A count on Mail and a vermilion ready seal on Menu when the bottleneck is reached or a day's chest is full.
+  The purse rests in boss arenas. The boss bar with its name in the display face, "Lv · phase n of m", an ember fill,
+  a notch at each phase (gold once passed, the next lit) and what each brings ("60% · Ashborn Pyre Keeper called ✓",
+  "30% · Enrage"). The progress edge with a stop and a "Lv n" at each Level; at the bottleneck it glows gold with
+  Stored Qi as a bright lane and "◆ Bottleneck reached · breakthrough ready · tap Cultivate". The log above the
+  joystick. The top centre as one stack under the chips (or the boss bar): a run's timer, the room's name, an event or
+  a tribulation, a fortune card, then toasts 408 wide and 8 apart that stop above the clear zone (the rest wait).
+- **World labels never stack (review G4).** Each kind keeps its own offset: a foe's level and name over its head, the
+  party's thin HP lines lower (only in a fight; their names are on the chips), an NPC's plate under the feet, a way's
+  or a thing's plate over its art. Labels draw above every figure. Each frame `world.gd` hands them to
+  `WorldLabels` (`scripts/presentation/world_labels.gd`), which places them in whole rows so none touches another or
+  sits under a HUD control (the HUD writes its controls' rects each frame); a plate under the feet with no room below
+  goes over the head; a label keeps last frame's row while it is still clear.
+- **The clear zone.** No control or panel stands in the lower middle round the player (x 380–900, y 324–656 at 1280 ×
+  720, `hud.gd` `CLEAR_ZONE`), in a fight or at rest with the fan closed, left- or right-handed; the log, the
+  tracker and the toasts keep out of it, and the open fan at rest keeps off the player at the common camera positions.
+- The legacy panel's own Cormorant preload is gone; outlined words are fitted in the face they are drawn in. Debug
+  flags for previews: `--toggle=presence|sphere` and `--fan=open|closed`.
+- **Tests:** `rules_tests` `hud_suite` rewritten for four states (a fight, the fan open or closed, at rest): every hit
+  circle 48 across and its drawn radius + 4, the nearest centre wins, the cluster where the mockups draw it, ring 2's
+  places and a heavy load, rest and fight, the fan's open, close, fold and pin, the clear zone (and mirrored), the
+  toasts' stop, and G3 on a bound character; a new `labels_suite` checks the layout pass on a crowd, under a control
+  and over the head, a second pass holding still, and the real views (foes, a boss, the party's lines, two NPCs on one
+  spot). Screenshots from the valley_run checkpoints beside mockups 01 and 02 are in `docs/ui_p5/hud/`.
+
+### P5 · The World map as drawn (mockups 16 and 16_resources, decisions 11, 17 and 25)
+- **The framed painting** (`docs/page_identity.md` row 7). The zone's landscape fills the screen inside a lacquered
+  frame (timber, a bronze fillet, a gold line, cloud-scroll corners): the valley is the painting of
+  `tools/ui/build_valley_map.py`, its nodes where that painting drew each area. The title plate with the map glyph and
+  the pennant hang at the upper left, the zone tags from the top rail beside the Heaven Ranking (a zone not yet set foot
+  in shows its lock and says why), the close button at the top right. `Page.WINDOW_SCREEN` (0, 0, 1280, 720) is the
+  one window that is the screen itself (style guide §2.2); the `ui_suite` allows it.
+- **Areas.** Every area a glowing node: jade where you may walk in (you have been there, or a portal open to you leads
+  there), gold where you stand, a dark disc with a padlock where the way is shut. Dotted routes along the rooms'
+  portals, pale between open areas and dim into a locked one; the way to the chosen area lit gold, dot by dot. Name
+  plates carry the level band ("You are here", "Locked · Lv 28–36"), and a known area's field boss with the time till it
+  rises; a locked area beside none you know shows its padlock alone. The tracked quest's lantern, the world events' plum
+  blossoms (gold under way, violet coming) and the paths above (S43's wind glyph) stand beside their nodes.
+- **No text on the map touches (decision 17).** One layout pass places the marks, then the plates (where you stand,
+  the chosen area, the open areas, the locked), each at the first place round its node, below, above or beside and
+  slid along that side, then a leader step out, clear of every other plate, mark, node and the frame's furniture; a
+  plate with no room drops its last lines, and the ones still without room go first on another pass. It never lays one
+  thing over another.
+- **The card.** Areas: the area's own picture from the painting with what grows there, its kind and band against your
+  Level, Act II's attunement, the tracked quest that leads there with Walk there, its world events, its rooms (you, the
+  quest's room, seen, unknown) with their hazards, paths above and field bosses, and Track Route with the areas it
+  crosses. Resources: Herbs, Ores and Fish, the zone's things of that kind (those in areas not yet reached greyed), the
+  chosen one's rank and craft, its rooms and regrowth, the quest or daily that asks for it, a gold ring and its disc on
+  every area that holds it, and Track Route to the nearest. Objectives: the tracked quests and the zone's events, the
+  chosen one's way lit and Track Route. Track Route and Walk there are the `auto_path` intent; the page writes nothing.
+- **What the painting does not place.** A room in a hidden region shows at the nearest placed area by portals; a
+  region without a `map` position stands at the mean of its placed neighbours, moved clear of the other nodes. The
+  Azure Expanse and the Lantern Star Field have no painting yet: the page draws them from tokens in the same manner
+  (far ranges over a sea of cloud; the star river and drifting lanterns), each area an isle under its node.
+- **Motion:** the card slides in from the frame's edge (0.2 s), the chosen way lights in 0.3 s; under Reduce motion
+  the way shows lit and the page fades; glows at 0.3 with Bright flashes off. Strings through `ui_strings.json`.
+- **Tests:** `rules_tests` `map_suite`: the valley's nodes on the painting's map rect with a picture each; every room of
+  every zone shows at an area of its zone; the pass on a crowd; on the real data, in every zone, view, kind and chosen
+  area, with every area known and with few, at every text size, no plate or mark touches another, a node or the frame's
+  furniture, and every word on the painting sits on a plate (180 views); in the valley no plate is left out; Track Route
+  and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
+  three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
 
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,

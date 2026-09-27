@@ -113,7 +113,10 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	await labels_suite()
 	await ui_suite()
+	await identity_suite()
+	await map_suite()
 	fixes_suite()
 	mockup_fixes_suite()
 	max_character_suite()
@@ -177,7 +180,11 @@ func ui_suite() -> void:
 	Unlocks.debug_force_all = true
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
-		"stones": Game.account.teleports.duplicate()}
+		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot()}
+	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
+	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("iron_jian")})
 	c.cultivator.titles = ContentDB.all("titles").map(func(e): return str(e.id))
 	c.cultivator.secret_arts = ContentDB.all("secret_arts").map(func(e): return str(e.id))
 	var dao_ids: Array = ContentDB.all("daos").map(func(e): return str(e.id))
@@ -200,6 +207,11 @@ func ui_suite() -> void:
 	var pitches: Array = []   # P4: list rows off the 8 px grid
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
+	var dim_words: Array = []   # P5: words on a page with its own surface that do not read on what they sit on
+	var unshared: Array = []    # P5: a page with its own identity that lost a shared part (the close button, the inked title)
+	var signatures := {}        # P5: layout signature -> the page that declared it
+	var own_views := 0
+	var fills := {}
 	var icons_drawn := 0
 	SpriteCache.draw_log = []
 	var views := 0
@@ -232,7 +244,7 @@ func ui_suite() -> void:
 					if float(d.scale) < 1.0 or float(d.scale) != floorf(float(d.scale)) or dr.position != dr.position.round():
 						blurred.append("%s %s %s at %.2fx" % [where, d.id, str(dr), float(d.scale)])
 				# P4 (§2): a standard window inside the safe area, and list rows on the 8 px grid.
-				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not Page.SAFE_AREA.encloses(pg.frame_rect)): windows.append("%s %s" % [where, str(pg.frame_rect)])
+				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not (Page.SAFE_AREA.encloses(pg.frame_rect) or pg.frame_rect == Page.WINDOW_SCREEN)): windows.append("%s %s" % [where, str(pg.frame_rect)])
 				for aid in pg._areas:
 					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
@@ -249,7 +261,11 @@ func ui_suite() -> void:
 					for j in range(i + 1, buttons.size()):
 						var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
 						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+				if pg.identity != null:
+					own_views += 1
+					_identity_view(pg, where, dim_words, unshared, signatures, fills)
 				for tx in pg.text_log:
+					if tx.has("ground") and not tx.get("panel", false): continue   # P5: a surface's ground, not a word
 					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
 					if tx.has("size") and (int(tx.size) < UiKit.MIN_SIZE or not UiKit.on_scale(int(tx.size), bool(tx.display))):
 						off_scale.append("%s \"%s\" at %d" % [where, str(tx.s).left(24), int(tx.size)])
@@ -327,6 +343,8 @@ func ui_suite() -> void:
 	c.cultivator.secret_arts = keep.arts
 	c.cultivator.daos = keep.daos
 	Game.account.teleports = keep.stones
+	c.inventory.restore(keep.inventory)
+	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
 	c.training_sect = ts_was
 	c.seclusion = seclusion_was
@@ -346,6 +364,15 @@ func ui_suite() -> void:
 	check(off_scale.is_empty(), "P4: every word on every page is asked for on the type scale, none under %d (%d: %s)" % [UiKit.MIN_SIZE, off_scale.size(), str(off_scale.slice(0, 8))])
 	check(windows.is_empty(), "P4: every window is a standard one, inside the safe area (%s)" % str(windows.slice(0, 6)))
 	check(pitches.is_empty(), "P4: every list's rows are on the 8 px grid (%s)" % str(pitches.slice(0, 6)))
+	for o in dim_words + unshared: print("  ui_suite: ", o)
+	check(dim_words.is_empty(), "P5: every word on a page with its own surface reads on what it sits on (%d: %s)" % [dim_words.size(), str(dim_words.slice(0, 6))])
+	check(unshared.is_empty(), "P5: a page with its own identity keeps the shared close button, its inked title and a known surface (%s)" % str(unshared.slice(0, 6)))
+	var own_pages := 0
+	for id in main_script.PAGES:
+		var p: Page = load(str(main_script.PAGES[id])).new()
+		if p.identity != null: own_pages += 1
+		p.free()
+	check(signatures.size() == own_pages and (own_pages == 0 or own_views > own_pages), "P5: every page with its own identity was drawn, in every tab, with a layout signature no other shares (%d pages, %d views: %s)" % [own_pages, own_views, str(signatures)])
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
 func _ui_contexts(c) -> Dictionary:
@@ -371,13 +398,345 @@ func _ui_contexts(c) -> Dictionary:
 	var sect := {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 120, "buildings": {"sect_hall": 1}, "queue": [], "disciples": ds,
 		"candidates": ds.slice(0, 3).map(func(d): return {"name": d.name, "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}),
 		"expeditions": ex, "candidate_day": Clock.reset_day(now)}
-	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome],
+	# P5 (decision 24): the Bag as it opens, and with its card open on the worn weapon, on a piece and on a pill in the bag.
+	var bag: Array = [{}, {"tab": "weapon"}]
+	for want in ["gear", "pills"]:
+		for i in c.inventory.bag.size():
+			if c.inventory.bag[i] != null and InventoryAuthority.bag_kind(str(c.inventory.bag[i].id)) == want:
+				bag.append({"index": i})
+				break
+	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome], "inventory": bag,
 		"shop": ContentDB.all("shops").map(func(sh): return {"shop": str(sh.id)}), "fishing": [{"object": "fish_9"}], "teleport": [{}],
 		"your_sect": [{"_setup": func(): Game.account.sect = {}}, {"_setup": func(): Game.account.sect = sect.duplicate(true)}],
 		# An Elder of the Jade Sect: the next rank, Sect Master, is at the foot of the list (B5).
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
-		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}],
+		# The world map's three views (its tabs are the zones and the Heaven Ranking).
+		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}]}
+
+## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
+## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
+## else the identity's surface; 4.5:1, or 3:1 from 20 px. Inked and outlined words and button labels are the kit's,
+## measured by the ui_style_suite. The shared parts stay: the close button at the window's top right, the title inked on
+## its mount, a surface from UiKit.SURFACE, a mount Page knows, an opening no longer than OPEN_MOTION_MAX, and a layout
+## signature of its own.
+func _identity_view(pg: Page, where: String, dim_words: Array, unshared: Array, signatures: Dictionary, fills: Dictionary) -> void:
+	var idn: Page.Identity = pg.identity
+	var sig_owner := str(signatures.get(idn.signature, pg.page_id))
+	if sig_owner != pg.page_id: unshared.append("%s shares the signature %s with %s" % [where, idn.signature, sig_owner])
+	signatures[idn.signature] = pg.page_id
+	if not UiKit.SURFACE.has(idn.surface) or not idn.title_mount in ["plaque", "own"] or idn.open_s > Page.OPEN_MOTION_MAX or idn.signature == "":
+		unshared.append("%s declares %s / %s / %.2f s / %s" % [where, idn.surface, idn.title_mount, idn.open_s, idn.signature])
+	var close := Rect2(pg.frame_rect.end.x - 72, pg.frame_rect.position.y + 16, 52, 52)
+	if not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
+	if pg.title != "" and not pg.text_log.any(func(tx): return str(tx.s) == pg.title and tx.get("outlined", false)): unshared.append("%s has no inked title" % where)
+	var grounds: Array = []
+	for tx in pg.text_log:
+		if tx.has("ground"):
+			grounds.append(tx)
+			continue
+		var col: Color = tx.get("col", Color.TRANSPARENT)
+		if str(tx.s).strip_edges() == "" or col.a <= 0.0 or tx.get("outlined", false) or tx.get("button", Rect2()) != Rect2(): continue
+		var at: Vector2 = (tx.rect as Rect2).get_center()
+		var bg: Color = UiKit.SURFACE[idn.surface]
+		var on := "surface " + idn.surface
+		for i in range(grounds.size() - 1, -1, -1):
+			if not (grounds[i].rect as Rect2).has_point(at): continue
+			var gd = grounds[i].ground
+			bg = gd if gd is Color else _fill_light(str(gd), fills)
+			on = str(gd)
+			break
+		var need := 3.0 if int(tx.size) >= 20 else 4.5
+		if _contrast(col, bg) < need: dim_words.append("%s \"%s\" on %s %.2f" % [where, str(tx.s).left(24), on, _contrast(col, bg)])
+
+## P5 (docs/page_identity.md §8): the foundation, on a probe page that declares an identity. It draws its own surface in
+## place of the shared window and keeps the shared parts (the close button at the window's top right, the title inked on
+## its own mount, tabs in its own form with their 48 px targets); its words are measured on the ground they sit on, so a
+## word too dim for its ground is caught. It opens by the reduced-motion rule (§6, docs/moments_design.md §4.6): its
+## regions are live from the first frame, it moves over its opening (0.35 s at most) and a tap finishes it; under Reduce
+## motion nothing moves and it only fades in, over 0.2 s. A page with no identity opens as it always did.
+func identity_suite() -> void:
+	var probe := GDScript.new()
+	probe.source_code = "extends Page\nfunc _init() -> void:\n\ttitle = \"Probe\"\n\ttabs = [{\"id\": \"a\", \"label\": \"One\"}, {\"id\": \"b\", \"label\": \"Two\"}]\n" \
+		+ "\tidentity = Identity.new(\"cloth\", false, \"own\", \"probe_signature\", 0.25)\n" \
+		+ "func draw_page() -> void:\n\ttext(Vector2(300, 300), \"dim on cloth\", 14, UiKit.HOLLOW)\n\tground(Rect2(280, 380, 300, 60), UiKit.INK)\n" \
+		+ "\ttext(Vector2(300, 420), \"clear on ink\", 14, UiKit.HOLLOW)\n\tbtn(Rect2(600, 400, 160, 56), \"Act\", \"act\", null, true)\n"
+	probe.reload()
+	var keep = Game.account.settings.get("reduce_motion", false)
+	var got := {}
+	for motion in [false, true]:
+		Game.account.settings["reduce_motion"] = motion
+		var pp: Page = probe.new()
+		pp.text_log = []
+		pp.page_id = "probe"
+		add_child(pp)
+		pp.open({})
+		pp.opened = 0.0
+		pp.queue_redraw()
+		await get_tree().process_frame
+		pp.opened = 0.0
+		if not motion:
+			var dim: Array = []
+			var lost: Array = []
+			_identity_view(pp, "probe", dim, lost, {}, {})
+			check(dim.size() == 1 and str(dim[0]).contains("dim on cloth") and lost.is_empty(),
+				"P5: a word too dim for the page's surface is caught, the same word on a ground it reads on is not (%s; %s)" % [str(dim), str(lost)])
+			check(pp._regions.filter(func(r): return r.id == "_tab" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 2
+				and pp.text_log.any(func(tx): return str(tx.s) == "Probe" and tx.get("outlined", false)),
+				"P5: a page with its own identity keeps its tabs' targets and its title, inked on its own mount")
+		got[motion] = {"unfold0": pp.unfold(), "alpha0": pp._open_alpha(), "live": pp._regions.filter(func(r): return r.id in ["_close", "_tab", "act"]).size()}
+		pp.opened = 0.1
+		got[motion]["unfold_mid"] = pp.unfold()
+		pp.opened = 0.2
+		got[motion]["alpha_02"] = pp._open_alpha()
+		pp.opened = 0.0
+		var press := InputEventMouseButton.new()
+		press.button_index = MOUSE_BUTTON_LEFT
+		press.pressed = true
+		press.position = Vector2(4, 4)
+		pp._gui_input(press)
+		got[motion]["after_tap"] = pp.unfold()
+		got[motion]["alpha_tap"] = pp._open_alpha()
+		pp.queue_free()
+	Game.account.settings["reduce_motion"] = keep
+	var off: Dictionary = got[false]
+	var on: Dictionary = got[true]
+	check(int(off.live) == 4 and int(on.live) == 4, "P5: a page's regions are live from its first frame, in motion or not (%d, %d)" % [int(off.live), int(on.live)])
+	check(float(off.unfold0) == 0.0 and float(off.unfold_mid) > 0.0 and float(off.unfold_mid) < 1.0 and float(off.after_tap) == 1.0 and float(off.alpha_tap) == 1.0,
+		"P5: a page moves over its opening and a tap finishes it (%s)" % str(off))
+	check(float(on.unfold0) == 1.0 and float(on.alpha0) == 0.0 and float(on.alpha_02) == 1.0, "P5: under Reduce motion nothing moves and the page fades in over 0.2 s (%s)" % str(on))
+	var main_script = load("res://scripts/main.gd")
+	var plain: Page = load(str(main_script.PAGES.menu)).new()
+	add_child(plain)
+	plain.open({})
+	await get_tree().process_frame
+	check(plain.identity == null and plain.unfold() == 1.0 and plain.modulate.a == 1.0, "P5: a page with no identity of its own opens as it did, at once")
+	plain.queue_free()
+	var slow: Array = []
+	for id in main_script.PAGES:
+		var p: Page = load(str(main_script.PAGES[id])).new()
+		if p.identity != null and p.identity.open_s > Page.OPEN_MOTION_MAX: slow.append(id)
+		p.free()
+	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
+	await _bag_checks()
+
+## P5 (the Bag as concept B, decision 24; docs/page_identity.md row 3): the kinds split the bag with nothing lost; the
+## eight worn slots ride the orbit; a tapped thing's card opens beside its space, clear of it and inside the window, its
+## actions 48 px, its words read on the card; a piece's card shows what the rules say wearing it would do
+## (StatRules.equip_change: it leaves the character untouched, its "before" is the character as it stands and its
+## "after" what equipping the piece really gives); "···" brings Lock and Discard; a pill's card offers Use and Quick-use.
+func _bag_checks() -> void:
+	var c = Game.active()
+	var keep: Dictionary = c.inventory.snapshot()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	Game.inventory.apply_add(c.id, "iron_jian", 1, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	Game.combat.refresh_stats(c.id)
+	var wi: int = c.inventory.first_index("iron_jian")
+	var pi: int = c.inventory.first_index("healing_pill")
+	var stat_ids: Array = ContentDB.stat_const("stats", []).map(func(s): return str(s.id))
+	var was: Array = stat_ids.map(func(s): return c.stats.value(s))
+	var max_hp: float = c.pools.max_hp
+	var rows: Array = StatRules.equip_change(c, "weapon", c.inventory.bag[wi])
+	check(stat_ids.map(func(s): return c.stats.value(s)) == was and c.pools.max_hp == max_hp and c.inventory.bag[wi] != null,
+		"P5 Bag: working out what a piece would change leaves the character untouched")
+	check(rows.size() > 1 and str(rows[-1].stat) == "combat_power" and is_equal_approx(float(rows[-1].before), StatRules.combat_power(c))
+		and rows.slice(0, -1).all(func(r): return is_equal_approx(float(r.before), c.stats.value(str(r.stat)))),
+		"P5 Bag: the card's 'before' is the character as it stands (%d stats change)" % (rows.size() - 1))
+	var CharacterPage = load("res://scripts/ui/pages/character_page.gd")
+	var pg: Page = load(str(load("res://scripts/main.gd").PAGES.inventory)).new()
+	pg.text_log = []
+	pg.page_id = "inventory"
+	add_child(pg)
+	pg.open({"index": wi})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var kinds: Array = ["gear", "pills", "materials", "other"].map(func(k): return pg._kind_count(c.inventory, k))
+	check(kinds.reduce(func(a, b): return a + b, 0) == pg._kind_count(c.inventory, "all") and int(kinds[0]) >= 1 and int(kinds[1]) >= 1,
+		"P5 Bag: the kinds split the bag with nothing lost (%s)" % str(kinds))
+	check(pg._regions.filter(func(r): return r.id == "slot").size() == 8, "P5 Bag: the eight worn slots ride the orbit round the figure")
+	var card: Array = pg._regions.filter(func(r): return r.id == "_card")
+	var cell: Array = pg._regions.filter(func(r): return r.id == "bag" and int(r.data) == wi)
+	check(card.size() == 1 and cell.size() == 1 and not (card[0].rect as Rect2).intersects(cell[0].rect) and pg.frame_rect.encloses(card[0].rect),
+		"P5 Bag: a tapped piece's card opens beside its space, clear of it and inside the window")
+	var acts: Array = pg._regions.filter(func(r): return r.id in ["equip", "spare", "more"])
+	check(acts.size() == 3 and acts.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Bag: the piece's card offers Equip, Set as spare and '···', each 48 px or more")
+	var said: Array = pg.text_log.map(func(tx): return str(tx.get("s", "")))
+	var shown: Array = rows.filter(func(r): return pg._stat_key(str(r.stat)) != "" and str(r.stat) != "combat_power").slice(0, 3) + [rows[-1]]
+	check(shown.all(func(r): return said.has(CharacterPage.stat_text(str(r.stat), float(r.after)))),
+		"P5 Bag: the card shows the totals StatRules.equip_change gives (%s)" % str(shown.map(func(r): return CharacterPage.stat_text(str(r.stat), float(r.after)))))
+	var dim: Array = []
+	var lost: Array = []
+	_identity_view(pg, "inventory card", dim, lost, {}, {})
+	pg.more = true
+	pg.text_log.clear()
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(pg._regions.any(func(r): return r.id == "lock") and pg._regions.any(func(r): return r.id == "discard"), "P5 Bag: '···' brings Lock and Discard")
+	_identity_view(pg, "inventory more", dim, lost, {}, {})
+	pg.on_action("bag", pi)
+	pg.text_log.clear()
+	pg.queue_redraw()
+	await get_tree().process_frame
+	check(pg._regions.any(func(r): return r.id == "use" and r.enabled) and pg._regions.any(func(r): return r.id == "quick") and not pg.more,
+		"P5 Bag: a pill's card offers Use and Quick-use, the '···' actions folded again")
+	_identity_view(pg, "inventory pill", dim, lost, {}, {})
+	check(dim.is_empty() and lost.is_empty(), "P5 Bag: every word on its cards reads on what it sits on (%s)" % str(dim.slice(0, 4)))
+	pg.queue_free()
+	var after: Array = rows.slice(0, -1).map(func(r): return float(r.after))
+	var cp_after := float(rows[-1].after)
+	Game.submit({"type": "equip", "index": wi})
+	Game.combat.refresh_stats(c.id)
+	var real: Array = rows.slice(0, -1).map(func(r): return c.stats.value(str(r.stat)))
+	var near := func(a: float, b: float) -> bool: return absf(a - b) <= maxf(0.001, absf(b) * 0.0001)
+	check(str(c.inventory.equipped.weapon.id) == "iron_jian" and range(real.size()).all(func(i): return near.call(real[i], after[i])) and near.call(StatRules.combat_power(c), cp_after),
+		"P5 Bag: equipping the piece gives what its card said (Combat Power %d, said %d)" % [StatRules.combat_power(c), int(cp_after)])
+	c.inventory.restore(keep)
+	Game.combat.refresh_stats(c.id)
+	Unlocks.debug_force_all = force_was
+
+## P5 (docs/page_identity.md row 7, mockups 16 and 16_resources, decisions 17 and 25): the world map as the framed
+## painting. The valley's nodes stand where tools/ui/build_valley_map.py painted each area, and every room of every
+## zone shows at an area of its zone. The one layout pass leaves no plate or mark touching another, a node or the
+## frame's furniture, and every word on the painting sits on a plate: on the real data, in every zone, view, kind and
+## chosen area, with every area known and with few, at every text size; in the valley no plate is left out. Track Route
+## and Walk there travel by auto_path and close the map; a locked zone's tag says why.
+func map_suite() -> void:
+	var map_script = load("res://scripts/ui/pages/map_page.gd")
+	var vz: Dictionary = map_script._zone("jade_river_valley")
+	var off: Array = []
+	for r in ContentDB.zone("jade_river_valley").regions:
+		if r.get("hidden", false): continue
+		# build_valley_map.py MAP_RECT (24, 34, 424, 276) art px, drawn x2.
+		var want := Vector2(48, 68) + Vector2(float(r.map[0]) * 848.0, float(r.map[1]) * 552.0)
+		if (vz.anchor[str(r.id)] as Vector2).distance_to(want) > 0.5 or not ResourceLoader.exists("res://art/ui/maps/valley_%s.png" % r.id): off.append(str(r.id))
+	var art := load("res://art/ui/maps/valley_map.png") as Texture2D
+	check(art != null and art.get_size() == Vector2(1280, 640) and off.is_empty(), "P5 map: the valley's nodes stand where its painting drew each area, each with its picture (%s)" % str(off))
+	var lost: Array = []
+	for id in ContentDB.rooms:
+		var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+		if not str(zz.node_of.get(str(id), "")) in zz.order: lost.append(str(id))
+	check(lost.is_empty(), "P5 map: every room of every zone shows at an area of its zone (%d lost: %s)" % [lost.size(), str(lost.slice(0, 6))])
+	# The pass on a crowd round one point: what fits is placed clear of the rest, what does not is left out.
+	var crowd: Array = []
+	for i in 30: crowd.append({"id": i, "at": Vector2(400, 300) + Vector2(i % 3, i / 3) * 3.0, "r": 12.0, "sizes": [Vector2(120, 40), Vector2(90, 20)], "ways": map_script.PLATE_WAYS})
+	var pin := Rect2(386, 286, 40, 60)
+	var got: Dictionary = map_script.place(crowd, [pin], Rect2(200, 150, 420, 320))
+	var boxes: Array = got.values().map(func(g): return g.rect)
+	check(got.size() >= 4 and got.size() < 30 and _map_faults(boxes, [pin], [], Rect2(200, 150, 420, 320)).is_empty(),
+		"P5 map: the layout pass places a crowd round one point with none touching and leaves out what fits nowhere (%d of 30)" % got.size())
+	# The real views.
+	var c = Game.active()
+	var visited_was: Dictionary = Game.account.visited_rooms.duplicate()
+	var size_was = Game.account.settings.get("text_size", 1)
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var pg: Page = map_script.new()
+	pg.page_id = "world_map"
+	pg.text_log = []
+	add_child(pg)
+	pg.open({})
+	var faults: Array = []
+	var left_out: Array = []
+	var views := 0
+	for known in ["all", "few"]:
+		Game.account.visited_rooms = {}
+		for id in ContentDB.rooms:
+			var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+			if known == "all" or zz.node_of.get(id, "") == zz.order[0]: Game.account.visited_rooms[id] = true
+		for ts in 3:
+			Game.account.settings["text_size"] = ts
+			for ti in pg.tabs.size() - 1:
+				pg.tab = ti
+				pg._sync_tab()
+				for v in ["areas", "resources", "objectives"]:
+					for k in (["herb_patch", "ore_vein", "fishing_spot"] if v == "resources" else [""]):
+						for pick in [0, 1]:
+							var zz: Dictionary = map_script._zone(str(pg.tabs[ti].id))
+							pg.view = v
+							if k != "": pg.res_kind = k
+							pg.res_item = ""
+							pg.sel = str(zz.order[(zz.order.size() / 2) * pick])
+							pg.text_log.clear()
+							pg.queue_redraw()
+							await get_tree().process_frame
+							await get_tree().process_frame
+							views += 1
+							var where := "%s/%s/%s%s/%d/%s" % [known, pg.tabs[ti].id, v, k, ts, pg.sel]
+							var L: Dictionary = pg.layout
+							var rects: Array = L.plates.values().map(func(p): return p.rect) + L.marks.values().map(func(p): return p.rect)
+							for f in _map_faults(rects, L.pins, L.keep, L.bounds): faults.append("%s %s" % [where, f])
+							for tx in pg.text_log:
+								var at: Vector2 = (tx.rect as Rect2).get_center()
+								if tx.has("ground") or not (L.bounds as Rect2).has_point(at) or at.x >= 912.0 or L.keep.any(func(k): return k.has_point(at)): continue
+								if not L.plates.values().any(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect)): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+							if str(pg.tabs[ti].id) == "jade_river_valley" and not L.hidden.is_empty(): left_out.append("%s %s" % [where, str(L.hidden)])
+	for f in faults.slice(0, 12): print("  map_suite: ", f)
+	check(views >= 180 and faults.is_empty(), "P5 map: no plate or mark touches another, a node or the frame's furniture, and every word on the painting is on its plate, in every zone, view and text size (%d views, %d faults)" % [views, faults.size()])
+	check(left_out.is_empty(), "P5 map: in the valley every plate finds a place (%s)" % str(left_out.slice(0, 4)))
+	Game.account.visited_rooms = visited_was
+	Game.account.settings["text_size"] = size_was
+	# Travel: from the Willow Path, Track Route walks to Stoneford's nearest room by auto_path and closes the map.
+	var room_was := str(c.position.get("room", ""))
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	pg.tab = 0
+	pg.view = "areas"
+	pg._sync_tab()
+	await get_tree().process_frame
+	pg.on_action("sel", "stoneford")
+	pg.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var closed := [0]
+	pg.closed.connect(func(_p): closed[0] += 1)
+	var track: Array = pg._regions.filter(func(r): return r.id == "track")
+	var to := str(track[0].data) if not track.is_empty() else ""
+	if not track.is_empty(): pg._activate(track[0])
+	check(track.size() == 1 and to in vz.rooms.stoneford and Game.world.auto_path_target(c) == to and closed[0] == 1,
+		"P5 map: Track Route walks to Stoneford (%s) by auto_path and closes the map" % to)
+	Game.submit({"type": "auto_path", "target": ""})
+	# Walk there: a tracked quest's room from its area's card (with no tracked quest on a route, the intent it sends).
+	var walk_to := "sf_market"
+	for tq in Game.quest.tracker(c):
+		var qn := str(vz.node_of.get(str(tq.target_room), ""))
+		if walk_to == "sf_market" and qn != "" and str(tq.target_room) != "wp_west" and not pg._route(c, qn, str(tq.target_room)).is_empty(): walk_to = str(tq.target_room)
+	var walk: Array = []
+	if walk_to != "sf_market":
+		pg.on_action("sel", str(vz.node_of[walk_to]))
+		pg.queue_redraw()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		walk = pg._regions.filter(func(r): return r.id == "walk")
+		if not walk.is_empty(): pg._activate(walk[0])
+	else:
+		pg.on_action("walk", walk_to)
+	check((walk_to == "sf_market" or walk.size() == 1) and Game.world.auto_path_target(c) == walk_to and closed[0] == 2,
+		"P5 map: Walk there walks to the tracked quest's room (%s) by auto_path and closes the map" % walk_to)
+	Game.submit({"type": "auto_path", "target": ""})
+	# A locked zone's tag answers a tap with its reason and leaves the map where it was.
+	var locked: Array = pg._regions.filter(func(r): return r.id == "_tab" and not r.enabled)
+	var zone_was: String = pg.zone_id
+	if not locked.is_empty(): pg._activate(locked[0])
+	check(locked.is_empty() or (pg.toast == str(pg.tabs[int(locked[0].data)].locked) and pg.zone_id == zone_was), "P5 map: a locked zone's tag says why (%s)" % pg.toast)
+	pg.queue_free()
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
+
+## What is wrong with a layout: a box outside `bounds`, over a keep-out, on a pin, or touching another box.
+func _map_faults(boxes: Array, pins: Array, keep: Array, bounds: Rect2) -> Array:
+	var out: Array = []
+	for i in boxes.size():
+		var a: Rect2 = boxes[i]
+		if not bounds.encloses(a): out.append("%s outside" % str(a))
+		out.append_array(keep.filter(func(k): return a.intersects(k)).map(func(k): return "%s over %s" % [str(a), str(k)]))
+		out.append_array(pins.filter(func(p): return a.grow(1).intersects(p)).map(func(p): return "%s on the node at %s" % [str(a), str(p.get_center())]))
+		out.append_array(boxes.slice(i + 1).filter(func(b): return a.grow(1).intersects(b)).map(func(b): return "%s touches %s" % [str(a), str(b)]))
+	return out
 
 ## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
 ## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
@@ -472,6 +831,7 @@ func _lum(c: Color) -> float:
 func _fill_light(spec: String, cache: Dictionary) -> Color:
 	spec = spec.trim_suffix("@ink")
 	if cache.has(spec): return cache[spec][0]
+	if spec.begins_with("surface:"): return UiKit.SURFACE[spec.trim_prefix("surface:")]   # P5: a page's own flat material
 	var asset := spec.get_slice(":", 0)
 	var state := spec.get_slice(":", 1) if spec.contains(":") else "normal"
 	var kit: Dictionary = ContentDB.config("ui_assets_hd")
@@ -518,9 +878,13 @@ func _fill_light(spec: String, cache: Dictionary) -> Color:
 	cache[spec] = [light, mean]
 	return light
 
-## P4 (docs/ui_style_guide.md §7): the HUD's touch targets. Every round control's hit circle is at least 48 across and
-## at least its drawn radius + 4; where two circles overlap a tap goes to the nearer centre; a tracker line's go button
-## is 48 x 48; and the player panel's whole height, the Soul row too, opens Character (it opened the tracker).
+## P4 (docs/ui_style_guide.md §7) and P5a (§9, mockups 01 and 02): the HUD's touch targets and its layout. In a fight
+## and at rest, with the fan open or closed, every round control's hit circle is at least 48 across and at least its
+## drawn radius + 4, and where two circles overlap a tap goes to the nearer centre; a tracker line's go button is
+## 48 x 48; the player panel's whole height opens Character. The right-hand cluster stands where the mockups put it;
+## no control or panel sits in the lower middle the mockups keep clear round the player at the common camera
+## positions; the fan opens and closes, folds in a fight, and shows its toggles that are on while closed (decision 20);
+## the techniques fold into beads at rest; an empty or locked slot is not drawn (review G3).
 func hud_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -530,29 +894,260 @@ func hud_suite() -> void:
 	var soul_was: float = c.pools.max_soul
 	c.inventory.draught = {"id": "healing_pill", "count": 1}
 	c.pools.max_soul = maxf(1.0, soul_was)
-	var targets: Array = hud.hit_targets()
-	var small: Array = targets.filter(func(tg): return float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0).map(func(tg): return "%s r%d" % [tg.role, int(tg.r)])
-	check(targets.size() >= 21 and small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4 (%d controls; %s)" % [targets.size(), str(small)])
-	var roles: Array = targets.map(func(tg): return str(tg.role))
-	check(roles.has("draught") and roles.has("icon:mail") and roles.has("attack"), "P4: the table holds the Draught, the icon row and Attack")
-	var overlaps := 0
+	# Each state: [in a fight, the fan open].
+	var states := {"fight": [true, false], "fight, the fan open": [true, true], "rest, the fan open": [false, true], "rest, the fan closed": [false, false]}
+	var small: Array = []
+	var roles := {}
 	var wrong: Array = []
-	for x in range(360, 1280, 6):
-		for y in range(0, 720, 6):
-			var p := Vector2(x, y)
-			var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
-			if inside.is_empty(): continue
-			if inside.size() > 1: overlaps += 1
-			inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
-			var got: String = hud.role_at(p)
-			if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s at %s (%s)" % [got, str(p), inside[0].role])
+	var overlaps := 0
+	var in_zone: Array = []
+	var zone: Rect2 = hud.CLEAR_ZONE
+	var tables := {}
+	for sname in states:
+		hud.set_state(states[sname][0], states[sname][1])
+		var targets: Array = hud.hit_targets()
+		tables[sname] = targets
+		for tg in targets:
+			roles[str(tg.role)] = true
+			if float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0: small.append("%s: %s r%d" % [sname, tg.role, int(tg.r)])
+			var d := float(tg.drawn)
+			if not states[sname][1] and Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0).intersects(zone): in_zone.append("%s: %s" % [sname, tg.role])
+		for x in range(360, 1280, 6):
+			for y in range(0, 720, 6):
+				var p := Vector2(x, y)
+				var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
+				if inside.is_empty(): continue
+				if inside.size() > 1: overlaps += 1
+				inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
+				var got: String = hud.role_at(p)
+				if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s: %s at %s (%s)" % [sname, got, str(p), inside[0].role])
+	check(small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4, in every state (%s)" % str(small))
+	var want := ["attack", "jump", "guard", "skill", "page", "fan", "meditate", "presence", "sphere", "sense", "pet", "quick", "draught", "treasure:0", "treasure:1", "swap", "icon:mail"]
+	check(want.all(func(r): return roles.has(r)) and roles.size() >= 21, "P4, P5a: the tables hold every control of the cluster (%d roles; missing %s)" % [roles.size(), str(want.filter(func(r): return not roles.has(r)))])
 	check(overlaps > 0 and wrong.is_empty(), "P4: where HUD circles overlap, a tap goes to the nearest centre (%d points in overlaps; %s)" % [overlaps, str(wrong)])
-	var go: Rect2 = hud.go_hit(Rect2(286, 100, 30, 22))
-	check(go.size == Vector2(48, 48) and go.encloses(Rect2(286, 100, 30, 22)), "P4: the tracker's go button is a 48 x 48 target")
+	var go: Rect2 = hud.go_hit(Rect2(300, 100, 48, 48))
+	check(go.size == Vector2(48, 48) and go.encloses(Rect2(300, 100, 48, 48)), "P4: the tracker's go button is a 48 x 48 target")
 	check(hud.panel_rect(c).size.y == 120.0 and hud.role_at(Vector2(100, 128)) == "portrait", "P4: the Soul row is part of the player panel's target")
+	# The cluster where mockups 01 and 02 draw it (right-handed): ring 1 at R 132 round the attack button, the fan and ring 2
+	# at R 214, the open fan's toggles at R 150 round the fan, the page tab.
+	var at := func(role: String, table: Array) -> Array: return table.filter(func(tg): return str(tg.role) == role).map(func(tg): return tg.center)
+	var fight: Array = tables["fight"]
+	var near := func(a: Vector2, b: Vector2) -> bool: return a.distance_to(b) <= 1.5
+	var ring1: Array = at.call("skill", fight)
+	var mock1 := [Vector2(1033, 605), Vector2(1051, 539), Vector2(1099, 491), Vector2(1165, 473)]
+	var placed := ring1.size() == 4 and range(4).all(func(i): return near.call(ring1[i], mock1[i]))
+	placed = placed and near.call(at.call("attack", fight)[0], Vector2(1165, 605)) and near.call(at.call("jump", fight)[0], Vector2(1051, 671))
+	placed = placed and near.call(at.call("guard", fight)[0], Vector2(1231, 491)) and near.call(at.call("fan", fight)[0], Vector2(964, 678))
+	placed = placed and near.call(at.call("page", fight)[0], Vector2(1240, 672))
+	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them (%s)" % str(ring1))
+	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick", "home": "quick"}, {"role": "treasure:0", "home": "treasure:0"}])
+	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
+		"P5a: ring 2 as mockup 01: the held Presence pinned beside the fan, the healing slot, the treasure (%s)" % str(r2.map(func(o): return o.center)))
+	var open_fan: Array = ["meditate", "presence", "sphere", "sense", "pet"].map(func(r): return at.call(r, tables["rest, the fan open"])[0])
+	var mock2 := [Vector2(814, 678), Vector2(825, 622), Vector2(856, 574), Vector2(903, 541), Vector2(959, 528)]
+	check(range(5).all(func(i): return near.call(open_fan[i], mock2[i])), "P5a: the open fan's five toggles stand where mockup 02 draws them (%s)" % str(open_fan))
+	# Ring 2 holds more than its six places without two rings touching, and stays on the screen.
+	var many: Array = hud.ring2_places(["presence", "sphere", "quick", "draught", "treasure:0", "treasure:1", "context", "swap"].map(func(r): return {"role": r, "home": r}))
+	var apart := true
+	for i in many.size() - 1: apart = apart and (many[i].center as Vector2).distance_to(many[i + 1].center) >= 60.0
+	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a: eight things on ring 2 keep 60 px apart, on the screen")
+	# Rest and fight: the techniques, the healing slot and the treasures are out only in a fight; the fan folds in a fight
+	# and pins what is on beside it, and opens at rest.
+	var rest_roles: Array = tables["rest, the fan closed"].map(func(tg): return str(tg.role))
+	var fight_roles: Array = fight.map(func(tg): return str(tg.role))
+	check(not rest_roles.has("skill") and not rest_roles.has("quick") and not rest_roles.has("treasure:0") and not rest_roles.has("page")
+		and fight_roles.count("skill") == 4 and fight_roles.has("quick"), "P5a: at rest the techniques fold into beads and the healing slot and treasures rest; in a fight they are out")
+	var pinned: Array = at.call("presence", tables["rest, the fan closed"])
+	check(pinned.size() == 1 and near.call(pinned[0], Vector2(951, 612)) and not rest_roles.has("meditate")
+		and near.call(at.call("presence", tables["rest, the fan open"])[0], Vector2(825, 622)), "P5a: closed, the fan shows its toggle that is on pinned beside it; open, the toggle stands in the fan (decision 20)")
+	hud.set_state(false, false)
+	hud.press(7, hud.fan_center)
+	hud.release(7)
+	var opened: bool = hud.fan_open and hud.fan_rest_open
+	hud.press(7, hud.fan_center)
+	hud.release(7)
+	var closed: bool = not hud.fan_open and not hud.fan_rest_open
+	hud.set_state(true, true)
+	hud.press(7, hud.presence_center)
+	hud.release(7)
+	check(opened and closed and not hud.fan_open, "P5a: a tap opens the fan and a tap closes it, the choice kept at rest; in a fight a toggle taken from it folds it")
+	hud.set_state(false, true)
+	hud.fan_rest_open = true
+	hud.fight_override = true
+	hud._tick_fight(0.1)
+	var folded: bool = hud.fight and not hud.fan_open and hud.fight_k < 1.0
+	hud.fight_override = false
+	hud._tick_fight(hud.FIGHT_HOLD_S + 0.1)
+	check(folded and not hud.fight and hud.fan_open, "P5a: a foe near folds the fan and brings the ring out; with none near it opens again as it was left")
+	# Nothing in the lower middle round the player (the clear zone), in a fight or at rest with the fan closed; the open
+	# fan at rest keeps off the player at the common camera positions (x 640 give or take the look-ahead, feet at 470 to
+	# 640); the panels, the tracker's plate, the log and the top centre's toasts keep out of the zone too.
+	check(in_zone.is_empty(), "P5a: no HUD control stands in the clear zone %s in a fight or at rest (%s)" % [str(zone), str(in_zone)])
+	var bodies: Array = []
+	for px in [560.0, 640.0, 720.0]:
+		for feet in [470.0, 560.0, 640.0]: bodies.append(Rect2(px - 30.0, feet - 130.0, 60.0, 140.0))
+	var on_player: Array = tables["rest, the fan open"].filter(func(tg): return bodies.any(func(b): return (b as Rect2).intersects(Rect2(tg.center - Vector2(tg.drawn, tg.drawn), Vector2(tg.drawn, tg.drawn) * 2.0))))
+	check(on_player.is_empty(), "P5a: the open fan keeps off the player at the common camera positions (%s)" % str(on_player.map(func(tg): return tg.role)))
+	var panels := [hud.panel_rect(c), hud.minimap_rect, Rect2(14, 0, 342, hud.TRACKER_FOOT), Rect2(20, 0, hud.LOG_W, hud.LOG_FOOT), Rect2(400, 92, 480, 84), Rect2(1040, 222, 222, 34)]
+	check(panels.all(func(r): return not (r as Rect2).intersects(zone)), "P5a: the panel, the minimap, the tracker, the log, the boss bar and the purse keep out of the clear zone")
+	# The left-handed option mirrors the cluster, and it still keeps out of the clear zone.
+	hud.left_handed = true
+	hud._layout()
+	hud.set_state(true, false)
+	var mirrored: Array = hud.hit_targets()
+	var lh_zone: Array = mirrored.filter(func(tg): return Rect2(tg.center - Vector2(tg.drawn, tg.drawn), Vector2(tg.drawn, tg.drawn) * 2.0).intersects(zone))
+	check(hud.attack_center == Vector2(115, 605) and hud.jump_center == Vector2(229, 671) and hud.fan_center == Vector2(316, 678)
+		and hud.page_center == Vector2(40, 672) and lh_zone.is_empty() and hud.role_at(Vector2(900, 400)) == "joystick",
+		"P5a: left-handed, the cluster is mirrored, the joystick takes the right half and the clear zone stays clear (%s)" % str(lh_zone.map(func(tg): return tg.role)))
+	hud.left_handed = false
+	hud._layout()
+	var toasts_was: Array = hud.toasts
+	hud.toasts = []
+	for i in 3: hud.toast("probe", "gold", "a second line")
+	var from_top: Array = hud.toast_rects(hud.TOP_STACK)
+	var from_boss: Array = hud.toast_rects(hud.TOP_STACK_BOSS)
+	check(from_top.size() == 2 and from_boss.size() == 1 and (from_top + from_boss).all(func(r): return (r as Rect2).end.y <= zone.position.y and (r as Rect2).size.x == 408.0),
+		"P5a: toasts stand at the top centre, 408 wide, and stop above the clear zone; the rest wait (%d, %d)" % [from_top.size(), from_boss.size()])
+	hud.toasts = toasts_was
+	# Bound to the character: an empty or locked technique slot, an empty healing slot or treasure and a swap with no
+	# spare are not drawn (G3); the techniques that are there keep their places.
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var slots_was: Array = c.cultivator.technique_slots.duplicate()
+	var quick_was: String = c.inventory.quick_use
+	var tre_was: Array = c.inventory.treasures.duplicate()
+	var spare_was = c.inventory.loadout.get("spare")
+	var n: int = ProgressionRules.technique_slot_count(c)
+	var techs: Array = ContentDB.all("techniques").slice(0, 2).map(func(tq): return str(tq.id))
+	c.cultivator.technique_slots = [techs[0], null, techs[1], ""] + [null, null, null, null]
+	c.inventory.quick_use = ""
+	c.inventory.treasures = ["", ""]
+	c.inventory.loadout["spare"] = null
+	c.inventory.draught = null
+	hud.set_state(true, false)
+	var bound_t: Array = hud.hit_targets()
+	var expect: Array = [0, 2].filter(func(i): return i < n)
+	var skills: Array = at.call("skill", bound_t)
+	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
+		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
+		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
+	c.cultivator.technique_slots = slots_was
+	c.inventory.quick_use = quick_was
+	c.inventory.treasures = tre_was
+	c.inventory.loadout["spare"] = spare_was
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
 	c.inventory.draught = draught_was
 	c.pools.max_soul = soul_was
 	hud.queue_free()
+
+## P5a (review G4): world names never stack. WorldLabels.resolve places a crowd of labels in whole rows so no two
+## touch and none sits under a HUD control; a plate under the feet with no room below goes over the head; labels
+## that touch nothing keep their places; a second pass with last frame's rows gives the same places. Then the real
+## views: two NPCs on the same spot (Elder Gu and Madam Hua in Artisan Row), three foes and a boss in a knot, and the
+## party (a disciple, the puppet and an animal) at one height in a fight, laid out by WorldLabels.place_views as
+## world.gd does each frame.
+func labels_suite() -> void:
+	var mk := func(id: String, kind: String, r: Rect2, flip: Vector2) -> Dictionary:
+		return {"id": id, "kind": kind, "rect": r, "prev": Vector2.ZERO, "near": 0.0, "flip": flip}
+	var no := Vector2.ZERO
+	var items: Array = [
+		mk.call("companion", "ally", Rect2(600, 500, 44, 9), no), mk.call("puppet", "ally", Rect2(604, 502, 44, 9), no), mk.call("pet", "ally", Rect2(606, 501, 34, 9), no),
+		mk.call("boss", "boss", Rect2(700, 420, 150, 22), no), mk.call("foe", "foe", Rect2(720, 432, 190, 22), no),
+		mk.call("npc1", "npc", Rect2(300, 600, 120, 42), Vector2(0, -250)), mk.call("npc2", "npc", Rect2(360, 600, 120, 42), Vector2(0, -250)),
+		mk.call("npc3", "npc", Rect2(420, 600, 120, 42), Vector2(0, -250)), mk.call("alone", "foe", Rect2(100, 300, 120, 22), no)]
+	var offs: Dictionary = WorldLabels.resolve(items, [])
+	# Every offset is whole rows of its own box, from its place or from its place over the head.
+	var whole := func(it: Dictionary) -> bool:
+		var step: float = (it.rect as Rect2).size.y + WorldLabels.ROW_GAP
+		var y: float = offs[it.id].y
+		return absf(y / step - roundf(y / step)) < 0.01 or absf((y - float(it.flip.y)) / step - roundf((y - float(it.flip.y)) / step)) < 0.01
+	check(WorldLabels.touching(items, offs).is_empty() and items.all(whole) and offs["alone"] == Vector2.ZERO,
+		"G4: a crowd of labels (the party at one height, a boss over a foe, plates side by side) is laid out in rows with none touching (%s)" % str(WorldLabels.touching(items, offs)))
+	for it in items: it.prev = offs[it.id]
+	check(WorldLabels.resolve(items, []) == offs, "G4: with last frame's rows the layout holds still")
+	var under := [mk.call("foe", "foe", Rect2(1000, 460, 160, 22), no)]
+	var control := Rect2(1070, 440, 60, 60)   # a ring of the HUD's cluster
+	var o2: Dictionary = WorldLabels.resolve(under, [control])
+	check(not Rect2(under[0].rect.position + o2["foe"], under[0].rect.size).intersects(control) and o2["foe"].y < 0.0, "G4: a label under a HUD control moves up clear of it")
+	var plate := [mk.call("npc", "npc", Rect2(760, 600, 130, 42), Vector2(0, -180))]
+	var o3: Dictionary = WorldLabels.resolve(plate, [Rect2(700, 590, 300, 130)])
+	check(o3["npc"] == Vector2(0, -180), "G4: a plate under the feet with no room below goes over the head (%s)" % str(o3["npc"]))
+	# The real views in the room, laid out as world.gd lays them out.
+	var c = Game.active()
+	if c == null or Game.room_rt == null or Game.actor_state(c.id) == null: return
+	var holder := Node2D.new()
+	add_child(holder)
+	var fight_was := WorldLabels.party_fight
+	WorldLabels.party_fight = true
+	var base: Vector2 = Game.actor_state(c.id).plane
+	var foes: Array = []
+	var views: Array = []
+	for i in 3: foes.append(Game.enemies.spawn_at("wild_boarlet", base + Vector2(160 + i * 18, 4 * i), 5))
+	var boss_def := ""
+	for e0 in ContentDB.all("enemies"):
+		if not (e0.get("phases", []) as Array).is_empty():
+			boss_def = str(e0.id)
+			break
+	var boss_e: EnemyState = Game.enemies.spawn_at(boss_def, base + Vector2(190, -6), 5)
+	if boss_e != null and not boss_e.is_boss(): boss_e.role = "story_boss"   # as its arena's spawn makes it
+	foes.append(boss_e)
+	foes[0].elite = true
+	for i in 3:
+		var a := EnemyState.new()
+		a.uid = Game.room_rt.uid()
+		a.def_id = "probe_ally_%d" % i
+		a.def = {"name": "Probe", "art": {"creature": "wild_boarlet"} if i > 0 else {"avatar": "player"}, "half_width": 14, "height": 60 if i > 0 else 88, "ally": true}
+		a.team = "ally"
+		a.plane = base + Vector2(-80 + i * 6, 0)
+		a.pools.max_hp = 100.0
+		a.pools.hp = 70.0
+		Game.room_rt.enemies[a.uid] = a
+		foes.append(a)
+	for e in foes:
+		if e == null: continue
+		var v := EnemyView.new()
+		v.setup(e)
+		v.set_process(false)
+		holder.add_child(v)
+		views.append({"id": "e%d" % e.uid, "view": v, "kind": v.label_kind, "near": absf(e.plane.x - base.x)})
+	for i in 2:
+		var nv := NpcView.new()
+		nv.setup({"id": "probe_npc_%d" % i, "npc": ["elder_gu", "madam_hua"][i], "at": [base.x - 200.0, base.y]})
+		nv.set_process(false)
+		holder.add_child(nv)
+		views.append({"id": "n%d" % i, "view": nv, "kind": "npc", "near": 200.0})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var xf := Transform2D(0.0, Vector2(640.0 - base.x, 560.0 - base.y))
+	var laid: Dictionary = WorldLabels.place_views(views, xf, [])
+	var drawn: int = laid.items.size()
+	var kinds := {}
+	for it in laid.items: kinds[str(it.kind)] = true
+	check(drawn == views.size() and kinds.has("ally") and kinds.has("boss") and kinds.has("foe") and kinds.has("npc") and WorldLabels.touching(laid.items, laid.offsets).is_empty(),
+		"G4: the real labels (%d of %d: foes, a boss, the party's HP lines, two NPCs on one spot) are placed with none touching (%s; %s)" % [drawn, views.size(),
+		str(WorldLabels.touching(laid.items, laid.offsets)), str(views.filter(func(v): return not laid.offsets.has(v.id)).map(func(v): return "%s %s %s" % [v.id, v.kind, str(v.view.label_box)]))])
+	WorldLabels.party_fight = false
+	for v in views: v.view.tag.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var calm: Dictionary = WorldLabels.place_views(views, xf, [])
+	check(not calm.items.any(func(it): return str(it.kind) == "ally"), "G4: out of a fight the party shows no label (their names are on the HUD's chips)")
+	WorldLabels.party_fight = fight_was
+	for e in foes:
+		if e == null: continue
+		e.alive = false
+		Game.room_rt.enemies.erase(e.uid)
+	holder.queue_free()
+	await get_tree().process_frame
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
@@ -8719,6 +9314,41 @@ func moments_suite() -> void:
 	for i in 40: fl3._process(1.0 / 60.0)
 	check(not fl3.fx.any(func(e): return e.color == UiKit.PALE_GOLD), "two hits add up to no total")
 	fl3.free()
+	# Decision 23, case 15: technique animations. Every technique names a built form; a cast's sprite takes its element's
+	# row at its tier's band (Reduce motion the calmest, Battery saver the middle at most), a sub-element its parent's
+	# row and `none` the formless one; scales snap to halves; a form plays for its frames' length, facing the cast.
+	var fxa: Dictionary = ContentDB.config("fx_art")
+	var n_el: int = (fxa.elements as Array).size()
+	check(fxa.forms.size() == 24 and ContentDB.all("techniques").all(func(t): return fxa.forms.has(str(t.vfx.get("anim", "")))), "every technique names one of the 24 built forms")
+	var was_rm = Game.account.settings.get("reduce_motion")
+	var was_bs = Game.account.settings.get("battery_saver")
+	put.call("reduce_motion", false)
+	put.call("battery_saver", false)
+	check(FxLayer.band_of(1) == 0 and FxLayer.band_of(2) == 0 and FxLayer.band_of(3) == 1 and FxLayer.band_of(5) == 2 and FxLayer.band_of(7) == 2, "bands: tiers 1-2, 3-4 and 5-7")
+	put.call("battery_saver", true)
+	check(FxLayer.band_of(5) == 1, "Battery saver plays a tier-5 form at the middle band")
+	put.call("reduce_motion", true)
+	check(FxLayer.band_of(5) == 0, "Reduce motion plays it at the calmest")
+	put.call("reduce_motion", false)
+	put.call("battery_saver", false)
+	check(FxLayer.form_row("water", 0) == 0 and FxLayer.form_row("fire", 2) == 2 * n_el + 2 and FxLayer.form_row("none", 1) == n_el + 8 and FxLayer.form_row("ice", 1) == n_el,
+		"rows: water first, fire's at the third band, formless for none, ice with water")
+	check(FxLayer.snap_scale(1.3) == 1.5 and FxLayer.snap_scale(1.3, true) == 1.0 and FxLayer.snap_scale(0.1) == 0.5 and FxLayer.snap_scale(9.0) == 4.0, "sprite scales snap to halves inside 0.5 to 4")
+	var fl4 := FxLayer.new()
+	var strike: Dictionary = fxa.forms.strike
+	fl4.play_form("strike", "wind", 3, Vector2(10, 20), -1, {"scale": 1.5, "delay": 0.1})
+	check(fl4.fx.size() == 1 and str(fl4.fx[0].kind) == "anim" and int(fl4.fx[0].facing) == -1 and near(float(fl4.fx[0].t), -0.1)
+		and near(float(fl4.fx[0].dur), float(strike.frames) / float(strike.fps)) and int(fl4.fx[0].row) == n_el + 5 and near(float(fl4.fx[0].scale), 1.5),
+		"a Wind strike at tier 3: an anim facing left, 0.1 s off, for its frames, at wind's row of the middle band")
+	fl4.play_form("strike", "wind", 1, Vector2.ZERO, 1, {"start": 0.2})
+	check(near(float(fl4.fx[1].dur), float(strike.frames) / float(strike.fps) - 0.2) and FxLayer.form_frame(strike, 0.2 + 0.05) == int(0.25 * float(strike.fps)),
+		"started part-way in, it plays the rest and reads its frame from where it began")
+	check(fl4.play_form("no_such_form", "wind", 1, Vector2.ZERO, 1).is_empty() and fl4.fx.size() == 2, "a form without a sheet plays nothing")
+	fl4.free()
+	if was_rm == null: Game.account.settings.erase("reduce_motion")
+	else: Game.account.settings.reduce_motion = was_rm
+	if was_bs == null: Game.account.settings.erase("battery_saver")
+	else: Game.account.settings.battery_saver = was_bs
 	# A counted text picks its "_one" twin (P4 plurals): one bolt, nine bolts.
 	var bolts := {"key": "hud.tribulation_started", "args": ["payload.bolts"], "plural": "payload.bolts"}
 	check(MomentRules.text(bolts, {"bolts": 1}) == Tx.t("hud.tribulation_started_one") % 1 and MomentRules.text(bolts, {"bolts": 9}) == Tx.t("hud.tribulation_started") % 9,

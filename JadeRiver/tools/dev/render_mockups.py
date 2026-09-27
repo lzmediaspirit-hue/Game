@@ -18,6 +18,21 @@ by their feet. OUT paths are relative to the working directory; put them in docs
 
 Rendering uses headless Chromium (the CHROME environment variable overrides the binary). Every PNG is checked to be
 exactly 1280 x 720. No network: the pages link the kit and the art by relative path.
+
+The layout check. A page that carries <meta name="mockup-check" content="SELECTOR"> is also measured in the browser
+after it is rendered: a script run in the page (CHECK_JS) takes the box of every text run and of every element the
+selector matches (the "marks": map nodes, name plates, event marks, cards, event slips), and the render fails when
+    - two text runs intersect (each run measured as its em box: the line's height cut to its font size),
+    - a text run intersects a mark it is not inside, or two marks intersect where neither holds the other
+      (data-ov-pad="N" grows a mark by N px, for a ring drawn outside its box),
+    - a text run is set under 14 px (MIN_SIZE),
+    - text is cut by an element with overflow hidden or by the screen's edge (unless an ancestor carries
+      data-clip-ok); text wholly outside a scrolled list's view is simply not shown, and not measured,
+    - a button, tab or element marked data-tap is under 48 px either way.
+A popover (a mark with data-ov-float, such as an item card) lies over the page on purpose: text it covers wholly is
+hidden rather than overlapped, and only text its edges cut through is a fault.
+    python3 tools/dev/render_mockups.py --check 16_world_map   # only measure, and print every box that collides
+    MOCKUP_BOXES=1 python3 tools/dev/render_mockups.py --check 16_world_map   # also list every mark's box
 """
 import glob
 import json
@@ -67,6 +82,142 @@ def render(name):
     if size != (W, H):
         sys.exit("%s is %dx%d, not %dx%d" % (out, size[0], size[1], W, H))
     print("%s  %dx%d" % (os.path.relpath(out, ROOT), size[0], size[1]))
+    if _check_selector(html) is not None:
+        faults = check(name)
+        if faults:
+            sys.exit("%s fails the layout check (%d faults); see above" % (os.path.relpath(out, ROOT), faults))
+
+
+# ------------------------------------------------------------------ the layout check (text boxes measured in the page)
+CHECK_JS = r"""
+(function () {
+  var meta = document.querySelector('meta[name="mockup-check"]');
+  var sel = meta ? meta.getAttribute('content') : '';
+  var out = {overlaps: [], small: [], clipped: [], taps: []};
+  function name(el) {
+    var s = el.tagName.toLowerCase();
+    if (typeof el.className === 'string' && el.className.trim()) s += '.' + el.className.trim().split(/\s+/).join('.');
+    var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    return t ? s + ' "' + t.slice(0, 36) + '"' : s;
+  }
+  function box(r, pad) { pad = pad || 0; return {l: r.left - pad, t: r.top - pad, r: r.right + pad, b: r.bottom + pad}; }
+  function hits(a, b) { return Math.min(a.r, b.r) - Math.max(a.l, b.l) > 1 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 1; }
+  function visible(el) {
+    for (var e = el; e && e.nodeType === 1; e = e.parentElement) {
+      var cs = getComputedStyle(e);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false;
+    }
+    return true;
+  }
+  var marks = sel ? Array.prototype.slice.call(document.querySelectorAll(sel)).filter(visible) : [];
+  function group(el) { for (var e = el; e && e.nodeType === 1; e = e.parentElement) if (marks.indexOf(e) >= 0) return e; return null; }
+  function related(a, b) { return a === b || a.contains(b) || b.contains(a); }
+  // a popover (data-ov-float) lies over the page on purpose: what it hides wholly is hidden, not overlapped; only its
+  // edges are checked, against text it cuts through
+  function floatOf(el) { return el.closest ? el.closest('[data-ov-float]') : null; }
+  function hidden(it) {
+    var x = (it.b.l + it.b.r) / 2, y = (it.b.t + it.b.b) / 2, hit = document.elementFromPoint(x, y);
+    return hit && !related(hit, it.el) && floatOf(hit) && !related(floatOf(hit), it.el);
+  }
+  var items = [];
+  marks.forEach(function (m) { items.push({kind: 'mark', el: m, g: m, b: box(m.getBoundingClientRect(), parseFloat(m.getAttribute('data-ov-pad') || 0)), n: name(m)}); });
+  var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
+  while ((node = walk.nextNode())) {
+    var txt = node.nodeValue.replace(/\s+/g, ' ').trim();
+    var el = node.parentElement;
+    if (!txt || !el || /^(SCRIPT|STYLE|TITLE)$/.test(el.tagName) || !visible(el)) continue;
+    var cs = getComputedStyle(el), fs = parseFloat(cs.fontSize);
+    if (fs < 14) out.small.push(name(el) + ' at ' + fs + ' px');
+    var range = document.createRange(); range.selectNodeContents(node);
+    Array.prototype.forEach.call(range.getClientRects(), function (r) {
+      if (r.width < 1 || r.height < 1) return;
+      var cut = Math.max(0, (r.height - fs) / 2);
+      items.push({kind: 'text', el: el, node: node, g: group(el) || el, b: {l: r.left, t: r.top + cut, r: r.right, b: r.bottom - cut}, n: '"' + txt.slice(0, 36) + '"'});
+    });
+  }
+  // clipping: a text run cut by an ancestor that hides its overflow (or by the 1280 x 720 screen) is a fault; one
+  // wholly outside it (scrolled out of a list's view) is simply not shown
+  function clip(it) {
+    var b = it.b;
+    if (b.r < 0 || b.b < 0 || b.l > 1280 || b.t > 720) return 'out';
+    if (b.l < -0.5 || b.t < -0.5 || b.r > 1280.5 || b.b > 720.5) return 'cut by the screen';
+    for (var e = it.el; e && e.nodeType === 1 && e !== document.body; e = e.parentElement) {
+      if (e.hasAttribute('data-clip-ok')) return 'in';
+      var cs = getComputedStyle(e);
+      if (cs.overflow === 'visible' && cs.overflowX === 'visible' && cs.overflowY === 'visible') continue;
+      var r = e.getBoundingClientRect();
+      if (b.r <= r.left || b.l >= r.right || b.b <= r.top || b.t >= r.bottom) return 'out';
+      if (b.l < r.left - 1 || b.r > r.right + 1 || b.t < r.top - 1 || b.b > r.bottom + 1) return 'cut by ' + name(e).slice(0, 60);
+    }
+    return 'in';
+  }
+  items = items.filter(function (it) {
+    if (it.kind === 'mark') return true;
+    var c = clip(it);
+    if (c !== 'in' && c !== 'out') out.clipped.push(it.n + ' ' + c);
+    return c === 'in' && !hidden(it);
+  });
+  for (var i = 0; i < items.length; i++) for (var j = i + 1; j < items.length; j++) {
+    var a = items[i], b = items[j];
+    if (a.kind === 'text' && b.kind === 'text' && (a.node === b.node || a.el === b.el)) continue;
+    if ((a.kind === 'mark' || b.kind === 'mark') && related(a.g, b.g)) continue;
+    var fa = floatOf(a.el), fb = floatOf(b.el);
+    if (a.kind === 'mark' && b.kind === 'mark' && (fa || fb) && fa !== fb) continue;
+    if (a.kind !== b.kind && fa !== fb && ((a.kind === 'text' && fa) || (b.kind === 'text' && fb))) continue;
+    if (hits(a.b, b.b)) out.overlaps.push(a.n + ' ' + JSON.stringify(a.b) + '  x  ' + b.n + ' ' + JSON.stringify(b.b));
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.k-btn, .k-btn2, .k-tab, .k-close, [data-tap]'), function (el) {
+    if (!visible(el)) return;
+    var r = el.getBoundingClientRect();
+    if (r.width < 47.5 || r.height < 47.5) out.taps.push(name(el) + ' ' + Math.round(r.width) + ' x ' + Math.round(r.height));
+  });
+  out.boxes = items.filter(function (it) { return it.kind === 'mark'; }).map(function (it) {
+    return it.n.slice(0, 48) + ' ' + [it.b.l, it.b.t, it.b.r, it.b.b].map(Math.round).join(',');
+  });
+  var s = document.createElement('script'); s.type = 'application/json'; s.id = '__mockup_check';
+  s.textContent = JSON.stringify(out); document.body.appendChild(s);
+})();
+"""
+
+
+def _check_selector(html):
+    import re
+    m = re.search(r'<meta\s+name="mockup-check"\s+content="([^"]*)"', open(html, encoding="utf-8").read())
+    return m.group(1) if m else None
+
+
+def check(name):
+    """Measure a rendered page (CHECK_JS in headless Chromium) and print its faults; returns how many there are."""
+    import re
+    html = os.path.join(SRC, name if name.endswith(".html") else name + ".html")
+    src = open(html, encoding="utf-8").read()
+    probe = os.path.join(SRC, ".check_%d_%s" % (os.getpid(), os.path.basename(html)))
+    open(probe, "w", encoding="utf-8").write(src.replace("</body>", "<script>window.addEventListener('load', function () { setTimeout(function () {" +
+                                                               CHECK_JS + "}, 50); });</script></body>"))
+    try:
+        with tempfile.TemporaryDirectory() as prof:
+            cmd = [SHELL if os.path.exists(SHELL) and "CHROME" not in os.environ else CHROME, "--headless", "--no-sandbox",
+                   "--disable-gpu", "--hide-scrollbars", "--allow-file-access-from-files", "--force-device-scale-factor=1",
+                   "--user-data-dir=" + prof, "--virtual-time-budget=3000", "--window-size=%d,%d" % (W, H), "--dump-dom",
+                   "file://" + probe]
+            r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
+    finally:
+        os.remove(probe)
+    m = re.search(r'<script type="application/json" id="__mockup_check">(.*?)</script>', r.stdout, re.S)
+    if not m:
+        print("check %s: no result from the page" % name)
+        return 1
+    res = json.loads(m.group(1).replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&"))
+    faults = 0
+    for kind, what in (("overlaps", "overlap"), ("small", "under 14 px"), ("clipped", "clipped"), ("taps", "tap under 48 px")):
+        for line in res[kind]:
+            print("  %s: %s" % (what, line))
+            faults += 1
+    if os.environ.get("MOCKUP_BOXES"):   # list every measured mark, to place things by
+        for line in res.get("boxes", []):
+            print("  box: %s" % line)
+    print("check %s: %s" % (name, "clean" if not faults else "%d faults" % faults))
+    return faults
 
 
 # Mockups kept as the record of a decision and never re-rendered: 00b previewed the option B button faces, whose PNGs
@@ -233,6 +384,8 @@ def main():
         return creature_cmd(args[1:])
     if args and args[0] == "--list":
         return list_mockups()
+    if args and args[0] == "--check":
+        sys.exit(1 if sum(check(n) for n in args[1:]) else 0)
     for n in (args or all_names()):
         render(n)
 
