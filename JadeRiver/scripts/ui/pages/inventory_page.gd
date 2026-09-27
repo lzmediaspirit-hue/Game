@@ -168,7 +168,7 @@ func _draw_detail(r: Rect2) -> void:
 		# S47 weapon awakening: an awakened weapon's own skill.
 		if s.get("awakened", false):
 			var ak := CraftingAuthority.awakened_skill(id)
-			text(Vector2(r.position.x + 16, y + 20), fit(Tx.t("ui.forge.awakened_line") % [str(ak.get("name", "")), int(ak.get("every_hits", 12))], 16, r.size.x - 32), 16, UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), fit(Tx.plural("ui.forge.awakened_line", int(ak.get("every_hits", 12))) % [str(ak.get("name", "")), int(ak.get("every_hits", 12))], 16, r.size.x - 32), 16, UiKit.GOLD)
 			y += 22
 		# S47: failed enhancements leave pity on the piece; the forge adds it to the next try.
 		if float(s.get("pity", 0.0)) > 0.0:
@@ -183,7 +183,7 @@ func _draw_detail(r: Rect2) -> void:
 		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.potency") % int(round(InventoryAuthority.pill_potency(s) * 100.0)), 16, name_col)
 		y += 22
 		if int(s.get("marks", 0)) > 0:
-			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.pill_marks") % [int(s.marks), int(s.marks) * 2], 16, UiKit.GOLD)
+			text(Vector2(r.position.x + 16, y + 20), Tx.plural("ui.inventory.pill_marks", int(s.marks)) % [int(s.marks), int(s.marks) * 2], 16, UiKit.GOLD)
 			y += 22
 		if q == "pill_halo":
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
@@ -261,9 +261,9 @@ func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> 
 	var tr := CombatAuthority.treasure_of(str(s.id))
 	if not tr.is_empty():
 		var soul := int(CombatAuthority.treasure_soul_cost(ch, tr))
-		var line := Tx.t("ui.inventory.treasure_charges") % int(s.get("charges", int(tr.charges))) if tr.has("charges") \
-			else (Tx.t("ui.inventory.treasure_cost_soul") % [int(tr.get("qi", 0)), soul, int(tr.get("cooldown_s", 0))] if soul > 0
-			else Tx.t("ui.inventory.treasure_cost") % [int(tr.get("qi", 0)), int(tr.get("cooldown_s", 0))])
+		var line := Tx.plural("ui.inventory.treasure_charges", int(s.get("charges", int(tr.charges)))) % int(s.get("charges", int(tr.charges))) if tr.has("charges") \
+			else (Tx.t("ui.inventory.treasure_cost_soul") % [int(tr.get("qi", 0)), soul, UiKit.span(float(tr.get("cooldown_s", 0)))] if soul > 0
+			else Tx.t("ui.inventory.treasure_cost") % [int(tr.get("qi", 0)), UiKit.span(float(tr.get("cooldown_s", 0)))])
 		text(Vector2(x, y + 20), line, 16, UiKit.BRIGHT_JADE if not tr.has("charges") else UiKit.PALE_GOLD)
 		y += 22
 	if def.has("flight"):
@@ -291,7 +291,7 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 			bar(Rect2(bx, by, bw, 34), prog, UiKit.JADE, Tx.t("ui.inventory.binding"))
 		else:
 			var secs := float(ContentDB.stat_const("binding", {}).get("seconds", {}).get(str(def.get("grade", "common")), 10))
-			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % int(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
+			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % UiKit.span(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
 		return
 	var spirit := str(s.get("spirit", ""))
 	if spirit == "": return

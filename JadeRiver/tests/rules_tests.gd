@@ -4901,7 +4901,7 @@ func territory_suite() -> void:
 	check(Game.sect.holds("lower_pit_seam") and not Game.room_rt.event.get("active", false) and seen.claimed == 1 and int(Game.sect.sect().prestige) == p0 + 30,
 		"the warden falls: the mine is yours (+30 Prestige)")
 	Game.sect.sect().level = 2
-	check(Game.sect.assault_block(c, "grey_pools_seep") == Tx.t("sim.sect.mine_cap") % 1, "one more mine only at sect level 3")
+	check(Game.sect.assault_block(c, "grey_pools_seep") == Tx.plural("sim.sect.mine_cap", 1) % 1, "one more mine only at sect level 3")
 	# The carts: a stone an hour, a day's worth at most; only whole stones leave.
 	Clock.override_utc = t0 + 5.5 * 3600.0
 	check(Game.sect.mine_stored("lower_pit_seam") == 5, "five and a half hours: five stones")

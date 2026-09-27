@@ -26,7 +26,7 @@ func draw_page() -> void:
 		var o: Dictionary = d.objectives[0]
 		var have := int(st.get("progress", [0])[0]) if not st.is_empty() else 0
 		text(Vector2(left.position.x + 20, y + 24), str(d.name), 20)
-		text(Vector2(left.position.x + 20, y + 46), "%s (%d/%d)" % [str(o.get("text", "")), have, int(o.get("count", 1))], 16, UiKit.MIST)
+		text(Vector2(left.position.x + 20, y + 46), "%s (%d / %d)" % [str(o.get("text", "")), have, int(o.get("count", 1))], 16, UiKit.MIST)
 		y += 60
 	heading(right.position + Vector2(20, 40), Tx.t("ui.notice.requests"), right.size.x - 40)
 	var yy := right.position.y + 60

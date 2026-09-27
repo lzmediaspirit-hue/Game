@@ -176,10 +176,10 @@ static func body_font() -> Font:
 		_body = f
 	return _body
 
-## True for strings of digits and signs only ("84/84", "+12%", "3 / 28").
+## True for strings of digits and signs only ("84/84", "+12%", "3 / 28"), and numbers shortened by `short` ("18.2K").
 static func is_numeric(s: String) -> bool:
 	if _numeric.has(s): return _numeric[s]
-	if _num_re == null: _num_re = RegEx.create_from_string("^[0-9\\s.,:/%+\\-−×()#]+$")
+	if _num_re == null: _num_re = RegEx.create_from_string("^[0-9\\s.,:/%+\\-−×()#]+[KMBT]?$")
 	if _numeric.size() > 4000: _numeric.clear()
 	_numeric[s] = _num_re.search(s) != null
 	return _numeric[s]
@@ -419,19 +419,30 @@ static func clock(seconds: float) -> String:
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
 
-## A time left in words: "2 d 5 h" (unless `days` is false), "1 h 6 m", "12 m", "45 s" (the calendar's style; I14
-## proposes it for every duration but the ticking countdowns, which keep `clock`).
+## A time left in words: "2 d 5 h", "1 h 6 m", "12 m", "45 s" (Tx.span, the one style for every wait, cooldown and
+## duration; I14). The ticking countdowns the player races keep `clock`.
 static func span(seconds: float, days := true) -> String:
-	var s := maxi(0, int(ceil(seconds)))
-	if days and s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
-	if s >= 3600: return Tx.t("ui.span_hm") % [s / 3600, (s % 3600) / 60]
-	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
-	return Tx.t("ui.span_s") % s
+	return Tx.span(seconds, days)
 
 ## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
 ## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.
 static func pool_values(cur: float, most: float) -> Array:
 	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
+
+## Numbers over the world shortened to three figures from 10,000 (docs/ui_style_guide.md §4 rule 3, mockup 01):
+## "18.2K", "123K", "1.25M"; under 10,000 grouped as `fmt` writes them.
+const SHORT_UNITS := [[1e12, "T"], [1e9, "B"], [1e6, "M"], [1e3, "K"]]
+
+static func short(n: float) -> String:
+	var a := absf(roundf(n))
+	if a < 10000.0: return fmt(n)
+	for u in SHORT_UNITS:
+		# Three figures are rounded first, so 999,960 reads 1.00M rather than 1000K.
+		if a >= float(u[0]) * 0.9995:
+			var v := a / float(u[0])
+			var d := 0 if v >= 99.95 else (1 if v >= 9.995 else 2)
+			return ("-" if n < 0.0 else "") + ("%." + str(d) + "f") % v + str(u[1])
+	return fmt(n)
 
 static func fmt(n: float) -> String:
 	var v := int(round(n))

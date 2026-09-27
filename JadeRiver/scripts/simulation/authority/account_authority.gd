@@ -581,7 +581,7 @@ func claim_activity_chest(c, tier: String) -> Dictionary:
 	if t.is_empty(): return fail("no_tier")
 	var a := activity()
 	if (a.claimed as Array).has(tier): return fail("claimed", {"text": Tx.t("sim.account.chest_claimed")})
-	if int(a.points) < int(t.points): return fail("short", {"text": Tx.t("sim.account.chest_short") % (int(t.points) - int(a.points))})
+	if int(a.points) < int(t.points): return fail("short", {"text": Tx.plural("sim.account.chest_short", int(t.points) - int(a.points)) % (int(t.points) - int(a.points))})
 	a.claimed.append(tier)
 	game.apply_effects(c.id, t.get("rewards", []), "activity:" + tier)
 	emit("activity_chest_claimed", {"actor": c.id, "tier": tier, "points": int(t.points)})

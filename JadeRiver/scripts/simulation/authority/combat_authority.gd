@@ -1505,7 +1505,7 @@ func revive_here_allowed(c) -> Dictionary:
 	if c.inventory.count("revival_talisman") <= 0: return {"ok": false, "text": Tx.t("sim.combat.no_revival_talisman")}
 	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": Tx.t("sim.combat.not_allowed_here")}
 	var until := float(c.cooldowns.get("revival_talisman_utc", 0.0))
-	if Clock.now_utc() < until: return {"ok": false, "text": Tx.t("sim.combat.talisman_recovering_ds") % int(until - Clock.now_utc())}
+	if Clock.now_utc() < until: return {"ok": false, "text": Tx.t("sim.combat.talisman_recovering_ds") % Tx.span(until - Clock.now_utc())}
 	return {"ok": true, "text": ""}
 
 ## An Evergreen Heart fruit (natural treasure) lifts you where you fell, whole.

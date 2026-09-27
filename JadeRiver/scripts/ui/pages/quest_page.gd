@@ -94,7 +94,7 @@ func draw_page() -> void:
 		var have := int(st.get("progress", [])[i]) if not st.is_empty() else (int(o.get("count", 1)) if ch.quests.is_done(sel) else 0)
 		var need := int(o.get("count", 1))
 		var done := have >= need
-		text(Vector2(right.position.x + 24, y + 22), ("✓ " if done else "○ ") + str(o.get("text", o.kind)) + (" (%d/%d)" % [have, need] if need > 1 else ""), 18, UiKit.BRIGHT_JADE if done else UiKit.PAPER)
+		text(Vector2(right.position.x + 24, y + 22), ("✓ " if done else "○ ") + str(o.get("text", o.kind)) + (" (%d / %d)" % [have, need] if need > 1 else ""), 18, UiKit.BRIGHT_JADE if done else UiKit.PAPER)
 		y += 28
 	y += 12
 	var rewards: Array = d2.get("rewards", [])
@@ -162,7 +162,7 @@ func _activity(ch, r: Rect2) -> void:
 		icon_at(ico, "open")
 		if not ready: draw_rect(box.grow(-2), Color(UiKit.INK, 0.55))
 		if claimed: text(Vector2(box.position.x, box.position.y + 32), "✓", 22, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
-		region(box, "chest", str(tr.id), ready, Tx.t("ui.quest.chest_locked") % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
+		region(box, "chest", str(tr.id), ready, Tx.plural("ui.quest.chest_locked", int(tr.points)) % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
 		text(Vector2(box.position.x, br.end.y + 20), str(int(tr.points)), 16, UiKit.PALE_GOLD if pts >= int(tr.points) else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
 	para(Rect2(r.position.x, br.end.y + 26, r.size.x, 40), Tx.t("ui.quest.activity_note"), 14, UiKit.MIST, 2)
 

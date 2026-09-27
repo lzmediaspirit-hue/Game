@@ -131,7 +131,7 @@ func _care_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 	var bag_cap: int = Game.pets.bag_capacity(ch)
 	if ch.active_pet != sel and not only_mount and ch.mount_pet != sel:
 		var carried: bool = ch.pet_bag.has(sel)
-		btn(Rect2(px + 2.0 * (aw + 8), y, aw, 50), fit((Tx.t("ui.pets.unpack") if carried else Tx.t("ui.pets.carry")) + " %d/%d" % [ch.pet_bag.size(), bag_cap], 16, aw - 10),
+		btn(Rect2(px + 2.0 * (aw + 8), y, aw, 50), fit((Tx.t("ui.pets.unpack") if carried else Tx.t("ui.pets.carry")) + " %d / %d" % [ch.pet_bag.size(), bag_cap], 16, aw - 10),
 			"carry", not carried, carried, carried or (bag_cap > 0 and ch.pet_bag.size() < bag_cap),
 			Tx.t("ui.pets.no_bag") if bag_cap <= 0 else Tx.t("ui.pets.bag_full") % bag_cap, 16)
 	var cap: int = Game.pets.command_capacity(ch)
@@ -316,7 +316,7 @@ func _eggs(ch, r: Rect2) -> void:
 			btn(Rect2(x + 58, r.position.y + 32, minf(120.0, each - 66.0), 46), Tx.t("ui.pets.hatch"), "hatch", i, true)
 		else:
 			var hl := Tx.t("ui.pets.hatches_in") if each >= 200.0 else Tx.t("ui.pets.hatches_short")
-			text(Vector2(x + 58, r.position.y + 62), fit(hl % ceili(left_s / 3600.0), 16, each - 64.0), 16, UiKit.MIST)
+			text(Vector2(x + 58, r.position.y + 62), fit(hl % UiKit.span(left_s), 16, each - 64.0), 16, UiKit.MIST)
 		# S46 incubation input: your blood, a core to steer the element, essence blood to reroll a trait.
 		if i == 0:
 			var used: Array = egg.get("inputs", [])
@@ -382,7 +382,7 @@ func _swarm_tab(ch, r: Rect2) -> void:
 	var pop := float(sw.get("pop", 0.0))
 	bar(Rect2(r.position.x + 24, r.position.y + 70, r.size.x - 48, 28), log(1.0 + pop) / log(1.0 + float(k.get("max_pop", 5000))), UiKit.GOLD,
 		Tx.t("ui.pets.swarm_pop") % [int(pop), int(k.get("max_pop", 5000))])
-	var lines: Array = [Tx.t("ui.pets.swarm_food") % int(sw.get("food", 0)),
+	var lines: Array = [Tx.t("ui.pets.swarm_food") % UiKit.span(float(sw.get("food", 0)) * 3600.0),
 		Tx.t("ui.pets.swarm_bite") % int(round(100.0 * PetRules.swarm_bite(pop, bool(sw.get("queen", false)), false, k)))]
 	if bool(sw.get("queen", false)): lines.append(Tx.t("ui.pets.swarm_queen"))
 	for i in lines.size():
@@ -399,7 +399,7 @@ func _swarm_tab(ch, r: Rect2) -> void:
 		panel(rr, "minor_panel")
 		icon_at(Rect2(rr.position + Vector2(8, 6), Vector2(44, 44)), id)
 		text(rr.position + Vector2(64, 34), fit("%s ×%d · %s" % [ContentDB.item_name(id), ch.inventory.count(id),
-			Tx.t("ui.pets.swarm_food_each") % int(k.ore_food[id])], 18, rr.size.x - 300), 18)
+			Tx.t("ui.pets.swarm_food_each") % UiKit.span(float(k.ore_food[id]) * 3600.0)], 18, rr.size.x - 300), 18)
 		btn(Rect2(rr.end.x - 226, rr.position.y + 8, 104, 40), Tx.t("ui.pets.swarm_feed_one"), "swarm_feed", [id, 1], false, true, "", 16)
 		btn(Rect2(rr.end.x - 114, rr.position.y + 8, 104, 40), Tx.t("ui.pets.swarm_feed_all"), "swarm_feed", [id, ch.inventory.count(id)], false, true, "", 16)
 	)

@@ -46,7 +46,7 @@ func _draw_roll() -> void:
 			text(rr.position + Vector2(18, 62), Tx.t("ui.posts.no_post"), 18, UiKit.HOLLOW)
 		elif str(p.get("kind", "")) == "vigil":
 			text(rr.position + Vector2(18, 60), fit(Tx.t("ui.posts.vigil_at") % str(ContentDB.room(str(p.get("room", ""))).get("name", "")), 18, 330), 18, UiKit.RED_TEXT)
-			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % _dur(float(row.since_h))
+			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % UiKit.span(float(row.since_h) * 3600.0)
 			text(rr.position + Vector2(18, 86), state, 16, UiKit.MIST)
 			text(Vector2(rr.position.x + 360, rr.position.y + 35), Tx.t("ui.posts.kills_h") % UiKit.fmt(int(float(r.get("kills_h", 0.0)))), 16, UiKit.PAPER)
 			if int(r.get("sweep", 0)) > 0: text(Vector2(rr.position.x + 360, rr.position.y + 60), Tx.t("ui.posts.sweep") % int(r.sweep), 16, UiKit.PALE_GOLD)
@@ -56,7 +56,7 @@ func _draw_roll() -> void:
 			var where := "%s · %s" % [str(craft.get("short", "")), str(ContentDB.room(str(p.get("room", ""))).get("name", ""))]
 			text(rr.position + Vector2(18, 60), fit(where, 18, 330), 18, UiKit.BRIGHT_JADE)
 			var lvtxt := Tx.t("ui.posts.level_short") % int(r.get("level", 1))
-			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % _dur(float(row.since_h))
+			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % UiKit.span(float(row.since_h) * 3600.0)
 			text(rr.position + Vector2(18, 86), "%s · %s" % [lvtxt, state], 16, UiKit.MIST)
 			var x := rr.position.x + 360
 			var k := 0
@@ -66,7 +66,7 @@ func _draw_roll() -> void:
 				text(Vector2(x + 38, rr.position.y + 28 + k * 30), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(r.items[id]), 0.1)), 16, UiKit.PAPER)
 				k += 1
 			var fill := float(row.fill_h)
-			var fill_txt := Tx.t("ui.posts.pouch_full") if fill <= 0.0 else (Tx.t("ui.posts.full_in") % _dur(fill) if fill < INF else "")
+			var fill_txt := Tx.t("ui.posts.pouch_full") if fill <= 0.0 else (Tx.t("ui.posts.full_in") % UiKit.span(fill * 3600.0) if fill < INF else "")
 			text(Vector2(rr.position.x + 540, rr.position.y + 35), Tx.t("ui.posts.in_pouch") % UiKit.fmt(int(row.pouch)), 16, UiKit.PAPER)
 			text(Vector2(rr.position.x + 540, rr.position.y + 60), fill_txt, 16, UiKit.RED_TEXT if fill <= 0.0 else UiKit.MIST)
 		if not row.active:
@@ -113,7 +113,7 @@ func _draw_crafts() -> void:
 		var tool_name := ContentDB.item_name(str(tool.item)) if not tool.is_empty() else Tx.t("ui.posts.bare_hands")
 		var line := Tx.t("ui.posts.finesse_line") % [UiKit.fmt(int(Game.posts.finesse_of(ch, craft))), fit(tool_name, 16, 220)]
 		if craft == "rites": line += "  ·  " + Tx.t("ui.posts.charge") % int(Game.posts.rite_charge(ch))
-		if craft == "snaring": line += "  ·  " + Tx.t("ui.posts.snares_out") % (Game.posts.snares(ch) as Array).size()
+		if craft == "snaring": line += "  ·  " + Tx.plural("ui.posts.snares_out", (Game.posts.snares(ch) as Array).size()) % (Game.posts.snares(ch) as Array).size()
 		text(r.position + Vector2(60, minf(r.size.y - 11.0, 82.0)), line, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80)   # I9: clear of the frame
 		y += step
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -288,7 +288,7 @@ func on_action(id: String, data) -> void:
 	match id:
 		"settle_all":
 			var r := submit({"type": "settle_all"})
-			if r.get("ok", false): flash(Tx.t("ui.posts.settled_n") % (r.get("ledgers", []) as Array).size())
+			if r.get("ok", false): flash(Tx.plural("ui.posts.settled_n", (r.get("ledgers", []) as Array).size()) % (r.get("ledgers", []) as Array).size())
 		"settle":
 			var r := submit({"type": "settle_post", "character": str(data)})
 			if r.get("ok", false):
@@ -298,7 +298,7 @@ func on_action(id: String, data) -> void:
 			var inc := _incense()
 			if inc == "": return
 			var r := submit({"type": "burn_incense", "character": str(data), "item": inc})
-			if r.get("ok", false): flash(Tx.t("ui.posts.incense_burned") % _dur(float(r.hours)))
+			if r.get("ok", false): flash(Tx.t("ui.posts.incense_burned") % UiKit.span(float(r.hours) * 3600.0))
 		"switch": navigate.emit("_switch", {"slot": int(data)})
 		"bench_collect":
 			var r := submit({"type": "bench_collect"})
@@ -315,8 +315,3 @@ func on_action(id: String, data) -> void:
 		"withdraw":
 			var r := submit({"type": "withdraw_storehouse", "item": str(data), "count": 50})
 			if r.get("ok", false): flash(Tx.t("ui.posts.withdrew") % [int(r.count), ContentDB.item_name(str(data))])
-
-func _dur(h: float) -> String:
-	if h >= 48.0: return Tx.t("ui.posts.days") % int(h / 24.0)
-	if h >= 1.0: return Tx.t("ui.posts.hours_minutes") % [int(h), int(fmod(h * 60.0, 60.0))]
-	return Tx.t("ui.posts.minutes") % int(h * 60.0)

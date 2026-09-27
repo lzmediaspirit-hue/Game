@@ -10,7 +10,7 @@ func draw_page() -> void:
 	var w: Dictionary = args.get("gains", {})
 	var y := content.position.y + 10
 	var minutes := float(args.get("hours", 0.0)) * 60.0
-	text(Vector2(content.position.x, y + 24), Tx.t("ui.welcome.you_were_away") % _dur(minutes * 60.0), 22, UiKit.MIST)
+	text(Vector2(content.position.x, y + 24), Tx.t("ui.welcome.you_were_away") % UiKit.span(minutes * 60.0), 22, UiKit.MIST)
 	y += 50
 	var rows: Array = []
 	if float(w.get("qp", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.realm_progress"), "+%s" % UiKit.fmt(float(w.qp))])
@@ -28,7 +28,7 @@ func draw_page() -> void:
 	var led: Dictionary = args.get("post", {})
 	if not led.is_empty() and str(led.get("kind", "")) == "vigil":
 		rows.append([Tx.t("ui.welcome.vigil_at") % str(ContentDB.room(str(led.get("room", ""))).get("name", "")),
-			Tx.t("ui.welcome.post_hours") % [_dur(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.4)) * 100.0))]])
+			Tx.t("ui.welcome.post_hours") % [UiKit.span(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.4)) * 100.0))]])
 		rows.append([Tx.t("ui.welcome.vigil_kills"), "%s · %d%%" % [UiKit.fmt(int(led.get("kills", 0))), int(round(100.0 * float(led.get("alive", 1.0))))]])
 		if int(led.get("food_used", 0)) > 0: rows.append([Tx.t("ui.welcome.vigil_food") % ContentDB.item_name(str(led.food)), "×%d" % int(led.food_used)])
 		if float(led.get("qp", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.realm_progress"), "+%s" % UiKit.fmt(float(led.qp))])
@@ -36,18 +36,18 @@ func draw_page() -> void:
 		for id in led.get("leaves", {}): rows.append([Tx.t("ui.welcome.leaf") % ContentDB.name_of("enemies", str(id)), "×%d" % int(led.leaves[id])])
 		for id in led.get("items", {}): rows.append([ContentDB.item_name(str(id)), "×%s" % UiKit.fmt(int(led.items[id]))])
 		for cat in led.get("full", {}):
-			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % _dur(float(led.full[cat]) * 3600.0)])
+			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % UiKit.span(float(led.full[cat]) * 3600.0)])
 	elif not led.is_empty():
 		var craft := ContentDB.entry("posts", str(led.get("craft", "")))
 		rows.append([Tx.t("ui.welcome.post_at") % [str(craft.get("short", "")), str(ContentDB.room(str(led.get("room", ""))).get("name", ""))],
-			Tx.t("ui.welcome.post_hours") % [_dur(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.52)) * 100.0))]])
+			Tx.t("ui.welcome.post_hours") % [UiKit.span(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.52)) * 100.0))]])
 		var lv_txt := "+%s" % UiKit.fmt(int(float(led.get("exp", 0.0))))
 		if int(led.get("level", 1)) > int(led.get("level_before", 1)): lv_txt += "  " + Tx.t("ui.welcome.level_up") % int(led.level)
 		rows.append([Tx.t("ui.welcome.craft_exp") % str(craft.get("short", "")), lv_txt])
 		for id in led.get("items", {}):
 			rows.append([ContentDB.item_name(str(id)), "×%s" % UiKit.fmt(int(led.items[id]))])
 		for cat in led.get("full", {}):
-			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % _dur(float(led.full[cat]) * 3600.0)])
+			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % UiKit.span(float(led.full[cat]) * 3600.0)])
 	if rows.is_empty(): rows.append([Tx.t("ui.welcome.nothing_gathered"), Tx.t("ui.welcome.set_seclusion_or_an_idle")])
 	# A long Return Ledger scrolls above the buttons instead of running under them.
 	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 36, func(i: int, rr: Rect2):
@@ -59,11 +59,6 @@ func draw_page() -> void:
 		btn(Rect2(content.get_center().x + 10, content.end.y - 60, 250, 58), Tx.t("ui.welcome.keep_in_pouch"), "ok")
 	else:
 		btn(Rect2(content.get_center().x - 120, content.end.y - 60, 240, 58), Tx.t("ui.welcome.collect"), "ok", null, true)
-
-func _dur(s: float) -> String:
-	var h := int(s / 3600.0)
-	var m := int(fmod(s, 3600.0) / 60.0)
-	return Tx.t("ui.welcome.dh_02dm") % [h, m] if h > 0 else Tx.t("ui.welcome.minutes") % m
 
 func on_action(id: String, _data) -> void:
 	if id == "store":

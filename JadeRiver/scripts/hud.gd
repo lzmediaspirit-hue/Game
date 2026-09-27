@@ -683,7 +683,7 @@ func _objective_toast(qid: String) -> void:
 	var st: Dictionary = c.quests.active.get(qid, {})
 	if st.is_empty(): return
 	for line in Game.quest.steps_forward(c, qid, objective_seen.get(qid, [])):
-		var txt := str(line.text) + ("  %d/%d" % [int(line.have), int(line.need)] if int(line.need) > 1 else "")
+		var txt := str(line.text) + ("  %d / %d" % [int(line.have), int(line.need)] if int(line.need) > 1 else "")
 		toast(("✓ " if line.done else "") + txt, "quest")
 	objective_seen[qid] = (st.progress as Array).duplicate()
 
@@ -743,7 +743,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"loadout_swapped":
 			add_log(Tx.t("hud.loadout_swapped") % ContentDB.item_name(str(p.get("weapon", ""))), UiKit.PALE_GOLD)
 		"sword_released":
-			if int(p.get("swarm", 0)) > 0: add_log(Tx.t("hud.sword_swarm") % int(p.swarm), UiKit.PALE_GOLD)
+			if int(p.get("swarm", 0)) > 0: add_log(Tx.plural("hud.sword_swarm", int(p.swarm)) % int(p.swarm), UiKit.PALE_GOLD)
 			else: add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
 			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.swarm_returned" if p.get("swarm", false) else "hud.sword_returned"), UiKit.MIST)
@@ -774,7 +774,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"artifact_detonated":
 			add_log(Tx.t("hud.detonated") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("targets", 0))], UiKit.RED_TEXT)
 		"items_salvaged":
-			add_log(Tx.t("hud.salvaged") % (p.get("items", []) as Array).size(), UiKit.PALE_GOLD)
+			add_log(Tx.plural("hud.salvaged", (p.get("items", []) as Array).size()) % (p.get("items", []) as Array).size(), UiKit.PALE_GOLD)
 		"enhancement_inherited":
 			add_log(Tx.t("hud.inherited") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("levels", 0))], UiKit.PALE_GOLD)
 		"path_above_found":
@@ -804,7 +804,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"player_gravely_wounded":
 			_buzz(200)
 		"pets_bred":
-			toast(Tx.t("hud.pets_bred") % ceili(float(p.get("hours", 24.0))), "gold")
+			toast(Tx.t("hud.pets_bred") % UiKit.span(float(p.get("hours", 24.0)) * 3600.0), "gold")
 		"treasure_planted":
 			toast(Tx.t("hud.treasure_planted"), "gold")
 		"treasure_harvested":
@@ -812,7 +812,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"natural_treasure_used":
 			toast(Tx.t("hud.treasure_used." + str(p.treasure)), "gold")
 		"treasure_used":
-			if p.has("charges"): add_log(Tx.t("hud.talisman_charges") % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
+			if p.has("charges"): add_log(Tx.plural("hud.talisman_charges", int(p.charges)) % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
 		# Gap report G1: the heart, the ledger, the flames and debts that come due.
 		"heart_demon_changed":
 			if str(p.get("source", "")) == "merit_milestone" and str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.merit_milestone") % int(p.value), UiKit.GOLD)
@@ -831,7 +831,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif int(p.get("delta", 0)) < 0: add_log(Tx.t("hud.fame_lost") % -int(p.delta), UiKit.MIST)
 			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.fame_gained") % int(p.delta), UiKit.PALE_GOLD)
 		"affinity_changed":
-			if p.get("heart_up", false): toast(Tx.t("hud.heart_up") % [ContentDB.name_of("npcs", str(p.npc)), int(p.hearts)], "gold")
+			if p.get("heart_up", false): toast(Tx.plural("hud.heart_up", int(p.hearts)) % [ContentDB.name_of("npcs", str(p.npc)), int(p.hearts)], "gold")
 		"bond_formed":
 			toast(Tx.t("hud.bond_" + str(p.kind)) % ContentDB.name_of("npcs", str(p.npc)), "unlock")
 		"grudge_changed":
@@ -893,11 +893,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 				for id in p.get("items", {}): n += int(p.items[id])
 				add_log(Tx.t("hud.snare_caught") % n if n > 0 else Tx.t("hud.snare_empty"), UiKit.PALE_GOLD if n > 0 else UiKit.MIST)
 		"rite_held":
-			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.rite_held") % int(p.wave), "gold", Tx.t("hud.rite_wisps") % int(p.wisps))
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.rite_held") % int(p.wave), "gold", Tx.plural("hud.rite_wisps", int(p.wisps)) % int(p.wisps))
 		"post_vow_learned":
 			add_log(Tx.t("hud.post_vow_learned") % str(Game.posts.post_vow(str(p.vow)).get("name", "")), UiKit.PALE_GOLD)
 		"incense_burned":
-			add_log(Tx.t("hud.incense_burned") % int(round(float(p.get("hours", 0.0)))), UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.incense_burned") % UiKit.span(float(p.get("hours", 0.0)) * 3600.0), UiKit.PALE_GOLD)
 		# S28 v1.2 Presence: held or let go, a new level, and two Presences meeting.
 		"presence_toggled":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -924,13 +924,13 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.presence_clash_end"), UiKit.MIST)
 		# v1.2 Phase D: the Copperjaw swarm and the lantern defence.
 		"swarm_released":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_released") % int(p.get("pop", 0)), UiKit.PALE_GOLD)
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.plural("hud.swarm_released", int(p.get("pop", 0))) % int(p.get("pop", 0)), UiKit.PALE_GOLD)
 		"swarm_returned":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_returned"), UiKit.MIST)
 		"swarm_queen":
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.swarm_queen"), "gold", Tx.t("hud.swarm_queen_sub"))
 		"swarm_fed":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_fed") % int(p.get("food", 0)), UiKit.MIST)
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_fed") % UiKit.span(float(p.get("food", 0)) * 3600.0), UiKit.MIST)
 		"lantern_light":
 			if str(p.get("actor", "")) == Game.active_id and float(p.get("light", 100.0)) <= 30.0 and int(p.get("near", 0)) > 0:
 				add_log(Tx.t("hud.lantern_guttering"), UiKit.RED_TEXT)
@@ -942,7 +942,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"thief_escaped":
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.thief_escaped"), "quest")
 		"route_started":
-			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.route_started"), "quest", Tx.t("hud.route_hint") % int(p.get("limit", 60)))
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.route_started"), "quest", Tx.plural("hud.route_hint", int(p.get("limit", 60))) % int(p.get("limit", 60)))
 		"route_finished":
 			if str(p.get("actor", "")) != Game.active_id: pass
 			elif not p.get("finished", false): toast(Tx.t("hud.route_failed"), "quest")
@@ -951,7 +951,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.route_finished") % [float(p.seconds), int(p.rank), int(p.of)], "gold" if medal != "" else "quest",
 					Tx.t("hud.route_medal_" + medal) if medal != "" else Tx.t("hud.route_best") % float(p.best))
 		"gathering_trial_ranked":
-			toast(Tx.t("hud.trial_ranked") % [int(p.rank), int(p.of), int(p.points)], "gold" if int(p.rank) <= 3 else "quest")
+			toast(Tx.plural("hud.trial_ranked", int(p.points)) % [int(p.rank), int(p.of), int(p.points)], "gold" if int(p.rank) <= 3 else "quest")
 		"rift_opened":
 			toast(Tx.t("hud.rift_opened") % int(p.level), "danger", Tx.t("hud.rift_hint"))
 		"young_master_challenge":
@@ -962,11 +962,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.tower_cleared") % int(p.floor), "gold", Tx.t("hud.tower_first") if p.get("first", false) else "")
 		"tower_swept":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.tower_swept") % int(p.floors), UiKit.PALE_GOLD)
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.plural("hud.tower_swept", int(p.floors)) % int(p.floors), UiKit.PALE_GOLD)
 		"activity_chest_ready":
-			toast(Tx.t("hud.activity_ready") % int(p.points), "gold", Tx.t("hud.activity_ready_hint"))
+			toast(Tx.plural("hud.activity_ready", int(p.points)) % int(p.points), "gold", Tx.t("hud.activity_ready_hint"))
 		"activity_chest_claimed":
-			add_log(Tx.t("hud.activity_claimed") % int(p.points), UiKit.PALE_GOLD)
+			add_log(Tx.plural("hud.activity_claimed", int(p.points)) % int(p.points), UiKit.PALE_GOLD)
 		"ranking_changed":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("beaten", "")) != "":
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
@@ -984,17 +984,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"mine_contested":
 			var mname := ContentDB.name_of("territory", str(p.mine))
 			var rname := str(Game.sect.rival(str(p.sect)).get("name", ""))
-			var hours := maxi(1, int(ceil((float(p.until) - Clock.now_utc()) / 3600.0)))
-			toast(Tx.t("hud.mine_contested") % [rname, mname], "danger", Tx.t("hud.mine_contested_sub") % hours)
+			toast(Tx.t("hud.mine_contested") % [rname, mname], "danger", Tx.t("hud.mine_contested_sub") % UiKit.span(float(p.until) - Clock.now_utc()))
 			Notifier.schedule("defence", Tx.t("hud.mine_notify_title"), Tx.t("hud.mine_contested") % [rname, mname], Clock.now_utc())
 		"mine_defended":
 			var dname := ContentDB.name_of("territory", str(p.mine))
 			toast(Tx.t("hud.mine_held_you") % dname if str(p.get("by", "")) == "you" else Tx.t("hud.mine_held_guards") % dname, "gold")
 		"mine_lost":
 			toast(Tx.t("hud.mine_lost") % [str(Game.sect.rival(str(p.sect)).get("name", "")), ContentDB.name_of("territory", str(p.mine))], "danger",
-				Tx.t("hud.mine_lost_sub") % int(p.stones) if int(p.get("stones", 0)) > 0 else "")
+				Tx.plural("hud.mine_lost_sub", int(p.stones)) % int(p.stones) if int(p.get("stones", 0)) > 0 else "")
 		"mine_collected":
-			add_log(Tx.t("hud.mine_collected") % [int(p.stones), ContentDB.name_of("territory", str(p.mine))], UiKit.PALE_GOLD)
+			add_log(Tx.plural("hud.mine_collected", int(p.stones)) % [int(p.stones), ContentDB.name_of("territory", str(p.mine))], UiKit.PALE_GOLD)
 		"pet_commanded":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.pet_commanded") % Tx.t("hud.pet_cmd_" + str(p.command)), UiKit.PALE_GOLD)
 		"guqin_played":
@@ -1034,13 +1033,13 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if res.begins_with("learned:"): toast(Tx.t("hud.experiment_found") % ContentDB.name_of("recipes", res.trim_prefix("learned:")), "unlock")
 			elif res == "murky": add_log(Tx.t("hud.experiment_murky"), UiKit.MIST)
 		"guild_exam_started":
-			toast(Tx.t("hud.exam_started") % int(float(p.get("time_s", 0)) / 60.0), "gold")
+			toast(Tx.t("hud.exam_started") % UiKit.span(float(p.get("time_s", 0))), "gold")
 		"guild_exam_failed":
 			toast(Tx.t("hud.exam_failed"), "danger")
 		"guild_rank_changed":
 			toast(Tx.t("hud.guild_rank") % Tx.t("ui.guild.rank_" + str(p.rank)), "unlock")
 		"commission_completed":
-			add_log(Tx.t("hud.commission_paid") % int(p.get("paid", 0)) + (" " + Tx.t("hud.commission_capped") if p.get("capped", false) else ""), UiKit.PALE_GOLD)
+			add_log(Tx.plural("hud.commission_paid", int(p.get("paid", 0))) % int(p.get("paid", 0)) + (" " + Tx.t("hud.commission_capped") if p.get("capped", false) else ""), UiKit.PALE_GOLD)
 		"pill_tribulation_result":
 			if str(p.after) != str(p.before): toast(Tx.t("hud.tribulation_changed") % Tx.t("ui.quality." + str(p.after)), "gold" if str(p.after) == "pill_soul" else "danger")
 			else: toast(Tx.t("hud.tribulation_held"), "gold")
@@ -1066,7 +1065,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"core_graded":
 			toast(Tx.t("hud.core_graded") % int(p.grade), "gold")
 		"tribulation_started":
-			toast(Tx.t("hud.tribulation_started") % int(p.bolts), "danger", Tx.t("hud.tribulation_hint"))
+			toast(Tx.plural("hud.tribulation_started", int(p.bolts)) % int(p.bolts), "danger", Tx.t("hud.tribulation_hint"))
 			Audio.play("thunder")
 		"tribulation_bolt":
 			if str(p.phase) == "strike":
@@ -1123,7 +1122,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"herb_ripening":
 			add_log(Tx.t("hud.herb_ripening") % ContentDB.item_name(str(p.item)), UiKit.GOLD)
 		"herb_harvested":
-			if p.get("perfect", false): add_log(Tx.t("hud.herb_perfect") % [ContentDB.item_name(str(p.item)), int(p.age)], UiKit.GOLD)
+			if p.get("perfect", false): add_log(Tx.plural("hud.herb_perfect", int(p.age)) % [ContentDB.item_name(str(p.item)), int(p.age)], UiKit.GOLD)
 		"seed_found":
 			toast(Tx.t("hud.seed_found") % ContentDB.item_name(str(p.seed)), "gold")
 		"herb_planted":
@@ -1133,7 +1132,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"bed_enriched":
 			toast(Tx.t("hud.bed_enriched") % Tx.t("ui.garden.grade_" + str(p.grade)), "gold")
 		"herb_aged":
-			toast(Tx.t("hud.herb_aged") % [ContentDB.item_name(str(p.herb)), int(p.age)], "gold")
+			toast(Tx.plural("hud.herb_aged", int(p.age)) % [ContentDB.item_name(str(p.herb)), int(p.age)], "gold")
 		"spring_bottled":
 			add_log(Tx.t("hud.spring_bottled") % int(p.left), UiKit.BRIGHT_JADE)
 		"pet_wounded":
@@ -1155,7 +1154,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"egg_infused":
 			add_log(Tx.t("hud.egg_infused_" + str(p.get("kind", "blood"))), UiKit.BRIGHT_JADE)
 		"party_changed":
-			add_log(Tx.t("hud.party_changed") % int(p.get("count", 1)), UiKit.MIST)
+			add_log(Tx.plural("hud.party_changed", int(p.get("count", 1))) % int(p.get("count", 1)), UiKit.MIST)
 		"pet_skill_learned":
 			var rep := str(p.get("replaced", ""))
 			if rep != "": add_log(Tx.t("hud.pet_skill_replaced") % [_pet_name(str(p.pet)), ContentDB.name_of("pet_skill_books", str(p.skill)), ContentDB.name_of("pet_skill_books", rep)], UiKit.PALE_GOLD)
@@ -1173,7 +1172,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.get("won", false): toast(Tx.t("hud.arena_won") % int(p.get("rank", 11)), "gold", "")
 			else: add_log(Tx.t("hud.arena_lost"), UiKit.MIST)
 		"arena_rewarded":
-			toast(Tx.t("hud.arena_rewarded") % [int(p.get("rank", 11)), int(p.get("spirit_stone", 0))], "gold", "")
+			toast(Tx.plural("hud.arena_rewarded", int(p.get("spirit_stone", 0))) % [int(p.get("rank", 11)), int(p.get("spirit_stone", 0))], "gold", "")
 		"beast_trial_result":
 			if p.get("won", false): toast(Tx.t("hud.trial_won"), "gold", ContentDB.item_name(str(p.get("item", ""))))
 			else: toast(Tx.t("hud.trial_lost"), "danger", "")
@@ -1182,9 +1181,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"beast_king_spawned":
 			toast(Tx.t("hud.beast_king_spawned") % ContentDB.name_of("enemies", str(p.get("king", ""))), "danger", Tx.t("hud.beast_king_spawned_sub"))
 		"king_nest_opened":
-			toast(Tx.t("hud.king_nest_opened"), "gold", Tx.t("hud.king_nest_opened_sub") % int(float(p.get("minutes", 30))))
+			toast(Tx.t("hud.king_nest_opened"), "gold", Tx.t("hud.king_nest_opened_sub") % UiKit.span(float(p.get("minutes", 30)) * 60.0))
 		"beast_tide_started":
-			toast(Tx.t("hud.beast_tide_started"), "danger", Tx.t("hud.beast_tide_started_sub") % int(float(p.get("duration", 90))))
+			toast(Tx.t("hud.beast_tide_started"), "danger", Tx.plural("hud.beast_tide_started_sub", int(float(p.get("duration", 90)))) % int(float(p.get("duration", 90))))
 		"beast_tide_result":
 			if p.get("won", false): toast(Tx.t("hud.beast_tide_won"), "gold", Tx.t("hud.beast_tide_won_sub"))
 		"pet_gear_changed":
@@ -1192,15 +1191,15 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"core_devoured":
 			add_log(Tx.t("hud.core_devoured") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item)), int(float(p.xp))], UiKit.BRIGHT_JADE)
 		"cores_sold":
-			add_log(Tx.t("hud.cores_sold") % [int(p.count), ContentDB.item_name(str(p.item)), int(p.stones)], UiKit.PALE_GOLD)
+			add_log(Tx.plural("hud.cores_sold", int(p.stones)) % [int(p.count), ContentDB.item_name(str(p.item)), int(p.stones)], UiKit.PALE_GOLD)
 		"beast_cleansed":
 			toast(Tx.t("hud.beast_cleansed") % ContentDB.name_of("enemies", str(p.def)), "gold", Tx.t("hud.beast_cleansed_sub"))
 		"beast_subdued":
-			add_log(Tx.t("hud.beast_subdued") % [ContentDB.name_of("enemies", str(p.def)), int(float(p.seconds))], UiKit.GOLD)
+			add_log(Tx.t("hud.beast_subdued") % [ContentDB.name_of("enemies", str(p.def)), UiKit.span(float(p.seconds))], UiKit.GOLD)
 		"garden_raided":
 			toast(Tx.t("hud.raid_" + str(p.kind)) % ContentDB.item_name(str(p.herb)), "danger")
 		"rack_started":
-			add_log(Tx.t("hud.rack_started") % [int(p.count), ContentDB.item_name(str(p.herb)), UiKit.clock(float(p.seconds))], UiKit.BRIGHT_JADE)
+			add_log(Tx.t("hud.rack_started") % [int(p.count), ContentDB.item_name(str(p.herb)), UiKit.span(float(p.seconds))], UiKit.BRIGHT_JADE)
 		"rack_collected":
 			add_log(Tx.t("hud.rack_collected") % [int(p.count), ContentDB.item_name(str(p.herb)), Tx.t("ui.garden.done_" + str(p.kind))], UiKit.BRIGHT_JADE)
 		"herb_appraised":
@@ -1221,7 +1220,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"egg_hatched":
 			toast(Tx.t("hud.the_egg_hatched_a") % ContentDB.name_of("pets", str(p.species)), "gold")
 		"bond_changed":
-			add_log(Tx.t("hud.hearts") % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED_TEXT)
+			add_log(Tx.plural("hud.hearts", int(float(p.value))) % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED_TEXT)
 		"field_boss_defeated":
 			toast(Tx.t("hud.is_defeated") % ContentDB.name_of("enemies", str(p.enemy)), "gold")
 		"defence_warning":
@@ -1479,14 +1478,14 @@ func _draw_player_panel(c) -> void:
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(24 + UiKit.text_width(badge, 16), 50), 14, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.hp / maxf(1.0, c.pools.max_hp), UiKit.HP, Tx.t("hud.hp"), "%s / %s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
 		y += 18
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s / %s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
 		y += 18
 	if soul_row:
-		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
+		bar(Rect2(r.position.x + 56, r.position.y + y, 288, 14), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s / %s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
 	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
 	if ProgressionAuthority.walks(c, "blood"):
 		var strip := Rect2(r.position.x + 56, r.end.y - 6, 288, 3)
@@ -1560,7 +1559,7 @@ func _draw_tracker(c) -> void:
 			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(goal), 16, 290), Vector2(30, y), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
 			y += UiKit.line_height(16) * 0.88
 		for line in q.lines:
-			var count := "%d/%d" % [int(line.have), int(line.need)] if int(line.need) > 1 else ""
+			var count := "%d / %d" % [int(line.have), int(line.need)] if int(line.need) > 1 else ""
 			var lc := UiKit.BRIGHT_JADE if line.done else UiKit.PAPER
 			UiKit.draw_text(self, tracker_objective(("✓ " if line.done else "· ") + str(line.text), count, 290.0), Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_LEFT, 290)
 			if count != "": UiKit.draw_text(self, count, Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_RIGHT, 290)
@@ -1685,7 +1684,7 @@ func _draw_minimap(c) -> void:
 			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -5), mp + Vector2(3.5, 0), mp + Vector2(0, 4), mp + Vector2(-3.5, 0)]), lc)
 			if ripe: draw_arc(mp, 6.5 + sin(t * 5.0), 0, TAU, 12, UiKit.GOLD, 1)
 			if not hs.dormant and not spent:
-				UiKit.draw_text(self, UiKit.clock(float(hs.seconds)), mp + Vector2(-20, 14), 14, lc, HORIZONTAL_ALIGNMENT_CENTER, 40)
+				UiKit.draw_text(self, UiKit.span(float(hs.seconds)), mp + Vector2(-30, 14), 14, lc, HORIZONTAL_ALIGNMENT_CENTER, 60)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -1935,7 +1934,7 @@ func _draw_event(c) -> void:
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
 	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
 	UiKit.draw_text(self, ev_name, r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
-	UiKit.draw_text(self, "%d:%02d" % [int(left) / 60, int(left) % 60], r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
+	UiKit.draw_text(self, UiKit.clock(left), r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
 	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)

@@ -77,7 +77,7 @@ func draw_page() -> void:
 func _week_line(cfg: Dictionary, rank: int) -> String:
 	for rw in cfg.get("rewards", []):
 		if rank >= int(rw.ranks[0]) and rank <= int(rw.ranks[1]):
-			return Tx.t("ui.arena.week_pays") % int(rw.get("spirit_stone", 0))
+			return Tx.plural("ui.arena.week_pays", int(rw.get("spirit_stone", 0))) % int(rw.get("spirit_stone", 0))
 	return Tx.t("ui.arena.week_none")
 
 ## The last fight, replayed at 8x: each side's health bars drain as the log's blows land.

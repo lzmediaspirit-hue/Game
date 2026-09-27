@@ -449,12 +449,15 @@ def sec_plurals():
 def sec_durations():
     print("## Duration formats in use (I14)\n")
     s = json.loads(read(os.path.join(ROOT, "data", "strings", "en.json"))).get("strings", {})
-    for k in ("ui.span_dh", "ui.span_hm", "ui.span_m", "ui.span_s", "ui.clock_days", "ui.posts.days", "ui.posts.hours_minutes",
-              "ui.posts.minutes", "ui.welcome.dh_02dm", "ui.welcome.minutes", "ui.auction.closes_in", "ui.techniques.qi_ds",
-              "sim.combat.talisman_recovering_ds", "sim.progression.your_mind_needs_rest_ds"):
-        print("- `%s`: %s" % (k, s.get(k, "(missing)")))
+    for k in ("ui.span_dh", "ui.span_d", "ui.span_hm", "ui.span_h", "ui.span_m", "ui.span_s", "ui.clock_days", "ui.posts.days",
+              "ui.posts.hours_minutes", "ui.posts.minutes", "ui.welcome.dh_02dm", "ui.welcome.minutes", "ui.auction.closes_in",
+              "ui.techniques.qi_ds", "sim.combat.talisman_recovering_ds", "sim.progression.your_mind_needs_rest_ds"):
+        print("- `%s`: %s" % (k, s.get(k, "(retired)")))
+    unit = re.compile(r"%[0-9]*d\s*(more\s+)?(s|m|h|d|min|mins|minutes?|hours?|days?|seconds?)\b")
+    own = sorted(k for k, v in s.items() if isinstance(v, str) and unit.search(v) and not k.startswith("ui.span_") and k != "ui.clock_days")
+    print("\nStrings that print a count before a unit of time themselves (%d): %s" % (len(own), ", ".join("`%s`" % k for k in own)))
     print("\nCallers:")
-    pat = re.compile(r'UiKit\.(span|clock)\(|func _dur|func _hours_text|hours_minutes"|posts\.days"|posts\.minutes"|dh_02dm"|'
+    pat = re.compile(r'(UiKit|Tx)\.(span|clock)\(|func _dur|func _hours_text|hours_minutes"|posts\.days"|posts\.minutes"|dh_02dm"|'
                      r'closes_in"|_ds"\)|"%d:%02d"|%\.1f s')
     for path in sorted(glob.glob(os.path.join(ROOT, "scripts", "**", "*.gd"), recursive=True)):
         for i, ln in enumerate(read(path).splitlines(), 1):

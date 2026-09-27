@@ -323,7 +323,7 @@ func assault_block(c, id: String) -> String:
 	if not founded(): return Tx.t("sim.sect.mine_no_sect")
 	if holds(id): return Tx.t("sim.sect.mine_yours")
 	if int(sect().level) < int(m.get("sect_level", 1)): return Tx.t("sim.sect.needs_sect_level") % int(m.get("sect_level", 1))
-	if mines().size() >= mine_cap(): return Tx.t("sim.sect.mine_cap") % mine_cap()
+	if mines().size() >= mine_cap(): return Tx.plural("sim.sect.mine_cap", mine_cap()) % mine_cap()
 	if c == null: return Tx.t("sim.sect.mine_unknown")
 	return ""
 
@@ -485,10 +485,9 @@ func mine_dialogue(c, id: String) -> Dictionary:
 		var cap := int(float(tcfg().get("cap_hours", 24)) * float(m.get("rate", 1)))
 		lines.append(Tx.t("sim.sect.mine_yours_line") % [str(sect().name), mine_stored(id), cap])
 		if bool(st.get("contested", false)):
-			var left := maxi(1, int(ceil((float(st.until) - Clock.now_utc()) / 3600.0)))
-			lines.append(Tx.t("sim.sect.mine_contested_line") % [mine_holder_rival(id), left])
+			lines.append(Tx.t("sim.sect.mine_contested_line") % [mine_holder_rival(id), Tx.span(float(st.until) - Clock.now_utc())])
 			choices.append({"text": Tx.t("sim.sect.mine_defend"), "intent": {"type": "defend_mine", "mine": id}})
-		if mine_stored(id) > 0: choices.append({"text": Tx.t("sim.sect.mine_collect") % mine_stored(id), "intent": {"type": "collect_mine", "mine": id}})
+		if mine_stored(id) > 0: choices.append({"text": Tx.plural("sim.sect.mine_collect", mine_stored(id)) % mine_stored(id), "intent": {"type": "collect_mine", "mine": id}})
 	else:
 		lines.append(Tx.t("sim.sect.mine_held_line") % [mine_holder(id), int(m.level)])
 		var why := assault_block(c, id)

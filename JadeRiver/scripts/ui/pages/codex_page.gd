@@ -102,7 +102,7 @@ func _seasons() -> void:
 		for o in ContentDB.room(rid).get("objects", []):
 			if o.get("type", "") == "herb_patch" and o.has("ripen"): rares.append({"room": str(rid), "o": o})
 	rares.sort_custom(func(a, b): return str(a.o.item) < str(b.o.item))
-	text(content.position + Vector2(20, 30), Tx.t("ui.codex.season_now") % [ContentDB.name_of("seasons", cur), UiKit.clock(HerbRules.season_left_s(now))], 20, UiKit.PALE_GOLD)
+	text(content.position + Vector2(20, 30), Tx.t("ui.codex.season_now") % [ContentDB.name_of("seasons", cur), UiKit.span(HerbRules.season_left_s(now))], 20, UiKit.PALE_GOLD)
 	var seasons: Array = ContentDB.all("seasons")
 	var gap := 14.0
 	var cw := (content.size.x - gap * 3) / 4.0
@@ -137,7 +137,7 @@ func _rare_line(rn: Dictionary, at: Vector2, w: float) -> float:
 	text(at + Vector2(38, 13), fit(ContentDB.item_name(str(o.item)), 16, w - 38), 16, UiKit.PAPER)
 	var rp: Dictionary = o.get("ripen", {})
 	var where := str(ContentDB.room(str(rn.room)).get("name", "")) if seen else "? ? ?"
-	text(at + Vector2(34, 31), fit(Tx.t("ui.codex.ripens") % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 14, w - 34), 14, UiKit.MIST)
+	text(at + Vector2(34, 31), fit(Tx.plural("ui.codex.ripens", int(rp.get("every_days", 1))) % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 14, w - 34), 14, UiKit.MIST)
 	return at.y + 44
 
 func _paths_above(ch) -> void:

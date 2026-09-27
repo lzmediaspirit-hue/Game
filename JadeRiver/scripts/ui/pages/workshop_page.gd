@@ -60,7 +60,7 @@ func _formations(ch) -> void:
 		text(r.position + Vector2(16, 32), str(bp.name), 22, UiKit.PAPER if ok else UiKit.MIST)
 		para(Rect2(r.position + Vector2(16, 42), Vector2(330, 60)), str(bp.get("desc", "")), 16, UiKit.MIST, 2)
 		var need := int(bp.get("nodes", 3)) * int(bp.get("fuel_per_node", 1))
-		text(r.position + Vector2(16, 108), Tx.t("ui.workshop.nodes") % [int(bp.nodes), need, ContentDB.item_name(str(bp.fuel))], 16, UiKit.PALE_GOLD)
+		text(r.position + Vector2(16, 108), Tx.plural("ui.workshop.nodes", int(bp.nodes)) % [int(bp.nodes), need, ContentDB.item_name(str(bp.fuel))], 16, UiKit.PALE_GOLD)
 		btn(Rect2(r.end.x - 160, r.position.y + 34, 144, 50), Tx.t("ui.workshop.place"), "place", str(bp.id), true, ok, Unlocks.locked_text(str(bp.get("unlock", "formations"))))
 	)
 	_rank_line(ch, "formations", Vector2(left.position.x + 16, left.end.y - 14))
@@ -77,7 +77,7 @@ func _formations(ch) -> void:
 		var r2 := Rect2(right.position.x + 14, yy, right.size.x - 28, 70)
 		panel(r2, "minor_panel")
 		text(r2.position + Vector2(14, 30), str(ContentDB.entry("formations", str(f.type)).get("name", f.type)), 20)
-		text(r2.position + Vector2(14, 56), Tx.t("ui.workshop.1f_h_of_fuel") % [ContentDB.room(str(f.room)).get("name", f.room), hours], 16, UiKit.MIST)
+		text(r2.position + Vector2(14, 56), Tx.t("ui.workshop.1f_h_of_fuel") % [ContentDB.room(str(f.room)).get("name", f.room), UiKit.span(hours * 3600.0)], 16, UiKit.MIST)
 		btn(Rect2(r2.end.x - 120, r2.position.y + 12, 106, 46), Tx.t("ui.workshop.dispel"), "dispel", i)
 		yy += 80
 
@@ -195,7 +195,7 @@ func on_action(id: String, data) -> void:
 	match id:
 		"place":
 			var r := submit({"type": "place_formation", "formation": str(data)})
-			if r.get("ok", false): flash(Tx.t("ui.workshop.formation_placed_h_of_fuel") % int(r.get("hours", 0)))
+			if r.get("ok", false): flash(Tx.t("ui.workshop.formation_placed_h_of_fuel") % UiKit.span(float(r.get("hours", 0)) * 3600.0))
 		"dispel": submit({"type": "remove_formation", "index": int(data)})
 		"appraise":
 			var r2 := submit({"type": "appraise_item", "index": int(data)})

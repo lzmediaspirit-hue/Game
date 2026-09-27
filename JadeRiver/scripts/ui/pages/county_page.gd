@@ -62,7 +62,7 @@ func draw_page() -> void:
 			if not objs.is_empty():
 				var o: Dictionary = objs[0]
 				var have := int((st.get("progress", [0]) as Array)[0]) if not st.is_empty() else (int(o.get("count", 1)) if done else 0)
-				text(card.position + Vector2(18, 62), fit("%s  %d/%d" % [str(o.get("text", "")), have, int(o.get("count", 1))], 18, card.size.x - 36), 18, UiKit.PAPER)
+				text(card.position + Vector2(18, 62), fit("%s  %d / %d" % [str(o.get("text", "")), have, int(o.get("count", 1))], 18, card.size.x - 36), 18, UiKit.PAPER)
 			var silver := 0
 			for rw in def.get("rewards", []):
 				if str(rw.get("kind", "")) == "grant_currency": silver = int(rw.get("amount", 0))

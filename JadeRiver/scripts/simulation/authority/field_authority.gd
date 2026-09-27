@@ -145,7 +145,7 @@ func toggle_sphere(c, want) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "sphere"): return fail("locked", {"text": Unlocks.locked_text("sphere")})
 	if game.combat.is_wounded(c.id): return fail("wounded")
 	if game.sim_time < float(sphere_cd.get(c.id, 0.0)):
-		return fail("broken", {"text": t("sim.field.sphere_mending") % int(ceil(float(sphere_cd[c.id]) - game.sim_time))})
+		return fail("broken", {"text": t("sim.field.sphere_mending") % Tx.span(float(sphere_cd[c.id]) - game.sim_time)})
 	var sd := sphere_of(c)
 	if sd.is_empty(): return fail("no_dao", {"text": t("sim.field.sphere_no_dao")})
 	if c.pools.qi < _sphere_cost(c) * 2.0: return fail("qi")

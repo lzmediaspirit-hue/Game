@@ -111,7 +111,7 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			text = Tx.t("req.world_event") % str(ev.get("name", cond.event))
 		"hearts_at_least":
 			ok = c != null and c.relations.hearts_of(str(cond.npc)) >= int(cond.value)
-			text = Tx.t("req.hearts_at_least") % [ContentDB.name_of("npcs", str(cond.npc)), int(cond.value)]
+			text = Tx.plural("req.hearts_at_least", int(cond.value)) % [ContentDB.name_of("npcs", str(cond.npc)), int(cond.value)]
 		# S48 the Blood path: an orthodox sect's regard for you (training_sect.reputation; joined at 10).
 		"reputation_at_least":
 			var rsect := str(cond.get("sect", c.training_sect.get("id", "") if c != null else ""))
@@ -266,7 +266,7 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			text = Tx.t("req.only_at") % ", ".join(cond.get("phases", []))
 		"slots_unlocked_at_least":
 			ok = account != null and account.slots_unlocked >= int(cond.value)
-			text = Tx.t("req.character_slots") % int(cond.value)
+			text = Tx.plural("req.character_slots", int(cond.value)) % int(cond.value)
 		"skip_prologue":
 			ok = c != null and c.skip_prologue
 			text = Tx.t("req.skipped_the_prologue")

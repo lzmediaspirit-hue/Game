@@ -184,7 +184,7 @@ func _draw_furnace() -> void:
 		var parts: Array = []
 		for inp in sd.get("inputs", []):
 			parts.append("%d %s (%s)" % [PostRules.calcination_cost(rank, int(inp.qty)), ContentDB.item_name(str(inp.item)), UiKit.fmt(int(Game.account.storehouse.get(str(inp.item), 0)))])
-		var every := Tx.t("ui.works.every") % _dur_s(float(sd.get("cycle_s", 900)))
+		var every := Tx.t("ui.works.every") % UiKit.span(float(sd.get("cycle_s", 900)))
 		text(rr.position + Vector2(82, 58), fit(every + ": " + ", ".join(parts), 14, rr.size.x - 440), 14, UiKit.MIST)
 		text(rr.position + Vector2(82, 82), Tx.t("ui.works.fire") % [UiKit.fmt(int(ln.get("fire", 0))), PostRules.calcination_fire(rank),
 			UiKit.fmt(int(ln.get("refined", 0))), UiKit.fmt(PostRules.calcination_rank_need(rank))], 14, UiKit.BRIGHT_JADE)
@@ -200,7 +200,7 @@ func _draw_flags() -> void:
 	var fl: Dictionary = ContentDB.config("posts").get("flags", {})
 	var x := content.position.x
 	var y := content.position.y
-	para(Rect2(Vector2(x, y), Vector2(content.size.x - 460, 60)), Tx.t("ui.works.flags_note") % int(fl.get("max", 2)), 16, UiKit.MIST, 3)
+	para(Rect2(Vector2(x, y), Vector2(content.size.x - 460, 60)), Tx.plural("ui.works.flags_note", int(fl.get("max", 2))) % int(fl.get("max", 2)), 16, UiKit.MIST, 3)
 	var here := str(ch.position.get("room", ""))
 	var cost := UiKit.fmt(int(fl.get("plant_taels", 500)))
 	btn(Rect2(content.end.x - 450, y, 220, 52), Tx.t("ui.works.plant_plain") % cost, "plant", "plain", true, true, "", 16)
@@ -263,10 +263,6 @@ func _draw_mirror() -> void:
 		btn(Rect2(r.end.x - 250, r.position.y + 22, 234, 52), Tx.t("ui.works.mirror_inscribe") % str(ch.name), "echo", i, true,
 			Game.posts.art_level(ch, "echo_sampling") > 0 and Game.posts.has_post(ch), Tx.t("sim.posts.needs_echo"), 16)
 		y += 104
-
-func _dur_s(secs: float) -> String:
-	if secs >= 3600.0: return Tx.t("ui.posts.hours_minutes") % [int(secs / 3600.0), int(fmod(secs / 60.0, 60.0))]
-	return Tx.t("ui.posts.minutes") % int(secs / 60.0)
 
 # ------------------------------------------------------------------ actions
 func on_action(id: String, data) -> void:

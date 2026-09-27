@@ -360,7 +360,7 @@ func _seclusion(ch) -> void:
 	panel(r)
 	var room: Dictionary = Game.room_rt.def if Game.room_rt else {}
 	var cap := Game.progression.seclusion_cap(room)
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), Tx.t("ui.cultivation.choose_what_to_cultivate_while") % int(cap), 20, UiKit.PAPER)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), Tx.plural("ui.cultivation.choose_what_to_cultivate_while", int(cap)) % int(cap), 20, UiKit.PAPER)
 	var foci := [["accumulate", Tx.t("ui.cultivation.accumulate"), Tx.t("ui.cultivation.realm_progress"), "seclusion"], ["temper_body", Tx.t("ui.cultivation.temper_body"), Tx.t("ui.cultivation.body_training"), "seclusion"],
 		["heal", Tx.t("ui.cultivation.heal"), Tx.t("ui.cultivation.treat_injuries"), "seclusion"], ["contemplate", Tx.t("ui.cultivation.contemplate"), Tx.t("ui.cultivation.dao_insight"), "insight_sites"],
 		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"]]

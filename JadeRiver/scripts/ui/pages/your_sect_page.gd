@@ -72,7 +72,7 @@ func draw_page() -> void:
 				if i < out.size():
 					var ex: Dictionary = out[i]
 					var left := int(float(ex.done_utc) - Clock.now_utc())
-					text(Vector2(rr.position.x + 20, rr.position.y + 32), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % (left / 60 + 1)], 18, UiKit.MIST)
+					text(Vector2(rr.position.x + 20, rr.position.y + 32), "%s: %s" % [ContentDB.name_of("expeditions", str(ex.region)), Tx.t("ui.your_sect.back") if left <= 0 else Tx.t("ui.your_sect.dm_left") % UiKit.span(left)], 18, UiKit.MIST)
 					if left <= 0: btn(Rect2(rr.end.x - 180, rr.position.y + 2, 160, 48), Tx.t("ui.your_sect.collect"), "collect", i, true)
 					return
 				var e: Dictionary = exs[i - out.size()]
@@ -80,7 +80,7 @@ func draw_page() -> void:
 				var x := rr.end.x - 10
 				for h in e.get("hours", []):
 					x -= 100
-					btn(Rect2(x, rr.position.y + 2, 90, 48), Tx.t("ui.your_sect.hours") % int(h), "send", [str(e.id), int(h)])
+					btn(Rect2(x, rr.position.y + 2, 90, 48), UiKit.span(float(h) * 3600.0), "send", [str(e.id), int(h)])
 			)
 		"territory":
 			_draw_territory(r, s)

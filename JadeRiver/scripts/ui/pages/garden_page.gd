@@ -49,7 +49,7 @@ func _supplies(ch, r: Rect2) -> void:
 	if ds.has:
 		icon_at(Rect2(x, r.position.y + 10, 36, 36), "verdant_dew_vial")
 		var dew := Tx.t("ui.garden.dew") % [int(ds.dew), int(ds.cap)]
-		if int(ds.dew) < int(ds.cap): dew += "  ·  " + Tx.t("ui.garden.next_dew") % UiKit.clock(float(ds.next_s))
+		if int(ds.dew) < int(ds.cap): dew += "  ·  " + Tx.t("ui.garden.next_dew") % UiKit.span(float(ds.next_s))
 		text(Vector2(x + 44, r.position.y + 35), dew, 18, UiKit.BRIGHT_JADE)
 
 func _bed_card(ch, key: String, r: Rect2, i: int) -> void:
@@ -66,11 +66,11 @@ func _bed_card(ch, key: String, r: Rect2, i: int) -> void:
 		return
 	slot_box(Rect2(r.position.x + 18, r.position.y + 74, SLOT, SLOT), str(v.herb))
 	para(Rect2(r.position + Vector2(106, 82), Vector2(r.size.x - 124, 50)), ContentDB.item_name(str(v.herb)), 18, UiKit.PAPER, 2)
-	text(r.position + Vector2(106, 144), Tx.t("ui.garden.age") % int(v.age), 16, UiKit.GOLD if int(v.age) >= 100 else UiKit.MIST)
+	text(r.position + Vector2(106, 144), Tx.plural("ui.garden.age", int(v.age)) % int(v.age), 16, UiKit.GOLD if int(v.age) >= 100 else UiKit.MIST)
 	var frac := float(v.progress)
 	bar(Rect2(r.position.x + 18, r.position.y + 170, r.size.x - 36, 30), frac, UiKit.BRIGHT_JADE if frac >= 1.0 else UiKit.JADE,
 		Tx.t("ui.garden.ready") if v.ready else "%d%%" % int(frac * 100.0))
-	if not v.ready: text(r.position + Vector2(18, 226), Tx.t("ui.garden.ready_in") % UiKit.clock(float(v.seconds)), 16, UiKit.MIST)
+	if not v.ready: text(r.position + Vector2(18, 226), Tx.t("ui.garden.ready_in") % UiKit.span(float(v.seconds)), 16, UiKit.MIST)
 
 ## What can be done with the selected bed.
 func _actions(ch, r: Rect2, n: int) -> void:
@@ -130,7 +130,7 @@ func _racks(ch) -> void:
 		var total := float(g.get(str(job.kind), {}).get("hours", 1)) * 3600.0
 		var left := maxf(0.0, float(job.done) - now)
 		bar(Rect2(r.position.x + 108, r.position.y + 84, w - 126, 28), 1.0 - left / maxf(1.0, total), UiKit.BRIGHT_JADE,
-			Tx.t("ui.garden.ready") if left <= 0.0 else UiKit.clock(left))
+			Tx.t("ui.garden.ready") if left <= 0.0 else UiKit.span(left))
 	var any_done := jobs.any(func(j): return float(j.done) <= now)
 	btn(Rect2(content.end.x - 240, content.position.y + 160, 240, 48), Tx.t("ui.garden.collect"), "collect", null, true, any_done, Tx.t("ui.garden.nothing_ready"), 20)
 	# Start a rack: pick a herb, the kind and how many.

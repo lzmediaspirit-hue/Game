@@ -12,8 +12,8 @@ func draw_page() -> void:
 	var prices: Dictionary = ContentDB.config("pet_growth").get("cores", {}).get("price", {})
 	var top := Rect2(content.position, Vector2(content.size.x, 70))
 	panel(top)
-	text(top.position + Vector2(18, 30), Tx.t("ui.cores.today") % Game.pets.exchange_left(ch), 20, UiKit.PALE_GOLD)
-	para(Rect2(top.position + Vector2(18, 40), Vector2(top.size.x - 300, 30)), Tx.t("ui.cores.prices") % [int(prices.get("low", 1)), int(prices.get("mid", 3)),
+	text(top.position + Vector2(18, 30), Tx.plural("ui.cores.today", Game.pets.exchange_left(ch)) % Game.pets.exchange_left(ch), 20, UiKit.PALE_GOLD)
+	para(Rect2(top.position + Vector2(18, 40), Vector2(top.size.x - 300, 30)), Tx.plural("ui.cores.prices", int(prices.get("peak", 20))) % [int(prices.get("low", 1)), int(prices.get("mid", 3)),
 		int(prices.get("high", 8)), int(prices.get("peak", 20))], 16, UiKit.MIST, 1)
 	var wounded: bool = ch.pets.any(func(p): return p.get("wounded", false))
 	btn(Rect2(top.end.x - 260, top.position.y + 11, 244, 48), Tx.t("ui.cores.rest"), "rest", null, wounded, wounded, Tx.t("ui.cores.none_wounded"), 18)
@@ -31,7 +31,7 @@ func draw_page() -> void:
 		var cd: Dictionary = ContentDB.item(id).core
 		slot_box(Rect2(rr.position.x + 6, rr.position.y + 9, SLOT_SMALL, SLOT_SMALL), id, ch.inventory.count(id))
 		text(rr.position + Vector2(64, 28), ContentDB.item_name(id), 18, UiKit.PAPER)
-		text(rr.position + Vector2(64, 52), Tx.t("ui.cores.each") % int(prices.get(str(cd.tier), 1)), 16, UiKit.MIST)
+		text(rr.position + Vector2(64, 52), Tx.plural("ui.cores.each", int(prices.get(str(cd.tier), 1))) % int(prices.get(str(cd.tier), 1)), 16, UiKit.MIST)
 		btn(Rect2(rr.end.x - 300, rr.position.y + 10, 140, 44), Tx.t("ui.cores.sell_one"), "sell", [id, 1], false, true, "", 18)
 		btn(Rect2(rr.end.x - 150, rr.position.y + 10, 140, 44), Tx.t("ui.cores.sell_all"), "sell", [id, ch.inventory.count(id)], true, true, "", 18)
 	)
@@ -40,7 +40,7 @@ func on_action(id: String, data) -> void:
 	match id:
 		"sell":
 			var r := submit({"type": "sell_cores", "item": str(data[0]), "count": int(data[1])})
-			if r.get("ok", false): flash(Tx.t("ui.cores.sold") % [int(r.count), int(r.stones)])
+			if r.get("ok", false): flash(Tx.plural("ui.cores.sold", int(r.stones)) % [int(r.count), int(r.stones)])
 		"rest":
 			if submit({"type": "rest_pets"}).get("ok", false): flash(Tx.t("ui.cores.rested"))
 	queue_redraw()

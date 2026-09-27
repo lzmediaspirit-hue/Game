@@ -197,7 +197,7 @@ func _grudges(ch) -> void:
 			var bx := rr.end.x - 454
 			var bm: Dictionary = f.get("blood_money", {})
 			if not bm.is_empty():
-				btn(Rect2(bx, rr.position.y + 18, 216, 56), Tx.t("ui.relations.pay") % int(bm.amount), "pay", [str(f.id), "blood_money"], false,
+				btn(Rect2(bx, rr.position.y + 18, 216, 56), Tx.plural("ui.relations.pay", int(bm.amount)) % int(bm.amount), "pay", [str(f.id), "blood_money"], false,
 					Game.economy.balance(str(bm.currency), ch) >= int(bm.amount), Tx.t("sim.relations.cannot_pay") % int(bm.amount), 18)
 			if str(f.get("duel", "")) != "":
 				btn(Rect2(bx + 226, rr.position.y + 18, 216, 56), Tx.t("ui.relations.duel") % ContentDB.name_of("enemies", str(f.duel)), "pay", [str(f.id), "duel"], true, true, "", 16)

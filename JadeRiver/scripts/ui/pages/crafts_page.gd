@@ -339,7 +339,7 @@ func _forge_enhance(ch, r: Rect2) -> void:
 	var cost: Dictionary = Game.crafting.enhance_cost(inst)
 	y = _cost_line(r, y + 8, str(cost.metal), int(cost.count))
 	if int(cost.shards) > 0: y = _cost_line(r, y, "spirit_stone_shard", int(cost.shards))
-	text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels), 18, UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED_TEXT)
+	text(Vector2(r.position.x + 24, y + 24), Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels), 18, UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED_TEXT)
 	y += 36
 	if risky:
 		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.essence") % [essence, int(round(essence * float(Game.crafting.upkeep("essence_step", 0.025)) * 100))], 18, UiKit.PAPER)
@@ -365,11 +365,11 @@ func _awaken_section(ch, r: Rect2, inst: Dictionary, y: float) -> void:
 	var x := r.position.x + 24
 	var w := r.size.x - 48
 	if inst.get("awakened", false):
-		y += para(Rect2(x, y + 6, w, 60), Tx.t("ui.forge.awakened_line") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.GOLD, 2)
+		y += para(Rect2(x, y + 6, w, 60), Tx.plural("ui.forge.awakened_line", int(sk.get("every_hits", 12))) % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.GOLD, 2)
 		return
 	heading(Vector2(x, y + 34), Tx.t("ui.forge.awaken_title"), w)
 	y += 44
-	y += para(Rect2(x, y + 4, w, 60), Tx.t("ui.forge.awaken_skill") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.PALE_GOLD, 2)
+	y += para(Rect2(x, y + 4, w, 60), Tx.plural("ui.forge.awaken_skill", int(sk.get("every_hits", 12))) % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.PALE_GOLD, 2)
 	var fam := ContentDB.entry("weapon_families", str(ContentDB.item(str(inst.id)).get("family", "")))
 	var dao := str(fam.get("dao", ""))
 	var tier := int(ch.cultivator.daos.get(dao, {}).get("tier", 0))
@@ -404,7 +404,7 @@ func _forge_inherit(ch, r: Rect2) -> void:
 		elif moved <= int(to.get("enhance", 0)): why = Tx.t("sim.crafting.inherit_nothing")
 	if why == "":
 		var stones := moved * int(Game.crafting.upkeep("inherit_stones_per_level", 2))
-		text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.forge.inherit_preview") % [moved, stones], 20, UiKit.PAPER)
+		text(Vector2(r.position.x + 24, y + 26), Tx.plural("ui.forge.inherit_preview", stones) % [moved, stones], 20, UiKit.PAPER)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.inherit"), "do_inherit", null, true, why == "", why)
 	btn(Rect2(r.position.x + 24, r.end.y - 76, 160, 58), Tx.t("ui.forge.clear"), "clear_pick")
 
@@ -412,7 +412,7 @@ func _forge_salvage(ch, r: Rect2) -> void:
 	var pv: Dictionary = Game.crafting.salvage_preview(ch, picked.keys())
 	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.salvage_help"), 18, UiKit.MIST)
 	var y := r.position.y + 96
-	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.salvage_count") % pv.items.size(), 20, UiKit.PAPER)
+	text(Vector2(r.position.x + 24, y), Tx.plural("ui.forge.salvage_count", pv.items.size()) % pv.items.size(), 20, UiKit.PAPER)
 	y += 16
 	for item_id in pv.returns:
 		slot_box(Rect2(r.position.x + 24, y, SLOT_SMALL, SLOT_SMALL),str(item_id), int(pv.returns[item_id]))
@@ -454,7 +454,7 @@ func _forge_reroll(ch, r: Rect2) -> void:
 		text(Vector2(r.position.x + 24, y + 34), Tx.t("ui.forge.free_reroll"), 18, UiKit.BRIGHT_JADE)   # S10 Insight 25
 	else:
 		y = _cost_line(r, y + 10, "refining_essence", int(cost.essence))
-		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 18,
+		text(Vector2(r.position.x + 24, y + 24), Tx.plural("ui.forge.taels", int(cost.taels)) % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 18,
 			UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED_TEXT)
 	var why2: String = Game.crafting.reroll_check(ch, inst)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reroll"), "do_reroll", null, true, why2 == "", why2)
@@ -619,7 +619,7 @@ func _experiment(ch, r: Rect2) -> void:
 		var seen: Dictionary = Game.crafting.experiment_logged(CraftingAuthority.experiment_key(exp_herbs))
 		if not seen.is_empty(): why = Tx.t("sim.crafting.experiment_tried") % Game.crafting.experiment_result_text(seen)
 	if why != "" and exp_herbs.size() >= 2: text(Vector2(r.position.x + 24, y + 20), why, 16, UiKit.GOLD)
-	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.crafts.experiment_log") % Game.account.experiments.size(), 16, UiKit.MIST)
+	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.plural("ui.crafts.experiment_log", Game.account.experiments.size()) % Game.account.experiments.size(), 16, UiKit.MIST)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.experiment_go"), "experiment", null, true, why == "", why)
 
 func _deduce(ch, r: Rect2) -> void:
@@ -706,7 +706,7 @@ func _guild(ch, content_r: Rect2) -> void:
 		panel(card2, "minor_panel", "disabled" if o.get("done", false) else ("selected" if o.get("accepted", false) else "normal"))
 		slot_box(Rect2(card2.position + Vector2(10, 13), Vector2(SLOT_SMALL, SLOT_SMALL)), str(o.item))
 		text(card2.position + Vector2(72, 28), fit("%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 18, card2.size.x - 84), 18, UiKit.PAPER)
-		text(card2.position + Vector2(72, 50), Tx.t("ui.guild.pay") % int(o.pay), 16, UiKit.GOLD)
+		text(card2.position + Vector2(72, 50), Tx.plural("ui.guild.pay", int(o.pay)) % int(o.pay), 16, UiKit.GOLD)
 		if o.get("done", false):
 			text(card2.position + Vector2(72, card2.size.y - 14), Tx.t("ui.guild.delivered"), 16, UiKit.BRIGHT_JADE)
 		elif not o.get("accepted", false):
@@ -728,7 +728,7 @@ func _rank_name(craft: String, rank: String) -> String:
 
 ## What an exam asks for, in one line.
 func _exam_task(rk: Dictionary) -> String:
-	var mins := int(float(rk.time_s) / 60.0)
+	var mins := UiKit.span(float(rk.time_s))
 	if rk.has("recipe"):
 		var item := ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item))
 		if str(rk.get("quality", "common")) == "common": return Tx.t("ui.guild.exam_task_count") % [item, int(rk.count), mins]
@@ -1002,7 +1002,7 @@ func on_action(id: String, data) -> void:
 			var r5 := submit({"type": "salvage", "items": picked.keys()})
 			if r5.get("ok", false):
 				Audio.play("forge", "UI")
-				flash(Tx.t("ui.forge.salvaged") % (r5.items as Array).size())
+				flash(Tx.plural("ui.forge.salvaged", (r5.items as Array).size()) % (r5.items as Array).size())
 				picked = {}
 		"lock_affix": submit({"type": "lock_affix", "uid": pick_uid, "affix": int(data)})
 		"do_reroll":
@@ -1434,7 +1434,7 @@ func _refine_done(r2: Dictionary) -> void:
 		flash(Tx.t("ui.crafts.tribulation_begins"))
 	elif r2.get("ok", false):
 		var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
-		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
+		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.plural("ui.crafts.marks", int(r2.marks)) % int(r2.marks)
 		flash(made)
 
 func _band_mult(craft: String) -> float:

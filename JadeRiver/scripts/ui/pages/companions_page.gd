@@ -58,7 +58,7 @@ func draw_page() -> void:
 		var bw := (cr.size.x - 28 - 8) / 2.0
 		var y := cr.position.y + 330
 		btn(Rect2(bx, y, bw, 46), Tx.t("ui.companions.gift"), "gift", cid, false, true, "", 18)
-		btn(Rect2(bx + bw + 8, y, bw, 46), Tx.t("ui.companions.duel"), "duel", cid, false, h >= duel_h, Tx.t("ui.companions.need_hearts") % duel_h, 18)
+		btn(Rect2(bx + bw + 8, y, bw, 46), Tx.t("ui.companions.duel"), "duel", cid, false, h >= duel_h, Tx.plural("ui.companions.need_hearts", duel_h) % duel_h, 18)
 		y += 54
 		if dao == cid or sworn.has(cid):
 			para(Rect2(bx, y + 2, cr.size.x - 28, 46), Tx.t("ui.companions.dao_note") if dao == cid else Tx.t("ui.companions.sworn_note"), 14, UiKit.MIST, 2)
@@ -67,7 +67,7 @@ func draw_page() -> void:
 		else:
 			var full := sworn.size() >= int(ContentDB.entry("bonds", "sworn").get("max", 3))
 			btn(Rect2(bx, y, cr.size.x - 28, 46), Tx.t("ui.companions.swear"), "bond", ["sworn", cid], false, h >= sworn_h and not full,
-				Tx.t("ui.companions.sworn_full") if full else Tx.t("ui.companions.need_hearts") % sworn_h, 18)
+				Tx.t("ui.companions.sworn_full") if full else Tx.plural("ui.companions.need_hearts", sworn_h) % sworn_h, 18)
 		btn(Rect2(bx, cr.end.y - 60, cr.size.x - 28, 48), Tx.t("ui.companions.active") if active.has(cid) else Tx.t("ui.companions.bring_along"), "toggle", cid, active.has(cid))
 
 func on_action(id: String, data) -> void:

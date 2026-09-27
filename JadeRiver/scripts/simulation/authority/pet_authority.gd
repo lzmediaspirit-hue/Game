@@ -677,7 +677,7 @@ func evolve_gates(c, p: Dictionary) -> Array:
 	if nx.is_empty(): return []
 	var out: Array = []
 	out.append({"ok": int(p.get("level", 1)) >= int(nx.get("level", 0)), "text": Tx.t("sim.pet.level") % int(nx.get("level", 0))})
-	out.append({"ok": float(p.get("bond", 0.0)) >= float(nx.get("bond", 0)), "text": Tx.t("sim.pet.hearts") % int(nx.get("bond", 0))})
+	out.append({"ok": float(p.get("bond", 0.0)) >= float(nx.get("bond", 0)), "text": Tx.plural("sim.pet.hearts", int(nx.get("bond", 0))) % int(nx.get("bond", 0))})
 	var realm := str(nx.get("realm", ""))
 	var realm_ok := realm == "" or ProgressionRules.at_least(c.cultivator.realm_key, realm)
 	out.append({"ok": realm_ok, "text": Tx.t("sim.pet.you_at") % ContentDB.name_of("realms", realm)})
@@ -1005,7 +1005,7 @@ func offer_contract(c, uid: String, kind: String) -> Dictionary:
 		"equal":
 			if c.quests.has_flag("equal_contract"): return fail("once", {"text": Tx.t("sim.pet.equal_once")})
 			if float(p.get("bond", 0.0)) < float(cfg.get("equal", {}).get("hearts", 10)):
-				return fail("hearts", {"text": Tx.t("sim.pet.equal_hearts") % int(cfg.get("equal", {}).get("hearts", 10))})
+				return fail("hearts", {"text": Tx.plural("sim.pet.equal_hearts", int(cfg.get("equal", {}).get("hearts", 10))) % int(cfg.get("equal", {}).get("hearts", 10))})
 			game.quest.apply_flag(c.id, "equal_contract")
 		"blood":
 			if str(p.get("contract", "master")) != "master": return fail("bound", {"text": Tx.t("sim.pet.already_bound")})
@@ -1050,7 +1050,7 @@ func set_party(c, uid: String, on: bool) -> Dictionary:
 		var why := call_blocked(c, uid)
 		if why != "": return fail("cannot_call", {"text": why})
 		var cap := command_capacity(c)
-		if c.party_pets.size() + 1 >= cap: return fail("capacity", {"text": Tx.t("sim.pet.capacity") % cap})
+		if c.party_pets.size() + 1 >= cap: return fail("capacity", {"text": Tx.plural("sim.pet.capacity", cap) % cap})
 		c.party_pets.append(uid)
 	_spawn(c)
 	emit("party_changed", {"actor": c.id, "count": party(c).size()})
@@ -1474,7 +1474,7 @@ func set_pet_bag(c, uid: String, on: bool) -> Dictionary:
 		var cap := bag_capacity(c)
 		if cap <= 0: return fail("no_bag", {"text": Tx.t("sim.pet.no_bag")})
 		if not safe_room(): return fail("not_safe", {"text": Tx.t("sim.pet.pack_safe")})
-		if c.pet_bag.size() >= cap: return fail("bag_full", {"text": Tx.t("sim.pet.bag_slots") % cap})
+		if c.pet_bag.size() >= cap: return fail("bag_full", {"text": Tx.plural("sim.pet.bag_slots", cap) % cap})
 		c.pet_bag.append(uid)
 	emit("pet_changed", {"actor": c.id, "pet": uid})
 	return ok({"bag": c.pet_bag.duplicate()})

@@ -136,7 +136,7 @@ func draw_page() -> void:
 		return
 	var until := float(ch.cooldowns.get("guqin_until", 0.0)) - Clock.now_utc()
 	var rest := until > 0.0
-	if rest: text(Vector2(x0, y), Tx.t("ui.guqin.rest") % int(ceil(until / 60.0)), 18, UiKit.MIST)
+	if rest: text(Vector2(x0, y), Tx.t("ui.guqin.rest") % UiKit.span(until), 18, UiKit.MIST)
 	else: text(Vector2(x0, y), Tx.t("ui.guqin.ready"), 18, UiKit.PAPER)
 	btn(Rect2(r.end.x - 28 - 240, r.end.y - 84, 240, 60), Tx.t("ui.guqin.play"), "play", null, true, not rest and ch.inventory.count("guqin") > 0,
 		Tx.t("ui.guqin.resting") if rest else Tx.t("sim.progression.no_guqin"))

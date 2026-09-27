@@ -431,7 +431,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	var can := cu.state == "bottleneck" and hard_ok and cu.breakthrough_cooldown <= 0.0 and not channels.has(c.id)
 	var blocked := ""
 	if cu.state != "bottleneck": blocked = Tx.t("sim.progression.keep_accumulating") % int(cu.progress_fraction() * 100)
-	elif cu.breakthrough_cooldown > 0.0: blocked = Tx.t("sim.progression.your_mind_needs_rest_ds") % int(cu.breakthrough_cooldown)
+	elif cu.breakthrough_cooldown > 0.0: blocked = Tx.t("sim.progression.your_mind_needs_rest_ds") % Tx.span(cu.breakthrough_cooldown)
 	elif not hard_ok: blocked = Tx.t("sim.progression.a_hard_requirement_is_unmet")
 	return {"from": cu.realm_key, "to": to, "major": major, "results": results, "risk": word, "reasons": reasons,
 		"success": ProgressionRules.success_chance(word) if major else 1.0, "can": can, "blocked": blocked,
@@ -1559,7 +1559,7 @@ func play_guqin(c, score: float) -> Dictionary:
 	if c.inventory.count("guqin") <= 0: return fail("no_guqin", {"text": Tx.t("sim.progression.no_guqin")})
 	var g: Dictionary = ContentDB.config("chess").get("guqin", {})
 	var now := Clock.now_utc()
-	if float(c.cooldowns.get("guqin_until", 0.0)) > now: return fail("resting", {"text": Tx.t("sim.progression.guqin_resting") % int(ceil((float(c.cooldowns.guqin_until) - now) / 60.0))})
+	if float(c.cooldowns.get("guqin_until", 0.0)) > now: return fail("resting", {"text": Tx.t("sim.progression.guqin_resting") % Tx.span(float(c.cooldowns.guqin_until) - now)})
 	score = clampf(score, 0.0, 1.0) if is_finite(score) else 0.0
 	var bonus := float(g.get("base", 0.05)) + float(g.get("per_score", 0.10)) * score
 	game.combat.apply_buff(c.id, {"stat": "accumulation_rate", "op": "flat", "value": bonus, "duration": float(g.get("duration_s", 1800)), "source": "guqin"}, "guqin")
