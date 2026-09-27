@@ -2,118 +2,161 @@
 <html><head><meta charset="utf-8"><title>18 Codex, the Collection</title>
 <link rel="stylesheet" href="../kit/kit.css">
 <style>
-  /* The Collection as a bestiary: its pages on the left (one per region), the open page on the right with its cards
-     and its two seals. Every long bar carries its stops and names the next one (E4); a finished page can be sealed a
-     second time at ten times the count (E3). */
-  .pg { position: absolute; left: 100px; width: 264px; height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 4px; }
-  .pg + .pg { border-top: 1px solid rgba(175,201,209,.12); }
-  .pg.is-selected { background: rgba(44,158,143,.18); box-shadow: inset 3px 0 0 var(--gold); }
-  .pg .n { font-size: 17px; font-weight: 700; white-space: nowrap; }
-  .pg .c { margin-left: auto; font-size: 14px; color: var(--mist); white-space: nowrap; }
-  .sl { width: 16px; height: 16px; border-radius: 3px; transform: rotate(-8deg); box-shadow: 0 0 0 1.5px var(--ink); flex: none; }
-  .sl.off { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(135,148,154,.6); }
-  .sl.on { background: var(--red); box-shadow: 0 0 0 1.5px var(--ink), inset 0 0 0 1.5px rgba(255,230,161,.55); }
-  .book { position: absolute; left: 388px; top: 172px; width: 800px; height: 492px; }
-  .card { position: absolute; top: 236px; width: 176px; height: 236px; border-radius: 4px; overflow: hidden;
-    background: linear-gradient(180deg, #f1e9d6, #e3d8bd); box-shadow: inset 0 0 0 1px rgba(154,106,53,.6), 0 3px 0 rgba(0,0,0,.3); color: var(--ink); }
-  .card .art { position: absolute; left: 8px; top: 8px; width: 160px; height: 120px; border-radius: 3px; overflow: hidden;
-    background: radial-gradient(ellipse at 50% 70%, rgba(21,81,79,.25), rgba(21,81,79,0) 70%); }
-  .card .art img { position: absolute; width: 768px; height: 768px; image-rendering: pixelated; }
-  .card .art.unk img { filter: brightness(0); opacity: .38; }
-  .card .nm { position: absolute; left: 0; right: 0; top: 132px; text-align: center; font-size: 17px; font-weight: 700; white-space: nowrap; }
-  .card .sb { position: absolute; left: 0; right: 0; top: 154px; text-align: center; font-size: 14px; color: #5b4a33; white-space: nowrap; }
-  .card .k-bar { position: absolute; left: 10px; right: 10px; top: 180px; height: 26px; }
-  .card .k-bar > .k-trough { top: 5px; bottom: 5px; }
-  .card .k-bar .k-bar-text { font-size: 14px; }
-  .card .ft { position: absolute; left: 0; right: 0; top: 210px; text-align: center; font-size: 14px; white-space: nowrap; }
-  .card .stamp { position: absolute; right: 10px; top: 12px; width: 44px; height: 44px; border-radius: 6px; transform: rotate(-10deg);
-    border: 3px solid rgba(179,32,46,.85); color: rgba(179,32,46,.9); font-family: var(--f-display); font-weight: 700; font-size: 15px; line-height: 1;
-    display: flex; align-items: center; justify-content: center; text-align: center; }
-  .seal-row { position: absolute; left: 408px; width: 760px; }
-  .seal-ic { position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 6px; transform: rotate(-8deg); display: flex; align-items: center; justify-content: center;
-    font-family: var(--f-display); font-weight: 700; font-size: 20px; }
-  .seal-ic.i { background: rgba(228,88,88,.18); border: 2px dashed rgba(228,88,88,.7); color: var(--red); }
-  .seal-ic.ii { background: rgba(135,148,154,.1); border: 2px dashed rgba(135,148,154,.55); color: var(--hollow); }
+  /* The Collection as a bestiary: an open bound book on the reading desk. Two facing pages with a gutter, page edges,
+     paper grain and foxing drawn in CSS; silk ribbons stand out of the top as the Codex's sections; each beast is a
+     field-book entry (the creature drawn from its own sheet, the notes the data holds, the count, the stops, the seal);
+     the curled corners turn to the next and last pages. */
+  :root { --paper-ink: #2b2118; --paper-brown: #5b4a33; --vermilion: #9c2a36; --wash-jade: #1f6b62; --page: #efe6cf; --talisman-edge: #8a6a3a; }
+  .desk { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0), rgba(0,0,0,.55) 75%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 180px, rgba(0,0,0,.18) 180px 182px), linear-gradient(180deg, #2a170c, #1b1410); opacity: .92; }
+  .cover { position: absolute; left: 30px; top: 66px; width: 1220px; height: 646px; border-radius: 10px;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 3px, rgba(0,0,0,0) 3px 6px), linear-gradient(180deg, #17393b, #0d2426);
+    box-shadow: 0 14px 30px rgba(0,0,0,.65), inset 0 0 0 2px rgba(229,184,76,.35); }
+  .edges { position: absolute; background: repeating-linear-gradient(90deg, #cfc2a2 0 1px, #efe6cf 1px 3px); }
+  .edges.b { background: repeating-linear-gradient(180deg, #cfc2a2 0 1px, #efe6cf 1px 3px); }
+  .page { position: absolute; top: 76px; width: 590px; height: 616px; color: var(--paper-ink);
+    background:
+      radial-gradient(circle at 30% 40%, rgba(154,106,53,.10) 0 1.5px, rgba(0,0,0,0) 2.5px) 0 0 / 37px 41px,
+      radial-gradient(circle at 70% 20%, rgba(154,106,53,.07) 0 1px, rgba(0,0,0,0) 2px) 0 0 / 23px 29px,
+      repeating-linear-gradient(0deg, rgba(120,90,50,.03) 0 1px, rgba(0,0,0,0) 1px 3px),
+      var(--shade), linear-gradient(180deg, #f3ebd6, var(--page) 60%, #e8dcbc); }
+  .page * { text-shadow: none; }
+  .page.l { left: 50px; border-radius: 6px 2px 2px 8px; --shade: linear-gradient(90deg, rgba(60,40,20,.10), rgba(0,0,0,0) 12%, rgba(0,0,0,0) 86%, rgba(60,40,20,.28)); }
+  .page.r { left: 640px; border-radius: 2px 6px 8px 2px; --shade: linear-gradient(90deg, rgba(60,40,20,.28), rgba(0,0,0,0) 14%, rgba(0,0,0,0) 88%, rgba(60,40,20,.10)); }
+  .gutter { position: absolute; left: 610px; top: 76px; width: 60px; height: 616px;
+    background: linear-gradient(90deg, rgba(0,0,0,0), rgba(40,26,12,.35) 45%, rgba(20,12,6,.55) 50%, rgba(40,26,12,.35) 55%, rgba(0,0,0,0)); }
+  .fox { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(154,106,53,.18), rgba(154,106,53,0) 70%); }
+  .ribbon { position: absolute; top: 8px; height: 72px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 14px;
+    clip-path: polygon(0 0, 50% 12px, 100% 0, 100% 100%, 0 100%); color: #fff3e0; font-size: 18px; font-weight: 700;
+    background: linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,255,255,.08) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.25)), var(--c);
+    box-shadow: inset 0 -8px 10px rgba(0,0,0,.25); text-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .ribbon.is-sel { top: 0; height: 128px; padding-bottom: 70px; font-size: 20px; color: var(--pale-gold);
+    text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .ribbon .k-new { right: 8px; top: 18px; }
+  .rh { position: absolute; top: 18px; font-size: 14px; font-weight: 700; letter-spacing: .12em; color: var(--paper-brown); text-transform: uppercase; }
+  .h1 { font-family: var(--f-display); font-weight: 700; font-size: 40px; line-height: 1; color: var(--paper-ink); }
+  .rule { position: absolute; height: 2px; background: linear-gradient(90deg, rgba(91,74,51,.7), rgba(91,74,51,0)); }
+  /* a field-book entry */
+  .spec { position: absolute; border-radius: 2px;
+    background: repeating-linear-gradient(0deg, rgba(31,107,98,.10) 0 1px, rgba(0,0,0,0) 1px 16px), repeating-linear-gradient(90deg, rgba(31,107,98,.10) 0 1px, rgba(0,0,0,0) 1px 16px), #f6f0de;
+    box-shadow: inset 0 0 0 1px rgba(43,33,24,.7), inset 0 0 0 4px #f6f0de, inset 0 0 0 5px rgba(43,33,24,.45), 0 2px 0 rgba(0,0,0,.12); overflow: hidden; }
+  .spec img { position: absolute; width: 768px; height: 768px; image-rendering: pixelated; }
+  .spec .ground { position: absolute; left: 14px; right: 14px; height: 2px; background: repeating-linear-gradient(90deg, rgba(43,33,24,.55) 0 8px, rgba(0,0,0,0) 8px 12px); }
+  .spec.unk img { filter: brightness(0); opacity: .28; }
+  .tape { position: absolute; width: 44px; height: 16px; background: rgba(216,192,138,.75); box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+  .nm { position: absolute; font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1; color: var(--paper-ink); white-space: nowrap; }
+  .sub { position: absolute; font-size: 15px; font-weight: 700; color: var(--paper-brown); white-space: nowrap; }
+  .note { position: absolute; font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--paper-ink); }
+  .drops { position: absolute; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; color: var(--paper-brown); white-space: nowrap; }
+  .drops img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .big { font-family: var(--f-text); font-weight: 800; font-size: 26px; font-feature-settings: "lnum" 1, "tnum" 1; color: var(--paper-ink); }
+  /* an ink-drawn bar: a pencil outline, a jade wash, ink diamonds at the stops */
+  .ibar { position: absolute; height: 18px; border: 2px solid var(--paper-ink); border-radius: 2px; background: rgba(255,255,255,.35); }
+  .ibar > .w { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v) * 100%);
+    background: repeating-linear-gradient(-45deg, rgba(31,107,98,.85) 0 3px, rgba(31,107,98,.65) 3px 6px); }
+  .ibar.gold > .w { background: repeating-linear-gradient(-45deg, rgba(176,129,42,.9) 0 3px, rgba(176,129,42,.7) 3px 6px); }
+  .ibar > .st { position: absolute; top: -8px; width: 12px; height: 12px; margin-left: -6px; left: calc(var(--at) * 100%); transform: rotate(45deg);
+    background: #f6f0de; border: 2px solid var(--paper-ink); }
+  .ibar > .st.done { background: var(--paper-ink); }
+  .ibar > .st.next { background: #e5b84c; }
+  .seal { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; transform: rotate(-8deg);
+    font-family: var(--f-display); font-weight: 700; line-height: .95; }
+  .seal.set { background: rgba(156,42,54,.9); color: #fbe9d8; border-radius: 6px; box-shadow: inset 0 0 0 3px rgba(251,233,216,.6), 0 0 0 1px rgba(156,42,54,.6);
+    -webkit-mask: radial-gradient(circle at 30% 30%, #000 60%, rgba(0,0,0,.8) 61%), none; }
+  .seal.wait { border: 3px dashed rgba(156,42,54,.75); color: rgba(156,42,54,.8); border-radius: 6px; }
+  .seal.far { border: 3px dashed rgba(91,74,51,.45); color: rgba(91,74,51,.55); border-radius: 6px; }
+  /* the curled corner that turns the page */
+  .curl { position: absolute; width: 64px; height: 64px; }
+  .curl .under { position: absolute; inset: 0; background: #0d2426; }
+  .curl .flap { position: absolute; inset: 0; filter: drop-shadow(-3px -3px 3px rgba(0,0,0,.35)); }
+  .curl .flap::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--dir), #fbf6e8, #d8c9a6); clip-path: var(--tri); }
+  .turn-lab { position: absolute; font-size: 16px; font-weight: 700; color: var(--paper-brown); white-space: nowrap; }
+  .pgno { position: absolute; top: 584px; width: 590px; text-align: center; font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--paper-brown); }
+  .contents { position: absolute; height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 4px;
+    font-size: 16px; font-weight: 700; color: var(--paper-ink); box-shadow: inset 0 0 0 2px rgba(43,33,24,.55); background: rgba(255,255,255,.3); }
+  .pgc { color: var(--paper-ink); } .pgc * { text-shadow: none; }
+  .lines3 { width: 18px; height: 14px; background: linear-gradient(var(--paper-ink) 0 2px, rgba(0,0,0,0) 2px 6px, var(--paper-ink) 6px 8px, rgba(0,0,0,0) 8px 12px, var(--paper-ink) 12px 14px); }
 </style></head>
 <body><div class="k-screen">
 <img class="k-plate" src="../assets/plate_herb_terraces.png">
-<div class="dim-screen"></div>
-
-<div class="k-page">
-  <div class="k-major-window"></div>
-  <div class="k-page-title k-plaque"><span class="t-title">Codex</span></div>
-  <div class="k-page-close k-close"></div>
-  <div class="k-page-tabs k-tabs">
-    <div class="k-tab">Codex</div><div class="k-tab is-selected">Collection</div><div class="k-tab">Old Scrolls</div><div class="k-tab">Achievements</div>
-    <div class="k-tab">Paths Above</div><div class="k-tab">Seasons</div>
-  </div>
+<div class="desk"></div>
+<div class="cover"></div>
+<div class="edges" style="left:42px;top:80px;width:8px;height:616px"></div><div class="edges" style="left:1230px;top:80px;width:8px;height:616px"></div>
+<div class="edges b" style="left:52px;top:692px;width:1176px;height:8px"></div>
+<div class="ribbon" style="left:76px;width:110px;--c:#1f6b62">Codex</div>
+<div class="ribbon is-sel" style="left:194px;width:140px;--c:#9c2a36">Collection</div>
+<div class="ribbon" style="left:342px;width:140px;--c:#7a5a1e">Old Scrolls<div class="k-new"></div></div>
+<div class="ribbon" style="left:490px;width:160px;--c:#6b4a18">Achievements</div>
+<div class="ribbon" style="left:658px;width:144px;--c:#2f3f86">Paths Above</div>
+<div class="ribbon" style="left:810px;width:116px;--c:#8a3f5c">Seasons</div>
+<div class="page l"></div><div class="page r"></div><div class="gutter"></div>
+<div class="fox" style="left:140px;top:610px;width:60px;height:60px"></div>
+<div class="fox" style="left:520px;top:170px;width:40px;height:40px"></div>
+<div class="fox" style="left:980px;top:640px;width:70px;height:70px"></div>
+<div class="fox" style="left:1150px;top:140px;width:44px;height:44px"></div>
+<div class="fox" style="left:760px;top:330px;width:30px;height:30px"></div>
+<div class="abs" style="left:256px;top:76px;width:24px;height:56px;background:linear-gradient(90deg,#7a1f28,#9c2a36 40%,#7a1f28);clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%);box-shadow:0 2px 0 rgba(0,0,0,.2)"></div>
+<div class="k-close abs" style="left:1180px;top:10px"></div>
+<div class="abs pgc" style="left:50px;top:76px;width:590px;height:616px">
+<div class="rh" style="left:44px">The Collection</div><div class="rh" style="right:44px">Page 4 of 14</div>
+<div class="abs" style="left:44px;top:52px;font-size:16px;font-weight:700;color:var(--paper-ink)">Cards filled <span class="big" style="font-size:22px">2</span><span style="color:var(--paper-brown)"> / 68</span></div>
+<div class="ibar" style="left:44px;top:84px;width:330px;--v:0.2"><div class="w"></div><div class="st next" style="--at:1"></div></div>
+<div class="abs" style="left:44px;top:108px;font-size:15px;font-weight:700;color:#7a4f22">Next at 10: the Collector title, drops +1%</div>
+<div class="contents" style="left:406px;top:58px"><span class="lines3"></span>Contents</div>
+<div class="rule" style="left:44px;top:140px;width:500px"></div>
+<div class="h1 abs" style="left:44px;top:154px">Reed Marsh</div>
+<div class="abs" style="left:250px;top:170px;font-size:16px;font-weight:700;color:var(--paper-brown)">4 beasts · a card fills at 50</div>
+<div class="seal wait" style="left:470px;top:150px;width:34px;height:34px;font-size:18px">I</div><div class="seal far" style="left:512px;top:150px;width:34px;height:34px;font-size:18px">II</div>
+<div class="spec" style="left:44px;top:208px;width:200px;height:156px"><img src="../assets/cr_hollowed_boarlet.png" style="left:-284px;top:-412px"><div class="ground" style="top:98px"></div></div>
+<div class="tape" style="left:26px;top:204px;transform:rotate(-24deg)"></div><div class="tape" style="left:218px;top:352px;transform:rotate(-24deg)"></div>
+<div class="seal set" style="left:186px;top:218px;width:52px;height:52px;font-size:28px">50</div>
+<div class="nm" style="left:264px;top:210px">Hollowed Boarlet</div>
+<div class="sub" style="left:266px;top:246px">Rank 1 · Hollowed · Lv 7–12</div>
+<div class="note" style="left:266px;top:272px;width:282px">Charges twice. Tamed, it becomes a Cleansed Boarlet.</div>
+<div class="drops" style="left:264px;top:320px">Drops <img src="../../../art/icons/items/grey_hide.png"> Grey Hide <img src="../../../art/icons/items/hollow_shard.png"> Hollow Shard</div>
+<div class="abs" style="left:44px;top:378px"><span class="big">68</span><span style="font-size:16px;font-weight:700;color:var(--paper-brown);margin-left:8px">defeated</span></div>
+<div class="ibar gold" style="left:166px;top:390px;width:380px;--v:0.136"><div class="w"></div><div class="st done" style="--at:0.1"></div><div class="st next" style="--at:1"></div></div>
+<div class="abs" style="left:166px;top:414px;font-size:14px;font-weight:700;color:var(--paper-brown)">50 · filled</div>
+<div class="abs" style="left:346px;top:414px;width:200px;text-align:right;font-size:14px;font-weight:700;color:#7a4f22">500 · for seal II</div>
+<div class="rule" style="left:44px;top:446px;width:500px;opacity:.5"></div>
+<div class="spec" style="left:44px;top:462px;width:200px;height:96px"><img src="../assets/cr_greyfin.png" style="left:-286px;top:-440px"><div class="ground" style="top:70px"></div></div>
+<div class="tape" style="left:216px;top:456px;transform:rotate(28deg)"></div>
+<div class="nm" style="left:264px;top:462px">Greyfin</div>
+<div class="sub" style="left:266px;top:498px">Rank 1 spirit beast · Lv 7–11</div>
+<div class="drops" style="left:264px;top:518px">Drops <img src="../../../art/icons/items/tiny_hollow_shard.png"> Tiny Hollow Shard</div>
+<div class="abs" style="left:266px;top:554px"><span class="big" style="font-size:22px">4</span><span style="font-size:15px;font-weight:700;color:var(--paper-brown);margin-left:6px">/ 50</span></div>
+<div class="ibar" style="left:326px;top:560px;width:220px;--v:0.08"><div class="w"></div><div class="st next" style="--at:1"></div></div>
+<div class="pgno" style="left:0">7</div>
 </div>
-
-<!-- ============ the bestiary's pages, and the whole book's bar ============ -->
-<div class="k-minor-panel abs" style="left:92px;top:172px;width:280px;height:492px"></div>
-<div class="abs t-md c-paper" style="left:108px;top:182px">Cards filled <span class="t-fig c-pale">2 / 68</span></div>
-<div class="k-bar is-jade abs" style="left:106px;top:210px;width:252px;height:26px;--v:0.2">
-  <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div></div>
-<div class="abs t-xs c-pale" style="left:108px;top:240px">Next at 10: Collector title, drops +1%</div>
-<div class="k-divider abs" style="left:104px;top:266px;width:256px"></div>
-<div class="abs" style="left:0;top:274px">
-  <div class="pg" style="top:0"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Valley Shore</span><span class="c t-fig">0 of 3</span></div>
-  <div class="pg" style="top:48px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Willow Path</span><span class="c t-fig">0 of 2</span></div>
-  <div class="pg" style="top:96px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Stonewall Quarry</span><span class="c t-fig">0 of 4</span></div>
-  <div class="pg is-selected" style="top:144px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-pale">Reed Marsh</span><span class="c t-fig c-pale">1 of 4</span></div>
-  <div class="pg" style="top:192px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Bamboo Grove</span><span class="c t-fig">0 of 3</span></div>
-  <div class="pg" style="top:240px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Caravan Road</span><span class="c t-fig">0 of 4</span></div>
-  <div class="pg" style="top:288px"><span class="sl off"></span><span class="sl off" style="margin-left:-6px"></span><span class="n c-paper">Azure Expanse</span><span class="c t-fig">1 of 15</span></div>
+<div class="curl" style="left:50px;top:636px;width:56px;height:56px"><div class="under" style="clip-path:polygon(0 0,0 100%,100% 100%)"></div><div class="flap" style="--dir:45deg;--tri:polygon(0 0,100% 100%,100% 0)"></div></div>
+<div class="turn-lab" style="left:120px;top:664px">◂ Stonewall Quarry</div>
+<div class="abs pgc" style="left:640px;top:76px;width:590px;height:616px">
+<div class="rh" style="left:44px">Reed Marsh</div><div class="rh" style="right:44px">Monster Level 4–12</div>
+<div class="spec unk" style="left:44px;top:52px;width:160px;height:112px"><img src="../assets/cr_reed_frog_unknown.png" style="left:-302px;top:-432px"><div class="ground" style="top:82px"></div></div>
+<div class="nm" style="left:224px;top:54px;color:rgba(43,33,24,.45)">? ? ?</div>
+<div class="sub" style="left:226px;top:90px">Not yet met · Lives at Marsh Edge</div>
+<div class="abs" style="left:226px;top:124px"><span class="big" style="font-size:22px">0</span><span style="font-size:15px;font-weight:700;color:var(--paper-brown);margin-left:6px">/ 50</span></div>
+<div class="ibar" style="left:286px;top:130px;width:260px;--v:0"><div class="w"></div><div class="st next" style="--at:1"></div></div>
+<div class="spec unk" style="left:44px;top:186px;width:160px;height:112px"><img src="../assets/cr_marsh_leech_unknown.png" style="left:-282px;top:-440px"><div class="ground" style="top:82px"></div></div>
+<div class="nm" style="left:224px;top:188px;color:rgba(43,33,24,.45)">? ? ?</div>
+<div class="sub" style="left:226px;top:224px">Not yet met · Lives at Marsh Edge</div>
+<div class="abs" style="left:226px;top:258px"><span class="big" style="font-size:22px">0</span><span style="font-size:15px;font-weight:700;color:var(--paper-brown);margin-left:6px">/ 50</span></div>
+<div class="ibar" style="left:286px;top:264px;width:260px;--v:0"><div class="w"></div><div class="st next" style="--at:1"></div></div>
+<div class="rule" style="left:44px;top:318px;width:500px"></div>
+<div class="abs" style="left:44px;top:330px;font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1">The page's seals</div>
+<div class="seal wait" style="left:48px;top:380px;width:72px;height:72px;font-size:34px">I</div>
+<div class="abs" style="left:140px;top:376px;font-size:18px;font-weight:800">Every card at 50</div>
+<div class="abs" style="left:140px;top:400px;font-size:16px;font-weight:700;color:var(--wash-jade)">Hollow Ward +2</div>
+<div class="ibar" style="left:140px;top:428px;width:300px;--v:0.27"><div class="w"></div><div class="st next" style="--at:1"></div></div>
+<div class="abs" style="left:450px;top:424px;font-size:16px;font-weight:800;font-feature-settings:'lnum' 1">54 / 200</div>
+<div class="abs" style="left:140px;top:452px;font-size:14px;font-weight:700;color:var(--paper-brown)">1 of 4 cards filled</div>
+<div class="seal far" style="left:48px;top:486px;width:72px;height:72px;font-size:34px">II</div>
+<div class="abs" style="left:140px;top:482px;font-size:18px;font-weight:800;color:var(--paper-brown)">Every card at 500, after seal I</div>
+<div class="abs" style="left:140px;top:506px;font-size:16px;font-weight:700;color:var(--wash-jade)">Healing received +1% · a Bestiary Leaf</div>
+<div class="ibar" style="left:140px;top:534px;width:300px;--v:0.036;opacity:.75"><div class="w"></div><div class="st" style="--at:1"></div></div>
+<div class="abs" style="left:450px;top:530px;font-size:16px;font-weight:800;color:var(--paper-brown);font-feature-settings:'lnum' 1">72 / 2,000</div>
+<div class="pgno" style="left:0">8</div>
 </div>
-<div class="abs t-xs c-mist" style="left:108px;top:634px">+7 more pages below</div>
-
-<!-- ============ the open page: Reed Marsh ============ -->
-<div class="book k-minor-panel"></div>
-<div class="abs t-heading" style="left:408px;top:184px">Reed Marsh</div>
-<div class="abs t-sm c-mist" style="left:586px;top:196px">4 beasts · each card fills at 50</div>
-
-<!-- cards: a filled one (its first seal stamped, now counting to the page's second seal), two met, one not yet met -->
-<div class="card" style="left:408px">
-  <div class="art"><img src="../assets/cr_reed_frog_unknown.png" style="left:-306px;top:-396px"></div>
-  <div class="nm" style="color:rgba(7,16,21,.5)">? ? ?</div><div class="sb">Not yet met</div>
-  <div class="k-bar" style="--v:0"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">0 / 50</div></div>
-  <div class="ft" style="color:#5b4a33">Lives at Marsh Edge</div></div>
-<div class="card" style="left:598px">
-  <div class="art"><img src="../assets/cr_marsh_leech_unknown.png" style="left:-294px;top:-400px"></div>
-  <div class="nm" style="color:rgba(7,16,21,.5)">? ? ?</div><div class="sb">Not yet met</div>
-  <div class="k-bar" style="--v:0"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">0 / 50</div></div>
-  <div class="ft" style="color:#5b4a33">Lives at Marsh Edge</div></div>
-<div class="card" style="left:788px">
-  <div class="art"><img src="../assets/cr_greyfin.png" style="left:-306px;top:-400px"></div>
-  <div class="nm">Greyfin</div><div class="sb">Rank 1 spirit beast</div>
-  <div class="k-bar" style="--v:0.08"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">4 / 50</div></div>
-  <div class="ft" style="color:#5b4a33">46 more to fill</div></div>
-<div class="card" style="left:978px">
-  <div class="art"><img src="../assets/cr_hollowed_boarlet.png" style="left:-306px;top:-398px"></div>
-  <div class="stamp">50</div>
-  <div class="nm">Hollowed Boarlet</div><div class="sb">Rank 1 Hollowed</div>
-  <div class="k-bar is-gold" style="--v:0.11"><div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-done" style="--at:0.1"></div><div class="k-tick is-next" style="--at:1"></div><div class="k-bar-text t-fig t-outline c-paper">55 / 500</div></div>
-  <div class="ft" style="color:#7a4f22;font-weight:700">Filled · on to seal II</div></div>
-
-<!-- the page's two seals: I when every card is filled, II at ten times the count (E3) -->
-<div class="seal-row" style="top:486px">
-  <div class="seal-ic i">I</div>
-  <div class="abs t-md c-paper" style="left:56px;top:0">Seal I<span class="t-sm c-mist" style="margin-left:10px">every card at 50</span></div>
-  <div class="abs t-sm c-jade" style="left:540px;top:2px;width:220px;text-align:right">Hollow Ward +2</div>
-  <div class="k-bar is-jade abs" style="left:56px;top:26px;width:704px;height:26px;--v:0.27">
-    <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div>
-    <div class="k-tick is-next" style="--at:1"></div>
-    <div class="k-bar-text t-fig t-outline c-paper" style="font-size:14px">54 / 200 · 1 of 4 cards</div></div>
-</div>
-<div class="seal-row" style="top:562px">
-  <div class="seal-ic ii">II</div>
-  <div class="abs t-md c-hollow" style="left:56px;top:0">Seal II<span class="t-sm" style="margin-left:10px">every card at 500, after seal I</span></div>
-  <div class="abs t-sm c-mist" style="left:470px;top:2px;width:290px;text-align:right">Healing +1% · a Bestiary Leaf</div>
-  <div class="k-bar abs" style="left:56px;top:26px;width:704px;height:26px;--v:0.0295;opacity:.7">
-    <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div></div>
-    <div class="k-tick" style="--at:1"></div>
-    <div class="k-bar-text t-fig t-outline c-mist" style="font-size:14px">59 / 2,000</div></div>
-</div>
-<div class="abs t-xs c-mist" style="left:408px;top:630px">Each seal is set once and pays once. Seal II keeps a finished page worth hunting.</div>
-
+<div class="curl" style="left:1174px;top:636px;width:56px;height:56px"><div class="under" style="clip-path:polygon(100% 0,0 100%,100% 100%)"></div><div class="flap" style="--dir:-45deg;--tri:polygon(0 0,100% 0,0 100%)"></div></div>
+<div class="turn-lab" style="left:1010px;top:664px">Bamboo Grove ▸</div>
 </div></body></html>
