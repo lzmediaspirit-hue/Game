@@ -19,7 +19,7 @@ import lantern
 import posts
 import random
 
-from common import DATA, write, entries, req, c, realm, flag, noflag, qdone, qactive, sect, all_of, any_of
+from common import DATA, write, entries, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of
 from common import unlocked as unlock
 
 ROOMS_DIR = os.path.join(DATA, "rooms")
@@ -184,18 +184,23 @@ class Room:
         self.d["surfaces"].append(s)
         return s
 
-    def building(self, sid, prop, x, front=690, door_dx=0, door=None, **kw):
-        """A building prop: roof surface sized from its art (roof_split), facade below."""
+    def building(self, sid, prop, x, front=690, door=None, **kw):
+        """A building prop: roof surface sized from its art (roof_split), facade below. `door` = (room, portal, id[, kw])
+        makes it enterable: the door portal stands in the middle of the doorway its art draws (the prop's `door` span),
+        so the way in is always where the player sees a door. Returns that doorway's point (None without one)."""
         e = PROPS[prop]
         fw, fh = e["frame"]
         roof = int(round(fh * e["roof_split"]))
         facade = fh - roof
         self.surface(sid, [x - fw // 2, front - roof, fw, roof], facade, kind="roof", stratum="platform", art=prop, **kw)
+        span = e.get("door")
+        at = [x - fw // 2 + (span[0] + span[1]) // 2, front + 14] if span else None
         if door:
+            assert at, "%s: %s draws no door, so it cannot be entered (%s)" % (self.id, prop, sid)
             to, to_portal = door[0], door[1]
-            self.portal(door[2] if len(door) > 2 else "door_" + sid, "door", [x + door_dx, front + 14], to, to_portal,
+            self.portal(door[2] if len(door) > 2 else "door_" + sid, "door", at, to, to_portal,
                         press_up=True, facade=True, **(door[3] if len(door) > 3 else {}))
-        return (x + door_dx, front + 14)
+        return at
 
     def painted(self, sid, art, x, width, depth, height, front=690, **kw):
         """Painted atlas building (gate, hall, two_storey, tower) scaled to a roof height."""
@@ -446,8 +451,8 @@ def lotus_ferry():
     r.surface("pier_b", [3330, 850, 180, 110], 0, kind="dock", stratum="ground")
     r.area("river", [2560, 850, 1280, 160])
     # Home Lane
-    r.building("fishers_hut", "thatched_hut", 420, front=690, door_dx=10, door=("lf_fishers_hut", "exit", "hut_door", {"label": "Fisher's Hut"}))
-    r.building("granny_hut", "herb_hut", 1000, front=690, door_dx=0, door=("lf_granny_liu_hut", "exit", "granny_door", {"label": "Granny Liu's Herb Hut"}))
+    r.building("fishers_hut", "thatched_hut", 420, front=690, door=("lf_fishers_hut", "exit", "hut_door", {"label": "Fisher's Hut"}))
+    r.building("granny_hut", "herb_hut", 1000, front=690, door=("lf_granny_liu_hut", "exit", "granny_door", {"label": "Granny Liu's Herb Hut"}))
     r.decor("well", [700, 700])
     r.decor("fence_wood", [140, 668])
     r.decor("willow_tree", [720, 640])
@@ -458,7 +463,7 @@ def lotus_ferry():
            requires=all_of(flag("night_survived")), locked_text="The West Gate is barred until morning.")
     r.obj("sign_home", "signpost", [150, 860], text="West: Willow Path (Lv 1-3) · Stoneford Market beyond.")
     # Village Square
-    r.building("old_ma_store", "village_store", 1720, front=690, door_dx=40, door=("lf_old_ma_store", "exit", "store_door", {"label": "Old Ma's Store"}))
+    r.building("old_ma_store", "village_store", 1720, front=690, door=("lf_old_ma_store", "exit", "store_door", {"label": "Old Ma's Store"}))
     r.painted("village_hall", "hall", 2150, 420, 110, 88, front=690)
     r.ladder("hall_ladder", 1962, 690, 88)   # climb to the hall roof, then jump to the inn for the kite
     r.painted("ferry_inn", "two_storey", 2470, 240, 120, 176, front=680)
@@ -473,7 +478,7 @@ def lotus_ferry():
     lantern_row(r, [1330, 2280], y=700)
     r.decor("market_stall", [2240, 770])
     r.block("stone_lantern", 1280, 760, 30, 14, 90)
-    r.obj("storage_village", "storage_chest", [1870, 700], requires=all_of(unlock("storage")), locked_text="The village chest is for family goods.")
+    r.obj("storage_village", "storage_chest", [1910, 700], requires=all_of(unlock("storage")), locked_text="The village chest is for family goods.")
     r.obj("cook_village", "cooking_pot", [2300, 880], requires=all_of(unlock("cooking")), locked_text="Aunt Ping's pot. Not yet.")
     r.obj("spring_village", "qi_spring", [1180, 900], spring=True, requires=all_of(unlock("qi_springs")),
           text="Qi wells up from the old spring stones.", locked_text="Just a damp patch of stones.")
@@ -490,8 +495,12 @@ def lotus_ferry():
     r.fishing("village_docks", [3060, 910], oid="fish_docks")
     r.portal("boat", "door", [3420, 872], "lf_lu_boat", "deck", press_up=True, label="Lu's Boat",
              requires=all_of(flag("night_survived")), locked_text="Lu's boat. He'll take you out when he's ready.")
+    # The Reed Shallows are the first fight: the gate opens when Guo sends you to the crabs (Crab Trouble), which comes
+    # after all four of Lu's lessons, so the HP bar (Granny's Remedy) and the foes' HP bars (Crab Trouble) are on the
+    # HUD before any foe is in reach (docs/tutorial_order.md; tests/tutorial_order.gd).
     r.edge("east_gate", "east", "lf_reed_shallows", "west", y=760, ptype="gate",
-           requires=all_of(qdone("fists_first")), locked_text="Uncle Guo won't let you past without learning to punch.")
+           requires=all_of(qaccepted("crab_trouble")),
+           locked_text="Uncle Guo keeps the East Gate shut. Help the village first; he'll send you out when you're ready.")
     # Villagers (the seven): placed by district; some move after the Prologue.
     r.npc("lu_boatman", [3280, 800], facing=-1)
     r.npc("little_dou", [2140, 910], facing=1)
@@ -565,11 +574,11 @@ def lotus_ferry():
                     "requires": all_of(noflag("night_survived"))})
     r.surface("ground", [0, GROUND_Y, 2560, 280], 0, kind="ground", stratum="ground")
     r.area("river", [0, 900, 2560, 120])
-    r.building("fishers_hut_n", "thatched_hut", 420, front=690, tint="#7d8ca8")
+    hut_door = r.building("fishers_hut_n", "thatched_hut", 420, front=690, tint="#7d8ca8")
     r.building("granny_hut_n", "herb_hut", 1000, front=690, tint="#7d8ca8")
     r.building("old_ma_store_n", "village_store", 1720, front=690, tint="#7d8ca8")
     r.painted("village_hall_n", "hall", 2150, 420, 110, 88, front=690, tint="#7d8ca8")
-    r.obj("hut_refuge", "inspect", [430, 704], text="Aunt Ping has the door open. Get everyone inside!", prop="none")
+    r.obj("hut_refuge", "inspect", hut_door, text="Aunt Ping has the door open. Get everyone inside!", prop="none")
     r.npc("little_dou", [2250, 820], oid="npc_dou_night", pose="idle", hidden_if=all_of(flag("dou_safe")), facing=-1)
     r.npc("granny_liu", [1000, 740], oid="npc_granny_night", hidden_if=all_of(flag("granny_safe")), facing=1)
     r.npc("old_ma", [1720, 760], oid="npc_ma_night", hidden_if=all_of(flag("ma_safe")), facing=-1)
@@ -675,7 +684,7 @@ def stoneford():
     # S46 Beast Arena: the ladder of NPC tamers, 1v1 and 3v3 pet auto-battles; and the Beast Trial Grove's gate.
     r.obj("arena_sf", "inspect", [1850, 720], prop="notice_board", text="The Beast Arena ladder.", open_page="beast_arena",
           requires=all_of(unlock("spirit_animals")), locked_text="Tamers only: bond with a spirit animal first.")
-    r.portal("grove", "door", [2440, 700], "sf_beast_grove", "entry", press_up=True, label="Beast Trial Grove",
+    r.portal("grove", "door", [2490, 700], "sf_beast_grove", "entry", press_up=True, label="Beast Trial Grove",
              requires=all_of(unlock("spirit_animals")), locked_text="The Trial Grove is for spirit animals and their keepers.")
     # S49 Part 8: on Auction Day (Saturdays) an auctioneer's stall stands on Market Street.
     r.obj("auction_sf", "inspect", [680, 860], prop="market_stall", text="Today's lots on Market Street.", open_page="auction",
@@ -696,7 +705,7 @@ def stoneford():
 
     r = town("sf_artisan_row", "Artisan Row", "stoneford", 2, spawn_point=[2300, 820])
     r.building("smithy", "village_house", 420, front=690)
-    r.building("trade_house", "village_store", 1200, front=690, door_dx=40,
+    r.building("trade_house", "village_store", 1200, front=690,
                door=("si_gus_warehouse", "entry", "warehouse_door", {"label": "Gu's Warehouse",
                      "requires": all_of(qactive("gus_warehouse")), "locked_text": "Elder Gu's private warehouse. Locked tight."}))
     r.building("alchemy_stall", "herb_hut", 1960, front=690)
@@ -921,13 +930,11 @@ def sects():
     r = Room("ja_east_terrace", "East Terrace", "sect", "jade_sect", 2, backdrop="sect_jade", material="stone", music="sect",
              sect="jade_sect", town=True, spawn_point=[200, 820])
     r.painted("mission_hall", "hall", 700, 600, 130, 120, front=690)
-    r.painted("retreat_rooms", "tower", 1900, 280, 140, 200, front=690)
+    retreat_tower(r, "retreat_rooms", "ja_retreat")
     r.npc("jade_formation_elder", [1300, 800], facing=-1)
     r.npc("jade_physician", [1600, 900], facing=1)
     r.npc("arena_master", [2200, 820], facing=-1)
     r.obj("formation_table_ja", "formation_table", [1100, 880], requires=all_of(unlock("formations")), locked_text="Formation lines. You can't read them yet.")
-    r.portal("retreat", "door", [1900, 704], "ja_retreat", "exit", press_up=True, label="Retreat Rooms",
-             requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
     r.obj("arena_ja", "spar_post", [2400, 900], opponent="sparring_disciple", requires=all_of(unlock("tournament")))
     r.edge("west", "west", "ja_pavilion_rooftops", "east", y=850)
     r.edge("east", "east", "ja_herb_terraces", "west", y=850)
@@ -1024,7 +1031,7 @@ def sects():
     r.obj("spar_cm", "spar_post", [1600, 900], opponent="sparring_disciple")
     r.portal("weapon_hall", "door", [1100, 704], "cm_weapon_hall", "exit", press_up=True, label="Weapon Hall and Forge",
              requires=all_of(realm("bone_forging_3")), locked_text="The Weapon Hall admits disciples from Bone Forging 3.")
-    r.portal("library", "door", [1460, 704], "cm_cloud_library", "exit", press_up=True, label="Cloud Library")
+    r.portal("library", "door", [1360, 704], "cm_cloud_library", "exit", press_up=True, label="Cloud Library")
     r.edge("west", "west", "cm_cliff_stair", "east", y=850)
     r.edge("east", "east", "cm_array_court", "west", y=850)
 
@@ -1035,9 +1042,7 @@ def sects():
     for i, x in enumerate([700, 1000, 1300]):
         r.decor("formation_node", [x, 760])
     r.obj("formation_table_cm", "formation_table", [1100, 880], requires=all_of(unlock("formations")), locked_text="Formation lines. You can't read them yet.")
-    r.painted("retreat_rooms_cm", "tower", 1900, 280, 140, 200, front=690)
-    r.portal("retreat", "door", [1900, 704], "cm_retreat", "exit", press_up=True, label="Retreat Rooms",
-             requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
+    retreat_tower(r, "retreat_rooms_cm", "cm_retreat")
     r.obj("furnace_cm", "alchemy_furnace", [2200, 760], requires=all_of(unlock("alchemy")), locked_text="The monastery furnace.", furnace_bonus=0.5)
     r.surface("rope_ledge", [1500, 640, 260, 50], 150, kind="rock_ledge")
     # S45: the monastery's herb beds by the furnace court, and Gardener Ren to tend them with you.
@@ -1098,6 +1103,15 @@ def sects():
     retreat_rooms("cm_retreat", "cloud_sect", "cm_array_court")
     cave_abode("ja_cave_abode", "jade_sect", "ja_elder_hu_peak", "wood")
     cave_abode("cm_cave_abode", "cloud_sect", "cm_elder_sung_peak", "wind")
+
+
+def retreat_tower(r, sid, to, x=1900, front=690):
+    """The retreat rooms' tower on a sect terrace: the painted bell tower draws no door, so a door of the halls' own red
+    lacquer stands at its foot where the way in is (PortalView.entrance "decor")."""
+    r.painted(sid, "tower", x, 280, 140, 200, front=front)
+    r.decor("door", [x, front + 2])
+    r.portal("retreat", "door", [x, front + 14], to, "exit", press_up=True, label="Retreat Rooms",
+             requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
 
 
 def retreat_rooms(rid, sect_id, back):
@@ -1658,7 +1672,7 @@ def azure_expanse():
     r = town("ae_port_market", "Port Market", "cloudgate_port", 3, backdrop="sky_port", material="stone", tint="#dfe6ee",
              music="sky_port", spawn_point=[300, 820], qi=1.3, idle=["gather"], **AE)
     r.building("factors_hall", "village_store", 560, front=690)
-    r.building("wayfarers_inn", "village_house", 1480, front=690, door_dx=40,
+    r.building("wayfarers_inn", "village_house", 1480, front=690,
                door=("ae_wayfarers_inn", "entry", "inn_door", {"label": "Wayfarers' Inn"}))
     r.building("port_warehouse", "warehouse", 3280, front=690)
     for x, flip in ((980, False), (2240, True), (2700, False)):
@@ -1901,7 +1915,7 @@ def nine_peaks_and_canyons():
     for x in (400, 2160):
         r.decor("banner_alliance", [x, 662])
     lantern_row(r, [800, 1760], y=670)
-    r.building("auction_house", "village_store", 2100, front=690, door_dx=40,
+    r.building("auction_house", "village_store", 2100, front=690,
                door=("np_auction_pavilion", "entry", "pavilion_door", {"label": "Auction Pavilion"}))
     r.npc("envoy_lanshi", [1080, 780], facing=1)
     r.npc("elder_zhong", [1480, 760], facing=-1)
@@ -1966,7 +1980,7 @@ def nine_peaks_and_canyons():
     r.edge("east", "east", "ir_clan_hearth", "west", y=850)
     r = town("ir_clan_hearth", "Clan Hearth", "ironroot_hold", 2, spawn_point=[300, 820], **hold)
     r.building("longhouse", "warehouse", 700, front=690)
-    r.building("clan_forge", "village_house", 1800, front=690, door_dx=0,
+    r.building("clan_forge", "village_house", 1800, front=690,
                door=("ir_ancestor_hall", "entry", "hall_door", {"label": "Ancestor Hall"}))
     r.decor("cooking_pot", [1200, 800])
     r.decor("weapon_rack_full", [1450, 690])

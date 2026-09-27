@@ -51,6 +51,10 @@ Optional keys:
 * `"building": true, "roof_split": f` - village buildings. `f` is the fraction of the
   image height (from the top) that is roof; the engine uses that band as a walkable
   rooftop and draws the facade below it.
+* `"door": [x0, x1]` - a building's doorway in sheet px from the frame's left edge
+  (`@building(..., door=(x0, x1))` in art px). A building that can be entered must draw
+  one: the room builder stands its door portal in the middle (`Room.building`), and
+  `data_validation` checks every way into a building shows a door (`PortalView.entrance`).
 
 ## Adding a prop
 

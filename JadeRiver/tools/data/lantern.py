@@ -96,9 +96,9 @@ def lanternfall():
 
     r = w.town("lh_harbor_market", "Harbor Market", "lanternfall_harbor", 3, backdrop="lantern_harbor", material="stone", tint="#cfc2a8",
                music="lantern_harbor", spawn_point=[300, 820], qi=1.6, idle=["gather"], lantern=True, **LS)
-    r.building("star_chandlery", "village_store", 620, front=690, door_dx=30,
+    r.building("star_chandlery", "village_store", 620, front=690,
                door=("lh_star_chandlery", "entry", "chandlery_door", {"label": "Star Chandlery"}))
-    r.building("tidelight_inn", "village_house", 1480, front=690, door_dx=40,
+    r.building("tidelight_inn", "village_house", 1480, front=690,
                door=("lh_tidelight_inn", "entry", "inn_door", {"label": "Tidelight Inn"}))
     r.building("harbor_warehouse", "warehouse", 3300, front=690)
     for x, flip in ((1000, False), (2300, True), (2750, False)):
@@ -108,7 +108,7 @@ def lanternfall():
     lantern_posts(r, [260, 1900, 3050])
     r.decor("barrel", [3080, 740])
     r.obj("stone_lanternfall", "teleport_stone", [2100, 880], stone="lanternfall")
-    r.obj("board_lh", "notice_board", [800, 700])
+    r.obj("board_lh", "notice_board", [820, 700])
     r.obj("storage_lh", "storage_chest", [1220, 710], requires=w.all_of(w.unlock("storage")), locked_text="The storehouse is locked.")
     r.obj("exchange_lh", "inspect", [2000, 720], prop="counter",
           text="The harbour exchange: Spirit Stones for Sage Crystals, Sage Crystals for Star Jade, at the Wardens' rate.",
@@ -342,7 +342,7 @@ def citadel():
     lantern_posts(r, [1150, 2050, 3150])
     r.decor("star_ballista", [3300, 700], flip=True)
     r.decor("lantern_cage", [2500, 640], layer="back")
-    r.building("wardens_hall", "watch_tower", 1500, front=690, door_dx=0,
+    r.building("wardens_hall", "village_house", 1440, front=690,
                door=("wc_wardens_hall", "entry", "hall_door", {"label": "Wardens' Hall"}))
     r.decor("pagoda", [2400, 690], layer="back")
     r.portal("observatory_door", "door", [2400, 704], "wc_observatory", "entry", press_up=True, label="Observatory")

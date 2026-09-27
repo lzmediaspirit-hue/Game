@@ -246,7 +246,7 @@ func _tick_fight(delta: float) -> void:
 func _fight_now() -> bool:
 	if fight_override != null: return bool(fight_override)
 	if not bound(): return true
-	return WorldLabels.fight_near(Game.active(), player.plane) or _enemy_close()
+	return WorldLabels.fight_near(Game.active(), player.plane) or _enemy_close() or _foe_engaged()
 
 ## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
 func set_state(in_fight: bool, open := false) -> void:
@@ -356,8 +356,10 @@ func _treasure_id(c, slot: int) -> String:
 	return "" if tid == "" or c.inventory.count(tid) <= 0 else tid   # sold or stored: the slot is empty again
 
 ## Ring 2 beside the fan as it stands now: [{role, center, deg, toggle}]. While the fan is closed, a toggle that is on;
-## in a fight, the healing slot, the Draught and the treasures that hold something; the context or the post chip; the
-## weapon swap when there is a spare. An empty slot is not drawn (mockup 01).
+## in a fight, the healing slot, the Draught and the treasures that hold something; at rest, the healing slot while it
+## holds something to drink or a quest step asks for it (Granny's Remedy: the player must see where the tea goes), clear
+## of the open fan; the context or the post chip; the weapon swap when there is a spare. An empty slot is not drawn
+## (mockup 01).
 func _ring2(c) -> Array:
 	var items: Array = []
 	var loose := not bound()
@@ -369,20 +371,23 @@ func _ring2(c) -> Array:
 		if _has_draught(): items.append({"role": "draught", "home": ""})
 		for ti in 2:
 			if shown("treasure_%d" % (ti + 1)) and (loose or _treasure_id(c, ti) != ""): items.append({"role": "treasure:%d" % ti, "home": "treasure:%d" % ti})
+	elif not fight and not loose and shown("quick_use") and (c.inventory.count(str(c.inventory.quick_use)) > 0 or _quick_asked(c)):
+		items.append({"role": "quick", "home": "quick"})
 	if _fight_context(): items.append({"role": "context", "home": "context"})
 	elif _post_chip(): items.append({"role": "post", "home": "post"})
 	if shown("weapon_swap") and (loose or c.inventory.loadout.get("spare") != null): items.append({"role": "swap", "home": "swap"})
-	return ring2_places(items)
+	var fan_at: Array = _fan_items().map(func(f): return f.center) if fan_open else []
+	return ring2_places(items, RING2_DEG.filter(func(d): return fan_at.any(func(p): return (p as Vector2).distance_to(_on(attack_center, RING2_R, float(d))) < 60.0)))
 
 ## Places on ring 2 for `items` ([{role, home}]): each takes its home if it is free, the rest the next free place in
-## order; more than six (a rare load) spread evenly over the same arc.
-func ring2_places(items: Array) -> Array:
+## order (never one of `taken`, the places the open fan covers); more than six (a rare load) spread evenly over the arc.
+func ring2_places(items: Array, taken: Array = []) -> Array:
 	var out: Array = []
 	var deg := {}
-	if items.size() > RING2_DEG.size():
-		for i in items.size(): deg[i] = lerpf(RING2_DEG[0], 294.0, float(i) / float(items.size() - 1))
+	if items.size() > RING2_DEG.size() - taken.size():
+		for i in items.size(): deg[i] = lerpf(RING2_DEG[0], 294.0, float(i) / maxf(1.0, float(items.size() - 1)))
 	else:
-		var free: Array = RING2_DEG.duplicate()
+		var free: Array = RING2_DEG.filter(func(d): return not taken.has(d))
 		for i in items.size():
 			var home := str(items[i].get("home", ""))
 			if RING2_HOME.has(home) and free.has(RING2_HOME[home]):
@@ -674,7 +679,7 @@ func primary() -> void:
 		finish_tap(float(tapping.t) / maxf(0.01, float(tapping.ring)))
 		return
 	if channel.object != "": return
-	if not context.is_empty() and not _enemy_close():
+	if not context.is_empty() and not attack_first():
 		use_context()
 		return
 	if Unlocks.is_unlocked(Game.active_id, "attack"):
@@ -706,13 +711,26 @@ func _enemy_close() -> bool:
 		if str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(player.plane) < 400.0: return true
 	return false
 
-## The in-fight Context button: a ladder or portal is in reach while an enemy is aggroed (S43).
+## The attack button's one rule: in a fight it attacks, always. A fight is the P5a rest/fight state (a foe within the
+## fight range, one engaged with you anywhere in the room, which is also one attacking you or struck a moment ago, and
+## FIGHT_HOLD_S after), so a gathering node, a pickup, a person, a door or a ladder beside you never takes the button
+## while foes are about: what the context offers moves to the context slot on ring 2. At rest (or before the Attack
+## lesson) the context takes the big button, as mockup 02 draws it.
+func attack_first() -> bool:
+	return bound() and Unlocks.is_unlocked(Game.active_id, "attack") and (fight or _fight_now())
+
+## A foe engaged with the player anywhere in the room: turned on them, striking, recovering, fleeing (EnemyState.in_fight).
+func _foe_engaged() -> bool:
+	if Game.room_rt == null: return false
+	return Game.room_rt.living_enemies().any(func(e): return e.team == "enemy" and not e.def.get("passive", false) and e.in_fight())
+
+## The in-fight context slot on ring 2: whatever the context offers while the attack button attacks (attack_first).
 func _fight_context() -> bool:
-	return bound() and str(context.get("type", "")) in ["climbable", "portal"] and _enemy_close()
+	return not context.is_empty() and attack_first()
 
 ## S50 Keeping Post: beside a node, out of a fight, with another character to play, the Keep Post button shows.
 func _post_chip() -> bool:
-	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not _enemy_close() \
+	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not attack_first() \
 		and Unlocks.is_unlocked(Game.active_id, "keeping_post") and Game.characters.size() > 1
 
 ## S50 node plate: beside a gathering node, the Chance a post there would have for its first output (cached).
@@ -810,6 +828,9 @@ func drink_draught() -> void:
 
 func use_quick() -> void:
 	if not bound(): return
+	if str(Game.active().inventory.quick_use) == "":
+		open_page.emit("inventory", {})   # nothing in it yet: the Bag, where an item is put in Quick-use
+		return
 	var r := Game.submit({"type": "use_quick"})
 	if not r.ok:
 		if r.get("reason", "") == "none_left": add_log(Tx.t("hud.no_left") % ContentDB.item_name(str(r.item)), UiKit.MIST)
@@ -1375,7 +1396,9 @@ func _handle(name: String, p: Dictionary) -> void:
 		"spar_ended":
 			toast(Tx.t("hud.spar_won") if p.get("winner", "") == "player" else Tx.t("hud.spar_lost_try_again"), "quest")
 		"quest_ready":
-			toast(Tx.t("hud.ready_to_hand_in") + str(Game.quest.quest_def(Game.active(), str(p.quest)).get("name", "")), "quest")
+			# Only a quest that waits to be handed in says so (one that completes itself, like the fair, is done by now).
+			if str(Game.active().quests.active.get(str(p.quest), {}).get("state", "")) == "ready":
+				toast(Tx.t("hud.ready_to_hand_in") + str(Game.quest.quest_def(Game.active(), str(p.quest)).get("name", "")), "quest")
 		"codex_entry_unlocked":
 			add_log(Tx.t("hud.codex") + str(ContentDB.entry("codex", str(p.entry)).get("title", "")), UiKit.PALE_GOLD)
 		"teleport_discovered":
@@ -1932,8 +1955,9 @@ func _auto_hunt_shown(c) -> bool:
 	return c != null and bound() and Unlocks.is_unlocked(c.id, "idle_tasks") and (Game.world.auto_hunting(c.id) or Game.world.auto_hunt_block(c) == "")
 
 ## The quest tracker (mockup 02): a plate under the statuses with a gold rule down its left, each quest's title, where
-## it leads with a 48 px go button that walks you there (lit while it does), and its objectives; it rests in boss
-## arenas and stops above the log.
+## it leads with a 48 px go button that walks you there (lit while it does), and its objectives; between main quests
+## the story's next one first (◇ Next: who gives it and where, or the Level it waits on and where to hunt); it rests in
+## boss arenas and stops above the log.
 func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
 	if entries.is_empty() or _boss_arena(): return
@@ -1955,10 +1979,11 @@ func _draw_tracker(c) -> void:
 	var y := top + 4.0
 	for row in rows:
 		var q: Dictionary = row.q
-		var main: bool = q.kind in ["main", "prologue"]
+		var main: bool = QuestAuthority.leads(str(q.kind))
 		var col = UiKit.GOLD if main else UiKit.SKY
 		var tw := 266.0 if row.go else 318.0
-		UiKit.draw_text(self, UiKit.fit(("◆ " if main else "● ") + str(q.name), 18, tw), Vector2(24, y + 20), 18, col, HORIZONTAL_ALIGNMENT_LEFT, tw)
+		var mark := "◇ " if str(q.kind) == "next" else ("◆ " if main else "● ")
+		UiKit.draw_text(self, UiKit.fit(mark + str(q.name), 18, tw), Vector2(24, y + 20), 18, col, HORIZONTAL_ALIGNMENT_LEFT, tw)
 		var ly := y + 24.0
 		if row.go:
 			# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
@@ -1967,8 +1992,10 @@ func _draw_tracker(c) -> void:
 			draw_style_box(UiKit.style("button_secondary", "selected" if going else "normal"), br)
 			UiKit.draw_text(self, "➤", br.position + Vector2(0, 31), 18, UiKit.GOLD if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
 			tracker_paths.append({"rect": go_hit(br), "target": str(row.goal)})
-			# P1: the tracker names where the quest leads.
-			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(str(row.goal)), 14, 262), Vector2(32, ly + 15), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 262)
+			# P1: the tracker names where the quest leads (a hunting ground as one).
+			var place := WorldAuthority.place_name(str(row.goal))
+			if q.get("hunt", false): place = Tx.t("hud.hunt_at") % place
+			UiKit.draw_text(self, UiKit.fit("➤ " + place, 14, 262), Vector2(32, ly + 15), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 262)
 			ly += 20.0
 		for line in q.lines:
 			var lw := 262.0 if row.go and ly < y + 52.0 else 314.0
@@ -2125,9 +2152,13 @@ func _draw_tap_ring() -> void:
 	draw_arc(attack_center, at_f.call(f), 0, TAU, 64, UiKit.PALE_GOLD if in_band else UiKit.BRIGHT_JADE, 4)
 	UiKit.draw_outlined(self, Tx.t("hud.tap_now"), attack_center + Vector2(-90, -outer - 18), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
 
-## What the attack button does now when it is not an attack: the context's glyph ("" while it attacks).
-func _ctx_glyph(c) -> String:
-	if not bound() or context.is_empty() or (_enemy_close() and Unlocks.is_unlocked(c.id, "attack")): return ""
+## What the attack button does now when it is not an attack: the context's glyph ("" while it attacks: attack_first).
+func _ctx_glyph(_c) -> String:
+	if not bound() or context.is_empty() or attack_first(): return ""
+	return _context_glyph()
+
+## The glyph of what the context offers (talk, gather, enter...): on the big button at rest, in the ring-2 slot in a fight.
+func _context_glyph() -> String:
 	return {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
 		"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
 		"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
@@ -2256,7 +2287,7 @@ func _draw_ring2(c) -> void:
 			"context":
 				context_center = at
 				ring(at, 26, false, 1.0, true)
-				glyph("enter", at, 32)
+				glyph(_context_glyph(), at, 32)
 				UiKit.draw_outlined(self, str(context.get("label", "")), at + Vector2(-50, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
 			"post":
 				context_center = at
@@ -2267,11 +2298,19 @@ func _draw_ring2(c) -> void:
 			"swap": _draw_swap(c, at)
 			_: _draw_toggle(c, str(it.get("toggle", "")), at)
 
+## A quest step asks for the healing slot: to put something in it, or to use what it holds (Granny's Remedy).
+func _quick_asked(c) -> bool:
+	return Game.quest.asks_for(c, "use_system", "set_quick_use") or Game.quest.asks_for(c, "use_item", str(c.inventory.quick_use))
+
 ## The healing slot (mockup 01): the quick-use item at its native 32, how many are left in the corner, the cooldown.
+## While a quest step asks for it, it glows and names itself as the step does ("Quick-use"); empty, a tap opens the Bag.
 func _draw_quick(c, at: Vector2) -> void:
 	var qid: String = c.inventory.quick_use
+	var asked := _quick_asked(c)
+	ring(at, 26, false, 1.0, pulses.has("hud:quick_use") or asked)
+	if asked: UiKit.draw_outlined(self, Tx.t("hud.quick_use"), at + Vector2(-50, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
+	if qid == "": return
 	var n: int = c.inventory.count(qid)
-	ring(at, 26, false, 1.0, pulses.has("hud:quick_use"))
 	glyph(qid, at, 32, Color(1, 1, 1, 1.0 if n > 0 else 0.4))
 	var cd := 0.0
 	for k in c.pools.cooldowns:

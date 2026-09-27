@@ -4,6 +4,7 @@
   {
    "id": "beast_tide",
    "name": "Beast Tide",
+   "short": "Beast Tide",
    "weekly_reset": true,
    "room": "sf_gate",
    "desc": "Once a week the beasts come down on Stoneford Gate. Ring the gong to meet them."
@@ -11,6 +12,7 @@
   {
    "id": "spatial_rift",
    "name": "Spatial Rift",
+   "short": "Spatial Rift",
    "every_days": 3,
    "offset_days": 1,
    "duration_h": 1,
@@ -49,6 +51,7 @@
   {
    "id": "shrine_reopening",
    "name": "The Drowned Shrine Surfaces",
+   "short": "Drowned Shrine",
    "every_days": 5,
    "offset_days": 0,
    "duration_h": 24,
@@ -60,6 +63,7 @@
   {
    "id": "auction_day",
    "name": "Auction Day",
+   "short": "Auction Day",
    "weekday": 5,
    "duration_h": 24,
    "room": "sf_market",
@@ -68,6 +72,7 @@
   {
    "id": "treasure_birth",
    "name": "A Spirit Fruit Ripens",
+   "short": "Spirit Fruit",
    "every_days": 4,
    "offset_days": 3,
    "duration_h": 6,
@@ -104,6 +109,7 @@
   {
    "id": "gathering_trial",
    "name": "The Herb Terraces Trial",
+   "short": "Terraces Trial",
    "weekday": 2,
    "duration_h": 24,
    "room": "ja_herb_terraces",
@@ -155,6 +161,7 @@
   {
    "id": "waterfall_reopening",
    "name": "The Waterfall Cave Opens",
+   "short": "Waterfall Cave",
    "every_days": 5,
    "offset_days": 2,
    "duration_h": 24,

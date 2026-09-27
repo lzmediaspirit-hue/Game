@@ -45,15 +45,36 @@ func paving(rect: Rect2,tint=Color.WHITE):
 			if mirror and row%2: dest.size.y=-dest.size.y
 			draw_texture_rect_region(texture,dest,src,tint)
 const ATLAS_BUILDINGS={"gate":Rect2(0,0,720,465),"hall":Rect2(739,70,797,390),"two_storey":Rect2(0,475,900,549),"tower":Rect2(1040,475,365,549)}
+## Where each painted building's doors are, as shares of its drawn width: the gate's arch and its side doors, the hall's
+## lattice doors, the two-storey's doors on the ground floor. The bell tower has none (a way into one needs a door of
+## its own, PortalView.entrance).
+const ATLAS_DOORS={"gate":[0.28,0.72],"hall":[0.16,0.70],"two_storey":[0.33,0.66],"tower":[]}
 func building_source() -> Rect2:
-	if ATLAS_BUILDINGS.has(art): return ATLAS_BUILDINGS[art]
-	if generated:
-		return Rect2(739,70,797,390) if surface.visual_variant%2==0 else Rect2(0,475,900,549)
-	match surface.id:
-		"jade_roof": return Rect2(739,70,797,390)
-		"bridge_roof": return Rect2(0,0,720,465)
-		"cloud_roof", "heaven_roof": return Rect2(0,475,900,549)
-		_: return Rect2(1040,475,365,549)
+	if generated and not ATLAS_BUILDINGS.has(art):
+		return ATLAS_BUILDINGS["hall" if surface.visual_variant%2==0 else "two_storey"]
+	return ATLAS_BUILDINGS[atlas_key(surface.id,art)]
+## The painted building a roof shows (outside generated zones): its own `art`, else by the roof's name (the sect halls).
+static func atlas_key(surface_id: String,art: String) -> String:
+	if ATLAS_BUILDINGS.has(art): return art
+	match surface_id:
+		"jade_roof": return "hall"
+		"bridge_roof": return "gate"
+		"cloud_roof", "heaven_roof": return "two_storey"
+		_: return "tower"
+## The doorway a building's art draws, in room x, for a roof surface as the room data gives it (S17 doors): a building
+## prop's `door` span (its art is drawn centred on the roof), or a painted building's doors; [] when it draws none.
+static func doorway(s: Dictionary) -> Array:
+	var r: Array=s.get("rect",[0,0,0,0])
+	var art:=str(s.get("art",""))
+	var span: Array=[]
+	var left:=float(r[0])
+	if art!="" and not ATLAS_BUILDINGS.has(art):
+		var e: Dictionary=SpriteCache.prop(art)
+		span=e.get("door",[])
+		left+=(float(r[2])-float(e.get("frame",[r[2],0])[0]))*0.5
+		return [left+float(span[0]),left+float(span[1])] if span.size()==2 else []
+	span=ATLAS_DOORS.get(atlas_key(str(s.get("id","")),art),[])
+	return [left+float(span[0])*float(r[2]),left+float(span[1])*float(r[2])] if span.size()==2 else []
 func painted_building(a: Vector2,width: float):
 	var source=building_source()
 	# Roof depth and facade height project from the physical building volume.

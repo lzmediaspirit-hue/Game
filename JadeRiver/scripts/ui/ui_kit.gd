@@ -362,8 +362,9 @@ const HUD_RING_PAD := 14.0
 static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, shadow := true, display := false) -> void:
 	var f := font_for(text, display, size)
 	var px := size_for(text, size, display)
-	if shadow:
-		# A soft two-step drop shadow reads on painted backgrounds without a hard black edge.
+	if shadow and color.get_luminance() > 0.4:
+		# A soft two-step drop shadow reads on painted backgrounds without a hard black edge. Ink on paper takes none (P5:
+		# a black shadow under dark words only smudges them).
 		ci.draw_string(f, pos + Vector2(0, 2), text, align, width, px, Color(0, 0, 0, 0.55 * color.a))
 		ci.draw_string(f, pos + Vector2(1, 1), text, align, width, px, Color(0, 0, 0, 0.45 * color.a))
 	ci.draw_string(f, pos, text, align, width, px, color)

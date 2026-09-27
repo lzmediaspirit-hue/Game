@@ -1,5 +1,72 @@
 # Changelog
 
+## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
+
+Found on the Android build; each fixed at its cause and held by the walks (docs/tutorial_order.md).
+- **After the sect choice the sect's first quest is under way.** The choice was recorded (sect, rank, token, method),
+  but nothing took it up: the Entry Trial, which the fair's last words send you to, waited for Bone Forging 2 behind
+  three unlocks, so at Bone Forging 1 no quest was active and the tracker went blank. The Entry Trial now starts the
+  moment a sect is chosen; its first step, Bone Forging 2, leads to a hunting ground ("➤ Hunt at Willow Path West"),
+  and the lessons it teaches still open at Bone Forging 2. The Willow Path likewise starts once Lu has handed you the
+  River Token (it started at the breakthrough a moment before, pointing ashore while the boat was still shut), and an
+  auto-taken lesson now unlocks its systems in the same pass (`GameAuthority._after_pass`).
+- **Between main quests the tracker shows the story's Next entry, never a blank plate** (`QuestAuthority.story_next`):
+  who gives the next quest and where ("Next: Fish-Gutting Fists · Talk to Shen Lian", ➤ Fairground), or what it still
+  waits on and where to get it: another quest first (followed back through requirements and unlock triggers), or a
+  Level ("Reach Level 21 (Qi Unfurling 3)", ➤ Hunt at Bend Shore: a field whose foes suit the character's Level, the
+  ones P12's gap names). It is a tracker entry like the others, so the P1 direction mark, the P5a plate, the go button
+  and the world map lead to it; the story's quests and lessons are always tracked (a full tracker drops a side quest).
+  Race to the Tower's bell step threw a script error in the tracker (an objective by object id); fixed.
+- **The Quick-use slot is on the HUD.** P5a rested the healing slot outside a fight, so Granny's Remedy asked for a
+  slot the player never saw. At rest it is now drawn while a quest step asks for it (glowing, named "Quick-use"; a tap
+  on the empty slot opens the Bag) and while it holds something to drink, clear of the open fan. The steps say what
+  the player sees: "Bag: put Herbal Tea in Quick-use", "Drink a Herbal Tea: tap Quick-use".
+- **The first quest cannot be skipped.** A quest whose step is to leave its room (Morning Tide's "Step outside") keeps
+  the room's ways shut while it is on offer and until the steps before it are done, and says which on the door and on
+  a try: "Before you go: Open your Bag" (`QuestAuthority.room_hold`, `WorldAuthority.portal_state`). The hut's door
+  stays drawn as itself, shut. Taken pickups stay taken on a reload (Aunt Ping's teas came back).
+- **In a fight the attack button attacks.** A herb, pickup, person or door in reach took the button whenever no foe
+  was aggroed within 400 px (a foe walked up to, or one between blows, did not count). One rule now
+  (`HUD.attack_first`): in the P5a fight state (a foe within the fight range, one engaged anywhere in the room, held a
+  moment after) the button attacks and the offer waits in ring 2's context slot with its own glyph; at rest the context
+  takes the button (mockup 02). Auto-hunt attacks directly and is unchanged.
+- "Ready to hand in" no longer flashes for a quest that completes itself (the fair).
+- **Tests**: `tutorial_order` holds every step to three more invariants (the control a step names drawn on the real
+  HUD, no room left early, the attack button in every fight beside the Reed Shallows' herbs) and, with `valley_run`
+  over every main quest of Acts I–III, to the story's guidance (`prologue_run.story_guidance`: the tracker never
+  empty, every target a real room the player can walk to, the mark toward it, the Next entry's giver or hunting ground,
+  the sect's first quest right after the choice). `rules_tests`: the Next entry (a giver through a chain, a Level),
+  the healing slot at rest, the attack-first rule. Each fix, reverted, fails its suite.
+- **Screenshots** from a new character (and one `valley_run` checkpoint) in `docs/ui_p5/guidance_fix/`.
+
+## Tutorial order: the first fight, foes' HP bars, doors and quest talks (docs/tutorial_order.md)
+
+Found on the Android build from a new character; each fixed at its cause and held by a new suite.
+- **The first fight comes after the HP bars.** The East Gate to the Reed Shallows opened with Fists First, while the
+  HP bar comes with Granny's Remedy and the foes' HP bars with Crab Trouble, so a player who went to Uncle Guo first
+  fought crabs and rats with neither. The gate now opens with Crab Trouble (the quest that sends you there, after all
+  four lessons); Guo's lines say so. Old Ma's and Granny Liu's Trade waits for Coins and Shops (buying needed it and
+  the purse was off the HUD).
+- **Foes in a fight show their HP bar.** Beyond the reveal above (not a regression of the P5a labels), a foe showed
+  its bar only once hurt, so a Reedtail Rat biting you showed none. A foe now shows it from the moment it turns on
+  you (`EnemyState.in_fight`, `EnemyView.shows_hp_bar`).
+- **Every way into a building shows a door.** Old Ma's store drew an open counter and no door. The store's art now has
+  its own plank door under a blue shop curtain in the right bay (`tools/props/defs_buildings.py`); every building prop
+  names its doorway (`door` in `data/prop_art.json`) and `Room.building` stands the door portal in it (the Fisher's
+  Hut's was 44 px off its door; the harbour's and the port's inns and shops too). A door's arrow and plate draw above
+  the facade (they were hidden behind the building). The painted bell towers of the retreat rooms get a door at their
+  foot, the Cloud Library's door moved onto the Sword Court hall's doors, the Beast Trial Grove's way stands clear of
+  the bell tower, and the Wardens' Hall is a house with a door instead of a watch tower. `data_validation` holds every
+  room to it (`PortalView.entrance`).
+- **Taking a quest ends the talk.** The dialogue page talked again after an accept and stayed open on a shop, a gift
+  or a farewell. `choose_dialogue` now hands back a conversation only when the same person has the next quest to give
+  or take back (`QuestAuthority._then`); otherwise the page closes. Every quest-giver alike.
+- **Tests**: `tutorial_order` (new) walks the Prologue and the start of Act I fists-first on the real dialogue page and
+  checks after every step and tick: no room with foes in reach before the HP bars, every foe in a fight showing its bar,
+  a door at every way into a building, the talk closing after each quest taken, each step's control on the HUD when its
+  quest is taken. `prologue_run` is split into steps both runs share; `valley_run`'s page check is stricter.
+- **Screenshots** from a new character in `docs/ui_p5/tutorial_fix/`.
+
 ## P13a · Techniques at scale, the data (docs/technique_plan.md)
 
 The techniques of Acts I–III are written, 3,171 in all: every weapon family and cultivation path has hundreds of arts,
@@ -724,6 +791,49 @@ come next. Where it differs from the plan, the plan's §6 says so.
   furniture, and every word on the painting sits on a plate (180 views); in the valley no plate is left out; Track Route
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
+
+### P5 · The Records family: the Codex, its Old Scrolls and the Calendar (mockups 18, 18_scrolls, 19; decisions 11, 14, 22)
+- **The Codex as the field book** (`docs/page_identity.md` row 26). A bound book open on the reading desk: a jade cloth
+  cover, the page block's edges, two pages with the gutter's shadow and foxing. The sections are silk ribbons standing
+  out of the top edge; the open one hangs longer and carries the page's title, inked. The Collection is a spread for
+  each collection page (four beasts a spread, a long page over several): the whole book's cards filled and the next
+  stop (the Collector title and its gift), Contents (the fourteen pages, a tap turns to one), the page's name, how many
+  beasts and when a card fills, each beast drawn from its sheet on squared paper and taped in (a shadow until met, with
+  where it lives once you have been there), its rank, nature, levels, what taming makes of it and its drops, its count
+  on an ink bar to the fill, a filled card stamped; the page's seal (every card filled, `collection_pages_done`) with
+  its count. The curled corners turn the leaves; the Codex's entries, Achievements, Paths Above and Seasons are written
+  on the same spread. A leaf turns over the spread on a turn, a new section and the opening (0.35 s).
+- **The Old Scrolls** (decision 11: like nothing else in the game) are a tab of their own: a black stone rubbing on a
+  hanging scroll (brocade, silk, rods with jade caps) on the reading room's wall, inked from the top down to the rungs
+  the account has reached, the carved names pale, the stone's chips and crack in the ink, the rest bare paper with the
+  ink pad where the work stopped; beside each rung the scholar's vermilion gloss of our realms on it (their halves,
+  "you", "? ? ?" for one not reached); the chosen rung ringed and its note pinned on a sheet with a vermilion frame
+  (levels, steps and years from `realms.json`). A second tap on a rung turns to the other realm on it; the newest rung
+  is dabbed in as the tab opens (0.4 s). Each old scroll entry now names its rung and half (`tools/data/story.py`).
+- **The Calendar to mockup 19** (row 22, decision 22; the almanac, 19 v2, stays the record). The kit's window: the four
+  seasons as a strip from the one now; the week as seven day columns from today with every occurrence of every world
+  event on its day as a slip (gold under way, violet coming; a short name each, `tools/data/living_world.py`) and a red
+  line at the hour now; the Beast Tide across the week; the chosen event (a slip or the tide) with when, where, what it
+  means for you (a repeat run's cap, the Terraces Trial's standing, the tide's week) and **Go there**, the `auto_path`
+  intent the World map uses, with how many regions away; the weather with its next change and what each changes. The
+  slips drop onto their days as it opens (0.3 s). Everything the old Calendar said is kept.
+- **Shared:** Page takes the World map's `_halo`, `_pulse` and `_blossom` (the map and the Calendar draw the same event
+  blossom) and `vshade`/`hshade` gradients; dark ink words take no drop shadow (`UiKit.draw_text`); the plaque's title
+  is logged like every inked word, so the `ui_suite` finds it. Everything is drawn by the pages from tokens; no new
+  HD art or `SURFACE` token.
+- **Tests:** the `identity_suite`'s Records part: the field book binds every card once, a page each; the open ribbon
+  carries the title; a corner turns the leaf; Contents lists every page and turns to one; the Old Scrolls rub only the
+  rungs reached, gloss each, pin the note and turn to the other realm on a second tap, every word reading on the ink,
+  the silk or the note, and every great realm names its rung; the Calendar lays every occurrence of the week on its
+  day with no two slips touching and the tide across, and Go there walks to the chosen event's room by `auto_path`,
+  shut with its reason when no way leads there. The `ui_suite` opens the Codex also with every old scroll rubbed and
+  every card filled, and holds a layout signature to its page script (the Codex opens under four ids).
+  The three "n of m" counts join `contract_tests`' counts of a total. The full suite after merging the build branch: room_lint 168 / 0;
+  engine_tests 3785/3785; data_validation 49083 / 0; room_sweep 3676 / 0; rules_tests 1972 / 0; contract_tests 1051 / 0;
+  balance_sim 148 / 0; perf_tests 9 / 0; prologue_run 111 / 0; tutorial_order 340 / 0; valley_run 3253 / 0.
+- **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
+  with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
+  proposals the rules do not hold; the build draws the one seal the game keeps).
 
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,

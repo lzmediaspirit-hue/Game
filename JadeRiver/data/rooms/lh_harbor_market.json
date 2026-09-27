@@ -174,7 +174,7 @@
    "id": "chandlery_door",
    "type": "door",
    "at": [
-    650,
+    692,
     704
    ],
    "to": "lh_star_chandlery",
@@ -187,7 +187,7 @@
    "id": "inn_door",
    "type": "door",
    "at": [
-    1520,
+    1480,
     704
    ],
    "to": "lh_tidelight_inn",
@@ -277,7 +277,7 @@
    "id": "board_lh",
    "type": "notice_board",
    "at": [
-    800,
+    820,
     700
    ]
   },
@@ -468,11 +468,11 @@
    "id": "star_chandlery_ladder_1",
    "kind": "ladder",
    "at": [
-    580,
+    620,
     725
    ],
    "top_at": [
-    580,
+    620,
     682
    ],
    "bottom_alt": 0,
@@ -484,11 +484,11 @@
    "id": "tidelight_inn_ladder_2",
    "kind": "ladder",
    "at": [
-    1480,
+    1440,
     725
    ],
    "top_at": [
-    1480,
+    1440,
     682
    ],
    "bottom_alt": 0,

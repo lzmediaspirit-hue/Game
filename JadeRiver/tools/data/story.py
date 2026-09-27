@@ -7,7 +7,7 @@ the world (a river valley, sects, a slow climb through realms).
 import json
 import os
 
-from common import DATA, write, entries, realm, qdone, qactive, flag, noflag, unlocked, sect, all_of, any_of
+from common import DATA, write, entries, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 from realms import level_of
@@ -546,7 +546,9 @@ def unlocks():
     u("codex", "Codex", all_of(flag("night_survived")), "the_river_token", ["page:codex"], prologue=True, toast=False)
 
     # Bone Forging
-    bf1 = all_of(realm("bone_forging_1"))
+    # The Willow Path follows the River Token (its `next`): it starts once Lu has handed you the token on his boat, not
+    # at the breakthrough a moment before, when the boat's way ashore is still shut (the tracker would lead nowhere).
+    bf1 = all_of(realm("bone_forging_1"), qdone("the_river_token"))
     u("body_training", "Body training", bf1, "the_willow_path", [])
     u("kill_progress", "Progress from fights", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
     u("shrine_respawn", "Shrines remember you", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
@@ -747,7 +749,7 @@ def unlocks():
     u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
     # P12: Chapter 21 opens at Sphere Lord 1, so The Tide Breaks and this box open together; Tinker Mei waits in the
     # Tidebreak Bastion, which The Tide Breaks opens, so the box follows it.
-    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), {"kind": "quest_accepted", "quest": "the_tide_breaks"}),
+    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), qaccepted("the_tide_breaks")),
       "the_copperjaw_box", [], same_stage_ok=True)
     u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
       same_stage_ok=True)
@@ -842,11 +844,13 @@ def prologue_quests():
                "Then buy two rice balls. That's how trade works: you give, you get."],
         complete=["See? Coins go round like the river. Here's a little for your trouble."])
     quest("grannys_remedy", "Granny's Remedy", "prologue", "granny_liu", [
-        o("use_system", "Put Herbal Tea in the Quick-use slot", system="set_quick_use"),
-        o("use_item", "Drink a Herbal Tea", item="herbal_tea"),
+        o("use_system", "Bag: put Herbal Tea in Quick-use", system="set_quick_use"),
+        o("use_item", "Drink a Herbal Tea: tap Quick-use", item="herbal_tea"),
         o("interact_object", "Pray at the village shrine", type="shrine"),
     ], [item("herbal_tea", 3)], requires=after_lu, target_room="lf_village", chapter="prologue", marker="blue",
-        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.", "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
+        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.",
+               "Open your Bag, tap the tea and choose Quick-use: it waits by your fist, marked Quick-use.",
+               "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
         complete=["Good. The shrine will patch you up when you're hurt. Tea when you can't reach it."])
     quest("race_to_the_tower", "Race to the Tower", "side", "shen_lian_npc", [
         o("interact_object", "Ring the watch-tower bell", object="tower_bell"),
@@ -859,7 +863,8 @@ def prologue_quests():
     ], [item("herbal_tea", 1)], requires=after_lu, target_room="lf_village", chapter="prologue",
         offer=["Fists first! Jab, cross, jab. Hold the button and they flow.", "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."],
         progress=["Elbow in! Twelve on the stump, five on the dummy."],
-        complete=["Not bad! The East Gate's open for you. Reed Shallows. Crabs. You'll see."])
+        complete=["Not bad! Keep those fists warm. Something's stirring past the East Gate.",
+                  "Finish helping the others first. Lu will tell you when."])
     quest("a_quiet_river_return", "A Quiet River (Return)", "prologue", "lu_boatman", [
         o("talk_to", "Report to Lu", npc="lu_boatman"),
     ], [], hand_in="lu_boatman", auto_accept=True, target_room="lf_village", chapter="prologue",
@@ -870,6 +875,7 @@ def prologue_quests():
         o("kill", "Defeat Old Snapper", enemy="old_snapper", after=0),
     ], [taels(50), item("plain_straw_hat", 1)], requires=all_of(qdone("a_quiet_river_return")), target_room="lf_reed_shallows", chapter="prologue",
         offer=["The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+               "The East Gate's open for you now. Reed Shallows, just past it.",
                "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."],
         complete=["Old Snapper! Ha! Here, fifty taels and my old straw hat. Wear it, it keeps the sun out of a fighter's eyes."])
     quest("evening_on_the_river", "Evening on the River", "prologue", "lu_boatman", [
@@ -920,7 +926,9 @@ def guided_quests():
         o("kill", "Beat the Trial Puppet", enemy="trial_puppet"),
     ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects"),
         fx("set_flag", flag="prologue_done")], hand_in="",
-        offered_by_unlock=True, auto_accept=True, target_room="sf_fairground", chapter="bf2",
+        # It starts the moment a sect is chosen (the fair's last words send you to it): its first step, Bone Forging 2,
+        # leads to the hunting grounds; the notice board, the return charm and the Character page it teaches open there.
+        requires=all_of(qdone("the_recruitment_fair")), auto_accept=True, target_room="sf_fairground", chapter="bf2",
         complete=["Service Disciple! Report to the steward at your sect's gate."])
     quest("a_disciples_chores", "A Disciple's Chores", "main", "jade_steward", [
         o("set_flag", "Sweep the first spot", flag="swept_ja_0", alt_flag="swept_cm_0"),
@@ -2542,26 +2550,27 @@ def codex():
         {"id": "the_hollowing", "title": "The Hollowing", "body": "A grey that drains colour, then life. Hollowed beasts have empty white eyes."},
         {"id": "realms", "title": "Realms", "body": "Mortal, Bone Forging, Qi Kindling, Qi Unfurling, Heart Tempering, Cloud Stride, Spirit Awakening, Heaven Glimpse... and beyond the valley, more."},
         # P10: the old scrolls' names beside Jade River's realms (docs/realm_old_names.md); each opens when the account reaches it.
+        # P5: each names its old rung and which half of it the realm is, for the Old Scrolls' rubbing (codex_page.gd).
         {"id": "old_scrolls", "title": "The old scrolls", "body": "Scrolls copied far from this valley name the realms by an older ladder. Its rungs are wider than ours, so two of our realms often stand on one of theirs. This register sets their names beside ours, one realm at a time."},
-        {"id": "old_scrolls_mortal", "title": "Mortal · the old scrolls", "body": "The old scrolls have no rung for this: they write \"mortal\" and start counting at the first breath of Qi. A mortal body keeps its eighty years or so, and the scrolls do not pretend otherwise."},
-        {"id": "old_scrolls_bone_forging", "title": "Bone Forging · the old scrolls", "body": "The old scrolls call this labour Body Refining and set it below the ladder, a threshold rather than a rung. It is the work we do at the stumps and stones: the bones first, and the first Qi only at the seventh stage."},
-        {"id": "old_scrolls_qi_kindling", "title": "Qi Kindling · the old scrolls", "body": "The old scrolls call the first rung of Qi \"Qi Refining\", and count it in layers where we count stages. Our Qi Kindling is its lower layers: the breath is caught and kept, but it does not yet leave the body."},
-        {"id": "old_scrolls_qi_unfurling", "title": "Qi Unfurling · the old scrolls", "body": "Our Qi Unfurling is the upper layers of the old scrolls' Qi Refining. They too wash the marrow at its gate, as Heaven's Cleansing does, and they too say the Qi first leaves the hand here."},
-        {"id": "old_scrolls_heart_tempering", "title": "Heart Tempering · the old scrolls", "body": "The old scrolls call this rung Foundation Establishment and give it two hundred years, as we do. At its end they set a trial of the heart, where a cultivator meets the demons they carried in; our Heart Trial is that door."},
-        {"id": "old_scrolls_cloud_stride", "title": "Cloud Stride · the old scrolls", "body": "Here the old scrolls say the Qi condenses into a core, and they call the rung Core Formation, or the Golden Core. They grade the core as we do, and a poor grade is carried for the rest of the road. The pill our furnaces call Qi Refining is named for the work it does here, not for the old rung of that name."},
-        {"id": "old_scrolls_spirit_awakening", "title": "Spirit Awakening · the old scrolls", "body": "The old scrolls still count this as Core Formation, its later half, when the core is whole and the spirit's eye opens. They give it five hundred years, and so do we."},
-        {"id": "old_scrolls_heaven_glimpse", "title": "Heaven Glimpse · the old scrolls", "body": "Where we glimpse heaven, the old scrolls say a Nascent Soul is born: a small self of spirit that grows out of the core. They divide it in three, as we divide Heaven Glimpse into orders."},
-        {"id": "old_scrolls_sage", "title": "Sage · the old scrolls", "body": "The old scrolls keep the Nascent Soul through what we call Sage, and they say what we say: a Sage's soul can leave a broken body and flee to safety. Their thousand years is close to our twelve hundred."},
-        {"id": "old_scrolls_sage_sovereign", "title": "Sage Sovereign · the old scrolls", "body": "The old scrolls call the next rung Spirit Transformation, when the soul, not the body, becomes the centre of the cultivator. They say a trial of will stands at its end, as our Presence Trial does."},
-        {"id": "old_scrolls_will_manifest", "title": "Will Manifest · the old scrolls", "body": "The old scrolls keep Spirit Transformation here too, and write of its later half as the time when a cultivator's will weighs on the weaker. What they call might, we call Presence."},
-        {"id": "old_scrolls_sphere_lord", "title": "Sphere Lord · the old scrolls", "body": "Past the soul the old scrolls set Void Refining, when a cultivator begins to shape the space around them. Our Sphere is that shaping, drawn as a circle."},
-        {"id": "old_scrolls_law_touching", "title": "Law Touching · the old scrolls", "body": "The old scrolls end Void Refining where we begin to touch the Laws: the void is refined until the laws of a world answer. They put eight thousand years on it, as we do."},
-        {"id": "old_scrolls_monarch", "title": "Monarch · the old scrolls", "body": "The old scrolls call this rung Body Integration: body, soul and world become one. A Monarch's Weight is their oneness with heaven and earth, and a Throne-Sworn Monarch is their cultivator who has made one world their own."},
-        {"id": "old_scrolls_half_heaven_monarch", "title": "Half-Heaven Monarch · the old scrolls", "body": "The old scrolls call the last long rung before the heavens the Great Vehicle, and count its first step as half a step into heaven. Half-Heaven Monarch is that step."},
-        {"id": "old_scrolls_dao_sigil", "title": "Dao Sigil · the old scrolls", "body": "The old scrolls close the Great Vehicle when everything a cultivator is has been pressed into one foundation. Our Dao Sigil is that pressing, with the seven powers set in it one by one."},
-        {"id": "old_scrolls_heavens_threshold", "title": "Heaven's Threshold · the old scrolls", "body": "The old scrolls call this rung Tribulation Crossing: the cultivator stands where the heavens try them one last time before they rise. Ours adds the forming of a world, the one breakthrough that can take back what it gave."},
-        {"id": "old_scrolls_inner_heaven", "title": "Inner Heaven · the old scrolls", "body": "Here the old scrolls say the cultivator ascends and becomes an immortal, and they count the immortal ranks from the True Immortal upward. Our Inner Heaven is that ascent with a world carried inside; its nine ranks answer to their grades."},
-        {"id": "old_scrolls_world_genesis", "title": "World Genesis · the old scrolls", "body": "The old scrolls stop counting here and call one who makes and mends worlds a Dao Ancestor. They give no end of years, and neither do we."},
+        {"id": "old_scrolls_mortal", "rung": "Mortal", "half": "", "title": "Mortal · the old scrolls", "body": "The old scrolls have no rung for this: they write \"mortal\" and start counting at the first breath of Qi. A mortal body keeps its eighty years or so, and the scrolls do not pretend otherwise."},
+        {"id": "old_scrolls_bone_forging", "rung": "Body Refining", "half": "", "title": "Bone Forging · the old scrolls", "body": "The old scrolls call this labour Body Refining and set it below the ladder, a threshold rather than a rung. It is the work we do at the stumps and stones: the bones first, and the first Qi only at the seventh stage."},
+        {"id": "old_scrolls_qi_kindling", "rung": "Qi Refining", "half": "lower", "title": "Qi Kindling · the old scrolls", "body": "The old scrolls call the first rung of Qi \"Qi Refining\", and count it in layers where we count stages. Our Qi Kindling is its lower layers: the breath is caught and kept, but it does not yet leave the body."},
+        {"id": "old_scrolls_qi_unfurling", "rung": "Qi Refining", "half": "upper", "title": "Qi Unfurling · the old scrolls", "body": "Our Qi Unfurling is the upper layers of the old scrolls' Qi Refining. They too wash the marrow at its gate, as Heaven's Cleansing does, and they too say the Qi first leaves the hand here."},
+        {"id": "old_scrolls_heart_tempering", "rung": "Foundation Establishment", "half": "", "title": "Heart Tempering · the old scrolls", "body": "The old scrolls call this rung Foundation Establishment and give it two hundred years, as we do. At its end they set a trial of the heart, where a cultivator meets the demons they carried in; our Heart Trial is that door."},
+        {"id": "old_scrolls_cloud_stride", "rung": "Core Formation", "half": "early", "title": "Cloud Stride · the old scrolls", "body": "Here the old scrolls say the Qi condenses into a core, and they call the rung Core Formation, or the Golden Core. They grade the core as we do, and a poor grade is carried for the rest of the road. The pill our furnaces call Qi Refining is named for the work it does here, not for the old rung of that name."},
+        {"id": "old_scrolls_spirit_awakening", "rung": "Core Formation", "half": "late", "title": "Spirit Awakening · the old scrolls", "body": "The old scrolls still count this as Core Formation, its later half, when the core is whole and the spirit's eye opens. They give it five hundred years, and so do we."},
+        {"id": "old_scrolls_heaven_glimpse", "rung": "Nascent Soul", "half": "early", "title": "Heaven Glimpse · the old scrolls", "body": "Where we glimpse heaven, the old scrolls say a Nascent Soul is born: a small self of spirit that grows out of the core. They divide it in three, as we divide Heaven Glimpse into orders."},
+        {"id": "old_scrolls_sage", "rung": "Nascent Soul", "half": "late", "title": "Sage · the old scrolls", "body": "The old scrolls keep the Nascent Soul through what we call Sage, and they say what we say: a Sage's soul can leave a broken body and flee to safety. Their thousand years is close to our twelve hundred."},
+        {"id": "old_scrolls_sage_sovereign", "rung": "Spirit Transformation", "half": "early", "title": "Sage Sovereign · the old scrolls", "body": "The old scrolls call the next rung Spirit Transformation, when the soul, not the body, becomes the centre of the cultivator. They say a trial of will stands at its end, as our Presence Trial does."},
+        {"id": "old_scrolls_will_manifest", "rung": "Spirit Transformation", "half": "late", "title": "Will Manifest · the old scrolls", "body": "The old scrolls keep Spirit Transformation here too, and write of its later half as the time when a cultivator's will weighs on the weaker. What they call might, we call Presence."},
+        {"id": "old_scrolls_sphere_lord", "rung": "Void Refining", "half": "early", "title": "Sphere Lord · the old scrolls", "body": "Past the soul the old scrolls set Void Refining, when a cultivator begins to shape the space around them. Our Sphere is that shaping, drawn as a circle."},
+        {"id": "old_scrolls_law_touching", "rung": "Void Refining", "half": "late", "title": "Law Touching · the old scrolls", "body": "The old scrolls end Void Refining where we begin to touch the Laws: the void is refined until the laws of a world answer. They put eight thousand years on it, as we do."},
+        {"id": "old_scrolls_monarch", "rung": "Body Integration", "half": "", "title": "Monarch · the old scrolls", "body": "The old scrolls call this rung Body Integration: body, soul and world become one. A Monarch's Weight is their oneness with heaven and earth, and a Throne-Sworn Monarch is their cultivator who has made one world their own."},
+        {"id": "old_scrolls_half_heaven_monarch", "rung": "Great Vehicle", "half": "early", "title": "Half-Heaven Monarch · the old scrolls", "body": "The old scrolls call the last long rung before the heavens the Great Vehicle, and count its first step as half a step into heaven. Half-Heaven Monarch is that step."},
+        {"id": "old_scrolls_dao_sigil", "rung": "Great Vehicle", "half": "complete", "title": "Dao Sigil · the old scrolls", "body": "The old scrolls close the Great Vehicle when everything a cultivator is has been pressed into one foundation. Our Dao Sigil is that pressing, with the seven powers set in it one by one."},
+        {"id": "old_scrolls_heavens_threshold", "rung": "Tribulation Crossing", "half": "", "title": "Heaven's Threshold · the old scrolls", "body": "The old scrolls call this rung Tribulation Crossing: the cultivator stands where the heavens try them one last time before they rise. Ours adds the forming of a world, the one breakthrough that can take back what it gave."},
+        {"id": "old_scrolls_inner_heaven", "rung": "Ascension", "half": "", "title": "Inner Heaven · the old scrolls", "body": "Here the old scrolls say the cultivator ascends and becomes an immortal, and they count the immortal ranks from the True Immortal upward. Our Inner Heaven is that ascent with a world carried inside; its nine ranks answer to their grades."},
+        {"id": "old_scrolls_world_genesis", "rung": "Dao Ancestor", "half": "", "title": "World Genesis · the old scrolls", "body": "The old scrolls stop counting here and call one who makes and mends worlds a Dao Ancestor. They give no end of years, and neither do we."},
         {"id": "body_training", "title": "Body training", "body": "Stumps and stones temper the body. Body Level supports every breakthrough."},
         {"id": "sects", "title": "Training sects", "body": "The Jade Sect Academy by the river and the Cloud Sect Monastery on the cliffs."},
         {"id": "training_sects", "title": "Ranks", "body": "Service, outer, inner, core and personal disciples."},
