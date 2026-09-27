@@ -143,7 +143,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    510,
+    290,
     655
    ],
    "item": "soulbell_flower",
@@ -194,7 +194,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    290,
+    510,
     655
    ],
    "loot": "jar_valley_mid",
@@ -298,8 +298,8 @@
    "id": "rare_soulbell_ms",
    "type": "herb_patch",
    "at": [
-    1470,
-    645
+    980,
+    655
    ],
    "item": "soulbell_flower_100",
    "prop": "soulbell_flower_patch",
@@ -318,8 +318,8 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 300,
-   "surface": "cloud_mv",
+   "alt": 200,
+   "surface": "ledge_mv_1",
    "age": 100,
    "ripen": {
     "phase": "night",

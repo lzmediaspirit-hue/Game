@@ -205,7 +205,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    510,
+    290,
     655
    ],
    "item": "stormsteel_ore",
@@ -256,7 +256,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    290,
+    510,
     655
    ],
    "loot": "jar_expanse",

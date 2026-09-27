@@ -396,7 +396,42 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "stair_a_under_ground",
+   "art": "none",
+   "position": [
+    820,
+    778
+   ],
+   "front_y": 778,
+   "footprint": [
+    700,
+    640,
+    240,
+    138
+   ],
+   "height": 8,
+   "radius": 0
+  },
+  {
+   "id": "landing_under_ground",
+   "art": "none",
+   "position": [
+    980,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    700,
+    620,
+    560,
+    20
+   ],
+   "height": 8,
+   "radius": 0
+  }
+ ],
  "decor": [
   {
    "prop": "paifang_gate",

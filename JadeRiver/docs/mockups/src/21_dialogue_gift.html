@@ -1,0 +1,86 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>21 Dialogue, a gift</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .mm-line { position: absolute; height: 2px; background: rgba(217, 235, 230, 0.7); }
+  .mm-dot { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; }
+  /* The gift is given inside the talk: the bag's giftable things open in a tray above the box (no separate window),
+     the answer comes back in the box, and the heart bar shows what it moved. */
+  .ch { position: absolute; left: 872px; width: 352px; height: 48px; font-size: 19px; justify-content: flex-start; padding-left: 16px; }
+  .ch .k { width: 26px; height: 26px; margin-right: 12px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--ink); background: var(--pale-gold); box-shadow: 0 0 0 2px var(--ink); flex: none; }
+  .heart { display: inline-block; width: 18px; height: 16px; margin-right: 3px; background: #e05a6e;
+    clip-path: polygon(50% 100%, 0 38%, 0 16%, 14% 0, 36% 0, 50% 16%, 64% 0, 86% 0, 100% 16%, 100% 38%); }
+  .heart.part { background: linear-gradient(90deg, #e05a6e 0 90%, rgba(91,74,51,.35) 90%); }
+  .tray { position: absolute; left: 252px; top: 272px; width: 972px; height: 184px; }
+  .gs { position: absolute; top: 320px; width: 76px; height: 76px; }
+  .liked { position: absolute; left: 50%; top: -12px; transform: translateX(-50%); white-space: nowrap; height: 20px; padding: 0 8px; border-radius: 10px;
+    font-size: 14px; font-weight: 700; line-height: 20px; color: var(--ink); background: #f0a0b0; box-shadow: 0 0 0 2px var(--ink); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_elder_hu_peak_qu5.png">
+
+<!-- ================= the HUD's top edge (qu5: no Soul pool yet, so two bars) ================= -->
+<div class="k-minor-panel abs" style="left:16px;top:16px;width:360px;height:104px"></div>
+<div class="abs t-md" style="left:34px;top:26px">Tester</div>
+<div class="abs t-sm c-pale" style="left:34px;top:48px">Qi Unfurling 4 · Lv 22</div>
+<div class="abs t-xs t-label" style="left:36px;top:72px;color:var(--hud-label)">HP</div>
+<div class="k-hudbar abs" style="left:72px;top:76px;width:288px;--v:1"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">1,706 / 1,706</div></div>
+<div class="abs t-xs t-label" style="left:36px;top:91px;color:var(--hud-label)">QI</div>
+<div class="k-hudbar is-qi abs" style="left:72px;top:95px;width:288px;--v:0.551"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">345 / 626</div></div>
+<div class="k-party" style="left:408px;top:44px"><div class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="left:-166px;top:-152px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party-name t-outline" style="left:408px;top:72px">Tie Niu</div>
+<div class="k-minimap abs" style="left:1032px;top:16px;width:232px;height:140px">
+  <div class="k-minimap-title">Elder Hu's Peak</div>
+  <div class="mm-line" style="left:8px;top:112px;width:216px;opacity:.55"></div>
+  <div class="mm-line" style="left:40px;top:70px;width:50px"></div><div class="mm-line" style="left:120px;top:62px;width:60px"></div>
+  <div class="mm-dot" style="left:14px;top:106px;width:8px;height:8px;margin:-4px;background:#67d67a;box-shadow:0 0 0 2px var(--gold)"></div>
+  <div class="mm-dot" style="left:212px;top:106px;width:8px;height:8px;margin:-4px;background:#67d67a"></div>
+  <div class="mm-dot" style="left:122px;top:106px;background:#f0e070"></div>
+  <div class="mm-dot" style="left:98px;top:106px;background:var(--ally)"></div>
+  <div class="abs" style="left:104px;top:101px;width:0;height:0;border-left:9px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+</div>
+<div class="k-hud k-hud-sm" style="left:1058px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/menu.png"><div class="k-seal" style="right:-12px;top:-12px;width:24px;height:24px;font-size:14px">✓</div></div>
+<div class="k-hud k-hud-sm" style="left:1116px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/bag.png"></div>
+<div class="k-hud k-hud-sm" style="left:1174px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/map.png"></div>
+<div class="k-hud k-hud-sm" style="left:1232px;top:188px"><img class="ic ic-32" src="../../../art/icons/hud/mail.png"><div class="k-badge" style="right:-8px;top:-8px">1</div></div>
+<div class="k-pill abs" style="left:1040px;top:222px;width:222px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">5,908</span><img class="ic" style="margin-left:8px" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">0</span></div>
+
+<!-- ================= the gift tray: what can be given, what they like, and today's gift ================= -->
+<div class="tray k-minor-panel"></div>
+<div class="abs t-subhead" style="left:270px;top:280px">A gift for Elder Hu</div>
+<div class="abs t-xs c-mist" style="left:520px;top:290px">one a day</div>
+<div class="abs t-sm c-paper" style="left:760px;top:284px"><span class="c-mist">Loves</span> <span class="c-hollow" style="margin-right:14px">not yet known</span> <span class="c-mist">Likes</span> <span class="c-pale">Manual Page</span><span class="k-new" style="position:relative;display:inline-block;margin-left:8px;vertical-align:1px"></span></div>
+<div class="k-slot is-selected gs" style="left:270px"><img class="ic" src="../../../art/icons/items/manual_page.png"><span class="k-count t-fig t-sm t-outline c-paper">2</span><div class="k-slot-glow"></div><span class="liked">Likes it</span></div>
+<div class="k-slot gs" style="left:356px"><img class="ic" src="../icon_study/icons/A_healing_pill.png"><span class="k-count t-fig t-sm t-outline c-paper">7</span></div>
+<div class="k-slot gs" style="left:442px"><img class="ic" src="../../../art/icons/items/qi_gathering_pill.png"><span class="k-count t-fig t-sm t-outline c-paper">5</span></div>
+<div class="k-slot gs" style="left:528px"><img class="ic" src="../../../art/icons/items/clear_mind_pill.png"><span class="k-count t-fig t-sm t-outline c-paper">1</span></div>
+<div class="k-slot gs" style="left:614px"><img class="ic" src="../../../art/icons/items/rice_ball.png"><span class="k-count t-fig t-sm t-outline c-paper">17</span></div>
+<div class="k-slot gs" style="left:700px"><img class="ic" src="../../../art/icons/items/willow_moss.png"><span class="k-count t-fig t-sm t-outline c-paper">13</span></div>
+<div class="k-slot gs" style="left:786px"><img class="ic" src="../../../art/icons/items/tough_meat.png"><span class="k-count t-fig t-sm t-outline c-paper">9</span></div>
+<div class="k-slot gs" style="left:872px"><img class="ic" src="../../../art/icons/items/spirit_stone_shard.png"><span class="k-count t-fig t-sm t-outline c-paper">10</span></div>
+<div class="k-slot gs" style="left:958px"><img class="ic" src="../../../art/icons/items/copper_ore.png"><span class="k-count t-fig t-sm t-outline c-paper">10</span></div>
+<div class="k-slot gs" style="left:1044px"><img class="ic" src="../../../art/icons/items/spring_water.png"><span class="k-count t-fig t-sm t-outline c-paper">3</span></div>
+<div class="abs t-xs c-mist" style="left:1130px;top:350px">+4</div>
+<div class="k-btn is-disabled abs" style="left:270px;top:406px;width:170px;height:48px;font-size:20px">Give<span class="k-lock-mini"></span></div>
+<div class="abs t-sm c-mist" style="left:456px;top:420px">They've had a gift from you today. Come back tomorrow.</div>
+
+<!-- ================= the talk ================= -->
+<div class="k-dialogue abs" style="left:40px;top:486px;width:1200px;height:218px"></div>
+<div class="k-portrait abs" style="left:56px;top:452px;width:184px;height:236px;background:radial-gradient(ellipse at 50% 40%, #1d5157, #061519)">
+  <img class="abs" src="../assets/portrait_elder_hu.png" style="left:-4px;top:0;width:192px;height:240px;image-rendering:pixelated"></div>
+<div class="k-plaque abs" style="left:252px;top:462px;width:260px;--h:48px"><span style="font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--pale-gold);text-shadow:0 2px 0 rgba(0,0,0,.55)">Elder Hu</span></div>
+<div class="abs flex no-shadow" style="left:268px;top:518px;font-size:16px;color:#5b4a33"><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart part"></span><span style="margin-left:10px">Jade Sect elder</span></div>
+<div class="abs no-shadow" style="left:268px;top:548px;width:560px;font-size:24px;line-height:1.4;color:var(--ink);font-weight:700">Elder Hu likes it.</div>
+<div class="abs no-shadow" style="left:268px;top:584px;width:560px;font-size:18px;line-height:1.45;color:#3b3226">He turns the page to the light and reads a line of it twice.</div>
+<!-- the heart bar: +40 for a liked gift, the fifth heart at 500 -->
+<div class="k-bar abs" style="left:268px;top:626px;width:420px;height:26px;--v:0.9;--fill:#e05a6e">
+  <div class="k-trough" style="top:5px;bottom:5px"><div class="k-fill"></div><div class="abs" style="left:50%;width:40%;top:0;bottom:0;background:rgba(255,230,161,.45)"></div></div>
+  <div class="k-tick is-next" style="--at:1"></div>
+  <div class="k-bar-text t-fig t-outline c-paper" style="font-size:14px">90 / 100 to the fifth heart</div></div>
+<div class="abs t-md t-fig no-shadow" style="left:700px;top:627px;color:#1f7a6c;font-weight:700">+40</div>
+
+<div class="k-btn2 abs ch" style="top:548px"><span class="k">1</span>About the Drowned Abbot</div>
+<div class="k-btn2 abs ch" style="top:600px"><span class="k">2</span>Farewell</div>
+
+</div></body></html>

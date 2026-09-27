@@ -104,6 +104,7 @@ func _main() -> void:
 	boss_event_suite()
 	text_suite()
 	ui_fixes_suite()
+	icon_draw_suite()
 	await ui_suite()
 	fixes_suite()
 	max_character_suite()
@@ -186,6 +187,9 @@ func ui_suite() -> void:
 	var crossing: Array = []
 	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
+	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
+	var icons_drawn := 0
+	SpriteCache.draw_log = []
 	var views := 0
 	for id in main_script.PAGES:
 		for a in contexts.get(str(id), [{}]):
@@ -204,11 +208,17 @@ func ui_suite() -> void:
 			for ti in maxi(1, pg.tabs.size()):
 				if not pg.tabs.is_empty(): pg.tab = ti
 				pg.text_log.clear()
+				SpriteCache.draw_log.clear()
 				pg.queue_redraw()
 				await get_tree().process_frame
 				await get_tree().process_frame
 				views += 1
 				var where := "%s%s:%s" % [id, "(%s)" % str(a.values()[0]).left(24) if not a.is_empty() else "", str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
+				for d in SpriteCache.draw_log:
+					icons_drawn += 1
+					var dr: Rect2 = d.rect
+					if float(d.scale) < 1.0 or float(d.scale) != floorf(float(d.scale)) or dr.position != dr.position.round():
+						blurred.append("%s %s %s at %.2fx" % [where, d.id, str(dr), float(d.scale)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
 				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
 				var buttons: Array = []
@@ -303,7 +313,9 @@ func ui_suite() -> void:
 	c.training_sect = ts_was
 	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
-	for o in overlaps + outside + under + labels + crossing: print("  ui_suite: ", o)
+	SpriteCache.draw_log = null
+	for o in overlaps + outside + under + labels + crossing + blurred: print("  ui_suite: ", o)
+	check(icons_drawn > 1000 and blurred.is_empty(), "P4b: every icon on every page is drawn at a whole-number scale of its art, on whole pixels (%d drawn: %s)" % [icons_drawn, str(blurred.slice(0, 6))])
 	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
 	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
@@ -345,6 +357,47 @@ func _ui_contexts(c) -> Dictionary:
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
 		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+
+## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
+## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
+## 1x, 2x...; an HD icon at its native 64, 48 or 32 (`<id>@<px>` in the manifest). The ui_suite checks every page.
+func icon_draw_suite() -> void:
+	var odd: Array = []
+	for box in range(12, 133):
+		for id in ["healing_pill", "jian", "stun"]:
+			var f := SpriteCache.icon_fit(id, box)
+			if f.is_empty() or int(f["px"]) != int(f["art"]) * int(f["scale"]) or int(f["scale"]) < 1 or (int(f["px"]) > box and int(f["scale"]) > 1):
+				odd.append("%s in %d" % [id, box])
+	check(odd.is_empty(), "P4b: an item, a HUD glyph and a status icon fit every box at a whole-number scale of their art (%s)" % str(odd.slice(0, 6)))
+	var in_slot := SpriteCache.icon_fit("healing_pill", Page.SLOT - 12)
+	var in_small := SpriteCache.icon_fit("healing_pill", Page.SLOT_SMALL - 12)
+	check(int(in_slot["px"]) == 64 and int(in_slot["scale"]) == 2 and int(in_small["px"]) == 32 and int(in_small["scale"]) == 1,
+		"P4b: a legacy item shows its 32 art px at 2x in the 76 px slot and at 1x in the small slot")
+	# An HD icon, as the icon build lists one: native renders at 64, 48 and 32.
+	var m: Dictionary = ContentDB.configs["icon_manifest"]
+	var probe := {"probe_hd": m["ember_burst"], "probe_hd@64": m["ember_burst"], "probe_hd@48": m["ember_burst"], "probe_hd@32": m["jian"]}
+	m.merge(probe)
+	SpriteCache._renders.clear()
+	var got := {}
+	for box in [64, 48, 32, 60, 100, 128]:
+		var f := SpriteCache.icon_fit("probe_hd", box)
+		got[box] = [int(f["art"]), int(f["scale"])]
+	check(got == {64: [64, 1], 48: [48, 1], 32: [32, 1], 60: [48, 1], 100: [48, 2], 128: [64, 2]},
+		"P4b: an HD icon uses its native 64, 48 and 32 renders, and whole multiples above them (%s)" % str(got))
+	check(SpriteCache.icon_hd("probe_hd") and not SpriteCache.icon_hd("healing_pill"), "P4b: the manifest tells an HD icon from a legacy one")
+	for k in probe: m.erase(k)
+	SpriteCache._renders.clear()
+	# Nothing but the helper draws an icon texture.
+	var strays: Array = []
+	var dirs: Array = ["res://scripts/"]
+	while not dirs.is_empty():
+		var dir: String = dirs.pop_back()
+		for sub in DirAccess.get_directories_at(dir): dirs.append(dir + sub + "/")
+		for f in DirAccess.get_files_at(dir):
+			if not f.ends_with(".gd") or f == "sprite_cache.gd": continue
+			var src := FileAccess.get_file_as_string(dir + f)
+			if src.contains("SpriteCache.icon(") or src.contains("icon_path(") or src.contains("art/icons/"): strays.append(f)
+	check(strays.is_empty(), "P4b: only SpriteCache.draw_icon draws icon textures (%s)" % str(strays))
 
 ## The P2 UI inventory's bugs (docs/ui_inventory.md, "Found while inventorying"), each at its rule.
 func ui_fixes_suite() -> void:
@@ -5843,6 +5896,29 @@ func guidance_suite() -> void:
 		"the tracker names it: %s" % WorldAuthority.place_name("sf_county_hall"))
 	Game.world.apply_teleport(c.id, "lf_reed_shallows")
 	check(Game.world.guide_step(c).is_empty(), "no mark once there")
+	# M20: the mark follows the objective under way, not only the quest's room. The hermit's cave lies behind a hidden
+	# way on Rimefrost Summit: until Spirit Sense shows it, the mark leads as far as the Summit.
+	c.quests.active = {"frost_and_silence": {"state": "active", "progress": [0, 0, 0], "accepted_tick": 0}}
+	c.quests.tracked = ["frost_and_silence"]
+	Game.world.apply_teleport(c.id, "rf_snow_ape_ledges")
+	var fs: Dictionary = Game.world.guide_step(c)
+	check(Game.world.guide_target(c) == "rf_hermits_ice_cave" and str(fs.get("next", "")) == "rf_rimefrost_summit",
+		"the first objective leads to the hermit's cave, the mark as far as the Summit that hides its way (%s)" % str(fs))
+	# A key the bandits drop on the Caravan Road is marked there, not on the Stockade it opens; an NPC who stands in both
+	# sects' grounds is visited in the character's own.
+	var road := ContentDB.entry("quests", "the_caravan_road")
+	check(Game.quest.objective_room(c, road, road.objectives[1]) == "cr_caravan_road", "the Hideout key is marked where the bandits drop it")
+	var sect_was: Dictionary = c.training_sect.duplicate()
+	var arenas: Array = []
+	for sect in ["jade_sect", "cloud_sect"]:
+		c.training_sect = {"id": sect}
+		arenas.append(Game.quest.npc_rooms(c, "arena_master")[0])
+	c.training_sect = sect_was
+	check(arenas == ["ja_east_terrace", "cm_sword_court"], "the arena master is found in the character's own sect (%s)" % str(arenas))
+	# The hand-in is marked where the NPC stands now: after the Hollow Night, Aunt Ping in the village lane, not the hut.
+	c.quests.done = {"morning_tide": 1}
+	c.quests.flags["night_active"] = true
+	check(Game.quest.npc_rooms(c, "aunt_ping") == ["lf_village"], "after the Hollow Night Aunt Ping is looked for in the lane (%s)" % str(Game.quest.npc_rooms(c, "aunt_ping")))
 	c.quests.restore(q0)
 	Game.world.apply_teleport(c.id, back)
 

@@ -80,7 +80,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    710,
+    570,
     661
    ],
    "item": "jadeiron",
@@ -132,7 +132,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    570,
+    710,
     661
    ],
    "loot": "jar_valley_low",
@@ -145,7 +145,7 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    850,
+    640,
     661
    ],
    "loot": "jar_valley_low",
@@ -182,7 +182,7 @@
    "id": "chest_7",
    "type": "chest",
    "at": [
-    640,
+    850,
     661
    ],
    "loot": "chest_dungeon",
@@ -194,7 +194,7 @@
    "type": "pickup",
    "at": [
     1100,
-    720
+    860
    ],
    "item": "lu_journal_page",
    "count": 1,

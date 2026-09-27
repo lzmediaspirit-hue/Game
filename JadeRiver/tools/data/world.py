@@ -481,7 +481,7 @@ def lotus_ferry():
            requires=all_of(qdone("fists_first")), locked_text="Uncle Guo won't let you past without learning to punch.")
     # Villagers (the seven): placed by district; some move after the Prologue.
     r.npc("lu_boatman", [3280, 800], facing=-1)
-    r.npc("little_dou", [2250, 900], facing=1)
+    r.npc("little_dou", [2140, 910], facing=1)
     r.npc("uncle_guo", [1610, 820], facing=-1)
     r.npc("shen_lian_npc", [3100, 760], facing=-1, hidden_if=all_of(flag("prologue_done")))
     r.npc("fisher_wen", [2800, 780], facing=1)
@@ -491,12 +491,12 @@ def lotus_ferry():
     front_grass(r, ("tall_grass", "flowers_wild"), step=420)
 
     r = interior("lf_old_ma_store", "Old Ma's Store", "lotus_ferry", music="village_day")
-    r.decor("counter", [640, 740])
+    r.decor("counter", [880, 740])
     r.decor("shelf", [300, 660])
     r.decor("shelf", [980, 660])
     r.decor("sack_pile", [180, 760])
     r.decor("barrel", [1100, 760])
-    r.npc("old_ma", [640, 700], facing=1)
+    r.npc("old_ma", [880, 700], facing=-1)
     r.portal("exit", "door", [640, 660], "lf_village", "store_door", press_up=True)
 
     r = interior("lf_granny_liu_hut", "Granny Liu's Herb Hut", "lotus_ferry", music="village_day")
@@ -504,7 +504,7 @@ def lotus_ferry():
     r.decor("herb_drawers", [980, 660])
     r.decor("incense_burner", [820, 720])
     r.decor("table", [560, 760])
-    r.npc("granny_liu", [640, 720], facing=-1)
+    r.npc("granny_liu", [500, 740], facing=1)
     r.obj("shrine_granny", "shrine", [1080, 740], prop="altar")
     r.portal("exit", "door", [640, 660], "lf_village", "granny_door", press_up=True)
 
@@ -636,7 +636,7 @@ def stoneford():
     r.obj("shrine_sf_gate", "shrine", [1800, 700])
     r.obj("sign_sf_gate", "signpost", [2380, 860], text="East: Willow Path · West: Market Street · North: Stonewall Quarry (Lv 4-7).")
     r.npc("guard_hou", [1180, 760], facing=1)
-    r.npc("foreman_dong", [660, 760], facing=1)
+    r.npc("foreman_dong", [540, 790], facing=1)
     r.npc("adventurer_kai", [1500, 900], facing=-1)
     # S46 Beast Tide: the gate's gong calls the weekly stand against three waves of beasts.
     r.obj("tide_gong", "beast_tide_drum", [860, 720], requires=all_of(realm("qi_unfurling_1")),
@@ -673,7 +673,7 @@ def stoneford():
           requires=all_of(unlock("currency_exchange")), locked_text="Currency exchange opens at Heaven Glimpse 3.")
     r.npc("storekeeper_fang", [520, 730], facing=1)
     r.npc("auntie_rong", [1280, 730], facing=1)
-    r.npc("keeper_shi", [1560, 860], facing=-1)
+    r.npc("keeper_shi", [1640, 840], facing=-1)
     r.npc("courier_lin", [1900, 900], facing=1)
     r.npc("tailor_xun", [1060, 900], facing=1)   # V10: sews Qiankun pouches
     r.npc("adventurer_su", [300, 900], facing=1)
@@ -691,7 +691,7 @@ def stoneford():
     r.obj("furnace_sf", "alchemy_furnace", [2160, 760], requires=all_of(unlock("alchemy")), locked_text="Mei Qing's furnace.")
     r.npc("smith_bao", [520, 760], facing=1)
     r.npc("tinkerer_yu", [860, 900], facing=1)
-    r.npc("old_scribe_bai", [1580, 880], facing=-1)   # S47: the talisman craft (Qi Kindling 6)
+    r.npc("old_scribe_bai", [1700, 880], facing=-1)   # S47: the talisman craft (Qi Kindling 6)
     r.npc("elder_gu", [1120, 760], facing=1, hidden_if=all_of(flag("gu_fled")))
     r.npc("madam_hua", [1120, 760], oid="npc_madam_hua", visible_if=all_of(flag("gu_fled")), facing=1)
     r.npc("mei_qing", [1960, 760], facing=-1)
@@ -700,7 +700,7 @@ def stoneford():
     # S44: the Alchemist Guild's corner of the Row: Guildmaster Tang, his stall and the commission board.
     r.decor("market_stall", [2440, 700])
     r.decor("hanging_lantern", [2330, 600], layer="back")
-    r.npc("guildmaster_tang", [2440, 800], facing=-1, visible_if=all_of(realm("qi_kindling_8")))
+    r.npc("guildmaster_tang", [2340, 820], facing=-1, visible_if=all_of(realm("qi_kindling_8")))
     r.obj("guild_board", "inspect", [2520, 760], prop="notice_board", text="The guilds' board: exams, commissions, and a list of badges.",
           open_page="guild", requires=any_of(unlock("alchemist_guild"), unlock("forge_guild"), unlock("formation_guild")),
           locked_text="The guilds' board. The Alchemist Guild's exams open at Qi Kindling 8.",
@@ -856,14 +856,14 @@ def sects():
             r.d["scenery"].append(o)
     r.obj("shrine_ja", "shrine", [700, 700])
     r.obj("stone_ja", "teleport_stone", [520, 880], stone="jade_academy")
-    r.obj("board_ja", "notice_board", [2600, 700])
+    r.obj("board_ja", "notice_board", [2690, 700])
     r.obj("siege_gong_ja", "rite_circle", [2500, 900], event="siege_of_two_sects", prop="small_bell",
           visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
     r.npc("jade_steward", [360, 760], facing=1)
     r.npc("jade_deacon", [2560, 780], facing=-1)
-    r.npc("jade_disciple_a", [1500, 900], facing=1)
+    r.npc("jade_disciple_a", [1640, 900], facing=1)
     r.npc("jade_disciple_b", [2100, 880], facing=-1)
-    r.obj("dorm_bed_ja", "inspect", [1200, 720], prop="bed", text="Your bunk in the service dorm.", rest=True,
+    r.obj("dorm_bed_ja", "inspect", [1500, 720], prop="bed", text="Your bunk in the service dorm.", rest=True,
           visible_if=all_of(qdone("a_disciples_chores")))
     for i, x in enumerate([1000, 1400, 1900]):
         r.obj("sweep_ja_%d" % i, "inspect", [x, 900], prop="grey_patch", text="Swept clean.", set_flag="swept_ja_%d" % i,
@@ -948,11 +948,11 @@ def sects():
              requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Hu's cave. Only a personal disciple may enter.")
 
     for rid, name, tile, npcs, objs in [
-        ("ja_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("jade_weapon_master", 640), ("jade_smith", 1000)],
+        ("ja_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("jade_weapon_master", 480), ("jade_smith", 860)],
          [("anvil_ja", "forge_anvil", [1000, 800], all_of(unlock("smithing")))]),
         ("ja_alchemy_hall", "Alchemy Hall", "wall_plaster", [("mei_qing_sect", 800)],
          [("furnace_ja", "alchemy_furnace", [640, 800], all_of(unlock("alchemy")))]),
-        ("ja_library", "Library", "wall_wood", [("jade_librarian", 640)], [])]:
+        ("ja_library", "Library", "wall_wood", [("jade_librarian", 480)], [])]:
         r = interior(rid, name, "jade_sect", wall=tile, floor="floor_stone", rtype="sect", sect="jade_sect", music="sect")
         for npc, x in npcs:
             r.npc(npc, [x, 760], facing=-1)
@@ -1065,8 +1065,8 @@ def sects():
              requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Sung's cave. Only a personal disciple may enter.")
 
     for rid, name, tile, npcs, back in [
-        ("cm_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("cloud_weapon_master", 640), ("cloud_smith", 1000)], "weapon_hall"),
-        ("cm_cloud_library", "Cloud Library", "wall_plaster", [("cloud_librarian", 640)], "library")]:
+        ("cm_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("cloud_weapon_master", 480), ("cloud_smith", 860)], "weapon_hall"),
+        ("cm_cloud_library", "Cloud Library", "wall_plaster", [("cloud_librarian", 480)], "library")]:
         r = interior(rid, name, "cloud_sect", wall=tile, floor="floor_stone", rtype="sect", sect="cloud_sect", music="sect")
         for npc, x in npcs:
             r.npc(npc, [x, 760], facing=-1)
@@ -1159,7 +1159,7 @@ def valley():
     r = field("sq_collapsed_tunnel", "Collapsed Tunnel", "stonewall_quarry", 1, [6, 7], "cave", "slate",
               [("ironclaw_mole", 2, [6, 7])], ores=("jadeiron", "spirit_stone_shard"), jars=4, rtype="secret", chest="chest_dungeon",
               music="dungeon", elite=True, trees=("rock_small",))
-    r.obj("journal_tunnel", "pickup", [1100, 720], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_tunnel",
+    r.obj("journal_tunnel", "pickup", [1100, 860], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_tunnel",
           hidden_if=all_of(flag("journal_tunnel")))
     r.portal("entry", "door", [140, 700], "sq_lower_pit", "tunnel", press_up=True)
 
@@ -1201,7 +1201,7 @@ def valley():
     r.npc("hermit_yao", [500, 800], facing=1)
     r.obj("shrine_hermit", "shrine", [1100, 720])
     r.obj("spring_hermit", "qi_spring", [300, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Still water.")
-    r.herb("riverreed_ginseng_10", [1180, 760])
+    r.herb("riverreed_ginseng_10", [1200, 880])
     # S43: the pond under the stilts. Deep water with a rock in the middle; a raft poles across it, and from
     # Qi Unfurling 8 the hermit teaches Water Skimming here (Skipping Stones).
     r.deep_water("hermit_pond", [600, 700, 460, 140])
@@ -1659,7 +1659,7 @@ def azure_expanse():
     r.npc("smith_hong", [2240, 830], facing=-1)
     r.npc("apothecary_wu", [2700, 830], facing=1)
     r.npc("sky_sailor_pei", [3500, 900], facing=-1)
-    r.obj("sign_ae_market", "signpost", [3700, 860], text="East: the Thunderhorn Plains (Lv 64-69, Storm Ward 6-12) · West: Arrival Terrace.")
+    r.obj("sign_ae_market", "signpost", [3660, 870], text="East: the Thunderhorn Plains (Lv 64-69, Storm Ward 6-12) · West: Arrival Terrace.")
     r.edge("west", "west", "ae_landing", "east", y=850)
     r.edge("east", "east", "tp_stormgrass_verge", "west", y=850, ptype="sealed",
            requires=any_of(qactive("storm_in_the_blood"), qdone("storm_in_the_blood")),
@@ -1953,7 +1953,7 @@ def nine_peaks_and_canyons():
     r.decor("weapon_rack_full", [1450, 690])
     r.obj("anvil_ir", "forge_anvil", [1300, 760], requires=all_of(unlock("smithing")), locked_text="The clan's anvil.")
     r.npc("matriarch_tie", [1000, 760], facing=1)
-    r.npc("clan_smith_gang", [1300, 820], facing=-1)
+    r.npc("clan_smith_gang", [1440, 820], facing=-1)
     r.edge("west", "west", "ir_hold_gate", "east", y=850)
     r.edge("desert_road", "east", "sd_glass_dunes", "west", y=850, ptype="sealed",
            requires=all_of(any_of(qactive("glass_and_bone"), qdone("glass_and_bone"))),
@@ -1981,7 +1981,7 @@ def sunscar():
     r = field("sd_scorpion_flats", "Scorpion Flats", "sunscar_desert", 3, [75, 78],
               spawns=[("sandstorm_scorpion", 6, [75, 78], 14)], herbs=("ember_cactus",), ores=("sunglass_ore", "sunglass_ore"), jars=4,
               chest="chest_expanse", attunement_required=48, hazards=["sandstorm"], platforms=[(1400, 650, 280, 200)], **desert)
-    r.obj("shrine_sd_flats", "shrine", [2000, 700])
+    r.obj("shrine_sd_flats", "shrine", [2080, 720])
     r.edge("west", "west", "sd_glass_dunes", "east", y=850)
     r.edge("east", "east", "sd_oasis_of_bones", "west", y=850)
 
@@ -2083,7 +2083,7 @@ def skyport_wreck():
     r.edge("east", "east", "ae_skydock", "west", y=850)
 
     # Star-sighting stones on the Expanse's high places: the Wreck Run is charted before anyone sails it.
-    star_sight(ROOMS["rf_rimefrost_summit"], "sight_rimefrost", [1500, 700])
+    star_sight(ROOMS["rf_rimefrost_summit"], "sight_rimefrost", [1500, 880])
     star_sight(ROOMS["np_presence_terrace"], "sight_presence_terrace", [2100, 700])
 
     # The crossing (instanced): the vessel's deck under the Starsea; the event runs as long as the vessel takes to cross.
@@ -2535,16 +2535,18 @@ def rare_herbs():
     - seed_chance: the seed roll on a perfect harvest (garden.json default).
     Rare nodes sit on raised tiers (S43 rule 14)."""
     def spot(rid, surface):
-        """A free spot on a raised surface: its middle, or the nearest place 70 px along clear of other objects."""
+        """A free spot on a raised surface: its middle, or the nearest place along it 60 px clear of other objects and
+        out of other interactables' reach (M18)."""
         r = ROOMS[rid]
         sd = next(x for x in r.d["surfaces"] if x["id"] == surface)
         x0, y0, w, dep = sd["rect"]
         h = float(sd["height"])
+        y = int(y0 + dep / 2)
         busy = [o["at"][0] for o in r.d["objects"] if abs(float(o.get("alt", 0)) - h) < 1 and x0 <= o["at"][0] <= x0 + w]
-        for dx in (0, 70, -70, 110, -110):
+        for dx in sorted(range(-w // 2 + 30, w // 2 - 29, 10), key=abs):
             x = int(x0 + w / 2 + dx)
-            if x0 + 30 <= x <= x0 + w - 30 and all(abs(x - b) >= 60 for b in busy):
-                return [x, int(y0 + dep / 2)], int(h)
+            if all(abs(x - b) >= 60 for b in busy) and not verticality.in_reach(r, x, y, h, besides=verticality.NODES):
+                return [x, y], int(h)
         raise AssertionError("no room for a rare herb on %s.%s" % (rid, surface))
 
     def rare(rid, oid, item, surface, phase, every, guardian=None, season=None, minutes=20):
@@ -2567,7 +2569,7 @@ def rare_herbs():
     rare("cf_behind_falls", "rare_lotus_bf", "mist_lotus_100", "falls_ledge_2", "dusk", 3)
     rare("cc_sky_ledges", "rare_orchid_sl", "cloudtop_orchid_100", "ledge_1", "day", 3,
          {"enemy": "stormwing_hawk", "level": 44, "elite": True}, season="spring")
-    rare("mp_misty_slopes", "rare_soulbell_ms", "soulbell_flower_100", "cloud_mv", "night", 3,
+    rare("mp_misty_slopes", "rare_soulbell_ms", "soulbell_flower_100", "ledge_mv_1", "night", 3,
          {"enemy": "mirror_wisp", "level": 51, "elite": True}, season="autumn")
     rare("sr_frozen_shrine", "rare_soulbell_fs", "soulbell_flower_100", "ledge_mv_1", "night", 3,
          {"enemy": "mirror_wisp", "level": 63, "elite": True}, season="autumn")
@@ -2690,7 +2692,7 @@ def movement_extras():
     r.herb("mist_lotus", [600, 930])
     r.herb("mist_lotus", [2150, 930])
     r.surface("ledge_grotto", [1240, 650, 260, 46], JUMP_ONE, kind="rock_ledge")
-    r.chest([1370, 665], loot="chest_dungeon", level=27, alt=JUMP_ONE, surface="ledge_grotto", oid="chest_grotto")
+    r.chest([1460, 665], loot="chest_dungeon", level=27, alt=JUMP_ONE, surface="ledge_grotto", oid="chest_grotto")
     r.decor("stone_lantern", [700, 640], layer="back")
     r.decor("scholar_rock", [2300, 700], layer="back")
     # The Starsea crossing: a raised stern deck (the quarterdeck) at the vessel's back.
@@ -2944,6 +2946,27 @@ def rift_tears():
                   visible_if=all_of({"kind": "world_event_here", "event": "spatial_rift"}))
 
 
+def under_steps():
+    """M16: where a raised ground surface (depth stairs, a terrace or a landing) runs down over the flat ground, that
+    ground is solid wherever the surface stands more than a stride (8) above it. A walker along the back row no longer
+    wanders in under the steps, drawn inside them, with the way up shut over his head. The footprint has no art of its
+    own: the steps and the terrace face are drawn over it (the Pilgrim Stairs cut their ground back the same way)."""
+    for r in ROOMS.values():
+        flat = [s for s in r.d["surfaces"] if s["stratum"] == "ground" and float(s.get("height", 0)) <= 0.5 and not s.get("rise")]
+        for s in r.d["surfaces"]:
+            h, rise = float(s.get("height", 0)), float(s.get("rise", 0))
+            if s["stratum"] != "ground" or h <= 8 or (rise and s.get("rise_axis") != "y"):
+                continue
+            x, y, w, d = s["rect"]
+            low = y + d * min(1.0, (h - 8) / -rise) if rise < 0 else y + d   # where the steps come down to a stride
+            for g in flat:
+                gx, gy, gw, gd = g["rect"]
+                x0, y0, x1, y1 = max(x, gx), max(y, gy), min(x + w, gx + gw), int(min(low, gy + gd))
+                if x1 > x0 and y1 > y0:
+                    r.d["scenery"].append({"id": "%s_under_%s" % (s["id"], g["id"]), "art": "none", "position": [(x0 + x1) // 2, y1],
+                                           "front_y": y1, "footprint": [x0, y0, x1 - x0, y1 - y0], "height": 8, "radius": 0})
+
+
 def spirit_mines():
     """S49 territory: each spirit-stone mine (living_world.MINES) is a vein in its field room, flying its holder's
     banner. Speak to it to take it, collect from it or hold it (the Your Sect page's Territory tab lists them all)."""
@@ -2952,6 +2975,11 @@ def spirit_mines():
         r = ROOMS[m["room"]]
         x, y = m["at"]
         x = _dry_x(r, x, y)
+        for dx in range(0, 600, 20):   # M18: out of the reach of the room's other interactables
+            cand = _dry_x(r, x + dx, y)
+            if not verticality.in_reach(r, cand, y, radius=130):
+                x = cand
+                break
         r.obj("mine_" + m["id"], "spirit_mine", [x, y], mine=m["id"], prop="spirit_shard_vein", radius=130)
         # The diggings: sacks of broken stone and a barrel for the day's haul.
         r.decor("sack_pile", [x - 96, y - 18])
@@ -2998,6 +3026,7 @@ def build():
     insect_swarms()
     trails_and_altars()
     spirit_mines()
+    under_steps()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

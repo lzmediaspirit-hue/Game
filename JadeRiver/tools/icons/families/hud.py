@@ -10,10 +10,12 @@ import math
 
 import numpy as np
 
-from pix import Canvas, Ramp
-from registry import register
+from pix import Canvas, Frame, Ramp, erode4
+from palette import mat7
+from registry import hd, register
 
 FAM, GROUP = 'hud', 'hud'
+ART = 16   # legacy; 32 once every glyph here has an HD drawing (tools/icons/README.md, "How to convert a family")
 GOLD = Ramp(['#9A6A35', '#E5B84C', '#FFE6A1', '#FFF6D6'], '#071015')
 INK = '#071015'
 
@@ -1050,3 +1052,44 @@ G_V12D['bell'] = """
 
 for _v12d_id, _v12d_rows in G_V12D.items():
     register(FAM, _v12d_id, (lambda rr=[r for r in _v12d_rows.strip('\n').split('\n')]: glyph_canvas(rr)), GROUP)
+
+
+# ============================================================================= HD (Style A, 32 icon space)
+# Today's language one step richer: a pale-gold face with a lit edge and a warm shade edge, one highlight,
+# the ink outline from the painter.
+GOLD_HD = mat7(Ramp(['#6E4A1C', '#9A6A35', '#E5B84C', '#FFE6A1', '#FFF6D6'], INK), 'gold')
+
+
+def face_hd(p, m, base=1):
+    return p.part(m, GOLD_HD, 'bevel', base=base, sep=True, hw=1, sw=1, rim=False)
+
+
+def jian_hd(p):
+    c = p.c
+    fr = Frame((2.5, 29.5), 45.0)
+    TIP = 37.5
+    grip = fr.prof(c, [(2.5, 2.1), (8.5, 2.1)])
+    face_hd(p, grip)
+    face_hd(p, c.circle(*fr.P(2.0, 0.0), 2.5))
+    p.cylinder(fr, fr.prof(c, [(11.0, 3.1), (30.0, 3.1), (TIP, 0.0)]), lambda t: np.where(t > 30, np.clip(3.1 * (TIP - t) / (TIP - 30), 0, 3.1), 3.1),
+               GOLD_HD, base=1, ridge=True, sep=True, rim=False)
+    face_hd(p, fr.prof(c, [(8.0, 2.6), (9.0, 6.0), (11.0, 6.4), (12.5, 3.0)]))
+    t = fr.along(c)[0]
+    p.decal(grip & (np.floor(t / 2.0).astype(int) % 2 == 0) & erode4(grip), GOLD_HD, -1)
+    p.decal(c.circle(*fr.P(10.2, 0.0), 1.0), GOLD_HD, 3)
+
+
+def cultivate_hd(p):
+    c = p.c
+    petals = [c.leaf(16 + dx, 26.5, a, L, W, 0.0, tip_power=0.75)
+              for (a, L, W, dx) in ((90, 19.0, 8.0, 0.0), (60, 16.5, 6.6, 2.5), (120, 16.5, 6.6, -2.5), (30, 13.0, 5.6, 5.0), (150, 13.0, 5.6, -5.0))]
+    for i in (3, 4, 1, 2, 0):
+        face_hd(p, petals[i])
+    face_hd(p, c.ellipse(16, 27.0, 13.0, 5.0) & c.box(0, 24.5, 32, 32), 0)
+    p.decal(c.circle(15.2, 12.0, 1.4), GOLD_HD, 3)
+    for pts in (((16, 15), (16, 24)), ((13, 16), (12, 24)), ((19, 16), (20, 24))):
+        p.line(pts, GOLD_HD, -1, 1.0)
+
+
+hd('jian', jian_hd)
+hd('cultivate', cultivate_hd)

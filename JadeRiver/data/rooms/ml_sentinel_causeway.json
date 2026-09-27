@@ -155,7 +155,7 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    1423,
+    1643,
     655
    ],
    "loot": "jar_expanse",
@@ -192,7 +192,7 @@
    "id": "chest_5",
    "type": "chest",
    "at": [
-    1643,
+    1423,
     655
    ],
    "loot": "chest_expanse",

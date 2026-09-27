@@ -14,6 +14,8 @@ from palette import R, GRADES
 from registry import register
 from families import armour, beast_parts, treasures, weapons
 
+ART = 32   # legacy, as the families these drawings come from
+
 GRADE_WORDS = weapons.GRADE_WORDS + [('driftsteel', 'sovereign'), ('lanternsteel', 'will')]
 KIT_KEYS = ('metal', 'metal2', 'grip', 'wrap', 'accent', 'gem', 'cloth')
 
@@ -77,7 +79,7 @@ def _cloth_pairs(src, dst):
     return [(a[k], b[k]) for k in ('cloth', 'trim', 'sash', 'gem')]
 
 
-register('equipment', 'starsilk_hat', lambda: recolor(armour.sunsilk_hat(), _cloth_pairs('sage', 'sovereign'), ('#FFC870', '#BFEFFF')), 'armour')
+register('equipment', 'starsilk_hat', lambda: recolor(armour.sunsilk_hat(), _cloth_pairs('sage', 'sovereign'), ('#FFC870', GRADES['sovereign']['glow'])), 'armour')
 register('equipment', 'lanternsilk_hat', lambda: recolor(armour.stormsilk_hat(), _cloth_pairs('spirit', 'will'), ('#7FD4FF', GRADES['will']['glow'])), 'armour')
 register('equipment', 'driftglass_gourd', regrade(lambda: armour.gourd('sunsteel'), 'sage', 'sovereign'), 'gourds')
 register('equipment', 'lantern_gourd', regrade(lambda: armour.gourd('sunsteel'), 'sage', 'will'), 'gourds')
@@ -105,6 +107,6 @@ for _slot, (_draw, _own, _swap) in PET_GEAR.items():
 
 # ------------------------------------------------------------------ the furnace ladder on through Acts II and III
 for _id, _body, _trim, _jewel in (('stormsteel_furnace', R['storm'], R['silver'], R['cyan']), ('sunsteel_furnace', R['gold'], R['red'], R['ember']),
-                                  ('driftsteel_furnace', R['cometiron'], R['starlight'], R['ice']),
-                                  ('lanternsteel_furnace', R['lanternbronze'], R['gold'], R['fire'])):
+                                  ('driftsteel_furnace', R['cometiron'], R['driftteal'], R['driftglass']),
+                                  ('lanternsteel_furnace', R['nightsteel'], R['gold'], R['starlight'])):
     register('items', _id, treasures._furnace(_body, _trim, _jewel), 'tools')

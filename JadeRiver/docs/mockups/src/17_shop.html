@@ -1,0 +1,185 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>17 Shop</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* Peddler Ning's stall in the Harbor Market, as it stands in the world: the red and cream awning, her shelves behind
+     her, the counter where a deal is laid out, and the player's bag untied on a crate beside the stall. No tabs: buy on
+     the shelves, sell from the bag, and buy back from the small ledger under the bag's header. */
+  :root { --wood-dark: #3b2416; --wood: #5a3620; --peg-dark: #1b1410; --peg: #b8894a; --bridge: #d8c08a; --board: #d8ad6c;
+    --board-edge: #c99a58; --board-line: #4a3218; --talisman: #efe3c2; --talisman-edge: #8a6a3a; --paper-ink: #2b2118;
+    --awning-red: #b3202e; --indigo: #2b3a6e; }
+  .awning { position: absolute; left: 8px; top: 0; width: 808px; height: 76px;
+    background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,0) 40%), repeating-linear-gradient(90deg, var(--awning-red) 0 46px, #efe3c2 46px 92px);
+    box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .valance { position: absolute; left: 8px; top: 76px; width: 808px; height: 24px;
+    background: repeating-linear-gradient(90deg, var(--awning-red) 0 46px, #e6d8b4 46px 92px);
+    -webkit-mask: radial-gradient(circle at 23px 0, #000 22px, transparent 23px) 0 0 / 46px 24px repeat-x; filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); }
+  .sign { position: absolute; left: 212px; top: 12px; width: 400px; height: 60px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #2a170c, #1b1410); box-shadow: 0 0 0 3px var(--peg), 0 0 0 5px var(--peg-dark), 0 5px 0 5px rgba(0,0,0,.35); }
+  .post { position: absolute; top: 40px; width: 18px; height: 680px; background: linear-gradient(90deg, #2a170c, #6b4526 45%, #3b2416); }
+  .wall { position: absolute; left: 26px; top: 84px; width: 772px; height: 364px;
+    background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,0) 22%), repeating-linear-gradient(90deg, #3b2416 0 58px, #2a170c 58px 60px);
+    box-shadow: inset 0 0 40px rgba(0,0,0,.5); }
+  .shelf { position: absolute; left: 196px; width: 590px; height: 12px; border-radius: 2px; background: linear-gradient(180deg, #a77a45 0 4px, #6b4526 4px, #4e3019);
+    box-shadow: 0 5px 0 rgba(0,0,0,.4); }
+  .ware { position: absolute; width: 110px; height: 156px; border-radius: 6px; }
+  .ware .mat { position: absolute; left: 15px; top: 4px; width: 80px; height: 76px; border-radius: 6px 6px 3px 3px;
+    background: radial-gradient(ellipse at 50% 80%, rgba(0,0,0,.35), rgba(0,0,0,0) 60%), linear-gradient(180deg, #1d5157, #0d3035);
+    box-shadow: inset 0 0 0 2px rgba(103,214,189,.25), 0 3px 0 rgba(0,0,0,.35); }
+  .ware .mat img { position: absolute; left: 8px; top: 6px; width: 64px; height: 64px; image-rendering: pixelated; }
+  .ware .nm { position: absolute; left: -2px; right: -2px; top: 116px; text-align: center; font-size: 15px; font-weight: 700; line-height: 1.12; color: var(--paper); }
+  .ware .pt { position: absolute; left: 50%; top: 76px; transform: translateX(-50%); height: 36px; padding: 0 12px 0 4px; border-radius: 4px;
+    display: flex; align-items: center; gap: 4px; background: var(--talisman); color: var(--paper-ink); font-weight: 800; font-size: 18px;
+    box-shadow: inset 0 0 0 2px var(--talisman-edge), 0 2px 0 rgba(0,0,0,.35); text-shadow: none; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .ware .pt img { width: 32px; height: 32px; }
+  .ware.is-sel { background: rgba(229,184,76,.14); box-shadow: 0 0 0 2px var(--gold), 0 0 16px 4px rgba(229,184,76,.35); }
+  .ware .today { position: absolute; left: -4px; top: 0; height: 22px; padding: 0 8px; border-radius: 2px; background: #9c2a36; color: #fff3e0;
+    font-size: 14px; font-weight: 700; line-height: 22px; transform: rotate(-6deg); box-shadow: 0 2px 0 rgba(0,0,0,.35); text-shadow: none; }
+  .counter { position: absolute; left: 8px; top: 452px; width: 808px; height: 156px;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,0) 12%, rgba(0,0,0,0) 85%, rgba(0,0,0,.18)),
+      repeating-linear-gradient(0deg, rgba(74,50,24,0) 0 9px, rgba(74,50,24,.12) 9px 10px, rgba(74,50,24,0) 10px 23px), linear-gradient(180deg, var(--board), var(--board-edge));
+    box-shadow: inset 0 3px 0 rgba(255,240,200,.45); color: var(--paper-ink); }
+  .counter * { text-shadow: none; }
+  .lip { position: absolute; left: 0; top: 600px; width: 824px; height: 16px; background: linear-gradient(180deg, #8a6a3a, #4e3019); box-shadow: 0 4px 0 rgba(0,0,0,.4); }
+  .front { position: absolute; left: 8px; top: 616px; width: 808px; height: 104px;
+    background: repeating-linear-gradient(90deg, #4e3019 0 100px, #3b2416 100px 102px), #4e3019; box-shadow: inset 0 10px 16px rgba(0,0,0,.4); }
+  .cloth { position: absolute; left: 36px; top: 466px; width: 116px; height: 116px; border-radius: 6px;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 6px, rgba(0,0,0,0) 6px 12px), linear-gradient(180deg, #15514f, #0d3035);
+    box-shadow: inset 0 0 0 3px rgba(229,184,76,.55), 0 4px 0 rgba(0,0,0,.3); }
+  .purse { position: absolute; top: 636px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 16px 0 10px; border-radius: 26px;
+    background: linear-gradient(180deg, #1d5157, #0d3035); box-shadow: 0 0 0 2px var(--peg-dark), inset 0 0 0 2px rgba(184,137,74,.6), 0 4px 0 rgba(0,0,0,.35); }
+  .purse img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .purse .v { font-weight: 800; font-size: 20px; color: var(--pale-gold); font-feature-settings: "lnum" 1, "tnum" 1; }
+  .purse.is-zone { box-shadow: 0 0 0 2px var(--peg-dark), inset 0 0 0 2px var(--gold), 0 0 14px 3px rgba(229,184,76,.45), 0 4px 0 rgba(0,0,0,.35); }
+  .bubble { position: absolute; padding: 8px 14px; border-radius: 14px; background: var(--talisman); color: var(--paper-ink); font-size: 16px; font-weight: 700;
+    box-shadow: 0 3px 0 rgba(0,0,0,.35); text-shadow: none; white-space: nowrap; }
+  .bubble::after { content: ""; position: absolute; left: 36px; bottom: -10px; border: 6px solid transparent; border-top: 6px solid var(--talisman); border-width: 10px 8px 0 8px; }
+  .hang { position: absolute; padding: 6px 12px; border-radius: 4px; background: linear-gradient(180deg, #2a170c, #1b1410);
+    box-shadow: 0 0 0 2px var(--peg), 0 3px 0 2px rgba(0,0,0,.35); line-height: 1.15; }
+  .fig2 { position: absolute; width: 768px; height: 768px; margin: -508px 0 0 -384px; image-rendering: pixelated; }
+
+  /* the player's bag: an indigo cloth untied on a crate beside the stall; quilted cells, each with what it sells for */
+  .crate { position: absolute; left: 828px; top: 690px; width: 420px; height: 60px; background: repeating-linear-gradient(90deg, #5a3620 0 68px, #3b2416 68px 70px);
+    box-shadow: inset 0 6px 10px rgba(0,0,0,.45); }
+  .cloth2 { position: absolute; left: 820px; top: 124px; width: 424px; height: 584px; border-radius: 10px 10px 4px 4px;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 8px, rgba(0,0,0,0) 8px 16px), repeating-linear-gradient(-45deg, rgba(255,255,255,.035) 0 8px, rgba(0,0,0,0) 8px 16px),
+      linear-gradient(180deg, #34467e, var(--indigo) 60%, #222f5a);
+    box-shadow: inset 0 0 0 2px rgba(216,192,138,.25), 0 8px 0 rgba(0,0,0,.35), 0 12px 24px rgba(0,0,0,.4); }
+  .ear { position: absolute; top: 104px; width: 64px; height: 44px; background: linear-gradient(180deg, #3f55a8, var(--indigo)); border-radius: 50% 50% 20% 20%;
+    box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+  .cell { position: absolute; width: 76px; height: 76px; border-radius: 6px; background: rgba(10,16,38,.35);
+    box-shadow: inset 0 0 0 2px var(--q, rgba(216,192,138,.35)), 0 0 0 2px rgba(10,16,38,.5); }
+  .cell::before { content: ""; position: absolute; inset: -5px; border: 2px dashed rgba(216,192,138,.28); border-radius: 9px; pointer-events: none; }
+  .cell img { position: absolute; left: 6px; top: 6px; width: 64px; height: 64px; image-rendering: pixelated; }
+  .cell .k-count { position: absolute; right: 5px; bottom: 1px; font-size: 16px; }
+  .cell.is-sel { background: rgba(229,184,76,.18); box-shadow: inset 0 0 0 2px var(--gold), 0 0 0 2px rgba(10,16,38,.5), 0 0 16px 4px rgba(229,184,76,.45); }
+  .cell.is-dim img { filter: grayscale(.9) brightness(.6); }
+  .price { position: absolute; width: 76px; height: 20px; display: flex; align-items: center; justify-content: center; gap: 3px; font-size: 14px; font-weight: 700;
+    color: var(--paper); font-feature-settings: "lnum" 1, "tnum" 1; }
+  .price img { width: 16px; height: 16px; }
+
+  /* the buy-back ledger, opened from the small control under the bag's header */
+  .ledger { position: absolute; background: linear-gradient(180deg, #f3ead3, var(--talisman)); color: var(--paper-ink); border-radius: 3px;
+    background-image: repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 63px, rgba(179,32,46,.35) 63px 64px), linear-gradient(180deg, #f3ead3, var(--talisman));
+    box-shadow: inset 0 0 0 1px rgba(138,106,58,.7), inset 0 0 28px rgba(154,106,53,.22), 0 8px 0 rgba(0,0,0,.35), 0 14px 30px rgba(0,0,0,.55); }
+  .ledger * { text-shadow: none; }
+  .lrow { position: absolute; left: 12px; right: 12px; height: 64px; display: flex; align-items: center; gap: 12px; }
+  .lslot { flex: none; width: 48px; height: 48px; border-radius: 5px; background: #0d3035; box-shadow: inset 0 0 0 2px var(--q, #8a6a3a); position: relative; }
+  .lslot img { position: absolute; left: 8px; top: 8px; width: 32px; height: 32px; image-rendering: pixelated; }
+  .lslot .k-count { position: absolute; right: 2px; bottom: -2px; font-size: 14px; }
+  .lname { font-size: 16px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+  .lname .q { font-size: 14px; font-weight: 700; }
+  .lprice { font-size: 14px; font-weight: 700; color: #5b4a33; display: flex; align-items: center; gap: 4px; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .lprice img { width: 16px; height: 16px; }
+
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_harbor_market.png">
+<div class="dim-screen" style="background:rgba(3,8,10,.5)"></div>
+<div class="wall"></div>
+<div class="post" style="left:8px"></div><div class="post" style="left:798px"></div>
+<div class="awning"></div><div class="valance"></div>
+<div class="sign"><span class="t-title inked" style="font-size:38px">Silk and Sundries</span></div>
+<div class="hang" style="left:40px;top:116px"><div class="t-sm c-pale" style="font-weight:700">Peddler Ning</div><div class="t-xs c-mist">Harbour peddler</div></div>
+<img class="fig2" src="../assets/fig_peddler_ning.png" style="left:112px;top:512px">
+<div class="shelf" style="top:262px"></div><div class="shelf" style="top:436px"></div>
+<div class="ware" style="left:210px;top:104px"><div class="mat"><img src="../../../art/icons/items/star_shard.png"></div><div class="nm">Star Shard</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div><div class="today">today</div></div>
+<div class="ware" style="left:324px;top:104px"><div class="mat"><img src="../../../art/icons/items/jelly_silk.png"></div><div class="nm">Jelly Silk</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">2</div><div class="today">today</div></div>
+<div class="ware is-sel" style="left:438px;top:104px"><div class="mat"><img src="../../../art/icons/items/will_tempering_pill.png"></div><div class="nm">Will Tempering Pill</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">6</div></div>
+<div class="ware" style="left:552px;top:104px"><div class="mat"><img src="../icon_study/icons/A_healing_pill.png"></div><div class="nm">Healing Pill</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="ware" style="left:666px;top:104px"><div class="mat"><img src="../../../art/icons/items/qi_restoration_pill.png"></div><div class="nm">Qi Restoration Pill</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="ware" style="left:267px;top:278px"><div class="mat"><img src="../../../art/icons/items/revival_talisman.png"></div><div class="nm">Revival Talisman</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="ware" style="left:381px;top:278px"><div class="mat"><img src="../../../art/icons/items/escape_talisman.png"></div><div class="nm">Escape Talisman</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="ware" style="left:495px;top:278px"><div class="mat"><img src="../../../art/icons/items/return_charm.png"></div><div class="nm">Return Charm</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="ware" style="left:609px;top:278px"><div class="mat"><img src="../../../art/icons/items/rice_ball.png"></div><div class="nm">Rice Ball</div><div class="pt"><img class="ic" src="../../../art/icons/items/sage_crystal.png">1</div></div>
+<div class="bubble" style="left:28px;top:206px">Silk! Glowing silk!</div>
+<div class="counter"></div><div class="lip"></div><div class="front"></div>
+<div class="cloth"></div><img class="ic abs" src="../../../art/icons/items/will_tempering_pill.png" style="left:62px;top:492px;width:64px;height:64px">
+<div class="abs no-shadow" style="left:168px;top:464px;font-size:22px;font-weight:800;color:var(--paper-ink)">Will Tempering Pill</div>
+<div class="abs no-shadow flex" style="left:168px;top:494px;gap:6px;font-size:14px;font-weight:700;color:#5b4a33"><span style="width:12px;height:12px;border-radius:50%;background:#d8c27a;box-shadow:0 0 0 2px #5b4a33"></span>Sage grade · you hold <span class="t-fig no-shadow">30</span></div>
+<div class="abs no-shadow" style="left:168px;top:518px;width:290px;font-size:16px;font-weight:600;line-height:1.3;color:var(--paper-ink)">+40 Will for 30 minutes: another's Presence weighs less on you.</div>
+<div class="k-btn2 abs" style="left:476px;top:464px;width:56px;height:56px;font-size:28px">−</div>
+<div class="abs no-shadow" style="left:532px;top:464px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-family:var(--f-num);font-size:30px;color:var(--paper-ink)">3</div>
+<div class="k-btn2 abs" style="left:588px;top:464px;width:56px;height:56px;font-size:28px">+</div>
+<div class="k-btn2 abs" style="left:652px;top:464px;width:88px;height:56px;font-size:20px">×10</div>
+<div class="abs no-shadow flex" style="left:476px;top:534px;gap:6px;color:var(--paper-ink)"><img class="ic ic-32" src="../../../art/icons/items/sage_crystal.png"><span style="font-size:28px;font-weight:800;font-feature-settings:'lnum' 1">18</span></div>
+<div class="abs no-shadow t-fig" style="left:476px;top:572px;font-size:14px;color:#5b4a33">1,213 left after</div>
+<div class="k-btn abs" style="left:592px;top:532px;width:200px;height:60px;font-size:24px">Buy 3</div>
+<div class="purse is-zone" style="left:36px"><img src="../../../art/icons/items/sage_crystal.png"><span class="v">1,231</span></div>
+<div class="purse" style="left:200px"><img src="../../../art/icons/hud/coin.png"><span class="v">79,340</span></div>
+<div class="purse" style="left:374px"><img src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">6,600</span></div>
+<div class="abs t-sm c-paper" style="left:552px;top:636px;width:252px;line-height:1.3">Prices in Sage Crystals<br><span class="c-mist">Today&rsquo;s two change at dawn</span></div>
+<div class="crate"></div><div class="ear" style="left:816px"></div><div class="ear" style="left:1184px"></div><div class="cloth2"></div>
+<img class="ic abs" src="../../../art/icons/equipment/stormsteel_gourd.png" style="left:844px;top:144px;width:32px;height:32px">
+<div class="abs t-subhead" style="left:892px;top:138px">Your bag</div>
+<div class="abs t-sm c-mist t-fig" style="left:894px;top:168px">30 of 50 · tap to sell</div>
+<div class="k-btn2 abs" style="left:1064px;top:136px;width:164px;height:48px;font-size:18px;padding:0 10px"><img class="ic ic-32" src="../../../art/icons/hud/back.png" style="margin-right:8px">Buy back<span class="t-sym" style="margin-left:8px;font-size:16px">▼</span></div>
+<div class="cell" style="left:836px;top:204px;--q:#5ee0e8"><img src="../../../art/icons/items/storm_shard.png"><span class="k-count t-fig t-outline c-paper">78</span></div>
+<div class="price" style="left:836px;top:282px"><img class="ic" src="../../../art/icons/hud/coin.png">56</div>
+<div class="cell" style="left:916px;top:204px;--q:#b9b2a0"><img src="../../../art/icons/items/rice_ball.png"><span class="k-count t-fig t-outline c-paper">35</span></div>
+<div class="price" style="left:916px;top:282px"><img class="ic" src="../../../art/icons/hud/coin.png">5</div>
+<div class="cell" style="left:996px;top:204px;--q:#e8a24c"><img src="../../../art/icons/items/orbit_stone_chip.png"><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="price" style="left:996px;top:282px"><img class="ic" src="../../../art/icons/hud/coin.png">80</div>
+<div class="cell" style="left:1076px;top:204px;--q:#5ee0e8"><img src="../../../art/icons/items/earth_core_peak.png"></div>
+<div class="price" style="left:1076px;top:282px"><img class="ic" src="../../../art/icons/hud/coin.png">113</div>
+<div class="cell" style="left:1156px;top:204px;--q:#b07ce8"><img src="../../../art/icons/items/storm_blood_pill.png"><span class="k-count t-fig t-outline c-paper">5</span></div>
+<div class="price" style="left:1156px;top:282px"><img class="ic" src="../../../art/icons/hud/coin.png">365</div>
+<div class="cell" style="left:836px;top:300px;--q:#b9b2a0"><img src="../../../art/icons/items/tough_meat.png"><span class="k-count t-fig t-outline c-paper">5</span></div>
+<div class="price" style="left:836px;top:378px"><img class="ic" src="../../../art/icons/hud/coin.png">1</div>
+<div class="cell" style="left:916px;top:300px;--q:#5ee0e8"><img src="../../../art/icons/items/thunder_horn.png"><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="price" style="left:916px;top:378px"><img class="ic" src="../../../art/icons/hud/coin.png">56</div>
+<div class="cell" style="left:996px;top:300px;--q:#e8a24c"><img src="../../../art/icons/items/star_shard.png"><span class="k-count t-fig t-outline c-paper">66</span></div>
+<div class="price" style="left:996px;top:378px"><img class="ic" src="../../../art/icons/hud/coin.png">80</div>
+<div class="cell" style="left:1076px;top:300px;--q:#67d67a"><img src="../../../art/icons/items/clear_mind_pill.png"><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="price" style="left:1076px;top:378px"><img class="ic" src="../../../art/icons/hud/coin.png">114</div>
+<div class="cell" style="left:1156px;top:300px;--q:#6fb8f0"><img src="../../../art/icons/equipment/cloudsteel_jian.png"></div>
+<div class="price" style="left:1156px;top:378px"><img class="ic" src="../../../art/icons/hud/coin.png">1,510</div>
+<div class="cell" style="left:836px;top:396px;--q:#f3e3a6"><img src="../../../art/icons/items/cinder_ash.png"><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="price" style="left:836px;top:474px"><img class="ic" src="../../../art/icons/hud/coin.png">93</div>
+<div class="cell" style="left:916px;top:396px;--q:#67d67a"><img src="../../../art/icons/items/hollow_shard.png"><span class="k-count t-fig t-outline c-paper">6</span></div>
+<div class="price" style="left:916px;top:474px"><img class="ic" src="../../../art/icons/hud/coin.png">14</div>
+<div class="cell" style="left:996px;top:396px;--q:#67d67a"><img src="../../../art/icons/items/formation_stone.png"><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="price" style="left:996px;top:474px"><img class="ic" src="../../../art/icons/hud/coin.png">14</div>
+<div class="cell" style="left:1076px;top:396px;--q:#e8e1cf"><img src="../../../art/icons/items/qi_restoration_pill.png"><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="price" style="left:1076px;top:474px"><img class="ic" src="../../../art/icons/hud/coin.png">44</div>
+<div class="cell is-dim" style="left:1156px;top:396px;--q:#f3e3a6"><img src="../../../art/icons/items/copperjaw_box.png"></div>
+<div class="price" style="left:1156px;top:474px;color:var(--hollow)">Cannot sell</div>
+<div class="cell" style="left:836px;top:492px;--q:#f3e3a6"><img src="../../../art/icons/items/drone_shell.png"><span class="k-count t-fig t-outline c-paper">15</span></div>
+<div class="price" style="left:836px;top:570px"><img class="ic" src="../../../art/icons/hud/coin.png">93</div>
+<div class="cell is-sel" style="left:916px;top:492px;--q:#e8e1cf"><img src="../icon_study/icons/A_healing_pill.png"><span class="k-count t-fig t-outline c-paper">5</span></div>
+<div class="price" style="left:916px;top:570px"><img class="ic" src="../../../art/icons/hud/coin.png">44</div>
+<div class="cell" style="left:996px;top:492px;--q:#b9b2a0"><img src="../../../art/icons/items/lu_journal_page.png"><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="price" style="left:996px;top:570px"><img class="ic" src="../../../art/icons/hud/coin.png">8</div>
+<div class="cell" style="left:1076px;top:492px;--q:#d8c27a"><img src="../../../art/icons/equipment/ink_warden_brush.png"></div>
+<div class="price" style="left:1076px;top:570px"><img class="ic" src="../../../art/icons/hud/coin.png">2,713</div>
+<div class="cell" style="left:1156px;top:492px;--q:#e8e1cf"><img src="../../../art/icons/items/revival_talisman.png"><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="price" style="left:1156px;top:570px"><img class="ic" src="../../../art/icons/hud/coin.png">15</div>
+<div class="abs t-xs c-mist" style="left:836px;top:592px">+10 more below</div>
+<img class="ic ic-32 abs" src="../assets/iconA32_healing_pill.png" style="left:836px;top:628px">
+<div class="abs" style="left:876px;top:620px;line-height:1.2"><div class="t-sm c-paper" style="font-weight:700">Healing Pill</div><div class="t-xs c-mist t-fig">×5 · 44 each</div></div>
+<div class="k-btn2 abs" style="left:1000px;top:618px;width:112px;height:52px;font-size:18px;padding:0 8px">Sell 1<img class="ic ic-16" src="../../../art/icons/hud/coin.png" style="margin:0 3px 0 8px"><span class="t-fig" style="color:var(--pale-gold)">44</span></div>
+<div class="k-btn2 abs" style="left:1120px;top:618px;width:112px;height:52px;font-size:18px;padding:0 8px">All 5<img class="ic ic-16" src="../../../art/icons/hud/coin.png" style="margin:0 3px 0 8px"><span class="t-fig" style="color:var(--pale-gold)">220</span></div>
+<div class="abs t-xs c-mist" style="left:836px;top:676px">Sales pay a quarter, in Silver Taels.</div>
+<div class="k-close abs" style="left:1180px;top:16px"></div>
+</div></body></html>

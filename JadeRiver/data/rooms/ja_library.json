@@ -92,7 +92,7 @@
    "id": "npc_jade_librarian",
    "type": "npc",
    "at": [
-    640,
+    480,
     760
    ],
    "npc": "jade_librarian",

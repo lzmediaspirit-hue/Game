@@ -1,0 +1,122 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>14 Works of the Post</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The seven works as tiles on the page's top edge (they replace the tabs): each names its state in one line,
+     a locked one names what opens it. */
+  .wt { position: absolute; top: 116px; width: 148px; height: 112px; padding: 10px 10px 8px 12px;
+    border-image: url(../../../art/ui/hd/tab__normal.png) 30 48 fill / 10px 16px stretch; }
+  .wt.is-selected { border-image-source: url(../../../art/ui/hd/tab__selected.png); }
+  .wt.is-selected::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -2px; height: 3px; background: var(--pale-gold); border-radius: 2px; }
+  .wt .hd { display: flex; align-items: center; gap: 8px; }
+  .wt .nm { font-size: 20px; font-weight: 700; color: var(--paper); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .wt.is-selected .nm { color: var(--pale-gold); }
+  .wt .sb { margin-top: 8px; font-size: 14px; line-height: 1.3; color: var(--mist); text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .wt .sb.go { color: var(--pale-gold); }
+  .wt.is-locked { border-image-source: url(../../../art/ui/hd/slot__disabled.png); border-image-slice: 24 fill; border-image-width: 8px; }
+  .wt.is-locked .nm { color: var(--hollow); }
+  .wt.is-locked .ic { filter: grayscale(1) brightness(.5); }
+  .wt.is-locked .sb { color: var(--hollow); }
+  .wt .k-seal { right: -8px; top: -10px; }
+  .wt .k-lock-mini { position: absolute; left: 34px; top: 30px; }
+  /* a seal row */
+  .sr { position: absolute; left: 92px; width: 704px; height: 60px; }
+  .sr > * { position: absolute; }
+  .sr .gl { left: 12px; top: 6px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #1d5157, #061519); box-shadow: 0 0 0 2px var(--bronze), 0 0 0 3px var(--ink); display: flex; align-items: center; justify-content: center; }
+  .sr .n { left: 72px; top: 7px; font-size: 18px; font-weight: 700; white-space: nowrap; }
+  .sr .d { left: 72px; top: 32px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .sr .cost { left: 412px; top: 6px; width: 150px; }
+  .sr .cost .ic { position: absolute; left: 0; top: 8px; width: 32px; height: 32px; }
+  .sr .cost .v { position: absolute; left: 42px; top: 4px; font-size: 18px; font-weight: 700; white-space: nowrap; }
+  .sr .cost .w { position: absolute; left: 42px; top: 27px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .sr .k-btn, .sr .k-btn2 { right: 8px; top: 6px; width: 124px; height: 48px; font-size: 20px; }
+  .sr.is-held .n { color: var(--pale-gold); }
+  .tot { position: absolute; left: 812px; top: 244px; width: 376px; height: 420px; }
+  .tr { position: absolute; left: 16px; width: 344px; height: 52px; display: flex; align-items: center; gap: 12px; }
+  .tr + .tr { border-top: 1px solid rgba(175,201,209,.12); }
+  .tr .c { font-size: 16px; white-space: nowrap; color: var(--paper); }
+  .tr .e { font-size: 14px; line-height: 1.3; color: var(--bright-jade); white-space: nowrap; }
+  .tr .e .src { color: var(--mist); }
+  .tr.none .c { color: var(--hollow); } .tr.none .e { color: var(--hollow); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Works of the Post</span></div>
+  <div class="k-page-close k-close"></div>
+</div>
+
+<!-- ============ the seven works ============ -->
+<div class="wt" style="left:92px"><div class="hd"><img class="ic ic-32" src="../assets/iconA32_inner_art_manual.png"><span class="nm">Arts</span></div>
+  <div class="sb go">14 points to spend</div><div class="k-seal">✓</div></div>
+<div class="wt is-selected" style="left:250px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/items/mountain_seal.png"><span class="nm">Seals</span></div>
+  <div class="sb go">2 can be inscribed</div></div>
+<div class="wt" style="left:408px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/items/guardian_stone.png"><span class="nm">Steles</span></div>
+  <div class="sb">Delving Lv 1<br>each can go up</div></div>
+<div class="wt is-locked" style="left:566px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/items/ledger_page.png"><span class="nm">Favours</span></div>
+  <span class="k-lock-mini"></span><div class="sb">Magistrate Qian's<br>County Tribute</div></div>
+<div class="wt" style="left:724px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/items/cinnabar_salt.png"><span class="nm">Furnace</span></div>
+  <div class="sb">Cinnabar line lit<br>refined 4 / 20</div></div>
+<div class="wt" style="left:882px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/hud/post.png"><span class="nm">Flags</span></div>
+  <div class="sb">1 of 2 planted<br>Reed Shallows</div></div>
+<div class="wt is-locked" style="left:1040px"><div class="hd"><img class="ic ic-32" src="../../../art/icons/items/bright_mirror.png"><span class="nm">Mirror</span></div>
+  <span class="k-lock-mini"></span><div class="sb">Elder Hu's<br>Echoes in Bronze</div></div>
+
+<!-- ============ the selected work: Seal Scripts ============ -->
+<div class="abs t-xs c-mist" style="left:96px;top:246px">Seals serve every character, as far as its own craft level reaches. Paid from the Storehouse. +2 below.</div>
+
+<div class="sr k-minor-panel" style="top:270px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_delving.png"></div>
+  <div class="n c-paper">Seal of the Open Vein</div><div class="d t-fig">Lv 0/30 · Delving +3 Finesse a level</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/copper_ore.png"><div class="v t-fig c-paper">58 / 25</div><div class="w">Copper</div></div>
+  <div class="k-btn">Inscribe</div>
+</div>
+<div class="sr k-minor-panel is-held" style="top:336px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_foraging.png"></div>
+  <div class="n">Seal of the Green Stem</div><div class="d t-fig">Lv 1/30 · Foraging <span class="c-jade">+3.0 Finesse</span> · Tester draws 1</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/willow_moss.png"><div class="v t-fig c-paper">43 / 28</div><div class="w">Willow Moss</div></div>
+  <div class="k-btn">Inscribe</div>
+</div>
+<div class="sr k-minor-panel" style="top:402px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_angling.png"></div>
+  <div class="n c-paper">Seal of the Still Line</div><div class="d t-fig">Lv 0/30 · Angling +3 Finesse a level</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/river_minnow.png"><div class="v t-fig c-red">0 / 25</div><div class="w">River Minnow</div></div>
+  <div class="k-btn2 is-disabled">Inscribe<span class="k-lock-mini"></span></div>
+</div>
+<div class="sr k-minor-panel" style="top:468px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_netting.png"></div>
+  <div class="n c-paper">Seal of the Light Net</div><div class="d t-fig">Lv 0/30 · Netting +3 Finesse a level</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/glowfly.png"><div class="v t-fig c-red">0 / 25</div><div class="w">Glowfly</div></div>
+  <div class="k-btn2 is-disabled">Inscribe<span class="k-lock-mini"></span></div>
+</div>
+<div class="sr k-minor-panel" style="top:534px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_snaring.png"></div>
+  <div class="n c-paper">Seal of the Patient Snare</div><div class="d t-fig">Lv 0/30 · Snaring +3 Finesse a level</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/jade_frog.png"><div class="v t-fig c-red">1 / 25</div><div class="w">Jade Frog</div></div>
+  <div class="k-btn2 is-disabled">Inscribe<span class="k-lock-mini"></span></div>
+</div>
+<div class="sr k-minor-panel" style="top:600px;height:64px">
+  <div class="gl"><img class="ic ic-32" src="../../../art/icons/hud/craft_rites.png"></div>
+  <div class="n c-paper">Seal of the Ancestor's Name</div><div class="d t-fig">Lv 0/30 · Rites +3 Finesse a level</div>
+  <div class="cost"><img class="ic" src="../../../art/icons/items/spirit_wisp.png"><div class="v t-fig c-red">0 / 25</div><div class="w">Spirit Wisp</div></div>
+  <div class="k-btn2 is-disabled">Inscribe<span class="k-lock-mini"></span></div>
+</div>
+
+<div class="abs" style="left:800px;top:272px;width:4px;height:300px;border-radius:2px;background:var(--jade)"></div>
+
+
+<!-- ============ what every work adds, summed per craft ============ -->
+<div class="tot k-minor-panel"></div>
+<div class="abs t-subhead" style="left:828px;top:254px">What your works add</div>
+<div class="abs t-xs c-mist" style="left:828px;top:288px">Summed for Tester, at every post</div>
+<div class="tr" style="left:828px;top:314px"><img class="ic ic-32" src="../../../art/icons/hud/craft_delving.png"><div><div class="c">Vein Delving</div><div class="e">Tool power +0.3 <span class="src">· Stele Lv 1</span></div></div></div>
+<div class="tr" style="left:828px;top:368px"><img class="ic ic-32" src="../../../art/icons/hud/craft_foraging.png"><div><div class="c">Spirit Foraging</div><div class="e">Finesse +3 <span class="src">· Seal Lv 1</span></div></div></div>
+<div class="tr none" style="left:828px;top:422px"><img class="ic ic-32 is-dim" src="../../../art/icons/hud/craft_angling.png"><div><div class="c">Angling, Netting, Snaring, Rites</div><div class="e">Nothing yet</div></div></div>
+<div class="tr" style="left:828px;top:476px"><img class="ic ic-32" src="../../../art/icons/hud/post.png"><div><div class="c">Every post</div><div class="e">Craft Diligence +0.49% <span class="src">· Dreaming Artisan</span></div></div></div>
+<div class="tr" style="left:828px;top:530px"><img class="ic ic-32" src="../../../art/icons/hud/world_map.png"><div><div class="c">Posts at Reed Shallows</div><div class="e">Craft Diligence +1.0% <span class="src">· plain flag Lv 0</span></div></div></div>
+<div class="tr none" style="left:828px;top:584px"><img class="ic ic-32 is-dim" src="../../../art/icons/hud/bag.png"><div><div class="c">Pouches</div><div class="e">Nothing yet <span class="src">· Seal of the Deep Pouch</span></div></div></div>
+
+</div></body></html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>12 Quests, the journal</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .sec { position: absolute; font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: .04em; white-space: nowrap; }
+  .sec .c-mist { font-weight: 600; letter-spacing: 0; }
+  .qrow { position: absolute; left: 92px; width: 448px; border-radius: 4px; background: rgba(13,48,53,.55); box-shadow: inset 0 0 0 1px rgba(154,106,53,.35); }
+  .qrow.is-selected { background: rgba(44,158,143,.22); box-shadow: inset 3px 0 0 var(--gold), inset 0 0 0 1px rgba(229,184,76,.55); }
+  .dchip { position: absolute; width: 222px; height: 48px; border-radius: 4px; background: rgba(13,48,53,.55); box-shadow: inset 0 0 0 1px rgba(154,106,53,.35);
+    display: flex; align-items: center; gap: 8px; padding: 0 10px 0 8px; }
+  .dchip .tx { display: flex; flex-direction: column; line-height: 1.15; }
+  .dchip .nm { font-size: 15px; color: var(--paper); white-space: nowrap; font-weight: 700; }
+  .dchip .pr { font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .chest { position: absolute; width: 48px; height: 48px; margin-left: -24px; }
+  .chest.ready::before { content: ""; position: absolute; inset: -4px; border-radius: 6px; box-shadow: 0 0 0 2px rgba(229,184,76,.85), 0 0 12px 3px rgba(229,184,76,.5); }
+  .seal-s { position: absolute; right: -8px; top: -8px; width: 22px; height: 22px; border-radius: 4px; transform: rotate(-8deg); background: var(--red);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1.5px rgba(255,230,161,.55); display: flex; align-items: center; justify-content: center;
+    font-family: var(--f-sym); font-size: 14px; color: var(--pale-gold); }
+  .srow { position: absolute; left: 92px; width: 448px; height: 48px; border-radius: 4px; background: rgba(13,48,53,.55); box-shadow: inset 0 0 0 1px rgba(154,106,53,.35);
+    display: flex; align-items: center; padding: 0 14px; gap: 10px; }
+  .srow .nm { font-size: 17px; color: var(--paper); flex: 1; white-space: nowrap; }
+  .srow .ct { font-size: 17px; color: var(--pale-gold); }
+  .chev { font-family: var(--f-sym); color: var(--mist); font-size: 16px; }
+  /* the direction line: where the quest leads, drawn as a route */
+  .route { position: absolute; left: 574px; top: 250px; width: 596px; height: 92px; border-radius: 6px;
+    background: radial-gradient(ellipse at 30% 50%, rgba(44,158,143,.25), rgba(7,16,21,.2) 70%); box-shadow: inset 0 0 0 1px rgba(154,106,53,.5); }
+  .node { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; }
+  .node.here { background: var(--bright-jade); box-shadow: 0 0 0 3px var(--ink), 0 0 0 5px rgba(103,214,189,.5), 0 0 14px 6px rgba(103,214,189,.45); }
+  .node.dest { background: var(--gold); box-shadow: 0 0 0 3px var(--ink), 0 0 0 5px rgba(229,184,76,.5); }
+  .obj { position: absolute; left: 574px; font-size: 18px; white-space: nowrap; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_starsea_launch.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Quests</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs"><div class="k-tab is-selected">Current</div><div class="k-tab">Done <span class="t-fig c-mist" style="margin-left:8px;font-size:16px">155</span></div></div>
+</div>
+<div class="abs t-sm c-mist" style="left:1186px;top:130px;transform:translateX(-100%);white-space:nowrap">Tester · Sage Sovereign 3 · at the Starsea Launch</div>
+
+<!-- ================= the journal: main, daily, side ================= -->
+<div class="sec" style="left:94px;top:176px">MAIN <span class="c-mist">· the story</span></div>
+<div class="qrow is-selected" style="top:196px;height:52px"></div>
+<div class="abs t-sym c-jade" style="left:106px;top:208px;font-size:18px">◆</div>
+<div class="abs t-md c-pale" style="left:130px;top:200px;font-weight:700">The Lantern Run</div>
+<div class="abs t-xs c-mist" style="left:130px;top:224px">Chapter 17 · tracked · leads to the Arrival Quay</div>
+<div class="abs t-xs c-gold" style="left:530px;top:214px;transform:translateX(-100%);white-space:nowrap">step 1 of 2</div>
+
+<div class="sec" style="left:94px;top:256px">DAILY <span class="c-mist">· sect missions · each 20 contribution and 214 taels</span></div>
+<div class="dchip" style="left:92px;top:276px"><img class="ic ic-32" src="../../../art/icons/items/jadeiron.png"><span class="tx"><span class="nm">Jadeiron</span><span class="pr">mine <span class="t-fig">0 / 4</span></span></span></div>
+<div class="dchip" style="left:318px;top:276px"><img class="ic ic-32" src="../../../art/icons/items/herbal_tea.png"><span class="tx"><span class="nm">Teas for the infirmary</span><span class="pr">deliver <span class="t-fig">0 / 3</span></span></span></div>
+<div class="dchip" style="left:92px;top:328px"><img class="ic ic-32" src="../../../art/icons/items/mist_lotus.png"><span class="tx"><span class="nm">Mist Lotus</span><span class="pr">gather <span class="t-fig">0 / 3</span></span></span></div>
+<div class="dchip" style="left:318px;top:328px"><img class="ic ic-32" src="../../../art/icons/hud/cook.png"><span class="tx"><span class="nm">Kitchen duty</span><span class="pr">cook <span class="t-fig">0 / 3</span></span></span></div>
+
+<!-- the day's activity: one bar, a chest at each stop, the next stop named (E4) -->
+<div class="abs t-sm c-paper" style="left:94px;top:384px">Daily activity <span class="t-fig c-pale">62 / 100</span></div>
+<div class="abs t-xs c-pale" style="left:538px;top:386px;transform:translateX(-100%);white-space:nowrap">Next at <span class="t-fig">100</span>: <span class="t-fig">15</span> spirit stones, <span class="t-fig">2</span> Spirit Jade</div>
+<div class="k-bar is-gold abs" style="left:92px;top:470px;width:424px;height:22px;--v:0.62">
+  <div class="k-trough" style="top:4px;bottom:4px"><div class="k-fill"></div></div>
+  <div class="k-tick is-done" style="--at:.2"></div><div class="k-tick is-done" style="--at:.4"></div><div class="k-tick is-done" style="--at:.6"></div><div class="k-tick is-next" style="--at:1"></div>
+</div>
+<div class="k-slot chest ready" style="left:180px;top:416px"><img class="ic ic-32" src="../../../art/icons/hud/open.png" style="position:absolute;left:8px;top:8px"><span class="seal-s">✓</span></div>
+<div class="k-slot chest ready" style="left:263px;top:416px"><img class="ic ic-32" src="../../../art/icons/hud/open.png" style="position:absolute;left:8px;top:8px"><span class="seal-s">✓</span></div>
+<div class="k-slot chest ready" style="left:345px;top:416px"><img class="ic ic-32" src="../../../art/icons/hud/open.png" style="position:absolute;left:8px;top:8px"><span class="seal-s">✓</span></div>
+<div class="k-slot chest" style="left:510px;top:416px"><img class="ic ic-32" src="../../../art/icons/hud/open.png" style="position:absolute;left:8px;top:8px;opacity:.5"></div>
+<div class="abs t-xs t-fig c-gold" style="left:180px;top:494px;transform:translateX(-50%)">20</div>
+<div class="abs t-xs t-fig c-gold" style="left:263px;top:494px;transform:translateX(-50%)">40</div>
+<div class="abs t-xs t-fig c-gold" style="left:345px;top:494px;transform:translateX(-50%)">60</div>
+<div class="abs t-xs t-fig c-pale" style="left:510px;top:494px;transform:translateX(-50%)">100</div>
+
+<div class="sec" style="left:94px;top:516px">SIDE <span class="c-mist">· 34 on offer, by where they are</span></div>
+<div class="srow" style="top:536px"><span class="nm">Near you · Azure Expanse</span><span class="ct t-fig">6</span><span class="chev">▶</span></div>
+<div class="srow" style="top:590px;width:170px"><span class="nm">Companions</span><span class="ct t-fig">2</span><span class="chev">▶</span></div>
+<div class="srow" style="left:268px;top:590px;width:272px"><span class="nm">Jade River Valley</span><span class="ct t-fig">26</span><span class="chev">▶</span></div>
+
+<!-- ================= the selected quest ================= -->
+<div class="k-minor-panel abs" style="left:556px;top:172px;width:632px;height:492px"></div>
+<div class="abs k-heading" style="left:574px;top:186px">The Lantern Run</div>
+<div class="abs k-band is-peak" style="left:1172px;top:192px;transform:translateX(-100%);white-space:nowrap">Main · Chapter 17</div>
+<div class="abs t-sm c-mist" style="left:574px;top:226px">From <span class="c-paper">Warden He</span>, at the Starsea Launch</div>
+
+<div class="route"></div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <path d="M 610 290 C 700 262, 780 318, 870 290 S 960 268, 1000 290" fill="none" stroke="rgba(255,230,161,.85)" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
+</svg>
+<div class="node here" style="left:610px;top:290px"></div>
+<div class="node dest" style="left:1000px;top:290px"></div>
+<img class="ic ic-32 abs" style="left:790px;top:264px" src="../../../art/icons/items/cloud_skiff.png">
+<div class="abs t-sm c-jade" style="left:586px;top:310px">You are here</div>
+<div class="abs t-xs c-mist" style="left:586px;top:260px">Starsea Launch</div>
+<div class="abs t-sm c-pale" style="left:1000px;top:310px;transform:translateX(-50%);white-space:nowrap">Arrival Quay</div>
+<div class="abs t-xs c-mist" style="left:1000px;top:260px;transform:translateX(-50%);white-space:nowrap">Lanternfall Harbor</div>
+<div class="abs t-xs c-mist" style="left:806px;top:310px;transform:translateX(-50%);white-space:nowrap">the Lantern Run, by skiff</div>
+<div class="k-btn abs" style="left:1090px;top:270px;width:72px;height:48px;font-size:20px">Go</div>
+
+<div class="abs t-md c-paper" style="left:574px;top:354px;width:596px;line-height:1.35">Your chart ends at a field of lanterns. The ring has lit for you. Sail, and tell the harbour there who sent you.</div>
+<div class="obj c-pale" style="top:410px"><span class="t-sym" style="margin-right:8px">➤</span>Sail the Lantern Run from the Starsea Launch</div>
+<div class="obj c-paper" style="top:436px"><span class="t-sym c-mist" style="margin-right:8px">○</span>Report to Harbormaster Lin on the Arrival Quay</div>
+
+<div class="abs t-sm c-gold" style="left:574px;top:476px">Rewards</div>
+<div class="abs flex" style="left:574px;top:500px;gap:10px">
+  <div class="k-pill"><img class="ic" src="../../../art/icons/items/sage_crystal.png"><span class="v">5</span></div>
+  <span class="k-unlock"><img class="ic" src="../../../art/icons/hud/codex.png">Codex: Lanternfall Harbor</span>
+  <span class="t-sm c-pale">Realm progress <span class="t-fig">4%</span> of the stage</span>
+</div>
+<div class="abs t-sm c-mist" style="left:574px;top:548px">Then the story goes on: <span class="c-paper">Crystal and Jade</span></div>
+
+<div class="k-btn2 abs" style="left:574px;top:598px;width:180px;height:52px">Untrack</div>
+<div class="abs t-xs c-mist" style="left:770px;top:604px;width:300px;line-height:1.35">Tracked quests show on the HUD with the same direction line; up to three at once.</div>
+
+</div></body></html>

@@ -12,12 +12,13 @@ cloud engravings), mistjade (Mystic: violet + gold + faint glow).
 """
 import numpy as np
 
-from pix import Canvas, Ramp, dilate4, dilate8, erode4, rgb
-from palette import R, GRADES
-from registry import register
+from pix import Canvas, Frame, Ramp, dilate4, dilate8, erode4, rgb
+from palette import R, GRADES, M, kit
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'equipment', 'weapons'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 GRADE_WORDS = [('training', 'plain'), ('iron', 'common'), ('jadeiron', 'earth'),
                ('cloudsteel', 'heaven'), ('mistjade', 'mystic'), ('stormsteel', 'spirit'), ('sunsteel', 'sage')]
@@ -488,3 +489,100 @@ register(FAM, 'ink_warden_brush', lambda: _v12d_brush(False), GROUP)
 register(FAM, 'starwrit_brush', lambda: _v12d_brush(True), GROUP)
 register(FAM, 'wardens_handbell', lambda: _v12d_bell(False), GROUP)
 register(FAM, 'tidebreak_bell', lambda: _v12d_bell(True), GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+# Weapons lie on a Frame from the lower left to the upper right; a builder takes a grade and paints with its
+# palette.kit (blade, guard, grip, wrap, gem, tassel, glow). The grade's blade work sets the grades apart
+# (form and trim, never colour alone).
+def blade_work(p, fr, blade, grade, k):
+    c = p.c
+    fuller = fr.prof(c, [(31.0, 0.7), (56.0, 0.7)]) & blade
+    if grade == 'spirit':                # a lightning zigzag
+        p.line([fr.P(31 + i * 3.2, 1.2 if i % 2 else -1.2) for i in range(9)], k['gem'], 2, 1.2)
+    elif grade == 'sage':                # desert glass beads along the fuller
+        p.decal(fuller, k['gem'], 0)
+        for tt in range(33, 56, 5):
+            p.decal(c.circle(*fr.P(tt, 0.0), 1.1), k['gem'], 2)
+    elif grade == 'will':                # star dots and a starlight edge
+        p.decal(fuller, k['blade'], -2)
+        for tt in range(32, 58, 4):
+            p.decal(c.circle(*fr.P(tt, 0.0), 0.9), k['gem'], 2)
+        edge = blade & ~fr.prof(c, [(25.0, 3.2), (58.0, 3.2), (69.5, 0.0)])
+        p.decal(edge & (fr.along(c)[1] < 0), k['gem'], 1)
+    else:                                # a plain fuller
+        p.decal(fuller, k['blade'], -1)
+
+
+def jian_hd(p, grade='common'):
+    k = kit(grade)
+    c = p.c
+    fr = Frame((6.5, 57.5), 45.0)
+    # tassel from the pommel: a knot and two hanging strands
+    tas = c.taper((8.5, 55.5), (2.5, 57.0), (4.0, 62.0), 3.0, 1.6) | c.taper((8.5, 55.5), (5.0, 59.0), (9.0, 62.5), 2.4, 1.2)
+    p.part(tas, k['tassel'], 'ray_soft', base=0, sep=False, rim=False)
+    p.part(c.circle(8.8, 55.6, 2.3), k['tassel'], 'sphere', base=1, sep=True, rim=False)
+    # pommel and the wrapped grip
+    p.cylinder(fr, fr.prof(c, [(1.5, 2.6), (2.8, 4.2), (6.2, 4.2), (7.2, 3.3)]), 4.2, k['guard'], sep=True)
+    grip = fr.prof(c, [(6.8, 3.3), (22.0, 3.3)])
+    p.cylinder(fr, grip, 3.3, k['grip'], sep=True)
+    t, w = fr.along(c)
+    wrap = grip & (np.floor((t + 0.35 * w) / 3.4).astype(int) % 2 == 0) & erode4(grip)
+    p.decal(wrap, k['wrap'], -1)
+    p.decal(wrap & (w < -1.6), k['wrap'], 1)
+    # the blade: a ridge and the grade's blade work; the guard's wings over its root
+    HW, T1, TIP = 4.4, 58.0, 71.0
+    blade = fr.prof(c, [(25.0, HW), (T1, HW), (TIP, 0.0)])
+    p.cylinder(fr, blade, lambda t: np.where(t > T1, np.clip(HW * (TIP - t) / (TIP - T1), 0.0, HW), HW), k['blade'], ridge=True, sep=True, tex='metal')
+    blade_work(p, fr, blade, grade, k)
+    p.part(fr.prof(c, [(21.0, 3.8), (22.5, 8.4), (24.2, 10.2), (26.0, 9.2), (28.0, 5.6), (29.0, 3.9)]), k['guard'], 'ray', base=0, sep=True, tex='metal')
+    p.line([fr.P(23.2, -7.0), fr.P(23.2, 7.0)], k['guard'], 2, 1.0)
+    if k['gem'] is not None:
+        p.part(c.circle(*fr.P(24.6, 0.0), 2.5), k['gem'], 'sphere', base=1, sep=True, spec=fr.P(23.8, -0.9))
+    else:
+        p.part(c.circle(*fr.P(24.6, 0.0), 2.0), k['guard'], 'sphere', base=0, sep=True)
+    p.sparkle(*fr.P(64.0, -0.6), 1)
+    if k['glow']:
+        p.glow(*k['glow'])
+
+
+def handbell_hd(p):
+    """The Warden's hand-bell: a cast bronze bell on a darkwood handle with a jade collar, mouth down-right."""
+    c = p.c
+    fr = Frame((30.0, 30.0), -45.0)
+    K = 1.28
+    red, wood, jade, bronze = M('red'), M('darkwood'), M('jade'), M('bronze')
+    p.part(c.ring(*fr.P(-24.5 * K, 0.0), 3.9, 2.0), red, 'ray_soft', base=0, sep=False, rim=False)
+    handle = fr.prof(c, [(-23.0 * K, 2.0), (-21.0 * K, 3.2), (-19.0 * K, 2.5), (-15.0 * K, 2.3), (-12.0 * K, 2.6), (-9.5 * K, 2.6)])
+    p.cylinder(fr, handle, 2.6, wood, sep=True, tex='wood', axis=-45.0)
+    p.cylinder(fr, fr.prof(c, [(-10.5 * K, 3.9), (-6.0 * K, 3.9)]), 3.9, jade, sep=True, tex='jade')
+    p.line([fr.P(-8.2 * K, -3.7), fr.P(-8.2 * K, 3.7)], jade, -2, 1.0)
+    # the bell: crown, waist, skirt and lip
+    prof = [(-7.0 * K, 2.6), (-5.5 * K, 5.4), (-3.0 * K, 7.2), (0.0, 8.2), (4.0 * K, 8.8), (8.0 * K, 9.9),
+            (11.0 * K, 11.8), (13.0 * K, 13.6), (14.5 * K, 14.2)]
+    body = fr.prof(c, prof)
+
+    def hw_bell(t):
+        return np.interp(t, np.array([q[0] for q in prof]), np.array([q[1] for q in prof]))
+    p.cylinder(fr, body, hw_bell, bronze, sep=True, tex='metal')
+    # cast bands and a cloud scroll engraved round the waist
+    t, w = fr.along(c)
+    for tt, lv in ((2.0 * K, -2), (2.9 * K, 1), (9.5 * K, -2), (10.4 * K, 1)):
+        p.decal(body & (t >= tt) & (t < tt + 0.9) & (np.abs(w) < hw_bell(t) - 0.8), bronze, lv)
+    scroll = c.empty()
+    for i in range(5):
+        scroll |= c.arc(*fr.P(6.0 * K, -6.0 + i * 3.0), 1.3, 0.8, 0, 270)
+    p.decal(scroll & body, bronze, -2)
+    lip = fr.prof(c, [(14.0 * K, 14.7), (16.4 * K, 14.7)])
+    p.cylinder(fr, lip, 14.7, bronze, base=1, sep=True)
+    # the mouth and the clapper
+    p.part(fr.prof(c, [(15.6 * K, 12.7), (18.4 * K, 11.8)]) & ~lip, M('ink'), 'flat', base=1, sep=True, rim=False)
+    mx, my = fr.P(18.2 * K, 0.0)
+    p.part(c.circle(mx, my, 3.8), wood, 'sphere', base=0, sep=True, spec=(mx - 1.2, my - 1.2))
+    p.sparkle(*fr.P(-1.5 * K, -5.0), 1)
+    p.glow('#FFC870', 0.8)
+
+
+for _w, _g in (('iron', 'common'), ('stormsteel', 'spirit'), ('sunsteel', 'sage')):
+    hd('%s_jian' % _w, lambda p, g=_g: jian_hd(p, g))
+hd('wardens_handbell', handbell_hd)

@@ -77,7 +77,7 @@ func _collection() -> void:
 				var art = e.get("art", {})
 				var cid := str(art.get("creature", "")) if art is Dictionary else ""
 				if cid == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid):
-					icon_at(Rect2(cr.get_center() - Vector2(24, 50), Vector2(48, 48)), str(e.get("loot_icon", "boss_skull")))
+					icon_at(Rect2(cr.get_center() - Vector2(32, 58), Vector2(64, 64)), str(e.get("loot_icon", "boss_skull")))
 				text(cr.position + Vector2(0, 100), str(e.name), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 				# S46: a beast's rank and nature (demonic and Hollowed ones are tamed differently).
 				var sub := Tx.t("ui.codex.defeated") % kills
@@ -132,10 +132,9 @@ func _seasons() -> void:
 
 func _rare_line(rn: Dictionary, at: Vector2, w: float) -> float:
 	var o: Dictionary = rn.o
-	var ic := SpriteCache.icon(str(o.item))
-	if ic: draw_texture_rect(ic, Rect2(at.x, at.y, 28, 28), false)
+	icon_at(Rect2(at.x, at.y - 2, 32, 32), str(o.item))
 	var seen: bool = Game.account.visited_rooms.has(str(rn.room))
-	text(at + Vector2(34, 13), fit(ContentDB.item_name(str(o.item)), 15, w - 34), 15, UiKit.PAPER)
+	text(at + Vector2(38, 13), fit(ContentDB.item_name(str(o.item)), 15, w - 38), 15, UiKit.PAPER)
 	var rp: Dictionary = o.get("ripen", {})
 	var where := str(ContentDB.room(str(rn.room)).get("name", "")) if seen else "? ? ?"
 	text(at + Vector2(34, 31), fit(Tx.t("ui.codex.ripens") % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 13, w - 34), 13, UiKit.MIST)

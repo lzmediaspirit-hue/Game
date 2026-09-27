@@ -8,6 +8,7 @@ const PICKUP_RADIUS := 48.0
 const PORTAL_RADIUS := Vector2(64, 44)
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
+const REACH_ALT := 48.0   # an object answers only a body within this height of it (the context button and interact)
 
 ## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
 ## A way to a room not built yet stays "Coming soon".
@@ -528,7 +529,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 	var at: Array = o.get("at", [0, 0])
 	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0:
 		return fail("too_far")
-	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > 48.0:
+	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT:
 		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
 	var avail := object_available(c, o)
 	if avail.get("dormant", false) and not game.account.codex.has("seasons"): game.quest.apply_codex("seasons")
@@ -666,20 +667,17 @@ func query_context(c) -> Dictionary:
 	var best := {}
 	var best_score := INF
 	for o in game.room_rt.def.get("objects", []):
-		if o.type in BREAKABLES or o.type in TRAINING or o.type in ["decor", "air_pocket", "route_finish"]: continue
+		if not offers_context(o): continue
 		if not object_visible(c, o): continue
 		if o.has("chase") and str(chases.get(c.id, {}).get("object", "")) == str(o.id): continue   # he is off over the roofs
 		var at: Array = o.get("at", [0, 0])
 		var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
-		if d > float(o.get("radius", 110)): continue
+		# M18: a chest on the ledge above never takes the button from the herb at your feet (interact would refuse it).
+		if d > float(o.get("radius", 110)) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
 		var avail := object_available(c, o)
 		if avail.get("spent", false): continue
-		var priority := 3.0
-		if o.type == "npc":
-			priority = 1.0 if QuestAuthority.marker_calls(game.quest.npc_marker(c, str(o.npc))) else 2.0
-		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm"]: priority = 4.0
-		elif o.type == "pickup": priority = 0.5
-		var score: float = priority * 1000.0 + d
+		var calls: bool = o.type == "npc" and QuestAuthority.marker_calls(game.quest.npc_marker(c, str(o.npc)))
+		var score: float = context_rank(o, calls) * 1000.0 + d
 		if score < best_score:
 			best_score = score
 			best = {"object": str(o.id), "type": o.type, "label": _verb(o), "ok": avail.ok, "text": avail.text, "npc": str(o.get("npc", ""))}
@@ -692,6 +690,25 @@ func query_context(c) -> Dictionary:
 				best = {"portal": str(p.id), "type": "portal", "label": Tx.t("sim.world.enter"), "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
 				break
 	return best
+
+## Objects the context button offers: not the ones a blow breaks or trains on, nor decor, air pockets or a run's finish.
+static func offers_context(o: Dictionary) -> bool:
+	var kind := str(o.get("type", ""))
+	return not (kind in BREAKABLES or kind in TRAINING or kind in ["decor", "air_pocket", "route_finish"])
+
+## How strongly an object in reach claims the context button; the lowest rank wins and distance breaks ties within a
+## rank. A pickup first, an NPC whose marker calls you over, any NPC, other objects, gathering last; a door or gate
+## is offered only when no object is in reach.
+static func context_rank(o: Dictionary, calls := false) -> float:
+	match str(o.get("type", "")):
+		"pickup": return 0.5
+		"npc": return 1.0 if calls else 2.0
+		"herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm": return 4.0
+	return 3.0
+
+## A portal the context button can take ("Enter"): anything but a plain edge, which is walked through.
+static func context_portal(p: Dictionary) -> bool:
+	return str(p.get("type", "edge")) != "edge" or p.get("press_up", false)
 
 func _verb(o: Dictionary) -> String:
 	if o.has("chase"): return Tx.t("sim.world.chase")
@@ -1815,6 +1832,11 @@ func guide_step(c) -> Dictionary:
 	if str(_guide_cache.get("key", "")) == key and Clock.now_utc() - float(_guide_cache.get("at", 0.0)) < 5.0: return _guide_cache.step
 	var step := {}
 	var r := route(c, here, goal)
+	# Behind a hidden way not yet seen, the mark leads as far as the room that hides it (Spirit Sense shows it there).
+	if r.is_empty():
+		for hid in WorldRules.rooms_with("hidden_to=" + goal):
+			r = route(c, here, str(hid))
+			if not r.is_empty(): break
 	if not r.is_empty() and str(r[0].room) == here:
 		var at := _step_point(r[0])
 		if not at.is_empty(): step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": float(at.x), "y": float(at.y)}

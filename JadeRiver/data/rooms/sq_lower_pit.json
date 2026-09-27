@@ -237,7 +237,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    170,
+    410,
     655
    ],
    "loot": "jar_valley_low",
@@ -311,7 +311,7 @@
    "id": "chest_11",
    "type": "chest",
    "at": [
-    410,
+    170,
     655
    ],
    "loot": "chest_valley",

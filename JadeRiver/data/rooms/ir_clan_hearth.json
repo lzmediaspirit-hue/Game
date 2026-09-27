@@ -198,7 +198,7 @@
    "id": "npc_clan_smith_gang",
    "type": "npc",
    "at": [
-    1300,
+    1440,
     820
    ],
    "npc": "clan_smith_gang",

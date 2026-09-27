@@ -1,0 +1,248 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>16 World map</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* The world map is its own thing: a painted landscape (art/ui/maps/valley_map.png, tools/ui/build_valley_map.py) in a
+     lacquered frame with a hanging banner, its areas as glowing nodes on a dotted route, a side card of lacquer with a
+     framed picture, and tablets along the foot. Only the close button, the primary button (inked label), the text
+     tokens and the sizes come from the kit. Node positions are data/zones.json `map` positions on the painting's map
+     rect ((24, 34, 424, 276) art px, x2). A node's tap area is 60 x 60 as on today's page. */
+  .painting { position: absolute; left: 0; top: 0; width: 1280px; height: 640px; image-rendering: pixelated; }
+  .foot-bg { position: absolute; left: 0; top: 636px; width: 1280px; height: 84px; background: linear-gradient(180deg, #1a1210, #120c0a); }
+  .vignette { position: absolute; left: 0; top: 0; width: 1280px; height: 640px; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 55%, rgba(7,16,21,.55) 100%); }
+  /* the lacquered frame: dark wood, a bronze fillet and a pale gold inner line; cloud-scroll corners in bronze */
+  .frame { position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 0 12px #241610, inset 0 0 0 14px #6b4a22, inset 0 0 0 16px #b8893f, inset 0 0 0 17px rgba(255,230,161,.45), inset 0 0 26px 17px rgba(0,0,0,.45); }
+  .frame::before { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 3px #3a2617, inset 0 0 0 4px rgba(255,230,161,.18); }
+  .corner { position: absolute; width: 72px; height: 72px; }
+  .corner.tr { right: 0; transform: scaleX(-1); } .corner.bl { bottom: 0; transform: scaleY(-1); } .corner.br { right: 0; bottom: 0; transform: scale(-1); }
+  /* the title plate and the hanging banner */
+  .plate { position: absolute; left: 30px; top: 26px; height: 56px; padding: 0 22px 0 18px; display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(180deg, #3b2717, #241610); border: 2px solid #9a6a35; box-shadow: 0 0 0 1px #071015, inset 0 0 0 1px rgba(255,230,161,.25), 0 4px 0 rgba(0,0,0,.45); }
+  .plate .zone { font-family: var(--f-display); font-weight: 700; font-size: 34px; color: var(--pale-gold); line-height: 1; white-space: nowrap;
+    text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .plate .cap { font-size: 14px; color: var(--mist); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; line-height: 1.1; }
+  .banner { position: absolute; left: 66px; top: 84px; width: 56px; height: 132px; }
+  .banner .rod { position: absolute; left: -8px; top: 0; width: 72px; height: 6px; background: linear-gradient(180deg, #c8923e, #6a4318); box-shadow: 0 2px 0 rgba(0,0,0,.5); border-radius: 3px; }
+  .banner .cloth { position: absolute; left: 0; top: 6px; width: 56px; height: 112px; background: linear-gradient(90deg, #7c1f22, #a92e2a 40%, #7c1f22);
+    clip-path: polygon(0 0, 100% 0, 100% 86%, 50% 100%, 0 86%); box-shadow: inset 0 0 0 2px rgba(255,230,161,.2); }
+  .banner .cloth::after { content: ""; position: absolute; inset: 6px 6px 18px; border: 1px solid rgba(255,230,161,.45); }
+  .banner .tassel { position: absolute; top: 116px; width: 4px; height: 16px; background: #e5b84c; border-radius: 2px; box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+  /* zone tabs as tags hung from the top rail */
+  .tags { position: absolute; left: 372px; top: 26px; display: flex; gap: 12px; }
+  .tag { position: relative; height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 18px; color: var(--paper);
+    background: linear-gradient(180deg, #2e1e13, #1c130d); border: 2px solid #6b4a22; box-shadow: 0 0 0 1px #071015, 0 3px 0 rgba(0,0,0,.4); }
+  .tag::before { content: ""; position: absolute; left: 50%; top: -14px; width: 2px; height: 14px; background: #b8893f; box-shadow: 0 0 0 1px rgba(7,16,21,.6); }
+  .tag.is-selected { color: var(--pale-gold); border-color: #b8893f; background: linear-gradient(180deg, #1d5a54, #0f3a38); box-shadow: 0 0 0 1px #071015, 0 3px 0 rgba(0,0,0,.4), inset 0 0 0 1px rgba(103,214,189,.35); }
+  .tag.is-locked { color: var(--hollow); }
+  /* nodes on the painting: jade for an area you may enter, gold for the one you stand in, a padlock for a locked one */
+  .nd { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; }
+  .nd.open { background: radial-gradient(circle at 40% 35%, #a8f0dc, #2c9e8f 55%, #15514f 100%);
+    box-shadow: 0 0 0 2px #071015, 0 0 0 4px rgba(103,214,189,.55), 0 0 12px 4px rgba(103,214,189,.45); }
+  .nd.here { width: 34px; height: 34px; margin: -17px 0 0 -17px; background: radial-gradient(circle at 40% 35%, #fff2c8, #e5b84c 50%, #9a6a35 100%);
+    box-shadow: 0 0 0 2px #071015, 0 0 0 5px rgba(229,184,76,.6), 0 0 16px 6px rgba(229,184,76,.5); }
+  .nd.locked { width: 26px; height: 26px; margin: -13px 0 0 -13px; background: radial-gradient(circle at 40% 35%, #34464b, #0d1719 70%); box-shadow: 0 0 0 2px #071015, 0 0 0 3px rgba(175,201,209,.25); }
+  .nd.locked::before { content: ""; position: absolute; left: 9px; top: 3px; width: 8px; height: 8px; border: 2px solid #b8893f; border-bottom: 0; border-radius: 5px 5px 0 0; box-sizing: border-box; }
+  .nd.locked::after { content: ""; position: absolute; left: 7px; top: 9px; width: 12px; height: 9px; background: #b8893f; border-radius: 1px; }
+  .nd.sel::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid var(--pale-gold); box-shadow: 0 0 0 2px rgba(7,16,21,.7), 0 0 10px 2px rgba(255,230,161,.6); }
+  /* name plates beside nodes (UiKit.draw_nameplate's ink plate): the name, its level band, a mark's line */
+  .pl { position: absolute; transform: translateX(-50%); padding: 3px 10px 4px; border-radius: 6px; background: rgba(5,15,19,.8); border: 1px solid rgba(229,191,102,.35);
+    text-align: center; white-space: nowrap; line-height: 1.12; }
+  .pl.right, .pl.left { transform: translateY(-50%); }
+  .pl .n { font-family: var(--f-text); font-weight: 700; font-size: 16px; color: var(--paper); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .pl .s { font-size: 14px; color: var(--mist); text-shadow: 0 2px 0 rgba(0,0,0,.55); font-weight: 700; }
+  .pl.dim .n { color: var(--hollow); }
+  .pl .rk { display: flex; gap: 4px; justify-content: center; padding-top: 2px; }
+  .pl .boss { display: flex; gap: 5px; align-items: center; justify-content: center; margin-top: 1px; }
+  .pl .boss .c-red { color: #e87070; }
+  /* marks */
+  .lantern { position: absolute; width: 22px; height: 30px; margin: -15px 0 0 -11px; border-radius: 8px 8px 9px 9px;
+    background: radial-gradient(circle at 50% 45%, #fff3c0, var(--gold) 55%, #b3202e 100%); box-shadow: 0 0 0 2px var(--ink), 0 0 14px 6px rgba(229,184,76,.55); }
+  .lantern::before { content: ""; position: absolute; left: 6px; top: -6px; width: 10px; height: 5px; background: var(--ink); border-radius: 2px; }
+  .blossom { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; }
+  .skull { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; image-rendering: pixelated; }
+  /* the side card: a lacquer box with a bronze-framed picture of the area */
+  .card { position: absolute; left: 918px; top: 84px; width: 338px; height: 556px; background: linear-gradient(180deg, #1c1410, #120d0a);
+    border: 2px solid #9a6a35; box-shadow: 0 0 0 1px #071015, inset 0 0 0 1px rgba(255,230,161,.22), inset 0 0 0 6px #1c1410, inset 0 0 0 7px rgba(154,106,53,.6), 0 6px 0 rgba(0,0,0,.45); }
+  .card .pic { position: absolute; left: 41px; top: 12px; width: 256px; height: 144px; image-rendering: pixelated; border: 2px solid #b8893f; box-shadow: 0 0 0 1px #071015, 0 0 0 4px #2b1b10, 0 0 0 5px rgba(184,137,63,.6); }
+  .card .pic-cap { position: absolute; left: 41px; top: 12px; width: 256px; height: 144px; pointer-events: none; box-shadow: inset 0 0 22px rgba(0,0,0,.45); }
+  /* what can be gathered there: item icons in bronze discs on the picture's corner */
+  .card .badges { position: absolute; left: 41px; top: 156px; width: 256px; display: flex; justify-content: flex-end; gap: 6px; padding-right: 6px; transform: translateY(-50%); }
+  .card .badges .bd { width: 40px; height: 40px; border-radius: 50%; background: rgba(5,15,19,.9); box-shadow: 0 0 0 2px #b8893f, 0 0 0 3px #071015; display: flex; align-items: center; justify-content: center; }
+  .chip { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; font-size: 14px; font-weight: 700; white-space: nowrap;
+    background: rgba(44,158,143,.18); border: 1px solid rgba(103,214,189,.55); color: var(--paper); }
+  .chip.lv { background: rgba(229,184,76,.14); border-color: rgba(229,184,76,.6); color: var(--pale-gold); }
+  .rm { display: flex; align-items: center; gap: 8px; height: 24px; font-size: 16px; white-space: nowrap; }
+  .rm .sy { width: 18px; text-align: center; font-family: var(--f-sym); }
+  .lbl { font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: .06em; }
+  .btn2 { border-image: url(../../../art/ui/hd/button_secondary__normal.png) 36 42 fill / 12px 14px stretch; display: flex; align-items: center; justify-content: center;
+    min-height: 48px; padding: 0 12px; font-size: 17px; font-weight: 600; color: var(--paper); white-space: nowrap; }
+  /* resources (the Resources view): kind filters, the resource list, a resource's rows */
+  .kind { flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 16px; font-weight: 700; color: var(--mist); white-space: nowrap;
+    background: rgba(13,48,53,.45); box-shadow: inset 0 0 0 1px rgba(154,106,53,.4); border-radius: 6px; }
+  .kind.is-selected { color: var(--pale-gold); background: rgba(44,158,143,.25); box-shadow: inset 0 0 0 1px rgba(229,184,76,.7); }
+  .rgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .res { display: inline-flex; align-items: center; gap: 6px; height: 48px; padding: 0 8px 0 4px; border-radius: 6px; background: rgba(13,48,53,.55);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.4); font-size: 15px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .res.is-selected { background: rgba(44,158,143,.25); box-shadow: inset 0 0 0 1px rgba(229,184,76,.7), 0 0 8px rgba(229,184,76,.35); color: var(--pale-gold); }
+  .res.is-dim { color: var(--hollow); }
+  /* the foot: tablets for the three views and the legend */
+  .tab { position: absolute; top: 652px; height: 52px; padding: 0 18px 0 12px; display: flex; align-items: center; gap: 10px; font-size: 18px; color: var(--paper); white-space: nowrap;
+    background: linear-gradient(180deg, #2e1e13, #1c130d); border: 2px solid #6b4a22; box-shadow: 0 0 0 1px #071015, inset 0 0 0 1px rgba(255,230,161,.15); }
+  .tab.is-selected { color: var(--pale-gold); border-color: #b8893f; background: linear-gradient(180deg, #1d5a54, #0f3a38); box-shadow: 0 0 0 1px #071015, inset 0 0 0 1px rgba(103,214,189,.4), 0 0 10px rgba(103,214,189,.25); }
+  .legend { position: absolute; top: 652px; height: 52px; display: flex; align-items: center; gap: 16px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .legend .it { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--ink); }
+  .legend .dot.j { background: #67d6bd; box-shadow: 0 0 0 1.5px var(--ink), 0 0 6px rgba(103,214,189,.7); }
+  .legend .dot.g { background: #e5b84c; box-shadow: 0 0 0 1.5px var(--ink), 0 0 6px rgba(229,184,76,.7); }
+  .legend .dot.ring { background: none; box-shadow: 0 0 0 2px #ffe6a1, 0 0 0 3px var(--ink); }
+  .legend .lock { width: 12px; height: 16px; position: relative; display: inline-block; }
+  .legend .lock::before { content: ""; position: absolute; left: 2px; top: 0; width: 8px; height: 8px; border: 2px solid #b8893f; border-bottom: 0; border-radius: 5px 5px 0 0; box-sizing: border-box; }
+  .legend .lock::after { content: ""; position: absolute; left: 0; top: 6px; width: 12px; height: 9px; background: #b8893f; border-radius: 1px; }
+  .legend .route { width: 26px; height: 4px; background: radial-gradient(circle, #ffe6a1 1.6px, transparent 2px) 0 0 / 8px 4px repeat-x; }
+  .legend .lantern { position: relative; margin: 0; width: 12px; height: 16px; border-radius: 4px 4px 5px 5px; box-shadow: 0 0 0 1.5px var(--ink), 0 0 6px 2px rgba(229,184,76,.55); }
+  .legend .lantern::before { left: 3px; top: -4px; width: 6px; height: 3px; }
+</style></head>
+<body><div class="k-screen">
+<img class="painting" src="../../../art/ui/maps/valley_map.png">
+<div class="vignette"></div>
+<div class="foot-bg"></div>
+
+<!-- routes between neighbouring areas (the rooms' portals): dotted; walked ones pale, ones into locked areas dim,
+     the tracked route gold -->
+<svg class="abs" style="left:0;top:0;pointer-events:none" width="1280" height="720">
+  <g stroke="rgba(255,255,255,.28)" stroke-width="3" stroke-dasharray="0 9" stroke-linecap="round" fill="none"><line x1="548" y1="252" x2="498" y2="359"/>
+<line x1="218" y1="190" x2="302" y2="144"/>
+<line x1="195" y1="219" x2="173" y2="281"/>
+<line x1="778" y1="226" x2="844" y2="197"/>
+<line x1="237" y1="364" x2="182" y2="313"/>
+<line x1="821" y1="498" x2="793" y2="477"/>
+<line x1="338" y1="128" x2="402" y2="107"/></g>
+  <g stroke="rgba(255,236,190,.8)" stroke-width="4" stroke-dasharray="0 10" stroke-linecap="round" fill="none"><line x1="801" y1="305" x2="770" y2="251"/>
+<line x1="806" y1="341" x2="782" y2="446"/>
+<line x1="356" y1="425" x2="333" y2="450"/>
+<line x1="705" y1="171" x2="747" y2="219"/>
+<line x1="722" y1="403" x2="764" y2="450"/>
+<line x1="689" y1="388" x2="628" y2="388"/>
+<line x1="494" y1="396" x2="509" y2="457"/>
+<line x1="509" y1="379" x2="588" y2="386"/></g>
+  <g stroke="rgba(229,184,76,.45)" stroke-width="10" stroke-dasharray="0 10" stroke-linecap="round" fill="none"><line x1="351" y1="405" x2="271" y2="382"/>
+<line x1="389" y1="405" x2="470" y2="382"/>
+<line x1="243" y1="395" x2="227" y2="425"/>
+<line x1="447" y1="296" x2="480" y2="359"/></g>
+  <g stroke="#ffe6a1" stroke-width="5" stroke-dasharray="0 10" stroke-linecap="round" fill="none"><line x1="351" y1="405" x2="271" y2="382"/>
+<line x1="389" y1="405" x2="470" y2="382"/>
+<line x1="243" y1="395" x2="227" y2="425"/>
+<line x1="447" y1="296" x2="480" y2="359"/></g>
+</svg>
+<!-- areas: a node where each lies (data/zones.json map), its name plate beside it; the qu5 character's visited regions -->
+<div class="nd locked" style="left:421px;top:101px"></div>
+<div class="nd locked" style="left:319px;top:134px"></div>
+<div class="nd open" style="left:692px;top:156px"></div>
+<div class="pl bottom" style="left:692px;top:174px"><div class="n">Cleansing Peak</div><div class="s t-fig">Lv 17–19</div></div>
+<div class="nd locked" style="left:862px;top:189px"></div>
+<div class="pl dim top" style="left:862px;bottom:549px"><div class="n">Hidden Vale</div><div class="s c-hollow">Locked · Safe</div></div>
+<div class="nd locked" style="left:201px;top:200px"></div>
+<div class="nd locked" style="left:557px;top:234px"></div>
+<div class="pl dim bottom" style="left:557px;top:252px"><div class="n">Cloud Sect Monastery</div><div class="s c-hollow">Locked · Safe</div></div>
+<div class="nd open" style="left:760px;top:234px"></div>
+<div class="pl bottom" style="left:760px;top:252px"><div class="n">Crane Falls</div><div class="s t-fig">Safe</div></div>
+<div class="nd here" style="left:438px;top:278px"></div>
+<div class="pl bottom" style="left:438px;top:296px"><div class="n">Jade Sect Academy</div><div class="s c-jade">You are here</div></div>
+<div class="nd locked" style="left:167px;top:300px"></div>
+<div class="pl dim top" style="left:177px;bottom:438px"><div class="n">Whitewater Gorge</div><div class="s c-hollow">Locked · Lv 28–36</div></div>
+<div class="nd open" style="left:811px;top:322px"></div>
+<div class="pl bottom" style="left:811px;top:340px"><div class="n">Bamboo Grove</div><div class="s t-fig">Lv 10–15</div></div>
+<div class="nd open" style="left:489px;top:377px"></div>
+<div class="pl bottom" style="left:489px;top:395px"><div class="n">Stoneford</div><div class="s t-fig">Safe</div></div>
+<div class="nd open" style="left:252px;top:377px"></div>
+<div class="pl left" style="right:1050px;top:377px;transform:translateY(-50%)"><div class="n">Deepwater Bend</div><div class="s t-fig">Lv 19–25</div><div class="s boss"><img class="ic ic-24" src="../../../art/icons/markers/boss_skull.png"><span class="c-paper">Riverbed Serpent</span> <span class="c-red">ready</span></div></div>
+<div class="nd open" style="left:709px;top:388px"></div>
+<div class="pl bottom" style="left:709px;top:406px"><div class="n">Lotus Ferry</div><div class="s t-fig">Lv 0–3</div></div>
+<div class="nd open" style="left:608px;top:388px"></div>
+<div class="pl bottom" style="left:608px;top:406px"><div class="n">Willow Path</div><div class="s t-fig">Lv 1–3</div></div>
+<div class="nd open" style="left:370px;top:410px"></div>
+<div class="pl bottom" style="left:370px;top:428px"><div class="n">Caravan Road</div><div class="s t-fig">Lv 14–19</div></div>
+<div class="nd open sel" style="left:218px;top:443px"></div>
+<div class="pl bottom" style="left:196px;top:461px"><div class="n">Drowned Shrine</div><div class="s t-fig">Lv 21–27</div></div>
+<div class="nd open" style="left:777px;top:465px"></div>
+<div class="pl left" style="right:525px;top:465px;transform:translateY(-50%)"><div class="n">Reed Marsh</div><div class="s t-fig">Lv 4–12</div></div>
+<div class="nd open" style="left:319px;top:465px"></div>
+<div class="pl bottom" style="left:345px;top:483px"><div class="n">Mudwater Hideout</div><div class="s t-fig">Lv 14–20</div></div>
+<div class="nd open" style="left:514px;top:476px"></div>
+<div class="pl bottom" style="left:514px;top:494px"><div class="n">Stonewall Quarry</div><div class="s t-fig">Lv 4–7</div></div>
+<div class="nd locked" style="left:837px;top:510px"></div>
+<div class="pl dim bottom" style="left:837px;top:528px"><div class="n">Greyreed Hamlet</div><div class="s c-hollow">Locked · Safe</div></div>
+<!-- marks: the tracked quest's lantern, world events (a plum blossom: gold under way, violet soon), the field boss -->
+<div class="lantern" style="left:244px;top:423px"></div>
+<svg class="blossom" style="left:194px;top:421px" viewBox="-11 -11 22 22"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>
+<svg class="blossom" style="left:412px;top:256px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<svg class="blossom" style="left:465px;top:355px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<svg class="blossom" style="left:197px;top:304px" viewBox="-11 -11 22 22"><g fill="#b596e0" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#fff"/></svg>
+<!-- the frame, the title plate, the banner, the zone tags and the close button -->
+<div class="frame"></div>
+<svg class="corner tl" viewBox="0 0 72 72"><g fill="none" stroke="#b8893f" stroke-width="3" stroke-linecap="round">
+  <path d="M14 58 C 14 34, 34 14, 58 14"/><path d="M20 44 c 0 -10, 6 -16, 14 -16 c 6 0 8 4 6 8 c -2 4 -8 2 -6 -2"/>
+  <path d="M40 22 c 6 -2 12 0 14 4"/><path d="M18 50 c -2 6 0 12 4 14"/></g>
+  <circle cx="16" cy="16" r="4" fill="#e5b84c" stroke="#071015" stroke-width="1.5"/></svg>
+<svg class="corner tr" viewBox="0 0 72 72"><g fill="none" stroke="#b8893f" stroke-width="3" stroke-linecap="round">
+  <path d="M14 58 C 14 34, 34 14, 58 14"/><path d="M20 44 c 0 -10, 6 -16, 14 -16 c 6 0 8 4 6 8 c -2 4 -8 2 -6 -2"/>
+  <path d="M40 22 c 6 -2 12 0 14 4"/><path d="M18 50 c -2 6 0 12 4 14"/></g>
+  <circle cx="16" cy="16" r="4" fill="#e5b84c" stroke="#071015" stroke-width="1.5"/></svg>
+<svg class="corner bl" viewBox="0 0 72 72"><g fill="none" stroke="#b8893f" stroke-width="3" stroke-linecap="round">
+  <path d="M14 58 C 14 34, 34 14, 58 14"/><path d="M20 44 c 0 -10, 6 -16, 14 -16 c 6 0 8 4 6 8 c -2 4 -8 2 -6 -2"/>
+  <path d="M40 22 c 6 -2 12 0 14 4"/><path d="M18 50 c -2 6 0 12 4 14"/></g>
+  <circle cx="16" cy="16" r="4" fill="#e5b84c" stroke="#071015" stroke-width="1.5"/></svg>
+<svg class="corner br" viewBox="0 0 72 72"><g fill="none" stroke="#b8893f" stroke-width="3" stroke-linecap="round">
+  <path d="M14 58 C 14 34, 34 14, 58 14"/><path d="M20 44 c 0 -10, 6 -16, 14 -16 c 6 0 8 4 6 8 c -2 4 -8 2 -6 -2"/>
+  <path d="M40 22 c 6 -2 12 0 14 4"/><path d="M18 50 c -2 6 0 12 4 14"/></g>
+  <circle cx="16" cy="16" r="4" fill="#e5b84c" stroke="#071015" stroke-width="1.5"/></svg>
+<div class="plate"><img class="ic ic-32" src="../../../art/icons/hud/world_map.png"><div class="col"><span class="cap">World map</span><span class="zone">Jade River Valley</span></div></div>
+<div class="banner"><div class="rod"></div><div class="cloth"></div>
+  <svg class="abs" style="left:10px;top:34px" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#ffe6a1" stroke-width="2"/>
+    <g fill="#67d6bd" stroke="#071015" stroke-width="1"><path d="M18 8 c 4 4 4 10 0 14 c -4 -4 -4 -10 0 -14 z"/><path d="M9 14 c 5 0 9 4 9 8 c -5 0 -9 -4 -9 -8 z"/><path d="M27 14 c -5 0 -9 4 -9 8 c 5 0 9 -4 9 -8 z"/></g>
+    <path d="M11 26 q 7 4 14 0" fill="none" stroke="#ffe6a1" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tassel" style="left:10px"></div><div class="tassel" style="left:42px"></div></div>
+<div class="tags"><div class="tag is-selected">Jade River Valley</div><div class="tag is-locked">Azure Expanse<span class="k-lock-mini"></span></div>
+<div class="tag is-locked">Lantern Star Field<span class="k-lock-mini"></span></div><div class="tag">Heaven Ranking</div></div>
+<div class="k-close abs" style="left:1200px;top:24px"></div>
+<!-- ============ the selected area ============ -->
+<div class="card">
+  <img class="pic" src="../../../art/ui/maps/valley_drowned_shrine.png"><div class="pic-cap"></div>
+  <div class="badges"><div class="bd"><img class="ic ic-32" src="../../../art/icons/items/mist_lotus.png"></div></div>
+  <div class="abs t-display" style="left:20px;top:168px;font-size:30px">Drowned Shrine</div>
+  <div class="abs flex" style="left:20px;top:206px;gap:8px"><span class="chip lv">Dungeon · Lv 21–27</span><span class="chip">you are Lv 22</span></div>
+  <div class="k-divider abs" style="left:20px;top:240px;width:298px"></div>
+  <!-- the tracked quest leads here -->
+  <div class="abs flex" style="left:20px;top:248px;width:298px;height:48px;gap:6px">
+    <div class="lantern" style="position:relative;margin:0 4px 0 4px;flex:none;width:14px;height:20px"></div>
+    <div style="flex:1;line-height:1.15"><div class="t-sm c-gold nowrap" style="font-weight:700">The Drowned Abbot</div><div class="t-xs c-paper nowrap">Defeat the Drowned Abbot</div></div>
+    <div class="btn2" style="width:100px;flex:none">Walk there</div>
+  </div>
+  <!-- the event under way -->
+  <div class="abs flex" style="left:20px;top:304px;gap:8px;width:298px">
+    <svg width="22" height="22" viewBox="-11 -11 22 22" style="flex:none"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>
+    <div style="line-height:1.15"><div class="t-sm c-gold nowrap">The Drowned Shrine Surfaces</div><div class="t-xs c-jade t-fig nowrap">Under way · 23 h 57 m left</div></div>
+  </div>
+  <div class="abs lbl" style="left:20px;top:350px">ROOMS <span class="c-mist" style="letter-spacing:0;font-weight:600">· 4 of 5 seen</span></div>
+  <div class="abs" style="left:20px;top:368px;width:298px">
+    <div class="rm"><span class="sy c-gold">◆</span><span class="c-pale">Abbot’s Sanctum</span><span class="t-xs c-mist">the Abbot</span></div>
+    <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Flooded Gate</span></div>
+    <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Hall of Lanterns</span></div>
+    <div class="rm"><span class="sy c-mist">·</span><span class="c-paper">Scripture Well</span></div>
+    <div class="rm"><span class="sy c-hollow">?</span><span class="c-hollow">Unknown</span><span class="t-xs" style="color:var(--pale-gold)">! Deep water · Body</span></div>
+  </div>
+  <div class="k-btn abs" style="left:14px;top:496px;width:310px;height:48px;font-size:22px">Track Route<span class="t-sm c-paper" style="margin-left:10px;font-weight:600">· 4 areas</span></div>
+</div>
+<!-- ============ the foot: the three views and the legend ============ -->
+<div class="tab is-selected" style="left:30px"><img class="ic ic-32" src="../../../art/icons/hud/world_map.png">Areas</div>
+<div class="tab" style="left:158px"><img class="ic ic-32" src="../../../art/icons/hud/craft_foraging.png">Resources</div>
+<div class="tab" style="left:326px"><img class="ic ic-32" src="../../../art/icons/hud/quest.png">Objectives</div>
+<div class="legend" style="left:520px">
+  <span class="it"><span class="dot j"></span>Available</span><span class="it"><span class="dot g"></span>Current area</span><span class="it"><span class="lock"></span>Locked</span>
+  <span class="it"><span class="route"></span>Route</span><span class="it"><span class="lantern"></span>Tracked quest</span>
+  <span class="it"><svg width="16" height="16" viewBox="-11 -11 22 22"><g fill="#e5b84c" stroke="#071015" stroke-width="1.2"><circle cx="0" cy="-6" r="4.5"/><circle cx="5.7" cy="-1.9" r="4.5"/><circle cx="3.5" cy="4.9" r="4.5"/><circle cx="-3.5" cy="4.9" r="4.5"/><circle cx="-5.7" cy="-1.9" r="4.5"/></g><circle r="2.5" fill="#b3202e"/></svg>Event</span>
+  <span class="it"><img class="ic ic-24" src="../../../art/icons/markers/boss_skull.png">Field boss</span>
+</div>
+</div></body></html>

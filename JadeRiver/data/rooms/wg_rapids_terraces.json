@@ -181,7 +181,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1070,
+    830,
     695
    ],
    "item": "mist_lotus",
@@ -207,7 +207,7 @@
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    2070,
+    1830,
     695
    ],
    "item": "mist_lotus",
@@ -283,7 +283,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    830,
+    1070,
     695
    ],
    "loot": "jar_valley_mid",
@@ -296,7 +296,7 @@
    "id": "crate_6",
    "type": "crate",
    "at": [
-    1830,
+    2070,
     695
    ],
    "loot": "jar_valley_mid",

@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>00b button faces</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .k-screen { background: radial-gradient(ellipse at 50% 0%, #0f2c33, var(--river-night) 60%, #071418); }
+  .col { position: absolute; top: 96px; width: 392px; height: 600px; }
+  .head { font-family: var(--f-display); font-weight: 700; font-size: 28px; color: var(--gold); text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .note { font-size: 15px; color: var(--mist); line-height: 1.35; margin-top: 4px; height: 64px; }
+  .row { display: flex; gap: 12px; margin-top: 14px; }
+  .cap { font-size: 14px; color: var(--mist); margin-top: 18px; }
+  .dark.k-btn { border-image-source: url(../assets/p4_button_primary_dark__normal.png); }
+  .dark.k-btn.is-pressed { border-image-source: url(../assets/p4_button_primary_dark__pressed.png); }
+  .dark.k-btn.is-disabled { border-image-source: url(../assets/p4_button_primary_dark__disabled.png); }
+  .inked.k-btn { text-shadow: none; -webkit-text-stroke: 0; paint-order: stroke fill;
+    filter: drop-shadow(0 0 0 transparent);
+    text-shadow: -1.5px -1.5px 0 #071015, 1.5px -1.5px 0 #071015, -1.5px 1.5px 0 #071015, 1.5px 1.5px 0 #071015,
+                 0 2px 0 #071015, 0 -2px 0 #071015, 2px 0 0 #071015, -2px 0 0 #071015, 0 3px 0 rgba(0,0,0,.55); }
+  .panel { position: relative; margin-top: 16px; height: 190px; padding: 16px; }
+  .ratio { font-size: 15px; margin-top: 10px; }
+  .ok { color: var(--bright-jade); font-weight: 700; } .bad { color: #e87070; font-weight: 700; }
+</style></head>
+<body><div class="k-screen">
+<div class="abs head" style="left:32px;top:20px;font-size:34px">The primary button: three ways to make its words readable</div>
+<div class="abs note" style="left:32px;top:62px;height:auto">Pale gold on today's bright jade face measures 2.13:1; a label needs 4.5:1 at 14–19 px and 3:1 at 20 px and up (style guide §1.4).</div>
+
+<div class="col" style="left:32px">
+  <div class="head">A · Today</div>
+  <div class="note">The bright face approved in mockups 00 and 04.</div>
+  <div class="row"><div class="k-btn" style="width:150px">Equip</div><div class="k-btn is-pressed" style="width:110px">Use</div><div class="k-btn is-disabled" style="width:110px">Sell</div></div>
+  <div class="row"><div class="k-btn" style="width:240px;font-size:16px;min-height:48px">Settle all · 2 pouches full</div></div>
+  <div class="k-minor-panel panel"><div class="t-sm c-pale">Sunsilk Trousers</div><div class="t-xs c-mist">Perfect · Sage · Trousers</div>
+    <div class="row" style="margin-top:62px"><div class="k-btn" style="width:210px">Equip</div><div class="k-btn2" style="width:130px">Lock</div></div></div>
+  <div class="ratio">Label on face: <span class="bad">2.13</span> · pressed <span class="ok">3.82</span> · disabled <span class="bad">2.64</span></div>
+</div>
+
+<div class="col" style="left:444px">
+  <div class="head">B · A deeper face</div>
+  <div class="note">Same jade hue, darker steps (#27897b → #0c3d38); the gold bevel and gloss stay.</div>
+  <div class="row"><div class="k-btn dark" style="width:150px">Equip</div><div class="k-btn dark is-pressed" style="width:110px">Use</div><div class="k-btn dark is-disabled" style="width:110px">Sell</div></div>
+  <div class="row"><div class="k-btn dark" style="width:240px;font-size:16px;min-height:48px">Settle all · 2 pouches full</div></div>
+  <div class="k-minor-panel panel"><div class="t-sm c-pale">Sunsilk Trousers</div><div class="t-xs c-mist">Perfect · Sage · Trousers</div>
+    <div class="row" style="margin-top:62px"><div class="k-btn dark" style="width:210px">Equip</div><div class="k-btn2" style="width:130px">Lock</div></div></div>
+  <div class="ratio">Label on face: <span class="ok">4.64</span> · pressed <span class="ok">5.59</span> · disabled <span class="ok">3.48</span></div>
+</div>
+
+<div class="col" style="left:856px">
+  <div class="head">C · Today's face, inked words</div>
+  <div class="note">The bright face kept; every primary label gets a 2 px ink outline.</div>
+  <div class="row"><div class="k-btn inked" style="width:150px">Equip</div><div class="k-btn inked is-pressed" style="width:110px">Use</div><div class="k-btn inked is-disabled" style="width:110px">Sell</div></div>
+  <div class="row"><div class="k-btn inked" style="width:240px;font-size:16px;min-height:48px">Settle all · 2 pouches full</div></div>
+  <div class="k-minor-panel panel"><div class="t-sm c-pale">Sunsilk Trousers</div><div class="t-xs c-mist">Perfect · Sage · Trousers</div>
+    <div class="row" style="margin-top:62px"><div class="k-btn inked" style="width:210px">Equip</div><div class="k-btn2" style="width:130px">Lock</div></div></div>
+  <div class="ratio">Reads by its outline; the face itself is unchanged</div>
+</div>
+
+<div class="abs note" style="left:32px;top:664px;height:auto">The page-title plaque follows the same choice (B darkens its face; C outlines the title).</div>
+</div></body></html>

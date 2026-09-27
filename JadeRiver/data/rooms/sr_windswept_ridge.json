@@ -195,7 +195,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    1170,
+    930,
     675
    ],
    "item": "mystic_ore",
@@ -246,7 +246,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    930,
+    1170,
     675
    ],
    "loot": "jar_valley_mid",

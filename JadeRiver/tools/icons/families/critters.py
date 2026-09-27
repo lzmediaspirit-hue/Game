@@ -9,6 +9,7 @@ from registry import register
 import shapes as S
 
 FAM, GROUP = 'items', 'critters'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 CR_FROG = Ramp(['#0C3E24', '#16663A', '#2FA253', '#6CD877', '#C8F7A8'], '#05190E')
 CR_FROGBELLY = Ramp(['#5E6A2A', '#96A846', '#CCDB7E', '#E8F2B0', '#FBFFE2'], '#232A0E')

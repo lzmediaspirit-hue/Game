@@ -231,7 +231,7 @@
    "id": "npc_old_scribe_bai",
    "type": "npc",
    "at": [
-    1580,
+    1700,
     880
    ],
    "npc": "old_scribe_bai",
@@ -315,8 +315,8 @@
    "id": "npc_guildmaster_tang",
    "type": "npc",
    "at": [
-    2440,
-    800
+    2340,
+    820
    ],
    "npc": "guildmaster_tang",
    "facing": -1,
