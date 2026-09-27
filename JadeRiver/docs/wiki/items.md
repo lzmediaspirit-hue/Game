@@ -1249,7 +1249,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `training_gauntlets` · Equipment, weapon · Plain · iLv 5 · stack 1
 
-- **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets
+- **Stats**: Weapon Attack 26 at iLv 5, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Appearance gauntlets
 - **Requires**: Level 3 and unlock Weapons
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
@@ -1388,7 +1388,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `iron_gauntlets` · Equipment, weapon · Common · iLv 14 · stack 1
 
-- **Stats**: Weapon Attack 73.5 at iLv 14, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi
+- **Stats**: Weapon Attack 73.5 at iLv 14, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Common: see [Banded equipment drops](#banded-common)
   - Crafting: Recipe `iron_gauntlets` (Smithing, Common): Copper ×6, Riverstone ×3, Boar Hide ×2
@@ -1535,7 +1535,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `jadeiron_gauntlets` · Equipment, weapon · Earth · iLv 27 · stack 1
 
-- **Stats**: Weapon Attack 176.5 at iLv 27, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Sockets 1
+- **Stats**: Weapon Attack 176.5 at iLv 27, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type primal_qi; Sockets 1; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Earth: see [Banded equipment drops](#banded-earth)
   - Crafting: Recipe `jadeiron_gauntlets` (Smithing, Earth): Jadeiron ×6, Riverstone ×4, Jade Scale ×2
@@ -1677,7 +1677,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `cloudsteel_gauntlets` · Equipment, weapon · Heaven · iLv 45 · stack 1
 
-- **Stats**: Weapon Attack 386 at iLv 45, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 1
+- **Stats**: Weapon Attack 386 at iLv 45, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 1; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Heaven: see [Banded equipment drops](#banded-heaven)
   - Crafting: Recipe `cloudsteel_gauntlets` (Smithing, Heaven): Cloudsteel Ore ×6, Jadeiron ×4, Cloud Feather ×2
@@ -1848,7 +1848,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `mistjade_gauntlets` · Equipment, weapon · Mystic · iLv 59 · stack 1
 
-- **Stats**: Weapon Attack 602.7 at iLv 59, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2
+- **Stats**: Weapon Attack 602.7 at iLv 59, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `mistjade_gauntlets` (Smithing, Mystic): Mystic Ore ×6, Cloudsteel Ore ×4, Roc Feather ×2
@@ -2016,7 +2016,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 > A monk of the old river temple beat these like a drum, and the mountain answered.
 
-- **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; named: Body, Expanse; Legend: {"chain": "stone_drum", "effect": {"op": "pct_add", "stat": "physical_defense", "value": 0.08}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 10, "mult": 2.4, "name": "Mountain Drum", "reach": 170, "shape": "ring"}}
+- **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; Appearance gauntlets; named: Body, Expanse; Legend: {"chain": "stone_drum", "effect": {"op": "pct_add", "stat": "physical_defense", "value": 0.08}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 10, "mult": 2.4, "name": "Mountain Drum", "reach": 170, "shape": "ring"}}
 - **Notes**: cannot be sold
 - **Sources**:
   - Crafting: Recipe `stone_drum_gauntlets` (Smithing, Mystic): Stone Drum Knuckle ×1, Stone Drum Cuff ×1, Stone Drum Heart ×1, Mystic Ore ×4, Refining Essence ×8
@@ -2102,7 +2102,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `stormsteel_gauntlets` · Equipment, weapon · Spirit · iLv 68 · stack 1
 
-- **Stats**: Weapon Attack 766.9 at iLv 68, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 2
+- **Stats**: Weapon Attack 766.9 at iLv 68, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 2; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Spirit: see [Banded equipment drops](#banded-spirit)
   - Crafting: Recipe `stormsteel_gauntlets` (Smithing, Spirit): Stormsteel Ore ×6, Mystic Ore ×4, Spark Pelt ×2
@@ -2251,7 +2251,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `sunsteel_gauntlets` · Equipment, weapon · Sage · iLv 77 · stack 1
 
-- **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 950.5 at iLv 77, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Sage: see [Banded equipment drops](#banded-sage)
   - Crafting: Recipe `sunsteel_gauntlets` (Smithing, Sage): Sunglass ×6, Stormsteel Ore ×4, Scorpion Stinger ×2
@@ -2400,7 +2400,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `driftsteel_gauntlets` · Equipment, weapon · Sovereign · iLv 86 · stack 1
 
-- **Stats**: Weapon Attack 1153.5 at iLv 86, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 1153.5 at iLv 86, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Sovereign: see [Banded equipment drops](#banded-sovereign)
   - Crafting: Recipe `driftsteel_gauntlets` (Smithing, Sovereign): Driftglass ×6, Sunglass ×4, Jelly Silk ×2; known by default
@@ -2538,7 +2538,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `lanternsteel_gauntlets` · Equipment, weapon · Will · iLv 95 · stack 1
 
-- **Stats**: Weapon Attack 1376 at iLv 95, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3
+- **Stats**: Weapon Attack 1376 at iLv 95, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type sage_qi; Sockets 3; Appearance gauntlets
 - **Sources**:
   - Drop: banded equipment roll, grade Will: see [Banded equipment drops](#banded-will)
   - Crafting: Recipe `lanternsteel_gauntlets` (Smithing, Will): Drone Shell ×6, Driftglass ×4, Cinder Ash ×2; known by default

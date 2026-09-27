@@ -781,7 +781,7 @@ def build_items():
     return rows
 
 
-FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
+FAMILY_APPEARANCE = {"gauntlets": "gauntlets", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
                      # S47 v1.1 families
                      "heavy_sabre": "sabre", "fan": "fan", "flute": "flute",
                      # P7b (item_plan §2.9): the brush and the bell at every grade, so the formation master and the bell musician

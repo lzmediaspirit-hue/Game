@@ -123,7 +123,8 @@
     "fan": "attack",
     "flute": "attack",
     "brush": "attack",
-    "bell": "attack"
+    "bell": "attack",
+    "gauntlets": "punch"
   },
   "_colors": {
     "hair": [
@@ -14480,6 +14481,270 @@
               ],
               "source": "generated:bake_weapons.py from dagger",
               "z": 9.0
+            }
+          }
+        }
+      ]
+    },
+    "gauntlets": {
+      "label": "Gauntlets",
+      "hand_rig": "tools/art/bake_gauntlets.py",
+      "layers": [
+        {
+          "section": "1",
+          "z": 12.0,
+          "animations": {
+            "attack": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_attack_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "bow": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_bow_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "idle": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_idle_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "jump": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_jump_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "meditate": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_meditate_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "punch": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_punch_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "punch_1": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_punch_1_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_punch_2_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_punch_3_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "swing": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_swing_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_swing_1_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_swing_2_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_swing_3_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_thrust_1_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_thrust_2_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_thrust_3_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            },
+            "walk": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_1_walk_0.png"
+              ],
+              "z": 12.0,
+              "source": "generated:bake_gauntlets.py over body light layer 1",
+              "fallback": null
+            }
+          }
+        },
+        {
+          "section": "4",
+          "z": 92.0,
+          "animations": {
+            "attack": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "bow": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "idle": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "jump": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "meditate": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_4_meditate_0.png"
+              ],
+              "z": 92.0,
+              "source": "generated:bake_gauntlets.py over body light layer 4",
+              "fallback": null
+            },
+            "punch": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_4_punch_0.png"
+              ],
+              "z": 92.0,
+              "source": "generated:bake_gauntlets.py over body light layer 4",
+              "fallback": null
+            },
+            "punch_1": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_4_punch_1_0.png"
+              ],
+              "z": 92.0,
+              "source": "generated:bake_gauntlets.py over body light layer 4",
+              "fallback": null
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_4_punch_2_0.png"
+              ],
+              "z": 92.0,
+              "source": "generated:bake_gauntlets.py over body light layer 4",
+              "fallback": null
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "sheets": [
+                "art_v12/weapon_gauntlets_4_punch_3_0.png"
+              ],
+              "z": 92.0,
+              "source": "generated:bake_gauntlets.py over body light layer 4",
+              "fallback": null
+            },
+            "swing": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "swing_1": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "swing_2": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "swing_3": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "thrust_1": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "thrust_2": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "thrust_3": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
+            },
+            "walk": {
+              "hidden": true,
+              "reason": "The body draws no hand on this layer in this pose"
             }
           }
         }

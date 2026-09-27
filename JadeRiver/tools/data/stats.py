@@ -287,7 +287,7 @@ def build():
          "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
                    {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
                    {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
-        {"id": "gauntlets", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
+        {"id": "gauntlets", "appearance": ["gauntlets"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
          "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
          "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
          "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},

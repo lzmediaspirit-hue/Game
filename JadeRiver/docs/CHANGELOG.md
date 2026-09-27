@@ -9,6 +9,16 @@
   its own long timer (a field boss its account-wide one), so no boss returns on entry. Foes a quest step still needs
   (a kill count, Crab Trouble's shells) keep their quick pace. While you are in the room a foe returns only out of
   view. The Vigil's and balance maths keep their own `respawn_s`. A beaten boss also no longer returned after a loot pickup.
+## Gauntlets are worn on the hands
+
+- **Every gauntlet draws on both hands, in every pose.** The gauntlet family had no avatar look (its appearance was
+  "none", the bare-fist look), so the ten gauntlets (Training to Lanternsteel, and the Stone Drum Gauntlets) showed
+  only in their icons. `tools/art/bake_gauntlets.py` now draws weapon look `gauntlets` over the body's own hands in
+  all 17 catalog actions, both facings, frame for frame: a steel fist shaded from the hand's tones, a bronze rim at
+  the wrist and a cuff on a bare forearm. Each pixel sits just over the body layer that draws that hand (z 12, and
+  z 92 over the jab and lotus fists), so the torso, sleeves, head and hair hide it where they hide the hand; a
+  gauntlet still punches. `engine_tests` checks every gauntlet is drawn in every frame of every pose on the body;
+  review sheets in `docs/mockups/gauntlets/`.
 
 ## Consumables show what they did
 
