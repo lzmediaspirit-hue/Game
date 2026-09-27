@@ -1,5 +1,43 @@
 # Changelog
 
+## Visibility: gates, doors, hidden ways and things set on roofs and decks show themselves in every room
+
+Some gates and map items could not be seen. A new suite found every case in all 168 rooms, and each one is fixed at
+its cause.
+- **Every way draws something where it stands.** An open `gate` (the village's West and East Gates, Stoneford's roads,
+  the stockade, the tomb, the vale and the hamlet) drew only its plate. It now stands as a road gate, a timber gateway
+  under a glazed roof with its leaves swung back (new art, `road_gate`, `tools/props/defs_structures.py`). A hidden way
+  found by Spirit Sense or the Wandering Eye drew nothing at all. It now shows a cleft in the rock with a breathing
+  jade rim (`hidden_way`). Sixty-six `door` ways drew nothing when open. A door way with no building doorway
+  and no door placed at it now stands as a door: cave and dungeon exits, trial exits, skiff landings and paths
+  (`PortalView.TYPE_ART`, `entrance` "door"). A boat, a sky ship, a tent, a swirl or an arch placed at a way shows it
+  (`PortalView.WAY_DECOR`). A gate standing in a painted gate's arch (the Ascension Gate) is shown by its arch.
+- **Doors stand in their building's doorway, in front of the facade** (the door rule of the tutorial fix, now in every
+  room). Gate Street's Weapon Hall, Alchemy Hall and Library doors stood 6 px behind the hall fronts, so they drew
+  behind them. They now stand in the doorways (y 724). The Quarry Road door stood behind the town wall's face and now
+  stands at its foot.
+- **A thing set on a roof, deck or terrace draws over it** (`ZoneGeometry.depth_at`, the player's rule, now shared by
+  `ObjectView` and `NpcView`). Lu's float in the hut loft, the star mat on the boat's cabin roof, the hermit's mat and
+  tea on his stilt deck, the Bend Shore and Rapids fishing spots, and the grey lantern on the granary roof all drew
+  behind the surface under them. Only a decal prop now lies flat under figures, so an inspected notice board, mat or
+  scope stands like any other thing (the Beast Arena ladder was behind the warehouse). Decal decor on the ground (a
+  rug, flowers, planks) draws under everything standing on it: the abode and retreat mats were under their rugs.
+- **Placed clear of what hid them.** Two Marsh Edge jars were under reed bundles. The Lightning Scar insight stone
+  stood in front of a jar. The Stoneford tide gong was inside a gate step. The tunnel's shard vein was behind the
+  rubble heap and now sits on top of it. Gate Street's notice board was behind the library front. The Rapids spirit
+  mine was behind the salmon stone (`spirit_mines` now keeps a mine out from behind a block). The abode's scroll rack
+  stood in front of the terrace door.
+- **Tests**: `visibility_suite` (new, in `tools/run_tests.sh` and `Test.ps1`) builds each room's draw list in the order
+  and at the depths `world.gd` uses (`tests/draw_model.gd`, from the views' own `depth`, `prop_rect`,
+  `building_pieces`, `sort_z` and `art_for`). It checks every way (open and shut), object, person and solid prop:
+  its art exists and has a non-zero size with opaque pixels, it stands in the room where the camera can show it, and
+  at least half of its pixels are not covered by a layer drawn after it. It also checks that a doorway is clear, that
+  a thing with no prop marks art the room draws, and that an open way's plate is on screen. It found 118 failures
+  before the fixes and finds none after. `room_sweep` reads prop pixels through the same model. `valley_run`'s voyages
+  set sail again, once, after a crew is overwhelmed on the crossing: the moved jars and stones changed the run's rolls,
+  and the Lantern Run's boarders could down the party.
+- **Screenshots** (before and after) in `docs/ui_p5/visibility_fix/`.
+
 ## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
 
 Found on the Android build; each fixed at its cause and held by the walks (docs/tutorial_order.md).

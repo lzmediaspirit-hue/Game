@@ -25,7 +25,10 @@ static func make_prop(d: Dictionary) -> DecorView:
 		"back": v.z_index = -1900
 		"front": v.z_index = 3000
 		"far": v.z_index = -2050
-		_: v.z_index = 1500 + int(float(at[1]))
+		_:
+			# A flat decal on the ground (a rug, flowers, planks) lies under every figure and thing standing on it.
+			var flat: bool = SpriteCache.prop(v.prop_id).get("decal", false) and float(d.get("alt", 0)) == 0.0
+			v.z_index = -1900 if flat else 1500 + int(float(at[1]))
 	if d.has("tint"): v.tint = Color(str(d.tint))
 	var st: Dictionary = SpriteCache.prop(v.prop_id).get("states", {}).get(v.state, {})
 	v.animated = int(st.get("frames", 1)) > 1

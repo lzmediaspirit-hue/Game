@@ -13,6 +13,7 @@ extends Node
 ## Run headless:  godot --headless --path . res://tests/room_sweep.tscn [-- --room=<id>]
 
 const Terrain = preload("res://scripts/terrain.gd")
+const DrawModel = preload("res://tests/draw_model.gd")
 const G := 40.0                 # grid step
 const DT := 1.0 / 60.0
 const SPEED := 205.0            # the player's walk (player.gd); x1.7 sprinting
@@ -328,15 +329,8 @@ func art_suite(rid: String, def: Dictionary, geo: ZoneGeometry) -> void:
 ## The first and last columns of a prop's idle frame with any opaque pixel.
 func _opaque(id: String, e: Dictionary) -> Vector2:
 	if opaque.has(id): return opaque[id]
-	var fw := int(e.frame[0])
-	var out := Vector2(0, fw - 1)
-	var texture := SpriteCache.tex(str(e.get("file", "")))
-	var img: Image = texture.get_image() if texture else null
-	if img != null:
-		if img.is_compressed(): img.decompress()
-		var states: Dictionary = e.get("states", {})
-		var col := int((states.get("idle", states.values()[0] if not states.is_empty() else {}) as Dictionary).get("col", 0))
-		var used := img.get_region(Rect2i(col * fw, 0, fw, int(e.frame[1]))).get_used_rect()
-		if used.size.x > 0: out = Vector2(used.position.x, used.end.x - 1)
+	var out := Vector2(0, int(e.frame[0]) - 1)
+	var used := DrawModel.used(DrawModel.prop_piece(id, "idle", Vector2.ZERO))
+	if used.size.x > 0: out = Vector2(used.position.x, used.end.x - 1)
 	opaque[id] = out
 	return out

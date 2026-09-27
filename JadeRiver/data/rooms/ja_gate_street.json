@@ -109,7 +109,7 @@
    "type": "door",
    "at": [
     1210,
-    704
+    724
    ],
    "to": "ja_weapon_hall",
    "to_portal": "exit",
@@ -130,7 +130,7 @@
    "type": "door",
    "at": [
     1810,
-    704
+    724
    ],
    "to": "ja_alchemy_hall",
    "to_portal": "exit",
@@ -142,7 +142,7 @@
    "type": "door",
    "at": [
     2410,
-    704
+    724
    ],
    "to": "ja_library",
    "to_portal": "exit",
@@ -173,7 +173,7 @@
    "type": "notice_board",
    "at": [
     2690,
-    700
+    740
    ]
   },
   {
@@ -511,11 +511,11 @@
    "id": "jade_roof_ladder_1",
    "kind": "ladder",
    "at": [
-    1210,
+    1170,
     745
    ],
    "top_at": [
-    1210,
+    1170,
     702
    ],
    "bottom_alt": 0,
@@ -527,11 +527,11 @@
    "id": "bridge_roof_ladder_2",
    "kind": "ladder",
    "at": [
-    1810,
+    1770,
     745
    ],
    "top_at": [
-    1810,
+    1770,
     702
    ],
    "bottom_alt": 0,
@@ -543,11 +543,11 @@
    "id": "cloud_roof_ladder_3",
    "kind": "ladder",
    "at": [
-    2410,
+    2370,
     745
    ],
    "top_at": [
-    2410,
+    2370,
     702
    ],
    "bottom_alt": 0,

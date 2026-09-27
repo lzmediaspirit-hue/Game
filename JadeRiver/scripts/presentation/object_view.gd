@@ -30,22 +30,37 @@ var badge: Node2D   # a pickup's floating item icon, smoothed (icons are 64 px a
 var label_box := Rect2()
 var label_offset := Vector2.ZERO
 
-func setup(o: Dictionary) -> void:
+func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	def = o
 	object_id = str(o.id)
-	prop_id = str(o.get("prop", DEFAULT_PROP.get(str(o.type), "")))
+	prop_id = prop_of(o)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
-	var decal := bool(SpriteCache.prop(prop_id).get("decal", false)) or str(o.type) in ["fishing_spot", "rite_circle", "inspect"]
-	z_index = (1500 + int(float(at[1])) - 60) if decal else (1500 + int(float(at[1])))
-	if o.get("z_back", false): z_index = -1500
+	z_index = depth(o, geo)
 	if str(o.type) == "pickup":
 		badge = Node2D.new()
 		badge.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		badge.z_index = 1
 		badge.draw.connect(_draw_badge)
 		add_child(badge)
+
+## The prop an object draws: its own, else its type's.
+static func prop_of(o: Dictionary) -> String:
+	return str(o.get("prop", DEFAULT_PROP.get(str(o.type), "")))
+
+## The depth an object draws at: by its foot, over the roof, deck or terrace it is set on (ZoneGeometry.depth_at), or
+## behind everything with `z_back`. A flat decal (a ripple, a circle, a patch) lies under the figures standing on it:
+## on the ground 60 behind its foot, on a raised surface just over that surface's art. Only a decal prop is flat (a
+## notice board or a mat that is inspected stands like any thing).
+static func depth(o: Dictionary, geo: ZoneGeometry = null) -> int:
+	if o.get("z_back", false): return -1500
+	var at: Array = o.get("at", [0, 0])
+	var plane := Vector2(float(at[0]), float(at[1]))
+	var foot := 1500 + int(plane.y)
+	var z := geo.depth_at(plane, float(o.get("alt", 0))) if geo else foot
+	if not bool(SpriteCache.prop(prop_of(o)).get("decal", false)): return z
+	return foot - 60 if z == foot else z - 1
 
 func state_name() -> String:
 	var rt: RoomRuntime = Game.room_rt
