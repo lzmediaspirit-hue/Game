@@ -32,6 +32,15 @@
   weapons share one diagonal frame and the shaft, blade and grip builders; the button glyphs share the book, bust,
   arrow and chest templates. The ASCII tables and the legacy glyph painter are gone. Sheets and in-game screenshots
   from the valley_run checkpoints in `docs/mockups/icon_families/hud/`.
+- **Techniques in Style A, as composed emblems** (`families/techniques.py`, `ART = 64`; the sheets and in-game shots
+  in `docs/mockups/icon_families/techniques/`): the 66 technique icons are composed by one
+  `emblem(element, form, family, grade, kind, path)` from parts drawn once and kept as tables, the technique plan's
+  emblem grammar (§3.9): eleven element discs (the domed disc with the keyline under the mark), the 24 forms' marks
+  with the family's weapon inset (sixteen weapons and the free hand's palm), rims for the thirteen grades and the four
+  kinds (secret art, keystone, Dao art, lost art), the five path stamps, and hand marks for the arts off the grammar's
+  line. A technique's row comes from `data/techniques.json` and its form from `FORM_OF`; a path art's mark takes the
+  path's colour as well as its stamp. Rendered at 64 with native 48 (the HUD ring) and 32. The 66 hand-drawn legacy
+  marks are gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
