@@ -18,10 +18,10 @@ FAMILY_SIZE = {
     'markers': 12,
 }
 # family folder -> HD icon-space size (art px), exported 1:1
-HD_SIZE = {'items': 64, 'equipment': 64, 'techniques': 64, 'hud': 32}
+HD_SIZE = {'items': 64, 'equipment': 64, 'techniques': 64, 'hud': 32, 'status': 24, 'markers': 24}
 # family folder -> the native renders an HD icon also gets, as `<id>@<px>.png`: 48 for the HUD technique ring,
-# 32 for the HUD item rings and the pages' small slots
-VARIANTS = {'items': (32,), 'equipment': (32,), 'techniques': (48, 32), 'hud': ()}
+# 32 for the HUD item rings and the pages' small slots, 12 for the status icons over an enemy's name
+VARIANTS = {'items': (32,), 'equipment': (32,), 'techniques': (48, 32), 'hud': (), 'status': (12,), 'markers': ()}
 
 REGISTRY = {}   # id -> dict(family, group, fn, module)
 ORDER = []      # registration order (used for contact sheets)
@@ -42,6 +42,16 @@ def icon(family, ident, group=None):
     def deco(fn):
         register(family, ident, fn, group)
         return fn
+    return deco
+
+
+def drawn(family, ident, group=None):
+    """Decorator for an icon that is only an HD drawing (a converted family's new icons): registers the drawing as
+    both the icon and its HD drawing. `@drawn('status', 'burn')`."""
+    def deco(draw):
+        register(family, ident, draw, group)
+        hd(ident, draw)
+        return draw
     return deco
 
 

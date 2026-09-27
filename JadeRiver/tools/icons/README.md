@@ -5,9 +5,9 @@ Deterministic Python (Pillow + numpy) generator for every game icon. Icons are b
 module at a time. The style study that chose it is `docs/mockups/icon_study/`. The build writes:
 
 - `art/icons/<folder>/<id>.png` (RGBA, transparent background). A legacy icon holds its art at 2 screen px per art px
-  (64 px for items, equipment and techniques, 32 for HUD glyphs, 24 for status icons and markers). An HD icon is its
-  art at 1:1 (64, or 32 for a HUD glyph), plus the native renders of the same drawing its folder asks for,
-  `<id>@48.png` and `<id>@32.png` (`registry.VARIANTS`).
+  (64 px for items, equipment and techniques). An HD icon is its art at 1:1 (64, 32 for a HUD glyph, 24 for a status
+  icon or marker), plus the native renders of the same drawing its folder asks for, `<id>@48.png`, `<id>@32.png` or
+  `<id>@12.png` (`registry.VARIANTS`).
 - `data/icon_manifest.json`: `{"<id>": "res://art/icons/<folder>/<id>.png"}`, sorted, 2-space indent. An HD icon
   also lists every render as `"<id>@<art px>"` (its 1:1 PNG too, as `<id>@64`), which is how the game knows an HD
   icon from a legacy one and which sizes it can draw crisply (`SpriteCache.icon_renders`).
@@ -35,8 +35,8 @@ commit its output (a plain build puts everything back).
 | `equipment` | 32 (64) | 64 (64, @32) | weapons, armour, cape, soul talisman, gourds |
 | `techniques` | 32 (64) | 64 (64, @48, @32) | composed emblem: element disc + form mark (with the family's weapon inset) + grade or kind rim + path stamp (converted: `ART = 64`) |
 | `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline (converted: `ART = 32`) |
-| `status` | 12 (24) | – | colour-keyed glyphs |
-| `markers` | 12 (24) | – | map / quest markers |
+| `status` | 12 (24) | 24 (24, @12) | status glyphs: the colour language with a silhouette each (converted: `ART = 24`) |
+| `markers` | 12 (24) | 24 (24) | map / quest markers (converted: `ART = 24`) |
 
 Where the game shows them (`scripts/presentation/sprite_cache.gd` `draw_icon`, which never draws an icon at a
 fractional scale; the `ui_suite` in `tests/rules_tests.gd` checks every page):
@@ -48,7 +48,8 @@ fractional scale; the `ui_suite` in `tests/rules_tests.gd` checks every page):
 | HUD technique ring (radius 33) | 48 / 64 | its @48 | 32 art px at 2x (64: the emblem sits just inside the gold bezel; 1x is lost in the ring) |
 | HUD item rings (radius 26: quick use, treasures, weapon swap; the draught ring) | 32 | its @32 | 32 art px at 1x |
 | HUD button rings / attack ring | 32 / 64 | HUD glyph 1:1 / 2x | 16 art px at 2x / 4x |
-| Status row on the HUD / over enemies | 24 / 12 | – | 12 art px at 2x / 1x |
+| Status row on the HUD / over enemies | 24 / 14 | 24 at 1:1 / its @12 | 12 art px at 2x / 1x |
+| World map (legend, region rows, resources) | 24 | a marker's 24 at 1:1 | 12 art px at 2x |
 
 A family converts whole (a page never mixes the two styles within one family). Until it does, its legacy icons show
 at the whole-number scales above: the same 64 px in the page slot, so the two styles sit side by side at one size.
@@ -62,9 +63,8 @@ pix.py          Canvas (legacy): mask shapes, shading modes, part separation, ou
 palette.py      contract tokens, shared ramps R[...], GRADES (plain .. sphere); Mat / mat7 / M (7-step materials),
                 KINDS and KIND (material kinds), TEX (a kind's texture), kit(grade) (the HD grade kit)
 shapes.py       reusable shape builders (leaf, drop, flame, taper curves, sparkle...); they work on SCanvas too
-glyphs.py       small ASCII marks (pill effect marks)
-asciiart.py     colour-keyed ASCII sprites (status, markers)
-registry.py     register(family, id, fn, group), hd(id, draw), FAMILY_SIZE, HD_SIZE, VARIANTS
+registry.py     register(family, id, fn, group), hd(id, draw), drawn(family, id) (an HD-only icon), FAMILY_SIZE, HD_SIZE,
+                VARIANTS
 families/       one module per family; importing families/ registers everything. Each declares ART.
 build_icons.py  renders, validates size + edge clipping, writes PNGs, the manifest, review sheets
 review.py       review sheets (the 76 px slot, the HUD rings), drawn with the game's kit art and fonts
@@ -73,7 +73,7 @@ study/          the style study that chose Style A (Style B's painter and the st
 
 ## HD drawing model (Style A)
 
-An HD icon is a function `draw(p)` that paints in **icon space**: 64 × 64 for items, equipment and techniques, 32 × 32
+An HD icon is a function `draw(p)` that paints in **icon space**: 64 × 64 for items, equipment and techniques, 24 × 24 for status icons and markers, 32 × 32
 for HUD glyphs, the object inside a 4-px margin (a glow may use it). `p` is a `pix.PixelPainter`; the build calls the
 same function at 64 (1:1), 48 and 32, so describe shapes with continuous coordinates, never per-pixel steps.
 
@@ -227,8 +227,10 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
      `hand_scroll_hd`, `token_hd`, `book_hd`, `bag_hd`, `egg_hd`, `bowl_hd` + `sticks_hd` + `smoke_hd`; the beast bags
      are `BEAST_BAGS_HD` rows, the hour incense `HOUR_HD` rows (the hours as `digits_hd`), the rite tablets `RITE_HD`
      rows; the sun seal is `sun_seal_hd`, a chart `star_chart_hd`, an elder's token `elder_token_hd` with its face.
-   - status icons and markers: add an ASCII block, using `asciiart.KEY`
-     colours.
+   - status icons (HD): an `@icon('<id>')` drawing in a 24 icon space with the small-glyph kit `part` (a palette
+     material with a lit and a shade edge), `orb`, `tone` and one `glint`, keeping the colour language (`crack` for an
+     injury, `foundation_hd` for a stability step, `buff_arrow` for a buff) and a silhouette of its own; it must hold
+     up at its native 12. Markers (HD): an `@marker('<id>')` drawing on the same kit.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The
    build prints `WARNING <id>: artwork touches the canvas edge` if you don't.
 4. Run the build with `--review-dir` and check the sheets at 1x (the game size) and at x2. Check that the
