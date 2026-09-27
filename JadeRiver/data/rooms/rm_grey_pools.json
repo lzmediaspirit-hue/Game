@@ -406,7 +406,7 @@
    "id": "mine_grey_pools_seep",
    "type": "spirit_mine",
    "at": [
-    1560,
+    1940,
     860
    ],
    "mine": "grey_pools_seep",
@@ -659,7 +659,7 @@
   {
    "prop": "sack_pile",
    "at": [
-    1464,
+    1844,
     842
    ],
    "layer": "play"
@@ -667,7 +667,7 @@
   {
    "prop": "barrel",
    "at": [
-    1710,
+    2090,
     838
    ],
    "layer": "play"

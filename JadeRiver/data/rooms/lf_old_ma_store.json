@@ -77,11 +77,11 @@
    "id": "npc_old_ma",
    "type": "npc",
    "at": [
-    640,
+    880,
     700
    ],
    "npc": "old_ma",
-   "facing": 1
+   "facing": -1
   },
   {
    "id": "sandals_loft",
@@ -177,7 +177,7 @@
   {
    "prop": "counter",
    "at": [
-    640,
+    880,
     740
    ],
    "layer": "play"

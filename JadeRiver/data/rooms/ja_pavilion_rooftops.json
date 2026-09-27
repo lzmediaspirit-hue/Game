@@ -328,6 +328,23 @@
     220,
     210
    ]
+  },
+  {
+   "id": "rear_stairs_under_ground",
+   "art": "none",
+   "position": [
+    1920,
+    706
+   ],
+   "front_y": 706,
+   "footprint": [
+    1820,
+    620,
+    200,
+    86
+   ],
+   "height": 8,
+   "radius": 0
   }
  ],
  "decor": [

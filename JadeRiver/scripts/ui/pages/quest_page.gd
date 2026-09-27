@@ -105,11 +105,11 @@ func draw_page() -> void:
 		var x := right.position.x + 24
 		for r in rewards:
 			if r.get("kind", "") == "grant_item":
-				slot_box(Rect2(x, y + 30, 52, 52), str(r.item), int(r.get("count", 1)))
-				x += 58
+				slot_box(Rect2(x, y + 30, SLOT, SLOT), str(r.item), int(r.get("count", 1)))
+				x += SLOT + 6
 			elif r.get("kind", "") == "grant_currency":
-				x += currency_pill(Vector2(x, y + 40), str(r.currency), int(r.amount)) + 8
-		var ly := y + (92 if has_row else 30)
+				x += currency_pill(Vector2(x, y + 51), str(r.currency), int(r.amount)) + 8
+		var ly := y + (116 if has_row else 30)
 		for line in lines:
 			if ly > right.end.y - 90: break
 			text(Vector2(right.position.x + 24, ly + 18), fit("· " + str(line), 17, right.size.x - 48), 17, UiKit.PALE_GOLD)

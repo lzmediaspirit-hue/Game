@@ -61,6 +61,18 @@ These are the earlier reviews' findings, all fixed, with their tests:
 
 The Act I–II sections of `valley_run` pass unchanged on this commit.
 
+### Findings in the P2 close-out (M16–M18, M20)
+
+The last four P2 items, each closed by a check that runs in the full suite. In-game checks play the `valley_run`
+character.
+
+| # | Finding | Root cause | Fix | Verification |
+|---|---|---|---|---|
+| M16 | In four rooms a walker along the back row went in under a flight of raised steps and stuck there, drawn inside the staircase: the Herb Terraces (three flights), the East Terrace, the Pavilion Rooftops, the Cliff Stair and its landing | The flat ground ran on under ground-stratum stairs and landings, and the solver keeps a walker on the surface within 8 of his height, so from the side he stayed on the ground beneath them | `under_steps()` in `tools/data/world.py`: the ground is solid under any raised ground surface that stands more than 8 above it (a footprint the steps are drawn over), as the Pilgrim Stairs' cut ground already was | `room_sweep`: 168 rooms walked with the real solver, the route between every pair of doors and interactables, about 3,400 s of walking; no snag, no target out of reach, every solid footprint under its art |
+| M17 | No fault. Between Uncle Guo and his dummy the context button talks to Guo and a blow lands on the dummy only. On the dialogue page a last line with nothing to choose closes when tapped, and after an accept and a hand-in the page closes itself with only a farewell left | — | — | `valley_run` bf5: `_dummy_beside_npc`; `_conversations_close` and `_choose_on_page` on the real dialogue page (Stone and Sweat accepted and handed in) |
+| M18 | 41 places where one interactable took the context button from another: NPCs in doorways (six interiors) and on their anvils, chests over herbs on ledges, signposts on sealed ways, the Gate Street bunk on the Weapon Hall's door; a ledge chest also took the button from the herb below it, then answered "out of reach" | Objects were placed by hand and by later passes with nothing checking them against each other; the verticality pass kept lifted objects 40 apart; `query_context` ignored height | Each moved in its builder; `verticality.in_reach` keeps lifted nodes and chests apart (breakables are lifted last); `query_context` skips objects more than 48 above or below | `data_validation` `overlap_suite`, with `WorldAuthority`'s own ranking: 0 overlaps |
+| M20 | 18 main and guided quests with objectives to go to showed no direction mark, and 27 more marked one room while their objectives lay in others. The hand-in mark could lead where the NPC was not: the Weapon Master's yard before he moves there, Aunt Ping's hut after the Hollow Night, the other sect's arena. A place behind a hidden way had no mark at all | The tracker marked only the quest's `target_room`, and found an NPC by the first room that placed them | The mark follows the current objective (`QuestAuthority.quest_target`): its place, the nearest the player can reach, the drop's room for a dropped item, NPCs where they stand now in the player's own sect; the mark leads up to a hidden way | `data_validation` `quest_guidance_suite` (every guided and main quest where the story offers it: the giver reachable, marked and offering it, every objective's mark reachable, then the hand-in); `rules_tests` `guidance_suite` |
+
 ## (e) The engagement plan, the psychology and feel plan, and Single Player / Online
 
 The research behind this part is `docs/research/retention_notes.md` (the loops and the psychology, with sources) and

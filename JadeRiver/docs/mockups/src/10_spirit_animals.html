@@ -1,0 +1,131 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>10 Spirit Animals, the bestiary</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .sec { position: absolute; font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: .04em; white-space: nowrap; }
+  .sec .c-mist { font-weight: 600; letter-spacing: 0; }
+  /* a creature frame in a window, 1x, by the centre of its body */
+  .cw { position: absolute; overflow: hidden; }
+  .cw > img { position: absolute; image-rendering: pixelated; }
+  .stall { position: absolute; left: 92px; width: 264px; height: 52px; border-radius: 4px; background: rgba(13,48,53,.55);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.35); }
+  .stall.is-selected { background: rgba(44,158,143,.22); box-shadow: inset 3px 0 0 var(--gold), inset 0 0 0 1px rgba(229,184,76,.55); }
+  .stall .nm { position: absolute; left: 88px; top: 5px; font-size: 16px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .stall .sb { position: absolute; left: 88px; top: 27px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .wnd { position: absolute; right: 8px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px var(--ink); }
+  /* the bestiary leaf: a paper scroll for the animal in hand */
+  .leaf { position: absolute; left: 376px; top: 176px; width: 496px; height: 484px; }
+  .ink { color: var(--ink); text-shadow: none; }
+  .brown { color: #6b4a26; text-shadow: none; }
+  .ink .t-fig, .brown .t-fig, .t-fig.ink, .ink .t-sym, .brown .t-sym { text-shadow: none; }
+  .stone { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: #d8ccb0; box-shadow: 0 0 0 2px #6b4a26; }
+  .stone.done { background: radial-gradient(circle at 40% 35%, #9fe0d0, #2c9e8f 60%, #15514f); box-shadow: 0 0 0 2px #0d3035; }
+  .stone.next { background: #f6ecd0; box-shadow: 0 0 0 2px #9a6a35, 0 0 0 5px rgba(229,184,76,.55); }
+  .stone.far { background: #cfc3a6; box-shadow: 0 0 0 2px rgba(107,74,38,.45); opacity: .7; }
+  .stl { position: absolute; transform: translateX(-50%); font-size: 14px; white-space: nowrap; text-shadow: none; }
+  .heart { width: 14px; height: 14px; border-radius: 50%; background: #d9cdb0; box-shadow: 0 0 0 1.5px #6b4a26; }
+  .heart.on { background: #c23a44; box-shadow: 0 0 0 1.5px #5a1d17; }
+  .skill { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 14px; background: rgba(44,158,143,.16);
+    box-shadow: inset 0 0 0 1px rgba(21,81,79,.6); font-size: 15px; color: #0d3035; font-weight: 700; text-shadow: none; }
+  .pbar { position: absolute; height: 16px; background: #e0d4b8; box-shadow: 0 0 0 1.5px #6b4a26; border-radius: 3px; overflow: visible; }
+  .pbar > .f { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px 0 0 3px; }
+  .pbar > .tk { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #6b4a26; }
+  .pbar > .tk::before { content: ""; position: absolute; left: -5px; top: -8px; width: 10px; height: 10px; transform: rotate(45deg); background: #f6ecd0; border: 1.5px solid #9a6a35; }
+  .rolebtn { font-size: 18px; height: 48px; padding: 0 10px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Spirit Animals</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs"><div class="k-tab is-selected">Stable</div><div class="k-tab">Swarm</div></div>
+</div>
+<div class="abs t-sm c-mist" style="left:1186px;top:130px;transform:translateX(-100%);white-space:nowrap">You command three at Sage and above</div>
+
+<!-- ================= the party and the stable ================= -->
+<div class="sec" style="left:94px;top:176px">BESIDE YOU <span class="c-mist">· 1 of 3</span></div>
+<div class="k-slot k-slot76 is-selected abs" style="left:92px;top:196px"><div class="cw" style="left:6px;top:6px;width:64px;height:64px"><img src="../assets/fig_reed_otter.png" style="left:-156px;top:-202px"></div><div class="k-qrim" style="--q:var(--bright-jade)"></div></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:176px;top:196px"></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:260px;top:196px"></div>
+<div class="abs t-xs c-jade" style="left:94px;top:276px">Reed Otter is out</div>
+<div class="abs t-xs c-mist" style="left:354px;top:276px;transform:translateX(-100%);white-space:nowrap">two posts open</div>
+
+<div class="sec" style="left:94px;top:304px">THE STABLE <span class="c-mist">· 6 animals</span></div>
+<div class="stall is-selected" style="top:324px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_reed_otter.png" style="left:-150px;top:-212px"></div><span class="nm">Reed Otter</span><span class="sb">Lv 25 · Gatherer · Water</span><span class="wnd"></span></div>
+<div class="stall" style="top:380px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_bamboo_monkey.png" style="left:-146px;top:-196px"></div><span class="nm">Bamboo Monkey</span><span class="sb">Lv 1 · Combat · Wood</span></div>
+<div class="stall" style="top:436px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_reed_otter.png" style="left:-150px;top:-212px"></div><span class="nm">Reed Otter</span><span class="sb">Lv 1 · Gatherer · Fine</span></div>
+<div class="stall" style="top:492px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_jade_crane_chick.png" style="left:-152px;top:-188px"></div><span class="nm">Jade Crane</span><span class="sb">Lv 1 · Cultivate · Wind</span></div>
+<div class="stall" style="top:548px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_comet_sparrow.png" style="left:-132px;top:-222px"></div><span class="nm">Comet Sparrow</span><span class="sb">Lv 1 · Combat · Fire</span></div>
+<div class="stall" style="top:604px"><div class="cw" style="left:6px;top:4px;width:76px;height:44px"><img src="../assets/fig_hatchling_wyrm.png" style="left:-148px;top:-204px"></div><span class="nm">Hatchling Wyrm</span><span class="sb">Lv 1 · Combat · Space</span></div>
+
+<!-- ================= the bestiary leaf of the animal in hand ================= -->
+<div class="k-paper k-scroll leaf"></div>
+<div class="abs t-heading ink" style="left:394px;top:186px">Reed Otter</div>
+<div class="abs t-subhead" style="left:856px;top:190px;transform:translateX(-100%);color:#0d3035;text-shadow:none">Lv 25</div>
+<div class="abs t-sm brown" style="left:394px;top:222px">Water · Hatchling · Common · Gatherer · Master’s contract</div>
+
+<div class="abs" style="left:394px;top:248px;width:228px;height:118px;border-radius:4px;background:radial-gradient(ellipse at 50% 80%, rgba(107,74,38,.22), rgba(107,74,38,0) 70%)"></div>
+<img class="k-fig" style="left:516px;top:362px;transform-origin:192px 254px;transform:scale(3)" src="../assets/fig_reed_otter.png">
+
+<div class="abs t-xs brown" style="left:636px;top:250px">Level</div>
+<div class="pbar" style="left:636px;top:270px;width:220px"><div class="f" style="width:154px;background:#2c9e8f"></div></div>
+<div class="abs t-xs t-fig ink" style="left:856px;top:250px;transform:translateX(-100%)">1,747 / 2,500</div>
+<div class="abs t-xs brown" style="left:636px;top:296px">Bond <span class="t-fig ink">1.1</span> / 10 hearts</div>
+<div class="abs flex" style="left:636px;top:318px;gap:7px"><span class="heart on"></span><span class="heart" style="background:linear-gradient(90deg,#c23a44 10%,#d9cdb0 10%)"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span></div>
+<div class="abs t-xs no-shadow" style="left:636px;top:342px;width:224px;color:#a8262e;line-height:1.3">Grievously wounded: −20% until it rests at the Beast Hall</div>
+
+<!-- growth: the stages as stones on a path -->
+<div class="abs t-sm ink" style="left:394px;top:378px;font-weight:700">Growth</div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720"><line x1="416" y1="416" x2="816" y2="416" stroke="#9a6a35" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/><line x1="416" y1="416" x2="496" y2="416" stroke="#2c9e8f" stroke-width="4"/></svg>
+<div class="stone done" style="left:416px;top:416px"></div><div class="stone next" style="left:496px;top:416px"></div><div class="stone" style="left:576px;top:416px"></div>
+<div class="stone" style="left:656px;top:416px"></div><div class="stone" style="left:736px;top:416px"></div><div class="stone far" style="left:816px;top:416px"></div>
+<div class="stl ink" style="left:416px;top:432px;font-weight:700">Hatchling</div><div class="stl" style="left:496px;top:432px;color:#9a6a35;font-weight:700">Juvenile</div>
+<div class="stl brown" style="left:576px;top:432px">Adult</div><div class="stl brown" style="left:656px;top:432px">Awakened</div><div class="stl brown" style="left:736px;top:432px">Sovereign</div><div class="stl brown" style="left:816px;top:432px;opacity:.7">Primordial</div>
+<div class="abs t-xs ink" style="left:394px;top:458px">Juvenile: <span style="color:#1f6e66"><span class="t-sym">✓</span> Level 15</span> · <span style="color:#a8262e">3 hearts, 1.1 now</span> · <span style="color:#1f6e66"><span class="t-sym">✓</span> you at Heart Tempering 1</span></div>
+<div class="abs t-xs brown" style="left:394px;top:478px">It shows its growth, aptitude and first trait, and opens two skill slots</div>
+
+<!-- bloodline: purity with its stops (E4) -->
+<div class="abs t-sm ink" style="left:394px;top:504px;font-weight:700">Bloodline purity <span class="t-fig">14</span></div>
+<div class="abs t-xs brown" style="left:856px;top:500px;transform:translateX(-100%);white-space:nowrap">next at <span class="t-fig">50</span>: Ancestral Tide</div>
+<div class="pbar" style="left:394px;top:532px;width:462px"><div class="f" style="width:65px;background:#6fb8c8"></div><div class="tk" style="left:50%"></div><div class="tk" style="left:90%"></div></div>
+<div class="stl brown" style="left:625px;top:552px">50 · its bloodline skill</div>
+<div class="abs t-xs brown" style="left:856px;top:552px;transform:translateX(-100%);white-space:nowrap">90 · Tide-Mother form</div>
+
+<!-- skills -->
+<div class="abs t-sm ink" style="left:394px;top:580px;font-weight:700">Skills</div>
+<div class="abs flex" style="left:450px;top:578px;gap:6px"><span class="skill">Splash</span><span class="skill">Reed Dive</span><span class="skill">Otter Current</span><span class="skill">River Gift</span></div>
+<div class="abs t-xs brown" style="left:394px;top:614px;width:462px;line-height:1.35">Traits <span class="ink">? · ? · ?</span> until Juvenile · learned skills: none yet, two slots at Juvenile · favourite foods: Roast Fish, Riverfish Soup</div>
+
+<!-- ================= care, gear, the nest, the swarm ================= -->
+<div class="sec" style="left:890px;top:176px">CARE</div>
+<div class="k-btn2 abs" style="left:888px;top:196px;width:146px;height:48px;font-size:20px">Rest</div>
+<div class="k-btn2 abs" style="left:1042px;top:196px;width:146px;height:48px;font-size:20px">Carry</div>
+<div class="k-btn2 abs rolebtn" style="left:888px;top:252px;width:146px">Combat</div>
+<div class="k-btn abs rolebtn" style="left:1042px;top:252px;width:146px">Gatherer</div>
+<div class="k-btn2 abs rolebtn" style="left:888px;top:304px;width:146px">Cultivate</div>
+<div class="k-btn2 abs rolebtn" style="left:1042px;top:304px;width:146px">Guard</div>
+<div class="abs t-xs c-mist" style="left:890px;top:356px">Role · a gatherer by nature: <span class="c-jade">+25%</span></div>
+
+<div class="sec" style="left:890px;top:380px">GEAR</div>
+<div class="abs flex" style="left:888px;top:398px;gap:8px">
+  <div class="k-slot k-slot76 is-empty"></div><div class="k-slot k-slot76 is-empty"></div><div class="k-slot k-slot76 is-empty"></div>
+</div>
+<div class="abs t-xs c-mist" style="left:926px;top:476px;transform:translateX(-50%)">Collar</div>
+<div class="abs t-xs c-mist" style="left:1010px;top:476px;transform:translateX(-50%)">Talisman</div>
+<div class="abs t-xs c-mist" style="left:1094px;top:476px;transform:translateX(-50%)">Saddle</div>
+
+<div class="sec" style="left:890px;top:500px">NEST <span class="c-mist">· the eggs</span></div>
+<div class="k-slot k-slot76 is-empty abs" style="left:888px;top:518px"><img class="ic" src="../../../art/icons/items/spirit_egg.png" style="opacity:.35"></div>
+<div class="abs t-sm c-paper" style="left:976px;top:518px;width:212px">No egg is warming.</div>
+<div class="abs t-xs c-mist" style="left:976px;top:540px;width:212px;line-height:1.35">A Spirit Egg waits in your storage chest: bring it here to hatch it.</div>
+
+<div class="k-minor-panel abs" style="left:888px;top:600px;width:300px;height:62px"></div>
+<div class="k-slot is-small abs" style="left:902px;top:609px"><img class="ic" src="../../../art/icons/items/copperjaw_box.png"></div>
+<div class="abs t-sm c-pale" style="left:962px;top:606px;font-weight:700">Copperjaw swarm <span class="t-fig c-paper" style="font-weight:600">50</span><span class="t-xs c-mist"> of 5,000</span></div>
+<div class="abs t-xs c-mist" style="left:962px;top:630px">food for <span class="t-fig c-paper">32</span> h · eats ore</div>
+<div class="abs t-sym c-mist" style="left:1166px;top:618px;font-size:18px">▶</div>
+
+</div></body></html>

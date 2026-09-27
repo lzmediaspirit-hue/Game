@@ -372,8 +372,8 @@
    "id": "npc_keeper_shi",
    "type": "npc",
    "at": [
-    1560,
-    860
+    1640,
+    840
    ],
    "npc": "keeper_shi",
    "facing": -1

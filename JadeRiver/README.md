@@ -104,7 +104,8 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | Suite | What it proves |
 |---|---|
 | `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
-| `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
+| `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals, no interactable hides another or a door, every guided and main quest's giver, direction marks and hand-in reachable where the story offers it |
+| `room_sweep` | Every room walked with the real movement solver: every door and interactable reached from every way in, the route between every pair walked without a snag, no solid footprint without art |
 | `rules_tests` | Formulas at the spec's sample values (damage, attunement, mastery, risk), same-seed replay, offline caps, no offline breakthroughs, spirit animal stage gates, the weekly mission, save recovery from `.bak` |
 | `balance_sim` | A rate-based bot plays the data to Heaven Glimpse 3 with the real rules and meets the pacing table (±15%); the next gear upgrade is affordable after 1–2 hours at Levels 15 and 25 (`data/balance.json`) |
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |

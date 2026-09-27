@@ -145,17 +145,17 @@ func _care_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 		if ch.inventory.count(f) > 0 and not foods.has(f): foods.append(f)
 	var x := px
 	for f in foods:
-		if x + 60 > px + colw: break
-		slot_box(Rect2(x, y + 84, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
-		x += 68
+		if x + SLOT > px + colw: break
+		slot_box(Rect2(x, y + 84, SLOT, SLOT), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
+		x += SLOT + 8
 	# S46: cores of the animal's own element, to devour for growth.
 	var cores: Array = _own_cores(ch, sp)
 	for cid in cores:
-		if x + 60 > px + colw: break
-		slot_box(Rect2(x, y + 84, 60, 60), str(cid), ch.inventory.count(str(cid)), "", "devour", str(cid))
-		x += 68
+		if x + SLOT > px + colw: break
+		slot_box(Rect2(x, y + 84, SLOT, SLOT), str(cid), ch.inventory.count(str(cid)), "", "devour", str(cid))
+		x += SLOT + 8
 	if not foods.is_empty() or not cores.is_empty(): text(Vector2(px, y + 76), Tx.t("ui.pets.tap_food_to_feed"), 16, UiKit.MIST)
-	_breeding(ch, pet, Rect2(px, y + 156, colw, r.end.y - y - 156))
+	_breeding(ch, pet, Rect2(px, y + 172, colw, r.end.y - y - 172))
 
 ## Growth (S46): the bloodline, contract and core; learned skills and the books to teach; gear; breakthroughs.
 ## Fusion opens in place of the rest from the Fuse button.
@@ -197,12 +197,12 @@ func _growth_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 	# Learned skills, one chip a slot; Fuse on the right of the row.
 	var slots: int = Game.pets.skill_slots(pet)
 	var learned: Array = pet.get("learned_skills", [])
-	text(Vector2(px, y0 + 110), Tx.t("ui.pets.learned") % [learned.size(), slots], 16, UiKit.GOLD)
-	if slots == 0: text(Vector2(px + 180, y0 + 110), fit(Tx.t("ui.pets.no_slots"), 14, colw - 300), 14, UiKit.MIST)
-	btn(Rect2(px + colw - 110, y0 + 92, 110, 28), Tx.t("ui.pets.fuse"), "fusing", true, false, ch.pets.size() > 1, Tx.t("ui.pets.fuse_none"), 15)
+	text(Vector2(px, y0 + 106), Tx.t("ui.pets.learned") % [learned.size(), slots], 16, UiKit.GOLD)
+	if slots == 0: text(Vector2(px + 180, y0 + 106), fit(Tx.t("ui.pets.no_slots"), 14, colw - 300), 14, UiKit.MIST)
+	btn(Rect2(px + colw - 110, y0 + 88, 110, 28), Tx.t("ui.pets.fuse"), "fusing", true, false, ch.pets.size() > 1, Tx.t("ui.pets.fuse_none"), 15)
 	var cw := (colw - 8.0 * 3) / 4.0
 	for i in slots:
-		var cr := Rect2(px + i * (cw + 8), y0 + 124, cw, 28)
+		var cr := Rect2(px + i * (cw + 8), y0 + 118, cw, 28)
 		panel(cr, "minor_panel", "selected" if i < learned.size() else "normal")
 		var nm := ContentDB.name_of("pet_skill_books", str(learned[i])) if i < learned.size() else "—"
 		text(cr.position + Vector2(8, 20), fit(nm, 13, cw - 14), 13, UiKit.PAPER if i < learned.size() else UiKit.MIST)
@@ -215,41 +215,41 @@ func _growth_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 		var def := ContentDB.item(str(st.id))
 		if def.has("pet_book") and not books.has(str(st.id)): books.append(str(st.id))
 		if def.has("pet_gear"): gear.append(i)
-	text(Vector2(px, y0 + 176), Tx.t("ui.pets.gear"), 16, UiKit.GOLD)
+	text(Vector2(px, y0 + 164), Tx.t("ui.pets.gear"), 16, UiKit.GOLD)
 	var x := px
 	for slot in g.get("gear", {}).get("slots", []):
 		var inst = pet.get("equipment", {}).get(str(slot))
-		slot_box(Rect2(x, y0 + 182, 52, 52), str(inst.id) if inst is Dictionary else "", 0, str(inst.get("quality", "")) if inst is Dictionary else "", "unequip", str(slot))
-		if inst is Dictionary and int(inst.get("enhance", 0)) > 0: UiKit.draw_outlined(self, "+%d" % int(inst.enhance), Vector2(x + 4, y0 + 198), 13, UiKit.PALE_GOLD)
-		text(Vector2(x - 1, y0 + 248), Tx.t("ui.pets.gear_" + str(slot)), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 54)   # B21: its 58 px pitch, at the size drawn
-		x += 58
+		slot_box(Rect2(x, y0 + 170, SLOT, SLOT), str(inst.id) if inst is Dictionary else "", 0, str(inst.get("quality", "")) if inst is Dictionary else "", "unequip", str(slot))
+		if inst is Dictionary and int(inst.get("enhance", 0)) > 0: UiKit.draw_outlined(self, "+%d" % int(inst.enhance), Vector2(x + 4, y0 + 188), 13, UiKit.PALE_GOLD)
+		text(Vector2(x - 2, y0 + 260), Tx.t("ui.pets.gear_" + str(slot)), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, SLOT + 4)   # B21: its slot's pitch, at the size drawn
+		x += SLOT + 6
 	x += 14
 	var shown := 0
 	for i in gear:
-		if x + 52 > px + colw: break
-		slot_box(Rect2(x, y0 + 182, 52, 52), str(ch.inventory.bag[i].id), 0, str(ch.inventory.bag[i].get("quality", "")), "equip", i)
-		x += 58
+		if x + SLOT > px + colw: break
+		slot_box(Rect2(x, y0 + 170, SLOT, SLOT), str(ch.inventory.bag[i].id), 0, str(ch.inventory.bag[i].get("quality", "")), "equip", i)
+		x += SLOT + 6
 		shown += 1
 	for b in books:
-		if x + 52 > px + colw: break
-		slot_box(Rect2(x, y0 + 182, 52, 52), str(b), ch.inventory.count(str(b)), "", "teach", str(b))
-		x += 58
+		if x + SLOT > px + colw: break
+		slot_box(Rect2(x, y0 + 170, SLOT, SLOT), str(b), ch.inventory.count(str(b)), "", "teach", str(b))
+		x += SLOT + 6
 		shown += 1
-	if shown > 0: text(Vector2(px + 60, y0 + 176), fit(Tx.t("ui.pets.tap_to_use"), 13, colw - 60), 13, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, colw - 60)
+	if shown > 0: text(Vector2(px + 60, y0 + 164), fit(Tx.t("ui.pets.tap_to_use"), 13, colw - 60), 13, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, colw - 60)
 	# A breakthrough (from Awakened on): the chance, support items to toggle, then Break Through.
 	var nx: Dictionary = Game.pets.next_stage(pet)
 	var from := Game.pets.stage_index(str(g.get("breakthrough", {}).get("from", "awakened")))
 	if nx.is_empty() or Game.pets.stage_index(str(nx.id)) < from: return
 	support = support.filter(func(it): return ch.inventory.count(str(it)) > 0)
 	var chance: float = Game.pets.breakthrough_chance(ch, pet, support)
-	text(Vector2(px, y0 + 276), fit(Tx.t("ui.pets.breakthrough") % [str(nx.get("name", "")), int(round(chance * 100.0))], 16, colw), 16, UiKit.GOLD)
+	text(Vector2(px, y0 + 278), fit(Tx.t("ui.pets.breakthrough") % [str(nx.get("name", "")), int(round(chance * 100.0))], 16, colw), 16, UiKit.GOLD)
 	var sx := px
 	for it in _support_items(ch, pet):
 		if sx + 44 > px + colw - 180: break
-		slot_box(Rect2(sx, y0 + 282, 44, 44), str(it), ch.inventory.count(str(it)), "", "support", str(it), support.has(it))
+		slot_box(Rect2(sx, y0 + 284, SLOT_SMALL, SLOT_SMALL), str(it), ch.inventory.count(str(it)), "", "support", str(it), support.has(it))
 		sx += 50
 	var ready: bool = Game.pets.can_evolve(ch, pet) and not pet.get("wounded", false)
-	btn(Rect2(px + colw - 170, y0 + 282, 170, 44), Tx.t("ui.pets.break_through"), "breakthrough", null, ready, ready, Tx.t("ui.pets.not_ready_yet"), 17)
+	btn(Rect2(px + colw - 170, y0 + 284, 170, 44), Tx.t("ui.pets.break_through"), "breakthrough", null, ready, ready, Tx.t("ui.pets.not_ready_yet"), 17)
 
 ## Fusion: every other animal, with Fuse (locked ones cannot be); only at the Beast Hall or the Beast Pavilion.
 func _fusion(ch, pet: Dictionary, r: Rect2) -> void:
@@ -310,7 +310,7 @@ func _eggs(ch, r: Rect2) -> void:
 	var each := (r.size.x - 24.0) / maxf(1.0, float(ch.eggs.size()))
 	for i in ch.eggs.size():
 		var egg: Dictionary = ch.eggs[i]
-		slot_box(Rect2(x, r.position.y + 30, 50, 50), "spirit_egg", 0, str(egg.get("rarity", "")) if egg.get("bred", false) else "")
+		slot_box(Rect2(x, r.position.y + 33, SLOT_SMALL, SLOT_SMALL), "spirit_egg", 0, str(egg.get("rarity", "")) if egg.get("bred", false) else "")
 		var left_s := float(egg.hatch_utc) - Clock.now_utc()
 		if left_s <= 0.0:
 			btn(Rect2(x + 58, r.position.y + 32, minf(120.0, each - 66.0), 46), Tx.t("ui.pets.hatch"), "hatch", i, true)

@@ -1,0 +1,458 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>06 Techniques, the star chart</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the sky: the chart of all 56 techniques, one constellation per element, family paths inside it */
+  .sky { position: absolute; left: 92px; top: 172px; width: 760px; height: 388px; border-radius: 4px; overflow: hidden;
+    background: radial-gradient(ellipse 60% 70% at 50% 54%, #103a40 0%, #0a2429 45%, #06151a 100%);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.5), inset 0 0 40px rgba(0,0,0,.5); }
+  svg.chart { position: absolute; left: 0; top: 0; }
+  .thread { stroke: rgba(229,184,76,.16); stroke-width: 1; stroke-dasharray: 2 5; }
+  .path { stroke: rgba(175,201,209,.34); stroke-width: 1.5; }
+  .lit { stroke: #f0d08a; stroke-width: 2.5; filter: drop-shadow(0 0 3px rgba(229,184,76,.9)); }
+  /* the core: the cultivator, with the count learned */
+  .core { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+    background: radial-gradient(circle at 42% 36%, #fff3c8, #e5b84c 48%, #7a5426 100%);
+    box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px rgba(255,230,161,.6), 0 0 22px 10px rgba(229,184,76,.35); display: flex;
+    flex-direction: column; align-items: center; justify-content: center; }
+  /* constellation hubs: the element's star and its name */
+  .hub { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; background: var(--c); transform: rotate(45deg);
+    box-shadow: 0 0 0 2px var(--ink), 0 0 8px 2px color-mix(in srgb, var(--c) 60%, transparent); }
+  .hub-l { position: absolute; font-family: var(--f-text); font-weight: 700; font-size: 14px; letter-spacing: .06em; white-space: nowrap;
+    text-shadow: 0 1px 0 #000, 0 0 4px rgba(0,0,0,.9); }
+  /* a learned technique: its icon in a disc, rimmed by grade, glowing in its element */
+  .nd { position: absolute; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; border: 3px solid var(--g);
+    background: radial-gradient(circle, #1d5157, #061519); box-shadow: 0 0 0 2px var(--ink), 0 0 12px 3px color-mix(in srgb, var(--e) 45%, transparent);
+    display: flex; align-items: center; justify-content: center; overflow: visible; }
+  .nd > .ic { width: 48px; height: 48px; border-radius: 50%; }
+  .nd.is-sel { box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px var(--pale-gold), 0 0 18px 8px rgba(255,230,161,.55); }
+  .nd-l { position: absolute; transform: translateX(-50%); font-size: 14px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  /* a technique not learned yet: a dim four-point star in its element's colour */
+  .st { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; background: color-mix(in srgb, var(--e) 58%, #0a2027);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+  .st::after { content: ""; position: absolute; left: 8px; top: 8px; width: 4px; height: 4px; border-radius: 50%; background: #06151a; }
+  /* the Jade Sect's signature arts carry a small vermilion seal */
+  .sig { position: absolute; right: -5px; top: -5px; width: 14px; height: 14px; border-radius: 3px; background: var(--red);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1.5px rgba(255,230,161,.6); transform: rotate(-8deg); }
+  .st .sig.sm { right: auto; top: auto; }
+  .sigdot { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 2px; background: var(--red); box-shadow: 0 0 0 1.5px var(--ink); transform: rotate(-8deg); }
+  /* the detail card */
+  .det { position: absolute; left: 866px; top: 172px; width: 322px; height: 388px; }
+  .tierpip { width: 22px; height: 8px; border-radius: 2px; background: #17242c; box-shadow: 0 0 0 1px rgba(7,16,21,.9); }
+  .tierpip.on { background: var(--gold); } .tierpip.cur { background: linear-gradient(90deg, var(--pale-gold) 30%, #17242c 30%); box-shadow: 0 0 0 1px var(--pale-gold); }
+  /* the Dao and sect insets draw their trees with the same stars and paths */
+  .inset { position: absolute; border-radius: 4px; background: radial-gradient(ellipse at 50% 60%, #0f353a, #071a1f);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.55); }
+  .ds { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: rgba(175,201,209,.45);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+  .ds.on { width: 20px; height: 20px; margin: -10px 0 0 -10px; background: var(--gold); filter: drop-shadow(0 0 4px rgba(229,184,76,.9)); }
+  .ds.next { width: 20px; height: 20px; margin: -10px 0 0 -10px; background: var(--pale-gold); }
+  .ring-next { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2px solid var(--pale-gold);
+    box-shadow: 0 0 10px 2px rgba(255,230,161,.6); }
+  .ds.buy { background: var(--bright-jade); filter: drop-shadow(0 0 4px rgba(103,214,189,.9)); }
+  .grp-l { position: absolute; font-size: 14px; white-space: nowrap; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Techniques</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab is-selected">Star Chart</div><div class="k-tab">Inner Arts</div><div class="k-tab">Secret Arts</div>
+  </div>
+</div>
+
+<!-- the sect tree, drawn the same way: the Jade Sect's three paths of five, in the tab row (it opens Sect, Role) -->
+<div class="inset" style="left:552px;top:118px;width:636px;height:46px"></div>
+<div class="abs t-xs t-label" style="left:562px;top:121px;color:#f08a7a">Jade Sect tree</div>
+<div class="abs t-xs c-mist" style="left:562px;top:141px"><span class="t-fig c-pale">1,060</span> contribution</div>
+<div class="abs t-xs c-paper" style="left:692px;top:132px">Rushing Edge</div>
+<div class="abs t-xs c-paper" style="left:872px;top:132px">Still Lotus</div>
+<div class="abs t-xs c-paper" style="left:1028px;top:132px">Deep Root</div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <line x1="804" y1="141" x2="860" y2="141" class="path"/><line x1="956" y1="141" x2="1012" y2="141" class="path"/><line x1="1112" y1="141" x2="1168" y2="141" class="path"/>
+</svg>
+<div class="ds buy" style="left:804px;top:141px"></div><div class="ds" style="left:818px;top:141px"></div><div class="ds" style="left:832px;top:141px"></div><div class="ds" style="left:846px;top:141px"></div><div class="ds" style="left:860px;top:141px"></div>
+<div class="ds buy" style="left:956px;top:141px"></div><div class="ds" style="left:970px;top:141px"></div><div class="ds" style="left:984px;top:141px"></div><div class="ds" style="left:998px;top:141px"></div><div class="ds" style="left:1012px;top:141px"></div>
+<div class="ds buy" style="left:1112px;top:141px"></div><div class="ds" style="left:1126px;top:141px"></div><div class="ds" style="left:1140px;top:141px"></div><div class="ds" style="left:1154px;top:141px"></div><div class="ds" style="left:1168px;top:141px"></div>
+
+<!-- ================= the star chart ================= -->
+<div class="sky"></div>
+<svg class="chart" width="1280" height="720">
+<circle cx="436.2" cy="388.7" r="1.0" fill="rgba(232,225,207,0.35)"/>
+<circle cx="739.0" cy="248.2" r="1.3" fill="rgba(232,225,207,0.36)"/>
+<circle cx="557.7" cy="246.7" r="1.0" fill="rgba(232,225,207,0.29)"/>
+<circle cx="164.2" cy="483.7" r="0.6" fill="rgba(232,225,207,0.40)"/>
+<circle cx="393.9" cy="348.1" r="1.3" fill="rgba(232,225,207,0.42)"/>
+<circle cx="564.6" cy="492.0" r="0.6" fill="rgba(232,225,207,0.20)"/>
+<circle cx="239.0" cy="267.9" r="0.6" fill="rgba(232,225,207,0.47)"/>
+<circle cx="341.4" cy="400.6" r="0.8" fill="rgba(232,225,207,0.37)"/>
+<circle cx="577.5" cy="365.9" r="0.6" fill="rgba(232,225,207,0.35)"/>
+<circle cx="305.2" cy="555.1" r="0.6" fill="rgba(232,225,207,0.44)"/>
+<circle cx="333.1" cy="263.3" r="0.8" fill="rgba(232,225,207,0.19)"/>
+<circle cx="519.5" cy="217.0" r="0.6" fill="rgba(232,225,207,0.49)"/>
+<circle cx="386.7" cy="540.1" r="0.6" fill="rgba(232,225,207,0.26)"/>
+<circle cx="793.1" cy="195.9" r="1.0" fill="rgba(232,225,207,0.54)"/>
+<circle cx="394.9" cy="203.8" r="0.8" fill="rgba(232,225,207,0.47)"/>
+<circle cx="298.9" cy="209.1" r="0.8" fill="rgba(232,225,207,0.19)"/>
+<circle cx="404.4" cy="526.7" r="0.8" fill="rgba(232,225,207,0.27)"/>
+<circle cx="172.0" cy="198.8" r="1.0" fill="rgba(232,225,207,0.25)"/>
+<circle cx="516.6" cy="346.0" r="0.8" fill="rgba(232,225,207,0.54)"/>
+<circle cx="674.7" cy="335.3" r="1.0" fill="rgba(232,225,207,0.22)"/>
+<circle cx="412.4" cy="256.9" r="0.8" fill="rgba(232,225,207,0.50)"/>
+<circle cx="829.1" cy="401.2" r="0.6" fill="rgba(232,225,207,0.26)"/>
+<circle cx="392.5" cy="500.7" r="1.3" fill="rgba(232,225,207,0.22)"/>
+<circle cx="840.0" cy="257.0" r="0.8" fill="rgba(232,225,207,0.18)"/>
+<circle cx="555.0" cy="491.5" r="1.0" fill="rgba(232,225,207,0.21)"/>
+<circle cx="163.8" cy="397.4" r="0.8" fill="rgba(232,225,207,0.19)"/>
+<circle cx="373.2" cy="412.4" r="0.8" fill="rgba(232,225,207,0.53)"/>
+<circle cx="459.8" cy="394.3" r="1.0" fill="rgba(232,225,207,0.25)"/>
+<circle cx="211.9" cy="521.2" r="1.3" fill="rgba(232,225,207,0.27)"/>
+<circle cx="238.7" cy="457.0" r="1.3" fill="rgba(232,225,207,0.25)"/>
+<circle cx="810.5" cy="511.2" r="1.3" fill="rgba(232,225,207,0.21)"/>
+<circle cx="131.6" cy="217.4" r="1.3" fill="rgba(232,225,207,0.54)"/>
+<circle cx="275.3" cy="443.7" r="0.8" fill="rgba(232,225,207,0.34)"/>
+<circle cx="776.4" cy="362.6" r="1.3" fill="rgba(232,225,207,0.24)"/>
+<circle cx="637.7" cy="202.1" r="0.8" fill="rgba(232,225,207,0.36)"/>
+<circle cx="587.4" cy="410.0" r="0.6" fill="rgba(232,225,207,0.28)"/>
+<circle cx="785.9" cy="253.5" r="0.6" fill="rgba(232,225,207,0.21)"/>
+<circle cx="405.4" cy="270.6" r="0.6" fill="rgba(232,225,207,0.25)"/>
+<circle cx="373.3" cy="393.4" r="0.8" fill="rgba(232,225,207,0.21)"/>
+<circle cx="200.1" cy="347.1" r="0.8" fill="rgba(232,225,207,0.42)"/>
+<circle cx="615.8" cy="398.1" r="0.8" fill="rgba(232,225,207,0.40)"/>
+<circle cx="790.5" cy="356.4" r="0.8" fill="rgba(232,225,207,0.44)"/>
+<circle cx="820.0" cy="184.1" r="0.6" fill="rgba(232,225,207,0.36)"/>
+<circle cx="645.3" cy="297.2" r="0.6" fill="rgba(232,225,207,0.21)"/>
+<circle cx="506.7" cy="456.1" r="0.8" fill="rgba(232,225,207,0.47)"/>
+<circle cx="784.1" cy="309.7" r="1.0" fill="rgba(232,225,207,0.51)"/>
+<circle cx="751.1" cy="334.5" r="0.6" fill="rgba(232,225,207,0.50)"/>
+<circle cx="526.8" cy="413.5" r="1.0" fill="rgba(232,225,207,0.32)"/>
+<circle cx="105.4" cy="203.5" r="0.6" fill="rgba(232,225,207,0.42)"/>
+<circle cx="843.0" cy="510.3" r="0.8" fill="rgba(232,225,207,0.32)"/>
+<circle cx="648.7" cy="396.8" r="1.0" fill="rgba(232,225,207,0.35)"/>
+<circle cx="503.0" cy="373.1" r="1.3" fill="rgba(232,225,207,0.19)"/>
+<circle cx="548.2" cy="358.8" r="0.8" fill="rgba(232,225,207,0.53)"/>
+<circle cx="180.9" cy="472.4" r="1.0" fill="rgba(232,225,207,0.27)"/>
+<circle cx="104.5" cy="290.4" r="1.3" fill="rgba(232,225,207,0.25)"/>
+<circle cx="223.5" cy="520.2" r="1.0" fill="rgba(232,225,207,0.36)"/>
+<circle cx="277.6" cy="329.8" r="0.8" fill="rgba(232,225,207,0.25)"/>
+<circle cx="420.0" cy="482.3" r="0.8" fill="rgba(232,225,207,0.51)"/>
+<circle cx="385.1" cy="397.6" r="0.8" fill="rgba(232,225,207,0.26)"/>
+<circle cx="197.2" cy="309.3" r="0.6" fill="rgba(232,225,207,0.44)"/>
+<circle cx="810.4" cy="281.2" r="0.8" fill="rgba(232,225,207,0.22)"/>
+<circle cx="450.5" cy="527.8" r="1.0" fill="rgba(232,225,207,0.32)"/>
+<circle cx="487.0" cy="431.4" r="1.3" fill="rgba(232,225,207,0.35)"/>
+<circle cx="152.2" cy="188.0" r="1.3" fill="rgba(232,225,207,0.20)"/>
+<circle cx="628.9" cy="392.8" r="0.8" fill="rgba(232,225,207,0.42)"/>
+<circle cx="520.2" cy="419.6" r="1.0" fill="rgba(232,225,207,0.35)"/>
+<circle cx="114.6" cy="491.3" r="0.8" fill="rgba(232,225,207,0.47)"/>
+<circle cx="695.2" cy="549.9" r="0.6" fill="rgba(232,225,207,0.35)"/>
+<circle cx="569.7" cy="424.9" r="0.8" fill="rgba(232,225,207,0.53)"/>
+<circle cx="610.7" cy="251.7" r="1.0" fill="rgba(232,225,207,0.27)"/>
+<circle cx="633.1" cy="462.9" r="1.3" fill="rgba(232,225,207,0.44)"/>
+<circle cx="230.7" cy="279.5" r="0.8" fill="rgba(232,225,207,0.38)"/>
+<circle cx="808.0" cy="366.2" r="0.8" fill="rgba(232,225,207,0.33)"/>
+<circle cx="691.5" cy="520.4" r="0.6" fill="rgba(232,225,207,0.33)"/>
+<circle cx="767.3" cy="323.4" r="1.0" fill="rgba(232,225,207,0.35)"/>
+<circle cx="566.4" cy="521.8" r="1.0" fill="rgba(232,225,207,0.38)"/>
+<circle cx="586.8" cy="367.0" r="0.8" fill="rgba(232,225,207,0.35)"/>
+<circle cx="585.8" cy="253.9" r="0.6" fill="rgba(232,225,207,0.26)"/>
+<circle cx="772.8" cy="548.6" r="0.8" fill="rgba(232,225,207,0.38)"/>
+<circle cx="690.7" cy="297.7" r="0.6" fill="rgba(232,225,207,0.31)"/>
+<circle cx="158.2" cy="343.5" r="1.3" fill="rgba(232,225,207,0.34)"/>
+<circle cx="303.0" cy="525.5" r="0.8" fill="rgba(232,225,207,0.48)"/>
+<circle cx="144.2" cy="479.9" r="0.8" fill="rgba(232,225,207,0.38)"/>
+<circle cx="612.3" cy="524.1" r="1.0" fill="rgba(232,225,207,0.24)"/>
+<circle cx="484.4" cy="451.0" r="1.0" fill="rgba(232,225,207,0.53)"/>
+<circle cx="466.4" cy="536.7" r="0.6" fill="rgba(232,225,207,0.46)"/>
+<circle cx="426.4" cy="388.3" r="1.3" fill="rgba(232,225,207,0.42)"/>
+<circle cx="489.1" cy="496.6" r="1.3" fill="rgba(232,225,207,0.27)"/>
+<circle cx="600.8" cy="538.8" r="1.3" fill="rgba(232,225,207,0.26)"/>
+<circle cx="735.8" cy="544.0" r="1.3" fill="rgba(232,225,207,0.28)"/>
+<circle cx="470.2" cy="332.2" r="0.6" fill="rgba(232,225,207,0.37)"/>
+<circle cx="551.1" cy="186.5" r="0.6" fill="rgba(232,225,207,0.37)"/>
+<circle cx="397.2" cy="480.4" r="1.3" fill="rgba(232,225,207,0.23)"/>
+<circle cx="166.1" cy="239.4" r="1.3" fill="rgba(232,225,207,0.35)"/>
+<circle cx="788.4" cy="480.1" r="1.0" fill="rgba(232,225,207,0.28)"/>
+<circle cx="451.8" cy="224.2" r="1.0" fill="rgba(232,225,207,0.51)"/>
+<circle cx="799.6" cy="525.6" r="1.3" fill="rgba(232,225,207,0.30)"/>
+<circle cx="240.0" cy="410.8" r="0.8" fill="rgba(232,225,207,0.23)"/>
+<circle cx="682.0" cy="184.7" r="0.8" fill="rgba(232,225,207,0.24)"/>
+<circle cx="104.9" cy="284.0" r="0.8" fill="rgba(232,225,207,0.27)"/>
+<circle cx="471.1" cy="365.9" r="1.3" fill="rgba(232,225,207,0.23)"/>
+<circle cx="479.9" cy="271.2" r="0.8" fill="rgba(232,225,207,0.44)"/>
+<circle cx="756.8" cy="184.8" r="1.0" fill="rgba(232,225,207,0.49)"/>
+<circle cx="559.1" cy="380.5" r="1.3" fill="rgba(232,225,207,0.42)"/>
+<circle cx="494.3" cy="499.5" r="1.3" fill="rgba(232,225,207,0.40)"/>
+<circle cx="198.6" cy="523.6" r="0.8" fill="rgba(232,225,207,0.51)"/>
+<circle cx="333.5" cy="295.7" r="0.8" fill="rgba(232,225,207,0.26)"/>
+<circle cx="846.8" cy="513.3" r="0.8" fill="rgba(232,225,207,0.51)"/>
+<circle cx="195.7" cy="209.5" r="1.0" fill="rgba(232,225,207,0.22)"/>
+<circle cx="721.8" cy="336.2" r="0.8" fill="rgba(232,225,207,0.25)"/>
+<circle cx="568.3" cy="479.6" r="0.6" fill="rgba(232,225,207,0.25)"/>
+<circle cx="609.2" cy="522.3" r="0.8" fill="rgba(232,225,207,0.22)"/>
+<circle cx="476.3" cy="464.1" r="1.3" fill="rgba(232,225,207,0.55)"/>
+<circle cx="722.4" cy="481.1" r="1.0" fill="rgba(232,225,207,0.22)"/>
+<circle cx="124.2" cy="385.6" r="1.3" fill="rgba(232,225,207,0.51)"/>
+<circle cx="457.9" cy="248.0" r="0.6" fill="rgba(232,225,207,0.26)"/>
+<circle cx="727.8" cy="552.3" r="0.6" fill="rgba(232,225,207,0.39)"/>
+<circle cx="197.1" cy="434.8" r="0.6" fill="rgba(232,225,207,0.46)"/>
+<circle cx="341.8" cy="353.4" r="1.3" fill="rgba(232,225,207,0.31)"/>
+<circle cx="254.0" cy="317.8" r="0.6" fill="rgba(232,225,207,0.49)"/>
+<circle cx="232.3" cy="348.5" r="0.8" fill="rgba(232,225,207,0.33)"/>
+<circle cx="242.7" cy="238.7" r="1.3" fill="rgba(232,225,207,0.47)"/>
+<circle cx="339.4" cy="208.2" r="1.0" fill="rgba(232,225,207,0.39)"/>
+<circle cx="239.6" cy="398.2" r="0.8" fill="rgba(232,225,207,0.48)"/>
+<circle cx="290.2" cy="522.3" r="0.8" fill="rgba(232,225,207,0.48)"/>
+<circle cx="401.0" cy="516.7" r="1.3" fill="rgba(232,225,207,0.44)"/>
+<circle cx="673.0" cy="466.8" r="1.0" fill="rgba(232,225,207,0.26)"/>
+<circle cx="235.0" cy="479.0" r="0.8" fill="rgba(232,225,207,0.35)"/>
+<circle cx="104.0" cy="311.1" r="1.3" fill="rgba(232,225,207,0.20)"/>
+<circle cx="301.3" cy="541.3" r="0.8" fill="rgba(232,225,207,0.30)"/>
+<circle cx="592.1" cy="392.4" r="1.3" fill="rgba(232,225,207,0.21)"/>
+<circle cx="483.1" cy="365.1" r="0.8" fill="rgba(232,225,207,0.44)"/>
+<circle cx="668.8" cy="548.4" r="0.6" fill="rgba(232,225,207,0.22)"/>
+<circle cx="177.3" cy="266.1" r="1.0" fill="rgba(232,225,207,0.33)"/>
+<circle cx="133.9" cy="250.3" r="1.0" fill="rgba(232,225,207,0.18)"/>
+<circle cx="290.4" cy="280.8" r="0.8" fill="rgba(232,225,207,0.38)"/>
+<circle cx="477.9" cy="543.5" r="1.3" fill="rgba(232,225,207,0.49)"/>
+<circle cx="170.9" cy="344.9" r="0.6" fill="rgba(232,225,207,0.38)"/>
+<circle cx="598.7" cy="539.0" r="1.0" fill="rgba(232,225,207,0.52)"/>
+<circle cx="216.3" cy="355.3" r="0.8" fill="rgba(232,225,207,0.50)"/>
+<circle cx="503.5" cy="402.7" r="1.0" fill="rgba(232,225,207,0.53)"/>
+<circle cx="412.4" cy="376.2" r="1.3" fill="rgba(232,225,207,0.30)"/>
+<circle cx="494.9" cy="359.6" r="0.8" fill="rgba(232,225,207,0.39)"/>
+<circle cx="309.2" cy="448.3" r="0.8" fill="rgba(232,225,207,0.19)"/>
+<circle cx="676.9" cy="398.6" r="0.8" fill="rgba(232,225,207,0.33)"/>
+<circle cx="610.6" cy="196.1" r="0.8" fill="rgba(232,225,207,0.46)"/>
+<circle cx="133.7" cy="551.7" r="0.8" fill="rgba(232,225,207,0.21)"/>
+<circle cx="777.0" cy="339.2" r="1.0" fill="rgba(232,225,207,0.27)"/>
+<circle cx="664.1" cy="193.3" r="0.6" fill="rgba(232,225,207,0.53)"/>
+<circle cx="639.5" cy="354.0" r="0.8" fill="rgba(232,225,207,0.40)"/>
+<circle cx="182.6" cy="413.2" r="1.0" fill="rgba(232,225,207,0.22)"/>
+<circle cx="743.6" cy="311.5" r="0.8" fill="rgba(232,225,207,0.23)"/>
+<circle cx="429.0" cy="429.8" r="1.0" fill="rgba(232,225,207,0.40)"/>
+<circle cx="577.0" cy="435.2" r="0.8" fill="rgba(232,225,207,0.47)"/>
+<circle cx="495.1" cy="555.1" r="0.8" fill="rgba(232,225,207,0.45)"/>
+<circle cx="275.3" cy="219.3" r="0.8" fill="rgba(232,225,207,0.47)"/>
+<circle cx="566.0" cy="312.5" r="0.8" fill="rgba(232,225,207,0.41)"/>
+<circle cx="641.3" cy="441.6" r="0.8" fill="rgba(232,225,207,0.41)"/>
+<circle cx="662.5" cy="248.1" r="0.8" fill="rgba(232,225,207,0.37)"/>
+<circle cx="587.0" cy="250.5" r="0.6" fill="rgba(232,225,207,0.41)"/>
+<circle cx="103.1" cy="274.6" r="0.6" fill="rgba(232,225,207,0.41)"/>
+<circle cx="173.1" cy="381.8" r="0.6" fill="rgba(232,225,207,0.46)"/>
+<circle cx="782.5" cy="237.1" r="0.8" fill="rgba(232,225,207,0.41)"/>
+<circle cx="376.6" cy="357.9" r="0.8" fill="rgba(232,225,207,0.31)"/>
+<circle cx="467.8" cy="226.7" r="0.6" fill="rgba(232,225,207,0.48)"/>
+<circle cx="432.4" cy="488.4" r="0.8" fill="rgba(232,225,207,0.34)"/>
+<circle cx="658.0" cy="324.2" r="0.8" fill="rgba(232,225,207,0.32)"/>
+<circle cx="587.6" cy="551.9" r="0.8" fill="rgba(232,225,207,0.29)"/>
+<circle cx="666.8" cy="489.9" r="0.8" fill="rgba(232,225,207,0.34)"/>
+<circle cx="373.7" cy="212.9" r="0.8" fill="rgba(232,225,207,0.21)"/>
+<line x1="476" y1="380" x2="300" y2="344" class="thread"/>
+<line x1="476" y1="380" x2="118" y2="212" class="thread"/>
+<line x1="476" y1="380" x2="420" y2="329" class="thread"/>
+<line x1="476" y1="380" x2="536" y2="296" class="thread"/>
+<line x1="476" y1="380" x2="680" y2="296" class="thread"/>
+<line x1="476" y1="380" x2="672" y2="398" class="thread"/>
+<line x1="476" y1="380" x2="566" y2="434" class="thread"/>
+<line x1="476" y1="380" x2="408" y2="438" class="thread"/>
+<line x1="476" y1="380" x2="318" y2="398" class="thread"/>
+<line x1="300" y1="344" x2="304" y2="268" class="path"/>
+<line x1="304" y1="268" x2="296" y2="218" class="path"/>
+<line x1="300" y1="344" x2="262" y2="294" class="path"/>
+<line x1="262" y1="294" x2="212" y2="245" class="path"/>
+<line x1="212" y1="245" x2="230" y2="193" class="path"/>
+<line x1="300" y1="344" x2="244" y2="338" class="path"/>
+<line x1="244" y1="338" x2="172" y2="319" class="path"/>
+<line x1="118" y1="212" x2="130" y2="262" class="path"/>
+<line x1="420" y1="329" x2="344" y2="289" class="lit"/>
+<line x1="344" y1="289" x2="350" y2="208" class="lit"/>
+<line x1="350" y1="208" x2="400" y2="189" class="path"/>
+<line x1="400" y1="189" x2="450" y2="193" class="path"/>
+<line x1="450" y1="193" x2="446" y2="243" class="path"/>
+<line x1="536" y1="296" x2="560" y2="248" class="path"/>
+<line x1="560" y1="248" x2="548" y2="199" class="path"/>
+<line x1="548" y1="199" x2="604" y2="195" class="path"/>
+<line x1="604" y1="195" x2="630" y2="245" class="path"/>
+<line x1="536" y1="296" x2="592" y2="296" class="path"/>
+<line x1="680" y1="296" x2="716" y2="254" class="path"/>
+<line x1="716" y1="254" x2="700" y2="204" class="path"/>
+<line x1="700" y1="204" x2="756" y2="195" class="path"/>
+<line x1="680" y1="296" x2="748" y2="287" class="path"/>
+<line x1="748" y1="287" x2="802" y2="258" class="path"/>
+<line x1="672" y1="398" x2="708" y2="338" class="lit"/>
+<line x1="708" y1="338" x2="796" y2="313" class="lit"/>
+<line x1="672" y1="398" x2="760" y2="413" class="lit"/>
+<line x1="760" y1="413" x2="818" y2="424" class="path"/>
+<line x1="672" y1="398" x2="700" y2="457" class="path"/>
+<line x1="760" y1="413" x2="806" y2="476" class="path"/>
+<line x1="700" y1="457" x2="762" y2="524" class="path"/>
+<line x1="566" y1="434" x2="596" y2="478" class="lit"/>
+<line x1="596" y1="478" x2="632" y2="539" class="path"/>
+<line x1="632" y1="539" x2="676" y2="505" class="path"/>
+<line x1="566" y1="434" x2="648" y2="428" class="path"/>
+<line x1="566" y1="434" x2="554" y2="388" class="path"/>
+<line x1="408" y1="438" x2="360" y2="424" class="path"/>
+<line x1="408" y1="438" x2="372" y2="476" class="path"/>
+<line x1="372" y1="476" x2="368" y2="526" class="path"/>
+<line x1="368" y1="526" x2="418" y2="539" class="path"/>
+<line x1="418" y1="539" x2="468" y2="539" class="path"/>
+<line x1="408" y1="438" x2="420" y2="489" class="path"/>
+<line x1="420" y1="489" x2="470" y2="493" class="path"/>
+<line x1="408" y1="438" x2="460" y2="445" class="path"/>
+<line x1="470" y1="493" x2="516" y2="468" class="path"/>
+<line x1="470" y1="493" x2="518" y2="518" class="path"/>
+<line x1="318" y1="398" x2="262" y2="399" class="lit"/>
+<line x1="262" y1="399" x2="160" y2="440" class="lit"/>
+<line x1="160" y1="440" x2="112" y2="394" class="path"/>
+<line x1="262" y1="399" x2="230" y2="365" class="path"/>
+<line x1="318" y1="398" x2="262" y2="472" class="lit"/>
+<line x1="318" y1="398" x2="320" y2="447" class="path"/>
+<line x1="160" y1="440" x2="208" y2="508" class="path"/>
+<line x1="208" y1="508" x2="158" y2="524" class="path"/>
+<line x1="158" y1="524" x2="114" y2="497" class="path"/>
+<line x1="208" y1="508" x2="256" y2="539" class="path"/>
+<line x1="256" y1="539" x2="306" y2="531" class="path"/>
+</svg>
+<div class="abs" style="left:0;top:0">
+<div class="hub" style="left:300px;top:344px;--c:#cfe8e6"></div>
+<div class="hub-l" style="left:300px;top:353px;color:#cfe8e6;transform:translateX(-50%)">Wind</div>
+<div class="hub" style="left:118px;top:212px;--c:#e8d24c"></div>
+<div class="hub-l" style="left:129px;top:202px;color:#e8d24c">Thunder</div>
+<div class="hub" style="left:420px;top:329px;--c:#9b78d1"></div>
+<div class="hub-l" style="left:431px;top:319px;color:#9b78d1">Soul</div>
+<div class="hub" style="left:536px;top:296px;--c:#f08a3c"></div>
+<div class="hub-l" style="left:536px;top:305px;color:#f08a3c;transform:translateX(-50%)">Fire</div>
+<div class="hub" style="left:680px;top:296px;--c:#c9a060"></div>
+<div class="hub-l" style="left:669px;top:286px;color:#c9a060;transform:translateX(-100%)">Earth</div>
+<div class="hub" style="left:672px;top:398px;--c:#d8dde0"></div>
+<div class="hub-l" style="left:661px;top:388px;color:#d8dde0;transform:translateX(-100%)">Metal</div>
+<div class="hub" style="left:566px;top:434px;--c:#32bed1"></div>
+<div class="hub-l" style="left:555px;top:424px;color:#32bed1;transform:translateX(-100%)">Water</div>
+<div class="hub" style="left:408px;top:438px;--c:#67d67a"></div>
+<div class="hub-l" style="left:408px;top:447px;color:#67d67a;transform:translateX(-50%)">Wood</div>
+<div class="hub" style="left:318px;top:398px;--c:#e8e1cf"></div>
+<div class="hub-l" style="left:329px;top:388px;color:#e8e1cf">Formless</div>
+<div class="st" style="left:304px;top:268px;--e:#cfe8e6"></div>
+<div class="st" style="left:296px;top:218px;--e:#cfe8e6"></div>
+<div class="st" style="left:262px;top:294px;--e:#cfe8e6"></div>
+<div class="nd" style="left:212px;top:245px;--g:var(--g-heaven);--e:#cfe8e6"><img class="ic" src="../../../art/icons/techniques/cloud_descent.png"></div>
+<div class="nd-l t-outline" style="left:212px;top:274px">Cloud Descent</div>
+<div class="st" style="left:230px;top:193px;--e:#cfe8e6"></div>
+<div class="st" style="left:244px;top:338px;--e:#cfe8e6"></div>
+<div class="nd" style="left:172px;top:319px;--g:var(--g-earth);--e:#cfe8e6"><img class="ic" src="../../../art/icons/techniques/crescent_arc.png"></div>
+<div class="nd-l t-outline" style="left:172px;top:348px">Crescent Arc</div>
+<div class="st" style="left:130px;top:262px;--e:#e8d24c"></div>
+<div class="nd" style="left:344px;top:289px;--g:var(--g-heaven);--e:#9b78d1"><img class="ic" src="../../../art/icons/techniques/mirror_mind_spike.png"></div>
+<div class="nd-l t-outline" style="left:344px;top:318px">Mirror Mind Spike</div>
+<div class="nd" style="left:350px;top:208px;--g:var(--g-heaven);--e:#9b78d1"><img class="ic" src="../../../art/icons/techniques/sense_lock.png"></div>
+<div class="nd-l t-outline" style="left:350px;top:237px">Sense Lock</div>
+<div class="st" style="left:400px;top:189px;--e:#9b78d1"></div>
+<div class="st" style="left:450px;top:193px;--e:#9b78d1"></div>
+<div class="nd" style="left:446px;top:243px;--g:var(--g-heaven);--e:#9b78d1"><img class="ic" src="../../../art/icons/techniques/soul_lantern_ward.png"></div>
+<div class="nd-l t-outline" style="left:446px;top:272px">Soul Lantern Ward</div>
+<div class="st" style="left:560px;top:248px;--e:#f08a3c"></div>
+<div class="st" style="left:548px;top:199px;--e:#f08a3c"></div>
+<div class="st" style="left:604px;top:195px;--e:#f08a3c"></div>
+<div class="st" style="left:630px;top:245px;--e:#f08a3c"></div>
+<div class="st" style="left:592px;top:296px;--e:#f08a3c"></div>
+<div class="st" style="left:716px;top:254px;--e:#c9a060"></div>
+<div class="st" style="left:700px;top:204px;--e:#c9a060"></div>
+<div class="st" style="left:756px;top:195px;--e:#c9a060"></div>
+<div class="st" style="left:748px;top:287px;--e:#c9a060"></div>
+<div class="st" style="left:802px;top:258px;--e:#c9a060"></div>
+<div class="nd" style="left:708px;top:338px;--g:var(--g-earth);--e:#d8dde0"><img class="ic" src="../../../art/icons/techniques/sword_release.png"></div>
+<div class="nd-l t-outline" style="left:708px;top:367px">Sword Release</div>
+<div class="nd" style="left:796px;top:313px;--g:var(--g-earth);--e:#d8dde0"><img class="ic" src="../../../art/icons/techniques/sword_swarm.png"></div>
+<div class="nd-l t-outline" style="left:796px;top:342px">Sword Swarm</div>
+<div class="nd" style="left:760px;top:413px;--g:var(--g-heaven);--e:#d8dde0"><img class="ic" src="../../../art/icons/techniques/upright_glyph.png"></div>
+<div class="nd-l t-outline" style="left:760px;top:442px">Upright Glyph</div>
+<div class="st" style="left:818px;top:424px;--e:#d8dde0"></div>
+<div class="st" style="left:700px;top:457px;--e:#d8dde0"></div>
+<div class="st" style="left:806px;top:476px;--e:#d8dde0"></div>
+<div class="st" style="left:762px;top:524px;--e:#d8dde0"></div>
+<div class="nd is-sel" style="left:596px;top:478px;--g:var(--g-common);--e:#32bed1"><img class="ic" src="../../../art/icons/techniques/flowing_palm.png"><span class="sig"></span></div>
+<div class="nd-l t-outline" style="left:596px;top:507px">Flowing Palm</div>
+<div class="st" style="left:632px;top:539px;--e:#32bed1"></div>
+<div class="sigdot" style="left:641px;top:530px"></div>
+<div class="nd" style="left:676px;top:505px;--g:var(--g-earth);--e:#32bed1"><img class="ic" src="../../../art/icons/techniques/still_water_focus.png"></div>
+<div class="nd-l t-outline" style="left:676px;top:534px">Still Water Focus</div>
+<div class="st" style="left:648px;top:428px;--e:#32bed1"></div>
+<div class="sigdot" style="left:657px;top:419px"></div>
+<div class="st" style="left:554px;top:388px;--e:#32bed1"></div>
+<div class="st" style="left:360px;top:424px;--e:#67d67a"></div>
+<div class="st" style="left:372px;top:476px;--e:#67d67a"></div>
+<div class="st" style="left:368px;top:526px;--e:#67d67a"></div>
+<div class="st" style="left:418px;top:539px;--e:#67d67a"></div>
+<div class="st" style="left:468px;top:539px;--e:#67d67a"></div>
+<div class="st" style="left:420px;top:489px;--e:#67d67a"></div>
+<div class="st" style="left:470px;top:493px;--e:#67d67a"></div>
+<div class="st" style="left:460px;top:445px;--e:#67d67a"></div>
+<div class="st" style="left:516px;top:468px;--e:#67d67a"></div>
+<div class="st" style="left:518px;top:518px;--e:#67d67a"></div>
+<div class="nd" style="left:262px;top:399px;--g:var(--g-heaven);--e:#e8e1cf"><img class="ic" src="../../../art/icons/techniques/glimpse_of_heaven.png"></div>
+<div class="nd-l t-outline" style="left:262px;top:428px">Glimpse of Heaven</div>
+<div class="nd" style="left:160px;top:440px;--g:var(--g-heaven);--e:#e8e1cf"><img class="ic" src="../../../art/icons/techniques/blood_burning.png"></div>
+<div class="nd-l t-outline" style="left:160px;top:469px">Blood Burning</div>
+<div class="st" style="left:112px;top:394px;--e:#e8e1cf"></div>
+<div class="st" style="left:230px;top:365px;--e:#e8e1cf"></div>
+<div class="nd" style="left:262px;top:472px;--g:var(--g-heaven);--e:#e8e1cf"><img class="ic" src="../../../art/icons/techniques/splashed_ink.png"></div>
+<div class="nd-l t-outline" style="left:262px;top:501px">Splashed Ink</div>
+<div class="st" style="left:320px;top:447px;--e:#e8e1cf"></div>
+<div class="st" style="left:208px;top:508px;--e:#e8e1cf"></div>
+<div class="st" style="left:158px;top:524px;--e:#e8e1cf"></div>
+<div class="st" style="left:114px;top:497px;--e:#e8e1cf"></div>
+<div class="st" style="left:256px;top:539px;--e:#e8e1cf"></div>
+<div class="st" style="left:306px;top:531px;--e:#e8e1cf"></div>
+</div>
+<div class="core" style="left:476px;top:380px"><span class="t-fig c-ink no-shadow" style="font-size:18px;line-height:1">13</span><span class="t-fig no-shadow" style="font-size:14px;line-height:1;color:#3a2412">of 56</span></div>
+
+<!-- ================= the selected technique ================= -->
+<div class="det k-minor-panel"></div>
+<div class="k-slot k-slot76 is-selected abs" style="left:878px;top:184px"><img class="ic" src="../../../art/icons/techniques/flowing_palm.png"><div class="k-qrim" style="--q:var(--g-common)"></div><div class="k-slot-glow"></div></div>
+<div class="abs t-subhead c-pale" style="left:966px;top:184px">Flowing Palm</div>
+<div class="abs t-xs c-mist" style="left:966px;top:216px"><span style="color:var(--g-common)">Common</span> · <span style="color:#32bed1">Water</span> · any weapon</div>
+<div class="abs t-xs" style="left:966px;top:236px;color:#f08a7a"><span class="sigdot" style="position:relative;display:inline-block;margin:0 6px 0 2px;left:0;top:-1px"></span>Jade Sect signature art</div>
+<div class="abs t-sm c-paper" style="left:880px;top:268px"><span class="t-fig c-qi">QI 8</span> · <span class="t-fig">3 s</span> · two hits · <span class="c-mist">used <span class="t-fig">861</span> times</span></div>
+<div class="abs t-sm c-paper" style="left:880px;top:292px;width:294px;line-height:1.3">Two flowing palm strikes with the free hand; any weapon. Tier 3: slows the target by 20% for 2 s.</div>
+<div class="abs t-sm c-gold" style="left:880px;top:356px">Mastery · Tier 5</div>
+<div class="abs flex" style="left:1022px;top:363px;gap:4px"><div class="tierpip on"></div><div class="tierpip on"></div><div class="tierpip on"></div><div class="tierpip on"></div><div class="tierpip on"></div><div class="tierpip"></div></div>
+<div class="k-bar is-gold abs" style="left:880px;top:378px;width:294px;--v:0.30">
+  <div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+  <div class="k-bar-text t-fig t-outline c-paper">480 / 1,600</div>
+</div>
+<div class="abs t-xs c-mist" style="left:880px;top:412px">Tier 6 at <span class="t-fig">1,600</span>, then a Manual Page <span class="c-paper">(<span class="t-fig">3</span> held)</span></div>
+<div class="k-btn2 abs" style="left:880px;top:434px;width:128px;height:48px;font-size:20px">Unslot</div>
+<div class="k-btn is-disabled abs" style="left:1018px;top:434px;width:156px;height:48px;font-size:20px;padding-right:22px">Rank Up<span class="k-lock-mini"></span></div>
+
+<!-- the Dao tree, drawn the same way: Fist Dao, its six tiers as stars -->
+<div class="inset" style="left:880px;top:490px;width:294px;height:64px"></div>
+<div class="abs t-xs t-label c-pale" style="left:892px;top:493px">Fist Dao <span class="c-mist" style="font-weight:600">· Imitation</span></div>
+<div class="abs t-xs t-fig c-paper" style="left:1070px;top:493px;width:94px;text-align:right">349 / 800</div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <line x1="906" y1="524" x2="952" y2="524" class="lit"/>
+  <line x1="952" y1="524" x2="998" y2="524" stroke="rgba(175,201,209,.34)" stroke-width="2"/>
+  <line x1="952" y1="524" x2="956.5" y2="524" class="lit"/>
+  <line x1="998" y1="524" x2="1044" y2="524" class="path"/><line x1="1044" y1="524" x2="1090" y2="524" class="path"/><line x1="1090" y1="524" x2="1136" y2="524" class="path"/>
+</svg>
+<div class="ds on" style="left:906px;top:524px"></div><div class="ds on" style="left:952px;top:524px"></div>
+<div class="ring-next" style="left:998px;top:524px"></div><div class="ds next" style="left:998px;top:524px"></div>
+<div class="ds" style="left:1044px;top:524px"></div><div class="ds" style="left:1090px;top:524px"></div><div class="ds" style="left:1136px;top:524px"></div>
+<div class="abs t-xs c-pale" style="left:998px;top:536px;transform:translateX(-50%);white-space:nowrap">Next: Reliable Execution</div>
+
+<!-- ================= the loadout: two rings of four at 76 px, and the Inner Arts ================= -->
+<div class="grp-l c-gold" style="left:94px;top:566px">Ring I <span class="c-mist">· Sunsteel Jian in hand: jian arts awake</span></div>
+<div class="abs flex" style="left:92px;top:588px;gap:6px"><div class="k-slot k-slot76 is-selected"><img class="ic" src="../../../art/icons/techniques/flowing_palm.png"><div class="k-qrim" style="--q:var(--g-common)"></div><div class="k-slot-glow"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/crescent_arc.png"><div class="k-qrim" style="--q:var(--g-earth)"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/still_water_focus.png"><div class="k-qrim" style="--q:var(--g-earth)"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/cloud_descent.png"><div class="k-qrim" style="--q:var(--g-heaven)"></div></div></div>
+<div class="grp-l c-gold" style="left:432px;top:566px">Ring II <span class="c-mist">· the 1/2 swap</span></div>
+<div class="abs flex" style="left:430px;top:588px;gap:6px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/mirror_mind_spike.png"><div class="k-qrim" style="--q:var(--g-heaven)"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/soul_lantern_ward.png"><div class="k-qrim" style="--q:var(--g-heaven)"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/sword_release.png"><div class="k-qrim" style="--q:var(--g-earth)"></div></div><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/techniques/sword_swarm.png"><div class="k-qrim" style="--q:var(--g-earth)"></div></div></div>
+<div class="grp-l c-gold" style="left:868px;top:566px">Inner Arts <span class="c-jade">· Lotus Mind not worn</span></div>
+<div class="abs flex" style="left:866px;top:588px;gap:6px">
+  <div class="k-slot k-slot76 is-empty"><div class="k-new" style="right:6px;top:6px"></div></div>
+  <div class="k-slot k-slot76 is-empty"></div><div class="k-slot k-slot76 is-empty"></div><div class="k-slot k-slot76 is-empty"></div>
+</div>
+
+</div></body></html>

@@ -42,7 +42,7 @@ func draw_page() -> void:
 	var cands := support_candidates(ch)
 	if cands.is_empty(): text(right.position + Vector2(24, 80), Tx.t("ui.breakthrough.no_support_items"), 18, UiKit.HOLLOW)
 	for i in cands.size():
-		var r2 := Rect2(right.position.x + 24 + (i % 4) * 76, right.position.y + 60 + (i / 4) * 76, 66, 66)
+		var r2 := Rect2(right.position.x + 24 + (i % 4) * (SLOT + 8), right.position.y + 60 + (i / 4) * (SLOT + 8), SLOT, SLOT)
 		slot_box(r2, str(cands[i]), ch.inventory.count(str(cands[i])), "", "support", str(cands[i]), supports.has(cands[i]))
 	var yy := right.end.y - 210
 	for reason in q.get("reasons", []):

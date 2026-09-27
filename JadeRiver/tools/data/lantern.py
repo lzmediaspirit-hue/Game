@@ -113,11 +113,11 @@ def lanternfall():
     r.obj("exchange_lh", "inspect", [2000, 720], prop="counter",
           text="The harbour exchange: Spirit Stones for Sage Crystals, Sage Crystals for Star Jade, at the Wardens' rate.",
           open_page="exchange", requires=w.all_of(w.unlock("currency_exchange")), locked_text="The exchange clerk ignores you.")
-    r.npc("clerk_yu", [1960, 780], facing=1)
+    r.npc("clerk_yu", [1860, 800], facing=1)
     r.npc("peddler_ning", [1000, 830], facing=1)
     r.npc("apothecary_sang", [2300, 830], facing=-1)
     r.npc("smith_ou", [2750, 830], facing=1)
-    r.obj("sign_lh_market", "signpost", [3700, 860], text="East: the Drifting Shoals (Lv 82-87, Starsea Endurance 20-28) · West: the Arrival Quay.")
+    r.obj("sign_lh_market", "signpost", [3660, 870], text="East: the Drifting Shoals (Lv 82-87, Starsea Endurance 20-28) · West: the Arrival Quay.")
     r.edge("west", "west", "lh_arrival_quay", "east", y=850)
     r.edge("east", "east", "dr_jellyfish_shallows", "west", y=850, ptype="sealed",
            requires=w.any_of(w.qactive("salt_of_the_stars"), w.qdone("salt_of_the_stars")),
@@ -205,7 +205,7 @@ def drifting_shoals():
                 spawns=[("star_jellyfish", 3, [85, 87]), ("comet_sparrow", 3, [85, 87], 14)], ores=("driftglass", "driftglass"), herbs=("star_lotus",),
                 jars=5, chest="chest_lantern", attunement_required=28, **shoals)
     shoals_scenery(r, glass=5, buoys=1)
-    r.obj("insight_star", "insight_stone", [1900, 720], element="metal", requires=w.all_of(w.unlock("insight_sites")),
+    r.obj("insight_star", "insight_stone", [1760, 740], element="metal", requires=w.all_of(w.unlock("insight_sites")),
           locked_text="A lens of driftglass the tides have set upright. The stars in it do not match the sky.")
     r.edge("west", "west", "dr_sparrow_reefs", "east", y=850)
     r.edge("east", "east", "bm_blackmast_docks", "west", y=850, ptype="sealed",
@@ -421,7 +421,7 @@ def orbit_ruins():
                 platforms=[(1100, 650, 300, 110), (2400, 640, 320, 200)], **ruins)
     orbit_scenery(r, 4)
     r.npc("orbit_hermit", [1700, 790], facing=-1)
-    r.obj("switch_garden", "gravity_switch", [2900, 700])
+    r.obj("switch_garden", "gravity_switch", [3060, 720])
     r.volume("low_gravity", [2600, 620, 900, 340], alt=[-10, 700], switch="switch_garden", gravity=0.45, vid="lowg_garden")
     r.edge("west", "west", "or_tumbling_stair", "east", y=850)
     r.edge("east", "east", "or_golem_foundry", "west", y=850)

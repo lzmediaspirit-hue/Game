@@ -6,11 +6,12 @@ cloth + jadeiron plates + jade trim), Heaven (pale-blue cloudsilk + silver trim 
 cloud embroidery), Mystic (mistjade violet + gold trim + faint glow).
 """
 from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+from palette import R, M, TEX, mat7
+from registry import hd, register
 import shapes as S
 
 FAM = 'equipment'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 COTTON = Ramp(['#23282E', '#3C444D', '#606B76', '#8E99A2', '#C3CBD0'], '#0D1013')
 
@@ -425,3 +426,51 @@ register(FAM, 'mistjade_cape', mistjade_cape, 'armour')
 register(FAM, 'cloud_talisman', cloud_talisman, 'armour')
 for _k in ('starter', 'bamboo', 'jadeiron', 'cloud', 'mistjade', 'stormsteel', 'sunsteel'):
     register(FAM, '%s_gourd' % _k, (lambda k=_k: gourd(k)), 'gourds')
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+def robe_hd(p, grade):
+    """A robe laid flat: sleeves, crossed lapels over a paper collar, the sash and its ties, the hem; plates and
+    a gem where the grade's CLOTH row has them."""
+    k = {n: (mat7(v) if isinstance(v, Ramp) else v) for n, v in CLOTH[grade].items()}
+    cloth, trim, sash = k['cloth'], k['trim'], k['sash']
+    c = p.c
+    body = c.poly([(20, 8), (44, 8), (46, 28), (52, 58), (12, 58), (18, 28)])
+    sl = c.poly([(20, 10), (8, 16), (3, 44), (17, 46), (20, 28)])
+    sr = c.poly([(44, 10), (56, 16), (61, 44), (47, 46), (44, 28)])
+    p.part(sl, cloth, 'ray', base=-1, sep=False, tex='cloth', axis=100.0, rim=False)
+    p.part(sr, cloth, 'ray', base=-1, sep=False, tex='cloth', axis=80.0, rim=False)
+    p.part(body, cloth, 'ray', base=0, sep=True, tex='cloth', axis=90.0, rim=False)
+    for s in (sl, sr):
+        p.part(s & c.box(0, 39, 64, 64), trim, 'ray_soft', base=0, sep=True, tex=TEX.get(trim.kind), rim=False)
+    # inner collar and the crossed lapels
+    p.part(c.poly([(26, 8), (38, 8), (32, 18)]), M('paper'), 'flat', base=0, sep=True, rim=False)
+    p.part(c.polyline([(39, 9), (33, 17)], 4.2), trim, 'ray_soft', base=-1, sep=True, rim=False)
+    p.part(c.polyline([(25, 9), (39, 29)], 4.6), trim, 'ray_soft', base=0, sep=True, rim=False)
+    # the sash and its hanging ties, the hem, the skirt folds
+    p.part(c.box(18, 28, 46, 33) & body, sash, 'vgrad', base=0, sep=True, tex=TEX.get(sash.kind), rim=False)
+    p.part(c.polyline([(24, 33), (24, 45)], 2.0) | c.polyline([(28, 33), (28, 43)], 2.0), sash, 'flat', base=1, sep=True, rim=False)
+    p.part(body & c.box(0, 54, 64, 64), trim, 'ray_soft', base=0, sep=True, tex=TEX.get(trim.kind), rim=False)
+    for x0, x1 in ((22, 20), (32, 32), (42, 44)):
+        p.line([(x0, 34), (x1, 53)], cloth, -1, 1.0)
+        p.line([(x0 + 1, 34), (x1 + 1, 53)], cloth, 1, 1.0)
+    if k['plate'] is not None:
+        # shoulder plates with a rivet line, and scales across the chest
+        plate = k['plate']
+        for (x0, x1) in ((5, 19), (45, 59)):
+            p.part(c.rrect(x0, 12, x1, 23, 2.5), plate, 'bevel', base=0, sep=True, hw=2, sw=2, tex='metal')
+            p.line([(x0 + 2, 17.5), (x1 - 2, 17.5)], plate, -2, 1.0)
+            for x in range(x0 + 3, x1 - 1, 4):
+                p.decal(c.circle(x, 15, 0.7), plate, 2)
+        rows = c.empty()
+        for y in range(18, 27, 3):
+            for x in range(21, 43, 4):
+                rows |= c.arc(x + 2 + (2 if (y // 3) % 2 else 0), y + 1.5, 2.0, 0.9, 180, 360)
+        p.decal(rows & c.box(21, 18, 43, 27) & body, plate, 1)
+    if k['gem'] is not None:
+        p.part(c.diamond(32, 31.5, 3.6, 3.6), k['gem'], 'ray', base=1, sep=True, spec=(31.0, 30.2))
+    if k['glow']:
+        p.glow(k['glow'], 0.8)
+
+
+hd('jadeiron_robe', lambda p: robe_hd(p, 'earth'))

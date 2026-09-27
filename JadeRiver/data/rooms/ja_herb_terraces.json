@@ -281,7 +281,59 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "terrace_stairs_1_under_ground",
+   "art": "none",
+   "position": [
+    660,
+    660
+   ],
+   "front_y": 660,
+   "footprint": [
+    580,
+    620,
+    160,
+    40
+   ],
+   "height": 8,
+   "radius": 0
+  },
+  {
+   "id": "terrace_stairs_2_under_ground",
+   "art": "none",
+   "position": [
+    1140,
+    706
+   ],
+   "front_y": 706,
+   "footprint": [
+    1060,
+    620,
+    160,
+    86
+   ],
+   "height": 8,
+   "radius": 0
+  },
+  {
+   "id": "terrace_stairs_3_under_ground",
+   "art": "none",
+   "position": [
+    1620,
+    748
+   ],
+   "front_y": 748,
+   "footprint": [
+    1540,
+    620,
+    160,
+    128
+   ],
+   "height": 8,
+   "radius": 0
+  }
+ ],
  "decor": [
   {
    "prop": "bamboo_cluster",

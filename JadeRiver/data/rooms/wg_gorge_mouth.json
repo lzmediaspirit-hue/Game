@@ -128,7 +128,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    650,
+    510,
     675
    ],
    "item": "mist_lotus",
@@ -179,7 +179,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    510,
+    650,
     675
    ],
    "loot": "jar_valley_mid",

@@ -643,14 +643,14 @@ func _draw_chip(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 		var k := a * _in(lt, i * 0.15, 0.25)
 		if k <= 0.0: continue
 		var s := Tx.t("moment.opens") % str(list[i].get("label", ""))
-		var ic: Texture2D = SpriteCache.icon(str(list[i].get("system", "")))
-		var w := UiKit.text_width(s, 18) + (52.0 if ic else 28.0)
-		var r := Rect2(minf(float(L.at[0]), 1264.0 - w), float(L.at[1]) - i * 46.0 + (0.0 if still else 8.0 * (1.0 - k)), w, 36.0)
+		var ic := not SpriteCache.icon_fit(str(list[i].get("system", "")), 32.0).is_empty()
+		var w := UiKit.text_width(s, 18) + (58.0 if ic else 28.0)
+		var r := Rect2(minf(float(L.at[0]), 1264.0 - w), float(L.at[1]) - i * 46.0 + (0.0 if still else 8.0 * (1.0 - k)), w, 40.0)
 		_pill.bg_color = Color(UiKit.INK.lerp(UiKit.GOLD, 0.12), 0.8 * k)
 		_pill.border_color = Color(UiKit.GOLD, 0.55 * k)
 		ci.draw_style_box(_pill, r)
-		if ic: ci.draw_texture_rect(ic, Rect2(r.position + Vector2(8, 6), Vector2(24, 24)), false, Color(1, 1, 1, k))
-		UiKit.draw_text(ci, s, r.position + Vector2(40.0 if ic else 14.0, 25.0), 18, Color(UiKit.PALE_GOLD, k))
+		if ic: SpriteCache.draw_icon(ci, Rect2(r.position + Vector2(6, 4), Vector2(32, 32)), str(list[i].get("system", "")), Color(1, 1, 1, k))
+		UiKit.draw_text(ci, s, r.position + Vector2(46.0 if ic else 14.0, 27.0), 18, Color(UiKit.PALE_GOLD, k))
 
 ## A vermilion seal stamped with a squash from 1.4x; `at` is a point, or "band"/"strip" for that layer's right end.
 func _draw_seal(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, still: bool) -> void:

@@ -66,6 +66,33 @@
   merge, the queue order, a cut, stale and full queues, pages and fights, a room change, the settings and the lock on
   fixture rows).
 
+## P4b · Icons in Style A: the pipeline and the display (docs/mockups/icon_study)
+
+- **The pipeline** (`tools/icons/`, README "How to convert a family"): `pix.py` gains the HD mode the study
+  prototyped (`SCanvas`, `Frame`, 7-level bands, `PixelPainter` with its texture, rim-light and selective-outline
+  passes); `palette.py` gains `Mat` / `mat7` / `M`, material kinds, and grade kits from Plain to Sphere (Sovereign,
+  Will and Sphere are new). Each family module declares `ART`: 32 (legacy) until every icon in it has an HD drawing,
+  then 64 (HUD glyphs 32). An HD family builds its icons at 1:1 plus native `@48` (techniques) and `@32` renders, and
+  the manifest lists them as `<id>@<px>`. `--only <family> --review-dir` writes the family in the 76 px slot at 1x and
+  2x and in context (a Bag grid, the HUD rings); `--preview-hd` shows an unfinished family in the game.
+- **The study's twelve icons** are the first HD drawings, in their own families (weapons, armour, pills, herbs,
+  minerals, beast parts, workshop, techniques, HUD), behind each family's `ART`, so nothing on screen changes until a
+  family flips. The study's Style A library is folded in (the study now renders from the families); from Style B come
+  the domed technique disc with a shadow under the mark and a glass crescent in more steps.
+- **The display**: every icon is drawn through `SpriteCache.draw_icon`, at a whole-number scale of its art and on
+  whole pixels, never filtered (review I2). Page slots are 76 px (`Page.SLOT`: a 64 px icon at 1:1, a legacy icon at
+  2x) or 44 px in list rows (`Page.SLOT_SMALL`: 32 px); the Bag keeps the figure between its worn slots, with a
+  five-column grid. The HUD takes an HD technique's native 48 and an item's native 32; a legacy technique shows at 2x
+  in its ring, HUD glyphs at 32 (2x). The slot draws a soft grade halo behind Mystic items and above. The kit CSS and
+  the kit sheet have the 76 px slot. A `ui_suite` rule checks every icon on every page, and `icon_draw_suite` the fit.
+- **Pills in Style A** (`tools/icons/families/pills.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/pills/`): the 33 pills redrawn at 64 px with native `@32` renders for the HUD item ring,
+  the first family to flip. The vessel is now the kind of pill (a jar heals and restores, a footed bottle is taken at
+  a breakthrough, a gourd is a draught, a round box remakes the body or a method, a paper wrap holds loose pills) and
+  the grade its material and trim (a cloth cap, a jade plug, a silver cloud lid, a domed lid with a gem finial; ring
+  handles and the glow from Mystic up; Law and Monarch in night steel and rose gold), driven from one table; the
+  effect marks are shapes, and the legacy 32 px code is gone.
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7a · The item and monster wikis
@@ -98,6 +125,34 @@
   fails, and a listed item fails once it gains a source, so the list only shrinks.
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
+
+### P2 · The close-out: rooms walked, objects apart, the mark follows the objective (M16–M18, M20)
+- **Every room walked (M16).** A new suite, `room_sweep`, walks every room headless with the real movement solver. It
+  checks that every door and interactable can be reached from every way in and that every arrival reaches a way out.
+  It walks the route between every pair of them and fails on a body held in place, and it fails on any solid
+  footprint that sticks out past its art (an invisible wall). It takes about 18 s.
+- **No more walking in under the steps.** In the Herb Terraces, the East Terrace, the Pavilion Rooftops and the Cliff
+  Stair the ground ran on under the raised stairs and landings. A walker along the back row ended up inside the
+  staircase, and pressing up did nothing there. The ground is now solid under any raised ground surface more than 8
+  above it (`under_steps()` in `tools/data/world.py`).
+- **No interactable hides another (M18).** A `data_validation` rule fails when one interactable would take the
+  context button from another where it stands, or from a door. It found 41: NPCs in six interior doorways and on three
+  anvils, chests over ledge herbs, signposts on sealed ways, the Gate Street bunk on the Weapon Hall's door, the
+  recruiters on their tent doors, a gravity switch on a herb. All were moved in the builders. Nodes and chests lifted
+  onto a tier now keep out of each other's reach.
+- **The context button looks at height.** A chest on a ledge could take the button from the herb below it and then
+  say "out of reach". The button now skips anything more than 48 above or below, as the interaction already did.
+- **The dummy case, played (M17).** As the valley_run character: between Uncle Guo and his dummy the button talks to
+  Guo and a blow strikes the dummy only. On the dialogue page a last line with nothing to choose, an accept and a
+  hand-in (Stone and Sweat, played on the page) all close the conversation by themselves.
+- **The direction mark follows the objective (M20).** It leads to the current objective's place: the room it names,
+  the NPC where they stand now and in your own sect, the nearest room with the foe or the herb, the room where a
+  dropped item drops. It goes as far as the room that hides a hidden way. Before, 18 main and guided quests had no
+  mark and 27 marked one room for every objective. Hand-in marks could point at the Weapon Master's yard before he
+  moves there, at Aunt Ping's hut after the Hollow Night, and at the other sect's arena.
+- Tests: `room_sweep`; `data_validation` `overlap_suite` and `quest_guidance_suite`, which plays every guided and main
+  quest on a probe set at the point where the story offers it (giver, marker, offer, each objective's mark and route,
+  the hand-in); `rules_tests` `guidance_suite`; `valley_run` bf5.
 
 ### The code review (`docs/review-code.md`)
 - **Bugs fixed, each with a `fixes_suite` test that failed before:** the Relations and Calendar authorities now tick.

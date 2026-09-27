@@ -68,10 +68,14 @@ anti-aliasing, no non-integer scaling. Keep the existing character art untouched
 - HUD glyphs: 32×32 (16 art px ×2), pale gold `#E5B84C`/`#FFE6A1` glyph with ink
   outline, drawn to sit inside the dark HUD circles.
 - Status icons: 24×24 (12 art px ×2).
-- Pills are recognised by vessel silhouette + pill shape + effect mark
-  (heart = healing, spiral = QI, eye = soul, bone = body temper, arrows = conversion,
-  gate = breakthrough, knot = consolidation, lamp = comprehension, leaf = antidote,
-  flame = burst). Grade changes the vessel trim, never only colour.
+- Pills are recognised by vessel silhouette + pill colour + effect mark. The vessel is
+  the kind of pill (a jar heals and restores, a footed bottle is taken at a breakthrough,
+  a gourd is a draught, a round box remakes the body or a method, a paper wrap holds
+  loose pills); the grade is the vessel's material and trim (closure, bands, foot,
+  handles, glow), never only colour. Marks: heart = healing, spiral = QI, eye = soul,
+  bone = body temper, arrows = conversion, gate = breakthrough, knot = consolidation,
+  lamp = comprehension, leaf = antidote, flame = burst, sun = a lasting burst, bolt =
+  storm, paw = an animal's, fang = a poison, crown and anchor = the Monarch's.
 - Equipment grades: Plain (wood/grey/hemp), Common (iron grey), Earth (jadeiron green
   trim), Heaven (cloudsteel pale blue), Mystic (mistjade violet). Border pattern is added
   by the UI; icons show only the object.

@@ -1,0 +1,132 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>07 Bag, the jade chest (full)</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the paper doll: the figure at 3x on a jade dais, the worn slots round it */
+  .alcove { position: absolute; left: 92px; top: 172px; width: 376px; height: 400px; border-radius: 6px;
+    background: radial-gradient(ellipse 60% 55% at 50% 58%, rgba(44,158,143,.22), rgba(13,48,53,.35) 55%, rgba(7,16,21,0) 80%); }
+  .dais { position: absolute; left: 280px; top: 522px; width: 200px; height: 40px; margin: -20px 0 0 -100px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(103,214,189,.30), rgba(44,158,143,.12) 55%, rgba(0,0,0,0) 72%); box-shadow: 0 0 0 1px rgba(103,214,189,.28); }
+  .fig3 { transform-origin: 192px 254px; transform: scale(3); }
+  .slot-l { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .hintslot { box-shadow: 0 0 0 2px var(--bright-jade), 0 0 14px 4px rgba(103,214,189,.55); border-radius: 4px; }
+  /* the jade chest: a lacquered box with bronze fittings; its well holds the gourd's space as a grid */
+  .chest { position: absolute; left: 480px; top: 172px; width: 424px; height: 492px; border-radius: 6px;
+    background: linear-gradient(180deg, #226f67 0%, #17564f 16%, #0f3b3c 60%, #0b2d31 100%);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 3px #7a5426, inset 0 0 0 5px #c6a262, inset 0 0 0 7px #0a2027, 0 6px 0 rgba(0,0,0,.35); }
+  .chest::before { content: ""; position: absolute; left: 7px; right: 7px; top: 60px; height: 3px; background: linear-gradient(90deg, #7a5426, #e5b84c 50%, #7a5426); }
+  .corner { position: absolute; width: 22px; height: 22px; border: 3px solid #c6a262; box-shadow: 0 0 0 1px var(--ink); }
+  .well { position: absolute; left: 486px; top: 234px; width: 412px; height: 334px; border-radius: 4px;
+    background: radial-gradient(ellipse at 50% 50%, #0c2a2f 0%, #061318 80%); box-shadow: inset 0 0 0 1px rgba(154,106,53,.6), inset 0 2px 10px rgba(0,0,0,.7); overflow: hidden; }
+  .ringmark { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 2px solid rgba(103,214,189,.07); transform: translate(-50%, -50%); }
+  .grid { position: absolute; left: 488px; top: 240px; width: 404px; display: grid; grid-template-columns: repeat(5, 76px); gap: 6px; }
+  .gem { position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; transform: rotate(45deg); background: var(--gq); box-shadow: 0 0 0 1.5px var(--ink); }
+  .lockcell { display: flex; align-items: center; justify-content: center; opacity: .75; }
+  .lockcell .k-lock-mini { transform: scale(1.3); }
+  .chip { height: 48px; font-size: 17px; padding: 0 8px; min-width: 0; }
+  .chip .n { font-family: var(--f-text); font-weight: 700; font-feature-settings: "lnum" 1, "tnum" 1; color: var(--mist); margin-left: 5px; font-size: 15px; }
+  .det { position: absolute; left: 916px; top: 172px; width: 272px; height: 492px; }
+  .cmp { display: grid; grid-template-columns: 1fr 44px 52px; font-size: 16px; row-gap: 2px; }
+  .cmp .up { color: var(--bright-jade); text-align: right; } .cmp .v { text-align: right; color: var(--paper); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Bag</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs"><div class="k-tab is-selected">Spirit Gourd</div><div class="k-tab">Key Pouch <span class="t-fig c-mist" style="margin-left:8px;font-size:16px">28</span></div></div>
+</div>
+<div class="k-pill abs" style="left:760px;top:128px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">68,061</span></div><div class="k-pill abs" style="left:900px;top:128px"><img class="ic" src="../../../art/icons/hud/spirit_stone.png"><span class="v">6,610</span></div><div class="k-pill abs" style="left:1030px;top:128px"><img class="ic" src="../../../art/icons/items/sage_crystal.png"><span class="v">1,227</span></div>
+
+<!-- ================= the paper doll: the figure wearing what is worn, the slots round it ================= -->
+<div class="alcove"></div>
+<div class="dais"></div>
+<img class="k-fig fig3" style="left:241px;top:522px" src="../assets/fig_tester_ls6_idle.png">
+<div class="abs" style="left:92px;top:180px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:257px">Hat</div>
+<div class="abs" style="left:92px;top:272px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:349px">Robe</div>
+<div class="abs" style="left:92px;top:364px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:441px">Trousers</div>
+<div class="abs" style="left:92px;top:456px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:533px">Boots</div>
+<div class="abs" style="left:392px;top:180px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:257px">Weapon</div>
+<div class="abs" style="left:392px;top:272px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:349px">Gourd</div>
+<div class="abs" style="left:392px;top:364px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:441px">Cape</div>
+<div class="abs" style="left:392px;top:456px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:533px">Talisman</div>
+
+<div class="abs t-xs c-gold" style="left:96px;top:568px">Carried to the HUD</div>
+<div class="abs t-xs c-paper" style="left:96px;top:588px;width:368px;line-height:1.4">
+  <div><span class="c-mist">Quick-use</span> Herbal Tea <span class="c-orange">· none left</span></div>
+  <div><span class="c-mist">Treasures</span> Practice Bell <span class="c-mist">· the second is empty</span></div>
+  <div><span class="c-mist">Furnace</span> Nine-Dragon Cauldron <span class="c-mist">· no spare weapon</span></div>
+</div>
+
+<!-- ================= the jade chest ================= -->
+<div class="chest"></div>
+<div class="corner" style="left:480px;top:172px;border-right:0;border-bottom:0;border-radius:6px 0 0 0"></div>
+<div class="corner" style="left:882px;top:172px;border-left:0;border-bottom:0;border-radius:0 6px 0 0"></div>
+<div class="corner" style="left:480px;top:642px;border-right:0;border-top:0;border-radius:0 0 0 6px"></div>
+<div class="corner" style="left:882px;top:642px;border-left:0;border-top:0;border-radius:0 0 6px 0"></div>
+<div class="abs flex" style="left:488px;top:180px;gap:4px"><div class="k-btn chip">All<span class="n">31</span></div><div class="k-btn2 chip">Gear<span class="n">3</span></div><div class="k-btn2 chip">Pills<span class="n">7</span></div><div class="k-btn2 chip">Materials<span class="n">15</span></div><div class="k-btn2 chip">Other<span class="n">6</span></div></div>
+<div class="well">
+  <div class="ringmark" style="width:380px;height:380px"></div><div class="ringmark" style="width:270px;height:270px"></div><div class="ringmark" style="width:160px;height:160px"></div>
+</div>
+<div class="grid">
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/tough_meat.png"><div class="k-qrim" style="--q:var(--g-plain)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/clear_mind_pill.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/star_shard.png"><div class="k-qrim" style="--q:var(--g-sovereign)"></div><span class="k-count t-fig t-outline c-paper">64</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/cinder_ash.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/copperjaw_box.png"><div class="k-qrim" style="--q:var(--g-will)"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/drone_shell.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">14</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/ink_warden_brush.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/formation_stone.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/qi_restoration_pill.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/lu_journal_page.png"><div class="k-qrim" style="--q:var(--g-plain)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../icon_study/icons/A_healing_pill.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/will_tempering_pill.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="k-count t-fig t-outline c-paper">33</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/cloudsteel_jian.png"><div class="k-qrim" style="--q:var(--g-heaven)"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/leviathan_scale.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">7</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/eel_essence.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">8</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/revival_talisman.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76 is-selected"><img class="ic" src="../../../art/icons/equipment/sunsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="gem" style="--gq:var(--q-perfect)"></span><div class="k-slot-glow"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/stormsteel_ore.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/hollow_shard.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/spirit_stone_shard.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">20</span></div>
+</div>
+<div class="abs" style="left:895px;top:240px;width:4px;height:322px;border-radius:2px;background:rgba(175,201,209,.14)"></div>
+<div class="abs" style="left:895px;top:269px;width:4px;height:117px;border-radius:2px;background:var(--jade)"></div>
+<div class="abs t-sm c-paper" style="left:496px;top:580px">Space <span class="t-fig c-pale">31 / 50</span></div><div class="k-hudbar abs" style="left:612px;top:587px;width:150px;height:10px;--v:0.62;--fill:var(--jade)"><div class="k-fill"></div></div><div class="abs t-xs c-mist" style="left:496px;top:606px">Stormsteel Gourd</div><div class="abs t-xs c-mist flex" style="left:496px;top:626px;gap:8px"><span class="k-lock-mini"></span>A Sunsteel Gourd holds 55</div><div class="k-btn2 abs" style="left:776px;top:590px;width:110px;height:48px;font-size:20px">Sort</div>
+
+<!-- ================= the selected item ================= -->
+<div class="det k-minor-panel"></div>
+
+<div class="k-slot k-slot76 is-selected abs" style="left:930px;top:186px"><img class="ic" src="../../../art/icons/equipment/sunsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="gem" style="--gq:var(--q-perfect)"></span><div class="k-slot-glow"></div></div>
+<div class="abs t-subhead" style="left:1018px;top:188px;width:160px;color:var(--q-perfect)">Sunsilk Trousers</div>
+<div class="abs t-sm" style="left:930px;top:274px"><span style="color:var(--q-perfect)">Perfect</span> · <span style="color:var(--g-sage)">Sage</span> · <span class="c-paper">Trousers</span></div>
+<div class="abs t-xs c-mist" style="left:930px;top:296px">iLv <span class="t-fig">81</span> · Sage Qi · <span class="t-fig">3</span> sockets</div>
+<div class="k-divider abs" style="left:930px;top:320px;width:244px"></div>
+<div class="abs t-xs c-gold" style="left:930px;top:328px">Against your Stormsilk Trousers</div>
+<div class="cmp abs" style="left:930px;top:348px;width:244px">
+  <span class="c-mist">Physical defence</span><span class="v t-fig">177</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">76</span></span>
+  <span class="c-mist">Evasion</span><span class="v t-fig">53</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">19</span></span>
+  <span class="c-mist">Max HP</span><span class="v t-fig">211</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">75</span></span>
+</div>
+<div class="abs t-xs c-gold" style="left:930px;top:422px">Rolled on it · three, for Perfect</div>
+<div class="abs t-sm c-pale" style="left:930px;top:442px"><span class="t-sym">◆</span> +4% tenacity</div>
+<div class="abs t-sm c-pale" style="left:930px;top:464px"><span class="t-sym">◆</span> +31 evasion</div>
+<div class="abs t-sm c-pale" style="left:930px;top:486px"><span class="t-sym">◆</span> +11 body</div>
+<div class="k-btn abs" style="left:930px;top:540px;width:244px;height:52px">Equip</div>
+<div class="k-btn2 abs" style="left:930px;top:600px;width:92px;height:48px;font-size:20px">Lock</div>
+<div class="k-btn2 abs" style="left:1026px;top:600px;width:96px;height:48px;font-size:20px">Discard</div>
+<div class="k-btn2 abs" style="left:1126px;top:600px;width:48px;height:48px;font-size:20px;padding:0">···</div>
+
+
+</div></body></html>

@@ -2,11 +2,12 @@
 import math
 
 from pix import Canvas, Ramp, dilate4, erode4, move
-from palette import R
-from registry import register
+from palette import R, mat7
+from registry import hd, register
 import shapes as S
 
 FAM, GROUP = 'items', 'herbs'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 
 def _leaves(c, specs, ramp=None, rib=True):
@@ -459,3 +460,41 @@ def star_lotus():
 
 
 register(FAM, 'star_lotus', star_lotus, GROUP)
+
+
+# ============================================================================= HD (Style A, 64 icon space)
+def star_lotus_hd(p):
+    """The star lotus open on the night sea: five back petals, a seed head with its star, two front petals."""
+    c = p.c
+    teal, petal, seed, nebula = mat7(NEBULA_TEAL, 'matte'), mat7(R['starlight'], 'silk'), mat7(SEED_HEAD, 'matte'), mat7(NEBULA_MAGENTA, 'light')
+    pad = c.ellipse(32, 51, 28, 7.6)
+    p.part(pad, teal, 'ray', base=0, sep=False, rim=False)
+    p.line([(32, 49), (54, 49)], teal, -2, 1.0)
+    p.line([(18, 47), (30, 45)], teal, 1, 1.0)
+    bx, by = 32.0, 46.0
+    back = [(bx - 2, by, 128, 28, 13.6, -0.06), (bx + 2, by, 52, 28, 13.6, 0.06), (bx, by + 1, 90, 31, 15.4, 0.0)]
+    side = [(bx - 2, by, 160, 25, 12.4, -0.12), (bx + 2, by, 20, 25, 12.4, 0.12)]
+    for (x, y, a, L, W, b) in back + side:
+        m = c.leaf(x, y, a, L, W, b, tip_power=0.7)
+        p.part(m, petal, 'ray', base=0, sep=True, tex='cloth', axis=a, rim=False)
+        dx, dy = math.cos(math.radians(a)), -math.sin(math.radians(a))
+        p.decal(c.circle(x + dx * L * 0.9, y + dy * L * 0.9, L * 0.3) & m, petal, 2)
+        p.line([(x + dx * 3, y + dy * 3), (x + dx * L * 0.7, y + dy * L * 0.7)], petal, -1, 1.0)
+    head = c.ellipse(32, 33, 8.4, 4.8)
+    p.part(head, seed, 'ray', base=0, sep=True, rim=False)
+    for (x, y) in ((26, 32), (38, 32), (30, 30.5), (34, 30.5), (30, 34.5), (34, 34.5)):
+        p.decal(c.circle(x, y, 1.0) & head, seed, -3)
+    for (x, y, a) in ((30, 47, 116), (34, 47, 64)):
+        m = c.leaf(x, y, a, 12.5, 10, 0.0, tip_power=0.7)
+        p.part(m, petal, 'ray', base=0, sep=True, tex='cloth', axis=a, rim=False)
+        p.decal(c.circle(x + math.cos(math.radians(a)) * 9, y - math.sin(math.radians(a)) * 9, 3.0) & m, petal, 2)
+    # a nebula ripple on the water in front of the pad
+    ripple = (c.ellipse(44, 57, 13, 2.4) | c.ellipse(18, 56.5, 7, 2.0)) & ~pad
+    p.part(ripple, nebula, 'flat', base=0, sep=True, rim=False)
+    p.decal(ripple & c.box(0, 0, 44, 64), nebula, 1)
+    p.sparkle(32, 32, 2)
+    p.sparkle(32, 7, 1)
+    p.glow(STAR_GLOW, 0.6)
+
+
+hd('star_lotus', star_lotus_hd)

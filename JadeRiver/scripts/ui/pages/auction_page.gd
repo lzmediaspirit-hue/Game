@@ -29,7 +29,7 @@ func draw_page() -> void:
 		var l: Dictionary = lots[i]
 		var mine: bool = str(l.bidder) == ch.id
 		panel(rr, "minor_panel", "selected" if mine else "normal")
-		slot_box(Rect2(rr.position + Vector2(12, 12), Vector2(72, 72)), str(l.item), int(l.count))
+		slot_box(Rect2(rr.position + Vector2(10, 8), Vector2(SLOT, SLOT)), str(l.item), int(l.count))
 		var lot_name := Tx.t("ui.auction.recipe") % ContentDB.name_of("recipes", str(l.learn)) if str(l.get("learn", "")) != "" else ContentDB.item_name(str(l.item))
 		text(rr.position + Vector2(100, 34), fit(lot_name + ("  ×%d" % int(l.count) if int(l.count) > 1 else ""), 21, rr.size.x * 0.4), 21)
 		var left_s := maxf(0.0, float(l.ends) - Clock.now_utc())

@@ -158,7 +158,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1190,
+    970,
     655
    ],
    "item": "frost_lotus",
@@ -209,7 +209,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    970,
+    1190,
     655
    ],
    "loot": "jar_expanse",
@@ -284,7 +284,7 @@
    "type": "star_sight",
    "at": [
     1500,
-    700
+    880
    ],
    "item": "star_reading",
    "prop": "star_sight_stone",
@@ -307,7 +307,7 @@
    "id": "swarm_frost_cricket",
    "type": "insect_swarm",
    "at": [
-    870,
+    720,
     860
    ],
    "item": "frost_cricket",

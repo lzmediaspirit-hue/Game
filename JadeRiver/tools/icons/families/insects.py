@@ -9,6 +9,7 @@ from registry import register
 import shapes as S
 
 FAM, GROUP = 'items', 'insects'
+ART = 32   # legacy; 64 once every icon here has an HD drawing (tools/icons/README.md, "How to convert a family")
 
 IN_GLOWTAIL = Ramp(['#40560E', '#7A9A18', '#BEE03A', '#E8FF86', '#FBFFD6'], '#18220A')
 IN_BLACKSHELL = Ramp(['#121010', '#221D19', '#382F27', '#584C3E', '#86775F'], '#060504')

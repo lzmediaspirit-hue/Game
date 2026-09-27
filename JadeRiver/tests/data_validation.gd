@@ -26,8 +26,10 @@ func _main() -> void:
 	moments_data_suite()
 	item_source_suite()
 	room_suite()
+	overlap_suite()
 	movement_suite()
 	auto_path_suite()
+	quest_guidance_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -861,6 +863,34 @@ func room_suite() -> void:
 		if v.get("planned", false): continue
 		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
 			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)
+
+## M18: no interactable hides another. Standing on an object (or at a door) and pressing the context button must reach it,
+## so no other object on the same tier may claim the button there by WorldAuthority's own ranking (context_rank): an
+## NPC on an NPC or on a shrine, a chest on a herb, any object whose reach covers a door. Two objects that are never
+## shown together (one's visible_if is the other's hidden_if: Elder Gu and Madam Hua) do not meet.
+func overlap_suite() -> void:
+	var pairs := 0
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.room(rid)
+		var heights := {}
+		for s in room.get("surfaces", []): heights[str(s.id)] = float(s.get("height", 0))
+		var objs: Array = room.get("objects", []).filter(func(o): return WorldAuthority.offers_context(o))
+		for a in objs:
+			var at_a := Vector2(float(a.at[0]), float(a.at[1]))
+			var reach := float(a.get("radius", 110))
+			for b in objs:
+				if a == b or absf(float(a.get("alt", 0)) - float(b.get("alt", 0))) > WorldAuthority.REACH_ALT: continue
+				if a.has("visible_if") and a.visible_if == b.get("hidden_if") or b.has("visible_if") and b.visible_if == a.get("hidden_if"): continue
+				pairs += 1
+				var d := at_a.distance_to(Vector2(float(b.at[0]), float(b.at[1])))
+				check(d > reach or WorldAuthority.context_rank(a, true) * 1000.0 + d > WorldAuthority.context_rank(b) * 1000.0,
+					"%s: %s hides %s (%d apart, reach %d)" % [rid, a.id, b.id, int(d), int(reach)])
+			for p in room.get("portals", []):
+				if not WorldAuthority.context_portal(p) or absf(float(a.get("alt", 0)) - float(heights.get(str(p.get("surface", "")), 0.0))) > WorldAuthority.REACH_ALT: continue
+				pairs += 1
+				var dp := at_a.distance_to(Vector2(float(p.at[0]), float(p.at[1])))
+				check(dp > reach, "%s: %s hides the %s %s (%d apart, reach %d)" % [rid, a.id, str(p.get("type", "edge")), p.id, int(dp), int(reach)])
+	check(pairs > 2000, "overlap_suite looked at %d pairs" % pairs)
 # ------------------------------------------------------------------ S43 movement data
 const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice", "low_gravity"]
 
@@ -945,3 +975,155 @@ func auto_path_suite() -> void:
 		checked += 1
 		check(not WorldRules.route(from, target, no_arts).is_empty(), "auto-path: %s reaches %s from %s without new arts" % [q.id, target, from])
 	check(checked >= 60, "auto-path covered %d quest targets" % checked)
+
+## M20 (P2): every guided and main quest leads the player on. A probe character is set at the point in the story where
+## the quest is offered: at the realm it is offered at, with every quest it waits on done (its requirements, its
+## unlock's trigger, the quest whose `next` it is, all the way back) and every prologue, main and guided quest the story
+## offers and finishes at a lower realm, and with the flags, events, arts, sect, unlocks and items they gave. The game's
+## own rules then answer, walking from home through the ways open at that point:
+##   - the giver stands visible where the player can reach, a marker calls the player over and the giver offers it (an
+##     auto-accepted quest needs no giver);
+##   - under way, each objective that needs a place leads the direction mark to a real room that holds what it asks for
+##     and that the player can reach (a story instance entered by an event is left out); once done, so does the hand-in.
+func quest_guidance_suite() -> void:
+	var story: Array = ContentDB.all("quests").filter(func(q): return str(q.kind) in ["prologue", "main", "guided"])
+	var held := {}    # quest -> the conditions that hold when it is offered (its requirements, its unlock's trigger)
+	var waits := {}   # quest -> the quests it waits on
+	for q in story:
+		held[str(q.id)] = _conds(q.get("requires", {}))
+		for u in ContentDB.all("unlocks"):
+			if str(u.get("quest", "")) == str(q.id): held[str(q.id)] += _conds(u.get("trigger", {}))
+		waits[str(q.id)] = held[str(q.id)].filter(func(k): return str(k.kind) in ["quest_done", "quest_accepted"]).map(func(k): return str(k.quest))
+	for q in story:
+		if waits.has(str(q.get("next", ""))): waits[str(q.next)].append(str(q.id))
+	var before := {}
+	for q in story: before[str(q.id)] = _all_back(waits, str(q.id))
+	var offered_at := {}    # quest -> the realm (its position) it is offered at; finished_at: and is finished at
+	var finished_at := {}
+	for q in story:
+		var r := -1
+		for d in [str(q.id)] + before[str(q.id)].keys():
+			for k in held.get(d, []):
+				if str(k.kind) in ["realm_at_least", "account_realm"]: r = maxi(r, ContentDB.realm_position(str(k.realm)))
+		offered_at[str(q.id)] = r
+		finished_at[str(q.id)] = r
+		for o in q.objectives:
+			if str(o.kind) == "reach_realm": finished_at[str(q.id)] = maxi(r, ContentDB.realm_position(str(o.realm)))
+	var c := GameCharacter.new()
+	c.id = "m20_probe"
+	Game.characters[c.id] = c
+	var quests := 0
+	for q in story:
+		var qid := str(q.id)
+		if str(q.kind) == "prologue": continue
+		quests += 1
+		var done: Dictionary = before[qid].duplicate()
+		for p in story:
+			var pid := str(p.id)
+			if pid != qid and not before[pid].has(qid) and offered_at[pid] < offered_at[qid] and finished_at[pid] <= offered_at[qid]:
+				done[pid] = 1
+				done.merge(before[pid])
+		_story_point(c, q, done, held)
+		if not q.get("auto_accept", false):
+			var giver := QuestAuthority.own_npc(c, q.get("giver_any", q.giver))
+			var at: Array = Game.quest.npc_rooms(c, giver)
+			check(not at.is_empty() and _walks_to(c, str(at[0])), "%s: its giver %s stands where the player can reach when it is offered (%s)" % [qid, giver, at])
+			check(QuestAuthority.marker_calls(Game.quest.npc_marker(c, giver)), "%s: a marker calls the player to %s (%s)" % [qid, giver, Game.quest.npc_marker(c, giver)])
+			var offer: Array = Game.quest.talk(c, giver).get("dialogue", {}).get("choices", [])
+			check(offer.any(func(ch): return str(ch.get("accept", "")) == qid), "%s: %s offers it" % [qid, giver])
+		c.quests.offered = {}
+		c.quests.active[qid] = {"state": "active", "progress": q.objectives.map(func(_o): return 0), "accepted_tick": 0}
+		_gains(c, q.get("on_accept", []))
+		for u in ContentDB.all("unlocks"):
+			if str(u.get("quest", "")) == qid: c.cultivator.unlocked[str(u.id)] = true
+		c.quests.tracked = [qid]
+		for i in q.objectives.size():
+			var o: Dictionary = q.objectives[i]
+			var places: Array = Game.quest.objective_places(c, o)
+			if not places.is_empty():
+				# The objectives before this one done: the tracker's mark is this one's.
+				c.quests.active[qid].progress = range(q.objectives.size()).map(func(j): return int(q.objectives[j].get("count", 1)) if j < i else 0)
+				var room := str(Game.quest.tracker(c)[0].target_room)
+				# A place a door or hidden way leads to is marked itself; the quest's own room stands in only for story instances.
+				var doors: Array = places.filter(func(r): return not WorldRules.rooms_with("to=" + str(r)).is_empty() or not WorldRules.rooms_with("hidden_to=" + str(r)).is_empty())
+				check(room != "" and (room in places or doors.is_empty() and room == str(q.get("target_room", ""))), "%s: '%s' has a direction mark (%s)" % [qid, o.text, room])
+				check(room == "" or _walks_to(c, room), "%s: '%s' leads to %s, which the player can reach then" % [qid, o.text, room])
+			_gains(c, [o])
+		var hand_in := Game.quest.hand_in_npc(c, q)
+		if hand_in != "":
+			c.quests.active[qid].state = "ready"
+			var back := str(Game.quest.tracker(c)[0].target_room)
+			check(_stands_in(c, hand_in, back) and _walks_to(c, back), "%s: the mark leads to its hand-in %s where the player can reach (%s)" % [qid, hand_in, back])
+	Game.characters.erase(c.id)
+	check(quests >= 100, "quest_guidance_suite followed %d guided and main quests" % quests)
+
+## Every quest `id` waits on, all the way back.
+func _all_back(waits: Dictionary, id: String) -> Dictionary:
+	var out := {}
+	var todo: Array = waits.get(id, []).duplicate()
+	while not todo.is_empty():
+		var d: String = todo.pop_back()
+		if out.has(d): continue
+		out[d] = 1
+		todo += waits.get(d, [])
+	return out
+
+## Every condition in a requirement, flattened.
+func _conds(req) -> Array:
+	var out: Array = []
+	if req is Dictionary:
+		for k in req.get("all", []) + req.get("any", []): out += _conds(k) if k.has("all") or k.has("any") else [k]
+	return out
+
+## The probe at the point where quest `q` is offered: what the quests `done` gave, and the conditions that held then.
+func _story_point(c, q: Dictionary, done: Dictionary, held: Dictionary) -> void:
+	c.quests.done = done.duplicate()
+	c.quests.active = {}
+	c.quests.flags = {}
+	c.quests.offered = {str(q.id): true}
+	c.cultivator.realm_key = "mortal"
+	c.cultivator.events_passed = []
+	c.cultivator.secret_arts = []
+	c.cultivator.unlocked = {}
+	c.training_sect = {}
+	c.inventory.key_items = []
+	c.cultivator.field_powers = {}
+	c.position = {"room": "lf_village"}
+	for d in done:
+		var dq := ContentDB.entry("quests", d)
+		_gains(c, held.get(d, []) + dq.get("on_accept", []) + dq.get("objectives", []) + dq.get("rewards", []))
+	_gains(c, held.get(str(q.id), []))
+	for u in ContentDB.all("unlocks"):
+		if done.has(str(u.get("quest", ""))) or str(u.get("quest", "")) == "" and RequirementRules.passes(u.get("trigger", {}), Game.ctx(c)):
+			c.cultivator.unlocked[str(u.id)] = true
+
+## What conditions held, and effects and objectives met, leave on the probe: realm, flags, events (and what finishing
+## them sets), arts, sect, items.
+func _gains(c, list: Array) -> void:
+	for e in list:
+		match str(e.get("kind", "")):
+			"realm_at_least", "account_realm", "reach_realm":
+				if not ProgressionRules.at_least(c.cultivator.realm_key, str(e.realm)): c.cultivator.realm_key = str(e.realm)
+			"unlock": c.cultivator.unlocked[str(e.system)] = true
+			"presence_level_at_least":
+				c.cultivator.field_powers["presence"] = {"xp": float(ContentDB.stat_const("presence.xp_levels", [0])[int(e.value) - 1])}
+			"set_flag", "flag_set": c.quests.flags[str(e.flag)] = true
+			"event_passed", "pass_event", "survive_timer":
+				if str(e.event) in c.cultivator.events_passed: continue
+				c.cultivator.events_passed.append(str(e.event))
+				for run in WorldRules.event_runs(str(e.event)): _gains(c, run.event.get("on_complete", []))
+			"learn_secret_art", "grant_art": c.cultivator.secret_arts.append(str(e.art))
+			"join_sect", "has_training_sect": c.training_sect = {"id": "jade_sect"}
+			"grant_item", "collect", "item_owned": c.inventory.key_items.append({"id": str(e.item), "count": int(e.get("count", 1))})
+
+func _stands_in(c, npc: String, room: String) -> bool:
+	return ContentDB.room(room).get("objects", []).any(func(o): return str(o.get("npc", "")) == npc and Game.world.object_visible(c, o))
+
+## The probe can walk (and sail) from home to a room through the ways open to it, or to the room that hides a hidden
+## way there once Spirit Sense can show it; a story instance with no way in is entered by its event instead.
+func _walks_to(c, room: String) -> bool:
+	var home := "lf_village"
+	var open := func(r: String) -> bool: return r == home or not Game.world.route(c, home, r).is_empty()
+	var hidden: Array = WorldRules.rooms_with("hidden_to=" + room)
+	if open.call(room) or WorldRules.rooms_with("to=" + room).is_empty() and hidden.is_empty(): return true
+	return Unlocks.is_unlocked(c.id, "hidden_portals") and hidden.any(func(h): return open.call(str(h)))

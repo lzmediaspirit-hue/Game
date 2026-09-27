@@ -168,7 +168,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    370,
+    170,
     655
    ],
    "item": "willow_moss",
@@ -219,7 +219,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    170,
+    370,
     655
    ],
    "loot": "jar_valley_low",

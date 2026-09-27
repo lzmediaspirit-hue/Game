@@ -1,0 +1,103 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>11 Your Sect, the courtyard</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the courtyard: the Sect Grounds as they stand, buildings not yet raised drawn pale where they will stand */
+  .court { position: absolute; left: 92px; top: 172px; width: 1096px; height: 224px; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px rgba(154,106,53,.7); }
+  .tag { position: absolute; transform: translateX(-50%); white-space: nowrap; padding: 2px 9px 3px; border-radius: 7px; background: rgba(5,15,19,.78);
+    border: 1px solid rgba(229,191,102,.35); font-size: 14px; font-weight: 700; color: var(--paper); line-height: 18px; }
+  .tag.built { border-color: rgba(229,184,76,.8); color: var(--pale-gold); }
+  .tag.lock { color: var(--hollow); }
+  .tag.can { border-color: rgba(103,214,189,.7); color: var(--bright-jade); }
+  .tag .k-lock-mini { transform: scale(.8); margin-left: 4px; top: 2px; }
+  .plot-sel { position: absolute; border: 2px dashed var(--pale-gold); border-radius: 6px; box-shadow: 0 0 14px 3px rgba(255,230,161,.45); }
+  .panel { position: absolute; top: 470px; height: 194px; }
+  .sec { position: absolute; font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: .04em; white-space: nowrap; }
+  .sec .c-mist { font-weight: 600; letter-spacing: 0; }
+  .navrow { position: absolute; left: 856px; width: 320px; height: 52px; border-radius: 4px; background: rgba(13,48,53,.6);
+    box-shadow: inset 0 0 0 1px rgba(154,106,53,.4); display: flex; align-items: center; gap: 10px; padding: 0 12px; }
+  .navrow .tx { flex: 1; display: flex; flex-direction: column; line-height: 1.2; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Your Sect</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs"><div class="k-tab is-selected">Courtyard</div><div class="k-tab">Expeditions</div><div class="k-tab">Territory</div></div>
+</div>
+<div class="abs t-md c-pale" style="left:1186px;top:128px;transform:translateX(-100%);white-space:nowrap;font-weight:700">Reed Lantern Sect <span class="c-mist" style="font-weight:600">· the Hidden Vale</span></div>
+
+<!-- ================= the courtyard ================= -->
+<img class="court" src="../assets/court_sect_grounds.png">
+<div class="plot-sel" style="left:268px;top:208px;width:196px;height:120px"></div>
+<div class="tag lock" style="left:169px;top:196px">Beast Pavilion<span class="k-lock-mini"></span><span class="t-fig">4</span></div>
+<div class="tag can" style="left:366px;top:190px">Treasury · to raise</div>
+<div class="tag lock" style="left:503px;top:196px">Mission Hall<span class="k-lock-mini"></span><span class="t-fig">2</span></div>
+<div class="tag can" style="left:828px;top:188px">Meditation Pavilion · to raise</div>
+<div class="tag lock" style="left:1008px;top:200px">Guest House<span class="k-lock-mini"></span><span class="t-fig">2</span></div>
+<div class="tag lock" style="left:1124px;top:228px">Alchemy Hall<span class="k-lock-mini"></span><span class="t-fig">3</span></div>
+<div class="tag lock" style="left:546px;top:324px">Forge<span class="k-lock-mini"></span><span class="t-fig">3</span></div>
+<div class="tag built" style="left:640px;top:324px">Sect Hall · Lv <span class="t-fig">1</span></div>
+<div class="tag lock" style="left:751px;top:324px">Library<span class="k-lock-mini"></span><span class="t-fig">5</span></div>
+<div class="tag" style="left:220px;top:300px;color:var(--mist)">Gate</div>
+
+<!-- disciples where they are: two in the courtyard, three candidates at the gate -->
+<div class="k-party" style="left:590px;top:374px"><div class="k-party-art"><img src="../assets/fig_disciple_fei.png" style="left:-166px;top:-152px"></div></div>
+<div class="k-party" style="left:694px;top:374px"><div class="k-party-art"><img src="../assets/fig_disciple_jun.png" style="left:-166px;top:-156px"></div></div>
+<div class="abs t-xs t-outline c-paper" style="left:620px;top:366px">Fei</div>
+<div class="abs t-xs t-outline c-paper" style="left:724px;top:366px">Jun</div>
+<div class="k-party" style="left:160px;top:374px;opacity:.85"><div class="k-party-art"><img src="../assets/fig_disciple_jun.png" style="left:-166px;top:-156px;filter:hue-rotate(40deg)"></div></div>
+<div class="k-party" style="left:214px;top:374px;opacity:.85"><div class="k-party-art"><img src="../assets/fig_disciple_fei.png" style="left:-166px;top:-152px;filter:hue-rotate(-30deg)"></div></div>
+<div class="k-party" style="left:268px;top:374px;opacity:.85"><div class="k-party-art"><img src="../assets/fig_disciple_jun.png" style="left:-166px;top:-156px;filter:hue-rotate(160deg)"></div></div>
+<div class="k-new" style="left:286px;top:350px"></div>
+<div class="abs t-xs t-outline c-jade" style="left:298px;top:366px">3 ask to join</div>
+
+<!-- ================= the sect's level: prestige with its stops (E4) and what each level opens (E5) ================= -->
+<div class="abs t-sm c-paper" style="left:94px;top:404px">Sect level <span class="t-fig c-pale">1</span> · prestige <span class="t-fig c-pale">60</span></div>
+<div class="k-bar is-jade abs" style="left:300px;top:404px;width:888px;height:24px;--v:0.0247">
+  <div class="k-trough" style="top:4px;bottom:4px"><div class="k-fill"></div></div>
+  <div class="k-tick is-next" style="--at:.287"></div><div class="k-tick" style="--at:.596"></div><div class="k-tick" style="--at:1"></div>
+</div>
+<div class="abs t-xs c-pale" style="left:552px;top:432px;transform:translateX(-50%);white-space:nowrap">Lv 2 at <span class="t-fig">696</span>: Guest House, Mission Hall</div>
+<div class="abs t-xs c-mist" style="left:826px;top:432px;transform:translateX(-50%);white-space:nowrap">Lv 3 at <span class="t-fig">1,445</span>: Alchemy Hall, Forge</div>
+<div class="abs t-xs c-mist" style="left:1182px;top:432px;transform:translateX(-100%);white-space:nowrap">Lv 4 at <span class="t-fig">2,425</span>: the Back Mountain</div>
+<div class="abs t-xs c-mist" style="left:94px;top:430px">+20 for each building raised</div>
+
+<!-- ================= the plot in hand: the Treasury ================= -->
+<div class="k-minor-panel panel" style="left:92px;width:368px"></div>
+<div class="abs t-subhead" style="left:108px;top:478px">Treasury</div>
+<div class="abs t-xs c-mist" style="left:444px;top:486px;transform:translateX(-100%);white-space:nowrap">not raised · sect level 1</div>
+<div class="abs t-sm c-paper" style="left:108px;top:512px;width:340px;line-height:1.3">Your storage chest holds 40. The Treasury adds 20 spaces a level.</div>
+<div class="abs flex t-sm c-paper" style="left:108px;top:560px;gap:14px">
+  <span class="flex" style="gap:6px"><img class="ic ic-24" src="../../../art/icons/hud/coin.png"><span class="t-fig">500</span></span>
+  <span class="flex" style="gap:6px"><img class="ic ic-32" src="../../../art/icons/items/copper_ore.png"><span class="t-fig">20</span> Copper Ore</span>
+  <span class="c-mist">one hour</span>
+</div>
+<div class="abs t-xs c-orange" style="left:108px;top:594px">Copper Ore: none in the bag, <span class="t-fig">49</span> in storage</div>
+<div class="k-btn is-disabled abs" style="left:108px;top:614px;width:150px;height:48px;font-size:20px;padding-right:22px">Build<span class="k-lock-mini"></span></div>
+<div class="k-btn2 abs" style="left:268px;top:614px;width:176px;height:48px;font-size:18px">Open storage</div>
+
+<!-- ================= the disciples ================= -->
+<div class="k-minor-panel panel" style="left:472px;width:372px"></div>
+<div class="abs t-subhead" style="left:488px;top:478px">Disciples</div>
+<div class="abs t-xs c-mist" style="left:828px;top:486px;transform:translateX(-100%);white-space:nowrap"><span class="t-fig c-paper">2</span> of <span class="t-fig">2</span> rooms</div>
+<div class="k-party" style="left:506px;top:534px"><div class="k-party-art"><img src="../assets/fig_disciple_fei.png" style="left:-166px;top:-152px"></div></div>
+<div class="abs t-sm c-paper" style="left:540px;top:514px;font-weight:700">Fei <span class="c-mist t-xs" style="font-weight:600">· Lv 3 · Steady Hands · Sword Dao</span></div>
+<div class="abs t-xs c-mist" style="left:540px;top:536px">Strength 4 · Spirit 5 · Craft 3</div>
+<div class="k-party" style="left:506px;top:586px"><div class="k-party-art"><img src="../assets/fig_disciple_jun.png" style="left:-166px;top:-156px"></div></div>
+<div class="abs t-sm c-paper" style="left:540px;top:566px;font-weight:700">Jun <span class="c-mist t-xs" style="font-weight:600">· Lv 1 · Fast Learner</span></div>
+<div class="abs t-xs c-mist" style="left:540px;top:588px">Strength 2 · Spirit 2 · Craft 5</div>
+<div class="abs t-xs c-jade" style="left:488px;top:614px;white-space:nowrap">At the gate: Xiu, Tao, Lan</div>
+<div class="k-btn is-disabled abs" style="left:696px;top:612px;width:134px;height:48px;font-size:20px;padding-right:22px">Recruit<span class="k-lock-mini"></span></div>
+<div class="abs t-xs c-hollow" style="left:488px;top:634px;white-space:nowrap">Full: raise the Guest House</div>
+
+<!-- ================= beyond the walls ================= -->
+<div class="sec" style="left:858px;top:474px">BEYOND THE WALLS</div>
+<div class="navrow" style="top:494px"><img class="ic ic-32" src="../../../art/icons/hud/world_map.png"><span class="tx"><span class="t-md c-paper" style="font-weight:700">Expeditions</span><span class="t-xs c-mist">none out · 7 of 10 regions open</span></span><span class="t-sym c-mist">▶</span></div>
+<div class="navrow" style="top:552px"><img class="ic ic-32" src="../../../art/icons/hud/mine.png"><span class="tx"><span class="t-md c-paper" style="font-weight:700">Territory</span><span class="t-xs c-mist">0 of 1 mines · Lower Pit Seam</span></span><span class="t-sym c-mist">▶</span></div>
+<div class="abs t-xs c-mist" style="left:858px;top:614px;width:326px;line-height:1.35">Four more buildings, from sect level 4 to 8, have no place in the courtyard yet</div>
+
+</div></body></html>

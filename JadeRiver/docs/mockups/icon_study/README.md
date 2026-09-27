@@ -16,6 +16,13 @@ manifest or game data was changed.
 | [`04_bag_A.png`](04_bag_A.png), [`04_bag_B.png`](04_bag_B.png) | A Bag page at 1280 x 720 in the P3 kit (major window, plaque, tabs, minor panels, counts, grade rims, the selected-slot glow) with a 5 x 3 grid of 76 px slots filled with the study icons, an equipped strip and the same icons on HUD rings |
 | `icons/` | Every rendered icon: `A_*` (64 art px), `A48_*` (the same description rendered at 48), `B_*` (painted 64), `*_hud_*` (32; `B64_` at 64) |
 
+**Style A was chosen.** Its library and the twelve descriptions now live in the icon pipeline (`tools/icons/pix.py`
+`PixelPainter`, `palette.py` materials and kits, the families' HD drawings; see `tools/icons/README.md`, "How to convert
+a family"), with Style B's domed technique disc, the shadow under the mark and a glass crescent in more steps carried
+over. `icon_study.py` still rebuilds the sheets (deterministically) from those drawings, so a rebuild differs from the
+sheets committed here, which are the ones the choice was made from, in those icons and wherever Style B had a branch of
+its own.
+
 The twelve: iron jian and the Warden's hand-bell (weapons), jadeiron robe (armour), healing pill and the
 Sage-condensing pill (pills), star lotus (herb), driftglass (ore), jade scale (beast part), inner-art manual (manual),
 Ember Burst and Jade Thrust (techniques), and the attack sword and cultivate lotus (HUD glyphs). The ladder adds the jian

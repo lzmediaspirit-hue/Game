@@ -137,7 +137,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    730,
+    430,
     695
    ],
    "item": "jadeiron",
@@ -188,7 +188,7 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    430,
+    730,
     695
    ],
    "loot": "jar_valley_mid",
