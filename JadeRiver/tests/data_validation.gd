@@ -34,6 +34,7 @@ func _main() -> void:
 	auto_path_suite()
 	quest_guidance_suite()
 	chores_after_power_suite()
+	topdown_art_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -1673,3 +1674,62 @@ func _req_names(req: Dictionary) -> Array:
 		elif str(cond.get("kind", "")) == "unlock": out.append(str(cond.system))
 		elif str(cond.get("kind", "")) in ["quest_done", "quest_active", "quest_accepted"]: out.append(str(cond.quest))
 	return out
+
+## Top-down redesign, Phase 3 (docs/redesign/art_bible.md): the prototype's terrain atlas, prop kit and TileSet, as
+## built by tools/art/topdown/build_tiles.py. Every tile the Phase 1 loader draws and every prop the room places exists
+## inside its sheet; the TileSet loads, names each tile as the manifest does, animates the water and keeps its two
+## terrain sets (corners for paths, sides for the shore).
+func topdown_art_suite() -> void:
+	var man = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json"))
+	var room = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/td_proto_square.json"))
+	check(man is Dictionary and room is Dictionary, "topdown art: the manifest and the room parse")
+	if not (man is Dictionary and room is Dictionary): return
+	var tiles_img: Texture2D = load("res://art/topdown/proto_tiles.png")
+	var props_img: Texture2D = load("res://art/topdown/proto_props.png")
+	var tiles: Dictionary = man.get("tiles", {})
+	var missing: Array = []
+	var needed := ["water_0", "water_1", "water_2", "water_3", "stairs"]
+	var faces := [str(man.get("bank_face", "bank"))]
+	var paint: Dictionary = man.get("paint", {})
+	for mark in paint:
+		needed.append_array(paint[mark].get("top", []))
+		faces.append(str(paint[mark].get("face", "stone")))
+	for k in faces:
+		needed.append(k + "_face_top")
+		needed.append(k + "_face")
+	for n in needed:
+		if not tiles.has(n): missing.append(n)
+	for kind in ["tiles", "props", "body", "foes"]:
+		if not ResourceLoader.exists(str(man.get("atlas", {}).get(kind, ""))): missing.append("atlas " + kind)
+	check(missing.is_empty() and paint.size() >= 7, "topdown art: every tile the paint table and the loader draw is in the atlas (missing %s)" % str(missing))
+	var outside: Array = []
+	for n in tiles:
+		var r: Array = tiles[n]
+		if not Rect2i(0, 0, tiles_img.get_width(), tiles_img.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))): outside.append(n)
+	var props: Dictionary = man.get("props", {})
+	for p in room.get("props", []):
+		if not props.has(str(p.kind)): outside.append("prop " + str(p.kind))
+	for k in props:
+		var r: Array = props[k].rect
+		if not Rect2i(0, 0, props_img.get_width(), props_img.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))): outside.append("prop " + k)
+	check(outside.is_empty(), "topdown art: every tile and prop lies inside its sheet and every placed prop exists (%s)" % str(outside))
+	var house: Dictionary = props.get("house", {})
+	var fp: Array = house.get("footprint", [0, 0])
+	check(int(fp[0]) == 6 and int(fp[1]) == 3 and float(house.get("rect", [0, 0, 0])[2]) > 90.0, "topdown art: the house keeps its 6 x 3 footprint")
+	var ts: TileSet = load("res://art/topdown/proto_tiles.tres")
+	check(ts != null and ts.get_source_count() == 1 and ts.get_terrain_sets_count() == 2, "topdown art: the TileSet loads with one atlas and two terrain sets")
+	if ts == null: return
+	check(ts.get_terrain_set_mode(0) == TileSet.TERRAIN_MODE_MATCH_CORNERS and ts.get_terrain_set_mode(1) == TileSet.TERRAIN_MODE_MATCH_SIDES,
+		"topdown art: paths match corners, the shore matches sides")
+	var src := ts.get_source(ts.get_source_id(0)) as TileSetAtlasSource
+	var bad: Array = []
+	var animated := 0
+	for i in src.get_tiles_count():
+		var at := src.get_tile_id(i)
+		var name := str(src.get_tile_data(at, 0).get_custom_data("name"))
+		var r: Array = tiles.get(name, [-1, -1])
+		if not tiles.has(name) or Vector2i(int(r[0]), int(r[1])) != at * 16: bad.append(name)
+		if src.get_tile_animation_frames_count(at) == 4: animated += 1
+	check(bad.is_empty() and src.get_tiles_count() >= 90, "topdown art: the TileSet's %d tiles are named as the manifest places them (%s)" % [src.get_tiles_count(), str(bad)])
+	check(animated == 17, "topdown art: the plain water and the 16 shore cases animate in 4 frames (%d)" % animated)
+
