@@ -285,6 +285,7 @@ func enter_character(slot: int) -> Dictionary:
 	StatRules.rebuild(c)
 	var welcome := {}
 	game.posts.migrate_idle(c)   # S50: an old idle Gather task becomes a post before anything is collected
+	game.progression.migrate_tree(c)   # P13a: a save from before the element trees lights the routes to its arts
 	var elapsed := Clock.elapsed_since(c.last_active_utc)
 	if elapsed.valid and float(elapsed.elapsed) > 60.0 and not c.seclusion.is_empty():
 		welcome = game.progression.claim_offline(c, float(elapsed.elapsed))

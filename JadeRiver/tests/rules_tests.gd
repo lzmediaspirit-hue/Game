@@ -105,6 +105,7 @@ func _main() -> void:
 	boss_event_suite()
 	moments_suite()
 	tree_suite()
+	tree_migration_suite()
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
@@ -9620,3 +9621,52 @@ func tree_suite() -> void:
 	cu.restore(snap)
 	c.inventory.bag = bag_was
 	Game.combat.refresh_stats(c.id)
+
+## P13a Realisations and the save migration (technique_plan §4.3, §4.9): a character like Tester at ls6_end (Sphere Lord
+## 3, Level 98) from before the trees keeps every art and its mastery, and the routes to its arts light for 29 of its
+## 136 Realisations: 107 left to place. The routes survive a save.
+func tree_migration_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var T = TechniqueTreeRules
+	var old := snap.duplicate(true)
+	old.erase("tree")
+	old["realm_key"] = "sphere_lord_3"
+	old["qp"] = ContentDB.realm("sphere_lord_3").get("accumulate_needed", 100) * 0.4
+	old["daos"] = {"sword": {"tier": 5, "insight": 5000.0}, "blood": {"tier": 2, "insight": 300.0}, "fist": {"tier": 2, "insight": 300.0},
+		"life_death": {"tier": 1, "insight": 100.0}, "soul": {"tier": 1, "insight": 100.0}, "space": {"tier": 1, "insight": 100.0}}
+	var known := ["flowing_palm", "still_water_focus", "crescent_arc", "cloud_descent", "mirror_mind_spike", "soul_lantern_ward", "sense_lock",
+		"upright_glyph", "sword_release", "sword_swarm", "glimpse_of_heaven", "splashed_ink", "blood_burning"]
+	var mastery := {}
+	for tid in known: mastery[tid] = {"tier": 1, "points": 0.0}
+	mastery.flowing_palm = {"tier": 5, "points": 40.0}
+	mastery.crescent_arc = {"tier": 3, "points": 12.0}
+	old["techniques"] = {"known": known.duplicate(), "slots": ["flowing_palm", "crescent_arc", null, null, null, null, null, null], "mastery": mastery.duplicate(true),
+		"use": {}, "bars": {}}
+	cu.restore(old)
+	check(int(cu.tree.get("v", 0)) == 0 and T.realised(c).is_empty(), "a save from before the trees has no tree yet")
+	check(ProgressionRules.level(c) == 98, "the character stands at Level 98 (%d)" % ProgressionRules.level(c))
+	Game.progression.migrate_tree(c)
+	var r: Dictionary = T.realisations(c)
+	var passages := T.realised(c).keys().filter(func(n): return str(n).begins_with("p:"))
+	check(passages.size() == 29 and T.realised(c).size() == 29, "the routes to its arts light: 29 passages (%d)" % passages.size())
+	check(int(r.total) == 136 and int(r.spent) == 29 and int(r.free) == 107, "Realisations 98 + 22 + 12 + 4 = 136: 29 placed, 107 to place (%s)" % str(r))
+	check(known.all(func(t): return cu.techniques_known.has(t)) and int(cu.mastery.flowing_palm.tier) == 5 and int(cu.mastery.crescent_arc.tier) == 3
+		and cu.technique_slots[0] == "flowing_palm", "every art still known, its mastery and slots unchanged")
+	check(T.realised(c).has(T.passage("formless", "brush", 8)) and T.realised(c).has(T.passage("metal", "any", 7)) and not T.realised(c).has(T.passage("formless", "brush", 9)),
+		"Splashed Ink's route runs up the brush to ring 8; Upright Glyph's up the free hand to 7")
+	Game.progression.migrate_tree(c)
+	check(T.realised(c).size() == 29, "the migration runs once")
+	# The Dao arts of tiers already reached are taught.
+	cu.tree = {}
+	cu.tree["realised"] = {}
+	cu.daos["water"] = {"tier": 3, "insight": 900.0}
+	Game.progression.migrate_tree(c)
+	check(cu.techniques_known.has("mirror_of_still_water") and not cu.techniques_known.has("great_river_turns_back"), "the Water Dao's third tier teaches its Dao art")
+	# The tree rides in the save.
+	var back := CultivatorState.new()
+	back.restore(cu.snapshot())
+	check(back.tree.realised.size() == T.realised(c).size() and int(back.tree.v) == 1, "the realised nodes survive a save")
+	cu.restore(snap)

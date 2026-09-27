@@ -1665,6 +1665,19 @@ func reset_tree(c, tree: String) -> Dictionary:
 	emit("tree_reset", {"actor": c.id, "tree": tree, "free": free, "refund": refund})
 	return ok({"free": free, "refund": refund})
 
+## A save from before the trees (§4.9): every known art on a tree lights the route from its sector's gate, paid from
+## Realisations (the tree's opening gift to an established character), and the Dao arts of the tiers already reached
+## are taught. Runs once, when the character is entered; mastery, slots and bars are untouched.
+func migrate_tree(c) -> void:
+	if c == null or int(c.cultivator.tree.get("v", 0)) >= 1: return
+	for tid in c.cultivator.techniques_known.duplicate():
+		for p in TechniqueTreeRules.route_to(str(tid)): c.cultivator.tree.realised[p] = true
+	for d in c.cultivator.daos:
+		var effects: Array = ContentDB.entry("daos", str(d)).get("effects", [])
+		for i in mini(int(c.cultivator.daos[d].get("tier", 0)), effects.size()):
+			if effects[i] is Dictionary and effects[i].has("learn_technique"): apply_learn_technique(c.id, str(effects[i].learn_technique))
+	c.cultivator.tree["v"] = 1
+
 ## The page's view of one tree: every node with its state (realised, taught, open, or locked and why) and its cost.
 func tree_view(c, tree: String) -> Dictionary:
 	var ctx: Dictionary = game.ctx(c)
