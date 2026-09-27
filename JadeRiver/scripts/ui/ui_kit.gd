@@ -129,6 +129,19 @@ const TEXT_ON := [
 	[&"RED_TEXT", ["sky_card"], 14],
 	[&"SOUL_TEXT", ["sky_card"], 14],
 	[&"WARNING", ["sky_card"], 14],
+	# The Post family (Roll-Call, Works, Welcome Back, Pouches): the board and tray in dark timber, a tablet's back, the
+	# pale name tablets, the hemp labels and slips, the paper tags.
+	[&"PAPER", ["surface:wood_dark", "surface:wood"], 14],
+	[&"MIST", ["surface:wood_dark"], 14],
+	[&"PALE_GOLD", ["surface:wood_dark", "surface:wood"], 14],
+	[&"GOLD", ["surface:wood_dark"], 14],
+	[&"BRIGHT_JADE", ["surface:wood_dark", "surface:wood"], 14],
+	[&"RED_TEXT", ["surface:wood_dark"], 14],
+	[&"HOLLOW", ["surface:wood_dark"], 14],
+	[&"WARNING", ["surface:wood_dark"], 14],
+	[&"PAPER_INK", ["surface:bridge", "surface:hemp", "surface:talisman"], 14],
+	[&"JADE_SHADOW", ["surface:bridge", "surface:hemp"], 14],
+	[&"BLOOD", ["surface:talisman"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

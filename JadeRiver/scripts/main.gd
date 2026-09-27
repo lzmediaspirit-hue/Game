@@ -452,6 +452,18 @@ func _handle_preview_args(user_args: Array) -> void:
 				oc.posts = {"post": {"kind": "craft", "craft": Game.posts.craft_of_object(nodes[k]), "room": Game.room_rt.room_id,
 					"object": str(nodes[k].id), "since": Clock.now_utc() - 3600.0 * (2.5 + 9.0 * k), "paused": false}, "crafts": {}, "pouch": {}}
 				oc.position.room = Game.room_rt.room_id
+		if str(a) == "--welcome-demo" and Game.active() != null and Game.room_rt != null:
+			# Debug tools (S38): the active character comes in from 7.5 hours at its post (or at this room's first node),
+			# for Welcome Back previews (P5): the real Return Ledger of the post authority, opened as entering the world does.
+			var wc = Game.active()
+			var node: Array = Game.room_rt.def.get("objects", []).filter(func(o): return Game.posts.craft_of_object(o) != "")
+			if not Game.posts.has_post(wc) and not node.is_empty():
+				wc.posts["post"] = {"kind": "craft", "craft": Game.posts.craft_of_object(node[0]), "room": Game.room_rt.room_id, "object": str(node[0].id)}
+			if Game.posts.has_post(wc): Game.posts.post_of(wc).merge({"paused": false, "since": Clock.now_utc() - 3600.0 * 7.5}, true)
+			var welcome := {}
+			AccountAuthority._with_ledger(welcome, Game.posts.on_entered(wc))
+			await get_tree().create_timer(0.8).timeout
+			if not welcome.is_empty(): open_page("welcome", welcome)
 		if str(a) == "--guide-demo" and Game.active() != null:
 			# Debug tools (S38): quest states that show every head marker in Lotus Ferry and a tracked quest leading out (P1).
 			var gq = Game.active().quests

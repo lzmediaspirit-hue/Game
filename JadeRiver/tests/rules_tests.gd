@@ -520,6 +520,111 @@ func identity_suite() -> void:
 		p.free()
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 	await _bag_checks()
+	await _post_checks()
+
+## P5 (the Post family, docs/page_identity.md rows 12, 14, 23 and 44; mockups 13, 13_first and 14 v4; decisions 11, 21
+## and 26). The Roll-Call hangs a tablet per character, soonest full first, each with its figure (the live Avatar at a
+## whole 3 px an art px, clipped to its window), a Settle and a Switch under a character at a post, its vessel's tag
+## reading what the pouch holds against what it can; a tap turns a tablet to its back, whose words read too. The Works
+## cabinet's seven compartments are its tabs, each 48 px or more, each object drawn from its own drawing at its native 96
+## on whole pixels, a locked one answering with what opens it, and the Seal Scripts show five rows at once. Welcome Back
+## burns the coil to the time away out of the cap and lays every good in the tray. The Pouches chalk seven patterns, a
+## deeper pouch larger.
+func _post_checks() -> void:
+	var c = Game.active()
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var open := func(id: String, a: Dictionary) -> Page:
+		var pg: Page = load(str(main_script.PAGES[id])).new()
+		pg.page_id = id
+		pg.text_log = []
+		add_child(pg)
+		pg.open(a)
+		return pg
+	var dim: Array = []
+	var lost: Array = []
+	# The Roll-Call.
+	var rc: Page = open.call("posts", {})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rs: Array = rc.rows()
+	var shown: Array = rs.slice(0, rc.SHOWN)
+	var tablets: Array = rc._regions.filter(func(r): return r.id == "turn")
+	check(not rs.is_empty() and bool(rs[0].active) and tablets.size() == shown.size() and tablets.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Roll-Call: a tablet per character on the rail, the one you play first (%d of %d)" % [tablets.size(), rs.size()])
+	var keyed: Array = rs.slice(1).map(func(r): return 1e12 if (r.post as Dictionary).is_empty() else minf(1e11, float(r.fill_h)))
+	check(range(keyed.size() - 1).all(func(i): return float(keyed[i]) <= float(keyed[i + 1])), "P5 Roll-Call: soonest full first (%s)" % str(keyed))
+	var posted: Array = shown.filter(func(r): return not r.active and not (r.post as Dictionary).is_empty() and str(r.post.get("kind", "")) != "vigil")
+	check(posted.all(func(r): return rc._regions.any(func(g): return g.id == "settle" and str(g.data) == str(r.id) and (g.rect as Rect2).size.y >= Page.MIN_TAP)
+		and rc._regions.any(func(g): return g.id == "switch" and int(g.data) == int(r.slot))), "P5 Roll-Call: a Settle and a Switch under each character at a post")
+	var said: Array = rc.text_log.map(func(tx): return str(tx.get("s", "")))
+	check(posted.all(func(r): return said.has(UiKit.fmt(int(r.pouch))) and float(r.cap) > 0.0), "P5 Roll-Call: each vessel's tag says what its pouch holds")
+	var figs: Array = rc.figs.values()
+	check(figs.size() == shown.size() and figs.all(func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY
+		and (f.doll as Node2D).scale == Vector2(1.5, 1.5) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()),
+		"P5 Roll-Call: each tablet shows its character's live figure at 3 px an art px on whole pixels, clipped to its window")
+	_identity_view(rc, "posts board", dim, lost, {}, {})
+	rc.on_action("turn", str(rs[0].id))
+	rc.opened = 9.0
+	rc.t += 1.0
+	rc.text_log.clear()
+	rc.queue_redraw()
+	await get_tree().process_frame
+	check(bool(rc.turned.get(str(rs[0].id), false)) and rc.text_log.any(func(tx): return str(tx.get("s", "")) == str(rs[0].name) and tx.get("col") == UiKit.PALE_GOLD)
+		and not (rc.figs[str(rs[0].id)].mask as Node2D).visible, "P5 Roll-Call: a tap turns a tablet to its back, the figure put away")
+	_identity_view(rc, "posts back", dim, lost, {}, {})
+	rc.queue_free()
+	# Works: the curio cabinet.
+	SpriteCache.draw_log = []
+	var wk: Page = open.call("works", {"tab": "seals"})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cells: Array = wk._regions.filter(func(r): return r.id == "_tab")
+	var objects: Array = SpriteCache.draw_log.filter(func(d): return str(d.id).begins_with("work_"))
+	check(cells.size() == 7 and cells.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Works: the seven works are the cabinet's seven compartments, each a 48 px target")
+	check(objects.size() == 7 and objects.all(func(d): return int(d.art) == 96 and float(d.scale) == 1.0 and (d.rect as Rect2).position == (d.rect as Rect2).position.round()),
+		"P5 Works: each object is drawn from its own drawing at its native 96, on whole pixels (%s)" % str(objects.map(func(d): return [d.id, d.art, d.scale])))
+	var seals: Dictionary = wk._areas.get("seals", {})
+	check(not seals.is_empty() and int(((seals.rect as Rect2).size.y + Page.ROW_GAP) / float(seals.pitch)) >= 5, "P5 Works: the Seal Scripts show five rows at once (decision 26)")
+	_identity_view(wk, "works seals", dim, lost, {}, {})
+	Unlocks.debug_force_all = false
+	wk.setup()
+	var closed_cells: Array = wk.tabs.filter(func(tb): return str(tb.get("locked", "")) != "")
+	wk.queue_redraw()
+	await get_tree().process_frame
+	check(closed_cells.all(func(tb): return wk._regions.any(func(r): return r.id == "_tab" and not r.enabled and str(r.reason) == str(tb.locked) and str(r.reason) != "")),
+		"P5 Works: a work not yet open answers a tap with what opens it (%d closed)" % closed_cells.size())
+	Unlocks.debug_force_all = true
+	wk.queue_free()
+	SpriteCache.draw_log = null
+	# Welcome Back: the coil and the tray.
+	var ctx: Dictionary = _ui_contexts(c).welcome[0]
+	var wb: Page = open.call("welcome", ctx)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cap := float(ContentDB.curve("idle_cap_h", 12)) + float(Game.sect.idle_cap_bonus())
+	var goods: Array = wb.ledger().goods
+	check(is_equal_approx(wb.burnt(), clampf(float(ctx.hours) / cap, 0.0, 1.0)) and goods.size() == (ctx.post.items as Dictionary).size()
+		and wb._regions.filter(func(r): return r.id == "item").size() == mini(goods.size(), 19) and wb._regions.any(func(r): return r.id == "store") and wb._regions.any(func(r): return r.id == "ok"),
+		"P5 Welcome Back: the coil burnt to the time away out of the cap (%.2f), every good in the tray, the two choices under it" % wb.burnt())
+	_identity_view(wb, "welcome", dim, lost, {}, {})
+	wb.queue_free()
+	# The Pouches: the chalk patterns.
+	var pp: Page = open.call("pouches", {})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var tiers: int = (ContentDB.config("posts").get("sewing", []) as Array).size()
+	var sews: int = pp._regions.filter(func(r): return r.id == "sew" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size()
+	var finest: int = pp.CATS.filter(func(k): return int(Game.posts.pouch(c, k).get("tier", 0)) >= tiers).size()
+	check(sews + finest == 7 and range(tiers).all(func(i): return pp.size_of(i + 1, tiers) > pp.size_of(i, tiers)),
+		"P5 Pouches: seven patterns chalked, each with its Sew, a deeper pouch larger")
+	_identity_view(pp, "pouches", dim, lost, {}, {})
+	pp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Post family: every word reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 3))])
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
 
 ## P5 (the Bag as concept B, decision 24; docs/page_identity.md row 3): the kinds split the bag with nothing lost; the
 ## eight worn slots ride the orbit; a tapped thing's card opens beside its space, clear of it and inside the window, its
@@ -1190,6 +1295,10 @@ func icon_draw_suite() -> void:
 		"P4b: an HD icon uses its native 64, 48 and 32 renders, and whole multiples above them (%s)" % str(got))
 	check(SpriteCache.icon_hd("probe_hd") and SpriteCache.icon_hd("healing_pill") and (legacy == "" or not SpriteCache.icon_hd(legacy)),
 		"P4b: the manifest tells an HD icon from a legacy one")
+	# P5 (decision 21): the seven Works objects render natively at 96 for the cabinet, and at 64.
+	var works := ["work_post_arts", "work_seal", "work_stele", "work_favour", "work_furnace", "work_flag", "work_mirror"]
+	check(works.all(func(w): return m.has(w + "@96") and int(SpriteCache.icon_fit(w, 96)["art"]) == 96 and int(SpriteCache.icon_fit(w, 96)["scale"]) == 1
+		and int(SpriteCache.icon_fit(w, 64)["art"]) == 64), "P5: the Works objects have native 96 and 64 renders")
 	for k in probe: m.erase(k)
 	SpriteCache._renders.clear()
 	# Nothing but the helper draws an icon texture.
