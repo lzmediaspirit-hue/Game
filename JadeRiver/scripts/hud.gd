@@ -504,11 +504,12 @@ func press(id: int, p: Vector2):
 			else:
 				player.meditate()
 		"skill":
-			# The nearest slot of the page (ring 1's circles overlap; the nearest centre wins).
-			var near_i := 0
+			# The nearest drawn slot of the page (ring 1's circles overlap; the nearest centre wins, and an empty slot is
+			# not there to win).
+			var near_i := -1
 			for i in slots.size():
-				if p.distance_to(slots[i]) < p.distance_to(slots[near_i]): near_i = i
-			touches[id]["slot"] = near_i + skill_page * 4
+				if _slot_filled(i + skill_page * 4) and (near_i < 0 or p.distance_to(slots[i]) < p.distance_to(slots[near_i])): near_i = i
+			if near_i >= 0: touches[id]["slot"] = near_i + skill_page * 4
 		"page": scroll_skills(-1)
 		"fan": toggle_fan()
 		"guard":
@@ -1796,18 +1797,19 @@ func _draw_party(c) -> void:
 			var p: Dictionary = Game.pets._pet(c, str(pc.uid))
 			var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
 			UiKit.draw_creature(self, Rect2(cen - Vector2(18, 18), Vector2(36, 36)), art, "idle", t)
-			if p.get("wounded", false): frac = 0.0
-		if kind in ["active", "party", "companion"]:
+			if p.get("wounded", false): down = true   # a Grievous Wound: the ring runs red all round
+		if down: draw_arc(cen, 28, 0, TAU, 32, UiKit.RED, 3)
+		elif kind in ["active", "party", "companion"]:
 			draw_arc(cen, 28, -PI / 2, -PI / 2 + TAU * maxf(frac, 0.001), 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
 		# A name too long for its chip gives its last word ("Reed Otter" is the otter, mockup 01).
 		var nm := str(pc.name)
-		if UiKit.text_width(nm, 14) > 58.0: nm = nm.get_slice(" ", nm.get_slice_count(" ") - 1)
+		if UiKit.text_width(nm, 14, true) > 58.0: nm = nm.get_slice(" ", nm.get_slice_count(" ") - 1)
 		var col := UiKit.SKY
 		if kind == "bag": col = UiKit.MIST
 		elif kind == "mount":
 			col = UiKit.GOLD if c.riding else UiKit.MIST
 			nm = Tx.t("hud.walk") if c.riding else Tx.t("hud.ride")
-		UiKit.draw_outlined(self, UiKit.fit(nm, 14, 58), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
+		UiKit.draw_outlined(self, UiKit.fit(nm, 14, 58, true), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
 
 ## A fellow disciple's face for their chip: the head and shoulders of their idle frame, from their own sprite layers.
 func _draw_face(center: Vector2, cid: String, dim := false) -> void:
@@ -1915,7 +1917,7 @@ func _draw_hollowing(c, at: Vector2) -> float:
 	var x := b.end.x + 8.0
 	var v := str(int(round(h)))
 	UiKit.draw_outlined(self, v, Vector2(x, at.y + 18), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 40)
-	x += UiKit.text_width(v, 16) + 4.0
+	x += UiKit.text_width(v, 16, true) + 4.0
 	if _hollow_dir != 0.0:
 		var col := UiKit.BRIGHT_JADE if _hollow_dir < 0.0 else UiKit.RED_TEXT
 		UiKit.draw_outlined(self, "▼" if _hollow_dir < 0.0 else "▲", Vector2(x, at.y + 18), 14, col, HORIZONTAL_ALIGNMENT_LEFT, 20)
@@ -1923,7 +1925,7 @@ func _draw_hollowing(c, at: Vector2) -> float:
 		if _hollow_dir < 0.0 and Game.room_rt != null and Game.room_rt.def.get("lantern", false):
 			var lw := Tx.t("hud.hollow_lanterns")
 			UiKit.draw_outlined(self, lw, Vector2(x, at.y + 18), 14, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, 90)
-			x += UiKit.text_width(lw, 14) + 4.0
+			x += UiKit.text_width(lw, 14, true) + 4.0
 	return x + 12.0
 
 func _auto_hunt_shown(c) -> bool:
@@ -2159,7 +2161,7 @@ func _draw_controls(c) -> void:
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"), attack_pressed)
 		if ctx_glyph != "":
 			glyph(ctx_glyph, attack_center, 64)
-			UiKit.draw_outlined(self, UiKit.fit(_context_line(c), 16, 176), Vector2(attack_center.x - 88, 694), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 176)
+			UiKit.draw_outlined(self, UiKit.fit(_context_line(c), 16, 176, true), Vector2(attack_center.x - 88, 694), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 176)
 		else:
 			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
 		if channel.object != "":
@@ -2332,10 +2334,10 @@ func _draw_progress(c) -> void:
 		if cu.stored_qi > 0:
 			var sq := Tx.t("hud.stored_qi") % UiKit.fmt(cu.stored_qi)
 			UiKit.draw_outlined(self, sq, Vector2(x, 700), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
-			x += UiKit.text_width(sq, 14) + 24.0
+			x += UiKit.text_width(sq, 14, true) + 24.0
 		var ready := Tx.t("hud.bottleneck_ready")
 		UiKit.draw_outlined(self, ready, Vector2(x, 700), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, 520)
-		UiKit.draw_outlined(self, Tx.t("hud.bottleneck_tap"), Vector2(x + UiKit.text_width(ready, 16) + 6.0, 700), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+		UiKit.draw_outlined(self, Tx.t("hud.bottleneck_tap"), Vector2(x + UiKit.text_width(ready, 16, true) + 6.0, 700), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
 		return
 	draw_rect(r, Color(UiKit.INK, 0.6))
 	var col = UiKit.QI if c.pools.max_qi > 0 else UiKit.PALE_GOLD
@@ -2359,7 +2361,7 @@ func _draw_log() -> void:
 	for i in n:
 		var l: Dictionary = log_lines[i]
 		var a = 1.0 if l.t < 5.0 else 6.0 - l.t
-		UiKit.draw_outlined(self, UiKit.fit(str(l.text), 16, LOG_W), Vector2(x, LOG_FOOT - (n - 1 - i) * 21.0), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, LOG_W)
+		UiKit.draw_outlined(self, UiKit.fit(str(l.text), 16, LOG_W, true), Vector2(x, LOG_FOOT - (n - 1 - i) * 21.0), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, LOG_W)
 
 ## The top centre (P5a), one thing under another so none covers another, from under the party chips (or under the boss
 ## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
@@ -2467,7 +2469,7 @@ func _draw_boss() -> void:
 	var name_s := boss.display_name()
 	var sub := Tx.t("hud.boss_phase") % [boss.level, at + 2, phases.size() + 1] if not phases.is_empty() else Tx.t("hud.level_stop") % boss.level
 	var nw := UiKit.text_width(name_s, 26, true)
-	var x0 := 640.0 - (nw + 10.0 + UiKit.text_width(sub, 16)) * 0.5
+	var x0 := 640.0 - (nw + 10.0 + UiKit.text_width(sub, 16, true)) * 0.5
 	UiKit.draw_text(self, name_s, Vector2(x0, 118), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true, true)
 	UiKit.draw_outlined(self, sub, Vector2(x0 + nw + 10.0, 117), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 240)
 	draw_rect(r.grow(3), UiKit.INK)
@@ -2509,7 +2511,7 @@ func _draw_boss() -> void:
 		draw_colored_polygon(dia, UiKit.GOLD if done else (UiKit.RED if i == nxt else UiKit.DEEP_TEAL))
 		draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.PALE_GOLD, 1.5)
 		var cap := Tx.t("hud.boss_notch") % [int(round(float(ph.below) * 100.0)), _phase_words(ph, done)]
-		var cw := UiKit.text_width(cap, 14)
+		var cw := UiKit.text_width(cap, 14, true)
 		# Centred under its notch, or leaning away from a caption already there (ending at the notch, or starting at it).
 		for left in [x - cw * 0.5, x + 10.0 - cw, x - 10.0]:
 			var cr := Rect2(left - 4.0, 158, cw + 8.0, 18)

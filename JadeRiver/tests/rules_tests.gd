@@ -627,6 +627,17 @@ func hud_suite() -> void:
 	check(on_player.is_empty(), "P5a: the open fan keeps off the player at the common camera positions (%s)" % str(on_player.map(func(tg): return tg.role)))
 	var panels := [hud.panel_rect(c), hud.minimap_rect, Rect2(14, 0, 342, hud.TRACKER_FOOT), Rect2(20, 0, hud.LOG_W, hud.LOG_FOOT), Rect2(400, 92, 480, 84), Rect2(1040, 222, 222, 34)]
 	check(panels.all(func(r): return not (r as Rect2).intersects(zone)), "P5a: the panel, the minimap, the tracker, the log, the boss bar and the purse keep out of the clear zone")
+	# The left-handed option mirrors the cluster, and it still keeps out of the clear zone.
+	hud.left_handed = true
+	hud._layout()
+	hud.set_state(true, false)
+	var mirrored: Array = hud.hit_targets()
+	var lh_zone: Array = mirrored.filter(func(tg): return Rect2(tg.center - Vector2(tg.drawn, tg.drawn), Vector2(tg.drawn, tg.drawn) * 2.0).intersects(zone))
+	check(hud.attack_center == Vector2(115, 605) and hud.jump_center == Vector2(229, 671) and hud.fan_center == Vector2(316, 678)
+		and hud.page_center == Vector2(40, 672) and lh_zone.is_empty() and hud.role_at(Vector2(900, 400)) == "joystick",
+		"P5a: left-handed, the cluster is mirrored, the joystick takes the right half and the clear zone stays clear (%s)" % str(lh_zone.map(func(tg): return tg.role)))
+	hud.left_handed = false
+	hud._layout()
 	var toasts_was: Array = hud.toasts
 	hud.toasts = []
 	for i in 3: hud.toast("probe", "gold", "a second line")
