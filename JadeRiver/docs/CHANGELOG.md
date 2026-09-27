@@ -1,5 +1,49 @@
 # Changelog
 
+## Technique animations (docs/roadmap_master_ui.md, decision 23)
+
+- **An FX animation library**: one frame-by-frame pixel-art effect per technique form, the 24 of
+  `docs/technique_plan.md` §3.2, drawn by a deterministic generator (`tools/art/fx/`: `fxpix.py` the palette-index
+  rasteriser, `elements.py` the eleven element palettes and flourishes, `forms.py` the 24 drawers, `build_fx.py` the
+  build) into `art/fx/<form>.png` and `data/fx_art.json`. Slash arcs with smear frames, three-cut flurries, thrust
+  trails with a point flash, lunges with afterimages, low sweeping crescents, crescents that form and launch, volleys
+  from a muzzle flash, rain that falls and splashes, pillars that rise and flare, a crest that curls and travels,
+  bursts that pop into a ring, seekers that gather and fly, a blade that spins out and is called back, snares that
+  rise and knot, a counter's guard flash, a ward's dome closing, a chorus's sound rings and notes, blink afterimages
+  and the arrival cut, a plunge's crater and cracks, the released sword's streak, an orbit of swarm blades, a seal
+  stamp that falls and slams, a domain drawing itself, and an echo's ghost strike; four projectile loops (arc, volley,
+  seeker, return).
+- **Every element reads as itself** on every form, by a palette swap and its own flourishes: water in droplets and
+  ripples, wood in leaves, fire in flame tongues and embers, earth in rock and dust, metal in shards and glints, wind
+  in streaks, thunder in forked bolts, soul in thin rings and wisps, formless in plain ink flicks, space in stars
+  over a dark rift, time in clock ticks and a half-there ghost of the frame before. Colours sit on the element
+  colours and the Style A emblem ramps, so an art's effect matches its icon.
+- **Three richness bands** per form for the vfx tiers 1–2, 3–4 and 5–7: thicker strokes, more particles, extra
+  layers; the sprite itself grows 1×, 1.5×, 2× for the forms sized by tier, never past a strike's reach. 28 sheets,
+  3.6 MB; a rebuild is byte-identical (`build_fx.py --verify`).
+- **Wiring** (presentation only): every technique carries `vfx.anim` (its form) and `vfx.pose` (the catalogue action
+  the effect is timed to; `combo_1` / `combo_3` for the wielded family's step that `meditate_burst` and a null
+  action resolve to), written by `tools/data/technique_anim.py` from the plan's form table (a row P13 tags with
+  `form` takes that). `World._cast` plays the sheet through a new `FxLayer` kind, `anim`, timed so its impact frame
+  lands on the pose's hit frame (`attack_started`'s `windup`), mirrored for the facing, at the element's row and the
+  tier's band, sized to the hitbox: a ring form snapped down so it never passes the true reach (a procedural ring
+  still marks the edge), a wave's crest travelling the reach, a rain tiled across it, a pillar or a seal on the foe in
+  reach. A technique's Qi bolt is drawn from its form's projectile loop. Reduce motion plays the calmest band and
+  Battery saver the middle one at most; the sheets never fill the screen, so the flash limiter stays with the tint.
+- **Preview**: `--cast=<technique>[:t]` now also holds the pose the cast would play on the avatar, resolved as the
+  timeline resolves it, so a capture shows the hit frame under the effect.
+- **Review**: `docs/mockups/fx/`: every form × element at each band's impact frame at 1× and 2×, a strip of every
+  frame per form, the projectile loops, and in-game captures of one technique per form at four moments of the cast
+  from the `ls6_end` checkpoint (its README lists them).
+- **Tests**: `data_validation` `_fx_art_suite` (the 24 sheets exist at the size their spec says, a hit frame inside
+  each, known anchor and size rules; every technique's animation is a built form and its pose an existing action or
+  a combo alias every weapon family resolves); `rules_tests` `moments_suite` case 15 (bands by tier and under Reduce
+  motion and Battery saver, element rows, half-step scales, an anim's facing, delay, length and row, a form without a
+  sheet); `contract_tests` keeps `anim` in `FxLayer.KINDS`; `perf_tests` casts through the same path.
+- **Not done, by design (`AGENTS.md`)**: no new body pose. Every form maps to an existing action; two poses would
+  serve some forms better and are listed as follow-ups in the report (a true plunge from the air, a stance hold for
+  Counter and Ward).
+
 ## Moments (docs/roadmap_master_ui.md, P6)
 
 ### P6e · The escalation curve

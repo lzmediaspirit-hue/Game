@@ -8715,6 +8715,41 @@ func moments_suite() -> void:
 	for i in 40: fl3._process(1.0 / 60.0)
 	check(not fl3.fx.any(func(e): return e.color == UiKit.PALE_GOLD), "two hits add up to no total")
 	fl3.free()
+	# Decision 23, case 15: technique animations. Every technique names a built form; a cast's sprite takes its element's
+	# row at its tier's band (Reduce motion the calmest, Battery saver the middle at most), a sub-element its parent's
+	# row and `none` the formless one; scales snap to halves; a form plays for its frames' length, facing the cast.
+	var fxa: Dictionary = ContentDB.config("fx_art")
+	var n_el: int = (fxa.elements as Array).size()
+	check(fxa.forms.size() == 24 and ContentDB.all("techniques").all(func(t): return fxa.forms.has(str(t.vfx.get("anim", "")))), "every technique names one of the 24 built forms")
+	var was_rm = Game.account.settings.get("reduce_motion")
+	var was_bs = Game.account.settings.get("battery_saver")
+	put.call("reduce_motion", false)
+	put.call("battery_saver", false)
+	check(FxLayer.band_of(1) == 0 and FxLayer.band_of(2) == 0 and FxLayer.band_of(3) == 1 and FxLayer.band_of(5) == 2 and FxLayer.band_of(7) == 2, "bands: tiers 1-2, 3-4 and 5-7")
+	put.call("battery_saver", true)
+	check(FxLayer.band_of(5) == 1, "Battery saver plays a tier-5 form at the middle band")
+	put.call("reduce_motion", true)
+	check(FxLayer.band_of(5) == 0, "Reduce motion plays it at the calmest")
+	put.call("reduce_motion", false)
+	put.call("battery_saver", false)
+	check(FxLayer.form_row("water", 0) == 0 and FxLayer.form_row("fire", 2) == 2 * n_el + 2 and FxLayer.form_row("none", 1) == n_el + 8 and FxLayer.form_row("ice", 1) == n_el,
+		"rows: water first, fire's at the third band, formless for none, ice with water")
+	check(FxLayer.snap_scale(1.3) == 1.5 and FxLayer.snap_scale(1.3, true) == 1.0 and FxLayer.snap_scale(0.1) == 0.5 and FxLayer.snap_scale(9.0) == 4.0, "sprite scales snap to halves inside 0.5 to 4")
+	var fl4 := FxLayer.new()
+	var strike: Dictionary = fxa.forms.strike
+	fl4.play_form("strike", "wind", 3, Vector2(10, 20), -1, {"scale": 1.5, "delay": 0.1})
+	check(fl4.fx.size() == 1 and str(fl4.fx[0].kind) == "anim" and int(fl4.fx[0].facing) == -1 and near(float(fl4.fx[0].t), -0.1)
+		and near(float(fl4.fx[0].dur), float(strike.frames) / float(strike.fps)) and int(fl4.fx[0].row) == n_el + 5 and near(float(fl4.fx[0].scale), 1.5),
+		"a Wind strike at tier 3: an anim facing left, 0.1 s off, for its frames, at wind's row of the middle band")
+	fl4.play_form("strike", "wind", 1, Vector2.ZERO, 1, {"start": 0.2})
+	check(near(float(fl4.fx[1].dur), float(strike.frames) / float(strike.fps) - 0.2) and FxLayer.form_frame(strike, 0.2 + 0.05) == int(0.25 * float(strike.fps)),
+		"started part-way in, it plays the rest and reads its frame from where it began")
+	check(fl4.play_form("no_such_form", "wind", 1, Vector2.ZERO, 1).is_empty() and fl4.fx.size() == 2, "a form without a sheet plays nothing")
+	fl4.free()
+	if was_rm == null: Game.account.settings.erase("reduce_motion")
+	else: Game.account.settings.reduce_motion = was_rm
+	if was_bs == null: Game.account.settings.erase("battery_saver")
+	else: Game.account.settings.battery_saver = was_bs
 	# A counted text picks its "_one" twin (P4 plurals): one bolt, nine bolts.
 	var bolts := {"key": "hud.tribulation_started", "args": ["payload.bolts"], "plural": "payload.bolts"}
 	check(MomentRules.text(bolts, {"bolts": 1}) == Tx.t("hud.tribulation_started_one") % 1 and MomentRules.text(bolts, {"bolts": 9}) == Tx.t("hud.tribulation_started") % 9,

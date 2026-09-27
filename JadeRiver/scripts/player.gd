@@ -68,6 +68,7 @@ var channel_action := ""
 var fly_up := false                 # held Jump while flying (touch); Space on the keyboard
 var fly_down := false               # held Guard while flying (touch); K on the keyboard
 var kick_t := 0.0                   # Wall-Step: the body is pushed away from the wall for a moment
+var pose_preview := {}              # --cast previews (decision 23): {action, t, duration}, a pose held as a cast's would be, view only
 var kick_dir := 0
 var climb_hold := 0.0               # S43: seconds the joystick has been held toward a ladder
 var jump_held := false              # S43: the Jump button is down (touch); Space on the keyboard
@@ -433,6 +434,11 @@ func _emote_pose(c, busy: bool) -> bool:
 	if emote.get("bob", false): avatar.position.y = -absf(sin(t * 9.0)) * 5.0
 	return true
 
+## Debug (--cast previews): hold `action` for `duration` s as a cast of it would play, the hit at `hit_at`; nothing submitted.
+func preview_pose(action: String, duration: float, dir: int, hit_at := 0.2) -> void:
+	facing = dir
+	pose_preview = {"action": action, "t": 0.0, "duration": duration, "hit_at": hit_at}
+
 func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 	avatar.facing = facing
 	avatar.playback_speed = 1.7 if sprinting and surface != null else 1.0
@@ -442,6 +448,12 @@ func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 		modulate = Color(0.6, 0.6, 0.7)
 		return
 	modulate = Color(1, 1, 1, 0.55 + 0.45 * float(int(Time.get_ticks_msec() / 80) % 2)) if c.pools.invulnerable > 0.0 or c.pools.has_status("spawn_protection") else Color.WHITE
+	if not pose_preview.is_empty():
+		pose_preview.t = float(pose_preview.t) + (world.fx.fixed_step if world and world.fx and world.fx.fixed_step > 0.0 else get_process_delta_time())
+		if float(pose_preview.t) >= float(pose_preview.duration): pose_preview = {}
+		else:
+			busy = true
+			tl = {"action": pose_preview.action, "t": pose_preview.t, "duration": pose_preview.duration, "hit_at": pose_preview.hit_at}
 	if busy and str(tl.action) != "":
 		var action := str(tl.action)
 		if not Wardrobe.parts._actions.has(action): action = "punch_1"

@@ -379,6 +379,9 @@ func _handle_preview_args(user_args: Array) -> void:
 			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).
 			var ca := str(a).trim_prefix("--cast=").split(":")
 			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection (1.5 s), so the caster is solid
+			# Decision 23: with --capture the cast's effects and pose step a sixtieth a frame, so the shot lands on the frame
+			# t names whatever the renderer's pace (the capture wait below counts frames too).
+			if "--capture" in user_args: world.fx.fixed_step = 1.0 / 60.0
 			world.preview_cast(ca[0])
 			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
 		if str(a).begins_with("--hold=") and is_instance_valid(moments):
@@ -563,7 +566,10 @@ func _handle_preview_args(user_args: Array) -> void:
 			moments.hold_at = moment_t
 			if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
 	if "--capture" in user_args:
-		await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
+		if is_instance_valid(world) and world.fx.fixed_step > 0.0:
+			for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / world.fx.fixed_step): await get_tree().process_frame
+		else:
+			await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
 		for a in user_args:
 			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
 			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})
