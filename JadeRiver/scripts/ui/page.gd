@@ -718,7 +718,7 @@ func _gui_input(event: InputEvent) -> void:
 		else:
 			var idx := _hit(event.position)
 			if idx >= 0 and idx == _pressed and not _dragged: _activate(_prev_regions[idx])
-			elif _pressed < 0 and confirm.is_empty() and not frameless and not frame_rect.has_point(event.position) and not _dragged: close()
+			elif _pressed < 0 and confirm.is_empty() and not frameless and not window_rect().has_point(event.position) and not _dragged: close()
 			_pressed = -1
 			_drag_area = ""
 		accept_event()
