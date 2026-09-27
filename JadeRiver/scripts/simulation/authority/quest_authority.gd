@@ -610,7 +610,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 			if o.has("role"): return 1 if str(p.get("role", "")) == str(o.role) else 0
 			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
 		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
-		"settle_post": return 1 if str(p.get("source", "post")) == "post" else 0
+		"settle_post": return 1 if str(p.get("source", "post")) in ["post", "incense"] else 0   # this character's own incense counts (P5)
 		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
 		"survive_timer": return 1 if str(p.get("event", "")) == str(o.event) else 0
 		"judge_foe": return 1 if str(p.get("def", "")) == str(o.enemy) else 0
@@ -936,19 +936,37 @@ func start_weekly(force: bool) -> void:
 		"qp": "weekly"})
 	accept(c, id)
 
+## The sect board at the daily reset (or when Earning Your Keep opens it). Missed days bank (account_rules.bank, P4):
+## unfinished missions stay on the board, and each day since the board last filled adds its day's missions, until
+## the board holds `days` days' worth. A day away costs nothing; there is no streak to break.
 func start_daily(force: bool) -> void:
 	var c = game.active()
 	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
-	for qid in c.quests.daily.keys():
-		if not str(qid).begins_with("daily_"): continue   # the weekly mission keeps its week
-		apply_drop(c.id, qid)
+	var today := Clock.reset_day(Clock.now_utc())
+	var bank := CalendarRules.bank()
+	var per_day := int(bank.get("missions_per_day", 5))
+	var owed := maxi(1, CalendarRules.days_banked(int(c.quests.board_day), today))
+	if int(c.quests.board_day) == today and not force: return
+	c.quests.board_day = today
+	var kept: int = c.quests.daily.keys().filter(func(q): return str(q).begins_with("daily_")).size()   # the weekly keeps its week
+	var space: int = per_day * int(bank.get("days", 3)) - kept
+	var made := 0
+	for day in range(today - owed + 1, today + 1):
+		made += _fill_board(c, day, mini(per_day, space - made))
+	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
+	emit("missions_refreshed", {"actor": c.id, "count": made})
+
+## Up to `count` missions for reset day `day`, each a different job, ids daily_<day>_<n> (a day already on the board or
+## done keeps its own). Returns how many were added.
+func _fill_board(c, day: int, count: int) -> int:
 	var rng := Rng.stream(c.id, "world")
 	var templates: Array = ContentDB.all("mission_templates")
 	var lv := ProgressionRules.level(c)
 	var made := 0
+	var n := 0
 	var guard := 0
-	var picked := {}   # mission name -> true: the board never lists the same job twice
-	while made < 5 and guard < 40 and not templates.is_empty():
+	var picked := {}   # mission name -> true: the board never lists the same job twice in a day
+	while made < count and guard < 40 and not templates.is_empty():
 		guard += 1
 		var tpl: Dictionary = templates[rng.randi_range(0, templates.size() - 1)]
 		if tpl.has("requires") and not RequirementRules.passes(tpl.requires, game.ctx(c)): continue
@@ -959,11 +977,12 @@ func start_daily(force: bool) -> void:
 		var mname := str(op.get("name", tpl.get("name", Tx.t("sim.quest.sect_mission"))))
 		if picked.has(mname): continue
 		picked[mname] = true
-		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]
+		var id := "daily_%d_%d" % [day, n]
+		n += 1
+		if c.quests.daily.has(id) or c.quests.done.has(id): continue
 		var obj: Dictionary = op.objective.duplicate(true)
 		apply_generated(c.id, {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true})
 		made += 1
-	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
-	emit("missions_refreshed", {"actor": c.id, "count": made})
+	return made

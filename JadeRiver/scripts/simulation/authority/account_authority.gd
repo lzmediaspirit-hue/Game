@@ -595,24 +595,48 @@ func claim_collection_seal(c, page: String, seal: int) -> Dictionary:
 
 # ------------------------------------------------------------------ daily activity chests (S49 v1.0)
 ## Points from the day's missions, dungeon clears, crafts, harvests, spars, tower floors and beast fights fill four
-## chests for the whole account (activity.json). Some sources are capped; everything starts again at the daily reset.
+## chests for the whole account (activity.json). Some sources are capped; the bar starts again at the daily reset.
+## They open with the activity_chests unlock (Qi Kindling 1). Missed days bank (account_rules.bank, P4): a chest filled
+## and not opened waits in `banked`, and each day away adds catch-up points that double the next points earned, up
+## to the bank's days. Nothing is lost by staying away.
 func activity() -> Dictionary:
 	var day := Clock.reset_day(Clock.now_utc())
-	if int(game.account.activity.get("day", -1)) != day:
-		game.account.activity = {"day": day, "points": 0, "by": {}, "claimed": []}
+	var a: Dictionary = game.account.activity
+	if int(a.get("day", -1)) != day:
+		var bank := CalendarRules.bank()
+		var banked: Array = (a.get("banked", []) as Array).duplicate()
+		for t in ContentDB.all("activity"):
+			if _today_ready(a, t): banked.append(str(t.id))
+		var cap := int(bank.get("days", 3))
+		var missed := CalendarRules.days_banked(int(a.get("day", -1)), day, 1)   # the days with no play between
+		var catch_up := mini(int(a.get("catch_up", 0)) + missed * int(bank.get("activity_per_day", 40)), cap * int(bank.get("activity_per_day", 40)))
+		game.account.activity = {"day": day, "points": 0, "by": {}, "claimed": [], "banked": banked.slice(maxi(0, banked.size() - cap * 4)),
+			"catch_up": catch_up}
 	return game.account.activity
+
+## A chest the active character can open now: today's, filled and not opened, or one banked from a day before.
+func chest_ready(tier: String) -> bool:
+	var t := ContentDB.entry("activity", tier)
+	var a := activity()
+	if t.is_empty() or not Unlocks.is_unlocked(game.active_id, "activity_chests"): return false
+	return (a.get("banked", []) as Array).has(tier) or _today_ready(a, t)
+
+static func _today_ready(a: Dictionary, t: Dictionary) -> bool:
+	return int(a.get("points", 0)) >= int(t.points) and not (a.get("claimed", []) as Array).has(str(t.id))
 
 func apply_activity(source: String, times := 1) -> void:
 	var src: Dictionary = ContentDB.config("activity").get("sources", {}).get(source, {})
-	if src.is_empty() or times <= 0: return
+	if src.is_empty() or times <= 0 or not Unlocks.is_unlocked(game.active_id, "activity_chests"): return
 	var a := activity()
 	var had := int(a.by.get(source, 0))
 	var add := int(src.get("points", 0)) * times
 	if int(src.get("cap", 0)) > 0: add = mini(add, int(src.cap) - had)
 	if add <= 0: return
+	var bonus := mini(add, int(a.get("catch_up", 0)))   # a banked day's catch-up doubles these points
+	a.catch_up = int(a.get("catch_up", 0)) - bonus
 	var before := int(a.points)
 	a.by[source] = had + add
-	a.points = before + add
+	a.points = before + add + bonus
 	for t in ContentDB.all("activity"):
 		if before < int(t.points) and int(a.points) >= int(t.points): emit("activity_chest_ready", {"tier": str(t.id), "points": int(t.points)})
 
@@ -620,10 +644,14 @@ func claim_activity_chest(c, tier: String) -> Dictionary:
 	if c == null: return fail("no_character")
 	var t := ContentDB.entry("activity", tier)
 	if t.is_empty(): return fail("no_tier")
+	if not Unlocks.is_unlocked(c.id, "activity_chests"): return fail("locked", {"text": Unlocks.locked_text("activity_chests")})
 	var a := activity()
-	if (a.claimed as Array).has(tier): return fail("claimed", {"text": Tx.t("sim.account.chest_claimed")})
-	if int(a.points) < int(t.points): return fail("short", {"text": Tx.plural("sim.account.chest_short", int(t.points) - int(a.points)) % (int(t.points) - int(a.points))})
-	a.claimed.append(tier)
+	if (a.get("banked", []) as Array).has(tier) and not _today_ready(a, t):
+		(a.banked as Array).erase(tier)   # a banked chest from a day away
+	else:
+		if (a.claimed as Array).has(tier): return fail("claimed", {"text": Tx.t("sim.account.chest_claimed")})
+		if int(a.points) < int(t.points): return fail("short", {"text": Tx.plural("sim.account.chest_short", int(t.points) - int(a.points)) % (int(t.points) - int(a.points))})
+		a.claimed.append(tier)
 	game.apply_effects(c.id, t.get("rewards", []), "activity:" + tier)
 	emit("activity_chest_claimed", {"actor": c.id, "tier": tier, "points": int(t.points)})
 	return ok({"tier": tier})

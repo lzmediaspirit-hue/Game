@@ -48,7 +48,7 @@ static func is_rare(i: Dictionary) -> bool:
 	var r: Dictionary = cfg().get("rare", {})
 	var id := str(i.get("item", ""))
 	return str(i.get("quality", "")) in r.get("qualities", []) or str(ContentDB.item(id).get("type", "")) in r.get("types", []) \
-		or (r.get("items", {}) as Dictionary).has(id)
+		or (r.get("items", {}) as Dictionary).has(id) or bool(i.get("find", false))
 
 ## A loot entry's colour: its quality's, or for a common piece its item's grade (§6 rule 4).
 static func item_color(i: Dictionary) -> Color:

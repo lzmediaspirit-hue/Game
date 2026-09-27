@@ -757,6 +757,12 @@
    "system": "World",
    "files": [
     "world_authority"
+   ],
+   "payload": [
+    "room",
+    "item",
+    "ends",
+    "first"
    ]
   },
   "soul_searched": {
@@ -844,6 +850,13 @@
    "files": [
     "enemy_authority",
     "enemy_brain"
+   ],
+   "payload": [
+    "room",
+    "enemy",
+    "def",
+    "level",
+    "random?"
    ]
   },
   "field_boss_spawned": {
@@ -2018,7 +2031,13 @@
     "relations_authority"
    ],
    "also": "Relations",
-   "note": "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows."
+   "note": "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows.",
+   "payload": [
+    "actor",
+    "card",
+    "trigger",
+    "room"
+   ]
   },
   "ranking_changed": {
    "system": "Calendar",

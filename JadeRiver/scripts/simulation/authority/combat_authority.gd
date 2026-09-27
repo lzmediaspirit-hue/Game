@@ -1504,9 +1504,11 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		_gravely_wound(c, "soul" if pool == "soul" else "hp")
 
 func _gravely_wound(c, cause: String) -> void:
-	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27).
-	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
-	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty}
+	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27), and nor does a fall
+	# before Bone Forging 5 (the early grace, P12).
+	var grace: bool = Unlocks.is_unlocked(c.id, "kill_progress") and ProgressionRules.death_grace(c.cultivator.realm_key)
+	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or grace or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
+	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty, "grace": grace}
 	var tl := timeline(c.id)
 	tl.action = ""
 	tl.guard = false
@@ -1531,6 +1533,7 @@ func choose_revival(c, where: String) -> Dictionary:
 	if not wounded.has(c.id): return fail("not_wounded")
 	var info: Dictionary = wounded[c.id]
 	var death: Dictionary = ContentDB.stat_const("death", {})
+	if info.get("grace", false): game.quest.apply_flag(c.id, "death_grace_told")   # the revival page has explained it once
 	if where == "fruit":
 		var fruit := fruit_revival_allowed(c)
 		if not fruit.ok: return fail("not_allowed", {"text": fruit.text})

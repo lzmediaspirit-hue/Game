@@ -2917,8 +2917,12 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Sources**:
   - Drop: [Ferryman Lou](monsters.md#enemy-ferryman_lou) (Lv 27) · 100% (guaranteed)
+  - Drop: [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 2% (rare)
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 2% (rare)
   - Drop: [Rapids Lizard](monsters.md#enemy-rapids_lizard) (Lv 28–31) · 10% (rare)
+  - Drop: [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2% (rare)
   - Drop: [Tide Crab](monsters.md#enemy-tide_crab) (Lv 20–23) · 15% (rare)
+  - Drop: [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 2% (rare)
   - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · 40 Silver Taels; needs Heart Tempering 5
   - Reward: Expedition Deepwater Bend (4/8 h)
 
@@ -6635,7 +6639,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Hour incense: {"hours": 1}
 - **Sources**:
-  - Reward: Quest Keeping Post (guided, from Fisher Wen), reward ×2
+  - Reward: Quest Keeping Post (guided, from Fisher Wen), on accept
+  - Reward: Quest Keeping Post (guided, from Fisher Wen), reward
 
 <a id="item-hour_incense_2"></a>
 
@@ -7404,9 +7409,12 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Knife-Hand Sui](monsters.md#enemy-knife_hand_sui) (Lv 34) · 5% (rare)
   - Drop: [Kuai Shan](monsters.md#enemy-kuai_shan) (Lv 20) · 5% (rare)
   - Drop: [Lieutenant Kuai](monsters.md#enemy-mudwater_lieutenant) (Lv 19) · 5% (rare)
+  - Drop: [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 0.5% (rare)
+  - Drop: [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 0.5% (rare)
   - Drop: [Mudwater Cutthroat](monsters.md#enemy-mudwater_cutthroat) (Lv 18) · 5% (rare)
   - Drop: [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 5% (rare)
   - Drop: [One-Eye Pang](monsters.md#enemy-one_eye_pang) (Lv 20) · 5% (rare)
+  - Drop: [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 0.5% (rare)
   - Drop: [Rogue Cultivator](monsters.md#enemy-rogue_cultivator) (Lv 24–26) · 5% (rare)
   - Drop: [Rogue Treasure Adept](monsters.md#enemy-rogue_treasure_adept) (Lv 48–50) · 5% (rare)
   - Drop: [Thornback Boar](monsters.md#enemy-thornback_boar) (Lv 13–15) · 5% (rare)
@@ -7415,6 +7423,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 25% (guaranteed)
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 5% (rare)
   - Drop: [Warden Rong Yan](monsters.md#enemy-scarlet_kiln_warden) (Lv 66) · 5% (rare)
+  - Drop: [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 0.5% (rare)
   - Container: Chest in Abbot's Sanctum (Drowned Shrine) (Lv 27) · 50% ×1–2 (group 100%, weight 1 of 2)
   - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 25% ×2–3 (group 100%, weight 1 of 4)
   - Container: Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 50% ×1–2 (group 100%, weight 1 of 2)

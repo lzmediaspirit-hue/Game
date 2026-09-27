@@ -574,34 +574,44 @@ def unlocks():
     u("mining", "Mining", all_of(realm("bone_forging_5")), "stone_and_sweat", [], effects=[{"kind": "grant_item", "item": "old_pickaxe", "count": 1}])
     u("dodge_dash", "Dodge dash", all_of(realm("bone_forging_5")), "stone_and_sweat", [], same_stage_ok=True)
     u("collection_book", "Collection book", all_of(realm("bone_forging_5")), "stone_and_sweat", ["page:collection"], same_stage_ok=True, toast=False)
-    u("idle_tasks", "Idle tasks", all_of({"kind": "account_realm", "realm": "bone_forging_5"}), "a_second_path", ["page:characters"], scope="account")
     # The Account Legacy (S-v0.8): every great realm the account reaches after this is recorded, +2% accumulation each.
     u("account_legacy", "Account Legacy", all_of({"kind": "account_realm", "realm": "bone_forging_1"}), "", [], scope="account", toast=False)
-    u("daily_missions", "Sect missions", all_of(realm("bone_forging_6"), qdone("entry_trial")), "earning_your_keep", [])
-    u("contribution_shop", "Contribution shop", all_of(realm("bone_forging_6"), qdone("entry_trial")), "earning_your_keep", [], same_stage_ok=True, toast=False)
-    u("field_boss_timers", "Field-boss timers", all_of(realm("bone_forging_6")), "earning_your_keep", [], same_stage_ok=True, toast=False)
     bf7 = all_of(realm("bone_forging_7"))
     u("qi_pool", "Qi", bf7, "the_first_current", ["hud:qi_bar"])
-    u("seclusion", "Offline seclusion", bf7, "the_first_current", ["page:seclusion"], same_stage_ok=True)
     u("qi_springs", "Qi springs", bf7, "the_first_current", [], same_stage_ok=True, toast=False)
     u("element_affinity", "Element affinity", bf7, "the_first_current", [], same_stage_ok=True, toast=False)
     u("cooking", "Cooking", all_of(realm("bone_forging_8")), "aunt_pings_broth", [],
       effects=[{"kind": "grant_item", "item": "clay_pot", "count": 1}, {"kind": "grant_item", "item": "bamboo_rod", "count": 1}])
     u("fishing", "Fishing", all_of(realm("bone_forging_8")), "aunt_pings_broth", [], same_stage_ok=True)
-    # V10 Keeping Post (docs/idle_gathering_design.md): posts once a second character can take over, the nets with
-    # Little Dou's glowflies, and pouch sewing at Tailor Xun once the Storage opens.
-    u("keeping_post", "Keeping post", all_of({"kind": "account_realm", "realm": "bone_forging_6"}), "keeping_post", ["page:posts"])
-    u("insect_netting", "Insect netting", all_of(realm("bone_forging_6")), "glowflies", [], effects=[{"kind": "grant_item", "item": "reed_net", "count": 1}],
-      same_stage_ok=True)
+    # Chores after power (docs/research/player_motivation.md item 6): every daily, idle and post system opens at Qi
+    # Kindling 1, after the first technique, the first weapon and Bone Forging 4, and is optional. The missions and
+    # the activity chests bank (QuestAuthority.start_daily, AccountAuthority.activity): a missed day is kept, up to
+    # account_rules.bank.days, never lost. `obligation` marks them for data_validation's P3.
+    qk1 = all_of(realm("qi_kindling_1"))
+    u("daily_missions", "Sect missions", all_of(realm("qi_kindling_1"), qdone("entry_trial")), "earning_your_keep", [], same_stage_ok=True,
+      obligation=True)
+    u("contribution_shop", "Contribution shop", all_of(realm("qi_kindling_1"), qdone("entry_trial")), "earning_your_keep", [], same_stage_ok=True,
+      toast=False, obligation=True)
+    u("field_boss_timers", "Field-boss timers", qk1, "earning_your_keep", [], same_stage_ok=True, toast=False, obligation=True)
+    u("activity_chests", "Activity chests", qk1, "earning_your_keep", [], same_stage_ok=True, obligation=True)
+    # An idle task or seclusion: the same character trains while you are away (A Second Path never asks for another).
+    u("idle_tasks", "Idle tasks", all_of({"kind": "account_realm", "realm": "qi_kindling_1"}), "a_second_path", ["page:characters"], scope="account",
+      obligation=True)
+    u("seclusion", "Offline seclusion", qk1, "a_second_path", ["page:seclusion"], same_stage_ok=True, obligation=True)
+    # V10 Keeping Post (docs/idle_gathering_design.md): a post this character keeps while you are away (or burns an
+    # incense stick at), the nets with Little Dou's glowflies, and pouch sewing at Tailor Xun once the Storage opens.
+    u("keeping_post", "Keeping post", all_of({"kind": "account_realm", "realm": "qi_kindling_1"}), "keeping_post", ["page:posts"], obligation=True)
+    u("insect_netting", "Insect netting", qk1, "glowflies", [], effects=[{"kind": "grant_item", "item": "reed_net", "count": 1}],
+      same_stage_ok=True, obligation=True)
     u("pouch_sewing", "Pouch sewing", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "a_pouch_for_the_road", ["page:pouches"],
-      same_stage_ok=True)
+      same_stage_ok=True, obligation=True)
     # V10c: snares from Adventurer Kai, the ancestral rites with Magistrate Qian, and an apprentice from Tinkerer Yu.
     u("beast_snaring", "Beast snaring", all_of(realm("qi_kindling_2"), qdone("keeping_post")), "snares_before_swords", [],
-      effects=[{"kind": "grant_item", "item": "hemp_snare_kit", "count": 1}], same_stage_ok=True)
+      effects=[{"kind": "grant_item", "item": "hemp_snare_kit", "count": 1}], same_stage_ok=True, obligation=True)
     u("ancestral_rites", "Ancestral rites", all_of(realm("qi_kindling_3"), qdone("keeping_post")), "the_ancestors_regard", [],
-      effects=[{"kind": "grant_item", "item": "wood_rite_tablet", "count": 1}], same_stage_ok=True)
+      effects=[{"kind": "grant_item", "item": "wood_rite_tablet", "count": 1}], same_stage_ok=True, obligation=True)
     u("apprentice_bench", "Apprentice bench", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "an_apprentices_hands", [],
-      same_stage_ok=True)
+      same_stage_ok=True, obligation=True)
     # V10d the account web: Elder Hu's Post Arts, Old Scribe Bai's seals, Elder Bian's steles, the magistrate's favours.
     u("post_arts", "Post arts", all_of(realm("qi_kindling_6"), qdone("keeping_post")), "an_idle_art", ["page:works"], same_stage_ok=True)
     u("seal_scripts", "Seal scripts", all_of(realm("qi_unfurling_2"), qdone("keeping_post")), "seals_in_red_ink", ["page:works"],
@@ -995,20 +1005,26 @@ def guided_quests():
     ], [item("iron_pickaxe", 1)], offered_by_unlock=True, target_room="sq_quarry_rim", chapter="bf5",
         offer=["Take my old pickaxe. Five copper, five beetles. And dodge the imps' pebbles, they sting."],
         complete=["You'll make a miner yet. Here, an iron pick. Mind your toes."])
+    # Item 6 of docs/research/player_motivation.md: the idle lessons come after Qi Kindling 1 and never ask for a second
+    # character. An idle task (Characters page) or one seclusion completes A Second Path; Keeping Post is kept by this
+    # character, then an incense stick burnt at the post (or the game put away) settles it.
     quest("a_second_path", "A Second Path", "guided", "courier_lin", [
-        o("use_system", "Create a second character or set an idle task", system="second_path"),
-    ], [taels(200)], offered_by_unlock=True, hand_in="", chapter="bf5", target_room="",
-        offer=["(A letter from your mentor) One cultivator can't walk every road. Train a second disciple, or leave this one to train while you rest."])
+        o("use_system", "Set an idle task on the Characters page", system="second_path"),
+        o("enter_seclusion", "Or enter seclusion once"),
+    ], [taels(200)], offered_by_unlock=True, hand_in="", chapter="qk1", target_room="", complete_on="any",
+        offer=["(A letter from your mentor) Even resting, a cultivator can train. Leave yourself a task when you put the road down, "
+               "or sit in seclusion. Whenever it suits you; nothing waits on it."])
     quest("keeping_post", "Keeping Post", "guided", "fisher_wen", [
         o("use_system", "Keep post at a node: the pennant button beside an ore vein, herb, fishing spot or swarm", system="post"),
-        o("settle_post", "Play someone else, then come back to the one who kept post"),
-    ], [item("hour_incense_1", 2), taels(100)], offered_by_unlock=True, hand_in="", chapter="bf6", target_room="lf_village",
-        offer=["A line left in the water still fishes. When I can't sit by mine, my nephew does, and the basket fills either way.",
-               "Leave one of yours at a vein or a pool while you walk another road. They keep working. Come back and count."],
-        complete=["See? The river doesn't care who holds the rod. The Roll-Call keeps count of who is where."])
+        o("settle_post", "Burn the incense stick at your post (Roll-Call), or put the game away and come back"),
+    ], [item("hour_incense_1", 1), taels(100)], offered_by_unlock=True, hand_in="", chapter="qk1", target_room="lf_village",
+        on_accept=[item("hour_incense_1", 1)],
+        offer=["A line left in the water still fishes. When I can't sit by mine, the basket fills all the same.",
+               "Sit at a vein or a pool and keep post. Here's an incense stick: burn it there and an hour's work is done while it burns."],
+        complete=["See? The river doesn't care who holds the rod. The Roll-Call keeps count of what your post brought in."])
     quest("glowflies", "Little Dou's Glowflies", "side", "little_dou", [
         o("gather_node", "Net glowflies at the Reed Shallows", 5, item="glowfly", craft="insect_netting"),
-    ], [taels(60), item("reed_net", 1)], offered_by_unlock=True, chapter="bf6", target_room="lf_reed_shallows",
+    ], [taels(60), item("reed_net", 1)], offered_by_unlock=True, chapter="qk1", target_room="lf_reed_shallows",
         offer=["The glowflies are out in the reeds! I made you a net. Well, Aunt Ping made it. Catch five! For a lantern!"],
         complete=["Five! Now my lantern glows green. Keep the spare net. Ooh, and there are beetles in the bamboo too..."])
     quest("a_pouch_for_the_road", "A Pouch for the Road", "side", "tailor_xun", [
@@ -1076,18 +1092,20 @@ def guided_quests():
         offer=["Build a Mirror of Echoes in your sect's hall. A disciple who knows the art of Echo Sampling can leave a share of their post in it.",
                "Then the mirror keeps working that vein in echo, whatever the disciple does next."],
         complete=["The bronze remembers. Your Storehouse will fill a little faster from now on."])
-    quest("earning_your_keep", "Earning Your Keep", "guided", "jade_deacon", [
-        o("use_system", "Finish daily missions", 2, system="daily_mission_done"),
-    ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="bf6", giver_any=DEACONS, hand_in_any=DEACONS,
+    # Optional (a side errand): taking it opens the board, the contribution shop and the activity chests; missed days
+    # bank on the board (QuestAuthority.start_daily), so it never asks for a daily visit.
+    quest("earning_your_keep", "Earning Your Keep", "side", "jade_deacon", [
+        o("use_system", "Finish any one mission from the board, whenever it suits you", 1, system="daily_mission_done"),
+    ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="qk1", giver_any=DEACONS, hand_in_any=DEACONS,
         on_accept=[fx("start_daily", count=5)], target_room="ja_gate_street",
-        offer=["Missions. Five a day. Hunt, gather, deliver. Contribution buys what money can't."],
+        offer=["The sect has more work than hands. The board by the gate lists it: hunts, herbs, deliveries.",
+               "Take what you like, when you like. Days you miss wait on the board for you. Contribution buys what money can't."],
         complete=["The contribution shop is open to you now."])
     quest("the_first_current", "The First Current", "main", "lu_boatman", [
         o("meditate_seconds", "Meditate in the Lotus Ferry Qi spring", 30, near="qi_spring"),
-        o("enter_seclusion", "Enter seclusion once"),
     ], [item("qi_gathering_pill", 2), fx("codex", entry="qi")], offered_by_unlock=True, chapter="3", target_room="lf_village",
         offer=["You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
-               "The old spring by Granny Liu's hut has woken. Sit in it. Then learn to cultivate while you sleep."],
+               "The old spring by Granny Liu's hut has woken. Sit in it."],
         complete=["Your first current. Don't let it flood you."])
     quest("aunt_pings_broth", "Aunt Ping's Broth", "guided", "aunt_ping", [
         o("catch_fish", "Catch fish", 2),

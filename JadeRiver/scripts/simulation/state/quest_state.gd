@@ -9,6 +9,7 @@ var tracked: Array = []         # up to 3 quest ids
 var flags: Dictionary = {}      # flag -> true
 var offered: Dictionary = {}    # quest id -> true (visible "!" markers)
 var daily: Dictionary = {}      # generated daily missions {id: def}
+var board_day := -1             # the reset day the sect board last filled (missed days bank: QuestAuthority.start_daily)
 
 func is_done(id: String) -> bool:
 	return done.has(id)
@@ -21,7 +22,7 @@ func has_flag(flag: String) -> bool:
 
 func snapshot() -> Dictionary:
 	return {"active": active.duplicate(true), "done": done.duplicate(), "tracked": tracked.duplicate(),
-		"flags": flags.keys(), "offered": offered.keys(), "daily": daily.duplicate(true)}
+		"flags": flags.keys(), "offered": offered.keys(), "daily": daily.duplicate(true), "board_day": board_day}
 
 func restore(d: Dictionary) -> void:
 	active = {}
@@ -42,3 +43,4 @@ func restore(d: Dictionary) -> void:
 	offered.clear()
 	for q in d.get("offered", []): offered[str(q)] = true
 	daily = d.get("daily", {}).duplicate(true)
+	board_day = int(d.get("board_day", -1))

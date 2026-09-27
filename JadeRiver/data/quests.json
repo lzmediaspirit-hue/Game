@@ -1240,9 +1240,14 @@
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Create a second character or set an idle task",
+     "text": "Set an idle task on the Characters page",
      "count": 1,
      "system": "second_path"
+    },
+    {
+     "kind": "enter_seclusion",
+     "text": "Or enter seclusion once",
+     "count": 1
     }
    ],
    "rewards": [
@@ -1253,11 +1258,12 @@
     }
    ],
    "offer_text": [
-    "(A letter from your mentor) One cultivator can't walk every road. Train a second disciple, or leave this one to train while you rest."
+    "(A letter from your mentor) Even resting, a cultivator can train. Leave yourself a task when you put the road down, or sit in seclusion. Whenever it suits you; nothing waits on it."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf5",
-   "target_room": ""
+   "chapter": "qk1",
+   "target_room": "",
+   "complete_on": "any"
   },
   {
    "id": "keeping_post",
@@ -1275,7 +1281,7 @@
     },
     {
      "kind": "settle_post",
-     "text": "Play someone else, then come back to the one who kept post",
+     "text": "Burn the incense stick at your post (Roll-Call), or put the game away and come back",
      "count": 1
     }
    ],
@@ -1283,7 +1289,7 @@
     {
      "kind": "grant_item",
      "item": "hour_incense_1",
-     "count": 2
+     "count": 1
     },
     {
      "kind": "grant_currency",
@@ -1292,15 +1298,22 @@
     }
    ],
    "offer_text": [
-    "A line left in the water still fishes. When I can't sit by mine, my nephew does, and the basket fills either way.",
-    "Leave one of yours at a vein or a pool while you walk another road. They keep working. Come back and count."
+    "A line left in the water still fishes. When I can't sit by mine, the basket fills all the same.",
+    "Sit at a vein or a pool and keep post. Here's an incense stick: burn it there and an hour's work is done while it burns."
    ],
    "complete_text": [
-    "See? The river doesn't care who holds the rod. The Roll-Call keeps count of who is where."
+    "See? The river doesn't care who holds the rod. The Roll-Call keeps count of what your post brought in."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
-   "target_room": "lf_village"
+   "chapter": "qk1",
+   "target_room": "lf_village",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_1",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "glowflies",
@@ -1337,7 +1350,7 @@
     "Five! Now my lantern glows green. Keep the spare net. Ooh, and there are beetles in the bamboo too..."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
+   "chapter": "qk1",
    "target_room": "lf_reed_shallows"
   },
   {
@@ -1725,15 +1738,15 @@
   {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
-   "kind": "guided",
+   "kind": "side",
    "giver": "jade_deacon",
    "hand_in": "jade_deacon",
    "marker": "blue",
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Finish daily missions",
-     "count": 2,
+     "text": "Finish any one mission from the board, whenever it suits you",
+     "count": 1,
      "system": "daily_mission_done"
     }
    ],
@@ -1744,13 +1757,14 @@
     }
    ],
    "offer_text": [
-    "Missions. Five a day. Hunt, gather, deliver. Contribution buys what money can't."
+    "The sect has more work than hands. The board by the gate lists it: hunts, herbs, deliveries.",
+    "Take what you like, when you like. Days you miss wait on the board for you. Contribution buys what money can't."
    ],
    "complete_text": [
     "The contribution shop is open to you now."
    ],
    "offered_by_unlock": true,
-   "chapter": "bf6",
+   "chapter": "qk1",
    "giver_any": [
     "jade_deacon",
     "cloud_deacon"
@@ -1780,11 +1794,6 @@
      "text": "Meditate in the Lotus Ferry Qi spring",
      "count": 30,
      "near": "qi_spring"
-    },
-    {
-     "kind": "enter_seclusion",
-     "text": "Enter seclusion once",
-     "count": 1
     }
    ],
    "rewards": [
@@ -1800,7 +1809,7 @@
    ],
    "offer_text": [
     "You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
-    "The old spring by Granny Liu's hut has woken. Sit in it. Then learn to cultivate while you sleep."
+    "The old spring by Granny Liu's hut has woken. Sit in it."
    ],
    "complete_text": [
     "Your first current. Don't let it flood you."

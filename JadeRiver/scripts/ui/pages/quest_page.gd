@@ -54,7 +54,7 @@ func draw_page() -> void:
 		if str(tabs[tab].id) == "main": _next_chapter(ch, left)
 	# S49 daily activity: the day's points and the four chests sit under the day's missions.
 	var list_rect := left.grow(-10)
-	if str(tabs[tab].id) == "daily":
+	if str(tabs[tab].id) == "daily" and Unlocks.is_unlocked(ch.id, "activity_chests"):
 		list_rect.size.y -= 188
 		_activity(ch, Rect2(left.position.x + 18, left.end.y - 184, left.size.x - 36, 172))   # I9: the note clears the frame
 	list("q", list_rect, ids.size(), 64, func(i: int, rr: Rect2):
@@ -144,8 +144,8 @@ func _activity(ch, r: Rect2) -> void:
 	bar(br, float(pts) / float(top), UiKit.GOLD)
 	for tr in tiers:
 		var cx: float = br.position.x + br.size.x * float(tr.points) / float(top)
-		var claimed: bool = (a.get("claimed", []) as Array).has(str(tr.id))
-		var ready: bool = pts >= int(tr.points) and not claimed
+		var ready: bool = Game.accounts.chest_ready(str(tr.id))   # today's, or one banked from a day away
+		var claimed: bool = (a.get("claimed", []) as Array).has(str(tr.id)) and not ready
 		var box := Rect2(clampf(cx - 24, r.position.x, r.end.x - 48), r.position.y + 34, 48, 46)
 		if ready:
 			var glow := 0.45 + 0.35 * sin(t * 4.0)
