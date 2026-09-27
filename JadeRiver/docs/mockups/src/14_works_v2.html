@@ -1,0 +1,162 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>14 v2 Works, the curio cabinet</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 23. The page is a bamboo curio cabinet (a many-treasure shelf): seven works as seven
+     objects in compartments of different sizes, each with a hemp label; the chosen work's list laid on the tray
+     below (wood_dark); the account's totals as the cabinet's inventory slip at the right (hemp paper, PAPER_INK). */
+  .wall { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 6px;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 22px, rgba(0,0,0,.20) 22px 24px),
+                linear-gradient(180deg, #2c3a2a 0%, #243223 50%, #1b261b 100%);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 8px #1b261b, inset 0 0 0 10px #b9ba8b, inset 0 0 0 12px #1b261b, 0 10px 30px rgba(0,0,0,.55); }
+  .cab { position: absolute; background: #b9ba8b; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 6px 14px rgba(0,0,0,.5); }
+  .cell { position: absolute; background: radial-gradient(ellipse at 50% 70%, #4a2c19, #3b2416 60%, #2a190e);
+    box-shadow: inset 0 3px 8px rgba(0,0,0,.65), inset 0 0 0 2px #8f8f63; }
+  .cell.sel { box-shadow: inset 0 3px 8px rgba(0,0,0,.65), inset 0 0 0 2px #ffe6a1, 0 0 14px 4px rgba(229,184,76,.5); }
+  .node { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8f8f63; box-shadow: 0 0 0 1.5px #5b5b3c; }
+  .lattice { position: absolute; background:
+      linear-gradient(45deg, rgba(0,0,0,0) 45%, #8f8f63 45% 55%, rgba(0,0,0,0) 55%) 0 0 / 22px 22px,
+      linear-gradient(-45deg, rgba(0,0,0,0) 45%, #8f8f63 45% 55%, rgba(0,0,0,0) 55%) 0 0 / 22px 22px,
+      rgba(20,14,8,.55); }
+  .label { position: absolute; padding: 4px 10px 5px; border-radius: 3px; background: linear-gradient(180deg, #ddcaaf, #d1bda1 60%, #c2ad8f);
+    box-shadow: inset 0 0 0 1px #8f6630, 0 2px 0 rgba(0,0,0,.45); color: #2b2118; line-height: 1.2; }
+  .label * { text-shadow: none !important; }
+  .label .n { font-weight: 700; font-size: 16px; } .label .s { font-size: 14px; }
+  .cordv { position: absolute; width: 2px; background: #8f6630; }
+  .tray { position: absolute; border-radius: 6px; background: linear-gradient(180deg, #452a19, #3b2416 30%, #2f1d11);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 3px #5a3620, inset 0 3px 0 5px rgba(0,0,0,.25); }
+  .row { position: absolute; left: 104px; width: 716px; height: 50px; border-bottom: 1px solid rgba(154,106,53,.4); }
+  .row .ic32 { position: absolute; left: 4px; top: 9px; width: 32px; height: 32px; image-rendering: pixelated; }
+  .row .nm { position: absolute; left: 48px; top: 4px; font-weight: 700; font-size: 17px; white-space: nowrap; }
+  .row .sb { position: absolute; left: 48px; top: 26px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .row .cost { position: absolute; left: 430px; top: 1px; }
+  .row .cv { position: absolute; left: 486px; top: 4px; font-size: 16px; white-space: nowrap; }
+  .row .ci { position: absolute; left: 486px; top: 26px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .slipr { position: absolute; background: linear-gradient(180deg, #ddcaaf, #d1bda1 70%, #c7b293); color: #2b2118; border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #8f6630, 0 6px 14px rgba(0,0,0,.5); }
+  .slipr * { text-shadow: none !important; }
+  .tot { position: absolute; left: 16px; width: 314px; color: #2b2118; }
+  .tot * { text-shadow: none !important; }
+  .dk, .dk * { text-shadow: none !important; }
+  .tot .h { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+  .tot .v { font-size: 14px; margin-left: 32px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+<div class="wall"></div>
+
+<!-- title on the cabinet's crest board -->
+<div class="abs center" style="left:300px;top:34px;width:340px;height:56px;border-radius:4px;background:linear-gradient(180deg,#cfd0a0,#b9ba8b 55%,#9d9e70);box-shadow:0 0 0 2px var(--ink), inset 0 0 0 2px #8f8f63, 0 4px 0 rgba(0,0,0,.4)">
+  <span class="t-title inked" style="font-size:36px">Works of the Post</span></div>
+<div class="k-close abs" style="left:1146px;top:46px"></div>
+
+<!-- ================= the cabinet: seven works in compartments of different sizes ================= -->
+<div class="cab" style="left:86px;top:94px;width:754px;height:264px"></div>
+<!-- Arts: tall, left -->
+<div class="cell" style="left:94px;top:102px;width:138px;height:248px"></div>
+<img class="ic ic-64 abs" style="left:131px;top:150px" src="../icon_study/icons/A_inner_art_manual.png">
+<div class="abs" style="left:122px;top:216px;width:82px;height:10px;border-radius:2px;background:#5a3620;box-shadow:0 2px 0 rgba(0,0,0,.5)"></div>
+<div class="cordv" style="left:162px;top:232px;height:14px"></div>
+<div class="label" style="left:102px;top:246px;width:122px"><div class="n">Arts</div><div class="s"><span class="t-fig">14</span> points to spend</div></div>
+<div class="k-seal" style="left:196px;top:108px">✓</div>
+<!-- Seals: wide, top middle (chosen) -->
+<div class="cell sel" style="left:240px;top:102px;width:226px;height:118px"></div>
+<img class="ic ic-64 abs" style="left:262px;top:116px" src="../../../art/icons/items/mountain_seal.png">
+<div class="abs" style="left:336px;top:126px;width:44px;height:44px;border-radius:4px;background:#b3202e;box-shadow:inset 0 0 0 3px rgba(255,230,161,.7);transform:rotate(-6deg)"><div style="position:absolute;left:14px;top:9px;width:16px;height:26px;border:3px solid rgba(255,230,161,.85);border-radius:2px"></div><div style="position:absolute;left:19px;top:15px;width:6px;height:14px;background:rgba(255,230,161,.85)"></div></div>
+<div class="label" style="left:388px;top:112px;width:70px;text-align:center"><div class="n">Seals</div></div>
+<div class="label" style="left:256px;top:180px;width:196px"><div class="s"><span class="t-fig">2</span> can be inscribed now</div></div>
+<!-- Favours: locked behind a lattice screen -->
+<div class="cell" style="left:240px;top:228px;width:112px;height:122px"></div>
+<img class="ic ic-64 abs is-dim" style="left:264px;top:236px" src="../../../art/icons/items/recipe_scroll.png">
+<div class="lattice" style="left:240px;top:228px;width:112px;height:122px"></div>
+<div class="label" style="left:244px;top:282px;width:104px"><div class="n" style="font-size:15px"><span class="k-lock-mini" style="margin-right:4px;transform:scale(.9)"></span>Favours</div><div class="s">County Tribute</div></div>
+<!-- Furnace -->
+<div class="cell" style="left:360px;top:228px;width:106px;height:122px"></div>
+<img class="ic ic-64 abs" style="left:381px;top:236px" src="../../../art/icons/items/bronze_furnace.png">
+<div class="abs" style="left:398px;top:290px;width:30px;height:6px;border-radius:3px;background:#e8764c;box-shadow:0 0 10px 3px rgba(232,118,76,.6)"></div>
+<div class="label" style="left:366px;top:300px;width:94px"><div class="n" style="font-size:15px">Furnace</div><div class="s">lit · <span class="t-fig">4 / 20</span></div></div>
+<!-- Steles: tall -->
+<div class="cell" style="left:474px;top:102px;width:132px;height:248px"></div>
+<svg class="abs" style="left:504px;top:120px" width="72" height="116" viewBox="0 0 72 116">
+  <path d="M 14 100 L 14 26 Q 14 6 36 6 Q 58 6 58 26 L 58 100 Z" fill="#6f7b80" stroke="#071015" stroke-width="3"/>
+  <path d="M 20 96 L 20 28 Q 20 14 36 14 Q 52 14 52 28 L 52 96 Z" fill="#87949a"/>
+  <line x1="30" y1="34" x2="30" y2="86" stroke="#4d595e" stroke-width="3"/><line x1="42" y1="34" x2="42" y2="78" stroke="#4d595e" stroke-width="3"/>
+  <rect x="4" y="98" width="64" height="14" rx="3" fill="#4d595e" stroke="#071015" stroke-width="3"/>
+</svg>
+<div class="cordv" style="left:539px;top:236px;height:12px"></div>
+<div class="label" style="left:482px;top:248px;width:116px"><div class="n">Steles</div><div class="s">Delving Lv <span class="t-fig">1</span><br>all can be raised</div></div>
+<!-- Flags -->
+<div class="cell" style="left:614px;top:102px;width:218px;height:118px"></div>
+<svg class="abs" style="left:640px;top:112px" width="64" height="96" viewBox="0 0 64 96">
+  <line x1="12" y1="6" x2="12" y2="92" stroke="#5a3620" stroke-width="5"/><line x1="12" y1="6" x2="12" y2="92" stroke="#071015" stroke-width="1" opacity=".6"/>
+  <path d="M 14 10 L 58 22 L 14 40 Z" fill="#2c9e8f" stroke="#071015" stroke-width="2.5"/>
+  <path d="M 20 20 L 40 23 L 20 30 Z" fill="#67d6bd"/>
+</svg>
+<div class="label" style="left:712px;top:118px;width:112px"><div class="n">Flags</div><div class="s"><span class="t-fig">1</span> of <span class="t-fig">2</span> planted<br>Reed Shallows</div></div>
+<!-- Mirror: locked -->
+<div class="cell" style="left:614px;top:228px;width:218px;height:122px"></div>
+<img class="ic ic-64 abs is-dim" style="left:640px;top:248px" src="../../../art/icons/items/bright_mirror.png">
+<div class="lattice" style="left:614px;top:228px;width:218px;height:122px"></div>
+<div class="label" style="left:700px;top:252px;width:124px"><div class="n" style="font-size:15px"><span class="k-lock-mini" style="margin-right:4px;transform:scale(.9)"></span>Mirror</div><div class="s">Elder Hu's<br>Echoes in Bronze</div></div>
+
+<!-- ================= the tray: the chosen work's list ================= -->
+<div class="tray" style="left:86px;top:370px;width:754px;height:302px"></div>
+<div class="abs flex" style="left:104px;top:380px;gap:10px"><span class="t-subhead">Seal Scripts</span><span class="t-xs c-mist">paid from the Storehouse · drawn as far as each craft level reaches</span></div>
+
+<div class="row" style="top:416px"><img class="ic32" src="../../../art/icons/hud/craft_delving.png"><span class="nm c-paper">Seal of the Open Vein</span><span class="sb">Lv <span class="t-fig">0 / 30</span> · Delving · +<span class="t-fig">3</span> Finesse a level</span>
+  <div class="k-slot cost" style="width:48px;height:48px"><img class="ic" src="../../../art/icons/items/copper_ore.png" style="left:8px;top:8px;width:32px;height:32px"></div><span class="cv t-fig c-jade">58 / 25</span><span class="ci">Copper</span>
+  <div class="k-btn abs" style="left:590px;top:1px;width:124px;height:48px;font-size:20px">Inscribe</div></div>
+<div class="row" style="top:468px"><img class="ic32" src="../../../art/icons/hud/craft_foraging.png"><span class="nm c-pale">Seal of the Green Stem</span><span class="sb">Lv <span class="t-fig">1 / 30</span> · Foraging · <span class="c-jade">+<span class="t-fig">3.0</span> Finesse</span> · Tester draws <span class="t-fig">1</span></span>
+  <div class="k-slot cost" style="width:48px;height:48px"><img class="ic" src="../../../art/icons/items/willow_moss.png" style="left:8px;top:8px;width:32px;height:32px"></div><span class="cv t-fig c-jade">43 / 29</span><span class="ci">Willow Moss</span>
+  <div class="k-btn abs" style="left:590px;top:1px;width:124px;height:48px;font-size:20px">Inscribe</div></div>
+<div class="row" style="top:520px"><img class="ic32" src="../../../art/icons/hud/craft_angling.png"><span class="nm c-paper">Seal of the Still Line</span><span class="sb">Lv <span class="t-fig">0 / 30</span> · Angling · +<span class="t-fig">3</span> Finesse a level</span>
+  <div class="k-slot cost" style="width:48px;height:48px"><img class="ic" src="../../../art/icons/items/river_minnow.png" style="left:8px;top:8px;width:32px;height:32px"></div><span class="cv t-fig" style="color:#e87070">0 / 25</span><span class="ci">River Minnow</span>
+  <div class="k-btn is-disabled abs" style="left:590px;top:1px;width:124px;height:48px;font-size:20px">Inscribe<span class="k-lock-mini"></span></div></div>
+<div class="row" style="top:572px"><img class="ic32" src="../../../art/icons/hud/craft_netting.png"><span class="nm c-paper">Seal of the Light Net</span><span class="sb">Lv <span class="t-fig">0 / 30</span> · Netting · +<span class="t-fig">3</span> Finesse a level</span>
+  <div class="k-slot cost" style="width:48px;height:48px"><img class="ic" src="../../../art/icons/items/glowfly.png" style="left:8px;top:8px;width:32px;height:32px"></div><span class="cv t-fig" style="color:#e87070">0 / 25</span><span class="ci">Glowfly</span>
+  <div class="k-btn is-disabled abs" style="left:590px;top:1px;width:124px;height:48px;font-size:20px">Inscribe<span class="k-lock-mini"></span></div></div>
+<div class="row" style="top:624px;border-bottom:0"><img class="ic32" src="../../../art/icons/hud/craft_snaring.png"><span class="nm c-paper">Seal of the Patient Snare</span><span class="sb">Lv <span class="t-fig">0 / 30</span> · Snaring · +<span class="t-fig">3</span> Finesse a level</span>
+  <div class="k-slot cost" style="width:48px;height:48px"><img class="ic" src="../../../art/icons/items/jade_frog.png" style="left:8px;top:8px;width:32px;height:32px"></div><span class="cv t-fig" style="color:#e87070">1 / 25</span><span class="ci">Jade Frog</span>
+  <div class="k-btn is-disabled abs" style="left:590px;top:1px;width:124px;height:48px;font-size:20px">Inscribe<span class="k-lock-mini"></span></div></div>
+<div class="abs" style="left:826px;top:416px;width:4px;height:252px;border-radius:2px;background:rgba(175,201,209,.14)"></div>
+<div class="abs" style="left:826px;top:416px;width:4px;height:156px;border-radius:2px;background:var(--jade)"></div>
+
+<!-- ================= the cabinet's inventory slip: what the works add ================= -->
+<div class="slipr" style="left:856px;top:94px;width:332px;height:578px"></div>
+<div class="abs dk" style="left:872px;top:106px;font-family:var(--f-display);font-weight:700;font-size:26px;color:#2b2118">What your works add</div>
+<div class="abs dk" style="left:872px;top:140px;font-size:14px;color:#2b2118">for Tester, at every post</div>
+<div class="abs" style="left:856px;top:164px;width:332px;height:2px;background:#8f6630"></div>
+<div class="tot" style="left:872px;top:174px">
+  <div class="h"><img class="ic ic-24" src="../../../art/icons/hud/craft_delving.png">Vein Delving</div>
+  <div class="v">Tool power <b>+0.3</b> · Stele Lv <span class="t-fig">1</span></div>
+</div>
+<div class="tot" style="left:872px;top:220px">
+  <div class="h"><img class="ic ic-24" src="../../../art/icons/hud/craft_foraging.png">Spirit Foraging</div>
+  <div class="v">Finesse <b>+3</b> · Seal Lv <span class="t-fig">1</span></div>
+</div>
+<div class="tot" style="left:872px;top:266px">
+  <div class="h" style="color:#5a4a3a"><img class="ic ic-24 is-grey" src="../../../art/icons/hud/craft_angling.png">Angling, Netting, Snaring, Rites</div>
+  <div class="v" style="color:#5a4a3a">Nothing yet</div>
+</div>
+<div class="tot" style="left:872px;top:312px">
+  <div class="h"><img class="ic ic-24" src="../../../art/icons/hud/post.png">Every post</div>
+  <div class="v">Craft Diligence <b>+0.49%</b><br>from the Art Dreaming Artisan</div>
+</div>
+<div class="tot" style="left:872px;top:376px">
+  <div class="h"><img class="ic ic-24" src="../../../art/icons/hud/formation.png">Posts at Reed Shallows</div>
+  <div class="v">Craft Diligence <b>+1.0%</b> · plain flag Lv <span class="t-fig">0</span></div>
+</div>
+<div class="tot" style="left:872px;top:422px">
+  <div class="h" style="color:#5a4a3a"><img class="ic ic-24 is-grey" src="../../../art/icons/hud/bag.png">Pouches</div>
+  <div class="v" style="color:#5a4a3a">Nothing yet · Seal of the Deep Pouch</div>
+</div>
+<div class="abs" style="left:856px;top:474px;width:332px;height:2px;background:#8f6630"></div>
+<div class="abs dk" style="left:872px;top:490px;font-weight:700;font-size:16px;color:#2b2118">In the Storehouse</div>
+<div class="abs dk" style="left:872px;top:512px;width:304px;font-size:14px;color:#2b2118;line-height:1.4">Copper <b class="t-fig">58</b> · Willow Moss <b class="t-fig">43</b> · Spirit Wood <b class="t-fig">4</b> · Cinnabar Salt <b class="t-fig">4</b> · Jade Frog <b class="t-fig">1</b></div>
+<div class="k-pill abs" style="left:872px;top:572px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">78,836</span></div>
+<div class="abs dk" style="left:872px;top:616px;width:304px;font-size:14px;color:#2b2118;line-height:1.35">Steles take silver and ore; seals take Storehouse goods.</div>
+
+</div></body></html>

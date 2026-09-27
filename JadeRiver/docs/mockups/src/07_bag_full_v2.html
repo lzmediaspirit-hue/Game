@@ -1,0 +1,168 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>07 v2 Bag, the spirit gourd (full)</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 3. The page's own surface: the inside of the character's spirit gourd (SURFACE.space)
+     inside a rim of lacquered gourd skin (SURFACE.gourd) with a GOLD lip, in place of the major_window frame. The
+     calabash outline is generated (upper ellipse, waist, squircle lower bulb) so a 5 x 4 grid of 76 px slots fits
+     its belly; in the build it is the HD fixed asset gourd_well. */
+  .win { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px; border-radius: 22px;
+    background: radial-gradient(ellipse 560px 400px at 650px 420px, #10292e 0%, #0a1e23 55%, #071619 100%);
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 9px #b4853d, inset 0 0 0 10px #584227, inset 0 0 0 12px #e5b84c, inset 0 0 0 14px #071015, 0 10px 30px rgba(0,0,0,.55); }
+  .win::before { content: ""; position: absolute; inset: 14px; border-radius: 12px;
+    background: repeating-radial-gradient(circle at 650px 430px, rgba(44,158,143,0) 0 58px, rgba(44,158,143,.07) 59px 60px, rgba(44,158,143,0) 61px 118px); }
+  .mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(103,214,189,.55); box-shadow: 0 0 6px 2px rgba(103,214,189,.25); }
+  .tag { position: absolute; display: flex; align-items: center; justify-content: center; white-space: nowrap;
+    background: linear-gradient(180deg, #c99a58 0%, #b4853d 55%, #8f6630 100%); border-radius: 5px;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 10px); box-shadow: inset 0 0 0 2px rgba(88,66,39,.9); }
+  .tag.dark { background: linear-gradient(180deg, #6b4a26, #584227 60%, #43311c); box-shadow: inset 0 0 0 2px rgba(0,0,0,.35); }
+  .tag.lit { background: linear-gradient(180deg, #f0c870, #d4a24e 55%, #a97a36); }
+  .tag .hole { position: absolute; left: 50%; top: 5px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #1c130b; }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .fig25 { transform-origin: 192px 254px; transform: scale(2.5); }
+  .slot-l { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .gem { position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; transform: rotate(45deg); background: var(--gq); box-shadow: 0 0 0 1.5px var(--ink); }
+  .grid { position: absolute; left: 516px; display: grid; grid-template-columns: repeat(5, 76px); gap: 4px; }
+  .cmp { display: grid; grid-template-columns: 1fr 70px; font-size: 16px; row-gap: 2px; }
+  .cmp .up { color: var(--bright-jade); text-align: right; }
+  .tagface { position: absolute; border-radius: 8px; background: linear-gradient(180deg,#46301d,#3b2416 40%,#2e1c11);
+    clip-path: polygon(24px 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%, 0 24px); box-shadow: inset 0 0 0 2px #5a3620, inset 0 0 0 4px #1c130b; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+<div class="win"></div>
+<div class="mote" style="left:560px;top:292px"></div><div class="mote" style="left:900px;top:236px;opacity:.6"></div><div class="mote" style="left:470px;top:640px;opacity:.5"></div><div class="mote" style="left:936px;top:600px"></div><div class="mote" style="left:250px;top:130px;opacity:.5"></div>
+
+<svg class="abs" style="left:0;top:0" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a3620"/><stop offset=".16" stop-color="#8f6630"/><stop offset=".4" stop-color="#c99a58"/><stop offset=".62" stop-color="#b4853d"/><stop offset="1" stop-color="#43311c"/></linearGradient>
+    <radialGradient id="inside" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#11303a"/><stop offset=".7" stop-color="#0a1e23"/><stop offset="1" stop-color="#061216"/></radialGradient>
+    <radialGradient id="dais" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="rgba(103,214,189,.42)"/><stop offset=".6" stop-color="rgba(44,158,143,.16)"/><stop offset="1" stop-color="rgba(44,158,143,0)"/></radialGradient>
+    <linearGradient id="level" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="rgba(44,158,143,.62)"/><stop offset="1" stop-color="rgba(44,158,143,.30)"/></linearGradient>
+    <clipPath id="upperclip"><ellipse cx="714" cy="168" rx="96" ry="54"/></clipPath>
+  </defs>
+  <!-- the paper-doll ring round the figure, on its jade dais -->
+  <ellipse cx="292" cy="540" rx="118" ry="24" fill="url(#dais)"/>
+  <ellipse cx="292" cy="540" rx="96" ry="17" fill="none" stroke="rgba(103,214,189,.35)" stroke-width="1.5"/>
+  <ellipse cx="288" cy="392" rx="170" ry="176" fill="none" stroke="#e5b84c" stroke-width="2" stroke-dasharray="2 5" opacity=".75"/>
+  <ellipse cx="288" cy="392" rx="176" ry="182" fill="none" stroke="#9a6a35" stroke-width="1" opacity=".6"/>
+  <!-- the calabash -->
+  <path d="M 778.8 220.8 L 784.6 217.9 L 790.1 214.8 L 795.3 211.5 L 800.0 207.9 L 804.3 204.2 L 808.2 200.3 L 811.6 196.2 L 814.6 192.0 L 817.1 187.7 L 819.1 183.3 L 820.6 178.8 L 821.5 174.2 L 822.0 169.7 L 821.9 165.1 L 821.3 160.5 L 820.2 156.0 L 818.6 151.5 L 816.5 147.1 L 813.8 142.8 L 810.7 138.7 L 807.2 134.6 L 803.2 130.8 L 798.7 127.1 L 793.9 123.6 L 788.7 120.3 L 783.1 117.3 L 777.1 114.5 L 770.9 111.9 L 764.4 109.6 L 757.7 107.6 L 750.7 105.9 L 743.6 104.5 L 736.3 103.4 L 728.9 102.6 L 721.5 102.2 L 714.0 102.0 L 706.5 102.2 L 699.1 102.6 L 691.7 103.4 L 684.4 104.5 L 677.3 105.9 L 670.3 107.6 L 663.6 109.6 L 657.1 111.9 L 650.9 114.5 L 644.9 117.3 L 639.3 120.3 L 634.1 123.6 L 629.3 127.1 L 624.8 130.8 L 620.8 134.6 L 617.3 138.7 L 614.2 142.8 L 611.5 147.1 L 609.4 151.5 L 607.8 156.0 L 606.7 160.5 L 606.1 165.1 L 606.0 169.7 L 606.5 174.2 L 607.4 178.8 L 608.9 183.3 L 610.9 187.7 L 613.4 192.0 L 616.4 196.2 L 619.8 200.3 L 623.7 204.2 L 628.0 207.9 L 632.7 211.5 L 637.9 214.8 L 643.4 217.9 L 649.2 220.8 L 670.0 252.0 L 622.6 256.2 L 615.6 256.3 L 609.4 256.4 L 603.9 256.5 L 599.0 256.7 L 594.4 256.8 L 590.1 257.0 L 586.2 257.3 L 582.5 257.5 L 579.0 257.8 L 575.7 258.1 L 572.5 258.4 L 569.5 258.7 L 566.7 259.0 L 563.9 259.4 L 561.3 259.8 L 558.7 260.2 L 556.3 260.7 L 554.0 261.1 L 551.7 261.6 L 549.5 262.1 L 547.4 262.6 L 545.4 263.2 L 543.4 263.8 L 541.5 264.4 L 539.6 265.0 L 537.8 265.6 L 536.0 266.3 L 534.4 267.0 L 532.7 267.7 L 531.1 268.5 L 529.5 269.3 L 528.0 270.1 L 526.6 270.9 L 525.1 271.7 L 523.8 272.6 L 522.4 273.5 L 521.1 274.4 L 519.8 275.4 L 518.6 276.4 L 517.4 277.4 L 516.2 278.5 L 515.1 279.6 L 514.0 280.7 L 512.9 281.8 L 511.9 283.0 L 510.9 284.2 L 509.9 285.5 L 508.9 286.8 L 508.0 288.1 L 507.1 289.4 L 506.3 290.8 L 505.4 292.3 L 504.6 293.8 L 503.9 295.3 L 503.1 296.9 L 502.4 298.5 L 501.7 300.2 L 501.0 301.9 L 500.4 303.7 L 499.8 305.5 L 499.2 307.4 L 498.6 309.4 L 498.0 311.4 L 497.5 313.5 L 497.0 315.7 L 496.6 317.9 L 496.1 320.3 L 495.7 322.7 L 495.3 325.3 L 494.9 327.9 L 494.6 330.7 L 494.2 333.6 L 493.9 336.7 L 493.6 340.0 L 493.4 343.4 L 493.1 347.1 L 492.9 351.0 L 492.7 355.2 L 492.6 359.9 L 492.4 365.0 L 492.3 370.7 L 492.2 377.2 L 492.1 384.9 L 492.0 394.7 L 492.0 408.6 L 492.0 462.0 L 492.0 515.4 L 492.0 529.3 L 492.1 539.1 L 492.2 546.8 L 492.3 553.3 L 492.4 559.0 L 492.6 564.1 L 492.7 568.8 L 492.9 573.0 L 493.1 576.9 L 493.4 580.6 L 493.6 584.0 L 493.9 587.3 L 494.2 590.4 L 494.6 593.3 L 494.9 596.1 L 495.3 598.7 L 495.7 601.3 L 496.1 603.7 L 496.6 606.1 L 497.0 608.3 L 497.5 610.5 L 498.0 612.6 L 498.6 614.6 L 499.2 616.6 L 499.8 618.5 L 500.4 620.3 L 501.0 622.1 L 501.7 623.8 L 502.4 625.5 L 503.1 627.1 L 503.9 628.7 L 504.6 630.2 L 505.4 631.7 L 506.3 633.2 L 507.1 634.6 L 508.0 635.9 L 508.9 637.2 L 509.9 638.5 L 510.9 639.8 L 511.9 641.0 L 512.9 642.2 L 514.0 643.3 L 515.1 644.4 L 516.2 645.5 L 517.4 646.6 L 518.6 647.6 L 519.8 648.6 L 521.1 649.6 L 522.4 650.5 L 523.8 651.4 L 525.1 652.3 L 526.6 653.1 L 528.0 653.9 L 529.5 654.7 L 531.1 655.5 L 532.7 656.3 L 534.4 657.0 L 536.0 657.7 L 537.8 658.4 L 539.6 659.0 L 541.5 659.6 L 543.4 660.2 L 545.4 660.8 L 547.4 661.4 L 549.5 661.9 L 551.7 662.4 L 554.0 662.9 L 556.3 663.3 L 558.7 663.8 L 561.3 664.2 L 563.9 664.6 L 566.7 665.0 L 569.5 665.3 L 572.5 665.6 L 575.7 665.9 L 579.0 666.2 L 582.5 666.5 L 586.2 666.7 L 590.1 667.0 L 594.4 667.2 L 599.0 667.3 L 603.9 667.5 L 609.4 667.6 L 615.6 667.7 L 622.6 667.8 L 631.0 667.9 L 641.5 668.0 L 656.4 668.0 L 714.0 668.0 L 714.0 668.0 L 771.6 668.0 L 786.5 668.0 L 797.0 667.9 L 805.4 667.8 L 812.4 667.7 L 818.6 667.6 L 824.1 667.5 L 829.0 667.3 L 833.6 667.2 L 837.9 667.0 L 841.8 666.7 L 845.5 666.5 L 849.0 666.2 L 852.3 665.9 L 855.5 665.6 L 858.5 665.3 L 861.3 665.0 L 864.1 664.6 L 866.7 664.2 L 869.3 663.8 L 871.7 663.3 L 874.0 662.9 L 876.3 662.4 L 878.5 661.9 L 880.6 661.4 L 882.6 660.8 L 884.6 660.2 L 886.5 659.6 L 888.4 659.0 L 890.2 658.4 L 892.0 657.7 L 893.6 657.0 L 895.3 656.3 L 896.9 655.5 L 898.5 654.7 L 900.0 653.9 L 901.4 653.1 L 902.9 652.3 L 904.2 651.4 L 905.6 650.5 L 906.9 649.6 L 908.2 648.6 L 909.4 647.6 L 910.6 646.6 L 911.8 645.5 L 912.9 644.4 L 914.0 643.3 L 915.1 642.2 L 916.1 641.0 L 917.1 639.8 L 918.1 638.5 L 919.1 637.2 L 920.0 635.9 L 920.9 634.6 L 921.7 633.2 L 922.6 631.7 L 923.4 630.2 L 924.1 628.7 L 924.9 627.1 L 925.6 625.5 L 926.3 623.8 L 927.0 622.1 L 927.6 620.3 L 928.2 618.5 L 928.8 616.6 L 929.4 614.6 L 930.0 612.6 L 930.5 610.5 L 931.0 608.3 L 931.4 606.1 L 931.9 603.7 L 932.3 601.3 L 932.7 598.7 L 933.1 596.1 L 933.4 593.3 L 933.8 590.4 L 934.1 587.3 L 934.4 584.0 L 934.6 580.6 L 934.9 576.9 L 935.1 573.0 L 935.3 568.8 L 935.4 564.1 L 935.6 559.0 L 935.7 553.3 L 935.8 546.8 L 935.9 539.1 L 936.0 529.3 L 936.0 515.4 L 936.0 462.0 L 936.0 408.6 L 936.0 394.7 L 935.9 384.9 L 935.8 377.2 L 935.7 370.7 L 935.6 365.0 L 935.4 359.9 L 935.3 355.2 L 935.1 351.0 L 934.9 347.1 L 934.6 343.4 L 934.4 340.0 L 934.1 336.7 L 933.8 333.6 L 933.4 330.7 L 933.1 327.9 L 932.7 325.3 L 932.3 322.7 L 931.9 320.3 L 931.4 317.9 L 931.0 315.7 L 930.5 313.5 L 930.0 311.4 L 929.4 309.4 L 928.8 307.4 L 928.2 305.5 L 927.6 303.7 L 927.0 301.9 L 926.3 300.2 L 925.6 298.5 L 924.9 296.9 L 924.1 295.3 L 923.4 293.8 L 922.6 292.3 L 921.7 290.8 L 920.9 289.4 L 920.0 288.1 L 919.1 286.8 L 918.1 285.5 L 917.1 284.2 L 916.1 283.0 L 915.1 281.8 L 914.0 280.7 L 912.9 279.6 L 911.8 278.5 L 910.6 277.4 L 909.4 276.4 L 908.2 275.4 L 906.9 274.4 L 905.6 273.5 L 904.2 272.6 L 902.9 271.7 L 901.4 270.9 L 900.0 270.1 L 898.5 269.3 L 896.9 268.5 L 895.3 267.7 L 893.6 267.0 L 892.0 266.3 L 890.2 265.6 L 888.4 265.0 L 886.5 264.4 L 884.6 263.8 L 882.6 263.2 L 880.6 262.6 L 878.5 262.1 L 876.3 261.6 L 874.0 261.1 L 871.7 260.7 L 869.3 260.2 L 866.7 259.8 L 864.1 259.4 L 861.3 259.0 L 858.5 258.7 L 855.5 258.4 L 852.3 258.1 L 849.0 257.8 L 845.5 257.5 L 841.8 257.3 L 837.9 257.0 L 833.6 256.8 L 829.0 256.7 L 824.1 256.5 L 818.6 256.4 L 812.4 256.3 L 805.4 256.2 L 758.0 252.0 Z" fill="url(#skin)" stroke="#071015" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M 771.6 211.2 L 776.8 208.8 L 781.7 206.3 L 786.2 203.6 L 790.4 200.7 L 794.3 197.6 L 797.7 194.4 L 800.8 191.1 L 803.4 187.6 L 805.6 184.1 L 807.4 180.5 L 808.7 176.8 L 809.6 173.1 L 810.0 169.4 L 809.9 165.6 L 809.4 161.9 L 808.4 158.2 L 807.0 154.5 L 805.1 150.9 L 802.7 147.4 L 800.0 144.0 L 796.8 140.7 L 793.3 137.5 L 789.3 134.5 L 785.0 131.7 L 780.4 129.0 L 775.4 126.5 L 770.1 124.2 L 764.6 122.1 L 758.8 120.2 L 752.8 118.6 L 746.6 117.2 L 740.3 116.1 L 733.8 115.2 L 727.3 114.5 L 720.7 114.1 L 714.0 114.0 L 707.3 114.1 L 700.7 114.5 L 694.2 115.2 L 687.7 116.1 L 681.4 117.2 L 675.2 118.6 L 669.2 120.2 L 663.4 122.1 L 657.9 124.2 L 652.6 126.5 L 647.6 129.0 L 643.0 131.7 L 638.7 134.5 L 634.7 137.5 L 631.2 140.7 L 628.0 144.0 L 625.3 147.4 L 622.9 150.9 L 621.0 154.5 L 619.6 158.2 L 618.6 161.9 L 618.1 165.6 L 618.0 169.4 L 618.4 173.1 L 619.3 176.8 L 620.6 180.5 L 622.4 184.1 L 624.6 187.6 L 627.2 191.1 L 630.3 194.4 L 633.7 197.6 L 637.6 200.7 L 641.8 203.6 L 646.3 206.3 L 651.2 208.8 L 656.4 211.2 L 676.0 252.0 L 635.4 268.1 L 627.6 268.2 L 620.9 268.2 L 615.1 268.4 L 609.9 268.5 L 605.2 268.6 L 600.8 268.8 L 596.8 269.0 L 593.1 269.2 L 589.6 269.4 L 586.3 269.7 L 583.1 269.9 L 580.2 270.2 L 577.3 270.5 L 574.6 270.9 L 572.0 271.2 L 569.5 271.6 L 567.1 272.0 L 564.8 272.4 L 562.6 272.8 L 560.5 273.3 L 558.4 273.8 L 556.4 274.3 L 554.5 274.8 L 552.6 275.3 L 550.8 275.9 L 549.0 276.5 L 547.3 277.1 L 545.7 277.7 L 544.1 278.4 L 542.5 279.1 L 541.0 279.8 L 539.5 280.5 L 538.1 281.2 L 536.7 282.0 L 535.4 282.8 L 534.0 283.6 L 532.8 284.5 L 531.5 285.4 L 530.3 286.3 L 529.2 287.2 L 528.0 288.2 L 526.9 289.2 L 525.8 290.2 L 524.8 291.2 L 523.8 292.3 L 522.8 293.4 L 521.9 294.6 L 520.9 295.8 L 520.0 297.0 L 519.2 298.2 L 518.3 299.5 L 517.5 300.8 L 516.7 302.2 L 516.0 303.6 L 515.2 305.0 L 514.5 306.5 L 513.8 308.0 L 513.2 309.6 L 512.5 311.2 L 511.9 312.9 L 511.3 314.6 L 510.8 316.4 L 510.2 318.3 L 509.7 320.2 L 509.2 322.2 L 508.8 324.2 L 508.3 326.3 L 507.9 328.5 L 507.5 330.8 L 507.1 333.2 L 506.7 335.7 L 506.4 338.4 L 506.1 341.1 L 505.8 344.0 L 505.5 347.1 L 505.3 350.3 L 505.1 353.8 L 504.9 357.5 L 504.7 361.5 L 504.5 365.8 L 504.4 370.6 L 504.3 376.0 L 504.2 382.1 L 504.1 389.4 L 504.0 398.6 L 504.0 411.7 L 504.0 462.0 L 504.0 512.3 L 504.0 525.4 L 504.1 534.6 L 504.2 541.9 L 504.3 548.0 L 504.4 553.4 L 504.5 558.2 L 504.7 562.5 L 504.9 566.5 L 505.1 570.2 L 505.3 573.7 L 505.5 576.9 L 505.8 580.0 L 506.1 582.9 L 506.4 585.6 L 506.7 588.3 L 507.1 590.8 L 507.5 593.2 L 507.9 595.5 L 508.3 597.7 L 508.8 599.8 L 509.2 601.8 L 509.7 603.8 L 510.2 605.7 L 510.8 607.6 L 511.3 609.4 L 511.9 611.1 L 512.5 612.8 L 513.2 614.4 L 513.8 616.0 L 514.5 617.5 L 515.2 619.0 L 516.0 620.4 L 516.7 621.8 L 517.5 623.2 L 518.3 624.5 L 519.2 625.8 L 520.0 627.0 L 520.9 628.2 L 521.9 629.4 L 522.8 630.6 L 523.8 631.7 L 524.8 632.8 L 525.8 633.8 L 526.9 634.8 L 528.0 635.8 L 529.2 636.8 L 530.3 637.7 L 531.5 638.6 L 532.8 639.5 L 534.0 640.4 L 535.4 641.2 L 536.7 642.0 L 538.1 642.8 L 539.5 643.5 L 541.0 644.2 L 542.5 644.9 L 544.1 645.6 L 545.7 646.3 L 547.3 646.9 L 549.0 647.5 L 550.8 648.1 L 552.6 648.7 L 554.5 649.2 L 556.4 649.7 L 558.4 650.2 L 560.5 650.7 L 562.6 651.2 L 564.8 651.6 L 567.1 652.0 L 569.5 652.4 L 572.0 652.8 L 574.6 653.1 L 577.3 653.5 L 580.2 653.8 L 583.1 654.1 L 586.3 654.3 L 589.6 654.6 L 593.1 654.8 L 596.8 655.0 L 600.8 655.2 L 605.2 655.4 L 609.9 655.5 L 615.1 655.6 L 620.9 655.8 L 627.6 655.8 L 635.4 655.9 L 645.4 656.0 L 659.5 656.0 L 714.0 656.0 L 714.0 656.0 L 768.5 656.0 L 782.6 656.0 L 792.6 655.9 L 800.4 655.8 L 807.1 655.8 L 812.9 655.6 L 818.1 655.5 L 822.8 655.4 L 827.2 655.2 L 831.2 655.0 L 834.9 654.8 L 838.4 654.6 L 841.7 654.3 L 844.9 654.1 L 847.8 653.8 L 850.7 653.5 L 853.4 653.1 L 856.0 652.8 L 858.5 652.4 L 860.9 652.0 L 863.2 651.6 L 865.4 651.2 L 867.5 650.7 L 869.6 650.2 L 871.6 649.7 L 873.5 649.2 L 875.4 648.7 L 877.2 648.1 L 879.0 647.5 L 880.7 646.9 L 882.3 646.3 L 883.9 645.6 L 885.5 644.9 L 887.0 644.2 L 888.5 643.5 L 889.9 642.8 L 891.3 642.0 L 892.6 641.2 L 894.0 640.4 L 895.2 639.5 L 896.5 638.6 L 897.7 637.7 L 898.8 636.8 L 900.0 635.8 L 901.1 634.8 L 902.2 633.8 L 903.2 632.8 L 904.2 631.7 L 905.2 630.6 L 906.1 629.4 L 907.1 628.2 L 908.0 627.0 L 908.8 625.8 L 909.7 624.5 L 910.5 623.2 L 911.3 621.8 L 912.0 620.4 L 912.8 619.0 L 913.5 617.5 L 914.2 616.0 L 914.8 614.4 L 915.5 612.8 L 916.1 611.1 L 916.7 609.4 L 917.2 607.6 L 917.8 605.7 L 918.3 603.8 L 918.8 601.8 L 919.2 599.8 L 919.7 597.7 L 920.1 595.5 L 920.5 593.2 L 920.9 590.8 L 921.3 588.3 L 921.6 585.6 L 921.9 582.9 L 922.2 580.0 L 922.5 576.9 L 922.7 573.7 L 922.9 570.2 L 923.1 566.5 L 923.3 562.5 L 923.5 558.2 L 923.6 553.4 L 923.7 548.0 L 923.8 541.9 L 923.9 534.6 L 924.0 525.4 L 924.0 512.3 L 924.0 462.0 L 924.0 411.7 L 924.0 398.6 L 923.9 389.4 L 923.8 382.1 L 923.7 376.0 L 923.6 370.6 L 923.5 365.8 L 923.3 361.5 L 923.1 357.5 L 922.9 353.8 L 922.7 350.3 L 922.5 347.1 L 922.2 344.0 L 921.9 341.1 L 921.6 338.4 L 921.3 335.7 L 920.9 333.2 L 920.5 330.8 L 920.1 328.5 L 919.7 326.3 L 919.2 324.2 L 918.8 322.2 L 918.3 320.2 L 917.8 318.3 L 917.2 316.4 L 916.7 314.6 L 916.1 312.9 L 915.5 311.2 L 914.8 309.6 L 914.2 308.0 L 913.5 306.5 L 912.8 305.0 L 912.0 303.6 L 911.3 302.2 L 910.5 300.8 L 909.7 299.5 L 908.8 298.2 L 908.0 297.0 L 907.1 295.8 L 906.1 294.6 L 905.2 293.4 L 904.2 292.3 L 903.2 291.2 L 902.2 290.2 L 901.1 289.2 L 900.0 288.2 L 898.8 287.2 L 897.7 286.3 L 896.5 285.4 L 895.2 284.5 L 894.0 283.6 L 892.6 282.8 L 891.3 282.0 L 889.9 281.2 L 888.5 280.5 L 887.0 279.8 L 885.5 279.1 L 883.9 278.4 L 882.3 277.7 L 880.7 277.1 L 879.0 276.5 L 877.2 275.9 L 875.4 275.3 L 873.5 274.8 L 871.6 274.3 L 869.6 273.8 L 867.5 273.3 L 865.4 272.8 L 863.2 272.4 L 860.9 272.0 L 858.5 271.6 L 856.0 271.2 L 853.4 270.9 L 850.7 270.5 L 847.8 270.2 L 844.9 269.9 L 841.7 269.7 L 838.4 269.4 L 834.9 269.2 L 831.2 269.0 L 827.2 268.8 L 822.8 268.6 L 818.1 268.5 L 812.9 268.4 L 807.1 268.2 L 800.4 268.2 L 792.6 268.1 L 752.0 252.0 Z" fill="url(#inside)" stroke="#e5b84c" stroke-width="2" stroke-linejoin="round"/>
+  <rect x="600" y="150" width="230" height="90" fill="url(#level)" clip-path="url(#upperclip)"/>
+  <line x1="606" y1="150" x2="822" y2="150" stroke="#67d6bd" stroke-width="1.5" clip-path="url(#upperclip)"/>
+  <!-- the stopper and the title tag's cord -->
+  <rect x="694" y="88" width="40" height="18" rx="5" fill="#8f6630" stroke="#071015" stroke-width="2"/>
+  <line x1="714" y1="80" x2="714" y2="88" stroke="#c8343e" stroke-width="3"/>
+  <!-- the red cord round the waist, trailing both ways with the kind tags -->
+  <path d="M 510 262 Q 600 250 664 250 Q 714 258 764 250 Q 828 250 918 262" fill="none" stroke="#071015" stroke-width="6"/>
+  <path d="M 510 262 Q 600 250 664 250 Q 714 258 764 250 Q 828 250 918 262" fill="none" stroke="#c8343e" stroke-width="3.5"/>
+  <circle cx="714" cy="255" r="7" fill="#c8343e" stroke="#071015" stroke-width="2"/>
+  <!-- the item tag hangs on a nail by a red string -->
+  <line x1="1072" y1="104" x2="1072" y2="138" stroke="#071015" stroke-width="5"/>
+  <line x1="1072" y1="104" x2="1072" y2="138" stroke="#c8343e" stroke-width="3"/>
+  <circle cx="1072" cy="102" r="5" fill="#9a6a35" stroke="#071015" stroke-width="2"/>
+  <!-- the grid's scroll track in the belly -->
+  <rect x="918" y="306" width="4" height="316" rx="2" fill="rgba(175,201,209,.14)"/>
+  <rect x="918" y="369" width="4" height="126" rx="2" fill="#2c9e8f"/>
+</svg>
+
+<!-- title: the gourd's own label, tied to its stopper; the lettering is the shared inked title -->
+<div class="tag" style="left:642px;top:26px;width:144px;height:56px"><span class="hole"></span><span class="t-title inked" style="font-size:38px;margin-top:6px">Bag</span></div>
+<div class="k-close abs" style="left:1146px;top:46px"></div>
+
+<!-- tabs: two tags -->
+<div class="tag lit" style="left:92px;top:46px;width:160px;height:48px"><span class="t-lg inked">Spirit Gourd</span></div>
+<div class="tag dark" style="left:260px;top:46px;width:150px;height:48px"><span class="t-lg c-paper">Key Pouch <span class="t-fig c-mist" style="font-size:16px;margin-left:4px">30</span></span></div>
+
+<!-- purses -->
+<div class="k-pill abs" style="left:808px;top:52px"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">78,836</span></div>
+<div class="k-pill abs" style="left:930px;top:52px"><img class="ic" src="../../../art/icons/hud/spirit_stone.png"><span class="v">6,651</span></div>
+<div class="k-pill abs" style="left:1036px;top:52px"><img class="ic" src="../../../art/icons/items/sage_crystal.png"><span class="v">1,230</span></div>
+
+<!-- ================= the figure wearing what is worn, inside the ring of worn slots ================= -->
+<img class="k-fig fig25" style="left:292px;top:540px" src="../assets/fig_tester_ls6_idle.png">
+<div class="abs" style="left:150px;top:190px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:188px;top:168px">Hat</div>
+<div class="abs" style="left:334px;top:190px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:372px;top:168px">Weapon</div>
+<div class="abs" style="left:92px;top:306px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:384px">Robe</div>
+<div class="abs" style="left:410px;top:306px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:448px;top:384px">Gourd</div>
+<div class="abs" style="left:92px;top:416px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:494px">Trousers</div>
+<div class="abs" style="left:410px;top:416px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:448px;top:494px">Cape</div>
+<div class="abs" style="left:150px;top:526px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:188px;top:604px">Boots</div>
+<div class="abs" style="left:350px;top:526px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:388px;top:604px">Talisman</div>
+
+<div class="abs t-xs c-gold" style="left:96px;top:628px">Carried to the HUD</div>
+<div class="abs t-xs c-paper" style="left:96px;top:646px;white-space:nowrap">Herbal Tea <span class="c-orange">none left</span> <span class="c-mist">·</span> Practice Bell <span class="c-mist">·</span> Nine-Dragon Cauldron</div>
+
+<!-- ================= the upper bulb: the gourd's space as a level of light ================= -->
+<div class="abs t-xs c-mist" style="left:614px;top:120px;width:200px;text-align:center">Space</div>
+<div class="abs t-fig c-pale" style="left:614px;top:156px;width:200px;text-align:center;font-size:24px">32 / 50</div>
+<div class="abs t-xs c-pale" style="left:486px;top:118px;width:118px;text-align:right;line-height:1.25">Stormsteel<br>Gourd</div>
+<div class="abs t-xs c-mist" style="left:486px;top:162px;width:118px;text-align:right;line-height:1.25"><span class="k-lock-mini" style="vertical-align:-2px;margin-right:4px"></span>a Sunsteel<br>Gourd holds <span class="t-fig">55</span></div>
+<div class="k-btn2 abs" style="left:826px;top:146px;width:84px;height:48px;font-size:20px">Sort</div>
+
+<!-- the kind filters: tags hung on the cord -->
+<div class="tag lit" style="left:518px;top:258px;width:70px;height:48px"><span class="t-sm inked">All <span class="t-fig">32</span></span></div>
+<div class="tag dark" style="left:594px;top:258px;width:72px;height:48px"><span class="t-sm c-paper">Gear <span class="t-fig c-mist">3</span></span></div>
+<div class="tag dark" style="left:672px;top:262px;width:68px;height:48px"><span class="t-sm c-paper">Pills <span class="t-fig c-mist">7</span></span></div>
+<div class="tag dark" style="left:746px;top:258px;width:100px;height:48px"><span class="t-sm c-paper">Materials <span class="t-fig c-mist">16</span></span></div>
+<div class="tag dark" style="left:852px;top:260px;width:62px;height:48px"><span class="t-xs c-paper" style="font-size:15px">Other <span class="t-fig c-mist">6</span></span></div>
+
+<!-- ================= the lower bulb: the grid, scrolled two rows ================= -->
+<div class="grid" style="top:312px">
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/cinder_ash.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">5</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/hollow_shard.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">8</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/copperjaw_box.png"><div class="k-qrim" style="--q:var(--g-will)"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/formation_stone.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/lu_journal_page.png"><div class="k-qrim" style="--q:var(--g-plain)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/qi_restoration_pill.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../icon_study/icons/A_healing_pill.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">5</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/manual_page.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">3</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/drone_shell.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">18</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/revival_talisman.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/storm_shard.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div><span class="k-count t-fig t-outline c-paper">74</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/ink_warden_brush.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/spirit_stone_shard.png"><div class="k-qrim" style="--q:var(--g-earth)"></div><span class="k-count t-fig t-outline c-paper">23</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/eel_essence.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">8</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/stormsteel_ore.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/will_tempering_pill.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="k-count t-fig t-outline c-paper">30</span></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/leviathan_scale.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">6</span></div>
+<div class="k-slot k-slot76 is-selected"><img class="ic" src="../../../art/icons/equipment/sunsteel_bow.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="gem" style="--gq:var(--q-perfect)"></span><div class="k-slot-glow"></div></div>
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/wyrm_ash.png"><div class="k-qrim" style="--q:var(--g-will)"></div><span class="k-count t-fig t-outline c-paper">2</span></div>
+<div class="k-slot k-slot76 is-empty"></div>
+</div>
+
+<!-- ================= the chosen item on a dark wooden tag (wood_dark: grade colours hold on it) ================= -->
+<div class="tagface" style="left:950px;top:132px;width:244px;height:540px"></div>
+<div class="abs" style="left:1066px;top:142px;width:12px;height:12px;border-radius:50%;background:#140d07;box-shadow:0 0 0 2px #9a6a35"></div>
+<div class="k-slot k-slot76 is-selected abs" style="left:966px;top:166px"><img class="ic" src="../../../art/icons/equipment/sunsteel_bow.png"><div class="k-qrim" style="--q:var(--g-sage)"></div><span class="gem" style="--gq:var(--q-perfect)"></span><div class="k-slot-glow"></div></div>
+<div class="abs t-subhead" style="left:1054px;top:170px;width:130px;color:var(--q-perfect);line-height:1.05">Sunsteel Bow</div>
+<div class="abs t-sm" style="left:966px;top:252px"><span style="color:var(--q-perfect)">Perfect</span> <span class="c-mist">·</span> <span style="color:var(--g-sage)">Sage</span> <span class="c-mist">·</span> <span class="c-paper">Bow</span></div>
+<div class="abs t-xs c-mist" style="left:966px;top:274px">iLv <span class="t-fig">81</span> · Sage Qi · <span class="t-fig">3</span> empty sockets</div>
+<div class="abs" style="left:966px;top:300px;width:212px;height:2px;background:linear-gradient(90deg,rgba(154,106,53,0),#9a6a35 15%,#9a6a35 85%,rgba(154,106,53,0))"></div>
+<div class="abs t-xs c-gold" style="left:966px;top:310px">Against your Sunsteel Jian</div>
+<div class="cmp abs" style="left:966px;top:332px;width:212px">
+  <span class="c-paper">Crit damage</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">14%</span></span>
+  <span class="c-paper">Crit chance</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">2%</span></span>
+  <span class="c-paper">Accuracy</span><span class="up"><span class="t-sym">▲</span> <span class="t-fig">33</span></span>
+</div>
+<div class="abs t-xs c-mist" style="left:966px;top:408px;width:212px;line-height:1.35">Three rolls, as a Perfect piece has. A bow: the arts of the bow family need one in hand.</div>
+<div class="abs t-xs c-gold" style="left:966px;top:476px">As your spare</div>
+<div class="abs t-xs c-mist" style="left:966px;top:496px;width:212px;line-height:1.35">The HUD's swap draws it in one tap.</div>
+<div class="k-btn abs" style="left:966px;top:552px;width:212px;height:52px">Equip</div>
+<div class="k-btn2 abs" style="left:966px;top:612px;width:112px;height:48px;font-size:18px">Set as spare</div>
+<div class="k-btn2 abs" style="left:1084px;top:612px;width:48px;height:48px;padding:0">
+  <svg width="16" height="20" viewBox="0 0 16 20"><path d="M4 9 V6 a4 4 0 0 1 8 0 V9" fill="none" stroke="#e8e1cf" stroke-width="2.4"/><rect x="2" y="9" width="12" height="9" rx="1.5" fill="#e8e1cf"/></svg></div>
+<div class="k-btn2 abs" style="left:1130px;top:612px;width:48px;height:48px;font-size:20px;padding:0">···</div>
+
+</div></body></html>
