@@ -51,35 +51,33 @@ def set_root(path: str) -> None:
 set_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 BODY, LARGE = 4.5, 3.0
+# Tokens that colour fills, never words (docs/ui_style_guide.md §1.4 rule 2).
+FILL_TOKENS = ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "JADE", "BRONZE", "RED", "SOUL", "HP", "BLOOD", "HEART",
+               "PAPER_INK", "BAR_TROUGH")
 GRID = 8
 
-# Colours drawn as text today that are not UiKit tokens (the hex literals of I5), with what they colour.
-LITERAL_TEXT = {
-    "HUD_LABEL": ("d5bd85", "hud.gd's own GOLD: the HP, QI and SL bar labels"),
-    "SIN": ("e07a7a", "sin, grudges, costs (relations, mercy, fates, cultivation, character pages; the HUD log)"),
-    "MERIT": ("e8c872", "merit (relations and mercy pages)"),
-    "WARNING": ("f0a040", "soft requirements, moderate risk (breakthrough and cultivation pages, UiKit.badge_color)"),
-    "HOLLOW_WARN": ("e0a860", "the Hollow share over its mark (cultivation page)"),
-    "SIDE_QUEST": ("8fc8ff", "side and guided quests in the HUD tracker"),
-    "ALLY": ("8fd3ff", "allies on the minimap and over the world"),
-    "DIALOGUE_INK": ("2b2118", "words on the dialogue paper"),
-}
+# Colours drawn as text that are not UiKit tokens (the hex literals of I5), with what they colour. Empty since the P4
+# apply step 1 made every one a token (RED_TEXT, WARNING, SKY, HUD_LABEL, PAPER_INK...); an old export measured with
+# --root still has them as literals, and the literals section lists them.
+LITERAL_TEXT: dict = {}
 
 # The fills any text colour is drawn on (pages, cards, rows, slots, toasts, pills): a text colour must pass on the
 # lightest of these. (`tooltip` is in the kit but drawn nowhere; the realm badge carries one label, below.)
 PAGE_FILLS = ["major_window", "minor_panel", "slot", "toast", "currency_pill"]
 
-# Fills that carry one label colour each, at the size it is drawn (px after UiKit.size_for; Cormorant is 1.2x).
+# Fills that carry one label colour each, at the size it is drawn (px after UiKit.size_for; Cormorant is 1.2x). A fill
+# ending "@ink" carries words drawn with the 2 px ink outline (UiKit.draw_inked, decision 10 option C): they are
+# measured on INK, and the face alone is printed beside them.
 LABEL_PAIRS = [
-    ("PALE_GOLD", "title_plaque", 41, "page title, Page._draw (layout 34)"),
-    ("PALE_GOLD", "title_plaque", 31, "dialogue speaker, dialogue_page.gd (layout 26)"),
+    ("PALE_GOLD", "title_plaque@ink", 41, "page title, Page._draw (layout 34), inked"),
+    ("PALE_GOLD", "title_plaque@ink", 31, "dialogue speaker, dialogue_page.gd (layout 26), inked"),
     ("PALE_GOLD", "tab:selected", 20, "selected tab, Page._draw_tabs"),
     ("PAPER", "tab", 20, "tab, Page._draw_tabs"),
     ("HOLLOW", "tab:disabled", 20, "locked tab, Page._draw_tabs (disabled)"),
-    ("PALE_GOLD", "button_primary", 22, "primary label, Page.btn (steps down to 14)"),
-    ("PALE_GOLD", "button_primary", 14, "primary label stepped down to MIN_SIZE"),
-    ("PALE_GOLD", "button_primary:pressed", 22, "primary label, pressed"),
-    ("HOLLOW", "button_primary:disabled", 22, "disabled primary label, Page.btn (disabled)"),
+    ("PALE_GOLD", "button_primary@ink", 22, "primary label, Page.btn (steps down to 14), inked"),
+    ("PALE_GOLD", "button_primary@ink", 14, "primary label stepped down to MIN_SIZE, inked"),
+    ("PALE_GOLD", "button_primary:pressed@ink", 22, "primary label, pressed, inked"),
+    ("HOLLOW", "button_primary:disabled@ink", 22, "disabled primary label, Page.btn (disabled), inked"),
     ("PAPER", "button_secondary", 22, "secondary label, Page.btn"),
     ("PAPER", "button_secondary", 14, "secondary label stepped down to MIN_SIZE"),
     ("PAPER", "button_secondary:pressed", 22, "secondary label, pressed"),
@@ -88,7 +86,7 @@ LABEL_PAIRS = [
     ("PALE_GOLD", "realm_badge", 38, "level on the Cultivation badge (layout 32, Cormorant)"),
     ("PALE_GOLD", "currency_pill", 18, "silver, Page.currency_pill and the HUD pill"),
     ("BRIGHT_JADE", "currency_pill", 18, "spirit stones, the HUD pill"),
-    ("DIALOGUE_INK", "dialogue_box", 20, "dialogue words, dialogue_page.gd"),
+    ("PAPER_INK", "dialogue_box", 20, "dialogue words, dialogue_page.gd"),
     ("HOLLOW", "minor_panel:disabled", 20, "a disabled row's text (disabled)"),
     ("PAPER", "minor_panel:disabled", 20, "a disabled row's name"),
 ]
@@ -153,6 +151,12 @@ def tokens() -> dict:
 def grades() -> dict:
     g = json.loads(read(os.path.join(ROOT, "data", "grades.json")))
     return {"grade": g.get("grade_colors", {}), "quality": g.get("quality_colors", {}), "order": g.get("order", [])}
+
+
+def ui_kit_plate() -> tuple:
+    """UiKit.PLATE as (r, g, b, a): the plate under words over the world."""
+    m = re.search(r"const PLATE := Color\(([0-9.]+), ([0-9.]+), ([0-9.]+), ([0-9.]+)\)", read(UI_KIT))
+    return tuple(float(v) for v in m.groups()) if m else (0.02, 0.06, 0.075, 0.55)
 
 
 def ui_kit_int(name: str) -> int:
@@ -246,24 +250,32 @@ def sec_contrast(tk, gr, fl):
     print("## Contrast on the page fills (lightest texel; `pass` 4.5:1, `20px+` 3:1 only, `FAIL` under 3:1)\n")
     print("| Colour | " + " | ".join(PAGE_FILLS) + " | on INK (outlined) |")
     print("|---" * (len(PAGE_FILLS) + 2) + "|")
+    fills_only = [n for n in cols if n in FILL_TOKENS]
     for n, h in cols.items():
+        if n in FILL_TOKENS: continue
         c = hex_rgb(h)
         cells = ["%.2f %s" % (ratio(c, fl[f]["light"]), grade(ratio(c, fl[f]["light"]))) for f in PAGE_FILLS]
         print("| %s `#%s` | %s | %.2f |" % (n, h, " | ".join(cells), ratio(c, ink)))
+    print("\nFill tokens, never words (§1.4 rule 2), left out of the table: %s" % ", ".join(fills_only))
     print("\nThe lightest page fill (the reference for every text colour): `%s`\n" % rgb_hex(ref))
     print("### Labels on their own fills, at the size drawn\n")
     print("| Colour | Fill | Size | Lightest | Mean | Needs | Result | Where |\n|---|---|---|---|---|---|---|---|")
     for n, f, px, where in LABEL_PAIRS:
         c = hex_rgb(cols[n])
         need = LARGE if px >= 20 else BODY
-        lo, mid = ratio(c, fl[f]["light"]), ratio(c, fl[f]["mean"])
+        face = f.replace("@ink", "")
+        if f.endswith("@ink"):
+            lo = mid = ratio(c, ink)
+            where += " (the face alone: %.2f)" % ratio(c, fl[face]["light"])
+        else:
+            lo, mid = ratio(c, fl[face]["light"]), ratio(c, fl[face]["mean"])
         res = "pass" if lo >= need else ("mean only" if mid >= need else "FAIL")
         print("| %s | %s | %d | %.2f | %.2f | %.1f | %s | %s |" % (n, f, px, lo, mid, need, res, where))
     # The guide proposes the 4.8:1 variant: a margin for anti-aliasing and the Small text size.
     print("\n### Text colours under 4.5:1 on the reference fill, and variants that pass (hue and saturation kept)\n")
     print("| Colour | Now | Ratio | 4.5:1 variant | Ratio | 4.8:1 variant (proposed) | Ratio |\n|---|---|---|---|---|---|---|")
     for n, h in cols.items():
-        if n in ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "DIALOGUE_INK"): continue   # fills, and ink for paper
+        if n in FILL_TOKENS: continue   # fills only (§1.4 rule 2), and ink for paper
         c = hex_rgb(h)
         r = ratio(c, ref)
         if r >= BODY: continue
@@ -271,7 +283,8 @@ def sec_contrast(tk, gr, fl):
         print("| %s | `#%s` | %.2f | `%s` | %.2f | `%s` | %.2f |" % (n, h, r, rgb_hex(v), ratio(v, ref), rgb_hex(v8), ratio(v8, ref)))
     # Translucent plates over the world: the HUD tracker (hud.gd _draw_tracker) and the nameplate (UiKit.draw_nameplate).
     print()
-    for name, rgba in (("tracker plate", (0.02, 0.06, 0.075, 0.55)), ("nameplate", (0.02, 0.06, 0.075, 0.62))):
+    plate = ui_kit_plate()
+    for name, rgba in (("tracker plate (PLATE)", plate), ("nameplate (PLATE)", plate)):
         plate = np.array(rgba[:3]) * 255
         for bgn, bg in (("white", (255, 255, 255)), ("mid grey", (128, 128, 128))):
             over = tuple(plate * rgba[3] + np.array(bg, float) * (1 - rgba[3]))
@@ -344,8 +357,14 @@ def sec_windows():
         line = src[:m.start()].count("\n") + 1
         print("| `%s:%d` | %d×%d at %d,%d | %s %d×%d at %d,%d | %+d w, %+d h |" % (os.path.basename(path), line, r[2], r[3], r[0], r[1],
               name, s[2], s[3], s[0], s[1], s[2] - r[2], s[3] - r[3]))
-    full = [p for p in PAGES if "frame_rect = Rect2(" not in read(p)]
-    print("\nThe full window (page.gd's default frame_rect): %d pages.\n" % len(full))
+    named = {}
+    for path in PAGES:
+        m = re.search(r"frame_rect = WINDOW_([A-Z]+)", read(path))
+        if m: named.setdefault(m.group(1).lower(), []).append(os.path.basename(path))
+    for k in sorted(named): print("- `WINDOW_%s` (a standard window): %s" % (k.upper(), ", ".join(named[k])))
+    off = [p for p in PAGES if "frame_rect = Rect2(" in read(p)]
+    full = [p for p in PAGES if "frame_rect = " not in read(p)]
+    print("\nWindows of their own (a literal Rect2): %d. The full window (page.gd's default frame_rect): %d pages.\n" % (len(off), len(full)))
 
 
 # Sizes a pixel icon may be drawn at (the guide's §8, Style A): its file 1:1, a native re-render (items @32, techniques
@@ -441,12 +460,15 @@ def sec_plurals():
 def sec_durations():
     print("## Duration formats in use (I14)\n")
     s = json.loads(read(os.path.join(ROOT, "data", "strings", "en.json"))).get("strings", {})
-    for k in ("ui.span_dh", "ui.span_hm", "ui.span_m", "ui.span_s", "ui.clock_days", "ui.posts.days", "ui.posts.hours_minutes",
-              "ui.posts.minutes", "ui.welcome.dh_02dm", "ui.welcome.minutes", "ui.auction.closes_in", "ui.techniques.qi_ds",
-              "sim.combat.talisman_recovering_ds", "sim.progression.your_mind_needs_rest_ds"):
-        print("- `%s`: %s" % (k, s.get(k, "(missing)")))
+    for k in ("ui.span_dh", "ui.span_d", "ui.span_hm", "ui.span_h", "ui.span_m", "ui.span_s", "ui.clock_days", "ui.posts.days",
+              "ui.posts.hours_minutes", "ui.posts.minutes", "ui.welcome.dh_02dm", "ui.welcome.minutes", "ui.auction.closes_in",
+              "ui.techniques.qi_ds", "sim.combat.talisman_recovering_ds", "sim.progression.your_mind_needs_rest_ds"):
+        print("- `%s`: %s" % (k, s.get(k, "(retired)")))
+    unit = re.compile(r"%[0-9]*d\s*(more\s+)?(s|m|h|d|min|mins|minutes?|hours?|days?|seconds?)\b")
+    own = sorted(k for k, v in s.items() if isinstance(v, str) and unit.search(v) and not k.startswith("ui.span_") and k != "ui.clock_days")
+    print("\nStrings that print a count before a unit of time themselves (%d): %s" % (len(own), ", ".join("`%s`" % k for k in own)))
     print("\nCallers:")
-    pat = re.compile(r'UiKit\.(span|clock)\(|func _dur|func _hours_text|hours_minutes"|posts\.days"|posts\.minutes"|dh_02dm"|'
+    pat = re.compile(r'(UiKit|Tx)\.(span|clock)\(|func _dur|func _hours_text|hours_minutes"|posts\.days"|posts\.minutes"|dh_02dm"|'
                      r'closes_in"|_ds"\)|"%d:%02d"|%\.1f s')
     for path in sorted(glob.glob(os.path.join(ROOT, "scripts", "**", "*.gd"), recursive=True)):
         for i, ln in enumerate(read(path).splitlines(), 1):

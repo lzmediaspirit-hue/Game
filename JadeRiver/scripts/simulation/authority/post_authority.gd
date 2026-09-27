@@ -743,7 +743,7 @@ func set_snare(c, object_id: String, snare_id: String) -> Dictionary:
 	var sd := snare_def(snare_id)
 	if sd.is_empty() or int(sd.kit) > int(kit.get("tier", 0)): return fail("kit", {"text": t("sim.posts.kit_too_plain")})
 	if not my_snare(c, object_id).is_empty(): return fail("set", {"text": t("sim.posts.snare_already")})
-	if snares(c).size() >= int(kit.get("snares", 1)): return fail("full", {"text": t("sim.posts.snares_full") % int(kit.get("snares", 1))})
+	if snares(c).size() >= int(kit.get("snares", 1)): return fail("full", {"text": Tx.plural("sim.posts.snares_full", int(kit.get("snares", 1))) % int(kit.get("snares", 1))})
 	var n := node_def(str(o.get("critter", "")))
 	if int(n.get("gate", 1)) > level(c, "snaring"): return fail("level", {"text": t("sim.posts.needs_level") % [str(craft_def("snaring").get("short", "snaring")), int(n.get("gate", 1))]})
 	var now := Clock.now_utc()
@@ -762,7 +762,7 @@ func collect_snare(c, object_id: String, remote := false) -> Dictionary:
 		if str(x.object) == object_id and (remote or (game.room_rt != null and str(x.room) == str(game.room_rt.room_id))): sn = x
 	if sn.is_empty(): return fail("none")
 	if remote and art_sum(c, "remote_snare") < 1.0: return fail("recall", {"text": t("sim.posts.needs_recall")})
-	if Clock.now_utc() < float(sn.done): return fail("not_ready", {"text": t("sim.posts.snare_not_ready") % _hours_text((float(sn.done) - Clock.now_utc()) / 3600.0)})
+	if Clock.now_utc() < float(sn.done): return fail("not_ready", {"text": t("sim.posts.snare_not_ready") % Tx.span(float(sn.done) - Clock.now_utc())})
 	var sd := snare_def(str(sn.snare))
 	var n := node_def(str(sn.critter))
 	var fin := finesse_of(c, "snaring")
@@ -802,7 +802,7 @@ func trail_dialogue(c, o: Dictionary) -> Dictionary:
 			lines.append(t("sim.posts.trail_ready") % critter)
 			choices.append({"text": t("sim.posts.take_up"), "intent": {"type": "collect_snare", "object": oid}})
 		else:
-			lines.append(t("sim.posts.trail_waiting") % [critter, _hours_text(left)])
+			lines.append(t("sim.posts.trail_waiting") % [critter, Tx.span(left * 3600.0)])
 			choices.append({"text": t("sim.posts.pull_snare"), "intent": {"type": "cancel_snare", "object": oid}})
 	else:
 		var opts := snare_options(c)
@@ -810,15 +810,11 @@ func trail_dialogue(c, o: Dictionary) -> Dictionary:
 		else:
 			lines.append(t("sim.posts.trail_idle") % critter)
 			for sd in opts.slice(0, 5):
-				choices.append({"text": t("sim.posts.set_for") % [_hours_text(float(sd.seconds) / 3600.0), int(sd.critters)],
+				choices.append({"text": t("sim.posts.set_for") % [Tx.span(float(sd.seconds)), int(sd.critters)],
 					"intent": {"type": "set_snare", "object": oid, "snare": str(sd.id)}})
 	choices.append({"text": Tx.t("sim.world.leave_it"), "close": true})
 	return {"npc": "", "speaker": t("sim.posts.trail_speaker"), "portrait": {}, "lines": lines, "choices": choices}
 
-func _hours_text(h: float) -> String:
-	if h >= 48.0: return t("ui.posts.days") % int(h / 24.0)
-	if h >= 1.0: return t("ui.posts.hours_minutes") % [int(h), int(fmod(h * 60.0, 60.0))]
-	return t("ui.posts.minutes") % maxi(1, int(ceilf(h * 60.0)))
 
 # ------------------------------------------------------------------ Ancestral Rites (V10c, §7.3)
 ## Rite charge builds by itself for every character with the Rites, up to its tablet's cap.
@@ -856,7 +852,7 @@ func hold_rite(c, object_id: String) -> Dictionary:
 func altar_dialogue(c, o: Dictionary) -> Dictionary:
 	var charge := rite_charge(c)
 	var res := PostRules.rite_result(finesse_of(c, "rites"), float(o.get("toughness", 25)), charge)
-	var lines := [t("sim.posts.altar_line") % [int(charge), int(res.wave), int(round(float(res.wisps)))]]
+	var lines := [Tx.plural("sim.posts.altar_line", int(round(float(res.wisps)))) % [int(charge), int(res.wave), int(round(float(res.wisps)))]]
 	var choices: Array = []
 	if charge >= float(PostRules.rule("rites.min_charge", 10.0)):
 		choices.append({"text": t("sim.posts.hold_rites"), "intent": {"type": "hold_rite", "object": str(o.get("id", ""))}})
@@ -891,7 +887,7 @@ func learn_post_vow(c, id: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "ancestral_rites"): return fail("locked", {"text": Unlocks.locked_text("ancestral_rites")})
 	if game.account.post_vows.has(id): return fail("known")
 	var cost := int(v.get("cost", 0))
-	if game.inventory.count_owned(c, "spirit_wisp") < cost: return fail("wisps", {"text": t("sim.posts.need_wisps") % cost})
+	if game.inventory.count_owned(c, "spirit_wisp") < cost: return fail("wisps", {"text": Tx.plural("sim.posts.need_wisps", cost) % cost})
 	game.inventory.apply_spend(c, "spirit_wisp", cost, "post_vow")
 	game.account.post_vows[id] = true
 	emit("post_vow_learned", {"actor": c.id, "vow": id})
@@ -1318,7 +1314,7 @@ func plant_flag(c, kind: String) -> Dictionary:
 	if not _room_has_posts(room): return fail("no_posts", {"text": t("sim.posts.flag_needs_posts")})
 	for f in flags():
 		if str(f.room) == room: return fail("planted", {"text": t("sim.posts.flag_here")})
-	if flags().size() >= int(fl.get("max", 2)): return fail("full", {"text": t("sim.posts.flags_full") % int(fl.get("max", 2))})
+	if flags().size() >= int(fl.get("max", 2)): return fail("full", {"text": Tx.plural("sim.posts.flags_full", int(fl.get("max", 2))) % int(fl.get("max", 2))})
 	var cost := int(fl.get("plant_taels", 500))
 	if game.economy.balance("silver_tael", c) < cost: return fail("funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency.silver_tael")})
 	game.economy.apply_currency("silver_tael", -cost, "plant_flag")

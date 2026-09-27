@@ -57,14 +57,14 @@ func draw_page() -> void:
 	if str(tabs[tab].id) == "daily":
 		list_rect.size.y -= 188
 		_activity(ch, Rect2(left.position.x + 18, left.end.y - 184, left.size.x - 36, 172))   # I9: the note clears the frame
-	list("q", list_rect, ids.size(), 62, func(i: int, rr: Rect2):
+	list("q", list_rect, ids.size(), 64, func(i: int, rr: Rect2):
 		var q := str(ids[i])
 		var d := Game.quest.quest_def(ch, q)
 		var active: bool = ch.quests.is_active(q)
 		var ready: bool = active and ch.quests.active[q].get("state") == "ready"
 		panel(rr, "minor_panel", "selected" if sel == q else "normal")
 		var mark := "?" if ready else ("!" if not active and str(tabs[tab].id) != "done" else "")
-		text(rr.position + Vector2(14, 38), mark, 26, UiKit.GOLD)
+		text(rr.position + Vector2(14, 38), mark, 22, UiKit.GOLD)
 		text(rr.position + Vector2(40, 38), str(d.get("name", q)), 20, UiKit.PAPER if active or str(tabs[tab].id) == "done" else UiKit.MIST)
 		if ch.quests.tracked.has(q): text(rr.position + Vector2(0, 38), "◆", 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 14)
 		region(rr, "sel", q)
@@ -77,7 +77,7 @@ func draw_page() -> void:
 	heading(right.position + Vector2(24, 44), str(d2.get("name", sel)), right.size.x - 48)
 	var y := right.position.y + 70
 	var giver := Game.quest.hand_in_npc(ch, d2) if d2.has("hand_in_any") else str(d2.get("giver", ""))
-	if giver != "": text(Vector2(right.position.x + 24, y + 18), Tx.t("ui.quest.from") % ContentDB.name_of("npcs", giver), 17, UiKit.MIST)
+	if giver != "": text(Vector2(right.position.x + 24, y + 18), Tx.t("ui.quest.from") % ContentDB.name_of("npcs", giver), 18, UiKit.MIST)
 	y += 30
 	var offer: Array = d2.get("offer_text", [])
 	if not offer.is_empty(): y += para(Rect2(right.position.x + 24, y, right.size.x - 48, 110), str(offer[0]), 18, UiKit.PAPER, 4) + 10
@@ -87,14 +87,14 @@ func draw_page() -> void:
 		var have := int(st.get("progress", [])[i]) if not st.is_empty() else (int(o.get("count", 1)) if ch.quests.is_done(sel) else 0)
 		var need := int(o.get("count", 1))
 		var done := have >= need
-		text(Vector2(right.position.x + 24, y + 22), ("✓ " if done else "○ ") + str(o.get("text", o.kind)) + (" (%d/%d)" % [have, need] if need > 1 else ""), 18, UiKit.BRIGHT_JADE if done else UiKit.PAPER)
+		text(Vector2(right.position.x + 24, y + 22), ("✓ " if done else "○ ") + str(o.get("text", o.kind)) + (" (%d / %d)" % [have, need] if need > 1 else ""), 18, UiKit.BRIGHT_JADE if done else UiKit.PAPER)
 		y += 28
 	y += 12
 	var rewards: Array = d2.get("rewards", [])
 	var lines := _reward_lines(d2)
 	var has_row := rewards.any(func(r): return str(r.get("kind", "")) in ["grant_item", "grant_currency"])
 	if has_row or not lines.is_empty():
-		text(Vector2(right.position.x + 24, y + 20), Tx.t("ui.quest.rewards"), 19, UiKit.GOLD)
+		text(Vector2(right.position.x + 24, y + 20), Tx.t("ui.quest.rewards"), 20, UiKit.GOLD)
 		var x := right.position.x + 24
 		for r in rewards:
 			if r.get("kind", "") == "grant_item":
@@ -105,7 +105,7 @@ func draw_page() -> void:
 		var ly := y + (116 if has_row else 30)
 		for line in lines:
 			if ly > right.end.y - 90: break
-			text(Vector2(right.position.x + 24, ly + 18), fit("· " + str(line), 17, right.size.x - 48), 17, UiKit.PALE_GOLD)
+			text(Vector2(right.position.x + 24, ly + 18), fit("· " + str(line), 18, right.size.x - 48), 18, UiKit.PALE_GOLD)
 			ly += 24
 	if ch.quests.is_active(sel):
 		btn(Rect2(right.position.x + 24, right.end.y - 70, 200, 52), Tx.t("ui.quest.untrack") if ch.quests.tracked.has(sel) else Tx.t("ui.quest.track"), "track", sel)
@@ -139,7 +139,7 @@ func _activity(ch, r: Rect2) -> void:
 	var tiers: Array = ContentDB.all("activity")
 	var top := int(tiers.back().points) if not tiers.is_empty() else 100
 	text(r.position + Vector2(0, 18), Tx.t("ui.quest.activity"), 22, UiKit.GOLD)
-	text(Vector2(r.end.x - 180, r.position.y + 18), Tx.t("ui.quest.activity_points") % [pts, top], 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 180)
+	text(Vector2(r.end.x - 180, r.position.y + 18), Tx.t("ui.quest.activity_points") % [pts, top], 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 180)
 	var br := Rect2(r.position.x, r.position.y + 90, r.size.x, 20)
 	bar(br, float(pts) / float(top), UiKit.GOLD)
 	for tr in tiers:
@@ -153,10 +153,10 @@ func _activity(ch, r: Rect2) -> void:
 		panel(box, "minor_panel", "selected" if ready else "normal")
 		var ico := Rect2(box.get_center() - Vector2(16, 16), Vector2(32, 32))
 		icon_at(ico, "open")
-		if not ready: draw_rect(box.grow(-2), Color(0.02, 0.05, 0.06, 0.55))
-		if claimed: text(Vector2(box.position.x, box.position.y + 32), "✓", 24, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
-		region(box, "chest", str(tr.id), ready, Tx.t("ui.quest.chest_locked") % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
-		text(Vector2(box.position.x, br.end.y + 20), str(int(tr.points)), 15, UiKit.PALE_GOLD if pts >= int(tr.points) else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
+		if not ready: draw_rect(box.grow(-2), Color(UiKit.INK, 0.55))
+		if claimed: text(Vector2(box.position.x, box.position.y + 32), "✓", 22, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
+		region(box, "chest", str(tr.id), ready, Tx.plural("ui.quest.chest_locked", int(tr.points)) % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
+		text(Vector2(box.position.x, br.end.y + 20), str(int(tr.points)), 16, UiKit.PALE_GOLD if pts >= int(tr.points) else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
 	para(Rect2(r.position.x, br.end.y + 26, r.size.x, 40), Tx.t("ui.quest.activity_note"), 14, UiKit.MIST, 2)
 
 func on_action(id: String, data) -> void:

@@ -38,7 +38,7 @@ func _codex() -> void:
 		var e: Dictionary = entries[i]
 		var known: bool = Game.account.codex.has(str(e.id))
 		if known and sel == str(e.id): panel(rr, "minor_panel", "selected")   # I4: the kit's selection, not the text colour alone
-		text(rr.position + Vector2(14, 30), str(e.title) if known else "? ? ?", 19, (UiKit.PALE_GOLD if sel == str(e.id) else UiKit.PAPER) if known else UiKit.HOLLOW)
+		text(rr.position + Vector2(14, 30), str(e.title) if known else "? ? ?", 20, (UiKit.PALE_GOLD if sel == str(e.id) else UiKit.PAPER) if known else UiKit.HOLLOW)
 		region(rr, "sel", str(e.id), known, Tx.t("ui.codex.not_yet_discovered"))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -74,7 +74,7 @@ func _collection() -> void:
 	panel(r)
 	var cols := 5
 	var rows := int(ceil(foes.size() / float(cols)))
-	list("col", r.grow(-10), rows, 150, func(row: int, rr: Rect2):
+	list("col", r.grow(-10), rows, 152, func(row: int, rr: Rect2):
 		for col in cols:
 			var i := row * cols + col
 			if i >= foes.size(): break
@@ -92,12 +92,12 @@ func _collection() -> void:
 				var sub := Tx.t("ui.codex.defeated") % kills
 				if int(e.get("beast_rank", 0)) > 0:
 					sub = Tx.t("ui.codex.rank_nature") % [int(e.beast_rank), Tx.t("ui.codex.nature_" + str(e.get("nature", "spirit")))] + "  ·  " + sub
-				text(cr.position + Vector2(0, 124), fit(sub, 13, cr.size.x - 8), 13, UiKit.GOLD if str(e.get("nature", "")) == "demonic" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+				text(cr.position + Vector2(0, 124), fit(sub, 14, cr.size.x - 8), 14, UiKit.GOLD if str(e.get("nature", "")) == "demonic" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 			else:
 				var art2 = e.get("art", {})
 				var cid2 := str(art2.get("creature", "")) if art2 is Dictionary else ""
-				if cid2 == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid2, "idle", Color(0, 0, 0, 0.6)):
-					text(cr.position + Vector2(0, 80), "?", 40, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+				if cid2 == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid2, "idle", Color(UiKit.INK, 0.6)):
+					text(cr.position + Vector2(0, 80), "?", 34, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x, true)
 				text(cr.position + Vector2(0, 116), "? ? ?", 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 	)
 
@@ -111,7 +111,7 @@ func _seasons() -> void:
 		for o in ContentDB.room(rid).get("objects", []):
 			if o.get("type", "") == "herb_patch" and o.has("ripen"): rares.append({"room": str(rid), "o": o})
 	rares.sort_custom(func(a, b): return str(a.o.item) < str(b.o.item))
-	text(content.position + Vector2(20, 30), Tx.t("ui.codex.season_now") % [ContentDB.name_of("seasons", cur), UiKit.clock(HerbRules.season_left_s(now))], 20, UiKit.PALE_GOLD)
+	text(content.position + Vector2(20, 30), Tx.t("ui.codex.season_now") % [ContentDB.name_of("seasons", cur), UiKit.span(HerbRules.season_left_s(now))], 20, UiKit.PALE_GOLD)
 	var seasons: Array = ContentDB.all("seasons")
 	var gap := 14.0
 	var cw := (content.size.x - gap * 3) / 4.0
@@ -122,13 +122,13 @@ func _seasons() -> void:
 		var r := Rect2(content.position.x + i * (cw + gap), top, cw, ch_h)
 		panel(r, "minor_panel", "selected" if str(sd.id) == cur else "normal")
 		text(r.position + Vector2(16, 34), str(sd.name), 22, UiKit.GOLD if str(sd.id) == cur else UiKit.PALE_GOLD)
-		var y := r.position.y + 44 + para(Rect2(r.position + Vector2(16, 44), Vector2(cw - 32, 90)), str(sd.get("desc", "")), 15, UiKit.MIST, 4) + 8
+		var y := r.position.y + 44 + para(Rect2(r.position + Vector2(16, 44), Vector2(cw - 32, 90)), str(sd.get("desc", "")), 16, UiKit.MIST, 4) + 8
 		for rn in rares:
 			if str(rn.o.get("season", "")) != str(sd.id): continue
 			y = _rare_line(rn, Vector2(r.position.x + 16, y), cw - 32)
 	var r2 := Rect2(content.position.x, top + ch_h + gap, content.size.x, content.end.y - top - ch_h - gap)
 	panel(r2)
-	text(r2.position + Vector2(16, 32), Tx.t("ui.codex.no_season"), 19, UiKit.PALE_GOLD)
+	text(r2.position + Vector2(16, 32), Tx.t("ui.codex.no_season"), 20, UiKit.PALE_GOLD)
 	var y2 := r2.position.y + 44
 	var col := 0
 	for rn in rares:
@@ -143,10 +143,10 @@ func _rare_line(rn: Dictionary, at: Vector2, w: float) -> float:
 	var o: Dictionary = rn.o
 	icon_at(Rect2(at.x, at.y - 2, 32, 32), str(o.item))
 	var seen: bool = Game.account.visited_rooms.has(str(rn.room))
-	text(at + Vector2(38, 13), fit(ContentDB.item_name(str(o.item)), 15, w - 38), 15, UiKit.PAPER)
+	text(at + Vector2(38, 13), fit(ContentDB.item_name(str(o.item)), 16, w - 38), 16, UiKit.PAPER)
 	var rp: Dictionary = o.get("ripen", {})
 	var where := str(ContentDB.room(str(rn.room)).get("name", "")) if seen else "? ? ?"
-	text(at + Vector2(34, 31), fit(Tx.t("ui.codex.ripens") % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 13, w - 34), 13, UiKit.MIST)
+	text(at + Vector2(34, 31), fit(Tx.plural("ui.codex.ripens", int(rp.get("every_days", 1))) % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 14, w - 34), 14, UiKit.MIST)
 	return at.y + 44
 
 func _paths_above(ch) -> void:
@@ -161,10 +161,10 @@ func _paths_above(ch) -> void:
 		var seen: bool = found or Game.account.visited_rooms.has(str(e.room))
 		var cell := Rect2(rr.position + Vector2(4, 4), rr.size - Vector2(8, 8))
 		panel(cell, "minor_panel", "normal" if found else "disabled")
-		text(cell.position + Vector2(18, 28), str(e.room_name) if seen else "? ? ?", 19, UiKit.PAPER if seen else UiKit.HOLLOW)
-		text(cell.position + Vector2(18, 52), Tx.t("ui.codex.paths_above_needs") % [str(e.art_name), int(e.height)], 15, UiKit.BRIGHT_JADE if known else UiKit.HOLLOW)
+		text(cell.position + Vector2(18, 28), str(e.room_name) if seen else "? ? ?", 20, UiKit.PAPER if seen else UiKit.HOLLOW)
+		text(cell.position + Vector2(18, 52), Tx.t("ui.codex.paths_above_needs") % [str(e.art_name), int(e.height)], 16, UiKit.BRIGHT_JADE if known else UiKit.HOLLOW)
 		var status := Tx.t("ui.codex.paths_above_found") % str(e.reward) if found else (Tx.t("ui.codex.paths_above_open") if known else Tx.t("ui.codex.paths_above_later"))
-		text(cell.position + Vector2(cell.size.x * 0.45, 40), status, 17, UiKit.PALE_GOLD if found else (UiKit.PAPER if known else UiKit.HOLLOW),
+		text(cell.position + Vector2(cell.size.x * 0.45, 40), status, 18, UiKit.PALE_GOLD if found else (UiKit.PAPER if known else UiKit.HOLLOW),
 			HORIZONTAL_ALIGNMENT_RIGHT, cell.size.x * 0.55 - 18)
 	)
 
@@ -177,7 +177,7 @@ func _achievements(ch) -> void:
 		var done: bool = Game.account.achievements.done.has(str(a.id))
 		var n := int(Game.account.achievements.counters.get(str(a.id), 0))
 		panel(rr, "minor_panel", "selected" if done else "normal")
-		text(rr.position + Vector2(20, 30), str(a.name), 21, UiKit.PALE_GOLD if done else UiKit.PAPER)
+		text(rr.position + Vector2(20, 30), str(a.name), 22, UiKit.PALE_GOLD if done else UiKit.PAPER)
 		text(rr.position + Vector2(20, 56), str(a.get("desc", "")), 16, UiKit.MIST)
 		if a.has("title"): text(rr.position + Vector2(0, 30), Tx.t("ui.codex.title") % ContentDB.name_of("titles", str(a.title)), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
 		if int(a.get("count", 1)) > 1 and not done: text(rr.position + Vector2(0, 56), "%d / %d" % [n, int(a.count)], 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)

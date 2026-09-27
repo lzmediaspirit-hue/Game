@@ -15,6 +15,36 @@ const MIN_TAP := 48.0
 const SLOT := 76.0
 ## The small slot, for an item named in a list row: a 32 px icon (an HD icon's native 32, a legacy one at 1x).
 const SLOT_SMALL := 44.0
+## The spacing grid (P4, docs/ui_style_guide.md §2): positions and sizes in steps of 8, the half step 4 inside a dense
+## component. Every window stays inside SAFE_AREA and is one of the standard six.
+const GRID := 8.0
+const SAFE_AREA := Rect2(48, 24, 1184, 672)
+const WINDOW_FULL := Rect2(64, 32, 1152, 656)
+const WINDOW_LARGE := Rect2(128, 56, 1024, 608)
+const WINDOW_MEDIUM := Rect2(256, 72, 768, 576)
+const WINDOW_SMALL := Rect2(288, 152, 704, 416)
+const WINDOW_CONFIRM := Rect2(384, 248, 512, 224)
+const WINDOW_DIALOGUE := Rect2(48, 464, 1184, 232)
+const WINDOWS := [WINDOW_FULL, WINDOW_LARGE, WINDOW_MEDIUM, WINDOW_SMALL, WINDOW_CONFIRM, WINDOW_DIALOGUE]
+## Content insets (the HD window's nine-slice margin at the sides), the title band and the tab row.
+const INSET := 32.0
+const TOP := 80.0
+const TOP_BARE := 24.0
+const BOTTOM := 24.0
+const TAB_H := 48.0
+const TAB_GAP := 8.0
+const TAB_MIN_W := 120.0
+## Lists: the gap under each row and the scroll gutter at the right.
+const ROW_GAP := 4.0
+const GUTTER := 8.0
+## Gaps: related controls, groups and cards, and the padding inside a card.
+const GAP := 8.0
+const GROUP_GAP := 16.0
+const PAD := 16.0
+## Button heights: compact and in rows, standard, a page's main action.
+const BTN_H := 48.0
+const BTN_H_STANDARD := 56.0
+const BTN_H_MAIN := 64.0
 
 var page_id := ""
 var title := ""
@@ -23,7 +53,7 @@ var tab := 0
 var args: Dictionary = {}
 var modal := false              # small centred dialog instead of the full window
 var frameless := false          # shell screens draw their own layout over the backdrop
-var frame_rect := Rect2(64, 32, 1152, 656)
+var frame_rect := WINDOW_FULL
 var content := Rect2()
 var t := 0.0
 var toast := ""
@@ -44,7 +74,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	GameEvents.event.connect(_on_game_event)
-	if modal and frame_rect == Rect2(64, 32, 1152, 656): frame_rect = Rect2(290, 170, 700, 380)
+	if modal and frame_rect == WINDOW_FULL: frame_rect = WINDOW_SMALL
 	_layout()
 
 func _exit_tree() -> void:
@@ -69,9 +99,9 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 	on_event(name, p)
 
 func _layout() -> void:
-	var top := 84.0 if title != "" else 24.0
-	if not tabs.is_empty(): top += 44.0
-	content = Rect2(frame_rect.position.x + 28, frame_rect.position.y + top, frame_rect.size.x - 56, frame_rect.size.y - top - 24)
+	var top := TOP if title != "" else TOP_BARE
+	if not tabs.is_empty(): top += TAB_H + TAB_GAP
+	content = Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
 
 func _process(delta: float) -> void:
 	t += delta
@@ -111,13 +141,13 @@ func _draw() -> void:
 		_draw_toast()
 		return
 	# Dim the play screen behind the page.
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.03, 0.04, 0.55 if modal else 0.72))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.DIM, 0.55 if modal else 0.72))
 	draw_style_box(UiKit.style("major_window"), frame_rect)
 	if title != "":
 		var plaque := Rect2(frame_rect.position.x + frame_rect.size.x * 0.5 - 220, frame_rect.position.y + 10, 440, 60)
 		draw_style_box(UiKit.style("title_plaque"), plaque)
-		UiKit.draw_text(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true, true)
-	var close_rect := Rect2(frame_rect.end.x - 70, frame_rect.position.y + 14, 52, 52)
+		UiKit.draw_inked(self, title, plaque.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
+	var close_rect := Rect2(frame_rect.end.x - 72, frame_rect.position.y + 16, 52, 52)
 	_register(close_rect, "_close", null, true, "", "button")
 	draw_style_box(UiKit.style("close_button", "pressed" if _is_pressed("_close") else "normal"), close_rect)
 	_draw_x(close_rect.get_center(), 11, UiKit.PAPER)
@@ -129,7 +159,7 @@ func _draw() -> void:
 func _draw_toast() -> void:
 	if toast_t > 0.0 and toast != "":
 		var w := minf(760.0, UiKit.text_width(toast, 20) + 60)
-		var r := Rect2(640 - w * 0.5, minf(frame_rect.end.y, 690) - 70, w, 46)
+		var r := Rect2(640 - w * 0.5, minf(frame_rect.end.y, 696) - 72, w, 48)
 		draw_style_box(UiKit.style("toast"), r)
 		UiKit.draw_text(self, toast, r.position + Vector2(0, 30), 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
 
@@ -140,19 +170,19 @@ func _draw_x(center: Vector2, r: float, col: Color) -> void:
 	draw_line(center - Vector2(r, -r), center + Vector2(r, -r), col, 3)
 
 func _draw_tabs() -> void:
-	var x := frame_rect.position.x + 32
-	var y := frame_rect.position.y + (84.0 if title != "" else 20.0)
+	var x := frame_rect.position.x + INSET
+	var y := frame_rect.position.y + (TOP if title != "" else TOP_BARE)
 	for i in tabs.size():
 		var tb: Dictionary = tabs[i]
-		var w := maxf(118.0, UiKit.text_width(str(tb.label), 20) + 40)
-		var r := Rect2(x, y, w, 40)
+		var w := maxf(TAB_MIN_W, UiKit.text_width(str(tb.label), 20) + 40)
+		var r := Rect2(x, y, w, TAB_H)
 		var locked := str(tb.get("locked", "")) != ""
 		draw_style_box(UiKit.style("tab", "selected" if i == tab else ("disabled" if locked else "normal")), r)
-		UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 27), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
+		UiKit.draw_text(self, str(tb.label), r.position + Vector2(0, 31), 20, UiKit.PALE_GOLD if i == tab else (UiKit.HOLLOW if locked else UiKit.PAPER),
 			HORIZONTAL_ALIGNMENT_CENTER, w)
 		if locked: _lock_icon(r.position + Vector2(w - 16, 8))
 		_register(r, "_tab", i, not locked, str(tb.get("locked", "")), "button")
-		x += w + 6
+		x += w + TAB_GAP
 
 func _lock_icon(p: Vector2) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6), Vector2(12, 9)), UiKit.BRONZE)
@@ -167,13 +197,16 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	var off := Vector2(1, 2) if state == "pressed" else Vector2.ZERO
 	var col := UiKit.PALE_GOLD if primary else UiKit.PAPER
 	if not enabled: col = UiKit.HOLLOW
-	# A long label steps its size down to sit inside the button (and clear the lock icon) rather than touch the frame.
+	# A long label steps its size down the type scale to sit inside the button (and clear the lock icon) rather than
+	# touch the frame.
 	var room := rect.size.x - (44.0 if not enabled and reason != "" else 20.0)
 	if label.length() * size * 0.6 > room:   # only a label that could overflow is measured
 		# B21: words are never drawn under UiKit.MIN_SIZE, so the steps stop there and a label still too long is shortened.
-		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size -= 1
+		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size = UiKit.step_down(size)
 		label = fit(label, size, room)
-	UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	# Decision 10 (option C): a primary label, in every state, carries a 2 px ink outline on the bright jade face.
+	if primary: UiKit.draw_inked(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	else: UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
@@ -211,6 +244,12 @@ func text(pos: Vector2, s: String, size := 20, col := UiKit.PAPER, align := HORI
 	UiKit.draw_text(self, s, pos, size, col, align, width, true, display)
 	if text_log != null: _log_text(pos, s, size, align, width, display)
 
+## A title on the plaque (decision 10): the words with a 2 px ink outline (UiKit.draw_inked), shortened to `width`.
+func inked(pos: Vector2, s: String, size: int, col := UiKit.PALE_GOLD, align := HORIZONTAL_ALIGNMENT_CENTER, width := -1.0, display := true) -> void:
+	if width > 0.0: s = fit(s, size, width, display)
+	UiKit.draw_inked(self, s, pos, size, col, align, width, display)
+	if text_log != null: _log_text(pos, s, size, align, width, display)
+
 ## The ui_suite's record of the words a page drew, [{rect, s}]; null (off) in play.
 var text_log = null
 
@@ -220,21 +259,24 @@ func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, dis
 	var x := pos.x
 	if width > 0.0 and align == HORIZONTAL_ALIGNMENT_CENTER: x += (width - w) * 0.5
 	elif width > 0.0 and align == HORIZONTAL_ALIGNMENT_RIGHT: x += width - w
-	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button})
+	# P4: the size asked for, so the ui_suite can hold every word to the type scale.
+	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button, "size": size, "display": display})
 
 ## `s` shortened with an ellipsis so it fits `width` at `size` (UiKit.fit).
 func fit(s: String, size: int, width: float, display := false) -> String:
 	return UiKit.fit(s, size, width, display)
 
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
-	# A long heading steps its size down to fit its width rather than being cut off at the edge.
+	# A long heading steps down the display scale, 26 to 22, to fit its width, and past that ends in an ellipsis.
 	var size := 26
-	while size > 20 and UiKit.text_width(s, size, true) > width: size -= 1
+	if UiKit.text_width(s, size, true) > width: size = 22
+	s = fit(s, size, width, true)
 	UiKit.draw_text(self, s, pos, size, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
+	if text_log != null: _log_text(pos, s, size, HORIZONTAL_ALIGNMENT_LEFT, width, true)
 	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, size, true) + 30), 8), UiKit.BRONZE, 2)
 
 ## Word-wrapped paragraph. Returns the height used.
-func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -1) -> float:
+func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -1) -> float:
 	var lines := _wrap(s, size, rect.size.x)
 	var lh := UiKit.line_height(size)
 	var y := rect.position.y + size * UiKit.text_scale()
@@ -266,13 +308,18 @@ func _wrap(s: String, size: int, width: float) -> Array:
 		out.append(cur)
 	return out
 
+## The words on a bar (Page.bar): a caption on the type scale that sits inside a 22 px bar.
+const BAR_LABEL := 16
+
 func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 	draw_style_box(UiKit.style("bar_shell"), rect)
 	var inner := rect.grow_individual(-6, -5, -6, -5)
-	draw_rect(inner, Color(0.02, 0.05, 0.06))
+	draw_rect(inner, UiKit.BAR_TROUGH)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), inner.size.y)), col)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), 2)), col.lightened(0.35))
-	if label != "": UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 7), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	if label != "":
+		UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 6), BAR_LABEL, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+		if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + 6), label, BAR_LABEL, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
 
 func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
@@ -371,20 +418,20 @@ func list(area: String, rect: Rect2, count: int, row_h: float, draw_row: Callabl
 	var max_scroll := maxf(0.0, total - rect.size.y)
 	var off := clampf(float(scroll.get(area, 0.0)), 0.0, max_scroll)
 	scroll[area] = off
-	_areas[area] = {"rect": rect, "max": max_scroll, "active": false}
+	_areas[area] = {"rect": rect, "max": max_scroll, "active": false, "pitch": row_h}
 	_regions.append({"rect": rect, "id": "_scroll", "data": area, "enabled": true, "reason": "", "kind": "scroll"})
 	var first := int(off / row_h)
 	var last := mini(count - 1, int((off + rect.size.y) / row_h))
 	_areas[area].active = true
 	for i in range(first, last + 1):
 		var y := rect.position.y + i * row_h - off
-		var rr := Rect2(rect.position.x, y, rect.size.x - 10, row_h - 4)
+		var rr := Rect2(rect.position.x, y, rect.size.x - GUTTER, row_h - ROW_GAP)
 		if rr.position.y < rect.position.y - 1 or rr.end.y > rect.end.y + 1: continue
 		draw_row.call(i, rr)
 	_areas[area].active = false
 	if max_scroll > 0:
-		var track := Rect2(rect.end.x - 6, rect.position.y, 4, rect.size.y)
-		draw_rect(track, Color(1, 1, 1, 0.08))
+		var track := Rect2(rect.end.x - 4, rect.position.y, 4, rect.size.y)
+		draw_rect(track, Color(UiKit.PAPER, 0.08))
 		var h := maxf(24.0, rect.size.y * rect.size.y / total)
 		draw_rect(Rect2(track.position.x, rect.position.y + (rect.size.y - h) * off / max_scroll, 4, h), UiKit.JADE)
 
@@ -392,12 +439,12 @@ func ask(text_: String, id: String, data = null, danger := false) -> void:
 	confirm = {"text": text_, "id": id, "data": data, "danger": danger}
 
 func _draw_confirm() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.5))
-	var r := Rect2(390, 250, 500, 220)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.INK, 0.5))
+	var r := WINDOW_CONFIRM
 	draw_style_box(UiKit.style("major_window"), r)
-	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 21)
-	btn(Rect2(r.position.x + 40, r.end.y - 76, 190, 54), Tx.t("ui.page.cancel"), "_confirm_no")
-	btn(Rect2(r.end.x - 230, r.end.y - 76, 190, 54), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
+	para(Rect2(r.position + Vector2(INSET, INSET), Vector2(r.size.x - INSET * 2.0, 104)), str(confirm.text), 22)
+	btn(Rect2(r.position.x + INSET, r.end.y - 80, 192, BTN_H_STANDARD), Tx.t("ui.page.cancel"), "_confirm_no")
+	btn(Rect2(r.end.x - INSET - 192, r.end.y - 80, 192, BTN_H_STANDARD), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
 
 # ------------------------------------------------------------------ input
 func _hit(p: Vector2) -> int:

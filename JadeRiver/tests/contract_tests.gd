@@ -52,6 +52,7 @@ func _main() -> void:
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
 	_strings_gate()
 	_format_words_gate()
+	_durations_and_plurals()
 	_forbidden_patterns()
 	_pages_read_only()
 	_scripts_compile()
@@ -60,6 +61,37 @@ func _main() -> void:
 	_controls_line()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+## P4 (docs/ui_style_guide.md §4): durations are written in one style, by Tx.span (UiKit.span on the pages): no string
+## but the span's own keys and the countdown clock's prints a count straight before a unit of time, except a few that
+## state a rule's fixed length in prose. And every string that prints a count before a countable noun has its "_one"
+## twin (Tx.plural), or is a count of a total ("%d of %d fights left"), where the noun is the total's.
+const DURATION_PROSE := ["hud.beast_tide_started_sub", "hud.route_hint", "ui.tower.rule_clear", "ui.tower.rule_guardian",
+	"ui.tower.rule_survive", "ui.tower.rule_swift", "ui.cultivation.choose_what_to_cultivate_while", "ui.codex.ripens"]
+const COUNT_OF_TOTAL := ["hud.route_finished", "hud.tribulation_survived", "sim.sect.mine_yours_line", "ui.arena.fights_left",
+	"ui.codex.of_entries_discovered", "ui.crafts.pages_held", "ui.guild.cap_line", "ui.guqin.playing", "ui.pets.swarm_pop",
+	"ui.quest.activity_points", "ui.settings.characters_slots", "ui.your_sect.mine_yours",
+	# Not a noun after the count ("%d answers it", "%d merit eases"), and a list of three counts in one line.
+	"hud.hazard", "ui.cultivation.merit_not_ready", "hud.pets_fused_sub"]
+
+func _durations_and_plurals() -> void:
+	var unit := RegEx.create_from_string("%[0-9]*d\\s*(more\\s+)?(s|m|h|d|min|mins|minutes?|hours?|days?|seconds?)\\b")
+	var counted := RegEx.create_from_string("%d\\s+(?:[A-Za-z\\-]+\\s+){0,2}([A-Za-z][a-z]+s)\\b")
+	var own: Array = []
+	var single: Array = []
+	for key in ContentDB.strings:
+		var k := str(key)
+		var v := str(ContentDB.strings[key])
+		if unit.search(v) != null and not k.begins_with("ui.span_") and k != "ui.clock_days" and not k in DURATION_PROSE and not k.trim_suffix("_one") in DURATION_PROSE:
+			own.append(k)
+		if not k.ends_with("_one") and counted.search(v) != null and not ContentDB.strings.has(k + "_one") and not k in COUNT_OF_TOTAL:
+			single.append(k)
+	check(own.is_empty(), "P4: every duration is written by the span, none in a string of its own (%d: %s)" % [own.size(), str(own.slice(0, 8))])
+	check(single.is_empty(), "P4: every counted plural has its _one twin, or counts a total (%d: %s)" % [single.size(), str(single.slice(0, 8))])
+	check(Tx.span(90) == Tx.t("ui.span_m") % 2 and Tx.span(7200) == Tx.t("ui.span_h") % 2 and Tx.span(3 * 86400) == Tx.t("ui.span_d") % 3
+		and Tx.span(3 * 86400 + 7200) == Tx.t("ui.span_dh") % [3, 2] and UiKit.span(45) == Tx.span(45), "P4: Tx.span writes a whole hour or day without its zero")
+	check(UiKit.short(9999) == "9,999" and UiKit.short(18234) == "18.2K" and UiKit.short(123456) == "123K" and UiKit.short(999960) == "1.00M"
+		and UiKit.short(1250000) == "1.25M" and UiKit.short(-18234) == "-18.2K" and UiKit.is_numeric("18.2K"), "P4: numbers over the world shorten to three figures from 10,000")
 
 func _read_scripts(dir: String) -> void:
 	for sub in DirAccess.get_directories_at(dir): _read_scripts(dir + sub + "/")

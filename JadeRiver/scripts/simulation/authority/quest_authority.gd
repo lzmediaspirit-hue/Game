@@ -678,7 +678,7 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.has("repeatable"):
 		var until := float(c.cooldowns.get("set_piece:" + event, 0.0))
 		if Clock.now_utc() < until:
-			return fail("cooldown", {"text": Tx.t("sim.quest.the_next_battle_comes_in") % maxi(1, int(ceil((until - Clock.now_utc()) / 3600.0)))})
+			return fail("cooldown", {"text": Tx.t("sim.quest.the_next_battle_comes_in") % Tx.span(until - Clock.now_utc())})
 		c.cooldowns["set_piece:" + event] = Clock.now_utc() + float(sp.repeatable.get("cooldown_h", 20)) * 3600.0
 	emit("set_piece_started", {"actor": c.id, "event": event})
 	if sp.has("room"):

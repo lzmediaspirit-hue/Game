@@ -106,6 +106,8 @@ func _main() -> void:
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
+	ui_style_suite()
+	hud_suite()
 	await ui_suite()
 	fixes_suite()
 	mockup_fixes_suite()
@@ -188,6 +190,9 @@ func ui_suite() -> void:
 	var labels: Array = []
 	var crossing: Array = []
 	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
+	var off_scale: Array = []   # P4: words asked for off the type scale or under UiKit.MIN_SIZE
+	var windows: Array = []   # P4: windows off the standard set or outside the safe area
+	var pitches: Array = []   # P4: list rows off the 8 px grid
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
 	var icons_drawn := 0
@@ -221,6 +226,10 @@ func ui_suite() -> void:
 					var dr: Rect2 = d.rect
 					if float(d.scale) < 1.0 or float(d.scale) != floorf(float(d.scale)) or dr.position != dr.position.round():
 						blurred.append("%s %s %s at %.2fx" % [where, d.id, str(dr), float(d.scale)])
+				# P4 (§2): a standard window inside the safe area, and list rows on the 8 px grid.
+				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not Page.SAFE_AREA.encloses(pg.frame_rect)): windows.append("%s %s" % [where, str(pg.frame_rect)])
+				for aid in pg._areas:
+					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
 				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
 				var buttons: Array = []
@@ -237,6 +246,8 @@ func ui_suite() -> void:
 						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
 				for tx in pg.text_log:
 					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
+					if tx.has("size") and (int(tx.size) < UiKit.MIN_SIZE or not UiKit.on_scale(int(tx.size), bool(tx.display))):
+						off_scale.append("%s \"%s\" at %d" % [where, str(tx.s).left(24), int(tx.size)])
 					var tr: Rect2 = tx.rect
 					if tx.get("panel", false):
 						if not inside.grow(4).encloses(tr): outside.append("%s panel at %s" % [where, str(tr)])
@@ -262,7 +273,7 @@ func ui_suite() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rows: int = cp._regions.filter(func(r): return r.id == "contemplate").size()
-	check(rows == mini(7, int((cp.content.size.y - 28.0) / 76.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
+	check(rows == mini(7, int((cp.content.size.y - 28.0) / 80.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
 	cp.queue_free()
 	# B2: the Key Items tab offers the guqin's Play.
 	var ip = load(str(main_script.PAGES.inventory)).new()
@@ -316,7 +327,7 @@ func ui_suite() -> void:
 	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
 	SpriteCache.draw_log = null
-	for o in overlaps + outside + under + labels + crossing + blurred: print("  ui_suite: ", o)
+	for o in overlaps + outside + under + labels + crossing + blurred + off_scale + windows + pitches: print("  ui_suite: ", o)
 	check(icons_drawn > 1000 and blurred.is_empty(), "P4b: every icon on every page is drawn at a whole-number scale of its art, on whole pixels (%d drawn: %s)" % [icons_drawn, str(blurred.slice(0, 6))])
 	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
@@ -327,6 +338,9 @@ func ui_suite() -> void:
 	check(crossing.is_empty(), "B17, B22: no words run over the edge of a card (%d: %s)" % [crossing.size(), str(crossing.slice(0, 8))])
 	check(cut.is_empty(), "B18: the Body hint and trials, the path cards, the arena help and the sect tree say all they have to (%s)" % str(cut))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+	check(off_scale.is_empty(), "P4: every word on every page is asked for on the type scale, none under %d (%d: %s)" % [UiKit.MIN_SIZE, off_scale.size(), str(off_scale.slice(0, 8))])
+	check(windows.is_empty(), "P4: every window is a standard one, inside the safe area (%s)" % str(windows.slice(0, 6)))
+	check(pitches.is_empty(), "P4: every list's rows are on the 8 px grid (%s)" % str(pitches.slice(0, 6)))
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
 func _ui_contexts(c) -> Dictionary:
@@ -359,6 +373,181 @@ func _ui_contexts(c) -> Dictionary:
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
 		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+
+## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
+## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
+## grade has its colour.
+func ui_style_suite() -> void:
+	var sources: Array = ["res://scripts/hud.gd", "res://scripts/ui/page.gd"]
+	for f in DirAccess.get_files_at("res://scripts/ui/pages/"):
+		if f.ends_with(".gd"): sources.append("res://scripts/ui/pages/" + f)
+	var hex := RegEx.create_from_string("Color\\(\\s*\"#?[0-9a-fA-F]{6,8}\"")
+	var flt := RegEx.create_from_string("Color\\(\\s*-?[0-9.]+\\s*,\\s*-?[0-9.]+")
+	var white := RegEx.create_from_string("^Color\\(\\s*1(\\.0)?\\s*,\\s*1(\\.0)?\\s*,\\s*1(\\.0)?\\s*[,)]")
+	var literals: Array = []
+	for path in sources:
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			var ln := lines[i]
+			if ln.strip_edges().begins_with("#"): continue
+			for m in hex.search_all(ln): literals.append("%s:%d %s" % [path.get_file(), i + 1, m.get_string()])
+			for m in flt.search_all(ln):
+				if white.search(ln.substr(m.get_start())) == null: literals.append("%s:%d %s" % [path.get_file(), i + 1, m.get_string()])
+	check(literals.is_empty(), "P4: no page, the HUD or Page draws an off-token colour (%d: %s)" % [literals.size(), str(literals.slice(0, 6))])
+	# States (§6): the pressed art is only the finger's. A page draws "pressed" where the press is read (_is_pressed), or on
+	# the hot controls the furnace holds while a finger is down (`held`).
+	var pressed_else: Array = []
+	for path in sources:
+		var plines := FileAccess.get_file_as_string(path).split("\n")
+		for i in plines.size():
+			if plines[i].contains("\"pressed\"") and not plines[i].contains("_is_pressed(") and not plines[i].contains("if held") and not plines[i].contains("state == \"pressed\"") and path.get_file() != "hud.gd":
+				pressed_else.append("%s:%d" % [path.get_file(), i + 1])
+	check(pressed_else.is_empty(), "P4: no page draws the pressed state but under the finger (%s)" % str(pressed_else))
+	var g: Dictionary = ContentDB.config("grades")
+	var bare: Array = (g.get("order", []) as Array).filter(func(k): return not (g.get("grade_colors", {}) as Dictionary).has(k))
+	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))
+	# Type (§3): the HUD's words are asked for on the scale and never under UiKit.MIN_SIZE (the pages are checked as they
+	# draw, in the ui_suite).
+	var call := RegEx.create_from_string("UiKit\\.(draw_text|draw_outlined|draw_inked)\\(self")
+	var size_arg := RegEx.create_from_string(",\\s*(\\d+),\\s*(UiKit\\.|Color\\(|lc\\b|col\\b|ring_col\\b|$)")
+	var hud_lines := FileAccess.get_file_as_string("res://scripts/hud.gd").split("\n")
+	var hud_calls := 0
+	var hud_off: Array = []
+	for i in hud_lines.size():
+		if call.search(hud_lines[i]) == null: continue
+		hud_calls += 1
+		var sm := size_arg.search(hud_lines[i])
+		var sz := int(sm.get_string(1)) if sm != null else -1
+		var display := hud_lines[i].contains(", true, true)")
+		if sm == null or sz < UiKit.MIN_SIZE or not UiKit.on_scale(sz, display): hud_off.append("hud.gd:%d at %d" % [i + 1, sz])
+	check(hud_calls >= 40 and hud_off.is_empty(), "P4: every word on the HUD is asked for on the type scale, none under %d (%d calls: %s)" % [UiKit.MIN_SIZE, hud_calls, str(hud_off)])
+	# Contrast (§1.4, decision 10): every text colour on every fill UiKit.TEXT_ON lists, measured on the HD kit's own art:
+	# the lightest texel (95th percentile) inside the fill's nine-slice centre, over INK. Inked words are measured on INK.
+	var fills := {}
+	var low: Array = []
+	var pairs := 0
+	var tokens: Dictionary = (load("res://scripts/ui/ui_kit.gd") as GDScript).get_script_constant_map()
+	var rows: Array = UiKit.TEXT_ON.duplicate()
+	var g2: Dictionary = ContentDB.config("grades")
+	for kind in ["grade_colors", "quality_colors"]:
+		for k in g2.get(kind, {}): rows.append([Color(str(g2[kind][k])), ["@page"], 14, "%s %s" % [kind, k]])
+	for row in rows:
+		var col: Color = row[0] if row[0] is Color else tokens[str(row[0])]
+		for f in row[1]:
+			for fill in (["major_window", "minor_panel", "slot", "toast", "currency_pill"] if f == "@page" else [f]):
+				var inked: bool = str(fill).ends_with("@ink")
+				var bg: Color = UiKit.INK if inked else _fill_light(str(fill), fills)
+				var need := 3.0 if int(row[2]) >= 20 else 4.5
+				var r := _contrast(col, bg)
+				pairs += 1
+				if r < need: low.append("%s on %s %.2f < %.1f" % [row[3] if row.size() > 3 else row[0], fill, r, need])
+	check(pairs > 80 and low.is_empty(), "P4: every text colour reads on every fill it is drawn on (%d pairs: %s)" % [pairs, str(low.slice(0, 6))])
+	# Words over the world: plates at PLATE's alpha keep MIST at 4.5:1 over a white sky, and the HUD log is outlined.
+	var over_white := Color(UiKit.PLATE.r * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.g * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.b * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a))
+	var hud_src := FileAccess.get_file_as_string("res://scripts/hud.gd")
+	var log_fn := hud_src.substr(hud_src.find("func _draw_log()"), 600)
+	check(_contrast(UiKit.MIST, over_white) >= 4.5 and log_fn.contains("UiKit.draw_outlined(") and not log_fn.contains("UiKit.draw_text("),
+		"P4: plates over the world keep MIST at 4.5:1 over white (%.2f), and the HUD log is outlined" % _contrast(UiKit.MIST, over_white))
+
+
+## WCAG 2 contrast of two opaque colours.
+func _contrast(a: Color, b: Color) -> float:
+	var la := _lum(a)
+	var lb := _lum(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+func _lum(c: Color) -> float:
+	var ch := func(v: float) -> float: return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4)
+	return 0.2126 * ch.call(c.r) + 0.7152 * ch.call(c.g) + 0.0722 * ch.call(c.b)
+
+## The lightest texel (95th percentile of luminance) a fill shows under text, composited over INK: the HD kit's art
+## inside its nine-slice centre (the title plaque, which has none, from a fifth to seven tenths of its height; the
+## minimap's header band for "minimap_frame:header"). A derived state (UiKit.DERIVED_TINT) is its normal art tinted
+## over the window's mean, as UiKit draws it. The same sampling as tools/dev/ui_style_audit.py.
+func _fill_light(spec: String, cache: Dictionary) -> Color:
+	spec = spec.trim_suffix("@ink")
+	if cache.has(spec): return cache[spec][0]
+	var asset := spec.get_slice(":", 0)
+	var state := spec.get_slice(":", 1) if spec.contains(":") else "normal"
+	var kit: Dictionary = ContentDB.config("ui_assets_hd")
+	var e: Dictionary = kit.get(asset, {})
+	var derived: bool = UiKit.DERIVED_TINT.has(state) and not e.has(state)
+	var img: Image = (load(str(e.get("normal" if derived or state == "header" else state, ""))) as Texture2D).get_image()
+	if img.is_compressed(): img.decompress()
+	var k := int(kit.get("scale", 3))
+	var m: Array = e.get("margins", [8, 8, 8, 8])
+	var w := img.get_width()
+	var h := img.get_height()
+	var x0 := int(m[0]) * k
+	var x1 := w - int(m[2]) * k
+	var y0 := int(m[1]) * k
+	var y1 := h - int(m[3]) * k
+	if state == "header":
+		x0 = 24 * k
+		x1 = w - 24 * k
+		y0 = 4 * k
+		y1 = 20 * k
+	if y1 <= y0:
+		y0 = int(h * 0.2)
+		y1 = int(h * 0.7)
+	if x1 <= x0:
+		x0 = w / 2 - 1
+		x1 = w / 2 + 1
+	var step := maxi(1, int(sqrt(float((x1 - x0) * (y1 - y0)) / 4000.0)))
+	var seen: Array = []
+	var total := Color(0, 0, 0)
+	for y in range(y0, y1, step):
+		for x in range(x0, x1, step):
+			var px := img.get_pixel(x, y)
+			var c := Color(UiKit.INK.r + (px.r - UiKit.INK.r) * px.a, UiKit.INK.g + (px.g - UiKit.INK.g) * px.a, UiKit.INK.b + (px.b - UiKit.INK.b) * px.a)
+			seen.append([_lum(c), c])
+			total += c
+	var mean := total / float(seen.size())
+	seen.sort_custom(func(p, q): return p[0] < q[0])
+	var light: Color = seen[int(seen.size() * 0.95)][1]
+	if derived:
+		var tint: Color = UiKit.DERIVED_TINT[state]
+		if not cache.has("major_window"): _fill_light("major_window", cache)
+		var win: Color = cache["major_window"][1]
+		light = Color(light.r * tint.r * tint.a + win.r * (1.0 - tint.a), light.g * tint.g * tint.a + win.g * (1.0 - tint.a), light.b * tint.b * tint.a + win.b * (1.0 - tint.a))
+	cache[spec] = [light, mean]
+	return light
+
+## P4 (docs/ui_style_guide.md §7): the HUD's touch targets. Every round control's hit circle is at least 48 across and
+## at least its drawn radius + 4; where two circles overlap a tap goes to the nearer centre; a tracker line's go button
+## is 48 x 48; and the player panel's whole height, the Soul row too, opens Character (it opened the tracker).
+func hud_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)   # with no player bound every element shows, so every control is in the table
+	var draught_was = c.inventory.draught
+	var soul_was: float = c.pools.max_soul
+	c.inventory.draught = {"id": "healing_pill", "count": 1}
+	c.pools.max_soul = maxf(1.0, soul_was)
+	var targets: Array = hud.hit_targets()
+	var small: Array = targets.filter(func(tg): return float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0).map(func(tg): return "%s r%d" % [tg.role, int(tg.r)])
+	check(targets.size() >= 21 and small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4 (%d controls; %s)" % [targets.size(), str(small)])
+	var roles: Array = targets.map(func(tg): return str(tg.role))
+	check(roles.has("draught") and roles.has("icon:mail") and roles.has("attack"), "P4: the table holds the Draught, the icon row and Attack")
+	var overlaps := 0
+	var wrong: Array = []
+	for x in range(360, 1280, 6):
+		for y in range(0, 720, 6):
+			var p := Vector2(x, y)
+			var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
+			if inside.is_empty(): continue
+			if inside.size() > 1: overlaps += 1
+			inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
+			var got: String = hud.role_at(p)
+			if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s at %s (%s)" % [got, str(p), inside[0].role])
+	check(overlaps > 0 and wrong.is_empty(), "P4: where HUD circles overlap, a tap goes to the nearest centre (%d points in overlaps; %s)" % [overlaps, str(wrong)])
+	var go: Rect2 = hud.go_hit(Rect2(286, 100, 30, 22))
+	check(go.size == Vector2(48, 48) and go.encloses(Rect2(286, 100, 30, 22)), "P4: the tracker's go button is a 48 x 48 target")
+	check(hud.panel_rect(c).size.y == 120.0 and hud.role_at(Vector2(100, 128)) == "portrait", "P4: the Soul row is part of the player panel's target")
+	c.inventory.draught = draught_was
+	c.pools.max_soul = soul_was
+	hud.queue_free()
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
@@ -4797,7 +4986,7 @@ func territory_suite() -> void:
 	check(Game.sect.holds("lower_pit_seam") and not Game.room_rt.event.get("active", false) and seen.claimed == 1 and int(Game.sect.sect().prestige) == p0 + 30,
 		"the warden falls: the mine is yours (+30 Prestige)")
 	Game.sect.sect().level = 2
-	check(Game.sect.assault_block(c, "grey_pools_seep") == Tx.t("sim.sect.mine_cap") % 1, "one more mine only at sect level 3")
+	check(Game.sect.assault_block(c, "grey_pools_seep") == Tx.plural("sim.sect.mine_cap", 1) % 1, "one more mine only at sect level 3")
 	# The carts: a stone an hour, a day's worth at most; only whole stones leave.
 	Clock.override_utc = t0 + 5.5 * 3600.0
 	check(Game.sect.mine_stored("lower_pit_seam") == 5, "five and a half hours: five stones")
