@@ -357,6 +357,30 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   the three array plates with their arrays lit, and the Sphere Comprehension Stone with its folded world and the Will
   aura. The legacy 32 px drawings of all four modules are gone.
 
+- **Miscellany and tools in Style A** (`tools/icons/families/misc.py` and `tools.py`, both `ART = 64`; the sheets and
+  in-game shots in `docs/mockups/icon_families/misc/` and `tools/`): the 93 miscellany icons and the 65 tools and
+  talismans redrawn at 64 px with native `@32` renders, one language per kind. Miscellany: a manual or a page is paper
+  with its laid lines and columns of script (a stance figure, a seal, a river sketch), a closed scroll lies on the
+  diagonal with its tie and tag, a hand scroll opens between its rollers; a token hangs upright from a cord loop and
+  bead with a tassel, its face carved inside a keyline or a gold rim (the sect discs, the alliance summits, the entry
+  gate, the elders' knots and crests); a bag is a drawstring pouch tied at the neck (the storage pouch's seal slip, the
+  five beast bags with the paw sewn on in straw, hide, cloud silk, deep jade and starweave); the eggs sit in their
+  nests, the wyrm egg on its night cushion; incense stands in a bowl or, for the Roll-Call's hour incense, a tall cup
+  whose label carries the hours in pixel numerals over a holder that grows from clay to bronze, porcelain, jade and
+  gold; the rite tablets stand in stepped pedestals with their crests; the Keeping Post's components (cord, rivets, the
+  brick, lacquer, the whetstone, spirit glue), the Starsea charts and ships, the sun seal and its pieces, the treasures
+  and the Ash and Tide pieces are one-offs on the shared builders (the weapons' tassel, the beast parts' cords, vials
+  and heaps, the herbs' leaves and lotus, the minerals' dish). Tools: the four Keeping Post ladders (picks, sickles,
+  rods, hoop nets, nine tiers each) and the snare kits are one builder each on the weapons' diagonal frame and kit
+  builders, painting with the tier's head metal (copper, iron, jadeiron, cloudsteel, mistjade, stormsteel, then
+  sunglass and driftglass through-lit) over the grade's kit, so a tier shows as material, fittings and work, never as
+  colour alone: a hemp grip on plain wood, then leather on darkwood with the guard metal's butt cap, eye ring, ferrule
+  or reel, a gem at the eye from Earth, the grade's work down the head (a fuller, a jade inlay, cloud curls, gold
+  runes, a lightning zigzag, ember beads, driftglass diamonds), capped points from Mystic and the aura as stepped glow
+  bands; a net's mesh grows finer up the ladder. A talisman is a strip of yellow paper with red bars, its glyph traced
+  in the element's ink over the maker's seal; the offerings sit on the minerals' footed dish. The legacy 32 px code is
+  gone from both modules.
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7b · part 1
