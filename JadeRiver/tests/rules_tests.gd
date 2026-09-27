@@ -106,6 +106,7 @@ func _main() -> void:
 	icon_draw_suite()
 	await ui_suite()
 	fixes_suite()
+	mockup_fixes_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -8042,8 +8043,7 @@ func save_suite() -> void:
 
 # ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
 ## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
-func _fix_world() -> Object:
-	var folder := "user://fixes_suite/"
+func _fix_world(folder := "user://fixes_suite/") -> Object:
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -8264,3 +8264,32 @@ func _fix_page_writes(c) -> void:
 	var legacy := {"uid": "old_2", "species": "reed_otter", "rarity": "rare"}
 	check(int(Game.pets.filled(legacy).get("purity", 0)) == 38 and not legacy.has("purity"),
 		"Spirit Animals reads an older animal with its neutral fields and does not write them")
+
+# ------------------------------------------------------------------ fixes found by the P3 mockups
+## Open items the mockup agents found while drawing (docs/mockups/README.md), each at its rule.
+func mockup_fixes_suite() -> void:
+	var c = _fix_world("user://mockup_fixes/")
+	if c == null:
+		check(false, "the mockup fixes suite needs a character")
+		return
+	_mock_sect_materials(c)
+
+## A sect build takes its materials from the bag, then the Storehouse, then the storage chest (the Treasury was blocked
+## with 49 Copper Ore in storage).
+func _mock_sect_materials(c) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [], "candidates": [],
+		"candidate_day": Clock.reset_day(Clock.now_utc()), "expeditions": [], "disciples": []}
+	Game.economy.apply_currency("silver_tael", 100000, "test")
+	var need := int(Game.sect.building_cost("treasury", 1).materials.copper_ore)
+	Game.inventory.apply_add(c.id, "copper_ore", 3, "test")
+	Game.account.storehouse = {"copper_ore": 5}
+	Game.account.storage = {"items": [{"id": "copper_ore", "count": need - 9}]}
+	check(Game.inventory.count_owned(c, "copper_ore") == need - 1 and str(Game.submit({"type": "upgrade_building", "building": "treasury"}).get("reason", "")) == "materials",
+		"one ore short across the bag, the Storehouse and storage: the Treasury waits")
+	Game.account.storage.items[0].count = need - 8
+	var r := Game.submit({"type": "upgrade_building", "building": "treasury"})
+	check(r.get("ok", false) and c.inventory.count("copper_ore") == 0 and Game.account.storehouse.is_empty() and Game.account.storage.items.is_empty(),
+		"with %d between them the Treasury is raised, and all three are spent (%s)" % [need, str(r)])
+	Game.account.sect = {}
+	Game.account.storage = {"items": []}

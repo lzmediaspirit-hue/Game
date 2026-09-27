@@ -143,6 +143,14 @@
   (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
   first time the account reaches that great realm (`docs/realm_old_names.md`).
 
+### P3 · Fixes found by the mockups
+The open items the mockup agents listed while drawing (`docs/mockups/README.md`), each with a test in `rules_tests`
+(`mockup_fixes_suite`) or `data_validation` that failed before.
+- **A sect building takes its materials from the Storehouse and storage too.** The Treasury no longer waits while 49
+  Copper Ore sit in storage: a build spends from the bag, then the Storehouse, then the storage chest. One spend path
+  (`InventoryAuthority.count_owned` and `apply_spend`) serves the sect builds and the Post Vows, each store written by
+  its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
+
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
   by the user, with two notes, both recorded in `docs/roadmap_master_ui.md` §6.
