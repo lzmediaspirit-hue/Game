@@ -17,7 +17,7 @@ work is read at a glance:
   flag        a post flag: a swallowtail pennant on a pole planted in a stone socket (it serves its room's posts)
   mirror      the Mirror of Echoes: a bronze mirror on its stand, the echo of a post turning in its face
 
-    python3 tools/icons/study/works_objects.py     # -> docs/mockups/assets/work_<id>.png (128)
+    python3 tools/icons/study/works_objects.py     # -> docs/mockups/assets/work_<id>.png (128), work96_<id>.png (96)
 
 Deterministic: two runs give byte-identical PNGs. Nothing in art/, data/ or the icon manifest is touched.
 """
@@ -276,7 +276,7 @@ def main(keys=None):
     for ident, draw in WORKS:
         if keys and ident not in keys:
             continue
-        for tag, scale in (('work_', 2.0),):
+        for tag, scale in (('work_', 2.0), ('work96_', 1.5)):
             p = PixelPainter(64, scale)
             draw(p)
             a = p.c.a

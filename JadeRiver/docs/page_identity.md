@@ -395,7 +395,7 @@ target 48 px or more, nothing clipped.
 | `09_character_v2.png` | Character: the jade-slip record (ls6_end) |
 | `12_quests_v2.png` | Quests: the mission board (ae_end) |
 | `14_works_v2.png` | Works: the curio cabinet (ls6_end) |
-| `14_works_v3.png` | Works: the curio cabinet with its seven objects drawn large (ls6_end; decision 21) |
+| `14_works_v4.png` | Works: the curio cabinet with its seven objects drawn (96 px) and the Seal Scripts tray bigger, five seals at once (ls6_end; decisions 21, 26) |
 | `19_calendar_v2.png` | Calendar: the almanac (qu5); rejected by decision 22, the first Calendar (19) stays |
 | `22_mail.png` | Mail: the letter case (ls6_end) |
 | `23_settings.png` | Settings: the cabinet of drawers (ls6_end) |
