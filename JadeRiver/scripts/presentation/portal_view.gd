@@ -55,10 +55,10 @@ static func building_front(p: Dictionary, room_def: Dictionary) -> Dictionary:
 		return {"id": str(s.get("id", "")), "art": str(s.get("art", "")), "door": Terrain.doorway(s)}
 	return {}
 
-## What shows the player a way in, open (S17; a closed door always shows the sealed gate): "art" (its own gate or swirl),
-## "wall" (an interior's door on the back wall), "decor" (a door placed in the room at it: a cave abode, a raised door),
-## "building" (it stands in the doorway its building's art draws), or "" (nothing but the arrow and the plate). A way
-## into a building must show "decor" or "building" (tests/tutorial_order.gd, data_validation).
+## What shows the player a way in, open (S17; a closed door shows the sealed gate, a back-wall door itself shut): "art"
+## (its own gate or swirl), "wall" (an interior's door on the back wall), "decor" (a door placed in the room at it: a cave
+## abode, a raised door), "building" (it stands in the doorway its building's art draws), or "" (nothing but the arrow
+## and the plate). A way into a building must show "decor" or "building" (tests/tutorial_order.gd, data_validation).
 static func entrance(p: Dictionary, room_def: Dictionary) -> String:
 	var type := str(p.get("type", "edge"))
 	if not str(p.get("art", "")) in ["", "none"] or type in ["edge", "sealed", "dungeon"]: return "art"
@@ -87,7 +87,9 @@ func _draw() -> void:
 	var art := str(def.get("art", ""))
 	if art == "":
 		art = {"edge": "portal_swirl", "sealed": "sealed_gate", "dungeon": "portal_swirl"}.get(type, "")
-		if type != "edge" and not state.open: art = "sealed_gate"
+		# A closed way shows the sealed gate; an interior's own door on its back wall stays itself, shut (a quest holds it
+		# until a step is done, Morning Tide's Bag), its plate saying what to do first.
+		if type != "edge" and not state.open and wall_y == INF: art = "sealed_gate"
 	var bob := 0.5 + 0.5 * sin(t * 4.0)
 	if art != "none" and art != "":
 		SpriteCache.draw_prop(self, art, "idle", t, Vector2.ZERO, false, Color(0.6, 0.6, 0.65) if not state.open and art == "portal_swirl" else Color.WHITE)

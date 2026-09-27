@@ -27,6 +27,8 @@ func _main() -> void:
 	GameEvents.event.connect(func(n, p):
 		if n == "system_unlocked": unlock_log.append(str(p.get("system", "")))
 		if n == "enemy_spawned": par_pace(p))
+	# Every main quest of Acts I-III is held to the story's guidance (prologue_run.story_guidance) as it is played.
+	watch_story()
 	if from == "":
 		run()
 		from = SECTIONS[0]
@@ -47,6 +49,10 @@ func _main() -> void:
 		call("sec_" + s)
 		if failures > before: print("   section ", s, ": ", failures - before, " failure(s)")
 		if only: break
+	if not only:
+		var left: Array = ContentDB.all("quests").filter(func(q): return str(q.kind) == "main" and not q.get("hidden", false) and not c().quests.is_done(str(q.id)))
+		check(left.is_empty() and guidance_steps > 0, "every main quest of Acts I-III was played, each step held to the story's guidance (%d steps; not played: %s)"
+			% [guidance_steps, str(left.map(func(q): return str(q.id)))])
 	print("valley_run: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 

@@ -546,7 +546,9 @@ def unlocks():
     u("codex", "Codex", all_of(flag("night_survived")), "the_river_token", ["page:codex"], prologue=True, toast=False)
 
     # Bone Forging
-    bf1 = all_of(realm("bone_forging_1"))
+    # The Willow Path follows the River Token (its `next`): it starts once Lu has handed you the token on his boat, not
+    # at the breakthrough a moment before, when the boat's way ashore is still shut (the tracker would lead nowhere).
+    bf1 = all_of(realm("bone_forging_1"), qdone("the_river_token"))
     u("body_training", "Body training", bf1, "the_willow_path", [])
     u("kill_progress", "Progress from fights", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
     u("shrine_respawn", "Shrines remember you", bf1, "the_willow_path", [], same_stage_ok=True, toast=False)
@@ -842,11 +844,13 @@ def prologue_quests():
                "Then buy two rice balls. That's how trade works: you give, you get."],
         complete=["See? Coins go round like the river. Here's a little for your trouble."])
     quest("grannys_remedy", "Granny's Remedy", "prologue", "granny_liu", [
-        o("use_system", "Put Herbal Tea in the Quick-use slot", system="set_quick_use"),
-        o("use_item", "Drink a Herbal Tea", item="herbal_tea"),
+        o("use_system", "Bag: put Herbal Tea in Quick-use", system="set_quick_use"),
+        o("use_item", "Drink a Herbal Tea: tap Quick-use", item="herbal_tea"),
         o("interact_object", "Pray at the village shrine", type="shrine"),
     ], [item("herbal_tea", 3)], requires=after_lu, target_room="lf_village", chapter="prologue", marker="blue",
-        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.", "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
+        offer=["Hold still, child. Herbal Tea. Put it where your hand finds it without looking.",
+               "Open your Bag, tap the tea and choose Quick-use: it waits by your fist, marked Quick-use.",
+               "Drink one. Then bow at the shrine in the square. It remembers those who visit."],
         complete=["Good. The shrine will patch you up when you're hurt. Tea when you can't reach it."])
     quest("race_to_the_tower", "Race to the Tower", "side", "shen_lian_npc", [
         o("interact_object", "Ring the watch-tower bell", object="tower_bell"),
@@ -922,7 +926,9 @@ def guided_quests():
         o("kill", "Beat the Trial Puppet", enemy="trial_puppet"),
     ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects"),
         fx("set_flag", flag="prologue_done")], hand_in="",
-        offered_by_unlock=True, auto_accept=True, target_room="sf_fairground", chapter="bf2",
+        # It starts the moment a sect is chosen (the fair's last words send you to it): its first step, Bone Forging 2,
+        # leads to the hunting grounds; the notice board, the return charm and the Character page it teaches open there.
+        requires=all_of(qdone("the_recruitment_fair")), auto_accept=True, target_room="sf_fairground", chapter="bf2",
         complete=["Service Disciple! Report to the steward at your sect's gate."])
     quest("a_disciples_chores", "A Disciple's Chores", "main", "jade_steward", [
         o("set_flag", "Sweep the first spot", flag="swept_ja_0", alt_flag="swept_cm_0"),

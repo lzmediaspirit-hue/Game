@@ -106,10 +106,11 @@ func npc_rooms(c, npc: String) -> Array:
 
 ## Where an objective is done (M20): the rooms that hold what it asks for (the room it names, the NPC it sends you to,
 ## the foe, the object that sets its flag, the rite that starts its event, the node, pickup or foe's quest drop that
-## gives its item), [] when it can be done anywhere.
+## gives its item, the hunting grounds a realm is climbed in), [] when it can be done anywhere.
 func objective_places(c, o: Dictionary) -> Array:
 	if o.has("room"): return [str(o.room)]
 	match str(o.get("kind", "")):
+		"reach_realm": return hunt_rooms(c).map(func(f): return f[0])
 		"talk_to", "deliver": return npc_rooms(c, own_npc(c, o.get("npc_any", o.get("npc", ""))))
 		"kill", "judge_foe": return WorldRules.rooms_with("enemy=" + str(o.enemy))
 		"set_flag": return WorldRules.rooms_with("set_flag=" + str(o.flag))
@@ -119,7 +120,8 @@ func objective_places(c, o: Dictionary) -> Array:
 			return npc_rooms(c, str(o.opponent)) + WorldRules.rooms_with("opponent=" + str(o.opponent))
 		"collect", "gather_node": return WorldRules.rooms_with("item=" + str(o.item)) + WorldRules.rooms_with("drop=" + str(o.item))
 		"catch_fish": return WorldRules.rooms_with("type=fishing_spot")
-		"hit_object", "interact_object": return WorldRules.rooms_with("type=" + str(o.type))
+		# One object by its id (Race to the Tower's bell), or any of a type.
+		"hit_object", "interact_object": return WorldRules.rooms_with("id=" + str(o.object) if o.has("object") else "type=" + str(o.get("type", "")))
 	return []
 
 var _hops_cache: Dictionary = {}
@@ -158,10 +160,66 @@ func quest_target(c, def: Dictionary, st: Dictionary) -> String:
 	if st.get("state", "") == "ready":
 		var back := npc_rooms(c, hand_in_npc(c, def))
 		return str(back[0]) if not back.is_empty() else ""
+	var i := step_now(c, def, st)
+	return objective_room(c, def, def.objectives[i]) if i >= 0 else str(def.get("target_room", ""))
+
+## What keeps the character in a room: a quest whose step is to leave its room (a `use_portal` step, e.g. Morning
+## Tide's "Step outside") holds that room's ways shut, while it is on offer ("Talk to Aunt Ping") and then until the
+## steps before it are done, and names the first still to do ("Open your Bag"; "Pick up Herbal Tea  1/3"). "" when
+## nothing holds the character here.
+func room_hold(c, room_id: String) -> String:
+	if c == null: return ""
+	for qid in c.quests.active.keys() + c.quests.offered.keys():
+		var def := quest_def(c, qid)
+		var objs: Array = def.get("objectives", [])
+		var leave := objs.map(func(o): return str(o.get("kind", ""))).find("use_portal")
+		if str(def.get("target_room", "")) != room_id or leave < 0: continue
+		var st: Dictionary = c.quests.active.get(qid, {})
+		if st.is_empty():
+			if can_offer(c, def): return Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", own_npc(c, def.get("giver_any", def.get("giver", ""))))
+			continue
+		for j in leave:
+			var need := int(objs[j].get("count", 1))
+			if int(st.progress[j]) < need: return str(objs[j].get("text", "")) + ("  %d/%d" % [int(st.progress[j]), need] if need > 1 else "")
+	return ""
+
+## Does a step still to do of a quest under way ask for this: a system (`use_system`, "set_quick_use") or an item to use
+## (`use_item`, "herbal_tea")? The HUD shows the control it names while it does, at rest too.
+func asks_for(c, kind: String, what: String) -> bool:
+	if c == null or what == "": return false
+	for qid in c.quests.active:
+		var def := quest_def(c, qid)
+		var st: Dictionary = c.quests.active[qid]
+		for i in def.get("objectives", []).size():
+			var o: Dictionary = def.objectives[i]
+			if str(o.get("kind", "")) == kind and str(o.get("system", o.get("item", ""))) == what and int(st.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def, st, i): return true
+	return false
+
+## The objective a quest under way is at: its first open one still to do (-1 when none is).
+func step_now(c, def: Dictionary, st: Dictionary) -> int:
 	for i in def.get("objectives", []).size():
-		if _objective_open(c, def, st, i) and int(st.progress[i]) < int(def.objectives[i].get("count", 1)):
-			return objective_room(c, def, def.objectives[i])
-	return str(def.get("target_room", ""))
+		if _objective_open(c, def, st, i) and int(st.progress[i]) < int(def.objectives[i].get("count", 1)): return i
+	return -1
+
+## Where to hunt for Levels (the realm steps' marks, the story's Level waits, P12's gap): the fields whose foes suit the
+## character's Level (it lies within their range; failing that, the toughest ones it has outgrown), toughest first:
+## [[room, lowest Level, highest Level]].
+var _hunt_cache := {}
+func hunt_rooms(c) -> Array:
+	var lv := ProgressionRules.level(c)
+	if _hunt_cache.has(lv): return _hunt_cache[lv]
+	var fit: Array = []
+	var outgrown: Array = []
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.room(rid)
+		var lr: Array = room.get("level_range", [0, 0])
+		if str(room.get("type", "")) != "field" or lr.size() < 2 or lv < int(lr[0]): continue
+		(fit if lv <= int(lr[1]) else outgrown).append([str(rid), int(lr[0]), int(lr[1])])
+	var toughest := func(a, b): return int(a[2]) > int(b[2]) or (int(a[2]) == int(b[2]) and str(a[0]) < str(b[0]))
+	fit.sort_custom(toughest)
+	outgrown.sort_custom(toughest)
+	_hunt_cache[lv] = fit if not fit.is_empty() else outgrown.slice(0, 2)
+	return _hunt_cache[lv]
 
 func quest_def(c, id: String) -> Dictionary:
 	var d := ContentDB.entry("quests", id)
@@ -398,8 +456,17 @@ func accept(c, qid: String) -> Dictionary:
 	if def.has("time_limit_s"): c.quests.active[qid].deadline = game.sim_time + float(def.time_limit_s)
 	if c.quests.daily.has(qid): c.quests.active[qid].def = def
 	c.quests.offered.erase(qid)
-	if c.quests.tracked.size() < 3 and def.get("kind", "") != "daily": c.quests.tracked.push_front(qid)
-	while c.quests.tracked.size() > 3: c.quests.tracked.pop_back()
+	# The story's quests and its lessons are always tracked, at the top (a side quest waits for room); a full tracker lets
+	# the oldest side quest go first, then the oldest lesson, the main story last.
+	var keep := func(t) -> int:
+		var k := str(quest_def(c, str(t)).get("kind", ""))
+		return 2 if k in STORY_KINDS else (1 if k == "guided" else 0)
+	if def.get("kind", "") != "daily" and (int(keep.call(qid)) > 0 or c.quests.tracked.size() < 3): c.quests.tracked.push_front(qid)
+	while c.quests.tracked.size() > 3:
+		var drop: int = c.quests.tracked.size() - 1
+		for k in range(c.quests.tracked.size() - 1, -1, -1):
+			if int(keep.call(c.quests.tracked[k])) < int(keep.call(c.quests.tracked[drop])): drop = k
+		c.quests.tracked.remove_at(drop)
 	emit("quest_accepted", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
 	game.apply_effects(c.id, def.get("on_accept", []), "quest:" + qid)
 	_recount(c, qid)
@@ -635,8 +702,13 @@ func steps_forward(c, qid: String, since: Array) -> Array:
 		out.append({"text": str(objs[i].get("text", "")), "have": mini(v, need), "need": need, "done": v >= need})
 	return out
 
+## The tracker (P5a's plate, the P1 direction mark and the map read it): between main quests the story's "next" entry
+## first (story_next), then each tracked quest with its objectives, [{quest, name, kind, ready, hunt, lines: [{text,
+## have, need, done}], target_room}]. `hunt` marks a target that is a hunting ground (a realm to climb).
 func tracker(c) -> Array:
 	var out: Array = []
+	var nxt := story_next(c)
+	if not nxt.is_empty(): out.append(nxt)
 	for qid in c.quests.tracked:
 		var def := quest_def(c, qid)
 		var st: Dictionary = c.quests.active.get(qid, {})
@@ -650,30 +722,105 @@ func tracker(c) -> Array:
 		if st.state == "ready":
 			var npc_name := ContentDB.name_of("npcs", hand_in_npc(c, def))
 			lines = [{"text": Tx.t("sim.quest.return_to") % npc_name, "have": 0, "need": 1, "done": false}]
+		var at := step_now(c, def, st) if st.state != "ready" else -1
 		# S49 auto-path: where the quest leads now (its current objective's room, the hand-in NPC's once it is ready).
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
-			"target_room": quest_target(c, def, st)})
+			"target_room": quest_target(c, def, st), "hunt": at >= 0 and str(def.objectives[at].get("kind", "")) == "reach_realm"})
 	return out
 
-## The next main quest the story waits on (story order: chapter, then data order): not done, not taken, and every
-## quest it follows done. {} when none waits.
-func next_main(c) -> Dictionary:
+## The kinds of quest the story is told in, and the tracker's "next" entry that stands for its next quest: the direction
+## mark, the tracker and the map lead with them (P1: the main story first).
+const STORY_KINDS := ["main", "prologue"]
+static func leads(kind: String) -> bool:
+	return kind in STORY_KINDS or kind == "next"
+
+## The story's quests that wait next, in story order (chapter, then data order): of `kinds`, not done, not taken, and
+## every quest they name to follow done.
+func story_waiting(c, kinds: Array) -> Array:
 	var keyed: Array = []
 	var all_q: Array = ContentDB.all("quests")
 	for i in all_q.size():
 		var dq: Dictionary = all_q[i]
-		if str(dq.get("kind", "")) != "main": continue
+		if not str(dq.get("kind", "")) in kinds: continue
 		var chap := str(dq.get("chapter", ""))
 		keyed.append([(int(chap) if chap.is_valid_int() else 0) * 1000 + i, dq])
 	keyed.sort_custom(func(a, b): return int(a[0]) < int(b[0]))
+	var out: Array = []
 	for kd in keyed:
 		var d: Dictionary = kd[1]
 		if c.quests.is_done(str(d.id)) or c.quests.is_active(str(d.id)) or d.get("hidden", false): continue
 		var waits := true
 		for r in d.get("requires", {}).get("all", []):
 			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))): waits = false
-		if waits: return d
-	return {}
+		if waits: out.append(d)
+	return out
+
+## The next main quest the story waits on (story order: chapter, then data order): not done, not taken, and every
+## quest it follows done. {} when none waits.
+func next_main(c) -> Dictionary:
+	var waiting := story_waiting(c, ["main"])
+	return waiting[0] if not waiting.is_empty() else {}
+
+## Between main quests, the tracker's "next" entry (never a blank tracker): who gives the next quest of the story and
+## where, or what it still waits on and where to get it, a Level and the hunting ground for it, another quest first (its
+## giver), a condition (where its giver stands). The quests waiting next are followed back through what holds each (its
+## requirements, its unlock's trigger); the one to take now comes first, then the lowest realm. {} while a quest of the
+## story, or one it waits on, is under way, and once the built story is done. Kept a moment, like the direction mark.
+var _story_cache := {}
+func story_next(c) -> Dictionary:
+	if c == null: return {}
+	var key := "%s|%s|%s|%d|%d|%d|%d|%d|%d|%s" % [c.id, str(c.position.get("room", "")), c.cultivator.realm_key, ProgressionRules.level(c),
+		c.quests.done.size(), c.quests.active.size(), c.quests.offered.size(), c.quests.flags.size(), c.cultivator.unlocked.size(),
+		str(c.training_sect.get("id", ""))]
+	if str(_story_cache.get("key", "")) != key or Clock.now_utc() - float(_story_cache.get("at", 0.0)) > 2.0:
+		_story_cache = {"key": key, "at": Clock.now_utc(), "entry": _story_next(c)}
+	return _story_cache.entry
+
+func _story_next(c) -> Dictionary:
+	for q in c.quests.active:
+		if str(quest_def(c, q).get("kind", "")) in STORY_KINDS: return {}
+	var best := {}
+	for d in story_waiting(c, STORY_KINDS):
+		var s := _story_step(c, d, 0)
+		if s.get("active", false): return {}
+		if not s.is_empty() and (best.is_empty() or [int(s.rank), int(s.get("realm_at", 0))] < [int(best.rank), int(best.get("realm_at", 0))]): best = s
+	if best.is_empty(): return {}
+	var d := ContentDB.entry("quests", str(best.quest))
+	var line := ""
+	var room := ""
+	if best.has("realm"):
+		line = Tx.t("sim.quest.next_level") % [int(ContentDB.realm(str(best.realm)).get("level", 0)), ContentDB.name_of("realms", str(best.realm))]
+		room = objective_room(c, {}, {"kind": "reach_realm", "realm": best.realm})
+	else:
+		# Where the giver stands now, the nearest the character can walk to (Lu on the docks, not in his boat).
+		var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
+		room = objective_room(c, d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
+		line = str(best.get("text", ""))
+		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
+	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
+		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}], "target_room": room}
+
+## What holds a quest of the story back, followed to what can be done now: {active} when it (or the quest it waits on)
+## is under way; {quest, rank 0} a quest to take now; {quest, rank 2, realm, realm_at} a realm to reach first; {quest,
+## rank 3, text} another condition.
+func _story_step(c, d: Dictionary, depth: int) -> Dictionary:
+	var id := str(d.id)
+	if c.quests.is_active(id): return {"active": true}
+	if depth > 8 or c.quests.is_done(id): return {}
+	var ctx: Dictionary = game.ctx(c)
+	var unmet := RequirementRules.unmet(d.get("requires", {}), ctx)
+	if unmet.is_empty() and d.get("offered_by_unlock", false) and not c.quests.offered.has(id):
+		for u in ContentDB.all("unlocks"):
+			if str(u.get("quest", "")) == id: unmet += RequirementRules.unmet(u.get("trigger", {}), ctx)
+	if unmet.is_empty(): return {"quest": id, "rank": 0}
+	var cond: Dictionary = unmet[0].get("cond", {})
+	match str(unmet[0].get("kind", "")):
+		"quest_done", "quest_accepted", "quest_active":
+			var sub := ContentDB.entry("quests", str(cond.get("quest", "")))
+			if not sub.is_empty(): return _story_step(c, sub, depth + 1)
+		"realm_at_least":
+			return {"quest": id, "rank": 2, "realm": str(cond.realm), "realm_at": ContentDB.realm_position(str(cond.realm))}
+	return {"quest": id, "rank": 3, "text": str(unmet[0].get("text", ""))}
 
 ## P12 (research §6.6): when the next main quest waits on its chapter's Level floor, the gap and the fastest ways to
 ## close it: {quest, name, realm, level, have, fields: [[room, lo, hi]], side, dailies, post}. {} when no floor holds it.
@@ -683,18 +830,11 @@ func floor_gap(c) -> Dictionary:
 	for r in d.get("requires", {}).get("all", []):
 		if str(r.get("kind", "")) == "realm_at_least" and not ProgressionRules.at_least(c.cultivator.realm_key, str(r.realm)): floor = str(r.realm)
 	if floor == "": return {}
-	var lv := ProgressionRules.level(c)
-	var fields: Array = []
-	for rid in ContentDB.rooms:
-		var room: Dictionary = ContentDB.room(rid)
-		var lr: Array = room.get("level_range", [0, 0])
-		if str(room.get("type", "")) == "field" and lr.size() >= 2 and lv >= int(lr[0]) and lv <= int(lr[1]): fields.append([str(rid), int(lr[0]), int(lr[1])])
-	fields.sort_custom(func(a, b): return int(a[2]) > int(b[2]) or (int(a[2]) == int(b[2]) and str(a[0]) < str(b[0])))
 	var side := 0
 	for q in ContentDB.all("quests"):
 		if str(q.get("kind", "")) == "side" and can_offer(c, q): side += 1
-	return {"quest": str(d.id), "name": str(d.get("name", d.id)), "realm": floor, "level": int(ContentDB.realm(floor).get("level", 0)), "have": lv,
-		"fields": fields.slice(0, 2), "side": side, "dailies": c.quests.daily.size(), "post": Unlocks.is_unlocked(c.id, "keeping_post")}
+	return {"quest": str(d.id), "name": str(d.get("name", d.id)), "realm": floor, "level": int(ContentDB.realm(floor).get("level", 0)), "have": ProgressionRules.level(c),
+		"fields": hunt_rooms(c).slice(0, 2), "side": side, "dailies": c.quests.daily.size(), "post": Unlocks.is_unlocked(c.id, "keeping_post")}
 
 # ------------------------------------------------------------------ set pieces, spars, dailies
 func start_set_piece(c, event: String) -> Dictionary:

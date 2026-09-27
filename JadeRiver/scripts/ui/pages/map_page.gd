@@ -357,7 +357,7 @@ func _objectives(ch, m: Dictionary) -> Array:
 		var line: Dictionary = q.lines[0] if not q.lines.is_empty() else {}
 		out.append({"id": str(q.quest), "event": false, "name": str(q.name), "line": str(line.get("text", "")),
 			"count": "%d / %d" % [int(line.have), int(line.need)] if int(line.get("need", 1)) > 1 else "", "room": str(q.target_room),
-			"rid": str(m.z.node_of.get(str(q.target_room), "")), "main": str(q.kind) in ["main", "prologue"]})
+			"rid": str(m.z.node_of.get(str(q.target_room), "")), "main": QuestAuthority.leads(str(q.kind))})
 	for rid in m.events:
 		for o in m.events[rid]:
 			var ev := CalendarRules.event(str(o.id))
