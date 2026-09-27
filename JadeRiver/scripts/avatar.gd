@@ -31,14 +31,9 @@ func refresh_entries():
 	var key = str(outfit) + action + only_category
 	if key != last_key:
 		entries.clear()
-		for category in ["body", "cape", "shoes", "pants", "shirt", "hair", "hat", "weapon"]:
-			if only_category != "" and category != only_category: continue
-			var item = Wardrobe.parts[category].get(outfit.get(category, "none"), {})
-			for layer in item.get("layers", []):
-				assert(layer.animations.has(action),"Missing equipment pose: "+category+" / "+action)
-				var anim = layer.animations.get(action,{})
-				if anim.is_empty() or anim.get("hidden",false): continue
-				entries.append({"texture": Wardrobe.texture(anim.sheets[sheet_index(category,anim.sheets.size())]), "cell":int(anim.get("cell",256)), "z":int(anim.get("z",layer.z)), "held_arrow":category=="weapon" and str(anim.get("source","")).contains("/arrow/")})
+		for d in _drawn_layers():
+			var anim = d.anim
+			entries.append({"texture": Wardrobe.texture(d.sheet), "cell":int(anim.get("cell",256)), "z":int(anim.get("z",d.layer.z)), "held_arrow":d.category=="weapon" and str(anim.get("source","")).contains("/arrow/")})
 		entries.sort_custom(func(a,b): return a.z < b.z)
 		last_key = key
 		if thumbnail_size != Vector2.ZERO:
@@ -50,6 +45,36 @@ func refresh_entries():
 				var offset=(cell-256)*0.5
 				var occupied=Rect2(Vector2(region.position)+Vector2(-128-offset,-190-offset),Vector2(region.size))
 				thumbnail_bounds=occupied if thumbnail_bounds.size==Vector2.ZERO else thumbnail_bounds.merge(occupied)
+## Every layer drawn in the action: its category, layer, pose entry and the sheet it reads.
+func _drawn_layers() -> Array:
+	var out: Array = []
+	for category in ["body", "cape", "shoes", "pants", "shirt", "hair", "hat", "weapon"]:
+		if only_category != "" and category != only_category: continue
+		var item = Wardrobe.parts[category].get(outfit.get(category, "none"), {})
+		for layer in item.get("layers", []):
+			assert(layer.animations.has(action),"Missing equipment pose: "+category+" / "+action)
+			var anim = layer.animations.get(action,{})
+			if anim.is_empty() or anim.get("hidden",false): continue
+			out.append({"category": category, "layer": layer, "anim": anim, "sheet": anim.sheets[sheet_index(category,anim.sheets.size())]})
+	return out
+## One frame of the figure facing right as an image, its layers laid as draw_on lays them on a 256 px square (the feet
+## at (128, 190)): a still picture (a Techniques card's) that keeps none of the sheets it was cut from in memory.
+func still_image() -> Image:
+	var img := Image.create(256, 256, false, Image.FORMAT_RGBA8)
+	var layers := _drawn_layers()
+	layers.sort_custom(func(a, b): return int(a.anim.get("z", a.layer.z)) < int(b.anim.get("z", b.layer.z)))
+	var frame := pose_frame()
+	for d in layers:
+		var tex: Texture2D = load(str(d.sheet).replace("art_v12/", "res://art/"))
+		if tex == null: continue
+		var src := tex.get_image()
+		if src.is_compressed(): src.decompress()
+		src.convert(Image.FORMAT_RGBA8)
+		var cell := int(d.anim.get("cell", 256))
+		var frames := maxi(1, src.get_width() / cell)
+		var off := (cell - 256) / 2
+		img.blend_rect(src, Rect2i((frame % frames) * cell, cell, cell, cell), Vector2i(-off, -off))
+	return img
 ## Hair picks its baked colour; shirt and trousers pick a baked dye (parts._dyes.order,
 ## index 0 = the undyed original). Unknown dyes wear the original garment.
 func sheet_index(category: String, count: int) -> int:

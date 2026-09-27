@@ -14,9 +14,9 @@ extends Control
 ## Presentation only: nothing here reads or changes a fight.
 
 const Avatar = preload("res://scripts/avatar.gd")
-const GROUND := 112.0         # the feet, in room px from the stage's top
-const CASTER_X := 30.0        # the caster's feet, in room px from the stage's left
-const PACK := {1: [[96.0, 0.0]], 2: [[86.0, 2.0], [112.0, -4.0]], 3: [[78.0, 2.0], [100.0, -5.0], [122.0, 4.0]]}   # foes' feet: x, depth
+const GROUND := 136.0         # the feet, in room px from the stage's top
+const CASTER_X := 28.0        # the caster's feet, in room px from the stage's left
+const PACK := {1: [[104.0, 0.0]], 2: [[98.0, 2.0], [128.0, -4.0]], 3: [[90.0, 2.0], [116.0, -6.0], [142.0, 4.0]]}   # foes' feet: x, depth
 
 var cfg: Dictionary = {}
 var art := ""                 # the art shown ("": the character stands alone)
@@ -45,7 +45,8 @@ func _init() -> void:
 	clip_contents = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	stage = Node2D.new()
-	stage.scale = Vector2.ONE * float(cfg.get("scale", 1.5))
+	stage.scale = Vector2.ONE * float(cfg.get("scale", 1.25))
+	stage.process_mode = Node.PROCESS_MODE_DISABLED   # its pieces never step themselves: this preview's clock steps them
 	add_child(stage)
 	pack = Node2D.new()
 	stage.add_child(pack)
@@ -53,12 +54,10 @@ func _init() -> void:
 	caster.externally_timed = true
 	caster.position = Vector2(CASTER_X, GROUND)
 	stage.add_child(caster)
-	caster.set_process(false)
 	fx = FxLayer.new()
 	fx.world = false
 	fx.number_scale = 0.8 / stage.scale.x
 	stage.add_child(fx)
-	fx.set_process(false)
 
 ## Layered by the order of its pieces alone, never by z (the page's own drawing and any page over it stay in order).
 func _ready() -> void:
@@ -96,7 +95,6 @@ func restart() -> void:
 	deep.sort_custom(func(a, b): return float(a.home.y) < float(b.home.y))
 	for f in deep:
 		pack.add_child(f.sprite)
-		f.sprite.set_process(false)
 	var a := FxLayer.form_spec(form)
 	lead = float(cfg.get("lead_s", 0.4)) + (0.3 if plays == "counter" else 0.0)
 	impact = lead + float(tech.get("windup_s", 0.2))
@@ -111,7 +109,7 @@ func restart() -> void:
 	set_process(not still)
 	if still:
 		# One frame at the impact: every piece stepped there, the blow's first number risen into view, then held.
-		var to := impact + 0.1 if not tech.is_empty() else 0.0
+		var to := impact + 0.02 if not tech.is_empty() else 0.0
 		while clock < to - 0.0001: _advance(minf(1.0 / 30.0, to - clock))
 		_advance(0.0)
 
@@ -189,6 +187,7 @@ func _advance(dt: float) -> void:
 		f.push = float(f.push) + float(f.vel) * dt
 		f.vel = float(f.vel) * maxf(0.0, 1.0 - dt * 7.0)
 		if absf(float(f.vel)) < 12.0: f.push = move_toward(float(f.push), 0.0, 36.0 * dt)
+		if size.x > 0.0: f.push = minf(float(f.push), size.x / stage.scale.x - 12.0 - float(f.home.x))   # knocked back, never out of the frame
 		if s.action == "hurt" and float(f.hurt) <= 0.0: s.play("walk" if f.bound else "idle", true)
 		elif s.action == "attack" and s.t > 0.4: s.play("idle", true)
 		s.position = (f.home + Vector2(float(f.push), 0.0)).round()

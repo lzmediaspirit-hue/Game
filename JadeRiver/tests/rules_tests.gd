@@ -11592,7 +11592,7 @@ func _technique_preview_suite(pg, c) -> void:
 	pg.on_action("node", ids[0])
 	pg.queue_redraw()
 	await get_tree().process_frame
-	var restarted := st.art == ids[0] and st.clock < 0.1
+	var restarted: bool = st.art == ids[0] and st.clock < 0.1
 	pg.on_action("node", TechniqueTreeRules.passage("water", "any", 1))
 	pg.queue_redraw()
 	await get_tree().process_frame
@@ -11609,7 +11609,7 @@ func _technique_preview_suite(pg, c) -> void:
 	var spec := FxLayer.form_spec(st.form)
 	check(st.still and not st.is_processing() and near(st.clock, clock0) and st.clock >= st.impact and st.clock < st.impact + 0.05 and not a0.is_empty()
 		and FxLayer.form_frame(spec, float(a0[0].t) + float(a0[0].start)) == int(spec.impact) and str(st.foes[0].sprite.action) == "hurt",
-		"Reduce motion: the preview holds one frame, the sheet at its impact frame and the imp hurt")
+		"Reduce motion: the preview holds one frame, the sheet at its impact frame and the imp hurt (%s at %.2f of %.2f, %s)" % [st.art, st.clock, st.impact, str(st.foes[0].sprite.action) if not st.foes.is_empty() else "-"])
 	Game.account.settings.reduce_motion = false
 	# A frame with the page open: the preview's step and the whole frame, with a pack of three.
 	pg.on_action("node", ids[1])

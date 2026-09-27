@@ -52,7 +52,9 @@ var _rows := {}               # ring -> row top; "n<act>" -> the notables' band
 var _dirty := true
 var _pan := false
 var _learned_i := -1
-var _posers := {}             # pose -> the character held in that pose for the cards' pictures
+var _stills := {}             # pose -> the character's still in it, for the cards' pictures
+var _still_frame := -1
+var _pics := {}               # art -> what its card's picture needs (its row, pose, colour)
 
 func _init() -> void:
 	title = Tx.t("ui.techniques.techniques")
@@ -91,8 +93,8 @@ func _dress() -> void:
 	if c() == null: return
 	pic.outfit = InventoryAuthority.outfit_for(c())
 	pic.last_key = ""
-	for a in _posers.values(): a.queue_free()
-	_posers.clear()
+	_stills.clear()
+	_pics.clear()
 	stage.dress(pic.outfit.duplicate())
 	stage.restart()
 
@@ -380,10 +382,10 @@ func _chart_labels(_ec: Color) -> void:
 		if y + 14 >= VIS.position.y + HEAD and y + 64 <= VIS.end.y:
 			text(Vector2(VIS.end.x - 66, y + 40), ROMAN[int(key)], 26, Color(UiKit.MIST, 0.85), HORIZONTAL_ALIGNMENT_CENTER, 60, true)
 			text(Vector2(VIS.end.x - 72, y + 60), Tx.t("ui.techniques.grade_" + g), 14, UiKit.grade_color(g), HORIZONTAL_ALIGNMENT_CENTER, 72)
-	_name_plaque(Rect2(VIS.position.x + 176, 78, 296, 28), Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
-	if hi >= lo: text(Vector2(VIS.position.x + 14, 98), Tx.t("ui.techniques.act_rings") % [ROMAN[T.act_of(lo)], ROMAN[lo], ROMAN[hi]], 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 160)
-	btn(Rect2(VIS.end.x - 175, 78, 70, 28), Tx.t("ui.techniques.next_learned"), "next_learned", null, false, not _learned().is_empty(), Tx.t("ui.techniques.none_learned"), 14)
-	btn(Rect2(VIS.end.x - 103, 78, 100, 28), Tx.t("ui.techniques.let_all_go"), "reset", _tab_id(), false, _realised_here > 0, Tx.t("sim.tree.nothing"), 14)
+	_name_plaque(Rect2(VIS.position.x + 135, 78, 302, 28), Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
+	if hi >= lo: text(Vector2(VIS.position.x + 14, 98), Tx.t("ui.techniques.act_rings") % [ROMAN[T.act_of(lo)], ROMAN[lo], ROMAN[hi]], 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 116)
+	btn(Rect2(VIS.end.x - 207, 78, 84, 28), Tx.t("ui.techniques.next_learned"), "next_learned", null, false, not _learned().is_empty(), Tx.t("ui.techniques.none_learned"), 14)
+	btn(Rect2(VIS.end.x - 119, 78, 114, 28), Tx.t("ui.techniques.let_all_go"), "reset", _tab_id(), false, _realised_here > 0, Tx.t("sim.tree.nothing"), 14)
 
 ## A name on its plaque (the tree's family in view, the reading's art): jade in a gold rim, a gold diamond at each end.
 func _name_plaque(r: Rect2, name: String) -> void:
@@ -468,34 +470,41 @@ func _card(it: Dictionary, rect: Rect2) -> void:
 		text(Vector2(tr.position.x + mark, tr.position.y + 15), tag, 14, UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tw - mark)
 	region(Rect2(rect.position.x + 20, rect.position.y, CARD.x - 40, CARD.y), "node", id)
 
-## A card's picture, as the reading's is (the character in the art's pose on its element's ground) and with the art's
-## form at its impact frame, small: 3,171 arts, each composed at run time from its pose, its form and its element. A
-## closed art's picture is dimmed.
+## A card's picture, as the reading's is: the character in the art's pose on its element's ground, small, with the art's
+## emblem in its corner (3,171 arts, each composed at run time from its pose, its element and its emblem; the forms'
+## sheets are too large to hold them all, so the form plays in the reading and the preview). A closed art's is dimmed.
 func _card_picture(id: String, r: Rect2, dim: bool) -> void:
-	var t := ContentDB.entry("techniques", id)
-	var el := str(t.get("element", "none"))
-	var ec := SpriteCache.element_color(el)
+	if not _pics.has(id):   # what the picture needs, found once: the art's row, pose and colour
+		var t0 := ContentDB.entry("techniques", id)
+		_pics[id] = {"t": t0, "pose": _pose(t0), "ec": SpriteCache.element_color(str(t0.get("element", "none")))}
+	var p: Dictionary = _pics[id]
+	var ec: Color = p.ec
 	vshade(r, Color(ec.darkened(0.55), 1.0), UiKit.INK)
 	glow(Rect2(r.position + Vector2(8, 30), Vector2(r.size.x - 16, 40)), Color(ec, 0.3 if not dim else 0.12))
 	draw_line(Vector2(r.position.x + 4, r.end.y - 8), Vector2(r.end.x - 4, r.end.y - 8), Color(ec, 0.5), 1.0)
-	var pose := _pose(t)
-	if not _posers.has(pose):
+	# The figure in the art's pose, composed once a pose into a small still (one a frame, once the page has opened, so
+	# neither opening nor dragging waits on the pose sheets); until then the emblem stands in.
+	var still = _stills.get(str(p.pose))
+	if still == null and opened > 0.3 and _still_frame != Engine.get_process_frames():
+		_still_frame = Engine.get_process_frames()
 		var a := Avatar.new()
-		a.visible = false
-		a.externally_timed = true
 		a.outfit = pic.outfit
-		a.play(pose)
+		a.play(str(p.pose))
 		a.elapsed = 0.3
-		add_child(a)
-		_posers[pose] = a
-	_posers[pose].draw_on(self, Vector2(r.get_center().x - 4, r.end.y - 6), 0.5, Color(0.5, 0.55, 0.58) if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3))
-	_form_still(t, r, 0.5, 0.4 if dim else 0.85)
+		still = ImageTexture.create_from_image(a.still_image())
+		a.free()
+		_stills[str(p.pose)] = still
+	if still != null:
+		draw_texture_rect(still, Rect2(Vector2(r.get_center().x - 4, r.end.y - 6) - Vector2(64, 95), Vector2(128, 128)), false,
+			UiKit.MIST if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3))
+	else: icon_at(r.grow(-6), id, Color.WHITE if not dim else UiKit.MIST)
+	if still != null: icon_at(Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, Color.WHITE if not dim else UiKit.MIST)   # the emblem in its corner
 
 ## An art's form at its impact frame (its sheet in its element's row at its tier's band), the whole cell fitted into `r`
-## at `most` scale and centred on it: the cards' pictures and the reading's.
-func _form_still(t: Dictionary, r: Rect2, most: float, alpha: float) -> void:
+## at `most` scale and centred on it: the reading's picture (`async`: once the sheet is in from its loading thread).
+func _form_still(t: Dictionary, r: Rect2, most: float, alpha: float, async := false) -> void:
 	var a := FxLayer.form_spec(str(t.get("vfx", {}).get("anim", "")))
-	if a.is_empty(): return
+	if a.is_empty() or (async and SpriteCache.tex_async(str(a.file)) == null): return
 	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
 	var k := minf(most, minf((r.size.x - 2.0) / cell.x, (r.size.y - 2.0) / cell.y))
 	var at := r.get_center() - (cell * 0.5 - Vector2(float(a.anchor[0]), float(a.anchor[1]))) * k
@@ -624,7 +633,7 @@ func _picture(t: Dictionary, action := "") -> void:
 	pic.elapsed = 0.3
 	# A stroke reaches forward, so its figure stands back to keep the blade in the frame; a still one stands centred.
 	pic.draw_on(self, Vector2(r.position.x + (75.0 if str(pic.action) in ["idle", "meditate"] else 44.0), r.end.y - 18), 1.0)
-	if action == "": _form_still(t, r.grow(-4), 1.0, 0.85)
+	if action == "": _form_still(t, r.grow(-4), 1.0, 0.85, true)
 
 ## The body pose an art is shown in (TechniquePreview.pose_of).
 func _pose(t: Dictionary) -> String:
@@ -636,7 +645,9 @@ func _facts(id: String, t: Dictionary, lines: Array) -> void:
 	var form := str(t.get("form", t.get("template", "")))
 	text(Vector2(1164, 164), Tx.t("ui.techniques.form_" + form) if form != "" else Tx.t("ui.techniques.kind_technique"), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 96)
 	text(Vector2(1164, 184), Tx.t("ui.techniques.fam_" + str(t.get("family", "any"))) if str(t.get("family", "any")) != "any" else str(tabs[tab].label) if _is_tree() else "", 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 96)
-	for i in lines.size(): rich(Rect2(1090, 214 + i * 22, 170, 20), lines[i], 16)
+	for i in lines.size():   # a line too long for the column steps down a size
+		var w: float = (lines[i] as Array).reduce(func(acc, run): return acc + UiKit.text_width(str(run[0]), 16), 0.0)
+		rich(Rect2(1090, 214 + i * 22, 174, 20), lines[i], 16 if w <= 150.0 else 14)
 
 ## The chosen node of a tree (or any art chosen in the dock): what it is, what it does, and what learning it takes or
 ## what it has become.

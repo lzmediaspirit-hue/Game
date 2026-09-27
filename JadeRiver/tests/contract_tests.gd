@@ -127,19 +127,19 @@ func _declared_payloads(contract: Dictionary) -> void:
 					if not str(k).ends_with("?") and not body.contains("\"%s\":" % k): missing.append("%s:%d %s.%s" % [name, i + 1, ev, k])
 	check(sites >= 25 and missing.is_empty(), "every emit site names its event's declared payload keys (%d sites) %s" % [sites, str(missing)])
 
-## P6: FxLayer.KINDS and the arms of fx_layer.gd's _draw match list the same kinds (moments.json names only KINDS).
+## P6: FxLayer.KINDS and the arms of fx_layer.gd's _draw_fx match list the same kinds (moments.json names only KINDS).
 func _fx_kinds() -> void:
 	var arms: Array = []
 	var in_draw := false
 	var arm := RegEx.create_from_string("^\\t{3}\"([a-z_]+)\":")
 	for line in sources.get("fx_layer", []):
-		if str(line).begins_with("func "): in_draw = str(line).begins_with("func _draw()")
+		if str(line).begins_with("func "): in_draw = str(line).begins_with("func _draw_fx()")
 		var m := arm.search(str(line)) if in_draw else null
 		if m: arms.append(m.get_string(1))
 	arms.sort()
 	var kinds: Array = FxLayer.KINDS.duplicate()
 	kinds.sort()
-	check(arms == kinds, "FxLayer.KINDS lists every kind _draw draws (%s against %s)" % [str(kinds), str(arms)])
+	check(arms == kinds, "FxLayer.KINDS lists every kind _draw_fx draws (%s against %s)" % [str(kinds), str(arms)])
 
 ## P6 presentation only: the moments scripts call nothing that changes the simulation and assign to no Game member.
 func _moments_read_only() -> void:

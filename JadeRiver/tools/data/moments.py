@@ -30,6 +30,15 @@ VFX_TIERS = [dict(zip(["tier"] + _TIER_COLS, r)) for r in [
 # §5.5 multi-hit numbers (a stack: one target, one technique, within stack_s) and §5.7 the numbers shortened from 10,000.
 NUMBERS = {"stack_s": 0.3, "step_s": 0.06, "step_px": 18, "sway_px": 12, "cap": 6, "total_from": 3, "total_after_s": 0.1,
            "total_up_px": 24, "total_plus_px": 2, "short_from": 10000}
+# The Techniques page's live preview (TechniquePreview): the imp that takes the art and its size, the stage's scale
+# (screen px a room px), the loop's beats (s), Battery saver's step rate and pause, how many imps each form strikes (a
+# single strike one, a multi-hit or area form a pack) and how the imps meet the forms that are not plain blows.
+TECHNIQUE_PREVIEW = {"foe": "pebble_imp", "foe_scale": 0.75, "scale": 1.25, "lead_s": 0.4, "after_s": 0.9, "pause_s": 0.8,
+                     "battery_pause_s": 1.6, "battery_fps": 30,
+                     "foes": {"strike": 1, "thrust": 2, "lunge": 2, "blink": 1, "pillar": 1, "echo": 2, "counter": 1, "seal": 1,
+                              "snare": 1, "ward": 1, "flurry": 3, "volley": 3, "rain": 3, "sweep": 3, "wave": 3, "burst": 3,
+                              "swarm": 3, "chorus": 3, "domain": 3, "arc": 3, "seeker": 3, "return": 3, "plunge": 3, "release": 3},
+                     "plays": {"ward": "ward", "counter": "counter", "snare": "bind", "seal": "bind"}}
 # §2.3 the stat rise, in order; only the numbers that changed are shown, before and after, at most seven. "aura" is the
 # look the realm gives the character (AURAS), so a breakthrough that changes it says so on the card.
 STATS = ["level", "max_hp", "max_qi", "max_soul", "physical_attack", "qi_attack", "soul_attack", "crit_chance", "lifespan", "aura"]
@@ -354,4 +363,4 @@ def rows():
 def build():
     write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "auras": AURAS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
                            "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS, "vfx_bands": TIER_BY_REALM, "vfx_shapes": VFX_SHAPES,
-                           "particles": PARTICLES, "numbers": NUMBERS})
+                           "particles": PARTICLES, "numbers": NUMBERS, "technique_preview": TECHNIQUE_PREVIEW})

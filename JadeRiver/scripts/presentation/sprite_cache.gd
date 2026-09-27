@@ -31,6 +31,18 @@ static func tex_sliced(path: String) -> Texture2D:
 	_slice_us += Time.get_ticks_usec() - t0
 	return texture
 
+## A sheet loaded on a loading thread: null until it is in memory (asked for on the first call), then the sheet.
+static func tex_async(path: String) -> Texture2D:
+	if path == "" or _textures.has(path): return tex(path)
+	match ResourceLoader.load_threaded_get_status(path):
+		ResourceLoader.THREAD_LOAD_LOADED:
+			_textures[path] = ResourceLoader.load_threaded_get(path)
+			return _textures[path]
+		ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:   # not asked for yet
+			if not ResourceLoader.exists(path) or ResourceLoader.load_threaded_request(path) != OK: return tex(path)
+		ResourceLoader.THREAD_LOAD_FAILED: return tex(path)
+	return null
+
 static func loading(path: String) -> bool:
 	return path != "" and not _textures.has(path)
 
