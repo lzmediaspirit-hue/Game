@@ -532,8 +532,8 @@ func sec_bf2() -> void:
 	# Bone Forging 3: the Weapon Hall.
 	check(reach("bone_forging_3"), "Bone Forging 3")
 	check(start("the_weapon_hall"), "The Weapon Hall accepted")
-	check(unlocked("weapons"), "weapons unlock with The Weapon Hall at Bone Forging 3")
-	check(equip_first("training_jian"), "equip the training jian")
+	check(unlocked("weapons"), "weapons open since Fists First, before The Weapon Hall")
+	check(equip_newest("training_jian"), "equip the training jian the Weapon Hall hands out")
 	check(travel("ja_weapon_hall"), "reach the Weapon Hall")
 	var dummies := objects_of("training_dummy")
 	if not dummies.is_empty(): hit_object(str(dummies[0].id), 15)

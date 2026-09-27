@@ -19,7 +19,9 @@ extends "res://tests/prologue_run.gd"
 ##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first);
 ##   9. after every step the tracker and the direction mark lead where the story really goes next (leads_to_next): a
 ##      quest under way, one to take now, a lesson on offer (at Bone Forging 3 the Weapon Hall, not the hunt for the next
-##      Level), and only with none of these a hunting ground.
+##      Level), and only with none of these a hunting ground;
+##  10. the weapon slot is open from the start (empty, not locked, a weapon wearable), and the first weapon, dropped by
+##      the first kill in the Reed Shallows, is offered by the HUD's equip prompt.
 ## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
 ## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
@@ -36,6 +38,7 @@ const NEEDS := {"collect": ["hud:context"], "talk_to": ["hud:context"], "use_por
 const PAGE_NEEDS := {"inventory": "hud:bag", "cultivation": "page:cultivation"}
 const SYSTEM_NEEDS := {"set_quick_use": "hud:quick_use", "guard": "hud:guard"}
 const QUEST_NEEDS := {"the_runaway_kite": ["hud:jump"], "the_recruitment_fair": ["page:training_sect"]}
+const CharacterPage = preload("res://scripts/ui/pages/character_page.gd")
 ## The HUD's own control for each element a step can name (its role in HUD.hit_targets): drawn, not only revealed.
 const CONTROLS := {"hud:quick_use": "quick", "hud:jump": "jump", "hud:guard": "guard", "hud:bag": "icon:bag", "hud:menu": "icon:menu",
 	"hud:map": "icon:map", "hud:cultivate": "meditate"}
@@ -66,6 +69,7 @@ func run() -> void:
 	watch_story()
 	_bind_hud_probe()
 	invariants("new character")
+	_weapon_slot_open()
 	step_morning_tide()
 	invariants("Morning Tide")
 	_no_trade_before_the_lesson()
@@ -87,7 +91,8 @@ func run() -> void:
 	step_return()
 	invariants("A Quiet River (Return)")
 	step_crabs()
-	if int(foes_seen.get("reedtail_rat", 0)) == 0: _rats()
+	_first_weapon_offered()
+	if int(foes_seen.get("reedtail_rat", 0)) == 0 or int(offers_in_fight.get("herb_patch", 0)) == 0: _rats()
 	check(int(foes_seen.get("reedtail_rat", 0)) > 0, "the Reed Shallows' Reedtail Rats were fought, their HP bars watched (%s)" % str(foes_seen))
 	invariants("Crab Trouble")
 	step_evening()
@@ -120,9 +125,30 @@ func run() -> void:
 	hud_probe.player.free()
 	hud_probe.free()
 
-## Take the rats on as well as the crabs, as a player crossing the shallows does (the reported fight).
+## The weapon slot is open from the start: a brand-new character fights bare-handed, the Character and Bag pages draw
+## the slot empty, not locked, and a training weapon may be worn at once.
+func _weapon_slot_open() -> void:
+	check(c().inventory.equipped.get("weapon") == null and CharacterPage.locked_reason(c(), "weapon") == ""
+		and Game.inventory.wear_check(c(), ContentDB.item("training_jian")) == "",
+		"a new character's weapon slot is open and empty: bare fists, and a training weapon may be worn (%s)" % Game.inventory.wear_check(c(), ContentDB.item("training_jian")))
+
+## The first weapon, picked up in the Reed Shallows, is offered by the HUD's equip prompt (better than the gauntlets).
+func _first_weapon_offered() -> void:
+	hud_probe.equip_prompt.tick(c(), 0.0)
+	var cur: Dictionary = hud_probe.equip_prompt.current
+	check(str(cur.get("slot", "")) == "weapon" and str(ContentDB.item(str(cur.get("item", ""))).get("family", "")) == str(LootRules.drop_cfg().starter.first_family)
+		and not (cur.get("cp", {}) as Dictionary).is_empty(), "the first weapon is offered by the equip prompt, its Combat Power rise shown (%s)" % str(cur))
+
+## Take the rats on as well as the crabs, beside the shore's herbs, as a player crossing the shallows does (the
+## reported fight). An armed player can clear the crabs before any rat comes near a herb, so the walk waits by one.
 func _rats() -> void:
 	back_to("lf_reed_shallows")
+	var at: Array = ContentDB.room("lf_reed_shallows").get("objects", []).filter(func(o): return str(o.id) == "herb_7")[0].at
+	var herb := Vector2(float(at[0]), float(at[1]))
+	for i in 12:
+		place(herb - Vector2(20, 0))
+		if Game.room_rt.living_enemies().any(func(e): return e.def_id == "reedtail_rat" and e.plane.distance_to(herb) < 200.0): break
+		step(5.0)
 	fight("reedtail_rat", 1, 60.0)
 	back_to("lf_village")
 
