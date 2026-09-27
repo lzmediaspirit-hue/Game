@@ -101,6 +101,7 @@ set X to frame the part of the room you want. Plates made so far:
 | `plate_harbor_market.png` | Harbor Market, Lanternfall Harbor (Peddler Ning at x 580) | ls5 | 02 |
 | `plate_herb_terraces.png` | Herb Terraces, the Jade Sect | qu5 | 03 |
 | `plate_elder_hu_peak.png` | Elder Hu's Peak (Elder Hu at x 760, the meditation circle at 650, 640) | ls4 | 04, 05 |
+| `plate_lotus_ferry_village.png` | Lotus Ferry Village (the HUD and labels hidden, actors shown) | bf8 | 13_roll_call_first |
 
 Checkpoints (Tester, the valley_run character; never the Max Tester) are named for the chapter section they open, and
 the realm lags the name: `bf2 bf5 bf8 qk1 qk5 qu1 qu5 ht1 ht5 cs1 cs5 sa1 sa5 hg1 ae1`–`ae6 ae_end ls1`–`ls6 ls1_end`–`ls6_end`.
