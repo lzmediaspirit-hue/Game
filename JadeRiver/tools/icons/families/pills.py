@@ -396,7 +396,7 @@ def extra_grit(p, m, x, y, r, mat):
 def extra_smoke(p, m, x, y, r, mat):
     """A pill to throw: two wisps of its cloud rising from it."""
     c = p.c
-    wisp = c.taper((x - 3, y - r + 1), (x - 6, y - r - 4), (x - 2, y - r - 9), 2.4, 1.2) | c.taper((x + 4, y - r + 2), (x + 8, y - r - 3), (x + 6, y - r - 9), 2.0, 1.0)
+    wisp = c.taper((x - 3, y - r + 1), (x - 6, y - r - 4), (x - 2, y - r - 9), 2.4, 1.2) | c.taper((x + 4, y - r + 2), (x + 7.5, y - r - 2), (x + 6, y - r - 9), 2.6, 1.0)
     p.part(wisp & ~m, mat, 'flat', base=2, sep=False, rim=False)
 
 
