@@ -1,5 +1,20 @@
 # Changelog
 
+## The Copperjaw swarm's creature art (v1.2 Phase D)
+
+- **The swarm has a sheet of its own.** `copperjaw_swarm` (`tools/art/creatures/copperjaw_swarm.py`, flying, cell
+  128): eleven small copper beetles at three depths, each a copper wing-case oval with a seam and pronotum band, a
+  chitin head, pale-gold jaws and, when its cases lift, two pale wing blurs, the cases flicking from beetle to beetle
+  so the cloud buzzes. Idle hangs and drifts, walk streams forward with streaks, windup draws back into a ball inside
+  a tightening copper ring (held), attack lances forward as a spearhead and bites on frame 1, hurt scatters the cloud
+  with copper dust, death rains the beetles down onto their backs and fades. `copperjaw_queen` is the same cloud led
+  by a large gold-cased Queen with a pale-gold crown. The swarm config (`stats.swarm`) names them as `art` and
+  `queen_art`; `Game.pets.swarm_art` picks the Queen's once she has risen. The Swarm tab shows the cloud on the wing
+  on a stage beside its numbers, and while the box is open clouds of beetles circle the bearer in the world (three at
+  fifty beetles, five at thousands, the far half behind the body), drawn from the sheet. `data_validation` checks
+  both sheets exist and fly; `--beetle-swarm` opens the box for previews. The review sheets (2x, 1x, 8x close-ups)
+  and in-game shots from the `ls6_end` checkpoint are in `docs/mockups/creatures/copperjaw_swarm/`.
+
 ## P4b · Icons in Style A: the pipeline and the display (docs/mockups/icon_study)
 
 - **The pipeline** (`tools/icons/`, README "How to convert a family"): `pix.py` gains the HD mode the study
