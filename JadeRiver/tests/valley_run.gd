@@ -85,6 +85,7 @@ func resume(name: String) -> bool:
 const PAR_AFFIXES := ["attack_pct", "par_damage", "par_crit", "par_crit_damage"]
 func par_up() -> void:
 	var lv := ProgressionRules.level(c())
+	if lv < int(ContentDB.stat_const("par.from_level", 10)): return   # Bone Forging keeps today's numbers and gear
 	var order: Array = ContentDB.config("grades").get("quality_order", [])
 	var q := str(StatRules.par_step("quality", lv))
 	var enhance := mini(int(ContentDB.stat_const("par.enhance_max", 10)), lv / int(ContentDB.stat_const("par.enhance_every", 12)))
