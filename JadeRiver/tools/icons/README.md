@@ -33,7 +33,7 @@ commit its output (a plain build puts everything back).
 |---|---|---|---|
 | `items` | 32 (64) | 64 (64, @32) | herbs, minerals, beast parts, fish, misc, tools, talismans, food, pills, qi jades... |
 | `equipment` | 32 (64) | 64 (64, @32) | weapons, armour, cape, soul talisman, gourds |
-| `techniques` | 32 (64) | 64 (64, @48, @32) | round element emblem + motion mark (secret arts: gold rim + studs) |
+| `techniques` | 32 (64) | 64 (64, @48, @32) | composed emblem: element disc + form mark (with the family's weapon inset) + grade or kind rim + path stamp (converted: `ART = 64`) |
 | `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline (converted: `ART = 32`) |
 | `status` | 12 (24) | – | colour-keyed glyphs |
 | `markers` | 12 (24) | – | map / quest markers |
@@ -98,7 +98,7 @@ same function at 64 (1:1), 48 and 32, so describe shapes with continuous coordin
 
 Worked examples, the first HD drawings (from the study): `weapons.jian_hd` (a template on the grade kits) and
 `handbell_hd`, `armour.robe_hd`, `pills.make_pill_hd` (vessel + label + mark + pill), `herbs.star_lotus_hd`,
-`minerals.driftglass_hd`, `beast_parts.jade_scale_hd`, `workshop.manual_hd`, `techniques.emblem_hd` / `mark_hd`
+`minerals.driftglass_hd`, `beast_parts.jade_scale_hd`, `workshop.manual_hd`, `techniques.disc_hd` / `mark_hd`
 (the domed disc, the mark with its keyline and the shadow under it), `hud.jian_hd` / `cultivate_hd`.
 
 ## How to convert a family
@@ -184,7 +184,10 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - armour: `CLOTH` grade table.
    - fish: `fish(...)` parameters.
    - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
-   - techniques: `emblem(element)` + `mark(...)`.
+   - techniques (HD): a technique's row is read from `data/techniques.json`; give its id a form in `FORM_OF` (a secret
+     art: a row in `SECRET_ARTS`). The composer `emblem(element, form, family, grade, kind, path)` draws it from the
+     tables: `DISCS` (11 elements), `FORMS` (the plan's 24, each placing the family's `WEAPONS` inset), `RIMS` (13
+     grades) and `KINDS` (secret, keystone, Dao, lost), `STAMPS` (5 paths); an art off the grammar takes a `HAND` mark.
    - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
      `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
      `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
