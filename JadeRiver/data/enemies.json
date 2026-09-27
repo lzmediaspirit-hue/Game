@@ -1538,7 +1538,7 @@
    "half_width": 18,
    "height": 90,
    "coin_mult": 2.0,
-   "equipment_chance": 0.05,
+   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -1709,7 +1709,7 @@
    "half_width": 18,
    "height": 90,
    "keep_distance": 260,
-   "equipment_chance": 0.05,
+   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -2329,7 +2329,7 @@
    "height": 90,
    "guards": true,
    "coin_mult": 2.0,
-   "equipment_chance": 0.06,
+   "equipment_chance": 0.024,
    "faction": "gorge",
    "movement": {
     "jump": 530,
@@ -7547,7 +7547,9 @@
      "breakable": "wine_jar"
     }
    ],
-   "unique_drop": "mudwater_cleaver",
+   "first_defeat": [
+    "mudwater_cleaver"
+   ],
    "hp_mult": 0.6,
    "attack_mult": 0.8,
    "pet_book": {

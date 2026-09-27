@@ -1635,7 +1635,11 @@
    "resist": [
     "water",
     "wind"
-   ]
+   ],
+   "named": {
+    "archetype": "general",
+    "zone": "valley"
+   }
   },
   {
    "id": "bronze_furnace",
@@ -1655,6 +1659,10 @@
     "batch": 3,
     "filter": 0.0,
     "yield": 0.0
+   },
+   "named": {
+    "archetype": "alchemist",
+    "zone": "valley"
    }
   },
   {
@@ -1675,6 +1683,10 @@
     "batch": 5,
     "filter": 0.1,
     "yield": 0.05
+   },
+   "named": {
+    "archetype": "alchemist",
+    "zone": "valley"
    }
   },
   {
@@ -1695,6 +1707,10 @@
     "batch": 8,
     "filter": 0.2,
     "yield": 0.1
+   },
+   "named": {
+    "archetype": "alchemist",
+    "zone": "valley"
    }
   },
   {
@@ -1715,6 +1731,10 @@
     "batch": 10,
     "filter": 0.3,
     "yield": 0.15
+   },
+   "named": {
+    "archetype": "alchemist",
+    "zone": "valley"
    }
   },
   {
@@ -1738,6 +1758,10 @@
     "named": true,
     "element": "water"
    },
+   "named": {
+    "archetype": "alchemist",
+    "zone": "valley"
+   },
    "sell": false
   },
   {
@@ -1751,7 +1775,11 @@
    "sockets": 1,
    "icon": "cloud_talisman",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "named": {
+    "archetype": "general",
+    "zone": "valley"
+   }
   },
   {
    "id": "bone_collar",
@@ -1768,6 +1796,10 @@
    "desc": "Boar hide and mole claws. +10% HP for the animal that wears it.",
    "pet_gear": {
     "hp": 0.1
+   },
+   "named": {
+    "archetype": "beast",
+    "zone": "valley"
    }
   },
   {
@@ -1786,6 +1818,10 @@
    "pet_gear": {
     "attack": 0.1,
     "defence": 0.05
+   },
+   "named": {
+    "archetype": "beast",
+    "zone": "valley"
    }
   },
   {
@@ -1803,6 +1839,10 @@
    "desc": "Woven reed on boar hide. A mount wearing it carries you 10% faster.",
    "pet_gear": {
     "mount_speed": 0.1
+   },
+   "named": {
+    "archetype": "beast",
+    "zone": "valley"
    }
   },
   {
@@ -1958,7 +1998,11 @@
    "type": "equipment",
    "stack": 1,
    "family": "jian",
-   "set": "mudwater"
+   "set": "mudwater",
+   "named": {
+    "archetype": "sword",
+    "zone": "valley"
+   }
   },
   {
    "id": "mudwater_robe",
@@ -2079,7 +2123,20 @@
    "source": [
     "bastion_armoury"
    ],
-   "named": true,
+   "named": {
+    "archetype": "formation",
+    "zone": "lantern",
+    "element": "space",
+    "path": "confucian",
+    "fixed": [
+     {
+      "id": "qi_attack_pct",
+      "stat": "qi_attack",
+      "op": "pct_add",
+      "value": 0.072
+     }
+    ]
+   },
    "attribute_req": {
     "insight": 92
    }
@@ -2101,7 +2158,20 @@
    "source": [
     "bastion_armoury"
    ],
-   "named": true,
+   "named": {
+    "archetype": "formation",
+    "zone": "lantern",
+    "element": "space",
+    "path": "confucian",
+    "fixed": [
+     {
+      "id": "qi_attack_pct",
+      "stat": "qi_attack",
+      "op": "pct_add",
+      "value": 0.072
+     }
+    ]
+   },
    "attribute_req": {
     "insight": 110
    }
@@ -2123,7 +2193,20 @@
    "source": [
     "bastion_armoury"
    ],
-   "named": true,
+   "named": {
+    "archetype": "musician",
+    "zone": "lantern",
+    "element": "metal",
+    "path": "buddhist",
+    "fixed": [
+     {
+      "id": "melody_power",
+      "stat": "melody_power",
+      "op": "flat",
+      "value": 0.108
+     }
+    ]
+   },
    "attribute_req": {
     "essence": 92
    }
@@ -2145,7 +2228,20 @@
    "source": [
     "bastion_armoury"
    ],
-   "named": true,
+   "named": {
+    "archetype": "musician",
+    "zone": "lantern",
+    "element": "metal",
+    "path": "buddhist",
+    "fixed": [
+     {
+      "id": "melody_power",
+      "stat": "melody_power",
+      "op": "flat",
+      "value": 0.108
+     }
+    ]
+   },
    "attribute_req": {
     "essence": 110
    }
@@ -2163,7 +2259,20 @@
    "type": "equipment",
    "stack": 1,
    "family": "jian",
-   "named": true,
+   "named": {
+    "archetype": "sword",
+    "zone": "valley",
+    "element": "metal",
+    "path": "sword_dao",
+    "fixed": [
+     {
+      "id": "penetration",
+      "stat": "penetration",
+      "op": "flat",
+      "value": 0.045
+     }
+    ]
+   },
    "desc": "A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."
   },
   {
@@ -2180,6 +2289,10 @@
    "stack": 1,
    "family": "jian",
    "relic": true,
+   "named": {
+    "archetype": "sword",
+    "zone": "valley"
+   },
    "unique": "Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits",
    "spirit": {
     "name": "Moon Spirit",
@@ -2243,6 +2356,10 @@
    "stack": 1,
    "family": "jian",
    "relic": true,
+   "named": {
+    "archetype": "sword",
+    "zone": "valley"
+   },
    "unique": "Awake spirit: +10% crit damage; Waking Edge every 10 hits",
    "spirit": {
     "name": "Blade Spirit",
@@ -2323,7 +2440,11 @@
     }
    },
    "desc": "A monk of the old river temple beat these like a drum, and the mountain answered.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "body",
+    "zone": "expanse"
+   }
   },
   {
    "id": "riverlight_jian",
@@ -2356,7 +2477,11 @@
     }
    },
    "desc": "Forged in the shallows at dawn, so the saying goes, and quenched in the river's first light.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "sword",
+    "zone": "expanse"
+   }
   },
   {
    "id": "heron_reach_spear",
@@ -2389,7 +2514,11 @@
     }
    },
    "desc": "Its bearer stood in the reeds so still that herons landed on the shaft.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "body",
+    "zone": "expanse"
+   }
   },
   {
    "id": "reedwhisper_dagger",
@@ -2422,7 +2551,11 @@
     }
    },
    "desc": "It makes no more sound than wind in the reeds. Its last owner was never heard coming.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "alchemist",
+    "zone": "expanse"
+   }
   },
   {
    "id": "ferrymans_pole",
@@ -2455,7 +2588,11 @@
     }
    },
    "desc": "A ferryman poled the dead across the river with it for three hundred years, and never once lost his footing.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "body",
+    "zone": "expanse"
+   }
   },
   {
    "id": "mountainsplit_sabre",
@@ -2488,7 +2625,11 @@
     }
    },
    "desc": "They say it split a hill in two. The hill, they add, had it coming.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "body",
+    "zone": "expanse"
+   }
   },
   {
    "id": "seven_winds_fan",
@@ -2521,7 +2662,11 @@
     }
    },
    "desc": "Six winds answer anyone who waves it. The seventh answers only a friend.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "formation",
+    "zone": "expanse"
+   }
   },
   {
    "id": "crane_mourning_flute",
@@ -2554,7 +2699,11 @@
     }
    },
    "desc": "Carved from the wing bone of a crane that outlived its mate. Every tune it plays is a little sad.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "musician",
+    "zone": "expanse"
+   }
   },
   {
    "id": "dragonfly_bow",
@@ -2588,7 +2737,11 @@
     }
    },
    "desc": "Light as a dragonfly's wing, and its arrows turn in the air the way a dragonfly does.",
-   "sell": false
+   "sell": false,
+   "named": {
+    "archetype": "beast",
+    "zone": "expanse"
+   }
   },
   {
    "id": "moonshadow_jian",
@@ -2611,6 +2764,10 @@
      "op": "pct_add",
      "value": 0.048
     }
+   },
+   "named": {
+    "archetype": "sword",
+    "zone": "valley"
    },
    "desc": "A forge copy of the Moonlit Blade. It keeps six parts in ten of the original's gift, and no spirit."
   },
@@ -2635,6 +2792,10 @@
      "op": "flat",
      "value": 0.06
     }
+   },
+   "named": {
+    "archetype": "sword",
+    "zone": "valley"
    },
    "desc": "A forge copy of the Sleeping Blade. It keeps six parts in ten of the original's gift, and no spirit."
   }

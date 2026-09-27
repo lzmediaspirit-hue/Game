@@ -73,7 +73,10 @@
   "sage": "#d8c27a",
   "sovereign": "#e8a24c",
   "will": "#f3e3a6",
-  "sphere": "#8f7ae0"
+  "sphere": "#8f7ae0",
+  "law": "#a8c4ff",
+  "monarch": "#e6b3f2",
+  "inner_heaven": "#f4f7ff"
  },
  "pill_qualities": {
   "flawed": 0.5,
@@ -207,7 +210,11 @@
   "heaven": 1,
   "mystic": 2,
   "spirit": 2,
-  "sage": 3
+  "sage": 3,
+  "sovereign": 3,
+  "will": 3,
+  "sphere": 3,
+  "law": 3
  },
  "wear_level": {
   "plain": 0,
@@ -216,6 +223,58 @@
   "heaven": 37,
   "mystic": 55,
   "spirit": 64,
-  "sage": 73
+  "sage": 73,
+  "sovereign": 82,
+  "will": 91,
+  "sphere": 100,
+  "law": 109
+ },
+ "drop": {
+  "quality": {
+   "flawed": [
+    0.55,
+    0.3,
+    0.12,
+    0.03,
+    0.0
+   ],
+   "common": [
+    0.0,
+    0.5,
+    0.3,
+    0.15,
+    0.05
+   ],
+   "fine": [
+    0.0,
+    0.0,
+    0.5,
+    0.35,
+    0.15
+   ],
+   "superior": [
+    0.0,
+    0.0,
+    0.0,
+    0.7,
+    0.3
+   ]
+  },
+  "fortune_shift": 0.001,
+  "weapon_share": 0.4,
+  "family_bias": 0.3333,
+  "level_spread": 2,
+  "elite_extra": {
+   "chance": 0.08,
+   "min_quality": "common"
+  },
+  "named_floor": "common",
+  "named_rows": 2,
+  "pool_skip_slots": [
+   "gourd",
+   "cape",
+   "talisman",
+   "tool_furnace"
+  ]
  }
 }

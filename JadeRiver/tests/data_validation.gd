@@ -513,7 +513,7 @@ const KNOWN_SOURCE_GAPS := [
 	"cloud_gourd", "mistjade_gourd", "sunsteel_gourd",
 	# Set pieces: the sect Mission Halls stock only the robes; the other sets have no source but a robe.
 	"jade_current_hat", "jade_current_trousers", "jade_current_boots", "cloudpiercing_hat", "cloudpiercing_trousers", "cloudpiercing_boots",
-	"mudwater_cleaver", "mudwater_robe", "drowned_hat", "drowned_boots", "crane_robe", "crane_trousers", "crane_boots",
+	"crane_robe", "crane_trousers", "crane_boots",
 ]
 
 func item_source_suite() -> void:
@@ -562,19 +562,19 @@ func item_sources() -> Dictionary:
 	for ev in ContentDB.all("calendar"):
 		if ev.has("loot"): _rolled(rolled_by, str(ev.loot), [])
 	var grades := {}
+	var cap := LootRules.drop_level_cap()
 	for tid in rolled_by:
 		var t := ContentDB.entry("loot_tables", tid)
-		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []): got[str(g.item)] = true
+		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []): got[str(g.item)] = true
 		for grp in t.get("groups", []):
 			for p in grp.get("pick", []): got[str(p.item)] = true
 		if float(t.get("equipment", {}).get("chance", 0.0)) > 0.0:
 			for band2 in rolled_by[tid]:
 				if band2.is_empty(): continue
-				for ilv in range(clampi(band2[0] - 2, 1, 81), clampi(band2[1] + 2, 1, 81) + 1): grades[LootRules.grade_for_ilv(ilv)] = true
+				for ilv in range(clampi(band2[0] - 2, 1, cap), clampi(band2[1] + 2, 1, cap) + 1): grades[LootRules.grade_for_ilv(ilv)] = true
 	# The banded equipment roll (LootRules.make_equipment picks among these).
 	for a in ContentDB.all("artifacts"):
-		if a.has("set") or a.get("relic", false) or str(a.slot) in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
-		if grades.has(str(a.grade)): got[str(a.id)] = true
+		if LootRules.is_banded(a) and grades.has(str(a.grade)): got[str(a.id)] = true
 	# Gathering: room nodes, fishing, Beast King nests, treasure births, posts.
 	for rid in ContentDB.rooms:
 		for o in ContentDB.room(rid).get("objects", []):
