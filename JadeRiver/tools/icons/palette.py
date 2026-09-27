@@ -108,7 +108,7 @@ _r('mistjade_m', ['#26163E', '#452B70', '#7552AA', '#AC89DE', '#E4D4FF'], '#110A
 _r('silk_navy', ['#18233A', '#26385A', '#3C5584', '#6180B4', '#98B2DC'], '#080C16')
 _r('violetsilk', ['#24163A', '#3E2764', '#5E3F94', '#8A6AC0', '#BCA4E6'], '#0F0819')
 
-GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage', 'sovereign', 'will']
+GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage']
 
 GRADES = {
     'plain': {
