@@ -625,6 +625,47 @@ func tracker(c) -> Array:
 			"target_room": quest_target(c, def, st)})
 	return out
 
+## The next main quest the story waits on (story order: chapter, then data order): not done, not taken, and every
+## quest it follows done. {} when none waits.
+func next_main(c) -> Dictionary:
+	var keyed: Array = []
+	var all_q: Array = ContentDB.all("quests")
+	for i in all_q.size():
+		var dq: Dictionary = all_q[i]
+		if str(dq.get("kind", "")) != "main": continue
+		var chap := str(dq.get("chapter", ""))
+		keyed.append([(int(chap) if chap.is_valid_int() else 0) * 1000 + i, dq])
+	keyed.sort_custom(func(a, b): return int(a[0]) < int(b[0]))
+	for kd in keyed:
+		var d: Dictionary = kd[1]
+		if c.quests.is_done(str(d.id)) or c.quests.is_active(str(d.id)) or d.get("hidden", false): continue
+		var waits := true
+		for r in d.get("requires", {}).get("all", []):
+			if str(r.get("kind", "")) == "quest_done" and not c.quests.is_done(str(r.get("quest", ""))): waits = false
+		if waits: return d
+	return {}
+
+## P12 (research §6.6): when the next main quest waits on its chapter's Level floor, the gap and the fastest ways to
+## close it: {quest, name, realm, level, have, fields: [[room, lo, hi]], side, dailies, post}. {} when no floor holds it.
+func floor_gap(c) -> Dictionary:
+	var d := next_main(c)
+	var floor := ""
+	for r in d.get("requires", {}).get("all", []):
+		if str(r.get("kind", "")) == "realm_at_least" and not ProgressionRules.at_least(c.cultivator.realm_key, str(r.realm)): floor = str(r.realm)
+	if floor == "": return {}
+	var lv := ProgressionRules.level(c)
+	var fields: Array = []
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.room(rid)
+		var lr: Array = room.get("level_range", [0, 0])
+		if str(room.get("type", "")) == "field" and lr.size() >= 2 and lv >= int(lr[0]) and lv <= int(lr[1]): fields.append([str(rid), int(lr[0]), int(lr[1])])
+	fields.sort_custom(func(a, b): return int(a[2]) > int(b[2]) or (int(a[2]) == int(b[2]) and str(a[0]) < str(b[0])))
+	var side := 0
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) == "side" and can_offer(c, q): side += 1
+	return {"quest": str(d.id), "name": str(d.get("name", d.id)), "realm": floor, "level": int(ContentDB.realm(floor).get("level", 0)), "have": lv,
+		"fields": fields.slice(0, 2), "side": side, "dailies": c.quests.daily.size(), "post": Unlocks.is_unlocked(c.id, "keeping_post")}
+
 # ------------------------------------------------------------------ set pieces, spars, dailies
 func start_set_piece(c, event: String) -> Dictionary:
 	var sp := ContentDB.entry("set_pieces", event)

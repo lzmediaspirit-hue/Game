@@ -25,30 +25,23 @@ func ids_for(ch, which: String) -> Array:
 			if g2 == which and not ch.quests.is_active(q) and Game.quest.can_offer(ch, d): out.append(q)
 	return out
 
-## Between chapters the Main tab says what the story is waiting for.
+## Between chapters the Main tab says what the story is waiting for; held by a chapter's Level floor (P12), the gap and
+## the fastest ways to close it.
 func _next_chapter(ch, left: Rect2) -> void:
-	var keyed: Array = []   # [chapter * 1000 + data order, quest]: story order, stable within a chapter
-	var all_q: Array = ContentDB.all("quests")
-	for i in all_q.size():
-		var dq: Dictionary = all_q[i]
-		if str(dq.get("kind", "")) != "main": continue
-		var chap := str(dq.get("chapter", ""))
-		keyed.append([(int(chap) if chap.is_valid_int() else 0) * 1000 + i, dq])
-	keyed.sort_custom(func(a, b): return int(a[0]) < int(b[0]))
-	for kd in keyed:
-		var d: Dictionary = kd[1]
-		var q := str(d.id)
-		if ch.quests.done.has(q) or ch.quests.is_active(q) or d.get("hidden", false): continue
-		var waits := true
-		for r in d.get("requires", {}).get("all", []):
-			if str(r.get("kind", "")) == "quest_done" and not ch.quests.done.has(str(r.get("quest", ""))): waits = false
-		if not waits: continue
-		var why := RequirementRules.first_failure_text(d.get("requires", {}), Game.ctx(ch))
-		var body := Tx.t("ui.quest.next_in_the_story") % str(d.get("name", q))
-		if why != "": body += "\n" + why
-		else: body += Tx.t("ui.quest.the_river_will_call_when")
-		para(Rect2(left.position + Vector2(24, 100), Vector2(left.size.x - 48, 120)), body, 18, UiKit.MIST)
-		return
+	var d: Dictionary = Game.quest.next_main(ch)
+	if d.is_empty(): return
+	var body := Tx.t("ui.quest.next_in_the_story") % str(d.get("name", d.id))
+	var gap: Dictionary = Game.quest.floor_gap(ch)
+	var why := RequirementRules.first_failure_text(d.get("requires", {}), Game.ctx(ch))
+	if not gap.is_empty():
+		body += "\n" + Tx.t("ui.quest.opens_at") % [ContentDB.name_of("realms", str(gap.realm)), int(gap.level), int(gap.have)] + "\n" + Tx.t("ui.quest.gap_ways")
+		for f in gap.fields: body += "\n· " + Tx.t("ui.quest.gap_field") % [str(ContentDB.room(str(f[0])).get("name", f[0])), int(f[1]), int(f[2])]
+		if int(gap.side) > 0: body += "\n· " + Tx.t("ui.quest.gap_side") % int(gap.side)
+		if int(gap.dailies) > 0: body += "\n· " + Tx.t("ui.quest.gap_dailies")
+		if gap.post: body += "\n· " + Tx.t("ui.quest.gap_post")
+	elif why != "": body += "\n" + why
+	else: body += Tx.t("ui.quest.the_river_will_call_when")
+	para(Rect2(left.position + Vector2(24, 100), Vector2(left.size.x - 48, left.size.y - 120)), body, 18, UiKit.MIST)
 
 func draw_page() -> void:
 	var ch = c()
