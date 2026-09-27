@@ -14,7 +14,7 @@ const KINDS := ["number", "spark", "slash", "dust", "ring", "note", "wave", "spi
 const DEFAULTS := {"spark": {"size": 6, "radius": 28}, "wave": {"size": 8}}
 
 var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, radius, count, height, style, core}; t < 0 waits
-var stacks: Dictionary = {} # P6e multi-hit numbers: stack key -> {n, sum, last, top, at, size}
+var stacks: Dictionary = {} # P6e multi-hit numbers: stack key -> {n, sum, last, top (its highest number's entry), at, size}
 var clock := 0.0            # seconds of this layer's own time (stacks are timed on it)
 
 func _ready() -> void:
@@ -39,7 +39,8 @@ func _tint_allowed(e: Dictionary) -> bool:
 	return MomentView.claim_flash(float(MomentRules.cfg().get("settings", {}).get("flash_gap_s", 1.0)))
 
 ## A damage number; none with Settings › Damage numbers off (P6 finding 2). With a `stack` key (a target and a technique)
-## the hits of one cast rise one after another, 18 px apart and swaying, and three or more add up to a total (§5.5).
+## the hits of one cast rise one after another, each 18 px over the one before and swaying, and three or more add up to
+## a total (§5.5).
 func number(pos: Vector2, text: String, color: Color, size := 22, crit := false, stack := "", value := 0.0) -> void:
 	if not Game.account.settings.get("damage_numbers", true): return
 	if stack == "":
@@ -48,17 +49,17 @@ func number(pos: Vector2, text: String, color: Color, size := 22, crit := false,
 	var cfg: Dictionary = MomentRules.cfg().get("numbers", {})
 	var now := clock
 	var st: Dictionary = stacks.get(stack, {})
-	if st.is_empty() or now - float(st.last) > float(cfg.get("stack_s", 0.3)): st = {"n": 0, "sum": 0.0, "at": pos, "size": size, "done": false}
+	if st.is_empty() or now - float(st.last) > float(cfg.get("stack_s", 0.3)): st = {"n": 0, "sum": 0.0, "at": pos, "size": size}
 	var i := int(st.n)
 	st.n = i + 1
 	st.sum = float(st.sum) + value
 	st.last = now
 	stacks[stack] = st
 	if i >= int(cfg.get("cap", 6)): return   # past the cap a hit only adds to the total
-	var top: Vector2 = Vector2(st.at) + Vector2((1 if i % 2 == 0 else -1) * float(cfg.get("sway_px", 12)), -float(cfg.get("step_px", 18)) * i)
-	st.top = top
-	add("number", top, {"text": text, "color": color, "size": size + (8 if crit else 0), "dur": 1.0, "delay": float(cfg.get("step_s", 0.06)) * i,
-		"vel": Vector2(0, -90.0 if crit else -70.0)})
+	var y: float = float(st.top.pos.y) - float(cfg.get("step_px", 18)) if st.has("top") else float(st.at.y)
+	add("number", Vector2(float(st.at.x) + (1 if i % 2 == 0 else -1) * float(cfg.get("sway_px", 12)), y), {"text": text, "color": color,
+		"size": size + (8 if crit else 0), "dur": 1.0, "delay": float(cfg.get("step_s", 0.06)) * i, "vel": Vector2(0, -70.0)})   # one speed, so a crit keeps its place
+	st.top = fx.back()
 
 ## A word that rises like a number (Miss, Evade, Parry, a foe's "!"), whatever the Damage numbers setting.
 func label(pos: Vector2, text: String, color: Color, size := 22, fast := false) -> void:
@@ -69,14 +70,13 @@ func _process(delta: float) -> void:
 	clock += delta
 	for e in fx.duplicate():
 		e.t = float(e.t) + delta
-		if float(e.t) < 0.0: continue
-		e.pos = e.pos + e.vel * delta
+		e.pos = e.pos + e.vel * delta   # a number waiting its turn rises unseen with its stack, so the column keeps its spacing
 		if e.kind == "number": e.vel = e.vel * (1.0 - delta * 1.5)
 		if float(e.t) >= float(e.dur): fx.erase(e)
 	_totals()
 	queue_redraw()
 
-## A stack of three or more hits, 0.1 s after its last: the sum in pale gold, a size up, over the top number.
+## A stack of three or more hits, 0.1 s after its last: the sum in pale gold, a size up, 24 px over the top number.
 func _totals() -> void:
 	var cfg: Dictionary = MomentRules.cfg().get("numbers", {})
 	var now := clock
@@ -84,7 +84,7 @@ func _totals() -> void:
 		var st: Dictionary = stacks[key]
 		if now - float(st.last) < float(cfg.get("total_after_s", 0.1)) + float(cfg.get("step_s", 0.06)) * mini(int(st.n), int(cfg.get("cap", 6))): continue
 		if int(st.n) >= int(cfg.get("total_from", 3)) and st.has("top"):
-			add("number", Vector2(st.top) + Vector2(0, -float(cfg.get("total_up_px", 24))), {"text": UiKit.short(float(st.sum)), "color": UiKit.PALE_GOLD,
+			add("number", Vector2(float(st.at.x), float(st.top.pos.y) - float(cfg.get("total_up_px", 24))), {"text": UiKit.short(float(st.sum)), "color": UiKit.PALE_GOLD,
 				"size": int(st.size) + int(cfg.get("total_plus_px", 2)), "dur": 1.1, "vel": Vector2(0, -60.0)})
 		stacks.erase(key)
 

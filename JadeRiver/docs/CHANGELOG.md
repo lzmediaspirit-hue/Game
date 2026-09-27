@@ -34,6 +34,9 @@
   breakthrough and again with a Sword Swarm and a Cursive Storm cast each tenth of a second (each striking as many foes
   as many times as it does), inside the frame budget and the FX cap, and prints the view's share (MomentView.advance
   about 0.08 ms a frame; the whole moment, drawn, about 1–2 ms on a desktop).
+- **P6 closed:** the screenshots are in `docs/moments/` (its README gives each one's checkpoint and flags); roadmap rows
+  M5–M9, M22, M23 and M25 are Present, M6 with P9's intro pan and epithets still to come, and M24 stays Partial for
+  P4's biome palette rule.
 
 ### P6d · Rare finds, story beats and trials
 - **A rare find** (`rare_drop`) is seen from across the room: a tall beam in the piece's colour stands over it and breathes
