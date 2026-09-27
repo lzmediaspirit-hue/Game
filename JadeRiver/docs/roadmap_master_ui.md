@@ -436,4 +436,8 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 
 29. **Top-down movement (Phase 1 review):** the dash cooldown (2.5 s) stays; walking stops at the water's edge (walking on water
     comes from a special skill); the player can jump off rooftops (roofs are standable height levels).
+31. **Top-down art style:** the map, terrain and world are drawn in a style close to Alabaster Dawn's (bright, detailed ¾
+    top-down pixel art with clear height levels, soft shading and lush tiles), but the theme stays xianxia: Jade River's
+    own places, palette and motifs (river towns, terraces, pagodas, lotus, mist, jade). Inspiration only: original art, no
+    copied tiles, sprites or names.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
