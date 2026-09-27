@@ -560,8 +560,8 @@ def river_paint(p, water, seed, deep=None, s=1, glints=True):
         p.paint(water & deep, RIVER, wv - 0.28)
     shallow = water & ~erode(erode(water)) if s == 1 else water & ~erode(erode(erode(erode(water))))
     p.paint(shallow, RIVER, wv + 0.22)
-    p.flat(water & streak, RIVER[6], 0.5)
-    p.flat(core & streak, RIVER[5], 0.4)
+    p.flat(water & streak, RIVER[7], 0.55)
+    p.flat(core & streak, RIVER[6], 0.45)
     bank = dilate(water) & ~water
     p.flat(bank, SAND[3], 0.75)
     p.flat(shift(water, 0, -1) & ~water, FOREST[0], 0.5)
@@ -1602,7 +1602,10 @@ def paint_map(regions):
     for rid in sorted(R, key=lambda k: R[k][1]):
         SCENES[rid](p, R[rid][0], R[rid][1], 1, water)
 
-    # ---- light on the water, mist on the marsh and the gorge
+    # ---- boats on the open reaches, then light on the water, mist on the marsh and the gorge
+    boat(p, int(wp[0] + 26), int(wp[1] - 12), sail=True)
+    boat(p, int(cr[0] - 30), int(cr[1] - 12), sail=True, flip=True)
+    boat(p, int(lf[0] + 22), int(lf[1] - 34), sail=False)
     lantern_reflections(p)
     patchy(p, p.ellipse(wg[0] - 4, wg[1] + 2, 30, 18), MIST, 0.45, 12, "gorge-mist", cover=0.5)
     patchy(p, p.ellipse(db[0] - 20, db[1] - 30, 40, 12), MIST, 0.35, 12, "bend-mist", cover=0.45)
@@ -1646,10 +1649,11 @@ def paint_map(regions):
 BACKDROP = {
     "stoneford": ("river", 0), "lotus_ferry": ("river", -9), "willow_path": ("river", -8), "caravan_road": ("river", -9),
     "deepwater_bend": ("river", 2), "drowned_shrine": ("bay", 2), "whitewater_gorge": ("gorge", 0), "crane_cliffs": ("peak", 0),
-    "mist_peak": ("peak", 0), "summit_ridge": ("snow", 0), "cleansing_peak": ("peak", 0), "cloud_sect": ("peak", 0),
+    "mist_peak": ("peak", 20), "summit_ridge": ("snow", 4), "cleansing_peak": ("peak", 12), "cloud_sect": ("peak", -6),
     "crane_falls": ("falls", 0), "bamboo_grove": ("meadow", 0), "reed_marsh": ("marsh", 0), "greyreed_hamlet": ("marsh", 0),
-    "stonewall_quarry": ("meadow", 0), "mudwater_hideout": ("meadow", 0), "jade_sect": ("hill", 0), "hidden_vale": ("hill", 0),
+    "stonewall_quarry": ("meadow", 0), "mudwater_hideout": ("meadow", 0), "jade_sect": ("hill", 0), "hidden_vale": ("hill", 12),
 }
+# dy moves the scene's centre up the vignette (a river kind also lays its river at cy + dy * s)
 
 
 def paint_vignette(rid):
@@ -1666,16 +1670,18 @@ def paint_vignette(rid):
         far = p.poly([(0, 40), (20, 22), (44, 34), (70, 14), (96, 30), (128, 18), (128, 72), (0, 72)])
         p.paint(far, FAR, 0.5 + (n - 0.5) * 0.3)
         p.light(far, SKY[4], 0.35)
-        body = p.poly([(0, 72), (0, 34), (30, 20), (60, 28), (90, 16), (128, 30), (128, 72)])
-        p.paint(body, ROCK if kind != "snow" else CLIFF, 0.55 - (XX - 64) / 200.0 + (n - 0.5) * 0.4 - (YY - 30) / 120.0)
-        p.flat(body & ((YY + (n * 6).astype(int)) % 6 == 0), ROCK[1], 0.5)
-        if kind == "snow":
-            p.paint(body & (YY < 34) & (n > 0.35), SNOW, 0.5 + (n - 0.5) * 0.5)
-        forest(p, body & (YY > 40) & (n > 0.5), PINE, ("vig-pines", rid), density=0.5, rmin=2.0, rmax=3.5)
-        patchy(p, p.rect(0, 30, 127, 60), MIST, 0.5, 20, ("vig-mist", rid), cover=0.5)
+        patchy(p, p.rect(0, 26, 127, 48), MIST, 0.6, 20, ("vig-far-mist", rid), cover=0.6)
         if kind == "falls":
-            water = p.ellipse(70, 60, 44, 12)
+            karst(p, 22, 2, 78, 26, ("vig-k1", rid), rock=CLIFF, crown=0.5, skirt=0.3)
+            karst(p, 108, 6, 80, 24, ("vig-k2", rid), rock=CLIFF, crown=0.5, skirt=0.3)
+            water = p.ellipse(66, 62, 46, 14)
             river_paint(p, water, ("vig-water", rid), s=s)
+        else:
+            rock = CLIFF if kind == "snow" else ROCK
+            karst(p, 18, 20, 84, 22, ("vig-k1", rid), rock=rock, snow=SNOW if kind == "snow" else None, crown=0.5, skirt=0.3)
+            karst(p, 112, 14, 86, 24, ("vig-k2", rid), rock=rock, snow=SNOW if kind == "snow" else None, crown=0.5, skirt=0.3)
+            karst(p, 64, -30, 88, 40, ("vig-k3", rid), rock=rock, snow=SNOW if kind == "snow" else None, crown=0.6, skirt=0.35)
+            patchy(p, p.rect(0, 50, 127, 72), MIST, 0.5, 16, ("vig-mist", rid), cover=0.5)
     elif kind == "gorge":
         p.paint(p.all(), CLIFF, 0.5 + (n - 0.5) * 0.4)
         water = p.band(catmull([(56, -4), (62, 30), (70, 76)]), [22, 26, 30])
@@ -1687,11 +1693,15 @@ def paint_vignette(rid):
         river_paint(p, water, ("vig-water", rid), s=s)
         p.paint(water, LAKE, 0.5 + (n - 0.5) * 0.25)
     elif kind == "marsh":
-        p.paint(p.all(), MARSH, 0.35 + n * 0.5)
-        pools = n < 0.42
-        p.paint(pools, MARSH_WATER, 0.4 + (n - 0.5) * 0.3)
-        p.flat(pools & ~shift(pools, 0, 1), MARSH_WATER[0], 0.6)
-        reeds(p, (n > 0.44) & (n < 0.7) & ((XX * 3 + YY) % 8 == 0), ("vig-reeds", rid), s)
+        p.paint(p.all(), MARSH, 0.3 + n * 0.5)
+        pools = n < 0.46
+        p.paint(pools, MARSH_WATER, 0.35 + (n - 0.5) * 0.3)
+        p.flat(pools & ~shift(pools, 0, 1), MARSH_WATER[0], 0.7)
+        p.flat(pools & (p.noise(14, ("vig-mw", rid)) > 0.55) & (YY % 4 == 0), MARSH_WATER[4], 0.5)
+        reeds(p, (n > 0.47) & (n < 0.7) & ((XX * 3 + YY) % 6 == 0), ("vig-reeds", rid), s)
+        g = rng("vig-dead", rid)
+        for i in range(6):
+            dead_tree(p, int(g.integers(4, 124)), int(g.integers(20, 68)), int(g.integers(8, 14)), s)
         water = pools
     else:
         p.paint(p.all(), MEADOW, 0.42 + (n - 0.5) * 0.4)
