@@ -42,6 +42,18 @@
   pepper two dark full pods; leaf veins turn gold at a hundred years, and a Mystic herb and above carries its spirit
   aura as stepped glow bands. The seeds share one hemp pouch with a tag stamped in the herb's colour and their own seeds
   spilled beside it. The legacy 32 px code is gone.
+- **Minerals in Style A** (`tools/icons/families/minerals.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/minerals/`): the 75 icons (9 ores, the spirit stones and shard, the fuel crystals, the
+  stones and cores, the Act II and III materials, the two currencies, the six essence salts and the 40 beast cores)
+  redrawn at 64 px with native `@32` renders, one language per kind: raw ore is its material in a chunk of rock with
+  stone grain (copper nuggets, jade veins, a crystal cluster, a glass lump with its sand crust); the comet-iron ingot
+  shows its three faces and the metal's sheen and reflection bands; a cut crystal or spirit stone has a table, crown
+  facets and light pooling through its shade side; a polished stone is a disc, a stele or a chip with an inlay; a core
+  is a sphere with a bright heart in its element's shape (a flame, waves, a leaf, peaks, a curl, a bolt, an eye, a
+  blade, a star, a ring); the salts are a heap of grains in a footed dish. The templates (rock, nugget, crystal, cut
+  gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
+  by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
+  above carries its aura as stepped glow bands. The legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
