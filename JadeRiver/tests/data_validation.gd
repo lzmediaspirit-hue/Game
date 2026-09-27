@@ -161,6 +161,25 @@ func moments_data_suite() -> void:
 		check(int(tiers[i].spark_count) > int(tiers[i - 1].spark_count), "vfx tier %d: more sparks than tier %d" % [i + 1, i])
 	for t in tiers:
 		check(int(t.number_size) + 8 <= 40 and float(t.shake_s) <= 0.15 and float(t.tint_alpha) <= 0.2, "vfx tier %d stays within the limits" % int(t.tier))
+	# §3.8 rule 10 and rule 3's second half: a tier per realm, rising 1 to 7; every technique's block at its unlock realm's
+	# band (Common 1, Earth 2, Heaven 3 and up), a known shape drawn by FxLayer kinds, and a known spark style.
+	var bands: Array = cfg.get("vfx_bands", [])
+	check(bands.size() == ContentDB.all("realms").map(func(r): return int(r.realm_index)).max() + 1 and int(bands[0]) == 1 and int(bands[-1]) == 7,
+		"vfx_bands names a tier for every realm, 1 to 7")
+	for i in range(1, bands.size()): check(int(bands[i]) >= int(bands[i - 1]), "vfx band of realm %d does not fall" % i)
+	var shapes: Dictionary = cfg.get("vfx_shapes", {})
+	check(shapes.keys().all(func(s): return s in MomentRules.SHAPES) and MomentRules.SHAPES.all(func(s): return shapes.has(s)), "vfx_shapes lists every shape")
+	for s in shapes:
+		for kind in shapes[s]: check(str(kind) in FxLayer.KINDS, "shape %s draws %s, an FxLayer kind" % [s, kind])
+	for st in cfg.get("particles", {}).get("families", {}).values() + cfg.get("particles", {}).get("elements", {}).values():
+		check(str(st) in MomentRules.STYLES, "spark style %s is known" % st)
+	for t in ContentDB.all("techniques"):
+		var v: Dictionary = t.get("vfx", {})
+		var tier := int(v.get("tier", 0))
+		var want := int(bands[clampi(int(ContentDB.realm(str(t.unlock)).get("realm_index", 0)), 0, bands.size() - 1)]) if not bands.is_empty() else -1
+		check(tier == want and {"common": tier == 1, "earth": tier == 2, "heaven": tier >= 3}.get(str(t.get("grade", "")), false),
+			"technique %s: vfx tier %d is its unlock realm's band (%d, %s)" % [t.id, tier, want, t.get("grade", "")])
+		check(str(v.get("shape", "")) in MomentRules.SHAPES and str(v.get("particles", "")) in MomentRules.STYLES, "technique %s: a known vfx shape and style" % t.id)
 
 ## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
 func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:

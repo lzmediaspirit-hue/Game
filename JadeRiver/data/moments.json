@@ -2289,5 +2289,75 @@
    "shake_amp": 2.5,
    "tint_alpha": 0.18
   }
- ]
+ ],
+ "vfx_bands": [
+  1,
+  1,
+  1,
+  2,
+  2,
+  3,
+  3,
+  3,
+  4,
+  4,
+  5,
+  5,
+  6,
+  6,
+  6,
+  7,
+  7,
+  7,
+  7
+ ],
+ "vfx_shapes": {
+  "strike": [
+   "slash"
+  ],
+  "wave": [
+   "talisman_wave"
+  ],
+  "ring": [
+   "wave"
+  ],
+  "rain": [
+   "rain"
+  ],
+  "pillar": [
+   "pillar"
+  ],
+  "domain": [
+   "ring",
+   "motes"
+  ],
+  "bolt": []
+ },
+ "particles": {
+  "families": {
+   "brush": "ink",
+   "bell": "ring",
+   "flute": "ring"
+  },
+  "elements": {
+   "fire": "ember",
+   "metal": "shard",
+   "ice": "shard",
+   "thunder": "shard",
+   "soul": "ring"
+  },
+  "default": "square"
+ },
+ "numbers": {
+  "stack_s": 0.3,
+  "step_s": 0.06,
+  "step_px": 18,
+  "sway_px": 12,
+  "cap": 6,
+  "total_from": 3,
+  "total_after_s": 0.1,
+  "total_up_px": 24,
+  "total_plus_px": 2,
+  "short_from": 10000
+ }
 }

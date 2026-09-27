@@ -141,6 +141,22 @@ static func tier(n: int) -> Dictionary:
 	var t: Array = cfg().get("vfx_tiers", [])
 	return t[clampi(n, 1, t.size()) - 1] if not t.is_empty() else {}
 
+## The curve's row for a hit's or a cast's source: "tech:<id>" its technique's tier; "ally:tech:<id>" one tier below
+## (a companion's or a spirit animal's technique stays under the player's own); anything else tier 1 (a basic blow,
+## and an ally's own blow, "ally:<uid>").
+static func tier_numbers(source: String) -> Dictionary:
+	var ally := source.begins_with("ally:")
+	var id := source.trim_prefix("ally:")
+	var n := int(ContentDB.entry("techniques", id.trim_prefix("tech:")).get("vfx", {}).get("tier", 1)) if id.begins_with("tech:") else 1
+	return tier(maxi(1, n - (1 if ally else 0)))
+
+## A hit spark's style (§5.6): the weapon family's, else Soul's ring, else the element's, else squares.
+static func particle_style(family: String, element: String, dtype := "") -> String:
+	var p: Dictionary = cfg().get("particles", {})
+	var s := str(p.get("families", {}).get(family, ""))
+	if s == "" and dtype == "soul": s = "ring"
+	return s if s != "" else str(p.get("elements", {}).get(element, p.get("default", "square")))
+
 ## A shake's amplitude in px (§4.6): none with Screen shake off or Reduce motion on, else `amp`, or s × shake_amp_per_s.
 static func shake_amp(s: float, amp := -1.0) -> float:
 	var st: Dictionary = Game.account.settings

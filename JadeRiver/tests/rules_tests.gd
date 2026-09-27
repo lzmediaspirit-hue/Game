@@ -8356,6 +8356,63 @@ func moments_suite() -> void:
 	mv.advance(1.0 / 60.0)
 	check(mv.playing != null and mv.playing.row.id == "story_beat" and MomentRules.text({"chapter_of": "payload.quest"}, mv.playing.p) == Tx.t("moment.story.chapter") % "3",
 		"then Chapter 3 closes on Mudwater Hideout")
+	# P6e. Case 12: the escalation curve. One technique per tier the data has: its tier's row, a spark laid with it
+	# carries that count and size, a companion's blow of it one tier lower, a basic blow tier 1.
+	var by_tier := {}
+	for t in ContentDB.all("techniques"): by_tier[int(t.vfx.tier)] = str(t.id)
+	check(by_tier.size() >= 5, "techniques reach five tiers of the curve (%s)" % str(by_tier.keys()))
+	var fl2 := FxLayer.new()
+	for n in by_tier:
+		var row := MomentRules.tier_numbers("tech:" + str(by_tier[n]))
+		fl2.add("spark", Vector2.ZERO, {"count": row.spark_count, "size": row.spark_size, "radius": row.spark_reach})
+		check(int(row.tier) == n and int(fl2.fx.back().count) == int(MomentRules.tier(n).spark_count) and int(fl2.fx.back().size) == int(MomentRules.tier(n).spark_size),
+			"tier %d (%s): its sparks are %d of %d px" % [n, by_tier[n], int(row.spark_count), int(row.spark_size)])
+		check(int(MomentRules.tier_numbers("ally:tech:" + str(by_tier[n])).tier) == maxi(1, n - 1), "a companion's %s draws a tier lower" % by_tier[n])
+	check(int(MomentRules.tier_numbers("").tier) == 1 and int(MomentRules.tier_numbers("ally:c1").tier) == 1, "a basic blow and a companion's own blow draw at tier 1")
+	check(MomentRules.particle_style("brush", "fire") == "ink" and MomentRules.particle_style("", "fire") == "ember" and MomentRules.particle_style("", "none", "soul") == "ring"
+		and MomentRules.particle_style("jian", "water") == "square", "spark styles: the brush's ink, fire's embers, Soul's rings, else squares")
+	# A tier-3 cast's tint: none with Reduce motion, 0.3 of its alpha with Bright flashes off, one a second.
+	fl2.fx.clear()
+	MomentView._flash_ms = -100000
+	put.call("reduce_motion", true)
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	put.call("reduce_motion", false)
+	put.call("flashes", false)
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	check(fl2.fx.size() == 1 and near(float(fl2.fx[0].color.a), 0.03), "a tint: none with Reduce motion, dimmed with Bright flashes off, one a second")
+	fl2.free()
+	# Case 13: multi-hit numbers. Three hits of Flying Blades on one foe rise 18 px apart, 0.06 s apart, swaying, then a
+	# total in pale gold; seven give six numbers and a total of seven.
+	put.call("damage_numbers", true)
+	var key := "e1tech:flying_blades"
+	var fl3 := FxLayer.new()
+	for i in 3: fl3.number(Vector2(100, 200), UiKit.short(4000.0), UiKit.PAPER, 24, false, key, 4000.0)
+	var nums: Array = fl3.fx.filter(func(e): return e.kind == "number")
+	var laid := nums.size() == 3
+	for i in nums.size():
+		laid = laid and near(float(nums[i].pos.y), 200.0 - 18.0 * i) and near(float(nums[i].t), -0.06 * i) and near(float(nums[i].pos.x), 100.0 + (12.0 if i % 2 == 0 else -12.0))
+	check(laid, "three hits: 18 px apart, 0.06 s apart, on alternating sides")
+	for i in 30: fl3._process(1.0 / 60.0)
+	var tot: Array = fl3.fx.filter(func(e): return e.kind == "number" and e.color == UiKit.PALE_GOLD)
+	check(tot.size() == 1 and str(tot[0].text) == UiKit.short(12000.0) and int(tot[0].size) == 26 and fl3.stacks.is_empty(), "then their total, 12.0K, a size up")
+	fl3.fx.clear()
+	for i in 7: fl3.number(Vector2(100, 200), UiKit.short(3000.0), UiKit.PAPER, 24, false, key, 3000.0)
+	check(fl3.fx.size() == 6, "seven hits show six numbers")
+	for i in 40: fl3._process(1.0 / 60.0)
+	check(fl3.fx.filter(func(e): return e.color == UiKit.PALE_GOLD).map(func(e): return str(e.text)) == [UiKit.short(21000.0)], "and a total of all seven")
+	fl3.fx.clear()
+	for i in 2: fl3.number(Vector2(100, 200), "10", UiKit.PAPER, 24, false, key, 10.0)
+	for i in 40: fl3._process(1.0 / 60.0)
+	check(not fl3.fx.any(func(e): return e.color == UiKit.PALE_GOLD), "two hits add up to no total")
+	fl3.free()
+	# §5.7 large numbers: three figures from 10,000, the unit letters strings.
+	check(UiKit.short(9999) == UiKit.fmt(9999) and UiKit.short(12400) == Tx.t("ui.num.thousand") % "12.4" and UiKit.short(18200) == Tx.t("ui.num.thousand") % "18.2"
+		and UiKit.short(124000) == Tx.t("ui.num.thousand") % "124" and UiKit.short(1250000) == Tx.t("ui.num.million") % "1.25"
+		and UiKit.short(99960) == Tx.t("ui.num.thousand") % "100" and UiKit.short(999999) == Tx.t("ui.num.million") % "1.00",
+		"large numbers: 12.4K, 18.2K, 124K, 1.25M; below 10,000 in full")
+	for k in ["flashes", "reduce_motion", "damage_numbers"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	if not was.has("reduce_motion"): Game.account.settings.erase("reduce_motion")
 	Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
 	mv.queue_free()

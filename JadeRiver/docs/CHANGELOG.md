@@ -2,6 +2,38 @@
 
 ## Moments (docs/roadmap_master_ui.md, P6)
 
+### P6e · The escalation curve
+- **Every technique has a `vfx` block** (`techniques.py`): its tier, 1 to 7, is the band of the realm that teaches it
+  (the valley's Common 1, Earth 2, Heaven 3; the Azure Expanse 4; the Lantern Star Field 5; 6 and 7 wait for their
+  zones), its shape what it draws on cast, and its particles the hit spark's style. Today: tiers 1–5 hold 16, 22, 9, 1
+  and 8 techniques; strike 15, bolt 11, ring 9, domain 9, wave 5, pillar 5, rain 2.
+- **A technique's hits grow with its tier** (`moments.json` `vfx_tiers`, §5.2): the spark's count, size, reach and
+  white core, the damage number's size, a ring at the caster's feet from tier 2, echo waves inside an area's edge from
+  tier 3, one small shake per cast on its first hit from tier 3, and from tier 3 a wash of the element over the screen
+  for 0.4 s. Tier 1 is today's look, so the first techniques do not change; a basic blow stays tier 1, and a
+  companion's blow of a technique draws a tier lower.
+- **Shapes drawn at the true reach** (§5.3–5.4): a slash that grows with the tier; a talisman wave along the reach; a
+  ring at the reach with echo rings inside it, never beyond; a rain of streaks over the hitbox (`rain`, new); a pillar
+  on the foe in reach; a ring and motes round the caster for a buff or heal; a bolt is its projectile.
+- **Sparks by family and element** (§5.6): the brush's ink drops fall, the bell's and flute's (and Soul's) rings
+  spread, fire's embers rise and flicker with a pale-gold heart, metal's, ice's and thunder's shards fall; the rest
+  keep their squares.
+- **Multi-hit numbers** (§5.5): the hits of one cast on one foe rise one after another, 18 px and 0.06 s apart,
+  swaying left and right, six at most, and three or more add up to a total in pale gold a size up.
+- **Large numbers** (§5.7): from 10,000 a number is written in three figures, 12.4K, 124K, 1.25M (`UiKit.short`; the
+  unit letters are strings). Damage numbers still follow Settings › Damage numbers.
+- **The flash limiter covers tints** (§5.10): a technique's screen tint shares the one-a-second limit with every
+  flash, is 0.3 as strong with Bright flashes off, and does not play with Reduce motion or Battery saver, which also
+  thin sparks to tier 1's and tier 2's counts.
+- Preview: `--cast=<technique>[:t]` draws a technique's cast and its hits on the foes in reach, submitting nothing.
+- **Tests:** `moments_suite` case 12 (the tier rows by technique, a spark carrying its tier's count and size, a
+  companion a tier lower, the spark styles, a tint under the settings and the limiter) and case 13 (three hits stacked
+  18 px and 0.06 s apart on alternating sides then a total; seven hits show six and total seven; two, no total), and
+  the large-number forms; `moments_data_suite` checks every technique's tier against its realm's band and grade, its
+  shape and style, and that every shape draws `FxLayer` kinds; `perf_tests` plays the crowd under the major
+  breakthrough and again with a Sword Swarm and a Cursive Storm striking every foe each tenth of a second, inside the
+  frame budget and the FX cap, and prints the view's share (MomentView.advance about 0.08 ms a frame).
+
 ### P6d · Rare finds, story beats and trials
 - **A rare find** (`rare_drop`) is seen from across the room: a tall beam in the piece's colour stands over it and breathes
   until it is picked up, and a strip names it in its grade or quality colour under "A rare find", with `rare_chime`

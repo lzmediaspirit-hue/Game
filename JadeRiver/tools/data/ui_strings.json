@@ -1910,6 +1910,8 @@
  "ui.notice.tab_board": "Board",
  "ui.notice.tab_bounties": "Bounties",
  "ui.notice.take_bounty": "Take the bounty",
+ "ui.num.million": "%sM",
+ "ui.num.thousand": "%sK",
  "ui.page.cancel": "Cancel",
  "ui.page.confirm": "Confirm",
  "ui.pets.apt_attack": "Attack",

@@ -360,6 +360,57 @@ func add_shake(s: float, amp := -1.0) -> void:
 	shake_k = maxf(shake_k if shake > 0.0 else 0.0, a / s)
 	shake = maxf(shake, s)
 
+## P6e a technique cast at its tier (docs/moments_design.md §5): a ring at the feet (from tier 2), a wash of its
+## element over the screen (from tier 3, under the flash limiter), and its shape, drawn at the reach it really strikes
+## (§5.4): a slash, a wave along the reach, a ring at it with echo rings inside, a rain of streaks, a pillar on the foe,
+## or a ring and motes round the caster. A bolt is drawn by its projectile.
+var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
+func _cast(tech: String, facing: int, col: Color) -> void:
+	var t := ContentDB.entry("techniques", tech)
+	var n := MomentRules.tier_numbers("tech:" + tech)
+	var tier := int(t.get("vfx", {}).get("tier", 1))
+	var reach := float(t.hitbox.x[1])
+	var at := player.position
+	if float(n.shake_s) > 0.0: cast_shake["tech:" + tech] = true
+	if float(n.cast_ring_r) > 0.0: fx.add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
+	if float(n.tint_alpha) > 0.0: fx.add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
+	match str(t.get("vfx", {}).get("shape", "strike")):
+		"strike": fx.add("slash", at + Vector2(facing * 40, -50), {"color": col, "facing": facing, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
+		"wave": fx.add("talisman_wave", at + Vector2(0, -50), {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
+		"ring":
+			for i in int(n.echoes) + 1:
+				fx.add("wave", at, {"color": col, "radius": reach * [1.0, 0.7, 0.4, 0.55][i], "size": n.wave_width, "dur": 0.45, "delay": 0.08 * i})
+		"rain": fx.add("rain", at + Vector2(facing * reach * 0.5, 0), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
+			"count": MomentRules.particle_count(3 * int(t.get("hits", 1)) + 2 * tier)})
+		"pillar": fx.add("pillar", _foe_in_reach(at, facing, reach), {"color": col, "radius": 12.0 + 4.0 * tier, "height": 300.0, "dur": 0.35})
+		"domain":
+			fx.add("ring", at, {"color": col, "radius": float(t.get("heal_radius", reach)), "dur": 0.6})
+			fx.add("motes", at + Vector2(0, -10), {"color": col, "dur": 0.8})
+
+## Where a single-target cast lands: the nearest foe in front within reach, else halfway along it.
+func _foe_in_reach(at: Vector2, facing: int, reach: float) -> Vector2:
+	var best := at + Vector2(facing * reach * 0.5, 0)
+	var best_d := reach
+	for e in Game.room_rt.living_enemies():
+		var dx: float = (e.plane.x - at.x) * facing
+		if e.team == "enemy" and dx >= 0.0 and dx <= best_d and absf(e.plane.y - at.y) < 60.0:
+			best_d = dx
+			best = Vector2(e.plane.x, e.plane.y - e.altitude)
+	return best
+
+## Debug (--cast, P6e previews): a technique's cast toward the foes and its hits on each one in reach, drawn as a real
+## cast's are, through this view only; nothing is submitted.
+func preview_cast(tech: String) -> void:
+	var t := ContentDB.entry("techniques", tech)
+	var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team == "enemy")
+	var facing := 1 if foes.is_empty() or foes[0].plane.x >= player.position.x else -1
+	_cast(tech, facing, SpriteCache.element_color(str(t.element)))
+	for e in foes:
+		if (e.plane.x - player.position.x) * facing > float(t.hitbox.x[1]) + 40.0: continue
+		for h in int(t.hits):   # a buff or a heal strikes nothing
+			_on_event("hit_landed", {"attacker": player.actor_id, "target": str(e.uid), "target_kind": "enemy", "amount": 3100 * (h + 3), "type": str(t.damage_type),
+				"crit": h == 1, "element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height() * 0.8, "source": "tech:" + tech})
+
 ## A moment's camera move (P6 `camera` layer): ease to `target` over in_s, hold, and ease back over out_s.
 func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
 	camera_hold = {"target": target, "t": 0.0, "in": in_s, "hold": hold_s, "out": out_s}
@@ -420,9 +471,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif p.get("crit", false): color = UiKit.GOLD
 			elif str(p.get("type", "")) == "qi": color = UiKit.QI
 			elif str(p.get("type", "")) == "soul": color = UiKit.SOUL
+			# P6e: a technique's hit draws at its tier (§5.2): the number's size, the spark's count, size, reach and style; the
+			# hits of one cast on one foe stack (§5.5); the first hit of a Heaven-grade cast shakes once.
+			var src := str(p.get("source", ""))
+			var n := MomentRules.tier_numbers(src)
+			var tech := ContentDB.entry("techniques", src.trim_prefix("tech:")) if src.begins_with("tech:") else {}
 			if Game.is_revealed("hud:damage_numbers") or kind == "player":
-				fx.number(pos, str(amount), color, 22, bool(p.get("crit", false)))
-			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25})
+				fx.number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, bool(p.get("crit", false)),
+					str(p.get("target", "")) + src if not tech.is_empty() else "", float(amount))
+			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25,
+				"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,
+				"style": tech.get("vfx", {}).get("particles", MomentRules.particle_style("", str(p.get("element", "none")), str(p.get("type", ""))))})
+			if cast_shake.has(src):
+				cast_shake.erase(src)
+				add_shake(float(n.shake_s), float(n.shake_amp))
 			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: add_shake(0.25)
 			if p.get("crit", false): add_shake(0.12)
 			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
@@ -449,10 +511,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var tech := str(p.get("technique", ""))
 				if tech != "":
-					var col = SpriteCache.element_color(str(p.get("element", "none")))
-					fx.add("slash", player.position + Vector2(float(p.facing) * 40, -50), {"color": col, "facing": int(p.facing), "radius": 46, "dur": 0.3})
-					var t := ContentDB.entry("techniques", tech)
-					if t.get("both_sides", false): fx.add("wave", player.position, {"color": col, "radius": float(t.hitbox.x[1]), "dur": 0.45})
+					_cast(tech, int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))))
 					Audio.play("technique")
 				else:
 					Audio.play("swing")

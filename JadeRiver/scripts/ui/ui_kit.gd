@@ -330,6 +330,16 @@ static func span(seconds: float, days := true) -> String:
 static func pool_values(cur: float, most: float) -> Array:
 	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
 
+## A number over the world in three figures from 10,000 ("12.4K", "124K", "1.25M"; style guide §4, mockup 01);
+## below that, grouped as `fmt` does. The unit letters are strings, as a unit is a word the player reads.
+static func short(n: float) -> String:
+	var a := absf(n)
+	if a < 10000.0: return fmt(n)
+	var big := a >= 999500.0
+	var x := a / (1000000.0 if big else 1000.0)
+	var digits := "%.2f" % x if x < 9.995 else ("%.1f" % x if x < 99.95 else "%d" % int(round(x)))
+	return ("-" if n < 0.0 else "") + Tx.t("ui.num.million" if big else "ui.num.thousand") % digits
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))

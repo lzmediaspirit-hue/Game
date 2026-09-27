@@ -10,6 +10,7 @@ import json
 import os
 
 from common import DATA, write
+from techniques import PARTICLES, TIER_BY_REALM, VFX_SHAPES
 
 SETTINGS = {"max_lock_s": 1.5, "queue_max": 4, "stale_s": 6.0, "cut_fade_s": 0.15, "flash_gap_s": 1.0, "shake_amp_per_s": 16,
             "fight_radius": 400, "snapshot_s": 1.0, "merge_rare_s": 1.5}
@@ -26,6 +27,9 @@ VFX_TIERS = [dict(zip(["tier"] + _TIER_COLS, r)) for r in [
     (5, 16, 10, 50, 24, 100, 14, 2, 26, 0.10, 2.0, 0.10),
     (6, 18, 10, 56, 28, 120, 16, 2, 28, 0.12, 2.0, 0.14),
     (7, 20, 12, 64, 32, 140, 18, 3, 30, 0.14, 2.5, 0.18)]]
+# §5.5 multi-hit numbers (a stack: one target, one technique, within stack_s) and §5.7 the numbers shortened from 10,000.
+NUMBERS = {"stack_s": 0.3, "step_s": 0.06, "step_px": 18, "sway_px": 12, "cap": 6, "total_from": 3, "total_after_s": 0.1,
+           "total_up_px": 24, "total_plus_px": 2, "short_from": 10000}
 # §2.3 the stat rise, in order; only the numbers that changed are shown, at most seven.
 STATS = ["level", "max_hp", "max_qi", "max_soul", "physical_attack", "qi_attack", "soul_attack", "crit_chance", "lifespan"]
 # §6: a Dao's effects take its element's colour; the other families take these.
@@ -302,4 +306,5 @@ def rows():
 
 def build():
     write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
-                           "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS})
+                           "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS, "vfx_bands": TIER_BY_REALM, "vfx_shapes": VFX_SHAPES,
+                           "particles": PARTICLES, "numbers": NUMBERS})

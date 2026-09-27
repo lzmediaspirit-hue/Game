@@ -374,6 +374,13 @@ func _handle_preview_args(user_args: Array) -> void:
 					Game.combat._defeat(e, Game.active_id)
 					break
 			if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
+		if str(a).begins_with("--cast=") and is_instance_valid(world) and Game.room_rt != null:
+			# Debug tools (S38): --cast=technique[:t] draws a technique's cast and its hits on the foes in reach at its tier
+			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).
+			var ca := str(a).trim_prefix("--cast=").split(":")
+			await get_tree().create_timer(0.6).timeout
+			world.preview_cast(ca[0])
+			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
 		if str(a).begins_with("--hold=") and is_instance_valid(moments):
 			# Debug tools (S38): --hold=t[:row] holds the moment on screen (or only that row) once it reaches t s (captures
 			# of real ones).

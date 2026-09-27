@@ -130,7 +130,8 @@ every system, `--debug-sect` gives a founded sect with all buildings, `--fly` ta
 `--talk=<npc>` open UI, `--hazard=<phase>:<k>` forces the room's hazards into a phase at answer ratio k, `--moment=<id>[:t]` plays a
 `data/moments.json` row with its sample payload and holds it at t seconds (with `--capture`, the shot is taken at t),
 `--breakthrough[=t]` takes the character over its next step for real, `--hold=t[:row]` holds a real moment at t,
-`--foe=enemy[:count[:hp]]` sets foes in front of you, `--defeat-foe[=s]` defeats the first foe with its real drop, `--log-events`
+`--foe=enemy[:count[:hp]]` sets foes in front of you, `--defeat-foe[=s]` defeats the first foe with its real drop,
+`--cast=<technique>[:t]` draws a technique's cast and hits at its tier (nothing is submitted), `--log-events`
 prints the event stream, `--capture` saves `../<shot>-preview.png`. `--room=` and `--at=` also work with `--load-slot`.
 `--max-character` makes the Max Test character (below) in an empty save and opens every way; add `--load-slot` to enter as them.
 
