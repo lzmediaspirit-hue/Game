@@ -361,6 +361,23 @@
    ],
    "height": 64,
    "standable": true
+  },
+  {
+   "id": "abode_stairs_under_ground",
+   "art": "none",
+   "position": [
+    1390,
+    706
+   ],
+   "front_y": 706,
+   "footprint": [
+    1290,
+    620,
+    200,
+    86
+   ],
+   "height": 8,
+   "radius": 0
   }
  ],
  "decor": [

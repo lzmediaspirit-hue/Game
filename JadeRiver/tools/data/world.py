@@ -2979,6 +2979,27 @@ def rift_tears():
                   visible_if=all_of({"kind": "world_event_here", "event": "spatial_rift"}))
 
 
+def under_steps():
+    """M16: where a raised ground surface (depth stairs, a terrace or a landing) runs down over the flat ground, that
+    ground is solid wherever the surface stands more than a stride (8) above it. A walker along the back row no longer
+    wanders in under the steps, drawn inside them, with the way up shut over his head. The footprint has no art of its
+    own: the steps and the terrace face are drawn over it (the Pilgrim Stairs cut their ground back the same way)."""
+    for r in ROOMS.values():
+        flat = [s for s in r.d["surfaces"] if s["stratum"] == "ground" and float(s.get("height", 0)) <= 0.5 and not s.get("rise")]
+        for s in r.d["surfaces"]:
+            h, rise = float(s.get("height", 0)), float(s.get("rise", 0))
+            if s["stratum"] != "ground" or h <= 8 or (rise and s.get("rise_axis") != "y"):
+                continue
+            x, y, w, d = s["rect"]
+            low = y + d * min(1.0, (h - 8) / -rise) if rise < 0 else y + d   # where the steps come down to a stride
+            for g in flat:
+                gx, gy, gw, gd = g["rect"]
+                x0, y0, x1, y1 = max(x, gx), max(y, gy), min(x + w, gx + gw), int(min(low, gy + gd))
+                if x1 > x0 and y1 > y0:
+                    r.d["scenery"].append({"id": "%s_under_%s" % (s["id"], g["id"]), "art": "none", "position": [(x0 + x1) // 2, y1],
+                                           "front_y": y1, "footprint": [x0, y0, x1 - x0, y1 - y0], "height": 8, "radius": 0})
+
+
 def spirit_mines():
     """S49 territory: each spirit-stone mine (living_world.MINES) is a vein in its field room, flying its holder's
     banner. Speak to it to take it, collect from it or hold it (the Your Sect page's Territory tab lists them all)."""
@@ -3038,6 +3059,7 @@ def build():
     insect_swarms()
     trails_and_altars()
     spirit_mines()
+    under_steps()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)
