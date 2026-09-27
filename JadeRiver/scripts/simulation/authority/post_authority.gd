@@ -517,27 +517,14 @@ func take_vigil(c) -> Dictionary:
 
 ## The fighter as the S12 pipeline sees it, from the character's stats (works for characters not in the room).
 func _fighter(c) -> Dictionary:
-	var sb: StatBlock = c.stats
 	var fam := StatRules.family(c)
-	return {"kind": "player", "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
-		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")),
-		"physical_attack": sb.value("physical_attack"), "qi_attack": sb.value("qi_attack"), "soul_attack": sb.value("soul_attack"),
-		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance"), "crit_damage": sb.value("crit_damage"),
-		"penetration": sb.value("penetration"), "elemental_power": sb.value("elemental_power"),
-		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity),
-		"tenacity": sb.value("tenacity"), "evasion": sb.value("evasion"), "physical_defense": sb.value("physical_defense"),
-		"qi_resistance": sb.value("qi_resistance"), "soul_defense": sb.value("soul_defense"),
-		"dtype": "qi" if sb.value("qi_attack") > sb.value("physical_attack") else "physical", "range": fam.get("range", [0.9, 1.1]),
-		"hits_per_s": float(fam.get("hits_per_s", 1.2))}
+	var v := CombatRules.fighter(c)
+	v.merge({"dtype": "qi" if float(v.qi_attack) > float(v.physical_attack) else "physical", "range": fam.get("range", [0.9, 1.1]),
+		"hits_per_s": float(fam.get("hits_per_s", 1.2))})
+	return v
 
 func _foe(def: Dictionary, lv: int) -> Dictionary:
-	var m := StatRules.mob_stats(def, lv)
-	return {"kind": "enemy", "level": lv, "realm_index": ProgressionRules.realm_index(ContentDB.realm_key_for_level(lv)),
-		"element": str(def.get("element", "none")), "physical_attack": float(m.attack), "qi_attack": float(m.attack), "soul_attack": float(m.attack),
-		"accuracy": float(m.accuracy), "crit_chance": float(m.crit_chance), "crit_damage": float(m.crit_damage), "penetration": 0.0,
-		"energy_mult": 1.0, "tenacity": float(m.tenacity), "evasion": float(m.evasion), "physical_defense": float(m.physical_defense),
-		"qi_resistance": float(m.qi_resistance), "soul_defense": float(m.soul_defense), "max_hp": float(m.max_hp),
-		"resist_" + CombatRules.parent_element(str(def.get("element", "none"))): float(ContentDB.stat_const("mob.own_element_resistance", 0.3))}
+	return CombatRules.foe(StatRules.mob_stats(def, lv), lv, str(def.get("element", "none")))
 
 ## A Vigil in a room: IdleOn's kills an hour (spawn cap against the fighter's pace) from seeded S12 blows both ways,
 ## the Sweep tier, Martial Diligence, the damage taken and the provisions carried. Empty where no Vigil can be kept.

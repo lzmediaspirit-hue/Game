@@ -257,7 +257,7 @@ func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Di
 func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
 	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
 	var k: Dictionary = ContentDB.stat_const("body_path", {})
-	var hp := qi_cost * float(k.get("hp_per_qi", 1.5))
+	var hp: float = c.pools.max_hp * qi_cost / maxf(1.0, c.pools.max_qi) * float(k.get("hp_share_per_qi_share", 1.0))   # P12: shares, as Might scales HP only
 	return hp if c.pools.hp - hp >= c.pools.max_hp * float(k.get("hp_floor", 0.2)) else 0.0
 
 ## The flight vessel ridden (S47): what the air costs.
@@ -370,37 +370,24 @@ func _tick_glide(c, delta: float) -> void:
 
 # ------------------------------------------------------------------ views
 func player_view(c) -> Dictionary:
-	var sb: StatBlock = c.stats
 	var tl := timeline(c.id)
 	var st: ActorState = game.actor_state(c.id)
-	var v := {"kind": "player", "id": c.id, "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
-		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")),
-		"physical_attack": sb.value("physical_attack"), "qi_attack": sb.value("qi_attack"), "soul_attack": sb.value("soul_attack"),
-		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance") + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01)),
-		"crit_damage": sb.value("crit_damage"),
-		"penetration": sb.value("penetration") + intent_penetration(c), "elemental_power": sb.value("elemental_power"),
-		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity),
-		"tenacity": sb.value("tenacity"), "evasion": sb.value("evasion"), "physical_defense": sb.value("physical_defense"),
-		"qi_resistance": sb.value("qi_resistance"), "soul_defense": sb.value("soul_defense"),
-		"vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
-		"guarding": sb.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
-		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0}
-	for el in ["water", "wood", "fire", "earth", "metal", "yin", "yang"]:
-		v["resist_" + el] = sb.conditional("elemental_resistance", "element", el)
-		v["element_power_" + el] = sb.conditional("elemental_power", "element", el)
+	var v := CombatRules.fighter(c)
+	v.merge({"id": c.id, "vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
+		"guarding": c.stats.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
+		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0})
+	v.crit_chance = float(v.crit_chance) + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
+	v.penetration = float(v.penetration) + intent_penetration(c)
 	return v
 
 func enemy_view(e: EnemyState) -> Dictionary:
-	var s := e.stats
-	return {"kind": "enemy", "id": str(e.uid), "level": e.level, "realm_index": e.realm_index, "element": e.element,
-		"physical_attack": float(s.attack), "qi_attack": float(s.attack), "soul_attack": float(s.attack), "accuracy": float(s.accuracy),
-		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0, "energy_mult": 1.0,
-		"tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
-		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense),
+	var v := CombatRules.foe(e.stats, e.level, e.element)
+	v.erase("max_hp")
+	v.merge({"id": str(e.uid), "realm_index": e.realm_index, "role": e.role,
 		"vulnerable": e.pools.has_status("vulnerable"), "shocked": e.pools.has_status("shock"), "sundered": e.pools.has_status("sundered"),
-		"resist_" + CombatRules.parent_element(e.element): float(ContentDB.stat_const("mob.own_element_resistance", 0.3)),
 		"guarding": float(e.def.get("front_guard", 0.0)) if e.ai.state == "guard" else 0.0,
-		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}
+		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}, true)
+	return v
 
 ## 2.5D hit test (S12): x range in the facing direction, depth band, altitude overlap.
 static func hit_test(a: Dictionary, facing: int, hitbox: Dictionary, t: Dictionary, both_sides := false) -> bool:
@@ -803,7 +790,9 @@ func _tick_enemy_statuses(e: EnemyState, delta: float) -> void:
 			s.tick_s = float(s.get("tick_s", 0.0)) + delta
 			if float(s.tick_s) >= 1.0:
 				s.tick_s = float(s.tick_s) - 1.0
-				_damage_enemy(e, maxf(1.0, e.pools.max_hp * float(s.get("power", 0.02))), str(s.get("source", "")), "dot", str(s.id), false, {})
+				var caster = game.character(str(s.get("source", "")))
+				var reach := 0.0 if caster == null else maxf(caster.stats.value("physical_attack"), maxf(caster.stats.value("qi_attack"), caster.stats.value("soul_attack")))
+				_damage_enemy(e, maxf(1.0, CombatRules.hp_share(e.pools.max_hp * float(s.get("power", 0.02)), e.role, reach)), str(s.get("source", "")), "dot", str(s.id), false, {})
 		if float(s.remaining) <= 0.0:
 			e.pools.statuses.erase(s)
 			if e.is_boss() and def.get("cc", false): e.pools.steadfast[str(s.id)] = float(ContentDB.stat_const("combat.steadfast_s", 8))
@@ -879,9 +868,10 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			apply_buff(c.id, {"stat": b.stat, "op": b.get("op", "pct_add"), "value": b.value, "duration": b.duration, "source": "tech:" + str(t.id)}, "technique")
 		for b2 in t.get("buffs", []):
 			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
-		# Soul Lantern Ward: a shield of a share of max Soul that takes blows of any kind until its time is up.
-		if float(t.get("shield_soul_pct", 0.0)) > 0.0 and c.pools.max_soul > 0.0:
-			raise_shield(c, c.pools.max_soul * float(t.shield_soul_pct), float(t.get("shield_s", 6)))
+		# Soul Lantern Ward: a shield of a share of max HP (P12: blows grow with Might, max Soul does not) that takes blows
+		# of any kind until its time is up.
+		if float(t.get("shield_hp_pct", 0.0)) > 0.0:
+			raise_shield(c, c.pools.max_hp * float(t.shield_hp_pct), float(t.get("shield_s", 6)))
 		var healed := 0
 		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
 			var song: float = 1.0 + (c.stats.value("melody_power") if str(t.get("dao", "")) == "music" else 0.0)
@@ -1377,6 +1367,10 @@ func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> vo
 		if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): continue
 		var companion: bool = game.companions.is_companion_ally(a)
 		var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8 * (1.0 - FieldAuthority.enemy_loss(e)))
+		# P12: a foe's attack is set to pass its Level's armour, so an ally (health a share of its owner's) stands behind
+		# its owner's armour, as its owner would.
+		var owner = game.character(a.pet_owner)
+		if owner != null: dmg *= 1.0 - CombatRules.defence_reduction(owner.stats.value("physical_defense"), e.level, 0.0, float(e.stats.get("might", 1.0)))
 		if not companion: dmg *= game.pets.damage_taken_mult(a)
 		a.pools.hp -= dmg
 		a.flash = 0.12
@@ -2482,7 +2476,8 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 	if c == null or not e.alive or e.invulnerable: return
 	var view := {"level": a.level, "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key), "element": "none",
 		"physical_attack": attack_power * (1.0 + (float(ContentDB.stat_const("sphere.pet_bonus", 0.1)) if Unlocks.is_unlocked(owner, "sphere") else 0.0)),
-		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0}   # v1.2: a small Sphere for the pets of a Sphere Lord
+		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5,   # v1.2: a small Sphere for the pets of a Sphere Lord
+		"might": StatRules.might(c)}   # P12: an ally strikes with its owner's Might against armour
 	var r := CombatRules.resolve(view, enemy_view(e), {"damage_type": "physical", "mult": [1.0, 1.0], "range": [0.85, 1.15]}, Rng.stream(owner, "pet"))
 	if r.miss:
 		emit("hit_missed", {"attacker": str(a.uid), "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})

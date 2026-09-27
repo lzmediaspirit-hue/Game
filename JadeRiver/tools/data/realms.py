@@ -94,6 +94,36 @@ def need(level, t_minutes):
     return 100 * t_minutes
 
 
+def level_of(key):
+    """The first Level of a realm key (mortal 0, bone_forging_4 4, heavens_threshold 120, world_genesis 166)."""
+    if key == "mortal":
+        return 0
+    if key == "world_genesis":
+        return 166
+    for rid, _, level in ADVANCED:
+        if key == rid:
+            return level
+    if key.startswith("inner_heaven_"):
+        return 121 + (int(key.rsplit("_", 1)[1]) - 1) * 5
+    for rid, _, _, per, first, _, _, _ in REALMS:
+        if key.startswith(rid + "_") and key[len(rid) + 1:].isdigit():
+            return first + (int(key[len(rid) + 1:]) - 1) * per
+    raise KeyError(key)
+
+
+def energy_at(level):
+    """The energy a character of this Level cultivates, as the ladder below gives it (P12's par character reads it)."""
+    if level >= 121:
+        return "heavenforce"
+    if level >= ADVANCED[0][2]:
+        return "monarch_qi"
+    energy = "none"
+    for _, _, _, _, first, e, _, _ in REALMS:
+        if level >= first:
+            energy = e
+    return energy
+
+
 def build():
     rows = []
     rows.append({"id": "mortal", "key": "mortal", "realm": "mortal", "realm_index": 0, "sub": 0,

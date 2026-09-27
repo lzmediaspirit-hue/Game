@@ -2999,6 +2999,10 @@
      {
       "kind": "quest_done",
       "quest": "kharns_pyre"
+     },
+     {
+      "kind": "quest_accepted",
+      "quest": "the_tide_breaks"
      }
     ]
    },

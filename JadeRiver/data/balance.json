@@ -20,7 +20,10 @@
   "cloud_stride": 1.4,
   "spirit_awakening": 1.45,
   "heaven_glimpse": 1.5,
-  "sage": 1.6
+  "sage": 1.6,
+  "sage_sovereign": 1.6,
+  "will_manifest": 1.7,
+  "sphere_lord": 1.7
  },
  "method": {
   "bone_forging": "riverbreath_fragment",
@@ -30,7 +33,10 @@
   "cloud_stride": "willow_breath_art",
   "spirit_awakening": "willow_breath_art",
   "heaven_glimpse": "tidal_sovereign_scripture",
-  "sage": "tidal_sovereign_scripture"
+  "sage": "tidal_sovereign_scripture",
+  "sage_sovereign": "tidal_sovereign_scripture",
+  "will_manifest": "tidal_sovereign_scripture",
+  "sphere_lord": "tidal_sovereign_scripture"
  },
  "tolerance": 0.15,
  "upgrades": [
@@ -51,7 +57,47 @@
  ],
  "act_end": "heaven_glimpse_3",
  "act_end_hours": 65,
- "sim_end": "sage_sovereign_1",
+ "par_targets": {
+  "1": [
+   12,
+   12
+  ],
+  "10": [
+   68,
+   63
+  ],
+  "30": [
+   832,
+   1246
+  ],
+  "60": [
+   11000,
+   39500
+  ],
+  "80": [
+   41500,
+   154000
+  ],
+  "99": [
+   136000,
+   527000
+  ],
+  "108": [
+   246000,
+   999000
+  ]
+ },
+ "par_tolerance": [
+  0.15,
+  0.2
+ ],
+ "sim_end": "sphere_lord_3",
+ "pacing_band": [
+  140,
+  235
+ ],
+ "floor_below": 4,
+ "floor_wait": 10,
  "pacing": [
   [
    "bone_forging_1",
