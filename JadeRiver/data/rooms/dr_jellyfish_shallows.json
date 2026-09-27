@@ -264,6 +264,26 @@
     ]
    },
    "locked_text": "You have no net, and they are too quick for bare hands."
+  },
+  {
+   "id": "journal_jellyfish",
+   "type": "pickup",
+   "at": [
+    2386,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_jellyfish",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_jellyfish"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

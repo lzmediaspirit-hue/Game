@@ -1,0 +1,893 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "rising_tide",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "drop",
+    "enemy": "big_toad_tan",
+    "item": "mudwater_manual",
+    "chance": 1.0
+   }
+  },
+  {
+   "id": "rain_of_reeds",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "ds_hall_of_lanterns",
+    "object": "lost_drowned_archer"
+   }
+  },
+  {
+   "id": "ember_burst",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "drop",
+    "enemy": "gorge_bandit_adept",
+    "item": "manual_ember_burst",
+    "chance": 0.03,
+    "pity": 30
+   }
+  },
+  {
+   "id": "lotus_mind_legacy",
+   "kind": "inner",
+   "act": 1,
+   "src": {
+    "kind": "quest",
+    "quest": "the_elders_last_lesson"
+   }
+  },
+  {
+   "id": "drifting_cloud_legacy",
+   "kind": "inner",
+   "act": 1,
+   "src": {
+    "kind": "quest",
+    "quest": "the_elders_last_lesson"
+   }
+  },
+  {
+   "id": "tide_palm",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "drop",
+    "enemy": "elder_gu",
+    "item": "scroll_tide_palm",
+    "chance": 0.15,
+    "pity": 6
+   }
+  },
+  {
+   "id": "falls_climbing_step",
+   "kind": "secret",
+   "act": 1,
+   "src": {
+    "kind": "stele",
+    "room": "cf_falls_pool",
+    "object": "insight_falls",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "dao_tier_at_least",
+      "dao": "water",
+      "tier": 2
+     },
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "dawn"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "willowbark_script",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "stele",
+    "room": "ja_elder_hu_peak",
+    "object": "insight_hu",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "dao_tier_at_least",
+      "dao": "wood",
+      "tier": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "kite_string_cut",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "stele",
+    "room": "cm_elder_sung_peak",
+    "object": "insight_sung",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "dao_tier_at_least",
+      "dao": "wind",
+      "tier": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "mist_lamp_meditation",
+   "kind": "inner",
+   "act": 1,
+   "src": {
+    "kind": "stele",
+    "room": "mp_misty_slopes",
+    "object": "insight_mist",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "night"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "mudskipper_kick",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "master",
+    "npc": "hermit_yao",
+    "requires": [
+     {
+      "kind": "quest_done",
+      "quest": "calming_the_wild"
+     }
+    ],
+    "line": "You have mud on your boots. Good. Now kick like something that lives in it."
+   }
+  },
+  {
+   "id": "well_bottom_sutra",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "ds_scripture_well",
+    "object": "lost_scripture_well",
+    "requires": [
+     {
+      "kind": "art_known",
+      "art": "breath_control"
+     }
+    ]
+   }
+  },
+  {
+   "id": "monastery_gate_staff",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "mp_forgotten_monastery",
+    "object": "lost_monastery_gate"
+   }
+  },
+  {
+   "id": "quarry_breaker_fist",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "sq_collapsed_tunnel",
+    "object": "lost_quarry_marks"
+   }
+  },
+  {
+   "id": "grotto_moon_flick",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "hg_hidden_grotto",
+    "object": "lost_grotto_moon",
+    "requires": [
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "night"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "vale_serpent_spear",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "hv_back_mountain",
+    "object": "lost_vale_serpent"
+   }
+  },
+  {
+   "id": "frost_shrine_sword",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "sr_frozen_shrine",
+    "object": "lost_frost_shrine",
+    "requires": [
+     {
+      "kind": "season_is",
+      "season": "winter"
+     }
+    ]
+   }
+  },
+  {
+   "id": "echo_cliff_refrain",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "wg_echo_cliffs",
+    "object": "lost_echo_cliff"
+   }
+  },
+  {
+   "id": "serpent_coil_thrust",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "drop",
+    "enemy": "riverbed_serpent",
+    "item": "scroll_serpent_coil_thrust",
+    "chance": 0.04,
+    "pity": 20
+   }
+  },
+  {
+   "id": "surfacing_bell",
+   "kind": "technique",
+   "act": 1,
+   "src": {
+    "kind": "event",
+    "room": "ds_abbots_sanctum",
+    "object": "lost_surfacing_bell",
+    "requires": [
+     {
+      "kind": "world_event_active",
+      "event": "shrine_reopening"
+     }
+    ]
+   }
+  },
+  {
+   "id": "blood_burning",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "quest",
+    "quest": "blood_remembers"
+   }
+  },
+  {
+   "id": "scar_lightning_lance",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "stele",
+    "room": "tp_lightning_scar",
+    "object": "insight_thunder",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "dao_tier_at_least",
+      "dao": "thunder",
+      "tier": 2
+     }
+    ]
+   }
+  },
+  {
+   "id": "hoarfrost_arrow",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "stele",
+    "room": "rf_rimefrost_summit",
+    "object": "insight_frost",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "dao_tier_at_least",
+      "dao": "water",
+      "tier": 3
+     }
+    ]
+   }
+  },
+  {
+   "id": "mirror_lake_knell",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "stele",
+    "room": "ml_lake_shrine",
+    "object": "insight_mirror",
+    "requires": [
+     {
+      "kind": "item_owned",
+      "item": "rubbing_kit",
+      "count": 1
+     },
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "night"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "snowfall_without_sound",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "master",
+    "npc": "hermit_shuang",
+    "requires": [
+     {
+      "kind": "quest_done",
+      "quest": "the_mirror_remembers"
+     }
+    ],
+    "line": "Snow falls and no one hears it land. Watch once. I will not stay to show you twice."
+   }
+  },
+  {
+   "id": "crypt_seal_cleave",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_mirror_crypt",
+    "object": "lost_crypt_seal"
+   }
+  },
+  {
+   "id": "sand_throne_sweep",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "drop",
+    "enemy": "tomb_king",
+    "item": "scroll_sand_throne_sweep",
+    "chance": 0.04,
+    "pity": 20
+   }
+  },
+  {
+   "id": "many_eyed_pool_air",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "drop",
+    "enemy": "thousand_eye_toad",
+    "item": "scroll_many_eyed_pool_air",
+    "chance": 0.04,
+    "pity": 20
+   }
+  },
+  {
+   "id": "roost_scatter_fan",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "ruin",
+    "room": "gc_harpy_roosts",
+    "object": "lost_harpy_roost"
+   }
+  },
+  {
+   "id": "deck_cutter_flick",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "ruin",
+    "room": "sw_pirate_deck",
+    "object": "lost_deck_cutter"
+   }
+  },
+  {
+   "id": "grey_footfall",
+   "kind": "secret",
+   "act": 2,
+   "src": {
+    "kind": "master",
+    "npc": "grey_pilgrim",
+    "requires": [
+     {
+      "kind": "quest_done",
+      "quest": "the_tomb_king"
+     }
+    ],
+    "line": "You still walk as if the ground owed you an answer. Walk as if it did not."
+   }
+  },
+  {
+   "id": "ninth_peak_scroll",
+   "kind": "technique",
+   "act": 2,
+   "src": {
+    "kind": "auction",
+    "item": "scroll_ninth_peak_scroll",
+    "weight": 0.3
+   }
+  },
+  {
+   "id": "star_sighting_shot",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "master",
+    "npc": "stargazer_ming",
+    "requires": [
+     {
+      "kind": "quest_done",
+      "quest": "the_observatory"
+     }
+    ],
+    "line": "My lens was ground for aiming. Look through it once, then look without it."
+   }
+  },
+  {
+   "id": "upside_down_staff",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "or_inverted_hall",
+    "object": "lost_upside_down_staff"
+   }
+  },
+  {
+   "id": "wyrm_egg_knuckle",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "wn_hatching_cave",
+    "object": "lost_wyrm_egg"
+   }
+  },
+  {
+   "id": "hulk_breaker",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "master",
+    "npc": "hulk_keeper_bo",
+    "requires": [
+     {
+      "kind": "quest_done",
+      "quest": "lus_lantern"
+     }
+    ],
+    "line": "I broke ships for a living once. You break foes. Same swing."
+   }
+  },
+  {
+   "id": "cove_knife",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "bm_smugglers_cove",
+    "object": "lost_cove_target"
+   }
+  },
+  {
+   "id": "broadside_fan",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "drop",
+    "enemy": "admiral_voss",
+    "item": "scroll_broadside_fan",
+    "chance": 0.04,
+    "pity": 20
+   }
+  },
+  {
+   "id": "pyre_generals_lance",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "drop",
+    "enemy": "general_kharn",
+    "item": "scroll_pyre_generals_lance",
+    "chance": 0.04,
+    "pity": 20
+   }
+  },
+  {
+   "id": "comet_tail_arrow",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "drop",
+    "enemy": "pirate_captain",
+    "item": "scroll_comet_tail_arrow",
+    "chance": 0.05,
+    "pity": 20
+   }
+  },
+  {
+   "id": "maw_song",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "drop",
+    "enemy": "nebula_leviathan",
+    "item": "scroll_maw_song",
+    "chance": 0.03,
+    "pity": 20
+   }
+  },
+  {
+   "id": "burning_star_peal",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "lt_hall_of_burning_stars",
+    "object": "lost_burning_star_bell"
+   }
+  },
+  {
+   "id": "breakwater_sword",
+   "kind": "technique",
+   "act": 3,
+   "src": {
+    "kind": "quest",
+    "quest": "the_tide_breaks"
+   }
+  },
+  {
+   "id": "held_presence",
+   "kind": "inner",
+   "act": 3,
+   "src": {
+    "kind": "master",
+    "npc": "presence_master_ruo",
+    "requires": [
+     {
+      "kind": "event_passed",
+      "event": "presence_trial"
+     }
+    ],
+    "line": "One thing left. Hold it, do not push it."
+   }
+  },
+  {
+   "id": "oar_across_the_current",
+   "kind": "technique",
+   "act": 1,
+   "lineage": "ferrymans_oar",
+   "piece": 1,
+   "src": {
+    "kind": "pages",
+    "count": 5,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "ferry_pole_vault",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "ferrymans_oar",
+   "piece": 2,
+   "src": {
+    "kind": "pages",
+    "count": 10,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "mooring_knot",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "ferrymans_oar",
+   "piece": 3,
+   "src": {
+    "kind": "pages",
+    "count": 15,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "fog_crossing_step",
+   "kind": "secret",
+   "act": 3,
+   "lineage": "ferrymans_oar",
+   "piece": 4,
+   "src": {
+    "kind": "pages",
+    "count": 20,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "lantern_at_the_bow",
+   "kind": "technique",
+   "act": 4,
+   "lineage": "ferrymans_oar",
+   "piece": 5,
+   "src": {
+    "kind": "pages",
+    "count": 25,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "the_ferry_waits",
+   "kind": "inner",
+   "act": 5,
+   "lineage": "ferrymans_oar",
+   "piece": 6,
+   "src": {
+    "kind": "pages",
+    "count": 30,
+    "item": "lu_journal_page"
+   }
+  },
+  {
+   "id": "tablet_of_dry_wells",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_sealed_gate",
+    "object": "lost_tablet_of_dry_wells"
+   }
+  },
+  {
+   "id": "sand_glyph_snare",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 2,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_hall_of_sand_kings",
+    "object": "lost_sand_glyph_snare"
+   }
+  },
+  {
+   "id": "throne_dust_veil",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_mirror_crypt",
+    "object": "lost_throne_dust_veil"
+   }
+  },
+  {
+   "id": "scorpion_script",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 4,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_throne",
+    "object": "lost_scorpion_script"
+   }
+  },
+  {
+   "id": "oasis_mirage",
+   "kind": "secret",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 5,
+   "src": {
+    "kind": "ruin",
+    "room": "sd_oasis_of_bones",
+    "object": "lost_oasis_mirage"
+   }
+  },
+  {
+   "id": "the_king_who_waits",
+   "kind": "technique",
+   "act": 2,
+   "lineage": "sand_king_script",
+   "piece": 6,
+   "src": {
+    "kind": "ruin",
+    "room": "ts_throne",
+    "object": "lost_the_king_who_waits"
+   }
+  },
+  {
+   "id": "lamp_on_a_tether",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 1,
+   "src": {
+    "kind": "ruin",
+    "room": "or_orbit_garden",
+    "object": "lost_lamp_on_a_tether"
+   }
+  },
+  {
+   "id": "inverted_stair_kick",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 2,
+   "src": {
+    "kind": "ruin",
+    "room": "or_tumbling_stair",
+    "object": "lost_inverted_stair_kick"
+   }
+  },
+  {
+   "id": "orbit_stone_sling",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 3,
+   "src": {
+    "kind": "ruin",
+    "room": "or_golem_foundry",
+    "object": "lost_orbit_stone_sling"
+   }
+  },
+  {
+   "id": "gravity_knot",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 4,
+   "src": {
+    "kind": "ruin",
+    "room": "or_inverted_hall",
+    "object": "lost_gravity_knot"
+   }
+  },
+  {
+   "id": "lens_of_far_seeing",
+   "kind": "inner",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 5,
+   "src": {
+    "kind": "ruin",
+    "room": "wc_observatory",
+    "object": "lost_lens_of_far_seeing"
+   }
+  },
+  {
+   "id": "lamp_that_circles_the_dark",
+   "kind": "technique",
+   "act": 3,
+   "lineage": "orbit_lamp",
+   "piece": 6,
+   "src": {
+    "kind": "ruin",
+    "room": "or_tumbling_stair",
+    "object": "lost_lamp_that_circles_the_dark"
+   }
+  }
+ ],
+ "lineages": [
+  {
+   "id": "ferrymans_oar",
+   "name": "The Ferryman's Oar",
+   "rule": "Oar arts are Water arts of the staff and the free hand: on water and in the rain they strike harder.",
+   "pieces": [
+    "oar_across_the_current",
+    "ferry_pole_vault",
+    "mooring_knot",
+    "fog_crossing_step",
+    "lantern_at_the_bow",
+    "the_ferry_waits"
+   ]
+  },
+  {
+   "id": "sand_king_script",
+   "name": "The Sand-King Script",
+   "rule": "Written arts of the earth that hold the ground where they fall.",
+   "pieces": [
+    "tablet_of_dry_wells",
+    "sand_glyph_snare",
+    "throne_dust_veil",
+    "scorpion_script",
+    "oasis_mirage",
+    "the_king_who_waits"
+   ]
+  },
+  {
+   "id": "orbit_lamp",
+   "name": "The Orbit Lamp",
+   "rule": "Arts lit by a lamp that curve after the nearest foe.",
+   "pieces": [
+    "lamp_on_a_tether",
+    "inverted_stair_kick",
+    "orbit_stone_sling",
+    "gravity_knot",
+    "lens_of_far_seeing",
+    "lamp_that_circles_the_dark"
+   ]
+  }
+ ],
+ "journal_flags": [
+  "journal_tunnel",
+  "journal_falls",
+  "journal_vault",
+  "journal_cave",
+  "journal_frozen",
+  "journal_lake",
+  "journal_tomb",
+  "journal_riven",
+  "journal_verge",
+  "journal_frostpine",
+  "journal_kites",
+  "journal_dunes",
+  "journal_reefs",
+  "journal_grottoes",
+  "journal_battery",
+  "journal_cinders",
+  "journal_nests",
+  "journal_foundry",
+  "journal_jellyfish",
+  "journal_wake"
+ ]
+}

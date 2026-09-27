@@ -2,6 +2,7 @@
 grades, affixes, sets, injuries, failures, origins, methods."""
 from common import write, entries
 from realms import energy_at
+import technique_grammar as TG
 
 STAT_LIST = [
     # id, group, cap (value or reduction), format
@@ -126,8 +127,9 @@ PAR = {"family": "jian", "origin": "fishers_child", "purity": 9, "weapon_lag": 3
        "attack_pct": [[1, 0.0], [22, 0.05], [67, 0.08], [103, 0.12]],
        "damage_pct": [[1, 0.0], [42, 0.08], [67, 0.13], [124, 0.20]],
        "crit": [[1, 0.0, 0.0], [40, 0.03, 0.10], [67, 0.05, 0.25], [124, 0.08, 0.50]],
-       "art": [[1, 1.0], [19, 1.2], [37, 1.45], [55, 1.95], [64, 1.9], [73, 1.8], [82, 1.75], [91, 1.7], [109, 1.6],
-               [121, 1.45], [141, 1.33], [151, 1.25], [166, 1.1]],
+       # P13a re-tunes the main art (technique_plan §6.1): the grammar's par form (the jian's Arc) at the band's ring and
+       # grade, a row a ring; its Realisations placed along its sector's route add the tree's share (TG.par_tree).
+       "art": [[max(1, TG.RINGS[r][1]), round(TG.par_art(TG.RINGS[r][1]), 4)] for r in TG.RINGS],
        "art_type": "qi", "technique_share": 1.6,
        "hits": 3.5, "blow": [[0, 0.08], [20, 0.06]], "from_level": 10}
 
@@ -186,7 +188,7 @@ def par_row(lv, fam, origin):
     energy = energy_at(lv)
     edge = c["qi_edge"][energy] + (c["qi_edge_per_purity"] * (9 - PAR["purity"]) if energy == "true_qi" else 0.0)
     technique = (qi_attack * par_step("art", lv) * (1 + tc["dao_damage_per_tier"] * dao + tc["mastery_damage_per_tier"] * (par_step("mastery", lv) - 1))
-                 * edge * (1 + dmg) * (1 - cut(foe_def * 0.6)))
+                 * edge * (1 + dmg + TG.par_tree(lv)) * (1 - cut(foe_def * 0.6)))
     crit_factor = 1 + crit * (crit_dmg - 1)
     swings = len(fam["combo"]) / sum(s["duration"] for s in fam["combo"])
     aspd = fam["hits_per_s"] * (1 + min(0.5, fx["agility"]["attack_speed"] * attr["agility"]))
@@ -269,8 +271,9 @@ CORE = {
                       "story_boss": {"hp": 20, "attack": 2.5, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
                       "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
             "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
-    # S48 technique grades: the base multiplier's bonus by grade.
-    "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
+    # S48 technique grades, and P13a the ring grades (technique_plan §3.5): +0, +10 and +20%, flat from Heaven on.
+    "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20, "mystic": 0.20, "spirit": 0.20, "sage": 0.20, "sovereign": 0.20,
+                         "will": 0.20, "sphere": 0.20, "law": 0.20, "monarch": 0.20, "inner_heaven": 0.20, "genesis": 0.20},
 }
 QUALITIES = {"flawed": {"mult": 0.8, "affixes": 0}, "common": {"mult": 1.0, "affixes": 0}, "fine": {"mult": 1.1, "affixes": 1},
              "superior": {"mult": 1.2, "affixes": 2}, "perfect": {"mult": 1.3, "affixes": 3}, "relic": {"mult": 1.35, "affixes": 3}}
@@ -641,6 +644,11 @@ def build():
         "par_targets": {"1": [12, 12], "10": [68, 63], "30": [832, 1246], "60": [11000, 39500], "80": [41500, 154000],
                         "99": [136000, 527000], "108": [246000, 999000]},
         "par_tolerance": [0.15, 0.20],
+        # P13a (technique_plan §6.1, §6.4): the line the par main art meets, its hit over the basic blow (research §6.2),
+        # with the par character's tree route in; balance_sim checks it within ±15% at every Level it names.
+        "technique_line": {"20": 1.5, "30": 1.5, "45": 2.3, "60": 3.6, "72": 3.7, "80": 3.7, "90": 3.9, "99": 3.9, "100": 4.1,
+                           "108": 4.1, "117": 4.4, "120": 4.4, "130": 4.6, "150": 4.6, "165": 4.6, "200": 4.5},
+        "technique_line_tolerance": 0.15,
         # P12 (research §7 question 9): the sim plays on to the end of Act III; the hours to it are reported against the
         # research's two estimates (`pacing_band`: 140 h at the sim's Sage income, 235 h at the nominal rate) until the
         # user sets a target.
@@ -746,6 +754,9 @@ def build():
         # S48 the Soul line: Sense Lock (no evasion, no hiding) and Soul Search (its death gives up its memories).
         {"id": "sense_locked", "resist": "spirit", "icon": "sense_locked", "never_miss": True, "reveals": True},
         {"id": "soul_searched", "resist": "spirit", "icon": "injury_soul"},
+        # P13a the Wood's second verb (technique_plan §3.3): a bloom that takes a share of the foe's health a second,
+        # capped against elites and bosses as every share of health is (hp_share_cap).
+        {"id": "bloom", "resist": "tenacity", "dot": True, "icon": "poison"},
     ])
 
 
@@ -759,7 +770,7 @@ def build():
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8",
                          "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#9a87e3",
                          # P7b: the grades past Sphere; no red (red is the game's danger colour).
-                         "law": "#a8c4ff", "monarch": "#e6b3f2", "inner_heaven": "#f4f7ff"},
+                         "law": "#a8c4ff", "monarch": "#e6b3f2", "inner_heaven": "#f4f7ff", "genesis": "#fff2c0"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
         # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,

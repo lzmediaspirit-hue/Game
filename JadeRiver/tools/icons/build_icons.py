@@ -130,6 +130,10 @@ def main():
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as f:
             json.dump(manifest, f, indent=2, sort_keys=True)
             f.write('\n')
+        # P13a: every other technique's emblem is composed in the game from the atlas's layers (technique_plan §3.9).
+        import emblem_atlas
+        arts, layers = emblem_atlas.build()
+        print('emblem atlas: %d arts composed from %d layers at %s px' % (arts, layers, '/'.join(str(n) for n in emblem_atlas.SIZES)))
 
     counts = {}
     for i in ids:

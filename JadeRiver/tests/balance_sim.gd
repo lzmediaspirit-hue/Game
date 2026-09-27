@@ -72,6 +72,7 @@ func _main() -> void:
 	_posts()
 	_account_month()
 	_par_checks(c, cfg, hours)
+	_technique_checks(c, cfg)
 	_finish()
 
 # ------------------------------------------------------------------ P12 the par character (research §6.1, §6.7)
@@ -95,6 +96,7 @@ func _par_character(c, lv: int) -> void:
 	cu.meridians = {}
 	for i in chans.size(): cu.meridians[str(chans[i])] = pts / chans.size() + (1 if i < pts % chans.size() else 0)
 	cu.daos = {"sword": {"insight": 0.0, "tier": int(StatRules.par_step("dao", lv))}}
+	cu.tree = {"v": 1, "realised": _par_route(lv), "resets": {}, "pity": {}}   # P13a: its Realisations along its route
 	var ilv := maxi(1, lv - int(ContentDB.stat_const("par.weapon_lag", 3)))
 	var quality := str(StatRules.par_step("quality", lv))
 	var enhance := mini(int(ContentDB.stat_const("par.enhance_max", 10)), lv / int(ContentDB.stat_const("par.enhance_every", 12)))
@@ -142,7 +144,8 @@ func _par_hits(c, lv: int, crits := false) -> Dictionary:
 	var dao := ProgressionRules.effective_dao_tier(c, str(fam.get("dao", "")))
 	var basic := {"damage_type": "physical", "element": "none", "mult": [combo, combo], "range": fam.get("range", [0.9, 1.1]), "dao_tier": dao, "never_miss": true}
 	var tech := {"damage_type": str(ContentDB.stat_const("par.art_type", "qi")), "element": "none", "mult": [art, art], "range": fam.get("range", [0.9, 1.1]),
-		"dao_tier": dao, "mastery_tier": int(StatRules.par_step("mastery", lv)) - 1, "never_miss": true}
+		"dao_tier": dao, "mastery_tier": int(StatRules.par_step("mastery", lv)) - 1, "never_miss": true,
+		"tree_pct": float(TechniqueTreeRules.passives(c, {"element": "none", "family": str(ContentDB.stat_const("par.family", "jian"))}).damage)}
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242 + lv
 	var out := {"basic": 0.0, "technique": 0.0}
@@ -254,6 +257,60 @@ func _par_checks(c, cfg: Dictionary, hours: Dictionary) -> void:
 	var pace: Array = cfg.get("pacing_band", [140, 235])
 	print("pacing: Sphere Lord 3 at %.0f h (the research's estimates %d-%d h; the user sets the target)" % [end_h, int(pace[0]), int(pace[1])])
 	check(end_h >= float(pace[0]) * 0.85 and end_h <= float(pace[1]) * 1.15, "pacing: Sphere Lord 3 in %.0f h" % end_h)
+
+# ------------------------------------------------------------------ P13a techniques at scale (technique_plan §6)
+## The par character's Realisations placed along its main family's route in the Formless tree (§6.2): a passage a ring
+## up to the band's ring, and at each act's last ring its notable and its kin group's keystone (the keystones of Acts
+## I-III so far). Set as the design stands, the later acts' rings as if built (stats.py's par table: TG.par_tree).
+func _par_route(lv: int) -> Dictionary:
+	var T = TechniqueTreeRules
+	var fam := str(ContentDB.stat_const("par.family", "jian"))
+	var out := {}
+	for r in range(1, T.ring_at_level(lv) + 1):
+		out[T.passage("formless", fam, r)] = true
+		if T.is_edge(r):
+			out[T.notable("formless", fam, T.act_of(r))] = true
+			var ks: String = T.keystone_at("formless", T.kin_of(fam), T.act_of(r))
+			if ks != "": out[ks] = true
+	return out
+
+## §6.1 the line a par character's main art meets (technique hit over basic hit, balance.json technique_line) and §6.2
+## the trees' share: inside its cap at every Level, on techniques only, and a tree full of nodes adds no more.
+func _technique_checks(c, cfg: Dictionary) -> void:
+	var line: Dictionary = cfg.get("technique_line", {})
+	var tol := float(cfg.get("technique_line_tolerance", 0.15))
+	var T = TechniqueTreeRules
+	var fam := str(ContentDB.stat_const("par.family", "jian"))
+	check(line.size() >= 12, "the technique line is present (%d Levels)" % line.size())
+	print("technique line   Level   art x   tree %   technique / basic   line   off")
+	var off: Array = []
+	for key in line:
+		var lv := int(key)
+		_par_character(c, lv)
+		var h := _par_hits(c, lv)
+		var ratio: float = h.technique / maxf(1.0, h.basic)
+		var want := float(line[key])
+		var tree := float(T.passives(c, {"element": "none", "family": fam}).damage)
+		print("technique line %7d %7.3f %7.1f %12.2f %13.2f %+5.0f%%" % [lv, float(StatRules.par_step("art", lv)), tree * 100.0, ratio, want, (ratio / want - 1.0) * 100.0])
+		if absf(ratio / want - 1.0) > tol: off.append("%d: %.2f against %.2f" % [lv, ratio, want])
+		check(tree <= T.tree_cap(lv) + 0.0001, "tree: Level %d, the par route adds %.1f%%, inside the cap of %.1f%%" % [lv, tree * 100.0, T.tree_cap(lv) * 100.0])
+	check(off.is_empty(), "technique_line: the par main art over the basic blow lands on the plan's line within ±%d%% (%s)" % [int(tol * 100), ", ".join(off)])
+	# The trees feed techniques' damage bucket only, and a whole sector realised adds no more than the cap.
+	for lv in [60, 99, 165]:
+		_par_character(c, lv)
+		var with_tree := _par_hits(c, lv)
+		var cu = c.cultivator
+		cu.tree.realised = {}
+		var bare := _par_hits(c, lv)
+		check(near_eq(with_tree.basic, bare.basic) and with_tree.technique > bare.technique, "tree: Level %d, the route raises the art (%d to %d), never the basic blow" % [lv, int(bare.technique), int(with_tree.technique)])
+		for nid in T.nodes_of("formless"):
+			var n := T.node(nid)
+			if str(n.get("family", "")) == fam or str(n.get("kin", "")) == T.kin_of(fam): cu.tree.realised[nid] = true
+		check(absf(float(T.passives(c, {"element": "none", "family": fam}).damage) - T.tree_cap(lv)) < 0.0001,
+			"tree: Level %d, a whole sector realised adds its cap and no more (%.1f%%)" % [lv, T.tree_cap(lv) * 100.0])
+
+func near_eq(a: float, b: float) -> bool:
+	return absf(a - b) <= maxf(1.0, absf(b) * 0.0001)
 
 ## A same-Level foe's plain blow on the par character (averaged, crits in), as a share of its max HP.
 func _blow_share(c, lv: int, role: String) -> float:

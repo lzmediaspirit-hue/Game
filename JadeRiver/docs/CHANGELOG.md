@@ -1,5 +1,51 @@
 # Changelog
 
+## P13a · Techniques at scale, the data (docs/technique_plan.md)
+
+The techniques of Acts I–III are written, 3,171 in all: every weapon family and cultivation path has hundreds of arts,
+each element grows a tree of its own, and the lost arts are found only by finding them. The page that draws the trees
+is P13b; today's Techniques page is kept and draws the new arts' emblems.
+- **The grammar in data** (`tools/data/technique_grammar.py`, `technique_gen.py`, `technique_hand.py`): an art is a
+  FORM (24) × FAMILY (12 built, 16 planned) × ELEMENT (11) × PATH (five and the orthodox) × RING (13). The forms carry
+  the shape and the line, the element its verb (Water pulls, Wood blooms, Formless strikes 10% harder with no verb),
+  the path its rule and cost, the ring its grade, reach, extra targets and effect tier. Rows are baked and compact
+  (`techniques.json`, 974 KB): a row keeps only what its form, ring, element and family do not give it. Every art
+  plays its form's effect (the technique animations, decision 23); a keystone plays its template's.
+- **Counts**: the trees of v1.2.x hold 1,773 arts (the plan's 1,768 and today's five twin cells): 1,661 in the cells of
+  Acts I–III and 112 hand-named keystones; beside them 38 Dao arts and 52 lost techniques (62 lost arts with the Inner
+  and Secret ones); the later acts' 1,308 arts are written and locked behind their act. Per tree 192 or 193 (Space 40);
+  per family 138 own arts in Acts I–III (the free hand 142); per path of the cells: orthodox 889, Body 152, Blood 150,
+  Buddhist 159, Poison 149, Confucian 162; Act I 797, II 468, III 508.
+- **Names** from the lexicons only, at most 28 characters, unique, never another thing's name, and checked against a
+  146-entry denylist exactly and within two edits: Backwater Swallows, Nightshade Riptide Net, Pine-Needle Burst,
+  Scholar's Ghost-Light Shaft; keystones such as Hundred Springs Rising, Drums That Beat Themselves, Pyre That Answers
+  Twice.
+- **Today's 56 arts** keep their ids: 47 in cells (five cells hold two), five on Dao trunks, four become lost arts.
+- **The trees** (`TechniqueTreeRules`, `ProgressionAuthority`): eleven trees (nine elements, Formless, Space from ring
+  7; Time from ring 9 waits for v1.3) of twelve sectors in four kin groups, a passage a ring, a notable at each act's
+  edge, four keystones an act. Realising a node costs Realisations (Level + 2 × major breakthroughs + Dao tiers +
+  mastery tiers past 2); an art's node teaches it. Free out of combat node by node from the leaves, one free reset a
+  tree each great realm, then a Clear Heart Incense (the sect Mission Halls). One heavy art (a keystone or a lost art)
+  to a ring of four slots. Saves from before the trees light the routes to the arts they know, once.
+- **Lost Arts** (roadmap decision 19): found only in the world, never hinted at. Steles (the insight stones, with a
+  Rubbing Kit from the Stoneford General Store and a Dao tier, an hour or a season), 28 old writings in 24 rooms, six
+  masters' last lessons (a choice beside what they already say), ten foes' manuals (rolled like named rows, sure by the
+  pity-th kill, only while the art is lost), four quests, the auction, and Lu's journal (twelve more pages) for the
+  Ferryman's Oar. The board counts an act's lost arts and shows a found art's full card; nothing names, draws or places
+  an unfound one. Found twice, an art is a Manual Page.
+- **Balance**: techniques still grow only through Might. The trees feed the one damage bucket (+15% at most by Level
+  99, +25% by 165) and cut Qi cost within the 30% cap; the grade is +0/+10/+20%, flat from ring 3; the par main art now
+  follows the grammar's Arc at the band's ring, and with its tree route lands on the plan's line within ±7% from Level
+  20 to 165 (1.45 at 20, 3.51 at 60, 4.12 at 99, 4.71 at 165; +10% at 200).
+- **Emblems**: today's 56 stay baked; the other 3,115 are composed in the game from one atlas of 361 layers at 64, 48
+  and 32 px (466 KB), about 0.6 ms each at 64 px and then held. The icon build writes the same bytes twice.
+- **Tests**: `data_validation` `technique_suite` (counts, filled rings, rules 1–3, 5 and 6 of §3.6, names and the
+  denylist, reachability, poses) and `lost_art_suite`; every art resolves to an emblem; `rules_tests` `tree_suite`,
+  `tree_migration_suite`, `lost_arts_suite` (with the no-leak board) and `tree_queries_suite`; `balance_sim` the
+  technique line and the trees' share; `perf_tests` the file's size, v1.5's 4,350 rows read and filled in, the trees'
+  index, emblem composition and the Techniques page; `contract_tests` the trees' intents and words.
+- **Fixed on the way**: an art with no pose (Blood River Slash, Venom Needles) played "<null>"; it now plays the
+  weapon's third stroke.
 ## Technique animations (docs/roadmap_master_ui.md, decision 23)
 
 - **An FX animation library**: one frame-by-frame pixel-art effect per technique form, the 24 of

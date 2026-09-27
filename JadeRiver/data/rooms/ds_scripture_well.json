@@ -295,6 +295,31 @@
    "prop": "scholar_rock",
    "text": "Scratched just above the water line, in a hurry: \"Breathe out before you go under. The well gives back what you do not hold.\"",
    "set_flag": "inscription_ds_scripture_well_2"
+  },
+  {
+   "id": "lost_scripture_well",
+   "type": "inspect",
+   "at": [
+    1100,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "well_bottom_sutra"
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "art_known",
+      "art": "breath_control"
+     }
+    ]
+   },
+   "locked_text": "Weathered carvings."
   }
  ],
  "spawns": [

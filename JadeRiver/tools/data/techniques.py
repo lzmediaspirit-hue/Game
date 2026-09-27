@@ -2,7 +2,7 @@
 import json
 import os
 
-from common import DATA, entries, titled
+from common import DATA, entries, titled, write
 from technique_anim import add_animation
 
 # P6e the escalation curve (docs/moments_design.md §5): every technique's `vfx` block. Its tier is the band of the realm
@@ -81,6 +81,7 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
 
 
 def build():
+    import technique_gen as TG   # P13a; imported here, after this module, whose particle rule it reads
     T = [
         # The first technique every disciple learns: a free-hand palm, so it works whatever the weapon.
         tech("flowing_palm", "qi_kindling_1", "training_hall_jade", "any", "water", "physical", (1.10, 1.30), 2, 1, 3, 8,
@@ -258,8 +259,14 @@ def build():
         if t["id"] == "willow_leaf_parry":
             t["stance"] = "jian"
     add_vfx(T)
-    add_animation(T)   # every art plays its form's effect on an existing pose (technique_anim.py)
-    entries("techniques.json", T)
+    # P13a: the element trees. The generator re-homes today's 56 (form, ring, grade by ring, path), fills every other cell
+    # of Acts I-III and the later acts' locked rings, adds the keystones, the Dao arts and the Lost Arts, and writes the
+    # rows compact over their form's and ring's defaults (docs/technique_plan.md §3, §7).
+    rows, lost_table, lineages = TG.build(T)
+    add_animation(rows)   # every art plays its form's effect on an existing pose (technique_anim.py)
+    TG.write_compact("techniques.json", {"defaults": TG.DEFAULTS}, [TG.compact(r) for r in rows])
+    write("technique_trees.json", TG.trees_config())
+    entries("lost_arts.json", lost_table, lineages=lineages, journal_flags=TG.H.JOURNAL_FLAGS)
 
     weapon_dao = {"tiers": ["+3% attack with the family", "Linked techniques -10% QI", "Linked techniques gain their tier-3 effect",
                             "+5% crit with the family; can teach it", "Tier-5 forms of linked techniques"],
@@ -357,6 +364,13 @@ def build():
             d["zone_caps"] = caps
     for d in daos:
         d["name"] = "%s Dao" % titled(d["id"])
+    # P13a Dao arts (technique_plan §4.7): the third and fifth tiers of every weapon and element Dao teach an art.
+    by_dao = {d["id"]: d for d in daos}
+    for (tid, dao, tier, *_rest) in TG.H.DAO_ARTS:
+        d = by_dao[dao]
+        d["tiers"], d["effects"] = list(d["tiers"]), [dict(e) for e in d["effects"]]
+        d["effects"][tier - 1]["learn_technique"] = tid
+        d["tiers"][tier - 1] = "%s; learn %s" % (d["tiers"][tier - 1], TG.titled_name(tid))
     entries("daos.json", daos)
 
     entries("secret_arts.json", [
@@ -393,7 +407,12 @@ def build():
         {"id": "concealment", "name": "Concealment", "unlock": "spirit_awakening_2", "desc": "Enemies' aggro range -50% while not attacking.", "icon": "concealment"},
         {"id": "lotus_heart_breathing", "name": "Lotus Heart Breathing", "unlock": "spirit_awakening_5", "desc": "Heal 2% HP per second for 5 s.", "icon": "concealment"},
         {"id": "wind_blink", "name": "Wind Blink", "unlock": "spirit_awakening_5", "desc": "Blink 120 units; cooldown 10 s.", "icon": "dodge_dash"},
-    ])
+    ] + [dict(r, icon=LOST_SECRET_ICON[r["id"]]) for r in TG.lost_minor("secret")])
+
+
+# P13a the Lost Arts that are Secret Arts: known, not slotted; each borrows the drawing of the art nearest to it.
+LOST_SECRET_ICON = {"falls_climbing_step": "wall_step", "grey_footfall": "concealment", "fog_crossing_step": "water_skimming",
+                    "oasis_mirage": "concealment"}
 
 
 if __name__ == "__main__":

@@ -138,7 +138,7 @@ func draw_page() -> void:
 		var g := str(d.get("grade", "common"))
 		text(rr.position + Vector2(92 + UiKit.text_width(str(d.get("name", tid)), 22) + 14, 32), Tx.t("ui.techniques.grade_" + g), 16, UiKit.grade_color(g))
 		text(rr.position + Vector2(92, 56), Tx.t("ui.techniques.qi_ds") % [str(d.get("family", "")).capitalize(), str(d.get("element", "none")).capitalize(), int(d.get("qi_cost", 0)), UiKit.span(float(d.get("cooldown_s", 0)))], 16, UiKit.MIST)
-		text(rr.position + Vector2(92, 80), fit(str(d.get("desc", "")), 16, rr.size.x - 110), 16, UiKit.PAPER)
+		text(rr.position + Vector2(92, 80), fit(TechniqueTreeRules.describe(d), 16, rr.size.x - 110), 16, UiKit.PAPER)
 		var tier := int(m.get("tier", 1))
 		bar(Rect2(rr.end.x - 330, rr.position.y + 14, 200, 26), float(m.get("points", 0.0)) / ProgressionRules.mastery_needed(tier), UiKit.GOLD, Tx.t("ui.techniques.tier") % tier)
 		if tier >= 3 and tier < 6: btn(Rect2(rr.end.x - 120, rr.position.y + 10, 104, 40), Tx.t("ui.techniques.rank_up"), "rank", tid)

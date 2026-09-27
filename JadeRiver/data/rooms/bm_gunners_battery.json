@@ -332,6 +332,26 @@
      }
     ]
    }
+  },
+  {
+   "id": "journal_battery",
+   "type": "pickup",
+   "at": [
+    2445,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_battery",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_battery"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

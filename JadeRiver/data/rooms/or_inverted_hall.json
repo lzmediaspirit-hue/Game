@@ -116,6 +116,38 @@
    "level": 93,
    "alt": 400,
    "surface": "gallery_high"
+  },
+  {
+   "id": "lost_upside_down_staff",
+   "type": "inspect",
+   "at": [
+    833,
+    880
+   ],
+   "prop": "weapon_rack",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "upside_down_staff"
+    }
+   ]
+  },
+  {
+   "id": "lost_gravity_knot",
+   "type": "inspect",
+   "at": [
+    1100,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "gravity_knot"
+    }
+   ]
   }
  ],
  "spawns": [

@@ -159,6 +159,22 @@
    "loot": "chest_lantern",
    "level": 99,
    "alt": 200
+  },
+  {
+   "id": "lost_burning_star_bell",
+   "type": "inspect",
+   "at": [
+    2844,
+    880
+   ],
+   "prop": "small_bell",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "burning_star_peal"
+    }
+   ]
   }
  ],
  "spawns": [

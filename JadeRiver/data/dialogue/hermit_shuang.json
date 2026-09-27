@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "hermit_shuang": {
+   "id": "hermit_shuang",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_mirror_remembers"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_snowfall_without_sound"
+       }
+      ]
+     },
+     "node": "lost_snowfall_without_sound",
+     "aside": true,
+     "text": "You look as if you would show me something."
+    }
+   ],
+   "nodes": {
+    "lost_snowfall_without_sound": {
+     "lines": [
+      "Snow falls and no one hears it land. Watch once. I will not stay to show you twice."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "snowfall_without_sound"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

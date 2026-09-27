@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "stargazer_ming": {
+   "id": "stargazer_ming",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_observatory"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_star_sighting_shot"
+       }
+      ]
+     },
+     "node": "lost_star_sighting_shot",
+     "aside": true,
+     "text": "You look as if you would show me something."
+    }
+   ],
+   "nodes": {
+    "lost_star_sighting_shot": {
+     "lines": [
+      "My lens was ground for aiming. Look through it once, then look without it."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "star_sighting_shot"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

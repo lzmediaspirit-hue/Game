@@ -1,0 +1,898 @@
+{
+ "schema_version": 1,
+ "trees": [
+  {
+   "id": "wood",
+   "element": "wood",
+   "first_ring": 1,
+   "dao": "wood"
+  },
+  {
+   "id": "fire",
+   "element": "fire",
+   "first_ring": 1,
+   "dao": "fire"
+  },
+  {
+   "id": "earth",
+   "element": "earth",
+   "first_ring": 1,
+   "dao": "earth"
+  },
+  {
+   "id": "metal",
+   "element": "metal",
+   "first_ring": 1,
+   "dao": "metal"
+  },
+  {
+   "id": "water",
+   "element": "water",
+   "first_ring": 1,
+   "dao": "water"
+  },
+  {
+   "id": "wind",
+   "element": "wind",
+   "first_ring": 1,
+   "dao": "wind"
+  },
+  {
+   "id": "thunder",
+   "element": "thunder",
+   "first_ring": 1,
+   "dao": "thunder"
+  },
+  {
+   "id": "soul",
+   "element": "soul",
+   "first_ring": 1,
+   "dao": "soul"
+  },
+  {
+   "id": "formless",
+   "element": "none",
+   "first_ring": 1,
+   "dao": ""
+  },
+  {
+   "id": "space",
+   "element": "space",
+   "first_ring": 7,
+   "dao": "space"
+  },
+  {
+   "id": "time",
+   "element": "time",
+   "first_ring": 9,
+   "dao": "time"
+  }
+ ],
+ "sectors": [
+  {
+   "id": "any",
+   "kin": "voice",
+   "built": true
+  },
+  {
+   "id": "fists",
+   "kin": "voice",
+   "built": true
+  },
+  {
+   "id": "flute",
+   "kin": "voice",
+   "built": true
+  },
+  {
+   "id": "bell",
+   "kin": "voice",
+   "built": true
+  },
+  {
+   "id": "jian",
+   "kin": "edges",
+   "built": true
+  },
+  {
+   "id": "dual_blades",
+   "kin": "edges",
+   "built": false
+  },
+  {
+   "id": "short_blade",
+   "kin": "edges",
+   "built": true
+  },
+  {
+   "id": "heavy_sabre",
+   "kin": "edges",
+   "built": true
+  },
+  {
+   "id": "spear",
+   "kin": "reach",
+   "built": true
+  },
+  {
+   "id": "staff",
+   "kin": "reach",
+   "built": true
+  },
+  {
+   "id": "whip",
+   "kin": "reach",
+   "built": false
+  },
+  {
+   "id": "rope_dart",
+   "kin": "reach",
+   "built": false
+  },
+  {
+   "id": "bow",
+   "kin": "distance",
+   "built": true
+  },
+  {
+   "id": "fan",
+   "kin": "distance",
+   "built": true
+  },
+  {
+   "id": "umbrella",
+   "kin": "distance",
+   "built": false
+  },
+  {
+   "id": "brush",
+   "kin": "distance",
+   "built": true
+  }
+ ],
+ "rings": [
+  {
+   "ring": 1,
+   "grade": "common",
+   "level": 0,
+   "act": 1,
+   "tier": 1,
+   "extra_targets": 0,
+   "reach": 0.0,
+   "unlock": "qi_kindling_1"
+  },
+  {
+   "ring": 2,
+   "grade": "earth",
+   "level": 19,
+   "act": 1,
+   "tier": 2,
+   "extra_targets": 0,
+   "reach": 0.0,
+   "unlock": "qi_unfurling_1"
+  },
+  {
+   "ring": 3,
+   "grade": "heaven",
+   "level": 37,
+   "act": 1,
+   "tier": 3,
+   "extra_targets": 0,
+   "reach": 0.0,
+   "unlock": "cloud_stride_1"
+  },
+  {
+   "ring": 4,
+   "grade": "mystic",
+   "level": 55,
+   "act": 1,
+   "tier": 3,
+   "extra_targets": 0,
+   "reach": 0.0,
+   "unlock": "heaven_glimpse_1"
+  },
+  {
+   "ring": 5,
+   "grade": "spirit",
+   "level": 64,
+   "act": 2,
+   "tier": 4,
+   "extra_targets": 1,
+   "reach": 0.02,
+   "unlock": "sage_1"
+  },
+  {
+   "ring": 6,
+   "grade": "sage",
+   "level": 73,
+   "act": 2,
+   "tier": 4,
+   "extra_targets": 1,
+   "reach": 0.04,
+   "unlock": "sage_sovereign_1"
+  },
+  {
+   "ring": 7,
+   "grade": "sovereign",
+   "level": 82,
+   "act": 3,
+   "tier": 5,
+   "extra_targets": 1,
+   "reach": 0.06,
+   "unlock": "will_manifest_1"
+  },
+  {
+   "ring": 8,
+   "grade": "will",
+   "level": 91,
+   "act": 3,
+   "tier": 5,
+   "extra_targets": 1,
+   "reach": 0.08,
+   "unlock": "sphere_lord_1"
+  },
+  {
+   "ring": 9,
+   "grade": "sphere",
+   "level": 100,
+   "act": 4,
+   "tier": 6,
+   "extra_targets": 2,
+   "reach": 0.1,
+   "unlock": "law_touching_1"
+  },
+  {
+   "ring": 10,
+   "grade": "law",
+   "level": 109,
+   "act": 4,
+   "tier": 6,
+   "extra_targets": 2,
+   "reach": 0.12,
+   "unlock": "monarch_1"
+  },
+  {
+   "ring": 11,
+   "grade": "monarch",
+   "level": 121,
+   "act": 5,
+   "tier": 7,
+   "extra_targets": 2,
+   "reach": 0.14,
+   "unlock": "inner_heaven_1"
+  },
+  {
+   "ring": 12,
+   "grade": "inner_heaven",
+   "level": 141,
+   "act": 5,
+   "tier": 7,
+   "extra_targets": 2,
+   "reach": 0.16,
+   "unlock": "inner_heaven_5"
+  },
+  {
+   "ring": 13,
+   "grade": "genesis",
+   "level": 166,
+   "act": 6,
+   "tier": 7,
+   "extra_targets": 2,
+   "reach": 0.18,
+   "unlock": "world_genesis"
+  }
+ ],
+ "act_edges": {
+  "1": 4,
+  "2": 6,
+  "3": 8,
+  "4": 10,
+  "5": 12,
+  "6": 13
+ },
+ "act_open": 3,
+ "costs": {
+  "passage": 1,
+  "art": 2,
+  "notable": 3,
+  "keystone": 5
+ },
+ "passives": {
+  "passage_power": 0.01,
+  "passage_cost": -0.02,
+  "notable": 0.03,
+  "keystone": 0.02,
+  "cap_99": 0.15,
+  "cap_165": 0.25
+ },
+ "grade_bonus": {
+  "common": 0.0,
+  "earth": 0.1,
+  "heaven": 0.2,
+  "mystic": 0.2,
+  "spirit": 0.2,
+  "sage": 0.2,
+  "sovereign": 0.2,
+  "will": 0.2,
+  "sphere": 0.2,
+  "law": 0.2,
+  "monarch": 0.2,
+  "inner_heaven": 0.2,
+  "genesis": 0.2
+ },
+ "reset_item": "clear_heart_incense",
+ "found_twice": "manual_page",
+ "templates": [
+  "constructs",
+  "field",
+  "avatar",
+  "finisher",
+  "mirror",
+  "procession"
+ ],
+ "forms": {
+  "strike": {
+   "role": "burst",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "dual_blades",
+    "fan",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "flurry": {
+   "role": "burst",
+   "fams": [
+    "any",
+    "brush",
+    "dual_blades",
+    "fists",
+    "jian",
+    "short_blade",
+    "spear",
+    "staff",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "thrust": {
+   "role": "burst",
+   "fams": [
+    "dual_blades",
+    "fists",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "umbrella"
+   ],
+   "opens": 1
+  },
+  "lunge": {
+   "role": "movement",
+   "fams": [
+    "any",
+    "dual_blades",
+    "fists",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "sweep": {
+   "role": "area",
+   "fams": [
+    "bell",
+    "dual_blades",
+    "fan",
+    "fists",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "spear",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "arc": {
+   "role": "area",
+   "fams": [
+    "any",
+    "bow",
+    "brush",
+    "dual_blades",
+    "fan",
+    "fists",
+    "heavy_sabre",
+    "jian",
+    "spear",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "volley": {
+   "role": "burst",
+   "fams": [
+    "bow",
+    "fan",
+    "flute",
+    "rope_dart",
+    "short_blade",
+    "umbrella"
+   ],
+   "opens": 1
+  },
+  "rain": {
+   "role": "area",
+   "fams": [
+    "any",
+    "bow",
+    "brush",
+    "fan",
+    "flute",
+    "jian",
+    "spear",
+    "umbrella"
+   ],
+   "opens": 2
+  },
+  "pillar": {
+   "role": "burst",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "flute",
+    "jian"
+   ],
+   "opens": 2
+  },
+  "wave": {
+   "role": "area",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "fan",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "jian",
+    "spear",
+    "staff",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "burst": {
+   "role": "area",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "fan",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "rope_dart",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 2
+  },
+  "seeker": {
+   "role": "burst",
+   "fams": [
+    "any",
+    "bow",
+    "brush",
+    "flute",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "return": {
+   "role": "area",
+   "fams": [
+    "bell",
+    "dual_blades",
+    "fan",
+    "heavy_sabre",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "umbrella"
+   ],
+   "opens": 2
+  },
+  "snare": {
+   "role": "control",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "fan",
+    "fists",
+    "flute",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "counter": {
+   "role": "self",
+   "fams": [
+    "bell",
+    "dual_blades",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "ward": {
+   "role": "self",
+   "fams": [
+    "any",
+    "bell",
+    "brush",
+    "fan",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "staff",
+    "umbrella"
+   ],
+   "opens": 1
+  },
+  "chorus": {
+   "role": "allies",
+   "fams": [
+    "any",
+    "bell",
+    "brush",
+    "fan",
+    "flute",
+    "umbrella"
+   ],
+   "opens": 1
+  },
+  "blink": {
+   "role": "movement",
+   "fams": [
+    "any",
+    "bow",
+    "dual_blades",
+    "fan",
+    "fists",
+    "jian",
+    "rope_dart",
+    "short_blade"
+   ],
+   "opens": 2
+  },
+  "plunge": {
+   "role": "movement",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "dual_blades",
+    "fists",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 2
+  },
+  "release": {
+   "role": "burst",
+   "fams": [
+    "dual_blades",
+    "fan",
+    "heavy_sabre",
+    "jian",
+    "spear",
+    "umbrella"
+   ],
+   "opens": 3
+  },
+  "swarm": {
+   "role": "allies",
+   "fams": [
+    "bow",
+    "brush",
+    "dual_blades",
+    "flute",
+    "jian",
+    "short_blade"
+   ],
+   "opens": 3
+  },
+  "domain": {
+   "role": "area",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "fan",
+    "flute",
+    "heavy_sabre",
+    "jian",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 3
+  },
+  "seal": {
+   "role": "control",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "dual_blades",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "rope_dart",
+    "short_blade",
+    "staff",
+    "umbrella",
+    "whip"
+   ],
+   "opens": 1
+  },
+  "echo": {
+   "role": "burst",
+   "fams": [
+    "any",
+    "bell",
+    "bow",
+    "brush",
+    "dual_blades",
+    "fists",
+    "flute",
+    "heavy_sabre",
+    "jian",
+    "rope_dart",
+    "short_blade",
+    "spear",
+    "staff",
+    "whip"
+   ],
+   "opens": 2
+  }
+ },
+ "budget": {
+  "1": 0.94,
+  "2": 1.03,
+  "3": 1.13,
+  "4": 1.45,
+  "5": 1.41,
+  "6": 1.3,
+  "7": 1.25,
+  "8": 1.2,
+  "9": 1.18,
+  "10": 1.1,
+  "11": 0.99,
+  "12": 0.83,
+  "13": 0.72
+ },
+ "verb_value": 0.1,
+ "path_budget": {
+  "body": 1.1,
+  "blood": 1.25,
+  "buddhist": 0.9,
+  "poison": 0.8,
+  "confucian": 1.0
+ },
+ "element_mult": {
+  "water": 1.0,
+  "wood": 1.0,
+  "fire": 1.0,
+  "earth": 1.0,
+  "metal": 1.0,
+  "wind": 1.0,
+  "thunder": 1.0,
+  "soul": 1.0,
+  "none": 1.1,
+  "space": 1.0,
+  "time": 1.0
+ },
+ "max_name": 28,
+ "denylist": [
+  "Heart Sutra",
+  "Diamond Sutra",
+  "Lotus Sutra",
+  "Platform Sutra",
+  "Surangama Sutra",
+  "Avatamsaka Sutra",
+  "Tao Te Ching",
+  "Dao De Jing",
+  "Book of Changes",
+  "I Ching",
+  "Analects",
+  "Art of War",
+  "Classic of Mountains and Seas",
+  "Yellow Court Classic",
+  "Nine Yin Manual",
+  "Nine Yang Manual",
+  "Nine Yin Scripture",
+  "Nine Yang Divine Skill",
+  "Eighteen Dragon Subduing Palms",
+  "Dragon Subduing Palm",
+  "Six Meridians Divine Sword",
+  "Heavenly Mountain Plum",
+  "Sunflower Manual",
+  "Sunflower Treasured Book",
+  "Evil Warding Sword",
+  "Nine Swords of Dugu",
+  "Dugu Nine Swords",
+  "Solitary Nine Swords",
+  "Lingbo Weibu",
+  "Graceful Waves Steps",
+  "Northern Darkness",
+  "Northern Darkness Divine Skill",
+  "Toad Skill",
+  "Toad Stance",
+  "Beidou Formation",
+  "Big Dipper Formation",
+  "Heavenly Heart Sword",
+  "Jade Maiden Heart Sutra",
+  "Jade Maiden Sword",
+  "Ninefold Sun",
+  "Tai Chi Fist",
+  "Tai Chi Sword",
+  "Drunken Fist",
+  "Drunken Boxing",
+  "Wing Chun",
+  "Iron Palm",
+  "Iron Shirt",
+  "Golden Bell Shield",
+  "Golden Bell Cover",
+  "Shaolin Fist",
+  "Eagle Claw",
+  "Tiger Crane",
+  "Crane Style",
+  "Snake Style",
+  "Mantis Fist",
+  "Praying Mantis Fist",
+  "Lion's Roar",
+  "Buddha's Palm",
+  "Palm of the Buddha",
+  "Tathagata Palm",
+  "Ten Thousand Swords Return to One",
+  "Myriad Swords Return to One",
+  "Heavenly Demon Art",
+  "Heavenly Demon Divine Art",
+  "Blood Demon Art",
+  "Nine Heavens Art",
+  "Kamehameha",
+  "Rasengan",
+  "Chidori",
+  "Shadow Clone",
+  "Shadow Clone Jutsu",
+  "Flying Thunder God",
+  "Getsuga Tensho",
+  "Bankai",
+  "Hadoken",
+  "Shoryuken",
+  "Tatsumaki",
+  "Sonic Boom",
+  "Falcon Punch",
+  "Omnislash",
+  "Braver",
+  "Meteor Strike",
+  "Dragon Fist",
+  "Spirit Bomb",
+  "Final Flash",
+  "Big Bang Attack",
+  "Galick Gun",
+  "Destructo Disc",
+  "Solar Flare",
+  "Hundred Crack Fist",
+  "Hokuto Hyakuretsu Ken",
+  "Fist of the North Star",
+  "Gomu Gomu",
+  "Gear Second",
+  "Haki",
+  "Susanoo",
+  "Amaterasu",
+  "Tsukuyomi",
+  "Chakra Blade",
+  "Wind Scar",
+  "Iron Reaver",
+  "Backlash Wave",
+  "Dragon Slayer",
+  "Fire Dragon's Roar",
+  "Heaven's Wrath",
+  "Hurricane Kick",
+  "Rising Dragon",
+  "Dragon Punch",
+  "Whirlwind Kick",
+  "Crane Kick",
+  "Fatality",
+  "Blade Dance",
+  "Moonlight Sword",
+  "Heaven Splitting Sword",
+  "Sword Qi Rain",
+  "Sword of Kings",
+  "Excalibur",
+  "Mjolnir",
+  "Gungnir",
+  "Ragnarok",
+  "Armageddon",
+  "Holy Light",
+  "Divine Storm",
+  "Chaos Control",
+  "Limit Break",
+  "Knights of the Round",
+  "Bahamut",
+  "Ultima",
+  "Meteor",
+  "Nine Transformations",
+  "Seventy-Two Transformations",
+  "Somersault Cloud",
+  "Ruyi Jingu Bang",
+  "Golden Cudgel",
+  "Lotus Heart Sutra",
+  "Great Compassion Mantra",
+  "Om Mani Padme Hum",
+  "Six Syllable Mantra",
+  "Medicine Buddha Sutra",
+  "Tibetan Book of the Dead",
+  "Bardo Thodol",
+  "Zhuangzi",
+  "Liezi",
+  "Huainanzi",
+  "Neijing",
+  "Yellow Emperor's Classic"
+ ]
+}

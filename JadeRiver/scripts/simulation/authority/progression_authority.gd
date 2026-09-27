@@ -16,7 +16,7 @@ func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
 		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_path", "set_false_realm",
-		"play_guqin", "solve_chess"]
+		"play_guqin", "solve_chess", "realise_node", "unrealise_node", "reset_tree"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -34,6 +34,8 @@ func subscribe() -> void:
 	GameEvents.subscribe("zone_entered", _on_zone_entered, 30)
 	GameEvents.subscribe("room_entered", func(p): _refresh_attunement(game.character(str(p.get("actor", "")))), 30)
 	GameEvents.subscribe("stats_changed", func(p): if "attunement_bonus" in p.get("changed_ids", []): _refresh_attunement(game.character(str(p.get("actor", "")))), 30)
+	# P13a: a page of Lu's journal picked up may complete a piece of the Ferryman's Oar.
+	GameEvents.subscribe("flag_set", _on_flag_set, 30)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -67,6 +69,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_vow": return set_vow(c, str(intent.get("vow", "")), bool(intent.get("on", true)))
 		"set_path": return set_path(c, str(intent.get("path", "")), bool(intent.get("on", true)))
 		"set_false_realm": return set_false_realm(c, str(intent.get("realm", "")))
+		"realise_node": return realise_node(c, str(intent.get("node", "")))
+		"unrealise_node": return unrealise_node(c, str(intent.get("node", "")))
+		"reset_tree": return reset_tree(c, str(intent.get("tree", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ meditation (S06)
@@ -1295,13 +1300,17 @@ func _on_loadout_swapped(p: Dictionary) -> void:
 func apply_learn_technique(actor_id: String, tid: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("techniques", tid): return
-	if c.cultivator.techniques_known.has(tid): return
+	if c.cultivator.techniques_known.has(tid):
+		# P13a: an art realised on its tree and then taught (a teacher, a quest, a manual) is taught now: its node's
+		# Realisations come back (technique_plan §4.3).
+		if c.cultivator.tree.realised.has(tid): c.cultivator.tree.realised.erase(tid)
+		return
 	c.cultivator.techniques_known.append(tid)
-	c.cultivator.mastery[tid] = {"tier": 1, "points": 0.0}
+	if not c.cultivator.mastery.has(tid): c.cultivator.mastery[tid] = {"tier": 1, "points": 0.0}   # P13a: an art let go and realised again keeps its mastery
 	emit("technique_learned", {"actor": c.id, "technique": tid})
 	var slots := ProgressionRules.technique_slot_count(c)
 	for i in slots:
-		if c.cultivator.technique_slots[i] == null:
+		if c.cultivator.technique_slots[i] == null and TechniqueTreeRules.heavy_fits(c.cultivator.technique_slots, i, tid):
 			c.cultivator.technique_slots[i] = tid
 			emit("technique_equipped", {"actor": c.id, "technique": tid, "slot": i})
 			break
@@ -1378,6 +1387,8 @@ func equip_technique(c, slot: int, tid: String) -> Dictionary:
 	var n := ProgressionRules.technique_slot_count(c)
 	if slot < 0 or slot >= n: return fail("slot_locked")
 	if tid != "" and not c.cultivator.techniques_known.has(tid): return fail("unknown_technique")
+	# P13a (technique_plan §6.3): a heavy art, a keystone or a lost art, is one to a ring of four.
+	if tid != "" and not TechniqueTreeRules.heavy_fits(c.cultivator.technique_slots, slot, tid): return fail("heavy_cap", {"text": Tx.t("sim.tree.heavy_cap")})
 	if tid != "":
 		for i in c.cultivator.technique_slots.size():
 			if c.cultivator.technique_slots[i] == tid: c.cultivator.technique_slots[i] = null
@@ -1597,3 +1608,169 @@ func apply_insight_best(actor_id: String, amount: float, context := "fortune") -
 	var best := ProgressionRules.strongest_dao(c)
 	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
 	else: apply_progress(c.id, 0.0, context, 0.02)
+
+# ------------------------------------------------------------------ P13a the element trees (technique_plan §4)
+## The Realisations pool, spent and free (TechniqueTreeRules.realisations).
+func realisations(c) -> Dictionary:
+	return TechniqueTreeRules.realisations(c)
+
+## Realise a node out of combat: it costs its Realisations, and an art's node teaches its art (§4.3, §4.4).
+func realise_node(c, nid: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	var why := TechniqueTreeRules.realise_block(c, nid, game.ctx(c))
+	if why != "": return fail(why, {"text": Tx.t("sim.tree." + why)})
+	var n := TechniqueTreeRules.node(nid)
+	c.cultivator.tree.realised[nid] = true
+	if str(n.kind) in ["art", "keystone"]: apply_learn_technique(c.id, nid)
+	emit("tree_node_realised", {"actor": c.id, "node": nid, "tree": str(n.tree), "kind": str(n.kind)})
+	return ok(TechniqueTreeRules.realisations(c))
+
+## Let a node go out of combat, leaves first: its Realisations come back at once; a realised art is unlearned but keeps
+## its mastery, and cannot go while it sits in a slot (§4.5).
+func unrealise_node(c, nid: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	var why := TechniqueTreeRules.unrealise_block(c, nid)
+	if why != "": return fail(why, {"text": Tx.t("sim.tree." + why)})
+	var n := TechniqueTreeRules.node(nid)
+	c.cultivator.tree.realised.erase(nid)
+	if str(n.kind) in ["art", "keystone"]: c.cultivator.techniques_known.erase(nid)
+	emit("tree_node_unrealised", {"actor": c.id, "node": nid, "tree": str(n.tree), "kind": str(n.kind)})
+	return ok(TechniqueTreeRules.realisations(c))
+
+## Let a whole tree go (§4.5): free once in each great realm, then for a Clear Heart Incense. Realised arts leave
+## their slots; taught arts stay known.
+func reset_tree(c, tree: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	if not tree in TechniqueTreeRules.trees(): return fail("unknown_tree")
+	var nodes: Array = TechniqueTreeRules.realised(c).keys().filter(func(nid): return str(TechniqueTreeRules.node(str(nid)).get("tree", "")) == tree)
+	if nodes.is_empty(): return fail("nothing", {"text": Tx.t("sim.tree.nothing")})
+	var realm_now := ProgressionRules.great_realm(c.cultivator.realm_key)
+	var free: bool = not c.cultivator.tree.resets.has(realm_now)
+	var incense := str(TechniqueTreeRules.config().get("reset_item", "clear_heart_incense"))
+	if not free:
+		if c.inventory.count(incense) <= 0: return fail("needs_incense", {"text": Tx.t("sim.tree.needs_incense")})
+		game.inventory.apply_remove(c.id, incense, 1, "tree_reset")
+	else: c.cultivator.tree.resets[realm_now] = true
+	var refund := 0
+	for nid in nodes:
+		refund += TechniqueTreeRules.cost(str(nid))
+		c.cultivator.tree.realised.erase(nid)
+		if not str(TechniqueTreeRules.node(str(nid)).get("kind", "")) in ["art", "keystone"]: continue
+		c.cultivator.techniques_known.erase(nid)
+		for i in c.cultivator.technique_slots.size():
+			if c.cultivator.technique_slots[i] == nid:
+				c.cultivator.technique_slots[i] = null
+				emit("technique_equipped", {"actor": c.id, "technique": "", "slot": i})
+		for bar in c.cultivator.technique_bars.values():
+			for i in (bar as Array).size():
+				if bar[i] == nid: bar[i] = null
+	emit("tree_reset", {"actor": c.id, "tree": tree, "free": free, "refund": refund})
+	return ok({"free": free, "refund": refund})
+
+## A save from before the trees (§4.9): every known art on a tree lights the route from its sector's gate, paid from
+## Realisations (the tree's opening gift to an established character), and the Dao arts of the tiers already reached
+## are taught. Runs once, when the character is entered; mastery, slots and bars are untouched.
+func migrate_tree(c) -> void:
+	if c == null or int(c.cultivator.tree.get("v", 0)) >= 1: return
+	for tid in c.cultivator.techniques_known.duplicate():
+		for p in TechniqueTreeRules.route_to(str(tid)): c.cultivator.tree.realised[p] = true
+	for d in c.cultivator.daos:
+		var effects: Array = ContentDB.entry("daos", str(d)).get("effects", [])
+		for i in mini(int(c.cultivator.daos[d].get("tier", 0)), effects.size()):
+			if effects[i] is Dictionary and effects[i].has("learn_technique"): apply_learn_technique(c.id, str(effects[i].learn_technique))
+	lost_pages(c)   # the journal pages already gathered count toward the Ferryman's Oar
+	c.cultivator.tree["v"] = 1
+
+## The page's view of one tree: every node with its state (realised, taught, open, or locked and why) and its cost.
+func tree_view(c, tree: String) -> Dictionary:
+	var ctx: Dictionary = game.ctx(c)
+	var nodes: Array = []
+	for nid in TechniqueTreeRules.nodes_of(tree):
+		var n := TechniqueTreeRules.node(nid)
+		var state := "realised" if TechniqueTreeRules.realised(c).has(nid) else ("taught" if c.cultivator.techniques_known.has(nid) else "")
+		var why := "" if state != "" else TechniqueTreeRules.realise_block(c, nid, ctx)
+		if state == "": state = "open" if why == "" else "locked"
+		nodes.append({"id": nid, "kind": str(n.kind), "family": str(n.get("family", "")), "kin": str(n.get("kin", "")), "ring": int(n.ring),
+			"state": state, "why": why, "cost": TechniqueTreeRules.cost(nid)})
+	return {"tree": tree, "nodes": nodes, "realisations": TechniqueTreeRules.realisations(c)}
+
+## The trees' tabs (technique_plan §4.10), in the page's order: each tree's name and element, whether its first ring's
+## Level is reached (Space and Time open late), its realised nodes and the arts of it the character knows.
+func tree_tabs(c) -> Array:
+	var lv := ProgressionRules.level(c)
+	var realised_in := {}
+	for nid in TechniqueTreeRules.realised(c):
+		var t := str(TechniqueTreeRules.node(str(nid)).get("tree", ""))
+		realised_in[t] = int(realised_in.get(t, 0)) + 1
+	var known_in := {}
+	for tid in c.cultivator.techniques_known:
+		var t2 := TechniqueTreeRules.tree_of_element(str(ContentDB.entry("techniques", str(tid)).get("element", "none")))
+		known_in[t2] = int(known_in.get(t2, 0)) + 1
+	var out: Array = []
+	for tree in TechniqueTreeRules.trees():
+		var ring := TechniqueTreeRules.first_ring(tree)
+		out.append({"tree": tree, "name": ContentDB.text("technique.tree." + tree), "element": str(TechniqueTreeRules.tree_def(tree).get("element", "")),
+			"open": lv >= int(TechniqueTreeRules.ring_row(ring).get("level", 1)), "realised": int(realised_in.get(tree, 0)), "known": int(known_in.get(tree, 0))})
+	return out
+
+## The Lost Arts board (roadmap decision 19): counts per act and the found arts' cards, nothing of an unfound one.
+func lost_arts_view(c) -> Dictionary:
+	return TechniqueTreeRules.lost_view(c)
+
+# ------------------------------------------------------------------ P13a Lost Arts (technique_plan §5; decision 19)
+## A lost art found: a stele rubbed, a ruin's writing read, a master's lesson, a foe's manual, a quest's end, an auction
+## lot, a lineage's piece. It is learned as what it is (a technique, an Inner Art or a Secret Art) and flagged
+## found_<art>; found a second time it is a Manual Page instead (§5.3). Nothing spoke of it before.
+func apply_learn_lost_art(actor_id: String, art: String) -> void:
+	var c = game.character(actor_id)
+	var row := ContentDB.entry("lost_arts", art)
+	if c == null or row.is_empty(): return
+	if TechniqueTreeRules.lost_found(c, row):
+		game.inventory.apply_add(c.id, str(TechniqueTreeRules.config().get("found_twice", "manual_page")), 1, "lost_art_again")
+		return
+	match str(row.get("kind", "technique")):
+		"inner": apply_learn_inner_art(c.id, art)
+		"secret": apply_learn_secret_art(c.id, art)
+		_: apply_learn_technique(c.id, art)
+	game.quest.apply_flag(c.id, "found_" + art)
+	emit("lost_art_found", {"actor": c.id, "art": art, "kind": str(row.get("kind", "technique")), "act": int(row.get("act", 1)),
+		"lineage": str(row.get("lineage", ""))})
+
+## A stele read at its insight stone (§5.2): the first art it holds that is not yet found and whose condition holds
+## (a Rubbing Kit, a Dao tier, an hour, a season) is taken as a rubbing. False when the stone is only a stone today.
+func read_stele(c, object_id: String) -> bool:
+	for row in TechniqueTreeRules.lost_at(object_id):
+		if TechniqueTreeRules.lost_found(c, row): continue
+		if not RequirementRules.passes({"all": row.src.get("requires", [])}, game.ctx(c)): continue
+		apply_learn_lost_art(c.id, str(row.id))
+		return true
+	return false
+
+## The lost manuals a defeated foe drops (§5.3), from its loot roll's `lost` rows (LootRules rolls them like named rows,
+## never raised by drop rate): a manual is kept only while its art is not found and not already carried, and is sure by
+## its pity-th kill.
+func lost_drops(c, rolled: Array) -> Array:
+	var out: Array = []
+	for r in rolled:
+		var art := str(r.art)
+		if TechniqueTreeRules.lost_found(c, ContentDB.entry("lost_arts", art)) or c.inventory.count(str(r.item)) > 0: continue
+		var kills := int(c.cultivator.tree.pity.get(art, 0)) + 1
+		var pity := int(r.get("pity", 0))
+		if bool(r.get("hit", false)) or (pity > 0 and kills >= pity):
+			c.cultivator.tree.pity.erase(art)
+			out.append({"item": str(r.item), "count": 1})
+		else: c.cultivator.tree.pity[art] = kills
+	return out
+
+## Lu's journal (§5.5): each lineage piece of the Ferryman's Oar comes with its count of pages found.
+func lost_pages(c) -> void:
+	if c == null: return
+	var flags: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	var pages := flags.filter(func(f): return c.quests.has_flag(str(f))).size()
+	for row in ContentDB.all("lost_arts"):
+		var src: Dictionary = row.get("src", {})
+		if str(src.get("kind", "")) == "pages" and pages >= int(src.get("count", 0)) and not TechniqueTreeRules.lost_found(c, row):
+			apply_learn_lost_art(c.id, str(row.id))
+
+func _on_flag_set(p: Dictionary) -> void:
+	if str(p.get("flag", "")) in ContentDB.config("lost_arts").get("journal_flags", []): lost_pages(game.character(str(p.get("actor", ""))))

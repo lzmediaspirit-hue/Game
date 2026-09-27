@@ -269,7 +269,13 @@ func talk(c, npc: String) -> Dictionary:
 		var tree: Dictionary = ContentDB.dialogue[str(n.tree)]
 		var node_id := _tree_entry(c, tree)
 		if node_id != "":
-			return ok({"dialogue": _tree_node(c, npc, n, tree, node_id)})
+			var said := _tree_node(c, npc, n, tree, node_id)
+			var asides := _asides(c, n)
+			if not asides.is_empty():
+				var said_choices: Array = said.choices
+				var at: int = said_choices.size() - (1 if not said_choices.is_empty() and bool(said_choices.back().get("close", false)) else 0)
+				for i in asides.size(): said_choices.insert(at + i, asides[i])
+			return ok({"dialogue": said})
 	# Every quest this NPC can offer, story first (main, guided, side); the first one speaks.
 	var offers: Array = []
 	for q in c.quests.offered:
@@ -282,6 +288,7 @@ func talk(c, npc: String) -> Dictionary:
 		convo.lines = first.get("offer_text", [Tx.t("sim.quest.i_have_a_task_for")]).duplicate()
 		for q2 in offers.slice(0, 3):
 			convo.choices.append({"text": Tx.t("sim.quest.accept") % ContentDB.entry("quests", q2).get("name", q2), "accept": q2})
+		convo.choices.append_array(_asides(c, n))
 		convo.choices.append({"text": Tx.t("sim.quest.not_now"), "close": true})
 		convo.quest = offers[0]
 		return ok({"dialogue": convo})
@@ -316,13 +323,25 @@ func talk(c, npc: String) -> Dictionary:
 	if not n.get("gifts", {}).is_empty():
 		convo.hearts = c.relations.hearts_of(npc)
 		if convo.choices.size() < 4: convo.choices.append({"text": Tx.t("sim.quest.give_gift"), "page": "gift", "args": {"npc": npc}})
+	convo.choices.append_array(_asides(c, n))
 	convo.choices.append({"text": Tx.t("sim.quest.farewell"), "close": true})
 	return ok({"dialogue": convo})
 
 func _tree_entry(c, tree: Dictionary) -> String:
 	for entry in tree.get("entries", []):
+		if entry.get("aside", false): continue
 		if RequirementRules.passes(entry.get("requires", {}), game.ctx(c)): return str(entry.node)
 	return ""
+
+## P13a: an aside of the NPC's tree (a master's last lesson, technique_plan §5.2) waits as one more choice beside what
+## the NPC already says, never in place of a quest's offer; it opens its node, and says nothing before its time.
+func _asides(c, n: Dictionary) -> Array:
+	var tree: Dictionary = ContentDB.dialogue.get(str(n.get("tree", "")), {})
+	var out: Array = []
+	for entry in tree.get("entries", []):
+		if entry.get("aside", false) and RequirementRules.passes(entry.get("requires", {}), game.ctx(c)):
+			out.append({"text": str(entry.get("text", "...")), "tree": str(tree.get("id", n.tree)), "next": str(entry.node)})
+	return out
 
 func _tree_node(c, npc: String, n: Dictionary, tree: Dictionary, node_id: String) -> Dictionary:
 	var node: Dictionary = tree.nodes.get(node_id, {})

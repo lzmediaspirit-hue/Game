@@ -271,6 +271,22 @@
      }
     ]
    }
+  },
+  {
+   "id": "lost_quarry_marks",
+   "type": "inspect",
+   "at": [
+    688,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "quarry_breaker_fist"
+    }
+   ]
   }
  ],
  "spawns": [

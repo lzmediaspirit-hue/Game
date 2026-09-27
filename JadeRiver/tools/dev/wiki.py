@@ -23,7 +23,7 @@ with neither is a real gap: the page says so, and data_validation lists it in KN
 until it has a source.
 
 SOURCE CHANNELS
-    drops        enemy loot tables (guaranteed, groups, rare, quest drops), first-defeat treasures,
+    drops        enemy loot tables (guaranteed, groups, rare, quest drops, lost manuals), first-defeat treasures,
                  pet skill books, beast cores, Spirit Soil, the banded equipment roll
     containers   jars, crates, chests and wine jars in rooms, tower floors, calendar rifts
     gathering    herb patches, ore veins, star sights, insect swarms, beast trails, pickups, fishing
@@ -728,6 +728,8 @@ def table_rows(d, t):
     for key, note in (("named", "named"), ("elite_named", "named, elites only")):
         for r in t.get(key, []):
             rows.append((r["item"], pct(r.get("chance", 0)), note))
+    for r in t.get("lost", []):   # P13a: a lost art's manual, never in the random roll (technique_plan §5.3)
+        rows.append((r["item"], pct(r.get("chance", 0)), "lost art, until found" + (", sure by kill %d" % r["pity"] if r.get("pity") else "")))
     return rows
 
 

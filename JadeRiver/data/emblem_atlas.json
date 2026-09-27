@@ -1,0 +1,1776 @@
+{
+ "cells": {
+  "base:earth:common": [
+   0,
+   0
+  ],
+  "base:earth:dao": [
+   1,
+   0
+  ],
+  "base:earth:earth": [
+   2,
+   0
+  ],
+  "base:earth:genesis": [
+   3,
+   0
+  ],
+  "base:earth:heaven": [
+   4,
+   0
+  ],
+  "base:earth:heaven:torn": [
+   5,
+   0
+  ],
+  "base:earth:inner_heaven": [
+   6,
+   0
+  ],
+  "base:earth:keystone": [
+   7,
+   0
+  ],
+  "base:earth:law": [
+   8,
+   0
+  ],
+  "base:earth:monarch": [
+   9,
+   0
+  ],
+  "base:earth:mystic": [
+   10,
+   0
+  ],
+  "base:earth:sage": [
+   11,
+   0
+  ],
+  "base:earth:sovereign": [
+   12,
+   0
+  ],
+  "base:earth:sphere": [
+   13,
+   0
+  ],
+  "base:earth:spirit": [
+   14,
+   0
+  ],
+  "base:earth:spirit:torn": [
+   15,
+   0
+  ],
+  "base:earth:will": [
+   16,
+   0
+  ],
+  "base:fire:common": [
+   17,
+   0
+  ],
+  "base:fire:dao": [
+   18,
+   0
+  ],
+  "base:fire:earth": [
+   19,
+   0
+  ],
+  "base:fire:genesis": [
+   20,
+   0
+  ],
+  "base:fire:heaven": [
+   21,
+   0
+  ],
+  "base:fire:inner_heaven": [
+   22,
+   0
+  ],
+  "base:fire:keystone": [
+   23,
+   0
+  ],
+  "base:fire:law": [
+   0,
+   1
+  ],
+  "base:fire:monarch": [
+   1,
+   1
+  ],
+  "base:fire:mystic": [
+   2,
+   1
+  ],
+  "base:fire:sage": [
+   3,
+   1
+  ],
+  "base:fire:sovereign": [
+   4,
+   1
+  ],
+  "base:fire:sovereign:torn": [
+   5,
+   1
+  ],
+  "base:fire:sphere": [
+   6,
+   1
+  ],
+  "base:fire:spirit": [
+   7,
+   1
+  ],
+  "base:fire:will": [
+   8,
+   1
+  ],
+  "base:formless:common": [
+   9,
+   1
+  ],
+  "base:formless:dao": [
+   10,
+   1
+  ],
+  "base:formless:earth": [
+   11,
+   1
+  ],
+  "base:formless:genesis": [
+   12,
+   1
+  ],
+  "base:formless:heaven": [
+   13,
+   1
+  ],
+  "base:formless:inner_heaven": [
+   14,
+   1
+  ],
+  "base:formless:keystone": [
+   15,
+   1
+  ],
+  "base:formless:law": [
+   16,
+   1
+  ],
+  "base:formless:monarch": [
+   17,
+   1
+  ],
+  "base:formless:mystic": [
+   18,
+   1
+  ],
+  "base:formless:sage": [
+   19,
+   1
+  ],
+  "base:formless:sovereign": [
+   20,
+   1
+  ],
+  "base:formless:sovereign:torn": [
+   21,
+   1
+  ],
+  "base:formless:sphere": [
+   22,
+   1
+  ],
+  "base:formless:spirit": [
+   23,
+   1
+  ],
+  "base:formless:will": [
+   0,
+   2
+  ],
+  "base:metal:common": [
+   1,
+   2
+  ],
+  "base:metal:dao": [
+   2,
+   2
+  ],
+  "base:metal:earth": [
+   3,
+   2
+  ],
+  "base:metal:genesis": [
+   4,
+   2
+  ],
+  "base:metal:heaven": [
+   5,
+   2
+  ],
+  "base:metal:heaven:torn": [
+   6,
+   2
+  ],
+  "base:metal:inner_heaven": [
+   7,
+   2
+  ],
+  "base:metal:keystone": [
+   8,
+   2
+  ],
+  "base:metal:law": [
+   9,
+   2
+  ],
+  "base:metal:monarch": [
+   10,
+   2
+  ],
+  "base:metal:mystic": [
+   11,
+   2
+  ],
+  "base:metal:sage": [
+   12,
+   2
+  ],
+  "base:metal:sovereign": [
+   13,
+   2
+  ],
+  "base:metal:sovereign:torn": [
+   14,
+   2
+  ],
+  "base:metal:sphere": [
+   15,
+   2
+  ],
+  "base:metal:spirit": [
+   16,
+   2
+  ],
+  "base:metal:spirit:torn": [
+   17,
+   2
+  ],
+  "base:metal:will": [
+   18,
+   2
+  ],
+  "base:soul:common": [
+   19,
+   2
+  ],
+  "base:soul:dao": [
+   20,
+   2
+  ],
+  "base:soul:earth": [
+   21,
+   2
+  ],
+  "base:soul:genesis": [
+   22,
+   2
+  ],
+  "base:soul:heaven": [
+   23,
+   2
+  ],
+  "base:soul:heaven:torn": [
+   0,
+   3
+  ],
+  "base:soul:inner_heaven": [
+   1,
+   3
+  ],
+  "base:soul:keystone": [
+   2,
+   3
+  ],
+  "base:soul:law": [
+   3,
+   3
+  ],
+  "base:soul:monarch": [
+   4,
+   3
+  ],
+  "base:soul:mystic": [
+   5,
+   3
+  ],
+  "base:soul:sage": [
+   6,
+   3
+  ],
+  "base:soul:sovereign": [
+   7,
+   3
+  ],
+  "base:soul:sphere": [
+   8,
+   3
+  ],
+  "base:soul:spirit": [
+   9,
+   3
+  ],
+  "base:soul:spirit:torn": [
+   10,
+   3
+  ],
+  "base:soul:will": [
+   11,
+   3
+  ],
+  "base:space:dao": [
+   12,
+   3
+  ],
+  "base:space:genesis": [
+   13,
+   3
+  ],
+  "base:space:inner_heaven": [
+   14,
+   3
+  ],
+  "base:space:keystone": [
+   15,
+   3
+  ],
+  "base:space:law": [
+   16,
+   3
+  ],
+  "base:space:monarch": [
+   17,
+   3
+  ],
+  "base:space:sovereign": [
+   18,
+   3
+  ],
+  "base:space:sovereign:torn": [
+   19,
+   3
+  ],
+  "base:space:sphere": [
+   20,
+   3
+  ],
+  "base:space:will": [
+   21,
+   3
+  ],
+  "base:thunder:common": [
+   22,
+   3
+  ],
+  "base:thunder:dao": [
+   23,
+   3
+  ],
+  "base:thunder:earth": [
+   0,
+   4
+  ],
+  "base:thunder:genesis": [
+   1,
+   4
+  ],
+  "base:thunder:heaven": [
+   2,
+   4
+  ],
+  "base:thunder:inner_heaven": [
+   3,
+   4
+  ],
+  "base:thunder:keystone": [
+   4,
+   4
+  ],
+  "base:thunder:law": [
+   5,
+   4
+  ],
+  "base:thunder:monarch": [
+   6,
+   4
+  ],
+  "base:thunder:mystic": [
+   7,
+   4
+  ],
+  "base:thunder:sage": [
+   8,
+   4
+  ],
+  "base:thunder:sovereign": [
+   9,
+   4
+  ],
+  "base:thunder:sphere": [
+   10,
+   4
+  ],
+  "base:thunder:spirit": [
+   11,
+   4
+  ],
+  "base:thunder:spirit:torn": [
+   12,
+   4
+  ],
+  "base:thunder:will": [
+   13,
+   4
+  ],
+  "base:time:genesis": [
+   14,
+   4
+  ],
+  "base:time:inner_heaven": [
+   15,
+   4
+  ],
+  "base:time:law": [
+   16,
+   4
+  ],
+  "base:time:monarch": [
+   17,
+   4
+  ],
+  "base:time:sphere": [
+   18,
+   4
+  ],
+  "base:water:common": [
+   19,
+   4
+  ],
+  "base:water:dao": [
+   20,
+   4
+  ],
+  "base:water:earth": [
+   21,
+   4
+  ],
+  "base:water:genesis": [
+   22,
+   4
+  ],
+  "base:water:heaven": [
+   23,
+   4
+  ],
+  "base:water:heaven:torn": [
+   0,
+   5
+  ],
+  "base:water:inner_heaven": [
+   1,
+   5
+  ],
+  "base:water:keystone": [
+   2,
+   5
+  ],
+  "base:water:law": [
+   3,
+   5
+  ],
+  "base:water:monarch": [
+   4,
+   5
+  ],
+  "base:water:mystic": [
+   5,
+   5
+  ],
+  "base:water:sage": [
+   6,
+   5
+  ],
+  "base:water:sovereign": [
+   7,
+   5
+  ],
+  "base:water:sovereign:torn": [
+   8,
+   5
+  ],
+  "base:water:sphere": [
+   9,
+   5
+  ],
+  "base:water:sphere:torn": [
+   10,
+   5
+  ],
+  "base:water:spirit": [
+   11,
+   5
+  ],
+  "base:water:spirit:torn": [
+   12,
+   5
+  ],
+  "base:water:will": [
+   13,
+   5
+  ],
+  "base:wind:common": [
+   14,
+   5
+  ],
+  "base:wind:dao": [
+   15,
+   5
+  ],
+  "base:wind:earth": [
+   16,
+   5
+  ],
+  "base:wind:genesis": [
+   17,
+   5
+  ],
+  "base:wind:heaven": [
+   18,
+   5
+  ],
+  "base:wind:heaven:torn": [
+   19,
+   5
+  ],
+  "base:wind:inner_heaven": [
+   20,
+   5
+  ],
+  "base:wind:keystone": [
+   21,
+   5
+  ],
+  "base:wind:law": [
+   22,
+   5
+  ],
+  "base:wind:monarch": [
+   23,
+   5
+  ],
+  "base:wind:mystic": [
+   0,
+   6
+  ],
+  "base:wind:sage": [
+   1,
+   6
+  ],
+  "base:wind:sovereign": [
+   2,
+   6
+  ],
+  "base:wind:sphere": [
+   3,
+   6
+  ],
+  "base:wind:spirit": [
+   4,
+   6
+  ],
+  "base:wind:spirit:torn": [
+   5,
+   6
+  ],
+  "base:wind:will": [
+   6,
+   6
+  ],
+  "base:wood:common": [
+   7,
+   6
+  ],
+  "base:wood:dao": [
+   8,
+   6
+  ],
+  "base:wood:earth": [
+   9,
+   6
+  ],
+  "base:wood:genesis": [
+   10,
+   6
+  ],
+  "base:wood:heaven": [
+   11,
+   6
+  ],
+  "base:wood:heaven:torn": [
+   12,
+   6
+  ],
+  "base:wood:inner_heaven": [
+   13,
+   6
+  ],
+  "base:wood:keystone": [
+   14,
+   6
+  ],
+  "base:wood:law": [
+   15,
+   6
+  ],
+  "base:wood:monarch": [
+   16,
+   6
+  ],
+  "base:wood:mystic": [
+   17,
+   6
+  ],
+  "base:wood:sage": [
+   18,
+   6
+  ],
+  "base:wood:sovereign": [
+   19,
+   6
+  ],
+  "base:wood:sphere": [
+   20,
+   6
+  ],
+  "base:wood:spirit": [
+   21,
+   6
+  ],
+  "base:wood:will": [
+   22,
+   6
+  ],
+  "form:arc:any": [
+   23,
+   6
+  ],
+  "form:arc:bow": [
+   0,
+   7
+  ],
+  "form:arc:brush": [
+   1,
+   7
+  ],
+  "form:arc:fan": [
+   2,
+   7
+  ],
+  "form:arc:fists": [
+   3,
+   7
+  ],
+  "form:arc:heavy_sabre": [
+   4,
+   7
+  ],
+  "form:arc:jian": [
+   5,
+   7
+  ],
+  "form:arc:spear": [
+   6,
+   7
+  ],
+  "form:blink:any": [
+   7,
+   7
+  ],
+  "form:blink:bow": [
+   8,
+   7
+  ],
+  "form:blink:fan": [
+   9,
+   7
+  ],
+  "form:blink:fists": [
+   10,
+   7
+  ],
+  "form:blink:jian": [
+   11,
+   7
+  ],
+  "form:blink:short_blade": [
+   12,
+   7
+  ],
+  "form:burst:any": [
+   13,
+   7
+  ],
+  "form:burst:bell": [
+   14,
+   7
+  ],
+  "form:burst:bow": [
+   15,
+   7
+  ],
+  "form:burst:brush": [
+   16,
+   7
+  ],
+  "form:burst:fan": [
+   17,
+   7
+  ],
+  "form:burst:fists": [
+   18,
+   7
+  ],
+  "form:burst:flute": [
+   19,
+   7
+  ],
+  "form:burst:heavy_sabre": [
+   20,
+   7
+  ],
+  "form:burst:staff": [
+   21,
+   7
+  ],
+  "form:chorus:any": [
+   22,
+   7
+  ],
+  "form:chorus:bell": [
+   23,
+   7
+  ],
+  "form:chorus:bow": [
+   0,
+   8
+  ],
+  "form:chorus:brush": [
+   1,
+   8
+  ],
+  "form:chorus:fan": [
+   2,
+   8
+  ],
+  "form:chorus:flute": [
+   3,
+   8
+  ],
+  "form:chorus:jian": [
+   4,
+   8
+  ],
+  "form:chorus:spear": [
+   5,
+   8
+  ],
+  "form:counter:bell": [
+   6,
+   8
+  ],
+  "form:counter:fists": [
+   7,
+   8
+  ],
+  "form:counter:flute": [
+   8,
+   8
+  ],
+  "form:counter:heavy_sabre": [
+   9,
+   8
+  ],
+  "form:counter:jian": [
+   10,
+   8
+  ],
+  "form:counter:short_blade": [
+   11,
+   8
+  ],
+  "form:counter:spear": [
+   12,
+   8
+  ],
+  "form:counter:staff": [
+   13,
+   8
+  ],
+  "form:domain:any": [
+   14,
+   8
+  ],
+  "form:domain:bell": [
+   15,
+   8
+  ],
+  "form:domain:bow": [
+   16,
+   8
+  ],
+  "form:domain:brush": [
+   17,
+   8
+  ],
+  "form:domain:fan": [
+   18,
+   8
+  ],
+  "form:domain:flute": [
+   19,
+   8
+  ],
+  "form:domain:heavy_sabre": [
+   20,
+   8
+  ],
+  "form:domain:jian": [
+   21,
+   8
+  ],
+  "form:domain:spear": [
+   22,
+   8
+  ],
+  "form:domain:staff": [
+   23,
+   8
+  ],
+  "form:echo:any": [
+   0,
+   9
+  ],
+  "form:echo:bell": [
+   1,
+   9
+  ],
+  "form:echo:bow": [
+   2,
+   9
+  ],
+  "form:echo:brush": [
+   3,
+   9
+  ],
+  "form:echo:fists": [
+   4,
+   9
+  ],
+  "form:echo:flute": [
+   5,
+   9
+  ],
+  "form:echo:heavy_sabre": [
+   6,
+   9
+  ],
+  "form:echo:jian": [
+   7,
+   9
+  ],
+  "form:echo:short_blade": [
+   8,
+   9
+  ],
+  "form:echo:spear": [
+   9,
+   9
+  ],
+  "form:echo:staff": [
+   10,
+   9
+  ],
+  "form:flurry:any": [
+   11,
+   9
+  ],
+  "form:flurry:brush": [
+   12,
+   9
+  ],
+  "form:flurry:fists": [
+   13,
+   9
+  ],
+  "form:flurry:jian": [
+   14,
+   9
+  ],
+  "form:flurry:short_blade": [
+   15,
+   9
+  ],
+  "form:flurry:spear": [
+   16,
+   9
+  ],
+  "form:flurry:staff": [
+   17,
+   9
+  ],
+  "form:lunge:any": [
+   18,
+   9
+  ],
+  "form:lunge:fists": [
+   19,
+   9
+  ],
+  "form:lunge:heavy_sabre": [
+   20,
+   9
+  ],
+  "form:lunge:jian": [
+   21,
+   9
+  ],
+  "form:lunge:short_blade": [
+   22,
+   9
+  ],
+  "form:lunge:spear": [
+   23,
+   9
+  ],
+  "form:lunge:staff": [
+   0,
+   10
+  ],
+  "form:pillar:any": [
+   1,
+   10
+  ],
+  "form:pillar:bell": [
+   2,
+   10
+  ],
+  "form:pillar:bow": [
+   3,
+   10
+  ],
+  "form:pillar:brush": [
+   4,
+   10
+  ],
+  "form:pillar:flute": [
+   5,
+   10
+  ],
+  "form:pillar:jian": [
+   6,
+   10
+  ],
+  "form:pillar:spear": [
+   7,
+   10
+  ],
+  "form:plunge:any": [
+   8,
+   10
+  ],
+  "form:plunge:bell": [
+   9,
+   10
+  ],
+  "form:plunge:bow": [
+   10,
+   10
+  ],
+  "form:plunge:fists": [
+   11,
+   10
+  ],
+  "form:plunge:heavy_sabre": [
+   12,
+   10
+  ],
+  "form:plunge:jian": [
+   13,
+   10
+  ],
+  "form:plunge:short_blade": [
+   14,
+   10
+  ],
+  "form:plunge:spear": [
+   15,
+   10
+  ],
+  "form:plunge:staff": [
+   16,
+   10
+  ],
+  "form:rain:any": [
+   17,
+   10
+  ],
+  "form:rain:bow": [
+   18,
+   10
+  ],
+  "form:rain:brush": [
+   19,
+   10
+  ],
+  "form:rain:fan": [
+   20,
+   10
+  ],
+  "form:rain:flute": [
+   21,
+   10
+  ],
+  "form:rain:jian": [
+   22,
+   10
+  ],
+  "form:rain:spear": [
+   23,
+   10
+  ],
+  "form:release:fan": [
+   0,
+   11
+  ],
+  "form:release:heavy_sabre": [
+   1,
+   11
+  ],
+  "form:release:jian": [
+   2,
+   11
+  ],
+  "form:release:spear": [
+   3,
+   11
+  ],
+  "form:return:bell": [
+   4,
+   11
+  ],
+  "form:return:fan": [
+   5,
+   11
+  ],
+  "form:return:heavy_sabre": [
+   6,
+   11
+  ],
+  "form:return:short_blade": [
+   7,
+   11
+  ],
+  "form:return:spear": [
+   8,
+   11
+  ],
+  "form:seal:any": [
+   9,
+   11
+  ],
+  "form:seal:bell": [
+   10,
+   11
+  ],
+  "form:seal:bow": [
+   11,
+   11
+  ],
+  "form:seal:brush": [
+   12,
+   11
+  ],
+  "form:seal:fists": [
+   13,
+   11
+  ],
+  "form:seal:flute": [
+   14,
+   11
+  ],
+  "form:seal:heavy_sabre": [
+   15,
+   11
+  ],
+  "form:seal:short_blade": [
+   16,
+   11
+  ],
+  "form:seal:staff": [
+   17,
+   11
+  ],
+  "form:seeker:any": [
+   18,
+   11
+  ],
+  "form:seeker:bow": [
+   19,
+   11
+  ],
+  "form:seeker:brush": [
+   20,
+   11
+  ],
+  "form:seeker:flute": [
+   21,
+   11
+  ],
+  "form:seeker:jian": [
+   22,
+   11
+  ],
+  "form:seeker:short_blade": [
+   23,
+   11
+  ],
+  "form:snare:any": [
+   0,
+   12
+  ],
+  "form:snare:bell": [
+   1,
+   12
+  ],
+  "form:snare:bow": [
+   2,
+   12
+  ],
+  "form:snare:brush": [
+   3,
+   12
+  ],
+  "form:snare:fan": [
+   4,
+   12
+  ],
+  "form:snare:fists": [
+   5,
+   12
+  ],
+  "form:snare:flute": [
+   6,
+   12
+  ],
+  "form:snare:short_blade": [
+   7,
+   12
+  ],
+  "form:snare:spear": [
+   8,
+   12
+  ],
+  "form:snare:staff": [
+   9,
+   12
+  ],
+  "form:strike:any": [
+   10,
+   12
+  ],
+  "form:strike:bell": [
+   11,
+   12
+  ],
+  "form:strike:bow": [
+   12,
+   12
+  ],
+  "form:strike:brush": [
+   13,
+   12
+  ],
+  "form:strike:fan": [
+   14,
+   12
+  ],
+  "form:strike:fists": [
+   15,
+   12
+  ],
+  "form:strike:flute": [
+   16,
+   12
+  ],
+  "form:strike:heavy_sabre": [
+   17,
+   12
+  ],
+  "form:strike:jian": [
+   18,
+   12
+  ],
+  "form:strike:short_blade": [
+   19,
+   12
+  ],
+  "form:strike:spear": [
+   20,
+   12
+  ],
+  "form:strike:staff": [
+   21,
+   12
+  ],
+  "form:swarm:any": [
+   22,
+   12
+  ],
+  "form:swarm:bow": [
+   23,
+   12
+  ],
+  "form:swarm:brush": [
+   0,
+   13
+  ],
+  "form:swarm:flute": [
+   1,
+   13
+  ],
+  "form:swarm:jian": [
+   2,
+   13
+  ],
+  "form:swarm:short_blade": [
+   3,
+   13
+  ],
+  "form:swarm:spear": [
+   4,
+   13
+  ],
+  "form:sweep:bell": [
+   5,
+   13
+  ],
+  "form:sweep:fan": [
+   6,
+   13
+  ],
+  "form:sweep:fists": [
+   7,
+   13
+  ],
+  "form:sweep:heavy_sabre": [
+   8,
+   13
+  ],
+  "form:sweep:jian": [
+   9,
+   13
+  ],
+  "form:sweep:spear": [
+   10,
+   13
+  ],
+  "form:sweep:staff": [
+   11,
+   13
+  ],
+  "form:thrust:fists": [
+   12,
+   13
+  ],
+  "form:thrust:jian": [
+   13,
+   13
+  ],
+  "form:thrust:short_blade": [
+   14,
+   13
+  ],
+  "form:thrust:spear": [
+   15,
+   13
+  ],
+  "form:thrust:staff": [
+   16,
+   13
+  ],
+  "form:volley:any": [
+   17,
+   13
+  ],
+  "form:volley:bow": [
+   18,
+   13
+  ],
+  "form:volley:fan": [
+   19,
+   13
+  ],
+  "form:volley:flute": [
+   20,
+   13
+  ],
+  "form:volley:short_blade": [
+   21,
+   13
+  ],
+  "form:ward:any": [
+   22,
+   13
+  ],
+  "form:ward:bell": [
+   23,
+   13
+  ],
+  "form:ward:brush": [
+   0,
+   14
+  ],
+  "form:ward:fan": [
+   1,
+   14
+  ],
+  "form:ward:fists": [
+   2,
+   14
+  ],
+  "form:ward:flute": [
+   3,
+   14
+  ],
+  "form:ward:heavy_sabre": [
+   4,
+   14
+  ],
+  "form:ward:staff": [
+   5,
+   14
+  ],
+  "form:wave:any": [
+   6,
+   14
+  ],
+  "form:wave:bell": [
+   7,
+   14
+  ],
+  "form:wave:bow": [
+   8,
+   14
+  ],
+  "form:wave:brush": [
+   9,
+   14
+  ],
+  "form:wave:fan": [
+   10,
+   14
+  ],
+  "form:wave:fists": [
+   11,
+   14
+  ],
+  "form:wave:flute": [
+   12,
+   14
+  ],
+  "form:wave:heavy_sabre": [
+   13,
+   14
+  ],
+  "form:wave:jian": [
+   14,
+   14
+  ],
+  "form:wave:spear": [
+   15,
+   14
+  ],
+  "form:wave:staff": [
+   16,
+   14
+  ],
+  "hand:avatar:any": [
+   17,
+   14
+  ],
+  "hand:double:any": [
+   18,
+   14
+  ],
+  "stamp:blood": [
+   19,
+   14
+  ],
+  "stamp:body": [
+   20,
+   14
+  ],
+  "stamp:buddhist": [
+   21,
+   14
+  ],
+  "stamp:confucian": [
+   22,
+   14
+  ],
+  "stamp:poison": [
+   23,
+   14
+  ],
+  "tear": [
+   0,
+   15
+  ]
+ },
+ "element_of": {
+  "none": "formless"
+ },
+ "files": {
+  "32": "res://art/icons/emblems/emblem_atlas_32.png",
+  "48": "res://art/icons/emblems/emblem_atlas_48.png",
+  "64": "res://art/icons/emblems/emblem_atlas_64.png"
+ },
+ "kin_family": {
+  "distance": "bow",
+  "edges": "jian",
+  "reach": "spear",
+  "voice": "any"
+ },
+ "palettes": {
+  "earth": {
+   "mark": [
+    "#463621",
+    "#74522a",
+    "#a87e40",
+    "#e6c88a",
+    "#faeecc",
+    "#ffffff",
+    "#fffef9",
+    "#1e1408"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#1e1408"
+   ]
+  },
+  "fire": {
+   "mark": [
+    "#5c2313",
+    "#9a3012",
+    "#da6224",
+    "#ffb850",
+    "#ffeaa6",
+    "#ffffff",
+    "#fffef9",
+    "#2a0a08"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#2a0a08"
+   ]
+  },
+  "formless": {
+   "mark": [
+    "#060c10",
+    "#05090c",
+    "#0d161c",
+    "#1a2830",
+    "#2e424c",
+    "#4e6670",
+    "#afb9b9",
+    "#6a6458"
+   ],
+   "steel": [
+    "#0d161e",
+    "#121a24",
+    "#212e3c",
+    "#344658",
+    "#50667c",
+    "#8098ae",
+    "#c6d0d4",
+    "#6a6458"
+   ]
+  },
+  "key_mark": [
+   "#fb0af7",
+   "#fb1ef7",
+   "#fb32f7",
+   "#fb46f7",
+   "#fb5af7",
+   "#fb6ef7",
+   "#fb82f7",
+   "#fbaaf7"
+  ],
+  "key_steel": [
+   "#090afb",
+   "#091efb",
+   "#0932fb",
+   "#0946fb",
+   "#095afb",
+   "#096efb",
+   "#0982fb",
+   "#09aafb"
+  ],
+  "metal": {
+   "mark": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#121a24"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#121a24"
+   ]
+  },
+  "path:blood": [
+   "#430e13",
+   "#6e0c12",
+   "#b8283a",
+   "#e45858",
+   "#ff9c86",
+   "#ffe0d8",
+   "#fff0e7"
+  ],
+  "path:buddhist": [
+   "#5c441b",
+   "#9a6a20",
+   "#d09a3a",
+   "#ffe28c",
+   "#fff7d8",
+   "#ffffff",
+   "#fffef9"
+  ],
+  "path:confucian": [
+   "#1e2753",
+   "#2e3780",
+   "#4a5ab8",
+   "#7a8ae0",
+   "#c6cef8",
+   "#f0f2ff",
+   "#f8f8f9"
+  ],
+  "path:poison": [
+   "#273d14",
+   "#3e5e14",
+   "#6e9a1e",
+   "#a8d23e",
+   "#e2f88a",
+   "#f6ffd0",
+   "#fbfee4"
+  ],
+  "soul": {
+   "mark": [
+    "#34285c",
+    "#553a90",
+    "#8a6aca",
+    "#d0bcf6",
+    "#f2eaff",
+    "#ffffff",
+    "#fffef9",
+    "#150c26"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#150c26"
+   ]
+  },
+  "space": {
+   "mark": [
+    "#2f2f66",
+    "#4c46a0",
+    "#8078d4",
+    "#c4bcf4",
+    "#ece8ff",
+    "#ffffff",
+    "#fffef9",
+    "#0c0a24"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#0c0a24"
+   ]
+  },
+  "thunder": {
+   "mark": [
+    "#534a17",
+    "#8a7418",
+    "#c4a82a",
+    "#f4e070",
+    "#fff6c0",
+    "#ffffff",
+    "#fffef9",
+    "#2a2206"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#2a2206"
+   ]
+  },
+  "time": {
+   "mark": [
+    "#304d61",
+    "#4e7a98",
+    "#86b0c8",
+    "#cce8f4",
+    "#eef8ff",
+    "#ffffff",
+    "#fffef9",
+    "#1a2a3c"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#1a2a3c"
+   ]
+  },
+  "water": {
+   "mark": [
+    "#143b4a",
+    "#1e5a70",
+    "#4a9ab2",
+    "#9ee0ec",
+    "#ddf8fb",
+    "#ffffff",
+    "#fffef9",
+    "#081e2c"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#081e2c"
+   ]
+  },
+  "wind": {
+   "mark": [
+    "#255753",
+    "#3a8a80",
+    "#78c4b8",
+    "#c6f0e8",
+    "#eefffa",
+    "#ffffff",
+    "#fffef9",
+    "#0e3234"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#0e3234"
+   ]
+  },
+  "wood": {
+   "mark": [
+    "#1b4427",
+    "#2a6a34",
+    "#5aa052",
+    "#b0e08a",
+    "#e6f8cc",
+    "#ffffff",
+    "#fffef9",
+    "#0a2014"
+   ],
+   "steel": [
+    "#354351",
+    "#56687c",
+    "#8a9cb0",
+    "#cbd8e4",
+    "#f0f6fa",
+    "#ffffff",
+    "#fffef9",
+    "#0a2014"
+   ]
+  }
+ },
+ "schema_version": 1,
+ "sizes": [
+  64,
+  48,
+  32
+ ],
+ "templates": {
+  "avatar": "hand:avatar",
+  "constructs": "form:swarm",
+  "field": "form:domain",
+  "finisher": "form:pillar",
+  "mirror": "hand:double",
+  "procession": "form:chorus"
+ }
+}

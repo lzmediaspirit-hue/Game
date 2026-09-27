@@ -62,6 +62,7 @@ func _main() -> void:
 	_export_filters()
 	_version_one_place()
 	_controls_line()
+	_technique_intents()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -373,3 +374,50 @@ func _export_filters() -> void:
 			for u in used:
 				if str(u).matchn(pat.strip_edges()) and FileAccess.file_exists("res://" + str(u)): lost.append("%s: %s" % [cfg.get_value(sec, "name", sec), u])
 	check(lost.is_empty(), "no export preset leaves out a file the scripts load %s" % str(lost))
+
+## P13a (docs/technique_plan.md §4.10, §7; roadmap §6 decision 19): the trees' intents are routed and a lost art has no
+## Track; every intent a page, the HUD or the shell sends has an authority that takes it; every reason the trees give
+## for a refusal has its words, and so does every generated art's description.
+func _technique_intents() -> void:
+	if Game.handlers.is_empty(): Game.build_authorities()
+	for t in ["realise_node", "unrealise_node", "reset_tree"]:
+		check(Game.handlers.has(t) and Game.handlers[t] == Game.progression, "the trees' intent %s is the Progression authority's" % t)
+	check(not Game.handlers.keys().any(func(k): return str(k).contains("track") and (str(k).contains("lost") or str(k).contains("art"))),
+		"no intent tracks a lost art (decision 19)")
+	# A literal name only: a name built at the call ("toggle_" + the flag's) is the debug console's.
+	var re := RegEx.create_from_string("submit\\(\\{\\s*\"type\"\\s*:\\s*\"([a-z_0-9]+)\"(?!\\s*\\+)")
+	var unrouted: Array = []
+	for name in sources:
+		for line in sources[name]:
+			for m in re.search_all(str(line)):
+				if not Game.handlers.has(m.get_string(1)):
+					unrouted.append("%s: %s" % [name, m.get_string(1)])
+	check(unrouted.is_empty(), "every intent sent has an authority that takes it (%s)" % ", ".join(unrouted.slice(0, 6)))
+	# The reasons realise_block and unrealise_block give, and the authority's own, each have a line in sim.tree.*.
+	var reasons := {"in_combat": true, "nothing": true, "needs_incense": true, "heavy_cap": true}
+	var ret := RegEx.create_from_string("return \"([a-z_]+)\"")
+	var inside := false
+	for line in sources.get("technique_tree_rules", []):
+		if str(line).begins_with("static func realise_block") or str(line).begins_with("static func unrealise_block"): inside = true
+		elif str(line).begins_with("static func "): inside = false
+		if inside:
+			for m in ret.search_all(str(line)): reasons[m.get_string(1)] = true
+	var wordless: Array = reasons.keys().filter(func(r): return not ContentDB.strings.has("sim.tree." + str(r)))
+	check(reasons.size() >= 14 and wordless.is_empty(), "every refusal of the trees has its words (%d; %s)" % [reasons.size(), str(wordless)])
+	# A generated art reads from its form's, element's and path's lines: each is present.
+	var keys := {}
+	for t in ContentDB.all("techniques"):
+		if str(t.get("desc", "")) != "": continue
+		var form := str(t.get("form", ""))
+		var el := str(t.get("element", "none"))
+		keys["technique.form." + form] = true
+		if form == "ward": keys["technique.ward." + el] = true
+		elif form == "snare": keys["technique.control." + el] = true
+		elif not form in ["chorus", "counter", "seal"] and str(t.get("path", "")) != "poison": keys["technique.verb." + el] = true
+		if str(t.get("path", "")) != "": keys["technique.path." + str(t.path)] = true
+	for tree in TechniqueTreeRules.trees(): keys["technique.tree." + str(tree)] = true
+	for lin in ContentDB.config("lost_arts").get("lineages", []):
+		keys["lineage.%s.name" % lin.id] = true
+		keys["lineage.%s.rule" % lin.id] = true
+	var missing: Array = keys.keys().filter(func(k): return not ContentDB.strings.has(str(k)))
+	check(keys.size() > 40 and missing.is_empty(), "every generated art's words are written (%d lines; %s)" % [keys.size(), str(missing.slice(0, 6))])

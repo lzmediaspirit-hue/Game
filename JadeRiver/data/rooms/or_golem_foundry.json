@@ -289,6 +289,42 @@
    "level": 92,
    "alt": 300,
    "surface": "cloud_mv"
+  },
+  {
+   "id": "lost_orbit_stone_sling",
+   "type": "inspect",
+   "at": [
+    1152,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "orbit_stone_sling"
+    }
+   ]
+  },
+  {
+   "id": "journal_foundry",
+   "type": "pickup",
+   "at": [
+    2510,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_foundry",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_foundry"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

@@ -935,17 +935,17 @@
       1
      ],
      "weight": 1
-    },
+    }
+   ],
+   "lost": [
     {
      "item": "manual_ember_burst",
+     "art": "ember_burst",
      "chance": 0.03,
-     "count": [
-      1,
-      1
-     ],
-     "weight": 1
+     "pity": 30
     }
-   ]
+   ],
+   "guaranteed": []
   },
   {
    "id": "rogue_cultivator",
@@ -2098,6 +2098,14 @@
      ],
      "quest": "legend_dragonfly"
     }
+   ],
+   "lost": [
+    {
+     "item": "scroll_sand_throne_sweep",
+     "art": "sand_throne_sweep",
+     "chance": 0.04,
+     "pity": 20
+    }
    ]
   },
   {
@@ -2273,6 +2281,14 @@
       2
      ],
      "weight": 1
+    }
+   ],
+   "lost": [
+    {
+     "item": "scroll_comet_tail_arrow",
+     "art": "comet_tail_arrow",
+     "chance": 0.05,
+     "pity": 20
     }
    ]
   },
@@ -2536,6 +2552,14 @@
       2
      ],
      "weight": 1
+    }
+   ],
+   "lost": [
+    {
+     "item": "scroll_broadside_fan",
+     "art": "broadside_fan",
+     "chance": 0.04,
+     "pity": 20
     }
    ]
   },
@@ -2804,6 +2828,14 @@
      ],
      "weight": 1
     }
+   ],
+   "lost": [
+    {
+     "item": "scroll_pyre_generals_lance",
+     "art": "pyre_generals_lance",
+     "chance": 0.04,
+     "pity": 20
+    }
    ]
   },
   {
@@ -2924,6 +2956,14 @@
       3
      ],
      "weight": 1
+    }
+   ],
+   "lost": [
+    {
+     "item": "scroll_maw_song",
+     "art": "maw_song",
+     "chance": 0.03,
+     "pity": 20
     }
    ]
   },
@@ -3073,6 +3113,14 @@
      ],
      "quest": "legend_mountainsplit"
     }
+   ],
+   "lost": [
+    {
+     "item": "scroll_serpent_coil_thrust",
+     "art": "serpent_coil_thrust",
+     "chance": 0.04,
+     "pity": 20
+    }
    ]
   },
   {
@@ -3143,6 +3191,14 @@
       1
      ],
      "quest": "legend_crane_mourning"
+    }
+   ],
+   "lost": [
+    {
+     "item": "scroll_many_eyed_pool_air",
+     "art": "many_eyed_pool_air",
+     "chance": 0.04,
+     "pity": 20
     }
    ]
   },
@@ -3244,6 +3300,14 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "lost": [
+    {
+     "item": "scroll_tide_palm",
+     "art": "tide_palm",
+     "chance": 0.15,
+     "pity": 6
     }
    ]
   },
@@ -3689,15 +3753,14 @@
       1
      ],
      "weight": 1
-    },
+    }
+   ],
+   "lost": [
     {
      "item": "mudwater_manual",
+     "art": "rising_tide",
      "chance": 0.3,
-     "count": [
-      1,
-      1
-     ],
-     "weight": 1
+     "pity": 0
     }
    ]
   },

@@ -14,6 +14,23 @@
       ]
      },
      "node": "talk"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "lus_lantern"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_hulk_breaker"
+       }
+      ]
+     },
+     "node": "lost_hulk_breaker",
+     "aside": true,
+     "text": "You look as if you would show me something."
     }
    ],
    "nodes": {
@@ -25,6 +42,23 @@
      "choices": [
       {
        "text": "Thank you.",
+       "close": true
+      }
+     ]
+    },
+    "lost_hulk_breaker": {
+     "lines": [
+      "I broke ships for a living once. You break foes. Same swing."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "hulk_breaker"
+        }
+       ],
        "close": true
       }
      ]

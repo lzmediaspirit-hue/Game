@@ -104,6 +104,10 @@ func _main() -> void:
 	set_suite()
 	boss_event_suite()
 	moments_suite()
+	tree_suite()
+	tree_migration_suite()
+	lost_arts_suite()
+	tree_queries_suite()
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
@@ -10129,3 +10133,332 @@ func _mock_sect_materials(c) -> void:
 		"with %d between them the Treasury is raised, and all three are spent (%s)" % [need, str(r)])
 	Game.account.sect = {}
 	Game.account.storage = {"items": []}
+
+# ------------------------------------------------------------------ P13a the element trees (docs/technique_plan.md §4)
+## Realise and let go, leaves first; the ring, route, path, keystone and rest gates; the free reset once a great realm;
+## the heavy-art cap; the tree's passives and their cap; Realisations; taught arts light for free.
+func tree_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var bag_was: Array = c.inventory.bag.duplicate(true)
+	var T = TechniqueTreeRules
+	# The shape: a v1.2.x tree holds 96 passages, 180 arts, 36 notables and 12 keystones (with the heart, its six trunk
+	# tiers and twelve gates, the plan's 343 nodes).
+	var built := T.nodes_of("water").filter(func(n): return T.node(n).act <= 3)
+	var kinds := {}
+	for n in built: kinds[str(T.node(n).kind)] = int(kinds.get(str(T.node(n).kind), 0)) + 1
+	check(built.size() == 324 and int(kinds.get("passage", 0)) == 96 and int(kinds.get("art", 0)) == 180 and int(kinds.get("notable", 0)) == 36
+		and int(kinds.get("keystone", 0)) == 12, "the Water tree of v1.2.x: 324 nodes beside its heart, trunk and gates (%s)" % str(kinds))
+	check(T.cell("formless", "spear", 1).o.has("jade_thrust") and T.cell("formless", "spear", 1).o.has("dragon_tail_sweep")
+		and T.cell("earth", "any", 2).p.has("stone_skin") and T.cell("earth", "any", 2).p.has("golden_body"), "today's arts keep their cells, twins and all (§4.8)")
+	check(T.home("sword_release").is_empty() and T.home("rising_tide").is_empty(), "Dao arts and lost arts are off the cells")
+	# A clean slate at Heart Tempering 3 (Level 30) with no Daos and one art known.
+	cu.realm_key = "heart_tempering_3"
+	cu.qp = 0.0
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.daos = {}
+	cu.techniques_known = ["flowing_palm"]
+	cu.mastery = {"flowing_palm": {"tier": 5, "points": 0.0}}
+	cu.technique_slots = [null, null, null, null, null, null, null, null]
+	cu.technique_bars = {}
+	cu.vows = []
+	cu.paths = {}
+	var lv := ProgressionRules.level(c)
+	var r0: Dictionary = T.realisations(c)
+	check(int(r0.total) == lv + 2 * ProgressionRules.realm_index(cu.realm_key) + 3 and int(r0.spent) == 0,
+		"Realisations: Level %d + 2 x %d majors + Dao tiers 0 + mastery past tier 2 (3) = %d" % [lv, ProgressionRules.realm_index(cu.realm_key), int(r0.total)])
+	cu.daos = {"water": {"tier": 2, "insight": 400.0}, "sword": {"tier": 1, "insight": 120.0}}
+	check(int(T.realisations(c).total) == int(r0.total) + 3, "every Dao's tiers add to the pool")
+	Game.combat.timeline(c.id).fight_t = -999.0
+	var p1 := T.passage("water", "any", 1)
+	var p2 := T.passage("water", "any", 2)
+	var art1: String = T.cell("water", "any", 1).o[0]   # Flowing Palm: taught, so already lit
+	var art2 := ""
+	for a in T.cell("water", "any", 2).o:
+		if not cu.techniques_known.has(a): art2 = str(a)
+	check(T.realise_block(c, art1, Game.ctx(c)) == "known", "a taught art cannot be realised: it is lit already")
+	check(T.realise_block(c, p2, Game.ctx(c)) == "route", "a node needs the one inside it (ring 2 before ring 1: %s)" % T.realise_block(c, p2, Game.ctx(c)))
+	var r := Game.submit({"type": "realise_node", "node": p1})
+	check(r.get("ok", false) and cu.tree.realised.has(p1) and int(T.realisations(c).spent) == 1, "a free-hand passage realised from its open gate for 1 (%s)" % str(r))
+	check(T.realise_block(c, T.passage("water", "jian", 1), Game.ctx(c)) == "", "the jian's gate opens with its Dao")
+	check(T.realise_block(c, T.passage("water", "spear", 1), Game.ctx(c)) == "gate", "an unused weapon's gate is shut")
+	check(Game.submit({"type": "realise_node", "node": art2}).get("reason", "") == "route", "an art needs its ring's passage")
+	check(Game.submit({"type": "realise_node", "node": p2}).get("ok", false), "the passage of ring 2")
+	r = Game.submit({"type": "realise_node", "node": art2})
+	check(r.get("ok", false) and cu.techniques_known.has(art2) and int(T.realisations(c).spent) == 4, "an orthodox art realised for 2 is learned (%s)" % str(r))
+	# The ring's Level, the act, the path.
+	var p3 := T.passage("water", "any", 3)
+	check(T.realise_block(c, p3, Game.ctx(c)) == "level", "ring 3 waits for Level 37")
+	check(T.realise_block(c, T.passage("water", "any", 9), Game.ctx(c)) == "act_locked", "rings past Act III are locked behind their act")
+	var path_art: String = T.cell("water", "any", 2).p[0]
+	var want := str(ContentDB.entry("techniques", path_art).get("path", ""))
+	check(T.realise_block(c, path_art, Game.ctx(c)) == ("" if T.walks(c, want) else "path"), "a path art needs its path (%s) walked" % want)
+	# Leaves first, not while slotted; the refund is whole.
+	check(T.unrealise_block(c, p2) == "leaf", "a passage with a realised art beyond it waits")
+	Game.progression.equip_technique(c, 0, art2)
+	check(Game.submit({"type": "unrealise_node", "node": art2}).get("reason", "") == "slotted", "an art in a slot cannot be let go")
+	Game.progression.equip_technique(c, 0, "")
+	r = Game.submit({"type": "unrealise_node", "node": art2})
+	check(r.get("ok", false) and not cu.techniques_known.has(art2) and cu.mastery.has(art2) and int(T.realisations(c).spent) == 2,
+		"letting an art go gives back its 2 and unlearns it; its mastery waits (%s)" % str(r))
+	check(Game.submit({"type": "unrealise_node", "node": p2}).get("ok", false) and int(T.realisations(c).spent) == 1, "then its passage")
+	# Out of combat only.
+	Game.combat.timeline(c.id).fight_t = Game.sim_time
+	check(Game.submit({"type": "realise_node", "node": p2}).get("reason", "") == "in_combat", "nothing is realised in a fight")
+	Game.combat.timeline(c.id).fight_t = -999.0
+	# The notables and the channels between neighbouring sectors (§4.1): at Level 60 a route to ring 4.
+	cu.realm_key = "heaven_glimpse_2"
+	for ring in range(2, 5): Game.submit({"type": "realise_node", "node": T.passage("water", "any", ring)})
+	var nt := T.notable("water", "any", 1)
+	check(Game.submit({"type": "realise_node", "node": nt}).get("ok", false), "the act's notable at its last ring (cost %d)" % T.cost(nt))
+	var fams := T.sectors()
+	var nb := T.notable("water", str(fams[1]), 1)
+	check(T.realise_block(c, nb, Game.ctx(c)) == "" or T.realise_block(c, nb, Game.ctx(c)) == "realisations", "a channel joins the neighbouring sector's notable")
+	var ks := T.keystone_at("water", "voice", 1)
+	check(T.realise_block(c, ks, Game.ctx(c)) == "source", "a keystone waits for its source (%s)" % T.realise_block(c, ks, Game.ctx(c)))
+	# Passives: two power passages (rings 1 and 3) and the notable feed the damage bucket of Water free-hand arts, within the
+	# Level's cap; the other rings cut their Qi cost.
+	var tp: Dictionary = T.passives(c, {"element": "water", "family": "any"})
+	check(near(float(tp.damage), minf(0.05, T.tree_cap(ProgressionRules.level(c)))) and near(float(tp.cost), 0.04),
+		"passages and a notable: +%d%% damage (cap %d%%), -%d%% Qi" % [int(round(float(tp.damage) * 100)), int(round(T.tree_cap(ProgressionRules.level(c)) * 100)), int(round(float(tp.cost) * 100))])
+	check(near(float(T.passives(c, {"element": "fire", "family": "any"}).damage), 0.0) and near(float(T.passives(c, {"element": "water", "family": "jian"}).damage), 0.0),
+		"only the tree's own element and sector")
+	check(near(T.tree_cap(99), 0.15) and near(T.tree_cap(165), 0.25) and T.tree_cap(50) < 0.15, "the trees add at most +15% by Level 99, +25% by 165")
+	# Reset: free once in a great realm, then for a Clear Heart Incense; realised arts leave their slots.
+	var spent_before := int(T.realisations(c).spent)
+	r = Game.submit({"type": "reset_tree", "tree": "water"})
+	check(r.get("ok", false) and bool(r.get("free", false)) and int(r.get("refund", 0)) == spent_before and T.realised(c).is_empty(), "the first reset in a realm is free (%s)" % str(r))
+	Game.submit({"type": "realise_node", "node": p1})
+	check(Game.submit({"type": "reset_tree", "tree": "water"}).get("reason", "") == "needs_incense", "the second takes a Clear Heart Incense")
+	Game.inventory.apply_add(c.id, "clear_heart_incense", 1, "test")
+	check(Game.submit({"type": "reset_tree", "tree": "water"}).get("ok", false) and c.inventory.count("clear_heart_incense") == 0, "and burns it")
+	# A realised art later taught gives its Realisations back.
+	Game.submit({"type": "realise_node", "node": p1})
+	Game.submit({"type": "realise_node", "node": p2})
+	Game.submit({"type": "realise_node", "node": art2})
+	Game.progression.apply_learn_technique(c.id, art2)
+	check(not cu.tree.realised.has(art2) and cu.techniques_known.has(art2), "a realised art taught by a teacher is taught now; its node's cost comes back")
+	# Heavy arts: one keystone or lost art to a ring of four (§6.3).
+	cu.techniques_known.append_array(["rising_tide", "ember_burst", "rain_of_reeds"])
+	Unlocks.debug_force_all = true
+	check(Game.progression.equip_technique(c, 0, "rising_tide").get("ok", false) and Game.progression.equip_technique(c, 1, "ember_burst").get("reason", "") == "heavy_cap"
+		and Game.progression.equip_technique(c, 4, "ember_burst").get("ok", false), "a second heavy art waits for the other ring")
+	Unlocks.debug_force_all = false
+	# A generated art reads as words from its form, verb and path.
+	var gen: Dictionary = ContentDB.entry("techniques", art2)
+	var words := T.describe(gen)
+	check(words.length() > 20 and not "{" in words and not "technique." in words, "a generated art says what it does: %s" % words)
+	cu.restore(snap)
+	c.inventory.bag = bag_was
+	Game.combat.refresh_stats(c.id)
+
+## P13a Realisations and the save migration (technique_plan §4.3, §4.9): a character like Tester at ls6_end (Sphere Lord
+## 3, Level 98) from before the trees keeps every art and its mastery, and the routes to its arts light for 29 of its
+## 136 Realisations: 107 left to place. The routes survive a save.
+func tree_migration_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var T = TechniqueTreeRules
+	var old := snap.duplicate(true)
+	old.erase("tree")
+	old["realm_key"] = "sphere_lord_3"
+	old["qp"] = ContentDB.realm("sphere_lord_3").get("accumulate_needed", 100) * 0.4
+	old["daos"] = {"sword": {"tier": 5, "insight": 5000.0}, "blood": {"tier": 2, "insight": 300.0}, "fist": {"tier": 2, "insight": 300.0},
+		"life_death": {"tier": 1, "insight": 100.0}, "soul": {"tier": 1, "insight": 100.0}, "space": {"tier": 1, "insight": 100.0}}
+	var known := ["flowing_palm", "still_water_focus", "crescent_arc", "cloud_descent", "mirror_mind_spike", "soul_lantern_ward", "sense_lock",
+		"upright_glyph", "sword_release", "sword_swarm", "glimpse_of_heaven", "splashed_ink", "blood_burning"]
+	var mastery := {}
+	for tid in known: mastery[tid] = {"tier": 1, "points": 0.0}
+	mastery.flowing_palm = {"tier": 5, "points": 40.0}
+	mastery.crescent_arc = {"tier": 3, "points": 12.0}
+	old["techniques"] = {"known": known.duplicate(), "slots": ["flowing_palm", "crescent_arc", null, null, null, null, null, null], "mastery": mastery.duplicate(true),
+		"use": {}, "bars": {}}
+	cu.restore(old)
+	check(int(cu.tree.get("v", 0)) == 0 and T.realised(c).is_empty(), "a save from before the trees has no tree yet")
+	check(ProgressionRules.level(c) == 98, "the character stands at Level 98 (%d)" % ProgressionRules.level(c))
+	Game.progression.migrate_tree(c)
+	var r: Dictionary = T.realisations(c)
+	var passages := T.realised(c).keys().filter(func(n): return str(n).begins_with("p:"))
+	check(passages.size() == 29 and T.realised(c).size() == 29, "the routes to its arts light: 29 passages (%d)" % passages.size())
+	check(int(r.total) == 136 and int(r.spent) == 29 and int(r.free) == 107, "Realisations 98 + 22 + 12 + 4 = 136: 29 placed, 107 to place (%s)" % str(r))
+	check(known.all(func(t): return cu.techniques_known.has(t)) and int(cu.mastery.flowing_palm.tier) == 5 and int(cu.mastery.crescent_arc.tier) == 3
+		and cu.technique_slots[0] == "flowing_palm", "every art still known, its mastery and slots unchanged")
+	check(T.realised(c).has(T.passage("formless", "brush", 8)) and T.realised(c).has(T.passage("metal", "any", 7)) and not T.realised(c).has(T.passage("formless", "brush", 9)),
+		"Splashed Ink's route runs up the brush to ring 8; Upright Glyph's up the free hand to 7")
+	Game.progression.migrate_tree(c)
+	check(T.realised(c).size() == 29, "the migration runs once")
+	# The Dao arts of tiers already reached are taught.
+	cu.tree = {}
+	cu.tree["realised"] = {}
+	cu.daos["water"] = {"tier": 3, "insight": 900.0}
+	Game.progression.migrate_tree(c)
+	check(cu.techniques_known.has("mirror_of_still_water") and not cu.techniques_known.has("great_river_turns_back"), "the Water Dao's third tier teaches its Dao art")
+	# The tree rides in the save.
+	var back := CultivatorState.new()
+	back.restore(cu.snapshot())
+	check(back.tree.realised.size() == T.realised(c).size() and int(back.tree.v) == 1, "the realised nodes survive a save")
+	cu.restore(snap)
+
+## P13a Lost Arts (technique_plan §5; roadmap §6 decision 19): the board the page reads counts an unfound art and says
+## nothing else of it (no id, name or source); a found art has its full card and still no source. Found by kind, found
+## twice for a Manual Page; a stele gives its rubbing once its condition holds; a foe's manual is sure by its pity; Lu's
+## journal teaches the Ferryman's Oar by pages.
+func lost_arts_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var bag_was: Array = c.inventory.bag.duplicate(true)
+	var flags_was: Dictionary = c.quests.flags.duplicate(true)
+	var T = TechniqueTreeRules
+	var rows: Array = ContentDB.all("lost_arts")
+	var found_ev: Array = []
+	GameEvents.subscribe("lost_art_found", func(p): found_ev.append(p), 200)
+	cu.realm_key = "sphere_lord_3"   # Level 98: Acts I-III reached
+	for row in rows:
+		var kind_list: Array = cu.inner_arts_known if str(row.kind) == "inner" else (cu.secret_arts if str(row.kind) == "secret" else cu.techniques_known)
+		kind_list.erase(str(row.id))
+	for f in c.quests.flags.keys():
+		if str(f).begins_with("journal_") or str(f).begins_with("found_"): c.quests.flags.erase(f)
+	# Nothing found: only counts.
+	var v: Dictionary = Game.progression.lost_arts_view(c)
+	var acts: Array = v.get("acts", [])
+	var totals := 0
+	for a in acts: totals += int(a.total)
+	check(acts.size() == 3 and totals == 60 and acts.all(func(a): return int(a.found) == 0 and (a.arts as Array).is_empty()) and (v.get("lineages", []) as Array).is_empty(),
+		"nothing found: the board holds three acts' counts, 0 of %d, and no cards (%s)" % [totals, str(acts.map(func(a): return [a.found, a.total]))])
+	var leaks := func(view: Dictionary, row: Dictionary) -> Array:
+		var text := JSON.stringify(view)
+		var out: Array = []
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var words: Array = [str(row.id), str(ContentDB.entry(table, str(row.id)).get("name", ""))]
+		for key in ["room", "object", "npc", "enemy", "item", "quest", "line"]:
+			if row.src.has(key): words.append(str(row.src[key]))
+		for w in words:
+			if w != "" and w in text: out.append(w)
+		return out
+	var leaked: Array = []
+	for row in rows: leaked.append_array(leaks.call(v, row))
+	check(leaked.is_empty(), "decision 19: the board names no unfound art, draws none and says where none is (%s)" % str(leaked))
+	var realm_was := cu.realm_key
+	cu.realm_key = "heart_tempering_3"
+	check((Game.progression.lost_arts_view(c).acts as Array).size() == 1, "a character in Act I sees Act I's count alone")
+	cu.realm_key = realm_was
+	# Found: its card, and still no source; the rest still unnamed.
+	Game.apply_effects(c.id, [{"kind": "learn_lost_art", "art": "rain_of_reeds"}], "test")
+	GameEvents.flush()
+	v = Game.progression.lost_arts_view(c)
+	var card: Dictionary = (v.acts[0].arts as Array)[0] if not (v.acts[0].arts as Array).is_empty() else {}
+	var rr: Dictionary = ContentDB.entry("lost_arts", "rain_of_reeds")
+	check(cu.techniques_known.has("rain_of_reeds") and c.quests.has_flag("found_rain_of_reeds") and int(v.acts[0].found) == 1
+		and str(card.get("name", "")) == ContentDB.name_of("techniques", "rain_of_reeds") and str(card.get("desc", "")) != "",
+		"found: Rain of Reeds is learned and its full card is on the board (%s)" % str(card))
+	check(not card.has("src") and not str(rr.src.room) in JSON.stringify(v) and not str(rr.src.object) in JSON.stringify(v), "a found art's card never says where it was found")
+	check(found_ev.size() == 1 and str(found_ev[0].art) == "rain_of_reeds" and int(found_ev[0].act) == 1, "lost_art_found is announced")
+	leaked = []
+	for row in rows:
+		if str(row.id) != "rain_of_reeds": leaked.append_array(leaks.call(v, row))
+	check(leaked.is_empty(), "the other unfound arts stay unnamed (%s)" % str(leaked))
+	var pages0: int = c.inventory.count("manual_page")
+	Game.progression.apply_learn_lost_art(c.id, "rain_of_reeds")
+	check(c.inventory.count("manual_page") == pages0 + 1 and cu.techniques_known.count("rain_of_reeds") == 1, "found twice, it is a Manual Page")
+	Game.progression.apply_learn_lost_art(c.id, "mist_lamp_meditation")
+	Game.progression.apply_learn_lost_art(c.id, "grey_footfall")
+	check(cu.inner_arts_known.has("mist_lamp_meditation") and cu.secret_arts.has("grey_footfall"), "an Inner Art and a Secret Art are learned as what they are")
+	# A stele: a stone until its rubbing's condition holds.
+	check(T.lost_at("insight_hu").any(func(row): return str(row.id) == "willowbark_script"), "Elder Hu's insight stone holds a stele")
+	cu.daos = {"wood": {"tier": 1, "insight": 100.0}}
+	while c.inventory.count("rubbing_kit") > 0: Game.inventory.apply_remove(c.id, "rubbing_kit", 1, "test")
+	check(not Game.progression.read_stele(c, "insight_hu") and not cu.techniques_known.has("willowbark_script"), "without a Rubbing Kit it is only a stone")
+	Game.inventory.apply_add(c.id, "rubbing_kit", 1, "test")
+	check(Game.progression.read_stele(c, "insight_hu") and cu.techniques_known.has("willowbark_script"), "with a kit and the Wood Dao, its rubbing teaches Willowbark Script")
+	check(not Game.progression.read_stele(c, "insight_hu") and c.inventory.count("rubbing_kit") == 1, "then it is a stone again, and the kit is kept")
+	# A foe's manual: rolled like a named row on every kill, kept only while its art is lost, sure by its pity-th kill.
+	var table := str(ContentDB.entry("enemies", "gorge_bandit_adept").get("loot", "gorge_bandit_adept"))
+	var lost_rows: Array = (ContentDB.entry("loot_tables", table).get("lost", []) as Array).filter(func(r): return str(r.art) == "ember_burst")
+	var row_eb: Dictionary = lost_rows[0] if not lost_rows.is_empty() else {"pity": 0, "item": ""}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 13
+	var rolled: Array = LootRules.roll(table, rng, 30, 1.0, 0.0, {"no_equipment": true}).get("lost", [])
+	check(rolled.size() == 1 and str(rolled[0].art) == "ember_burst" and not LootRules.roll(table, rng, 30, 1.0, 0.0, {}).items.any(func(it): return str(it.item) == str(row_eb.item)),
+		"a kill rolls Ember Burst's manual beside its loot, and never hands it out itself")
+	cu.tree.pity = {}
+	var miss: Array = [{"art": "ember_burst", "item": str(row_eb.item), "pity": int(row_eb.pity), "hit": false}]
+	var kills := 0
+	var got: Array = []
+	while got.is_empty() and kills < 100:
+		kills += 1
+		got = Game.progression.lost_drops(c, miss)
+	check(kills == int(row_eb.pity) and int(row_eb.pity) > 0 and str(got[0].item) == str(row_eb.item) and not cu.tree.pity.has("ember_burst"),
+		"never lucky, Ember Burst's manual still drops by kill %d (pity %d), and the count starts again" % [kills, int(row_eb.pity)])
+	var hit: Array = [{"art": "ember_burst", "item": str(row_eb.item), "pity": int(row_eb.pity), "hit": true}]
+	check(not Game.progression.lost_drops(c, hit).is_empty(), "a lucky roll drops it at once")
+	Game.inventory.apply_add(c.id, str(row_eb.item), 1, "test")
+	check(Game.progression.lost_drops(c, hit).is_empty(), "not while one is carried")
+	cu.techniques_known.append("ember_burst")
+	while c.inventory.count(str(row_eb.item)) > 0: Game.inventory.apply_remove(c.id, str(row_eb.item), 1, "test")
+	check(Game.progression.lost_drops(c, hit).is_empty() and Game.progression.lost_drops(c, miss).is_empty(), "an art already found drops no manual")
+	check(not (ContentDB.entry("loot_tables", table).get("rare", []) as Array).any(func(r): return str(r.item) == str(row_eb.item)), "and it is in no random roll")
+	# Lu's journal: five pages teach the first piece of the Ferryman's Oar.
+	var jf: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	for i in 4: Game.quest.apply_flag(c.id, str(jf[i]))
+	GameEvents.flush()
+	check(not cu.techniques_known.has("oar_across_the_current"), "four pages are not enough")
+	Game.quest.apply_flag(c.id, str(jf[4]))
+	GameEvents.flush()
+	v = Game.progression.lost_arts_view(c)
+	var lin: Array = v.get("lineages", [])
+	check(cu.techniques_known.has("oar_across_the_current") and lin.size() == 1 and str(lin[0].id) == "ferrymans_oar" and int(lin[0].found) == 1
+		and (lin[0].arts as Array).size() == 1, "the fifth page teaches Oar Across the Current and opens the lineage's card with its one piece")
+	check(not "ferry_pole_vault" in JSON.stringify(v) and not ContentDB.name_of("techniques", "ferry_pole_vault") in JSON.stringify(v), "the lineage never names its missing pieces")
+	GameEvents.unsubscribe_object(self)
+	cu.restore(snap)
+	c.inventory.bag = bag_was
+	c.quests.flags = flags_was
+	Game.combat.refresh_stats(c.id)
+
+## P13a the page's reads (technique_plan §4.10): the trees' tabs and one tree's nodes, each with its state and why it
+## is closed, as the authority answers them (the page builds on these in P13b).
+func tree_queries_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var T = TechniqueTreeRules
+	cu.realm_key = "heart_tempering_3"
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.daos = {}
+	cu.techniques_known = ["flowing_palm"]
+	cu.technique_slots = [null, null, null, null, null, null, null, null]
+	Game.combat.timeline(c.id).fight_t = -999.0
+	var tabs: Array = Game.progression.tree_tabs(c)
+	var by := {}
+	for tab in tabs: by[str(tab.tree)] = tab
+	check(tabs.size() == 11 and str(tabs[0].tree) == str(T.trees()[0]) and by.has("formless") and str(by.formless.element) == "none",
+		"eleven tabs in the trees' order, Formless for the element-less arts (%s)" % str(tabs.map(func(t): return t.tree)))
+	check(bool(by.water.open) and not bool(by.space.open) and not bool(by.time.open) and int(by.water.known) == 1 and str(by.water.name) != "",
+		"at Level %d the nine element trees are open, Space and Time not yet; Water knows Flowing Palm" % ProgressionRules.level(c))
+	var p1 := T.passage("water", "any", 1)
+	Game.submit({"type": "realise_node", "node": p1})
+	check(int(Game.progression.tree_tabs(c)[T.trees().find("water")].realised) == 1, "a realised node counts on its tab")
+	var view: Dictionary = Game.progression.tree_view(c, "water")
+	var nodes := {}
+	for n in view.nodes: nodes[str(n.id)] = n
+	var p2 := T.passage("water", "any", 2)
+	var p9 := T.passage("water", "any", 9)
+	check(nodes.size() == T.nodes_of("water").size() and str(nodes[p1].state) == "realised" and str(nodes["flowing_palm"].state) == "taught"
+		and str(nodes[p2].state) == "open" and int(nodes[p2].cost) == T.cost(p2), "the tree's view: realised, taught and open nodes, with their costs")
+	check(str(nodes[p9].state) == "locked" and str(nodes[p9].why) == "act_locked" and int(view.realisations.spent) == 1,
+		"a later act's ring is locked and says why; the view carries the Realisations")
+	# The tree reaches the fight (§6.2): ring 1's passage adds to the art's damage bucket, ring 2's cuts its Qi.
+	var fp := ContentDB.entry("techniques", "flowing_palm")
+	var cost0: float = Game.combat.technique_cost(c, fp)
+	Game.submit({"type": "realise_node", "node": p2})
+	var cost1: float = Game.combat.technique_cost(c, fp)
+	check(near(float(T.passives(c, fp).damage), 0.01) and cost1 < cost0 and cost1 / cost0 > 0.97,
+		"Flowing Palm: +1%% damage from ring 1's passage, and ring 2's cuts its Qi %.1f to %.1f" % [cost0, cost1])
+	cu.restore(snap)

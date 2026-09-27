@@ -14,7 +14,7 @@ special occasions like quests or monster drops or finding it in the game, like a
 4. It designs the element trees: nodes, rings, sectors, keystones, prerequisites, the Realisations that pay for them,
    respec, how families and paths branch inside a tree, how the Dao and the sect trees relate, and how every existing
    art and save moves in (§4).
-5. It designs Lost Arts: found only in the world, shown before they are found as a silhouette and a hint, with six lost
+5. It designs Lost Arts: found only in the world, unknown until found (only counted before; decision 19), with six lost
    lineages, tied to P7b's sources and the world plan's hidden maps (§5).
 6. It says how so many arts avoid power creep, the loadout limits, and how the stat scaling research's Might and par
    numbers set the budgets (§6).
@@ -692,7 +692,7 @@ function, a background painter and a node painter):
 | **Formless** | An ensō on rice paper in black ink | the open circle, six dots | ink dots | vermilion seals | dry-brush strokes |
 | **Space** | An armillary sphere: rings as orbits | the axis, six armillary rings | stones in orbit | planets | — (from its first ring, paths as on the others) |
 | **Time** | A water clock and dial | the float, six tiers of the clock | hour marks | eclipse discs | shadows |
-| **Lost Arts** | A dark wood board with manuscript fragments, stele rubbings and bamboo slips pinned to it; red thread for lineages | — | found: the page with its emblem; not found: a blank scrap with the emblem's silhouette and a hint | lineage cards | — |
+| **Lost Arts** | A dark wood board with manuscript fragments, stele rubbings and bamboo slips pinned to it; red thread for lineages | — | found: the page with its emblem; not found: only counted per act (decision 19) | lineage cards, once a piece is found | — |
 | **Secret Arts** | A woven practice mat with footwork diagrams (footprints and arrows) | — | one diagram per art, its how-to line beside it | — | — |
 
 **On every element tab**: the chart fills the screen; pan by dragging, zoom with two fingers or the + and − buttons
@@ -737,19 +737,25 @@ in the loadout (§6.3).
 
 A manual found twice is a Manual Page the second time (or a gift for a disciple once its Dao can teach: tier 4).
 
-### 5.4 Before it is found: silhouette and hint
+### 5.4 Before it is found: counted, never described
 
-Every lost art of the acts a character has reached is pinned on the board from the start, as in the Codex's
-Collection (`docs/mockups/18_codex.png`): a blank scrap with the **silhouette** of its emblem (its disc and mark in ink,
-no colour), its **kind** and **act**, and a **hint** in three lines that open one by one:
+**Decided (roadmap §6 decision 19, 2026-09-27): secret and lost techniques are unknown until found.** The player is
+never told how to find one. So there are **no hints, no source lines, no silhouettes, no Track guidance and no "ask a
+companion"** for an art not yet found:
 
-1. Always: where to look, in the voice of a rumour ("A stele behind falling water remembers a step the water cannot
-   follow.").
-2. After the character has been to the region: the place ("Behind the Falls, Crane Falls.").
-3. After a Spirit Sense pulse there, or a companion's tip: the condition ("At dawn, with the Water Dao at tier 2.").
+- The Lost Arts board shows, for each act the character has reached, only a **count**: "3 of 20 found in this act".
+- An art not yet found has no scrap, no emblem silhouette, no kind, no name and no place on the board.
+- A **found** art appears with its full card (name, emblem, kind, element and family, what it does). A lineage's card
+  appears with its first found piece and counts its pieces found, never the missing ones' names.
+- The sources stay in the data (`data/lost_arts.json`: the stele, the room, the master, the foe and its rate), since
+  the world needs them; the query the page reads (`ProgressionAuthority.lost_arts_view`, from
+  `TechniqueTreeRules.lost_view`) returns counts and found cards only, and `rules_tests` checks that nothing of an
+  unfound art (its id, name or source) is in it.
+- A stele, a ruin or a master that holds a lost art says nothing about it until its condition holds: a locked object
+  reads as plain scenery ("Weathered carvings."), never as a rumour.
 
-**Track** puts the hint on the World map and the quest tracker, like a side quest's target (P1's direction marks). A
-lost art another road took (Elder Sung's legacy for a Jade disciple) shows as a crossed-out scrap: "Another road".
+The hint lines of the tables below are the design's notes on where each art is placed, not text the game shows; the
+data keeps no hints.
 
 ### 5.5 Lost lineages: the lost cultivation systems
 
@@ -962,11 +968,11 @@ caster's own HP (Blood costs, Buddhist shields) scale with Might as HP does and 
 | Suite | Checks |
 |---|---|
 | `data_validation` `technique_suite` | counts per element, family, path and act equal §2's for the acts built; rules 1–6 of §3.6; every row's `action` in the catalog; every row has `vfx`; every cell of a built ring is filled; every node reachable from its gate; every twin, trunk and channel exception listed; names unique, lexicon-only, not on the denylist, ≤ 28 characters |
-| `data_validation` `lost_art_suite` | every lost art has a source row (loot table, stele, room object, quest reward, event) and three hint strings; every lineage has six pieces with sources; lost manuals are excluded from the random roll |
+| `data_validation` `lost_art_suite` | every lost art has a source row (loot table, stele, room object, quest reward, event) wired into the world; no hint strings (decision 19); every lineage has six pieces with sources; lost manuals are excluded from the random roll |
 | `rules_tests` `tree_suite` | the Realisations formula; realise and unrealise (leaves first, not while slotted, refunds); ring, path, keystone and rest gates; the free reset once a great realm; the heavy-art cap; the percent-of-HP cap on a boss; taught arts light for free; the migration of `ls6_end` (29 placed, 107 to place, every known art still known, mastery unchanged) |
 | `balance_sim` technique check | §6.4 |
 | `perf_tests` | load time and chart draw time at the v1.5 size (a generated fixture) |
-| `contract_tests` | the new intents (`realise_node`, `unrealise_node`, `reset_tree`, `read_lost_art`, `track_lost_art`) in the catalog; every generated name and hint string present; no intent the page used before disappears |
+| `contract_tests` | the new intents (`realise_node`, `unrealise_node`, `reset_tree`) in the catalog (no `track_lost_art`: decision 19); every generated string present; no intent the page used before disappears |
 | `ui_suite` | every region at least 48 px, no text under 14 px, on every tab at its default zoom |
 | The icon build | byte-identical twice; every row resolves to an emblem |
 | The wiki | `docs/wiki/techniques.md` (new, from `tools/dev/wiki.py`) rebuilt byte-identical |
@@ -989,7 +995,7 @@ changes are marked; the rest is data from `tools/data/*.py` through `build_data.
 | 5 | Icons: the Style A emblem pipeline (the icon study's conversion step 2), discs, form marks, rims, stamps; the 66 existing technique icons redrawn as emblems; run-time composition | `tools/icons/families/techniques.py`; **code**: `UiKit.emblem` | icon build byte-identical; every row resolves |
 | 6 | The page (P5b's Techniques): `TechniqueChart` and its projections (Water, Wood and Fire first, then the rest), the Lost Arts board, the Secret Arts footwork chart, the loadout dock with Inner Arts and the stance | **code**: `techniques_page.gd`, `technique_chart.gd` (new) | `ui_suite`; `contract_tests`; screenshots against these mockups |
 | 7 | Act I for all nine trees (792 arts), keystone sources, notables, form-pair combos | data | counts; `balance_sim` rings 1–4 |
-| 8 | Lost Arts, Act I (20) and the Ferryman's Oar; the Rubbing Kit; hints; Track | `enemies.py`, `world.py`, `story.py`, `economy.py`; **code**: the stele object, `read_lost_art`, `track_lost_art` | `lost_art_suite`; `valley_run` finds one |
+| 8 | Lost Arts, Act I (20) and the Ferryman's Oar; the Rubbing Kit; the found-only board (decision 19: no hints, no Track) | `enemies.py`, `world.py`, `story.py`, `economy.py`; **code**: the stele object, `learn_lost_art` | `lost_art_suite`; `valley_run` finds one |
 | 9 | Acts II–III for all trees and Space rings 7–8 (976 arts), their keystones; Lost Arts II–III (24) and two lineages; the wiki page | data; `wiki.py` | counts; `balance_sim` rings 5–8; wiki rebuild |
 | 10 | **v1.3**: Act IV (rings 9–10) for every tree, the four new families' sectors rings 1–10, the Time tree, the new Daos' arts, Lost Arts IV and the Barrow Oath | data with `frontier.py` | as 7–9 for rings 9–10 |
 | 11 | **v1.4**: Act V (rings 11–12), Lost Arts V and the Bellwood Canon | data | as above |
@@ -1035,4 +1041,82 @@ The questions this page left open take the recommended answer, which the user ca
 | Sect tree | Stays on Sect › Role |
 | Scope | Keep the full target; halve the path arts if it must shrink |
 | Teaching lost arts | Singles from Dao tier 4; lineages never |
+| Unfound lost and secret arts (roadmap §6 decision 19) | Unknown until found: no hints, no sources, no silhouettes, no Track, no companion's tip; each act's are only counted; a found art shows its full card |
 | Inner Arts and Secret Arts | Inner Arts in the loadout dock with the stance; Secret Arts a tab of their own, last |
+
+## As built: P13a · the data (2026-09-27)
+
+P13a built the data and rules of build steps 1–5 and the data of 7–9 (§8); the page (step 6: the charts, the Lost Arts
+board, the dock) is P13b, and today's Techniques page draws the new arts meanwhile. CHANGELOG "P13a · Techniques at
+scale, the data" lists it for players; what follows is where it differs from this plan or fills in a number it left open.
+
+**Counts.** As §2.5 for v1.2.x: 1,768 arts on the trees and today's five twin cells, 1,773 (1,661 in the cells of Acts
+I–III and 112 keystones; 192 or 193 a tree, Space 40); 138 own arts a family in Acts I–III (the free hand 142). The later
+acts are written too (1,308 cell arts, the Time tree and Acts IV–V of every tree) and locked by their act
+(`technique_trees.json` `act_open`: 3), not stubbed; v1.3's four families have sectors with no cells yet. Dao arts: 38
+(today's five and 33 new, taught at their Dao's tiers 3 and 5). Of the cells of Acts I–III, 889 are orthodox and the
+paths hold Body 152, Blood 150, Buddhist 159, Poison 149, Confucian 162.
+
+**Budgets (§3.5, decision 10).** The grade is +0/+10/+20%, flat from ring 3, as decided. The form budgets rise through
+Act I (0.94, 1.03, 1.13, 1.45 for rings 1–4) and then **ease** instead of staying flat (1.41, 1.30, 1.25, 1.20, 1.18,
+1.10, 0.99, 0.83, 0.72 for rings 5–13): mastery (tiers 3 to 6) and the Dao (tiers 1 to 6) climb faster after Level 60
+than the research's ratio line, so the form's line gives way. Rule 5 holds against these budgets (every generated art
+within ±10% of its form's line at its ring, its verb and its path's budget). The par main art is now the grammar's Arc at
+the band's ring (`technique_grammar.par_art`) with its tree route's share (`par_tree`), and balance_sim measures it with
+the real rules:
+
+| Level | 20 | 30 | 45 | 60 | 72 | 80 | 90 | 99 | 100 | 108 | 117 | 120 | 130 | 150 | 165 | 200 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Technique ÷ basic (§6.1 line) | 1.45 (1.5) | 1.56 (1.5) | 2.26 (2.3) | 3.51 (3.6) | 3.72 (3.7) | 3.74 (3.7) | 4.03 (3.9) | 4.12 (3.9) | 4.19 (4.1) | 4.27 (4.1) | 4.56 (4.4) | 4.66 (4.4) | 4.61 (4.6) | 4.36 (4.6) | 4.71 (4.6) | 4.94 (4.5) |
+| Tree share | 1% | 1% | 2% | 7% | 8% | 12.1% | 13.6% | 15% | 15.2% | 16.4% | 17.7% | 18.2% | 19.7% | 22.7% | 25% | 25% |
+
+At Level 99 the par character hits 130K with a basic blow and 535K with its main art (the research's 136K and 527K).
+The checks allow ±15%; all land within ±7% but Level 200 (+10%).
+
+**Tree numbers.** Costs: a passage 1, an art 2, a notable 3, a keystone 5. Passives: an odd ring's passage +1% damage
+and an even ring's −2% Qi cost for the arts of its tree and sector, a notable +3%, a keystone +2% for its kin group's
+arts; the damage share is capped at 15% × Level/99 to Level 99 and rises to 25% by 165. The Qi cut shares today's 30%
+cap. Realisations = Level + 2 × major breakthroughs + Dao tiers + mastery tiers past 2; a Tester-like character at
+`ls6_end` has 136 (98 + 22 + 12 + 4), 29 of them lit by the migration.
+
+**Keystones.** Water's are this page's, with two changes: Rain Over Nine Ferries is a Procession (rule 6: four
+templates an act), and the Lanternfall tide is named Returning Tide of Lanterns (28 characters). The other trees'
+keystones of Acts I–III are hand-named in `technique_hand.py`, their sources (teachers, trials, a sect library's top
+floor, the Trial Tower) as keystone `teach` requirements.
+
+**Lost Arts.** 62 are written for Acts I–III (60 there, and the Ferryman's Oar's pieces at 25 and 30 pages wait for
+Acts IV and V): 44 singles and three lineages (the Ferryman's Oar, the Sand-King Script, the Orbit Lamp). Their sources
+as built: 7 steles, 27 ruins and lineage pieces and 1 event (28 old writings in 24 rooms), 6 masters, 10 foes' manuals,
+4 quests, the auction and Lu's journal (twenty pages in Acts I–III, twelve of them new). A master's lesson is an aside:
+one more choice beside what the master says (a quest's offer, a scene), shown only once its condition holds. A foe's
+manual is rolled like a named row (drop rate does not raise it) and kept only while the art is lost, the pity counted
+on the character. The tables of §5.7 remain design notes: the data keeps no hints. Not built: teaching a found single to
+another character at Dao tier 4 (decision 13), and a manual found twice as a gift for a disciple (it is a Manual Page).
+
+**Animations.** Every art carries its form's effect and pose (`vfx.anim`, `vfx.pose`: the technique animations of
+roadmap decision 23, `tools/data/technique_anim.py`); the form's layer gives the pose most of its families take. An art
+drawn from a keystone template plays its template's form: Constructs the Swarm, a Field the Domain, a Finisher the
+Pillar, a Procession the Chorus, an Avatar or a Mirror the Ward (as Golden Body and Phantom Double do).
+
+**Rows and loading.** Four default layers (form, ring, element, family); a row keeps only its own keys, a dictionary
+only the keys that differ, one level deep. ContentDB merges the layers two at a time with a memo per table and merges
+the row natively. `techniques.json` is 974 KB (307 B a row, against the 260 guessed in §7). In the headless test runner
+the 3,171 rows are read and filled in in about 105 ms and a v1.5-size fixture of 4,350 rows in about 160 ms, 55 of it
+the engine's own JSON parse; §7's +60 ms desktop budget is checked against that parse (filling in at most twice the
+parse), since the runner is slower than the reference.
+
+**Emblems.** Today's 56 keep their baked emblems; the other 3,115 are composed from `art/icons/emblems/` (361 layers at
+64, 48 and 32 px, 466 KB in all, imported as Images so the CPU reads them) and `data/emblem_atlas.json`: about 0.6 ms
+at 64 px, then held (up to 768 at once). The atlas matches the composer pixel for pixel.
+
+**Tests.** `data_validation` `technique_suite` (the counts, every built ring filled, rules 1–3, 5 and 6, names and the
+denylist within two edits, reachability, poses) and `lost_art_suite`; `rules_tests` `tree_suite`,
+`tree_migration_suite`, `lost_arts_suite` (with the board's no-leak check) and `tree_queries_suite`; `balance_sim` the
+line above and the trees' share; `perf_tests` the size, the load, the index, the emblems and the Techniques page;
+`contract_tests` the trees' intents and words. Rules 2 and 3 count today's arts first; three pairs of today's arts sit
+side by side with one role (Riverstone Sweep and Earthshaker Wave, Gale Step and Cloud Descent, Gale Fan and Returning
+Crane Fan) and keep their cells (§4.8).
+
+**Still open.** §6.4's per-band, per-family check (the best eight-art loadout against the band's baseline, no family 10%
+above the median) and the form-pair combos (§6.3) wait for P13b's loadout; the wiki's technique page
+(`docs/wiki/techniques.md`) is not written yet.

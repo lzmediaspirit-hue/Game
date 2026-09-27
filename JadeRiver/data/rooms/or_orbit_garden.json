@@ -295,6 +295,22 @@
     3060,
     720
    ]
+  },
+  {
+   "id": "lost_lamp_on_a_tether",
+   "type": "inspect",
+   "at": [
+    2800,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "lamp_on_a_tether"
+    }
+   ]
   }
  ],
  "spawns": [

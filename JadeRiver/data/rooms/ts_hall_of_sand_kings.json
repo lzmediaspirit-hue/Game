@@ -196,6 +196,22 @@
    "level": 77,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "lost_sand_glyph_snare",
+   "type": "inspect",
+   "at": [
+    1781,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "sand_glyph_snare"
+    }
+   ]
   }
  ],
  "spawns": [

@@ -613,8 +613,12 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			result.text = str(o.get("text", ""))
 		"insight_stone":
 			result.text = str(o.get("text", Tx.t("sim.world.meditate_here")))
+			# P13a: a stele that holds a lost art gives it to a rubbing once its condition holds; until then, and after,
+			# it is only a stone to meditate at (roadmap decision 19: it never says what it holds).
+			if game.progression.read_stele(c, object_id):
+				result.text = Tx.t("sim.world.rubbing_taken")
 			# S49 leisure arts: a chess problem is carved beside every insight stone; one answer a day.
-			if game.progression.chess_open(c, object_id):
+			elif game.progression.chess_open(c, object_id):
 				return ok({"dialogue": {"npc": "", "speaker": Tx.t("sim.world.chess_speaker"), "portrait": {}, "lines": [Tx.t("sim.world.chess_line")],
 					"choices": [{"text": Tx.t("sim.world.chess_study"), "page": "chess", "args": {"site": object_id}},
 						{"text": Tx.t("sim.world.chess_meditate"), "close": true}]}})
@@ -817,6 +821,10 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		var memory := _next_soul_memory()
 		if memory != "": game.apply_effects(c.id, [{"kind": "codex", "entry": memory}], "soul_search")
 		emit("soul_searched", {"actor": c.id, "def": str(p.def), "memory": memory, "items": hid.items.size()})
+	# P13a Lost Arts (technique_plan §5.3): the kill's own roll of its lost manuals (not the extra rolls above) is kept
+	# only while the art is not found, and is sure by its pity-th kill.
+	if not bool(p.get("summoned", false)) and not game.combat.captured.has(str(p.get("victim", ""))):
+		drop.items.append_array(game.progression.lost_drops(c, drop.get("lost", [])))
 	# Taken whole by the Taming Cauldron (S47): its materials at full count, no loot roll, no coins, nothing it wore.
 	if game.combat.captured.has(str(p.get("victim", ""))):
 		game.combat.captured.erase(str(p.victim))

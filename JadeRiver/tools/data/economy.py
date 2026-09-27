@@ -55,7 +55,7 @@ def shops():
         # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
         from paths import inner_arts
         return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)
-                if not a.get("legacy")]
+                if not a.get("legacy") and not a.get("lost")]
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
@@ -71,7 +71,8 @@ def shops():
          "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("spirit_spade", price=900, requires=all_of(realm("cloud_stride_1"))), s("rice_wine", price=12),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
-                   s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1")))],
+                   s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
+                   s("rubbing_kit", price=120, requires=all_of(realm("qi_kindling_5")))],   # P13a: for rubbings of carved stones
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},
         {"id": "stoneford_tea", "name": "Stoneford Tea House", "currency": "silver_tael",
          "stock": [s("lotus_root_tea"), s("jade_carp_congee"), s("rice_ball"), s("jasmine_dew_tea", price=30), s("guqin", price=450)],
@@ -143,7 +144,8 @@ def shops():
          "rotation": {"count": 1, "pool": [s("jadeiron_hat"), s("cloudsilk_robe"), s("jadeiron_gourd")]}},
         {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
-         "stock": [s("manual_rain_of_reeds", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
+         "stock": [   # P13a: the manual of Rain of Reeds is a lost art now, found in the Drowned Shrine
+                   s("clear_heart_incense", price=200),   # P13a: a tree let go once the realm's free reset is spent
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
@@ -157,7 +159,8 @@ def shops():
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
-         "stock": [s("manual_ember_burst", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
+         "stock": [   # P13a: Ember Burst is a lost art now, carried by the gorge bandits
+                   s("clear_heart_incense", price=200),
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
@@ -625,7 +628,9 @@ def auction():
                  lot("fuel_crystal_mid", 30, 5), lot("spirit_stone_mid", 60, 5, weight=0.7), lot("storm_blood_pill", 25, 3),
                  lot("sentinel_core", 40, 2, weight=0.7), lot("manual_page", 18, 5),
                  # P7b (item_plan §2.10)
-                 lot("spirit_stone_high", 90, weight=0.4), lot("hour_incense_72", 40, weight=0.5)],
+                 lot("spirit_stone_high", 90, weight=0.4), lot("hour_incense_72", 40, weight=0.5),
+                 # P13a: a lot older than the peaks (a lost art, technique_plan §5.7)
+                 lot("scroll_ninth_peak_scroll", 120, weight=0.3)],
         # S49 Part 8: the valley's own auction day, on Market Street every Saturday (calendar "auction_day"): rare
         # seeds, recipe scrolls (taught when the hammer falls) and eggs, for Spirit Stones. Every lot closes with the day.
         "valley": {"calendar": "auction_day", "lots_open": 5, "duration_h": [3, 9], "npc_limit": [1.3, 2.2],
@@ -1197,9 +1202,12 @@ def strings():
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
     quest_names = {q["id"]: q["name"] for q in json.load(open(os.path.join(DATA, "quests.json")))["entries"]}
-    for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
-        if t["source"] in TECH_SOURCES or t["source"] in quest_names:
-            S["technique_source." + t["source"]] = TECH_SOURCES.get(t["source"]) or quest_names[t["source"]]
+    import technique_gen   # P13a: the trees' sources (the tree itself, keystones' teachers and trials, the Dao arts)
+    names = dict(TECH_SOURCES, **technique_gen.SOURCE_NAMES)
+    for t in technique_gen.load_rows():
+        if t["source"] in names or t["source"] in quest_names:
+            S["technique_source." + t["source"]] = names.get(t["source"]) or quest_names[t["source"]]
+    S.update(technique_gen.strings())
     # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
     ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
     for k in ui:

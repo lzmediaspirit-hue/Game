@@ -25,6 +25,8 @@ func _main() -> void:
 	data_suite()
 	moments_data_suite()
 	item_source_suite()
+	technique_suite()
+	lost_art_suite()
 	gear_suite()
 	room_suite()
 	overlap_suite()
@@ -53,6 +55,235 @@ func _learn_kinds() -> void:
 			for part in line.strip_edges().trim_suffix(":").split(","):
 				req_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	check(effect_kinds.size() > 30 and req_kinds.size() > 30, "rule kinds discovered (%d effects, %d requirements)" % [effect_kinds.size(), req_kinds.size()])
+
+## P13a techniques at scale (docs/technique_plan.md §3.6, §3.8, §4): the counts of the acts built, every cell of a built
+## ring filled, the six rules that keep arts distinct, the names (unique, lexicon-short, clear of every other name and of
+## the denylist, exactly and within two edits), every node reachable from its gate, every art's pose in the catalog.
+func technique_suite() -> void:
+	var T = TechniqueTreeRules
+	var cfg: Dictionary = ContentDB.config("technique_trees")
+	var act_open := int(cfg.get("act_open", 3))
+	var edge := T.edge_ring(act_open)
+	var built: Array = T.sectors()   # the twelve built sectors (v1.3's four wait)
+	var kinds := {}
+	for t in ContentDB.all("techniques"): kinds[str(t.get("kind", ""))] = int(kinds.get(str(t.get("kind", "")), 0)) + 1
+	# Counts (§2.5): the v1.2.x trees hold 1,773 arts, the plan's 1,768 and today's five twins: 1,661 in the cells of Acts
+	# I-III and 112 keystones; beside them 38 Dao arts and 52 lost techniques. The later acts' arts are written and locked.
+	var per_tree := {}
+	var cell_arts := 0
+	var empty: Array = []
+	var no_path: Array = []
+	for tree in T.trees():
+		var n := 0
+		for fam in built:
+			for ring in range(T.first_ring(tree), edge + 1):
+				var cl: Dictionary = T.cell(tree, str(fam), ring)
+				n += (cl.o as Array).size() + (cl.p as Array).size()
+				if (cl.o as Array).is_empty(): empty.append("%s/%s/%d" % [tree, fam, ring])
+				if ring > T.first_ring(tree) and (cl.p as Array).is_empty(): no_path.append("%s/%s/%d" % [tree, fam, ring])
+		per_tree[tree] = n
+		cell_arts += n
+	check(cell_arts == 1661 and cell_arts + int(kinds.get("keystone", 0)) == 1773 and int(kinds.get("keystone", 0)) == 112 and int(kinds.get("dao", 0)) == 38 and int(kinds.get("lost", 0)) == 52,
+		"Acts I-III: 1,661 cell arts and 112 keystones (1,773), 38 Dao arts, 52 lost techniques (%d, %s; %s)" % [cell_arts, str(kinds), str(per_tree)])
+	check(empty.is_empty() and no_path.is_empty(), "every built ring of every sector holds an art, and past its first a path art (%s %s)" % [str(empty.slice(0, 4)), str(no_path.slice(0, 4))])
+	# Rules 1-3 over each cell's first orthodox art.
+	var forms: Dictionary = cfg.get("forms", {})
+	var r1: Array = []
+	var r3: Array = []
+	var per_ring := {}   # family|ring -> form -> trees
+	for tree in T.trees():
+		for fam in built:
+			var seen := {}
+			var last_role := ""
+			var last_today := false
+			for ring in range(T.first_ring(tree), 14):
+				var o: Array = T.cell(tree, str(fam), ring).o
+				if o.is_empty(): continue
+				var f := str(ContentDB.entry("techniques", str(o[0])).get("form", ""))
+				if seen.has(f): r1.append("%s/%s ring %d %s" % [tree, fam, ring, f])
+				seen[f] = true
+				var role := str(forms.get(f, {}).get("role", ""))
+				var today := str(ContentDB.entry("techniques", str(o[0])).get("desc", "")) != ""
+				# Two of today's arts side by side keep their cells (§4.8): Riverstone Sweep and Earthshaker Wave, Gale Step and
+				# Cloud Descent, Gale Fan and Returning Crane Fan.
+				if role == last_role and not (today and last_today): r3.append("%s/%s ring %d %s" % [tree, fam, ring, role])
+				last_role = role
+				last_today = today
+				var key := "%s|%d" % [fam, ring]
+				if not per_ring.has(key): per_ring[key] = {}
+				per_ring[key][f] = int(per_ring[key].get(f, 0)) + 1
+	var r2: Array = []
+	for key in per_ring:
+		for f in per_ring[key]:
+			if int(per_ring[key][f]) > 2: r2.append("%s %s x%d" % [key, f, per_ring[key][f]])
+	check(r1.is_empty(), "rule 1: a sector's rings use different forms (%s)" % str(r1.slice(0, 4)))
+	check(r2.is_empty(), "rule 2: at most two trees put one form on a family's ring (%s)" % str(r2.slice(0, 4)))
+	check(r3.is_empty(), "rule 3: neighbouring rings differ in role (%s)" % str(r3.slice(0, 4)))
+	# Rule 5: a generated art is priced on its form's line at its ring: the ring's budget, the element's verb (Formless's
+	# +10% and every other element's verb on one line) and its path's budget.
+	var em: Dictionary = cfg.get("element_mult", {})
+	check(em.keys().all(func(e): return absf(float(em[e]) - (1.0 + float(cfg.get("verb_value", 0.1)) if str(e) == "none" else 1.0)) < 0.001),
+		"rule 5: Formless's raw +10% and every element's verb land on one line")
+	var lines: Dictionary = ContentDB.config("techniques").get("defaults", {}).get("form", {})
+	var off: Array = []
+	var priced := 0
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) != "" or str(t.get("desc", "")) != "" or not t.has("form"): continue
+		if str(lines.get(str(t.form), {}).get("damage_type", "")) in ["stance", "buff"]: continue   # a counter's riposte, a ward: no line
+		var line: Array = lines.get(str(t.form), {}).get("mult", [0, 0])
+		var m: Array = t.get("mult", [0, 0])
+		if float(line[0]) <= 0.0 or float(m[0]) <= 0.0: continue
+		var want: float = (float(line[0]) + float(line[1])) * float(cfg.budget.get(str(int(t.ring)), 1.0)) * float(em.get(str(t.element), 1.0)) \
+			* float(cfg.path_budget.get(str(t.get("path", "")), 1.0))
+		priced += 1
+		if absf((float(m[0]) + float(m[1])) / want - 1.0) > 0.10: off.append(str(t.id))
+	check(priced > 2000 and off.is_empty(), "rule 5: %d generated arts within ±10%% of their form's line at their ring (%s)" % [priced, str(off.slice(0, 4))])
+	# Rule 6: an act's four keystones of a tree use four templates.
+	var tmpl := {}
+	var r6: Array = []
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) != "keystone": continue
+		var key := "%s|%d" % [T.tree_of_element(str(t.element)), T.act_of(int(t.ring))]
+		if not tmpl.has(key): tmpl[key] = {}
+		if tmpl[key].has(str(t.template)): r6.append("%s %s" % [key, t.template])
+		tmpl[key][str(t.template)] = true
+	check(r6.is_empty() and tmpl.size() == 28, "rule 6: each tree's keystones of an act use four templates (%d acts of trees; %s)" % [tmpl.size(), str(r6)])
+	# Names (§3.8, rule 4): unique, at most 28 characters, no other thing's name, not on the denylist within two edits.
+	var others := {}
+	for table in ["items", "artifacts", "npcs", "titles", "realms", "secret_arts", "inner_arts", "methods"]:
+		for e in ContentDB.all(table): others[str(e.get("name", "")).to_lower()] = table
+	for rid in ContentDB.rooms: others[str(ContentDB.rooms[rid].get("name", "")).to_lower()] = "rooms"
+	var names := {}
+	var bad_names: Array = []
+	var deny: Array = (cfg.get("denylist", []) as Array).map(func(x): return str(x).to_lower())
+	var near: Array = []
+	var cap := int(cfg.get("max_name", 28))
+	for t in ContentDB.all("techniques"):
+		var nm := str(t.get("name", ""))
+		var low := nm.to_lower()
+		if names.has(low) or nm.length() > cap or nm == "" or (others.has(low) and str(t.get("desc", "")) == ""): bad_names.append(nm)
+		names[low] = true
+		if str(t.get("desc", "")) != "" and str(t.get("kind", "")) == "": continue   # today's 56 keep their names
+		for d in deny:
+			if absi(str(d).length() - low.length()) <= 2 and _within_two(low, str(d)): near.append("%s ~ %s" % [nm, d])
+	check(bad_names.is_empty(), "names: unique, at most %d characters, no item's, place's, NPC's, title's or realm's (%s)" % [cap, str(bad_names.slice(0, 6))])
+	check(near.is_empty() and deny.size() >= 100, "names: none on the denylist or within two edits of it (%d entries; %s)" % [deny.size(), str(near.slice(0, 4))])
+	# Every node reachable from its gate: an art's route runs a passage a ring from its sector's first; notables and
+	# keystones have their way in.
+	var lost_route: Array = []
+	for tree in T.trees():
+		for nid in T.nodes_of(tree):
+			var n := T.node(str(nid))
+			if n.is_empty() or int(n.get("act", 99)) > act_open: continue
+			match str(n.kind):
+				"art":
+					var route: Array = T.route_to(str(nid))
+					if route.size() != int(n.ring) - T.first_ring(tree) + 1 or route.any(func(p): return T.node(str(p)).is_empty()): lost_route.append(str(nid))
+				"passage":
+					if int(n.ring) > T.first_ring(tree) and T.inward(str(nid)).is_empty(): lost_route.append(str(nid))
+				_:
+					if T.inward(str(nid)).is_empty(): lost_route.append(str(nid))
+	for t in ContentDB.all("techniques"):
+		if str(t.get("kind", "")) in ["", "keystone"] and T.home(str(t.id)).is_empty(): lost_route.append(str(t.id))
+	check(lost_route.is_empty(), "every art is on its tree and every node of Acts I-III is reachable from its sector's gate (%s)" % str(lost_route.slice(0, 4)))
+	# Every art's pose is one the character can play (meditate_burst plays the weapon's first stroke, none its third).
+	var acts: Dictionary = ContentDB.parts.get("_actions", {})
+	var poses: Array = []
+	for t in ContentDB.all("techniques"):
+		var a := str(t.get("action")) if t.get("action") != null else ""   # none: the weapon's third stroke
+		if a != "" and a != "meditate_burst" and not a in acts: poses.append("%s %s" % [t.id, a])
+	check(poses.is_empty(), "every art's pose is in the catalog (%s)" % str(poses.slice(0, 4)))
+
+## Levenshtein distance at most 2, on a band two wide either side of the diagonal (names are short).
+func _within_two(a: String, b: String) -> bool:
+	if a == b: return true
+	var n := a.length()
+	var m := b.length()
+	var prev: Array = []
+	for j in m + 1: prev.append(j)
+	for i in range(1, n + 1):
+		var cur: Array = []
+		cur.resize(m + 1)
+		cur.fill(99)
+		cur[0] = i
+		var best := 99
+		for j in range(maxi(1, i - 2), mini(m, i + 2) + 1):
+			var c: int = mini(mini(int(prev[j]) + 1, int(cur[j - 1]) + 1), int(prev[j - 1]) + (0 if a[i - 1] == b[j - 1] else 1))
+			cur[j] = c
+			best = mini(best, c)
+		if best > 2: return false
+		prev = cur
+	return int(prev[m]) <= 2
+
+## P13a Lost Arts (docs/technique_plan.md §5; roadmap §6 decision 19): every lost art is a known kind of art and is found
+## somewhere in the world the data says (a stele, a room, a master's lesson, a foe's manual, a quest, an auction lot,
+## Lu's journal); no hint of where is kept anywhere; lost manuals never roll in the loot; the lineages have six pieces.
+func lost_art_suite() -> void:
+	var lost: Array = ContentDB.all("lost_arts")
+	var acts := {}
+	for row in lost: acts[int(row.act)] = int(acts.get(int(row.act), 0)) + 1
+	check(lost.size() == 62 and int(acts.get(1, 0)) + int(acts.get(2, 0)) + int(acts.get(3, 0)) == 60,
+		"Acts I-III pin 44 singles and three lineages of six (62, %s)" % str(acts))
+	var objects := {}   # object id -> [room, object]
+	for rid in ContentDB.rooms:
+		for o in ContentDB.rooms[rid].get("objects", []): objects[str(o.id)] = [str(rid), o]
+	var loot_lost := {}
+	var sure := {}   # loot table -> items it always drops
+	for lt in ContentDB.all("loot_tables"):
+		for r in lt.get("lost", []): loot_lost[str(r.art)] = str(lt.id)
+		for g0 in lt.get("guaranteed", []):
+			if float(g0.get("chance", 1.0)) >= 1.0: sure[str(lt.id) + ":" + str(g0.item)] = true
+		for key in ["groups", "rare", "guaranteed", "named"]:
+			for g in lt.get(key, []):
+				for pick in g.get("pick", [g]):
+					var it := ContentDB.item(str(pick.get("item", "")))
+					for u in it.get("use", []):
+						if str(u.get("kind", "")) == "learn_lost_art" and float(pick.get("chance", g.get("chance", 1.0))) < 1.0:
+							check(false, "a lost manual (%s) is never in a loot table's random roll (%s)" % [pick.item, lt.id])
+	var auction: Array = ContentDB.config("auction").get("pool", [])
+	var flags: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	for row in lost:
+		var id := str(row.id)
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var art := ContentDB.entry(table, id)
+		check(not art.is_empty() and (bool(art.get("lost", false)) or art.has("legacy")), "lost art %s is a lost %s" % [id, row.kind])
+		check(not row.has("hint") and not ContentDB.strings.has("lost_art.%s.hint" % id), "lost art %s keeps no hint (decision 19)" % id)
+		var src: Dictionary = row.src
+		var found := false
+		match str(src.kind):
+			"stele":
+				var ob = objects.get(str(src.object), [])
+				found = not ob.is_empty() and str(ob[0]) == str(src.room) and str(ob[1].type) == "insight_stone"
+				for cond in src.get("requires", []): check_req({"all": [cond]}, "lost art " + id)
+			"ruin", "event":
+				var ob2 = objects.get(str(src.object), [])
+				found = not ob2.is_empty() and str(ob2[0]) == str(src.room) and (ob2[1].get("effects", []) as Array).any(
+					func(e): return str(e.get("kind", "")) == "learn_lost_art" and str(e.get("art", "")) == id)
+				if found and ob2[1].has("requires"): check(str(ob2[1].get("locked_text", "")) == "Weathered carvings.", "a closed find (%s) reads as scenery" % id)
+			"master":
+				var npc := ContentDB.entry("npcs", str(src.npc))
+				var tree: Dictionary = ContentDB.dialogue.get(str(npc.get("tree", "")), {})
+				for nid in tree.get("nodes", {}):
+					for ch in tree.nodes[nid].get("choices", []):
+						for e in ch.get("effects", []):
+							if str(e.get("kind", "")) == "learn_lost_art" and str(e.get("art", "")) == id: found = true
+			"drop":
+				var en := ContentDB.entry("enemies", str(src.enemy))
+				var manual := ContentDB.item(str(src.item))
+				var teaches: bool = (manual.get("use", []) as Array).any(func(u): return str(u.get("art", u.get("technique", ""))) == id)
+				found = teaches and (loot_lost.get(id, "") == str(en.get("loot", src.enemy)) or sure.has(str(en.get("loot", src.enemy)) + ":" + str(src.item)))
+			"quest":
+				var q := ContentDB.entry("quests", str(src.quest))
+				for e in q.get("rewards", []) + q.get("on_complete", []):
+					if str(e.get("art", e.get("technique", ""))) == id or str(e.get("kind", "")) == "master_legacy": found = true
+			"auction":
+				found = auction.any(func(l): return str(l.get("item", "")) == str(src.item))
+			"pages":   # a later act's piece waits for that act's pages (Acts IV and V are not built)
+				found = (flags.size() >= int(src.count) or int(row.act) > int(ContentDB.config("technique_trees").get("act_open", 3))) and flags.all(func(f): return objects.values().any(func(ob3): return str(ob3[1].get("set_flag", "")) == str(f)))
+		check(found, "lost art %s is found where its source says (%s)" % [id, src.kind])
+	for lin in ContentDB.config("lost_arts").get("lineages", []):
+		check((lin.get("pieces", []) as Array).size() == 6 and ContentDB.strings.has("lineage.%s.name" % lin.id), "lineage %s has six pieces and a name" % lin.id)
+	check(flags.size() >= 20, "twenty pages of Lu's journal lie in Acts I-III (%d)" % flags.size())
 
 ## P6 moments (docs/moments_design.md §3.8): every row of data/moments.json against the event contract (its trigger,
 ## merges and every payload key it reads), FxLayer's kinds, data/audio.json, the strings, UiKit's colours, the closed
@@ -174,12 +405,14 @@ func moments_data_suite() -> void:
 		for kind in shapes[s]: check(str(kind) in FxLayer.KINDS, "shape %s draws %s, an FxLayer kind" % [s, kind])
 	for st in cfg.get("particles", {}).get("families", {}).values() + cfg.get("particles", {}).get("elements", {}).values():
 		check(str(st) in MomentRules.STYLES, "spark style %s is known" % st)
+	var ring_tier := {}
+	for rg in ContentDB.config("technique_trees").get("rings", []): ring_tier[int(rg.ring)] = int(rg.tier)
 	for t in ContentDB.all("techniques"):
 		var v: Dictionary = t.get("vfx", {})
 		var tier := int(v.get("tier", 0))
 		var want := int(bands[clampi(int(ContentDB.realm(str(t.unlock)).get("realm_index", 0)), 0, bands.size() - 1)]) if not bands.is_empty() else -1
-		check(tier == want and {"common": tier == 1, "earth": tier == 2, "heaven": tier >= 3}.get(str(t.get("grade", "")), false),
-			"technique %s: vfx tier %d is its unlock realm's band (%d, %s)" % [t.id, tier, want, t.get("grade", "")])
+		check(tier == want and tier == int(ring_tier.get(int(t.get("ring", 0)), -1)),
+			"technique %s: vfx tier %d is its unlock realm's band (%d) and its ring's (P13a, ring %s)" % [t.id, tier, want, t.get("ring", "")])
 		check(str(v.get("shape", "")) in MomentRules.SHAPES and str(v.get("particles", "")) in MomentRules.STYLES, "technique %s: a known vfx shape and style" % t.id)
 	_fx_art_suite()
 
@@ -540,7 +773,7 @@ func data_suite() -> void:
 		if ia.has("family"): check(ContentDB.has_entry("weapon_families", str(ia.family)), "inner art %s family %s" % [ia.id, ia.family])
 		# A master's legacy (S49) is passed on, never sold; every other art is taught in a shop.
 		if ia.has("legacy"): check(not shop_learns.has(str(ia.id)), "legacy art %s is not sold" % ia.id)
-		else: check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
+		elif not ia.get("lost", false): check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)   # P13a: a lost art is only found
 	# Every weapon family has one basic stance, held without buying anything; a better one names the technique it needs.
 	var basic := {}
 	for sn in ContentDB.all("stances"):
@@ -552,7 +785,10 @@ func data_suite() -> void:
 	for cb in ContentDB.all("combos"):
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
-	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
+	# P13a: a technique's grade is its ring's (technique_plan §1.4, §3.5).
+	var ring_grade := {}
+	for rg in ContentDB.config("technique_trees").get("rings", []): ring_grade[int(rg.ring)] = str(rg.grade)
+	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) == str(ring_grade.get(int(tq.get("ring", 0)), "?")) and ContentDB.stat_const("technique_grades", {}).has(str(tq.grade)), "technique %s grade %s is its ring's" % [tq.id, tq.get("grade", "")])
 	# Every sect building has a place in the Sect Grounds, shown once it is raised (S25).
 	var placed := {}
 	for so in ContentDB.room("hv_sect_grounds").get("objects", []):
@@ -684,9 +920,24 @@ func data_suite() -> void:
 		for it in ContentDB.all(table):
 			var path := SpriteCache.icon_path(str(it.id))
 			check(path != "" and ResourceLoader.exists(path), "%s %s has an icon" % [table, it.id])
+	# P13a: every technique has its emblem, today's baked or composed in the game from the atlas's layers (§3.9).
+	var composed := 0
 	for tech in ContentDB.all("techniques"):
-		var tpath := SpriteCache.icon_path(str(tech.get("icon", tech.id)))
-		check(tpath != "" and ResourceLoader.exists(tpath), "technique %s has an icon" % tech.id)
+		var tpath := SpriteCache.icon_path(str(tech.id))
+		var baked: bool = tpath != "" and ResourceLoader.exists(tpath)
+		if not baked: composed += 1
+		check(baked or (SpriteCache.composable(str(tech.id)) and SpriteCache.emblem_whole(str(tech.id))), "technique %s has an emblem, baked or composed" % tech.id)
+	check(composed >= 3000, "the generated arts' emblems are composed (%d)" % composed)
+	# One composed art of each kind (an orthodox and a path art of a cell, a keystone, a Dao art, a lost art) at each size.
+	var samples := {}
+	for tech in ContentDB.all("techniques"):
+		var sort := str(tech.get("kind", "")) if str(tech.get("kind", "")) != "" else ("path" if str(tech.get("path", "")) != "" else "orthodox")
+		if not samples.has(sort) and SpriteCache.composable(str(tech.id)): samples[sort] = str(tech.id)
+	check(samples.size() == 5, "a composed art of every kind (%s)" % str(samples.keys()))
+	for sid in samples.values():
+		for px in [64, 48, 32]:
+			var img := SpriteCache.emblem_image(sid, px)
+			check(img != null and img.get_width() == px and img.get_pixel(px / 2, px / 2).a > 0.9, "technique %s's emblem composes at %d px" % [sid, px])
 	# Dialogue trees
 	for tid in ContentDB.dialogue:
 		var tree: Dictionary = ContentDB.dialogue[tid]
@@ -757,7 +1008,7 @@ func item_sources() -> Dictionary:
 	var cap := LootRules.drop_level_cap()
 	for tid in rolled_by:
 		var t := ContentDB.entry("loot_tables", tid)
-		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []): got[str(g.item)] = true
+		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []) + t.get("lost", []): got[str(g.item)] = true
 		for grp in t.get("groups", []):
 			for p in grp.get("pick", []): got[str(p.item)] = true
 		if float(t.get("equipment", {}).get("chance", 0.0)) > 0.0:
@@ -886,7 +1137,8 @@ func _system_reported(system: String) -> bool:
 ##   or set piece. Named pieces per archetype and zone (item_plan §2.3): counted and printed, and checked once
 ##   ARCHETYPE_COUNTS_ENFORCED is on (item_plan §6 step 8).
 const ARCHETYPE_COUNTS_ENFORCED := false
-const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named"]
+const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named",
+	"lost"]   # P13a: the lost manuals, rolled like named rows and kept by ProgressionAuthority.lost_drops
 const GEAR_ZONES := ["valley", "expanse", "lantern", "frontier"]
 
 func gear_suite() -> void:

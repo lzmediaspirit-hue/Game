@@ -76,7 +76,8 @@
   "sphere": "#9a87e3",
   "law": "#a8c4ff",
   "monarch": "#e6b3f2",
-  "inner_heaven": "#f4f7ff"
+  "inner_heaven": "#f4f7ff",
+  "genesis": "#fff2c0"
  },
  "pill_qualities": {
   "flawed": 0.5,

@@ -264,6 +264,10 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"time_of_day":
 			ok = Clock.time_of_day() in cond.get("phases", [])
 			text = Tx.t("req.only_at") % ", ".join(cond.get("phases", []))
+		"season_is":
+			# P13a: a stele or a ruin that opens in one season of the four (HerbRules turns them with the weekly reset).
+			ok = HerbRules.season(Clock.now_utc()) == str(cond.season)
+			text = Tx.t("req.season") % ContentDB.name_of("seasons", str(cond.season))
 		"slots_unlocked_at_least":
 			ok = account != null and account.slots_unlocked >= int(cond.value)
 			text = Tx.plural("req.character_slots", int(cond.value)) % int(cond.value)

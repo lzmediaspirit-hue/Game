@@ -36,6 +36,10 @@ FORM_OF = {
     "benevolent_script": "chorus", "rite_seal_script": "seal", "blood_burning": "ward",
     "glimpse_of_heaven": "pillar",
 }
+# P13a: an art drawn from a keystone template (the keystones, and a few Dao and lost arts) plays the form its template is
+# drawn with (tools/icons/emblem_atlas.py TEMPLATE_MARK), an Avatar or a Mirror the Ward's dome as today's Golden Body
+# and Phantom Double do.
+TEMPLATE_FORM = {"constructs": "swarm", "field": "domain", "finisher": "pillar", "procession": "chorus", "avatar": "ward", "mirror": "ward"}
 # The pose aliases the combat authority resolves at cast: the wielded family's combo step (0-based).
 POSE_ALIASES = {"combo_1": 0, "combo_2": 1, "combo_3": 2}
 
@@ -60,7 +64,7 @@ def pose_of(t):
 def add_animation(T):
     built = set(forms())
     for t in T:
-        form = t.get("form") or FORM_OF.get(t["id"])
+        form = t.get("form") or FORM_OF.get(t["id"]) or TEMPLATE_FORM.get(t.get("template", ""))
         if form is None:
             raise ValueError("technique_anim: no form for technique %s (tag it with `form` or add it to FORM_OF)" % t["id"])
         if form not in built:

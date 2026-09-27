@@ -132,7 +132,8 @@
     }
    ],
    "price": 0,
-   "realm": "qi_unfurling_1"
+   "realm": "qi_unfurling_1",
+   "lost": true
   },
   {
    "id": "drifting_cloud_legacy",
@@ -151,6 +152,91 @@
      "value": 0.05
     }
    ],
+   "price": 0,
+   "realm": "qi_unfurling_1",
+   "lost": true
+  },
+  {
+   "id": "mist_lamp_meditation",
+   "name": "Mist-Lamp Meditation",
+   "desc": "A lamp kept alight in the mist: +10% Soul regeneration and +5% insight.",
+   "modifiers": [
+    {
+     "stat": "soul_regen",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": 0.05
+    }
+   ],
+   "lost": true,
+   "act": 1,
+   "price": 0,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "held_presence",
+   "name": "Held Presence",
+   "desc": "A Presence held, not pushed: +10% Will and +5% soul defence.",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "soul_defense",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ],
+   "lost": true,
+   "act": 3,
+   "price": 0,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "the_ferry_waits",
+   "name": "The Ferry Waits",
+   "desc": "The ferry waits for everyone: +10% health regeneration and +5% guard.",
+   "modifiers": [
+    {
+     "stat": "hp_regen",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "guard",
+     "op": "flat",
+     "value": 0.05
+    }
+   ],
+   "lost": true,
+   "act": 5,
+   "price": 0,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "lens_of_far_seeing",
+   "name": "Lens of Far Seeing",
+   "desc": "A lens that sees far: +10% accuracy and +8% reach of Spirit Sense.",
+   "modifiers": [
+    {
+     "stat": "accuracy",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "sense_radius",
+     "op": "pct_add",
+     "value": 0.08
+    }
+   ],
+   "lost": true,
+   "act": 3,
    "price": 0,
    "realm": "qi_unfurling_1"
   }

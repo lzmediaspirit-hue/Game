@@ -338,6 +338,26 @@
     ]
    },
    "locked_text": "Tracks in the grass. Someone who knew snares could use them."
+  },
+  {
+   "id": "journal_verge",
+   "type": "pickup",
+   "at": [
+    2510,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_verge",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_verge"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

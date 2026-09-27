@@ -2938,6 +2938,38 @@ def fruit_trees():
                   visible_if=all_of({"kind": "world_event_here", "event": "treasure_birth"}))
 
 
+def _free_x(r, share, y=880, gap=170):
+    """An x on dry ground near `share` of the room's width, `gap` from every other object, portal and spawn."""
+    x = int(r.w * share)
+    for g in (gap, gap * 0.8, gap * 0.65):   # a small room (a secret tunnel) is crowded: stand a little closer
+        for step in range(0, 24):
+            cand = _dry_x(r, x + (step // 2) * 65 * (1 if step % 2 == 0 else -1), y)
+            if 200 <= cand <= r.w - 200 and _clear(r, cand, y, g):
+                return cand
+    raise AssertionError("no room for a lost art in %s" % r.d["id"])
+
+
+def lost_arts_pass():
+    """P13a Lost Arts (technique_plan §5; roadmap decision 19: nothing tells the player where to look). A ruin's art, an
+    event's find and each lineage piece is an old thing in its room, read once to learn it; until its condition holds
+    it is plain scenery. Twelve more pages of Lu's journal lie in Acts II-III for the Ferryman's Oar. Steles are the
+    insight stones themselves (WorldAuthority reads lost_arts.json), masters teach in their dialogue (story.py) and
+    drops sit in their foes' loot tables (enemies.py)."""
+    import technique_hand as H
+    spots = [(s["src"]["room"], s["src"]["object"], s["id"], s["src"].get("requires", [])) for s in H.LOST if s["src"]["kind"] in ("ruin", "event")]
+    spots += [(p["room"], "lost_" + p["id"], p["id"], p.get("requires", [])) for lin in H.LINEAGES for p in lin["pieces"] if "room" in p]
+    for i, (rid, oid, art, reqs) in enumerate(spots):
+        r = ROOMS[rid]
+        o = r.obj(oid, "inspect", [_free_x(r, 0.3 + 0.13 * (i % 4)), 880], prop=H.LOST_PROP.get(oid, "scholar_rock"),
+                  text="Old writing, cut deep and worn smooth. You have read all it holds.", effects=[{"kind": "learn_lost_art", "art": art}])
+        if reqs:
+            o.update(requires=all_of(*reqs), locked_text="Weathered carvings.")
+    for i, (rid, fid) in enumerate(H.JOURNAL_PAGES):
+        r = ROOMS[rid]
+        r.obj(fid, "pickup", [_free_x(r, 0.62 - 0.1 * (i % 3)), 880], item="lu_journal_page", count=1, prop="scroll_rack", set_flag=fid,
+              hidden_if=all_of(flag(fid)))
+
+
 def hidden_grotto():
     """S49 fortune deck: "a void-fall recovery lands in a hidden cave with a chest". A fall that draws the Hidden Cave
     card ends here instead of back on the path: a moss-lit cave no map shows, an old chest on a root-bound ledge that
@@ -3045,6 +3077,7 @@ def build():
     insect_swarms()
     trails_and_altars()
     spirit_mines()
+    lost_arts_pass()   # P13a: the Lost Arts found in rooms, and more of Lu's journal
     under_steps()
     check_links()
     reachability()

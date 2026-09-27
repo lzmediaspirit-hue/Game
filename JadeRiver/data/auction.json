@@ -113,6 +113,12 @@
    "count": 1,
    "start": 40,
    "weight": 0.5
+  },
+  {
+   "item": "scroll_ninth_peak_scroll",
+   "count": 1,
+   "start": 120,
+   "weight": 0.3
   }
  ],
  "valley": {

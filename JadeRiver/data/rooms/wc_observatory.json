@@ -97,6 +97,22 @@
    ],
    "npc": "stargazer_ming",
    "facing": 1
+  },
+  {
+   "id": "lost_lens_of_far_seeing",
+   "type": "inspect",
+   "at": [
+    911,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "lens_of_far_seeing"
+    }
+   ]
   }
  ],
  "spawns": [],

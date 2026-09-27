@@ -162,6 +162,13 @@ def inner_arts(write=True):
         {"id": "drifting_cloud_legacy", "name": "Drifting Cloud", "desc": "Elder Sung's legacy: +6% move speed and +5% evasion.", "legacy": "elder_sung",
          "modifiers": [mod("move_speed", 0.06), mod("evasion", 0.05)], "price": 0, "realm": "qi_unfurling_1"},
     ]
+    # P13a the Lost Arts that are Inner Arts (technique_plan §5.7): found only in the world, never sold. The two legacies
+    # above are lost arts too (their source is The Elder's Last Lesson).
+    import technique_gen
+    rows += [dict(r, price=0, realm="qi_unfurling_1") for r in technique_gen.lost_minor("inner")]
+    for r in rows:
+        if r.get("legacy"):
+            r["lost"] = True
     if write:
         entries("inner_arts", rows, slots=[["qi_unfurling_1", 2], ["heart_tempering_1", 3], ["spirit_awakening_1", 4]])
     return rows

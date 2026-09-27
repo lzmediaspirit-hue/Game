@@ -9761,8 +9761,8 @@
      "dao": "blood"
     },
     {
-     "kind": "learn_technique",
-     "technique": "blood_burning"
+     "kind": "learn_lost_art",
+     "art": "blood_burning"
     },
     {
      "kind": "grant_currency",
@@ -11211,6 +11211,10 @@
     {
      "kind": "codex",
      "entry": "hollow_tide_battle"
+    },
+    {
+     "kind": "learn_lost_art",
+     "art": "breakwater_sword"
     }
    ],
    "offer_text": [

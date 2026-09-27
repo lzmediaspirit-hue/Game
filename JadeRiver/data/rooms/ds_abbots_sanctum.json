@@ -242,6 +242,31 @@
      }
     ]
    }
+  },
+  {
+   "id": "lost_surfacing_bell",
+   "type": "inspect",
+   "at": [
+    768,
+    880
+   ],
+   "prop": "small_bell",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "surfacing_bell"
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "world_event_active",
+      "event": "shrine_reopening"
+     }
+    ]
+   },
+   "locked_text": "Weathered carvings."
   }
  ],
  "spawns": [
