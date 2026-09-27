@@ -367,6 +367,12 @@ func data_suite() -> void:
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
 	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
+	# Every sect building has a place in the Sect Grounds, shown once it is raised (S25).
+	var placed := {}
+	for so in ContentDB.room("hv_sect_grounds").get("objects", []):
+		for sc in so.get("visible_if", {}).get("all", []):
+			if str(sc.get("kind", "")) == "sect_building_at_least": placed[str(sc.building)] = true
+	for sb in ContentDB.all("sect_buildings"): check(placed.has(str(sb.id)), "sect building %s has a place in the Sect Grounds" % sb.id)
 	# Where a technique is learned reads as a name (techniques.SOURCES, or the quest's), never as its id.
 	for ts in ContentDB.all("techniques"):
 		check(ContentDB.strings.has("technique_source." + str(ts.get("source", ""))), "technique %s: its source %s has a name string" % [ts.id, ts.get("source", "")])

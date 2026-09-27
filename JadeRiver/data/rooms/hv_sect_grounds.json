@@ -300,6 +300,69 @@
    "text": "Your sect's beast pavilion."
   },
   {
+   "id": "outpost_hv",
+   "type": "inspect",
+   "at": [
+    1420,
+    640
+   ],
+   "prop": "watch_tower",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "expanse_outpost",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's expanse outpost."
+  },
+  {
+   "id": "mirror_hv",
+   "type": "inspect",
+   "at": [
+    1640,
+    760
+   ],
+   "prop": "bronze_mirror",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "mirror_of_echoes",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's mirror of echoes."
+  },
+  {
+   "id": "ancestral_shrine_hv",
+   "type": "inspect",
+   "at": [
+    2080,
+    760
+   ],
+   "prop": "ancestral_altar",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "ancestral_shrine",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's ancestral shrine."
+  },
+  {
    "id": "array_node_0",
    "type": "inspect",
    "at": [
@@ -336,6 +399,66 @@
     ]
    },
    "text": "A node of the sect's Formation Array."
+  },
+  {
+   "id": "terrace_bed_0",
+   "type": "inspect",
+   "at": [
+    440,
+    800
+   ],
+   "prop": "treasure_plot",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "herb_terraces",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "text": "A bed of the sect's Herb Terraces."
+  },
+  {
+   "id": "terrace_bed_1",
+   "type": "inspect",
+   "at": [
+    540,
+    800
+   ],
+   "prop": "treasure_plot",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "herb_terraces",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "text": "A bed of the sect's Herb Terraces."
+  },
+  {
+   "id": "terrace_bed_2",
+   "type": "inspect",
+   "at": [
+    640,
+    800
+   ],
+   "prop": "treasure_plot",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "herb_terraces",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "text": "A bed of the sect's Herb Terraces."
   },
   {
    "id": "storage_hv",
