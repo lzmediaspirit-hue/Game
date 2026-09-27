@@ -208,6 +208,12 @@ func data_suite() -> void:
 	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop.
 	var creatures := ContentDB.config("creature_art")
 	for pe in ContentDB.all("pets"): check(creatures.has(str(pe.get("art", pe.id))), "pet %s has creature art" % pe.id)
+	# v1.2 Phase D: the Copperjaw swarm names its creature sheet and the Queen's, and both exist and fly.
+	var swarm_cfg: Dictionary = ContentDB.stat_const("swarm", {})
+	for key in ["art", "queen_art"]:
+		var sheet: Dictionary = creatures.get(str(swarm_cfg.get(key, "")), {})
+		check(not sheet.is_empty() and sheet.get("flying", false) and ResourceLoader.exists(str(sheet.get("file", ""))),
+			"the Copperjaw swarm's %s is a flying creature sheet (%s)" % [key, str(swarm_cfg.get(key, ""))])
 	for en in ContentDB.all("enemies"):
 		if en.get("tameable", false):
 			var sp := str(en.get("tame_species", en.id)).trim_suffix("_chick") if not ContentDB.has_entry("pets", str(en.get("tame_species", en.id))) else str(en.get("tame_species", en.id))

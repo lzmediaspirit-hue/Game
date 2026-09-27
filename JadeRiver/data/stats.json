@@ -597,6 +597,8 @@
   "cooldown_s": 30,
   "wood_factor": 0.5,
   "max_settle_h": 720,
+  "art": "copperjaw_swarm",
+  "queen_art": "copperjaw_queen",
   "ore_food": {
    "copper_ore": 1,
    "riverstone": 2,
