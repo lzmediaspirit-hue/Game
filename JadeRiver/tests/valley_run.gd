@@ -25,7 +25,8 @@ func _main() -> void:
 		if str(a).begins_with("--from="): from = str(a).trim_prefix("--from=")
 		if str(a) == "--only": only = true
 	GameEvents.event.connect(func(n, p):
-		if n == "system_unlocked": unlock_log.append(str(p.get("system", ""))))
+		if n == "system_unlocked": unlock_log.append(str(p.get("system", "")))
+		if n == "enemy_spawned": par_pace(p))
 	if from == "":
 		run()
 		from = SECTIONS[0]
@@ -110,13 +111,34 @@ func par_up() -> void:
 		Game.progression.apply_insight(c().id, "sword", short_by * 1.05 / maxf(0.2, 1.0 + c().stats.value("insight_rate")), "test_shortcut:par")
 	Game.combat.refresh_stats(c().id)
 
-## P12 test shortcut: a boss's health is the par character's DPS times its par time, and the scripted fighter strikes
-## well under par DPS in a boss fight (no main art at par, 0.2 s steps, the falls and the walk back), so a boss that
-## outlasts one try is chipped to a tenth for the next (as long_boss_fight chips its bosses to a quarter).
-func par_chip(def_id: String) -> void:
-	if Game.room_rt == null: return
-	for e in Game.room_rt.living_enemies():
-		if e.def_id == def_id and e.def.has("par_s"): e.pools.hp = minf(e.pools.hp, e.pools.max_hp * 0.1)   # test_shortcut
+## P12 test shortcut ("par pace"): a boss's health is the par character's DPS times its par time, which assumes a player
+## who strikes with a main art at par and steps out of the markers. The scripted fighter does neither (its blows take a
+## fifth of its health from the Tomb King), and a boss heals whole when its target falls, so every boss with a par time
+## that spawns during the run is sized to PAR_PACE_S seconds of the run's own basic blows against it.
+const PAR_PACE_S := 20.0
+func par_pace(p: Dictionary) -> void:
+	if Game.room_rt == null or Game.active() == null: return
+	var e = Game.room_rt.enemies.get(int(p.get("enemy", 0)))
+	if e == null or not e.def.has("par_s") or e.team == "ally": return
+	var fam := StatRules.family(c())
+	var steps: Array = fam.get("combo", [{"mult": 1.0, "duration": 0.5}])
+	var mult := 0.0
+	var secs := 0.0
+	for st in steps:
+		mult += float(st.get("mult", 1.0)) / steps.size()
+		secs += float(st.get("duration", 0.5))
+	var blow := {"damage_type": str(fam.get("damage_type", "physical")), "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]), "never_miss": true}
+	var pv := CombatRules.fighter(c())
+	var ev: Dictionary = Game.combat.enemy_view(e)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12
+	var hit := 0.0
+	for i in 100: hit += float(CombatRules.resolve(pv, ev, blow, rng).amount) / 100.0
+	var hp := maxf(1.0, hit * steps.size() / maxf(0.1, secs) * PAR_PACE_S)
+	if hp < float(e.pools.max_hp):
+		e.stats.max_hp = hp          # test_shortcut
+		e.pools.max_hp = hp
+		e.pools.hp = hp
 
 ## Nobody walks while gravely wounded: wake at the shrine and rest first.
 func revive_if_needed() -> void:
@@ -1052,7 +1074,6 @@ func defeat(def_id: String, room_id: String, tries := 4) -> bool:
 	for i in tries:
 		if not travel(room_id): return false
 		step(1.0)
-		if i > 0: par_chip(def_id)
 		if verbose: print("  in ", room_id, ": ", Game.room_rt.living_enemies().map(func(e): return "%s%s L%d hp%d" % [e.def_id, "*" if e.elite else "", e.level, int(e.pools.hp)]))
 		if fight(def_id, 1, 900.0, 0.0, true) >= 1: return true
 		revive_if_needed()
@@ -2516,7 +2537,6 @@ func sec_ls2() -> void:
 		if not travel("bm_flagship_deck"): break
 		c().pools.soul = c().pools.max_soul
 		if not Game.field.is_on(c().id): submit({"type": "toggle_presence", "on": true})
-		if i > 0: par_chip("admiral_voss")
 		if fight("admiral_voss", 1, 900.0, 0.0, true) >= 1:
 			won = true
 			break
