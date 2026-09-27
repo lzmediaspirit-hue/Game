@@ -335,6 +335,7 @@ Six sizes, centred on the canvas and on the grid. A page picks the smallest that
 | Small | 288, 152, 704, 416 | 640 × 312 | Short choices; the default modal |
 | Confirm | 384, 248, 512, 224 | — | `Page.ask` |
 | Dialogue | 48, 464, 1184, 232 | — | The dialogue strip, inside the safe area |
+| Screen | 0, 0, 1280, 720 | — | The world map's painting only (decision 25): its frame is the screen's edge |
 
 | Page | Now | Standard | Change |
 |---|---|---|---|

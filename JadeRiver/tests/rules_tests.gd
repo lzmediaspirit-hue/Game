@@ -112,6 +112,7 @@ func _main() -> void:
 	await labels_suite()
 	await ui_suite()
 	await identity_suite()
+	await map_suite()
 	fixes_suite()
 	mockup_fixes_suite()
 	max_character_suite()
@@ -235,7 +236,7 @@ func ui_suite() -> void:
 					if float(d.scale) < 1.0 or float(d.scale) != floorf(float(d.scale)) or dr.position != dr.position.round():
 						blurred.append("%s %s %s at %.2fx" % [where, d.id, str(dr), float(d.scale)])
 				# P4 (§2): a standard window inside the safe area, and list rows on the 8 px grid.
-				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not Page.SAFE_AREA.encloses(pg.frame_rect)): windows.append("%s %s" % [where, str(pg.frame_rect)])
+				if not pg.frameless and (not pg.frame_rect in Page.WINDOWS or not (Page.SAFE_AREA.encloses(pg.frame_rect) or pg.frame_rect == Page.WINDOW_SCREEN)): windows.append("%s %s" % [where, str(pg.frame_rect)])
 				for aid in pg._areas:
 					if fmod(float(pg._areas[aid].get("pitch", 0.0)), Page.GRID) != 0.0: pitches.append("%s %s at %s" % [where, aid, str(pg._areas[aid].pitch)])
 				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
@@ -393,7 +394,9 @@ func _ui_contexts(c) -> Dictionary:
 		# An Elder of the Jade Sect: the next rank, Sect Master, is at the foot of the list (B5).
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
-		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}],
+		# The world map's three views (its tabs are the zones and the Heaven Ranking).
+		"world_map": [{}, {"view": "resources"}, {"view": "objectives"}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -499,6 +502,146 @@ func identity_suite() -> void:
 		if p.identity != null and p.identity.open_s > Page.OPEN_MOTION_MAX: slow.append(id)
 		p.free()
 	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
+
+## P5 (docs/page_identity.md row 7, mockups 16 and 16_resources, decisions 17 and 25): the world map as the framed
+## painting. The valley's nodes stand where tools/ui/build_valley_map.py painted each area, and every room of every
+## zone shows at an area of its zone. The one layout pass leaves no plate or mark touching another, a node or the
+## frame's furniture, and every word on the painting sits on a plate: on the real data, in every zone, view, kind and
+## chosen area, with every area known and with few, at every text size; in the valley no plate is left out. Track Route
+## and Walk there travel by auto_path and close the map; a locked zone's tag says why.
+func map_suite() -> void:
+	var map_script = load("res://scripts/ui/pages/map_page.gd")
+	var vz: Dictionary = map_script._zone("jade_river_valley")
+	var off: Array = []
+	for r in ContentDB.zone("jade_river_valley").regions:
+		if r.get("hidden", false): continue
+		# build_valley_map.py MAP_RECT (24, 34, 424, 276) art px, drawn x2.
+		var want := Vector2(48, 68) + Vector2(float(r.map[0]) * 848.0, float(r.map[1]) * 552.0)
+		if (vz.anchor[str(r.id)] as Vector2).distance_to(want) > 0.5 or not ResourceLoader.exists("res://art/ui/maps/valley_%s.png" % r.id): off.append(str(r.id))
+	var art := load("res://art/ui/maps/valley_map.png") as Texture2D
+	check(art != null and art.get_size() == Vector2(1280, 640) and off.is_empty(), "P5 map: the valley's nodes stand where its painting drew each area, each with its picture (%s)" % str(off))
+	var lost: Array = []
+	for id in ContentDB.rooms:
+		var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+		if not str(zz.node_of.get(str(id), "")) in zz.order: lost.append(str(id))
+	check(lost.is_empty(), "P5 map: every room of every zone shows at an area of its zone (%d lost: %s)" % [lost.size(), str(lost.slice(0, 6))])
+	# The pass on a crowd round one point: what fits is placed clear of the rest, what does not is left out.
+	var crowd: Array = []
+	for i in 30: crowd.append({"id": i, "at": Vector2(400, 300) + Vector2(i % 3, i / 3) * 3.0, "r": 12.0, "sizes": [Vector2(120, 40), Vector2(90, 20)], "ways": map_script.PLATE_WAYS})
+	var pin := Rect2(386, 286, 40, 60)
+	var got: Dictionary = map_script.place(crowd, [pin], Rect2(200, 150, 420, 320))
+	var boxes: Array = got.values().map(func(g): return g.rect)
+	check(got.size() >= 4 and got.size() < 30 and _map_faults(boxes, [pin], [], Rect2(200, 150, 420, 320)).is_empty(),
+		"P5 map: the layout pass places a crowd round one point with none touching and leaves out what fits nowhere (%d of 30)" % got.size())
+	# The real views.
+	var c = Game.active()
+	var visited_was: Dictionary = Game.account.visited_rooms.duplicate()
+	var size_was = Game.account.settings.get("text_size", 1)
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var pg: Page = map_script.new()
+	pg.page_id = "world_map"
+	pg.text_log = []
+	add_child(pg)
+	pg.open({})
+	var faults: Array = []
+	var left_out: Array = []
+	var views := 0
+	for known in ["all", "few"]:
+		Game.account.visited_rooms = {}
+		for id in ContentDB.rooms:
+			var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+			if known == "all" or zz.node_of.get(id, "") == zz.order[0]: Game.account.visited_rooms[id] = true
+		for ts in 3:
+			Game.account.settings["text_size"] = ts
+			for ti in pg.tabs.size() - 1:
+				pg.tab = ti
+				pg._sync_tab()
+				for v in ["areas", "resources", "objectives"]:
+					for k in (["herb_patch", "ore_vein", "fishing_spot"] if v == "resources" else [""]):
+						for pick in [0, 1]:
+							var zz: Dictionary = map_script._zone(str(pg.tabs[ti].id))
+							pg.view = v
+							if k != "": pg.res_kind = k
+							pg.res_item = ""
+							pg.sel = str(zz.order[(zz.order.size() / 2) * pick])
+							pg.text_log.clear()
+							pg.queue_redraw()
+							await get_tree().process_frame
+							await get_tree().process_frame
+							views += 1
+							var where := "%s/%s/%s%s/%d/%s" % [known, pg.tabs[ti].id, v, k, ts, pg.sel]
+							var L: Dictionary = pg.layout
+							var rects: Array = L.plates.values().map(func(p): return p.rect) + L.marks.values().map(func(p): return p.rect)
+							for f in _map_faults(rects, L.pins, L.keep, L.bounds): faults.append("%s %s" % [where, f])
+							for tx in pg.text_log:
+								var at: Vector2 = (tx.rect as Rect2).get_center()
+								if tx.has("ground") or not (L.bounds as Rect2).has_point(at) or at.x >= 912.0 or L.keep.any(func(k): return k.has_point(at)): continue
+								if not L.plates.values().any(func(p): return (p.rect as Rect2).grow(1).encloses(tx.rect)): faults.append("%s \"%s\" off its plate" % [where, str(tx.s)])
+							if str(pg.tabs[ti].id) == "jade_river_valley" and not L.hidden.is_empty(): left_out.append("%s %s" % [where, str(L.hidden)])
+	for f in faults.slice(0, 12): print("  map_suite: ", f)
+	check(views >= 180 and faults.is_empty(), "P5 map: no plate or mark touches another, a node or the frame's furniture, and every word on the painting is on its plate, in every zone, view and text size (%d views, %d faults)" % [views, faults.size()])
+	check(left_out.is_empty(), "P5 map: in the valley every plate finds a place (%s)" % str(left_out.slice(0, 4)))
+	Game.account.visited_rooms = visited_was
+	Game.account.settings["text_size"] = size_was
+	# Travel: from the Willow Path, Track Route walks to Stoneford's nearest room by auto_path and closes the map.
+	var room_was := str(c.position.get("room", ""))
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	pg.tab = 0
+	pg.view = "areas"
+	pg._sync_tab()
+	await get_tree().process_frame
+	pg.on_action("sel", "stoneford")
+	pg.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var closed := [0]
+	pg.closed.connect(func(_p): closed[0] += 1)
+	var track: Array = pg._regions.filter(func(r): return r.id == "track")
+	var to := str(track[0].data) if not track.is_empty() else ""
+	if not track.is_empty(): pg._activate(track[0])
+	check(track.size() == 1 and to in vz.rooms.stoneford and Game.world.auto_path_target(c) == to and closed[0] == 1,
+		"P5 map: Track Route walks to Stoneford (%s) by auto_path and closes the map" % to)
+	Game.submit({"type": "auto_path", "target": ""})
+	# Walk there: a tracked quest's room from its area's card (with no tracked quest on a route, the intent it sends).
+	var walk_to := "sf_market"
+	for tq in Game.quest.tracker(c):
+		var qn := str(vz.node_of.get(str(tq.target_room), ""))
+		if walk_to == "sf_market" and qn != "" and str(tq.target_room) != "wp_west" and not pg._route(c, qn, str(tq.target_room)).is_empty(): walk_to = str(tq.target_room)
+	var walk: Array = []
+	if walk_to != "sf_market":
+		pg.on_action("sel", str(vz.node_of[walk_to]))
+		pg.queue_redraw()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		walk = pg._regions.filter(func(r): return r.id == "walk")
+		if not walk.is_empty(): pg._activate(walk[0])
+	else:
+		pg.on_action("walk", walk_to)
+	check((walk_to == "sf_market" or walk.size() == 1) and Game.world.auto_path_target(c) == walk_to and closed[0] == 2,
+		"P5 map: Walk there walks to the tracked quest's room (%s) by auto_path and closes the map" % walk_to)
+	Game.submit({"type": "auto_path", "target": ""})
+	# A locked zone's tag answers a tap with its reason and leaves the map where it was.
+	var locked: Array = pg._regions.filter(func(r): return r.id == "_tab" and not r.enabled)
+	var zone_was: String = pg.zone_id
+	if not locked.is_empty(): pg._activate(locked[0])
+	check(locked.is_empty() or (pg.toast == str(pg.tabs[int(locked[0].data)].locked) and pg.zone_id == zone_was), "P5 map: a locked zone's tag says why (%s)" % pg.toast)
+	pg.queue_free()
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
+
+## What is wrong with a layout: a box outside `bounds`, over a keep-out, on a pin, or touching another box.
+func _map_faults(boxes: Array, pins: Array, keep: Array, bounds: Rect2) -> Array:
+	var out: Array = []
+	for i in boxes.size():
+		var a: Rect2 = boxes[i]
+		if not bounds.encloses(a): out.append("%s outside" % str(a))
+		out.append_array(keep.filter(func(k): return a.intersects(k)).map(func(k): return "%s over %s" % [str(a), str(k)]))
+		out.append_array(pins.filter(func(p): return a.grow(1).intersects(p)).map(func(p): return "%s on the node at %s" % [str(a), str(p.get_center())]))
+		out.append_array(boxes.slice(i + 1).filter(func(b): return a.grow(1).intersects(b)).map(func(b): return "%s touches %s" % [str(a), str(b)]))
+	return out
 
 ## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
 ## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
