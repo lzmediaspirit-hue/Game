@@ -163,6 +163,9 @@ body {
 .k-btn { border-image: url(../../../art/ui/hd/button_primary__normal.png) 42 48 fill / 14px 16px stretch;
   display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 16px;
   font-family: var(--f-text); font-weight: 600; font-size: 22px; color: var(--pale-gold); text-shadow: 0 2px 0 rgba(0,0,0,.55), 1px 1px 0 rgba(0,0,0,.45); }
+/* Decision (P4, option C): the bright face stays and primary labels and page titles carry a 2 px ink outline */
+.k-btn, .k-plaque > .t-title { text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+  0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
 .k-btn.is-pressed { border-image-source: url(../../../art/ui/hd/button_primary__pressed.png); padding-top: 4px; padding-left: 18px; }
 .k-btn.is-disabled { border-image-source: url(../../../art/ui/hd/button_primary__disabled.png); color: var(--hollow); }
 .k-btn2 { border-image: url(../../../art/ui/hd/button_secondary__normal.png) 36 42 fill / 12px 14px stretch;

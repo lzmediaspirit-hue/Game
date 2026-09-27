@@ -371,5 +371,22 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
    wearing the equipped pieces, drawn from the real sprite layers, with the slots around it. A row of slots with no
    figure is not enough.
 9. **The version** (2026-09-27): the game and the APK both show 1.2, from `project.godot` (B9).
+10. **The primary button** (2026-09-27, P4): option C of `docs/mockups/00b_button_faces.png`. The bright jade face
+    stays; primary labels and page titles carry a 2 px ink outline (`docs/ui_style_guide.md` §1.5).
+11. **Mockup notes** (2026-09-27, P3):
+    - Roll-Call (13) should look more interactive and friendlier.
+    - The world map (16) takes after the user's reference: a painted landscape of the zone with its landmarks drawn,
+      glowing nodes on a dotted route, and a side card with the area's picture, level band, resources and "Track
+      Route". Tabs sit along the foot (Areas, Resources, Objectives) with a legend. The names stay Jade River's own.
+    - The shop (17) drops the buy-back column, so the bag side has room; buy-back becomes a small control.
+    - The Codex Collection (18) should read as a book, and the Old Scrolls tab should look like nothing else in the
+      game.
+    - Techniques (06): a large tree per element, each element in its own tab, plus a tab for lost arts found only
+      through quests, drops and exploration.
+12. **Technique volume** (2026-09-27): hundreds of techniques for each weapon family and each cultivation path, planned
+    in `docs/technique_plan.md` before they are built.
+13. **Stat scaling** (2026-09-27): research how 2D MMORPGs scale stats and gate main quests by level, compared with
+    Jade River's curves. A high-level character should deal hundreds of thousands of damage
+    (`docs/research/stat_scaling_research.md`).
 
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
