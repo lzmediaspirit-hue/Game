@@ -2433,6 +2433,7 @@
   "ui.quest.gap_field": "Hunt in %s (Levels %d–%d)",
   "ui.quest.gap_post": "Your other characters' posts and a Vigil keep working while you play",
   "ui.quest.gap_side": "%d side quests open to you now",
+  "ui.quest.gap_side_one": "%d side quest open to you now",
   "ui.quest.gap_ways": "The fastest ways there:",
   "ui.quest.main": "Main",
   "ui.quest.next_in_the_story": "Next in the story: %s",

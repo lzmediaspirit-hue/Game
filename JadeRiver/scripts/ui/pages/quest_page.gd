@@ -36,7 +36,7 @@ func _next_chapter(ch, left: Rect2) -> void:
 	if not gap.is_empty():
 		body += "\n" + Tx.t("ui.quest.opens_at") % [ContentDB.name_of("realms", str(gap.realm)), int(gap.level), int(gap.have)] + "\n" + Tx.t("ui.quest.gap_ways")
 		for f in gap.fields: body += "\n· " + Tx.t("ui.quest.gap_field") % [str(ContentDB.room(str(f[0])).get("name", f[0])), int(f[1]), int(f[2])]
-		if int(gap.side) > 0: body += "\n· " + Tx.t("ui.quest.gap_side") % int(gap.side)
+		if int(gap.side) > 0: body += "\n· " + Tx.plural("ui.quest.gap_side", int(gap.side)) % int(gap.side)
 		if int(gap.dailies) > 0: body += "\n· " + Tx.t("ui.quest.gap_dailies")
 		if gap.post: body += "\n· " + Tx.t("ui.quest.gap_post")
 	elif why != "": body += "\n" + why
