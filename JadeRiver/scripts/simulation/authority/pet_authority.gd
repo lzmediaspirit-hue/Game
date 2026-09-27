@@ -499,7 +499,8 @@ func tick(delta: float) -> void:
 
 ## One animal's strike: a share of the owner's attack, by stage, care, traits, rarity, gifts and role.
 func pet_power(c, p: Dictionary) -> float:
-	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + _trait_sum(p, "pet_damage")) * rarity_power(p) * stat_mult(p, "attack")
+	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + _trait_sum(p, "pet_damage") + c.stats.value("pet_damage")) \
+		* rarity_power(p) * stat_mult(p, "attack")
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
 	if game.sim_time < float(rally_until.get(c.id, -1.0)): power *= float(arena_cfg().get("grove", {}).get("rally", {}).get("mult", 1.25))   # the keeper's rally
 	return power
@@ -1210,7 +1211,8 @@ func damage_taken_mult(a: EnemyState) -> float:
 	var c = game.character(a.pet_owner)
 	if c == null: return 1.0
 	var p := _pet(c, str(a.ai.get("pet", c.active_pet)))
-	return maxf(0.1, 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken"))
+	# P7b Kin-Bond (the beast tamer line, 6 pieces): your animal takes less.
+	return maxf(0.1, 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")) * float(StatRules.set_flag(c, "kin_bond").get("taken", 1.0))
 
 ## Deep Pockets: the active animal carries a row of your gourd.
 func _apply_pockets(c) -> void:
@@ -1629,6 +1631,13 @@ func swarm_of(c) -> Dictionary:
 		c.swarm = settled
 		if bool(settled.get("queen", false)) and not was_queen: emit("swarm_queen", {"actor": c.id})
 	return c.swarm
+
+## The swarm's creature sheet (stats.swarm.art), the Queen's (queen_art) once she has risen: the Swarm tab and the
+## released swarm in the world draw from it.
+func swarm_art(c) -> String:
+	var k := swarm_cfg()
+	var queen := bool(c.swarm.get("queen", false)) if c != null and c.swarm is Dictionary else false
+	return str(k.get("queen_art", k.get("art", ""))) if queen else str(k.get("art", ""))
 
 ## Feed the box ore: each ore gives food by its grade (stats.swarm.ore_food); the swarm eats one an hour.
 func feed_swarm(c, item: String, count: int) -> Dictionary:

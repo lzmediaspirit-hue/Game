@@ -60,7 +60,7 @@ func outpost_attunement(zone_id: String) -> float:
 	return float(output("expanse_outpost", "attunement_per_level")) * level_building("expanse_outpost") * output_mult("expanse_outpost")
 
 func treasury_bonus() -> int:
-	return int(float(output("treasury", "taels_per_level")) * level_building("treasury") * output_mult("treasury"))
+	return int(float(output("treasury", "storage_slots_per_level")) * level_building("treasury") * output_mult("treasury"))
 
 func disciple_cap() -> int:
 	return int(output("guest_house", "disciples_base", 2)) + int(output("guest_house", "disciples_per_level", 1)) * level_building("guest_house")
@@ -102,10 +102,11 @@ func upgrade(c, id: String) -> Dictionary:
 		return fail("realm", {"text": Tx.t("sim.sect.needs_a_member_at") % ContentDB.name_of("realms", need_realm)})
 	var cost := building_cost(id, next)
 	if game.economy.balance("silver_tael") < int(cost.silver_tael): return fail("insufficient_funds")
+	# Materials come from the bag, the Storehouse or the storage chest (the one spend path, InventoryAuthority.apply_spend).
 	for m in cost.materials:
-		if c.inventory.count(m) < int(cost.materials[m]): return fail("materials", {"text": Tx.t("sim.sect.needs") % [int(cost.materials[m]), ContentDB.item_name(m)]})
+		if game.inventory.count_owned(c, m) < int(cost.materials[m]): return fail("materials", {"text": Tx.t("sim.sect.needs") % [int(cost.materials[m]), ContentDB.item_name(m)]})
 	game.economy.apply_currency("silver_tael", -int(cost.silver_tael), "sect_build")
-	for m2 in cost.materials: game.inventory.apply_remove(c.id, m2, int(cost.materials[m2]), "sect_build")
+	for m2 in cost.materials: game.inventory.apply_spend(c, m2, int(cost.materials[m2]), "sect_build")
 	sect().queue.append({"building": id, "level": next, "done_utc": Clock.now_utc() + float(cost.seconds)})
 	emit("building_started", {"building": id, "level": next})
 	return ok()

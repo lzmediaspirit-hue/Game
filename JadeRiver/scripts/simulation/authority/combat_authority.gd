@@ -835,6 +835,7 @@ func _resolve_basic(c) -> void:
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "knockup_s": float(th.get("knockup_s", 0.8)), "source": "basic"}})
 		return
 	var reach_m := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))   # S48 Coiled Dragon
+	if fam.get("ring", false): reach_m *= 1.0 + c.stats.value("melody_power")   # P7b: the bell's ring carries further
 	var hitbox := {"x": [-8, float(fam.get("reach", 46)) * reach_m], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [-30, 60])}
 	var mult := float(step.get("mult", 1.0))
 	var max_targets := int(fam.get("line_targets", 1))
@@ -880,13 +881,11 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
 		# Soul Lantern Ward: a shield of a share of max Soul that takes blows of any kind until its time is up.
 		if float(t.get("shield_soul_pct", 0.0)) > 0.0 and c.pools.max_soul > 0.0:
-			c.pools.shield = maxf(c.pools.shield, c.pools.max_soul * float(t.shield_soul_pct))
-			var wfx: Dictionary = treasure_fx.get(c.id, {})
-			wfx["shield_t"] = float(t.get("shield_s", 6))
-			treasure_fx[c.id] = wfx
+			raise_shield(c, c.pools.max_soul * float(t.shield_soul_pct), float(t.get("shield_s", 6)))
 		var healed := 0
 		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
-			healed = heal_circle(c, float(t.allies_heal_pct), float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
+			var song: float = 1.0 + (c.stats.value("melody_power") if str(t.get("dao", "")) == "music" else 0.0)
+			healed = heal_circle(c, float(t.allies_heal_pct) * song, float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": healed})
 		return
 	if dtype == "illusion":
@@ -1163,12 +1162,12 @@ func _skill_strike(c, sk: Dictionary, m: float, source: String, item_id: String)
 ## the body's own toxicity into poison on the foe (once per foe per half second).
 func poison_body_active(c) -> bool:
 	if c == null: return false
-	var cfg: Dictionary = ContentDB.stat_const("poison_body", {})
 	var tol: float = maxf(1.0, c.stats.value("toxicity_tolerance"))
-	if float(c.cultivator.toxicity) <= tol * float(cfg.get("threshold", 0.5)): return false
-	for tid in c.cultivator.techniques_known:
-		if bool(ContentDB.entry("techniques", str(tid)).get("poison_path", false)): return true
-	return false
+	return float(c.cultivator.toxicity) > tol * poison_body_threshold(c) and ProgressionRules.knows_poison_art(c)
+
+## The share of toxicity tolerance past which the Poison Body opens (Venom Hand lowers it).
+func poison_body_threshold(c) -> float:
+	return float(StatRules.set_flag(c, "venom_hand").get("threshold", ContentDB.stat_const("poison_body", {}).get("threshold", 0.5)))
 
 func _poison_body(c, e: EnemyState) -> void:
 	if not e.alive or e.pools.steadfast.has("poison") or not poison_body_active(c): return
@@ -1243,10 +1242,11 @@ func _tick_hots(c, delta: float) -> void:
 ## A weapon oil on the blade (S44): each hit may carry its status to the foe. Rolled on its own stream, so a
 ## fight without oil keeps the combat stream's sequence.
 func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void:
+	var venom := StatRules.set_flag(c, "venom_hand")
 	for st in c.pools.statuses:
 		var oil: Dictionary = ContentDB.entry("status_effects", str(st.id)).get("oil", {})
 		if oil.is_empty() or e.pools.steadfast.has(str(oil.status)): continue
-		var applied := CombatRules.status_roll({"id": str(oil.status), "chance": float(oil.get("chance", 0.2)), "power": float(oil.get("power", 0.02)),
+		var applied := CombatRules.status_roll({"id": str(oil.status), "chance": float(venom.get("oil_chance", oil.get("chance", 0.2))), "power": float(oil.get("power", 0.02)),
 			"duration_s": float(oil.get("duration_s", 4.0))}, ev, Rng.stream(c.id, "oil"))
 		if not applied.is_empty():
 			applied.source = c.id
@@ -1444,6 +1444,11 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	var p: ResourcePool = c.pools
 	if wounded.has(c.id): return
 	if attacker != "" and dtype != "dot": timeline(c.id).fight_t = game.sim_time
+	var ub := StatRules.set_flag(c, "unbroken")
+	if not ub.is_empty() and dtype not in ["dot", "soul"] and p.cooldown("unbroken") <= 0.0 \
+			and p.hp - maxf(0.0, amount - p.shield) < p.max_hp * float(ub.get("below", 0.3)):
+		p.cooldowns["unbroken"] = float(ub.get("cooldown_s", 60))
+		raise_shield(c, p.max_hp * float(ub.get("shield", 0.1)), float(ub.get("shield_s", 5)))
 	if p.shield > 0.0:
 		var absorbed := minf(p.shield, amount)
 		p.shield -= absorbed
@@ -1671,13 +1676,16 @@ func _tick_melody(c, delta: float) -> void:
 	if wounded.has(c.id) or c.pools.blocked("attack") or is_busy(c.id) or flying.has(c.id):
 		_end_melody(c, "broken")
 		return
-	var cost := float(ch.get("composure_per_s", 8)) * float(ProgressionRules.path_flag(c, "channel_cost_mult", 1.0)) * delta
-	apply_resource_change(c.id, "composure", -cost, "melody", 0.0, true)
+	var m: Dictionary = melody[c.id]
+	var note := StatRules.set_flag(c, "sustained_note")
+	m.played = float(m.get("played", 0.0)) + delta
+	if m.played > float(note.get("free_s", 0.0)):
+		var cost := float(ch.get("composure_per_s", 8)) * float(ProgressionRules.path_flag(c, "channel_cost_mult", 1.0)) * delta
+		apply_resource_change(c.id, "composure", -cost, "melody", 0.0, true)
 	c.pools.since_composure_use = 0.0
 	if c.pools.composure <= 0.0:
 		_end_melody(c, "composure")
 		return
-	var m: Dictionary = melody[c.id]
 	m.next = float(m.next) - delta
 	if float(m.next) > 0.0: return
 	var tick := float(ch.get("tick_s", 0.5))
@@ -1687,6 +1695,8 @@ func _tick_melody(c, delta: float) -> void:
 	# Each tier of the Music Dao carries the melody 5% further.
 	var radius := float(ch.get("radius", 220)) * (1.0 + 0.05 * _dao_tier(c, "music"))
 	var rng := Rng.stream(c.id, "melody")
+	var power: float = 1.0 + c.stats.value("melody_power")
+	var ally_heal: float = (float(ch.get("ally_heal_pct", 0.02)) + float(note.get("ally_heal", 0.0))) * power
 	var foes := 0
 	var allies := 0
 	if game.room_rt != null:
@@ -1694,18 +1704,18 @@ func _tick_melody(c, delta: float) -> void:
 			if e.plane.distance_to(at) > radius: continue
 			if e.team == "ally":
 				if e.pools.hp < e.pools.max_hp:
-					e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * float(ch.get("ally_heal_pct", 0.02)) * tick)
+					e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * ally_heal * tick)
 				allies += 1
 				continue
 			if e.hidden or e.ai.get("surrendered", false): continue
 			foes += 1
 			var sl: Dictionary = ch.get("slow", {})
 			if not sl.is_empty() and not e.pools.steadfast.has("slow"):
-				_apply_status_to_enemy(e, {"id": "slow", "power": float(sl.get("power", 0.3)), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
+				_apply_status_to_enemy(e, {"id": "slow", "power": minf(0.9, float(sl.get("power", 0.3)) * power), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
 			if not e.is_boss() and not e.pools.steadfast.has("confusion") and not e.pools.has_status("confusion") \
 					and rng.randf() < float(ch.get("confusion_chance", 0.08)):
 				_apply_status_to_enemy(e, {"id": "confusion", "power": 1.0, "remaining": float(ch.get("confusion_s", 1.5)), "source": c.id})
-	var self_heal: float = c.pools.max_hp * float(ch.get("self_heal_pct", 0.01)) * tick * (1.0 + c.stats.value("healing_received"))
+	var self_heal: float = c.pools.max_hp * float(ch.get("self_heal_pct", 0.01)) * tick * power * (1.0 + c.stats.value("healing_received"))
 	if self_heal > 0.0 and c.pools.hp < c.pools.max_hp: apply_resource_change(c.id, "hp", self_heal, "melody", 0.0, true)
 	emit("melody_pulse", {"actor": c.id, "x": at.x, "y": at.y, "radius": radius, "foes": foes, "allies": allies})
 
@@ -1742,10 +1752,7 @@ func _sect_support(c, v: Dictionary) -> void:
 	var pct := float(v.get("heal_pct", 0.0)) * mult
 	if pct > 0.0 and not v.get("allies_only", false): apply_heal(c.id, pct, 0.0, 0.0, "sect_support")
 	if float(v.get("shield_pct", 0.0)) > 0.0:
-		c.pools.shield = maxf(c.pools.shield, c.pools.max_hp * float(v.shield_pct) * mult)
-		var sfx: Dictionary = treasure_fx.get(c.id, {})
-		sfx["shield_t"] = float(v.get("shield_s", 4))
-		treasure_fx[c.id] = sfx
+		raise_shield(c, c.pools.max_hp * float(v.shield_pct) * mult, float(v.get("shield_s", 4)))
 	if pct <= 0.0 or game.room_rt == null: return
 	var pv := player_view(c)
 	var at := Vector2(float(pv.x), float(pv.y))
@@ -1827,10 +1834,13 @@ func deploy_array(actor_id: String, e: Dictionary) -> void:
 	if c == null or game.room_rt == null: return
 	var pv := player_view(c)
 	var tier := _dao_tier(c, "formation")
-	var secs := float(e.get("duration", 10)) * (1.1 if tier >= 1 else 1.0)
-	var a := {"actor": c.id, "kind": str(e.get("array", "guard")), "x": float(pv.x), "y": float(pv.y), "radius": float(e.get("radius", 150)),
-		"t": secs, "tick": 0.0, "mult": float(e.get("mult", 0.5)) * (1.0 + 0.2 * tier), "slow": float(e.get("slow", 0.4)),
-		"defense": float(e.get("defense", 0.15))}
+	var power: float = 1.0 + c.stats.value("array_power")
+	var living := StatRules.set_flag(c, "living_array")
+	var secs: float = float(e.get("duration", 10)) * (1.1 if tier >= 1 else 1.0) * power
+	var a := {"actor": c.id, "kind": str(e.get("array", "guard")), "x": float(pv.x), "y": float(pv.y),
+		"radius": float(e.get("radius", 150)) * (1.0 + float(living.get("wider", 0.0))), "t": secs, "tick": 0.0,
+		"mult": float(e.get("mult", 0.5)) * (1.0 + 0.2 * tier) * power, "slow": float(e.get("slow", 0.4)), "defense": float(e.get("defense", 0.15)),
+		"talisman": living.get("talismans", {}).get(str(e.get("array", "guard")), {}), "marked": {}}
 	arrays.append(a)
 	game.progression.apply_insight(c.id, "formation", 3.0, "array_plate")
 	emit("array_deployed", {"actor": c.id, "kind": a.kind, "x": a.x, "y": a.y, "radius": a.radius, "duration": secs})
@@ -1848,6 +1858,12 @@ func _tick_arrays(delta: float) -> void:
 		var c = game.character(str(a.actor))
 		if c == null or game.room_rt == null: continue
 		var here := Vector2(float(a.x), float(a.y))
+		var tal: Dictionary = a.talisman
+		if not tal.is_empty():
+			for e in _enemies_within(here, float(a.radius)):
+				if a.marked.has(e.uid) or e.pools.steadfast.has(str(tal.id)): continue
+				a.marked[e.uid] = true
+				_apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.get("power", 1)), "remaining": float(tal.get("duration_s", 1.0)), "source": c.id})
 		match str(a.kind):
 			"killing":
 				a.tick = 1.0
@@ -1956,8 +1972,10 @@ func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
 	if str(StatRules.family(c).get("id", "")) != "jian": return
 	var si: Dictionary = sword_intent.get(c.id, {"stacks": 0, "t": 0.0})
 	var before := int(si.stacks)
-	si.stacks = mini(int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))), before + 1)   # Sword Heart: 12
-	si.t = float(ContentDB.stat_const("sword_intent.fade_s", 3.0))
+	var honed := StatRules.set_flag(c, "honed_intent")
+	var most := int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))) + int(honed.get("stacks", 0))   # Sword Heart: 12
+	si.stacks = mini(most, before + 1)
+	si.t = float(ContentDB.stat_const("sword_intent.fade_s", 3.0)) * float(honed.get("fade_mult", 1.0))
 	sword_intent[c.id] = si
 	if int(si.stacks) != before: emit("sword_intent_changed", {"actor": c.id, "stacks": int(si.stacks)})
 	if int(si.stacks) >= 10 and e.alive and e.level < ProgressionRules.level(c) and not e.pools.steadfast.has("fear"):
@@ -2026,10 +2044,7 @@ func use_talisman(c, index: int) -> Dictionary:
 				hits += 1
 			at = center
 		"defence":
-			c.pools.shield = maxf(c.pools.shield, c.pools.max_hp * float(tal.get("shield_pct", 0.2)) * qmult)
-			var fx1: Dictionary = treasure_fx.get(c.id, {})
-			fx1.shield_t = float(tal.get("duration_s", 6))
-			treasure_fx[c.id] = fx1
+			raise_shield(c, c.pools.max_hp * float(tal.get("shield_pct", 0.2)) * qmult, float(tal.get("duration_s", 6)))
 		"movement":
 			var fx2: Dictionary = treasure_fx.get(c.id, {})
 			if str(tal.get("effect", "")) == "free_dodge": fx2.free_dodge = float(tal.get("duration_s", 60))
@@ -2269,6 +2284,13 @@ func use_treasure(c, slot: int) -> Dictionary:
 	emit("treasure_used", out)
 	emit("system_used", {"actor": c.id, "system": "treasure"})
 	return ok(out)
+
+## A shield that takes blows until its time is up (Iron Wall, Soul Lantern Ward, Guarding Cloud, Unbroken).
+func raise_shield(c, amount: float, seconds: float) -> void:
+	c.pools.shield = maxf(c.pools.shield, amount)
+	var fx: Dictionary = treasure_fx.get(c.id, {})
+	fx["shield_t"] = seconds
+	treasure_fx[c.id] = fx
 
 func _tick_treasures(c, delta: float) -> void:
 	var fxs: Dictionary = treasure_fx.get(c.id, {})

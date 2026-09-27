@@ -365,6 +365,23 @@
     68
    ],
    "elite": true
+  },
+  {
+   "enemy": "stormgrass_stag",
+   "surface": "ground",
+   "points": [
+    [
+     1520,
+     860
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    68,
+    68
+   ],
+   "elite": true
   }
  ],
  "scenery": [],

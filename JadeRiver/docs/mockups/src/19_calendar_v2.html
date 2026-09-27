@@ -1,0 +1,103 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>19 v2 Calendar, the almanac</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* docs/page_identity.md row 22. The page is one sheet of the yellow almanac (SURFACE.almanac), ruled in red: a
+     cinnabar header with the season wheel, seven day columns with each world event stamped on its day as a red seal,
+     the Beast Tide as a dark ribbon across the week, the weather now, and the chosen event's slip. Words PAPER_INK;
+     red words BLOOD (4.58:1 on the sheet). All of it page.gd. */
+  .sheet { position: absolute; left: 64px; top: 32px; width: 1152px; height: 656px;
+    background: radial-gradient(ellipse at 50% 45%, #eedfb6, #e7d5a8 60%, #dcc795); color: #2b2118;
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 10px #e7d5a8, inset 0 0 0 12px #b3202e, inset 0 0 0 16px #e7d5a8, inset 0 0 0 17px #b3202e, 0 10px 30px rgba(0,0,0,.55); }
+  .sheet * { text-shadow: none; }
+  .k-screen .t-fig, .k-screen .t-xs, .k-screen .t-sm, .k-screen .t-md { text-shadow: none; }
+  .ink { color: #2b2118; text-shadow: none !important; } .ink * { text-shadow: none !important; }
+  .red { color: #991e2a; }   /* BLOOD mixed 15% toward INK: 5.2:1 on the live cell tint, where BLOOD is 4.3 */
+  .band { position: absolute; background: linear-gradient(180deg, #b3202e, #a51f2c 60%, #991e2a); box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+  .inked { color: var(--pale-gold); text-shadow: -1.5px -1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink),
+    0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 3px 0 rgba(0,0,0,.55); }
+  .col { position: absolute; top: 138px; width: 154px; height: 322px; border-left: 2px solid #b3202e; }
+  .colh { position: absolute; top: 138px; width: 154px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px;
+    border-bottom: 2px solid #b3202e; }
+  .ev { position: absolute; width: 148px; min-height: 64px; padding: 4px 4px 4px 42px; border-radius: 3px; }
+  .ev .seal { position: absolute; left: 4px; top: 6px; width: 32px; height: 32px; border-radius: 4px; background: #cc3c43; box-shadow: inset 0 0 0 2px rgba(255,230,161,.7), 0 1px 0 rgba(0,0,0,.3);
+    transform: rotate(-5deg); display: flex; align-items: center; justify-content: center; }
+  .ev .seal svg { display: block; }
+  .ev .n { font-weight: 700; font-size: 15px; line-height: 1.15; }
+  .ev .w { font-size: 14px; line-height: 1.2; }
+  .ev.live { background: rgba(229,184,76,.28); box-shadow: 0 0 0 2px #b3202e; }
+  .ev.live .seal { box-shadow: inset 0 0 0 2px rgba(255,230,161,.9), 0 0 12px 4px rgba(204,60,67,.55); }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_herb_terraces.png">
+<div class="dim-screen"></div>
+<div class="sheet"></div>
+
+<!-- ================= the header band: the season wheel, the title, today ================= -->
+<div class="band" style="left:81px;top:49px;width:1118px;height:80px"></div>
+<svg class="abs" style="left:96px;top:52px" width="74" height="74" viewBox="0 0 74 74">
+  <circle cx="37" cy="37" r="34" fill="#e7d5a8" stroke="#071015" stroke-width="2.5"/>
+  <path d="M 37 37 L 37 3 A 34 34 0 0 1 71 37 Z" fill="#2c9e8f"/>
+  <path d="M 37 37 L 71 37 A 34 34 0 0 1 37 71 Z" fill="#e7d5a8"/>
+  <path d="M 37 37 L 37 71 A 34 34 0 0 1 3 37 Z" fill="#dcc795"/>
+  <path d="M 37 37 L 3 37 A 34 34 0 0 1 37 3 Z" fill="#d0ba86"/>
+  <line x1="37" y1="3" x2="37" y2="71" stroke="#071015" stroke-width="1.5"/><line x1="3" y1="37" x2="71" y2="37" stroke="#071015" stroke-width="1.5"/>
+  <path d="M 37 37 L 60 13" stroke="#b3202e" stroke-width="3"/><circle cx="37" cy="37" r="4" fill="#b3202e" stroke="#071015" stroke-width="1.5"/>
+</svg>
+<div class="abs" style="left:180px;top:56px"><span class="t-subhead inked" style="font-size:28px">Spring</span></div>
+<div class="abs t-sm" style="left:180px;top:92px;color:#ffe6a1">ends in <span class="t-fig">1 d 2 h</span> · Summer next</div>
+<div class="abs t-xs" style="left:180px;top:112px;color:#ffe6a1;opacity:.95">Autumn in <span class="t-fig">8 d 2 h</span> · Winter in <span class="t-fig">15 d 2 h</span></div>
+<div class="abs center" style="left:500px;top:52px;width:280px;height:72px"><span class="t-title inked">Calendar</span></div>
+<div class="abs" style="left:846px;top:58px;text-align:right;width:280px"><div class="t-xs" style="color:#ffe6a1">Today</div><div class="t-subhead inked" style="font-size:28px">Sunday</div></div>
+<div class="k-close abs" style="left:1146px;top:62px"></div>
+
+<!-- ================= the week: seven columns ruled in red ================= -->
+<div class="abs" style="left:92px;top:138px;width:154px;height:322px;background:rgba(229,184,76,.22)"></div>
+<div class="col" style="left:92px;border-left:0"></div><div class="col" style="left:246px"></div><div class="col" style="left:400px"></div><div class="col" style="left:554px"></div>
+<div class="col" style="left:708px"></div><div class="col" style="left:862px"></div><div class="col" style="left:1016px"></div>
+<div class="abs" style="left:92px;top:460px;width:1096px;height:2px;background:#b3202e"></div>
+<div class="colh ink" style="left:92px">Today · Sunday</div><div class="colh ink" style="left:246px">Monday</div><div class="colh ink" style="left:400px">Tuesday</div>
+<div class="colh ink" style="left:554px">Wednesday</div><div class="colh ink" style="left:708px">Thursday</div><div class="colh ink" style="left:862px">Friday</div><div class="colh ink" style="left:1016px">Saturday</div>
+
+<!-- the seal glyphs: a shrine roof, a rift, falls, a leaf, a fruit, a gavel -->
+<div class="ev live ink" style="left:96px;top:184px"><span class="seal"><svg width="20" height="19" viewBox="0 0 26 24"><path d="M1 10 L13 2 L25 10 Z M5 10 L5 22 M21 10 L21 22 M3 22 L23 22" fill="none" stroke="#ffe6a1" stroke-width="2.6"/></svg></span>
+  <div class="n">The Drowned Shrine Surfaces</div><div class="w red">under way,<br><span class="t-fig">22 h 22 m</span> left</div></div>
+<div class="ev ink" style="left:250px;top:184px"><span class="seal"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M12 1 L8 9 L14 12 L10 23 M16 3 L14 8" fill="none" stroke="#ffe6a1" stroke-width="2.6"/></svg></span>
+  <div class="n">Spatial Rift</div><div class="w">Echo Cliffs · <span class="t-fig">1</span> hour</div><div class="w red">in <span class="t-fig">1 d 11 h</span></div></div>
+<div class="ev ink" style="left:404px;top:184px"><span class="seal"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M4 2 L4 22 M10 2 L10 22 M16 2 L16 22 M20 6 L20 18" fill="none" stroke="#ffe6a1" stroke-width="2.4"/></svg></span>
+  <div class="n">The Waterfall Cave Opens</div><div class="w red">in <span class="t-fig">1 d 22 h</span></div></div>
+<div class="ev ink" style="left:558px;top:184px"><span class="seal"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M4 20 C4 8 12 2 21 3 C21 12 15 20 4 20 Z M4 20 L14 10" fill="none" stroke="#ffe6a1" stroke-width="2.4"/></svg></span>
+  <div class="n">The Herb Terraces Trial</div><div class="w red">in <span class="t-fig">2 d 22 h</span></div></div>
+<div class="ev ink" style="left:558px;top:268px"><span class="seal"><svg width="19" height="19" viewBox="0 0 24 24"><circle cx="12" cy="14" r="8" fill="none" stroke="#ffe6a1" stroke-width="2.6"/><path d="M12 6 L14 1" stroke="#ffe6a1" stroke-width="2.4"/></svg></span>
+  <div class="n">A Spirit Fruit Ripens</div><div class="w">Marsh Edge · <span class="t-fig">6</span> hours</div><div class="w red">in <span class="t-fig">3 d 8 h</span></div></div>
+<div class="ev ink" style="left:712px;top:184px;opacity:.8"><span class="seal" style="background:#d88a8e"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M12 1 L8 9 L14 12 L10 23 M16 3 L14 8" fill="none" stroke="#ffe6a1" stroke-width="2.6"/></svg></span>
+  <div class="n">Spatial Rift</div><div class="w">where and when, told a day ahead</div></div>
+<div class="ev ink" style="left:866px;top:184px"><span class="seal"><svg width="20" height="19" viewBox="0 0 26 24"><path d="M1 10 L13 2 L25 10 Z M5 10 L5 22 M21 10 L21 22 M3 22 L23 22" fill="none" stroke="#ffe6a1" stroke-width="2.6"/></svg></span>
+  <div class="n">The Drowned Shrine Surfaces</div><div class="w red">in <span class="t-fig">4 d 22 h</span></div></div>
+<div class="ev ink" style="left:1020px;top:184px"><span class="seal"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M3 12 L12 3 L17 8 L8 17 Z M11 13 L21 23" fill="none" stroke="#ffe6a1" stroke-width="2.6"/></svg></span>
+  <div class="n">Auction Day</div><div class="w">Market Street</div><div class="w red">in <span class="t-fig">5 d 22 h</span></div></div>
+
+<!-- the Beast Tide: a dark ribbon across the week -->
+<div class="abs" style="left:100px;top:392px;width:1080px;height:48px;border-radius:3px;background:linear-gradient(180deg,#3b2a1e,#2b2118);box-shadow:0 2px 0 rgba(0,0,0,.3)"></div>
+<div class="abs flex" style="left:116px;top:392px;height:48px;gap:12px"><span class="t-md c-pale" style="font-weight:700">Beast Tide</span><span class="t-sm c-paper">this week's tide waits at Stoneford Gate · ring the gong before the week turns</span></div>
+<div class="k-btn2 abs" style="left:1046px;top:392px;width:128px;height:48px;font-size:18px">Go there</div>
+
+<!-- ================= the chosen event's slip and the weather now ================= -->
+<div class="abs ink" style="left:96px;top:476px;width:660px;height:188px;border-radius:3px;background:linear-gradient(180deg,#f3e6c2,#eadbb0);box-shadow:inset 0 0 0 1.5px #b3202e, 0 3px 8px rgba(0,0,0,.25)"></div>
+<div class="abs ink" style="left:112px;top:488px;font-family:var(--f-display);font-weight:700;font-size:28px">The Drowned Shrine Surfaces</div>
+<div class="abs red" style="left:112px;top:524px;font-size:16px;font-weight:700">Under way · <span class="t-fig">22 h 22 m</span> left · the Abbot's Sanctum</div>
+<div class="abs ink" style="left:112px;top:550px;width:450px;font-size:16px;line-height:1.35">Every fifth day the shrine rises for a day and the Abbot wakes again. Repeat runs are open to you: Qi Unfurling <span class="t-fig">9</span> and below.</div>
+<div class="abs ink" style="left:112px;top:624px;font-size:14px">It surfaces again on Friday.</div>
+<div class="k-btn abs" style="left:584px;top:556px;width:156px;height:52px">Go there</div>
+
+<div class="abs ink" style="left:772px;top:476px;width:412px;height:188px;border-radius:3px;background:rgba(43,33,24,.06);box-shadow:inset 0 0 0 1.5px #b3202e"></div>
+<div class="abs ink" style="left:788px;top:486px;font-family:var(--f-display);font-weight:700;font-size:24px">Wind and rain now</div>
+<div class="abs red" style="left:788px;top:520px;font-size:14px;font-weight:700">changes in <span class="t-fig">1 h 22 m</span></div>
+<div class="abs ink" style="left:788px;top:548px;width:380px;font-size:16px;line-height:1.55">
+  <div style="display:grid;grid-template-columns:160px 70px 1fr">
+    <span>Reedmarsh</span><b>Clear</b><span></span>
+    <span>Whitewater Gorge</span><b>Clear</b><span></span>
+    <span>Summit Ridge</span><b class="red">Storm</b><span style="font-size:14px">thunder arts +<span class="t-fig">10%</span></span>
+  </div></div>
+
+</div></body></html>

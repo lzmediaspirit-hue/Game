@@ -139,6 +139,21 @@
   merge, the queue order, a cut, stale and full queues, pages and fights, a room change, the settings and the lock on
   fixture rows).
 
+## The Copperjaw swarm's creature art (v1.2 Phase D)
+
+- **The swarm has a sheet of its own.** `copperjaw_swarm` (`tools/art/creatures/copperjaw_swarm.py`, flying, cell
+  128): eleven small copper beetles at three depths, each a copper wing-case oval with a seam and pronotum band, a
+  chitin head, pale-gold jaws and, when its cases lift, two pale wing blurs, the cases flicking from beetle to beetle
+  so the cloud buzzes. Idle hangs and drifts, walk streams forward with streaks, windup draws back into a ball inside
+  a tightening copper ring (held), attack lances forward as a spearhead and bites on frame 1, hurt scatters the cloud
+  with copper dust, death rains the beetles down onto their backs and fades. `copperjaw_queen` is the same cloud led
+  by a large gold-cased Queen with a pale-gold crown. The swarm config (`stats.swarm`) names them as `art` and
+  `queen_art`; `Game.pets.swarm_art` picks the Queen's once she has risen. The Swarm tab shows the cloud on the wing
+  on a stage beside its numbers, and while the box is open clouds of beetles circle the bearer in the world (three at
+  fifty beetles, five at thousands, the far half behind the body), drawn from the sheet. `data_validation` checks
+  both sheets exist and fly; `--beetle-swarm` opens the box for previews. The review sheets (2x, 1x, 8x close-ups)
+  and in-game shots from the `ls6_end` checkpoint are in `docs/mockups/creatures/copperjaw_swarm/`.
+
 ## P4b · Icons in Style A: the pipeline and the display (docs/mockups/icon_study)
 
 - **The pipeline** (`tools/icons/`, README "How to convert a family"): `pix.py` gains the HD mode the study
@@ -160,13 +175,85 @@
   the kit sheet have the 76 px slot. A `ui_suite` rule checks every icon on every page, and `icon_draw_suite` the fit.
 - **Pills in Style A** (`tools/icons/families/pills.py`, `ART = 64`; the sheets and in-game shots in
   `docs/mockups/icon_families/pills/`): the 33 pills redrawn at 64 px with native `@32` renders for the HUD item ring,
-  the first family to flip. The vessel is now the kind of pill (a jar heals and restores, a footed bottle is taken at
+  The vessel is now the kind of pill (a jar heals and restores, a footed bottle is taken at
   a breakthrough, a gourd is a draught, a round box remakes the body or a method, a paper wrap holds loose pills) and
   the grade its material and trim (a cloth cap, a jade plug, a silver cloud lid, a domed lid with a gem finial; ring
   handles and the glow from Mystic up; Law and Monarch in night steel and rose gold), driven from one table; the
   effect marks are shapes, and the legacy 32 px code is gone.
+- **The HUD family is redrawn in Style A**: all 73 glyphs are HD drawings at 32 art px
+  (`families/hud.py`, `ART = 32`), a pale-gold face with a lit edge, a warm shade edge and one highlight under the ink
+  outline, shown 1:1 in the button rings and at 2x in the attack ring and on the menu tiles. The attack button's
+  weapons share one diagonal frame and the shaft, blade and grip builders; the button glyphs share the book, bust,
+  arrow and chest templates. The ASCII tables and the legacy glyph painter are gone. Sheets and in-game screenshots
+  from the valley_run checkpoints in `docs/mockups/icon_families/hud/`.
+- **Herbs in Style A** (`tools/icons/families/herbs.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/herbs/`): the 26 icons (16 herbs, 6 seeds, spring water, spirit soil, the dyed root and
+  rice wine) redrawn at 64 px with native `@32` renders, each herb living plant matter on the clump of earth, stone,
+  snow or water it grows from, with leaf ribs, petals, roots, fruit and stems. The nine species drawers take the age
+  from one table and show it by form, never by colour alone: an older root is larger with more growth rings and root
+  hairs (gold at a hundred years, gold to the tips at a thousand, pale as jade at ten thousand), an older lotus has a
+  taller pair of petals and a fuller seed head, an older orchid a third bloom, an older soulbell a third bell, an older
+  pepper two dark full pods; leaf veins turn gold at a hundred years, and a Mystic herb and above carries its spirit
+  aura as stepped glow bands. The seeds share one hemp pouch with a tag stamped in the herb's colour and their own seeds
+  spilled beside it. The legacy 32 px code is gone.
+- **Techniques in Style A, as composed emblems** (`families/techniques.py`, `ART = 64`; the sheets and in-game shots
+  in `docs/mockups/icon_families/techniques/`): the 66 technique icons are composed by one
+  `emblem(element, form, family, grade, kind, path)` from parts drawn once and kept as tables, the technique plan's
+  emblem grammar (§3.9): eleven element discs (the domed disc with the keyline under the mark), the 24 forms' marks
+  with the family's weapon inset (sixteen weapons and the free hand's palm), rims for the thirteen grades and the four
+  kinds (secret art, keystone, Dao art, lost art), the five path stamps, and hand marks for the arts off the grammar's
+  line. A technique's row comes from `data/techniques.json` and its form from `FORM_OF`; a path art's mark takes the
+  path's colour as well as its stamp. Rendered at 64 with native 48 (the HUD ring) and 32. The 66 hand-drawn legacy
+  marks are gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
+
+### P7b · part 1
+The data work of `docs/item_plan.md` §6, steps 1–7, 9 and 11–13 (step 10 for the new bases); the named pieces (step 8)
+come next. Where it differs from the plan, the plan's §6 says so.
+- **Drops are about six pieces an hour of hunting, not fifteen.** Every loot table's chance and quality floor follow
+  §4.1 (normal foes 1.2% from Flawed, elites 8% from Common, chests 30/50/60% from Fine); the quality tables, the weapon
+  share, the elite spawn's extra roll and the named rows' rules sit in `grades.json` `drop`, which `LootRules` and the
+  World read. A weapon drop is in the family in hand one time in three, so about 76% of what drops fits the character.
+  The item Level stops at the top of the highest grade with banded bases: Act III drops Sovereign and Will gear.
+  Salvage gives half as much Refining Essence again.
+- **`balance_sim` measures it:** 29 field regions, each room hunted 20 hours with the real rolls, 5.9 pieces an hour
+  on average and every grade inside its §4.4 targets (pieces, Fine, Superior, Perfect), every region at least 3 an
+  hour, 75–81% of the pieces usable by each archetype, no named piece from the random roll.
+- **Named pieces carry tags** (archetype, zone, element, path, fixed affixes): a fixed affix is always on and counts
+  half again on its archetype's path, and each named piece adds 2% elemental power of its element. The Serpent-Tongue
+  Jian and the Tidebreak Bastion's brushes and bells have theirs; loot tables gain `named` and `elite_named` rows. Big
+  Toad Tan's Mudwater Cleaver comes on his first defeat (the unread `unique_drop` is gone), his robe and the Drowned
+  Abbot's hat and boots are 8% rows, the Crane Trousers a Cloudpeak Roc's 0.2%.
+- **Ten affixes** (Qi and soul attack, Essence, knockback, max Soul in the random pools; taming, crafting control, pet
+  damage, array power and melody power only on named pieces) and **three stats**: pet damage (your animal's strike),
+  array power (an Array Plate's time and the killing array's blow) and melody power (the melody's slow and heals, the
+  bell's ring, Clear Heart Melody).
+- **Sets** move to `tools/data/gear.py` with an archetype, tier, element and path; on its path a set's 2-piece bonus
+  counts double. The six archetype lines and their 6-piece mechanics are in `gear.json`, each read by the rule that owns
+  it: Unbroken (a shield before a blow breaks 30% HP), Honed Intent (two more stacks of Sword Intent, fading half as
+  fast), Venom Hand (the Poison Body at 35%, oils on more hits), Kin-Bond (your animal takes 15% less), Living Array
+  (wider rings that lay the brush's talisman) and Sustained Note (a melody's first 3 s free).
+- **71 banded bases:** the brush and the bell at every grade from Training, so the formation master and the bell
+  musician have a weapon from Level 1; Driftsteel and Lanternsteel weapons in all eleven families, Starsilk and
+  Lanternsilk armour and the Driftglass and Lantern Gourds (Sovereign and Will); collars, beast talismans and saddles up
+  to Will; the Stormsteel to Lanternsteel furnaces. Each has its wear level, sockets, salvage row, forge recipe and a
+  shop, and an icon drawn with its family's existing function (`tools/icons/families/banded.py`).
+- **Every item has a source; `KNOWN_SOURCE_GAPS` is empty.** Hermit Yao sells metal cores and Peddler Ning star and
+  space cores (two a day each: shop rows can now carry a daily limit); the Weeping Lantern, Mirror Wisp and Terracotta
+  Warden carry soul cores; a Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's sheet (the peak wood
+  core); the high Spirit Stone from the Sovereign of Sages achievement, the Nine Peaks auction and the Tomb and Wreck
+  chests; the beast bags, incense sticks, snare kits, rite tablets and gourds from shops, activity chests, the Trial
+  Tower's guardian floors (first clear), auctions and the forge; the sect sets' hats, trousers and boots at their
+  Mission Halls; the Crane Robe from "Crane Falls at Dawn" and the Crane Boots from the Cloud Stepper.
+- **Checks:** `rules_tests` `drop_pool_suite` (family bias, the Level cap, the pool, quality tables, named rows,
+  named-only affixes) and `set_suite` (paths, each line's bonuses and mechanic, the three stats' readers);
+  `data_validation` `gear_suite` (tags, fixed affixes from the archetype's pool, every set sourced and completable, every
+  banded grade whole, loot-table fields and named rows; the named count per archetype and zone waits for step 8).
+- The wiki shows named tags, sets, the drop rules, named rows and shop limits.
+- Two checks that depended on the account's random seed now pass whatever it draws: the Cloud Steps run in `rules_tests`
+  finishes under the fastest time a rival can draw, and valley_run's Hollowed Wyrmlings get to land their grey flame
+  when the fight ends before one has.
 
 ### P7a · The item and monster wikis
 - **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,
@@ -288,6 +375,46 @@
 - **The old scrolls' names.** Twenty Codex entries set the common xianxia ladder's names beside Jade River's realms
   (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
   first time the account reaches that great realm (`docs/realm_old_names.md`).
+
+### P3 · Fixes found by the mockups
+The open items the mockup agents listed while drawing (`docs/mockups/README.md`), each with a test in `rules_tests`
+(`mockup_fixes_suite`) or `data_validation` that failed before.
+- **A sect building takes its materials from the Storehouse and storage too.** The Treasury no longer waits while 49
+  Copper Ore sit in storage: a build spends from the bag, then the Storehouse, then the storage chest. One spend path
+  (`InventoryAuthority.count_owned` and `apply_spend`) serves the sect builds and the Post Vows, each store written by
+  its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
+- **Every sect building has a place in the Sect Grounds.** The Herb Terraces (three garden beds before the Treasury),
+  the Expanse Outpost (a watchtower beside the pagoda), the Mirror of Echoes (a bronze mirror before the Meditation
+  Pavilion) and the Ancestral Shrine (an ancestors' altar by the shrine) appear in `hv_sect_grounds` once raised, like
+  the other ten. They pass the room lint, the `room_sweep` and the `overlap_suite`; a `data_validation` rule fails on
+  a sect building with no place there.
+- **The Treasury's output says what it gives.** Its key `taels_per_level` sized the storage chest; it is now
+  `storage_slots_per_level` (20 spaces a level) in the builder, the data and `SectAuthority.treasury_bonus`.
+- **`move_speed` is a number.** `stats.json` gave it the percent format while the Character page shows the speed
+  itself (242), so a flat bonus would have read "+2000% move speed". Its format is `int`; a test holds that every
+  percent stat is a share.
+- **Technique sources have names.** Each of the 26 sources (`library_1`, `night_peddler` …) has a string
+  `technique_source.<id>` ("Sect library, first floor", "Peddler Shao's night mat"; a quest reads as its name), read
+  with `ContentDB.name_of("technique_sources", id)` where a technique's source is shown (an unlearned star's line on
+  the proposed Techniques sky). A `data_validation` rule fails on a source without one.
+- **A locked feature says everything it waits on.** `Unlocks.locked_text` has one rule: a system's own locked text if
+  it has one; else every trigger condition still unmet, in order ("Reach Qi Kindling 1 · Complete "Keeping Post"",
+  where it named only the first); and when a quest is all that is left (the one unmet condition, or the system's own
+  quest once the trigger holds) that quest and who gives it ("Take "An Idle Art" from Elder Hu", where it said "Not
+  yet available"). `RequirementRules.unmet` gives the unmet conditions, and `first_failure_text` is its first.
+  `data_validation` holds that every quest the rule may name has a giver.
+- **The hub's Works tile reads the same rule.** It showed Keeping Post at `qu5`, where Keeping Post is done; the hub
+  asks `Unlocks.locked_text` for its locked tiles, so at `qu5` Works now waits on Elder Hu's An Idle Art.
+- **Every weapon family has a stance held without buying anything** (found by the technique planner). The jian's only
+  stance was Willow Leaf Parry, also a technique bought at the library, and bare fists, the brush and the bell had
+  none. Four basic stances join the eight: Guarding Blade (jian: a parry counters for 120%, attacks 10% slower),
+  Tiger Crouch (fists), Steady Wrist (brush) and Deep Tone (bell). Willow Leaf Parry stays the jian's better stance
+  (200%) and now holds only for one who has learned its technique (`ProgressionRules.stance_known`, used by
+  `set_stance`, the active stance and the Techniques page). `data_validation` holds one basic stance per family.
+- **Found, not fixed: the Copperjaw swarm has no creature art.** No sheet fits: `rock_beetle` is the quarry's grey
+  stone beetle (an enemy) and `jade_scarab_swarm` a jade insect-netting prop. Nothing maps the swarm to art today (the
+  Swarm tab draws none); a new `copperjaw_swarm` sheet in `creature_art.json`, named by an `art` key in the `swarm`
+  config of `stats.json` as `pets.json` names an animal's, is a pixel-art task.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved

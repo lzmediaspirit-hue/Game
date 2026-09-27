@@ -31,7 +31,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -58,7 +58,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -71,8 +71,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -101,7 +101,7 @@
    "groups": [],
    "coins": {},
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -112,7 +112,7 @@
    "groups": [],
    "coins": {},
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -167,7 +167,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -202,7 +202,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -237,7 +237,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -264,7 +264,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -301,7 +301,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -346,7 +346,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -381,7 +381,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -408,7 +408,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -435,7 +435,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -462,7 +462,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -499,7 +499,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -534,7 +534,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -547,8 +547,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -603,7 +603,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.05,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -641,7 +641,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -686,7 +686,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.05,
+    "chance": 0.02,
     "min_quality": "flawed"
    },
    "rare": []
@@ -713,7 +713,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -740,7 +740,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -777,7 +777,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -814,7 +814,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -859,7 +859,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -886,7 +886,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -923,7 +923,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.06,
+    "chance": 0.024,
     "min_quality": "flawed"
    },
    "rare": [
@@ -955,8 +955,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -997,8 +997,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -1064,7 +1064,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1101,7 +1101,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -1128,7 +1128,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -1155,7 +1155,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -1182,7 +1182,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1219,7 +1219,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -1246,10 +1246,20 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_high",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "weeping_lantern",
@@ -1281,10 +1291,20 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_high",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "jade_sentinel",
@@ -1308,7 +1328,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1345,7 +1365,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1382,7 +1402,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1405,6 +1425,12 @@
       1
      ],
      "quest": "legend_heron_reach"
+    }
+   ],
+   "named": [
+    {
+     "item": "crane_trousers",
+     "chance": 0.002
     }
    ]
   },
@@ -1438,7 +1464,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1492,7 +1518,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1505,6 +1531,51 @@
       1
      ],
      "quest": "legend_stone_drum"
+    }
+   ]
+  },
+  {
+   "id": "stormgrass_stag",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "tough_meat",
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.012,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "cloudtop_orchid",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
     }
    ]
   },
@@ -1538,7 +1609,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1602,7 +1673,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1648,7 +1719,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1694,7 +1765,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1740,7 +1811,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1786,7 +1857,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1832,7 +1903,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -1888,7 +1959,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [],
@@ -1934,10 +2005,20 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "soul_core_peak",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "tomb_king",
@@ -2049,7 +2130,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2092,7 +2173,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -2148,7 +2229,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2225,7 +2306,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -2270,7 +2351,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2305,7 +2386,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": [
@@ -2350,7 +2431,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2393,7 +2474,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2496,7 +2577,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2531,7 +2612,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2566,7 +2647,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2579,8 +2660,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -2660,7 +2741,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2755,7 +2836,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2790,7 +2871,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2868,7 +2949,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2886,7 +2967,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -2941,6 +3022,12 @@
       1
      ],
      "quest": "legend_crane_mourning"
+    }
+   ],
+   "named": [
+    {
+     "item": "mudwater_robe",
+     "chance": 0.08
     }
    ]
   },
@@ -3092,6 +3179,16 @@
      ],
      "quest": "legend_riverlight"
     }
+   ],
+   "named": [
+    {
+     "item": "drowned_hat",
+     "chance": 0.08
+    },
+    {
+     "item": "drowned_boots",
+     "chance": 0.08
+    }
    ]
   },
   {
@@ -3121,7 +3218,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -3308,7 +3405,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -3321,8 +3418,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3385,7 +3482,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -3398,8 +3495,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3462,7 +3559,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -3475,8 +3572,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3537,8 +3634,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3570,8 +3667,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3612,8 +3709,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3663,8 +3760,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3696,8 +3793,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3740,8 +3837,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3784,8 +3881,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3837,8 +3934,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3881,8 +3978,8 @@
     "mult": 6
    },
    "equipment": {
-    "chance": 0.25,
-    "min_quality": "fine"
+    "chance": 0.08,
+    "min_quality": "common"
    },
    "rare": [
     {
@@ -3966,7 +4063,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -3984,7 +4081,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -4002,7 +4099,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -4020,7 +4117,7 @@
     "mult": 1
    },
    "equipment": {
-    "chance": 0.03,
+    "chance": 0.012,
     "min_quality": "flawed"
    },
    "rare": []
@@ -4064,7 +4161,7 @@
    },
    "rare": [],
    "equipment": {
-    "chance": 0.02,
+    "chance": 0.01,
     "min_quality": "flawed"
    }
   },
@@ -4107,7 +4204,7 @@
    },
    "rare": [],
    "equipment": {
-    "chance": 0.02,
+    "chance": 0.01,
     "min_quality": "flawed"
    }
   },
@@ -4314,7 +4411,7 @@
    },
    "rare": [],
    "equipment": {
-    "chance": 0.6,
+    "chance": 0.5,
     "min_quality": "fine"
    }
   },
@@ -4357,7 +4454,7 @@
    },
    "rare": [],
    "equipment": {
-    "chance": 0.02,
+    "chance": 0.01,
     "min_quality": "flawed"
    }
   },
@@ -4408,9 +4505,26 @@
     "chance": 1.0,
     "mult": 10
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "hour_incense_72",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ]
+    },
+    {
+     "item": "wandering_incense",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
-    "chance": 0.6,
+    "chance": 0.5,
     "min_quality": "fine"
    }
   },
@@ -4469,9 +4583,18 @@
     "chance": 1.0,
     "mult": 16
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "spirit_stone_high",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
-    "chance": 0.8,
+    "chance": 0.6,
     "min_quality": "fine"
    }
   },
@@ -4530,9 +4653,18 @@
     "chance": 1.0,
     "mult": 16
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "spirit_stone_high",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
-    "chance": 0.8,
+    "chance": 0.6,
     "min_quality": "fine"
    }
   },
@@ -4575,7 +4707,7 @@
    },
    "rare": [],
    "equipment": {
-    "chance": 0.02,
+    "chance": 0.01,
     "min_quality": "flawed"
    }
   },
@@ -4634,9 +4766,18 @@
     "chance": 1.0,
     "mult": 10
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "wandering_incense",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "equipment": {
-    "chance": 0.6,
+    "chance": 0.5,
     "min_quality": "fine"
    }
   }

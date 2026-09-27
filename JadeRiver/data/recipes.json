@@ -1206,6 +1206,56 @@
    ]
   },
   {
+   "id": "iron_brush",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_bell",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_bell",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "jadeiron_gauntlets",
    "craft": "smithing",
    "grade": "earth",
@@ -1426,6 +1476,56 @@
    "outputs": [
     {
      "item": "jadeiron_flute",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_brush",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_bell",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_bell",
      "count": 1
     }
    ]
@@ -1656,6 +1756,56 @@
    ]
   },
   {
+   "id": "cloudsteel_brush",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_bell",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_bell",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "mistjade_gauntlets",
    "craft": "smithing",
    "grade": "mystic",
@@ -1876,6 +2026,56 @@
    "outputs": [
     {
      "item": "mistjade_flute",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_brush",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_bell",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_bell",
      "count": 1
     }
    ]
@@ -2106,6 +2306,56 @@
    ]
   },
   {
+   "id": "stormsteel_brush",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_bell",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_bell",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "sunsteel_gauntlets",
    "craft": "smithing",
    "grade": "sage",
@@ -2329,6 +2579,694 @@
      "count": 1
     }
    ]
+  },
+  {
+   "id": "sunsteel_brush",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_brush",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_bell",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_bell",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "driftsteel_gauntlets",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_gauntlets",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_jian",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_jian",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_spear",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_spear",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_short_blade",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_short_blade",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_staff",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_staff",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_bow",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_bow",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_heavy_sabre",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_heavy_sabre",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_fan",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_fan",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_flute",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_flute",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_brush",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_brush",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "driftsteel_bell",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "jelly_silk",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_bell",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_gauntlets",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_gauntlets",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_jian",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_jian",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_spear",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_spear",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_short_blade",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_short_blade",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_staff",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_staff",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_bow",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_bow",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_heavy_sabre",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_heavy_sabre",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_fan",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_fan",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_flute",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_flute",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_brush",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_brush",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "lanternsteel_bell",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 6
+    },
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "cinder_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_bell",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
   },
   {
    "id": "bp_bamboo_hat",
@@ -2833,6 +3771,206 @@
      "count": 1
     }
    ]
+  },
+  {
+   "id": "bp_starsilk_hat",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 3
+    },
+    {
+     "item": "jelly_silk",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starsilk_hat",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_starsilk_robe",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 3
+    },
+    {
+     "item": "jelly_silk",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starsilk_robe",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_starsilk_trousers",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 3
+    },
+    {
+     "item": "jelly_silk",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starsilk_trousers",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_starsilk_boots",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 3
+    },
+    {
+     "item": "jelly_silk",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starsilk_boots",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_lanternsilk_hat",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 3
+    },
+    {
+     "item": "cinder_ash",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsilk_hat",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_lanternsilk_robe",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 3
+    },
+    {
+     "item": "cinder_ash",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsilk_robe",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_lanternsilk_trousers",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 3
+    },
+    {
+     "item": "cinder_ash",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsilk_trousers",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
+  },
+  {
+   "id": "bp_lanternsilk_boots",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 3
+    },
+    {
+     "item": "cinder_ash",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsilk_boots",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "master"
+   },
+   "default": true
   },
   {
    "id": "body_jade",
@@ -4021,6 +5159,174 @@
    "default": true
   },
   {
+   "id": "iron_snare_kit",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "hemp_cord",
+     "count": 6
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_snare_kit",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "silk_snare_kit",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "kite_silk",
+     "count": 3
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "silk_snare_kit",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "star_snare_kit",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "jelly_silk",
+     "count": 3
+    },
+    {
+     "item": "star_shard",
+     "count": 10
+    },
+    {
+     "item": "whetstone",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "star_snare_kit",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jade_rite_tablet",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "cinnabar",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jade_rite_tablet",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloud_rite_tablet",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "soul_wax",
+     "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloud_rite_tablet",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "star_rite_tablet",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "sky_ink",
+     "count": 2
+    },
+    {
+     "item": "star_shard",
+     "count": 10
+    }
+   ],
+   "outputs": [
+    {
+     "item": "star_rite_tablet",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
    "id": "bright_mirror",
    "craft": "smithing",
    "grade": "earth",
@@ -4147,6 +5453,122 @@
    "outputs": [
     {
      "item": "mistjade_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "master"
+   }
+  },
+  {
+   "id": "stormsteel_furnace",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 8
+    },
+    {
+     "item": "thunder_horn",
+     "count": 4
+    },
+    {
+     "item": "snow_ape_hide",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "master"
+   }
+  },
+  {
+   "id": "sunsteel_furnace",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 8
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 4
+    },
+    {
+     "item": "worm_glass_tooth",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "master"
+   }
+  },
+  {
+   "id": "driftsteel_furnace",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 8
+    },
+    {
+     "item": "guardian_scale",
+     "count": 4
+    },
+    {
+     "item": "star_powder",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "master"
+   }
+  },
+  {
+   "id": "lanternsteel_furnace",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 8
+    },
+    {
+     "item": "pyre_ember",
+     "count": 2
+    },
+    {
+     "item": "cinder_ash",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_furnace",
      "count": 1
     }
    ],
@@ -5237,6 +6659,468 @@
    "outputs": [
     {
      "item": "reed_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jadeiron_collar",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "serpent_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsteel_collar",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "ape_fur",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mistjade_collar",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "stormsteel_collar",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "snow_ape_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunsteel_collar",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "harpy_plume",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "driftsteel_collar",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "guardian_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "lanternsteel_collar",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 2
+    },
+    {
+     "item": "wyrm_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "iron_beast_talisman",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 2
+    },
+    {
+     "item": "hound_fang",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsteel_beast_talisman",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "ape_fur",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mistjade_beast_talisman",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "stormsteel_beast_talisman",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "snow_ape_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunsteel_beast_talisman",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "harpy_plume",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "driftsteel_beast_talisman",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "guardian_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "lanternsteel_beast_talisman",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 2
+    },
+    {
+     "item": "wyrm_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_beast_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jadeiron_saddle",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "serpent_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsteel_saddle",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "ape_fur",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mistjade_saddle",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "stormsteel_saddle",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "snow_ape_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunsteel_saddle",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "harpy_plume",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "driftsteel_saddle",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "guardian_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftsteel_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "lanternsteel_saddle",
+   "craft": "smithing",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "drone_shell",
+     "count": 2
+    },
+    {
+     "item": "wyrm_ash",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lanternsteel_saddle",
      "count": 1
     }
    ],

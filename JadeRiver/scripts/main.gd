@@ -536,6 +536,10 @@ func _handle_preview_args(user_args: Array) -> void:
 				world.player.state.plane = home + Vector2(float(k[1]), 0)
 				Game.combat.deploy_array(dc.id, {"array": str(k[0]), "radius": 150, "duration": 60})
 			world.player.state.plane = home
+	if "--beetle-swarm" in user_args and Game.active() != null:
+		# Debug tools (S38): open the Copperjaw Box (v1.2 Phase D) so the swarm circles the character for previews.
+		await get_tree().create_timer(1.0).timeout
+		Game.pets.release_swarm(Game.active())
 	if "--pet-wheel" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).
 		await get_tree().create_timer(1.0).timeout

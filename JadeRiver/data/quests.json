@@ -7232,6 +7232,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "crane_robe",
+     "count": 1
     }
    ],
    "offer_text": [

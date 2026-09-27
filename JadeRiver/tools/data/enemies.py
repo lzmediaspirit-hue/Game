@@ -175,6 +175,28 @@ def d(item, chance=0.6, count=(1, 1), weight=1):
     return {"item": item, "chance": chance, "count": list(count), "weight": weight}
 
 
+# P7b (item_plan §4.1): each source's equipment roll, its chance and quality floor (about 6 pieces an hour of hunting).
+# A bandit, brigand or pirate carries more (`equipment_chance` on its row).
+EQUIPMENT = {"normal": (0.012, "flawed"), "elite": (0.08, "common"), "boss": (1.0, "superior"), "event": (0.012, "flawed"),
+             "jar": (0.01, "flawed"), "chest": (0.3, "fine"), "chest_deep": (0.5, "fine"), "chest_rich": (0.6, "fine")}
+
+
+def rare(item, chance, count=(1, 1)):
+    return {"item": item, "chance": chance, "count": list(count)}
+
+
+def equipment(kind, chance=None):
+    c, q = EQUIPMENT[kind]
+    return {"chance": c if chance is None else chance, "min_quality": q}
+
+
+# P7b (item_plan §3.4, §4.2): named rows, each rolled on every kill like a rare row (`elite_named`: only by an elite).
+# Big Toad Tan's and the Drowned Abbot's are their boss signatures until P9 adds the pity (boss_design §4.1, §4.3).
+NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.08}]},
+              "drowned_abbot": {"named": [{"item": "drowned_hat", "chance": 0.08}, {"item": "drowned_boots", "chance": 0.08}]},
+              "cloudpeak_roc": {"named": [{"item": "crane_trousers", "chance": 0.002}]}}
+
+
 def build():
     M = [
         mob("mudshell_crab", 1, "normal", "water", "valley_shore", [d("crab_shell", 0.7), d("river_mud", 0.4)],
@@ -225,12 +247,12 @@ def build():
             [atk("thorn_charge", 0.55, 50, 1.2, dash=110, knockback=60)], ai="charger", speed=80, width=34, height=44, thorns=0.1),
         mob("mudwater_bandit", (14, 19), "normal", "none", "road", [d("cloth", 0.5), d("rat_tail", 0.0)],
             [atk("slash", 0.4, 60, 1.0), atk("qi_strike", 0.55, 90, 1.3, damage_type="qi")], ai="humanoid", art=human("mudwater_bandit"),
-            race="human", energy="primal_qi", speed=100, width=18, height=90, coin_mult=2.0, equipment_chance=0.05, faction="mudwater"),
+            race="human", energy="primal_qi", speed=100, width=18, height=90, coin_mult=2.0, equipment_chance=0.02, faction="mudwater"),
         mob("stone_guardian", (17, 19), "normal", "earth", "road", [d("guardian_stone", 0.25), d("mountain_seal", 0.02)],
             [atk("fist_slam", 0.6, 70, 1.3, depth=36, knockback=60)], ai="slow_melee", speed=45, width=28, height=60, knockback_immune=True),
         mob("bandit_archer", (16, 20), "normal", "none", "road", [d("arrows", 0.6), d("bow_parts", 0.3)],
             [atk("arrow", 0.6, 420, 1.0, projectile={"speed": 600, "art": "arrow"})], ai="ranged", art=human("bandit_archer"),
-            race="human", energy="primal_qi", speed=90, width=18, height=90, keep_distance=260, equipment_chance=0.05, faction="mudwater"),
+            race="human", energy="primal_qi", speed=90, width=18, height=90, keep_distance=260, equipment_chance=0.02, faction="mudwater"),
         mob("mud_hound", (16, 20), "normal", "earth", "road", [d("hound_fang", 0.5)], [atk("bite", 0.35, 44, 1.0)],
             ai="melee", speed=130, pack=True, width=22, height=28),
         mob("jade_carp", (19, 22), "normal", "water", "bend", [d("jade_scale", 0.5), d("jade_carp_fish", 0.15)],
@@ -248,7 +270,7 @@ def build():
         mob("gorge_bandit_adept", (29, 33), "normal", "none", "gorge", [d("cloth", 0.4), d("manual_page", 0.06), d("manual_ember_burst", 0.03)],
             [atk("sword_arc", 0.45, 80, 1.1), atk("crescent", 0.6, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
             ai="humanoid", art=human("gorge_bandit_adept"), race="human", energy="primal_qi", width=18, height=90, guards=True,
-            coin_mult=2.0, equipment_chance=0.06, faction="gorge"),
+            coin_mult=2.0, equipment_chance=0.024, faction="gorge"),
         # S47 rogue cultivators: elites whose visible weapon or treasure is a guaranteed drop, with a sealed pouch.
         mob("rogue_cultivator", (24, 26), "elite", "metal", None, [d("serpent_tongue_jian", 1.0), d("sealed_storage_pouch", 1.0)],
             [atk("serpent_thrust", 0.45, 90, 1.25), atk("sword_qi", 0.7, 320, 1.15, damage_type="qi", projectile={"speed": 540, "art": "qi_arc"})],
@@ -271,10 +293,10 @@ def build():
             ai="humanoid", speed=90, width=28, height=56),
         mob("mist_wolf", (46, 50), "normal", "water", "mist_peak", [d("mist_pelt", 0.5)], [atk("lunge", 0.4, 50, 1.0, dash=60)],
             ai="melee", speed=150, pack=True, tameable=True, width=28, height=34, hidden_in_fog=True),
-        mob("mirror_wisp", (47, 51), "normal", "soul", "mist_peak", [d("mirror_dust", 0.5)],
+        mob("mirror_wisp", (47, 51), "normal", "soul", "mist_peak", [d("mirror_dust", 0.5), d("soul_core_high", 0.02)],
             [atk("soul_flash", 0.6, 240, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
             ai="flyer_ranged", speed=70, flying=True, width=18, height=30),
-        mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4)],
+        mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4), d("soul_core_high", 0.03)],
             [atk("flare", 0.7, 90, 1.0, damage_type="soul", depth=50, both_sides=True,
                  status={"id": "confusion", "chance": 0.3, "power": 1, "duration_s": 2})], ai="flyer", speed=50, flying=True, width=18, height=44,
             elite_first_defeat=["mist_lantern_flame"]),   # the valley's Heavenly Flame (Part 8): the monastery's elite lantern carries it
@@ -293,6 +315,10 @@ def build():
         mob("thunderhorn_rhino", (64, 69), "normal", "thunder", "azure", [d("thunder_horn", 0.4), d("storm_shard", 0.5, (1, 2)), d("tough_meat", 0.4)],
             [atk("thunder_charge", 0.7, 60, 1.35, dash=160, knockback=120, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
             ai="charger", speed=95, width=40, height=50),
+        # P7b (item_plan §2.10, §5.3): the Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's sheet; a wood beast
+        # of rank 8, its core roll gives the peak wood core.
+        mob("stormgrass_stag", (64, 68), "normal", "wood", "azure", [d("tough_meat", 0.45), d("storm_shard", 0.5, (1, 2)), d("cloudtop_orchid", 0.05)],
+            [atk("antler_charge", 0.5, 60, 1.25, dash=140, knockback=80)], ai="charger", speed=120, width=30, height=56, art={"creature": "cloud_stag"}),
         # Azure Expanse (Act II) · Rimefrost Heights and Mirrorwater Lake
         mob("frost_lynx", (67, 70), "normal", "water", "azure", [d("rime_fang", 0.4), d("storm_shard", 0.45), d("frost_lotus", 0.08)],
             [atk("rime_pounce", 0.45, 70, 1.15, dash=120, status={"id": "slow", "chance": 0.35, "power": 0.3, "duration_s": 3})],
@@ -325,7 +351,7 @@ def build():
             [atk("sand_burst", 0.7, 130, 1.5, depth=50, knockback=110),
              atk("glass_spit", 0.8, 300, 1.1, projectile={"speed": 460, "art": "pebble"})],
             ai="burrower", speed=100, width=44, height=80),
-        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2))],
+        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2)), d("soul_core_peak", 0.03)],
             [atk("ge_chop", 0.8, 96, 1.3, depth=36, knockback=90)],
             ai="slow_melee", speed=70, width=22, height=100, race="construct", weak_to="water"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
@@ -464,7 +490,7 @@ def build():
         mob("big_toad_tan", 18, "dungeon_boss", "none", None, [d("mudwater_manual", 1.0)],
             [atk("club_swing", 0.55, 90, 1.2, depth=34, knockback=60), atk("call_bandits", 1.0, 0, 0.0, summon="mudwater_bandit")],
             ai="boss_tan", art=human("big_toad_tan"), race="human", energy="primal_qi", width=24, height=96,
-            phases=[{"below": 0.5, "action": "drink_wine", "heal": 0.1, "breakable": "wine_jar"}], unique_drop="mudwater_cleaver",
+            phases=[{"below": 0.5, "action": "drink_wine", "heal": 0.1, "breakable": "wine_jar"}], first_defeat=["mudwater_cleaver"],
             # The first dungeon boss teaches the pattern (dodge the club, break the wine jars) rather than walls it.
             hp_mult=0.6, attack_mult=0.8, pet_book={"item": "pet_book_frenzy", "chance": 0.35}, faction="mudwater", named=True),
         mob("riverbed_serpent", 25, "field_boss", "water", "bend", [d("serpent_core", 1.0), d("serpent_scale", 1.0, (2, 4))],
@@ -642,36 +668,37 @@ def build():
             table["groups"] = [{"chance": 0.6, "pick": [dict({k: v for k, v in x.items() if k != "chance"}, weight=x.get("weight", 1)) for x in drops if x["chance"] > 0.2]}]
             table["rare"] = [x for x in drops if x["chance"] <= 0.2 and x["chance"] > 0]
             table["coins"] = {"chance": 0.2 * m.get("coin_mult", 1.0), "mult": 1}
-            table["equipment"] = {"chance": m.get("equipment_chance", 0.03), "min_quality": "flawed"}
+            table["equipment"] = equipment("normal", m.get("equipment_chance"))
         elif role == "elite":
             table["guaranteed"] = [dict(x) for x in drops]
             table["coins"] = {"chance": 1.0, "mult": 6}
-            table["equipment"] = {"chance": 0.25, "min_quality": "fine"}
+            table["equipment"] = equipment("elite")
             table["rare"] = [{"item": "manual_page", "chance": 0.05, "count": [1, 1]}]
         elif role in ("dungeon_boss", "field_boss", "story_boss"):
             table["guaranteed"] = [dict(x) for x in drops]
             table["coins"] = {"chance": 1.0, "mult": 40}
-            table["equipment"] = {"chance": 1.0, "min_quality": "superior"}
+            table["equipment"] = equipment("boss")
         elif role == "event":
             table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
-            table["equipment"] = {"chance": 0.03, "min_quality": "flawed"}
+            table["equipment"] = equipment("event")
         else:
             table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
             # P1: every loot table rolls equipment or says why not. A spar or trial opponent is not looted.
             table["no_equipment"] = "spar"
         if m["id"] in QUEST_DROPS:
             table["quest_drops"] = QUEST_DROPS[m["id"]]
+        table.update(NAMED_ROWS.get(m["id"], {}))
         tables.append(table)
     tables.append({"id": "jar_valley_low", "groups": [{"chance": 0.5, "pick": [{"item": "rice", "weight": 2, "count": [1, 1]},
                    {"item": "willow_moss", "weight": 2, "count": [1, 2]}, {"item": "herbal_tea", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.5, "mult": 1}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
+                   "coins": {"chance": 0.5, "mult": 1}, "rare": [], "equipment": equipment("jar")})
     tables.append({"id": "jar_valley_mid", "groups": [{"chance": 0.6, "pick": [{"item": "rice_ball", "weight": 2, "count": [1, 1]},
                    {"item": "spirit_stone_shard", "weight": 1, "count": [1, 1]}, {"item": "healing_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": equipment("jar")})
     tables.append({"id": "chest_valley", "guaranteed": [{"item": "spirit_stone_shard", "count": [1, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "healing_pill", "weight": 2, "count": [1, 2]}, {"item": "manual_page", "weight": 1, "count": [1, 1]},
                                                          {"item": "qi_gathering_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 1.0, "mult": 5}, "rare": [], "equipment": {"chance": 0.3, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 5}, "rare": [], "equipment": equipment("chest")})
     # Gu's Warehouse vault (S47): the Little Pagoda he hoarded, and his silver.
     tables.append({"id": "gus_vault", "guaranteed": [{"item": "little_pagoda", "count": [1, 1], "chance": 1.0}],
                    "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}, "no_equipment": "set_reward"})
@@ -687,37 +714,37 @@ def build():
                    "groups": [], "coins": {"chance": 1.0, "mult": 6}, "rare": [], "equipment": {}, "no_equipment": "set_reward"})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": equipment("chest_deep")})
     # Act II (S32): jars and chests of the Azure Expanse. Coins here are paid in Spirit Stones (zone coin_scale).
     tables.append({"id": "jar_expanse", "groups": [{"chance": 0.6, "pick": [{"item": "storm_shard", "weight": 2, "count": [1, 2]},
                    {"item": "spirit_stone_shard", "weight": 2, "count": [1, 2]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": equipment("jar")})
     tables.append({"id": "chest_expanse", "guaranteed": [{"item": "storm_shard", "count": [3, 6], "chance": 1.0},
                                                          {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "stormsteel_ore", "weight": 2, "count": [1, 2]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [rare("hour_incense_72", 0.03), rare("wandering_incense", 0.02)], "equipment": equipment("chest_deep")})
     tables.append({"id": "chest_tomb", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
                                                       {"item": "sunglass_ore", "count": [2, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
                                                        {"item": "sovereign_settling_pill", "weight": 1, "count": [1, 1]},
                                                        {"item": "ember_cactus", "weight": 1, "count": [1, 2]}]}],
-                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [rare("spirit_stone_high", 0.05)], "equipment": equipment("chest_rich")})
     # The pirates' strongbox on the Pirate Deck (chapter 15) and the Starsea Launch's cache.
     tables.append({"id": "chest_wreck", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
                                                        {"item": "comet_iron", "count": [2, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
                                                        {"item": "will_tempering_pill", "weight": 1, "count": [1, 2]},
                                                        {"item": "sky_ink", "weight": 1, "count": [2, 3]}]}],
-                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [rare("spirit_stone_high", 0.05)], "equipment": equipment("chest_rich")})
     # v1.2 (S32): jars and chests of the Lantern Star Field. Coins are paid in Sage Crystals (zone coin_scale).
     tables.append({"id": "jar_lantern", "groups": [{"chance": 0.6, "pick": [{"item": "star_shard", "weight": 2, "count": [1, 2]},
                    {"item": "spirit_stone_shard", "weight": 1, "count": [2, 3]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": equipment("jar")})
     tables.append({"id": "chest_lantern", "guaranteed": [{"item": "star_shard", "count": [4, 8], "chance": 1.0},
                                                          {"item": "spirit_stone_shard", "count": [3, 5], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]}, {"item": "driftglass", "weight": 2, "count": [1, 2]},
                                                        {"item": "will_tempering_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [rare("wandering_incense", 0.03)], "equipment": equipment("chest_deep")})
     entries("loot_tables.json", tables)
     return M
 

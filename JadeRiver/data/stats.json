@@ -597,6 +597,8 @@
   "cooldown_s": 30,
   "wood_factor": 0.5,
   "max_settle_h": 720,
+  "art": "copperjaw_swarm",
+  "queen_art": "copperjaw_queen",
   "ore_food": {
    "copper_ore": 1,
    "riverstone": 2,
@@ -1035,7 +1037,7 @@
    "id": "move_speed",
    "group": "movement",
    "cap": 0.4,
-   "format": "percent"
+   "format": "int"
   },
   {
    "id": "climb_speed",
@@ -1185,6 +1187,24 @@
    "id": "healing_received",
    "group": "recovery",
    "cap": 1.0,
+   "format": "percent"
+  },
+  {
+   "id": "pet_damage",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "array_power",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "melody_power",
+   "group": "offense",
+   "cap": null,
    "format": "percent"
   }
  ]

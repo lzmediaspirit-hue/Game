@@ -30,6 +30,11 @@
      "kind": "grant_item",
      "item": "spirit_stone_shard",
      "count": 3
+    },
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_2",
+     "count": 1
     }
    ]
   },
@@ -46,6 +51,11 @@
      "kind": "grant_item",
      "item": "manual_page",
      "count": 2
+    },
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_4",
+     "count": 1
     }
    ]
   },
@@ -62,6 +72,11 @@
      "kind": "grant_item",
      "item": "spirit_jade",
      "count": 2
+    },
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_12",
+     "count": 1
     }
    ]
   }
