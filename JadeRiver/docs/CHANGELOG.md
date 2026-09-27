@@ -331,6 +331,32 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   storm glaze and sand glaze with their aura; a pot takes the grade's metal for its handles and band). Every icon
   comes from its module's table. The legacy 32 px code of the four families is gone.
 
+- **Treasures, legends, Qi jades and the workshop in Style A** (`tools/icons/families/treasures.py`, `legends.py`,
+  `jades.py`, `workshop.py`, each `ART = 64`; the sheets and in-game shots in `docs/mockups/icon_families/<family>/`):
+  98 icons redrawn at 64 px with native `@32` renders. The 31 treasures are each the object the item is, on shared
+  builders: the upright temple bell (a plain iron practice bell against the bronze bell studded with jade), the
+  three-legged vessel (the taming cauldron with its gold claw, the grimed curio, the furnaces), the paper talisman
+  strip, the Heavenly Flame on its dish (the Lantern Heart in its bronze cage); the pagoda's jade roofs with silver
+  ridges, the mirror with its gold bosses, the mountain seal's beast and red face, the wisp banner with its three
+  lights, the sealing gourd under the pills' silver cloud lid, the nine swords fanned from their lacquer case, the
+  needles, knives and pellet, the flying sword streaming Qi, the cloud, the jade gourd and the maple leaf. The furnace
+  ladder (`furnace_hd` on `palette.kit`, the four Act II and III furnaces taken over from `banded.py`, now deleted)
+  shows the grade as the walls' metal, the grade's work round the belly (the weapons' `work_hd`), the trim of the rim
+  and ears and the jewel as the lid's finial, the Nine-Dragon Cauldron with its gold dragons; the aura from Mystic up
+  in the object's own light. The 28 legend pieces are the thing each is named (`legends.PIECES_HD`: a knuckle, a
+  cuff, a heart; a hilt, a blade, a soul bead; a spearhead, a shaft, a tassel; an edge, a grip, a sheath; an iron
+  cap, an oak shaft, a knot; a spine, an edge, a guard; a rib, a silk, a pin; a mouthpiece, a jade body, a tassel; a
+  limb, a string, a sight), built from the weapons' builders in the chain's tint (`chain_kit`) with gold Mystic
+  fittings, a lit jagged break where a piece was broken (`broken_hd`) and the Mystic aura in the tint; the Weapon
+  Soul Crystal is a gold crystal with an ember flame in it. The 13 jades: five cut stones in bezels (`cut_hd`, any
+  outline: a cushion, a marquise, a twelve-sided round, a hexagon, a kite with an eye) and eight bi discs (`bi_hd`)
+  carved with their signs in their own light. The 26 workshop goods: thread-bound books (`book_hd`, the cover's
+  cloth naming the element, a paw for the pet skill books; the torn manual with its corner gone) and tied scrolls
+  with element tags (`EMBLEMS_HD`), the grimed ding, the river-jade bi against its glass fake with a chip and
+  bubbles, old coins on a string, the spirit wood with Qi in its grain, the puppet's jade heart in its pegged frame,
+  the three array plates with their arrays lit, and the Sphere Comprehension Stone with its folded world and the Will
+  aura. The legacy 32 px drawings of all four modules are gone.
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7b · part 1
