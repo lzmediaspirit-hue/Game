@@ -186,7 +186,16 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - armour (HD): a piece's row in `data/artifacts.json` (slot, grade, `appearance`, `dye`) picks its template (robe,
      trousers, boots, `HATS`) and the cloth the figure wears (palette `dye_*`); the grade's trim, fittings, plates, gem,
      mark and glow are `kit_hd` (`TRIM`, `WORK`) on `palette.kit`; a spirit gourd is a `GOURDS` row.
-   - fish: `fish(...)` parameters.
+   - fish (HD): a row in `FISH_HD` (id, grade, aura colour, drawing) on `fish_hd(p, g, ...)`, the side-view template
+     (body profile, fins with their rays, `scales_hd`, the eye, a species pattern) in a `fish.Axis` body frame; the
+     eel has its own body. The grade's stringer loop at the jaw is `beast_parts.loop_hd` on `GRADE_HD`.
+   - insects (HD): a row in `INSECTS_HD` on the `fish.Axis` frame with the `legs_hd`, `antennae_hd`, `eye_hd` and
+     `segments_hd` helpers; the grade's thread round the waist is `tie_hd`, a part's own light `halo_hd`.
+   - critters (HD): a row in `CRITTERS_HD`: a body from `spine_hd` (discs along a spine) with `beast_parts.fur_hd`,
+     `eye_hd`, `nose_hd`, `whiskers_hd` and `toes_hd`; the grade's cord at the neck is `collar_hd`.
+   - food (HD): a row in `FOOD_HD` (id, grade, drawing) on the vessels `cup_hd`, `bowl_hd`, `plate_hd` and `pot_hd`
+     in the grade's ware (`WARE_HD`: body, trim and aura), with `steam_hd` and `gloss_hd`; the roast fish is
+     `fish.fish_hd`.
    - beast parts (HD): a row in `PARTS_HD` (id, grade, aura colour, drawing) on the kind templates `hide_hd`,
      `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`; the grade's trim
      comes from `GRADE_HD`, the pet gear ladders from `PET_GEAR_HD` on the grade kits.
