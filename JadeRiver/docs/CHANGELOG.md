@@ -792,6 +792,49 @@ come next. Where it differs from the plan, the plan's §6 says so.
   and Walk there walk by `auto_path` and close the map; a locked zone's tag says why. The `ui_suite` opens the map's
   three views in every tab. Screenshots beside the mockups in `docs/ui_p5/map/`.
 
+### P5 · The Records family: the Codex, its Old Scrolls and the Calendar (mockups 18, 18_scrolls, 19; decisions 11, 14, 22)
+- **The Codex as the field book** (`docs/page_identity.md` row 26). A bound book open on the reading desk: a jade cloth
+  cover, the page block's edges, two pages with the gutter's shadow and foxing. The sections are silk ribbons standing
+  out of the top edge; the open one hangs longer and carries the page's title, inked. The Collection is a spread for
+  each collection page (four beasts a spread, a long page over several): the whole book's cards filled and the next
+  stop (the Collector title and its gift), Contents (the fourteen pages, a tap turns to one), the page's name, how many
+  beasts and when a card fills, each beast drawn from its sheet on squared paper and taped in (a shadow until met, with
+  where it lives once you have been there), its rank, nature, levels, what taming makes of it and its drops, its count
+  on an ink bar to the fill, a filled card stamped; the page's seal (every card filled, `collection_pages_done`) with
+  its count. The curled corners turn the leaves; the Codex's entries, Achievements, Paths Above and Seasons are written
+  on the same spread. A leaf turns over the spread on a turn, a new section and the opening (0.35 s).
+- **The Old Scrolls** (decision 11: like nothing else in the game) are a tab of their own: a black stone rubbing on a
+  hanging scroll (brocade, silk, rods with jade caps) on the reading room's wall, inked from the top down to the rungs
+  the account has reached, the carved names pale, the stone's chips and crack in the ink, the rest bare paper with the
+  ink pad where the work stopped; beside each rung the scholar's vermilion gloss of our realms on it (their halves,
+  "you", "? ? ?" for one not reached); the chosen rung ringed and its note pinned on a sheet with a vermilion frame
+  (levels, steps and years from `realms.json`). A second tap on a rung turns to the other realm on it; the newest rung
+  is dabbed in as the tab opens (0.4 s). Each old scroll entry now names its rung and half (`tools/data/story.py`).
+- **The Calendar to mockup 19** (row 22, decision 22; the almanac, 19 v2, stays the record). The kit's window: the four
+  seasons as a strip from the one now; the week as seven day columns from today with every occurrence of every world
+  event on its day as a slip (gold under way, violet coming; a short name each, `tools/data/living_world.py`) and a red
+  line at the hour now; the Beast Tide across the week; the chosen event (a slip or the tide) with when, where, what it
+  means for you (a repeat run's cap, the Terraces Trial's standing, the tide's week) and **Go there**, the `auto_path`
+  intent the World map uses, with how many regions away; the weather with its next change and what each changes. The
+  slips drop onto their days as it opens (0.3 s). Everything the old Calendar said is kept.
+- **Shared:** Page takes the World map's `_halo`, `_pulse` and `_blossom` (the map and the Calendar draw the same event
+  blossom) and `vshade`/`hshade` gradients; dark ink words take no drop shadow (`UiKit.draw_text`); the plaque's title
+  is logged like every inked word, so the `ui_suite` finds it. Everything is drawn by the pages from tokens; no new
+  HD art or `SURFACE` token.
+- **Tests:** the `identity_suite`'s Records part: the field book binds every card once, a page each; the open ribbon
+  carries the title; a corner turns the leaf; Contents lists every page and turns to one; the Old Scrolls rub only the
+  rungs reached, gloss each, pin the note and turn to the other realm on a second tap, every word reading on the ink,
+  the silk or the note, and every great realm names its rung; the Calendar lays every occurrence of the week on its
+  day with no two slips touching and the tide across, and Go there walks to the chosen event's room by `auto_path`,
+  shut with its reason when no way leads there. The `ui_suite` opens the Codex also with every old scroll rubbed and
+  every card filled, and holds a layout signature to its page script (the Codex opens under four ids).
+  The three "n of m" counts join `contract_tests`' counts of a total. The full suite after merging the build branch: room_lint 168 / 0;
+  engine_tests 3785/3785; data_validation 49083 / 0; room_sweep 3676 / 0; rules_tests 1972 / 0; contract_tests 1051 / 0;
+  balance_sim 148 / 0; perf_tests 9 / 0; prologue_run 111 / 0; tutorial_order 340 / 0; valley_run 3253 / 0.
+- **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
+  with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
+  proposals the rules do not hold; the build draws the one seal the game keeps).
+
 ### P4 · The style guide applied (`docs/ui_style_guide.md` §11, §12)
 - **Tokens.** `UiKit` gains the roles the palette left to literals: `RED_TEXT`, `SOUL_TEXT`, `WARNING`, `HP`, `BLOOD`,
   `HEART`, `SKY`, `HUD_LABEL`, `PAPER_INK`, `BAR_TROUGH`, `PLATE`, `DIM` and `SURFACE`, the drawn pages' own materials

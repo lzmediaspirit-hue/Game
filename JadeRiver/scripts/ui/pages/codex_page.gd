@@ -388,14 +388,14 @@ func _beast(e: Dictionary, at: Vector2) -> void:
 			else (Tx.t("ui.codex.tameable") if e.get("tameable", false) else "")
 		if note != "": para(Rect2(tx, at.y + 60, tw, 40), note, 16, INK, 2)
 		var dx := tx
-		text(Vector2(dx, at.y + 122), Tx.t("ui.codex.drops"), 16, BROWN)
+		text(Vector2(dx, at.y + 128), Tx.t("ui.codex.drops"), 16, BROWN)
 		dx += UiKit.text_width(Tx.t("ui.codex.drops"), 16) + 6
 		for d in (e.get("drops", []) as Array).slice(0, 2):
 			if dx > tx + tw - 60: break
 			dx = roundf(dx)
-			icon_at(Rect2(dx, at.y + 100, 32, 32), str(d.item))
+			icon_at(Rect2(dx, at.y + 106, 32, 32), str(d.item))
 			var nm := ContentDB.item_name(str(d.item))
-			text(Vector2(dx + 34, at.y + 122), nm, 16, BROWN, HORIZONTAL_ALIGNMENT_LEFT, tx + tw - dx - 34)
+			text(Vector2(dx + 34, at.y + 128), nm, 16, BROWN, HORIZONTAL_ALIGNMENT_LEFT, tx + tw - dx - 34)
 			dx += 34 + minf(UiKit.text_width(nm, 16), tx + tw - dx - 34) + 12
 	var cnt := str(kills) if kills >= fill else "%d / %d" % [kills, fill]
 	text(Vector2(at.x, at.y + 162), cnt, 22, INK)
