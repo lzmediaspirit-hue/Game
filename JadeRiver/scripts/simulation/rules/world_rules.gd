@@ -46,16 +46,16 @@ static func safe_room(def: Dictionary) -> bool:
 
 static var _where: Dictionary = {}
 
-## The rooms, in data order, that hold a thing named "<key>=<value>": an object's npc, item (a node or a pickup), type,
-## set_flag, opponent or event (the set piece it starts); "enemy=<id>" for a spawn of that foe and "drop=<item>" for a
-## spawn whose loot holds it as a quest drop; "to=<room>" for a way there and "hidden_to=<room>" for a hidden one.
+## The rooms, in data order, that hold a thing named "<key>=<value>": an object's id, npc, item (a node or a pickup),
+## type, set_flag, opponent or event (the set piece it starts); "enemy=<id>" for a spawn of that foe and "drop=<item>"
+## for a spawn whose loot holds it as a quest drop; "to=<room>" for a way there and "hidden_to=<room>" for a hidden one.
 static func rooms_with(key: String) -> Array:
 	if _where.is_empty():
 		for rid in ContentDB.rooms:
 			var room := ContentDB.room(str(rid))
 			var keys: Array = []
 			for o in room.get("objects", []):
-				for k in ["npc", "item", "type", "set_flag", "opponent", "event"]:
+				for k in ["id", "npc", "item", "type", "set_flag", "opponent", "event"]:
 					if o.has(k): keys.append("%s=%s" % [k, o[k]])
 			for sp in room.get("spawns", []):
 				keys.append("enemy=" + str(sp.get("enemy", "")))

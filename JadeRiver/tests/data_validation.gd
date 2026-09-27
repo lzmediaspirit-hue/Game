@@ -1501,7 +1501,7 @@ func quest_guidance_suite() -> void:
 			if not places.is_empty():
 				# The objectives before this one done: the tracker's mark is this one's.
 				c.quests.active[qid].progress = range(q.objectives.size()).map(func(j): return int(q.objectives[j].get("count", 1)) if j < i else 0)
-				var room := str(Game.quest.tracker(c)[0].target_room)
+				var room := str(_entry_of(c, qid).get("target_room", ""))
 				# A place a door or hidden way leads to is marked itself; the quest's own room stands in only for story instances.
 				var doors: Array = places.filter(func(r): return not WorldRules.rooms_with("to=" + str(r)).is_empty() or not WorldRules.rooms_with("hidden_to=" + str(r)).is_empty())
 				check(room != "" and (room in places or doors.is_empty() and room == str(q.get("target_room", ""))), "%s: '%s' has a direction mark (%s)" % [qid, o.text, room])
@@ -1510,10 +1510,16 @@ func quest_guidance_suite() -> void:
 		var hand_in := Game.quest.hand_in_npc(c, q)
 		if hand_in != "":
 			c.quests.active[qid].state = "ready"
-			var back := str(Game.quest.tracker(c)[0].target_room)
+			var back := str(_entry_of(c, qid).get("target_room", ""))
 			check(_stands_in(c, hand_in, back) and _walks_to(c, back), "%s: the mark leads to its hand-in %s where the player can reach (%s)" % [qid, hand_in, back])
 	Game.characters.erase(c.id)
 	check(quests >= 100, "quest_guidance_suite followed %d guided and main quests" % quests)
+
+## The tracker's entry for a quest under way (the story's "next" entry may stand above it).
+func _entry_of(c, qid: String) -> Dictionary:
+	for e in Game.quest.tracker(c):
+		if str(e.quest) == qid and str(e.kind) != "next": return e
+	return {}
 
 ## Every quest `id` waits on, all the way back.
 func _all_back(waits: Dictionary, id: String) -> Dictionary:

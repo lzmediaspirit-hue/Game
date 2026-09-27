@@ -38,10 +38,95 @@ func step(seconds: float) -> void:
 	while t < seconds:
 		Game.tick(0.05)
 		if tick_watch.is_valid(): tick_watch.call()
+		story_guidance()
 		t += 0.05
 
 func submit(i: Dictionary) -> Dictionary:
-	return Game.submit(i)
+	var r := Game.submit(i)
+	story_guidance()
+	return r
+
+# ------------------------------------------------------------------ story guidance
+## Story guidance (docs/tutorial_order.md): tutorial_order and valley_run hold every step of the story to it. After each
+## step that moves the story (a quest taken, offered or finished, a realm, an unlock, a sect chosen), once the tracker is
+## on the HUD:
+##   1. the tracker is never empty while the built story has a quest left;
+##   2. every entry's target (the room its step is in, its giver's room, a hunting ground) is a real room the character
+##      can walk to from where it stands (a story instance entered by its event aside), and the direction mark leads
+##      toward the first story entry's (the minimap marks this room's way out to it);
+##   3. between main quests the first entry is the story's next quest: its giver stands in the room it names, a head
+##      marker calling the player over, or it waits on a Level and names a hunting ground whose foes suit the Level;
+##   4. the moment a sect is chosen the character is recorded as its member, and the sect's first quest (the Entry
+##      Trial) is under way at the head of the tracker, with its target and the direction mark.
+var guidance := false
+var guidance_steps := 0
+var _story_moved := ""
+var _sect_chosen := ""
+
+## --keep=<label>,... saves the character as it stands at the named points of the walk (tutorial_order's step labels,
+## and the points inside the steps below) to user://tutorial_cp/<label>/, for screenshots from a brand-new character.
+func keep(label: String) -> void:
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--keep=") and label in str(a).trim_prefix("--keep=").split(","):
+			Game.save_all()
+			_copy_dir(Saves.repo.root, "user://tutorial_cp/%s/" % label.to_lower().replace(" ", "_").replace("'", ""))
+
+## Start holding the story to its guidance (after the game has booted).
+func watch_story() -> void:
+	guidance = true
+	GameEvents.event.connect(func(n: String, p: Dictionary):
+		if n in ["quest_completed", "quest_accepted", "quest_offered", "realm_changed", "system_unlocked"]:
+			_story_moved = "%s %s" % [n, str(p.get("quest", p.get("realm", p.get("system", ""))))]
+		if n == "sect_joined": _sect_chosen = str(p.get("sect", "")))
+
+func story_guidance() -> void:
+	if not guidance or (_story_moved == "" and _sect_chosen == "") or c() == null or Game.room_rt == null: return
+	var at := "%s, in %s" % [_story_moved if _story_moved != "" else "a sect chosen", room()]
+	_story_moved = ""
+	guidance_steps += 1
+	var here := room()
+	var tr: Array = Game.quest.tracker(c())
+	var under_way: bool = c().quests.active.keys().any(func(q): return QuestAuthority.leads(str(Game.quest.quest_def(c(), str(q)).get("kind", ""))))
+	if Game.is_revealed("hud:quest_tracker") and (under_way or not Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS).is_empty()):
+		check(not tr.is_empty(), "story guidance (%s): the tracker is not empty" % at)
+	for e in tr:
+		var t := str(e.get("target_room", ""))
+		if str(e.kind) == "next": check(t != "", "story guidance (%s): the next entry '%s' names where to go" % [at, e.name])
+		if t == "": continue
+		check(not ContentDB.room(t).is_empty() and _walks_to_room(t), "story guidance (%s): '%s' leads to %s, a room the character can walk to" % [at, e.name, t])
+	if not tr.is_empty() and str(tr[0].kind) == "next":
+		var nx: Dictionary = tr[0]
+		var t0 := str(nx.target_room)
+		if nx.get("hunt", false):
+			var lv := ProgressionRules.level(c())
+			var lr: Array = ContentDB.room(t0).get("level_range", [0, 0])
+			check(str(ContentDB.room(t0).get("type", "")) == "field" and lv >= int(lr[0]), "story guidance (%s): '%s' waits on a Level and names a hunting ground for Level %d (%s %s)" % [at, nx.name, lv, t0, str(lr)])
+		else:
+			var d := ContentDB.entry("quests", str(nx.quest))
+			var giver := QuestAuthority.own_npc(c(), d.get("giver_any", d.get("giver", "")))
+			check(giver == "" or Game.quest.npc_rooms(c(), giver).has(t0), "story guidance (%s): '%s' names %s, who stands in %s" % [at, nx.name, giver, t0])
+			# ... and there the P1 head marker calls the player over to them (the gold mark, or the jade-ringed repeat one).
+			if c().quests.offered.has(str(nx.quest)) and giver != "":
+				check(QuestAuthority.marker_calls(Game.quest.npc_marker(c(), giver)), "story guidance (%s): %s's head marker calls the player to '%s' (%s)" % [at, giver, nx.name, Game.quest.npc_marker(c(), giver)])
+	var lead: Array = tr.filter(func(e): return QuestAuthority.leads(str(e.kind)) and str(e.get("target_room", "")) not in ["", here])
+	if not lead.is_empty() and not ContentDB.room(str(lead[0].target_room)).get("instanced", false):
+		check(Game.world.guide_target(c()) == str(lead[0].target_room) and not Game.world.guide_step(c()).is_empty(),
+			"story guidance (%s): the direction mark leads toward %s ('%s'; %s)" % [at, str(lead[0].target_room), lead[0].name, str(Game.world.guide_step(c()))])
+	if _sect_chosen != "":
+		check(str(c().training_sect.get("id", "")) == _sect_chosen, "story guidance: the chosen sect (%s) is recorded (%s)" % [_sect_chosen, str(c().training_sect)])
+		var first: Dictionary = tr[0] if not tr.is_empty() else {}
+		check(c().quests.is_active("entry_trial") and str(first.get("quest", "")) == "entry_trial" and str(first.get("target_room", "")) != ""
+			and (str(first.target_room) == here or Game.world.guide_target(c()) == str(first.target_room)),
+			"story guidance: right after the sect choice its first quest leads the tracker with its target and the mark (%s)" % str(first))
+		_sect_chosen = ""
+
+## The character can walk there from where it stands: a route through the ways open to it, or as far as the room that
+## hides the way (Spirit Sense shows it there); a story instance entered by its event counts as there.
+func _walks_to_room(target: String) -> bool:
+	var here := room()
+	if target == here or ContentDB.room(target).get("instanced", false) or Game.room_rt.def.get("crossing", false): return true
+	if not Game.world.route(c(), here, target).is_empty(): return true
+	return WorldRules.rooms_with("hidden_to=" + target).any(func(h): return str(h) == here or not Game.world.route(c(), here, str(h)).is_empty())
 
 func c():
 	return Game.active()
@@ -291,6 +376,7 @@ func _choose_on_page(npc: String, key: String, qid: String) -> bool:
 	var now: Dictionary = on.page.convo
 	var went_on: bool = not on.closed and now != before and now.has("quest")
 	on.page.queue_free()
+	story_guidance()
 	var took: bool = (c().quests.is_active(qid) or c().quests.is_done(qid)) if key == "accept" else c().quests.is_done(qid)
 	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else ("went on to %s" % now.get("quest", "") if went_on else "left open")])
 	return took and (on.closed or went_on)
@@ -328,10 +414,13 @@ func start_new(folder: String) -> void:
 	check(c().inventory.equipped.get("weapon") == null, "no weapon at start")
 	check(not Game.is_revealed("hud:attack") and not Game.is_revealed("hud:qi_bar"), "attack and QI hidden at start")
 
-## 1 Morning Tide: three teas, the Bag, out of the door.
+## 1 Morning Tide: three teas, the Bag, out of the door. The door stays shut until each step before "Step outside" is
+## done, and says which (a player who left early skipped the Bag and stood outside with nothing to do).
 func step_morning_tide() -> void:
+	held("exit", "Aunt Ping")
 	accept("aunt_ping", "morning_tide")
 	check(Game.is_revealed("hud:bag"), "Bag revealed on accepting Morning Tide")
+	held("exit", "Pick up Herbal Tea")
 	# The hut must show its way out and its three teas plainly (a player stuck in the hut could not see the door,
 	# took the jar props for clods of earth and saw no count while the tracker is hidden).
 	var hut: Dictionary = Game.room_rt.def
@@ -354,11 +443,23 @@ func step_morning_tide() -> void:
 		seen = (c().quests.active.morning_tide.progress as Array).duplicate()
 	check(c().inventory.count("herbal_tea") == 3, "all three teas are held at once")
 	check(not Game.is_revealed("hud:quest_tracker"), "tracker still hidden: the steps are the only count shown")
+	keep("Morning Tide teas")
+	held("exit", "Open your Bag")
 	submit({"type": "report_page_opened", "page": "inventory"})
 	check(go("exit") and room() == "lf_village", "step out to Home Lane")
 	check(c().quests.is_done("morning_tide"), "Morning Tide completes on stepping outside")
 	check(c().quests.is_active("a_quiet_river"), "A Quiet River follows automatically")
 	check(Game.is_revealed("hud:minimap") and Game.is_revealed("hud:quest_tracker"), "minimap and tracker revealed")
+
+## A way out a quest holds shut: its door drawn shut with what to do first on it, and a try to leave refused with the
+## same words (naming `first`), the character still in the room.
+func held(portal: String, first: String) -> void:
+	var here := room()
+	var shut: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(portal))
+	var r := submit({"type": "use_portal", "portal": portal, "crossing": true})
+	check(not shut.open and first in str(shut.text) and not r.get("ok", false) and str(r.get("text", "")) == str(shut.text) and room() == here,
+		"%s stays shut until '%s' is done, and says so (%s; %s)" % [portal, first, str(shut), str(r)])
+	if room() != here: travel(here)   # let out all the same: back in, so the walk goes on
 
 ## 2 A Quiet River: Lu at the docks sends you round the village.
 func step_quiet_river() -> void:
@@ -379,6 +480,7 @@ func step_granny() -> void:
 	check(go("granny_door"), "enter Granny Liu's hut")
 	accept("granny_liu", "grannys_remedy")
 	check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:quick_use"), "HP bar and quick-use revealed")
+	keep("Granny's Remedy taken")
 	submit({"type": "set_quick_use", "item": "herbal_tea"})
 	var q := submit({"type": "use_quick"})
 	if not q.ok and q.get("reason", "") == "confirm": q = submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
@@ -510,6 +612,7 @@ func step_fair() -> void:
 	check(c().quests.is_active("the_recruitment_fair") or c().quests.offered.has("the_recruitment_fair"), "Recruitment Fair offered")
 	accept("recruiter_qing_lan", "the_recruitment_fair")
 	talk("recruiter_mo_yun")
+	keep("Both recruiters met")
 	check(talk_choose("recruiter_qing_lan", "effects", "Join"), "join the Jade Sect")
 	check(str(c().training_sect.get("id", "")) == "jade_sect", "member of the Jade Sect")
 	check(c().quests.is_done("the_recruitment_fair"), "Recruitment Fair complete")
