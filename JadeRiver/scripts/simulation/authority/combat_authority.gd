@@ -1367,6 +1367,10 @@ func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> vo
 		if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): continue
 		var companion: bool = game.companions.is_companion_ally(a)
 		var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8 * (1.0 - FieldAuthority.enemy_loss(e)))
+		# P12: a foe's attack is set to pass its Level's armour, so an ally (health a share of its owner's) stands behind
+		# its owner's armour, as its owner would.
+		var owner = game.character(a.pet_owner)
+		if owner != null: dmg *= 1.0 - CombatRules.defence_reduction(owner.stats.value("physical_defense"), e.level, 0.0, float(e.stats.get("might", 1.0)))
 		if not companion: dmg *= game.pets.damage_taken_mult(a)
 		a.pools.hp -= dmg
 		a.flash = 0.12
