@@ -404,6 +404,9 @@ gates nothing; it sets the idle Hunt rate only.
 
 ## 6. Proposal
 
+**Built** as roadmap phase P12 · Might (2026-09-27). §6.8 lists what was built, where it differs from this section, and
+the numbers measured on the valley_run checkpoints before and after.
+
 ### 6.1 Principles
 
 1. **Cultivation carries the scale.** A new multiplier, Might, belongs to the realm. Items keep today's numbers. A
@@ -728,6 +731,74 @@ totals or thresholds. The migration bumps the save's minor version so it runs on
 
 **Order.** After P7b's banded gear (G1) and before any v1.3 content is written in today's scale (the Soul Band and
 boss examples in the design pages quote today's numbers).
+
+### 6.8 As built (P12 · Might)
+
+**Where it lives.** `tools/data/stats.py` holds Might (`MIGHT`, `might()`), the par character (`PAR`, `par_row()`, the
+rules' formulas repeated for the builder) and the monster tables (`mob_tables()`); `stats.json` carries `might.table`,
+`par` (its schedule and a table for Levels 0–200), `mob.hp_table` and `mob.attack_table`, `qi_edge` and `hp_share_cap`.
+`StatRules.might_at`, `might`, `par`, `par_step` and `by_level` read them; `CombatRules.fighter` and `foe` build the
+pipeline's views once for Combat, the Vigil and the probe. `balance_sim` builds the par character with the real rules
+and lands within 1% of the table.
+
+**The par character against the targets** (before crits; the real rules):
+
+| Level | Basic (target) | Technique (target) | Crit technique | Max HP (research) | CP (research) |
+|---|---|---|---|---|---|
+| 1 | 12 (12) | 12 (12) | 18 | 82 (83) | 20 (21) |
+| 10 | 63 (68) | 65 (63) | 97 | 589 (574) | 114 (121) |
+| 30 | 847 (832) | 1,319 (1,246) | 1,978 | 5,307 (5,216) | 1,159 (1,283) |
+| 60 | 10.9K (11.0K) | 38.3K (39.5K) | 61.3K | 49.5K (46.6K) | 12.8K (14.4K) |
+| 80 | 41.4K (41.5K) | 154K (154K) | 269K | 163K (152K) | 47.7K (50.5K) |
+| 99 | 130K (136K) | 531K (527K) | 929K (922K) | 460K (427K) | 149K (163K) |
+| 108 | 241K (246K) | 1.03M (999K) | 1.79M | 738K (683K) | 272K (280K) |
+| 120 (table) | 571K (611K) | 2.64M (2.69M) | 4.63M | 1.66M (1.52M) | 646K (696K) |
+
+**What differs from §6.1–§6.7.**
+
+1. **Bone Forging's Might** climbs only to ×1.05 over its nine Levels (the formula would give 1.11 at Level 9, 11% over
+   today's numbers); the first step, at Qi Kindling 1, is ×1.30 from Bone Forging 1 (×1.24 from Level 9). Everything
+   from Level 10 follows the formula.
+2. **Might is a `pct_mul` modifier** on the three attacks, max HP and the three defences, so gear's flat health and
+   armour scale too (most of the player's armour is gear; §6.3's "bases × Might" would have left it flat).
+3. **The par schedule's steps land a Level or more past a major breakthrough**, so the breakthrough itself is the
+   realm's step (checks 5 and 6): Fine from Level 10 as proposed, Superior from 40 (not 37), Perfect from 103; the
+   attack affix 5% from 22, 8% from 67, 12% from 103; the sets' damage 8% from 42, 13% from 67, 20% from 124; the Sword
+   Dao 1 at 15, 2 at 30, 3 at 49, 4 at 67, 5 at 85, 6 at 112; the main art's mastery 2 at 12, 3 at 21, 4 at 49, 5 at 85,
+   6 at 112; crit affixes from 40, 67 and 124. Meridian points go evenly to the five channels.
+4. **The par main art** is a Qi strike whose multiplier (grade included) is set by band so the technique meets the
+   line of `docs/technique_plan.md` §6.1: 1.0, 1.2 from Level 19, 1.45 from 37, 1.95 at 55, easing to 1.7 by Sphere
+   Lord and 1.1 by World Genesis, as mastery, the Dao, the Qi edge and Essence carry more of the ratio. P13 re-tunes it.
+5. **Par health runs 0–14% above the research's** (460K at Level 99): the body meridian gate (+5% at 25 points)
+   counts. The blow rule reads this table, so a blow is still 6% of it.
+6. **Boss roles strike at ×2.5** a normal foe (15%; 12–13.5% with the bosses' own attack factors). Bosses without a
+   par time keep their role's health factor over the table.
+7. **Allies stand behind their owner's armour**: a foe's attack is set to pass armour, and a spirit animal (40% of its
+   owner's health, no armour) would have taken a fifth of its health a blow at Level 99.
+8. **The Soul Lantern Ward** shields 10% of max HP; **a body technique short of QI** spends the same share of max HP
+   as the QI's share of max QI.
+9. **`UiKit.fmt` turns to `short` from ten million**, so every page follows §6.5 without touching the pages; bars do
+   so from 100,000 through `UiKit.pool_values`. Tooltip comparisons in `short` are not done.
+10. **The checks** (`balance_sim`): par_hit at Level 120 waits for v1.3's weapons (a Will-grade jian carries the
+    energy penalty at Monarch); ttk allows up to 5 blows under Level 20, where today's floor holds (4.6 at Level 10);
+    the boss blow band is two to three normal blows (16–24% under Level 20); boss_par is a data check (the fought
+    `boss_suite` of `docs/boss_design.md` is not built); smooth runs from Level 11 and realm_step allows 10–30% at the
+    advanced states and Inner Heaven 1; chapter_floor measures the previous chapter's end as its highest floor or
+    breakthrough objective and allows the floor to wait up to 10 Levels past it (§6.6 rule 1's "at most that Level"
+    cannot hold for Act I's realm-triggered chapter openers: chapters 2–10 wait 2–10 Levels, chapter 8 the whole of
+    Cloud Stride, chapter 14 three); its attunement-material half is not checked; pacing has no user target yet and
+    reports 133 h to Sphere Lord 3 against the 140–235 h estimates.
+11. **Main-quest gating**: rule 7's catch-up (double QP on the chapter's daily mission) is not built. Chapter 21's
+    floor made The Tide Breaks and The Copperjaw Box open together; the box now follows The Tide Breaks.
+12. **`damage_pct` and `boss_damage`** exist as stats; no affix rows yet (they come with the Frontier's named pieces
+    and the Worthy Foes seals).
+13. **valley_run's par-up** also puts the par affixes on the weapon (attack, damage%, crits) and raises the Sword Dao to
+    its par tier, and the canyon side stories get more sorties.
+
+**Measured on the valley_run checkpoints** (`tools/dev/stat_probe.gd`; hits before crits; the "before" run is the
+build branch at P7b part 1, the "after" run the regenerated checkpoints with the par-up shortcut):
+
+MEASURED_TABLE
 
 ---
 
