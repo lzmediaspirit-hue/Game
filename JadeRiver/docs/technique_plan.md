@@ -497,6 +497,14 @@ green #6aa82c, Confucian ink-violet #4a5ab8.
 - **Poses**: every form uses an action in the catalog (§3.2); `data_validation` fails a row whose `action` is not in
   `parts.json` `_actions` (or `meditate_burst`). A technique adds FX, never a pose. Any future pose goes through
   `AGENTS.md`'s full review first.
+- **Animations** (decision 23, built): every form has a frame-by-frame effect sheet under `art/fx/` (drawn by
+  `tools/art/fx/build_fx.py`, described in `data/fx_art.json`: 24 forms, eleven element rows each at three richness
+  bands for the vfx tiers 1–2, 3–4 and 5–7, plus a projectile loop for Arc, Volley, Seeker and Return), and every
+  row carries `vfx.anim` (its form) and `vfx.pose` (the catalogue action the effect is timed to, or `combo_1` /
+  `combo_3` for the wielded family's step that `meditate_burst` and a null action resolve to), written by
+  `tools/data/technique_anim.py`. `World._cast` plays the sheet at the pose's hit frame, facing the cast, sized to the
+  hitbox, at the element's row and the tier's band; `data_validation` fails a row whose form is not built or whose
+  pose does not exist.
 
 ### 3.11 A worked example: one cell
 

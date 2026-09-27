@@ -133,10 +133,13 @@ func _ready() -> void:
 		if str(a).begins_with("--load="):
 			var src := str(a).trim_prefix("--load=")
 			if not src.ends_with("/"): src += "/"
-			DirAccess.make_dir_recursive_absolute("user://loaded_copy/")
-			for f in DirAccess.get_files_at("user://loaded_copy/"): DirAccess.remove_absolute("user://loaded_copy/" + f)
-			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, "user://loaded_copy/" + f)
-			Saves.use_folder("user://loaded_copy/")
+			# The copy is named after its source, so two previews of different checkpoints run at once do not clobber
+			# each other's copy.
+			var dst := "user://loaded_%s/" % src.trim_suffix("/").get_file()
+			DirAccess.make_dir_recursive_absolute(dst)
+			for f in DirAccess.get_files_at(dst): DirAccess.remove_absolute(dst + f)
+			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, dst + f)
+			Saves.use_folder(dst)
 	if "--log-events" in user_args:
 		GameEvents.event.connect(func(n: String, p: Dictionary): if n not in ["resource_changed", "meditation_tick"]: print("[event] ", n, " ", p))
 	boot_report = Game.boot()
@@ -379,6 +382,11 @@ func _handle_preview_args(user_args: Array) -> void:
 			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).
 			var ca := str(a).trim_prefix("--cast=").split(":")
 			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection (1.5 s), so the caster is solid
+			# Decision 23: with --capture the cast's effects and pose step a sixtieth a frame, so the shot lands on the frame
+			# t names whatever the renderer's pace (the capture wait below counts frames too).
+			if "--capture" in user_args:
+				world.fx.fixed_step = 1.0 / 60.0
+				world.sim_frozen = true   # the foes hold still too: the shot is the effect on the pose
 			world.preview_cast(ca[0])
 			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
 		if str(a).begins_with("--hold=") and is_instance_valid(moments):
@@ -582,7 +590,10 @@ func _handle_preview_args(user_args: Array) -> void:
 			moments.hold_at = moment_t
 			if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
 	if "--capture" in user_args:
-		await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
+		if is_instance_valid(world) and world.fx.fixed_step > 0.0:
+			for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / world.fx.fixed_step): await get_tree().process_frame
+		else:
+			await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
 		for a in user_args:
 			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
 			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})

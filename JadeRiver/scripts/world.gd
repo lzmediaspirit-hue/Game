@@ -222,7 +222,7 @@ func _add_enemy_view(e: EnemyState) -> void:
 func _physics_process(delta: float) -> void:
 	if not room_mode or Game.paused: return
 	player.physics_step(delta)
-	Game.tick(delta)
+	if not sim_frozen: Game.tick(delta)
 	_check_portals(delta)
 
 func _check_portals(delta: float) -> void:
@@ -385,7 +385,12 @@ func add_shake(s: float, amp := -1.0) -> void:
 ## (§5.4): a slash, a wave along the reach, a ring at it with echo rings inside, a rain of streaks, a pillar on the foe,
 ## or a ring and motes round the caster. A bolt is drawn by its projectile.
 var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
-func _cast(tech: String, facing: int, col: Color) -> void:
+var sim_frozen := false           # debug (--cast --capture): the simulation holds still while the effect plays, so the shot is the effect
+## Decision 23: with the technique's form animation (`vfx.anim`, data/fx_art.json) the cast plays that sheet instead of
+## the procedural shape, timed so its impact frame lands on the pose's hit frame (`windup`, the timeline's hit_at),
+## facing the cast, sized to the hitbox and at its tier's band; an area's edge (a ring at the true reach, §5.4) and
+## a heal's radius are still drawn at the reach. The procedural shapes remain for a technique without a sheet.
+func _cast(tech: String, facing: int, col: Color, windup := -1.0) -> void:
 	var t := ContentDB.entry("techniques", tech)
 	var n := MomentRules.tier_numbers("tech:" + tech)
 	var tier := int(t.get("vfx", {}).get("tier", 1))
@@ -394,7 +399,14 @@ func _cast(tech: String, facing: int, col: Color) -> void:
 	if float(n.shake_s) > 0.0: cast_shake["tech:" + tech] = true
 	if float(n.cast_ring_r) > 0.0: fx.add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
 	if float(n.tint_alpha) > 0.0: fx.add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
-	match str(t.get("vfx", {}).get("shape", "strike")):
+	var shape := str(t.get("vfx", {}).get("shape", "strike"))
+	var form := str(t.get("vfx", {}).get("anim", ""))
+	if not FxLayer.form_spec(form).is_empty():
+		_cast_form(t, form, facing, tier, reach, at, windup)
+		if shape == "ring": fx.add("wave", at, {"color": col, "radius": reach, "size": n.wave_width, "dur": 0.45})
+		if shape == "domain" and t.has("heal_radius"): fx.add("ring", at, {"color": Color(col, 0.7), "radius": float(t.heal_radius), "dur": 0.6})
+		return
+	match shape:
 		"strike": fx.add("slash", at + Vector2(facing * 40, -50), {"color": col, "facing": facing, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
 		"wave": fx.add("talisman_wave", at + Vector2(0, -50), {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
 		"ring":
@@ -406,6 +418,42 @@ func _cast(tech: String, facing: int, col: Color) -> void:
 		"domain":
 			fx.add("ring", at, {"color": col, "radius": float(t.get("heal_radius", reach)), "dur": 0.6})
 			fx.add("motes", at + Vector2(0, -10), {"color": col, "dur": 0.8})
+
+## A form's sheet on a cast: anchored by its `at` (the caster's chest or feet, the foe's feet or chest), sized by its
+## `size` rule (band: bigger by tier, never past a strike's reach; reach: snapped down so a ring or a line never
+## passes the hitbox; tile: repeated across the reach; travel: the crest crosses the reach over its life), and
+## started so its impact frame lands on the hit frame: later when the wind-up is long, part-way in when it is short.
+func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: float, at: Vector2, windup: float) -> void:
+	var a := FxLayer.form_spec(form)
+	var band := FxLayer.band_of(tier)
+	var span := float(a.span)
+	var extra := {}
+	var s := 1.0
+	match str(a.size):
+		"band":
+			s = float(FxLayer.BAND_SCALE[band])
+			if a.get("fit", false): s = minf(s, maxf(1.0, FxLayer.snap_scale(reach * 1.15 / span, true)))   # never past the reach, never under native
+		"reach": s = maxf(1.0, FxLayer.snap_scale(reach / span, true))
+		"stretch":   # a line along the reach: its exact length, the band's height
+			s = reach / span
+			extra.scale_y = float(FxLayer.BAND_SCALE[band])
+		"tile":
+			s = 1.0 if band < 2 else 1.5
+			extra.tiles = maxi(1, ceili(reach / (float(a.cell[0]) * s)))
+		"travel":
+			s = float(FxLayer.BAND_SCALE[band])
+			extra.travel = Vector2(facing * maxf(0.0, reach - span * s * 0.5), 0)
+	extra.scale = s
+	var pos := at
+	match str(a.at):
+		"chest": pos = at + Vector2(0, -56)
+		"target": pos = _foe_in_reach(at, facing, reach)
+		"target_chest": pos = _foe_in_reach(at, facing, reach) + Vector2(facing * 30, -50)
+	if windup >= 0.0:
+		var lead := windup - float(a.impact) / float(a.fps)
+		if lead >= 0.0: extra.delay = lead
+		else: extra.start = -lead
+	fx.play_form(form, str(t.get("element", "none")), tier, pos, facing, extra)
 
 ## Where a single-target cast lands: the nearest foe in front within reach, else halfway along it.
 func _foe_in_reach(at: Vector2, facing: int, reach: float) -> Vector2:
@@ -424,7 +472,20 @@ func preview_cast(tech: String) -> void:
 	var t := ContentDB.entry("techniques", tech)
 	var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team == "enemy")
 	var facing := 1 if foes.is_empty() or foes[0].plane.x >= player.position.x else -1
-	_cast(tech, facing, SpriteCache.element_color(str(t.element)))
+	# The pose the cast would play (the timeline's own resolution: a null action is the wielded family's third combo
+	# step, meditate_burst its first), held on the avatar for the cast's length so the shot shows the hit frame.
+	var fam: Dictionary = StatRules.family(Game.active())
+	var action := str(t.get("action", ""))
+	if action == "meditate_burst": action = str(fam.combo[0].action)
+	elif not ContentDB.parts.get("_actions", {}).has(action): action = str(fam.combo[mini(2, fam.combo.size() - 1)].action)
+	var windup := float(t.get("windup_s", 0.2))
+	player.preview_pose(action, windup + float(t.get("active_s", 0.2)) + 0.25, facing)
+	_cast(tech, facing, SpriteCache.element_color(str(t.element)), windup)
+	# The hits land at the hit frame, as a real cast's would (frame-stepped under --capture, else by the clock).
+	if fx.fixed_step > 0.0:
+		for i in ceili(windup / fx.fixed_step): await get_tree().process_frame
+	else:
+		await get_tree().create_timer(windup).timeout
 	for e in foes:
 		if (e.plane.x - player.position.x) * facing > float(t.hitbox.x[1]) + 40.0: continue
 		for h in int(t.hits):   # a buff or a heal strikes nothing
@@ -531,7 +592,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var tech := str(p.get("technique", ""))
 				if tech != "":
-					_cast(tech, int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))))
+					_cast(tech, int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))), float(p.get("windup", -1.0)))
 					Audio.play("technique")
 				else:
 					Audio.play("swing")

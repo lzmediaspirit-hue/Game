@@ -3,6 +3,7 @@ import json
 import os
 
 from common import DATA, entries, titled
+from technique_anim import add_animation
 
 # P6e the escalation curve (docs/moments_design.md §5): every technique's `vfx` block. Its tier is the band of the realm
 # that teaches it (realm index -> tier, written to moments.json as vfx_bands); its shape what it draws on cast (VFX_SHAPES); its
@@ -257,6 +258,7 @@ def build():
         if t["id"] == "willow_leaf_parry":
             t["stance"] = "jian"
     add_vfx(T)
+    add_animation(T)   # every art plays its form's effect on an existing pose (technique_anim.py)
     entries("techniques.json", T)
 
     weapon_dao = {"tiers": ["+3% attack with the family", "Linked techniques -10% QI", "Linked techniques gain their tier-3 effect",

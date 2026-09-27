@@ -151,6 +151,7 @@ Transient kinds, added with `fx.add(kind, pos, {color, radius, dur, facing, text
 | `heaven_cloud` | 143–154 | a column of light 68 px wide, a cloud bank 620 px wide at −320, 14 motes |
 | `heaven_storm` | 155–174 | a dark bank 820 px wide, lit 3 times a second, a bolt on each lit beat |
 | `text` | 175–177 | outlined text fading after 70% |
+| `anim` | (decision 23) | one frame of a technique form's sheet (`data/fx_art.json`), mirrored for the facing, scaled by halves, travelling or tiled along the reach |
 
 Also drawn from state each frame: arrays (265), ground fire (249), the Presence (216), the Sphere (196) and
 projectiles (320).
@@ -770,6 +771,16 @@ Tier 1 is today's look (`fx_layer.gd:57-63`, `world.gd:411`), so the valley's fi
 
 `SHAPE_OVERRIDES`: `glimpse_of_heaven` → `pillar` (heaven's light from above), `shadowstep_cut` → `strike` (a blink
 and a cut, though its reach is 240). With them: strike 15, wave 5, pillar 5, the rest as listed.
+
+**Technique animations (decision 23).** With the form sheets built (`art/fx/`, `data/fx_art.json`;
+`docs/technique_plan.md` §3.10), a technique whose `vfx.anim` names a built form plays that sheet (`FxLayer` kind
+`anim`, one frame of the form's sheet at its element's row and its tier's band) in place of the procedural shape
+above, timed so the sheet's impact frame lands on the pose's hit frame (`attack_started`'s `windup`). The shape
+column still decides what is drawn at the true reach beside it: a `ring` keeps one procedural ring at the hitbox's
+edge, a `domain` with a heal keeps its radius ring; a `wave`'s crest travels the reach, a `rain`'s tile repeats
+across it, a ring form's sprite is snapped down so it never passes the edge (§5.4). The procedural shapes remain for
+a technique without a sheet. Reduce motion plays every form at the calmest band and Battery saver at the middle one
+at most; the sheets never fill the screen, so the flash limiter's one-a-second rule stays with the tint.
 
 ### 5.4 Drawn = hit
 

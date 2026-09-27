@@ -52,7 +52,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "flurry",
+    "pose": "punch"
    }
   },
   {
@@ -99,7 +101,9 @@
    "vfx": {
     "tier": 1,
     "shape": "wave",
-    "particles": "square"
+    "particles": "square",
+    "anim": "thrust",
+    "pose": "thrust_3"
    }
   },
   {
@@ -148,7 +152,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "strike",
+    "pose": "swing_3"
    }
   },
   {
@@ -200,7 +206,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "strike",
+    "pose": "thrust_1"
    }
   },
   {
@@ -247,7 +255,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "sweep",
+    "pose": "thrust_3"
    }
   },
   {
@@ -298,7 +308,9 @@
    "vfx": {
     "tier": 1,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "volley",
+    "pose": "bow"
    }
   },
   {
@@ -346,7 +358,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "lunge",
+    "pose": "punch_2"
    }
   },
   {
@@ -394,7 +408,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "counter",
+    "pose": "swing_3"
    }
   },
   {
@@ -441,7 +457,9 @@
    "vfx": {
     "tier": 1,
     "shape": "ring",
-    "particles": "square"
+    "particles": "square",
+    "anim": "sweep",
+    "pose": "thrust_3"
    }
   },
   {
@@ -493,7 +511,9 @@
    "vfx": {
     "tier": 1,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "volley",
+    "pose": "thrust_1"
    }
   },
   {
@@ -545,7 +565,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "strike",
+    "pose": "thrust_3"
    }
   },
   {
@@ -602,7 +624,9 @@
    "vfx": {
     "tier": 1,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "snare",
+    "pose": "bow"
    }
   },
   {
@@ -652,7 +676,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "strike",
+    "pose": "swing_3"
    }
   },
   {
@@ -699,7 +725,9 @@
    "vfx": {
     "tier": 1,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "wave",
+    "pose": "swing_2"
    }
   },
   {
@@ -758,7 +786,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "seeker",
+    "pose": "attack"
    }
   },
   {
@@ -814,7 +844,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "arc",
+    "pose": "swing_3"
    }
   },
   {
@@ -869,7 +901,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "return",
+    "pose": "swing_2"
    }
   },
   {
@@ -918,7 +952,9 @@
    "vfx": {
     "tier": 1,
     "shape": "domain",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "chorus",
+    "pose": "attack"
    }
   },
   {
@@ -971,7 +1007,9 @@
    "vfx": {
     "tier": 1,
     "shape": "ring",
-    "particles": "square"
+    "particles": "square",
+    "anim": "burst",
+    "pose": "combo_1"
    }
   },
   {
@@ -1023,7 +1061,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "arc",
+    "pose": "punch_2"
    }
   },
   {
@@ -1075,7 +1115,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "arc",
+    "pose": "swing_3"
    }
   },
   {
@@ -1123,7 +1165,9 @@
    "vfx": {
     "tier": 2,
     "shape": "wave",
-    "particles": "square"
+    "particles": "square",
+    "anim": "wave",
+    "pose": "thrust_3"
    }
   },
   {
@@ -1172,7 +1216,9 @@
    "vfx": {
     "tier": 2,
     "shape": "strike",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "release",
+    "pose": "swing_3"
    }
   },
   {
@@ -1218,7 +1264,9 @@
    "vfx": {
     "tier": 2,
     "shape": "strike",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "swarm",
+    "pose": "swing_3"
    }
   },
   {
@@ -1270,7 +1318,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "seeker",
+    "pose": "thrust_1"
    }
   },
   {
@@ -1317,7 +1367,9 @@
    "vfx": {
     "tier": 2,
     "shape": "wave",
-    "particles": "square"
+    "particles": "square",
+    "anim": "wave",
+    "pose": "thrust_3"
    }
   },
   {
@@ -1369,7 +1421,9 @@
    "vfx": {
     "tier": 2,
     "shape": "wave",
-    "particles": "square"
+    "particles": "square",
+    "anim": "snare",
+    "pose": "combo_1"
    }
   },
   {
@@ -1415,7 +1469,9 @@
    "vfx": {
     "tier": 2,
     "shape": "rain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "rain",
+    "pose": "bow"
    }
   },
   {
@@ -1468,7 +1524,9 @@
    "vfx": {
     "tier": 2,
     "shape": "domain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -1515,7 +1573,9 @@
    "vfx": {
     "tier": 2,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "lunge",
+    "pose": "jump"
    }
   },
   {
@@ -1570,7 +1630,9 @@
    "vfx": {
     "tier": 2,
     "shape": "ring",
-    "particles": "square"
+    "particles": "square",
+    "anim": "burst",
+    "pose": "thrust_3"
    }
   },
   {
@@ -1623,7 +1685,9 @@
    "vfx": {
     "tier": 2,
     "shape": "ring",
-    "particles": "ember"
+    "particles": "ember",
+    "anim": "burst",
+    "pose": "combo_1"
    }
   },
   {
@@ -1675,7 +1739,9 @@
    "vfx": {
     "tier": 2,
     "shape": "domain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -1722,7 +1788,9 @@
    "vfx": {
     "tier": 3,
     "shape": "strike",
-    "particles": "square"
+    "particles": "square",
+    "anim": "blink",
+    "pose": "thrust_1"
    }
   },
   {
@@ -1770,7 +1838,9 @@
    "vfx": {
     "tier": 3,
     "shape": "ring",
-    "particles": "square"
+    "particles": "square",
+    "anim": "plunge",
+    "pose": "jump"
    }
   },
   {
@@ -1823,7 +1893,9 @@
    "vfx": {
     "tier": 3,
     "shape": "pillar",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "pillar",
+    "pose": "combo_1"
    }
   },
   {
@@ -1871,7 +1943,9 @@
    "vfx": {
     "tier": 3,
     "shape": "domain",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -1918,7 +1992,9 @@
    "vfx": {
     "tier": 3,
     "shape": "pillar",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "seal",
+    "pose": "combo_1"
    }
   },
   {
@@ -1967,7 +2043,9 @@
    "vfx": {
     "tier": 3,
     "shape": "domain",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -2015,7 +2093,9 @@
    "vfx": {
     "tier": 3,
     "shape": "pillar",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "pillar",
+    "pose": "combo_1"
    }
   },
   {
@@ -2063,7 +2143,9 @@
    "vfx": {
     "tier": 2,
     "shape": "strike",
-    "particles": "ember"
+    "particles": "ember",
+    "anim": "strike",
+    "pose": "punch"
    }
   },
   {
@@ -2117,7 +2199,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "ember"
+    "particles": "ember",
+    "anim": "arc",
+    "pose": "combo_3"
    }
   },
   {
@@ -2166,7 +2250,9 @@
    "vfx": {
     "tier": 3,
     "shape": "ring",
-    "particles": "ember"
+    "particles": "ember",
+    "anim": "burst",
+    "pose": "combo_1"
    }
   },
   {
@@ -2233,7 +2319,9 @@
    "vfx": {
     "tier": 2,
     "shape": "domain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -2293,7 +2381,9 @@
    "vfx": {
     "tier": 2,
     "shape": "bolt",
-    "particles": "square"
+    "particles": "square",
+    "anim": "seeker",
+    "pose": "combo_3"
    }
   },
   {
@@ -2347,7 +2437,9 @@
    "vfx": {
     "tier": 2,
     "shape": "ring",
-    "particles": "square"
+    "particles": "square",
+    "anim": "burst",
+    "pose": "punch"
    }
   },
   {
@@ -2393,7 +2485,9 @@
    "vfx": {
     "tier": 5,
     "shape": "strike",
-    "particles": "ink"
+    "particles": "ink",
+    "anim": "volley",
+    "pose": "swing_2"
    }
   },
   {
@@ -2439,7 +2533,9 @@
    "vfx": {
     "tier": 5,
     "shape": "rain",
-    "particles": "ink"
+    "particles": "ink",
+    "anim": "rain",
+    "pose": "swing_2"
    }
   },
   {
@@ -2492,7 +2588,9 @@
    "vfx": {
     "tier": 5,
     "shape": "ring",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "seal",
+    "pose": "swing_1"
    }
   },
   {
@@ -2544,7 +2642,9 @@
    "vfx": {
     "tier": 5,
     "shape": "pillar",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "seal",
+    "pose": "swing_1"
    }
   },
   {
@@ -2605,7 +2705,9 @@
    "vfx": {
     "tier": 5,
     "shape": "domain",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "chorus",
+    "pose": "swing_1"
    }
   },
   {
@@ -2653,7 +2755,9 @@
    "vfx": {
     "tier": 5,
     "shape": "wave",
-    "particles": "shard"
+    "particles": "shard",
+    "anim": "wave",
+    "pose": "combo_1"
    }
   },
   {
@@ -2703,7 +2807,9 @@
    "vfx": {
     "tier": 5,
     "shape": "domain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "chorus",
+    "pose": "combo_1"
    }
   },
   {
@@ -2758,7 +2864,9 @@
    "vfx": {
     "tier": 5,
     "shape": "ring",
-    "particles": "ring"
+    "particles": "ring",
+    "anim": "seal",
+    "pose": "combo_1"
    }
   },
   {
@@ -2824,7 +2932,9 @@
    "vfx": {
     "tier": 4,
     "shape": "domain",
-    "particles": "square"
+    "particles": "square",
+    "anim": "ward",
+    "pose": "combo_1"
    }
   },
   {
@@ -2871,7 +2981,9 @@
    "vfx": {
     "tier": 3,
     "shape": "pillar",
-    "particles": "square"
+    "particles": "square",
+    "anim": "pillar",
+    "pose": "combo_1"
    }
   }
  ]

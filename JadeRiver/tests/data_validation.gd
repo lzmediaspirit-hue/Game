@@ -181,6 +181,39 @@ func moments_data_suite() -> void:
 		check(tier == want and {"common": tier == 1, "earth": tier == 2, "heaven": tier >= 3}.get(str(t.get("grade", "")), false),
 			"technique %s: vfx tier %d is its unlock realm's band (%d, %s)" % [t.id, tier, want, t.get("grade", "")])
 		check(str(v.get("shape", "")) in MomentRules.SHAPES and str(v.get("particles", "")) in MomentRules.STYLES, "technique %s: a known vfx shape and style" % t.id)
+	_fx_art_suite()
+
+## Decision 23 (technique animations): every form's sheet in data/fx_art.json exists at the size its spec says (frames
+## across, every band and element down), with a hit frame inside it and known anchor and size rules; and every
+## technique plays a built form (`vfx.anim`) on an existing pose (`vfx.pose`: a parts.json action, or a combo alias
+## that resolves to one for every weapon family, as the timeline resolves it).
+const POSE_ALIASES := {"combo_1": 0, "combo_2": 1, "combo_3": 2}
+func _fx_art_suite() -> void:
+	var fxa: Dictionary = ContentDB.config("fx_art")
+	var forms: Dictionary = fxa.get("forms", {})
+	var rows: int = (fxa.get("bands", []) as Array).size() * (fxa.get("elements", []) as Array).size()
+	check(forms.size() == 24 and rows == 33, "fx_art.json builds the 24 forms at three bands of eleven elements")
+	for form in forms:
+		var a: Dictionary = forms[form]
+		for spec in [a] + ([a.bolt] if a.has("bolt") else []):
+			var tex: Texture2D = load(str(spec.file)) if ResourceLoader.exists(str(spec.file)) else null
+			check(tex != null and tex.get_width() == int(spec.frames) * int(spec.cell[0]) and tex.get_height() == rows * int(spec.cell[1]),
+				"fx form %s: %s is a sheet of %d frames by %d rows of %s" % [form, str(spec.file).get_file(), int(spec.frames), rows, str(spec.cell)])
+		check(int(a.impact) >= 0 and int(a.impact) < int(a.frames) and float(a.fps) > 0.0 and float(a.span) > 0.0, "fx form %s: a hit frame inside its frames" % form)
+		check(str(a.at) in ["chest", "feet", "target", "target_chest"] and str(a.size) in ["band", "reach", "stretch", "tile", "travel"], "fx form %s: a known anchor and size rule" % form)
+	for t in ContentDB.all("techniques"):
+		var v: Dictionary = t.get("vfx", {})
+		check(forms.has(str(v.get("anim", ""))), "technique %s: its animation (%s) is a built form" % [t.id, v.get("anim", "")])
+		var pose := str(v.get("pose", ""))
+		var ok: bool = ContentDB.parts.get("_actions", {}).has(pose)
+		if not ok and POSE_ALIASES.has(pose):
+			ok = true
+			for fam in ContentDB.all("weapon_families"):
+				var combo: Array = fam.get("combo", [])
+				ok = ok and not combo.is_empty() and ContentDB.parts.get("_actions", {}).has(str(combo[mini(int(POSE_ALIASES[pose]), combo.size() - 1)].action))
+		check(ok, "technique %s: its pose (%s) is an existing pose" % [t.id, pose])
+		var action := str(t.get("action", ""))
+		check(pose == ("combo_1" if action == "meditate_burst" else ("combo_3" if action in ["", "null", "<null>"] else action)), "technique %s: its pose is its action's" % t.id)
 
 ## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
 func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
