@@ -34,7 +34,7 @@ commit its output (a plain build puts everything back).
 | `items` | 32 (64) | 64 (64, @32) | herbs, minerals, beast parts, fish, misc, tools, talismans, food, pills, qi jades... |
 | `equipment` | 32 (64) | 64 (64, @32) | weapons, armour, cape, soul talisman, gourds |
 | `techniques` | 32 (64) | 64 (64, @48, @32) | round element emblem + motion mark (secret arts: gold rim + studs) |
-| `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline |
+| `hud` | 16 (32) | 32 (32) | pale-gold glyph with ink outline (converted: `ART = 32`) |
 | `status` | 12 (24) | – | colour-keyed glyphs |
 | `markers` | 12 (24) | – | map / quest markers |
 
@@ -185,7 +185,9 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - fish: `fish(...)` parameters.
    - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
    - techniques: `emblem(element)` + `mark(...)`.
-   - HUD glyphs: add an ASCII block to `hud.G`.
+   - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
+     `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
+     `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
    - status icons and markers: add an ASCII block, using `asciiart.KEY`
      colours.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The

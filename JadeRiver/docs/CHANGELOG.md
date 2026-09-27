@@ -19,6 +19,12 @@
   five-column grid. The HUD takes an HD technique's native 48 and an item's native 32; a legacy technique shows at 2x
   in its ring, HUD glyphs at 32 (2x). The slot draws a soft grade halo behind Mystic items and above. The kit CSS and
   the kit sheet have the 76 px slot. A `ui_suite` rule checks every icon on every page, and `icon_draw_suite` the fit.
+- **The HUD family is redrawn in Style A**, the first family to convert: all 73 glyphs are HD drawings at 32 art px
+  (`families/hud.py`, `ART = 32`), a pale-gold face with a lit edge, a warm shade edge and one highlight under the ink
+  outline, shown 1:1 in the button rings and at 2x in the attack ring and on the menu tiles. The attack button's
+  weapons share one diagonal frame and the shaft, blade and grip builders; the button glyphs share the book, bust,
+  arrow and chest templates. The ASCII tables and the legacy glyph painter are gone. Sheets and in-game screenshots
+  from the valley_run checkpoints in `docs/mockups/icon_families/hud/`.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
