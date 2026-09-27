@@ -4434,17 +4434,15 @@
   "down_per_realm": 0.2,
   "down_max_reduction": 0.6
  },
- "energy_multiplier": {
-  "none": 1.0,
-  "body": 1.0,
-  "primal_qi": 1.0,
-  "true_qi": 1.3,
-  "sage_qi": 1.7,
-  "law_qi": 2.2,
-  "monarch_qi": 2.8,
-  "heavenforce": 3.5
+ "hp_share_cap": {
+  "attack_per_s": 0.6,
+  "roles": [
+   "elite",
+   "field_boss",
+   "dungeon_boss",
+   "story_boss"
+  ]
  },
- "purity_bonus_per_grade": 0.025,
  "kill_gap_factor": [
   {
    "min_diff": 5,
@@ -5280,6 +5278,24 @@
    "group": "offense",
    "cap": null,
    "format": "percent"
+  },
+  {
+   "id": "damage_pct",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "boss_damage",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "final_damage",
+   "group": "offense",
+   "cap": null,
+   "format": "mult"
   }
  ]
 }

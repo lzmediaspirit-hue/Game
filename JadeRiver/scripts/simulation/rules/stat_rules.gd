@@ -393,6 +393,9 @@ static func rebuild(c) -> Array:
 	sb.set_base("crafting_control", float(fx.insight.crafting_control) * A.insight)
 	sb.set_base("accumulation_rate", 0.0)
 	sb.set_base("elemental_power", 0.0)
+	sb.set_base("damage_pct", 0.0)
+	sb.set_base("boss_damage", 0.0)
+	sb.set_base("final_damage", 1.0)   # P12: a product; each source multiplies it (op pct_mul)
 	sb.set_base("sense_radius", 300.0 * (1.0 + float(fx.spirit.sense_radius_pct) * A.spirit) if soul_base > 0 else 0.0)
 	sb.set_base("hollow_ward", 0.0)
 	sb.set_base("pressure", 0.0)
@@ -453,7 +456,7 @@ static func body_flag(c, flag: String) -> bool:
 static func attribute(c, attr: String) -> float:
 	return c.stats.value(attr)
 
-## S11 Combat Power.
+## S11 Combat Power (P12: no energy term; Might is inside the attack, health and defences).
 static func combat_power(c) -> int:
 	var sb: StatBlock = c.stats
 	var fam := family(c)
@@ -462,9 +465,8 @@ static func combat_power(c) -> int:
 	var aspd := float(fam.get("hits_per_s", 1.0)) * (1.0 + sb.value("attack_speed"))
 	var crit := sb.value("crit_chance")
 	var defences := sb.value("physical_defense") + sb.value("qi_resistance") + sb.value("soul_defense")
-	var e := ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity)
-	var cp := (sb.value("max_hp") / float(cp_conf.get("hp_div", 10)) + atk * aspd * (1.0 + crit * (sb.value("crit_damage") - 1.0)) * float(cp_conf.get("attack_weight", 0.5))
-		+ defences / float(cp_conf.get("defence_div", 4))) * e
+	var cp := sb.value("max_hp") / float(cp_conf.get("hp_div", 10)) + atk * aspd * (1.0 + crit * (sb.value("crit_damage") - 1.0)) * float(cp_conf.get("attack_weight", 0.5)) \
+		+ defences / float(cp_conf.get("defence_div", 4))
 	return int(round(cp))
 
 ## Monster stat templates by Level and role (S13).

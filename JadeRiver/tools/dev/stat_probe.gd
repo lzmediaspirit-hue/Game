@@ -191,7 +191,7 @@ func _measure(label: String, c) -> void:
 	var rec := {
 		"label": label, "name": str(c.name), "realm": str(c.cultivator.realm_key), "level": lv, "energy": str(c.cultivator.energy_type),
 		"might": snappedf(StatRules.might(c), 0.001),
-		"energy_mult": snappedf(ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity), 0.001),
+		"qi_edge": snappedf(ProgressionRules.qi_edge(c.cultivator.energy_type, c.cultivator.purity), 0.001),
 		"weapon": str(weapon.id) if weapon != null else "fists",
 		"weapon_ilv": int(weapon.get("ilv", ContentDB.item(str(weapon.id)).get("ilv", 0))) if weapon != null else 0,
 		"weapon_quality": str(weapon.get("quality", "")) if weapon != null else "",
@@ -215,8 +215,8 @@ func _measure(label: String, c) -> void:
 		if str(mm.get("stat", "")) == "crit_chance": crit_sources[str(mm.get("source", ""))] = float(mm.get("value", 0.0))
 	rec["crit_sources"] = crit_sources
 	out.characters.append(rec)
-	print("%-28s Lv%3d %-20s HP %7d  atk %6d/%6d  crit %.2f x%.2f  M %.2f E %.2f  CP %6d (rec %5d)  hit %7d (%7d)  tech %7d (%7d, crit %7d; %s)  dps %7d  mobHP %8d  TTK %5.2fs  blow %5.1f%%" % [
-		label, lv, rec.realm, rec.max_hp, rec.physical_attack, rec.qi_attack, rec.crit_chance, rec.crit_damage, rec.might, rec.energy_mult, rec.cp,
+	print("%-28s Lv%3d %-20s HP %7d  atk %6d/%6d  crit %.2f x%.2f  M %.2f Q %.2f  CP %6d (rec %5d)  hit %7d (%7d)  tech %7d (%7d, crit %7d; %s)  dps %7d  mobHP %8d  TTK %5.2fs  blow %5.1f%%" % [
+		label, lv, rec.realm, rec.max_hp, rec.physical_attack, rec.qi_attack, rec.crit_chance, rec.crit_damage, rec.might, rec.qi_edge, rec.cp,
 		rec.recommended_cp, rec.basic_hit, rec.basic_nocrit, rec.technique_hit, rec.technique_nocrit, rec.technique_crit, rec.technique, rec.basic_dps,
 		rec.mob_hp, rec.ttk_s, 100.0 * rec.mob_blow_pct])
 
@@ -252,20 +252,17 @@ func _recommended_cp(lv: int) -> int:
 
 # ------------------------------------------------------------------ the formulas alone, Level 0 to 166
 func _curve() -> void:
-	var mob: Dictionary = ContentDB.stat_const("mob", {})
-	var roles: Dictionary = mob.get("roles", {})
-	for lv in range(0, 167):
+	for lv in range(0, 201):
 		var key := ContentDB.realm_key_for_level(lv)
-		var energy := str(ContentDB.realm(key).get("energy", "none"))
-		var e := ProgressionRules.energy_multiplier(energy, 9)
-		var watk := StatRules.weapon_attack(maxf(1.0, lv))
-		var mdef := StatRules.armour_defence(lv) * float(roles.normal.defence)
-		out.curve.append({"level": lv, "realm": key, "energy_mult": snappedf(e, 0.01),
-			"mob_hp": int(StatRules.poly(mob.hp, lv)), "mob_attack": int(StatRules.poly(mob.attack, lv)),
-			"elite_hp": int(StatRules.poly(mob.hp, lv) * float(roles.elite.hp)), "field_boss_hp": int(StatRules.poly(mob.hp, lv) * float(roles.field_boss.hp)),
-			"dungeon_boss_hp": int(StatRules.poly(mob.hp, lv) * float(roles.dungeon_boss.hp)),
-			"weapon_attack": int(watk), "armour_defence": int(StatRules.armour_defence(lv)), "hp_pool_base": int(StatRules.pool_base("hp", lv, key)),
-			"mob_defence_cut": snappedf(CombatRules.defence_reduction(mdef, lv, 0.0), 0.001)})
+		var normal := StatRules.mob_stats({"role": "normal"}, lv)
+		var par := StatRules.par(lv)
+		out.curve.append({"level": lv, "realm": key, "might": StatRules.might_at(lv),
+			"qi_edge": snappedf(ProgressionRules.qi_edge(str(ContentDB.realm(key).get("energy", "none")), 9), 0.01),
+			"mob_hp": int(normal.max_hp), "mob_attack": int(normal.attack), "elite_hp": int(StatRules.mob_stats({"role": "normal"}, lv, true).max_hp),
+			"weapon_attack": int(StatRules.weapon_attack(maxf(1.0, lv))), "hp_pool_base": int(StatRules.pool_base("hp", lv, key)),
+			"mob_defence_cut": snappedf(CombatRules.defence_reduction(float(normal.physical_defense), lv, 0.0, StatRules.might_at(lv)), 0.001),
+			"par_basic": int(par.get("basic", 0)), "par_technique": int(par.get("technique", 0)), "par_hp": int(par.get("max_hp", 0)),
+			"par_dps": int(par.get("dps", 0)), "par_cp": int(par.get("cp", 0))})
 
 func _bosses() -> void:
 	for e in ContentDB.all("enemies"):

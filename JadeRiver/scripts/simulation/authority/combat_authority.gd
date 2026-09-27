@@ -790,7 +790,9 @@ func _tick_enemy_statuses(e: EnemyState, delta: float) -> void:
 			s.tick_s = float(s.get("tick_s", 0.0)) + delta
 			if float(s.tick_s) >= 1.0:
 				s.tick_s = float(s.tick_s) - 1.0
-				_damage_enemy(e, maxf(1.0, e.pools.max_hp * float(s.get("power", 0.02))), str(s.get("source", "")), "dot", str(s.id), false, {})
+				var caster = game.character(str(s.get("source", "")))
+				var reach := 0.0 if caster == null else maxf(caster.stats.value("physical_attack"), maxf(caster.stats.value("qi_attack"), caster.stats.value("soul_attack")))
+				_damage_enemy(e, maxf(1.0, CombatRules.hp_share(e.pools.max_hp * float(s.get("power", 0.02)), e.role, reach)), str(s.get("source", "")), "dot", str(s.id), false, {})
 		if float(s.remaining) <= 0.0:
 			e.pools.statuses.erase(s)
 			if e.is_boss() and def.get("cc", false): e.pools.steadfast[str(s.id)] = float(ContentDB.stat_const("combat.steadfast_s", 8))
@@ -2469,7 +2471,7 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 	if c == null or not e.alive or e.invulnerable: return
 	var view := {"level": a.level, "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key), "element": "none",
 		"physical_attack": attack_power * (1.0 + (float(ContentDB.stat_const("sphere.pet_bonus", 0.1)) if Unlocks.is_unlocked(owner, "sphere") else 0.0)),
-		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0,   # v1.2: a small Sphere for the pets of a Sphere Lord
+		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5,   # v1.2: a small Sphere for the pets of a Sphere Lord
 		"might": StatRules.might(c)}   # P12: an ally strikes with its owner's Might against armour
 	var r := CombatRules.resolve(view, enemy_view(e), {"damage_type": "physical", "mult": [1.0, 1.0], "range": [0.85, 1.15]}, Rng.stream(owner, "pet"))
 	if r.miss:

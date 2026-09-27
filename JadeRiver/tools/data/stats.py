@@ -35,6 +35,9 @@ STAT_LIST = [
     # array power to an Array Plate's time and the killing array's blow, melody power to the melody's slow and heals, the
     # bell's ring and Clear Heart Melody (CombatAuthority).
     ("pet_damage", "offense", None, "percent"), ("array_power", "offense", None, "percent"), ("melody_power", "offense", None, "percent"),
+    # P12 (research §6.3): the one additive damage bucket (damage%, with elemental power beside it and boss damage against
+    # elites and bosses), and final damage, a product of its sources (base 1, each source a pct_mul).
+    ("damage_pct", "offense", None, "percent"), ("boss_damage", "offense", None, "percent"), ("final_damage", "offense", None, "mult"),
 ]
 
 
@@ -428,9 +431,9 @@ def build():
         "attunement": {"floor": 0.3, "slope": 0.7, "cap": 1.1},
         "hit": {"base": 1.1, "k": 0.35, "floor": 0.55, "cap": 1.0},
         "realm_gap": {"up_per_realm": 0.25, "up_cap": 1.0, "down_per_realm": 0.20, "down_max_reduction": 0.60},
-        "energy_multiplier": {"none": 1.0, "body": 1.0, "primal_qi": 1.0, "true_qi": 1.3, "sage_qi": 1.7, "law_qi": 2.2,
-                              "monarch_qi": 2.8, "heavenforce": 3.5},
-        "purity_bonus_per_grade": 0.025,
+        # P12 (research §6.3 and technique_plan §6.2): a share of the target's health (poison, burns and the like) takes
+        # at most this much of the caster's attack a second from an elite or a boss.
+        "hp_share_cap": {"attack_per_s": 0.6, "roles": ["elite", "field_boss", "dungeon_boss", "story_boss"]},
         "kill_gap_factor": [{"min_diff": 5, "mult": 1.2}, {"min_diff": -4, "mult": 1.0}, {"min_diff": -9, "mult": 0.5},
                             {"min_diff": -999, "mult": 0.1}],
         # S47: the flying sword's palms, Sword Intent and self-detonation.

@@ -1,8 +1,12 @@
 class_name CombatRules
 extends RefCounted
-## S12 · One damage pipeline for everyone, in the order of the build prompt:
-## damage = roll × E × (1+D) × (1+P_el) × C_el × Z × A × R × K × (1−DR) × (1−Res_el) × S
+## S12 · One damage pipeline for everyone, in the order of the build prompt, with P12's buckets (research §6.3):
+## damage = roll × Q × (1+D) × (1 + damage% + P_el + boss%) × F × C_el × Z × A × R × K × (1−DR) × (1−Res_el) × S
+## where Q is the Qi edge (Qi and Soul blows only) and F the product of the final-damage sources. Might sits inside
+## the attack and the armour; DR's constant grows with the attacker's Might.
 ## Combatants are plain dictionaries ("views") built by the Combat authority.
+
+const BOSS_ROLES := ["elite", "field_boss", "dungeon_boss", "story_boss"]
 
 static func hit_chance(accuracy: float, evasion: float) -> float:
 	var h: Dictionary = ContentDB.stat_const("hit", {})
@@ -49,9 +53,9 @@ static func fighter(c) -> Dictionary:
 	var sb: StatBlock = c.stats
 	var v := {"kind": "player", "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
 		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")), "might": StatRules.might(c),
-		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity)}
+		"qi_edge": ProgressionRules.qi_edge(c.cultivator.energy_type, c.cultivator.purity)}
 	for s in ["physical_attack", "qi_attack", "soul_attack", "accuracy", "crit_chance", "crit_damage", "penetration", "elemental_power",
-			"tenacity", "evasion", "physical_defense", "qi_resistance", "soul_defense"]:
+			"damage_pct", "boss_damage", "final_damage", "tenacity", "evasion", "physical_defense", "qi_resistance", "soul_defense"]:
 		v[s] = sb.value(s)
 	for el in ["water", "wood", "fire", "earth", "metal", "yin", "yang"]:
 		v["resist_" + el] = sb.conditional("elemental_resistance", "element", el)
@@ -62,11 +66,18 @@ static func fighter(c) -> Dictionary:
 static func foe(s: Dictionary, lv: int, element: String) -> Dictionary:
 	return {"kind": "enemy", "level": lv, "realm_index": ProgressionRules.realm_index_for_level(lv), "element": element,
 		"physical_attack": float(s.attack), "qi_attack": float(s.attack), "soul_attack": float(s.attack), "accuracy": float(s.accuracy),
-		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0, "energy_mult": 1.0,
+		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0,
 		"tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
 		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense), "max_hp": float(s.max_hp),
 		"might": float(s.get("might", 1.0)), "role": str(s.get("role", "normal")),
 		"resist_" + parent_element(element): float(ContentDB.stat_const("mob.own_element_resistance", 0.3))}
+
+## P12 (technique_plan §6.2): a share of an elite's or a boss's health taken in a second (poison, a burn) is at most
+## 60% of the caster's attack, or a Might-scaled boss would melt at several times par DPS. 0 attack: no caster, no cap.
+static func hp_share(amount: float, target_role: String, caster_attack: float) -> float:
+	var cap: Dictionary = ContentDB.stat_const("hp_share_cap", {})
+	if caster_attack <= 0.0 or not target_role in cap.get("roles", []): return amount
+	return minf(amount, float(cap.get("attack_per_s", 0.6)) * caster_attack)
 
 static func crit_chance(attacker: Dictionary, defender: Dictionary) -> float:
 	var c: Dictionary = ContentDB.stat_const("crit", {})
@@ -91,14 +102,17 @@ static func resolve(attacker: Dictionary, defender: Dictionary, attack: Dictiona
 	var lo := float(rng_range[0]) * float(mult[0])
 	var hi := float(rng_range[1]) * float(mult[1])
 	var dmg := base_attack * rng.randf_range(lo, maxf(lo, hi))
-	# 3 Energy E (physical at half strength)
-	var e := float(attacker.get("energy_mult", 1.0))
-	dmg *= e if dtype != "physical" else 1.0 + (e - 1.0) * 0.5
+	# 3 The Qi edge Q (P12: Qi and Soul blows only; physical blows lose nothing)
+	if dtype != "physical": dmg *= float(attacker.get("qi_edge", 1.0))
 	# 4 Dao and mastery D
 	var st: Dictionary = ContentDB.stat_const("technique_cost", {})
 	dmg *= 1.0 + float(st.get("dao_damage_per_tier", 0.05)) * int(attack.get("dao_tier", 0)) + float(st.get("mastery_damage_per_tier", 0.08)) * int(attack.get("mastery_tier", 0))
-	# 5 Elemental power
-	dmg *= 1.0 + float(attacker.get("elemental_power", 0.0)) + float(attacker.get("element_power_" + parent_element(element), 0.0))
+	# 5 The damage bucket (P12): damage%, elemental power (capped at 150%) and, against elites and bosses, boss damage, added
+	var el_power := minf(1.5, float(attacker.get("elemental_power", 0.0)) + float(attacker.get("element_power_" + parent_element(element), 0.0)))
+	var boss := float(attacker.get("boss_damage", 0.0)) if str(defender.get("role", "normal")) in BOSS_ROLES else 0.0
+	dmg *= maxf(0.0, 1.0 + float(attacker.get("damage_pct", 0.0)) + el_power + boss)
+	# 5b Final damage F: the product of its few sources
+	dmg *= float(attacker.get("final_damage", 1.0))
 	# 6 Element cycle
 	dmg *= element_factor(element, str(defender.get("element", "none")))
 	# 7 Zone Z (room element match); 8 Attunement A

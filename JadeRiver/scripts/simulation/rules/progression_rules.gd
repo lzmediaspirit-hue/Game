@@ -420,9 +420,11 @@ static func meridian_points_for_level(lv: int) -> int:
 		if lv >= int(row.from_level): pts = int(row.points)
 	return pts
 
-static func energy_multiplier(energy: String, purity: int) -> float:
-	var e := float(ContentDB.stat_const("energy_multiplier.%s" % energy, 1.0))
-	if energy == "true_qi": e *= 1.0 + float(ContentDB.stat_const("purity_bonus_per_grade", 0.025)) * (9 - purity)
+## P12 the Qi edge (research §6.3): the energy's small edge on Qi and Soul damage (Might carries the realm's power);
+## True Qi gains a point for each purity grade better than 9.
+static func qi_edge(energy: String, purity: int) -> float:
+	var e := float(ContentDB.stat_const("qi_edge.%s" % energy, 1.0))
+	if energy == "true_qi": e += float(ContentDB.stat_const("qi_edge_per_purity", 0.01)) * (9 - purity)
 	return e
 
 static func technique_slot_count(c) -> int:
