@@ -881,6 +881,30 @@ def stone_tablet(lit=False):
     return c
 
 
+# The sect family (P5, docs/page_identity.md §2: red-lacquered pillars and dark timber, bronze and red paper).
+SILK_S = mix(TOKEN["JADE_SHADOW"], hexc("#e8e1cf"), 0.18)    # SURFACE.silk #3b6b66
+
+
+def handscroll():
+    """The Characters page's roster handscroll (row 32): paper mounted between two bands of silk brocade, each band edged
+    in a gold hairline on the paper's side and in ink outside, a soft shadow under the whole. It stretches sideways and
+    down its paper; the roll at its end and the rod at its start are drawn by the page."""
+    c = Canvas(64, 96)
+    y0, y1 = 1.0, 92.0
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 0.0, y0 + 2.0, 64.0, y1 + 2.0, 0.0), 0), 2.0) * 0.45, TOKEN["INK"])
+    body = sd_rrect(c.X, c.Y, -2.0, y0, 66.0, y1, 0.0)
+    c.paint(cov(body), c.vgrad([(0, PAPER_LIT), (0.5, SCROLL_T), (1, mix(SCROLL_T, SCROLL_EDGE_T, 0.6))], y0 + 20.0, y1 - 20.0))
+    for top, bot in ((y0, y0 + 18.0), (y1 - 18.0, y1)):
+        band_d = sd_rrect(c.X, c.Y, -2.0, top, 66.0, bot, 0.0)
+        c.paint(cov(band_d), c.vgrad([(0, mix(SILK_S, TOKEN["JADE"], 0.2)), (1, mix(SILK_S, TOKEN["INK"], 0.25))], top, bot))
+        # A woven line down the band's middle, and the gold hairline where it meets the paper.
+        c.paint(cov(np.abs(c.Y - (top + bot) / 2.0) - 0.5) * 0.35, TOKEN["PALE_GOLD"])
+        edge = bot if top == y0 else top
+        c.paint(cov(np.abs(c.Y - edge) - 0.8), TOKEN["GOLD"])
+    c.paint(cov(np.abs(c.Y - y0) - 0.6) + cov(np.abs(c.Y - y1) - 0.6), TOKEN["INK"])
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -938,6 +962,8 @@ ASSETS.update({
     "gift_tray": ([16, 16, 16, 16], {"normal": lambda: gift_tray()}),
     # The way family (P5): the cut-stone tablet, dark or lit with gold leaf.
     "stone_tablet": ([12, 12, 12, 12], {"normal": lambda: stone_tablet(), "selected": lambda: stone_tablet(True)}),
+    # The sect family (P5): the Characters page's roster handscroll, paper between two bands of silk.
+    "handscroll": ([8, 24, 8, 24], {"normal": lambda: handscroll()}),
 })
 
 

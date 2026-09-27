@@ -666,3 +666,34 @@ static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
 	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)
+
+## A rounded pill filling `r` (a count's badge, a number in a ring's corner).
+static func pill(ci: CanvasItem, r: Rect2, col: Color) -> void:
+	var rad := r.size.y * 0.5
+	ci.draw_circle(r.position + Vector2(rad, rad), rad, col)
+	ci.draw_circle(r.end - Vector2(rad, rad), rad, col)
+	ci.draw_rect(Rect2(r.position + Vector2(rad, 0), Vector2(maxf(0.0, r.size.x - rad * 2.0), r.size.y)), col)
+
+## A count on a button or a tablet: the red pill with its number (the kit's .k-badge; the HUD's Mail, the Menu's).
+static func count_badge(ci: CanvasItem, center: Vector2, n: int) -> void:
+	var s := str(mini(99, n))
+	var w := maxf(22.0, text_width(s, 14) + 12.0)
+	pill(ci, Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)).grow(2.0), INK)
+	pill(ci, Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)), RED)
+	draw_text(ci, s, Vector2(center.x - w * 0.5, center.y + 5), 14, PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
+
+## The hub's ready seal (the kit's .k-seal): a small vermilion seal pressed on at a tilt, with a tick; `k` scales it (a
+## seal being pressed on starts larger). Something waits there (the HUD's Menu button, the Menu's tablets).
+static func ready_seal(ci: CanvasItem, center: Vector2, k := 1.0) -> void:
+	ci.draw_set_transform(center, deg_to_rad(-8.0), Vector2.ONE * k)
+	ci.draw_rect(Rect2(-12, -12, 24, 24), INK)
+	ci.draw_rect(Rect2(-10, -10, 20, 20), RED)
+	ci.draw_rect(Rect2(-8, -8, 16, 16), Color(PAPER, 0.35), false, 1.0)
+	draw_text(ci, "✓", Vector2(-10, 5), 14, PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
+	ci.draw_set_transform(Vector2.ZERO)
+
+## Something new waits (the kit's .k-new): a bright jade dot ringed in ink.
+static func new_mark(ci: CanvasItem, center: Vector2) -> void:
+	ci.draw_circle(center, 7.0, INK, true, -1.0, true)
+	ci.draw_circle(center, 5.0, BRIGHT_JADE, true, -1.0, true)
+	ci.draw_circle(center + Vector2(-1.5, -1.5), 1.5, Color(PAPER, 0.7), true, -1.0, true)

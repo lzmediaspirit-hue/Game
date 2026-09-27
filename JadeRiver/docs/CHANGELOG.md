@@ -1297,6 +1297,44 @@ come next. Where it differs from the plan, the plan's §6 says so.
   opening over 0.5 s with nothing else answering; a minor step's one tablet; the early grace in full at the lamp's left
   and what is kept at its right; a slip and Take this fate for each card; every word read on its ground). Screenshots
   beside mockups 04 and 05 in `docs/ui_p5/way/`.
+### P5 · The sect family: Menu, Your Sect, Sect, Characters (decision 14; mockups 03 and 11)
+- **The Menu as the sect's hall of hanging plaques** (row 4, mockup 03, approved). Inside the shared window, a lacquered
+  hall with its lattice frieze and floor; five bays (Self, World, Bonds, Works, System) under their plaques between
+  red-lacquered pillars, each entry a teal lacquer tablet hung on the bay's gold cord: its seal and glyph, its name and,
+  when something waits there, a line (Bottleneck reached, chests to claim, slots set, the rank held, who asks to join,
+  a letter's sender, what opens a locked one). A vermilion ready seal, Mail's count or a new mark sits in the corner;
+  the character line and the purses stand on the floor. The tablets sway once as the page opens, a seal is pressed on.
+  The HUD's Menu seal reads the same entries (`MenuPage.ready_seals`); `UiKit.count_badge`, `ready_seal`, `new_mark`
+  and `pill` are shared by the HUD and the pages.
+- **Your Sect as the courtyard under construction** (row 24, mockup 11). Tabs Courtyard, Expeditions, Territory. The
+  Sect Grounds drawn from the room's own backdrop layers and props, scaled once smoothly: all fourteen buildings where
+  the room places them, raised ones solid, the rest dashed bronze scaffolds, one being raised filling from the ground
+  up; tags (level, "to raise", or the sect level with a lock) placed by the World map's layout pass so none touches;
+  the disciples at home idling in the yard, the day's candidates at the gate. Under it the sect level, prestige and a
+  bar with stops three levels ahead naming what each opens; then the building tapped (what it gives, the next level's
+  cost, what is short, Build with its lock and reason, Repair, Open storage), the disciples (rooms, each disciple, the
+  candidates, Recruit taking the one tapped) and Beyond the Walls (Expeditions and Territory one tap each, the
+  builders). `SectAuthority.upgrade_check` (why a raise would fail, the check `upgrade` itself runs) and
+  `prestige_for`.
+- **The Sect as the hall's seats seen from its door** (row 25). One-point perspective drawn from tokens: walls, beams,
+  floor boards, red pillars, the master's dais and screen; a row of cushions for every rank coloured by rank, nearer
+  rows lower, your seat lit with you sitting on it, the next rank's row lit with its trial on a lacquer board; Missions
+  and the Sect Shop as the side doors. The title is the sect's own name. The Role tab's variants and tree hang as
+  lacquer tablets on two timber boards.
+- **Characters as the roster handscroll** (row 32). On the timber wall between two pillars, the scroll unrolled from
+  its rod (HD `handscroll`): each disciple painted as its live figure at 2 px an art px with its task's sign at its
+  feet and a column of name, realm and task in ink, the one you play under a red "Playing" seal; an open slot a blank
+  stretch; the roll at the end as thick as the slots still to come, the next three gates on paper tags. A tap chooses a
+  disciple: under the scroll the one you play sets its task, another offers Switch. It unrolls as the page opens.
+- **Shared** (`scripts/ui/pages/sect_kit.gd`): pillars, lacquer boards, the title board, the timber wall, live figures
+  and smoothly scaled pixel art. Every intent is kept (open, set_idle_task, switch, promotion, role, tree, shop,
+  missions, found, upgrade, repair, recruit, expeditions, mines); behaviour unchanged (sect membership and guidance,
+  no quest needs a second character, dailies after Qi Kindling 1).
+- **Tests:** `rules_tests` `identity_suite` (the sect family: every Menu entry once in its bay, locked ones saying what
+  opens them, the bottleneck's seal matching the HUD's; every building placed and tagged with no two tags touching,
+  the card and Build's reason, Recruit taking the tapped candidate, the figures at whole pixels; a row per rank, your
+  seat, the trial and the doors; a stretch per open slot, the roll's thickness and gate tags, the task buttons; every
+  word read on its ground). Screenshots beside mockups 03 and 11 in `docs/ui_p5/sect/`.
 
 ### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
 - **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).

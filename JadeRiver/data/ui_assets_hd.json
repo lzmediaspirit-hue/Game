@@ -87,6 +87,15 @@
     ],
     "normal": "res://art/ui/hd/gift_tray__normal.png"
   },
+  "handscroll": {
+    "margins": [
+      8,
+      24,
+      8,
+      24
+    ],
+    "normal": "res://art/ui/hd/handscroll__normal.png"
+  },
   "honour_seal": {
     "blade": "res://art/ui/hd/honour_seal__blade.png",
     "cauldron": "res://art/ui/hd/honour_seal__cauldron.png",

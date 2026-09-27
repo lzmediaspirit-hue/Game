@@ -89,6 +89,18 @@ func building_cost(id: String, next_level: int) -> Dictionary:
 	return {"silver_tael": taels, "materials": mats, "seconds": hours * 3600.0}
 
 func upgrade(c, id: String) -> Dictionary:
+	var why := upgrade_check(c, id)
+	if not why.is_empty(): return why
+	var cost := building_cost(id, level_building(id) + 1)
+	game.economy.apply_currency("silver_tael", -int(cost.silver_tael), "sect_build")
+	for m2 in cost.materials: game.inventory.apply_spend(c, m2, int(cost.materials[m2]), "sect_build")
+	sect().queue.append({"building": id, "level": level_building(id) + 1, "done_utc": Clock.now_utc() + float(cost.seconds)})
+	emit("building_started", {"building": id, "level": level_building(id) + 1})
+	return ok()
+
+## Why raising `id` a level would fail now, as upgrade() fails it ({} when it would not): the Your Sect page shows the
+## lock and this reason on Build before a tap.
+func upgrade_check(c, id: String) -> Dictionary:
 	if not founded(): return fail("no_sect")
 	var b := ContentDB.entry("sect_buildings", id)
 	if b.is_empty(): return fail("unknown_building")
@@ -105,20 +117,18 @@ func upgrade(c, id: String) -> Dictionary:
 	# Materials come from the bag, the Storehouse or the storage chest (the one spend path, InventoryAuthority.apply_spend).
 	for m in cost.materials:
 		if game.inventory.count_owned(c, m) < int(cost.materials[m]): return fail("materials", {"text": Tx.t("sim.sect.needs") % [int(cost.materials[m]), ContentDB.item_name(m)]})
-	game.economy.apply_currency("silver_tael", -int(cost.silver_tael), "sect_build")
-	for m2 in cost.materials: game.inventory.apply_spend(c, m2, int(cost.materials[m2]), "sect_build")
-	sect().queue.append({"building": id, "level": next, "done_utc": Clock.now_utc() + float(cost.seconds)})
-	emit("building_started", {"building": id, "level": next})
-	return ok()
+	return {}
+
+## The prestige at which the sect reaches `level` (sect_levels.json writes the same curve out).
+static func prestige_for(level: int) -> float:
+	return float(ContentDB.curve("prestige.base", 200)) * pow(level, float(ContentDB.curve("prestige.pow", 1.8)))
 
 func apply_prestige(amount: int, source: String) -> void:
 	if not founded(): return
 	sect().prestige = int(sect().prestige) + amount
 	emit("prestige_gained", {"amount": amount, "source": source})
 	var lv := int(sect().level)
-	var base := float(ContentDB.curve("prestige.base", 200))
-	var power := float(ContentDB.curve("prestige.pow", 1.8))
-	while lv < 20 and float(sect().prestige) >= base * pow(lv + 1, power):
+	while lv < 20 and float(sect().prestige) >= prestige_for(lv + 1):
 		lv += 1
 	if lv != int(sect().level):
 		sect().level = lv
