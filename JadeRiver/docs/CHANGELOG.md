@@ -1225,6 +1225,47 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
   with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
   proposals the rules do not hold; the build draws the one seal the game keeps).
+### P5 · The Beasts family: Spirit Animals, the Core Exchange, the Beast Arena (mockup 10; decision 14)
+- **Spirit Animals as the bestiary** (row 16, mockup 10). The kit's window keeps its plaque and its tabs, now Stable and
+  Swarm. Down the left, the animals beside you on their posts ("1 of 3"; an open post takes the chosen animal out or
+  beside you, a post not yet commanded is locked with the realm that opens it) and the stable, a stall a row with the
+  animal looking out over its half-door, its level, role and element, a red mark on a wounded one. In the middle the
+  chosen animal's leaf, a sheet between two timber rollers (HD `bestiary_leaf`): its name (a tap renames it), level and
+  lock; what it is; the animal stood on its straw (it walks out onto the leaf when chosen, 0.4 s); its level, its bond as
+  ten hearts and a Grievous Wound or hunger; its growth as stepping stones from Hatchling to Primordial with the next
+  stage's gates ticked and what the stage opens; its bloodline purity with the stops at 50 and 90 named; its skills as
+  chips; its traits and learned skills. The leaf's foot turns its lower half to **Grow** (lit when ready: the gates,
+  Evolve, the two lines at Adult, a breakthrough with its support from Awakened; the aptitude, contract, core and
+  resonance), **Feed** (its foods and its own element's cores), **Teach** (the learned slots and the books you carry),
+  **Breed** and **Fuse**. The tack wall at the right: care (out or at rest, beside you, carried; the roles two or three
+  across; its nature and the +25% a matching role gives), the three gear places (a worn piece comes off with a tap, an
+  empty place lays the bag's pet gear on the leaf to put on), the nest (the egg warming with its three inputs, or its
+  Hatch) and the swarm's chip, which opens the Swarm tab. A construct's leaf names its strikes and its keeping, with no
+  bond, growth or views.
+- **The Core Exchange as the Beast Hall's urn and tally** (row 34). On a wall of rough timber: your cores standing on
+  shelves at the left, a tier a shelf with its price on a board; the glazed urn in the middle (HD `core_urn`, no words on
+  it) with the chosen core at its mouth and Sell one and Sell all under it; your Spirit Stones, what the Exchange will
+  still pay today and the prices at the right, over the heap of stones spilled from the spout; the straw bed in the
+  corner with the wounded animals lying in it and Rest your animals; the day's bamboo tally across the foot, a notch a
+  stone paid. A sold core drops into the urn and a stone clinks out of the spout (0.3 s).
+- **The Beast Arena as the pit seen from the stands** (row 36). An oval sand pit ringed by a fence inside timber
+  stands; the ladder's eleven banners round its rim in rank order from rank 1 at the top, each with its holder's name on
+  a board as long as the name and the tamer's lead animal at the pole, yours in jade and the one you may challenge in
+  gold; inside the pit your rank, the day's fights, what the week pays and who is next, and before any fight the next
+  tamer's two teams and how the arena works; after one, the fight replayed as draining bars between the two sides;
+  Challenge 1v1 and 3v3 at the pit's gate. A challenge raises your banner (0.3 s).
+- **Shared:** `scripts/ui/pages/beast_kit.gd` (rough timber, straw, the rough board and the hung title board, the bar on
+  paper with its stops, the heap of Spirit Stones); the leaf's inks are the Records family's (`RecordsKit`). HD
+  `bestiary_leaf` and `core_urn` in `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for ink on the leaf, on `sand` and on
+  `straw`. Every intent is kept (roles, out and beside, carry, feed, devour, lock, rename, evolve, breakthrough, contracts,
+  teach, pet gear on and off, breed, fuse, hatch and the egg's inputs, the swarm's feeding, core sales, rest, the
+  arena's challenges).
+- **Tests:** `rules_tests` `identity_suite` (the Beasts family: the stable and the leaf with its five views, each view's
+  words on their grounds and its button turning it back, Feed offering the animal's own core and Fuse the other animals,
+  the nest's inputs and Hatch, a construct's leaf, a role and a chosen stall through as intents; the shelves, the urn's
+  Sell one and Sell all and the tally; every tamer's name whole round the pit and a challenge replayed inside it).
+  Screenshots beside mockup 10 in `docs/ui_p5/beasts/`.
+
 ### P5 · The Market family: Shop, Storage, Exchange, County Hall, Auction (decisions 11, 14 and 24)
 - **The Shop as the merchant's stall** (row 8, mockup 17; `17_shop_buyback` rejected). A red and cream awning with the
   shop's name on a black lacquer sign; the merchant behind her counter at the left (her own layers at 2.5) with her

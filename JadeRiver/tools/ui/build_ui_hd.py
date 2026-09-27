@@ -905,6 +905,83 @@ def handscroll():
     return c
 
 
+# The Beasts family (P5, docs/page_identity.md §2: straw and rough timber, `straw`, `wood`, `sand`, `clay`).
+TOKEN.update({k: hexc(v) for k, v in {"RED": "#e45858", "BRIDGE": "#d8c08a", "PAPER": "#e8e1cf"}.items()})
+CLAY_S = mix(TOKEN["BRONZE"], TOKEN["RED"], 0.25)          # SURFACE.clay #ac663e
+STRAW_S = mix(TOKEN["BRIDGE"], TOKEN["BRONZE"], 0.25)      # SURFACE.straw #c8aa75
+
+
+def _hgrad(c, stops, x0, x1):
+    """A horizontal gradient through (t, color) stops between x0 and x1 (a roller's round, lit down its middle)."""
+    t = np.clip((c.X - x0) / max(1e-6, x1 - x0), 0.0, 1.0)
+    out = np.zeros(c.px.shape)
+    for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
+        m = (t >= t0) & (t <= t1)
+        f = ((t - t0) / max(1e-6, t1 - t0))[..., None]
+        out = np.where(m[..., None], c0 * (1 - f) + c1 * f, out)
+    return out
+
+
+def bestiary_leaf():
+    """The Spirit Animals page's leaf (mockup 10): a sheet of the bestiary lit from above, its edges browned, hung between
+    two rollers of dark timber that stand a little past the paper at the top and foot (their caps in the corners)."""
+    c = Canvas(72, 64)
+    d = sd_rrect(c.X, c.Y, 8.0, 6.0, 64.0, 58.0, 2.0)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 8.0, 8.0, 64.0, 61.0, 2.0), 0), 2.5) * (d > 0) * 0.45, TOKEN["INK"])
+    c.paint(cov(d), c.vgrad([(0, PAPER_LIT), (0.55, SCROLL_T), (1, mix(SCROLL_T, SCROLL_EDGE_T, 0.9))], 6.0, 58.0))
+    for depth, alpha in ((0.0, 0.16), (3.0, 0.1), (6.0, 0.05)):   # the browned rim, fading inward
+        c.paint(band(d, depth, depth + 3.0), TOKEN["BRONZE"] * np.array([1, 1, 1, alpha]))
+    c.paint(band(d, 0.0, 1.0), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.5]))
+    wood = [(0, mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.2)), (0.45, TOKEN["BRONZE"]), (1, TOKEN["WOOD"])]
+    for x0 in (1.0, 59.0):
+        r = sd_rrect(c.X, c.Y, x0, 0.5, x0 + 12.0, 63.5, 5.5)
+        c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, x0, 2.5, x0 + 12.0, 65.0, 5.5), 0), 1.5) * (r > 0) * 0.4, TOKEN["INK"])
+        c.paint(cov(r), _hgrad(c, wood, x0, x0 + 12.0))
+        c.paint(band(r, 0.0, 0.8), TOKEN["INK"] * np.array([1, 1, 1, 0.8]))
+    return c
+
+
+def core_urn(w=200, h=236):
+    """The Core Exchange's urn at the Beast Hall (row 34): a glazed clay jar, no words on it. A round belly on a foot, the
+    neck and a rolled lip round the dark mouth a core drops into, a jade glaze run down from the shoulder in drips, and
+    a spout low on its right where the Spirit Stones spill out; lit from the upper left."""
+    c = Canvas(w, h)
+    cx = 92.0
+
+    def ell(x, y, rx, ry):
+        return (np.hypot((c.X - x) / rx, (c.Y - y) / ry) - 1.0) * min(rx, ry)
+
+    belly = ell(cx, 140.0, 80.0, 74.0)
+    foot = sd_rrect(c.X, c.Y, cx - 40.0, 196.0, cx + 40.0, 226.0, 5.0)
+    neck = sd_rrect(c.X, c.Y, cx - 32.0, 38.0, cx + 32.0, 84.0, 6.0)
+    spout = sd_segment(c.X, c.Y, cx + 56.0, 156.0, 176.0, 180.0, 24.0)
+    body = np.minimum.reduce([belly, foot, neck, spout])
+    c.paint(np.clip(1.0 - np.abs(ell(cx, 228.0, 86.0, 7.0)) / 8.0, 0, 1) * (ell(cx, 228.0, 86.0, 7.0) < 8.0) * 0.45, TOKEN["INK"])
+    c.paint(cov(body + 1.6), TOKEN["INK"])
+    glaze = [(0, mix(CLAY_S, TOKEN["PAPER"], 0.22)), (0.35, CLAY_S), (0.8, mix(CLAY_S, TOKEN["INK"], 0.35)), (1, mix(CLAY_S, TOKEN["INK"], 0.5))]
+    c.paint(cov(body), c.vgrad(glaze, 30.0, 226.0))
+    c.paint(band(body, 0.0, 1.4), mix(CLAY_S, TOKEN["INK"], 0.7))
+    # The light from the upper left, the shade down the right side.
+    c.paint(np.clip(1.0 - np.hypot((c.X - 58.0) / 34.0, (c.Y - 112.0) / 46.0), 0, 1) ** 1.6 * cov(body), TOKEN["PAPER"] * np.array([1, 1, 1, 0.35]))
+    c.paint(np.clip((c.X - cx - 20.0) / 60.0, 0, 1) * cov(belly), TOKEN["INK"] * np.array([1, 1, 1, 0.25]))
+    # The jade glaze from the shoulder, running down in drips.
+    wave = 104.0 + 6.0 * np.sin(c.X * 0.21) + 18.0 * np.clip(np.sin(c.X * 0.083 + 1.0), 0, 1) ** 8
+    run = np.maximum.reduce([body + 1.5, c.Y - wave, 44.0 - c.Y])
+    c.paint(cov(run), c.vgrad([(0, mix(TOKEN["JADE"], TOKEN["BRIGHT_JADE"], 0.2)), (0.6, TOKEN["JADE"]), (1, TOKEN["JADE_SHADOW"])], 44.0, 124.0))
+    c.paint(np.clip(1.0 - np.hypot((c.X - 64.0) / 16.0, (c.Y - 70.0) / 22.0), 0, 1) ** 1.5 * cov(run), TOKEN["PAPER"] * np.array([1, 1, 1, 0.3]))
+    c.paint(cov(np.abs(c.Y - 190.0) - 1.2) * cov(belly + 3.0), mix(CLAY_S, TOKEN["INK"], 0.55))   # the throwing ring above the foot
+    # The rolled lip and the dark mouth.
+    lip = ell(cx, 38.0, 44.0, 12.0)
+    c.paint(cov(lip + 1.6), TOKEN["INK"])
+    c.paint(cov(lip), c.vgrad([(0, mix(CLAY_S, TOKEN["PAPER"], 0.35)), (1, mix(CLAY_S, TOKEN["INK"], 0.3))], 26.0, 50.0))
+    mouth = ell(cx, 37.0, 33.0, 7.5)
+    c.paint(cov(mouth), c.vgrad([(0, TOKEN["INK"]), (1, mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.4))], 29.0, 45.0))
+    # The spout's open end.
+    c.paint(cov(ell(178.0, 180.0, 7.0, 11.0) + 1.2), TOKEN["INK"])
+    c.paint(cov(ell(178.0, 180.0, 5.0, 9.0)), mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.5))
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -964,6 +1041,9 @@ ASSETS.update({
     "stone_tablet": ([12, 12, 12, 12], {"normal": lambda: stone_tablet(), "selected": lambda: stone_tablet(True)}),
     # The sect family (P5): the Characters page's roster handscroll, paper between two bands of silk.
     "handscroll": ([8, 24, 8, 24], {"normal": lambda: handscroll()}),
+    # The Beasts family (P5): the Spirit Animals' bestiary leaf between its rollers, the Core Exchange's urn.
+    "bestiary_leaf": ([20, 14, 20, 14], {"normal": lambda: bestiary_leaf()}),
+    "core_urn": ([0, 0, 0, 0], {"normal": lambda: core_urn()}),
 })
 
 
