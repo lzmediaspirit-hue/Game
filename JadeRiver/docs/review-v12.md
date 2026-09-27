@@ -139,27 +139,27 @@ fix owner is named, and each fix lands with a test or a screenshot.
 
 | Screen | Severity | Fault | Ids | Fix and owner |
 |---|---|---|---|---|
-| Cultivation › Dao | High | A script error every frame for any Dao at tier 5 or 6; those rows lose their bar and Contemplate button, and every other row shows the target one tier ahead | B1 | UI bug pass (P2) |
-| Bag › Key Items, the Guqin | High | The guqin cannot be played: it is a tool in the key pouch, and the key pouch has no Use | B2 | UI bug pass (P2) |
-| Character › Titles, Techniques › Secret Arts, Your Sect › Expeditions, Works › Favours | High | Lists run off the window and under the HUD; their lower buttons cannot be reached | B4 | UI bug pass (P2) |
-| Sect › Rank | High | The Promotion trial button can sit under Missions, so an Elder cannot start the trial | B5 | UI bug pass (P2) |
-| Every list | Medium | The selected row looks like every other row: the kit has no selected or disabled panel | B3, I3, I4 | UI bug pass (P2); one selection style in P4 |
-| Breakthrough | Medium | "Trial: <null>" for great breakthroughs with no trial | B12 | UI bug pass (P2) |
-| Every place a level shows | Medium | One character, two Levels (97 on the HUD, 98 on the Cultivation badge and the Ranking) | B15 | UI bug pass (P2) |
+| Cultivation › Dao | High | A script error every frame for any Dao at tier 5 or 6; those rows lose their bar and Contemplate button, and every other row shows the target one tier ahead | B1 | Fixed (P2 bug pass) |
+| Bag › Key Items, the Guqin | High | The guqin cannot be played: it is a tool in the key pouch, and the key pouch has no Use | B2 | Fixed (P2 bug pass) |
+| Character › Titles, Techniques › Secret Arts, Your Sect › Expeditions, Works › Favours | High | Lists run off the window and under the HUD; their lower buttons cannot be reached | B4 | Fixed (P2 bug pass) |
+| Sect › Rank | High | The Promotion trial button can sit under Missions, so an Elder cannot start the trial | B5 | Fixed (P2 bug pass) |
+| Every list | Medium | The selected row looks like every other row: the kit has no selected or disabled panel | B3, I3, I4 | Fixed (P2 bug pass); one selection style in P4 |
+| Breakthrough | Medium | "Trial: <null>" for great breakthroughs with no trial | B12 | Fixed (P2 bug pass) |
+| Every place a level shows | Medium | One character, two Levels (97 on the HUD, 98 on the Cultivation badge and the Ranking) | B15 | Fixed (P2 bug pass) |
 | Emotes | Medium | Buttons overlapped their neighbours | B6 | Fixed (P4a) |
-| Teleport Stones | Medium | Ten stones make 27 px rows | B7, I7 | UI bug pass (P2); the `ui_suite` now opens context pages too |
-| HUD tracker | Medium | The objective count is cut off ("Shallows 0") | B11 | UI bug pass (P2) |
-| Cultivation › Paths, Body; Beast Arena; Sect tree | Medium | Cards overlap, and paragraphs stop mid-sentence with no ellipsis | B17, B18, I9 | UI bug pass (P2) |
-| Cultivation › Seclusion | Low | The "Set" line falls on the seventh card when a focus is set | B22 | UI bug pass (P2) |
-| Auction | Low | "Held by" runs under the Bid buttons | B16 | UI bug pass (P2) |
-| Shop, map, crafts | Medium | English written in scripts ("ready", "taels", "furnace"), out of reach of a translation | B8 | UI bug pass (P2), with a `contract_tests` rule |
-| Title screen, creator | Low | The title says v1.0; origins show ids ("Fishers Child") with no description | B9, B10, I10 | UI bug pass (P2) |
-| Characters | Low | "No idle task" for a character keeping a post | B20 | UI bug pass (P2) |
-| Relations › Karma | Low | Three named debts show their ids | B24 | UI bug pass (P2) |
-| Trial Tower | Low | The Sweep button says "Every floor swept today" when none was cleared | B25 | UI bug pass (P2) |
-| Settings › Controls | Low | The keyboard help names a hold that does nothing and leaves out seven keys | B23 | UI bug pass (P2) |
+| Teleport Stones | Medium | Ten stones make 27 px rows | B7, I7 | Fixed (P2 bug pass); the `ui_suite` now opens context pages too |
+| HUD tracker | Medium | The objective count is cut off ("Shallows 0") | B11 | Fixed (P2 bug pass) |
+| Cultivation › Paths, Body; Beast Arena; Sect tree | Medium | Cards overlap, and paragraphs stop mid-sentence with no ellipsis | B17, B18, I9 | Fixed (P2 bug pass) |
+| Cultivation › Seclusion | Low | The "Set" line falls on the seventh card when a focus is set | B22 | Fixed (P2 bug pass) |
+| Auction | Low | "Held by" runs under the Bid buttons | B16 | Fixed (P2 bug pass) |
+| Shop, map, crafts | Medium | English written in scripts ("ready", "taels", "furnace"), out of reach of a translation | B8 | Fixed (P2 bug pass), with a `contract_tests` rule |
+| Title screen, creator | Low | The title says v1.0; origins show ids ("Fishers Child") with no description | B9, B10, I10 | Fixed (P2 bug pass) |
+| Characters | Low | "No idle task" for a character keeping a post | B20 | Fixed (P2 bug pass) |
+| Relations › Karma | Low | Three named debts show their ids | B24 | Fixed (P2 bug pass) |
+| Trial Tower | Low | The Sweep button says "Every floor swept today" when none was cleared | B25 | Fixed (P2 bug pass) |
+| Settings › Controls | Low | The keyboard help names a hold that does nothing and leaves out seven keys | B23 | Fixed (P2 bug pass) |
 | Bag, Works, Roll-Call › Bench, Spirit Animals | Medium (architecture) | The pages change game state themselves, which the page contract forbids | B19 | The code review (`docs/review-code.md`) |
-| Every page | Low | Text measured at 12–13 px but drawn at 14, so fitted labels still overrun | B21, I6 | UI bug pass (P2) |
+| Every page | Low | Text measured at 12–13 px but drawn at 14, so fitted labels still overrun | B21, I6 | Fixed (P2 bug pass) |
 | Every page | Low | Off-token colours, windows off the grid, four timer styles, fixed plurals, non-integer icon scales | I2, I5, I8, I11–I14 | P4 style guide and kit |
 
 ## (f) Every change, by impact against effort (U30)

@@ -33,6 +33,26 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P2 · The UI bug pass (B1–B25 of `docs/review-v12.md`)
+- **Broken, now working:** a Dao at tier 5 or 6 no longer throws a script error every frame, and each Dao row shows
+  its own next target (B1). The guqin plays from the key-item pouch (B2). "Trial: <null>" is gone from great
+  breakthroughs with no trial (B12), and the HUD, the Cultivation badge and the Ranking show the same Level (B15).
+- **Layouts that ran off the window:** the Titles, Secret Arts, Expeditions and Favours lists scroll inside their
+  window, the Promotion trial button no longer sits under Missions, the Teleport Stones rows keep 48 px with ten
+  stones, and the Paths, Body, Beast Arena and Sect tree cards neither overlap nor stop mid-sentence (B4, B5, B7, B16,
+  B17, B18, B22, I7, I9). The `ui_suite` now opens the context pages as well as the menu pages.
+- **Words:** every label is fitted at the size it is drawn (B21, I6). Text written in scripts moved into the strings,
+  with a `contract_tests` rule (B8). The Roll-Call shows a post for a character keeping one (B20), the three named
+  debts show their names (B24), the Sweep button tells the truth on a day with no floor cleared (B25), and the keyboard
+  help names every key (B23). Origins have names and a line saying what each one gives (B10).
+- **One version, from one place (B9):** `project.godot` holds `application/config/version` ("1.2"); the title screen
+  reads it and the Android presets leave `version/name` empty so the APK takes it too. The APK's visible version moves
+  from 1.0.4 to 1.2; the version codes stay 104.
+- **Selections:** the kit's selected and disabled panels are built from the normal art, so a chosen row looks chosen
+  everywhere (B3, I3, I4). The HUD tracker keeps an objective's count whole (B11).
+- B6 was fixed in P4a; B19 (pages that change game state) goes to the code review. I2, I5, I8 and I11–I14 go to the
+  P4 style guide.
+
 ### P7b · The item and archetype plan
 - `docs/item_plan.md`: today's gear counted by zone, grade, slot and archetype; a target of 481 pieces through v1.3
   (264 named); 24 archetype sets; drop rates cut to about 6 pieces an hour of hunting with a `balance_sim` drop check;
