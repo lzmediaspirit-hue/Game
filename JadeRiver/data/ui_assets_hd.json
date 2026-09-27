@@ -176,6 +176,15 @@
     ],
     "normal": "res://art/ui/hd/major_window__normal.png"
   },
+  "market_plate": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/market_plate__normal.png"
+  },
   "minimap_frame": {
     "margins": [
       24,
@@ -251,6 +260,15 @@
     ],
     "normal": "res://art/ui/hd/slot__normal.png",
     "selected": "res://art/ui/hd/slot__selected.png"
+  },
+  "storehouse_lid": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/storehouse_lid__normal.png"
   },
   "tab": {
     "margins": [
