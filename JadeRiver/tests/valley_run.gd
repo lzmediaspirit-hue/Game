@@ -1026,8 +1026,8 @@ func sec_qk5() -> void:
 		if interact(str(o.id)).get("ok", false): seen += 1
 	check(finish("strange_tracks"), "Strange Tracks done (inspected %d)" % seen)
 	check(start("the_humming_token"), "The Humming Token accepted")
-	check(travel("rm_grey_pools"), "reach the Grey Pools")
-	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "defeat five Hollowed Boarlets")
+	check(travel("rm_marsh_edge"), "reach the Marsh Edge")
+	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "defeat five Hollowed Boarlets at the Marsh Edge")
 	check(finish("the_humming_token"), "The Humming Token done")
 	check(start("mei_qings_errand"), "Mei Qing's Errand accepted")
 	if c().inventory.count("willow_moss") < 5:

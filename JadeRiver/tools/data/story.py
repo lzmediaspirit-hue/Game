@@ -1491,11 +1491,13 @@ def main_quests():
                "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."],
         complete=["Hollowing. It's closer than we hoped."])
     quest("the_humming_token", "The Humming Token", "main", "elder_hu", [
-        o("reach_room", "Follow the token to the Grey Pools", room="rm_grey_pools"),
-        o("kill", "Defeat Hollowed Boarlets", 5, enemy="hollowed_boarlet"),
+        # Chapter 2 now opens at Bone Forging 3 (Level 3): the grey's first beasts have crept to the Marsh Edge (Level 4-5,
+        # world.py), not the Grey Pools' Level 7-12, which the story reaches later (the Grey Pools side quest).
+        o("kill", "Defeat the Hollowed Boarlets at the Marsh Edge", 5, enemy="hollowed_boarlet", room="rm_marsh_edge"),
     ], [taels(80), fx("codex", entry="hollowed")], requires=all_of(qdone("strange_tracks")), chapter="2", giver_any=M, hand_in_any=M,
-        target_room="rm_grey_pools",
-        offer=["Your River Token hums when you face east. Follow it. You've a weapon in your hands now: the grey will want it."], complete=["Lu's token. It knows the grey. Keep it close."])
+        target_room="rm_marsh_edge",
+        offer=["Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
+               "You've a weapon in your hands now: the grey will want it."], complete=["Lu's token. It knows the grey. Keep it close."])
     quest("mei_qings_errand", "Mei Qing's Errand", "main", "mei_qing", [
         o("collect", "Bring Willow Moss", 5, item="willow_moss"),
         o("collect", "Bring Grey Hides from the Hollowed Boarlets", 3, item="grey_hide"),

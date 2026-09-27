@@ -3316,7 +3316,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Add progress (pct of need 0.1); Core: {"element": "earth", "qp_pct": 0.1, "rank": 2, "tier": "low"}; Raw: {"toxicity": 12}; Family: accumulation
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 4% (beast core)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 4% (beast core)
   - Drop: [Mud Hound](monsters.md#enemy-mud_hound) (Lv 16–20) · 4%–6% (beast core)
   - Reward: Beast Tide at Stoneford Gate (Stoneford), one of 3 beast cores of a random element at the holder's tier (below Lv 28)
 
@@ -4807,8 +4807,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > Hide from a Hollowed beast, grey and cold.
 
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 100% (only during Mei Qing's Errand)
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 60% (group)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 100% (only during Mei Qing's Errand)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 60% (group)
   - Shop: Greyreed Trade Post (Trader Min in Greyreed Hamlet) · at list price in Silver Taels
 
 <a id="item-tiny_hollow_shard"></a>
@@ -4833,7 +4833,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: [Hollow Drone](monsters.md#enemy-hollow_drone) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Drop: [Hollow Stag](monsters.md#enemy-hollow_stag) (Lv 55–59) · 20% (rare)
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 12% (rare)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 12% (rare)
   - Drop: [Hollowed Wyrmling](monsters.md#enemy-hollowed_wyrmling) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Reward: Expedition Reed Marsh (4/8 h)
 
@@ -9449,7 +9449,7 @@ Rolled by:
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
 - [Hollow Minnow](monsters.md#enemy-hollow_minnow) (Lv 1) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironclaw Mole](monsters.md#enemy-ironclaw_mole) (Lv 5–7) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
@@ -9488,7 +9488,7 @@ Rolled by:
 - [Fruit-Guardian Boar](monsters.md#enemy-fruit_guardian) (Lv 20) · 8%
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 7–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
 - [Jade Carp](monsters.md#enemy-jade_carp) (Lv 19–22) · 1.2%

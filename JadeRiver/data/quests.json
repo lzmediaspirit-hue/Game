@@ -5291,16 +5291,11 @@
    "marker": "gold",
    "objectives": [
     {
-     "kind": "reach_room",
-     "text": "Follow the token to the Grey Pools",
-     "count": 1,
-     "room": "rm_grey_pools"
-    },
-    {
      "kind": "kill",
-     "text": "Defeat Hollowed Boarlets",
+     "text": "Defeat the Hollowed Boarlets at the Marsh Edge",
      "count": 5,
-     "enemy": "hollowed_boarlet"
+     "enemy": "hollowed_boarlet",
+     "room": "rm_marsh_edge"
     }
    ],
    "rewards": [
@@ -5315,7 +5310,8 @@
     }
    ],
    "offer_text": [
-    "Your River Token hums when you face east. Follow it. You've a weapon in your hands now: the grey will want it."
+    "Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
+    "You've a weapon in your hands now: the grey will want it."
    ],
    "complete_text": [
     "Lu's token. It knows the grey. Keep it close."
@@ -5341,7 +5337,7 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "rm_grey_pools"
+   "target_room": "rm_marsh_edge"
   },
   {
    "id": "mei_qings_errand",

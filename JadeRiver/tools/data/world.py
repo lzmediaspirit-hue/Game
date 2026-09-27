@@ -1199,6 +1199,10 @@ def valley():
               platforms=[(800, 700, 180, 70), (1500, 720, 180, 90)], fishing="marsh_edge")
     r.area("shallows", [400, 860, 1700, 100])
     r.spawn("reed_otter", [[1900, 900]], 1, respawn=600, level=[19, 19], wild_pet=True, requires=all_of(unlock("taming")))
+    # The grey's first beasts (The Humming Token, Mei Qing's hides): boarlets gone grey among the drained reeds, at the
+    # marsh's own Levels while the story wants them; the Grey Pools keep their Level 7-12 herd.
+    r.spawn("hollowed_boarlet", [[900, 880], [1400, 900], [1800, 870]], 3, respawn=8, level=[4, 5],
+            requires=any_of(qactive("the_humming_token"), qactive("mei_qings_errand")))
     for i, x in enumerate([700, 1300, 2000]):
         r.obj("grey_patch_%d" % i, "inspect", [x, 910], prop="grey_patch", text="The reeds here are grey and brittle, as if the colour was drunk out of them.",
               set_flag="grey_patch_%d" % i, visible_if=all_of(qactive("strange_tracks")))
