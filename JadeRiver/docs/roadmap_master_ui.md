@@ -434,4 +434,6 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     may stay as extras, but jumping is always on the button. Phase 1's prototype room is built to it (the plan's "As
     built: Phase 1").
 
+29. **Top-down movement (Phase 1 review):** the dash cooldown (2.5 s) stays; walking stops at the water's edge (walking on water
+    comes from a special skill); the player can jump off rooftops (roofs are standable height levels).
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
