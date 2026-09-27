@@ -210,9 +210,12 @@ def build():
         # tenth, and meets a foe's Sphere where they overlap: the weaker one breaks (a meridian injury for the player).
         # v1.2 Phase D · the Copperjaw Beetle swarm (the Copperjaw Box): fed ore, it grows by the hour online or off;
         # released, it chews every foe near you for 8 s, harder the bigger it is (log of the population). Wood resists.
+        # `art` names its creature sheet (data/creature_art.json; the Swarm tab and the released swarm draw from it),
+        # `queen_art` the sheet shown once a Queen has risen.
         "swarm": {"start_pop": 50, "min_pop": 50, "max_pop": 5000, "growth_per_h": 0.08, "shrink_per_h": 0.02, "food_per_h": 1,
                   "queen_chance_per_h": 0.01, "queen_growth": 1.5, "queen_bite": 1.25, "bite_k": 0.12, "radius": 220,
                   "duration_s": 8, "tick_s": 1.0, "cooldown_s": 30, "wood_factor": 0.5, "max_settle_h": 720,
+                  "art": "copperjaw_swarm", "queen_art": "copperjaw_queen",
                   "ore_food": {"copper_ore": 1, "riverstone": 2, "jadeiron": 3, "cloudsteel_ore": 4, "mystic_ore": 5,
                                "stormsteel_ore": 6, "sunglass_ore": 7, "driftglass": 8, "drone_shell": 10}},
         "sphere": {"qi_per_s_pct": 0.004, "radius_base": 160, "radius_per_tier": 20, "tier6_radius": 40, "power_per_tier": 0.08,

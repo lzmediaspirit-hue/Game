@@ -507,6 +507,7 @@ func _draw():
 	if bound():
 		if Game.combat.sword_released.has(actor_id): _draw_hover_sword()
 		if Game.combat.swarm_of(actor_id) > 0: _draw_swarm(self, Game.combat.swarm_of(actor_id), false)
+		if Game.pets.swarming.has(actor_id): _draw_beetle_swarm(self, false)
 		if _weapon_awake(): _draw_awakened_glow(self, false)
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
@@ -549,6 +550,7 @@ func _draw_hover_sword() -> void:
 
 func _draw_front() -> void:
 	if bound() and Game.combat.swarm_of(actor_id) > 0: _draw_swarm(front, Game.combat.swarm_of(actor_id), true)
+	if bound() and Game.pets.swarming.has(actor_id): _draw_beetle_swarm(front, true)
 	if bound() and _weapon_awake(): _draw_awakened_glow(front, true)
 	var left := speech_until - Time.get_ticks_msec() / 1000.0
 	if left > 0.0 and not speech.is_empty(): _draw_speech(clampf(left, 0.0, 1.0))
@@ -599,6 +601,34 @@ func _draw_swarm(on: CanvasItem, n: int, near_side: bool) -> void:
 		on.draw_colored_polygon(PackedVector2Array([c + out * blade * 0.48 + side * 1.5, c + out * blade * 0.48 - side * 1.5, c + out * blade * 0.62]),
 			Color(0.96, 0.99, 1.0, alpha))
 		on.draw_line(c - out * blade * 0.5 + side * 4.0, c - out * blade * 0.5 - side * 4.0, Color(0.71, 0.54, 0.18, alpha), 3)
+
+## v1.2 Phase D the Copperjaw swarm: while the box is open, clouds of copper beetles circle the bearer at chest height,
+## drawn on the wing from the swarm's creature sheet (stats.swarm.art; the Queen's sheet once she has risen). More
+## clouds the bigger the swarm (three at fifty beetles, five at thousands); each heads the way it flies round the ring,
+## the far half drawn behind the body (dimmer) and the near half over it.
+func _draw_beetle_swarm(on: CanvasItem, near_side: bool) -> void:
+	var c = Game.character(actor_id)
+	if c == null: return
+	var e := SpriteCache.creature(Game.pets.swarm_art(c))
+	var texture: Texture2D = SpriteCache.tex(str(e.get("file", ""))) if not e.is_empty() else null
+	if texture == null: return
+	var a: Dictionary = e.actions.get("walk", e.actions.get("idle", {}))
+	var frames := maxi(1, int(a.get("frames", 1)))
+	var cell := float(e.cell)
+	var anchor := Vector2(float(e.anchor[0]), float(e.anchor[1]))
+	var t := Time.get_ticks_msec() / 1000.0
+	var n := clampi(2 + int(log(maxf(1.0, float(c.swarm.get("pop", 50)))) / log(10.0)), 3, 5)
+	var rx := 52.0 + n * 6.0
+	for i in n:
+		var ang := t * 1.3 + TAU * float(i) / n
+		if (sin(ang) >= 0.0) != near_side: continue
+		var centre := Vector2(cos(ang) * rx, avatar.position.y - 60.0 + sin(ang) * rx * 0.3)
+		var heading := -1.0 if sin(ang) > 0.0 else 1.0   # round the ring: leftward across the front, rightward behind
+		var idx := int((t + i * 0.37) * float(a.get("fps", 10))) % frames
+		var src := Rect2(idx * cell, float(a.get("row", 0)) * cell, cell, cell)
+		on.draw_set_transform(centre, 0.0, Vector2(heading, 1.0))
+		on.draw_texture_rect_region(texture, Rect2(-anchor, Vector2(cell, cell)), src, Color(1, 1, 1, 1.0 if near_side else 0.7))
+	on.draw_set_transform(Vector2.ZERO)
 
 ## Falling Leaf Glide: two pale leaves of Qi either side of the body and a faint trail.
 func _draw_glide() -> void:

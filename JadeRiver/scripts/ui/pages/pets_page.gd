@@ -10,12 +10,18 @@ func _init() -> void:
 	title = Tx.t("ui.pets.spirit_animals")
 	tabs = [{"id": "care", "label": Tx.t("ui.pets.tab_care")}, {"id": "growth", "label": Tx.t("ui.pets.tab_growth")}]
 
+func setup() -> void:
+	_add_swarm_tab(c())
+
+## v1.2 Phase D: the Copperjaw swarm gets its own tab once its box is in hand.
+func _add_swarm_tab(ch) -> void:
+	if ch != null and Unlocks.is_unlocked(ch.id, "beetle_swarm") and not tabs.any(func(t): return str(t.id) == "swarm"):
+		tabs.append({"id": "swarm", "label": Tx.t("ui.pets.tab_swarm")})
+
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	# v1.2 Phase D: the Copperjaw swarm gets its own tab once its box is in hand.
-	if Unlocks.is_unlocked(ch.id, "beetle_swarm") and not tabs.any(func(t): return str(t.id) == "swarm"):
-		tabs.append({"id": "swarm", "label": Tx.t("ui.pets.tab_swarm")})
+	_add_swarm_tab(ch)
 	if str(tabs[tab].id) == "swarm":
 		_swarm_tab(ch, content)
 		return
@@ -373,20 +379,26 @@ func _sel_name() -> String:
 func _art(p: Dictionary) -> String:
 	return str(ContentDB.entry("pets", str(p.species)).get("art", p.species))
 
-## v1.2 Phase D: the Copperjaw swarm: its population, food and Queen, and the ores you carry to feed it.
+## v1.2 Phase D: the Copperjaw swarm: its population, food and Queen, and the ores you carry to feed it. The stage on
+## the right shows the swarm on the wing from its creature sheet (stats.swarm.art; the Queen's sheet once she has risen).
 func _swarm_tab(ch, r: Rect2) -> void:
 	panel(r)
 	var sw: Dictionary = Game.pets.swarm_of(ch)
 	var k: Dictionary = Game.pets.swarm_cfg()
-	heading(r.position + Vector2(24, 44), Tx.t("ui.pets.swarm_title"), r.size.x - 48)
+	var queen := bool(sw.get("queen", false))
+	var stage := Rect2(r.end.x - 254, r.position.y + 18, 230, 170)
+	draw_style_box(UiKit.style("slot"), stage)
+	creature_at(stage.grow_individual(-10, -10, -10, -16), Game.pets.swarm_art(ch), "walk")
+	var colw := stage.position.x - r.position.x - 48   # the left column, beside the stage
+	heading(r.position + Vector2(24, 44), Tx.t("ui.pets.swarm_title"), colw)
 	var pop := float(sw.get("pop", 0.0))
-	bar(Rect2(r.position.x + 24, r.position.y + 70, r.size.x - 48, 28), log(1.0 + pop) / log(1.0 + float(k.get("max_pop", 5000))), UiKit.GOLD,
+	bar(Rect2(r.position.x + 24, r.position.y + 70, colw, 28), log(1.0 + pop) / log(1.0 + float(k.get("max_pop", 5000))), UiKit.GOLD,
 		Tx.t("ui.pets.swarm_pop") % [int(pop), int(k.get("max_pop", 5000))])
 	var lines: Array = [Tx.t("ui.pets.swarm_food") % UiKit.span(float(sw.get("food", 0)) * 3600.0),
-		Tx.t("ui.pets.swarm_bite") % int(round(100.0 * PetRules.swarm_bite(pop, bool(sw.get("queen", false)), false, k)))]
-	if bool(sw.get("queen", false)): lines.append(Tx.t("ui.pets.swarm_queen"))
+		Tx.t("ui.pets.swarm_bite") % int(round(100.0 * PetRules.swarm_bite(pop, queen, false, k)))]
+	if queen: lines.append(Tx.t("ui.pets.swarm_queen"))
 	for i in lines.size():
-		text(r.position + Vector2(24, 128 + i * 26), lines[i], 18, UiKit.PALE_GOLD if i == 2 else UiKit.PAPER)
+		text(r.position + Vector2(24, 128 + i * 26), fit(lines[i], 18, colw), 18, UiKit.PALE_GOLD if i == 2 else UiKit.PAPER)
 	para(Rect2(r.position.x + 24, r.position.y + 210, r.size.x - 48, 60), Tx.t("ui.pets.swarm_help"), 16, UiKit.MIST)
 	var ores: Array = []
 	for id in k.get("ore_food", {}):
