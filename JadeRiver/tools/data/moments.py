@@ -304,15 +304,20 @@ def rows():
             {"room": "dw_serpents_shallows", "enemy": "riverbed_serpent"}, "P6c", toast=key("hud.is_defeated", {"name_of": "enemies", "id": "payload.enemy"})),
         row("loot_fountain", "loot_dropped", {"source_in": sorted(FOUNTAIN)}, 0, 0.9,
             [{"t": 0.0, "kind": "fountain"}, sound(0.0, "coin")],
-            {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss"}, "P6c"),
+            {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss", "first_weapon": False}, "P6c"),
         # A rare find: its names on a strip, a beam over each rare piece until it is picked up. Rare drops within
         # merge_rare_s join one strip (three names, then "+N"); it waits longer than most, as a find is worth seeing late.
         row("rare_drop", "loot_dropped", {"rare": True}, 40, 1.8,
             [strip(0.0, 206, key("moment.rare.title"), 18, "GOLD", names="rare", sub_size=24),
              {"t": 0.0, "kind": "beam", "height": 240, "width": 10, "pulse_hz": 0.6}, sound(0.0, "rare_chime"), buzz(0.0, 40)],
             {"room": "mh_boss_den", "items": [{"uid": 1, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}],
-             "x": 640.0, "y": 820.0, "source": "boss"}, "P6d", in_fight="toast", stale_s=8.0, join_s=SETTINGS["merge_rare_s"],
-            toast=key("moment.rare.toast", {"item": "slot.rare.item"})),
+             "x": 640.0, "y": 820.0, "source": "boss", "first_weapon": False}, "P6d", in_fight="toast", stale_s=8.0, join_s=SETTINGS["merge_rare_s"],
+            toast=key("moment.rare.toast", {"item": "slot.rare.item"}),
+            # A character's first weapon (grades.json drop.starter) is a find of its own: its beam and strip say so.
+            variants=[{"when": {"first_weapon": True}, "layers": [
+                strip(0.0, 206, key("moment.first_weapon.title"), 18, "GOLD", names="rare", sub_size=24),
+                {"t": 0.0, "kind": "beam", "height": 240, "width": 10, "pulse_hz": 0.6}, sound(0.0, "rare_chime"), buzz(0.0, 40)],
+                "toast": key("moment.first_weapon.toast", {"item": "slot.rare.item"})}]),
         # The main quest that closes a chapter, after its dialogue page closes.
         row("story_beat", "quest_completed", {"actor": "active", "kind": "main", "chapter_end": True}, 60, 2.6,
             [{"t": 0.0, "kind": "letterbox", "height": 48, "slide_s": 0.3},

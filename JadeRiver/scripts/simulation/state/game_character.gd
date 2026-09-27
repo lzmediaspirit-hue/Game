@@ -46,6 +46,9 @@ var rng_seed := 0
 var rng_state: Dictionary = {}
 var loadouts: Array = []
 var collection_first_kills: Dictionary = {}
+## Starter gear (World authority, grades.json drop.starter): {first: the first weapon dropped, kills: first-room kills
+## since the last piece, pieces: the pieces the pity has counted, closed: saved before starter gear, none now}.
+var starter_drops: Dictionary = {}
 var dungeon_lockouts: Dictionary = {} # boss -> reset day
 var swarm: Dictionary = {}           # v1.2 the Copperjaw Beetle swarm: {pop, food, queen, rolled_h, since_utc} (Pet authority)
 
@@ -67,7 +70,7 @@ func snapshot() -> Dictionary:
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
 		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
-		"collection_first_kills": collection_first_kills.duplicate(), "dungeon_lockouts": dungeon_lockouts.duplicate(),
+		"collection_first_kills": collection_first_kills.duplicate(), "starter_drops": starter_drops.duplicate(), "dungeon_lockouts": dungeon_lockouts.duplicate(),
 		"swarm": swarm.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
 
 func restore(d: Dictionary) -> void:
@@ -112,6 +115,8 @@ func restore(d: Dictionary) -> void:
 	last_active_utc = float(d.get("last_active_utc", 0.0))
 	loadouts = d.get("loadouts", []).duplicate(true)
 	collection_first_kills = d.get("collection_first_kills", {}).duplicate()
+	# A character saved before starter gear has left the first rooms behind: no first weapon or pity for it now.
+	starter_drops = d.get("starter_drops", {"first": true, "closed": true}).duplicate() if d.get("starter_drops", {}) is Dictionary else {}
 	dungeon_lockouts = d.get("dungeon_lockouts", {}).duplicate()
 	swarm = d.get("swarm", {}).duplicate(true) if d.get("swarm") is Dictionary else {}
 	var r: Dictionary = d.get("rng", {})

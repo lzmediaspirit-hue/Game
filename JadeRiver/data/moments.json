@@ -1908,7 +1908,8 @@
     "items": [],
     "x": 640.0,
     "y": 820.0,
-    "source": "boss"
+    "source": "boss",
+    "first_weapon": false
    },
    "step": "P6c"
   },
@@ -1984,10 +1985,57 @@
     ],
     "x": 640.0,
     "y": 820.0,
-    "source": "boss"
+    "source": "boss",
+    "first_weapon": false
    },
    "step": "P6d",
-   "join_s": 1.5
+   "join_s": 1.5,
+   "variants": [
+    {
+     "when": {
+      "first_weapon": true
+     },
+     "layers": [
+      {
+       "t": 0.0,
+       "kind": "strip",
+       "y": 206,
+       "title": {
+        "key": "moment.first_weapon.title"
+       },
+       "size": 18,
+       "color": "GOLD",
+       "names": "rare",
+       "sub_size": 24
+      },
+      {
+       "t": 0.0,
+       "kind": "beam",
+       "height": 240,
+       "width": 10,
+       "pulse_hz": 0.6
+      },
+      {
+       "t": 0.0,
+       "kind": "sound",
+       "sfx": "rare_chime"
+      },
+      {
+       "t": 0.0,
+       "kind": "buzz",
+       "ms": 40
+      }
+     ],
+     "toast": {
+      "key": "moment.first_weapon.toast",
+      "args": [
+       {
+        "item": "slot.rare.item"
+       }
+      ]
+     }
+    }
+   ]
   },
   {
    "id": "story_beat",

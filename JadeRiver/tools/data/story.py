@@ -544,6 +544,9 @@ def unlocks():
     u("shrines", "Shrines", all_of(qdone("a_quiet_river")), "grannys_remedy", [], prologue=True, toast=False)
     u("sprint", "Sprint", all_of(qdone("a_quiet_river")), "race_to_the_tower", [], prologue=True)
     u("attack", "Attack", all_of(qdone("a_quiet_river")), "fists_first", ["hud:attack", "hud:damage_numbers"], prologue=True)
+    # The weapon slot is open from the start (docs/research/player_motivation.md item 1): Uncle Guo's lesson hands out the
+    # training gauntlets and the smiths' weapons are on sale from then on. The weapon Dao stays with the Weapon Hall.
+    u("weapons", "Weapons", all_of(qdone("a_quiet_river")), "fists_first", [], prologue=True, toast=False)
     u("loot", "Loot and Log", all_of(*map(qdone, FOUR_LESSONS)), "crab_trouble", ["hud:system_log", "hud:enemy_hp_bars", "hud:elite_marker"], prologue=True)
     u("equipment", "Equipment", all_of(qdone("crab_trouble")), "", ["page:equipment"], prologue=True)
     u("menu", "Menu", all_of(qdone("crab_trouble")), "evening_on_the_river", ["hud:menu"], prologue=True)
@@ -573,7 +576,6 @@ def unlocks():
     u("character_menu", "Character", all_of(realm("bone_forging_2"), qdone("the_recruitment_fair")), "entry_trial", ["page:character"], same_stage_ok=True)
     u("sect_hub", "Sect hub and dorm", all_of(qdone("entry_trial")), "a_disciples_chores", [], same_stage_ok=True)
     u("guard", "Guard", all_of(realm("bone_forging_3"), qdone("entry_trial")), "the_weapon_hall", ["hud:guard", "page:equipment"])
-    u("weapons", "Weapons", all_of(realm("bone_forging_3"), qdone("entry_trial")), "the_weapon_hall", [], same_stage_ok=True)
     u("weapon_dao", "Weapon Dao", all_of(realm("bone_forging_3"), qdone("entry_trial")), "the_weapon_hall", [], same_stage_ok=True, toast=False)
     u("herb_gathering", "Herb gathering", all_of(realm("bone_forging_4"), qdone("entry_trial")), "eyes_for_qi", ["page:crafts"],
       effects=[{"kind": "grant_item", "item": "herb_sickle", "count": 1}])
@@ -868,10 +870,11 @@ def prologue_quests():
     quest("fists_first", "Fists First", "prologue", "uncle_guo", [
         o("hit_object", "Punch the training stump", 5, type="training_stump"),
         o("hit_object", "Hit the dummy after its wind-up", 3, type="training_dummy"),
-    ], [item("herbal_tea", 1)], requires=after_lu, target_room="lf_village", chapter="prologue",
+    ], [item("herbal_tea", 1), fx("grant_equipment", item="training_gauntlets", ilv=1, quality="flawed", wear=True)],
+        requires=after_lu, target_room="lf_village", chapter="prologue",
         offer=["Fists first! Jab, cross, jab. Hold the button and they flow.", "Five on the stump. Then the dummy: watch it lean back before it swings. Hit it then, three times."],
         progress=["Elbow in! Five on the stump, three on the dummy."],
-        complete=["Not bad! Keep those fists warm. Something's stirring past the East Gate.",
+        complete=["Not bad! Take my old training gauntlets, they're yours now. Keep those fists warm: something's stirring past the East Gate.",
                   "Help the others first. When the village is done with you, come back and I'll open the gate."])
     quest("crab_trouble", "Crab Trouble", "prologue", "uncle_guo", [
         o("collect", "Collect Crab Shells", 3, item="crab_shell"),

@@ -1137,7 +1137,7 @@ func _system_reported(system: String) -> bool:
 ##   or set piece. Named pieces per archetype and zone (item_plan §2.3): counted and printed, and checked once
 ##   ARCHETYPE_COUNTS_ENFORCED is on (item_plan §6 step 8).
 const ARCHETYPE_COUNTS_ENFORCED := false
-const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named",
+const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named", "starter",
 	"lost"]   # P13a: the lost manuals, rolled like named rows and kept by ProgressionAuthority.lost_drops
 const GEAR_ZONES := ["valley", "expanse", "lantern", "frontier"]
 

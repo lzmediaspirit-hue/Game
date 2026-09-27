@@ -825,7 +825,15 @@ def build():
                              "fine": [0.0, 0.0, 0.50, 0.35, 0.15], "superior": [0.0, 0.0, 0.0, 0.70, 0.30]},
                  "fortune_shift": 0.001, "weapon_share": 0.4, "family_bias": 0.3333, "level_spread": 2,
                  "elite_extra": {"chance": 0.08, "min_quality": "common"}, "named_floor": "common", "named_rows": 2,
-                 "pool_skip_slots": ["gourd", "cape", "talisman", "tool_furnace"]},
+                 "pool_skip_slots": ["gourd", "cape", "talisman", "tool_furnace"],
+                 # Starter gear (docs/tutorial_order.md, docs/research/player_motivation.md §3.4): the first rooms'
+                 # foes (a loot table marked `starter`) drop the plain bases of `families` (the Weapon Hall's families
+                 # a Mortal can hold: no attribute asked) and the four armour slots, at the par character's item Level,
+                 # a weapon never above par quality, so no weapon outruns early par. A character's first such kill
+                 # drops its first weapon, a `first_family` piece at `first_quality`; then, for its first
+                 # `pity_pieces` pieces, the `pity`-th kill without one gives one. The counts are kept on the character.
+                 "starter": {"families": ["gauntlets", "jian", "spear", "short_blade"], "first_family": "short_blade",
+                             "first_quality": "common", "pity": 15, "pity_pieces": 3}},
     })
 
     entries("affixes.json", AFFIXES)

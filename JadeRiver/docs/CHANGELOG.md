@@ -39,9 +39,23 @@ Research docs/research/player_motivation.md, items 3, 4, 5, 8 and 10 of its top 
 - **Tests.** `tutorial_order` walks from waking to Strange Tracks with no test shortcut: the story reaches Bone Forging
   2 and 3 by itself, the first technique comes at Bone Forging 1 and the second at the Weapon Hall, and on a play clock
   (`prologue_run.play_s`: the simulated time, walking, a look at each new room, reading) something new comes at least
-  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 10); it prints the timeline. `prologue_run` no
+  every 3 minutes to minute 20 and every 5 to minute 60 (invariant 11); it prints the timeline. `prologue_run` no
   longer grinds to Bone Forging 2. `rules_tests` holds the Next entry's second way. Screenshots of the technique moment
   and the breakthrough cards in `docs/ui_p5/early_game/`.
+
+## Starter gear: a weapon from the start
+
+- **The weapon slot is open from the start, and the first monsters drop weapons** (`docs/research/player_motivation.md`
+  items 1-2). A new character fights bare-handed with the slot drawn empty, not locked (Character and Bag pages); Uncle
+  Guo's Fists First hands out his old Training Gauntlets, worn at once; the `weapons` unlock moves to that lesson and
+  the smiths sell weapons from then on (the weapon Dao stays with the Weapon Hall). The first kill in the Reed Shallows
+  always drops the first weapon, a Training Short Blade, with a "Your first weapon" strip, its beam and the equip
+  prompt. The first rooms' foes (Mudshell Crab, Reedtail Rat, Old Snapper, Wild Boarlet, Mossback Toad) roll starter
+  gear (`grades.json` `drop.starter`, 2% a kill, Old Snapper 25%): training gauntlets, jian, spear or short blade, or
+  plain armour, at the par item Level with a weapon never above par quality, so balance_sim finds no weapon of the
+  first rooms more than 2% over par attack; the character's first three pieces come by the 15th kill without one
+  (`starter_drops`, saved). Tests: rules_tests `starter_gear_suite`, tutorial_order and prologue_run (the slot open,
+  the gauntlets, the first kill's weapon and its equip prompt), balance_sim `_starter_checks`.
 
 ## Slain foes stay slain
 

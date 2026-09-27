@@ -560,32 +560,33 @@ and early drops) and 6, 7, 9 (obligations, surprises, death) are built separatel
   Kindling), drawn behind the avatar from plain shapes; the card names it when it changes. Screenshots in
   `docs/ui_p5/early_game/`.
 
-**The first hour as built** (tests/tutorial_order.gd, invariant 10). Minutes are its play clock: the simulated time,
+**The first hour as built** (tests/tutorial_order.gd, invariant 11). Minutes are its play clock: the simulated time,
 walking at a thumb's pace (150 px/s), 15 s to look round each new room, 3 s a line of dialogue: a floor for a focused
 new player, not a measurement. The walk takes Guo first and ends with Strange Tracks under way.
 
 | Min | Step | New |
 |---|---|---|
 | 0:21 | Wake: Morning Tide under way | Herbal Tea in hand, the door open |
+| 2:05 | Fists First | Training Gauntlets, worn (items 1–2) |
 | 3:07 | Race to the Tower | title Fleet-Footed |
 | 3:25 | The Runaway Kite | the kite, a rice ball |
 | 3:42 | Ma's Delivery | first taels, the Old Net sold |
-| 5:49 | Crab Trouble: the Reed Shallows | first foes (Mudshell Crab, Reedtail Rat), crab shells |
-| 7:32 | Old Snapper | first elite, Snapper Claw |
-| 8:05 | Crab Trouble handed in | Plain Straw Hat and Straw Sandals, worn at 10:49 |
-| 11:39 | The Hollow Night | the set piece |
-| 14:13 | The River Token | **Bone Forging 1** (card and jade aura), River Token, **Flowing Palm** at 14:24 |
-| 15:52 | The Willow Path | Willow Path, Wild Boarlets, boar hide, tough meat |
-| 17:12 | Stoneford | a new town |
-| 19:48 | The Recruitment Fair | **the sect chosen**, jade token |
-| 21:04 | Entry Trial | Trial Puppet, entry token, **Bone Forging 2** |
-| 22:21 | Fish-Gutting Fists | title River Rival; Bone Forging 2 full |
-| 23:31 | A Disciple's Chores (side) | the grey under the flagstone, two spirit stone shards, contribution; **Bone Forging 3** |
-| 24:16 | The Weapon Hall | training jian, spear, gauntlets; **Cloudpiercing Stroke** |
-| 26:49 | Strange Tracks | the Reed Marsh, a Reed Frog |
+| 5:45 | Crab Trouble: the Reed Shallows | first foe (Mudshell Crab), crab shell, the first weapon (Training Short Blade) |
+| 6:10 | Old Snapper | first elite, Snapper Claw |
+| 6:43 | Crab Trouble handed in | Plain Straw Hat and Straw Sandals, worn at 8:03; Reedtail Rat at 7:54 |
+| 8:52 | The Hollow Night | the set piece |
+| 11:27 | The River Token | **Bone Forging 1** (card and jade aura), River Token, **Flowing Palm** at 11:38 |
+| 13:03 | The Willow Path | Willow Path, Wild Boarlets, tough meat; a Hemp Robe drop, willow moss, boar hide at 14:11 |
+| 14:16 | Stoneford | a new town |
+| 16:51 | The Recruitment Fair | **the sect chosen**, jade token |
+| 17:55 | Entry Trial | Trial Puppet, entry token, **Bone Forging 2** |
+| 19:06 | Fish-Gutting Fists | title River Rival; Bone Forging 2 full |
+| 20:17 | A Disciple's Chores (side) | the grey under the flagstone, two spirit stone shards, contribution; **Bone Forging 3** |
+| 21:01 | The Weapon Hall | training jian and spear (jian worn at 20:49); **Cloudpiercing Stroke** |
+| 23:34 | Strange Tracks | the Reed Marsh, a Reed Frog |
 
-44 new things in 32 minutes on this clock; the longest gap is 2.8 minutes (waking to the race's title; the Hollow
-Night to the breakthrough is 2.6), and the check allows 3 to minute 20 and 5 to minute 60. Bone Forging 4 comes with chapter 2 (the Weapon Hall's share, Strange
+47 new things in 29 minutes on this clock; the longest gap is 2.6 minutes (the Hollow Night to the breakthrough, and
+Stoneford to the fair), and the check allows 3 to minute 20 and 5 to minute 60. Bone Forging 4 comes with chapter 2 (the Weapon Hall's share, Strange
 Tracks, The Humming Token), not by minute 60 of this clock. Open point: The Humming Token's Hollowed Boarlets are
 Level 7–12 (the Grey Pools' band), and the story now reaches them at Level 3–4 (at Level 4 before); valley_run plays
 chapter 2 later, so no suite fights them this early.

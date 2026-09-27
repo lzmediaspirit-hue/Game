@@ -592,7 +592,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			var chest_lv := int(o.get("level", 0))
 			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
-				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
+				c.stats.value("drop_rate"), c.stats.value("coin_find"))
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
 		"teleport_stone":
 			var sid := str(o.get("stone", object_id))
@@ -814,8 +814,9 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	if def.is_empty(): return
 	var rng := Rng.stream(c.id, "loot")
 	var elite_spawn: bool = bool(p.get("elite", false)) and def.get("role", "normal") == "normal"
+	var table := ContentDB.entry("loot_tables", str(def.get("loot", p.def)))
 	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate") + game.pets.trait_bonus(c, "drop_chance"), c.stats.value("coin_find"),
-		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons"), "needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite"})
+		{"needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite"})
 	if elite_spawn:
 		# A normal kind spawned as an elite rolls its items again, pays an elite's coins and has one more equipment roll
 		# (P7b: grades.json drop.elite_extra).
@@ -823,8 +824,10 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		drop.items.append_array(extra.items)
 		drop.coins = LootRules.coins_for(int(p.level), 6.0, c.stats.value("coin_find"))
 		var ex: Dictionary = LootRules.drop_cfg().get("elite_extra", {})
-		if rng.randf() < float(ex.get("chance", 0.0)): drop.equipment.append({"level": int(p.level), "min_quality": str(ex.get("min_quality", "common"))})
+		if rng.randf() < float(ex.get("chance", 0.0)):
+			drop.equipment.append({"level": int(p.level), "min_quality": str(ex.get("min_quality", "common")), "starter": bool(table.get("starter", false))})
 	if bool(p.get("summoned", false)): drop.equipment.clear()
+	elif not game.combat.captured.has(str(p.get("victim", ""))): _starter_drop(c, table, int(p.level), drop)
 	# Quest-only items drop only while a quest needs them.
 	drop.items = drop.items.filter(func(it): return not ContentDB.item(it.item).get("quest_item", false) or game.quest.needs_item(c, str(it.item)))
 	# First kill of each species per character gives a bonus roll.
@@ -877,6 +880,27 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)),
 		"field_boss" if role == "field_boss" else ("boss" if role in ["dungeon_boss", "story_boss"] else ("elite" if p.get("elite", false) else "enemy")))
 
+## Starter gear (grades.json drop.starter; docs/tutorial_order.md): a kill of a first-room foe (a `starter` table).
+## The character's first such kill drops its first weapon, a Fine training piece of `first_family`, marked for its
+## moment. After it, until the character has `pity_pieces` starter pieces, a kill that drops none counts on the
+## character (`starter_drops.kills`) and the `pity`-th gives one.
+func _starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void:
+	if not table.get("starter", false): return
+	var cfg: Dictionary = LootRules.drop_cfg().get("starter", {})
+	var sd: Dictionary = c.starter_drops
+	if not sd.get("first", false):
+		sd.first = true
+		drop.equipment.append({"level": level, "min_quality": str(cfg.get("first_quality", "fine")), "starter": true,
+			"family": str(cfg.get("first_family", "")), "first": true})
+		return
+	if sd.get("closed", false) or int(sd.get("pieces", 0)) >= int(cfg.get("pity_pieces", 0)): return
+	sd.kills = int(sd.get("kills", 0)) + 1
+	if drop.equipment.is_empty() and int(sd.kills) >= int(cfg.get("pity", 15)):
+		drop.equipment.append({"level": level, "min_quality": str(table.get("equipment", {}).get("min_quality", "flawed")), "starter": true})
+	if not drop.equipment.is_empty():
+		sd.pieces = int(sd.get("pieces", 0)) + 1
+		sd.kills = 0
+
 const ATTUNEMENT_SHARDS := ["storm_shard", "star_shard"]
 
 ## The shard a zone's attunement jades eat ("" in a zone with no attunement).
@@ -897,13 +921,12 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 		# S18 v1.2: a foe that roams two zones (the Starsea pirates) leaves the attunement shards of the zone it dies in.
 		if here_shard != "" and iid != here_shard and iid in ATTUNEMENT_SHARDS: iid = here_shard
 		drops.append({"item": iid, "count": int(it.count)})
-	var allow_weapons: bool = Unlocks.is_unlocked(c.id, "weapons")
 	var family := StatRules.family_of_weapon(c.inventory.equipped.get("weapon"))
 	for eq in drop.get("equipment", []):
-		var inst := LootRules.make_drop(Rng.stream(c.id, "affix"), eq, c.stats.value("fortune"), allow_weapons, c.inventory.next_uid, family)
+		var inst := LootRules.make_drop(Rng.stream(c.id, "affix"), eq, c.stats.value("fortune"), true, c.inventory.next_uid, family)
 		if inst.is_empty(): continue
 		c.inventory.take_uid()   # the uid it was made with
-		drops.append({"item": inst.id, "count": 1, "instance": inst})
+		drops.append({"item": inst.id, "count": 1, "instance": inst, "first": bool(eq.get("first", false))})
 	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(LootRules.zone_coins(rt.room_id, int(drop.coins)).amount)})
 	var i := 0
 	var items_out: Array = []
@@ -913,11 +936,13 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 			"instance": d.get("instance", {}), "x": at.x + spread, "y": clampf(at.y + rng.randf_range(-6, 6), 626, 956), "alt": alt,
 			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
 		entry.quality = str(d.get("instance", {}).get("quality", "common"))
+		if d.get("first", false): entry.first = true   # a character's first weapon: a find of its own (MomentRules.is_rare)
 		rt.loot.append(entry)
 		items_out.append(entry.duplicate())
 		i += 1
 	if not items_out.is_empty():
-		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source})
+		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source,
+			"first_weapon": items_out.any(func(it): return it.get("first", false))})
 
 func pick_up(c, uid: int) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
@@ -1414,8 +1439,7 @@ func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
 	var c = game.character(actor_id)
 	var st: ActorState = game.actor_state(actor_id)
 	if c == null or st == null: return
-	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"),
-		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
+	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"))
 	_drop_loot(c, drop, st.plane, 0.0, "rift")
 
 func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
@@ -1713,8 +1737,8 @@ func apply_tower_clear(actor_id: String, f: int) -> void:
 	var first := f > tower_cleared(c)
 	if first: c.tower["cleared"] = f
 	if st != null and game.room_rt != null:
-		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
-			{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")}), st.plane, 0.0, "tower")
+		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find")),
+			st.plane, 0.0, "tower")
 	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}] + row.get("first", []), "tower")
 	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
 

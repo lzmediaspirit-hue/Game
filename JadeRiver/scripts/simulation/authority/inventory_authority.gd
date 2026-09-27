@@ -479,12 +479,16 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 		return 1
 	return 0
 
-func apply_add_equipment(actor_id: String, item_id: String, ilv: int, quality: String, source: String) -> void:
+## A piece made and handed over (a quest's grant_equipment). `wear`: put on at once while its slot is empty (Fists
+## First's training gauntlets, the weapon slot being open from the start).
+func apply_add_equipment(actor_id: String, item_id: String, ilv: int, quality: String, source: String, wear := false) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
 	var def := ContentDB.item(item_id)
 	var inst := LootRules.make_instance(item_id, ilv if ilv > 0 else int(def.get("ilv", 1)), quality, Rng.stream(actor_id, "affix"), c.inventory.take_uid())
 	apply_add_instance(actor_id, inst, source)
+	var i: int = c.inventory.find_uid(int(inst.uid))
+	if wear and i >= 0 and c.inventory.equipped.get(str(def.get("slot", ""))) == null: equip(c, i)
 
 func apply_remove(actor_id: String, item_id: String, count: int, source: String) -> int:
 	var c = game.character(actor_id)
@@ -561,7 +565,7 @@ func wear_check(c, def: Dictionary) -> String:
 	for attr in def.get("attribute_req", {}):
 		if c.stats.value(attr) < float(def.attribute_req[attr]): return Tx.t("sim.inventory.requires") % [attr.capitalize(), int(def.attribute_req[attr])]
 	var slot := str(def.get("slot", ""))
-	var slot_unlock := {"weapon": "weapons", "cape": "cape_slot", "talisman": "spirit_sense"}
+	var slot_unlock := {"cape": "cape_slot", "talisman": "spirit_sense"}   # the weapon slot is open from the start
 	if slot_unlock.has(slot) and not Unlocks.is_unlocked(c.id, slot_unlock[slot]): return Unlocks.locked_text(slot_unlock[slot])
 	return ""
 

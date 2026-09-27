@@ -336,6 +336,13 @@
      "kind": "grant_item",
      "item": "herbal_tea",
      "count": 1
+    },
+    {
+     "kind": "grant_equipment",
+     "item": "training_gauntlets",
+     "ilv": 1,
+     "quality": "flawed",
+     "wear": true
     }
    ],
    "offer_text": [
@@ -343,7 +350,7 @@
     "Five on the stump. Then the dummy: watch it lean back before it swings. Hit it then, three times."
    ],
    "complete_text": [
-    "Not bad! Keep those fists warm. Something's stirring past the East Gate.",
+    "Not bad! Take my old training gauntlets, they're yours now. Keep those fists warm: something's stirring past the East Gate.",
     "Help the others first. When the village is done with you, come back and I'll open the gate."
    ],
    "progress_text": [

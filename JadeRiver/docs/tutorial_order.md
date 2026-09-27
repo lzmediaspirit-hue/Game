@@ -11,15 +11,15 @@ direction mark on the minimap and the tracker's go button lead to it.
 
 | # | Quest | Where (giver) | What it reveals or unlocks | The step it prepares | The tracker after it |
 |---|---|---|---|---|---|
-| 0 | (new character) | Fisher's Hut | Move and Talk: joystick, context button | walking, talking, picking up; Morning Tide is already under way and the hut's door is open | (hidden until A Quiet River) |
+| 0 | (new character) | Fisher's Hut | Move and Talk: joystick, context button; the weapon slot, open and empty (bare fists; the Character and Bag pages draw it empty, not locked) | walking, talking, picking up; Morning Tide is already under way and the hut's door is open | (hidden until A Quiet River) |
 | 1 | Morning Tide (auto, from waking) | Fisher's Hut (Aunt Ping) | Bag button | Aunt Ping's tea is in hand from the start; a second cup waits on the table; step outside. No door is shut, no menu asked for | A Quiet River: Find Lu at the Ferry Docks |
 | 2 | A Quiet River (auto) | Home Lane to the Ferry Docks (Lu) | room banner, minimap, quest tracker | find Lu; he hands out the four lessons, in any order | Next: The Runaway Kite · Talk to Little Dou |
-| 3a | Fists First | Village Square (Uncle Guo) | Attack button, damage numbers | five on the stump, three on the dummy. The East Gate stays shut | Next: The Runaway Kite · Talk to Little Dou |
+| 3a | Fists First | Village Square (Uncle Guo) | Attack button, damage numbers; Weapons: Guo's old Training Gauntlets (Flawed), worn at once | five on the stump, three on the dummy. The East Gate stays shut | Next: The Runaway Kite · Talk to Little Dou |
 | 3b | The Runaway Kite | Village Square (Little Dou) | Jump button | ladder, hall roof, jump to the Ferry Inn roof | Next: Ma's Delivery · Talk to Old Ma (Old Ma's Store) |
 | 3c | Ma's Delivery | Old Ma's Store, by its door (Old Ma) | Coins and Shops: the purse, Trade with shopkeepers | sell the Old Net (one step; buying is the player's own choice) | Next: Granny's Remedy · Talk to Granny Liu (her Herb Hut) |
 | 3d | Granny's Remedy | Granny Liu's Herb Hut (Granny Liu) | Quick-use slot (drawn at rest while the step asks for it, glowing and named "Quick-use", and while it holds a tea), HP bar, player panel; shrines | "Bag: put Herbal Tea in Quick-use", "Drink a Herbal Tea: tap Quick-use", the shrine | Next: Crab Trouble · Talk to Uncle Guo |
 | 3e | Race to the Tower (optional) | Ferry Docks (Shen Lian) | Sprint, the title Fleet-Footed | the watch-tower bell in 25 s | (as before it) |
-| 4 | Crab Trouble | Village Square (Uncle Guo), then the Reed Shallows | Loot and Log: system log, foes' HP bars, elite marker; the East Gate opens. The fourth lesson done, Guo has it at once: no walk back to Lu (A Quiet River (Return) is merged into it) | the first fight: three crab shells, which drop every kill while Guo wants them; Reedtail Rats; Old Snapper, beside the shore's herbs (the attack button attacks; the herb waits on ring 2) | Next: Evening on the River · Talk to Lu |
+| 4 | Crab Trouble | Village Square (Uncle Guo), then the Reed Shallows | Loot and Log: system log, foes' HP bars, elite marker; the East Gate opens; starter gear: the first kill drops the first weapon (a Training Short Blade: "Your first weapon" and its beam, the equip prompt offers it). The fourth lesson done, Guo has it at once: no walk back to Lu (A Quiet River (Return) is merged into it) | the first fight: three crab shells, which drop every kill while Guo wants them; Reedtail Rats; Old Snapper, beside the shore's herbs (the attack button attacks; the herb waits on ring 2) | Next: Evening on the River · Talk to Lu |
 | 4+ | (Crab Trouble done) | | Equipment page | the Plain Straw Hat and Straw Sandals, worn | |
 | 5 | Evening on the River | Ferry Docks (Lu) | Menu button | dinner with Aunt Ping, Lu at sunset | The Hollow Night |
 | 6 | The Hollow Night (auto) | Lotus Ferry at Night | | three villagers to the hut, hold out 60 s | The River Token |
@@ -29,7 +29,7 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 10 | Entry Trial (auto, the moment a sect is chosen) | the Fairground's trial ground | at Bone Forging 2: Character page, notice board, return charm | the trial bell and the Trial Puppet; no realm to grind for. The Willow Path, the fair and the trial carry the character to Bone Forging 2 | Next: Fish-Gutting Fists · Talk to Shen Lian (Fairground) |
 | 11 | Fish-Gutting Fists | Stoneford Fairground (Shen Lian) | the title River Rival | beat Shen Lian in a spar; it fills Bone Forging 2, so Bone Forging 3 follows by itself | Next: The Weapon Hall (the weapon master, Weapon Hall) |
 | 11b | A Disciple's Chores (side) | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | two spots to sweep and a grey stain by the gate: under it the grey goes into the earth, and a cache of two spirit stone shards | (as before it) |
-| 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapons, weapon Dao; **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon, five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
+| 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapon Dao (the weapon slot has been open since the start); **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon, five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
 | 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the Reed Marsh's Marsh Edge (the marsh path opens at Bone Forging 2), then the mentor | | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; hand in to the mentor | Next: The Humming Token · Talk to Elder Hu |
 
 Past the table the story goes on the same way: between main quests the Next entry names the giver and where they
@@ -44,11 +44,17 @@ with none, meditation and body training.
 the points it stands at at 150 px/s (a thumb on the joystick; the run speed is 205), 15 s to look round each room the
 first time, 3 s to read a line of dialogue and 1.5 s a tap, 2 s an interaction and 0.45 s a blow on a stump. It is a
 floor for a focused new player, not a measurement. On it, something new comes at least every 3 minutes to minute 20
-and every 5 to minute 60 (invariant 10); the suite prints the timeline, and docs/research/player_motivation.md "As
+and every 5 to minute 60 (invariant 11); the suite prints the timeline, and docs/research/player_motivation.md "As
 built" keeps it.
 
 ## What the walk holds to
 
+- The weapon slot is open from the start: a new character fights bare-handed with the slot drawn empty (never
+  locked), Fists First hands out the training gauntlets worn at once, and the first kill in the Reed Shallows drops
+  the first weapon, which the equip prompt offers. The first rooms' foes (the Reed Shallows, Willow Path West and East)
+  carry starter gear (`grades.json` `drop.starter`): plain training weapons of the four families a Mortal can hold
+  and plain armour at the par item Level, a weapon never above par quality; the character's first three pieces after
+  the first weapon come by the 15th kill without one at the latest (counted on the character).
 - No room with foes is within reach (or entered) before the HP bar and the foes' HP bars are on the HUD. The Reed
   Shallows, the first, open with Crab Trouble, which follows all four lessons (Granny's Remedy among them).
 - Every foe in a fight shows its HP bar over its head (a boss on the HUD's boss bar) from the moment it turns on the
