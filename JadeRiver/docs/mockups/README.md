@@ -31,7 +31,7 @@ Character page show the figure wearing what is worn with the worn slots round it
 
 | PNG | What it shows | The idea | Reference |
 |---|---|---|---|
-| [`06_techniques_constellation.png`](06_techniques_constellation.png) | Techniques as a star chart (checkpoint ls6_end, Tester holding the Sunsteel Jian): all 56 techniques, one constellation per element (Wind, Thunder, Soul, Fire, Earth, Metal, Water, Wood, Formless) with each weapon family as a star path in it; the 13 learned lit (icon, grade rim, element glow), the 43 unlearned as dim stars; paths glow gold between learned stars; the core counts 13 of 56; Flowing Palm selected (Tier 5, 480 / 1,600, Rank Up locked, Jade Sect signature seal); its Dao drawn the same way (Fist Dao, Imitation, 349 / 800, next Reliable Execution); the Jade Sect tree drawn the same way in the tab row (three paths of five, the first of each affordable at 1,060 contribution); the loadout as Ring I and Ring II (the HUD's 1/2 swap) and four empty Inner Art slots with Lotus Mind known and not worn | The whole art of the character on one sky: what is learned, what exists, and which family and element each belongs to, read by colour before text; one drawing language for techniques, Daos and the sect tree | §12 rows "Techniques" (node kinds by colour [R7]; drag to the bar [R50]) and "Daos and mastery" (visible stops [R85]); roadmap U13; review E4 |
+| [`06_techniques_constellation.png`](06_techniques_constellation.png) | **Superseded by the two 06 mockups under "Techniques at scale" below (decision 11); kept for comparison.** Techniques as a star chart (checkpoint ls6_end, Tester holding the Sunsteel Jian): all 56 techniques, one constellation per element (Wind, Thunder, Soul, Fire, Earth, Metal, Water, Wood, Formless) with each weapon family as a star path in it; the 13 learned lit (icon, grade rim, element glow), the 43 unlearned as dim stars; paths glow gold between learned stars; the core counts 13 of 56; Flowing Palm selected (Tier 5, 480 / 1,600, Rank Up locked, Jade Sect signature seal); its Dao drawn the same way (Fist Dao, Imitation, 349 / 800, next Reliable Execution); the Jade Sect tree drawn the same way in the tab row (three paths of five, the first of each affordable at 1,060 contribution); the loadout as Ring I and Ring II (the HUD's 1/2 swap) and four empty Inner Art slots with Lotus Mind known and not worn | The whole art of the character on one sky: what is learned, what exists, and which family and element each belongs to, read by colour before text; one drawing language for techniques, Daos and the sect tree | §12 rows "Techniques" (node kinds by colour [R7]; drag to the bar [R50]) and "Daos and mastery" (visible stops [R85]); roadmap U13; review E4 |
 | [`07_bag_full.png`](07_bag_full.png) | The Bag as a jade chest (checkpoint ls6_end, 31 of 50): Tester at 3x wearing the Stormsilk Crown, Sunsilk Robe, Stormsilk Trousers, Sunsilk Boots and the Sunsteel Jian, the eight worn slots round the figure (cape and talisman open and empty); kind filters (All 31, Gear 3, Pills 7, Materials 15, Other 6); a 5-wide grid of 76 px slots with grade rims and a gem for quality, scrolled one row, the gourd named with the next one's size (a Sunsteel Gourd holds 55); the Perfect Sage Sunsilk Trousers selected with its numbers against the worn pair (+76 defence, +19 evasion, +75 HP) and its three rolled affixes, Equip, Lock, Discard and a menu; the Key Pouch tab (28); the three currencies; what is carried to the HUD (quick-use Herbal Tea with none left, the Practice Bell, the Nine-Dragon Cauldron) | Gear reads on the figure and in its slot at once; every slot says its grade by its rim, so a full bag sorts itself by eye; the selected piece answers "is it better than what I wear" before the player asks | §12 row "Inventory" (kinds sorted before the player looks [R4]); roadmap U15; review I2 (icons at 1:1) |
 | [`08_bag_empty.png`](08_bag_empty.png) | The same page early (checkpoint bf2: Bone Forging 2, 8 of 25): Tester in the hemp robe, trousers and straw sandals, bare-handed; the hat slot empty and glowing because a Plain Straw Hat sits new in the bag, selected, with "Your hat slot is empty: wear it" and a lit Equip; weapon, cape and talisman locked with the line that opens each (the Weapon Hall at Bone Forging 3, Heaven Glimpse 1, Spirit Awakening 1); the empty slots in the cloud-seal motif; a hint card over the empty space (walk over drops; sell loose finds, the Snapper Claw fetches 40 taels; tap a thing); the next gourd named (a Bamboo Gourd holds 30) | The empty state teaches the three things a new player needs from the bag and points at the one useful action, instead of showing 17 blank holes | §12 row "Inventory"; retention_notes §4 (onboarding); rule 5 of the kit (locked things visible with their line) |
 | [`09_character.png`](09_character.png) | The Character page (checkpoint ls6_end): the figure at 3x with the worn slots round it and the party beside it; Tester, Sphere Lord 3, Lv 98 with its three stage pips, Jade Sect · Sect Master, the worn title, Origin "Fisher’s Child" with one line of what it gave (+3 Body, +2 Essence, a lean to Water), age and lifespan, Combat Power 7,862, Relations; HP, Qi and Soul bars with grouped numbers; Offence and Defence columns in `data/stats.json`'s formats (attack speed +19%, regen as a percentage) with Soul attack, Soul defence and Will added; the 19 titles in a scrolled rack inside the window (the worn one first, "19 earned of 46", "11 more below") | Who the character is, what they wear and what they can do on one page; fixes B4 (titles ran off the window), B10 (the origin's id shown as its name), B15 (one Level) and I11 (grouped numbers) | review (d) rows "Character › Titles" (B4) and "Title screen, creator" (B10, I10); `ui_inventory.md` B15, I11 |
@@ -41,7 +41,7 @@ Character page show the figure wearing what is worn with the worn slots round it
 
 ### What the system pages (A) ask the user to approve
 
-- **06**: the Combat tab becomes the Star Chart and shows every technique, the unlearned as dim stars; the constellations
+- **06** (superseded by "Techniques at scale" below): the Combat tab becomes the Star Chart and shows every technique, the unlearned as dim stars; the constellations
   by element with the families as paths; the sect tree also drawn on this page (it stays on Sect › Role); the loadout as
   two rings of four at 76 px; learned stars at 48 px (the icon study renders techniques natively at 48).
 - **07, 08**: slot rims by grade for every item, with quality as a corner gem on gear; kind filters; the grid shows four
@@ -62,6 +62,64 @@ chest; the Copperjaw swarm has no creature art (the card shows the Copperjaw Box
 `night_peddler` …) have no player-facing names, which an unlearned star's line needs; `stats.json` gives `move_speed`
 the percent format while the page shows the speed (242); origins have no name or description strings (B10); valley_run
 re-makes the checkpoints while agents work, so each mockup names the checkpoint its numbers come from.
+
+## Techniques at scale (decisions 11 and 12)
+
+Redrawn after the user's notes on 06: a large tree for each element in its own tab, a tab for lost arts found only in
+the world, hundreds of arts for each weapon family and path, and every page with an identity of its own. The plan behind
+them is `docs/technique_plan.md` (the target, the grammar, the trees, Lost Arts, balance, the build order). Numbers are
+Tester's at checkpoint `ls6_end` as saved on 2026-09-27 (Sphere Lord 3, Level 98): 13 techniques known, Flowing Palm at
+mastery tier 5 and used 1,016 times, Crescent Arc tier 3, the Sword Dao at tier 5 and the Fist Dao at 2, the Water Dao at
+80 of 100 insight, the Confucian path walked, the eight slots, four Inner Art slots open with Lotus Mind known and none
+worn, no stance held; in the account's storage the Mudwater Manual (3) and the Rain of Reeds manual, unread; Lu's pages
+found at the lake, the tomb and Riven Peak. **Realisations 136** is the plan's formula on those numbers (Level 98 + 2 × 11
+major breakthroughs + 12 Dao tiers + 4 mastery tiers past tier 2); the **29** placed are the migration's routes to the 13
+known arts (plan §4.9), so **107** wait to be placed. Every name not in the data is new, from the plan's word lists.
+
+| PNG | What it shows | The idea | Reference |
+|---|---|---|---|
+| [`06_techniques_element.png`](06_techniques_element.png) | The **Water** tab: Water's tree as a **tide chart** on celadon silk in indigo ink. Seven families' currents (bell, fists, free hand, jian, short blade, heavy sabre, spear; the flute and staff run on under the side panels) flow down from the Spring through four depth contours, the soundings I–IV (Common, Earth, Heaven, Mystic: Act I). In each ring: a passage (a sounding dot), the orthodox art beside it (a buoy with its form's chart mark), from ring II the path art (a pennant in its path's colour, bright for the walked Confucian path, faint for the rest); at the act's edge a notable (an anchor) on each current, channels between them, and the kin groups' keystones as whirlpools (Hundred Springs Rising, Nine Undertows, Heron Stands in the Flood). Lit: the free hand's current to the realised Flowing Palm (Jade Sect seal) and Still Water Focus; each gate carries its weapon Dao (the jian's Sword Dao at 5, the fists' Fist Dao at 2). Selected: **Undertow Crescent** (jian, ring II, the Arc), its route planned in vermilion with its cost (1 + 1 + 2), its card a tide-table slip with the Style A emblem composed by the grammar (`assets/emblemA_*`), its numbers, the same form in the Wind chart (Crescent Arc, known), its Confucian path art (Upright Undertow Script) and **Realise · 4**. Left: the Water cartouche (the Water Dao as a tide gauge, 80 / 100; Realisations 107 to place of 136), the five path-layer chips, the soundings. Right: the whole chart as a minimap (rings I–VIII charted, IX–XIII to come) with the view's frame, zoom in and out, fit and back to the Spring. Foot: the loadout dock (Ring I, the jian's bar, and Ring II in the HUD's own rings; heavy arts 0 of 2; four Inner Art slots with Lotus Mind known; the jian stance slot, none known) | One topology (sectors are families, rings are grade bands, each cell holds an orthodox and a path art, keystones sit at each act's edge) drawn each tab's own way, so the player reads a large tree as a place, not a list; the route to a node and what it costs are on the chart before the card is read | Plan §4.1–4.10; §12 rows "Techniques" and "Daos and mastery"; the user's note on unique pages |
+| [`06_techniques_lost.png`](06_techniques_lost.png) | The **Lost Arts** tab: a dark wood **board** of pinned fragments. The acts reached as tabs (Act I 3 of 20 found, Act II 1 of 12, Act III 0 of 12), the kinds down the side (Steles 4, Ruins 7, Masters 3, Rare drops 5, Quests 0, Events 1). Act I's twenty singles pinned as their kind's material: stele rubbings (black, the silhouette in chalk), torn manual pages, letters with a wax seal, weathered ruin pages and a red-edged event notice. Found: Rising Tide and Rain of Reeds (manuals in storage, stamped *Unread*), Lotus Mind (Elder Hu's legacy, stamped *Learned*, drawn with the Style A inner-art manual); Drifting Cloud struck through (the Cloud Sect's legacy: another road); the rest as ink silhouettes (Ember Burst and Tide-Palm from their Style A emblems, the others by their form) with the first line of their hint. The Ferryman's Oar, Lu's lost lineage, on a red thread: six slips, one art at every five pages, pages 3 of 30. The selected stele read closely on the right: *A lost Secret Art of Water*, its three hint lines (the rumour; "Behind the Falls, Crane Falls", open because Tester has walked there; the third veiled until a Spirit Sense pulse or a companion's tip), what it needs (a Rubbing Kit, none held), **Track** and Ask Lan Yue | Arts found only in the world are all on the board before they are found, as a silhouette and a rumour, so a player knows how many there are and roughly where, and each kind of source looks like what it is | Plan §5 (the list in §5.7); `docs/world_plan.md` hidden maps; 18's silhouettes for unmet beasts |
+
+**Each tab's look** (for `docs/page_identity.md`). The Techniques page drops the window with panels. From the shared
+kit it keeps only the close button, the primary buttons with inked labels, the text tokens, 48 px targets and the type
+sizes; the rest is its own.
+
+| Tab | Concept |
+|---|---|
+| The frame | A dark lacquer rail at the top (the page title inked in pale gold; the tabs as element seals, a 44 px disc with the element's mark and its name under it) and the loadout dock at the foot, the same on every tab so the slots are always where the player left them; between them, full-bleed, the tab's own surface |
+| Water | A tide chart on celadon silk in indigo ink: currents from the Spring, depth contours as soundings, buoys, pennants, anchors, whirlpools; the Dao as a tide gauge (drawn) |
+| Wood | A living tree on warm ochre paper: the families as boughs, the rings as heights, arts as buds that leaf when realised, keystones as fruit; the Dao as growth rings in the trunk's cut |
+| Fire | A forge-lit night sky: sparks rising from a forge mouth, rings as heat bands from red to white, keystones as comets; the Dao as six bellows vents |
+| Earth | A cliff in cross-section: rings as strata going down, arts as ore seams and fossils, keystones as geodes; the Dao as boundary stones |
+| Metal | The back of a cast-bronze mirror: concentric bands in relief, routes as silver inlay, arts as bosses polished when realised, keystones as cast masks |
+| Wind | Kite paper with cloud scrolls: families as wind streams, arts as kites, path arts as ribbons, keystones as whirlwinds |
+| Thunder | A storm-dark sky with forked channels: arts as drumheads, keystones as thunder drums |
+| Soul | A lantern-lit mirror lake at night: arts as floating lanterns with their reflections, keystones as moons in the water |
+| Formless | An ensō on rice paper: black ink dots and dry-brush routes, keystones as vermilion seals |
+| Space | An armillary sphere: rings as orbits, arts as stones in orbit |
+| Time | A water clock and its dial: rings as hours, keystones as eclipse discs |
+| Lost Arts | A dark wood board of pinned manuscript fragments, stele rubbings, letters and notices, red thread for the lineages, a reading lens for the selected scrap (drawn) |
+| Secret Arts | A woven practice mat with footwork diagrams (footprints and arrows), each art's how-to line beside it |
+
+### What 06 now asks the user to approve
+
+- The **tab layout**: eleven element tabs (Wood, Fire, Earth, Metal, Water, Wind, Thunder, Soul, Formless, Space, and
+  Time locked until its Dao), then **Lost Arts** and **Secret Arts**. **Inner Arts** leave their tab for the loadout
+  dock, with the stance for the weapon in hand; a tap on an Inner Art slot opens the drawer of known Inner Arts and
+  stances.
+- A **tree per element** built from one topology and drawn in each tab's own look; Realisations as the one pool that
+  pays for nodes; taught arts light for free; the migration lights the routes to what a character knows.
+- **Lost Arts** as a board where every lost art of the acts reached is pinned before it is found, with hints that open
+  in three steps and **Track**.
+- The **grammar icons**: Style A emblems composed from disc, form mark, rim and path stamp (the four samples in
+  `assets/emblemA_*`, drawn by `tools/icons/study/technique_emblems.py`).
+
+Open items found while drawing (06): the Space tab is open for Tester (Space Dao tier 1) but its first ring is VII, so
+its chart starts in Act III; the jian's Willow Leaf Parry is both a technique (library) and the jian's stance, so a
+character who has not bought it has no jian stance at all (the dock says so); the Mudwater Manual sits unread three
+times in storage and nothing on today's Techniques page says so. Node hit areas are the buoy with its name (at least 48
+px, on a 100 × 82 px grid, so none overlap); passages and pennants are chosen through their art.
 
 ## What each mockup asks the user to approve
 
