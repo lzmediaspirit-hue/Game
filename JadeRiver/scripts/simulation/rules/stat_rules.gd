@@ -472,10 +472,14 @@ static func mob_stats(def: Dictionary, lv: int, elite := false) -> Dictionary:
 	var mob: Dictionary = ContentDB.stat_const("mob", {})
 	var role := "elite" if elite else str(def.get("role", "normal"))
 	var r: Dictionary = mob.get("roles", {}).get(role, {"hp": 1, "attack": 1, "defence": 0.8})
-	var mt := might_at(lv)   # P12: a monster has the Might of a player of its Level
-	var hp := poly(mob.hp, lv) * mt * float(r.hp) * float(def.get("hp_mult", 1.0))
+	# P12 (research §6.2): a normal foe's health and attack come from the par tables (3.5 par blows; a blow of 6% of par
+	# health, 8% under Level 20), a boss's health from the par character's DPS times its par time; armour takes the
+	# Might of the Level, which the attacker's own Might answers.
+	var mt := might_at(lv)
+	var hp := float(by_level("mob.hp_table", lv, poly(mob.hp, lv))) * float(r.hp) * float(def.get("hp_mult", 1.0))
+	if def.has("par_s"): hp = float(par(lv).get("dps", 0)) * float(def.par_s) * float(def.get("hp_mult", 1.0))
 	if def.has("hp_override"): hp = float(def.hp_override)
-	var attack := poly(mob.attack, lv) * mt * float(r.attack) * float(def.get("attack_mult", 1.0))
+	var attack := float(by_level("mob.attack_table", lv, poly(mob.attack, lv))) * float(r.attack) * float(def.get("attack_mult", 1.0))
 	var acc := poly(mob.accuracy, lv)
 	var eva := acc * float(mob.get("agile_evasion_pct" if def.get("agile", false) else "evasion_pct", 0.3))
 	var defence := armour_defence(lv) * mt * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)

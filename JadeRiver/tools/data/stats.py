@@ -259,9 +259,10 @@ CORE = {
                   "energy_type_penalty": 0.5},
     "mob": {"hp": {"a": 30, "b": 15, "c": 1.1}, "attack": {"a": 5, "b": 2.2, "c": 0.1}, "accuracy": {"a": 10, "b": 3},
             "evasion_pct": 0.3, "agile_evasion_pct": 0.6,
+            # P12: a boss's plain blow takes 15% of par HP (x2.5 a normal foe's 6%); its health comes from its par time.
             "roles": {"normal": {"hp": 1, "attack": 1, "defence": 0.8}, "elite": {"hp": 6, "attack": 1.5, "defence": 1.2},
-                      "field_boss": {"hp": 40, "attack": 2, "defence": 1.5}, "dungeon_boss": {"hp": 80, "attack": 2.2, "defence": 1.5},
-                      "story_boss": {"hp": 20, "attack": 1.6, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
+                      "field_boss": {"hp": 40, "attack": 2.5, "defence": 1.5}, "dungeon_boss": {"hp": 80, "attack": 2.5, "defence": 1.5},
+                      "story_boss": {"hp": 20, "attack": 2.5, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
                       "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
             "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
     # S48 technique grades: the base multiplier's bonus by grade.
@@ -396,6 +397,7 @@ def build():
         "might": might_block(),
         "par": par,
         **CORE,
+        "mob": dict(CORE["mob"], **mob_tables(par)),
         "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4},
         "move": {"base": 205, "sprint": 1.7, "sprint_after_s": 2.0, "cap_pct": 0.4, "attack_factor": 0.3, "guard_factor": 0.5,
                  "shallows_factor": 0.7},

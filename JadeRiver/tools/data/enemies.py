@@ -197,6 +197,12 @@ NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.0
               "cloudpeak_roc": {"named": [{"item": "crane_trousers", "chance": 0.002}]}}
 
 
+# P12 par times in seconds (research §6.2 and docs/boss_design.md §2.4).
+BOSS_PAR_S = {"big_toad_tan": 90, "riverbed_serpent": 120, "drowned_abbot": 180, "the_reflection": 90, "hollow_behemoth": 150,
+              "gate_guardian": 120, "thousand_eye_toad": 180, "tomb_king": 150, "pirate_captain": 150, "admiral_voss": 240,
+              "general_kharn": 240, "nebula_leviathan": 300}
+
+
 def build():
     M = [
         mob("mudshell_crab", 1, "normal", "water", "valley_shore", [d("crab_shell", 0.7), d("river_mud", 0.4)],
@@ -647,6 +653,12 @@ def build():
     M.append(mob("riverstone_ox", (37, 38), "normal", "earth", None, [], [atk("horn_toss", 0.5, 50, 0.9)], ai="wild_pet", tameable=True,
                  width=30, height=46, passive=True))
     beast_ranks(M)
+    # P12 (research §6.2): a boss's health is the par character's DPS at its Level times its par time, in place of the
+    # role's factor and the old hp_mult (StatRules.mob_stats). Elder Gu cannot be hurt and flees on his clock.
+    for row in M:
+        if row["id"] in BOSS_PAR_S:
+            row["par_s"] = BOSS_PAR_S[row["id"]]
+            row.pop("hp_mult", None)
     entries("enemies.json", M)
 
     tables = []
