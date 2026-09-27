@@ -1806,6 +1806,154 @@
    "step": "P6c"
   },
   {
+   "id": "rare_drop",
+   "event": "loot_dropped",
+   "when": {
+    "rare": true
+   },
+   "priority": 40,
+   "duration_s": 1.8,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 8.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.rare.toast",
+    "args": [
+     {
+      "item": "slot.rare.item"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 206,
+     "title": {
+      "key": "moment.rare.title"
+     },
+     "size": 18,
+     "color": "GOLD",
+     "names": "rare",
+     "sub_size": 24
+    },
+    {
+     "t": 0.0,
+     "kind": "beam",
+     "height": 240,
+     "width": 10,
+     "pulse_hz": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "rare_chime"
+    },
+    {
+     "t": 0.0,
+     "kind": "buzz",
+     "ms": 40
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "room": "mh_boss_den",
+    "items": [
+     {
+      "uid": 1,
+      "item": "mudwater_cleaver",
+      "count": 1,
+      "coins": 0,
+      "quality": "common"
+     }
+    ],
+    "x": 640.0,
+    "y": 820.0,
+    "source": "boss"
+   },
+   "step": "P6d",
+   "join_s": 1.5
+  },
+  {
+   "id": "story_beat",
+   "event": "quest_completed",
+   "when": {
+    "actor": "active",
+    "kind": "main",
+    "chapter_end": true
+   },
+   "priority": 60,
+   "duration_s": 2.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.story.toast",
+    "args": [
+     {
+      "payload": "payload.name"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "letterbox",
+     "height": 48,
+     "slide_s": 0.3
+    },
+    {
+     "t": 0.0,
+     "kind": "band",
+     "y": 300,
+     "title": {
+      "payload": "payload.name"
+     },
+     "size": 44,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.3,
+     "over": {
+      "chapter_of": "payload.quest"
+     },
+     "over_size": 22,
+     "over_color": "GOLD",
+     "sub": {
+      "key": "moment.story.done"
+     },
+     "sub_color": "MIST"
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "bell"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "quest": "mudwater_hideout",
+    "name": "Mudwater Hideout",
+    "kind": "main"
+   },
+   "step": "P6d"
+  },
+  {
    "id": "trial_opens",
    "event": "room_event_started",
    "when": {
@@ -1822,33 +1970,40 @@
    "merge": [],
    "hold_until": [],
    "max_s": 0.0,
-   "toast": {},
+   "toast": {
+    "key": "event.",
+    "suffix": "payload.event",
+    "kind": "danger"
+   },
    "layers": [
     {
      "t": 0.0,
-     "kind": "text",
-     "text": {
+     "kind": "band",
+     "y": 170,
+     "title": {
       "key": "event.",
       "suffix": "payload.event"
      },
-     "size": 30,
-     "color": "RED",
-     "at": "camera",
-     "offset": [
-      0,
-      -180
-     ],
-     "dur": 3.0
+     "size": 34,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.3
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "bell"
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "actor": "c1",
     "room": "wp_west",
     "event": "heart_trial",
     "duration": 90.0
    },
-   "step": "P6a"
+   "step": "P6d"
   }
  ],
  "settings": {
@@ -1946,6 +2101,94 @@
    ],
    "gap": 0.04
   }
+ },
+ "rare": {
+  "qualities": [
+   "perfect",
+   "relic"
+  ],
+  "types": [
+   "legend_piece",
+   "pet_book",
+   "treasure",
+   "treasure_art"
+  ],
+  "items": {
+   "bronze_bell": true,
+   "cloudpiercing_boots": true,
+   "cloudpiercing_hat": true,
+   "cloudpiercing_robe": true,
+   "cloudpiercing_trousers": true,
+   "cold_lamp_flame": true,
+   "comet_tail_flame": true,
+   "crane_boots": true,
+   "crane_jade_body": true,
+   "crane_mouthpiece": true,
+   "crane_robe": true,
+   "crane_tassel": true,
+   "crane_trousers": true,
+   "dragonfly_limb": true,
+   "dragonfly_sight": true,
+   "dragonfly_string": true,
+   "drowned_boots": true,
+   "drowned_hat": true,
+   "drowned_robe": true,
+   "ferryman_iron_cap": true,
+   "ferryman_knot": true,
+   "ferryman_oak_shaft": true,
+   "heron_shaft": true,
+   "heron_spearhead": true,
+   "heron_tassel": true,
+   "jade_current_boots": true,
+   "jade_current_hat": true,
+   "jade_current_robe": true,
+   "jade_current_trousers": true,
+   "mist_lantern_flame": true,
+   "mountainsplit_edge": true,
+   "mountainsplit_guard": true,
+   "mountainsplit_spine": true,
+   "mudwater_cleaver": true,
+   "mudwater_robe": true,
+   "reedwhisper_edge": true,
+   "reedwhisper_grip": true,
+   "reedwhisper_sheath": true,
+   "riverlight_blade": true,
+   "riverlight_hilt": true,
+   "riverlight_soul": true,
+   "seven_winds_pin": true,
+   "seven_winds_rib": true,
+   "seven_winds_silk": true,
+   "shattered_moon_blade": true,
+   "stone_drum_cuff": true,
+   "stone_drum_heart": true,
+   "stone_drum_knuckle": true,
+   "sunscar_throne_ember": true
+  }
+ },
+ "chapter_ends": {
+  "the_river_token": "prologue",
+  "fish_gutting_fists": "1",
+  "mudwater_hideout": "3",
+  "the_rite": "4",
+  "shen_lians_failure": "6",
+  "wings_of_cloud": "7",
+  "the_rift": "8",
+  "what_remains": "9",
+  "the_ascension_gate": "10",
+  "grey_at_the_edges": "2",
+  "the_drowned_abbot": "5",
+  "sage": "11",
+  "the_mirror_remembers": "12",
+  "ironroot_blood": "13",
+  "the_tomb_king": "14",
+  "the_gate_holds": "15",
+  "stars_beyond": "16",
+  "a_presence_of_ones_own": "17",
+  "the_admiral": "18",
+  "the_masters_seat": "19",
+  "the_orbit_ruins": "20",
+  "star_warden": "21",
+  "greyfall": "22"
  },
  "vfx_tiers": [
   {

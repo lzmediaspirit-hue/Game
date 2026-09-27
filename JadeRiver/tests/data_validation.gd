@@ -81,6 +81,7 @@ func moments_data_suite() -> void:
 			if s.begins_with("payload."): check(s.trim_prefix("payload.") in keys, "%s reads %s, declared by %s" % [where, s, r.event])
 			elif s.begins_with("slot.last."): check(part.size() == 4 and part[3] in declared.call(part[2]), "%s reads %s, declared by %s" % [where, s, part[2]])
 			elif s.begins_with("slot.now.") or s.begins_with("slot.before."): check(part[2] in cfg.get("stats", []) or part[2] == "hp_pct", "%s reads %s, a snapshot number" % [where, s])
+			elif s.begins_with("slot.rare."): check("items" in keys, "%s reads %s: its event carries items" % [where, s])
 			elif s.begins_with("slot."): check(part.size() == 3 and part[2] in slots.get(part[1], []), "%s reads %s, from a merged event that declares it" % [where, s])
 			elif s.begins_with("item."): check("item" in keys, "%s reads %s: its event names an item" % [where, s])
 			elif s.begins_with("enemy."): check("enemy" in keys and s.trim_prefix("enemy.") in ["level", "elite", "def_id"], "%s reads %s: its event names an enemy" % [where, s])
@@ -117,6 +118,16 @@ func moments_data_suite() -> void:
 	for st in cfg.get("stats", []): check(ContentDB.strings.has("moment.stat." + str(st)), "moment.stat.%s is a string" % st)
 	for en in ContentDB.all("enemies"):
 		for i in (en.get("phases", []) as Array).size(): check(ContentDB.strings.has("moment.numeral.%d" % (i + 1)), "%s's phase %d has a numeral" % [en.id, i + 1])
+	# §3.8 rule 9: the rare finds exist; one main quest closes each chapter, 23 in all.
+	for it in cfg.get("rare", {}).get("items", {}): check(item_ok(str(it)), "rare find %s is an item" % it)
+	var ends: Dictionary = cfg.get("chapter_ends", {})
+	var chapters := {}
+	for q in ends:
+		var qd := ContentDB.entry("quests", str(q))
+		check(str(qd.get("kind", "")) == "main" and str(qd.get("chapter", "")) == str(ends[q]), "chapter end %s is a main quest of chapter %s" % [q, ends[q]])
+		chapters[str(ends[q])] = true
+	check(ends.size() == 23 and chapters.size() == 23, "one main quest closes each of the 23 chapters (%d)" % ends.size())
+	for k in ["moment.story.chapter", "moment.story.prologue", "moment.rare.more"]: check(ContentDB.strings.has(k), "%s is a string" % k)
 	for src in cfg.get("fountain", {}):
 		var fo: Dictionary = cfg.fountain[src]
 		check((fo.apex as Array).size() == 3 and (fo.flight as Array).size() == 3 and float(fo.gap) > 0.0 and (not fo.has("flash") or MomentRules.tokens().has(str(fo.flash))),

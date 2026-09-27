@@ -8318,6 +8318,44 @@ func moments_suite() -> void:
 	mv._on_event("loot_dropped", {"room": "x", "items": [], "x": 0.0, "y": 0.0, "source": "jar"})
 	mv.advance(0.0)
 	check(played.call("loot_fountain").is_empty(), "a jar's drop keeps today's bounce")
+	# P6d. Case 14: the rare rule.
+	var legend_piece := ""
+	for it in ContentDB.all("items"):
+		if str(it.get("type", "")) == "legend_piece": legend_piece = str(it.id)
+	check(MomentRules.is_rare({"item": "training_spear", "quality": "perfect"}) and MomentRules.is_rare({"item": legend_piece}) and MomentRules.is_rare({"item": "jade_current_hat"})
+		and not MomentRules.is_rare({"item": "", "coins": 50}) and not MomentRules.is_rare({"item": "willow_moss", "quality": "common"}),
+		"rare: a Perfect piece, a legend piece and a set piece; not coins, not a common herb")
+	# Case 4 on the real rows: after the breakthrough, the Dao tier (50), then the title and the rare find (40) by arrival.
+	var find := {"room": "x", "items": [{"uid": 901, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "enemy"}
+	fresh.call()
+	burst.call()
+	mv._on_event("loot_dropped", find)
+	feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": 3})
+	var seq: Array = []
+	for i in 720:
+		mv.advance(1.0 / 60.0)
+		if mv.playing != null and (seq.is_empty() or seq.back() != mv.playing.row.id): seq.append(mv.playing.row.id)
+	check(seq == ["breakthrough_major", "dao_tier", "title_earned", "rare_drop"], "the queue after a breakthrough: %s" % str(seq))
+	# Rare finds within 1.5 s share one strip.
+	fresh.call()
+	mv._on_event("loot_dropped", find)
+	mv.advance(0.0)
+	run.call(0.5)
+	mv._on_event("loot_dropped", {"room": "x", "items": [{"uid": 902, "item": "jade_current_hat", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "chest"})
+	mv.advance(0.0)
+	var strips: Array = mv.active.filter(func(q): return q.row.id == "rare_drop" and not q.joined)
+	check(strips.size() == 1 and (strips[0].slots.rare as Array).size() == 2 and mv.queue.is_empty(), "two rare finds 0.5 s apart share one strip")
+	# A chapter's last main quest waits for its dialogue page, then closes the chapter; another main quest does not.
+	fresh.call()
+	mv.pages_override = true
+	feed.call("quest_completed", {"actor": "", "quest": "strange_tracks", "name": "Strange Tracks", "kind": "main"})
+	feed.call("quest_completed", {"actor": "", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main"})
+	mv.advance(0.0)
+	check(mv.playing == null and mv.queue.size() == 1 and mv.queue[0].row.id == "story_beat", "the chapter's close waits for the dialogue page")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "story_beat" and MomentRules.text({"chapter_of": "payload.quest"}, mv.playing.p) == Tx.t("moment.story.chapter") % "3",
+		"then Chapter 3 closes on Mudwater Hideout")
 	Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
 	mv.queue_free()

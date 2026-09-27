@@ -11,6 +11,7 @@ var coins := 0
 var quality := "common"
 var count := 1
 var fly := {}   # the loot fountain: {from (offset from its place), flight, apex, burst, chime}; t runs from -(wait + flight) to 0
+var beam := {}  # a rare find's beam (P6 rare_drop): {height, width, hz}, until it is picked up
 
 func setup(entry: Dictionary) -> void:
 	uid = int(entry.uid)
@@ -53,7 +54,14 @@ func _draw() -> void:
 	var y := bounce + sin(t * 2.5) * 2.0 - 6.0
 	var col := UiKit.quality_color(quality) if coins == 0 else UiKit.PALE_GOLD
 	var fine := quality in ["fine", "superior", "perfect", "relic"]
-	if fine:
+	if not beam.is_empty():
+		# A rare find is seen from across the room: a tall column in its colour, breathing slowly.
+		var bc := MomentRules.item_color({"item": item, "quality": quality})
+		var pulse := 0.75 + 0.25 * sin(TAU * float(beam.hz) * t)
+		var bw := float(beam.width)
+		for i in 3:
+			draw_rect(Rect2(-bw * 0.5 * (3 - i) / 3.0, -float(beam.height) + y, bw * (3 - i) / 3.0, float(beam.height) - 10.0), Color(bc, (0.14 + 0.1 * i) * pulse))
+	elif fine:
 		for i in 3:
 			draw_rect(Rect2(-3 + i, -120 + y, 6 - i * 2, 110), Color(col, 0.12 + 0.05 * i))
 	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.3))

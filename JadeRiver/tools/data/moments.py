@@ -6,7 +6,10 @@ and colours. data_validation's moments_data_suite checks every row against the e
 data/audio.json, the strings and UiKit's colour tokens. Colours are UiKit token names or data ids (element:, grade:,
 quality:, dao:), never hex; text is a string key or a data name, never literal words.
 """
-from common import write
+import json
+import os
+
+from common import DATA, write
 
 SETTINGS = {"max_lock_s": 1.5, "queue_max": 4, "stale_s": 6.0, "cut_fade_s": 0.15, "flash_gap_s": 1.0, "shake_amp_per_s": 16,
             "fight_radius": 400, "snapshot_s": 1.0, "merge_rare_s": 1.5}
@@ -33,6 +36,36 @@ _BOSS_FOUNTAIN = {"apex": [120, 14, 200], "flight": [0.55, 0.04, 0.9], "gap": 0.
 _CHEST_FOUNTAIN = {"apex": [80, 10, 140], "flight": [0.45, 0.03, 0.7], "gap": 0.04}
 FOUNTAIN = {"boss": _BOSS_FOUNTAIN, "field_boss": _BOSS_FOUNTAIN, "chest": _CHEST_FOUNTAIN, "tower": _CHEST_FOUNTAIN, "rift": _CHEST_FOUNTAIN}
 BOSS_ROLES = ["field_boss", "dungeon_boss", "story_boss"]
+
+
+def _entries(name):
+    return json.load(open(os.path.join(DATA, name + ".json"), encoding="utf-8"))["entries"]
+
+
+def rare():
+    """§3.4 what a rare find is: a Perfect or Relic piece, a legend piece, a spirit animal's book, a treasure, or a named
+    drop (a boss's unique drop, a first-defeat reward, a set piece, a legendary chain's piece). Coins never."""
+    named = set()
+    for e in _entries("enemies"):
+        named.update([e["unique_drop"]] if e.get("unique_drop") else [])
+        named.update(e.get("first_defeat", []) + e.get("elite_first_defeat", []))
+    for s in _entries("sets"):
+        named.update(s["pieces"])
+    for chain in _entries("legendary_chains"):
+        named.update(p["item"] for p in chain["pieces"])
+    return {"qualities": ["perfect", "relic"], "types": ["legend_piece", "pet_book", "treasure", "treasure_art"],
+            "items": {i: True for i in sorted(named)}}
+
+
+def chapter_ends():
+    """The main quest that closes each chapter: the last one listed whose next quest is none or in another chapter."""
+    mains = [q for q in _entries("quests") if q.get("kind") == "main" and q.get("chapter") is not None]
+    chapter = {q["id"]: str(q["chapter"]) for q in mains}
+    ends = {}
+    for q in mains:
+        if not q.get("next") or chapter.get(q["next"]) != chapter[q["id"]]:
+            ends[str(q["chapter"])] = q["id"]
+    return {quest: ch for ch, quest in ends.items()}
 
 
 # ------------------------------------------------------------------ layer and text helpers
@@ -244,12 +277,29 @@ def rows():
         row("loot_fountain", "loot_dropped", {"source_in": sorted(FOUNTAIN)}, 0, 0.9,
             [{"t": 0.0, "kind": "fountain"}, sound(0.0, "coin")],
             {"room": "mh_boss_den", "items": [], "x": 640.0, "y": 820.0, "source": "boss"}, "P6c"),
+        # A rare find: its names on a strip, a beam over each rare piece until it is picked up. Rare drops within
+        # merge_rare_s join one strip (three names, then "+N"); it waits longer than most, as a find is worth seeing late.
+        row("rare_drop", "loot_dropped", {"rare": True}, 40, 1.8,
+            [strip(0.0, 206, key("moment.rare.title"), 18, "GOLD", names="rare", sub_size=24),
+             {"t": 0.0, "kind": "beam", "height": 240, "width": 10, "pulse_hz": 0.6}, sound(0.0, "rare_chime"), buzz(0.0, 40)],
+            {"room": "mh_boss_den", "items": [{"uid": 1, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}],
+             "x": 640.0, "y": 820.0, "source": "boss"}, "P6d", in_fight="toast", stale_s=8.0, join_s=SETTINGS["merge_rare_s"],
+            toast=key("moment.rare.toast", {"item": "slot.rare.item"})),
+        # The main quest that closes a chapter, after its dialogue page closes.
+        row("story_beat", "quest_completed", {"actor": "active", "kind": "main", "chapter_end": True}, 60, 2.6,
+            [{"t": 0.0, "kind": "letterbox", "height": 48, "slide_s": 0.3},
+             band(0.0, 300, {"payload": "payload.name"}, 44, "PALE_GOLD", over={"chapter_of": "payload.quest"}, over_size=22,
+                  over_color="GOLD", sub=key("moment.story.done"), sub_color="MIST", wipe_s=0.3),
+             sound(0.0, "bell")],
+            {"actor": "c1", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main"}, "P6d", in_fight="toast",
+            toast=key("moment.story.toast", {"payload": "payload.name"})),
         row("trial_opens", "room_event_started", ACTIVE, 60, 1.8,
-            [text(0.0, key("event.", suffix="payload.event"), 30, "RED", at="camera", offset=[0, -180], dur=3.0)],
-            {"actor": "c1", "room": "wp_west", "event": "heart_trial", "duration": 90.0}, "P6a", scope="room"),
+            [band(0.0, 170, key("event.", suffix="payload.event"), 34, "PALE_GOLD", wipe_s=0.3), sound(0.0, "bell")],
+            {"actor": "c1", "room": "wp_west", "event": "heart_trial", "duration": 90.0}, "P6d", scope="room",
+            toast=key("event.", suffix="payload.event", kind="danger")),
     ]
 
 
 def build():
     write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
-                           "vfx_tiers": VFX_TIERS})
+                           "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS})

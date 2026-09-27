@@ -48,6 +48,11 @@ static func is_rare(i: Dictionary) -> bool:
 	return str(i.get("quality", "")) in r.get("qualities", []) or str(ContentDB.item(id).get("type", "")) in r.get("types", []) \
 		or (r.get("items", {}) as Dictionary).has(id)
 
+## A loot entry's colour: its quality's, or for a common piece its item's grade (§6 rule 4).
+static func item_color(i: Dictionary) -> Color:
+	var q := str(i.get("quality", "common"))
+	return UiKit.quality_color(q) if q != "common" else UiKit.grade_color(str(ContentDB.item(str(i.get("item", ""))).get("grade", "common")))
+
 ## A reference inside a row: "payload.<key>"; "slot.<path>" into what the view keeps for the play (an absorbed event's
 ## payload by its slot, `last.<event>` the last payload of an event, `now` and `before` the stat snapshots); "item.<field>"
 ## (the payload item's data); or a plain value.
@@ -101,6 +106,9 @@ static func text(src, p: Dictionary, slots := {}) -> String:
 		return str(f)
 	if src.has("affixes_of"):   # a title's bonus, as the Character page writes it
 		return ", ".join(ContentDB.entry(str(src.affixes_of), str(value(src.id, p, slots))).get("modifiers", []).map(func(m): return UiKit.affix_text(m)))
+	if src.has("chapter_of"):   # the chapter a main quest closes, or the Prologue
+		var ch := str(cfg().get("chapter_ends", {}).get(str(v), ""))
+		return "" if ch == "" else (Tx.t("moment.story.prologue") if ch == "prologue" else Tx.t("moment.story.chapter") % ch)
 	if src.has("pet"):   # the active character's spirit animal by uid
 		var c = Game.active()
 		for pt in (c.pets if c else []):

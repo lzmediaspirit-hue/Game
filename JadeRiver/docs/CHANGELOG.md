@@ -2,6 +2,21 @@
 
 ## Moments (docs/roadmap_master_ui.md, P6)
 
+### P6d · Rare finds, story beats and trials
+- **A rare find** (`rare_drop`) is seen from across the room: a tall beam in the piece's colour stands over it and breathes
+  until it is picked up, and a strip names it in its grade or quality colour under "A rare find", with `rare_chime`
+  and a short buzz. Finds within 1.5 s share one strip (three names, then "+N"); in a fight it is a toast. What is
+  rare is data (`moments.json` `rare`): a Perfect or Relic piece, a legend piece, a spirit animal's book, a treasure,
+  and 49 named drops (every boss's unique drop and first-defeat reward, every set piece, every legendary chain piece).
+- **A chapter closes** (`story_beat`): when the main quest that ends a chapter is handed in, after its dialogue page
+  closes, thin ink bars close in and a band writes the chapter over the quest's name, "The chapter closes" under it,
+  with the bell. `moments.json` `chapter_ends` names the closing quest of each of the 23 chapters (the Prologue and
+  1–22), read from the quests.
+- **A trial opens** on a band in pale gold with the bell (it was red text over the room), and ends when you leave.
+- **Tests:** `moments_suite` case 4 on the real rows (after a major breakthrough: the Dao tier, then the title and the
+  rare find by arrival), case 14 (the rare rule), two finds sharing a strip, and a chapter's close waiting for its
+  page; `moments_data_suite` checks every rare find exists and one quest closes each chapter.
+
 ### P6c · Bosses and the loot fountain
 - **The boss intro** (`boss_intro`): the first time a boss turns on you in a visit, two ink bars close in top and
   bottom (under the HUD, so its controls stay live), its name is written large with its Level under it, and war drums

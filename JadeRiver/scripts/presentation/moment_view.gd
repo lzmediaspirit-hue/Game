@@ -208,16 +208,24 @@ func _accept(pl: Dictionary) -> void:
 			pl.row = row
 			break
 	if int(row.priority) > 0: pl.slots.merge({"now": stats_now(), "before": before.duplicate(), "last": last_seen.duplicate()})
+	if pl.p.has("items"): pl.slots["rare"] = (pl.p.items as Array).filter(func(i): return MomentRules.is_rare(i))
 	var key := str(row.id) + str(pl.p)
 	if clock - float(recent.get(key, -9.0)) < 0.5: return
 	recent[key] = clock
 	if recent.size() > 64: recent.clear()
 	if row.get("when", {}).has("first_in_room"): seen[int(pl.p.get("enemy", 0))] = true
 	arrivals += 1
-	pl.merge({"wt": 0.0, "st": -1.0, "sw": 0.0, "wait": 0.0, "n": arrivals, "fired": {}, "muted": {}, "held": not row.get("hold_until", []).is_empty(), "fade": 0.0})
+	pl.merge({"wt": 0.0, "st": -1.0, "sw": 0.0, "wait": 0.0, "n": arrivals, "fired": {}, "muted": {}, "held": not row.get("hold_until", []).is_empty(), "fade": 0.0,
+		"at": clock, "joined": false})
+	# A row with join_s: the same row accepted a moment ago takes this one's finds into its own strip (§2.1 row 22).
+	for host in active:
+		if str(host.row.id) == str(row.id) and clock - float(host.at) <= float(row.get("join_s", -1.0)) and not host.joined:
+			host.slots.rare = host.slots.get("rare", []) + pl.slots.get("rare", [])
+			pl.joined = true
+			break
 	active.append(pl)
 	_run_world(pl, 0.0)
-	if int(row.priority) <= 0: return
+	if int(row.priority) <= 0 or pl.joined: return
 	if str(row.get("in_fight", "play")) == "toast" and _in_fight():
 		_post_toast(pl)
 		return
@@ -279,6 +287,7 @@ func _fire(pl: Dictionary, L: Dictionary) -> void:
 	var p: Dictionary = pl.p
 	var e := {"t": snappedf(float(pl.wt), 0.001), "row": str(pl.row.id), "layer": kind}
 	var at := _anchors(L, p) if kind in ["fx", "text", "camera"] else []
+	if pl.get("joined", false) and kind != "beam": return   # a find that joined an earlier strip only lights its beam
 	match kind:
 		"sound":
 			var id := str(L.sfx)
@@ -320,6 +329,11 @@ func _fire(pl: Dictionary, L: Dictionary) -> void:
 			var f: Dictionary = MomentRules.cfg().get("fountain", {}).get(str(p.get("source", "")), {})
 			e.bounce = f.is_empty() or s.get("reduce_motion", false)   # Reduce motion keeps today's bounce
 			if world and not e.bounce: _fountain(p, f)
+		"beam":
+			e.count = (pl.slots.get("rare", []) as Array).size()
+			if world:
+				for v in _loot_views(pl.slots.get("rare", [])):
+					v.beam = {"height": float(L.height), "width": float(L.width), "hz": float(L.get("pulse_hz", 0.0))}
 	e.skipped = world == null or (kind in ["fx", "text", "camera"] and at.is_empty())
 	logged.append(e)
 	if logged.size() > 200: logged.pop_front()
@@ -361,17 +375,20 @@ func _fountain(p: Dictionary, f: Dictionary) -> void:
 	var fl: Array = f.flight
 	var apex := minf(float(ap[0]) + float(ap[1]) * n, float(ap[2]))
 	var flight := minf(float(fl[0]) + float(fl[1]) * n, float(fl[2]))
-	var views := {}
-	for v in world.room_layer.get_children():
-		if v is LootView: views[v.uid] = v
 	var order: Array = items.filter(func(i): return not MomentRules.is_rare(i)) + items.filter(func(i): return MomentRules.is_rare(i))
 	var drop := Vector2(float(p.get("x", 0.0)), float(p.get("y", 0.0)))
+	var views := _loot_views(order)
 	var chimed := false
 	for i in order.size():
 		var rare := MomentRules.is_rare(order[i])
-		if views.has(int(order[i].uid)): views[int(order[i].uid)].launch(drop, i * float(f.gap), apex, flight, "rare_chime" if rare and not chimed else "")
+		for v in views.filter(func(w): return w.uid == int(order[i].uid)): v.launch(drop, i * float(f.gap), apex, flight, "rare_chime" if rare and not chimed else "")
 		chimed = chimed or rare
 	if f.has("flash"): world.fx.add("flash", drop + Vector2(0, -30), {"color": MomentRules.color(f.flash), "radius": 90.0, "dur": 0.3})
+
+## The room's views of these loot entries (world.gd builds them in the same frame, before their first draw).
+func _loot_views(items: Array) -> Array:
+	var uids := items.map(func(i): return int(i.get("uid", -1)))
+	return world.room_layer.get_children().filter(func(v): return v is LootView and v.uid in uids)
 
 ## The people nearby say something (three lines by `prefix`_0.._2).
 func _bark(prefix: String, radius: float, dur: float) -> void:
@@ -571,7 +588,7 @@ func _draw_band(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, 
 	var y := float(L.y)
 	_ink(ci, _band_rect(pl, L), lt, float(L.get("wipe_s", 0.4)), 0.9 * a, still)
 	var over := _t(pl, L.get("over", {}))
-	if over != "": _spaced(ci, over, y - 13.0, 26.0, Color(UiKit.PALE_GOLD, a * _in(lt, 0.1, 0.2)), 4.0)
+	if over != "": _spaced(ci, over, y - 13.0, float(L.get("over_size", 26)), Color(_col(pl, L.get("over_color"), UiKit.PALE_GOLD), a * _in(lt, 0.1, 0.2)), 4.0)
 	var title := _t(pl, L.get("title", {}))
 	var ta := a * _in(lt, 0.2, 0.3)
 	if L.has("glow"):
@@ -599,8 +616,18 @@ func _strip_rect(pl: Dictionary, L: Dictionary) -> Rect2:
 	var px := float(L.get("size", 30))
 	var spx := float(L.get("sub_size", 18))
 	var sub := _t(pl, L.get("sub", {}))
-	var w := clampf(maxf(_width(_t(pl, L.get("title", {})), px, true), _width(sub, spx)) + 220.0, 440.0, 1100.0)
-	return Rect2(640.0 - w * 0.5, float(L.y) - 10.0, w, px * 1.2 + (spx * 1.4 if sub != "" else 0.0) + _more(pl, L).size() * 24.0 + 22.0)
+	var names := _names(pl, L)
+	var nw: float = names.reduce(func(acc, n): return acc + _width(n[0] + " · ", spx), 0.0)
+	var w := clampf(maxf(maxf(_width(_t(pl, L.get("title", {})), px, true), _width(sub, spx)), nw) + 220.0, 440.0, 1100.0)
+	return Rect2(640.0 - w * 0.5, float(L.y) - 10.0, w, px * 1.2 + (spx * 1.4 if sub != "" or not names.is_empty() else 0.0) + _more(pl, L).size() * 24.0 + 22.0)
+
+## A strip's `names`: the finds in its slot, three of them in their own colours and then "+N".
+func _names(pl: Dictionary, L: Dictionary) -> Array:
+	if not L.has("names"): return []
+	var list: Array = pl.slots.get(str(L.names), [])
+	var out: Array = list.slice(0, 3).map(func(i): return [ContentDB.item_name(str(i.get("item", ""))), MomentRules.item_color(i)])
+	if list.size() > 3: out.append([Tx.t("moment.rare.more") % (list.size() - 3), UiKit.MIST])
+	return out
 
 func _more(pl: Dictionary, L: Dictionary) -> Array:
 	return (L.get("more", []) as Array).map(func(s): return _t(pl, s)).filter(func(s): return s != "")
@@ -615,6 +642,17 @@ func _draw_strip(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float,
 	if sub != "":
 		y += float(L.get("sub_size", 18)) * 1.4
 		_write(ci, sub, Vector2(0, y), float(L.get("sub_size", 18)), Color(_col(pl, L.get("sub_color"), UiKit.MIST), ta))
+	var names := _names(pl, L)
+	if not names.is_empty():
+		var spx := float(L.get("sub_size", 18))
+		y += spx * 1.4
+		var x: float = 640.0 - (names.reduce(func(acc, n): return acc + _width(n[0], spx), 0.0) + _width(" · ", spx) * (names.size() - 1)) * 0.5
+		for i in names.size():
+			if i > 0:
+				_write(ci, " · ", Vector2(x, y), spx, Color(UiKit.MIST, ta), false, HORIZONTAL_ALIGNMENT_LEFT, -1.0)
+				x += _width(" · ", spx)
+			_write(ci, names[i][0], Vector2(x, y), spx, Color(names[i][1], ta), false, HORIZONTAL_ALIGNMENT_LEFT, -1.0)
+			x += _width(names[i][0], spx)
 	for line in _more(pl, L):
 		y += 24.0
 		_write(ci, line, Vector2(0, y), 17.0, Color(_col(pl, L.get("more_color"), UiKit.MIST), ta))
