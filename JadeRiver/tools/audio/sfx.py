@@ -483,6 +483,64 @@ def s_backlash(rng):
     return y
 
 
+# ---------------------------------------------------------------- moments (P6, docs/moments_design.md §5.9)
+
+@sfx("brush_stroke")
+def s_brush_stroke(rng):
+    """A breakthrough's name written in one stroke: noise through a band moving 800 -> 2,400 Hz, and a scatter of
+    grains where the bristles leave the paper."""
+    d = 0.5
+    y = whoosh(rng, d, [(0, 800), (1, 2400)], [(0, 0), (0.12, 1), (0.7, 0.75), (1, 0)], width=0.7, tilt_db=-1.0)
+    return y + 0.3 * grains(rng, d, 24, (0.3, 0.47), (2500, 6000), amp=(0.2, 0.8), fall=8.0)
+
+
+@sfx("seal_press")
+def s_seal_press(rng):
+    """A seal stamped on paper: a woodblock knock over a membrane at 120 Hz."""
+    y = buf(0.35)
+    at(y, membrane(120, rng, t60=0.2, drop=0.2, noise_amt=0.2), 0, 0.8)
+    at(y, woodblock(760.0, rng, t60=0.07, click_amt=0.4, bright=0.8), 0, 0.6)
+    return y
+
+
+@sfx("gong_short")
+def s_gong_short(rng):
+    """A level gained alone (F4's short gong): a gong at 196 Hz that settles quickly and is not too bright."""
+    return gong(196.0, rng, dur=0.8, pitch=(0, -25), tau=0.35, bloom=0.2, bright=0.6)
+
+
+@sfx("boss_sting")
+def s_boss_sting(rng):
+    """A boss arrives: two drum hits at 55 Hz a quarter second apart, and a low gong at 73 Hz that falls."""
+    d = 1.4
+    y = buf(d)
+    for t in (0.0, 0.25):
+        at(y, membrane(55, rng, t60=0.5, drop=0.35, noise_amt=0.3), t, 0.9)
+    at(y, gong(73.0, rng, dur=1.1, pitch=(0, -120), tau=0.5, bloom=0.3, bright=0.55), 0.25, 0.8)
+    return add_reverb(y, rng, t60=1.2, wet=0.25, keep=len(y))
+
+
+@sfx("boss_fall")
+def s_boss_fall(rng):
+    """A boss falls: a gong at 65 Hz with a long decay, a membrane at 48 Hz and three falling chimes."""
+    d = 2.0
+    y = buf(d)
+    at(y, gong(65.0, rng, dur=d, pitch=(0, -40), tau=1.0, bloom=0.4, bright=0.65), 0, 0.9)
+    at(y, membrane(48, rng, t60=0.7, drop=0.4, noise_amt=0.3), 0, 0.7)
+    for k, m in enumerate((88, 83, 79)):
+        at(y, chime(float(mtof(m)), rng, dur=1.0), 0.35 + 0.16 * k, 0.3)
+    return add_reverb(y, rng, t60=1.8, wet=0.3, keep=len(y))
+
+
+@sfx("rare_chime")
+def s_rare_chime(rng):
+    """A rare find: three bells at 1,568, 2,093 and 2,637 Hz, 0.09 s apart."""
+    y = buf(0.9)
+    for k, f in enumerate((1568.0, 2093.0, 2637.0)):
+        at(y, bell(f, rng, dur=0.8, kind="small", strike=0.2), 0.09 * k, 0.8 - 0.1 * k)
+    return add_reverb(y, rng, t60=0.9, wet=0.2, keep=len(y))
+
+
 # ---------------------------------------------------------------- ui
 
 @sfx("ui_tap")

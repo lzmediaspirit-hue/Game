@@ -23,6 +23,7 @@ func _ready() -> void:
 func _main() -> void:
 	_learn_kinds()
 	data_suite()
+	moments_data_suite()
 	item_source_suite()
 	gear_suite()
 	room_suite()
@@ -52,6 +53,151 @@ func _learn_kinds() -> void:
 			for part in line.strip_edges().trim_suffix(":").split(","):
 				req_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	check(effect_kinds.size() > 30 and req_kinds.size() > 30, "rule kinds discovered (%d effects, %d requirements)" % [effect_kinds.size(), req_kinds.size()])
+
+## P6 moments (docs/moments_design.md §3.8): every row of data/moments.json against the event contract (its trigger,
+## merges and every payload key it reads), FxLayer's kinds, data/audio.json, the strings, UiKit's colours, the closed
+## lists of MomentRules and the timing rules (a lock of at most max_lock_s, every screen layer inside the row).
+func moments_data_suite() -> void:
+	var contract: Dictionary = ContentDB.config("event_contract").get("events", {})
+	var cfg: Dictionary = ContentDB.config("moments")
+	var rows: Array = ContentDB.all("moments")
+	check(rows.size() >= 11 and cfg.has("settings"), "moments.json has its rows and settings (%d rows)" % rows.size())
+	var declared := func(ev: String) -> Array: return (contract.get(ev, {}).get("payload", []) as Array).map(func(k): return str(k).trim_suffix("?"))
+	for r in rows:
+		var where := "moment " + str(r.id)
+		var keys: Array = declared.call(str(r.event))
+		check(contract.has(str(r.event)) and not keys.is_empty(), "%s: its event %s is in the contract with a declared payload" % [where, r.event])
+		var slots := {}
+		for m in r.get("merge", []):
+			check(contract.has(str(m.event)), "%s: merged event %s is in the contract" % [where, m.event])
+			slots[str(m.get("into", ""))] = declared.call(str(m.event))
+			for k in m.get("when", {}): check(k in MomentRules.MATCHERS or k in declared.call(str(m.event)), "%s: merge %s reads a declared key (%s)" % [where, m.event, k])
+		for k in r.get("when", {}): check(k in MomentRules.MATCHERS or k in keys, "%s: matcher %s is known or a declared key" % [where, k])
+		for h in r.get("hold_until", []): check(contract.has(str(h)), "%s: held until %s, an event in the contract" % [where, h])
+		var refs := []
+		_moment_walk(r, refs)
+		for ref in refs:
+			var s := str(ref)
+			var part := s.split(".")
+			if s.begins_with("payload."): check(s.trim_prefix("payload.") in keys, "%s reads %s, declared by %s" % [where, s, r.event])
+			elif s.begins_with("slot.last."): check(part.size() == 4 and part[3] in declared.call(part[2]), "%s reads %s, declared by %s" % [where, s, part[2]])
+			elif s.begins_with("slot.now.") or s.begins_with("slot.before."): check(part[2] in cfg.get("stats", []) or part[2] == "hp_pct", "%s reads %s, a snapshot number" % [where, s])
+			elif s.begins_with("slot.rare."): check("items" in keys, "%s reads %s: its event carries items" % [where, s])
+			elif s.begins_with("slot."): check(part.size() == 3 and part[2] in slots.get(part[1], []), "%s reads %s, from a merged event that declares it" % [where, s])
+			elif s.begins_with("item."): check("item" in keys, "%s reads %s: its event names an item" % [where, s])
+			elif s.begins_with("enemy."): check("enemy" in keys and s.trim_prefix("enemy.") in ["level", "elite", "def_id"], "%s reads %s: its event names an enemy" % [where, s])
+		check(float(r.lock_s) <= float(cfg.settings.max_lock_s) and (float(r.lock_s) == 0.0 or float(r.lock_s) < float(r.duration_s)), "%s: its lock is within %s s and the row" % [where, cfg.settings.max_lock_s])
+		check(float(r.get("skip_to_s", 0.0)) < float(r.duration_s) and str(r.skip) in ["", "tap"] and str(r.in_fight) in ["play", "toast"] and str(r.scope) in ["actor", "room"], "%s: skip, in_fight and scope are known, the skip point inside the row" % where)
+		check(r.get("hold_until", []).is_empty() == (float(r.get("max_s", 0.0)) == 0.0), "%s: a held row has hold_until and max_s" % where)
+		for v in r.get("variants", []):
+			for k in v.get("when", {}): check(k in keys, "%s: a variant tests a declared key (%s)" % [where, k])
+		for v in [r] + r.get("variants", []):
+			var dur := float(v.get("duration_s", r.duration_s))
+			for L in v.layers:
+				var kind := str(L.kind)
+				check(MomentRules.LAYER_KINDS.has(kind), "%s: layer kind %s is known" % [where, kind])
+				if MomentRules.LAYER_KINDS.get(kind, "") in ["under", "over"]: check(float(L.t) < dur, "%s: its %s layer starts inside the row" % [where, kind])
+				if kind == "fx": check(str(L.fx) in FxLayer.KINDS, "%s: fx %s is an FxLayer kind" % [where, L.fx])
+				if kind == "sound": check(ContentDB.config("audio").get("sfx", {}).has(str(L.sfx)), "%s: sound %s is in data/audio.json" % [where, L.sfx])
+				if kind == "bark":
+					for i in 3: check(ContentDB.strings.has("%s_%d" % [L.key, i]), "%s: bark line %s_%d" % [where, L.key, i])
+				if L.get("at") is String: check(str(L.at) in MomentRules.ANCHORS + ["band", "strip"], "%s: anchor %s is known" % [where, L.at])
+				if L.has("to"): check(str(L.to) in MomentRules.ANCHORS, "%s: camera anchor %s is known" % [where, L.to])
+				for art in ["band", "strip"]:
+					if kind == art: check("ink_band" in r.get("art", []) and ContentDB.config("ui_assets_hd").has("ink_band"), "%s: its %s's ink band is listed and built" % [where, kind])
+		for k in keys:
+			check(r.sample.has(k), "%s: its sample carries %s" % [where, k])
+	# The names moments write: a stage's great realm, a craft, a failure's cause, a stat's label.
+	for rr in ContentDB.all("realms"): check(ContentDB.strings.has("realm_great." + str(rr.realm)), "realm_great.%s is a string" % rr.realm)
+	var crafts := {}
+	for rc in ContentDB.all("recipes"): crafts[str(rc.get("craft", ""))] = true
+	for g in ContentDB.all("guilds"): crafts[str(g.craft)] = true
+	for n in CraftingAuthority.NODE_CRAFT.values(): crafts[str(n)] = true
+	crafts.erase("")
+	for cr in crafts: check(ContentDB.strings.has("craft." + str(cr)), "craft.%s is a string" % cr)
+	for f in ContentDB.all("failures"): check(ContentDB.strings.has("failure." + str(f.id)), "failure.%s is a string (finding 8)" % f.id)
+	for st in cfg.get("stats", []): check(ContentDB.strings.has("moment.stat." + str(st)), "moment.stat.%s is a string" % st)
+	for en in ContentDB.all("enemies"):
+		for i in (en.get("phases", []) as Array).size(): check(ContentDB.strings.has("moment.numeral.%d" % (i + 1)), "%s's phase %d has a numeral" % [en.id, i + 1])
+	# §3.8 rule 9: the rare finds exist; one main quest closes each chapter, 23 in all.
+	for it in cfg.get("rare", {}).get("items", {}): check(item_ok(str(it)), "rare find %s is an item" % it)
+	var ends: Dictionary = cfg.get("chapter_ends", {})
+	var chapters := {}
+	for q in ends:
+		var qd := ContentDB.entry("quests", str(q))
+		check(str(qd.get("kind", "")) == "main" and str(qd.get("chapter", "")) == str(ends[q]), "chapter end %s is a main quest of chapter %s" % [q, ends[q]])
+		chapters[str(ends[q])] = true
+	check(ends.size() == 23 and chapters.size() == 23, "one main quest closes each of the 23 chapters (%d)" % ends.size())
+	for k in ["moment.story.chapter", "moment.story.prologue", "moment.rare.more"]: check(ContentDB.strings.has(k), "%s is a string" % k)
+	for src in cfg.get("fountain", {}):
+		var fo: Dictionary = cfg.fountain[src]
+		check((fo.apex as Array).size() == 3 and (fo.flight as Array).size() == 3 and float(fo.gap) > 0.0 and (not fo.has("flash") or MomentRules.tokens().has(str(fo.flash))),
+			"the %s fountain has its apex, flight, gap and a token flash" % src)
+	for fam in cfg.get("dao_colours", {}): check(MomentRules.tokens().has(str(cfg.dao_colours[fam])), "the %s Daos' colour is a UiKit token" % fam)
+	var elems: Dictionary = ContentDB.config("elements").get("colors", {})
+	var grades: Dictionary = ContentDB.config("grades")
+	var tokens := MomentRules.tokens()
+	var colours := []
+	_moment_walk(rows, [], colours)
+	for c in colours:
+		var s := str(c)
+		var id := s.get_slice(":", 1)
+		var ok := tokens.has(s)
+		if s.contains(":"): ok = id.contains(".") or {"element": elems, "grade": grades.get("grade_colors", {}), "quality": grades.get("quality_colors", {})}.get(s.get_slice(":", 0), {}).has(id)
+		check(ok, "moments colour %s is a UiKit token or a data id" % s)
+	var texts := []
+	_moment_walk(rows, [], [], texts)
+	for t in texts:
+		if not t.src.has("key"):
+			var tb := str(t.src.get("name_of", t.src.get("field_of", "")))
+			check(ContentDB.tables.has(tb), "moments text source reads %s, a table" % tb)
+			continue
+		var k := str(t.src.key) + (MomentRules.id_of(t.sample.get(str(t.src.suffix).trim_prefix("payload."), "")) if t.src.has("suffix") else "")
+		check(ContentDB.strings.has(k), "moments text %s is a string (not the fallback)" % k)
+	var tiers: Array = cfg.get("vfx_tiers", [])
+	check(tiers.size() == 7, "the escalation curve has 7 tiers")
+	for i in range(1, tiers.size()):
+		for col in tiers[i]:
+			check(float(tiers[i][col]) >= float(tiers[i - 1][col]), "vfx tier %d: %s does not fall" % [i + 1, col])
+		check(int(tiers[i].spark_count) > int(tiers[i - 1].spark_count), "vfx tier %d: more sparks than tier %d" % [i + 1, i])
+	for t in tiers:
+		check(int(t.number_size) + 8 <= 40 and float(t.shake_s) <= 0.15 and float(t.tint_alpha) <= 0.2, "vfx tier %d stays within the limits" % int(t.tier))
+	# §3.8 rule 10 and rule 3's second half: a tier per realm, rising 1 to 7; every technique's block at its unlock realm's
+	# band (Common 1, Earth 2, Heaven 3 and up), a known shape drawn by FxLayer kinds, and a known spark style.
+	var bands: Array = cfg.get("vfx_bands", [])
+	check(bands.size() == ContentDB.all("realms").map(func(r): return int(r.realm_index)).max() + 1 and int(bands[0]) == 1 and int(bands[-1]) == 7,
+		"vfx_bands names a tier for every realm, 1 to 7")
+	for i in range(1, bands.size()): check(int(bands[i]) >= int(bands[i - 1]), "vfx band of realm %d does not fall" % i)
+	var shapes: Dictionary = cfg.get("vfx_shapes", {})
+	check(shapes.keys().all(func(s): return s in MomentRules.SHAPES) and MomentRules.SHAPES.all(func(s): return shapes.has(s)), "vfx_shapes lists every shape")
+	for s in shapes:
+		for kind in shapes[s]: check(str(kind) in FxLayer.KINDS, "shape %s draws %s, an FxLayer kind" % [s, kind])
+	for st in cfg.get("particles", {}).get("families", {}).values() + cfg.get("particles", {}).get("elements", {}).values():
+		check(str(st) in MomentRules.STYLES, "spark style %s is known" % st)
+	for t in ContentDB.all("techniques"):
+		var v: Dictionary = t.get("vfx", {})
+		var tier := int(v.get("tier", 0))
+		var want := int(bands[clampi(int(ContentDB.realm(str(t.unlock)).get("realm_index", 0)), 0, bands.size() - 1)]) if not bands.is_empty() else -1
+		check(tier == want and {"common": tier == 1, "earth": tier == 2, "heaven": tier >= 3}.get(str(t.get("grade", "")), false),
+			"technique %s: vfx tier %d is its unlock realm's band (%d, %s)" % [t.id, tier, want, t.get("grade", "")])
+		check(str(v.get("shape", "")) in MomentRules.SHAPES and str(v.get("particles", "")) in MomentRules.STYLES, "technique %s: a known vfx shape and style" % t.id)
+
+## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
+func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
+	if node is Dictionary:
+		if node.has("sample") and node.has("layers"): sample = node.sample
+		if (node.has("key") or node.has("name_of") or node.has("field_of")) and not node.has("kind"): texts.append({"src": node, "sample": sample})
+		for k in node:
+			if k == "sample": continue
+			var v = node[k]
+			if k in ["color", "glow"]: colours.append(v)
+			if v is String:
+				var r: String = v.get_slice(":", 1) if v.contains(":") else v
+				if r.begins_with("payload.") or r.begins_with("slot.") or r.begins_with("item.") or r.begins_with("enemy."): refs.append(r)
+				if k == "if": refs.append("payload." + v)   # a line shown only when the payload says so
+			_moment_walk(v, refs, colours, texts, sample)
+	elif node is Array:
+		for v in node: _moment_walk(v, refs, colours, texts, sample)
 
 func item_ok(id: String) -> bool:
 	return ContentDB.has_entry("items", id) or ContentDB.has_entry("artifacts", id)

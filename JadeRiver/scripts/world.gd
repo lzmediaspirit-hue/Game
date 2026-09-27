@@ -43,7 +43,9 @@ var npc_views: Dictionary = {}
 var portal_views: Array = []
 var context: Dictionary = {}
 var up_hold := 0.0
-var shake := 0.0
+var shake := 0.0                    # seconds of camera shake left; add_shake is its one writer (P6 camera rig)
+var shake_k := 0.0                  # px of shake amplitude per second left
+var camera_hold := {}               # a moment's camera move: {target, t, in, hold, out}
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
 
@@ -296,14 +298,16 @@ func _process(delta: float) -> void:
 	for tv in dynamic_terrain: tv.queue_redraw()
 	_update_camera_follow(delta)
 	var ct := camera_target()
+	if not camera_hold.is_empty():
+		var h := camera_hold
+		h.t = float(h.t) + delta
+		var ends := float(h.in) + float(h.hold) + float(h.out)
+		ct = ct.lerp(h.target, smoothstep(0.0, float(h.in), h.t) * (1.0 - smoothstep(ends - float(h.out), ends, h.t)))
+		if float(h.t) >= ends: camera_hold = {}
 	# Across at the old pace; up and down it settles in about 0.4 s after a landing.
 	camera.position = Vector2(lerpf(camera.position.x, ct.x, 1.0 - exp(-delta * 6.0)), lerpf(camera.position.y, ct.y, 1.0 - exp(-delta * 7.5)))
-	if shake > 0.0:
-		shake = maxf(0.0, shake - delta)
-		if Game.account.settings.get("screen_shake", true):
-			camera.offset = Vector2(randf_range(-4, 4), randf_range(-3, 3)) * (shake / 0.25)
-	else:
-		camera.offset = Vector2.ZERO
+	shake = maxf(0.0, shake - delta)
+	camera.offset = Vector2(randf_range(-1, 1), randf_range(-0.75, 0.75)) * shake_k * shake if shake > 0.0 else Vector2.ZERO
 	camera.position = camera.position.snapped(Vector2(2, 2))
 	_track_safe(delta)
 	update_occlusion()
@@ -348,6 +352,69 @@ func _fame_greeting() -> void:
 	best.bark = Tx.t("world_view.fame_greet_" + tier) % c.name
 	best.bark_time = 4.0
 
+## The camera rig's one writer of the shake (P6): the longer shake and the stronger amplitude win. `amp` is the starting
+## amplitude in px (default s × shake_amp_per_s: 4 px at 0.25 s); none with Screen shake off or Reduce motion on.
+func add_shake(s: float, amp := -1.0) -> void:
+	var a := MomentRules.shake_amp(s, amp)
+	if a <= 0.0 or s <= 0.0: return
+	shake_k = maxf(shake_k if shake > 0.0 else 0.0, a / s)
+	shake = maxf(shake, s)
+
+## P6e a technique cast at its tier (docs/moments_design.md §5): a ring at the feet (from tier 2), a wash of its
+## element over the screen (from tier 3, under the flash limiter), and its shape, drawn at the reach it really strikes
+## (§5.4): a slash, a wave along the reach, a ring at it with echo rings inside, a rain of streaks, a pillar on the foe,
+## or a ring and motes round the caster. A bolt is drawn by its projectile.
+var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
+func _cast(tech: String, facing: int, col: Color) -> void:
+	var t := ContentDB.entry("techniques", tech)
+	var n := MomentRules.tier_numbers("tech:" + tech)
+	var tier := int(t.get("vfx", {}).get("tier", 1))
+	var reach := float(t.hitbox.x[1])
+	var at := player.position
+	if float(n.shake_s) > 0.0: cast_shake["tech:" + tech] = true
+	if float(n.cast_ring_r) > 0.0: fx.add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
+	if float(n.tint_alpha) > 0.0: fx.add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
+	match str(t.get("vfx", {}).get("shape", "strike")):
+		"strike": fx.add("slash", at + Vector2(facing * 40, -50), {"color": col, "facing": facing, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
+		"wave": fx.add("talisman_wave", at + Vector2(0, -50), {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
+		"ring":
+			for i in int(n.echoes) + 1:
+				fx.add("wave", at, {"color": col, "radius": reach * [1.0, 0.7, 0.4, 0.55][i], "size": n.wave_width, "dur": 0.45, "delay": 0.08 * i})
+		"rain": fx.add("rain", at + Vector2(facing * reach * 0.5, 0), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
+			"count": MomentRules.particle_count(3 * int(t.get("hits", 1)) + 2 * tier)})
+		"pillar": fx.add("pillar", _foe_in_reach(at, facing, reach), {"color": col, "radius": 12.0 + 4.0 * tier, "height": 300.0, "dur": 0.35})
+		"domain":
+			fx.add("ring", at, {"color": col, "radius": float(t.get("heal_radius", reach)), "dur": 0.6})
+			fx.add("motes", at + Vector2(0, -10), {"color": col, "dur": 0.8})
+
+## Where a single-target cast lands: the nearest foe in front within reach, else halfway along it.
+func _foe_in_reach(at: Vector2, facing: int, reach: float) -> Vector2:
+	var best := at + Vector2(facing * reach * 0.5, 0)
+	var best_d := reach
+	for e in Game.room_rt.living_enemies():
+		var dx: float = (e.plane.x - at.x) * facing
+		if e.team == "enemy" and dx >= 0.0 and dx <= best_d and absf(e.plane.y - at.y) < 60.0:
+			best_d = dx
+			best = Vector2(e.plane.x, e.plane.y - e.altitude)
+	return best
+
+## Debug (--cast, P6e previews): a technique's cast toward the foes and its hits on each one in reach, drawn as a real
+## cast's are, through this view only; nothing is submitted.
+func preview_cast(tech: String) -> void:
+	var t := ContentDB.entry("techniques", tech)
+	var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team == "enemy")
+	var facing := 1 if foes.is_empty() or foes[0].plane.x >= player.position.x else -1
+	_cast(tech, facing, SpriteCache.element_color(str(t.element)))
+	for e in foes:
+		if (e.plane.x - player.position.x) * facing > float(t.hitbox.x[1]) + 40.0: continue
+		for h in int(t.hits):   # a buff or a heal strikes nothing
+			_on_event("hit_landed", {"attacker": player.actor_id, "target": str(e.uid), "target_kind": "enemy", "amount": 3100 * (h + 3), "type": str(t.damage_type),
+				"crit": h == 1, "element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height() * 0.8, "source": "tech:" + tech})
+
+## A moment's camera move (P6 `camera` layer): ease to `target` over in_s, hold, and ease back over out_s.
+func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
+	camera_hold = {"target": target, "t": 0.0, "in": in_s, "hold": hold_s, "out": out_s}
+
 # ------------------------------------------------------------------ events → effects
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
@@ -358,7 +425,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				_fame_greeting()
 		"enemy_aggro":
 			var foe: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
-			if foe and not foe.hidden: fx.number(Vector2(foe.plane.x, foe.plane.y - foe.altitude - foe.height() - 24), "!", UiKit.GOLD, 26)
+			if foe and not foe.hidden: fx.label(Vector2(foe.plane.x, foe.plane.y - foe.altitude - foe.height() - 24), "!", UiKit.GOLD, 26)
 		"enemy_spawned", "ally_spawned":
 			var uid := int(p.get("enemy", p.get("uid", 0)))
 			var e: EnemyState = Game.room_rt.enemies.get(uid)
@@ -375,7 +442,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("ring", player.position, {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": 60.0, "dur": 0.35})
 				fx.add("dust", player.position, {"color": Color(0.8, 0.74, 0.62, 0.7), "dur": 0.4})
 				Audio.play("rumble")
-				shake = maxf(shake, 0.2)
+				add_shake(0.2)
 			elif str(p.get("actor", "")) == player.actor_id and float(p.get("fall_height", 0)) > 120.0:
 				fx.add("ring", player.position, {"color": Color(0.85, 0.8, 0.7, 0.6), "radius": 34.0, "dur": 0.3})
 				Audio.play("land")
@@ -404,11 +471,22 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif p.get("crit", false): color = UiKit.GOLD
 			elif str(p.get("type", "")) == "qi": color = UiKit.QI
 			elif str(p.get("type", "")) == "soul": color = UiKit.SOUL
+			# P6e: a technique's hit draws at its tier (§5.2): the number's size, the spark's count, size, reach and style; the
+			# hits of one cast on one foe stack (§5.5); the first hit of a Heaven-grade cast shakes once.
+			var src := str(p.get("source", ""))
+			var n := MomentRules.tier_numbers(src)
+			var tech := ContentDB.entry("techniques", src.trim_prefix("tech:")) if src.begins_with("tech:") else {}
 			if Game.is_revealed("hud:damage_numbers") or kind == "player":
-				fx.number(pos, UiKit.short(amount), color, 22, bool(p.get("crit", false)))
-			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25})
-			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: shake = 0.25
-			if p.get("crit", false): shake = maxf(shake, 0.12)
+				fx.number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, bool(p.get("crit", false)),
+					str(p.get("target", "")) + src if not tech.is_empty() else "", float(amount))
+			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25,
+				"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,
+				"style": tech.get("vfx", {}).get("particles", MomentRules.particle_style("", str(p.get("element", "none")), str(p.get("type", ""))))})
+			if cast_shake.has(src):
+				cast_shake.erase(src)
+				add_shake(float(n.shake_s), float(n.shake_amp))
+			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: add_shake(0.25)
+			if p.get("crit", false): add_shake(0.12)
 			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
 		"hazard_warned":
 			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
@@ -417,26 +495,23 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var hname := ContentDB.name_of("hazards", str(p.hazard))
 				var over := player.position + Vector2(0, -130)
-				if p.get("answered", false): fx.number(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
-				elif int(p.get("amount", 0)) == 0: fx.number(over, hname, UiKit.PALE_GOLD, 17)
+				if p.get("answered", false): fx.label(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
+				elif int(p.get("amount", 0)) == 0: fx.label(over, hname, UiKit.PALE_GOLD, 17)
 		"hit_missed":
-			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
+			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
 		"hit_immune":
-			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), Tx.t("world_view.immune"), UiKit.MIST, 18)
+			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), Tx.t("world_view.immune"), UiKit.MIST, 18)
 		"hit_dodged":
-			fx.number(player.position + Vector2(0, -100), Tx.t("world_view.evade"), UiKit.BRIGHT_JADE, 18)
+			fx.label(player.position + Vector2(0, -100), Tx.t("world_view.evade"), UiKit.BRIGHT_JADE, 18)
 		"parried":
 			fx.add("flash", player.position + Vector2(player.facing * 20, -50), {"color": UiKit.PALE_GOLD, "radius": 30, "dur": 0.25})
-			fx.number(player.position + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
+			fx.label(player.position + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
 			Audio.play("parry")
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
 				var tech := str(p.get("technique", ""))
 				if tech != "":
-					var col = SpriteCache.element_color(str(p.get("element", "none")))
-					fx.add("slash", player.position + Vector2(float(p.facing) * 40, -50), {"color": col, "facing": int(p.facing), "radius": 46, "dur": 0.3})
-					var t := ContentDB.entry("techniques", tech)
-					if t.get("both_sides", false): fx.add("wave", player.position, {"color": col, "radius": float(t.hitbox.x[1]), "dur": 0.45})
+					_cast(tech, int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))))
 					Audio.play("technique")
 				else:
 					Audio.play("swing")
@@ -452,16 +527,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var ov = object_views.get(str(p.object))
 			if ov: fx.add("dust", ov.position, {"dur": 0.5})
 			Audio.play("break")
-		"breakthrough_succeeded":
-			fx.add("spiral", player.position + Vector2(0, -20), {"color": UiKit.PALE_GOLD, "dur": 1.6})
-			fx.add("text", player.position + Vector2(0, -150), {"text": ContentDB.realm_label(str(p.to)), "color": UiKit.PALE_GOLD, "size": 28, "dur": 2.5})
-			shake = 0.2
-			Audio.play("breakthrough")
 		# S47: a spare artifact detonated, and the flying sword leaving and returning.
 		"artifact_detonated":
 			fx.add("wave", player.position, {"color": Color("ff9a5a"), "radius": float(ContentDB.stat_const("detonation.radius", 180)), "dur": 0.5})
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ffe0a0"), "radius": 90.0, "dur": 0.35})
-			shake = 0.35
+			add_shake(0.35)
 			Audio.play("rumble")
 		"talisman_used":
 			# S47: the paper flares and burns away; attack talismans burst where they land.
@@ -479,7 +549,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("text", player.position + Vector2(0, -120), {"text": "·", "color": Color("d23a44"), "size": 34, "dur": 0.9})
 		"natal_broken":
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
-			shake = 0.3
+			add_shake(0.3)
 			Audio.play("break")
 		"array_deployed":
 			var ac: Color = FxLayer.ARRAY_COLOURS.get(str(p.get("kind", "")), FxLayer.ARRAY_COLOURS.guard)
@@ -493,10 +563,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("ffd27a") if p.get("awakened", false) else Color("b18de2"),
 					"radius": ring if ring > 0.0 else 60.0, "dur": 0.4 if ring > 0.0 else 0.3})
 				Audio.play("surge")
-		"weapon_awakened":
-			if str(p.get("actor", "")) == Game.active_id and player:
-				fx.add("wave", player.position, {"color": Color("ffd27a"), "radius": 140.0, "dur": 0.8})
-				Audio.play("breakthrough")
 		"array_faded":
 			if str(p.get("actor", "")) == Game.active_id: Audio.play("ui_close")
 		"illusion_cast":
@@ -547,7 +613,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 					fx.add("flash", player.position + Vector2(0, -50), {"color": Color("bfe8ff"), "radius": 60.0, "dur": 0.4})
 				"seal":
 					fx.add("seal_slam", player.position, {"color": UiKit.BRIGHT_JADE, "radius": tr_radius, "dur": 0.7})
-					shake = 0.25
+					add_shake(0.25)
 					Audio.play("break")
 				"cauldron":
 					fx.add("spiral", at + Vector2(0, -30), {"color": UiKit.QI, "dur": 1.0})
@@ -557,7 +623,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 					Audio.play("technique")
 				"palm":
 					fx.add("talisman_wave", player.position + Vector2(0, -50), {"color": UiKit.PALE_GOLD, "radius": float(p.get("reach", 540)), "facing": int(p.get("facing", 1)), "dur": 0.6})
-					shake = 0.3
+					add_shake(0.3)
 					Audio.play("breakthrough")
 		"wisp_struck":
 			fx.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.QI, "dur": 0.25})
@@ -566,51 +632,13 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"projectile_burst":
 			fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("ffd76a"), "radius": float(p.radius), "dur": 0.4})
 			fx.add("flash", Vector2(float(p.x), float(p.y) - 30.0), {"color": Color("fff0b0"), "radius": 50.0, "dur": 0.25})
-			shake = 0.15
+			add_shake(0.15)
 			Audio.play("break")
-		"pill_cloud":
-			# The whole room sees a Halo or Soul pill form, and says so (G1).
-			var gold := Color("ffd76a") if str(p.get("quality", "")) == "pill_halo" else Color("ff9a6a")
-			fx.add("pill_cloud", player.position + Vector2(0, -70), {"color": gold, "dur": 3.5})
-			fx.add("text", player.position + Vector2(0, -190), {"text": Tx.t("world_view.pill_cloud_" + str(p.get("quality", "pill_halo"))), "color": gold, "size": 26, "dur": 3.0})
-			shake = 0.12
-			Audio.play("breakthrough")
-			var n := 0
-			for id in npc_views:
-				var nv = npc_views[id]
-				if nv.visible and nv.position.distance_to(player.position) < 700.0:
-					nv.bark = Tx.t("world_view.pill_cloud_bark_%d" % (n % 3))
-					nv.bark_time = 3.5
-					n += 1
-		"heavenly_phenomenon":
-			# S49: the heavens answer a breakthrough where everyone can see; the people nearby say so.
-			if str(p.get("actor", "")) == player.actor_id:
-				var storm := str(p.get("kind", "")) == "lightning"
-				fx.add("heaven_storm" if storm else "heaven_cloud", player.position + Vector2(0, -20),
-					{"color": Color("9fc4ff") if storm else Color("f5c86a"), "dur": 6.0 if storm else 5.5})
-				Audio.play("thunder" if storm else "breakthrough")
-				if storm: shake = maxf(shake, 0.25)
-				var nb := 0
-				for id in npc_views:
-					var nv2 = npc_views[id]
-					if nv2.visible and nv2.position.distance_to(player.position) < 900.0:
-						nv2.bark = Tx.t("world_view.phenomenon_%s_%d" % ["storm" if storm else "cloud", nb % 3])
-						nv2.bark_time = 4.0
-						nb += 1
-		"breakthrough_started":
-			fx.add("ring", player.position, {"color": UiKit.QI, "radius": 90, "dur": float(p.get("duration", 3.0))})
-		"breakthrough_failed":
-			fx.add("text", player.position + Vector2(0, -150), {"text": Tx.t("world_view.breakthrough_failed"), "color": UiKit.RED, "size": 24, "dur": 2.5})
-			Audio.play("fail")
 		"meditation_tick":
 			if Game.active() and Game.active().pools.max_qi > 0:
 				fx.add("motes", player.position + Vector2(0, -10), {"color": UiKit.QI if not p.get("spring", false) else UiKit.BRIGHT_JADE, "dur": 1.0})
 			elif Game.active():
 				fx.add("motes", player.position + Vector2(0, -10), {"color": Color("f4ecd5"), "dur": 1.0})
-		"body_level_changed":
-			fx.add("text", player.position + Vector2(0, -140), {"text": Tx.t("world_view.body_level") % int(p.value), "color": Color("f0a060"), "size": 20, "dur": 2.0})
-		"level_changed":
-			fx.add("text", player.position + Vector2(0, -160), {"text": Tx.t("world_view.level") % int(p.level), "color": UiKit.PALE_GOLD, "size": 22, "dur": 2.0})
 		"player_revived":
 			fx.add("flash", player.position + Vector2(0, -40), {"color": UiKit.BRIGHT_JADE, "radius": 60, "dur": 0.6})
 		"projectile_ended":
@@ -632,11 +660,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var em: Dictionary = ContentDB.entry("emotes", str(p.emote))
 			player.play_emote(em)
 			fx.add("text", player.position + Vector2(0, -150), {"text": str(em.get("text", "...")), "color": UiKit.PAPER, "size": 20, "dur": float(em.get("seconds", 1.8))})
-		"room_event_started":
-			fx.add("text", Vector2(camera.position.x, camera.position.y - 180), {"text": ContentDB.text("event." + str(p.event)), "color": UiKit.RED, "size": 30, "dur": 3.0})
-		"boss_phase":
-			shake = 0.3
-
 # ------------------------------------------------------------------ shared helpers (legacy API kept)
 func by_id(id: String) -> WalkSurface: return geometry.index.get(id)
 func walk_target(point: Vector2, current_height: float, previous: WalkSurface) -> WalkSurface:

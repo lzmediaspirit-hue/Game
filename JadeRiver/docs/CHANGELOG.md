@@ -1,5 +1,193 @@
 # Changelog
 
+## Moments (docs/roadmap_master_ui.md, P6)
+
+### P6e · The escalation curve
+- **Every technique has a `vfx` block** (`techniques.py`): its tier, 1 to 7, is the band of the realm that teaches it
+  (the valley's Common 1, Earth 2, Heaven 3; the Azure Expanse 4; the Lantern Star Field 5; 6 and 7 wait for their
+  zones), its shape what it draws on cast, and its particles the hit spark's style. Today: tiers 1–5 hold 16, 22, 9, 1
+  and 8 techniques; strike 15, bolt 11, ring 9, domain 9, wave 5, pillar 5, rain 2.
+- **A technique's hits grow with its tier** (`moments.json` `vfx_tiers`, §5.2): the spark's count, size, reach and
+  white core, the damage number's size, a ring at the caster's feet from tier 2, echo waves inside an area's edge from
+  tier 3, one small shake per cast on its first hit from tier 3, and from tier 3 a wash of the element over the screen
+  for 0.4 s. Tier 1 is today's look, so the first techniques do not change; a basic blow stays tier 1, and a
+  companion's blow of a technique draws a tier lower.
+- **Shapes drawn at the true reach** (§5.3–5.4): a slash that grows with the tier; a talisman wave along the reach; a
+  ring at the reach with echo rings inside it, never beyond; a rain of streaks over the hitbox (`rain`, new); a pillar
+  on the foe in reach; a ring and motes round the caster for a buff or heal; a bolt is its projectile.
+- **Sparks by family and element** (§5.6): the brush's ink drops fall, the bell's and flute's (and Soul's) rings
+  spread, fire's embers rise and flicker with a pale-gold heart, metal's, ice's and thunder's shards fall; the rest
+  keep their squares.
+- **Multi-hit numbers** (§5.5): the hits of one cast on one foe rise one after another, 18 px and 0.06 s apart,
+  swaying left and right, six at most, and three or more add up to a total in pale gold a size up.
+- **Large numbers** (§5.7): from 10,000 a number is written in three figures, 12.4K, 124K, 1.25M (`UiKit.short`, the
+  style guide's §4 helper, which the P4 pass landed beside P6e and both now share). Damage numbers still follow
+  Settings › Damage numbers.
+- **The flash limiter covers tints** (§5.10): a technique's screen tint shares the one-a-second limit with every
+  flash, is 0.3 as strong with Bright flashes off, and does not play with Reduce motion or Battery saver, which also
+  thin sparks to tier 1's and tier 2's counts.
+- Preview: `--cast=<technique>[:t]` draws a technique's cast and its hits on the foes in reach, submitting nothing.
+- **Tests:** `moments_suite` case 12 (the tier rows by technique, a spark carrying its tier's count and size, a
+  companion a tier lower, the spark styles, a tint under the settings and the limiter) and case 13 (three hits stacked
+  18 px and 0.06 s apart on alternating sides then a total; seven hits show six and total seven; two, no total);
+  `moments_data_suite` checks every technique's tier against its realm's band and grade, its
+  shape and style, and that every shape draws `FxLayer` kinds; `perf_tests` plays the crowd under the major
+  breakthrough and again with a Sword Swarm and a Cursive Storm cast each tenth of a second (each striking as many foes
+  as many times as it does), inside the frame budget and the FX cap, and prints the view's share (MomentView.advance
+  about 0.08 ms a frame; the whole moment, drawn, about 1–2 ms on a desktop).
+- **P6 closed:** the screenshots are in `docs/moments/` (its README gives each one's checkpoint and flags); roadmap rows
+  M5–M9, M22, M23 and M25 are Present, M6 with P9's intro pan and epithets still to come, and M24 stays Partial for
+  P4's biome palette rule.
+- **With the P4 pass merged:** a moment's counted line takes its "_one" twin (`plural` in a text source, through
+  `Tx.plural`), so one bolt is "1 bolt"; the tribulation card's summary reads "Waves 3 · Bolts 9 · Struck 2"; and
+  `UiKit.short` is the style guide's one helper.
+
+### P6d · Rare finds, story beats and trials
+- **A rare find** (`rare_drop`) is seen from across the room: a tall beam in the piece's colour stands over it and breathes
+  until it is picked up, and a strip names it in its grade or quality colour under "A rare find", with `rare_chime`
+  and a short buzz. Finds within 1.5 s share one strip (three names, then "+N"); in a fight it is a toast. What is
+  rare is data (`moments.json` `rare`): a Perfect or Relic piece, a legend piece, a spirit animal's book, a treasure,
+  and 49 named drops (every boss's unique drop and first-defeat reward, every set piece, every legendary chain piece).
+- **A chapter closes** (`story_beat`): when the main quest that ends a chapter is handed in, after its dialogue page
+  closes, thin ink bars close in and a band writes the chapter over the quest's name, "The chapter closes" under it,
+  with the bell. `moments.json` `chapter_ends` names the closing quest of each of the 23 chapters (the Prologue and
+  1–22), read from the quests.
+- **A trial opens** on a band in pale gold with the bell (it was red text over the room), and ends when you leave.
+- **Tests:** `moments_suite` case 4 on the real rows (after a major breakthrough: the Dao tier, then the title and the
+  rare find by arrival), case 14 (the rare rule), two finds sharing a strip, and a chapter's close waiting for its
+  page; `moments_data_suite` checks every rare find exists and one quest closes each chapter.
+
+### P6c · Bosses and the loot fountain
+- **The boss intro** (`boss_intro`): the first time a boss turns on you in a visit, two ink bars close in top and
+  bottom (under the HUD, so its controls stay live), its name is written large with its Level under it, and war drums
+  and a falling gong sound (`boss_sting`, new; captioned). The boss does not wait for it and nothing locks, so you keep
+  control; until P9 gives the bosses epithets and lines, the Level stands in. It never plays twice in one visit.
+- **The phase card** (`boss_phase`): the fight's stage as a gold numeral on an ink band under the boss bar, with the
+  shake and the roar it had; one that would come late drops silently.
+- **A boss's fall** (`boss_defeated`, `field_boss_defeated`): a pale-gold flash, its name on a band with "Defeated", and
+  for a clean dungeon kill the Untouched line (it takes the Untouched achievement's toast into itself); `boss_fall`
+  (new) sounds. The HUD's field-boss toast is now the row's fallback.
+- **The loot fountain** (`loot_fountain`, §5.8): a boss's, a field boss's, a chest's, a Trial Tower floor's or a rift's
+  drop leaves the drop point one piece after another and arcs to where it really lies, higher and longer the more
+  there is (capped); rare pieces go last so they land on top, and the first rings `rare_chime` (new) as it lands; a
+  boss's coins burst as six and close into one, with a pale-gold flash at the drop. A foe's or a jar's drop bounces as
+  before, and so does every drop with Reduce motion. `LootView.launch` flies them.
+- **`loot_dropped` says where the loot came from** (finding 6), the one simulation edit of P6: `source` is enemy,
+  elite, boss, field_boss, fled, jar, chest, rift or tower, a payload key and nothing else.
+- A moment that takes an event into itself now takes back the HUD's toast for it too (a breakthrough's unlock, its
+  tribulation, the Untouched achievement). The pill cloud rings `rare_chime`, not the breakthrough gong.
+- Previews: `--hold=t[:row]` holds a real moment at t, `--defeat-foe[=s]` defeats the first foe through Combat with its
+  real drop, `--foe=` takes an HP share, and `--room=` works with `--load-slot`.
+- **Tests:** `moments_suite` plays Big Toad Tan's den for real: his first aggro opens the intro and the second does not,
+  his 49% opens the phase card, a phase cuts the major breakthrough (case 5), leaving the den ends his intro with no
+  toast (case 8), his clean fall takes the Untouched line, his drop says `boss` and flies (and only bounces with Reduce
+  motion), a jar's does not fly. `moments_data_suite`: a numeral for every boss phase, the fountain table.
+
+### P6b · The breakthrough and the progression cards
+- **The major breakthrough, as mockup 05 draws it** (`breakthrough_major`): the world darkens round you and the HUD
+  recedes, sixteen motes gather into you, a column of light rises and three rings open at your feet (0–0.6 s); the
+  great realm's name is written on an ink band in one brush stroke, "BREAKTHROUGH" over it and the step under it, and
+  the stage is pressed on in a vermilion seal (0.6–1.4 s); the stats that rose climb in one after another, with the
+  tribulation you weathered on a card beside them and what the new stage opens on a chip (1.4–2.4 s). It holds to
+  3.6 s and fades by 4.0 s. Input comes back at 1.5 s; a tap before then skips to the full frame. Its sounds are the
+  gong and chimes, then a brush stroke and a seal (both new), then the unlock bell only when something opens.
+- **A minor breakthrough** writes its step and the Level it gave on a slim ink strip, with any unlock on a chip, and
+  keeps the guzheng run (no shake). **A failed one** darkens the world a moment and says why and how to recover
+  (`failure.<id>` now has words for all seven causes, finding 8), and after a tribulation how many bolts struck.
+- **The tribulation** opens on a band over a shadowed sky that stays while the rite lasts; its storm is laid again
+  every 5 s until the result, not once for 6 s (finding 10).
+- **The silent milestones speak** (finding 4): a Dao tier (its line from the Dao's tiers, in the element's colour; a
+  sixth tier on the large band), a craft's new rank, a guild rank with its title, a body tier, an earned title with its
+  bonus and a seal, a spirit animal's new form and an awakened weapon in its grade's colour each have a strip. In a
+  fight the celebration cards become toasts; the HUD's old toasts for them are gone.
+- A level gained alone rings a short gong (new) instead of the guzheng run.
+- **Reduce motion** (Settings › Accessibility, off by default): no camera moves or shakes, bands and cards fade in
+  instead of wiping and sliding, bursts thin to tier 1's particles. Bright flashes off leaves a flash or a screen tint
+  at 0.3 of its strength. One flash or tint a second from every source (the flash limiter).
+- **Art and sound:** the ink band, a dry-brush stroke drawn by `tools/ui/build_ui_hd.py` (`art/ui/hd/ink_band__normal.png`);
+  `brush_stroke`, `seal_press` and `gong_short` from the synth. New FX kinds `pillar` and `converge`; `spark` takes a
+  count, size and a falling `shard` style, `ring` a count. Strings for every great realm's name, every craft, the
+  stat labels and the cards.
+- `--breakthrough[=t]` takes the character over its next step through the progression authority and holds the moment
+  at t, for screenshots of the real stat rise.
+- **Tests:** `moments_suite` runs the gather, the skip, the lock (F4: never more than 1.5 s), pages, fights, the
+  settings and the held tribulation on the real rows, and a real minor breakthrough and a level gained by meditating;
+  `moments_data_suite` checks the new text sources, the ink band and every great realm, craft, failure and stat string.
+
+### P6a · The table and the view
+- **`data/moments.json`** from the new `tools/data/moments.py` (run by `build_data.py` before the contract): one row per
+  moment kind with its trigger event, filters, priority, duration, input lock, queue rule, layers, art and a sample
+  payload, and the settings the view plays them by (`docs/moments_design.md` §3). The first eleven rows carry today's
+  effects: the breakthrough channel, the breakthrough (every one, until P6b gives the major one its own row), a failed
+  breakthrough, the realm phenomenon's clouds, the tribulation's storm, a level, a body level, an awakened weapon, a
+  Halo or Soul pill, a boss's phase and a trial opening. The escalation curve's seven tiers are in the file too.
+- **`MomentView`** (`scripts/presentation/moment_view.gd`, mounted with the world by `main.gd`) plays the rows:
+  it gathers the events of one pass and resolves them together, so a breakthrough takes its level and its unlocks
+  into itself; world layers run on the row's own clock; screen parts take one slot by priority, wait for pages, cut
+  or queue, go stale into a toast, and end on leaving a room. `MomentRules` holds the matchers, the rare rule and the
+  text and colour sources. Neither writes game state (`contract_tests`), and the headless suites run without them.
+- **Moved out of `world.gd`, the HUD and the audio director into rows**, with nothing to see changed: the
+  breakthrough's spiral, name, shake, sound and buzz; the channel ring; the failure line; the phenomenon's clouds and
+  storm with the townsfolk's words; the level and body-level lines; the awakened weapon's wave; the pill cloud; the
+  boss phase's shake and roar; a trial's name. The one change: **the doubled sounds play once** — a major breakthrough
+  no longer rings `breakthrough` twice (once more for its clouds), and a tribulation no longer thunders twice; a
+  breakthrough's level no longer rings its own chime under the breakthrough's. The pill cloud takes its quality's
+  colour (Halo orange, Soul pale violet) as the grades do (M24).
+- **A camera rig in `world.gd`:** `add_shake(s, amp)` is the one writer of the shake (the hazards call it too), and
+  every shake stops with Screen shake off; `hold_camera` eases to a point and back for later rows.
+- **The Damage numbers setting works** (finding 2): off, no damage number rises; Miss, Immune, Evade and Parry still do
+  (`FxLayer.label`).
+- **The contract:** `level_changed` and `room_event_started` join the catalogue; the payload keys of every event a
+  moment reads are declared, and `contract_tests` checks every emit site names them. `FxLayer.KINDS` lists its kinds.
+  `UiKit` names the three colours that left `world.gd` (`HEAVEN_CLOUD`, `HEAVEN_BOLT`, `BODY`).
+- **`--moment=<id>[:t]`** plays a row with its sample payload for previews and screenshots.
+- **Tests:** `data_validation` `moments_data_suite` (every trigger, merge, payload key, FX kind, sound, string, colour,
+  anchor, lock and timing; the curve rises); `contract_tests` (declared payloads, `FxLayer.KINDS`, the moments scripts
+  read only); `rules_tests` `moments_suite` (every real row plays from its sample and ends on time; the gather and
+  merge, the queue order, a cut, stale and full queues, pages and fights, a room change, the settings and the lock on
+  fixture rows).
+
+## P12 · Might (docs/research/stat_scaling_research.md §6)
+
+A par character now hits about 130K with a plain blow at Level 99 and 531K with its main art (929K on a crit), with
+460K health; 571K a blow at Level 120. Bone Forging keeps its numbers. The research's §6.8 lists what differs from its
+proposal and the numbers measured on the valley_run checkpoints before and after.
+- **Might** (`stats.json` `might`, a table for Levels 0–200): ×1.30 a great realm, ×1.17 of it at the major
+  breakthrough and the rest over the realm's Levels; Bone Forging climbs only to ×1.05, so Qi Kindling 1 is the first
+  ×1.30 step; ×1.10 for each advanced state, ×1.18 an Inner Heaven rank, +2% a World Genesis Level. It multiplies the
+  character's three attacks, max HP and three defences (a `might` modifier, so gear and buffs scale with them), never
+  max Qi or max Soul, and every monster's armour at its Level. The defence constant grows with the attacker's Might, so a
+  same-Level cut is what it was.
+- **The par character** (`stats.json` `par`, `StatRules.par` and `par_step`): a steady cultivator of the jian at every
+  Level (gear three Levels behind at Fine, then Superior and Perfect, enhanced a Level a dozen; the Sword Dao and the
+  main art's mastery by realm; an attack affix; the sets' damage%; crits), modelled in `stats.py` with the rules' own
+  formulas and built with the real rules in `balance_sim`, which agree within 1%. The Codex's Realms entry shows it at
+  your Level.
+- **Monsters from par**: a normal foe has 3.5 par blows of health (never below today's) and a blow of 6% of par health
+  after par's armour (8% under Level 20); under Level 10 the old curves stand. Elites ×6 health, ×1.5 attack. The twelve
+  bosses have the par DPS of their Level times their par time (Big Toad Tan 46.7K at 90 s, the Nebula Leviathan 121M at
+  300 s); a boss's plain blow is 15%.
+- **The damage formula**: the energy multiplier becomes a Qi edge (1.00–1.30) on Qi and Soul blows only; one additive
+  bucket of damage%, elemental power and (against elites and bosses) boss damage; a product of final-damage sources;
+  three new stats (`damage_pct`, `boss_damage`, `final_damage`). Combat Power has no energy term. A damage-over-time share
+  of an elite's or a boss's health is capped at 60% of the caster's attack a second. An ally struck by a foe stands
+  behind its owner's armour.
+- **Numbers**: `UiKit.short` ("18.2K", "136K", "1.27M"; units in `ui.num.*`) for damage numbers, pool bars of 100,000 and
+  more, and every page number from ten million.
+- **Chapter floors**: every main quest of chapters 2–22 asks its chapter's floor (Bone Forging 4 to Sphere Lord 2; new
+  for chapters 16, 18, 21 and 22), floors only; the later acts' floors are recorded in `quests.json`. The quest log names
+  the floor, your Level and the fastest ways there. The Copperjaw Box now follows The Tide Breaks, which opens Tinker
+  Mei's bastion.
+- **Conversions**: the Soul Lantern Ward shields 10% of max HP; a body technique short of QI spends the same share of max
+  HP; rooms recommend the par CP at their middle Level and the Heaven Ranking's rivals take the par CP at theirs.
+- **Saves**: an old save's health grows by the Might of its Level, once (character minor version 1).
+- **Tests**: `balance_sim` gains the research's ten checks (par_hit, ttk, blow, boss_par, smooth, realm_step, cp_rec,
+  digits, chapter_floor, pacing) and plays on to Sphere Lord 3 (133 h); `rules_tests` gains `might_suite`; valley_run
+  gains the labelled par-up shortcut at each section start from Qi Kindling 1 and a labelled "par pace" for bosses
+  (sized to 20 s of its own blows: the scripted fighter neither strikes with a main art at par nor dodges), and its
+  checkpoints are regenerated. On them a Level 98 blow went from 2,850 to 85K and a normal foe's blow from 2.9% to 5.7%
+  of health.
+
 ## The Copperjaw swarm's creature art (v1.2 Phase D)
 
 - **The swarm has a sheet of its own.** `copperjaw_swarm` (`tools/art/creatures/copperjaw_swarm.py`, flying, cell
@@ -78,6 +266,48 @@
   gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
   by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
   above carries its aura as stepped glow bands. The legacy 32 px code is gone.
+- **Beast parts in Style A** (`tools/icons/families/beast_parts.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/beast_parts/`): the 62 parts and the 21 pet-gear ladder pieces (collars, beast
+  talismans and saddles, taken over from `banded.py`) redrawn at 64 px with native `@32` renders, each part as the
+  material it is in the colour of its beast: fur in strands down a pegged pelt, scales with their growth ridges and
+  keels, horn and claw with a keratin sheen and the grain along them, feathers with barbs swept back to the quill,
+  through-lit glass, jade and cores with the light pooling on the far side (the Gravity Core with its rings of bent
+  light). The kinds share one drawing each (hide, scale, fang, feather, vial, pouch, heap, shard, core) and every icon
+  comes from one table. The grade is form and trim (`GRADE_HD`): a plain part is raw, a common one tied with hemp and
+  pegged with wood, from Earth bound in the grade's silk with a cap, peg or bead in its metal, and from Mystic the
+  aura in the beast's own light at the grade's strength; the ladders take a grade's kit for the band, plaque, seat,
+  scales, cord and buckle. The legacy 32 px drawings are gone, except two helpers the unconverted families import.
+- **Armour, the gourds, the cape and the soul talisman in Style A** (`tools/icons/families/armour.py`, `ART = 64`;
+  the sheets and in-game shots in `docs/mockups/icon_families/armour/`): the 47 icons (nine hats, robes, trousers and
+  boots, the mistjade cape, the cloud talisman and the nine spirit gourds, the Sovereign and Will rows folded in from
+  `banded.py`) redrawn at 64 px with native `@32` renders. Each piece is shown as it is worn: its row in
+  `data/artifacts.json` gives the cut of the avatar layer (`appearance`) and its garment dye (`dye`, now the
+  `palette.dye_*` ramps), so the straw douli, the jade circlet, the tied silk band, the gold crown with its jade pin
+  and the veiled hat, the vest, the scoop-necked tunic, the sect robe with crossed lapels, the cloud tunic and the
+  scholar's coat, the loose, straight, martial, cuffed and scholar trousers, and the leather boots, folded greaves and
+  cloth shoes match the figure beside them, with cloth folds, riveted plates and lacquer in their own textures. The
+  grade is the kit, Plain to Sphere: the trim of cuffs, hem and collar, the fittings, the plates and greaves in the
+  grade's metal, the gem, and the grade's mark (jadeiron plates and scales, cloud scrolls, gold lines, a lightning
+  stitch, desert-glass beads, driftglass studs, star dots, pearls), with the aura from Mystic up; the gourds carry the
+  same ladder. The legacy 32 px code is gone.
+- **Weapons in Style A** (`tools/icons/families/weapons.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/weapons/`): the 103 weapon icons (eleven families at nine grades, Training to
+  Lanternsteel, the Sovereign and Will ladders and the brush and bell ladders taken over from `banded.py`, and the
+  Wardens' four pieces) redrawn at 64 px with native `@32` renders. Every weapon lies on the study's diagonal frame
+  (the bell mouth down-right, the gauntlet a fist over its cuff) and every family is one builder on the shared tassel,
+  grip, fitting, blade and gem builders, so the family is the silhouette, after the held sprite: the jian's straight
+  blade under a winged guard, the sabre broad and curved under a disc with a ring pommel, the short blade a leaf, the
+  spear's leaf head with its tassel on a long shaft, the staff's crook, the recurve bow on its string, the fan open on
+  its sticks, the flute with its holes and cord, the brush with its tuft dipped in ink, the bell with its cord and
+  clapper. The grade is the kit (`palette.kit`, Plain to Sphere) as material, fittings and work, never a colour
+  alone: a wooden blade with its grain and a hemp lattice, iron with a plain fuller, a jade inlay, silver cloud
+  curls, gold runes down a dark fuller, a lightning zigzag, desert-glass beads on an ember line, driftglass diamonds
+  in a driftteal line, star dots with a starlight edge; a gem in the guard from Earth, a metal bead on the tassel and
+  the glow from Mystic; the same work runs along a bow's limb, a fan's leaf, a cuff or a bell's waist. The Ink-Warden's
+  Brush keeps its black lacquer collar and falling drop, the Starwrit Brush its lantern-ash tip lit at the point, the
+  Warden's Hand-bell its bronze and cloud scroll, the Tidebreak Bell its cage lattice and cold blue mouth. The legacy
+  32 px drawings and the recolour rows are gone; `banded.py` keeps only the Sovereign and Will armour, hats and gourds
+  and the four furnaces.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 

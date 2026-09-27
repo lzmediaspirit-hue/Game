@@ -46,7 +46,7 @@ var works: Dictionary = {}             # S50 V10d the account web: seals, steles
 static func default_settings() -> Dictionary:
 	return {"music": 0.7, "sfx": 0.8, "ambience": 0.6, "ui": 0.7, "text_size": 1, "left_handed": false,
 		"minimap": true, "minimap_monsters": true, "minimap_large": false, "damage_numbers": true,
-		"screen_shake": true, "flashes": true, "haptics": true, "battery_saver": false, "language": "en",
+		"screen_shake": true, "flashes": true, "haptics": true, "battery_saver": false, "reduce_motion": false, "language": "en",
 		"notifications": {"offline_cap": true, "batch": true, "expedition": true, "defence": true, "pet": true},
 		"first_run_done": false}
 

@@ -118,6 +118,18 @@ _r('starsilk', ['#141A30', '#222C4E', '#39467A', '#6A74A8', '#B4BAE0'], '#070A16
 # v1.3 · the Star Frontier (Sphere grade): orchardsteel, a dusk-violet steel with rose-gold fittings
 _r('orchardsteel', ['#241A3A', '#3E2E66', '#6552A0', '#9A88D2', '#DCD2FA'], '#0E0A1A')
 _r('rosegold', ['#4A2420', '#7E4234', '#BC7458', '#E6A888', '#FCDCC4'], '#200E0C')
+# The garment dyes of the layered avatar (tools/art/bake_dyes.py DYES, data/parts.json "_dyes"), the 4-stop dye ramps
+# with a step added between the base and the light, so a robe or trousers icon is the cloth the figure wears.
+_r('dye_jade',    ['#0D2F2C', '#155C52', '#2C9E8F', '#5EBFAC', '#8FE0C8'])
+_r('dye_cloud',   ['#2C3A4A', '#6F8599', '#C3D3DD', '#DAE4E8', '#F2F5F2'])
+_r('dye_earth',   ['#2A1A10', '#5A3A22', '#8C6A44', '#AA895E', '#C9A878'])
+_r('dye_ink',     ['#0B0D12', '#1D222C', '#353D4A', '#4A5261', '#5F6878'])
+_r('dye_crimson', ['#2A0B12', '#5E1624', '#9C2A36', '#BC4A49', '#DC6A5C'])
+_r('dye_grey',    ['#23262A', '#4A5056', '#7D858A', '#9BA2A6', '#B9C0C2'])
+_r('dye_indigo',  ['#10143A', '#232F6E', '#3F55A8', '#667EC4', '#8EA8E0'])
+_r('dye_ochre',   ['#2E1E08', '#6B4A14', '#B0812A', '#CEA34A', '#ECC56A'])
+_r('dye_rose',    ['#2E1020', '#6A2A44', '#B25A78', '#D0859C', '#EEB0C0'])
+_r('dye_white',   ['#4A4F55', '#9AA0A2', '#DCDDD6', '#ECECE4', '#FBFAF2'])
 
 GRADE_ORDER = ['plain', 'common', 'earth', 'heaven', 'mystic', 'spirit', 'sage', 'sovereign', 'will', 'sphere']
 
@@ -185,7 +197,8 @@ KIND = {**dict.fromkeys(('iron', 'bronze', 'silver', 'storm', 'jadeiron', 'cloud
         **dict.fromkeys(('driftglass', 'driftteal', 'ice'), 'glass'),
         **dict.fromkeys(('violet', 'cyan', 'ember', 'starlight', 'pearl'), 'gem'),
         **dict.fromkeys(('wood', 'darkwood', 'bamboo'), 'wood'), **dict.fromkeys(('leather', 'fur', 'greyfur'), 'leather'),
-        **dict.fromkeys(('deepjade', 'hemp'), 'cloth'),
+        **dict.fromkeys(('deepjade', 'hemp', 'dye_jade', 'dye_cloud', 'dye_earth', 'dye_ink', 'dye_crimson', 'dye_grey', 'dye_indigo',
+                         'dye_ochre', 'dye_rose', 'dye_white'), 'cloth'),
         **dict.fromkeys(('red', 'navy', 'indigo', 'plum', 'shadow', 'silk_navy', 'violetsilk', 'sky', 'starsilk', 'lotuspink', 'pink'), 'silk'),
         **dict.fromkeys(('clay', 'earth', 'mud'), 'clay'), **dict.fromkeys(('paper', 'talisman', 'rice'), 'paper'),
         **dict.fromkeys(('porcelain', 'mistjade'), 'porcelain'), 'ink': 'ink', **dict.fromkeys(('qi', 'fire'), 'light')}

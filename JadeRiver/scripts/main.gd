@@ -73,6 +73,7 @@ const PAGES := {
 var backdrop: Control
 var world: Node2D
 var hud: Control
+var moments: MomentView
 var hud_layer: CanvasLayer
 var page_layer: CanvasLayer
 var shell_layer: CanvasLayer
@@ -162,12 +163,11 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--room="): room = str(a).trim_prefix("--room=")
 		# Debug tools (S38): preview at a text size (0 small, 1 normal, 2 large).
 		if str(a).begins_with("--text-size="): Game.account.settings["text_size"] = clampi(int(str(a).trim_prefix("--text-size=")), 0, 2)
-	if "--load-slot" in user_args:
-		enter_world(1)
-	elif "--preview-world" in user_args or room != "":
-		if Game.character("c1") == null:
+	var loaded := "--load-slot" in user_args   # --room= with it starts the loaded character in that room
+	if loaded or "--preview-world" in user_args or room != "":
+		if not loaded and Game.character("c1") == null:
 			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}})
-		if room != "":
+		if room != "" and Game.character("c1") != null:
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
 			for a in user_args:
@@ -185,6 +185,7 @@ func _handle_preview_args(user_args: Array) -> void:
 					"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 		enter_world(1)
 	var shot := screen
+	var moment_t := -1.0   # P6: with --capture, the shot is taken this many seconds after a moment starts
 	for a in user_args:
 		if str(a).begins_with("--pet=") and Game.active() != null:
 			# Debug tools (S38): --pet=species[:stage[:purity[:hearts]]] grants an animal and makes it active (S46 previews).
@@ -357,11 +358,35 @@ func _handle_preview_args(user_args: Array) -> void:
 					if str(rk) == ja[1]: break
 			Game.training.apply_contribution(jc.id, 2000, "debug")
 		if str(a).begins_with("--foe=") and Game.active() != null and Game.actor_state(Game.active_id) != null:
-			# Debug tools (S38): --foe=enemy[:count] sets foes in front of the player (combat previews).
+			# Debug tools (S38): --foe=enemy[:count[:hp]] sets foes in front of the player (combat previews), at a share of
+			# their HP if given (a boss past a phase, P6).
 			var fa := str(a).trim_prefix("--foe=").split(":")
 			var fst: ActorState = Game.actor_state(Game.active_id)
 			for k in (int(fa[1]) if fa.size() > 1 else 1):
-				Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
+				var foe: EnemyState = Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
+				if foe and fa.size() > 2: foe.pools.hp = foe.pools.max_hp * float(fa[2])
+		if str(a).begins_with("--defeat-foe") and Game.room_rt != null:
+			# Debug tools (S38): --defeat-foe[=s] defeats the first foe in the room after s seconds (default 1) through
+			# Combat, with its real drop (P6 previews of a boss's fall and the loot fountain).
+			await get_tree().create_timer(float(str(a).get_slice("=", 1)) if str(a).contains("=") else 1.0).timeout
+			for e in Game.room_rt.living_enemies():
+				if e.team == "enemy":
+					Game.combat._defeat(e, Game.active_id)
+					break
+			if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
+		if str(a).begins_with("--cast=") and is_instance_valid(world) and Game.room_rt != null:
+			# Debug tools (S38): --cast=technique[:t] draws a technique's cast and its hits on the foes in reach at its tier
+			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).
+			var ca := str(a).trim_prefix("--cast=").split(":")
+			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection (1.5 s), so the caster is solid
+			world.preview_cast(ca[0])
+			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
+		if str(a).begins_with("--hold=") and is_instance_valid(moments):
+			# Debug tools (S38): --hold=t[:row] holds the moment on screen (or only that row) once it reaches t s (captures
+			# of real ones).
+			var ho := str(a).trim_prefix("--hold=").split(":")
+			moments.hold_at = float(ho[0])
+			moments.hold_row = ho[1] if ho.size() > 1 else ""
 		if str(a).begins_with("--body=") and Game.active() != null:
 			# Debug tools (S38): --body=level[:tier[:trials]] sets the body ladder for previews (S48).
 			var bd := str(a).trim_prefix("--body=").split(":")
@@ -520,8 +545,25 @@ func _handle_preview_args(user_args: Array) -> void:
 		await get_tree().create_timer(1.0).timeout
 		hud.pet_wheel = true
 		hud.pet_pick = 1
+	for a in user_args:
+		if str(a).begins_with("--moment=") and is_instance_valid(moments):
+			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
+			# --capture the shot is taken at t (P6 previews).
+			var mo := str(a).trim_prefix("--moment=").split(":")
+			await get_tree().create_timer(1.0).timeout
+			moment_t = float(mo[1]) if mo.size() > 1 else 2.0
+			moments.preview(mo[0], moment_t)
+		if str(a).begins_with("--breakthrough") and is_instance_valid(moments) and Game.active() != null:
+			# Debug tools (S38): --breakthrough[=t] takes the character over its next step at once, through the progression
+			# authority (a great step when it stands at one), and holds its moment at t s (P6 previews of the real stat rise).
+			await get_tree().create_timer(1.5).timeout
+			var bc = Game.active()
+			var nxt := ContentDB.next_realm(bc.cultivator.realm_key)
+			moment_t = float(str(a).get_slice("=", 1)) if str(a).contains("=") else 2.4
+			moments.hold_at = moment_t
+			if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
 	if "--capture" in user_args:
-		await get_tree().create_timer(2.5).timeout
+		await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
 		for a in user_args:
 			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
 			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})
@@ -625,9 +667,19 @@ func _mount_world() -> void:
 	hud.dialogue_requested.connect(func(convo: Dictionary): open_page("dialogue", {"convo": convo}))
 	hud.fishing_requested.connect(func(obj: String): open_page("fishing", {"object": obj}))
 	hud_layer.add_child(hud)
+	# P6 moments live only while the world is mounted: events raised while a save loads or offline gains settle never play.
+	moments = MomentView.new()
+	moments.world = world
+	moments.hud = hud
+	hud.moments = moments
+	add_child(moments)
 
 func _unmount_world() -> void:
 	close_all_pages()
+	if is_instance_valid(moments):
+		remove_child(moments)
+		moments.queue_free()
+	moments = null
 	if is_instance_valid(hud):
 		hud_layer.remove_child(hud)
 		hud.queue_free()

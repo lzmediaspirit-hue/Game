@@ -1,10 +1,10 @@
 """P7b (docs/item_plan.md §2.9): icons for the banded bases added in P7b part 1, drawn with the existing family
-functions and the grade kits in palette.py (they are redrawn with their families in the Style A pass):
+functions and the grade kits in palette.py (they are redrawn with their families in the Style A pass; the Sovereign
+and Will armour, hats and gourds have moved to families/armour.py with its conversion):
 
-- the brush and the bell at every grade: the Bastion's Sage brush and bell, their materials swapped for each grade's;
-- Sovereign (driftsteel, starsilk) and Will (lanternsteel, lanternsilk) weapons, armour, hats and gourds: each family
-  drawn at Sage (or the hat at Spirit) and its kit swapped for the grade's;
-- the pet gear ladders (collars, beast talismans, saddles) from the three S46 pieces, and four furnaces.
+- four furnaces. (The weapon ladders, the brush and the bell at every grade and the Sovereign and Will weapons, are
+  HD drawings with their family now: `weapons.BUILDERS` x `weapons.GRADE_WORDS`; the pet gear ladders, collars,
+  beast talismans and saddles, are with theirs: `beast_parts.PET_GEAR_HD`.)
 
 `recolor` swaps whole material ramps (every shade and the outline) on a finished canvas, and a glow colour, so a
 swapped icon keeps its drawing exactly.
@@ -12,11 +12,10 @@ swapped icon keeps its drawing exactly.
 from pix import rgb
 from palette import R, GRADES
 from registry import register
-from families import armour, beast_parts, treasures, weapons
+from families import treasures
 
 ART = 32   # legacy, as the families these drawings come from
 
-GRADE_WORDS = weapons.GRADE_WORDS + [('driftsteel', 'sovereign'), ('lanternsteel', 'will')]
 KIT_KEYS = ('metal', 'metal2', 'grip', 'wrap', 'accent', 'gem', 'cloth')
 
 
@@ -56,54 +55,6 @@ def regrade(draw, src_grade, dst_grade, extra=()):
     return fn
 
 
-# ------------------------------------------------------------------ weapons: Sovereign and Will in the nine families
-for _fam, _build in weapons.BUILDERS.items():
-    for _word, _grade in (('driftsteel', 'sovereign'), ('lanternsteel', 'will')):
-        register('equipment', '%s_%s' % (_word, _fam), regrade(lambda b=_build: b('sage'), 'sage', _grade), 'weapons')
-
-# ------------------------------------------------------------------ the brush and the bell at every grade
-for _word, _grade in GRADE_WORDS:
-    _bronze = () if _grade == 'plain' else ((R['bronze'], GRADES[_grade]['metal']),)
-    register('equipment', '%s_brush' % _word, regrade(lambda: weapons._v12d_brush(False), 'sage', _grade), 'weapons')
-    register('equipment', '%s_bell' % _word, regrade(lambda: weapons._v12d_bell(False), 'sage', _grade, _bronze), 'weapons')
-
-# ------------------------------------------------------------------ Sovereign and Will armour, hats and gourds
-for _word, _grade in (('starsilk', 'sovereign'), ('lanternsilk', 'will')):
-    register('equipment', '%s_robe' % _word, (lambda g=_grade: armour.robe(g)), 'armour')
-    register('equipment', '%s_trousers' % _word, (lambda g=_grade: armour.trousers(g)), 'armour')
-    register('equipment', '%s_boots' % _word, (lambda g=_grade: armour.boots(g)), 'armour')
-
-
-def _cloth_pairs(src, dst):
-    a, b = armour.CLOTH[src], armour.CLOTH[dst]
-    return [(a[k], b[k]) for k in ('cloth', 'trim', 'sash', 'gem')]
-
-
-register('equipment', 'starsilk_hat', lambda: recolor(armour.sunsilk_hat(), _cloth_pairs('sage', 'sovereign'), ('#FFC870', GRADES['sovereign']['glow'])), 'armour')
-register('equipment', 'lanternsilk_hat', lambda: recolor(armour.stormsilk_hat(), _cloth_pairs('spirit', 'will'), ('#7FD4FF', GRADES['will']['glow'])), 'armour')
-register('equipment', 'driftglass_gourd', regrade(lambda: armour.gourd('sunsteel'), 'sage', 'sovereign'), 'gourds')
-register('equipment', 'lantern_gourd', regrade(lambda: armour.gourd('sunsteel'), 'sage', 'will'), 'gourds')
-
-# ------------------------------------------------------------------ pet gear ladders (the S46 pieces, per grade)
-PET_GEAR = {  # slot word -> (drawing, its grade, (source ramp, kit key) pairs)
-    'collar': (beast_parts.bone_collar, 'common', ((R['leather'], 'grip'), (R['hemp'], 'accent'), (R['bone'], 'metal'))),
-    'beast_talisman': (beast_parts.scale_talisman, 'earth', ((R['scale_green'], 'metal'), (R['jade'], 'gem'))),
-    'saddle': (beast_parts.reed_saddle, 'common', ((R['straw'], 'cloth'), (R['leather'], 'grip'), (R['hemp'], 'wrap'), (R['bronze'], 'accent'))),
-}
-_first = {'collar': 'earth', 'beast_talisman': 'common', 'saddle': 'earth'}
-_grades = [g for _, g in GRADE_WORDS]
-for _slot, (_draw, _own, _swap) in PET_GEAR.items():
-    for _word, _grade in GRADE_WORDS[_grades.index(_first[_slot]):]:
-        if _grade == _own:
-            continue
-        _kit = GRADES[_grade]
-
-        def _pet(d=_draw, sw=_swap, kit=_kit):
-            c = recolor(d(), [(src, kit[k] or kit['accent']) for src, k in sw], ('#8FE8C0', kit['glow'] or '#8FE8C0'))
-            if kit['glow'] and not (c.alpha[(c.alpha > 0) & (c.alpha < 255)]).any():
-                c.glow(kit['glow'], (95, 40))
-            return c
-        register('items', '%s_%s' % (_word, _slot), _pet, 'beast_parts')
 
 # ------------------------------------------------------------------ the furnace ladder on through Acts II and III
 for _id, _body, _trim, _jewel in (('stormsteel_furnace', R['storm'], R['silver'], R['cyan']), ('sunsteel_furnace', R['gold'], R['red'], R['ember']),

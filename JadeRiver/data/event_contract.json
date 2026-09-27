@@ -18,24 +18,52 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "from",
+    "to",
+    "risk",
+    "duration"
    ]
   },
   "breakthrough_succeeded": {
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "from",
+    "to",
+    "major",
+    "formation"
    ]
   },
   "breakthrough_failed": {
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "failure_id",
+    "losses",
+    "injuries",
+    "recovery"
    ]
   },
   "realm_changed": {
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "from",
+    "to",
+    "major",
+    "level"
    ]
   },
   "consolidation_finished": {
@@ -105,6 +133,11 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "dao",
+    "tier"
    ]
   },
   "method_changed": {
@@ -155,6 +188,10 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "value"
    ]
   },
   "purity_changed": {
@@ -212,6 +249,11 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "tier",
+    "name"
    ]
   },
   "physique_awakened": {
@@ -242,6 +284,13 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "from",
+    "to",
+    "bolts",
+    "waves"
    ]
   },
   "tribulation_bolt": {
@@ -254,6 +303,14 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "survived",
+    "struck",
+    "absorbed",
+    "bolts",
+    "failure"
    ]
   },
   "qi_deviation": {
@@ -326,6 +383,16 @@
    "system": "Progression",
    "files": [
     "progression_authority"
+   ]
+  },
+  "level_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "payload": [
+    "actor",
+    "level"
    ]
   },
   "attack_started": {
@@ -514,6 +581,13 @@
    "system": "World",
    "files": [
     "world_authority"
+   ],
+   "payload": [
+    "room",
+    "items",
+    "x",
+    "y",
+    "source"
    ]
   },
   "room_left": {
@@ -705,11 +779,28 @@
     "world_authority"
    ]
   },
+  "room_event_started": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ],
+   "payload": [
+    "actor",
+    "room",
+    "event",
+    "duration"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
     "enemy_authority",
     "enemy_brain"
+   ],
+   "payload": [
+    "enemy",
+    "target",
+    "def"
    ]
   },
   "enemy_spawned": {
@@ -738,6 +829,10 @@
    "files": [
     "enemy_authority",
     "enemy_brain"
+   ],
+   "payload": [
+    "room",
+    "enemy"
    ]
   },
   "boss_phase": {
@@ -745,6 +840,11 @@
    "files": [
     "enemy_authority",
     "enemy_brain"
+   ],
+   "payload": [
+    "enemy",
+    "phase",
+    "action"
    ]
   },
   "enemy_summoned": {
@@ -768,6 +868,12 @@
    "files": [
     "enemy_authority",
     "enemy_brain"
+   ],
+   "payload": [
+    "room",
+    "enemy",
+    "role",
+    "clean"
    ]
   },
   "enemy_leashed": {
@@ -819,6 +925,11 @@
    "files": [
     "crafting_authority",
     "workshop_authority"
+   ],
+   "payload": [
+    "actor",
+    "craft",
+    "rank"
    ]
   },
   "fish_caught": {
@@ -840,6 +951,11 @@
    "files": [
     "crafting_authority",
     "workshop_authority"
+   ],
+   "payload": [
+    "actor",
+    "recipe",
+    "quality"
    ]
   },
   "items_salvaged": {
@@ -931,6 +1047,12 @@
    "files": [
     "crafting_authority",
     "workshop_authority"
+   ],
+   "payload": [
+    "actor",
+    "craft",
+    "rank",
+    "title"
    ]
   },
   "commission_completed": {
@@ -1043,6 +1165,12 @@
    "files": [
     "crafting_authority",
     "workshop_authority"
+   ],
+   "payload": [
+    "actor",
+    "item",
+    "skill",
+    "legend"
    ]
   },
   "currency_changed": {
@@ -1110,6 +1238,13 @@
    "system": "Pets",
    "files": [
     "pet_authority"
+   ],
+   "payload": [
+    "actor",
+    "pet",
+    "from",
+    "stage",
+    "branch"
    ]
   },
   "trait_revealed": {
@@ -1394,6 +1529,12 @@
    "system": "Quest",
    "files": [
     "quest_authority"
+   ],
+   "payload": [
+    "actor",
+    "quest",
+    "name",
+    "kind"
    ]
   },
   "flag_set": {
@@ -1418,6 +1559,12 @@
    "system": "Unlocks",
    "files": [
     "unlock_service"
+   ],
+   "payload": [
+    "actor",
+    "system",
+    "toast",
+    "label"
    ]
   },
   "hud_element_revealed": {
@@ -1578,12 +1725,22 @@
    "system": "Achievement",
    "files": [
     "achievement_authority"
+   ],
+   "payload": [
+    "actor",
+    "id",
+    "name"
    ]
   },
   "title_changed": {
    "system": "Achievement",
    "files": [
     "achievement_authority"
+   ],
+   "payload": [
+    "actor",
+    "title",
+    "earned?"
    ]
   },
   "path_above_found": {
@@ -1804,6 +1961,13 @@
    "system": "Calendar",
    "files": [
     "calendar_authority"
+   ],
+   "payload": [
+    "actor",
+    "kind",
+    "realm",
+    "room",
+    "people"
    ]
   },
   "fortune_encounter": {

@@ -1790,7 +1790,15 @@
    ],
    "offered_by_unlock": true,
    "chapter": "3",
-   "target_room": "lf_village"
+   "target_room": "lf_village",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
+     }
+    ]
+   }
   },
   {
    "id": "aunt_pings_broth",
@@ -2283,7 +2291,15 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "cp_pilgrim_stairs"
+   "target_room": "cp_pilgrim_stairs",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_9"
+     }
+    ]
+   }
   },
   {
    "id": "after_the_cleansing",
@@ -3373,7 +3389,15 @@
      "item": "elder_hus_talisman",
      "count": 1
     }
-   ]
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   }
   },
   {
    "id": "wings_of_cloud",
@@ -3423,7 +3447,15 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   }
   },
   {
    "id": "riding_the_wind",
@@ -3752,7 +3784,15 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_2"
+     }
+    ]
+   }
   },
   {
    "id": "the_sleeping_blade",
@@ -4951,7 +4991,15 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   }
   },
   {
    "id": "beyond_the_valley",
@@ -4984,7 +5032,15 @@
    "offered_by_unlock": true,
    "chapter": "10",
    "target_room": "sr_frozen_shrine",
-   "next": "farewells"
+   "next": "farewells",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
+     }
+    ]
+   }
   },
   {
    "id": "the_elders_last_lesson",
@@ -5096,6 +5152,10 @@
      {
       "kind": "quest_done",
       "quest": "beyond_the_valley"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
@@ -5130,6 +5190,10 @@
      {
       "kind": "quest_done",
       "quest": "farewells"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
@@ -5231,6 +5295,10 @@
      {
       "kind": "quest_done",
       "quest": "strange_tracks"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
      }
     ]
    },
@@ -5289,6 +5357,10 @@
      {
       "kind": "quest_done",
       "quest": "the_humming_token"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
      }
     ]
    },
@@ -5328,6 +5400,10 @@
      {
       "kind": "quest_done",
       "quest": "mei_qings_errand"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
      }
     ]
    },
@@ -5462,6 +5538,10 @@
      {
       "kind": "quest_done",
       "quest": "the_caravan_road"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
      }
     ]
    },
@@ -5504,6 +5584,10 @@
      {
       "kind": "quest_done",
       "quest": "toward_cleansing_peak"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_9"
      }
     ]
    },
@@ -5549,7 +5633,15 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   }
   },
   {
    "id": "lus_handwriting",
@@ -5584,6 +5676,10 @@
      {
       "kind": "quest_done",
       "quest": "the_shrine_surfaces"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
      }
     ]
    },
@@ -5636,6 +5732,10 @@
      {
       "kind": "quest_done",
       "quest": "lus_handwriting"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
      }
     ]
    },
@@ -5688,6 +5788,10 @@
      {
       "kind": "quest_done",
       "quest": "the_riverbreath_trial"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
      }
     ]
    },
@@ -5809,6 +5913,10 @@
      {
       "kind": "quest_done",
       "quest": "what_the_eyes_miss"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_2"
      }
     ]
    },
@@ -5911,6 +6019,10 @@
      {
       "kind": "quest_done",
       "quest": "gus_warehouse"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_2"
      }
     ]
    },
@@ -5993,6 +6105,10 @@
      {
       "kind": "quest_done",
       "quest": "allies_at_the_wall"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
      }
     ]
    },
@@ -6039,6 +6155,10 @@
      {
       "kind": "quest_done",
       "quest": "the_siege"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
      }
     ]
    },
@@ -7697,7 +7817,15 @@
     }
    ],
    "next": "horns_for_the_furnace",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
+     }
+    ]
+   }
   },
   {
    "id": "horns_for_the_furnace",
@@ -7929,6 +8057,10 @@
      {
       "kind": "quest_done",
       "quest": "shards_for_sale"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
      }
     ]
    },
@@ -8234,7 +8366,15 @@
    "offered_by_unlock": true,
    "chapter": "13",
    "target_room": "ir_hold_gate",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   }
   },
   {
    "id": "glass_and_bone",
@@ -8366,6 +8506,10 @@
      {
       "kind": "quest_done",
       "quest": "glass_and_bone"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
      }
     ]
    },
@@ -8647,6 +8791,10 @@
      {
       "kind": "quest_done",
       "quest": "gus_ledger"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
      }
     ]
    },
@@ -8775,6 +8923,10 @@
      {
       "kind": "quest_done",
       "quest": "the_gate_holds"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
      }
     ]
    },
@@ -8837,6 +8989,10 @@
      {
       "kind": "quest_done",
       "quest": "lus_last_page"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
      }
     ]
    },
@@ -8905,6 +9061,10 @@
      {
       "kind": "quest_done",
       "quest": "the_presence_trial"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
      }
     ]
    },
@@ -9835,6 +9995,10 @@
      {
       "kind": "quest_done",
       "quest": "the_lantern_run"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
      }
     ]
    },
@@ -9906,7 +10070,15 @@
     }
    ],
    "next": "will_manifest",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
+     }
+    ]
+   }
   },
   {
    "id": "will_manifest",
@@ -9947,6 +10119,10 @@
      {
       "kind": "quest_done",
       "quest": "salt_of_the_stars"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
      }
     ]
    },
@@ -10009,7 +10185,15 @@
    "offered_by_unlock": true,
    "chapter": "17",
    "target_room": "dr_sparrow_reefs",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
+     }
+    ]
+   }
   },
   {
    "id": "the_pursers_ledger",
@@ -10068,6 +10252,10 @@
      {
       "kind": "quest_done",
       "quest": "a_presence_of_ones_own"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_1"
      }
     ]
    },
@@ -10135,6 +10323,10 @@
      {
       "kind": "quest_done",
       "quest": "the_pursers_ledger"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_1"
      }
     ]
    },
@@ -10196,6 +10388,10 @@
      {
       "kind": "quest_done",
       "quest": "gunners_battery"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_1"
      }
     ]
    },
@@ -10246,7 +10442,15 @@
    "chapter": "19",
    "target_room": "wn_nest_cliffs",
    "next": "a_hollowed_brood",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
+     }
+    ]
+   }
   },
   {
    "id": "a_hollowed_brood",
@@ -10299,6 +10503,10 @@
      {
       "kind": "quest_done",
       "quest": "star_tier_beasts"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
      }
     ]
    },
@@ -10373,6 +10581,10 @@
      {
       "kind": "quest_done",
       "quest": "a_hollowed_brood"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
      }
     ]
    },
@@ -10446,6 +10658,10 @@
      {
       "kind": "has_training_sect",
       "value": true
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
      }
     ]
    },
@@ -10557,6 +10773,10 @@
      {
       "kind": "quest_done",
       "quest": "the_citadel"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
      }
     ]
    },
@@ -10618,6 +10838,10 @@
      {
       "kind": "presence_level_at_least",
       "value": 5
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
      }
     ]
    },
@@ -10663,6 +10887,10 @@
      {
       "kind": "quest_done",
       "quest": "the_observatory"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
      }
     ]
    },
@@ -10770,6 +10998,10 @@
      {
       "kind": "quest_done",
       "quest": "sphere_lord"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
      }
     ]
    },
@@ -10871,6 +11103,10 @@
      {
       "kind": "quest_done",
       "quest": "the_orbit_ruins"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
      }
     ]
    },
@@ -10929,6 +11165,10 @@
      {
       "kind": "quest_done",
       "quest": "cinder_fields"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
      }
     ]
    },
@@ -10986,6 +11226,10 @@
      {
       "kind": "quest_done",
       "quest": "kharns_pyre"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
      }
     ]
    },
@@ -11049,6 +11293,10 @@
      {
       "kind": "quest_done",
       "quest": "the_tide_breaks"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
      }
     ]
    },
@@ -11266,6 +11514,10 @@
      {
       "kind": "quest_done",
       "quest": "star_warden"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_2"
      }
     ]
    },
@@ -11346,6 +11598,10 @@
      {
       "kind": "quest_done",
       "quest": "lus_lantern"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_2"
      }
     ]
    },
@@ -11353,5 +11609,43 @@
    "target_room": "tf_greyfall_breach",
    "qp": "act2_side"
   }
- ]
+ ],
+ "chapter_floors": {
+  "2": "bone_forging_4",
+  "3": "bone_forging_7",
+  "4": "qi_kindling_9",
+  "5": "qi_unfurling_3",
+  "6": "heart_tempering_1",
+  "7": "cloud_stride_1",
+  "8": "spirit_awakening_2",
+  "9": "heaven_glimpse_1",
+  "10": "heaven_glimpse_3",
+  "11": "heaven_glimpse_3",
+  "12": "sage_1",
+  "13": "sage_2",
+  "14": "sage_3",
+  "15": "sage_sovereign_1",
+  "16": "sage_sovereign_2",
+  "17": "sage_sovereign_3",
+  "18": "will_manifest_1",
+  "19": "will_manifest_2",
+  "20": "will_manifest_3",
+  "21": "sphere_lord_1",
+  "22": "sphere_lord_2"
+ },
+ "chapter_floors_planned": {
+  "23": "sphere_lord_3",
+  "24": "law_touching_1",
+  "25": "law_touching_3",
+  "26": "monarch_2",
+  "27": "monarch_3",
+  "28": "half_heaven_monarch",
+  "29": "heavens_threshold",
+  "30": "inner_heaven_1",
+  "31": "inner_heaven_3",
+  "32": "inner_heaven_6",
+  "33": "inner_heaven_7",
+  "34": "inner_heaven_8",
+  "epilogue": "world_genesis"
+ }
 }

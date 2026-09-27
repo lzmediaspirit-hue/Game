@@ -27,6 +27,7 @@ func _ready() -> void:
 
 func _main() -> void:
 	rules_suite()
+	might_suite()
 	replay_suite()
 	offline_suite()
 	pets_suite()
@@ -102,6 +103,7 @@ func _main() -> void:
 	drop_pool_suite()
 	set_suite()
 	boss_event_suite()
+	moments_suite()
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
@@ -1402,11 +1404,11 @@ func soul_poison_suite() -> void:
 	for i in 4: Game.tick(0.05)
 	GameEvents.flush()
 	check(heard.search != "" and (heard.search == "?" or Game.account.codex.has(heard.search)), "a searched elite's death gives up a soul memory (%s)" % heard.search)
-	# Soul Lantern Ward: a shield of 20% max Soul for 6 s.
+	# Soul Lantern Ward: a shield of 10% max HP for 6 s (P12: a share of the pool Might scales, as blows scale).
 	c.pools.shield = 0.0
 	if c.pools.max_soul <= 0.0: c.pools.max_soul = 100.0
 	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "soul_lantern_ward"))
-	check(near(c.pools.shield, c.pools.max_soul * 0.2, 0.5), "Soul Lantern Ward shields 20%% of max Soul (%.1f)" % c.pools.shield)
+	check(near(c.pools.shield, c.pools.max_hp * 0.1, 0.5), "Soul Lantern Ward shields 10%% of max HP (%.1f)" % c.pools.shield)
 	for i in 130: Game.tick(0.05)
 	check(c.pools.shield == 0.0, "and fades after 6 s")
 	# The Poison Body: a poison art known and toxicity past half its tolerance turns hits into poison.
@@ -2604,6 +2606,8 @@ func body_path_suite() -> void:
 	c.pools.qi = 0.0
 	c.pools.hp = c.pools.max_hp
 	check(Game.combat.body_hp_cost(c, tiger, 12.0) > 0.0, "Tiger Rush with no QI spends HP at Copper Body")
+	check(near(Game.combat.body_hp_cost(c, tiger, 12.0), c.pools.max_hp * 12.0 / maxf(1.0, c.pools.max_qi)),
+		"it spends the share of max HP that 12 QI is of max QI (P12: Might scales HP, not QI)")
 	c.pools.hp = c.pools.max_hp * 0.2 + 1.0
 	check(Game.combat.body_hp_cost(c, tiger, 12.0) == 0.0, "never below a fifth of HP")
 	check(Game.combat.body_hp_cost(c, ContentDB.entry("techniques", "flowing_palm"), 8.0) == 0.0, "a technique that is not a body technique never spends HP")
@@ -4811,8 +4815,12 @@ func tower_activity_ranking_suite() -> void:
 	for i in range(1, t1.size()): sorted_ok = sorted_ok and int(t1[i - 1].cp) >= int(t1[i].cp)
 	check(sorted_ok, "strongest first")
 	# Entering: by CP (top eight) or the tournament finals.
+	# P12: the rivals' CP is the par character's at their Level, so the rule is read as written: a place in the top
+	# eight (seven seeded rivals leave the eighth open) or a CP at least the eighth's.
 	var entered := Game.calendar.rank_entered(c)
-	check(entered == (StatRules.combat_power(c) >= int(CalendarRules.rank_table(Clock.now_utc(), 4242, origin).back().cp)), "you enter at the top eight by CP")
+	var now_table := CalendarRules.rank_table(Clock.now_utc(), 4242, origin)
+	var top := int(ContentDB.config("rankings").get("top", 8))
+	check(entered == (now_table.size() < top or StatRules.combat_power(c) >= int(now_table[top - 1].cp)), "you enter at the top eight by CP")
 	c.quests.done["the_valley_finals"] = 1
 	check(Game.calendar.rank_entered(c) and Game.calendar.ranking(c).any(func(o): return o.get("player", false)), "or by reaching the tournament finals")
 	var above := Game.calendar.rank_above(c)
@@ -6669,16 +6677,117 @@ func ice_mount_suite() -> void:
 	c.mount_pet = mount_was
 	c.riding = riding_was
 
+# ------------------------------------------------------------------ P12 Might (docs/research/stat_scaling_research.md §6)
+func might_suite() -> void:
+	var t: Array = ContentDB.stat_const("might.table", [])
+	check(t.size() == 201 and near(StatRules.might_at(1), 1.0) and near(StatRules.might_at(9), 1.05) and near(StatRules.might_at(10), 1.3),
+		"Might: 1.00 at Bone Forging 1, 1.05 at its top, 1.30 at Qi Kindling 1")
+	var rising := true
+	for lv in range(2, t.size()): rising = rising and float(t[lv]) > float(t[lv - 1])
+	check(rising, "Might rises at every Level from 1 to 200")
+	var majors := true
+	for lv in [19, 28, 37, 46, 55, 64, 73, 82, 91, 100, 109, 166]: majors = majors and absf(StatRules.might_at(lv) / StatRules.might_at(lv - 1) - 1.1706) < 0.001
+	check(majors, "each great realm's major breakthrough multiplies Might by 1.17 (1.30^0.6)")
+	check(near(StatRules.might_at(118) / StatRules.might_at(117), 1.1, 0.001) and near(StatRules.might_at(120) / StatRules.might_at(119), 1.1, 0.001),
+		"the advanced states are x1.10 each")
+	check(near(StatRules.might_at(99), 15.31, 0.001) and near(StatRules.might_at(165), 152.76, 0.001), "Might 15.31 at Level 99, 152.8 at 165")
+	# Player and monster of a Level share one Might; it scales the attacks, HP and defences, never max Qi or max Soul.
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var realm_was := cu.realm_key
+	var qp_was := cu.qp
+	var shared := true
+	var cut_same := true
+	for key in ["qi_kindling_1", "cloud_stride_4", "sage_2", "sphere_lord_3"]:
+		cu.realm_key = key
+		cu.qp = 0.0
+		StatRules.rebuild(c)
+		var lv := ProgressionRules.level(c)
+		shared = shared and near(StatRules.might(c), float(StatRules.mob_stats({"role": "normal"}, lv).might))
+		var d := StatRules.armour_defence(lv) * 0.8
+		cut_same = cut_same and near(CombatRules.defence_reduction(d * StatRules.might_at(lv), lv, 0.0, StatRules.might_at(lv)), CombatRules.defence_reduction(d, lv, 0.0), 0.0001)
+	check(shared, "a player and a monster of the same Level have the same Might")
+	check(cut_same, "a same-Level defence cut is what it was before Might")
+	var sb: StatBlock = c.stats
+	var m := StatRules.might(c)
+	var before := {"max_hp": sb.value("max_hp"), "physical_attack": sb.value("physical_attack"), "max_qi": sb.value("max_qi"), "max_soul": sb.value("max_soul"),
+		"physical_defense": sb.value("physical_defense")}
+	sb.remove_source("might")
+	var mods_ok := near(before.max_hp / sb.value("max_hp"), m) and near(before.physical_attack / sb.value("physical_attack"), m) \
+		and near(before.physical_defense / maxf(0.001, sb.value("physical_defense")), m) and near(before.max_qi, sb.value("max_qi")) and near(before.max_soul, sb.value("max_soul"))
+	check(mods_ok, "Might (x%.2f) multiplies max HP, attack and defence and leaves max Qi and max Soul alone" % m)
+	# Combat Power has no energy term: the same sheet on another energy weighs the same.
+	StatRules.rebuild(c)
+	var cp := StatRules.combat_power(c)
+	var energy_was := cu.energy_type
+	cu.energy_type = "none"
+	check(StatRules.combat_power(c) == cp, "Combat Power does not read the energy type")
+	cu.energy_type = energy_was
+	# The damage formula: one additive bucket, a product of final damage, the Qi edge on Qi and Soul blows only.
+	var rng := RandomNumberGenerator.new()
+	var a := {"physical_attack": 1000.0, "qi_attack": 1000.0, "level": 1, "crit_chance": -10.0}
+	var foe := {"role": "normal"}
+	var flat := {"never_miss": true, "range": [1.0, 1.0]}
+	var hit := func(extra: Dictionary, def: Dictionary, attack: Dictionary) -> int:
+		var at := a.duplicate()
+		at.merge(extra, true)
+		return int(CombatRules.resolve(at, def, attack, rng).amount)
+	check(hit.call({}, foe, flat) == 1000, "a plain blow of 1,000 attack lands 1,000")
+	check(hit.call({"damage_pct": 0.1, "elemental_power": 0.2}, foe, flat) == 1300, "damage% and elemental power add in one bucket (x1.30, not x1.32)")
+	check(hit.call({"boss_damage": 0.5}, foe, flat) == 1000 and hit.call({"boss_damage": 0.5}, {"role": "elite"}, flat) == 1500
+		and hit.call({"boss_damage": 0.5}, {"role": "field_boss"}, flat) == 1500, "boss damage counts against elites and bosses only")
+	check(hit.call({"damage_pct": 0.1, "final_damage": 1.2}, foe, flat) == 1320, "final damage multiplies the bucket (1.1 x 1.2)")
+	var qi_blow := {"never_miss": true, "range": [1.0, 1.0], "damage_type": "qi"}
+	check(hit.call({"qi_edge": 1.15}, foe, qi_blow) == 1150 and hit.call({"qi_edge": 1.15}, foe, flat) == 1000, "the Qi edge lifts Qi blows only")
+	check(near(ProgressionRules.qi_edge("sage_qi", 9), 1.15) and near(ProgressionRules.qi_edge("true_qi", 6), 1.13) and near(ProgressionRules.qi_edge("heavenforce", 9), 1.3),
+		"the Qi edge: Sage 1.15, True Qi 1.10 +1% a purity grade, Heavenforce 1.30")
+	# A share of an elite's or a boss's health a second is capped at 60% of the caster's attack.
+	check(near(CombatRules.hp_share(10000.0, "field_boss", 1000.0), 600.0) and near(CombatRules.hp_share(10000.0, "normal", 1000.0), 10000.0)
+		and near(CombatRules.hp_share(10000.0, "elite", 0.0), 10000.0), "a share of a boss's health is capped at 60% of the caster's attack; normal foes are not")
+	# UiKit.short: five characters or fewer; fmt turns to it from ten million.
+	var shorts := [[9876.0, "9,876"], [10000.0, "10.0K"], [18200.0, "18.2K"], [136000.0, "136K"], [99960.0, "100K"], [999600.0, "1.00M"],
+		[1270000.0, "1.27M"], [191000000.0, "191M"], [1.2e9, "1.20B"], [3.4e12, "3.40T"]]
+	var short_ok := true
+	for s in shorts: short_ok = short_ok and UiKit.short(float(s[0])) == str(s[1])
+	check(short_ok, "UiKit.short: 9,876, 18.2K, 136K, 1.27M, 1.20B")
+	check(UiKit.fmt(12345678.0) == "12.3M" and UiKit.fmt(9999999.0) == "9,999,999", "fmt groups to 9,999,999 and is short above")
+	check(UiKit.pool_values(427000.0, 427000.0) == ["427K", "427K"] and UiKit.pool_values(99000.0, 99999.0) == ["99,000", "99,999"], "bars of 100,000 or more show short")
+	# The save migration: saved health grows with Might so its share holds; it runs once.
+	var saved := Saves.migrate_character({"version": 3, "cultivator": {"realm_key": "sphere_lord_3", "progress": 0.7}, "pools": {"hp": 1000.0, "qi": 50.0}})
+	check(near(float(saved.pools.hp), 1000.0 * StatRules.might_at(99)) and near(float(saved.pools.qi), 50.0) and int(saved.minor) == GameCharacter.MINOR,
+		"an old save's health grows by the Might of its Level (Qi kept)")
+	check(near(float(Saves.migrate_character(saved).pools.hp), 1000.0 * StatRules.might_at(99)), "and only once")
+	# Chapter floors: every main quest of a chapter asks at least its floor; no main quest has a ceiling.
+	var floors: Dictionary = ContentDB.config("quests").get("chapter_floors", {})
+	var floored := true
+	var ceilings := false
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) != "main": continue
+		var own := "mortal"
+		for r in q.get("requires", {}).get("all", []):
+			if str(r.get("kind", "")) == "realm_at_least": own = str(r.realm)
+			if str(r.get("kind", "")) in ["realm_below", "level_below"]: ceilings = true
+		if floors.has(str(q.get("chapter", ""))): floored = floored and ProgressionRules.at_least(own, str(floors[str(q.chapter)]))
+	check(floors.size() == 21 and floored and not ceilings, "every main quest of chapters 2-22 asks its chapter's floor, and none a ceiling")
+	cu.realm_key = realm_was
+	cu.qp = qp_was
+	Game.combat.refresh_stats(c.id)
+
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:
-	# S13: HP_mob = (30 + 15L + 1.1L^2) x role; the spec's own check is 290 HP at Level 10.
+	# S13 / P12: a monster's HP and attack come from the par tables (stats.json mob.hp_table, attack_table). Level 10 keeps
+	# the spec's 290 HP (3.5 par blows, 220, fall below today's polynomial, which the table keeps as its floor); its
+	# attack is the table's 53: a blow of 8% of par HP (589 x 0.08 = 47) before par's armour cut of 11%.
 	var normal := StatRules.mob_stats({"role": "normal"}, 10)
 	check(near(normal.max_hp, 290.0), "normal monster at Level 10 has 290 HP (%.1f)" % normal.max_hp)
-	check(near(normal.attack, 37.0), "normal monster attack at Level 10 is 37 (%.1f)" % normal.attack)
+	check(near(normal.attack, 53.0), "normal monster attack at Level 10 is 53, from the par table (%.1f)" % normal.attack)
 	var elite := StatRules.mob_stats({"role": "normal"}, 10, true)
-	check(near(elite.max_hp, 290.0 * 6.0) and near(elite.attack, 37.0 * 1.5), "elites are 6x HP and 1.5x attack")
+	check(near(elite.max_hp, 290.0 * 6.0) and near(elite.attack, 53.0 * 1.5), "elites are 6x HP and 1.5x attack")
 	var boss := StatRules.mob_stats({"role": "dungeon_boss"}, 18)
-	check(near(boss.max_hp, (30.0 + 15.0 * 18 + 1.1 * 18 * 18) * 80.0), "dungeon bosses are 80x HP")
+	check(near(boss.max_hp, float(ContentDB.stat_const("mob.hp_table", [])[18]) * 80.0), "a dungeon boss without a par time is 80x a normal foe's HP")
+	check(near(StatRules.mob_stats({"role": "dungeon_boss", "par_s": 90}, 18).max_hp, float(StatRules.par(18).dps) * 90.0),
+		"a boss with a par time has the par character's DPS times it (Big Toad Tan's 90 s)")
 	check(near(StatRules.mob_stats({"role": "normal", "hp_mult": 0.5}, 10).max_hp, 145.0), "hp_mult scales one monster")
 	# S13 kill progress gap factors: 5+ above x1.2, within 4 x1.0, 5-9 below x0.5, 10+ below x0.1.
 	check(near(ProgressionRules.gap_factor(6), 1.2), "5+ levels above: x1.2")
@@ -7726,6 +7835,8 @@ func g2_suite() -> void:
 	_g2_ready(c)
 	Game.inventory.apply_add(c.id, "iron_needles", 5, "test")
 	var t1 := _g2_foe("bamboo_monkey", here + Vector2(150, 0))
+	t1.pools.max_hp = 1e7   # P12: under Might the character fells a Level 12 monkey with one needle; this one takes all three
+	t1.pools.hp = t1.pools.max_hp
 	var t_hp := t1.pools.hp
 	r = Game.inventory.use_item(c, _bag_index(c, "iron_needles"), true)
 	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("iron_needles") == 4, "one bundle throws three needles")
@@ -8271,6 +8382,474 @@ func nav_suite() -> void:
 ## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
 ## P9 finding: a dungeon boss's fall is announced as boss_defeated, clean only when no grave wound came first in the
 ## room, so the Untouched achievement can be earned.
+# ------------------------------------------------------------------ P6 moments
+## docs/moments_design.md §7.1: a MomentView with no world and no HUD, fed through its event handler and stepped by
+## hand. Case 1 runs every real row; cases 3–10 run on fixture rows, so the gather, merge, queue, cut, lock and settings
+## are proved before the real rows have screen parts.
+func moments_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var was: Dictionary = Game.account.settings.duplicate(true)
+	var mv := MomentView.new()
+	add_child(mv)
+	mv.set_process(false)
+	mv.fight_override = false
+	mv.pages_override = false
+	var run := func(s: float) -> void:
+		for i in int(round(s * 60.0)): mv.advance(1.0 / 60.0)
+	var feed := func(ev: String, p: Dictionary) -> void:
+		var q := p.duplicate(true)
+		for k in ["actor", "target"]:
+			if q.has(k): q[k] = c.id
+		mv._on_event(ev, q)
+	var played := func(id: String) -> Array: return mv.logged.filter(func(e): return str(e.row) == id)
+	# 1. Every real row fires from its sample and ends on time, each layer logged within a frame of its t.
+	var real: Array = ContentDB.all("moments")
+	for r in real:
+		mv.load_rows(real)
+		mv.logged.clear()
+		feed.call(str(r.event), r.sample)
+		mv.advance(0.0)
+		var on: bool = (mv.playing != null and mv.playing.row.id == r.id) or mv.queue.any(func(q): return q.row.id == r.id) or not played.call(str(r.id)).is_empty()
+		check(on, "moment %s plays from its sample" % r.id)
+		run.call(float(r.duration_s) + 0.1)
+		for h in r.get("hold_until", []): feed.call(str(h), {"actor": c.id, "survived": true})
+		run.call(2.0 / 60.0)
+		check(mv.playing == null and mv.queue.is_empty() and not mv.active.any(func(q): return q.row.id == r.id), "moment %s ends on time and frees the screen" % r.id)
+		var late: Array = []
+		for L in r.layers:
+			if L.has("if_slot") or str(L.kind) in ["caption", "camera"]: continue
+			if not played.call(str(r.id)).any(func(e): return str(e.layer) == str(L.kind) and absf(float(e.t) - float(L.t)) <= 1.0 / 60.0 + 0.001): late.append("%s@%s" % [L.kind, L.t])
+		check(late.is_empty(), "moment %s: every layer starts within a frame of its time %s" % [r.id, str(late)])
+	# Fixture rows for cases 3-10.
+	var fx_row := func(id: String, event: String, pri: int, dur: float, layers: Array, extra := {}) -> Dictionary:
+		var r := {"id": id, "event": event, "when": {}, "priority": pri, "duration_s": dur, "lock_s": 0.0, "skip": "", "skip_to_s": 0.0,
+			"stale_s": 6.0, "in_fight": "play", "scope": "actor", "merge": [], "hold_until": [], "max_s": 0.0,
+			"toast": {"key": "world_view.level", "args": [pri]}, "layers": layers, "art": [], "sample": {}, "step": "test"}
+		r.merge(extra, true)
+		return r
+	var band := {"t": 0.0, "kind": "band", "y": 138}
+	var fixtures: Array = [
+		fx_row.call("major", "breakthrough_succeeded", 70, 4.0, [{"t": 0.0, "kind": "dim", "alpha": 0.45}, {"t": 0.0, "kind": "sound", "sfx": "breakthrough"},
+			{"t": 0.0, "kind": "fx", "fx": "spark", "at": "actor", "count": 16}, {"t": 0.0, "kind": "buzz", "ms": 120}, {"t": 0.0, "kind": "camera", "to": "actor"},
+			{"t": 0.2, "kind": "flash", "alpha": 0.35}, {"t": 0.6, "kind": "shake", "s": 0.2}, {"t": 0.6, "kind": "band", "y": 138},
+			{"t": 0.6, "kind": "letterbox", "height": 64}],
+			{"when": {"actor": "active", "major": true}, "lock_s": 1.5, "skip": "tap", "skip_to_s": 2.4,
+			"merge": [{"event": "level_changed", "into": "level"}, {"event": "realm_changed", "into": ""}, {"event": "system_unlocked", "into": "unlocks", "max": 2}]}),
+		fx_row.call("cloud", "heavenly_phenomenon", 0, 5.5, [{"t": 0.0, "kind": "fx", "fx": "heaven_cloud", "at": "actor"}], {"when": {"kind": "cloud"}}),
+		fx_row.call("level", "level_changed", 0, 1.0, [{"t": 0.0, "kind": "sound", "sfx": "level"}]),
+		fx_row.call("title", "title_changed", 40, 1.2, [band], {"when": {"earned": true}, "in_fight": "toast"}),
+		fx_row.call("dao", "dao_tier_up", 50, 1.2, [band], {"in_fight": "toast"}),
+		fx_row.call("rare", "loot_dropped", 40, 1.2, [band], {"in_fight": "toast", "stale_s": 9.0}),
+		fx_row.call("phase", "boss_phase", 90, 1.2, [band, {"t": 0.0, "kind": "sound", "sfx": "boss_roar"}], {"stale_s": 1.0, "toast": {}}),
+		fx_row.call("intro", "enemy_aggro", 90, 2.0, [{"t": 0.0, "kind": "letterbox", "height": 64}], {"scope": "room", "stale_s": 1.5, "toast": {}}),
+		fx_row.call("trial", "room_event_started", 60, 1.8, [band], {"scope": "room"}),
+		fx_row.call("long", "quest_completed", 95, 8.0, [band], {"toast": {}})]
+	mv.load_rows(fixtures)
+	var burst := func() -> void:
+		feed.call("breakthrough_succeeded", {"actor": "", "from": "will_manifest_3", "to": "sphere_lord_1", "major": true, "formation": ""})
+		feed.call("level_changed", {"actor": "", "level": 91})
+		feed.call("realm_changed", {"actor": "", "from": "will_manifest_3", "to": "sphere_lord_1", "major": true, "level": 91})
+		feed.call("system_unlocked", {"actor": "", "system": "sphere", "toast": true, "label": "the Sphere"})
+		feed.call("system_unlocked", {"actor": "", "system": "sphere_domain", "toast": true, "label": "the Domain"})
+		feed.call("heavenly_phenomenon", {"actor": "", "kind": "cloud", "realm": "sphere_lord_1", "room": "x", "people": 0})
+		feed.call("title_changed", {"actor": "", "title": "sphere_lord", "earned": true})
+	# 3. Gather and merge.
+	mv.logged.clear()
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "major" and mv.playing.slots.has("level") and (mv.playing.slots.get("unlocks", []) as Array).size() == 2,
+		"one pass: the major breakthrough plays with its level and two unlocks absorbed")
+	check(mv.logged.filter(func(e): return str(e.get("sfx", "")) != "").size() == 1 and played.call("cloud").size() == 1 and played.call("level").is_empty(),
+		"the breakthrough's sound plays once; the phenomenon's clouds play; the absorbed level plays nothing of its own")
+	check(mv.queue.size() == 1 and mv.queue[0].row.id == "title", "the title waits for the screen")
+	# 4. Queue order: priority, then arrival.
+	feed.call("loot_dropped", {"room": "x", "items": [], "x": 0, "y": 0})
+	feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": 3})
+	var order: Array = []
+	for i in 600:
+		mv.advance(1.0 / 60.0)
+		if mv.playing != null and (order.is_empty() or order.back() != mv.playing.row.id): order.append(mv.playing.row.id)
+	check(order == ["major", "dao", "title", "rare"], "after the breakthrough: the Dao tier, then the title and the rare drop by arrival (%s)" % str(order))
+	# 5. A cut: a boss phase 1.0 s into the breakthrough.
+	mv.clear()
+	mv.toasts_posted.clear()
+	burst.call()
+	run.call(1.0)
+	feed.call("boss_phase", {"enemy": 7, "phase": 2, "action": ""})
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "phase" and mv.fading != null and mv.fading.row.id == "major" and mv.toasts_posted.size() == 1,
+		"a boss phase cuts the breakthrough, which leaves its toast")
+	run.call(0.15)
+	check(mv.fading == null, "the cut row fades out within 0.15 s")
+	run.call(8.0)
+	check(not mv.logged.any(func(e): return str(e.row) == "major" and float(e.t) > 1.1 and str(e.layer) == "band"), "the cut row does not come back")
+	# 6. Stale and full.
+	mv.clear()
+	mv.toasts_posted.clear()
+	feed.call("quest_completed", {"actor": "", "quest": "q", "name": "Q", "kind": "main"})
+	mv.advance(0.0)
+	for i in 3: feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": i + 1})
+	for i in 2: feed.call("title_changed", {"actor": "", "title": "t%d" % i, "earned": true})
+	mv.advance(0.0)
+	check(mv.queue.size() == 4 and mv.toasts_posted.size() == 1, "a fifth waiting row drops the lowest to its toast at once")
+	feed.call("boss_phase", {"enemy": 7, "phase": 3, "action": ""})
+	mv.advance(0.0)
+	run.call(1.1)
+	check(not mv.queue.any(func(q): return q.row.id == "phase") and mv.toasts_posted.size() == 2, "a waiting boss phase drops after 1.0 s, with no toast")
+	run.call(6.0)
+	check(mv.queue.is_empty() and mv.toasts_posted.size() == 5, "every row that waited past its stale time drops to its toast (%d)" % mv.toasts_posted.size())
+	# 7. Pages and fights.
+	mv.clear()
+	mv.logged.clear()
+	mv.pages_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing == null and not played.call("major").is_empty() and mv.queue.any(func(q): return q.row.id == "major"), "under a page the world layers play and the screen part waits")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "major", "the screen part starts when the page closes")
+	mv.clear()
+	mv.toasts_posted.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.toasts_posted.size() == 1 and not mv.queue.any(func(q): return q.row.id == "title") and mv.lock_left() == 0.0,
+		"in a fight the title is a toast, and the breakthrough takes no lock")
+	mv.fight_override = false
+	# 8. Room change.
+	mv.clear()
+	mv.toasts_posted.clear()
+	feed.call("enemy_aggro", {"enemy": 3, "target": "", "def": "big_toad_tan"})
+	mv.advance(0.0)
+	feed.call("room_event_started", {"actor": "", "room": "x", "event": "heart_trial", "duration": 60})
+	feed.call("title_changed", {"actor": "", "title": "t9", "earned": true})
+	mv.advance(0.0)
+	feed.call("room_left", {"actor": c.id, "room": "x", "portal": ""})
+	mv.advance(0.0)
+	check(not (mv.playing != null and mv.playing.row.id == "intro") and not mv.queue.any(func(q): return q.row.id == "trial") and mv.toasts_posted.is_empty()
+		and ((mv.playing != null and mv.playing.row.id == "title") or mv.queue.any(func(q): return q.row.id == "title")),
+		"leaving the room ends the boss intro and the waiting trial with no toast; the title survives")
+	# 9. Settings.
+	var put := func(k: String, v) -> void: Game.account.settings[k] = v
+	mv.clear()
+	mv.logged.clear()
+	put.call("screen_shake", false)
+	put.call("flashes", false)
+	put.call("reduce_motion", true)
+	put.call("haptics", false)
+	burst.call()
+	run.call(1.0)
+	var shakes: Array = played.call("major").filter(func(e): return str(e.layer) == "shake")
+	check(not shakes.is_empty() and shakes.all(func(e): return float(e.amp) == 0.0), "with Screen shake off every shake is still")
+	var flash: Array = played.call("major").filter(func(e): return str(e.layer) == "flash")
+	check(flash.size() == 1 and near(float(flash[0].alpha), 0.35 * 0.3), "with Bright flashes off a flash is 0.3 of its alpha")
+	check(not played.call("major").any(func(e): return str(e.layer) in ["camera", "buzz"]), "with Reduce motion no camera move, with Vibration off no buzz")
+	check(played.call("major").filter(func(e): return str(e.layer) in ["band", "letterbox"]).all(func(e): return not e.motion), "with Reduce motion bands and letterboxes do not slide")
+	var sp: Array = played.call("major").filter(func(e): return str(e.layer) == "fx")
+	check(sp.size() == 1 and int(sp[0].count) == int(MomentRules.tier(1).spark_count), "with Reduce motion a burst has tier 1's particles")
+	put.call("damage_numbers", false)
+	var fl := FxLayer.new()
+	fl.number(Vector2.ZERO, "12", UiKit.PAPER)
+	fl.label(Vector2.ZERO, Tx.t("world_view.miss"), UiKit.MIST)
+	check(fl.fx.size() == 1, "with Damage numbers off no damage number rises; Miss still does")
+	fl.free()
+	for k in ["screen_shake", "flashes", "reduce_motion", "haptics", "damage_numbers"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	if not was.has("reduce_motion"): Game.account.settings.erase("reduce_motion")
+	# 10. The lock.
+	for r in fixtures:
+		mv.clear()
+		mv.load_rows([r])
+		feed.call(str(r.event), {"actor": "", "major": true, "earned": true, "kind": "cloud", "enemy": 1, "target": ""})
+		var most := 0.0
+		for i in int(float(r.duration_s) * 60.0) + 2:
+			mv.advance(1.0 / 60.0)
+			most = maxf(most, mv.lock_left())
+			if mv.playing != null and float(mv.playing.st) > float(r.lock_s) + 1.0 / 60.0 and mv.lock_left() > 0.0: most = 99.0
+		check(most <= minf(float(r.lock_s), 1.5), "moment %s holds input at most its lock (%.2f s)" % [r.id, most])
+	mv.load_rows(fixtures)
+	burst.call()
+	run.call(0.5)
+	check(mv.lock_left() > 0.0 and mv.press() and mv.lock_left() == 0.0 and near(float(mv.playing.st), 2.4), "a tap during the breakthrough's lock skips to 2.4 s and gives input back")
+	mv.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.lock_left() == 0.0, "no lock starts in a fight")
+	mv.fight_override = false
+	mv.clear()
+	burst.call()
+	run.call(0.3)
+	mv.fight_override = true
+	mv.advance(1.0 / 60.0)
+	check(mv.lock_left() == 0.0, "a running lock ends the frame a fight starts")
+	mv.fight_override = false
+	# The real rows (P6b on): cases 3, 7, 9, 10 and 11 again, F4, and case 2 through the real authorities.
+	var fresh := func() -> void:
+		mv.load_rows(real)
+		mv.logged.clear()
+		mv.toasts_posted.clear()
+	fresh.call()
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "breakthrough_major" and mv.playing.slots.has("level") and (mv.playing.slots.get("unlocks", []) as Array).size() == 2
+		and mv.logged.filter(func(e): return str(e.get("sfx", "")) == "breakthrough").size() == 1 and not played.call("realm_phenomenon").is_empty()
+		and mv.queue.any(func(q): return q.row.id == "title_earned"), "the major breakthrough takes its level and unlocks and rings once; the clouds play; the title waits")
+	run.call(0.5)
+	check(mv.lock_left() > 0.0 and mv.press() and mv.lock_left() == 0.0 and near(float(mv.playing.st), 2.4), "a tap in the breakthrough's first 1.5 s skips to 2.4 s and gives input back")
+	var longest := 0.0
+	for r in real:
+		fresh.call()
+		feed.call(str(r.event), r.sample)
+		for i in int(float(r.duration_s) * 60.0) + 2:
+			mv.advance(1.0 / 60.0)
+			longest = maxf(longest, mv.lock_left())
+	check(longest <= 1.5, "F4: no moment holds input for more than 1.5 s (%.2f s)" % longest)
+	fresh.call()
+	mv.pages_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing == null and played.call("breakthrough_major").any(func(e): return str(e.layer) == "fx"), "under a page the breakthrough's light gathers and its name waits")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "breakthrough_major", "the breakthrough's name is written when the page closes")
+	fresh.call()
+	mv.toasts_posted.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.toasts_posted.size() == 1 and mv.lock_left() == 0.0 and mv.playing != null and mv.playing.row.id == "breakthrough_major",
+		"in a fight the title is a toast and the breakthrough plays without a lock")
+	mv.fight_override = false
+	for k in ["screen_shake", "flashes", "haptics"]: put.call(k, false)
+	put.call("reduce_motion", true)
+	fresh.call()
+	burst.call()
+	run.call(1.0)
+	var major: Array = played.call("breakthrough_major")
+	check(major.filter(func(e): return str(e.layer) == "shake").all(func(e): return float(e.amp) == 0.0) and not major.any(func(e): return str(e.layer) == "buzz")
+		and major.filter(func(e): return str(e.layer) == "band").all(func(e): return not e.motion)
+		and major.filter(func(e): return str(e.get("fx", "")) == "converge").all(func(e): return int(e.count) == int(MomentRules.tier(1).spark_count)),
+		"the settings hold on the real breakthrough: no shake, no buzz, the band fades, the motes thin to tier 1's")
+	fresh.call()
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	check(played.call("tribulation").filter(func(e): return str(e.layer) == "vignette").all(func(e): return near(float(e.alpha), 0.25 * 0.3)), "with Bright flashes off the tribulation's shadow is 0.3 of its alpha")
+	for k in ["screen_shake", "flashes", "haptics", "reduce_motion"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	# 11. A held row: the storm is laid again every 5 s until the result, and ends at max_s without one.
+	fresh.call()
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	run.call(11.0)
+	var storms: Array = played.call("tribulation").filter(func(e): return str(e.get("fx", "")) == "heaven_storm")
+	check(storms.size() == 3 and mv.active.any(func(q): return q.row.id == "tribulation"), "the tribulation's storm is laid again every 5 s while it holds (%d)" % storms.size())
+	feed.call("tribulation_result", {"actor": "", "survived": true, "struck": 1, "absorbed": 0, "bolts": 9, "failure": ""})
+	run.call(2.0 / 60.0)
+	check(not mv.active.any(func(q): return q.row.id == "tribulation"), "the tribulation ends with its result")
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	run.call(121.0)
+	check(not mv.active.any(func(q): return q.row.id == "tribulation"), "a tribulation with no result ends at its 120 s guard")
+	# 2. Real events: a minor breakthrough at a bottleneck and a level gained by meditating.
+	var cu: CultivatorState = c.cultivator
+	var keep := [cu.realm_key, cu.state, cu.qp, cu.breakthrough_cooldown, Unlocks.debug_force_all]
+	Unlocks.debug_force_all = true   # the suite's character has not been taught to cultivate
+	fresh.call()
+	cu.realm_key = "bone_forging_2"
+	cu.state = "bottleneck"
+	cu.qp = cu.need()
+	cu.breakthrough_cooldown = 0.0
+	var bt := Game.submit({"type": "start_breakthrough", "support_items": []})
+	mv.advance(0.0)
+	check(bool(bt.get("ok", false)) and mv.playing != null and mv.playing.row.id == "breakthrough_minor" and mv.playing.slots.has("level"),
+		"a real minor breakthrough writes its strip with the level it gave (%s)" % str(bt))
+	fresh.call()
+	cu.realm_key = "heaven_glimpse_1"
+	cu.state = "accumulating"
+	cu.qp = 0.0
+	Game.progression.apply_progress(c.id, 0.0, "meditation", 0.5)
+	GameEvents.flush()
+	mv.advance(0.0)
+	check(played.call("level_up").any(func(e): return str(e.get("sfx", "")) == "gong_short"), "a level gained by meditating sounds its short gong")
+	cu.realm_key = keep[0]
+	cu.state = keep[1]
+	cu.qp = keep[2]
+	cu.breakthrough_cooldown = keep[3]
+	Unlocks.debug_force_all = keep[4]
+	Game.combat.refresh_stats(c.id)
+	# P6c: Big Toad Tan's den. A real aggro opens the intro once a visit; his 49% opens the phase card; a fall cuts nothing.
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else "lf_village"
+	Game.world.load_room(c, "mh_boss_den", "")
+	GameEvents.flush()
+	var st2: ActorState = Game.actor_state(c.id)
+	var toad: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "big_toad_tan": toad = e
+	if toad == null: toad = Game.enemies.spawn_at("big_toad_tan", st2.plane + Vector2(160, 0), 18)
+	fresh.call()
+	mv.advance(0.0)
+	c.pools.hp = c.pools.max_hp
+	for sid in ["stun", "slow", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	st2.plane = toad.plane + Vector2(-140, 0)
+	for i in 40:
+		Game.tick(0.05)
+		c.pools.hp = c.pools.max_hp
+		mv.advance(0.05)
+		if not played.call("boss_intro").is_empty(): break
+	check((mv.playing != null and mv.playing.row.id == "boss_intro") or played.call("boss_intro").any(func(e): return str(e.get("sfx", "")) == "boss_sting"),
+		"Big Toad Tan's first aggro in his den opens the boss intro")
+	check(MomentRules.text({"first": [{"boss": "epithet", "id": "payload.def"}, {"key": "moment.boss.level", "args": ["enemy.level"]}]},
+		{"enemy": toad.uid, "def": "big_toad_tan"}) == Tx.t("moment.boss.level") % toad.level, "before P9's epithets the intro names his level")
+	var stings := func() -> int: return mv.logged.filter(func(e): return str(e.get("sfx", "")) == "boss_sting").size()
+	var intros: int = stings.call()
+	feed.call("enemy_aggro", {"enemy": toad.uid, "target": "", "def": "big_toad_tan"})
+	run.call(2.1)
+	check(stings.call() == intros and mv.playing == null, "his second aggro in the same visit opens nothing")
+	toad.pools.hp = toad.pools.max_hp * 0.49
+	Game.enemies._check_phases(toad)
+	GameEvents.flush()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_phase", "at 49%% his phase card cuts in (%s)" % str(mv.playing.row.id if mv.playing else ""))
+	# Case 5 on the real rows: a boss phase 1.0 s into the major breakthrough cuts it, and it leaves its toast.
+	fresh.call()
+	burst.call()
+	run.call(1.0)
+	feed.call("boss_phase", {"enemy": toad.uid, "phase": 1, "action": ""})
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_phase" and mv.fading != null and mv.toasts_posted.size() == 1, "a phase card cuts the breakthrough, which leaves its toast")
+	# Case 8 on the real rows: leaving the room ends the intro with no toast.
+	fresh.call()
+	feed.call("room_entered", {"actor": c.id, "room": "mh_boss_den"})
+	feed.call("enemy_aggro", {"enemy": toad.uid, "target": "", "def": "big_toad_tan"})
+	mv.advance(0.0)
+	feed.call("room_left", {"actor": c.id, "room": "mh_boss_den", "portal": ""})
+	mv.advance(0.0)
+	check(mv.playing == null and mv.toasts_posted.is_empty(), "leaving the den ends his intro, with no toast")
+	# The fall: a clean kill writes the Untouched line and takes the achievement in; the drop says it is a boss's.
+	fresh.call()
+	var drops: Array = []
+	var grab := func(n: String, p: Dictionary): if n == "loot_dropped": drops.append(p)
+	GameEvents.event.connect(grab)
+	Game.world._on_actor_defeated({"victim": str(toad.uid), "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id,
+		"x": toad.plane.x, "y": toad.plane.y, "level": toad.level})
+	GameEvents.flush()
+	GameEvents.event.disconnect(grab)
+	check(not drops.is_empty() and drops.all(func(p): return str(p.get("source", "")) == "boss"), "a boss's drop says so (source boss)")
+	feed.call("boss_defeated", {"room": "mh_boss_den", "enemy": "big_toad_tan", "role": "dungeon_boss", "clean": true})
+	feed.call("achievement_unlocked", {"actor": "", "id": "untouched", "name": "Untouched"})
+	for d in drops: mv._on_event("loot_dropped", d)
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "boss_defeated" and mv.playing.slots.has("untouched")
+		and MomentRules.text({"key": "moment.boss.untouched", "if": "clean"}, mv.playing.p) != "", "his fall is written with the Untouched line")
+	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and not e.bounce), "his drop flies out in a fountain")
+	put.call("reduce_motion", true)
+	fresh.call()
+	for d in drops: mv._on_event("loot_dropped", d)
+	mv.advance(0.0)
+	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and e.bounce), "with Reduce motion the drop only bounces")
+	Game.account.settings["reduce_motion"] = was.get("reduce_motion", false)
+	fresh.call()
+	mv._on_event("loot_dropped", {"room": "x", "items": [], "x": 0.0, "y": 0.0, "source": "jar"})
+	mv.advance(0.0)
+	check(played.call("loot_fountain").is_empty(), "a jar's drop keeps today's bounce")
+	# P6d. Case 14: the rare rule.
+	var legend_piece := ""
+	for it in ContentDB.all("items"):
+		if str(it.get("type", "")) == "legend_piece": legend_piece = str(it.id)
+	check(MomentRules.is_rare({"item": "training_spear", "quality": "perfect"}) and MomentRules.is_rare({"item": legend_piece}) and MomentRules.is_rare({"item": "jade_current_hat"})
+		and not MomentRules.is_rare({"item": "", "coins": 50}) and not MomentRules.is_rare({"item": "willow_moss", "quality": "common"}),
+		"rare: a Perfect piece, a legend piece and a set piece; not coins, not a common herb")
+	# Case 4 on the real rows: after the breakthrough, the Dao tier (50), then the title and the rare find (40) by arrival.
+	var find := {"room": "x", "items": [{"uid": 901, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "enemy"}
+	fresh.call()
+	burst.call()
+	mv._on_event("loot_dropped", find)
+	feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": 3})
+	var seq: Array = []
+	for i in 720:
+		mv.advance(1.0 / 60.0)
+		if mv.playing != null and (seq.is_empty() or seq.back() != mv.playing.row.id): seq.append(mv.playing.row.id)
+	check(seq == ["breakthrough_major", "dao_tier", "title_earned", "rare_drop"], "the queue after a breakthrough: %s" % str(seq))
+	# Rare finds within 1.5 s share one strip.
+	fresh.call()
+	mv._on_event("loot_dropped", find)
+	mv.advance(0.0)
+	run.call(0.5)
+	mv._on_event("loot_dropped", {"room": "x", "items": [{"uid": 902, "item": "jade_current_hat", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "chest"})
+	mv.advance(0.0)
+	var strips: Array = mv.active.filter(func(q): return q.row.id == "rare_drop" and not q.joined)
+	check(strips.size() == 1 and (strips[0].slots.rare as Array).size() == 2 and mv.queue.is_empty(), "two rare finds 0.5 s apart share one strip")
+	# A chapter's last main quest waits for its dialogue page, then closes the chapter; another main quest does not.
+	fresh.call()
+	mv.pages_override = true
+	feed.call("quest_completed", {"actor": "", "quest": "strange_tracks", "name": "Strange Tracks", "kind": "main"})
+	feed.call("quest_completed", {"actor": "", "quest": "mudwater_hideout", "name": "Mudwater Hideout", "kind": "main"})
+	mv.advance(0.0)
+	check(mv.playing == null and mv.queue.size() == 1 and mv.queue[0].row.id == "story_beat", "the chapter's close waits for the dialogue page")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "story_beat" and MomentRules.text({"chapter_of": "payload.quest"}, mv.playing.p) == Tx.t("moment.story.chapter") % "3",
+		"then Chapter 3 closes on Mudwater Hideout")
+	# P6e. Case 12: the escalation curve. One technique per tier the data has: its tier's row, a spark laid with it
+	# carries that count and size, a companion's blow of it one tier lower, a basic blow tier 1.
+	var by_tier := {}
+	for t in ContentDB.all("techniques"): by_tier[int(t.vfx.tier)] = str(t.id)
+	check(by_tier.size() >= 5, "techniques reach five tiers of the curve (%s)" % str(by_tier.keys()))
+	var fl2 := FxLayer.new()
+	for n in by_tier:
+		var row := MomentRules.tier_numbers("tech:" + str(by_tier[n]))
+		fl2.add("spark", Vector2.ZERO, {"count": row.spark_count, "size": row.spark_size, "radius": row.spark_reach})
+		check(int(row.tier) == n and int(fl2.fx.back().count) == int(MomentRules.tier(n).spark_count) and int(fl2.fx.back().size) == int(MomentRules.tier(n).spark_size),
+			"tier %d (%s): its sparks are %d of %d px" % [n, by_tier[n], int(row.spark_count), int(row.spark_size)])
+		check(int(MomentRules.tier_numbers("ally:tech:" + str(by_tier[n])).tier) == maxi(1, n - 1), "a companion's %s draws a tier lower" % by_tier[n])
+	check(int(MomentRules.tier_numbers("").tier) == 1 and int(MomentRules.tier_numbers("ally:c1").tier) == 1, "a basic blow and a companion's own blow draw at tier 1")
+	check(MomentRules.particle_style("brush", "fire") == "ink" and MomentRules.particle_style("", "fire") == "ember" and MomentRules.particle_style("", "none", "soul") == "ring"
+		and MomentRules.particle_style("jian", "water") == "square", "spark styles: the brush's ink, fire's embers, Soul's rings, else squares")
+	# A tier-3 cast's tint: none with Reduce motion, 0.3 of its alpha with Bright flashes off, one a second.
+	fl2.fx.clear()
+	MomentView._flash_ms = -100000
+	put.call("reduce_motion", true)
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	put.call("reduce_motion", false)
+	put.call("flashes", false)
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	fl2.add("tint", Vector2.ZERO, {"color": Color(UiKit.GOLD, 0.1)})
+	check(fl2.fx.size() == 1 and near(float(fl2.fx[0].color.a), 0.03), "a tint: none with Reduce motion, dimmed with Bright flashes off, one a second")
+	fl2.free()
+	# Case 13: multi-hit numbers. Three hits of Flying Blades on one foe rise 18 px apart, 0.06 s apart, swaying, then a
+	# total in pale gold; seven give six numbers and a total of seven.
+	put.call("damage_numbers", true)
+	var key := "e1tech:flying_blades"
+	var fl3 := FxLayer.new()
+	for i in 3: fl3.number(Vector2(100, 200), UiKit.short(4000.0), UiKit.PAPER, 24, false, key, 4000.0)
+	var nums: Array = fl3.fx.filter(func(e): return e.kind == "number")
+	var laid := nums.size() == 3
+	for i in nums.size():
+		laid = laid and near(float(nums[i].pos.y), 200.0 - 18.0 * i) and near(float(nums[i].t), -0.06 * i) and near(float(nums[i].pos.x), 100.0 + (12.0 if i % 2 == 0 else -12.0))
+	check(laid, "three hits: 18 px apart, 0.06 s apart, on alternating sides")
+	for i in 30: fl3._process(1.0 / 60.0)
+	var tot: Array = fl3.fx.filter(func(e): return e.kind == "number" and e.color == UiKit.PALE_GOLD)
+	check(tot.size() == 1 and str(tot[0].text) == UiKit.short(12000.0) and int(tot[0].size) == 26 and fl3.stacks.is_empty(), "then their total, 12.0K, a size up")
+	fl3.fx.clear()
+	for i in 7: fl3.number(Vector2(100, 200), UiKit.short(3000.0), UiKit.PAPER, 24, false, key, 3000.0)
+	check(fl3.fx.size() == 6, "seven hits show six numbers")
+	for i in 40: fl3._process(1.0 / 60.0)
+	check(fl3.fx.filter(func(e): return e.color == UiKit.PALE_GOLD).map(func(e): return str(e.text)) == [UiKit.short(21000.0)], "and a total of all seven")
+	fl3.fx.clear()
+	for i in 2: fl3.number(Vector2(100, 200), "10", UiKit.PAPER, 24, false, key, 10.0)
+	for i in 40: fl3._process(1.0 / 60.0)
+	check(not fl3.fx.any(func(e): return e.color == UiKit.PALE_GOLD), "two hits add up to no total")
+	fl3.free()
+	# A counted text picks its "_one" twin (P4 plurals): one bolt, nine bolts.
+	var bolts := {"key": "hud.tribulation_started", "args": ["payload.bolts"], "plural": "payload.bolts"}
+	check(MomentRules.text(bolts, {"bolts": 1}) == Tx.t("hud.tribulation_started_one") % 1 and MomentRules.text(bolts, {"bolts": 9}) == Tx.t("hud.tribulation_started") % 9,
+		"a moment's counted line is singular for one")
+	for k in ["flashes", "reduce_motion", "damage_numbers"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	if not was.has("reduce_motion"): Game.account.settings.erase("reduce_motion")
+	Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+	mv.queue_free()
+
 func boss_event_suite() -> void:
 	var c = Game.active()
 	if c == null: return

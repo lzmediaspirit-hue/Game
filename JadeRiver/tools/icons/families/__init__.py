@@ -19,4 +19,4 @@ from families import treasures  # noqa: F401
 from families import legends  # noqa: F401
 from families import insects  # noqa: F401
 from families import critters  # noqa: F401
-from families import banded  # noqa: F401  (P7b: the banded bases added in item_plan §2.9)
+from families import banded  # noqa: F401  (P7b: the banded weapons, pet gear and furnaces of item_plan §2.9)

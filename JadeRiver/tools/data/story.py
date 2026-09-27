@@ -9,6 +9,7 @@ import os
 
 from common import DATA, write, entries, realm, qdone, qactive, flag, noflag, unlocked, sect, all_of, any_of
 from legends import CHAINS as LEGENDS
+from realms import level_of
 
 # ---------------------------------------------------------------------------------------------
 # NPCs. Outfits use the player's layered avatar engine (parts.json) plus garment dyes.
@@ -740,7 +741,10 @@ def unlocks():
     u("star_beasts", "Star-tier spirit beasts", all_of(realm("will_manifest_2"), unlocked("taming")), "star_tier_beasts", [], same_stage_ok=True)
     # v1.2 · Phase C: the Sphere at Sphere Lord 1 (the Observatory's lesson), the Confucian path (Lanternwright Han).
     u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
-    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre")), "the_copperjaw_box", [], same_stage_ok=True)
+    # P12: Chapter 21 opens at Sphere Lord 1, so The Tide Breaks and this box open together; Tinker Mei waits in the
+    # Tidebreak Bastion, which The Tide Breaks opens, so the box follows it.
+    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), {"kind": "quest_accepted", "quest": "the_tide_breaks"}),
+      "the_copperjaw_box", [], same_stage_ok=True)
     u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
       same_stage_ok=True)
     entries("unlocks", U)
@@ -2739,6 +2743,33 @@ def validate(npc_ids, U):
     assert not errs, "\n".join(errs)
 
 
+# P12 (research §6.6): every main chapter opens at a Level floor, written as a realm floor on each of its main quests
+# (a quest's own higher floor stays). Floors only: no main quest has a ceiling or expires. Chapter 1 and the Prologue
+# open at the entry trial. The quest log shows the gap and the ways to close it (QuestAuthority.floor_gap).
+CHAPTER_FLOORS = {"2": "bone_forging_4", "3": "bone_forging_7", "4": "qi_kindling_9", "5": "qi_unfurling_3", "6": "heart_tempering_1",
+                  "7": "cloud_stride_1", "8": "spirit_awakening_2", "9": "heaven_glimpse_1", "10": "heaven_glimpse_3",
+                  "11": "heaven_glimpse_3", "12": "sage_1", "13": "sage_2", "14": "sage_3", "15": "sage_sovereign_1",
+                  "16": "sage_sovereign_2", "17": "sage_sovereign_3", "18": "will_manifest_1", "19": "will_manifest_2",
+                  "20": "will_manifest_3", "21": "sphere_lord_1", "22": "sphere_lord_2"}
+# The floors planned for the later acts (docs/world_plan.md), written on their chapters when those are built.
+CHAPTER_FLOORS_PLANNED = {"23": "sphere_lord_3", "24": "law_touching_1", "25": "law_touching_3", "26": "monarch_2", "27": "monarch_3",
+                          "28": "half_heaven_monarch", "29": "heavens_threshold", "30": "inner_heaven_1", "31": "inner_heaven_3",
+                          "32": "inner_heaven_6", "33": "inner_heaven_7", "34": "inner_heaven_8", "epilogue": "world_genesis"}
+
+
+def chapter_floors(quests):
+    for q in quests:
+        floor = CHAPTER_FLOORS.get(str(q.get("chapter", ""))) if q["kind"] == "main" else None
+        if not floor:
+            continue
+        req = q.setdefault("requires", {"all": []})
+        conds = req.setdefault("all", [])
+        own = [r for r in conds if r.get("kind") == "realm_at_least"]
+        if any(level_of(r["realm"]) >= level_of(floor) for r in own):
+            continue
+        q["requires"]["all"] = [r for r in conds if r.get("kind") != "realm_at_least"] + [realm(floor)]
+
+
 def build():
     Q.clear()
     npc_ids = npcs()
@@ -2766,7 +2797,8 @@ def build():
     act3_lantern_heart_quests()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
-    entries("quests", Q)
+    chapter_floors(Q)
+    entries("quests", Q, chapter_floors=CHAPTER_FLOORS, chapter_floors_planned=CHAPTER_FLOORS_PLANNED)
     d = os.path.join(DATA, "dialogue")
     os.makedirs(d, exist_ok=True)
     for f in os.listdir(d):

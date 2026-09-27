@@ -92,11 +92,46 @@ func _crowd() -> void:
 	GameEvents.flush()
 	await get_tree().process_frame
 	check(spawned == 15, "fifteen monsters spawned (%d)" % spawned)
-	var frames := 120
-	var t0 := Time.get_ticks_usec()
-	for i in frames:
-		Game.tick(1.0 / 60.0)
-		await get_tree().process_frame
-	var per := (Time.get_ticks_usec() - t0) / 1000.0 / frames
+	var per := await _frames(120, Callable())
 	print("crowd: %d monsters, %.2f ms per frame" % [Game.room_rt.living_enemies().size(), per])
 	check(per < 16.6, "a frame with fifteen monsters fits the 60 fps budget (%.2f ms)" % per)
+	# P6e (docs/moments_design.md §7.3): the same crowd under the major breakthrough, then with a Sword Swarm and a Cursive
+	# Storm cast every tenth of a second, each striking as many foes as many times as it does. The frame, MomentView and
+	# FxLayer included, stays in budget; the FX cap holds; the view's own share is printed.
+	var w = main.world
+	var mv: MomentView = main.moments
+	var spent := [0, 0]   # usec in MomentView.advance, most FX alive
+	var view := func(i: int) -> void:
+		var t1 := Time.get_ticks_usec()
+		mv.advance(1.0 / 60.0)
+		spent[0] += Time.get_ticks_usec() - t1
+	var storm := func(i: int) -> void:
+		view.call(i)
+		if i % 6 != 0: return
+		for tech in ["sword_swarm", "cursive_storm"]:
+			var t := ContentDB.entry("techniques", tech)
+			w._cast(tech, 1, UiKit.GOLD)
+			for e in Game.room_rt.living_enemies().slice(0, int(t.max_targets)):
+				for h in int(t.hits):
+					w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,
+						"element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": 60.0, "source": "tech:" + tech})
+		spent[1] = maxi(spent[1], w.fx.fx.size())
+	mv.set_process(false)
+	mv.preview("breakthrough_major")
+	var per_m := await _frames(120, view)
+	print("crowd under the breakthrough: %.2f ms per frame (%+.2f ms), MomentView.advance %.3f ms of it" % [per_m, per_m - per, spent[0] / 120000.0])
+	mv.clear()
+	mv.preview("breakthrough_major")
+	var per2 := await _frames(120, storm)
+	mv.set_process(true)
+	print("with a sword swarm too: %.2f ms per frame, %d FX at most" % [per2, spent[1]])
+	check(per_m < 16.6 and per2 < 16.6 and spent[1] <= 160, "the crowd under the breakthrough and a sword swarm fits the budget (%.2f, %.2f ms) and the FX cap (%d)" % [per_m, per2, spent[1]])
+
+## Mean ms per frame over `n` ticked and drawn frames; `each` (frame index) runs at the start of each.
+func _frames(n: int, each: Callable) -> float:
+	var t0 := Time.get_ticks_usec()
+	for i in n:
+		if each.is_valid(): each.call(i)
+		Game.tick(1.0 / 60.0)
+		await get_tree().process_frame
+	return (Time.get_ticks_usec() - t0) / 1000.0 / n

@@ -79,6 +79,10 @@ anti-aliasing, no non-integer scaling. Keep the existing character art untouched
 - Equipment grades: Plain (wood/grey/hemp), Common (iron grey), Earth (jadeiron green
   trim), Heaven (cloudsteel pale blue), Mystic (mistjade violet). Border pattern is added
   by the UI; icons show only the object.
+- Armour icons show the piece as it is worn: the cut of the avatar layer the item's
+  `appearance` names (`data/parts.json`) in the garment dye of its `dye`, so the icon in
+  the slot is the piece on the figure beside it. The grade is the trim, fittings, plates,
+  gem and mark of the grade kit (`tools/icons/palette.py`), with the glow from Mystic up.
 - Manifest: `{"<id>": "res://art/icons/<family>/<id>.png", ...}`.
 
 ## Props and interactables — `art/props/<id>.png` + `data/prop_art.json`

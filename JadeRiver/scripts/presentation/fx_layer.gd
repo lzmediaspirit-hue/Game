@@ -6,33 +6,87 @@ extends Node2D
 ## Presentation only: nothing here changes game state.
 
 const ARRAY_COLOURS := {"guard": Color("8aebee"), "killing": Color("e45858"), "binding": Color("b18de2")}   # as their plates are engraved
+## Every transient kind `add` takes, one per arm of _draw's match (contract_tests keeps the two in step; moments.json
+## names only these).
+const KINDS := ["number", "spark", "slash", "dust", "ring", "note", "wave", "spiral", "motes", "flash", "pagoda", "seal_slam",
+	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text", "pillar", "converge", "rain", "tint"]
+## Defaults by kind: a spark's bit (6 px) and reach (28 px, tier 1), a wave's stroke (8 px); else size 20 (a talisman wave's height), radius 30.
+const DEFAULTS := {"spark": {"size": 6, "radius": 28}, "wave": {"size": 8}}
 
-var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, z}
-var numbers_enabled := true
+var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, radius, count, height, style, core}; t < 0 waits
+var stacks: Dictionary = {} # P6e multi-hit numbers: stack key -> {n, sum, last, top (its highest number's entry), at, size}
+var clock := 0.0            # seconds of this layer's own time (stacks are timed on it)
 
 func _ready() -> void:
 	z_index = 4000
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func add(kind: String, pos: Vector2, extra := {}) -> void:
-	var e := {"kind": kind, "pos": pos, "t": 0.0, "dur": float(extra.get("dur", 0.4)), "color": extra.get("color", UiKit.PAPER),
-		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", 20)),
-		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", 30))}
+	var e := {"kind": kind, "pos": pos, "t": -float(extra.get("delay", 0.0)), "dur": float(extra.get("dur", 0.4)), "color": extra.get("color", UiKit.PAPER),
+		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", DEFAULTS.get(kind, {}).get("size", 20))),
+		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", DEFAULTS.get(kind, {}).get("radius", 30))), "count": int(extra.get("count", 0)),
+		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10))}
+	if kind == "tint" and not _tint_allowed(e): return
 	fx.append(e)
 	if fx.size() > 160: fx.pop_front()
 
-func number(pos: Vector2, text: String, color: Color, size := 22, crit := false) -> void:
-	if not numbers_enabled: return
-	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": size + (8 if crit else 0), "dur": 1.0,
-		"vel": Vector2(randf_range(-12, 12), -70.0 if not crit else -90.0)})
+## A screen tint (a Heaven-grade technique, §5.2): none with Reduce motion or Battery saver, 0.3 of its alpha with Bright
+## flashes off, and at most one flash or tint a second from every source (the flash limiter, §5.10).
+func _tint_allowed(e: Dictionary) -> bool:
+	var s: Dictionary = Game.account.settings
+	if s.get("reduce_motion", false) or s.get("battery_saver", false): return false
+	if not s.get("flashes", true): e.color = Color(e.color, e.color.a * 0.3)
+	return MomentView.claim_flash(float(MomentRules.cfg().get("settings", {}).get("flash_gap_s", 1.0)))
+
+## A damage number; none with Settings › Damage numbers off (P6 finding 2). With a `stack` key (a target and a technique)
+## the hits of one cast rise one after another, each 18 px over the one before and swaying, and three or more add up to
+## a total (§5.5).
+func number(pos: Vector2, text: String, color: Color, size := 22, crit := false, stack := "", value := 0.0) -> void:
+	if not Game.account.settings.get("damage_numbers", true): return
+	if stack == "":
+		label(pos, text, color, size + (8 if crit else 0), crit)
+		return
+	var cfg: Dictionary = MomentRules.cfg().get("numbers", {})
+	var now := clock
+	var st: Dictionary = stacks.get(stack, {})
+	if st.is_empty() or now - float(st.last) > float(cfg.get("stack_s", 0.3)): st = {"n": 0, "sum": 0.0, "at": pos, "size": size}
+	var i := int(st.n)
+	st.n = i + 1
+	st.sum = float(st.sum) + value
+	st.last = now
+	stacks[stack] = st
+	if i >= int(cfg.get("cap", 6)): return   # past the cap a hit only adds to the total
+	var y: float = float(st.top.pos.y) - float(cfg.get("step_px", 18)) if st.has("top") else float(st.at.y)
+	add("number", Vector2(float(st.at.x) + (1 if i % 2 == 0 else -1) * float(cfg.get("sway_px", 12)), y), {"text": text, "color": color,
+		"size": size + (8 if crit else 0), "dur": 1.0, "delay": float(cfg.get("step_s", 0.06)) * i, "vel": Vector2(0, -70.0)})   # one speed, so a crit keeps its place
+	st.top = fx.back()
+
+## A word that rises like a number (Miss, Evade, Parry, a foe's "!"), whatever the Damage numbers setting.
+func label(pos: Vector2, text: String, color: Color, size := 22, fast := false) -> void:
+	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": size, "dur": 1.0,
+		"vel": Vector2(randf_range(-12, 12), -90.0 if fast else -70.0)})
 
 func _process(delta: float) -> void:
+	clock += delta
 	for e in fx.duplicate():
 		e.t = float(e.t) + delta
-		e.pos = e.pos + e.vel * delta
+		e.pos = e.pos + e.vel * delta   # a number waiting its turn rises unseen with its stack, so the column keeps its spacing
 		if e.kind == "number": e.vel = e.vel * (1.0 - delta * 1.5)
 		if float(e.t) >= float(e.dur): fx.erase(e)
+	_totals()
 	queue_redraw()
+
+## A stack of three or more hits, 0.1 s after its last: the sum in pale gold, a size up, 24 px over the top number.
+func _totals() -> void:
+	var cfg: Dictionary = MomentRules.cfg().get("numbers", {})
+	var now := clock
+	for key in stacks.keys():
+		var st: Dictionary = stacks[key]
+		if now - float(st.last) < float(cfg.get("total_after_s", 0.1)) + float(cfg.get("step_s", 0.06)) * mini(int(st.n), int(cfg.get("cap", 6))): continue
+		if int(st.n) >= int(cfg.get("total_from", 3)) and st.has("top"):
+			add("number", Vector2(float(st.at.x), float(st.top.pos.y) - float(cfg.get("total_up_px", 24))), {"text": UiKit.short(float(st.sum)), "color": UiKit.PALE_GOLD,
+				"size": int(st.size) + int(cfg.get("total_plus_px", 2)), "dur": 1.1, "vel": Vector2(0, -60.0)})
+		stacks.erase(key)
 
 func _draw() -> void:
 	# S48 Array Plates laid in a fight are drawn from Combat's state, on the ground under everything else.
@@ -48,6 +102,7 @@ func _draw() -> void:
 			if float(p.get("delay", 0.0)) > 0.0: continue
 			_draw_projectile(p)
 	for e in fx:
+		if float(e.t) < 0.0: continue
 		var k: float = float(e.t) / maxf(0.001, float(e.dur))
 		var c: Color = e.color
 		match str(e.kind):
@@ -55,12 +110,7 @@ func _draw() -> void:
 				var a := 1.0 if k < 0.6 else 1.0 - (k - 0.6) / 0.4
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-100, 0), int(e.size), Color(c, a), HORIZONTAL_ALIGNMENT_CENTER, 200)
 			"spark":
-				for i in 8:
-					var ang := i * TAU / 8.0 + 0.3
-					var r1 := 6.0 + 22.0 * k
-					var p1: Vector2 = e.pos + Vector2(cos(ang), sin(ang) * 0.7) * r1
-					draw_rect(Rect2(p1.snapped(Vector2(2, 2)), Vector2(4, 4) * (1.0 - k) + Vector2(2, 2)), Color(c, 1.0 - k))
-				draw_circle(e.pos, 10.0 * (1.0 - k), Color(1, 1, 1, 0.8 * (1.0 - k)))
+				_draw_spark(e, k, c)
 			"slash":
 				var f := float(e.facing)
 				var pts := PackedVector2Array()
@@ -74,8 +124,17 @@ func _draw() -> void:
 					var off := Vector2((i - 2) * 9.0 * (1.0 + k), -6.0 * k * (1 + i % 2))
 					draw_circle(e.pos + off, 6.0 * (1.0 - k) + 2.0, Color(0.75, 0.68, 0.55, 0.6 * (1.0 - k)))
 			"ring":
-				draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
-				draw_arc(Vector2.ZERO, float(e.radius) * (0.3 + k), 0, TAU, 40, Color(c, 1.0 - k), 4.0)
+				if int(e.count) > 1:
+					# P6: `count` rings at the feet, the outer faint and the inner bright (a major breakthrough, mockup 05).
+					var fade4 := 1.0 if k < 0.6 else 1.0 - (k - 0.6) / 0.4
+					draw_set_transform(e.pos, 0.0, Vector2(1, 0.215))
+					for i in int(e.count):
+						var u := float(i) / float(int(e.count) - 1)
+						draw_arc(Vector2.ZERO, float(e.radius) * (1.0 - 0.66 * u) * (0.94 + 0.06 * minf(1.0, k * 4.0)), 0, TAU, 48,
+							Color(c.lerp(Color.WHITE, 0.6 * u), (0.35 + 0.55 * u) * fade4), 2.5)
+				else:
+					draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
+					draw_arc(Vector2.ZERO, float(e.radius) * (0.3 + k), 0, TAU, 40, Color(c, 1.0 - k), 4.0)
 				draw_set_transform(Vector2.ZERO)
 			"note":
 				# A musical note of the flute's melody (S47 v1.1): rises, sways and fades.
@@ -83,7 +142,7 @@ func _draw() -> void:
 				_draw_note(e.pos + Vector2(sway, 0), c, 1.0 if k < 0.5 else 1.0 - (k - 0.5) * 2.0, float(e.size) / 20.0)
 			"wave":
 				draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
-				draw_arc(Vector2.ZERO, float(e.radius) * k, 0, TAU, 48, Color(c, 0.9 * (1.0 - k)), 8.0 * (1.0 - k) + 2.0)
+				draw_arc(Vector2.ZERO, float(e.radius) * k, 0, TAU, 48, Color(c, 0.9 * (1.0 - k)), float(e.size) * (1.0 - k) + 2.0)
 				draw_set_transform(Vector2.ZERO)
 			"spiral":
 				for i in 24:
@@ -126,8 +185,9 @@ func _draw() -> void:
 				var f2 := float(e.get("facing", 1))
 				var len2 := float(e.radius) * minf(1.0, k * 3.0)
 				var a3 := 1.0 - k
-				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -10), Vector2(len2, 20)), Color(c, 0.35 * a3))
-				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -4), Vector2(len2, 8)), Color(1, 1, 0.9, 0.9 * a3))
+				var h2 := float(e.size)   # 20 px; a technique's is 20 + 2 × its tier
+				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -h2 * 0.5), Vector2(len2, h2)), Color(c, 0.35 * a3))
+				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -h2 * 0.2), Vector2(len2, h2 * 0.4)), Color(1, 1, 0.9, 0.9 * a3))
 			"pill_cloud":
 				# A Halo or Soul pill forms (G1): a coloured cloud boils up over the furnace, then thins away.
 				var fade := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
@@ -175,6 +235,91 @@ func _draw() -> void:
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)
+			"pillar":
+				# P6: a column of light on its target, `radius` half-wide and `height` tall; it widens over the first fifth
+				# and fades over the last seventh (a major breakthrough, mockup 05).
+				_pillar(e.pos, float(e.radius) * minf(1.0, k * 5.0), float(e.height), c, 1.0 if k < 0.86 else (1.0 - k) / 0.14)
+			"converge":
+				# P6: `count` motes along eight curved paths from r `radius` into the target, each with a short trail.
+				var n2 := maxi(1, int(e.count))
+				for i in n2:
+					var ang := TAU * (i % 8) / 8.0 + 0.3
+					var lap := floorf(i / 8.0)
+					var from := Vector2(cos(ang), sin(ang) * 0.6) * float(e.radius) * (1.0 - 0.3 * lap)
+					var ctrl := from.rotated(0.7) * 0.55
+					for j in 3:
+						var u := clampf(k * 1.1 - 0.05 * j - 0.04 * lap, 0.0, 1.0)
+						var q := from.lerp(ctrl, u).lerp(ctrl.lerp(Vector2.ZERO, u), u)
+						var a4 := minf(1.0, u * 6.0) * (1.0 if u < 0.85 else (1.0 - u) / 0.15) * (1.0 - 0.3 * j)
+						draw_circle(e.pos + q, 6.0 - j * 1.5, Color(c, 0.55 * a4))
+						if j == 0: draw_circle(e.pos + q, 2.0, Color(1, 1, 1, 0.9 * a4))
+			"rain":
+				# P6e: `count` streaks falling over the hitbox (`radius` either side of it), each from `height` up to the ground.
+				for i in int(e.count):
+					var u := clampf(k * 1.6 - _hash(i, 21) * 0.6, 0.0, 1.0)
+					if u <= 0.0 or u >= 1.0: continue
+					var x := (_hash(i, 22) * 2.0 - 1.0) * float(e.radius)
+					var head: Vector2 = e.pos + Vector2(x - 30.0 * (1.0 - u), -float(e.height) * (1.0 - u))
+					draw_line(head, head + Vector2(10, -34), Color(c, 0.85 * (1.0 - u * 0.5)), 3.0)
+					draw_line(head, head + Vector2(5, -17), Color(1, 1, 1, 0.8 * (1.0 - u)), 1.5)
+			"tint":
+				# P6e: the screen washed in a Heaven-grade technique's colour for a moment (the view, wherever the camera is).
+				var view := get_canvas_transform().affine_inverse() * get_viewport_rect()
+				draw_rect(view, Color(c, c.a * (1.0 - k)))
+
+## A hit spark (§5.2, §5.6): `count` bits flying out to `radius` (its tier's reach; 28 at tier 1), `size` px shrinking
+## to 2, and a white core of `core`; the style draws them as squares, rising embers, falling shards, ink drops falling
+## under 400 px/s², or three thin rings.
+func _draw_spark(e: Dictionary, k: float, c: Color) -> void:
+	var n := int(e.count) if int(e.count) > 0 else 8
+	var reach := float(e.radius)
+	var sz := float(e.size)
+	match str(e.style):
+		"ring":
+			for i in 3:
+				var kk := clampf(k * 1.3 - i * 0.15, 0.0, 1.0)
+				draw_arc(e.pos, reach * kk, 0, TAU, 32, Color(c, 0.8 * (1.0 - kk)), 2.0)
+		_:
+			for i in n:
+				var ang := i * TAU / n + 0.3
+				var dir := Vector2(cos(ang), sin(ang) * 0.7)
+				var p1: Vector2 = e.pos + dir * (6.0 + (reach - 6.0) * k)
+				match str(e.style):
+					"shard":
+						p1 += Vector2(0, 46.0 * k * k)
+						draw_line(p1, p1 + dir * (4.0 + sz) * (1.0 - k * 0.5), Color(c, 1.0 - k), 2.0)
+					"ink":
+						p1 += Vector2(0, 200.0 * pow(k * float(e.dur), 2.0))   # 400 px/s² over the spark's life
+						draw_circle(p1, (sz * 0.6) * (1.0 - k) + 1.5, Color(c, 1.0 - k))
+					"ember":   # a square with a hot pale-gold heart, rising and flickering
+						p1 = (p1 + Vector2(0, -40.0 * k)).snapped(Vector2(2, 2))
+						var s2 := (sz - 2.0) * (1.0 - k) + 2.0
+						var a2 := (1.0 - k) * (0.75 + 0.25 * absf(sin(float(e.t) * 30.0 + i)))
+						draw_rect(Rect2(p1, Vector2.ONE * s2), Color(c, a2))
+						draw_rect(Rect2(p1 + Vector2.ONE * s2 * 0.25, Vector2.ONE * s2 * 0.5), Color(UiKit.PALE_GOLD, a2))
+					_:
+						draw_rect(Rect2(p1.snapped(Vector2(2, 2)), Vector2.ONE * ((sz - 2.0) * (1.0 - k) + 2.0)), Color(c, 1.0 - k))
+	draw_circle(e.pos, float(e.core) * (1.0 - k), Color(1, 1, 1, 0.8 * (1.0 - k)))
+
+## A column of light: faint at its edges and bright along its middle, masked to fade toward the top and at the feet,
+## with a thin white core.
+func _pillar(feet: Vector2, half: float, height: float, c: Color, a: float) -> void:
+	if half <= 0.5 or a <= 0.0: return
+	var xs := [-1.0, -0.35, 0.0, 0.35, 1.0]
+	var ax := [0.0, 0.3, 0.8, 0.3, 0.0]
+	var ys := [0.0, 0.4, 0.9, 1.0]           # from the column's top (0) to the feet (1)
+	var ay := [0.1, 1.0, 1.0, 0.0]
+	for yi in 3:
+		for xi in 4:
+			var pts := PackedVector2Array()
+			var cols := PackedColorArray()
+			for q in [[xi, yi], [xi + 1, yi], [xi + 1, yi + 1], [xi, yi + 1]]:
+				pts.append(feet + Vector2(xs[q[0]] * half, -height * (1.0 - ys[q[1]])))
+				cols.append(Color(c.lerp(Color.WHITE, 0.5 * ax[q[0]]), ax[q[0]] * ay[q[1]] * a))
+			draw_polygon(pts, cols)
+	var w := clampf(half * 0.05, 1.5, 4.0)
+	draw_polygon(PackedVector2Array([feet + Vector2(-w, -height), feet + Vector2(w, -height), feet + Vector2(w, 0), feet + Vector2(-w, 0)]),
+		PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 0.85 * a), Color(1, 1, 1, 0.85 * a)]))
 
 ## A soft bank of cloud: many flattened, overlapping puffs (a shadowed underside, a lit top) that drift slowly.
 func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit: Color, alpha: float, salt: int, t: float) -> void:

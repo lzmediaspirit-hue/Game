@@ -1,5 +1,50 @@
 """S09 techniques, Daos and secret arts (Part 8)."""
-from common import entries, titled
+import json
+import os
+
+from common import DATA, entries, titled
+
+# P6e the escalation curve (docs/moments_design.md §5): every technique's `vfx` block. Its tier is the band of the realm
+# that teaches it (realm index -> tier, written to moments.json as vfx_bands); its shape what it draws on cast (VFX_SHAPES); its
+# particles the hit spark's style, by weapon family, else by element (PARTICLES).
+TIER_BY_REALM = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7, 7]
+VFX_SHAPES = {"strike": ["slash"], "wave": ["talisman_wave"], "ring": ["wave"], "rain": ["rain"], "pillar": ["pillar"],
+              "domain": ["ring", "motes"], "bolt": []}
+PARTICLES = {"families": {"brush": "ink", "bell": "ring", "flute": "ring"},
+             "elements": {"fire": "ember", "metal": "shard", "ice": "shard", "thunder": "shard", "soul": "ring"}, "default": "square"}
+# Heaven's light falls from above; Shadowstep Cut is a blink and a cut, though it reaches 240.
+SHAPE_OVERRIDES = {"glimpse_of_heaven": "pillar", "shadowstep_cut": "strike"}
+
+
+def particle_style(family, element, dtype=""):
+    """The weapon family's style, else Soul's ring, else the element's (MomentRules.particle_style reads the same table)."""
+    return PARTICLES["families"].get(family) or ("ring" if dtype == "soul" else "") or PARTICLES["elements"].get(element) or PARTICLES["default"]
+
+
+def vfx_shape(t):
+    """§5.3: the shape a technique draws, by the first rule that holds."""
+    if t["id"] in SHAPE_OVERRIDES:
+        return SHAPE_OVERRIDES[t["id"]]
+    if t["damage_type"] in ("buff", "illusion") or any("heal" in k for k in t):
+        return "domain"
+    if t.get("projectile"):
+        return "bolt"
+    if t.get("both_sides"):
+        return "ring"
+    if t["hits"] >= 4 and (t.get("max_targets") or 4) >= 4:
+        return "rain"
+    if t["damage_type"] == "soul":
+        return "pillar"
+    if t["hitbox"]["x"][1] >= 200 or t.get("line"):
+        return "wave"
+    return "strike"
+
+
+def add_vfx(T):
+    realm_index = {r["key"]: r["realm_index"] for r in json.load(open(os.path.join(DATA, "realms.json")))["entries"]}
+    for t in T:
+        t["vfx"] = {"tier": TIER_BY_REALM[realm_index[t["unlock"]]], "shape": vfx_shape(t),
+                    "particles": particle_style(t["family"], t["element"], t["damage_type"])}
 
 # Where a technique is learned (its "source"), as the player reads it: strings technique_source.<id>, read with
 # ContentDB.name_of("technique_sources", id). A source that is a quest reads as the quest's name (economy.strings).
@@ -129,7 +174,7 @@ def build():
              "A spike of will that ignores armour; 20% confusion.", soul=15, ignore_armor=True, reach=260,
              status={"id": "confusion", "chance": 0.2, "power": 1, "duration_s": 2}, action="meditate_burst"),
         tech("soul_lantern_ward", "spirit_awakening_5", "the_mentors_gift", "any", "soul", "buff", (0, 0), 0, 0, 30, 0,
-             "A ward that absorbs damage equal to 20% max Soul for 6 s.", soul=20, shield_soul_pct=0.2, shield_s=6, action="meditate_burst"),
+             "A ward that absorbs damage equal to 10% of your max HP for 6 s.", soul=20, shield_hp_pct=0.1, shield_s=6, action="meditate_burst"),
         # S48 the Soul line (v1.0), taught by the Soul Dao's first three tiers: a lock the eyes of the soul put on a foe,
         # an illusion that draws foes off you, and a search of an elite's soul for its memories and what it hid.
         tech("sense_lock", "spirit_awakening_1", "soul_dao_1", "any", "soul", "soul", (0.60, 0.80), 1, 1, 14, 0,
@@ -211,6 +256,7 @@ def build():
         t["grade"] = "common" if realm_of in ("qi_kindling", "bone_forging") else ("earth" if realm_of in ("qi_unfurling", "heart_tempering") else "heaven")
         if t["id"] == "willow_leaf_parry":
             t["stance"] = "jian"
+    add_vfx(T)
     entries("techniques.json", T)
 
     weapon_dao = {"tiers": ["+3% attack with the family", "Linked techniques -10% QI", "Linked techniques gain their tier-3 effect",

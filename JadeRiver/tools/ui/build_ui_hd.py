@@ -396,6 +396,32 @@ def bar_shell(w, h):
     return c
 
 
+def ink_band(w, h):
+    """P6 moments: one dry-brush stroke of ink (the band a breakthrough's name is written on, mockup 05). The stroke is
+    48 bristle lines: pressed round at the head, solid through the stretchable middle (the same in every column, so it
+    stretches sideways), and dry at the tail, where each bristle runs out at its own place and a few drops fall."""
+    c = Canvas(w, h)
+    rng = np.random.default_rng(605)
+    n, mid, half = 48, h * 0.5, h * 0.42
+    cov_all = np.zeros(c.X.shape)
+    for i, v in enumerate(np.linspace(-1.0, 1.0, n)):
+        v = float(np.clip(v + rng.uniform(-0.015, 0.015), -1.0, 1.0))
+        y = mid + half * v + (1.0 - abs(v)) * 2.0          # the stroke sags a little at its heart
+        edge = abs(v) > 0.72
+        thick = half / n * (rng.uniform(0.5, 1.2) if edge else rng.uniform(1.5, 2.0))
+        alpha = rng.uniform(0.3, 0.8) if edge else rng.uniform(0.93, 1.0)
+        start = 8.0 + 72.0 * (1.0 - math.sqrt(max(0.0, 1.0 - v * v))) + rng.uniform(0.0, 8.0)
+        end = w - 12.0 - (40.0 * abs(v) ** 1.5 + rng.uniform(0.0, 60.0))
+        dry = rng.uniform(14.0, 38.0)
+        across = np.clip(0.5 - (np.abs(c.Y - y) - thick) * K, 0.0, 1.0)
+        along = np.clip((c.X - start) / 3.0, 0.0, 1.0) * np.clip((end - c.X) / dry, 0.0, 1.0) ** 0.6
+        cov_all = np.maximum(cov_all, alpha * across * along)
+    for dx, dy, r in ((w - 22.0, mid - half * 0.62, 3.0), (w - 10.0, mid + half * 0.3, 1.8), (w - 34.0, mid + half * 0.98, 2.2)):
+        cov_all = np.maximum(cov_all, cov(sd_circle(c.X, c.Y, dx, dy, r)) * 0.8)
+    c.paint(cov_all, INK)
+    return c
+
+
 HUD_RING_PAD = 14.0  # px round the ring's face for the drop shadow and the active halo
 
 
@@ -571,6 +597,8 @@ ASSETS = {
     "dialogue_box": ([24, 24, 24, 24], {"normal": lambda: dialogue_box(128, 96)}),
     "minimap_frame": ([24, 24, 24, 24], {"normal": lambda: minimap_frame(96, 72)}),
     "bar_shell": ([10, 8, 10, 8], {"normal": lambda: bar_shell(64, 24)}),
+    # P6 moments: the ink band; its caps cover its full height, so it scales to its rect's height and stretches sideways.
+    "ink_band": ([120, 60, 120, 60], {"normal": lambda: ink_band(360, 120)}),
 }
 for _size in HUD_RING_SIZES:
     ASSETS["hud_ring_%d" % _size] = ([0, 0, 0, 0], {s: (lambda s=s, z=_size: hud_ring(z, s)) for s in ("normal", "pressed", "active")})

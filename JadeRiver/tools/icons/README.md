@@ -180,10 +180,16 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    species or grade as parameters:
    - pills: add a row to `PILLS_HD` in `pills.py` with the kind (its vessel), grade, effect mark, pill
      material and mark ink.
-   - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
-   - armour: `CLOTH` grade table.
+   - weapons (HD): `weapons.GRADE_WORDS` × `BUILDERS`, one builder per family on the shared diagonal `WFRAME` and the
+     tassel, grip, fitting, blade and gem builders, painting with the grade's kit (`K(grade)`); the grade's work
+     along a line of points is `work_hd`. A named piece is a builder with a `look` (the Wardens' brushes and bells).
+   - armour (HD): a piece's row in `data/artifacts.json` (slot, grade, `appearance`, `dye`) picks its template (robe,
+     trousers, boots, `HATS`) and the cloth the figure wears (palette `dye_*`); the grade's trim, fittings, plates, gem,
+     mark and glow are `kit_hd` (`TRIM`, `WORK`) on `palette.kit`; a spirit gourd is a `GOURDS` row.
    - fish: `fish(...)` parameters.
-   - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
+   - beast parts (HD): a row in `PARTS_HD` (id, grade, aura colour, drawing) on the kind templates `hide_hd`,
+     `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`; the grade's trim
+     comes from `GRADE_HD`, the pet gear ladders from `PET_GEAR_HD` on the grade kits.
    - techniques (HD): a technique's row is read from `data/techniques.json`; give its id a form in `FORM_OF` (a secret
      art: a row in `SECRET_ARTS`). The composer `emblem(element, form, family, grade, kind, path)` draws it from the
      tables: `DISCS` (11 elements), `FORMS` (the plan's 24, each placing the family's `WEAPONS` inset), `RIMS` (13

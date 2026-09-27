@@ -48,7 +48,12 @@
      "duration_s": 2
     }
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "jade_thrust",
@@ -90,7 +95,12 @@
     "cost_per_tier": -0.05
    },
    "line": true,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "wave",
+    "particles": "square"
+   }
   },
   {
    "id": "cloudpiercing_stroke",
@@ -134,7 +144,12 @@
    "tier3": {
     "crit": 0.1
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "reedcutter_slash",
@@ -181,7 +196,12 @@
     "power": 0.05,
     "duration_s": 3
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "riverstone_sweep",
@@ -223,7 +243,12 @@
     "cost_per_tier": -0.05
    },
    "knockback": 80,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "twin_reed_shot",
@@ -269,7 +294,12 @@
     "range": 480,
     "count": 2
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "tiger_rush",
@@ -312,7 +342,12 @@
    },
    "dash": 120,
    "body": true,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "willow_leaf_parry",
@@ -355,7 +390,12 @@
    },
    "stance_s": 2.0,
    "grade": "common",
-   "stance": "jian"
+   "stance": "jian",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "dragon_tail_sweep",
@@ -397,7 +437,12 @@
     "cost_per_tier": -0.05
    },
    "both_sides": true,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "ring",
+    "particles": "square"
+   }
   },
   {
    "id": "shadow_flick",
@@ -444,7 +489,12 @@
     "range": 300,
     "count": 1
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "bell_toll_strike",
@@ -491,7 +541,12 @@
     "power": 1,
     "duration_s": 0.6
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "shard"
+   }
   },
   {
    "id": "pinning_arrow",
@@ -543,7 +598,12 @@
     "power": 1,
     "duration_s": 1.5
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "mountain_cleaver",
@@ -588,7 +648,12 @@
     "chance": 1.0,
     "duration_s": 4
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "shard"
+   }
   },
   {
    "id": "gale_fan",
@@ -630,7 +695,12 @@
     "cost_per_tier": -0.05
    },
    "knockup_s": 0.8,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "reed_song",
@@ -684,7 +754,12 @@
     "power": 1,
     "duration_s": 1.5
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "ring"
+   }
   },
   {
    "id": "thunder_dao_arc",
@@ -735,7 +810,12 @@
     "chance": 1.0,
     "duration_s": 4
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "shard"
+   }
   },
   {
    "id": "returning_crane_fan",
@@ -785,7 +865,12 @@
     "art": "fan"
    },
    "knockup_s": 0.6,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "clear_heart_melody",
@@ -829,7 +914,12 @@
    "allies_heal_pct": 0.04,
    "allies_heal_s": 6,
    "heal_radius": 220,
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "domain",
+    "particles": "ring"
+   }
   },
   {
    "id": "rising_tide",
@@ -877,7 +967,12 @@
     "power": 0.2,
     "duration_s": 2
    },
-   "grade": "common"
+   "grade": "common",
+   "vfx": {
+    "tier": 1,
+    "shape": "ring",
+    "particles": "square"
+   }
   },
   {
    "id": "palm_wave",
@@ -924,7 +1019,12 @@
     "count": 1,
     "pierce": 1
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "crescent_arc",
@@ -971,7 +1071,12 @@
     "count": 1,
     "pierce": 8
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "spear_lance",
@@ -1014,7 +1119,12 @@
    },
    "line": true,
    "penetration": 0.1,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "wave",
+    "particles": "square"
+   }
   },
   {
    "id": "sword_release",
@@ -1058,7 +1168,12 @@
    "release_s": 8.0,
    "strikes_per_s": 1.5,
    "seek_radius": 420,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "strike",
+    "particles": "shard"
+   }
   },
   {
    "id": "sword_swarm",
@@ -1099,7 +1214,12 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "strike",
+    "particles": "shard"
+   }
   },
   {
    "id": "flying_blades",
@@ -1146,7 +1266,12 @@
     "count": 3,
     "seek": true
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "shard"
+   }
   },
   {
    "id": "earthshaker_wave",
@@ -1188,7 +1313,12 @@
     "cost_per_tier": -0.05
    },
    "knockback": 80,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "wave",
+    "particles": "square"
+   }
   },
   {
    "id": "vine_snare",
@@ -1235,7 +1365,12 @@
     "power": 1,
     "duration_s": 2
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "wave",
+    "particles": "square"
+   }
   },
   {
    "id": "rain_of_reeds",
@@ -1276,7 +1411,12 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "rain",
+    "particles": "square"
+   }
   },
   {
    "id": "stone_skin",
@@ -1324,7 +1464,12 @@
     "duration": 8
    },
    "body": true,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "domain",
+    "particles": "square"
+   }
   },
   {
    "id": "gale_step",
@@ -1366,7 +1511,12 @@
     "cost_per_tier": -0.05
    },
    "dash": 200,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "mountain_shaker",
@@ -1416,7 +1566,12 @@
     "power": 1,
     "duration_s": 0.8
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "ring",
+    "particles": "square"
+   }
   },
   {
    "id": "ember_burst",
@@ -1464,7 +1619,12 @@
     "power": 0.05,
     "duration_s": 3
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "ring",
+    "particles": "ember"
+   }
   },
   {
    "id": "still_water_focus",
@@ -1511,7 +1671,12 @@
     "value": 1,
     "duration": 10
    },
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "domain",
+    "particles": "square"
+   }
   },
   {
    "id": "shadowstep_cut",
@@ -1553,7 +1718,12 @@
     "cost_per_tier": -0.05
    },
    "blink": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "strike",
+    "particles": "square"
+   }
   },
   {
    "id": "cloud_descent",
@@ -1596,7 +1766,12 @@
    },
    "flying_only": true,
    "both_sides": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "ring",
+    "particles": "square"
+   }
   },
   {
    "id": "mirror_mind_spike",
@@ -1644,7 +1819,12 @@
     "power": 1,
     "duration_s": 2
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "pillar",
+    "particles": "ring"
+   }
   },
   {
    "id": "soul_lantern_ward",
@@ -1678,16 +1858,21 @@
    "dao": "soul",
    "unlock": "spirit_awakening_5",
    "source": "the_mentors_gift",
-   "desc": "A ward that absorbs damage equal to 20% max Soul for 6 s.",
+   "desc": "A ward that absorbs damage equal to 10% of your max HP for 6 s.",
    "action": "meditate_burst",
    "icon": "soul_lantern_ward",
    "mastery": {
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "shield_soul_pct": 0.2,
+   "shield_hp_pct": 0.1,
    "shield_s": 6,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "domain",
+    "particles": "ring"
+   }
   },
   {
    "id": "sense_lock",
@@ -1729,7 +1914,12 @@
     "cost_per_tier": -0.05
    },
    "sense_lock_s": 8,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "pillar",
+    "particles": "ring"
+   }
   },
   {
    "id": "phantom_double",
@@ -1773,7 +1963,12 @@
    "illusion_s": 6,
    "illusion_hits": 3,
    "illusion_radius": 500,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "domain",
+    "particles": "ring"
+   }
   },
   {
    "id": "soul_search",
@@ -1816,7 +2011,12 @@
    },
    "soul_search_s": 12,
    "ignore_armor": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "pillar",
+    "particles": "ring"
+   }
   },
   {
    "id": "crimson_palm",
@@ -1859,7 +2059,12 @@
    },
    "hp_cost_pct": 0.05,
    "blood_path": true,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "strike",
+    "particles": "ember"
+   }
   },
   {
    "id": "blood_river_slash",
@@ -1908,7 +2113,12 @@
    },
    "hp_cost_pct": 0.1,
    "blood_path": true,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "ember"
+   }
   },
   {
    "id": "sanguine_lotus",
@@ -1952,7 +2162,12 @@
    "hp_cost_pct": 0.15,
    "blood_path": true,
    "both_sides": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "ring",
+    "particles": "ember"
+   }
   },
   {
    "id": "golden_body",
@@ -2014,7 +2229,12 @@
      "duration": 10
     }
    ],
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "domain",
+    "particles": "square"
+   }
   },
   {
    "id": "venom_needles",
@@ -2069,7 +2289,12 @@
     "duration_s": 5
    },
    "poison_path": true,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "bolt",
+    "particles": "square"
+   }
   },
   {
    "id": "miasma_palm",
@@ -2118,7 +2343,12 @@
     "duration_s": 6
    },
    "poison_path": true,
-   "grade": "earth"
+   "grade": "earth",
+   "vfx": {
+    "tier": 2,
+    "shape": "ring",
+    "particles": "square"
+   }
   },
   {
    "id": "splashed_ink",
@@ -2159,7 +2389,12 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "strike",
+    "particles": "ink"
+   }
   },
   {
    "id": "cursive_storm",
@@ -2200,7 +2435,12 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "rain",
+    "particles": "ink"
+   }
   },
   {
    "id": "stilling_peal",
@@ -2248,7 +2488,12 @@
     "power": 1,
     "duration_s": 0.8
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "ring",
+    "particles": "ring"
+   }
   },
   {
    "id": "qi_seal_toll",
@@ -2295,7 +2540,12 @@
     "power": 1,
     "duration_s": 3.0
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "pillar",
+    "particles": "ring"
+   }
   },
   {
    "id": "wardens_call",
@@ -2351,7 +2601,12 @@
      "duration": 8
     }
    ],
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "domain",
+    "particles": "ring"
+   }
   },
   {
    "id": "upright_glyph",
@@ -2394,7 +2649,12 @@
    },
    "insight_scale": 0.5,
    "confucian_path": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "wave",
+    "particles": "shard"
+   }
   },
   {
    "id": "benevolent_script",
@@ -2439,7 +2699,12 @@
    "allies_heal_s": 6,
    "heal_radius": 260,
    "confucian_path": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "domain",
+    "particles": "square"
+   }
   },
   {
    "id": "rite_seal_script",
@@ -2489,7 +2754,12 @@
     "power": 1.0,
     "duration_s": 1.5
    },
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 5,
+    "shape": "ring",
+    "particles": "ring"
+   }
   },
   {
    "id": "blood_burning",
@@ -2550,7 +2820,12 @@
     "severity": 1
    },
    "secret": true,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 4,
+    "shape": "domain",
+    "particles": "square"
+   }
   },
   {
    "id": "glimpse_of_heaven",
@@ -2592,7 +2867,12 @@
     "cost_per_tier": -0.05
    },
    "ignore_resistance": 0.2,
-   "grade": "heaven"
+   "grade": "heaven",
+   "vfx": {
+    "tier": 3,
+    "shape": "pillar",
+    "particles": "square"
+   }
   }
  ]
 }

@@ -25,7 +25,8 @@ func _main() -> void:
 		if str(a).begins_with("--from="): from = str(a).trim_prefix("--from=")
 		if str(a) == "--only": only = true
 	GameEvents.event.connect(func(n, p):
-		if n == "system_unlocked": unlock_log.append(str(p.get("system", ""))))
+		if n == "system_unlocked": unlock_log.append(str(p.get("system", "")))
+		if n == "enemy_spawned": par_pace(p))
 	if from == "":
 		run()
 		from = SECTIONS[0]
@@ -38,6 +39,7 @@ func _main() -> void:
 	for s in SECTIONS:
 		if s == from: started = true
 		if not started: continue
+		par_up()
 		if s != from: checkpoint(s)
 		print("-- section ", s, " (realm ", c().cultivator.realm_key, ", room ", room(), ", bag free ", c().inventory.free_slots(), "/", c().inventory.capacity(), ")")
 		var before := failures
@@ -75,6 +77,70 @@ func resume(name: String) -> bool:
 	return true
 
 # ------------------------------------------------------------------ helpers
+## P12 test shortcut ("par up", docs/research/stat_scaling_research.md §6.7): at each section start the character is
+## raised to what the par character carries at this Level (StatRules.par_step): every worn piece at its quality and
+## enhancement and no more than `weapon_lag` Levels behind the wearer; on the weapon, the par affixes (attack, the
+## sets' damage%, crit chance and crit damage); the Sword Dao at its tier. The monster tables are set against the par
+## character, so the run fights as one instead of in its Common +0 gear. Its arts and attributes stay its own.
+const PAR_AFFIXES := ["attack_pct", "par_damage", "par_crit", "par_crit_damage"]
+func par_up() -> void:
+	var lv := ProgressionRules.level(c())
+	if lv < int(ContentDB.stat_const("par.from_level", 10)): return   # Bone Forging keeps today's numbers and gear
+	var order: Array = ContentDB.config("grades").get("quality_order", [])
+	var q := str(StatRules.par_step("quality", lv))
+	var enhance := mini(int(ContentDB.stat_const("par.enhance_max", 10)), lv / int(ContentDB.stat_const("par.enhance_every", 12)))
+	var ilv := maxi(1, lv - int(ContentDB.stat_const("par.weapon_lag", 3)))
+	var crit: Array = StatRules.par_step("crit", lv)
+	var affixes := [{"id": "attack_pct", "stat": "physical_attack", "op": "pct_add", "value": float(StatRules.par_step("attack_pct", lv))},
+		{"id": "par_damage", "stat": "damage_pct", "op": "flat", "value": float(StatRules.par_step("damage_pct", lv))},
+		{"id": "par_crit", "stat": "crit_chance", "op": "flat", "value": float(crit[0])},
+		{"id": "par_crit_damage", "stat": "crit_damage", "op": "flat", "value": float(crit[1])}].filter(func(a): return float(a.value) > 0.0)
+	for slot in ["weapon", "robe", "trousers", "boots", "hat"]:
+		var inst = c().inventory.equipped.get(slot)
+		if inst == null: continue
+		if order.find(str(inst.get("quality", "common"))) < order.find(q): inst["quality"] = q                 # test_shortcut
+		inst["enhance"] = maxi(int(inst.get("enhance", 0)), enhance)                                          # test_shortcut
+		inst["ilv"] = maxi(int(inst.get("ilv", ContentDB.item(str(inst.id)).get("ilv", 1))), ilv)            # test_shortcut
+		if slot == "weapon":
+			inst["affixes"] = (inst.get("affixes", []) as Array).filter(func(a): return not str(a.get("id", "")) in PAR_AFFIXES) + affixes   # test_shortcut
+	# The Sword Dao to its par tier (the land's cap still holds).
+	var tier := int(StatRules.par_step("dao", lv))
+	var d: Dictionary = c().cultivator.daos.get("sword", {"tier": 0, "insight": 0.0})
+	var need: Array = ContentDB.curve("dao_tiers", [])
+	if tier > int(d.get("tier", 0)) and tier <= need.size():
+		var short_by := float(need[tier - 1]) - float(d.get("insight", 0.0))
+		Game.progression.apply_insight(c().id, "sword", short_by * 1.05 / maxf(0.2, 1.0 + c().stats.value("insight_rate")), "test_shortcut:par")
+	Game.combat.refresh_stats(c().id)
+
+## P12 test shortcut ("par pace"): a boss's health is the par character's DPS times its par time, which assumes a player
+## who strikes with a main art at par and steps out of the markers. The scripted fighter does neither (its blows take a
+## fifth of its health from the Tomb King), and a boss heals whole when its target falls, so every boss with a par time
+## that spawns during the run is sized to PAR_PACE_S seconds of the run's own basic blows against it.
+const PAR_PACE_S := 20.0
+func par_pace(p: Dictionary) -> void:
+	if Game.room_rt == null or Game.active() == null: return
+	var e = Game.room_rt.enemies.get(int(p.get("enemy", 0)))
+	if e == null or not e.def.has("par_s") or e.team == "ally": return
+	var fam := StatRules.family(c())
+	var steps: Array = fam.get("combo", [{"mult": 1.0, "duration": 0.5}])
+	var mult := 0.0
+	var secs := 0.0
+	for st in steps:
+		mult += float(st.get("mult", 1.0)) / steps.size()
+		secs += float(st.get("duration", 0.5))
+	var blow := {"damage_type": str(fam.get("damage_type", "physical")), "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]), "never_miss": true}
+	var pv := CombatRules.fighter(c())
+	var ev: Dictionary = Game.combat.enemy_view(e)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12
+	var hit := 0.0
+	for i in 100: hit += float(CombatRules.resolve(pv, ev, blow, rng).amount) / 100.0
+	var hp := maxf(1.0, hit * steps.size() / maxf(0.1, secs) * PAR_PACE_S)
+	if hp < float(e.pools.max_hp):
+		e.stats.max_hp = hp          # test_shortcut
+		e.pools.max_hp = hp
+		e.pools.hp = hp
+
 ## Nobody walks while gravely wounded: wake at the shrine and rest first.
 func revive_if_needed() -> void:
 	if not Game.combat.is_wounded(c().id): return
@@ -2011,11 +2077,11 @@ func sec_ae3() -> void:
 	check(c().quests.has_flag("clan_ironroot") and "ironroot_kin" in c().cultivator.titles, "adopted into the Ironroot clan")
 	# Canyon side stories: silk from the kites for the toll flags, plumes from the roosts for the clan forge.
 	check(start("silk_on_the_wind") and start("plumes_for_the_bellows"), "the canyon side stories accepted")
-	for i in 12:
+	for i in 18:   # P12: foes hit 6% of par HP now, so a careful player breaks off more often
 		if c().inventory.count("kite_silk") >= 5: break
 		if travel("gc_kite_winds"): fight("wind_kite", 2, 240.0, 0.3)
 		revive_if_needed()
-	for i in 12:
+	for i in 18:
 		if c().inventory.count("harpy_plume") >= 4: break
 		if travel("gc_harpy_roosts"): fight("canyon_harpy", 2, 240.0, 0.3)
 		revive_if_needed()
@@ -2083,6 +2149,7 @@ func sec_ae4() -> void:
 	travel("ir_clan_hearth")
 	tidy_bag(12)
 	gear_up_stones("ironroot_clan")
+	par_up()   # P12: the old pieces were raised to par at the section start; the new ones join them
 	var pow1: float = c().stats.value("physical_attack") + c().stats.value("physical_defense")
 	check(str(ContentDB.item(str(c().inventory.equipped.get("robe", {}).get("id", ""))).get("grade", "")) == "sage" and pow1 > pow0,
 		"Sage-grade sunsilk and sunsteel from the clan forge (attack + defence %.0f -> %.0f)" % [pow0, pow1])
