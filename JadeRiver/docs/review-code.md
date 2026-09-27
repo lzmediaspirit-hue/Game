@@ -10,6 +10,11 @@ data_validation 14318 checks / 22 failures (the known missing icons and brush an
 contract_tests 999 / 0; balance_sim 24 / 0; perf_tests 4 / 0; prologue_run 107 / 0; valley_run 1253 / 0;
 `tools/dev/check_scripts.gd` 0 failures.
 
+At the end of this branch (which merged the build branch's P4 touch targets, its `ui_suite` and its new art): room_lint
+168 / 0; engine_tests 3785/3785; data_validation 15081 / 0; rules_tests 1533 / 0 (the build branch's `ui_suite` adds 13 checks,
+`fixes_suite` 32); contract_tests 1000 / 0; balance_sim 24 / 0; perf_tests 4 / 0; prologue_run 107 / 0;
+valley_run 1253 / 0; check_scripts 0 failures. Every code commit was run through the full suite and left it at the baseline or better.
+
 ## 1. The architecture as it really is
 
 ### Layers
@@ -72,9 +77,11 @@ Autoloads: `ContentDB`, `GameEvents`, `Clock`, `Rng`, `Unlocks`, `Saves`, `Game`
 
 | Where | What | Proposed fix |
 |---|---|---|
-| `world.gd:769-775` | The world scene decides and applies fall damage (5% max HP, never in towns or the Prologue) through `Game.combat.apply_resource_change`, bypassing intents. | Combat reacts to `fell_out` (the event `LocalAuthority` already emits) and applies the cost itself. **Fixed.** |
-| `ui/pages/posts_page.gd:190` | `_draw_bench` calls `Game.posts._bench_settle(ch)` every frame: drawing the page settles the Apprentice Bench and grants smithing XP. | A read-only `bench_view` that projects the stock without writing. Left (see section 7). |
-| `ui/pages/inventory_page.gd:355` | Selecting a bag slot erases `inventory.new_items[id]` directly. | Needs a new `mark_seen` intent (a contract change), so left and listed. |
+| `world.gd:769-775` | The world scene decides and applies fall damage (5% max HP, never in towns or the Prologue) through `Game.combat.apply_resource_change`, bypassing intents. | Combat reacts to `fell_out` (the event `LocalAuthority` already emits) and applies the cost itself. **Fixed** (`fixes_suite`: a fall is free in the Prologue and costs 5% on the Willow Path). |
+| `ui/pages/posts_page.gd:190` | `_draw_bench` calls `Game.posts._bench_settle(ch)` every frame: drawing the page settles the Apprentice Bench and grants smithing XP. | **Fixed (B19)**: the page submits `settle_works` (part `bench`) and Posts settles. |
+| `ui/pages/works_page.gd:167,234` | The Calcination Furnace and Mirror of Echoes tabs call `calcination_settle()` and `mirror_settle()` from `draw_page`. | **Fixed (B19)**: `settle_works`, parts `furnace` and `mirror`. |
+| `ui/pages/inventory_page.gd:355` | Selecting a bag slot erases `inventory.new_items[id]` directly. | **Fixed (B19)**: the `mark_item_seen` intent (Inventory). |
+| `ui/pages/pets_page.gd:61`, `core_exchange_page.gd:18` | Drawing an animal from an older save fills its missing fields (`PetAuthority.ensure_fields`). | **Fixed (B19)**: `PetAuthority.filled` gives the page a filled copy; the Core Exchange reads `wounded` with its default. `contract_tests` now fails on any state write, `apply_*`, settle or `ensure_fields` call in `scripts/ui/`, `hud.gd` or `scripts/shell/`. |
 | `main.gd:146-481` | Debug arguments (`--relic=`, `--posts-demo`, `--give=` ...) write state and call private authority functions. | Acceptable as debug tools (S38); they only run where `Unlocks.debug_tools()` is true. |
 | Pages calling private authority functions | `auction_page.gd:27` (`_au_cfg`), `your_sect_page.gd:144,174` (`_on_expedition`), `works_page.gd:65,67,90` (`_curve_of`), `hud.gd:1451,1460` (`_pet`) | Read-only, but they reach past the public surface. Left for the UI restyle. |
 
@@ -82,7 +89,7 @@ Autoloads: `ContentDB`, `GameEvents`, `Clock`, `Rng`, `Unlocks`, `Saves`, `Game`
 
 | Where | What | Fixed |
 |---|---|---|
-| `relations_authority.gd:724-727,745` | County jobs erase quests from `quests.active/tracked/daily` and write new daily quest rows. | Yes: `QuestAuthority.apply_drop` and `apply_daily`. |
+| `relations_authority.gd:724-727,745` | County jobs erase quests from `quests.active/tracked/daily` and write new daily quest rows. | Yes: `QuestAuthority.apply_drop` and `apply_generated`. |
 | `enemy_authority.gd:405,427` | The end of a spar sets the player's HP to full without `resource_changed`. | Yes: `CombatAuthority.end_spar` heals through its own pool command. |
 | `world_authority.gd:394-395` | Spirit Sense spends Soul with `pools.set_value` and no `resource_changed`. | Yes: `combat.apply_resource_change`. |
 | `world_authority.gd:593-594` | Inspecting an object sets `inspected_<id>` straight into `quests.flags` (no `flag_set`). | Yes: `quest.apply_flag`. |
@@ -141,7 +148,7 @@ written again in another place, sometimes drifting. Each row names the single ho
 | D20 | Pass-through `RelationsAuthority.apply_insight_best` | `relations_authority.gd:667` → progression | dispatch `insight_best` straight to Progression | Yes |
 | D21 | The slot → wardrobe category map | `inventory_authority.gd:625` (`WARDROBE_CATEGORY`) and `:814` (`outfit_for` map) | the const | Yes |
 | D22 | Expedition-busy loops | `sect_authority.gd:158-160` and `_on_expedition` `:315-319`; `mine_holder_rival` `:504` repeats `mine_holder` `:293` | reuse | Yes |
-| D23 | Duration text | `calendar_page.gd:73`, `your_sect_page.gd:148` (identical), `relations_page.gd:105` (no days), `posts_page.gd:319` ≈ `post_authority.gd:824`, `works_page.gd:266`, `welcome_page.gd:62` | `UiKit.span()` / `UiKit.hours()` | Yes (UI commit) |
+| D23 | Duration text | `calendar_page.gd:73`, `your_sect_page.gd:148` (identical), `relations_page.gd:105` (no days), `posts_page.gd:319` ≈ `post_authority.gd:824`, `works_page.gd:266`, `welcome_page.gd:62` | `UiKit.span(seconds, days)` | Partly: the Calendar's and Your Sect's identical `_span` and the Relations page's variant are `UiKit.span`; the Posts, Works and Welcome durations use other strings and round minutes differently (`post_authority._hours_text` rounds up, `posts_page._dur` down), so merging them would change what is shown |
 | D24 | Two-column page layout (`left`, then `right := Rect2(left.end.x + gap, ...)`) | ~20 pages (`calendar`, `county`, `chess`, `tower`, `relations`, `codex`, `workshop`, `posts`, `gift`, `pets`, `quest`, `mail`, `beast_arena`, `cultivation`, `character`, ...) | `Page.columns(left_w, gap)` | Left for the UI restyle (it would touch every page the restyle rewrites) |
 | D25 | Requirement constructors (`realm`, `flag`, `noflag`, `qdone`, `qactive`, `unlocked`, `sect`, `all_of`, `any_of`) | `tools/data/economy.py:15-28`, `story.py:15-48`, `world.py:37-66` | `tools/data/common.py` | Yes |
 | D26 | Catalogue helpers (`_w`, `authored`, `surf`, `obj`, `drop_decor`, `drop_surfaces`) | `catalogue.py:12-36`, `catalogue_rows_dungeons.py:13-58`, `catalogue_rows_fields.py:20-36`, `catalogue_rows_towns.py:7-17` | `catalogue.py` | Yes |
@@ -151,7 +158,7 @@ written again in another place, sometimes drifting. Each row names the single ho
 
 ## 4. Dead code (each verified by a whole-tree word search: only the definition matches)
 
-Functions: `Clock.uptime_s` (`clock_service.gd:18`), `Clock.day_fraction` (`:56`), `HerbRules.game_day` (`herb_rules.gd:11`),
+Functions: `Clock.uptime_s` (`clock_service.gd:18`), `HerbRules.game_day` (`herb_rules.gd:11`),
 `ContentDB.validate` (`content_db.gd:193`, loads a `data_validator.gd` that does not exist), `GameCharacter.has_qi_pool`
 (`game_character.gd:57`), `InventoryState.quick_capacity` (`inventory_state.gd:38`), `StatBlock.set_bases` and `has_source`
 (`stat_block.gd:24,55`), `WorldCatalog.valid_theme` (`world_catalog.gd:11`), `ZoneGeometry.is_mover` (`zone_geometry.gd:364`),
@@ -173,7 +180,7 @@ Stale state: `QuestState.last_daily_day` (saved and restored, never read; the ac
 Unreachable branches: the `on_accept` debt trigger (`relations_authority.gd:104`; no debt carries `on_accept`);
 the herb-yield trait bonus in `complete_node` (`crafting_authority.gd:179-180`; herb patches always go to `_harvest`);
 the `not attacker.begins_with("ally")` test in `_damage_enemy` (`combat_authority.gd:1275`; the attacker is always an
-owner id, see bug B8); `var ch` in `progression_authority.gd:972`; the trailing `pass` in `crafting_authority.gd:2063`.
+owner id; left with bug B8); `var ch` in `progression_authority.gd:972`; the trailing `pass` in `crafting_authority.gd:2063`.
 
 ## 5. Bugs
 
@@ -186,8 +193,9 @@ owner id, see bug B8); `var ch` in `progression_authority.gd:972`; the trailing 
 | B5 | Guild commissions take locked items. | Lock your forged robe; deliver a Forge Guild order for that robe: the locked robe is taken. | Locked items are neither counted nor taken. | `fixes_suite` |
 | B6 | Guild commission boards turn over at 00:00 UTC, not at the daily reset. | Time zone UTC-8: the board changes at 16:00 local, unlike every other daily in the game (04:00 local). | `commission_day()` uses `Clock.reset_day`. | `fixes_suite` |
 | B7 | A Wind Step Talisman's free dodge is spent by a dodge that then fails. | Dodge on cooldown, a free-dodge charge held, standing in shallow water: the dodge fails `in_water` and the charge is gone. | The charge is spent only when the dodge happens. | `fixes_suite` |
-| B8 | Pet and companion blows interrupt a normal monster's wind-up, against the rule's own exclusion. | A spirit animal's hit on a winding-up boarlet staggers it; `not attacker.begins_with("ally")` can never be false because ally hits pass the owner's id. | Test the attack's `ally:` source. | `fixes_suite` |
+| B8 | Pet and companion blows interrupt a normal monster's wind-up, against the rule's own exclusion. | A spirit animal's hit on a winding-up boarlet staggers it; `not attacker.begins_with("ally")` can never be false because ally hits pass the owner's id. | **Left.** Testing the attack's `ally:` source makes 19 `rules_tests` checks fail: the pet and companion suites expect an animal's blow to break a wind-up. The comment and the tested behaviour disagree, so this is a design call. | — |
 | B9 | "The Dao you know best" differs between systems. | Sword Dao tier 6 (12,500 insight) and a Fist Dao held at its valley cap, tier 5, with 30,000 insight: the Sphere and Dao Echo choose Sword; the hermit's chess problem and the insight sites choose Fist. | One `ProgressionRules.strongest_dao` (tier first, then insight). | `fixes_suite` |
+| B19 | Pages change game state themselves (found in the P2 UI inventory; see 2.1). | Open Works › Calcination Furnace: drawing the page burns Storehouse inputs; keep Roll-Call › Bench open: every frame drawn grants smithing XP; tap a bag slot: the page erases its "new" dot; show an animal from an older save: the page writes its fields. | The intents `mark_item_seen` (Inventory) and `settle_works` (Posts), and `PetAuthority.filled`. | `fixes_suite`; `contract_tests` (pages write nothing) |
 
 Also reported, not changed: an interrupted breakthrough channel (`progression_authority.gd:971-974`) consumes its support
 pills without counting a failed supported attempt (the tribulation path counts it); `purity_changed` carries `value`
@@ -205,11 +213,15 @@ intent); `buff_allies` (`enemy_authority.gd:265-269`) multiplies allies' attack 
 6. Combat and progression helpers (D4-D6, D8), enemy spar (D7), clock and config lookups (D9, D10).
 7. World, account, quest, relations, crafting, sect helpers (D11-D22).
 8. `tools/data`: requirement constructors, catalogue helpers, reach table (D25-D27), `data/` byte-identical.
-9. Last, in their own commits after merging the build branch: pages (D23), `realm_label` text.
+9. Last, in their own commits after merging the build branch: the page writes (B19), pages (D23), `realm_label` text,
+   the HUD's dead fields.
 
 ## 7. Found but left
 
-- D24 page columns, D28/D29 refine and forge checks, the posts page bench settle and the inventory page's `new_items`:
-  each would change the intent contract, tested reason codes, or the pages the UI restyle is rewriting.
+- B8 (ally blows and wind-ups): the fix contradicts tested behaviour (see section 5).
+- D24 page columns, D28/D29 refine and forge checks: each would change tested reason codes or the pages the UI restyle
+  is rewriting. D23's last three durations: they differ in wording and rounding.
+- The Works and Bench pages still ask Posts to settle on every frame they are open (now through `settle_works`), as they
+  did before; settling only when a page opens would freeze what an open page shows.
 - The lazy settle-on-read queries in 2.3: behaviour-preserving changes would move settlement timing.
 - `hud.gd:_on_event` (600 lines, one `match`) could be a table of event → toast/log rows; it belongs to the restyle.
