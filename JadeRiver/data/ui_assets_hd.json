@@ -58,6 +58,15 @@
     ],
     "normal": "res://art/ui/hd/dialogue_box__normal.png"
   },
+  "ink_band": {
+    "margins": [
+      120,
+      60,
+      120,
+      60
+    ],
+    "normal": "res://art/ui/hd/ink_band__normal.png"
+  },
   "major_window": {
     "margins": [
       32,

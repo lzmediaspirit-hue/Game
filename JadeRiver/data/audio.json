@@ -138,6 +138,10 @@
    "file": "res://art/audio/sfx/breakthrough.wav",
    "volume_db": -4
   },
+  "brush_stroke": {
+   "file": "res://art/audio/sfx/brush_stroke.wav",
+   "volume_db": -4
+  },
   "charge": {
    "file": "res://art/audio/sfx/charge.wav",
    "volume_db": -4
@@ -184,6 +188,10 @@
   },
   "gather": {
    "file": "res://art/audio/sfx/gather.wav",
+   "volume_db": -4
+  },
+  "gong_short": {
+   "file": "res://art/audio/sfx/gong_short.wav",
    "volume_db": -4
   },
   "gust": {
@@ -256,6 +264,10 @@
   },
   "rumble": {
    "file": "res://art/audio/sfx/rumble.wav",
+   "volume_db": -4
+  },
+  "seal_press": {
+   "file": "res://art/audio/sfx/seal_press.wav",
    "volume_db": -4
   },
   "surge": {

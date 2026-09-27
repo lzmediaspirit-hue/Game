@@ -48,22 +48,25 @@ static func is_rare(i: Dictionary) -> bool:
 	return str(i.get("quality", "")) in r.get("qualities", []) or str(ContentDB.item(id).get("type", "")) in r.get("types", []) \
 		or (r.get("items", {}) as Dictionary).has(id)
 
-## A reference inside a row: "payload.<key>", "slot.<slot>.<key>" (an absorbed event's payload), "item.<field>" (the
-## payload item's data), or a plain value.
+## A reference inside a row: "payload.<key>"; "slot.<path>" into what the view keeps for the play (an absorbed event's
+## payload by its slot, `last.<event>` the last payload of an event, `now` and `before` the stat snapshots); "item.<field>"
+## (the payload item's data); or a plain value.
 static func value(ref, p: Dictionary, slots := {}):
 	if not (ref is String): return ref
 	if ref.begins_with("payload."): return p.get(ref.trim_prefix("payload."), "")
 	if ref.begins_with("slot."):
-		var s = slots.get(ref.get_slice(".", 1), {})
-		if s is Array: s = s[0] if not s.is_empty() else {}
-		return (s as Dictionary).get(ref.get_slice(".", 2), "")
+		var node = slots
+		for part in ref.trim_prefix("slot.").split("."):
+			if node is Array: node = node[0] if not node.is_empty() else {}
+			node = (node as Dictionary).get(part, 0) if node is Dictionary else 0
+		return node
 	if ref.begins_with("item."): return ContentDB.item(str(p.get("item", ""))).get(ref.trim_prefix("item."), "")
 	return ref
 
-## A text source (§3.4) as the words the player reads; "" when it names nothing.
+## A text source (§3.4) as the words the player reads; "" when it names nothing, or when its `if_slot` is empty.
 static func text(src, p: Dictionary, slots := {}) -> String:
 	if not (src is Dictionary): return str(value(src, p, slots))
-	if src.is_empty(): return ""
+	if src.is_empty() or (src.has("if_slot") and not slots.has(str(src.if_slot))): return ""
 	var v = value(src.values()[0], p, slots)
 	if src.has("key"):
 		var s := Tx.t(str(src.key) + (str(value(src.suffix, p, slots)) if src.has("suffix") else ""))
@@ -80,15 +83,37 @@ static func text(src, p: Dictionary, slots := {}) -> String:
 	if src.has("boss"):
 		var k := "boss.%s.%s" % [str(value(src.id, p, slots)), str(src.boss)]
 		return Tx.t(k) if ContentDB.strings.has(k) else ""
+	if src.has("field_of"):   # one line of a data row: a Dao's tier line ({"field_of": "daos", "field": "tiers", "at": tier})
+		var f = ContentDB.entry(str(src.field_of), str(value(src.id, p, slots))).get(str(src.field), "")
+		if f is Array: f = f[clampi(int(value(src.get("at", 1), p, slots)) - 1, 0, f.size() - 1)] if not f.is_empty() else ""
+		return str(f)
+	if src.has("affixes_of"):   # a title's bonus, as the Character page writes it
+		return ", ".join(ContentDB.entry(str(src.affixes_of), str(value(src.id, p, slots))).get("modifiers", []).map(func(m): return UiKit.affix_text(m)))
+	if src.has("pet"):   # the active character's spirit animal by uid
+		var c = Game.active()
+		for pt in (c.pets if c else []):
+			if str(pt.uid) == str(v): return str(pt.name)
+		return ""
+	if src.has("pet_form"):   # the form it grew into: its branch, else its stage's name
+		var branch := str(value(src.get("branch", ""), p, slots))
+		if branch != "": return branch
+		for s in ContentDB.config("pet_growth").get("stages", []):
+			if str(s.id) == str(v): return str(s.get("name", ""))
+		return ""
 	return str(v)   # {"payload": "payload.name"}: a value that is already player text
 
-## A colour (§3.4, §6): a UiKit token name, or element:, grade: or quality: with an id or a reference.
+## A colour (§3.4, §6): a UiKit token name, or element:, grade:, quality: or dao: with an id or a reference (a Dao takes
+## its element's colour, or its family's from moments.json dao_colours).
 static func color(spec, p := {}, slots := {}) -> Color:
 	var s := str(spec)
 	var id := str(value(s.get_slice(":", 1), p, slots))
 	if s.begins_with("element:"): return SpriteCache.element_color(id)
 	if s.begins_with("grade:"): return UiKit.grade_color(id)
 	if s.begins_with("quality:"): return UiKit.quality_color(id)
+	if s.begins_with("dao:"):
+		var fam := str(ContentDB.entry("daos", id).get("family", ""))
+		var by_family = cfg().get("dao_colours", {}).get(fam)
+		return SpriteCache.element_color(id) if fam == "element" else (color(by_family) if by_family != null else UiKit.PALE_GOLD)
 	return tokens().get(s, UiKit.PAPER)
 
 ## One row of the escalation curve (§5.2), tier 1 to 7.

@@ -526,6 +526,15 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(1.0).timeout
 			moment_t = float(mo[1]) if mo.size() > 1 else 2.0
 			moments.preview(mo[0], moment_t)
+		if str(a).begins_with("--breakthrough") and is_instance_valid(moments) and Game.active() != null:
+			# Debug tools (S38): --breakthrough[=t] takes the character over its next step at once, through the progression
+			# authority (a great step when it stands at one), and holds its moment at t s (P6 previews of the real stat rise).
+			await get_tree().create_timer(1.5).timeout
+			var bc = Game.active()
+			var nxt := ContentDB.next_realm(bc.cultivator.realm_key)
+			moment_t = float(str(a).get_slice("=", 1)) if str(a).contains("=") else 2.4
+			moments.hold_at = moment_t
+			if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
 		for a in user_args:

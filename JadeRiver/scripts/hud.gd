@@ -122,8 +122,10 @@ func _process(delta: float) -> void:
 	advance_scroll(delta)
 	for l in log_lines: l.t += delta
 	log_lines = log_lines.filter(func(l): return l.t < 6.0)
-	for tt in toasts: tt.t += delta
-	toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
+	# While a moment holds the screen (P6) the toasts wait under it, so the two never cover each other.
+	if not _moment_on_screen():
+		for tt in toasts: tt.t += delta
+		toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
 	banner.t += delta
 	vignette.t = float(vignette.t) + delta
 	caption.t = float(caption.t) + delta
@@ -791,8 +793,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.inherited") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("levels", 0))], UiKit.PALE_GOLD)
 		"path_above_found":
 			toast(Tx.t("hud.path_above") % [int(p.get("found", 1)), int(p.get("total", 1))], "gold")
-		"title_changed":
-			if p.get("earned", false): toast(Tx.t("hud.title_earned") + ContentDB.name_of("titles", str(p.title)), "gold")
 		"mail_received":
 			if Unlocks.is_unlocked(Game.active_id, "mail"): add_log(Tx.t("hud.a_letter_arrived"), UiKit.PALE_GOLD)
 		"bag_full":
@@ -1047,8 +1047,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.exam_started") % int(float(p.get("time_s", 0)) / 60.0), "gold")
 		"guild_exam_failed":
 			toast(Tx.t("hud.exam_failed"), "danger")
-		"guild_rank_changed":
-			toast(Tx.t("hud.guild_rank") % Tx.t("ui.guild.rank_" + str(p.rank)), "unlock")
 		"commission_completed":
 			add_log(Tx.t("hud.commission_paid") % int(p.get("paid", 0)) + (" " + Tx.t("hud.commission_capped") if p.get("capped", false) else ""), UiKit.PALE_GOLD)
 		"pill_tribulation_result":
@@ -1069,14 +1067,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 		# S48: the body ladder, physiques and the core.
 		"body_trial_passed":
 			toast(Tx.t("hud.body_trial_passed") % [ContentDB.name_of("body_tiers", str(p.tier)), ContentDB.item_name(str(p.get("bath", "")))], "gold")
-		"body_tier_reached":
-			toast(Tx.t("hud.body_tier_reached") % ContentDB.name_of("body_tiers", str(p.tier)), "unlock")
 		"physique_awakened":
 			toast(Tx.t("hud.physique_awakened") % ContentDB.name_of("physiques", str(p.physique)), "unlock")
 		"core_graded":
 			toast(Tx.t("hud.core_graded") % int(p.grade), "gold")
-		"tribulation_started":
-			toast(Tx.t("hud.tribulation_started") % int(p.bolts), "danger", Tx.t("hud.tribulation_hint"))
 		"tribulation_bolt":
 			if str(p.phase) == "strike":
 				Audio.play("thunder")
@@ -1266,10 +1260,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"artifact_skill_used":
 			if p.get("awakened", false): add_log(Tx.t("hud.awakened_skill") % str(p.get("skill", "")), UiKit.GOLD)
 			else: add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL)
-		"weapon_awakened":
-			toast(Tx.t("hud.weapon_awakened") % ContentDB.item_name(str(p.item)), "gold", Tx.t("hud.weapon_awakened_sub") % str(p.get("skill", "")))
-		"pet_evolved":
-			toast(Tx.t("hud.grows_into_a") % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":
 			toast(Tx.t("hud.shows_a_trait") % [_pet_name(str(p.pet)), ContentDB.name_of("pet_traits", str(p.trait))], "gold")
 		"pet_level_up":
@@ -1906,7 +1896,11 @@ func _draw_vignette() -> void:
 		UiKit.draw_text(self, str(ln), Vector2(r.position.x + 24, y), 17, Color(UiKit.PAPER, a))
 		y += 23
 
+func _moment_on_screen() -> bool:
+	return is_instance_valid(moments) and moments.screen_busy()
+
 func _draw_toasts() -> void:
+	if _moment_on_screen(): return
 	var y := 300.0
 	for tt in toasts:
 		var a := clampf(tt.t / 0.2, 0, 1) * clampf((float(tt.get("life", 3.2)) - tt.t) / 0.4, 0, 1)

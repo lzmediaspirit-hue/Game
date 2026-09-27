@@ -2,6 +2,37 @@
 
 ## Moments (docs/roadmap_master_ui.md, P6)
 
+### P6b · The breakthrough and the progression cards
+- **The major breakthrough, as mockup 05 draws it** (`breakthrough_major`): the world darkens round you and the HUD
+  recedes, sixteen motes gather into you, a column of light rises and three rings open at your feet (0–0.6 s); the
+  great realm's name is written on an ink band in one brush stroke, "BREAKTHROUGH" over it and the step under it, and
+  the stage is pressed on in a vermilion seal (0.6–1.4 s); the stats that rose climb in one after another, with the
+  tribulation you weathered on a card beside them and what the new stage opens on a chip (1.4–2.4 s). It holds to
+  3.6 s and fades by 4.0 s. Input comes back at 1.5 s; a tap before then skips to the full frame. Its sounds are the
+  gong and chimes, then a brush stroke and a seal (both new), then the unlock bell only when something opens.
+- **A minor breakthrough** writes its step and the Level it gave on a slim ink strip, with any unlock on a chip, and
+  keeps the guzheng run (no shake). **A failed one** darkens the world a moment and says why and how to recover
+  (`failure.<id>` now has words for all seven causes, finding 8), and after a tribulation how many bolts struck.
+- **The tribulation** opens on a band over a shadowed sky that stays while the rite lasts; its storm is laid again
+  every 5 s until the result, not once for 6 s (finding 10).
+- **The silent milestones speak** (finding 4): a Dao tier (its line from the Dao's tiers, in the element's colour; a
+  sixth tier on the large band), a craft's new rank, a guild rank with its title, a body tier, an earned title with its
+  bonus and a seal, a spirit animal's new form and an awakened weapon in its grade's colour each have a strip. In a
+  fight the celebration cards become toasts; the HUD's old toasts for them are gone.
+- A level gained alone rings a short gong (new) instead of the guzheng run.
+- **Reduce motion** (Settings › Accessibility, off by default): no camera moves or shakes, bands and cards fade in
+  instead of wiping and sliding, bursts thin to tier 1's particles. Bright flashes off leaves a flash or a screen tint
+  at 0.3 of its strength. One flash or tint a second from every source (the flash limiter).
+- **Art and sound:** the ink band, a dry-brush stroke drawn by `tools/ui/build_ui_hd.py` (`art/ui/hd/ink_band__normal.png`);
+  `brush_stroke`, `seal_press` and `gong_short` from the synth. New FX kinds `pillar` and `converge`; `spark` takes a
+  count, size and a falling `shard` style, `ring` a count. Strings for every great realm's name, every craft, the
+  stat labels and the cards.
+- `--breakthrough[=t]` takes the character over its next step through the progression authority and holds the moment
+  at t, for screenshots of the real stat rise.
+- **Tests:** `moments_suite` runs the gather, the skip, the lock (F4: never more than 1.5 s), pages, fights, the
+  settings and the held tribulation on the real rows, and a real minor breakthrough and a level gained by meditating;
+  `moments_data_suite` checks the new text sources, the ink band and every great realm, craft, failure and stat string.
+
 ### P6a · The table and the view
 - **`data/moments.json`** from the new `tools/data/moments.py` (run by `build_data.py` before the contract): one row per
   moment kind with its trigger event, filters, priority, duration, input lock, queue rule, layers, art and a sample

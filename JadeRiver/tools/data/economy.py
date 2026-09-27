@@ -1116,6 +1116,9 @@ def strings():
     S = {}
     for r in realms:
         S["realm." + r["key"]] = r["name"]
+        # P6 moments: the great realm's own name, written on a major breakthrough's band ("Sphere Lord 1" -> "Sphere Lord").
+        head, _, tail = r["name"].rpartition(" ")
+        S["realm_great." + r["realm"]] = head if tail.isdigit() else r["name"]
     S.update({
         "currency.silver_tael": "Silver Taels", "currency.spirit_stone": "Spirit Stones", "currency.contribution": "Contribution",
         "failure.backlash": "Qi backlash", "failure.injury": "Meridian injury", "failure.setback": "Setback",

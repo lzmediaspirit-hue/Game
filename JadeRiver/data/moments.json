@@ -44,7 +44,8 @@
    "id": "breakthrough_minor",
    "event": "breakthrough_succeeded",
    "when": {
-    "actor": "active"
+    "actor": "active",
+    "major": false
    },
    "priority": 60,
    "duration_s": 1.8,
@@ -77,8 +78,46 @@
    ],
    "hold_until": [],
    "max_s": 0.0,
-   "toast": {},
+   "toast": {
+    "key": "moment.breakthrough.toast",
+    "args": [
+     {
+      "realm": "payload.to"
+     }
+    ]
+   },
    "layers": [
+    {
+     "t": 0.1,
+     "kind": "strip",
+     "y": 170,
+     "title": {
+      "transition": [
+       "payload.from",
+       "payload.to"
+      ]
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "key": "moment.level_up",
+      "args": [
+       "slot.level.level"
+      ],
+      "if_slot": "level"
+     },
+     "sub_size": 20,
+     "sub_color": "BRIGHT_JADE"
+    },
+    {
+     "t": 0.5,
+     "kind": "chip",
+     "slot": "unlocks",
+     "at": [
+      960,
+      588
+     ]
+    },
     {
      "t": 0.0,
      "kind": "fx",
@@ -93,23 +132,133 @@
     },
     {
      "t": 0.0,
-     "kind": "text",
-     "text": {
-      "realm": "payload.to"
-     },
-     "size": 28,
-     "color": "PALE_GOLD",
+     "kind": "fx",
+     "fx": "ring",
      "at": "actor",
-     "offset": [
-      0,
-      -150
-     ],
-     "dur": 2.5
+     "color": "PALE_GOLD",
+     "radius": 70,
+     "dur": 0.5
     },
     {
      "t": 0.0,
-     "kind": "shake",
-     "s": 0.2
+     "kind": "sound",
+     "sfx": "level"
+    },
+    {
+     "t": 0.0,
+     "kind": "buzz",
+     "ms": 60
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "from": "qi_kindling_3",
+    "to": "qi_kindling_4",
+    "major": false,
+    "formation": ""
+   },
+   "step": "P6b"
+  },
+  {
+   "id": "breakthrough_major",
+   "event": "breakthrough_succeeded",
+   "when": {
+    "actor": "active",
+    "major": true
+   },
+   "priority": 70,
+   "duration_s": 4.0,
+   "lock_s": 1.5,
+   "skip": "tap",
+   "skip_to_s": 2.4,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "level_changed",
+     "when": {},
+     "into": "level",
+     "keep_sound": false
+    },
+    {
+     "event": "realm_changed",
+     "when": {},
+     "into": "",
+     "keep_sound": false
+    },
+    {
+     "event": "system_unlocked",
+     "when": {},
+     "into": "unlocks",
+     "keep_sound": false,
+     "max": 2
+    },
+    {
+     "event": "tribulation_result",
+     "when": {
+      "survived": true
+     },
+     "into": "tribulation",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.breakthrough.toast",
+    "args": [
+     {
+      "realm": "payload.to"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "dim",
+     "color": "INK",
+     "alpha": 0.45,
+     "fade_in": 0.3,
+     "until": 3.6,
+     "radial": true
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "converge",
+     "at": "actor",
+     "offset": [
+      0,
+      -60
+     ],
+     "color": "PALE_GOLD",
+     "count": 16,
+     "radius": 300,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "pillar",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "radius": 90,
+     "height": 660,
+     "dur": 3.0
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "ring",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "radius": 130,
+     "count": 3,
+     "dur": 1.2
     },
     {
      "t": 0.0,
@@ -120,17 +269,135 @@
      "t": 0.0,
      "kind": "buzz",
      "ms": 120
+    },
+    {
+     "t": 0.6,
+     "kind": "band",
+     "y": 138,
+     "title": {
+      "realm_great": "payload.to"
+     },
+     "size": 92,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.4,
+     "glow": "GOLD",
+     "over": {
+      "key": "moment.breakthrough.over"
+     },
+     "sub": {
+      "transition": [
+       "payload.from",
+       "payload.to"
+      ]
+     }
+    },
+    {
+     "t": 0.6,
+     "kind": "sound",
+     "sfx": "brush_stroke"
+    },
+    {
+     "t": 0.6,
+     "kind": "shake",
+     "s": 0.2
+    },
+    {
+     "t": 1.3,
+     "kind": "seal",
+     "at": "band",
+     "size": 44,
+     "angle": -8,
+     "color": "RED",
+     "text": {
+      "stage": "payload.to"
+     }
+    },
+    {
+     "t": 1.3,
+     "kind": "sound",
+     "sfx": "seal_press"
+    },
+    {
+     "t": 1.4,
+     "kind": "card",
+     "slot": "tribulation",
+     "rect": [
+      72,
+      330,
+      352,
+      104
+     ],
+     "slide_from": "left",
+     "lines": [
+      {
+       "text": {
+        "key": "moment.tribulation.weathered"
+       },
+       "size": 18,
+       "color": "PALE_GOLD"
+      },
+      {
+       "text": {
+        "key": "moment.tribulation.line",
+        "args": [
+         "slot.last.tribulation_started.waves",
+         "slot.tribulation.bolts",
+         "slot.tribulation.struck"
+        ]
+       },
+       "size": 15,
+       "color": "PAPER"
+      }
+     ],
+     "bar": {
+      "value": "slot.now.hp_pct",
+      "label": {
+       "key": "moment.tribulation.hp_kept",
+       "args": [
+        "slot.now.hp_pct"
+       ]
+      },
+      "color": "RED"
+     }
+    },
+    {
+     "t": 1.4,
+     "kind": "stats",
+     "at": [
+      880,
+      318
+     ],
+     "row_h": 36,
+     "gap_s": 0.12
+    },
+    {
+     "t": 2.0,
+     "kind": "chip",
+     "slot": "unlocks",
+     "at": [
+      960,
+      588
+     ]
+    },
+    {
+     "t": 2.0,
+     "kind": "sound",
+     "sfx": "unlock",
+     "bus": "UI",
+     "if_slot": "unlocks"
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "actor": "c1",
-    "from": "qi_kindling_3",
-    "to": "qi_kindling_4",
-    "major": false,
+    "from": "will_manifest_3",
+    "to": "sphere_lord_1",
+    "major": true,
     "formation": ""
    },
-   "step": "P6a"
+   "step": "P6b"
   },
   {
    "id": "breakthrough_failed",
@@ -158,22 +425,67 @@
    ],
    "hold_until": [],
    "max_s": 0.0,
-   "toast": {},
+   "toast": {
+    "key": "moment.failed.toast",
+    "args": [
+     {
+      "key": "failure.",
+      "suffix": "payload.failure_id"
+     }
+    ],
+    "kind": "danger"
+   },
    "layers": [
     {
      "t": 0.0,
-     "kind": "text",
-     "text": {
+     "kind": "dim",
+     "color": "INK",
+     "alpha": 0.3,
+     "fade_in": 0.2,
+     "until": 1.2
+    },
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 170,
+     "title": {
       "key": "world_view.breakthrough_failed"
      },
-     "size": 24,
+     "size": 30,
      "color": "RED",
+     "sub": {
+      "key": "failure.",
+      "suffix": "payload.failure_id"
+     },
+     "sub_size": 20,
+     "sub_color": "PAPER",
+     "more": [
+      {
+       "payload": "payload.recovery"
+      },
+      {
+       "key": "moment.tribulation.struck",
+       "args": [
+        "slot.tribulation.struck",
+        "slot.tribulation.bolts"
+       ],
+       "if_slot": "tribulation"
+      }
+     ]
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "spark",
      "at": "actor",
+     "color": "MIST",
      "offset": [
       0,
-      -150
+      -60
      ],
-     "dur": 2.5
+     "count": 12,
+     "style": "shard",
+     "dur": 0.6
     },
     {
      "t": 0.0,
@@ -181,7 +493,9 @@
      "sfx": "fail"
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "actor": "c1",
     "failure_id": "energy_instability",
@@ -191,7 +505,7 @@
     ],
     "recovery": "Rest, restoration pill"
    },
-   "step": "P6a"
+   "step": "P6b"
   },
   {
    "id": "realm_phenomenon",
@@ -271,8 +585,43 @@
     "tribulation_result"
    ],
    "max_s": 120.0,
-   "toast": {},
+   "toast": {
+    "key": "hud.tribulation_started",
+    "args": [
+     "payload.bolts"
+    ],
+    "kind": "danger"
+   },
    "layers": [
+    {
+     "t": 0.0,
+     "kind": "band",
+     "y": 170,
+     "title": {
+      "key": "hud.tribulation_started",
+      "args": [
+       "payload.bolts"
+      ]
+     },
+     "size": 34,
+     "color": "PALE_GOLD",
+     "wipe_s": 0.3,
+     "sub": {
+      "key": "hud.tribulation_hint"
+     },
+     "sub_size": 18
+    },
+    {
+     "t": 0.0,
+     "kind": "vignette",
+     "color": "INK",
+     "alpha": 0.25,
+     "edge": 180,
+     "sides": [
+      "top"
+     ],
+     "held": true
+    },
     {
      "t": 0.0,
      "kind": "fx",
@@ -283,7 +632,8 @@
       0,
       -20
      ],
-     "dur": 6.0
+     "dur": 6.0,
+     "repeat_s": 5.0
     },
     {
      "t": 0.0,
@@ -303,7 +653,9 @@
      "dur": 4.0
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "actor": "c1",
     "from": "cloud_stride_9",
@@ -311,7 +663,7 @@
     "bolts": 9,
     "waves": 3
    },
-   "step": "P6a"
+   "step": "P6b"
   },
   {
    "id": "level_up",
@@ -334,6 +686,15 @@
    "layers": [
     {
      "t": 0.0,
+     "kind": "fx",
+     "fx": "ring",
+     "at": "actor",
+     "color": "PALE_GOLD",
+     "radius": 40,
+     "dur": 0.4
+    },
+    {
+     "t": 0.0,
      "kind": "text",
      "text": {
       "key": "world_view.level",
@@ -353,7 +714,7 @@
     {
      "t": 0.0,
      "kind": "sound",
-     "sfx": "level"
+     "sfx": "gong_short"
     }
    ],
    "art": [],
@@ -361,7 +722,7 @@
     "actor": "c1",
     "level": 12
    },
-   "step": "P6a"
+   "step": "P6b"
   },
   {
    "id": "body_level",
@@ -409,6 +770,539 @@
    "step": "P6a"
   },
   {
+   "id": "body_tier",
+   "event": "body_tier_reached",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "play",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "body_level_changed",
+     "when": {},
+     "into": "",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.body_tier.toast",
+    "args": [
+     {
+      "payload": "payload.name"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 170,
+     "title": {
+      "payload": "payload.name"
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "key": "moment.body_tier.sub"
+     }
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "ring",
+     "at": "actor",
+     "color": "BRONZE",
+     "radius": 80,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "dust",
+     "at": "actor",
+     "dur": 0.5
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "bell"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "tier": "iron",
+    "name": "Iron Body"
+   },
+   "step": "P6b"
+  },
+  {
+   "id": "dao_tier",
+   "event": "dao_tier_up",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.8,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.dao.toast",
+    "args": [
+     {
+      "name_of": "daos",
+      "id": "payload.dao"
+     },
+     "payload.tier"
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 170,
+     "title": {
+      "key": "moment.dao.title",
+      "args": [
+       {
+        "name_of": "daos",
+        "id": "payload.dao"
+       },
+       "payload.tier"
+      ]
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "field_of": "daos",
+      "id": "payload.dao",
+      "field": "tiers",
+      "at": "payload.tier"
+     }
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "converge",
+     "at": "actor",
+     "color": "dao:payload.dao",
+     "count": 16,
+     "radius": 160,
+     "dur": 0.6
+    },
+    {
+     "t": 0.4,
+     "kind": "sound",
+     "sfx": "bell"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "dao": "sword",
+    "tier": 3
+   },
+   "step": "P6b",
+   "variants": [
+    {
+     "when": {
+      "tier": 6
+     },
+     "duration_s": 2.4,
+     "layers": [
+      {
+       "t": 0.0,
+       "kind": "band",
+       "y": 150,
+       "title": {
+        "key": "moment.dao.title",
+        "args": [
+         {
+          "name_of": "daos",
+          "id": "payload.dao"
+         },
+         "payload.tier"
+        ]
+       },
+       "size": 64,
+       "color": "PALE_GOLD",
+       "wipe_s": 0.4,
+       "glow": "GOLD",
+       "sub": {
+        "field_of": "daos",
+        "id": "payload.dao",
+        "field": "tiers",
+        "at": "payload.tier"
+       },
+       "sub_color": "MIST"
+      },
+      {
+       "t": 0.0,
+       "kind": "fx",
+       "fx": "converge",
+       "at": "actor",
+       "color": "dao:payload.dao",
+       "count": 16,
+       "radius": 160,
+       "dur": 0.6
+      },
+      {
+       "t": 0.4,
+       "kind": "sound",
+       "sfx": "bell"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "title_earned",
+   "event": "title_changed",
+   "when": {
+    "actor": "active",
+    "earned": true
+   },
+   "priority": 40,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.title.toast",
+    "args": [
+     {
+      "name_of": "titles",
+      "id": "payload.title"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 200,
+     "title": {
+      "name_of": "titles",
+      "id": "payload.title"
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "affixes_of": "titles",
+      "id": "payload.title"
+     }
+    },
+    {
+     "t": 0.25,
+     "kind": "seal",
+     "at": "strip",
+     "size": 40,
+     "angle": -8,
+     "color": "RED",
+     "text": {
+      "key": "moment.title.seal"
+     }
+    },
+    {
+     "t": 0.25,
+     "kind": "sound",
+     "sfx": "seal_press"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "title": "fleet_footed",
+    "earned": true
+   },
+   "step": "P6b"
+  },
+  {
+   "id": "craft_mastery",
+   "event": "profession_rank_up",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.craft.toast",
+    "args": [
+     {
+      "craft": "payload.craft"
+     },
+     {
+      "key": "ui.guild.rank_",
+      "suffix": "payload.rank"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 200,
+     "title": {
+      "key": "moment.craft.title",
+      "args": [
+       {
+        "craft": "payload.craft"
+       },
+       {
+        "key": "ui.guild.rank_",
+        "suffix": "payload.rank"
+       }
+      ]
+     },
+     "size": 30,
+     "color": "PALE_GOLD"
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "converge",
+     "at": "actor",
+     "color": "BRIGHT_JADE",
+     "count": 12,
+     "radius": 120,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "unlock",
+     "bus": "UI"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "craft": "alchemy",
+    "rank": "adept"
+   },
+   "step": "P6b"
+  },
+  {
+   "id": "guild_rank",
+   "event": "guild_rank_changed",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [
+    {
+     "event": "title_changed",
+     "when": {
+      "earned": true
+     },
+     "into": "title",
+     "keep_sound": false
+    }
+   ],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "moment.craft.toast",
+    "args": [
+     {
+      "craft": "payload.craft"
+     },
+     {
+      "key": "ui.guild.rank_",
+      "suffix": "payload.rank"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 200,
+     "title": {
+      "key": "moment.craft.title",
+      "args": [
+       {
+        "craft": "payload.craft"
+       },
+       {
+        "key": "ui.guild.rank_",
+        "suffix": "payload.rank"
+       }
+      ]
+     },
+     "size": 30,
+     "color": "PALE_GOLD",
+     "sub": {
+      "key": "moment.guild.title",
+      "args": [
+       {
+        "name_of": "titles",
+        "id": "slot.title.title"
+       }
+      ],
+      "if_slot": "title"
+     }
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "converge",
+     "at": "actor",
+     "color": "BRIGHT_JADE",
+     "count": 12,
+     "radius": 120,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "unlock",
+     "bus": "UI"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "craft": "alchemy",
+    "rank": "adept",
+    "title": "guild_adept"
+   },
+   "step": "P6b"
+  },
+  {
+   "id": "pet_evolution",
+   "event": "pet_evolved",
+   "when": {
+    "actor": "active"
+   },
+   "priority": 50,
+   "duration_s": 1.6,
+   "lock_s": 0.0,
+   "skip": "",
+   "skip_to_s": 0.0,
+   "stale_s": 6.0,
+   "in_fight": "toast",
+   "scope": "actor",
+   "merge": [],
+   "hold_until": [],
+   "max_s": 0.0,
+   "toast": {
+    "key": "hud.grows_into_a",
+    "args": [
+     {
+      "pet": "payload.pet"
+     },
+     {
+      "pet_form": "payload.stage",
+      "branch": "payload.branch"
+     }
+    ]
+   },
+   "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 200,
+     "title": {
+      "key": "hud.grows_into_a",
+      "args": [
+       {
+        "pet": "payload.pet"
+       },
+       {
+        "pet_form": "payload.stage",
+        "branch": "payload.branch"
+       }
+      ]
+     },
+     "size": 28,
+     "color": "PALE_GOLD"
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "spiral",
+     "at": "pet",
+     "color": "PALE_GOLD",
+     "dur": 1.2
+    },
+    {
+     "t": 0.0,
+     "kind": "fx",
+     "fx": "ring",
+     "at": "pet",
+     "color": "PALE_GOLD",
+     "radius": 60,
+     "dur": 0.6
+    },
+    {
+     "t": 0.0,
+     "kind": "sound",
+     "sfx": "unlock",
+     "bus": "UI"
+    }
+   ],
+   "art": [
+    "ink_band"
+   ],
+   "sample": {
+    "actor": "c1",
+    "pet": "p1",
+    "from": "cub",
+    "stage": "grown",
+    "branch": ""
+   },
+   "step": "P6b"
+  },
+  {
    "id": "weapon_awakened",
    "event": "weapon_awakened",
    "when": {
@@ -425,8 +1319,32 @@
    "merge": [],
    "hold_until": [],
    "max_s": 0.0,
-   "toast": {},
+   "toast": {
+    "key": "hud.weapon_awakened",
+    "args": [
+     {
+      "item": "payload.item"
+     }
+    ]
+   },
    "layers": [
+    {
+     "t": 0.0,
+     "kind": "strip",
+     "y": 200,
+     "title": {
+      "item": "payload.item"
+     },
+     "size": 30,
+     "color": "grade:item.grade",
+     "sub": {
+      "key": "hud.weapon_awakened_sub",
+      "args": [
+       "payload.skill"
+      ]
+     },
+     "sub_color": "PAPER"
+    },
     {
      "t": 0.0,
      "kind": "fx",
@@ -438,18 +1356,30 @@
     },
     {
      "t": 0.0,
+     "kind": "fx",
+     "fx": "pillar",
+     "at": "actor",
+     "color": "GOLD",
+     "radius": 30,
+     "height": 300,
+     "dur": 0.8
+    },
+    {
+     "t": 0.0,
      "kind": "sound",
-     "sfx": "breakthrough"
+     "sfx": "bell"
     }
    ],
-   "art": [],
+   "art": [
+    "ink_band"
+   ],
    "sample": {
     "actor": "c1",
     "item": "stone_drum_gauntlets",
     "skill": "Mountain Drum",
     "legend": true
    },
-   "step": "P6a"
+   "step": "P6b"
   },
   {
    "id": "rare_pill",
@@ -614,6 +1544,22 @@
   "fight_radius": 400,
   "snapshot_s": 1.0,
   "merge_rare_s": 1.5
+ },
+ "stats": [
+  "level",
+  "max_hp",
+  "max_qi",
+  "max_soul",
+  "physical_attack",
+  "qi_attack",
+  "soul_attack",
+  "crit_chance",
+  "lifespan"
+ ],
+ "dao_colours": {
+  "weapon": "PALE_GOLD",
+  "craft": "BRIGHT_JADE",
+  "rare": "SOUL"
  },
  "vfx_tiers": [
   {

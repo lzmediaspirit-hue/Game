@@ -5272,8 +5272,8 @@ func rooftop_routes_suite() -> void:
 	var contrib0 := int(c.training_sect.get("contribution", 0))
 	var slow := Game.world.finish_route(c, rt, 30.0)
 	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
-	var fast := Game.world.finish_route(c, rt, 10.0)
-	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 10.0)
+	var fast := Game.world.finish_route(c, rt, 9.2)   # under the gold par and the fastest a seeded rival can run (9.5 s)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 9.2)
 		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
 	var contrib1 := int(c.training_sect.get("contribution", 0))
 	Game.world.finish_route(c, rt, 9.0)
@@ -8057,6 +8057,100 @@ func moments_suite() -> void:
 	mv.fight_override = true
 	mv.advance(1.0 / 60.0)
 	check(mv.lock_left() == 0.0, "a running lock ends the frame a fight starts")
+	mv.fight_override = false
+	# The real rows (P6b on): cases 3, 7, 9, 10 and 11 again, F4, and case 2 through the real authorities.
+	var fresh := func() -> void:
+		mv.load_rows(real)
+		mv.logged.clear()
+		mv.toasts_posted.clear()
+	fresh.call()
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing != null and mv.playing.row.id == "breakthrough_major" and mv.playing.slots.has("level") and (mv.playing.slots.get("unlocks", []) as Array).size() == 2
+		and mv.logged.filter(func(e): return str(e.get("sfx", "")) == "breakthrough").size() == 1 and not played.call("realm_phenomenon").is_empty()
+		and mv.queue.any(func(q): return q.row.id == "title_earned"), "the major breakthrough takes its level and unlocks and rings once; the clouds play; the title waits")
+	run.call(0.5)
+	check(mv.lock_left() > 0.0 and mv.press() and mv.lock_left() == 0.0 and near(float(mv.playing.st), 2.4), "a tap in the breakthrough's first 1.5 s skips to 2.4 s and gives input back")
+	var longest := 0.0
+	for r in real:
+		fresh.call()
+		feed.call(str(r.event), r.sample)
+		for i in int(float(r.duration_s) * 60.0) + 2:
+			mv.advance(1.0 / 60.0)
+			longest = maxf(longest, mv.lock_left())
+	check(longest <= 1.5, "F4: no moment holds input for more than 1.5 s (%.2f s)" % longest)
+	fresh.call()
+	mv.pages_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.playing == null and played.call("breakthrough_major").any(func(e): return str(e.layer) == "fx"), "under a page the breakthrough's light gathers and its name waits")
+	mv.pages_override = false
+	mv.advance(1.0 / 60.0)
+	check(mv.playing != null and mv.playing.row.id == "breakthrough_major", "the breakthrough's name is written when the page closes")
+	fresh.call()
+	mv.toasts_posted.clear()
+	mv.fight_override = true
+	burst.call()
+	mv.advance(0.0)
+	check(mv.toasts_posted.size() == 1 and mv.lock_left() == 0.0 and mv.playing != null and mv.playing.row.id == "breakthrough_major",
+		"in a fight the title is a toast and the breakthrough plays without a lock")
+	mv.fight_override = false
+	for k in ["screen_shake", "flashes", "haptics"]: put.call(k, false)
+	put.call("reduce_motion", true)
+	fresh.call()
+	burst.call()
+	run.call(1.0)
+	var major: Array = played.call("breakthrough_major")
+	check(major.filter(func(e): return str(e.layer) == "shake").all(func(e): return float(e.amp) == 0.0) and not major.any(func(e): return str(e.layer) == "buzz")
+		and major.filter(func(e): return str(e.layer) == "band").all(func(e): return not e.motion)
+		and major.filter(func(e): return str(e.get("fx", "")) == "converge").all(func(e): return int(e.count) == int(MomentRules.tier(1).spark_count)),
+		"the settings hold on the real breakthrough: no shake, no buzz, the band fades, the motes thin to tier 1's")
+	fresh.call()
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	check(played.call("tribulation").filter(func(e): return str(e.layer) == "vignette").all(func(e): return near(float(e.alpha), 0.25 * 0.3)), "with Bright flashes off the tribulation's shadow is 0.3 of its alpha")
+	for k in ["screen_shake", "flashes", "haptics", "reduce_motion"]: Game.account.settings[k] = was.get(k, k != "reduce_motion")
+	# 11. A held row: the storm is laid again every 5 s until the result, and ends at max_s without one.
+	fresh.call()
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	run.call(11.0)
+	var storms: Array = played.call("tribulation").filter(func(e): return str(e.get("fx", "")) == "heaven_storm")
+	check(storms.size() == 3 and mv.active.any(func(q): return q.row.id == "tribulation"), "the tribulation's storm is laid again every 5 s while it holds (%d)" % storms.size())
+	feed.call("tribulation_result", {"actor": "", "survived": true, "struck": 1, "absorbed": 0, "bolts": 9, "failure": ""})
+	run.call(2.0 / 60.0)
+	check(not mv.active.any(func(q): return q.row.id == "tribulation"), "the tribulation ends with its result")
+	feed.call("tribulation_started", ContentDB.entry("moments", "tribulation").sample)
+	mv.advance(0.0)
+	run.call(121.0)
+	check(not mv.active.any(func(q): return q.row.id == "tribulation"), "a tribulation with no result ends at its 120 s guard")
+	# 2. Real events: a minor breakthrough at a bottleneck and a level gained by meditating.
+	var cu: CultivatorState = c.cultivator
+	var keep := [cu.realm_key, cu.state, cu.qp, cu.breakthrough_cooldown, Unlocks.debug_force_all]
+	Unlocks.debug_force_all = true   # the suite's character has not been taught to cultivate
+	fresh.call()
+	cu.realm_key = "bone_forging_2"
+	cu.state = "bottleneck"
+	cu.qp = cu.need()
+	cu.breakthrough_cooldown = 0.0
+	var bt := Game.submit({"type": "start_breakthrough", "support_items": []})
+	mv.advance(0.0)
+	check(bool(bt.get("ok", false)) and mv.playing != null and mv.playing.row.id == "breakthrough_minor" and mv.playing.slots.has("level"),
+		"a real minor breakthrough writes its strip with the level it gave (%s)" % str(bt))
+	fresh.call()
+	cu.realm_key = "heaven_glimpse_1"
+	cu.state = "accumulating"
+	cu.qp = 0.0
+	Game.progression.apply_progress(c.id, 0.0, "meditation", 0.5)
+	GameEvents.flush()
+	mv.advance(0.0)
+	check(played.call("level_up").any(func(e): return str(e.get("sfx", "")) == "gong_short"), "a level gained by meditating sounds its short gong")
+	cu.realm_key = keep[0]
+	cu.state = keep[1]
+	cu.qp = keep[2]
+	cu.breakthrough_cooldown = keep[3]
+	Unlocks.debug_force_all = keep[4]
+	Game.combat.refresh_stats(c.id)
 	mv.queue_free()
 
 func boss_event_suite() -> void:

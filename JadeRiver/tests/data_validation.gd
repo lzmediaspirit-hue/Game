@@ -75,25 +75,44 @@ func moments_data_suite() -> void:
 		_moment_walk(r, refs)
 		for ref in refs:
 			var s := str(ref)
+			var part := s.split(".")
 			if s.begins_with("payload."): check(s.trim_prefix("payload.") in keys, "%s reads %s, declared by %s" % [where, s, r.event])
-			elif s.begins_with("slot."): check(s.get_slice(".", 2) in slots.get(s.get_slice(".", 1), []), "%s reads %s, from a merged event that declares it" % [where, s])
+			elif s.begins_with("slot.last."): check(part.size() == 4 and part[3] in declared.call(part[2]), "%s reads %s, declared by %s" % [where, s, part[2]])
+			elif s.begins_with("slot.now.") or s.begins_with("slot.before."): check(part[2] in cfg.get("stats", []) or part[2] == "hp_pct", "%s reads %s, a snapshot number" % [where, s])
+			elif s.begins_with("slot."): check(part.size() == 3 and part[2] in slots.get(part[1], []), "%s reads %s, from a merged event that declares it" % [where, s])
 			elif s.begins_with("item."): check("item" in keys, "%s reads %s: its event names an item" % [where, s])
-		var dur := float(r.duration_s)
-		check(float(r.lock_s) <= float(cfg.settings.max_lock_s) and (float(r.lock_s) == 0.0 or float(r.lock_s) < dur), "%s: its lock is within %s s and the row" % [where, cfg.settings.max_lock_s])
-		check(float(r.get("skip_to_s", 0.0)) < dur and str(r.skip) in ["", "tap"] and str(r.in_fight) in ["play", "toast"] and str(r.scope) in ["actor", "room"], "%s: skip, in_fight and scope are known, the skip point inside the row" % where)
+		check(float(r.lock_s) <= float(cfg.settings.max_lock_s) and (float(r.lock_s) == 0.0 or float(r.lock_s) < float(r.duration_s)), "%s: its lock is within %s s and the row" % [where, cfg.settings.max_lock_s])
+		check(float(r.get("skip_to_s", 0.0)) < float(r.duration_s) and str(r.skip) in ["", "tap"] and str(r.in_fight) in ["play", "toast"] and str(r.scope) in ["actor", "room"], "%s: skip, in_fight and scope are known, the skip point inside the row" % where)
 		check(r.get("hold_until", []).is_empty() == (float(r.get("max_s", 0.0)) == 0.0), "%s: a held row has hold_until and max_s" % where)
-		for L in r.layers:
-			var kind := str(L.kind)
-			check(MomentRules.LAYER_KINDS.has(kind), "%s: layer kind %s is known" % [where, kind])
-			if MomentRules.LAYER_KINDS.get(kind, "") in ["under", "over"]: check(float(L.t) < dur, "%s: its %s layer starts inside the row" % [where, kind])
-			if kind == "fx": check(str(L.fx) in FxLayer.KINDS, "%s: fx %s is an FxLayer kind" % [where, L.fx])
-			if kind == "sound": check(ContentDB.config("audio").get("sfx", {}).has(str(L.sfx)), "%s: sound %s is in data/audio.json" % [where, L.sfx])
-			if kind == "bark":
-				for i in 3: check(ContentDB.strings.has("%s_%d" % [L.key, i]), "%s: bark line %s_%d" % [where, L.key, i])
-			for a in ["at", "to"]:
-				if L.has(a): check(str(L[a]) in MomentRules.ANCHORS, "%s: anchor %s is known" % [where, L[a]])
+		for v in r.get("variants", []):
+			for k in v.get("when", {}): check(k in keys, "%s: a variant tests a declared key (%s)" % [where, k])
+		for v in [r] + r.get("variants", []):
+			var dur := float(v.get("duration_s", r.duration_s))
+			for L in v.layers:
+				var kind := str(L.kind)
+				check(MomentRules.LAYER_KINDS.has(kind), "%s: layer kind %s is known" % [where, kind])
+				if MomentRules.LAYER_KINDS.get(kind, "") in ["under", "over"]: check(float(L.t) < dur, "%s: its %s layer starts inside the row" % [where, kind])
+				if kind == "fx": check(str(L.fx) in FxLayer.KINDS, "%s: fx %s is an FxLayer kind" % [where, L.fx])
+				if kind == "sound": check(ContentDB.config("audio").get("sfx", {}).has(str(L.sfx)), "%s: sound %s is in data/audio.json" % [where, L.sfx])
+				if kind == "bark":
+					for i in 3: check(ContentDB.strings.has("%s_%d" % [L.key, i]), "%s: bark line %s_%d" % [where, L.key, i])
+				if L.get("at") is String: check(str(L.at) in MomentRules.ANCHORS + ["band", "strip"], "%s: anchor %s is known" % [where, L.at])
+				if L.has("to"): check(str(L.to) in MomentRules.ANCHORS, "%s: camera anchor %s is known" % [where, L.to])
+				for art in ["band", "strip"]:
+					if kind == art: check("ink_band" in r.get("art", []) and ContentDB.config("ui_assets_hd").has("ink_band"), "%s: its %s's ink band is listed and built" % [where, kind])
 		for k in keys:
 			check(r.sample.has(k), "%s: its sample carries %s" % [where, k])
+	# The names moments write: a stage's great realm, a craft, a failure's cause, a stat's label.
+	for rr in ContentDB.all("realms"): check(ContentDB.strings.has("realm_great." + str(rr.realm)), "realm_great.%s is a string" % rr.realm)
+	var crafts := {}
+	for rc in ContentDB.all("recipes"): crafts[str(rc.get("craft", ""))] = true
+	for g in ContentDB.all("guilds"): crafts[str(g.craft)] = true
+	for n in CraftingAuthority.NODE_CRAFT.values(): crafts[str(n)] = true
+	crafts.erase("")
+	for cr in crafts: check(ContentDB.strings.has("craft." + str(cr)), "craft.%s is a string" % cr)
+	for f in ContentDB.all("failures"): check(ContentDB.strings.has("failure." + str(f.id)), "failure.%s is a string (finding 8)" % f.id)
+	for st in cfg.get("stats", []): check(ContentDB.strings.has("moment.stat." + str(st)), "moment.stat.%s is a string" % st)
+	for fam in cfg.get("dao_colours", {}): check(MomentRules.tokens().has(str(cfg.dao_colours[fam])), "the %s Daos' colour is a UiKit token" % fam)
 	var elems: Dictionary = ContentDB.config("elements").get("colors", {})
 	var grades: Dictionary = ContentDB.config("grades")
 	var tokens := MomentRules.tokens()
@@ -108,6 +127,10 @@ func moments_data_suite() -> void:
 	var texts := []
 	_moment_walk(rows, [], [], texts)
 	for t in texts:
+		if not t.src.has("key"):
+			var tb := str(t.src.get("name_of", t.src.get("field_of", "")))
+			check(ContentDB.tables.has(tb), "moments text source reads %s, a table" % tb)
+			continue
 		var k := str(t.src.key) + (str(t.sample.get(str(t.src.suffix).trim_prefix("payload."), "")) if t.src.has("suffix") else "")
 		check(ContentDB.strings.has(k), "moments text %s is a string (not the fallback)" % k)
 	var tiers: Array = cfg.get("vfx_tiers", [])
@@ -123,7 +146,7 @@ func moments_data_suite() -> void:
 func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
 	if node is Dictionary:
 		if node.has("sample") and node.has("layers"): sample = node.sample
-		if node.has("key") and not node.has("kind"): texts.append({"src": node, "sample": sample})
+		if (node.has("key") or node.has("name_of") or node.has("field_of")) and not node.has("kind"): texts.append({"src": node, "sample": sample})
 		for k in node:
 			if k == "sample": continue
 			var v = node[k]

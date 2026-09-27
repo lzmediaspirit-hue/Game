@@ -9,9 +9,9 @@ const ARRAY_COLOURS := {"guard": Color("8aebee"), "killing": Color("e45858"), "b
 ## Every transient kind `add` takes, one per arm of _draw's match (contract_tests keeps the two in step; moments.json
 ## names only these).
 const KINDS := ["number", "spark", "slash", "dust", "ring", "note", "wave", "spiral", "motes", "flash", "pagoda", "seal_slam",
-	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text"]
+	"talisman_wave", "pill_cloud", "heaven_cloud", "heaven_storm", "text", "pillar", "converge"]
 
-var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, z}
+var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, radius, count, height, style}
 
 func _ready() -> void:
 	z_index = 4000
@@ -19,8 +19,9 @@ func _ready() -> void:
 
 func add(kind: String, pos: Vector2, extra := {}) -> void:
 	var e := {"kind": kind, "pos": pos, "t": 0.0, "dur": float(extra.get("dur", 0.4)), "color": extra.get("color", UiKit.PAPER),
-		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", 20)),
-		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", 30))}
+		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", 6 if kind == "spark" else 20)),
+		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", 30)), "count": int(extra.get("count", 0)),
+		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square"))}
 	fx.append(e)
 	if fx.size() > 160: fx.pop_front()
 
@@ -63,11 +64,17 @@ func _draw() -> void:
 				var a := 1.0 if k < 0.6 else 1.0 - (k - 0.6) / 0.4
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-100, 0), int(e.size), Color(c, a), HORIZONTAL_ALIGNMENT_CENTER, 200)
 			"spark":
-				for i in 8:
-					var ang := i * TAU / 8.0 + 0.3
-					var r1 := 6.0 + 22.0 * k
-					var p1: Vector2 = e.pos + Vector2(cos(ang), sin(ang) * 0.7) * r1
-					draw_rect(Rect2(p1.snapped(Vector2(2, 2)), Vector2(4, 4) * (1.0 - k) + Vector2(2, 2)), Color(c, 1.0 - k))
+				# `count` bits flying out to r 28 (6 px shrinking to 2) and a white core; `style` shard: thin shards that fall.
+				var n := int(e.count) if int(e.count) > 0 else 8
+				for i in n:
+					var ang := i * TAU / n + 0.3
+					var dir := Vector2(cos(ang), sin(ang) * 0.7)
+					var p1: Vector2 = e.pos + dir * (6.0 + 22.0 * k)
+					if str(e.style) == "shard":
+						p1 += Vector2(0, 46.0 * k * k)
+						draw_line(p1, p1 + dir * (4.0 + float(e.size)) * (1.0 - k * 0.5), Color(c, 1.0 - k), 2.0)
+					else:
+						draw_rect(Rect2(p1.snapped(Vector2(2, 2)), Vector2.ONE * ((float(e.size) - 2.0) * (1.0 - k) + 2.0)), Color(c, 1.0 - k))
 				draw_circle(e.pos, 10.0 * (1.0 - k), Color(1, 1, 1, 0.8 * (1.0 - k)))
 			"slash":
 				var f := float(e.facing)
@@ -82,8 +89,17 @@ func _draw() -> void:
 					var off := Vector2((i - 2) * 9.0 * (1.0 + k), -6.0 * k * (1 + i % 2))
 					draw_circle(e.pos + off, 6.0 * (1.0 - k) + 2.0, Color(0.75, 0.68, 0.55, 0.6 * (1.0 - k)))
 			"ring":
-				draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
-				draw_arc(Vector2.ZERO, float(e.radius) * (0.3 + k), 0, TAU, 40, Color(c, 1.0 - k), 4.0)
+				if int(e.count) > 1:
+					# P6: `count` rings at the feet, the outer faint and the inner bright (a major breakthrough, mockup 05).
+					var fade4 := 1.0 if k < 0.6 else 1.0 - (k - 0.6) / 0.4
+					draw_set_transform(e.pos, 0.0, Vector2(1, 0.215))
+					for i in int(e.count):
+						var u := float(i) / float(int(e.count) - 1)
+						draw_arc(Vector2.ZERO, float(e.radius) * (1.0 - 0.66 * u) * (0.94 + 0.06 * minf(1.0, k * 4.0)), 0, TAU, 48,
+							Color(c.lerp(Color.WHITE, 0.6 * u), (0.35 + 0.55 * u) * fade4), 2.5)
+				else:
+					draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
+					draw_arc(Vector2.ZERO, float(e.radius) * (0.3 + k), 0, TAU, 40, Color(c, 1.0 - k), 4.0)
 				draw_set_transform(Vector2.ZERO)
 			"note":
 				# A musical note of the flute's melody (S47 v1.1): rises, sways and fades.
@@ -183,6 +199,44 @@ func _draw() -> void:
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)
+			"pillar":
+				# P6: a column of light on its target, `radius` half-wide and `height` tall; it widens over the first fifth
+				# and fades over the last seventh (a major breakthrough, mockup 05).
+				_pillar(e.pos, float(e.radius) * minf(1.0, k * 5.0), float(e.height), c, 1.0 if k < 0.86 else (1.0 - k) / 0.14)
+			"converge":
+				# P6: `count` motes along eight curved paths from r `radius` into the target, each with a short trail.
+				var n2 := maxi(1, int(e.count))
+				for i in n2:
+					var ang := TAU * (i % 8) / 8.0 + 0.3
+					var lap := floorf(i / 8.0)
+					var from := Vector2(cos(ang), sin(ang) * 0.6) * float(e.radius) * (1.0 - 0.3 * lap)
+					var ctrl := from.rotated(0.7) * 0.55
+					for j in 3:
+						var u := clampf(k * 1.1 - 0.05 * j - 0.04 * lap, 0.0, 1.0)
+						var q := from.lerp(ctrl, u).lerp(ctrl.lerp(Vector2.ZERO, u), u)
+						var a4 := minf(1.0, u * 6.0) * (1.0 if u < 0.85 else (1.0 - u) / 0.15) * (1.0 - 0.3 * j)
+						draw_circle(e.pos + q, 6.0 - j * 1.5, Color(c, 0.55 * a4))
+						if j == 0: draw_circle(e.pos + q, 2.0, Color(1, 1, 1, 0.9 * a4))
+
+## A column of light: faint at its edges and bright along its middle, masked to fade toward the top and at the feet,
+## with a thin white core.
+func _pillar(feet: Vector2, half: float, height: float, c: Color, a: float) -> void:
+	if half <= 0.5 or a <= 0.0: return
+	var xs := [-1.0, -0.35, 0.0, 0.35, 1.0]
+	var ax := [0.0, 0.3, 0.8, 0.3, 0.0]
+	var ys := [0.0, 0.4, 0.9, 1.0]           # from the column's top (0) to the feet (1)
+	var ay := [0.1, 1.0, 1.0, 0.0]
+	for yi in 3:
+		for xi in 4:
+			var pts := PackedVector2Array()
+			var cols := PackedColorArray()
+			for q in [[xi, yi], [xi + 1, yi], [xi + 1, yi + 1], [xi, yi + 1]]:
+				pts.append(feet + Vector2(xs[q[0]] * half, -height * (1.0 - ys[q[1]])))
+				cols.append(Color(c.lerp(Color.WHITE, 0.5 * ax[q[0]]), ax[q[0]] * ay[q[1]] * a))
+			draw_polygon(pts, cols)
+	var w := clampf(half * 0.05, 1.5, 4.0)
+	draw_polygon(PackedVector2Array([feet + Vector2(-w, -height), feet + Vector2(w, -height), feet + Vector2(w, 0), feet + Vector2(-w, 0)]),
+		PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 0.85 * a), Color(1, 1, 1, 0.85 * a)]))
 
 ## A soft bank of cloud: many flattened, overlapping puffs (a shadowed underside, a lit top) that drift slowly.
 func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit: Color, alpha: float, salt: int, t: float) -> void:

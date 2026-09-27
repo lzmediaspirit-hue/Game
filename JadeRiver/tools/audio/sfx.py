@@ -483,6 +483,32 @@ def s_backlash(rng):
     return y
 
 
+# ---------------------------------------------------------------- moments (P6, docs/moments_design.md §5.9)
+
+@sfx("brush_stroke")
+def s_brush_stroke(rng):
+    """A breakthrough's name written in one stroke: noise through a band moving 800 -> 2,400 Hz, and a scatter of
+    grains where the bristles leave the paper."""
+    d = 0.5
+    y = whoosh(rng, d, [(0, 800), (1, 2400)], [(0, 0), (0.12, 1), (0.7, 0.75), (1, 0)], width=0.7, tilt_db=-1.0)
+    return y + 0.3 * grains(rng, d, 24, (0.3, 0.47), (2500, 6000), amp=(0.2, 0.8), fall=8.0)
+
+
+@sfx("seal_press")
+def s_seal_press(rng):
+    """A seal stamped on paper: a woodblock knock over a membrane at 120 Hz."""
+    y = buf(0.35)
+    at(y, membrane(120, rng, t60=0.2, drop=0.2, noise_amt=0.2), 0, 0.8)
+    at(y, woodblock(760.0, rng, t60=0.07, click_amt=0.4, bright=0.8), 0, 0.6)
+    return y
+
+
+@sfx("gong_short")
+def s_gong_short(rng):
+    """A level gained alone (F4's short gong): a gong at 196 Hz that settles quickly and is not too bright."""
+    return gong(196.0, rng, dur=0.8, pitch=(0, -25), tau=0.35, bloom=0.2, bright=0.6)
+
+
 # ---------------------------------------------------------------- ui
 
 @sfx("ui_tap")
