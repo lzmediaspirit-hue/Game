@@ -194,7 +194,7 @@ func _draw() -> void:
 		var mount := title_rect()
 		if identity == null or identity.title_mount == "plaque":
 			draw_style_box(UiKit.style("title_plaque"), mount)
-			UiKit.draw_inked(self, title, mount.position + Vector2(0, 42), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, mount.size.x, true)
+			inked(mount.position + Vector2(0, 42), title, 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, mount.size.x)
 		else:
 			# The page's own mount under the shared lettering: the title inked, stepping down the display scale to fit.
 			draw_title_mount(mount)
@@ -309,6 +309,31 @@ func glow(rect: Rect2, col: Color) -> void:
 		tex.height = 128
 		_glows[key] = tex
 	draw_texture_rect(_glows[key], rect, false)
+
+## Bright glows at 0.3 of their alpha with Settings › Bright flashes off (page_identity §6).
+func _halo() -> float:
+	return 1.0 if Game.account.settings.get("flashes", true) else 0.3
+
+## A slow pulse for a live mark's glow; none under Reduce motion.
+func _pulse() -> float:
+	return 0.0 if UiKit.reduce_motion() else sin(t * 4.0)
+
+## A world event's plum blossom (the World map, the Calendar): gold with a red heart under way, violet with a pale
+## heart when it is coming.
+func _blossom(c: Vector2, live: bool, k: float) -> void:
+	var col := UiKit.GOLD if live else UiKit.SOUL
+	if live: glow(Rect2(c - Vector2.ONE * 20.0 * k, Vector2.ONE * 40.0 * k), Color(UiKit.GOLD, (0.35 + 0.1 * _pulse()) * _halo()))
+	for layer in [[5.1, UiKit.INK], [4.5, col]]:
+		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
+	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
+
+## A vertical gradient over `r` from `top` to `bottom` (a desk, a wall, a paper's shade).
+func vshade(r: Rect2, top: Color, bottom: Color) -> void:
+	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([top, top, bottom, bottom]))
+
+## A horizontal gradient over `r` from `left` to `right` (a gutter's shadow, a page's edge).
+func hshade(r: Rect2, left: Color, right: Color) -> void:
+	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([left, right, right, left]))
 
 func _lock_icon(p: Vector2, k := 1.0) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)

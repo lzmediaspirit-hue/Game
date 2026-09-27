@@ -568,14 +568,6 @@ func _dots(m: Dictionary, a: String, b: String, step: float) -> Array:
 	for i in n + 1: out.append(from + dir * (span - n * step) * 0.5 + dir * step * i)
 	return out
 
-## Bright glows at 0.3 of their alpha with Settings › Bright flashes off (page_identity §6).
-func _halo() -> float:
-	return 1.0 if Game.account.settings.get("flashes", true) else 0.3
-
-## A slow pulse for a live mark's glow; none under Reduce motion.
-func _pulse() -> float:
-	return 0.0 if UiKit.reduce_motion() else sin(t * 4.0)
-
 ## An area's node: a glowing jade orb where you may walk, a gold one where you stand, a dark disc with a padlock where
 ## the way is shut; the chosen one (or, on Resources, each that holds the chosen thing) wears a pale gold ring.
 func _node(p: Vector2, state: String, ring: bool) -> void:
@@ -607,14 +599,6 @@ func _lantern(c: Vector2, k: float) -> void:
 	rounded(r.grow(-3.0 * k), 6.0 * k, UiKit.GOLD)
 	draw_circle(r.get_center() - Vector2(0, 2) * k, 4.0 * k, UiKit.PALE_GOLD, true, -1.0, true)
 	draw_rect(Rect2(c + Vector2(-5, -s.y * 0.5 / k - 1) * k, Vector2(10, 5) * k), UiKit.INK)
-
-## A world event's plum blossom: gold with a red heart under way, violet with a pale heart when it is coming.
-func _blossom(c: Vector2, live: bool, k: float) -> void:
-	var col := UiKit.GOLD if live else UiKit.SOUL
-	if live: glow(Rect2(c - Vector2.ONE * 20.0 * k, Vector2.ONE * 40.0 * k), Color(UiKit.GOLD, (0.35 + 0.1 * _pulse()) * _halo()))
-	for layer in [[5.1, UiKit.INK], [4.5, col]]:
-		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
-	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
 
 ## The faint wind glyph of a path above your arts now open (S43): three drifting strokes and a curl, from `p`.
 func _wind(p: Vector2) -> void:
