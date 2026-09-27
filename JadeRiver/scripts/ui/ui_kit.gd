@@ -132,7 +132,7 @@ const TEXT_ON := [
 	# The Post family (Roll-Call, Works, Welcome Back, Pouches): the board and tray in dark timber, a tablet's back, the
 	# pale name tablets, the hemp labels and slips, the paper tags.
 	[&"PAPER", ["surface:wood_dark", "surface:wood"], 14],
-	[&"MIST", ["surface:wood_dark"], 14],
+	[&"MIST", ["surface:wood_dark", "surface:wood"], 14],
 	[&"PALE_GOLD", ["surface:wood_dark", "surface:wood"], 14],
 	[&"GOLD", ["surface:wood_dark"], 14],
 	[&"BRIGHT_JADE", ["surface:wood_dark", "surface:wood"], 14],
