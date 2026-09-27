@@ -10,6 +10,7 @@ import os
 from common import DATA, write, entries, realm, unlocked, flag, all_of
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 import items
+from techniques import SOURCES as TECH_SOURCES
 import posts
 
 
@@ -1131,7 +1132,7 @@ def sect_tables():
          # S50 V10d: the Mirror of Echoes keeps echoing a post's haul into the Storehouse.
          ("mirror_of_echoes", "Mirror of Echoes", 1400, "jadeiron", 25, 4)]
     # What each level gives. A building damaged in a lost raid gives defence.damaged_output of it until repaired.
-    OUTPUT = {"treasury": {"taels_per_level": 20},
+    OUTPUT = {"treasury": {"storage_slots_per_level": 20},
               "meditation_pavilion": {"idle_rate_per_level": 0.1, "idle_cap_hours": [[2, 4], [4, 8], [5, 12]]},
               "guest_house": {"disciples_base": 2, "disciples_per_level": 1},
               "expanse_outpost": {"attunement_per_level": 1.0, "zone": "azure_expanse", "requires_realm": "sage_1"},
@@ -1192,6 +1193,10 @@ def strings():
     })
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
+    quest_names = {q["id"]: q["name"] for q in json.load(open(os.path.join(DATA, "quests.json")))["entries"]}
+    for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
+        if t["source"] in TECH_SOURCES or t["source"] in quest_names:
+            S["technique_source." + t["source"]] = TECH_SOURCES.get(t["source"]) or quest_names[t["source"]]
     # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
     ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
     for k in ui:

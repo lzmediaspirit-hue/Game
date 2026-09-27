@@ -15,7 +15,42 @@
    ],
    "flags": {
     "parry_counter": 2.0
+   },
+   "technique": "willow_leaf_parry"
+  },
+  {
+   "id": "guarding_blade",
+   "family": "jian",
+   "name": "Guarding Blade",
+   "desc": "A parry counters for 120%. Attacks 10% slower.",
+   "modifiers": [
+    {
+     "stat": "attack_speed",
+     "op": "flat",
+     "value": -0.1
+    }
+   ],
+   "flags": {
+    "parry_counter": 1.2
    }
+  },
+  {
+   "id": "tiger_crouch",
+   "family": "fists",
+   "name": "Tiger Crouch",
+   "desc": "+10% physical attack; 10% slower on foot.",
+   "modifiers": [
+    {
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": -0.1
+    }
+   ]
   },
   {
    "id": "iron_horse",
@@ -106,6 +141,32 @@
    "flags": {
     "channel_cost_mult": 0.67
    }
+  },
+  {
+   "id": "steady_wrist",
+   "family": "brush",
+   "name": "Steady Wrist",
+   "desc": "+10% Qi attack.",
+   "modifiers": [
+    {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "id": "deep_tone",
+   "family": "bell",
+   "name": "Deep Tone",
+   "desc": "+10% Soul attack.",
+   "modifiers": [
+    {
+     "stat": "soul_attack",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ]
   }
  ]
 }

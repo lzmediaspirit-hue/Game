@@ -203,6 +203,46 @@ come next. Where it differs from the plan, the plan's §6 says so.
   (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
   first time the account reaches that great realm (`docs/realm_old_names.md`).
 
+### P3 · Fixes found by the mockups
+The open items the mockup agents listed while drawing (`docs/mockups/README.md`), each with a test in `rules_tests`
+(`mockup_fixes_suite`) or `data_validation` that failed before.
+- **A sect building takes its materials from the Storehouse and storage too.** The Treasury no longer waits while 49
+  Copper Ore sit in storage: a build spends from the bag, then the Storehouse, then the storage chest. One spend path
+  (`InventoryAuthority.count_owned` and `apply_spend`) serves the sect builds and the Post Vows, each store written by
+  its own owner (`PostAuthority.apply_take_storehouse`, `AccountAuthority.apply_take_storage`).
+- **Every sect building has a place in the Sect Grounds.** The Herb Terraces (three garden beds before the Treasury),
+  the Expanse Outpost (a watchtower beside the pagoda), the Mirror of Echoes (a bronze mirror before the Meditation
+  Pavilion) and the Ancestral Shrine (an ancestors' altar by the shrine) appear in `hv_sect_grounds` once raised, like
+  the other ten. They pass the room lint, the `room_sweep` and the `overlap_suite`; a `data_validation` rule fails on
+  a sect building with no place there.
+- **The Treasury's output says what it gives.** Its key `taels_per_level` sized the storage chest; it is now
+  `storage_slots_per_level` (20 spaces a level) in the builder, the data and `SectAuthority.treasury_bonus`.
+- **`move_speed` is a number.** `stats.json` gave it the percent format while the Character page shows the speed
+  itself (242), so a flat bonus would have read "+2000% move speed". Its format is `int`; a test holds that every
+  percent stat is a share.
+- **Technique sources have names.** Each of the 26 sources (`library_1`, `night_peddler` …) has a string
+  `technique_source.<id>` ("Sect library, first floor", "Peddler Shao's night mat"; a quest reads as its name), read
+  with `ContentDB.name_of("technique_sources", id)` where a technique's source is shown (an unlearned star's line on
+  the proposed Techniques sky). A `data_validation` rule fails on a source without one.
+- **A locked feature says everything it waits on.** `Unlocks.locked_text` has one rule: a system's own locked text if
+  it has one; else every trigger condition still unmet, in order ("Reach Qi Kindling 1 · Complete "Keeping Post"",
+  where it named only the first); and when a quest is all that is left (the one unmet condition, or the system's own
+  quest once the trigger holds) that quest and who gives it ("Take "An Idle Art" from Elder Hu", where it said "Not
+  yet available"). `RequirementRules.unmet` gives the unmet conditions, and `first_failure_text` is its first.
+  `data_validation` holds that every quest the rule may name has a giver.
+- **The hub's Works tile reads the same rule.** It showed Keeping Post at `qu5`, where Keeping Post is done; the hub
+  asks `Unlocks.locked_text` for its locked tiles, so at `qu5` Works now waits on Elder Hu's An Idle Art.
+- **Every weapon family has a stance held without buying anything** (found by the technique planner). The jian's only
+  stance was Willow Leaf Parry, also a technique bought at the library, and bare fists, the brush and the bell had
+  none. Four basic stances join the eight: Guarding Blade (jian: a parry counters for 120%, attacks 10% slower),
+  Tiger Crouch (fists), Steady Wrist (brush) and Deep Tone (bell). Willow Leaf Parry stays the jian's better stance
+  (200%) and now holds only for one who has learned its technique (`ProgressionRules.stance_known`, used by
+  `set_stance`, the active stance and the Techniques page). `data_validation` holds one basic stance per family.
+- **Found, not fixed: the Copperjaw swarm has no creature art.** No sheet fits: `rock_beetle` is the quarry's grey
+  stone beetle (an enemy) and `jade_scarab_swarm` a jade insect-netting prop. Nothing maps the swarm to art today (the
+  Swarm tab draws none); a new `copperjaw_swarm` sheet in `creature_art.json`, named by an `art` key in the `swarm`
+  config of `stats.json` as `pets.json` names an animal's, is a pixel-art task.
+
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
   by the user, with two notes, both recorded in `docs/roadmap_master_ui.md` §6.

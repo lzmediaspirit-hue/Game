@@ -1555,18 +1555,24 @@ def valley():
     r.edge("east", "east", "hv_sect_grounds", "west", y=850)
     r = town("hv_sect_grounds", "Sect Grounds", "hidden_vale", 2, backdrop="sect_jade", material="stone", music="sect")
     r.obj("sect_hall", "inspect", [1280, 720], prop="altar", text="Your sect's hall.", open_page="your_sect")
-    # Buildings appear as they are built (S25). Each is a back-row prop that opens the sect page.
+    # Buildings appear as they are built (S25). Each is a prop that opens the sect page: the halls in the back row (the
+    # Expanse Outpost's watchtower beside the pagoda), the Mirror of Echoes and the Ancestral Shrine in the yard.
     built = lambda b: all_of({"kind": "sect_building_at_least", "building": b, "value": 1})
-    for oid, bid, prop, x in [("hall_pagoda", "sect_hall", "pagoda", 1280), ("hall_gate", "sect_hall", "paifang_gate", 300),
-                              ("treasury_hv", "treasury", "warehouse", 640), ("pavilion_hv", "meditation_pavilion", "stilt_house", 1720),
-                              ("guest_house_hv", "guest_house", "village_house", 2140), ("mission_hall_hv", "mission_hall", "village_store", 960),
-                              ("alchemy_hall_hv", "alchemy_hall", "herb_hut", 2420), ("library_hv", "library", "bookcase", 1540),
-                              ("forge_hv", "forge", "weapon_rack_full", 1060), ("beast_pavilion_hv", "beast_pavilion", "thatched_hut", 180)]:
-        r.obj(oid, "inspect", [x, 640], prop=prop, visible_if=built(bid), open_page="your_sect", z_back=False,
+    for oid, bid, prop, at in [("hall_pagoda", "sect_hall", "pagoda", (1280, 640)), ("hall_gate", "sect_hall", "paifang_gate", (300, 640)),
+                               ("treasury_hv", "treasury", "warehouse", (640, 640)), ("pavilion_hv", "meditation_pavilion", "stilt_house", (1720, 640)),
+                               ("guest_house_hv", "guest_house", "village_house", (2140, 640)), ("mission_hall_hv", "mission_hall", "village_store", (960, 640)),
+                               ("alchemy_hall_hv", "alchemy_hall", "herb_hut", (2420, 640)), ("library_hv", "library", "bookcase", (1540, 640)),
+                               ("forge_hv", "forge", "weapon_rack_full", (1060, 640)), ("beast_pavilion_hv", "beast_pavilion", "thatched_hut", (180, 640)),
+                               ("outpost_hv", "expanse_outpost", "watch_tower", (1420, 640)), ("mirror_hv", "mirror_of_echoes", "bronze_mirror", (1640, 760)),
+                               ("ancestral_shrine_hv", "ancestral_shrine", "ancestral_altar", (2080, 760))]:
+        r.obj(oid, "inspect", list(at), prop=prop, visible_if=built(bid), open_page="your_sect", z_back=False,
               text="Your sect's %s." % bid.replace("_", " "))
     for i, x in enumerate([1180, 1380]):
         r.obj("array_node_%d" % i, "inspect", [x, 900], prop="formation_node", visible_if=built("formation_array"),
               text="A node of the sect's Formation Array.")
+    for i, x in enumerate([440, 540, 640]):
+        r.obj("terrace_bed_%d" % i, "inspect", [x, 800], prop="treasure_plot", visible_if=built("herb_terraces"), open_page="your_sect",
+              text="A bed of the sect's Herb Terraces.")
     r.decor("banner_jade", [820, 660])
     r.decor("stone_lantern", [1120, 700])
     r.decor("stone_lantern", [1440, 700])

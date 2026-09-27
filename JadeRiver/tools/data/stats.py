@@ -14,7 +14,8 @@ STAT_LIST = [
     ("physical_defense", "defense", None, "int"), ("qi_resistance", "defense", None, "int"), ("soul_defense", "defense", None, "int"),
     ("evasion", "defense", None, "int"), ("guard", "defense", 0.8, "percent"), ("elemental_resistance", "defense", 0.75, "percent"),
     ("tenacity", "defense", 0.6, "percent"), ("will", "defense", None, "int"), ("hollow_ward", "defense", 0.8, "percent"),
-    ("move_speed", "movement", 0.4, "percent"), ("climb_speed", "movement", 0.5, "percent"), ("flight_speed", "movement", None, "int"),
+    # move_speed is the speed itself (the Character page shows 242); its 0.4 caps the agility bonus, not the value.
+    ("move_speed", "movement", 0.4, "int"), ("climb_speed", "movement", 0.5, "percent"), ("flight_speed", "movement", None, "int"),
     ("hp_regen", "recovery", None, "percent"), ("qi_regen", "recovery", None, "percent"), ("soul_regen", "recovery", None, "percent"),
     ("accumulation_rate", "cultivation", None, "percent"), ("insight_rate", "cultivation", None, "percent"),
     ("toxicity_tolerance", "cultivation", None, "int"), ("injury_recovery", "cultivation", None, "percent"),
