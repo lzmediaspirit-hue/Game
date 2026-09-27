@@ -95,12 +95,15 @@ func tab_rects() -> Array:
 
 func draw_tab(r: Rect2, i: int, state: String) -> void:
 	var sel := state == "selected"
-	rounded(r.grow(2), 6.0, UiKit.PALE_GOLD if sel else UiKit.SURFACE.peg_dark)
-	rounded(r, 5.0, UiKit.SURFACE.peg_dark if str(tabs[i].id) in ["store", "bench"] else UiKit.SURFACE.wood)
-	ground(r, UiKit.SURFACE.wood)
+	var plaque := str(tabs[i].id) in ["store", "bench"]   # a plaque with its glyph and a gold edge
+	var fill: Color = UiKit.SURFACE.peg_dark if plaque else UiKit.SURFACE.wood
+	rounded(r.grow(2), 6.0, UiKit.PALE_GOLD if sel else (UiKit.SURFACE.peg if plaque else UiKit.SURFACE.peg_dark))
+	rounded(r, 5.0, fill)
+	ground(r, fill)
 	var col := UiKit.PALE_GOLD if sel else (UiKit.HOLLOW if state == "disabled" else UiKit.PAPER)
-	var big := str(tabs[i].id) in ["store", "bench"]
-	text(r.position + Vector2(0, 31), str(tabs[i].label), 20 if big else 18, col, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	if plaque: icon_at(Rect2(r.position + Vector2(8, 8), Vector2(32, 32)), str(tabs[i].id).replace("store", "storehouse"), Color.WHITE if state != "disabled" else UiKit.HOLLOW)
+	var x := 40.0 if plaque else 0.0
+	text(r.position + Vector2(x, 31), str(tabs[i].label), 20 if plaque else 18, col, HORIZONTAL_ALIGNMENT_CENTER, r.size.x - x)
 
 func draw_page() -> void:
 	_draw_right()
@@ -192,7 +195,7 @@ func _column(row: Dictionary, i: int) -> void:
 	else: _front(row, r, st)
 	draw_set_transform(Vector2.ZERO)
 	region(r, "turn", id)
-	if not back: _vessel_row(row, cx, st)
+	_vessel_row(row, cx, st)
 	var tassel := {"play": UiKit.GOLD, "full": UiKit.BLOOD, "fill": UiKit.JADE}.get(st, UiKit.HOLLOW) as Color
 	draw_rect(Rect2(cx - 5, r.end.y + 2, 10, 20), tassel)
 	draw_rect(Rect2(cx - 5, r.end.y + 2, 10, 4), tassel.lightened(0.3))
@@ -431,6 +434,7 @@ func _first_note(i: int) -> void:
 		draw_arc(Vector2(x + 24, y + 24), 24.0, 0.0, TAU, 32, UiKit.SURFACE.talisman_edge, 3.0, true)
 		icon_at(Rect2(x + 8, y + 8, 32, 32), ["post", "characters", "storehouse"][s])
 		draw_circle(Vector2(x + 4, y + 4), 11.0, UiKit.BLOOD, true, -1.0, true)
+		ground(Rect2(x - 7, y - 7, 22, 22), UiKit.BLOOD)
 		text(Vector2(x - 7, y + 9), str(s + 1), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 22)
 		text(Vector2(x + 62, y + 20), Tx.t("ui.posts.first_step%d" % (s + 1)), 18, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100)
 		text(Vector2(x + 62, y + 42), Tx.t("ui.posts.first_step%d_sub" % (s + 1)), 14, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100)

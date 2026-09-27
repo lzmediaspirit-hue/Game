@@ -2696,6 +2696,7 @@
  "ui.works.s_none_planted": "None planted",
  "ui.works.s_none_raised": "None raised yet",
  "ui.works.s_points": "%d points to spend",
+ "ui.works.s_points_one": "%d point to spend",
  "ui.works.s_seals": "%d can be inscribed now",
  "ui.works.s_stele": "%s Lv %d",
  "ui.works.seal_capacity_pct": "Pouches +%s%%",

@@ -557,13 +557,14 @@ func _post_checks() -> void:
 	var keyed: Array = rs.slice(1).map(func(r): return 1e12 if (r.post as Dictionary).is_empty() else minf(1e11, float(r.fill_h)))
 	check(range(keyed.size() - 1).all(func(i): return float(keyed[i]) <= float(keyed[i + 1])), "P5 Roll-Call: soonest full first (%s)" % str(keyed))
 	var posted: Array = shown.filter(func(r): return not r.active and not (r.post as Dictionary).is_empty() and str(r.post.get("kind", "")) != "vigil")
-	check(posted.all(func(r): return rc._regions.any(func(g): return g.id == "settle" and str(g.data) == str(r.id) and (g.rect as Rect2).size.y >= Page.MIN_TAP)
-		and rc._regions.any(func(g): return g.id == "switch" and int(g.data) == int(r.slot))), "P5 Roll-Call: a Settle and a Switch under each character at a post")
+	var settles: Array = rc._regions.filter(func(g): return g.id == "settle" and (g.rect as Rect2).size.y >= Page.MIN_TAP).map(func(g): return str(g.data))
+	var switches: Array = rc._regions.filter(func(g): return g.id == "switch").map(func(g): return int(g.data))
+	check(posted.all(func(r): return settles.has(str(r.id)) and switches.has(int(r.slot))), "P5 Roll-Call: a Settle and a Switch under each character at a post")
 	var said: Array = rc.text_log.map(func(tx): return str(tx.get("s", "")))
 	check(posted.all(func(r): return said.has(UiKit.fmt(int(r.pouch))) and float(r.cap) > 0.0), "P5 Roll-Call: each vessel's tag says what its pouch holds")
 	var figs: Array = rc.figs.values()
-	check(figs.size() == shown.size() and figs.all(func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY
-		and (f.doll as Node2D).scale == Vector2(1.5, 1.5) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()),
+	var crisp := func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY and (f.doll as Node2D).scale == Vector2(1.5, 1.5) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()
+	check(figs.size() == shown.size() and figs.all(crisp),
 		"P5 Roll-Call: each tablet shows its character's live figure at 3 px an art px on whole pixels, clipped to its window")
 	_identity_view(rc, "posts board", dim, lost, {}, {})
 	rc.on_action("turn", str(rs[0].id))
@@ -572,7 +573,8 @@ func _post_checks() -> void:
 	rc.text_log.clear()
 	rc.queue_redraw()
 	await get_tree().process_frame
-	check(bool(rc.turned.get(str(rs[0].id), false)) and rc.text_log.any(func(tx): return str(tx.get("s", "")) == str(rs[0].name) and tx.get("col") == UiKit.PALE_GOLD)
+	var back_name: bool = rc.text_log.any(func(tx): return str(tx.get("s", "")) == str(rs[0].name) and tx.get("col") == UiKit.PALE_GOLD)
+	check(bool(rc.turned.get(str(rs[0].id), false)) and back_name
 		and not (rc.figs[str(rs[0].id)].mask as Node2D).visible, "P5 Roll-Call: a tap turns a tablet to its back, the figure put away")
 	_identity_view(rc, "posts back", dim, lost, {}, {})
 	rc.queue_free()
@@ -585,8 +587,11 @@ func _post_checks() -> void:
 	var objects: Array = SpriteCache.draw_log.filter(func(d): return str(d.id).begins_with("work_"))
 	check(cells.size() == 7 and cells.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
 		"P5 Works: the seven works are the cabinet's seven compartments, each a 48 px target")
-	check(objects.size() == 7 and objects.all(func(d): return int(d.art) == 96 and float(d.scale) == 1.0 and (d.rect as Rect2).position == (d.rect as Rect2).position.round()),
-		"P5 Works: each object is drawn from its own drawing at its native 96, on whole pixels (%s)" % str(objects.map(func(d): return [d.id, d.art, d.scale])))
+	var native := func(d): return int(d.art) == 96 and float(d.scale) == 1.0 and (d.rect as Rect2).position == (d.rect as Rect2).position.round()
+	var kinds := {}
+	for d in objects: kinds[str(d.id)] = true
+	check(kinds.size() == 7 and objects.all(native),
+		"P5 Works: each object is drawn from its own drawing at its native 96, on whole pixels (%s)" % str(objects.slice(0, 7).map(func(d): return [d.id, d.art, d.scale])))
 	var seals: Dictionary = wk._areas.get("seals", {})
 	check(not seals.is_empty() and int(((seals.rect as Rect2).size.y + Page.ROW_GAP) / float(seals.pitch)) >= 5, "P5 Works: the Seal Scripts show five rows at once (decision 26)")
 	_identity_view(wk, "works seals", dim, lost, {}, {})
@@ -595,7 +600,8 @@ func _post_checks() -> void:
 	var closed_cells: Array = wk.tabs.filter(func(tb): return str(tb.get("locked", "")) != "")
 	wk.queue_redraw()
 	await get_tree().process_frame
-	check(closed_cells.all(func(tb): return wk._regions.any(func(r): return r.id == "_tab" and not r.enabled and str(r.reason) == str(tb.locked) and str(r.reason) != "")),
+	var reasons: Array = wk._regions.filter(func(r): return r.id == "_tab" and not r.enabled).map(func(r): return str(r.reason))
+	check(closed_cells.all(func(tb): return reasons.has(str(tb.locked))),
 		"P5 Works: a work not yet open answers a tap with what opens it (%d closed)" % closed_cells.size())
 	Unlocks.debug_force_all = true
 	wk.queue_free()
@@ -1387,8 +1393,8 @@ func icon_draw_suite() -> void:
 		"P4b: the manifest tells an HD icon from a legacy one")
 	# P5 (decision 21): the seven Works objects render natively at 96 for the cabinet, and at 64.
 	var works := ["work_post_arts", "work_seal", "work_stele", "work_favour", "work_furnace", "work_flag", "work_mirror"]
-	check(works.all(func(w): return m.has(w + "@96") and int(SpriteCache.icon_fit(w, 96)["art"]) == 96 and int(SpriteCache.icon_fit(w, 96)["scale"]) == 1
-		and int(SpriteCache.icon_fit(w, 64)["art"]) == 64), "P5: the Works objects have native 96 and 64 renders")
+	var both := func(w): return m.has(w + "@96") and int(SpriteCache.icon_fit(w, 96)["art"]) == 96 and int(SpriteCache.icon_fit(w, 96)["scale"]) == 1 and int(SpriteCache.icon_fit(w, 64)["art"]) == 64
+	check(works.all(both), "P5: the Works objects have native 96 and 64 renders")
 	for k in probe: m.erase(k)
 	SpriteCache._renders.clear()
 	# Nothing but the helper draws an icon texture.

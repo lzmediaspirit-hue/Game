@@ -108,7 +108,7 @@ func _state_line(id: String) -> String:
 	var ch = c()
 	if ch == null: return ""
 	match id:
-		"arts": return Tx.t("ui.works.s_points") % Game.posts.art_points_free(ch)
+		"arts": return Tx.plural("ui.works.s_points", Game.posts.art_points_free(ch)) % Game.posts.art_points_free(ch)
 		"seals": return Tx.t("ui.works.s_seals") % _seals_ready()
 		"steles":
 			var best := ""
@@ -161,10 +161,10 @@ func draw_page() -> void:
 		"flags": _draw_flags()
 		"mirror": _draw_mirror()
 
-## The tray's note beside the heading, and the list area under it (lower when a work has controls in its header).
-func _note(s: String, room := 440.0) -> void:
+## The tray's note beside the heading, up to `right` (clear of a work's header buttons).
+func _note(s: String, right := TRAY.end.x - 16) -> void:
 	var x := TRAY.position.x + 24 + minf(260.0, UiKit.text_width(Tx.t("ui.works.head_" + str(tabs[tab].id)), 26, true))
-	text(Vector2(x, TRAY.position.y + 27), s, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, minf(room, TRAY.end.x - 16 - x))
+	text(Vector2(x, TRAY.position.y + 27), s, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, right - x)
 
 func _area(top := 36.0) -> Rect2:
 	return Rect2(TRAY.position.x + 12, TRAY.position.y + top, TRAY.size.x - 20, TRAY.size.y - top - 6)
@@ -204,7 +204,7 @@ func _btn_at(rr: Rect2, back := 0.0) -> Rect2:
 func _draw_arts() -> void:
 	if not _gate("post_arts"): return
 	var ch = c()
-	_note(Tx.t("ui.works.art_points") % Game.posts.art_points_free(ch), 200)
+	_note(Tx.t("ui.works.art_points") % Game.posts.art_points_free(ch), TRAY.end.x - 224)
 	var cost := int(ContentDB.config("posts").get("arts", {}).get("reset_taels", 1000))
 	btn(Rect2(TRAY.end.x - 216, TRAY.position.y + 6, 204, 48), Tx.t("ui.works.art_reset") % UiKit.fmt(cost), "art_reset", null, false,
 		not Game.posts.arts(ch).is_empty(), Tx.t("ui.works.no_arts"), 16)
@@ -225,7 +225,7 @@ func _draw_arts() -> void:
 func _draw_seals() -> void:
 	if not _gate("seal_scripts"): return
 	var ch = c()
-	_note(Tx.t("ui.works.seals_note_short"), 520)
+	_note(Tx.t("ui.works.seals_note_short"))
 	var seals: Array = ContentDB.config("posts").get("seals", [])
 	list("seals", _area(), seals.size(), ROW, func(i: int, rr: Rect2):
 		var sd: Dictionary = seals[i]
@@ -252,7 +252,7 @@ func _draw_seals() -> void:
 func _draw_steles() -> void:
 	if not _gate("guardian_steles"): return
 	var ch = c()
-	_note(Tx.t("ui.works.steles_note_short"), 520)
+	_note(Tx.t("ui.works.steles_note_short"))
 	var crafts: Array = Game.posts.crafts()
 	var mx := int(ContentDB.config("posts").get("steles", {}).get("max", 40))
 	list("steles", _area(), crafts.size(), ROW, func(i: int, rr: Rect2):
@@ -276,7 +276,7 @@ func _draw_steles() -> void:
 func _draw_favours() -> void:
 	if not _gate("magistrates_favours"): return
 	var ch = c()
-	_note(Tx.t("ui.works.favours_note_short"), 520)
+	_note(Tx.t("ui.works.favours_note_short"))
 	var favours: Array = ContentDB.config("posts").get("favours", [])
 	list("favours", _area(), favours.size(), 72, func(i: int, r: Rect2):
 		var f: Dictionary = favours[i]
@@ -300,7 +300,7 @@ func _draw_favours() -> void:
 func _draw_furnace() -> void:
 	if not _gate("calcination"): return
 	Game.submit({"type": "settle_works", "part": "furnace"})
-	_note(Tx.t("ui.works.furnace_note_short"), 520)
+	_note(Tx.t("ui.works.furnace_note_short"))
 	var salts: Array = ContentDB.config("posts").get("salts", [])
 	list("furnace", _area(), salts.size(), 72, func(i: int, rr: Rect2):
 		var sd: Dictionary = salts[i]
@@ -329,7 +329,7 @@ func _draw_flags() -> void:
 	var fl: Dictionary = ContentDB.config("posts").get("flags", {})
 	var here := str(ch.position.get("room", ""))
 	var cost := UiKit.fmt(int(fl.get("plant_taels", 500)))
-	_note(Tx.plural("ui.works.flags_note_short", int(fl.get("max", 2))) % int(fl.get("max", 2)), 200)
+	_note(Tx.plural("ui.works.flags_note_short", int(fl.get("max", 2))) % int(fl.get("max", 2)), TRAY.end.x - 420)
 	btn(Rect2(TRAY.end.x - 412, TRAY.position.y + 6, 196, 48), Tx.t("ui.works.plant_plain") % cost, "plant", "plain", true, true, "", 16)
 	btn(Rect2(TRAY.end.x - 208, TRAY.position.y + 6, 196, 48), Tx.t("ui.works.plant_deep") % cost, "plant", "deep", false, true, "", 16)
 	var list_flags: Array = Game.posts.flags()
@@ -358,11 +358,11 @@ func _draw_mirror() -> void:
 	Game.submit({"type": "settle_works", "part": "mirror"})
 	var lv := Game.posts.mirror_level()
 	if lv <= 0:
-		_note(Tx.t("ui.works.mirror_note_short"), 520)
+		_note(Tx.t("ui.works.mirror_note_short"))
 		para(Rect2(content.position + Vector2(4, 12), Vector2(content.size.x - 8, 60)), Tx.t("ui.works.mirror_unbuilt"), 18, UiKit.HOLLOW)
 		return
 	var share := Game.posts.art_sum(ch, "echo_share") * (1.0 + float(ContentDB.config("posts").get("mirror", {}).get("per_level", 0.05)) * lv)
-	_note(Tx.t("ui.works.mirror_level") % [lv, str(snappedf(share, 0.1))], 520)
+	_note(Tx.t("ui.works.mirror_level") % [lv, str(snappedf(share, 0.1))])
 	var slots: Array = Game.posts.mirror_slots()
 	list("mirror", _area(), Game.posts.mirror_slot_count(), 72, func(i: int, r: Rect2):
 		var sl: Dictionary = slots[i] if i < slots.size() else {}

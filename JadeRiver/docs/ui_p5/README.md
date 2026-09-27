@@ -63,3 +63,8 @@ fades in over 0.2 s), which the `identity_suite` checks.
 
 The spirit gourd of mockups 07 and 08 v2 was withdrawn by decision 15; the Bag is built as concept B, the heaven in the
 gourd (decision 24). Its pictures and the comparisons with its mockups are in [`bag/`](bag/README.md).
+
+## The Post family
+
+The Roll-Call, Works, Welcome Back and Pouches (`docs/page_identity.md` rows 12, 14, 23 and 44): their pictures and the
+comparisons with mockups 13, 13_first and 14 v4 are in [`post/`](post/README.md).
