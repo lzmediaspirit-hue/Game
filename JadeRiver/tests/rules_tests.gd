@@ -5840,6 +5840,29 @@ func guidance_suite() -> void:
 		"the tracker names it: %s" % WorldAuthority.place_name("sf_county_hall"))
 	Game.world.apply_teleport(c.id, "lf_reed_shallows")
 	check(Game.world.guide_step(c).is_empty(), "no mark once there")
+	# M20: the mark follows the objective under way, not only the quest's room. The hermit's cave lies behind a hidden
+	# way on Rimefrost Summit: until Spirit Sense shows it, the mark leads as far as the Summit.
+	c.quests.active = {"frost_and_silence": {"state": "active", "progress": [0, 0, 0], "accepted_tick": 0}}
+	c.quests.tracked = ["frost_and_silence"]
+	Game.world.apply_teleport(c.id, "rf_snow_ape_ledges")
+	var fs: Dictionary = Game.world.guide_step(c)
+	check(Game.world.guide_target(c) == "rf_hermits_ice_cave" and str(fs.get("next", "")) == "rf_rimefrost_summit",
+		"the first objective leads to the hermit's cave, the mark as far as the Summit that hides its way (%s)" % str(fs))
+	# A key the bandits drop on the Caravan Road is marked there, not on the Stockade it opens; an NPC who stands in both
+	# sects' grounds is visited in the character's own.
+	var road := ContentDB.entry("quests", "the_caravan_road")
+	check(Game.quest.objective_room(c, road, road.objectives[1]) == "cr_caravan_road", "the Hideout key is marked where the bandits drop it")
+	var sect_was: Dictionary = c.training_sect.duplicate()
+	var arenas: Array = []
+	for sect in ["jade_sect", "cloud_sect"]:
+		c.training_sect = {"id": sect}
+		arenas.append(Game.quest.npc_rooms(c, "arena_master")[0])
+	c.training_sect = sect_was
+	check(arenas == ["ja_east_terrace", "cm_sword_court"], "the arena master is found in the character's own sect (%s)" % str(arenas))
+	# The hand-in is marked where the NPC stands now: after the Hollow Night, Aunt Ping in the village lane, not the hut.
+	c.quests.done = {"morning_tide": 1}
+	c.quests.flags["night_active"] = true
+	check(Game.quest.npc_rooms(c, "aunt_ping") == ["lf_village"], "after the Hollow Night Aunt Ping is looked for in the lane (%s)" % str(Game.quest.npc_rooms(c, "aunt_ping")))
 	c.quests.restore(q0)
 	Game.world.apply_teleport(c.id, back)
 

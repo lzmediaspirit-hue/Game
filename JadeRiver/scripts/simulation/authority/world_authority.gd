@@ -1814,6 +1814,11 @@ func guide_step(c) -> Dictionary:
 	if str(_guide_cache.get("key", "")) == key and Clock.now_utc() - float(_guide_cache.get("at", 0.0)) < 5.0: return _guide_cache.step
 	var step := {}
 	var r := route(c, here, goal)
+	# Behind a hidden way not yet seen, the mark leads as far as the room that hides it (Spirit Sense shows it there).
+	if r.is_empty():
+		for hid in WorldRules.rooms_with("hidden_to=" + goal):
+			r = route(c, here, str(hid))
+			if not r.is_empty(): break
 	if not r.is_empty() and str(r[0].room) == here:
 		var x := 0.0
 		var y := 0.0
