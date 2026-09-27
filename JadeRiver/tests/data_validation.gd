@@ -25,6 +25,7 @@ func _main() -> void:
 	data_suite()
 	moments_data_suite()
 	item_source_suite()
+	lost_art_suite()
 	gear_suite()
 	room_suite()
 	overlap_suite()
@@ -53,6 +54,76 @@ func _learn_kinds() -> void:
 			for part in line.strip_edges().trim_suffix(":").split(","):
 				req_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	check(effect_kinds.size() > 30 and req_kinds.size() > 30, "rule kinds discovered (%d effects, %d requirements)" % [effect_kinds.size(), req_kinds.size()])
+
+## P13a Lost Arts (docs/technique_plan.md §5; roadmap §6 decision 19): every lost art is a known kind of art and is found
+## somewhere in the world the data says (a stele, a room, a master's lesson, a foe's manual, a quest, an auction lot,
+## Lu's journal); no hint of where is kept anywhere; lost manuals never roll in the loot; the lineages have six pieces.
+func lost_art_suite() -> void:
+	var lost: Array = ContentDB.all("lost_arts")
+	var acts := {}
+	for row in lost: acts[int(row.act)] = int(acts.get(int(row.act), 0)) + 1
+	check(lost.size() == 62 and int(acts.get(1, 0)) + int(acts.get(2, 0)) + int(acts.get(3, 0)) == 60,
+		"Acts I-III pin 44 singles and three lineages of six (62, %s)" % str(acts))
+	var objects := {}   # object id -> [room, object]
+	for rid in ContentDB.rooms:
+		for o in ContentDB.rooms[rid].get("objects", []): objects[str(o.id)] = [str(rid), o]
+	var loot_lost := {}
+	var sure := {}   # loot table -> items it always drops
+	for lt in ContentDB.all("loot_tables"):
+		for r in lt.get("lost", []): loot_lost[str(r.art)] = str(lt.id)
+		for g0 in lt.get("guaranteed", []):
+			if float(g0.get("chance", 1.0)) >= 1.0: sure[str(lt.id) + ":" + str(g0.item)] = true
+		for key in ["groups", "rare", "guaranteed", "named"]:
+			for g in lt.get(key, []):
+				for pick in g.get("pick", [g]):
+					var it := ContentDB.item(str(pick.get("item", "")))
+					for u in it.get("use", []):
+						if str(u.get("kind", "")) == "learn_lost_art" and float(pick.get("chance", g.get("chance", 1.0))) < 1.0:
+							check(false, "a lost manual (%s) is never in a loot table's random roll (%s)" % [pick.item, lt.id])
+	var auction: Array = ContentDB.config("auction").get("pool", [])
+	var flags: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	for row in lost:
+		var id := str(row.id)
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var art := ContentDB.entry(table, id)
+		check(not art.is_empty() and (bool(art.get("lost", false)) or art.has("legacy")), "lost art %s is a lost %s" % [id, row.kind])
+		check(not row.has("hint") and not ContentDB.strings.has("lost_art.%s.hint" % id), "lost art %s keeps no hint (decision 19)" % id)
+		var src: Dictionary = row.src
+		var found := false
+		match str(src.kind):
+			"stele":
+				var ob = objects.get(str(src.object), [])
+				found = not ob.is_empty() and str(ob[0]) == str(src.room) and str(ob[1].type) == "insight_stone"
+				for cond in src.get("requires", []): check_req({"all": [cond]}, "lost art " + id)
+			"ruin", "event":
+				var ob2 = objects.get(str(src.object), [])
+				found = not ob2.is_empty() and str(ob2[0]) == str(src.room) and (ob2[1].get("effects", []) as Array).any(
+					func(e): return str(e.get("kind", "")) == "learn_lost_art" and str(e.get("art", "")) == id)
+				if found and ob2[1].has("requires"): check(str(ob2[1].get("locked_text", "")) == "Weathered carvings.", "a closed find (%s) reads as scenery" % id)
+			"master":
+				var npc := ContentDB.entry("npcs", str(src.npc))
+				var tree: Dictionary = ContentDB.dialogue.get(str(npc.get("tree", "")), {})
+				for nid in tree.get("nodes", {}):
+					for ch in tree.nodes[nid].get("choices", []):
+						for e in ch.get("effects", []):
+							if str(e.get("kind", "")) == "learn_lost_art" and str(e.get("art", "")) == id: found = true
+			"drop":
+				var en := ContentDB.entry("enemies", str(src.enemy))
+				var manual := ContentDB.item(str(src.item))
+				var teaches: bool = (manual.get("use", []) as Array).any(func(u): return str(u.get("art", u.get("technique", ""))) == id)
+				found = teaches and (loot_lost.get(id, "") == str(en.get("loot", src.enemy)) or sure.has(str(en.get("loot", src.enemy)) + ":" + str(src.item)))
+			"quest":
+				var q := ContentDB.entry("quests", str(src.quest))
+				for e in q.get("rewards", []) + q.get("on_complete", []):
+					if str(e.get("art", e.get("technique", ""))) == id or str(e.get("kind", "")) == "master_legacy": found = true
+			"auction":
+				found = auction.any(func(l): return str(l.get("item", "")) == str(src.item))
+			"pages":   # a later act's piece waits for that act's pages (Acts IV and V are not built)
+				found = (flags.size() >= int(src.count) or int(row.act) > int(ContentDB.config("technique_trees").get("act_open", 3))) and flags.all(func(f): return objects.values().any(func(ob3): return str(ob3[1].get("set_flag", "")) == str(f)))
+		check(found, "lost art %s is found where its source says (%s)" % [id, src.kind])
+	for lin in ContentDB.config("lost_arts").get("lineages", []):
+		check((lin.get("pieces", []) as Array).size() == 6 and ContentDB.strings.has("lineage.%s.name" % lin.id), "lineage %s has six pieces and a name" % lin.id)
+	check(flags.size() >= 20, "twenty pages of Lu's journal lie in Acts I-III (%d)" % flags.size())
 
 ## P6 moments (docs/moments_design.md §3.8): every row of data/moments.json against the event contract (its trigger,
 ## merges and every payload key it reads), FxLayer's kinds, data/audio.json, the strings, UiKit's colours, the closed
@@ -729,7 +800,7 @@ func item_sources() -> Dictionary:
 	var cap := LootRules.drop_level_cap()
 	for tid in rolled_by:
 		var t := ContentDB.entry("loot_tables", tid)
-		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []): got[str(g.item)] = true
+		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []) + t.get("named", []) + t.get("elite_named", []) + t.get("lost", []): got[str(g.item)] = true
 		for grp in t.get("groups", []):
 			for p in grp.get("pick", []): got[str(p.item)] = true
 		if float(t.get("equipment", {}).get("chance", 0.0)) > 0.0:
@@ -858,7 +929,8 @@ func _system_reported(system: String) -> bool:
 ##   or set piece. Named pieces per archetype and zone (item_plan §2.3): counted and printed, and checked once
 ##   ARCHETYPE_COUNTS_ENFORCED is on (item_plan §6 step 8).
 const ARCHETYPE_COUNTS_ENFORCED := false
-const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named"]
+const LOOT_TABLE_FIELDS := ["id", "guaranteed", "groups", "rare", "coins", "equipment", "no_equipment", "quest_drops", "named", "elite_named",
+	"lost"]   # P13a: the lost manuals, rolled like named rows and kept by ProgressionAuthority.lost_drops
 const GEAR_ZONES := ["valley", "expanse", "lantern", "frontier"]
 
 func gear_suite() -> void:

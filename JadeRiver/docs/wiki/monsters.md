@@ -534,8 +534,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; surrenders; faction mudwater. Attacks: slash×1.15 (windup 0.4s); mud_cut×1.3 (windup 0.6s, damage type qi, knockback 60)
 - **Drops** (loot table `mudwater_lieutenant`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
-  - [Mudwater Manual](items.md#item-mudwater_manual): 30% (guaranteed)
   - [Manual Page](items.md#item-manual_page): 5% (rare)
+  - [Mudwater Manual](items.md#item-mudwater_manual): 30% (lost art, until found)
   - coins: 100%, ×6 the Level's purse, in the zone's everyday currency
   - equipment: 8%, a banded piece of Common or Earth (min quality common; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -662,6 +662,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Serpent Core](items.md#item-serpent_core): 100% (guaranteed)
   - [Serpent Scale](items.md#item-serpent_scale): 100% ×2–4 (guaranteed)
   - [Mountainsplit Spine](items.md#item-mountainsplit_spine): 100% (only during Mountainsplit Sabre)
+  - [Serpent-Coil Scroll](items.md#item-scroll_serpent_coil_thrust): 4% (lost art, until found, sure by kill 20)
   - [Low Water Core](items.md#item-water_core_low): 6% (beast core, Lv 25)
   - [Spirit Soil](items.md#item-spirit_soil): 1% (Spirit Soil, a beast of Lv 19+)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
@@ -730,7 +731,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `gorge_bandit_adept`):
   - [Cloth](items.md#item-cloth): 60% (group)
   - [Manual Page](items.md#item-manual_page): 6% (rare)
-  - [Manual Ember Burst](items.md#item-manual_ember_burst): 3% (rare)
+  - [Manual Ember Burst](items.md#item-manual_ember_burst): 3% (lost art, until found, sure by kill 30)
   - coins: 40%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 2.4%, a banded piece of Earth (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -975,6 +976,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; invulnerable; flees after s 60. Attacks: tide_palm×1.2 (windup 0.5s, damage type qi). Phases: below 0% HP: action summon, after s 20, summon gorge_bandit_adept, summon level 50; below 0% HP: action enrage, after s 40, cooldown 0.7, damage 1.25
 - **Drops** (loot table `elder_gu`):
   - [Smuggler Ledger](items.md#item-smuggler_ledger): 100% (guaranteed)
+  - [Tide-Palm Scroll](items.md#item-scroll_tide_palm): 15% (lost art, until found, sure by kill 6)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Heaven or Mystic (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -1213,6 +1215,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Stone Drum Heart](items.md#item-stone_drum_heart): 100% (only during Stone Drum Gauntlets)
   - [Ferryman's Knot](items.md#item-ferryman_knot): 100% (only during The Ferryman's Pole)
   - [Crane Tassel](items.md#item-crane_tassel): 100% (only during Crane Mourning Flute)
+  - [Many-Eyed Scroll](items.md#item-scroll_many_eyed_pool_air): 4% (lost art, until found, sure by kill 20)
   - [Cold Lamp Flame](items.md#item-cold_lamp_flame): 100% (first defeat, once per character)
   - [Peak Water Core](items.md#item-water_core_peak): 16% (beast core, Lv 68)
   - [Spirit Soil](items.md#item-spirit_soil): 1% (Spirit Soil, a beast of Lv 19+)
@@ -1425,6 +1428,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Riverlight Soul Bead](items.md#item-riverlight_soul): 100% (only during Riverlight Jian)
   - [Reedwhisper Sheath](items.md#item-reedwhisper_sheath): 100% (only during Reedwhisper Dagger)
   - [Dragonfly Sight](items.md#item-dragonfly_sight): 100% (only during Dragonfly Bow)
+  - [Sand-Throne Scroll](items.md#item-scroll_sand_throne_sweep): 4% (lost art, until found, sure by kill 20)
   - [Sunscar Throne Ember](items.md#item-sunscar_throne_ember): 100% (first defeat, once per character)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Sage (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
@@ -1712,6 +1716,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Star Shard](items.md#item-star_shard): 100% ×12–18 (guaranteed)
   - [Star Powder](items.md#item-star_powder): 100% ×2–4 (guaranteed)
   - [Will Tempering Pill](items.md#item-will_tempering_pill): 100% ×1–2 (guaranteed)
+  - [Broadside Scroll](items.md#item-scroll_broadside_fan): 4% (lost art, until found, sure by kill 20)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Sovereign or Will (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -1756,6 +1761,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Star Shard](items.md#item-star_shard): 100% ×14–20 (guaranteed)
   - [Cinder Ash](items.md#item-cinder_ash): 100% ×4–6 (guaranteed)
   - [Will Tempering Pill](items.md#item-will_tempering_pill): 100% ×1–2 (guaranteed)
+  - [Pyre-General's Scroll](items.md#item-scroll_pyre_generals_lance): 4% (lost art, until found, sure by kill 20)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Sovereign or Will (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -1824,6 +1830,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Star Shard](items.md#item-star_shard): 100% ×20–30 (guaranteed)
   - [Eel Essence](items.md#item-eel_essence): 100% ×2–4 (guaranteed)
   - [Will Tempering Pill](items.md#item-will_tempering_pill): 100% ×2–3 (guaranteed)
+  - [Maw-Song Scroll](items.md#item-scroll_maw_song): 3% (lost art, until found, sure by kill 20)
   - [Peak Space Core](items.md#item-space_core_peak): 18% (beast core, Lv 99)
   - [Spirit Soil](items.md#item-spirit_soil): 1% (Spirit Soil, a beast of Lv 19+)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
@@ -2452,6 +2459,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Comet Iron](items.md#item-comet_iron): 100% ×3–5 (guaranteed)
   - [Storm Shard](items.md#item-storm_shard): 100% ×10–15 (guaranteed)
   - [Will Tempering Pill](items.md#item-will_tempering_pill): 100% ×1–2 (guaranteed)
+  - [Comet-Tail Scroll](items.md#item-scroll_comet_tail_arrow): 5% (lost art, until found, sure by kill 20)
   - [Comet Tail Flame](items.md#item-comet_tail_flame): 100% (first defeat, once per character)
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
   - equipment: 100%, a banded piece of Sage or Sovereign (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))

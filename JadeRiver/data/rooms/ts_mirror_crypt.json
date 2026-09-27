@@ -190,6 +190,38 @@
    "level": 77,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "lost_crypt_seal",
+   "type": "inspect",
+   "at": [
+    1100,
+    880
+   ],
+   "prop": "bronze_mirror",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "crypt_seal_cleave"
+    }
+   ]
+  },
+  {
+   "id": "lost_throne_dust_veil",
+   "type": "inspect",
+   "at": [
+    1498,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "throne_dust_veil"
+    }
+   ]
   }
  ],
  "spawns": [

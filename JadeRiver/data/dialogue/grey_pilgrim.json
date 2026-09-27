@@ -38,6 +38,23 @@
       ]
      },
      "node": "waiting"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_tomb_king"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_grey_footfall"
+       }
+      ]
+     },
+     "node": "lost_grey_footfall",
+     "aside": true,
+     "text": "You look as if you would show me something."
     }
    ],
    "nodes": {
@@ -94,6 +111,23 @@
      "choices": [
       {
        "text": "(Leave him.)",
+       "close": true
+      }
+     ]
+    },
+    "lost_grey_footfall": {
+     "lines": [
+      "You still walk as if the ground owed you an answer. Walk as if it did not."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "grey_footfall"
+        }
+       ],
        "close": true
       }
      ]

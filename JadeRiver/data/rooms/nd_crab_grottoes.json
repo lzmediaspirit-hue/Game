@@ -272,6 +272,26 @@
     ]
    },
    "text": "A bundle of star notes in Lu's hand, wrapped in oilcloth: 'The lanterns were all lit from one. Follow the stair above the harbour.'"
+  },
+  {
+   "id": "journal_grottoes",
+   "type": "pickup",
+   "at": [
+    1612,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_grottoes",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_grottoes"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

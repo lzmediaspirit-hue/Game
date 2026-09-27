@@ -127,6 +127,22 @@
    "level": 93,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "lost_wyrm_egg",
+   "type": "inspect",
+   "at": [
+    1100,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "wyrm_egg_knuckle"
+    }
+   ]
   }
  ],
  "spawns": [

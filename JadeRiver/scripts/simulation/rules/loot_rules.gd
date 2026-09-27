@@ -22,7 +22,7 @@ static func drop_cfg() -> Dictionary:
 ## equipment and no named piece), needs (quest items still wanted), elite (the foe is an elite, by role or by spawn).
 static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_rate: float, coin_find: float, extra := {}) -> Dictionary:
 	var table := ContentDB.entry("loot_tables", table_id)
-	var out := {"items": [], "coins": 0, "equipment": []}
+	var out := {"items": [], "coins": 0, "equipment": [], "lost": []}   # lost: P13a lost manuals rolled (not handed out)
 	if table.is_empty(): return out
 	var dr := 1.0 + clampf(drop_rate, 0.0, 1.0)
 	for g in table.get("guaranteed", []):
@@ -37,6 +37,10 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 	for r in table.get("rare", []):
 		if rng.randf() < float(r.get("chance", 0.0)) * dr:
 			out.items.append({"item": r.item, "count": rng.randi_range(int(r.count[0]), int(r.count[1]))})
+	# P13a lost manuals (technique_plan §5.3, §5.6): rolled on every kill like a named row, never raised by drop rate,
+	# and never handed out here: ProgressionAuthority.lost_drops keeps one only while its art is still lost (with pity).
+	for r in table.get("lost", []):
+		out.lost.append({"art": str(r.art), "item": str(r.item), "pity": int(r.get("pity", 0)), "hit": rng.randf() < float(r.get("chance", 0.0))})
 	# Quest drops: only while the quest is active and the item is still missing (`extra.needs`).
 	var needs: Dictionary = extra.get("needs", {})
 	for q in table.get("quest_drops", []):

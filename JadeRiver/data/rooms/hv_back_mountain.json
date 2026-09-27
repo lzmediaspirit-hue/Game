@@ -202,6 +202,22 @@
     ]
    },
    "locked_text": "Rich dark earth, ringed with river stones."
+  },
+  {
+   "id": "lost_vale_serpent",
+   "type": "inspect",
+   "at": [
+    970,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "vale_serpent_spear"
+    }
+   ]
   }
  ],
  "spawns": [],

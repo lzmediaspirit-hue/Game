@@ -3702,8 +3702,8 @@
    "desc": "A technique manual. Read it to learn Rising Tide.",
    "use": [
     {
-     "kind": "learn_technique",
-     "technique": "rising_tide"
+     "kind": "learn_lost_art",
+     "art": "rising_tide"
     }
    ]
   },
@@ -3718,8 +3718,8 @@
    "desc": "A technique manual. Read it to learn Rain of Reeds.",
    "use": [
     {
-     "kind": "learn_technique",
-     "technique": "rain_of_reeds"
+     "kind": "learn_lost_art",
+     "art": "rain_of_reeds"
     }
    ]
   },
@@ -3734,10 +3734,165 @@
    "desc": "A technique manual. Read it to learn Ember Burst.",
    "use": [
     {
-     "kind": "learn_technique",
-     "technique": "ember_burst"
+     "kind": "learn_lost_art",
+     "art": "ember_burst"
     }
    ]
+  },
+  {
+   "id": "scroll_tide_palm",
+   "name": "Tide-Palm Scroll",
+   "type": "scroll",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "tide_palm"
+    }
+   ]
+  },
+  {
+   "id": "scroll_serpent_coil_thrust",
+   "name": "Serpent-Coil Scroll",
+   "type": "scroll",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "serpent_coil_thrust"
+    }
+   ]
+  },
+  {
+   "id": "scroll_sand_throne_sweep",
+   "name": "Sand-Throne Scroll",
+   "type": "scroll",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "sand_throne_sweep"
+    }
+   ]
+  },
+  {
+   "id": "scroll_many_eyed_pool_air",
+   "name": "Many-Eyed Scroll",
+   "type": "scroll",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "many_eyed_pool_air"
+    }
+   ]
+  },
+  {
+   "id": "scroll_ninth_peak_scroll",
+   "name": "Nine Peaks Lot Scroll",
+   "type": "scroll",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "ninth_peak_scroll"
+    }
+   ]
+  },
+  {
+   "id": "scroll_broadside_fan",
+   "name": "Broadside Scroll",
+   "type": "scroll",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "broadside_fan"
+    }
+   ]
+  },
+  {
+   "id": "scroll_pyre_generals_lance",
+   "name": "Pyre-General's Scroll",
+   "type": "scroll",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "pyre_generals_lance"
+    }
+   ]
+  },
+  {
+   "id": "scroll_comet_tail_arrow",
+   "name": "Comet-Tail Scroll",
+   "type": "scroll",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "comet_tail_arrow"
+    }
+   ]
+  },
+  {
+   "id": "scroll_maw_song",
+   "name": "Maw-Song Scroll",
+   "type": "scroll",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "A scroll in an old hand. Read it to learn what it holds.",
+   "use": [
+    {
+     "kind": "learn_lost_art",
+     "art": "maw_song"
+    }
+   ]
+  },
+  {
+   "id": "rubbing_kit",
+   "name": "Rubbing Kit",
+   "type": "key",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "talisman_paper",
+   "desc": "Paper, a pad and pine-soot ink for taking a rubbing from carved stone.",
+   "sell": false
   },
   {
    "id": "clear_heart_incense",

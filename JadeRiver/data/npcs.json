@@ -2630,7 +2630,8 @@
     "...",
     "Hm."
    ],
-   "services": []
+   "services": [],
+   "tree": "hermit_shuang"
   },
   {
    "id": "grey_pilgrim",
@@ -3446,7 +3447,8 @@
    ],
    "service_labels": {
     "shop:observatory": "Star-stones"
-   }
+   },
+   "tree": "stargazer_ming"
   },
   {
    "id": "shen_lian_warden",
@@ -3505,7 +3507,8 @@
     "Breathe.",
     "Again, softer."
    ],
-   "services": []
+   "services": [],
+   "tree": "presence_master_ruo"
   },
   {
    "id": "orbit_hermit",

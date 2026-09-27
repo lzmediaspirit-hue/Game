@@ -299,6 +299,22 @@
     "level": 80,
     "elite": true
    }
+  },
+  {
+   "id": "lost_harpy_roost",
+   "type": "inspect",
+   "at": [
+    2280,
+    880
+   ],
+   "prop": "weapon_rack",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "roost_scatter_fan"
+    }
+   ]
   }
  ],
  "spawns": [

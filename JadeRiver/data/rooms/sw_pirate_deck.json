@@ -276,6 +276,22 @@
    "level": 81,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "lost_deck_cutter",
+   "type": "inspect",
+   "at": [
+    2519,
+    880
+   ],
+   "prop": "weapon_rack",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "deck_cutter_flick"
+    }
+   ]
   }
  ],
  "spawns": [

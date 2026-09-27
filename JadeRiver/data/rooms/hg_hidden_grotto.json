@@ -97,6 +97,33 @@
    ],
    "prop": "bleached_ribcage",
    "text": "Someone found this place before you. A rusted sword, a gourd, a name scratched on the rock too worn to read."
+  },
+  {
+   "id": "lost_grotto_moon",
+   "type": "inspect",
+   "at": [
+    449,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "grotto_moon_flick"
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "night"
+      ]
+     }
+    ]
+   },
+   "locked_text": "Weathered carvings."
   }
  ],
  "spawns": [],

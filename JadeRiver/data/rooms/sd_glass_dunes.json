@@ -361,6 +361,26 @@
    "mine": "glass_dunes_lode",
    "prop": "spirit_shard_vein",
    "radius": 130
+  },
+  {
+   "id": "journal_dunes",
+   "type": "pickup",
+   "at": [
+    2640,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_dunes",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_dunes"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

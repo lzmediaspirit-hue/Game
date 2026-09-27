@@ -484,6 +484,22 @@
     ]
    },
    "locked_text": "You have no net, and they are too quick for bare hands."
+  },
+  {
+   "id": "lost_monastery_gate",
+   "type": "inspect",
+   "at": [
+    1890,
+    880
+   ],
+   "prop": "weapon_rack",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "monastery_gate_staff"
+    }
+   ]
   }
  ],
  "spawns": [

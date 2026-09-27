@@ -144,6 +144,15 @@ FISH_DESC = {
     "rapids_salmon": "A strong salmon caught where the river runs white.",
     "moon_carp": "A carp that shines faintly in the dark. It bites only at night, in any water.",
 }
+# P13a the scrolls lost arts are found in (a foe's drop, a lot at auction): (item, art, name, grade).
+LOST_SCROLLS = [("scroll_tide_palm", "tide_palm", "Tide-Palm Scroll", "heaven"), ("scroll_serpent_coil_thrust", "serpent_coil_thrust", "Serpent-Coil Scroll", "heaven"),
+                ("scroll_sand_throne_sweep", "sand_throne_sweep", "Sand-Throne Scroll", "spirit"),
+                ("scroll_many_eyed_pool_air", "many_eyed_pool_air", "Many-Eyed Scroll", "spirit"),
+                ("scroll_ninth_peak_scroll", "ninth_peak_scroll", "Nine Peaks Lot Scroll", "spirit"),
+                ("scroll_broadside_fan", "broadside_fan", "Broadside Scroll", "sovereign"),
+                ("scroll_pyre_generals_lance", "pyre_generals_lance", "Pyre-General's Scroll", "sovereign"),
+                ("scroll_comet_tail_arrow", "comet_tail_arrow", "Comet-Tail Scroll", "sovereign"), ("scroll_maw_song", "maw_song", "Maw-Song Scroll", "will")]
+
 TOOL_DESC = {
     "old_pickaxe": "A worn pickaxe with a loose head. It still breaks ore, slowly.",
     "iron_pickaxe": "A sound iron pickaxe: veins give up their ore faster.",
@@ -581,10 +590,16 @@ def build_items():
     for kid, desc in keys:
         rows.append(item(kid, "key", "plain", 1, desc, sell=False, quest_item=kid in ("kite", "smuggler_ledger", "aunt_pings_ladle"),
                          name="Aunt Ping's Ladle" if kid == "aunt_pings_ladle" else None))
+    # Lost manuals (P13a, technique_plan §5): reading one finds its lost art; a second copy is a Manual Page.
     for mid, tech, grade in [("mudwater_manual", "rising_tide", "common"), ("manual_rain_of_reeds", "rain_of_reeds", "earth"),
                              ("manual_ember_burst", "ember_burst", "earth")]:
         rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech),
-                         use=[effect("learn_technique", technique=tech)]))
+                         use=[effect("learn_lost_art", art=tech)]))
+    for mid, tech, name, grade in LOST_SCROLLS:
+        rows.append(item(mid, "scroll", grade, 99, "A scroll in an old hand. Read it to learn what it holds.", name=name, icon="riverbreath_scroll",
+                         use=[effect("learn_lost_art", art=tech)]))
+    rows.append(item("rubbing_kit", "key", "common", 1, "Paper, a pad and pine-soot ink for taking a rubbing from carved stone.", sell=False,
+                     icon="talisman_paper"))
     # P13a (technique_plan §4.5): a whole element tree let go, after the great realm's one free reset.
     rows.append(item("clear_heart_incense", "other", "earth", 99, "Burnt while you sit, it lets a cultivator unlearn a whole tree of "
                      "realised arts, to walk it again another way.", icon="calm_heart_incense", value_override=60))

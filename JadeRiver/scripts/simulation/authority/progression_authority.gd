@@ -34,6 +34,8 @@ func subscribe() -> void:
 	GameEvents.subscribe("zone_entered", _on_zone_entered, 30)
 	GameEvents.subscribe("room_entered", func(p): _refresh_attunement(game.character(str(p.get("actor", "")))), 30)
 	GameEvents.subscribe("stats_changed", func(p): if "attunement_bonus" in p.get("changed_ids", []): _refresh_attunement(game.character(str(p.get("actor", "")))), 30)
+	# P13a: a page of Lu's journal picked up may complete a piece of the Ferryman's Oar.
+	GameEvents.subscribe("flag_set", _on_flag_set, 30)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -1676,6 +1678,7 @@ func migrate_tree(c) -> void:
 		var effects: Array = ContentDB.entry("daos", str(d)).get("effects", [])
 		for i in mini(int(c.cultivator.daos[d].get("tier", 0)), effects.size()):
 			if effects[i] is Dictionary and effects[i].has("learn_technique"): apply_learn_technique(c.id, str(effects[i].learn_technique))
+	lost_pages(c)   # the journal pages already gathered count toward the Ferryman's Oar
 	c.cultivator.tree["v"] = 1
 
 ## The page's view of one tree: every node with its state (realised, taught, open, or locked and why) and its cost.
@@ -1694,3 +1697,61 @@ func tree_view(c, tree: String) -> Dictionary:
 ## The Lost Arts board (roadmap decision 19): counts per act and the found arts' cards, nothing of an unfound one.
 func lost_arts_view(c) -> Dictionary:
 	return TechniqueTreeRules.lost_view(c)
+
+# ------------------------------------------------------------------ P13a Lost Arts (technique_plan §5; decision 19)
+## A lost art found: a stele rubbed, a ruin's writing read, a master's lesson, a foe's manual, a quest's end, an auction
+## lot, a lineage's piece. It is learned as what it is (a technique, an Inner Art or a Secret Art) and flagged
+## found_<art>; found a second time it is a Manual Page instead (§5.3). Nothing spoke of it before.
+func apply_learn_lost_art(actor_id: String, art: String) -> void:
+	var c = game.character(actor_id)
+	var row := ContentDB.entry("lost_arts", art)
+	if c == null or row.is_empty(): return
+	if TechniqueTreeRules.lost_found(c, row):
+		game.inventory.apply_add(c.id, str(TechniqueTreeRules.config().get("found_twice", "manual_page")), 1, "lost_art_again")
+		return
+	match str(row.get("kind", "technique")):
+		"inner": apply_learn_inner_art(c.id, art)
+		"secret": apply_learn_secret_art(c.id, art)
+		_: apply_learn_technique(c.id, art)
+	game.quest.apply_flag(c.id, "found_" + art)
+	emit("lost_art_found", {"actor": c.id, "art": art, "kind": str(row.get("kind", "technique")), "act": int(row.get("act", 1)),
+		"lineage": str(row.get("lineage", ""))})
+
+## A stele read at its insight stone (§5.2): the first art it holds that is not yet found and whose condition holds
+## (a Rubbing Kit, a Dao tier, an hour, a season) is taken as a rubbing. False when the stone is only a stone today.
+func read_stele(c, object_id: String) -> bool:
+	for row in TechniqueTreeRules.lost_at(object_id):
+		if TechniqueTreeRules.lost_found(c, row): continue
+		if not RequirementRules.passes({"all": row.src.get("requires", [])}, game.ctx(c)): continue
+		apply_learn_lost_art(c.id, str(row.id))
+		return true
+	return false
+
+## The lost manuals a defeated foe drops (§5.3), from its loot roll's `lost` rows (LootRules rolls them like named rows,
+## never raised by drop rate): a manual is kept only while its art is not found and not already carried, and is sure by
+## its pity-th kill.
+func lost_drops(c, rolled: Array) -> Array:
+	var out: Array = []
+	for r in rolled:
+		var art := str(r.art)
+		if TechniqueTreeRules.lost_found(c, ContentDB.entry("lost_arts", art)) or c.inventory.count(str(r.item)) > 0: continue
+		var kills := int(c.cultivator.tree.pity.get(art, 0)) + 1
+		var pity := int(r.get("pity", 0))
+		if bool(r.get("hit", false)) or (pity > 0 and kills >= pity):
+			c.cultivator.tree.pity.erase(art)
+			out.append({"item": str(r.item), "count": 1})
+		else: c.cultivator.tree.pity[art] = kills
+	return out
+
+## Lu's journal (§5.5): each lineage piece of the Ferryman's Oar comes with its count of pages found.
+func lost_pages(c) -> void:
+	if c == null: return
+	var flags: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	var pages := flags.filter(func(f): return c.quests.has_flag(str(f))).size()
+	for row in ContentDB.all("lost_arts"):
+		var src: Dictionary = row.get("src", {})
+		if str(src.get("kind", "")) == "pages" and pages >= int(src.get("count", 0)) and not TechniqueTreeRules.lost_found(c, row):
+			apply_learn_lost_art(c.id, str(row.id))
+
+func _on_flag_set(p: Dictionary) -> void:
+	if str(p.get("flag", "")) in ContentDB.config("lost_arts").get("journal_flags", []): lost_pages(game.character(str(p.get("actor", ""))))

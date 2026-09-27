@@ -364,6 +364,31 @@
      }
     ]
    }
+  },
+  {
+   "id": "lost_frost_shrine",
+   "type": "inspect",
+   "at": [
+    1238,
+    880
+   ],
+   "prop": "altar",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "frost_shrine_sword"
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "season_is",
+      "season": "winter"
+     }
+    ]
+   },
+   "locked_text": "Weathered carvings."
   }
  ],
  "spawns": [

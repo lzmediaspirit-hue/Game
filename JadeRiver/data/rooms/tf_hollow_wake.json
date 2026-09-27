@@ -264,6 +264,26 @@
    "level": 97,
    "alt": 300,
    "surface": "cloud_mv"
+  },
+  {
+   "id": "journal_wake",
+   "type": "pickup",
+   "at": [
+    1482,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_wake",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_wake"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

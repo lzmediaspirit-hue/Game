@@ -2688,5 +2688,7 @@
  "sim.tree.leaf": "Something further out still stands on it.",
  "sim.tree.nothing": "Nothing on this tree is realised.",
  "sim.tree.needs_incense": "The free letting-go of this realm is spent: burn a Clear Heart Incense.",
- "sim.tree.heavy_cap": "One keystone or lost art to a ring of four."
+ "sim.tree.heavy_cap": "One keystone or lost art to a ring of four.",
+ "req.season": "Only in %s",
+ "sim.world.rubbing_taken": "You press paper to the stone and rub. Something old comes up through the ink."
 }

@@ -9,6 +9,7 @@ import os
 
 from common import DATA, write, entries, realm, qdone, qactive, flag, noflag, unlocked, sect, all_of, any_of
 from legends import CHAINS as LEGENDS
+import technique_hand as LOST_HAND
 from realms import level_of
 
 # ---------------------------------------------------------------------------------------------
@@ -503,6 +504,9 @@ def npcs():
     for n in N:
         if n["id"] in NPC_AGES:
             n["age"] = NPC_AGES[n["id"]]
+        # P13a: a master who holds a lost art teaches it in a dialogue of their own (dialogue(): LOST_LESSONS).
+        if n["id"] in {s["src"]["npc"] for s in LOST_HAND.LOST if s["src"]["kind"] == "master"}:
+            n.setdefault("tree", n["id"])
     entries("npcs", N)
     return {n["id"] for n in N}
 
@@ -2020,7 +2024,8 @@ def act3_ash_and_tide_quests():
     quest("the_tide_breaks", "The Tide Breaks", "main", "warden_commander_yao", [
         o("reach_room", "Take the skiff to the Tidebreak Bastion", room="tf_tidebreak_bastion"),
         o("pass_event", "Ring the Bastion's bell and keep the great lantern lit through the Tide", event="hollow_tide_battle"),
-    ], [sage_crystals(120), fx("grant_title", title="tidebreaker"), fx("codex", entry="hollow_tide_battle")], hand_in="warden_captain_duan",
+    ], [sage_crystals(120), fx("grant_title", title="tidebreaker"), fx("codex", entry="hollow_tide_battle"),
+        fx("learn_lost_art", art="breakwater_sword")], hand_in="warden_captain_duan",   # P13a: what the breakwater knew
         requires=all_of(qdone("kharns_pyre")), chapter="21", target_room="tf_tidebreak_bastion",
         offer=["The Tide is coming to the Bastion. Captain Duan will ring the great bell when it does.",
                "The great lantern is the whole wall. If it goes out, the Tide walks through. Keep it lit."],
@@ -2136,7 +2141,7 @@ def act2_starsea_side_quests():
     quest("blood_remembers", "Blood Remembers", "side", "matriarch_tie", [
         o("set_flag", "Kneel before the Ironroot tablets in the Ancestor Hall", flag="tablets_honoured"),
         o("reach_realm", "Become a Sage Sovereign", realm="sage_sovereign_1"),
-    ], [fx("open_dao", dao="blood"), fx("learn_technique", technique="blood_burning"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
+    ], [fx("open_dao", dao="blood"), fx("learn_lost_art", art="blood_burning"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
         offer=["Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
                "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."],
         complete=["There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now."])
@@ -2481,6 +2486,19 @@ def dialogue():
                   "tamer_qiu": "the_last_egg"}.get(tid, "crystal_and_jade")
         tree(tid, [{"requires": all_of(qdone(done_q)), "node": "talk"}],
              {"talk": {"lines": lines, "choices": [{"text": "Thank you.", "close": True}]}})
+    # P13a Lost Arts (technique_plan §5; roadmap decision 19): a master's last lesson, given once its condition holds
+    # and never spoken of before. It is an aside: a choice added to whatever the master says (a quest's offer, a scene).
+    for s in LOST_HAND.LOST:
+        src = s["src"]
+        if src["kind"] != "master":
+            continue
+        t = trees.setdefault(src["npc"], {"id": src["npc"], "entries": [], "nodes": {}})
+        node = "lost_" + s["id"]
+        # An aside (QuestAuthority._asides): one more choice beside what the master already says, never in place of it.
+        t["entries"].append({"requires": all_of(*(src.get("requires", []) + [noflag("found_" + s["id"])])), "node": node, "aside": True,
+                             "text": "You look as if you would show me something."})
+        t["nodes"][node] = {"lines": [src["line"]], "choices": [{"text": "Watch, and learn.", "effects": [{"kind": "learn_lost_art", "art": s["id"]}],
+                                                                  "close": True}]}
     for tid, t in trees.items():
         write(tid + ".json", {"trees": {tid: t}}, folder=os.path.join(DATA, "dialogue"))
 

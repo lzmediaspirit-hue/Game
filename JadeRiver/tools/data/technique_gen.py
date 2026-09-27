@@ -637,7 +637,7 @@ def trees_config():
             "rings": [{"ring": r, "grade": v[0], "level": v[1], "act": v[2], "tier": v[3], "extra_targets": v[4], "reach": v[5],
                        "unlock": RING_UNLOCK[r]} for r, v in G.RINGS.items()],
             "act_edges": {str(a): r for a, r in G.ACT_EDGE.items()}, "act_open": G.BUILT_ACT, "costs": G.COSTS, "passives": G.PASSIVES,
-            "grade_bonus": {v[0]: G.grade_bonus(r) for r, v in G.RINGS.items()}, "reset_item": "clear_heart_incense",
+            "grade_bonus": {v[0]: G.grade_bonus(r) for r, v in G.RINGS.items()}, "reset_item": "clear_heart_incense", "found_twice": "manual_page",
             "templates": list(G.TEMPLATES), "forms": {f: {"role": F["role"], "fams": sorted(F["fams"]), "opens": F["opens"]} for f, F in G.FORMS.items()},
             "budget": {str(r): b for r, b in G.RING_BUDGET.items()}, "verb_value": G.VERB_VALUE,
             "path_budget": {p: v["budget"] for p, v in G.PATHS.items()}, "element_mult": {e: v.get("mult", 1.0) for e, v in G.ELEMENTS.items()},

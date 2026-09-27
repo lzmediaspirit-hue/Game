@@ -33,6 +33,23 @@
       ]
      },
      "node": "mount"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "calming_the_wild"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_mudskipper_kick"
+       }
+      ]
+     },
+     "node": "lost_mudskipper_kick",
+     "aside": true,
+     "text": "You look as if you would show me something."
     }
    ],
    "nodes": {
@@ -100,6 +117,23 @@
       },
       {
        "text": "Not yet",
+       "close": true
+      }
+     ]
+    },
+    "lost_mudskipper_kick": {
+     "lines": [
+      "You have mud on your boots. Good. Now kick like something that lives in it."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "mudskipper_kick"
+        }
+       ],
        "close": true
       }
      ]

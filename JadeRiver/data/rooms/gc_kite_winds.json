@@ -202,6 +202,26 @@
    "level": 75,
    "hp": 1,
    "respawn_s": 300
+  },
+  {
+   "id": "journal_kites",
+   "type": "pickup",
+   "at": [
+    1807,
+    880
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_kites",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_kites"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

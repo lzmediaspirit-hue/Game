@@ -416,6 +416,13 @@
    ],
    "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
   },
+  "lost_art_found": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Lost Arts board reads lost_arts_view when it draws; the art's own learned event carries the toast."
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

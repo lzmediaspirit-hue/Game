@@ -1,6 +1,8 @@
 """S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses)."""
 from common import entries, titled
 from legends import CHAINS as LEGENDS
+import technique_hand as LOST_HAND
+LOST_MANUALS = {s["src"]["item"]: s["id"] for s in LOST_HAND.LOST if s["src"]["kind"] == "drop"}   # P13a: manual -> lost art
 
 
 def atk(id, windup, reach, mult=1.0, depth=26, alt=(-30, 60), **extra):   # S43 rule 10: the melee band
@@ -700,6 +702,19 @@ def build():
         if m["id"] in QUEST_DROPS:
             table["quest_drops"] = QUEST_DROPS[m["id"]]
         table.update(NAMED_ROWS.get(m["id"], {}))
+        # P13a Lost Arts (technique_plan §5.3): a lost manual is never in the random roll; LootRules rolls it like a named
+        # row (drop rate does not raise it) and ProgressionAuthority keeps it only while its art is not yet found, sure by
+        # the pity-th kill.
+        # Another foe that carries the same manual (Lieutenant Kuai and the Mudwater Manual) keeps its rate, without pity.
+        lost = [{"item": s["src"]["item"], "art": s["id"], "chance": s["src"]["chance"], "pity": s["src"].get("pity", 0)}
+                for s in LOST_HAND.LOST if s["src"]["kind"] == "drop" and s["src"]["enemy"] == m["id"] and s["src"]["chance"] < 1.0]
+        lost += [{"item": x["item"], "art": LOST_MANUALS[x["item"]], "chance": x["chance"], "pity": 0} for x in table.get("rare", []) + table.get("guaranteed", [])
+                 if x["item"] in LOST_MANUALS and x.get("chance", 1.0) < 1.0 and x["item"] not in {r["item"] for r in lost}]
+        if lost:
+            table["lost"] = lost
+            moved = {r["item"] for r in lost}
+            table["rare"] = [x for x in table["rare"] if x["item"] not in moved]
+            table["guaranteed"] = [x for x in table.get("guaranteed", []) if x["item"] not in moved or x.get("chance", 1.0) >= 1.0]
         tables.append(table)
     tables.append({"id": "jar_valley_low", "groups": [{"chance": 0.5, "pick": [{"item": "rice", "weight": 2, "count": [1, 1]},
                    {"item": "willow_moss", "weight": 2, "count": [1, 2]}, {"item": "herbal_tea", "weight": 1, "count": [1, 1]}]}],

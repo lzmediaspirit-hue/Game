@@ -327,6 +327,11 @@ static func lost_found(c, row: Dictionary) -> bool:
 		"secret": return c.cultivator.secret_arts.has(id)
 	return c.cultivator.techniques_known.has(id)
 
+## The lost arts a stele (an insight stone) holds, for WorldAuthority to read when it is touched. World data only: no
+## page reads this.
+static func lost_at(object_id: String) -> Array:
+	return ContentDB.all("lost_arts").filter(func(row): return str(row.get("src", {}).get("kind", "")) == "stele" and str(row.src.get("object", "")) == object_id)
+
 ## The Lost Arts board as the page may show it (roadmap §6 decision 19): for each act the character has reached, how
 ## many of its lost arts are found and the full card of each found one; a lineage appears once a piece of it is found,
 ## with its found pieces. An art not yet found is only counted: nothing here names it, draws it or says where it is.

@@ -229,6 +229,38 @@
     1500,
     700
    ]
+  },
+  {
+   "id": "lost_inverted_stair_kick",
+   "type": "inspect",
+   "at": [
+    2584,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "inverted_stair_kick"
+    }
+   ]
+  },
+  {
+   "id": "lost_lamp_that_circles_the_dark",
+   "type": "inspect",
+   "at": [
+    2974,
+    880
+   ],
+   "prop": "stone_lantern",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "lamp_that_circles_the_dark"
+    }
+   ]
   }
  ],
  "spawns": [

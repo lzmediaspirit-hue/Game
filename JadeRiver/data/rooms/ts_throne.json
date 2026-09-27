@@ -134,6 +134,38 @@
     ]
    },
    "locked_text": "The King's grave goods. Not while he stands."
+  },
+  {
+   "id": "lost_scorpion_script",
+   "type": "inspect",
+   "at": [
+    1896,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "scorpion_script"
+    }
+   ]
+  },
+  {
+   "id": "lost_the_king_who_waits",
+   "type": "inspect",
+   "at": [
+    1100,
+    880
+   ],
+   "prop": "scholar_rock",
+   "text": "Old writing, cut deep and worn smooth. You have read all it holds.",
+   "effects": [
+    {
+     "kind": "learn_lost_art",
+     "art": "the_king_who_waits"
+    }
+   ]
   }
  ],
  "spawns": [

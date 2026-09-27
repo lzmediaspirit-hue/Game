@@ -321,6 +321,7 @@
   "genesis": 0.2
  },
  "reset_item": "clear_heart_incense",
+ "found_twice": "manual_page",
  "templates": [
   "constructs",
   "field",

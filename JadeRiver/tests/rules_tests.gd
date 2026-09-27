@@ -106,6 +106,7 @@ func _main() -> void:
 	moments_suite()
 	tree_suite()
 	tree_migration_suite()
+	lost_arts_suite()
 	text_suite()
 	ui_fixes_suite()
 	icon_draw_suite()
@@ -9670,3 +9671,121 @@ func tree_migration_suite() -> void:
 	back.restore(cu.snapshot())
 	check(back.tree.realised.size() == T.realised(c).size() and int(back.tree.v) == 1, "the realised nodes survive a save")
 	cu.restore(snap)
+
+## P13a Lost Arts (technique_plan §5; roadmap §6 decision 19): the board the page reads counts an unfound art and says
+## nothing else of it (no id, name or source); a found art has its full card and still no source. Found by kind, found
+## twice for a Manual Page; a stele gives its rubbing once its condition holds; a foe's manual is sure by its pity; Lu's
+## journal teaches the Ferryman's Oar by pages.
+func lost_arts_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var snap := cu.snapshot()
+	var bag_was: Array = c.inventory.bag.duplicate(true)
+	var flags_was: Dictionary = c.quests.flags.duplicate(true)
+	var T = TechniqueTreeRules
+	var rows: Array = ContentDB.all("lost_arts")
+	var found_ev: Array = []
+	GameEvents.subscribe("lost_art_found", func(p): found_ev.append(p), 200)
+	cu.realm_key = "sphere_lord_3"   # Level 98: Acts I-III reached
+	for row in rows:
+		var kind_list: Array = cu.inner_arts_known if str(row.kind) == "inner" else (cu.secret_arts if str(row.kind) == "secret" else cu.techniques_known)
+		kind_list.erase(str(row.id))
+	for f in c.quests.flags.keys():
+		if str(f).begins_with("journal_") or str(f).begins_with("found_"): c.quests.flags.erase(f)
+	# Nothing found: only counts.
+	var v: Dictionary = Game.progression.lost_arts_view(c)
+	var acts: Array = v.get("acts", [])
+	var totals := 0
+	for a in acts: totals += int(a.total)
+	check(acts.size() == 3 and totals == 60 and acts.all(func(a): return int(a.found) == 0 and (a.arts as Array).is_empty()) and (v.get("lineages", []) as Array).is_empty(),
+		"nothing found: the board holds three acts' counts, 0 of %d, and no cards (%s)" % [totals, str(acts.map(func(a): return [a.found, a.total]))])
+	var leaks := func(view: Dictionary, row: Dictionary) -> Array:
+		var text := JSON.stringify(view)
+		var out: Array = []
+		var table: String = {"inner": "inner_arts", "secret": "secret_arts"}.get(str(row.kind), "techniques")
+		var words: Array = [str(row.id), str(ContentDB.entry(table, str(row.id)).get("name", ""))]
+		for key in ["room", "object", "npc", "enemy", "item", "quest", "line"]:
+			if row.src.has(key): words.append(str(row.src[key]))
+		for w in words:
+			if w != "" and w in text: out.append(w)
+		return out
+	var leaked: Array = []
+	for row in rows: leaked.append_array(leaks.call(v, row))
+	check(leaked.is_empty(), "decision 19: the board names no unfound art, draws none and says where none is (%s)" % str(leaked))
+	var realm_was := cu.realm_key
+	cu.realm_key = "heart_tempering_3"
+	check((Game.progression.lost_arts_view(c).acts as Array).size() == 1, "a character in Act I sees Act I's count alone")
+	cu.realm_key = realm_was
+	# Found: its card, and still no source; the rest still unnamed.
+	Game.apply_effects(c.id, [{"kind": "learn_lost_art", "art": "rain_of_reeds"}], "test")
+	GameEvents.flush()
+	v = Game.progression.lost_arts_view(c)
+	var card: Dictionary = (v.acts[0].arts as Array)[0] if not (v.acts[0].arts as Array).is_empty() else {}
+	var rr: Dictionary = ContentDB.entry("lost_arts", "rain_of_reeds")
+	check(cu.techniques_known.has("rain_of_reeds") and c.quests.has_flag("found_rain_of_reeds") and int(v.acts[0].found) == 1
+		and str(card.get("name", "")) == ContentDB.name_of("techniques", "rain_of_reeds") and str(card.get("desc", "")) != "",
+		"found: Rain of Reeds is learned and its full card is on the board (%s)" % str(card))
+	check(not card.has("src") and not str(rr.src.room) in JSON.stringify(v) and not str(rr.src.object) in JSON.stringify(v), "a found art's card never says where it was found")
+	check(found_ev.size() == 1 and str(found_ev[0].art) == "rain_of_reeds" and int(found_ev[0].act) == 1, "lost_art_found is announced")
+	leaked = []
+	for row in rows:
+		if str(row.id) != "rain_of_reeds": leaked.append_array(leaks.call(v, row))
+	check(leaked.is_empty(), "the other unfound arts stay unnamed (%s)" % str(leaked))
+	var pages0: int = c.inventory.count("manual_page")
+	Game.progression.apply_learn_lost_art(c.id, "rain_of_reeds")
+	check(c.inventory.count("manual_page") == pages0 + 1 and cu.techniques_known.count("rain_of_reeds") == 1, "found twice, it is a Manual Page")
+	Game.progression.apply_learn_lost_art(c.id, "mist_lamp_meditation")
+	Game.progression.apply_learn_lost_art(c.id, "grey_footfall")
+	check(cu.inner_arts_known.has("mist_lamp_meditation") and cu.secret_arts.has("grey_footfall"), "an Inner Art and a Secret Art are learned as what they are")
+	# A stele: a stone until its rubbing's condition holds.
+	check(T.lost_at("insight_hu").any(func(row): return str(row.id) == "willowbark_script"), "Elder Hu's insight stone holds a stele")
+	cu.daos = {"wood": {"tier": 1, "insight": 100.0}}
+	while c.inventory.count("rubbing_kit") > 0: Game.inventory.apply_remove(c.id, "rubbing_kit", 1, "test")
+	check(not Game.progression.read_stele(c, "insight_hu") and not cu.techniques_known.has("willowbark_script"), "without a Rubbing Kit it is only a stone")
+	Game.inventory.apply_add(c.id, "rubbing_kit", 1, "test")
+	check(Game.progression.read_stele(c, "insight_hu") and cu.techniques_known.has("willowbark_script"), "with a kit and the Wood Dao, its rubbing teaches Willowbark Script")
+	check(not Game.progression.read_stele(c, "insight_hu") and c.inventory.count("rubbing_kit") == 1, "then it is a stone again, and the kit is kept")
+	# A foe's manual: rolled like a named row on every kill, kept only while its art is lost, sure by its pity-th kill.
+	var table := str(ContentDB.entry("enemies", "gorge_bandit_adept").get("loot", "gorge_bandit_adept"))
+	var lost_rows: Array = (ContentDB.entry("loot_tables", table).get("lost", []) as Array).filter(func(r): return str(r.art) == "ember_burst")
+	var row_eb: Dictionary = lost_rows[0] if not lost_rows.is_empty() else {"pity": 0, "item": ""}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 13
+	var rolled: Array = LootRules.roll(table, rng, 30, 1.0, 0.0, {"no_equipment": true}).get("lost", [])
+	check(rolled.size() == 1 and str(rolled[0].art) == "ember_burst" and not LootRules.roll(table, rng, 30, 1.0, 0.0, {}).items.any(func(it): return str(it.item) == str(row_eb.item)),
+		"a kill rolls Ember Burst's manual beside its loot, and never hands it out itself")
+	cu.tree.pity = {}
+	var miss: Array = [{"art": "ember_burst", "item": str(row_eb.item), "pity": int(row_eb.pity), "hit": false}]
+	var kills := 0
+	var got: Array = []
+	while got.is_empty() and kills < 100:
+		kills += 1
+		got = Game.progression.lost_drops(c, miss)
+	check(kills == int(row_eb.pity) and int(row_eb.pity) > 0 and str(got[0].item) == str(row_eb.item) and not cu.tree.pity.has("ember_burst"),
+		"never lucky, Ember Burst's manual still drops by kill %d (pity %d), and the count starts again" % [kills, int(row_eb.pity)])
+	var hit: Array = [{"art": "ember_burst", "item": str(row_eb.item), "pity": int(row_eb.pity), "hit": true}]
+	check(not Game.progression.lost_drops(c, hit).is_empty(), "a lucky roll drops it at once")
+	Game.inventory.apply_add(c.id, str(row_eb.item), 1, "test")
+	check(Game.progression.lost_drops(c, hit).is_empty(), "not while one is carried")
+	cu.techniques_known.append("ember_burst")
+	while c.inventory.count(str(row_eb.item)) > 0: Game.inventory.apply_remove(c.id, str(row_eb.item), 1, "test")
+	check(Game.progression.lost_drops(c, hit).is_empty() and Game.progression.lost_drops(c, miss).is_empty(), "an art already found drops no manual")
+	check(not (ContentDB.entry("loot_tables", table).get("rare", []) as Array).any(func(r): return str(r.item) == str(row_eb.item)), "and it is in no random roll")
+	# Lu's journal: five pages teach the first piece of the Ferryman's Oar.
+	var jf: Array = ContentDB.config("lost_arts").get("journal_flags", [])
+	for i in 4: Game.quest.apply_flag(c.id, str(jf[i]))
+	GameEvents.flush()
+	check(not cu.techniques_known.has("oar_across_the_current"), "four pages are not enough")
+	Game.quest.apply_flag(c.id, str(jf[4]))
+	GameEvents.flush()
+	v = Game.progression.lost_arts_view(c)
+	var lin: Array = v.get("lineages", [])
+	check(cu.techniques_known.has("oar_across_the_current") and lin.size() == 1 and str(lin[0].id) == "ferrymans_oar" and int(lin[0].found) == 1
+		and (lin[0].arts as Array).size() == 1, "the fifth page teaches Oar Across the Current and opens the lineage's card with its one piece")
+	check(not "ferry_pole_vault" in JSON.stringify(v) and not ContentDB.name_of("techniques", "ferry_pole_vault") in JSON.stringify(v), "the lineage never names its missing pieces")
+	GameEvents.unsubscribe_object(self)
+	cu.restore(snap)
+	c.inventory.bag = bag_was
+	c.quests.flags = flags_was
+	Game.combat.refresh_stats(c.id)

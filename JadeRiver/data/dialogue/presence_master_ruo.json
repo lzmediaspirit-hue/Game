@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "presence_master_ruo": {
+   "id": "presence_master_ruo",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "event_passed",
+        "event": "presence_trial"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "found_held_presence"
+       }
+      ]
+     },
+     "node": "lost_held_presence",
+     "aside": true,
+     "text": "You look as if you would show me something."
+    }
+   ],
+   "nodes": {
+    "lost_held_presence": {
+     "lines": [
+      "One thing left. Hold it, do not push it."
+     ],
+     "choices": [
+      {
+       "text": "Watch, and learn.",
+       "effects": [
+        {
+         "kind": "learn_lost_art",
+         "art": "held_presence"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}
