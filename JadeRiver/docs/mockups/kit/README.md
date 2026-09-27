@@ -337,3 +337,16 @@ k-close k-bar-shell` · `k-page k-page-title k-page-close k-page-tabs k-page-con
 States: `is-selected is-disabled is-empty is-pressed is-active is-dim is-locked is-done is-next is-met is-hard is-soft
 is-elite is-ally is-crit is-qi is-soul is-hp is-jade is-gold is-red is-bronze is-early is-middle is-late is-peak
 is-flip is-grey`.
+
+## Added by 07 (system pages A): the 76 px page slot
+
+The icon study's decision (`../icon_study/README.md`): a page slot is 76 px and holds its 64 px icon at 1:1.
+`.k-slot76` sizes a `.k-slot` to 76, insets its icon 6 px (the frame's 8 px border shows round it) and, empty, draws
+Style A's 64 px cloud seal at 35%. The system-page mockups 06–12 use it for every slot on a page (bag, worn gear,
+technique loadout, pet gear); the HUD keeps its rings. Today's item icons are 32 px art doubled to 64, so 64 is their 2x
+and 32 their 1x: draw them at one of the two (the kit's 64 px slot draws them at 52, review I2).
+
+```html
+<div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/items/healing_pill.png"><div class="k-qrim" style="--q:var(--g-common)"></div><span class="k-count t-fig t-outline c-paper">4</span></div>
+<div class="k-slot k-slot76 is-empty"></div>
+```

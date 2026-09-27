@@ -1,0 +1,134 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>09 Character</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the figure wearing what is worn, the worn slots round it (the same doll as the Bag) */
+  .alcove { position: absolute; left: 92px; top: 172px; width: 376px; height: 400px; border-radius: 6px;
+    background: radial-gradient(ellipse 60% 55% at 50% 58%, rgba(44,158,143,.22), rgba(13,48,53,.35) 55%, rgba(7,16,21,0) 80%); }
+  .dais { position: absolute; left: 280px; top: 522px; width: 200px; height: 40px; margin: -20px 0 0 -100px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(103,214,189,.30), rgba(44,158,143,.12) 55%, rgba(0,0,0,0) 72%); box-shadow: 0 0 0 1px rgba(103,214,189,.28); }
+  .fig3 { transform-origin: 192px 254px; transform: scale(3); }
+  .slot-l { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .bar2 { position: absolute; height: 22px; background: #0a171c; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1px rgba(154,106,53,.5); border-radius: 3px; }
+  .bar2 > .f { position: absolute; left: 2px; top: 2px; bottom: 2px; border-radius: 2px; box-shadow: inset 0 2px 0 rgba(255,255,255,.25); }
+  .bar2 > .l { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--pale-gold); }
+  .bar2 > .v { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+  .stat { display: grid; grid-template-columns: 1fr auto; font-size: 16px; height: 20px; align-items: center; line-height: 20px; }
+  .stat > :first-child { color: var(--mist); } .stat > :last-child { color: var(--paper); }
+  .stat.gap { border-top: 1px solid rgba(154,106,53,.4); }
+  .pip { width: 24px; height: 8px; border-radius: 2px; background: var(--gold); box-shadow: 0 0 0 1px var(--ink); }
+  .pip.cur { background: var(--pale-gold); box-shadow: 0 0 0 1px var(--ink), 0 0 6px 2px rgba(255,230,161,.6); }
+  .fade { position: absolute; left: 874px; top: 590px; width: 298px; height: 40px; background: linear-gradient(180deg, rgba(12,40,45,0), rgba(12,40,45,.96)); }
+  .tr { display: block !important; min-height: 50px !important; padding: 4px 12px !important; }
+  .tr .n { font-size: 16px; color: var(--paper); font-weight: 700; line-height: 21px; }
+  .tr .b { font-size: 14px; color: var(--mist); line-height: 19px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_wardens_hall.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Character</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab is-selected">Overview</div><div class="k-tab">Aptitude</div><div class="k-tab">Attunement</div><div class="k-tab">Wardrobe</div>
+  </div>
+</div>
+
+<!-- ================= the figure, wearing what is worn ================= -->
+<div class="alcove"></div>
+<div class="dais"></div>
+<img class="k-fig fig3" style="left:241px;top:522px" src="../assets/fig_tester_ls6_idle.png">
+<div class="abs" style="left:92px;top:180px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_hat.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs" style="left:92px;top:272px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs" style="left:92px;top:364px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsilk_trousers.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs" style="left:92px;top:456px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsilk_boots.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs" style="left:392px;top:180px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/sunsteel_jian.png"><div class="k-qrim" style="--q:var(--g-sage)"></div></div></div>
+<div class="abs" style="left:392px;top:272px"><div class="k-slot k-slot76"><img class="ic" src="../../../art/icons/equipment/stormsteel_gourd.png"><div class="k-qrim" style="--q:var(--g-spirit)"></div></div></div>
+<div class="abs" style="left:392px;top:364px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs" style="left:392px;top:456px"><div class="k-slot k-slot76 is-empty"></div></div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:257px">Hat</div><div class="abs t-xs c-mist slot-l" style="left:130px;top:349px">Robe</div>
+<div class="abs t-xs c-mist slot-l" style="left:130px;top:441px">Trousers</div><div class="abs t-xs c-mist slot-l" style="left:130px;top:533px">Boots</div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:257px">Weapon</div><div class="abs t-xs c-mist slot-l" style="left:430px;top:349px">Gourd</div>
+<div class="abs t-xs c-mist slot-l" style="left:430px;top:441px">Cape</div><div class="abs t-xs c-mist slot-l" style="left:430px;top:533px">Talisman</div>
+
+<div class="abs t-xs c-gold" style="left:96px;top:568px">Beside you</div>
+<div class="k-party" style="left:200px;top:604px"><div class="k-party-art"><img src="../assets/fig_reed_otter.png" style="left:-166px;top:-208px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:280px;top:604px"><div class="k-party-art"><img src="../assets/fig_tie_niu_idle.png" style="left:-166px;top:-152px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party" style="left:360px;top:604px"><div class="k-party-art"><img src="../assets/fig_lan_yue_idle.png" style="left:-166px;top:-148px"></div><div class="k-arc" style="--arc:1"></div></div>
+<div class="k-party-name t-outline" style="left:200px;top:632px">Reed Otter</div>
+<div class="k-party-name t-outline" style="left:280px;top:632px">Tie Niu</div>
+<div class="k-party-name t-outline" style="left:360px;top:632px">Lan Yue</div>
+
+<!-- ================= who you are ================= -->
+<div class="abs t-display" style="left:486px;top:174px">Tester</div>
+<div class="abs t-xs c-mist" style="left:852px;top:178px;transform:translateX(-100%);white-space:nowrap">Combat Power</div>
+<div class="abs t-num-lg c-pale" style="left:852px;top:194px;transform:translateX(-100%)">7,862</div>
+<div class="abs flex" style="left:486px;top:222px;gap:10px">
+  <span class="k-realm-badge t-sm c-pale" style="height:30px">Sphere Lord 3</span>
+  <span class="t-md c-paper">Lv <span class="t-fig">98</span></span>
+  <span class="flex" style="gap:3px;margin-left:2px"><span class="pip"></span><span class="pip"></span><span class="pip cur"></span></span>
+</div>
+<div class="abs t-md c-paper" style="left:486px;top:262px">Jade Sect · <span class="c-pale">Sect Master</span></div>
+<div class="abs t-md c-jade" style="left:486px;top:288px"><span class="t-sym c-gold" style="margin-right:6px">◆</span>Fleet-Footed</div>
+<div class="k-btn2 abs" style="left:724px;top:254px;width:128px;height:48px;font-size:20px">Relations</div>
+<div class="abs t-xs c-mist" style="left:724px;top:306px;width:128px;text-align:center">Rising · Upright</div>
+<div class="abs t-md c-paper" style="left:486px;top:318px"><span class="c-mist t-sm">Origin</span> Fisher’s Child</div>
+<div class="abs t-xs c-mist" style="left:486px;top:342px;white-space:nowrap">A river childhood: +3 Body, +2 Essence, leans to Water</div>
+<div class="abs t-sm c-mist" style="left:486px;top:362px">Age <span class="t-fig c-paper">16</span> · lifespan <span class="t-fig c-paper">5,000</span> years</div>
+
+<div class="bar2" style="left:486px;top:392px;width:366px"><div class="f" style="width:362px;background:var(--hp)"></div><span class="l t-label t-outline">HP</span><span class="v t-fig t-outline c-paper">28,967 / 28,967</span></div>
+<div class="bar2" style="left:486px;top:418px;width:366px"><div class="f" style="width:362px;background:var(--qi)"></div><span class="l t-label t-outline">QI</span><span class="v t-fig t-outline c-paper">13,313 / 13,313</span></div>
+<div class="bar2" style="left:486px;top:444px;width:366px"><div class="f" style="width:362px;background:var(--soul)"></div><span class="l t-label t-outline">SOUL</span><span class="v t-fig t-outline c-paper">4,945 / 4,945</span></div>
+
+<div class="abs t-sm c-gold" style="left:486px;top:474px">Offence</div>
+<div class="k-divider abs" style="left:486px;top:494px;width:176px"></div>
+<div class="abs" style="left:486px;top:498px;width:176px">
+  <div class="stat"><span>Physical attack</span><span class="t-fig">2,070</span></div>
+  <div class="stat"><span>Qi attack</span><span class="t-fig">3,172</span></div>
+  <div class="stat"><span>Soul attack</span><span class="t-fig">5,018</span></div>
+  <div class="stat"><span>Accuracy</span><span class="t-fig">398</span></div>
+  <div class="stat"><span>Critical chance</span><span class="t-fig">27.7%</span></div>
+  <div class="stat"><span>Critical damage</span><span class="t-fig">150%</span></div>
+  <div class="stat"><span>Attack speed</span><span class="t-fig">+19%</span></div>
+  <div class="stat gap"><span>Drop rate</span><span class="t-fig">+1%</span></div>
+</div>
+<div class="abs t-sm c-gold" style="left:676px;top:474px">Defence</div>
+<div class="k-divider abs" style="left:676px;top:494px;width:176px"></div>
+<div class="abs" style="left:676px;top:498px;width:176px">
+  <div class="stat"><span>Physical defence</span><span class="t-fig">454</span></div>
+  <div class="stat"><span>Qi resistance</span><span class="t-fig">115</span></div>
+  <div class="stat"><span>Soul defence</span><span class="t-fig">186</span></div>
+  <div class="stat"><span>Evasion</span><span class="t-fig">112</span></div>
+  <div class="stat"><span>Will</span><span class="t-fig">219</span></div>
+  <div class="stat"><span>HP regen</span><span class="t-fig">1%</span></div>
+  <div class="stat"><span>Qi regen</span><span class="t-fig">0%</span></div>
+  <div class="stat gap"><span>Move speed</span><span class="t-fig">242</span></div>
+</div>
+
+<!-- ================= titles: the rack, scrolled; nothing runs off the window ================= -->
+<div class="k-minor-panel abs" style="left:868px;top:172px;width:320px;height:492px"></div>
+<div class="abs t-subhead" style="left:884px;top:182px">Titles</div>
+<div class="abs t-sm c-mist" style="left:1174px;top:190px;transform:translateX(-100%);white-space:nowrap"><span class="t-fig c-paper">19</span> earned of <span class="t-fig">46</span></div>
+<div class="k-row is-selected abs" style="left:878px;top:220px;width:300px;height:60px;display:block;padding:7px 14px;box-shadow:inset 3px 0 0 var(--gold), 0 0 0 1px rgba(229,184,76,.5)">
+  <div class="t-md c-pale" style="font-weight:700">Fleet-Footed <span class="t-xs c-gold" style="font-weight:600">· worn</span></div>
+  <div class="t-xs c-jade">+1% move speed</div>
+</div>
+<div class="abs t-xs c-mist" style="left:884px;top:288px">Tap a title to wear it</div>
+<div class="abs" style="left:878px;top:308px;width:288px;height:322px;overflow:hidden">
+  <div class="k-row tr"><div class="n">Steady Hands</div><div class="b">+1% crafting control</div></div>
+  <div class="k-row tr"><div class="n">Beast Friend</div><div class="b">+1% taming chance</div></div>
+  <div class="k-row tr"><div class="n">Valley Champion</div><div class="b">+1% physical attack</div></div>
+  <div class="k-row tr"><div class="n">Sage-Born</div><div class="b">+1% accumulation rate</div></div>
+  <div class="k-row tr"><div class="n">Alliance Envoy</div><div class="b">+2 attunement</div></div>
+  <div class="k-row tr"><div class="n">Ironroot Kin</div><div class="b">+4% max HP</div></div>
+  <div class="k-row tr"><div class="n">Free Cultivator</div><div class="b">+3% drop rate</div></div>
+  <div class="k-row tr"><div class="n">Kingsbane of Sunscar</div><div class="b">+3 essence</div></div>
+</div>
+<div class="fade"></div>
+<div class="abs" style="left:1172px;top:310px;width:4px;height:320px;border-radius:2px;background:rgba(175,201,209,.12)"></div>
+<div class="abs" style="left:1172px;top:310px;width:4px;height:124px;border-radius:2px;background:var(--jade)"></div>
+<div class="abs t-xs c-mist" style="left:1022px;top:636px;transform:translateX(-50%);white-space:nowrap">11 more below</div>
+
+</div></body></html>

@@ -392,3 +392,11 @@ body {
 /* ------------------------------------------------------------------ annotations (kit sheet only; never on a mockup) */
 .k-note { font-size: 14px; color: var(--mist); }
 .k-swatch { width: 44px; height: 30px; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px rgba(255,255,255,.15); }
+
+/* ------------------------------------------------------------------ 07 (system pages A): the 76 px page slot
+   The icon study's decision (docs/mockups/icon_study/README.md): a page slot is 76 px and holds its 64 px icon at 1:1
+   (inset 6; the frame's 8 px border shows round it). Empty, it shows Style A's 64 px cloud seal at 35%. */
+.k-slot76 { width: 76px; height: 76px; }
+.k-slot76 > .ic { left: 6px; top: 6px; width: 64px; height: 64px; }
+.k-slot76.is-empty::after { inset: 6px; background: url(../icon_study/icons/A_empty.png) center / 64px 64px no-repeat; opacity: 0.35; }
+.k-slot76 > .k-count { right: 7px; bottom: 3px; font-size: 16px; }
