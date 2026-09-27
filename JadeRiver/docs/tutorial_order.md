@@ -29,7 +29,8 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 10 | The Recruitment Fair | Stoneford Fairground (Qing Lan, Mo Yun) | Sect page, Town services | both recruiters, choose a sect: the character is recorded as its member (rank, token, method) | Entry Trial: ➤ Hunt at Willow Path West · Reach Bone Forging 2 |
 | 11 | Entry Trial (auto, the moment a sect is chosen) | Willow Path to Bone Forging 2, then the Fairground's trial ground | at Bone Forging 2: Character page, notice board, return charm | the hunt to Bone Forging 2, the trial bell, the Trial Puppet | Next: A Disciple's Chores · Talk to the steward (Gate Street) |
 | 12 | A Disciple's Chores | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | sweep three spots | Next: Fish-Gutting Fists · Talk to Shen Lian (Fairground) |
-| 13 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapons, weapon Dao | a training weapon, the dummies, raise the guard | Next: Fish-Gutting Fists, above The Weapon Hall |
+| 12b | Fish-Gutting Fists | Stoneford Fairground (Shen Lian) | | beat Shen Lian in a spar | Next: Strange Tracks · Reach Level 4 (Bone Forging 4), ➤ Hunt at Willow Path West |
+| 13 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapons, weapon Dao | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not the hunt for Level 4; then a training weapon, the dummies, raise the guard | The Weapon Hall (the lesson under way leads) |
 
 Past the table the story goes on the same way: between main quests the Next entry names the giver and where they
 stand, or the Level a chapter waits on ("Reach Level 21 (Qi Unfurling 3)", "➤ Hunt at Bend Shore") and a hunting
@@ -58,3 +59,7 @@ ground whose foes suit the character's Level (the fields P12's gap names on the 
   leads toward the first story entry's; between main quests the first entry is the Next one (its giver stands where it
   says, or its hunting ground suits the Level); right after the sect choice the membership is recorded and the Entry
   Trial leads the tracker with its target and the mark.
+- The tracker and the mark lead where the story really goes next, after every step (`leads_to_next`): a quest of the
+  story under way, else one to take now, else a lesson under way or on offer (a guided quest its realm opens), and only
+  then the Level the story waits on and a hunting ground for it. At Bone Forging 3, with Strange Tracks waiting on Bone
+  Forging 4, that is the Weapon Hall, not the Willow Path's boarlets.

@@ -9,6 +9,21 @@
   player ("+21 HP", or "HP already full"); the HUD writes "Herbal Tea: +21 HP over 5 s" (shown before the log is
   revealed), shows the heal still to come on the HP bar, and puts the tea's icon with its seconds left in the status
   row (buffs and statuses show their time too). Screenshots in `docs/ui_p5/guidance_fix/`.
+## The equip prompt; the tracker at Bone Forging 3
+
+- **A better piece offers itself.** Picked up or received, a piece that beats the one worn in its slot (an empty slot
+  counts as worse) and can be worn now shows a small card at the right of the screen for 10 s (`EquipPrompt`): its
+  icon and name, the gain the Bag's card names first and Combat Power (the same `StatRules.equip_change`, through
+  `InventoryPage.card_rows`), Equip (the equip intent) and ×. It stands clear of the HUD's controls, the purse and the
+  clear zone, only its two buttons take a tap, several wait their turn, and with Reduce motion on it does not slide.
+  Screenshots in `docs/ui_p5/starter_gear/`.
+- **At Bone Forging 3 the tracker leads to the Weapon Hall.** With Fish-Gutting Fists done, the next main quest
+  (Strange Tracks) waits on Bone Forging 4, and the story's Next entry, which only looked at main quests, sent the
+  tracker and the direction mark to the hunt for it at Willow Path West; the Weapon Hall, the lesson Bone Forging 3
+  opens, was on offer and nothing led to it. With no quest of the story to take now, a lesson on offer now comes
+  before the Level (`QuestAuthority._story_next`), and one under way leads the tracker itself. The `tutorial_order`
+  walk now spars Shen Lian before the Weapon Hall, as a player does, and holds after every step that the tracker and
+  the mark lead where the story goes next (invariant 9).
 
 ## Guidance: the sect's first step, the story's Next entry, the Quick-use slot, the hut door, the attack button
 

@@ -249,6 +249,8 @@
  "hud.not_ready_yet": "Not ready yet",
  "hud.quick_use": "Quick-use",
  "hud.obtained": "Obtained %s ×%d",
+ "hud.equip_prompt.better": "Better than your %s",
+ "hud.equip_prompt.empty": "Empty %s slot",
  "hud.only_in_flight": "Only in flight",
  "hud.party_changed": "%d animals now walk beside you.",
  "hud.party_changed_one": "%d animal now walks beside you.",

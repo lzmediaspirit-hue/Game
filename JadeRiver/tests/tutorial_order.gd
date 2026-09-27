@@ -16,7 +16,10 @@ extends "res://tests/prologue_run.gd"
 ##      can walk to, between main quests its next one (who gives it and where, or the Level and where to hunt), and
 ##      right after the sect choice the membership recorded and the sect's first quest at the head of the tracker;
 ##   8. in a fight the attack button attacks, whatever the world offers in reach (the first fight is beside the Reed
-##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first).
+##      Shallows' herbs): the offer waits in the context slot on ring 2 (HUD.attack_first);
+##   9. after every step the tracker and the direction mark lead where the story really goes next (leads_to_next): a
+##      quest under way, one to take now, a lesson on offer (at Bone Forging 3 the Weapon Hall, not the hunt for the next
+##      Level), and only with none of these a hunting ground.
 ## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
 ## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
@@ -102,6 +105,8 @@ func run() -> void:
 	invariants("Entry Trial")
 	step_chores()
 	invariants("A Disciple's Chores")
+	step_fish_gutting_fists()
+	invariants("Fish-Gutting Fists")
 	step_weapon_hall()
 	invariants("The Weapon Hall")
 	check(bare.is_empty() and foes_seen.size() >= 4, "every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [str(foes_seen), str(bare.slice(0, 6))])
@@ -142,8 +147,30 @@ func step_weapon_hall() -> void:
 			step(1.0)
 		tries += 1
 	check(ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3"), "Bone Forging 3 (realm %s)" % c().cultivator.realm_key)
+	# The story waits on Bone Forging 4 next (Strange Tracks), but the step now is the Weapon Hall: the tracker's Next
+	# and the direction mark lead there, not to the Willow Path's boarlets.
+	GameEvents.flush()
+	var nx: Array = Game.quest.tracker(c())
+	var hall := Game.quest.npc_rooms(c(), QuestAuthority.own_npc(c(), ContentDB.entry("quests", "the_weapon_hall").get("giver_any", [])))
+	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "the_weapon_hall" and hall.has(str(nx[0].get("target_room", "")))
+		and (room() == str(nx[0].target_room) or Game.world.guide_target(c()) == str(nx[0].target_room)),
+		"at Bone Forging 3 the tracker's Next is The Weapon Hall and the mark leads to it (%s; mark %s)" % [str(nx.slice(0, 1)), Game.world.guide_target(c())])
+	leads_to_next("Bone Forging 3")
+	keep("Bone Forging 3")
 	check(travel("ja_weapon_hall"), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
 	accept("jade_weapon_master", "the_weapon_hall")
+
+## Chapter 1: Shen Lian's spar at the Fairground, before the Weapon Hall (the order valley_run plays it in).
+func step_fish_gutting_fists() -> void:
+	check(travel("sf_fairground"), "back to the Fairground (room %s)" % room())
+	accept("shen_lian", "fish_gutting_fists")
+	var won := false
+	for i in 3:
+		won = spar_with(func(): return _spar_service("shen_lian"))
+		if won: break
+	check(won, "beat Shen Lian in a spar")
+	GameEvents.flush()
+	hand_in("shen_lian", "fish_gutting_fists")
 
 # ------------------------------------------------------------------ the page
 ## Every quest is taken on the real dialogue page, which closes itself (or goes on to the same person's next quest).
@@ -223,9 +250,42 @@ func _trade_after_the_lesson() -> void:
 	check(go("exit"), "back out of the store")
 
 # ------------------------------------------------------------------ the invariants
+## Invariant 9: the tracker leads where the story really goes next, the first of: a quest of the story under way (the
+## room of its step); one to take now (its giver's room); a lesson (a guided quest) under way; a lesson on offer (its
+## giver's room: the Weapon Hall at Bone Forging 3); else the Level the story waits on (a hunting ground). The tracker's
+## lead and the direction mark go there.
+func leads_to_next(label: String) -> void:
+	if not Game.is_revealed("hud:quest_tracker") or Game.room_rt == null: return
+	var here := room()
+	var want := ""
+	var why := ""
+	for kinds in [QuestAuthority.STORY_KINDS, ["guided"]]:
+		for q in c().quests.tracked:
+			var d: Dictionary = Game.quest.quest_def(c(), str(q))
+			var t := Game.quest.quest_target(c(), d, c().quests.active.get(q, {})) if c().quests.is_active(str(q)) else ""
+			if str(d.get("kind", "")) in kinds and t != "" and t != here:
+				want = t
+				why = "%s under way" % q
+				break
+		if want != "": break
+		if c().quests.active.keys().any(func(q): return str(Game.quest.quest_def(c(), str(q)).get("kind", "")) in kinds): return   # under way here
+		for d in Game.quest.story_waiting(c(), kinds):
+			if not Game.quest.can_offer(c(), d): continue
+			var giver := QuestAuthority.own_npc(c(), d.get("giver_any", d.get("giver", "")))
+			want = Game.quest.objective_room(c(), d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
+			why = "%s to take from %s" % [d.id, giver]
+			break
+		if want != "": break
+	var mark := Game.world.guide_target(c())
+	if want == "":
+		check(mark == "" or str(ContentDB.room(mark).get("type", "")) == "field", "%s: with nothing to take, the tracker leads to a hunting ground for the Level (%s)" % [label, mark])
+	elif want != here and not ContentDB.room(want).get("instanced", false):
+		check(mark == want, "%s: the tracker leads where the story goes next, %s (%s; the mark leads to %s)" % [label, want, why, mark])
+
 ## Invariants 1 and 3 over every room within reach now.
 func invariants(label: String) -> void:
 	keep(label)
+	leads_to_next(label)
 	var reach := routes()
 	for rid in reach:
 		var rd: Dictionary = ContentDB.room(rid)

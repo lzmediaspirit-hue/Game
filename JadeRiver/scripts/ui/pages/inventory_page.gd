@@ -469,8 +469,7 @@ func _compare_rows(ch, s: Dictionary, slot: String, worn: bool) -> Array:
 	if change_of != int(s.get("uid", -1)):
 		change = StatRules.equip_change(ch, slot, null if worn else s)
 		change_of = int(s.get("uid", -1))
-	var shown: Array = change.filter(func(rw): return _stat_key(str(rw.stat)) != "" and str(rw.stat) != "combat_power").slice(0, 3)
-	shown.append(change[-1])
+	var shown: Array = card_rows(change)
 	if shown.all(func(rw): return absf(float(rw.after) - float(rw.before)) < 0.0005): return []
 	var now = ch.inventory.equipped.get(slot)
 	var head := Tx.t("ui.inventory.it_gives") if worn else (Tx.t("ui.inventory.against") % ContentDB.item_name(str(now.id)) if now != null
@@ -486,6 +485,11 @@ func _compare_rows(ch, s: Dictionary, slot: String, worn: bool) -> Array:
 			if absf(d) >= 0.0005:
 				text(Vector2(p.x, y), ("▲ " if d > 0.0 else "▼ ") + CharacterPage.stat_text(str(rw.stat), absf(d)).trim_prefix("+"), 16,
 					UiKit.BRIGHT_JADE if d > 0.0 else UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_RIGHT, CARD_IN)}]
+
+## Of a StatRules.equip_change, the rows a card names: the three that change most among the stats it has words for, then
+## Combat Power (the HUD's equip prompt names the first and the last).
+static func card_rows(change: Array) -> Array:
+	return change.filter(func(rw): return _stat_key(str(rw.stat)) != "" and str(rw.stat) != "combat_power").slice(0, 3) + [change[-1]]
 
 ## The words the card names a stat by: the Character register's own, the pools and Combat Power; "" for the rest.
 static func _stat_key(stat: String) -> String:

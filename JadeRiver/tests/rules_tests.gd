@@ -114,6 +114,7 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	equip_prompt_suite()
 	attack_first_suite()
 	await labels_suite()
 	await ui_suite()
@@ -1295,6 +1296,107 @@ func hud_suite() -> void:
 	stub.free()
 	c.inventory.draught = draught_was
 	c.pools.max_soul = soul_was
+	hud.queue_free()
+
+## The HUD's equip prompt (EquipPrompt): a piece better than the one worn (an empty slot counts as worse) is offered at
+## the right with the gain the Bag's card names first and Combat Power; a worse or equal piece is not; Equip is the equip
+## intent and wears it; the card goes by itself at 10 s; several wait their turn; its place keeps clear of every control,
+## the purse and the clear zone, only its buttons take a tap, and with Reduce motion it stands still.
+func equip_prompt_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	hud.process_mode = Node.PROCESS_MODE_DISABLED
+	var keep: Dictionary = c.inventory.snapshot()
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var InventoryPage = load("res://scripts/ui/pages/inventory_page.gd")
+	var give := func(ilv: int) -> int:
+		var inst := LootRules.make_instance("jadeiron_jian", ilv, "common", null, c.inventory.take_uid())
+		Game.inventory.apply_add_instance(c.id, inst, "loot")
+		GameEvents.flush()
+		var s = null
+		for k in c.inventory.bag.size():
+			if c.inventory.bag[k] != null and str(c.inventory.bag[k].id) == "jadeiron_jian" and int(c.inventory.bag[k].get("ilv", 0)) == ilv: s = c.inventory.bag[k]
+		return int(s.uid) if s != null else -1
+	c.inventory.equipped["weapon"] = null
+	c.inventory.loadout["spare"] = null
+	for k in c.inventory.bag.size(): c.inventory.bag[k] = null
+	Game.combat.refresh_stats(c.id)
+	hud.equip_prompt = EquipPrompt.new()
+	# Better than an empty slot: offered, with the Bag card's first rising stat and Combat Power.
+	var uid1: int = give.call(28)
+	hud.equip_prompt.tick(c, 0.0)
+	var cur: Dictionary = hud.equip_prompt.current
+	var rows: Array = InventoryPage.card_rows(StatRules.equip_change(c, "weapon", c.inventory.bag[EquipPrompt.bag_index(c, uid1)]))
+	var rising: Array = rows.slice(0, -1).filter(func(rw): return float(rw.after) > float(rw.before))
+	var cp_up := float(rows[-1].after) > float(rows[-1].before) + 0.5
+	check(int(cur.get("uid", -1)) == uid1 and cur.get("empty", false) and (cur.get("cp", {}) as Dictionary).is_empty() != cp_up
+		and (rising.is_empty() or str((cur.gain as Dictionary).get("stat", "")) == str(rising[0].stat)),
+		"Equip prompt: a piece for an empty slot is always offered, with the Bag card's gain (%s)" % hud.equip_prompt.gain_text())
+	# Its place: clear of the clear zone, the purse, the panels and every control, in a fight and at rest; its buttons 48 px.
+	var box: Rect2 = EquipPrompt.RECT
+	var clash: Array = []
+	for st in [[true, false], [false, true], [false, false]]:
+		hud.set_state(st[0], st[1])
+		for tg in hud.hit_targets():
+			var d := float(tg.r)
+			if Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0).intersects(box): clash.append(str(tg.role))
+	for r in [hud.CLEAR_ZONE, Rect2(1040, 222, 222, 34), hud.minimap_rect, hud.panel_rect(c), Rect2(14, 0, 342, hud.TRACKER_FOOT), Rect2(20, 0, hud.LOG_W, hud.LOG_FOOT)]:
+		if (r as Rect2).intersects(box): clash.append(str(r))
+	check(clash.is_empty() and EquipPrompt.equip_hit().size.y >= 48.0 and EquipPrompt.close_hit().size.y >= 48.0 and box.encloses(EquipPrompt.equip_hit())
+		and box.encloses(EquipPrompt.close_hit()), "Equip prompt: it stands clear of every control, the purse, the panels and the clear zone (%s)" % str(clash))
+	# Only its buttons take a tap: the attack button, and a tap on the card's face, go where they went before.
+	hud.set_state(true, false)
+	check(hud.role_at(hud.attack_center) == "attack" and hud.role_at(box.position + Vector2(20, 60)) not in ["prompt:equip", "prompt:close"]
+		and hud.role_at(EquipPrompt.equip_hit().get_center()) == "prompt:equip" and hud.role_at(EquipPrompt.close_hit().get_center()) == "prompt:close",
+		"Equip prompt: only Equip and × take a tap; the fight's controls answer as before")
+	# Reduce motion: in place at once; otherwise it slides in from the edge.
+	check(hud.equip_prompt.rect(true) == box and hud.equip_prompt.rect(false).position.x > box.position.x, "Equip prompt: it slides in, or with Reduce motion stands in place")
+	# Equip: the intent wears it, and the card goes.
+	hud.press(9, EquipPrompt.equip_hit().get_center())
+	hud.release(9)
+	check(c.inventory.equipped.get("weapon") != null and int(c.inventory.equipped.weapon.uid) == uid1 and hud.equip_prompt.current.is_empty(),
+		"Equip prompt: Equip wears the piece (the equip intent) and the card goes")
+	Game.combat.refresh_stats(c.id)
+	# Worse and equal: nothing.
+	give.call(19)
+	hud.equip_prompt.tick(c, 0.0)
+	var worse: bool = hud.equip_prompt.current.is_empty()
+	give.call(28)
+	hud.equip_prompt.tick(c, 0.0)
+	check(worse and hud.equip_prompt.current.is_empty() and hud.equip_prompt.queue.is_empty(), "Equip prompt: a worse or an equal piece is not offered")
+	# Two better ones: one at a time; the first goes by itself at 10 s, then the second.
+	var uid9: int = give.call(36)
+	var uid8: int = give.call(34)
+	hud.equip_prompt.tick(c, 0.0)
+	var first_up: bool = int(hud.equip_prompt.current.get("uid", -1)) == uid9 and hud.equip_prompt.queue == [uid8]
+	var rows9: Array = InventoryPage.card_rows(StatRules.equip_change(c, "weapon", c.inventory.bag[EquipPrompt.bag_index(c, uid9)]))
+	var cp9: Dictionary = hud.equip_prompt.current.get("cp", {})
+	var rise9: Array = rows9.slice(0, -1).filter(func(rw): return float(rw.after) > float(rw.before))
+	check(not cp9.is_empty() and is_equal_approx(float(cp9.after) - float(cp9.before), float(rows9[-1].after) - float(rows9[-1].before)) and float(cp9.after) > float(cp9.before)
+		and (rise9.is_empty() or str((hud.equip_prompt.current.gain as Dictionary).get("stat", "")) == str(rise9[0].stat)) and hud.equip_prompt.gain_text().contains("▲"),
+		"Equip prompt: a piece better than the worn one is offered with the Bag card's gain (%s)" % hud.equip_prompt.gain_text())
+	hud.equip_prompt.tick(c, 9.9)
+	var still_up: bool = int(hud.equip_prompt.current.get("uid", -1)) == uid9
+	hud.equip_prompt.tick(c, 0.2)
+	check(first_up and still_up and int(hud.equip_prompt.current.get("uid", -1)) == uid8, "Equip prompt: several wait their turn, and each goes by itself at 10 s")
+	hud.press(9, EquipPrompt.close_hit().get_center())
+	hud.release(9)
+	check(hud.equip_prompt.current.is_empty() and int(c.inventory.equipped.weapon.uid) == uid1, "Equip prompt: × closes it, nothing worn changes")
+	c.inventory.restore(keep)
+	Game.combat.refresh_stats(c.id)
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
 	hud.queue_free()
 
 ## P5a (review G4): world names never stack. WorldLabels.resolve places a crowd of labels in whole rows so no two
