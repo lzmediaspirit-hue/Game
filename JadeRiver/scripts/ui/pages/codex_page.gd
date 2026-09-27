@@ -47,6 +47,15 @@ func _codex() -> void:
 		var e2 := ContentDB.entry("codex", sel)
 		heading(right.position + Vector2(24, 46), str(e2.get("title", "")), right.size.x - 48)
 		var used := para(Rect2(right.position + Vector2(24, 70), right.size - Vector2(48, 90)), str(e2.get("body", "")), 20)
+		# P12: under Realms, the par character at your Level, the yardstick every foe of that Level is set against.
+		if sel == "realms" and c() != null:
+			var lv := ProgressionRules.level(c())
+			var p := StatRules.par(lv)
+			var y0 := right.position.y + 100 + used
+			text(Vector2(right.position.x + 24, y0), Tx.t("ui.codex.par_title") % ContentDB.realm_label(c().cultivator.realm_key, lv), 20, UiKit.PALE_GOLD)
+			para(Rect2(right.position.x + 24, y0 + 14, right.size.x - 48, 200), Tx.t("ui.codex.par_body") % ["%.2f" % float(p.get("might", 1.0)),
+				UiKit.fmt(float(p.get("attack", 0))), UiKit.fmt(float(p.get("basic", 0))), UiKit.fmt(float(p.get("technique", 0))),
+				UiKit.fmt(float(p.get("technique_crit", 0))), UiKit.fmt(float(p.get("max_hp", 0))), UiKit.fmt(float(p.get("cp", 0)))], 18, UiKit.MIST)
 		# S44: the experiment log, shared by every character on the account.
 		if sel == "experiments":
 			var y := right.position.y + 90 + used

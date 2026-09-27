@@ -1443,6 +1443,8 @@
   "ui.codex.no_season": "In every season",
   "ui.codex.not_yet_discovered": "Not yet discovered",
   "ui.codex.of_entries_discovered": "%d of %d entries discovered.",
+  "ui.codex.par_body": "Might ×%s. Attack %s; a plain blow %s; a technique %s, or %s on a critical strike; health %s; Combat Power %s. A steady cultivator keeps gear a few Levels behind them, Fine and later Superior, and a Dao and a main art that grow with the realm. Every foe of this Level is measured against it: a common one falls to three or four such blows, and its own blow takes about a sixteenth of such health.",
+  "ui.codex.par_title": "A steady cultivator at %s",
   "ui.codex.paths_above": "Paths Above",
   "ui.codex.paths_above_found": "Found: %s",
   "ui.codex.paths_above_intro": "High places only a later art reaches. Found %d of %d.",

@@ -24,6 +24,20 @@ static func might_at(lv: int) -> float:
 static func might(c) -> float:
 	return might_at(ProgressionRules.level(c))
 
+## P12 the par character (research §6.1): what a steady cultivator of the jian has at a Level (stats.json `par.table`:
+## might, attack, qi_attack, max_hp, physical_defense, crit_chance, crit_damage, basic, technique, technique_crit, dps,
+## cp). The monster tables are set against it; balance_sim builds it with the real rules; the Codex shows it.
+static func par(lv: int) -> Dictionary:
+	return by_level("par.table", lv, {})
+
+## The par schedule's row reached at `lv` (stats.json `par.<key>`, rows [from Level, value...]): its value, or its values.
+static func par_step(key: String, lv: int):
+	var rows: Array = ContentDB.stat_const("par." + key, [])
+	var row: Array = rows[0] if not rows.is_empty() else [0, 0]
+	for r in rows:
+		if lv >= int(r[0]): row = r
+	return row[1] if row.size() == 2 else row.slice(1)
+
 static func pool_base(pool: String, lv: int, realm_key: String) -> float:
 	var spec: Dictionary = ContentDB.stat_const("pools.%s" % pool, {})
 	if spec.is_empty(): return 0.0

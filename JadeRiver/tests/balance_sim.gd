@@ -71,7 +71,103 @@ func _main() -> void:
 	_drops(cfg)
 	_posts()
 	_account_month()
+	_par_checks(c, cfg)
 	_finish()
+
+# ------------------------------------------------------------------ P12 the par character (research §6.1, §6.7)
+## The par character (StatRules.par) built with the real rules at Level `lv` on the sim's character: its realm, the
+## meridians spread over the five channels, the Sword Dao, a jian and four armour pieces `weapon_lag` Levels behind at
+## par quality and enhancement (the weapon with its attack affix), and the sets' damage% and the crit affixes as
+## modifiers of their own. The same schedule the par table was built from (stats.json `par`).
+func _par_character(c, lv: int) -> void:
+	var cu = c.cultivator
+	cu.realm_key = ContentDB.realm_key_for_level(lv)
+	var r := ContentDB.realm(cu.realm_key)
+	cu.qp = cu.need() * (float(lv - int(r.level)) + 0.5) / maxf(1.0, float(r.get("levels", 1)))
+	cu.energy_type = str(r.get("energy", "none"))
+	cu.purity = int(ContentDB.stat_const("par.purity", 9))
+	cu.method_id = ""
+	cu.body_level = 0
+	cu.aptitude = {}   # a neutral root and physique
+	var chans: Array = ContentDB.stat_const("par.channels", [])
+	var pts := 0
+	for l in range(1, lv + 1): pts += ProgressionRules.meridian_points_for_level(l)
+	cu.meridians = {}
+	for i in chans.size(): cu.meridians[str(chans[i])] = pts / chans.size() + (1 if i < pts % chans.size() else 0)
+	cu.daos = {"sword": {"insight": 0.0, "tier": int(StatRules.par_step("dao", lv))}}
+	var ilv := maxi(1, lv - int(ContentDB.stat_const("par.weapon_lag", 3)))
+	var quality := str(StatRules.par_step("quality", lv))
+	var enhance := mini(int(ContentDB.stat_const("par.enhance_max", 10)), lv / int(ContentDB.stat_const("par.enhance_every", 12)))
+	for slot in c.inventory.equipped.keys(): c.inventory.equipped[slot] = null
+	for slot in ["weapon", "robe", "trousers", "boots", "hat"]:
+		var base := _par_base(slot, ilv)
+		if base == "": continue
+		var inst := {"id": base, "uid": 900000 + lv * 10 + c.inventory.equipped.size(), "count": 1, "ilv": ilv, "quality": quality, "enhance": enhance}
+		if slot == "weapon": inst["affixes"] = [{"id": "attack_pct", "stat": "physical_attack", "op": "pct_add", "value": float(StatRules.par_step("attack_pct", lv))}]
+		c.inventory.equipped[slot] = inst
+	var crit: Array = StatRules.par_step("crit", lv)
+	c.set_meta("extra_modifiers", [{"stat": "damage_pct", "op": "flat", "value": float(StatRules.par_step("damage_pct", lv)), "source": "par:sets"},
+		{"stat": "crit_chance", "op": "flat", "value": float(crit[0]), "source": "par:crit"},
+		{"stat": "crit_damage", "op": "flat", "value": float(crit[1]), "source": "par:crit"}])
+	StatRules.rebuild(c)
+
+## The banded base of a slot (the jian for the weapon) with the highest item Level at or under `ilv`, else the lowest.
+func _par_base(slot: String, ilv: int) -> String:
+	var best := ""
+	var best_lv := -1
+	var low := ""
+	var low_lv := 9999
+	for a in ContentDB.all("artifacts"):
+		if str(a.get("slot", "")) != slot or not LootRules.is_banded(a): continue
+		if slot == "weapon" and str(a.get("family", "")) != str(ContentDB.stat_const("par.family", "jian")): continue
+		var al := int(a.get("ilv", 1))
+		if al <= ilv and al > best_lv:
+			best = str(a.id)
+			best_lv = al
+		if al < low_lv:
+			low = str(a.id)
+			low_lv = al
+	return best if best != "" else low
+
+## Average blows of the par character against a normal foe of its own Level (never missing, crits out unless `crits`):
+## the basic combo's mean stroke and the par main art.
+func _par_hits(c, lv: int, crits := false) -> Dictionary:
+	var pv := CombatRules.fighter(c)
+	if not crits: pv.crit_chance = -10.0
+	var foe := CombatRules.foe(StatRules.mob_stats({"role": "normal"}, lv), lv, "wood")   # a foe whose element neither resists nor is struck by the blow
+	var fam := StatRules.family(c)
+	var combo := 0.0
+	for st in fam.get("combo", []): combo += float(st.get("mult", 1.0)) / float((fam.combo as Array).size())
+	var art := float(StatRules.par_step("art", lv))
+	var dao := ProgressionRules.effective_dao_tier(c, str(fam.get("dao", "")))
+	var basic := {"damage_type": "physical", "element": "none", "mult": [combo, combo], "range": fam.get("range", [0.9, 1.1]), "dao_tier": dao, "never_miss": true}
+	var tech := {"damage_type": str(ContentDB.stat_const("par.art_type", "qi")), "element": "none", "mult": [art, art], "range": fam.get("range", [0.9, 1.1]),
+		"dao_tier": dao, "mastery_tier": int(StatRules.par_step("mastery", lv)) - 1, "never_miss": true}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4242 + lv
+	var out := {"basic": 0.0, "technique": 0.0}
+	for i in 800:
+		out.basic += float(CombatRules.resolve(pv, foe, basic, rng).amount) / 800.0
+		out.technique += float(CombatRules.resolve(pv, foe, tech, rng).amount) / 800.0
+	return out
+
+func _par_checks(c, cfg: Dictionary) -> void:
+	var targets: Dictionary = cfg.get("par_targets", {})
+	var tol: Array = cfg.get("par_tolerance", [0.15, 0.20])
+	check(not targets.is_empty() and not StatRules.par(99).is_empty(), "the par table and its targets are present")
+	print("par   Level   basic (target)        technique (target)    crit tech   max HP    table basic")
+	for key in targets:
+		var lv := int(key)
+		_par_character(c, lv)
+		var h := _par_hits(c, lv)
+		var want: Array = targets[key]
+		var row := StatRules.par(lv)
+		print("par   %5d %9d (%9d) %11d (%10d) %11d %9d %9d" % [lv, int(h.basic), int(want[0]), int(h.technique), int(want[1]),
+			int(h.technique * c.stats.value("crit_damage")), int(c.stats.value("max_hp")), int(row.get("basic", 0))])
+		# 1 par_hit: the real rules against the research's targets, and against the table the monsters are set from.
+		check(absf(h.basic / float(want[0]) - 1.0) <= float(tol[0]), "par_hit: Level %d basic %d against %d (±%d%%)" % [lv, int(h.basic), int(want[0]), int(float(tol[0]) * 100)])
+		check(absf(h.technique / float(want[1]) - 1.0) <= float(tol[1]), "par_hit: Level %d technique %d against %d (±%d%%)" % [lv, int(h.technique), int(want[1]), int(float(tol[1]) * 100)])
+		check(absf(h.basic / maxf(1.0, float(row.get("basic", 0))) - 1.0) <= 0.05, "par_hit: Level %d, the rules' basic %d and the par table's %d agree (±5%%)" % [lv, int(h.basic), int(row.get("basic", 0))])
 
 ## S39: a player can afford the next upgrade in their grade band after about 1–2 hours.
 func _currency(cfg: Dictionary) -> void:

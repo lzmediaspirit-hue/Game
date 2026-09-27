@@ -116,13 +116,13 @@ def might_block():
 # `from_level` both keep today's polynomials (Bone Forging keeps its numbers).
 PAR = {"family": "jian", "origin": "fishers_child", "purity": 9, "weapon_lag": 3, "enhance_every": 12, "enhance_max": 10,
        "channels": ["body", "agility", "essence", "spirit", "insight"],
-       "quality": [[1, "common"], [11, "fine"], [40, "superior"], [103, "perfect"]],
+       "quality": [[1, "common"], [10, "fine"], [40, "superior"], [103, "perfect"]],
        "dao": [[1, 0], [15, 1], [30, 2], [49, 3], [67, 4], [85, 5], [112, 6]],
        "mastery": [[1, 1], [12, 2], [21, 3], [49, 4], [85, 5], [112, 6]],
        "attack_pct": [[1, 0.0], [22, 0.05], [67, 0.08], [103, 0.12]],
        "damage_pct": [[1, 0.0], [42, 0.08], [67, 0.13], [124, 0.20]],
        "crit": [[1, 0.0, 0.0], [40, 0.03, 0.10], [67, 0.05, 0.25], [124, 0.08, 0.50]],
-       "art": [[1, 1.0], [10, 0.8], [19, 1.2], [37, 1.45], [55, 1.95], [64, 1.9], [73, 1.8], [82, 1.75], [91, 1.7], [109, 1.6],
+       "art": [[1, 1.0], [19, 1.2], [37, 1.45], [55, 1.95], [64, 1.9], [73, 1.8], [82, 1.75], [91, 1.7], [109, 1.6],
                [121, 1.45], [141, 1.33], [151, 1.25], [166, 1.1]],
        "art_type": "qi", "technique_share": 1.6,
        "hits": 3.5, "blow": [[0, 0.08], [20, 0.06]], "from_level": 10}
@@ -391,8 +391,10 @@ def build():
     ]
     entries("origins.json", origins)
 
+    par = par_block(families, origins)
     write("stats.json", {
         "might": might_block(),
+        "par": par,
         **CORE,
         "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4},
         "move": {"base": 205, "sprint": 1.7, "sprint_after_s": 2.0, "cap_pct": 0.4, "attack_factor": 0.3, "guard_factor": 0.5,
@@ -620,6 +622,12 @@ def build():
         # S39 checks: [Level, the next upgrade, the spec's taels per hour there]; affordable within 1-2 h (±25%).
         "upgrades": [[15, "iron_jian", 850], [25, "jadeiron_robe", 1700]], "afford_hours": [0.75, 2.5],
         "act_end": "heaven_glimpse_3", "act_end_hours": 65,
+        # P12 (research §6.2, §6.7 check 1): the par character's basic and technique hits (before crits) at these Levels;
+        # the par character built with the real rules must land within ±15% and ±20%. Level 120 waits for v1.3's
+        # weapons (a Will-grade jian carries the energy penalty there).
+        "par_targets": {"1": [12, 12], "10": [68, 63], "30": [832, 1246], "60": [11000, 39500], "80": [41500, 154000],
+                        "99": [136000, 527000], "108": [246000, 999000]},
+        "par_tolerance": [0.15, 0.20],
         # Act II so far (v1.1 phases A-B reach Sage 3): the sim plays on to this stage.
         "sim_end": "sage_sovereign_1",
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
