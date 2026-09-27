@@ -1085,13 +1085,20 @@ def monsters_page(d, s):
 
 
 def mob_stats(d, e, lv, mob, role=None):
+    """StatRules.mob_stats: the par tables by Level (P12), a boss's par time, armour times the Level's Might."""
     poly = lambda sp, x: float(sp.get("a", 0)) + float(sp.get("b", 0)) * x + float(sp.get("c", 0)) * x * x
+    at = lambda table, fallback: float(table[max(0, min(lv, len(table) - 1))]) if table else fallback
+    stats = d.cfg("stats")
     r = mob.get("roles", {}).get(role or e.get("role", "normal"), {"hp": 1, "attack": 1, "defence": 0.8})
-    hp = poly(mob.get("hp", {}), lv) * float(r["hp"]) * float(e.get("hp_mult", 1.0))
+    hp = at(mob.get("hp_table", []), poly(mob.get("hp", {}), lv)) * float(r["hp"]) * float(e.get("hp_mult", 1.0))
+    if "par_s" in e:
+        par = stats.get("par", {}).get("table", [])
+        hp = float(par[max(0, min(lv, len(par) - 1))]["dps"]) * float(e["par_s"]) * float(e.get("hp_mult", 1.0))
     if "hp_override" in e:
         hp = float(e["hp_override"])
-    atk = poly(mob.get("attack", {}), lv) * float(r["attack"]) * float(e.get("attack_mult", 1.0))
-    arm = poly(d.cfg("stats").get("equipment", {}).get("armour_defence", {}), lv) * float(r["defence"]) * float(e.get("defence_mult", 1.0))
+    atk = at(mob.get("attack_table", []), poly(mob.get("attack", {}), lv)) * float(r["attack"]) * float(e.get("attack_mult", 1.0))
+    might = at(stats.get("might", {}).get("table", []), 1.0)
+    arm = poly(stats.get("equipment", {}).get("armour_defence", {}), lv) * float(r["defence"]) * float(e.get("defence_mult", 1.0)) * might
     acc = poly(mob.get("accuracy", {}), lv)
     return "HP %d, Attack %d, Physical Defense %d, Accuracy %d" % (round(hp), round(atk), round(arm), round(acc))
 

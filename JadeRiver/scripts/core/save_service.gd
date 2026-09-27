@@ -111,9 +111,16 @@ func migrate_account(data: Dictionary) -> Dictionary:
 	return data
 
 func migrate_character(data: Dictionary) -> Dictionary:
-	var v := int(data.get("version", 0))
-	if v == VERSION: return data
 	data["version"] = VERSION
+	# P12 Might (minor 1): the maxima are rebuilt on load and grow by the Might of the Level, so the saved health grows
+	# with them and the character keeps the same share of it. Qi and Soul take no Might. Runs once.
+	if int(data.get("minor", 0)) < GameCharacter.MINOR:
+		var cu = data.get("cultivator", {})
+		var pools = data.get("pools", {})
+		if cu is Dictionary and pools is Dictionary and pools.has("hp"):
+			var lv := ProgressionRules.level_for(str(cu.get("realm_key", "mortal")), float(cu.get("progress", 0.0)))
+			pools["hp"] = float(pools.hp) * StatRules.might_at(lv)
+		data["minor"] = GameCharacter.MINOR
 	return data
 
 ## Read a v2 `disciples.json` (or its .bak) if no v3 account exists yet.

@@ -183,7 +183,7 @@ def activity():
 
 
 def build_extra():
-    entries("rankings", rankings(), ref_cp=[20, 18], wobble=0.04, top=8, finals_quest="the_valley_finals", climb_deed="rank_climbed")
+    entries("rankings", rankings(), wobble=0.04, top=8, finals_quest="the_valley_finals", climb_deed="rank_climbed")
     entries("tower", tower(), room="sf_trial_tower", sweep_silver_per_floor=15)
     entries("activity", activity(),
             # Points per deed and the most each source can give in a day (0: no cap).

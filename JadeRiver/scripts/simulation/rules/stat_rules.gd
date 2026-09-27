@@ -6,10 +6,37 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:", "sworn:"]
+	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:", "sworn:", "might"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
+
+## A row of a by-Level table in stats.json (Levels 0-200); past its end the last row holds.
+static func by_level(path: String, lv: int, fallback = 1.0):
+	var t: Array = ContentDB.stat_const(path, [])
+	return t[clampi(lv, 0, t.size() - 1)] if not t.is_empty() else fallback
+
+## P12 Might (docs/research/stat_scaling_research.md §6.2): the realm's power step at a Level, shared by the player
+## and every monster of that Level.
+static func might_at(lv: int) -> float:
+	return float(by_level("might.table", lv))
+
+static func might(c) -> float:
+	return might_at(ProgressionRules.level(c))
+
+## P12 the par character (research §6.1): what a steady cultivator of the jian has at a Level (stats.json `par.table`:
+## might, attack, qi_attack, max_hp, physical_defense, crit_chance, crit_damage, basic, technique, technique_crit, dps,
+## cp). The monster tables are set against it; balance_sim builds it with the real rules; the Codex shows it.
+static func par(lv: int) -> Dictionary:
+	return by_level("par.table", lv, {})
+
+## The par schedule's row reached at `lv` (stats.json `par.<key>`, rows [from Level, value...]): its value, or its values.
+static func par_step(key: String, lv: int):
+	var rows: Array = ContentDB.stat_const("par." + key, [])
+	var row: Array = rows[0] if not rows.is_empty() else [0, 0]
+	for r in rows:
+		if lv >= int(r[0]): row = r
+	return row[1] if row.size() == 2 else row.slice(1)
 
 static func pool_base(pool: String, lv: int, realm_key: String) -> float:
 	var spec: Dictionary = ContentDB.stat_const("pools.%s" % pool, {})
@@ -303,6 +330,10 @@ static func rebuild(c) -> Array:
 		var eb: Dictionary = ContentDB.config("pet_growth").get("incubation", {}).get("blood", {})
 		sb.add_modifier({"stat": "max_hp", "op": "pct_add", "value": float(eb.get("max_hp_pct", -0.1)), "source": "essence_blood"})
 	for m in c.get_meta("extra_modifiers", []): sb.add_modifier(m)
+	# P12: Might multiplies the attacks, max HP and the defences, whatever feeds them; max Qi and max Soul never.
+	var mt := might_at(lv)
+	if mt > 1.0:
+		for stat in ContentDB.stat_const("might.stats", []): sb.add_modifier({"stat": str(stat), "op": "pct_mul", "value": mt - 1.0, "source": "might"})
 	# Attributes first.
 	var attr_base := attribute_bases(c, lv)
 	for attr in attr_base: sb.set_base(attr, attr_base[attr])
@@ -362,6 +393,9 @@ static func rebuild(c) -> Array:
 	sb.set_base("crafting_control", float(fx.insight.crafting_control) * A.insight)
 	sb.set_base("accumulation_rate", 0.0)
 	sb.set_base("elemental_power", 0.0)
+	sb.set_base("damage_pct", 0.0)
+	sb.set_base("boss_damage", 0.0)
+	sb.set_base("final_damage", 1.0)   # P12: a product; each source multiplies it (op pct_mul)
 	sb.set_base("sense_radius", 300.0 * (1.0 + float(fx.spirit.sense_radius_pct) * A.spirit) if soul_base > 0 else 0.0)
 	sb.set_base("hollow_ward", 0.0)
 	sb.set_base("pressure", 0.0)
@@ -422,7 +456,7 @@ static func body_flag(c, flag: String) -> bool:
 static func attribute(c, attr: String) -> float:
 	return c.stats.value(attr)
 
-## S11 Combat Power.
+## S11 Combat Power (P12: no energy term; Might is inside the attack, health and defences).
 static func combat_power(c) -> int:
 	var sb: StatBlock = c.stats
 	var fam := family(c)
@@ -431,9 +465,8 @@ static func combat_power(c) -> int:
 	var aspd := float(fam.get("hits_per_s", 1.0)) * (1.0 + sb.value("attack_speed"))
 	var crit := sb.value("crit_chance")
 	var defences := sb.value("physical_defense") + sb.value("qi_resistance") + sb.value("soul_defense")
-	var e := ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity)
-	var cp := (sb.value("max_hp") / float(cp_conf.get("hp_div", 10)) + atk * aspd * (1.0 + crit * (sb.value("crit_damage") - 1.0)) * float(cp_conf.get("attack_weight", 0.5))
-		+ defences / float(cp_conf.get("defence_div", 4))) * e
+	var cp := sb.value("max_hp") / float(cp_conf.get("hp_div", 10)) + atk * aspd * (1.0 + crit * (sb.value("crit_damage") - 1.0)) * float(cp_conf.get("attack_weight", 0.5)) \
+		+ defences / float(cp_conf.get("defence_div", 4))
 	return int(round(cp))
 
 ## Monster stat templates by Level and role (S13).
@@ -441,12 +474,17 @@ static func mob_stats(def: Dictionary, lv: int, elite := false) -> Dictionary:
 	var mob: Dictionary = ContentDB.stat_const("mob", {})
 	var role := "elite" if elite else str(def.get("role", "normal"))
 	var r: Dictionary = mob.get("roles", {}).get(role, {"hp": 1, "attack": 1, "defence": 0.8})
-	var hp := poly(mob.hp, lv) * float(r.hp) * float(def.get("hp_mult", 1.0))
+	# P12 (research §6.2): a normal foe's health and attack come from the par tables (3.5 par blows; a blow of 6% of par
+	# health, 8% under Level 20), a boss's health from the par character's DPS times its par time; armour takes the
+	# Might of the Level, which the attacker's own Might answers.
+	var mt := might_at(lv)
+	var hp := float(by_level("mob.hp_table", lv, poly(mob.hp, lv))) * float(r.hp) * float(def.get("hp_mult", 1.0))
+	if def.has("par_s"): hp = float(par(lv).get("dps", 0)) * float(def.par_s) * float(def.get("hp_mult", 1.0))
 	if def.has("hp_override"): hp = float(def.hp_override)
-	var attack := poly(mob.attack, lv) * float(r.attack) * float(def.get("attack_mult", 1.0))
+	var attack := float(by_level("mob.attack_table", lv, poly(mob.attack, lv))) * float(r.attack) * float(def.get("attack_mult", 1.0))
 	var acc := poly(mob.accuracy, lv)
 	var eva := acc * float(mob.get("agile_evasion_pct" if def.get("agile", false) else "evasion_pct", 0.3))
-	var defence := armour_defence(lv) * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)
+	var defence := armour_defence(lv) * mt * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)
 	return {"max_hp": hp, "attack": attack, "accuracy": acc, "evasion": eva, "physical_defense": defence,
 		"qi_resistance": defence * 0.6, "soul_defense": defence * 0.5, "crit_chance": 0.05, "crit_damage": 1.5,
-		"tenacity": 0.3 if role in ["field_boss", "dungeon_boss", "story_boss"] else 0.0, "role": role}
+		"tenacity": 0.3 if role in ["field_boss", "dungeon_boss", "story_boss"] else 0.0, "role": role, "might": mt}

@@ -67,7 +67,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Willow Path › Willow Path West: Lv 2–3, up to 3, respawn 12s
 - **Also appears**: Set pieces: Copper Body Trial (enemy)
 - **Level band**: Lv 2–3 in `enemies.json`
-- **Stats**: Lv 2: HP 64, Attack 10, Physical Defense 6, Accuracy 16; Lv 3: HP 85, Attack 13, Physical Defense 7, Accuracy 19
+- **Stats**: Lv 2: HP 64, Attack 10, Physical Defense 6, Accuracy 16; Lv 3: HP 85, Attack 12, Physical Defense 7, Accuracy 19
 - **Behaviour**: AI ranged_melee; aggro range 200; move speed 50; patrol 140; moves: drop, jump 430; tameable. Attacks: tongue_lash×0.9 (windup 0.4s)
 - **Drops** (loot table `mossback_toad`):
   - [Toad Oil](items.md#item-toad_oil): 30% (group 60%, weight 1 of 2)
@@ -179,7 +179,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 5, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floor 1
 - **Level band**: Lv 4–5 in `enemies.json`
-- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; as an elite at Lv 5: HP 795, Attack 28, Physical Defense 15, Accuracy 25
+- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; as an elite at Lv 5: HP 795, Attack 28, Physical Defense 16, Accuracy 25
 - **Behaviour**: AI charger; aggro range 200; move speed 60; patrol 140; moves: drop. Attacks: roll×1.1 (windup 0.5s)
 - **Drops** (loot table `rock_beetle`):
   - [Beetle Shell](items.md#item-beetle_shell): 30% (group 60%, weight 1 of 2)
@@ -200,7 +200,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 5–7, up to 4, respawn 12s
 - **Also appears**: Trial Tower foe, floor 3
 - **Level band**: Lv 5–7 in `enemies.json`
-- **Stats**: Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; as an elite at Lv 7: HP 1133, Attack 38, Physical Defense 20, Accuracy 31
+- **Stats**: Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; as an elite at Lv 7: HP 1133, Attack 38, Physical Defense 21, Accuracy 31
 - **Behaviour**: AI burrower; aggro range 200; move speed 70; patrol 140; moves: drop; tameable. Attacks: burst_claw×1.2 (windup 0.6s)
 - **Drops** (loot table `ironclaw_mole`):
   - [Mole Claw](items.md#item-mole_claw): 30% (group 60%, weight 1 of 2)
@@ -237,7 +237,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 5–7, up to 3, respawn 12s
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 7, up to 1, respawn 180s; elite
 - **Level band**: Lv 5–7 in `enemies.json`
-- **Stats**: Lv 5: HP 186, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 264, Attack 25, Physical Defense 14, Accuracy 31; as an elite at Lv 7: HP 1587, Attack 38, Physical Defense 20, Accuracy 31
+- **Stats**: Lv 5: HP 186, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 264, Attack 25, Physical Defense 14, Accuracy 31; as an elite at Lv 7: HP 1587, Attack 38, Physical Defense 21, Accuracy 31
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 35; patrol 140; moves: drop. Attacks: slam×1.2 (windup 0.6s, knockback 60)
 - **Drops** (loot table `stone_tortoise`):
   - [Tortoise Plate](items.md#item-tortoise_plate): 60% (group)
@@ -257,7 +257,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 11, up to 1, respawn 180s; elite
   - Jade River Valley › Reed Marsh › Sunken Causeway: Lv 8–11, up to 2, respawn 12s
 - **Level band**: Lv 7–11 in `enemies.json`
-- **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 11: HP 328, Attack 41, Physical Defense 21, Accuracy 43; as an elite at Lv 11: HP 1969, Attack 62, Physical Defense 32, Accuracy 43
+- **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 11: HP 328, Attack 61, Physical Defense 28, Accuracy 43; as an elite at Lv 11: HP 1968, Attack 92, Physical Defense 42, Accuracy 43
 - **Behaviour**: AI leaper; aggro range 200; move speed 70; patrol 140; moves: drop, jump 530; hollowing 3. Attacks: leap_bite×1 (windup 0.5s)
 - **Drops** (loot table `greyfin`):
   - [Tiny Hollow Shard](items.md#item-tiny_hollow_shard): 60% (group)
@@ -276,7 +276,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
 - **Also appears**: Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
 - **Level band**: Lv 7–12 in `enemies.json`
-- **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 12: HP 368, Attack 46, Physical Defense 23, Accuracy 46
+- **Stats**: Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
 - **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
 - **Drops** (loot table `hollowed_boarlet`):
   - [Grey Hide](items.md#item-grey_hide): 60% (group)
@@ -297,7 +297,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Bamboo Grove › Whispering Bamboo: Lv 12, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 4, 5
 - **Level band**: Lv 10–12 in `enemies.json`
-- **Stats**: Lv 10: HP 290, Attack 37, Physical Defense 19, Accuracy 40; Lv 12: HP 368, Attack 46, Physical Defense 23, Accuracy 46; as an elite at Lv 12: HP 2210, Attack 69, Physical Defense 35, Accuracy 46
+- **Stats**: Lv 10: HP 290, Attack 53, Physical Defense 25, Accuracy 40; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46; as an elite at Lv 12: HP 2208, Attack 105, Physical Defense 47, Accuracy 46
 - **Behaviour**: AI ranged; aggro range 200; move speed 120; patrol 140; moves: climb, drop, jump 600; keep distance 150; agile; steals coins; tameable. Attacks: shoot_toss×0.9 (windup 0.4s)
 - **Drops** (loot table `bamboo_monkey`):
   - [Bamboo Shoot](items.md#item-bamboo_shoot): 60% (group)
@@ -318,7 +318,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Bamboo Grove › Whispering Bamboo: Lv 11–14, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floor 6
 - **Level band**: Lv 11–14 in `enemies.json`
-- **Stats**: Lv 11: HP 328, Attack 41, Physical Defense 21, Accuracy 43; Lv 14: HP 456, Attack 55, Physical Defense 28, Accuracy 52; as an elite at Lv 14: HP 2734, Attack 83, Physical Defense 42, Accuracy 52
+- **Stats**: Lv 11: HP 328, Attack 61, Physical Defense 28, Accuracy 43; Lv 14: HP 456, Attack 89, Physical Defense 38, Accuracy 52; as an elite at Lv 14: HP 2736, Attack 134, Physical Defense 57, Accuracy 52
 - **Behaviour**: AI melee; aggro range 200; move speed 85; patrol 140; moves: drop, jump 430; tameable; tame species green_viper. Attacks: strike×1 (windup 0.35s, status {"chance": 0.35, "duration_s": 5, "id": "poison", "power": 0.02})
 - **Drops** (loot table `green_viper`):
   - [Viper Fang](items.md#item-viper_fang): 30% (group 60%, weight 1 of 2)
@@ -338,7 +338,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Bamboo Grove › Thicket Heart: Lv 13–15, up to 1, respawn 180s
 - **Also appears**: Trial Tower foe, floor 6; guards the herb patch in Thicket Heart (Bamboo Grove)
 - **Level band**: Lv 13–15 in `enemies.json`
-- **Stats**: Lv 13: HP 2465, Attack 76, Physical Defense 38, Accuracy 49; Lv 15: HP 3015, Attack 91, Physical Defense 45, Accuracy 55
+- **Stats**: Lv 13: HP 2466, Attack 120, Physical Defense 52, Accuracy 49; Lv 15: HP 3012, Attack 150, Physical Defense 63, Accuracy 55
 - **Behaviour**: AI charger; aggro range 200; move speed 80; patrol 140; moves: drop; thorns 0.1. Attacks: thorn_charge×1.2 (windup 0.55s, knockback 60)
 - **Drops** (loot table `thornback_boar`):
   - [Thorn Hide](items.md#item-thorn_hide): 100% (guaranteed)
@@ -363,7 +363,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Story › Gu's Warehouse: Lv 50–52, up to 3, respawn 99999s
 - **Also appears**: Defence (waves) (enemy); Trial Tower foe, floors 7, 8; Trial Tower guardian, floor 5; ambush in Caravan Road (enemy); summoned by [Big Toad Tan](#enemy-big_toad_tan)
 - **Level band**: Lv 14–19 in `enemies.json`; Lv 14–52 with its room spawns
-- **Stats**: Lv 14: HP 456, Attack 55, Physical Defense 28, Accuracy 52; Lv 52: HP 3784, Attack 390, Physical Defense 174, Accuracy 166; as an elite at Lv 52: HP 22706, Attack 585, Physical Defense 261, Accuracy 166
+- **Stats**: Lv 14: HP 456, Attack 89, Physical Defense 38, Accuracy 52; Lv 52: HP 20892, Attack 2221, Physical Defense 698, Accuracy 166; as an elite at Lv 52: HP 125352, Attack 3332, Physical Defense 1047, Accuracy 166
 - **Behaviour**: AI humanoid; aggro range 200; move speed 100; patrol 140; moves: climb, drop, jump 530; faction mudwater. Attacks: slash×1 (windup 0.4s); qi_strike×1.3 (windup 0.55s, damage type qi)
 - **Drops** (loot table `mudwater_bandit`):
   - [Cloth](items.md#item-cloth): 60% (group)
@@ -388,7 +388,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mudwater Hideout › Tunnels: Lv 16–19, up to 1, respawn 12s
 - **Also appears**: Trial Tower foe, floors 7, 8, 9
 - **Level band**: Lv 16–20 in `enemies.json`
-- **Stats**: Lv 16: HP 552, Attack 66, Physical Defense 33, Accuracy 58; Lv 20: HP 770, Attack 89, Physical Defense 43, Accuracy 70
+- **Stats**: Lv 16: HP 552, Attack 112, Physical Defense 46, Accuracy 58; Lv 20: HP 948, Attack 144, Physical Defense 74, Accuracy 70
 - **Behaviour**: AI ranged; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; keep distance 260; faction mudwater. Attacks: arrow×1 (windup 0.6s)
 - **Drops** (loot table `bandit_archer`):
   - [Arrows](items.md#item-arrows): 30% (group 60%, weight 1 of 2)
@@ -408,7 +408,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mudwater Hideout › Tunnels: Lv 16–20, up to 3, respawn 12s
 - **Also appears**: Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); Defence (waves) (enemy); Trial Tower foe, floor 9
 - **Level band**: Lv 16–20 in `enemies.json`
-- **Stats**: Lv 16: HP 552, Attack 66, Physical Defense 33, Accuracy 58; Lv 20: HP 770, Attack 89, Physical Defense 43, Accuracy 70
+- **Stats**: Lv 16: HP 552, Attack 112, Physical Defense 46, Accuracy 58; Lv 20: HP 948, Attack 144, Physical Defense 74, Accuracy 70
 - **Behaviour**: AI melee; aggro range 200; move speed 130; patrol 140; moves: drop, jump 430; pack; tameable; tame species mud_hound. Attacks: bite×1 (windup 0.35s)
 - **Drops** (loot table `mud_hound`):
   - [Hound Fang](items.md#item-hound_fang): 60% (group)
@@ -431,7 +431,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Cleansing Peak › Pilgrim Stairs: Lv 17–19, up to 1, respawn 30s
 - **Also appears**: Set pieces: Heaven's Cleansing (enemy); Set pieces: Iron Body Trial (enemy)
 - **Level band**: Lv 17–19 in `enemies.json`
-- **Stats**: Lv 17: HP 603, Attack 71, Physical Defense 35, Accuracy 61; Lv 19: HP 712, Attack 83, Physical Defense 40, Accuracy 67
+- **Stats**: Lv 17: HP 603, Attack 124, Physical Defense 50, Accuracy 61; Lv 19: HP 861, Attack 175, Physical Defense 68, Accuracy 67
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 45; patrol 140; moves: drop; knockback immune. Attacks: fist_slam×1.3 (windup 0.6s, knockback 60)
 - **Drops** (loot table `stone_guardian`):
   - [Guardian Stone](items.md#item-guardian_stone): 60% (group)
@@ -450,7 +450,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mudwater Hideout › Boss Den: Lv 18, up to 1, respawn 86400s; boss
 - **Also appears**: Moments: boss_defeated (enemy)
 - **Level band**: Lv 18 in `enemies.json`
-- **Stats**: Lv 18: HP 31507, Attack 136, Physical Defense 71, Accuracy 64
+- **Stats**: Lv 18: HP 46710, Attack 276, Physical Defense 102, Accuracy 64
 - **Behaviour**: AI boss_tan; aggro range 200; move speed 90; patrol 140; faction mudwater. Attacks: club_swing×1.2 (windup 0.55s, knockback 60); call_bandits×0 (windup 1s, summon mudwater_bandit). Phases: below 50% HP: action drink_wine, breakable wine_jar, heal 0.1
 - **Drops** (loot table `big_toad_tan`):
   - [Mudwater Manual](items.md#item-mudwater_manual): 100% (guaranteed)
@@ -473,7 +473,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 22–24, up to 1, respawn 600s; wild pet; needs unlock Taming; while Riverbed Serpent lives
 - **Also appears**: Trial Tower foe, floors 10, 11
 - **Level band**: Lv 19–24 in `enemies.json`
-- **Stats**: Lv 19: HP 712, Attack 83, Physical Defense 40, Accuracy 67; Lv 24: HP 1024, Attack 115, Physical Defense 55, Accuracy 82
+- **Stats**: Lv 19: HP 861, Attack 175, Physical Defense 68, Accuracy 67; Lv 24: HP 1516, Attack 209, Physical Defense 99, Accuracy 82
 - **Behaviour**: AI wild_pet; aggro range 200; move speed 90; patrol 140; moves: drop; passive; tameable. Attacks: nip×0.8 (windup 0.4s)
 - **Drops** (loot table `ember_fox`):
   - [Low Fire Core](items.md#item-fire_core_low): 6% (beast core, Lv 19–24)
@@ -492,7 +492,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 19–22, up to 4, respawn 12s
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 22, up to 1, respawn 180s; elite
 - **Level band**: Lv 19–22 in `enemies.json`
-- **Stats**: Lv 19: HP 712, Attack 83, Physical Defense 40, Accuracy 67; Lv 22: HP 892, Attack 102, Physical Defense 49, Accuracy 76; as an elite at Lv 22: HP 5354, Attack 153, Physical Defense 73, Accuracy 76
+- **Stats**: Lv 19: HP 861, Attack 175, Physical Defense 68, Accuracy 67; Lv 22: HP 1208, Attack 174, Physical Defense 86, Accuracy 76; as an elite at Lv 22: HP 7248, Attack 261, Physical Defense 129, Accuracy 76
 - **Behaviour**: AI leaper; aggro range 200; move speed 70; patrol 140; moves: drop, jump 530. Attacks: tail_slap×1 (windup 0.5s)
 - **Drops** (loot table `jade_carp`):
   - [Jade Scale](items.md#item-jade_scale): 60% (group)
@@ -512,7 +512,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Crane Falls › Falls Pool: Lv 19, up to 1, respawn 600s; wild pet; needs unlock Taming
 - **Level band**: Lv 19–24 in `enemies.json`
-- **Stats**: Lv 19: HP 712, Attack 83, Physical Defense 40, Accuracy 67; Lv 24: HP 1024, Attack 115, Physical Defense 55, Accuracy 82
+- **Stats**: Lv 19: HP 861, Attack 175, Physical Defense 68, Accuracy 67; Lv 24: HP 1516, Attack 209, Physical Defense 99, Accuracy 82
 - **Behaviour**: AI wild_pet; aggro range 200; move speed 90; patrol 140; moves: drop; passive; tameable. Attacks: nip×0.8 (windup 0.4s)
 - **Drops** (loot table `jade_crane_chick`):
   - [Low Wind Core](items.md#item-wind_core_low): 6% (beast core, Lv 19–24)
@@ -530,7 +530,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mudwater Hideout › Loot Cave: Lv 19, up to 1, respawn 86400s
 - **Level band**: Lv 19 in `enemies.json`
-- **Stats**: Lv 19: HP 6836, Attack 124, Physical Defense 61, Accuracy 67
+- **Stats**: Lv 19: HP 8266, Attack 262, Physical Defense 103, Accuracy 67
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; surrenders; faction mudwater. Attacks: slash×1.15 (windup 0.4s); mud_cut×1.3 (windup 0.6s, damage type qi, knockback 60)
 - **Drops** (loot table `mudwater_lieutenant`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
@@ -551,7 +551,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 19, up to 1, respawn 600s; wild pet; needs unlock Taming
 - **Also appears**: Trial Tower foe, floors 10, 11
 - **Level band**: Lv 19–24 in `enemies.json`
-- **Stats**: Lv 19: HP 712, Attack 83, Physical Defense 40, Accuracy 67; Lv 24: HP 1024, Attack 115, Physical Defense 55, Accuracy 82
+- **Stats**: Lv 19: HP 861, Attack 175, Physical Defense 68, Accuracy 67; Lv 24: HP 1516, Attack 209, Physical Defense 99, Accuracy 82
 - **Behaviour**: AI wild_pet; aggro range 200; move speed 90; patrol 140; moves: drop; passive; tameable. Attacks: nip×0.8 (windup 0.4s)
 - **Drops** (loot table `reed_otter`):
   - [Low Water Core](items.md#item-water_core_low): 6% (beast core, Lv 19–24)
@@ -570,7 +570,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 20–23, up to 4, respawn 12s
 - **Also appears**: Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); guards the herb patch in Bend Shore (Deepwater Bend); guards the herb patch in Rapids Terraces (Whitewater Gorge)
 - **Level band**: Lv 20–23 in `enemies.json`
-- **Stats**: Lv 20: HP 770, Attack 89, Physical Defense 43, Accuracy 70; Lv 23: HP 957, Attack 108, Physical Defense 52, Accuracy 79
+- **Stats**: Lv 20: HP 948, Attack 144, Physical Defense 74, Accuracy 70; Lv 23: HP 1316, Attack 191, Physical Defense 93, Accuracy 79
 - **Behaviour**: AI guard_counter; aggro range 200; move speed 50; patrol 140; moves: drop; front guard 0.6. Attacks: pinch×1.1 (windup 0.45s)
 - **Drops** (loot table `tide_crab`):
   - [Tide Shell](items.md#item-tide_shell): 60% (group)
@@ -593,7 +593,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Drowned Shrine › Hall of Lanterns: Lv 22–24, up to 3, respawn 12s
 - **Also appears**: Set pieces: The Riverbreath Trial (enemy)
 - **Level band**: Lv 21–25 in `enemies.json`; Lv 21–26 with its room spawns
-- **Stats**: Lv 21: HP 830, Attack 95, Physical Defense 46, Accuracy 73; Lv 26: HP 1164, Attack 130, Physical Defense 61, Accuracy 88
+- **Stats**: Lv 21: HP 1046, Attack 159, Physical Defense 80, Accuracy 73; Lv 26: HP 1792, Attack 248, Physical Defense 114, Accuracy 88
 - **Behaviour**: AI caster; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: staff_strike×1 (windup 0.45s); bell_chant×0 (windup 0.8s)
 - **Drops** (loot table `drowned_acolyte`):
   - [Prayer Beads](items.md#item-prayer_beads): 60% (group)
@@ -617,7 +617,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Drowned Shrine › Scripture Well: Lv 23–26, up to 2, respawn 12s
 - **Also appears**: Trial Tower foe, floor 12; Trial Tower guardian, floor 10; summoned by [Drowned Abbot](#enemy-drowned_abbot)
 - **Level band**: Lv 22–26 in `enemies.json`
-- **Stats**: Lv 22: HP 892, Attack 102, Physical Defense 49, Accuracy 76; Lv 26: HP 1164, Attack 130, Physical Defense 61, Accuracy 88
+- **Stats**: Lv 22: HP 1208, Attack 174, Physical Defense 86, Accuracy 76; Lv 26: HP 1792, Attack 248, Physical Defense 114, Accuracy 88
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying; weak to fire; phases walls. Attacks: talisman_throw×1 (windup 0.5s, damage type soul)
 - **Drops** (loot table `paper_talisman_ghost`):
   - [Talisman Paper](items.md#item-talisman_paper): 30% (group 60%, weight 1 of 2)
@@ -636,7 +636,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Drowned Shrine › Drowned Grotto: Lv 24–26, up to 1, respawn 1800s; elite
 - **Also appears**: Calendar: A Spirit Fruit Ripens (rivals); Trial Tower foe, floor 12
 - **Level band**: Lv 24–26 in `enemies.json`
-- **Stats**: Lv 24: HP 6142, Attack 173, Physical Defense 83, Accuracy 82; Lv 26: HP 6982, Attack 195, Physical Defense 92, Accuracy 88
+- **Stats**: Lv 24: HP 9096, Attack 314, Physical Defense 149, Accuracy 82; Lv 26: HP 10752, Attack 372, Physical Defense 171, Accuracy 88
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; guards. Attacks: serpent_thrust×1.25 (windup 0.45s); sword_qi×1.15 (windup 0.7s, damage type qi)
 - **Drops** (loot table `rogue_cultivator`):
   - [Serpent-Tongue Jian](items.md#item-serpent_tongue_jian): 100% (guaranteed)
@@ -656,7 +656,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Deepwater Bend › Serpent's Shallows: Lv 25, up to 1, respawn 2700s; boss; field boss
 - **Also appears**: Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
 - **Level band**: Lv 25 in `enemies.json`
-- **Stats**: Lv 25: HP 43700, Attack 245, Physical Defense 109, Accuracy 85
+- **Stats**: Lv 25: HP 153600, Attack 568, Physical Defense 200, Accuracy 85
 - **Behaviour**: AI boss_serpent; aggro range 200; move speed 90; patrol 140; moves: fly; flying; respawn min 45. Attacks: bite×1.3 (windup 0.6s); tail_flood×1 (windup 1s). Phases: below 50% HP: action flood
 - **Drops** (loot table `riverbed_serpent`):
   - [Serpent Core](items.md#item-serpent_core): 100% (guaranteed)
@@ -678,7 +678,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Drowned Shrine › Abbot's Sanctum: Lv 27, up to 1, respawn 86400s; boss; calendar shrine_reopening
 - **Also appears**: Calendar: The Drowned Shrine Surfaces (boss)
 - **Level band**: Lv 27 in `enemies.json`
-- **Stats**: Lv 27: HP 98952, Attack 302, Physical Defense 121, Accuracy 91
+- **Stats**: Lv 27: HP 272340, Attack 670, Physical Defense 228, Accuracy 91
 - **Behaviour**: AI boss_abbot; aggro range 200; move speed 90; patrol 140; weak to fire. Attacks: bell_shockwave×1.2 (windup 0.7s, knockback 80); summon_ghosts×0 (windup 1.2s, summon paper_talisman_ghost). Phases: below 66% HP: action flood; below 33% HP: action summon
 - **Drops** (loot table `drowned_abbot`):
   - [Riverbreath Scroll](items.md#item-riverbreath_scroll): 100% (guaranteed)
@@ -703,7 +703,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Whitewater Gorge › Rapids Terraces: Lv 31, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 13, 14
 - **Level band**: Lv 28–31 in `enemies.json`
-- **Stats**: Lv 28: HP 1312, Attack 145, Physical Defense 68, Accuracy 94; Lv 31: HP 1552, Attack 169, Physical Defense 79, Accuracy 103; as an elite at Lv 31: HP 9313, Attack 254, Physical Defense 118, Accuracy 103
+- **Stats**: Lv 28: HP 2422, Attack 336, Physical Defense 150, Accuracy 94; Lv 31: HP 3196, Attack 422, Physical Defense 180, Accuracy 103; as an elite at Lv 31: HP 19176, Attack 633, Physical Defense 270, Accuracy 103
 - **Behaviour**: AI melee; aggro range 200; move speed 130; patrol 140; moves: drop, jump 430. Attacks: tail_whip×1 (windup 0.4s)
 - **Drops** (loot table `rapids_lizard`):
   - [Lizard Scale](items.md#item-lizard_scale): 60% (group)
@@ -725,7 +725,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Whitewater Gorge › Rapids Terraces: Lv 29–33, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 13, 14, 15; ambush in Gorge Mouth (Whitewater Gorge) (enemy); summoned by [Elder Gu](#enemy-elder_gu)
 - **Level band**: Lv 29–33 in `enemies.json`
-- **Stats**: Lv 29: HP 1390, Attack 153, Physical Defense 72, Accuracy 97; Lv 33: HP 1723, Attack 186, Physical Defense 86, Accuracy 109
+- **Stats**: Lv 29: HP 2628, Attack 362, Physical Defense 159, Accuracy 97; Lv 33: HP 3678, Attack 488, Physical Defense 203, Accuracy 109
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; guards; faction gorge. Attacks: sword_arc×1.1 (windup 0.45s); crescent×1.2 (windup 0.6s, damage type qi)
 - **Drops** (loot table `gorge_bandit_adept`):
   - [Cloth](items.md#item-cloth): 60% (group)
@@ -746,7 +746,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 35, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 15, 16, 17
 - **Level band**: Lv 32–35 in `enemies.json`
-- **Stats**: Lv 32: HP 1636, Attack 178, Physical Defense 83, Accuracy 106; Lv 35: HP 1902, Attack 204, Physical Defense 94, Accuracy 115; as an elite at Lv 35: HP 11415, Attack 307, Physical Defense 141, Accuracy 115
+- **Stats**: Lv 32: HP 3437, Attack 452, Physical Defense 191, Accuracy 106; Lv 35: HP 4232, Attack 558, Physical Defense 227, Accuracy 115; as an elite at Lv 35: HP 25392, Attack 837, Physical Defense 340, Accuracy 115
 - **Behaviour**: AI charger; aggro range 200; move speed 60; patrol 140; moves: drop. Attacks: boulder_roll×1.2 (windup 0.6s)
 - **Drops** (loot table `boulder_serpent`):
   - [Serpent Scale](items.md#item-serpent_scale): 60% (group)
@@ -767,7 +767,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 34–36, up to 3, respawn 12s
 - **Also appears**: Set pieces: Jade Body Trial (enemy); Trial Tower foe, floors 16, 17; Trial Tower guardian, floor 15
 - **Level band**: Lv 34–36 in `enemies.json`
-- **Stats**: Lv 34: HP 1812, Attack 195, Physical Defense 90, Accuracy 112; Lv 36: HP 1996, Attack 214, Physical Defense 98, Accuracy 118
+- **Stats**: Lv 34: HP 3962, Attack 522, Physical Defense 214, Accuracy 112; Lv 36: HP 4739, Attack 606, Physical Defense 240, Accuracy 118
 - **Behaviour**: AI flyer; aggro range 200; move speed 100; patrol 140; moves: fly; flying; tameable; tame species mist_vulture. Attacks: dive×1.2 (windup 0.6s)
 - **Drops** (loot table `mist_vulture`):
   - [Vulture Plume](items.md#item-vulture_plume): 60% (group)
@@ -788,7 +788,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Crane Cliffs › Cliff Faces: Lv 40, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 18, 19
 - **Level band**: Lv 37–40 in `enemies.json`
-- **Stats**: Lv 37: HP 2091, Attack 223, Physical Defense 102, Accuracy 121; Lv 40: HP 2390, Attack 253, Physical Defense 115, Accuracy 130; as an elite at Lv 40: HP 14340, Attack 380, Physical Defense 173, Accuracy 130
+- **Stats**: Lv 37: HP 5848, Attack 747, Physical Defense 292, Accuracy 121; Lv 40: HP 7718, Attack 928, Physical Defense 342, Accuracy 130; as an elite at Lv 40: HP 46308, Attack 1392, Physical Defense 513, Accuracy 130
 - **Behaviour**: AI flyer; aggro range 200; move speed 110; patrol 140; moves: fly; flying. Attacks: swoop×1 (windup 0.5s)
 - **Drops** (loot table `cloudwing_crane`):
   - [Cloud Feather](items.md#item-cloud_feather): 60% (group)
@@ -807,7 +807,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 37–38, up to 1, respawn 900s; wild pet; needs Cloud Stride 1 and unlock Taming
 - **Level band**: Lv 37–38 in `enemies.json`
-- **Stats**: Lv 37: HP 2091, Attack 223, Physical Defense 102, Accuracy 121; Lv 38: HP 2188, Attack 233, Physical Defense 107, Accuracy 124
+- **Stats**: Lv 37: HP 5848, Attack 747, Physical Defense 292, Accuracy 121; Lv 38: HP 6223, Attack 801, Physical Defense 308, Accuracy 124
 - **Behaviour**: AI wild_pet; aggro range 200; move speed 90; patrol 140; moves: drop; passive; tameable. Attacks: horn_toss×0.9 (windup 0.5s)
 - **Drops** (loot table `riverstone_ox`):
   - [Mid Earth Core](items.md#item-earth_core_mid): 10% (beast core, Lv 37–38)
@@ -828,7 +828,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Crane Cliffs › Sky Ledges: Lv 43, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 18, 19, 20, 21; guards the herb patch in Sky Ledges (Crane Cliffs)
 - **Level band**: Lv 38–43 in `enemies.json`
-- **Stats**: Lv 38: HP 2188, Attack 233, Physical Defense 107, Accuracy 124; Lv 43: HP 2709, Attack 284, Physical Defense 129, Accuracy 139; as an elite at Lv 43: HP 16253, Attack 427, Physical Defense 193, Accuracy 139
+- **Stats**: Lv 38: HP 6223, Attack 801, Physical Defense 308, Accuracy 124; Lv 43: HP 9989, Attack 1126, Physical Defense 398, Accuracy 139; as an elite at Lv 43: HP 59934, Attack 1689, Physical Defense 597, Accuracy 139
 - **Behaviour**: AI flyer; aggro range 200; move speed 140; patrol 140; moves: fly; flying. Attacks: lightning_dive×1.2 (windup 0.55s, status {"chance": 0.3, "duration_s": 3, "id": "shock", "power": 0.2})
 - **Drops** (loot table `stormwing_hawk`):
   - [Storm Feather](items.md#item-storm_feather): 60% (group)
@@ -849,7 +849,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Crane Cliffs › Sky Ledges: Lv 41–45, up to 4, respawn 12s
 - **Also appears**: Trial Tower foe, floors 20, 21, 22
 - **Level band**: Lv 41–45 in `enemies.json`
-- **Stats**: Lv 41: HP 2494, Attack 263, Physical Defense 120, Accuracy 133; Lv 45: HP 2933, Attack 306, Physical Defense 138, Accuracy 145
+- **Stats**: Lv 41: HP 8222, Attack 993, Physical Defense 360, Accuracy 133; Lv 45: HP 11249, Attack 1266, Physical Defense 438, Accuracy 145
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: smash×1.2 (windup 0.5s); boulder_throw×1.3 (windup 0.7s)
 - **Drops** (loot table `cliff_ape`):
   - [Ape Fur](items.md#item-ape_fur): 60% (group)
@@ -871,7 +871,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 50, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 22, 23, 24; Trial Tower guardian, floor 20
 - **Level band**: Lv 46–50 in `enemies.json`
-- **Stats**: Lv 46: HP 3048, Attack 318, Physical Defense 143, Accuracy 148; Lv 50: HP 3530, Attack 365, Physical Defense 163, Accuracy 160; as an elite at Lv 50: HP 21180, Attack 548, Physical Defense 245, Accuracy 160
+- **Stats**: Lv 46: HP 13786, Attack 1558, Physical Defense 531, Accuracy 148; Lv 50: HP 18750, Attack 1983, Physical Defense 639, Accuracy 160; as an elite at Lv 50: HP 112500, Attack 2974, Physical Defense 958, Accuracy 160
 - **Behaviour**: AI melee; aggro range 200; move speed 150; patrol 140; moves: drop, jump 430; pack; hidden in fog; tameable. Attacks: lunge×1 (windup 0.4s)
 - **Drops** (loot table `mist_wolf`):
   - [Mist Pelt](items.md#item-mist_pelt): 60% (group)
@@ -891,7 +891,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 47–51, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 23, 24, 25; guards the herb patch in Frozen Shrine (Summit Ridge); guards the herb patch in Misty Slopes (Mist Peak)
 - **Level band**: Lv 47–51 in `enemies.json`
-- **Stats**: Lv 47: HP 3165, Attack 329, Physical Defense 148, Accuracy 151; Lv 51: HP 3656, Attack 377, Physical Defense 168, Accuracy 163
+- **Stats**: Lv 47: HP 14584, Attack 1649, Physical Defense 557, Accuracy 151; Lv 51: HP 19820, Attack 2105, Physical Defense 668, Accuracy 163
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying. Attacks: soul_flash×1.1 (windup 0.6s, damage type soul)
 - **Drops** (loot table `mirror_wisp`):
   - [Mirror Dust](items.md#item-mirror_dust): 60% (group)
@@ -909,7 +909,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 48–50, up to 1, respawn 1800s; elite
 - **Level band**: Lv 48–50 in `enemies.json`
-- **Stats**: Lv 48: HP 19706, Attack 512, Physical Defense 229, Accuracy 154; Lv 50: HP 21180, Attack 548, Physical Defense 245, Accuracy 160
+- **Stats**: Lv 48: HP 96324, Attack 2662, Physical Defense 875, Accuracy 154; Lv 50: HP 112500, Attack 2974, Physical Defense 958, Accuracy 160
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; guards. Attacks: palm_of_tides×1.2 (windup 0.5s); mirror_flash×1.2 (windup 0.8s, damage type qi)
 - **Drops** (loot table `rogue_treasure_adept`):
   - [Bright Mirror](items.md#item-bright_mirror): 100% (guaranteed)
@@ -931,7 +931,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 55, up to 1, respawn 180s; elite
 - **Also appears**: Trial Tower foe, floors 25, 26
 - **Level band**: Lv 50–55 in `enemies.json`
-- **Stats**: Lv 50: HP 3530, Attack 365, Physical Defense 163, Accuracy 160; Lv 55: HP 4182, Attack 428, Physical Defense 190, Accuracy 175; as an elite at Lv 55: HP 25095, Attack 643, Physical Defense 285, Accuracy 175
+- **Stats**: Lv 50: HP 18750, Attack 1983, Physical Defense 639, Accuracy 160; Lv 55: HP 28164, Attack 3039, Physical Defense 918, Accuracy 175; as an elite at Lv 55: HP 168984, Attack 4558, Physical Defense 1377, Accuracy 175
 - **Behaviour**: AI flyer; aggro range 200; move speed 50; patrol 140; moves: fly; flying. Attacks: flare×1 (windup 0.7s, damage type soul, status {"chance": 0.3, "duration_s": 2, "id": "confusion", "power": 1})
 - **Drops** (loot table `weeping_lantern`):
   - [Lantern Wick](items.md#item-lantern_wick): 30% (group 60%, weight 1 of 2)
@@ -952,7 +952,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 52–56, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 26, 27, 30; Trial Tower guardian, floor 25
 - **Level band**: Lv 52–56 in `enemies.json`
-- **Stats**: Lv 52: HP 3784, Attack 390, Physical Defense 174, Accuracy 166; Lv 56: HP 4320, Attack 442, Physical Defense 196, Accuracy 178
+- **Stats**: Lv 52: HP 20892, Attack 2221, Physical Defense 698, Accuracy 166; Lv 56: HP 29736, Attack 3199, Physical Defense 958, Accuracy 178
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 50; patrol 140; moves: drop; linked. Attacks: halberd_sweep×1.2 (windup 0.6s)
 - **Drops** (loot table `jade_sentinel`):
   - [Formation Stone](items.md#item-formation_stone): 60% (group)
@@ -970,7 +970,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Story › Gu's Warehouse: Lv 53, up to 1, respawn 99999s; boss
 - **Level band**: Lv 53 in `enemies.json`
-- **Stats**: Lv 53: HP 78298, Attack 644, Physical Defense 269, Accuracy 169
+- **Stats**: Lv 53: HP 439320, Attack 5890, Physical Defense 1094, Accuracy 169
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; invulnerable; flees after s 60. Attacks: tide_palm×1.2 (windup 0.5s, damage type qi). Phases: below 0% HP: action summon, after s 20, summon gorge_bandit_adept, summon level 50; below 0% HP: action enrage, after s 40, cooldown 0.7, damage 1.25
 - **Drops** (loot table `elder_gu`):
   - [Smuggler Ledger](items.md#item-smuggler_ledger): 100% (guaranteed)
@@ -989,7 +989,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Summit Ridge › Windswept Ridge: Lv 59, up to 1, respawn 180s; elite
 - **Also appears**: Defence (waves) (enemy); Trial Tower foe, floors 27, 28, 29, 30
 - **Level band**: Lv 55–59 in `enemies.json`
-- **Stats**: Lv 55: HP 4182, Attack 428, Physical Defense 190, Accuracy 175; Lv 59: HP 4744, Attack 483, Physical Defense 213, Accuracy 187; as an elite at Lv 59: HP 28465, Attack 724, Physical Defense 320, Accuracy 187
+- **Stats**: Lv 55: HP 28164, Attack 3039, Physical Defense 918, Accuracy 175; Lv 59: HP 34664, Attack 3952, Physical Defense 1085, Accuracy 187; as an elite at Lv 59: HP 207984, Attack 5928, Physical Defense 1627, Accuracy 187
 - **Behaviour**: AI charger; aggro range 200; move speed 120; patrol 140; moves: drop; hollowing 5; cleansable; tameable; tame species pale_stag. Attacks: antler_charge×1.2 (windup 0.5s)
 - **Drops** (loot table `hollow_stag`):
   - [Hollow Antler](items.md#item-hollow_antler): 60% (group)
@@ -1012,7 +1012,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Jade River Valley › Summit Ridge › Windswept Ridge: Lv 58–63, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 28, 29; Trial Tower guardian, floor 30
 - **Level band**: Lv 58–63 in `enemies.json`
-- **Stats**: Lv 58: HP 4600, Attack 469, Physical Defense 207, Accuracy 184; Lv 63: HP 5341, Attack 540, Physical Defense 238, Accuracy 199; as an elite at Lv 63: HP 32045, Attack 811, Physical Defense 356, Accuracy 199
+- **Stats**: Lv 58: HP 32893, Attack 3561, Physical Defense 1041, Accuracy 184; Lv 63: HP 43810, Attack 4920, Physical Defense 1274, Accuracy 199; as an elite at Lv 63: HP 262860, Attack 7380, Physical Defense 1910, Accuracy 199
 - **Behaviour**: AI flyer; aggro range 200; move speed 110; patrol 140; moves: fly; flying. Attacks: wing_gust×1 (windup 0.7s, knockback 120)
 - **Drops** (loot table `cloudpeak_roc`):
   - [Roc Feather](items.md#item-roc_feather): 60% (group)
@@ -1034,7 +1034,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mist Peak › Ascension Gate: Lv 63, up to 1, respawn 86400s; boss; needs during The Ascension Gate
 - **Level band**: Lv 63 in `enemies.json`
-- **Stats**: Lv 63: HP 106818, Attack 865, Physical Defense 356, Accuracy 199
+- **Stats**: Lv 63: HP 4335480, Attack 12300, Physical Defense 1910, Accuracy 199
 - **Behaviour**: AI boss_guardian; aggro range 200; move speed 90; patrol 140. Attacks: ring_sweep×1.3 (windup 0.7s, knockback 100); soul_gaze×1.1 (windup 0.9s, damage type soul). Phases: below 66% HP: action soul_phase; below 33% HP: action flight_phase
 - **Drops** (loot table `gate_guardian`):
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
@@ -1057,7 +1057,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Thunderhorn Plains › Stormgrass Verge: Lv 66, up to 1, respawn 180s; elite
   - Azure Expanse › Thunderhorn Plains › Thunderhorn Flats: Lv 64–66, up to 3, respawn 12s
 - **Level band**: Lv 64–66 in `enemies.json`; Lv 64–67 with its room spawns
-- **Stats**: Lv 64: HP 5496, Attack 555, Physical Defense 244, Accuracy 202; Lv 67: HP 5973, Attack 601, Physical Defense 263, Accuracy 211; as an elite at Lv 67: HP 35837, Attack 902, Physical Defense 395, Accuracy 211
+- **Stats**: Lv 64: HP 53200, Attack 5994, Physical Defense 1530, Accuracy 202; Lv 67: HP 68688, Attack 6977, Physical Defense 1718, Accuracy 211; as an elite at Lv 67: HP 412128, Attack 10466, Physical Defense 2576, Accuracy 211
 - **Behaviour**: AI leaper; aggro range 200; move speed 170; patrol 140; moves: drop, jump 530; pack. Attacks: static_bite×1 (windup 0.35s); spark_bolt×1.1 (windup 0.55s, damage type qi, status {"chance": 0.2, "duration_s": 2, "id": "shock", "power": 0.15})
 - **Drops** (loot table `spark_weasel`):
   - [Spark Pelt](items.md#item-spark_pelt): 30% (group 60%, weight 1 of 2)
@@ -1079,7 +1079,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Thunderhorn Plains › Stormgrass Verge: Lv 64–66, up to 2, respawn 12s
   - Azure Expanse › Thunderhorn Plains › Thunderhorn Flats: Lv 68, up to 1, respawn 180s; elite
 - **Level band**: Lv 64–68 in `enemies.json`
-- **Stats**: Lv 64: HP 5496, Attack 555, Physical Defense 244, Accuracy 202; Lv 68: HP 6136, Attack 617, Physical Defense 270, Accuracy 214; as an elite at Lv 68: HP 36818, Attack 926, Physical Defense 405, Accuracy 214
+- **Stats**: Lv 64: HP 53200, Attack 5994, Physical Defense 1530, Accuracy 202; Lv 68: HP 71810, Attack 7309, Physical Defense 1784, Accuracy 214; as an elite at Lv 68: HP 430860, Attack 10964, Physical Defense 2676, Accuracy 214
 - **Behaviour**: AI charger; aggro range 200; move speed 120; patrol 140; moves: drop. Attacks: antler_charge×1.25 (windup 0.5s, knockback 80)
 - **Drops** (loot table `stormgrass_stag`):
   - [Tough Meat](items.md#item-tough_meat): 30% (group 60%, weight 1 of 2)
@@ -1104,7 +1104,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Thunderhorn Plains › Thunderhorn Flats: Lv 68, up to 1, respawn 180s; elite
 - **Also appears**: Set pieces: Gold Body Trial (enemy)
 - **Level band**: Lv 64–69 in `enemies.json`
-- **Stats**: Lv 64: HP 5496, Attack 555, Physical Defense 244, Accuracy 202; Lv 69: HP 6302, Attack 633, Physical Defense 276, Accuracy 217; as an elite at Lv 69: HP 37813, Attack 949, Physical Defense 415, Accuracy 217
+- **Stats**: Lv 64: HP 53200, Attack 5994, Physical Defense 1530, Accuracy 202; Lv 69: HP 75313, Attack 7691, Physical Defense 1852, Accuracy 217; as an elite at Lv 69: HP 451878, Attack 11536, Physical Defense 2778, Accuracy 217
 - **Behaviour**: AI charger; aggro range 200; move speed 95; patrol 140; moves: drop. Attacks: thunder_charge×1.35 (windup 0.7s, status {"chance": 0.3, "duration_s": 3, "id": "shock", "power": 0.2}, knockback 120)
 - **Drops** (loot table `thunderhorn_rhino`):
   - [Thunder Horn](items.md#item-thunder_horn): 20% (group 60%, weight 1 of 3)
@@ -1128,7 +1128,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Rimefrost Heights › Frostpine Climb: Lv 70, up to 1, respawn 180s; elite
   - Azure Expanse › Rimefrost Heights › Snow Ape Ledges: Lv 68–70, up to 2, respawn 12s
 - **Level band**: Lv 67–70 in `enemies.json`
-- **Stats**: Lv 67: HP 5973, Attack 601, Physical Defense 263, Accuracy 211; Lv 70: HP 6470, Attack 649, Physical Defense 283, Accuracy 220; as an elite at Lv 70: HP 38820, Attack 974, Physical Defense 425, Accuracy 220
+- **Stats**: Lv 67: HP 68688, Attack 6977, Physical Defense 1718, Accuracy 211; Lv 70: HP 78536, Attack 8090, Physical Defense 1923, Accuracy 220; as an elite at Lv 70: HP 471216, Attack 12135, Physical Defense 2884, Accuracy 220
 - **Behaviour**: AI leaper; aggro range 200; move speed 160; patrol 140; moves: drop, jump 530; pack. Attacks: rime_pounce×1.15 (windup 0.45s, status {"chance": 0.35, "duration_s": 3, "id": "slow", "power": 0.3})
 - **Drops** (loot table `frost_lynx`):
   - [Rime Fang](items.md#item-rime_fang): 30% (group 60%, weight 1 of 2)
@@ -1155,7 +1155,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Mirrorwater Lake › Sentinel Causeway: Lv 71–73, up to 2, respawn 12s
 - **Also appears**: summoned by [Thousand Eye Toad](#enemy-thousand_eye_toad)
 - **Level band**: Lv 68–72 in `enemies.json`; Lv 68–73 with its room spawns
-- **Stats**: Lv 68: HP 6136, Attack 617, Physical Defense 270, Accuracy 214; Lv 73: HP 6987, Attack 699, Physical Defense 304, Accuracy 229; as an elite at Lv 73: HP 41921, Attack 1048, Physical Defense 456, Accuracy 229
+- **Stats**: Lv 68: HP 71810, Attack 7309, Physical Defense 1784, Accuracy 214; Lv 73: HP 107880, Attack 10895, Physical Defense 2479, Accuracy 229; as an elite at Lv 73: HP 647280, Attack 16342, Physical Defense 3719, Accuracy 229
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 90; patrol 140; moves: fly; flying. Attacks: water_orb×1.15 (windup 0.7s, damage type qi)
 - **Drops** (loot table `azure_carp_dragonet`):
   - [Dragonet Scale](items.md#item-dragonet_scale): 30% (group 60%, weight 1 of 2)
@@ -1180,7 +1180,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Rimefrost Heights › Snow Ape Ledges: Lv 72, up to 1, respawn 180s; elite
 - **Also appears**: guards the herb patch in Snow Ape Ledges (Rimefrost Heights)
 - **Level band**: Lv 68–72 in `enemies.json`
-- **Stats**: Lv 68: HP 6136, Attack 617, Physical Defense 270, Accuracy 214; Lv 72: HP 6812, Attack 682, Physical Defense 297, Accuracy 226; as an elite at Lv 72: HP 40874, Attack 1023, Physical Defense 445, Accuracy 226
+- **Stats**: Lv 68: HP 71810, Attack 7309, Physical Defense 1784, Accuracy 214; Lv 72: HP 89495, Attack 9017, Physical Defense 2070, Accuracy 226; as an elite at Lv 72: HP 536970, Attack 13526, Physical Defense 3104, Accuracy 226
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 80; patrol 140; moves: drop. Attacks: ice_slam×1.45 (windup 0.8s, status {"chance": 0.15, "duration_s": 1.5, "id": "freeze", "power": 1.0}, knockback 100); ice_throw×1.1 (windup 0.9s)
 - **Drops** (loot table `snow_ape`):
   - [Snow Ape Hide](items.md#item-snow_ape_hide): 20% (group 60%, weight 1 of 3)
@@ -1203,7 +1203,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Mirrorwater Lake › Toad's Hollow: Lv 68, up to 1, respawn 2700s; boss; field boss
 - **Also appears**: Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake)
 - **Level band**: Lv 68 in `enemies.json`
-- **Stats**: Lv 68: HP 245456, Attack 1234, Physical Defense 506, Accuracy 214
+- **Stats**: Lv 68: HP 11153880, Attack 18272, Physical Defense 3345, Accuracy 214
 - **Behaviour**: AI boss_toad; aggro range 200; move speed 90; patrol 140; respawn min 45. Attacks: belly_slam×1.4 (windup 0.8s, knockback 140); tongue_lash×1.2 (windup 0.6s); mirror_gaze×0 (windup 1.2s, summon azure_carp_dragonet). Phases: below 50% HP: action summon
 - **Drops** (loot table `thousand_eye_toad`):
   - [Mirror Eye](items.md#item-mirror_eye): 100% (guaranteed)
@@ -1229,7 +1229,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Mirrorwater Lake › Sentinel Causeway: Lv 72–75, up to 4, respawn 20s
   - Azure Expanse › Mirrorwater Lake › Sentinel Causeway: Lv 75, up to 1, respawn 180s; elite
 - **Level band**: Lv 70–75 in `enemies.json`
-- **Stats**: Lv 70: HP 6470, Attack 649, Physical Defense 283, Accuracy 220; Lv 75: HP 7342, Attack 732, Physical Defense 318, Accuracy 235; as an elite at Lv 75: HP 44055, Attack 1099, Physical Defense 477, Accuracy 235
+- **Stats**: Lv 70: HP 78536, Attack 8090, Physical Defense 1923, Accuracy 220; Lv 75: HP 117540, Attack 12017, Physical Defense 2665, Accuracy 235; as an elite at Lv 75: HP 705240, Attack 18026, Physical Defense 3997, Accuracy 235
 - **Behaviour**: AI guard_counter; aggro range 200; move speed 55; patrol 140; moves: drop. Attacks: trident_sweep×1.5 (windup 0.85s, knockback 90)
 - **Drops** (loot table `river_sentinel`):
   - [Sentinel Core](items.md#item-sentinel_core): 30% (group 60%, weight 1 of 2)
@@ -1250,7 +1250,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Gale Canyons › Windbridge: Lv 76–78, up to 2, respawn 12s
 - **Also appears**: ambush in Canyon Mouth (Gale Canyons) (enemy)
 - **Level band**: Lv 73–76 in `enemies.json`; Lv 73–78 with its room spawns
-- **Stats**: Lv 73: HP 6987, Attack 699, Physical Defense 304, Accuracy 229; Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244
+- **Stats**: Lv 73: HP 107880, Attack 10895, Physical Defense 2479, Accuracy 229; Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: dagger_flurry×1.1 (windup 0.35s); throwing_knife×1 (windup 0.5s)
 - **Drops** (loot table `canyon_brigand`):
   - [Storm Shard](items.md#item-storm_shard): 30% (group 60%, weight 1 of 2)
@@ -1273,7 +1273,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Sunscar Desert › Worm Sea: Lv 77–78, up to 2, respawn 12s
   - Azure Expanse › Tomb of Sunscar › Sealed Gate: Lv 77, up to 2, respawn 12s
 - **Level band**: Lv 73–78 in `enemies.json`
-- **Stats**: Lv 73: HP 6987, Attack 699, Physical Defense 304, Accuracy 229; Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244; as an elite at Lv 78: HP 47354, Attack 1178, Physical Defense 510, Accuracy 244
+- **Stats**: Lv 73: HP 107880, Attack 10895, Physical Defense 2479, Accuracy 229; Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244; as an elite at Lv 78: HP 801948, Attack 20636, Physical Defense 4444, Accuracy 244
 - **Behaviour**: AI melee; aggro range 200; move speed 115; patrol 140; moves: drop, jump 430; pack. Attacks: tail_sting×1.25 (windup 0.55s, status {"chance": 0.4, "duration_s": 5, "id": "poison", "power": 0.012}); pincer_snap×1 (windup 0.4s)
 - **Drops** (loot table `sandstorm_scorpion`):
   - [Scorpion Stinger](items.md#item-scorpion_stinger): 30% (group 60%, weight 1 of 2)
@@ -1301,7 +1301,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Skyport Wreck › Riven Peak: Lv 78, up to 2, respawn 12s
 - **Also appears**: room event in Starsea Crossing (Starsea) (enemy)
 - **Level band**: Lv 73–76 in `enemies.json`; Lv 73–78 with its room spawns
-- **Stats**: Lv 73: HP 6987, Attack 699, Physical Defense 304, Accuracy 229; Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244; as an elite at Lv 78: HP 47354, Attack 1178, Physical Defense 510, Accuracy 244
+- **Stats**: Lv 73: HP 107880, Attack 10895, Physical Defense 2479, Accuracy 229; Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244; as an elite at Lv 78: HP 801948, Attack 20636, Physical Defense 4444, Accuracy 244
 - **Behaviour**: AI flyer; aggro range 200; move speed 140; patrol 140; moves: fly; flying. Attacks: gust_dive×1.25 (windup 0.55s, knockback 90)
 - **Drops** (loot table `wind_kite`):
   - [Kite Silk](items.md#item-kite_silk): 30% (group 60%, weight 1 of 2)
@@ -1327,7 +1327,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Gale Canyons › Windbridge: Lv 78, up to 1, respawn 180s; elite
 - **Also appears**: guards the herb patch in Harpy Roosts (Gale Canyons)
 - **Level band**: Lv 74–78 in `enemies.json`
-- **Stats**: Lv 74: HP 7164, Attack 715, Physical Defense 311, Accuracy 232; Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244; as an elite at Lv 78: HP 47354, Attack 1178, Physical Defense 510, Accuracy 244
+- **Stats**: Lv 74: HP 112914, Attack 11444, Physical Defense 2571, Accuracy 232; Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244; as an elite at Lv 78: HP 801948, Attack 20636, Physical Defense 4444, Accuracy 244
 - **Behaviour**: AI flyer; aggro range 200; move speed 120; patrol 140; moves: fly; flying. Attacks: talon_rake×1.3 (windup 0.5s, status {"chance": 0.25, "duration_s": 4, "id": "bleed", "power": 0.015}); screech×0.9 (windup 0.8s, damage type soul, status {"chance": 0.4, "duration_s": 3, "id": "slow", "power": 0.3})
 - **Drops** (loot table `canyon_harpy`):
   - [Harpy Plume](items.md#item-harpy_plume): 30% (group 60%, weight 1 of 2)
@@ -1351,7 +1351,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Skyport Wreck › Pirate Deck: Lv 78, up to 1, respawn 12s
 - **Also appears**: room event in Sect War: the Alliance Gate (enemy)
 - **Level band**: Lv 76–78 in `enemies.json`
-- **Stats**: Lv 76: HP 7524, Attack 750, Physical Defense 325, Accuracy 238; Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244; as an elite at Lv 78: HP 47354, Attack 1178, Physical Defense 510, Accuracy 244
+- **Stats**: Lv 76: HP 122930, Attack 12556, Physical Defense 2761, Accuracy 238; Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244; as an elite at Lv 78: HP 801948, Attack 20636, Physical Defense 4444, Accuracy 244
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: peak_sword×1.2 (windup 0.45s); nine_step_lunge×1.3 (windup 0.7s, knockback 70)
 - **Drops** (loot table `nine_peaks_disciple`):
   - [Scratched Alliance Badge](items.md#item-alliance_badge): 30% (group 60%, weight 1 of 2)
@@ -1370,7 +1370,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Sunscar Desert › Worm Sea: Lv 77–81, up to 4, respawn 16s
   - Azure Expanse › Sunscar Desert › Worm Sea: Lv 81, up to 1, respawn 180s; elite
 - **Level band**: Lv 77–81 in `enemies.json`
-- **Stats**: Lv 77: HP 7707, Attack 767, Physical Defense 333, Accuracy 241; Lv 81: HP 8462, Attack 839, Physical Defense 363, Accuracy 253; as an elite at Lv 81: HP 50773, Attack 1259, Physical Defense 544, Accuracy 253
+- **Stats**: Lv 77: HP 128310, Attack 13174, Physical Defense 2861, Accuracy 241; Lv 81: HP 151536, Attack 15779, Physical Defense 3287, Accuracy 253; as an elite at Lv 81: HP 909216, Attack 23668, Physical Defense 4931, Accuracy 253
 - **Behaviour**: AI burrower; aggro range 200; move speed 100; patrol 140; moves: drop. Attacks: sand_burst×1.5 (windup 0.7s, knockback 110); glass_spit×1.1 (windup 0.8s)
 - **Drops** (loot table `dune_worm`):
   - [Worm Glass Tooth](items.md#item-worm_glass_tooth): 30% (group 60%, weight 1 of 2)
@@ -1394,7 +1394,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Azure Expanse › Tomb of Sunscar › Sealed Gate: Lv 77, up to 3, respawn 12s
 - **Also appears**: summoned by [Tomb King](#enemy-tomb_king)
 - **Level band**: Lv 77 in `enemies.json`
-- **Stats**: Lv 77: HP 7707, Attack 767, Physical Defense 333, Accuracy 241
+- **Stats**: Lv 77: HP 128310, Attack 13174, Physical Defense 2861, Accuracy 241
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 70; patrol 140; moves: drop; weak to water. Attacks: ge_chop×1.3 (windup 0.8s, knockback 90)
 - **Drops** (loot table `terracotta_warden`):
   - [Terracotta Shard](items.md#item-terracotta_shard): 30% (group 60%, weight 1 of 2)
@@ -1413,7 +1413,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Azure Expanse › Tomb of Sunscar › Throne of the Tomb King: Lv 77, up to 1, respawn 86400s; boss
 - **Level band**: Lv 77 in `enemies.json`
-- **Stats**: Lv 77: HP 215793, Attack 1350, Physical Defense 624, Accuracy 241
+- **Stats**: Lv 77: HP 16767000, Attack 26348, Physical Defense 5364, Accuracy 241
 - **Behaviour**: AI boss_king; aggro range 200; move speed 90; patrol 140; weak to water. Attacks: glaive_sweep×1.35 (windup 0.75s, knockback 120); sand_crescent×1.2 (windup 0.9s, damage type qi); sun_flare×1.5 (windup 1.1s, damage type qi, status {"chance": 0.5, "duration_s": 4, "id": "burn", "power": 0.01}). Phases: below 60% HP: action summon, summon terracotta_warden, summon level 74; below 30% HP: action enrage, cooldown 0.65, damage 1.3
 - **Drops** (loot table `tomb_king`):
   - [Sun Crown Fragment](items.md#item-sun_crown_fragment): 100% ×2–3 (guaranteed)
@@ -1446,7 +1446,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Blackmast Haven › Smugglers' Cove: Lv 88–90, up to 2, respawn 60s
 - **Also appears**: room event in Sect War: the Alliance Gate (enemy); room event in Starsea Crossing (Starsea) (enemy); summoned by [Admiral Voss](#enemy-admiral_voss); summoned by [Comet Captain Rao](#enemy-pirate_captain)
 - **Level band**: Lv 79–81 in `enemies.json`; Lv 78–90 with its room spawns
-- **Stats**: Lv 78: HP 7892, Attack 785, Physical Defense 340, Accuracy 244; Lv 90: HP 10290, Attack 1013, Physical Defense 435, Accuracy 280; as an elite at Lv 90: HP 61740, Attack 1520, Physical Defense 653, Accuracy 280
+- **Stats**: Lv 78: HP 133658, Attack 13757, Physical Defense 2963, Accuracy 244; Lv 90: HP 270322, Attack 27470, Physical Defense 5126, Accuracy 280; as an elite at Lv 90: HP 1621932, Attack 41205, Physical Defense 7689, Accuracy 280
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; pack. Attacks: cutlass_combo×1.2 (windup 0.4s); boarding_hook×1 (windup 0.6s)
 - **Drops** (loot table `starsea_pirate`):
   - [Comet Iron](items.md#item-comet_iron): 20% (group 60%, weight 1 of 3)
@@ -1477,7 +1477,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Wyrmnest Isles › Nest Cliffs: Lv 87, up to 1, respawn 180s; elite
 - **Also appears**: room event in The Lantern Run (enemy)
 - **Level band**: Lv 82–87 in `enemies.json`
-- **Stats**: Lv 82: HP 8656, Attack 858, Physical Defense 371, Accuracy 256; Lv 87: HP 9661, Attack 953, Physical Defense 410, Accuracy 271; as an elite at Lv 87: HP 57965, Attack 1430, Physical Defense 616, Accuracy 271
+- **Stats**: Lv 82: HP 182424, Attack 19096, Physical Defense 3930, Accuracy 256; Lv 87: HP 241038, Attack 24127, Physical Defense 4647, Accuracy 271; as an elite at Lv 87: HP 1446228, Attack 36190, Physical Defense 6970, Accuracy 271
 - **Behaviour**: AI flyer; aggro range 200; move speed 160; patrol 140; moves: fly; flying; pack; tameable. Attacks: comet_dive×1.3 (windup 0.5s, status {"chance": 0.3, "duration_s": 3, "id": "burn", "power": 0.01})
 - **Drops** (loot table `comet_sparrow`):
   - [Comet Plume](items.md#item-comet_plume): 30% (group 60%, weight 1 of 2)
@@ -1502,7 +1502,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Drifting Shoals › Sparrow Reefs: Lv 84–85, up to 2, respawn 12s
 - **Also appears**: room event in The Lantern Run (enemy)
 - **Level band**: Lv 82–87 in `enemies.json`
-- **Stats**: Lv 82: HP 8656, Attack 858, Physical Defense 371, Accuracy 256; Lv 87: HP 9661, Attack 953, Physical Defense 410, Accuracy 271; as an elite at Lv 87: HP 57965, Attack 1430, Physical Defense 616, Accuracy 271
+- **Stats**: Lv 82: HP 182424, Attack 19096, Physical Defense 3930, Accuracy 256; Lv 87: HP 241038, Attack 24127, Physical Defense 4647, Accuracy 271; as an elite at Lv 87: HP 1446228, Attack 36190, Physical Defense 6970, Accuracy 271
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying. Attacks: star_sting×1.2 (windup 0.6s, status {"chance": 0.25, "duration_s": 2, "id": "confusion", "power": 1.0}); spark_trail×1.05 (windup 0.8s, damage type qi)
 - **Drops** (loot table `star_jellyfish`):
   - [Jelly Silk](items.md#item-jelly_silk): 30% (group 60%, weight 1 of 2)
@@ -1527,7 +1527,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Wyrmnest Isles › Hatching Cave: Lv 93, up to 1, respawn 600s; elite
   - Lantern Star Field › Wyrmnest Isles › Nest Cliffs: Lv 86–88, up to 2, respawn 20s
 - **Level band**: Lv 85–93 in `enemies.json`
-- **Stats**: Lv 85: HP 9252, Attack 914, Physical Defense 394, Accuracy 265; Lv 93: HP 10939, Attack 1074, Physical Defense 461, Accuracy 289; as an elite at Lv 93: HP 65633, Attack 1612, Physical Defense 691, Accuracy 289
+- **Stats**: Lv 85: HP 222208, Attack 22131, Physical Defense 4348, Accuracy 265; Lv 93: HP 350476, Attack 35898, Physical Defense 6521, Accuracy 289; as an elite at Lv 93: HP 2102856, Attack 53847, Physical Defense 9781, Accuracy 289
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 70; patrol 140; moves: drop; presence 2. Attacks: club_tail×1.45 (windup 0.9s, knockback 130); crystal_stomp×1.3 (windup 0.8s, status {"chance": 0.2, "duration_s": 0.8, "id": "stun", "power": 1.0})
 - **Drops** (loot table `nest_guardian`):
   - [Guardian Scale](items.md#item-guardian_scale): 30% (group 60%, weight 1 of 2)
@@ -1550,7 +1550,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Blackmast Haven › Gunners' Battery: Lv 89, up to 1, respawn 180s; elite
 - **Also appears**: summoned by [Admiral Voss](#enemy-admiral_voss)
 - **Level band**: Lv 85–90 in `enemies.json`
-- **Stats**: Lv 85: HP 9252, Attack 914, Physical Defense 394, Accuracy 265; Lv 90: HP 10290, Attack 1013, Physical Defense 435, Accuracy 280; as an elite at Lv 90: HP 61740, Attack 1520, Physical Defense 653, Accuracy 280
+- **Stats**: Lv 85: HP 222208, Attack 22131, Physical Defense 4348, Accuracy 265; Lv 90: HP 270322, Attack 27470, Physical Defense 5126, Accuracy 280; as an elite at Lv 90: HP 1621932, Attack 41205, Physical Defense 7689, Accuracy 280
 - **Behaviour**: AI ranged; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; pack. Attacks: powder_bomb×1.2 (windup 0.7s, status {"chance": 0.3, "duration_s": 3, "id": "burn", "power": 0.01}); bombard×1.5 (windup 1.2s, knockback 120)
 - **Drops** (loot table `pirate_gunner`):
   - [Star Powder](items.md#item-star_powder): 30% (group 60%, weight 1 of 2)
@@ -1574,7 +1574,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Ashen Reach › War Camp: Lv 91–93, up to 3, respawn 16s
   - Lantern Star Field › Ashen Reach › War Camp: Lv 93, up to 1, respawn 180s; elite
 - **Level band**: Lv 88–96 in `enemies.json`
-- **Stats**: Lv 88: HP 9868, Attack 973, Physical Defense 419, Accuracy 274; Lv 96: HP 11608, Attack 1138, Physical Defense 487, Accuracy 298; as an elite at Lv 96: HP 69646, Attack 1707, Physical Defense 731, Accuracy 298
+- **Stats**: Lv 88: HP 250366, Attack 25130, Physical Defense 4802, Accuracy 274; Lv 96: HP 407012, Attack 41290, Physical Defense 7169, Accuracy 298; as an elite at Lv 96: HP 2442072, Attack 61935, Physical Defense 10754, Accuracy 298
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: drop, jump 530; faction ashborn. Attacks: cinder_slash×1.25 (windup 0.45s); ember_sweep×1.1 (windup 0.8s, damage type qi)
 - **Drops** (loot table `ashborn_raider`):
   - [Cinder Ash](items.md#item-cinder_ash): 30% (group 60%, weight 1 of 2)
@@ -1595,7 +1595,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Orbit Ruins › Inverted Hall: Lv 93, up to 1, respawn 300s; elite
   - Lantern Star Field › Orbit Ruins › Tumbling Stair: Lv 88–90, up to 1, respawn 20s
 - **Level band**: Lv 88–93 in `enemies.json`
-- **Stats**: Lv 88: HP 9868, Attack 973, Physical Defense 419, Accuracy 274; Lv 93: HP 10939, Attack 1074, Physical Defense 461, Accuracy 289; as an elite at Lv 93: HP 65633, Attack 1612, Physical Defense 691, Accuracy 289
+- **Stats**: Lv 88: HP 250366, Attack 25130, Physical Defense 4802, Accuracy 274; Lv 93: HP 350476, Attack 35898, Physical Defense 6521, Accuracy 289; as an elite at Lv 93: HP 2102856, Attack 53847, Physical Defense 9781, Accuracy 289
 - **Behaviour**: AI slow_melee; aggro range 200; move speed 55; patrol 140; moves: drop; knockback immune. Attacks: gravity_well×0.6 (windup 1s, damage type qi); orbit_slam×1.6 (windup 1.1s, status {"chance": 0.3, "duration_s": 0.8, "id": "stun", "power": 1.0}, knockback 140)
 - **Drops** (loot table `gravity_golem`):
   - [Gravity Core](items.md#item-gravity_core): 20% (group 60%, weight 1 of 3)
@@ -1627,7 +1627,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Tidebreak Front › Hollow Wake: Lv 96, up to 1, respawn 180s; elite
 - **Also appears**: Set pieces: The Greyfall Stand (enemy); room event in The Tide Breaks (Tidebreak Front) (enemy)
 - **Level band**: Lv 88–99 in `enemies.json`
-- **Stats**: Lv 88: HP 9868, Attack 973, Physical Defense 419, Accuracy 274; Lv 99: HP 12296, Attack 1203, Physical Defense 514, Accuracy 307; as an elite at Lv 99: HP 73777, Attack 1804, Physical Defense 771, Accuracy 307
+- **Stats**: Lv 88: HP 250366, Attack 25130, Physical Defense 4802, Accuracy 274; Lv 99: HP 454836, Attack 46726, Physical Defense 7871, Accuracy 307; as an elite at Lv 99: HP 2729016, Attack 70089, Physical Defense 11806, Accuracy 307
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 130; patrol 140; moves: fly; flying; hollowing 4. Attacks: needle_dive×1.15 (windup 0.5s); grey_sting×1 (windup 0.6s, damage type qi)
 - **Drops** (loot table `hollow_drone`):
   - [Drone Shell](items.md#item-drone_shell): 20% (group 60%, weight 1 of 3)
@@ -1655,7 +1655,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Wyrmnest Isles › Guardian's Crown: Lv 90–92, up to 2, respawn 14s
 - **Also appears**: Set pieces: The Greyfall Stand (enemy); room event in The Tide Breaks (Tidebreak Front) (enemy)
 - **Level band**: Lv 88–96 in `enemies.json`; Lv 88–99 with its room spawns
-- **Stats**: Lv 88: HP 9868, Attack 973, Physical Defense 419, Accuracy 274; Lv 99: HP 12296, Attack 1203, Physical Defense 514, Accuracy 307; as an elite at Lv 99: HP 73777, Attack 1804, Physical Defense 771, Accuracy 307
+- **Stats**: Lv 88: HP 250366, Attack 25130, Physical Defense 4802, Accuracy 274; Lv 99: HP 454836, Attack 46726, Physical Defense 7871, Accuracy 307; as an elite at Lv 99: HP 2729016, Attack 70089, Physical Defense 11806, Accuracy 307
 - **Behaviour**: AI melee; aggro range 200; move speed 120; patrol 140; moves: drop, jump 430; hollowing 6. Attacks: grey_flame×1.3 (windup 0.6s, damage type qi, status {"chance": 0.3, "duration_s": 3, "id": "burn", "power": 0.012}); wyrm_snap×1.1 (windup 0.4s)
 - **Drops** (loot table `hollowed_wyrmling`):
   - [Wyrm Ash](items.md#item-wyrm_ash): 20% (group 60%, weight 1 of 3)
@@ -1681,7 +1681,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Orbit Ruins › Tumbling Stair: Lv 88–89, up to 3, respawn 14s
   - Lantern Star Field › Orbit Ruins › Tumbling Stair: Lv 89, up to 1, respawn 180s; elite
 - **Level band**: Lv 88–93 in `enemies.json`
-- **Stats**: Lv 88: HP 9868, Attack 973, Physical Defense 419, Accuracy 274; Lv 93: HP 10939, Attack 1074, Physical Defense 461, Accuracy 289; as an elite at Lv 93: HP 65633, Attack 1612, Physical Defense 691, Accuracy 289
+- **Stats**: Lv 88: HP 250366, Attack 25130, Physical Defense 4802, Accuracy 274; Lv 93: HP 350476, Attack 35898, Physical Defense 6521, Accuracy 289; as an elite at Lv 93: HP 2102856, Attack 53847, Physical Defense 9781, Accuracy 289
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 90; patrol 140; moves: fly; flying; tameable. Attacks: orbiting_motes×1.1 (windup 0.7s, damage type qi); dust_veil×0.9 (windup 0.9s, status {"chance": 0.35, "duration_s": 2, "id": "confusion", "power": 1.0})
 - **Drops** (loot table `orbit_moth`):
   - [Moth Dust](items.md#item-moth_dust): 30% (group 60%, weight 1 of 2)
@@ -1701,7 +1701,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Blackmast Haven › Flagship Deck: Lv 90, up to 1, respawn 86400s; boss
 - **Level band**: Lv 90 in `enemies.json`
-- **Stats**: Lv 90: HP 1317120, Attack 2006, Physical Defense 816, Accuracy 280
+- **Stats**: Lv 90: HP 57232560, Attack 61808, Physical Defense 9611, Accuracy 280
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; presence 4. Attacks: starsteel_cutlass×1.35 (windup 0.5s, knockback 90); broadside×1.5 (windup 1.2s, damage type qi); all_hands×0 (windup 1s, summon starsea_pirate). Phases: below 60% HP: action summon, summon pirate_gunner, summon level 88; below 30% HP: action enrage, cooldown 0.7, damage 1.3
 - **Drops** (loot table `admiral_voss`):
   - [Admirals Seal](items.md#item-admirals_seal): 100% (guaranteed)
@@ -1724,7 +1724,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Ashen Reach › War Camp: Lv 92–94, up to 1, respawn 40s
 - **Also appears**: summoned by [General Kharn](#enemy-general_kharn)
 - **Level band**: Lv 91–96 in `enemies.json`
-- **Stats**: Lv 91: HP 88234, Attack 1550, Physical Defense 665, Accuracy 283; Lv 96: HP 97504, Attack 1707, Physical Defense 731, Accuracy 298
+- **Stats**: Lv 91: HP 2730790, Attack 49540, Physical Defense 9174, Accuracy 283; Lv 96: HP 3418901, Attack 61935, Physical Defense 10754, Accuracy 298
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: drop, jump 530; presence 2; faction ashborn. Attacks: pyre_staff×1.3 (windup 0.55s, knockback 80); kindle_ring×0.8 (windup 1.1s, damage type qi)
 - **Drops** (loot table `ashborn_pyre_keeper`):
   - [Cinder Ash](items.md#item-cinder_ash): 100% ×2–3 (guaranteed)
@@ -1744,7 +1744,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Ashen Reach › Kharn's Pyre: Lv 92, up to 1, respawn 86400s; boss
 - **Level band**: Lv 92 in `enemies.json`
-- **Stats**: Lv 92: HP 1457974, Attack 2087, Physical Defense 848, Accuracy 286
+- **Stats**: Lv 92: HP 71705280, Attack 77641, Physical Defense 11842, Accuracy 286
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; presence 4; surrenders; sphere {"element": "fire", "tier": 4}; faction ashborn. Attacks: cinder_glaive×1.4 (windup 0.55s, knockback 90); leaping_cleave×1.6 (windup 1s, knockback 120); pyre_rings×0.6 (windup 1.4s, damage type qi). Phases: below 60% HP: action summon, summon ashborn_pyre_keeper, summon level 91; below 30% HP: action enrage, cooldown 0.7, damage 1.3
 - **Drops** (loot table `general_kharn`):
   - [Kharns Glaive Shard](items.md#item-kharns_glaive_shard): 100% (guaranteed)
@@ -1770,7 +1770,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Nebula Deep › Nebula Verge: Lv 95, up to 1, respawn 180s; elite
 - **Also appears**: summoned by [Nebula Leviathan](#enemy-nebula_leviathan)
 - **Level band**: Lv 94–99 in `enemies.json`
-- **Stats**: Lv 94: HP 11160, Attack 1095, Physical Defense 469, Accuracy 292; Lv 99: HP 12296, Attack 1203, Physical Defense 514, Accuracy 307; as an elite at Lv 99: HP 73777, Attack 1804, Physical Defense 771, Accuracy 307
+- **Stats**: Lv 94: HP 364567, Attack 37491, Physical Defense 6731, Accuracy 292; Lv 99: HP 454836, Attack 46726, Physical Defense 7871, Accuracy 307; as an elite at Lv 99: HP 2729016, Attack 70089, Physical Defense 11806, Accuracy 307
 - **Behaviour**: AI flyer_ranged; aggro range 200; move speed 150; patrol 140; moves: fly; flying. Attacks: space_bite×1.3 (windup 0.45s); current_coil×1 (windup 0.9s, damage type qi)
 - **Drops** (loot table `nebula_eel`):
   - [Eel Essence](items.md#item-eel_essence): 30% (group 60%, weight 1 of 2)
@@ -1792,7 +1792,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - Lantern Star Field › Nebula Deep › Crab Grottoes: Lv 98, up to 1, respawn 180s; elite
   - Lantern Star Field › Nebula Deep › Nebula Verge: Lv 94–96, up to 2, respawn 18s
 - **Level band**: Lv 94–99 in `enemies.json`
-- **Stats**: Lv 94: HP 11160, Attack 1095, Physical Defense 751, Accuracy 292; Lv 99: HP 12296, Attack 1203, Physical Defense 822, Accuracy 307; as an elite at Lv 99: HP 73777, Attack 1804, Physical Defense 1234, Accuracy 307
+- **Stats**: Lv 94: HP 364567, Attack 37491, Physical Defense 10770, Accuracy 292; Lv 99: HP 454836, Attack 46726, Physical Defense 12593, Accuracy 307; as an elite at Lv 99: HP 2729016, Attack 70089, Physical Defense 18889, Accuracy 307
 - **Behaviour**: AI melee; aggro range 200; move speed 100; patrol 140; moves: drop, jump 430; tameable. Attacks: void_pinch×1.35 (windup 0.45s); blink_claw×1.2 (windup 0.8s)
 - **Drops** (loot table `void_crab`):
   - [Void Carapace](items.md#item-void_carapace): 30% (group 60%, weight 1 of 2)
@@ -1812,7 +1812,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Nebula Deep › Leviathan's Maw: Lv 99, up to 1, respawn 2700s; boss; field boss
 - **Level band**: Lv 99 in `enemies.json`
-- **Stats**: Lv 99: HP 1082057, Attack 2165, Physical Defense 964, Accuracy 307
+- **Stats**: Lv 99: HP 121498500, Attack 105134, Physical Defense 14757, Accuracy 307
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: fly; flying; knockback immune; presence 5; sphere {"element": "space", "tier": 5}. Attacks: current_swallow×0.9 (windup 1.2s, damage type qi); void_breath×1.8 (windup 1.3s, damage type qi); gravity_crash×1.6 (windup 1s, status {"chance": 0.4, "duration_s": 1.0, "id": "stun", "power": 1.0}, knockback 140). Phases: below 60% HP: action summon, summon nebula_eel, summon level 97; below 30% HP: action enrage, cooldown 0.7, damage 1.3
 - **Drops** (loot table `nebula_leviathan`):
   - [Leviathan Scale](items.md#item-leviathan_scale): 100% ×2–3 (guaranteed)
@@ -1868,7 +1868,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy)
 - **Level band**: Lv 10 in `enemies.json`
-- **Stats**: Lv 10: HP 116, Attack 30, Physical Defense 12, Accuracy 40
+- **Stats**: Lv 10: HP 116, Attack 42, Physical Defense 16, Accuracy 40
 - **Behaviour**: AI event_eel; aggro range 200; move speed 90; patrol 140; moves: fly; flying; invulnerable. Attacks: lunge×0.5 (windup 1s, knockback 80)
 - **Drops** (loot table `hollowed_eel`):
   - [Low Soul Core](items.md#item-soul_core_low): 4% (beast core, Lv 10)
@@ -1884,7 +1884,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (disciple)
 - **Level band**: Lv 10 in `enemies.json`
-- **Stats**: Lv 10: HP 290, Attack 37, Physical Defense 19, Accuracy 40
+- **Stats**: Lv 10: HP 290, Attack 53, Physical Defense 25, Accuracy 40
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: pine_spear×1.05 (windup 0.45s); rooted_lunge×1.2 (windup 0.65s, knockback 60)
 - **Drops** (loot table `ironpine_disciple`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 30% (group 60%, weight 1 of 2)
@@ -1902,7 +1902,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Spar post in East Terrace (Jade Sect Academy) (opponent); Spar post in Fairground (Stoneford) (opponent); Spar post in Pavilion Rooftops (Jade Sect Academy) (opponent); Spar post in Sword Court (Cloud Sect Monastery) (opponent); spar in quest The Bracket; spar in quest The Mentor's Gift; spar in quest The Valley Finals; spar in quest The Valley Tournament (Qualifier)
 - **Level band**: Lv 10 in `enemies.json`
-- **Stats**: Lv 10: HP 870, Attack 26, Physical Defense 24, Accuracy 40
+- **Stats**: Lv 10: HP 870, Attack 37, Physical Defense 31, Accuracy 40
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: palm×1 (windup 0.45s)
 - **Drops** (loot table `sparring_disciple`):
   - equipment: none (spar)
@@ -1917,7 +1917,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (warden)
 - **Level band**: Lv 12 in `enemies.json`
-- **Stats**: Lv 12: HP 2210, Attack 69, Physical Defense 35, Accuracy 46
+- **Stats**: Lv 12: HP 2208, Attack 105, Physical Defense 47, Accuracy 46
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: iron_bough_sweep×1.25 (windup 0.55s, knockback 90); pine_needle_rain×1.1 (windup 0.8s, damage type qi); mountain_brace×1.45 (windup 1s, knockback 120)
 - **Drops** (loot table `ironpine_warden`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 100% ×2–4 (guaranteed)
@@ -1936,7 +1936,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (disciple)
 - **Level band**: Lv 14 in `enemies.json`
-- **Stats**: Lv 14: HP 456, Attack 55, Physical Defense 28, Accuracy 52
+- **Stats**: Lv 14: HP 456, Attack 89, Physical Defense 38, Accuracy 52
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: reed_knife×1 (windup 0.35s); marsh_needle×1 (windup 0.55s)
 - **Drops** (loot table `blackreed_disciple`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 30% (group 60%, weight 1 of 2)
@@ -1954,7 +1954,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (warden)
 - **Level band**: Lv 16 in `enemies.json`
-- **Stats**: Lv 16: HP 3310, Attack 99, Physical Defense 49, Accuracy 58
+- **Stats**: Lv 16: HP 3312, Attack 168, Physical Defense 69, Accuracy 58
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: black_tide_cut×1.2 (windup 0.45s); drowning_crescent×1.2 (windup 0.75s, damage type qi); reed_step_thrust×1.4 (windup 0.9s)
 - **Drops** (loot table `blackreed_warden`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 100% ×2–4 (guaranteed)
@@ -1973,7 +1973,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions: Mudwater Bandits (hunter)
 - **Level band**: Lv 18 in `enemies.json`
-- **Stats**: Lv 18: HP 3938, Attack 116, Physical Defense 57, Accuracy 64
+- **Stats**: Lv 18: HP 4008, Attack 207, Physical Defense 82, Accuracy 64
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; hunter; faction mudwater. Attacks: stab×1.2 (windup 0.35s); lunge×1.3 (windup 0.6s)
 - **Drops** (loot table `mudwater_cutthroat`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
@@ -1991,7 +1991,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: a friendly duel with the companion Bai Ling, from 3 hearts
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: line_cut×1.05 (windup 0.42s); biting_array×1.2 (windup 0.8s, damage type qi)
 - **Drops** (loot table `duel_bai_ling`):
   - equipment: none (spar)
@@ -2006,7 +2006,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Calendar: A Spirit Fruit Ripens (guardian)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 13860, Attack 134, Physical Defense 65, Accuracy 70
+- **Stats**: Lv 20: HP 17064, Attack 216, Physical Defense 111, Accuracy 70
 - **Behaviour**: AI charger; aggro range 200; move speed 90; patrol 140; moves: drop. Attacks: thorn_charge×1.3 (windup 0.55s, knockback 110); root_stamp×1.2 (windup 0.8s)
 - **Drops** (loot table `fruit_guardian`):
   - [Thorn Hide](items.md#item-thorn_hide): 100% ×2–3 (guaranteed)
@@ -2026,7 +2026,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Karma (debts) (enemy)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 8316, Attack 134, Physical Defense 65, Accuracy 70
+- **Stats**: Lv 20: HP 10238, Attack 216, Physical Defense 111, Accuracy 70
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; faction mudwater. Attacks: spear_thrust×1.2 (windup 0.45s); sweep×1.25 (windup 0.7s, knockback 80)
 - **Drops** (loot table `kuai_shan`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
@@ -2044,7 +2044,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: a friendly duel with the companion Lan Yue, from 3 hearts
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: staff_sweep×1 (windup 0.45s); tide_palm×1.05 (windup 0.6s, damage type qi)
 - **Drops** (loot table `duel_lan_yue`):
   - equipment: none (spar)
@@ -2059,7 +2059,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions (bounties) (target)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 9240, Attack 134, Physical Defense 65, Accuracy 70
+- **Stats**: Lv 20: HP 11376, Attack 216, Physical Defense 111, Accuracy 70
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; bounty; faction mudwater. Attacks: cleave×1.25 (windup 0.45s); dirty_trick×1 (windup 0.6s, status {"chance": 0.5, "duration_s": 3, "id": "slow", "power": 0.3})
 - **Drops** (loot table `one_eye_pang`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
@@ -2079,7 +2079,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: a friendly duel with the companion Qiu Feng, from 3 hearts
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: reed_shot×1 (windup 0.5s); kick_away×0.9 (windup 0.35s, knockback 90)
 - **Drops** (loot table `duel_qiu_feng`):
   - equipment: none (spar)
@@ -2094,7 +2094,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Karma (jealous) (enemy)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: envy_cut×1.08 (windup 0.4s); thrust_through×1.2 (windup 0.55s)
 - **Drops** (loot table `jealous_senior`):
   - equipment: none (spar)
@@ -2109,7 +2109,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions: Mudwater Bandits (duel)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: staff_crack×1.15 (windup 0.5s, knockback 70); belly_charge×1.2 (windup 0.75s)
 - **Drops** (loot table `tan_the_younger`):
   - equipment: none (spar)
@@ -2124,7 +2124,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: a friendly duel with the companion Tie Niu, from 3 hearts
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: iron_fist×1.15 (windup 0.4s, knockback 70); ox_charge×1.2 (windup 0.7s)
 - **Drops** (loot table `duel_tie_niu`):
   - equipment: none (spar)
@@ -2139,7 +2139,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Karma (young master) (enemy)
 - **Level band**: Lv 20 in `enemies.json`
-- **Stats**: Lv 20: HP 2310, Attack 62, Physical Defense 54, Accuracy 70
+- **Stats**: Lv 20: HP 2844, Attack 101, Physical Defense 92, Accuracy 70
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: peacock_slash×1.05 (windup 0.42s); golden_crescent×1.15 (windup 0.65s, damage type qi)
 - **Drops** (loot table `young_master`):
   - equipment: none (spar)
@@ -2154,7 +2154,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: the rankings: Captain Lou Chen
 - **Level band**: Lv 24 in `enemies.json`
-- **Stats**: Lv 24: HP 3071, Attack 81, Physical Defense 69, Accuracy 82
+- **Stats**: Lv 24: HP 4548, Attack 146, Physical Defense 124, Accuracy 82
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: guard_cut×1.1 (windup 0.4s); shield_rush×1.2 (windup 0.6s, knockback 90)
 - **Drops** (loot table `hua_guard_captain`):
   - equipment: none (spar)
@@ -2169,7 +2169,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions: Stoneford Smugglers (hunter)
 - **Level band**: Lv 26 in `enemies.json`
-- **Stats**: Lv 26: HP 6982, Attack 195, Physical Defense 92, Accuracy 88
+- **Stats**: Lv 26: HP 10752, Attack 372, Physical Defense 171, Accuracy 88
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; hunter; faction smugglers. Attacks: ledger_staff×1.15 (windup 0.45s); tide_palm×1.2 (windup 0.6s, damage type qi)
 - **Drops** (loot table `gu_enforcer`):
   - [Cloth](items.md#item-cloth): 100% (guaranteed)
@@ -2188,7 +2188,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions (bounties) (target)
 - **Level band**: Lv 27 in `enemies.json`
-- **Stats**: Lv 27: HP 14843, Attack 206, Physical Defense 97, Accuracy 91
+- **Stats**: Lv 27: HP 23304, Attack 402, Physical Defense 182, Accuracy 91
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; bounty; faction smugglers. Attacks: pole_sweep×1.2 (windup 0.5s); river_palm×1.2 (windup 0.65s, damage type qi)
 - **Drops** (loot table `ferryman_lou`):
   - [Pearl](items.md#item-pearl): 100% (guaranteed)
@@ -2207,7 +2207,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: the rankings: Yun Zhiqiu
 - **Level band**: Lv 30 in `enemies.json`
-- **Stats**: Lv 30: HP 4410, Attack 113, Physical Defense 94, Accuracy 100
+- **Stats**: Lv 30: HP 8883, Attack 273, Physical Defense 212, Accuracy 100
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: drifting_cut×1.1 (windup 0.38s); cloud_crescent×1.2 (windup 0.6s, damage type qi)
 - **Drops** (loot table `cloud_first_disciple`):
   - equipment: none (spar)
@@ -2222,7 +2222,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: the rankings: Bai Yuheng
 - **Level band**: Lv 31 in `enemies.json`
-- **Stats**: Lv 31: HP 4656, Attack 119, Physical Defense 99, Accuracy 103
+- **Stats**: Lv 31: HP 9588, Attack 295, Physical Defense 225, Accuracy 103
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: jade_edge×1.12 (windup 0.4s); verdant_thrust×1.25 (windup 0.55s)
 - **Drops** (loot table `jade_first_disciple`):
   - equipment: none (spar)
@@ -2237,7 +2237,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions: Gorge Bandits (hunter)
 - **Level band**: Lv 32 in `enemies.json`
-- **Stats**: Lv 32: HP 9818, Attack 267, Physical Defense 124, Accuracy 106
+- **Stats**: Lv 32: HP 20622, Attack 678, Physical Defense 287, Accuracy 106
 - **Behaviour**: AI ranged; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; keep distance 280; hunter; faction gorge. Attacks: arrow×1.15 (windup 0.55s)
 - **Drops** (loot table `gorge_stalker`):
   - [Arrows](items.md#item-arrows): 100% (guaranteed)
@@ -2256,7 +2256,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Spar post in Gorge Mouth (Whitewater Gorge) (opponent); spar in quest Old Scores; the rankings: Chief Yan Bo
 - **Level band**: Lv 33 in `enemies.json`
-- **Stats**: Lv 33: HP 5169, Attack 131, Physical Defense 108, Accuracy 109
+- **Stats**: Lv 33: HP 11034, Attack 342, Physical Defense 253, Accuracy 109
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: gorge_cut×1.15 (windup 0.42s); echo_crescent×1.2 (windup 0.65s, damage type qi)
 - **Drops** (loot table `gorge_chief`):
   - equipment: none (spar)
@@ -2271,7 +2271,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: the rankings: "Iron Crane" Guo Ming
 - **Level band**: Lv 34 in `enemies.json`
-- **Stats**: Lv 34: HP 5435, Attack 137, Physical Defense 113, Accuracy 112
+- **Stats**: Lv 34: HP 11886, Attack 365, Physical Defense 268, Accuracy 112
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: crane_staff×1.2 (windup 0.5s, knockback 80); iron_beak×1.35 (windup 0.7s)
 - **Drops** (loot table `iron_crane_guo`):
   - equipment: none (spar)
@@ -2286,7 +2286,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Factions (bounties) (target)
 - **Level band**: Lv 34 in `enemies.json`
-- **Stats**: Lv 34: HP 21739, Attack 293, Physical Defense 135, Accuracy 112
+- **Stats**: Lv 34: HP 47544, Attack 783, Physical Defense 322, Accuracy 112
 - **Behaviour**: AI humanoid; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; bounty; faction gorge. Attacks: knife_flurry×1.25 (windup 0.35s); thrown_knife×1.1 (windup 0.55s)
 - **Drops** (loot table `knife_hand_sui`):
   - [Manual Page](items.md#item-manual_page): 100% (guaranteed)
@@ -2305,7 +2305,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Trial of Reflections (Story) (heart demons); summoned by [The Reflection](#enemy-the_reflection)
 - **Level band**: Lv 36 in `enemies.json`
-- **Stats**: Lv 36: HP 998, Attack 214, Physical Defense 98, Accuracy 118
+- **Stats**: Lv 36: HP 2370, Attack 606, Physical Defense 240, Accuracy 118
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: whisper_of_doubt×0.8 (windup 0.5s, damage type soul)
 - **Drops** (loot table `heart_demon`):
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
@@ -2321,7 +2321,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Trial of Reflections (Story) (enemy); room event in Trial of Reflections (Story) (win on kill)
 - **Level band**: Lv 36 in `enemies.json`
-- **Stats**: Lv 36: HP 39912, Attack 342, Physical Defense 147, Accuracy 118
+- **Stats**: Lv 36: HP 334530, Attack 1515, Physical Defense 360, Accuracy 118
 - **Behaviour**: AI reflection; aggro range 200; move speed 90; patrol 140. Attacks: mirror_strike×1 (windup 0.45s). Phases: below 50% HP: action summon, summon heart_demon, summon level 36; below 25% HP: action enrage, cooldown 0.75, damage 1.2
 - **Drops** (loot table `the_reflection`):
   - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
@@ -2337,7 +2337,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: spar in quest Wen Zhao's Challenge; the rankings: Wen Zhao
 - **Level band**: Lv 44 in `enemies.json`
-- **Stats**: Lv 44: HP 8459, Attack 207, Physical Defense 167, Accuracy 142
+- **Stats**: Lv 44: HP 31920, Attack 836, Physical Defense 522, Accuracy 142
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: cloud_cut×1.1 (windup 0.4s); crescent×1.2 (windup 0.6s, damage type qi)
 - **Drops** (loot table `wen_zhao`):
   - equipment: none (spar)
@@ -2352,7 +2352,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Siege of Two Sects (Story) (enemy)
 - **Level band**: Lv 58 in `enemies.json`
-- **Stats**: Lv 58: HP 92008, Attack 750, Physical Defense 311, Accuracy 184
+- **Stats**: Lv 58: HP 4051500, Attack 8902, Physical Defense 1562, Accuracy 184
 - **Behaviour**: AI boss_behemoth; aggro range 200; move speed 90; patrol 140; hollowing 8. Attacks: stampede×1.4 (windup 0.7s, knockback 120); drone_burst×1 (windup 1s). Phases: below 60% HP: action summon, summon hollowed_boarlet, summon level 56; below 30% HP: action enrage, cooldown 0.65, damage 1.3
 - **Drops** (loot table `hollow_behemoth`):
   - [Siege Medal](items.md#item-siege_medal): 100% (guaranteed)
@@ -2372,7 +2372,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (disciple)
 - **Level band**: Lv 64 in `enemies.json`
-- **Stats**: Lv 64: HP 5496, Attack 555, Physical Defense 244, Accuracy 202
+- **Stats**: Lv 64: HP 53200, Attack 5994, Physical Defense 1530, Accuracy 202
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: kiln_edge×1.15 (windup 0.4s); ember_arc×1.15 (windup 0.6s, damage type qi, status {"chance": 0.3, "duration_s": 4, "id": "burn", "power": 0.01})
 - **Drops** (loot table `scarlet_kiln_disciple`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 30% ×1–2 (group 60%, weight 1 of 2)
@@ -2390,7 +2390,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Territory (sects) (warden)
 - **Level band**: Lv 66 in `enemies.json`
-- **Stats**: Lv 66: HP 34870, Attack 879, Physical Defense 385, Accuracy 208
+- **Stats**: Lv 66: HP 350256, Attack 9936, Physical Defense 2480, Accuracy 208
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: furnace_staff×1.3 (windup 0.5s, knockback 100); slag_rain×1.15 (windup 0.85s, damage type qi, status {"chance": 0.5, "duration_s": 4, "id": "burn", "power": 0.012}); bellows_rush×1.45 (windup 1s, knockback 130)
 - **Drops** (loot table `scarlet_kiln_warden`):
   - [Spirit Stone Shard](items.md#item-spirit_stone_shard): 100% ×3–5 (guaranteed)
@@ -2411,7 +2411,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: spar in quest Ironroot Blood
 - **Level band**: Lv 70 in `enemies.json`
-- **Stats**: Lv 70: HP 19410, Attack 454, Physical Defense 354, Accuracy 220
+- **Stats**: Lv 70: HP 235608, Attack 5663, Physical Defense 2403, Accuracy 220
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: root_staff×1.2 (windup 0.5s, knockback 80); iron_root_stomp×1.3 (windup 0.9s)
 - **Drops** (loot table `ironroot_warden`):
   - equipment: none (spar)
@@ -2426,7 +2426,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: Spar post in Presence Terrace (Nine Peaks) (opponent)
 - **Level band**: Lv 72 in `enemies.json`
-- **Stats**: Lv 72: HP 20437, Attack 477, Physical Defense 371, Accuracy 226
+- **Stats**: Lv 72: HP 268485, Attack 6312, Physical Defense 2587, Accuracy 226
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: peak_thrust×1.2 (windup 0.45s); nine_step_sweep×1.3 (windup 0.7s, knockback 90)
 - **Drops** (loot table `alliance_champion`):
   - equipment: none (spar)
@@ -2441,7 +2441,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Sect War: the Alliance Gate (enemy); room event in Sect War: the Alliance Gate (win on kill)
 - **Level band**: Lv 80 in `enemies.json`
-- **Stats**: Lv 80: HP 248100, Attack 1182, Physical Defense 533, Accuracy 250
+- **Stats**: Lv 80: HP 19013850, Attack 34027, Physical Defense 4764, Accuracy 250
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140. Attacks: comet_cleave×1.4 (windup 0.6s, knockback 110); anchor_throw×1.25 (windup 0.9s); boarding_call×0 (windup 1s, summon starsea_pirate). Phases: below 40% HP: action enrage, cooldown 0.7, damage 1.25; below 12% HP: action self_detonate, damage 0.6, radius 280, windup 3
 - **Drops** (loot table `pirate_captain`):
   - [Comet Iron](items.md#item-comet_iron): 100% ×3–5 (guaranteed)
@@ -2461,7 +2461,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in The Presence Trial (enemy)
 - **Level band**: Lv 81 in `enemies.json`
-- **Stats**: Lv 81: HP 8462, Attack 839, Physical Defense 363, Accuracy 253
+- **Stats**: Lv 81: HP 151536, Attack 15779, Physical Defense 3287, Accuracy 253
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: weight_of_a_seat×1.1 (windup 0.55s, damage type qi)
 - **Drops** (loot table `presence_phantom`):
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
@@ -2477,7 +2477,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: room event in The Presence Trial (enemy)
 - **Level band**: Lv 81 in `enemies.json`
-- **Stats**: Lv 81: HP 101545, Attack 1007, Physical Defense 363, Accuracy 253
+- **Stats**: Lv 81: HP 1818432, Attack 18935, Physical Defense 3287, Accuracy 253
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530. Attacks: ninth_seat_palm×1.3 (windup 0.7s, damage type qi, knockback 100); crown_of_nine×1.2 (windup 1.1s, damage type soul, status {"chance": 0.6, "duration_s": 3, "id": "slow", "power": 0.3})
 - **Drops** (loot table `ninth_presence`):
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
@@ -2493,7 +2493,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Spawns**: no room spawns it
 - **Also appears**: spar in quest The Aspirant
 - **Level band**: Lv 91 in `enemies.json`
-- **Stats**: Lv 91: HP 31512, Attack 723, Physical Defense 555, Accuracy 283
+- **Stats**: Lv 91: HP 975282, Attack 23119, Physical Defense 7645, Accuracy 283
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; presence 3; spar; sphere {"element": "sword", "tier": 3}. Attacks: starfall_thrust×1.25 (windup 0.45s); domain_cut×1.1 (windup 0.8s)
 - **Drops** (loot table `shen_lian_aspirant`):
   - equipment: none (spar)

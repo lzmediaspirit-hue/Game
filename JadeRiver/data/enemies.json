@@ -4733,7 +4733,6 @@
    "half_width": 40,
    "height": 170,
    "weak_to": "water",
-   "hp_mult": 0.35,
    "attack_mult": 0.8,
    "phases": [
     {
@@ -4757,7 +4756,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 150
   },
   {
    "id": "canyon_brigand",
@@ -5234,7 +5234,6 @@
    },
    "half_width": 20,
    "height": 94,
-   "hp_mult": 1.5,
    "attack_mult": 0.9,
    "phases": [
     {
@@ -5259,7 +5258,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 150
   },
   {
    "id": "star_jellyfish",
@@ -5967,7 +5967,6 @@
    },
    "half_width": 20,
    "height": 96,
-   "hp_mult": 1.6,
    "attack_mult": 0.9,
    "presence": 4,
    "phases": [
@@ -5989,7 +5988,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 240
   },
   {
    "id": "gravity_golem",
@@ -6742,7 +6742,6 @@
    },
    "half_width": 20,
    "height": 98,
-   "hp_mult": 1.7,
    "attack_mult": 0.9,
    "presence": 4,
    "sphere": {
@@ -6773,7 +6772,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 240
   },
   {
    "id": "nebula_eel",
@@ -7109,7 +7109,6 @@
    "half_width": 160,
    "height": 90,
    "flying": true,
-   "hp_mult": 2.2,
    "attack_mult": 0.9,
    "presence": 5,
    "sphere": {
@@ -7138,7 +7137,8 @@
     "drop": false
    },
    "beast_rank": 9,
-   "nature": "spirit"
+   "nature": "spirit",
+   "par_s": 300
   },
   {
    "id": "shen_lian_aspirant",
@@ -7666,7 +7666,6 @@
    "first_defeat": [
     "mudwater_cleaver"
    ],
-   "hp_mult": 0.6,
    "attack_mult": 0.8,
    "pet_book": {
     "item": "pet_book_frenzy",
@@ -7679,7 +7678,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 90
   },
   {
    "id": "riverbed_serpent",
@@ -7784,7 +7784,8 @@
     "drop": false
    },
    "beast_rank": 3,
-   "nature": "spirit"
+   "nature": "spirit",
+   "par_s": 120
   },
   {
    "id": "thousand_eye_toad",
@@ -7920,7 +7921,8 @@
     "drop": false
    },
    "beast_rank": 8,
-   "nature": "spirit"
+   "nature": "spirit",
+   "par_s": 180
   },
   {
    "id": "drowned_abbot",
@@ -8032,7 +8034,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 180
   },
   {
    "id": "the_reflection",
@@ -8100,7 +8103,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 90
   },
   {
    "id": "heart_demon",
@@ -8360,7 +8364,8 @@
     "drop": false
    },
    "beast_rank": 7,
-   "nature": "spirit"
+   "nature": "spirit",
+   "par_s": 150
   },
   {
    "id": "gate_guardian",
@@ -8449,7 +8454,8 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "par_s": 120
   },
   {
    "id": "shen_lian",

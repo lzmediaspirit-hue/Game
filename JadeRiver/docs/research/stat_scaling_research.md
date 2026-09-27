@@ -404,6 +404,9 @@ gates nothing; it sets the idle Hunt rate only.
 
 ## 6. Proposal
 
+**Built** as roadmap phase P12 · Might (2026-09-27). §6.8 lists what was built, where it differs from this section, and
+the numbers measured on the valley_run checkpoints before and after.
+
 ### 6.1 Principles
 
 1. **Cultivation carries the scale.** A new multiplier, Might, belongs to the realm. Items keep today's numbers. A
@@ -728,6 +731,112 @@ totals or thresholds. The migration bumps the save's minor version so it runs on
 
 **Order.** After P7b's banded gear (G1) and before any v1.3 content is written in today's scale (the Soul Band and
 boss examples in the design pages quote today's numbers).
+
+### 6.8 As built (P12 · Might)
+
+**Where it lives.** `tools/data/stats.py` holds Might (`MIGHT`, `might()`), the par character (`PAR`, `par_row()`, the
+rules' formulas repeated for the builder) and the monster tables (`mob_tables()`); `stats.json` carries `might.table`,
+`par` (its schedule and a table for Levels 0–200), `mob.hp_table` and `mob.attack_table`, `qi_edge` and `hp_share_cap`.
+`StatRules.might_at`, `might`, `par`, `par_step` and `by_level` read them; `CombatRules.fighter` and `foe` build the
+pipeline's views once for Combat, the Vigil and the probe. `balance_sim` builds the par character with the real rules
+and lands within 1% of the table.
+
+**The par character against the targets** (before crits; the real rules):
+
+| Level | Basic (target) | Technique (target) | Crit technique | Max HP (research) | CP (research) |
+|---|---|---|---|---|---|
+| 1 | 12 (12) | 12 (12) | 18 | 82 (83) | 20 (21) |
+| 10 | 63 (68) | 65 (63) | 97 | 589 (574) | 114 (121) |
+| 30 | 847 (832) | 1,319 (1,246) | 1,978 | 5,307 (5,216) | 1,159 (1,283) |
+| 60 | 10.9K (11.0K) | 38.3K (39.5K) | 61.3K | 49.5K (46.6K) | 12.8K (14.4K) |
+| 80 | 41.4K (41.5K) | 154K (154K) | 269K | 163K (152K) | 47.7K (50.5K) |
+| 99 | 130K (136K) | 531K (527K) | 929K (922K) | 460K (427K) | 149K (163K) |
+| 108 | 241K (246K) | 1.03M (999K) | 1.79M | 738K (683K) | 272K (280K) |
+| 120 (table) | 571K (611K) | 2.64M (2.69M) | 4.63M | 1.66M (1.52M) | 646K (696K) |
+
+**What differs from §6.1–§6.7.**
+
+1. **Bone Forging's Might** climbs only to ×1.05 over its nine Levels (the formula would give 1.11 at Level 9, 11% over
+   today's numbers); the first step, at Qi Kindling 1, is ×1.30 from Bone Forging 1 (×1.24 from Level 9). Everything
+   from Level 10 follows the formula.
+2. **Might is a `pct_mul` modifier** on the three attacks, max HP and the three defences, so gear's flat health and
+   armour scale too (most of the player's armour is gear; §6.3's "bases × Might" would have left it flat).
+3. **The par schedule's steps land a Level or more past a major breakthrough**, so the breakthrough itself is the
+   realm's step (checks 5 and 6): Fine from Level 10 as proposed, Superior from 40 (not 37), Perfect from 103; the
+   attack affix 5% from 22, 8% from 67, 12% from 103; the sets' damage 8% from 42, 13% from 67, 20% from 124; the Sword
+   Dao 1 at 15, 2 at 30, 3 at 49, 4 at 67, 5 at 85, 6 at 112; the main art's mastery 2 at 12, 3 at 21, 4 at 49, 5 at 85,
+   6 at 112; crit affixes from 40, 67 and 124. Meridian points go evenly to the five channels.
+4. **The par main art** is a Qi strike whose multiplier (grade included) is set by band so the technique meets the
+   line of `docs/technique_plan.md` §6.1: 1.0, 1.2 from Level 19, 1.45 from 37, 1.95 at 55, easing to 1.7 by Sphere
+   Lord and 1.1 by World Genesis, as mastery, the Dao, the Qi edge and Essence carry more of the ratio. P13 re-tunes it.
+5. **Par health runs 0–14% above the research's** (460K at Level 99): the body meridian gate (+5% at 25 points)
+   counts. The blow rule reads this table, so a blow is still 6% of it.
+6. **Boss roles strike at ×2.5** a normal foe (15%; 12–13.5% with the bosses' own attack factors). Bosses without a
+   par time keep their role's health factor over the table.
+7. **Allies stand behind their owner's armour**: a foe's attack is set to pass armour, and a spirit animal (40% of its
+   owner's health, no armour) would have taken a fifth of its health a blow at Level 99.
+8. **The Soul Lantern Ward** shields 10% of max HP; **a body technique short of QI** spends the same share of max HP
+   as the QI's share of max QI.
+9. **`UiKit.fmt` turns to `short` from ten million**, so every page follows §6.5 without touching the pages; bars do
+   so from 100,000 through `UiKit.pool_values`. Tooltip comparisons in `short` are not done.
+10. **The checks** (`balance_sim`): par_hit at Level 120 waits for v1.3's weapons (a Will-grade jian carries the
+    energy penalty at Monarch); ttk allows up to 5 blows under Level 20, where today's floor holds (4.6 at Level 10);
+    the boss blow band is two to three normal blows (16–24% under Level 20); boss_par is a data check (the fought
+    `boss_suite` of `docs/boss_design.md` is not built); smooth runs from Level 11 and realm_step allows 10–30% at the
+    advanced states and Inner Heaven 1; chapter_floor measures the previous chapter's end as its highest floor or
+    breakthrough objective and allows the floor to wait up to 10 Levels past it (§6.6 rule 1's "at most that Level"
+    cannot hold for Act I's realm-triggered chapter openers: chapters 2–10 wait 2–10 Levels, chapter 8 the whole of
+    Cloud Stride, chapter 14 three); its attunement-material half is not checked; pacing has no user target yet and
+    reports 133 h to Sphere Lord 3 against the 140–235 h estimates.
+11. **Main-quest gating**: rule 7's catch-up (double QP on the chapter's daily mission) is not built. Chapter 21's
+    floor made The Tide Breaks and The Copperjaw Box open together; the box now follows The Tide Breaks.
+12. **`damage_pct` and `boss_damage`** exist as stats; no affix rows yet (they come with the Frontier's named pieces
+    and the Worthy Foes seals).
+13. **valley_run's par-up** starts at Qi Kindling 1 (Bone Forging keeps today's gear, so it stays within 5%), also puts
+    the par affixes on the weapon (attack, damage%, crits) and raises the Sword Dao to its par tier; the canyon side
+    stories get more sorties. A second labelled shortcut, **par pace**, sizes every boss with a par time that spawns
+    during the run to 20 s of the run's own basic blows: the par time assumes a player who strikes with a main art at
+    par and steps out of the markers, and the scripted fighter does neither (the Tomb King's blows took a fifth of its
+    health each, and a boss heals whole when its target falls). A fought `boss_suite` should measure par times with a
+    player who dodges.
+14. **Finding for the monster tables**: the attack table is set against par's physical armour; a boss's Qi and Soul
+    strikes meet the lower Qi resistance and soul defence, so they take about 1.4 times the plain blow's share.
+
+**Measured on the valley_run checkpoints** (`tools/dev/stat_probe.gd` on copies of the progressed Tester; hits before
+crits against the Level's own normal foes, averaged; the "technique" is the best slotted one, Flowing Palm per hit until
+the ceiling row's Glimpse of Heaven at mastery 6; the "before" run is the build branch at P7b part 1, the "after" run
+the regenerated checkpoints with the par-up shortcut). Bone Forging moves by at most 5% (Might 1.05 at Level 9). At
+Level 98 the run's plain blow is two thirds of par's (85K against 125K): its attack is 70% of par's, since its
+meridians and attributes are its own; its best road (the ceiling row) meets the technique targets, 564K and 931K on a
+crit. Normal foes fall to 4-5 blows and hit for 5-7% of health from Level 40 to the end, where they had drifted to 3
+blows and 3%.
+
+| Checkpoint | Level (before → after) | Max HP | Attack (physical) | Basic hit | Technique hit | Technique crit | Normal foe HP | Blows to kill | Foe's blow | CP (room's) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| new (Mortal) | 0 | 74 → 74 | 7 → 7 | 7 → 7 | 0 → 0 | 0 → 0 | 30 → 30 | 4 → 4 | 5.9% → 5.9% | 19 (38) → 19 (20) |
+| new, set to Bone Forging 1 | 1 | 96 → 96 | 7 → 7 | 7 → 7 | 0 → 0 | 0 → 0 | 46 → 46 | 6 → 6 | 6.8% → 6.8% | 21 (38) → 21 (20) |
+| bf2 | 2 | 134 → 134 | 9 → 9 | 8 → 8 | 0 → 0 | 0 → 0 | 64 → 64 | 7 → 7 | 7.3% → 7.2% | 27 (40) → 27 (23) |
+| bf5 | 4 | 195 → 199 | 29 → 29 | 30 → 30 | 0 → 0 | 0 → 0 | 107 → 107 | 4 → 4 | 8.7% → 8.6% | 44 (92) → 44 (39) |
+| bf8 | 7 | 310 → 322 | 30 → 31 | 30 → 32 | 0 → 0 | 0 → 0 | 204 → 204 | 7 → 7 | 9.0% → 8.6% | 57 (110) → 59 (67) |
+| qk1 | 9 | 400 → 420 | 30 → 32 | 31 → 32 | 0 → 0 | 0 → 0 | 254 → 254 | 8 → 8 | 8.9% → 8.5% | 67 (146) → 70 (77) |
+| qk5 | 13 | 697 → 958 | 90 → 141 | 91 → 142 | 109 → 170 | 163 → 255 | 410 → 411 | 5 → 3 | 6.3% → 7.2% | 144 (236) → 211 (173) |
+| qu1 | 19 | 1,141 → 1,965 | 95 → 220 | 83 → 202 | 102 → 235 | 153 → 353 | 712 → 861 | 9 → 5 | 7.2% → 8.6% | 196 (326) → 378 (299) |
+| qu5 | 22 | 1,730 → 2,756 | 269 → 308 | 265 → 319 | 264 → 302 | 396 → 453 | 892 → 1,208 | 4 → 4 | 4.7% → 5.4% | 384 (362) → 523 (461) |
+| ht1 | 27 | 2,342 → 4,429 | 281 → 612 | 274 → 625 | 391 → 818 | 587 → 1,227 | 1,236 → 1,942 | 5 → 3 | 4.8% → 4.9% | 456 (524) → 925 (1,078) |
+| ht5 | 31 | 3,126 → 7,198 | 286 → 799 | 234 → 720 | 334 → 897 | 502 → 1,346 | 1,552 → 3,196 | 7 → 5 | 4.5% → 4.8% | 540 (524) → 1,353 (1,159) |
+| cs1 | 36 | 4,010 → 9,953 | 298 → 1,184 | 241 → 1,054 | 405 → 1,545 | 607 → 2,318 | 1,496 → 3,554 | 6 → 4 | 4.5% → 4.8% | 640 (596) → 1,925 (1,547) |
+| cs5 | 40 | 4,816 → 14.7K | 322 → 2,051 | 379 → 2,126 | 541 → 2,650 | 811 → 4,241 | 2,390 → 7,718 | 6 → 4 | 4.5% → 4.9% | 1,107 (686) → 3,076 (2,894) |
+| sa1 | 45 | 5,953 → 19.4K | 334 → 2,767 | 388 → 3,062 | 416 → 2,867 | 625 → 4,588 | 2,932 → 11.2K | 8 → 4 | 3.3% → 3.7% | 1,294 (740) → 4,110 (3,284) |
+| sa5 | 49 | 7,080 → 27.7K | 339 → 4,180 | 391 → 4,792 | 473 → 4,855 | 710 → 7,768 | 3,406 → 17.8K | 9 → 4 | 4.3% → 5.0% | 1,473 (848) → 6,058 (5,550) |
+| hg1 | 53 | 8,215 → 33.9K | 350 → 5,191 | 499 → 5,897 | 498 → 6,153 | 747 → 9,846 | 3,914 → 22.0K | 8 → 4 | 4.9% → 5.8% | 1,678 (920) → 7,547 (7,326) |
+| ae1 | 63 | 9,905 → 54.7K | 374 → 10.1K | 521 → 12.2K | 596 → 13.5K | 894 → 21.5K | 5,340 → 43.8K | 10 → 4 | 4.8% → 6.2% | 1,968 (1,172) → 13.6K (19.1K) |
+| ae3 | 68 | 13.7K → 85.6K | 1,412 → 15.1K | 2,110 → 18.9K | 1,996 → 17.9K | 2,995 → 31.3K | 6,136 → 71.8K | 3 → 4 | 3.5% → 6.0% | 4,230 (1,226) → 21.0K (23.0K) |
+| ae5 | 75 | 16.8K → 124K | 1,830 → 25.5K | 2,693 → 31.4K | 2,732 → 31.9K | 4,098 → 55.8K | 7,342 → 118K | 3 → 4 | 3.4% → 6.6% | 5,346 (1,352) → 33.3K (38.0K) |
+| ae_end | 80 | 20.2K → 185K | 1,887 → 28.1K | 2,746 → 34.2K | 2,911 → 36.3K | 4,367 → 63.5K | 8,270 → 145K | 3 → 4 | 3.5% → 6.1% | 6,000 (1,442) → 41.6K (47.7K) |
+| ls2_end | 87 | 24.2K → 262K | 1,967 → 42.1K | 2,822 → 50.5K | 3,851 → 66.5K | 5,777 → 116K | 9,660 → 241K | 4 → 5 | 2.8% → 5.6% | 6,815 (1,550) → 61.2K (73.5K) |
+| ls4_end | 93 | 27.9K → 405K | 2,035 → 61.7K | 2,919 → 74.1K | 3,725 → 91.2K | 5,588 → 160K | 10.9K → 350K | 4 → 5 | 3.0% → 5.6% | 7,563 (1,658) → 92.2K (109K) |
+| ls6_end | 98 | 31.2K → 485K | 2,092 → 74.8K | 2,850 → 85.3K | 3,203 → 92.5K | 4,804 → 162K | 12.1K → 438K | 4 → 5 | 2.9% → 5.7% | 8,234 (1,784) → 112K (143K) |
+| ceiling (ls6_end, best road) | 98 | 31.7K → 487K | 4,407 → 90.1K | 6,242 → 94.5K | 40.8K → 564K | 67.4K → 931K | 12.1K → 438K | 2 → 5 | 2.5% → 5.3% | 11.7K (1,784) → 122K (143K) |
 
 ---
 

@@ -1858,14 +1858,14 @@
    "dao": "soul",
    "unlock": "spirit_awakening_5",
    "source": "the_mentors_gift",
-   "desc": "A ward that absorbs damage equal to 20% max Soul for 6 s.",
+   "desc": "A ward that absorbs damage equal to 10% of your max HP for 6 s.",
    "action": "meditate_burst",
    "icon": "soul_lantern_ward",
    "mastery": {
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "shield_soul_pct": 0.2,
+   "shield_hp_pct": 0.1,
    "shield_s": 6,
    "grade": "heaven",
    "vfx": {

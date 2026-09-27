@@ -7,6 +7,7 @@ their prop art, two-way portals, density rules per room type and spawn points ke
 away from portals. The Prologue rooms (Lotus Ferry) are laid out by hand; the rest of
 the valley uses the same builder with region presets.
 """
+import functools
 import json
 import os
 import verticality
@@ -137,13 +138,25 @@ def hazards_json():
     entries("hazards", HAZARDS)
 
 
+@functools.lru_cache(maxsize=1)
+def _par_table():
+    return json.load(open(os.path.join(DATA, "stats.json")))["par"]["table"]
+
+
+def par_cp(levels):
+    """P12 (research §6.6 rule 5): a room's recommended Combat Power is the par character's at its middle Level."""
+    table = _par_table()
+    return int(table[min(len(table) - 1, (int(levels[0]) + int(levels[-1])) // 2)]["cp"])
+
+
 class Room:
     def __init__(self, rid, name, rtype, region, screens=1, **kw):
         self.id = rid
         self.w = int(SCREEN * screens)
+        levels = kw.pop("levels", [0, 0])
         self.d = {
             "id": rid, "zone": kw.pop("zone", "jade_river_valley"), "region": region, "name": name, "type": rtype,
-            "level_range": kw.pop("levels", [0, 0]), "recommended_cp": kw.pop("cp", 0),
+            "level_range": levels, "recommended_cp": par_cp(levels) if kw.pop("cp", False) else 0,
             "element": kw.pop("element", "none"), "qi_density": kw.pop("qi", 1.0),
             "hazards": kw.pop("hazards", []), "gather_tier": kw.pop("gather_tier", ""),
             "idle": kw.pop("idle", []), "safe": kw.pop("safe", rtype in ("town", "interior", "home", "sect", "rest", "insight")),
@@ -509,7 +522,7 @@ def lotus_ferry():
     r.portal("exit", "door", [640, 660], "lf_village", "granny_door", press_up=True)
 
     # P3 Reed Shallows (first fight)
-    r = Room("lf_reed_shallows", "Reed Shallows", "field", "lotus_ferry", 2, levels=[1, 3], cp=40, element="water",
+    r = Room("lf_reed_shallows", "Reed Shallows", "field", "lotus_ferry", 2, levels=[1, 3], cp=True, element="water",
              gather_tier="valley_low", idle=["hunt", "gather"], backdrop="valley_day", music="reeds_day", ambience="river_ambience",
              material="moss", spawn_point=[140, 820])
     r.area("shallows", [620, 850, 1500, 110])
@@ -587,7 +600,7 @@ def lotus_ferry():
 def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=(), ores=(), jars=5, chest=None,
           element="none", gather_tier="", qi=1.0, music="field", ambience="", rtype="field", trees=("willow_tree", "pine_tree"),
           platforms=(), fishing=None, loot="jar_valley_low", elite=True, hazards=(), ledge=None, front=None, **kw):
-    r = Room(rid, name, rtype, region, screens, levels=levels, cp=int(20 + levels[0] * 18), element=element,
+    r = Room(rid, name, rtype, region, screens, levels=levels, cp=True, element=element,
              gather_tier=gather_tier, idle=kw.pop("idle", ["hunt", "gather"]), backdrop=backdrop, material=material,
              music=music, ambience=ambience, qi=qi, hazards=list(hazards), **kw)
     lv_mid = max(1, (levels[0] + levels[1]) // 2)

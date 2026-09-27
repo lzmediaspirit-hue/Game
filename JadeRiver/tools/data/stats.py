@@ -1,6 +1,7 @@
 """S10/S11/S12/S13/S14/S29 constants: stats.json, curves.json, elements, statuses, weapon families,
 grades, affixes, sets, injuries, failures, origins, methods."""
 from common import write, entries
+from realms import energy_at
 
 STAT_LIST = [
     # id, group, cap (value or reduction), format
@@ -35,6 +36,9 @@ STAT_LIST = [
     # array power to an Array Plate's time and the killing array's blow, melody power to the melody's slow and heals, the
     # bell's ring and Clear Heart Melody (CombatAuthority).
     ("pet_damage", "offense", None, "percent"), ("array_power", "offense", None, "percent"), ("melody_power", "offense", None, "percent"),
+    # P12 (research §6.3): the one additive damage bucket (damage%, with elemental power beside it and boss damage against
+    # elites and bosses), and final damage, a product of its sources (base 1, each source a pct_mul).
+    ("damage_pct", "offense", None, "percent"), ("boss_damage", "offense", None, "percent"), ("final_damage", "offense", None, "mult"),
 ]
 
 
@@ -71,33 +75,334 @@ AFFIXES = [
 ]
 
 
+# P12 Might (docs/research/stat_scaling_research.md §6.2): the realm's power step, on the player's attacks, max HP and
+# defences and on every monster of the same Level. ×1.30 a great realm, 60% of it at the major breakthrough (×1.17) and
+# the rest over the realm's other eight Levels; Bone Forging climbs only to ×1.05 (it keeps today's numbers), so the
+# first step, at Qi Kindling 1, is ×1.30. The advanced states are ×1.10 each, Inner Heaven's nine ranks ×1.18 each
+# (60% at the rank-up) and World Genesis +2% a Level past 166. Max Qi and max Soul never take Might.
+MIGHT = {"step": 1.30, "major_share": 0.6, "body_top": 1.05, "levels_per_realm": 9, "advanced_from": 118, "advanced": 1.10,
+         "inner_from": 121, "inner_levels": 5, "inner_rank": 1.18, "genesis_from": 166, "genesis_per_level": 0.02, "top_level": 200,
+         "stats": ["max_hp", "physical_attack", "qi_attack", "soul_attack", "physical_defense", "qi_resistance", "soul_defense"]}
+
+
+def might(lv):
+    """Might at a Level (the table GDScript reads is this function from Level 0 to `top_level`)."""
+    m, share, per = MIGHT["step"], MIGHT["major_share"], MIGHT["levels_per_realm"]
+    if lv <= 1:
+        return 1.0
+    if lv <= per:
+        return MIGHT["body_top"] ** ((lv - 1) / (per - 1))
+    if lv < MIGHT["advanced_from"]:
+        idx, stage = divmod(lv - 1, per)
+        return m ** idx * m ** ((1 - share) * stage / (per - 1))
+    if lv < MIGHT["inner_from"]:
+        return might(MIGHT["advanced_from"] - 1) * MIGHT["advanced"] ** (lv - MIGHT["advanced_from"] + 1)
+    if lv < MIGHT["genesis_from"]:
+        rank, step = divmod(lv - MIGHT["inner_from"], MIGHT["inner_levels"])
+        r = MIGHT["inner_rank"]
+        return might(MIGHT["inner_from"] - 1) * r ** (rank + share) * r ** ((1 - share) * step / (MIGHT["inner_levels"] - 1))
+    return might(MIGHT["genesis_from"] - 1) * m ** share * (1 + MIGHT["genesis_per_level"]) ** (lv - MIGHT["genesis_from"])
+
+
+def might_block():
+    return dict(MIGHT, table=[round(might(lv), 4) for lv in range(MIGHT["top_level"] + 1)])
+
+
+# P12 the par character (research §6.1 principle 3): a steady cultivator of the jian at every Level, the yardstick the
+# monster tables are set from; balance_sim builds it with the real rules and checks it against this table. Rows are
+# [from Level, value, ...]: every piece's quality and enhancement (one a `enhance_every` Levels), the weapon and armour
+# `weapon_lag` Levels behind their wearer, the Sword Dao's tier, the main art's mastery tier, the weapon's attack affix,
+# the sets' damage%, crit chance and damage from affixes, and the main art: its multiplier with grade, a Qi strike, set
+# so its hit meets the technique line of docs/technique_plan.md §6.1. Each step lands a Level or more past a major
+# breakthrough so a breakthrough is the realm's own step. Meridian points go evenly to the five channels (the first
+# channels take the remainder). DPS counts crits and techniques at +60% (`technique_share`). The monster tables: a
+# normal foe falls to `hits` par basic hits and its plain blow takes `blow` of par max HP, after par's armour; under
+# `from_level` both keep today's polynomials (Bone Forging keeps its numbers).
+PAR = {"family": "jian", "origin": "fishers_child", "purity": 9, "weapon_lag": 3, "enhance_every": 12, "enhance_max": 10,
+       "channels": ["body", "agility", "essence", "spirit", "insight"],
+       "quality": [[1, "common"], [10, "fine"], [40, "superior"], [103, "perfect"]],
+       "dao": [[1, 0], [15, 1], [30, 2], [49, 3], [67, 4], [85, 5], [112, 6]],
+       "mastery": [[1, 1], [12, 2], [21, 3], [49, 4], [85, 5], [112, 6]],
+       "attack_pct": [[1, 0.0], [22, 0.05], [67, 0.08], [103, 0.12]],
+       "damage_pct": [[1, 0.0], [42, 0.08], [67, 0.13], [124, 0.20]],
+       "crit": [[1, 0.0, 0.0], [40, 0.03, 0.10], [67, 0.05, 0.25], [124, 0.08, 0.50]],
+       "art": [[1, 1.0], [19, 1.2], [37, 1.45], [55, 1.95], [64, 1.9], [73, 1.8], [82, 1.75], [91, 1.7], [109, 1.6],
+               [121, 1.45], [141, 1.33], [151, 1.25], [166, 1.1]],
+       "art_type": "qi", "technique_share": 1.6,
+       "hits": 3.5, "blow": [[0, 0.08], [20, 0.06]], "from_level": 10}
+
+
+def poly(spec, x):
+    return spec.get("a", 0) + spec.get("b", 0) * x + spec.get("c", 0) * x * x
+
+
+def par_step(key, lv):
+    """The par schedule's row reached at `lv`: its value, or its values when the row holds several."""
+    row = PAR[key][0]
+    for r in PAR[key]:
+        if lv >= r[0]:
+            row = r
+    return row[1] if len(row) == 2 else row[1:]
+
+
+def par_row(lv, fam, origin):
+    """The par character at a Level with the rules' formulas (StatRules.rebuild, CombatRules.resolve, combat_power);
+    the constants written in code there (the weapon's 0.8% and 0.4% a point, the robe's HP and Qi resistance, the hat's
+    soul defence) are repeated here."""
+    c, fx, eq = CORE, CORE["attribute_effects"], CORE["equipment"]
+    m = might(lv)
+    pts = sum([r["points"] for r in c["meridian_points_per_level"] if lv_ >= r["from_level"]][-1] for lv_ in range(1, lv + 1))
+    chans = PAR["channels"]
+    meridians = {k: pts // len(chans) + (1 if i < pts % len(chans) else 0) for i, k in enumerate(chans)}
+    attr = {k: c["attributes"]["base"] + c["attributes"]["per_level"] * lv + meridians[k] for k in chans}
+    attr["fortune"] = c["attributes"]["base"]
+    for k, v in origin.get("bonus", {}).items():
+        attr[k] += v
+    dao = par_step("dao", lv)
+    attr["insight"] += c["attributes"]["insight_per_dao_tier"] * dao
+    ilv = max(1, lv - PAR["weapon_lag"])
+    gear = QUALITIES[par_step("quality", lv)]["mult"] * (1 + eq["enhance_per_level"] * min(PAR["enhance_max"], lv // PAR["enhance_every"]))
+    s1, s2 = fam["scales"]
+    watk = poly(eq["weapon_attack"], ilv) * gear * (1 + 0.008 * attr[s1] + 0.004 * attr[s2])
+    attack = watk * (1 + par_step("attack_pct", lv)) * m
+    qi_attack = watk * (1 + fx["essence"]["qi_attack_pct"] * attr["essence"]) * (1 + fam.get("qi_attack_bonus", 0.0)) * m
+    arm = poly(eq["armour_defence"], ilv) * gear
+    defence = (fx["body"]["physical_defense"] * attr["body"] + arm * sum(eq["slot_share"].values())) * m
+    qi_res = (fx["essence"]["qi_resistance"] * attr["essence"] + arm * 0.2) * m
+    soul_def = (fx["spirit"]["soul_defense"] * attr["spirit"] + arm * 0.3) * m
+    hp_pct = c["meridian_gates"]["body"]["25"]["value"] if meridians["body"] >= 25 else 0.0
+    hp =(poly(c["pools"]["hp"], lv) * (1 + fx["body"]["max_hp_pct"] * attr["body"]) + 5 * ilv * gear) * (1 + hp_pct) * m
+    cr = c["crit"]
+    crit_add, crit_dmg_add = par_step("crit", lv)
+    crit = min(cr["cap"], cr["base"] + fx["agility"]["crit_chance"] * attr["agility"] + fx["fortune"]["crit_chance"] * attr["fortune"]
+               + fam["crit"] + crit_add)
+    crit_dmg = min(cr["damage_cap"], cr["damage_base"] + crit_dmg_add)
+    k = (c["defence"]["k_flat"] + c["defence"]["k_level"] * lv) * m   # a same-Level normal foe's armour
+    foe_def = poly(eq["armour_defence"], lv) * c["mob"]["roles"]["normal"]["defence"] * m
+    cut = lambda d: min(c["defence"]["cap"], d / (d + k))
+    tc, dmg = c["technique_cost"], par_step("damage_pct", lv)
+    combo = sum(s["mult"] for s in fam["combo"]) / len(fam["combo"])
+    basic = attack * combo * (1 + tc["dao_damage_per_tier"] * dao) * (1 + dmg) * (1 - cut(foe_def))
+    energy = energy_at(lv)
+    edge = c["qi_edge"][energy] + (c["qi_edge_per_purity"] * (9 - PAR["purity"]) if energy == "true_qi" else 0.0)
+    technique = (qi_attack * par_step("art", lv) * (1 + tc["dao_damage_per_tier"] * dao + tc["mastery_damage_per_tier"] * (par_step("mastery", lv) - 1))
+                 * edge * (1 + dmg) * (1 - cut(foe_def * 0.6)))
+    crit_factor = 1 + crit * (crit_dmg - 1)
+    swings = len(fam["combo"]) / sum(s["duration"] for s in fam["combo"])
+    aspd = fam["hits_per_s"] * (1 + min(0.5, fx["agility"]["attack_speed"] * attr["agility"]))
+    cp = hp / c["cp"]["hp_div"] + attack * aspd * crit_factor * c["cp"]["attack_weight"] + (defence + qi_res + soul_def) / c["cp"]["defence_div"]
+    return {"level": lv, "might": round(m, 4), "attack": round(attack), "qi_attack": round(qi_attack), "max_hp": round(hp),
+            "physical_defense": round(defence), "crit_chance": round(crit, 3), "crit_damage": round(crit_dmg, 3),
+            "basic": round(basic), "technique": round(technique), "technique_crit": round(technique * crit_dmg),
+            "dps": round(basic * crit_factor * swings * PAR["technique_share"]), "cp": round(cp),
+            "armour_cut": round(cut(defence), 4)}
+
+
+def par_block(families, origins):
+    fam = next(f for f in families if f["id"] == PAR["family"])
+    origin = next(o for o in origins if o["id"] == PAR["origin"])
+    return dict(PAR, table=[par_row(lv, fam, origin) for lv in range(MIGHT["top_level"] + 1)])
+
+
+def mob_tables(par):
+    """A normal foe's HP and attack by Level from the par table (research §6.2 rules behind the monster columns)."""
+    mob = CORE["mob"]
+    hp, attack = [], []
+    for row in par["table"]:
+        lv = row["level"]
+        if lv < PAR["from_level"]:
+            hp.append(round(poly(mob["hp"], lv), 1))
+            attack.append(round(poly(mob["attack"], lv), 1))
+            continue
+        hp.append(round(max(poly(mob["hp"], lv), PAR["hits"] * row["basic"])))
+        share = [b for b in PAR["blow"] if lv >= b[0]][-1][1]
+        attack.append(round(share * row["max_hp"] / (1 - row["armour_cut"])))
+    return {"hp_table": hp, "attack_table": attack}
+
+
+# The stat constants the par model (below) reads as the rules do; build() writes them into stats.json unchanged.
+CORE = {
+    "pools": {
+        "hp": {"a": 50, "b": 20, "c": 0.9, "from_level": 0},
+        "qi": {"a": 20, "b": 8, "c": 0.5, "from_realm": "bone_forging_7"},
+        "soul": {"a": 100, "b": 10, "c": 0.4, "offset": 46, "from_realm": "spirit_awakening_1"},
+    },
+    "attributes": {"base": 5, "per_level": 1, "body_per_body_level": 1, "essence_per_purity_grade": 3,
+                   "spirit_per_soul_points": 0.1, "insight_per_dao_tier": 2, "essence_per_capacity": 10},
+    "attribute_effects": {
+        "body": {"max_hp_pct": 0.01, "physical_defense": 0.5, "body_weapon_attack_pct": 0.003, "toxicity_tolerance": 0.1, "knockback_resistance": 0.002},
+        "agility": {"move_speed_pct": 0.001, "attack_speed": 0.002, "crit_chance": 0.001, "accuracy": 1.0, "evasion": 0.5},
+        "essence": {"max_qi_pct": 0.01, "qi_attack_pct": 0.005, "technique_cost": 0.001, "qi_resistance": 0.3, "qi_regen": 0.005},
+        "spirit": {"max_soul_pct": 0.01, "soul_defense": 0.5, "soul_attack_pct": 0.005, "sense_radius_pct": 0.01, "will": 1.0, "tenacity": 0.002,
+                   "crafting_perception": 0.001},
+        "insight": {"insight_rate": 0.005, "mastery_gain": 0.003, "accuracy": 0.5, "crafting_control": 0.002},
+        "fortune": {"drop_rate": 0.002, "coin_find": 0.003, "crit_chance": 0.0005},
+    },
+    "meridian_points_per_level": [{"from_level": 1, "points": 2}, {"from_level": 55, "points": 3}, {"from_level": 121, "points": 4}],
+    "meridian_gates": {
+        "body": {"25": {"stat": "max_hp", "op": "pct_add", "value": 0.05}, "50": {"flag": "knockback_immune_attacking"}, "100": {"flag": "survive_lethal"}},
+        "agility": {"25": {"flag": "dodge_cooldown_20"}, "50": {"flag": "dodge_second_charge"}, "100": {"flag": "move_keeps_cultivate"}},
+        "essence": {"25": {"flag": "first_technique_free"}, "50": {"flag": "flight_qi_20"}, "100": {"flag": "projectile_pierce"}},
+        "spirit": {"25": {"flag": "sense_cost_25"}, "50": {"flag": "fear_immune_weaker"}, "100": {"flag": "soul_ignore_20"}},
+        "insight": {"25": {"flag": "extra_reroll"}, "50": {"flag": "insight_sites_double"}, "100": {"flag": "extra_dao_effect"}},
+    },
+    "crit": {"base": 0.05, "per_agility": 0.001, "per_fortune": 0.0005, "cap": 0.75, "damage_base": 1.5, "damage_cap": 3.0,
+             "tenacity_divisor": 4},
+    "defence": {"k_flat": 100, "k_level": 15, "cap": 0.75},
+    # P12 (research §6.3): Might carries the realm's power; the energy keeps a small edge on Qi and Soul damage only,
+    # True Qi +1% for each purity grade better than 9.
+    "qi_edge": {"none": 1.0, "body": 1.0, "primal_qi": 1.0, "true_qi": 1.10, "sage_qi": 1.15, "law_qi": 1.20, "monarch_qi": 1.25,
+                "heavenforce": 1.30},
+    "qi_edge_per_purity": 0.01,
+    "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
+                       "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05},
+    "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
+    "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
+                  "enhance_per_level": 0.05, "fist_weapon_pct": 0.6,
+                  "slot_share": {"robe": 0.4, "trousers": 0.3, "boots": 0.15, "hat": 0.15},
+                  "energy_type_penalty": 0.5},
+    "mob": {"hp": {"a": 30, "b": 15, "c": 1.1}, "attack": {"a": 5, "b": 2.2, "c": 0.1}, "accuracy": {"a": 10, "b": 3},
+            "evasion_pct": 0.3, "agile_evasion_pct": 0.6,
+            # P12: a boss's plain blow takes 15% of par HP (x2.5 a normal foe's 6%); its health comes from its par time.
+            "roles": {"normal": {"hp": 1, "attack": 1, "defence": 0.8}, "elite": {"hp": 6, "attack": 1.5, "defence": 1.2},
+                      "field_boss": {"hp": 40, "attack": 2.5, "defence": 1.5}, "dungeon_boss": {"hp": 80, "attack": 2.5, "defence": 1.5},
+                      "story_boss": {"hp": 20, "attack": 2.5, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
+                      "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
+            "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
+    # S48 technique grades: the base multiplier's bonus by grade.
+    "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
+}
+QUALITIES = {"flawed": {"mult": 0.8, "affixes": 0}, "common": {"mult": 1.0, "affixes": 0}, "fine": {"mult": 1.1, "affixes": 1},
+             "superior": {"mult": 1.2, "affixes": 2}, "perfect": {"mult": 1.3, "affixes": 3}, "relic": {"mult": 1.35, "affixes": 3}}
+
+
 def build():
+    families = [
+        {"id": "fists", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 46, "crit": 0.05,
+         "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
+         "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
+         "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
+                   {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
+                   {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
+        {"id": "gauntlets", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
+         "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
+         "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
+         "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
+                   {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
+                   {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
+        {"id": "jian", "appearance": ["sword"], "range": [0.85, 1.15], "hits_per_s": 1.1, "reach": 78, "crit": 0.03,
+         "scales": ["agility", "essence"], "guard": 0.40, "parry_s": 0.25, "dao": "sword", "hud_glyph": "jian", "depth": 30,
+         "altitude": [-30, 60], "qi_arc_discount": 0.1,
+         "combo": [{"action": "swing_1", "duration": 0.55, "hit_at": 0.26, "mult": 1.0},
+                   {"action": "swing_2", "duration": 0.6, "hit_at": 0.28, "mult": 1.05},
+                   {"action": "swing_3", "duration": 0.72, "hit_at": 0.36, "mult": 1.25, "knockback": 20}]},
+        {"id": "spear", "appearance": ["spear"], "range": [0.8, 1.2], "hits_per_s": 0.9, "reach": 116, "crit": 0.0,
+         "scales": ["body", "agility"], "guard": 0.35, "parry_s": 0.18, "dao": "spear", "hud_glyph": "spear", "depth": 26,
+         "altitude": [-30, 60], "penetration": 0.10, "line_targets": 2,
+         "combo": [{"action": "thrust_1", "duration": 0.6, "hit_at": 0.3, "mult": 1.0},
+                   {"action": "thrust_2", "duration": 0.65, "hit_at": 0.32, "mult": 1.05},
+                   {"action": "thrust_3", "duration": 0.8, "hit_at": 0.42, "mult": 1.3, "knockback": 40}]},
+        {"id": "short_blade", "appearance": ["dagger"], "range": [0.7, 1.3], "hits_per_s": 1.3, "reach": 52, "crit": 0.10,
+         "scales": ["agility", "fortune"], "guard": 0.25, "parry_s": 0.15, "dao": "blade", "hud_glyph": "short_blade", "depth": 28,
+         "altitude": [-30, 60], "backstab": 1.5,
+         "combo": [{"action": "thrust_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
+                   {"action": "thrust_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
+                   {"action": "thrust_3", "duration": 0.55, "hit_at": 0.3, "mult": 1.2}]},
+        {"id": "staff", "appearance": ["staff"], "range": [0.9, 1.1], "hits_per_s": 0.8, "reach": 96, "crit": 0.0,
+         "scales": ["body", "essence"], "guard": 0.50, "parry_s": 0.20, "dao": "staff", "hud_glyph": "staff", "depth": 32,
+         "altitude": [-30, 60], "knockback_every_hit": 30, "qi_attack_bonus": 0.1,
+         "combo": [{"action": "thrust_1", "duration": 0.66, "hit_at": 0.34, "mult": 1.0, "knockback": 30},
+                   {"action": "thrust_2", "duration": 0.7, "hit_at": 0.36, "mult": 1.05, "knockback": 30},
+                   {"action": "thrust_3", "duration": 0.85, "hit_at": 0.45, "mult": 1.3, "knockback": 60}]},
+        # S47 v1.1: the heavy sabre (fills the Blade Dao beside the short blade): slow, a cleave that hits three, and
+        # an edge that breaks armour.
+        {"id": "heavy_sabre", "appearance": ["sabre"], "range": [0.8, 1.25], "hits_per_s": 0.75, "reach": 92, "crit": 0.04,
+         "scales": ["body", "agility"], "guard": 0.45, "parry_s": 0.18, "dao": "blade", "hud_glyph": "sabre", "depth": 34,
+         "altitude": [-30, 60], "line_targets": 3, "armour_break": {"chance": 0.3, "duration_s": 4},
+         "combo": [{"action": "swing_1", "duration": 0.72, "hit_at": 0.36, "mult": 1.1},
+                   {"action": "swing_2", "duration": 0.78, "hit_at": 0.38, "mult": 1.15},
+                   {"action": "swing_3", "duration": 0.95, "hit_at": 0.5, "mult": 1.5, "knockback": 40, "armour_break": 1.0}]},
+        # The fan: mid-range wind, and on the third stroke a returning throw that lifts what it strikes.
+        {"id": "fan", "appearance": ["fan"], "range": [0.85, 1.15], "hits_per_s": 1.1, "reach": 140, "crit": 0.05,
+         "scales": ["agility", "insight"], "guard": 0.3, "parry_s": 0.2, "dao": "fan", "hud_glyph": "fan", "depth": 36,
+         "altitude": [-30, 80], "line_targets": 2,
+         "combo": [{"action": "swing_1", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
+                   {"action": "swing_2", "duration": 0.55, "hit_at": 0.26, "mult": 1.0},
+                   {"action": "swing_3", "duration": 0.7, "hit_at": 0.34, "mult": 1.2,
+                    "throw": {"speed": 520, "range": 280, "art": "fan", "knockup_s": 0.8}}]},
+        # The flute (the Music path): a note flies at the tap; hold Attack to channel a melody aura that slows and
+        # confuses foes near you and heals your allies, paid for in Composure.
+        {"id": "flute", "appearance": ["flute"], "range": [0.9, 1.1], "hits_per_s": 1.0, "reach": 240, "crit": 0.03,
+         "scales": ["insight", "essence"], "guard": 0.25, "parry_s": 0.15, "dao": "music", "hud_glyph": "flute", "depth": 30,
+         "altitude": [0, 90], "ranged": True, "projectile_speed": 460, "projectile_art": "note", "damage_type": "qi",
+         "channel": {"radius": 220, "tick_s": 0.5, "composure_per_s": 8, "hold_s": 0.35, "slow": {"power": 0.3, "duration_s": 1.2},
+                     "confusion_chance": 0.08, "confusion_s": 1.5, "ally_heal_pct": 0.02, "self_heal_pct": 0.01,
+                     "move_factor": 0.5, "min_composure": 5},
+         "combo": [{"action": "attack", "duration": 0.6, "hit_at": 0.3, "mult": 0.9, "projectile": "note"}]},
+        # v1.2 the brush (the Brush Dao): a scholar's writing brush, quick and short, striking with Qi. Each technique
+        # used with it writes a talisman onto what it strikes, by the technique's element (one per foe, 4 s).
+        {"id": "brush", "appearance": ["brush"], "range": [0.9, 1.1], "hits_per_s": 1.2, "reach": 110, "crit": 0.06,
+         "scales": ["insight", "agility"], "guard": 0.3, "parry_s": 0.2, "dao": "brush", "hud_glyph": "brush", "depth": 32,
+         "altitude": [-30, 70], "damage_type": "qi",
+         "talisman": {"duration_s": 4.0, "by_element": {
+             "fire": {"id": "burn", "power": 0.006}, "water": {"id": "slow", "power": 0.3}, "wood": {"id": "root", "power": 1, "duration_s": 1.5},
+             "metal": {"id": "sundered", "power": 1}, "earth": {"id": "vulnerable", "power": 1}, "thunder": {"id": "shock", "power": 1, "duration_s": 0.6},
+             "wind": {"id": "slow", "power": 0.2}, "none": {"id": "qi_seal", "power": 1, "duration_s": 2.0}}},
+         "combo": [{"action": "swing_1", "duration": 0.46, "hit_at": 0.22, "mult": 0.95},
+                   {"action": "swing_2", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
+                   {"action": "swing_3", "duration": 0.62, "hit_at": 0.3, "mult": 1.25}]},
+        # v1.2 the bell (the Music Dao): a Warden's hand-bell. Its strikes ring out on both sides; it supports more than
+        # it harms (soul damage, a light touch).
+        {"id": "bell", "appearance": ["bell"], "range": [0.9, 1.1], "hits_per_s": 0.9, "reach": 160, "crit": 0.02,
+         "scales": ["essence", "insight"], "guard": 0.35, "parry_s": 0.2, "dao": "music", "hud_glyph": "bell", "depth": 60,
+         "altitude": [-30, 90], "damage_type": "soul", "ring": True, "line_targets": 6,
+         "combo": [{"action": "swing_1", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
+                   {"action": "swing_2", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
+                   {"action": "swing_3", "duration": 0.75, "hit_at": 0.38, "mult": 0.95}]},
+        {"id": "bow", "appearance": ["bow"], "range": [0.75, 1.25], "hits_per_s": 0.9, "reach": 480, "crit": 0.05,
+         "scales": ["agility", "insight"], "guard": 0.0, "parry_s": 0.0, "dao": "bow", "hud_glyph": "bow", "depth": 26,
+         "altitude": [20, 110], "ranged": True, "projectile_speed": 620,
+         "combo": [{"action": "bow", "duration": 1.1, "hit_at": 0.55, "mult": 1.0, "projectile": "arrow"}]},
+    ]
+    # S47 weapon awakening (v1.1): a +10 weapon of Heaven grade or better, awakened at a forge, strikes on its own every
+    # so many blows (a legend has its own skill instead). Bare fists have no weapon to awaken.
+    awakened = {
+        "gauntlets": {"name": "Thunder Knuckles", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "earth", "shape": "ring", "reach": 150},
+        "jian": {"name": "Sword Light", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "metal", "art": "flying_sword", "reach": 320},
+        "spear": {"name": "Piercing Light", "every_hits": 12, "mult": 2.0, "damage_type": "physical", "element": "metal", "art": "flying_sword", "reach": 360},
+        "short_blade": {"name": "Shadow Twin", "every_hits": 10, "mult": 1.4, "damage_type": "physical", "element": "none", "art": "flying_sword", "reach": 280},
+        "staff": {"name": "Sweeping Gale", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "wind", "shape": "ring", "reach": 170},
+        "heavy_sabre": {"name": "Cleaving Wave", "every_hits": 14, "mult": 2.4, "damage_type": "physical", "element": "metal", "art": "sand_crescent", "reach": 300},
+        "fan": {"name": "Gale Leaf", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "wind", "art": "sand_crescent", "reach": 320},
+        "flute": {"name": "Echoing Note", "every_hits": 12, "mult": 1.6, "damage_type": "soul", "element": "none", "art": "note", "reach": 320},
+        "brush": {"name": "Flying Script", "every_hits": 12, "mult": 1.7, "damage_type": "qi", "element": "none", "art": "sand_crescent", "reach": 300},
+        "bell": {"name": "Resounding Peal", "every_hits": 12, "mult": 1.3, "damage_type": "soul", "element": "none", "shape": "ring", "reach": 220},
+        "bow": {"name": "Twin Arrow", "every_hits": 10, "mult": 1.2, "damage_type": "physical", "element": "none", "art": "arrow", "reach": 420, "count": 2},
+    }
+    for f in families:
+        if f["id"] in awakened: f["awakened"] = awakened[f["id"]]
+    entries("weapon_families.json", families)
+
+    # B10: each origin has its name and a line for the creator (the id showed as "Fishers Child", no description).
+    origins = [
+        {"id": "fishers_child", "name": "Fisher's Child", "bonus": {"body": 3, "essence": 2}, "element_nudge": "water",
+         "desc": "Raised among the river's fishing boats: +3 Body and +2 Essence, and a leaning toward water."},
+        {"id": "scholars_heir", "name": "Scholar's Heir", "bonus": {"insight": 5}, "element_nudge": "",
+         "desc": "Heir to a house of books and ink: +5 Insight."},
+        {"id": "temple_foundling", "name": "Temple Foundling", "bonus": {"spirit": 5}, "element_nudge": "",
+         "desc": "Left at a temple gate and raised on its chants: +5 Spirit."},
+        {"id": "smiths_apprentice", "name": "Smith's Apprentice", "bonus": {"body": 3, "insight": 2}, "element_nudge": "metal",
+         "desc": "Raised at the forge's bellows: +3 Body and +2 Insight, and a leaning toward metal."},
+    ]
+    entries("origins.json", origins)
+
+    par = par_block(families, origins)
     write("stats.json", {
-        "pools": {
-            "hp": {"a": 50, "b": 20, "c": 0.9, "from_level": 0},
-            "qi": {"a": 20, "b": 8, "c": 0.5, "from_realm": "bone_forging_7"},
-            "soul": {"a": 100, "b": 10, "c": 0.4, "offset": 46, "from_realm": "spirit_awakening_1"},
-        },
+        "might": might_block(),
+        "par": par,
+        **CORE,
+        "mob": dict(CORE["mob"], **mob_tables(par)),
         "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4},
-        "attributes": {"base": 5, "per_level": 1, "body_per_body_level": 1, "essence_per_purity_grade": 3,
-                       "spirit_per_soul_points": 0.1, "insight_per_dao_tier": 2, "essence_per_capacity": 10},
-        "attribute_effects": {
-            "body": {"max_hp_pct": 0.01, "physical_defense": 0.5, "body_weapon_attack_pct": 0.003, "toxicity_tolerance": 0.1, "knockback_resistance": 0.002},
-            "agility": {"move_speed_pct": 0.001, "attack_speed": 0.002, "crit_chance": 0.001, "accuracy": 1.0, "evasion": 0.5},
-            "essence": {"max_qi_pct": 0.01, "qi_attack_pct": 0.005, "technique_cost": 0.001, "qi_resistance": 0.3, "qi_regen": 0.005},
-            "spirit": {"max_soul_pct": 0.01, "soul_defense": 0.5, "soul_attack_pct": 0.005, "sense_radius_pct": 0.01, "will": 1.0, "tenacity": 0.002,
-                       "crafting_perception": 0.001},
-            "insight": {"insight_rate": 0.005, "mastery_gain": 0.003, "accuracy": 0.5, "crafting_control": 0.002},
-            "fortune": {"drop_rate": 0.002, "coin_find": 0.003, "crit_chance": 0.0005},
-        },
-        "meridian_points_per_level": [{"from_level": 1, "points": 2}, {"from_level": 55, "points": 3}, {"from_level": 121, "points": 4}],
-        "meridian_gates": {
-            "body": {"25": {"stat": "max_hp", "op": "pct_add", "value": 0.05}, "50": {"flag": "knockback_immune_attacking"}, "100": {"flag": "survive_lethal"}},
-            "agility": {"25": {"flag": "dodge_cooldown_20"}, "50": {"flag": "dodge_second_charge"}, "100": {"flag": "move_keeps_cultivate"}},
-            "essence": {"25": {"flag": "first_technique_free"}, "50": {"flag": "flight_qi_20"}, "100": {"flag": "projectile_pierce"}},
-            "spirit": {"25": {"flag": "sense_cost_25"}, "50": {"flag": "fear_immune_weaker"}, "100": {"flag": "soul_ignore_20"}},
-            "insight": {"25": {"flag": "extra_reroll"}, "50": {"flag": "insight_sites_double"}, "100": {"flag": "extra_dao_effect"}},
-        },
         "move": {"base": 205, "sprint": 1.7, "sprint_after_s": 2.0, "cap_pct": 0.4, "attack_factor": 0.3, "guard_factor": 0.5,
                  "shallows_factor": 0.7},
         # S14 binding (Spirit Awakening 3): a found relic's stats stay sealed until it is bound (a channel by
@@ -125,30 +430,13 @@ def build():
                    "no_flight_types": ["interior", "sect", "dungeon"]},
         # S18: A_dealt = min(cap, floor + slope x attunement / required); A_taken = 1 + max(0, 1 - attunement / required)
         "attunement": {"floor": 0.3, "slope": 0.7, "cap": 1.1},
-        "crit": {"base": 0.05, "per_agility": 0.001, "per_fortune": 0.0005, "cap": 0.75, "damage_base": 1.5, "damage_cap": 3.0,
-                 "tenacity_divisor": 4},
         "hit": {"base": 1.1, "k": 0.35, "floor": 0.55, "cap": 1.0},
-        "defence": {"k_flat": 100, "k_level": 15, "cap": 0.75},
         "realm_gap": {"up_per_realm": 0.25, "up_cap": 1.0, "down_per_realm": 0.20, "down_max_reduction": 0.60},
-        "energy_multiplier": {"none": 1.0, "body": 1.0, "primal_qi": 1.0, "true_qi": 1.3, "sage_qi": 1.7, "law_qi": 2.2,
-                              "monarch_qi": 2.8, "heavenforce": 3.5},
-        "purity_bonus_per_grade": 0.025,
+        # P12 (research §6.3 and technique_plan §6.2): a share of the target's health (poison, burns and the like) takes
+        # at most this much of the caster's attack a second from an elite or a boss.
+        "hp_share_cap": {"attack_per_s": 0.6, "roles": ["elite", "field_boss", "dungeon_boss", "story_boss"]},
         "kill_gap_factor": [{"min_diff": 5, "mult": 1.2}, {"min_diff": -4, "mult": 1.0}, {"min_diff": -9, "mult": 0.5},
                             {"min_diff": -999, "mult": 0.1}],
-        "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
-                           "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05},
-        "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
-        "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
-                      "enhance_per_level": 0.05, "fist_weapon_pct": 0.6,
-                      "slot_share": {"robe": 0.4, "trousers": 0.3, "boots": 0.15, "hat": 0.15},
-                      "energy_type_penalty": 0.5},
-        "mob": {"hp": {"a": 30, "b": 15, "c": 1.1}, "attack": {"a": 5, "b": 2.2, "c": 0.1}, "accuracy": {"a": 10, "b": 3},
-                "evasion_pct": 0.3, "agile_evasion_pct": 0.6,
-                "roles": {"normal": {"hp": 1, "attack": 1, "defence": 0.8}, "elite": {"hp": 6, "attack": 1.5, "defence": 1.2},
-                          "field_boss": {"hp": 40, "attack": 2, "defence": 1.5}, "dungeon_boss": {"hp": 80, "attack": 2.2, "defence": 1.5},
-                          "story_boss": {"hp": 20, "attack": 1.6, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
-                          "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
-                "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
         # S47: the flying sword's palms, Sword Intent and self-detonation.
         "sword_release": {"palm_mult": 0.8},
         # S47 the sword swarm (v1.1): 3 swords at Sword Dao 5, 9 with the Nine Swords Array, 36 at Original Application
@@ -262,11 +550,10 @@ def build():
         # Bandit ambushes on the roads (S48): the chance per entry, x2 while a false realm shows, never past `reach`
         # levels above the gang, and a cooldown between them.
         "ambush": {"chance": 0.06, "concealed_mult": 2.0, "reach": 8, "cooldown_s": 900, "offset": 360},
-        # S48 technique grades: the base multiplier's bonus by grade.
-        "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
-        # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
-        "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},
+        # S48 body ladder: body techniques spend HP when QI is short (Copper Body), never below this share; P12: the same
+        # share of max HP as the share of max QI the technique costs (Might scales HP, not QI).
+        "body_path": {"hp_share_per_qi_share": 1.0, "hp_floor": 0.2, "air_metre_px": 50},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
         # and a strike still deals this share of its damage.
         "hazard": {"partial": 0.5, "answered_damage": 0.35, "shelter_radius": 220, "flyer_push": 1.5},
@@ -337,16 +624,30 @@ def build():
         # Where a mixed session sits to cultivate: mostly the field rooms it fights in (1.0), sometimes Lu's
         # boat (1.4), the mentor's peak (1.6) or, later, a hidden spring (2.2).
         "density": {"bone_forging": 1.2, "qi_kindling": 1.25, "qi_unfurling": 1.3, "heart_tempering": 1.4, "cloud_stride": 1.4,
-                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5, "sage": 1.6},
+                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5, "sage": 1.6, "sage_sovereign": 1.6, "will_manifest": 1.7,
+                    "sphere_lord": 1.7},
         "method": {"bone_forging": "riverbreath_fragment", "qi_kindling": "jade_current_scripture", "qi_unfurling": "jade_current_scripture",
                    "heart_tempering": "cloudpiercing_canon", "cloud_stride": "willow_breath_art", "spirit_awakening": "willow_breath_art",
-                   "heaven_glimpse": "tidal_sovereign_scripture", "sage": "tidal_sovereign_scripture"},
+                   "heaven_glimpse": "tidal_sovereign_scripture", "sage": "tidal_sovereign_scripture",
+                   "sage_sovereign": "tidal_sovereign_scripture", "will_manifest": "tidal_sovereign_scripture",
+                   "sphere_lord": "tidal_sovereign_scripture"},
         "tolerance": 0.15,
         # S39 checks: [Level, the next upgrade, the spec's taels per hour there]; affordable within 1-2 h (±25%).
         "upgrades": [[15, "iron_jian", 850], [25, "jadeiron_robe", 1700]], "afford_hours": [0.75, 2.5],
         "act_end": "heaven_glimpse_3", "act_end_hours": 65,
-        # Act II so far (v1.1 phases A-B reach Sage 3): the sim plays on to this stage.
-        "sim_end": "sage_sovereign_1",
+        # P12 (research §6.2, §6.7 check 1): the par character's basic and technique hits (before crits) at these Levels;
+        # the par character built with the real rules must land within ±15% and ±20%. Level 120 waits for v1.3's
+        # weapons (a Will-grade jian carries the energy penalty there).
+        "par_targets": {"1": [12, 12], "10": [68, 63], "30": [832, 1246], "60": [11000, 39500], "80": [41500, 154000],
+                        "99": [136000, 527000], "108": [246000, 999000]},
+        "par_tolerance": [0.15, 0.20],
+        # P12 (research §7 question 9): the sim plays on to the end of Act III; the hours to it are reported against the
+        # research's two estimates (`pacing_band`: 140 h at the sim's Sage income, 235 h at the nominal rate) until the
+        # user sets a target.
+        "sim_end": "sphere_lord_3", "pacing_band": [140, 235],
+        # P12 check 9: a chapter's floor is at least the Level where the previous chapter ends less `floor_below`, and waits
+        # at most `floor_wait` Levels past it (Act I's chapters open on the realm; chapter 8 waits the whole of Cloud Stride).
+        "floor_below": 4, "floor_wait": 10,
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
                    ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55], ["sage_1", 70], ["sage_sovereign_1", 110]],
         # P7b (item_plan §4.4): the equipment an hour of hunting drops, by grade (balance_sim `_drops`): each target is
@@ -447,116 +748,10 @@ def build():
         {"id": "soul_searched", "resist": "spirit", "icon": "injury_soul"},
     ])
 
-    families = [
-        {"id": "fists", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 46, "crit": 0.05,
-         "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
-         "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
-         "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
-                   {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
-                   {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
-        {"id": "gauntlets", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 50, "crit": 0.05,
-         "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
-         "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
-         "combo": [{"action": "punch_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
-                   {"action": "punch_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
-                   {"action": "punch_3", "duration": 0.55, "hit_at": 0.28, "mult": 1.2, "knockback": 20}]},
-        {"id": "jian", "appearance": ["sword"], "range": [0.85, 1.15], "hits_per_s": 1.1, "reach": 78, "crit": 0.03,
-         "scales": ["agility", "essence"], "guard": 0.40, "parry_s": 0.25, "dao": "sword", "hud_glyph": "jian", "depth": 30,
-         "altitude": [-30, 60], "qi_arc_discount": 0.1,
-         "combo": [{"action": "swing_1", "duration": 0.55, "hit_at": 0.26, "mult": 1.0},
-                   {"action": "swing_2", "duration": 0.6, "hit_at": 0.28, "mult": 1.05},
-                   {"action": "swing_3", "duration": 0.72, "hit_at": 0.36, "mult": 1.25, "knockback": 20}]},
-        {"id": "spear", "appearance": ["spear"], "range": [0.8, 1.2], "hits_per_s": 0.9, "reach": 116, "crit": 0.0,
-         "scales": ["body", "agility"], "guard": 0.35, "parry_s": 0.18, "dao": "spear", "hud_glyph": "spear", "depth": 26,
-         "altitude": [-30, 60], "penetration": 0.10, "line_targets": 2,
-         "combo": [{"action": "thrust_1", "duration": 0.6, "hit_at": 0.3, "mult": 1.0},
-                   {"action": "thrust_2", "duration": 0.65, "hit_at": 0.32, "mult": 1.05},
-                   {"action": "thrust_3", "duration": 0.8, "hit_at": 0.42, "mult": 1.3, "knockback": 40}]},
-        {"id": "short_blade", "appearance": ["dagger"], "range": [0.7, 1.3], "hits_per_s": 1.3, "reach": 52, "crit": 0.10,
-         "scales": ["agility", "fortune"], "guard": 0.25, "parry_s": 0.15, "dao": "blade", "hud_glyph": "short_blade", "depth": 28,
-         "altitude": [-30, 60], "backstab": 1.5,
-         "combo": [{"action": "thrust_1", "duration": 0.42, "hit_at": 0.2, "mult": 1.0},
-                   {"action": "thrust_2", "duration": 0.45, "hit_at": 0.22, "mult": 1.0},
-                   {"action": "thrust_3", "duration": 0.55, "hit_at": 0.3, "mult": 1.2}]},
-        {"id": "staff", "appearance": ["staff"], "range": [0.9, 1.1], "hits_per_s": 0.8, "reach": 96, "crit": 0.0,
-         "scales": ["body", "essence"], "guard": 0.50, "parry_s": 0.20, "dao": "staff", "hud_glyph": "staff", "depth": 32,
-         "altitude": [-30, 60], "knockback_every_hit": 30, "qi_attack_bonus": 0.1,
-         "combo": [{"action": "thrust_1", "duration": 0.66, "hit_at": 0.34, "mult": 1.0, "knockback": 30},
-                   {"action": "thrust_2", "duration": 0.7, "hit_at": 0.36, "mult": 1.05, "knockback": 30},
-                   {"action": "thrust_3", "duration": 0.85, "hit_at": 0.45, "mult": 1.3, "knockback": 60}]},
-        # S47 v1.1: the heavy sabre (fills the Blade Dao beside the short blade): slow, a cleave that hits three, and
-        # an edge that breaks armour.
-        {"id": "heavy_sabre", "appearance": ["sabre"], "range": [0.8, 1.25], "hits_per_s": 0.75, "reach": 92, "crit": 0.04,
-         "scales": ["body", "agility"], "guard": 0.45, "parry_s": 0.18, "dao": "blade", "hud_glyph": "sabre", "depth": 34,
-         "altitude": [-30, 60], "line_targets": 3, "armour_break": {"chance": 0.3, "duration_s": 4},
-         "combo": [{"action": "swing_1", "duration": 0.72, "hit_at": 0.36, "mult": 1.1},
-                   {"action": "swing_2", "duration": 0.78, "hit_at": 0.38, "mult": 1.15},
-                   {"action": "swing_3", "duration": 0.95, "hit_at": 0.5, "mult": 1.5, "knockback": 40, "armour_break": 1.0}]},
-        # The fan: mid-range wind, and on the third stroke a returning throw that lifts what it strikes.
-        {"id": "fan", "appearance": ["fan"], "range": [0.85, 1.15], "hits_per_s": 1.1, "reach": 140, "crit": 0.05,
-         "scales": ["agility", "insight"], "guard": 0.3, "parry_s": 0.2, "dao": "fan", "hud_glyph": "fan", "depth": 36,
-         "altitude": [-30, 80], "line_targets": 2,
-         "combo": [{"action": "swing_1", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
-                   {"action": "swing_2", "duration": 0.55, "hit_at": 0.26, "mult": 1.0},
-                   {"action": "swing_3", "duration": 0.7, "hit_at": 0.34, "mult": 1.2,
-                    "throw": {"speed": 520, "range": 280, "art": "fan", "knockup_s": 0.8}}]},
-        # The flute (the Music path): a note flies at the tap; hold Attack to channel a melody aura that slows and
-        # confuses foes near you and heals your allies, paid for in Composure.
-        {"id": "flute", "appearance": ["flute"], "range": [0.9, 1.1], "hits_per_s": 1.0, "reach": 240, "crit": 0.03,
-         "scales": ["insight", "essence"], "guard": 0.25, "parry_s": 0.15, "dao": "music", "hud_glyph": "flute", "depth": 30,
-         "altitude": [0, 90], "ranged": True, "projectile_speed": 460, "projectile_art": "note", "damage_type": "qi",
-         "channel": {"radius": 220, "tick_s": 0.5, "composure_per_s": 8, "hold_s": 0.35, "slow": {"power": 0.3, "duration_s": 1.2},
-                     "confusion_chance": 0.08, "confusion_s": 1.5, "ally_heal_pct": 0.02, "self_heal_pct": 0.01,
-                     "move_factor": 0.5, "min_composure": 5},
-         "combo": [{"action": "attack", "duration": 0.6, "hit_at": 0.3, "mult": 0.9, "projectile": "note"}]},
-        # v1.2 the brush (the Brush Dao): a scholar's writing brush, quick and short, striking with Qi. Each technique
-        # used with it writes a talisman onto what it strikes, by the technique's element (one per foe, 4 s).
-        {"id": "brush", "appearance": ["brush"], "range": [0.9, 1.1], "hits_per_s": 1.2, "reach": 110, "crit": 0.06,
-         "scales": ["insight", "agility"], "guard": 0.3, "parry_s": 0.2, "dao": "brush", "hud_glyph": "brush", "depth": 32,
-         "altitude": [-30, 70], "damage_type": "qi",
-         "talisman": {"duration_s": 4.0, "by_element": {
-             "fire": {"id": "burn", "power": 0.006}, "water": {"id": "slow", "power": 0.3}, "wood": {"id": "root", "power": 1, "duration_s": 1.5},
-             "metal": {"id": "sundered", "power": 1}, "earth": {"id": "vulnerable", "power": 1}, "thunder": {"id": "shock", "power": 1, "duration_s": 0.6},
-             "wind": {"id": "slow", "power": 0.2}, "none": {"id": "qi_seal", "power": 1, "duration_s": 2.0}}},
-         "combo": [{"action": "swing_1", "duration": 0.46, "hit_at": 0.22, "mult": 0.95},
-                   {"action": "swing_2", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
-                   {"action": "swing_3", "duration": 0.62, "hit_at": 0.3, "mult": 1.25}]},
-        # v1.2 the bell (the Music Dao): a Warden's hand-bell. Its strikes ring out on both sides; it supports more than
-        # it harms (soul damage, a light touch).
-        {"id": "bell", "appearance": ["bell"], "range": [0.9, 1.1], "hits_per_s": 0.9, "reach": 160, "crit": 0.02,
-         "scales": ["essence", "insight"], "guard": 0.35, "parry_s": 0.2, "dao": "music", "hud_glyph": "bell", "depth": 60,
-         "altitude": [-30, 90], "damage_type": "soul", "ring": True, "line_targets": 6,
-         "combo": [{"action": "swing_1", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
-                   {"action": "swing_2", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
-                   {"action": "swing_3", "duration": 0.75, "hit_at": 0.38, "mult": 0.95}]},
-        {"id": "bow", "appearance": ["bow"], "range": [0.75, 1.25], "hits_per_s": 0.9, "reach": 480, "crit": 0.05,
-         "scales": ["agility", "insight"], "guard": 0.0, "parry_s": 0.0, "dao": "bow", "hud_glyph": "bow", "depth": 26,
-         "altitude": [20, 110], "ranged": True, "projectile_speed": 620,
-         "combo": [{"action": "bow", "duration": 1.1, "hit_at": 0.55, "mult": 1.0, "projectile": "arrow"}]},
-    ]
-    # S47 weapon awakening (v1.1): a +10 weapon of Heaven grade or better, awakened at a forge, strikes on its own every
-    # so many blows (a legend has its own skill instead). Bare fists have no weapon to awaken.
-    awakened = {
-        "gauntlets": {"name": "Thunder Knuckles", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "earth", "shape": "ring", "reach": 150},
-        "jian": {"name": "Sword Light", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "metal", "art": "flying_sword", "reach": 320},
-        "spear": {"name": "Piercing Light", "every_hits": 12, "mult": 2.0, "damage_type": "physical", "element": "metal", "art": "flying_sword", "reach": 360},
-        "short_blade": {"name": "Shadow Twin", "every_hits": 10, "mult": 1.4, "damage_type": "physical", "element": "none", "art": "flying_sword", "reach": 280},
-        "staff": {"name": "Sweeping Gale", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "wind", "shape": "ring", "reach": 170},
-        "heavy_sabre": {"name": "Cleaving Wave", "every_hits": 14, "mult": 2.4, "damage_type": "physical", "element": "metal", "art": "sand_crescent", "reach": 300},
-        "fan": {"name": "Gale Leaf", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "wind", "art": "sand_crescent", "reach": 320},
-        "flute": {"name": "Echoing Note", "every_hits": 12, "mult": 1.6, "damage_type": "soul", "element": "none", "art": "note", "reach": 320},
-        "brush": {"name": "Flying Script", "every_hits": 12, "mult": 1.7, "damage_type": "qi", "element": "none", "art": "sand_crescent", "reach": 300},
-        "bell": {"name": "Resounding Peal", "every_hits": 12, "mult": 1.3, "damage_type": "soul", "element": "none", "shape": "ring", "reach": 220},
-        "bow": {"name": "Twin Arrow", "every_hits": 10, "mult": 1.2, "damage_type": "physical", "element": "none", "art": "arrow", "reach": 420, "count": 2},
-    }
-    for f in families:
-        if f["id"] in awakened: f["awakened"] = awakened[f["id"]]
-    entries("weapon_families.json", families)
 
     write("grades.json", {
         "order": ["plain", "common", "earth", "heaven", "mystic", "spirit", "sage", "sovereign", "will", "sphere", "law", "monarch", "inner_heaven"],
-        "qualities": {"flawed": {"mult": 0.8, "affixes": 0}, "common": {"mult": 1.0, "affixes": 0}, "fine": {"mult": 1.1, "affixes": 1},
-                      "superior": {"mult": 1.2, "affixes": 2}, "perfect": {"mult": 1.3, "affixes": 3}, "relic": {"mult": 1.35, "affixes": 3}},
+        "qualities": QUALITIES,
         "quality_order": ["flawed", "common", "fine", "superior", "perfect", "relic"],
         "quality_colors": {"flawed": "#9aa3a3", "common": "#e8e1cf", "fine": "#67d67a", "superior": "#5aa7e8", "perfect": "#b07ce8",
                            "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff",
@@ -631,17 +826,6 @@ def build():
         {"id": "interruption", "cause": "interruption", "loss": [0.0, 0.0], "injury": {"kind": "body", "severity": 1}, "items_lost": True, "recovery": "Retreat room, guard formation"},
     ])
 
-    # B10: each origin has its name and a line for the creator (the id showed as "Fishers Child", no description).
-    entries("origins.json", [
-        {"id": "fishers_child", "name": "Fisher's Child", "bonus": {"body": 3, "essence": 2}, "element_nudge": "water",
-         "desc": "Raised among the river's fishing boats: +3 Body and +2 Essence, and a leaning toward water."},
-        {"id": "scholars_heir", "name": "Scholar's Heir", "bonus": {"insight": 5}, "element_nudge": "",
-         "desc": "Heir to a house of books and ink: +5 Insight."},
-        {"id": "temple_foundling", "name": "Temple Foundling", "bonus": {"spirit": 5}, "element_nudge": "",
-         "desc": "Left at a temple gate and raised on its chants: +5 Spirit."},
-        {"id": "smiths_apprentice", "name": "Smith's Apprentice", "bonus": {"body": 3, "insight": 2}, "element_nudge": "metal",
-         "desc": "Raised at the forge's bellows: +3 Body and +2 Insight, and a leaning toward metal."},
-    ])
 
     methods = [
         {"id": "riverbreath_fragment", "grade": "common", "ceiling": "bone_forging_9", "affinity": "water", "rate": 1.0, "capacity": 1.0, "source": "lu_boatman",

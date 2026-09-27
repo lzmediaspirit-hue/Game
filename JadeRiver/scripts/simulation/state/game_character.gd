@@ -5,6 +5,7 @@ extends RefCounted
 ## groups the state objects and converts them to and from the v3 save shape.
 
 const VERSION := 3
+const MINOR := 1   # P12 Might: saves before it kept absolute health (SaveService.migrate_character)
 
 var id := ""
 var slot := 1
@@ -55,7 +56,7 @@ func realm_key() -> String:
 	return cultivator.realm_key
 
 func snapshot() -> Dictionary:
-	return {"version": VERSION, "slot": slot, "id": id, "name": name, "appearance": appearance.duplicate(true),
+	return {"version": VERSION, "minor": MINOR, "slot": slot, "id": id, "name": name, "appearance": appearance.duplicate(true),
 		"origin": cultivator.origin, "cultivator": cultivator.snapshot(), "relations": relations.snapshot(), "pools": pools.snapshot(),
 		"buffs": stats.snapshot(), "inventory": inventory.snapshot(), "professions": professions.duplicate(true),
 		"crafting": crafting.duplicate(true), "training_sect": training_sect.duplicate(true),

@@ -72,10 +72,6 @@
    "enemy": "gorge_chief"
   }
  ],
- "ref_cp": [
-  20,
-  18
- ],
  "wobble": 0.04,
  "top": 8,
  "finals_quest": "the_valley_finals",

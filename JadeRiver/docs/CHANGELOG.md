@@ -147,6 +147,47 @@
   merge, the queue order, a cut, stale and full queues, pages and fights, a room change, the settings and the lock on
   fixture rows).
 
+## P12 · Might (docs/research/stat_scaling_research.md §6)
+
+A par character now hits about 130K with a plain blow at Level 99 and 531K with its main art (929K on a crit), with
+460K health; 571K a blow at Level 120. Bone Forging keeps its numbers. The research's §6.8 lists what differs from its
+proposal and the numbers measured on the valley_run checkpoints before and after.
+- **Might** (`stats.json` `might`, a table for Levels 0–200): ×1.30 a great realm, ×1.17 of it at the major
+  breakthrough and the rest over the realm's Levels; Bone Forging climbs only to ×1.05, so Qi Kindling 1 is the first
+  ×1.30 step; ×1.10 for each advanced state, ×1.18 an Inner Heaven rank, +2% a World Genesis Level. It multiplies the
+  character's three attacks, max HP and three defences (a `might` modifier, so gear and buffs scale with them), never
+  max Qi or max Soul, and every monster's armour at its Level. The defence constant grows with the attacker's Might, so a
+  same-Level cut is what it was.
+- **The par character** (`stats.json` `par`, `StatRules.par` and `par_step`): a steady cultivator of the jian at every
+  Level (gear three Levels behind at Fine, then Superior and Perfect, enhanced a Level a dozen; the Sword Dao and the
+  main art's mastery by realm; an attack affix; the sets' damage%; crits), modelled in `stats.py` with the rules' own
+  formulas and built with the real rules in `balance_sim`, which agree within 1%. The Codex's Realms entry shows it at
+  your Level.
+- **Monsters from par**: a normal foe has 3.5 par blows of health (never below today's) and a blow of 6% of par health
+  after par's armour (8% under Level 20); under Level 10 the old curves stand. Elites ×6 health, ×1.5 attack. The twelve
+  bosses have the par DPS of their Level times their par time (Big Toad Tan 46.7K at 90 s, the Nebula Leviathan 121M at
+  300 s); a boss's plain blow is 15%.
+- **The damage formula**: the energy multiplier becomes a Qi edge (1.00–1.30) on Qi and Soul blows only; one additive
+  bucket of damage%, elemental power and (against elites and bosses) boss damage; a product of final-damage sources;
+  three new stats (`damage_pct`, `boss_damage`, `final_damage`). Combat Power has no energy term. A damage-over-time share
+  of an elite's or a boss's health is capped at 60% of the caster's attack a second. An ally struck by a foe stands
+  behind its owner's armour.
+- **Numbers**: `UiKit.short` ("18.2K", "136K", "1.27M"; units in `ui.num.*`) for damage numbers, pool bars of 100,000 and
+  more, and every page number from ten million.
+- **Chapter floors**: every main quest of chapters 2–22 asks its chapter's floor (Bone Forging 4 to Sphere Lord 2; new
+  for chapters 16, 18, 21 and 22), floors only; the later acts' floors are recorded in `quests.json`. The quest log names
+  the floor, your Level and the fastest ways there. The Copperjaw Box now follows The Tide Breaks, which opens Tinker
+  Mei's bastion.
+- **Conversions**: the Soul Lantern Ward shields 10% of max HP; a body technique short of QI spends the same share of max
+  HP; rooms recommend the par CP at their middle Level and the Heaven Ranking's rivals take the par CP at theirs.
+- **Saves**: an old save's health grows by the Might of its Level, once (character minor version 1).
+- **Tests**: `balance_sim` gains the research's ten checks (par_hit, ttk, blow, boss_par, smooth, realm_step, cp_rec,
+  digits, chapter_floor, pacing) and plays on to Sphere Lord 3 (133 h); `rules_tests` gains `might_suite`; valley_run
+  gains the labelled par-up shortcut at each section start from Qi Kindling 1 and a labelled "par pace" for bosses
+  (sized to 20 s of its own blows: the scripted fighter neither strikes with a main art at par nor dodges), and its
+  checkpoints are regenerated. On them a Level 98 blow went from 2,850 to 85K and a normal foe's blow from 2.9% to 5.7%
+  of health.
+
 ## The Copperjaw swarm's creature art (v1.2 Phase D)
 
 - **The swarm has a sheet of its own.** `copperjaw_swarm` (`tools/art/creatures/copperjaw_swarm.py`, flying, cell
@@ -225,6 +266,30 @@
   gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
   by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
   above carries its aura as stepped glow bands. The legacy 32 px code is gone.
+- **Beast parts in Style A** (`tools/icons/families/beast_parts.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/beast_parts/`): the 62 parts and the 21 pet-gear ladder pieces (collars, beast
+  talismans and saddles, taken over from `banded.py`) redrawn at 64 px with native `@32` renders, each part as the
+  material it is in the colour of its beast: fur in strands down a pegged pelt, scales with their growth ridges and
+  keels, horn and claw with a keratin sheen and the grain along them, feathers with barbs swept back to the quill,
+  through-lit glass, jade and cores with the light pooling on the far side (the Gravity Core with its rings of bent
+  light). The kinds share one drawing each (hide, scale, fang, feather, vial, pouch, heap, shard, core) and every icon
+  comes from one table. The grade is form and trim (`GRADE_HD`): a plain part is raw, a common one tied with hemp and
+  pegged with wood, from Earth bound in the grade's silk with a cap, peg or bead in its metal, and from Mystic the
+  aura in the beast's own light at the grade's strength; the ladders take a grade's kit for the band, plaque, seat,
+  scales, cord and buckle. The legacy 32 px drawings are gone, except two helpers the unconverted families import.
+- **Armour, the gourds, the cape and the soul talisman in Style A** (`tools/icons/families/armour.py`, `ART = 64`;
+  the sheets and in-game shots in `docs/mockups/icon_families/armour/`): the 47 icons (nine hats, robes, trousers and
+  boots, the mistjade cape, the cloud talisman and the nine spirit gourds, the Sovereign and Will rows folded in from
+  `banded.py`) redrawn at 64 px with native `@32` renders. Each piece is shown as it is worn: its row in
+  `data/artifacts.json` gives the cut of the avatar layer (`appearance`) and its garment dye (`dye`, now the
+  `palette.dye_*` ramps), so the straw douli, the jade circlet, the tied silk band, the gold crown with its jade pin
+  and the veiled hat, the vest, the scoop-necked tunic, the sect robe with crossed lapels, the cloud tunic and the
+  scholar's coat, the loose, straight, martial, cuffed and scholar trousers, and the leather boots, folded greaves and
+  cloth shoes match the figure beside them, with cloth folds, riveted plates and lacquer in their own textures. The
+  grade is the kit, Plain to Sphere: the trim of cuffs, hem and collar, the fittings, the plates and greaves in the
+  grade's metal, the gem, and the grade's mark (jadeiron plates and scales, cloud scrolls, gold lines, a lightning
+  stitch, desert-glass beads, driftglass studs, star dots, pearls), with the aura from Mystic up; the gourds carry the
+  same ladder. The legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
