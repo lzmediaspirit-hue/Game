@@ -183,7 +183,9 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
    - armour: `CLOTH` grade table.
    - fish: `fish(...)` parameters.
-   - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
+   - beast parts (HD): a row in `PARTS_HD` (id, grade, aura colour, drawing) on the kind templates `hide_hd`,
+     `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`; the grade's trim
+     comes from `GRADE_HD`, the pet gear ladders from `PET_GEAR_HD` on the grade kits.
    - techniques (HD): a technique's row is read from `data/techniques.json`; give its id a form in `FORM_OF` (a secret
      art: a row in `SECRET_ARTS`). The composer `emblem(element, form, family, grade, kind, path)` draws it from the
      tables: `DISCS` (11 elements), `FORMS` (the plan's 24, each placing the family's `WEAPONS` inset), `RIMS` (13

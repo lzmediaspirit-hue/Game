@@ -119,6 +119,17 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
   by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
   above carries its aura as stepped glow bands. The legacy 32 px code is gone.
+- **Beast parts in Style A** (`tools/icons/families/beast_parts.py`, `ART = 64`; the sheets and in-game shots in
+  `docs/mockups/icon_families/beast_parts/`): the 62 parts and the 21 pet-gear ladder pieces (collars, beast
+  talismans and saddles, taken over from `banded.py`) redrawn at 64 px with native `@32` renders, each part as the
+  material it is in the colour of its beast: fur in strands down a pegged pelt, scales with their growth ridges and
+  keels, horn and claw with a keratin sheen and the grain along them, feathers with barbs swept back to the quill,
+  through-lit glass, jade and cores with the light pooling on the far side (the Gravity Core with its rings of bent
+  light). The kinds share one drawing each (hide, scale, fang, feather, vial, pouch, heap, shard, core) and every icon
+  comes from one table. The grade is form and trim (`GRADE_HD`): a plain part is raw, a common one tied with hemp and
+  pegged with wood, from Earth bound in the grade's silk with a cap, peg or bead in its metal, and from Mystic the
+  aura in the beast's own light at the grade's strength; the ladders take a grade's kit for the band, plaque, seat,
+  scales, cord and buckle. The legacy 32 px drawings are gone, except two helpers the unconverted families import.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
