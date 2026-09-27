@@ -220,8 +220,9 @@ with its concept, material, layout signature, motion and what stays shared). The
 `_v2` mockups propose a new identity for a page drawn in A or B; the earlier PNG is kept beside it until the user
 chooses. Numbers come from frozen copies of the valley_run checkpoints (`user://valley_cp/<section>`, copied at 01:33
 UTC on 2026-09-27), read from the save and from captures of the real pages on those copies (the build at 41d15ae).
-Figures are the real sprite layers at 2.5x (the style guide's scale for the Character page); every icon is today's,
-except the Healing Pill, the inner-art manual and the empty-slot cloud seal, which are Style A study icons.
+Figures are the real sprite layers at 2.5x (the style guide's scale for the Character page). Icons are the build
+branch's own at the merge (the HUD glyphs and the pills already redrawn in Style A by P4b), with the study's Healing
+Pill, inner-art manual and empty-slot cloud seal; the PNGs were re-rendered after the merge so they show those icons.
 
 | PNG | What it shows | The idea | Reference |
 |---|---|---|---|
