@@ -259,7 +259,7 @@ Open items found while drawing (page identity):
   against one row of four over baskets) and are listed for the user's eye.
 - The revised Techniques' Lost Arts tab (06_techniques_lost) is a dark board of pinned fragments with red thread, as the
   Quests board (12 v2) is a dark board of pinned slips with a red cord: one of the two should change. The recommendation
-  (`docs/page_identity.md` §4, §9): Quests keeps the notice board it was briefed with, and Lost Arts becomes an
+  (`docs/page_identity.md` §4, §10): Quests keeps the notice board it was briefed with, and Lost Arts becomes an
   explorer's album opened out, one leaf per act.
 - The Techniques tabs' Secret Arts mat met a first draft of Welcome Back (the haul on a woven mat); Welcome Back's haul
   now sits in a round winnowing tray.

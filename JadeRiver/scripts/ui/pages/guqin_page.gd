@@ -103,7 +103,7 @@ func draw_page() -> void:
 	draw_rect(Rect2(bridge_x - 3, b.position.y + 14, 6, b.size.y - 28), UiKit.SURFACE.bridge)
 	for lane in lanes:
 		var y := _string_y(lane)
-		draw_line(Vector2(bridge_x, y), Vector2(b.end.x - 16, y), UiKit.SURFACE.silk, 2.0)
+		draw_line(Vector2(bridge_x, y), Vector2(b.end.x - 16, y), UiKit.SURFACE.qin_silk, 2.0)
 		var peg := _peg(lane)
 		draw_circle(peg.get_center(), 24, UiKit.SURFACE.peg_dark)
 		draw_circle(peg.get_center(), 21, UiKit.SURFACE.peg)
