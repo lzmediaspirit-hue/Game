@@ -1261,6 +1261,43 @@ come next. Where it differs from the plan, the plan's §6 says so.
   on a small pedestal and a tap bringing it up; every word read on its ground), the `ui_suite` with the chest with a
   Treasury and the stage with its lots. Screenshots beside mockup 17 in `docs/ui_p5/market/`.
 
+### P5 · The way family: Cultivation, Breakthrough, Revival, Fates (mockups 04 and 05; decision 14)
+- **Cultivation as the mountain ascent** (row 5, mockup 04). The shared window, plaque and eight tabs stay, as the
+  approved mockup keeps them. The Overview's left is the night mountain: every great realm a waystation on one dashed
+  path from Mortal up. The realms passed are gold and ticked, this one is lit, and the next two are named (the next with
+  what it opens). The far ones fade into the mist. In the middle stands this realm's stair, nine steps, or three, or
+  one, in the Early, Middle, Late and Peak bands with their chips. The step reached is ringed, with its bar inside it
+  and the figure seated on it (the live Avatar, meditating); it climbs when a step is gained while the page is open
+  (0.3 s, none under Reduce motion). The riser to the next step glows at a bottleneck, later steps that open something
+  carry a gold mark, and the gate to the next great realm stands on the last step. At the right: the Level badge, the
+  stage and its band, the method line, the bar, Stored Qi, the body's ledger (the old Overview's rows, kept), the next
+  step with chips of what it opens, the gate's asks from the rules, Meditate and Breakthrough.
+- **Breakthrough as the heaven gate** (row 9). A stone archway against the night: the title on the beam's gold-leafed
+  plaque and the step it leads to in the doorway, with the trial under it. Each requirement hangs from the beam on red
+  cords as a tablet, gold-leafed when met, dark with its Go when not; a minor step hangs one tablet that says so. The
+  risk and the chance are cut into the two pillars. Supports are chosen from the stele at the right, which also lists
+  what weighs on the attempt, and lie in the three jade dishes on the step (a tap takes one back). Core Forging's
+  checklist stands on the left stele. Break Through on the threshold opens the doors (0.5 s; a cross-fade under Reduce
+  motion), then the page closes into moment 05; the gains card and aura of the early-game rewrite are unchanged.
+- **Revival as the life lamp** (row 39). A bronze lamp in a stone niche, its flame guttering and then steady (0.6 s;
+  steady under Reduce motion or the battery saver). What the fall takes is at its left in the shadow: red past the
+  grace, pale gold while a fall costs nothing. The early grace before Bone Forging 5 is told in full on the first fall
+  and in a line after. What you keep is at its right in the light, and the choices are under the lamp.
+- **Fates as fortune sticks** (row 40). A bamboo cylinder low in the centre under the stars, three sticks fanned out
+  of it, each slip with the fate's name, its gift above and its cost below and Take this fate at its foot; the sticks
+  rise one after another inside the opening (a tap shows all).
+- **Shared:** `scripts/ui/pages/way_kit.gd` (the night and its stars, coursed stone, the stone tablet, a red cord, a
+  flame). HD `stone_tablet` (dark and gold-leafed) in `tools/ui/build_ui_hd.py`; the `niche` surface (`HOLLOW` + 0.85
+  `INK`); `TEXT_ON` rows for `sky_top`, `space`, `niche`, `stone_tablet` and the slips' `scroll`. Every intent is kept
+  (meditate, the tabs' intents, start_breakthrough with its supports, choose_revival, choose_fate); the Meridian badge
+  still opens Cultivation on Foundation.
+- **Tests:** `rules_tests` `identity_suite` (the way family: every great realm named once on the mountain and a
+  numbered step for each stage; the figure climbing when a step is gained; Foundation opened by its tab; a tablet for
+  each requirement, as many gold-leafed as are met, no two buttons touching; a chosen support in a dish; the doors
+  opening over 0.5 s with nothing else answering; a minor step's one tablet; the early grace in full at the lamp's left
+  and what is kept at its right; a slip and Take this fate for each card; every word read on its ground). Screenshots
+  beside mockups 04 and 05 in `docs/ui_p5/way/`.
+
 ### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
 - **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).
   A pale name tablet per character hangs from the peg rail on a red cord, its arched window holding the character's

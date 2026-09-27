@@ -86,6 +86,7 @@ const SURFACE := {
 	"clay": Color("ac663e"),             # BRONZE + 0.25 RED
 	"sky": Color("0d2b2d"),              # JADE_SHADOW + 0.58 INK: the Bag's night at its lightest behind words
 	"sea": Color("27484e"),              # DEEP_TEAL + 0.16 MIST: the sea of cloud under the Bag's sky, at its lightest
+	"niche": Color("1a2429"),            # HOLLOW + 0.85 INK: the Revival's stone niche in the lamp's shadow
 }
 ## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
 ## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
@@ -169,6 +170,18 @@ const TEXT_ON := [
 	[&"MIST", ["gift_tray"], 14],
 	[&"PALE_GOLD", ["gift_tray"], 14],
 	[&"GOLD", ["gift_tray"], 14],
+	# The way family (Cultivation, Breakthrough, Revival, Fates): the night sky, the mountain's dark, the stone niche,
+	# the cut-stone tablets dark and gold-leafed, and the fate slips' paper.
+	[&"PAPER", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet", "stone_tablet:selected"], 14],
+	[&"MIST", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet"], 14],
+	[&"PALE_GOLD", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet", "stone_tablet:selected"], 14],
+	[&"PALE_GOLD", ["stone_tablet:selected@ink"], 14],
+	[&"GOLD", ["surface:sky_top", "surface:space", "surface:niche"], 14],
+	[&"HOLLOW", ["surface:space", "surface:niche"], 14],
+	[&"RED_TEXT", ["surface:niche", "surface:space"], 14],
+	[&"BRIGHT_JADE", ["surface:niche", "surface:space"], 14],
+	[&"SOUL_TEXT", ["surface:sky_top"], 14],
+	[&"JADE_SHADOW", ["surface:scroll"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

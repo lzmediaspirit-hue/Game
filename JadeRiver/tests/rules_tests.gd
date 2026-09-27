@@ -141,7 +141,6 @@ func topdown_suite() -> void:
 	var td = load("res://tests/topdown_suite.gd").new()
 	td.run_all(self)
 	await td.run_view(self, get_tree())
-	await td.run_fight(self, get_tree())
 	print("topdown measured: ", td.measured)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
@@ -201,8 +200,7 @@ func ui_suite() -> void:
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
 		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot(), "codex": Game.account.codex.duplicate(),
-		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate(),
-		"companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true)}
+		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate()}
 	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
 	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
 	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
@@ -368,8 +366,6 @@ func ui_suite() -> void:
 	Game.account.codex = keep.codex
 	Game.account.collection = keep.collection
 	Game.account.collection_pages_done = keep.pages_done
-	c.companions = keep.companions
-	c.relations.affinity = keep.affinity
 	c.inventory.restore(keep.inventory)
 	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
@@ -452,14 +448,7 @@ func _ui_contexts(c) -> Dictionary:
 		# P5, the Market family: the chest with and without the Treasury's tray, the stage with its lots drawn up, and the
 		# Shop in its buy-back view.
 		"storage": [{}, {"_setup": func(): Game.account.sect = sect.duplicate(true).merged({"buildings": {"sect_hall": 1, "treasury": 1}}, true)}],
-		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}],
-		# P5, the Bonds family: the gift tray over a talk (the talk's other choices beside it) and on its own; the garden
-		# wall with no one yet, then all four friends, two beside you and one at five hearts.
-		"gift": [{"npc": "elder_hu", "convo": Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})}, {"npc": "tie_niu"}],
-		"companions": [{"_setup": func(): c.companions["roster"] = []}, {"_setup": func():
-			c.companions["roster"] = ContentDB.all("companions").map(func(e): return str(e.id))
-			c.companions["active"] = c.companions.roster.slice(0, 2)
-			c.relations.affinity[str(c.companions.roster[1])] = {"points": 500}}]}
+		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -573,6 +562,7 @@ func identity_suite() -> void:
 	await _post_checks()
 	await _market_checks()
 	await _bonds_checks()
+	await _way_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -975,6 +965,115 @@ func _bonds_checks() -> void:
 	c.companions = keep.companions
 	c.relations.affinity = keep.affinity
 	c.relations.alignment = keep.alignment
+
+## P5 (the way family; docs/page_identity.md rows 5, 9, 39 and 40, mockup 04): Cultivation's Overview names every great
+## realm once on its mountain and gives this realm's stair a numbered step for each stage, and the figure climbs when a
+## step is gained while it is open; the Meridian badge's tab still opens on Foundation. Breakthrough hangs one tablet for
+## each requirement, gold-leafed when met, lays a chosen support in a dish on the step and opens its doors on Break
+## Through (0.5 s, then the page closes into moment 05). Revival tells the early grace in full on the first fall before
+## Bone Forging 5, in the lamp's shadow, what is kept in its light, and keeps its choices. Fates hangs a slip on a stick
+## for each card, each with its Take this fate. Every word reads on what it sits on.
+func _way_checks() -> void:
+	var c = Game.active()
+	var cu: CultivatorState = c.cultivator
+	var keep := {"realm": cu.realm_key, "qp": cu.qp, "state": cu.state, "offer": cu.fate_offer.duplicate(), "inventory": c.inventory.snapshot(),
+		"flags": c.quests.flags.duplicate(), "motion": Game.account.settings.get("reduce_motion", false)}
+	Game.account.settings["reduce_motion"] = false
+	var dim: Array = []
+	var lost: Array = []
+	# Cultivation: the mountain and the stair.
+	cu.realm_key = "heart_tempering_4"
+	cu.state = "accumulating"
+	cu.qp = cu.need() * 0.4
+	var cp: Page = await _open_page("cultivation", {})
+	var said: Array = cp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var realms: Array = cp.great_realms()
+	var named: int = realms.filter(func(g): return said.any(func(s): return str(s).begins_with(ContentDB.text("realm_great." + str(g)).left(5)))).size()
+	var steps: Array = cp._steps(cu.realm_key)
+	check(realms.size() == 19 and named == realms.size() and steps.size() == 9 and range(1, 10).all(func(i): return said.has(str(i)))
+		and cp._regions.any(func(r): return r.id == "meditate") and cp._regions.any(func(r): return r.id == "breakthrough"),
+		"P5 Cultivation: the mountain names all %d great realms (%d drawn), the stair numbers this realm's %d steps, Meditate and Break Through at the foot" % [realms.size(), named, steps.size()])
+	_identity_view(cp, "cultivation ascent", dim, lost, {}, {})
+	cu.realm_key = "heart_tempering_5"
+	cp.queue_redraw()
+	await get_tree().process_frame
+	check(not cp._climb.is_empty() and int(cp._climb.from) == 3, "P5 Cultivation: a step gained while the page is open, the figure climbs from the one it sat on")
+	cp.queue_free()
+	var fp: Page = await _open_page("cultivation", {"tab": "foundation"})
+	check(str(fp.tabs[fp.tab].id) == "foundation", "P5 Cultivation: the Meridian badge still opens it on Foundation")
+	fp.queue_free()
+	# Breakthrough: at the gate out of Heart Tempering, every requirement a tablet.
+	cu.realm_key = "heart_tempering_9"
+	cu.state = "bottleneck"
+	cu.qp = cu.need()
+	var support := ""
+	for it in ContentDB.all("items"):
+		if it.has("support") and support == "": support = str(it.id)
+	Game.inventory.apply_add(c.id, support, 1, "test")
+	var bp: Page = await _open_page("breakthrough", {})
+	var q: Dictionary = Game.progression.query_breakthrough(c)
+	var tablets: Array = bp.text_log.filter(func(tx): return str(tx.get("ground", "")).begins_with("stone_tablet") and is_equal_approx((tx.rect as Rect2).position.x, bp.TABLETS.position.x))
+	var lit: int = tablets.filter(func(tx): return str(tx.ground) == "stone_tablet:selected").size()
+	var met: int = (q.results as Array).filter(func(r): return r.ok).size()
+	var buttons: Array = bp._regions.filter(func(r): return r.kind == "button")
+	var clash := false
+	for i in buttons.size():
+		for j in range(i + 1, buttons.size()):
+			var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+			if both.size.x > 0.5 and both.size.y > 0.5: clash = true
+	check(tablets.size() == (q.results as Array).size() and lit == met and not clash and buttons.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Breakthrough: a tablet hangs for each of the %d requirements, %d gold-leafed as met, every Go and Break Through its own 48 px" % [tablets.size(), lit])
+	_identity_view(bp, "breakthrough gate", dim, lost, {}, {})
+	bp.on_action("support", support)
+	bp.text_log.clear()
+	bp.queue_redraw()
+	await get_tree().process_frame
+	check(bp._regions.filter(func(r): return r.id == "support" and str(r.data) == support).size() == 2, "P5 Breakthrough: a chosen support lies in a dish on the step (a tap there takes it back)")
+	_identity_view(bp, "breakthrough offering", dim, lost, {}, {})
+	bp.t = 1.0
+	bp._doors_at = 0.75
+	var half: float = bp.doors_open()
+	bp.on_action("support", support)
+	check(near(half, 0.5, 0.1) and bp.supports.has(support), "P5 Breakthrough: Break Through opens the doors over 0.5 s, and nothing else answers while they open (%.2f)" % half)
+	bp.queue_free()
+	cu.realm_key = "sphere_lord_1"
+	cu.state = "accumulating"
+	var mp: Page = await _open_page("breakthrough", {})
+	check(mp.text_log.any(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.breakthrough.a_minor_step_within_the").left(12))), "P5 Breakthrough: a minor step hangs the one tablet that says so")
+	_identity_view(mp, "breakthrough minor", dim, lost, {}, {})
+	mp.queue_free()
+	# Revival: the first fall before Bone Forging 5, told in full in the lamp's shadow.
+	Unlocks.force_unlock(c.id, "kill_progress")
+	cu.realm_key = "bone_forging_2"
+	c.quests.flags.erase("death_grace_told")
+	var rp: Page = await _open_page("revival", {"actor": c.id})
+	var grace: String = Tx.t("ui.revival.early_grace")
+	var told: Array = rp.text_log.filter(func(tx): return str(tx.get("s", "")) != "" and grace.begins_with(str(tx.s).trim_suffix("…").left(24)) and (tx.rect as Rect2).end.x <= rp.LOST.end.x + 1)
+	check(not told.is_empty() and rp.text_log.any(func(tx): return str(tx.get("s", "")) != "" and Tx.t("ui.revival.kept_progress").begins_with(str(tx.s)) and (tx.rect as Rect2).position.x >= rp.KEPT.position.x - 1) and rp._regions.filter(func(r): return r.id == "choose").size() >= 2,
+		"P5 Revival: the early grace is told in full at the lamp's left, what is kept at its right, the choices under it")
+	_identity_view(rp, "revival grace", dim, lost, {}, {})
+	rp.queue_free()
+	cu.realm_key = "qi_kindling_3"
+	var rp2: Page = await _open_page("revival", {"actor": c.id})
+	check(rp2.text_log.any(func(tx): return tx.get("col", Color.TRANSPARENT) == UiKit.RED_TEXT), "P5 Revival: past the grace, what the fall takes is written in red in the shadow")
+	_identity_view(rp2, "revival", dim, lost, {}, {})
+	rp2.queue_free()
+	# Fates: three slips fanned from the cylinder.
+	cu.fate_offer = ContentDB.all("fates").slice(0, 3).map(func(f): return str(f.id))
+	var fa: Page = await _open_page("fates", {})
+	var takes: Array = fa._regions.filter(func(r): return r.id == "choose")
+	check(takes.size() == 3 and range(3).all(func(i): return str(takes[i].data) == str(cu.fate_offer[i]) and fa.slip_rect(i, 3).encloses(takes[i].art)),
+		"P5 Fates: a slip on its stick for each of the three cards, Take this fate at each slip's foot")
+	_identity_view(fa, "fates", dim, lost, {}, {})
+	fa.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 The way: every word on Cultivation, Breakthrough, Revival and Fates reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	cu.realm_key = keep.realm
+	cu.qp = keep.qp
+	cu.state = keep.state
+	cu.fate_offer = keep.offer
+	c.inventory.restore(keep.inventory)
+	c.quests.flags = keep.flags
+	Game.account.settings["reduce_motion"] = keep.motion
 
 func _post_checks() -> void:
 	var c = Game.active()

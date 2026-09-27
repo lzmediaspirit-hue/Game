@@ -307,6 +307,16 @@
     "normal": "res://art/ui/hd/slot__normal.png",
     "selected": "res://art/ui/hd/slot__selected.png"
   },
+  "stone_tablet": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/stone_tablet__normal.png",
+    "selected": "res://art/ui/hd/stone_tablet__selected.png"
+  },
   "storehouse_lid": {
     "margins": [
       0,

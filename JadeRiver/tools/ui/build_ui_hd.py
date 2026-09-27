@@ -852,6 +852,35 @@ def gift_tray():
     return c
 
 
+# The way family (docs/page_identity.md §2, "The way": stone, sky and starlight): the Breakthrough gate's requirement
+# tablets and plaques, the Revival niche's lintel and the Fates' title. SURFACE.stone is HOLLOW + 0.45 INK.
+TOKEN.update({"HOLLOW": hexc("#87949a")})
+STONE_S = mix(TOKEN["HOLLOW"], TOKEN["INK"], 0.45)          # SURFACE.stone #4d595e
+
+
+def stone_tablet(lit=False):
+    """A cut-stone tablet (the way family): a slab with a carved line round its face. Dark, it waits (an unmet
+    requirement, a lintel in shadow); lit, its face is washed in gold leaf and its edge gilded (a met requirement, the
+    gate's plaque)."""
+    c = Canvas(48, 48)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 47.0, 45.0, 2.5)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 3.0, 47.0, 47.0, 2.5), 0), 2.0) * 0.5, TOKEN["INK"])
+    if lit:
+        face = [(0, mix(STONE_S, TOKEN["GOLD"], 0.12)), (0.5, STONE_S), (1, mix(STONE_S, TOKEN["INK"], 0.3))]
+    else:
+        face = [(0, mix(STONE_S, TOKEN["INK"], 0.38)), (0.5, mix(STONE_S, TOKEN["INK"], 0.5)), (1, mix(STONE_S, TOKEN["INK"], 0.64))]
+    c.paint(cov(d), c.vgrad(face, 1.0, 45.0))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    if lit:
+        gold_bevel(c, d, 1.0, 3.0)
+        c.paint(band(d, 5.0, 5.8), TOKEN["GOLD"] * np.array([1, 1, 1, 0.6]))
+    else:
+        c.paint(band(d, 1.0, 1.8) * np.clip((10.0 - c.Y) / 7.0, 0, 1), TOKEN["HOLLOW"] * np.array([1, 1, 1, 0.35]))
+        c.paint(band(d, 5.0, 5.8), TOKEN["INK"] * np.array([1, 1, 1, 0.55]))
+        c.paint(band(d, 5.8, 6.4), TOKEN["HOLLOW"] * np.array([1, 1, 1, 0.18]))
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -907,6 +936,8 @@ ASSETS.update({
     "storehouse_lid": ([0, 0, 0, 0], {"normal": lambda: storehouse_lid()}),
     # The Bonds family (P5): the Gift page's red-lacquered tray.
     "gift_tray": ([16, 16, 16, 16], {"normal": lambda: gift_tray()}),
+    # The way family (P5): the cut-stone tablet, dark or lit with gold leaf.
+    "stone_tablet": ([12, 12, 12, 12], {"normal": lambda: stone_tablet(), "selected": lambda: stone_tablet(True)}),
 })
 
 
