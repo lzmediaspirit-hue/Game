@@ -75,15 +75,35 @@ static func doorway(s: Dictionary) -> Array:
 		return [left+float(span[0]),left+float(span[1])] if span.size()==2 else []
 	span=ATLAS_DOORS.get(atlas_key(str(s.get("id","")),art),[])
 	return [left+float(span[0])*float(r[2]),left+float(span[1])*float(r[2])] if span.size()==2 else []
-func painted_building(a: Vector2,width: float):
+## What a roof's building draws, [{tex, rect, src}]: a building prop's frame centred on the roof, its roof on the walkable
+## top face and its facade below; else a painted building, its roof on the top face and its facade projected from the
+## physical volume. [] for any other surface. `_draw` draws these; tests/visibility_suite reads them.
+func building_pieces() -> Array:
+	if surface.kind!="roof": return []
+	var r=surface.bounds
+	if art!="" and not ATLAS_BUILDINGS.has(art):
+		var e: Dictionary=SpriteCache.prop(art)
+		var texture: Texture2D=SpriteCache.tex(str(e.get("file","")))
+		if texture:
+			var size=Vector2(float(e.frame[0]),float(e.frame[1]))
+			return [{"tex":texture,"rect":Rect2(Vector2(r.position.x+(r.size.x-size.x)*0.5,r.end.y-surface.base-r.size.y),size),"src":Rect2(Vector2.ZERO,size)}]
 	var source=building_source()
-	# Roof depth and facade height project from the physical building volume.
+	var a=pt(r.position.x,r.position.y)
 	var roof_pixels=source.size.y*0.43
 	var roof_source=Rect2(source.position,Vector2(source.size.x,roof_pixels))
 	var facade_source=Rect2(source.position+Vector2(0,roof_pixels),Vector2(source.size.x,source.size.y-roof_pixels))
-	draw_texture_rect_region(BUILDINGS,Rect2(a,Vector2(width,surface.bounds.size.y)),roof_source)
-	var front=Vector2(a.x,surface.bounds.end.y-surface.base)
-	draw_texture_rect_region(BUILDINGS,Rect2(front,Vector2(width,surface.base)),facade_source)
+	return [{"tex":BUILDINGS,"rect":Rect2(a,Vector2(r.size.x,r.size.y)),"src":roof_source},
+		{"tex":BUILDINGS,"rect":Rect2(Vector2(a.x,r.end.y-surface.base),Vector2(r.size.x,surface.base)),"src":facade_source}]
+## The depth a surface's art draws at (world.update_sorting): flat ground under every figure, a raised or sloped surface
+## by its front edge, a roof by its building's front.
+static func sort_z(s: WalkSurface,geometry: ZoneGeometry,flat: bool) -> int:
+	if s.stratum=="ground" and (flat or (s.base==0 and s.rise==0)):
+		return -1800 if s.kind=="stairs" else -2000+int(s.base)
+	var z=1500+int(s.bounds.end.y)
+	if s.kind=="roof":
+		for obstacle in geometry.obstacles:
+			if obstacle.get("surface","")==s.id: z=1500+int(obstacle.get("front_y",s.bounds.end.y))
+	return z
 ## S43 blocks: a solid box with a flat, lit top you can stand on. `art` holds the block kind.
 const BLOCK_COLORS={"crate":["8a6236","a57a45","5c3f22"],"barrel":["6b4a2c","86603a","3f2a18"],"cart":["7d5a33","9b7443","4d3620"],
 	"wall":["7c7d78","9a9b95","4f504c"],"rock":["6f7568","8d9384","474c43"],"fence":["80603a","a07c4c","52391f"],
@@ -222,14 +242,11 @@ func _draw():
 			var fh2=float(e2.frame[1])
 			draw_texture_rect_region(tex2,Rect2(top_left-Vector2(0,fh2*0.35),Vector2(r.size.x,r.size.y+fh2*0.35)),Rect2(0,0,fw2,fh2),tint)
 			return
-	if surface.kind=="roof" and art!="" and not ATLAS_BUILDINGS.has(art):
-		# Building props: roof art on the walkable top face, facade below it.
-		var e: Dictionary=SpriteCache.prop(art)
-		var texture: Texture2D=SpriteCache.tex(str(e.get("file","")))
-		if texture:
-			var size=Vector2(float(e.frame[0]),float(e.frame[1]))
-			draw_texture_rect_region(texture,Rect2(Vector2(r.position.x+(r.size.x-size.x)*0.5,r.end.y-surface.base-r.size.y),size),Rect2(Vector2.ZERO,size),tint)
-			return
+	if surface.kind=="roof":
+		# Building props (roof art on the walkable top face, facade below it) and painted buildings.
+		for piece in building_pieces():
+			draw_texture_rect_region(piece.tex,piece.rect,piece.src,tint if piece.tex!=BUILDINGS else Color.WHITE)
+		return
 	if surface.kind=="ground" and ground_material in ["wood","floor_stone","floor_earth","sand_wood"]:
 		var tile={"wood":"floor_wood","floor_stone":"floor_stone","floor_earth":"floor_earth","sand_wood":"floor_wood"}[ground_material]
 		SpriteCache.draw_tiled(self,tile,Rect2(a,r.size+Vector2(0,500 if surface.base==0 else 0)),0.0,tint)
@@ -433,8 +450,6 @@ func _draw():
 				var wall_height=surface.base if generated else maxf(28,632-d.y)
 				draw_texture_rect_region(BUILDINGS,Rect2(d,Vector2(r.size.x,wall_height)),Rect2(768,382,768,92),Color("c8d0c5"))
 				draw_line(d,d+Vector2(r.size.x,0),Color("e1d4ac"),4)
-		"roof":
-			painted_building(a,r.size.x)
 		"stairs", "ramp":
 			var stair_rect=Rect2(a-Vector2(24,12),Vector2(r.size.x+48,d.y-a.y+24))
 			draw_texture_rect(STAIRS,stair_rect,false)

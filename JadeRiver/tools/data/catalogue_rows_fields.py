@@ -104,7 +104,7 @@ def collapsed_tunnel(R):
     r.solid("rubble_heap_low", [870, 730, 80, 50], 40, kind="rubble")
     r.solid("rubble_heap_high", [940, 690, 90, 50], 80, kind="rubble")
     shard = next(o for o in of_type(r, "ore_vein") if o["item"] == "spirit_stone_shard")
-    put(shard, 985, 660)
+    put(shard, 985, 715, 80, "rubble_heap_high")   # on the high heap (behind it, the heap hid it)
     # The cracked wall (S10: Body breaks cracked walls, threshold per object). Break it once and the seam behind it
     # can be mined like any vein.
     wall_flag = "tunnel_wall_broken"
@@ -145,6 +145,12 @@ def marsh_edge(R):
     for o in jars[2:] + [h for h in of_type(r, "herb_patch") if not h.get("alt")]:
         if any(in_rect(o["at"], s["rect"]) for s in r.d["surfaces"] if s["id"].startswith("stilt_")):
             o["at"] = [o["at"][0] + 40, 790]      # out from under the decks, onto the open reeds
+    # ... and beside the reed bundles, not behind one (a jar there drew under the hay).
+    for o in jars[2:]:
+        for b in r.d["blocks"]:
+            x, y, w, d = b["rect"]
+            if x - 20 <= o["at"][0] <= x + w + 20 and y - 40 <= o["at"][1] <= y + d:
+                o["at"] = [x + w + 50, o["at"][1]]
     # Reed Frogs (tier natives) live on the stilts and hop between them when roused (their jump reaches 156).
     frogs = next(sp for sp in r.d["spawns"] if sp["enemy"] == "reed_frog" and not sp.get("elite"))
     lv = frogs.get("level")

@@ -312,6 +312,72 @@ def sealed_gate(state, f):
     return cv
 
 
+# ------------------------------------------------------------------ road gate
+@prop("road_gate", 56, 76, states=(("idle", 1, 0),))
+def road_gate(state, f):
+    """An open way out of a town or a camp along its road (a `gate` way): a timber gateway under a small glazed roof,
+    its two plank leaves swung back against the posts and the road running on through it."""
+    W, H = 56, 76
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 28, 74, 27, 1.6)
+    # the road seen through the opening: pale sky over far hills, packed earth underfoot
+    opening = m_rect(W, H, 10, 22, 45, 71)
+    cv.fill(opening, hexc("#cfe3de"))
+    cv.fill(opening & (yy >= 44 - (np.sin(xx * 0.45) * 2 + 2).astype(int)), hexc("#7fa89a"))
+    cv.fill(opening & (yy >= 54), hexc("#9d8a62"))
+    road = m_poly(W, H, [(22, 54), (33, 54), (45, 71), (10, 71)])
+    cv.fill(road, hexc("#b49c6c"))
+    cv.fill(road & (yy % 5 == 0), hexc("#9d8a62"))
+    # leaves swung back against the posts, foreshortened
+    for (x0, x1) in ((10, 14), (41, 45)):
+        leaf = m_rect(W, H, x0, 26, x1, 70)
+        plank_v(cv, x0, 26, x1, 70, WOOD, seed=("rg_leaf", x0))
+        cv.fill(leaf & ((yy - 30) % 12 == 0), IRON[3])
+    # posts and the tie beam
+    for x in (5, 46):
+        post(cv, x, 14, x + 4, 71, LACQUER)
+        stone_block(cv, x - 2, 68, x + 6, 72, ("rg_foot", x), chip=False)
+    plank_h(cv, 3, 18, 52, 22, LACQUER, seed="rg_beam")
+    # name board under the roof
+    board = m_rect(W, H, 20, 22, 35, 27)
+    cv.fill(board, INK)
+    cv.fill(erode(board), GOLD[2])
+    cv.fill(m_rect(W, H, 23, 24, 32, 25) & ((xx % 3) != 0), INK)
+    roof_side(cv, 0, 55, 3, 15, "rg_roof", curl=3)
+    grass_tuft(cv, 2, 73, "rgg", h=5, n=3)
+    grass_tuft(cv, 53, 73, "rgg2", h=4, n=3)
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ hidden way
+@prop("hidden_way", 48, 72, states=(("idle", 4, 5),))
+def hidden_way(state, f):
+    """A hidden way once found (Spirit Sense, the Wandering Eye): a cleft in a mossy rock face, dark inside, its edges
+    lit by a faint jade shimmer that breathes, so the player sees where the way they found goes in."""
+    W, H = 48, 72
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 24, 70, 23, 1.6)
+    rock(cv, 24, 69, 23, 34, "hw_face", pal=STONE, moss=0.35, cracks=2)
+    cleft = m_poly(W, H, [(21, 16), (26, 18), (30, 30), (31, 46), (33, 69), (15, 69), (17, 50), (18, 32)])
+    cv.fill(cleft, INK)
+    cv.fill(erode(cleft) & (yy >= 40), RIVER_NIGHT)
+    cv.fill(erode(erode(cleft)) & (yy >= 54), DEEP_TEAL)
+    rim = border(dilate(cleft)) & ~cleft
+    pulse = (0, 1, 2, 1)[f % 4]
+    cv.fill(rim & (yy > 60 - 12 * pulse), JADE_R[3 + pulse])
+    cv.fill(rim & (yy > 64 - 6 * pulse) & (xx < 24), JADE_R[5])
+    stone_block(cv, 12, 68, 36, 71, "hw_step", chip=True, moss=0.3)
+    grass_tuft(cv, 3, 70, "hwg", h=5, n=3)
+    grass_tuft(cv, 44, 70, "hwg2", h=4, n=3)
+    outline(cv)
+    glow(cv, 24, 56, 9, 14, BRIGHT_JADE, steps=((1.0, 0.06 + 0.03 * pulse),))
+    motes(cv, 16, 30, 32, 66, f, 4, "hw_m", count=3, pal=(BRIGHT_JADE, WHITE_HOT))
+    return cv
+
+
 # ------------------------------------------------------------------ boat
 @prop("lu_boat", 160, 48, ground=5)
 def lu_boat(state, f):

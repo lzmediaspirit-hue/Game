@@ -663,13 +663,13 @@ def stoneford():
     r.npc("foreman_dong", [540, 790], facing=1)
     r.npc("adventurer_kai", [1500, 900], facing=-1)
     # S46 Beast Tide: the gate's gong calls the weekly stand against three waves of beasts.
-    r.obj("tide_gong", "beast_tide_drum", [860, 720], requires=all_of(realm("qi_unfurling_1")),
+    r.obj("tide_gong", "beast_tide_drum", [900, 800], requires=all_of(realm("qi_unfurling_1")),
           locked_text="Guard Hou: \"The Beast Tide is no work for anyone below Qi Unfurling.\"")
     # S49 the mortal kingdom: the County Hall, where the magistrate keeps the county's business.
     r.building("county_hall", "village_house", 2240, front=690, door=("sf_county_hall", "entry", "county_hall_door", {"label": "County Hall"}))
     r.edge("east", "east", "wp_west", "west", y=850)
     r.edge("west", "west", "sf_market", "east", y=850)
-    r.portal("quarry_road", "door", [660, 700], "sq_quarry_rim", "south", press_up=True, label="Quarry Road",
+    r.portal("quarry_road", "door", [660, 720], "sq_quarry_rim", "south", press_up=True, label="Quarry Road",
              requires=all_of(realm("bone_forging_4")), locked_text="Foreman Dong: \"Quarry's no place for a Bone Forging 3 kid.\"")
     back_trees(r, ("pine_tree", "willow_tree"), skip=[(1000, 1560), (300, 540)])
 
@@ -880,7 +880,7 @@ def sects():
             r.d["scenery"].append(o)
     r.obj("shrine_ja", "shrine", [700, 700])
     r.obj("stone_ja", "teleport_stone", [520, 880], stone="jade_academy")
-    r.obj("board_ja", "notice_board", [2690, 700])
+    r.obj("board_ja", "notice_board", [2690, 740])
     r.obj("siege_gong_ja", "rite_circle", [2500, 900], event="siege_of_two_sects", prop="small_bell",
           visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
     r.npc("jade_steward", [360, 760], facing=1)
@@ -894,10 +894,10 @@ def sects():
               visible_if=all_of(qactive("a_disciples_chores"), noflag("swept_ja_%d" % i)))
     r.portal("stoneford", "gate", [40, 850], "sf_fairground", "jade_road", label="Stoneford")
     r.edge("east", "east", "ja_pavilion_rooftops", "west", y=850)
-    r.portal("weapon_hall", "door", [1210, 704], "ja_weapon_hall", "exit", press_up=True, label="Weapon Hall and Forge",
+    r.portal("weapon_hall", "door", [1210, 724], "ja_weapon_hall", "exit", press_up=True, label="Weapon Hall and Forge",
              requires=all_of(realm("bone_forging_3")), locked_text="The Weapon Hall admits disciples from Bone Forging 3.")
-    r.portal("alchemy_hall", "door", [1810, 704], "ja_alchemy_hall", "exit", press_up=True, label="Alchemy Hall")
-    r.portal("library", "door", [2410, 704], "ja_library", "exit", press_up=True, label="Library")
+    r.portal("alchemy_hall", "door", [1810, 724], "ja_alchemy_hall", "exit", press_up=True, label="Alchemy Hall")
+    r.portal("library", "door", [2410, 724], "ja_library", "exit", press_up=True, label="Library")
 
     r = Room("ja_pavilion_rooftops", "Pavilion Rooftops", "sect", "jade_sect", 2.1, backdrop="sect_jade", material="stone",
              music="sect", spawn_point=[200, 820], custom_ground=True, sect="jade_sect", town=True)
@@ -1154,7 +1154,7 @@ def cave_abode(rid, sect_id, peak, element):
           locked_text="A cedar tub by the spring, dry for now.", label="Bath")
     r.decor("rug", [860, 800])
     r.decor("incense_burner", [760, 720])
-    r.decor("scroll_rack", [1180, 690])
+    r.decor("scroll_rack", [1300, 690])
     r.decor("stone_lantern", [360, 700])
     r.decor("scholar_rock", [640, 690])
     r.decor("wine_jar", [1240, 760])
@@ -1797,6 +1797,9 @@ def azure_expanse():
               visible_if=all_of(qactive("shards_for_sale")))
     r.obj("insight_thunder", "insight_stone", [1900, 720], element="thunder", requires=all_of(unlock("insight_sites")),
           locked_text="A glassy stone, fused by lightning.")
+    for o in r.d["objects"]:   # a jar just behind the stone stands clear of it (the stone hid it)
+        if o["type"] == "jar" and abs(o["at"][0] - 1900) < 80 and 0 < 720 - o["at"][1] < 60:
+            o["at"] = [o["at"][0] - 150, o["at"][1]]
     r.edge("west", "west", "tp_thunderhorn_flats", "east", y=850)
     r.edge("east", "east", "rf_frostpine_climb", "west", y=850, ptype="sealed", requires=all_of(realm("sage_1")),
            locked_text="Rimefrost's cold stops any heart that has not reached Sage.")
@@ -2910,6 +2913,12 @@ def _dry_x(r, x, y):
     return x
 
 
+def _behind_block(r, x, y, half=60):
+    """Would a thing `half` wide standing at (x, y) be drawn behind a block (a stepping stone, a crate) just in front of it?"""
+    return any(b["rect"][0] - half <= x <= b["rect"][0] + b["rect"][2] + half and b["rect"][1] - 80 <= y <= b["rect"][1] + b["rect"][3]
+               for b in r.d.get("blocks", []))
+
+
 def insect_swarms():
     """V10 Insect Netting: a swarm in the rooms posts.SWARMS names, on dry ground clear of the room's other nodes.
     A swarm is netted by hand like a herb patch and kept at a post like any node; its outputs have weights."""
@@ -3065,9 +3074,9 @@ def spirit_mines():
         r = ROOMS[m["room"]]
         x, y = m["at"]
         x = _dry_x(r, x, y)
-        for dx in range(0, 600, 20):   # M18: out of the reach of the room's other interactables
+        for dx in range(0, 600, 20):   # M18: out of the reach of the room's other interactables, and not behind a block
             cand = _dry_x(r, x + dx, y)
-            if not verticality.in_reach(r, cand, y, radius=130):
+            if not verticality.in_reach(r, cand, y, radius=130) and not _behind_block(r, cand, y):
                 x = cand
                 break
         r.obj("mine_" + m["id"], "spirit_mine", [x, y], mine=m["id"], prop="spirit_shard_vein", radius=130)
