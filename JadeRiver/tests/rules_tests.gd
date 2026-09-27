@@ -1463,8 +1463,8 @@ func labels_suite() -> void:
 	await get_tree().process_frame
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
-## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
-## 1x, 2x...; an HD icon at its native 64, 48 or 32 (`<id>@<px>` in the manifest). The ui_suite checks every page.
+## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG) draws at 1x, 2x...; an HD icon at its native 64,
+## 48, 32, 24 or 12 (`<id>@<px>` in the manifest). The ui_suite checks every page.
 func icon_draw_suite() -> void:
 	# The pills are HD (the first family converted); the first legacy item in the manifest stands for the rest until
 	# every family has flipped.
@@ -1486,6 +1486,12 @@ func icon_draw_suite() -> void:
 	var hd_small := SpriteCache.icon_fit("healing_pill", Page.SLOT_SMALL - 12)
 	check(int(hd_slot["art"]) == 64 and int(hd_slot["scale"]) == 1 and int(hd_small["art"]) == 32 and int(hd_small["scale"]) == 1,
 		"P4b: an HD item shows its 64 at 1:1 in the 76 px slot and its native 32 in the small slot")
+	var st_row := SpriteCache.icon_fit("stun", 24)
+	var st_foe := SpriteCache.icon_fit("stun", 14)
+	var mk_map := SpriteCache.icon_fit("boss_skull", 24)
+	check(int(st_row["art"]) == 24 and int(st_row["scale"]) == 1 and int(st_foe["art"]) == 12 and int(st_foe["scale"]) == 1
+		and int(mk_map["art"]) == 24 and int(mk_map["scale"]) == 1,
+		"P4b: a status icon shows its 24 at 1:1 in the HUD's status row and its native 12 over an enemy; a marker its 24 on the map")
 	if legacy != "":
 		var in_slot := SpriteCache.icon_fit(legacy, Page.SLOT - 12)
 		var in_small := SpriteCache.icon_fit(legacy, Page.SLOT_SMALL - 12)

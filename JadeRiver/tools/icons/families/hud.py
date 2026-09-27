@@ -13,7 +13,7 @@ import numpy as np
 
 from pix import Frame, Ramp, erode4
 from palette import mat7
-from registry import hd, register
+from registry import drawn
 
 FAM, GROUP = 'hud', 'hud'
 ART = 32   # HD (Style A): every glyph here is an HD drawing (tools/icons/README.md, "How to convert a family")
@@ -22,11 +22,7 @@ INK = '#071015'
 
 def glyph(ident):
     """Register HUD glyph `ident`: its HD drawing is the icon."""
-    def deco(draw):
-        register(FAM, ident, draw, GROUP)
-        hd(ident, draw)
-        return draw
-    return deco
+    return drawn(FAM, ident, GROUP)
 
 
 # ============================================================================= HD (Style A, 32 icon space)

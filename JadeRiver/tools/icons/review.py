@@ -241,10 +241,17 @@ def technique_ring_fit(renders):
     return renders[48] if 48 in renders else fit(renders, 64)
 
 
+# The small families and where the game shows them: (label, the box of the second size shown, its label).
+SMALL = {'status': ('the HUD status row: 24 at 1:1', 14, 'over an enemy: its native 12'),
+         'markers': ('the world map: 24 at 1:1', 48, 'a large page: 24 at 2x')}
+
+
 def family_sheets(name, icons, out_dir, grades=None, folder='items'):
     """Write the review sheets of family module `name` (in art/icons/<folder>).
     icons: [(id, renders {art px: image}, hd: bool)]."""
     os.makedirs(out_dir, exist_ok=True)
+    if folder in SMALL:
+        return small_sheets(name, icons, out_dir, folder)
     grades = grades or {}
     written = []
     n_hd = sum(1 for _, _, h in icons if h)
@@ -316,3 +323,46 @@ def context_sheet(name, icons, out_dir, grades, folder):
     path = os.path.join(out_dir, 'icons_%s_context.png' % name)
     im.save(path)
     return path
+
+
+def small_sheets(name, icons, out_dir, folder):
+    """The sheets of a small family (status icons, markers): every icon at the sizes the game shows it, on the HUD's
+    night ground, the same at x2, and in context (the HUD's status row and an enemy's name, or the map's rows)."""
+    first, box2, second = SMALL[folder]
+    CW, CH, COLS = 196, 92, 6
+    rows = (len(icons) + COLS - 1) // COLS
+    im = Image.new('RGBA', (COLS * CW + 24, rows * CH + 64), DEEP_TEAL + (255,))
+    d = ImageDraw.Draw(im)
+    text(d, (12, 8), '%s · %d icons · %d HD' % (name, len(icons), sum(1 for _, _, h in icons if h)), 'display', 24, PALE_GOLD)
+    text(d, (12, 38), '%s, then %s' % (first, second), 'text', 13, MIST)
+    for k, (ident, renders, is_hd) in enumerate(icons):
+        x, y = 12 + (k % COLS) * CW, 60 + (k // COLS) * CH
+        im.alpha_composite(Image.new('RGBA', (CW - 12, 62), RIVER_NIGHT + (255,)), (x, y))
+        im.alpha_composite(fit(renders, 24), (x + 12, y + 19))
+        g = fit(renders, box2)
+        im.alpha_composite(g, (x + 60 + (48 - g.width) // 2, y + 31 - g.height // 2))
+        label = ident if len(ident) <= 24 else ident[:23] + '~'
+        text(d, (x, y + 65), label, 'text', 12, PAPER if is_hd else HOLLOW, shadow=False)
+    base = os.path.join(out_dir, 'icons_%s_p1' % name)
+    im.save(base + '.png')
+    im.resize((im.width * 2, im.height * 2), Image.Resampling.NEAREST).save(base + '_x2.png')
+    ctx = Image.new('RGBA', (1180, 250), RIVER_NIGHT + (255,))
+    d = ImageDraw.Draw(ctx)
+    text(d, (16, 10), '%s in context' % name, 'display', 24, PALE_GOLD)
+    if folder == 'status':
+        ctx.alpha_composite(minor_panel(760, 96), (16, 52))
+        text(d, (34, 64), 'under the player panel: 24 px icons, 4 apart', 'text', 14, MIST)
+        for k, (ident, renders, _) in enumerate(icons[:24]):
+            ctx.alpha_composite(fit(renders, 24), (34 + k * 28, 100))
+        text(d, (830, 120), 'Lv 103  Scarlet Kiln Disciple', 'bold', 17, (245, 138, 58), anchor='mm', outline=True)
+        for k, (ident, renders, _) in enumerate(icons[:12]):
+            ctx.alpha_composite(fit(renders, 14), (830 - 6 * 14 + k * 14, 90))
+    else:
+        ctx.alpha_composite(minor_panel(1140, 170), (16, 52))
+        for k, (ident, renders, _) in enumerate(icons):
+            x, y = 36 + (k % 4) * 280, 70 + (k // 4) * 30
+            ctx.alpha_composite(fit(renders, 24), (x, y))
+            text(d, (x + 29, y + 4), ident.replace('_', ' '), 'text', 14, PAPER)
+    path = os.path.join(out_dir, 'icons_%s_context.png' % name)
+    ctx.save(path)
+    return [base + '.png', base + '_x2.png', path]

@@ -542,6 +542,23 @@ proposal and the numbers measured on the valley_run checkpoints before and after
   in the element's ink over the maker's seal; the offerings sit on the minerals' footed dish. The legacy 32 px code is
   gone from both modules.
 
+- **Status icons and markers in Style A** (`tools/icons/families/status.py` and `markers.py`, both `ART = 24`; the
+  sheets and in-game shots in `docs/mockups/icon_families/status/` and `markers/`): the last two families, 34 status
+  icons and 17 map and quest markers, redrawn at 24 px, the size they are shown at, with a native `@12` render of each
+  status icon for the row over an enemy's name. The pipeline gains the 24 px size (`registry.HD_SIZE`, `VARIANTS`) and
+  the game draws 24 and 12 natively (`SpriteCache.ICON_PX`; the technique emblems keep their own sizes). The colour
+  language stays, never alone: every glyph has its own silhouette. An injury is its object with a red crack cut into
+  the outline (a bone, a broken meridian arch with its acupoints, a cracked soul orb); stability is the stepped
+  foundation built one tier at a time, red, yellow, jade and gold, the unstable slab cracked and chipped; a buff is its
+  object (a sword, a shield, chevrons) with the green up-arrow; cultivation states are jade and gold (the seated figure
+  under a halo, the gold diamond with its jade core); the debuffs are their own shapes (a flame, a venom drop, an
+  hourglass, a dazed ring of stars, gripping roots, drips from a wound, a snowflake, a bolt, a sealed Qi orb, a split
+  shield, a spiral, a ghost, a horned demon, a circuit whose arm turns back, a bolted eye). The markers are one bold
+  object each (the gold quest diamond, the blue side-quest seal, the question mark, a figure, a sycee, the medicine
+  gourd, the anvil, the shrine, the open and the sealed portal, the teleport stone, the crown, the skull, a leaf, a
+  crystal on its rock, a fish, the player's arrow). `asciiart.py` and the unused `glyphs.py` are gone with the ASCII
+  sprites; no legacy family remains.
+
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 
 ### P7b · part 1

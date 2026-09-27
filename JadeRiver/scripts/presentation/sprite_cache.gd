@@ -52,18 +52,20 @@ static func icon(id: String) -> Texture2D:
 
 # ------------------------------------------------------------------ crisp icons
 ## The art sizes an HD icon can be rendered at natively (tools/icons: 64 items, equipment and techniques, 48 and
-## 32 renders of them, 32 HUD glyphs).
-const ICON_PX := [64, 48, 32]
+## 32 renders of them, 32 HUD glyphs, 24 status icons and markers, and a 12 render of a status icon).
+const ICON_PX := [64, 48, 32, 24, 12]
 ## Every native render a drawing may list (`<id>@<px>`): ICON_PX, and 96 for the Works cabinet's objects (P5, mockup
-## 14 v4; tools/icons/families/works.py). Emblems are only composed at ICON_PX.
-const RENDER_PX := [96, 64, 48, 32]
+## 14 v4; tools/icons/families/works.py).
+const RENDER_PX := [96, 64, 48, 32, 24, 12]
+## The sizes a technique's emblem is composed at (the emblem atlas's sheets).
+const EMBLEM_PX := [64, 48, 32]
 static var _renders: Dictionary = {}
 ## The ui_suite's record of every icon drawn, [{id, rect, art, scale}]; null (off) in play.
 static var draw_log = null
 
 ## Every render of an icon: art px -> texture. An HD icon lists its native renders in the manifest as
 ## `<id>@<px>`, each drawn 1:1 at that many px (or a whole multiple); a legacy icon has only its PNG, which holds
-## its art at 2 screen px per art px (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon).
+## its art at 2 screen px per art px (32 art px in a 64 px PNG).
 static func icon_renders(id: String) -> Dictionary:
 	if _renders.has(id): return _renders[id]
 	var manifest: Dictionary = ContentDB.config("icon_manifest")
@@ -76,7 +78,7 @@ static func icon_renders(id: String) -> Dictionary:
 		var t := tex(str(manifest.get(key, "")))
 		if t: out[int(t.get_width() * 0.5)] = t
 	if out.is_empty() and composable(id):
-		for px in ICON_PX:
+		for px in EMBLEM_PX:
 			var e := emblem(id, px)
 			if e: out[px] = e
 	_renders[id] = out
@@ -95,13 +97,13 @@ static func icon_fit(id: String, box: float) -> Dictionary:
 		# A composed emblem is composed at the one size the box takes, not at all three.
 		var art := 0
 		var k := 0
-		for px in ICON_PX:
+		for px in EMBLEM_PX:
 			var kk := int(floor(box / float(px) + 0.001))
 			if kk >= 1 and (art == 0 or px * kk > art * k):
 				art = px
 				k = kk
 		if art == 0:
-			art = int(ICON_PX.min())
+			art = int(EMBLEM_PX.min())
 			k = 1
 		var e := emblem(id, art)
 		return {} if e == null else {"tex": e, "art": art, "scale": k, "px": art * k}
