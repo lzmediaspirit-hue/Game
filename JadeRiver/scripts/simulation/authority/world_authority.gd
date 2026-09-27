@@ -378,7 +378,7 @@ func teleport(c, stone_id: String) -> Dictionary:
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
 	var fee := teleport_fee(stone_id, c)
-	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.t("sim.world.needs_spirit_stone_shard") % fee})
+	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.plural("sim.world.needs_spirit_stone_shard", fee) % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
 	return load_room(c, str(stone.room), "", Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10))

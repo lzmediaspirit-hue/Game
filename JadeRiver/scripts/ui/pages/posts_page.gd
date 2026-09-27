@@ -107,14 +107,14 @@ func _draw_crafts() -> void:
 			continue
 		var info := PostRules.level_info(Game.posts.xp(ch, craft))
 		text(Vector2(r.end.x - 140, r.position.y + 30), Tx.t("ui.posts.level_short") % int(info.level), 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 120)
-		bar(Rect2(r.position + Vector2(60, 38), Vector2(r.size.x - 80, 22)), float(info.into) / maxf(1.0, float(info.need)), UiKit.JADE,
+		bar(Rect2(r.position + Vector2(60, 36), Vector2(r.size.x - 80, 20)), float(info.into) / maxf(1.0, float(info.need)), UiKit.JADE,
 			"%s / %s" % [UiKit.fmt(int(info.into)), UiKit.fmt(int(info.need))])
 		var tool: Dictionary = Game.posts.tool_of(ch, craft)
 		var tool_name := ContentDB.item_name(str(tool.item)) if not tool.is_empty() else Tx.t("ui.posts.bare_hands")
 		var line := Tx.t("ui.posts.finesse_line") % [UiKit.fmt(int(Game.posts.finesse_of(ch, craft))), fit(tool_name, 15, 220)]
 		if craft == "rites": line += "  ·  " + Tx.t("ui.posts.charge") % int(Game.posts.rite_charge(ch))
 		if craft == "snaring": line += "  ·  " + Tx.t("ui.posts.snares_out") % (Game.posts.snares(ch) as Array).size()
-		text(r.position + Vector2(60, minf(r.size.y - 8.0, 82.0)), line, 14, UiKit.MIST)
+		text(r.position + Vector2(60, minf(r.size.y - 11.0, 82.0)), line, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80)   # I9: clear of the frame
 		y += step
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)

@@ -71,7 +71,7 @@ func draw_page() -> void:
 ## The Sweep button's label: the floors it sweeps, or why it sweeps none (B25: with no floor cleared it said
 ## "Every floor swept today").
 static func sweep_label(sweepable: int, cleared: int) -> String:
-	if sweepable > 0: return Tx.t("ui.tower.sweep_one") if sweepable == 1 else Tx.t("ui.tower.sweep") % sweepable
+	if sweepable > 0: return Tx.plural("ui.tower.sweep", sweepable) % sweepable
 	return Tx.t("ui.tower.sweep_none") if cleared <= 0 else Tx.t("ui.tower.swept_all")
 
 func on_action(id: String, data) -> void:

@@ -206,8 +206,8 @@ func _draw_valley(map_r: Rect2) -> void:
 	for i in 41:
 		var f := i / 40.0
 		river.append(map_r.position + Vector2(map_r.size.x * (1.0 - f), map_r.size.y * (0.62 + 0.10 * sin(f * 7.0))))
-	draw_polyline(river, Color("2c9e8f"), 14.0)
-	draw_polyline(river, Color("67d6bd"), 4.0)
+	draw_polyline(river, UiKit.JADE, 14.0)
+	draw_polyline(river, UiKit.BRIGHT_JADE, 4.0)
 
 ## The Expanse: soft cloud bands, and each region an island adrift under its marker.
 func _draw_cloud_sea(map_r: Rect2, pts: Dictionary) -> void:

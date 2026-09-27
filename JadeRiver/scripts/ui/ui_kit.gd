@@ -321,6 +321,11 @@ static func span(seconds: float) -> String:
 	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
 	return Tx.t("ui.span_s") % s
 
+## A pool's value and its most as shown, rounded and grouped alike (I11: the HUD cut and did not group, "31750/31750",
+## where the Stats tab said 31,751). A value is never shown above its most, and a sliver of life never as 0.
+static func pool_values(cur: float, most: float) -> Array:
+	return [fmt(minf(ceilf(cur), roundf(most))), fmt(most)]
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))

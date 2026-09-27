@@ -41,7 +41,7 @@ func draw_page() -> void:
 			if ch.cultivator.false_realm != "":
 				text(Vector2(x + UiKit.text_width(true_realm, 20) + 12, r.position.y + 86), Tx.t("ui.character.shown_as") % ContentDB.realm_label(ch.cultivator.false_realm), 15, UiKit.MIST)
 			var sect_id := str(ch.training_sect.get("id", ""))
-			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + str(ch.training_sect.get("rank", "")).replace("_", " ").capitalize()) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
+			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + ContentDB.rank_name(str(ch.training_sect.get("rank", "")))) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
 			# S49 lifespan as flavour: your age and the most years your realm grants (never a clock).
 			var span := ProgressionRules.lifespan_of(ch)
@@ -151,7 +151,7 @@ func _attunement(ch, r: Rect2) -> void:
 		else:
 			var cost: int = Game.progression.jade_cost(zone_id, lv)
 			var can: bool = unlocked and ch.inventory.count(shard) >= cost
-			btn(Rect2(jr.position.x + 14, jr.position.y + 174, cw - 28, 48), Tx.t("ui.character.raise_jade") % cost, "attune", [zone_id, i], false, can,
+			btn(Rect2(jr.position.x + 14, jr.position.y + 174, cw - 28, 48), Tx.plural("ui.character.raise_jade", cost) % cost, "attune", [zone_id, i], false, can,
 				Unlocks.locked_text(str(att.get("unlock", ""))) if not unlocked else Tx.t("ui.character.needs_more_shards"), 17)
 	# What each region asks for, ticked when the total meets it.
 	var y := r.position.y + 366
@@ -175,7 +175,7 @@ func _vitals(ch, r: Rect2) -> void:
 	if ch.pools.max_qi > 0.0: pools.append(["qi", ch.pools.qi, ch.pools.max_qi, UiKit.QI, Tx.t("ui.character.qi_bar")])
 	if ch.pools.max_soul > 0.0: pools.append(["soul", ch.pools.soul, ch.pools.max_soul, UiKit.SOUL, Tx.t("ui.character.soul_bar")])
 	for p in pools:
-		bar(Rect2(r.position.x, y, r.size.x, 24), float(p[1]) / maxf(1.0, float(p[2])), p[3], p[4] % [int(p[1]), int(p[2])])
+		bar(Rect2(r.position.x, y, r.size.x, 24), float(p[1]) / maxf(1.0, float(p[2])), p[3], p[4] % UiKit.pool_values(float(p[1]), float(p[2])))
 		y += 30
 	y += 4
 	var picks := [["physical_attack", Tx.t("ui.character.physical_attack")], ["qi_attack", Tx.t("ui.character.qi_attack")],

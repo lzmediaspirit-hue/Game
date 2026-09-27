@@ -62,8 +62,8 @@ func draw_page() -> void:
 	# S49 daily activity: the day's points and the four chests sit under the day's missions.
 	var list_rect := left.grow(-10)
 	if str(tabs[tab].id) == "daily":
-		list_rect.size.y -= 176
-		_activity(ch, Rect2(left.position.x + 18, left.end.y - 172, left.size.x - 36, 160))
+		list_rect.size.y -= 188
+		_activity(ch, Rect2(left.position.x + 18, left.end.y - 184, left.size.x - 36, 172))   # I9: the note clears the frame
 	list("q", list_rect, ids.size(), 62, func(i: int, rr: Rect2):
 		var q := str(ids[i])
 		var d := Game.quest.quest_def(ch, q)
@@ -129,7 +129,7 @@ func _reward_lines(d: Dictionary) -> Array:
 			"learn_method": out.append(Tx.t("ui.quest.reward_method") % ContentDB.name_of("methods", str(r.method)))
 			"learn_secret_art": out.append(Tx.t("ui.quest.reward_secret_art") % ContentDB.name_of("secret_arts", str(r.art)))
 			"grant_title": out.append(Tx.t("ui.quest.reward_title") % ContentDB.name_of("titles", str(r.title)))
-			"sect_rank": out.append(Tx.t("ui.quest.reward_rank") % str(r.rank).replace("_", " ").capitalize())
+			"sect_rank": out.append(Tx.t("ui.quest.reward_rank") % ContentDB.rank_name(str(r.rank)))
 			"add_contribution": out.append(Tx.t("ui.quest.reward_contribution") % int(r.amount))
 			"deed":
 				var dd := ContentDB.entry("karma", str(r.deed))

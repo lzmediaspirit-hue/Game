@@ -1497,14 +1497,14 @@ func _draw_player_panel(c) -> void:
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(96 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%d/%d" % [int(c.pools.hp), int(c.pools.max_hp)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%s/%s" % UiKit.pool_values(c.pools.hp, c.pools.max_hp))
 		y += 17
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%d/%d" % [int(c.pools.qi), int(c.pools.max_qi)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%s/%s" % UiKit.pool_values(c.pools.qi, c.pools.max_qi))
 		y += 15
 	if soul_row:
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%s/%s" % UiKit.pool_values(c.pools.soul, c.pools.max_soul))
 	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
 	if ProgressionAuthority.walks(c, "blood"):
 		var strip := Rect2(r.position.x + 122, r.end.y - 9, 222, 4)

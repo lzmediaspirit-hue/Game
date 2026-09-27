@@ -399,7 +399,7 @@ func ui_fixes_suite() -> void:
 	# B25: with no floor cleared, the Sweep button says why it sweeps none (it said every floor was swept).
 	var tower = load("res://scripts/ui/pages/tower_page.gd")
 	check(tower.sweep_label(0, 0) == Tx.t("ui.tower.sweep_none") and tower.sweep_label(0, 4) == Tx.t("ui.tower.swept_all")
-		and tower.sweep_label(3, 4) == Tx.t("ui.tower.sweep") % 3 and tower.sweep_label(1, 4) == Tx.t("ui.tower.sweep_one"), "B25: the Sweep label follows the floors cleared")
+		and tower.sweep_label(3, 4) == Tx.t("ui.tower.sweep") % 3 and tower.sweep_label(1, 4) == Tx.t("ui.tower.sweep_one") % 1, "B25: the Sweep label follows the floors cleared")
 	# B20: a character keeping a post (S50 clears its idle task) shows its post on Characters, not "Idle: none".
 	var chars = load("res://scripts/ui/pages/characters_page.gd").new()
 	var post_was: Dictionary = Game.posts.state(c).post.duplicate(true)
@@ -416,6 +416,14 @@ func ui_fixes_suite() -> void:
 	Game.posts.state(c).post = post_was
 	c.idle_task = idle_was
 	chars.free()
+	# I10: a sect rank reads by its name in sect_ranks.json; I11: pools show rounded and grouped, never above their most;
+	# I12: a count of one takes the singular.
+	var rk: Dictionary = ContentDB.config("sect_ranks").ranks[2]
+	check(ContentDB.rank_name(str(rk.id)) == str(rk.name), "I10: rank %s reads as %s" % [rk.id, rk.name])
+	check(UiKit.pool_values(31750.6, 31750.6) == ["31,751", "31,751"] and UiKit.pool_values(0.3, 100.0) == ["1", "100"]
+		and UiKit.pool_values(31750.2, 31750.4) == ["31,750", "31,750"], "I11: pool values are grouped and agree with their most")
+	check(Tx.plural("ui.teleport.shard", 1) == Tx.t("ui.teleport.shard_one") and Tx.plural("ui.teleport.shard", 5) == Tx.t("ui.teleport.shard")
+		and Tx.plural("ui.teleport.shard", 0) == Tx.t("ui.teleport.shard") and Tx.plural("ui.tower.sweep", 1) % 1 == Tx.t("ui.tower.sweep_one") % 1, "I12: one shard, five shards")
 	# B8 / I14: a time left in words, in the one style.
 	check(UiKit.span(45) == Tx.t("ui.span_s") % 45 and UiKit.span(12 * 60) == Tx.t("ui.span_m") % 12 and UiKit.span(3960) == Tx.t("ui.span_hm") % [1, 6]
 		and UiKit.span(2 * 86400 + 5 * 3600) == Tx.t("ui.span_dh") % [2, 5], "B8, I14: UiKit.span writes a duration in words")

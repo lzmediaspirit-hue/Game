@@ -138,6 +138,12 @@ func realm_label(key: String, level := -1) -> String:
 	if r.is_empty(): return key
 	return text("ui.realm_label") % [text("realm." + key), level if level >= 0 else int(r.level)]
 
+## A training-sect rank's name from sect_ranks.json ("inner_disciple" → "Inner Disciple"), not its id capitalised (I10).
+func rank_name(id: String) -> String:
+	for rk in config("sect_ranks").get("ranks", []):
+		if str(rk.get("id", "")) == id: return str(rk.get("name", id))
+	return id.replace("_", " ").capitalize()
+
 func item(id: String) -> Dictionary:
 	var e := entry("items", id)
 	if e.is_empty(): e = entry("artifacts", id)

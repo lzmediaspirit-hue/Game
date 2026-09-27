@@ -26,7 +26,7 @@ func draw_page() -> void:
 	var sect := ContentDB.entry("sects", str(ts.id))
 	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 566, true)
 	var ranks: Dictionary = ContentDB.config("sect_ranks")
-	var rank_name := str(ts.get("rank", "")).replace("_", " ").capitalize()
+	var rank_name := ContentDB.rank_name(str(ts.get("rank", "")))
 	text(r.position + Vector2(30, 90), Tx.t("ui.training_sect.rank") % rank_name, 22)
 	currency_pill(r.position + Vector2(30, 110), "contribution", int(ts.get("contribution", 0)))
 	# S48 the Blood path lowers the sect's regard; below zero the Mission Hall lends no manuals.
@@ -108,7 +108,7 @@ func _role(ch) -> void:
 			elif ni == lvl:
 				var why := ""
 				if nd.has("rank") and not RequirementRules.passes({"all": [{"kind": "sect_rank_at_least", "rank": str(nd.rank)}]}, Game.ctx(ch)):
-					why = Tx.t("req.sect_rank") % str(nd.rank).replace("_", " ").capitalize()
+					why = Tx.t("req.sect_rank") % ContentDB.rank_name(str(nd.rank))
 				elif int(ts.get("contribution", 0)) < int(nd.get("cost", 0)): why = Tx.t("sim.training_sect.not_enough_contribution") % int(nd.get("cost", 0))
 				btn(Rect2(nr.end.x - 86, nr.end.y - 32, 78, 28), Tx.t("ui.training_sect.buy") % int(nd.get("cost", 0)), "node", str(b.id), true, why == "", why, 14)
 
