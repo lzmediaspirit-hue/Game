@@ -2104,7 +2104,8 @@
     "actor": "c1",
     "quest": "mudwater_hideout",
     "name": "Mudwater Hideout",
-    "kind": "main"
+    "kind": "main",
+    "gave": ""
    },
    "step": "P6d"
   },

@@ -192,7 +192,7 @@ def _kill(enemy, n, text):
 
 
 def _deliver(item, n, text):
-    return {"kind": "deliver", "item": item, "count": n, "text": text}
+    return {"kind": "deliver", "item": item, "count": n, "text": text, "consume": True}
 
 
 def _talk(npc, text):

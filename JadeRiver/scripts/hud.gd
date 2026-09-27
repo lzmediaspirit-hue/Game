@@ -1023,7 +1023,8 @@ func _handle(name: String, p: Dictionary) -> void:
 		"quest_accepted":
 			toast(Tx.t("hud.quest") + str(p.get("name", "")), "quest", _first_step(str(p.get("quest", ""))))
 		"quest_completed":
-			toast(Tx.t("hud.completed") + str(p.get("name", "")), "quest")
+			# What the hand-in took from the bag, under the quest's name: "Gave 5 Willow Moss".
+			toast(Tx.t("hud.completed") + str(p.get("name", "")), "quest", Tx.t("hud.gave") % p.gave if str(p.get("gave", "")) != "" else "")
 		"objective_progressed":
 			if str(p.get("actor", "")) == Game.active_id: _objective_toast(str(p.get("quest", "")))
 		"room_entered":

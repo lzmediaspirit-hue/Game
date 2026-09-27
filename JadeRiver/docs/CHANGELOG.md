@@ -1,5 +1,14 @@
 # Changelog
 
+## Quests that ask for items take them
+
+- **Turning in a "bring" quest hands the items over.** `QuestAuthority.hand_in` took a collect objective's items only
+  when it was marked `consume`, and most were not, so "Bring Willow Moss" (Mei Qing's Errand) and 11 other quests left the
+  items in the bag. Every collect objective now says whether it hands over or only counts (`story.o` refuses one that
+  does not; data_validation checks quests, sect missions and county jobs); 33 quests hand items over. The hand-in
+  checks everything first and takes it with the reward, is refused with what is still missing, never takes a worn
+  piece ("Take off your ... first"), names the items on its choice and toasts "Gave 5 Willow Moss".
+
 ## Top-down redesign, Phase 1: a prototype room and the new controller
 
 - **A top-down room you can play beside the current game** (`docs/redesign_top_down_plan.md`, "As built: Phase 1").

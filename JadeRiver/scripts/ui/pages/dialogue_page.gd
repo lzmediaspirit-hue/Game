@@ -130,6 +130,7 @@ func _choose(i: int) -> void:
 	var needs_authority := ch.has("accept") or ch.has("hand_in") or ch.has("effects") or ch.has("next") or ch.has("spar")
 	if needs_authority:
 		var r := submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
+		if not r.get("ok", false) and ch.has("hand_in"): return   # a refused hand-in stays open with what is missing flashed
 		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
 			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
 		# The conversation goes on only where the authority hands one back (the next node, or the same person's next
