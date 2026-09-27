@@ -829,7 +829,7 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var elite_spawn: bool = bool(p.get("elite", false)) and def.get("role", "normal") == "normal"
 	var table := ContentDB.entry("loot_tables", str(def.get("loot", p.def)))
 	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate") + game.pets.trait_bonus(c, "drop_chance"), c.stats.value("coin_find"),
-		{"needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite"})
+		{"needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite", "find_rng": Rng.stream(c.id, "finds")})
 	if elite_spawn:
 		# A normal kind spawned as an elite rolls its items again, pays an elite's coins and has one more equipment roll
 		# (P7b: grades.json drop.elite_extra).

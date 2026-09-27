@@ -19,7 +19,8 @@ static func drop_cfg() -> Dictionary:
 	return ContentDB.config("grades").get("drop", {})
 
 ## Roll a loot table. Returns {items: [{item, count}], coins, equipment: [drop specs]}. `extra`: no_equipment (no
-## equipment and no named piece), needs (quest items still wanted), elite (the foe is an elite, by role or by spawn).
+## equipment and no named piece), needs (quest items still wanted), elite (the foe is an elite, by role or by spawn),
+## find_rng (the stream the rare finds roll on).
 static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_rate: float, coin_find: float, extra := {}) -> Dictionary:
 	var table := ContentDB.entry("loot_tables", table_id)
 	var out := {"items": [], "coins": 0, "equipment": [], "lost": []}   # lost: P13a lost manuals rolled (not handed out)
@@ -35,8 +36,12 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 			var p := RngService_weighted(rng, picks)
 			if not p.is_empty(): out.items.append({"item": p.item, "count": rng.randi_range(int(p.count[0]), int(p.count[1]))})
 	for r in table.get("rare", []):
-		if rng.randf() < float(r.get("chance", 0.0)) * dr:
-			out.items.append({"item": r.item, "count": rng.randi_range(int(r.count[0]), int(r.count[1])), "find": bool(r.get("find", false))})
+		# A find (an early surprise, marked `find`) rolls on its own stream, `extra.find_rng` (the world passes the
+		# character's "finds"), so the table's other draws stay as they were; without one it is not rolled.
+		var find: bool = r.get("find", false)
+		var rr: RandomNumberGenerator = extra.get("find_rng") if find else rng
+		if rr != null and rr.randf() < float(r.get("chance", 0.0)) * dr:
+			out.items.append({"item": r.item, "count": rr.randi_range(int(r.count[0]), int(r.count[1])), "find": find})
 	# P13a lost manuals (technique_plan §5.3, §5.6): rolled on every kill like a named row, never raised by drop rate,
 	# and never handed out here: ProgressionAuthority.lost_drops keeps one only while its art is still lost (with pity).
 	for r in table.get("lost", []):

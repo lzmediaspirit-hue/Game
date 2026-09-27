@@ -21,7 +21,8 @@ Items 6, 7 and 9 of `docs/research/player_motivation.md`.
   Remnant Soul in a Ring (`fortune_deck` `first`: sure, meter or not; the three-hour meter paces every card after it).
   As The Willow Path is done a Spirit Fruit ripens on Willow Path West, once per character: its guardian alone at the
   room's Level, then the fruit (`CalendarAuthority.open_first_fruit`). The first monsters (crab, rat, boarlet, toad)
-  have rare rows, a pearl and a manual page, marked `find`, which play the rare-find moment. Common foes of the Reed
+  have rare rows, a pearl and a manual page, marked `find` (rolled on their own `finds` stream), which play the
+  rare-find moment. Common foes of the Reed
   Shallows and Willow Path West come as elites one spawn in twenty-five (`elite_chance`, their own `elites` stream).
   New moments: `fortune_card`, `first_fruit` and `elite_appears`.
 - **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,

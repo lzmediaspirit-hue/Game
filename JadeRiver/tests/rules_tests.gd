@@ -11063,9 +11063,12 @@ func _early_surprises(c, heard: Array) -> void:
 	var finds := {}
 	for foe in ["mudshell_crab", "reedtail_rat", "wild_boarlet"]:
 		for i in 2000:
-			for it in LootRules.roll(foe, rng, 1, 0.0, 0.0, {"no_equipment": true}).items:
+			for it in LootRules.roll(foe, rng, 1, 0.0, 0.0, {"no_equipment": true, "find_rng": rng}).items:
 				if it.get("find", false): finds[str(it.item)] = int(finds.get(str(it.item), 0)) + 1
 	check(int(finds.get("pearl", 0)) >= 60 and int(finds.get("manual_page", 0)) >= 10, "6,000 kills of the first monsters find pearls and manual pages (%s)" % str(finds))
+	var steady := 0   # finds roll only on their own stream, so a table's other draws (and the balance sims) stay as they were
+	for i in 2000: steady += LootRules.roll("mudshell_crab", rng, 1, 0.0, 0.0, {"no_equipment": true}).items.filter(func(it): return it.get("find", false)).size()
+	check(steady == 0, "without its own stream a find is not rolled (%d)" % steady)
 	var drop := {"room": "lf_reed_shallows", "items": [{"uid": 1, "item": "pearl", "count": 1, "coins": 0, "quality": "common", "find": true}], "x": 600.0, "y": 800.0, "source": "enemy"}
 	check(moment_for.call("loot_dropped", drop) == "rare_drop" and not MomentRules.is_rare({"item": "pearl", "count": 1}), "a find plays the rare-drop moment; the same pearl from a later foe does not")
 	# A common foe of the first fields comes as an elite now and then: about one spawn in twenty-five.
