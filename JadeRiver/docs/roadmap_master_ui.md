@@ -76,9 +76,9 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
 | M1 | Many interconnected rooms, distinct biomes, towns as hubs, travel as content | Present | 144 rooms in 3 zones and 44 regions (`data/rooms/`, `data/zones.json`); 283 portals (147 edges, 96 doors, 19 sealed, 11 gates, 7 hidden, 3 dungeon); 29 town rooms; six map themes (`data/map_themes.json`); one backdrop set per region; teleport stones; the Lantern Run and Starsea voyages | — |
-| M2 | More than one viable route through the world | Partial | Regions cross-link and the World map draws routes between them (`map_page.gd:75-81`), but each act's regions are ordered by Storm Ward / Starsea Endurance bands (`act2_design.md`, `act3_design.md`), so the order of regions inside an act is fixed even where the rooms are not | P10 |
+| M2 | More than one viable route through the world | Partial | `docs/world_plan.md` §1 gives one cross-link per built act (a second road through Acts I–III, not yet built) and two routes through each planned act (§3–§5, Routes and cross-links) | P10 |
 | M3 | Hidden and optional maps that reward exploration | Present | 9 `secret` rooms (`ds_drowned_grotto`, `cf_behind_falls`, `bm_smugglers_cove`, …), 7 hidden portals from Spirit Awakening 2 (`unlocks.json` `hidden_portals`), 4 hidden regions, and the S43 optional ledges counted on the Codex's Paths Above tab (`map_page.gd:170`) | — |
-| M4 | A world-expansion plan: maps per region, biomes, connections, hidden maps | Partial | `act2_design.md` and `act3_design.md` give rooms per region for Acts II–III. No plan exists for v1.3 Star Frontier, v1.4 Outer Heavens or v1.5 World Genesis; the room catalogue (`tools/data/catalogue.py`) covers the valley only | P10 |
+| M4 | A world-expansion plan: maps per region, biomes, connections, hidden maps | Present | `docs/world_plan.md`: rooms per region, biomes, routes, travel and hidden maps for v1.3 Star Frontier (64 rooms), v1.4 Outer Heavens (57 and the Inner World) and v1.5 World Genesis | P10 |
 | M5 | On-screen animation for realm breakthroughs | Partial | A flash and the `breakthrough` sound (`world.gd:458-462`), the heavens' storm for a phenomenon with NPC reactions (`world.gd:589-594`, S49), `breakthrough_failed` text. No full-screen sequence, no data-driven trigger and duration | P6 |
 | M6 | On-screen animation for boss intros and phases | Partial | The boss bar (`hud.gd:1857`), an "appears" toast, a shake on `boss_phase` (`world.gd:640`), captions (`hud.gd` `CAPTIONS`). No intro, no phase card | P6 |
 | M7 | On-screen animation for story beats | Partial | The room banner (`hud.gd:1811`), the fortune card (`hud.gd:1818`), set pieces as room events (`set_pieces.json`, `quest_authority.gd:522`). No cutscene layer (no letterbox, camera move or scripted staging) | P6 |
@@ -89,10 +89,10 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| M10 | A researched item-count target | Missing | No research page on item counts. The build has 454 defined items (`data/items.json`: 58 tools, 46 beast parts, 44 materials, 44 cores, 32 pills, 27 legend pieces, …) and generates gear by band instead of naming it (13 grade bands in `data/stats.json` `grade_bands`, slot shares, 16 affixes in `data/affixes.json`) | P7 |
+| M10 | A researched item-count target | Present | `docs/item_plan.md` §2: a target of 481 pieces through v1.3 (264 named), per zone and archetype, set against today's counts (§1) | P7 |
 | M11 | Items organised by slot, rarity, realm, element, path synergy and set | Partial | Grades and bands, item levels, affixes, weapon families, three sockets on Sage gear, five sets (`data/sets.json`: `jade_current`, `cloudpiercing`, `mudwater`, `drowned_abbot`, `crane`). No element or path tag on gear; five sets for three zones | P7 |
 | M12 | Distinct build archetypes each with a full gear path | Partial | The archetypes exist as systems (S48 paths, the body ladder, ten weapon families, the Alchemy and Beast Taming Daos), but gear is the same banded set for everyone; only the legendary chains (`legendary_chains.json`) are family-specific | P7 |
-| M13 | An Item Wiki, one entry per item (icon, slot, stats, rarity, requirement, sources, lore) | Missing | No wiki page. The in-game Codex Collection tab (`codex_page.gd`) lists items found; `desc` lines exist on items but no source list | P7 |
+| M13 | An Item Wiki, one entry per item (icon, slot, stats, rarity, requirement, sources, lore) | Present | `docs/wiki/items.md`: all 614 items with icon, grade, iLv, stats or effect, requirement, description and every source with its rate, written by `tools/dev/wiki.py` | P7 |
 
 #### Player-experience playthrough (Master 3)
 
@@ -135,14 +135,14 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | M33 | Drop rates balanced by rarity and tier | Partial | `LootRules` and per-table chances; no documented balance pass and no `balance_sim` check on drops | P7 |
 | M34 | A sprite audit of NPCs, equipment, terrain and monsters | Partial | 68 creature sheets for 111 enemies (`data/creature_art.json`), 749 icons, `docs/art-contracts.md`, the animation contract tests and the compatibility gallery. No gap list | P7 |
 | M35 | Enemy sprite diversity per region | Partial | Eleven Act III sheets drawn ahead (CHANGELOG 1.2 A); many valley foes share a sheet with a dye. A per-region count is not written | P7 |
-| M36 | A Monster & Drops Wiki | Missing | The in-game Collection tab shows found beasts (`enemies.json` `collection`); no page with full drop tables | P7 |
-| M37 | Every item has a source; every monster is in the wiki with its drops | Partial | `data_validation` checks references exist; it does not check that every item is reachable from a drop, recipe, shop or quest | P7 |
+| M36 | A Monster & Drops Wiki | Present | `docs/wiki/monsters.md`: all 121 enemies by zone with sheet, spawns, level band, stats, attacks, phases and full drop tables | P7 |
+| M37 | Every item has a source; every monster is in the wiki with its drops | Partial | `data_validation` `item_source_suite` checks every item has a source or a `source` mark; 43 known gaps (`KNOWN_SOURCE_GAPS`) are sourced in the P7b data work, and the list may only shrink | P7 |
 
 #### Boss design (Master 7)
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| M38 | Research on MapleStory and Idleon boss fights | Missing | No research page | P9 |
+| M38 | Research on MapleStory and Idleon boss fights | Present | `docs/research/ui_reference_notes.md` §11 (boss presentation, sources R23–R30) and `docs/boss_design.md` | P9 |
 | M39 | Phases, telegraphs, arena mechanics, enrage and reward loops on every boss | Partial | 11 bosses; 8 have `phases` (a summon at 60 %, enrage at 30 %), every attack has `windup_s` / `active_s` / `recover_s` and a "!" tell (`enemy_view.gd:178`), ground markers on the bombard and broadsides, Presence and Sphere clashes (v1.2). `the_reflection`, `elder_gu` and `hollow_behemoth` have no phases; no boss demands movement by arena geometry | P1, P9 |
 | M40 | Re-runnable boss rewards | Partial | Dungeon keys, field boss timers, the Trial Tower and Beast Kings; no per-boss reward loop | P9 |
 
@@ -150,14 +150,14 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| M41 | A research page on the Douluo Dalu soul-ring system | Missing | — | P8 |
-| M42 | An adapted system in Jade River's world | Missing | Nothing like it. Adjacent pieces to build on: `beast_rank` 1–9 on every enemy, 44 core items and the Core Exchange, pets devouring cores (`pet_authority.gd:556`), Bestiary Leaves per species (V10b), Beast Kings | P8 |
+| M41 | A research page on the Douluo Dalu soul-ring system | Present | `docs/research/soul_band_research.md` | P8 |
+| M42 | An adapted system in Jade River's world | Partial | Designed: `docs/soul_bands_design.md` (Soul Bands, unlocked at Spirit Awakening 1, §11 decisions). Built with v1.3 (P8b) | P8 |
 
 #### Theming and realm naming (Master 9)
 
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
-| M43 | Realms renamed to Qi Refining, Foundation Establishment, Golden Core, Nascent Soul, … | Missing (deliberately; conflict C1) | 19 great realms with Jade River's own names, Mortal → Bone Forging → Qi Kindling → Qi Unfurling → Heart Tempering → Cloud Stride → Spirit Awakening → Heaven Glimpse → Sage → Sage Sovereign → Will Manifest → Sphere Lord → Law Touching → … → World Genesis (`data/realms.json`), used by quests, strings, docs and Build Prompt v2 | P10 |
+| M43 | Realms renamed to Qi Refining, Foundation Establishment, Golden Core, Nascent Soul, … | Present (as C1) | The ladder keeps its names; the Codex's `old_scrolls` entries give the old scrolls' name for each great realm (`tools/data/story.py`, `docs/realm_old_names.md`), granted by the account's highest realm | P10 |
 | M44 | Everything wuxia-leaning shifted toward xianxia | Partial | The world is already immortal cultivation (Qi, realms, tribulations, sects, Daos, heavens, lifespans); `README.md` calls it "wuxia/xianxia" and two atlases are named `wuxia-props-v4.png` and `wuxia-buildings-v4.png`. No text sweep has been done | P10 |
 
 #### The core cultivation loop (Master 10)
@@ -165,8 +165,8 @@ part is missing; **Missing** means nothing like it exists. Evidence names the fi
 | # | Item | Status | Evidence | Phase |
 |---|---|---|---|---|
 | M45 | Cultivate converts time into Qi; Qi-rich places are more efficient | Present | `ProgressionRules.meditation_rate` × the room's `qi_density`, Qi springs, ambient Qi, seclusion with its 12-hour cap | — |
-| M46 | Stages Early / Middle / Late / Peak with a bottleneck at each | Partial (conflict C3) | Each great realm has up to nine sub-levels, each ending in a bottleneck ("tap Cultivate to break", `hud.gd:720`), with the Stored Qi cap. There are no four named stages | P10 |
-| M47 | Minor breakthroughs use a stage pill by default, other resources sometimes | Partial (conflict C4) | A minor breakthrough is a tap at the bottleneck; pills, support pills and vessels raise the odds and add marks; some stages ask for an item (`qi_refining_pill` at `realms.json:758`) | P10 |
+| M46 | Stages Early / Middle / Late / Peak with a bottleneck at each | Partial (conflict C3) | `docs/cultivation_loop.md` §14: Early 1–3, Middle 4–6, Late 7–8, Peak 9 as bands of the nine sub-levels; drawn on the ascent in P5b | P10 |
+| M47 | Minor breakthroughs use a stage pill by default, other resources sometimes | Present (conflict C4) | `docs/cultivation_loop.md` §7 and §13 F3: the minor step stays a free tap; a stage pill, if wanted, needs a `stage_requirements` field read only for minor steps | P10 |
 | M48 | Major breakthroughs: elixir, materials, sometimes a trial; quality affects success and stats | Partial | `major_breakthrough.requirements` per realm (pills, body level, methods, the Heart Trial, Heaven's Cleansing, Core Forging), the risk index and success chance, pill marks +2 % each, the Core Forging grade and heavenly tribulation (S48). Found in P10 (`docs/cultivation_loop.md` §13): a pill's quality and marks change its potency (the Qi it gives, `inventory_authority.gd:386-390`), and stats only through the Core Forging grade; they do not change the success chance. Planned: the breakthrough pill's quality as a term of the risk index, with v1.3 | — |
 
 #### QA pass 2 and the Full Review (Master 11)
