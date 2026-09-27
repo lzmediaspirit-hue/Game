@@ -125,6 +125,7 @@ func _main() -> void:
 	await map_suite()
 	await techniques_page_suite()
 	fixes_suite()
+	hand_in_suite()   # on the character fixes_suite made
 	respawn_suite()
 	early_game_suite()
 	mockup_fixes_suite()
@@ -10666,6 +10667,82 @@ func emotes_suite() -> void:
 	if not had: done.erase("valley_champion")
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)
+# ------------------------------------------------------------------ quest hand-ins
+## Turning a quest in hands over exactly the items it asks for, with its reward, and cannot be done without them; an
+## objective that only counts takes nothing. Every quest that asks for items is turned in here.
+func hand_in_suite() -> void:
+	var c = Game.active()
+	check(c != null, "a character to turn quests in with")
+	if c == null: return
+	var q0: Dictionary = c.quests.snapshot()
+	var inv0: Dictionary = c.inventory.snapshot()
+	var handing := 0
+	for q in ContentDB.all("quests"):
+		var qid := str(q.id)
+		var gives: Array = QuestAuthority.handover(q)
+		var counted: Array = q.objectives.filter(func(o): return str(o.kind) in ["collect", "deliver"] and not QuestAuthority.hands_over(o))
+		if gives.is_empty() and counted.is_empty(): continue
+		if not gives.is_empty(): handing += 1
+		var asked := {}   # item -> what the objectives ask for, handed over or not
+		for o in q.objectives:
+			if str(o.kind) in ["collect", "deliver"]: asked[str(o.item)] = int(asked.get(str(o.item), 0)) + int(o.get("count", 1))
+		var rewarded := {}
+		for r in q.get("rewards", []):
+			if str(r.kind) == "grant_item": rewarded[str(r.item)] = int(rewarded.get(str(r.item), 0)) + int(r.get("count", 1))
+		_hand_in_ready(c, q)
+		# One short of the first item handed over: refused, and nothing leaves the bag.
+		var short := "" if gives.is_empty() else str(gives[0].item)
+		for item in asked: Game.inventory.apply_add(c.id, item, int(asked[item]) - 1 if item == short else int(asked[item]) + 2, "test")
+		GameEvents.flush()
+		if not gives.is_empty():
+			c.quests.active[qid].state = "ready"
+			var before: int = c.inventory.count(str(gives[0].item))
+			var no: Dictionary = Game.quest.hand_in(c, qid)
+			check(not no.ok and str(no.get("reason", "")) == "missing_items" and str(no.get("text", "")).contains(ContentDB.item_name(short)),
+				"%s: cannot be turned in one %s short, and says what is missing (%s)" % [qid, short, no.get("text", no.get("reason", "ok"))])
+			check(c.quests.active.has(qid) and c.inventory.count(str(gives[0].item)) == before and not c.quests.done.has(qid),
+				"%s: a refused hand-in takes nothing and gives nothing" % qid)
+			Game.inventory.apply_add(c.id, short, 3, "test")
+			GameEvents.flush()
+		# With all of it (and two of each to spare): exactly what is asked leaves, the reward arrives with it.
+		c.quests.active[qid].state = "ready"
+		var said: Dictionary = Game.quest.talk(c, str(Game.quest.hand_in_npc(c, q))) if str(Game.quest.hand_in_npc(c, q)) != "" else {}
+		if not gives.is_empty() and said.get("dialogue", {}).get("quest", "") == qid:
+			check(str(said.dialogue.choices[0].text).contains(QuestAuthority.handover_text(gives)), "%s: the hand-in choice names what it gives (%s)" % [qid, said.dialogue.choices[0].text])
+		c.quests.active[qid].state = "ready"   # talking re-counts objectives this probe marked met without playing them
+		var r: Dictionary = Game.quest.hand_in(c, qid)
+		check(r.ok and c.quests.done.has(qid), "%s: turned in with the items (%s)" % [qid, r.get("reason", "")])
+		for item2 in asked:
+			var gone := 0
+			for g in gives.filter(func(x): return str(x.item) == item2): gone = int(g.count)
+			var left: int = c.inventory.count(item2)
+			check(left == int(asked[item2]) + 2 - gone + int(rewarded.get(item2, 0)),
+				"%s: %s left %d of %d (%s)" % [qid, item2, left, int(asked[item2]) + 2, "handed over %d" % gone if gone > 0 else "only counted, none taken"])
+		GameEvents.flush()
+	check(handing >= 30, "every quest that hands items over was turned in (%d)" % handing)
+	# The toast and the dialogue say what went: "Gave 5 Willow Moss, 3 Grey Hide".
+	var errand := QuestAuthority.handover_text(QuestAuthority.handover(ContentDB.entry("quests", "mei_qings_errand")))
+	check(errand == "5 Willow Moss, 3 " + ContentDB.item_name("grey_hide"), "Mei Qing's Errand hands over 5 Willow Moss and 3 Grey Hide (%s)" % errand)
+	check(Tx.t("hud.gave") % "5 Willow Moss" == "Gave 5 Willow Moss", "the completion toast reads Gave 5 Willow Moss")
+	# A piece being worn never goes silently: the hand-in counts the bag only and says to take it off first.
+	var worn := {"id": "worn_test", "name": "Worn", "kind": "side", "hand_in": "", "rewards": [],
+		"objectives": [{"kind": "collect", "item": "plain_straw_hat", "count": 1, "consume": true, "text": "Bring a straw hat"}]}
+	_hand_in_ready(c, worn)
+	c.quests.active["worn_test"].def = worn
+	c.inventory.equipped["hat"] = {"uid": 9901, "id": "plain_straw_hat"}
+	var w: Dictionary = Game.quest.hand_in(c, "worn_test")
+	check(not w.ok and str(w.reason) == "item_worn" and c.inventory.equipped["hat"] != null, "a worn hat is not handed over; the player is told to take it off (%s)" % w.get("text", ""))
+	GameEvents.flush()
+	c.quests.restore(q0)
+	c.inventory.restore(inv0)
+
+## An empty bag and the quest ready to hand in, as though its objectives were met.
+func _hand_in_ready(c, q: Dictionary) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	c.inventory.key_items = []
+	c.quests.active = {str(q.id): {"state": "ready", "progress": q.objectives.map(func(o): return int(o.get("count", 1))), "accepted_tick": 0}}
+	c.quests.done.erase(str(q.id))
+
 func save_suite() -> void:
 	var folder := "user://save_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)

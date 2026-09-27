@@ -231,7 +231,7 @@ PAYLOAD = {
     "boss_defeated": ["room", "enemy", "role", "clean"],
     "field_boss_defeated": ["room", "enemy"],
     "loot_dropped": ["room", "items", "x", "y", "source", "first_weapon"],
-    "quest_completed": ["actor", "quest", "name", "kind"],
+    "quest_completed": ["actor", "quest", "name", "kind", "gave"],
     "room_event_started": ["actor", "room", "event", "duration"],
     "fortune_encounter": ["actor", "card", "trigger", "room"],
     "treasure_birth_announced": ["room", "item", "ends", "first"],

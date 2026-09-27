@@ -3242,5 +3242,10 @@
  "hud.use.stat.insight_rate": "Insight rate",
  "hud.use.stat.accumulation_rate": "Cultivation rate",
  "hud.use.stat.will": "Will",
- "topdown.caption": "Top-down prototype · Phase 1 · placeholder body · no combat yet"
+ "topdown.caption": "Top-down prototype · Phase 1 · placeholder body · no combat yet",
+ "hud.gave": "Gave %s",
+ "sim.quest.hand_in_giving": "Hand in: %s (give %s)",
+ "sim.quest.item_count": "%d %s",
+ "sim.quest.still_need": "You still need %s.",
+ "sim.quest.take_off_first": "Take off your %s first to hand it over."
 }

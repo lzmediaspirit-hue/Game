@@ -2152,7 +2152,7 @@ func sec_ae4() -> void:
 
 ## S18 Starsea travel through the real intents: walk to the route's dock, set sail, fight off
 ## whatever boards the vessel while the crossing runs, and make port at the far end.
-func sail(route: String) -> bool:
+func sail(route: String, tries := 2) -> bool:
 	var v := ContentDB.entry("voyages", route)
 	if room() != str(v.get("from", "")) and not travel(str(v.get("from", ""))): return false
 	var docks := objects_of("starsea_dock", "route", route)
@@ -2171,6 +2171,10 @@ func sail(route: String) -> bool:
 			fight(str(foes[0].def_id), 1, 20.0, 0.25)
 		if Game.combat.is_wounded(c().id): break
 	revive_if_needed()
+	# Chasing a comet sparrow past the rail drops you overboard, back on the dock you left: board again, as a player would.
+	if room() == str(v.get("from", "")) and tries > 1:
+		print("  overboard on ", route, "; boarding again")
+		return sail(route, tries - 1)
 	return room() == str(v.get("to", ""))
 
 ## Hold a set piece's room event: fight what it sends (its win-on-kill foe first) until it ends.
