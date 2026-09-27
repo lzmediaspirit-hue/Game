@@ -33,6 +33,7 @@ func _main() -> void:
 	pets_suite()
 	weekly_suite()
 	pills_suite()
+	consumable_feedback_suite()
 	treasures_suite()
 	hazards_suite()
 	starsea_suite()
@@ -7861,6 +7862,125 @@ func _use_fresh(c, index: int) -> Dictionary:
 	c.cultivator.toxicity = 0.0
 	c.cultivator.pill_memory.clear()
 	return Game.inventory.use_item(c, index, true)
+
+## Every consumable says what it did (the Herbal Tea bug: drunk at full HP in the prologue it showed nothing). Each
+## tea, pill, herb, core, draught, food and incense, used at half HP, announces item_used with the parts the HUD and the
+## world show (a heal number, a Qi number, a buff, a status, a cure, the pill's toxicity), all in words from the strings;
+## what runs on is in the status row's sources (a heal over time, a timed buff, a status); the HUD writes the log line
+## before the log is revealed; and the tea at full HP still says "HP already full" and shows its heal running.
+const CONSUMABLE_TYPES := ["pill", "food", "herb", "core", "draught"]
+
+func consumable_feedback_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var keep: Dictionary = c.snapshot()
+	var realm_was: String = c.cultivator.realm_key
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	var heard: Array = []
+	var listen := func(n: String, pl: Dictionary):
+		if n == "item_used": heard.append(pl)
+	GameEvents.event.connect(listen)
+	var silent: Array = []
+	var unnamed: Array = []
+	var unlisted: Array = []
+	var unlogged: Array = []
+	var tested := 0
+	for def in ContentDB.all("items"):
+		if not def.has("use") or str(def.get("use_action", "")) != "": continue
+		var kinds: Array = (def.use as Array).map(func(u): return str(u.get("kind", "")))
+		var consumable: bool = str(def.get("type", "")) in CONSUMABLE_TYPES
+		for k in kinds:
+			if k in ["heal", "restore_resource", "add_modifier", "add_composure", "cleanse_hollowing", "apply_status"]: consumable = true
+		if not consumable: continue
+		var id := str(def.id)
+		for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+		c.cultivator.realm_key = _realm_for_grade(str(def.get("grade", "plain")))   # a pill two grades up only injures
+		c.cultivator.vows = []
+		c.cultivator.treasure_uses = {}
+		c.cultivator.injuries = {"body": {"severity": 1, "time_left": 600.0}, "meridian": {"severity": 1, "time_left": 600.0}, "soul": {"severity": 1, "time_left": 600.0}}
+		c.pools.statuses = [{"id": "poison", "remaining": 5.0, "power": 1.0, "delay": 0.0}]
+		Game.combat.hots.erase(c.id)
+		Game.combat.refresh_stats(c.id)
+		c.pools.hp = c.pools.max_hp * 0.5
+		c.pools.qi = c.pools.max_qi * 0.5
+		c.pools.composure = 50.0
+		c.pools.hollowing = 30.0
+		Game.inventory.apply_add(c.id, id, 1, "test")
+		heard.clear()
+		hud.log_lines = []
+		var r: Dictionary = _use_fresh(c, c.inventory.first_index(id))
+		GameEvents.flush()
+		tested += 1
+		if not r.get("ok", false) or heard.is_empty():
+			silent.append("%s (%s)" % [id, str(r.get("reason", "no item_used"))])
+			continue
+		var parts: Array = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {}))
+		if parts.is_empty(): silent.append(id + " (no parts)")
+		for part in parts:
+			if "hud.use." in str(part.text) or "hud.use." in str(part.get("float", "")): unnamed.append("%s: %s" % [id, part.text])
+		var line: String = str(hud.log_lines[-1].text) if not hud.log_lines.is_empty() else ""
+		if not (line.begins_with(ContentDB.item_name(id)) and hud.log_lines[-1].get("always", false)): unlogged.append("%s: %s" % [id, line])
+		for u in def.use:
+			var k := str(u.get("kind", ""))
+			if k == "heal" and float(u.get("over_s", 0)) > 0.0 and Game.combat.hots_of(c.id).is_empty(): unlisted.append(id + " heal over time")
+			if k == "add_modifier" and not c.stats.modifiers.any(func(m): return float(m.get("remaining", 0)) > 0.0): unlisted.append(id + " buff")
+			if k == "apply_status" and not c.pools.statuses.any(func(st): return str(st.id) == str(u.status)): unlisted.append(id + " status")
+	check(tested >= 60, "consumables: every tea, pill, herb, core, draught and food is tried (%d)" % tested)
+	check(silent.is_empty(), "consumables: each one used announces what it did (%s)" % str(silent.slice(0, 6)))
+	check(unnamed.is_empty(), "consumables: every part is named from the strings (%s)" % str(unnamed.slice(0, 6)))
+	check(unlogged.is_empty(), "consumables: the HUD writes a log line naming the item, shown before the log is revealed (%s)" % str(unlogged.slice(0, 6)))
+	check(unlisted.is_empty(), "consumables: what runs on is there for the status row, with its time (%s)" % str(unlisted.slice(0, 6)))
+	# The prologue's case: the tea at full HP.
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.combat.hots.erase(c.id)
+	c.pools.hp = c.pools.max_hp
+	Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	heard.clear()
+	_use_fresh(c, c.inventory.first_index("herbal_tea"))
+	GameEvents.flush()
+	var tea: Array = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {})) if not heard.is_empty() else []
+	check(not tea.is_empty() and str(tea[0].text) == Tx.t("hud.use.full") % Tx.t("hud.use.pool.hp"), "the tea at full HP says so (%s)" % str(tea))
+	var hot: Array = Game.combat.hots_of(c.id)
+	check(hot.size() == 1 and str(hot[0].source) == "item:herbal_tea" and near(float(hot[0].left), 5.0), "and its heal runs 5 s under the tea's icon (%s)" % str(hot))
+	# Half HP: the number is the heal the tea gives, a fifth now and the rest over 5 s.
+	Game.combat.hots.erase(c.id)
+	c.pools.hp = c.pools.max_hp * 0.5
+	c.pools.cooldowns.clear()
+	Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
+	heard.clear()
+	var hp0: float = c.pools.hp
+	_use_fresh(c, c.inventory.first_index("herbal_tea"))
+	GameEvents.flush()
+	var gives := CombatAuthority.heal_total(c, 0.25, 0.0)
+	tea = UiKit.use_parts(heard[-1].get("effects", []), heard[-1].get("gains", {})) if not heard.is_empty() else []
+	check(not tea.is_empty() and str(tea[0].get("float", "")) == Tx.t("hud.use.gain") % [UiKit.fmt(gives), Tx.t("hud.use.pool.hp")] and near(c.pools.hp - hp0, gives * 0.2),
+		"the tea at half HP: +%s over the player, a fifth at once (%s)" % [UiKit.fmt(gives), str(tea)])
+	GameEvents.event.disconnect(listen)
+	hud.player = null
+	stub.free()
+	hud.queue_free()
+	Game.combat.hots.erase(c.id)
+	c.stats.modifiers = c.stats.modifiers.filter(func(m): return float(m.duration) < 0)
+	c.stats.dirty = true
+	c.pools.statuses = []
+	c.restore(keep)
+	c.cultivator.realm_key = realm_was
+	Game.combat.refresh_stats(c.id)
+
+## The first realm whose Level's grade is at most one under `grade` (so using an item of it is no grade-gap injury).
+func _realm_for_grade(grade: String) -> String:
+	var want := StatRules.grade_index(grade) - 1
+	for rr in ContentDB.all("realms"):
+		if StatRules.grade_index(LootRules.grade_for_ilv(maxi(1, int(rr.get("level", 1))))) >= want: return str(rr.key)
+	return "heart_tempering_1"
 
 func pills_suite() -> void:
 	var c = Game.active()

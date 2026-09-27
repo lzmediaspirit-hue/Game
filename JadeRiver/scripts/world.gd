@@ -720,6 +720,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("motes", player.position + Vector2(0, -10), {"color": UiKit.QI if not p.get("spring", false) else UiKit.BRIGHT_JADE, "dur": 1.0})
 			elif Game.active():
 				fx.add("motes", player.position + Vector2(0, -10), {"color": Color("f4ecd5"), "dur": 1.0})
+		"item_used":
+			# A tea, a pill, a draught, a food: what it did rises over the player (the heal it gives, the Qi, the buff),
+			# with motes in its colour; a heal at full HP says "HP already full" rather than nothing.
+			if str(p.get("actor", "")) == Game.active_id and player:
+				var parts := UiKit.use_parts(p.get("effects", []), p.get("gains", {}))
+				var k := 0
+				for part in parts:
+					if k >= 3: break
+					fx.label(player.position + Vector2(0, -130 - 24 * k), str(part.get("float", part.text)), part.color, 26 if part.has("float") and k == 0 else 18)
+					k += 1
+				if not parts.is_empty(): fx.add("motes", player.position + Vector2(0, -10), {"color": parts[0].color, "dur": 1.0})
 		"player_revived":
 			fx.add("flash", player.position + Vector2(0, -40), {"color": UiKit.BRIGHT_JADE, "radius": 60, "dur": 0.6})
 		"projectile_ended":

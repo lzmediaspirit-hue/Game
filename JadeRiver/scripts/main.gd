@@ -584,6 +584,18 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--fan=") and is_instance_valid(hud):
 			hud.fan_open = str(a).trim_prefix("--fan=") == "open"
 			hud.fan_rest_open = hud.fan_open
+		if str(a).begins_with("--use-item=") and Game.active() != null and is_instance_valid(hud):
+			# Debug tools (S38): --use-item=item[:hp] sets the HP share (default as it is), puts the item in Quick-use and
+			# taps it through the HUD, as the player does; with --capture the shot is taken 0.5 s after (feedback previews).
+			var ua := str(a).trim_prefix("--use-item=").split(":")
+			var uc = Game.active()
+			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection
+			if uc.inventory.count(ua[0]) <= 0: Game.inventory.apply_add(uc.id, ua[0], 1, "debug")
+			if ua.size() > 1: uc.pools.hp = uc.pools.max_hp * float(ua[1])
+			Game.submit({"type": "set_quick_use", "item": ua[0]})
+			uc.pools.cooldowns.clear()
+			hud.use_quick()
+			moment_t = 0.5
 	for a in user_args:
 		if str(a).begins_with("--moment=") and is_instance_valid(moments):
 			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
