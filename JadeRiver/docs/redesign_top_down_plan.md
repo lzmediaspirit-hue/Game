@@ -298,6 +298,116 @@ counts are what the phase has to draw.
   - the compiler's edge types.
 - **Gate:** the user plays the room on a phone and approves the feel before any art starts.
 
+### As built: Phase 1 (2026-09-27)
+
+**How to open it.** Run with `--topdown-proto` (preview saves), or on the title screen tap the version line five
+times within three seconds. From the title the prototype runs on its own saves (`user://topdown_proto_saves/`) with
+a stand-in character, so the player's own saves are never touched. Back opens the menu; the menu's exit leaves the
+prototype for the title and restores the player's saves. The side-view game is unchanged: nothing loads the new code
+unless one of these two entries is used.
+
+**The room: Riverside Square** (`data/topdown/td_proto_square.json`, 48 × 30 tiles):
+
+- a level-1 terrace with grass, a dirt path, a willow and two stone lanterns, backed by a level-3 rock cliff;
+- a flight of stairs from the paved square up to the terrace; the terrace's edge is a ledge to jump down anywhere;
+- a house on the square with a lane behind it that you walk along behind the house (the silhouette shows you);
+- a low stone wall one level high and two tiles deep that you jump onto, then walk along;
+- the river bank, and a pier with a one-tile gap (a running jump) and a three-tile gap to a landing stage
+  (dash, then Jump);
+- barrels, crates, a notice board, lanterns, reeds and a moored boat.
+
+**What was built.**
+
+| Piece | File | Notes |
+|---|---|---|
+| Room format and loader | `scripts/topdown/topdown_room.gd` (`TopdownRoom`) | `levels` rows (digit = level, `~` water), `paint` rows, `stairs` rects, `props` with footprints from the tile set. Answers the floor height at a point, the solid cells and the sort key |
+| Controller | `scripts/topdown/topdown_motor.gd` (`TopdownMotor`) | Pure simulation at 120 Hz on (x, depth y, z). Numbers from `movement.json` `topdown` |
+| View | `scripts/topdown/topdown_world.gd` (`TopdownWorld`) | The 640×360 SubViewport shown ×2, floor and water under one Y-sorted layer, the silhouette, shadow, dust and splash, the camera |
+| Player | `scripts/topdown/topdown_player.gd` | The HUD's player interface (joystick, Jump, Dodge, Attack, keyboard) over the motor, and the placeholder body |
+| Art | `tools/art/build_topdown_proto.py` → `art/topdown/*.png`, `data/topdown/proto_tileset.json` | Deterministic and original, in Jade River's palette, 1 art px = 1 viewport px, nearest neighbour |
+| Shell | `scripts/main.gd`, `scripts/shell/shell_screens.gd`, `scripts/hud.gd` | The two entries; the HUD's Dodge calls the prototype's dash; its minimap is off in the prototype (it draws side-view rooms) |
+
+**Differences from the plan as written.**
+
+- **The room is Riverside Square, not a Lotus Ferry street.** It has two walkable levels plus the cliff, stairs, a
+  ledge, two gaps, a wall to jump onto, a building to walk behind, water and props. It has no bridge to walk under, no
+  ladder and no doors yet. The user asked for this room.
+- **Drawn tiles, not flat greybox colours.** The user asked for a tile set.
+- **The motor reads the height grid itself.** It looks up cells and does not compile the grid into `WalkSurface`s for
+  `ZoneGeometry`. That compiler, and the nav graph built on it, move to Phase 2, where enemy navigation needs them.
+  `MovementSolver` and every side-view room are untouched.
+- **The Jump button only (decision 28).** There is no auto-hop. The long jump is Jump pressed during a dash or up to
+  0.12 s after it. The tiptoe band (stick ≤ 0.6 walks at 45%) is kept. Walking off any open edge drops.
+- **Water.** Water is level −1, drawn half a level (8 art px) under the ground, so a one-tile gap still shows water.
+  A walk stops at the bank; only a jump goes over water. A landing in water sinks for 0.5 s and returns the body to
+  the last spot where its whole foot box stood on one floor.
+- **Drawing.** Custom draw nodes stand in for `TileMapLayer`s: water, then the ground floor, then one Y-sorted layer
+  holding one node per raised row, one per flight of stairs, one per prop, the shadow, the body and its dust. Each
+  node's y is its explicit sort key, a multiple of 1/64 art px, and the node draws back to its screen row, so the
+  offset is exact. The viewport snaps transforms and vertices to whole pixels.
+- **Sort keys.** A raised row keys at its south edge. A flight of stairs keys at the flight's south edge. A prop keys
+  at its footprint's south edge + 0.5. A body keys at its ground y, raised to its floor's south edge + 0.25 when it
+  stands on or above a raised floor. Ties go to the higher body.
+- **Collision.** The foot box is 16 × 10 units. A corner blocks on a prop, the room's edge, water (while walking), or a
+  floor above the reach: 8 on the ground, 12 in the air (the mantle). The move is axis-separated and halves its step
+  into a wall. A corner clipped by up to 10 units is nudged round when the stick points along the move. In the air, a
+  body left inside a higher floor (the back of the foot box as it walks off a ledge) is pushed out the shorter way.
+- **Camera.** It follows the ground underfoot, never the jump arc, and follows a fall down once the body drops below
+  that ground. The look-ahead is 0.2 × velocity. It settles in 0.3 s (95%), is clamped to the room and snapped to
+  whole art px.
+- **Not yet built:** the double jump and the other movement arts, sprint, the overhang fade (this room has no
+  overhangs), the height assist, and the landing ring. The combat dodge still owns its own i-frames and cooldown; the
+  prototype's dash only records its 0.15 s of i-frames.
+- **Authorities.** The real HUD sits on the stand-in character (HP, realm, tracker, pages), but the prototype does
+  not run `Game.tick`. There is no combat, AI or position sync (Phase 2). Attack only lights its ring.
+- **The character is a placeholder.** `art/topdown/placeholder_body.png` has 32 × 48 cells, feet at (16, 46), about
+  38 art px tall. It has S, E and N rows, with W mirroring E, and idle 2, walk 4, jump 3 and dash 2 frames. The
+  manifest marks it `"placeholder": true`. The layered body, hair, clothing and weapon set follows `AGENTS.md` in
+  Phase 5.
+
+**Measured** (`rules_tests` `topdown_suite` prints them; world units, 1 art px = 2, 1 tile = 1 level = 32):
+
+| Move | Number |
+|---|---|
+| Walk | 154.0 units/s (4.8 tiles/s), 8-way analog; the diagonal is as fast |
+| Tiptoe | stick ≤ 0.6: 69.3 units/s (45%) |
+| Start / stop | full speed in 0.083 s; stop in 0.067 s over 4.0 units (2 art px), in 120 Hz steps |
+| Air control | 35% of the ground's; no input keeps the momentum |
+| Jump | impulse 400, gravity 1700: apex 47.1 units (1.47 levels), airtime 0.475 s |
+| Running jump | 73.2 units (2.3 tiles): a one-tile gap is easy; two tiles is the limit |
+| Reach | one level up (32) lands; two (64) do not; step-up without a jump 8; mantle 12 |
+| Coyote | 0.10 s: Jump 0.083 s after walking off a ledge still jumps; at 0.2 s it does not |
+| Buffer | 0.12 s: Jump 0.10 s before landing jumps on landing; 0.20 s before is dropped |
+| Dash | 96 units at 430 units/s (0.22 s); standing still it is a back-step of 46.6; i-frames 0.15 s; cooldown 2.5 s (`dodge.cooldown_s`) |
+| Long jump | Dodge, then Jump within the dash or 0.12 s after it: 142.5 units (4.5 tiles) at 300 units/s |
+| Landing | squash pose 0.1 s, dust by the fall height, the land sound from a 12-unit fall up |
+| Facing | 8-way vector; the drawn row (S, E, N, W = mirrored E) changes when the stick is 20° nearer another row |
+| Frame | perf runner: the room mounts in 142–149 ms and runs at 6.8–6.9 ms a frame (34 sorted nodes) |
+
+**Tests.** `rules_tests` `topdown_suite` has 35 checks:
+
+- walk, tiptoe and the diagonal; acceleration and stopping;
+- the apex, the airtime and the running jump;
+- one level but not two; the stairs, and their side as a wall;
+- falls; coyote time and the buffer;
+- faces, sliding along them, and corner nudges;
+- props at every height; the bank, the gaps, the splash and the reset; the long jump; the dash and the back-step;
+- sort keys (behind a row, on it, in front of it, in the air, behind and in front of the house) on the 1/64 grid;
+- facing hysteresis;
+- in the real view: the room's pieces, 640×360 ×2, the silhouette behind the house, order in front of it, whole
+  pixels for the body, shadow and camera while the motor moves in fractions, and a still camera through a jump.
+
+`perf_tests` `_topdown` holds the mount under 0.3 s and the frame under 16.6 ms.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn` under `xvfb-run`, in `docs/redesign/phase1/`):
+
+- `01_square.png`: the square under the HUD;
+- `02_behind_house_strip.png` and `02_behind_house.png`: walking behind the house;
+- `03_gap_strip.png`: the pier's one-tile gap;
+- `04_long_jump_strip.png`: dash, then Jump over three tiles;
+- `05_upper_level_strip.png` and `05_on_the_low_wall.png`: onto the low wall, the shadow on the floor below in the
+  air, then standing on top.
+
 ### Phase 2 · Combat, AI and interaction on the plane (M)
 
 - Directional hit test and auto-aim cone, 2D knockback, enemy steering and flanking, the ally follow rule, context
@@ -398,7 +508,10 @@ player build ships only whole acts in the new view.
 ## 6. Decisions for the user
 
 1. **Auto-hop and a Jump button, or auto-jump only?** Recommended: both. The movement arts (double jump, Wall-Step,
-   glide, flight) need a button.
+   glide, flight) need a button. **Decided (2026-09-27, decision 28 in `docs/roadmap_master_ui.md` §6): keep a Jump
+   button.** Touch keeps the joystick, Jump, Dodge/Guard and Attack as now. Auto-hop at speed and the dash-jump over
+   gaps may stay as extras, but jumping is always on the button. Phase 1 builds the button jump and the dash-jump,
+   and no auto-hop.
 2. **Art facings:** 5 drawn (8 facings), or stop at 3 drawn (4 facings)? Recommended: 3 first, 5 for locomotion
    later.
 3. **Character height:** ~38 art px (recommended) or keep ~50 (bigger on a phone, but less world on screen)?
