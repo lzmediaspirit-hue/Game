@@ -1,5 +1,29 @@
 # Changelog
 
+## Top-down redesign, Phase 2: fights, foes and aiming in the prototype room
+
+- **Riverside Square fights** (`docs/redesign_top_down_plan.md`, "As built: Phase 2"). The room now runs on the same
+  Combat, Enemies and World authorities as every room. Blows, techniques and the dodge work in eight directions with
+  the existing damage, Might, hit-stop, knockback (now pushing away on the plane) and i-frames. The technique forms
+  from `art/fx/` turn to the aim.
+- **Heights count.** A blow lands only on a foe whose feet are within a few units of yours: a foe a level up is out
+  of reach until you jump at it, and it cannot strike you below either. Shots fly along the ground and stop at a
+  face.
+- **Foes on the grid.** Crabs, rats and boarlets use **placeholder** sprites; their full art is Phase 3/5. They spawn
+  and respawn by the usual rules. They chase along a path over the height grid: stairs, drops, and a hop one level up
+  for the rat. They flee, leash at 600, and wait beneath a roof they cannot reach before going home. They have HP bars
+  and labels, and drop loot, with the equip popup for a better piece.
+- **Aiming** (decision 30; research in `docs/research/alabaster_dawn_2_5d.md` §3.8). A tap strikes the nearest foe in
+  front, marked by a faint ring. Hold and drag Attack or a technique to aim it: a line, a cone, a circle at a point, or
+  a circle round you, snapping to a foe near the line. Drag back onto the button to cancel.
+- **Decision 29.** Water stops a walk unless the character knows Water Skimming. Roofs and crates are floors: climb
+  from the terrace onto the new storehouse's roof, cross it, and jump down to the square. The dash cooldown stays
+  2.5 s.
+- The side-view game is unchanged. Its cast and hit effects and camera shake now come from shared `CombatFx` and
+  `ShakeRig`.
+- Tests: `topdown_suite` 62 checks (27 new). `perf_tests` holds 15+ foes and the fight's effects at 60 fps.
+  Screenshots are in `docs/redesign/phase2/`.
+
 ## Top-down redesign, Phase 1: a prototype room and the new controller
 
 - **A top-down room you can play beside the current game** (`docs/redesign_top_down_plan.md`, "As built: Phase 1").

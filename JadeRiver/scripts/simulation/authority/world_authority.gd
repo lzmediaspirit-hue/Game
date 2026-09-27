@@ -16,7 +16,7 @@ var debug_open_ways := false
 
 func intents() -> Array:
 	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor",
-		"set_auto_hunt", "auto_path"]
+		"set_auto_hunt", "auto_path", "enter_grid_room"]
 
 func subscribe() -> void:
 	# S49 mobile conventions: auto-path follows the character room to room and stops at danger.
@@ -230,6 +230,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_auto_hunt": return set_auto_hunt(c, bool(intent.get("on", false)))
 		"auto_path": return start_auto_path(c, str(intent.get("target", "")))
 		"set_sail": return set_sail(c, str(intent.get("route", "")))
+		"enter_grid_room": return enter_grid_room(c, TopdownRoom.load_room(str(intent.get("room", ""))))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ rooms
@@ -284,15 +285,36 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 	var zone_new = ContentDB.room_zone.get(room_id, "")
 	if def.get("type", "") in ["town", "sect", "home"] or def.get("town", false): c.last_town = room_id
 	_restore_object_states(c, rt)
-	_init_hazards(c, rt)
-	rt.arrival_protection = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
-	game.combat.apply_status(c.id, "spawn_protection", rt.arrival_protection, 1.0)
-	emit("room_entered", {"actor": c.id, "room": room_id, "portal": portal_id, "first_visit": first, "x": arrival.x, "y": arrival.y,
-		"facing": facing, "surface": c.position.surface, "zone": zone_new})
+	_arrive(c, rt, portal_id, arrival, facing, first, str(zone_new))
 	if zone_new != zone_old: emit("zone_entered", {"actor": c.id, "zone": zone_new})
 	if def.has("event"): _start_event(c, rt, def.event)
 	game.crafting.check_raids(c)   # S45: what came for the garden while you were away
 	return ok({"room": room_id, "x": arrival.x, "y": arrival.y, "facing": facing})
+
+## Every room's arrival: its hazards set, a moment of spawn protection, and room_entered (Enemies fills the spawns).
+func _arrive(c, rt: RoomRuntime, portal_id: String, arrival: Vector2, facing: int, first: bool, zone: String) -> void:
+	_init_hazards(c, rt)
+	rt.arrival_protection = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
+	game.combat.apply_status(c.id, "spawn_protection", rt.arrival_protection, 1.0)
+	emit("room_entered", {"actor": c.id, "room": rt.room_id, "portal": portal_id, "first_visit": first, "x": arrival.x, "y": arrival.y,
+		"facing": facing, "surface": str(c.position.get("surface", "")) if rt.topdown == null else "", "zone": zone})
+
+## Redesign Phase 2: enter a room on the top-down height grid (the prototype room). It runs on the same authorities as
+## every room (its foes, loot, fights), but it is not a place in the world yet: the character's saved position and
+## visited rooms stay as they were (their position sync is the cutover's, plan §4 Phase 7).
+func enter_grid_room(c, grid: TopdownRoom) -> Dictionary:
+	if grid.w == 0: return fail("unknown_room")
+	var old = game.room_rt.room_id if game.room_rt else ""
+	if old != "": emit("room_left", {"actor": c.id, "room": old, "portal": ""})
+	var rt := RoomRuntime.new()
+	rt.room_id = grid.id
+	rt.def = grid.runtime_def()
+	rt.topdown = grid
+	rt.next_uid = 1000
+	game.room_rt = rt
+	game.in_world = true
+	_arrive(c, rt, "", grid.spawn, 1, false, "")
+	return ok({"room": grid.id, "x": grid.spawn.x, "y": grid.spawn.y})
 
 func _ground_at(rt: RoomRuntime, p: Vector2) -> WalkSurface:
 	var best: WalkSurface = null
@@ -946,7 +968,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 	for d in drops:
 		var spread := (i - (drops.size() - 1) * 0.5) * 22.0
 		var entry := {"uid": rt.uid(), "item": str(d.get("item", "")), "count": int(d.get("count", 0)), "coins": int(d.get("coins", 0)),
-			"instance": d.get("instance", {}), "x": at.x + spread, "y": clampf(at.y + rng.randf_range(-6, 6), 626, 956), "alt": alt,
+			"instance": d.get("instance", {}), "x": at.x + spread, "y": _loot_y(rt, at.y + rng.randf_range(-6, 6)), "alt": alt,
 			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
 		entry.quality = str(d.get("instance", {}).get("quality", "common"))
 		if d.get("find", false): entry.find = true   # a rare row marked as a find (an early surprise): the rare-find moment
@@ -957,6 +979,10 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 	if not items_out.is_empty():
 		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source,
 			"first_weapon": items_out.any(func(it): return it.get("first", false))})
+
+## Where a drop lies in depth: inside the side view's walk strip, anywhere on a top-down room's plane.
+static func _loot_y(rt: RoomRuntime, y: float) -> float:
+	return y if rt.topdown != null else clampf(y, 626, 956)
 
 func pick_up(c, uid: int) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
@@ -996,7 +1022,7 @@ func tick(delta: float) -> void:
 	rt.geometry.advance(delta)
 	var st: ActorState = game.actor_state(c.id)
 	if st != null: _tick_hazard_volumes(c, rt, st, delta)
-	if st != null and st.surface != null:
+	if st != null and st.surface != null and rt.topdown == null:   # the top-down prototype keeps no position (Phase 2)
 		c.position.x = st.plane.x
 		c.position.y = st.plane.y
 		c.position.surface = st.surface.id

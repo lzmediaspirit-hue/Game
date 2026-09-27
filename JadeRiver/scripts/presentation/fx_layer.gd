@@ -30,7 +30,8 @@ func add(kind: String, pos: Vector2, extra := {}) -> void:
 	var e := {"kind": kind, "pos": pos, "t": -float(extra.get("delay", 0.0)), "dur": float(extra.get("dur", 0.4)), "color": extra.get("color", UiKit.PAPER),
 		"facing": int(extra.get("facing", 1)), "text": str(extra.get("text", "")), "size": int(extra.get("size", DEFAULTS.get(kind, {}).get("size", 20))),
 		"vel": extra.get("vel", Vector2.ZERO), "radius": float(extra.get("radius", DEFAULTS.get(kind, {}).get("radius", 30))), "count": int(extra.get("count", 0)),
-		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10))}
+		"height": float(extra.get("height", 0.0)), "style": str(extra.get("style", "square")), "core": float(extra.get("core", 10)),
+		"turn": float(extra.get("turn", 0.0))}   # a slash's or a form's turn off the facing (the top-down aim, redesign Phase 2)
 	if kind == "tint" and not _tint_allowed(e): return
 	if kind == "anim":
 		for k in ["form", "row", "scale", "scale_y", "start", "travel", "tiles", "alpha"]: e[k] = extra.get(k)
@@ -76,6 +77,7 @@ func play_form(form: String, element: String, tier: int, pos: Vector2, facing: i
 	var e := {"form": form, "row": form_row(element, band), "scale": float(extra.get("scale", 1.0)), "start": float(extra.get("start", 0.0)),
 		"scale_y": float(extra.get("scale_y", extra.get("scale", 1.0))),
 		"travel": extra.get("travel", Vector2.ZERO), "tiles": int(extra.get("tiles", 1)), "alpha": float(extra.get("alpha", 1.0)), "facing": facing,
+		"turn": float(extra.get("turn", 0.0)),
 		"delay": float(extra.get("delay", 0.0)), "dur": float(a.frames) / float(a.fps) - float(extra.get("start", 0.0))}
 	if e.dur <= 0.0: return {}
 	add("anim", pos, e)
@@ -87,12 +89,12 @@ static func form_frame(a: Dictionary, t: float) -> int:
 
 ## Draw one frame of a form sheet: `anchor` on `at`, mirrored for a left facing, `scale` whole halves (a stretched line
 ## keeps `scale_y` and takes its exact length along the reach).
-func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0) -> void:
+func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
 	var tex := SpriteCache.tex(str(a.file))
 	if tex == null: return
 	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
 	var anchor := Vector2(float(a.anchor[0]), float(a.anchor[1]))
-	draw_set_transform(at.snapped(Vector2(2, 2)), 0.0, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
+	draw_set_transform(at.snapped(Vector2(2, 2)), turn, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
 	draw_texture_rect_region(tex, Rect2(-anchor, cell), Rect2(Vector2(frame * cell.x, row * cell.y), cell), Color(1, 1, 1, alpha))
 	draw_set_transform(Vector2.ZERO)
 
@@ -183,7 +185,7 @@ func _draw() -> void:
 				var pts := PackedVector2Array()
 				for i in 9:
 					var ang := lerpf(-1.1, 1.0, i / 8.0)
-					pts.append(e.pos + Vector2(cos(ang) * f, sin(ang)) * float(e.radius))
+					pts.append(e.pos + Vector2(cos(ang) * f, sin(ang)).rotated(float(e.turn)) * float(e.radius))
 				draw_polyline(pts, Color(c, 1.0 - k), 6.0 * (1.0 - k) + 2.0)
 				draw_polyline(pts, Color(1, 1, 1, 0.7 * (1.0 - k)), 2.0)
 			"dust":
@@ -342,7 +344,8 @@ func _draw() -> void:
 					var head: Vector2 = e.pos + (e.travel as Vector2) * k
 					var s := float(e.scale)
 					for i in maxi(1, int(e.tiles)):
-						draw_form(a, head + Vector2(float(e.facing) * i * float(a.cell[0]) * s, 0), frame, int(e.row), int(e.facing), s, float(e.alpha), float(e.scale_y))
+						draw_form(a, head + Vector2(float(e.facing) * i * float(a.cell[0]) * s, 0).rotated(float(e.turn)), frame, int(e.row), int(e.facing), s,
+							float(e.alpha), float(e.scale_y), float(e.turn))
 
 ## A hit spark (§5.2, §5.6): `count` bits flying out to `radius` (its tier's reach; 28 at tier 1), `size` px shrinking
 ## to 2, and a white core of `core`; the style draws them as squares, rising embers, falling shards, ink drops falling
@@ -539,9 +542,22 @@ func _draw_note(at: Vector2, col: Color, alpha: float, sc: float) -> void:
 static func _hash(i: int, salt: int) -> float:
 	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
 
+## A shot on the top-down plane (redesign Phase 2) flies along its `aim`: its drawing turns to it, kept upright by
+## mirroring the ones that fly left.
 func _draw_projectile(p: Dictionary) -> void:
 	var pos := Vector2(float(p.x), float(p.y) - float(p.alt)).snapped(Vector2(2, 2))
-	var dir := float(p.dir)
+	if not p.has("aim"):
+		_draw_shot(p, pos, float(p.dir), 0.0)
+		return
+	var aim: Vector2 = p.aim
+	var dir := 1.0 if aim.x >= 0.0 else -1.0
+	var turn := (aim * dir).angle()
+	draw_set_transform(pos, turn)
+	_draw_shot(p, Vector2.ZERO, dir, turn, pos)
+	draw_set_transform(Vector2.ZERO)
+
+## `pos` in the current transform; `turn` and `at` (the shot's place) for a form's bolt, which sets its own.
+func _draw_shot(p: Dictionary, pos: Vector2, dir: float, turn: float, at := Vector2.INF) -> void:
 	# Decision 23: a technique's Qi bolt is its form's projectile loop (arc, volley, seeker, return), in its element's
 	# row; the weapon arts (an arrow, a fan, a note, a needle, the released jian) stay their own drawings.
 	if str(p.get("art", "")).begins_with("qi_") and p.has("technique"):
@@ -550,7 +566,9 @@ func _draw_projectile(p: Dictionary) -> void:
 		if a.has("bolt"):
 			var b: Dictionary = a.bolt
 			var band := band_of(int(t.get("vfx", {}).get("tier", 1)))
-			draw_form(b, pos, int(float(p.get("travelled", 0.0)) / 24.0) % int(b.frames), form_row(str(p.get("element", "none")), band), int(dir), 1.0 if band < 2 else 1.5)
+			draw_form(b, pos if at == Vector2.INF else at, int(float(p.get("travelled", 0.0)) / 24.0) % int(b.frames), form_row(str(p.get("element", "none")), band), int(dir),
+				1.0 if band < 2 else 1.5, 1.0, -1.0, turn)
+			if at != Vector2.INF: draw_set_transform(at, turn)
 			return
 	match str(p.get("art", "arrow")):
 		"arrow":

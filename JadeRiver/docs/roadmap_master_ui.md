@@ -435,5 +435,16 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     built: Phase 1").
 
 29. **Top-down movement (Phase 1 review):** the dash cooldown (2.5 s) stays; walking stops at the water's edge (walking on water
-    comes from a special skill); the player can jump off rooftops (roofs are standable height levels).
+    comes from a special skill); the player can jump off rooftops (roofs are standable height levels). Built in Phase 2:
+    water-walking is gated on the Water Skimming art (off by default); the house, the storehouse and the crates have
+    standable tops (the plan's "As built: Phase 2").
+30. **Aiming in the top-down view (2026-09-27, Phase 2).** Research first (`docs/research/alabaster_dawn_2_5d.md` §3.8:
+    CrossCode aims freely with no lock-on; Alabaster Dawn has a held aim for ranged; mobile games tap to auto-target and
+    drag from the button to aim). Built: a tap attacks or casts at a soft lock (the nearest foe in a 120° cone round the
+    facing, a faint ring under it); Attack or a technique held and dragged aims along the drag, snapping to a foe within
+    15°, and fires on release; each technique shows its form on the ground (a line for thrust, volley, wave and shots, a
+    cone for sweep and arc, a circle at a point within reach for burst, rain and pillar, a circle round the caster for
+    domain and ward); dragging back onto the button cancels. It works left-handed and under Reduce motion, adds no new
+    button and draws nothing in the HUD's clear zone. **Still open:** extra actions on drag zones of the Attack button;
+    the proposal is in the plan's "As built: Phase 2" and waits for the user.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

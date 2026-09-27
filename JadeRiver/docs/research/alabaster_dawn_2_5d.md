@@ -298,6 +298,30 @@ nothing, this page says so.
 | Weapons | One melee and ranged kit, with elements | Eight weapons, two per element, switched with the element ([S22]) | Confirmed |
 | Height reading | A known complaint | Same complaint; the perspective camera is meant to help ([S18]) | Confirmed |
 
+### 3.8 Aiming and targeting (added for Phase 2, decision 30)
+
+Researched 27 September 2026 with web search only; as above, no page was read in full.
+
+| Question | CrossCode | Alabaster Dawn | Label |
+|---|---|---|---|
+| Soft lock or free aim? | Free aim. There is no aim assist or lock-on on a gamepad ([A3]) | Nothing found on a lock-on; guides describe the fight as commitment and a hidden poise bar, not targeting ([A5], [S21]) | Confirmed (CrossCode) / Inferred (AD: no lock-on found) |
+| How melee picks its direction | Close to Lea the attack is melee and goes toward the cursor or the pushed direction; the developers did not make melee depend fully on the click's direction because clicks near the body land almost at random, and an option turns mouse melee off so the keys set it ([A1]) | A three-hit combo that "can hit multiple enemies around you", the last hit a double finisher ([A6]) | Confirmed (CrossCode) / Inferred (AD arcs round the body) |
+| Ranged aim | Balls go where the cursor or right stick points; the stick is pushed to its edge and its direction is the throw ([A3]). Held longer a throw charges; charged balls bounce, and the game draws the trajectory while you hold ([A4]) | A held aim button, released to fire; aiming during a jump slows time; fire can be repeated quickly without leaving the aim ([A5], [A6]) | Confirmed |
+| Melee versus ranged on one button | Within a radius of the body the attack is melee, outside it you aim and throw ([A3]); on a pad the right bumper does both ([A3]) | Separate melee and ranged buttons; shoulder buttons carry the functions so the thumbs stay on the sticks ([A6]) | Confirmed |
+| Target switching | None: with free aim you switch by pointing elsewhere ([A3]) | None found | Inferred |
+| Touch | Neither game ships on touch | — | — |
+
+**Touch practice** (mobile action games; [A7]): a floating joystick on the left; abilities in an arc at the lower
+right; *tap* casts at the auto-target; *drag from the button* aims, *release* casts, *drag back onto the button*
+cancels; a ground spell lands at the drag's distance scaled to its range, with a reticle on the ground; feedback on
+touch-down, continuous feedback while dragging, and an unambiguous commit on release.
+
+**What Jade River takes** (built in Phase 2, `TopdownAim`, `AimGesture`): a tap soft-locks the nearest foe in a
+120° cone round the facing (a phone has no cursor, and CrossCode's own melee lesson says a direction read from a
+thumb near the body is noisy); a held and dragged Attack or technique aims freely, snapping only to a foe within 15° of
+the drag; a technique's aim is drawn in its form on the ground (a line, a cone, a circle at a point within reach, or a
+circle round the caster); dragging back onto the button cancels. No charged throw and no lock-on switching yet.
+
 ---
 
 ## 4. Diagrams and pseudo-code
@@ -524,6 +548,21 @@ CrossCode technical material (the lineage):
 - [C13] CrossCode (Wikipedia) — https://en.wikipedia.org/wiki/CrossCode
 - [C14] CrossCode (The Cutting Room Floor) — https://tcrf.net/CrossCode
 
+Aiming and targeting (§3.8):
+
+- [A1] Melee: Aiming with the mouse (CrossCode Steam discussion) — https://steamcommunity.com/app/368340/discussions/1/1733213724909838994/
+- [A3] aim assist for gamepad? (CrossCode Steam discussion) — https://steamcommunity.com/app/368340/discussions/0/3806156528944690350/
+- [A4] Balls (Official CrossCode Wiki) — https://crosscode.fandom.com/wiki/Balls
+- [A5] Alabaster Dawn Beginner Combat Guide (GAMES.GG) — https://games.gg/alabaster-dawn/guides/alabaster-dawn-beginner-combat-guide/
+- [A6] Alabaster Dawn Basic Guide and FAQ (Steam guide) — https://steamcommunity.com/sharedfiles/filedetails/?id=3715211886
+- [A7] Touch Control Design: Ways of Playing on Mobile — https://mobilefreetoplay.com/control-mechanics/
+
+[A1]: https://steamcommunity.com/app/368340/discussions/1/1733213724909838994/
+[A3]: https://steamcommunity.com/app/368340/discussions/0/3806156528944690350/
+[A4]: https://crosscode.fandom.com/wiki/Balls
+[A5]: https://games.gg/alabaster-dawn/guides/alabaster-dawn-beginner-combat-guide/
+[A6]: https://steamcommunity.com/sharedfiles/filedetails/?id=3715211886
+[A7]: https://mobilefreetoplay.com/control-mechanics/
 [S1]: https://store.steampowered.com/app/3110760/Alabaster_Dawn/
 [S2]: https://www.radicalfishgames.com/presskit/sheet.php?p=alabaster_dawn
 [S3]: https://www.radicalfishgames.com/?p=7782

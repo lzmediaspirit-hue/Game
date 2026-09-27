@@ -191,10 +191,11 @@ func tick(delta: float) -> void:
 		if absf(e.knockback) > 0.5:
 			var step := e.knockback * minf(1.0, delta * 12.0)
 			var before := e.velocity
-			e.velocity = Vector2(step / delta, 0)
+			e.velocity = e.knock_dir * step / delta
 			move_enemy(e, delta)
 			e.velocity = before
 			e.knockback -= step
+		if rt.topdown != null and e.hop.is_empty() and not bool(e.def.get("flying", false)): TopdownBrain.fall(rt.topdown, e, delta)
 		_check_phases(e)
 		if e.def.get("ai", {}).get("profile", "") == "event_eel":
 			_eel(e, delta)
@@ -274,6 +275,7 @@ func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	e.surface_id = surf.id if surf else ""
 	e.home_surface = e.surface_id
 	e.altitude = surf.height_at(point) if surf else 0.0
+	if rt.topdown != null: e.altitude = rt.topdown.height_at(point)   # redesign Phase 2: the grid's floor
 	e.facing = -1 if rng.randf() < 0.5 else 1
 	e.ai = {"state": "idle", "timer": rng.randf_range(0.5, 2.0), "target": "", "attack": 0, "patrol_x": point.x, "patrol_y": point.y,
 		"hit_done": false, "phase": -1, "dash_left": 0.0, "summon_cd": 8.0}
@@ -307,6 +309,9 @@ func spawn_at(def_id: String, point: Vector2, level := -1, extra := {}) -> Enemy
 
 func move_enemy(e: EnemyState, delta: float) -> void:
 	var rt: RoomRuntime = game.room_rt
+	if rt.topdown != null:
+		TopdownBrain.move(self, e, delta)
+		return
 	var next := e.plane + e.velocity * delta
 	var b := rt.geometry.bounds
 	next = next.clamp(b.position + Vector2(16, 6), b.end - Vector2(16, 12))

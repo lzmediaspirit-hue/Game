@@ -43,8 +43,7 @@ var npc_views: Dictionary = {}
 var portal_views: Array = []
 var context: Dictionary = {}
 var up_hold := 0.0
-var shake := 0.0                    # seconds of camera shake left; add_shake is its one writer (P6 camera rig)
-var shake_k := 0.0                  # px of shake amplitude per second left
+var shake := ShakeRig.new()         # the camera's shake; add_shake is its one writer (P6 camera rig)
 var camera_hold := {}               # a moment's camera move: {target, t, in, hold, out}
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
@@ -63,6 +62,7 @@ func _ready() -> void:
 	add_child(camera)
 	fx = FxLayer.new()
 	add_child(fx)
+	combat_fx = CombatFx.new(fx, self)
 	if room_mode:
 		GameEvents.event.connect(_on_event)
 		player = Player.new()
@@ -309,8 +309,7 @@ func _process(delta: float) -> void:
 		if float(h.t) >= ends: camera_hold = {}
 	# Across at the old pace; up and down it settles in about 0.4 s after a landing.
 	camera.position = Vector2(lerpf(camera.position.x, ct.x, 1.0 - exp(-delta * 6.0)), lerpf(camera.position.y, ct.y, 1.0 - exp(-delta * 7.5)))
-	shake = maxf(0.0, shake - delta)
-	camera.offset = Vector2(randf_range(-1, 1), randf_range(-0.75, 0.75)) * shake_k * shake if shake > 0.0 else Vector2.ZERO
+	camera.offset = shake.offset(delta)
 	camera.position = camera.position.snapped(Vector2(2, 2))
 	_track_safe(delta)
 	update_occlusion()
@@ -372,88 +371,16 @@ func _fame_greeting() -> void:
 	best.bark = Tx.t("world_view.fame_greet_" + tier) % c.name
 	best.bark_time = 4.0
 
-## The camera rig's one writer of the shake (P6): the longer shake and the stronger amplitude win. `amp` is the starting
-## amplitude in px (default s × shake_amp_per_s: 4 px at 0.25 s); none with Screen shake off or Reduce motion on.
+## The camera rig's one writer of the shake (P6, ShakeRig).
 func add_shake(s: float, amp := -1.0) -> void:
-	var a := MomentRules.shake_amp(s, amp)
-	if a <= 0.0 or s <= 0.0: return
-	shake_k = maxf(shake_k if shake > 0.0 else 0.0, a / s)
-	shake = maxf(shake, s)
+	shake.add(s, amp)
 
-## P6e a technique cast at its tier (docs/moments_design.md §5): a ring at the feet (from tier 2), a wash of its
-## element over the screen (from tier 3, under the flash limiter), and its shape, drawn at the reach it really strikes
-## (§5.4): a slash, a wave along the reach, a ring at it with echo rings inside, a rain of streaks, a pillar on the foe,
-## or a ring and motes round the caster. A bolt is drawn by its projectile.
-var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
 var sim_frozen := false           # debug (--cast --capture): the simulation holds still while the effect plays, so the shot is the effect
-## Decision 23: with the technique's form animation (`vfx.anim`, data/fx_art.json) the cast plays that sheet instead of
-## the procedural shape, timed so its impact frame lands on the pose's hit frame (`windup`, the timeline's hit_at),
-## facing the cast, sized to the hitbox and at its tier's band; an area's edge (a ring at the true reach, §5.4) and
-## a heal's radius are still drawn at the reach. The procedural shapes remain for a technique without a sheet.
-func _cast(tech: String, facing: int, col: Color, windup := -1.0) -> void:
-	var t := ContentDB.entry("techniques", tech)
-	var n := MomentRules.tier_numbers("tech:" + tech)
-	var tier := int(t.get("vfx", {}).get("tier", 1))
-	var reach := float(t.hitbox.x[1])
-	var at := player.position
-	if float(n.shake_s) > 0.0: cast_shake["tech:" + tech] = true
-	if float(n.cast_ring_r) > 0.0: fx.add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
-	if float(n.tint_alpha) > 0.0: fx.add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
-	var shape := str(t.get("vfx", {}).get("shape", "strike"))
-	var form := str(t.get("vfx", {}).get("anim", ""))
-	if not FxLayer.form_spec(form).is_empty():
-		_cast_form(t, form, facing, tier, reach, at, windup)
-		if shape == "ring": fx.add("wave", at, {"color": col, "radius": reach, "size": n.wave_width, "dur": 0.45})
-		if shape == "domain" and t.has("heal_radius"): fx.add("ring", at, {"color": Color(col, 0.7), "radius": float(t.heal_radius), "dur": 0.6})
-		return
-	match shape:
-		"strike": fx.add("slash", at + Vector2(facing * 40, -50), {"color": col, "facing": facing, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
-		"wave": fx.add("talisman_wave", at + Vector2(0, -50), {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
-		"ring":
-			for i in int(n.echoes) + 1:
-				fx.add("wave", at, {"color": col, "radius": reach * [1.0, 0.7, 0.4, 0.55][i], "size": n.wave_width, "dur": 0.45, "delay": 0.08 * i})
-		"rain": fx.add("rain", at + Vector2(facing * reach * 0.5, 0), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
-			"count": MomentRules.particle_count(3 * int(t.get("hits", 1)) + 2 * tier)})
-		"pillar": fx.add("pillar", _foe_in_reach(at, facing, reach), {"color": col, "radius": 12.0 + 4.0 * tier, "height": 300.0, "dur": 0.35})
-		"domain":
-			fx.add("ring", at, {"color": col, "radius": float(t.get("heal_radius", reach)), "dur": 0.6})
-			fx.add("motes", at + Vector2(0, -10), {"color": col, "dur": 0.8})
+var combat_fx: CombatFx           # a cast's and a blow's effects (shared with the top-down room)
 
-## A form's sheet on a cast: anchored by its `at` (the caster's chest or feet, the foe's feet or chest), sized by its
-## `size` rule (band: bigger by tier, never past a strike's reach; reach: snapped down so a ring or a line never
-## passes the hitbox; tile: repeated across the reach; travel: the crest crosses the reach over its life), and
-## started so its impact frame lands on the hit frame: later when the wind-up is long, part-way in when it is short.
-func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: float, at: Vector2, windup: float) -> void:
-	var a := FxLayer.form_spec(form)
-	var band := FxLayer.band_of(tier)
-	var span := float(a.span)
-	var extra := {}
-	var s := 1.0
-	match str(a.size):
-		"band":
-			s = float(FxLayer.BAND_SCALE[band])
-			if a.get("fit", false): s = minf(s, maxf(1.0, FxLayer.snap_scale(reach * 1.15 / span, true)))   # never past the reach, never under native
-		"reach": s = maxf(1.0, FxLayer.snap_scale(reach / span, true))
-		"stretch":   # a line along the reach: its exact length, the band's height
-			s = reach / span
-			extra.scale_y = float(FxLayer.BAND_SCALE[band])
-		"tile":
-			s = 1.0 if band < 2 else 1.5
-			extra.tiles = maxi(1, ceili(reach / (float(a.cell[0]) * s)))
-		"travel":
-			s = float(FxLayer.BAND_SCALE[band])
-			extra.travel = Vector2(facing * maxf(0.0, reach - span * s * 0.5), 0)
-	extra.scale = s
-	var pos := at
-	match str(a.at):
-		"chest": pos = at + Vector2(0, -56)
-		"target": pos = _foe_in_reach(at, facing, reach)
-		"target_chest": pos = _foe_in_reach(at, facing, reach) + Vector2(facing * 30, -50)
-	if windup >= 0.0:
-		var lead := windup - float(a.impact) / float(a.fps)
-		if lead >= 0.0: extra.delay = lead
-		else: extra.start = -lead
-	fx.play_form(form, str(t.get("element", "none")), tier, pos, facing, extra)
+## P6e a technique cast at its tier (CombatFx.cast), from the player toward the nearest foe in front.
+func _cast(tech: String, facing: int, col: Color, windup := -1.0) -> void:
+	combat_fx.cast(tech, player.position, facing, col, windup, _foe_in_reach(player.position, facing, float(ContentDB.entry("techniques", tech).hitbox.x[1])))
 
 ## Where a single-target cast lands: the nearest foe in front within reach, else halfway along it.
 func _foe_in_reach(at: Vector2, facing: int, reach: float) -> Vector2:
@@ -544,31 +471,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("text", player.position + Vector2(0, -130), {"text": Tx.t("hud.fell"), "color": UiKit.MIST, "size": 18, "dur": 1.4})
 		"hit_landed":
 			if str(p.get("target_kind", "")) == "player" and str(p.get("target", "")) == player.actor_id: player.knock_off_climb()
-			var pos := Vector2(float(p.get("x", 0)), float(p.get("y", 0)) - float(p.get("alt", 60)))
-			var kind := str(p.get("target_kind", "enemy"))
-			var amount := int(p.get("amount", 0))
-			var color = UiKit.PAPER
-			if kind == "player": color = UiKit.RED
-			elif p.get("crit", false): color = UiKit.GOLD
-			elif str(p.get("type", "")) == "qi": color = UiKit.QI
-			elif str(p.get("type", "")) == "soul": color = UiKit.SOUL
-			# P6e: a technique's hit draws at its tier (§5.2): the number's size, the spark's count, size, reach and style; the
-			# hits of one cast on one foe stack (§5.5); the first hit of a Heaven-grade cast shakes once.
-			var src := str(p.get("source", ""))
-			var n := MomentRules.tier_numbers(src)
-			var tech := ContentDB.entry("techniques", src.trim_prefix("tech:")) if src.begins_with("tech:") else {}
-			if Game.is_revealed("hud:damage_numbers") or kind == "player":
-				fx.number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, bool(p.get("crit", false)),
-					str(p.get("target", "")) + src if not tech.is_empty() else "", float(amount))
-			fx.add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(str(p.get("element", "none"))), "dur": 0.25,
-				"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,
-				"style": tech.get("vfx", {}).get("particles", MomentRules.particle_style("", str(p.get("element", "none")), str(p.get("type", ""))))})
-			if cast_shake.has(src):
-				cast_shake.erase(src)
-				add_shake(float(n.shake_s), float(n.shake_amp))
-			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: add_shake(0.25)
-			if p.get("crit", false): add_shake(0.12)
-			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
+			combat_fx.hit(p)   # P6e: its number and spark at its tier (CombatFx)
 		"hazard_warned":
 			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
 			Audio.play(str(sfx.get(str(p.hazard), "tell")))
@@ -578,12 +481,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				var over := player.position + Vector2(0, -130)
 				if p.get("answered", false): fx.label(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
 				elif int(p.get("amount", 0)) == 0: fx.label(over, hname, UiKit.PALE_GOLD, 17)
-		"hit_missed":
-			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
-		"hit_immune":
-			fx.label(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), Tx.t("world_view.immune"), UiKit.MIST, 18)
-		"hit_dodged":
-			fx.label(player.position + Vector2(0, -100), Tx.t("world_view.evade"), UiKit.BRIGHT_JADE, 18)
+		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player.position)
 		"parried":
 			fx.add("flash", player.position + Vector2(player.facing * 20, -50), {"color": UiKit.PALE_GOLD, "radius": 30, "dur": 0.25})
 			fx.label(player.position + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)

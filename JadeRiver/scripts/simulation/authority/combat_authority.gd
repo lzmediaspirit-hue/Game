@@ -126,11 +126,12 @@ func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
-		"basic_attack": return basic_attack(c, int(intent.get("facing", 1)))
-		"use_technique": return use_technique(c, int(intent.get("slot", -1)), int(intent.get("facing", 1)))
+		"basic_attack": return basic_attack(c, int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO), bool(intent.get("aimed", false)))
+		"use_technique": return use_technique(c, int(intent.get("slot", -1)), int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO),
+			bool(intent.get("aimed", false)), float(intent.get("dist", -1.0)))
 		"guard_start": return guard(c, true)
 		"guard_end": return guard(c, false)
-		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)))
+		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)), bool(intent.get("moves", true)))
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
 		"start_flight": return start_flight(c)
 		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
@@ -378,6 +379,9 @@ func player_view(c) -> Dictionary:
 		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0})
 	v.crit_chance = float(v.crit_chance) + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
 	v.penetration = float(v.penetration) + intent_penetration(c)
+	if grid() != null:   # redesign Phase 2: its blows go along its aim, between compatible heights
+		v.aim = tl.get("aim", Vector2(tl.facing, 0))
+		v.band = TopdownAim.band(airborne(c.id))
 	return v
 
 func enemy_view(e: EnemyState) -> Dictionary:
@@ -387,16 +391,53 @@ func enemy_view(e: EnemyState) -> Dictionary:
 		"vulnerable": e.pools.has_status("vulnerable"), "shocked": e.pools.has_status("shock"), "sundered": e.pools.has_status("sundered"),
 		"guarding": float(e.def.get("front_guard", 0.0)) if e.ai.state == "guard" else 0.0,
 		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}, true)
+	if grid() != null:
+		v.aim = e.aim_dir()
+		v.band = TopdownAim.band(false)
 	return v
 
-## 2.5D hit test (S12): x range in the facing direction, depth band, altitude overlap.
+## The loaded room's height grid when it is a top-down room (redesign Phase 2), else null.
+func grid() -> TopdownRoom:
+	return game.room_rt.topdown if game.room_rt != null else null
+
+## Which way a push from `from` drives a body at `to`: away along the plane on the top-down grid, along x in the side
+## view.
+func away(from: Vector2, to: Vector2) -> Vector2:
+	if grid() != null:
+		var d := to - from
+		return d.normalized() if d.length() > 0.01 else Vector2.RIGHT
+	return Vector2(signf(to.x - from.x), 0)
+
+## Hit-stop (redesign Phase 2): a view that freezes the fight for the blow's hitstop asks here each physics frame; while
+## it runs the frame is spent (true) and the view holds the simulation still.
+func hold_for_hitstop(delta: float) -> bool:
+	if hitstop <= 0.0: return false
+	hitstop -= delta
+	return true
+
+## Redesign Phase 2: the body's facing on the plane, from its controller; between blows it is where a guard faces and
+## where the next tap aims from.
+func face_on_plane(actor_id: String, v: Vector2) -> void:
+	if v.length() > 0.01 and not is_busy(actor_id): timeline(actor_id).aim = v.normalized()
+
+## A view's aim: its `aim` on the plane, else its facing along x.
+static func aim_of(v: Dictionary, facing: int) -> Vector2:
+	return v.get("aim", Vector2(facing, 0))
+
+## 2.5D hit test (S12): x range in the facing direction, depth band, altitude overlap. On the top-down plane (redesign
+## Phase 2) the attacker's view carries its `aim`: the range runs along the aim and the depth band across it, and its
+## `band` replaces the altitude overlap (TopdownAim: the target's feet within the attacker's height band). Without an
+## aim the aim is the facing along x, which is the side view's test exactly.
 static func hit_test(a: Dictionary, facing: int, hitbox: Dictionary, t: Dictionary, both_sides := false) -> bool:
 	var xr: Array = hitbox.get("x", [0, 40])
-	var dx := (float(t.x) - float(a.x)) * facing
-	if both_sides: dx = absf(float(t.x) - float(a.x))
+	var aim: Vector2 = a.get("aim", Vector2(facing, 0))
+	var d := Vector2(float(t.x) - float(a.x), float(t.y) - float(a.y))
+	var dx := d.dot(aim)
+	if both_sides: dx = absf(dx) if a.has("aim") else absf(d.x)
 	var hw := float(t.get("half_width", 16))
 	if dx < float(xr[0]) - hw or dx > float(xr[1]) + hw: return false
-	if absf(float(t.y) - float(a.y)) > float(hitbox.get("depth", 26)): return false
+	if (absf(d.cross(aim)) if a.has("aim") else absf(d.y)) > float(hitbox.get("depth", 26)): return false
+	if a.has("band"): return float(t.alt) - float(a.alt) >= float(a.band[0]) and float(t.alt) - float(a.alt) <= float(a.band[1])
 	var alt: Array = hitbox.get("alt", [-30, 60])   # S43 rule 10: relative to the attacker's height
 	var a0 := float(a.alt) + float(alt[0])
 	var a1 := float(a.alt) + float(alt[1])
@@ -412,10 +453,11 @@ func can_act(c) -> String:
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "attack")
 	return ""
 
-func target_for(c, reach: float, depth: float, facing: int) -> Dictionary:
+func target_for(c, reach: float, depth: float, facing: int, aim := Vector2.ZERO, aimed := false) -> Dictionary:
 	# Auto-target: nearest enemy in the facing direction within reach and depth band;
 	# otherwise turn toward the nearest enemy within 160 units.
 	if game.room_rt == null: return {"facing": facing}
+	if grid() != null: return _target_on_plane(c, reach, facing, aim, aimed)
 	var pv := player_view(c)
 	var best: EnemyState = null
 	var best_d := INF
@@ -436,6 +478,22 @@ func target_for(c, reach: float, depth: float, facing: int) -> Dictionary:
 	if best: return {"facing": facing, "target": best.uid}
 	return {"facing": turn_to}
 
+## Redesign Phase 2 (decision 30): the aim on the plane. A tap (`aimed` false) soft-locks the nearest foe in the cone
+## round `aim` (the stick or the facing); a dragged aim snaps to a foe within a few degrees of it and otherwise goes
+## where it was dragged. {facing: its side for the pose's mirror, aim: the unit direction, target: the foe's uid}.
+func _target_on_plane(c, reach: float, facing: int, aim: Vector2, aimed: bool) -> Dictionary:
+	var st: ActorState = game.actor_state(c.id)
+	var dir: Vector2 = aim.normalized() if aim.length() > 0.1 else timeline(c.id).get("aim", Vector2(facing, 0))
+	var out := {"facing": 1 if dir.x >= 0.0 else -1, "aim": dir}
+	if st == null: return out
+	var foes: Array = game.room_rt.living_enemies()
+	var air := airborne(c.id)
+	var foe := TopdownAim.snap(foes, st.plane, st.altitude, dir, reach, air) if aimed else TopdownAim.soft_target(foes, st.plane, st.altitude, dir, air)
+	if foe == null: return out
+	var to: Vector2 = foe.plane - st.plane
+	if to.length() > 0.5: dir = to.normalized()
+	return {"facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "target": foe.uid, "at": foe.plane}
+
 ## In the air: neither standing on a surface, climbing nor flying (S43).
 func airborne(actor_id: String) -> bool:
 	var st: ActorState = game.actor_state(actor_id)
@@ -446,7 +504,7 @@ func climbing(actor_id: String) -> bool:
 	var st: ActorState = game.actor_state(actor_id)
 	return st != null and not st.climbing.is_empty()
 
-func basic_attack(c, facing: int) -> Dictionary:
+func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
 	if climbing(c.id): return fail("climbing")
@@ -465,7 +523,8 @@ func basic_attack(c, facing: int) -> Dictionary:
 		return ok({"queued": true})
 	# S43 air attack: one hit, no combo, +10% damage.
 	var index := 0 if in_air else (int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0)
-	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing)
+	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing, aim_in, aimed)
+	if aim.has("aim"): tl.aim = aim.aim
 	_start_step(c, fam, index, int(aim.facing))
 	if palms:
 		tl.step = (tl.step as Dictionary).duplicate()
@@ -476,7 +535,7 @@ func basic_attack(c, facing: int) -> Dictionary:
 		tl.air_attack = true
 	else:
 		tl.air_attack = false
-	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air})
+	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0))})
 
 func _start_step(c, fam: Dictionary, index: int, facing: int) -> void:
 	var tl := timeline(c.id)
@@ -495,9 +554,11 @@ func _start_step(c, fam: Dictionary, index: int, facing: int) -> void:
 	tl.step = step
 	tl.targets_hit = []
 	if game.character(c.id).cultivator.meditating: game.progression.stop_meditation(c, "attack")
-	emit("attack_started", {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index})
+	var ev := {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index}
+	if grid() != null: ev.aim = tl.get("aim", Vector2(facing, 0))
+	emit("attack_started", ev)
 
-func use_technique(c, slot: int, facing: int) -> Dictionary:
+func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := false, dist := -1.0) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
 	if slot < 0 or slot >= ProgressionRules.technique_slot_count(c): return fail("slot_locked")
@@ -557,7 +618,15 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 		c.pools.since_composure_use = 0.0
 	c.pools.cooldowns["tech:" + str(tid)] = maxf(0.5, float(t.get("cooldown_s", 5)) + (ProgressionRules.sect_tree_flag(c, "signature_cooldown") if not sig.is_empty() else 0.0))
 	if sig.has("heal_pct") or sig.has("shield_pct"): _sect_support(c, sig)
-	var aim := target_for(c, float(t.hitbox.x[1]), float(t.hitbox.get("depth", 30)), 1 if facing >= 0 else -1)
+	var aim := target_for(c, TopdownAim.reach_of(t) if grid() != null else float(t.hitbox.x[1]), float(t.hitbox.get("depth", 30)), 1 if facing >= 0 else -1, aim_in, aimed)
+	if aim.has("aim"):
+		# Redesign Phase 2: the aim on the plane, and where a circle at a point lands: the drag's length, else the foe
+		# it locked, else two thirds of the reach.
+		tl.aim = aim.aim
+		var st0: ActorState = game.actor_state(c.id)
+		var from: Vector2 = st0.plane if st0 else Vector2.ZERO
+		var d := dist if dist >= 0.0 else (from.distance_to(aim.at) if aim.has("at") else TopdownAim.reach_of(t) * 0.66)
+		tl.at = TopdownAim.point_at(from, aim.aim, d, TopdownAim.reach_of(t))
 	var action := str(t.get("action", "")) if t.get("action") != null else ""   # P13a: a null pose read as "<null>" before
 	if action == "" or action == "null": action = str(fam.combo[mini(2, fam.combo.size() - 1)].action)
 	if action == "meditate_burst": action = str(fam.combo[0].action)
@@ -573,12 +642,15 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	tl.targets_hit = []
 	tl.step = {}
 	if t.has("dash"):
-		var dist := float(t.dash)
-		tl.forced = Vector2(tl.facing * dist / 0.2, 0)
+		tl.forced = aim_of(tl, tl.facing) * float(t.dash) / 0.2 if grid() != null else Vector2(tl.facing * float(t.dash) / 0.2, 0)
 		tl.forced_t = 0.2
-	emit("attack_started", {"actor": c.id, "action": action, "technique": tid, "windup": tl.hit_at, "duration": tl.duration,
-		"facing": tl.facing, "element": str(t.get("element", "none"))})
-	return ok({"action": action, "duration": tl.duration, "facing": tl.facing, "technique": tid})
+	var ev := {"actor": c.id, "action": action, "technique": tid, "windup": tl.hit_at, "duration": tl.duration,
+		"facing": tl.facing, "element": str(t.get("element", "none"))}
+	if grid() != null:
+		ev.aim = tl.aim
+		ev.at = tl.at
+	emit("attack_started", ev)
+	return ok({"action": action, "duration": tl.duration, "facing": tl.facing, "technique": tid, "aim": aim.get("aim", Vector2(tl.facing, 0))})
 
 ## In a fight: a blow struck or taken within the fight gap (8 s). Tree nodes are realised and let go only out of one.
 func in_combat(c) -> bool:
@@ -618,7 +690,9 @@ func guard(c, on: bool) -> Dictionary:
 	emit("guard_changed", {"actor": c.id, "guard": tl.guard})
 	return ok()
 
-func dodge(c, direction, facing: int) -> Dictionary:
+## `moves` false: the body's own controller carries the dodge (the top-down motor's dash, redesign Phase 2); Combat
+## keeps the cooldown, the i-frames and the events, and gives no forced motion or air art.
+func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "dodge_dash"): return fail("locked")
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("stunned")
 	# S10 Agility 50: a second dodge charge, on its own cooldown.
@@ -644,7 +718,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	if free: treasure_fx[c.id].erase("free_dodge")   # spent only by a dodge that happens
 	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
 	# once per airtime. It shares the dodge's cooldown.
-	if st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \
+	if moves and st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \
 			and c.pools.cooldown("dodge") <= 0.0:
 		st.arts["air_dash"] = true
 		if MovementSolver.air_dash(st):
@@ -655,7 +729,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 			c.pools.cooldowns["dodge"] = _dodge_cooldown(c)
 			LocalAuthority.announce(st, c.id)
 			return ok({"air_dash": true})
-	if st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
+	if moves and st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
 		var bx := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
 		var blink := float(ContentDB.stat_const("combat.wind_blink_distance", 120))
 		tl.forced = Vector2(bx, 0) * blink / 0.1
@@ -667,7 +741,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 		return ok({"blink": true})
 	var dist := float(conf.get("dodge_distance", 140))
 	tl.forced = dir * dist / 0.22
-	tl.forced_t = 0.22
+	tl.forced_t = 0.22 if moves else 0.0
 	tl.dodge_t = float(conf.get("dodge_invuln_s", 0.25))
 	c.pools.cooldowns[charge] = _dodge_cooldown(c)
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
@@ -844,7 +918,7 @@ func _resolve_basic(c) -> void:
 	var hit_any := false
 	# v1.2 the bell rings out on both sides of its bearer; its strikes (and the brush's) carry the family's damage type.
 	var targets := _enemies_in(pv, facing, hitbox, fam.get("ring", false))
-	targets.sort_custom(func(a, b): return absf(a.plane.x - float(pv.x)) < absf(b.plane.x - float(pv.x)))
+	_nearest_first(targets, pv)
 	var n := 0
 	for e in targets:
 		if n >= max_targets: break
@@ -983,8 +1057,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		return
 	var hitbox: Dictionary = (t.get("hitbox", {"x": [0, 80], "depth": 30, "alt": [-10, 80]}) as Dictionary).duplicate(true)
 	if reach_mult != 1.0: hitbox.x = [float(hitbox.x[0]), float(hitbox.x[1]) * reach_mult]
-	var targets := _enemies_in(pv, facing, hitbox, t.get("both_sides", false))
-	targets.sort_custom(func(a, b): return absf(a.plane.x - float(pv.x)) < absf(b.plane.x - float(pv.x)))
+	var targets := _form_targets(pv, t, hitbox, tl.get("at", Vector2.ZERO)) if grid() != null else _enemies_in(pv, facing, hitbox, t.get("both_sides", false))
+	_nearest_first(targets, pv)
 	var max_targets := int(t.get("max_targets", 1)) + extra_targets
 	var n := 0
 	var target_def := ""
@@ -1005,7 +1079,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array, attack: Dictionary, hitbox: Dictionary) -> void:
 	match str(cfx.get("kind", "")):
 		"shockwave":
-			var at := Vector2(float(pv.x) + facing * float(hitbox.x[1]), float(pv.y))
+			var at := Vector2(float(pv.x), float(pv.y)) + aim_of(pv, facing) * float(hitbox.x[1])
 			var wave := attack.duplicate()
 			var wm := float(cfx.get("mult", 0.6))
 			wave.mult = [float(attack.mult[0]) * wm, float(attack.mult[1]) * wm]
@@ -1014,13 +1088,36 @@ func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array
 				_player_hits_enemy(c, pv, e, wave, 1 if e.plane.x >= at.x else -1)
 		"pull":
 			for e in struck:
-				if e.alive and not e.def.get("knockback_immune", false) and not e.is_boss(): e.knockback = -float(cfx.get("value", 90)) * facing
+				if e.alive and not e.def.get("knockback_immune", false) and not e.is_boss():
+					if grid() != null:
+						e.knock_dir = away(Vector2(float(pv.x), float(pv.y)), e.plane)
+						e.knockback = -float(cfx.get("value", 90))
+					else: e.knockback = -float(cfx.get("value", 90)) * facing
 		"bleed":
 			for e in struck:
 				if e.alive: _apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
 
+## Targets nearest first: along x in the side view, on the plane top-down.
+func _nearest_first(targets: Array, pv: Dictionary) -> void:
+	var o := Vector2(float(pv.x), float(pv.y))
+	if grid() != null: targets.sort_custom(func(a, b): return a.plane.distance_to(o) < b.plane.distance_to(o))
+	else: targets.sort_custom(func(a, b): return absf(a.plane.x - o.x) < absf(b.plane.x - o.x))
+
 func _dao_tier(c, dao: String) -> int:
 	return ProgressionRules.effective_dao_tier(c, dao)   # S10 Insight 100 counts one tier more from Explanation
+
+## Redesign Phase 2: the foes inside a technique's form on the plane (TopdownAim: a line, a cone, a circle at its point
+## or round the caster) whose feet are within the height band: the caster's, or the ground's at a point form's centre.
+func _form_targets(pv: Dictionary, t: Dictionary, hitbox: Dictionary, at: Vector2) -> Array:
+	var out: Array = []
+	var form := TopdownAim.form_of(t)
+	var o := Vector2(float(pv.x), float(pv.y))
+	var base := grid().height_at(at) if form == "point" else float(pv.alt)
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or e.hidden: continue
+		if not TopdownAim.compatible(e.altitude + e.hover - base, form != "point" and airborne(str(pv.id))): continue
+		if TopdownAim.contains(form, o, pv.aim, at, float(hitbox.x[1]), float(hitbox.get("depth", 30)), e.plane, e.half_width()): out.append(e)
+	return out
 
 func _enemies_in(pv: Dictionary, facing: int, hitbox: Dictionary, both_sides: bool) -> Array:
 	var out: Array = []
@@ -1082,7 +1179,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	# S48 Mercy (a vow): a foe that has turned to flee is never struck down; it gets away with its life.
 	if e.ai.get("fled", false) and amount >= e.pools.hp and game.progression.vow_forbids(c, "fleeing_kill") != "":
 		amount = maxf(0.0, e.pools.hp - 1.0)
-	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing)
+	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing, away(Vector2(float(pv.x), float(pv.y)), e.plane) if grid() != null else Vector2.ZERO)
 	_lifesteal(c, amount, attack)
 	_feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
@@ -1275,7 +1372,8 @@ func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	e.pools.statuses.append(s)
 	emit("status_applied", {"target": str(e.uid), "effect": s.id, "duration": s.remaining})
 
-func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0) -> void:
+## `push`: on the top-down plane, the way a knockback drives it (away from the attacker); zero pushes along x by `facing`.
+func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0, push := Vector2.ZERO) -> void:
 	if not e.alive or e.ai.get("surrendered", false): return   # a foe who has yielded is judged, not struck (S49)
 	# S46 Beast Trial Grove: the keeper's own blows do no harm there; they rally the animals instead.
 	if game.room_rt != null and game.room_rt.event.get("pet_trial", false) and game.room_rt.event.get("active", false) \
@@ -1291,6 +1389,9 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	var kb := float(attack.get("knockback", 0.0))
 	if kb != 0.0 and not e.def.get("knockback_immune", false) and not e.is_boss():   # P13a: below 0, a pull (Water, Space)
 		e.knockback = kb * (facing if facing != 0 else 1)
+		if push != Vector2.ZERO:
+			e.knock_dir = push
+			e.knockback = kb
 	# Hit-stun (S30): a normal monster struck during its wind-up flinches, by the player's blow or an ally's (pets and
 	# companions interrupt too), then shrugs off further interrupts for a moment so it can never be stun-locked.
 	if e.role == "normal" and not e.def.get("steadfast", false) and str(e.ai.get("state", "")) == "windup" \
@@ -1412,6 +1513,7 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	# Parry: a guard begun within the family's parry window before the hit negates it.
 	var fam := StatRules.family(c)
 	var frontal := signf(float(pv.x) - e.plane.x) != float(tl.facing) or absf(float(pv.x) - e.plane.x) < 4
+	if pv.has("aim"): frontal = (e.plane - Vector2(float(pv.x), float(pv.y))).dot(pv.aim) >= 0.0   # facing the foe on the plane
 	if tl.guard and frontal and float(tl.guard_t) <= float(fam.get("parry_s", 0.18)) and Unlocks.is_unlocked(c.id, "guard"):
 		var stagger := float(ContentDB.stat_const("combat.parry_stagger_boss_s" if e.is_boss() else "combat.parry_stagger_s", 0.8))
 		game.enemies.stagger(e, stagger)
@@ -1477,12 +1579,12 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	if amount >= p.max_hp * float(ContentDB.stat_const("combat.flinch_pct", 0.2)) or kb >= 60:
 		tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
 		if kb > 0 and e != null and not (StatRules.gate_flag(c, "knockback_immune_attacking") and is_busy(c.id)):
-			tl.forced = Vector2(signf(game.actor_state(c.id).plane.x - e.plane.x) * kb / 0.18, 0) if game.actor_state(c.id) else Vector2.ZERO
+			tl.forced = away(e.plane, game.actor_state(c.id).plane) * kb / 0.18 if game.actor_state(c.id) else Vector2.ZERO
 			tl.forced_t = 0.18
 	# v1.2 the Gravity Golem's well: a blow that drags the body toward the one who struck it (into the slam).
 	var pull := float(attack.get("pull", 0)) * (1.0 - clampf(c.stats.value("knockback_resistance"), 0.0, 0.9))
 	if pull > 0.0 and e != null and game.actor_state(c.id) != null and not ProgressionRules.path_flag(c, "knockback_immune", false):
-		tl.forced = Vector2(signf(e.plane.x - game.actor_state(c.id).plane.x) * pull / 0.25, 0)
+		tl.forced = away(game.actor_state(c.id).plane, e.plane) * pull / 0.25
 		tl.forced_t = 0.25
 	var st: ActorState = game.actor_state(c.id)
 	if spar.has(c.id) and p.hp <= p.max_hp * 0.1:
@@ -2085,8 +2187,45 @@ func _spawn_projectile(p: Dictionary) -> void:
 	p.travelled = 0.0
 	p.hits = []
 	p.delay = float(p.get("delay", 0.0))
+	if grid() != null: _aim_shot(p)
 	game.room_rt.projectiles.append(p)
 	emit("projectile_spawned", {"uid": p.uid, "team": p.team, "art": str(p.get("art", "arrow")), "element": str(p.get("element", "none"))})
+
+## Redesign Phase 2: a shot on the plane leaves along its thrower's aim. Its spot, laid out along x by the spawner (so
+## far ahead, so far aside), turns with the aim; it flies at its thrower's feet (`feet`) along the ground plane.
+func _aim_shot(p: Dictionary) -> void:
+	var o := Vector2(float(p.x), float(p.y))
+	var feet := 0.0
+	var aim := Vector2(float(p.dir), 0)
+	var foe: EnemyState = game.room_rt.enemies.get(int(str(p.owner))) if str(p.owner).is_valid_int() else null
+	if foe != null:
+		o = foe.plane
+		feet = foe.altitude
+		aim = foe.aim_dir()
+	elif game.actor_state(str(p.owner)) != null:
+		o = game.actor_state(str(p.owner)).plane
+		feet = game.actor_state(str(p.owner)).altitude
+		aim = timeline(str(p.owner)).get("aim", aim)
+	var ahead := (float(p.x) - o.x) * float(p.dir)
+	var aside := float(p.y) - o.y
+	var at := o + aim * ahead + Vector2(-aim.y, aim.x) * aside
+	p.x = at.x
+	p.y = at.y
+	p.aim = aim
+	p.feet = feet
+	p.dir = 1 if aim.x >= 0.0 else -1
+
+## A shot's view for the hit test: at chest height in the side view; on the plane, at its thrower's feet along its aim
+## with the ground band.
+func _shot_view(p: Dictionary) -> Dictionary:
+	if not p.has("aim"): return {"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}
+	return {"x": p.x, "y": p.y, "alt": float(p.feet), "aim": p.aim, "band": TopdownAim.band(false)}
+
+## Does a shot stop here: at a block or wall (S43 rule 10), or on the plane at a face higher than shot_wall over its
+## feet?
+func _shot_stops(rt: RoomRuntime, p: Dictionary) -> bool:
+	if not p.has("aim"): return rt.geometry.stops_shot(Vector2(p.x, p.y), float(p.alt))
+	return rt.topdown.height_at(Vector2(p.x, p.y)) > float(p.feet) + float(ContentDB.movement("topdown.combat.shot_wall", 24))
 
 func spawn_enemy_projectile(e: EnemyState, attack: Dictionary) -> void:
 	var pr: Dictionary = attack.get("projectile", {})
@@ -2111,11 +2250,13 @@ func _tick_projectiles(delta: float) -> void:
 			if p.get("seek", false) and p.team == "player":
 				var tgt := _nearest_enemy(Vector2(p.x, p.y), 220.0)
 				if tgt: p.y = move_toward(float(p.y), tgt.plane.y, 60.0 * delta)
-			p.x = float(p.x) + float(p.dir) * s
+			var along: Vector2 = p.get("aim", Vector2(float(p.dir), 0))
+			p.x = float(p.x) + along.x * s
+			p.y = float(p.y) + along.y * s
 			p.travelled = float(p.travelled) + s
 			remaining -= s
 			# S43 rule 10: shots pass through platform decks but stop at blocks and walls, whoever threw them.
-			if rt.geometry.stops_shot(Vector2(p.x, p.y), float(p.alt)):
+			if _shot_stops(rt, p):
 				done = true
 				break
 			if p.team == "player":
@@ -2123,8 +2264,7 @@ func _tick_projectiles(delta: float) -> void:
 					if e.team != "enemy" or e.hidden or p.hits.has(e.uid): continue
 					# Shots fly at chest height; the band reaches down to the ground so a crab or a rat
 					# under the line is struck too. Fired from the air, a shot still passes over them.
-					var pv := {"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}
-					if hit_test(pv, int(p.dir), {"x": [-12, 12], "depth": 26, "alt": [-56, 40]}, enemy_view(e)):
+					if hit_test(_shot_view(p), int(p.dir), {"x": [-12, 12], "depth": 26, "alt": [-56, 40]}, enemy_view(e)):
 						p.hits.append(e.uid)
 						if c != null:
 							var view := player_view(c)
@@ -2141,18 +2281,19 @@ func _tick_projectiles(delta: float) -> void:
 					emit("projectile_absorbed", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
 					done = true
 					break
-				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv) \
+				if hit_test(_shot_view(p), int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv) \
 						and float(fxs.get("reflect", 0.0)) > 0.0:
 					# The Bright Mirror sends it back at whoever threw it (S47).
 					p.team = "player"
 					p.dir = -int(p.dir)
+					if p.has("aim"): p.aim = -(p.aim as Vector2)
 					p.owner = c.id
 					p.travelled = 0.0
 					p.hits = []
 					p.attack = {"damage_type": "qi", "element": str(p.get("element", "none")), "mult": [1.4, 1.4], "range": [1.0, 1.0], "source": "bright_mirror"}
 					emit("projectile_reflected", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
 					break
-				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
+				if hit_test(_shot_view(p), int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
 					var e2: EnemyState = rt.enemies.get(int(str(p.owner)))
 					if e2 != null:
 						_enemy_hits_player(e2, c, enemy_view(e2), cv, p.enemy_attack)
@@ -2161,6 +2302,7 @@ func _tick_projectiles(delta: float) -> void:
 			# A thrown fan (S47 v1.1) turns at the end of its flight and cuts its way back.
 			p.returned = true
 			p.dir = -int(p.dir)
+			if p.has("aim"): p.aim = -(p.aim as Vector2)
 			p.travelled = 0.0
 			p.hits = []
 			continue

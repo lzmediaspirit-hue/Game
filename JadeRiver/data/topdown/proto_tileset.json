@@ -117,6 +117,38 @@
      ]
     ]
    },
+   "strike": {
+    "e": [
+     [
+      352,
+      48
+     ],
+     [
+      384,
+      48
+     ]
+    ],
+    "n": [
+     [
+      352,
+      96
+     ],
+     [
+      384,
+      96
+     ]
+    ],
+    "s": [
+     [
+      352,
+      0
+     ],
+     [
+      384,
+      0
+     ]
+    ]
+   },
    "walk": {
     "e": [
      [
@@ -177,6 +209,140 @@
   "note": "PLACEHOLDER body for the Phase 1 controller; the layered set is Phase 5",
   "placeholder": true
  },
+ "foes": {
+  "cell": [
+   32,
+   24
+  ],
+  "foot": [
+   16,
+   21
+  ],
+  "note": "PLACEHOLDER foes for the Phase 2 fights (east drawn, west mirrored); the top-down creature sheets are Phase 3/5",
+  "placeholder": true,
+  "species": {
+   "mudshell_crab": {
+    "attack": [
+     [
+      160,
+      0
+     ]
+    ],
+    "hurt": [
+     [
+      192,
+      0
+     ]
+    ],
+    "idle": [
+     [
+      0,
+      0
+     ],
+     [
+      32,
+      0
+     ]
+    ],
+    "walk": [
+     [
+      64,
+      0
+     ],
+     [
+      96,
+      0
+     ]
+    ],
+    "windup": [
+     [
+      128,
+      0
+     ]
+    ]
+   },
+   "reedtail_rat": {
+    "attack": [
+     [
+      160,
+      24
+     ]
+    ],
+    "hurt": [
+     [
+      192,
+      24
+     ]
+    ],
+    "idle": [
+     [
+      0,
+      24
+     ],
+     [
+      32,
+      24
+     ]
+    ],
+    "walk": [
+     [
+      64,
+      24
+     ],
+     [
+      96,
+      24
+     ]
+    ],
+    "windup": [
+     [
+      128,
+      24
+     ]
+    ]
+   },
+   "wild_boarlet": {
+    "attack": [
+     [
+      160,
+      48
+     ]
+    ],
+    "hurt": [
+     [
+      192,
+      48
+     ]
+    ],
+    "idle": [
+     [
+      0,
+      48
+     ],
+     [
+      32,
+      48
+     ]
+    ],
+    "walk": [
+     [
+      64,
+      48
+     ],
+     [
+      96,
+      48
+     ]
+    ],
+    "windup": [
+     [
+      128,
+      48
+     ]
+    ]
+   }
+  }
+ },
  "props": {
   "barrel": {
    "footprint": [
@@ -227,7 +393,8 @@
     32,
     30
    ],
-   "solid": true
+   "solid": true,
+   "top": 1
   },
   "house": {
    "footprint": [
@@ -244,7 +411,8 @@
     104,
     92
    ],
-   "solid": true
+   "solid": true,
+   "top": 2
   },
   "lantern": {
    "footprint": [
@@ -296,6 +464,24 @@
     20
    ],
    "solid": false
+  },
+  "storehouse": {
+   "footprint": [
+    4,
+    3
+   ],
+   "origin": [
+    4,
+    88
+   ],
+   "rect": [
+    64,
+    92,
+    72,
+    92
+   ],
+   "solid": true,
+   "top": 2
   },
   "willow": {
    "footprint": [
