@@ -167,6 +167,12 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
   `data_validation` holds that every quest the rule may name has a giver.
 - **The hub's Works tile reads the same rule.** It showed Keeping Post at `qu5`, where Keeping Post is done; the hub
   asks `Unlocks.locked_text` for its locked tiles, so at `qu5` Works now waits on Elder Hu's An Idle Art.
+- **Every weapon family has a stance held without buying anything** (found by the technique planner). The jian's only
+  stance was Willow Leaf Parry, also a technique bought at the library, and bare fists, the brush and the bell had
+  none. Four basic stances join the eight: Guarding Blade (jian: a parry counters for 120%, attacks 10% slower),
+  Tiger Crouch (fists), Steady Wrist (brush) and Deep Tone (bell). Willow Leaf Parry stays the jian's better stance
+  (200%) and now holds only for one who has learned its technique (`ProgressionRules.stance_known`, used by
+  `set_stance`, the active stance and the Techniques page). `data_validation` holds one basic stance per family.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved

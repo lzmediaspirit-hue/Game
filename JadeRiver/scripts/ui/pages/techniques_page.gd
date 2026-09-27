@@ -58,7 +58,7 @@ func _inner(ch) -> void:
 			text(rr.position + Vector2(14, 50), fit(str(d.get("desc", "")), 15, rr.size.x - 28), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 28)
 			region(rr, "pick_art", aid)
 		)
-	# Stances: one per weapon family, held only with that weapon in hand.
+	# Stances: a basic one for every weapon family (and Willow Leaf Parry), held only with that weapon in hand.
 	var sx := right.position.x + 18
 	var sy := right.position.y + 36
 	heading(Vector2(sx, sy), Tx.t("ui.techniques.stances"), right.size.x - 36)
@@ -72,7 +72,9 @@ func _inner(ch) -> void:
 		var here := str(st.family) == fam
 		text(rr.position + Vector2(8, 20), str(st.get("name", "")) + "  ·  " + str(st.family).replace("_", " ").capitalize(), 17, UiKit.PALE_GOLD if on and here else (UiKit.PAPER if here else UiKit.MIST), HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
 		text(rr.position + Vector2(8, 40), fit(str(st.get("desc", "")), 14, rr.size.x - 130), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
-		btn(Rect2(rr.end.x - 104, rr.position.y + 3, 100, 48), Tx.t("ui.techniques.stance_on") if on else Tx.t("ui.techniques.stance_off"), "stance", str(st.id), on, can, Unlocks.locked_text("stances"), 16)
+		var known := ProgressionRules.stance_known(ch, st)   # Willow Leaf Parry needs its technique; one held can still be let go
+		btn(Rect2(rr.end.x - 104, rr.position.y + 3, 100, 48), Tx.t("ui.techniques.stance_on") if on else Tx.t("ui.techniques.stance_off"), "stance", str(st.id), on, can and (known or on),
+			Unlocks.locked_text("stances") if not can else ("" if known else Tx.t("sim.progression.stance_needs_technique") % ContentDB.name_of("techniques", str(st.technique))), 16)
 	)
 
 func draw_page() -> void:

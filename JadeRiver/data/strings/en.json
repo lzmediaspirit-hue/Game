@@ -1105,6 +1105,7 @@
   "sim.progression.practise_more": "Practise more",
   "sim.progression.replaces": "%s replaces %s.",
   "sim.progression.retreat_room": "Retreat room",
+  "sim.progression.stance_needs_technique": "Learn the technique %s to hold this stance.",
   "sim.progression.support_spent": "%s has already failed this breakthrough twice: it no longer helps",
   "sim.progression.the_jade_leaves_are_still": "The jade leaves are still. The tree answers only a mind stalled at the wall of understanding.",
   "sim.progression.the_tree_answers": "Nine boughs sway without wind. Your %s Dao deepens.",

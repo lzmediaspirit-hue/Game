@@ -168,11 +168,16 @@ def inner_arts(write=True):
 
 
 def stances():
-    """Stances (S48, Part 8): one toggle per weapon family, set on the Techniques page; it holds only with that
-    weapon in hand. Willow Leaf Parry, the jian's, keeps its technique as well."""
+    """Stances (S48, Part 8): toggles set on the Techniques page, each holding only with its weapon family in hand.
+    Every family has a basic stance that comes with the Stances unlock. Willow Leaf Parry, the jian's better one,
+    holds only for one who has learned the technique of that name (its `technique`)."""
     rows = [
         {"id": "willow_leaf_parry", "family": "jian", "name": "Willow Leaf Parry", "desc": "A parry counters for 200%. Attacks 10% slower.",
-         "modifiers": [mod("attack_speed", -0.10, "flat")], "flags": {"parry_counter": 2.0}},
+         "modifiers": [mod("attack_speed", -0.10, "flat")], "flags": {"parry_counter": 2.0}, "technique": "willow_leaf_parry"},
+        {"id": "guarding_blade", "family": "jian", "name": "Guarding Blade", "desc": "A parry counters for 120%. Attacks 10% slower.",
+         "modifiers": [mod("attack_speed", -0.10, "flat")], "flags": {"parry_counter": 1.2}},
+        {"id": "tiger_crouch", "family": "fists", "name": "Tiger Crouch", "desc": "+10% physical attack; 10% slower on foot.",
+         "modifiers": [mod("physical_attack", 0.10), mod("move_speed", -0.10)]},
         {"id": "iron_horse", "family": "gauntlets", "name": "Iron Horse", "desc": "Nothing knocks you back; 20% slower on foot.",
          "modifiers": [mod("move_speed", -0.20)], "flags": {"knockback_immune": True}},
         {"id": "coiled_dragon", "family": "spear", "name": "Coiled Dragon", "desc": "+15% reach.", "flags": {"reach_mult": 1.15}},
@@ -185,6 +190,9 @@ def stances():
          "modifiers": [mod("move_speed", -0.10)], "flags": {"armour_break_mult": 2.0}},
         {"id": "drifting_cloud", "family": "fan", "name": "Drifting Cloud", "desc": "Your fan-wind reaches 15% farther.", "flags": {"reach_mult": 1.15}},
         {"id": "clear_note", "family": "flute", "name": "Clear Note", "desc": "A melody costs a third less Composure.", "flags": {"channel_cost_mult": 0.67}},
+        # v1.2 Phase D families.
+        {"id": "steady_wrist", "family": "brush", "name": "Steady Wrist", "desc": "+10% Qi attack.", "modifiers": [mod("qi_attack", 0.10)]},
+        {"id": "deep_tone", "family": "bell", "name": "Deep Tone", "desc": "+10% Soul attack.", "modifiers": [mod("soul_attack", 0.10)]},
     ]
     entries("stances", rows)
     return rows

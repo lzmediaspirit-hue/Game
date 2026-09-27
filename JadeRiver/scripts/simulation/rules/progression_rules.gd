@@ -107,7 +107,12 @@ static func active_stance(c) -> Dictionary:
 	var fam := str(StatRules.family(c).get("id", "fists"))
 	var sid := str(c.cultivator.stances.get(fam, ""))
 	var st := ContentDB.entry("stances", sid)
-	return st if not st.is_empty() and str(st.get("family", "")) == fam else {}
+	return st if not st.is_empty() and str(st.get("family", "")) == fam and stance_known(c, st) else {}
+
+## S48: a stance that carries a technique (Willow Leaf Parry) holds only for one who has learned it; every family's
+## basic stance comes with the Stances unlock.
+static func stance_known(c, st: Dictionary) -> bool:
+	return str(st.get("technique", "")) == "" or c.cultivator.techniques_known.has(str(st.technique))
 
 ## S48: the Inner Arts worn and working now (a weapon-linked art needs its weapon in hand).
 static func active_inner_arts(c) -> Array:

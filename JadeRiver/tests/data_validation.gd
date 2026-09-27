@@ -355,11 +355,14 @@ func data_suite() -> void:
 		# A master's legacy (S49) is passed on, never sold; every other art is taught in a shop.
 		if ia.has("legacy"): check(not shop_learns.has(str(ia.id)), "legacy art %s is not sold" % ia.id)
 		else: check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
-	var stance_fams := {}
+	# Every weapon family has one basic stance, held without buying anything; a better one names the technique it needs.
+	var basic := {}
 	for sn in ContentDB.all("stances"):
-		check(ContentDB.has_entry("weapon_families", str(sn.family)) and not stance_fams.has(str(sn.family)), "stance %s: one for family %s" % [sn.id, sn.family])
-		stance_fams[str(sn.family)] = true
+		check(ContentDB.has_entry("weapon_families", str(sn.family)), "stance %s: family %s" % [sn.id, sn.family])
+		if sn.has("technique"): check(str(ContentDB.entry("techniques", str(sn.technique)).get("family", "")) == str(sn.family), "stance %s: technique %s of its family" % [sn.id, sn.technique])
+		else: basic[str(sn.family)] = int(basic.get(str(sn.family), 0)) + 1
 		for m6 in sn.get("modifiers", []): check(stat_ids.has(str(m6.stat)), "stance %s stat %s" % [sn.id, m6.stat])
+	for wf in ContentDB.all("weapon_families"): check(int(basic.get(str(wf.id), 0)) == 1, "weapon family %s has one basic stance (%d)" % [wf.id, int(basic.get(str(wf.id), 0))])
 	for cb in ContentDB.all("combos"):
 		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)

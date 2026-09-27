@@ -2564,6 +2564,12 @@ func arts_suite() -> void:
 	# Stances: one per family, and only with that weapon in hand.
 	check(not Game.submit({"type": "set_stance", "family": "jian", "stance": "iron_horse"}).get("ok", false), "a stance belongs to its own family")
 	var as0: float = c.stats.value("attack_speed")
+	var wlp_known: bool = cu.techniques_known.has("willow_leaf_parry")
+	cu.techniques_known.erase("willow_leaf_parry")
+	check(str(Game.submit({"type": "set_stance", "family": "jian", "stance": "willow_leaf_parry"}).get("reason", "")) == "technique"
+		and Game.submit({"type": "set_stance", "family": "jian", "stance": "guarding_blade"}).get("ok", false)
+		and float(ProgressionRules.path_flag(c, "parry_counter", 0.0)) == 1.2, "without its technique the jian holds Guarding Blade, not Willow Leaf Parry")
+	cu.techniques_known.append("willow_leaf_parry")
 	check(Game.submit({"type": "set_stance", "family": "jian", "stance": "willow_leaf_parry"}).get("ok", false), "the jian takes Willow Leaf Parry")
 	check(float(ProgressionRules.path_flag(c, "parry_counter", 0.0)) == 2.0 and c.stats.value("attack_speed") < as0, "held: a parry counters for 200%, attacks a little slower")
 	Game.submit({"type": "set_stance", "family": "gauntlets", "stance": "iron_horse"})
@@ -2586,6 +2592,7 @@ func arts_suite() -> void:
 	cu.inner_arts = []
 	cu.inner_arts_known = []
 	cu.stances = {}
+	if not wlp_known: cu.techniques_known.erase("willow_leaf_parry")
 	cu.realm_key = realm_was
 	Game.combat.refresh_stats(c.id)
 
@@ -8276,6 +8283,27 @@ func mockup_fixes_suite() -> void:
 	_mock_treasury(c)
 	_mock_stat_formats(c)
 	_mock_locked_text(c)
+	_mock_stances(c)
+
+## Every weapon family has a stance a character holds without buying anything (the jian's only stance was Willow Leaf
+## Parry, a technique bought at the library); Willow Leaf Parry stays the better jian stance.
+func _mock_stances(c) -> void:
+	Unlocks.force_unlock(c.id, "stances")
+	var known_was: Array = c.cultivator.techniques_known.duplicate()
+	c.cultivator.techniques_known = []
+	var without: Array = []
+	for wf in ContentDB.all("weapon_families"):
+		var held := false
+		for st in ContentDB.all("stances"):
+			if str(st.family) == str(wf.id) and not held: held = Game.submit({"type": "set_stance", "family": str(wf.id), "stance": str(st.id)}).get("ok", false)
+		if not held: without.append(str(wf.id))
+	check(without.is_empty(), "every weapon family has a stance held without buying anything (none for %s)" % str(without))
+	var wlp := ContentDB.entry("stances", "willow_leaf_parry")
+	var basic := ContentDB.entry("stances", str(c.cultivator.stances.get("jian", "")))
+	check(str(basic.get("id", "")) != "willow_leaf_parry" and float(wlp.flags.parry_counter) > float(basic.get("flags", {}).get("parry_counter", 0.0))
+		and not ProgressionRules.stance_known(c, wlp), "the jian's basic stance is %s; Willow Leaf Parry, counter for counter the better, needs its technique" % basic.get("name", "none"))
+	c.cultivator.stances = {}
+	c.cultivator.techniques_known = known_was
 
 ## One rule for why a system is locked: every unmet condition, not only the first; a quest that is all that is left,
 ## with its giver (the Bench at bf8 named only Qi Kindling 1; the hub's Works tile at qu5 named Keeping Post, done).
