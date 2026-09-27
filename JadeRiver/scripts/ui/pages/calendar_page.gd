@@ -16,7 +16,6 @@ const ROWS_H := 144.0      # three rows of slips, 48 apart
 const TIDE := Rect2(104, 462, 1070, 40)
 
 var chosen := ""           # "event_id:k", or "beast_tide"
-var _way := {}             # chosen|here -> [room, regions away] (a route is walked once per choice)
 
 func _init() -> void:
 	title = Tx.t("ui.calendar.title")
@@ -169,21 +168,10 @@ func _chosen(ch, now: float, slips: Array) -> void:
 	var used := para(Rect2(r.position.x + 16, r.position.y + 70, 440, 44 if extra != "" else 64), str(ev.get("desc", "")), 14, UiKit.PAPER, 2 if extra != "" else 3)
 	if extra != "": para(Rect2(r.position.x + 16, r.position.y + 72 + used, 440, 40), extra, 14, extra_col, 2)
 	# Go there: auto_path to the event's room, and how many regions away it lies.
-	var way := _route(ch, room)
-	var here := str(ch.position.get("room", "")) == room
+	var away := regions_away(ch, room)
 	var b := Rect2(r.position.x + 468, r.position.y + 16, 156, 56)
-	btn(b, Tx.t("ui.calendar.go_there"), "go", room, true, int(way[1]) > 0, Tx.t("sim.world.auto_path_here") if here else Tx.t("sim.world.auto_path_none"), 20)
-	if int(way[1]) > 0: text(Vector2(b.position.x, b.end.y + 22), Tx.plural("ui.calendar.regions_away", int(way[1])) % int(way[1]), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, b.size.x)
-
-## The way to `room` from where you stand by the portals open to you: [room, regions it crosses] (0 when there is none).
-func _route(ch, room: String) -> Array:
-	var from := str(ch.position.get("room", ""))
-	var key := "%s|%s|%d" % [room, from, Game.account.visited_rooms.size()]
-	if not _way.has(key):
-		var regions := {}
-		for s in Game.world.route(ch, from, room): regions[str(ContentDB.room(str(s.to)).get("region", ""))] = true
-		_way = {key: [room, regions.size()]}
-	return _way[key]
+	btn(b, Tx.t("ui.calendar.go_there"), "go", room, true, away > 0, go_reason(ch, room), 20)
+	if away > 0: text(Vector2(b.position.x, b.end.y + 22), Tx.plural("ui.calendar.regions_away", away) % away, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, b.size.x)
 
 func _weather(now: float) -> void:
 	var r := Rect2(748, 524, 440, 140)

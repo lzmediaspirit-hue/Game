@@ -129,6 +129,11 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 func _layout() -> void:
 	content = content_rect()
 
+## Where the page draws: its window, and anything it pins beyond it (the Dialogue's offered quest above its strip).
+## The ui_suite holds every word and button inside it.
+func window_rect() -> Rect2:
+	return frame_rect
+
 ## The content area: inside the shared window, under the title and the tabs. A page with its own surface gives its own.
 func content_rect() -> Rect2:
 	var top := TOP if title != "" else TOP_BARE
@@ -179,6 +184,7 @@ func submit(intent: Dictionary) -> Dictionary:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
+	HdStyleBox.base = Transform2D.IDENTITY
 	if text_log != null: text_log.clear()
 	_layout()
 	if frameless:
@@ -332,6 +338,12 @@ func _blossom(c: Vector2, live: bool, k: float) -> void:
 		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
 	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
 
+## Draw what follows moved by `pos`, turned by `rot` and scaled by `scl` (a part in motion); the HD faces move with it.
+## `move()` with no arguments puts it back. Regions stay where the part comes to rest (page_identity §8.5).
+func move(pos := Vector2.ZERO, rot := 0.0, scl := Vector2.ONE) -> void:
+	draw_set_transform(pos, rot, scl)
+	HdStyleBox.base = Transform2D(rot, scl, 0.0, pos)
+
 ## A vertical gradient over `r` from `top` to `bottom` (a desk, a wall, a paper's shade).
 func vshade(r: Rect2, top: Color, bottom: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([top, top, bottom, bottom]))
@@ -339,6 +351,24 @@ func vshade(r: Rect2, top: Color, bottom: Color) -> void:
 ## A horizontal gradient over `r` from `left` to `right` (a gutter's shadow, a page's edge).
 func hshade(r: Rect2, left: Color, right: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([left, right, right, left]))
+
+var _way := {}   # the last route asked for: key -> regions it crosses (a route is walked once per choice)
+
+## How many regions the way to `room` crosses from where the character stands, by the portals open to it; 0 when there
+## is none (or it stands there). The Calendar's and the Quests' Go there walk it by the auto_path intent.
+func regions_away(ch, room: String) -> int:
+	if ch == null or room == "": return 0
+	var from := str(ch.position.get("room", ""))
+	var key := "%s|%s|%d" % [room, from, Game.account.visited_rooms.size()]
+	if not _way.has(key):
+		var regions := {}
+		for s in Game.world.route(ch, from, room): regions[str(ContentDB.room(str(s.to)).get("region", ""))] = true
+		_way = {key: regions.size()}
+	return int(_way[key])
+
+## Why Go there is shut for `room`: the character stands there, or no way leads there.
+func go_reason(ch, room: String) -> String:
+	return Tx.t("sim.world.auto_path_here") if ch != null and str(ch.position.get("room", "")) == room else Tx.t("sim.world.auto_path_none")
 
 func _lock_icon(p: Vector2, k := 1.0) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)

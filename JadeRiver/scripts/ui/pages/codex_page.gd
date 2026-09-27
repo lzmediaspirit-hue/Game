@@ -30,13 +30,13 @@ var turned_at := 0.0      # when the last leaf turned (or a rung was dabbed)
 var stamped := {}         # "page:seal" -> when its claim stamped it (decision 27)
 const STAMP_S := 0.3      # a claimed seal dabbed in
 
-## Ink on paper (page_identity §7: the Records family). Each is a token or a mix of two, measured on the paper.
-var INK := UiKit.PAPER_INK
-var BROWN := UiKit.PAPER_INK.lerp(UiKit.BRONZE, 0.45)
-var FADED := UiKit.PAPER_INK.lerp(UiKit.HOLLOW, 0.5)
-var RED_INK := UiKit.BLOOD.lerp(UiKit.INK, 0.15)
-var JADE_INK := UiKit.JADE_SHADOW
-var NEXT_INK := UiKit.BRONZE.lerp(UiKit.INK, 0.3)
+## Ink on paper (page_identity §7: the Records family's, RecordsKit), measured on the paper.
+var INK := RecordsKit.INK
+var BROWN := RecordsKit.BROWN
+var FADED := RecordsKit.FADED
+var RED_INK := RecordsKit.RED_INK
+var JADE_INK := RecordsKit.JADE_INK
+var NEXT_INK := RecordsKit.NEXT_INK
 var PAGE_TOP := UiKit.PAPER.lerp(UiKit.PALE_GOLD, 0.15)
 
 static var _spreads: Array = []   # the Collection's spreads: {page, beasts, part, parts}

@@ -68,6 +68,16 @@
     ],
     "normal": "res://art/ui/hd/dialogue_box__normal.png"
   },
+  "envelope": {
+    "margins": [
+      10,
+      10,
+      10,
+      16
+    ],
+    "normal": "res://art/ui/hd/envelope__normal.png",
+    "selected": "res://art/ui/hd/envelope__selected.png"
+  },
   "honour_seal": {
     "blade": "res://art/ui/hd/honour_seal__blade.png",
     "cauldron": "res://art/ui/hd/honour_seal__cauldron.png",
@@ -167,6 +177,15 @@
     "normal": "res://art/ui/hd/jade_tag__normal.png",
     "selected": "res://art/ui/hd/jade_tag__selected.png"
   },
+  "letter_sheet": {
+    "margins": [
+      18,
+      18,
+      18,
+      18
+    ],
+    "normal": "res://art/ui/hd/letter_sheet__normal.png"
+  },
   "major_window": {
     "margins": [
       32,
@@ -194,6 +213,15 @@
     ],
     "normal": "res://art/ui/hd/minor_panel__normal.png"
   },
+  "paper_slip": {
+    "margins": [
+      8,
+      8,
+      8,
+      10
+    ],
+    "normal": "res://art/ui/hd/paper_slip__normal.png"
+  },
   "portrait_frame": {
     "margins": [
       16,
@@ -202,6 +230,15 @@
       16
     ],
     "normal": "res://art/ui/hd/portrait_frame__normal.png"
+  },
+  "poster": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/poster__normal.png"
   },
   "realm_badge": {
     "margins": [
