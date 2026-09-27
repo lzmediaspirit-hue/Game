@@ -197,6 +197,19 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - HUD glyphs (HD): a `@glyph('<id>')` drawing in a 32 icon space on `face_hd` (the pale-gold face), `warm_hd`,
      `ink_hd` / `mark_hd` details and one `glint_hd`; a weapon on the `DIAG` frame with `shaft_hd`, `blade_hd` and
      `grip_hd`; a book, bust, arrow or chest from `book_hd`, `bust_hd`, `arrow_hd`, `chest_hd`.
+   - treasures (HD): a row in `TREASURES_HD` (id, group, drawing) on the shared builders `bell_hd` (an upright bell),
+     `ding_hd` (a three-legged vessel), `talisman_hd`, `flame_hd` and `dish_hd`; a furnace is a `FURNACES_HD` row
+     (id, grade, look) on `furnace_hd`, which takes the grade's kit and the weapons' `work_hd`; a Heavenly Flame a
+     `FLAMES_HD` row (grade and its three colours).
+   - legends (HD): a piece is read from `data/legends.py` CHAINS; give its id a template in `PIECES_HD` (the piece
+     kinds: hilt, blade, heart, spearhead, shaft, tassel, sheath, cap, knot, guard, rib, silk, pin, mouthpiece, flute
+     body, limb, string, sight, knuckle, cuff), drawn on the weapons' builders with `chain_kit` (the chain's tint as
+     the material, silk and gem; `broken_hd` for a jagged break).
+   - qi jades (HD): a cut stone is `cut_hd(outline, material, table, bezel)`; a ward is `bi_hd` (the disc) with its
+     sign through `sign_hd`.
+   - workshop (HD): a bound book is `book_hd(cover, emblem, torn, stain)`, a scroll `manual_hd(element, tie, paper,
+     stained)`, both taking a mark from `EMBLEMS_HD` (earth, wood, fire, water, wind, reed, paw); an array plate
+     `array_plate_hd(kind)`; the trinkets use `jades.bi_hd` and the curio `treasures.ding_hd`.
    - status icons and markers: add an ASCII block, using `asciiart.KEY`
      colours.
 3. Keep artwork inside the canvas with a 1-px margin for the outline. The
