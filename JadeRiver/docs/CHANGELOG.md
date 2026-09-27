@@ -178,6 +178,10 @@ The open items the mockup agents listed while drawing (`docs/mockups/README.md`)
   Tiger Crouch (fists), Steady Wrist (brush) and Deep Tone (bell). Willow Leaf Parry stays the jian's better stance
   (200%) and now holds only for one who has learned its technique (`ProgressionRules.stance_known`, used by
   `set_stance`, the active stance and the Techniques page). `data_validation` holds one basic stance per family.
+- **Found, not fixed: the Copperjaw swarm has no creature art.** No sheet fits: `rock_beetle` is the quarry's grey
+  stone beetle (an enemy) and `jade_scarab_swarm` a jade insect-netting prop. Nothing maps the swarm to art today (the
+  Swarm tab draws none); a new `copperjaw_swarm` sheet in `creature_art.json`, named by an `art` key in the `swarm`
+  config of `stats.json` as `pets.json` names an animal's, is a pixel-art task.
 
 ### P3 · The first mockups, approved
 - Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
