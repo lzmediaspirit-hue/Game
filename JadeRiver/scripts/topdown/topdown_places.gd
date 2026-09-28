@@ -135,11 +135,14 @@ static func stand_in(e: EnemyState) -> Node2D:
 	return v
 
 ## A stand-in's pose from its state, each frame (an EnemyView poses itself): a Person turns to where it walks or aims,
-## one of the eight rows, and plays its action (a wind-up and its blow as its weapon's first strike).
+## one of the eight rows, and plays its action (a wind-up and its blow as its weapon family's first step, as that family
+## plays it on the grid: the bow draws, the heavy sabre cuts two-handed).
 static func pose(art: Node2D, e: EnemyState) -> void:
 	if not art is Person: return
 	art.look(e.velocity if e.velocity.length() > 1.0 else e.aim_dir())
-	var strike := Wardrobe.attack_for(art.figure.outfit) + "_1"
+	var fam := CombatFeel.family_of_look(str(art.figure.outfit.get("weapon", "none")))
+	var combo: Array = ContentDB.entry("weapon_families", fam).get("combo", [])
+	var strike := TopdownFigure.resolve(str(combo[0].action) if not combo.is_empty() else "punch_1", fam)
 	art.play(TopdownFigure.resolve(str({"walk": "walk", "windup": strike, "attack": strike, "hurt": "hurt", "death": "knockdown"}.get(str(e.action), "idle"))))
 
 ## A way out on the floor where the layout sets it: jade marks walking out through an edge, a lit threshold before a

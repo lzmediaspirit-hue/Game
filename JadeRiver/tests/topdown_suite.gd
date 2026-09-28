@@ -703,6 +703,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	_shots(base)
 	_push_and_dodge(base)
 	_figure(base)
+	_figure_moves(base)
 	await _chase_and_leash(base)
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
@@ -859,6 +860,72 @@ func _push_and_dodge(base: Vector2) -> void:
 	var again: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1, "moves": false})
 	t.check(dashed and c.pools.hp == hp0 and str(again.get("reason", "")) == "cooldown" and Game.combat.forced_motion(c.id).is_empty(),
 		"topdown: the dodge is Combat's (its i-frames slip the blow, its 2.5 s cooldown holds) and the motor's dash carries it")
+
+## Decision 37's full set in the fight (the bow batch): each family strikes in its own drawn pose (the heavy sabre
+## two-handed, the bow's draw, the bell's toll on its first steps, the flute at the lips, the brush writing its third,
+## the fan thrown), a blow in the air plays the air strike, a dash attack the dash slash (a thrust family its lunging
+## thrust), a parried blow the parry's deflection, the finisher armed on Attack the charge's held wind-up, the flute's
+## held melody loops its note's frames, and a staged scene holds the body in a story gesture; nothing is a stand-in.
+func _figure_moves(base: Vector2) -> void:
+	var p = w.player
+	fresh(base)
+	var play := func(fam: String, action: String, air := false, step := {}) -> String:
+		var tl: Dictionary = Game.combat.timeline(c.id)
+		tl.action = action
+		tl.family = fam
+		tl.technique = ""
+		tl.combo = 0
+		tl.t = 0.05
+		tl.duration = 0.6
+		tl.hit_at = 0.3
+		tl.air_attack = air
+		tl.step = step
+		p.sync(0.0)
+		var got := str(p.pose)
+		Game.combat.actors.erase(c.id)
+		return got
+	var own := [play.call("heavy_sabre", "swing_1"), play.call("heavy_sabre", "swing_3"), play.call("bow", "bow"),
+		play.call("bell", "swing_1"), play.call("bell", "swing_3"), play.call("flute", "attack"), play.call("brush", "swing_3"),
+		play.call("fan", "swing_3", false, {"throw": {"speed": 520}}), play.call("jian", "swing_1")]
+	var air := [play.call("jian", "swing_2", true), play.call("bow", "bow", true)]
+	p.dash_attack = true
+	p.dash_combo = 0
+	var dash := [play.call("jian", "swing_1"), play.call("fists", "punch_1"), play.call("spear", "thrust_1")]
+	p.dash_attack = false
+	p.dash_combo = -1
+	t.check(own == ["two_hand_swing_1", "two_hand_swing_3", "bow_draw", "bell_toll", "swing_3", "flute_play", "brush_write", "fan_throw", "swing_1"]
+		and air == ["air_strike", "bow_draw"] and dash == ["dash_slash", "dash_slash", "thrust_3"],
+		"topdown figure: each family strikes in its own drawn pose, in the air the air strike, out of a dash the dash slash or a lunging thrust (%s, %s, %s)" % [str(own), str(air), str(dash)])
+	# The parry, the armed finisher, the held melody, a staged gesture.
+	fresh(base)
+	p.parried()
+	p.sync(0.0)
+	var parry := [str(p.pose), p.parry_t > 0.0]
+	frames(30)
+	p.sync(0.0)
+	parry.append(str(p.pose))
+	p.aim = {"move": "finisher"}
+	p.sync(0.0)
+	var charge := str(p.pose)
+	p.aim = {}
+	Game.combat.melody[c.id] = {"next": 9.0}
+	var loop := CombatFeel.melody_loop()
+	var melody := {}
+	for i in 12:
+		p.sync(0.05)
+		melody[p.frame] = str(p.pose)
+	Game.combat.melody.erase(c.id)
+	var in_loop := melody.keys().all(func(k): return int(k) >= int(loop[0]) and int(k) <= int(loop[1])) and melody.size() == int(loop[1]) - int(loop[0]) + 1 \
+		and melody.values().all(func(v): return v == "flute_play")
+	p.stage_pose = "salute"
+	p.sync(0.0)
+	p.sync(2.0)
+	var gesture := [str(p.pose), p.frame]
+	p.stage_pose = ""
+	p.sync(0.0)
+	t.check(parry == ["parry_deflect", true, "idle"] and charge == "charge_hold" and in_loop and gesture == ["salute", 2] and str(p.pose) == "idle"
+		and (TopdownFigure.manifest().get("stand_ins", []) as Array).is_empty(),
+		"topdown figure: a parry deflects then settles, the armed finisher holds the charge, the melody loops its note, a staged salute holds (%s, %s, %s, %s)" % [str(parry), charge, str(melody), str(gesture)])
 
 ## Phase 3 (decision 32): the body is the real character. Its figure wears the character's look and gear from the save
 ## and dresses again when the gear changes; each state plays its drawn action in the body's facing: a blow its family's
