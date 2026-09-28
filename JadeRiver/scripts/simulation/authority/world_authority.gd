@@ -104,11 +104,10 @@ func spring_ambush(c, amb: Dictionary) -> void:
 	var n := int(amb.get("count", 2))
 	var off := float(k.get("offset", 360))
 	for i in n:
-		var side := 1.0 if i % 2 == 0 else -1.0
-		var x := clampf(at.x + side * (off + 90.0 * floorf(i / 2.0)), 120.0, rt.width() - 120.0)
-		var spot := Vector2(x, at.y)
+		var dx := (1.0 if i % 2 == 0 else -1.0) * (off + 90.0 * floorf(i / 2.0))
+		var spot := Vector2(clampf(at.x + dx, 120.0, rt.width() - 120.0), at.y)
 		# On the height grid: on the floor round the player, on its own level (not in a wall, the water or a roof).
-		if rt.topdown != null: spot = rt.topdown.place_near(at + Vector2(side * (off + 90.0 * floorf(i / 2.0)), 0.0), rt.topdown.floor_at(at))
+		if rt.topdown != null: spot = rt.topdown.place_near(at + Vector2(dx, 0.0), rt.topdown.floor_at(at))
 		game.enemies.spawn_at(str(amb.enemy), spot, rng.randi_range(int(lv[0]), int(lv[1])))
 	emit("ambush_sprung", {"actor": c.id, "room": rt.room_id, "enemy": str(amb.enemy), "count": n, "concealed": c.cultivator.false_realm != ""})
 
@@ -365,7 +364,7 @@ func portal_near(c, portal: Dictionary) -> bool:
 	var st: ActorState = game.actor_state(c.id)
 	if st == null: return true
 	var at: Array = portal.get("at", [0, 0])
-	var r: Vector2 = PORTAL_RADIUS * float(portal.get("radius_scale", 1.0))
+	var r: Vector2 = PORTAL_RADIUS
 	if portal.has("reach"):
 		# Redesign Phase 4: a way on the height grid reaches along its edge or doorway and a tile across it (turned with
 		# its direction, TopdownRoom.merge_def), and only on its own floor: never from the ground under a terrace's door.
@@ -1417,11 +1416,11 @@ func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNu
 		out.append([p.x, p.y, s.height_at(p) if s else 0.0])
 	return out
 
-## Is the character on the floor of a hazard at `p`: the ground in the side view (below `tol`), on the height grid
-## within `tol` of the floor there, so a pool on the square does not reach a body on the terrace above it.
-func _on_hazard_floor(rt: RoomRuntime, st: ActorState, p: Vector2, tol: float) -> bool:
+## Is the character on the floor, within `tol` of it (not jumping over a pool or a current): the ground in the side
+## view, the floor under it on the height grid, so a pool on the square acts on a body on the terrace only on its own.
+func _on_hazard_floor(rt: RoomRuntime, st: ActorState, tol: float) -> bool:
 	if rt.topdown == null: return st.altitude < tol
-	return absf(st.altitude - rt.topdown.floor_at(p)) < tol
+	return absf(st.altitude - rt.topdown.floor_at(st.plane)) < tol
 
 ## Hazards that act for as long as they are active: gusts and currents push, pools pulse.
 func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, delta: float, calm: bool) -> void:
@@ -1435,7 +1434,7 @@ func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Diction
 		"flow":
 			var inside := false
 			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, st.plane, 2.0):
+				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, 2.0):
 					inside = true
 					if not calm:
 						var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
@@ -1449,7 +1448,7 @@ func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Diction
 			if float(hs.pulse) > 0.0: return
 			hs.pulse = float(h.get("pulse", 1.0))
 			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, st.plane, 10.0):
+				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, 10.0):
 					_hazard_hit(c, rt, h, calm)
 					return
 

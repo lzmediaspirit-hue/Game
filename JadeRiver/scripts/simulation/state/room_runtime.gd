@@ -52,8 +52,7 @@ const FIGURE := Vector2(24, 80)
 func out_of_view(p: Vector2, alt: float, st: ActorState, margin := 0.0) -> bool:
 	if st == null: return true
 	if topdown == null: return absf(p.x - st.plane.x) >= HALF_VIEW.x + margin
-	var ground := topdown.height_at(st.plane)
-	var z: float = ground if ground < INF and ground <= st.altitude + 1.0 else st.altitude
+	var z := topdown.ground_under(st.plane, st.altitude)
 	var fig := Rect2(p.x - FIGURE.x, p.y - alt - FIGURE.y, FIGURE.x * 2.0, FIGURE.y)
 	return not topdown.view_rect(st.plane, z).grow(margin).intersects(fig)
 

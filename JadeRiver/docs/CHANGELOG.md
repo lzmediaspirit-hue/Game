@@ -21,7 +21,7 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, second part".
     - the heavens' bolt strikes a circle;
     - burning ground burns only on its own floor.
 - **Respawns out of view use the camera's rect**, on both axes (a foe no longer pops in on screen near a room's wall).
-  Two foes are never put on one point.
+  On the grid two foes are never put on one point.
 - **The people come with the room.** Page scripts now warm up one at a time after launch. While one compiles, every
   other load waits, and asking for all sixty at once held villagers back for seconds. They now draw within a moment
   of the room (80 ms headless, with 56 page scripts still to compile).

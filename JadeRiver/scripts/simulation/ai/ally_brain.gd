@@ -18,7 +18,7 @@ static func settle(game, a: EnemyState, st: ActorState) -> void:
 	if game.room_rt == null: return
 	var grid: TopdownRoom = game.room_rt.topdown
 	if grid != null and st != null:
-		var ground := TopdownBrain.floor_under(grid, st)
+		var ground := grid.ground_under(st.plane, st.altitude)
 		a.plane = TopdownBrain.spot_by(grid, st.plane, ground, a.plane)
 		a.altitude = grid.floor_at(a.plane)
 		a.surface_id = ""
@@ -38,7 +38,7 @@ static func blink_to(game, a: EnemyState, st: ActorState, side: int) -> void:
 	var s: WalkSurface = st.surface
 	var p: Vector2 = st.plane + Vector2(side * 50, 8)
 	if grid != null:
-		var ground := TopdownBrain.floor_under(grid, st)
+		var ground := grid.ground_under(st.plane, st.altitude)
 		a.plane = TopdownBrain.spot_by(grid, st.plane, ground, p)
 		a.altitude = grid.floor_at(a.plane)
 		a.vz = 0.0
@@ -87,9 +87,8 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 		return
 	var side := -1 if int(game.combat.timeline(c.id).facing) > 0 else 1
 	var home = st.plane + Vector2(side * float(a.ai.get("offset", 60)), float(a.ai.get("depth_offset", 10)))
-	var owner_floor: float = TopdownBrain.floor_under(grid, st) if grid != null else st.altitude
 	if grid != null:
-		home = TopdownBrain.follow_spot(grid, st.plane, owner_floor, game.combat.timeline(c.id).get("aim", Vector2(-side, 0)),
+		home = TopdownBrain.follow_spot(grid, st.plane, grid.ground_under(st.plane, st.altitude), game.combat.timeline(c.id).get("aim", Vector2(-side, 0)),
 			float(a.ai.get("offset", 60)), float(a.ai.get("depth_offset", 10)))
 	# The pet command wheel (v2 HUD): stay holds a spot, attack reaches wider, passive never fights.
 	var cmd := str(a.ai.get("command", "follow"))
@@ -148,7 +147,7 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 		blink_to(game, a, st, side)
 		return
 	if grid != null:
-		_steer_on_grid(game, grid, a, target, home, owner_floor, reach, delta)
+		_steer_on_grid(game, grid, a, target, home, reach, delta)
 		return
 	if target != null:
 		var dx := target.plane.x - a.plane.x
@@ -181,14 +180,15 @@ static func _wind_up(a: EnemyState, target: EnemyState) -> void:
 	a.ai.target_uid = target.uid
 	a.action_time = 0.0
 
-## Redesign Phase 4: close on the target and strike it, or keep the follow spot, on the height grid. The way is the
-## grid's (TopdownBrain.chase, which hops a level up for an ally that jumps); an ally that makes no headway toward a
-## spot it is far from is stuck, and after 2 s it blinks to its owner (think).
-static func _steer_on_grid(game, grid: TopdownRoom, a: EnemyState, target: EnemyState, home: Vector2, owner_floor: float, reach: float, delta: float) -> void:
+## Redesign Phase 4: close on the target and strike it, or keep its spot (behind the owner, or where it was told to
+## stay), on the height grid, on that spot's floor. The way is the grid's (TopdownBrain.chase, which hops a level up for
+## an ally that jumps); an ally that makes no headway toward a spot it is far from is stuck, and after 2 s it blinks to
+## its owner (think).
+static func _steer_on_grid(game, grid: TopdownRoom, a: EnemyState, target: EnemyState, home: Vector2, reach: float, delta: float) -> void:
 	var speed := float(a.ai.get("speed", 180))
 	var before := a.plane
 	var goal := home
-	var goal_alt := owner_floor
+	var goal_alt := grid.floor_at(home)
 	if target != null:
 		var d := target.plane - a.plane
 		if d.length() > 0.5: a.aim = d.normalized()

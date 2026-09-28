@@ -306,6 +306,12 @@ static func cell_points(cells: Array) -> Array:
 		out.append([p.x, p.y])
 	return out
 
+## The ground under a body at `p` and height `z`: its floor while it stands on it, the floor below while it is in the
+## air over one; its own height where nothing is under it (the camera's ground, an ally's owner's floor).
+func ground_under(p: Vector2, z: float) -> float:
+	var g := height_at(p)
+	return g if g < INF and g <= z + 1.0 else z
+
 ## The floor under a point for something set on it (an object, a foe's spawn): 0 where nothing can stand.
 func floor_at(p: Vector2) -> float:
 	var z := height_at(p)
@@ -419,7 +425,6 @@ func merge_def(side: Dictionary) -> Dictionary:
 		var span := float(lay.get("span", 2 if str(p.get("type", "edge")) in ["door"] else 3))
 		var along := span * TILE * 0.5
 		p.reach = [along if dir.x == 0.0 else TILE, TILE if dir.x == 0.0 else along]
-		p.erase("radius_scale")
 		p.erase("press_up")
 		p.erase("arrive_offset")
 		p.erase("arrive_dy")

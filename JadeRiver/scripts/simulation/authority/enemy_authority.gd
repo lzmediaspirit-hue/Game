@@ -231,8 +231,8 @@ func tick(delta: float) -> void:
 ## (stats.json respawn.offscreen_x: that far across in the side view, which is half the view and a margin; on the height
 ## grid the camera's rect grown by the same margin, RoomRuntime.out_of_view). A foe coming back while the player is in
 ## the room appears only out of view, so the room never refills before their eyes, unless it fills on entry or a kill
-## step asks for it; else it waits (INF). Another point is taken only while no foe stands on it, so a pack is never
-## piled onto the one point out of view.
+## step asks for it; else it waits (INF). On the height grid another point is taken only while no foe stands on it, so a
+## pack is never piled onto the one point out of the camera's rect.
 func _spawn_point(slot: Dictionary) -> Vector2:
 	var point: Vector2 = slot.point
 	var rt: RoomRuntime = game.room_rt
@@ -243,7 +243,7 @@ func _spawn_point(slot: Dictionary) -> Vector2:
 	if st == null or hidden.call(point): return point
 	for p in slot.spec.get("points", []):
 		var cand := Vector2(float(p[0]), float(p[1]))
-		if hidden.call(cand) and not taken.call(cand): return cand
+		if hidden.call(cand) and not (rt.topdown != null and taken.call(cand)): return cand
 	if slot.get("entry", false) or int(slot.index) < 0 or _quick(slot.spec, game.active()): return point
 	return Vector2.INF
 

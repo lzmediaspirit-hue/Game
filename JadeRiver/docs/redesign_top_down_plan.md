@@ -1106,8 +1106,8 @@ or walk-strip rules was audited and fixed. The side view is unchanged except whe
   clamped to the room as the camera is, grown by the side view's margin: `respawn.offscreen_x` less half the view).
   Near a wall the camera shows 1280 units of the room, so a spot 768 across is in view; a spot 17 tiles straight south
   is out of it. The side view keeps its rule (700 across).
-- A foe is never put on a point another foe stands on: all four of the Reed Shallows' rats had piled onto the one rat
-  point out of the camera's view.
+- On the grid a foe is never put on a point another foe stands on: all four of the Reed Shallows' rats had piled onto
+  the one rat point out of the camera's view. The side view picks its points as before.
 - The HUD's notice of a foe that saw you from off the screen asks the same.
 
 **The people with the room** (`PageWarmer`): while a page script compiles on its loading thread every other load waits

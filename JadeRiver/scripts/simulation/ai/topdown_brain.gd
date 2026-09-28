@@ -129,11 +129,6 @@ static func chase(auth, e: EnemyState, goal: Vector2, goal_alt: float, speed: fl
 	_walk(auth, e, (next - e.plane).normalized(), speed, delta)
 
 # ------------------------------------------------------------------ Phase 4: allies on the grid (AllyBrain)
-## The floor under a body (its own height while it stands; the floor below while it is in the air).
-static func floor_under(room: TopdownRoom, st: ActorState) -> float:
-	var g := room.height_at(st.plane)
-	return g if g < INF and g <= st.altitude + 1.0 else st.altitude
-
 ## A free spot for an ally on the owner's floor toward `want`, on the owner's side of any wall (a clear walk from the
 ## owner): `want` itself, else halfway or a quarter of the way there; the owner's own spot when none is.
 static func spot_by(room: TopdownRoom, owner: Vector2, ground: float, want: Vector2) -> Vector2:
