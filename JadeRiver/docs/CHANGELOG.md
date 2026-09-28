@@ -1,5 +1,40 @@
 # Changelog
 
+## Top-down: the real character (decision 32)
+
+- **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
+  faces, hair styles, clothes, colours, dyes and weapons. It reads the same data: `parts.json`'s names, dyes and hair
+  colours, and the save's outfit. It replaces the placeholder body, which is removed. Details are in
+  `docs/redesign_top_down_plan.md`, "As built: Phase 3, second part", and `docs/redesign/art_bible.md` §13.
+- **Drawn by `tools/art/topdown/build_character.py`.** It is deterministic and byte-identical twice (`--check`). A
+  posed doll is ray-cast at 1 art px and shaded in the side view's ramps with the art bible's outlines.
+  - The unclothed body comes first; every layer is cast from the same poses over it (`AGENTS.md`).
+  - S, SE, E, NE and N are drawn; SW, W and NW mirror. The collar and the weapon hand swap sides in the mirrored
+    facings.
+- **Twenty-one actions, 494 frames:** idle, walk, run, jump, dash, dodge, hurt, knock-down, punch 1–3, swing 1–3,
+  thrust 1–3, cast, guard, plunge and meditate (S only; its other facings redirect to S). A cut leaves a smear of
+  jade light.
+- **Every creator look is drawn,** with every dye and hair colour:
+  - the body and the six hair styles;
+  - all five shirts, five trousers and three shoes;
+  - the five hats and two capes;
+  - the training gauntlets, the short blade, the jian, the spear and the staff.
+
+  124 of the 125 NPCs are fully drawn, and so are all nine of the tutorial's. Only the bow (qiu_feng's, and the bow
+  family's) and the later weapon families are left; each goes in `TopdownFigure.missing` and draws nothing.
+- **In the game.** `TopdownFigure` composites the layers. The player wears its equipment and dyes from the save,
+  dresses again when they change, and plays each state's action. A blow lands its hit frame on Combat's clock. The
+  facing picks one of eight rows. `TopdownWorld.add_villager` stands an NPC in its own outfit in the room.
+- **Tests.**
+  - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing ten
+    broken manifests.
+  - `topdown_suite` checks the outfit from the save, dressing again, each state's action and the eight facings; the
+    drag moves use the real guard and plunge.
+  - `tests/topdown_figure_gallery.tscn` renders the compatibility gallery with the game's own compositor.
+- **Review sheets** are in `docs/redesign/phase3/character/`: the body, an outfit per facing, the weapons, hair,
+  dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The Phase 3 square mocks now
+  show the real character.
+
 ## Study: which systems live on the map as places (decision 36)
 
 - **`docs/redesign/systems_as_places.md`**, a proposal for the user; nothing is built. It gives every page a verdict:

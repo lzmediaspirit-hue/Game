@@ -6,7 +6,7 @@ Poses are in the figure's own frame (skeleton.py): f forward, r the character's 
 `blade` is where the jian's and the short blade's point goes, `pole` the spear's line (`two_hand` runs it through both
 hands). The combo strikes follow the side view's three families (weapon_families.json): punch_1-3 for fists and
 gauntlets (lead jab, rear cross, rising uppercut), swing_1-3 for the jian (rising cut, return cut, heavy descending
-cut), thrust_1-3 for the spear and the short blade (straight, low, high lunging thrust).
+cut), thrust_1-3 for the spear, the staff and the short blade (straight, low, high lunging thrust).
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from .skeleton import pose
 
 # idle / walk carriage of each weapon line
 BLADE_IDLE = (0.7, 0.42, -0.58)
-POLE_IDLE = {"dir": (0.14, 0.12, 1.0), "butt": 12.6}
+POLE_IDLE = {"dir": (0.14, 0.24, 1.0), "butt": 12.6}
 
 
 def W(blade=None, pole=None, flat=(0.0, 1.0, 0.0), laid=None, smear_from=None):

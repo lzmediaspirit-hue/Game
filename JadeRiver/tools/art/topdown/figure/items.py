@@ -106,7 +106,7 @@ def catalog() -> list:
     items.append(Item("weapon", "gauntlets", L["weapon"]["gauntlets"], G.gauntlets,
                       Look(highlight=("steel", "bronze"), ink=("steel", "bronze")),
                       {"none": {"steel": P.STEEL, "bronze": P.BRONZE}}, ["steel", "bronze"]))
-    for name in ("dagger", "sword", "spear"):
+    for name in ("dagger", "sword", "spear", "staff"):
         pal = {"blade": P.BLADE, "edge": EDGE, "gold": P.GOLD, "hilt": P.HILT, "shaft": P.SHAFT, "cord": CORD, "smear": SMEAR}
         items.append(Item("weapon", name, L["weapon"][name], lambda sk, n=name: WP.solids(sk, n),
                           Look(highlight=("blade", "edge", "gold", "shaft"), flat={"smear": 2}, glow=("smear",),

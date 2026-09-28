@@ -567,15 +567,11 @@ which stay as built. Each uses rules the game already has. Numbers are in `data/
 - The moves are live only while the button attacks: in a fight, or with nothing to talk to or gather at hand. While
   the button offers a context at rest, or during a harvest tap or a channel, a hold lets go as a tap.
 
-**Poses.** The body sheet is still the placeholder, with no guard or plunge rows. The player draws the sheet's own
-`guard` and `plunge` rows when a sheet has them: guard 2 frames at 6 fps, held on the last; plunge 3 at 12, the last
-its impact, as §1.4's catalogue sets. Until then it falls back to fixed cells:
+**Poses.** The real character (Phase 3, second part) draws both moves:
 
-- the guard to the idle row's first frame;
-- the drop to the jump's fall frame;
-- the impact to the jump's landing frame, held for 0.25 s.
-
-So the art that is being drawn drops in with no code change.
+- the guard, 2 frames held while guarding;
+- the Plunge's tuck and dive while it drops;
+- its impact frame, held for 0.25 s after it lands.
 
 **Where it lives.**
 
@@ -609,7 +605,7 @@ The side view is unchanged.
   - a drag down without the art, which stays an air blow;
   - the guard: its parry, its cut, and its end;
   - the stance (Silkworm Riposte);
-  - the guard row when a sheet has one;
+  - the figure's guard pose;
   - left-handed, a finisher and a cancel;
   - Reduce motion.
 
@@ -659,7 +655,178 @@ The side view is unchanged.
 - **`compose.py`** is the reference renderer of the rules. It renders the review images in `docs/redesign/phase3/`.
 - **What waits.** The room view draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
   contact shade and prop shadows wait for a loader patch after Phase 2, or for the Phase 4 move to `TileMapLayer`s.
-- **Not started:** the body in S/E/N, the weapon and hat rig, and the gallery by facing (the rest of Phase 3).
+- **Not started then:** the body in S/E/N, the weapon and hat rig, and the gallery by facing. The second part below
+  builds them.
+
+### As built: Phase 3, second part · the real character (decision 32, 2026-09-28)
+
+**What it is.** The prototype's body is now the game's own character, redrawn for the ¾ view. It keeps the side
+view's big-headed build, faces, hair styles, clothes, colours, dyes and weapons, and reads them from the same data:
+the names, dyes and hair colours in `data/parts.json`, and the outfit in the save. It replaces the placeholder body.
+The villagers are drawn the same way.
+
+**How it is drawn.** The build is `python3 tools/art/topdown/build_character.py [--check] [--review]`. It is
+deterministic, and `--check` builds twice and compares every byte.
+
+- **A posed doll.** `tools/art/topdown/figure/` holds a small 3D doll:
+  - a skeleton posed per frame in the figure's own frame (forward, right, up), with two-bone IK for the arms and legs;
+  - solids (spheres, ellipsoids, tapered cones) ray-cast at 1 art px per pixel through an orthographic camera 22°
+    above the ground;
+  - 0.92 art px per unit, so the body is about 38 art px from sole to crown, 40 with a top knot.
+- **Shading.** Each pixel takes a step of its material's five-step ramp from N·L against the upper-left light. The
+  deepest step is kept for contact shade, under a nearer part. Orphan pixels are cleaned up.
+- **Outlines.** 1 px, as the art bible's §4 sets: ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side.
+  Where an edge falls over the figure itself, it takes the material's own deep tone instead. A cut's smear has no ink.
+- **One pose for every layer.** Every layer is cast from the same pose of the unclothed body, so each one stays
+  registered to the body in every frame (`AGENTS.md` rules 1–4). The body is drawn first; clothes, hair and weapons
+  go over it.
+
+**Facings.** S, SE, E, NE and N are drawn; SW, W and NW mirror SE, E and NE. The motor picks one of the eight rows,
+changing row only when the stick is 10° nearer another (§1.4 asked for 20° with four rows).
+
+- The side and back-diagonal rows are turned a little toward the camera, as ¾ sprites are: E faces 14° south of
+  east, NE 36° north of east, SE 48° south of east. In E the head turns a further 22°, so the face shows in three
+  quarters, as on the side-view sprite.
+- **What does not mirror cleanly.** In the west facings the crossed collar (left over right) and the weapon hand
+  (right) swap sides, and the light comes from the upper right. The side view's left row mirrors its right the same
+  way.
+- **Depth.** A weapon pointed at the camera or away from it is drawn 1.6 times longer along the ground's depth than
+  the doll's camera would show it. The world's own view keeps the ground's depth at full length, so a thrust to the
+  south still reads as a reach.
+
+**Bands and layer order.** Each item is cut into up to four sections by depth:
+
+- back: behind the chest (the far arm, a tail behind the neck, a blade behind the back);
+- mid: the trunk, legs and clothes;
+- head: the body's head and neck, over the shirt's collar and under the hair;
+- front: in front of the chest.
+
+A section's z is its band's base (0, 100, 150, 200) plus the side view's category order: body 10, shoes 20,
+trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade changes band as the pose moves it.
+
+**The action catalogue** (`data/topdown/character.json` `actions`; frames per facing, 494 frames in all):
+
+| Action | Frames | fps | Loop | Hit | Notes |
+|---|---|---|---|---|---|
+| idle | 4 | 4 | yes | | breathing; the weapon held low |
+| walk | 8 | 10 | yes | | plays faster or slower with the speed |
+| run | 8 | 14 | yes | | above 1.15 × the walk speed |
+| jump | 5 | 10 | no | | takeoff, rise, apex, fall, land; the player picks the frame from the vertical speed |
+| dash | 4 | 16 | no | | |
+| dodge | 4 | 14 | no | | the back-step (a dash away from the facing) |
+| hurt | 2 | 10 | no | | while Combat's flinch lasts |
+| knockdown | 5 | 10 | no | | falls back and to its side; held on the last frame while wounded |
+| punch_1–3 | 5 | 14, 13, 11 | no | 2 | lead jab, rear cross, rising uppercut (fists, gauntlets) |
+| swing_1–3 | 6 | 14, 13, 11 | no | 2, 2, 3 | rising cut, return cut, heavy descending cut (jian); a smear of jade light on the hit frame and the next |
+| thrust_1–3 | 5 | 14, 13, 11 | no | 2 | straight, low and high lunging thrust (spear, short blade) |
+| cast | 5 | 12 | no | 2 | the hand seal, then both palms out |
+| guard | 2 | 4 | yes | | held (decision 35's hold, and the Dodge button's) |
+| plunge | 3 | 12 | no | 2 | tuck, dive, impact (decision 35's drag down) |
+| meditate | 4 | 3 | yes | | faces S only; the other seven facings redirect to S |
+
+- **Blows on Combat's clock.** A blow plays its own action, with its hit frame shown the moment the hit lands
+  (`TopdownFigure.strike_frame`).
+- **Techniques.** A technique plays its own pose. One with no pose of its own (or `meditate_burst`) plays the cast.
+- **Aliases.** Side-view names still in the data are explicit redirects: `attack` → thrust_1, `swing` → swing_1,
+  `punch` → punch_2, `bow` → cast, `meditate_burst` → cast.
+
+**Layers drawn.** Every item below is drawn in every action and facing:
+
+| Category | Items | Variants |
+|---|---|---|
+| body | light (the creator's one skin tone) | 1 |
+| hair | the creator's six styles: short_knot, topknot, ponytail, high_pony, long_tied, flowing | the six hair colours |
+| shirt | disciple (the start), vneck, cardigan, scholar, sleeveless | undyed and the ten dyes |
+| pants | loose (the start), straight, cuffed, scholar, martial | undyed and the ten dyes |
+| shoes | slippers (the start), boots, folded | 1 |
+| hat | straw, headband, tied, guan, weimao | 1 |
+| cape | solid, tattered | 1 |
+| weapon | gauntlets (the starting training gauntlets), dagger (short blade), sword (jian), spear, staff | 1 |
+
+- **Weapons outside their family's actions.** The jian thrusts, the spear swings, the gauntlets strike in every
+  pose. The spear runs through both hands wherever the pose holds it two-handed. A meditating figure lays its weapon
+  on the ground beside it.
+- **Absent layers are explicit.** A section with nothing to draw in an action and facing has a `hidden` entry with
+  its reason (for example, the body's back section when both arms are level with the chest). A frame with nothing
+  to draw is an empty rect.
+
+**Sheets.** Each item and dye or hair colour has one sheet: `art/topdown/character/<cat>_<item>[__<variant>].png`.
+
+- Every frame of every section is trimmed and shelf-packed 512 px wide, and identical frames share a rect.
+- Dyes and hair colours are baked sheets, as in the side view. All the variants of an item share one rect table.
+- There are 162 sheets, about 7 MB. A figure in the starting outfit loads about 3 MB of textures.
+
+**In the game.**
+
+- `TopdownFigure` (`scripts/topdown/topdown_figure.gd`) composites the sections by z. For each section and frame it
+  draws one rect `[x, y, w, h, ox, oy]`, where `(ox, oy)` is the offset from the feet; the west facings draw flipped.
+- **The player** wears `InventoryAuthority.outfit_for` its character: the equipment and dyes from the save. It
+  dresses again on `equipment_changed`.
+- **The player's state picks the action:** wounded → knockdown; the Plunge → plunge, and its impact frame after
+  landing; a blow or technique under way → its pose; hurt; the dash or back-step; in the air → jump; guarding →
+  guard; landing → jump's last frame; meditating → meditate; moving → walk or run; else idle.
+- **Villagers.** `TopdownFigure.for_npc` dresses an NPC in its own outfit, with unset pieces filled as the side
+  view fills them. `TopdownWorld.add_villager` stands one in the room, sorted with it.
+- **What is not drawn is listed.** An outfit piece with no top-down layer goes in `TopdownFigure.missing`, and the
+  figure draws without it.
+- **The placeholder body is gone.** `build_topdown_proto.py` draws only the placeholder foes. The tile review
+  (`compose.py`) draws the real figure.
+
+**What still needs top-down layers.** All nine villagers of the tutorial (Lotus Ferry) are fully drawn: aunt_ping,
+lu_boatman, little_dou, old_ma, granny_liu, shen_lian_npc, uncle_guo, fisher_wen and washer_mei. So are 124 of the
+125 NPCs. What is left:
+
+- **The bow.** qiu_feng carries one, and so does the player's bow family. The bow's draw and release poses are also
+  still aliased to the cast.
+- **The later weapon families:** heavy sabre, fan, flute, brush and bell. Only the player carries these, and no NPC
+  does.
+
+A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
+
+**Tests.**
+
+- **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
+  side view:
+  - every action is in every item's sections in every drawn facing, or hidden with a reason;
+  - a facing-locked action redirects every other facing;
+  - each family has three distinct one-shot combo stages;
+  - every dye and hair colour has its sheet;
+  - every rect lies inside its sheet;
+  - the names come from `parts.json`;
+  - the early families' combos and every technique's pose play drawn actions;
+  - the creator's looks and the early drops are drawn;
+  - the hats and capes are held to the same contract.
+
+  Like `animation_contract_tests.ps1`, it then shows the gate refusing ten broken manifests.
+- **`topdown_suite` `_figure`:**
+  - the figure wears the save's outfit, and dresses again when the jian is equipped;
+  - each state plays its action: idle, walk, the blow's own pose with its hit frame, the cast, the back-step, the
+    knock-down, the jump;
+  - all eight rows draw, and the west mirrors the east.
+
+  The drag-move checks now use the figure's guard and plunge poses.
+- **`tests/topdown_figure_gallery.tscn`** renders the compatibility gallery (it needs a renderer). There is one sheet
+  per item and dye or hair colour, with every action in all eight facings, drawn by the game's own compositor over
+  the starting outfit.
+
+**Review sheets** (`docs/redesign/phase3/character/`, from `--review` and `tools/dev/topdown_capture.tscn --
+--character`):
+
+- `01_body.png`: the unclothed body;
+- `02_outfit_<facing>.png`: the starting outfit, one sheet per facing;
+- `03_weapon_<name>.png`: each weapon;
+- `04_hair.png`: the hair styles;
+- `05_dyes.png`: the dyes;
+- `06_villagers.png`: the tutorial's villagers;
+- `09_wardrobe.png`: every garment, hat and cape;
+- `07_ingame_square.png` and its strips: in Riverside Square in the game;
+- `08_mirrored.png`: the eight facings.
+
+**Not built.**
+
+- Palette-swap dyes (§1.4). Dyes are baked sheets, as in the side view.
+- Thrust streaks. A thrust at the camera relies on the effects layer's line.
+- The top-down creature sheets. The foes are still placeholders.
 
 ### Phase 4 · Room conversion by region (XL)
 

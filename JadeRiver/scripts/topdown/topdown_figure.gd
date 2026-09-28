@@ -1,16 +1,16 @@
 class_name TopdownFigure
 extends RefCounted
 ## Top-down redesign, Phase 3 (decision 32): the game's real character drawn in the 3/4 view, for the player and the
-## villagers alike. It composites the layers the side view's avatar wears (body, shoes, trousers, shirt, hair, weapon;
-## parts.json's names, dyes and hair colours) from the sheets tools/art/topdown/build_character.py draws, as
+## villagers alike. It composites the layers the side view's avatar wears (body, shoes, trousers, shirt, cape, hair, hat,
+## weapon; parts.json's names, dyes and hair colours) from the sheets tools/art/topdown/build_character.py draws, as
 ## data/topdown/character.json lays them out: per item, one section per band (back, mid, head, front) with its z,
 ## and per section one rect [x, y, w, h, ox, oy] per frame, (ox, oy) from the feet. Facings S, SE, E, NE and N are
 ## drawn; SW, W and NW mirror SE, E and NE. Meditation faces the camera only (its other facings redirect to S).
-## Hats and capes, and the weapon families past the early drops, have no top-down layer yet: an outfit that asks
-## for one lists it in `missing` and draws without it (docs/redesign/phase3/character/README.md).
+## The bow and the later weapon families (heavy sabre, fan, flute, brush, bell) have no top-down layer yet: an outfit
+## that asks for one lists it in `missing` and draws without it (redesign plan, "As built: Phase 3, second part").
 
 const MANIFEST := "res://data/topdown/character.json"
-const CATEGORIES := ["body", "shoes", "pants", "shirt", "hair", "weapon"]
+const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon"]
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
 
 static var _man: Dictionary = {}
@@ -45,7 +45,7 @@ func set_outfit(o: Dictionary) -> void:
 	layers.clear()
 	missing.clear()
 	var items: Dictionary = manifest().get("items", {})
-	for cat in CATEGORIES + ["hat", "cape"]:
+	for cat in CATEGORIES:
 		var name := str(o.get(cat, "none"))
 		if name == "none" or name == "": continue
 		var item: Dictionary = items.get(cat, {}).get(name, {})

@@ -3,6 +3,7 @@
   dagger  Short blade   a short jade-steel blade, gold guard, brown hilt
   sword   Spirit jian   a long straight jade-steel blade with a pale edge, gold guard and pommel, dark hilt
   spear   Jade spear    a long pale shaft wound with brown cord, a jade-steel leaf head on a gold socket
+  staff   Jade staff    a dark staff ringed with gold bands, its head curled in a gold hook
 
 A pose says where a blade points (`blade`: a direction in the figure's frame) and where a pole points (`pole`: a
 direction, `two_hand` to run it through both hands, and `butt`, the grip's distance from the butt). Each weapon is cast
@@ -20,6 +21,7 @@ WEAPONS = {
     "dagger": {"kind": "blade", "blade": 7.2, "width": 0.8, "hilt": 2.4, "guard": 1.3},
     "sword": {"kind": "blade", "blade": 18.5, "width": 0.68, "hilt": 3.2, "guard": 1.55},
     "spear": {"kind": "pole", "length": 44.0, "head": 5.2},
+    "staff": {"kind": "pole", "length": 34.0, "head": 0.0, "staff": True},
 }
 # A weapon pointed at the camera (or away) is drawn this much longer on screen than the figure's camera would show it:
 # the world's own view keeps the ground's depth at full length, so a thrust to the south must still read as a reach.
@@ -122,6 +124,20 @@ def solids(sk, name: str) -> list:
     head0 = at(L - spec["head"])
     n = 8
     side = unit(np.cross(d, np.array([0.0, 0.0, 1.0]))) if abs(d[2]) < 0.95 else np.array([1.0, 0.0, 0.0])
+    if spec.get("staff"):
+        for i in range(n):
+            a = at(L * i / n)
+            b = at(L * (i + 1) / n)
+            S.append(cone(a, b, 0.62, 0.62, "hilt", band=_band(sk, (a + b) * 0.5), part="shaft",
+                          paint=lambda loc, P, nn: (np.where((loc[:, 2] % 4.25) < 0.7, "gold", "hilt").astype(object),
+                                                    np.zeros(len(loc), dtype=np.int16))))
+        top = at(L)
+        S.append(sphere(butt, 0.6, "gold", band=_band(sk, butt), part="butt"))
+        for k, (fw, sd) in enumerate(((0.3, 0.2), (1.1, 0.9), (1.4, 1.9), (1.0, 2.8), (0.2, 3.1))):
+            p = _stretch(sk, grip, butt0 + d * (L + fw)) + side * sd
+            S.append(sphere(p, 0.62, "gold", band=_band(sk, p), part="hook"))
+        S.append(sphere(top, 0.7, "gold", band=_band(sk, top), part="hook"))
+        return S
     for i in range(n):
         a = at((L - spec["head"]) * i / n)
         b = at((L - spec["head"]) * (i + 1) / n)

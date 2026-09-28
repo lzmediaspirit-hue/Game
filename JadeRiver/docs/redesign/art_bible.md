@@ -2,7 +2,8 @@
 
 This page sets how the top-down world of Jade River is drawn: terrain, height levels, water, plants, buildings and
 props. It serves Phase 3 of `docs/redesign_top_down_plan.md` and decision 31 in `docs/roadmap_master_ui.md` §6.
-Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives only their scale against the tiles.
+Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives their scale against the tiles and, in §13, how
+the real character (decision 32) is drawn for this view.
 
 **The brief (decision 31).** The world should look close to Alabaster Dawn's: bright, detailed ¾ top-down pixel art.
 Height levels read at a glance, wall faces stand apart from floor tops, shading is soft, tiles are lush and props are
@@ -94,7 +95,7 @@ places the player should look.
 | World view | 640 × 360 art px (40 × 22.5 tiles), shown ×2 at 1280 × 720 |
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
-| Character | ~38 art px tall in a 64 × 64 cell, feet on the cell's anchor: about 2.4 tiles. The placeholder body is the reference |
+| Character | ~38 art px from sole to crown (40 with a top knot), feet on the anchor: about 2.4 tiles. The real character (§13) is the reference |
 | Doors | 2 tiles wide in the wall, 24–28 px tall, so a 38 px body reads as fitting through |
 | Props | footprint in whole tiles; sprite height free |
 
@@ -259,7 +260,7 @@ once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in
 - Tops tile with themselves, and faces tile sideways and downward.
 - A prop has a footprint, an origin, `solid` and a `shadow`, and an outline except on water.
 - It is built by the script, never painted by hand into the PNG. `--check` passes and `data_validation` is green.
-- It is reviewed in `--review`'s images at ×1 and ×2, next to the placeholder body.
+- It is reviewed in `--review`'s images at ×1 and ×2, next to the character.
 
 ## 12. Review images (`docs/redesign/phase3/`)
 
@@ -272,3 +273,29 @@ once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in
 | `05_props_x4.png` | the prop kit at ×4 |
 | `06_height_levels_test.png` | levels −½ to 4 with a body on each, in colour and in grey, at ×2 |
 | `07_ingame_square.png` | the room view (with the Phase 2 fight) drawing the new art in the game |
+
+## 13. The character (decision 32)
+
+The body in the top-down world is the game's own character, redrawn for this view:
+
+- **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
+  from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
+- **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
+  The redesign plan's "As built: Phase 3, second part" has the full pipeline.
+
+| Rule | Value |
+|---|---|
+| Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
+| Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
+| Light | the world's sun, upper left and a little in front (§3); four lit steps of each ramp, the deepest kept for contact shade |
+| Outline | 1 px, ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side (§4); an edge over the figure itself takes its material's own deep tone, not ink |
+| Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
+| Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored. The side rows turn a little toward the camera, the head in E a little more |
+| Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
+
+Check a new layer against it the way §11 checks a tile:
+
+- it is cast from the same poses as the body;
+- it is reviewed in every action, facing and dye in `tests/topdown_figure_gallery.tscn`'s sheets, and against the
+  body in `docs/redesign/phase3/character/`;
+- `data_validation`'s layer contract is green.
