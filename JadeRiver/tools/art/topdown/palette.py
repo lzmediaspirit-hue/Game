@@ -83,6 +83,13 @@ LEAF = ramp("0C2A1E", "164530", "236243", "388350", "5AA45B", "8DC877", "BFE39A"
 PAD = ramp("0E3530", "15503F", "22704D", "3A9159", "63B26A", "9AD08A")                  # lotus pads: blue-green
 LOTUS = ramp("6A3552", "B0628A", "E7A0BE", "F8D2E0", "FFF1F6")                          # Style A 'lotuspink'
 REED = ramp("2A2A12", "46461C", "6C6A2A", "98923E", "C4BC62")
+# Mountain pines of the sect grounds: needles a cooler, deeper green than the willow, bark a warm red-brown.
+PINE = ramp("0B221D", "123429", "1B4935", "276042", "3A7A4D", "5E9A5C", "8FBC76")
+BARK = ramp("2A140C", "4A2616", "6C3A20", "8E522E", "B0703E")
+# The Hollowing (the grey in the marsh): colour drained to a cold ash grey, a breath of teal in its shade.
+HOLLOW = ramp("2B3232", "46504F", "66706D", "8A928D", "AEB3AC", "D2D5CD")
+# The Cloud Sect's white and sky blue, for its banners.
+CLOUD = ramp("3A5670", "5E83A3", "8DB2CC", "C4DAE6", "EEF5F7")
 
 # ---- light and shade ---------------------------------------------------------------------------------------------
 # Cast shadows and contact shade are a translucent deep teal laid over whatever is under them (the hue-shift rule).

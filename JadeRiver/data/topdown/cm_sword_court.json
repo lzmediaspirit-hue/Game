@@ -1,0 +1,250 @@
+{
+ "schema_version": 1,
+ "id": "cm_sword_court",
+ "name": "Sword Court",
+ "size": [
+  60,
+  30
+ ],
+ "spawn": [
+  3,
+  16
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444444444444444",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000500005000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000001012023020100000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggppggggggppggggggggggggggggggggggsggggsggg",
+  "gggggggggggggggggggppggggggppggggggggggggggggggggggggggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppwpwwpwwpwpwppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggffffgggggggggggggggggggggfffffffffggggggggggggggggggggggg",
+  "gggffffgggggffffffffggggggggfffffffffgggggggggffffffgggggggg",
+  "ggggggggggggffffffffggggggggggggggggggggggggggffffffgggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 16,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "hall",
+   "x": 24,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 32,
+   "y": 7
+  },
+  {
+   "kind": "post",
+   "x": 50,
+   "y": 17
+  },
+  {
+   "kind": "post",
+   "x": 52,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 54,
+   "y": 17
+  },
+  {
+   "kind": "post",
+   "x": 56,
+   "y": 18
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 15,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 32,
+   "y": 9
+  },
+  {
+   "kind": "pine",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 37,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 48,
+   "y": 2
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 56,
+   "y": 24
+  },
+  {
+   "kind": "bamboo",
+   "x": 57,
+   "y": 25
+  }
+ ],
+ "place": {
+  "npc_cloud_hall_master": [
+   10,
+   15
+  ],
+  "npc_arena_cm": [
+   47,
+   20
+  ],
+  "dummy_cs_0": [
+   5,
+   16
+  ],
+  "dummy_cs_1": [
+   7,
+   16
+  ],
+  "spar_cm": [
+   35,
+   19
+  ],
+  "temper_jade_cm_sword_court": [
+   41,
+   20
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    16
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    16
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    59,
+    16
+   ],
+   "dir": "e",
+   "arrive": [
+    57,
+    16
+   ],
+   "span": 3
+  },
+  "weapon_hall": {
+   "at": [
+    19.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    19.5,
+    8.5
+   ],
+   "span": 2
+  },
+  "library": {
+   "at": [
+    27.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    27.5,
+    8.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

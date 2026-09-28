@@ -1,0 +1,298 @@
+{
+ "schema_version": 1,
+ "id": "ja_east_terrace",
+ "name": "East Terrace",
+ "size": [
+  60,
+  30
+ ],
+ "spawn": [
+  3,
+  16
+ ],
+ "levels": [
+  "555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555",
+  "000000000000000000000000222222222222222220000000000000000000",
+  "000000000000000000000000222222222222222220000000000000000000",
+  "000000000000000000000000222222222222222220000000000000000000",
+  "000000000000000000000000222222222222222220000000000000000000",
+  "000000000000000000000000222222222222222220000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggggggggggsssssssssssssssssggggggggggggggggggg",
+  "ggggggggggggggggggggggggsssssssssssssssssggggggggggggggggggg",
+  "ggggggggggggggggggggggggsssssssssssssssssggggggggggggggggggg",
+  "ggggggggggggggggggggggggsssssssssssssssssggggggggggggggggggg",
+  "ggggggggggggggggggggggggsssssssssssssssssggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggsssggggggggggggggppgggggggggg",
+  "gggggggggggggggggggggggggggggggsssggggggggggggggppgggggggggg",
+  "pppppppppppppppppppppppppppppppssspppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppssspppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggffffffffggggggggggggggggfffffffggggggggggggggg",
+  "ggggggggggggggffffffffggggggggggggggggfffffffggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 31,
+   "y": 9,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 5,
+   "y": 6,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 13,
+   "y": 8
+  },
+  {
+   "kind": "post",
+   "x": 5,
+   "y": 12
+  },
+  {
+   "kind": "post",
+   "x": 7,
+   "y": 13
+  },
+  {
+   "kind": "post",
+   "x": 9,
+   "y": 12
+  },
+  {
+   "kind": "post",
+   "x": 11,
+   "y": 13
+  },
+  {
+   "kind": "post",
+   "x": 13,
+   "y": 12
+  },
+  {
+   "kind": "post",
+   "x": 15,
+   "y": 13
+  },
+  {
+   "kind": "storehouse",
+   "x": 34,
+   "y": 4,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "lantern",
+   "x": 25,
+   "y": 7
+  },
+  {
+   "kind": "lantern",
+   "x": 39,
+   "y": 7
+  },
+  {
+   "kind": "hall",
+   "x": 45,
+   "y": 6,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "banner_jade",
+   "x": 29,
+   "y": 11
+  },
+  {
+   "kind": "banner_jade",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "pine",
+   "x": 8,
+   "y": 2
+  },
+  {
+   "kind": "pine",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 50,
+   "y": 2
+  },
+  {
+   "kind": "bamboo",
+   "x": 56,
+   "y": 9
+  },
+  {
+   "kind": "bamboo",
+   "x": 57,
+   "y": 10
+  },
+  {
+   "kind": "bamboo",
+   "x": 2,
+   "y": 24
+  },
+  {
+   "kind": "shrub",
+   "x": 20,
+   "y": 25
+  },
+  {
+   "kind": "shrub",
+   "x": 33,
+   "y": 26
+  },
+  {
+   "kind": "shrub",
+   "x": 46,
+   "y": 25
+  },
+  {
+   "kind": "willow",
+   "x": 27,
+   "y": 23
+  }
+ ],
+ "place": {
+  "npc_jade_formation_elder": [
+   22,
+   14
+  ],
+  "npc_jade_physician": [
+   34,
+   17
+  ],
+  "npc_arena_master": [
+   48,
+   15
+  ],
+  "formation_table_ja": [
+   19,
+   16
+  ],
+  "arena_ja": [
+   53,
+   18
+  ],
+  "temper_jade_ja_east_terrace": [
+   16,
+   17
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    16
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    16
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    59,
+    16
+   ],
+   "dir": "e",
+   "arrive": [
+    57,
+    16
+   ],
+   "span": 3
+  },
+  "abode": {
+   "at": [
+    35.5,
+    7
+   ],
+   "dir": "n",
+   "arrive": [
+    35.5,
+    7.5
+   ],
+   "span": 2
+  },
+  "retreat": {
+   "at": [
+    48.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    48.5,
+    9.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

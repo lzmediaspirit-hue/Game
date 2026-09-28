@@ -2,7 +2,8 @@ extends Node
 ## Screenshots and frame strips of the top-down prototype room (redesign Phase 1) for docs/redesign/phase1/: the square
 ## under the HUD, walking behind the house, jumping the pier's gap and the long jump, and standing on the low wall with
 ## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
-## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/). `-- --combat`:
+## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
+## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder. `-- --combat`:
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/).
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
@@ -33,6 +34,9 @@ func _main() -> void:
 	Game.autosave_enabled = false
 	if "--phase4" in OS.get_cmdline_user_args():
 		await phase4()
+		return
+	if "--chapter2" in OS.get_cmdline_user_args():
+		await chapter2()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -479,14 +483,7 @@ const PHASE4 := [["01_fishers_hut", "lf_fishers_hut", Vector2(8, 7)], ["02_villa
 
 func phase4() -> void:
 	var out := "res://docs/redesign/phase4/"
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
-	# The pages' scripts compile on loading threads from the title screen on (main._warm_pages), where a player spends
-	# those seconds; a villager's outfit sheets queue behind them, so the capture waits for them as the title would.
-	for i in 3600:
-		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
-		await get_tree().process_frame
-	main.enter_topdown_tutorial(false)
-	var c = Game.active()
+	await _topdown_game(out)
 	# The Prologue as a new character plays it: waking in the hut, then out through its door (Morning Tide's step),
 	# the village's three parts, and Lu's talk with A Quiet River to hand in, on the real dialogue page over the grid.
 	await at_spot(Vector2(8, 7), 120)
@@ -503,15 +500,56 @@ func phase4() -> void:
 	await shot("16_quest_talk_lu", out)
 	main.close_all_pages()
 	# The other rooms, entered through the World authority at a spot that shows each.
-	for s in PHASE4:
-		if str(s[1]) in ["lf_fishers_hut", "lf_village"]: continue
-		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	await room_shots(PHASE4.filter(func(q): return not str(q[1]) in ["lf_fishers_hut", "lf_village"]), out)
+	print("topdown_capture: phase 4 done")
+	get_tree().quit()
+
+## Phase 4's second part (`-- --chapter2`, into docs/redesign/phase4/): the rooms of chapter 2's stretch, the Entry
+## Trials, both sects' grounds and the Marsh Edge, each under the real HUD at a spot that shows it, with the foes that
+## live there set round it ([def, offset in cells]) so their figures show.
+const CHAPTER2 := [["17_trial_jade", "sf_trial_jade", Vector2(20, 13), [["trial_puppet", Vector2(6, 3)]]],
+	["18_trial_cloud", "sf_trial_cloud", Vector2(18, 13), [["trial_puppet", Vector2(8, 3)]]],
+	["19_jade_gate_street", "ja_gate_street", Vector2(24, 15), []], ["20_jade_gate_street_gate", "ja_gate_street", Vector2(10, 22), []],
+	["21_jade_weapon_hall", "ja_weapon_hall", Vector2(12, 9), []], ["22_pavilion_rooftops", "ja_pavilion_rooftops", Vector2(26, 14), []],
+	["23_east_terrace", "ja_east_terrace", Vector2(30, 14), []], ["24_herb_terraces", "ja_herb_terraces", Vector2(26, 16), []],
+	["25_elder_hu_peak", "ja_elder_hu_peak", Vector2(20, 13), []], ["26_cloud_cliff_stair", "cm_cliff_stair", Vector2(26, 18), []],
+	["27_sword_court", "cm_sword_court", Vector2(34, 15), []], ["28_cloud_weapon_hall", "cm_weapon_hall", Vector2(12, 9), []],
+	["29_array_court", "cm_array_court", Vector2(30, 15), []], ["30_elder_sung_peak", "cm_elder_sung_peak", Vector2(20, 14), []],
+	["31_marsh_edge", "rm_marsh_edge", Vector2(30, 14), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)]]],
+	["32_marsh_edge_west", "rm_marsh_edge", Vector2(12, 12), [["marsh_leech", Vector2(4, 4)], ["reed_frog", Vector2(-3, 3)]]]]
+
+func chapter2() -> void:
+	var out := "res://docs/redesign/phase4/"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	await room_shots(CHAPTER2, out)
+	print("topdown_capture: chapter 2 done")
+	get_tree().quit()
+
+## A new top-down character's game (the title's hidden entry), once the pages' scripts have compiled on their loading
+## threads from the title screen on (main._warm_pages), where a player spends those seconds: a villager's outfit sheets
+## queue behind them, so the capture waits for them as the title would.
+func _topdown_game(out: String) -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	for i in 3600:
+		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
+		await get_tree().process_frame
+	main.enter_topdown_tutorial(false)
+
+## Each room of `list` ([name, room, cell, optional foes]) entered through the World authority, the body at the cell,
+## the listed foes set round it and turned on the player, and a shot under the HUD.
+func room_shots(list: Array, out: String) -> void:
+	for s in list:
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 		GameEvents.flush()
 		await frames(10)
 		await at_spot(s[2], 120)
+		for f in (s[3] if s.size() > 3 else []):
+			var at: Vector2 = w.room.nearest_standable((s[2] + f[1] + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+			var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1)
+			e.altitude = w.room.height_at(e.plane)
+		if s.size() > 3 and not (s[3] as Array).is_empty(): await frames(20)
 		await shot(str(s[0]), out)
-	print("topdown_capture: phase 4 done")
-	get_tree().quit()
 
 ## Stand at a cell of the room on view (its villagers' sheets load in while it waits `n` frames).
 func at_spot(cell: Vector2, n: int) -> void:

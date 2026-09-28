@@ -73,6 +73,7 @@ var falls: Array = []         # falls in the walk that cost something (invariant
 func _main() -> void:
 	add_child(views)
 	run()
+	free_hud_probe()
 	print("tutorial_order: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
@@ -132,15 +133,21 @@ func run() -> void:
 	step_strange_tracks()
 	invariants("Strange Tracks")
 	first_hour()
-	check(bare.is_empty() and foes_seen.size() >= 4, "every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [str(foes_seen), str(bare.slice(0, 6))])
 	check(not hostile_reached.is_empty() and hostile_reached[0] == "lf_reed_shallows",
 		"the first room with foes within reach is the Reed Shallows, with Crab Trouble (%s)" % str(hostile_reached.slice(0, 4)))
-	check(left_early.is_empty(), "no room was left before the steps it holds you to were done (%s)" % str(left_early))
+	walk_held("the walk")
+
+## What the walk held to on every tick and every step (invariants 2, 6, 7, 8 and 12), over all of it so far.
+func walk_held(label: String) -> void:
+	check(bare.is_empty() and foes_seen.size() >= 4, "%s: every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [label, str(foes_seen), str(bare.slice(0, 6))])
+	check(left_early.is_empty(), "%s: no room was left before the steps it holds you to were done (%s)" % [label, str(left_early)])
 	check(hijacked.is_empty() and int(offers_in_fight.get("herb_patch", 0)) > 0,
-		"in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [str(offers_in_fight), str(hijacked)])
-	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "the story's guidance was checked at every step (%d steps, %d quests)"
-		% [guidance_steps, c().quests.done.size() + c().quests.active.size()])
-	check(falls.is_empty(), "every fall in the walk cost nothing, before Bone Forging 5 (%s)" % str(falls))
+		"%s: in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [label, str(offers_in_fight), str(hijacked)])
+	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "%s: the story's guidance was checked at every step (%d steps, %d quests)"
+		% [label, guidance_steps, c().quests.done.size() + c().quests.active.size()])
+	check(falls.is_empty(), "%s: every fall in the walk cost nothing, before Bone Forging 5 (%s)" % [label, str(falls)])
+
+func free_hud_probe() -> void:
 	hud_probe.player.free()
 	hud_probe.free()
 
@@ -170,16 +177,18 @@ func _rats() -> void:
 	fight("reedtail_rat", 1, 60.0)
 	back_to("lf_village")
 
-## A Disciple's Chores, a side errand now (research §3.3): two spots on Gate Street, and the third is the grey itself,
-## with a cache under the flagstone.
+## A Disciple's Chores, a side errand now (research §3.3): two spots at the sect's gate (Gate Street, the Cliff Stair),
+## and the third is the grey itself, with a cache under the flagstone.
 func step_chores() -> void:
-	check(travel("ja_gate_street"), "the Jade Sect's road opens after the Entry Trial (room %s)" % room())
+	check(travel(sect_at("gate")), "the sect's road opens after the Entry Trial (room %s)" % room())
 	check(c().quests.offered.has("a_disciples_chores") or c().quests.is_active("a_disciples_chores"), "A Disciple's Chores offered")
 	check(str(ContentDB.entry("quests", "a_disciples_chores").get("kind", "")) == "side", "A Disciple's Chores is a side errand, not the story")
-	accept("jade_steward", "a_disciples_chores")
-	for i in 3:
-		check(interact("sweep_ja_%d" % i).get("ok", false), "sweep spot %d" % i)
-	hand_in("jade_steward", "a_disciples_chores")
+	accept(sect_at("steward"), "a_disciples_chores")
+	var spots: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("set_flag", "")).begins_with("swept_"))
+	check(spots.size() == 3, "three spots to sweep at the gate (%d)" % spots.size())
+	for o in spots:
+		check(interact(str(o.id)).get("ok", false), "sweep %s" % o.id)
+	hand_in(sect_at("steward"), "a_disciples_chores")
 	check(c().inventory.count("spirit_stone_shard") >= 2, "the third spot's cache: two spirit stone shards")
 
 ## Chapter 2 (its floor Bone Forging 2, research §5 change 5) opens the moment the Weapon Hall is done: the mentor's
@@ -197,8 +206,8 @@ func step_strange_tracks() -> void:
 	for o in Game.room_rt.def.get("objects", []):
 		if seen < 3 and str(o.get("type", "")) == "inspect" and Game.world.object_visible(c(), o) and interact(str(o.id)).get("ok", false): seen += 1
 	check(seen == 3, "three grey patches inspected (%d)" % seen)
-	check(travel("ja_elder_hu_peak"), "back to the mentor")
-	hand_in("elder_hu", "strange_tracks")
+	check(travel(sect_at("peak")), "back to the mentor")
+	hand_in(sect_at("mentor"), "strange_tracks")
 
 ## The gear Crab Trouble paid, worn from the Bag as the equip prompt offers it.
 func _wear_new_gear() -> void:
@@ -221,15 +230,17 @@ func step_weapon_hall() -> void:
 		"at Bone Forging 3 the tracker's Next is The Weapon Hall and the mark leads to it (%s; mark %s)" % [str(nx.slice(0, 1)), Game.world.guide_target(c())])
 	leads_to_next("Bone Forging 3")
 	keep("Bone Forging 3")
-	check(travel("ja_weapon_hall"), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
-	accept("jade_weapon_master", "the_weapon_hall")
+	check(travel(sect_at("weapon_hall")), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
+	accept(sect_at("weapon_master"), "the_weapon_hall")
 	var jian: int = c().inventory.first_index("training_jian")
 	check(jian >= 0 and submit({"type": "equip", "index": jian}).get("ok", false), "take the training jian from the rack")
-	hit_object("dummy_wh_0", 5)
+	var dummies: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "training_dummy")
+	check(not dummies.is_empty(), "the Weapon Hall's dummies stand in it")
+	if not dummies.is_empty(): hit_object(str(dummies[0].id), 5)
 	submit({"type": "guard_start"})
 	step(0.3)
 	submit({"type": "guard_end"})
-	hand_in("jade_weapon_master", "the_weapon_hall")
+	hand_in(sect_at("weapon_master"), "the_weapon_hall")
 	check(c().cultivator.techniques_known.has("cloudpiercing_stroke") and c().cultivator.technique_slots.has("cloudpiercing_stroke"),
 		"the Weapon Hall teaches the jian's first art, slotted beside Flowing Palm (%s)" % str(c().cultivator.technique_slots))
 

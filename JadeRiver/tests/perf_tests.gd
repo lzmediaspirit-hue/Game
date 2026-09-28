@@ -298,6 +298,31 @@ func _topdown() -> void:
 	print("topdown world: Lotus Ferry entered in %.0f ms (%d people, things and ways), %.2f ms per frame" % [ms_room, built, per_walk])
 	check(main.world is TopdownWorld and main.world.live and Game.room_rt.room_id == "lf_village" and ms_room < 300.0 and per_walk < 16.6,
 		"a top-down character's Lotus Ferry loads in under 0.3 s (%.0f ms, %d built) and runs at 60 fps (%.2f ms)" % [ms_room, built, per_walk])
+	# Phase 4's second part: chapter 2's region, its Marsh Edge (the stretch's widest room, with the most foes) entered
+	# through the World authority, then its own kinds of foe, fifteen in all, turned on the player there.
+	var t2 := Time.get_ticks_usec()
+	Game.world.load_room(Game.active(), "rm_marsh_edge", "west")
+	GameEvents.flush()
+	await get_tree().process_frame
+	var ms_marsh := (Time.get_ticks_usec() - t2) / 1000.0
+	var mw = main.world
+	var marsh_kinds := ["marsh_leech", "reed_frog", "hollowed_boarlet", "reed_otter"]
+	for i in maxi(0, 15 - Game.room_rt.living_enemies().size()):
+		var at: Vector2 = mw.room.nearest_standable(mw.player.motor.pos + Vector2.from_angle(TAU * i / 15.0) * (80.0 + 12.0 * (i % 3)))
+		var e: EnemyState = Game.enemies.spawn_at(marsh_kinds[i % 4], at, 5)
+		if e == null: continue
+		e.altitude = mw.room.height_at(at)
+		e.threat[Game.active_id] = 1.0
+	var hold := func(i: int) -> void:
+		mw.player.movement = Vector2.from_angle(i * 0.05) * 0.4
+		Game.active().pools.hp = Game.active().pools.max_hp
+		Game.combat.wounded.erase(Game.active_id)
+		if i % 20 == 0: mw.player.aim_attack(Vector2.from_angle(i * 0.4))
+	var per_marsh := await _frames(150, hold)
+	var marsh_foes := Game.room_rt.living_enemies().size()
+	print("topdown world: the Marsh Edge entered in %.0f ms, %d foes fighting at %.2f ms per frame" % [ms_marsh, marsh_foes, per_marsh])
+	check(mw is TopdownWorld and Game.room_rt.room_id == "rm_marsh_edge" and ms_marsh < 300.0 and marsh_foes >= 15 and per_marsh < 16.6,
+		"chapter 2's Marsh Edge loads in under 0.3 s (%.0f ms) and holds 60 fps with %d of its foes fighting (%.2f ms)" % [ms_marsh, marsh_foes, per_marsh])
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)

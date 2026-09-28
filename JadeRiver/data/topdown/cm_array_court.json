@@ -1,0 +1,248 @@
+{
+ "schema_version": 1,
+ "id": "cm_array_court",
+ "name": "Array Court",
+ "size": [
+  60,
+  30
+ ],
+ "spawn": [
+  3,
+  16
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444444444444000",
+  "444444444444444444444444444444444444444444444444444444444000",
+  "444444444444444444444444444444444444444444444444444444444000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000022222220000000000000",
+  "000000000000000000000000000000000000000001100000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000001111111111111110000000000000000000000000",
+  "000000000000000000001111111111111110000000000000000000000000",
+  "000000000000000000001111111111111110000000000000000000000000",
+  "000000000000000000001111111111111110000000000000000000000000",
+  "000000000000000000001111111111111110000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrddd",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrddd",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggggggggddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggggggggddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggggggggddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggggggggddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggggggggddd",
+  "ggggggggggggggggggggggggggggggggggggggggrrrrrrrggggppggggddd",
+  "gggggggggggggggggggggggggggggggggggggggggrrggggggggppggggddd",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssssppppppppppppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssssppppppppppppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssssppppppppppppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssssppppppppppppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssssppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppppsssppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggffffffffffffffffggggggggggggggggggggggggggggggggggggggggg",
+  "ggggddddddddddddddgggggggggggggggggggggggggggggggggggggggggg",
+  "ggggddddddddddddddgggggggggggggggggggggggggggggggggggggggggg",
+  "ggggddddddddddddddgggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 26,
+   "y": 17,
+   "w": 3,
+   "h": 1,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 20,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 34,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 20,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 34,
+   "y": 16
+  },
+  {
+   "kind": "hall",
+   "x": 48,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 19,
+   "y": 21
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 34,
+   "y": 21
+  },
+  {
+   "kind": "pine",
+   "x": 6,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 30,
+   "y": 1
+  },
+  {
+   "kind": "bamboo",
+   "x": 2,
+   "y": 20
+  },
+  {
+   "kind": "bamboo",
+   "x": 24,
+   "y": 26
+  },
+  {
+   "kind": "bamboo",
+   "x": 44,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 53,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 5
+  }
+ ],
+ "place": {
+  "npc_cloud_formation_elder": [
+   26,
+   13
+  ],
+  "formation_table_cm": [
+   29,
+   14
+  ],
+  "npc_cloud_physician": [
+   38,
+   18
+  ],
+  "furnace_cm": [
+   45,
+   12
+  ],
+  "bed_cm_0": [
+   7,
+   25
+  ],
+  "bed_cm_1": [
+   10,
+   25
+  ],
+  "bed_cm_2": [
+   13,
+   25
+  ],
+  "npc_cloud_gardener": [
+   16,
+   21
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    16
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    16
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    59,
+    16
+   ],
+   "dir": "e",
+   "arrive": [
+    57,
+    16
+   ],
+   "span": 3
+  },
+  "peak_path": {
+   "at": [
+    58,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    58,
+    2
+   ],
+   "span": 3
+  },
+  "retreat": {
+   "at": [
+    51.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    51.5,
+    8.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}
