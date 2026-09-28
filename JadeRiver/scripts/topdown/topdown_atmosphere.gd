@@ -36,6 +36,7 @@ var _pools_room := ""
 var _look_t := 0.0
 var _spawn_t: Dictionary = {}
 var _fresh := false                  ## a room just entered: its air fills in at the first frame, once the camera is on it
+var _busy := false                   ## particles were drawn last frame
 var _cam := Vector2.INF
 var t := 0.0
 # The layers.
@@ -50,8 +51,9 @@ var clouds: Clouds
 static var _grade_shader: Shader
 static var _night_shader: Shader
 static var _pool_stamps: Dictionary = {}
-static var _cloud: ImageTexture
+static var _cloud_shader: Shader
 static var _blank: ImageTexture
+static var _white: ImageTexture
 
 func _init(w) -> void:
 	world = w
@@ -67,6 +69,8 @@ func _ready() -> void:
 	vp.move_child(low, world.sorted.get_index())
 	clouds = Clouds.new()
 	clouds.z_index = 60
+	clouds.material = ShaderMaterial.new()
+	clouds.material.shader = cloud_shader()
 	add_child(clouds)
 	air = Layer.new(self, "air")
 	air.z_index = 70
@@ -114,6 +118,7 @@ func enter_room() -> void:
 	_spawn_t.clear()
 	_collect()
 	clouds.setup(room, rng)
+	world.tint.color = Color.WHITE   # the night is this node's night layer, not the old tint
 	refresh()
 	_fresh = true
 
@@ -140,7 +145,6 @@ func refresh() -> void:
 		night.material.set_shader_parameter("carry_r", TopdownLight.CARRY_RADIUS)
 	# The sun's cast shadows are as strong as the hour makes them (faint under the moon).
 	TopdownShadows.set_strength(float(now.shadows))
-	world.tint.color = Color.WHITE
 	# The grade.
 	var g: Dictionary = now.grade
 	grade_layer.visible = extras and not TopdownLight.plain_grade(g)
@@ -154,7 +158,9 @@ func refresh() -> void:
 		m.set_shader_parameter("shade", float(g.shade))
 		m.set_shader_parameter("sat", float(g.sat))
 	clouds.visible = extras and float(now.clouds) > 0.0
-	clouds.modulate = Color(TopdownLight.TONE_SHADE, TopdownLight.CLOUD_ALPHA * float(now.clouds))
+	var tone := TopdownLight.TONE_SHADE
+	clouds.material.set_shader_parameter("tone", Vector3(tone.r, tone.g, tone.b))
+	clouds.material.set_shader_parameter("alpha", TopdownLight.CLOUD_ALPHA * float(now.clouds))
 	if not extras: particles.clear()
 
 ## Where the room's lights, water, grass and trees are, in art px on the viewport.
@@ -165,6 +171,10 @@ func _collect() -> void:
 	grass_cells = PackedVector2Array()
 	mist_cells = PackedVector2Array()
 	var paint: Dictionary = room.tileset.get("paint", {})
+	var grass := {}   # the paint marks that are grass, by their code
+	for mark in paint:
+		if bool(paint[mark].get("grass", false)): grass[str(mark).unicode_at(0)] = true
+	var marsh := "m".unicode_at(0)
 	for y in room.h:
 		for x in room.w:
 			var i := y * room.w + x
@@ -173,9 +183,9 @@ func _collect() -> void:
 				if room.solid[i] == 0:
 					water_cells.append(Vector2(x * T, y * T + 8.0))
 					mist_cells.append(Vector2(x * T, y * T + 8.0))
-			elif room.solid[i] == 0 and room.stair_of[i] == 0 and bool(paint.get(room.paint_at(x, y), {}).get("grass", false)):
+			elif room.solid[i] == 0 and room.stair_of[i] == 0 and grass.has(room.paint[i]):
 				grass_cells.append(Vector2(x * T, (y - l) * T))
-				if room.paint_at(x, y) == "m": mist_cells.append(Vector2(x * T, (y - l) * T))
+				if room.paint[i] == marsh: mist_cells.append(Vector2(x * T, (y - l) * T))
 	for p in room.props:
 		var art: Dictionary = p.art
 		var rr: Array = art.get("rect", [0, 0, 16, 16])
@@ -221,20 +231,22 @@ static func pool_stamp(kind: String) -> Image:
 	var bands: Array = lk.bands
 	var col: Color = lk.color
 	var img := Image.create(r * 2 + 1, r * 2 + 1, false, Image.FORMAT_RGBA8)
+	# Row by row, the outermost band first and each inner one over it: the pixels just past a band's edge (within 1 px)
+	# on the checker, then the band's own span.
 	for y in r * 2 + 1:
-		for x in r * 2 + 1:
-			var d := Vector2(x - r, y - r).length()
-			var a := 0.0
-			for i in bands.size():
-				var edge := float(bands[i][0]) * r
-				if d <= edge:
-					a = float(bands[i][1])
-					break
-				# A pixel just past a band's edge takes that band on the checker, the next one off it.
-				if d <= edge + 1.0 and (x + y) % 2 == 0:
-					a = float(bands[i][1])
-					break
-			if a > 0.0: img.set_pixel(x, y, Color(col.r, col.g, col.b, a))
+		var dy2 := float((y - r) * (y - r))
+		for i in range(bands.size() - 1, -1, -1):
+			var edge := float(bands[i][0]) * r
+			var c := Color(col.r, col.g, col.b, float(bands[i][1]))
+			var ring := edge + 1.0
+			if ring * ring >= dy2:
+				var inner := floori(sqrt(edge * edge - dy2)) if edge * edge >= dy2 else -1
+				for dx in range(inner + 1, floori(sqrt(ring * ring - dy2)) + 1):
+					for x in [r - dx, r + dx]:
+						if (x + y) % 2 == 0: img.set_pixel(x, y, c)
+			if edge * edge >= dy2:
+				var half := floori(sqrt(edge * edge - dy2))
+				img.fill_rect(Rect2i(r - half, y, half * 2 + 1, 1), c)
 	_pool_stamps[kind] = img
 	return img
 
@@ -289,19 +301,26 @@ func _process(delta: float) -> void:
 	if night.visible and float(now.get("carry", 0.0)) > 0.0 and world.player != null:
 		night.material.set_shader_parameter("carry_at", (world.player.screen as Vector2) + Vector2(0, -10))
 	if extras:
+		var counts := {}
+		for p in particles: counts[p.kind] = int(counts.get(p.kind, 0)) + 1
 		for kind in TopdownLight.PARTICLES:
 			_spawn_t[kind] = float(_spawn_t.get(kind, 0.0)) - delta
 			if float(_spawn_t[kind]) > 0.0: continue
 			var n := wanted(kind)
-			if n <= 0 or _count(kind) >= n: continue
+			if n <= 0 or int(counts.get(kind, 0)) >= n: continue
 			_spawn(kind, view)
 			var life: Array = TopdownLight.PARTICLES[kind].life
 			_spawn_t[kind] = (float(life[0]) + float(life[1])) * 0.5 / float(n)
 		_step(delta, view)
 		clouds.drift(delta)
-	low.queue_redraw()
-	air.queue_redraw()
-	glow.queue_redraw()
+	# The layers redraw only while they have something on them (and once more to clear it).
+	var busy := not particles.is_empty()
+	if busy or _busy:
+		low.queue_redraw()
+		air.queue_redraw()
+	if busy or _busy or (night.visible and float(now.get("lights", 0.0)) > 0.0):
+		glow.queue_redraw()
+	_busy = busy
 
 func _count(kind: String) -> int:
 	var n := 0
@@ -483,29 +502,40 @@ static func blank() -> ImageTexture:
 	if _blank == null: _blank = ImageTexture.create_from_image(Image.create(1, 1, false, Image.FORMAT_RGBA8))
 	return _blank
 
-## A cloud's shadow: a few overlapping ellipses, solid inside, their rim dithered thinner and thinner on a 4x4 ordered
-## pattern, so the edge is soft on the pixel grid.
-static func cloud_texture() -> ImageTexture:
-	if _cloud != null: return _cloud
-	const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
-	var size := Vector2i(208, 112)
-	var blobs := [[Vector3(76, 58, 0), Vector2(62, 34)], [Vector3(128, 48, 0), Vector2(56, 32)], [Vector3(104, 72, 0), Vector2(78, 28)],
-		[Vector3(164, 66, 0), Vector2(38, 24)], [Vector3(42, 70, 0), Vector2(34, 22)]]
-	var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
-	for y in size.y:
-		for x in size.x:
-			var v := -1.0
-			for b in blobs:
-				var c: Vector3 = b[0]
-				var r: Vector2 = b[1]
-				var dx := (x - c.x) / r.x
-				var dy := (y - c.y) / r.y
-				v = maxf(v, 1.0 - dx * dx - dy * dy)
-			if v <= 0.0: continue
-			var fill := clampf(v / 0.45, 0.0, 1.0)
-			if fill >= 1.0 or fill * 16.0 > float(BAYER[(y % 4) * 4 + x % 4]): img.set_pixel(x, y, Color.WHITE)
-	_cloud = ImageTexture.create_from_image(img)
-	return _cloud
+static func white() -> ImageTexture:
+	if _white == null:
+		var img := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+		img.fill(Color.WHITE)
+		_white = ImageTexture.create_from_image(img)
+	return _white
+
+## A cloud's shade (Clouds.SIZE px): a few overlapping ellipses, solid inside, their rim dithered thinner and thinner
+## on a 4x4 ordered pattern tied to the cloud's own pixels, so the edge is soft on the pixel grid and never shimmers as
+## it glides. Drawn by the GPU: nothing to build on the CPU.
+static func cloud_shader() -> Shader:
+	if _cloud_shader == null:
+		_cloud_shader = Shader.new()
+		_cloud_shader.code = """shader_type canvas_item;
+uniform vec2 size = vec2(208.0, 112.0);
+uniform vec3 tone = vec3(0.055, 0.29, 0.345);
+uniform float alpha = 0.08;
+const vec4 BLOBS[5] = vec4[5](vec4(76.0, 58.0, 62.0, 34.0), vec4(128.0, 48.0, 56.0, 32.0), vec4(104.0, 72.0, 78.0, 28.0),
+	vec4(164.0, 66.0, 38.0, 24.0), vec4(42.0, 70.0, 34.0, 22.0));
+const float BAYER[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+void fragment() {
+	vec2 p = floor(UV * size);
+	float v = -1.0;
+	for (int i = 0; i < 5; i++) {
+		vec2 d = (p - BLOBS[i].xy) / BLOBS[i].zw;
+		v = max(v, 1.0 - dot(d, d));
+	}
+	float fill = clamp(v / 0.45, 0.0, 1.0);
+	int bi = int(mod(p.y, 4.0)) * 4 + int(mod(p.x, 4.0));
+	float on = (v > 0.0 && (fill >= 1.0 || fill * 16.0 > BAYER[bi])) ? 1.0 : 0.0;
+	COLOR = vec4(tone, on * alpha);
+}
+"""
+	return _cloud_shader
 
 # ------------------------------------------------------------------ the layers
 class Layer extends Node2D:
@@ -538,15 +568,15 @@ class Night extends Node2D:
 				Rect2(Vector2(outer.position.x, rect.position.y), Vector2(pad.x, rect.size.y)), Rect2(Vector2(rect.end.x, rect.position.y), Vector2(pad.x, rect.size.y))]:
 			draw_texture_rect(bare, r, false)
 
-## The cloud shadows: a few copies of the cloud texture gliding with the wind, wrapping round the room.
+## The cloud shade: a few clouds gliding with the wind, wrapping round the room.
 class Clouds extends Node2D:
+	const SIZE := Vector2(208, 112)
 	var at: Array = []
 	var bounds := Rect2()
 	func _init() -> void:
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	func setup(r: TopdownRoom, rng: RandomNumberGenerator) -> void:
-		var tex := TopdownAtmosphere.cloud_texture()
-		bounds = Rect2(-Vector2(tex.get_size()), r.art_size() + Vector2(tex.get_size()))
+		bounds = Rect2(-SIZE, r.art_size() + SIZE)
 		at.clear()
 		for i in maxi(1, roundi(r.art_size().x * r.art_size().y / (640.0 * 360.0) * TopdownLight.CLOUDS_PER_SCREEN)):
 			at.append(bounds.position + Vector2(rng.randf() * bounds.size.x, rng.randf() * bounds.size.y))
@@ -560,5 +590,4 @@ class Clouds extends Node2D:
 			at[i] = p
 		queue_redraw()
 	func _draw() -> void:
-		var tex := TopdownAtmosphere.cloud_texture()
-		for p in at: draw_texture(tex, (p as Vector2).floor())
+		for p in at: draw_texture_rect(TopdownAtmosphere.white(), Rect2((p as Vector2).floor(), SIZE), false)

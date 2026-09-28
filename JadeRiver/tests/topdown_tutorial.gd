@@ -31,7 +31,7 @@ extends "res://tests/tutorial_order.gd"
 ##      where the first hour's pacing (invariant 14) still holds;
 ##  11. decision 40's runtime light on every room the view builds: its cast shadows baked once as it is built and never
 ##      again while it plays, its particles under their caps by day and at the clock's night, and a night room lit by
-##      its lanterns and doorways over the story's night.
+##      its lanterns and doorways over the story's night, which stays night with Settings' extras off.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -81,7 +81,7 @@ func _main() -> void:
 	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
 	check(people_misses.is_empty(), "every person of the walk's rooms on the grid is drawn in the top-down style, every piece of their outfit with its layer (%s)" % str(people_misses.slice(0, 6)))
 	check(light_rooms >= TUTORIAL_ROOMS.size() and night_rooms >= 1 and light_misses.is_empty(),
-		"decision 40: every room the view built (%d, %d at night) baked its cast shadows once and never while it played, kept its particles under their caps by day and by night, and a night room is lit by its lights (%s)" % [light_rooms, night_rooms, str(light_misses.slice(0, 6))])
+		"decision 40: every room the view built (%d, %d at night) baked its cast shadows once and never while it played, kept its particles under their caps by day and by night, and a night room is lit by its lights, and stays night with the extras off (%s)" % [light_rooms, night_rooms, str(light_misses.slice(0, 6))])
 	if is_instance_valid(probe): probe.free()
 	free_hud_probe()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
@@ -259,6 +259,15 @@ func _probe_light(bakes_before: int) -> void:
 		var lamps := a.lights.filter(func(l): return str(l[0]) in ["lantern", "lantern_red"]).size()
 		if str(a.now.hour) != "night_story" or not a.night.visible or lamps == 0 or a._pools_room != probe.room.id or float(a.now.lights) <= 0.0:
 			light_misses.append("%s: night %s, layer %s, %d lamps, pools of %s" % [rid, str(a.now.hour), str(a.night.visible), lamps, a._pools_room])
+		# Settings' "Light and particles" off (weak phones): no grade, clouds or particles, and the night stays night.
+		var was = Game.account.settings.get("world_extras", true)
+		Game.account.settings["world_extras"] = false
+		a.refresh()
+		a._process(1.0 / 30.0)
+		if a.grade_layer.visible or a.clouds.visible or a.particle_count() > 0 or not a.night.visible or str(a.now.hour) != "night_story":
+			light_misses.append("%s with the extras off: grade %s, clouds %s, %d particles, night %s" % [rid, str(a.grade_layer.visible), str(a.clouds.visible), a.particle_count(), str(a.night.visible)])
+		Game.account.settings["world_extras"] = was
+		a.refresh()
 
 # ------------------------------------------------------------------ 8: the people draw with the room
 ## A room's people draw within a moment of it, whatever the pages are doing. From the title screen on the game compiles

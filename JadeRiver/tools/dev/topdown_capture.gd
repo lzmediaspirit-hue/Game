@@ -6,7 +6,9 @@ extends Node
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder. `-- --combat`:
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
-## saves of their own, so it can run beside another capture).
+## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
+## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
+## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -563,6 +565,11 @@ func light() -> void:
 		Clock.simulate(600000.0 * day_s + float(s[4]) * day_s, 0)
 		TopdownLight.debug_hour = float(s[4])
 		await room_shots([[tag + "_" + str(s[0]), s[1], s[2], s[3]]], out)
+		var atmo = main.world.get("atmosphere")
+		if atmo != null:
+			var n := {}
+			for q in atmo.particles: n[q.kind] = int(n.get(q.kind, 0)) + 1
+			print("light: %s at %.2f, %s, %d lights, air %s" % [s[0], float(s[4]), str(atmo.now.hour), atmo.lights.size(), str(n)])
 	# The height-levels review room whole, x2, as the view draws it (the grade is inside the viewport).
 	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
 	TopdownLight.debug_hour = 0.375

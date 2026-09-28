@@ -12,7 +12,7 @@ extends RefCounted
 const SUN := Color("ffe9a6")          ## `SUN`: the warm light on lit edges
 const SHADOW := Color("241f4f")       ## `SHADOW`: every shadow, always translucent
 const MIST := Color("afc9d1")         ## `MIST`: mist over water and low ground
-const TONE_SHADE := Color("2b3a6e")   ## the shade patches' tint (and the drifting cloud shade's)
+const TONE_SHADE := Color("0e4a58")   ## the shade patches' tint (§14.2 after the polish pass), and the drifting cloud shade's
 const PETAL := Color("e7a0be")        ## `PETAL` step 1: blossom
 
 # ------------------------------------------------------------------ cast shadows (TopdownShadows)
@@ -82,9 +82,9 @@ const HOURS := {
 		"motes": 1.0, "fireflies": 0.0, "clouds": 1.0, "mist": 1.0, "glints": 1.0},
 	"evening": {"ambient": Color(1.0, 0.93, 0.86), "lights": 0.5, "carry": 0.0, "shadows": 0.8, "grade": 1.0, "sat": 1.0,
 		"motes": 0.8, "fireflies": 0.3, "clouds": 0.5, "mist": 1.2, "glints": 0.6},
-	"night": {"ambient": NIGHT, "lights": 1.0, "carry": 0.35, "shadows": 0.35, "grade": 1.0, "sat": 0.95,
+	"night": {"ambient": NIGHT, "lights": 1.0, "carry": 0.3, "shadows": 0.35, "grade": 1.0, "sat": 0.95,
 		"motes": 0.0, "fireflies": 1.0, "clouds": 0.0, "mist": 1.2, "glints": 0.0},
-	"night_story": {"ambient": NIGHT, "lights": 1.0, "carry": 0.4, "shadows": 0.35, "grade": 1.0, "sat": 1.0,
+	"night_story": {"ambient": NIGHT, "lights": 1.0, "carry": 0.3, "shadows": 0.35, "grade": 1.0, "sat": 1.0,
 		"motes": 0.0, "fireflies": 1.0, "clouds": 0.0, "mist": 1.0, "glints": 0.0},
 	"lamplit": {"ambient": Color(0.9, 0.87, 0.85), "lights": 0.8, "carry": 0.0, "shadows": 0.6, "grade": 1.0, "sat": 1.0,
 		"motes": 1.0, "fireflies": 0.0, "clouds": 0.0, "mist": 0.0, "glints": 0.0},
@@ -141,7 +141,7 @@ const FALLS := {"willow": Color("9fcf6a"), "bamboo": Color("b4d86c"), "shrub": P
 ## Cloud shade: a few big soft shapes gliding over everything by day (px per second), in the shade patches' tint and
 ## fainter than them (they move).
 const CLOUDS_PER_SCREEN := 1.2
-const CLOUD_ALPHA := 0.1
+const CLOUD_ALPHA := 0.08
 const CLOUD_DRIFT := Vector2(7.0, 3.5)
 ## Tests and the capture tool: a fixed hour of the clock (0..1 through the game's day); < 0 follows Clock.
 static var debug_hour := -1.0

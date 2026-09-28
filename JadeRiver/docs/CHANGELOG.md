@@ -1,5 +1,32 @@
 # Changelog
 
+## Top-down: Terrain v2, runtime light (decision 40)
+
+- **Cast shadows.** Trees, bamboo, lanterns, banners, houses, halls and cliffs of two levels or more now cast
+  shadows to the lower right, longer the taller they are. Shadows fall down drops, never onto faces or bodies, and keep
+  the tiles' crisp two-step look.
+  - The shadows are worked out once, when a room loads, and cost nothing while you play.
+  - The shadow under every body is now the same blue-violet.
+- **Colour and time of day.**
+  - Each area has its own light: a warm midday in the villages and a cool, misty marsh.
+  - Outdoors, the game's clock turns morning, day, evening and night.
+- **Night.** The Hollow Night and the clock's nights are lit by lanterns, fires, incense, Qi springs and warm open
+  doorways. Their flames flicker, and a pale light round your feet keeps you visible.
+- **The air.** A few particles drift in the pixel style:
+  - pollen in the sun;
+  - fireflies at night;
+  - leaves and petals falling from willows, bamboo and flowering shrubs;
+  - mist wisps over water and the marsh;
+  - glints on sunlit water.
+
+  Faint cloud shade glides over everything by day.
+- **Settings → Controls → "Light and particles"** turns the extras off on older phones. It removes the colour
+  grade, the hours, the clouds and the particles, and keeps the shadows and the night's lights. Reduce motion halves
+  the particles.
+- **Numbers.** Every colour and amount is in one place, `scripts/topdown/topdown_light.gd`, set to the art bible's
+  contract (§14.2 and §14.11).
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/light/`.
+
 ## Top-down: Terrain v2, the tiles (decision 40)
 
 - **The top-down world's terrain is redrawn to look closer to Alabaster Dawn, in Jade River's own xianxia world**

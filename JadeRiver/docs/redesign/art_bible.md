@@ -672,6 +672,130 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
   `docs/redesign/terrain_v2/before/` and `after/`, and the side-by-side pairs are
   `docs/redesign/terrain_v2/0N_*_before_after.png`.
 
+### 14.11 Runtime light (decision 40, the second part: built)
+
+The runtime adds what depends on the room and the hour, over the tiles' baked light, to the numbers of §14.2. Every
+colour, alpha, length and count is in one const block, `scripts/topdown/topdown_light.gd` (`TopdownLight`). Retune
+there and nowhere else.
+
+| Part | Where | What it does |
+|---|---|---|
+| Cast shadows | `TopdownShadows` | Baked once as the room is built, into one texture in ground px; never per frame |
+| Grade, night, lights, cloud shade, particles | `TopdownAtmosphere` | One node in the world viewport, per room and per hour |
+| The numbers | `TopdownLight` | The contract's colours, the areas, the hours, the lights, the particle caps |
+
+**Cast shadows.**
+
+- **Direction.** A point *h* px high falls at (+0.45 h, +0.20 h) (`SUN_STEP`).
+- **What casts:**
+  - tall props (`CASTS`: trees, bamboo, lanterns, banners, posts, racks, boulders): their sprite's silhouette, each
+    pixel as high as it stands over the footprint's middle, laid along the sun's step;
+  - houses, halls, storehouses and crate stacks: a block of their footprint up to their standable top;
+  - the grid, from two levels up (`GRID_MIN_H` 32 px). A one-level step's shadow is the tiles' own (`shade_w`,
+    `ao_n`).
+- **Where it lands.** Each floor takes only what stands higher than it, cut per level like the props' floor shadows.
+  A shadow falls down a drop, longer by the drop. It never lies on a face or on a body.
+- **Alpha.** `SHADOW` at 0.41 in the body and 0.25 on a 2 px stepped edge (`SHADOW_RIM_PX`), with no blur and no
+  dither. On the water it is 0.25 at most.
+- **The stacking cap** (0.6 over baked shade):
+  - the first px under a face takes nothing (`ao_n`'s 0.59);
+  - the next px, and the `NEAR_PX` (4) east of a higher west cell (`shade_w`), take only the edge's 0.25;
+  - so does a prop's own floor shadow.
+- **By the hour.** Morning 0.85, evening 0.8, and 0.35 under the moon, of full strength.
+- **Bodies.** The blob under a body (the player, villagers, foes) is `SHADOW` too, its rim 0.41 and its core 0.6 at
+  the player's full strength.
+
+**The grade** is one pass over the world viewport. The HUD, the names and the effects on the overlay stay ungraded.
+
+- Lights go up to 4% toward `SUN`, darks up to 4% toward `SHADOW`, and saturation rises by 5% at most.
+- The area comes from the room's backdrop:
+
+  | Backdrop | Grade | Lights toward | Hours |
+  |---|---|---|---|
+  | `valley_day` (Lotus Ferry, Stoneford, the Willow Path) | sun 4%, shade 3%, saturation +5% | `SUN` | the clock's |
+  | `marsh` (the Reed Marsh) | sun 4%, shade 4%, saturation −8% | `MIST` | the clock's |
+  | `sect_jade` | sun 3%, shade 3%, saturation +4% | `SUN` | the clock's |
+  | `sect_cloud`, `mist_peak` | sun 3–4%, shade 4%, saturation ±0 to −5% | `MIST` | the clock's |
+  | `interior`, `cave` | sun 4%, shade 3% | `SUN` | always "lamplit" |
+  | `valley_dusk` (Lu's Boat) | sun 4%, shade 4% | `SUN` | always "dusk" |
+  | `valley_night`, or a room with `night` | shade 4%, saturation −10% | — | always the story's night |
+
+- Outdoors the game's clock (`Clock.time_of_day`) turns morning, day, evening and night. Each phase cross-fades into
+  the next over its last 4% of the day.
+- In weather (a room with a `weather` region) rain and storms take the sun out of the grade and the air, and fog
+  thickens the mist.
+
+**Night and lights.**
+
+- After dark the world is multiplied by the night tint `#8FA0C8` (morning and evening use a faint warm tint). Light
+  pools lift it back toward their own colour: stone and red lanterns, embers (incense, shrines), fires (the cooking
+  pot, the forge, the furnace), jade glows (Qi springs, teleport stones) and the warm doorways of houses and halls.
+- The pools are stepped discs in three bands, with a 1 px checker where one band meets the next. They are baked once
+  per room into one light map, when its lights first burn.
+- Each flame glows a little over the night, with a flicker. A pale light round the player's feet keeps the body
+  readable.
+- **This differs from §14.2's `PointLight2D`s.** A room may have any number of lights, and the cost is still one quad
+  a frame. In the Compatibility renderer, each `PointLight2D` draws every item it touches again.
+
+**Cloud shade.** Big, soft, dithered shapes in the shade patches' tint (`#0E4A58`) at 0.08 glide east-south-east
+over everything by day, about one per screen of room.
+
+**Particles** are drawn at art resolution, 1–2 px, never blurred. At most 48 are on screen (`MAX_PARTICLES`), and each
+kind has its own cap:
+
+| Kind | Cap | When and where |
+|---|---|---|
+| pollen motes | 14 | in sunlight (`SUN`), fewer in the marsh and the peaks, none at night or in rain |
+| fireflies | 12 | at night over grass (`SUN`) |
+| leaves and petals | 8 | from willows and bamboo (leaves), flowering shrubs (`PETAL`) and dead trees (ash) in view |
+| mist wisps | 12 | over water and the marsh's wet meadow (`MIST` at 0.15–0.30), most in the marsh and the morning |
+| glints | 6 | on sunlit water |
+
+**Settings.**
+
+- **"Light and particles"** (Controls, on by default) turns off the grade, the clock's hours (outdoors stays at
+  midday), the cloud shade and the particles on older phones. The cast shadows stay, and so does a night room's night.
+- **Reduce motion** halves the particles.
+
+**Cost.**
+
+- The bake takes 5–8 ms a room on a desktop, headless. Lotus Ferry, the largest room, takes the most. The first room
+  also cuts the props' silhouettes, which takes about 2 ms, once.
+- The cloud shade is drawn by a shader, so nothing is built for it.
+- Each frame, the Atmosphere's own work is under 0.1 ms of CPU.
+- On the GPU, each frame adds:
+  - one grade pass at 640 × 360;
+  - at most 48 particles;
+  - the clouds' quads;
+  - after dark, one multiply quad.
+- `perf_tests`' frame and load budgets hold, measured against the same runs without it.
+
+**Tests.**
+
+- `topdown_suite` ("topdown light"):
+  - a block's shadow by height, with the body, the edge and the cap;
+  - a one-level step casts nothing;
+  - a prop's silhouette;
+  - a shadow falling down a drop;
+  - every area's grade within the contract at every hour.
+- `topdown_tutorial` (invariant 11), for every room the view builds:
+  - one bake, and none while it plays;
+  - the particles under their caps by day and at night;
+  - a night room lit by its lanterns.
+
+**Review images.** Before and after, drawn by the game (`tools/dev/topdown_capture.tscn -- --light
+--light-tag=<before|after>`), are in `docs/redesign/terrain_v2/light/`:
+
+- the village square by day, at the evening and at the clock's night;
+- the village at night;
+- the Home Lane;
+- Jade Gate Street;
+- the Marsh Edge with its foes;
+- the height-levels room whole.
+
+**Left for later.** Window glows on the houses, and shadows moving with the hour. The sun stands where §14.2 puts
+it all day.
+
 ## 15. Combat effects (decision 38)
 
 Every blow and technique of the top-down world is drawn by `tools/art/fx/build_fx_topdown.py` into `art/fx/topdown/`

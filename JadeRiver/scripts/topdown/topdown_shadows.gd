@@ -10,8 +10,8 @@ extends RefCounted
 ##     middle, laid on the floor along the sun's step. Stamps are cached per prop kind;
 ##   - a building or crate stack with a standable top: a block of its footprint up to its top;
 ##   - the grid, from two levels up: each cell is a column up to its floor (water half a level down), and a run of
-##     cells with a lower east, south or south-east neighbour throws the sweep of its block along the sun's step onto
-##     every floor at least GRID_MIN_H lower. A one-level step's shadow is the tiles' own (`shade_w`, `ao_n`).
+##     cells with an east, south or south-east neighbour at least GRID_MIN_H lower throws the sweep of its block along
+##     the sun's step onto every floor that much lower. A one-level step's shadow is the tiles' own (`shade_w`, `ao_n`).
 ## Each floor takes only the shadows of what stands higher than it, so a shadow falls down a cliff's drop, longer by the
 ## drop; it never lies on a face (faces are shaded already) or on a body.
 ##
@@ -41,6 +41,8 @@ var _height := PackedInt32Array()     ## each cell's height as a caster (art px)
 var _touched: Dictionary = {}         ## plane -> PackedInt32Array of cell indices to take from that plane's pass
 var _ovals: Dictionary = {}           ## plane -> [Rect2i]: the props' own floor shadows on it (the edge's alpha under them)
 var _atlas := ""                      ## the props atlas the stamps are read from
+var _runs: Dictionary = {}            ## "water", "ground", row -> its runs (runs())
+var _below := PackedInt32Array()      ## each cell's lowest east, south or south-east neighbour (art px of height)
 
 static func edge() -> Color:
 	return Color(1, 1, 1, TopdownLight.SHADOW_EDGE / TopdownLight.SHADOW_BODY)
@@ -84,9 +86,17 @@ func _heights() -> void:
 				if not room.inside(x, y): continue
 				_height[y * room.w + x] = int(p.top) * T
 				plane[y * room.w + x] = NONE
-
-func _lower(x: int, y: int, h: int) -> bool:
-	return room.inside(x, y) and _height[y * room.w + x] < h
+	_below.resize(n)
+	var w := room.w
+	for y in room.h:
+		for x in w:
+			var i := y * w + x
+			var m := 1 << 20
+			if x + 1 < w: m = mini(m, _height[i + 1])
+			if y + 1 < room.h:
+				m = mini(m, _height[i + w])
+				if x + 1 < w: m = mini(m, _height[i + w + 1])
+			_below[i] = m
 
 func _job(jobs: Dictionary, p: int, job: Array) -> void:
 	if not jobs.has(p): jobs[p] = []
@@ -100,8 +110,9 @@ func _touch(p: int, i: int) -> void:
 func _is_block(x: int, y: int) -> bool:
 	return room.inside(x, y) and room.top_of[y * room.w + x] > 0
 
-## Runs of cells of one height along each row; a run with a lower east, south or south-east neighbour is swept onto
-## every floor its sweep reaches that it stands GRID_MIN_H or more over (a building's block onto any lower floor).
+## Runs of cells of one height along each row; a run with an east, south or south-east neighbour GRID_MIN_H or more
+## under it is swept onto every floor its sweep reaches that it stands that far over (a building's block: any lower
+## neighbour, any lower floor).
 func _grid_jobs(jobs: Dictionary) -> void:
 	var k := TopdownLight.SUN_STEP
 	for y in room.h:
@@ -110,13 +121,15 @@ func _grid_jobs(jobs: Dictionary) -> void:
 			var h := _height[y * room.w + x]
 			var x1 := x + 1
 			while x1 < room.w and _height[y * room.w + x1] == h: x1 += 1
+			# It casts when an east, south or south-east neighbour lies at least `least` under it (a drop of two levels,
+			# or any drop from a building's block); a lesser step's shadow is the tiles' own.
+			var least := 1 if _is_block(x, y) else TopdownLight.GRID_MIN_H
 			var casts := false
 			for cx in range(x, x1):
-				if _lower(cx + 1, y, h) or _lower(cx, y + 1, h) or _lower(cx + 1, y + 1, h):
+				if _below[y * room.w + cx] <= h - least:
 					casts = true
 					break
 			if casts:
-				var least := 1 if _is_block(x, y) else TopdownLight.GRID_MIN_H
 				var reach := h + 8
 				var found := {}
 				for cy in range(y, mini(room.h, y + 2 + ceili(reach * k.y / T))):
@@ -329,25 +342,25 @@ static func _props_sheet(path: String) -> Image:
 ## The runs of shadowed cells of a floor, as [dest (room art px on screen), src (in the texture)]: `which` is "water"
 ## (drawn half a level down), "ground" (level 0) or a row index (that row's raised tops, each at its level's lift).
 func runs(which) -> Array:
-	var out: Array = []
-	var rows: Array = range(room.h) if not which is int else [which]
-	var kind := "row" if which is int else str(which)
-	for yy in rows:
-		var y := int(yy)
-		var x := 0
-		while x < room.w:
-			var i := y * room.w + x
-			var p := plane[i]
-			var want := shaded[i] == 1 and p != NONE and ((kind == "water" and p < 0) or (kind == "ground" and p == 0) or (kind == "row" and p > 0))
-			if not want:
-				x += 1
-				continue
-			var x1 := x + 1
-			while x1 < room.w and shaded[y * room.w + x1] == 1 and plane[y * room.w + x1] == p: x1 += 1
-			var lift := 8.0 if p < 0 else -float(p)
-			out.append([Rect2(x * T, y * T + lift, (x1 - x) * T, T), Rect2(x * T, y * T, (x1 - x) * T, T)])
-			x = x1
-	return out
+	if _runs.is_empty():
+		# One pass over the room: each run of shadowed cells of one floor along a row, filed by where it is drawn.
+		_runs = {"water": [], "ground": []}
+		for y in room.h:
+			var x := 0
+			while x < room.w:
+				var i := y * room.w + x
+				var p := plane[i]
+				if shaded[i] != 1 or p == NONE:
+					x += 1
+					continue
+				var x1 := x + 1
+				while x1 < room.w and shaded[i + x1 - x] == 1 and plane[i + x1 - x] == p: x1 += 1
+				var lift := 8.0 if p < 0 else -float(p)
+				var key = "water" if p < 0 else ("ground" if p == 0 else y)
+				if not _runs.has(key): _runs[key] = []
+				_runs[key].append([Rect2(x * T, y * T + lift, (x1 - x) * T, T), Rect2(x * T, y * T, (x1 - x) * T, T)])
+				x = x1
+	return _runs.get(which, [])
 
 ## A node that lays the runs of `which` in SHADOW; `origin` is where it sits in its parent (a raised row's strip sits at
 ## its sort key). Null when there is nothing to lay.
