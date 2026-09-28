@@ -479,7 +479,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the Spirit Animals page stays as built, with a stable yard at home.
 37. **Full player art in top-down:** every body/skin option, creator hair style and face, every clothing and armour
     piece, every weapon family and every dye, in all top-down directions and actions (per `AGENTS.md`), after the
-    starter set; split across parallel batches on one shared pipeline.
+    starter set; split across parallel batches on one shared pipeline. Started (2026-09-28): everything but six weapon
+    looks and the bow's draw and release is drawn, and the pipeline is split into layer sets that batches build in
+    parallel (`docs/redesign/phase3/character/HOWTO.md`, which lists the four batches left).
 38. **Full attack and skill animation in top-down, close to Alabaster Dawn's feel:** every weapon family's combo with
     anticipation, strike smears, hit-stop, impact effects, knockback and camera kick in 8 directions; every technique form
     re-animated for the top-down view.
