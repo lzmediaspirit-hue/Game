@@ -1,5 +1,26 @@
 # Changelog
 
+## Top-down: Attack's drag moves (decision 35)
+
+- **Three new moves on the Attack button in the top-down room.** The tap and the aimed drag work as before. Details
+  are in `docs/redesign_top_down_plan.md`, "As built: Attack's drag moves".
+  - **A long drag strikes the combo's finisher at once** along the drag. Mid-chain it comes next, in place of the
+    steps between.
+  - **A drag down in the air is the Plunge**: the existing art, with its unlock, 4 s cooldown and its strike and stun
+    where it lands. The body drops straight down at 900. Without the art the drag stays an aimed air blow.
+  - **Holding still for 0.3 s guards**, with the weapon family's damage cut and parry window. With a counter-stance
+    technique slotted and ready, the hold casts that instead. Letting go ends the guard and strikes nothing.
+- **The finisher's line** is 120 px from the button, pulled in near the screen's edges (67 px toward the right and
+  bottom), so every drag zone stays at least 48 px deep on both layouts.
+- **Each armed move shows on the button** (the finisher's line, the Plunge's sector and chevron, the hold's ring, and
+  the move's name) **and on the ground** (a gold arrow, the landing ring under the body, and the guarded half ring).
+  Nothing pulses under Reduce motion.
+- **Guard and plunge poses** come from the body sheet's `guard` and `plunge` rows when it has them. Until then they
+  fall back to the idle and jump cells.
+- **Tests:** `topdown_suite` goes from 62 to 75 checks. `rules_tests` runs the top-down fight checks again; a merge had
+  dropped the call.
+- **Screenshots** are in `docs/redesign/drag_moves/`.
+
 ## Pages, rooms and the top-down room open inside their budgets under load
 
 - **Techniques page** (P13b). It keeps the tree's layout across opens, built as the world mounts or a room is entered,

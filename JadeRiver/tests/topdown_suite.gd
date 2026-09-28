@@ -42,6 +42,9 @@ func run_all(suite) -> void:
 	_water_skill()
 	_roofs()
 	_aim_rules()
+	_drag_zones()
+	_motor_plunge()
+	_finisher_pace()
 
 func _walk() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(80, 192))
@@ -340,6 +343,102 @@ func _aim_rules() -> void:
 		and lefty.release() == "aim" and lefty.dir() == Vector2.RIGHT and is_equal_approx(far.reach_k(), 1.0),
 		"topdown: a tap is a tap; held and dragged it aims along the drag (%s); back on the button it cancels; the left-handed button aims the same" % str(aimed.dir()))
 
+## Decision 35, the thumb on Attack: every drag zone is a 48 px target on both layouts, and each drag reads as its move.
+func _drag_zones() -> void:
+	var dead := float(TopdownAim.cfg("dead_px", 18))
+	var zone := float(TopdownAim.cfg("zone_px", 48))
+	var zones_ok := true
+	var worst := INF
+	for origin in [Vector2(1165, 605), Vector2(1280 - 1165, 605)]:
+		var probe := AimGesture.new("attack", origin)
+		for i in 72:
+			var d := Vector2.from_angle(TAU * i / 72.0)
+			var line := probe.long_px(d)
+			var band := probe.edge_room(d) - line
+			worst = minf(worst, minf(band, line - dead))
+			zones_ok = zones_ok and band >= zone - 0.01 and line - dead >= zone - 0.01
+	var right := AimGesture.new("attack", Vector2(1165, 605))
+	measured.finisher_line = {"up": right.long_px(Vector2.UP), "right": right.long_px(Vector2.RIGHT), "down": right.long_px(Vector2.DOWN)}
+	var half := deg_to_rad(float(TopdownAim.cfg("plunge_deg", 35)))
+	var plunge_w := 2.0 * float(TopdownAim.cfg("plunge_px", 48)) * sin(half)
+	var plunge_d := right.edge_room(Vector2.DOWN) - float(TopdownAim.cfg("plunge_px", 48))
+	t.check(zones_ok and plunge_w >= 48.0 and plunge_d >= 48.0 and is_equal_approx(right.long_px(Vector2.UP), 120.0),
+		"topdown drag moves: the aim's band and the finisher's band are each at least 48 px deep in every direction on both layouts (worst %.0f), the finisher's line 120 px where there is room (%s), the Plunge's sector %.0f px wide and %.0f deep" % [worst, str(measured.finisher_line), plunge_w, plunge_d])
+	var at := func(o: Vector2, off: Vector2, secs := 0.05) -> AimGesture:
+		var g := AimGesture.new("attack", o)
+		g.advance(secs)
+		g.drag(o + off)
+		return g
+	var o := Vector2(1165, 605)
+	var lo := Vector2(1280 - 1165, 605)
+	var reads := [at.call(o, Vector2(-95, -95)).move(), at.call(o, Vector2(0, -80)).move(), at.call(o, Vector2(70, 0)).move(), at.call(o, Vector2(60, 0)).move(),
+		at.call(o, Vector2(0, 60)).move(true, true), at.call(o, Vector2(0, 60)).move(true, false), at.call(o, Vector2(60, 50)).move(true, true),
+		at.call(o, Vector2(0, 60)).move(), at.call(o, Vector2(0, 100)).move(), at.call(o, Vector2(-130, 0)).move(true, true),
+		at.call(lo, Vector2(-70, 0)).move(), at.call(lo, Vector2(0, 60)).move(true, true)]
+	t.check(reads == ["finisher", "aim", "finisher", "aim", "plunge", "aim", "aim", "aim", "finisher", "aim", "finisher", "plunge"],
+		"topdown drag moves: a long drag is the finisher (pulled in to 67 px by the right edge), a drag down in the air the Plunge only when it can, a short drag an aim; the left-handed button reads the same (%s)" % str(reads))
+	var still := AimGesture.new("attack", o)
+	still.advance(0.2)
+	var early := still.holding()
+	still.advance(0.12)
+	var held := still.holding()
+	var drift := AimGesture.new("attack", o)
+	drift.drag(o + Vector2(25, 0))
+	drift.drag(o)
+	drift.advance(0.4)
+	var skill := AimGesture.new("skill", o, 0)
+	skill.advance(0.4)
+	var guarding := AimGesture.new("attack", o)
+	guarding.advance(0.4)
+	guarding.guarding = true
+	guarding.drag(o + Vector2(-95, -95))
+	var refused := AimGesture.new("attack", o)
+	refused.advance(0.4)
+	refused.refused = true
+	t.check(not early and held and not drift.holding() and not skill.holding() and guarding.move() == "guard" and refused.move() == "tap" and not refused.holding(),
+		"topdown drag moves: Attack held still for 0.3 s asks for the guard (not a technique, not after a drift); guarding, any drag stays the guard; a refused guard lets go as a tap")
+
+## The motor's Plunge: straight down at its speed from anywhere in the air, no steering, the impact on the landing.
+func _motor_plunge() -> void:
+	var m := TopdownMotor.new(grid(flat()), Vector2(160, 192))
+	var on_ground := m.plunge(900.0)
+	run(m, 0.15, Vector2.ZERO, [0])
+	var z0 := m.z
+	var x0 := m.pos
+	var went := m.plunge(900.0)
+	var again := m.plunge(900.0)
+	var ev: Array = []
+	var secs := 0.0
+	while not m.grounded and secs < 1.0:
+		ev.append_array(run(m, 1.0 / 60.0, Vector2.RIGHT))
+		secs += 1.0 / 60.0
+	var landed: Array = ev.filter(func(e): return str(e.type) == "landed")
+	measured.plunge_drop = {"from": z0, "secs": snappedf(secs, 0.001)}
+	t.check(not on_ground and went and not again and m.grounded and not m.plunging and m.pos.distance_to(x0) < 0.01 and secs <= z0 / 900.0 + 1.0 / 60.0 + 0.001
+		and landed.size() == 1 and landed[0].get("plunge", false),
+		"topdown: the motor's Plunge drops straight down at 900 (%.0f units in %.3f s), ignores the stick, and lands once with its impact; refused on the ground or twice" % [z0, secs])
+
+## A finisher at once is never a faster way to deal damage than the chain it ends: per second of its step, within 6%
+## of the whole chain's, for every weapon family with a chain.
+func _finisher_pace() -> void:
+	var worst := 0.0
+	var who := ""
+	for fam in ContentDB.all("weapon_families"):
+		var combo: Array = fam.get("combo", [])
+		if combo.size() < 2: continue
+		var chain := 0.0
+		var secs := 0.0
+		for s in combo:
+			chain += float(s.mult)
+			secs += float(s.duration)
+		var last: Dictionary = combo.back()
+		var ratio := (float(last.mult) / float(last.duration)) / (chain / secs)
+		if ratio > worst:
+			worst = ratio
+			who = str(fam.id)
+	measured.finisher_pace = {"worst": snappedf(worst, 0.001), "family": who}
+	t.check(worst <= 1.06, "topdown drag moves: a finisher alone deals at most 6%% more a second than its whole chain (worst %.3f, %s)" % [worst, who])
+
 ## The prototype room's view: its layout, the silhouette behind the house, sort order and whole-pixel placement.
 func run_view(suite, tree: SceneTree) -> void:
 	t = suite
@@ -471,6 +570,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await _chase_and_leash(base)
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
+	await _drag_moves(tree, base)
 	w.queue_free()
 	if is_instance_valid(hud): hud.queue_free()
 	await tree.process_frame
@@ -705,4 +805,198 @@ func _hud_aim(tree: SceneTree, base: Vector2) -> void:
 	foe("wild_boarlet", base + Vector2(200, 0), 60)
 	hud._tick_fight(0.1)
 	t.check(not rest and hud.fight, "topdown: the HUD's rest and fight ring follows the room's foes")
+
+# ------------------------------------------------------------------ decision 35: Attack's drag moves in the fight
+## Through the HUD, in the prototype room: a long drag strikes the combo's finisher at once (mid-chain it comes next, in
+## place of the steps between); a drag down in the air plunges and lands with its strike; held still, Attack guards
+## (the parry window, then the family's damage cut) or enters a slotted stance; each shows on the button and the ground;
+## the poses fall back to the stand-in cells while the sheet has none; left-handed and Reduce motion work the same.
+func _drag_moves(tree: SceneTree, base: Vector2) -> void:
+	var ac: Vector2 = hud.attack_center
+	var fam := StatRules.family(c)
+	var last: int = (fam.combo as Array).size() - 1
+	var tl: Dictionary
+	# The finisher: a long drag up-left strikes the chain's last step at once, the ground's arrow gold while armed.
+	fresh(base)
+	hud.set_state(true)
+	var ahead := foe("wild_boarlet", base + Vector2(-1, -1).normalized() * 40.0)
+	hud.press(30, ac)
+	hud.drag(30, ac + Vector2(-95, -95))
+	hud._tick_aims(0.1)
+	var armed_as: String = hud.armed(hud.attack_gesture())
+	var shown := str(w.player.aim.get("move", ""))
+	await tree.process_frame   # the button draws its lit line and the word
+	hud.release(30)
+	tl = Game.combat.timeline(c.id)
+	var step := [int(tl.combo), str(tl.action)]
+	frames(50)
+	t.check(armed_as == "finisher" and shown == "finisher" and step == [last, str(fam.combo[last].action)] and hurt(ahead),
+		"topdown drag moves: a long drag strikes the combo's finisher at once along it (%s, %s, step %s, hurt %s)" % [armed_as, shown, str(step), str(hurt(ahead))])
+	# Mid-chain: a tap starts the first step; a long drag while it plays brings the finisher next, skipping the middle.
+	fresh(base)
+	hud.set_state(true)
+	foe("wild_boarlet", base + Vector2(0, -40))
+	hud.press(31, ac)
+	hud.release(31)
+	frames(3)
+	hud.press(32, ac)
+	hud.drag(32, ac + Vector2(0, -130))
+	hud._tick_aims(0.05)
+	hud.release(32)
+	var seen: Array = []
+	for i in 120:
+		tl = Game.combat.timeline(c.id)
+		if str(tl.action) != "" and (seen.is_empty() or seen.back() != int(tl.combo)): seen.append(int(tl.combo))
+		frames(1)
+	t.check(seen == [0, last], "topdown drag moves: a finisher asked for mid-chain comes after the step under way, in place of the ones between (%s)" % str(seen))
+	# The Plunge: in the air a drag down drops the body; the landing strikes and stuns round it, the art's cooldown holds.
+	var had: bool = c.cultivator.secret_arts.has("plunge")
+	if not had: c.cultivator.secret_arts.append("plunge")
+	fresh(base)
+	hud.set_state(true)
+	var below := foe("wild_boarlet", base + Vector2(24, 0))
+	w.player.jump()
+	frames(8)
+	var z0: float = w.player.motor.z
+	var ready: bool = w.player.plunge_ready()
+	hud.press(40, ac)
+	hud.drag(40, ac + Vector2(0, 70))
+	hud._tick_aims(0.05)
+	armed_as = hud.armed(hud.attack_gesture())
+	shown = str(w.player.aim.get("move", ""))
+	await tree.process_frame
+	hud.release(40)
+	var dropping: bool = w.player.motor.plunging
+	frames(1)
+	w.player.sync(0.0)
+	var drop_pose := [str(w.player.anim), str(w.player.pose), int(w.player.frame)]
+	var n := 0
+	while not w.player.motor.grounded and n < 30:
+		frames(1)
+		n += 1
+	frames(1)
+	w.player.sync(0.0)
+	var land_pose := [str(w.player.anim), str(w.player.pose), int(w.player.frame)]
+	var fallback_ok: bool = (w.player.pose_frames("plunge") > 0) or (drop_pose == ["plunge", "jump", 1] and land_pose == ["plunge_land", "jump", 2])
+	measured.plunge = {"from": snappedf(z0, 0.1), "frames": n}
+	t.check(ready and armed_as == "plunge" and shown == "plunge" and dropping and hurt(below) and below.pools.has_status("stun") and c.pools.cooldown("plunge") > 3.0 and fallback_ok,
+		"topdown drag moves: a drag down in the air plunges from z %.0f, lands in %d frames and strikes and stuns the foe beside it; the pose falls back to the jump's cells (%s, %s)" % [z0, n, str(drop_pose), str(land_pose)])
+	# Without the art (or on its cooldown) a drag down in the air stays an aimed air blow.
+	c.cultivator.secret_arts.erase("plunge")
+	fresh(base)
+	hud.set_state(true)
+	w.player.jump()
+	frames(8)
+	hud.press(41, ac)
+	hud.drag(41, ac + Vector2(0, 70))
+	hud._tick_aims(0.05)
+	armed_as = hud.armed(hud.attack_gesture())
+	hud.release(41)
+	tl = Game.combat.timeline(c.id)
+	t.check(armed_as == "aim" and not w.player.motor.plunging and bool(tl.get("air_attack", false)) and (tl.aim as Vector2).is_equal_approx(Vector2.DOWN),
+		"topdown drag moves: without the Plunge art a drag down in the air is an aimed air blow (%s)" % armed_as)
+	if had: c.cultivator.secret_arts.append("plunge")
+	# The guard: held still, Attack guards; a blow in the parry window is parried, a later one is cut by the family's
+	# guard; letting go ends the guard and strikes nothing.
+	fresh(base)
+	hud.set_state(true)
+	w.player.motor.face(Vector2.RIGHT)
+	frames(1)
+	var striker := foe("wild_boarlet", base + Vector2(30, 0))
+	striker.aim = Vector2.LEFT
+	hud.press(50, ac)
+	hud._tick_aims(0.2)
+	var not_yet: bool = Game.combat.timeline(c.id).guard
+	hud._tick_aims(0.15)
+	var g: AimGesture = hud.attack_gesture()
+	tl = Game.combat.timeline(c.id)
+	var guarding: bool = g != null and g.guarding and g.guard_kind == "guard" and tl.guard and str(w.player.aim.get("move", "")) == "guard"
+	await tree.process_frame
+	var hp0: float = c.pools.hp
+	Game.combat.enemy_strike(striker, striker.def.attacks[0])
+	var parried: bool = c.pools.hp == hp0 and str(striker.ai.state) == "stagger"
+	var blows := func(times: int) -> float:
+		var lost := 0.0
+		for i in times:
+			c.pools.hp = c.pools.max_hp
+			c.pools.invulnerable = 0.0
+			Game.combat.timeline(c.id).dodge_t = 0.0
+			Game.combat.timeline(c.id).guard_t = 1.0
+			Game.combat.enemy_strike(striker, striker.def.attacks[0])
+			lost += c.pools.max_hp - c.pools.hp
+		return lost
+	var guarded: float = blows.call(8)
+	hud.release(50)
+	tl = Game.combat.timeline(c.id)
+	var ended: bool = not tl.guard and str(tl.action) == ""
+	var open: float = blows.call(8)
+	measured.guard = {"guarded": snappedf(guarded, 0.1), "open": snappedf(open, 0.1)}
+	t.check(not not_yet and guarding and parried and ended and open > 0.0 and guarded < open * 0.9,
+		"topdown drag moves: Attack held still guards at 0.3 s, parries a blow in the window, cuts later ones (%.0f against %.0f open), and let go it ends and strikes nothing" % [guarded, open])
+	# The stance: with a counter-stance slotted and ready, the hold enters it (the technique's cooldown, its stance).
+	fresh(base)
+	hud.set_state(true)
+	var tid := "silkworm_riposte"
+	var kept = c.cultivator.technique_slots[3]
+	if not c.cultivator.techniques_known.has(tid): Game.apply_effects(c.id, [{"kind": "learn_technique", "technique": tid}], "topdown_suite")
+	var eq: Dictionary = Game.submit({"type": "equip_technique", "slot": 3, "id": tid})
+	hud.press(51, ac)
+	hud._tick_aims(0.35)
+	g = hud.attack_gesture()
+	var kind := g.guard_kind if g != null else ""
+	frames(20)
+	tl = Game.combat.timeline(c.id)
+	var in_stance: bool = float(tl.stance) > 0.0 and tl.guard and c.pools.cooldown("tech:" + tid) > 0.0
+	hud.release(51)
+	var out: bool = not Game.combat.timeline(c.id).guard
+	Game.submit({"type": "equip_technique", "slot": 3, "id": str(kept)})
+	t.check(eq.get("ok", false) and kind == "stance" and in_stance and out,
+		"topdown drag moves: with a counter-stance slotted the hold enters it (%s, %s)" % [kind, str(eq.get("reason", ""))])
+	# The guard pose: the sheet's own rows when it has them, else the idle cell.
+	var real: Dictionary = w.player.frames
+	var fake: Dictionary = real.duplicate(true)
+	fake["guard"] = {"s": [[0, 96], [32, 96]], "e": [[0, 96], [32, 96]], "n": [[0, 96], [32, 96]]}
+	fresh(base)
+	Game.submit({"type": "guard_start"})
+	w.player.frames = fake
+	w.player.sync(0.0)
+	w.player.sync(0.2)
+	var drawn := [str(w.player.pose), int(w.player.frame), w.player.frame_rect().position]
+	w.player.frames = real
+	w.player.sync(0.0)
+	var stand_in := [str(w.player.pose), int(w.player.frame)]
+	Game.submit({"type": "guard_end"})
+	t.check(drawn == ["guard", 1, Vector2(32, 96)] and stand_in == ["idle", 0],
+		"topdown drag moves: the guard draws the sheet's guard row when it has one and the idle cell when not (%s, %s)" % [str(drawn), str(stand_in)])
+	# Left-handed: the button moves to the left; a drag to the left edge is the finisher, back on the button cancels.
+	hud.left_handed = true
+	hud._layout()
+	var lc: Vector2 = hud.attack_center
+	fresh(base)
+	hud.set_state(true)
+	hud.press(60, lc)
+	hud.drag(60, lc + Vector2(-70, 0))
+	hud._tick_aims(0.05)
+	var left_armed: String = hud.armed(hud.attack_gesture())
+	hud.drag(60, lc + Vector2(5, 0))
+	var cancel: String = hud.armed(hud.attack_gesture())
+	hud.release(60)
+	var idle: bool = str(Game.combat.timeline(c.id).action) == ""
+	hud.left_handed = false
+	hud._layout()
+	# Reduce motion: the armed marks hold still (no pulse), and the button still draws them.
+	var was: bool = bool(Game.account.settings.get("reduce_motion", false))
+	Game.account.settings["reduce_motion"] = true
+	hud.press(61, ac)
+	hud.drag(61, ac + Vector2(-95, -95))
+	hud._tick_aims(0.05)
+	var g1: float = hud.armed_glow()
+	hud.t += 0.37
+	var g2: float = hud.armed_glow()
+	await tree.process_frame
+	hud.drag(61, ac)
+	hud.release(61)
+	Game.account.settings["reduce_motion"] = was
+	t.check(lc.x < 640.0 and left_armed == "finisher" and cancel == "cancel" and idle and g1 == 1.0 and g2 == 1.0,
+		"topdown drag moves: left-handed the finisher reads the same and a drag back cancels (%s, %s); under Reduce motion the armed marks hold still" % [left_armed, cancel])
 
