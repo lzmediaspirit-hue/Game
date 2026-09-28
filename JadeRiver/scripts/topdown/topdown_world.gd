@@ -114,8 +114,13 @@ func _ready() -> void:
 	sorted.add_child(player)
 	fx = FxView.new(self)
 	sorted.add_child(fx)
+	# The silhouette's layers draw as one image in a group, so its translucent jade is even where they overlap.
+	var group := CanvasGroup.new()
+	group.z_index = 100
+	group.self_modulate = Color(1, 1, 1, 0.55)
+	viewport.add_child(group)
 	silhouette = Silhouette.new(self)
-	viewport.add_child(silhouette)
+	group.add_child(silhouette)
 	camera = Camera2D.new()
 	viewport.add_child(camera)
 	camera.make_current()
@@ -187,7 +192,7 @@ func _build_room() -> void:
 	object_views = {}
 	portal_views = []
 	if live and Game.room_rt != null:
-		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay)
+		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay, player)
 		npc_views = built.npc_views
 		object_views = built.object_views
 		portal_views = built.portal_views
@@ -377,6 +382,15 @@ func _add_foe(e: EnemyState) -> void:
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
 
+## A villager standing at `at` (world units, on the floor there) facing `row`, in the NPC's own outfit, sorted with the
+## room: the rooms of the world place theirs (TopdownPlaces); this stands one anywhere, for the prototype and reviews.
+func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
+	var g: float = room.height_at(at)
+	var o := {"type": "npc", "npc": npc_id, "at": [at.x, at.y], "alt": g if g < INF else 0.0, "row": row}
+	var v := TopdownPlaces.Figure.new(room, o, TopdownPlaces.Person.new(o), null)
+	sorted.add_child(v)
+	return v
+
 ## The names over the world keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
 ## them), nearest the player first: the foes', and in the world the people's, the ways' and the things'.
 func layout_labels() -> Dictionary:
@@ -396,6 +410,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"enemy_spawned", "ally_spawned":
 			var e: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", p.get("uid", 0)))) if Game.room_rt else null
 			if e: _add_foe(e)
+		"equipment_changed":
+			if str(p.get("actor", "")) == player.actor_id: player.refresh_outfit()
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
 				var aim: Vector2 = p.get("aim", Vector2(int(p.get("facing", 1)), 0))
@@ -410,7 +426,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 						float(p.get("windup", -1.0)), point, aim, float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t))
 					Audio.play("technique")
 				else:
-					# A swing's arc along the aim, so each of the eight directions reads (the placeholder body has one strike pose).
+					# A swing's arc along the aim, so each of the eight directions reads.
 					var f := 1 if aim.x >= 0.0 else -1
 					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -effects.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
 						"turn": (aim * f).angle(), "radius": 22.0, "dur": 0.22, "delay": float(p.get("windup", 0.0)) * 0.6})
@@ -430,7 +446,7 @@ func tile(name: String) -> Rect2:
 	var r: Array = room.tileset.get("tiles", {}).get(name, [0, 0, 16, 16])
 	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
-## An atlas of the tile set (tiles, props, body, foes), loaded once from the file its manifest names.
+## An atlas of the tile set (tiles, props, foes), loaded once from the file its manifest names.
 func atlas(kind: String) -> Texture2D:
 	if not _atlases.has(kind): _atlases[kind] = load(str(room.tileset.get("atlas", {}).get(kind, "")))
 	return _atlases[kind]
@@ -640,10 +656,9 @@ class Silhouette extends Node2D:
 	var world
 	func _init(w) -> void:
 		world = w
-		z_index = 100
 		var mat := ShaderMaterial.new()
 		mat.shader = Shader.new()
-		mat.shader.code = "shader_type canvas_item;\nvoid fragment() { COLOR = vec4(0.4, 0.84, 0.74, texture(TEXTURE, UV).a * 0.55); }"
+		mat.shader.code = "shader_type canvas_item;\nvoid fragment() { COLOR = vec4(0.4, 0.84, 0.74, texture(TEXTURE, UV).a); }"
 		material = mat
 	func _draw() -> void:
 		if world.occluded: world.player.draw_body(self, world.player.screen)

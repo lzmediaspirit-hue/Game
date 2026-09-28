@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2t3088rugd1h"
-path="res://.godot/imported/placeholder_body.png-e0af66e8ffb5732c58bfc4cb13ada63c.ctex"
+uid="uid://cdnc4tyx0dv3e"
+path="res://.godot/imported/hair_high_pony__1.png-c3e4de3e84743d01cebbbc9df488df7e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/topdown/placeholder_body.png"
-dest_files=["res://.godot/imported/placeholder_body.png-e0af66e8ffb5732c58bfc4cb13ada63c.ctex"]
+source_file="res://art/topdown/character/hair_high_pony__1.png"
+dest_files=["res://.godot/imported/hair_high_pony__1.png-c3e4de3e84743d01cebbbc9df488df7e.ctex"]
 
 [params]
 

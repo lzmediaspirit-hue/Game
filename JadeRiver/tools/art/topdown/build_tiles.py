@@ -4,11 +4,10 @@ manifest and Godot TileSet, and optionally the sheets' review images.
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/proto_tiles.png      the terrain atlas (tops, faces, stairs, water frames, overlays, auto-tile sets)
   art/topdown/proto_props.png      the prop kit, its animation frames and the props' floor shadows
-  art/topdown/placeholder_body.png the placeholder body (unchanged; drawn by tools/art/build_topdown_proto.py)
   art/topdown/foes.png             the foes in eight facings (tools/art/topdown/creatures.py)
   art/topdown/proto_tiles.tres     a Godot TileSet over the atlas: terrain sets for paths and shores, animated water,
                                    and every tile's name as custom data
-  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, body, foes, the paint table (which
+  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, foes, the paint table (which
                                    tops, faces and auto-tile sets each mark draws) and the auto-tile tables
 With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4 and the foe sheet at x3.
 The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
@@ -38,7 +37,6 @@ from canvas import T  # noqa: E402
 
 TILES_PNG = "art/topdown/proto_tiles.png"
 PROPS_PNG = "art/topdown/proto_props.png"
-BODY_PNG = "art/topdown/placeholder_body.png"
 FOES_PNG = "art/topdown/foes.png"
 TRES = "art/topdown/proto_tiles.tres"
 MANIFEST = "data/topdown/proto_tileset.json"
@@ -76,20 +74,16 @@ def png_bytes(img: Image.Image) -> bytes:
 
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
-    import build_topdown_proto as proto   # the placeholder body stays where Phases 1-2 drew it
     sheet, at, auto = atlas.build()
     psheet, pat = props.build()
-    body, body_at = proto.build_body()
     foes, foes_at = creatures.build()
     manifest = {
         "schema_version": 2,
         "tile": T,
         "tiles": at,
         "props": pat,
-        "body": body_at,
         "foes": foes_at,
-        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "body": "res://" + BODY_PNG,
-                  "foes": "res://" + FOES_PNG},
+        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "foes": "res://" + FOES_PNG},
         "paint": PAINT,
         "bank_face": "bank",
         "tileset": "res://" + TRES,
@@ -110,7 +104,6 @@ def build_all() -> dict:
     return {
         TILES_PNG: png_bytes(sheet.img),
         PROPS_PNG: png_bytes(psheet.img),
-        BODY_PNG: png_bytes(body.img),
         FOES_PNG: png_bytes(foes.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
