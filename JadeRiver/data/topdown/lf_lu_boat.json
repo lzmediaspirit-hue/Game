@@ -87,6 +87,26 @@
    "kind": "lotus",
    "x": 8,
    "y": 12
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 19,
+   "y": 8
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 12,
+   "y": 11
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 21,
+   "y": 11
   }
  ],
  "place": {

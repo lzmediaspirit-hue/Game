@@ -11,7 +11,9 @@ A scene:
                           hidden: brought on by a `spawn` step} | {prop: a prop of the tile set, at, level}
   live                    true: a scene played around the player, the controls kept (no cut, no letterbox)
   tutorial                true: a beat of the tutorial walk (tests/topdown_tutorial.gd plays each one to its end)
-  steps                   the script (SceneRules.STEP_KINDS): actor steps (move, face, emote, pose, say), the camera
+  steps                   the script (SceneRules.STEP_KINDS): actor steps (move, face, emote, pose, say; a pose is an
+                          action of the top-down figure, data/topdown/character.json, among them the story's gestures:
+                          salute, kneel, point, startle), the camera
                           (camera, zoom, shake, letterbox), the screen (fade, flash, title), the world (spawn, despawn,
                           door, weather, moment, fx, sound), the flow (wait, wait_input, wait_event, branch, label, goto,
                           mark) and the hand-off (handoff: the player acts, a prompt over what to do, until an event)
@@ -203,6 +205,7 @@ def opening():
         sound("pickup"),
         handoff("Your Bag holds her tea", "hud:icon:bag", until("page_opened", page="inventory"), s=3.5),
         say("ping", "Your mother stood at that door every dawn, watching the water. You have her stubborn chin."),
+        pose("ping", "point", 2.2),
         say("ping", "Lu wants you at the docks. Something about the river. Go on."),
         handoff("Walk to the door: drag the stick", "portal:exit", until("room_left")),
     ], actors={"ping": {"object": "npc_aunt_ping"}}, requires=all_of(qactive("morning_tide")))
@@ -225,6 +228,7 @@ def opening():
         move("dou", (50, 20), (55, 17), run=True),
         face("dou", "n"),
         emote("dou", "!", 0.9, wait=True),
+        pose("dou", "point", 2.0),
         say("dou", "My kite! The wind took it onto the inn roof!"),
         camera("player", 1.4),
         say("ping", "Lu's at the docks, by the boats. Off you go."),
@@ -235,6 +239,7 @@ def opening():
     # Lu's four errands, shown where they wait: Guo at his stump, Dou under the kite, Old Ma's door, Granny Liu's hut.
     scene("four_errands", "Four Errands", "lf_village", [
         letterbox(True),
+        pose("lu", "point", 1.6),
         say("lu", "Four errands, four corners of the village. Look."),
         camera("guo", 1.2),
         face("guo", "e"),
@@ -284,6 +289,7 @@ def lessons():
     scene("kite_route", "The Way Up", "lf_village", [
         letterbox(True),
         face("dou", "n"),
+        pose("dou", "point", 2.2),
         say("dou", "Up the crates, onto the hall roof, then jump across to the inn!"),
         camera((46, 14), 1.0),
         fx("ring", (46.5, 13), color="BRIGHT_JADE", radius=22, dur=0.6),
@@ -331,8 +337,10 @@ def lessons():
         mark({"kind": "restore_resource", "pool": "hp", "pct": -0.3}),
         emote("player", "sweat", 1.0),
         emote("granny", "!", 0.8),
+        pose("granny", "startle", 0.7, wait=True),
         move("granny", (7, 8)),
         face("granny", "player"),
+        pose("granny", "kneel", 3.0),
         say("granny", "Oh! My clumsy shelves. Hold still, child, you're scratched."),
         say("granny", "Take a tea from your Bag and put it where your hand finds it: Quick-use."),
         handoff("Open your Bag: put Herbal Tea in Quick-use", "hud:icon:bag", until("quick_use_changed", item="herbal_tea"), then="live"),
@@ -364,6 +372,7 @@ def crabs():
         letterbox(True),
         camera((10, 16), 1.2),
         emote("mei", "!", 0.8),
+        pose("mei", "startle", 1.2),
         say("mei", "Shoo! Get back in the river, the lot of you!"),
         move("mei", (6, 14), run=True),
         face("mei", "player"),
@@ -391,8 +400,11 @@ def night():
         fx("ring", (32, 36), color="MIST", radius=40, dur=0.8),
         sound("hiss"),
         emote("dou", "!", 0.8),
+        pose("dou", "startle", 2.4),
+        pose("granny", "startle", 2.4),
         say("dou", "Something's in the water! It's coming up!"),
         camera("player", 1.0),
+        pose("granny", "point", 2.0),
         say("granny", "Child! Get us to your aunt's hut. Quickly now!"),
     ], actors={"dou": {"object": "npc_dou_night"}, "granny": {"object": "npc_granny_night"}},
         requires=all_of(qactive("the_hollow_night")))
@@ -402,7 +414,9 @@ def night():
         letterbox(True),
         weather("clear"),
         face("lu", "player"),
+        pose("lu", "point", 2.6),
         say("lu", "That thing in the water was a Hollowed eel. The grey is spreading."),
+        pose("lu", "kneel", 2.4),
         say("lu", "You have a gift. I felt it last night. Sit. Breathe as I showed you."),
         pose("lu", "meditate"),
         camera("player", 0.8),
@@ -427,6 +441,7 @@ def night():
         sound("technique"),
         shake(0.15),
         face("lu", "player"),
+        pose("lu", "point", 2.4),
         say("lu", "Flowing Palm. The sects are choosing disciples at Stoneford this spring. Go west."),
         zoom(1.0, 0.2),
     ], actors={"lu": {"object": "npc_lu_boat"}}, trigger=on("breakthrough_succeeded", to="bone_forging_1"))
@@ -440,12 +455,14 @@ def stoneford():
         camera((32, 14), 1.4),
         spawn("thief", (33, 15)),
         emote("rong", "anger", 1.0),
+        pose("rong", "startle", 1.4),
         say("rong", "My purse! Thief! Stop him!"),
         move("thief", (20, 16), (1, 16), run=True, wait=False, speed=230),
         camera((16, 16), 1.4),
         despawn("thief"),
         camera("player", 1.2),
         face("lin", "player"),
+        pose("lin", "point", 2.0),
         say("lin", "Quick-Fingered Hou. He lives on the rooftops, that one."),
         say("lin", "Keep your purse close in Stoneford, newcomer."),
     ], actors={"rong": {"object": "npc_auntie_rong"}, "lin": {"object": "npc_courier_lin"},
@@ -456,8 +473,10 @@ def stoneford():
         title("The Recruitment Fair", "Stoneford", 2.4),
         letterbox(True),
         camera("qing", 1.4),
+        pose("qing", "salute", 2.2),
         say("qing", "Jade Sect! The sword that writes, the brush that cuts!"),
         camera("mo", 1.0),
+        pose("mo", "salute", 2.2),
         say("mo", "Cloud Sect! Why walk to the peak when you could fly there?"),
         emote("qing", "anger", 1.0),
         camera("player", 1.2),
@@ -475,12 +494,16 @@ def stoneford():
         label("jade"),
         camera("qing", 1.0),
         emote("qing", "heart", 1.0),
+        pose("qing", "salute", 2.6),
+        pose("player", "salute", 2.6),
         say("qing", "Welcome to the Jade Sect. Keep your wrist loose and your word firm.", box="portrait"),
         title("The Jade Sect", "Service Disciple, on trial", 2.2),
         goto("rival"),
         label("cloud"),
         camera("mo", 1.0),
         emote("mo", "heart", 1.0),
+        pose("mo", "salute", 2.6),
+        pose("player", "salute", 2.6),
         say("mo", "Welcome to the Cloud Sect. We'll teach you to fall before we teach you to fly.", box="portrait"),
         title("The Cloud Sect", "Service Disciple, on trial", 2.2),
         label("rival"),

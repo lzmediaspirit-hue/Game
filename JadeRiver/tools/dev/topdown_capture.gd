@@ -7,7 +7,9 @@ extends Node
 ## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
-## saves of their own, so it can run beside another capture).
+## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
+## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
+## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -30,6 +32,7 @@ func _main() -> void:
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
+	TopdownLight.debug_hour = 0.375   # decision 40: every shot at midday, whatever the clock says
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame
@@ -47,6 +50,9 @@ func _main() -> void:
 		return
 	if "--chapter2" in OS.get_cmdline_user_args():
 		await chapter2()
+		return
+	if "--light" in OS.get_cmdline_user_args():
+		await light()
 		return
 	if "--tutorial-foes" in OS.get_cmdline_user_args():
 		await tutorial_foes()
@@ -539,6 +545,64 @@ func chapter2() -> void:
 	print("topdown_capture: chapter 2 done")
 	get_tree().quit()
 
+## Decision 40, runtime light (`-- --light [--light-tag=before|after]`, into docs/redesign/terrain_v2/light/): the
+## village square at midday, the village at night, Jade Gate Street, the Marsh Edge with its foes, the village square at
+## dusk and at the clock's night, each under the real HUD, and the height-levels review room whole (x2). The clock is
+## pinned (midday unless a scene names its hour) and the weather held clear, so a before and an after match.
+const LIGHT := [["village_day", "lf_village", Vector2(33, 21), [], 0.375], ["village_night", "lf_village_night", Vector2(22, 20), [], 0.375],
+	["jade_gate_street", "ja_gate_street", Vector2(24, 15), [], 0.375],
+	["marsh_edge", "rm_marsh_edge", Vector2(30, 14), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)]], 0.375],
+	["village_lane", "lf_village", Vector2(12, 18), [], 0.375], ["village_dusk", "lf_village", Vector2(33, 21), [], 0.68],
+	["village_clock_night", "lf_village", Vector2(33, 21), [], 0.87]]
+
+func light() -> void:
+	var out := "res://docs/redesign/terrain_v2/light/"
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--light-tag="): tag = str(a).trim_prefix("--light-tag=")
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	for s in LIGHT:
+		Clock.simulate(600000.0 * day_s + float(s[4]) * day_s, 0)
+		TopdownLight.debug_hour = float(s[4])
+		await room_shots([[tag + "_" + str(s[0]), s[1], s[2], s[3]]], out)
+		var atmo = main.world.get("atmosphere")
+		if atmo != null:
+			var n := {}
+			for q in atmo.particles: n[q.kind] = int(n.get(q.kind, 0)) + 1
+			print("light: %s at %.2f, %s, %d lights, air %s" % [s[0], float(s[4]), str(atmo.now.hour), atmo.lights.size(), str(n)])
+	# The height-levels review room whole, x2, as the view draws it (the grade is inside the viewport).
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	TopdownLight.debug_hour = 0.375
+	var was: String = Game.active_id
+	Game.active_id = ""
+	var v := TopdownWorld.new()
+	v.room_id = "td_review_heights"
+	add_child(v)
+	await frames(2)
+	v.set_process(false)
+	var size: Vector2 = v.room.art_size()
+	var pad := 64
+	v.container.stretch = false
+	v.viewport.size = Vector2i(int(size.x), int(size.y) + pad)
+	v.camera.position = Vector2(size.x * 0.5, (size.y - pad) * 0.5)
+	v.player.motor.place(HEIGHT_BODIES[0] * 32.0)
+	v.player.sync(0.0)
+	v.shadow.sync()
+	for spot in HEIGHT_BODIES.slice(1): v.sorted.add_child(StandIn.new(v, spot * 32.0))
+	for f in 3: await frames(1)
+	await RenderingServer.frame_post_draw
+	var img: Image = v.viewport.get_texture().get_image()
+	img.resize(img.get_width() * 2, img.get_height() * 2, Image.INTERPOLATE_NEAREST)
+	img.save_png(out + tag + "_heights.png")
+	v.queue_free()
+	Game.active_id = was
+	print("topdown_capture: light done")
+	get_tree().quit()
+
 ## The tutorial rooms' other foes in their own figures (`-- --tutorial-foes`, into docs/redesign/phase4/): Lotus Ferry
 ## at night, the hollowed eel rising from the river (the night's own event) and hollow minnows swimming through the air
 ## at the player; Old Snapper on the Reed Shallows' flats (it comes only after five crab shells, so it is set there);
@@ -585,19 +649,42 @@ const TERRAIN_VIEWS := [["01_village_square", "lf_village", Vector2(33, 21)], ["
 	["03_marsh_edge", "rm_marsh_edge", Vector2(30, 14)], ["04_reed_shallows", "lf_reed_shallows", Vector2(40, 15)],
 	["05_fishers_hut_lane", "lf_village", Vector2(12, 18)], ["08_cliff_stair", "cm_cliff_stair", Vector2(40, 10)],
 	["09_elder_sung_peak", "cm_elder_sung_peak", Vector2(20, 10)]]
+## Decision 40's third part (`-- --terrain foliage/<before|after>`): the same views, and these besides, into
+## docs/redesign/terrain_v2/foliage/<name>/: the Willow Path, the Herb Terraces, the Pavilion Rooftops and the Sword
+## Court in the world alone, and two fights under the HUD, so foes, names and rings are judged against the new cover.
+const FOLIAGE_VIEWS := [["10_willow_path_east", "wp_east", Vector2(40, 12)], ["11_herb_terraces", "ja_herb_terraces", Vector2(20, 20)],
+	["12_pavilion_rooftops", "ja_pavilion_rooftops", Vector2(22, 20)], ["13_willow_path_west", "wp_west", Vector2(26, 16)]]
+const FOLIAGE_FIGHTS := [["14_fight_willow_path_hud", "wp_east", Vector2(20, 14), [["wild_boarlet", Vector2(3, 2)], ["wild_boarlet", Vector2(-4, 3)], ["reedtail_rat", Vector2(5, -1)]]],
+	["15_fight_marsh_edge_hud", "rm_marsh_edge", Vector2(34, 15), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)], ["reed_frog", Vector2(2, -2)]]]]
 
 func terrain_v2() -> void:
 	var args := OS.get_cmdline_user_args()
 	var i := args.find("--terrain")
-	var out := "res://docs/redesign/terrain_v2/%s/" % (args[i + 1] if i + 1 < args.size() else "after")
+	var name := str(args[i + 1]) if i + 1 < args.size() else "after"
+	var foliage := name.begins_with("foliage/")
+	var out := "res://docs/redesign/terrain_v2/%s/" % name
 	await _topdown_game(out)
 	await frames(360)   # a new game's first notices come and go before the first shot
-	for s in TERRAIN_VIEWS:
+	for s in TERRAIN_VIEWS + (FOLIAGE_VIEWS if foliage else []):
 		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 		GameEvents.flush()
 		await frames(10)
 		await at_spot(s[2], 120)
 		(await world_shot()).save_png(out + str(s[0]) + ".png")
+	if foliage:
+		await room_shots(FOLIAGE_FIGHTS, out)
+		# Every room on the grid whole at 1 art px, into <name>/rooms/, to judge the foliage's framing room by room.
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out + "rooms/"))
+		for f in DirAccess.get_files_at("res://data/topdown/"):
+			var rid := f.get_basename()
+			if not f.ends_with(".json") or not TopdownRoom.has_layout(rid): continue
+			var lay = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f))
+			if not (lay is Dictionary and lay.has("levels")): continue
+			Game.world.load_room(Game.active(), rid, "", TopdownRoom.cell_point(lay.get("spawn", [1, 1])))
+			GameEvents.flush()
+			await frames(6)
+			w = main.world
+			await whole_room(out + "rooms/" + rid + ".png")
 	# The views alone (no character enters them): Riverside Square at its spawn, and the height-levels room whole.
 	var was: String = Game.active_id
 	Game.active_id = ""
@@ -620,14 +707,16 @@ func terrain_v2() -> void:
 		v.queue_free()
 		await frames(2)
 	Game.active_id = was
-	# With both sets taken, each view's before and after side by side, into docs/redesign/terrain_v2/.
-	var dir := "res://docs/redesign/terrain_v2/"
-	for s in TERRAIN_VIEWS + [["06_riverside_square"], ["07_height_levels"]]:
+	# With both sets taken, each view's before and after side by side, into docs/redesign/terrain_v2/ (the foliage
+	# part's into its own folder).
+	var dir := "res://docs/redesign/terrain_v2/" + ("foliage/" if foliage else "")
+	var views: Array = TERRAIN_VIEWS + [["06_riverside_square"], ["07_height_levels"]] + (FOLIAGE_VIEWS + FOLIAGE_FIGHTS if foliage else [])
+	for s in views:
 		var b := dir + "before/" + str(s[0]) + ".png"
 		var a := dir + "after/" + str(s[0]) + ".png"
 		if not (FileAccess.file_exists(b) and FileAccess.file_exists(a)): continue
 		await panels(dir + str(s[0]) + "_before_after.png", [["Before", Image.load_from_file(ProjectSettings.globalize_path(b))],
-			["After: Terrain v2", Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
+			["After: " + ("foliage and decor" if foliage else "Terrain v2"), Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
 	print("topdown_capture: terrain views done")
 	get_tree().quit()
 

@@ -216,6 +216,81 @@
    "kind": "willow",
    "x": 27,
    "y": 23
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 18,
+   "y": 7
+  },
+  {
+   "kind": "tree_plum",
+   "x": 54,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 42,
+   "y": 7
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "tree_pine",
+   "x": 6,
+   "y": 27
+  },
+  {
+   "kind": "tree_maple",
+   "x": 12,
+   "y": 28
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 29,
+   "y": 28
+  },
+  {
+   "kind": "tree_plum",
+   "x": 38,
+   "y": 27
+  },
+  {
+   "kind": "tree_peach",
+   "x": 50,
+   "y": 27
+  },
+  {
+   "kind": "tree_pine",
+   "x": 57,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 23,
+   "y": 24
+  },
+  {
+   "kind": "bush_wide",
+   "x": 45,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 16,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 33,
+   "y": 29
   }
  ],
  "place": {

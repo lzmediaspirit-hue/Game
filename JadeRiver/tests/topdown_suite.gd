@@ -48,6 +48,7 @@ func run_all(suite) -> void:
 	_drag_zones()
 	_motor_plunge()
 	_finisher_pace()
+	_light_rules()
 	_view_rules()
 
 func _walk() -> void:
@@ -376,6 +377,69 @@ func _terrain_rules() -> void:
 	t.check(not up.is_empty() and up_on_ground.is_empty() and not ground.is_empty() and up.all(func(p): return (p[0] as Rect2).position.y >= 16.0 and (p[0] as Rect2).end.y <= 32.0),
 		"topdown terrain: a prop's floor shadow lies on its own level's cells, cut to them (%d pieces on the planter, %d beside it on the ground)" % [up.size(), up_on_ground.size()])
 
+## Decision 40, runtime light (art bible §14.2, §14.11): the cast shadows a block and a tall prop throw
+## (TopdownShadows, baked once as the room is built) and the look of an area at an hour (TopdownLight).
+func _light_rules() -> void:
+	var rows := flat(10, 8)
+	rows[1] = "0220000000"
+	rows[2] = "0220000000"
+	var before := TopdownShadows.bakes
+	var sh := TopdownShadows.new(grid(rows, {"props": [{"kind": "lantern", "x": 6, "y": 5}]}))
+	var edge := TopdownShadows.edge().a
+	# The alpha step at (x, y): 1 the body, EDGE the stepped edge, 0 none.
+	var step := func(img: Image, x: int, y: int) -> String:
+		var a := img.get_pixel(x, y).a
+		return "body" if a > 0.9 else ("edge" if absf(a - edge) < 0.02 else ("none" if a < 0.01 else "%.2f" % a))
+	var count := func(img: Image, r: Rect2i) -> int:
+		var n := 0
+		for y in range(r.position.y, r.end.y):
+			for x in range(r.position.x, r.end.x): if img.get_pixel(x, y).a > 0.5: n += 1
+		return n
+	# A 2x2 block two levels high (32 px): its shadow reaches 0.45 x 32 = 14 px east and 0.20 x 32 = 6 px south, a body
+	# inside a 2 px stepped edge; nearest the block, over the tiles' own shade, only the edge (east) or nothing (the
+	# first row under its face); the floor north and west of it and its own top stay lit.
+	var east: Array = [step.call(sh.image, 49, 26), step.call(sh.image, 53, 26), step.call(sh.image, 60, 26), step.call(sh.image, 62, 26)]
+	var south: Array = [step.call(sh.image, 30, 48), step.call(sh.image, 30, 49), step.call(sh.image, 30, 51), step.call(sh.image, 30, 54)]
+	var lit: bool = [[8, 8], [8, 40], [20, 20], [40, 4]].all(func(q): return sh.image.get_pixel(q[0], q[1]).a < 0.01)
+	t.check(TopdownShadows.bakes == before + 1 and east == ["edge", "body", "edge", "none"] and south == ["none", "edge", "body", "none"] and lit,
+		"topdown light: a block two levels high casts 0.45 h east and 0.20 h south, a body in a stepped edge, only the edge by the block and nothing on its contact shade, nothing north, west or on its top (east %s, south %s, lit %s)" % [str(east), str(south), lit])
+	# One level casts nothing at runtime: that step's shadow is the tiles' own (shade_w, ao_n).
+	rows = flat(10, 6)
+	rows[1] = "0110000000"
+	var low := TopdownShadows.new(grid(rows))
+	t.check(count.call(low.image, Rect2i(0, 0, 160, 96)) == 0, "topdown light: a one-level step casts nothing at runtime (its shadow is baked in the tiles)")
+	# A stone lantern (32 px tall) lays its silhouette to its south-east, nothing to its west.
+	var cast: int = count.call(sh.image, Rect2i(98, 84, 30, 12))
+	var west: int = count.call(sh.image, Rect2i(80, 80, 16, 32))
+	t.check(cast > 20 and west == 0, "topdown light: a tall prop lays its silhouette on the floor to its south-east (%d px), none to its west (%d)" % [cast, west])
+	# Three levels over a one-level step: the shadow lies on the step and falls down its drop onto the ground past it,
+	# where the step alone casts nothing.
+	rows = flat(10, 6)
+	rows[1] = "0331000000"
+	var drop := TopdownShadows.new(grid(rows))
+	t.check(drop.image.get_pixel(66, 30).a > 0.5 and drop.image.get_pixel(54, 20).a > 0.5 and drop.plane[1 * 10 + 3] == 16,
+		"topdown light: a shadow falls down a cliff's drop, longer by the drop (onto the step and past it onto the ground)")
+	# The look: the village's midday lifts its lights toward the sun and its darks toward the shadow, within the
+	# contract's 4% and +5% saturation at every hour of every area; the marsh's lights lean to the mist; a night room is
+	# the story's night in the night tint with its lights; the clock's night outdoors lights the lamps and sends the
+	# fireflies out; rain closes the sky; an interior is lamp-lit.
+	var day := TopdownLight.look({"backdrop": "valley_day"}, 0.375)
+	var marsh := TopdownLight.look({"backdrop": "marsh"}, 0.375)
+	var story := TopdownLight.look({"backdrop": "valley_night", "night": true}, 0.375)
+	var night := TopdownLight.look({"backdrop": "valley_day"}, 0.87)
+	var rain := TopdownLight.look({"backdrop": "valley_day"}, 0.375, "rain")
+	var inside := TopdownLight.look({"backdrop": "interior"}, 0.87)
+	var within := true
+	for area in TopdownLight.AREAS:
+		for hour in [0.1, 0.25, 0.375, 0.5, 0.62, 0.75, 0.87]:
+			var g: Dictionary = TopdownLight.look({"backdrop": area}, hour).grade
+			if float(g.sun) > 0.04 or float(g.shade) > 0.04 or float(g.sat) > 1.05: within = false
+	t.check(str(day.hour) == "day" and float(day.lights) == 0.0 and float(day.grade.sun) > 0.0 and float(day.grade.shade) > 0.0 and within
+		and marsh.grade.hi == TopdownLight.MIST and float(marsh.grade.sat) < 1.0 and str(story.hour) == "night_story" and float(story.lights) == 1.0
+		and story.ambient == TopdownLight.NIGHT and str(night.hour) == "night" and float(night.lights) > 0.0 and float(night.fireflies) > 0.0
+		and float(night.motes) == 0.0 and float(rain.motes) == 0.0 and float(rain.clouds) == 0.0 and str(inside.hour) == "lamplit",
+		"topdown light: the grade stays within 4%% toward the sun or the shadow and +5%% saturation at every hour; the marsh leans to the mist, a night room is the story's night in #8FA0C8, the clock's night lit by lamps and fireflies, rain without sun, an interior lamp-lit (within %s)" % within)
+
 ## Terrain v2 (decision 40, art bible "Terrain v2"): the layers the room view draws. A top's base is its material's
 ## pattern at the cell's place in it, so neighbours differ and still join; a path under grass lies under the positional
 ## grass overlay of its corner case; a face's tile follows its column, and its last row over a floor takes the foot
@@ -703,6 +767,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	_shots(base)
 	_push_and_dodge(base)
 	_figure(base)
+	_figure_moves(base)
 	await _chase_and_leash(base)
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
@@ -862,6 +927,72 @@ func _push_and_dodge(base: Vector2) -> void:
 	var again: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1, "moves": false})
 	t.check(dashed and c.pools.hp == hp0 and str(again.get("reason", "")) == "cooldown" and Game.combat.forced_motion(c.id).is_empty(),
 		"topdown: the dodge is Combat's (its i-frames slip the blow, its 2.5 s cooldown holds) and the motor's dash carries it")
+
+## Decision 37's full set in the fight (the bow batch): each family strikes in its own drawn pose (the heavy sabre
+## two-handed, the bow's draw, the bell's toll on its first steps, the flute at the lips, the brush writing its third,
+## the fan thrown), a blow in the air plays the air strike, a dash attack the dash slash (a thrust family its lunging
+## thrust), a parried blow the parry's deflection, the finisher armed on Attack the charge's held wind-up, the flute's
+## held melody loops its note's frames, and a staged scene holds the body in a story gesture; nothing is a stand-in.
+func _figure_moves(base: Vector2) -> void:
+	var p = w.player
+	fresh(base)
+	var play := func(fam: String, action: String, air := false, step := {}) -> String:
+		var tl: Dictionary = Game.combat.timeline(c.id)
+		tl.action = action
+		tl.family = fam
+		tl.technique = ""
+		tl.combo = 0
+		tl.t = 0.05
+		tl.duration = 0.6
+		tl.hit_at = 0.3
+		tl.air_attack = air
+		tl.step = step
+		p.sync(0.0)
+		var got := str(p.pose)
+		Game.combat.actors.erase(c.id)
+		return got
+	var own := [play.call("heavy_sabre", "swing_1"), play.call("heavy_sabre", "swing_3"), play.call("bow", "bow"),
+		play.call("bell", "swing_1"), play.call("bell", "swing_3"), play.call("flute", "attack"), play.call("brush", "swing_3"),
+		play.call("fan", "swing_3", false, {"throw": {"speed": 520}}), play.call("jian", "swing_1")]
+	var air := [play.call("jian", "swing_2", true), play.call("bow", "bow", true)]
+	p.dash_attack = true
+	p.dash_combo = 0
+	var dash := [play.call("jian", "swing_1"), play.call("fists", "punch_1"), play.call("spear", "thrust_1")]
+	p.dash_attack = false
+	p.dash_combo = -1
+	t.check(own == ["two_hand_swing_1", "two_hand_swing_3", "bow_draw", "bell_toll", "swing_3", "flute_play", "brush_write", "fan_throw", "swing_1"]
+		and air == ["air_strike", "bow_draw"] and dash == ["dash_slash", "dash_slash", "thrust_3"],
+		"topdown figure: each family strikes in its own drawn pose, in the air the air strike, out of a dash the dash slash or a lunging thrust (%s, %s, %s)" % [str(own), str(air), str(dash)])
+	# The parry, the armed finisher, the held melody, a staged gesture.
+	fresh(base)
+	p.parried()
+	p.sync(0.0)
+	var parry := [str(p.pose), p.parry_t > 0.0]
+	frames(30)
+	p.sync(0.0)
+	parry.append(str(p.pose))
+	p.aim = {"move": "finisher"}
+	p.sync(0.0)
+	var charge := str(p.pose)
+	p.aim = {}
+	Game.combat.melody[c.id] = {"next": 9.0}
+	var loop := CombatFeel.melody_loop()
+	var melody := {}
+	for i in 12:
+		p.sync(0.05)
+		melody[p.frame] = str(p.pose)
+	Game.combat.melody.erase(c.id)
+	var in_loop := melody.keys().all(func(k): return int(k) >= int(loop[0]) and int(k) <= int(loop[1])) and melody.size() == int(loop[1]) - int(loop[0]) + 1 \
+		and melody.values().all(func(v): return v == "flute_play")
+	p.stage_pose = "salute"
+	p.sync(0.0)
+	p.sync(2.0)
+	var gesture := [str(p.pose), p.frame]
+	p.stage_pose = ""
+	p.sync(0.0)
+	t.check(parry == ["parry_deflect", true, "idle"] and charge == "charge_hold" and in_loop and gesture == ["salute", 2] and str(p.pose) == "idle"
+		and (TopdownFigure.manifest().get("stand_ins", []) as Array).is_empty(),
+		"topdown figure: a parry deflects then settles, the armed finisher holds the charge, the melody loops its note, a staged salute holds (%s, %s, %s, %s)" % [str(parry), charge, str(melody), str(gesture)])
 
 ## Phase 3 (decision 32): the body is the real character. Its figure wears the character's look and gear from the save
 ## and dresses again when the gear changes; each state plays its drawn action in the body's facing: a blow its family's

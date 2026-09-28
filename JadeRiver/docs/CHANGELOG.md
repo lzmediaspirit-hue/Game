@@ -81,6 +81,99 @@
 - **Tools:** `tools/dev/prototype_qa.tscn`, the QA playthrough driver: from the title through the game's own touches,
   a screenshot at every step and a log of what each shows.
 
+## Top-down: Terrain v2, foliage and decor (decision 40, third part)
+
+- **The top-down rooms are lush and layered, in the Alabaster Dawn manner, with every path kept clear**
+  (`docs/redesign/art_bible.md` §14.12). Every top-down room is dressed: the 13 tutorial rooms and chapter 2's 14.
+  - **Big trees** frame the paths and edges, and their canopies overhang and shade them: a village camphor, a wishing
+    tree hung with red prayer ribbons and wish tablets, a great willow with swaying strands, plum and peach in blossom,
+    a maple turning, a "cloud pine" and a bamboo grove. Each casts the shade of its crown along the sun.
+  - **Canopies** draw over whoever walks under them. They fade to 35% while you or a foe stand beneath, and never
+    cover a roof or a body in front of the tree. Trunks block; canopies do not.
+  - **Garden and wild pieces:** bushes and flowering azaleas, clipped hedges, bamboo rail fences, mossy rocks, a fallen
+    log, stumps, a wayside earth-god shrine, and potted pines and orchids in the halls, on the boat and in the yards.
+    Tall grass, cattails, ferns and lotus pads are walk-through.
+  - **Ground cover** is scattered over meadows, flower beds, the marsh and rock, the same every time:
+    - tall grass (in patches), tufts, ferns, small shrubs, wild flowers, pebbles and mossy stones;
+    - mushrooms and lingzhi;
+    - reeds, cattails and irises on the shore;
+    - leaves, maple leaves, petals, needles and bamboo leaves under their trees.
+
+    Grass, flowers and reeds sway gently. Nothing grows round the Hollowing's dead trees.
+- **Readable and fast.**
+  - No ground cover lies on a path, the paving, a doorway, a way's lane, the spawn or anyone's spot.
+  - Names, markers, pickups and rings draw above the foliage.
+  - The ground cover is drawn inside the floor's own chunks (no node per piece), and the sway runs on the GPU.
+  - `perf_tests` holds its budgets (Lotus Ferry loads under 0.3 s; the Marsh Edge holds 60 fps with 25 foes).
+- **Tests.**
+  - `topdown_foliage_suite` checks every room: the scatter's clear cells, trunks blocking, canopies not blocking, the
+    batched draws and the canopy fade.
+  - `data_validation` checks the kit's and the ground cover's sheets and rules.
+  - `topdown_rooms.py --check` refuses a plant on a path, a kept-clear cell or a scene's walk, and a canopy that hides a
+    person, a thing or a way.
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/foliage/`, with every room whole in
+  `after/rooms/`.
+
+## Top-down: Terrain v2, runtime light (decision 40)
+
+- **Cast shadows.** Trees, bamboo, lanterns, banners, houses, halls and cliffs of two levels or more now cast
+  shadows to the lower right, longer the taller they are. Shadows fall down drops, never onto faces or bodies, and keep
+  the tiles' crisp two-step look.
+  - The shadows are worked out once, when a room loads, and cost nothing while you play.
+  - The shadow under every body is now the same blue-violet.
+- **Colour and time of day.**
+  - Each area has its own light: a warm midday in the villages and a cool, misty marsh.
+  - Outdoors, the game's clock turns morning, day, evening and night.
+- **Night.** The Hollow Night and the clock's nights are lit by lanterns, fires, incense, Qi springs and warm open
+  doorways. Their flames flicker, and a pale light round your feet keeps you visible.
+- **The air.** A few particles drift in the pixel style:
+  - pollen in the sun;
+  - fireflies at night;
+  - leaves and petals falling from willows, bamboo and flowering shrubs;
+  - mist wisps over water and the marsh;
+  - glints on sunlit water.
+
+  Faint cloud shade glides over everything by day.
+- **Settings → Controls → "Light and particles"** turns the extras off on older phones. It removes the colour
+  grade, the hours, the clouds and the particles, and keeps the shadows and the night's lights. Reduce motion halves
+  the particles.
+- **Numbers.** Every colour and amount is in one place, `scripts/topdown/topdown_light.gd`, set to the art bible's
+  contract (§14.2 and §14.11).
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/light/`.
+## Top-down: the full character set, the bow and the combat and story poses (decisions 37, 38, 39)
+
+The last character batch: the full set is drawn and its gate is on. See `docs/redesign_top_down_plan.md`, "As built:
+Phase 3, third part" (batch bow) and "As built: combat animation and feel".
+
+- **The spirit bow** (`weapon_bow`, a new generator `kinds/bow.py`; the 10 bows and Qiu Feng's): a recurve wuxia bow in
+  the side view's colours, gold limbs curving back to the string and flicking forward at the dark ears, a string of
+  pale jade light. It is slung across the back with the string round the chest, and taken into the left hand to shoot.
+- **Eighteen new actions**, each drawn on the unclothed body first, then on every layer (body, hair, garments, hats,
+  capes and all twelve weapons) in the five drawn facings (864 frames, up from 494):
+  - the bow's shot, `bow_draw` (7 frames at 12 fps): nock, draw, full draw at the chin, hold, release with the string
+    humming, follow-through, recover;
+  - the combat moves decision 38 asked for: the charged finisher's held wind-up, the dash slash, the air strike and the
+    parry's deflection;
+  - each family's own: the heavy sabre's three two-handed cuts, the flute played at the lips (its note from the open
+    end; the held melody loops it), the bell rung out on both sides, the fan thrown (it leaves the hand on the
+    release), the brush writing three strokes;
+  - the story's gestures (decision 39): the wuxia salute (fist in palm, then a bow), a kneel, pointing with the sword
+    fingers, a startled step back.
+- **In the fight**, each plays where the game names it (`combat_feel.json` `poses` and `moves`, `CombatFeel.top_pose`,
+  `TopdownFigure.resolve(action, family, move)`): a family's steps and techniques in its own pose, a blow in the air or
+  out of a dash as that move, the parry when a guard parries, the charge while the finisher is armed, the melody while
+  it plays. A companion or foe drawn as a person strikes with its family's first step. No pose is a stand-in any more
+  (`missing_poses` and `stand_ins` are empty).
+- **In the story**, the scenes use the gestures (`tools/data/scenes.py`): the recruiters salute, and the new disciple
+  salutes back; Lu points to where the eel rose and kneels by the water; the Hollow Night startles Dou and Granny;
+  Granny kneels to see to your graze; Aunt Ping, Dou, Lu and Courier Lin point the way.
+- **The full set's gate is on** (`FULL_SET`, `PENDING` empty): 52 of 52 looks and actions are drawn, and a new look in
+  the game's data must land with its layers.
+- **Tests:** `topdown_suite` checks each family's pose, the air, dash, parry, charge and melody poses and a staged
+  salute; `data_validation` checks that every family's poses and moves are drawn actions and that no pose is missing.
+- **Review:** `docs/redesign/phase3/character/10_actions_<facing>.png` and `11_gestures.png` are new; every other
+  sheet there is redrawn with the new actions.
+
 ## Top-down: the tutorial rooms' other foes in their own figures
 
 - **Four foes drawn for the grid**, each in five drawn facings and three mirrored, with idle, walk, wind-up, strike,

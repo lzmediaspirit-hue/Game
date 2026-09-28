@@ -30,7 +30,10 @@ extends "res://tests/tutorial_order.gd"
 ##      SceneDirector with no view as the walk comes to it, the walk's own deeds doing what its hand-offs ask (the
 ##      stump punched, the tea drunk, the crab driven off, the door walked through), and its cuts count on the play clock,
 ##      where the first hour's pacing (invariant 14) still holds;
-##  11. the end of the prototype (decision 41): the story played on to The First Current, the lessons inside the
+##  11. decision 40's runtime light on every room the view builds: its cast shadows baked once as it is built and never
+##      again while it plays, its particles under their caps by day and at the clock's night, and a night room lit by
+##      its lanterns and doorways over the story's night, which stays night with Settings' extras off;
+##  12. the end of the prototype (decision 41): the story played on to The First Current, the lessons inside the
 ##      prototype next, then the tracker's first entry is the prototype's end, leading nowhere, and every way off the
 ##      grid is closed by a gate that says why (the Marsh Edge's road east, the Trial Tower's door): no route,
 ##      auto-path or hop through one; the tracker never leads to herbs the player cannot pick yet.
@@ -54,6 +57,9 @@ var reach_room := ""
 var probe: TopdownWorld = null
 var probe_misses: Array = []
 var people_misses: Array = []   # people not drawn in the top-down style, or wearing a piece with no top-down layer
+var light_misses: Array = []    # decision 40: a room baked more than once, particles over a cap, a night without its lights
+var light_rooms := 0
+var night_rooms := 0
 
 func _main() -> void:
 	add_child(views)
@@ -80,6 +86,8 @@ func _main() -> void:
 	check(far.is_empty(), "every spot the walk stood at on the grid is reached on foot from where it came in (%s)" % str(far.slice(0, 8)))
 	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
 	check(people_misses.is_empty(), "every person of the walk's rooms on the grid is drawn in the top-down style, every piece of their outfit with its layer (%s)" % str(people_misses.slice(0, 6)))
+	check(light_rooms >= TUTORIAL_ROOMS.size() and night_rooms >= 1 and light_misses.is_empty(),
+		"decision 40: every room the view built (%d, %d at night) baked its cast shadows once and never while it played, kept its particles under their caps by day and by night, and a night room is lit by its lights, and stays night with the extras off (%s)" % [light_rooms, night_rooms, str(light_misses.slice(0, 6))])
 	if is_instance_valid(probe): probe.free()
 	free_hud_probe()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
@@ -316,6 +324,7 @@ func place(p: Vector2, alt := 0.0) -> void:
 
 ## 4: the character's own top-down view (unbound: the walk moves the body) built on the room just entered.
 func _probe_view() -> void:
+	var bakes := TopdownShadows.bakes
 	if not is_instance_valid(probe):
 		var was: String = Game.active_id
 		Game.active_id = ""   # the view alone: the walk keeps the body (its own ActorState) bound
@@ -343,6 +352,47 @@ func _probe_view() -> void:
 		if str(f.def.get("type", "")) != "npc": continue
 		if not f.art is TopdownPlaces.Person: people_misses.append("%s: %s is not a top-down figure" % [room(), f.def.id])
 		elif not (f.art.figure.missing as Array).is_empty(): people_misses.append("%s: %s lacks %s" % [room(), f.def.npc, str(f.art.figure.missing)])
+	_probe_light(bakes)
+
+## 8: decision 40 on the room just built: one bake of its cast shadows; eight seconds of its air at midday and at the
+## clock's night (the probe's camera on its spawn) stay under the caps and bake nothing again; a night room is the
+## story's night, lit by its lights (their pools baked) with the flames over it.
+func _probe_light(bakes_before: int) -> void:
+	var rid := room()
+	var a: TopdownAtmosphere = probe.atmosphere
+	light_rooms += 1
+	if TopdownShadows.bakes != bakes_before + 1: light_misses.append("%s: %d bakes to build it" % [rid, TopdownShadows.bakes - bakes_before])
+	if probe.shadows == null or probe.shadows.room != probe.room: light_misses.append("%s: no shadows for the room" % rid)
+	var baked := TopdownShadows.bakes
+	probe.camera.position = TopdownWorld.to_screen(probe.room.spawn, 0.0)
+	for hour in [0.375, 0.87]:
+		TopdownLight.debug_hour = hour
+		a.refresh()
+		var most := 0
+		var over := {}
+		for i in 240:
+			a._process(1.0 / 30.0)
+			most = maxi(most, a.particle_count())
+			for kind in TopdownLight.PARTICLES:
+				if a._count(kind) > int(TopdownLight.PARTICLES[kind].cap): over[kind] = true
+		if most > TopdownLight.MAX_PARTICLES or not over.is_empty(): light_misses.append("%s at %.2f: %d particles (over %s)" % [rid, hour, most, str(over.keys())])
+	TopdownLight.debug_hour = -1.0
+	a.refresh()
+	if TopdownShadows.bakes != baked: light_misses.append("%s: baked again while it played" % rid)
+	if bool(Game.room_rt.def.get("night", false)):
+		night_rooms += 1
+		var lamps := a.lights.filter(func(l): return str(l[0]) in ["lantern", "lantern_red"]).size()
+		if str(a.now.hour) != "night_story" or not a.night.visible or lamps == 0 or a._pools_room != probe.room.id or float(a.now.lights) <= 0.0:
+			light_misses.append("%s: night %s, layer %s, %d lamps, pools of %s" % [rid, str(a.now.hour), str(a.night.visible), lamps, a._pools_room])
+		# Settings' "Light and particles" off (weak phones): no grade, clouds or particles, and the night stays night.
+		var was = Game.account.settings.get("world_extras", true)
+		Game.account.settings["world_extras"] = false
+		a.refresh()
+		a._process(1.0 / 30.0)
+		if a.grade_layer.visible or a.clouds.visible or a.particle_count() > 0 or not a.night.visible or str(a.now.hour) != "night_story":
+			light_misses.append("%s with the extras off: grade %s, clouds %s, %d particles, night %s" % [rid, str(a.grade_layer.visible), str(a.clouds.visible), a.particle_count(), str(a.night.visible)])
+		Game.account.settings["world_extras"] = was
+		a.refresh()
 
 # ------------------------------------------------------------------ 8: the people draw with the room
 ## A room's people draw within a moment of it, whatever the pages are doing. From the title screen on the game compiles

@@ -24,6 +24,11 @@ extends Node2D
 ## context button, the context's offer, the names over the world and the events' effects as the side view plays them
 ## (WorldShared), a night room's tint and the room's hazards and weather (HazardView), and moments (MomentView reads
 ## the same anchors of either view).
+##
+## Decision 40 (runtime light, docs/redesign/art_bible.md "Terrain v2 · Runtime light"): each room's cast shadows are
+## baked once as it is built (TopdownShadows) and laid on the water, the ground floor and each raised row's tops; the
+## grade, the night and its lights, cloud shadows and particles are the Atmosphere's (TopdownAtmosphere), all tuned in
+## TopdownLight.
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
 const VIEW := Vector2i(TopdownRoom.VIEW)   ## the world view in art px (TopdownRoom.VIEW)
@@ -34,6 +39,7 @@ var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
 var room: TopdownRoom
 var terrain: TopdownTerrain
+var foliage: TopdownFoliage     ## Terrain v2's third part: the room's ground cover and its trees' canopies
 var player
 var viewport: SubViewport
 var container: SubViewportContainer
@@ -67,7 +73,9 @@ var portal_views: Array = []
 var enemy_views: Dictionary:    ## MomentView and WorldShared ask for the foes' views by this name
 	get: return label_views
 var floor_layer: Node2D         ## marks on the floor, under everything sorted (the ways out)
-var tint: CanvasModulate        ## a night room's blue
+var tint: CanvasModulate        ## a night room's blue (decision 40: the Atmosphere's night layer does it; kept white)
+var shadows: TopdownShadows     ## decision 40: the room's cast shadows, baked as it is built
+var atmosphere: TopdownAtmosphere   ## decision 40: grade, night and lights, clouds and particles
 var hazards: HazardView
 var transfer_cooldown := 0.0
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
@@ -135,6 +143,8 @@ func _ready() -> void:
 	camera = Camera2D.new()
 	viewport.add_child(camera)
 	camera.make_current()
+	atmosphere = TopdownAtmosphere.new(self)
+	viewport.add_child(atmosphere)
 	overlay = Node2D.new()
 	overlay.name = "Overlay"
 	add_child(overlay)
@@ -180,6 +190,7 @@ func _build_room() -> void:
 	for l in loot_layer.get_children(): l.queue_free()
 	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
+	foliage = TopdownFoliage.new(self)   # decision 40's third part: the ground cover the floor draws, then the canopies
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
@@ -193,9 +204,16 @@ func _build_room() -> void:
 			var water := WaterView.new(self, r)
 			if not water.cells.is_empty(): under.insert(1, water)
 			else: water.free()
+	# Decision 40: the cast shadows, baked once for the room, laid over the water (after its chunks) and over the ground
+	# floor (after its chunks).
+	shadows = TopdownShadows.new(room)
+	var water_shade := shadows.view("water")
+	if water_shade != null: under.append(water_shade)
 	for cy in range(0, room.h, CHUNK.y):
 		for cx in range(0, room.w, CHUNK.x):
 			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
+	var ground_shade := shadows.view("ground")
+	if ground_shade != null: under.append(ground_shade)
 	for i in range(under.size() - 1, -1, -1):
 		viewport.add_child(under[i])
 		viewport.move_child(under[i], 0)   # under the floor marks and everything sorted
@@ -205,6 +223,8 @@ func _build_room() -> void:
 		if not strip.rects.is_empty():
 			sorted.add_child(strip)
 			_room_nodes.append(strip)
+			var shade := shadows.view(y, strip.position)   # the shadows on the row's raised tops, drawn with it
+			if shade != null: strip.add_child(shade)
 	for st in room.stairs:
 		var sv := StairsView.new(self, st)
 		sorted.add_child(sv)
@@ -213,6 +233,8 @@ func _build_room() -> void:
 		var pv := PropView.new(self, p)
 		sorted.add_child(pv)
 		_room_nodes.append(pv)
+	viewport.add_child(foliage)
+	_room_nodes.append_array(foliage.build())
 	npc_views = {}
 	object_views = {}
 	portal_views = []
@@ -238,7 +260,7 @@ func _build_room() -> void:
 			lv.setup(l)
 			loot_layer.add_child(lv)
 		hud_minimap = true
-	tint.color = Color("8fa0c8") if live and Game.room_rt != null and bool(Game.room_rt.def.get("night", false)) else Color.WHITE
+	atmosphere.enter_room()   # decision 40: the room's grade, night and lights, clouds and particles
 	# The body, its shadow and its dust after the room's own nodes, so a tie in the sort goes to the body.
 	for n in [shadow, player, fx]: sorted.move_child(n, -1)
 	if player != null and player.bound():
@@ -563,6 +585,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var pe: EnemyState = Game.room_rt.enemies.get(int(str(p.get("attacker", "0")))) if Game.room_rt else null
 			var pd: Vector2 = (pe.plane - player.motor.pos).normalized() if pe != null and pe.plane.distance_to(player.motor.pos) > 1.0 else player.motor.dir
 			tfx.mark("parry", player.motor.pos, player.motor.z, pd)
+			if str(p.get("actor", "")) == player.actor_id: player.parried()   # decision 37: the deflection drawn
 			feel("heavy", pd)
 			WorldShared.play(self, name, p)
 		"artifact_spirit_spoke":
@@ -661,6 +684,7 @@ class FloorView extends Node2D:
 				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
 				if tr.edge_level(x, y + 1) == TopdownRoom.WATER:
 					for layer in tr.face_layers(x, y, 0, 0, TopdownRoom.WATER): world.blit_layer(self, layer, Vector2(x * T, (y + 1) * T), T * 0.5)
+		world.foliage.draw_floor(self, chunk)   # the ground cover, under the props' shadows
 		for y in range(chunk.position.y, chunk.end.y): world.blit_shadows(self, y, 0, 0.0, Vector2i(chunk.position.x, chunk.end.x))
 
 ## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
@@ -694,6 +718,7 @@ class StripView extends Sorted:
 				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
 				for layer in tr.face_layers(x, row, l, k, south): world.blit_layer(self, layer, at, h)
+		world.foliage.draw_row(self, row, lift)
 		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
 ## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east
@@ -778,11 +803,11 @@ class ShadowView extends Sorted:
 	func _draw() -> void:
 		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, roundf(8.0 * k), 0.55 * k)
 
-## A body's blob shadow on the floor at (x, y): `rx` wide each way, two stepped layers of deep teal at opacity `a`.
+## A body's blob shadow on the floor at (x, y): `rx` wide each way, two stepped layers in the cast shadows' colour
+## (decision 40, TopdownLight.BLOB): its rim and, over it, its core, at fractions of `a`.
 static func draw_blob(ci: CanvasItem, x: float, y: float, rx: float, a: float) -> void:
-	var col := Color(0.01, 0.035, 0.04, a)
-	ci.draw_rect(Rect2(x - rx, y - 1, rx * 2, 3), col)
-	ci.draw_rect(Rect2(x - rx + 2, y - 2, rx * 2 - 4, 5), col)
+	ci.draw_rect(Rect2(x - rx, y - 1, rx * 2, 3), Color(TopdownLight.BLOB, a * TopdownLight.BLOB_RIM))
+	ci.draw_rect(Rect2(x - rx + 2, y - 2, rx * 2 - 4, 5), Color(TopdownLight.BLOB, a * TopdownLight.BLOB_CORE))
 
 ## Splashes, a few pixels each (the dust of landings, dashes and skids is TopdownFx's, decision 38).
 class FxView extends Sorted:

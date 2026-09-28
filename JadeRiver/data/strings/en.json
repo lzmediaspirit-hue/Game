@@ -3159,6 +3159,8 @@
   "ui.settings.reduce_motion": "Reduce motion",
   "ui.settings.classic_side_view": "Classic side view (new games)",
   "ui.settings.classic_side_view_note": "A fallback: new characters play the older side-view world. Characters already made keep their own view.",
+  "ui.settings.world_extras": "Light and particles",
+  "ui.settings.world_extras_note": "The top-down world's colour grade, hours of the day, cloud shadows and drifting particles. Turn off on older phones.",
   "ui.settings.replace_your_saves_with_this": "Replace every save on this device with this export? Your current saves are kept as a backup (.bak).",
   "ui.settings.restore": "Restore",
   "ui.settings.restore_an_export": "Restore an export (moving phones)",

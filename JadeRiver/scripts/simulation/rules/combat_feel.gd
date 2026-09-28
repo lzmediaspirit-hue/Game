@@ -128,6 +128,29 @@ static func form_pose(t: Dictionary, fam: Dictionary) -> String:
 	if combo.is_empty(): return "cast"
 	return str(combo[clampi(int(p.trim_prefix("combo_")) - 1, 0, combo.size() - 1)].action)
 
+## The top-down pose family `fam_id` plays (an action of the character's catalogue, or a side-view name that
+## TopdownFigure.resolve maps): for a `move` (dash, air, throw, charge, parry, melody) the family's own pose for it, else
+## the move's (`moves`); else the family's own pose for the side-view `action` its step or technique names (the heavy
+## sabre's two-handed cuts, the bell's toll, the brush writing, the flute at the lips, the bow's draw), else the action.
+static func top_pose(fam_id: String, action: String, move := "") -> String:
+	var own: Dictionary = cfg().get("families", {}).get(fam_id, {}).get("poses", {})
+	if move != "":
+		if own.has(move): return str(own[move])
+		var mv: Dictionary = cfg().get("moves", {})
+		if mv.has(move): return str(mv[move])
+	return str(own.get(action, action))
+
+## The frames the flute's held melody loops through, [first, last] (its note on the second).
+static func melody_loop() -> Array:
+	return cfg().get("melody_loop", [1, 4])
+
+## The weapon family that wears a weapon look (parts.json weapon; weapon_families.json `appearance`), fists for none.
+static func family_of_look(look: String) -> String:
+	if look == "" or look == "none": return "fists"
+	for f in ContentDB.all("weapon_families"):
+		if look in (f.get("appearance", []) as Array): return str(f.id)
+	return "fists"
+
 ## The lunge toward the target a combo step carries (world units), longer for a dash attack.
 static func lunge(fam_id: String, index: int, dash := false) -> float:
 	var l: Array = family(fam_id).get("lunge", [0])

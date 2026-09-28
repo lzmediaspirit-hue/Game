@@ -35,6 +35,7 @@ func _main() -> void:
 	quest_guidance_suite()
 	chores_after_power_suite()
 	topdown_art_suite()
+	foliage_art_suite()
 	combat_feel_suite()
 	topdown_character_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
@@ -1775,6 +1776,56 @@ func topdown_art_suite() -> void:
 	check(named.size() > 600 and gaps.is_empty() and v2.get("over", {}).size() == 14 and v2.get("tint_mask", {}).size() == 15,
 		"topdown art: the Terrain v2 sets name %d tiles, all in the atlas, with every mark's pattern, decals and tints (%s)" % [named.size(), str(gaps.slice(0, 4))])
 
+## Terrain v2's third part (decision 40; docs/redesign/art_bible.md "Foliage and decor"): the foliage kit in the prop
+## sheet (each tree's canopy and its frames inside the sheet, its fade box inside the canopy), the ground cover's sheet
+## and manifest (tools/art/topdown/build_decor.py: every piece inside its sheet, every set, biome, patch and litter
+## naming pieces and sets that exist), and every piece a layout places in the kit.
+func foliage_art_suite() -> void:
+	var man = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json"))
+	var props: Dictionary = man.get("props", {}) if man is Dictionary else {}
+	var props_img: Texture2D = load("res://art/topdown/proto_props.png")
+	var psheet := Rect2i(0, 0, props_img.get_width(), props_img.get_height())
+	var bad: Array = []
+	var trees := 0
+	for k in props:
+		var c: Dictionary = props[k].get("canopy", {})
+		if c.is_empty(): continue
+		trees += 1
+		var r: Array = c.rect
+		var b: Array = c.box
+		if not psheet.encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]) * int(c.get("frames", 1)), int(r[3]))): bad.append("canopy " + k)
+		if not Rect2i(0, 0, int(r[2]), int(r[3])).encloses(Rect2i(int(b[0]), int(b[1]), int(b[2]), int(b[3]))): bad.append("box " + k)
+		if not props[k].get("solid", false) or props[k].has("top") or not props[k].has("litter"): bad.append("trunk " + k)
+	var dec = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/decor.json"))
+	var sheet: Texture2D = load(str(dec.get("sheet", ""))) if dec is Dictionary else null
+	var sprites: Dictionary = dec.get("sprites", {}) if dec is Dictionary else {}
+	var sets: Dictionary = dec.get("sets", {}) if dec is Dictionary else {}
+	for n in sprites:
+		var r: Array = sprites[n].rect
+		if sheet == null or not Rect2i(0, 0, sheet.get_width(), sheet.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))) or int(r[2]) > 16 or int(r[3]) > 16:
+			bad.append("piece " + n)
+	for s in sets:
+		for n in sets[s]:
+			if not sprites.has(n): bad.append("set %s: %s" % [s, n])
+	for m in dec.get("biomes", {}):
+		var b: Dictionary = dec.biomes[m]
+		for e in b.get("sets", []):
+			if not sets.has(str(e[0])): bad.append("biome %s: %s" % [m, e[0]])
+		if b.has("patch") and not sets.has(str(b.patch.set)): bad.append("patch " + m)
+		if b.has("shore") and not sets.has("reeds"): bad.append("shore " + m)
+	for k in props:
+		var l := str(props[k].get("litter", ""))
+		if l != "" and l != "blight" and not sets.has(l): bad.append("litter " + k)
+	var placed := {}
+	for f in DirAccess.get_files_at("res://data/topdown/"):
+		var d = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f)) if f.ends_with(".json") else null
+		if not (d is Dictionary and d.has("levels")): continue
+		for p in d.get("props", []):
+			if not props.has(str(p.kind)): bad.append("placed %s in %s" % [p.kind, f])
+			elif props[str(p.kind)].get("foliage", false): placed[str(p.kind)] = true
+	check(bad.is_empty() and trees >= 8 and sprites.size() >= 40 and placed.size() >= 20,
+		"foliage art: %d trees with canopies, %d pieces of ground cover in %d sets, %d kinds placed; all inside their sheets and named (%s)" % [trees, sprites.size(), sets.size(), placed.size(), str(bad.slice(0, 4))])
+
 ## Decision 38 (the combat feel, data/combat_feel.json; the top-down FX, data/fx_topdown.json): the look rule heads both
 ## tables; every weapon family has a feel whose phases (derived from its own combo timing) are positive and add up at any
 ## attack speed, with a cancel point inside the recovery; every technique form has a weight, a top-down pose and a
@@ -1833,6 +1884,27 @@ func combat_feel_suite() -> void:
 			var sheets: Dictionary = part.get("sheets", {})
 			for d in (dirs if part.get("dirs", false) else ["all"]):
 				rows_of.call(sheets.get(d), els * 3, int(part.frames), "form %s %s" % [form, d])
+	# Decision 37's drawn moves: every family's own pose and every move's is an action of the catalogue, each combo step
+	# plays one as its family plays it, the held melody loops frames of its pose round the note, and no pose is missing.
+	var pose_bad: Array = []
+	var moves_of: Dictionary = feel.get("moves", {})
+	for fam in ContentDB.all("weapon_families"):
+		var own: Dictionary = feel.get("families", {}).get(str(fam.id), {}).get("poses", {})
+		for k in own:
+			if not catalogue.has(str(own[k])): pose_bad.append("%s %s: %s" % [fam.id, k, own[k]])
+		for step in fam.get("combo", []):
+			if not catalogue.has(TopdownFigure.resolve(str(step.action), str(fam.id))) or TopdownFigure.resolve(str(step.action), str(fam.id)) == "idle":
+				pose_bad.append("%s step %s" % [fam.id, step.action])
+		for mv in moves_of:
+			if not catalogue.has(TopdownFigure.resolve("", str(fam.id), str(mv))): pose_bad.append("%s move %s" % [fam.id, mv])
+	var loop: Array = feel.get("melody_loop", [])
+	var mel: Dictionary = catalogue.get(str(moves_of.get("melody", "")), {})
+	if loop.size() != 2 or mel.is_empty() or int(loop[0]) > int(mel.get("hit", -1)) or int(loop[1]) < int(mel.get("hit", -1)) \
+			or int(loop[1]) >= int(mel.get("frames", 0)):
+		pose_bad.append("melody loop %s" % str(loop))
+	check(pose_bad.is_empty() and (feel.get("missing_poses", []) as Array).is_empty(),
+		"combat feel: every family's poses and moves play drawn actions, the melody loops its note, no pose is missing (%s; missing %s)"
+			% [str(pose_bad.slice(0, 6)), str(feel.get("missing_poses", []))])
 	# Every technique: its form is built, its phases are positive.
 	var tech_bad := 0
 	for t in ContentDB.all("techniques"):

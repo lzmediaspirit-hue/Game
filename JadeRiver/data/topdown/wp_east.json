@@ -157,6 +157,151 @@
    "kind": "incense",
    "x": 50,
    "y": 10
+  },
+  {
+   "kind": "tree_plum",
+   "x": 11,
+   "y": 5
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 27,
+   "y": 4
+  },
+  {
+   "kind": "tree_peach",
+   "x": 33,
+   "y": 5
+  },
+  {
+   "kind": "tree_plum",
+   "x": 51,
+   "y": 5
+  },
+  {
+   "kind": "tree_maple",
+   "x": 60,
+   "y": 6
+  },
+  {
+   "kind": "bush_wide",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 14,
+   "y": 6
+  },
+  {
+   "kind": "bush",
+   "x": 20,
+   "y": 6
+  },
+  {
+   "kind": "bush",
+   "x": 41,
+   "y": 6
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 57,
+   "y": 6
+  },
+  {
+   "kind": "fence_4",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "fence_3",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "bush",
+   "x": 5,
+   "y": 10
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 47,
+   "y": 10
+  },
+  {
+   "kind": "tree_willow",
+   "x": 8,
+   "y": 19
+  },
+  {
+   "kind": "tree_peach",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "tree_willow",
+   "x": 40,
+   "y": 19
+  },
+  {
+   "kind": "tree_plum",
+   "x": 55,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 47,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 16
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 55,
+   "y": 15
+  },
+  {
+   "kind": "cattails",
+   "x": 2,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 19,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 50,
+   "y": 21
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 26,
+   "y": 23
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 45,
+   "y": 24
   }
  ],
  "place": {

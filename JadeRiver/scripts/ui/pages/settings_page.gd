@@ -47,6 +47,10 @@ func draw_page() -> void:
 			_toggle(Vector2(x, y), "classic_side_view", Tx.t("ui.settings.classic_side_view"))
 			para(Rect2(x + 500, y, 520, 60), Tx.t("ui.settings.classic_side_view_note"), 16, UiKit.MIST, 2)
 			y += 60
+			# Decision 40: the top-down world's runtime light extras (grade, hours, clouds, particles), off on weak phones.
+			_toggle(Vector2(x, y), "world_extras", Tx.t("ui.settings.world_extras"))
+			para(Rect2(x + 500, y, 520, 60), Tx.t("ui.settings.world_extras_note"), 16, UiKit.MIST, 2)
+			y += 60
 			para(Rect2(x, y + 20, 900, 120), Tx.t("ui.settings.keyboard_arrows_wasd_move_space"), 18, UiKit.MIST)
 		"access":
 			text(Vector2(x, y + 32), Tx.t("ui.settings.text_size"), 22)

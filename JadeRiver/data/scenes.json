@@ -149,6 +149,13 @@
      "box": "balloon"
     },
     {
+     "do": "pose",
+     "actor": "ping",
+     "pose": "point",
+     "wait": false,
+     "s": 2.2
+    },
+    {
      "do": "say",
      "actor": "ping",
      "text": "Lu wants you at the docks. Something about the river. Go on.",
@@ -323,6 +330,13 @@
      "s": 0.9
     },
     {
+     "do": "pose",
+     "actor": "dou",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
      "do": "say",
      "actor": "dou",
      "text": "My kite! The wind took it onto the inn roof!",
@@ -371,6 +385,13 @@
     {
      "do": "letterbox",
      "on": true
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "point",
+     "wait": false,
+     "s": 1.6
     },
     {
      "do": "say",
@@ -640,6 +661,13 @@
      "do": "face",
      "actor": "dou",
      "to": "n"
+    },
+    {
+     "do": "pose",
+     "actor": "dou",
+     "pose": "point",
+     "wait": false,
+     "s": 2.2
     },
     {
      "do": "say",
@@ -946,6 +974,13 @@
      "s": 0.8
     },
     {
+     "do": "pose",
+     "actor": "granny",
+     "pose": "startle",
+     "wait": true,
+     "s": 0.7
+    },
+    {
      "do": "move",
      "actor": "granny",
      "to": [
@@ -961,6 +996,13 @@
      "do": "face",
      "actor": "granny",
      "to": "player"
+    },
+    {
+     "do": "pose",
+     "actor": "granny",
+     "pose": "kneel",
+     "wait": false,
+     "s": 3.0
     },
     {
      "do": "say",
@@ -1122,6 +1164,13 @@
      "emote": "!",
      "wait": false,
      "s": 0.8
+    },
+    {
+     "do": "pose",
+     "actor": "mei",
+     "pose": "startle",
+     "wait": false,
+     "s": 1.2
     },
     {
      "do": "say",
@@ -1293,6 +1342,20 @@
      "s": 0.8
     },
     {
+     "do": "pose",
+     "actor": "dou",
+     "pose": "startle",
+     "wait": false,
+     "s": 2.4
+    },
+    {
+     "do": "pose",
+     "actor": "granny",
+     "pose": "startle",
+     "wait": false,
+     "s": 2.4
+    },
+    {
      "do": "say",
      "actor": "dou",
      "text": "Something's in the water! It's coming up!",
@@ -1303,6 +1366,13 @@
      "to": "player",
      "s": 1.0,
      "wait": true
+    },
+    {
+     "do": "pose",
+     "actor": "granny",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
     },
     {
      "do": "say",
@@ -1346,10 +1416,24 @@
      "to": "player"
     },
     {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "point",
+     "wait": false,
+     "s": 2.6
+    },
+    {
      "do": "say",
      "actor": "lu",
      "text": "That thing in the water was a Hollowed eel. The grey is spreading.",
      "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "kneel",
+     "wait": false,
+     "s": 2.4
     },
     {
      "do": "say",
@@ -1512,6 +1596,13 @@
      "to": "player"
     },
     {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "point",
+     "wait": false,
+     "s": 2.4
+    },
+    {
      "do": "say",
      "actor": "lu",
      "text": "Flowing Palm. The sects are choosing disciples at Stoneford this spring. Go west.",
@@ -1584,6 +1675,13 @@
      "s": 1.0
     },
     {
+     "do": "pose",
+     "actor": "rong",
+     "pose": "startle",
+     "wait": false,
+     "s": 1.4
+    },
+    {
      "do": "say",
      "actor": "rong",
      "text": "My purse! Thief! Stop him!",
@@ -1629,6 +1727,13 @@
      "do": "face",
      "actor": "lin",
      "to": "player"
+    },
+    {
+     "do": "pose",
+     "actor": "lin",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
     },
     {
      "do": "say",
@@ -1687,6 +1792,13 @@
      "wait": true
     },
     {
+     "do": "pose",
+     "actor": "qing",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.2
+    },
+    {
      "do": "say",
      "actor": "qing",
      "text": "Jade Sect! The sword that writes, the brush that cuts!",
@@ -1697,6 +1809,13 @@
      "to": "mo",
      "s": 1.0,
      "wait": true
+    },
+    {
+     "do": "pose",
+     "actor": "mo",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.2
     },
     {
      "do": "say",
@@ -1803,6 +1922,20 @@
      "s": 1.0
     },
     {
+     "do": "pose",
+     "actor": "qing",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.6
+    },
+    {
+     "do": "pose",
+     "actor": "player",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.6
+    },
+    {
      "do": "say",
      "actor": "qing",
      "text": "Welcome to the Jade Sect. Keep your wrist loose and your word firm.",
@@ -1834,6 +1967,20 @@
      "emote": "heart",
      "wait": false,
      "s": 1.0
+    },
+    {
+     "do": "pose",
+     "actor": "mo",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.6
+    },
+    {
+     "do": "pose",
+     "actor": "player",
+     "pose": "salute",
+     "wait": false,
+     "s": 2.6
     },
     {
      "do": "say",

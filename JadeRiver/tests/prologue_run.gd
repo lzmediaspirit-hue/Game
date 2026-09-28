@@ -450,6 +450,12 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			continue
 		var side := -34.0 if st == null or st.plane.x <= target.plane.x else 34.0
 		place(target.plane + Vector2(side, 0))
+		# On the height grid a player stands beside the foe on its own floor: not up a flight of stairs or a ledge beside
+		# it (a tree, a rock or a hedge beside the foe can put the first spot there).
+		if Game.room_rt.topdown != null and absf(st.altitude - target.altitude) > 8.0:
+			for off in [Vector2(-side, 0), Vector2(0, 34), Vector2(0, -34)]:
+				place(target.plane + off)
+				if absf(st.altitude - target.altitude) <= 8.0: break
 		var hp_before := target.pools.hp
 		if Game.combat.is_wounded(c().id):
 			var here := room()

@@ -6253,10 +6253,67 @@
     -8
    ],
    "shadow_rect": [
-    437,
-    184,
+    305,
+    424,
     27,
     13
+   ],
+   "solid": true
+  },
+  "bamboo_grove": {
+   "canopy": {
+    "at": [
+     -26,
+     -124
+    ],
+    "box": [
+     4,
+     21,
+     76,
+     51
+    ],
+    "frame_ms": 500,
+    "frames": 4,
+    "rect": [
+     0,
+     943,
+     84,
+     76
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "frame_ms": 500,
+   "frames": 4,
+   "litter": "litter_bamboo",
+   "origin": [
+    8,
+    110
+   ],
+   "rect": [
+    0,
+    280,
+    48,
+    112
+   ],
+   "shadow": [
+    40,
+    0,
+    34,
+    14
+   ],
+   "shadow_at": [
+    -2,
+    -17
+   ],
+   "shadow_rect": [
+    187,
+    511,
+    89,
+    41
    ],
    "solid": true
   },
@@ -6288,8 +6345,8 @@
     -6
    ],
    "shadow_rect": [
-    111,
-    248,
+    473,
+    424,
     15,
     9
    ],
@@ -6323,8 +6380,8 @@
     -6
    ],
    "shadow_rect": [
-    96,
-    248,
+    458,
+    424,
     15,
     9
    ],
@@ -6356,8 +6413,8 @@
     -6
    ],
    "shadow_rect": [
-    384,
-    184,
+    252,
+    424,
     15,
     9
    ],
@@ -6406,12 +6463,134 @@
     -6
    ],
    "shadow_rect": [
-    168,
-    248,
+    27,
+    460,
     21,
     9
    ],
    "solid": true
+  },
+  "bush": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    7,
+    24
+   ],
+   "rect": [
+    192,
+    280,
+    30,
+    26
+   ],
+   "shadow": [
+    12,
+    -1,
+    12,
+    5
+   ],
+   "shadow_at": [
+    -1,
+    -7
+   ],
+   "shadow_rect": [
+    276,
+    511,
+    27,
+    13
+   ],
+   "solid": true
+  },
+  "bush_azalea": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    7,
+    24
+   ],
+   "rect": [
+    222,
+    280,
+    30,
+    26
+   ],
+   "shadow": [
+    12,
+    -1,
+    12,
+    5
+   ],
+   "shadow_at": [
+    -1,
+    -7
+   ],
+   "shadow_rect": [
+    303,
+    511,
+    27,
+    13
+   ],
+   "solid": true
+  },
+  "bush_wide": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    7,
+    28
+   ],
+   "rect": [
+    252,
+    280,
+    46,
+    30
+   ],
+   "shadow": [
+    20,
+    -1,
+    20,
+    5
+   ],
+   "shadow_at": [
+    -1,
+    -7
+   ],
+   "shadow_rect": [
+    330,
+    511,
+    43,
+    13
+   ],
+   "solid": true
+  },
+  "cattails": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "frame_ms": 500,
+   "frames": 4,
+   "origin": [
+    5,
+    34
+   ],
+   "rect": [
+    0,
+    424,
+    26,
+    36
+   ],
+   "solid": false
   },
   "crates": {
    "footprint": [
@@ -6439,8 +6618,8 @@
     -11
    ],
    "shadow_rect": [
-    399,
-    184,
+    267,
+    424,
     13,
     15
    ],
@@ -6452,6 +6631,7 @@
     1,
     1
    ],
+   "litter": "blight",
    "origin": [
     12,
     54
@@ -6473,12 +6653,132 @@
     -7
    ],
    "shadow_rect": [
-    141,
-    248,
+    0,
+    460,
     27,
     11
    ],
    "solid": true
+  },
+  "fence_2": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    0,
+    20
+   ],
+   "rect": [
+    460,
+    280,
+    32,
+    22
+   ],
+   "shadow": [
+    18,
+    -1,
+    15,
+    2
+   ],
+   "shadow_at": [
+    2,
+    -4
+   ],
+   "shadow_rect": [
+    71,
+    579,
+    33,
+    7
+   ],
+   "solid": true
+  },
+  "fence_3": {
+   "foliage": true,
+   "footprint": [
+    3,
+    1
+   ],
+   "origin": [
+    0,
+    20
+   ],
+   "rect": [
+    0,
+    392,
+    48,
+    22
+   ],
+   "shadow": [
+    26,
+    -1,
+    23,
+    2
+   ],
+   "shadow_at": [
+    2,
+    -4
+   ],
+   "shadow_rect": [
+    104,
+    579,
+    49,
+    7
+   ],
+   "solid": true
+  },
+  "fence_4": {
+   "foliage": true,
+   "footprint": [
+    4,
+    1
+   ],
+   "origin": [
+    0,
+    20
+   ],
+   "rect": [
+    48,
+    392,
+    64,
+    22
+   ],
+   "shadow": [
+    34,
+    -1,
+    31,
+    2
+   ],
+   "shadow_at": [
+    2,
+    -4
+   ],
+   "shadow_rect": [
+    153,
+    579,
+    65,
+    7
+   ],
+   "solid": true
+  },
+  "ferns": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    6,
+    16
+   ],
+   "rect": [
+    104,
+    424,
+    28,
+    18
+   ],
+   "solid": false
   },
   "grey_reeds": {
    "footprint": [
@@ -6523,13 +6823,115 @@
     -19
    ],
    "shadow_rect": [
-    19,
-    248,
+    381,
+    424,
     19,
     23
    ],
    "solid": true,
    "top": 2
+  },
+  "hedge_2": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    3,
+    24
+   ],
+   "rect": [
+    298,
+    280,
+    38,
+    26
+   ],
+   "shadow": [
+    19,
+    0,
+    18,
+    4
+   ],
+   "shadow_at": [
+    0,
+    -5
+   ],
+   "shadow_rect": [
+    373,
+    511,
+    39,
+    11
+   ],
+   "solid": true
+  },
+  "hedge_3": {
+   "foliage": true,
+   "footprint": [
+    3,
+    1
+   ],
+   "origin": [
+    3,
+    24
+   ],
+   "rect": [
+    336,
+    280,
+    54,
+    26
+   ],
+   "shadow": [
+    27,
+    0,
+    26,
+    4
+   ],
+   "shadow_at": [
+    0,
+    -5
+   ],
+   "shadow_rect": [
+    412,
+    511,
+    55,
+    11
+   ],
+   "solid": true
+  },
+  "hedge_4": {
+   "foliage": true,
+   "footprint": [
+    4,
+    1
+   ],
+   "origin": [
+    3,
+    24
+   ],
+   "rect": [
+    390,
+    280,
+    70,
+    26
+   ],
+   "shadow": [
+    35,
+    0,
+    34,
+    4
+   ],
+   "shadow_at": [
+    0,
+    -5
+   ],
+   "shadow_rect": [
+    0,
+    579,
+    71,
+    11
+   ],
+   "solid": true
   },
   "house": {
    "footprint": [
@@ -6557,8 +6959,8 @@
     -19
    ],
    "shadow_rect": [
-    296,
-    184,
+    164,
+    424,
     19,
     23
    ],
@@ -6591,8 +6993,8 @@
     -6
    ],
    "shadow_rect": [
-    479,
-    184,
+    347,
+    424,
     15,
     9
    ],
@@ -6624,8 +7026,8 @@
     -6
    ],
    "shadow_rect": [
-    369,
-    184,
+    237,
+    424,
     15,
     9
    ],
@@ -6657,9 +7059,43 @@
     -6
    ],
    "shadow_rect": [
-    464,
-    184,
+    332,
+    424,
     15,
+    9
+   ],
+   "solid": true
+  },
+  "log": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    2,
+    16
+   ],
+   "rect": [
+    166,
+    392,
+    36,
+    18
+   ],
+   "shadow": [
+    20,
+    0,
+    16,
+    3
+   ],
+   "shadow_at": [
+    3,
+    -4
+   ],
+   "shadow_rect": [
+    270,
+    579,
+    35,
     9
    ],
    "solid": true
@@ -6678,6 +7114,24 @@
    "rect": [
     176,
     92,
+    32,
+    16
+   ],
+   "solid": false
+  },
+  "lotus_pads": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    0,
+    16
+   ],
+   "rect": [
+    132,
+    424,
     32,
     16
    ],
@@ -6709,8 +7163,8 @@
     -6
    ],
    "shadow_rect": [
-    412,
-    184,
+    280,
+    424,
     25,
     9
    ],
@@ -6742,8 +7196,8 @@
     -8
    ],
    "shadow_rect": [
-    38,
-    248,
+    400,
+    424,
     31,
     13
    ],
@@ -6775,9 +7229,77 @@
     -6
    ],
    "shadow_rect": [
-    126,
-    248,
+    488,
+    424,
     15,
+    9
+   ],
+   "solid": true
+  },
+  "pot_bonsai": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    1,
+    24
+   ],
+   "rect": [
+    246,
+    392,
+    18,
+    26
+   ],
+   "shadow": [
+    9,
+    -2,
+    7,
+    3
+   ],
+   "shadow_at": [
+    1,
+    -6
+   ],
+   "shadow_rect": [
+    347,
+    579,
+    17,
+    9
+   ],
+   "solid": true
+  },
+  "pot_orchid": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    1,
+    22
+   ],
+   "rect": [
+    264,
+    392,
+    18,
+    24
+   ],
+   "shadow": [
+    9,
+    -2,
+    7,
+    3
+   ],
+   "shadow_at": [
+    1,
+    -6
+   ],
+   "shadow_rect": [
+    364,
+    579,
+    17,
     9
    ],
    "solid": true
@@ -6798,6 +7320,108 @@
     20
    ],
    "solid": false
+  },
+  "rock_mossy": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    2,
+    26
+   ],
+   "rect": [
+    112,
+    392,
+    36,
+    28
+   ],
+   "shadow": [
+    20,
+    -1,
+    16,
+    4
+   ],
+   "shadow_at": [
+    3,
+    -6
+   ],
+   "shadow_rect": [
+    218,
+    579,
+    35,
+    11
+   ],
+   "solid": true
+  },
+  "rock_small": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    1,
+    14
+   ],
+   "rect": [
+    148,
+    392,
+    18,
+    16
+   ],
+   "shadow": [
+    10,
+    -1,
+    7,
+    3
+   ],
+   "shadow_at": [
+    2,
+    -5
+   ],
+   "shadow_rect": [
+    253,
+    579,
+    17,
+    9
+   ],
+   "solid": true
+  },
+  "shrine_small": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    4,
+    30
+   ],
+   "rect": [
+    222,
+    392,
+    24,
+    32
+   ],
+   "shadow": [
+    11,
+    -2,
+    10,
+    3
+   ],
+   "shadow_at": [
+    0,
+    -6
+   ],
+   "shadow_rect": [
+    324,
+    579,
+    23,
+    9
+   ],
+   "solid": true
   },
   "shrub": {
    "footprint": [
@@ -6825,8 +7449,8 @@
     -6
    ],
    "shadow_rect": [
-    0,
-    248,
+    362,
+    424,
     19,
     9
    ],
@@ -6858,13 +7482,452 @@
     -19
    ],
    "shadow_rect": [
-    315,
-    184,
+    183,
+    424,
     19,
     23
    ],
    "solid": true,
    "top": 2
+  },
+  "stump": {
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    2,
+    14
+   ],
+   "rect": [
+    202,
+    392,
+    20,
+    16
+   ],
+   "shadow": [
+    10,
+    -1,
+    8,
+    3
+   ],
+   "shadow_at": [
+    1,
+    -5
+   ],
+   "shadow_rect": [
+    305,
+    579,
+    19,
+    9
+   ],
+   "solid": true
+  },
+  "tall_grass": {
+   "foliage": true,
+   "footprint": [
+    2,
+    1
+   ],
+   "frame_ms": 550,
+   "frames": 4,
+   "origin": [
+    2,
+    24
+   ],
+   "rect": [
+    282,
+    392,
+    36,
+    26
+   ],
+   "solid": false
+  },
+  "tree_camphor": {
+   "canopy": {
+    "at": [
+     -40,
+     -102
+    ],
+    "box": [
+     4,
+     12,
+     87,
+     64
+    ],
+    "frame_ms": 0,
+    "frames": 1,
+    "rect": [
+     381,
+     579,
+     96,
+     80
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_leaves",
+   "origin": [
+    6,
+    70
+   ],
+   "rect": [
+    296,
+    184,
+    28,
+    72
+   ],
+   "shadow": [
+    34,
+    2,
+    34,
+    18
+   ],
+   "shadow_at": [
+    -22,
+    -26
+   ],
+   "shadow_rect": [
+    48,
+    460,
+    100,
+    50
+   ],
+   "solid": true
+  },
+  "tree_maple": {
+   "canopy": {
+    "at": [
+     -32,
+     -94
+    ],
+    "box": [
+     4,
+     11,
+     72,
+     57
+    ],
+    "frame_ms": 0,
+    "frames": 1,
+    "rect": [
+     384,
+     659,
+     80,
+     76
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_maple",
+   "origin": [
+    4,
+    62
+   ],
+   "rect": [
+    352,
+    184,
+    24,
+    64
+   ],
+   "shadow": [
+    30,
+    0,
+    30,
+    16
+   ],
+   "shadow_at": [
+    -15,
+    -24
+   ],
+   "shadow_rect": [
+    247,
+    460,
+    85,
+    45
+   ],
+   "solid": true
+  },
+  "tree_peach": {
+   "canopy": {
+    "at": [
+     -28,
+     -78
+    ],
+    "box": [
+     4,
+     9,
+     64,
+     47
+    ],
+    "frame_ms": 0,
+    "frames": 1,
+    "rect": [
+     80,
+     751,
+     72,
+     64
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_peach",
+   "origin": [
+    6,
+    50
+   ],
+   "rect": [
+    412,
+    184,
+    28,
+    52
+   ],
+   "shadow": [
+    24,
+    0,
+    26,
+    13
+   ],
+   "shadow_at": [
+    -15,
+    -22
+   ],
+   "shadow_rect": [
+    415,
+    460,
+    77,
+    39
+   ],
+   "solid": true
+  },
+  "tree_pine": {
+   "canopy": {
+    "at": [
+     -38,
+     -116
+    ],
+    "box": [
+     4,
+     5,
+     78,
+     94
+    ],
+    "frame_ms": 0,
+    "frames": 1,
+    "rect": [
+     152,
+     751,
+     88,
+     104
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_pine",
+   "origin": [
+    6,
+    94
+   ],
+   "rect": [
+    440,
+    184,
+    24,
+    96
+   ],
+   "shadow": [
+    36,
+    4,
+    34,
+    16
+   ],
+   "shadow_at": [
+    -18,
+    -35
+   ],
+   "shadow_rect": [
+    0,
+    511,
+    91,
+    68
+   ],
+   "solid": true
+  },
+  "tree_plum": {
+   "canopy": {
+    "at": [
+     -30,
+     -88
+    ],
+    "box": [
+     6,
+     11,
+     70,
+     53
+    ],
+    "frame_ms": 0,
+    "frames": 1,
+    "rect": [
+     0,
+     751,
+     80,
+     72
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_plum",
+   "origin": [
+    8,
+    58
+   ],
+   "rect": [
+    376,
+    184,
+    36,
+    60
+   ],
+   "shadow": [
+    28,
+    0,
+    28,
+    14
+   ],
+   "shadow_at": [
+    -13,
+    -23
+   ],
+   "shadow_rect": [
+    332,
+    460,
+    83,
+    42
+   ],
+   "solid": true
+  },
+  "tree_ribbons": {
+   "canopy": {
+    "at": [
+     -40,
+     -102
+    ],
+    "box": [
+     6,
+     13,
+     86,
+     67
+    ],
+    "frame_ms": 700,
+    "frames": 4,
+    "rect": [
+     0,
+     659,
+     96,
+     92
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_leaves",
+   "origin": [
+    6,
+    70
+   ],
+   "rect": [
+    324,
+    184,
+    28,
+    72
+   ],
+   "shadow": [
+    34,
+    2,
+    34,
+    18
+   ],
+   "shadow_at": [
+    -21,
+    -27
+   ],
+   "shadow_rect": [
+    148,
+    460,
+    99,
+    51
+   ],
+   "solid": true
+  },
+  "tree_willow": {
+   "canopy": {
+    "at": [
+     -38,
+     -98
+    ],
+    "box": [
+     4,
+     7,
+     83,
+     71
+    ],
+    "frame_ms": 600,
+    "frames": 4,
+    "rect": [
+     0,
+     855,
+     92,
+     88
+    ]
+   },
+   "foliage": true,
+   "footprint": [
+    1,
+    1
+   ],
+   "litter": "litter_leaves",
+   "origin": [
+    6,
+    58
+   ],
+   "rect": [
+    464,
+    184,
+    28,
+    60
+   ],
+   "shadow": [
+    30,
+    0,
+    34,
+    16
+   ],
+   "shadow_at": [
+    -21,
+    -29
+   ],
+   "shadow_rect": [
+    91,
+    511,
+    96,
+    54
+   ],
+   "solid": true
   },
   "weapon_rack": {
    "footprint": [
@@ -6892,8 +7955,8 @@
     -6
    ],
    "shadow_rect": [
-    69,
-    248,
+    431,
+    424,
     27,
     9
    ],
@@ -6927,8 +7990,8 @@
     -9
    ],
    "shadow_rect": [
-    334,
-    184,
+    202,
+    424,
     35,
     15
    ],
