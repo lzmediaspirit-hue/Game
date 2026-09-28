@@ -680,7 +680,7 @@ At attack speed 1:
 | **The cancel rule.** A dodge in a blow's anticipation drops it (the combo does not count it). In the active window it is refused (`committed`). In the recovery it waits for the family's cancel point, and the player's dodge waits in a 0.2 s buffer for it | `CombatAuthority.dodge`, `_cancel_blow`, `CombatFeel.dodge_cancel`, `TopdownPlayer.dodge_buffer` |
 | **Lunge and dash attack.** Each step carries the body 6–24 units along its aim. An attack in a dash, or within 0.15 s of one, ends the dash in a dash attack: a longer lunge and its own smear | `TopdownPlayer.aim_attack`, `CombatFeel.lunge` |
 | **Camera.** A kick knocks the view along the blow; heavy blows and finishers shake too. Both follow Screen shake and Reduce motion | `ShakeRig.kick`, `TopdownWorld.feel` / `feel_hit` |
-| **The struck body.** Two frames of white (a shader), then a warm tint. A knockback hops it up to 10 art px and a strong one skids dust. The player flashes and hops the same way | `scripts/topdown/flash.gdshader`, `FoeView`, `TopdownPlayer` |
+| **The struck body.** Two frames of white (the shared flash shader), then a warm tint. A knockback hops it up to 10 art px and a strong one skids dust. The player flashes and hops the same way | `TopdownFx.white_material`, `FoeView`, `TopdownPlayer` |
 | **Hit-stop freezes the effects** with the fight | `TopdownWorld._physics_process`, `held` |
 | **Reduce motion.** No hit-stop, no kick and no shake | `CombatFeel.hitstop_on`, `MomentRules.shake_amp` |
 

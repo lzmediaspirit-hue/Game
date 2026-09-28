@@ -772,8 +772,6 @@ class FoeView extends Sorted:
 	func _init(w, e: EnemyState) -> void:
 		super(w)
 		uid = e.uid
-		material = ShaderMaterial.new()
-		(material as ShaderMaterial).shader = Player.FLASH
 		add_child(FoeShadow.new(self))   # under the sprite, outside its flash
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
 		var sp: Dictionary = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
@@ -832,10 +830,10 @@ class FoeView extends Sorted:
 		var st := str(e.ai.get("state", ""))
 		if st == "attack" and state == "windup" and e.team == "enemy": world.tfx.mark("swipe", e.plane, e.altitude + e.hover, e.aim_dir())
 		state = st
+		material = TopdownFx.white_material() if white > 0.0 else null
 		queue_redraw()
 		get_child(0).queue_redraw()
 	func _draw() -> void:
-		(material as ShaderMaterial).set_shader_parameter("white", white)
 		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)

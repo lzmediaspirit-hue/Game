@@ -56,7 +56,6 @@ var hurt_t := 99.0
 var knock_t := 0.0
 var knock_s := 0.0
 var action_phase := ""
-const FLASH := preload("res://scripts/topdown/flash.gdshader")
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -88,8 +87,6 @@ func _ready() -> void:
 	ghost.add_child(faded)
 	add_child(ghost)
 	ground = WalkSurface.new({"id": "grid", "rect": [0, 0, world.room.w * TopdownRoom.TILE, world.room.h * TopdownRoom.TILE], "stratum": "ground"})
-	material = ShaderMaterial.new()
-	(material as ShaderMaterial).shader = FLASH
 	_mirror()
 
 func jump() -> void:
@@ -378,5 +375,5 @@ func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
 
 func _draw() -> void:
 	# Decision 38: the first frames of a blow turn the body white (every layer at once), then the flinch's red tint.
-	(material as ShaderMaterial).set_shader_parameter("white", 1.0 if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) else 0.0)
+	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)

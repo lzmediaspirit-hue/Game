@@ -30,6 +30,15 @@ func _init(w) -> void:
 static func cfg() -> Dictionary:
 	return ContentDB.config("fx_topdown")
 
+static var _white: ShaderMaterial
+## A struck body's white flash: one material every flashing body shares, and none on the others, so the bodies still
+## batch (the side-view game's flash shader, SpriteCache.flash_material, held at full white).
+static func white_material() -> ShaderMaterial:
+	if _white == null:
+		_white = SpriteCache.new_flash_material()
+		_white.set_shader_parameter("flash", 1.0)
+	return _white
+
 ## The nearest of the eight directions to `v`: [the drawn direction, mirrored?] (W, SW and NW draw E, SE and NE
 ## mirrored).
 static func dir_of(v: Vector2) -> Array:
