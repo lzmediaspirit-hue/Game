@@ -1418,7 +1418,7 @@ def cloud_cliff_stair():
         r.prop("boulder", x, y)
     # Foliage (decision 40): great pines on the meadows west and east of the landing, pines, a maple and a plum along the
     # lower court's south edge, bushes by the dorm.
-    r.green(("tree_pine", 13, 7), ("bush", 1, 11), ("tree_pine", 51, 10), ("bush_wide", 34, 10), ("bush", 53, 16),
+    r.green(("tree_pine", 13, 7), ("bush", 1, 11), ("tree_pine", 51, 10), ("bush_wide", 36, 7), ("bush", 53, 16),
             ("tree_pine", 20, 32), ("tree_maple", 44, 32), ("tree_plum", 27, 32), ("bush", 14, 30), ("bush_azalea", 39, 29),
             ("tall_grass", 49, 32), ("rock_small", 35, 32))
     r.spawn = [9, 31]
@@ -1559,7 +1559,7 @@ def elder_sung_peak():
     for x, y in ((2, 17), (26, 13), (19, 25), (36, 25)):
         r.prop("boulder", x, y)
     # Foliage (decision 40): a great pine and a plum on the meadow under the peaks, rocks, tall grass and ferns.
-    r.green(("tree_pine", 15, 26), ("tree_plum", 33, 24), ("rock_mossy", 24, 18), ("tall_grass", 10, 14), ("tall_grass", 28, 26),
+    r.green(("tree_pine", 15, 26), ("tree_plum", 33, 24), ("tree_maple", 25, 22), ("rock_mossy", 24, 18), ("tall_grass", 10, 14), ("tall_grass", 28, 26),
             ("ferns", 20, 13), ("bush", 1, 20), ("rock_small", 16, 11), ("cattails", 11, 10), ("lotus_pads", 20, 5))
     r.spawn = [6, 24]
     r.way("path", 5.5, 27, "s", [5.5, 25.5], 2)

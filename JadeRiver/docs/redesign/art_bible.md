@@ -953,7 +953,7 @@ and leaves on the ground. This part closes that gap and keeps every path readabl
 
 - The scatter runs once a room: about 10 ms for Lotus Ferry's 978 pieces, then it is cached.
 - The pieces are drawn inside the existing floor chunks and raised rows, so there is no node per piece. Lotus Ferry
-  has 151 view nodes for 978 pieces and 13 canopies.
+  has about 150 view nodes for 978 pieces and 13 canopies, and loads in 190 ms with the runtime light (`perf_tests`).
 - Canopies are one node each, and only those in view are tested for the fade.
 
 **Tests.**
