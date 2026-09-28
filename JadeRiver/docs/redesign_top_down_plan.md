@@ -1120,6 +1120,16 @@ line: the Marsh Edge enters in 75 ms and holds 11.6 ms a frame with 25 of its fo
 **Screenshots** (`tools/dev/topdown_capture.tscn -- --chapter2`): `docs/redesign/phase4/17`–`32`, each room under the
 real HUD, with its foes where it has them.
 
+**Then: the tutorial rooms' other foes** (`creatures.py`, art bible §8 "Foes"). Old Snapper, the mossback toad, and
+the night's hollow minnow and hollowed eel have their own figures now, in five drawn facings and three mirrored, with
+all six actions; they took the crab's, the view's fallback, before. The eel rises out of the river with its water
+drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72 (feet
+at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. The crab stays
+the fallback only for a species not drawn yet. `topdown_tutorial` now checks every grid room's foes, their events'
+foes too, for their own figures (the tutorial's rooms were skipped before). Screenshots
+(`tools/dev/topdown_capture.tscn -- --tutorial-foes`): `docs/redesign/phase4/33`–`38`, the night, the Reed Shallows
+and Willow Path West under the HUD and x4 round the fight.
+
 **Not yet built, or different from the plan.**
 
 - **The next rooms stay side-view:** the Grey Pools and on, and the sect rooms the stretch does not visit (libraries,
@@ -1127,8 +1137,9 @@ real HUD, with its foes where it has them.
 - **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
   are fixed; a running jump takes their place.
 - **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
-- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) still take
-  the crab's figure.
+- **The hollowed eel keeps the row it rose in.** It glides by setting its position, with no velocity or aim
+  (`enemy_authority.gd` `_eel`), so the view never turns it from its spawn row (SE, or SW mirrored), and it strikes
+  along its side-view facing. Its figure is drawn in all eight facings for when it does.
 
 ### Phase 5 · The animation layers (XL)
 

@@ -697,6 +697,8 @@ class FoeView extends Sorted:
 		super(w)
 		uid = e.uid
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
+		# Every foe the grid's rooms spawn has its own figure (topdown_tutorial checks it); the crab stands in only for
+		# a species not drawn yet that an ambush, a hunter or a summons brings onto the grid.
 		var sp: Dictionary = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
 		acts = sp.get("actions", {})
 		mirror = sheet.get("mirror", {})

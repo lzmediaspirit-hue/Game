@@ -3,7 +3,8 @@ extends Node
 ## under the HUD, walking behind the house, jumping the pier's gap and the long jump, and standing on the low wall with
 ## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
-## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder.
+## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
+## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -36,6 +37,9 @@ func _main() -> void:
 		return
 	if "--chapter2" in OS.get_cmdline_user_args():
 		await chapter2()
+		return
+	if "--tutorial-foes" in OS.get_cmdline_user_args():
+		await tutorial_foes()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -414,6 +418,44 @@ func chapter2() -> void:
 	await frames(360)   # a new game's first notices come and go before the first shot
 	await room_shots(CHAPTER2, out)
 	print("topdown_capture: chapter 2 done")
+	get_tree().quit()
+
+## The tutorial rooms' other foes in their own figures (`-- --tutorial-foes`, into docs/redesign/phase4/): Lotus Ferry
+## at night, the hollowed eel rising from the river (the night's own event) and hollow minnows swimming through the air
+## at the player; Old Snapper on the Reed Shallows' flats (it comes only after five crab shells, so it is set there);
+## the mossback toads on Willow Path West's pine ridge. Each is shot under the real HUD while they close in and fight,
+## and x4 round the fight ([name, room, cell, foes [def, offset in cells], the close-up's centre from the body]).
+const TUTORIAL_FOES := [["33_night_eel_minnows", "lf_village_night", Vector2(33, 32), [["hollow_minnow", Vector2(-3, -2)], ["hollow_minnow", Vector2(4, -3)]], Vector2(24, 24)],
+	["35_reed_shallows_old_snapper", "lf_reed_shallows", Vector2(51, 17), [["old_snapper", Vector2(3, 2)]], Vector2(24, 12)],
+	["37_willow_path_west_toads", "wp_west", Vector2(17, 7), [["mossback_toad", Vector2(-3, 1)], ["mossback_toad", Vector2(3, 0)]], Vector2(0, 0)]]
+
+func tutorial_foes() -> void:
+	var out := "res://docs/redesign/phase4/"
+	await _topdown_game(out)
+	await frames(360)
+	var n := 33
+	for s in TUTORIAL_FOES:
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 60)
+		for f in s[3]:
+			var at: Vector2 = w.room.nearest_standable((s[2] + f[1] + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+			var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1)
+			e.altitude = w.room.height_at(e.plane)
+			e.threat[Game.active_id] = 1.0
+		for i in 150:   # they close in and fight; the body is kept whole
+			Game.active().pools.hp = Game.active().pools.max_hp
+			await frames(1)
+		await shot(str(s[0]), out)
+		await RenderingServer.frame_post_draw
+		var vi: Image = w.viewport.get_texture().get_image()
+		var at: Vector2i = Vector2i(p.screen - w.camera.position + Vector2(320, 180) + (s[4] as Vector2)) - Vector2i(160, 90)
+		var crop := vi.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(320, 180)), Vector2i(320, 180)))
+		crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+		crop.save_png(out + "%d_%s_x4.png" % [n + 1, str(s[0]).substr(3)])
+		n += 2
+	print("topdown_capture: tutorial foes done")
 	get_tree().quit()
 
 ## A new top-down character's game (the title's hidden entry), once the pages' scripts have compiled on their loading

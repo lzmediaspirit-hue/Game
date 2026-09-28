@@ -248,13 +248,16 @@ Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row p
   | death | 4 | 8 | holds while the view fades it out |
 
 - **Scale.** The crab and the rat are small (about 24 px across, and 30 px long with its tail); the boarlet is medium
-  (about 28 px long), against the 38 px body. Each has a blob shadow of its own width.
+  (about 28 px long), against the 38 px body. Old Snapper, the tutorial's tough foe, is the big one: about 44 px from
+  tail to beak and 32 across. Each has a blob shadow of its own width.
 - **How they are drawn.** Each creature is a small sculpture of ellipsoids in its own frame, posed per action and
   frame. It is seen from a camera to the south, 35° above the ground, and lit from the upper left like the props.
   Every pixel takes a step of its material's five-step ramp by its light. A part tucked behind a nearer part goes one
   step darker along the seam, so legs, claws and bodies separate by value, not by lines. Eyes, noses, tusks, the
   crab's pale shell patches and the boarlet's dust are marks placed on the surface. The sprite takes the prop outline.
-  No randomness, so the build stays byte-identical.
+  Loose drops and motes (a splash, a dissolving body) are laid on after it and take none. A creature in the water is
+  cut off at its surface, and the water round it (a stain, foam, rings, a wake) is laid on without an outline, like the
+  lotus pads (§4). No randomness, so the build stays byte-identical.
 - **Recognisable from the side view.** The ramps come from each side-view sheet (`art/creatures/`):
   - the mud crab: a brown shell with pale patches, black eye stalks, jade-tipped claws held up at its sides. Like
     its side-view sheet it keeps its broad side to the camera, front or back, and scuttles sideways; it strikes with
@@ -276,9 +279,30 @@ Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row p
     cold white eyes and three grey strands rising and curling from its back.
 
   The cell grows to 48 × 56 with the feet at (24, 42), so the puppet fits; the first three foes are drawn as before.
-- **Not yet drawn:** every other creature (Phase 5 by region). The tutorial rooms' hollowed eel and minnow (the night),
-  Old Snapper and the mossback toad still take the crab's figure, the view's fallback. The pebble imps do not appear
-  in the prototype room.
+- **The tutorial rooms' other foes** complete the set, so every foe the rooms on the grid spawn has its own figure:
+  - Old Snapper: an ancient snapping turtle, a high domed shell grown over with moss along three knobbed keels, dark
+    green plates on its flanks, barnacles on the rim and river weed trailing behind; a khaki head with a pale hooked
+    beak and amber eyes, and on its right the great red crusher claw with dark tips (the side view's crab's gift). It
+    works the pincer while idle, lumbers with its shell rocking, raises the crusher over its head in the wind-up and
+    slams it down before it in a splash; struck, it pulls its head in; beaten, it rolls onto its plated plastron;
+  - the mossback toad: a fat, flat toad in olive khaki with a mat of moss and three curled fiddlehead ferns on its back,
+    golden eyes on top of its head, a cream belly and throat sac. It hops heavily, puffs its throat and cheeks in the
+    wind-up and lashes a long pink tongue, a glint at its tip on the hit;
+  - the hollow minnow and the hollowed eel, the night's Hollow things, in the hollowing look: colour drunk out, grey,
+    empty white eyes, grey strands. The minnow flies (the game hovers it about 24 px over the ground), so it is drawn
+    round its feet, swimming through the air with two grey strands trailing as its wake; beaten, it turns belly-up and
+    comes apart into mist. The eel rises in an S-curve out of the river, winding sideways too so it reads from every
+    side, with a pale belly, a torn fin, strands curling off its back, and a loop of its back breaking the surface
+    beside it; foam rings its body, rings spread from it and a wake trails when it glides. The game hovers it 20 art px
+    over the water and the view draws a foe's feet at its hover, so its water is drawn that far under its feet, where
+    its shadow falls; in death it sinks until only the stain and the rings are left.
+
+  The cell grows to 64 × 72 with the feet at (32, 40): 38 px over the feet for the puppet and Old Snapper's raised
+  crusher, 31 under them for the eel's water, 31 either side for the snapper's slam and the eel's lunge. The earlier
+  foes are drawn as before, pixel for pixel.
+- **Not yet drawn:** every other creature (Phase 5 by region). The crab's figure stays the view's fallback for a species
+  not drawn yet (an ambush, a hunter or a summons can bring one onto the grid). The pebble imps do not appear in the
+  prototype room.
 
 ## 9. What makes it xianxia (and Jade River's)
 
@@ -363,7 +387,7 @@ The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_
 | `08_ingame_square_x2.png`, `09_ingame_square_hud.png` | after: the redesigned square in the game at the spawn camera, ×2, and under the HUD |
 | `10_ingame_whole_room.png` | the whole 48 × 30 room in the game |
 | `11_before_after.png` | the mock, the loader before, and the game after, one above the other |
-| `12_foes_x3.png` | the foe sheet at ×3: crab, rat and boarlet, five drawn facings, every action |
+| `12_foes_x3.png` | the foe sheet at ×3: every drawn foe, five drawn facings, every action |
 | `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
 | `15_water_frames_x2.png` | the water's four frames round the pond and the pier |
 

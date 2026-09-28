@@ -1,5 +1,33 @@
 # Changelog
 
+## Top-down: the tutorial rooms' other foes in their own figures
+
+- **Four foes drawn for the grid**, each in five drawn facings and three mirrored, with idle, walk, wind-up, strike,
+  hurt and death. Until now they took the crab's figure, the view's fallback (`docs/redesign/art_bible.md` §8, "Foes").
+  Each is the same creature as on its side-view sheet, in the same colours:
+  - **Old Snapper**, the Reed Shallows' tough foe: an old snapping turtle with a mossy domed shell, a hooked beak and
+    its great red crusher claw. It raises the crusher over its head in the wind-up and slams it down in a splash;
+    beaten, it rolls onto its back;
+  - **the mossback toad** on Willow Path West: moss and curled ferns on its back, golden eyes, a throat that puffs up
+    in the wind-up and a long pink tongue;
+  - **the hollowed eel** of the night: a grey eel rising in an S-curve out of the river over a dark stain, a loop of
+    its back breaking the surface beside it, foam, rings and a wake round it. Its water is drawn where the game hovers
+    it, 20 px under its feet. In death it sinks back under;
+  - **the hollow minnows** of the night: small grey fish swimming through the air at their hover, grey strands
+    trailing as their wake. Beaten, they come apart into mist.
+
+  The two Hollow things have the hollowing look: colour drunk out, ash grey, cold white eyes and grey strands.
+- **Every foe the grid's rooms spawn now has its own figure.** The crab stays the fallback only for a species not
+  drawn yet, which an ambush, a hunter or a summons might bring onto the grid.
+- **The foe cell grows to 64 × 72** (feet at 32, 40), for Old Snapper's slam and the eel's water. The earlier foes are
+  unchanged pixel for pixel. The eel keeps the row it rose in, since it moves without a velocity or an aim; the plan's
+  Phase 4 notes say so.
+- **Tests:** `topdown_tutorial` (790 checks) now checks the tutorial rooms' foes and every room event's foes
+  for their own figures too, not just chapter 2's rooms.
+- **Screenshots:** `docs/redesign/phase4/33`–`38`, from `tools/dev/topdown_capture.tscn -- --tutorial-foes`: the night,
+  the Reed Shallows and Willow Path West, under the HUD and ×4 round the fight. The foe sheet at ×3 is
+  `docs/redesign/phase3/12_foes_x3.png`.
+
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 
 - **Fourteen more rooms on the grid** (`docs/redesign_top_down_plan.md`, "As built: Phase 4, second part"). They are
