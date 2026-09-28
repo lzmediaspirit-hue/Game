@@ -104,7 +104,8 @@ So an action batch runs on its own, never beside other set batches:
    flute and the bell ring on its hit frame), and the fan's `open` and `thrown` lists in `sets/weapon_fan.py` say
    whether it opens (or leaves the hand) in it.
 3. Replace any stand-in alias in `ALIASES`, and drop it from `STAND_INS` (empty today).
-4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about fifteen minutes for 864 frames.
+4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about eight minutes for 864 frames
+   (it builds twice).
 5. Wire the action where the game plays it: a family's step or technique in `tools/data/combat_feel.py` `poses`, a
    move (dash, air, throw, charge, parry, melody) in `MOVES`, then `topdown_player.gd` `sync` and `_strike_pose` and
    `TopdownFigure.resolve(action, family, move)`; a story gesture in `tools/data/scenes.py` (`pose` steps).
