@@ -1221,6 +1221,12 @@ and foliage and decor.
 
 **Images.** Before and after: `docs/redesign/terrain_v2/`.
 
+**Polish pass** (review of the first after shots against Alabaster Dawn):
+- the grass is a saturated green again, under crisp tufts of blades;
+- the paving is warm grey-beige flagstones about a tile across, with crisp joints;
+- the sun and shade patches are a whisper, and paving and granite take none;
+- the value range is wider: deeper cliff bodies, brighter lips, crisper granite.
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:
@@ -1418,8 +1424,12 @@ real HUD, with its foes where it has them.
 - **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
   are fixed; a running jump takes their place.
 - **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
-- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) have no
-  top-down figure yet: they stand in with their side-view creature sheet at half size (the third part).
+- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) had no
+  top-down figure: they took the crab's, then stood in with their side-view creature sheet at half size (the third
+  part). They are drawn now ("Then: the tutorial rooms' other foes", after the third part).
+- **The hollowed eel keeps the row it rose in.** It glides by setting its position, with no velocity or aim
+  (`enemy_authority.gd` `_eel`), so the view never turns it from its spawn row (SE, or SW mirrored), and it strikes
+  along its side-view facing. Its figure is drawn in all eight facings for when it does.
 
 ### As built: Phase 4, third part · the gaps closed (2026-09-28)
 
@@ -1531,6 +1541,18 @@ used to keep the last aim and miss a foe behind.
 
 **Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
 tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
+
+**Then: the tutorial rooms' other foes** (`creatures.py`, art bible §8 "Foes"). Old Snapper, the mossback toad, and
+the night's hollow minnow and hollowed eel have their own figures now, in five drawn facings and three mirrored, with
+all six actions; they had stood in with their side-view sheets at half size. The eel rises out of the river with its
+water drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72
+(feet at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. Every foe
+the grid's rooms spawn now has its own figure; the stand-in stays for a spirit animal, a companion and a species not
+drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (13 more checks) checks every grid
+room's foes, their events' foes too, for their own figures (the tutorial's rooms were skipped before), and
+`topdown_suite` (117 to 118) takes a pebble imp, still undrawn, for its stand-in check and sees Old Snapper drawn by
+its own rows. Screenshots (`tools/dev/topdown_capture.tscn -- --tutorial-foes`):
+`docs/redesign/phase4/33`–`38`, the night, the Reed Shallows and Willow Path West under the HUD and ×4 round the fight.
 
 ### As built: the story staged in the top-down world (decision 39, 2026-09-28)
 

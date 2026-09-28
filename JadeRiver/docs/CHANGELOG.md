@@ -34,6 +34,38 @@ Phase 3, third part" (batch bow) and "As built: combat animation and feel".
 - **Review:** `docs/redesign/phase3/character/10_actions_<facing>.png` and `11_gestures.png` are new; every other
   sheet there is redrawn with the new actions.
 
+## Top-down: the tutorial rooms' other foes in their own figures
+
+- **Four foes drawn for the grid**, each in five drawn facings and three mirrored, with idle, walk, wind-up, strike,
+  hurt and death. They stood in with their side-view sheets at half size, and took the crab's figure before that
+  (`docs/redesign/art_bible.md` §8, "Foes").
+  Each is the same creature as on its side-view sheet, in the same colours:
+  - **Old Snapper**, the Reed Shallows' tough foe: an old snapping turtle with a mossy domed shell, a hooked beak and
+    its great red crusher claw. It raises the crusher over its head in the wind-up and slams it down in a splash;
+    beaten, it rolls onto its back;
+  - **the mossback toad** on Willow Path West: moss and curled ferns on its back, golden eyes, a throat that puffs up
+    in the wind-up and a long pink tongue;
+  - **the hollowed eel** of the night: a grey eel rising in an S-curve out of the river over a dark stain, a loop of
+    its back breaking the surface beside it, foam, rings and a wake round it. Its water is drawn where the game hovers
+    it, 20 px under its feet. In death it sinks back under;
+  - **the hollow minnows** of the night: small grey fish swimming through the air at their hover, grey strands
+    trailing as their wake. Beaten, they come apart into mist.
+
+  The two Hollow things have the hollowing look: colour drunk out, ash grey, cold white eyes and grey strands.
+- **Every foe the grid's rooms spawn now has its own figure.** The stand-in stays for spirit animals, companions and
+  any species not drawn yet, which an ambush, a hunter or a summons might bring onto the grid.
+- **The foe cell grows to 64 × 72** (feet at 32, 40), for Old Snapper's slam and the eel's water. The earlier foes are
+  unchanged pixel for pixel. The eel keeps the row it rose in, since it moves without a velocity or an aim; the plan's
+  Phase 4 notes say so.
+- **Tests:**
+  - `topdown_tutorial` (801 checks) now checks the tutorial rooms' foes and every room event's foes for their
+    own figures too, not just chapter 2's rooms.
+  - `topdown_suite`'s stand-in check takes a pebble imp, which is still undrawn, and a new check sees Old Snapper drawn
+    by its own rows.
+- **Screenshots:** `docs/redesign/phase4/33`–`38`, from `tools/dev/topdown_capture.tscn -- --tutorial-foes`: the night,
+  the Reed Shallows and Willow Path West, under the HUD and ×4 round the fight. The foe sheet at ×3 is
+  `docs/redesign/phase3/12_foes_x3.png`.
+
 ## Top-down: Terrain v2, the tiles (decision 40)
 
 - **The top-down world's terrain is redrawn to look closer to Alabaster Dawn, in Jade River's own xianxia world**
@@ -51,6 +83,11 @@ Phase 3, third part" (batch bow) and "As built: combat animation and feel".
     - Town squares are irregular flagstones with moss in the joints; granite terraces are big slabs.
     - Roofs are dark glazed tile with a glint on every rib. The houses' roofs sweep up at the ends, with a heavy
       ridge and a shadow band under the eaves.
+- **Polish pass, after review against Alabaster Dawn:**
+  - the grass is a vivid green again, with crisp tufts of blades;
+  - the paving is warm grey-beige flagstones about a tile across, with crisp joints and moss in the gaps;
+  - the sun and shade patches are much subtler, and paving and granite take none;
+  - cliffs are deeper, lips brighter, and granite terraces crisper.
 - **No room had to change.** Every tile name and auto-tile rule stays; the room view draws each cell as layers.
 - **Tests:** `topdown_suite` checks the layers ("terrain v2"); `data_validation` checks that every tile the new sets
   name is in the atlas.
