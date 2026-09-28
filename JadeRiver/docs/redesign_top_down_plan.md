@@ -884,6 +884,23 @@ independent batches (HOWTO.md), 62 game items in all:
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
+**Batch flute_and_bell, drawn** (`weapon_flute`, `weapon_bell`; the 21 items above, `PENDING` left for the last batch
+to empty). Both are held in the right fist along the blade line, as the side view draws them along the short blade's
+grip; the fist closes over the grip.
+
+- **`kinds/flute.py`:** the jade flute, a green bamboo tube with dark joints, finger holes on its upper face and a red
+  tassel hanging from the hand's end.
+- **`kinds/bell.py`:** the warden's hand-bell. It has a bronze bell with a domed crown, a dark band, a flared lip,
+  a shadowed mouth and its clapper, on a dark-wood handle with a red cord. Laid down, it rests on its side.
+- **`kinds/sound.py`:** what a sounding weapon sends out on a blow's hit frame (a punch, swing or thrust), and a step
+  fainter on the frame after.
+  - The flute's note leaves its far end as ripples of pale jade light, arcs opening along the flute that close into
+    rings as it points at the camera or away.
+  - The bell rings out rings of pale-gold qi round its mouth.
+  - They are drawn in the plane facing the camera, with no ink, like a cut's smear. A blow's frame is known by its
+    pose, so the action catalogue and every other set are unchanged.
+- **Review:** `03_weapon_flute.png` and `03_weapon_bell.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the

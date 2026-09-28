@@ -1,5 +1,20 @@
 # Changelog
 
+## Top-down character: the flute and the bell (decision 37)
+
+- **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
+  (`weapon_flute`, `weapon_bell`). The 21 game items that wear them (10 flutes, 11 bells) now show on the top-down
+  character. Both are held in the fist as the side view holds them, and look like its sheets in its colours.
+  - **The flute** is a green bamboo dizi with dark joints, finger holes and a red tassel. On every blow its note leaves
+    the far end as ripples of pale jade light: sound-wave arcs from the side, rings when it points at the camera.
+  - **The bell** is bronze, with a domed crown, a dark band, a flared lip and its clapper, on a dark-wood handle with a
+    red cord. Its blows ring out as rings of pale-gold qi round the mouth.
+  - The sound shows on the hit frame and, fainter, on the frame after. Laid down while meditating, the flute lies
+    beside the figure and the bell rests on its side.
+- **New generators:** `figure/kinds/flute.py`, `bell.py`, and `sound.py`, which draws what a sounding weapon sends out on
+  its blows. A blow's frame is known by its pose, so the action catalogue and every other set are unchanged.
+- **Review sheets:** `docs/redesign/phase3/character/03_weapon_flute.png` and `03_weapon_bell.png`.
+
 ## Top-down: the real character (decision 32)
 
 - **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
