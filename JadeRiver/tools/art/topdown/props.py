@@ -1,16 +1,17 @@
 """The prop kit for Riverside Square (art bible §8): drawn at art resolution, lit from the upper left, outlined.
 
 Each prop is (draw, sprite w, h, footprint w, h in tiles, origin, solid, shadow). `origin` is the footprint's south-west
-corner inside the sprite, which the Phase 1 loader puts on the floor the prop stands on; `shadow` is the floor shadow
-the compositor lays under it, [dx, dy, rx, ry] of an ellipse from the footprint's south-west corner in art px (the
-Phase 1 loader ignores it). The kinds the Phase 1 room places keep their footprints and origins' meaning.
+corner inside the sprite, which the room view puts on the floor the prop stands on; `shadow` is its floor shadow,
+[dx, dy, rx, ry] of an ellipse from the footprint's south-west corner in art px, drawn into the sheet as its own sprite
+(`shadow_rect`, placed at `shadow_at` from that corner) that the room view lays on the floor under the prop. Animated
+props (`ANIM`) hold their frames side by side. The kinds the Phase 1 room places keep their footprints and origins.
 """
 from __future__ import annotations
 
 import tiles as tl
 from canvas import Img, h01
 from palette import (BAMBOO, BRONZER, DARKWOOD, DIRT, GOLDR, JADE, BJADE, LANTERN, LEAF, LOTUS, MIST, MOSS, PAD, PAPER,
-                     PLASTER, RED, REED, ROOF, STONE, WATER, WOOD, alpha, c)
+                     PLASTER, RED, REED, ROOF, SHADE, STONE, WATER, WOOD, alpha, c)
 
 
 def _curl(s: Img, x: int, y: int, d: int) -> None:
@@ -105,9 +106,11 @@ def storehouse(s: Img) -> None:
     house(s, 4, True)
 
 
-def willow(s: Img) -> None:
-    """A river willow, footprint 1 x 1: a leaning trunk and a crown of hanging strands lit from the upper left.
-    48 x 64; the trunk base's footprint corner at (16, 62)."""
+def willow(s: Img, f: int = 0) -> None:
+    """A river willow, footprint 1 x 1: a leaning trunk and a crown of hanging strands lit from the upper left. The
+    strands' lower halves sway a pixel east and back over four frames (art bible §7). 48 x 64; the trunk base's
+    footprint corner at (16, 62)."""
+    sway = SWAY[f]
     for j in range(30, 62):
         lean = (62 - j) // 8
         x = 21 + lean
@@ -128,8 +131,8 @@ def willow(s: Img) -> None:
                 col = LEAF[3] if (j + i) % 4 else LEAF[4]
                 if i > 30:
                     col = LEAF[2] if (j + i) % 4 else LEAF[3]
-                s.put(i, j, col)
-            s.put(i, min(58, start + ln), LEAF[5] if i < 30 else LEAF[3])
+                s.put(i + (sway if j > start + ln // 2 else 0), j, col)
+            s.put(i + sway, min(58, start + ln), LEAF[5] if i < 30 else LEAF[3])
     for k in range(40):
         x, y = 8 + int(h01(k, 7, 22) * 30), 5 + int(h01(k, 8, 22) * 18)
         if (x - 24) + (y - 16) < 6:
@@ -284,23 +287,27 @@ def boat(s: Img) -> None:
     s.outline()
 
 
-def bamboo(s: Img) -> None:
+def bamboo(s: Img, f: int = 0) -> None:
     """A bamboo clump, footprint 1 x 1: five culms with lit west sides and pale nodes under a crown of leaf sprays,
-    each spray a mass lit on its upper-left and fringed with spear leaves. 32 x 64; footprint corner at (8, 62)."""
+    each spray a mass lit on its upper-left and fringed with spear leaves. The crown and the culms' upper halves sway a
+    pixel east and back over four frames (art bible §7). 32 x 64; footprint corner at (8, 62)."""
+    sway = SWAY[f]
     culms = ((10, 14, 2), (13, 8, 3), (17, 10, 2), (20, 16, 3), (23, 20, 2))
     for x, top, w in culms:
         for y in range(top, 62):
-            s.put(x, y, BAMBOO[4])
+            bend = sway if y < 36 else 0
+            s.put(x + bend, y, BAMBOO[4])
             for d in range(1, w):
-                s.put(x + d, y, BAMBOO[3] if d < w - 1 else BAMBOO[2])
+                s.put(x + bend + d, y, BAMBOO[3] if d < w - 1 else BAMBOO[2])
         for y in range(top + 5 + (x % 3), 60, 8):
-            s.hline(x, y, w, BAMBOO[5])
-            s.hline(x, y + 1, w, BAMBOO[1])
+            bend = sway if y < 36 else 0
+            s.hline(x + bend, y, w, BAMBOO[5])
+            s.hline(x + bend, y + 1, w, BAMBOO[1])
     sprays = ((12, 12, 9, 7), (21, 9, 9, 7), (16, 20, 11, 6), (7, 24, 6, 5), (26, 22, 6, 5))
     for cx, cy, rx, ry in sprays:
-        s.ellipse(cx, cy, rx, ry, BAMBOO[2], (BAMBOO[3], BAMBOO[1]))
+        s.ellipse(cx + sway, cy, rx, ry, BAMBOO[2], (BAMBOO[3], BAMBOO[1]))
     for k in range(70):
-        x, y = 2 + int(h01(k, 1, 41) * 28), 2 + int(h01(k, 2, 41) * 28)
+        x, y = 2 + int(h01(k, 1, 41) * 28) + sway, 2 + int(h01(k, 2, 41) * 28)
         if s.get(x, y)[3] == 0 and s.get(x, y + 2)[3] == 0 and s.get(x - 2, y)[3] == 0:
             continue
         d = 1 if h01(k, 3, 41) > 0.5 else -1
@@ -313,9 +320,10 @@ def bamboo(s: Img) -> None:
     s.outline()
 
 
-def lotus(s: Img) -> None:
-    """Lotus pads with a flower and a bud, floating on the river (walk-through, footprint 2 x 1). 32 x 16; the corner
-    at (0, 16), on the water's surface."""
+def lotus(s: Img, f: int = 0) -> None:
+    """Lotus pads with a flower and a bud, floating on the river (walk-through, footprint 2 x 1). The flower and the bud
+    bob a pixel on the water's clock (art bible §7). 32 x 16; the corner at (0, 16), on the water's surface."""
+    bob = -SWAY[f]
     pads = ((6, 9, 5, 3), (16, 6, 6, 3.4), (26, 11, 4.5, 2.6), (13, 13, 3.6, 2.2))
     for cx, cy, rx, ry in pads:
         s.ellipse(cx, cy + 1, rx, ry, alpha(WATER[1], 255))
@@ -323,13 +331,13 @@ def lotus(s: Img) -> None:
         s.put(int(cx) + 1, int(cy), WATER[3])
         s.put(int(cx) + 2, int(cy), WATER[3])
         s.put(int(cx), int(cy) - 1, PAD[5])
-    fx, fy = 16, 4
+    fx, fy = 16, 4 + bob
     s.ellipse(fx, fy + 1, 3.4, 2.2, LOTUS[1])
     for dx, dy, k in ((-2, 0, 2), (2, 0, 2), (-1, -1, 3), (1, -1, 3), (0, -2, 4), (0, 0, 2)):
         s.put(fx + dx, fy + dy, LOTUS[k])
     s.put(fx, fy, GOLDR[3])
-    s.put(26, 7, LOTUS[2])
-    s.put(26, 8, LOTUS[1])
+    s.put(26, 7 + bob, LOTUS[2])
+    s.put(26, 8 + bob, LOTUS[1])
     s.put(26, 9, PAD[2])
 
 
@@ -384,22 +392,64 @@ PROPS = {
 # Props whose top is a floor you stand on, in levels over their ground (decision 29; TopdownRoom reads `top`).
 TOPS = {"house": 2, "storehouse": 2, "crates": 1}
 
+# Animated props (art bible §7): frames side by side from `rect`, and each frame's time. Plants sway on a slow loop
+# (the room view starts each prop at its own phase, so a grove never moves in lockstep); lotus flowers bob on the
+# water's 250 ms clock.
+ANIM = {"bamboo": (4, 500), "willow": (4, 600), "lotus": (4, 250)}
+SWAY = (0, 1, 1, 0)
+SHEET_W = 512
+
+
+def shadow_sprite(dx: int, dy: int, rx: float, ry: float) -> tuple[Img, list]:
+    """A prop's floor shadow (art bible §3): a translucent deep-teal ellipse centred (dx, dy) from the footprint's
+    south-west corner, denser in its core (two stepped rings, no blur). Returns the sprite and its top-left corner from
+    that footprint corner; the room view lays it on the floor the prop stands on, never on a body."""
+    x0, x1 = int(dx - rx) - 1, int(dx + rx) + 2
+    y0, y1 = int(dy - ry) - 1, int(dy + ry) + 2
+    s = Img(x1 - x0, y1 - y0)
+    for j in range(y0, y1):
+        for i in range(x0, x1):
+            u, v = (i + 0.5 - dx) / rx, (j + 0.5 - dy) / ry
+            d = u * u + v * v
+            if d <= 1.0:
+                s.put(i - x0, j - y0, alpha(SHADE, 60 if d > 0.5 else 105))
+    return s, [x0, y0]
+
 
 def build() -> tuple[Img, dict]:
-    sheet = Img(256, 192)
-    at, x, y, row_h = {}, 0, 0, 0
+    """The prop kit: every prop (its animation frames side by side) and every prop shadow, packed in rows."""
+    sprites = []   # (kind, what, img)
     for kind, (draw, w, h, fw, fh, origin, solid, shadow) in PROPS.items():
-        if x + w > sheet.w:
+        n = ANIM.get(kind, (1, 0))[0]
+        spr = Img(w * n, h)
+        for f in range(n):
+            one = Img(w, h)
+            draw(one, f) if n > 1 else draw(one)
+            spr.paste(one, f * w, 0)
+        sprites.append((kind, "prop", spr))
+    for kind, entry in PROPS.items():
+        if entry[7]:
+            sprites.append((kind, "shadow", shadow_sprite(*entry[7])[0]))
+    places, x, y, row_h = [], 0, 0, 0
+    for kind, what, spr in sprites:
+        if x + spr.w > SHEET_W:
             x, y, row_h = 0, y + row_h, 0
-        spr = Img(w, h)
-        draw(spr)
+        places.append((kind, what, spr, x, y))
+        x, row_h = x + spr.w, max(row_h, spr.h)
+    sheet = Img(SHEET_W, y + row_h)
+    at: dict = {}
+    for kind, what, spr, x, y in places:
         sheet.paste(spr, x, y)
+        draw, w, h, fw, fh, origin, solid, shadow = PROPS[kind]
+        if what == "shadow":
+            at[kind]["shadow"] = shadow
+            at[kind]["shadow_rect"] = [x, y, spr.w, spr.h]
+            at[kind]["shadow_at"] = shadow_sprite(*shadow)[1]
+            continue
         entry = {"rect": [x, y, w, h], "footprint": [fw, fh], "origin": origin, "solid": solid}
-        if shadow:
-            entry["shadow"] = shadow
+        if kind in ANIM:
+            entry["frames"], entry["frame_ms"] = ANIM[kind]
         if kind in TOPS:
             entry["top"] = TOPS[kind]
         at[kind] = entry
-        x, row_h = x + w, max(row_h, h)
-    assert y + row_h <= sheet.h, "props overflow the sheet"
     return sheet, at

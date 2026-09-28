@@ -604,11 +604,20 @@ def blend_corners(over: Img, under: Img, corners: tuple, seed: int, over_ramp: l
 
 # ======================================================================================================== overlays
 def overlay(kind: str) -> Img:
-    """Translucent light tiles laid over tops by the compositor (art bible §5):
+    """Translucent light tiles the room view lays over tops, faces and stairs (art bible §5):
     rim_w / rim_e / rim_n: the edge of a top whose west / east / north neighbour is lower (lit, shaded, the drop behind);
     ao_n: contact shade at the foot of a face, on the floor right under it;
-    shade_w: the shadow a higher west neighbour casts on this floor (light from the upper left)."""
+    shade_w: the shadow a higher west neighbour casts on this floor (light from the upper left);
+    end_w / end_e: a face's end where it turns a corner, lit at the west end and shaded at the east;
+    cheek_w / cheek_e: the granite cheeks of a flight of stairs, lit on the west and shaded on the east."""
     t = tile()
+    if kind in ("end_w", "end_e", "cheek_w", "cheek_e"):
+        cols = {"end_w": ((0, WARM_RIM, 70),), "end_e": ((15, SHADE, 120),),
+                "cheek_w": ((0, WARM_RIM, 90), (1, WARM_RIM, 30)), "cheek_e": ((15, SHADE, 150), (14, SHADE, 60))}[kind]
+        for x, col, a in cols:
+            for j in range(T):
+                t.put(x, j, alpha(col, a))
+        return t
     if kind == "rim_w":
         for j in range(T):
             t.put(0, j, alpha(WARM_RIM, 150))

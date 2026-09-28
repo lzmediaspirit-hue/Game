@@ -327,14 +327,20 @@ func face(v: Vector2) -> void:
 ## 8-way analog facing; the drawn row (S, E, N, W) changes only when the stick sits 20° nearer another row (plan §1.4).
 func _face(axis: Vector2) -> void:
 	dir = axis.normalized()
-	var a := rad_to_deg(dir.angle())
-	var rows := {"e": 0.0, "s": 90.0, "w": 180.0, "n": -90.0}
-	var best := row
+	row = nearest_row(dir, row, {"e": 0.0, "s": 90.0, "w": 180.0, "n": -90.0})
+
+## The drawn row of `rows` (name -> its angle on the ground in degrees, east 0, south 90) for direction `v`: the nearest,
+## but `current` stays until another is `band` degrees nearer (the hysteresis of plan §1.4; the foes' eight facings
+## use it too).
+static func nearest_row(v: Vector2, current: String, rows: Dictionary, band := 20.0) -> String:
+	var a := v.angle()
+	var best := current if rows.has(current) else str(rows.keys()[0])
 	for r in rows:
-		if absf(angle_difference(deg_to_rad(a), deg_to_rad(rows[r]))) < absf(angle_difference(deg_to_rad(a), deg_to_rad(rows[best]))): best = r
-	var cur := absf(rad_to_deg(angle_difference(deg_to_rad(a), deg_to_rad(rows[row]))))
-	var nxt := absf(rad_to_deg(angle_difference(deg_to_rad(a), deg_to_rad(rows[best]))))
-	if cur - nxt >= 20.0: row = best
+		if absf(angle_difference(a, deg_to_rad(rows[r]))) < absf(angle_difference(a, deg_to_rad(rows[best]))): best = r
+	if not rows.has(current): return best
+	var cur := absf(rad_to_deg(angle_difference(a, deg_to_rad(rows[current]))))
+	var nxt := absf(rad_to_deg(angle_difference(a, deg_to_rad(rows[best]))))
+	return best if cur - nxt >= band else current
 
 func drain() -> Array:
 	var out := events

@@ -1,5 +1,37 @@
 # Changelog
 
+## Top-down redesign, Phase 3: the terrain in the game, Riverside Square redesigned, the first foes in eight facings
+
+- **The terrain draws by the art bible in the game** (decision 33; `scripts/topdown/topdown_terrain.gd`):
+  - paths and paving take grass's corner-matched edge from their own level;
+  - water takes its shore case in each of its four frames;
+  - every raised edge has its rims, contact shade and cast shade, and every face its lit and shaded ends;
+  - stairs have their cheeks;
+  - each prop's floor shadow is cut to the floor it stands on.
+
+  Phase 2's combat and collision are unchanged.
+- **Riverside Square is redesigned for it** (`data/topdown/td_proto_square.json`):
+  - a terrace path from the stairs to the rooftop jump and a cliff-foot shrine;
+  - paving from both doors and the stairs to the pier, between lawns;
+  - a lotus pond with a willow, and a planted bed in place of the low wall;
+  - bamboo groves, and red lantern posts at the house door and the pier;
+  - a boat's notch in the promenade, and grassy banks.
+
+  The rooftop route, both gaps and every `topdown_suite` number are unchanged (decision 34).
+- **Plants move:** bamboo and willow sway a pixel, and lotus flowers bob on the water's clock, each at its own phase.
+- **The first foes** (`tools/art/topdown/creatures.py` → `art/topdown/foes.png`):
+  - the mud crab, reed rat and boarlet, redrawn from their side-view sheets;
+  - five facings drawn and three mirrored;
+  - idle, walk, wind-up, strike, hurt and death at their own rates.
+
+  They replace the placeholder foes. The crab scuttles sideways, broad side to the camera, as in its side-view sheet.
+- **Review images come from the game** (`topdown_capture.tscn -- --phase3`, `docs/redesign/phase3/08`–`15`, a
+  regenerated height test). They include the mock beside the loader before and the game after. The Python reference
+  renderer is retired.
+- **Tests:** `topdown_suite` gains 8 checks (terrain rules, the square's routes and dressing, the foes' facings).
+  `data_validation` checks prop frames, prop shadows and every foe's frames. `build_tiles.py --check` stays
+  byte-identical.
+
 ## Study: which systems live on the map as places (decision 36)
 
 - **`docs/redesign/systems_as_places.md`**, a proposal for the user; nothing is built. It gives every page a verdict:

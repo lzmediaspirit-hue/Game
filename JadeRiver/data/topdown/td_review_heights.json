@@ -1,0 +1,65 @@
+{
+ "schema_version": 1,
+ "id": "td_review_heights",
+ "name": "Height levels (review room)",
+ "type": "review",
+ "legend": {
+  "use": "the art bible's readability test (docs/redesign/art_bible.md §5): tools/dev/topdown_capture.tscn -- --phase3 draws it with a body on each level, in colour and by value alone",
+  "levels": "a rock cliff at 4 and 3, a grass terrace at 2, a stone terrace at 1, the square at 0 with a house built on the grid (roof at 2) and a courtyard wall at 1, the promenade, the river and a pier"
+ },
+ "spawn": [11, 13],
+ "levels": [
+  "444444444444333333333333333333",
+  "444444444444333333333333333333",
+  "444444444444333333333333333333",
+  "222222222222222222222222222222",
+  "222222222222222222222222222222",
+  "222222222222222222222222222222",
+  "222222222222222222222222222222",
+  "111111111111111111111111111111",
+  "111111111111111111111111111111",
+  "111111111111111111111111111111",
+  "000222222000000000000000000000",
+  "000222222000000000000000000000",
+  "000222222000111111110000000000",
+  "000000000000000000000000000000",
+  "000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~00~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~00~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggfggggggggdddgggggggg",
+  "gggfggggggggggggggddddgggfgggg",
+  "gggggggggggggfgggggdddgggggggg",
+  "ggggggggggggggggggggddgggggggg",
+  "ssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssss",
+  "pppttttttppppppppppppppppppppp",
+  "pppttttttppppppppppppppppppppp",
+  "pppttttttpppllllllllpppppppppp",
+  "pppppppppppppppppppppppppppppp",
+  "ssssssssssssssssssssssssssssss",
+  "~~~~~~~~~~~~~~~~~~~~~~ww~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~ww~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {"x": 14, "y": 7, "w": 2, "h": 2, "from": 1, "to": 2},
+  {"x": 25, "y": 10, "w": 2, "h": 2, "from": 0, "to": 1}
+ ],
+ "props": [
+  {"kind": "lantern", "x": 13, "y": 8},
+  {"kind": "lantern", "x": 16, "y": 8},
+  {"kind": "bamboo", "x": 1, "y": 6},
+  {"kind": "willow", "x": 26, "y": 5},
+  {"kind": "lotus", "x": 5, "y": 16},
+  {"kind": "reeds", "x": 18, "y": 15},
+  {"kind": "lantern_red", "x": 21, "y": 14},
+  {"kind": "barrel", "x": 10, "y": 12}
+ ]
+}
