@@ -119,6 +119,25 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
   soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
   brush and thin behind it, and at its tail it has run dry: grey and broken.
 - Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
+## Top-down character: the heavy sabre (decision 37, the heavy_sabre batch)
+
+- **The heavy sabre is drawn** in every action and facing (`weapon_heavy_sabre`; parts.json weapon `sabre`). Its ten
+  game items, from the Training Heavy Sabre to the Mountainsplit Sabre, now show on the top-down character instead of
+  going in `TopdownFigure.missing`.
+- **The side view's dao, in its colours.** It has a broad, single-edged blade of grey steel with a pale bevel on the
+  edge. The blade swells to a belly near the point, and the point sweeps back to the spine. It has a bronze oval guard
+  and pommel on a dark grip long enough for the second hand. The broad side is turned part way toward the camera, so
+  the blade reads as wide in every facing and thin only where it points along the view. Laid down while meditating,
+  it lies beside the figure with its breadth showing.
+- **A heavy wuxia arc on its cuts.** The swings (swing_1–3) leave a crescent of pale jade light. On the hit frame the
+  crescent is fat at the blade, thins to a sliver at its tail, and is brightest along the path of the point; on the
+  frame after, a thinner, dimmer wisp trails the blade. The heavy descending cut goes over the top in a full
+  half-round crescent: straight over the head where the facing shows it, else leaning to a shoulder. It never cuts
+  through the body, and it never draws as a flat bar.
+- **Its own files only.** The new generator is `figure/kinds/sabre.py` and the set is
+  `figure/sets/weapon_heavy_sabre.py`. The build writes `data/topdown/character/weapon_heavy_sabre.json`,
+  `art/topdown/character/weapon_sabre.png` and the review sheet `docs/redesign/phase3/character/03_weapon_sabre.png`.
+  The shared index and every other set's files are byte-identical.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 

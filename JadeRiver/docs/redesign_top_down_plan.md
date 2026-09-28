@@ -1079,6 +1079,18 @@ grip; the fist closes over the grip.
   it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
   (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
   and `03_weapon_brush.png`.
+**Batches landed (decision 37).**
+
+- **heavy_sabre (2026-09-28):** the sabre, 10 items, in `weapon_heavy_sabre`, cast by a generator of its own,
+  `figure/kinds/sabre.py`.
+  - The side view's broad dao in its grey steel and bronze: the blade bellies near the point, and the point sweeps
+    back to the spine.
+  - The broad side is turned half way toward the camera (`face`), in the hand and laid beside the meditating figure.
+  - Its cuts leave a heavy crescent of jade light: fat at the blade and brightest along the point's path on the hit
+    frame, a dim wisp on the frame after.
+  - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
+    shoulder, so it never draws as a bar.
+  - Review sheet: `03_weapon_sabre.png`.
 
 **Tests.**
 
