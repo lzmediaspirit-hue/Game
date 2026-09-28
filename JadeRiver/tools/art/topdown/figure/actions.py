@@ -337,6 +337,9 @@ CATALOG = {
 # Side-view action names Combat can still name (a technique's `action`, the old single-strike families): each plays a
 # drawn top-down action, explicitly.
 ALIASES = {"attack": "thrust_1", "swing": "swing_1", "punch": "punch_2", "bow": "cast", "meditate_burst": "cast"}
+# The aliases that only stand in for an action not drawn yet: the bow's draw and release play the cast until the bow
+# batch draws them (decision 37; sets/__init__.py PENDING). The full set has none.
+STAND_INS = ["bow"]
 
 
 def poses(name: str) -> list:

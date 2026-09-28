@@ -1,26 +1,26 @@
-"""The creator's six hair styles (parts.json `hair`), after the side-view sheets:
+"""Hair: a hair style over the skull, from a set's spec (sets/hair.py).
 
-  short_knot  Sage knot      a round bun on the crown's back, jade ribbon, gold pin
-  topknot     Daoist knot    a tall knot on the crown, jade ribbon and gold pin, one long lock down the back
-  ponytail    Jade tail      a low tail tied at the nape with a jade band, to the shoulder blades
-  high_pony   Sky ponytail   a high tail tied at the crown's back with a jade ribbon, sweeping down the back
-  long_tied   Long silk tie  a fringe, and one long tail bound with gold and jade rings to the waist
-  flowing     Flowing tail   a fringe, a tall loop on the crown and a long fall of hair to the waist
-
-Each is a cap over the skull with a hairline (the face shows through below it), plus its knots and tails. Tails hang
-by gravity and trail the pose's `drag`; a tail's part behind the neck is drawn in the back band, under the body.
+A style is a cap over the skull with a hairline (the face shows through below it; `fringe` lowers it over the brow),
+then its pieces in order, each placed in the head's frame (forward, right, up) from `from`: the head, or an earlier
+piece's `id`.
+  knot     a mass of hair (`radii`) with grooves between `strands` locks
+  lump     a plain mass of hair (a tie at the nape)
+  ribbon   a band of ribbon (`radii`)
+  pin      a gold pin from `a` to `b`, radii `r`
+  tail     a lock from `at` leaving along back * dir[0] + up * dir[1], `length` long, radii `r` (root, tip), in `segs`
+           segments, `stiff` against gravity and the pose's drag; `rings` [(fraction, material)] bind it; `k` flattens
+           it; `part` names it
+Tails hang by gravity and trail the pose's `drag`; a tail's part behind the neck is drawn in the back band, under the
+body.
 """
 from __future__ import annotations
 
-import math
-
 import numpy as np
 
-from .body import SKULL
-from .geom import depth, unit, vec
-from .raster import cone, ellipsoid, sphere
+from ..body import SKULL
+from ..geom import depth, unit, vec
+from ..raster import cone, ellipsoid, sphere
 
-STYLES = ["short_knot", "topknot", "ponytail", "high_pony", "long_tied", "flowing"]
 CAP_GROW = (0.65, 0.6, 0.7)
 CAP_AT = (-0.35, 0.0, 0.45)
 
@@ -129,45 +129,30 @@ def _frame(axis, side):
     return np.stack([x, np.cross(w, x), w], axis=1)
 
 
-def solids(sk, style: str) -> list:
+def solids(sk, spec: dict) -> list:
     Mh = sk.Mh
-    H = sk.head
     back = -Mh[:, 0]
     up = Mh[:, 2]
-    S = cap(sk, style in ("long_tied", "flowing"))
-    if style == "short_knot":
-        bun = H + Mh @ vec(-2.4, 0.0, 6.9)
-        S.append(ellipsoid(bun, Mh, (2.8, 2.8, 2.5), "hair", part="knot", paint=_strands(8), frame=(bun, Mh)))
-        S.append(ellipsoid(bun + Mh @ vec(0.2, 0, -1.6), Mh, (2.85, 2.85, 0.8), "ribbon", part="ribbon"))
-        S.append(cone(bun + Mh @ vec(2.1, -3.6, 0.7), bun + Mh @ vec(2.1, 3.4, 0.7), 0.5, 0.45, "pin", part="pin"))
-    elif style == "topknot":
-        knot = H + Mh @ vec(-1.2, 0.0, 8.3)
-        S.append(ellipsoid(knot, Mh, (2.5, 2.4, 3.2), "hair", part="knot", paint=_strands(7), frame=(knot, Mh)))
-        S.append(ellipsoid(knot + Mh @ vec(0.1, 0, -2.2), Mh, (2.6, 2.5, 0.8), "ribbon", part="ribbon"))
-        S.append(cone(knot + Mh @ vec(2.0, -3.4, 0.6), knot + Mh @ vec(2.0, 3.2, 0.6), 0.5, 0.45, "pin", part="pin"))
-        S += tail(sk, knot + Mh @ vec(-1.6, 0, 0.4), back * 0.9 - up * 0.4, 13.0, 1.05, 0.7, segs=6, stiff=0.5)
-    elif style == "ponytail":
-        tie = H + Mh @ vec(-5.8, 0.0, -2.2)
-        S.append(ellipsoid(tie, Mh, (1.5, 1.7, 1.5), "hair", part="tie"))
-        S.append(ellipsoid(tie + Mh @ vec(-0.6, 0, 0), Mh, (0.9, 1.75, 1.25), "ribbon", part="ribbon"))
-        S += tail(sk, tie + Mh @ vec(-0.9, 0, -0.4), back * 0.5 - up, 10.5, 1.45, 0.8, segs=5, stiff=0.6)
-    elif style == "high_pony":
-        tie = H + Mh @ vec(-4.9, 0.0, 4.6)
-        S.append(ellipsoid(tie, Mh, (1.6, 1.8, 1.7), "hair", part="tie"))
-        S.append(ellipsoid(tie + Mh @ vec(-0.5, 0, 0.1), Mh, (1.0, 1.9, 1.4), "ribbon", part="ribbon"))
-        S += tail(sk, tie + Mh @ vec(-1.2, 0, 0.3), back * 1.0 + up * 0.35, 14.0, 2.0, 0.9, segs=7, stiff=0.72,
-                  rings=[(0.08, "ribbon")])
-    elif style == "long_tied":
-        tie = H + Mh @ vec(-5.7, 0.0, -1.2)
-        S.append(ellipsoid(tie, Mh, (1.6, 2.0, 1.8), "hair", part="tie"))
-        S += tail(sk, tie + Mh @ vec(-0.8, 0, -0.5), back * 0.35 - up, 17.0, 1.55, 1.0, segs=8, stiff=0.6,
-                  rings=[(0.02, "ribbon"), (0.3, "pin"), (0.55, "ribbon"), (0.8, "pin")])
-    elif style == "flowing":
-        loop = H + Mh @ vec(-1.0, 0.0, 8.4)
-        S.append(ellipsoid(loop, Mh, (1.5, 1.35, 2.9), "hair", part="knot", paint=_strands(6), frame=(loop, Mh)))
-        S.append(ellipsoid(loop + Mh @ vec(0.1, 0, -2.2), Mh, (1.6, 1.5, 0.65), "ribbon", part="ribbon"))
-        S.append(cone(loop + Mh @ vec(0.4, -2.6, -0.8), loop + Mh @ vec(0.4, 2.5, -0.8), 0.45, 0.4, "pin", part="pin"))
-        # the fall: a wide flat sheet of hair from the back of the head to the waist
-        S += tail(sk, H + Mh @ vec(-4.4, 0, 1.0), back * 0.3 - up, 18.0, 3.4, 2.3, segs=8, stiff=0.55, k=0.42,
-                  part="fall")
+    S = cap(sk, bool(spec.get("fringe")))
+    at = {"head": sk.head}
+    for kind, p in spec["pieces"]:
+        o = at[p.get("from", "head")]
+        if kind in ("knot", "lump"):
+            c = o + Mh @ vec(*p["at"])
+            if kind == "knot":
+                S.append(ellipsoid(c, Mh, p["radii"], "hair", part=p.get("part", "knot"), paint=_strands(p["strands"]),
+                                   frame=(c, Mh)))
+            else:
+                S.append(ellipsoid(c, Mh, p["radii"], "hair", part=p.get("part", "tie")))
+            at[p["id"]] = c
+        elif kind == "ribbon":
+            S.append(ellipsoid(o + Mh @ vec(*p["at"]), Mh, p["radii"], "ribbon", part="ribbon"))
+        elif kind == "pin":
+            S.append(cone(o + Mh @ vec(*p["a"]), o + Mh @ vec(*p["b"]), p["r"][0], p["r"][1], "pin", part="pin"))
+        elif kind == "tail":
+            kw = {k: p[k] for k in ("rings", "k", "part") if k in p}
+            S += tail(sk, o + Mh @ vec(*p["at"]), back * p["dir"][0] + up * p["dir"][1], p["length"], p["r"][0], p["r"][1],
+                      segs=p["segs"], stiff=p["stiff"], **kw)
+        else:
+            raise ValueError("hair piece " + kind)
     return S

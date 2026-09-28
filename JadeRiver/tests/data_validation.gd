@@ -1790,6 +1790,7 @@ func topdown_character_suite() -> void:
 		for name in want[cat]:
 			if not (man.items.get(cat, {}) as Dictionary).has(str(name)): lacking.append("%s:%s" % [cat, name])
 	check(lacking.is_empty(), "topdown character: the creator's looks, the starting clothes and the early weapons are drawn (%s)" % str(lacking))
+	topdown_coverage(man)
 	# The gate refuses what AGENTS.md forbids (a copy of the manifest broken one way at a time).
 	var cases := {
 		"missing-facing": func(m): (m.actions.walk.start as Dictionary).erase("ne"),
@@ -1803,6 +1804,7 @@ func topdown_character_suite() -> void:
 		"repeated-combo": func(m): _copy_action(m, "swing_1", "swing_2"),
 		"looping-combo": func(m): m.actions.thrust_3.loop = true,
 		"bad-redirect": func(m): m.actions.meditate.redirect.erase("w"),
+		"stale-set": func(m): m.stale_sets = ["hair"],
 	}
 	var accepted: Array = []
 	for k in cases:
@@ -1828,10 +1830,61 @@ func _copy_action(m: Dictionary, from: String, to: String) -> void:
 					for k in int(m.actions[to].frames) * 6: r[b + k] = r[a + mini(k, int(m.actions[from].frames) * 6 - 1)]
 				sec.rects = r
 
+## Decision 37, the full set: every look the game's data can put on a character has its top-down layers (the creator's
+## options, every wearable item in data/artifacts.json, every NPC's outfit, every weapon family's looks), and every
+## action a family's combo or a technique plays is drawn, not a stand-in (the index's `stand_ins`). Until the index's
+## `full_set` is on, what is missing must be listed in its `pending` (tools/art/topdown/figure/sets/__init__.py), so a
+## new look without layers still fails; once it is on, nothing may be missing.
+func topdown_coverage(man: Dictionary) -> void:
+	var wardrobe := {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
+	var want := {}   # "cat:look" -> the game items, NPCs and families that wear it
+	var add := func(cat: String, look: String, who: String) -> void:
+		if look == "" or look == "none": return
+		var k := "%s:%s" % [cat, look]
+		if not want.has(k): want[k] = []
+		(want[k] as Array).append(who)
+	var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
+	for n in ContentDB.parts.get("body", {}): add.call("body", str(n), "creator")
+	for pair in [["hair", "hair"], ["shirt", "robe"], ["pants", "trousers"], ["shoes", "shoes"]]:
+		for look in rules.get(pair[1], []): add.call(pair[0], str(look), "creator")
+	for a in ContentDB.all("artifacts"):
+		var cat := str(wardrobe.get(str(a.get("slot", "")), ""))
+		if cat != "": add.call(cat, str(a.get("appearance", "none")), str(a.id))
+	for n in ContentDB.all("npcs"):
+		var o: Dictionary = n.get("outfit", {})
+		for cat in TopdownFigure.CATEGORIES: add.call(cat, str(o.get(cat, "none")), "npc " + str(n.id))
+	for f in ContentDB.all("weapon_families"):
+		for look in f.get("appearance", []): add.call("weapon", str(look), "family " + str(f.id))
+	var missing: Array = []
+	var items := 0
+	for k in want:
+		var p: PackedStringArray = str(k).split(":")
+		if (man.items.get(p[0], {}) as Dictionary).has(p[1]): continue
+		missing.append(k)
+		items += (want[k] as Array).filter(func(w): return not (str(w).begins_with("npc ") or str(w).begins_with("family ") or w == "creator")).size()
+	var stand: Array = man.get("stand_ins", [])
+	var plays := {}
+	for f in ContentDB.all("weapon_families"):
+		for step in f.get("combo", []): plays[str(step.action)] = true
+	for t in ContentDB.all("techniques"):
+		if t.get("action") != null and str(t.action) != "": plays[str(t.action)] = true
+	for a in plays:
+		if stand.has(a): missing.append("action:" + str(a))
+	missing.sort()
+	var pending: Array = man.get("pending", [])
+	var unlisted := missing.filter(func(m): return not pending.has(m))
+	print("topdown character coverage: %d of %d looks and actions drawn; missing %s (%d game items)" % [want.size() + plays.size() - missing.size(), want.size() + plays.size(), str(missing), items])
+	if bool(man.get("full_set", false)):
+		check(missing.is_empty() and pending.is_empty(), "topdown character: the full set is drawn: every look and action the game's data can put on a character (missing %s)" % str(missing))
+	else:
+		check(unlisted.is_empty(), "topdown character: every look and action without top-down layers is pending in a listed batch (%d of %d looks and actions missing, %d game items; unlisted %s; missing %s)"
+			% [missing.size(), want.size() + plays.size(), items, str(unlisted), str(missing)])
+
 ## Every way a top-down character manifest breaks the layer contract (empty when it holds). `sheets` also opens every
 ## sheet and checks each rect lies inside it.
 func topdown_figure_problems(man: Dictionary, sheets: bool) -> Array:
 	var out: Array = []
+	for s in man.get("stale_sets", []): out.append("stale set %s (built for another action catalogue: build it again)" % s)
 	var dirs: Array = man.get("dirs", [])
 	var all_rows: Array = dirs + (man.get("mirror", {}) as Dictionary).keys()
 	var n := int(man.get("frames", 0))

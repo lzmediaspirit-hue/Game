@@ -3,7 +3,7 @@ extends Node
 ## game's own compositor (TopdownFigure) over the starting outfit, one sheet per item and dye or hair colour: rows are
 ## the actions, column groups the eight facings (NW, W and SW mirrored), a red bar under each strike's hit frame.
 ## Numerical checks cannot certify alignment: look at the sheets. Needs a renderer:
-##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tests/topdown_figure_gallery.tscn -- [--out=DIR] [--only=cat]
+##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tests/topdown_figure_gallery.tscn -- [--out=DIR] [--only=cat|set]
 ## Sheets go to DIR (default user://topdown_gallery/), named <cat>_<item>__<variant>.png.
 
 const CELL := Vector2i(56, 64)
@@ -29,8 +29,8 @@ func _main() -> void:
 	var man := TopdownFigure.manifest()
 	var made := 0
 	for cat in man.items:
-		if only != "" and cat != only: continue
 		for name in man.items[cat]:
+			if only != "" and cat != only and str(man.items[cat][name].get("set", "")) != only: continue
 			for variant in man.items[cat][name].sheets:
 				var o := starting()
 				if cat == "body": o = {"body": "light"}

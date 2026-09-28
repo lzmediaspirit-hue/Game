@@ -8,6 +8,17 @@
   `docs/redesign_top_down_plan.md`, "As built: Phase 3, third part", and `docs/redesign/art_bible.md` §13.
 - **Drawn by `tools/art/topdown/build_character.py`.** It is deterministic and byte-identical twice (`--check`). A
   posed doll is ray-cast at 1 art px and shaded in the side view's ramps with the art bible's outlines.
+- **Drawn in layer sets, for the full set (decision 37).** The sets are `body`, `hair`, each garment slot and each
+  weapon family.
+  - Each set is its looks' specs, cast by one generator per layer kind (`figure/kinds/`).
+  - `--only <set>` builds one set in about ten seconds into its own manifest, `data/topdown/character/<set>.json`,
+    and its own sheets, so agents can draw sets in parallel.
+  - A stale set, built for another action catalogue, is refused.
+  - Each look lists the game items that wear it.
+  - `data_validation`'s coverage gate fails for any look or action that no pending batch lists, and it fails for any
+    missing one once `FULL_SET` is on.
+  - `docs/redesign/phase3/character/HOWTO.md` says how to add a set. Four batches are left, 62 items: the sabre; the
+    fan and brush; the flute and bell; and the bow with its draw and release.
   - The unclothed body comes first; every layer is cast from the same poses over it (`AGENTS.md`).
   - S, SE, E, NE and N are drawn; SW, W and NW mirror. The collar and the weapon hand swap sides in the mirrored
     facings.
@@ -34,8 +45,8 @@
 
   `TopdownWorld.add_villager` stands one anywhere, for the prototype and the reviews.
 - **Tests.**
-  - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing ten
-    broken manifests.
+  - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing
+    eleven broken manifests.
   - `topdown_suite` checks the outfit from the save, dressing again, each state's action and the eight facings; the
     drag moves use the real guard and plunge. A villager wears their own outfit, turns in eight rows, walks, and
     meditates facing the camera.

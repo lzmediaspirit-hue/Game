@@ -83,7 +83,7 @@ class Person extends Node2D:
 
 	func _init(o: Dictionary) -> void:
 		var n := ContentDB.entry("npcs", str(o.get("npc", "")))
-		figure = TopdownFigure.for_npc(str(o.get("npc", "")))
+		figure = TopdownFigure.for_npc(str(o.get("npc", "")), true)
 		rest = str(o.get("row", "se" if int(o.get("facing", n.get("facing", -1))) > 0 else "sw"))
 		row = rest
 		stand = TopdownFigure.resolve(str(o.get("pose", n.get("pose", "idle"))))

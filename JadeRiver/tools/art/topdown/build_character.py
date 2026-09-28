@@ -1,23 +1,30 @@
-"""Top-down redesign, Phase 3 (decision 32): build the real character for the top-down view.
+"""Top-down redesign, Phase 3 (decision 32; decision 37 asks for the full set): build the real character for the
+top-down view.
 
-The side-view character (data/parts.json: the body, the creator's hair styles, the starting clothes, the gauntlets and
-the early weapons, with every dye and hair colour) redrawn for the 3/4 view by tools/art/topdown/figure/: a posed 3D
+The side-view character (data/parts.json: the body, the creator's hair styles, the clothes, hats and capes, and the
+weapon families, with every dye and hair colour) redrawn for the 3/4 view by tools/art/topdown/figure/: a posed 3D
 doll ray-cast at 1 art px per pixel, cel-shaded in the side view's colours and outlined as docs/redesign/art_bible.md §4
 asks. Every layer is cast from the same poses of the unclothed body (AGENTS.md rules 1-4), in S, SE, E, NE and N (the
 west facings mirror), for every action in figure/actions.py.
 
-Writes (nearest neighbour, no metadata, byte-identical on every build):
-  art/topdown/character/<cat>_<item>[__<variant>].png  one sheet per item and dye / hair colour: every frame of every
-                                                       section, trimmed and packed (identical frames share a rect)
-  data/topdown/character.json                          the manifest the game's compositor reads (TopdownFigure):
-                                                       actions, facings, bands, z, and per item and section one rect
-                                                       [x, y, w, h, ox, oy] per frame (offset from the feet), with an
-                                                       explicit hidden entry wherever a section is absent
-With --review it also renders docs/redesign/phase3/character/ (the body sheet, an outfit sheet per facing, the weapon,
-hair and dye sheets and the tutorial villagers).
+The character is drawn in layer sets (figure/sets/: body, hair, shirt, pants, shoes, hat, cape, weapon_<family>), each
+built on its own into its own files, so sets can be drawn in parallel (docs/redesign/phase3/character/HOWTO.md).
 
-Usage: python3 tools/art/topdown/build_character.py [--review] [--check]
+Writes (nearest neighbour, no metadata, byte-identical on every build):
+  data/topdown/character.json            the index every set shares: actions, facings, bands, z order, dyes, hair
+                                         colours, the action catalogue's signature, and the full set's gate
+  data/topdown/character/<set>.json      a set's items: per item and section one rect [x, y, w, h, ox, oy] per frame
+                                         (offset from the feet), an explicit hidden entry wherever a section is
+                                         absent, its sheets, and the game items (data/artifacts.json) that wear it
+  art/topdown/character/<cat>_<item>[__<variant>].png  one sheet per item and dye / hair colour: every frame of every
+                                         section, trimmed and packed (identical frames share a rect)
+The game's compositor (TopdownFigure) reads the index and every set built for its catalogue.
+With --review it also renders docs/redesign/phase3/character/ (review_character.py) from what is on disk.
+
+Usage: python3 tools/art/topdown/build_character.py [--only <set>[,<set>...]] [--review] [--check] [--list]
+  --only   builds only those sets (the body is always cast, for the other layers' outlines, but only written with it)
   --check  builds twice in memory and fails unless both builds are byte-identical
+  --list   lists the sets, their items, and what is still pending
 """
 from __future__ import annotations
 
@@ -38,13 +45,14 @@ from PIL import Image  # noqa: E402
 from figure import actions as A  # noqa: E402
 from figure import items as I  # noqa: E402
 from figure import palettes as P  # noqa: E402
-from figure import raster  # noqa: E402
+from figure import raster, sets  # noqa: E402
 from figure.frame import cast_all  # noqa: E402
 from figure.geom import DIRS, MIRROR  # noqa: E402
-from figure.render import BANDS  # noqa: E402
+from figure.render import BANDS, colourize  # noqa: E402
 
 ART_DIR = "art/topdown/character"
 MANIFEST = "data/topdown/character.json"
+SET_DIR = "data/topdown/character"
 SHEET_W = 512
 REASON = {
     "back": "Nothing of this layer is behind the chest in this action and facing",
@@ -52,10 +60,12 @@ REASON = {
     "mid": "This layer shows only in its back or front section in this action and facing",
     "head": "The head is drawn in this section in every frame",
 }
+# The game's equipment slots and the parts.json category each slot's look is (InventoryAuthority.WARDROBE_CATEGORY).
+WARDROBE = {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
 
 
 def frame_list() -> list:
-    """Every drawn frame in catalog order: (action, facing, index)."""
+    """Every drawn frame in catalogue order: (action, facing, index)."""
     out = []
     for name, spec in A.CATALOG.items():
         n, lock = spec[0], spec[6]
@@ -80,7 +90,6 @@ def _colour(piece, mats, palette, line_tone) -> np.ndarray:
     _, _, mat, tone, out, out_mat = piece
     L = raster.Layer.__new__(raster.Layer)
     L.mat, L.tone, L.out, L.out_mat = mat, tone, out, out_mat
-    from figure.render import colourize
     return colourize(L, mats, palette, line_tone)
 
 
@@ -104,6 +113,10 @@ def png_bytes(img: Image.Image) -> bytes:
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=False)
     return buf.getvalue()
+
+
+def _dumps(d: dict) -> bytes:
+    return (json.dumps(d, sort_keys=True, separators=(",", ":")) + "\n").encode()
 
 
 def cast_everything(items: list) -> tuple:
@@ -132,16 +145,63 @@ def cast_everything(items: list) -> tuple:
     return frames, per, uniq
 
 
-def build_all() -> dict:
-    items = I.catalog()
-    frames, per, uniq = cast_everything(items)
-    outputs = {}
+def index(frames: list) -> dict:
+    """The index every set shares. `catalog` signs the action catalogue and the frame layout: a set built for another
+    one is stale, and the game and the tests refuse it until it is built again."""
     starts = {}
     for idx, (name, d, i) in enumerate(frames):
         if i == 0:
             starts.setdefault(name, {})[d] = idx
-    man_items: dict = {}
+    actions = {}
+    for name, (n, fps, loop, hit, label, _fn, lock) in A.CATALOG.items():
+        entry = {"frames": n, "fps": fps, "loop": loop, "hit": -1 if hit is None else hit, "label": label,
+                 "start": starts[name]}
+        if lock:
+            entry["facing"] = lock
+            entry["redirect"] = {d: lock for d in DIRS + list(MIRROR) if d != lock}
+        actions[name] = entry
+    man = {
+        "schema_version": 2,
+        "note": "Top-down character (decision 32), built by tools/art/topdown/build_character.py; do not edit by hand. "
+                "The items are in the sets, " + SET_DIR + "/<set>.json.",
+        "canvas": [raster.W, raster.H], "anchor": [raster.AX, raster.AY],
+        "dirs": DIRS, "mirror": MIRROR, "frames": len(frames),
+        "bands": list(BANDS), "order": I.ORDER,
+        "actions": actions, "action_order": list(A.CATALOG), "aliases": A.ALIASES, "stand_ins": A.STAND_INS,
+        "dyes": ["none"] + P.dye_names(), "hair_colors": P.HAIR_NAMES,
+        "sets_dir": "res://" + SET_DIR + "/",
+        "full_set": sets.FULL_SET, "pending": sets.pending(),
+    }
+    man["catalog"] = hashlib.sha1(_dumps({k: man[k] for k in ("canvas", "anchor", "dirs", "mirror", "frames", "bands",
+                                                              "actions")})).hexdigest()[:16]
+    return man
+
+
+def artifacts() -> dict:
+    """{(category, look): [the game items (data/artifacts.json) that wear it]}."""
+    data = json.loads((ROOT / "data/artifacts.json").read_text())["entries"]
+    out: dict = {}
+    for a in (data.values() if isinstance(data, dict) else data):
+        cat = WARDROBE.get(str(a.get("slot", "")))
+        look = str(a.get("appearance", "none"))
+        if cat and look != "none":
+            out.setdefault((cat, look), []).append(str(a["id"]))
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def build_all(kinds: list | None = None) -> dict:
+    """Every output of the sets named (all when None), as bytes keyed by path, with the index."""
+    found = sets.discover()
+    kinds = list(found) if kinds is None else kinds
+    items = I.catalog(sorted(set(kinds) | {"body"}))
+    frames, per, uniq = cast_everything(items)
+    man = index(frames)
+    worn = artifacts()
+    outputs = {MANIFEST: _dumps(man)}
+    by_set: dict = {k: {} for k in kinds}
     for it in items:
+        if it.kind not in by_set:
+            continue
         pieces = uniq[it.key]
         pos, height = _pack(pieces)
         sheets = {}
@@ -171,35 +231,24 @@ def build_all() -> dict:
                     rects += [x, y, ww, hh, ox, oy]
             hidden = {}
             for name, spec in A.CATALOG.items():
-                for d, st in starts[name].items():
+                for d, st in man["actions"][name]["start"].items():
                     if all(seq[st + j] is None for j in range(spec[0])):
                         hidden["%s/%s" % (name, d)] = REASON[b]
             sections.append({"band": b, "z": I.z_of(it.cat, b), "rects": rects, "hidden": hidden})
-        man_items.setdefault(it.cat, {})[it.name] = {"label": it.label, "sheets": sheets, "sections": sections}
-    actions = {}
-    for name, (n, fps, loop, hit, label, _fn, lock) in A.CATALOG.items():
-        entry = {"frames": n, "fps": fps, "loop": loop, "hit": -1 if hit is None else hit, "label": label,
-                 "start": starts[name]}
-        if lock:
-            entry["facing"] = lock
-            entry["redirect"] = {d: lock for d in DIRS + list(MIRROR) if d != lock}
-        actions[name] = entry
-    manifest = {
-        "schema_version": 1,
-        "note": "Top-down character (decision 32), built by tools/art/topdown/build_character.py; do not edit by hand.",
-        "canvas": [raster.W, raster.H], "anchor": [raster.AX, raster.AY],
-        "dirs": DIRS, "mirror": MIRROR, "frames": len(frames),
-        "bands": list(BANDS), "order": I.ORDER,
-        "actions": actions, "action_order": list(A.CATALOG), "aliases": A.ALIASES,
-        "dyes": ["none"] + P.dye_names(), "hair_colors": P.HAIR_NAMES,
-        "items": man_items,
-    }
-    outputs[MANIFEST] = (json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        by_set[it.kind].setdefault(it.cat, {})[it.name] = {"label": it.label, "sheets": sheets, "sections": sections,
+                                                           "artifacts": worn.get((it.cat, it.name), [])}
+    for kind, cats in by_set.items():
+        outputs["%s/%s.json" % (SET_DIR, kind)] = _dumps({
+            "schema_version": 1, "set": kind, "catalog": man["catalog"],
+            "note": "A layer set of the top-down character (tools/art/topdown/figure/sets/%s.py), built by "
+                    "tools/art/topdown/build_character.py --only %s; do not edit by hand." % (kind, kind),
+            "items": cats})
     return outputs
 
 
 def check_sources() -> list:
-    """The side view is the source of truth: the hair colours and dyes must match data/parts.json."""
+    """The side view is the source of truth: the hair colours, dyes and looks must match data/parts.json, and a weapon
+    family's set must draw exactly the looks weapon_families.json gives that family."""
     parts = json.loads((ROOT / "data/parts.json").read_text())
     bad = []
     names = [c["name"] for c in parts["_colors"]["hair"]]
@@ -207,32 +256,62 @@ def check_sources() -> list:
         bad.append("hair colours differ from parts.json: %s" % names)
     if parts["_dyes"]["order"] != ["none"] + P.dye_names():
         bad.append("dyes differ from parts.json: %s" % parts["_dyes"]["order"])
+    fams = json.loads((ROOT / "data/weapon_families.json").read_text())["entries"]
+    fams = {str(f["id"]): f for f in (fams.values() if isinstance(fams, dict) else fams)}
+    seen: dict = {}
+    for kind, mod in sets.discover().items():
+        its = mod.items(I.labels())
+        for it in its:
+            if it.name not in parts.get(it.cat, {}):
+                bad.append("%s draws %s:%s, which parts.json does not have" % (kind, it.cat, it.name))
+            if it.key in seen:
+                bad.append("%s and %s both draw %s" % (seen[it.key], kind, it.key))
+            seen[it.key] = kind
+        fam = getattr(mod, "FAMILY", None)
+        if fam is not None:
+            want = sorted(x for x in fams.get(fam, {}).get("appearance", []) if x != "none")
+            if sorted(it.name for it in its) != want:
+                bad.append("%s draws %s; weapon family %s wears %s" % (kind, sorted(it.name for it in its), fam, want))
     return bad
 
 
+def list_sets() -> None:
+    found = sets.discover()
+    labels = I.labels()
+    for kind, mod in found.items():
+        print("%-20s %s" % (kind, ", ".join("%s:%s" % (it.cat, it.name) for it in mod.items(labels))))
+    print("pending (full set %s):" % ("on" if sets.FULL_SET else "off"))
+    for batch, what in sets.PENDING.items():
+        print("  %-18s %s" % (batch, ", ".join(what)))
+
+
 def main(argv: list) -> int:
+    if "--list" in argv:
+        list_sets()
+        return 0
     bad = check_sources()
     for b in bad:
         print("SOURCE MISMATCH:", b)
     if bad:
         return 1
-    outputs = build_all()
+    found = sets.discover()
+    kinds = None
+    for a in argv:
+        if a.startswith("--only"):
+            v = a.split("=", 1)[1] if "=" in a else argv[argv.index(a) + 1]
+            kinds = [k for k in v.split(",") if k]
+            unknown = [k for k in kinds if k not in found]
+            if unknown:
+                print("no such set: %s (sets: %s)" % (", ".join(unknown), ", ".join(found)))
+                return 1
+    outputs = build_all(kinds)
     if "--check" in argv:
-        again = build_all()
+        again = build_all(kinds)
         diff = [p for p in outputs if outputs[p] != again.get(p)]
         for p in diff:
             print("NOT deterministic:", p)
         if diff:
             return 1
-    out_dir = ROOT / ART_DIR
-    out_dir.mkdir(parents=True, exist_ok=True)
-    keep = {Path(p).name for p in outputs if p.startswith(ART_DIR)}
-    for old in out_dir.glob("*.png"):
-        if old.name not in keep:
-            old.unlink()
-            imp = old.with_suffix(".png.import")
-            if imp.exists():
-                imp.unlink()
     total = 0
     for path, data in sorted(outputs.items()):
         out = ROOT / path
@@ -240,11 +319,32 @@ def main(argv: list) -> int:
         if not out.exists() or out.read_bytes() != data:
             out.write_bytes(data)
         total += len(data)
-    print("%d files, %d bytes; manifest sha1 %s" % (len(outputs), total, hashlib.sha1(outputs[MANIFEST]).hexdigest()[:12]))
+    _clean(found if kinds is None else None)
+    print("%d files, %d bytes; index sha1 %s" % (len(outputs), total, hashlib.sha1(outputs[MANIFEST]).hexdigest()[:12]))
     if "--review" in argv:
         import review_character
-        review_character.review(outputs)
+        review_character.review(review_character.load_built())
     return 0
+
+
+def _clean(found: dict | None) -> None:
+    """Remove what no set on disk draws any more: a sheet no set names; on a full build, a set that is gone."""
+    set_dir = ROOT / SET_DIR
+    if found is not None:
+        for f in set_dir.glob("*.json"):
+            if f.stem not in found:
+                f.unlink()
+    named = set()
+    for f in set_dir.glob("*.json"):
+        for cat in json.loads(f.read_text())["items"].values():
+            for it in cat.values():
+                named.update(Path(p).name for p in it["sheets"].values())
+    for old in (ROOT / ART_DIR).glob("*.png"):
+        if old.name not in named:
+            old.unlink()
+            imp = old.with_suffix(".png.import")
+            if imp.exists():
+                imp.unlink()
 
 
 if __name__ == "__main__":

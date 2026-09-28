@@ -77,6 +77,9 @@ HILT = ramp("1d131e", "2b1c1d", "411e05", "62351c", "7d4a2a")
 SHAFT = ramp("62351c", "a08462", "cdbfa2", "e8f2dc", "f6faf0")
 STEEL = ramp("1c1e24", "4e545e", "808892", "bac0c6", "eceef0")
 BRONZE = ramp("4a2a14", "784826", "b0703a", "dea85c", "f2cf8e")
+EDGE = [BLADE[1], BLADE[2], BLADE[3], BLADE[4], BLADE[4]]                 # a blade's pale edge
+CORD = ramp("2b1c1d", "411e05", "62351c", "7d4a2a", "9a6440")             # the spear's cord winding
+SMEAR = ramp("5ba69b", "8fd0bf", "b6e6d6", "d6f5e6", "f2fff8")            # a cut's smear: pale jade light (the water's ramp)
 
 # Which materials a dye recolours, per garment category (the side view dyes shirts and trousers, parts.json _dyes):
 # `cloth` takes the dye's ramp, `panel` a step lighter and `edge` a step darker, as the side view's luminance bake maps

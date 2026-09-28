@@ -4,7 +4,7 @@ so they show what ships.
 
   01_body.png              the unclothed body: every action (rows) in S, SE, E, NE, N (column groups)
   02_outfit_<facing>.png   the starting outfit per facing: every action, each combo row with its weapon family
-  03_weapon_<name>.png     each weapon (gauntlets, short blade, jian, spear) in every action and facing
+  03_weapon_<name>.png     each weapon drawn (every weapon set's items) in every action and facing
   04_hair.png              the six styles in the six colours, in the five facings
   05_dyes.png              the starting tunic and trousers in every dye, S, E and N
   06_villagers.png         the tutorial's villagers in their own outfits, S and E (missing layers listed)
@@ -22,6 +22,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "docs/redesign/phase3/character"
 MANIFEST = "data/topdown/character.json"
+SET_DIR = "data/topdown/character/"
 BG = (72, 92, 84, 255)
 CELL = (56, 64)          # a frame's crop round the feet: 56 wide, 64 tall
 FEET = (28, 54)          # the feet in that crop
@@ -42,6 +43,14 @@ class Figures:
 
     def __init__(self, outputs: dict):
         self.man = json.loads(outputs[MANIFEST])
+        # the items of every set built for this index's action catalogue (TopdownFigure.manifest does the same)
+        self.man["items"] = {}
+        for p in sorted(outputs):
+            if p.startswith(SET_DIR) and p.endswith(".json"):
+                s = json.loads(outputs[p])
+                if s["catalog"] == self.man["catalog"]:
+                    for cat, its in s["items"].items():
+                        self.man["items"].setdefault(cat, {}).update(its)
         self.sheets = {}
         for p, data in outputs.items():
             if p.endswith(".png"):
@@ -99,8 +108,10 @@ class Figures:
 
 
 def load_built() -> dict:
-    """The built manifest and sheets as build_character.build_all returns them, read back from disk."""
+    """The built index, sets and sheets as build_character.build_all returns them, read back from disk."""
     out = {MANIFEST: (ROOT / MANIFEST).read_bytes()}
+    for p in sorted((ROOT / SET_DIR).glob("*.json")):
+        out[SET_DIR + p.name] = p.read_bytes()
     for p in sorted((ROOT / "art/topdown/character").glob("*.png")):
         out["art/topdown/character/" + p.name] = p.read_bytes()
     return out
@@ -164,7 +175,7 @@ def review(outputs: dict) -> None:
         rows = [("%s (%s)" % (a, _weapon_for(a)), starting(weapon=_weapon_for(a)), a) for a in acts]
         _grid(F, rows, [dr], 3, "Starting outfit, facing %s: topknot, disciple tunic, silk trousers, cloth shoes; "
               "fists and gauntlets punch, the jian swings, the spear thrusts" % dr.upper(), label_w=190).save(OUT / ("02_outfit_%s.png" % dr))
-    for w in ("gauntlets", "dagger", "sword", "spear"):
+    for w in sorted(F.man["items"].get("weapon", {})):
         rows = [(a, starting(weapon=w), a) for a in acts]
         _grid(F, rows, dirs, 2, "Weapon: %s, every action and facing" % F.man["items"]["weapon"][w]["label"]).save(OUT / ("03_weapon_%s.png" % w))
     _hair(F)

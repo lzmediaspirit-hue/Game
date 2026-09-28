@@ -341,6 +341,8 @@ The body in the top-down world is the game's own character, redrawn for this vie
   from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
 - **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
   The redesign plan's "As built: Phase 3, third part" has the full pipeline.
+- **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
+  `docs/redesign/phase3/character/HOWTO.md` says how to add one.
 
 | Rule | Value |
 |---|---|

@@ -726,8 +726,8 @@ view's big-headed build, faces, hair styles, clothes, colours, dyes and weapons,
 the names, dyes and hair colours in `data/parts.json`, and the outfit in the save. It replaces the placeholder body.
 The villagers are drawn the same way.
 
-**How it is drawn.** The build is `python3 tools/art/topdown/build_character.py [--check] [--review]`. It is
-deterministic, and `--check` builds twice and compares every byte.
+**How it is drawn.** The build is `python3 tools/art/topdown/build_character.py [--only <set>] [--check] [--review]
+[--list]`. It is deterministic, and `--check` builds twice and compares every byte.
 
 - **A posed doll.** `tools/art/topdown/figure/` holds a small 3D doll:
   - a skeleton posed per frame in the figure's own frame (forward, right, up), with two-bone IK for the arms and legs;
@@ -817,6 +817,34 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
 - Dyes and hair colours are baked sheets, as in the side view. All the variants of an item share one rect table.
 - There are 162 sheets, about 7 MB. A figure in the starting outfit loads about 3 MB of textures.
 
+**Layer sets (decision 37: the full set, drawn by agents in parallel).** The character is drawn in layer sets, each
+built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` says how to add one.
+
+- **A set** (`tools/art/topdown/figure/sets/<set>.py`) holds its looks as specs (a few numbers each) and colours:
+  `body`, `hair`, `shirt`, `pants`, `shoes`, `hat`, `cape`, and one per weapon family (`weapon_gauntlets`,
+  `weapon_short_blade`, `weapon_jian`, `weapon_spear`, `weapon_staff`).
+- **A generator per layer kind** (`figure/kinds/`) casts a spec: `torso`, `legs`, `feet`, `head`, `back`, `hands`,
+  `hair`, `blade` and `pole`. A family with a shape of its own gets its own generator.
+- **The files.**
+  - `--only <set>` builds one set in about ten seconds. It writes that set's manifest,
+    `data/topdown/character/<set>.json`, and its sheets.
+  - It also writes the index, `data/topdown/character.json`: the actions, facings, bands, dyes and hair colours, and
+    a `catalog` signature of the action catalogue. Every set's build writes the same bytes there.
+  - `TopdownFigure.manifest()` merges every set built for the index's catalogue. A stale set, built for another
+    catalogue, is left out, and the contract names it. A new action therefore rebuilds every set, in a batch of its own.
+- **Coverage.** Each item lists the game items that wear its look (`artifacts`), a manifest of which item ids have
+  top-down layers. `data_validation` computes what the game's data can put on a character:
+  - the creator's options;
+  - every wearable in `data/artifacts.json`;
+  - every NPC's outfit;
+  - every weapon family's looks;
+  - every action a family's combo or a technique plays, where a stand-in alias (`stand_ins`) counts as missing.
+
+  Until `FULL_SET` is on (`figure/sets/__init__.py`), what is missing must be listed in `PENDING`. After that nothing
+  may be missing. It prints the coverage on every run: 45 of 52 looks and actions today.
+- **Villagers load their sheets on threads** (`TopdownFigure.wearing(o, true)`). A room full of new outfits enters
+  without a hitch, and each villager appears once all its sheets are in.
+
 **In the game.**
 
 - `TopdownFigure` (`scripts/topdown/topdown_figure.gd`) composites the sections by z. For each section and frame it
@@ -844,12 +872,15 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
 
 **What still needs top-down layers.** All nine villagers of the tutorial (Lotus Ferry) are fully drawn: aunt_ping,
 lu_boatman, little_dou, old_ma, granny_liu, shen_lian_npc, uncle_guo, fisher_wen and washer_mei. So are 124 of the
-125 NPCs. What is left:
+125 NPCs, every creator option, and every garment, hat and cape look in the game's items. What is left is four
+independent batches (HOWTO.md), 62 game items in all:
 
-- **The bow.** qiu_feng carries one, and so does the player's bow family. The bow's draw and release poses are also
-  still aliased to the cast.
-- **The later weapon families:** heavy sabre, fan, flute, brush and bell. Only the player carries these, and no NPC
-  does.
+- **heavy_sabre:** the sabre, 10 items.
+- **fan_and_brush:** the fan and the brush, 21 items.
+- **flute_and_bell:** the flute and the bell, 21 items.
+- **bow:** the bow, 10 items, and qiu_feng's. The bow's draw and release poses are still a stand-in alias to the
+  cast, played by the bow family and 253 techniques. This batch changes the action catalogue, so it runs first or
+  last and rebuilds every set.
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
@@ -867,7 +898,8 @@ A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure d
   - the creator's looks and the early drops are drawn;
   - the hats and capes are held to the same contract.
 
-  Like `animation_contract_tests.ps1`, it then shows the gate refusing ten broken manifests.
+  Like `animation_contract_tests.ps1`, it then shows the gate refusing eleven broken manifests, a stale set among
+  them. `topdown_coverage` is the full set's gate (above).
 - **`topdown_suite` `_figure`:**
   - the figure wears the save's outfit, and dresses again when the jian is equipped;
   - each state plays its action: idle, walk, the blow's own pose with its hit frame, the cast, the back-step, the
