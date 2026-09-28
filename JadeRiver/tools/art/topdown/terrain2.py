@@ -128,31 +128,62 @@ def faces_nw(off: tuple) -> float:
 
 
 # ============================================================================================================ grass
+# Grass tufts, drawn from their root up: 'H' a bright tip (6), 'h' a lit tip (5), 'd' the blade in its own shade (3),
+# 'D' its foot (2), 's' the shadow at its root (1), '.' leaves the ground. Rows top to bottom; the root is the bottom row's middle.
+TUFTS = [
+    ["h.h", "dhd", "DsD"],
+    [".h.", "hdh", "d.d", "DsD"],
+    ["h...h", "d.h.d", "DdhdD", ".DsD."],
+    [".h..", "hd.h", "d.hd", "DssD"],
+    ["h", "d", "s"],
+    ["..h.h..", "h.d.d.h", "dhd.dhd", "Dd.s.dD", ".Ds.sD."],
+    [".H.", "hdh", "dsd"],
+    [".h.h.", "hdhdh", "ddhdd", "DdsdD", ".DsD."],
+]
+
+
+def stamp_tuft(img: Img, x: int, y: int, shape: int, ramp=GRASS2, wrap: int = 0, bright: bool = False) -> None:
+    """A tuft with its root at (x, y); `wrap` > 0 wraps coordinates (a periodic pattern)."""
+    rows = TUFTS[shape]
+    h, w = len(rows), len(rows[0])
+    for j, row in enumerate(rows):
+        for i, ch in enumerate(row):
+            if ch == ".":
+                continue
+            k = {"H": 6, "h": 5, "d": 3, "D": 2, "s": 1}[ch]
+            if bright and ch == "h":
+                k = 6 if (i + j) % 3 == 0 else 5
+            X, Y = x - w // 2 + i, y - (h - 1) + j
+            if wrap:
+                X, Y = X % wrap, Y % wrap
+            img.put(X, Y, ramp[k])
+
+
 def grass_macro(seed: int = 101, ramp=GRASS2) -> Img:
-    """The meadow's base, 64 x 64 and periodic: an even sunlit green under dense blade strokes, a lit tip over a
-    shaded root, as singles, Vs, tufts of three and leaning blades. It is deliberately even: clumps, flowers and the
+    """The meadow's base, 64 x 64 and periodic: a clean, saturated sunlit green (step 4) under crisp tufts of blades,
+    about eight to a tile, each a few lit tips over blades in their own shade and a dark root (TUFTS), with a scatter
+    of single blades between them. No blob larger than a tuft, so the period never shows; clumps, flowers and the
     light's large patches are the decals and tones laid over it."""
     img = Img(P, P, ramp[4])
     for gy in range(P // 4):
         for gx in range(P // 4):
+            if h01(gx, gy, seed + 1) < 0.55:
+                continue
+            x = gx * 4 + int(h01(gx, gy, seed + 2) * 4)
+            y = gy * 4 + int(h01(gx, gy, seed + 3) * 4)
+            img.put(x % P, y % P, ramp[5])
+            img.put(x % P, (y + 1) % P, ramp[3])
+    for gy in range(P // 8):
+        for gx in range(P // 8):
             for b in range(2):
-                s = seed + 11 * b
-                if h01(gx, gy, s + 5) < 0.2:
+                s = seed + 13 * b
+                if b and h01(gx, gy, s + 4) < 0.35:
                     continue
-                x = gx * 4 + int(h01(gx, gy, s + 6) * 4)
-                y = gy * 4 + int(h01(gx, gy, s + 7) * 4)
-                shape = int(h01(gx, gy, s + 8) * 4)
-                tip = 5 if h01(gx, gy, s + 9) > 0.12 else 6
-                if shape == 0:
-                    pts = [((0, 0), tip), ((0, 1), 3)]
-                elif shape == 1:
-                    pts = [((0, 0), tip), ((2, 0), tip), ((1, 1), 3)]
-                elif shape == 2:
-                    pts = [((1, -1), tip), ((0, 0), 5), ((2, 0), 5), ((1, 1), 3), ((2, 1), 3)]
-                else:
-                    pts = [((1, 0), tip), ((0, 1), 4), ((1, 1), 3)]
-                for (dx, dy), c in pts:
-                    img.put((x + dx) % P, (y + dy) % P, ramp[c])
+                x = gx * 8 + int(h01(gx, gy, s + 5) * 8)
+                y = gy * 8 + int(h01(gx, gy, s + 6) * 8)
+                r = h01(gx, gy, s + 7)
+                shape = 0 if r < 0.16 else 1 if r < 0.32 else 2 if r < 0.48 else 3 if r < 0.62 else 7 if r < 0.76 else 5 if r < 0.88 else 6
+                stamp_tuft(img, x, y, shape, ramp, P)
     return img
 
 
@@ -306,40 +337,25 @@ def _blob(t: Img, cx: float, cy: float, rx: float, ry: float, seed: int, fill, r
 
 
 def d_clump(seed: int, ramp=GRASS2) -> Img:
-    """A mound of lush grass, 8-13 px across: its sunlit crown a step lighter with bright blade tips, its south side a
-    step darker, blades poking up along its top and hanging along its foot, and its shadow on the lawn to the SE."""
+    """A clump of lush grass about a tile across: five to eight tufts crowded together (their blades in their own
+    shade, bright tips catching the sun), rising a little from a darker core, and its shadow on the lawn to the SE."""
     t = Img(T, T)
-    rx, ry = 4.0 + h01(1, 1, seed) * 2.5, 2.6 + h01(1, 2, seed) * 1.6
-    cx, cy = 2 + rx + h01(1, 3, seed) * (11 - 2 * rx), 3 + ry + h01(1, 4, seed) * (9 - 2 * ry)
-    pts = []
-    for j in range(1, T - 2):
-        for i in range(1, T - 1):
-            dx, dy = (i + 0.5 - cx) / rx, (j + 0.5 - cy) / ry
-            ang = math.atan2(dy, dx)
-            if math.hypot(dx, dy) <= 1.0 + 0.3 * (h01(int((ang + 3.2) * 2.5), 0, seed) - 0.5):
-                pts.append((i, j))
-    ps = set(pts)
-    for (i, j) in pts:
-        up = (j + 0.5 - cy) / ry
-        k = 4 if up < -0.1 else 3
-        if (i - 1, j) not in ps or (i, j - 1) not in ps:
-            k = 5
-        elif (i, j + 1) not in ps:
-            k = 2
-        elif (i + 1, j) not in ps:
-            k = 3
-        if k in (3, 4) and h01(i, j, seed + 7) < 0.3:
-            k += 1
-            if (i, j + 1) in ps:
-                t.put(i, j + 1, ramp[k - 2])
-        if t.get(i, j)[3] == 0:
-            t.put(i, j, ramp[k])
-    for (i, j) in pts:
-        if (i, j - 1) not in ps and h01(i, j, seed + 8) < 0.45 and j > 1:
-            t.put(i, j - 1, ramp[5 if h01(i, j, seed + 9) < 0.7 else 6])
-        if (i, j + 1) not in ps and h01(i, j, seed + 10) < 0.4 and j + 1 < T - 1:
-            t.put(i, j + 1, ramp[2])
-    cast_shadow(t, ((1, 1, 100), (0, 1, 80), (1, 0, 45), (2, 1, 40)))
+    rx, ry = 3.5 + h01(1, 1, seed) * 2.0, 2.0 + h01(1, 2, seed) * 1.2
+    cx, cy = 2.5 + rx + h01(1, 3, seed) * (10 - 2 * rx), 4 + ry + h01(1, 4, seed) * (8 - 2 * ry)
+    for j in range(T):
+        for i in range(T):
+            if ((i + 0.5 - cx) / rx) ** 2 + ((j + 0.5 - cy) / ry) ** 2 <= 0.8:
+                t.put(i, j, ramp[3])
+    n = 5 + int(h01(1, 5, seed) * 4)
+    spots = sorted(((cx + (h01(k, 6, seed) - 0.5) * 2 * rx, cy + (h01(k, 7, seed) - 0.3) * 1.6 * ry, k) for k in range(n)),
+                   key=lambda q: q[1])
+    for x, y, k in spots:
+        shape = (0, 1, 2, 3, 6, 5)[int(h01(k, 8, seed) * 6)]
+        rows = TUFTS[shape]
+        x = min(max(int(x), len(rows[0]) // 2 + 1), T - 2 - len(rows[0]) // 2)
+        y = min(max(int(y), len(rows)), T - 3)
+        stamp_tuft(t, x, y, shape, ramp, 0, True)
+    cast_shadow(t, ((1, 1, 100), (0, 1, 84), (1, 0, 40), (2, 1, 44), (1, 2, 36)))
     return t
 
 
@@ -599,7 +615,8 @@ def decals() -> dict:
     ramp_flowers = [[FLOWER[0], FLOWER[0], FLOWER[1]], [FLOWER[1]], [FLOWER[2], FLOWER[0]], [FLOWER[3]], [FLOWER[4], FLOWER[1]],
                     [FLOWER[2], FLOWER[3], FLOWER[0]]]
     return {
-        "grass": [d_clump(10), d_clump(11), d_clump(12), d_clump(13), d_tuft(20), d_tuft(21), d_tuft(22), d_tuft(23),
+        "grass": [d_clump(10), d_clump(11), d_clump(12), d_clump(13), d_clump(15), d_clump(16), d_tuft(20), d_tuft(21),
+                  d_tuft(22), d_tuft(23),
                   d_clover(30), d_clover(31), d_stones(40, 2), d_leaves(50, 2), d_leaves(51, 3),
                   d_flowers(60, [FLOWER[0]], 2), d_flowers(61, [FLOWER[1]], 1), d_petals(70), d_clump(14)],
         "flowers": [d_flowers(80 + k, cols, 3 + k % 2) for k, cols in enumerate(ramp_flowers)],
@@ -657,12 +674,13 @@ PAVE_P = 128   # the paving's pattern is 8 x 8 tiles: its flagstones are too dis
 
 
 def paving_macro(seed: int = 301, ramp=PAVE2) -> Img:
-    """Irregular town flagstones (the scholar-garden 'cracked ice' laying), 128 x 128: polygons 12-24 px across, each
-    with its own tint, a lit north-west bevel, a shaded south-east one, worn rounded corners, a speckle of grain and
-    now and then a crack; the joints a step darker, with moss growing in some of them. (A broken stone's hollow is a
-    decal, so it never repeats with the pattern.)"""
+    """Irregular town flagstones (the scholar-garden 'cracked ice' laying), 128 x 128: warm grey-beige polygons about a
+    tile across (11-22 px), each with its own tone and a faint warmer or cooler cast, a lit north-west rim and a
+    shaded south-east one (worn and rounded at the corners), a little grain, and now and then a crack; the joints
+    crisp and dark, with moss and a blade or two of grass growing in some. (A missing stone is a decal, so it never
+    repeats with the pattern.)"""
     S = PAVE_P
-    vc = cells(seed, 6, 6, S, S, 0.7)
+    vc = cells(seed, 8, 8, S, S, 0.8)
     img = Img(S, S)
     tint = {}
     for y in range(S):
@@ -670,46 +688,45 @@ def paving_macro(seed: int = 301, ramp=PAVE2) -> Img:
             i1, d1, i2, d2, d3, off = vc[y][x]
             if i1 not in tint:
                 r = h01(i1, 0, seed + 3)
-                tint[i1] = (3 if r < 0.1 else 5 if r > 0.72 else 4, h01(i1, 1, seed + 3))
-            base, warm = tint[i1]
+                tint[i1] = (3 if r < 0.07 else 5 if r > 0.74 else 4, h01(i1, 1, seed + 3))
+            base, cast = tint[i1]
             e = d2 - d1
             e3 = d3 - d1
-            if e < 1.0 or e3 < 2.2:
-                f = faces_nw(off)
-                col = ramp[2] if f < -0.3 else mix(ramp[2], ramp[3], 0.5)
+            f = faces_nw(off)
+            if e < 1.0 or e3 < 1.5:
+                col = mix(ramp[1], ramp[2], 0.5) if f > -0.2 else ramp[1]
                 m = fbm(x, y, seed + 7, (16, 8), (0.6, 0.4), S, S)
-                if m > 0.66 and hp(x, y, seed + 8, S, S) < 0.7:
-                    col = MOSS2[3] if hp(x, y, seed + 9, S, S) < 0.6 else MOSS2[4]
+                if m > 0.6 and hp(x, y, seed + 8, S, S) < 0.75:
+                    col = MOSS2[3] if hp(x, y, seed + 9, S, S) < 0.55 else MOSS2[4] if hp(x, y, seed + 10, S, S) < 0.7 else GRASS2[5]
             else:
                 k = base
-                if e < 1.9:
-                    f = faces_nw(off)
-                    # the rim of a stone on the side facing the joint: lit where it faces the north-west sun
-                    k = base + 1 if f < -0.3 else base - 1 if f > 0.3 else base
+                if e < 2.0 or e3 < 3.0:
+                    # the stone's rim facing the joint: lit where it faces the north-west sun, shaded where it turns away
+                    k = base + 1 if f > 0.25 else base - 1 if f < -0.25 else base
                 col = ramp[_clamp(k, 1, 6)]
-                if warm > 0.72:
-                    col = mix(col, SUN, 0.08)
-                elif warm < 0.2:
-                    col = mix(col, SHADOW, 0.06)
+                if cast > 0.8:
+                    col = mix(col, DIRT2[k if k < 6 else 5], 0.14)       # a warmer, sandier stone
+                elif cast < 0.12:
+                    col = mix(col, STONE2[_clamp(k, 1, 6)], 0.2)         # a cooler, bluer stone
                 g = hp(x, y, seed + 11, S, S)
-                if g < 0.04:
+                if g < 0.05:
                     col = ramp[_clamp(k - 1, 1, 6)]
-                elif g > 0.98:
+                elif g > 0.975:
                     col = ramp[_clamp(k + 1, 1, 6)]
             img.put(x, y, col)
     # A crack across a few stones.
-    for n, site in enumerate((5, 23, 38)):
+    for n, site in enumerate((5, 23, 38, 51)):
         pts = [(x, y) for y in range(S) for x in range(S) if vc[y][x][0] == site and vc[y][x][3] - vc[y][x][1] > 2.5]
         if not pts:
             continue
         x, y = pts[len(pts) // 3]
-        for s in range(9):
-            if vc[y % S][x % S][0] != site:
+        for st in range(8):
+            if vc[y % S][x % S][0] != site or vc[y % S][x % S][3] - vc[y % S][x % S][1] < 2.0:
                 break
             img.put(x % S, y % S, ramp[1])
             img.put(x % S, (y + 1) % S, ramp[5])
             x += 1
-            y += 1 if h01(s, n, seed + 14) < 0.4 else 0
+            y += 1 if h01(st, n, seed + 14) < 0.4 else 0
     return img
 
 
@@ -732,7 +749,7 @@ def stone_macro(seed: int = 401, ramp=STONE2) -> Img:
             x += ln
         for b, (bx, ln) in enumerate(bounds):
             r = h01(b, c, seed + 2)
-            base = 5 if r > 0.78 else 4
+            base = 5 if r > 0.8 else 4
             for dy in range(16):
                 for dx in range(ln):
                     X, Y = (bx + dx) % P, c * 16 + dy
@@ -742,8 +759,8 @@ def stone_macro(seed: int = 401, ramp=STONE2) -> Img:
                             col = MOSS2[3]
                     elif dy == 0 or dx == 0:
                         col = ramp[min(6, base + 1)]
-                    elif dy == 14:
-                        col = ramp[base - 1] if hp(X, Y, seed + 6) < 0.6 else ramp[base]
+                    elif dy == 14 or dx == ln - 2:
+                        col = ramp[base - 1] if hp(X, Y, seed + 6) < 0.7 else ramp[base]
                     else:
                         g = hp(X, Y, seed + 4)
                         col = ramp[base] if g > 0.05 else ramp[base - 1]
@@ -919,7 +936,7 @@ def rock_face_tex(seed: int = 901) -> Img:
             since = (y - b) % FH if b >= 0 else 99
             blk = 0 if b < 0 or y >= b else 1
             r = h01(c, blk, seed + 2)
-            base = 3 if r > 0.72 else 2 if r > 0.14 else 1
+            base = 2 if r > 0.7 else 1
             deep = h01(c, 7, seed + 4) < 0.12
             if u == 0:
                 col = ROCK2[0]
@@ -928,11 +945,11 @@ def rock_face_tex(seed: int = 901) -> Img:
             elif since == 0:
                 col = ROCK2[1] if u < w - 2 else ROCK2[0]
             elif since in (1, 2):
-                col = ROCK2[min(5, base + 3 - since)] if u < w - 2 else ROCK2[base]
+                col = ROCK2[min(6, base + 4 - since)] if u < w - 2 else ROCK2[base + 1]
                 if since == 1 and fbm(X, y, seed + 5, (16, 8), (0.6, 0.4), P, FH) > 0.6:
                     col = MOSS2[4] if hp(X, y, seed + 6, P, FH) < 0.7 else MOSS2[5]
             else:
-                k = base + (2 if u == 1 else 1 if u in (2, 3) else -1 if u >= w - 2 else 0)
+                k = base + (3 if u == 1 else 2 if u == 2 else 1 if u == 3 else -1 if u >= w - 2 else 0)
                 if since == FH - 1 or (b >= 0 and (b - y) % FH == 1):
                     k -= 1
                 if y in beds and hp(X, y, seed + 12, P, FH) < 0.7 and 1 < u < w - 2:
@@ -1048,7 +1065,8 @@ def _drip(img: Img, top: list, drape: list, seed: int, depth: int = 5, vines: bo
         d = 0 if n < bare else 1 + int((n - bare) / max(0.01, 1.0 - bare) * depth)
         hang.append(min(depth + 1, d))
     for x in range(P):
-        img.put(x, 0, (top[6] if len(top) > 6 else top[-1]) if hp(x, 0, seed + 5, P, 16) > 0.22 else top[5])
+        rim = mix(top[6] if len(top) > 6 else top[-1], SUN, 0.35)
+        img.put(x, 0, rim if hp(x, 0, seed + 5, P, 16) > 0.18 else top[6])
         for r in range(1, rows):
             img.put(x, r, top[5] if r == 1 else top[4])
         d = hang[x]
@@ -1106,7 +1124,7 @@ def stone_faces(seed: int = 921, top=STONE2) -> tuple[list, list]:
     a dark line where the coping overhangs), moss specks on the coping."""
     pat = _face_pattern(ashlar_tex(seed, STONE2))
     for x in range(P):
-        pat.put(x, 0, top[6])
+        pat.put(x, 0, mix(top[6], SUN, 0.3))
         pat.put(x, 1, top[5])
         pat.put(x, 2, STONE2[4] if hp(x, 0, seed + 1, P, 16) > 0.1 else STONE2[3])
         pat.put(x, 3, STONE2[3])

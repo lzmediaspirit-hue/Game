@@ -49,6 +49,11 @@
     - Town squares are irregular flagstones with moss in the joints; granite terraces are big slabs.
     - Roofs are dark glazed tile with a glint on every rib. The houses' roofs sweep up at the ends, with a heavy
       ridge and a shadow band under the eaves.
+- **Polish pass, after review against Alabaster Dawn:**
+  - the grass is a vivid green again, with crisp tufts of blades;
+  - the paving is warm grey-beige flagstones about a tile across, with crisp joints and moss in the gaps;
+  - the sun and shade patches are much subtler, and paving and granite take none;
+  - cliffs are deeper, lips brighter, and granite terraces crisper.
 - **No room had to change.** Every tile name and auto-tile rule stays; the room view draws each cell as layers.
 - **Tests:** `topdown_suite` checks the layers ("terrain v2"); `data_validation` checks that every tile the new sets
   name is in the atlas.
