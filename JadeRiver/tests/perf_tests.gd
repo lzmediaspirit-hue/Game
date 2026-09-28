@@ -176,6 +176,15 @@ func _techniques() -> void:
 	# in the defaults costs at most twice the parse, and the whole stays under 0.4 s.
 	check(ms_v15 - ms_parse <= 2.0 * ms_parse + 20.0 and ms_v15 < 400.0 and ms_index < 80.0,
 		"v1.5's 4,350 rows load in %.0f ms (defaults %.0f ms against a %.0f ms parse) and the trees index in %.1f ms" % [ms_v15, ms_v15 - ms_parse, ms_parse, ms_index])
+	# The rows are let go here, outside every timing: the v1.5 fixture takes tens of ms to free, which otherwise fell into
+	# whatever was timed next (the top-down room's mount, once this function returned).
+	data = {}
+	rows = []
+	fixture = {}
+	parsed = {}
+	text = ""
+	memo = {}
+	memo2 = {}
 	# Emblems: a hundred composed arts at 64 px and at 48 (the HUD ring's), each composed once and then held.
 	var ids: Array = []
 	for t in ContentDB.all("techniques"):

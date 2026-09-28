@@ -36,6 +36,7 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
 	z_index = ObjectView.depth(o, geo)
 	avatar = Avatar.new()
+	avatar.lazy_sheets = true   # a room full of new outfits draws each villager once its sheets are in, not on entry
 	var outfit: Dictionary = n.get("outfit", {}).duplicate()
 	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
 		if not outfit.has(k): outfit[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")

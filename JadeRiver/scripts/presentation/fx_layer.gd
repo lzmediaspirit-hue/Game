@@ -25,6 +25,8 @@ var number_scale := 1.0     # numbers and words at this share of their size (a s
 var world := true           # the room's layer: also draws Combat's arrays and fires, a held Presence and the projectiles
 var chest := 56.0           # a figure's chest over its feet, where a cast's chest-high forms sit (the top-down body is shorter)
                             # from state; false for a layer staged on a page (the Techniques page's preview)
+var lazy_sheets := false    # a form's sheet not yet in memory loads on a loading thread and its frames wait for it (the
+                            # Techniques page's preview, which asks for it as an art is chosen), never stalling a frame
 
 func _ready() -> void:
 	z_index = 4000
@@ -191,6 +193,7 @@ static func form_frame(a: Dictionary, t: float) -> int:
 ## keeps `scale_y` and takes its exact length along the reach).
 ## `turn`: the top-down aim's turn off the facing (redesign Phase 2).
 func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
+	if lazy_sheets and SpriteCache.tex_async(str(a.file)) == null: return
 	draw_form_on(self, a, at, frame, row, facing, scale, alpha, scale_y, turn)
 
 ## The same frame on any canvas (a page's card shows its art's impact frame).

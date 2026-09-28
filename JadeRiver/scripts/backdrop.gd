@@ -14,6 +14,7 @@ var sky_top := Color("9fc3c7")
 var sky_horizon := Color("e8e1cf")
 var fade_from: Array = []
 var fade_t := 0.0
+var pending := {}               # a backdrop whose layers are still loading: {layers: [spec], sky, horizon}
 var tint := Color.WHITE
 
 const FALLBACK := {"valley_day": "forest", "valley_dusk": "sanctuary", "valley_night": "sanctuary", "marsh": "forest",
@@ -34,18 +35,32 @@ func _ready() -> void:
 	biome_images["sanctuary"] = image
 	set_backdrop("valley_day")
 
+## A room's backdrop. Its layers (four panoramas, several MB) load on loading threads while the last room's stays up (a
+## room is entered under a fade), and it crossfades in once they are all in memory (_process), so entering a room never
+## waits on them. The first backdrop, with none on screen yet, loads at once.
 func set_backdrop(id: String) -> void:
 	if id == current: return
+	current = id
+	var e: Dictionary = ContentDB.config("backdrops").get(id, {})
+	pending = {"layers": e.get("layers", []), "sky": Color(str(e.get("sky", "#9fc3c7"))), "horizon": Color(str(e.get("horizon", "#e8e1cf")))}
+	if layers.is_empty():
+		for l in pending.layers: SpriteCache.tex(str(l.get("file", "")))
+	_show_pending()
+
+## The pending backdrop, once every layer is in memory (or known missing): the old one fades out over it.
+func _show_pending() -> void:
+	for l in pending.layers:
+		var f := str(l.get("file", ""))
+		if SpriteCache.tex_async(f) == null and SpriteCache.loading(f): return
 	fade_from = layers.duplicate()
 	fade_t = 1.0 if not layers.is_empty() else 0.0
-	current = id
 	layers.clear()
-	var e: Dictionary = ContentDB.config("backdrops").get(id, {})
-	for l in e.get("layers", []):
+	for l in pending.layers:
 		var tex := SpriteCache.tex(str(l.get("file", "")))
 		if tex: layers.append({"tex": tex, "parallax": float(l.get("parallax", 0.0)), "bottom": float(l.get("bottom", 720))})
-	sky_top = Color(str(e.get("sky", "#9fc3c7")))
-	sky_horizon = Color(str(e.get("horizon", "#e8e1cf")))
+	sky_top = pending.sky
+	sky_horizon = pending.horizon
+	pending = {}
 
 func _process(delta: float) -> void:
 	time += delta
@@ -54,6 +69,7 @@ func _process(delta: float) -> void:
 		var want := str(world.map_data.get("background", "valley_day"))
 		if want != current: set_backdrop(want)
 		tint = Color("8fa0c8") if bool(world.room_def.get("night", false)) else Color.WHITE
+	if not pending.is_empty(): _show_pending()
 	queue_redraw()
 
 func _draw() -> void:

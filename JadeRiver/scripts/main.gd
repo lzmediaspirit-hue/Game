@@ -762,6 +762,7 @@ func _mount_world() -> void:
 		hud.fan_open = false
 		hud.fan_rest_open = false
 		return
+	_warm_techniques()
 	# P6 moments live only while the world is mounted: events raised while a save loads or offline gains settle never play.
 	moments = MomentView.new()
 	moments.world = world
@@ -876,6 +877,16 @@ func open_page(id: String, a: Dictionary) -> void:
 	if Game.active():
 		Game.submit({"type": "report_page_opened", "page": id})
 
+## The technique trees' index and the Techniques page's tree for the tab it would open on, built as the world mounts and
+## as a room is entered (under their fades), not on the page's first opening or a fight's first cast (perf_tests: every
+## page opens in under 0.15 s). Both are kept once built, so this is nearly free after the first time; the page's tree
+## waits for the page's script to be in from its loading thread (never waiting on it here).
+func _warm_techniques() -> void:
+	TechniqueTreeRules.home("")
+	var tp := str(PAGES.techniques)
+	if _page_scripts.has(tp) or ResourceLoader.load_threaded_get_status(tp) == ResourceLoader.THREAD_LOAD_LOADED:
+		_page_script(tp).warm(Game.active())
+
 ## Page scripts compile in a background thread from the title screen on, so the first time a page opens it does
 ## not stall a frame compiling itself (S40 performance: a page opens within 0.15 s).
 var _page_scripts: Dictionary = {}
@@ -915,6 +926,7 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 		"room_entered":
 			fade = maxf(fade, 0.9)
 			close_all_pages()
+			if screen == "world" and not topdown: _warm_techniques()
 		"player_gravely_wounded":
 			if screen == "world": open_page("revival", p)
 		"shop_opened":

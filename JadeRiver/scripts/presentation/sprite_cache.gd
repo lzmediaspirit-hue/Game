@@ -107,16 +107,8 @@ static func icon_hd(id: String) -> bool:
 static func icon_fit(id: String, box: float) -> Dictionary:
 	if composable(id) and not _renders.has(id):
 		# A composed emblem is composed at the one size the box takes, not at all three.
-		var art := 0
-		var k := 0
-		for px in EMBLEM_PX:
-			var kk := int(floor(box / float(px) + 0.001))
-			if kk >= 1 and (art == 0 or px * kk > art * k):
-				art = px
-				k = kk
-		if art == 0:
-			art = int(EMBLEM_PX.min())
-			k = 1
+		var art := _emblem_px(box)
+		var k := maxi(1, int(floor(box / float(art) + 0.001)))
 		var e := emblem(id, art)
 		return {} if e == null else {"tex": e, "art": art, "scale": k, "px": art * k}
 	var renders := icon_renders(id)
@@ -129,6 +121,36 @@ static func icon_fit(id: String, box: float) -> Dictionary:
 		var art: int = renders.keys().min()
 		best = {"tex": renders[art], "art": art, "scale": 1, "px": art}
 	return best
+
+## The emblem size a `box` px square takes: the one whose whole-number scale fills the most of it (the smallest when none
+## fits).
+static func _emblem_px(box: float) -> int:
+	var art := 0
+	var k := 0
+	for px in EMBLEM_PX:
+		var kk := int(floor(box / float(px) + 0.001))
+		if kk >= 1 and (art == 0 or px * kk > art * k):
+			art = px
+			k = kk
+	return art if art != 0 else int(EMBLEM_PX.min())
+
+## True when icon `id` is in memory for a `box` px square: its renders loaded, or its emblem composed at that size.
+static func icon_loaded(id: String, box: float) -> bool:
+	if composable(id) and not _renders.has(id): return _emblems.has("%s@%d" % [id, _emblem_px(box)])
+	return _renders.has(id)
+
+## Icon `id`'s renders asked of loading threads (icon_renders then finds them in memory); a composed emblem has none.
+static func icon_prefetch(id: String) -> void:
+	if composable(id): return
+	var manifest: Dictionary = ContentDB.config("icon_manifest")
+	var key := icon_key(id)
+	for px in RENDER_PX: tex_async(str(manifest.get("%s@%d" % [key, px], "")))
+	tex_async(str(manifest.get(key, "")))
+
+## True when drawing icon `id` in a `box` px square composes nothing (a baked icon, or an emblem already composed at
+## that size): a page may hold back an emblem not yet composed for a later frame.
+static func icon_ready(id: String, box: float) -> bool:
+	return not composable(id) or _renders.has(id) or _emblems.has("%s@%d" % [id, _emblem_px(box)])
 
 ## Draw icon `id` centred in `rect` on whole pixels at a whole-number scale of its art (icon_fit), never a filtered
 ## or fractional scale. `box` overrides the size asked for (the HUD's technique ring asks 64 of a legacy icon, its

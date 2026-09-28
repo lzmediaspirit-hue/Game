@@ -56,6 +56,7 @@ func _init() -> void:
 	stage.add_child(caster)
 	fx = FxLayer.new()
 	fx.world = false
+	fx.lazy_sheets = true
 	fx.number_scale = 0.8 / stage.scale.x
 	stage.add_child(fx)
 
@@ -96,6 +97,7 @@ func restart() -> void:
 	for f in deep:
 		pack.add_child(f.sprite)
 	var a := FxLayer.form_spec(form)
+	if not a.is_empty(): SpriteCache.tex_async(str(a.file))   # the sheet loads on a thread through the lead-in
 	lead = float(cfg.get("lead_s", 0.4)) + (0.3 if plays == "counter" else 0.0)
 	impact = lead + float(tech.get("windup_s", 0.2))
 	var rest := (float(a.frames) - float(a.impact)) / float(a.fps) if not a.is_empty() else 0.0
