@@ -421,6 +421,15 @@ static func hd_texture(asset: String, state := "normal") -> Texture2D:
 		_hd_textures[key] = (sb as HdStyleBox).texture if sb is HdStyleBox else null
 	return _hd_textures[key]
 
+## hd_texture, or null while its file loads on a loading thread (asked for on the first call).
+static func hd_texture_async(asset: String, state := "normal") -> Texture2D:
+	var key := asset + ":" + state
+	if _hd_textures.has(key): return _hd_textures[key]
+	var e: Dictionary = ContentDB.config("ui_assets_hd").get(asset, {})
+	var path := str(e.get(state, e.get("normal", "")))
+	if SpriteCache.tex_async(path) == null and SpriteCache.loading(path): return null
+	return hd_texture(asset, state)
+
 ## The HUD ring sizes the HD kit draws (face diameters, tools/ui/build_ui_hd.py HUD_RING_SIZES) and the pad round each.
 const HUD_RINGS := [132, 64, 52, 48]
 const HUD_RING_PAD := 14.0

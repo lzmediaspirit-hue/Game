@@ -54,6 +54,10 @@ var _pan := false
 var _learned_i := -1
 var _stills := {}             # pose -> the character's still in it, for the cards' pictures
 var _still_frame := -1
+var _emblem_frame := -1       # the frame composing emblems, and the usec spent on them in it (_emblem_at)
+var _emblem_us := 0
+const EMBLEM_BUDGET_US := 4000
+static var _still_cache := {}  # outfit|pose -> a card's still, kept across opens (the character's look rarely changes)
 var _pics := {}               # art -> what its card's picture needs (its row, pose, colour)
 
 func _init() -> void:
@@ -76,15 +80,8 @@ func setup() -> void:
 	pic.visible = false
 	pic.externally_timed = true
 	add_child(pic)
-	stage = TechniquePreview.new()
-	stage.position = STAGE.position
-	stage.size = STAGE.size
-	add_child(stage)
 	_dress()
-	var want := last_tab
-	if want == "" and ch != null:
-		var first = ch.cultivator.technique_slots[0] if not ch.cultivator.technique_slots.is_empty() else null
-		want = TechniqueTreeRules.tree_of_element(str(ContentDB.entry("techniques", str(first)).get("element", "none"))) if first != null else "water"
+	var want := _first_tab(ch)
 	for i in tabs.size():
 		if str(tabs[i].id) == want and str(tabs[i].get("locked", "")) == "": tab = i
 	if args.has("tab"): last_tab = str(args.tab)
@@ -95,8 +92,18 @@ func _dress() -> void:
 	pic.last_key = ""
 	_stills.clear()
 	_pics.clear()
+	if stage == null: return
 	stage.dress(pic.outfit.duplicate())
 	stage.restart()
+
+## The live preview, built the frame after the page opens (its character, imps and effects layer are not needed for the
+## page's first frame, which is all but transparent while the page fades in).
+func _build_stage() -> void:
+	stage = TechniquePreview.new()
+	stage.position = STAGE.position
+	stage.size = STAGE.size
+	add_child(stage)
+	_dress()
 
 func on_event(name: String, _p: Dictionary) -> void:
 	if name == "equipment_changed": _dress()
@@ -124,8 +131,11 @@ func _gui_input(event: InputEvent) -> void:
 		_glide(view - event.relative, true)
 	super._gui_input(event)
 
+## The page's first frame draws its frame, rail, chooser and the chart's nodes; the preview is built on the next, and
+## the cards' composed emblems fill in from then on within a few ms a frame (_emblem_at).
 func _process(delta: float) -> void:
 	super._process(delta)
+	if stage == null and _open_frame >= 0 and Engine.get_process_frames() > _open_frame and c() != null: _build_stage()
 	if view != goal: view = goal if UiKit.reduce_motion() or view.distance_to(goal) < 1.0 else view.lerp(goal, minf(1.0, delta * 12.0))
 
 ## Move the view (clamped to the chart); `now` skips the glide (a drag).
@@ -159,85 +169,132 @@ func _refresh() -> void:
 	for tb in Game.progression.tree_tabs(ch):
 		if str(tb.tree) == tree: _realised_here = int(tb.realised)
 
+## The tab's tree on this page: its shape (_shape, laid out once a run and kept across opens) copied node by node so
+## what this page learns of each node stays its own, then the character's Dao arts at the gate.
 func _lay_out(ch, tree: String) -> void:
 	_laid = tree
 	_items.clear()
 	_by.clear()
-	var T = TechniqueTreeRules
-	var fams: Array = T.sectors()
-	var y := GATE_TOP + ROW_H + 16.0
-	_rows = {}
-	for r in range(T.first_ring(tree), T.edge_ring(int(T.config().get("act_open", 3))) + 1):
-		_rows[r] = y
-		y += ROW_H
-		if T.is_edge(r):
-			_rows["n%d" % T.act_of(r)] = y
-			y += NOTE_H
-	_size = Vector2(fams.size() * FAM_W, y + 24.0)
-	var taken := {}
-	var col := func(fam: String) -> float: return fams.find(fam) * FAM_W + FAM_W * 0.5
-	var place := func(it: Dictionary, fam: String, ring: int, lanes: Array) -> void:
-		for ln in lanes:
-			if taken.has("%s|%d|%d" % [fam, ring, ln]): continue
-			taken["%s|%d|%d" % [fam, ring, ln]] = true
-			it.at = Vector2(col.call(fam) + ln * LANE, float(_rows.get(ring, GATE_TOP)))
-			break
-		if not it.has("at"): it.at = Vector2(col.call(fam) + 2.0 * LANE, float(_rows.get(ring, GATE_TOP)))
-	# The open acts' nodes from the cells themselves, keystones first so they take their lane before the arts.
-	var add := func(it: Dictionary) -> void:
+	var shape := _shape(tree)
+	_rows = shape.rows
+	_size = shape.size
+	for it0 in shape.items:
+		var it: Dictionary = (it0 as Dictionary).duplicate()
 		_items.append(it)
 		_by[str(it.id)] = it
+	var taken: Dictionary = (shape.taken as Dictionary).duplicate()
+	for d in Game.progression.tree_dao_arts(ch, tree):
+		var it2 := {"id": str(d.id), "kind": "dao", "family": str(d.family), "dao": str(d.dao), "dao_tier": int(d.tier), "ring": 0, "state": str(d.state)}
+		_place(it2, it2.family, 0, [-1, 1, 0], taken, _rows)
+		_route_box(it2, tree, _by, _rows)
+		_items.append(it2)
+		_by[str(it2.id)] = it2
+	if goal == Vector2.ZERO and view == Vector2.ZERO: _jump(0, -1.0, true)
+
+## The shape of the tab the page would open on, built ahead (main.gd calls this as the world mounts and as a room is
+## entered, under their fades), so the page's first opening does not build it.
+static func warm(ch) -> void:
+	if ch == null: return
+	var want := _first_tab(ch)
+	if want in TechniqueTreeRules.trees(): _shape(want)
+
+## The tab the page opens on: the art last chosen's, else the tree of the first slotted art's element (Water without one).
+static func _first_tab(ch) -> String:
+	if last_tab != "" or ch == null: return last_tab
+	var first = ch.cultivator.technique_slots[0] if not ch.cultivator.technique_slots.is_empty() else null
+	return TechniqueTreeRules.tree_of_element(str(ContentDB.entry("techniques", str(first)).get("element", "none"))) if first != null else "water"
+
+## A tree's shape, the same for every character: {items, rows, size, taken}, laid out the first time a page shows the
+## tree and kept (a new techniques list, after a reload, lays it out again). Its items are never written: a page works
+## on its own copies.
+static var _shapes := {}
+
+static func _shape(tree: String) -> Dictionary:
+	var T = TechniqueTreeRules
+	var list: Array = ContentDB.all("techniques")
 	var open_act := int(T.config().get("act_open", 3))
+	if _shapes.has(tree) and is_same(_shapes[tree].of, list) and int(_shapes[tree].act) == open_act: return _shapes[tree]
+	var fams: Array = T.sectors()
+	var y := GATE_TOP + ROW_H + 16.0
+	var rows := {}
+	for r in range(T.first_ring(tree), T.edge_ring(open_act) + 1):
+		rows[r] = y
+		y += ROW_H
+		if T.is_edge(r):
+			rows["n%d" % T.act_of(r)] = y
+			y += NOTE_H
+	var items: Array = []
+	var by := {}
+	var taken := {}
+	var add := func(it: Dictionary) -> void:
+		items.append(it)
+		by[str(it.id)] = it
+	# The open acts' nodes from the cells themselves, keystones first so they take their lane before the arts.
 	for act in range(1, open_act + 1):
 		for kin in ["voice", "edges", "reach", "distance"]:
 			var k: String = T.keystone_at(tree, kin, act)
-			if k == "" or not _rows.has(T.edge_ring(act)): continue
+			if k == "" or not rows.has(T.edge_ring(act)): continue
 			var kit := {"id": k, "kind": "keystone", "kin": kin, "family": str(T.kin_sectors(kin)[0]), "ring": T.edge_ring(act)}
-			place.call(kit, kit.family, kit.ring, [1, -1, 0])
+			_place(kit, kit.family, kit.ring, [1, -1, 0], taken, rows)
 			add.call(kit)
 	for f in fams:
-		for ring in _rows:
+		for ring in rows:
 			if str(ring).begins_with("n"): continue
-			add.call({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(col.call(f), float(_rows[ring]) - 9.0)})
+			add.call({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows[ring]) - 9.0)})
 			var cl: Dictionary = T.cell(tree, f, ring)
 			var side := -1 if int(ring) % 2 == 0 else 1
 			for slot in ["o", "p"]:
 				for id in cl[slot]:
 					var it := {"id": str(id), "kind": "art", "family": f, "ring": ring}
-					place.call(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0])
+					_place(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0], taken, rows)
 					add.call(it)
 			if T.is_edge(ring):
-				add.call({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(col.call(f), float(_rows["n%d" % T.act_of(ring)]) + 32.0)})
-	for d in Game.progression.tree_dao_arts(ch, tree):
-		var it2 := {"id": str(d.id), "kind": "dao", "family": str(d.family), "dao": str(d.dao), "dao_tier": int(d.tier), "ring": 0, "state": str(d.state)}
-		place.call(it2, it2.family, 0, [-1, 1, 0])
-		add.call(it2)
-	for it in _items:
-		var kind := str(it.kind)
-		var pts: Array = []
-		match kind:
-			"passage":
-				# In from the ring before (from under its act's notable after an act's last ring), or from the gate.
-				var r := int(it.ring)
-				var up := Vector2(it.at.x, GATE_TOP + 62.0)
-				if _rows.has(r - 1): up = _by[T.notable(tree, str(it.family), T.act_of(r - 1)) if T.is_edge(r - 1) else T.passage(tree, str(it.family), r - 1)].at
-				pts = [up, it.at]
-			"notable":
-				pts = [_by[T.passage(tree, str(it.family), int(it.ring))].at, it.at]
-				if fams.find(str(it.family)) + 1 < fams.size(): it.chan = true
-			"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(col.call(str(it.family)), it.at.y + PIC * 0.5)]
-			_:
-				var pa: Vector2 = _by[T.passage(tree, str(it.family) if kind == "art" else str(T.kin_sectors(str(it.kin))[0]), int(it.ring))].at
-				pts = [pa, Vector2(it.at.x, pa.y), it.at - Vector2(0, 3)]
-		it.route = pts
-		var box := Rect2(it.at, Vector2.ZERO)
-		for pt in pts: box = box.expand(pt)
-		if it.get("chan", false): box = box.expand(it.at + Vector2(FAM_W, 0))
-		if not kind in ["passage", "notable"]:
-			box = box.merge(Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD))
-			it.name = str(ContentDB.entry("techniques", str(it.id)).get("name", it.id))
-		it.box = box.grow(14)
-	if goal == Vector2.ZERO and view == Vector2.ZERO: _jump(0, -1.0, true)
+				add.call({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows["n%d" % T.act_of(ring)]) + 32.0)})
+	for it in items: _route_box(it, tree, by, rows)
+	_shapes[tree] = {"of": list, "act": open_act, "items": items, "rows": rows, "size": Vector2(fams.size() * FAM_W, y + 24.0), "taken": taken}
+	return _shapes[tree]
+
+## A family's column centre on the chart.
+static func _col(fam: String) -> float:
+	return TechniqueTreeRules.sectors().find(fam) * FAM_W + FAM_W * 0.5
+
+## A node into the first free lane of its family's ring (else two lanes out).
+static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
+	for ln in lanes:
+		if taken.has("%s|%d|%d" % [fam, ring, ln]): continue
+		taken["%s|%d|%d" % [fam, ring, ln]] = true
+		it.at = Vector2(_col(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))
+		break
+	if not it.has("at"): it.at = Vector2(_col(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))
+
+## A node's route in (from its passage, the ring before or the gate), the box it and its route fill, and a card's name.
+static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
+	var T = TechniqueTreeRules
+	var fams: Array = T.sectors()
+	var kind := str(it.kind)
+	var pts: Array = []
+	match kind:
+		"passage":
+			# In from the ring before (from under its act's notable after an act's last ring), or from the gate.
+			var r := int(it.ring)
+			var up := Vector2(it.at.x, GATE_TOP + 62.0)
+			if rows.has(r - 1): up = by[T.notable(tree, str(it.family), T.act_of(r - 1)) if T.is_edge(r - 1) else T.passage(tree, str(it.family), r - 1)].at
+			pts = [up, it.at]
+		"notable":
+			pts = [by[T.passage(tree, str(it.family), int(it.ring))].at, it.at]
+			if fams.find(str(it.family)) + 1 < fams.size(): it.chan = true
+		"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(_col(str(it.family)), it.at.y + PIC * 0.5)]
+		_:
+			var pa: Vector2 = by[T.passage(tree, str(it.family) if kind == "art" else str(T.kin_sectors(str(it.kin))[0]), int(it.ring))].at
+			pts = [pa, Vector2(it.at.x, pa.y), it.at - Vector2(0, 3)]
+	it.route = pts
+	var box := Rect2(it.at, Vector2.ZERO)
+	for pt in pts: box = box.expand(pt)
+	if it.get("chan", false): box = box.expand(it.at + Vector2(FAM_W, 0))
+	if not kind in ["passage", "notable"]:
+		box = box.merge(Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD))
+		it.name = str(ContentDB.entry("techniques", str(it.id)).get("name", it.id))
+	it.box = box.grow(14)
 
 ## A node as the character stands to it, asked of the authority when it is first drawn after a change: its state, why
 ## it is closed, its cost and what learning it takes; with its tag and a learned art's tier.
@@ -301,7 +358,8 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 	if state == "selected":
 		glow(Rect2(c0 - Vector2(34, 34), Vector2(68, 68)), Color(UiKit.PALE_GOLD, 0.35 if not UiKit.reduce_motion() else 0.1))
 		draw_circle(c0, 24.0, UiKit.PALE_GOLD, false, 3.0, true)
-	draw_texture_rect(UiKit.hd_texture("tech_seal", str(tabs[i].id)), Rect2(c0 - Vector2(22, 22), Vector2(44, 44)), false, UiKit.HOLLOW if state == "disabled" else Color.WHITE)
+	var seal := hd_tex("tech_seal", str(tabs[i].id))
+	if seal: draw_texture_rect(seal, Rect2(c0 - Vector2(22, 22), Vector2(44, 44)), false, UiKit.HOLLOW if state == "disabled" else Color.WHITE)
 	text(Vector2(r.position.x - 12, r.position.y + 57), str(tabs[i].label), 14, UiKit.PALE_GOLD if state == "selected" else (UiKit.HOLLOW if state == "disabled" else UiKit.MIST),
 		HORIZONTAL_ALIGNMENT_CENTER, r.size.x + 24)
 
@@ -485,20 +543,41 @@ func _card_picture(id: String, r: Rect2, dim: bool) -> void:
 	# The figure in the art's pose, composed once a pose into a small still (one a frame, once the page has opened, so
 	# neither opening nor dragging waits on the pose sheets); until then the emblem stands in.
 	var still = _stills.get(str(p.pose))
-	if still == null and opened > 0.3 and _still_frame != Engine.get_process_frames():
-		_still_frame = Engine.get_process_frames()
-		var a := Avatar.new()
-		a.outfit = pic.outfit
-		a.play(str(p.pose))
-		a.elapsed = 0.3
-		still = ImageTexture.create_from_image(a.still_image())
-		a.free()
-		_stills[str(p.pose)] = still
+	if still == null:
+		var key := str(pic.outfit) + "|" + str(p.pose)
+		still = _still_cache.get(key)
+		if still == null and opened > 0.3 and _still_frame != Engine.get_process_frames():
+			_still_frame = Engine.get_process_frames()
+			var a := Avatar.new()
+			a.outfit = pic.outfit
+			a.play(str(p.pose))
+			a.elapsed = 0.3
+			still = ImageTexture.create_from_image(a.still_image())
+			a.free()
+			if _still_cache.size() >= 96: _still_cache.clear()
+			_still_cache[key] = still
+		if still != null: _stills[str(p.pose)] = still
 	if still != null:
 		draw_texture_rect(still, Rect2(Vector2(r.get_center().x - 4, r.end.y - 6) - Vector2(64, 95), Vector2(128, 128)), false,
 			UiKit.MIST if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3))
-	else: icon_at(r.grow(-6), id, Color.WHITE if not dim else UiKit.MIST)
-	if still != null: icon_at(Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, Color.WHITE if not dim else UiKit.MIST)   # the emblem in its corner
+	else: _emblem_at(r.grow(-6), id, Color.WHITE if not dim else UiKit.MIST)
+	if still != null: _emblem_at(Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, Color.WHITE if not dim else UiKit.MIST)   # the emblem in its corner
+
+## A card's emblem. One composed at run time (SpriteCache.emblem, a few ms each) is composed from the page's second
+## frame on, within EMBLEM_BUDGET_US a frame; the rest wait a frame (the page redraws every frame), so neither the
+## opening nor a drag to a new family stalls on a screenful of them. One already composed draws at once.
+func _emblem_at(r: Rect2, id: String, modulate: Color) -> void:
+	if not SpriteCache.icon_ready(id, minf(r.size.x, r.size.y)):
+		var frame := Engine.get_process_frames()
+		if _emblem_frame != frame:
+			_emblem_frame = frame
+			_emblem_us = 0
+		if first_draw() or _emblem_us >= EMBLEM_BUDGET_US: return
+		var t0 := Time.get_ticks_usec()
+		icon_at(r, id, modulate)
+		_emblem_us += Time.get_ticks_usec() - t0
+		return
+	icon_at(r, id, modulate)
 
 ## An art's form at its impact frame (its sheet in its element's row at its tier's band), the whole cell fitted into `r`
 ## at `most` scale and centred on it: the reading's picture (`async`: once the sheet is in from its loading thread).
@@ -546,7 +625,8 @@ func draw_page() -> void:
 
 ## The chooser's head: a seal, the tab's name and two lines under it.
 func _head(seal: String, name: String, a: String, b: String, mark := false) -> void:
-	draw_texture_rect(UiKit.hd_texture("tech_seal", seal), Rect2(24, 80, 34, 34), false)
+	var tx := hd_tex("tech_seal", seal)
+	if tx: draw_texture_rect(tx, Rect2(24, 80, 34, 34), false)
 	heading(Vector2(66, 106), name, 150)
 	if mark: _rz_mark(Vector2(33, 127))
 	text(Vector2(26 + (16 if mark else 0), 132), a, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 196)
@@ -555,6 +635,7 @@ func _head(seal: String, name: String, a: String, b: String, mark := false) -> v
 ## The character under the chooser, casting the chosen art (TechniquePreview) at a pack of imps; alone when nothing
 ## castable is chosen. It draws itself over the page (its own nodes), so it is hidden while a question is asked.
 func _figure() -> void:
+	if stage == null: return
 	stage.show_art(_preview_art(), c())
 	stage.visible = confirm.is_empty()
 	var f := stage.feet()

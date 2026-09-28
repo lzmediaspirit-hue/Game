@@ -96,6 +96,8 @@ var _drag_area := ""
 var _drag_last := 0.0
 var _dragged := false
 var _areas: Dictionary = {}     # area id -> {rect, max}
+var _open_frame := -1           # the process frame it first drew in (first_draw)
+var _stepped := false           # it has had a process step (see _draw)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -103,6 +105,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	GameEvents.event.connect(_on_game_event)
 	if modal and frame_rect == WINDOW_FULL: frame_rect = WINDOW_SMALL
+	if identity != null: modulate.a = _open_alpha()   # it fades in from its first frame, drawn before its first step or after
 	_layout()
 
 func _exit_tree() -> void:
@@ -141,6 +144,7 @@ func content_rect() -> Rect2:
 	return Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
 
 func _process(delta: float) -> void:
+	_stepped = true
 	t += delta
 	opened += delta
 	if identity != null: modulate.a = _open_alpha()
@@ -182,6 +186,10 @@ func submit(intent: Dictionary) -> Dictionary:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
+	# A page that fades in is not shown before its first step (its alpha is 0): the drawing its opening asks for is left
+	# to the one that step asks for, in the same frame, so it is not drawn twice as it opens.
+	if identity != null and not _stepped: return
+	if _open_frame < 0: _open_frame = Engine.get_process_frames()
 	_regions.clear()
 	_areas.clear()
 	HdStyleBox.base = Transform2D.IDENTITY
@@ -557,7 +565,8 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 		var inner := rect.grow(-6)
 		if quality.begins_with("pill_"): _pill_glow(rect, quality)
 		else: _grade_halo(rect, item_id)
-		if SpriteCache.draw_icon(self, inner, item_id) == Rect2():
+		if first_draw() and not SpriteCache.icon_loaded(item_id, minf(inner.size.x, inner.size.y)): SpriteCache.icon_prefetch(item_id)
+		elif SpriteCache.draw_icon(self, inner, item_id) == Rect2():
 			draw_rect(inner, UiKit.DEEP_TEAL)
 			text(inner.position + Vector2(0, inner.size.y * 0.6), ContentDB.item_name(item_id).left(3), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x)
 		var graded := quality != "" and quality != "plain" and quality != "common"
@@ -621,11 +630,27 @@ func _pill_glow(rect: Rect2, quality: String) -> void:
 ## An icon centred in `rect` at the largest whole-number scale of its art that fits (SpriteCache.draw_icon):
 ## give 32 or 64 for an item, 32 for a HUD glyph, 24 for a status icon.
 func icon_at(rect: Rect2, icon_id: String, modulate := Color.WHITE) -> void:
+	if first_draw() and not SpriteCache.icon_loaded(icon_id, minf(rect.size.x, rect.size.y)):
+		SpriteCache.icon_prefetch(icon_id)
+		return
 	SpriteCache.draw_icon(self, rect, icon_id, modulate)
+
+## The frame a page that fades in opens on (it is all but transparent; it may draw more than once in it, as the events of
+## a catch-up step ask): art not yet in memory (icons, creature sheets, HD faces asked for by hd_tex) is asked of a
+## loading thread and drawn from the next frame, by when it is in memory or nearly, so opening a page never waits on a
+## screenful of files (perf_tests: every page opens in under 0.15 s).
+func first_draw() -> bool:
+	return identity != null and (_open_frame < 0 or Engine.get_process_frames() == _open_frame)
+
+## An HD kit texture (UiKit.hd_texture), or null on the first frame while it loads.
+func hd_tex(asset: String, state := "normal") -> Texture2D:
+	return UiKit.hd_texture_async(asset, state) if first_draw() else UiKit.hd_texture(asset, state)
 
 ## One creature-sheet frame fitted into `rect`, feet on its bottom edge. `action`
 ## loops with the page clock. Returns false when the creature has no sheet.
 func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate := Color.WHITE) -> bool:
+	var file := str(SpriteCache.creature(creature_id).get("file", ""))
+	if first_draw() and SpriteCache.loading(file) and SpriteCache.tex_async(file) == null: return true   # still loading: the slot waits
 	return UiKit.draw_creature(self, rect, creature_id, action, t, modulate)
 
 func currency_pill(pos: Vector2, currency: String, amount: int) -> float:

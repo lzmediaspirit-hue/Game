@@ -12,6 +12,9 @@ var entries: Array = []
 var last_key = ""
 var thumbnail_size = Vector2.ZERO
 var thumbnail_bounds = Rect2()
+## A figure that may appear a moment late (a room's villagers): sheets not yet in memory load on loading threads and it
+## draws once they are all in, so a room with new outfits in it does not stall the frame it is entered on.
+var lazy_sheets = false
 func _ready():
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	if outfit.is_empty(): outfit = Wardrobe.defaults()
@@ -30,8 +33,15 @@ func refresh_entries():
 	if outfit.is_empty(): return
 	var key = str(outfit) + action + only_category
 	if key != last_key:
+		var drawn := _drawn_layers()
+		if lazy_sheets:
+			var waiting := false
+			for d in drawn: waiting = Wardrobe.texture_async(d.sheet) == null or waiting
+			if waiting:
+				entries.clear()
+				return
 		entries.clear()
-		for d in _drawn_layers():
+		for d in drawn:
 			var anim = d.anim
 			entries.append({"texture": Wardrobe.texture(d.sheet), "cell":int(anim.get("cell",256)), "z":int(anim.get("z",d.layer.z)), "held_arrow":d.category=="weapon" and str(anim.get("source","")).contains("/arrow/")})
 		entries.sort_custom(func(a,b): return a.z < b.z)

@@ -48,5 +48,17 @@ func texture(path: String) -> Texture2D:
 	path=path.replace("art_v12/","res://art/")
 	if not textures.has(path): textures[path]=load(path)
 	return textures[path]
+## A sheet loaded on a loading thread: null while it loads (asked for on the first call), then the sheet.
+func texture_async(path: String) -> Texture2D:
+	path=path.replace("art_v12/","res://art/")
+	if textures.has(path): return textures[path]
+	match ResourceLoader.load_threaded_get_status(path):
+		ResourceLoader.THREAD_LOAD_LOADED:
+			textures[path]=ResourceLoader.load_threaded_get(path)
+			return textures[path]
+		ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			if not ResourceLoader.exists(path) or ResourceLoader.load_threaded_request(path)!=OK: return texture(path)
+		ResourceLoader.THREAD_LOAD_FAILED: return texture(path)
+	return null
 func attack_for(outfit: Dictionary) -> String:
 	return parts._attack_by_weapon.get(outfit.get("weapon","none"),"punch")
