@@ -1,0 +1,199 @@
+{
+ "schema_version": 1,
+ "id": "cm_elder_sung_peak",
+ "name": "Elder Sung's Peak",
+ "size": [
+  40,
+  28
+ ],
+ "spawn": [
+  6,
+  24
+ ],
+ "levels": [
+  "6666666666666666666666666666666666666666",
+  "6666666666666666666666666666666666666666",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222222222222222222222333333344444",
+  "0000022222222222222222222222333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~333333344444",
+  "0000022222~~~~~~~~~~~~~~~~~~000000044444",
+  "0000011111000000000000000000000000044444",
+  "0000011111000000000000000000000000000000",
+  "0000011111000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrrwwwwwwwwwwwwwwwwwwrrrrrrrrrrrr",
+  "gggggrrrrrwwwwwwwwwwwwwwwwwwrrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~rrrrrrrrrrrr",
+  "gggggrrrrr~~~~~~~~~~~~~~~~~~gggggggrrrrr",
+  "gggggrrrrrgggggggggggggggggggggggggrrrrr",
+  "gggggrrrrrgggggggggggggggggggggggggggggg",
+  "gggggrrrrrgggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddgggggggggggggggggggggggggggddgggg",
+  "gggggddgggggggggggggggggggggggggggddgggg",
+  "gggggddgggggggggggggggggggggggggggddgggg",
+  "gggggddgggggggggggggggggggggggggggddgggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg",
+  "gggggddggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 33,
+   "y": 13,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "lotus",
+   "x": 12,
+   "y": 4
+  },
+  {
+   "kind": "lotus",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "lotus",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "kind": "lotus",
+   "x": 23,
+   "y": 10
+  },
+  {
+   "kind": "incense",
+   "x": 14,
+   "y": 16
+  },
+  {
+   "kind": "pine",
+   "x": 2,
+   "y": 12
+  },
+  {
+   "kind": "pine",
+   "x": 29,
+   "y": 21
+  },
+  {
+   "kind": "pine",
+   "x": 37,
+   "y": 18
+  },
+  {
+   "kind": "pine",
+   "x": 9,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 2,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 25
+  }
+ ],
+ "place": {
+  "npc_elder_sung": [
+   31,
+   5
+  ],
+  "spring_sung": [
+   12,
+   18
+  ],
+  "insight_sung": [
+   22,
+   15
+  ],
+  "rite_reflection_cm": [
+   18,
+   21
+  ],
+  "plot_sung": [
+   8,
+   20
+  ]
+ },
+ "portals": {
+  "path": {
+   "at": [
+    5.5,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    5.5,
+    25.5
+   ],
+   "span": 2
+  },
+  "abode": {
+   "at": [
+    34.5,
+    16
+   ],
+   "dir": "n",
+   "arrive": [
+    34.5,
+    16.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

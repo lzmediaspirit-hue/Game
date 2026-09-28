@@ -1045,16 +1045,91 @@ the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
   stand-in ground; heights, walls and water come from the grid (the motor, the foes, the loot, the tests).
 - **The people are drawn in the top-down style** (Phase 3's third part), in eight rows. The layouts give them no
   rest facing of their own: each stands three-quarters toward the camera on the side the side view faces them. Their
-  sheets load on threads (within a moment of the room: see the second part).
+  sheets load on threads (within a moment of the room: see the third part).
 - **Rooms past the Fairground stay side-view:** the Entry Trial, the sect roads and everything after. A top-down
-  character walks on into them and the view changes.
+  character walks on into them and the view changes. (The second part, below, converts chapter 2's stretch.)
 - **Terrain and decor.** The rooms draw by Phase 3's terrain rules (`TopdownTerrain`, rebuilt for each room entered):
   auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
   and a room-by-room decor pass (decision 34) is still to come.
 - Allies and pets on the plane, hazards and weather layered with the room, and respawn out of the camera's view were
-  gaps here; the second part closes them.
+  gaps here; the third part closes them.
 
-### As built: Phase 4, second part · the gaps closed (2026-09-28)
+### As built: Phase 4, second part · chapter 2's stretch: the trials, both sects' grounds and the Marsh Edge (2026-09-28)
+
+The story's rooms from the sect choice to the first steps of chapter 2 are on the grid, for both sects a player can
+join. A top-down disciple plays the Entry Trial, the sect's grounds, Strange Tracks and The Humming Token without
+leaving the grid (`docs/tutorial_order.md` steps 10–14).
+
+**The rooms** (fourteen, `tools/data/topdown_rooms.py`). Each keeps its side-view room's content, ids and connections.
+The Fairground's sect roads leave north, so each sect's gate room is entered at its south edge, and each sect's halls
+stand on terraces a level apart, as their side-view roofs rise.
+
+| Room | On the grid |
+|---|---|
+| Entry Trial (Jade), `sf_trial_jade` | A walled yard behind the Jade trial hall. The climb to the bell goes over three roofs along the north wall: crates onto the first, a running jump to the second and up its ridge, another jump to the third, and up onto the bell tower. The Trial Puppet steps into a sand ring on a granite apron |
+| Entry Trial (Cloud), `sf_trial_cloud` | The same yard under a cliff. The climb goes up two rock ledges, over a plank walk across the cliff pool, to the top ledge's bell |
+| Gate Street, `ja_gate_street` | The road up from Stoneford between jade banners onto the plaza (steward, teleport stone, shrine). The Weapon Hall, the Alchemy Hall and the Library stand in a row on rising terraces, their roofs a hop apart (the rooftop thief's run from the crates, the chest on the Library's roof). The service dorm with its sleeping porch, the board and the deacon by the way east, a scholar's garden and pond, the mountain behind. The third chore spot, "the grey stain by the gate", is by the gate |
+| Weapon Hall, `ja_weapon_hall` and `cm_weapon_hall` | One layout for both sects, with their own banners: weapon racks along the back wall, the master before them, the sparring ring a level up with its dummies, the smith and the anvil at the forge |
+| Pavilion Rooftops, `ja_pavilion_rooftops` | The Jade training yard: dummies, the hall master, the sparring post in a sand ring, the courtyard pine in a raised bed with its herb pot. Three pavilions rise a level each to the Heaven Pavilion's roof, where the Retreat Rooms' door and a chest are. The rear stairs climb to the east terrace, where crates give a second way onto that roof |
+| East Terrace, `ja_east_terrace` | The Mission Hall with its training stumps and the Temper drum, the formation elder, the physician, the arena master and his post, the abode terrace up its stairs against the cliff (a cave abode's door between lanterns), the Retreat Rooms |
+| Herb Terraces, `ja_herb_terraces` | Three terraces on grassy banks, a garden bed and herbs on each and stairs between them, the gardener at their foot, and the stone stair up through the crags to the peak |
+| Elder Hu's Peak, `ja_elder_hu_peak` | A meadow under the summit crags: Elder Hu by the Qi spring, the insight stone, the Heart Trial circle, the treasure plot, ledges stepping up to the Meditation Rock, the pagoda at his abode's door, the path back down |
+| Cliff Stair, `cm_cliff_stair` | The Cloud Sect's lower court (steward, teleport stone, shrine, dorm and porch, board, deacon), the grand stair up to the landing, a ledge above it and the top ledge with the Cloud Library's cliff door. The Cloud Steps run from their stone to the bell on the top ledge |
+| Sword Court, `cm_sword_court` | The Sword Hall's two wings (the Weapon Hall's door and the library's), the hall master and dummies, the plum-blossom poles (timber posts at stepped heights, a tile apart or side by side a level up), the sparring post, the Temper drum, the arena master, training stumps and the two sword pillars |
+| Array Court, `cm_array_court` | The array dais a step up with the formation elder and a lantern at each corner, the physician, the furnace, the rope ledge, the Retreat Rooms, the garden beds and gardener, and the gorge path up to the peak |
+| Elder Sung's Peak, `cm_elder_sung_peak` | The west ledge and peak, a rope bridge along a mountain tarn to the far peak where Elder Sung stands, the spring, stone, circle and plot on the meadow, his abode's pagoda |
+| Marsh Edge, `rm_marsh_edge` | The path east from the Reed Shallows over wet meadow and two boardwalks, open water with stilt platforms up wooden stairs (the reed and net platforms where the frogs sit, the stilt hut, the lookout), low stilts on the meadow, the south pools with the fishing jetty, and the grey patches under drained reeds and dead trees |
+
+**New art**, in the approved style and deterministic (`build_tiles.py --check`; `docs/redesign/art_bible.md` §6, §8):
+
+- **Props:** `hall` (a sect hall, 8 × 3, its roof a floor two levels up), `pine`, `weapon_rack`, `banner_jade` and
+  `banner_cloud` (their tails stir), `post`, `dead_tree`, `boulder`, `grey_reeds`.
+- **Tiles:** paint `m`, a wet meadow with puddles, for the marsh.
+- **Foes** in five drawn facings and three mirrored, with all six actions: the Trial Puppet, the reed frog, the marsh
+  leech, the reed otter and the hollowed boarlet. The foe cell grows to 48 × 56 (feet at 24, 42) so the puppet stands a
+  disciple's height; the first three foes are drawn as before.
+
+**Logic.**
+
+- A timed route (the Cloud Steps) finishes at its room's `route_finish` object, where the layout places it
+  (`TopdownRoom.merge_def`).
+- A sect role's quest leads a disciple to its own sect's grounds (`QuestAuthority.sect_room`). A Disciple's Chores and
+  The Weapon Hall used to name the Jade Sect's rooms to a Cloud disciple, whose way there is shut; this held in both
+  views. A chore spot set by the Cloud Sect's flag (`alt_flag`) now counts as the objective's place.
+- `topdown_rooms.py` also checks that every way is reached by auto-path's own rules (no running jump over a gap), so the
+  tracker's go button can cross every room.
+
+**Tests.** `topdown_tutorial`, 777 checks (473 before it, and two for the real character's villagers):
+
+- the Jade walk plays its trial, the sect's grounds and the Marsh Edge on the grid, then The Humming Token (five
+  Hollowed Boarlets on the Marsh Edge, handed in on the peak), after which the tracker's Next is Mei Qing's Errand at
+  Artisan Row;
+- from the fair (a checkpoint kept as both recruiters are met), the Cloud Sect's stretch: its Entry Trial, Shen Lian's
+  spar, the chores on the Cliff Stair, the Cloud Steps run on the grid to the bell, its Weapon Hall, Strange Tracks for
+  Elder Sung on his far peak and The Humming Token. `tutorial_order`'s invariants hold after every step and over both
+  stretches;
+- every room of both stretches is played on the grid, its layout places and reaches everything, and every foe it spawns
+  has its own figure.
+
+`prologue_run` and `tutorial_order` take the sect's rooms and people from one table (`SECTS`), and `valley_run`'s
+checkpoints use `prologue_run`'s shared `save_checkpoint` and `resume_checkpoint`. `perf_tests` adds the region's
+line: the Marsh Edge enters in 75 ms and holds 11.6 ms a frame with 25 of its foes fighting (budgets 300 ms and
+16.6 ms).
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --chapter2`): `docs/redesign/phase4/17`–`32`, each room under the
+real HUD, with its foes where it has them.
+
+**Not yet built, or different from the plan.**
+
+- **The next rooms stay side-view:** the Grey Pools and on, and the sect rooms the stretch does not visit (libraries,
+  the Alchemy Hall, cave abodes, retreats, the Cloud Herb Terraces). Their doors change the view.
+- **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
+  are fixed; a running jump takes their place.
+- **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
+- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) have no
+  top-down figure yet: they stand in with their side-view creature sheet at half size (the third part).
+
+### As built: Phase 4, third part · the gaps closed (2026-09-28)
 
 The known gaps of the first part are closed, and every other place where the grid still read the side view's x-only
 or walk-strip rules was audited and fixed. The side view is unchanged except where noted.

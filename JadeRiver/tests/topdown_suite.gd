@@ -1232,7 +1232,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 		"topdown drag moves: left-handed the finisher reads the same and a drag back cancels (%s, %s); under Reduce motion the armed marks hold still" % [left_armed, cancel])
 
 
-# ------------------------------------------------------------------ Phase 4, second part: the gaps closed
+# ------------------------------------------------------------------ Phase 4, third part: the gaps closed
 ## What the camera shows (the room as drawn, a ridge on its north edge included, the body always in view) and the rules
 ## that ask it (a foe's respawn out of view, on both axes); flat marks on a raised floor; things put on a floor; the
 ## ways' reach turned with their direction; the minimap's direction mark on the plane.

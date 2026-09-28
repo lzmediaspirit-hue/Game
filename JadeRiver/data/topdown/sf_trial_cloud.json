@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "id": "sf_trial_cloud",
+ "name": "Entry Trial (Cloud)",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  19.5,
+  20
+ ],
+ "levels": [
+  "2222222222222222222222222222222222222222",
+  "2555555555555555555555555555555555555552",
+  "2555555555555555555555555555555555555552",
+  "200000222222~~~~~~3333333000000000000002",
+  "200000222222~~~~~~3333333000000000000002",
+  "200000222222~222223333333000000000000002",
+  "200000222222~222223333333000000000000002",
+  "200000222222~~~~~~3333333000000000000002",
+  "200000222222~~~~~~0000000000000000000002",
+  "2000001111110000000000000000000000000002",
+  "2000001111110000000000000000000000000002",
+  "2000001111110000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "1111111111111111111001111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllllllllllllllll",
+  "lrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrl",
+  "lrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrl",
+  "lppppprrrrrr~~~~~~rrrrrrrppppppppppppppl",
+  "lppppprrrrrr~~~~~~rrrrrrrppppppppppppppl",
+  "lppppprrrrrr~wwwwwrrrrrrrppppppppppppppl",
+  "lppppprrrrrr~wwwwwrrrrrrrppppppppppppppl",
+  "lppppprrrrrr~~~~~~rrrrrrrppppppppppppppl",
+  "lppppprrrrrr~~~~~~pppppppppppppppppppppl",
+  "lppppprrrrrrpppppppppppppppppppppppppppl",
+  "lppppprrrrrrpppppppppppppppppppppppppppl",
+  "lppppprrrrrrpppppppppssssssssssssssssppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lgggggggppppppppppssssddddddddddddddsppl",
+  "lgggggggppppppppppssssddddddddddddddsppl",
+  "lgffffggppppppppppsssssssssssssssssssppl",
+  "lgffffggppppppppppssspppppppppppgggggggl",
+  "lgggggggppppppppppssspppppppppppgggggggl",
+  "lllllllllllllllllllpplllllllllllllllllll"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "banner_cloud",
+   "x": 17,
+   "y": 21
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 22,
+   "y": 21
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 36,
+   "y": 20
+  },
+  {
+   "kind": "pine",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "pine",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "shrub",
+   "x": 6,
+   "y": 21
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 14
+  },
+  {
+   "kind": "lotus",
+   "x": 14,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 4,
+   "y": 13
+  }
+ ],
+ "place": {
+  "trial_bell": [
+   22,
+   4
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    19.5,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    19.5,
+    21.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    29,
+    16
+   ]
+  ]
+ ]
+}

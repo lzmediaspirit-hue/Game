@@ -113,6 +113,36 @@ func keep(label: String) -> void:
 			Game.save_all()
 			_copy_dir(Saves.repo.root, "user://tutorial_cp/%s/" % label.to_lower().replace(" ", "_").replace("'", ""))
 
+## A checkpoint of the run in `dir`: the saves as they stand, and the run's simulated clock and its skips beside them
+## (`<dir>.clock`), so timed state (auction lots, cooldowns) resumes in step (valley_run's sections; topdown_tutorial's
+## second sect, taken from the fair).
+func save_checkpoint(dir: String) -> void:
+	Game.save_all()
+	_copy_dir(Saves.repo.root, dir)
+	var f := FileAccess.open(dir.trim_suffix("/") + ".clock", FileAccess.WRITE)
+	if f != null: f.store_string(JSON.stringify({"utc": "%.3f" % Clock.override_utc, "offset": "%.3f" % Clock.debug_offset_s}))
+
+## Resume a checkpoint into the working folder `work`: the saves and the clock restored, the character back in its world
+## where it stood. False when there is none, or it does not load.
+func resume_checkpoint(dir: String, work: String) -> bool:
+	if not DirAccess.dir_exists_absolute(dir): return false
+	_copy_dir(dir, work)
+	Clock.simulate(START_UTC)
+	var clock := dir.trim_suffix("/") + ".clock"
+	if FileAccess.file_exists(clock):
+		var saved = JSON.parse_string(FileAccess.get_file_as_string(clock))
+		if saved is Dictionary:
+			Clock.override_utc = float(str(saved.get("utc", START_UTC)))
+			Clock.debug_offset_s = float(str(saved.get("offset", 0.0)))
+	Saves.use_folder(work)
+	Game.boot()
+	Game.autosave_enabled = false
+	if not submit({"type": "enter_character", "slot": 1}).get("ok", false): return false
+	if not submit({"type": "enter_world"}).get("ok", false): return false
+	st = null
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	return true
+
 ## Start holding the story to its guidance (after the game has booted).
 func watch_story() -> void:
 	guidance = true
@@ -695,15 +725,35 @@ func step_willow_path() -> void:
 	check(int(palm.n) > 0, "Flowing Palm is cast on the boarlets, with no Qi pool (%d casts)" % int(palm.n))
 	check(c().quests.is_done("the_willow_path"), "The Willow Path complete: no stump quota, the palm, five boarlets and the herd's elite")
 
-## P7 Stoneford and the Recruitment Fair: both recruiters, then the Jade Sect.
+## The sects a player can join at the fair, and where each one's early story stands: its recruiter, its Entry Trial's
+## way and room, its gate (the steward's chores), its Weapon Hall and weapon master, and the mentor on his peak. The
+## walk joins `sect` (Jade; topdown_tutorial plays the Cloud Sect's stretch too).
+const SECTS := {
+	"jade": {"id": "jade_sect", "recruiter": "recruiter_qing_lan", "trial": "trial_jade", "trial_room": "sf_trial_jade",
+		"gate": "ja_gate_street", "steward": "jade_steward", "weapon_hall": "ja_weapon_hall", "weapon_master": "jade_weapon_master",
+		"mentor": "elder_hu", "peak": "ja_elder_hu_peak"},
+	"cloud": {"id": "cloud_sect", "recruiter": "recruiter_mo_yun", "trial": "trial_cloud", "trial_room": "sf_trial_cloud",
+		"gate": "cm_cliff_stair", "steward": "cloud_steward", "weapon_hall": "cm_weapon_hall", "weapon_master": "cloud_weapon_master",
+		"mentor": "elder_sung", "peak": "cm_elder_sung_peak"}}
+var sect := "jade"
+
+## Where the sect the walk joins keeps `what` (SECTS).
+func sect_at(what: String) -> String:
+	return str(SECTS[sect][what])
+
+## P7 Stoneford and the Recruitment Fair: both recruiters, then the sect.
 func step_fair() -> void:
 	check(go("west") and go("west") and go("west") and go("west") and room() == "sf_fairground", "walk to the Fairground (room %s)" % room())
 	check(c().quests.is_active("the_recruitment_fair") or c().quests.offered.has("the_recruitment_fair"), "Recruitment Fair offered")
 	accept("recruiter_qing_lan", "the_recruitment_fair")
 	talk("recruiter_mo_yun")
 	keep("Both recruiters met")
-	check(talk_choose("recruiter_qing_lan", "effects", "Join"), "join the Jade Sect")
-	check(str(c().training_sect.get("id", "")) == "jade_sect", "member of the Jade Sect")
+	join_sect()
+
+## Join `sect` with its recruiter's Join choice; the membership is recorded and the fair is done.
+func join_sect() -> void:
+	check(talk_choose(sect_at("recruiter"), "effects", "Join"), "join the %s" % sect_at("id"))
+	check(str(c().training_sect.get("id", "")) == sect_at("id"), "member of the %s (%s)" % [sect_at("id"), str(c().training_sect)])
 	check(c().quests.is_done("the_recruitment_fair"), "Recruitment Fair complete")
 
 ## A realm step the story has filled: break through when the bar is full, as the HUD asks. True once at `realm`.
@@ -720,7 +770,7 @@ func break_through(realm: String) -> bool:
 func step_entry_trial() -> void:
 	if room() != "sf_fairground": check(travel("sf_fairground"), "return to the Fairground")
 	check(c().quests.is_active("entry_trial"), "Entry Trial active")
-	check(go("trial_jade") and room() == "sf_trial_jade", "enter the Jade trial")
+	check(go(sect_at("trial")) and room() == sect_at("trial_room"), "enter the sect's trial ground (room %s)" % room())
 	check(interact("trial_bell").get("ok", false), "reach the trial bell")
 	step(1.5)
 	check(fight("trial_puppet", 1, 120.0) == 1, "Trial Puppet beaten")
