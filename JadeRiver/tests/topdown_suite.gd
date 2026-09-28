@@ -48,6 +48,7 @@ func run_all(suite) -> void:
 	_drag_zones()
 	_motor_plunge()
 	_finisher_pace()
+	_light_rules()
 	_view_rules()
 
 func _walk() -> void:
@@ -375,6 +376,69 @@ func _terrain_rules() -> void:
 	var ground: Array = tr.shadow_pieces(0, 0)
 	t.check(not up.is_empty() and up_on_ground.is_empty() and not ground.is_empty() and up.all(func(p): return (p[0] as Rect2).position.y >= 16.0 and (p[0] as Rect2).end.y <= 32.0),
 		"topdown terrain: a prop's floor shadow lies on its own level's cells, cut to them (%d pieces on the planter, %d beside it on the ground)" % [up.size(), up_on_ground.size()])
+
+## Decision 40, runtime light (art bible §14.2, §14.11): the cast shadows a block and a tall prop throw
+## (TopdownShadows, baked once as the room is built) and the look of an area at an hour (TopdownLight).
+func _light_rules() -> void:
+	var rows := flat(10, 8)
+	rows[1] = "0220000000"
+	rows[2] = "0220000000"
+	var before := TopdownShadows.bakes
+	var sh := TopdownShadows.new(grid(rows, {"props": [{"kind": "lantern", "x": 6, "y": 5}]}))
+	var edge := TopdownShadows.edge().a
+	# The alpha step at (x, y): 1 the body, EDGE the stepped edge, 0 none.
+	var step := func(img: Image, x: int, y: int) -> String:
+		var a := img.get_pixel(x, y).a
+		return "body" if a > 0.9 else ("edge" if absf(a - edge) < 0.02 else ("none" if a < 0.01 else "%.2f" % a))
+	var count := func(img: Image, r: Rect2i) -> int:
+		var n := 0
+		for y in range(r.position.y, r.end.y):
+			for x in range(r.position.x, r.end.x): if img.get_pixel(x, y).a > 0.5: n += 1
+		return n
+	# A 2x2 block two levels high (32 px): its shadow reaches 0.45 x 32 = 14 px east and 0.20 x 32 = 6 px south, a body
+	# inside a 2 px stepped edge; nearest the block, over the tiles' own shade, only the edge (east) or nothing (the
+	# first row under its face); the floor north and west of it and its own top stay lit.
+	var east: Array = [step.call(sh.image, 49, 26), step.call(sh.image, 53, 26), step.call(sh.image, 60, 26), step.call(sh.image, 62, 26)]
+	var south: Array = [step.call(sh.image, 30, 48), step.call(sh.image, 30, 49), step.call(sh.image, 30, 51), step.call(sh.image, 30, 54)]
+	var lit: bool = [[8, 8], [8, 40], [20, 20], [40, 4]].all(func(q): return sh.image.get_pixel(q[0], q[1]).a < 0.01)
+	t.check(TopdownShadows.bakes == before + 1 and east == ["edge", "body", "edge", "none"] and south == ["none", "edge", "body", "none"] and lit,
+		"topdown light: a block two levels high casts 0.45 h east and 0.20 h south, a body in a stepped edge, only the edge by the block and nothing on its contact shade, nothing north, west or on its top (east %s, south %s, lit %s)" % [str(east), str(south), lit])
+	# One level casts nothing at runtime: that step's shadow is the tiles' own (shade_w, ao_n).
+	rows = flat(10, 6)
+	rows[1] = "0110000000"
+	var low := TopdownShadows.new(grid(rows))
+	t.check(count.call(low.image, Rect2i(0, 0, 160, 96)) == 0, "topdown light: a one-level step casts nothing at runtime (its shadow is baked in the tiles)")
+	# A stone lantern (32 px tall) lays its silhouette to its south-east, nothing to its west.
+	var cast: int = count.call(sh.image, Rect2i(98, 84, 30, 12))
+	var west: int = count.call(sh.image, Rect2i(80, 80, 16, 32))
+	t.check(cast > 20 and west == 0, "topdown light: a tall prop lays its silhouette on the floor to its south-east (%d px), none to its west (%d)" % [cast, west])
+	# Three levels over a one-level step: the shadow lies on the step and falls down its drop onto the ground past it,
+	# where the step alone casts nothing.
+	rows = flat(10, 6)
+	rows[1] = "0331000000"
+	var drop := TopdownShadows.new(grid(rows))
+	t.check(drop.image.get_pixel(66, 30).a > 0.5 and drop.image.get_pixel(54, 20).a > 0.5 and drop.plane[1 * 10 + 3] == 16,
+		"topdown light: a shadow falls down a cliff's drop, longer by the drop (onto the step and past it onto the ground)")
+	# The look: the village's midday lifts its lights toward the sun and its darks toward the shadow, within the
+	# contract's 4% and +5% saturation at every hour of every area; the marsh's lights lean to the mist; a night room is
+	# the story's night in the night tint with its lights; the clock's night outdoors lights the lamps and sends the
+	# fireflies out; rain closes the sky; an interior is lamp-lit.
+	var day := TopdownLight.look({"backdrop": "valley_day"}, 0.375)
+	var marsh := TopdownLight.look({"backdrop": "marsh"}, 0.375)
+	var story := TopdownLight.look({"backdrop": "valley_night", "night": true}, 0.375)
+	var night := TopdownLight.look({"backdrop": "valley_day"}, 0.87)
+	var rain := TopdownLight.look({"backdrop": "valley_day"}, 0.375, "rain")
+	var inside := TopdownLight.look({"backdrop": "interior"}, 0.87)
+	var within := true
+	for area in TopdownLight.AREAS:
+		for hour in [0.1, 0.25, 0.375, 0.5, 0.62, 0.75, 0.87]:
+			var g: Dictionary = TopdownLight.look({"backdrop": area}, hour).grade
+			if float(g.sun) > 0.04 or float(g.shade) > 0.04 or float(g.sat) > 1.05: within = false
+	t.check(str(day.hour) == "day" and float(day.lights) == 0.0 and float(day.grade.sun) > 0.0 and float(day.grade.shade) > 0.0 and within
+		and marsh.grade.hi == TopdownLight.MIST and float(marsh.grade.sat) < 1.0 and str(story.hour) == "night_story" and float(story.lights) == 1.0
+		and story.ambient == TopdownLight.NIGHT and str(night.hour) == "night" and float(night.lights) > 0.0 and float(night.fireflies) > 0.0
+		and float(night.motes) == 0.0 and float(rain.motes) == 0.0 and float(rain.clouds) == 0.0 and str(inside.hour) == "lamplit",
+		"topdown light: the grade stays within 4%% toward the sun or the shadow and +5%% saturation at every hour; the marsh leans to the mist, a night room is the story's night in #8FA0C8, the clock's night lit by lamps and fireflies, rain without sun, an interior lamp-lit (within %s)" % within)
 
 ## Terrain v2 (decision 40, art bible "Terrain v2"): the layers the room view draws. A top's base is its material's
 ## pattern at the cell's place in it, so neighbours differ and still join; a path under grass lies under the positional

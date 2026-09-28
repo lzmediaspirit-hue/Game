@@ -1179,6 +1179,27 @@ and foliage and decor.
 - the sun and shade patches are a whisper, and paving and granite take none;
 - the value range is wider: deeper cliff bodies, brighter lips, crisper granite.
 
+### As built: Phase 3, fifth part · Terrain v2, runtime light (decision 40, 2026-09-28)
+
+Decision 40's second part is built to the art bible's contract (§14.2), and the art bible records it (§14.11).
+
+- **Cast shadows** are baked once per room (`TopdownShadows`):
+  - tall props cast their silhouette, buildings a block up to their roof, and drops of two levels or more their
+    sweep;
+  - each floor is cut per level, and shadows fall down drops;
+  - the body is 0.41 and a 2 px stepped edge 0.25, kept under the 0.6 stacking cap over the tiles' shade.
+- **The Atmosphere** (`TopdownAtmosphere`) adds:
+  - a grade per area and hour, at most 4% toward the sun or the shadow;
+  - the game's clock outdoors (morning, day, evening and night), with night rooms always at night;
+  - the night tint `#8FA0C8`, lifted by baked light pools: lanterns, fires, embers, jade glows and doorways. This
+    replaces Phase 6's `PointLight2D`s;
+  - drifting cloud shade;
+  - capped particles: pollen, fireflies, leaves and petals, mist and glints.
+- **Tuning.** Every number is in `TopdownLight`.
+- **Settings.** "Light and particles" turns the extras off on weak phones.
+- **Tests.** `topdown_suite` ("topdown light") and `topdown_tutorial` (invariant 11) check it.
+- **Images.** `docs/redesign/terrain_v2/light/`.
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:
