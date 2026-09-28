@@ -32,8 +32,11 @@ func hit(p: Dictionary) -> void:
 		cast_shake.erase(src)
 		var n := MomentRules.tier_numbers(src)
 		host.add_shake(float(n.shake_s), float(n.shake_amp))
-	if kind == "player" and Game.active() != null and amount > Game.active().pools.max_hp * 0.15: host.add_shake(0.25)
-	if p.get("crit", false): host.add_shake(0.12)
+	# Decision 38: the top-down world weighs every blow itself (its kick, shake and mark: CombatFeel, TopdownFx).
+	if host.has_method("feel_hit"): host.feel_hit(p)
+	else:
+		if kind == "player" and Game.active() != null and amount > Game.active().pools.max_hp * 0.15: host.add_shake(0.25)
+		if p.get("crit", false): host.add_shake(0.12)
 	Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
 
 ## A blow that did not land says so where it happened: Miss over the target, Immune over it, Evade over the player

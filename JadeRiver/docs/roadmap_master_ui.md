@@ -484,7 +484,18 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     parallel (`docs/redesign/phase3/character/HOWTO.md`, which lists the four batches left).
 38. **Full attack and skill animation in top-down, close to Alabaster Dawn's feel:** every weapon family's combo with
     anticipation, strike smears, hit-stop, impact effects, knockback and camera kick in 8 directions; every technique form
-    re-animated for the top-down view.
+    re-animated for the top-down view. **Only the feel and technique come from Alabaster Dawn** (timing, hit-stop, smears,
+    impact readability, camera kick, knockback). **The look stays wuxia/xianxia:** sword-light arcs and qi trails,
+    ink-brush strokes, flowing silk and robe motion, jade and gold qi, elemental Dao imagery (water ripples, wind petals
+    and leaves, thunder talismans, fire lotus, earth stone, metal sword-qi), palm prints, sword formations and calligraphic
+    impact marks; never a sci-fi, tech or generic-fantasy look. The FX library's element language (`elements.py`) and the
+    art bible's palette stay. Research: `docs/research/alabaster_dawn_2_5d.md` §3.9. Built (2026-09-28, the plan's "As
+    built: combat animation and feel"):
+    - one feel table, `data/combat_feel.json`: hit-stop by weight, camera kick and shake (the three off under Reduce
+      motion), cancel windows, lunges, flashes and knockback hops;
+    - 107 ground-plane FX sheets in eight directions: every family's moves, guard, parry, Plunge, impacts, dust, and the
+      24 forms × 11 elements;
+    - the poses the character pipeline still lacks are listed for it.
 39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
     speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
     play through what happens, not through menus.
@@ -497,4 +508,13 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 
     The tiles go first and write the art direction into `docs/redesign/art_bible.md` ("Terrain v2"), which the other
     two follow. The prototype APK waits for it.
+41. **The top-down game is the main game direction, and the work is prototype-first (2026-09-28):** "focus only on the
+    prototype first. i want it to be the main game direction."
+    - Until the prototype APK ships, only prototype work runs: full player art, the tutorial foes' art, terrain v2
+      (decision 40), combat animation (38), the staged story (39), and the rooms and logic already built.
+    - Paused until then: the side-view P-track work (P4b style families, P5 page families, P13b, the side-view art)
+      and the Beasts page review.
+    - New games start in the top-down world; a new-game setting keeps the side view as the fallback.
+    - Rooms without a top-down layout still open in the side view until they are converted.
+    - After the prototype, the next work is converting the remaining rooms (plan Phases 4–7), not the side view.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

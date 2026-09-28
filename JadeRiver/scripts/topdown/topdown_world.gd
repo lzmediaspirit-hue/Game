@@ -72,6 +72,10 @@ var hazards: HazardView
 var transfer_cooldown := 0.0
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
 var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
+## Decision 38: the combat's effects on the ground plane (smears, forms, impacts, marks, dust) in the sorted layer, and
+## whether a hit-stop holds the fight (and them) this frame.
+var tfx: TopdownFx
+var held := false
 
 signal context_changed(ctx: Dictionary)
 
@@ -135,7 +139,10 @@ func _ready() -> void:
 	effects = FxLayer.new()
 	overlay.add_child(effects)
 	effects.chest = float(ContentDB.movement("topdown.combat.chest", 40))
+	effects.forms = false    # decision 38: the forms, bolts and impact marks are TopdownFx's ground-plane sheets
+	effects.sparks = false
 	combat_fx = CombatFx.new(effects, self)
+	tfx = TopdownFx.new(self)
 	if not live:
 		var caption := CanvasLayer.new()
 		caption.layer = 4
@@ -165,6 +172,7 @@ func _build_room() -> void:
 	foe_views.clear()
 	label_views.clear()
 	for l in loot_layer.get_children(): l.queue_free()
+	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
@@ -246,8 +254,14 @@ func _settle_camera() -> void:
 	camera.position = cam.round()
 
 func _physics_process(delta: float) -> void:
+	held = false
 	if sim_frozen or Game.paused: return
-	if player.bound() and Game.combat.hold_for_hitstop(delta): return   # a blow's hit-stop holds the fight still
+	# A blow's hit-stop holds the fight still (decision 38: by its weight; none under Reduce motion).
+	if player.bound():
+		if not CombatFeel.hitstop_on(): Game.combat.hitstop = 0.0
+		elif Game.combat.hold_for_hitstop(delta):
+			held = true
+			return
 	for e in player.physics_step(delta): _feedback(e)
 	if player.bound(): Game.tick(delta)
 	if live: _check_portals(delta)
@@ -284,6 +298,8 @@ func _sync(delta: float) -> void:
 	player.sync(delta)
 	shadow.sync()
 	fx.advance(delta)
+	if not held: tfx.advance(delta)
+	_hold_marks()
 	for uid in foe_views.keys():
 		if is_instance_valid(foe_views[uid]): foe_views[uid].sync(delta)
 		else: foe_views.erase(uid)
@@ -305,16 +321,18 @@ func _feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
 		"jumped": Audio.play("jump")
-		"dashed", "plunged": Audio.play("dodge")
+		"dashed", "plunged":
+			Audio.play("dodge")
+			if str(e.type) == "dashed": tfx.dust("dash", m.pos, m.z, m.dash_dir)   # decision 38: the dash's kick-off dust
 		"landed":
-			fx.puff(m.pos, m.z, maxf(float(e.fall), 64.0) if e.get("plunge", false) else float(e.fall))
+			if float(e.fall) > 6.0 or e.get("plunge", false): tfx.dust("land", m.pos, m.z)
 			if e.get("plunge", false):
-				# The Plunge's impact (decision 35): a shock ring the size of its strike, dust and a jolt, as the side view's.
-				var feet := player_feet()
-				effects.add("ring", feet, {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
-				effects.add("dust", feet, {"color": Color(0.8, 0.74, 0.62, 0.7), "dur": 0.4})
+				# The Plunge's impact (decision 35, drawn for decision 38): a crater, cracks and stone on the floor, a shock
+				# ring the size of its strike, and a heavy jolt.
+				tfx.mark("plunge", m.pos, m.z)
+				effects.add("ring", player_feet(), {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
 				Audio.play("rumble")
-				add_shake(0.2)
+				feel("heavy", Vector2.DOWN)
 			elif float(e.fall) > 12.0: Audio.play("land")
 		"splashed":
 			fx.splash(m.pos)
@@ -383,6 +401,42 @@ func _loadout(c) -> void:
 func add_shake(s: float, amp := -1.0) -> void:
 	shake.add(s, amp)
 
+# ------------------------------------------------------------------ decision 38: the combat feel
+## The camera's part of a blow of `weight` going along `dir`: a kick the way it went, and a shake for the heaviest
+## (CombatFeel; none under Reduce motion or with Screen shake off).
+func feel(weight: String, dir: Vector2) -> void:
+	var w := CombatFeel.weight(weight)
+	if float(w.get("kick_px", 0)) > 0.0: shake.kick(dir, float(w.kick_px), float(CombatFeel.cfg().get("kick_s", 0.12)))
+	if float(w.get("shake_s", 0.0)) > 0.0: shake.add(float(w.shake_s), float(w.get("shake_px", 0)))
+
+## CombatFx's hook for a blow that landed (a hit_landed payload): its impact mark where it struck, in the blow's
+## direction, the element's colours and the blow's weight, and the camera's kick and shake; a blow on the player flashes
+## the body.
+func feel_hit(p: Dictionary) -> void:
+	if str(p.get("type", "")) == "dot": return
+	var at := Vector2(float(p.get("x", 0)), float(p.get("y", 0)))
+	var from: Vector2 = at - player.motor.dir * 20.0
+	var attacker = Game.room_rt.enemies.get(int(str(p.get("attacker", "")))) if Game.room_rt and str(p.get("attacker", "")).is_valid_int() else null
+	if str(p.get("target_kind", "")) == "player":
+		player.hurt_t = 0.0
+		if attacker != null: from = attacker.plane
+	elif str(p.get("attacker", "")) == Game.active_id: from = player.motor.pos
+	var dir: Vector2 = (at - from).normalized() if at.distance_to(from) > 1.0 else player.motor.dir
+	var weight := str(p.get("weight", "medium"))
+	var floor_z := float(p.get("floor", 0.0))
+	# The mark sits on the struck body at its chest (the hit's height over its floor), keyed with that body.
+	var lift := clampf(float(p.get("alt", 0.0)) - floor_z, 0.0, 60.0) * 0.5
+	tfx.impact(at, floor_z + lift, dir, weight, str(p.get("element", "none")))
+	feel(weight, dir)
+
+## The marks held while a state lasts: the guard's wall of qi while guarding, the charge gathering while a finisher is
+## armed on Attack.
+func _hold_marks() -> void:
+	if not player.bound(): return
+	var m: TopdownMotor = player.motor
+	tfx.hold("guard", bool(Game.combat.timeline(player.actor_id).guard), m.pos, m.z, m.dir)
+	tfx.hold("charge", str(player.aim.get("move", "")) == "finisher", m.pos, m.z, m.dir)
+
 func _add_foe(e: EnemyState) -> void:
 	if foe_views.has(e.uid) and is_instance_valid(foe_views[e.uid]): return
 	var v := FoeView.new(self, e)
@@ -428,23 +482,42 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var aim: Vector2 = p.get("aim", Vector2(int(p.get("facing", 1)), 0))
 				var tech := str(p.get("technique", ""))
+				var m: TopdownMotor = player.motor
 				if tech != "":
-					var at: Vector2 = p.get("at", player.motor.pos)
-					var point := lifted(at, room.height_at(at) if room.height_at(at) < INF else player.motor.z)
+					var at: Vector2 = p.get("at", m.pos)
+					var at_z: float = room.height_at(at) if room.height_at(at) < INF else m.z
+					var point := lifted(at, at_z)
 					# A circle at a point plays where it lands (its form's feet anchor is the point, not the caster).
 					var t := ContentDB.entry("techniques", tech)
 					var on_point := TopdownAim.form_of(t) == "point"
+					var reach := float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t)
 					combat_fx.cast(tech, point if on_point else player_feet(), int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))),
-						float(p.get("windup", -1.0)), point, aim, float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t))
+						float(p.get("windup", -1.0)), point, aim, reach)
+					# Decision 38: the form drawn on the ground plane in its direction, at the caster or where it lands (a form
+					# on a foe lands on the point the aim locked: the foe's, or two thirds of the reach).
+					tfx.form(t, m.pos, m.z, aim, at, at_z, float(p.get("windup", -1.0)), reach)
 					Audio.play("technique")
 				else:
-					# A swing's arc along the aim, so each of the eight directions reads.
-					var f := 1 if aim.x >= 0.0 else -1
-					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -effects.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
-						"turn": (aim * f).angle(), "radius": 22.0, "dur": 0.22, "delay": float(p.get("windup", 0.0)) * 0.6})
+					# Decision 38: the family's smear for this step, in its direction, its contact on the hit.
+					var tl: Dictionary = Game.combat.timeline(player.actor_id)
+					var move := "air" if tl.get("air_attack", false) else ("charged" if p.get("finisher", false) else \
+						("dash" if player.dash_attack else "step_%d" % (int(p.get("combo", 0)) + 1)))
+					tfx.smear(player.actor_id, str(tl.get("family", "fists")), move, aim, m.pos, m.z, float(p.get("windup", 0.0)), 1.0 + float(Game.active().stats.value("attack_speed")))
 					Audio.play("swing")
 			elif p.get("enemy", false):
+				# A foe's wind-up: its tell over it (decision 38; its swipe comes with its blow, FoeView).
+				var e: EnemyState = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt else null
+				if e != null: tfx.mark("tell", e.plane, e.altitude + e.hover)
 				Audio.play("tell")
+		"attack_cancelled":
+			if str(p.get("actor", "")) == Game.active_id: tfx.cancel(Game.active_id)
+		"parried":
+			# Decision 38: the parry's crossed strokes before the body, toward the foe it caught, and a heavy jolt.
+			var pe: EnemyState = Game.room_rt.enemies.get(int(str(p.get("attacker", "0")))) if Game.room_rt else null
+			var pd: Vector2 = (pe.plane - player.motor.pos).normalized() if pe != null and pe.plane.distance_to(player.motor.pos) > 1.0 else player.motor.dir
+			tfx.mark("parry", player.motor.pos, player.motor.z, pd)
+			feel("heavy", pd)
+			WorldShared.play(self, name, p)
 		"artifact_spirit_spoke":
 			if str(p.get("actor", "")) == Game.active_id: effects.add("text", player_feet() + Vector2(0, -110), {"text": str(p.get("line", "")), "color": UiKit.PAPER, "size": 17, "dur": 3.0})
 		_:
@@ -659,11 +732,9 @@ static func draw_blob(ci: CanvasItem, x: float, y: float, rx: float, a: float) -
 	ci.draw_rect(Rect2(x - rx, y - 1, rx * 2, 3), col)
 	ci.draw_rect(Rect2(x - rx + 2, y - 2, rx * 2 - 4, 5), col)
 
-## Landing dust and splashes, a few pixels each.
+## Splashes, a few pixels each (the dust of landings, dashes and skids is TopdownFx's, decision 38).
 class FxView extends Sorted:
 	var items: Array = []
-	func puff(p: Vector2, z: float, fall: float) -> void:
-		items.append({"kind": "dust", "at": TopdownWorld.to_screen(p, z).round(), "t": 0.0, "size": clampf(fall / 32.0, 0.5, 2.0), "key": world.room.sort_key(p, z)})
 	func splash(p: Vector2) -> void:
 		items.append({"kind": "splash", "at": TopdownWorld.to_screen(p, TopdownRoom.WATER_Z).round(), "t": 0.0, "size": 1.0, "key": world.room.sort_key(p, 0.0)})
 	func advance(delta: float) -> void:
@@ -675,12 +746,12 @@ class FxView extends Sorted:
 		for it in items:
 			var a: Vector2 = it.at - position
 			var t := float(it.t) / 0.45
-			var col := Color(0.91, 0.88, 0.81, 0.8 * (1.0 - t)) if it.kind == "dust" else Color(0.56, 0.8, 0.8, 0.9 * (1.0 - t))
+			var col := Color(0.56, 0.8, 0.8, 0.9 * (1.0 - t))
 			var spread := roundf((3.0 + 9.0 * t) * float(it.size))
 			for s in [-1, 1]:
 				draw_rect(Rect2(a.x + s * spread - 1, a.y - 1 - roundf(3.0 * t), 2, 2), col)
 				draw_rect(Rect2(a.x + s * roundf(spread * 0.5) - 1, a.y - 2 - roundf(5.0 * t), 1, 1), col)
-			if it.kind == "splash": draw_arc(a, spread, 0, TAU, 12, col, 1.0)
+			draw_arc(a, spread, 0, TAU, 12, col, 1.0)
 
 ## The body drawn flat in jade over whatever covers it (the side-view game's occlusion outline, redone for the grid).
 class Silhouette extends Node2D:
@@ -728,9 +799,15 @@ class FoeView extends Sorted:
 	var t := 0.0
 	var last := ""
 	var art: Node2D = null   ## the stand-in's drawing (no rows in the foe sheet), its feet at its origin
+	# Decision 38: the struck body flashes white, then tinted; a knockback hops it over the floor and leaves a skid.
+	var white := 0.0
+	var kb0 := 0.0
+	var hop := 0.0
+	var state := ""
 	func _init(w, e: EnemyState) -> void:
 		super(w)
 		uid = e.uid
+		add_child(FoeShadow.new(self))   # under the sprite, outside its flash
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
 		if e.team == "ally" or not (sheet.get("species", {}) as Dictionary).has(e.def_id):
 			art = TopdownPlaces.stand_in(e)
@@ -763,6 +840,7 @@ class FoeView extends Sorted:
 			TopdownPlaces.pose(art, e)
 			tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else Color.WHITE
 			queue_redraw()
+			get_child(0).queue_redraw()
 			return
 		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover"]
 		var want := e.velocity if e.velocity.length() > 1.0 else (e.aim if fight else Vector2.ZERO)
@@ -781,14 +859,41 @@ class FoeView extends Sorted:
 		var i := int(t * float(a.get("fps", 6)))
 		var at: Array = list[i % list.size() if a.get("loop", true) else mini(i, list.size() - 1)]
 		src = Rect2(float(at[0]), float(at[1]), cell.x, cell.y)
-		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(1.8, 1.8, 1.8) if e.flash > 0.0 else Color.WHITE)
+		var fl: Dictionary = CombatFeel.cfg().get("flash", {})
+		white = 1.0 if e.alive and e.flash > 0.0 and 0.12 - e.flash < float(fl.get("white_s", 0.05)) else 0.0
+		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(str(fl.get("tint", "#ffb4a0"))) if e.flash > 0.0 else Color.WHITE)
+		# The knockback's hop: up and down over the push, by its strength; a strong one skids dust.
+		var kb := absf(e.knockback)
+		if kb > kb0 + 0.5:
+			kb0 = kb
+			var kn: Dictionary = CombatFeel.cfg().get("knock", {})
+			if kb >= float(kn.get("skid_from", 40)): world.tfx.dust("skid", e.plane, e.altitude, e.knock_dir)
+		if kb <= 0.5: kb0 = 0.0
+		hop = 0.0
+		if kb0 > 0.0:
+			var hmax := minf(float(CombatFeel.cfg().get("knock", {}).get("hop_max_px", 10)), kb0 * float(CombatFeel.weight("heavy").get("hop", 0.08)))
+			hop = roundf(hmax * sin(PI * clampf(1.0 - kb / kb0, 0.0, 1.0)))
+		# A foe's blow: its swipe the moment its wind-up turns into the strike.
+		var st := str(e.ai.get("state", ""))
+		if st == "attack" and state == "windup" and e.team == "enemy": world.tfx.mark("swipe", e.plane, e.altitude + e.hover, e.aim_dir())
+		state = st
+		material = TopdownFx.white_material() if white > 0.0 else null
 		queue_redraw()
+		get_child(0).queue_redraw()
 	func _draw() -> void:
-		TopdownWorld.draw_blob(self, 0.0, ground_y - position.y, shadow_rx, 0.45 * tint.a)
-		if art != null: return   # the stand-in draws itself
-		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
+		if art != null: return   # the stand-in draws itself; its shadow is the FoeShadow child
+		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
+
+## A foe's blob shadow on the floor, drawn behind its figure and outside the figure's hurt flash.
+class FoeShadow extends Node2D:
+	var foe
+	func _init(f) -> void:
+		foe = f
+		show_behind_parent = true
+	func _draw() -> void:
+		TopdownWorld.draw_blob(self, 0.0, foe.ground_y - foe.position.y, foe.shadow_rx, 0.45 * foe.tint.a)
 
 ## Phase 2 (decision 30): the aim on the ground, on the overlay in world units. While a thumb aims (the player's
 ## `aim`), its form from the feet: an arrow for a blow, a line, a cone, a circle at its point (joined to the feet) or
