@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from canvas import T, Img, h01, tile, vnoise
 from palette import (BAMBOO, CLEAR, DARKWOOD, DIRT, EARTH, FOAM, GOLDR, GRASS, LOTUS, MOSS, PAD, PAPER, PAVE,
-                     PGOLD, PLASTER, RED, ROCK, ROOF, SHADE, STONE, WARM_RIM, WATER, WOOD, alpha)
+                     PGOLD, PLASTER, RED, REED, ROCK, ROOF, SHADE, STONE, WARM_RIM, WATER, WOOD, alpha)
 
 
 def _k(v: float, cuts: tuple, base: int) -> int:
@@ -53,6 +53,25 @@ def grass(seed: int, kind: str = "plain") -> Img:
             for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1), (-1, 1), (1, -1)):
                 t.put(x + dx, y + dy, GRASS[3] if (dx + dy) % 2 else GRASS[4])
             t.put(x, y, GRASS[5])
+            t.put(x + 1, y + 2, GRASS[1])
+    if kind == "marsh":
+        # Wet meadow (the Reed Marsh): standing water in small hollows, kept off the tile's edges so tiles still meet
+        # on the meadow's own green; each puddle's far bank throws a shaded row onto it, a glint sits on its near side
+        # and a lit lip of grass holds it. Reed stubble pokes through.
+        for n in range(2):
+            x, y = 2 + int(h01(n, 11, seed) * 9), 2 + int(h01(n, 12, seed) * 10)
+            w = 3 + int(h01(n, 13, seed) * 3)
+            for dy in range(3):
+                for dx in range(-1 if dy == 1 else 0, w + (1 if dy == 1 else 0)):
+                    t.put(x + dx, y + dy, WATER[1] if dy == 0 else WATER[3] if dx % 3 else WATER[2])
+            t.put(x + w // 2, y + 2, WATER[6])
+            t.hline(x, y + 3, w, GRASS[5])
+        for n in range(4):
+            x, y = 1 + int(h01(n, 14, seed) * 13), 1 + int(h01(n, 15, seed) * 12)
+            if t.get(x, y + 1)[2] > t.get(x, y + 1)[1]:
+                continue   # not in a puddle
+            t.put(x, y, REED[4])
+            t.put(x, y + 1, REED[3])
             t.put(x + 1, y + 2, GRASS[1])
     return t
 

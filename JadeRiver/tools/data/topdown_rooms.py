@@ -1,5 +1,6 @@
-"""Redesign Phase 4 (docs/redesign_top_down_plan.md, "As built: Phase 4"): the tutorial area's rooms redrawn for the
-top-down world, one layout per room in data/topdown/<room id>.json, read by TopdownRoom (scripts/topdown).
+"""Redesign Phase 4 (docs/redesign_top_down_plan.md, "As built: Phase 4", both parts): the tutorial area's rooms and
+chapter 2's stretch (both sects' Entry Trials and grounds, the Marsh Edge) redrawn for the top-down world, one layout per
+room in data/topdown/<room id>.json, read by TopdownRoom (scripts/topdown).
 
 A layout keeps its side-view room's id and every id in it: the World authority takes the room's definition (NPCs,
 objects, portals and their rules, foes, events) from data/rooms/ and only the places from here (TopdownRoom.merge_def):
@@ -15,7 +16,8 @@ objects, portals and their rules, foes, events) from data/rooms/ and only the pl
 Deterministic: `python3 tools/data/topdown_rooms.py` writes the files, `--check` proves they are current. Each layout
 is checked as it is built: every object, NPC, portal and spawn of its side-view room is placed on a cell a body can
 stand on (or, for a thing on the water, within reach of one), and each is reached on foot from every way in (walking,
-stairs, drops and a jump one level up, the TopdownMotor's rules; tests/topdown_tutorial.gd repeats it in the game).
+stairs, drops and a jump one level up, the TopdownMotor's rules; tests/topdown_tutorial.gd repeats it in the game);
+every way is reached by auto-path's own rules too (no running jump over a gap), so the tracker's go button crosses it.
 """
 import json
 import os
@@ -30,7 +32,7 @@ TILESET = json.load(open(os.path.join(OUT, "proto_tileset.json")))
 SOLID = 99
 WATER = -1
 # Where the door art sits in a building prop's footprint (columns from its west cell; the doorway is the row under it).
-DOORS = {"house": (2, 3), "storehouse": (1, 2)}
+DOORS = {"house": (2, 3), "storehouse": (1, 2), "hall": (3, 4)}
 
 
 class Layout:
@@ -179,8 +181,9 @@ class Grid:
             return (s["from"] + (s["to"] - s["from"]) * k) * 32.0
         return lv * 32.0
 
-    def reach(self, start):
-        """Every cell a body reaches on foot from `start`: walking, stairs, drops, a jump one level up."""
+    def reach(self, start, gaps=True):
+        """Every cell a body reaches on foot from `start`: walking, stairs, drops, a jump one level up, and (`gaps`) a
+        running jump over one tile. Without `gaps` it is what auto-path walks (TopdownRoom.find_path)."""
         seen = {start}
         q = deque([start])
         while q:
@@ -198,7 +201,7 @@ class Grid:
                 seen.add((nx, ny))
                 q.append((nx, ny))
             # A running jump over one tile to a floor no higher: over water or a drop (a gap between roofs).
-            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if gaps else ():
                 mx, my, nx, ny = cx + dx, cy + dy, cx + 2 * dx, cy + 2 * dy
                 if (nx, ny) in seen:
                     continue
@@ -269,11 +272,14 @@ def check(lay, d):
         for i, r in enumerate(reached):
             if not any(q in r for q in stand):
                 errs.append("object %s at %s: not reached from start %s" % (oid, str(c), str(starts[i])))
+    # Every way is reached from every way in by what auto-path walks (no running jump over a gap), so the tracker's go
+    # button can take the body through the room.
+    walked = [g.reach(st, False) for st in starts if g.floor(*st) is not None]
     for pid, p in d["portals"].items():
         c = cell(p["at"])
-        for i, r in enumerate(reached):
+        for i, r in enumerate(walked):
             if c not in r:
-                errs.append("portal %s: not reached from start %s" % (pid, str(starts[i])))
+                errs.append("portal %s: not reached by auto-path from start %s" % (pid, str(starts[i])))
     for k, pts in enumerate(d["spawns"]):
         for q in pts:
             c = cell(q)
@@ -775,8 +781,593 @@ def fairground():
     return r
 
 
+# ==================================================================== chapter 2's stretch: the trials, the sects, the marsh
+# docs/redesign_top_down_plan.md "As built: Phase 4, second part": the rooms the story visits from the sect choice to the
+# first steps of chapter 2, for both sects a player can join (Jade and Cloud).
+def trial_yard(rid, banner):
+    """The walled yard of an Entry Trial behind its trial hall on the Fairground: the gateway back in the south wall
+    between the sect's banners, stone lanterns round a sand ring where the Trial Puppet steps out once the bell has
+    rung. The climb to the bell is each sect's own (trial_jade, trial_cloud)."""
+    r = Layout(rid, 40, 24, 0, "p")
+    r.walls(0, 0, 40, 24, 2, 1)
+    r.rect(19, 23, 2, 1, 0, "p")                  # the gateway back to the Fairground
+    r.rect(1, 18, 7, 5, 0, "g")                   # lawns in the front corners
+    r.rect(32, 21, 7, 2, 0, "g")
+    r.rect(2, 20, 4, 2, 0, "f")
+    r.rect(21, 11, 16, 10, 0, "s")                # the granite apron round the ring
+    r.rect(22, 12, 14, 8, 0, "d")                 # the sand ring
+    r.rect(18, 12, 3, 11, 0, "s")                 # the walk from the gateway
+    for x in (17, 22):
+        r.prop(banner, x, 21)
+    for x, y in ((21, 11), (36, 11), (21, 20), (36, 20)):
+        r.prop("lantern", x, y)
+    r.prop("pine", 2, 19)
+    r.prop("pine", 37, 21)
+    r.prop("shrub", 6, 21)
+    r.prop("barrel", 1, 13)
+    r.prop("barrel", 1, 14)
+    r.spawn = [19.5, 20]
+    r.way("entry", 19.5, 23, "s", [19.5, 21.5], 2)
+    r.spawns = [[[29, 16]]]
+    return r
+
+
+def trial_jade():
+    """The Jade Sect's Entry Trial: the climb to the trial bell runs over three roofs along the north wall (crates onto
+    the first roof, a tile's running jump to the second and up its ridge, another jump to the third) and up onto the
+    bell tower's top; racks of training weapons stand along the east wall."""
+    r = trial_yard("sf_trial_jade", "banner_jade")
+    r.rect(3, 5, 7, 4, 2, "t")                    # the first roof (x 3-9, y 5-8)
+    r.prop("crates", 5, 9)                        # onto it
+    r.rect(11, 3, 7, 6, 2, "t")                   # the second roof, a tile's jump east
+    r.rect(15, 3, 3, 3, 3, "t")                   # its ridge, a level up
+    r.rect(19, 2, 6, 5, 3, "t")                   # the third roof, a tile's jump from the ridge
+    r.rect(25, 1, 4, 5, 4, "s")                   # the bell tower's top
+    for x in (31, 34):
+        r.prop("weapon_rack", x, 1)
+    r.at("trial_bell", 26.5, 3)
+    return r
+
+
+def trial_cloud():
+    """The Cloud Sect's Entry Trial: the climb runs up rock ledges out of the cliff behind the yard (the first ledge,
+    the one above it, a plank walk over the cliff pool a tile's jump across, and the top ledge where the bell hangs)."""
+    r = trial_yard("sf_trial_cloud", "banner_cloud")
+    r.rect(1, 1, 38, 2, 5, "r")                   # the cliff behind the yard
+    r.rect(6, 9, 6, 3, 1, "r")                    # the first ledge (x 6-11, y 9-11)
+    r.rect(6, 3, 6, 6, 2, "r")                    # the ledge above it
+    r.water(12, 3, 6, 6)                          # the cliff pool (x 12-17, y 3-8)
+    r.rect(13, 5, 5, 2, 2, "w")                   # the plank walk over it, a tile's jump from the ledge
+    r.rect(18, 3, 7, 5, 3, "r")                   # the top ledge
+    r.prop("lotus", 14, 8)
+    r.prop("boulder", 30, 4)
+    r.prop("boulder", 4, 13)
+    r.at("trial_bell", 22, 4)
+    return r
+
+
+def jade_gate_street():
+    """Gate Street, the Jade Sect's front: the road up from Stoneford through the sect's banners onto the plaza inside
+    the gate (the steward, the teleport stone, the shrine); the three halls in a row on rising terraces, the Weapon
+    Hall, the Alchemy Hall and the Library, their roofs a level apart (the rooftop thief's run from the crates, the
+    chest on the Library's roof); the service dorm and its sleeping porch; the notice board and the deacon by the way
+    east to the Pavilion Rooftops; a scholar's garden pond; and the mountain behind."""
+    r = Layout("ja_gate_street", 64, 32, 0, "g")
+    r.rect(0, 0, 64, 3, 3, "r")                   # the mountain behind the sect
+    r.rect(0, 12, 64, 7, 0, "p")                  # Gate Street
+    r.rect(3, 19, 14, 4, 0, "p")                  # the plaza inside the gate
+    r.vline(8, 23, 31, 3, "d")                    # the road up from Stoneford
+    r.rect(22, 4, 8, 8, 1, "s")                   # the Alchemy Hall's terrace
+    r.rect(30, 3, 8, 9, 2, "s")                   # the Library's terrace
+    r.stair(25, 10, 2, 2, 0, 1)
+    r.stair(33, 8, 2, 4, 0, 2)
+    wh = r.prop("hall", 14, 6)                    # the Weapon Hall (roof 2)
+    al = r.prop("hall", 22, 5)                    # the Alchemy Hall (roof 3), a hop up from the Weapon Hall's
+    lb = r.prop("hall", 30, 4)                    # the Library (roof 4), a hop up again
+    r.door_path(wh, 12, "p")
+    r.prop("crates", 12, 8)                       # onto the Weapon Hall's roof
+    r.prop("house", 42, 6)                        # the service dorm
+    r.rect(42, 9, 6, 2, 0, "w")                   # its sleeping porch
+    r.water(44, 24, 12, 5)                        # the scholar's pond
+    for x, y in ((46, 25), (51, 26)):
+        r.prop("lotus", x, y)
+    # The scholar's garden south of the street: a path from the road to the pond between flower beds and a rockery.
+    r.hline(11, 43, 26, 2, "d")
+    for x, y, w in ((19, 22, 5), (30, 22, 6), (22, 29, 7), (36, 29, 5)):
+        r.rect(x, y, w, 2, 0, "f")
+    for x, y in ((27, 23), (28, 24), (38, 23), (41, 29)):
+        r.prop("boulder", x, y)
+    for x, y in ((17, 29), (33, 21), (1, 5), (10, 4)):
+        r.prop("pine", x, y)
+    for x, y in ((24, 23), (35, 24), (30, 29), (52, 5), (54, 6)):
+        r.prop("shrub", x, y)
+    for x, y in ((16, 10), (19, 10), (2, 11), (7, 11)):
+        r.prop("lantern", x, y)
+    for x in (7, 11):
+        r.prop("banner_jade", x, 24)
+    for x in (7, 11):
+        r.prop("lantern_red", x, 28)
+    for x, y in ((4, 2), (20, 1), (45, 1), (56, 2)):
+        r.prop("pine", x, y)
+    for x, y in ((57, 9), (59, 10), (58, 22)):
+        r.prop("bamboo", x, y)
+    r.prop("willow", 42, 23)
+    r.prop("boulder", 3, 21)
+    r.prop("shrub", 49, 10)
+    r.prop("shrub", 38, 13)
+    r.spawn = [9, 27]
+    r.way("stoneford", 9, 31, "s", [9, 29], 3)
+    r.way("east", 63, 15, "e", [61, 15], 3)
+    r.door("weapon_hall", wh)
+    r.door("alchemy_hall", al)
+    r.door("library", lb)
+    r.at("shrine_ja", 4.5, 13)
+    r.at("stone_ja", 13, 20)
+    r.at("board_ja", 60, 13)
+    r.at("siege_gong_ja", 54, 17)
+    r.at("npc_jade_steward", 7, 16)
+    r.at("npc_jade_deacon", 57, 15)
+    r.at("npc_jade_disciple_a", 29, 15)
+    r.at("npc_jade_disciple_b", 40, 17)
+    r.at("dorm_bed_ja", 46, 10)
+    r.at("sweep_ja_0", 20, 15)
+    r.at("sweep_ja_1", 27, 17)
+    r.at("sweep_ja_2", 11, 22)                    # the grey stain by the gate
+    r.at("chest_mission_hall", 35, 5)             # on the Library's roof
+    r.at("thief_ja", 15, 14)
+    r.routes["thief_ja"] = [[15, 14, 0.0], [12.5, 8, 0.6], [15.5, 7, 0.5], [20.5, 7, 0.6], [23.5, 6, 0.5], [28.5, 6, 0.6],
+                            [31.5, 5, 0.5], [36.5, 5, 0.6]]
+    return r
+
+
+def weapon_hall(rid, banner, master, smith, anvil, dummies):
+    """A sect's Weapon Hall and Forge: racks of training weapons along the back wall between the sect's banners, the
+    weapon master before them, the sparring ring a level up in the west (boards and a step) with its two dummies, the
+    smith and the anvil at the forge in the east, and the door in the front wall back out."""
+    r = Layout(rid, 24, 14, 0, "s")
+    r.walls(0, 0, 24, 14)
+    r.rect(11, 13, 2, 1, 0, "s")                  # the doorway in the front sill
+    r.rect(2, 7, 7, 4, 1, "w")                    # the sparring ring
+    r.stair(4, 11, 3, 1, 0, 1, "w")
+    for x in (2, 5, 8):
+        r.prop("weapon_rack", x, 1)
+    for x in (12, 15):
+        r.prop(banner, x, 1)
+    r.prop("crates", 19, 1)
+    r.prop("barrel", 21, 1)
+    r.prop("barrel", 22, 2)
+    r.prop("lantern", 1, 11)
+    r.prop("lantern", 22, 11)
+    r.spawn = [11.5, 11]
+    r.at(master, 10, 5)
+    r.at(smith, 17, 5)
+    r.at(anvil, 19, 7)
+    r.at(dummies[0], 4, 8)
+    r.at(dummies[1], 7, 8)
+    r.way("exit", 11.5, 13, "s", [11.5, 11.5], 2)
+    return r
+
+
+def jade_weapon_hall():
+    return weapon_hall("ja_weapon_hall", "banner_jade", "npc_jade_weapon_master", "npc_jade_smith", "anvil_ja",
+                       ["dummy_wh_0", "dummy_wh_1"])
+
+
+def cloud_weapon_hall():
+    return weapon_hall("cm_weapon_hall", "banner_cloud", "npc_cloud_weapon_master", "npc_cloud_smith", "anvil_cm",
+                       ["dummy_cwh_0", "dummy_cwh_1"])
+
+
+def pavilion_rooftops():
+    """The Pavilion Rooftops, the Jade Sect's training yard: the yard with its dummies, the hall master and the sparring
+    post in a sand ring; the courtyard pine in a raised bed with a herb pot beside it; three pavilions in a row rising a
+    level each (crates, the East Entry's roof, the East Step's, and the great Heaven Pavilion's, where the Retreat
+    Rooms open and a chest waits); the rear stairs up to the east terrace under the plum shrubs, where crates give a
+    second way onto the Heaven Pavilion; a lotus pond; and the mountain behind."""
+    r = Layout("ja_pavilion_rooftops", 60, 30, 0, "g")
+    r.rect(0, 0, 60, 3, 3, "r")
+    r.rect(0, 11, 60, 12, 0, "p")                 # the training yard
+    r.rect(22, 15, 10, 6, 0, "d")                 # the sparring ring
+    r.rect(3, 7, 5, 4, 2, "b")                    # the courtyard pine's raised bed
+    r.rect(3, 11, 5, 1, 1, "s")                   # its step
+    r.prop("pine", 4, 8)
+    r.prop("hall", 14, 6)                         # the East Entry (roof 2)
+    r.rect(22, 4, 8, 7, 1, "s")                   # the East Step's terrace
+    r.stair(25, 9, 2, 2, 0, 1)
+    r.prop("hall", 22, 5)                         # the East Step (roof 3)
+    r.rect(30, 3, 12, 7, 4, "t")                  # the Heaven Pavilion, built on the grid (roof 4)
+    retreat = r.prop("storehouse", 34, 3)         # the Retreat Rooms' door on its roof
+    r.prop("crates", 12, 8)                       # up onto the East Entry's roof
+    r.rect(42, 4, 14, 6, 2, "s")                  # the east terrace
+    r.stair(48, 10, 3, 4, 0, 2)                   # the rear stairs
+    r.prop("crates", 42, 5)                       # from the terrace onto the Heaven Pavilion
+    for x, y in ((47, 5), (52, 7), (54, 5)):
+        r.prop("shrub", x, y)
+    r.water(8, 25, 12, 4)                         # the lotus pond
+    for x, y, w in ((24, 23, 6), (40, 24, 8)):
+        r.rect(x, y, w, 2, 0, "f")                # flower beds along the yard's south side
+    r.prop("lotus", 10, 26)
+    r.prop("lotus", 15, 27)
+    r.prop("willow", 21, 24)
+    for x in (30, 41):
+        r.prop("banner_jade", x, 11)
+    for x, y in ((13, 11), (46, 13), (52, 13)):
+        r.prop("lantern", x, y)
+    for x, y in ((6, 1), (24, 1), (50, 2)):
+        r.prop("pine", x, y)
+    for x, y in ((56, 23), (58, 24), (3, 24)):
+        r.prop("bamboo", x, y)
+    r.spawn = [3, 16]
+    r.way("west", 0, 16, "w", [2, 16], 3)
+    r.way("east", 59, 16, "e", [57, 16], 3)
+    r.door("retreat_roof", retreat)
+    r.at("roof_chest", 39, 7)                     # on the Heaven Pavilion's roof
+    r.at("npc_jade_hall_master", 15, 18)
+    r.at("npc_jade_wm_yard", 20, 20)
+    r.at("dummy_jp_0", 8, 16)
+    r.at("dummy_jp_1", 11, 16)
+    r.at("spar_jp", 26, 18)
+    r.at("herb_pot_pine", 6, 8)                   # in the pine's raised bed
+    return r
+
+
+def east_terrace():
+    """The East Terrace: the Mission Hall with its row of training stumps and the Temper drum, the formation elder at
+    her table, the physician, the arena master and his sparring post, the abode terrace up its stairs against the cliff
+    (a cave abode's door between stone lanterns), the Retreat Rooms, and the cliff with its pines behind."""
+    r = Layout("ja_east_terrace", 60, 30, 0, "g")
+    r.rect(0, 0, 60, 4, 5, "r")                   # the cliff the abodes are cut into
+    r.rect(0, 11, 60, 12, 0, "p")
+    r.prop("hall", 5, 6)                          # the Mission Hall
+    r.prop("crates", 13, 8)                       # a step up onto its roof
+    for x, y in ((5, 12), (7, 13), (9, 12), (11, 13), (13, 12), (15, 13)):
+        r.prop("post", x, y)                      # training stumps
+    r.rect(24, 4, 17, 5, 2, "s")                  # the abode terrace
+    r.stair(31, 9, 3, 4, 0, 2)
+    abode = r.prop("storehouse", 34, 4)           # a cave abode's door, against the cliff
+    for x in (25, 39):
+        r.prop("lantern", x, 7)
+    retreat = r.prop("hall", 45, 6)               # the Retreat Rooms
+    r.door_path(retreat, 11, "p")
+    for x in (29, 36):
+        r.prop("banner_jade", x, 11)
+    for x, y in ((8, 2), (20, 1), (50, 2)):
+        r.prop("pine", x, y)
+    for x, y in ((56, 9), (57, 10), (2, 24)):
+        r.prop("bamboo", x, y)
+    for x, y in ((20, 25), (33, 26), (46, 25)):
+        r.prop("shrub", x, y)
+    r.prop("willow", 27, 23)
+    for x, y, w in ((14, 24, 8), (38, 24, 7)):
+        r.rect(x, y, w, 2, 0, "f")
+    r.spawn = [3, 16]
+    r.way("west", 0, 16, "w", [2, 16], 3)
+    r.way("east", 59, 16, "e", [57, 16], 3)
+    r.door("abode", abode)
+    r.door("retreat", retreat)
+    r.at("npc_jade_formation_elder", 22, 14)
+    r.at("npc_jade_physician", 34, 17)
+    r.at("npc_arena_master", 48, 15)
+    r.at("formation_table_ja", 19, 16)
+    r.at("arena_ja", 53, 18)
+    r.at("temper_jade_ja_east_terrace", 16, 17)
+    return r
+
+
+def herb_terraces():
+    """The Herb Terraces: three green terraces stepping up the hillside on grassy banks, a garden bed and herbs on each
+    and stairs between them, the gardener at their foot among the bamboo, and the stone stair up through the crags to
+    Elder Hu's peak between two lanterns."""
+    r = Layout("ja_herb_terraces", 56, 30, 0, "g")
+    r.rect(0, 0, 56, 2, 5, "r")                   # the crags
+    r.rect(8, 15, 32, 5, 1, "g")                  # the first terrace
+    r.rect(8, 9, 32, 6, 2, "g")                   # the second
+    r.rect(8, 2, 32, 7, 3, "g")                   # the third
+    for y, lv in ((16, 1), (11, 2), (4, 3)):
+        r.hline(10, 37, y, 2, "d", lv)            # a path along each terrace
+    r.stair(12, 18, 2, 2, 0, 1)
+    r.stair(22, 13, 2, 2, 1, 2)
+    r.stair(32, 7, 2, 2, 2, 3)
+    r.rect(44, 0, 3, 9, 3, "s")                   # the peak stair's head, through the crags
+    r.stair(44, 9, 3, 6, 0, 3)
+    r.hline(0, 55, 23, 3, "d")                    # the path along the terraces' foot
+    r.vline(44, 15, 22, 3, "d")
+    for x in (43, 47):
+        r.prop("lantern", x, 14)
+    for x, y in ((3, 19), (4, 21), (50, 20), (52, 25)):
+        r.prop("bamboo", x, y)
+    for x, y in ((14, 5), (26, 3), (18, 12), (35, 13), (28, 17)):
+        r.prop("shrub", x, y)
+    for x, y in ((6, 1), (50, 1)):
+        r.prop("pine", x, y)
+    r.prop("boulder", 49, 12)
+    r.spawn = [3, 24]
+    r.way("west", 0, 24, "w", [2, 24], 3)
+    r.way("peak_path", 45, 0, "n", [45, 2], 3)
+    r.at("bed_0", 18, 17)
+    r.at("bed_1", 28, 12)
+    r.at("bed_2", 36, 6)
+    r.at("herb_1", 11, 17)
+    r.at("herb_2", 30, 5)
+    r.at("npc_jade_gardener", 20, 24)
+    return r
+
+
+def elder_hu_peak():
+    """Elder Hu's Peak: a mountain meadow under the summit crags, Elder Hu by the Qi spring, the insight stone, the
+    Heart Trial's circle and the treasure plot; rock ledges stepping up to the Meditation Rock; the pagoda at his cave
+    abode's door; and the path back down to the Herb Terraces."""
+    r = Layout("ja_elder_hu_peak", 40, 26, 0, "g")
+    r.rect(0, 0, 40, 3, 5, "r")                   # the summit crags
+    r.rect(0, 3, 2, 18, 3, "r")
+    r.rect(38, 3, 2, 23, 3, "r")
+    r.rect(7, 9, 6, 4, 1, "r")                    # the first ledge
+    r.rect(13, 5, 6, 5, 2, "r")                   # the second
+    r.rect(19, 3, 7, 5, 3, "r")                   # the Meditation Rock's ledge
+    abode = r.prop("storehouse", 31, 5)           # the pagoda at the cave abode's door
+    r.door_path(abode, 12)
+    r.vline(5, 14, 25, 2, "d")                    # the path down
+    r.prop("incense", 16, 15)
+    for x, y in ((3, 8), (35, 13), (27, 22), (10, 22)):
+        r.prop("pine", x, y)
+    for x, y in ((25, 9), (8, 14), (30, 18), (2, 23)):
+        r.prop("boulder", x, y)
+    r.spawn = [6, 22]
+    r.way("path", 5.5, 25, "s", [5.5, 23.5], 2)
+    r.door("abode", abode)
+    r.at("npc_elder_hu", 24, 13)
+    r.at("spring_hu", 14, 16)
+    r.at("insight_hu", 30, 12)
+    r.at("rite_reflection", 20, 19)
+    r.at("plot_hu", 9, 18)
+    r.at("meditation_rock", 22, 4)
+    return r
+
+
+def cloud_cliff_stair():
+    """The Cliff Stair, the Cloud Sect's approach: the road up from Stoneford between the sect's banners into the lower
+    court (the steward, the teleport stone, the Cloud Steps' starting stone, the shrine, the service dorm and its porch,
+    the notice board and the deacon), the grand stair up the cliff to its landing, a rock ledge above it, and the top
+    ledge where the Cloud Library's cliff door opens and the Cloud Steps' bell hangs."""
+    r = Layout("cm_cliff_stair", 56, 34, 0, "g")
+    r.rect(0, 0, 56, 2, 6, "r")                   # the cliff's crown
+    r.rect(0, 2, 34, 4, 5, "r")                   # the cliff face behind the landing
+    r.rect(34, 2, 6, 3, 5, "r")
+    r.rect(52, 2, 4, 8, 5, "r")
+    r.rect(16, 6, 18, 8, 2, "s")                  # the landing
+    r.stair(23, 14, 4, 4, 0, 2)                   # the grand stair
+    r.rect(34, 5, 6, 6, 3, "r")                   # the ledge above the landing
+    r.rect(40, 2, 12, 6, 4, "r")                  # the top ledge
+    lib = r.prop("storehouse", 44, 2)             # the Cloud Library's cliff door
+    r.rect(3, 18, 50, 11, 0, "p")                 # the lower court
+    r.vline(8, 29, 33, 3, "d")                    # the road up from Stoneford
+    r.prop("house", 38, 12)                       # the service dorm
+    r.rect(38, 15, 6, 2, 0, "w")                  # its porch
+    for x, y, w in ((44, 14, 5), (2, 14, 8), (30, 30, 10)):
+        r.rect(x, y, w, 2, 0, "f")
+    for x in (6, 12):
+        r.prop("banner_cloud", x, 29)
+    for x, y in ((17, 12), (32, 12), (22, 16), (27, 16)):
+        r.prop("lantern", x, y)
+    for x, y in ((3, 8), (11, 10), (54, 13), (2, 30)):
+        r.prop("pine", x, y)
+    for x, y in ((6, 12), (47, 11), (51, 30)):
+        r.prop("boulder", x, y)
+    r.spawn = [9, 31]
+    r.way("stoneford", 9, 33, "s", [9, 31], 3)
+    r.way("east", 55, 23, "e", [53, 23], 3)
+    r.door("library", lib)
+    r.at("shrine_cm", 14, 19)
+    r.at("stone_cm", 13, 24)
+    r.at("board_cm", 46, 20)
+    r.at("siege_gong_cm", 51, 26)
+    r.at("npc_cloud_steward", 7, 21)
+    r.at("npc_cloud_deacon", 48, 22)
+    r.at("npc_cloud_disciple_a", 22, 22)
+    r.at("dorm_bed_cm", 42, 16)
+    r.at("sweep_cm_0", 18, 24)
+    r.at("sweep_cm_1", 30, 25)
+    r.at("sweep_cm_2", 11, 27)                    # the grey stain by the gate
+    r.at("cloud_steps_bell", 49, 5)               # the Cloud Steps' finish, on the top ledge
+    r.at("cloud_steps_stone", 5, 26)
+    return r
+
+
+def sword_court():
+    """The Sword Court: the Sword Hall's two wings along the cliff (the Weapon Hall's door and the Cloud Library's), the
+    hall master and the dummies at the west, the plum-blossom poles (timber posts at stepped heights, a tile apart or
+    side by side a level up), the sparring post, the Temper drum and the arena master, training stumps and the two sword
+    pillars at the east."""
+    r = Layout("cm_sword_court", 60, 30, 0, "g")
+    r.rect(0, 0, 60, 3, 4, "r")
+    r.rect(0, 10, 60, 13, 0, "p")                 # the court
+    wh = r.prop("hall", 16, 5)
+    lib = r.prop("hall", 24, 5)
+    r.door_path(wh, 10, "p")
+    r.door_path(lib, 10, "p")
+    r.prop("crates", 32, 7)                       # onto the Sword Hall's roof
+    for x, lv in ((38, 1), (40, 1), (41, 2), (43, 2), (44, 3), (46, 2), (48, 1)):
+        r.rect(x, 15, 1, 1, lv, "w")              # the plum-blossom poles
+    for x in (51, 56):
+        r.rect(x, 8, 1, 1, 5, "s")                # the sword pillars
+    for x, y in ((50, 17), (52, 18), (54, 17), (56, 18)):
+        r.prop("post", x, y)
+    for x in (15, 32):
+        r.prop("banner_cloud", x, 9)
+    for x, y in ((4, 1), (37, 1), (48, 2)):
+        r.prop("pine", x, y)
+    for x, y in ((8, 25), (22, 26), (40, 25)):
+        r.prop("boulder", x, y)
+    for x, y, w in ((3, 24, 4), (12, 25, 8), (28, 24, 9), (46, 25, 6)):
+        r.rect(x, y, w, 2, 0, "f")
+    for x, y in ((56, 24), (57, 25)):
+        r.prop("bamboo", x, y)
+    r.spawn = [3, 16]
+    r.way("west", 0, 16, "w", [2, 16], 3)
+    r.way("east", 59, 16, "e", [57, 16], 3)
+    r.door("weapon_hall", wh)
+    r.door("library", lib)
+    r.at("npc_cloud_hall_master", 10, 15)
+    r.at("npc_arena_cm", 47, 20)
+    r.at("dummy_cs_0", 5, 16)
+    r.at("dummy_cs_1", 7, 16)
+    r.at("spar_cm", 35, 19)
+    r.at("temper_jade_cm_sword_court", 41, 20)
+    return r
+
+
+def array_court():
+    """The Array Court: the array dais a step up in the middle with the formation elder at her table and a stone lantern
+    at each corner (the formation's nodes), the physician, the monastery furnace, the rope ledge against the cliff, the
+    Retreat Rooms, the garden beds with the gardener, and the gorge path up to Elder Sung's peak."""
+    r = Layout("cm_array_court", 60, 30, 0, "g")
+    r.rect(0, 0, 60, 3, 4, "r")
+    r.rect(0, 10, 60, 13, 0, "p")
+    r.rect(20, 12, 15, 5, 1, "s")                 # the array dais
+    r.stair(26, 17, 3, 1, 0, 1)
+    for x, y in ((20, 12), (34, 12), (20, 16), (34, 16)):
+        r.prop("lantern", x, y)
+    r.rect(40, 3, 7, 6, 2, "r")                   # the rope ledge
+    r.rect(41, 9, 2, 1, 1, "r")                   # a step up to it
+    retreat = r.prop("hall", 48, 5)
+    r.door_path(retreat, 10, "p")
+    r.rect(57, 0, 3, 10, 0, "d")                  # the gorge path to the peak
+    r.rect(4, 24, 14, 3, 0, "d")                  # the garden's beds
+    r.rect(3, 23, 16, 1, 0, "f")
+    for x in (19, 34):
+        r.prop("banner_cloud", x, 21)
+    for x, y in ((6, 1), (30, 1)):
+        r.prop("pine", x, y)
+    for x, y in ((2, 20), (24, 26), (44, 25), (53, 26)):
+        r.prop("bamboo", x, y)
+    r.prop("boulder", 38, 5)
+    r.spawn = [3, 16]
+    r.way("west", 0, 16, "w", [2, 16], 3)
+    r.way("east", 59, 16, "e", [57, 16], 3)
+    r.way("peak_path", 58, 0, "n", [58, 2], 3)
+    r.door("retreat", retreat)
+    r.at("npc_cloud_formation_elder", 26, 13)
+    r.at("formation_table_cm", 29, 14)
+    r.at("npc_cloud_physician", 38, 18)
+    r.at("furnace_cm", 45, 12)
+    r.at("bed_cm_0", 7, 25)
+    r.at("bed_cm_1", 10, 25)
+    r.at("bed_cm_2", 13, 25)
+    r.at("npc_cloud_gardener", 16, 21)
+    return r
+
+
+def elder_sung_peak():
+    """Elder Sung's Peak: the summit crags over a mountain tarn; the west ledge and the west peak, the rope bridge along
+    the tarn's edge to the far peak where Elder Sung stands; below, the Qi spring, the insight stone, the Heart Trial's
+    circle and the treasure plot on the meadow; the pagoda at his cave abode's door; the path back down."""
+    r = Layout("cm_elder_sung_peak", 40, 28, 0, "g")
+    r.rect(0, 0, 40, 2, 6, "r")                   # the summit crags
+    r.water(10, 2, 18, 5)                         # the tarn
+    r.water(10, 9, 18, 2)                         # the stream out of it, under the bridge's south side
+    r.rect(5, 11, 5, 3, 1, "r")                   # the west ledge
+    r.rect(5, 2, 5, 9, 2, "r")                    # the west peak
+    r.rect(10, 7, 18, 2, 2, "w")                  # the rope bridge
+    r.rect(28, 2, 7, 8, 3, "r")                   # the far peak
+    r.rect(35, 2, 5, 10, 4, "r")
+    abode = r.prop("storehouse", 33, 13)
+    r.door_path(abode, 20)
+    r.vline(5, 15, 27, 2, "d")                    # the path down
+    for x, y in ((12, 4), (20, 3), (16, 9), (23, 10)):
+        r.prop("lotus", x, y)
+    r.prop("incense", 14, 16)
+    for x, y in ((2, 12), (29, 21), (37, 18), (9, 24)):
+        r.prop("pine", x, y)
+    for x, y in ((2, 17), (26, 13), (19, 25), (36, 25)):
+        r.prop("boulder", x, y)
+    r.spawn = [6, 24]
+    r.way("path", 5.5, 27, "s", [5.5, 25.5], 2)
+    r.door("abode", abode)
+    r.at("npc_elder_sung", 31, 5)                 # on the far peak
+    r.at("spring_sung", 12, 18)
+    r.at("insight_sung", 22, 15)
+    r.at("rite_reflection_cm", 18, 21)
+    r.at("plot_sung", 8, 20)
+    return r
+
+
+def marsh_edge():
+    """The Marsh Edge, the Reed Marsh's first field: the path east from the Reed Shallows over wet meadow and two
+    boardwalks across the channels, open water to the north with the stilt platforms standing in it (the reed platform
+    and the net platform where the frogs sit, the stilt hut, the lookout) up their wooden stairs, lower stilts on the
+    meadow, the south pools with reeds, lotus and the fishing spot, and the grey patches where the Hollowing has drained
+    the reeds, dead trees over them."""
+    r = Layout("rm_marsh_edge", 64, 30, 0, "m")
+    r.water(0, 0, 64, 6)                          # the open marsh water
+    r.water(0, 23, 64, 7)                         # the south pools
+    r.water(24, 6, 2, 17)                         # the channels between them
+    r.water(46, 6, 2, 17)
+    for x, y, w, h in ((7, 6, 5, 1), (20, 6, 3, 2), (43, 6, 2, 1), (57, 6, 4, 2), (26, 8, 1, 3), (23, 18, 1, 3), (45, 18, 1, 3)):
+        r.water(x, y, w, h)                       # bays and meanders, so no shore runs straight for long
+    for x, y, w, h in ((10, 23, 4, 2), (40, 23, 5, 1), (50, 25, 3, 2)):
+        r.rect(x, y, w, h, 0, "m")                # a spit and an islet in the south pools
+    r.hline(0, 63, 13, 3, "d")                    # the path along the marsh
+    r.rect(24, 13, 2, 3, 0, "w")                  # its boardwalks over the channels
+    r.rect(46, 13, 2, 3, 0, "w")
+    r.rect(12, 2, 6, 4, 2, "w")                   # the reed platform (x 12-17, y 2-5)
+    r.stair(14, 6, 2, 4, 0, 2, "w")
+    r.rect(27, 1, 7, 6, 2, "w")                   # the stilt hut's platform (x 27-33, y 1-6)
+    r.prop("storehouse", 28, 1)                   # the hut
+    r.stair(32, 7, 2, 4, 0, 2, "w")
+    r.rect(38, 2, 6, 4, 2, "w")                   # the net platform
+    r.stair(40, 6, 2, 4, 0, 2, "w")
+    r.rect(50, 1, 6, 5, 2, "w")                   # the lookout
+    r.stair(52, 6, 2, 4, 0, 2, "w")
+    r.rect(3, 7, 5, 3, 1, "w")                    # low stilts on the meadow: west, by the pool, east
+    r.rect(19, 19, 4, 3, 1, "w")
+    r.rect(57, 18, 4, 3, 1, "w")
+    r.rect(28, 22, 3, 1, 0, "w")                  # a jetty into the south pool
+    for x, y in ((11, 18), (29, 17), (50, 19)):
+        r.prop("dead_tree", x, y)
+    for x, y in ((13, 19), (15, 18), (31, 20), (28, 20), (48, 19), (51, 17)):
+        r.prop("grey_reeds", x, y)
+    for x in (1, 6, 10, 20, 35, 42, 55, 60):
+        r.prop("reeds", x, 22)
+    for x in (4, 19, 36, 44, 58):
+        r.prop("reeds", x, 6)
+    for x, y in ((8, 26), (38, 25), (54, 27), (21, 3), (58, 2)):
+        r.prop("lotus", x, y)
+    r.prop("willow", 36, 10)
+    r.prop("willow", 60, 9)
+    r.prop("boulder", 9, 10)
+    r.prop("shrub", 44, 10)
+    r.spawn = [3, 14]
+    r.way("west", 0, 14, "w", [2, 14], 3)
+    r.way("east", 63, 14, "e", [61, 14], 3)
+    r.at("herb_1", 33, 4)                         # on the stilt hut's platform
+    r.at("herb_2", 53, 3)                         # on the lookout
+    r.at("herb_3", 57, 16)
+    r.at("jar_4", 16, 3)                          # on the reed platform
+    r.at("jar_5", 42, 3)                          # on the net platform
+    r.at("jar_6", 38, 17)
+    r.at("jar_7", 44, 11)
+    r.at("jar_8", 60, 16)
+    r.at("fish_9", 29, 24)
+    r.at("grey_patch_0", 14, 17)
+    r.at("grey_patch_1", 30, 19)
+    r.at("grey_patch_2", 49, 17)
+    r.at("rift_tear", 36, 16)
+    r.at("spirit_fruit_tree", 21, 16)
+    r.at("swarm_glowfly", 41, 19)
+    r.at("trail_jade_frog", 9, 17)
+    r.spawns = [[[13, 3], [16, 4]],
+                [[10, 16], [21, 12], [35, 18], [54, 16]],
+                [[37, 16]],
+                [[43, 20]],
+                [[19, 16], [33, 17], [44, 16]],
+                [[39, 3], [42, 4]]]
+    return r
+
+
 LAYOUTS = [fishers_hut, village, village_night, old_ma_store, granny_liu_hut, lu_boat, reed_shallows, willow_path_east,
-           willow_path_west, stoneford_gate, stoneford_market, artisan_row, fairground]
+           willow_path_west, stoneford_gate, stoneford_market, artisan_row, fairground,
+           trial_jade, trial_cloud, jade_gate_street, jade_weapon_hall, pavilion_rooftops, east_terrace, herb_terraces,
+           elder_hu_peak, cloud_cliff_stair, sword_court, cloud_weapon_hall, array_court, elder_sung_peak, marsh_edge]
 
 
 def build(check_only=False):

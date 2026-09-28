@@ -63,28 +63,10 @@ func _main() -> void:
 
 # ------------------------------------------------------------------ checkpoints
 func checkpoint(name: String) -> void:
-	Game.save_all()
-	_copy_dir(Saves.repo.root, CP_ROOT + name + "/")
-	# The run's simulated clock and its skips go with the saves, so timed state (auction lots, cooldowns) resumes in step.
-	var f := FileAccess.open(CP_ROOT + name + ".clock", FileAccess.WRITE)
-	if f != null: f.store_string(JSON.stringify({"utc": "%.3f" % Clock.override_utc, "offset": "%.3f" % Clock.debug_offset_s}))
+	save_checkpoint(CP_ROOT + name + "/")
 
 func resume(name: String) -> bool:
-	if not DirAccess.dir_exists_absolute(CP_ROOT + name + "/"): return false
-	_copy_dir(CP_ROOT + name + "/", WORK)
-	Clock.simulate(START_UTC)
-	if FileAccess.file_exists(CP_ROOT + name + ".clock"):
-		var saved = JSON.parse_string(FileAccess.get_file_as_string(CP_ROOT + name + ".clock"))
-		if saved is Dictionary:
-			Clock.override_utc = float(str(saved.get("utc", START_UTC)))
-			Clock.debug_offset_s = float(str(saved.get("offset", 0.0)))
-	Saves.use_folder(WORK)
-	Game.boot()
-	Game.autosave_enabled = false
-	if not submit({"type": "enter_character", "slot": 1}).get("ok", false): return false
-	if not submit({"type": "enter_world"}).get("ok", false): return false
-	place(Vector2(float(c().position.x), float(c().position.y)))
-	return true
+	return resume_checkpoint(CP_ROOT + name + "/", WORK)
 
 # ------------------------------------------------------------------ helpers
 ## P12 test shortcut ("par up", docs/research/stat_scaling_research.md §6.7): at each section start the character is
