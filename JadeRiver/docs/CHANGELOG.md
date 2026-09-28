@@ -52,6 +52,35 @@
   - `perf_tests`: 22 foes fighting with techniques, 9.9 ms a frame.
 - **Review images** in `docs/redesign/phase5/combat/`: the builder's strips per form, family, impact and mark, and the
   game's own frames of combos, a finisher and a dash attack, techniques, the guard, a parry and the Plunge.
+## Top-down character: the flute and the bell (decision 37)
+
+- **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
+  (`weapon_flute`, `weapon_bell`). The 21 game items that wear them (10 flutes, 11 bells) now show on the top-down
+  character. Both are held in the fist as the side view holds them, and look like its sheets in its colours.
+  - **The flute** is a green bamboo dizi with dark joints, finger holes and a red tassel. On every blow its note leaves
+    the far end as ripples of pale jade light: sound-wave arcs from the side, rings when it points at the camera.
+  - **The bell** is bronze, with a domed crown, a dark band, a flared lip and its clapper, on a dark-wood handle with a
+    red cord. Its blows ring out as rings of pale-gold qi round the mouth.
+  - The sound shows on the hit frame and, fainter, on the frame after. Laid down while meditating, the flute lies
+    beside the figure and the bell rests on its side.
+- **New generators:** `figure/kinds/flute.py`, `bell.py`, and `sound.py`, which draws what a sounding weapon sends out on
+  its blows. A blow's frame is known by its pose, so the action catalogue and every other set are unchanged.
+- **Review sheets:** `docs/redesign/phase3/character/03_weapon_flute.png` and `03_weapon_bell.png`.
+## Top-down: the fan and the brush (decision 37)
+
+- **The fan and brush batch is drawn.** `weapon_fan` and `weapon_brush` give the top-down figure the looks of 21 game
+  items (10 fans, 11 brushes), in every action and facing. Two new generators cast them, `figure/kinds/fan.py` and
+  `figure/kinds/brush.py`. No shared file changed, and every other set's files are byte-identical.
+- **The iron fan** is the side view's: cream paper pleated over brown ribs, a teal ink band on its rim, and a gold
+  rivet under the fist.
+  - It folds at rest into a slim bar, brown at the handle and the tip.
+  - It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's dive).
+  - Open, it always shows its face: it is turned at least 50° off the camera's line and faces the camera.
+  - Its cuts leave the jian's smear of jade light. It lies folded beside a meditating figure.
+- **The calligraphy brush** has a jointed bamboo shaft, a lacquered cap and collar, and a tuft pale at the root and
+  soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
+  brush and thin behind it, and at its tail it has run dry: grey and broken.
+- Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 

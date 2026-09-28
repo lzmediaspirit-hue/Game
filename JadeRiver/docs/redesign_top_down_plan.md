@@ -1051,6 +1051,35 @@ independent batches (HOWTO.md), 62 game items in all:
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
+**Batch flute_and_bell, drawn** (`weapon_flute`, `weapon_bell`; the 21 items above, `PENDING` left for the last batch
+to empty). Both are held in the right fist along the blade line, as the side view draws them along the short blade's
+grip; the fist closes over the grip.
+
+- **`kinds/flute.py`:** the jade flute, a green bamboo tube with dark joints, finger holes on its upper face and a red
+  tassel hanging from the hand's end.
+- **`kinds/bell.py`:** the warden's hand-bell. It has a bronze bell with a domed crown, a dark band, a flared lip,
+  a shadowed mouth and its clapper, on a dark-wood handle with a red cord. Laid down, it rests on its side.
+- **`kinds/sound.py`:** what a sounding weapon sends out on a blow's hit frame (a punch, swing or thrust), and a step
+  fainter on the frame after.
+  - The flute's note leaves its far end as ripples of pale jade light, arcs opening along the flute that close into
+    rings as it points at the camera or away.
+  - The bell rings out rings of pale-gold qi round its mouth.
+  - They are drawn in the plane facing the camera, with no ink, like a cut's smear. A blow's frame is known by its
+    pose, so the action catalogue and every other set are unchanged.
+- **Review:** `03_weapon_flute.png` and `03_weapon_bell.png`.
+
+**Batches landed (decision 37).**
+
+- **fan_and_brush** (2026-09-28): `weapon_fan` and `weapon_brush`, 21 game items (10 fans, 11 brushes), cast by two
+  new generators, `kinds/fan.py` and `kinds/brush.py`. The iron fan folds at rest and opens in every blow, the guard
+  and the plunge's dive: pleated paper on brown ribs, the side view's teal ink band and a gold rivet. Open, it is
+  turned at least 50° off the camera's line and faces the camera, so its face shows in every facing, and its cuts
+  leave the jian's jade smear. The calligraphy brush has a jointed bamboo shaft, a lacquered cap and collar, and a
+  tuft soaked black to its point. Its cuts leave an ink stroke along the point's arc: broad at the brush, thin behind
+  it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
+  (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
+  and `03_weapon_brush.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
