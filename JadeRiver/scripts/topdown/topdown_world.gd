@@ -26,7 +26,7 @@ extends Node2D
 ## the same anchors of either view).
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
-const VIEW := Vector2i(640, 360)
+const VIEW := Vector2i(TopdownRoom.VIEW)   ## the world view in art px (TopdownRoom.VIEW)
 const T := 16.0
 const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are drawn in chunks of this many cells
 
@@ -208,8 +208,12 @@ func _build_room() -> void:
 		object_views = built.object_views
 		portal_views = built.portal_views
 		_room_nodes.append_array(built.nodes)
+		# The hazards' washes, weather and marks draw on the overlay under the names; their parts at a spot (a ring, a
+		# falling rock, a bolt) sort with the room in the viewport.
 		hazards = HazardView.new()
 		hazards.world = self
+		hazards.room = room
+		hazards.sorted_layer = sorted
 		overlay.add_child(hazards)
 		_room_nodes.append(hazards)
 		for l in Game.room_rt.loot:
@@ -269,15 +273,12 @@ func _process(delta: float) -> void:
 		if live: _update_context()
 		layout_labels()
 
-## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room.
+## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room
+## as it is drawn (a ridge on its north edge included) and never leaving the body out of view (TopdownRoom.camera_for,
+## which the Enemies authority also asks what the player sees).
 func _cam_target() -> Vector2:
 	var m: TopdownMotor = player.motor
-	var t := (Vector2(m.pos.x, m.pos.y - cam_z) + m.vel * float(TopdownMotor.conf("camera_look_ahead", 0.2))) / TopdownRoom.ART + Vector2(0, -12)
-	var size := room.art_size()
-	var half := Vector2(VIEW) * 0.5
-	t.x = size.x * 0.5 if size.x <= VIEW.x else clampf(t.x, half.x, size.x - half.x)
-	t.y = size.y * 0.5 if size.y <= VIEW.y else clampf(t.y, half.y, size.y - half.y)
-	return t
+	return room.camera_for(m.pos, cam_z, m.vel)
 
 func _sync(delta: float) -> void:
 	player.sync(delta)
@@ -407,7 +408,7 @@ func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 func layout_labels() -> Dictionary:
 	for uid in label_views.keys():
 		if not is_instance_valid(label_views[uid]): label_views.erase(uid)
-	return WorldLabels.place_views(WorldShared.label_views(self, player.motor.pos.x), overlay.get_global_transform_with_canvas(), label_obstacles)
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), overlay.get_global_transform_with_canvas(), label_obstacles)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
@@ -707,6 +708,9 @@ class Caption extends Control:
 ## under it, a flash when struck and a fade in death. It turns to eight facings (five drawn, SW, W and NW mirrored):
 ## where it walks, else where it aims in a fight, keeping its facing until another is 12 degrees nearer. Each action
 ## plays at its own rate from the manifest; a strike, a flinch and a death play once and hold their last frame.
+## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
+## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
+## figure at half size), placed, sorted and shadowed here the same way.
 class FoeView extends Sorted:
 	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
@@ -723,11 +727,17 @@ class FoeView extends Sorted:
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
+	var art: Node2D = null   ## the stand-in's drawing (no rows in the foe sheet), its feet at its origin
 	func _init(w, e: EnemyState) -> void:
 		super(w)
 		uid = e.uid
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
-		var sp: Dictionary = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
+		if e.team == "ally" or not (sheet.get("species", {}) as Dictionary).has(e.def_id):
+			art = TopdownPlaces.stand_in(e)
+			add_child(art)
+			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
+			return
+		var sp: Dictionary = sheet.get("species", {})[e.def_id]
 		acts = sp.get("actions", {})
 		mirror = sheet.get("mirror", {})
 		var c: Array = sheet.get("cell", [48, 40])
@@ -747,7 +757,13 @@ class FoeView extends Sorted:
 		ground_y = TopdownWorld.to_screen(e.plane, g if g < INF else e.altitude).round().y
 		key(room.sort_key(e.plane, e.altitude))
 		position.x = feet.x
-		visible = not e.hidden or e.ai.state == "windup"
+		visible = not e.hidden or (e.ai.state == "windup" and e.team != "ally")
+		if art != null:
+			art.position = Vector2(0, feet.y - position.y)
+			TopdownPlaces.pose(art, e)
+			tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else Color.WHITE
+			queue_redraw()
+			return
 		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover"]
 		var want := e.velocity if e.velocity.length() > 1.0 else (e.aim if fight else Vector2.ZERO)
 		if e.alive and want != Vector2.ZERO: facing = TopdownMotor.nearest_row(want, facing, FACINGS, 12.0)
@@ -769,6 +785,7 @@ class FoeView extends Sorted:
 		queue_redraw()
 	func _draw() -> void:
 		TopdownWorld.draw_blob(self, 0.0, ground_y - position.y, shadow_rx, 0.45 * tint.a)
+		if art != null: return   # the stand-in draws itself
 		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)

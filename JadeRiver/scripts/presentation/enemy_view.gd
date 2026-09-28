@@ -30,6 +30,10 @@ var label_offset := Vector2.ZERO
 var tag: Node2D   # the label's own canvas item, above every figure (WorldLabels.LABEL_Z)
 ## Redesign Phase 2: only the label (level, name, HP bar, the tell, statuses); the top-down room draws the figure.
 var label_only := false
+## Redesign Phase 4: only the figure (the avatar or the creature sheet, its action, facing, flash and an ally's blink),
+## no label and no shadow: the top-down room's stand-in for a companion, a spirit animal or a foe its foe sheet does not
+## draw (TopdownPlaces.stand_in), placed and shadowed by the room's FoeView at half size.
+var art_only := false
 
 func setup(e: EnemyState) -> void:
 	uid = e.uid
@@ -66,7 +70,7 @@ func setup(e: EnemyState) -> void:
 		# S46 form change: an animal at 90 purity stands larger in its lineage's colour.
 		if art.has("tint"): sprite.set_tint(Color(str(art.tint)))
 		if art.has("scale"): sprite.scale = Vector2.ONE * float(art.scale)
-	tag = WorldLabels.make_tag(self, _draw_tag)
+	if not art_only: tag = WorldLabels.make_tag(self, _draw_tag)
 	_update_badge(e)
 	sync(e, 0.0)
 
@@ -87,8 +91,9 @@ func _process(delta: float) -> void:
 	sync(e, delta)
 
 func sync(e: EnemyState, delta: float) -> void:
-	position = Vector2(e.plane.x, e.plane.y - e.altitude - e.hover).snapped(Vector2(2, 2))
-	z_index = 1500 + int(e.plane.y) + (40 if flying else 0)
+	if not art_only:   # the stand-in is placed by the top-down room's FoeView
+		position = Vector2(e.plane.x, e.plane.y - e.altitude - e.hover).snapped(Vector2(2, 2))
+		z_index = 1500 + int(e.plane.y) + (40 if flying else 0)
 	visible = not (e.hidden and not ally) or e.ai.state == "windup"
 	if e.hidden and ally: visible = false
 	# A burrower under the ground shows a travelling mound instead of vanishing (fog still hides the rest).
@@ -177,13 +182,15 @@ func _draw() -> void:
 	# The shadow falls on the surface under the body (a ledge, or the ground below a hop), not always on y = 0.
 	var under: WalkSurface = rt.geometry.surface_under(e.plane, e.altitude + 0.5) if e.altitude > 0.5 else null
 	var ground := Vector2(0, e.altitude + e.hover - (under.height_at(e.plane) if under else 0.0))
+	if rt.topdown != null: ground = Vector2(0, e.altitude + e.hover - rt.topdown.floor_at(e.plane))   # the grid's floor under it
 	var w := e.half_width()
 	if burrowed:
 		_draw_mound(ground, w)
 		return
-	draw_set_transform(ground, 0.0, Vector2(1, 0.28))
-	draw_circle(Vector2.ZERO, w * 1.1, Color(0.01, 0.035, 0.04, 0.35 * (death_fade if not e.alive else 1.0)))
-	draw_set_transform(Vector2.ZERO)
+	if not art_only:   # the top-down room draws the shadow on the floor under it
+		draw_set_transform(ground, 0.0, Vector2(1, 0.28))
+		draw_circle(Vector2.ZERO, w * 1.1, Color(0.01, 0.035, 0.04, 0.35 * (death_fade if not e.alive else 1.0)))
+		draw_set_transform(Vector2.ZERO)
 	if not e.alive or not visible: return
 	# S43 rule 12: an ally's blink to its owner arrives in a puff of mist.
 	var bt := float(e.ai.get("blink_t", 0.0)) if ally else 0.0

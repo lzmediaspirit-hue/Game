@@ -43,6 +43,8 @@ var speed_k := 1.0         ## the combat authority's move factor (an attack on t
 ## Decision 35: the Plunge (the movement art) drops straight down at a fixed speed, no steering; its landing is the
 ## strike (the `landed` event carries `plunge`, and Combat resolves it).
 var plunging := false
+## Phase 4: the push the room's hazards put on the body (a gust, a current), in units a second, added to its step.
+var drift := Vector2.ZERO
 
 var walk: float
 var tiptoe_axis: float
@@ -199,8 +201,11 @@ func _substep(h: float, axis: Vector2) -> void:
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
 		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target, accel * air_control * h)
 	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face and not plunging: _face(axis)
-	_move(Vector2(vel.x * h, 0.0), axis)
-	_move(Vector2(0.0, vel.y * h), axis)
+	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
+	# the bank stop it as they stop walking.
+	var v := vel + (drift if not plunging else Vector2.ZERO)
+	_move(Vector2(v.x * h, 0.0), axis)
+	_move(Vector2(0.0, v.y * h), axis)
 	_vertical(h)
 
 func _jump() -> void:

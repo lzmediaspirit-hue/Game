@@ -20,7 +20,10 @@ extends "res://tests/tutorial_order.gd"
 ##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there;
 ##   6. every person of those rooms is drawn in the top-down style (TopdownPlaces.Person, decision 32), fully dressed,
 ##      and turns to the player at their side, then back to their rest;
-##   7. every foe the rooms of chapter 2's stretch spawn has its own top-down figure (every action in five drawn
+##   7. the character's own view drives the body: a talk offered, auto-path through a door and out through an edge;
+##   8. a room's people are drawn within a moment of it while the page scripts still warm up, and every way's reach
+##      is turned with its direction;
+##   9. every foe the rooms of chapter 2's stretch spawn has its own top-down figure (every action in five drawn
 ##      facings), and after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
@@ -47,6 +50,7 @@ func _main() -> void:
 	add_child(views)
 	create_extra = {"view": "topdown"}
 	GameEvents.event.connect(_on_grid_event)
+	await _people_stream()
 	_layouts()
 	run()
 	_chapter2()
@@ -66,7 +70,7 @@ func _main() -> void:
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
-# ------------------------------------------------------------------ 7: chapter 2's stretch, for both sects
+# ------------------------------------------------------------------ 9: chapter 2's stretch, for both sects
 ## Past tutorial_order's walk (the Jade Sect's, to Strange Tracks): The Humming Token. Then the same stretch as a Cloud
 ## Sect disciple, from the fair: the checkpoint kept as both recruiters were met, the Cloud Sect joined, its Entry Trial,
 ## Shen Lian's spar, the chores on the Cliff Stair, the Cloud Steps, its Weapon Hall, Strange Tracks for Elder Sung on
@@ -179,6 +183,32 @@ func _probe_view() -> void:
 		if not f.art is TopdownPlaces.Person: people_misses.append("%s: %s is not a top-down figure" % [room(), f.def.id])
 		elif not (f.art.figure.missing as Array).is_empty(): people_misses.append("%s: %s lacks %s" % [room(), f.def.npc, str(f.art.figure.missing)])
 
+# ------------------------------------------------------------------ 8: the people draw with the room
+## A room's people draw within a moment of it, whatever the pages are doing. From the title screen on the game compiles
+## every page script on a loading thread (main.gd, PageWarmer), and while one compiles every other load waits for it:
+## asked for all at once, they held a villager's sheets back for seconds after launch (the reported late villagers).
+## Warmed one at a time as the title does now, the first run's pages still compiling, Lotus Ferry's people (drawn in
+## the top-down style, TopdownPlaces.Person) are all drawn within a moment of the room being populated.
+func _people_stream() -> void:
+	var warm := PageWarmer.new(load("res://scripts/main.gd").PAGES.values())
+	warm.tick()   # as the title starts it
+	await get_tree().process_frame
+	var t0 := Time.get_ticks_msec()
+	var people: Array = []
+	for o in ContentDB.room("lf_village").get("objects", []):
+		if str(o.get("type", "")) == "npc": people.append(TopdownPlaces.Person.new(o))
+	var waiting := people.size()
+	while waiting > 0 and Time.get_ticks_msec() - t0 < 5000:
+		await get_tree().process_frame
+		warm.tick()   # as main.gd does each frame
+		waiting = people.filter(func(p): return not p.figure.loaded()).size()
+	var ms := Time.get_ticks_msec() - t0
+	var left := warm.queue.size()
+	for p in people: p.free()
+	while warm.tick(): await get_tree().process_frame   # the rest of the pages, before the walk
+	check(people.size() >= 6 and waiting == 0 and ms < 1500 and left > 0,
+		"Lotus Ferry's %d people are all drawn %d ms after the room is populated while the pages still warm up (%d page scripts still to compile)" % [people.size(), ms, left])
+
 # ------------------------------------------------------------------ 2: the layouts
 ## Every layout of the tutorial and of chapter 2's stretch: each thing of its side-view room placed on a floor, and
 ## reached on foot from every way in and from its spawn; in chapter 2's rooms every foe they spawn drawn for the grid.
@@ -213,6 +243,9 @@ func _layouts() -> void:
 				if not r.has(spot): bad.append("%s from %s" % [o.id, str(s)])
 			for p in def.get("portals", []):
 				if not r.has(TopdownRoom.cell_of(Vector2(float(p.at[0]), float(p.at[1])))): bad.append("way %s from %s" % [p.id, str(s)])
+				# Its reach is turned with it: a tile across the way, along it half its span (WorldAuthority.portal_near).
+				var across := 1 if float(p.dir[0]) == 0.0 else 0
+				if float(p.reach[across]) != TopdownRoom.TILE or float(p.reach[1 - across]) < TopdownRoom.TILE * 0.5: bad.append("way %s reach %s" % [p.id, str(p.reach)])
 			for sp in def.get("spawns", []):
 				for q in sp.get("points", []):
 					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)
@@ -224,7 +257,7 @@ func _layouts() -> void:
 			return not species.has(e) or dirs.size() != 5 or FOE_ACTIONS.any(func(a): return dirs.any(func(d): return (species[e].actions.get(a, {}).get("frames", {}).get(d, []) as Array).is_empty())))
 		check(undrawn.is_empty(), "%s: every foe it spawns has its own top-down figure, every action in five drawn facings (undrawn %s)" % [rid, str(undrawn)])
 
-# ------------------------------------------------------------------ 6: the real view drives the body
+# ------------------------------------------------------------------ 7: the real view drives the body
 ## The character's own view (a live TopdownWorld, bound, as main.gd mounts it) moves the body on the grid: the context
 ## button offers a talk beside a person; auto-path (the tracker's go button) walks it to the Trial Tower's doorway and
 ## in through the door, and back on the Fairground out through its east edge into Artisan Row, the view following.

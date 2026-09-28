@@ -24,6 +24,74 @@
   Street, the Marsh Edge, the Reed Shallows, the Fisher's Hut lane, Riverside Square, the height-levels room, the
   Cloud Sect's cliff stair and Elder Sung's peak), and the new tile sheet at ×4.
 
+## Top-down redesign, Phase 4: the gaps closed (allies, hazards, respawn, the people, and the side view's rules)
+
+See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
+
+- **Companions and spirit animals move on the plane.** They follow behind you along your facing, on your floor, by
+  the grid's paths: stairs, drops, and a hop a level up as you jump. With no way to you on foot they blink to you after
+  2 s, onto your floor on your side of any wall. They strike only a foe on a height their blow reaches, and a foe's
+  blow reaches them only on theirs.
+- **Their figures:** a companion is drawn in the top-down style in its own outfit (`TopdownPlaces.Person`, turning to
+  where it walks or strikes). A spirit animal, and a foe the grid's sheet does not draw yet (Old Snapper, the toads),
+  is its side-view creature sheet at half size instead of the mud crab. Each is sorted and stands on its floor.
+- **Hazards and weather are layered with the room.**
+  - A strike's ring, a scorch, a pool or a current lies on its floor under whoever stands on it.
+  - A falling rock, a bolt or springing spikes sorts at its spot, so a terrace or a wall in front hides it.
+  - Washes, weather and warning marks draw over the room, under the names and the HUD.
+  - Their effects are on the plane:
+    - strikes fall all round you on floors, and reach you only on their own level;
+    - a gust carries the top-down body;
+    - the heavens' bolt strikes a circle;
+    - burning ground burns only on its own floor.
+- **Respawns out of view use the camera's rect**, on both axes (a foe no longer pops in on screen near a room's wall).
+  On the grid two foes are never put on one point.
+- **The people come with the room.** Page scripts now warm up one at a time after launch. While one compiles, every
+  other load waits, and asking for all sixty at once held villagers back for seconds. They now draw within a moment
+  of the room (80 ms headless, with 56 page scripts still to compile). `perf_tests` times rooms and pages once the
+  pages are in.
+- **The side view's x-only and walk-strip rules found on the grid, all fixed:**
+  - camera bounds (a ridge on the north edge, the body always in view);
+  - the ways' reach (turned with each way, on its own floor);
+  - the pickup magnet and loot spill (by floor);
+  - auto-path's arrival and auto-hunt's targets (by floor and reachability);
+  - label order and the minimap's direction mark and arrow;
+  - a foe's choice of ranged or close attack, and the off-screen notice;
+  - a rare herb guardian's wake and spawn, and spar partners, summoned adds and ambushes (placed on floors);
+  - decals on raised floors, and a drop's name distance.
+- **Tests:** `topdown_suite` goes from 87 to 117 checks. `topdown_tutorial` (786 checks) adds a room's people drawn
+  while the pages warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
+
+## Top-down character: the flute and the bell (decision 37)
+
+- **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
+  (`weapon_flute`, `weapon_bell`). The 21 game items that wear them (10 flutes, 11 bells) now show on the top-down
+  character. Both are held in the fist as the side view holds them, and look like its sheets in its colours.
+  - **The flute** is a green bamboo dizi with dark joints, finger holes and a red tassel. On every blow its note leaves
+    the far end as ripples of pale jade light: sound-wave arcs from the side, rings when it points at the camera.
+  - **The bell** is bronze, with a domed crown, a dark band, a flared lip and its clapper, on a dark-wood handle with a
+    red cord. Its blows ring out as rings of pale-gold qi round the mouth.
+  - The sound shows on the hit frame and, fainter, on the frame after. Laid down while meditating, the flute lies
+    beside the figure and the bell rests on its side.
+- **New generators:** `figure/kinds/flute.py`, `bell.py`, and `sound.py`, which draws what a sounding weapon sends out on
+  its blows. A blow's frame is known by its pose, so the action catalogue and every other set are unchanged.
+- **Review sheets:** `docs/redesign/phase3/character/03_weapon_flute.png` and `03_weapon_bell.png`.
+## Top-down: the fan and the brush (decision 37)
+
+- **The fan and brush batch is drawn.** `weapon_fan` and `weapon_brush` give the top-down figure the looks of 21 game
+  items (10 fans, 11 brushes), in every action and facing. Two new generators cast them, `figure/kinds/fan.py` and
+  `figure/kinds/brush.py`. No shared file changed, and every other set's files are byte-identical.
+- **The iron fan** is the side view's: cream paper pleated over brown ribs, a teal ink band on its rim, and a gold
+  rivet under the fist.
+  - It folds at rest into a slim bar, brown at the handle and the tip.
+  - It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's dive).
+  - Open, it always shows its face: it is turned at least 50° off the camera's line and faces the camera.
+  - Its cuts leave the jian's smear of jade light. It lies folded beside a meditating figure.
+- **The calligraphy brush** has a jointed bamboo shaft, a lacquered cap and collar, and a tuft pale at the root and
+  soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
+  brush and thin behind it, and at its tail it has run dry: grey and broken.
+- Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
+
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 
 - **Fourteen more rooms on the grid** (`docs/redesign_top_down_plan.md`, "As built: Phase 4, second part"). They are
