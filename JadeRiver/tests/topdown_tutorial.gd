@@ -21,7 +21,10 @@ extends "res://tests/tutorial_order.gd"
 ##   6. every person of those rooms is drawn in the top-down style (TopdownPlaces.Person, decision 32), fully dressed,
 ##      and turns to the player at their side, then back to their rest;
 ##   7. every foe the rooms of chapter 2's stretch spawn has its own top-down figure (every action in five drawn
-##      facings), and after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row.
+##      facings), and after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row;
+##   8. decision 40's runtime light on every room the view builds: its cast shadows baked once as it is built and never
+##      again while it plays, its particles under their caps by day and at the clock's night, and a night room lit by
+##      its lanterns and doorways over the story's night.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -42,6 +45,9 @@ var reach_room := ""
 var probe: TopdownWorld = null
 var probe_misses: Array = []
 var people_misses: Array = []   # people not drawn in the top-down style, or wearing a piece with no top-down layer
+var light_misses: Array = []    # decision 40: a room baked more than once, particles over a cap, a night without its lights
+var light_rooms := 0
+var night_rooms := 0
 
 func _main() -> void:
 	add_child(views)
@@ -61,6 +67,8 @@ func _main() -> void:
 	check(far.is_empty(), "every spot the walk stood at on the grid is reached on foot from where it came in (%s)" % str(far.slice(0, 8)))
 	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
 	check(people_misses.is_empty(), "every person of the walk's rooms on the grid is drawn in the top-down style, every piece of their outfit with its layer (%s)" % str(people_misses.slice(0, 6)))
+	check(light_rooms >= TUTORIAL_ROOMS.size() and night_rooms >= 1 and light_misses.is_empty(),
+		"decision 40: every room the view built (%d, %d at night) baked its cast shadows once and never while it played, kept its particles under their caps by day and by night, and a night room is lit by its lights (%s)" % [light_rooms, night_rooms, str(light_misses.slice(0, 6))])
 	if is_instance_valid(probe): probe.free()
 	free_hud_probe()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
@@ -151,6 +159,7 @@ func place(p: Vector2, alt := 0.0) -> void:
 
 ## 4: the character's own top-down view (unbound: the walk moves the body) built on the room just entered.
 func _probe_view() -> void:
+	var bakes := TopdownShadows.bakes
 	if not is_instance_valid(probe):
 		var was: String = Game.active_id
 		Game.active_id = ""   # the view alone: the walk keeps the body (its own ActorState) bound
@@ -178,6 +187,38 @@ func _probe_view() -> void:
 		if str(f.def.get("type", "")) != "npc": continue
 		if not f.art is TopdownPlaces.Person: people_misses.append("%s: %s is not a top-down figure" % [room(), f.def.id])
 		elif not (f.art.figure.missing as Array).is_empty(): people_misses.append("%s: %s lacks %s" % [room(), f.def.npc, str(f.art.figure.missing)])
+	_probe_light(bakes)
+
+## 8: decision 40 on the room just built: one bake of its cast shadows; eight seconds of its air at midday and at the
+## clock's night (the probe's camera on its spawn) stay under the caps and bake nothing again; a night room is the
+## story's night, lit by its lights (their pools baked) with the flames over it.
+func _probe_light(bakes_before: int) -> void:
+	var rid := room()
+	var a: TopdownAtmosphere = probe.atmosphere
+	light_rooms += 1
+	if TopdownShadows.bakes != bakes_before + 1: light_misses.append("%s: %d bakes to build it" % [rid, TopdownShadows.bakes - bakes_before])
+	if probe.shadows == null or probe.shadows.room != probe.room: light_misses.append("%s: no shadows for the room" % rid)
+	var baked := TopdownShadows.bakes
+	probe.camera.position = TopdownWorld.to_screen(probe.room.spawn, 0.0)
+	for hour in [0.375, 0.87]:
+		TopdownLight.debug_hour = hour
+		a.refresh()
+		var most := 0
+		var over := {}
+		for i in 240:
+			a._process(1.0 / 30.0)
+			most = maxi(most, a.particle_count())
+			for kind in TopdownLight.PARTICLES:
+				if a._count(kind) > int(TopdownLight.PARTICLES[kind].cap): over[kind] = true
+		if most > TopdownLight.MAX_PARTICLES or not over.is_empty(): light_misses.append("%s at %.2f: %d particles (over %s)" % [rid, hour, most, str(over.keys())])
+	TopdownLight.debug_hour = -1.0
+	a.refresh()
+	if TopdownShadows.bakes != baked: light_misses.append("%s: baked again while it played" % rid)
+	if bool(Game.room_rt.def.get("night", false)):
+		night_rooms += 1
+		var lamps := a.lights.filter(func(l): return str(l[0]) in ["lantern", "lantern_red"]).size()
+		if str(a.now.hour) != "night_story" or not a.night.visible or lamps == 0 or a._pools_room != probe.room.id or float(a.now.lights) <= 0.0:
+			light_misses.append("%s: night %s, layer %s, %d lamps, pools of %s" % [rid, str(a.now.hour), str(a.night.visible), lamps, a._pools_room])
 
 # ------------------------------------------------------------------ 2: the layouts
 ## Every layout of the tutorial and of chapter 2's stretch: each thing of its side-view room placed on a floor, and
