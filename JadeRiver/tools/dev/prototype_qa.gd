@@ -63,8 +63,10 @@ func _main() -> void:
 	for step in STEPS:
 		if step == start: on = true
 		if not on: continue
-		if step == keep_at and keep_dir != "": keep()
+		if keep_dir != "" and step in keep_at.split(","): keep(step)
 		say("step %s" % step)
+		# An attentive player breaks through when the bar says "breakthrough ready" (from the boat's first one on).
+		if Game.in_world and c() != null and c().cultivator.realm_key != "mortal": await breakthrough_if_ready("breakthrough_" + step)
 		await call(step)
 		if step == until: break
 	finish()
@@ -73,12 +75,17 @@ func _main() -> void:
 const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_willow",
 	"fair", "sect_choice", "chapter2", "to_the_gate"]
 
-## The game saved as it stands, into keep_dir (a checkpoint the next run starts from).
-func keep() -> void:
+## The game saved as it stands, into keep_dir (a checkpoint the next run starts from); with more than one --keep-at
+## step, each step's into keep_dir/<step>.
+func keep(step := "") -> void:
 	Game.save_all()
-	DirAccess.make_dir_recursive_absolute(keep_dir)
-	for f in DirAccess.get_files_at(SAVES): DirAccess.copy_absolute(SAVES + f, keep_dir.path_join(f))
-	say("kept the game in %s" % keep_dir)
+	var many := false
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--keep-at=") and "," in str(a): many = true
+	var dir := keep_dir.path_join(step) if many else keep_dir
+	DirAccess.make_dir_recursive_absolute(dir)
+	for f in DirAccess.get_files_at(SAVES): DirAccess.copy_absolute(SAVES + f, dir.path_join(f))
+	say("kept the game in %s" % dir)
 
 func finish() -> void:
 	stick(Vector2.ZERO)
@@ -86,6 +93,8 @@ func finish() -> void:
 	f.store_string(JSON.stringify({"shots": notes, "finds": finds, "minutes": (Time.get_ticks_msec() - t0) / 60000.0}, "  "))
 	f.close()
 	print("QA done: %d shots, %d finds, %.1f min" % [n, finds.size(), (Time.get_ticks_msec() - t0) / 60000.0])
+	main.queue_free()   # the game let go before the quit, so the exit leaks nothing
+	await frames(3)
 	get_tree().quit()
 
 # ------------------------------------------------------------------ record
@@ -121,7 +130,7 @@ func _labels_under_hud() -> Array:
 		for o in huds:
 			var i := r.intersection(o)
 			if i.size.x > 4.0 and i.size.y > 4.0:
-				out.append("%s %s under %s" % [str(it.id), str(r), str(o)])
+				out.append("%s %s (offset %s, last %s) under %s; HUD %s" % [str(it.id), str(r), str(laid.offsets.get(it.id, Vector2.ZERO)), str(it.get("prev", Vector2.ZERO)), str(o), str(huds)])
 				break
 	return out
 
@@ -350,15 +359,27 @@ func face(at: Vector2) -> void:
 	await frames(3)
 
 ## Hit a training stump, a dummy or a jar `times` times, as a thumb taps Attack facing it.
-func hit(id: String, times: int) -> void:
+## Strike a thing `times` times, or, with `line`, until the tracker no longer shows that step open (a blow in the
+## recovery of the last is lost, and the dummy counts only a blow after its wind-up), up to 40 blows.
+func hit(id: String, times: int, line := "") -> void:
 	var o: Dictionary = Game.room_rt.object_def(id)
 	if o.is_empty(): return
 	await stand_by(o)
 	var at := Vector2(float(o.at[0]), float(o.at[1]))
-	for k in times:
+	for k in (40 if line != "" else times):
+		if line != "" and not _step_open(line): break
 		await face(at)
 		await tap(main.hud.attack_center, 5, 2)
 		await frames(24)
+
+## Is a tracker line containing `text` still an open step (not ticked)?
+func _step_open(text: String) -> bool:
+	var c = Game.active()
+	if c == null: return false
+	for e in Game.quest.tracker(c):
+		for l in e.lines:
+			if text in str(l.text) and not l.get("done", false): return true
+	return false
 
 ## Walk out through a way: to it, then the stick along its direction until the next room is in.
 func go(portal: String, limit := 30.0) -> bool:
@@ -382,14 +403,17 @@ func go(portal: String, limit := 30.0) -> bool:
 
 ## To another room on foot, way by way along the route the World authority finds.
 func travel(target: String) -> bool:
-	for hop in 12:
+	for hop in 30:
 		if room() == target: return true
 		var r: Array = Game.world.route(c(), room(), target)
 		if r.is_empty():
 			say("no route from %s to %s" % [room(), target])
 			return false
+		var was := room()
 		if not await go(str(r[0].portal)): return false
 		await settle()
+		if room() != str(r[0].get("to", room())) and r[0].has("to"): say("travel: the way %s in %s led to %s, not %s" % [str(r[0].portal), was, room(), str(r[0].to)])
+	if room() != target: say("travel: thirty ways taken toward %s and still in %s" % [target, room()])
 	return room() == target
 
 func npc_object(npc: String) -> Dictionary:
@@ -425,9 +449,14 @@ func interact(id: String) -> bool:
 		return false
 	await stand_by(o)
 	await frames(4)
+	if str(main.world.context.get("object", "")) != id:
+		# Something else in reach claims the button (the Jade gate's teleport stone by the grey stain): step onto it.
+		await walk_to(Vector2(float(o.at[0]), float(o.at[1])), 8.0, 6.0, false)
+		await frames(4)
 	var ctx: Dictionary = main.world.context
 	if str(ctx.get("object", "")) != id:
 		say("the context offers %s, not %s" % [str(ctx), id])
+		return false
 	return await use_context()
 
 # ------------------------------------------------------------------ talking
@@ -480,35 +509,77 @@ func dialogue_through(key := "", value := "") -> bool:
 
 # ------------------------------------------------------------------ fighting
 var kills := {}
+var hurt_by := {}   # the damage taken since the last fall, by foe: what a death log names
 func _on_event(nm: String, p: Dictionary) -> void:
 	if nm == "actor_defeated" and str(p.get("victim_kind", "")) == "enemy": kills[str(p.get("def", ""))] = int(kills.get(str(p.get("def", "")), 0)) + 1
+	if nm == "hit_landed" and str(p.get("target_kind", "")) == "player" and str(p.get("attacker", "")).is_valid_int() and Game.room_rt != null:
+		var att = Game.room_rt.enemies.get(int(str(p.attacker)))
+		var key := ("%s%s" % [att.def_id, " (elite)" if att.elite else ""]) if att != null else "?"
+		hurt_by[key] = snappedf(float(hurt_by.get(key, 0.0)) + float(p.get("amount", 0.0)), 0.1)
+	if nm == "player_gravely_wounded":
+		say("fell in %s: the damage taken since the last fall %s (%d kills so far)" % [room(), str(hurt_by), kills.values().reduce(func(a, b): return a + b, 0)])
+		hurt_by.clear()
+		falls += 1
+		if falls == 3: say("QA assist from here: the QA player keeps its HP up in fights (it is no fighter; the fights were seen)")
 	if nm == "script_error" or nm == "error": say("event error %s" % str(p))
 
-## Fight `count` of a foe as a thumb does: walk up to the nearest, tap Attack (its soft lock aims), a technique now and
-## then, Dodge when it winds up, and the tea from Quick-use when low. Returns the kills.
+## After three falls the QA player keeps its HP up in fights, so the walk goes on to what it is for: the screens.
+var falls := 0
+func assist() -> void:
+	if falls >= 3 and c() != null and not Game.combat.is_wounded(c().id): c().pools.hp = c().pools.max_hp
+
+## Fight `count` of a foe as a careful thumb does: one target until it falls (whatever is at you first), a rest out of
+## the way before a fresh one when hurt, a step out of the lane when it winds up (Evade once it is on the HUD), a
+## technique when its ring is ready, the tea from Quick-use when low, and a retreat to mend with none left. Returns the
+## kills.
 func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 	var before := int(kills.get(def_id, 0))
 	var start := now_ms()
 	var shot_taken := false
-	var last_tech := 0
+	var target: EnemyState = null
+	var fight_room := room()
 	while int(kills.get(def_id, 0)) - before < count and now_ms() - start < limit * 1000.0:
+		# Revived at a shrine in another room: back to the fight, as a player walks back.
+		if room() != fight_room and not Game.combat.is_wounded(c().id) and top_page() == null:
+			await settle()
+			if not await travel(fight_room): break
+			target = null
+			continue
 		if top_page() != null:
+			stick(Vector2.ZERO)   # the thumb comes off the stick to tap the page (a fall mid-walk left it held)
+			await frames(2)
 			await shot("page_in_fight", "a page opened in a fight: %s" % str(top_page().page_id))
 			if str(top_page().page_id) == "revival": await tap_region(top_page(), "choose", "shrine")
 			await close_pages()
 		if Game.combat.is_wounded(c().id):
+			target = null
 			await frames(30)
 			continue
-		var target: EnemyState = null
-		for e in Game.room_rt.living_enemies():
-			if e.team != "enemy" or e.def.get("passive", false): continue
-			if e.def_id != def_id and not e.in_fight(): continue
-			if target == null or e.plane.distance_to(me()) < target.plane.distance_to(me()): target = e
+		assist()
+		if target == null or not target.alive or not Game.room_rt.enemies.has(target.uid):
+			target = null
+			for e in Game.room_rt.living_enemies():
+				if e.team != "enemy" or e.def.get("passive", false) or not e.in_fight() or e.plane.distance_to(me()) > 200.0: continue
+				if target == null or e.plane.distance_to(me()) < target.plane.distance_to(me()): target = e
+			if target == null:
+				for e in Game.room_rt.living_enemies():
+					if e.team != "enemy" or e.def.get("passive", false) or e.def_id != def_id: continue
+					if target == null or e.plane.distance_to(me()) < target.plane.distance_to(me()): target = e
 		if target == null:
 			await frames(20)
 			continue
+		# Hurt, and the next one not yet on you: step away and let the body mend first.
+		if c().pools.hp < c().pools.max_hp * 0.8 and target.pools.hp >= target.pools.max_hp and str(target.ai.get("state", "")) in ["idle", "patrol", "return"]:
+			await mend(target.plane)
+			continue
 		var d: float = target.plane.distance_to(me())
 		if d > 44.0:
+			# A foe up or down a level, or behind a wall, is walked to along the room's own paths (the elite boarlet
+			# that charged up onto Willow Path West's ledge); one in the open, straight at.
+			var grid: TopdownRoom = main.world.room
+			if absf(target.altitude - player().motor.z) > 8.0 or not TopdownBrain.line_clear(grid, me(), target.plane, player().motor.z):
+				await walk_to(target.plane, 40.0, 8.0, false)
+				continue
 			var stand: Vector2 = target.plane - (target.plane - me()).normalized() * 30.0
 			stick(stand - me())
 			await frames(2)
@@ -517,33 +588,60 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 		if not shot_taken and name != "":
 			shot_taken = true
 			await shot(name, "fighting %s" % def_id)
-		# A player reads the tell: every wind-up is dodged away from (Evade), once it is on the HUD.
-		if str(target.ai.get("state", "")) == "windup" and role("guard") != Vector2.INF:
-			var away: Vector2 = (me() - target.plane).normalized()
-			stick(away)
-			await tap(role("guard"), 3, 2)
+		# A player reads the tell: out of the lane of a wind-up (Evade once it is on the HUD, else a step aside).
+		if str(target.ai.get("state", "")) == "windup":
+			var lane: Vector2 = target.aim if target.aim.length() > 0.1 else (me() - target.plane).normalized()
+			var aside := Vector2(-lane.y, lane.x)
+			if aside.dot(me() - target.plane) < 0.0: aside = -aside
+			stick(aside)
+			if role("guard") != Vector2.INF: await tap(role("guard"), 3, 2)
+			else: await frames(24)
 			stick(Vector2.ZERO)
 			continue
 		if c().pools.hp < c().pools.max_hp * 0.35 and role("quick") != Vector2.INF and c().inventory.count(str(c().inventory.quick_use)) > 0:
 			await tap(role("quick"), 3, 2)
 		elif c().pools.hp < c().pools.max_hp * 0.3:
 			# Nothing left to drink: back off out of the fight and let the body mend, as a player would.
-			var back_t := now_ms()
-			while now_ms() - back_t < 6000 and c().pools.hp < c().pools.max_hp * 0.8:
-				var chaser: Vector2 = target.plane if target.alive else me()
-				stick((me() - chaser).normalized() if me().distance_to(chaser) < 360.0 else Vector2.ZERO)
-				await frames(6)
-			stick(Vector2.ZERO)
+			await mend(target.plane)
+			target = null
 			continue
-		if now_ms() - last_tech > 2500 and role("skill") != Vector2.INF:
-			last_tech = now_ms()
-			await tap(role("skill"), 4, 2)
-		else:
-			await tap(main.hud.attack_center, 5, 2)
+		var tech: Vector2 = _ready_technique()
+		if tech != Vector2.INF: await tap(tech, 4, 2)
+		else: await tap(main.hud.attack_center, 5, 2)
 		await frames(6)
 	stick(Vector2.ZERO)
 	await pick_up_all()
 	return int(kills.get(def_id, 0)) - before
+
+## Fight `def_id` one at a time until `quest` is ready to hand in (a fall and the walk back from the shrine included), at
+## most `tries` fights.
+func fight_until(quest: String, def_id: String, tries: int, name := "") -> void:
+	for i in tries:
+		if not c().quests.is_active(quest) or str(c().quests.active.get(quest, {}).get("state", "")) == "ready": return
+		await fight(def_id, 1, 90.0, name if i == 0 else "")
+	if c().quests.is_active(quest): say("%s still not ready after %d fights" % [quest, tries])
+
+## Back away from `danger` and wait for the body to mend (to 95%, at most 40 s of play), as a careful player does.
+func mend(danger: Vector2) -> void:
+	var t0m := now_ms()
+	while now_ms() - t0m < 40000 and c().pools.hp < c().pools.max_hp * 0.95 and not Game.combat.is_wounded(c().id):
+		var near := danger
+		for e in Game.room_rt.living_enemies():
+			if e.team == "enemy" and e.in_fight() and e.plane.distance_to(me()) < near.distance_to(me()): near = e.plane
+		stick((me() - near).normalized() if me().distance_to(near) < 320.0 else Vector2.ZERO)
+		await frames(6)
+	stick(Vector2.ZERO)
+
+## The first technique button whose ring is ready (no cooldown, Qi enough), or INF.
+func _ready_technique() -> Vector2:
+	var ch = c()
+	for i in 4:
+		var tid = ch.cultivator.technique_slots[i] if i < ch.cultivator.technique_slots.size() else null
+		if tid == null or str(tid) == "": continue
+		if ch.pools.cooldown("tech:" + str(tid)) > 0.0: continue
+		if ch.pools.max_qi > 0 and ch.pools.qi < Game.combat.technique_cost(ch, ContentDB.entry("techniques", str(tid))): continue
+		if i < main.hud.slots.size(): return main.hud.slots[i]
+	return Vector2.INF
 
 ## Walk over every drop in reach and take it (the context's Pick up, or the auto pick-up).
 func pick_up_all() -> void:
@@ -631,9 +729,9 @@ func p_fists() -> void:
 	await talk("uncle_guo", "accept", "fists_first", "guo_fists")
 	await settle()
 	await shot("fists_handoff", "Guo's hand-off: %s" % scene_step())
-	await hit("stump_guo", 6)
+	await hit("stump_guo", 6, "Punch the training stump")
 	await shot("fists_stump", "the stump punched (%s)" % _tracker_text())
-	await hit("dummy_guo", 4)
+	await hit("dummy_guo", 4, "Hit the dummy")
 	await shot("fists_dummy", "the dummy hit (%s)" % _tracker_text())
 	await talk("uncle_guo", "hand_in", "fists_first")
 	await settle()
@@ -759,9 +857,9 @@ func p_willow() -> void:
 	await go("west")
 	await settle()
 	await interact("shrine_wp")
-	for i in 8:
+	for i in 16:
 		if not c().quests.is_active("the_willow_path"): break
-		await fight("wild_boarlet", 1, 60.0, "boarlets" if i == 0 else "")
+		await fight("wild_boarlet", 1, 90.0, "boarlets" if i == 0 else "")
 	await shot("willow_done", "The Willow Path (done %s)" % str(c().quests.is_done("the_willow_path")))
 
 func sell_net() -> void:
@@ -853,6 +951,29 @@ func first_breakthrough() -> void:
 	await close_pages()
 	await settle()
 
+## At a bottleneck, break through as the HUD says ("breakthrough ready · tap Cultivate"): the Cultivation page from the
+## progress bar, its Breakthrough, the page's Go. Returns whether the realm moved on.
+func breakthrough_if_ready(name := "") -> bool:
+	if c().cultivator.state != "bottleneck": return false
+	var was: String = c().cultivator.realm_key
+	await settle()
+	if c().cultivator.meditating: await tap_role("meditate")
+	await tap(Vector2(640, 712))
+	await frames(30)
+	var cp := page_open("cultivation")
+	if cp != null and await tap_region(cp, "breakthrough"):
+		await frames(40)
+		var bp := page_open("breakthrough")
+		if bp == null or not await tap_region(bp, "go"): Game.submit({"type": "start_breakthrough", "support_items": []})
+	else:
+		say("no Cultivation page from the progress bar at a bottleneck")
+		Game.submit({"type": "start_breakthrough", "support_items": []})
+	await wait_s(5.0)
+	if name != "": await shot(name, "a breakthrough: %s to %s" % [was, c().cultivator.realm_key])
+	await close_pages()
+	await settle()
+	return c().cultivator.realm_key != was
+
 # ------------------------------------------------------------------ the fair and the sect
 const SECTS := {"jade": {"id": "jade_sect", "recruiter": "recruiter_qing_lan", "trial": "trial_jade", "gate": "ja_gate_street",
 	"steward": "jade_steward", "weapon_hall": "ja_weapon_hall", "master": "jade_weapon_master", "mentor": "elder_hu", "peak": "ja_elder_hu_peak"},
@@ -902,7 +1023,8 @@ func sect_choice() -> void:
 	await shot("trial_done", "the Entry Trial (done %s, realm %s)" % [str(c().quests.is_done("entry_trial")), c().cultivator.realm_key])
 	await travel("sf_fairground")
 	await settle()
-	# Fish-Gutting Fists: Shen Lian's spar.
+	# Fish-Gutting Fists: Shen Lian's spar, after the breakthrough the trial and the fair carried (the HUD asks for it).
+	await breakthrough_if_ready("breakthrough_bf2")
 	await talk("shen_lian", "accept", "fish_gutting_fists", "shen_lian")
 	await talk("shen_lian", "spar", "")
 	await wait_s(1.0)
@@ -914,13 +1036,20 @@ func sect_choice() -> void:
 		if foe == null:
 			await frames(10)
 			if Game.room_rt.living_enemies().all(func(e): return not e.def.get("spar", false)) and str(c().quests.active.get("fish_gutting_fists", {}).get("state", "")) == "ready": break
+			# No spar under way and the quest still open: the spar was lost (or never began). Ask again.
+			if c().quests.is_active("fish_gutting_fists") and now_ms() - start > 3000:
+				say("no spar under way (lost, or not begun): asking Shen Lian again")
+				await talk("shen_lian", "spar", "")
+				await wait_s(1.0)
 			continue
+		assist()
 		if foe.plane.distance_to(me()) > 44.0:
 			stick(foe.plane - me())
 			await frames(2)
 			continue
 		stick(Vector2.ZERO)
-		await tap(main.hud.attack_center, 5, 2)
+		var tech: Vector2 = _ready_technique()
+		await tap(tech if tech != Vector2.INF else main.hud.attack_center, 5, 2)
 		await frames(6)
 	stick(Vector2.ZERO)
 	await shot("spar", "Shen Lian's spar")
@@ -934,13 +1063,12 @@ func chapter2() -> void:
 	await shot("sect_gate", "the %s's gate" % sect)
 	if await talk(s("steward"), "accept", "a_disciples_chores", "steward"):
 		for o in Game.room_rt.def.get("objects", []).filter(func(q): return str(q.get("set_flag", "")).begins_with("swept_")):
-			await interact(str(o.id))
+			if not c().quests.has_flag(str(o.set_flag)): await interact(str(o.id))
 		await talk(s("steward"), "hand_in", "a_disciples_chores")
 	# The Weapon Hall.
 	var bt := now_ms()
 	while not ProgressionRules.at_least(c().cultivator.realm_key, "bone_forging_3") and now_ms() - bt < 20000:
-		if c().cultivator.state == "bottleneck": Game.submit({"type": "start_breakthrough", "support_items": []})
-		await wait_s(2.0)
+		if not await breakthrough_if_ready("breakthrough_bf3"): await wait_s(2.0)
 	await shot("tracker_weapon_hall", "the tracker at Bone Forging 3")
 	await travel(s("weapon_hall"))
 	await settle()
@@ -969,7 +1097,7 @@ func chapter2() -> void:
 	await settle()
 	await talk(s("mentor"), "accept", "the_humming_token")
 	await travel("rm_marsh_edge")
-	await fight("hollowed_boarlet", 5, 150.0, "hollowed_boarlets")
+	await fight_until("the_humming_token", "hollowed_boarlet", 12, "hollowed_boarlets")
 	await travel(s("peak"))
 	await talk(s("mentor"), "hand_in", "the_humming_token")
 	await settle()
@@ -980,8 +1108,8 @@ func to_the_gate() -> void:
 	await talk("mei_qing", "accept", "mei_qings_errand", "mei_qing")
 	await shot("tracker_mei_qing", "Mei Qing's errand on the tracker")
 	await travel("rm_marsh_edge")
-	for i in 20:
-		if c().inventory.count("willow_moss") >= 5: break
+	for i in 40:
+		if c().inventory.count("willow_moss") >= 5 or str(c().quests.active.get("mei_qings_errand", {}).get("state", "")) == "ready": break
 		await fight("reed_frog", 1, 40.0)
 	for i in 20:
 		if c().inventory.count("grey_hide") >= 3: break
@@ -1022,7 +1150,32 @@ func to_the_gate() -> void:
 	await talk("lu_boatman", "hand_in", "the_first_current")
 	await settle()
 	await shot("tracker_after_first_current", "the tracker after The First Current")
+	# The lessons inside the prototype lead next (Eyes for Qi, the Outer Trial): a QA shortcut marks them done, as the
+	# tutorial's walk does (their play is the fields' and the sect's), so the tracker comes to the prototype's end.
+	for i in 8:
+		var nx: Dictionary = Game.quest.story_next(c())
+		if nx.is_empty() or nx.get("gate", false): break
+		var lesson := str(nx.get("quest", ""))
+		say("QA shortcut: the lesson %s marked done" % lesson)
+		c().quests.offered.erase(lesson)
+		c().quests.done[lesson] = 1
+		GameEvents.flush()
+		await frames(10)
+	await frames(30)
+	await shot("tracker_end", "the tracker at the prototype's end (%s)" % _tracker_text())
 	main.open_page("quests", {})
 	await frames(30)
 	await shot("quests_page_end", "the Quests page at the prototype's end")
 	await close_pages()
+	# Another gated way: the Trial Tower's door on the Fairground, by the context button.
+	await travel("sf_fairground")
+	await settle()
+	var tower: Dictionary = Game.room_rt.portal_def("tower")
+	if not tower.is_empty():
+		await walk_to(Vector2(float(tower.at[0]), float(tower.at[1])) + Vector2(0, 40), 20.0)
+		await frames(10)
+		await shot("tower_gate", "the Trial Tower's door, closed by the prototype's gate (context %s)" % str(main.world.context))
+		await use_context()
+		await frames(20)
+		await shot("tower_gate_touch", "the context button at the Trial Tower's door (room %s)" % room())
+		if room() != "sf_fairground": await find("the Trial Tower's door let the body through into %s" % room(), "tower_open")

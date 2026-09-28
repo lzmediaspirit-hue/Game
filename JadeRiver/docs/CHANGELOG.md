@@ -54,6 +54,18 @@
     hid the player entirely; it now counts for the silhouette, so the body shows through it.
   - **A crowd's plates laid aside are drawn aside.** The layout's half-box moves were computed but every view drew its
     plate where it stood; the views now draw at the offset's x as well as its row.
+  - **No label under the HUD.** A way's plate at the screen's edge stayed under the player panel (the Reed Shallows'
+    way to the village) or the minimap (Willow Path West's way east read "Willow"): the layout now also tries just
+    clear of the control, beside it. The purse and the status row under the player panel are among the HUD's rects
+    the labels keep off, and so is a door's chevron (it lay over Granny Liu's plate). The QA player reports any label left under the HUD in every shot; the
+    last runs had none.
+  - **Walking into the gate.** Its line showed five times over in the log, and the way's plate ran off the right edge
+    of the screen: a way's refusal now shows once in the log (kept fresh while it repeats), a way's plate stays
+    wholly inside the room (`PortalView.label_span`), and a floating line stays whole on the screen
+    (`FxLayer.on_screen`).
+  - **The tracker asks for the breakthrough.** At a bottleneck one breakthrough short of the Level the story waits on,
+    its Next entry said "Hunt at Willow Path West" while the bar said "breakthrough ready"; it now says "Bottleneck:
+    tap Cultivate to break through", with no hunt and no Go.
   - **A staged scene's prompt stays on the screen** ("Punch the stump: tap Attack" ran off the right edge over a
     person near it), and **a speech balloon keeps clear of the HUD** (Granny Liu's line sat over the HP panel): aside,
     or on the first clear row below.
@@ -67,19 +79,26 @@
   - `rules_tests` adds `prototype_suite`: the creator's default and the fallback, side-view saves, every gated way
     (its state, a touch, the context button, no route), no teleport, auto-path or tower climb past it, the view's
     barriers, hunting grounds on the grid, a quest past the gate, the tracker's end and a side-view character's Next
-    at the same point, a lesson before the end, the Quests page's slip, world news, the equip prompt's names, and a
-    moment's band over the top stack.
+    at the same point, a lesson before the end, the Quests page's slip, world news, the equip prompt's names, a
+    moment's band over the top stack, a way's plate under the minimap, the purse and the status row, the gate's line
+    once in the log and whole on the screen, and the Next entry at a bottleneck.
   - `topdown_suite` adds the clean field (plates, HP bars, the danger mark, a crowd's plates not touching, labels on
-    the figure's head, no plate over the body, a plate laid aside keeping its box), the eel's turn, and the player seen
-    behind the dummy.
+    the figure's head, no plate over the body, a plate laid aside keeping its box, a plate off a door's chevron, a
+    way's long plate inside the room), the eel's turn, and the player seen behind the dummy.
   - `story_scenes` adds the prompt kept on the screen, the balloon kept clear of the HUD, and the drink step's live
     hand-off.
   - `topdown_tutorial` plays on past The Humming Token: Mei Qing's Errand (moss from frogs, never locked herbs), Grey
     at the Edges, The First Current, the lessons inside the prototype, and the prototype's end; the Marsh Edge's gate
     walked into; the Trial Tower's door gated, and auto-path through the Cloud Sect's road instead.
   - `prologue_run`'s route search and story guidance, and `tutorial_order`'s "leads to next", know the gate.
-- **Tools:** `tools/dev/prototype_qa.tscn`, the QA playthrough driver: from the title through the game's own touches,
-  a screenshot at every step and a log of what each shows.
+- **Found and left** (in the QA document with the reasons): the herd's elite boarlet and the Marsh Edge's frogs and
+  hollowed boarlets outclass the player the story sends there; Crab Trouble pays Straw Sandals the start already
+  wears; Shen Lian stays in the square while his spar double fights; locked nodes offer their button with a line.
+- **Tools:** `tools/dev/prototype_qa.tscn`, the QA playthrough player: from the title through the game's own touches
+  (a careful player's fights, the breakthroughs the bar asks for, a logged assist after three falls), a screenshot
+  at every step with the tracker and any label under the HUD, named steps and checkpoints (`--keep-at`, `--from`,
+  `--start`, `--until`). `tools/dev/topdown_capture.tscn -- --tutorial-foes --into=<dir>/` shoots elsewhere than
+  `docs/redesign/phase4/`.
 
 ## Top-down: Terrain v2, foliage and decor (decision 40, third part)
 

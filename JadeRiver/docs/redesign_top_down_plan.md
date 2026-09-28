@@ -1665,21 +1665,33 @@ playthrough's findings, each with its screenshot, are in `docs/redesign/prototyp
   run per sect), chapter 2's rooms, and on to the gate.
 - It takes a screenshot at every step and notes, per shot, the tracker and any world label still under a HUD control.
   A player's snag (an item missing, a way that will not open) is logged as a find.
-- Its steps are named (`--start`, `--until`), and it can keep a checkpoint save (`--keep`, `--keep-at`) that a second
+- Its steps are named (`--start`, `--until`), and it can keep checkpoint saves (`--keep`, `--keep-at`) that a later
   run starts from (`--from`), so the second sect plays from the fair.
+- It plays as a careful player: one target at a time, a rest before a fresh one, a step out of every wind-up's lane,
+  the breakthroughs the bar asks for. After three falls in a run it keeps its HP up and says so in its log: it is
+  there for the screens, and the falls are findings.
+- Its waits run on the game's own clock (physics ticks), so a slow machine plays as long as a fast one.
 - Fixes in shared code, each with a test:
   - The clean field: in label mode a foe's full plate shows only for the target the thumb has, a foe in a fight and
     `EnemyView.ENGAGED_S` after, and elites and bosses (`EnemyView.plate_shown`, `TopdownWorld.focus_labels`).
     Every other foe has a compact HP bar once hurt or aggroed, and a danger mark when well above the player's Level.
-  - The labels' layout: plates keep clear of the player's body. A crowd takes more rows, then half a box aside
-    (`WorldLabels.ROWS_MORE`), and every view draws that aside offset.
+  - The labels' layout:
+    - plates keep clear of the player's body, and of a door's chevron (`PortalView.arrow_box`);
+    - a crowd takes more rows, then half a box aside (`WorldLabels.ROWS_MORE`), and every view draws that aside
+      offset;
+    - a plate under a HUD control that no row clears steps out just beside it;
+    - the purse and the status row are among the HUD's rects the labels keep off;
+    - a way's plate stays wholly inside the room (`PortalView.label_span`).
   - Each label stands on the figure's head: the foe sheet's `top`, from `tools/art/topdown/creatures.py`.
   - The hollowed eel turns: its velocity and aim (`enemy_authority.gd` `_eel`).
   - World news waits (`HUD.world_news`): it needs the calendar's unlock, no staged scene, and a known place short of
     the gate.
   - Staged scenes: the prompt is kept on the screen (`SceneStage.prompt_x`), and a balloon keeps clear of the HUD
     (`SceneStage.clear_of_hud`). Granny's drink step hands off live and waits a breath, so the heal is seen.
+  - The tracker: at a bottleneck one breakthrough short of the Level the story waits on, the Next entry asks for the
+    breakthrough ("Bottleneck: tap Cultivate to break through"), with no hunt and no Go.
   - The rest:
+    - a way's refusal shows once in the log, and a floating line stays whole on the screen (`FxLayer.on_screen`);
     - a moment's band holds the top centre alone (`MomentView.band_on_top`);
     - the equip prompt's name steps down to fit (`EquipPrompt.name_size`);
     - a tall prop counts for the silhouette (`TopdownPlaces.Figure`);
@@ -1690,9 +1702,11 @@ playthrough's findings, each with its screenshot, are in `docs/redesign/prototyp
 **Tests:**
 
 - `rules_tests` `prototype_suite` covers the default and the fallback, every gated way, the tracker's end, world news,
-  a moment's band, and the equip prompt's names.
+  a moment's band, the equip prompt's names, a plate under the minimap, the purse and the status row, and the gate's
+  line. Beside it, the tracker's test
+  covers the Next entry at a bottleneck.
 - `topdown_tutorial` plays on from The Humming Token to the prototype's end and walks into the Marsh Edge's gate.
-- `topdown_suite` covers the clean field, the eel, and the dummy.
+- `topdown_suite` covers the clean field, the eel, the dummy, a door's chevron, and a way's long plate.
 - `story_scenes` covers the prompt, the balloon, and the live hand-off.
 - `prologue_run` and `tutorial_order` know the gate.
 

@@ -80,6 +80,13 @@ static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 
 			var aside := r.size.x * 0.5 + 6.0
 			for k in ROWS_MORE + 1:
 				for sx in [-aside, aside]: cands.append(Vector2(sx, dir * step * k))
+			# Then just clear of a HUD control or panel it lies under, beside it (a way's plate at the screen's top edge,
+			# mostly under the minimap, where no row is free of it).
+			for o in obstacles:
+				if not (o as Rect2).intersects(r): continue
+				for sx in [(o as Rect2).position.x - r.end.x - 4.0, (o as Rect2).end.x - r.position.x + 4.0]:
+					cands.append(Vector2(sx, 0))
+					cands.append(Vector2(sx, dir * step))
 		var best: Vector2 = cands[0]
 		var best_cost := INF
 		var base_out := _outside(r, bounds)

@@ -530,8 +530,13 @@ func layout_labels() -> Dictionary:
 		if not is_instance_valid(label_views[uid]): label_views.erase(uid)
 	# The player's own body is kept clear as the HUD's controls are: a villager's plate under their feet never covers the
 	# body standing just below them (the prototype's QA, Uncle Guo's plate over the player at his stump).
+	var xf := overlay.get_global_transform_with_canvas()
 	var body := Rect2(feet_on_screen() + Vector2(-14, -64), Vector2(28, 64))
-	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), overlay.get_global_transform_with_canvas(), label_obstacles + [body])
+	# A door's chevron is kept clear too: Granny Liu's plate lay under her hut door's arrow.
+	var arrows: Array = []
+	for pv in portal_views:
+		if is_instance_valid(pv) and pv.visible and pv.arrow_box.size.x > 0.0: arrows.append(Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size))
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), xf, label_obstacles + [body] + arrows)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:

@@ -168,6 +168,11 @@ func watch_story() -> void:
 			_story_moved = "%s %s" % [n, str(p.get("quest", p.get("realm", p.get("system", ""))))]
 		if n == "sect_joined": _sect_chosen = str(p.get("sect", "")))
 
+## A tracker entry whose lines ask for the breakthrough (the Cultivate button at a bottleneck).
+static func _breakthrough_entry(e: Dictionary) -> bool:
+	var asks := [Tx.t("hud.bottleneck_tap_cultivate_to_break"), Tx.t("hud.bottleneck_reached_see_the_cultivation")]
+	return (e.get("lines", []) as Array).any(func(l): return str(l.get("text", "")) in asks)
+
 func story_guidance() -> void:
 	if not guidance or (_story_moved == "" and _sect_chosen == "") or c() == null or Game.room_rt == null: return
 	var at := "%s, in %s" % [_story_moved if _story_moved != "" else "a sect chosen", room()]
@@ -184,10 +189,15 @@ func story_guidance() -> void:
 		if e.get("gate", false):
 			check(t == "" and str(c().view) == "topdown" and _story_past_gate(), "story guidance (%s): '%s' leads nowhere only at the prototype's end" % [at, e.name])
 			continue
+		# At a bottleneck one breakthrough short of the Level the story waits on, the Next entry is the breakthrough: it
+		# names no room (there is nowhere to go), only what to tap.
+		if str(e.kind) == "next" and t == "" and _breakthrough_entry(e):
+			check(str(c().cultivator.state) == "bottleneck", "story guidance (%s): '%s' asks for a breakthrough only at a bottleneck" % [at, e.name])
+			continue
 		if str(e.kind) == "next": check(t != "", "story guidance (%s): the next entry '%s' names where to go" % [at, e.name])
 		if t == "": continue
 		check(not ContentDB.room(t).is_empty() and _walks_to_room(t), "story guidance (%s): '%s' leads to %s, a room the character can walk to" % [at, e.name, t])
-	if not tr.is_empty() and str(tr[0].kind) == "next" and not tr[0].get("gate", false):
+	if not tr.is_empty() and str(tr[0].kind) == "next" and not tr[0].get("gate", false) and not (str(tr[0].target_room) == "" and _breakthrough_entry(tr[0])):
 		var nx: Dictionary = tr[0]
 		var t0 := str(nx.target_room)
 		if nx.get("hunt", false):

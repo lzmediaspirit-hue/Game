@@ -518,6 +518,8 @@ func obstacle_rects() -> Array:
 	if shown("player_panel"): out.append(panel_rect(c))
 	if shown("minimap"): out.append(minimap_rect)
 	if tracker_rect.size.x > 0.0: out.append(tracker_rect)
+	if purse_rect.size.x > 0.0: out.append(purse_rect)
+	if status_rect.size.x > 0.0 and shown("player_panel"): out.append(status_rect)
 	if not equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
 	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
 	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
@@ -1294,7 +1296,11 @@ func _handle(name: String, p: Dictionary) -> void:
 		"system_log":
 			add_log(str(p.text), UiKit.PAPER)
 		"portal_blocked":
-			add_log(str(p.get("text", "")), UiKit.MIST)
+			# Pushing against a shut way refuses it again and again: its line shows once, kept fresh (the prototype's QA saw
+			# "The road beyond is still being drawn." five times over at the gate).
+			var said := str(p.get("text", ""))
+			if not log_lines.is_empty() and str(log_lines[-1].text) == said and float(log_lines[-1].t) < 5.0: log_lines[-1].t = 0.0
+			else: add_log(said, UiKit.MIST)
 		"field_boss_spawned", "elite_spawned":
 			var def := ContentDB.entry("enemies", str(p.def))
 			toast(Tx.t("hud.appears") % str(def.get("name", "")), "danger")
@@ -1917,6 +1923,7 @@ func _draw():
 		if on: draw_arc(auto_center, 29, fmod(t * 3.0, TAU), fmod(t * 3.0, TAU) + PI * 1.2, 24, UiKit.GOLD, 3.0)
 		glyph("jian", auto_center + Vector2(0, -4), 32)
 		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 23), 14, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
+	purse_rect = Rect2()
 	if shown("currency") and not _boss_arena(): _draw_purse()
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
@@ -1941,6 +1948,11 @@ func _boss_arena() -> bool:
 
 ## The purse (mockup 02): silver and spirit stones on the currency pill under the icon row, growing leftward for large
 ## sums; it rests in boss arenas (mockup 01).
+## The purse as last drawn (none when it is not): the world's labels keep off it (the prototype's QA saw Artisan Row's
+## way plate under it on the Fairground). The status row under the player panel likewise (status_rect).
+var purse_rect := Rect2()
+var status_rect := Rect2()
+
 func _draw_purse() -> void:
 	var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
 	var stones := int(Game.account.currencies.get("spirit_stone", 0))
@@ -1949,6 +1961,7 @@ func _draw_purse() -> void:
 	if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
 	w = maxf(222.0, w)
 	var cr := Rect2(1262 - w, 222, w, 34)
+	purse_rect = cr
 	draw_style_box(UiKit.style("currency_pill"), cr)
 	glyph("coin", cr.position + Vector2(20, 17), 32)
 	UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
@@ -2134,6 +2147,8 @@ func _draw_player_panel(c) -> void:
 	var row_y := r.end.y + 8.0
 	var x := r.position.x + 4.0
 	if meter: x = _draw_hollowing(c, Vector2(r.position.x + 2.0, row_y))
+	# What the row holds, for the world's labels to keep off (a Festival Lantern's plate lay over the Hollowing meter).
+	status_rect = Rect2(r.position.x, row_y - 2.0, minf(r.end.x, x + 28.0 * icons.size()) - r.position.x, 46.0) if meter or not icons.is_empty() else Rect2()
 	for ic in icons.slice(0, 12):
 		if x + 24.0 > r.end.x: break
 		glyph(ic, Vector2(x + 12, row_y + 12), 24)

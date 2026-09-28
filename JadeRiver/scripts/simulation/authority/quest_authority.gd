@@ -930,6 +930,15 @@ func _story_next(c) -> Dictionary:
 		# Research player_motivation §3.6: a Level the story waits on is never only a hunt. A lesson or side quest on
 		# offer closes part of it too; with none, meditation and body training do.
 		more.append({"text": _floor_other_way(c), "have": 0, "need": 1, "done": false})
+		# At a bottleneck the next thing to do is the breakthrough, not a hunt (the prototype's QA: "Hunt at Willow Path
+		# West" while the bar said "breakthrough ready"). A Level one breakthrough away is only that: no hunt, no Go.
+		if str(c.cultivator.state) == "bottleneck":
+			var cur := str(c.cultivator.realm_key)
+			var next_one: bool = ContentDB.realm_position(str(best.realm)) == ContentDB.realm_position(cur) + 1
+			var major: bool = cur.rsplit("_", true, 1)[0] != str(ContentDB.realm_key_for_level(ProgressionRules.level(c) + 1)).rsplit("_", true, 1)[0]
+			var now := {"text": Tx.t("hud.bottleneck_reached_see_the_cultivation" if major else "hud.bottleneck_tap_cultivate_to_break"), "have": 0, "need": 1, "done": false}
+			more = [now] if next_one else [now] + more
+			if next_one: room = ""
 	else:
 		# Where the giver stands now, the nearest the character can walk to (Lu on the docks, not in his boat).
 		var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
@@ -938,7 +947,7 @@ func _story_next(c) -> Dictionary:
 		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
 	if past_gate(c, room): return prototype_end()
 	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
-		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
+		"hunt": best.has("realm") and room != "", "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
 
 ## The other way to close a Level the story waits on (the Next entry's second line): a lesson or side quest on offer
 ## (its name and giver), else meditation and body training.

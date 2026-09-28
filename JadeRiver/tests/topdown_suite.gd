@@ -1998,6 +1998,49 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 	t.check(at_rest.size.x > 0.0 and aside_box.is_equal_approx(at_rest),
 		"topdown labels: a plate laid aside keeps reporting its box at no offset, as the layout pass reads it (%s, %s)" % [str(at_rest), str(aside_box)])
 	for e in crowd: e.ai.state = "idle"
+	# A door's chevron keeps other plates off it (Granny Liu's plate lay under her hut door's arrow).
+	fresh(base)
+	var by_door := foe("mudshell_crab", base + Vector2(0, 56))
+	frames(2)
+	for i in 3: await tree.process_frame
+	var dl = lv.call(by_door)
+	var pv := PortalView.new()
+	pv.label_only = true
+	pv.setup({"id": "qa_door", "type": "door", "at": [0, 0], "to": ""}, {})
+	pv.position = dl.position
+	pv.door_top = (dl.label_box as Rect2).get_center().y + 7.0   # the chevron right over the crab's plate
+	w.overlay.add_child(pv)
+	pv.set_process(false)   # after entering the tree (its _ready turns processing on)
+	pv.state = {"open": true, "text": ""}
+	w.portal_views.append(pv)
+	pv.tag.queue_redraw()
+	await tree.process_frame
+	var xf: Transform2D = w.overlay.get_global_transform_with_canvas()
+	var arrow := Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size)
+	var laid_door: Dictionary = w.layout_labels()
+	var crab_id := "e%d" % by_door.uid
+	var crab_at: Array = laid_door.items.filter(func(it): return str(it.id) == crab_id)
+	var crab_rect := Rect2((crab_at[0].rect as Rect2).position + laid_door.offsets.get(crab_id, Vector2.ZERO), (crab_at[0].rect as Rect2).size) if not crab_at.is_empty() else Rect2()
+	t.check(pv.arrow_box.size.x > 0.0 and crab_rect.size.x > 0.0 and not crab_rect.intersects(arrow),
+		"topdown labels: a plate keeps off a door's chevron (the arrow %s, the plate %s)" % [str(arrow), str(crab_rect)])
+	w.portal_views.erase(pv)
+	pv.free()
+	# A way at the room's edge with a long line (the prototype's gate: "The road beyond is still being drawn.") keeps
+	# its whole plate inside the room, so on the screen (it ran off the right edge at the Marsh Edge).
+	var edge := PortalView.new()
+	edge.label_only = true
+	edge.setup({"id": "qa_edge", "type": "edge", "at": [2032, 400], "to": ""}, {"bounds": [0, 0, 2048, 900]})
+	tree.root.add_child(edge)
+	edge.set_process(false)   # after entering the tree (its _ready turns processing on): the state is the test's
+	edge.state = {"open": false, "text": Tx.t("sim.world.road_being_drawn")}
+	edge.near = true
+	for i in 3:
+		edge.tag.queue_redraw()
+		await tree.process_frame
+	var plate_x := Vector2(edge.position.x + edge.label_box.position.x, edge.position.x + edge.label_box.end.x)
+	t.check(edge.label_box.size.x > 200.0 and plate_x.x >= 0.0 and plate_x.y <= 2048.0,
+		"topdown labels: a way's long plate at the room's edge stays wholly inside the room (%s of 2048)" % str(plate_x))
+	edge.free()
 
 ## A thing as tall as a body (Guo's training dummy) standing just in front of the player hides them no longer: it counts
 ## for the silhouette test, so the body shows through it (the prototype's QA lost the player behind the dummy); a low

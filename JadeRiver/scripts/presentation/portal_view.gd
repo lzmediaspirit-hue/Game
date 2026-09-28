@@ -24,9 +24,11 @@ var state: Dictionary = {"open": true, "text": ""}
 var wall_y := INF      # an interior door stands on the back wall's foot, this far above `at`
 var door_top := -96.0  # where the arrow and plate sit
 var label_dx := 0.0    # a way at the room's edge names itself a little inside, not half off-screen
+var label_span := Vector2(-INF, INF)   # the room's x extent: a long plate (the gate's line) is kept wholly inside it
 ## P5a (G4): the plate's box (local, at no offset) and the offset in whole rows the world's label pass gives it.
 var label_box := Rect2()
 var label_offset := Vector2.ZERO
+var arrow_box := Rect2()   # the chevron over a door, local, as last drawn (none when not drawn): other plates keep off it
 var tag: Node2D   # the arrow and the plate, above every figure (WorldLabels.LABEL_Z)
 var shows := ""   # what shows the way (entrance)
 ## The top-down view (redesign Phase 4) draws the way itself in its pixel viewport (a building's doorway, the gap in an
@@ -45,7 +47,8 @@ func setup(p: Dictionary, room_def: Dictionary = {}) -> void:
 	shows = entrance(p, room_def)
 	var b: Array = room_def.get("bounds", [])
 	if b.size() >= 3:
-		label_dx = clampf(position.x, float(b[0]) + 150.0, float(b[0]) + float(b[2]) - 150.0) - position.x
+		label_span = Vector2(float(b[0]), float(b[0]) + float(b[2]))
+		label_dx = clampf(position.x, label_span.x + 150.0, label_span.y - 150.0) - position.x
 	tag = WorldLabels.make_tag(self, _draw_tag)
 
 ## An interior's way out: a door with no art of its own on the back wall (drawn here, as the `door` prop).
@@ -125,8 +128,10 @@ func _draw() -> void:
 func _draw_tag() -> void:
 	var type := str(def.get("type", "edge"))
 	var bob := 0.5 + 0.5 * sin(t * 4.0)
+	arrow_box = Rect2()
 	if type == "door":
 		_draw_arrow(Vector2(0, door_top - 8 + bob * 5), bob)
+		arrow_box = Rect2(-17, door_top - 20, 34, 26)   # the chevron's whole bob
 	_draw_label(type)
 
 ## A chevron over the way in, pulsing so the eye finds it against busy walls.
@@ -144,7 +149,13 @@ func _draw_label(type: String) -> void:
 	var col := UiKit.PALE_GOLD if state.open else UiKit.MIST
 	if not near: col = Color(col, 0.82)
 	var size := 19 if near else 17
-	tag.draw_set_transform(Vector2(label_dx + label_offset.x, 0))   # label_offset.x: a crowd's plate half a box aside
-	var plate := UiKit.draw_nameplate(tag, ("▲ " if state.open and near else "") + label, "", y + label_offset.y, col, UiKit.MIST, size)
-	label_box = Rect2(plate.position + Vector2(label_dx, -label_offset.y), plate.size)
+	var shown := ("▲ " if state.open and near else "") + label
+	# The whole plate inside the room: a way at its edge with a long line (the prototype's gate) ran off the screen.
+	var dx := label_dx
+	if label_span.x > -INF:
+		var half := UiKit.text_width(shown, size, true) * 0.5 + 12.0
+		if half * 2.0 < label_span.y - label_span.x: dx = clampf(position.x + label_dx, label_span.x + half, label_span.y - half) - position.x
+	tag.draw_set_transform(Vector2(dx + label_offset.x, 0))   # label_offset.x: a crowd's plate half a box aside
+	var plate := UiKit.draw_nameplate(tag, shown, "", y + label_offset.y, col, UiKit.MIST, size)
+	label_box = Rect2(plate.position + Vector2(dx, -label_offset.y), plate.size)
 	tag.draw_set_transform(Vector2.ZERO)

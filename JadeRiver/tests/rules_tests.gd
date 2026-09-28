@@ -256,6 +256,36 @@ func prototype_suite() -> void:
 		"prototype: a moment's band in the top centre holds the room's name and the event's plate under it, and lets them go when it ends (on %s, off %s, a low band %s)" % [band_on, band_off, beat_low])
 	news.moments = null
 	mv.free()
+	# The world's labels keep off the purse and the status row under the player panel, as off every HUD panel (Artisan
+	# Row's way plate lay under the purse, a Festival Lantern's over the Hollowing meter).
+	news.purse_rect = Rect2(1040, 222, 222, 34)
+	news.status_rect = Rect2(16, 126, 180, 46)
+	var kept: Array = news.obstacle_rects()
+	check(kept.has(Rect2(1040, 222, 222, 34)) and (kept.has(Rect2(16, 126, 180, 46)) or not news.shown("player_panel")),
+		"prototype: the purse and the status row are HUD rects the world's labels keep off")
+	news.purse_rect = Rect2()
+	news.status_rect = Rect2()
+	# Walked into the gate again and again, its line shows once in the log, and the words over the player stay whole on
+	# the screen at the room's edge (both ran over: five lines, and "…still being drawn" cut at the right).
+	news.log_lines.clear()
+	for i in 5: news._on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	var fx_probe := FxLayer.new()
+	add_child(fx_probe)
+	var vw := fx_probe.get_viewport_rect().size.x
+	var road_text := Tx.t("sim.world.road_being_drawn")
+	var road_at := fx_probe.on_screen(road_text, 18, Vector2(vw - 10.0, 300.0))
+	var road_half := UiKit.text_width(road_text, 18) * 0.5
+	check(news.log_lines.size() == 1 and road_at.x + road_half <= vw and road_at.x - road_half >= 0.0,
+		"prototype: the gate's line shows once in the log however often it is walked into, and the words over the player stay on the screen (%d lines, at %.0f of %.0f)" % [news.log_lines.size(), road_at.x, vw])
+	fx_probe.free()
+	# A way's plate at the screen's top edge, mostly under the minimap where no row is free of it, steps out beside it
+	# (Willow Path West's way east read "Willow" under the map).
+	var minimap := Rect2(1032, 16, 232, 140)
+	var edge_plate := Rect2(1049.5, 15.85, 161, 25)
+	var edge_off: Dictionary = WorldLabels.resolve([{"id": "p0", "kind": "place", "rect": edge_plate, "prev": Vector2.ZERO, "near": 0.0}], [minimap, Rect2(16, 16, 360, 104)])
+	var edge_at := Rect2(edge_plate.position + edge_off.get("p0", Vector2.ZERO), edge_plate.size)
+	check(not edge_at.intersects(minimap) and Rect2(0, 0, 1280, 720).encloses(edge_at),
+		"prototype: a way's plate under the minimap at the screen's top edge steps out beside it, on the screen (%s)" % str(edge_at))
 	news.player.free()
 	news.free()
 	# The equip prompt names the early gear whole (it read "Training Short Bl…").
@@ -7924,6 +7954,17 @@ func _next_entry_checks(c) -> void:
 	Game.quest._story_cache = {}
 	check(Game.world.guide_target(c) == hunt and not Game.world.guide_step(c).is_empty() and not Game.world.route(c, "lf_village", hunt).is_empty() or hunt == "lf_village",
 		"the direction mark and the go button lead to the hunting ground (%s)" % hunt)
+	# The prototype's QA: at the bottleneck one breakthrough short of that Level, the entry asks for the breakthrough, and
+	# sends the player nowhere (it said "Hunt at Willow Path West" while the bar said "breakthrough ready").
+	var state_was: String = c.cultivator.state
+	c.cultivator.state = "bottleneck"
+	Game.quest._story_cache = {}
+	var at_neck: Dictionary = Game.quest.tracker(c)[0]
+	check(str(at_neck.get("quest", "")) == "the_weapon_hall" and str(at_neck.target_room) == "" and not at_neck.get("hunt", true)
+		and at_neck.lines.size() == 2 and str(at_neck.lines[1].text) == Tx.t("hud.bottleneck_tap_cultivate_to_break"),
+		"at the bottleneck one breakthrough short of the Level, the next entry asks for the breakthrough and names no hunt (%s)" % str(at_neck))
+	c.cultivator.state = state_was
+	Game.quest._story_cache = {}
 	# A main quest under way: the tracker shows it, and no next entry.
 	c.cultivator.realm_key = "bone_forging_4"
 	c.quests.active = {"strange_tracks": {"state": "active", "progress": ContentDB.entry("quests", "strange_tracks").objectives.map(func(_o): return 0), "accepted_tick": 0}}

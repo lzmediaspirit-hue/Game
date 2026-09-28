@@ -614,6 +614,8 @@ const TUTORIAL_FOES := [["33_night_eel_minnows", "lf_village_night", Vector2(33,
 
 func tutorial_foes() -> void:
 	var out := "res://docs/redesign/phase4/"
+	for a in OS.get_cmdline_user_args():   # `--into=<dir>/`: into another folder (the prototype's QA took its own)
+		if str(a).begins_with("--into="): out = str(a).trim_prefix("--into=")
 	await _topdown_game(out)
 	await frames(360)
 	var n := 33

@@ -279,6 +279,17 @@ func _totals() -> void:
 				"size": int(st.size) + int(cfg.get("total_plus_px", 2)), "dur": 1.1, "vel": Vector2(0, -60.0)})
 		stacks.erase(key)
 
+## Where a line of text centred at `pos` is drawn whole on the screen: moved in from an edge it would run off (the
+## prototype's QA: "The road beyond is still being drawn" at a way on the room's edge ran off the right).
+func on_screen(text: String, size: int, pos: Vector2) -> Vector2:
+	var xf := get_global_transform_with_canvas()
+	var k := maxf(0.001, xf.get_scale().x)
+	var half := minf(200.0, UiKit.text_width(text, size) * 0.5 + 8.0) * k
+	var vw := get_viewport_rect().size.x
+	var sx := (xf * pos).x
+	if half * 2.0 >= vw: return pos
+	return pos + Vector2((clampf(sx, half, vw - half) - sx) / k, 0.0)
+
 func _draw() -> void:
 	if world: _draw_state()
 	_draw_fx()
@@ -432,7 +443,7 @@ func _draw_fx() -> void:
 					draw_polyline(pts2, Color(0.95, 0.97, 1.0, 0.95 * fade3), 2.0)
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
-				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)
+				UiKit.draw_outlined(self, e.text, on_screen(e.text, int(e.size), e.pos) + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)
 			"pillar":
 				# P6: a column of light on its target, `radius` half-wide and `height` tall; it widens over the first fifth
 				# and fades over the last seventh (a major breakthrough, mockup 05).
