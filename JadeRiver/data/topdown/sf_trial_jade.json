@@ -120,6 +120,31 @@
    "y": 14
   },
   {
+   "kind": "bush_azalea",
+   "x": 4,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 1,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 33,
+   "y": 21
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 14,
+   "y": 22
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 26,
+   "y": 22
+  },
+  {
    "kind": "crates",
    "x": 5,
    "y": 9

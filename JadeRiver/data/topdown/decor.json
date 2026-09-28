@@ -1,0 +1,819 @@
+{
+ "biomes": {
+  "b": {
+   "sets": [
+    [
+     "flowers",
+     1
+    ]
+   ],
+   "share": 0.75
+  },
+  "f": {
+   "patch": {
+    "above": 0.7,
+    "count": 2,
+    "scale": 4.2,
+    "set": "grass_tall"
+   },
+   "sets": [
+    [
+     "flowers",
+     6
+    ],
+    [
+     "grass_tall",
+     2
+    ],
+    [
+     "grass_low",
+     1
+    ]
+   ],
+   "share": 0.62,
+   "shore": 0.4
+  },
+  "g": {
+   "patch": {
+    "above": 0.63,
+    "count": 3,
+    "scale": 4.2,
+    "set": "grass_tall"
+   },
+   "sets": [
+    [
+     "grass_tall",
+     5
+    ],
+    [
+     "grass_low",
+     2
+    ],
+    [
+     "flowers",
+     2.5
+    ],
+    [
+     "stones",
+     1
+    ],
+    [
+     "ferns",
+     1
+    ],
+    [
+     "shrublets",
+     1
+    ],
+    [
+     "mushrooms",
+     0.35
+    ]
+   ],
+   "share": 0.34,
+   "shore": 0.6
+  },
+  "m": {
+   "patch": {
+    "above": 0.6,
+    "count": 3,
+    "scale": 3.6,
+    "set": "grass_tall"
+   },
+   "sets": [
+    [
+     "reeds",
+     3
+    ],
+    [
+     "grass_tall",
+     3
+    ],
+    [
+     "grass_low",
+     2
+    ],
+    [
+     "flowers",
+     0.5
+    ]
+   ],
+   "share": 0.42,
+   "shore": 0.75
+  },
+  "r": {
+   "sets": [
+    [
+     "moss",
+     3
+    ],
+    [
+     "stones",
+     2
+    ],
+    [
+     "grass_low",
+     1
+    ],
+    [
+     "ferns",
+     1
+    ]
+   ],
+   "share": 0.26
+  }
+ },
+ "clear": {
+  "foe": 0,
+  "place": 1,
+  "portal": 1,
+  "spawn": 1
+ },
+ "litter": {
+  "radius": 2.6,
+  "share": 0.55
+ },
+ "schema_version": 1,
+ "sets": {
+  "ferns": [
+   "fern_0",
+   "fern_1"
+  ],
+  "flowers": [
+   "flower_white",
+   "flower_gold",
+   "flower_pink",
+   "flower_blue",
+   "flower_coral",
+   "flowers_0",
+   "flowers_1",
+   "flowers_2",
+   "flowers_3"
+  ],
+  "grass_low": [
+   "tuft_low_0",
+   "tuft_low_1",
+   "tuft_low_2"
+  ],
+  "grass_tall": [
+   "tuft_0",
+   "tuft_1",
+   "tuft_2",
+   "tuft_3",
+   "tuft_4"
+  ],
+  "litter_bamboo": [
+   "litter_bamboo_0",
+   "litter_bamboo_1"
+  ],
+  "litter_leaves": [
+   "litter_leaves_0",
+   "litter_leaves_1"
+  ],
+  "litter_maple": [
+   "litter_maple_0",
+   "litter_maple_1"
+  ],
+  "litter_peach": [
+   "litter_peach_0",
+   "litter_peach_1"
+  ],
+  "litter_pine": [
+   "litter_pine_0",
+   "litter_pine_1"
+  ],
+  "litter_plum": [
+   "litter_plum_0",
+   "litter_plum_1"
+  ],
+  "moss": [
+   "moss_0",
+   "fern_1",
+   "stone_0",
+   "stone_1"
+  ],
+  "mushrooms": [
+   "mushrooms_0",
+   "mushrooms_1",
+   "lingzhi"
+  ],
+  "reeds": [
+   "reeds_0",
+   "reeds_1",
+   "cattail",
+   "iris"
+  ],
+  "shrublets": [
+   "shrublet_0",
+   "shrublet_1"
+  ],
+  "stones": [
+   "pebbles_0",
+   "pebbles_1",
+   "pebbles_2",
+   "stone_0",
+   "stone_1"
+  ]
+ },
+ "sheet": "res://art/topdown/decor.png",
+ "sprites": {
+  "cattail": {
+   "foot": [
+    4,
+    13
+   ],
+   "rect": [
+    48,
+    46,
+    8,
+    14
+   ],
+   "sway": 7
+  },
+  "fern_0": {
+   "foot": [
+    7,
+    9
+   ],
+   "rect": [
+    30,
+    16,
+    14,
+    10
+   ],
+   "sway": 0
+  },
+  "fern_1": {
+   "foot": [
+    7,
+    9
+   ],
+   "rect": [
+    45,
+    16,
+    14,
+    10
+   ],
+   "sway": 0
+  },
+  "flower_blue": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    90,
+    16,
+    9,
+    13
+   ],
+   "sway": 5
+  },
+  "flower_coral": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    100,
+    16,
+    9,
+    13
+   ],
+   "sway": 5
+  },
+  "flower_gold": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    70,
+    16,
+    9,
+    13
+   ],
+   "sway": 5
+  },
+  "flower_pink": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    80,
+    16,
+    9,
+    13
+   ],
+   "sway": 5
+  },
+  "flower_white": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    60,
+    16,
+    9,
+    13
+   ],
+   "sway": 5
+  },
+  "flowers_0": {
+   "foot": [
+    8,
+    14
+   ],
+   "rect": [
+    110,
+    16,
+    16,
+    15
+   ],
+   "sway": 6
+  },
+  "flowers_1": {
+   "foot": [
+    8,
+    14
+   ],
+   "rect": [
+    0,
+    31,
+    16,
+    15
+   ],
+   "sway": 6
+  },
+  "flowers_2": {
+   "foot": [
+    8,
+    14
+   ],
+   "rect": [
+    17,
+    31,
+    16,
+    15
+   ],
+   "sway": 6
+  },
+  "flowers_3": {
+   "foot": [
+    8,
+    14
+   ],
+   "rect": [
+    34,
+    31,
+    16,
+    15
+   ],
+   "sway": 6
+  },
+  "iris": {
+   "foot": [
+    4,
+    12
+   ],
+   "rect": [
+    57,
+    46,
+    8,
+    13
+   ],
+   "sway": 6
+  },
+  "lingzhi": {
+   "foot": [
+    6,
+    8
+   ],
+   "rect": [
+    13,
+    46,
+    12,
+    9
+   ],
+   "sway": 0
+  },
+  "litter_bamboo_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    105,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_bamboo_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    0,
+    68,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_leaves_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    81,
+    46,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_leaves_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    96,
+    46,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_maple_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    111,
+    46,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_maple_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    0,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_peach_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    45,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_peach_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    60,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_pine_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    75,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_pine_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    90,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_plum_0": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    15,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "litter_plum_1": {
+   "foot": [
+    7,
+    7
+   ],
+   "rect": [
+    30,
+    60,
+    14,
+    8
+   ],
+   "sway": 0
+  },
+  "moss_0": {
+   "foot": [
+    7,
+    9
+   ],
+   "rect": [
+    66,
+    46,
+    14,
+    10
+   ],
+   "sway": 0
+  },
+  "mushrooms_0": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    116,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "mushrooms_1": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    0,
+    46,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "pebbles_0": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    51,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "pebbles_1": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    64,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "pebbles_2": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    77,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "reeds_0": {
+   "foot": [
+    5,
+    13
+   ],
+   "rect": [
+    26,
+    46,
+    10,
+    14
+   ],
+   "sway": 8
+  },
+  "reeds_1": {
+   "foot": [
+    5,
+    13
+   ],
+   "rect": [
+    37,
+    46,
+    10,
+    14
+   ],
+   "sway": 8
+  },
+  "shrublet_0": {
+   "foot": [
+    8,
+    10
+   ],
+   "rect": [
+    69,
+    0,
+    16,
+    11
+   ],
+   "sway": 0
+  },
+  "shrublet_1": {
+   "foot": [
+    8,
+    10
+   ],
+   "rect": [
+    86,
+    0,
+    16,
+    11
+   ],
+   "sway": 0
+  },
+  "stone_0": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    90,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "stone_1": {
+   "foot": [
+    6,
+    7
+   ],
+   "rect": [
+    103,
+    31,
+    12,
+    8
+   ],
+   "sway": 0
+  },
+  "tuft_0": {
+   "foot": [
+    6,
+    13
+   ],
+   "rect": [
+    0,
+    0,
+    12,
+    14
+   ],
+   "sway": 8
+  },
+  "tuft_1": {
+   "foot": [
+    7,
+    14
+   ],
+   "rect": [
+    13,
+    0,
+    14,
+    15
+   ],
+   "sway": 8
+  },
+  "tuft_2": {
+   "foot": [
+    6,
+    15
+   ],
+   "rect": [
+    28,
+    0,
+    12,
+    16
+   ],
+   "sway": 8
+  },
+  "tuft_3": {
+   "foot": [
+    7,
+    13
+   ],
+   "rect": [
+    41,
+    0,
+    14,
+    14
+   ],
+   "sway": 8
+  },
+  "tuft_4": {
+   "foot": [
+    6,
+    14
+   ],
+   "rect": [
+    56,
+    0,
+    12,
+    15
+   ],
+   "sway": 8
+  },
+  "tuft_low_0": {
+   "foot": [
+    7,
+    8
+   ],
+   "rect": [
+    103,
+    0,
+    14,
+    9
+   ],
+   "sway": 0
+  },
+  "tuft_low_1": {
+   "foot": [
+    7,
+    8
+   ],
+   "rect": [
+    0,
+    16,
+    14,
+    9
+   ],
+   "sway": 0
+  },
+  "tuft_low_2": {
+   "foot": [
+    7,
+    8
+   ],
+   "rect": [
+    15,
+    16,
+    14,
+    9
+   ],
+   "sway": 0
+  }
+ }
+}

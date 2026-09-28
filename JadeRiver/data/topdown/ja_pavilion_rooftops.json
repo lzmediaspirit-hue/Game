@@ -219,6 +219,86 @@
    "kind": "bamboo",
    "x": 3,
    "y": 24
+  },
+  {
+   "kind": "tree_pine",
+   "x": 10,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 8,
+   "y": 9
+  },
+  {
+   "kind": "tree_plum",
+   "x": 56,
+   "y": 6
+  },
+  {
+   "kind": "tree_plum",
+   "x": 27,
+   "y": 27
+  },
+  {
+   "kind": "tree_maple",
+   "x": 36,
+   "y": 28
+  },
+  {
+   "kind": "tree_pine",
+   "x": 46,
+   "y": 28
+  },
+  {
+   "kind": "tree_peach",
+   "x": 52,
+   "y": 27
+  },
+  {
+   "kind": "tree_willow",
+   "x": 6,
+   "y": 28
+  },
+  {
+   "kind": "bush_wide",
+   "x": 32,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 22,
+   "y": 26
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 49,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 20,
+   "y": 28
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 12,
+   "y": 25
+  },
+  {
+   "kind": "cattails",
+   "x": 19,
+   "y": 25
   }
  ],
  "place": {

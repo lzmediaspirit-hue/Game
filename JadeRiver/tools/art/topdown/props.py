@@ -9,6 +9,7 @@ props (`ANIM`) hold their frames side by side. The kinds the Phase 1 room places
 """
 from __future__ import annotations
 
+import foliage as FL
 import terrain2 as T2
 import tiles as tl
 from canvas import Img, h01
@@ -651,6 +652,8 @@ PROPS = {
     "boulder": (boulder, 24, 22, 1, 1, [4, 20], True, [12, -2, 9, 3]),
     "grey_reeds": (grey_reeds, 16, 20, 1, 1, [0, 18], False, None),
 }
+# Terrain v2's third part, the foliage and garden kit (tools/art/topdown/foliage.py; art bible "Foliage and decor").
+PROPS.update(FL.PROPS)
 
 
 # Props whose top is a floor you stand on, in levels over their ground (decision 29; TopdownRoom reads `top`).
@@ -660,6 +663,7 @@ TOPS = {"house": 2, "storehouse": 2, "crates": 1, "hall": 2}
 # (the room view starts each prop at its own phase, so a grove never moves in lockstep); lotus flowers bob on the
 # water's 250 ms clock; a banner's tail stirs.
 ANIM = {"bamboo": (4, 500), "willow": (4, 600), "lotus": (4, 250), "banner_jade": (4, 450), "banner_cloud": (4, 450)}
+ANIM.update({k: v for k, v in FL.ANIM.items() if k not in FL.STILL_TRUNK})
 SWAY = (0, 1, 1, 0)
 SHEET_W = 512
 
@@ -693,8 +697,19 @@ def build() -> tuple[Img, dict]:
             spr.paste(one, f * w, 0)
         sprites.append((kind, "prop", spr))
     for kind, entry in PROPS.items():
-        if entry[7]:
+        if kind in FL.SHADOWS:
+            sprites.append((kind, "shadow", FL.shadow_of(kind)[0]))
+        elif entry[7]:
             sprites.append((kind, "shadow", shadow_sprite(*entry[7])[0]))
+    # A tree's canopy (the overhang the room view lays over its trunk), its frames side by side on the trunk's clock.
+    for kind, (draw, w, h, at) in FL.CANOPY.items():
+        n = FL.ANIM.get(kind, (1, 0))[0]
+        spr = Img(w * n, h)
+        for f in range(n):
+            one = Img(w, h)
+            draw(one, f)
+            spr.paste(one, f * w, 0)
+        sprites.append((kind, "canopy", spr))
     places, x, y, row_h = [], 0, 0, 0
     for kind, what, spr in sprites:
         if x + spr.w > SHEET_W:
@@ -709,12 +724,23 @@ def build() -> tuple[Img, dict]:
         if what == "shadow":
             at[kind]["shadow"] = shadow
             at[kind]["shadow_rect"] = [x, y, spr.w, spr.h]
-            at[kind]["shadow_at"] = shadow_sprite(*shadow)[1]
+            at[kind]["shadow_at"] = FL.shadow_of(kind)[1] if kind in FL.SHADOWS else shadow_sprite(*shadow)[1]
+            continue
+        if what == "canopy":
+            cdraw, cw, ch, cat = FL.CANOPY[kind]
+            one = Img(cw, ch)
+            cdraw(one, 0)
+            n, ms = FL.ANIM.get(kind, (1, 0))
+            at[kind]["canopy"] = {"rect": [x, y, cw, ch], "at": cat, "box": FL.fade_box(one), "frames": n, "frame_ms": ms}
             continue
         entry = {"rect": [x, y, w, h], "footprint": [fw, fh], "origin": origin, "solid": solid}
         if kind in ANIM:
             entry["frames"], entry["frame_ms"] = ANIM[kind]
         if kind in TOPS:
             entry["top"] = TOPS[kind]
+        if kind in FL.PROPS:
+            entry["foliage"] = True
+        if kind in FL.LITTER:
+            entry["litter"] = FL.LITTER[kind]
         at[kind] = entry
     return sheet, at

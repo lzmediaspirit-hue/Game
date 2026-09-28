@@ -1179,6 +1179,17 @@ and foliage and decor.
 - the sun and shade patches are a whisper, and paving and granite take none;
 - the value range is wider: deeper cliff bodies, brighter lips, crisper granite.
 
+### As built: Phase 3, sixth part · Terrain v2, foliage and decor (decision 40, 2026-09-28)
+
+Decision 40's third part is built to `docs/redesign/art_bible.md` §14.12. Every top-down room is dressed: the tutorial's
+13 and chapter 2's 14. There are big trees whose canopies overhang and shade the paths (camphor, a wishing tree hung
+with prayer ribbons, willow, plum, peach, maple, cloud pine, bamboo), and bushes, hedges, fences, mossy rocks, a
+wayside shrine, potted plants, tall grass, cattails and lotus pads, all framing the paths and edges. Ground cover is
+scattered over meadows, beds, marsh and rock by the room view (`scripts/topdown/topdown_foliage.gd`), off every path,
+spot and way. Canopies are overhangs sorted after their trunks that fade to 35% over the player or a foe (plan §1.2).
+Trunks block and canopies do not. The pieces are drawn inside the floor's chunks with a GPU sway, so there is no node
+per piece. `topdown_foliage_suite` and `data_validation` check it. Before and after: `docs/redesign/terrain_v2/foliage/`.
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:

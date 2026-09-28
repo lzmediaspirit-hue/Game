@@ -121,6 +121,56 @@
    "kind": "boulder",
    "x": 2,
    "y": 23
+  },
+  {
+   "kind": "tree_pine",
+   "x": 3,
+   "y": 11
+  },
+  {
+   "kind": "tree_plum",
+   "x": 33,
+   "y": 20
+  },
+  {
+   "kind": "tree_maple",
+   "x": 15,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 27,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 12,
+   "y": 12
+  },
+  {
+   "kind": "tall_grass",
+   "x": 20,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 34,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 15
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 23,
+   "y": 10
   }
  ],
  "place": {

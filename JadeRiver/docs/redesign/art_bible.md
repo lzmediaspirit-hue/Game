@@ -222,6 +222,9 @@ are checked on a room made for them (`topdown_suite`, "topdown terrain").
 The kit so far: house, storehouse, willow, stone lantern, red lantern post, barrel, crates (standable), notice
 board, reeds, boat, bamboo, lotus, incense burner, shrub.
 
+Terrain v2's third part adds the foliage and garden kit: big trees with canopies, bushes, hedges, fences, rocks, a
+wayside shrine, potted plants and walk-through plants (§14.12).
+
 Chapter 2's stretch (the sects and the Reed Marsh) adds:
 
 | Prop | Footprint | What it is |
@@ -317,6 +320,8 @@ same build.
 | `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) by their Phase 3 names, drawn by `terrain2.py` |
 | `tools/art/topdown/terrain2.py` | Terrain v2 (§14): the macro patterns, face patterns, positional grass overlays, tint masks, decals, water frames and shore overlays |
 | `tools/art/topdown/props.py` | the prop kit and its footprints, origins, animation frames and floor shadows |
+| `tools/art/topdown/foliage.py` | the foliage and garden kit (§14.12): trees with their canopies and crown shade, bushes, hedges, fences, rocks, walk-through plants; `props.py` adds it to the kit |
+| `tools/art/topdown/decor.py`, `build_decor.py` | the ground cover the room view scatters and its rules (§14.12), into `art/topdown/decor.png` and `data/topdown/decor.json` (`--check`, `--review`) |
 | `tools/art/topdown/creatures.py` | the foes in eight facings (§8, "Foes") |
 | `tools/art/topdown/atlas.py` | the atlas layout |
 | `art/topdown/proto_tiles.png` | the atlas, 32 cells wide: the Phase 3 tiles in rows 0–6, the Terrain v2 sets below |
@@ -413,7 +418,8 @@ three parts: the tiles (this section, built), then runtime light, then denser fo
 contract for the other two parts.** Where it differs from §1–§7, it replaces them for the ground, edges, faces, water
 and buildings. The props and the character keep their own rules (§4, §8, §13), except where §14.2 says so.
 
-Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10).
+Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10). The third part, foliage and decor, is built
+to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`.
 
 ### 14.1 The look
 
@@ -671,6 +677,150 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
   views, drawn by the game (`tools/dev/topdown_capture.tscn -- --terrain <before|after>`), are in
   `docs/redesign/terrain_v2/before/` and `after/`, and the side-by-side pairs are
   `docs/redesign/terrain_v2/0N_*_before_after.png`.
+
+### 14.12 Foliage and decor (the third part, built)
+
+The rooms were sparse: a few small props on open ground. Alabaster Dawn's outdoor scenes are dense and layered, with
+big trees whose crowns overhang the paths and shade them, bushes, tall grass, flowers, mossy rocks, reeds at the water
+and leaves on the ground. This part closes that gap and keeps every path readable.
+
+**Three layers.**
+
+| Layer | What | How it is drawn |
+|---|---|---|
+| Big pieces | trees, a bamboo grove, bushes, hedges, fences, rocks, a log, a stump, a wayside shrine, potted plants, tall grass, cattails, ferns, lotus pads | props, hand-placed per room in `tools/data/topdown_rooms.py` (`Layout.green`) to frame paths and edges |
+| Canopies | each tree's crown | an overhang sprite over its trunk (below) |
+| Ground cover | tall grass tufts, low tufts, ferns, small shrubs, wild flowers, pebbles and mossy stones, mushrooms and lingzhi, reeds, cattails and irises, and the litter under trees | scattered by the room view (`TopdownFoliage`), drawn inside the floor's chunks |
+
+**The kit** (`tools/art/topdown/foliage.py`, built into the prop sheet by `props.py`):
+
+| Kind | Footprint | What it is |
+|---|---|---|
+| `tree_camphor` | 1 × 1 | a village camphor: a broad dome of glossy leaf puffs over a thick crooked bole |
+| `tree_ribbons` | 1 × 1 | the same tree hung with red prayer ribbons and wooden wish tablets, a red cloth round its bole (the wishing tree) |
+| `tree_willow` | 1 × 1 | a great willow: a soft dome and a curtain of leafy strands that sway |
+| `tree_plum`, `tree_peach` | 1 × 1 | plum blossom (white-pink on dark zig-zag branches) and peach blossom (deep pink over fresh leaves) |
+| `tree_maple` | 1 × 1 | a maple turning red and gold |
+| `tree_pine` | 1 × 1 | a great "cloud pine": flat pads of needles held out on crooked limbs |
+| `bamboo_grove` | 2 × 1 | eleven culms fanning out from one clump, a spray of leaves at each top; culms and sprays sway |
+| `bush`, `bush_azalea`, `bush_wide` | 1 × 1, 1 × 1, 2 × 1 | mounds of leaf puffs; the azalea covered in crimson flowers |
+| `hedge_2`, `hedge_3`, `hedge_4` | n × 1 | a clipped box hedge, a row of shrubs grown into one |
+| `fence_2`, `fence_3`, `fence_4` | n × 1 | a split-bamboo and timber rail fence, running east–west |
+| `rock_mossy`, `rock_small`, `log`, `stump` | 2 × 1, 1 × 1, 2 × 1, 1 × 1 | karst rocks with moss cushions, a fallen mossy trunk, a sawn stump |
+| `shrine_small` | 1 × 1 | a wayside earth-god shrine: red lacquer under a tile roof, a gilt tablet, peaches and incense |
+| `pot_bonsai`, `pot_orchid` | 1 × 1 | a jade-glazed jar with a trained pine; a blue-and-white pot of orchids (halls and decks) |
+| `tall_grass`, `cattails`, `ferns`, `lotus_pads` | 2 × 1, 1 × 1, 1 × 1, 2 × 1 | walk-through; tall grass and cattails sway, cattails stand on land or in the shallows |
+
+**How foliage is drawn.** Leaf masses are sculpted, not painted (`puff_mass`):
+
+- A crown is a union of ellipses filled with small leaf puffs on a jittered grid, drawn back to front.
+- Each pixel is lit by its puff's own normal blended with its place in the whole crown. So the crown reads as one form
+  lit from the north-west, and its puffs as the bumps on it.
+- The underside lies in its own shade. A puff's south-east rim darkens where it lies over the one behind, and its
+  north-west edge catches the sun. The top step of the ramp is kept for sparse glints.
+- Greens keep the prop ramps (`LEAF`, `PINE`, `BAMBOO`). The blossom and autumn ramps (`PLUM`, `PEACH`, `MAPLE`,
+  `AZALEA`) lean blue-violet in their darks and warm in their lights, as §14.3's do.
+- Everything is outlined as a prop (§4), and every value comes from a coordinate hash.
+
+**Canopies.** A tree has two sprites:
+
+- **The trunk** (the prop's `rect`): the bole and its main limbs, narrow. It sorts at its footprint's south edge and
+  blocks, as every solid prop does.
+- **The canopy** (the manifest's `canopy`: `rect`, `at` from the footprint's south-west corner, `box`, `frames`,
+  `frame_ms`) is an overhang sorted just after its trunk (key + 1/64). So it covers whoever walks under it, north of
+  the trunk, and never a roof, a face or a body in front of it.
+- A canopy blocks nothing and never calls the silhouette. Instead it fades to **35%** (plan §1.2) over 0.25 s while
+  the player, or a foe, stands under its `box` and behind its trunk, and fades back when they leave.
+- A willow's, the ribbons' and the grove's canopies play their frames on their trunk's clock.
+
+**Shade.** A tree's floor shadow is its crown's shade, baked into the prop sheet like every prop shadow:
+
+- the crown's solid mask (thin strands and limbs left out), squashed onto the ground round the trunk's row;
+- moved along §14.2's direction by the crown's height, (+0.45 h, +0.20 h);
+- plus the trunk's own cast;
+- in `SHADOW` at 0.41 in the body, and 0.25 on a 2 px rim and in flecks of sun let through the leaves;
+- cut to the floor the tree stands on, as every prop shadow is.
+
+**For the runtime light:** a prop with a `canopy` already carries its whole cast shadow. The runtime cast shadow should
+skip it, or cast only its trunk.
+
+**Ground cover.** Built by `tools/art/topdown/build_decor.py` into `art/topdown/decor.png` and
+`data/topdown/decor.json`:
+
+- 46 pieces, each at most 16 × 16, standing on its foot, lit from the north-west, with a small `SHADOW` to its
+  south-east like a decal's.
+- No outline: it is ground cover, not a prop. This amends §14.9's "taller than about 6 px is a prop" for walk-through
+  cover.
+- A piece never rises above its cell's top edge, so it never pokes into the row behind it.
+- Grass, flowers and reeds sway a pixel east and back on their upper part (0, 1, 1, 0 over four 0.65 s frames), each
+  at its own phase. A shader on the chunks that hold them does this, with no redraw.
+
+**Where the ground cover grows** (the manifest's `biomes`, by paint mark):
+
+| Mark | Share | Sets | Also |
+|---|---|---|---|
+| `g` meadow | 0.34 | tall and low grass, flowers, stones, ferns, small shrubs, mushrooms and lingzhi | patches of dense tall grass (noise over 4.2 cells above 0.63, up to 3 pieces a cell); reeds on the shore (0.6) |
+| `f` flowers | 0.62 | flowers, tall and low grass | patches; reeds on the shore |
+| `b` bed | 0.75 | flowers | |
+| `m` marsh | 0.42 | reeds, cattails and irises, tall and low grass, a few flowers | patches; reeds on the shore (0.75) |
+| `r` rock | 0.26 | moss, ferns, stones, low grass | |
+
+- **Litter.** Round each tree (2.6 cells), 0.55 of the cells take its litter first:
+  - leaves under a camphor or a willow;
+  - red leaves under a maple;
+  - petals under a plum or a peach;
+  - needles and a cone under a pine;
+  - long leaves under bamboo.
+- **Blight.** Round a dead tree nothing grows: the Hollowing has drained the ground.
+- **Kept clear.** Paths, paving, granite, planks, roofs and walls take none. Neither do:
+  - the water, a prop's footprint and the stairs, with the row at each stair's head and foot;
+  - a ring of one cell round the spawn and round every person's and thing's spot;
+  - each way out's lane, from its doorway or edge to where one arrives, as wide as its span, plus one;
+  - the foes' spawn points.
+- **Deterministic.** A hash of the room's id and the cell (`TopdownTerrain.h01`, `vnoise`); cached per room.
+
+**Placement rules** (`topdown_rooms.py --check`, `check_foliage`):
+
+- A plant stands on meadow, flowers, a bed, marsh or rock. A potted plant stands on any floor, a lotus pad on the
+  water, and cattails on land or in the shallows.
+- Nothing stands on a kept-clear cell, a staged scene's walk (from `data/scenes.json`) or another prop.
+- A tree's canopy `box` never hides a person, a thing or a way's lane behind its trunk.
+- The walkable graph and every reach check stay as before: trunks, bushes, hedges, fences and rocks block, and the
+  rest never does.
+
+**Readability.**
+
+- A canopy fades when it would hide the player or a foe. Names, markers, pickups, rings and the aim draw on the
+  overlay, above every canopy.
+- The ground under a body stays in steps 3–5 of its ramp: ground cover is small, sparse on paths' edges and absent
+  from spots and lanes.
+
+**Performance.**
+
+- The scatter runs once a room: about 10 ms for Lotus Ferry's 978 pieces, then it is cached.
+- The pieces are drawn inside the existing floor chunks and raised rows, so there is no node per piece. Lotus Ferry
+  has 151 view nodes for 978 pieces and 13 canopies.
+- Canopies are one node each, and only those in view are tested for the fade.
+
+**Tests.**
+
+- `topdown_foliage_suite` (run by `rules_tests`), on every room with a layout:
+  - no ground cover on a path, the water, a prop, the stairs, the spawn, a spot or a way;
+  - the outdoor rooms are covered, and the scatter is the same twice;
+  - every trunk, bush, hedge, fence and rock blocks, and a body walking into a trunk stops;
+  - canopies and walk-through plants block nothing;
+  - the decor draws in the chunks, with the sway on the GPU;
+  - canopies sort after their trunks, and a canopy fades under the player and comes back.
+- `data_validation` (`foliage_art_suite`): every canopy, fade box and ground-cover piece is inside its sheet, and every
+  set, biome, patch and litter names what exists.
+
+**Review images** (`docs/redesign/terrain_v2/foliage/`):
+
+- `before/` and `after/`: the Terrain v2 views, the Willow Path, the Herb Terraces, the Pavilion Rooftops, and two
+  fights under the HUD. They are drawn by `tools/dev/topdown_capture.tscn -- --terrain foliage/<before|after>`, and the
+  pairs are `NN_*_before_after.png`.
+- `after/rooms/`: every room on the grid whole at 1 art px.
+- `props_x2.png` and `decor_x4.png`: the kit and the ground cover (`build_decor.py --review`).
 
 ## 15. Combat effects (decision 38)
 

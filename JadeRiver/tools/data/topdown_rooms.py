@@ -84,6 +84,16 @@ class Layout:
         self.props.append(p)
         return len(self.props) - 1
 
+    def green(self, *items):
+        """Terrain v2's foliage and decor (art bible "Foliage and decor"): the big pieces, (kind, x, y) each, hand-placed
+        to frame the room's paths and edges; a piece past the room's east edge is left out (a narrower variant of a
+        room, the village at night). The ground cover between them is the room view's scatter."""
+        for kind, x, y in items:
+            fw = TILESET["props"][kind]["footprint"][0]
+            if x + fw <= self.w:
+                self.prop(kind, x, y)
+        return self
+
     def walls(self, x, y, w, h, high=3, low=1, paint="l"):
         """An interior's walls round a floor: the back wall `high` (its face three tiles), the sides as high, the front
         a low sill so it hides little."""
@@ -285,8 +295,161 @@ def check(lay, d):
             c = cell(q)
             if g.floor(*c) is None:
                 errs.append("spawn %d point %s: no floor" % (k, str(c)))
+    errs += list(dict.fromkeys(check_foliage(lay, d, g)))
     if errs:
         raise SystemExit("%s:\n  " % lay.id + "\n  ".join(errs))
+
+
+# -------------------------------------------------------------------- Terrain v2's third part: foliage and decor
+# docs/redesign/art_bible.md "Foliage and decor": the big pieces (trees, bamboo, bushes, hedges, fences, rocks, a log, a
+# wayside shrine, potted plants, tall grass, cattails, ferns, lotus pads) are hand-placed per room, framing its paths and
+# edges; the ground cover between them is the room view's scatter (TopdownFoliage). A tree's trunk blocks, its canopy
+# does not; a walk-through plant never blocks.
+FOLIAGE = {k for k, v in TILESET["props"].items() if v.get("foliage")}
+PLANTED = set("gfbmr")                    # what a plant or a garden piece stands on: meadow, flowers, bed, marsh, rock
+ANYWHERE = {"pot_bonsai", "pot_orchid"}   # a potted plant stands on any floor (a hall's, a deck, the paving)
+ON_WATER = {"lotus_pads"}
+WADING = {"cattails"}                     # stands on the land it grows on or in the shallows
+DECOR = json.load(open(os.path.join(OUT, "decor.json")))
+
+
+def clear_cells(d):
+    """The cells the room view keeps clear of ground cover (TopdownFoliage.clear_cells, the same rules): round the
+    spawn, every spot, each way out's lane, the heads and feet of the stairs and the foes' spawn points."""
+    ring = DECOR["clear"]
+    out = set()
+
+    def add(c, n):
+        for y in range(c[1] - n, c[1] + n + 1):
+            for x in range(c[0] - n, c[0] + n + 1):
+                out.add((x, y))
+    add(cell(d["spawn"]), ring["spawn"])
+    for at in d["place"].values():
+        add(cell(at), ring["place"])
+    for p in d["portals"].values():
+        for c in portal_lane(p):
+            add(c, ring["portal"])
+    for st in d["stairs"]:
+        for x in range(st["x"] - 1, st["x"] + st["w"] + 1):
+            out.add((x, st["y"] + st["h"]))
+            out.add((x, st["y"] - 1))
+    foes = [q for lst in d.get("spawns", []) for q in lst] + d.get("event", {}).get("wave", []) + d.get("event", {}).get("fixed", [])
+    for q in foes:
+        add(cell(q), ring["foe"])
+    return out
+
+
+def portal_lane(p):
+    """A way out's lane: the cells from its doorway or edge cell in to where one arrives, as wide as its span."""
+    at = cell(p["at"])
+    v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[p["dir"]]
+    arrive = cell(p["arrive"]) if "arrive" in p else (at[0] - v[0] * 2, at[1] - v[1] * 2)
+    half = int(-(-float(p.get("span", 2)) * 0.5 // 1))
+    side = (abs(v[1]), abs(v[0]))
+    steps = max(abs(arrive[0] - at[0]), abs(arrive[1] - at[1]))
+    return [(at[0] - v[0] * k + side[0] * s, at[1] - v[1] * k + side[1] * s) for k in range(steps + 2) for s in range(-half, half + 1)]
+
+
+_SCENES = None
+
+
+def scene_walks(rid, d):
+    """The cells the staged scenes (data/scenes.json) walk their people along in this room: no trunk or bush there."""
+    global _SCENES
+    if _SCENES is None:
+        path = os.path.join(ROOT, "data", "scenes.json")
+        _SCENES = json.load(open(path)).get("entries", []) if os.path.exists(path) else []
+    out = set()
+    for sc in _SCENES:
+        if sc.get("room") != rid:
+            continue
+        pos = {}
+        for name, a in sc.get("actors", {}).items():
+            if "at" in a:
+                pos[name] = tuple(a["at"])
+            elif a.get("object") in d["place"]:
+                pos[name] = tuple(d["place"][a["object"]])
+        for st in sc.get("steps", []):
+            if st.get("do") != "move" or st.get("actor") not in pos:
+                continue
+            for to in st["to"]:
+                a, b = pos[st["actor"]], tuple(to)
+                n = int(max(abs(b[0] - a[0]), abs(b[1] - a[1])) * 2) + 1
+                for k in range(n + 1):
+                    t = k / n
+                    out.add(cell((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)))
+                pos[st["actor"]] = b
+    return out
+
+
+def check_foliage(lay, d, g):
+    """The foliage kit's rules: each piece on ground it grows on (a lotus pad on the water), off the paths and every
+    kept-clear cell (the spawn, spots, ways' lanes, stairs), off the scenes' walks and other props; a tree's canopy
+    never hides a person, a thing or a way behind it."""
+    errs = []
+    clear = clear_cells(d)
+    walks = scene_walks(lay.id, d)
+    taken = {}
+    for i, p in enumerate(d["props"]):
+        fw, fh = TILESET["props"][p["kind"]]["footprint"]
+        for y in range(p["y"], p["y"] + fh):
+            for x in range(p["x"], p["x"] + fw):
+                if (x, y) in taken and (p["kind"] in FOLIAGE or taken[(x, y)] in FOLIAGE):
+                    errs.append("%s at %s overlaps %s" % (p["kind"], str((x, y)), taken[(x, y)]))
+                taken[(x, y)] = p["kind"]
+    spots = []
+    for oid, at in d["place"].items():
+        c = cell(at)
+        fl = g.floor(*c)
+        lv = (fl or 0.0) / 32.0
+        feet = ((at[0] + 0.5) * 16, (at[1] + 0.5) * 16 - lv * 16)
+        key = (c[1] + 1) * 16 + 0.25 if lv > 0 else (at[1] + 0.5) * 16
+        spots.append((oid, (feet[0] - 6, feet[1] - 34, 12, 34), key))
+    for pid, p in d["portals"].items():
+        for c in portal_lane(p):
+            if 0 <= c[0] < g.w and 0 <= c[1] < g.h:
+                lv = max(0.0, (g.floor(*c) or 0.0) / 32.0)
+                spots.append(("way " + pid, (c[0] * 16, c[1] * 16 - lv * 16, 16, 16), (c[1] + 0.5) * 16))
+    for p in d["props"]:
+        kind = p["kind"]
+        if kind not in FOLIAGE:
+            continue
+        art = TILESET["props"][kind]
+        fw, fh = art["footprint"]
+        for y in range(p["y"], p["y"] + fh):
+            for x in range(p["x"], p["x"] + fw):
+                where = "%s at %s" % (kind, str((x, y)))
+                if not (0 <= x < g.w and 0 <= y < g.h):
+                    errs.append(where + ": outside the room")
+                    continue
+                water = g.lv[y][x] == WATER
+                if kind in ON_WATER:
+                    if not water:
+                        errs.append(where + ": a water plant on land")
+                    continue
+                if kind in WADING and water:
+                    continue
+                if water or g.stair[y][x]:
+                    errs.append(where + ": on the water or the stairs")
+                elif kind not in ANYWHERE and d["paint"][y][x] not in PLANTED:
+                    errs.append(where + ": on '%s' (a path, paving or a built floor)" % d["paint"][y][x])
+                if (x, y) in clear:
+                    errs.append(where + ": on a kept-clear cell (the spawn, a spot, a way's lane or a stair's head or foot)")
+                if art.get("solid", True) and (x, y) in walks:
+                    errs.append(where + ": on a staged scene's walk")
+        c = art.get("canopy")
+        if not c:
+            continue
+        base = g.lv[p["y"] + fh - 1][p["x"]]
+        sw = (p["x"] * 16, (p["y"] + fh) * 16 - max(0, base) * 16)
+        bx = sw[0] + c["at"][0] + c["box"][0]
+        by = sw[1] + c["at"][1] + c["box"][1]
+        box = (bx, by, c["box"][2], c["box"][3])
+        key = (p["y"] + fh) * 16 + 0.5
+        for oid, r, k in spots:
+            if k < key and r[0] < box[0] + box[2] and box[0] < r[0] + r[2] and r[1] < box[1] + box[3] and box[1] < r[1] + r[3]:
+                errs.append("%s at %s: its canopy hides %s" % (kind, str((p["x"], p["y"])), oid))
+    return errs
 
 
 # ==================================================================== the rooms
@@ -303,6 +466,7 @@ def fishers_hut():
     r.prop("barrel", 2, 1)
     r.prop("lantern", 1, 10)
     r.prop("lantern", 18, 10)
+    r.green(("pot_orchid", 1, 5), ("pot_bonsai", 18, 8))   # foliage (decision 40): Aunt Ping's potted plants
     r.spawn = [4, 4]
     r.at("npc_aunt_ping", 6, 6)
     r.at("tea_table", 9.5, 6)
@@ -345,16 +509,26 @@ def village(rid="lf_village", night=False):
     r.prop("lantern", 23, 15)
     r.prop("lantern", 46, 15)
     r.prop("barrel", 36, 13)
-    r.prop("shrub", 3, 14)
-    r.prop("shrub", 13, 14)
-    r.prop("shrub", 21, 14)
-    r.prop("shrub", 16, 26)
     r.prop("bamboo", 19, 25)
     r.prop("bamboo", 20, 26)
     for x in (2, 8, 14, 26, 33, 44):
         r.prop("reeds", x, 33)
     r.prop("lotus", 10, 36)
     r.prop("lotus", 30, 37)
+    # Foliage (decision 40): big trees along the terrace and round the square, bushes against the houses, a fence and
+    # flowers along Home Lane, willows and tall grass by the river, lotus pads on it.
+    r.green(("tree_camphor", 24, 6), ("tree_plum", 30, 5), ("tree_maple", 46, 6), ("tree_camphor", 53, 5),
+            ("tree_ribbons", 61, 6), ("tree_willow", 68, 5), ("bamboo_grove", 0, 4), ("bamboo_grove", 36, 4),
+            ("bush", 16, 9), ("bush_azalea", 22, 9), ("bush_wide", 38, 9), ("bush", 50, 9), ("bush_azalea", 57, 9),
+            ("hedge_2", 1, 9), ("bush", 64, 9),
+            ("tree_camphor", 29, 12), ("bush_wide", 32, 13), ("bush_azalea", 26, 13), ("bush", 43, 12),
+            ("bush_azalea", 45, 13), ("bush_wide", 62, 12), ("bush", 60, 14),
+            ("bush_azalea", 2, 15), ("bush", 10, 15), ("bush_azalea", 14, 15), ("bush", 21, 17),
+            ("fence_4", 5, 23), ("fence_3", 14, 23), ("tree_peach", 17, 27), ("tree_willow", 4, 29),
+            ("tall_grass", 1, 26), ("tall_grass", 7, 30), ("ferns", 12, 26), ("rock_mossy", 20, 30),
+            ("tree_willow", 40, 31), ("tall_grass", 26, 30), ("bush_wide", 30, 30), ("tall_grass", 35, 31),
+            ("tree_camphor", 51, 17), ("bush", 49, 15), ("bush_azalea", 57, 15), ("rock_small", 63, 19),
+            ("lotus_pads", 18, 35), ("lotus_pads", 40, 36), ("lotus_pads", 3, 37), ("cattails", 24, 34), ("cattails", 46, 34), ("cattails", 12, 34))
     if night:
         r.spawn = [30, 22]
         r.at("hut_refuge", 6.5, 15)
@@ -425,6 +599,7 @@ def old_ma_store():
     r.prop("barrel", 1, 8)
     r.prop("barrel", 16, 1)
     r.prop("lantern", 16, 9)
+    r.green(("pot_bonsai", 16, 4), ("pot_orchid", 7, 1))   # foliage (decision 40): potted plants
     r.spawn = [8, 9]
     r.at("npc_old_ma", 12, 3)
     r.at("sandals_loft", 2, 1)
@@ -446,6 +621,7 @@ def granny_liu_hut():
     r.prop("barrel", 16, 1)
     r.prop("barrel", 16, 2)
     r.prop("lantern", 1, 9)
+    r.green(("pot_orchid", 16, 8), ("pot_bonsai", 12, 1))  # foliage (decision 40): potted plants
     r.spawn = [8, 9]
     r.at("npc_granny_liu", 6, 6)
     r.at("shrine_granny", 14, 5)
@@ -470,6 +646,8 @@ def lu_boat():
     r.prop("lotus", 1, 11)
     r.prop("lotus", 18, 1)
     r.prop("lotus", 8, 12)
+    # Foliage (decision 40): a potted pine on the deck, lotus pads round the boat.
+    r.green(("pot_bonsai", 19, 8), ("lotus_pads", 4, 1), ("lotus_pads", 12, 11), ("lotus_pads", 21, 11))
     r.spawn = [7, 8]
     r.at("npc_lu_boat", 10, 8)
     r.at("boat_spring", 7, 7)
@@ -499,6 +677,14 @@ def reed_shallows():
     r.prop("shrub", 60, 6)
     r.prop("lotus", 34, 25)
     r.prop("lotus", 54, 26)
+    # Foliage (decision 40): trees along the grassy bank under the ridge, bushes on its lip, rocks and tall grass on
+    # the flats (kept open for the crabs), cattails in the shallows, lotus pads out on the river.
+    r.green(("tree_camphor", 5, 6), ("tree_willow", 25, 6), ("tree_maple", 35, 5), ("bamboo_grove", 43, 4),
+            ("tree_plum", 56, 6), ("bush", 2, 8), ("bush_wide", 8, 8), ("bush", 15, 8), ("bush_azalea", 27, 8),
+            ("bush", 33, 8), ("bush_wide", 54, 8), ("bush_azalea", 61, 8), ("bush", 8, 11), ("ferns", 57, 11),
+            ("rock_mossy", 6, 19), ("tall_grass", 15, 21), ("rock_small", 24, 18), ("tall_grass", 50, 21),
+            ("rock_small", 58, 18), ("cattails", 5, 23), ("cattails", 12, 23), ("cattails", 21, 23), ("cattails", 31, 23),
+            ("cattails", 48, 23), ("cattails", 57, 23), ("lotus_pads", 14, 25), ("lotus_pads", 44, 27), ("lotus_pads", 60, 24))
     r.spawn = [3, 14]
     r.way("west", 0, 14, "w", [2, 14], 3)
     r.way("east", 63, 14, "e", [61, 14], 3)
@@ -539,6 +725,15 @@ def willow_path_east():
     for x in (4, 12, 25, 36, 47, 58):
         r.prop("reeds", x, 20)
     r.prop("incense", 50, 10)
+    # Foliage (decision 40): plum and peach trees along the road as its name says, a camphor on the terrace, bushes on
+    # its lip, fences along the road's verge, willows and tall grass by the stream.
+    r.green(("tree_plum", 11, 5), ("tree_camphor", 27, 4), ("tree_peach", 33, 5), ("tree_plum", 51, 5),
+            ("tree_maple", 60, 6), ("bush_wide", 1, 6), ("bush_azalea", 14, 6), ("bush", 20, 6), ("bush", 41, 6),
+            ("bush_azalea", 57, 6), ("fence_4", 13, 11), ("fence_3", 36, 11), ("bush", 5, 10), ("bush_azalea", 47, 10),
+            ("tree_willow", 8, 19), ("tree_peach", 22, 19), ("tree_willow", 40, 19), ("tree_plum", 55, 19),
+            ("tall_grass", 14, 19), ("tall_grass", 30, 19), ("tall_grass", 47, 19), ("rock_small", 17, 16),
+            ("rock_mossy", 55, 15), ("cattails", 2, 21), ("cattails", 19, 21), ("cattails", 33, 21), ("cattails", 50, 21),
+            ("lotus_pads", 26, 23), ("lotus_pads", 45, 24))
     r.spawn = [60, 13]
     r.way("east", 63, 13, "e", [61, 13], 3)
     r.way("west", 0, 13, "w", [2, 13], 3)
@@ -578,6 +773,15 @@ def willow_path_west():
     r.prop("lotus", 36, 28)
     for x in (2, 20, 44, 58):
         r.prop("reeds", x, 25)
+    # Foliage (decision 40): great pines on the pine ridge, a maple and a camphor on the meadow under the rock pillar,
+    # bushes on the ridge's lip, fences along the road, willows, plum and bamboo by the pond with tall grass and rocks.
+    r.green(("tree_pine", 6, 4), ("tree_pine", 23, 7), ("tree_pine", 1, 7), ("tree_maple", 35, 10), ("tree_camphor", 46, 9),
+            ("bush", 4, 8), ("bush_wide", 14, 8), ("bush", 19, 8), ("bush_azalea", 24, 8), ("bush", 27, 5),
+            ("bush_azalea", 38, 4), ("bush_wide", 61, 5), ("fence_4", 20, 13), ("fence_3", 44, 13),
+            ("tree_willow", 7, 23), ("tree_peach", 9, 19), ("tree_willow", 27, 25), ("tree_plum", 53, 21),
+            ("bamboo_grove", 60, 24), ("tall_grass", 1, 20), ("tall_grass", 10, 24), ("tall_grass", 26, 22),
+            ("tall_grass", 50, 24), ("rock_mossy", 33, 24), ("cattails", 6, 26), ("cattails", 24, 26), ("cattails", 47, 26),
+            ("cattails", 55, 26), ("lotus_pads", 20, 27), ("lotus_pads", 50, 28))
     r.spawn = [60, 15]
     r.way("east", 63, 15, "e", [61, 15], 3)
     r.way("west", 0, 15, "w", [2, 15], 3)
@@ -627,6 +831,13 @@ def stoneford_gate():
     r.prop("crates", 8, 18)
     for x in (4, 20, 34, 50):
         r.prop("reeds", x, 21)
+    # Foliage (decision 40): a camphor and a maple inside the wall, bamboo against it, bushes and a hedge along the
+    # street's north side, willows along the canal with tall grass and cattails.
+    r.green(("tree_camphor", 25, 7), ("tree_maple", 3, 8), ("bamboo_grove", 41, 4), ("bush_wide", 9, 5), ("bush", 20, 5),
+            ("hedge_3", 30, 6), ("bush_azalea", 53, 8), ("bush", 34, 9), ("bush", 1, 5),
+            ("tree_willow", 8, 20), ("tree_willow", 19, 20), ("tree_willow", 44, 20), ("bush_azalea", 25, 18),
+            ("bush", 31, 19), ("tall_grass", 12, 20), ("tall_grass", 35, 20), ("rock_small", 49, 19),
+            ("cattails", 12, 22), ("cattails", 28, 22), ("cattails", 40, 22), ("cattails", 52, 22))
     r.spawn = [52, 14]
     r.way("east", 55, 14, "e", [53, 14], 3)
     r.way("west", 0, 14, "w", [2, 14], 3)
@@ -663,6 +874,13 @@ def stoneford_market():
     r.prop("lantern_red", 52, 12)
     r.prop("willow", 33, 4)
     r.prop("willow", 45, 4)
+    # Foliage (decision 40): trees behind the row of houses under the ridge, bushes between the buildings, and along
+    # the canal bushes, tall grass and cattails (the street itself stays open for the stalls).
+    r.green(("tree_camphor", 7, 4), ("tree_plum", 24, 4), ("tree_maple", 38, 4), ("tree_peach", 55, 6), ("bush", 16, 5),
+            ("bush_azalea", 1, 5), ("bush", 30, 5), ("bush_wide", 42, 9), ("bush", 23, 10), ("bush_azalea", 35, 10),
+            ("bush", 2, 22), ("bush_azalea", 9, 22), ("bush", 18, 23), ("tall_grass", 26, 23), ("bush_wide", 34, 22),
+            ("bush", 41, 23), ("bush_azalea", 50, 22), ("cattails", 5, 24), ("cattails", 20, 24), ("cattails", 37, 24),
+            ("cattails", 53, 24))
     r.spawn = [52, 16]
     r.way("east", 55, 16, "e", [53, 16], 3)
     r.way("west", 0, 16, "w", [2, 16], 3)
@@ -706,6 +924,12 @@ def artisan_row():
     r.prop("willow", 22, 4)
     for x in (8, 26, 44):
         r.prop("reeds", x, 23)
+    # Foliage (decision 40): trees in the gaps between the workshops, willows and camphors along the canal south of the
+    # street, bushes and tall grass between them.
+    r.green(("tree_maple", 17, 9), ("tree_plum", 26, 9), ("tree_camphor", 2, 8), ("bush", 13, 10), ("bush_azalea", 36, 10),
+            ("bush", 54, 10), ("bush_wide", 20, 5), ("tree_willow", 5, 23), ("tree_camphor", 16, 23), ("tree_willow", 30, 23),
+            ("tree_peach", 41, 23), ("tree_willow", 51, 23), ("bush", 10, 21), ("tall_grass", 22, 21), ("bush_azalea", 36, 20),
+            ("tall_grass", 46, 21), ("rock_small", 26, 20), ("cattails", 12, 24), ("cattails", 34, 24), ("cattails", 47, 24))
     r.spawn = [52, 15]
     r.way("east", 55, 15, "e", [53, 15], 3)
     r.way("west", 0, 15, "w", [2, 15], 3)
@@ -759,6 +983,13 @@ def fairground():
     r.prop("barrel", 47, 22)
     for x in (5, 25, 45, 65):
         r.prop("reeds", x, 25)
+    # Foliage (decision 40): the fair's wishing tree hung with prayer ribbons, a camphor and a peach on the east meadow,
+    # trees west of the Jade road, bushes by the halls, willows and tall grass along the canal.
+    r.green(("tree_ribbons", 60, 9), ("tree_camphor", 51, 6), ("tree_peach", 69, 8), ("tree_camphor", 2, 9),
+            ("bush", 11, 10), ("bush_azalea", 38, 9), ("bush_wide", 47, 11), ("bush", 23, 11), ("bush_azalea", 70, 4),
+            ("tree_willow", 6, 25), ("tree_willow", 22, 25), ("tree_camphor", 36, 25), ("tree_willow", 55, 25),
+            ("tree_peach", 66, 24), ("bush", 14, 23), ("tall_grass", 29, 23), ("bush_azalea", 44, 24), ("tall_grass", 60, 23),
+            ("cattails", 12, 26), ("cattails", 32, 26), ("cattails", 49, 26), ("cattails", 63, 26))
     r.spawn = [68, 17]
     r.way("east", 71, 17, "e", [69, 17], 3)
     r.way("west", 0, 17, "w", [2, 17], 3)
@@ -806,6 +1037,8 @@ def trial_yard(rid, banner):
     r.prop("shrub", 6, 21)
     r.prop("barrel", 1, 13)
     r.prop("barrel", 1, 14)
+    # Foliage (decision 40): bushes on the front lawns, potted plants along the yard's front.
+    r.green(("bush_azalea", 4, 18), ("ferns", 1, 21), ("bush", 33, 21), ("pot_bonsai", 14, 22), ("pot_orchid", 26, 22))
     r.spawn = [19.5, 20]
     r.way("entry", 19.5, 23, "s", [19.5, 21.5], 2)
     r.spawns = [[[29, 16]]]
@@ -895,6 +1128,14 @@ def jade_gate_street():
     r.prop("boulder", 3, 21)
     r.prop("shrub", 49, 10)
     r.prop("shrub", 38, 13)
+    # Foliage (decision 40): great pines and a plum by the gate and the dorm, the scholar's garden south of the street
+    # planted with plum, peach, maple, willow and bamboo round its beds and pond, hedges along its path.
+    r.green(("tree_pine", 5, 8), ("tree_plum", 61, 6), ("tree_pine", 50, 4), ("bush_wide", 38, 4), ("bush", 13, 10),
+            ("bush_azalea", 55, 10),
+            ("tree_plum", 18, 25), ("tree_pine", 1, 25), ("tree_maple", 39, 29), ("tree_willow", 57, 28), ("tree_peach", 26, 31),
+            ("bamboo_grove", 61, 25), ("tree_camphor", 3, 31), ("hedge_3", 13, 28), ("hedge_2", 33, 28),
+            ("bush_azalea", 43, 23), ("bush", 25, 24), ("rock_small", 21, 30), ("tall_grass", 46, 30), ("ferns", 30, 25),
+            ("lotus_pads", 49, 27), ("cattails", 44, 26))
     r.spawn = [9, 27]
     r.way("stoneford", 9, 31, "s", [9, 29], 3)
     r.way("east", 63, 15, "e", [61, 15], 3)
@@ -938,6 +1179,7 @@ def weapon_hall(rid, banner, master, smith, anvil, dummies):
     r.prop("barrel", 22, 2)
     r.prop("lantern", 1, 11)
     r.prop("lantern", 22, 11)
+    r.green(("pot_bonsai", 1, 6), ("pot_orchid", 22, 6), ("pot_bonsai", 17, 1))   # foliage (decision 40): potted plants
     r.spawn = [11.5, 11]
     r.at(master, 10, 5)
     r.at(smith, 17, 5)
@@ -997,6 +1239,12 @@ def pavilion_rooftops():
         r.prop("pine", x, y)
     for x, y in ((56, 23), (58, 24), (3, 24)):
         r.prop("bamboo", x, y)
+    # Foliage (decision 40): a pine and bushes west of the pavilions, trees along the yard's south edge round the
+    # lotus pond and the flower beds, a plum on the east terrace.
+    r.green(("tree_pine", 10, 5), ("bush", 1, 5), ("bush_azalea", 8, 9), ("tree_plum", 56, 6),
+            ("tree_plum", 27, 27), ("tree_maple", 36, 28), ("tree_pine", 46, 28), ("tree_peach", 52, 27), ("tree_willow", 6, 28),
+            ("bush_wide", 32, 24), ("bush", 22, 26), ("bush_azalea", 49, 24), ("tall_grass", 40, 27), ("rock_mossy", 20, 28),
+            ("lotus_pads", 12, 25), ("cattails", 19, 25))
     r.spawn = [3, 16]
     r.way("west", 0, 16, "w", [2, 16], 3)
     r.way("east", 59, 16, "e", [57, 16], 3)
@@ -1040,6 +1288,11 @@ def east_terrace():
     r.prop("willow", 27, 23)
     for x, y, w in ((14, 24, 8), (38, 24, 7)):
         r.rect(x, y, w, 2, 0, "f")
+    # Foliage (decision 40): a camphor between the Mission Hall and the abode terrace, a plum by the Retreat Rooms, and
+    # along the yard's south edge pines, a maple, a plum and a peach over the flower beds.
+    r.green(("tree_camphor", 18, 7), ("tree_plum", 54, 5), ("bush", 42, 7), ("bush_azalea", 1, 9), ("bush", 22, 9),
+            ("tree_pine", 6, 27), ("tree_maple", 12, 28), ("tree_camphor", 29, 28), ("tree_plum", 38, 27), ("tree_peach", 50, 27),
+            ("tree_pine", 57, 26), ("bush", 23, 24), ("bush_wide", 45, 24), ("tall_grass", 16, 27), ("rock_mossy", 33, 29))
     r.spawn = [3, 16]
     r.way("west", 0, 16, "w", [2, 16], 3)
     r.way("east", 59, 16, "e", [57, 16], 3)
@@ -1081,6 +1334,13 @@ def herb_terraces():
     for x, y in ((6, 1), (50, 1)):
         r.prop("pine", x, y)
     r.prop("boulder", 49, 12)
+    # Foliage (decision 40): hedges and bushes along each terrace's lip, a pine and a plum on the top terrace, a camphor
+    # and a maple west of the terraces, a pine by the peak stair, and trees over the meadow below the foot path.
+    r.green(("hedge_3", 15, 19), ("hedge_3", 26, 19), ("bush", 36, 19), ("hedge_3", 9, 14), ("bush_azalea", 18, 14),
+            ("hedge_4", 26, 14), ("bush", 36, 14), ("hedge_3", 9, 8), ("bush", 20, 8), ("hedge_3", 25, 8), ("bush", 38, 8),
+            ("tree_pine", 10, 3), ("tree_plum", 20, 3), ("tree_camphor", 3, 8), ("tree_maple", 4, 14), ("tree_pine", 52, 12),
+            ("tree_plum", 51, 5), ("bush", 49, 3), ("tree_pine", 8, 28), ("tree_camphor", 32, 28), ("tree_maple", 42, 28),
+            ("tree_peach", 50, 29), ("bush", 26, 27), ("tall_grass", 16, 28), ("rock_mossy", 37, 27))
     r.spawn = [3, 24]
     r.way("west", 0, 24, "w", [2, 24], 3)
     r.way("peak_path", 45, 0, "n", [45, 2], 3)
@@ -1112,6 +1372,9 @@ def elder_hu_peak():
         r.prop("pine", x, y)
     for x, y in ((25, 9), (8, 14), (30, 18), (2, 23)):
         r.prop("boulder", x, y)
+    # Foliage (decision 40): a great pine and a plum on the mountain meadow, mossy rocks, tall grass and ferns.
+    r.green(("tree_pine", 3, 11), ("tree_plum", 33, 20), ("tree_maple", 15, 22), ("rock_mossy", 27, 16), ("rock_small", 12, 12),
+            ("tall_grass", 20, 24), ("tall_grass", 34, 16), ("ferns", 9, 15), ("bush", 36, 23), ("ferns", 23, 10))
     r.spawn = [6, 22]
     r.way("path", 5.5, 25, "s", [5.5, 23.5], 2)
     r.door("abode", abode)
@@ -1153,6 +1416,11 @@ def cloud_cliff_stair():
         r.prop("pine", x, y)
     for x, y in ((6, 12), (47, 11), (51, 30)):
         r.prop("boulder", x, y)
+    # Foliage (decision 40): great pines on the meadows west and east of the landing, pines, a maple and a plum along the
+    # lower court's south edge, bushes by the dorm.
+    r.green(("tree_pine", 13, 7), ("bush", 1, 11), ("tree_pine", 51, 10), ("bush_wide", 34, 10), ("bush", 53, 16),
+            ("tree_pine", 20, 32), ("tree_maple", 44, 32), ("tree_plum", 27, 32), ("bush", 14, 30), ("bush_azalea", 39, 29),
+            ("tall_grass", 49, 32), ("rock_small", 35, 32))
     r.spawn = [9, 31]
     r.way("stoneford", 9, 33, "s", [9, 31], 3)
     r.way("east", 55, 23, "e", [53, 23], 3)
@@ -1202,6 +1470,11 @@ def sword_court():
         r.rect(x, y, w, 2, 0, "f")
     for x, y in ((56, 24), (57, 25)):
         r.prop("bamboo", x, y)
+    # Foliage (decision 40): pines and a maple along the cliff's foot, and along the court's south edge pines and a plum
+    # among the flower beds and rocks.
+    r.green(("tree_pine", 6, 6), ("tree_pine", 40, 5), ("tree_maple", 47, 6), ("bush", 12, 8), ("bush_wide", 34, 4),
+            ("tree_pine", 14, 28), ("tree_plum", 31, 28), ("tree_pine", 47, 28), ("bush", 1, 24), ("tall_grass", 24, 28),
+            ("bush_azalea", 37, 27), ("rock_small", 53, 28))
     r.spawn = [3, 16]
     r.way("west", 0, 16, "w", [2, 16], 3)
     r.way("east", 59, 16, "e", [57, 16], 3)
@@ -1241,6 +1514,11 @@ def array_court():
     for x, y in ((2, 20), (24, 26), (44, 25), (53, 26)):
         r.prop("bamboo", x, y)
     r.prop("boulder", 38, 5)
+    # Foliage (decision 40): a pine, a maple and a plum under the cliff, bamboo at its west end, and trees over the
+    # court's south edge beside the garden beds.
+    r.green(("tree_pine", 8, 6), ("tree_maple", 18, 5), ("tree_plum", 28, 6), ("bush", 35, 8), ("bamboo_grove", 0, 4),
+            ("tree_pine", 30, 28), ("tree_camphor", 40, 28), ("tree_peach", 49, 28), ("bush_wide", 20, 26), ("tall_grass", 35, 26),
+            ("bush_azalea", 56, 24))
     r.spawn = [3, 16]
     r.way("west", 0, 16, "w", [2, 16], 3)
     r.way("east", 59, 16, "e", [57, 16], 3)
@@ -1280,6 +1558,9 @@ def elder_sung_peak():
         r.prop("pine", x, y)
     for x, y in ((2, 17), (26, 13), (19, 25), (36, 25)):
         r.prop("boulder", x, y)
+    # Foliage (decision 40): a great pine and a plum on the meadow under the peaks, rocks, tall grass and ferns.
+    r.green(("tree_pine", 15, 26), ("tree_plum", 33, 24), ("rock_mossy", 24, 18), ("tall_grass", 10, 14), ("tall_grass", 28, 26),
+            ("ferns", 20, 13), ("bush", 1, 20), ("rock_small", 16, 11), ("cattails", 11, 10), ("lotus_pads", 20, 5))
     r.spawn = [6, 24]
     r.way("path", 5.5, 27, "s", [5.5, 25.5], 2)
     r.door("abode", abode)
@@ -1336,6 +1617,15 @@ def marsh_edge():
     r.prop("willow", 60, 9)
     r.prop("boulder", 9, 10)
     r.prop("shrub", 44, 10)
+    # Foliage (decision 40): a great willow on the west meadow, cattails in the shallows along every shore, patches of
+    # tall grass and a fallen log on the meadows, lotus pads on the open water; round the dead trees the Hollowing has
+    # drained the ground (their `blight`: no ground cover grows there).
+    r.green(("tree_willow", 19, 11), ("tree_willow", 57, 11), ("bush", 1, 9), ("bush_wide", 9, 12), ("ferns", 31, 10),
+            ("tall_grass", 5, 10), ("tall_grass", 28, 11), ("tall_grass", 51, 11), ("tall_grass", 6, 20),
+            ("tall_grass", 37, 21), ("tall_grass", 55, 21), ("log", 17, 21), ("rock_small", 43, 21),
+            ("cattails", 2, 5), ("cattails", 9, 5), ("cattails", 22, 5), ("cattails", 45, 5), ("cattails", 62, 5),
+            ("cattails", 5, 23), ("cattails", 16, 23), ("cattails", 33, 23), ("cattails", 52, 23), ("cattails", 60, 23),
+            ("lotus_pads", 5, 2), ("lotus_pads", 40, 26), ("lotus_pads", 20, 27))
     r.spawn = [3, 14]
     r.way("west", 0, 14, "w", [2, 14], 3)
     r.way("east", 63, 14, "e", [61, 14], 3)
@@ -1372,10 +1662,15 @@ LAYOUTS = [fishers_hut, village, village_night, old_ma_store, granny_liu_hut, lu
 
 def build(check_only=False):
     stale = []
+    failed = []
     for make in LAYOUTS:
         lay = make()
         d = lay.dict()
-        check(lay, d)
+        try:
+            check(lay, d)
+        except SystemExit as e:
+            failed.append(str(e))
+            continue
         path = os.path.join(OUT, lay.id + ".json")
         body = {"schema_version": 1}
         body.update(d)
@@ -1387,6 +1682,8 @@ def build(check_only=False):
         with open(path, "w", encoding="utf-8") as f:
             f.write(text)
         print("built", lay.id)
+    if failed:
+        raise SystemExit("\n".join(failed))
     if stale:
         raise SystemExit("stale top-down layouts (run tools/data/topdown_rooms.py): " + ", ".join(stale))
 

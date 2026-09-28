@@ -543,19 +543,42 @@ const TERRAIN_VIEWS := [["01_village_square", "lf_village", Vector2(33, 21)], ["
 	["03_marsh_edge", "rm_marsh_edge", Vector2(30, 14)], ["04_reed_shallows", "lf_reed_shallows", Vector2(40, 15)],
 	["05_fishers_hut_lane", "lf_village", Vector2(12, 18)], ["08_cliff_stair", "cm_cliff_stair", Vector2(40, 10)],
 	["09_elder_sung_peak", "cm_elder_sung_peak", Vector2(20, 10)]]
+## Decision 40's third part (`-- --terrain foliage/<before|after>`): the same views, and these besides, into
+## docs/redesign/terrain_v2/foliage/<name>/: the Willow Path, the Herb Terraces, the Pavilion Rooftops and the Sword
+## Court in the world alone, and two fights under the HUD, so foes, names and rings are judged against the new cover.
+const FOLIAGE_VIEWS := [["10_willow_path_east", "wp_east", Vector2(40, 12)], ["11_herb_terraces", "ja_herb_terraces", Vector2(20, 20)],
+	["12_pavilion_rooftops", "ja_pavilion_rooftops", Vector2(22, 20)], ["13_willow_path_west", "wp_west", Vector2(26, 16)]]
+const FOLIAGE_FIGHTS := [["14_fight_willow_path_hud", "wp_east", Vector2(20, 14), [["wild_boarlet", Vector2(3, 2)], ["wild_boarlet", Vector2(-4, 3)], ["reedtail_rat", Vector2(5, -1)]]],
+	["15_fight_marsh_edge_hud", "rm_marsh_edge", Vector2(34, 15), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)], ["reed_frog", Vector2(2, -2)]]]]
 
 func terrain_v2() -> void:
 	var args := OS.get_cmdline_user_args()
 	var i := args.find("--terrain")
-	var out := "res://docs/redesign/terrain_v2/%s/" % (args[i + 1] if i + 1 < args.size() else "after")
+	var name := str(args[i + 1]) if i + 1 < args.size() else "after"
+	var foliage := name.begins_with("foliage/")
+	var out := "res://docs/redesign/terrain_v2/%s/" % name
 	await _topdown_game(out)
 	await frames(360)   # a new game's first notices come and go before the first shot
-	for s in TERRAIN_VIEWS:
+	for s in TERRAIN_VIEWS + (FOLIAGE_VIEWS if foliage else []):
 		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 		GameEvents.flush()
 		await frames(10)
 		await at_spot(s[2], 120)
 		(await world_shot()).save_png(out + str(s[0]) + ".png")
+	if foliage:
+		await room_shots(FOLIAGE_FIGHTS, out)
+		# Every room on the grid whole at 1 art px, into <name>/rooms/, to judge the foliage's framing room by room.
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out + "rooms/"))
+		for f in DirAccess.get_files_at("res://data/topdown/"):
+			var rid := f.get_basename()
+			if not f.ends_with(".json") or not TopdownRoom.has_layout(rid): continue
+			var lay = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f))
+			if not (lay is Dictionary and lay.has("levels")): continue
+			Game.world.load_room(Game.active(), rid, "", TopdownRoom.cell_point(lay.get("spawn", [1, 1])))
+			GameEvents.flush()
+			await frames(6)
+			w = main.world
+			await whole_room(out + "rooms/" + rid + ".png")
 	# The views alone (no character enters them): Riverside Square at its spawn, and the height-levels room whole.
 	var was: String = Game.active_id
 	Game.active_id = ""
@@ -578,14 +601,16 @@ func terrain_v2() -> void:
 		v.queue_free()
 		await frames(2)
 	Game.active_id = was
-	# With both sets taken, each view's before and after side by side, into docs/redesign/terrain_v2/.
-	var dir := "res://docs/redesign/terrain_v2/"
-	for s in TERRAIN_VIEWS + [["06_riverside_square"], ["07_height_levels"]]:
+	# With both sets taken, each view's before and after side by side, into docs/redesign/terrain_v2/ (the foliage
+	# part's into its own folder).
+	var dir := "res://docs/redesign/terrain_v2/" + ("foliage/" if foliage else "")
+	var views: Array = TERRAIN_VIEWS + [["06_riverside_square"], ["07_height_levels"]] + (FOLIAGE_VIEWS + FOLIAGE_FIGHTS if foliage else [])
+	for s in views:
 		var b := dir + "before/" + str(s[0]) + ".png"
 		var a := dir + "after/" + str(s[0]) + ".png"
 		if not (FileAccess.file_exists(b) and FileAccess.file_exists(a)): continue
 		await panels(dir + str(s[0]) + "_before_after.png", [["Before", Image.load_from_file(ProjectSettings.globalize_path(b))],
-			["After: Terrain v2", Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
+			["After: " + ("foliage and decor" if foliage else "Terrain v2"), Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
 	print("topdown_capture: terrain views done")
 	get_tree().quit()
 

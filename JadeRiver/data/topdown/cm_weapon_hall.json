@@ -102,6 +102,21 @@
    "kind": "lantern",
    "x": 22,
    "y": 11
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 17,
+   "y": 1
   }
  ],
  "place": {

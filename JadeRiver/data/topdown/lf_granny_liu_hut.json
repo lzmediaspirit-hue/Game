@@ -73,6 +73,16 @@
    "kind": "lantern",
    "x": 1,
    "y": 9
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 16,
+   "y": 8
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 12,
+   "y": 1
   }
  ],
  "place": {

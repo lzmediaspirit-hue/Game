@@ -1,5 +1,38 @@
 # Changelog
 
+## Top-down: Terrain v2, foliage and decor (decision 40, third part)
+
+- **The top-down rooms are lush and layered, in the Alabaster Dawn manner, with every path kept clear**
+  (`docs/redesign/art_bible.md` §14.12). Every top-down room is dressed: the 13 tutorial rooms and chapter 2's 14.
+  - **Big trees** frame the paths and edges, and their canopies overhang and shade them: a village camphor, a wishing
+    tree hung with red prayer ribbons and wish tablets, a great willow with swaying strands, plum and peach in blossom,
+    a maple turning, a "cloud pine" and a bamboo grove. Each casts the shade of its crown along the sun.
+  - **Canopies** draw over whoever walks under them. They fade to 35% while you or a foe stand beneath, and never
+    cover a roof or a body in front of the tree. Trunks block; canopies do not.
+  - **Garden and wild pieces:** bushes and flowering azaleas, clipped hedges, bamboo rail fences, mossy rocks, a fallen
+    log, stumps, a wayside earth-god shrine, and potted pines and orchids in the halls, on the boat and in the yards.
+    Tall grass, cattails, ferns and lotus pads are walk-through.
+  - **Ground cover** is scattered over meadows, flower beds, the marsh and rock, the same every time:
+    - tall grass (in patches), tufts, ferns, small shrubs, wild flowers, pebbles and mossy stones;
+    - mushrooms and lingzhi;
+    - reeds, cattails and irises on the shore;
+    - leaves, maple leaves, petals, needles and bamboo leaves under their trees.
+
+    Grass, flowers and reeds sway gently. Nothing grows round the Hollowing's dead trees.
+- **Readable and fast.**
+  - No ground cover lies on a path, the paving, a doorway, a way's lane, the spawn or anyone's spot.
+  - Names, markers, pickups and rings draw above the foliage.
+  - The ground cover is drawn inside the floor's own chunks (no node per piece), and the sway runs on the GPU.
+  - `perf_tests` holds its budgets (Lotus Ferry loads under 0.3 s; the Marsh Edge holds 60 fps with 25 foes).
+- **Tests.**
+  - `topdown_foliage_suite` checks every room: the scatter's clear cells, trunks blocking, canopies not blocking, the
+    batched draws and the canopy fade.
+  - `data_validation` checks the kit's and the ground cover's sheets and rules.
+  - `topdown_rooms.py --check` refuses a plant on a path, a kept-clear cell or a scene's walk, and a canopy that hides a
+    person, a thing or a way.
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/foliage/`, with every room whole in
+  `after/rooms/`.
+
 ## Top-down: Terrain v2, the tiles (decision 40)
 
 - **The top-down world's terrain is redrawn to look closer to Alabaster Dawn, in Jade River's own xianxia world**
