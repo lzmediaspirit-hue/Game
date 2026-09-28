@@ -1833,6 +1833,27 @@ func combat_feel_suite() -> void:
 			var sheets: Dictionary = part.get("sheets", {})
 			for d in (dirs if part.get("dirs", false) else ["all"]):
 				rows_of.call(sheets.get(d), els * 3, int(part.frames), "form %s %s" % [form, d])
+	# Decision 37's drawn moves: every family's own pose and every move's is an action of the catalogue, each combo step
+	# plays one as its family plays it, the held melody loops frames of its pose round the note, and no pose is missing.
+	var pose_bad: Array = []
+	var moves_of: Dictionary = feel.get("moves", {})
+	for fam in ContentDB.all("weapon_families"):
+		var own: Dictionary = feel.get("families", {}).get(str(fam.id), {}).get("poses", {})
+		for k in own:
+			if not catalogue.has(str(own[k])): pose_bad.append("%s %s: %s" % [fam.id, k, own[k]])
+		for step in fam.get("combo", []):
+			if not catalogue.has(TopdownFigure.resolve(str(step.action), str(fam.id))) or TopdownFigure.resolve(str(step.action), str(fam.id)) == "idle":
+				pose_bad.append("%s step %s" % [fam.id, step.action])
+		for mv in moves_of:
+			if not catalogue.has(TopdownFigure.resolve("", str(fam.id), str(mv))): pose_bad.append("%s move %s" % [fam.id, mv])
+	var loop: Array = feel.get("melody_loop", [])
+	var mel: Dictionary = catalogue.get(str(moves_of.get("melody", "")), {})
+	if loop.size() != 2 or mel.is_empty() or int(loop[0]) > int(mel.get("hit", -1)) or int(loop[1]) < int(mel.get("hit", -1)) \
+			or int(loop[1]) >= int(mel.get("frames", 0)):
+		pose_bad.append("melody loop %s" % str(loop))
+	check(pose_bad.is_empty() and (feel.get("missing_poses", []) as Array).is_empty(),
+		"combat feel: every family's poses and moves play drawn actions, the melody loops its note, no pose is missing (%s; missing %s)"
+			% [str(pose_bad.slice(0, 6)), str(feel.get("missing_poses", []))])
 	# Every technique: its form is built, its phases are positive.
 	var tech_bad := 0
 	for t in ContentDB.all("techniques"):

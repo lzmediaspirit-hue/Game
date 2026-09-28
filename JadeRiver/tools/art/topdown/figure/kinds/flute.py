@@ -3,12 +3,15 @@
 (tools/art/bake_weapons.py flute_frame): a tube held near its end, dark bamboo joints, finger holes along its upper
 face toward the far end, and a red tassel hanging from the hand's end. On a blow's hit frame and the one after, its
 note leaves the far end as ripples of pale jade light (kinds/sound.py): arcs opening along the flute, closing into
-rings when it points at the camera or away.
+rings when it points at the camera or away. Played at the lips (`flute_play`), the pose names the note's way (`note`
+in its weapon lines, the figure's frame): the ripples leave the tube's open end that way, toward what it plays at,
+clear of the face.
 
 Spec keys:
   length  the tube's length      behind  how much of it lies behind the hand      radius  the tube's radius
   nodes   the joints (distances from the hand's end)      node  a joint's half-width      holes  the finger holes
   tassel  the tassel's length    ripples  per stage, the arcs' (radii, spans) about the far end
+  play_ripples  how much smaller the ripples are played at the lips
 """
 from __future__ import annotations
 
@@ -83,6 +86,13 @@ def solids(sk, spec: dict) -> list:
     st = sound.stage(sk)
     if st is not None:
         radii, spans = spec["ripples"][st]
-        c = p1 + axis * 0.6
-        S += sound.arcs(c, axis, radii, spans, ("ripple", "ripple_fade")[st], band_of(sk, c))
+        note = (sk.weapon or {}).get("note")
+        if note is not None:
+            way = unit(sk.w(note))
+            c = p0 - axis * 2.0 + way * 2.0
+            radii = [r * spec["play_ripples"] for r in radii]
+        else:
+            way = axis
+            c = p1 + axis * 0.6
+        S += sound.arcs(c, way, radii, spans, ("ripple", "ripple_fade")[st], band_of(sk, c))
     return S

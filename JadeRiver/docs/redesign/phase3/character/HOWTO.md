@@ -15,13 +15,16 @@ says how to add one. The pipeline is in the redesign plan, "As built: Phase 3, t
 | Its sheets | `art/topdown/character/<cat>_<look>[__<variant>].png` (+ `.import`) | generated; never by hand |
 | The index every set shares: actions, facings, z order, the catalogue's signature | `data/topdown/character.json` | generated; the same bytes from every set's build |
 
-Sets today: `body`, `hair`, `shirt`, `pants`, `shoes`, `hat`, `cape`, `weapon_gauntlets`, `weapon_short_blade`,
-`weapon_jian`, `weapon_spear` and `weapon_staff`. `python3 tools/art/topdown/build_character.py --list` lists them,
-with what each draws and what is still pending.
+Sets today (the full set, decision 37): `body`, `hair`, `shirt`, `pants`, `shoes`, `hat`, `cape`, and one per weapon
+family: `weapon_gauntlets`, `weapon_short_blade`, `weapon_jian`, `weapon_spear`, `weapon_staff`, `weapon_heavy_sabre`,
+`weapon_fan`, `weapon_brush`, `weapon_flute`, `weapon_bell` and `weapon_bow`. `python3 tools/art/topdown/build_character.py
+--list` lists them, with what each draws and what is still pending (nothing).
 
 Generators (`figure/kinds/`): `torso` (shirts, coats, robes), `legs` (trousers), `feet` (shoes, boots), `head` (hats),
-`back` (capes), `hands` (gauntlets), `hair`, `blade` (a blade in the hand) and `pole` (a pole in the hands). Each takes
-a skeleton and a spec and returns solids. `figure/weapons.py` says how a weapon is held.
+`back` (capes), `hands` (gauntlets), `hair`, `blade` (a blade in the hand), `pole` (a pole in the hands), `sabre`,
+`fan`, `brush`, `flute`, `bell` and `bow` (slung on the back, drawn in the left hand). `sound` is not a layer: the flute
+and the bell ring with it on a blow's hit frame. Each takes a skeleton and a spec and returns solids.
+`figure/weapons.py` says how a weapon is held.
 
 ## Inputs
 
@@ -71,8 +74,8 @@ a skeleton and a spec and returns solids. `figure/weapons.py` says how a weapon 
    `tools/run_tests.sh` (`GODOT=...`), with zero SCRIPT ERROR.
 7. **Docs.** Add a CHANGELOG entry, and a line under the plan's "As built" for your batch.
 
-Leave `sets/__init__.py` `PENDING` alone: a drawn look is simply no longer missing. The last batch to land empties
-`PENDING` and turns `FULL_SET` on.
+`sets/__init__.py` `FULL_SET` is on and `PENDING` is empty (the bow batch, the last, did it): a look the game's data
+can put on a character must now land with its layers, or `data_validation`'s coverage gate fails.
 
 ## Adding other looks
 
@@ -86,19 +89,28 @@ Leave `sets/__init__.py` `PENDING` alone: a drawn look is simply no longer missi
 - **A skin tone or face:** `sets/body.py` `SKINS`. The eyes and mouth are stamped by `figure/body.py` `face`. A new
   body variant changes what every other set is cast over, so rebuild every set after it (see below).
 
-## Adding an action (the bow batch)
+## Adding an action (as the bow batch did)
 
-A new action (the bow's draw and release) is drawn for every layer. It changes the action catalogue in
-`figure/actions.py` `CATALOG`, and with it the index's `catalog` signature. Every set built before it is then
-**stale**: the game leaves it out and `data_validation` fails until it is built again.
+A new action is drawn for every layer. It changes the action catalogue in `figure/actions.py` `CATALOG`, and with it
+the index's `catalog` signature. Every set built before it is then **stale**: the game leaves it out and
+`data_validation` fails until it is built again.
 
-So an action batch runs on its own, first or last, never beside other set batches:
+So an action batch runs on its own, never beside other set batches:
 
-1. Add the pose function and the `CATALOG` entry.
-2. Replace the stand-in alias in `ALIASES`, and drop it from `STAND_INS`.
-3. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about four minutes.
-4. Wire the action where the player plays it: `topdown_player.gd` `sync` and `_strike_pose`, and
-   `TopdownFigure.resolve`.
+1. **The body first** (AGENTS.md rule 4): write the pose function and the `CATALOG` entry, and look at it on the
+   unclothed body in all five facings before any layer. A pose also says where every weapon line points (`W`: the
+   blade, the pole, the bow, a family's own keys such as the flute's `note`), so every weapon is drawn in it.
+2. **A family's own action** goes in `OWN` (the game plays it only with that family), a new blow in `BLOWS` (the
+   flute and the bell ring on its hit frame), and the fan's `open` and `thrown` lists in `sets/weapon_fan.py` say
+   whether it opens (or leaves the hand) in it.
+3. Replace any stand-in alias in `ALIASES`, and drop it from `STAND_INS` (empty today).
+4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about eight minutes for 864 frames
+   (it builds twice).
+5. Wire the action where the game plays it: a family's step or technique in `tools/data/combat_feel.py` `poses`, a
+   move (dash, air, throw, charge, parry, melody) in `MOVES`, then `topdown_player.gd` `sync` and `_strike_pose` and
+   `TopdownFigure.resolve(action, family, move)`; a story gesture in `tools/data/scenes.py` (`pose` steps).
+6. Look at every frame on every layer: `--review` (`10_actions_<facing>.png`, `11_gestures.png`, the weapon sheets)
+   and the gallery.
 
 ## Merging
 
@@ -120,15 +132,14 @@ So an action batch runs on its own, first or last, never beside other set batche
 
 ## What is left (decision 37)
 
-Everything the game's data can put on a character is drawn except the batches below. Each is independent: its own
-set module, generator, manifest and sheets. The bow batch changes the action catalogue, so it runs first or last.
+Nothing: the full set is drawn, and `FULL_SET` is on. The batches, all landed:
 
-| Batch | Sets | Looks | Game items | Notes |
+| Batch | Sets | Looks | Game items | What it drew |
 |---|---|---|---|---|
-| heavy_sabre | `weapon_heavy_sabre` | sabre | 10 | a broad, curved single-edged blade; swings (swing_1–3). `kinds/blade.py` with a curve key, or `kinds/sabre.py` |
-| fan_and_brush | `weapon_fan`, `weapon_brush` | fan, brush | 10 + 11 | the iron fan (ribs and leaf, open on the cuts) and the calligraphy brush (a shaft and an ink tuft); both swing |
-| flute_and_bell | `weapon_flute`, `weapon_bell` | flute, bell | 10 + 11 | the jade flute (a tube held like a short staff; its combo is `attack`, the straight thrust) and the warden's hand-bell (a bell on a short handle); the bell swings |
-| bow | `weapon_bow`, and every set rebuilt | bow, and the `bow` action | 10, and NPC qiu_feng | the spirit bow in the left hand. The draw and release poses replace the cast stand-in, which 253 techniques and the bow family play |
+| heavy_sabre | `weapon_heavy_sabre` | sabre | 10 | the broad dao (`kinds/sabre.py`); its crescent smear |
+| fan_and_brush | `weapon_fan`, `weapon_brush` | fan, brush | 10 + 11 | the iron fan, open in the blows (`kinds/fan.py`); the calligraphy brush and its ink stroke (`kinds/brush.py`) |
+| flute_and_bell | `weapon_flute`, `weapon_bell` | flute, bell | 10 + 11 | the jade flute and the warden's hand-bell, ringing on their blows (`kinds/flute.py`, `bell.py`, `sound.py`) |
+| bow (the action batch) | `weapon_bow`, and every set rebuilt | bow; 18 actions | 10, and NPC qiu_feng | the recurve bow, slung on the back and drawn in the left hand (`kinds/bow.py`); `bow_draw`; the combat moves `charge_hold`, `dash_slash`, `air_strike`, `parry_deflect`; the families' own `two_hand_swing_1`–`3`, `flute_play`, `bell_toll`, `fan_throw`, `brush_write`; the story's `salute`, `kneel`, `point`, `startle` |
 
-`data_validation` prints the coverage on every run, for example "45 of 52 looks and actions drawn". It fails for any
-missing look or action that no batch lists.
+`data_validation` prints the coverage on every run ("… of … looks and actions drawn; missing []"). With `FULL_SET` on it
+fails for any missing look or action.

@@ -10,14 +10,21 @@ so they show what ships.
   06_villagers.png         the tutorial's villagers in their own outfits, S and E (missing layers listed)
   08_mirrored.png          the eight facings of the walk, the west three mirrored
   09_wardrobe.png          every shirt, trousers, shoes, hat and cape drawn, idle and mid-walk in the five facings
+  10_actions_<facing>.png  the action batch (the bow's): every combat move and family's own action with the weapon
+                           that plays it, per facing
+  11_gestures.png          the story's gestures (salute, kneel, point, startle) on the player and the scenes' people
 """
 from __future__ import annotations
 
 import io
 import json
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from figure.actions import OWN  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "docs/redesign/phase3/character"
@@ -29,6 +36,13 @@ FEET = (28, 54)          # the feet in that crop
 TUTORIAL_NPCS = ["aunt_ping", "lu_boatman", "little_dou", "old_ma", "granny_liu", "shen_lian_npc", "uncle_guo",
                  "fisher_wen", "washer_mei"]
 ACTION_WEAPON = {"punch": "gauntlets", "swing": "sword", "thrust": "spear"}
+# The look each family wears (weapon_families.json `appearance`), for the actions that are a family's own
+# (figure/actions.py OWN): the review draws each with the weapon that plays it.
+FAMILY_LOOK = {"heavy_sabre": "sabre", "bow": "bow", "flute": "flute", "bell": "bell", "fan": "fan", "brush": "brush"}
+BATCH = ["charge_hold", "dash_slash", "air_strike", "parry_deflect", "two_hand_swing_1", "two_hand_swing_2",
+         "two_hand_swing_3", "bow_draw", "flute_play", "bell_toll", "fan_throw", "brush_write"]
+GESTURES = ["salute", "kneel", "point", "startle"]
+GESTURE_NPCS = ["recruiter_qing_lan", "recruiter_mo_yun", "qiu_feng", "lu_boatman", "granny_liu", "little_dou"]
 
 
 def _font(size=12, bold=False):
@@ -157,6 +171,8 @@ def _grid(F: Figures, rows: list, dirs: list, scale: int, title: str, label_w: i
 
 
 def _weapon_for(action: str) -> str:
+    if action in OWN:
+        return FAMILY_LOOK[OWN[action]]
     for k, w in ACTION_WEAPON.items():
         if action.startswith(k):
             return w
@@ -183,6 +199,8 @@ def review(outputs: dict) -> None:
     _villagers(F)
     _mirrored(F)
     _wardrobe(F)
+    _batch(F)
+    _gestures(F)
     print("review sheets in", OUT.relative_to(ROOT))
 
 
@@ -278,6 +296,33 @@ def _wardrobe(F: Figures) -> None:
             im.alpha_composite(F.cell(o, "walk", dr, 2).resize((cw * s, ch * s), Image.NEAREST),
                                (220 + (len(dirs) + k) * cw * s, y))
     im.save(OUT / "09_wardrobe.png")
+
+
+def _batch(F: Figures) -> None:
+    """The action batch, per facing: each combat move and family's own action with the weapon that plays it (every
+    weapon in every action is in 03_weapon_<name>.png)."""
+    for dr in F.man["dirs"]:
+        rows = [("%s (%s)" % (a, _weapon_for(a)), starting(weapon=_weapon_for(a)), a) for a in BATCH if a in F.man["actions"]]
+        _grid(F, rows, [dr], 3, "The action batch, facing %s: the combat moves and each family's own action with the weapon "
+              "that plays it (red bar = hit frame)" % dr.upper(), label_w=210).save(OUT / ("10_actions_%s.png" % dr))
+
+
+def _gestures(F: Figures) -> None:
+    """The story's gestures on the player (with a jian) and on the people the scenes pose (their own outfits)."""
+    npcs = {n["id"]: n for n in json.loads((ROOT / "data/npcs.json").read_text())["entries"]}
+    fill = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}
+    rows = []
+    for g in GESTURES:
+        if g not in F.man["actions"]:
+            continue
+        rows.append(("%s (player, jian)" % g, starting(weapon="sword"), g))
+        for nid in GESTURE_NPCS:
+            o = dict(npcs[nid].get("outfit", {}))
+            for k, v in fill.items():
+                o.setdefault(k, v)
+            rows.append(("%s (%s)" % (g, nid), o, g))
+    _grid(F, rows, F.man["dirs"], 2, "The story's gestures (decision 39): salute, kneel, point, startle, on the player and "
+          "the scenes' people in their own outfits", label_w=220).save(OUT / "11_gestures.png")
 
 
 def _mirrored(F: Figures) -> None:

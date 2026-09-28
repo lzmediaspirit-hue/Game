@@ -71,7 +71,8 @@
     16
    ],
    "recovery_after": 0.0,
-   "finisher_after": 0.4
+   "finisher_after": 0.4,
+   "poses": {}
   },
   "gauntlets": {
    "steps": [
@@ -87,7 +88,8 @@
     16
    ],
    "recovery_after": 0.0,
-   "finisher_after": 0.4
+   "finisher_after": 0.4,
+   "poses": {}
   },
   "jian": {
    "steps": [
@@ -103,7 +105,8 @@
     20
    ],
    "recovery_after": 0.2,
-   "finisher_after": 0.5
+   "finisher_after": 0.5,
+   "poses": {}
   },
   "spear": {
    "steps": [
@@ -119,7 +122,10 @@
     24
    ],
    "recovery_after": 0.3,
-   "finisher_after": 0.6
+   "finisher_after": 0.6,
+   "poses": {
+    "dash": "thrust_3"
+   }
   },
   "short_blade": {
    "steps": [
@@ -135,7 +141,10 @@
     16
    ],
    "recovery_after": 0.0,
-   "finisher_after": 0.3
+   "finisher_after": 0.3,
+   "poses": {
+    "dash": "thrust_3"
+   }
   },
   "staff": {
    "steps": [
@@ -151,7 +160,10 @@
     16
    ],
    "recovery_after": 0.3,
-   "finisher_after": 0.6
+   "finisher_after": 0.6,
+   "poses": {
+    "dash": "thrust_3"
+   }
   },
   "heavy_sabre": {
    "steps": [
@@ -167,7 +179,12 @@
     20
    ],
    "recovery_after": 0.5,
-   "finisher_after": 0.8
+   "finisher_after": 0.8,
+   "poses": {
+    "swing_1": "two_hand_swing_1",
+    "swing_2": "two_hand_swing_2",
+    "swing_3": "two_hand_swing_3"
+   }
   },
   "fan": {
    "steps": [
@@ -183,7 +200,10 @@
     10
    ],
    "recovery_after": 0.2,
-   "finisher_after": 0.5
+   "finisher_after": 0.5,
+   "poses": {
+    "throw": "fan_throw"
+   }
   },
   "flute": {
    "steps": [
@@ -195,7 +215,12 @@
     0
    ],
    "recovery_after": 0.0,
-   "finisher_after": 0.5
+   "finisher_after": 0.5,
+   "poses": {
+    "attack": "flute_play",
+    "dash": "flute_play",
+    "air": "flute_play"
+   }
   },
   "brush": {
    "steps": [
@@ -211,7 +236,11 @@
     10
    ],
    "recovery_after": 0.2,
-   "finisher_after": 0.5
+   "finisher_after": 0.5,
+   "poses": {
+    "swing_3": "brush_write",
+    "cast": "brush_write"
+   }
   },
   "bell": {
    "steps": [
@@ -227,7 +256,11 @@
     0
    ],
    "recovery_after": 0.3,
-   "finisher_after": 0.6
+   "finisher_after": 0.6,
+   "poses": {
+    "swing_1": "bell_toll",
+    "swing_2": "bell_toll"
+   }
   },
   "bow": {
    "steps": [
@@ -239,7 +272,12 @@
     0
    ],
    "recovery_after": 0.3,
-   "finisher_after": 0.6
+   "finisher_after": 0.6,
+   "poses": {
+    "bow": "bow_draw",
+    "dash": "bow_draw",
+    "air": "bow_draw"
+   }
   }
  },
  "forms": {
@@ -340,6 +378,17 @@
    "pose": "combo_2"
   }
  },
+ "moves": {
+  "dash": "dash_slash",
+  "air": "air_strike",
+  "charge": "charge_hold",
+  "parry": "parry_deflect",
+  "melody": "flute_play"
+ },
+ "melody_loop": [
+  1,
+  4
+ ],
  "technique_recovery_after": 0.3,
  "foes": {
   "roles": {
@@ -352,56 +401,5 @@
   "tell": "tell",
   "swipe": "swipe"
  },
- "missing_poses": [
-  {
-   "pose": "bow_draw",
-   "stand_in": "cast",
-   "for": "the bow's shot and the aimed (dragged) shot: draw, hold, release (plan §1.4: 7 frames at 12 fps)"
-  },
-  {
-   "pose": "flute_play",
-   "stand_in": "thrust_1",
-   "for": "the flute's note and its held melody"
-  },
-  {
-   "pose": "charge_hold",
-   "stand_in": "combo_3",
-   "for": "the charged (dragged) finisher: a held wind-up before the release"
-  },
-  {
-   "pose": "dash_slash",
-   "stand_in": "thrust_3",
-   "for": "the dash attack of the cutting and palm families (the thrust families use thrust_3)"
-  },
-  {
-   "pose": "air_strike",
-   "stand_in": "jump",
-   "for": "a blow struck in the air"
-  },
-  {
-   "pose": "parry_deflect",
-   "stand_in": "guard",
-   "for": "the instant a guard parries: the blade turning the blow"
-  },
-  {
-   "pose": "two_hand_swing_1..3",
-   "stand_in": "swing_1..3",
-   "for": "the heavy sabre's cuts (swing_1-3 are one-handed, the other hand in a seal)"
-  },
-  {
-   "pose": "bell_toll",
-   "stand_in": "swing_1..3",
-   "for": "the bell rung out on both sides"
-  },
-  {
-   "pose": "fan_throw",
-   "stand_in": "swing_3",
-   "for": "the fan's third step, which throws it"
-  },
-  {
-   "pose": "brush_write",
-   "stand_in": "swing_1..3",
-   "for": "the brush writing its strokes in the air"
-  }
- ]
+ "missing_poses": []
 }

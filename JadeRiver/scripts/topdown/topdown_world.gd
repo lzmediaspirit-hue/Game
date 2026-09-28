@@ -564,6 +564,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var pe: EnemyState = Game.room_rt.enemies.get(int(str(p.get("attacker", "0")))) if Game.room_rt else null
 			var pd: Vector2 = (pe.plane - player.motor.pos).normalized() if pe != null and pe.plane.distance_to(player.motor.pos) > 1.0 else player.motor.dir
 			tfx.mark("parry", player.motor.pos, player.motor.z, pd)
+			if str(p.get("actor", "")) == player.actor_id: player.parried()   # decision 37: the deflection drawn
 			feel("heavy", pd)
 			WorldShared.play(self, name, p)
 		"artifact_spirit_spoke":

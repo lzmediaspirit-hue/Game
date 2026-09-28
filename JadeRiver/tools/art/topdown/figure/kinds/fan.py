@@ -12,6 +12,7 @@ carries no action name, so the fan finds its action by the pose's content (`fram
           turned at least `least` degrees off the camera's line (keeping its direction on screen) and its leaf faces
           the camera, tilted a little (`turn`) with the pose's flat so it catches the light as it sweeps. A cut
           (`smear_from` in the pose) leaves a smear of pale jade light behind the leaf's trailing edge.
+  thrown  nothing: from the throw's release the fan is in flight (`fan_throw`), drawn by the throw's own art.
 
 Spec keys:
   length  the ribs' length from the rivet    rivet   how far the rivet sits behind the grip
@@ -20,7 +21,7 @@ Spec keys:
   thick   the open leaf's thickness          least   the open fan's least angle off the camera's line, degrees
   turn    how far the open leaf tilts with the pose's flat (0: face on to the camera)
   width   the folded fan's half-width at the rivet and at the tip
-  open    {action: [frames]} the fan is open in
+  open    {action: [frames]} the fan is open in       thrown  {action: [frames]} it is out of the hand in
 """
 from __future__ import annotations
 
@@ -48,6 +49,10 @@ def frame_of(p: dict) -> list:
             for i, q in enumerate(A.poses(name)):
                 _FRAMES.setdefault(json.dumps(q, sort_keys=True), []).append((name, i))
     return _FRAMES.get(json.dumps(p, sort_keys=True), [])
+
+
+def is_thrown(sk, spec: dict) -> bool:
+    return any(i in spec.get("thrown", {}).get(name, ()) for name, i in frame_of(sk.p))
 
 
 def is_open(sk, spec: dict) -> bool:
@@ -132,6 +137,8 @@ def _folded(sk, spec, g, d, flat, laid) -> list:
 
 
 def solids(sk, spec: dict) -> list:
+    if is_thrown(sk, spec):
+        return []
     g, d, flat = blade_line(sk)
     wp = sk.weapon or {}
     if not is_open(sk, spec):
