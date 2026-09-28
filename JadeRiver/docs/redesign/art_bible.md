@@ -2,7 +2,8 @@
 
 This page sets how the top-down world of Jade River is drawn: terrain, height levels, water, plants, buildings and
 props. It serves Phase 3 of `docs/redesign_top_down_plan.md` and decision 31 in `docs/roadmap_master_ui.md` §6.
-Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives only their scale against the tiles.
+Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives their scale against the tiles and, in §13, how
+the real character (decision 32) is drawn for this view.
 
 **The brief (decision 31).** The world should look close to Alabaster Dawn's: bright, detailed ¾ top-down pixel art.
 Height levels read at a glance, wall faces stand apart from floor tops, shading is soft, tiles are lush and props are
@@ -95,7 +96,7 @@ places the player should look.
 | World view | 640 × 360 art px (40 × 22.5 tiles), shown ×2 at 1280 × 720 |
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
-| Character | ~38 art px tall in a 64 × 64 cell, feet on the cell's anchor: about 2.4 tiles. The placeholder body is the reference |
+| Character | ~38 art px from sole to crown (40 with a top knot), feet on the anchor: about 2.4 tiles. The real character (§13) is the reference |
 | Doors | 2 tiles wide in the wall, 24–28 px tall, so a 38 px body reads as fitting through |
 | Props | footprint in whole tiles; sprite height free |
 
@@ -168,9 +169,9 @@ part in:
 
 | Field | Meaning | Marks |
 |---|---|---|
-| `grass` | creeps over a path's edge on its own level | `g`, `f`, `b` |
+| `grass` | creeps over a path's edge on its own level | `g`, `f`, `b`, `m` |
 | `under` | the corner-matched set grass creeps over it with | `d` (`grass_dirt`), `p` (`grass_paving`) |
-| `keep_face` | keeps its own face over water instead of the granite embankment | `w` (pilings), `g` and `f` (a grassy bank's soil) |
+| `keep_face` | keeps its own face over water instead of the granite embankment | `w` (pilings), `g`, `f` and `m` (a grassy bank's soil) |
 | `face_below` | the face rows under the first, picked by column | `t` (plaster, a window every third bay) |
 
 `b` is a planted bed: flowers on a dressed-stone planter a level up. The corner, shore, rim, face-end and shadow rules
@@ -211,6 +212,24 @@ are checked on a room made for them (`topdown_suite`, "topdown terrain").
 The kit so far: house, storehouse, willow, stone lantern, red lantern post, barrel, crates (standable), notice
 board, reeds, boat, bamboo, lotus, incense burner, shrub.
 
+Chapter 2's stretch (the sects and the Reed Marsh) adds:
+
+| Prop | Footprint | What it is |
+|---|---|---|
+| `hall` | 8 × 3, roof a floor 2 levels up, door columns 3–4 | a sect hall: the house's walls and roof fronted by a red colonnade (a column at every bay, gilt bracket ends under the eave), a dressed granite plinth and a jade name board in a gold frame over the door (§9: the sects' red halls) |
+| `pine` | 1 × 1 | a mountain pine: a straight red-brown trunk, three flat tiers of needles held out to the sides, each lit on its upper-left rim and dark underneath |
+| `weapon_rack` | 2 × 1 | a Weapon Hall's dark-wood rack: a spear with a red tassel, a jian with a gilt guard, a broad dao and a staff |
+| `banner_jade`, `banner_cloud` | 1 × 1 | a sect banner on a tall pole with a gilt finial: the Jade Sect's jade silk with a gold ring, the Cloud Sect's white silk with a sky-blue cloud scroll. The tail stirs a pixel over four frames (450 ms) |
+| `post` | 1 × 1 | a training stump bound with straw rope |
+| `dead_tree` | 1 × 1 | a tree the Hollowing has drained: bare, split, ash grey |
+| `boulder` | 1 × 1 | a karst boulder with moss in its hollows |
+| `grey_reeds` | 1 × 1, walk-through | the reeds drawn by `reeds` in the Hollowing's ash grey, their heads bare |
+
+Two ramps join the palette for them: `PINE` and `BARK`, and `HOLLOW` (colour drained to a cold ash grey with a breath
+of teal in its shade); `CLOUD` is the Cloud Sect's white and sky blue. The paint table gains `m`, a wet meadow of the
+Reed Marsh: the meadow's own grass with small puddles kept off the tile's edges and reed stubble (`marsh_a`,
+`marsh_b`), grass for the path rule, so paths blend into it as into any meadow.
+
 ### Foes
 
 Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row per species and drawn facing:
@@ -243,7 +262,23 @@ Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row p
   - the reed rat: a grey-brown coat, pink ears and feet, red eyes, a green reed tail in segments;
   - the boarlet: a warm brown hide with pale stripes along its back, a bristle crest, a darker head, a pink snout and
     small tusks. It lowers its head and paws the ground in its wind-up.
-- **Not yet drawn:** every other creature (Phase 5 by region). The pebble imps do not appear in the prototype room.
+- **Chapter 2's stretch** adds five, each from its side-view sheet:
+  - the Trial Puppet: a sparring figure of carved timber on brass ball joints, the sect's jade sash across its chest,
+    a jade plate on its back and a jade tuft on its crown. It walks with its fists up, draws its right fist back in the
+    wind-up and drives it out with a ring of Qi at the knuckles. About 34 px tall, a little shorter than a disciple;
+  - the reed frog: leaf green with a gold stripe down each flank, a pale belly and gold eyes set high. It hops as it
+    goes, crouches in its wind-up and leaps;
+  - the marsh leech: an olive slug in soft rings with teal spots and a round pink mouth. It creeps in a travelling
+    ripple, rears in its wind-up and lunges, mouth first;
+  - the reed otter: a sleek brown body, a pale muzzle and throat, whiskers and a thick tapering tail. It bounds, sits up
+    on its haunches in its wind-up and lunges to bite;
+  - the hollowed boarlet: the boarlet's own sculpture with its colour drunk out of it, ash grey with pale stripes,
+    cold white eyes and three grey strands rising and curling from its back.
+
+  The cell grows to 48 × 56 with the feet at (24, 42), so the puppet fits; the first three foes are drawn as before.
+- **Not yet drawn:** every other creature (Phase 5 by region). The tutorial rooms' hollowed eel and minnow (the night),
+  Old Snapper and the mossback toad still take the crab's figure, the view's fallback. The pebble imps do not appear
+  in the prototype room.
 
 ## 9. What makes it xianxia (and Jade River's)
 
@@ -331,3 +366,31 @@ The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_
 | `12_foes_x3.png` | the foe sheet at ×3: crab, rat and boarlet, five drawn facings, every action |
 | `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
 | `15_water_frames_x2.png` | the water's four frames round the pond and the pier |
+
+## 13. The character (decision 32)
+
+The body in the top-down world is the game's own character, redrawn for this view:
+
+- **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
+  from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
+- **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
+  The redesign plan's "As built: Phase 3, third part" has the full pipeline.
+- **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
+  `docs/redesign/phase3/character/HOWTO.md` says how to add one.
+
+| Rule | Value |
+|---|---|
+| Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
+| Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
+| Light | the world's sun, upper left and a little in front (§3); four lit steps of each ramp, the deepest kept for contact shade |
+| Outline | 1 px, ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side (§4); an edge over the figure itself takes its material's own deep tone, not ink |
+| Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
+| Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored. The side rows turn a little toward the camera, the head in E a little more |
+| Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
+
+Check a new layer against it the way §11 checks a tile:
+
+- it is cast from the same poses as the body;
+- it is reviewed in every action, facing and dye in `tests/topdown_figure_gallery.tscn`'s sheets, and against the
+  body in `docs/redesign/phase3/character/`;
+- `data_validation`'s layer contract is green.

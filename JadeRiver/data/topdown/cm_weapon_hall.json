@@ -1,0 +1,144 @@
+{
+ "schema_version": 1,
+ "id": "cm_weapon_hall",
+ "name": "Weapon Hall and Forge",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  11.5,
+  11
+ ],
+ "levels": [
+  "333333333333333333333333",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "301111111000000000000003",
+  "301111111000000000000003",
+  "301111111000000000000003",
+  "301111111000000000000003",
+  "300000000000000000000003",
+  "300000000000000000000003",
+  "111111111110011111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lswwwwwwwssssssssssssssl",
+  "lswwwwwwwssssssssssssssl",
+  "lswwwwwwwssssssssssssssl",
+  "lswwwwwwwssssssssssssssl",
+  "lssswwwssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lllllllllllsslllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 4,
+   "y": 11,
+   "w": 3,
+   "h": 1,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "weapon_rack",
+   "x": 2,
+   "y": 1
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 5,
+   "y": 1
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 12,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 15,
+   "y": 1
+  },
+  {
+   "kind": "crates",
+   "x": 19,
+   "y": 1
+  },
+  {
+   "kind": "barrel",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "barrel",
+   "x": 22,
+   "y": 2
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 22,
+   "y": 11
+  }
+ ],
+ "place": {
+  "npc_cloud_weapon_master": [
+   10,
+   5
+  ],
+  "npc_cloud_smith": [
+   17,
+   5
+  ],
+  "anvil_cm": [
+   19,
+   7
+  ],
+  "dummy_cwh_0": [
+   4,
+   8
+  ],
+  "dummy_cwh_1": [
+   7,
+   8
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    11.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    11.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

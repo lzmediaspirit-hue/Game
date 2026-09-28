@@ -117,7 +117,8 @@ func objective_places(c, o: Dictionary) -> Array:
 		"reach_realm": return hunt_rooms(c).map(func(f): return f[0])
 		"talk_to", "deliver": return npc_rooms(c, own_npc(c, o.get("npc_any", o.get("npc", ""))))
 		"kill", "judge_foe": return WorldRules.rooms_with("enemy=" + str(o.enemy))
-		"set_flag": return WorldRules.rooms_with("set_flag=" + str(o.flag))
+		# A sect chore's spot is set by either sect's flag (`alt_flag`, the Cloud Sect's).
+		"set_flag": return WorldRules.rooms_with("set_flag=" + str(o.flag)) + (WorldRules.rooms_with("set_flag=" + str(o.alt_flag)) if o.has("alt_flag") else [])
 		"pass_event", "survive_timer": return WorldRules.event_rooms(str(o.event))
 		"win_spar":
 			if not o.has("opponent"): return WorldRules.rooms_with("type=spar_post")
@@ -134,7 +135,7 @@ var _hops_cache: Dictionary = {}
 ## or anywhere; else, of its places a way leads into (not a story instance entered by its event), the nearest the
 ## character can walk to now, its own sect's first.
 func objective_room(c, def: Dictionary, o: Dictionary) -> String:
-	var target := str(def.get("target_room", ""))
+	var target := sect_room(c, def)
 	var places := objective_places(c, o)
 	if places.is_empty() or target in places: return target
 	var my_sect := str(c.training_sect.get("id", "")) if c else ""
@@ -165,7 +166,18 @@ func quest_target(c, def: Dictionary, st: Dictionary) -> String:
 		var back := npc_rooms(c, hand_in_npc(c, def))
 		return str(back[0]) if not back.is_empty() else ""
 	var i := step_now(c, def, st)
-	return objective_room(c, def, def.objectives[i]) if i >= 0 else str(def.get("target_room", ""))
+	return objective_room(c, def, def.objectives[i]) if i >= 0 else sect_room(c, def)
+
+## A quest's own room for this character: its `target_room`, or, for a sect role's quest (given by either sect's
+## steward or weapon master, `giver_any`) whose room is the other sect's grounds, the room of the character's own giver
+## (a Cloud disciple's chores are on the Cliff Stair, its Weapon Hall the Cloud Sect's).
+func sect_room(c, def: Dictionary) -> String:
+	var target := str(def.get("target_room", ""))
+	var my_sect := str(c.training_sect.get("id", "")) if c else ""
+	var room_sect := str(ContentDB.room(target).get("sect", ""))
+	if my_sect == "" or room_sect == "" or room_sect == my_sect or not def.has("giver_any"): return target
+	var own := npc_rooms(c, own_npc(c, def.giver_any))
+	return str(own[0]) if not own.is_empty() else target
 
 ## What keeps the character in a room: a quest whose step is to leave its room (a `use_portal` step, e.g. Morning
 ## Tide's "Step outside") holds that room's ways shut, while it is on offer ("Talk to Aunt Ping") and then until the

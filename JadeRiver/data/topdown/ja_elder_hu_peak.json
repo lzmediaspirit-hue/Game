@@ -1,0 +1,179 @@
+{
+ "schema_version": 1,
+ "id": "ja_elder_hu_peak",
+ "name": "Elder Hu's Peak",
+ "size": [
+  40,
+  26
+ ],
+ "spawn": [
+  6,
+  22
+ ],
+ "levels": [
+  "5555555555555555555555555555555555555555",
+  "5555555555555555555555555555555555555555",
+  "5555555555555555555555555555555555555555",
+  "3300000000000000000333333300000000000033",
+  "3300000000000000000333333300000000000033",
+  "3300000000000222222333333300000000000033",
+  "3300000000000222222333333300000000000033",
+  "3300000000000222222333333300000000000033",
+  "3300000000000222222000000000000000000033",
+  "3300000111111222222000000000000000000033",
+  "3300000111111000000000000000000000000033",
+  "3300000111111000000000000000000000000033",
+  "3300000111111000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "3300000000000000000000000000000000000033",
+  "0000000000000000000000000000000000000033",
+  "0000000000000000000000000000000000000033",
+  "0000000000000000000000000000000000000033",
+  "0000000000000000000000000000000000000033",
+  "0000000000000000000000000000000000000033"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrgggggggggggggggggrrrrrrrggggggggggggrr",
+  "rrgggggggggggggggggrrrrrrrggggggggggggrr",
+  "rrgggggggggggrrrrrrrrrrrrrggggggggggggrr",
+  "rrgggggggggggrrrrrrrrrrrrrggggggggggggrr",
+  "rrgggggggggggrrrrrrrrrrrrrggggggggggggrr",
+  "rrgggggggggggrrrrrrgggggggggggggddggggrr",
+  "rrgggggrrrrrrrrrrrrgggggggggggggddggggrr",
+  "rrgggggrrrrrrgggggggggggggggggggddggggrr",
+  "rrgggggrrrrrrgggggggggggggggggggddggggrr",
+  "rrgggggrrrrrrgggggggggggggggggggggggggrr",
+  "rrggggggggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "rrgggddgggggggggggggggggggggggggggggggrr",
+  "gggggddgggggggggggggggggggggggggggggggrr",
+  "gggggddgggggggggggggggggggggggggggggggrr",
+  "gggggddgggggggggggggggggggggggggggggggrr",
+  "gggggddgggggggggggggggggggggggggggggggrr",
+  "gggggddgggggggggggggggggggggggggggggggrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 31,
+   "y": 5,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "incense",
+   "x": 16,
+   "y": 15
+  },
+  {
+   "kind": "pine",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "pine",
+   "x": 35,
+   "y": 13
+  },
+  {
+   "kind": "pine",
+   "x": 27,
+   "y": 22
+  },
+  {
+   "kind": "pine",
+   "x": 10,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 25,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 2,
+   "y": 23
+  }
+ ],
+ "place": {
+  "npc_elder_hu": [
+   24,
+   13
+  ],
+  "spring_hu": [
+   14,
+   16
+  ],
+  "insight_hu": [
+   30,
+   12
+  ],
+  "rite_reflection": [
+   20,
+   19
+  ],
+  "plot_hu": [
+   9,
+   18
+  ],
+  "meditation_rock": [
+   22,
+   4
+  ]
+ },
+ "portals": {
+  "path": {
+   "at": [
+    5.5,
+    25
+   ],
+   "dir": "s",
+   "arrive": [
+    5.5,
+    23.5
+   ],
+   "span": 2
+  },
+  "abode": {
+   "at": [
+    32.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    32.5,
+    8.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

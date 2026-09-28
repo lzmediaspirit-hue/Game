@@ -136,8 +136,9 @@ static func problems(scene: Dictionary) -> Array:
 	var trig: Dictionary = scene.get("trigger", {})
 	if not trig.is_empty() and not events.has(str(trig.get("event", ""))): out.append("%s: trigger event %s is not in the contract" % [id, str(trig.get("event", ""))])
 	var actors: Dictionary = scene.get("actors", {})
-	var npc_poses: Array = (Wardrobe.parts.get("_actions", {}) as Dictionary).keys()
-	var body_poses: Array = (grid.tileset.get("body", {}).get("frames", {}) as Dictionary).keys()
+	# The top-down figure's actions (data/topdown/character.json), the player's and the people's alike, and the side
+	# view's names it plays under another (its aliases).
+	var poses: Array = (TopdownFigure.manifest().get("actions", {}) as Dictionary).keys() + (TopdownFigure.manifest().get("aliases", {}) as Dictionary).keys()
 	for name in actors:
 		var h := home(scene, str(name), def, grid)
 		var a: Dictionary = actors[name]
@@ -173,7 +174,6 @@ static func problems(scene: Dictionary) -> Array:
 				if not (to is Array) and not str(to) in ["n", "s", "e", "w", "player"] and not actors.has(str(to)): out.append("%s: faces %s" % [where, str(to)])
 			"emote": if not str(st.get("emote", "")) in EMOTES: out.append("%s: emote %s" % [where, str(st.get("emote", ""))])
 			"pose":
-				var poses: Array = body_poses if who == "player" else npc_poses
 				if not str(st.get("pose", "")) in poses: out.append("%s: pose %s is not one %s has" % [where, str(st.get("pose", "")), who])
 			"say":
 				if str(st.get("text", "")).strip_edges() == "": out.append("%s: says nothing" % where)

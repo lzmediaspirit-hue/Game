@@ -1337,12 +1337,6 @@
      "kind": "clear"
     },
     {
-     "do": "camera",
-     "to": "lu",
-     "s": 1.0,
-     "wait": true
-    },
-    {
      "do": "face",
      "actor": "lu",
      "to": "player"

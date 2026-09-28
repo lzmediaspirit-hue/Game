@@ -398,7 +398,6 @@ def night():
     scene("river_token", "The River Token", "lf_lu_boat", [
         letterbox(True),
         weather("clear"),
-        camera("lu", 1.0),
         face("lu", "player"),
         say("lu", "That thing in the water was a Hollowed eel. The grey is spreading."),
         say("lu", "You have a gift. I felt it last night. Sit. Breathe as I showed you."),

@@ -2,8 +2,10 @@
 
 Checked from a brand-new character, step by step, by `tests/tutorial_order.gd` (the walk below, taken fists-first:
 Uncle Guo before Granny Liu) and `tests/prologue_run.gd` (Granny first). `tests/topdown_tutorial.gd` plays the same
-walk, to the same invariants, as a character of the top-down world: the thirteen rooms from the Fisher's Hut to the
-Fairground on the height grid, the rest side-view (`docs/redesign_top_down_plan.md`, "As built: Phase 4"). Every quest is taken and handed in on the
+walk, to the same invariants, as a character of the top-down world: every room of it on the height grid, from the
+Fisher's Hut through the Fairground, the Entry Trial, the sect's grounds and the Marsh Edge, then on to The Humming
+Token (step 14), and then the sect stretch again from the fair as a Cloud Sect disciple on the Cloud Sect's grounds
+(`docs/redesign_top_down_plan.md`, "As built: Phase 4", both parts). Every quest is taken and handed in on the
 real dialogue page. `tests/valley_run.gd` holds every main quest of Acts I–III to the same story guidance (the last
 column and "What the walk holds to" below).
 
@@ -34,6 +36,11 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 11b | A Disciple's Chores (side) | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | two spots to sweep and a grey stain by the gate: under it the grey goes into the earth, and a cache of two spirit stone shards | (as before it) |
 | 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapon Dao (the weapon slot has been open since the start); **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon, five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
 | 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the Reed Marsh's Marsh Edge (the marsh path opens at Bone Forging 2), then the mentor | | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; hand in to the mentor | Next: The Humming Token · Talk to Elder Hu |
+| 14 | The Humming Token (topdown_tutorial) | the mentor's peak, then the Marsh Edge | | five Hollowed Boarlets where the grey patches were; hand in to the mentor | Next: Mei Qing's Errand · Talk to Mei Qing (Artisan Row) |
+
+The sect's rooms are its own: the Jade Sect's trial ground, Gate Street, Weapon Hall and Elder Hu's peak, or the Cloud
+Sect's trial ground, Cliff Stair, Weapon Hall and Elder Sung's far peak. A sect role's quest (the chores, the Weapon
+Hall) leads each disciple to its own sect's grounds.
 
 **The story is staged** (decision 39, `docs/redesign/story_staging.md`). In the top-down world each step plays as a
 scene in its room, 10–40 s long and skippable. People walk, talk to each other, emote and speak in balloons; the camera

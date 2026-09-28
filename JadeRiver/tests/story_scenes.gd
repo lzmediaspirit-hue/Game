@@ -86,8 +86,8 @@ func _the_opening_in_view() -> void:
 	check(d.run != null and str(d.run.id) == "opening_dawn", "the opening begins as the character wakes in the Fisher's Hut (%s)" % str(d.run.id if d.run else "none"))
 	check(d.in_cut() and Game.paused, "the opening's cut holds the simulation still")
 	var ping: Dictionary = d.run.actors.get("ping", {})
-	check(is_instance_valid(ping.get("fig")) and is_instance_valid(ping.get("label")) and ping.fig == w.figures.get("npc_aunt_ping"),
-		"Aunt Ping's own figure and label play her part")
+	check(is_instance_valid(ping.get("fig")) and is_instance_valid(ping.get("label")) and ping.fig == w.figures.get("npc_aunt_ping") and ping.fig.staged,
+		"Aunt Ping's own figure and label play her part, the figure staged (the scene turns her and says what she does)")
 	var home: Vector2 = ping.fig.position
 	check(_to_step("handoff"), "the opening reaches its first hand-off")
 	check(ping.fig.position != home and ping.pos.distance_to(SceneRules.point([5, 5])) < 1.0, "Aunt Ping walked across the hut (figure at %s)" % str(ping.fig.position))

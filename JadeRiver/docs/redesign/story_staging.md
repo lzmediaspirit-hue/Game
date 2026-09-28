@@ -99,9 +99,9 @@ but fetching pages was blocked, so the confirmed claims rest on search-result su
 
 **Steps:**
 
-- **Actors:** `move` (waypoints walked around obstacles by the room's path search; a prop sails straight), `face`,
-  `emote` (`!`, `?`, `...`, note, heart, anger, sweat, idea), `pose` (the avatar's own actions; the player's sheet
-  rows), `say` (a balloon, or `box: portrait` for the dialogue page's portrait strip).
+- **Actors:** `move` (waypoints walked around obstacles by the room's path search, a walk or a run; a prop sails
+  straight), `face` (eight rows), `emote` (`!`, `?`, `...`, note, heart, anger, sweat, idea), `pose` (the top-down
+  figure's actions), `say` (a balloon, or `box: portrait` for the dialogue page's portrait strip).
 - **Camera:** `camera` (pan to, then follow, an actor, a cell, a thing, a way or a foe), `zoom`, `shake`,
   `letterbox`.
 - **Screen:** `fade`, `flash` (under the flash limiter), `title`.
@@ -176,9 +176,9 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
 
 ### 3.4 Not built, or different
 
-- **No new body poses** (`AGENTS.md`). The people use the avatar's own actions and the player uses the placeholder
-  sheet's rows. When the top-down player art lands, its action names come in through the tile set's `body.frames`,
-  which `SceneRules` already reads.
+- **No new body poses** (`AGENTS.md`). The people and the player are the top-down figure (`TopdownFigure`, decision
+  32), in the actions its manifest has (`data/topdown/character.json`: idle, walk, run, the strikes, cast, meditate,
+  hurt and so on, and the side view's names it plays under another). `SceneRules` checks every `pose` against it.
 - **Scenes play only in rooms on the height grid**, so a side-view character sees none.
 - **Zoom is a whole-view zoom** of the pixel viewport (1.25 in the breakthrough). It is not integer-scaled.
 - **Actors' movement is presentation.** A scene's people walk home when it ends. Nothing they do is saved, except

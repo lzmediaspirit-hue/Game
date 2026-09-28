@@ -9,7 +9,7 @@ extends Node2D
 
 var director: SceneDirector
 static var _box: StyleBoxFlat
-const HEAD := {"npc": -118.0, "player": -92.0, "prop": -34.0}
+const HEAD := {"npc": -88.0, "player": -88.0, "prop": -34.0}
 const TEXT := 18
 const MARGIN := 16.0
 

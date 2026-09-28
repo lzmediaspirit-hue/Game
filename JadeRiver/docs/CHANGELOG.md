@@ -55,6 +55,94 @@
   - `topdown_tutorial` plays every scene of the tutorial to its end as the walk reaches it. The cuts count on the play
     clock, and the first hour's pacing still holds.
 - **Screenshots:** `tools/dev/topdown_capture.tscn -- --story`, in `docs/redesign/phase5/story/`.
+## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
+
+- **Fourteen more rooms on the grid** (`docs/redesign_top_down_plan.md`, "As built: Phase 4, second part"). They are
+  the rooms the story visits from the sect choice to The Humming Token, for both sects a player can join:
+  - both Entry Trial grounds: a rooftop climb for the Jade Sect and a ledge climb for the Cloud Sect, each to the bell,
+    and a sand ring for the Trial Puppet;
+  - the Jade Sect's Gate Street, Weapon Hall, Pavilion Rooftops (its training yard), East Terrace, Herb Terraces and
+    Elder Hu's Peak;
+  - the Cloud Sect's Cliff Stair, Sword Court, Weapon Hall, Array Court and Elder Sung's Peak;
+  - the Marsh Edge.
+
+  Each keeps its side-view room's people, objects, ways, foes and rules. On the grid they have:
+  - halls on terraces a level apart, with roofs you can climb;
+  - stairs and ledges up to the mentors, the Meditation Rock and the library's cliff door;
+  - the plum-blossom poles, stilt platforms over the marsh water, boardwalks, ponds and gardens.
+- **New art in the approved style:** a sect hall with a red colonnade, pines, weapon racks, the two sects' banners,
+  training stumps, a drained dead tree, grey reeds and boulders, and a wet-meadow tile. **Five new foes**, each in five
+  drawn facings and three mirrored, with all six actions: the Trial Puppet, the reed frog, the marsh leech, the reed
+  otter and the hollowed boarlet.
+- **Fixes:**
+  - A Cloud Sect disciple's chores and Weapon Hall now lead to the Cloud Sect's own rooms. The tracker used to name
+    the Jade Sect's rooms, which a Cloud disciple cannot enter; this was wrong in both views.
+  - The Cloud Steps' finish follows its bell wherever the room puts it.
+- **Tests:**
+  - `topdown_tutorial` (777 checks) plays the Jade walk on the grid through The Humming Token. It then goes back to
+    the fair and plays the whole stretch again as a Cloud disciple, running the Cloud Steps on the way. Every
+    `tutorial_order` invariant holds throughout.
+  - `topdown_rooms.py` also checks that auto-path can reach every way, and `perf_tests` times the Marsh Edge with 25
+    foes fighting.
+  - The walk's sect comes from one table (`SECTS`), and `valley_run` shares the run's checkpoint helpers.
+- **Screenshots:** `docs/redesign/phase4/17`–`32`.
+
+## Top-down: the real character (decision 32)
+
+- **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
+  faces, hair styles, clothes, colours, dyes and weapons. It reads the same data: `parts.json`'s names, dyes and hair
+  colours, and the save's outfit. It replaces the placeholder body, which is removed. Details are in
+  `docs/redesign_top_down_plan.md`, "As built: Phase 3, third part", and `docs/redesign/art_bible.md` §13.
+- **Drawn by `tools/art/topdown/build_character.py`.** It is deterministic and byte-identical twice (`--check`). A
+  posed doll is ray-cast at 1 art px and shaded in the side view's ramps with the art bible's outlines.
+- **Drawn in layer sets, for the full set (decision 37).** The sets are `body`, `hair`, each garment slot and each
+  weapon family.
+  - Each set is its looks' specs, cast by one generator per layer kind (`figure/kinds/`).
+  - `--only <set>` builds one set in about ten seconds into its own manifest, `data/topdown/character/<set>.json`,
+    and its own sheets, so agents can draw sets in parallel.
+  - A stale set, built for another action catalogue, is refused.
+  - Each look lists the game items that wear it.
+  - `data_validation`'s coverage gate fails for any look or action that no pending batch lists, and it fails for any
+    missing one once `FULL_SET` is on.
+  - `docs/redesign/phase3/character/HOWTO.md` says how to add a set. Four batches are left, 62 items: the sabre; the
+    fan and brush; the flute and bell; and the bow with its draw and release.
+  - The unclothed body comes first; every layer is cast from the same poses over it (`AGENTS.md`).
+  - S, SE, E, NE and N are drawn; SW, W and NW mirror. The collar and the weapon hand swap sides in the mirrored
+    facings.
+- **Twenty-one actions, 494 frames:** idle, walk, run, jump, dash, dodge, hurt, knock-down, punch 1–3, swing 1–3,
+  thrust 1–3, cast, guard, plunge and meditate (S only; its other facings redirect to S). A cut leaves a smear of
+  jade light.
+- **Every creator look is drawn,** with every dye and hair colour:
+  - the body and the six hair styles;
+  - all five shirts, five trousers and three shoes;
+  - the five hats and two capes;
+  - the training gauntlets, the short blade, the jian, the spear and the staff.
+
+  124 of the 125 NPCs are fully drawn, and so are all nine of the tutorial's. Only the bow (qiu_feng's, and the bow
+  family's) and the later weapon families are left; each goes in `TopdownFigure.missing` and draws nothing.
+- **In the game.** `TopdownFigure` composites the layers. The player wears its equipment and dyes from the save,
+  dresses again when they change, and plays each state's action. A blow lands its hit frame on Combat's clock. The
+  facing picks one of eight rows. The i-frames' blink and the occlusion silhouette fade the figure as one image, so
+  the body never shows through its clothes.
+- **The people of the rooms on the grid are drawn the same way** (`TopdownPlaces.Person`), in place of the side
+  view's avatars at half size facing east or west:
+  - each in their own outfit, at rest three-quarters toward the camera (or meditating, facing it);
+  - turned to the player in the eight rows during a talk, a gift or a shop, then back;
+  - walking the way a route moves them.
+
+  `TopdownWorld.add_villager` stands one anywhere, for the prototype and the reviews.
+- **Tests.**
+  - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing
+    eleven broken manifests.
+  - `topdown_suite` checks the outfit from the save, dressing again, each state's action and the eight facings; the
+    drag moves use the real guard and plunge. A villager wears their own outfit, turns in eight rows, walks, and
+    meditates facing the camera.
+  - `topdown_tutorial` checks every person of the walk's rooms is drawn this way, fully dressed, and that Shen Lian
+    turns to the player talking to her and back.
+  - `tests/topdown_figure_gallery.tscn` renders the compatibility gallery with the game's own compositor.
+- **Review sheets** are in `docs/redesign/phase3/character/`: the body, an outfit per facing, the weapons, hair,
+  dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The game's Phase 3 review
+  images (`topdown_capture.tscn -- --phase3`) now draw the real character.
 
 ## Top-down redesign, Phase 4 begins: the real game on the grid, from the Fisher's Hut to the sect choice
 

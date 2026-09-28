@@ -441,12 +441,13 @@ func _finish(skipped: bool, left := false) -> void:
 			a.erase("say")
 			a.emote = ""
 			homeward.append(a)
+		elif is_instance_valid(a.fig): a.fig.staged = false
 	run = null
 	_end_mode()
 
 # ------------------------------------------------------------------ the people
-## A person of the room bound to their figure and label (the label's own barks held while they act), an extra given
-## views of its own, a prop its sprite.
+## A person of the room bound to their figure and label (the figure staged: the scene says where they face and what
+## they do; the label's own barks held while they act), an extra given views of its own, a prop its sprite.
 func _bind(a: Dictionary) -> void:
 	if headless or not (world is TopdownWorld) or not a.visible: return
 	if a.object != "":
@@ -454,9 +455,10 @@ func _bind(a: Dictionary) -> void:
 		a.fig = world.figures.get(a.object)
 	elif a.npc != "" and a.fig == null:
 		var made := TopdownPlaces.person(world.room, {"id": "scene_" + str(a.name), "type": "npc", "npc": a.npc, "at": [a.pos.x, a.pos.y], "alt": a.alt},
-			world.sorted, world.overlay)
+			world.sorted, world.overlay, world.player)
 		a.label = made[0]
 		a.fig = made[1]
+		a.label.modulate.a = world.labels_a   # as the room's own names stand now
 	elif a.prop != "" and a.prop_view == null:
 		var art: Dictionary = world.room.tileset.get("props", {}).get(a.prop, {})
 		var fp: Array = art.get("footprint", [1, 1])
@@ -466,12 +468,15 @@ func _bind(a: Dictionary) -> void:
 	if is_instance_valid(a.label):
 		a.label.bark_time = 0.0
 		a.label.bark_timer = 999.0
+	if is_instance_valid(a.fig): a.fig.staged = true
 	_sync_view(a)
+	_pose_view(a)
 
 func _unbind(a: Dictionary) -> void:
 	if a.extra:
 		for k in ["label", "fig", "prop_view"]:
 			if is_instance_valid(a.get(k)): a[k].queue_free()
+	elif is_instance_valid(a.get("fig")): a.fig.staged = false   # the room's own again: its rest facing and pose
 	a.label = null
 	a.fig = null
 	a.prop_view = null
@@ -484,9 +489,8 @@ func _sync_view(a: Dictionary) -> void:
 		return
 	if is_instance_valid(a.fig):
 		a.fig.place(a.pos, a.alt)
-	if is_instance_valid(a.label):
-		a.label.position = Vector2(a.pos.x, a.pos.y - a.alt)
-		if absf(a.facing.x) > 0.2: a.label.avatar.facing = 1 if a.facing.x > 0.0 else -1
+		a.fig.art.look(a.facing)
+	if is_instance_valid(a.label): a.label.position = Vector2(a.pos.x, a.pos.y - a.alt)
 	if is_instance_valid(a.prop_view):
 		var art: Dictionary = world.room.tileset.get("props", {}).get(a.prop, {})
 		var fp: Array = art.get("footprint", [1, 1])
@@ -501,7 +505,7 @@ func _pose_view(a: Dictionary) -> void:
 	if a.name == "player":
 		if world and is_instance_valid(world.player): world.player.stage_pose = "walk" if moving else ("" if a.pose == "idle" else str(a.pose))
 		return
-	if is_instance_valid(a.label): a.label.avatar.play("walk" if moving and a.prop == "" else str(a.pose))
+	if is_instance_valid(a.fig): a.fig.art.play(("run" if float(a.speed) > float(SceneRules.cfg().get("walk", 110.0)) * 1.4 else "walk") if moving else TopdownFigure.resolve(str(a.pose)))
 
 func _face(a: Dictionary, to) -> void:
 	if a.is_empty(): return
@@ -590,6 +594,7 @@ func _homeward(delta: float) -> void:
 			_sync_view(a)
 			_pose_view(a)
 			if is_instance_valid(a.label): a.label.bark_timer = randf_range(6.0, 14.0)
+			if is_instance_valid(a.fig): a.fig.staged = false
 			homeward.erase(a)
 
 func player_pos() -> Vector2:

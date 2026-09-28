@@ -1,0 +1,477 @@
+{
+ "schema_version": 1,
+ "id": "ja_gate_street",
+ "name": "Gate Street",
+ "size": [
+  64,
+  32
+ ],
+ "spawn": [
+  9,
+  27
+ ],
+ "levels": [
+  "3333333333333333333333333333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333333333333333333333333333",
+  "0000000000000000000000000000002222222200000000000000000000000000",
+  "0000000000000000000000111111112222222200000000000000000000000000",
+  "0000000000000000000000111111112222222200000000000000000000000000",
+  "0000000000000000000000111111112222222200000000000000000000000000",
+  "0000000000000000000000111111112222222200000000000000000000000000",
+  "0000000000000000000000111111112220022200000000000000000000000000",
+  "0000000000000000000000111111112220022200000000000000000000000000",
+  "0000000000000000000000111001112220022200000000000000000000000000",
+  "0000000000000000000000111001112220022200000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000~~~~~~~~~~~~00000000",
+  "00000000000000000000000000000000000000000000~~~~~~~~~~~~00000000",
+  "00000000000000000000000000000000000000000000~~~~~~~~~~~~00000000",
+  "00000000000000000000000000000000000000000000~~~~~~~~~~~~00000000",
+  "00000000000000000000000000000000000000000000~~~~~~~~~~~~00000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggggggggggggggggssssssssgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggssssssssssssssssgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggssssssssssssssssgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggssssssssssssssssgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggssssssssssssssssgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggssssssssssssssssgggggggggggggggggggggggggg",
+  "gggggggggggggggggppgggssssssssssssssssggggwwwwwwgggggggggggggggg",
+  "gggggggggggggggggppgggssssssssssssssssggggwwwwwwgggggggggggggggg",
+  "gggggggggggggggggppgggssssssssssssssssgggggggggggggggggggggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggppppppppppppppggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggppppppppppppppggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggppppppppppppppggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggppppppppppppppggfffffggggggffffffgggggggggggggggggggggggggggg",
+  "ggggggggdddggggggggfffffggggggffffffgggggggggggggggggggggggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggg~~~~~~~~~~~~gggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggg~~~~~~~~~~~~gggggggg",
+  "ggggggggdddddddddddddddddddddddddddddddddddd~~~~~~~~~~~~gggggggg",
+  "ggggggggdddddddddddddddddddddddddddddddddddd~~~~~~~~~~~~gggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggg~~~~~~~~~~~~gggggggg",
+  "ggggggggdddgggggggggggfffffffgggggggfffffggggggggggggggggggggggg",
+  "ggggggggdddgggggggggggfffffffgggggggfffffggggggggggggggggggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 25,
+   "y": 10,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 33,
+   "y": 8,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 14,
+   "y": 6,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "hall",
+   "x": 22,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "hall",
+   "x": 30,
+   "y": 4,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 12,
+   "y": 8
+  },
+  {
+   "kind": "house",
+   "x": 42,
+   "y": 6,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "lotus",
+   "x": 46,
+   "y": 25
+  },
+  {
+   "kind": "lotus",
+   "x": 51,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 29
+  },
+  {
+   "kind": "pine",
+   "x": 17,
+   "y": 29
+  },
+  {
+   "kind": "pine",
+   "x": 33,
+   "y": 21
+  },
+  {
+   "kind": "pine",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "pine",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "shrub",
+   "x": 24,
+   "y": 23
+  },
+  {
+   "kind": "shrub",
+   "x": 35,
+   "y": 24
+  },
+  {
+   "kind": "shrub",
+   "x": 30,
+   "y": 29
+  },
+  {
+   "kind": "shrub",
+   "x": 52,
+   "y": 5
+  },
+  {
+   "kind": "shrub",
+   "x": 54,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 16,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 19,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 2,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 7,
+   "y": 11
+  },
+  {
+   "kind": "banner_jade",
+   "x": 7,
+   "y": 24
+  },
+  {
+   "kind": "banner_jade",
+   "x": 11,
+   "y": 24
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 28
+  },
+  {
+   "kind": "lantern_red",
+   "x": 11,
+   "y": 28
+  },
+  {
+   "kind": "pine",
+   "x": 4,
+   "y": 2
+  },
+  {
+   "kind": "pine",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 45,
+   "y": 1
+  },
+  {
+   "kind": "pine",
+   "x": 56,
+   "y": 2
+  },
+  {
+   "kind": "bamboo",
+   "x": 57,
+   "y": 9
+  },
+  {
+   "kind": "bamboo",
+   "x": 59,
+   "y": 10
+  },
+  {
+   "kind": "bamboo",
+   "x": 58,
+   "y": 22
+  },
+  {
+   "kind": "willow",
+   "x": 42,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 21
+  },
+  {
+   "kind": "shrub",
+   "x": 49,
+   "y": 10
+  },
+  {
+   "kind": "shrub",
+   "x": 38,
+   "y": 13
+  }
+ ],
+ "place": {
+  "shrine_ja": [
+   4.5,
+   13
+  ],
+  "stone_ja": [
+   13,
+   20
+  ],
+  "board_ja": [
+   60,
+   13
+  ],
+  "siege_gong_ja": [
+   54,
+   17
+  ],
+  "npc_jade_steward": [
+   7,
+   16
+  ],
+  "npc_jade_deacon": [
+   57,
+   15
+  ],
+  "npc_jade_disciple_a": [
+   29,
+   15
+  ],
+  "npc_jade_disciple_b": [
+   40,
+   17
+  ],
+  "dorm_bed_ja": [
+   46,
+   10
+  ],
+  "sweep_ja_0": [
+   20,
+   15
+  ],
+  "sweep_ja_1": [
+   27,
+   17
+  ],
+  "sweep_ja_2": [
+   11,
+   22
+  ],
+  "chest_mission_hall": [
+   35,
+   5
+  ],
+  "thief_ja": [
+   15,
+   14
+  ]
+ },
+ "portals": {
+  "stoneford": {
+   "at": [
+    9,
+    31
+   ],
+   "dir": "s",
+   "arrive": [
+    9,
+    29
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    15
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    15
+   ],
+   "span": 3
+  },
+  "weapon_hall": {
+   "at": [
+    17.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    17.5,
+    9.5
+   ],
+   "span": 2
+  },
+  "alchemy_hall": {
+   "at": [
+    25.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    25.5,
+    8.5
+   ],
+   "span": 2
+  },
+  "library": {
+   "at": [
+    33.5,
+    7
+   ],
+   "dir": "n",
+   "arrive": [
+    33.5,
+    7.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [],
+ "routes": {
+  "thief_ja": [
+   [
+    15,
+    14,
+    0.0
+   ],
+   [
+    12.5,
+    8,
+    0.6
+   ],
+   [
+    15.5,
+    7,
+    0.5
+   ],
+   [
+    20.5,
+    7,
+    0.6
+   ],
+   [
+    23.5,
+    6,
+    0.5
+   ],
+   [
+    28.5,
+    6,
+    0.6
+   ],
+   [
+    31.5,
+    5,
+    0.5
+   ],
+   [
+    36.5,
+    5,
+    0.6
+   ]
+  ]
+ }
+}

@@ -1,7 +1,7 @@
 extends Node2D
 ## Top-down redesign: the playing character in the prototype room. It owns the TopdownMotor, samples the HUD's joystick
-## and buttons (the same fields and calls the HUD drives on player.gd) and draws the PLACEHOLDER body
-## (art/topdown/placeholder_body.png; the layered set is Phase 5).
+## and buttons (the same fields and calls the HUD drives on player.gd) and draws the character through TopdownFigure
+## (Phase 3, decision 32): the real layers, wearing the character's equipment and dyes from the save.
 ##
 ## Phase 2: bound to a character in the room's RoomRuntime (the world entered it through the World authority), every
 ## action is an intent to Game as in the side view. Attack and techniques aim on the plane (`aim` and `aimed`, decision
@@ -32,19 +32,19 @@ var anim := "idle"
 var frame := 0
 var anim_t := 0.0
 var screen := Vector2.ZERO   ## the body's feet on the world viewport, whole art px
-var frames: Dictionary = {}
-var cell := Vector2(32, 48)     ## the body sheet's cell and the feet in it (the tile set's manifest)
-var foot := Vector2(16, 46)
+var figure: TopdownFigure    ## the layered character (TopdownFigure), wearing outfit()
 ## The aim the HUD is showing (decision 30): {kind, slot, form, dir, at, reach, half, target (EnemyState or null)}, {}
 ## when no thumb is aiming. The world draws it on the ground.
 var aim: Dictionary = {}
-## Decision 35: the pose drawn (the sheet's row name; the guard and plunge poses fall back to idle and jump cells while
-## the sheet has none) and how long the Plunge's impact pose holds after it lands.
+## The figure's action drawn this frame (`anim` is the state it comes from: a strike plays the blow's own action, the
+## Plunge's landing its impact frame), and how long the Plunge's impact pose holds after it lands (decision 35).
 var pose := "idle"
 var impact_t := 0.0
 const IMPACT_S := 0.25
-## The stand-in cell for a pose the sheet does not have yet: [row, frame].
-const FALLBACK := {"guard": ["idle", 0], "plunge": ["jump", 1], "plunge_land": ["jump", 2]}
+## While the i-frames blink, the body fades as one image in this group: faded layer by layer, the clothes would show
+## the body through them.
+var ghost: CanvasGroup
+var tint := Color.WHITE   ## this frame's tint: red while flinching
 var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the stick (S49), on the grid
 var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
 
@@ -69,10 +69,14 @@ func bound() -> bool:
 	return actor_id != "" and Game.character(actor_id) != null and Game.room_rt != null and Game.room_rt.topdown == world.room
 
 func _ready() -> void:
-	var body: Dictionary = world.room.tileset.get("body", {})
-	frames = body.get("frames", {})
-	cell = Vector2(float(body.get("cell", [32, 48])[0]), float(body.get("cell", [32, 48])[1]))
-	foot = Vector2(float(body.get("foot", [16, 46])[0]), float(body.get("foot", [16, 46])[1]))
+	figure = TopdownFigure.wearing(outfit())
+	ghost = CanvasGroup.new()
+	ghost.self_modulate = Color(1, 1, 1, 0.6)
+	ghost.visible = false
+	var faded := Node2D.new()
+	faded.draw.connect(func(): draw_body(faded, Vector2(0, screen.y - position.y), tint))
+	ghost.add_child(faded)
+	add_child(ghost)
 	ground = WalkSurface.new({"id": "grid", "rect": [0, 0, world.room.w * TopdownRoom.TILE, world.room.h * TopdownRoom.TILE], "stratum": "ground"})
 	_mirror()
 
@@ -194,6 +198,15 @@ func room_floor() -> float:
 	var g: float = world.room.height_at(motor.pos)
 	return g if g < INF else motor.z
 
+## What the body wears: the bound character's appearance, equipment and dyes (InventoryAuthority.outfit_for, as the
+## side view's avatar); unbound (the Phase 1 view tests), the creator's starting clothes.
+func outfit() -> Dictionary:
+	return InventoryAuthority.outfit_for(Game.character(actor_id)) if bound() else TopdownFigure.DialoguePage.full_outfit({})
+
+## The equipment changed (a piece equipped, a dye, a look from the wardrobe): dress the figure again.
+func refresh_outfit() -> void:
+	figure.set_outfit(outfit())
+
 ## The HUD's other calls on player.gd.
 func meditate() -> void:
 	if bound(): Game.submit({"type": "toggle_meditation"})
@@ -252,74 +265,76 @@ func _mirror() -> void:
 	state.surface = ground if motor.grounded and motor.sink_t < 0.0 else null
 	state.zone_id = world.room.id
 
-## Pick the pose from the motor (and Combat's timeline: an attack or cast plays the strike, arm back until its hit
-## frame), place the node: x on whole art px, y at the sort key, the body drawn back down to its whole-pixel screen row
-## (TopdownWorld keeps every key a multiple of 1/64, so the offset is exact).
+## Pick the action and frame from the motor and Combat's timeline, then place the node: x on whole art px, y at the
+## sort key, the body drawn back down to its whole-pixel screen row (TopdownWorld keeps every key a multiple of 1/64,
+## so the offset is exact). A blow plays its own pose on Combat's clock, its hit frame on the hit; a technique with no
+## pose of its own plays the hand-seal cast.
 func sync(delta: float) -> void:
 	var m := motor
-	var next := "idle"
-	var f := 0
 	var tl: Dictionary = Game.combat.timeline(actor_id) if bound() else {}
-	if m.plunging: next = "plunge"
+	var next := "idle"
+	var f := -1    # -1: the action's own clock
+	if bound() and Game.combat.is_wounded(actor_id): next = "knockdown"
+	elif m.plunging: next = "plunge"
 	elif impact_t > 0.0 and m.grounded: next = "plunge_land"
-	elif m.sink_t >= 0.0 or not m.grounded:
+	elif m.sink_t >= 0.0:
 		next = "jump"
-		f = 1 if m.sink_t >= 0.0 or m.vz < 120.0 else 0
-	elif m.dash_t > 0.0: next = "dash"
-	elif bound() and Game.combat.is_busy(actor_id) or attack_time > 0.0: next = "strike"
+		f = 3
+	elif bound() and Game.combat.is_busy(actor_id):
+		next = "strike"
+		pose = _strike_pose(tl)
+		f = TopdownFigure.strike_frame(pose, float(tl.t), float(tl.duration), float(tl.hit_at))
+	elif attack_time > 0.0:
+		next = "strike"
+		pose = "punch_2"
+		f = TopdownFigure.strike_frame(pose, 0.25 - attack_time, 0.25, 0.1)
+	elif bound() and float(tl.get("flinch", 0.0)) > 0.0: next = "hurt"
+	elif m.dash_t > 0.0: next = "dodge" if m.dash_dir.dot(m.dir) < -0.3 else "dash"
+	elif not m.grounded:
+		next = "jump"
+		f = 0 if m.vz > 340.0 else (1 if m.vz > 140.0 else (2 if m.vz > -140.0 else 3))
 	elif not tl.is_empty() and tl.guard: next = "guard"
 	elif m.land_t > 0.0:
 		next = "jump"
-		f = 2
-	elif m.vel.length() > 12.0: next = "walk"
-	if stage_pose != "": next = stage_pose   # a staged scene's pose (decision 39)
+		f = 4
+	elif meditating: next = "meditate"
+	elif m.vel.length() > 12.0: next = "run" if m.vel.length() > m.walk * 1.15 else "walk"
+	if stage_pose != "": next = TopdownFigure.resolve(stage_pose)   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next
 		anim_t = 0.0
-	anim_t += delta
-	pose = anim
+	anim_t += delta * (clampf(m.vel.length() / m.walk, 0.5, 1.2) if anim == "walk" else 1.0)
 	match anim:
-		"idle": f = int(anim_t * 2.0) % 2
-		"walk": f = int(anim_t * 8.0 * clampf(m.vel.length() / m.walk, 0.5, 1.2)) % 4
-		"dash": f = int(anim_t * 12.0) % 2
-		"strike": f = 1 if (tl.is_empty() and anim_t > 0.08) or (not tl.is_empty() and float(tl.t) >= float(tl.hit_at)) else 0
-		# Decision 35's poses (plan §1.4: guard 2 frames at 6 fps, held on the last; plunge 3 at 12, the last its impact),
-		# drawn from the sheet's own rows when it has them, else from the stand-in cells in FALLBACK.
-		"guard": f = mini(int(anim_t * 6.0), pose_frames("guard") - 1)
-		"plunge": f = mini(int(anim_t * 12.0), maxi(0, pose_frames("plunge") - 2))
+		"strike": pass
+		# Decision 35: the Plunge drops tucked, then dives (frames 0-1 on its clock); landed, its impact frame holds.
+		"plunge":
+			pose = "plunge"
+			f = mini(TopdownFigure.frame_at(pose, anim_t), TopdownFigure.hit_frame(pose) - 1)
 		"plunge_land":
 			pose = "plunge"
-			f = pose_frames("plunge") - 1
-	if FALLBACK.has(anim) and pose_frames(pose) <= 0:
-		pose = str(FALLBACK[anim][0])
-		f = int(FALLBACK[anim][1])
-	frame = f
+			f = TopdownFigure.hit_frame(pose)
+		_: pose = anim
+	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART))
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
+	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
+	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
+	tint = Color(1.6, 0.8, 0.8) if hurt else Color.WHITE
+	ghost.visible = inv and int(Time.get_ticks_msec() / 25) % 2 == 0
+	if ghost.visible: ghost.get_child(0).queue_redraw()
 	queue_redraw()
 
-## How many frames the sheet draws for `name` in the current facing's row (0: the sheet has no such pose).
-func pose_frames(name: String) -> int:
-	var row := "e" if motor.row == "w" else motor.row
-	return ((frames.get(name, {}) as Dictionary).get(row, []) as Array).size()
-
-func frame_rect() -> Rect2:
-	var row := "e" if motor.row == "w" else motor.row
-	var list: Array = (frames.get(pose, {}) as Dictionary).get(row, [])
-	if list.is_empty(): list = (frames.get("idle", {}) as Dictionary).get(row, [[0, 0]])
-	var at: Array = list[clampi(frame, 0, list.size() - 1)]
-	return Rect2(Vector2(float(at[0]), float(at[1])), cell)
+## A blow's or a technique's pose: its own drawn action (a side-view name resolves to one), or the cast for a
+## technique that has no pose of its own.
+func _strike_pose(tl: Dictionary) -> String:
+	if str(tl.technique) != "":
+		var raw = ContentDB.entry("techniques", str(tl.technique)).get("action")
+		if raw == null or str(raw) in ["", "null", "meditate_burst"]: return "cast"
+	return TopdownFigure.resolve(str(tl.action))
 
 ## Draw the current frame with its feet at `feet` on `canvas` (the silhouette overlay draws the same frame).
 func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
-	var src := frame_rect()
-	var flip := motor.row == "w"
-	canvas.draw_set_transform(feet, 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-	canvas.draw_texture_rect_region(world.atlas("body"), Rect2(-foot, cell), src, tint)
-	canvas.draw_set_transform(Vector2.ZERO)
+	figure.draw(canvas, feet, pose, motor.row, frame, tint)
 
 func _draw() -> void:
-	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
-	var blink := inv and int(Time.get_ticks_msec() / 25) % 2 == 0
-	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
-	draw_body(self, Vector2(0, screen.y - position.y), Color(1, 1, 1, 0.6) if blink else (Color(1.6, 0.8, 0.8) if hurt else Color.WHITE))
+	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)

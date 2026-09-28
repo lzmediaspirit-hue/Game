@@ -3,9 +3,12 @@ extends "res://tests/tutorial_order.gd"
 ## tests/tutorial_order.gd, every step and every invariant of it, played by a character made for the top-down world.
 ## Every room that has a layout (tools/data/topdown_rooms.py: the Prologue, Lotus Ferry, the Reed Shallows, the Willow
 ## Path and Stoneford to the Fairground, where the sect is chosen) is entered on the height grid through the World
-## authority, the rest stay side-view, and the walk runs on in them to Strange Tracks. On top of tutorial_order's
+## authority, the rest stay side-view. Phase 4's second part ("As built: Phase 4, second part") carries the grid on
+## through chapter 2's first stretch: the walk's Entry Trial, the Jade Sect's grounds, the Marsh Edge's Strange Tracks
+## and The Humming Token, and then, from the fair (a checkpoint kept as both recruiters are met), the same stretch as a
+## Cloud Sect disciple on the Cloud Sect's grounds, with the Cloud Steps run on the grid. On top of tutorial_order's
 ## invariants (the HP bar before fights, doors shown, the hut door open, quest talks closing, the tracker never blank
-## and leading to the real next place):
+## and leading to the real next place), held through both sects' stretches:
 ##   1. each room of the walk is on the grid exactly when it has a layout, and every such room of the tutorial is
 ##      entered on it;
 ##   2. each layout places every NPC, object, way and spawn of its side-view room, on a floor a body can stand on, and
@@ -15,7 +18,11 @@ extends "res://tests/tutorial_order.gd"
 ##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
 ##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
 ##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there;
-##   6. the story is staged (decision 39, data/scenes.json): every scene of the tutorial plays to its end on a
+##   6. every person of those rooms is drawn in the top-down style (TopdownPlaces.Person, decision 32), fully dressed,
+##      and turns to the player at their side, then back to their rest;
+##   7. every foe the rooms of chapter 2's stretch spawn has its own top-down figure (every action in five drawn
+##      facings), and after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row;
+##   8. the story is staged (decision 39, data/scenes.json): every scene of the tutorial plays to its end on a
 ##      SceneDirector with no view as the walk comes to it, the walk's own deeds doing what its hand-offs ask (the
 ##      stump punched, the tea drunk, the crab driven off, the door walked through), and its cuts count on the play clock,
 ##      where the first hour's pacing (invariant 14) still holds.
@@ -23,6 +30,13 @@ extends "res://tests/tutorial_order.gd"
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
 	"lf_lu_boat", "wp_east", "wp_west", "sf_gate", "sf_market", "sf_artisan_row", "sf_fairground"]
+## Chapter 2's stretch (Phase 4's second part), the rooms each sect's disciple walks from the sect choice to The Humming
+## Token: the Entry Trial, the sect's gate, Weapon Hall, training yard and halls up to the mentor's peak, the Marsh Edge.
+const CHAPTER2_ROOMS := {
+	"jade": ["sf_trial_jade", "ja_gate_street", "ja_weapon_hall", "ja_pavilion_rooftops", "ja_east_terrace", "ja_herb_terraces",
+		"ja_elder_hu_peak", "rm_marsh_edge"],
+	"cloud": ["sf_trial_cloud", "cm_cliff_stair", "cm_sword_court", "cm_weapon_hall", "cm_array_court", "cm_elder_sung_peak", "rm_marsh_edge"]}
+const FOE_ACTIONS := ["idle", "walk", "windup", "attack", "hurt", "death"]
 
 var grid_rooms := {}          # rooms entered on the grid
 var wrong_view: Array = []    # rooms entered in the other view than their layout says
@@ -31,6 +45,7 @@ var reach_here := {}          # cell -> true: reached on foot from where the cha
 var reach_room := ""
 var probe: TopdownWorld = null
 var probe_misses: Array = []
+var people_misses: Array = []   # people not drawn in the top-down style, or wearing a piece with no top-down layer
 
 func _main() -> void:
 	add_child(views)
@@ -42,19 +57,25 @@ func _main() -> void:
 	scene_director.set_process(false)
 	_layouts()
 	run()
+	_chapter2()
 	_scenes_played()
 	_save_on_the_grid()
 	_walk_on_the_grid()
 	check(wrong_view.is_empty(), "every room of the walk was on the grid exactly when it has a layout (%s)" % str(wrong_view))
 	var missed := TUTORIAL_ROOMS.filter(func(r): return not grid_rooms.has(r))
 	check(missed.is_empty(), "every room of the tutorial to the sect choice was played on the grid (%d rooms; missed %s)" % [grid_rooms.size(), str(missed)])
+	for sid in CHAPTER2_ROOMS:
+		missed = CHAPTER2_ROOMS[sid].filter(func(r): return not grid_rooms.has(r))
+		check(missed.is_empty(), "every room of chapter 2's stretch for a %s disciple was played on the grid (missed %s)" % [sid, str(missed)])
 	check(far.is_empty(), "every spot the walk stood at on the grid is reached on foot from where it came in (%s)" % str(far.slice(0, 8)))
 	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
+	check(people_misses.is_empty(), "every person of the walk's rooms on the grid is drawn in the top-down style, every piece of their outfit with its layer (%s)" % str(people_misses.slice(0, 6)))
 	if is_instance_valid(probe): probe.free()
+	free_hud_probe()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
-# ------------------------------------------------------------------ 6: the staged scenes
+# ------------------------------------------------------------------ 8: the staged scenes
 ## Each step of the walk comes to the stage: what a scene staged is played out before the walk goes on (as a cut holds
 ## the player in the game), and a hand-off waits for the walk's next deed.
 func submit(i: Dictionary) -> Dictionary:
@@ -80,6 +101,66 @@ func _scenes_played() -> void:
 	var missed: Array = ContentDB.all("scenes").filter(func(r): return r.get("tutorial", false) and not done.get(str(r.id), false)).map(func(r): return str(r.id))
 	check(missed.is_empty() and scene_director.run == null, "every staged scene of the tutorial played to its end as the walk came to it (%d played; missed %s)" % [done.size(), str(missed)])
 	check(not Game.paused, "no scene holds the game still after the walk")
+
+# ------------------------------------------------------------------ 7: chapter 2's stretch, for both sects
+## Past tutorial_order's walk (the Jade Sect's, to Strange Tracks): The Humming Token. Then the same stretch as a Cloud
+## Sect disciple, from the fair: the checkpoint kept as both recruiters were met, the Cloud Sect joined, its Entry Trial,
+## Shen Lian's spar, the chores on the Cliff Stair, the Cloud Steps, its Weapon Hall, Strange Tracks for Elder Sung on
+## his far peak and The Humming Token; the walk's invariants after every step and over the whole of it.
+func _chapter2() -> void:
+	step_humming_token()
+	invariants("The Humming Token")
+	check(resume_checkpoint(run_root() + "cp/fair/", run_root() + "cloud/"), "back at the fair from the checkpoint kept as both recruiters were met (room %s)" % room())
+	sect = "cloud"
+	join_sect()
+	invariants("The Recruitment Fair (Cloud)")
+	step_entry_trial()
+	invariants("Entry Trial (Cloud)")
+	step_fish_gutting_fists()
+	invariants("Fish-Gutting Fists (Cloud)")
+	step_chores()
+	invariants("A Disciple's Chores (Cloud)")
+	step_weapon_hall()
+	invariants("The Weapon Hall (Cloud)")
+	_cloud_steps()
+	step_strange_tracks()
+	invariants("Strange Tracks (Cloud)")
+	step_humming_token()
+	invariants("The Humming Token (Cloud)")
+	walk_held("both sects' stretches")
+
+## Both recruiters met: a checkpoint of the run, the second sect's stretch starts from it.
+func keep(label: String) -> void:
+	super.keep(label)
+	if label == "Both recruiters met": save_checkpoint(run_root() + "cp/fair/")
+
+## The Humming Token (chapter 2's second step): the mentor's quest after Strange Tracks, five Hollowed Boarlets on the
+## Marsh Edge (the grey boarlets where the patches were), handed in on the peak; then the tracker's Next is Mei Qing's
+## Errand at Artisan Row.
+func step_humming_token() -> void:
+	accept(sect_at("mentor"), "the_humming_token")
+	check(travel("rm_marsh_edge"), "to the Marsh Edge for the grey boarlets (room %s)" % room())
+	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "five Hollowed Boarlets beaten on the Marsh Edge")
+	check(travel(sect_at("peak")), "back to the mentor's peak (room %s)" % room())
+	hand_in(sect_at("mentor"), "the_humming_token")
+	GameEvents.flush()
+	var nx: Array = Game.quest.tracker(c())
+	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "mei_qings_errand" and str(nx[0].get("target_room", "")) == "sf_artisan_row",
+		"after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row (%s)" % str(nx.slice(0, 1)))
+
+## The Cloud Steps on the grid: touch the starting stone on the Cliff Stair, climb the grand stair and the ledges to the
+## bell on the top ledge (the route's finish is its route_finish object, where the layout puts it), and the run ends.
+func _cloud_steps() -> void:
+	check(travel("cm_cliff_stair"), "to the Cliff Stair for the Cloud Steps (room %s)" % room())
+	var done := {"finished": false}
+	var heard := func(n: String, p: Dictionary): if n == "route_finished": done.finished = p.get("finished", true)
+	GameEvents.event.connect(heard)
+	check(interact("cloud_steps_stone").get("ok", false), "the Cloud Steps begin at their stone")
+	var bell: Dictionary = Game.room_rt.object_def("cloud_steps_bell")
+	stand_by(bell, Vector2.ZERO, float(bell.get("alt", 0.0)))
+	step(0.5)
+	GameEvents.event.disconnect(heard)
+	check(bool(done.finished), "the Cloud Steps run ends at the bell on the top ledge, reached on foot")
 
 # ------------------------------------------------------------------ 1, 3, 4: each room entered
 func _on_grid_event(n: String, p: Dictionary) -> void:
@@ -129,12 +210,19 @@ func _probe_view() -> void:
 		and marks.size() == probe.portal_views.size() and probe.hud_minimap
 	if not ok: probe_misses.append("%s: npcs %d/%d things %d/%d figures %d ways %d/%d marks %d" % [room(), probe.npc_views.size(), npcs.size(),
 		probe.object_views.size(), things.size(), figures.size(), probe.portal_views.size(), (def.get("portals", []) as Array).size(), marks.size()])
+	for f in figures:
+		if str(f.def.get("type", "")) != "npc": continue
+		if not f.art is TopdownPlaces.Person: people_misses.append("%s: %s is not a top-down figure" % [room(), f.def.id])
+		elif not (f.art.figure.missing as Array).is_empty(): people_misses.append("%s: %s lacks %s" % [room(), f.def.npc, str(f.art.figure.missing)])
 
 # ------------------------------------------------------------------ 2: the layouts
-## Every layout of the tutorial: each thing of its side-view room placed on a floor, and reached on foot from every
-## way in and from its spawn.
+## Every layout of the tutorial and of chapter 2's stretch: each thing of its side-view room placed on a floor, and
+## reached on foot from every way in and from its spawn; in chapter 2's rooms every foe they spawn drawn for the grid.
 func _layouts() -> void:
-	for rid in TUTORIAL_ROOMS:
+	var rooms: Array = TUTORIAL_ROOMS.duplicate()
+	for sid in CHAPTER2_ROOMS:
+		for rid in CHAPTER2_ROOMS[sid]: if not rooms.has(rid): rooms.append(rid)
+	for rid in rooms:
 		check(TopdownRoom.has_layout(rid), "%s has a top-down layout" % rid)
 		if not TopdownRoom.has_layout(rid): continue
 		var grid := TopdownRoom.load_room(rid)
@@ -165,6 +253,12 @@ func _layouts() -> void:
 				for q in sp.get("points", []):
 					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)
 		check(bad.is_empty(), "%s: everything stands on a floor and is reached on foot from every way in and from the spawn (%s)" % [rid, str(bad.slice(0, 6))])
+		if rid in TUTORIAL_ROOMS: continue
+		var species: Dictionary = grid.tileset.get("foes", {}).get("species", {})
+		var dirs: Array = grid.tileset.get("foes", {}).get("dirs", [])
+		var undrawn: Array = side.get("spawns", []).map(func(sp): return str(sp.enemy)).filter(func(e):
+			return not species.has(e) or dirs.size() != 5 or FOE_ACTIONS.any(func(a): return dirs.any(func(d): return (species[e].actions.get(a, {}).get("frames", {}).get(d, []) as Array).is_empty())))
+		check(undrawn.is_empty(), "%s: every foe it spawns has its own top-down figure, every action in five drawn facings (undrawn %s)" % [rid, str(undrawn)])
 
 # ------------------------------------------------------------------ 6: the real view drives the body
 ## The character's own view (a live TopdownWorld, bound, as main.gd mounts it) moves the body on the grid: the context
@@ -178,6 +272,22 @@ func _walk_on_the_grid() -> void:
 	w.player.physics_step(1.0 / 60.0)
 	w._update_context()
 	check(str(w.context.get("type", "")) == "npc" and str(w.context.get("npc", "")) == "shen_lian", "on the grid the context button offers a talk beside Shen Lian (%s)" % str(w.context))
+	# Her figure turns to the player at her west side, in the top-down style, and back to her rest when he walks off.
+	var fig: TopdownPlaces.Figure = null
+	for f in w.sorted.get_children():
+		if f is TopdownPlaces.Figure and str(f.def.get("id", "")) == str(shen.id): fig = f
+	var turned := ""
+	var back := ""
+	if fig != null and fig.art is TopdownPlaces.Person:
+		fig._process(0.0)
+		turned = fig.art.row
+		w.player.motor.place(w.room.spawn)
+		w.player.physics_step(1.0 / 60.0)
+		w._update_context()
+		fig._process(0.0)
+		back = fig.art.row if not fig.twin.focus else "still focused"
+	check(turned == "w" and fig.art.action == fig.art.stand and back == fig.art.rest and back != "w",
+		"Shen Lian's top-down figure turns west to the player talking to her, and back to her rest (%s) when he walks off (turned %s, back %s)" % [fig.art.rest if fig else "-", turned, back])
 	check(_auto_path(w, "sf_trial_tower", 40.0), "auto-path walks the body across the Fairground to the Trial Tower's doorway and in (room %s)" % room())
 	_drop_view(w)
 	check(go("entry") and room() == "sf_fairground", "back out of the tower onto the grid")

@@ -1,4 +1,5 @@
-"""The top-down foes (art bible §8, the plan's §1.4): the prototype room's early monsters, redrawn from their side-view
+"""The top-down foes (art bible §8, the plan's §1.4): the prototype room's early monsters and those of chapter 2's
+stretch (the Trial Puppet, the Reed Marsh's frog, leech and otter, the hollowed boarlet), redrawn from their side-view
 sheets (art/creatures/) for the three-quarter view in eight facings.
 
 Each creature is built as a small sculpture of ellipsoids in its own frame (a forward, b to its left, c up, in art px)
@@ -23,8 +24,8 @@ import math
 from canvas import Img
 from palette import c
 
-CELL = (48, 40)
-FOOT = (24, 27)
+CELL = (48, 56)
+FOOT = (24, 42)
 DIRS = ["s", "se", "e", "ne", "n"]
 MIRROR = {"sw": "se", "w": "e", "nw": "ne"}
 ANGLE = {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0}   # on the ground: east 0, south 90
@@ -32,7 +33,8 @@ ANGLE = {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0}   # on the gr
 ACTIONS = {"idle": (4, 6, True), "walk": (4, 10, True), "windup": (2, 8, False), "attack": (3, 12, False),
            "hurt": (2, 10, False), "death": (4, 8, False)}
 HIT_FRAME = 1
-SPECIES = ["mudshell_crab", "reedtail_rat", "wild_boarlet"]
+SPECIES = ["mudshell_crab", "reedtail_rat", "wild_boarlet", "trial_puppet", "reed_frog", "marsh_leech", "reed_otter",
+           "hollowed_boarlet"]
 
 ELEV = math.radians(35.0)
 R = (1.0, 0.0, 0.0)                                  # screen right, in the world (east, south, up)
@@ -153,12 +155,37 @@ MATS = {
     "hoof": _r("120B0B", "1C110E", "2B1C17", "3F2A22", "553A2E"),
     "snout": _r("4A2A26", "7F4A3C", "8F5A52", "B07A6E", "C99A8E"),
     "bristle": _r("120B0B", "1C110E", "2B1C17", "422B28", "5C3A28"),
+    # hollowed boarlet: the boarlet with its colour drunk out of it, pale ash stripes, grey strands rising from its back
+    "h_hide": _r("3A4242", "5C6563", "858D89", "A9AEA8", "C8CBC4"),
+    "h_head": _r("2F3636", "4A5251", "6C7471", "8C938E", "A9AEA8"),
+    "h_stripe": _r("5C6563", "8A928D", "D2D5CD", "E2E3DC", "F0F0EA"),
+    "h_snout": _r("4A4E4E", "6A6E6C", "8E908C", "A8AAA4", "C0C2BC"),
+    "h_bristle": _r("1A2020", "283030", "3A4444", "505A5A", "687272"),
+    # trial puppet: carved timber, brass ball joints, the sect's jade sash and back plate
+    "timber": _r("3A2412", "5E3C1E", "875A30", "AE7C46", "CFA064"),
+    "timber_dark": _r("24160A", "3A2412", "5E3C1E", "7A5028", "96683A"),
+    "brass": _r("3A2810", "5E4420", "8A6630", "B08A48", "D4B070"),
+    "puppet_jade": _r("0F3A36", "17564F", "2C8A7C", "4CB6A2", "8AE0CC"),
+    # reed frog: leaf green with a gold stripe down each flank and a pale belly
+    "frog": _r("123A1E", "1E5A2A", "2F8A38", "5BB64A", "8ED866"),
+    "frog_belly": _r("5A6A2A", "8A9A40", "BFC468", "DCD88A", "EEE8B0"),
+    "frog_stripe": _r("6A5A14", "A89024", "D8C040", "F0DC60", "FFF090"),
+    # marsh leech: an olive slug in soft rings, teal spots, a round pink mouth
+    "leech": _r("1E2A12", "34461E", "53672C", "7A8A3C", "9CAA52"),
+    "leech_belly": _r("3A3A1E", "5A5A2E", "7C7A44", "9C9860", "B8B27C"),
+    # reed otter: a sleek brown coat, a pale muzzle and throat
+    "otter": _r("2A1A10", "4A2E1A", "6E4426", "8E5C34", "A87444"),
+    "otter_pale": _r("7A6040", "A88A64", "C8AA82", "DCC4A0", "EEDCBC"),
 }
 GLINT = c("F4F0DE")
 RAT_EYE = c("9A3A28")
 INKY = c("1A1216")
 TUSK = c("E9DCB8")
 DUST = c("BFAE88")
+HOLLOW_EYE = c("E2F4EE")
+FROG_EYE = c("EAD24A")
+LEECH_SPOT = c("5CC8B4")
+QI_RING = c("67D6BD")
 
 
 def _lambert(n) -> int:
@@ -373,9 +400,15 @@ def rat(action: str, f: int) -> Pose:
     return P
 
 
-def boarlet(action: str, f: int) -> Pose:
+def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     """The boarlet: a young boar's warm brown hide with pale stripes along its back, a bristle crest, small ears, a
-    pink snout and short tusks. It lowers its head and paws the ground in its wind-up, then charges, tusks up."""
+    pink snout and short tusks. It lowers its head and paws the ground in its wind-up, then charges, tusks up. Hollowed
+    (`hollow`, the Reed Marsh's grey boarlets): the same beast with its colour drunk out of it, ash-grey with pale
+    stripes, eyes a cold white, and thin grey strands rising and curling from its back as in its side-view sheet."""
+    m = {"hide": "hide", "hide_head": "hide_head", "stripe": "stripe", "hoof": "hoof", "snout": "snout", "bristle": "bristle"}
+    if hollow:
+        m = {"hide": "h_hide", "hide_head": "h_head", "stripe": "h_stripe", "hoof": "h_bristle", "snout": "h_snout",
+             "bristle": "h_bristle"}
     P = Pose()
     lunge = {"windup": (-1.5, -2.5), "attack": (2.5, 5.5, 4.0), "hurt": (-2.4, -1.2)}.get(action, (0,) * 4)[f] if action in ("windup", "attack", "hurt") else 0.0
     bob = {"idle": (0, 0, 0.5, 0.5), "walk": (0, 0.8, 0, 0.8)}.get(action, (0,) * 4)[f] if action in ("idle", "walk") else 0.0
@@ -386,33 +419,40 @@ def boarlet(action: str, f: int) -> Pose:
         if n[2] < 0.2:
             return None
         b = abs(_local_b(hit))
-        return "stripe" if 0.7 < b < 1.7 or 2.7 < b < 3.5 else None
+        return m["stripe"] if 0.7 < b < 1.7 or 2.7 < b < 3.5 else None
 
-    P.add(Part((lunge - 1.4, 0.0, z), (6.8, 4.8, 4.8), "hide", "body", IDENT, stripes),
-          Part((lunge - 5.6, 0.0, z - 0.2), (3.6, 4.6, 4.6), "hide", "body", IDENT, stripes))
+    P.add(Part((lunge - 1.4, 0.0, z), (6.8, 4.8, 4.8), m["hide"], "body", IDENT, stripes),
+          Part((lunge - 5.6, 0.0, z - 0.2), (3.6, 4.6, 4.6), m["hide"], "body", IDENT, stripes))
     for k in range(9):   # the bristle crest along the spine
         a = lunge - 6.0 + k * 1.3
-        P.add(Part((a, 0.0, z + 4.6 - abs(k - 4) * 0.12), (0.7, 0.7, 0.9), "bristle", "crest"))
+        P.add(Part((a, 0.0, z + 4.6 - abs(k - 4) * 0.12), (0.7, 0.7, 0.9), m["bristle"], "crest"))
     dip = {"windup": (-18.0, -26.0), "attack": (6.0, 14.0, 8.0)}.get(action, (0,) * 4)[f] if action in ("windup", "attack") else 0.0
     sniff = (0.0, 0.3, 0.0, 0.3)[f] if action == "idle" else 0.0
     hc = (lunge + 6.6 + sniff, 0.0, z - 1.2)
     head_m = rot("b", -15.0 + dip)
-    P.add(Part(hc, (4.0, 3.5, 3.6), "hide_head", "head", head_m))
+    P.add(Part(hc, (4.0, 3.5, 3.6), m["hide_head"], "head", head_m))
     snout = add(hc, apply(head_m, (3.9, 0.0, -0.9)))
-    P.add(Part(snout, (1.5, 1.7, 1.5), "snout", "head", head_m))
-    P.mark(add(snout, apply(head_m, (1.4, 0.6, 0.2))), MATS["snout"][0])
-    P.mark(add(snout, apply(head_m, (1.4, -0.6, 0.2))), MATS["snout"][0])
+    P.add(Part(snout, (1.5, 1.7, 1.5), m["snout"], "head", head_m))
+    P.mark(add(snout, apply(head_m, (1.4, 0.6, 0.2))), MATS[m["snout"]][0])
+    P.mark(add(snout, apply(head_m, (1.4, -0.6, 0.2))), MATS[m["snout"]][0])
     for side in (1, -1):
         P.mark(add(snout, apply(head_m, (-0.4, side * 1.9, -1.2))), TUSK)
-        P.mark(add(hc, apply(head_m, (1.7, side * 2.4, 1.1))), INKY)
-        P.add(Part(add(hc, apply(head_m, (-1.4, side * 2.3, 3.2))), (1.0, 1.2, 1.9), "bristle", "ear", rot("a", side * -25.0)))
+        P.mark(add(hc, apply(head_m, (1.7, side * 2.4, 1.1))), HOLLOW_EYE if hollow else INKY)
+        P.add(Part(add(hc, apply(head_m, (-1.4, side * 2.3, 3.2))), (1.0, 1.2, 1.9), m["bristle"], "ear", rot("a", side * -25.0)))
     for k, (a, b) in enumerate(((3.6, 2.6), (3.6, -2.6), (-5.2, 2.8), (-5.2, -2.8))):
         up, stride = _walk(f, k + (k // 2)) if action == "walk" else (0.0, 0.0)
         if action == "windup" and k == 0:
             stride = (-1.5, -3.0)[f]
             up = 0.6
-        P.add(chain((lunge + a, b, z - 3.0), (lunge + a + stride, b, 1.2 + up), 1.35, 1.2, 4, "hoof", "leg"))
-    P.add(chain((lunge - 8.6, 0.0, z + 1.0), (lunge - 9.6, 0.6, z + 2.4), 0.7, 0.6, 3, "hide", "tail"))
+        P.add(chain((lunge + a, b, z - 3.0), (lunge + a + stride, b, 1.2 + up), 1.35, 1.2, 4, m["hoof"], "leg"))
+    P.add(chain((lunge - 8.6, 0.0, z + 1.0), (lunge - 9.6, 0.6, z + 2.4), 0.7, 0.6, 3, m["hide"], "tail"))
+    if hollow and action != "death":
+        # The grey strands: three thin wisps rising from the spine and curling back, stirring as it breathes.
+        stir = (0.0, 0.5, 0.0, -0.5)[f] if action in ("idle", "walk") else 0.8
+        for k, (a, bb) in enumerate(((-4.4, 0.4), (-1.6, -0.3), (1.2, 0.2))):
+            base = (lunge + a, bb, z + 4.4)
+            tip = (lunge + a - 2.2 - k * 0.3, bb + stir * (1 if k % 2 else -1), z + 10.5 - k * 0.8)
+            P.add(chain(base, tip, 0.55, 0.4, 6, "h_stripe", "strand%d" % k))
     if action == "windup":
         for k in range(3):
             P.marks.append(((lunge + 1.0 - k * 2.0, 3.4 + k * 0.6, 0.4 + k * 0.5 * f), DUST))
@@ -421,9 +461,229 @@ def boarlet(action: str, f: int) -> Pose:
     return P
 
 
-# The stripes' band is measured across the body in the creature's own frame; `render` passes world hit points, so the
-# pattern needs the current facing to turn them back. `_frame` holds it while a sprite renders.
-_frame = {"left": (0.0, -1.0)}
+def puppet(action: str, f: int) -> Pose:
+    """The Trial Puppet: a sparring figure of carved timber on brass ball joints, the sect's jade sash across its chest
+    and a jade plate on its back, a jade tuft on its crown (as on its side-view sheet). It sways on guard, walks with
+    its fists up, draws its right fist back in the wind-up and drives it out on the strike with a ring of Qi at the
+    knuckles; struck, it rocks back; beaten, it topples onto its side."""
+    P = Pose()
+    sway = (0.0, 0.3, 0.0, -0.3)[f] if action == "idle" else 0.0
+    lean = {"hurt": (-9.0, -5.0), "windup": (-6.0, -8.0), "attack": (8.0, 12.0, 6.0)}.get(action, (0,) * 4)[f] \
+        if action in ("hurt", "windup", "attack") else 0.0
+    body_m = rot("b", -lean)   # a lean forward tips the torso's top ahead (a positive pitch lifts the front)
+
+    def up(p, hip=16.0):
+        """A point of the upper body, leaned about the hips."""
+        q = apply(body_m, (p[0], p[1], p[2] - hip))
+        return (q[0] + sway * 0.4, q[1] + sway, q[2] + hip)
+
+    def sash(hit, n):
+        """The jade sash across the chest (from the left shoulder down to the right hip) and the plate on its back."""
+        a = (hit[0] * _frame["fwd"][0] + hit[1] * _frame["fwd"][1]) / P.k
+        b = _local_b(hit) / P.k
+        zz = hit[2] / P.k
+        if n[0] * _frame["fwd"][0] + n[1] * _frame["fwd"][1] < -0.55 and zz > 18.0:
+            return "puppet_jade"
+        return "puppet_jade" if abs((zz - 21.5) - b * 0.9) < 1.1 and a > -1.0 else None
+
+    # Legs: a stride in the walk, planted apart otherwise.
+    for side in (1, -1):
+        ph = f / 4.0 * math.tau + (0.0 if side > 0 else math.pi)
+        stride = math.sin(ph) * 2.6 if action == "walk" else 0.0
+        lift = max(0.0, math.cos(ph)) * 1.2 if action == "walk" else 0.0
+        plant = (-1.2 if side < 0 else 1.0) if action in ("windup", "attack") else 0.0
+        foot = (stride + plant + 0.8, side * 2.5, 1.0 + lift)
+        knee = (stride * 0.5 + plant * 0.5 + 0.4, side * 2.4, 9.0 + lift * 0.5)
+        P.add(Part(foot, (2.5, 1.3, 1.0), "timber_dark", "foot%d" % side),
+              chain((foot[0] - 0.6, foot[1], 1.8 + lift), knee, 1.3, 1.35, 4, "timber", "leg%d" % side),
+              Part(knee, (1.5, 1.5, 1.5), "brass", "leg%d" % side),
+              chain(knee, (0.0, side * 2.1, 15.2), 1.45, 1.7, 4, "timber", "leg%d" % side))
+    P.add(Part(up((0.0, 0.0, 16.6)), (2.4, 3.6, 2.0), "timber", "body"),
+          Part(up((0.0, 0.0, 21.6)), (2.8, 4.4, 4.6), "timber", "body", body_m, sash),
+          Part(up((0.0, 0.0, 26.4)), (1.1, 1.1, 1.2), "timber_dark", "body"),
+          Part(up((0.3, 0.0, 29.4)), (2.6, 2.4, 3.0), "timber", "head", body_m))
+    for side in (1, -1):
+        P.mark(up((2.7, side * 1.0, 29.9)), INKY)
+    P.mark(up((2.5, 0.0, 31.3)), QI_RING)
+    P.add(Part(up((-0.2, 0.0, 32.9)), (1.0, 1.0, 1.2), "puppet_jade", "tuft"),
+          Part(up((-0.9, 0.3, 33.8)), (0.8, 0.8, 1.0), "puppet_jade", "tuft"))
+    # Arms: fists up on guard; the right (b < 0) draws back in the wind-up and drives out on the strike.
+    for side in (1, -1):
+        sh = up((0.0, side * 4.9, 24.4))
+        guard = (0.3, 0.6, 0.3, 0.0)[f] if action == "idle" else 0.0
+        swing = -math.sin(f / 4.0 * math.tau + (0.0 if side > 0 else math.pi)) * 1.8 if action == "walk" else 0.0
+        if side < 0 and action == "windup":
+            elbow, fist = up((-3.0, -5.6, 21.0)), up((-2.0 - f, -4.4, 22.5))
+        elif side < 0 and action == "attack":
+            reach = (4.0, 7.5, 5.5)[f]
+            elbow, fist = up((2.0 + reach * 0.3, -4.8, 23.0)), up((3.0 + reach, -3.2, 23.2))
+            if f >= 1:
+                for dy, dz in ((0.0, 1.6), (1.1, 1.1), (1.6, 0.0), (1.1, -1.1), (0.0, -1.6), (-1.1, -1.1), (-1.6, 0.0), (-1.1, 1.1)):
+                    P.mark(add(fist, (1.4, dy, dz)), QI_RING)
+        elif action == "death":
+            elbow, fist = up((0.4, side * 5.8, 19.0)), up((1.0, side * 5.6, 14.5))
+        else:
+            elbow, fist = up((1.4 + swing * 0.5, side * 5.7, 19.8 + guard)), up((3.4 + swing, side * 3.6, 22.4 + guard))
+        P.add(Part(sh, (1.5, 1.5, 1.5), "brass", "arm%d" % side),
+              chain(sh, elbow, 1.25, 1.2, 4, "timber", "arm%d" % side),
+              Part(elbow, (1.2, 1.2, 1.2), "brass", "arm%d" % side),
+              chain(elbow, fist, 1.15, 1.1, 4, "timber", "arm%d" % side),
+              Part(fist, (1.6, 1.5, 1.5), "timber_dark", "arm%d" % side))
+    if action == "death":
+        _topple(P, (14.0, 38.0, 66.0, 84.0)[f], 16.0, 4.4)
+    return P
+
+
+def frog(action: str, f: int) -> Pose:
+    """The reed frog: leaf green with a gold stripe down each flank, a pale belly, gold eyes set high. It sits with its
+    long hind legs folded at its sides, gulps while idle, hops as it goes, crouches in its wind-up and leaps at its
+    prey; beaten, it rolls onto its back."""
+    P = Pose()
+    hop = {"walk": (0.0, 1.4, 3.0, 1.0), "attack": (2.0, 5.0, 2.2)}.get(action, (0,) * 4)[f] if action in ("walk", "attack") else 0.0
+    ahead = {"walk": (0.0, 1.0, 2.2, 3.0), "attack": (2.0, 5.5, 4.5), "hurt": (-2.2, -1.0)}.get(action, (0,) * 4)[f] \
+        if action in ("walk", "attack", "hurt") else 0.0
+    crouch = (-1.0, -1.6)[f] if action == "windup" else 0.0
+    stretch = hop > 1.2   # in the air: hind legs trailing
+    z = 4.4 + hop + crouch
+    tilt = rot("b", 14.0 if stretch else (6.0 if action == "windup" else 0.0))
+    centre = (ahead - 0.6, 0.0, z)
+
+    def flank(hit, n):
+        """The belly underneath; a gold stripe along each flank."""
+        if n[2] < -0.35:
+            return "frog_belly"
+        b = abs(_local_b(hit)) / P.k
+        return "frog_stripe" if 2.6 < b < 3.4 and n[2] > -0.1 else None
+
+    P.add(Part(centre, (5.4, 4.2, 3.2), "frog", "body", tilt, flank),
+          Part(add(centre, apply(tilt, (4.6, 0.0, 0.5))), (3.2, 3.7, 2.4), "frog", "body", tilt, flank))
+    gulp = (0.0, 0.5, 0.9, 0.3)[f] if action == "idle" else 0.0
+    P.add(Part(add(centre, apply(tilt, (5.4, 0.0, -1.8))), (1.8 + gulp * 0.4, 2.6 + gulp, 1.2 + gulp), "frog_belly", "throat", tilt))
+    for side in (1, -1):
+        eye = add(centre, apply(tilt, (5.0, side * 2.2, 2.7)))
+        P.add(Part(eye, (1.6, 1.6, 1.5), "frog", "eye%d" % side))
+        for d in ((0.3, side * 0.3, 1.4), (1.0, side * 0.6, 1.0), (0.6, side * 1.1, 1.0), (1.4, side * 0.1, 0.4)):
+            P.mark(add(eye, d), FROG_EYE)
+        P.mark(add(eye, (1.2, side * 0.5, 0.8)), INKY)
+        # Hind legs: folded at the sides, trailing straight back in a leap.
+        if stretch:
+            hip, knee, foot = (ahead - 4.0, side * 3.0, z - 0.4), (ahead - 7.0, side * 3.6, z - 1.2), (ahead - 10.0, side * 3.4, z - 1.8)
+        else:
+            hip, knee, foot = (ahead - 3.8, side * 3.6, z - 1.0), (ahead - 0.2, side * 5.0, 1.8 - crouch * 0.3), (ahead - 3.4, side * 5.4, 0.6)
+        P.add(Part(add(hip, (0.8, 0.0, 0.0)), (3.0, 1.7, 1.8), "frog", "hind%d" % side, rot("c", side * 20.0)),
+              chain(hip, knee, 1.5, 1.2, 4, "frog", "hind%d" % side),
+              chain(knee, foot, 1.1, 0.9, 4, "frog", "hind%d" % side),
+              Part(add(foot, (-0.8 if stretch else 1.0, 0.0, 0.0)), (1.9, 1.3, 0.5), "frog_belly", "hind%d" % side))
+        # Front legs: short props under the chest, reaching ahead in a leap.
+        reach = 2.0 if stretch else 0.0
+        shoulder = add(centre, apply(tilt, (3.6, side * 2.4, -1.2)))
+        hand = (ahead + 4.4 + reach, side * 3.0, 0.6 + (hop * 0.6 if stretch else 0.0))
+        P.add(chain(shoulder, hand, 0.9, 0.75, 4, "frog", "arm%d" % side),
+              Part(hand, (1.1, 1.0, 0.45), "frog_belly", "arm%d" % side))
+    if action == "attack" and f == 0:
+        for k in range(3):
+            P.marks.append(((ahead - 7.0 - k * 1.6, 2.0 - k * 1.8, 0.4), DUST))
+    if action == "death":
+        _topple(P, (25.0, 70.0, 120.0, 160.0)[f], z, 3.2)
+    return P
+
+
+def leech(action: str, f: int) -> Pose:
+    """The marsh leech: a long olive slug in soft rings with teal spots down its back and a round pink mouth at its
+    front. It creeps in a travelling ripple, rears its front up in the wind-up and lunges, mouth first; beaten, it
+    sags flat."""
+    P = Pose()
+    n = 7
+    lunge = {"attack": (2.0, 4.5, 3.0), "hurt": (-2.0, -1.0)}.get(action, (0,) * 4)[f] if action in ("attack", "hurt") else 0.0
+    flat = (0.0, 0.3, 0.55, 0.7)[f] if action == "death" else 0.0
+
+    def belly(hit, nn):
+        return "leech_belly" if nn[2] < -0.3 else None
+
+    segs = []
+    for k in range(n):
+        u = k / (n - 1)                       # 0 at the tail, 1 at the mouth
+        a = -8.0 + 15.0 * u + lunge * u
+        ripple = max(0.0, math.sin(f / 4.0 * math.tau - k * 1.1)) * 1.2 if action in ("walk", "idle") else 0.0
+        if action == "idle":
+            ripple *= 0.4
+        rear = 0.0
+        if action == "windup":
+            rear = max(0.0, u - 0.45) * (7.0 + f * 3.0)
+        elif action == "attack":
+            rear = max(0.0, u - 0.55) * (3.0, 1.0, 0.5)[f] * 3.0
+        r = 2.1 + 1.0 * math.sin(math.pi * (0.25 + 0.6 * u))
+        zc = (r * 0.85 + ripple + rear) * (1.0 - flat)
+        segs.append(((a - rear * 0.35, 0.0, max(zc, 0.8)), r))
+    for k, (at, r) in enumerate(segs):
+        P.add(Part(at, (r * 1.05, r, r * 0.85 * (1.0 - flat * 0.5)), "leech", "body", IDENT, belly))
+        if k % 2 == 0 and k < n - 1:
+            for d in ((0.0, 0.9, r * 0.8), (0.5, 1.0, r * 0.78), (0.6, -1.0, r * 0.75), (1.1, -0.9, r * 0.7)):
+                P.mark(add(at, d), LEECH_SPOT)
+    head, r = segs[-1]
+    mouth = add(head, (r * 1.0, 0.0, 0.2 + (0.6 if action == "windup" else 0.0)))
+    P.add(Part(mouth, (0.7, 1.3, 1.3), "pink", "mouth"))
+    P.mark(add(mouth, (0.7, 0.0, 0.0)), MATS["pink"][0])
+    if action == "attack" and f >= 1:
+        P.mark(add(mouth, (1.0, 0.5, 0.6)), GLINT)
+    return P
+
+
+def otter(action: str, f: int) -> Pose:
+    """The reed otter: a long, sleek brown body on short legs, a pale muzzle and throat, small round ears, whiskers and
+    a thick tapering tail. It bounds as it runs, sits up on its haunches in the wind-up (as in its side-view sheet) and
+    lunges to bite; beaten, it curls onto its side."""
+    P = Pose()
+    lunge = {"attack": (2.5, 5.0, 3.5), "hurt": (-2.4, -1.2)}.get(action, (0,) * 4)[f] if action in ("attack", "hurt") else 0.0
+    bound = (0.0, 1.2, 0.4, 0.0)[f] if action == "walk" else ((0, 0.3, 0.3, 0)[f] if action == "idle" else 0.0)
+    rear = (28.0, 40.0)[f] if action == "windup" else 0.0
+    z = 5.0 + bound
+    hips = (lunge - 4.6, 0.0, z)
+    body_m = rot("b", rear)
+
+    def at(p):
+        """A point of the forebody, reared about the hips."""
+        return add(hips, apply(body_m, (p[0] - hips[0] + lunge, p[1], p[2] - z)))
+
+    def pale(hit, n):
+        """The pale throat and chest under the forebody."""
+        fwd = n[0] * _frame["fwd"][0] + n[1] * _frame["fwd"][1]
+        return "otter_pale" if n[2] < -0.1 and fwd > -0.2 else None
+
+    P.add(Part(at((0.4, 0.0, z + 0.2)), (6.2, 3.4, 3.2), "otter", "body", body_m, pale),
+          Part(hips, (3.8, 3.7, 3.4), "otter", "body"))
+    hc = at((6.8, 0.0, z + 1.4))
+    head_m = mat_mul(body_m, rot("b", -10.0 - rear * 0.8))
+    P.add(Part(hc, (2.9, 2.7, 2.5), "otter", "head", head_m, pale))
+    muzzle = add(hc, apply(head_m, (2.5, 0.0, -0.6)))
+    P.add(Part(muzzle, (1.5, 1.8, 1.3), "otter_pale", "head", head_m))
+    P.mark(add(muzzle, apply(head_m, (1.4, 0.0, 0.5))), INKY)
+    for side in (1, -1):
+        P.mark(add(hc, apply(head_m, (1.6, side * 1.6, 1.2))), INKY)
+        P.add(Part(add(hc, apply(head_m, (-0.6, side * 2.3, 1.9))), (0.8, 0.8, 0.9), "otter", "ear"))
+        for w in range(3):   # whiskers
+            P.mark(add(muzzle, apply(head_m, (0.6 + w * 0.5, side * (2.0 + w * 0.5), -0.1 - w * 0.3))), MATS["otter_pale"][4])
+    for k, (a, b) in enumerate(((3.4, 2.4), (3.4, -2.4), (-5.6, 2.6), (-5.6, -2.6))):
+        step_up, stride = _walk(f, k + (k // 2)) if action == "walk" else (0.0, 0.0)
+        top = at((a, b, z - 2.0)) if k < 2 else (hips[0] - 1.0, b, z - 2.0)
+        foot = add(top, (1.4, 0.0, -2.0)) if (k < 2 and rear) else (top[0] + stride, b, 0.8 + step_up)
+        P.add(chain(top, foot, 1.25, 1.0, 4, "otter", "leg"),
+              Part(add(foot, (0.5, 0.0, -0.2)), (1.1, 0.9, 0.5), "hide_head", "leg"))
+    wag = (0.0, 0.8, 0.0, -0.8)[f] if action in ("idle", "walk") else 0.0
+    for k in range(8):
+        u = k / 7.0
+        p = (hips[0] - 3.2 - 8.0 * u, wag * math.sin(u * 2.4), z - 0.8 - 2.6 * u + (1.2 * u if rear else 0.0))
+        r = 1.6 - 0.9 * u
+        P.add(Part(p, (r, r, r), "otter", "tail"))
+    if action == "death":
+        _topple(P, (15.0, 40.0, 70.0, 85.0)[f], z, 3.4)
+    return P
+
+
+# The stripes' band (and the puppet's sash, the frog's flank stripe, the otter's pale throat) is measured in the
+# creature's own frame; `render` passes world hit points, so the pattern needs the current facing to turn them back.
+# `_frame` holds it while a sprite renders.
+_frame = {"left": (0.0, -1.0), "fwd": (1.0, 0.0)}
 
 
 def _local_b(hit) -> float:
@@ -431,11 +691,15 @@ def _local_b(hit) -> float:
     return hit[0] * lx + hit[1] * ly
 
 
-BUILD = {"mudshell_crab": crab, "reedtail_rat": rat, "wild_boarlet": boarlet}
-SHADOW = {"mudshell_crab": [10, 3], "reedtail_rat": [8, 2], "wild_boarlet": [11, 3]}
+BUILD = {"mudshell_crab": crab, "reedtail_rat": rat, "wild_boarlet": boarlet, "trial_puppet": puppet, "reed_frog": frog,
+         "marsh_leech": leech, "reed_otter": otter, "hollowed_boarlet": lambda action, f: boarlet(action, f, True)}
+SHADOW = {"mudshell_crab": [10, 3], "reedtail_rat": [8, 2], "wild_boarlet": [11, 3], "trial_puppet": [8, 3],
+          "reed_frog": [9, 3], "marsh_leech": [11, 3], "reed_otter": [11, 3], "hollowed_boarlet": [11, 3]}
 # Sizes against the 38 px body (the plan's §1.4): the crab and the rat small, about 24 and 30 px with its tail; the
-# boarlet medium, about 28 px long.
-SIZE = {"reedtail_rat": 1.1, "wild_boarlet": 1.25}
+# boarlet medium, about 28 px long; the frog small, the leech and the otter medium (the otter about 30 px with its
+# tail); the Trial Puppet a sparring figure a little shorter than a disciple, about 34 px.
+SIZE = {"reedtail_rat": 1.1, "wild_boarlet": 1.25, "hollowed_boarlet": 1.25, "trial_puppet": 1.2, "reed_frog": 1.1,
+        "marsh_leech": 1.2, "reed_otter": 1.2}
 
 
 def body_yaw(species: str, facing: str) -> tuple:
@@ -451,6 +715,7 @@ def body_yaw(species: str, facing: str) -> tuple:
 def sprite(species: str, action: str, f: int, facing: str) -> Img:
     yaw, aim = body_yaw(species, facing)
     _frame["left"] = (math.sin(math.radians(yaw)), -math.cos(math.radians(yaw)))
+    _frame["fwd"] = (math.cos(math.radians(yaw)), math.sin(math.radians(yaw)))
     pose = crab(action, f, aim) if species == "mudshell_crab" else BUILD[species](action, f)
     pose.k = SIZE.get(species, 1.0)
     return render(pose, yaw)
@@ -475,4 +740,4 @@ def build() -> tuple[Img, dict]:
         acts["attack"]["hit_frame"] = HIT_FRAME
         species[sp] = {"actions": acts, "shadow": SHADOW[sp]}
     return sheet, {"cell": list(CELL), "foot": list(FOOT), "dirs": DIRS, "mirror": MIRROR, "species": species,
-                   "note": "the prototype's foes in eight facings (five drawn, three mirrored), built by tools/art/topdown/creatures.py"}
+                   "note": "the top-down foes in eight facings (five drawn, three mirrored), built by tools/art/topdown/creatures.py"}

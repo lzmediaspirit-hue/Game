@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "id": "sf_trial_jade",
+ "name": "Entry Trial (Jade)",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  19.5,
+  20
+ ],
+ "levels": [
+  "2222222222222222222222222222222222222222",
+  "2000000000000000000000000444400000000002",
+  "2000000000000000000333333444400000000002",
+  "2000000000022223330333333444400000000002",
+  "2000000000022223330333333444400000000002",
+  "2002222222022223330333333444400000000002",
+  "2002222222022222220333333000000000000002",
+  "2002222222022222220000000000000000000002",
+  "2002222222022222220000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "2000000000000000000000000000000000000002",
+  "1111111111111111111001111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllllllllllllllll",
+  "lppppppppppppppppppppppppssssppppppppppl",
+  "lppppppppppppppppppttttttssssppppppppppl",
+  "lpppppppppptttttttpttttttssssppppppppppl",
+  "lpppppppppptttttttpttttttssssppppppppppl",
+  "lpptttttttptttttttpttttttssssppppppppppl",
+  "lpptttttttptttttttpttttttppppppppppppppl",
+  "lpptttttttptttttttpppppppppppppppppppppl",
+  "lpptttttttptttttttpppppppppppppppppppppl",
+  "lppppppppppppppppppppppppppppppppppppppl",
+  "lppppppppppppppppppppppppppppppppppppppl",
+  "lppppppppppppppppppppssssssssssssssssppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lpppppppppppppppppssssddddddddddddddsppl",
+  "lgggggggppppppppppssssddddddddddddddsppl",
+  "lgggggggppppppppppssssddddddddddddddsppl",
+  "lgffffggppppppppppsssssssssssssssssssppl",
+  "lgffffggppppppppppssspppppppppppgggggggl",
+  "lgggggggppppppppppssspppppppppppgggggggl",
+  "lllllllllllllllllllpplllllllllllllllllll"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "banner_jade",
+   "x": 17,
+   "y": 21
+  },
+  {
+   "kind": "banner_jade",
+   "x": 22,
+   "y": 21
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 36,
+   "y": 20
+  },
+  {
+   "kind": "pine",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "pine",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "shrub",
+   "x": 6,
+   "y": 21
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 14
+  },
+  {
+   "kind": "crates",
+   "x": 5,
+   "y": 9
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 31,
+   "y": 1
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 34,
+   "y": 1
+  }
+ ],
+ "place": {
+  "trial_bell": [
+   26.5,
+   3
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    19.5,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    19.5,
+    21.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    29,
+    16
+   ]
+  ]
+ ]
+}

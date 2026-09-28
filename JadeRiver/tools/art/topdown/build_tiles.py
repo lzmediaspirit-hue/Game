@@ -4,11 +4,10 @@ manifest and Godot TileSet, and optionally the sheets' review images.
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/proto_tiles.png      the terrain atlas (tops, faces, stairs, water frames, overlays, auto-tile sets)
   art/topdown/proto_props.png      the prop kit, its animation frames and the props' floor shadows
-  art/topdown/placeholder_body.png the placeholder body (unchanged; drawn by tools/art/build_topdown_proto.py)
   art/topdown/foes.png             the foes in eight facings (tools/art/topdown/creatures.py)
   art/topdown/proto_tiles.tres     a Godot TileSet over the atlas: terrain sets for paths and shores, animated water,
                                    and every tile's name as custom data
-  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, body, foes, the paint table (which
+  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, foes, the paint table (which
                                    tops, faces and auto-tile sets each mark draws) and the auto-tile tables
 With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4 and the foe sheet at x3.
 The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
@@ -38,7 +37,6 @@ from canvas import T  # noqa: E402
 
 TILES_PNG = "art/topdown/proto_tiles.png"
 PROPS_PNG = "art/topdown/proto_props.png"
-BODY_PNG = "art/topdown/placeholder_body.png"
 FOES_PNG = "art/topdown/foes.png"
 TRES = "art/topdown/proto_tiles.tres"
 MANIFEST = "data/topdown/proto_tileset.json"
@@ -48,7 +46,8 @@ REVIEW = ROOT / "docs/redesign/phase3"
 # (a fixed pick per cell), its face kind, `grass` for a mark that creeps over a path's edge, `under` for a path or
 # paving that grass creeps over (the corner-matched set it takes, art bible §6), `face_below` for the face rows under
 # the first (picked by column), and `keep_face` for a mark whose face stays its own over water (a pier's pilings, a
-# grassy bank's soil; the rest take the granite embankment). `b` is a planted bed: flowers on a dressed-stone planter.
+# grassy bank's soil; the rest take the granite embankment). `b` is a planted bed: flowers on a dressed-stone planter;
+# `m` a wet meadow of the Reed Marsh, puddles in its grass.
 PAINT = {
     "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True},
     "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True},
@@ -62,6 +61,7 @@ PAINT = {
     "t": {"top": ["roof_top", "roof_top_b"], "face": "roof",
           "face_below": ["plaster_face_window", "roof_face", "roof_face"]},
     "l": {"top": ["wall_top"], "face": "wall"},
+    "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True},
 }
 
 # Terrain sets of the TileSet (art bible §6).
@@ -76,20 +76,16 @@ def png_bytes(img: Image.Image) -> bytes:
 
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
-    import build_topdown_proto as proto   # the placeholder body stays where Phases 1-2 drew it
     sheet, at, auto = atlas.build()
     psheet, pat = props.build()
-    body, body_at = proto.build_body()
     foes, foes_at = creatures.build()
     manifest = {
         "schema_version": 2,
         "tile": T,
         "tiles": at,
         "props": pat,
-        "body": body_at,
         "foes": foes_at,
-        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "body": "res://" + BODY_PNG,
-                  "foes": "res://" + FOES_PNG},
+        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "foes": "res://" + FOES_PNG},
         "paint": PAINT,
         "bank_face": "bank",
         "tileset": "res://" + TRES,
@@ -110,7 +106,6 @@ def build_all() -> dict:
     return {
         TILES_PNG: png_bytes(sheet.img),
         PROPS_PNG: png_bytes(psheet.img),
-        BODY_PNG: png_bytes(body.img),
         FOES_PNG: png_bytes(foes.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
@@ -233,7 +228,7 @@ def review(outputs: dict) -> None:
     # 3. The foes at x3: a row per species and drawn facing, the actions along it, on a meadow tone, labelled.
     fm = man["foes"]
     cw, ch = fm["cell"]
-    z, lw, th = 3, 150, 22
+    z, lw, th = 3, 230, 22
     cols = foes.width // cw
     out = Image.new("RGBA", (lw + cols * cw * z, th + foes.height * z), (22, 30, 34, 255))
     d = ImageDraw.Draw(out)
@@ -248,7 +243,7 @@ def review(outputs: dict) -> None:
             cell.alpha_composite(foes.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch)))
             out.alpha_composite(cell.resize((cw * z, ch * z), Image.NEAREST), (lw + c * cw * z, th + r * ch * z))
         sp, facing = creatures.SPECIES[r // len(fm["dirs"])], fm["dirs"][r % len(fm["dirs"])]
-        d.text((6, th + r * ch * z + ch * z // 2 - 8), "%s %s" % (sp.split("_")[-1], facing.upper()), font=head,
+        d.text((6, th + r * ch * z + ch * z // 2 - 8), "%s %s" % (sp.replace("_", " "), facing.upper()), font=head,
                fill=(232, 225, 207, 255))
     out.save(REVIEW / "12_foes_x3.png")
     print("review images in", REVIEW.relative_to(ROOT))
