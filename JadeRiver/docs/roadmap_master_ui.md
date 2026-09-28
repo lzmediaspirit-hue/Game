@@ -478,4 +478,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 37. **Full player art in top-down:** every body/skin option, creator hair style and face, every clothing and armour
     piece, every weapon family and every dye, in all top-down directions and actions (per `AGENTS.md`), after the
     starter set; split across parallel batches on one shared pipeline.
+38. **Full attack and skill animation in top-down, close to Alabaster Dawn's feel:** every weapon family's combo with
+    anticipation, strike smears, hit-stop, impact effects, knockback and camera kick in 8 directions; every technique form
+    re-animated for the top-down view.
+39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
+    speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
+    play through what happens, not through menus.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
