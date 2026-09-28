@@ -740,6 +740,114 @@ foes fighting, a frame takes 9.1 ms.
   - `valley_run` sections for the region green;
   - `perf_tests`: room load < 0.3 s, a frame with fifteen foes at 60 fps.
 
+### As built: Phase 4, first part · the real game on the grid, the tutorial rooms (2026-09-28)
+
+Decision 36: the full game logic runs in the top-down world first. It is no longer a sandbox. A character made for
+the top-down world plays the real game (its save, its quests, every authority) in every room that has a layout on
+the height grid. The rooms without one stay side-view, and the view changes under the same HUD at the door between
+them. The side-view game is unchanged for every side-view character.
+
+**How to play it.**
+
+- **The title screen's hidden entry** (five taps on the version line within three seconds) opens the top-down game on
+  saves of its own (`user://topdown_saves/`). The player's saves are saved, set aside and restored on leaving it. The
+  first time it makes a new character and starts the Prologue in the Fisher's Hut. After that it continues where the
+  character was saved.
+- **Settings → Controls → "Top-down world (new games)"** (off by default). While it is on, the next character made
+  in the player's own saves is a top-down one.
+- **Command-line flags.** `--topdown` makes a preview's characters top-down, and `--topdown-tutorial` opens the
+  top-down game on the preview saves. `--topdown-proto` still opens Riverside Square, the Phase 1–2 prototype.
+
+**One game, two views.**
+
+| Piece | File | What it does |
+|---|---|---|
+| The character's view | `GameCharacter.view`, `AccountAuthority.create_character` | `"topdown"` for a character made for it (the create intent's `view`, or the Settings toggle). A new top-down character wakes at its first room's own spawn |
+| Rooms on the grid | `WorldAuthority.grid_for`, `_runtime`, `load_room` | A top-down character enters a room with a layout as a `RoomRuntime` on the grid. The arrival is the portal's `arrive` cell, or a saved or shrine spot moved to the nearest floor (`TopdownRoom.nearest_standable`). A teleport lands in front of its stone. The spot is kept every tick and saved, as in the side view. The prototype square still keeps no spot |
+| A room's definition | `TopdownRoom.merge_def` | Keeps every id and rule of the side-view room: NPCs, objects, portals and their requirements, spawns, events. From the layout it takes only the places: objects (their `alt` is the floor there), portals (`at`, `dir`, `arrive`, `radius_scale` from `span`), spawn points, the room event's cells and a thief's route. The strip's own keys (surfaces, scenery, backdrop camera…) are dropped. A stand-in ground over the whole room (`geometry_def`) answers every rule that asks the side view's geometry |
+| Layouts | `tools/data/topdown_rooms.py` → `data/topdown/<room>.json` | A small drawing language (levels, paint, walls, stairs, props, doors and the paths to them). Every layout is checked as it is built: everything of its room is placed on a floor and reached on foot from every way in and from its spawn (walking, stairs, drops, a jump a level up, a running jump over a tile). `--check` proves the files are current, and `tools/run_tests.sh` runs it |
+| The view | `TopdownWorld.live` | Main mounts it for a room on the grid and swaps it with `world.gd` when a room of the other kind is entered (`main._swap_world_view`), keeping the HUD, the pages and moments. On each room entered it rebuilds the floor, rows, stairs, props, foes and loot, and places the body where the World authority put it |
+| People, things, ways | `TopdownPlaces` | Each person and thing is drawn twice. In the pixel viewport, sorted with the room (`Figure`), it is the side view's own art at half size (2 world units per art px): the villager's layered avatar in their outfit, or the object's prop in `ObjectView`'s new "art" mode. On the overlay at the HUD's resolution are `NpcView`, `ObjectView` ("label" mode) and `PortalView` (label only): markers, barks, verb plates, a pickup's badge, a way's plate. A way is also a mark on the floor (`WayMark`): a lit threshold before a door, jade chevrons at an edge, grey while it is shut |
+| Shared presentation | `WorldShared` (new) | What both views do the same way: the events' effects and sounds, the context button's offer and the focus it gives, the names over the world (`WorldLabels`), and asking for a way out. `world.gd`'s own copies were moved there |
+| Ways walked into | `TopdownWorld._check_portals` | At a way (the World authority's `portal_near`) with the stick pushing out along its `dir`, the way is taken. An edge is walked out through, a building's door walked into northward, an interior's door southward. No hold is needed, because up is a real direction. The context button's "Enter" works too |
+| Auto-path and auto-hunt | `Autopilot._toward_grid` | On the grid the autopilot follows `TopdownRoom.find_path`, pressing Jump where the path climbs a level. It walks into a way along its `dir`. Auto-hunt compares heights instead of surfaces and strikes at the soft lock |
+| Minimap and direction mark | `HUD._draw_minimap` | A room on the grid is drawn as its level map (water, floors by level, walls and props dark). The ways, the gold direction mark, the people's markers and the foes use the same projection |
+| Moments, weather, hazards | `MomentView`, `HazardView` | Both read view-neutral anchors (`feet()`, `view_center()`, `screen_center()`, `feet_on_screen()`, `fx_layer()`, `loot_parent()`), so moments, weather and hazards play in both views. A night room is tinted blue (`CanvasModulate`, the side view's night tint) |
+
+**The rooms** (thirteen, the tutorial to the sect choice; `docs/tutorial_order.md`). Each keeps its side-view room's
+content and connections, redesigned for the grid with height levels, paths to the doors and water edges:
+
+- **Fisher's Hut:** a wooden floor inside plastered walls, the tea on the table, the loft up a stair, and the doorway
+  in the front sill.
+- **Lotus Ferry:**
+  - Home Lane, with paths to the Fisher's Hut and Granny Liu's hut, and the West Gate;
+  - the paved square, with Guo's stump and dummy, the shrine, the spring, the board and Old Ma's store;
+  - the hall and the Ferry Inn, whose roofs the kite is caught on: crates, then the hall's roof, then a tile's jump;
+  - the docks, the pier and Lu's boat, and the watch-tower (3 levels) with its bell up a long stair;
+  - the East Gate, a terrace behind the houses, and the river.
+- **Old Ma's Store:** the counter, the sandals' loft and the old net by the sacks.
+- **Granny Liu's Herb Hut:** her table, the altar-shrine, and the herb loft with its jars and moss.
+- **Lu's Boat:** the deck on the river, the gangway, the spring at the bow, and the cabin with the star mat on its
+  roof.
+- **Lotus Ferry at Night:** Home Lane and the square as by day, tinted for night, the villagers out, the Hollow
+  things rising from the river.
+- **Reed Shallows:** the flats under a grassy bank and rock ridge, the rats round the middle herbs, Old Snapper by the
+  far herbs, the jetty and the river.
+- **Willow Path East:** the road under willows, Old Pan's knoll, the meadow terrace and the stream.
+- **Willow Path West:** the training ground, the pine ridge with the toads, the rock pillar with the chest on top
+  (crates, a step, the pillar), the shrine, the Spirit Fruit tree and the lotus pond.
+- **Stoneford Gate:** the town wall with the Quarry Road through it, the County Hall's door and the canal.
+- **Market Street:** the stalls and the teleport stone, three roofs in a row for the rooftop thief, and the arch to the
+  Beast Trial Grove.
+- **Artisan Row:** the forge, Elder Gu's warehouse door, the roof with the tinkerer's gear, and the guild hall.
+- **Fairground:** the recruiters on their stages, the Jade and Cloud trial halls and the Trial Tower (lanterns on their
+  roofs), the sect roads north, Shen Lian's spar post, and the Caravan Road barred to the west.
+
+**Tests.**
+
+- **`topdown_tutorial`** (new, in `tools/run_tests.sh`, 473 checks) plays `tutorial_order`'s walk from a new
+  top-down character, taking every quest on the real dialogue page. It keeps every one of `tutorial_order`'s
+  invariants:
+  - the HP bar before fights;
+  - doors shown, on the grid by `TopdownRoom.entrance`: a building's doorway, or an interior's wall;
+  - the hut's door open from waking;
+  - quest talks closing;
+  - the tracker never empty and leading to the real next place;
+  - the first hour's pacing.
+- It adds:
+  - each room is on the grid exactly when it has a layout, and all thirteen are played on it;
+  - each layout places every thing of its room and reaches it on foot from every way in;
+  - every spot the walk stands at is reached on foot from where the room was entered;
+  - the character's own view builds every room: a figure and a label for each person and thing, a mark and a plate
+    for each way;
+  - a save taken on the grid resumes there;
+  - the bound view's context button offers a talk;
+  - auto-path walks the body to the Trial Tower's doorway and in, and out through the Fairground's edge into Artisan
+    Row.
+- **`prologue_run` and `tutorial_order`** are view-neutral: they stand beside things with `stand_by`
+  (`TopdownRoom.spot_near` on the grid), and at the hut's refuge and the boat's spring by their objects.
+- **`perf_tests`:** a top-down character's Lotus Ferry loads and runs within budget.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --phase4`, in `docs/redesign/phase4/`): every converted room under
+the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
+
+**Not yet built, or different from the plan.**
+
+- **The rooms are finished by hand in a generator.** No converter drafts them from the side-view strips.
+- **The height grid is not compiled into `ZoneGeometry`.** The rules that ask the side view's geometry get a flat
+  stand-in ground; heights, walls and water come from the grid (the motor, the foes, the loot, the tests).
+- **The people are the side view's avatars at half size, facing east or west.** The top-down layered body is Phase 5,
+  and another branch draws the player's. Their sheets load on threads, so a villager appears a moment after the room.
+- **Allies and pets** still steer by the side view's rules (on the stand-in ground). The ally follow rule on the plane
+  waits, as in Phase 2.
+- **Rooms past the Fairground stay side-view:** the Entry Trial, the sect roads and everything after. A top-down
+  character walks on into them and the view changes.
+- **Hazards and weather** draw on the overlay, over the figures.
+- **A foe's respawn** out of view still measures only across (x).
+- **Terrain and decor.** The rooms draw by Phase 3's terrain rules (`TopdownTerrain`, rebuilt for each room entered):
+  auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
+  and a room-by-room decor pass (decision 34) is still to come.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

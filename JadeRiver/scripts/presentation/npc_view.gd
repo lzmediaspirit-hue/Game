@@ -23,6 +23,9 @@ var label_box := Rect2()
 var label_offset := Vector2.ZERO
 var label_flip := Vector2.ZERO
 var tag: Node2D   # the nameplate's own canvas item, above every figure (WorldLabels.LABEL_Z)
+## The top-down view (redesign Phase 4) draws the figure in its pixel viewport (NpcView.figure) and this view only for
+## the marker, the bark and the nameplate, on its overlay at the HUD's resolution.
+var label_only := false
 
 func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	def = o
@@ -35,21 +38,29 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
 	z_index = ObjectView.depth(o, geo)
-	avatar = Avatar.new()
-	avatar.lazy_sheets = true   # a room full of new outfits draws each villager once its sheets are in, not on entry
+	avatar = figure(o)
+	add_child(avatar)
+	if label_only:
+		avatar.visible = false
+		avatar.set_process(false)
+	tag = WorldLabels.make_tag(self, _draw_tag)
+	pose_now = avatar.action
+	bark_timer = randf_range(4.0, 12.0)
+
+## The villager's figure: the layered avatar in their outfit, pose, facing and tint (npcs.json), for either view.
+static func figure(o: Dictionary) -> Node2D:
+	var n := ContentDB.entry("npcs", str(o.npc))
+	var av = Avatar.new()
+	av.lazy_sheets = true   # a room full of new outfits draws each villager once its sheets are in, not on entry
 	var outfit: Dictionary = n.get("outfit", {}).duplicate()
 	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
 		if not outfit.has(k): outfit[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")
 	if not outfit.has("hair_color"): outfit.hair_color = 0
-	avatar.outfit = outfit
-	avatar.facing = int(o.get("facing", n.get("facing", -1)))
-	add_child(avatar)
-	tag = WorldLabels.make_tag(self, _draw_tag)
-	var pose := str(o.get("pose", n.get("pose", "idle")))
-	avatar.play(pose)
-	pose_now = pose
-	if n.has("tint"): avatar.modulate = Color(str(n.tint))
-	bark_timer = randf_range(4.0, 12.0)
+	av.outfit = outfit
+	av.facing = int(o.get("facing", n.get("facing", -1)))
+	av.play(str(o.get("pose", n.get("pose", "idle"))))
+	if n.has("tint"): av.modulate = Color(str(n.tint))
+	return av
 
 func _process(delta: float) -> void:
 	t += delta
@@ -98,9 +109,10 @@ func _draw_tag() -> void:
 	label_flip = Vector2(0, -136.0 - label_box.end.y)
 
 func _draw() -> void:
-	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.28))
-	draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
-	draw_set_transform(Vector2.ZERO)
+	if not label_only:
+		draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.28))
+		draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
+		draw_set_transform(Vector2.ZERO)
 	var top := -112.0 + sin(t * 3.0) * 3.0
 	match marker:
 		"main":

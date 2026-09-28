@@ -1,0 +1,325 @@
+{
+ "schema_version": 1,
+ "id": "sf_market",
+ "name": "Market Street",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  52,
+  16
+ ],
+ "levels": [
+  "22222222222222222222222222222222222222222222222220002222",
+  "22222222222222222222222222222222222222222222222220002222",
+  "22222222222222222222222222222222222222222222222220002222",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggdddgggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "house",
+   "x": 3,
+   "y": 7,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 10,
+   "y": 7,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 17,
+   "y": 7,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "storehouse",
+   "x": 26,
+   "y": 7,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 38,
+   "y": 7,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 12,
+   "y": 22
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "crates",
+   "x": 30,
+   "y": 22
+  },
+  {
+   "kind": "crates",
+   "x": 44,
+   "y": 22
+  },
+  {
+   "kind": "barrel",
+   "x": 24,
+   "y": 12
+  },
+  {
+   "kind": "barrel",
+   "x": 36,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 48,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 52,
+   "y": 12
+  },
+  {
+   "kind": "willow",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "willow",
+   "x": 45,
+   "y": 4
+  }
+ ],
+ "place": {
+  "stone_sf": [
+   37,
+   18
+  ],
+  "board_sf": [
+   20,
+   13
+  ],
+  "arena_sf": [
+   46,
+   13
+  ],
+  "auction_sf": [
+   16,
+   19
+  ],
+  "storage_sf": [
+   27,
+   13
+  ],
+  "exchange_sf": [
+   54,
+   13
+  ],
+  "npc_storekeeper_fang": [
+   13,
+   13
+  ],
+  "npc_auntie_rong": [
+   32,
+   13
+  ],
+  "npc_keeper_shi": [
+   41,
+   13
+  ],
+  "npc_courier_lin": [
+   47,
+   19
+  ],
+  "npc_tailor_xun": [
+   26,
+   18
+  ],
+  "npc_adventurer_su": [
+   6,
+   18
+  ],
+  "npc_old_pan": [
+   54,
+   19
+  ],
+  "board_sf_tower": [
+   20,
+   7
+  ],
+  "gutter_shard": [
+   13,
+   7
+  ],
+  "thief_sf": [
+   9,
+   13
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    55,
+    16
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    16
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    16
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    16
+   ],
+   "span": 3
+  },
+  "grove": {
+   "at": [
+    50,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    50,
+    2
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "routes": {
+  "thief_sf": [
+   [
+    9,
+    13,
+    0.0
+   ],
+   [
+    2,
+    10,
+    0.6
+   ],
+   [
+    5,
+    8,
+    0.5
+   ],
+   [
+    9,
+    8,
+    0.4
+   ],
+   [
+    11,
+    8,
+    0.4
+   ],
+   [
+    16,
+    8,
+    0.5
+   ],
+   [
+    18,
+    8,
+    0.4
+   ],
+   [
+    22,
+    8,
+    0.5
+   ]
+  ]
+ }
+}

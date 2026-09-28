@@ -1,7 +1,8 @@
 extends Node
 ## Screenshots and frame strips of the top-down prototype room (redesign Phase 1) for docs/redesign/phase1/: the square
 ## under the HUD, walking behind the house, jumping the pier's gap and the long jump, and standing on the low wall with
-## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves.
+## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
+## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/).
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -29,6 +30,9 @@ func _main() -> void:
 	Saves.use_folder(SAVES)
 	Game.boot()
 	Game.autosave_enabled = false
+	if "--phase4" in OS.get_cmdline_user_args():
+		await phase4()
+		return
 	main.enter_topdown_proto(false)
 	w = main.world
 	p = w.player
@@ -310,6 +314,63 @@ func drag_moves() -> void:
 	hud.release(92)
 	print("topdown_capture: drag moves done")
 	get_tree().quit()
+
+## Phase 4 (`-- --phase4`, into docs/redesign/phase4/): a new top-down character's game (the title's hidden entry),
+## each converted room under the real HUD at a spot that shows it, and a quest talk on the dialogue page over the grid.
+const PHASE4 := [["01_fishers_hut", "lf_fishers_hut", Vector2(8, 7)], ["02_village_home_lane", "lf_village", Vector2(12, 18)],
+	["03_village_square", "lf_village", Vector2(33, 21)], ["04_village_docks", "lf_village", Vector2(58, 26)],
+	["05_old_ma_store", "lf_old_ma_store", Vector2(9, 7)], ["06_granny_liu_hut", "lf_granny_liu_hut", Vector2(9, 7)],
+	["07_reed_shallows", "lf_reed_shallows", Vector2(40, 15)], ["08_village_night", "lf_village_night", Vector2(22, 20)],
+	["09_lu_boat", "lf_lu_boat", Vector2(11, 7)], ["10_willow_path_east", "wp_east", Vector2(31, 13)],
+	["11_willow_path_west", "wp_west", Vector2(40, 15)], ["12_stoneford_gate", "sf_gate", Vector2(30, 14)],
+	["13_market_street", "sf_market", Vector2(24, 15)], ["14_artisan_row", "sf_artisan_row", Vector2(30, 15)],
+	["15_fairground", "sf_fairground", Vector2(28, 16)]]
+
+func phase4() -> void:
+	var out := "res://docs/redesign/phase4/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	# The pages' scripts compile on loading threads from the title screen on (main._warm_pages), where a player spends
+	# those seconds; a villager's outfit sheets queue behind them, so the capture waits for them as the title would.
+	for i in 3600:
+		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
+		await get_tree().process_frame
+	main.enter_topdown_tutorial(false)
+	var c = Game.active()
+	# The Prologue as a new character plays it: waking in the hut, then out through its door (Morning Tide's step),
+	# the village's three parts, and Lu's talk with A Quiet River to hand in, on the real dialogue page over the grid.
+	await at_spot(Vector2(8, 7), 120)
+	await shot("01_fishers_hut", out)
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(120)   # the villagers' outfit sheets load on threads (they appear a moment after the room)
+	for s in [["02_village_home_lane", Vector2(12, 18)], ["03_village_square", Vector2(33, 21)], ["04_village_docks", Vector2(58, 26)]]:
+		await at_spot(s[1], 60)
+		await shot(str(s[0]), out)
+	await at_spot(Vector2(55, 28), 40)
+	var r := Game.submit({"type": "interact", "object": "npc_lu_boatman"})
+	if r.get("ok", false) and r.has("dialogue"): main.open_page("dialogue", {"convo": r.dialogue})
+	await frames(90)
+	await shot("16_quest_talk_lu", out)
+	main.close_all_pages()
+	# The other rooms, entered through the World authority at a spot that shows each.
+	for s in PHASE4:
+		if str(s[1]) in ["lf_fishers_hut", "lf_village"]: continue
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 120)
+		await shot(str(s[0]), out)
+	print("topdown_capture: phase 4 done")
+	get_tree().quit()
+
+## Stand at a cell of the room on view (its villagers' sheets load in while it waits `n` frames).
+func at_spot(cell: Vector2, n: int) -> void:
+	w = main.world
+	p = w.player
+	m = p.motor
+	m.place((cell + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	m.dir = Vector2.DOWN
+	w._settle_camera()
+	await frames(n)
 
 ## An empty square round `at` with these foes ([def, offset]) turned on the player.
 func arena(at: Vector2, foes: Array) -> void:

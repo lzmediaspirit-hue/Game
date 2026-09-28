@@ -1,5 +1,43 @@
 # Changelog
 
+## Top-down redesign, Phase 4 begins: the real game on the grid, from the Fisher's Hut to the sect choice
+
+- **The top-down world runs the real game** (decision 36; `docs/redesign_top_down_plan.md`, "As built: Phase 4").
+  A character made for it keeps its own save and quests, and every authority runs as in the side view. That covers:
+  - NPCs, talk, quest offers and hand-ins, gifts and shops;
+  - the tracker, its Next, the direction mark and auto-path;
+  - pickups and loot, gathering, doors and edges between rooms, room events and respawns;
+  - the equip popup and the "+" badges, moments, the night tint, saving and loading, and the fall and revival rules.
+- **Rooms with a layout are played on the grid; the rest stay side-view.** The view changes under the same HUD at the
+  way between them.
+- **Thirteen rooms** are laid out for the top-down world by `tools/data/topdown_rooms.py`: the Fisher's Hut, Lotus
+  Ferry and its night, Old Ma's Store, Granny Liu's Herb Hut, Lu's Boat, the Reed Shallows, both Willow Paths, and
+  Stoneford's Gate, Market Street, Artisan Row and Fairground. They use the approved tile set, with height levels,
+  paths to the doors and water edges. Every id of the side-view rooms is kept.
+- **How to reach it:**
+  - the title screen's hidden entry (five taps on the version) now opens the top-down game on saves of its own,
+    starting the Prologue in the Fisher's Hut the first time;
+  - Settings → Controls → "Top-down world (new games)" makes the next new character a top-down one;
+  - `--topdown` and `--topdown-tutorial` do the same for previews; `--topdown-proto` still opens Riverside Square.
+- **One code path per concern.**
+  - The effects both views play for the game's events, the context button's offer, the names over the world and the
+    request for a way out now live in `WorldShared`.
+  - `NpcView`, `ObjectView` and `PortalView` gained label and art modes, so the top-down view draws the side view's
+    own art in its pixel viewport and its plates at the HUD's resolution.
+  - The autopilot, the minimap, `MomentView` and `HazardView` work in either view.
+- **Tests:**
+  - `topdown_tutorial` (new, 473 checks) plays `tutorial_order`'s whole walk, and every invariant of it, as a
+    top-down character. It adds checks that:
+    - every layout places and reaches everything of its room;
+    - every spot the walk stands at is reached on foot;
+    - the view builds each room;
+    - a save resumes on the grid;
+    - auto-path walks through a door and an edge.
+  - `tools/run_tests.sh` also runs `topdown_rooms.py --check`.
+  - `prologue_run` and `tutorial_order` are view-neutral.
+  - `perf_tests`: Lotus Ferry entered in 63 ms, 7.44 ms a frame.
+- **Screenshots** of every room and of a quest talk are in `docs/redesign/phase4/`.
+
 ## Top-down redesign, Phase 3: the terrain in the game, Riverside Square redesigned, the first foes in eight facings
 
 - **The terrain draws by the art bible in the game** (decision 33; `scripts/topdown/topdown_terrain.gd`):

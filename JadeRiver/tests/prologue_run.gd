@@ -19,6 +19,8 @@ var verbose := false
 ## a thumb on the joystick (a portal's far side is where the walk out ends); a look round each room the first time;
 ## and the time to read each line of dialogue and tap on.
 var play_s := 0.0
+## Extra fields of the new character's create_character intent (topdown_tutorial: {"view": "topdown"}).
+var create_extra := {}
 var _clock_room := ""
 var _rooms_seen := {}
 const WALK_SPEED := 150.0    # player.gd runs at 205; a thumb on the joystick weaves
@@ -194,6 +196,19 @@ func place(p: Vector2, alt := 0.0) -> void:
 	st.plane = p
 	st.altitude = best.height_at(p) if best else alt
 	st.velocity = Vector2.ZERO
+	var grid: TopdownRoom = Game.room_rt.topdown
+	if grid != null:
+		# On the height grid (redesign Phase 4, a top-down character): a spot a body can stand on, at its floor's height.
+		st.plane = grid.nearest_standable(p)
+		st.altitude = grid.floor_at(st.plane)
+
+## Stand beside a thing to reach it: `off` from it in the side view (at `side_alt`); on the height grid the nearest
+## spot at the thing's own height (TopdownRoom.spot_near).
+func stand_by(o: Dictionary, off: Vector2, side_alt: float) -> void:
+	var at := Vector2(float(o.at[0]), float(o.at[1]))
+	var grid: TopdownRoom = Game.room_rt.topdown
+	if grid != null: place(grid.spot_near(at, float(o.get("alt", 0.0)), at + off), float(o.get("alt", 0.0)))
+	else: place(at + off, side_alt)
 
 func obj_at(id: String) -> Vector2:
 	var o: Dictionary = Game.room_rt.object_def(id)
@@ -248,7 +263,7 @@ func talk(npc: String) -> Dictionary:
 	if o.is_empty():
 		print("  no visible npc ", npc, " in ", room())
 		return {}
-	place(Vector2(float(o.at[0]) - 50, float(o.at[1]) + 20))
+	stand_by(o, Vector2(-50, 20), 0.0)
 	var r := submit({"type": "interact", "object": str(o.id)})
 	play_s += READ_S * maxf(1.0, float((r.get("dialogue", {}).get("lines", []) as Array).size()))
 	return r.get("dialogue", {})
@@ -271,8 +286,9 @@ func hand_in(npc: String, quest: String) -> void:
 	var ok := talk_choose(npc, "hand_in", quest)
 	check(ok and c().quests.is_done(quest), "hand in %s to %s" % [quest, npc])
 
-## The nearest point off shallow water, a step away from a foe (S43 volumes).
+## The nearest point off shallow water, a step away from a foe (S43 volumes; on the height grid, any floor).
 func _dry_ground_near(p: Vector2) -> Vector2:
+	if Game.room_rt.topdown != null: return Game.room_rt.topdown.nearest_standable(p + Vector2(-34, -60))
 	var geo: ZoneGeometry = Game.room_rt.geometry
 	for dy in [-60, -100, -140, -180, -220, 60, 100]:
 		var q := Vector2(p.x - 34.0, p.y + dy)
@@ -283,13 +299,13 @@ func _dry_ground_near(p: Vector2) -> Vector2:
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
 	if o.is_empty(): return {"ok": false, "reason": "no_object", "text": "no %s in %s" % [id, room()]}
-	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
+	stand_by(o, Vector2(-30, 10), float(o.get("alt", 0.0)))
 	play_s += USE_S
 	return submit({"type": "interact", "object": id})
 
 func hit_object(id: String, times: int) -> void:
 	var o: Dictionary = Game.room_rt.object_def(id)
-	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
+	stand_by(o, Vector2(-30, 10), float(o.get("alt", 0.0)))
 	play_s += HIT_S * times
 	for i in times: Game.world.apply_object_hit(c().id, o)
 	GameEvents.flush()
@@ -463,11 +479,13 @@ func start_new(folder: String) -> void:
 	GameEvents.event.connect(func(n, p):
 		if n == "hud_element_revealed": reveal_log.append(str(p.element))
 		if n in ["quest_accepted", "quest_completed", "system_unlocked", "realm_changed", "room_entered", "quest_failed"]: events.append([n, p]))
-	var r := submit({"type": "create_character", "slot": 1, "name": "Tester", "appearance": {"hair": "topknot"}})
+	var made := {"type": "create_character", "slot": 1, "name": "Tester", "appearance": {"hair": "topknot"}}
+	made.merge(create_extra)
+	var r := submit(made)
 	check(r.ok, "create character")
 	check(submit({"type": "enter_character", "slot": 1}).ok, "enter character")
 	check(submit({"type": "enter_world"}).ok and room() == "lf_fishers_hut", "starts in the Fisher's Hut")
-	place(Vector2(330, 780))
+	place(Vector2(float(c().position.x), float(c().position.y)))   # where the character woke
 	check(c().pools.max_qi == 0.0, "no QI pool before cultivation")
 	check(c().inventory.equipped.get("weapon") == null, "no weapon at start")
 	check(not Game.is_revealed("hud:attack") and not Game.is_revealed("hud:qi_bar"), "attack and QI hidden at start")
@@ -483,10 +501,13 @@ func step_morning_tide() -> void:
 	# The hut must show its way out and its tea plainly (a player stuck in the hut could not see the door, and took
 	# the jar props for clods of earth).
 	var hut: Dictionary = Game.room_rt.def
-	var exit_view := PortalView.new()
-	exit_view.setup(Game.room_rt.portal_def("exit"), hut)
-	check(exit_view.wall_y != INF and not SpriteCache.prop("door").is_empty(), "the hut's exit draws a door on the back wall")
-	exit_view.free()
+	if Game.room_rt.topdown != null:   # on the height grid: a doorway in the hut's front wall (TopdownRoom.entrance)
+		check(Game.room_rt.topdown.entrance("exit") == "wall", "the hut's exit is a doorway in its front wall (%s)" % Game.room_rt.topdown.entrance("exit"))
+	else:
+		var exit_view := PortalView.new()
+		exit_view.setup(Game.room_rt.portal_def("exit"), hut)
+		check(exit_view.wall_y != INF and not SpriteCache.prop("door").is_empty(), "the hut's exit draws a door on the back wall")
+		exit_view.free()
 	for o in hut.get("objects", []):
 		if str(o.get("item", "")) == "herbal_tea" and Game.world.object_visible(c(), o):
 			check(str(o.get("prop", "")) == "none" and SpriteCache.icon("herbal_tea") != null, "tea %s shows as its icon" % o.id)
@@ -616,7 +637,7 @@ func step_night() -> void:
 	for npc in ["little_dou", "granny_liu", "old_ma"]:
 		talk_choose(npc, "effects")
 	check(c().quests.has_flag("dou_safe") and c().quests.has_flag("granny_safe") and c().quests.has_flag("ma_safe"), "villagers guided to the hut")
-	place(Vector2(400, 700))
+	place(obj_at("hut_refuge") + Vector2(14, -4))   # at the hut's door
 	step(62.0)
 	check(c().quests.has_flag("night_survived"), "survived the night")
 	check(room() == "lf_lu_boat", "carried to Lu's boat (room %s)" % room())
@@ -626,7 +647,7 @@ func step_river_token() -> void:
 	check(c().quests.is_active("the_river_token"), "The River Token begins")
 	check(Game.is_revealed("hud:cultivate") and Game.is_revealed("hud:progress_bar"), "Cultivate and progress bar revealed")
 	check(c().cultivator.methods_known.has("riverbreath_fragment"), "Riverbreath method learned")
-	place(Vector2(560, 790))
+	place(obj_at("boat_spring") + Vector2(0, -10))   # at the spring on the deck
 	submit({"type": "start_meditation"})
 	var med := 0.0
 	while c().cultivator.state != "bottleneck" and med < 600.0:

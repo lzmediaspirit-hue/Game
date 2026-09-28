@@ -128,7 +128,7 @@ func _near_player(spots: Array, r: float) -> bool:
 
 # ------------------------------------------------------------------ helpers
 func _view() -> Rect2:
-	var c: Vector2 = world.camera.get_screen_center_position() if world and world.camera else Vector2(640, 600)
+	var c: Vector2 = world.screen_center() if world and world.camera else Vector2(640, 600)
 	return Rect2(c - Vector2(640, 360), Vector2(1280, 720))
 
 static func _h(i: int, salt: int) -> float:
@@ -174,7 +174,7 @@ static func _phase_k(hs: Dictionary) -> float:
 	return clampf(float(hs.t) / maxf(0.001, float(hs.dur)), 0.0, 1.0)
 
 func _player_pos() -> Vector2:
-	return world.player.position if world and world.player else Vector2.ZERO
+	return world.feet() if world and world.player else Vector2.ZERO
 
 # ------------------------------------------------------------------ ground layer
 func _draw_ground() -> void:
