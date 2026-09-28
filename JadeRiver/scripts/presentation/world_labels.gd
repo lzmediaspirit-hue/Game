@@ -61,11 +61,15 @@ static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 
 	for it in order:
 		var r: Rect2 = it.rect
 		var dir := int(DIRECTION.get(str(it.kind), -1))
+		# A plate that would run off the screen's side is pulled in whole first, every row it tries with it (the
+		# prototype's QA: a crab's "…Crab" cut at the Reed Shallows' left edge); one wider than the screen stays.
+		var pull := Vector2(_pull_in(r.position.x, r.size.x, bounds.position.x, bounds.size.x), 0.0)
+		r = Rect2(r.position + pull, r.size)
 		var cands: Array = [Vector2.ZERO]
 		if dir != 0:
 			var step := r.size.y + ROW_GAP
 			var prev: Vector2 = it.get("prev", Vector2.ZERO)
-			if prev != Vector2.ZERO: cands.append(prev)
+			if prev != Vector2.ZERO: cands.append(prev - pull)
 			for k in range(1, ROWS_OUT + 1): cands.append(Vector2(0, dir * step * k))
 			# A plate under the feet with no room below goes over the head (its `flip`), and rows up from there; any other
 			# label tries rows the other way.
@@ -99,8 +103,15 @@ static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 
 				best_cost = cost
 			if cost <= 0.0: break
 		placed.append(Rect2(r.position + best, r.size))
-		out[it.id] = best
+		out[it.id] = best + pull
 	return out
+
+## The shift that brings a span [x, x + w] wholly inside [lo, lo + span] (none when it is already inside, or wider).
+static func _pull_in(x: float, w: float, lo: float, span: float) -> float:
+	if span <= 0.0 or w >= span: return 0.0
+	if x < lo: return lo - x
+	if x + w > lo + span: return lo + span - (x + w)
+	return 0.0
 
 ## How much of `r` is covered: the area it shares with the labels placed so far, and twice that for a HUD control
 ## (a label is sooner beside another label than under a button).

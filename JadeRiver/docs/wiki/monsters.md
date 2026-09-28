@@ -47,8 +47,8 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Sheet**: creature sheet `wild_boarlet` ([art/creatures/wild_boarlet.png](../../art/creatures/wild_boarlet.png), 128 px cells)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Willow Path › Willow Path East: Lv 1–2, up to 4, respawn 10s
+  - Jade River Valley › Willow Path › Willow Path West: Lv 1, up to 1, respawn 180s; elite
   - Jade River Valley › Willow Path › Willow Path West: Lv 1–2, up to 5, respawn 10s
-  - Jade River Valley › Willow Path › Willow Path West: Lv 2, up to 1, respawn 180s; elite
 - **Also appears**: Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); Set pieces: Copper Body Trial (enemy)
 - **Level band**: Lv 1–2 in `enemies.json`
 - **Stats**: Lv 1: HP 46, Attack 7, Physical Defense 4, Accuracy 13; Lv 2: HP 64, Attack 10, Physical Defense 6, Accuracy 16; as an elite at Lv 2: HP 386, Attack 15, Physical Defense 9, Accuracy 16
@@ -118,6 +118,28 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - [Entry Token](items.md#item-entry_token): 100% (guaranteed)
   - equipment: none (spar)
 
+<a id="enemy-hollowed_boarlet"></a>
+
+### Hollowed Boarlet
+
+`hollowed_boarlet` · Normal · Lv 3–12 · Hollow earth · beast · energy none · beast rank 1
+
+- **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
+- **Spawns** (2 room spawns):
+  - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–4, up to 3, respawn 8s; needs during The Humming Token or during Mei Qing's Errand
+- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
+- **Level band**: Lv 7–12 in `enemies.json`; Lv 3–12 with its room spawns
+- **Stats**: Lv 3: HP 85, Attack 12, Physical Defense 7, Accuracy 19; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
+- **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
+- **Drops** (loot table `hollowed_boarlet`):
+  - [Grey Hide](items.md#item-grey_hide): 60% (group)
+  - [Hollow Shard](items.md#item-hollow_shard): 12% (rare)
+  - [Grey Hide](items.md#item-grey_hide): 100% (only during Mei Qing's Errand)
+  - [Low Earth Core](items.md#item-earth_core_low): 4% (beast core, Lv 10–12)
+  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
+  - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+
 <a id="enemy-old_snapper"></a>
 
 ### Old Snapper
@@ -137,27 +159,44 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
   - coins: 100%, ×6 the Level's purse, in the zone's everyday currency
   - equipment: 25%, starter gear: a Plain Gauntlets, Jian, Spear, Short blade or armour piece at the par item Level, no better than par quality; a character's first kill in the first rooms drops a Common Short blade, and its first 3 pieces come by the 15th kill without one at the latest
 
-<a id="enemy-hollowed_boarlet"></a>
+<a id="enemy-reed_frog"></a>
 
-### Hollowed Boarlet
+### Reed Frog
 
-`hollowed_boarlet` · Normal · Lv 4–12 · Hollow earth · beast · energy none · beast rank 1
+`reed_frog` · Normal · Lv 3–6 · Wood · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
-- **Spawns** (2 room spawns):
-  - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
-  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–5, up to 3, respawn 8s; needs during The Humming Token or during Mei Qing's Errand
-- **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 3, 4, 5; room event in Siege of Two Sects (Story) (enemy); summoned by [Hollow Behemoth](#enemy-hollow_behemoth)
-- **Level band**: Lv 7–12 in `enemies.json`; Lv 4–12 with its room spawns
-- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 12: HP 368, Attack 70, Physical Defense 31, Accuracy 46
-- **Behaviour**: AI charger; aggro range 200; move speed 85; patrol 140; moves: drop; hollowing 4; tameable; tame species cleansed_boarlet. Attacks: double_charge×1 (windup 0.45s)
-- **Drops** (loot table `hollowed_boarlet`):
-  - [Grey Hide](items.md#item-grey_hide): 60% (group)
-  - [Hollow Shard](items.md#item-hollow_shard): 12% (rare)
-  - [Grey Hide](items.md#item-grey_hide): 100% (only during Mei Qing's Errand)
-  - [Low Earth Core](items.md#item-earth_core_low): 4% (beast core, Lv 10–12)
+- **Sheet**: creature sheet `reed_frog` ([art/creatures/reed_frog.png](../../art/creatures/reed_frog.png), 128 px cells)
+- **Spawns** (3 room spawns):
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–5, up to 3, respawn 12s
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–5, up to 2, respawn 12s
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 5, up to 1, respawn 180s; elite
+- **Also appears**: Trial Tower foe, floor 2
+- **Level band**: Lv 4–6 in `enemies.json`; Lv 3–6 with its room spawns
+- **Stats**: Lv 3: HP 85, Attack 12, Physical Defense 7, Accuracy 19; Lv 6: HP 160, Attack 22, Physical Defense 12, Accuracy 28; as an elite at Lv 6: HP 958, Attack 33, Physical Defense 18, Accuracy 28
+- **Behaviour**: AI charger; aggro range 200; move speed 90; patrol 140; moves: drop, jump 600. Attacks: jump_kick×1 (windup 0.35s)
+- **Drops** (loot table `reed_frog`):
+  - [Frog Leg](items.md#item-frog_leg): 30% (group 60%, weight 1 of 2)
+  - [Willow Moss](items.md#item-willow_moss): 30% (group 60%, weight 1 of 2)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+
+<a id="enemy-marsh_leech"></a>
+
+### Marsh Leech
+
+`marsh_leech` · Normal · Lv 4–7 · Water · beast · energy none · beast rank 1
+
+- **Sheet**: creature sheet `marsh_leech` ([art/creatures/marsh_leech.png](../../art/creatures/marsh_leech.png), 128 px cells)
+- **Spawns** (2 room spawns):
+  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–5, up to 3, respawn 12s
+  - Jade River Valley › Reed Marsh › Sunken Causeway: Lv 5–7, up to 4, respawn 12s
+- **Level band**: Lv 5–7 in `enemies.json`; Lv 4–7 with its room spawns
+- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31
+- **Behaviour**: AI melee; aggro range 200; move speed 40; patrol 140; moves: drop, jump 430. Attacks: latch×0.8 (windup 0.4s)
+- **Drops** (loot table `marsh_leech`):
+  - [Leech Oil](items.md#item-leech_oil): 60% (group)
+  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
+  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
 <a id="enemy-pebble_imp"></a>
 
@@ -175,27 +214,6 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `pebble_imp`):
   - [Riverstone](items.md#item-riverstone): 60% (group)
   - [Pebble Core](items.md#item-pebble_core): 8% (rare)
-  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
-
-<a id="enemy-reed_frog"></a>
-
-### Reed Frog
-
-`reed_frog` · Normal · Lv 4–6 · Wood · beast · energy none · beast rank 1
-
-- **Sheet**: creature sheet `reed_frog` ([art/creatures/reed_frog.png](../../art/creatures/reed_frog.png), 128 px cells)
-- **Spawns** (3 room spawns):
-  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–6, up to 3, respawn 12s
-  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–6, up to 2, respawn 12s
-  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 6, up to 1, respawn 180s; elite
-- **Also appears**: Trial Tower foe, floor 2
-- **Level band**: Lv 4–6 in `enemies.json`
-- **Stats**: Lv 4: HP 108, Attack 15, Physical Defense 9, Accuracy 22; Lv 6: HP 160, Attack 22, Physical Defense 12, Accuracy 28; as an elite at Lv 6: HP 958, Attack 33, Physical Defense 18, Accuracy 28
-- **Behaviour**: AI charger; aggro range 200; move speed 90; patrol 140; moves: drop, jump 600. Attacks: jump_kick×1 (windup 0.35s)
-- **Drops** (loot table `reed_frog`):
-  - [Frog Leg](items.md#item-frog_leg): 30% (group 60%, weight 1 of 2)
-  - [Willow Moss](items.md#item-willow_moss): 30% (group 60%, weight 1 of 2)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -237,24 +255,6 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Drops** (loot table `ironclaw_mole`):
   - [Mole Claw](items.md#item-mole_claw): 30% (group 60%, weight 1 of 2)
   - [Ore Dust](items.md#item-ore_dust): 30% (group 60%, weight 1 of 2)
-  - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
-  - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
-
-<a id="enemy-marsh_leech"></a>
-
-### Marsh Leech
-
-`marsh_leech` · Normal · Lv 5–7 · Water · beast · energy none · beast rank 1
-
-- **Sheet**: creature sheet `marsh_leech` ([art/creatures/marsh_leech.png](../../art/creatures/marsh_leech.png), 128 px cells)
-- **Spawns** (2 room spawns):
-  - Jade River Valley › Reed Marsh › Marsh Edge: Lv 5–6, up to 3, respawn 12s
-  - Jade River Valley › Reed Marsh › Sunken Causeway: Lv 5–7, up to 4, respawn 12s
-- **Level band**: Lv 5–7 in `enemies.json`
-- **Stats**: Lv 5: HP 132, Attack 18, Physical Defense 10, Accuracy 25; Lv 7: HP 189, Attack 25, Physical Defense 14, Accuracy 31
-- **Behaviour**: AI melee; aggro range 200; move speed 40; patrol 140; moves: drop, jump 430. Attacks: latch×0.8 (windup 0.4s)
-- **Drops** (loot table `marsh_leech`):
-  - [Leech Oil](items.md#item-leech_oil): 60% (group)
   - coins: 20%, ×1 the Level's purse, in the zone's everyday currency
   - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
@@ -1878,7 +1878,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: spar in quest Fish-Gutting Fists; spar in quest Shen Lian's Failure; the rankings: Shen Lian
 - **Level band**: Lv 4 in `enemies.json`
 - **Stats**: Lv 4: HP 323, Attack 11, Physical Defense 11, Accuracy 22
-- **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: fish_gutting_fist×1 (windup 0.4s)
+- **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: fish_gutting_fist×1 (windup 0.6s)
 - **Drops** (loot table `shen_lian`):
   - equipment: none (spar)
 

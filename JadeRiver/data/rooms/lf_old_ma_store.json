@@ -84,26 +84,26 @@
    "facing": -1
   },
   {
-   "id": "sandals_loft",
+   "id": "soup_loft",
    "type": "pickup",
    "at": [
     960,
     612
    ],
    "alt": 88,
-   "item": "straw_sandals",
-   "count": 1,
+   "item": "riverfish_soup",
+   "count": 2,
    "prop": "storage_chest",
-   "label": "Straw Sandals",
+   "label": "Riverfish Soup",
    "hidden_if": {
     "all": [
      {
       "kind": "flag_set",
-      "flag": "sandals_loft"
+      "flag": "soup_loft"
      }
     ]
    },
-   "set_flag": "sandals_loft"
+   "set_flag": "soup_loft"
   },
   {
    "id": "old_net_floor",

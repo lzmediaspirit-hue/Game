@@ -894,13 +894,16 @@ def prologue_quests():
     quest("crab_trouble", "Crab Trouble", "prologue", "uncle_guo", [
         o("collect", "Bring Crab Shells", 3, item="crab_shell", consume=True),
         o("kill", "Defeat Old Snapper", enemy="old_snapper", after=0),
-    ], [taels(50), item("plain_straw_hat", 1), item("straw_sandals", 1)],
+    # The hat is new and the broth goes to the bones for good (+120 body XP): the starting kit already wears Straw Sandals,
+    # so Guo's second pair is gone (the prototype's polish: no early reward the player already has).
+    ], [taels(50), item("plain_straw_hat", 1), item("boar_bone_broth", 1)],
         requires=all_of(*map(qdone, FOUR_LESSONS)), target_room="lf_reed_shallows", chapter="prologue",
         offer=["Kite, net, tea and fists. The village thanks you. Now the crabs.",
                "They came up the shallows in the night. Dozens. Something's pushing them out of the river.",
                "The East Gate's open for you now. Reed Shallows, just past it.",
                "Bring me three shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."],
-        complete=["Old Snapper! Ha! Here, fifty taels, my old straw hat and a pair of sandals. Keep the sun out of your eyes and the shells off your feet."])
+        complete=["Old Snapper! Ha! Here, fifty taels and my old straw hat: keep the sun out of your eyes.",
+                  "And a bowl of Ping's boar bone broth. Drink it before your next fight: it goes straight to the bones."])
     quest("evening_on_the_river", "Evening on the River", "prologue", "lu_boatman", [
         o("talk_to", "Have dinner with Aunt Ping", npc="aunt_ping"),
         o("talk_to", "Meet Lu at the docks at sunset", npc="lu_boatman"),
@@ -970,23 +973,31 @@ def guided_quests():
         o("win_spar", "Beat Shen Lian in a spar", opponent="shen_lian"),
     ], [taels(40), fx("add_progress", pct_of_need=0.45), fx("grant_title", title="river_rival")], requires=all_of(qdone("entry_trial")), chapter="1",
         target_room="sf_fairground",
-        offer=["Cloud Sect taught me more in a week than the river did in ten years. Spar me."],
+        # A spar is a lesson (the prototype's polish): he spars at your own Level, and says what it teaches as it starts.
+        offer=["Cloud Sect taught me more in a week than the river did in ten years. Spar me, and I'll show you.",
+               "First lesson: every fighter tells you when the blow is coming. Watch for it."],
         complete=["...Fine. You won. This time. Don't get lazy."])
     quest("the_weapon_hall", "The Weapon Hall", "guided", "jade_weapon_master", [
         o("equip_slot", "Take a training weapon from the rack", slot="weapon"),
         o("hit_object", "Try it on the dummies", 5, type="training_dummy"),
         o("use_system", "Raise your guard", system="guard"),
     ], [fx("codex", entry="weapons"), fx("learn_technique_for_weapon", options=WEAPON_HALL_ARTS)], offered_by_unlock=True, chapter="1", giver_any=WEAPON_MASTERS, hand_in_any=WEAPON_MASTERS,
-        on_accept=[item("training_jian", 1), item("training_spear", 1), item("training_gauntlets", 1)],
+        # The rack holds each sect's own weapon (the Jade Sect's jian, the Cloud Sect's staff, as its recruiter and weapon
+        # master carry them) and the spear; never a second of one already owned (Uncle Guo's gauntlets are the player's
+        # since Fists First, and the first crab's short blade), each handed out `unless_owned`.
+        on_accept=[fx("grant_item", item=w, count=1, unless_owned=True) for w in ("training_jian", "training_spear", "training_staff")],
         target_room="ja_weapon_hall",
-        offer=["Three training weapons: jian, spear, gauntlets. Try them on the dummies. Keep the one that feels like your own arm.",
+        offer=["The rack: jian, spear and staff. The Jade Sect keeps the jian, the Cloud Sect the staff; your fists you know already.",
+               "Try them on the dummies. Keep the one that feels like your own arm.",
                "Guard is the other half of a weapon. Hold it up when they swing."],
         complete=["Good hands. Now the first form of the weapon you kept: watch once, then it's yours.",
                   "The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."])
     quest("eyes_for_qi", "Eyes for Qi", "guided", "elder_hu", [
         o("meditate_seconds", "Meditate in the Reed Shallows", 20),
         o("gather_node", "Gather Willow Moss", 3, item="willow_moss", craft="herb_gathering"),
-    ], [item("herb_sickle", 1), item("qi_gathering_pill", 1), item("riverreed_ginseng_10", 1)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
+    # Herb gathering's unlock hands out the sickle the moss is cut with, so the lesson pays in what the Qi shows instead
+    # (a second sickle was a duplicate): a pill, the ten-year root, and two cups of the moss's own tea.
+    ], [item("qi_gathering_pill", 1), item("riverreed_ginseng_10", 1), item("herbal_tea", 2)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
         target_room="lf_reed_shallows",
         offer=["You're starting to feel Qi in the air. Sit in the Reed Shallows a moment and let it show itself.",
                "Where it glows, something grows. Willow Moss, and sometimes better. Pick three moss: Mei Qing will want them."],
@@ -1514,7 +1525,7 @@ def main_quests():
                "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."],
         complete=["Hollowing. It's closer than we hoped."])
     quest("the_humming_token", "The Humming Token", "main", "elder_hu", [
-        # Chapter 2 now opens at Bone Forging 3 (Level 3): the grey's first beasts have crept to the Marsh Edge (Level 4-5,
+        # Chapter 2 now opens at Bone Forging 3 (Level 3): the grey's first beasts have crept to the Marsh Edge (Level 3-4,
         # world.py), not the Grey Pools' Level 7-12, which the story reaches later (the Grey Pools side quest).
         o("kill", "Defeat the Hollowed Boarlets at the Marsh Edge", 5, enemy="hollowed_boarlet", room="rm_marsh_edge"),
     ], [taels(80), fx("codex", entry="hollowed")], requires=all_of(qdone("strange_tracks")), chapter="2", giver_any=M, hand_in_any=M,

@@ -30,6 +30,10 @@ var label_box := Rect2()
 var label_offset := Vector2.ZERO
 var arrow_box := Rect2()   # the chevron over a door, local, as last drawn (none when not drawn): other plates keep off it
 var tag: Node2D   # the arrow and the plate, above every figure (WorldLabels.LABEL_Z)
+## A shut way walked into (WorldShared.request_portal): its own plate is the refusal, lit up this long, in place of a
+## line floating over the player and one in the log (the prototype's QA saw the gate's line three times at once).
+const TOUCH_S := 1.8
+var touched := 0.0
 var shows := ""   # what shows the way (entrance)
 ## The top-down view (redesign Phase 4) draws the way itself in its pixel viewport (a building's doorway, the gap in an
 ## interior's wall, the marks of an edge); this view then draws only the arrow and the plate, on its overlay.
@@ -98,8 +102,13 @@ static func art_for(p: Dictionary, open: bool, shown_by: String) -> String:
 	if type != "edge" and not open and shown_by != "wall": return "sealed_gate"
 	return str(TYPE_ART.get(type, "")) if shown_by in ["art", "door"] else ""
 
+## The way refused the player: light its plate (it shows even from a step away while lit).
+func touch() -> void:
+	touched = TOUCH_S
+
 func _process(delta: float) -> void:
 	t += delta
+	touched = maxf(0.0, touched - delta)
 	var c = Game.active()
 	if c:
 		state = Game.world.portal_state(c, def)
@@ -144,11 +153,16 @@ func _draw_arrow(p: Vector2, bob: float) -> void:
 func _draw_label(type: String) -> void:
 	var label := str(state.text)
 	label_box = Rect2()
-	if label == "" or (not state.open and not near): return
+	var lit: bool = touched > 0.0 and not state.open
+	if label == "" or (not state.open and not near and not lit): return
 	var y := (door_top - 30.0) if type == "door" else -150.0
 	var col := UiKit.PALE_GOLD if state.open else UiKit.MIST
 	if not near: col = Color(col, 0.82)
 	var size := 19 if near else 17
+	if lit:
+		# The refusal itself: the plate brightens and steps up a size, easing back as it fades.
+		col = UiKit.PAPER.lerp(UiKit.PALE_GOLD, 0.5 + 0.5 * sin(t * 8.0)) if touched > TOUCH_S - 0.5 else UiKit.PAPER
+		size = 20
 	var shown := ("▲ " if state.open and near else "") + label
 	# The whole plate inside the room: a way at its edge with a long line (the prototype's gate) ran off the screen.
 	var dx := label_dx

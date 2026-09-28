@@ -405,7 +405,7 @@
     },
     {
      "kind": "grant_item",
-     "item": "straw_sandals",
+     "item": "boar_bone_broth",
      "count": 1
     }
    ],
@@ -416,7 +416,8 @@
     "Bring me three shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."
    ],
    "complete_text": [
-    "Old Snapper! Ha! Here, fifty taels, my old straw hat and a pair of sandals. Keep the sun out of your eyes and the shells off your feet."
+    "Old Snapper! Ha! Here, fifty taels and my old straw hat: keep the sun out of your eyes.",
+    "And a bowl of Ping's boar bone broth. Drink it before your next fight: it goes straight to the bones."
    ],
    "requires": {
     "all": [
@@ -882,7 +883,8 @@
     }
    ],
    "offer_text": [
-    "Cloud Sect taught me more in a week than the river did in ten years. Spar me."
+    "Cloud Sect taught me more in a week than the river did in ten years. Spar me, and I'll show you.",
+    "First lesson: every fighter tells you when the blow is coming. Watch for it."
    ],
    "complete_text": [
     "...Fine. You won. This time. Don't get lazy."
@@ -947,7 +949,8 @@
     }
    ],
    "offer_text": [
-    "Three training weapons: jian, spear, gauntlets. Try them on the dummies. Keep the one that feels like your own arm.",
+    "The rack: jian, spear and staff. The Jade Sect keeps the jian, the Cloud Sect the staff; your fists you know already.",
+    "Try them on the dummies. Keep the one that feels like your own arm.",
     "Guard is the other half of a weapon. Hold it up when they swing."
    ],
    "complete_text": [
@@ -968,17 +971,20 @@
     {
      "kind": "grant_item",
      "item": "training_jian",
-     "count": 1
+     "count": 1,
+     "unless_owned": true
     },
     {
      "kind": "grant_item",
      "item": "training_spear",
-     "count": 1
+     "count": 1,
+     "unless_owned": true
     },
     {
      "kind": "grant_item",
-     "item": "training_gauntlets",
-     "count": 1
+     "item": "training_staff",
+     "count": 1,
+     "unless_owned": true
     }
    ],
    "target_room": "ja_weapon_hall"
@@ -1007,11 +1013,6 @@
    "rewards": [
     {
      "kind": "grant_item",
-     "item": "herb_sickle",
-     "count": 1
-    },
-    {
-     "kind": "grant_item",
      "item": "qi_gathering_pill",
      "count": 1
     },
@@ -1019,6 +1020,11 @@
      "kind": "grant_item",
      "item": "riverreed_ginseng_10",
      "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "herbal_tea",
+     "count": 2
     }
    ],
    "offer_text": [

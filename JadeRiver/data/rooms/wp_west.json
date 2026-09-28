@@ -499,7 +499,8 @@
     1,
     2
    ],
-   "elite_chance": 0.04
+   "elite_chance": 0.04,
+   "elite_after": "the_willow_path"
   },
   {
    "enemy": "mossback_toad",
@@ -524,22 +525,23 @@
     2,
     3
    ],
-   "elite_chance": 0.04
+   "elite_chance": 0.04,
+   "elite_after": "the_willow_path"
   },
   {
    "enemy": "wild_boarlet",
    "surface": "ground",
    "points": [
     [
-     1480,
-     820
+     420,
+     880
     ]
    ],
    "max": 1,
    "respawn_s": 180,
    "level": [
-    2,
-    2
+    1,
+    1
    ],
    "elite": true
   }

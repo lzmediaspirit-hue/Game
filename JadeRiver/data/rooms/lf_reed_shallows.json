@@ -424,7 +424,8 @@
     1,
     1
    ],
-   "elite_chance": 0.04
+   "elite_chance": 0.04,
+   "elite_after": "crab_trouble"
   },
   {
    "enemy": "reedtail_rat",
@@ -453,7 +454,8 @@
     2,
     2
    ],
-   "elite_chance": 0.04
+   "elite_chance": 0.04,
+   "elite_after": "crab_trouble"
   },
   {
    "enemy": "old_snapper",

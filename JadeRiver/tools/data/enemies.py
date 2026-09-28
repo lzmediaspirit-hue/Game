@@ -557,12 +557,19 @@ def build():
         mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
                                                                    atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
             ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
-        mob("shen_lian", 4, "trial", "none", None, [], [atk("fish_gutting_fist", 0.4, 46, 1.0)], ai="duelist", art=human("shen_lian"),
-            race="human", width=18, height=90, spar=True),
+        # Shen Lian's spar (Fish-Gutting Fists) is a lesson: he spars at the player's own Level (`spar_level` "match", as
+        # the sparring disciples do), his fist winds up as long as Old Snapper's claw (a tell a thumb can read), and he
+        # says what the spar teaches as it starts and as it ends (`spar_lines`, the HUD). A Level-4 double beat the
+        # prototype's Level-2 QA player.
+        mob("shen_lian", 4, "trial", "none", None, [], [atk("fish_gutting_fist", 0.6, 46, 1.0)], ai="duelist", art=human("shen_lian"),
+            race="human", width=18, height=90, spar=True, spar_level="match",
+            spar_lines={"start": "Watch my shoulder. When it drops, step aside, then hit back!",
+                        "lost": "Again! Step aside when my shoulder drops, then hit back.",
+                        "won": "You read my shoulder. Fine, you won. This time."}),
         mob("wen_zhao", 44, "trial", "wind", None, [], [atk("cloud_cut", 0.4, 80, 1.1), atk("crescent", 0.6, 300, 1.2, damage_type="qi",
                                                                                                   projectile={"speed": 540, "art": "qi_arc"})],
             ai="duelist", art=human("wen_zhao"), race="human", width=18, height=90, spar=True),
-        mob("sparring_disciple", 10, "trial", "none", None, [], [atk("palm", 0.45, 46, 1.0)], ai="duelist", art=human("trial_disciple"),
+        mob("sparring_disciple", 10, "trial", "none", None, [], [atk("palm", 0.45, 46, 1.0)], ai="duelist", art=human("trial_disciple"), spar_level="match",
             race="human", width=18, height=90, spar=True),
         # S49 Fame: a young master of a good family who hears your name and wants to prove he is better. He spars at
         # the challenged cultivator's own level.

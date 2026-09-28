@@ -59,6 +59,7 @@ var hud_probe: Control        # the real HUD, bound to the character through a s
 var left_early: Array = []    # rooms left before the steps they hold you to were done
 var offers_in_fight := {}     # context type -> ticks of a fight with it in reach (invariant 8)
 var hijacked: Array = []      # fight ticks when an offer in reach took the attack button
+var teasers: Array = []       # a locked resource node offered by the context button (never, since the prototype's polish)
 var foe_views := {}           # enemy uid -> EnemyView, for the room the character is in
 var watched_room := ""
 var foes_seen := {}           # def id -> times a foe of that kind was seen in a fight
@@ -107,7 +108,7 @@ func run() -> void:
 	invariants("Granny's Remedy")
 	step_crabs()
 	_first_weapon_offered()
-	if int(foes_seen.get("reedtail_rat", 0)) == 0 or int(offers_in_fight.get("herb_patch", 0)) == 0: _rats()
+	if int(foes_seen.get("reedtail_rat", 0)) == 0 or offers_in_fight.is_empty(): _rats()
 	check(int(foes_seen.get("reedtail_rat", 0)) > 0, "the Reed Shallows' Reedtail Rats were fought, their HP bars watched (%s)" % str(foes_seen))
 	invariants("Crab Trouble")
 	_wear_new_gear()
@@ -141,8 +142,9 @@ func run() -> void:
 func walk_held(label: String) -> void:
 	check(bare.is_empty() and foes_seen.size() >= 4, "%s: every foe in every fight showed its HP bar beside the player's (%s; bare: %s)" % [label, str(foes_seen), str(bare.slice(0, 6))])
 	check(left_early.is_empty(), "%s: no room was left before the steps it holds you to were done (%s)" % [label, str(left_early)])
-	check(hijacked.is_empty() and int(offers_in_fight.get("herb_patch", 0)) > 0,
-		"%s: in every fight the attack button attacked, the shore's herbs and all else in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [label, str(offers_in_fight), str(hijacked)])
+	check(hijacked.is_empty() and not offers_in_fight.is_empty(),
+		"%s: in every fight the attack button attacked, all in reach waiting in the ring-2 slot (%s; hijacked: %s)" % [label, str(offers_in_fight), str(hijacked)])
+	check(teasers.is_empty(), "%s: no resource node the character cannot work yet took the context button (the shore's herbs before herb gathering; %s)" % [label, str(teasers.slice(0, 4))])
 	check(guidance_steps >= c().quests.done.size() + c().quests.active.size(), "%s: the story's guidance was checked at every step (%d steps, %d quests)"
 		% [label, guidance_steps, c().quests.done.size() + c().quests.active.size()])
 	check(falls.is_empty(), "%s: every fall in the walk cost nothing, before Bone Forging 5 (%s)" % [label, str(falls)])
@@ -209,11 +211,16 @@ func step_strange_tracks() -> void:
 	check(travel(sect_at("peak")), "back to the mentor")
 	hand_in(sect_at("mentor"), "strange_tracks")
 
-## The gear Crab Trouble paid, worn from the Bag as the equip prompt offers it.
+## The gear Crab Trouble paid, worn from the Bag as the equip prompt offers it, and Ping's bone broth drunk (the body a
+## few levels stronger for good, before the night and the Willow Path).
 func _wear_new_gear() -> void:
-	for id in ["plain_straw_hat", "straw_sandals"]:
+	for id in ["plain_straw_hat"]:
 		var i: int = c().inventory.first_index(id)
 		if i >= 0: check(submit({"type": "equip", "index": i}).get("ok", false), "wear the %s" % id)
+	var body: int = c().cultivator.body_level
+	var broth: int = c().inventory.first_index("boar_bone_broth")
+	check(broth >= 0 and submit({"type": "use_item", "index": broth, "confirm": true}).get("ok", false) and c().cultivator.body_level > body,
+		"drink Crab Trouble's Boar Bone Broth: the body level rises for good (%d to %d)" % [body, c().cultivator.body_level])
 
 ## The Weapon Hall at Bone Forging 3: taken on the page, its rack, dummies and guard all on the HUD first; done, it
 ## teaches the first art of the family in hand (the second technique).
@@ -231,7 +238,13 @@ func step_weapon_hall() -> void:
 	leads_to_next("Bone Forging 3")
 	keep("Bone Forging 3")
 	check(travel(sect_at("weapon_hall")), "the Weapon Hall admits a Bone Forging 3 disciple (room %s)" % room())
+	var had_gauntlets: int = c().inventory.count_including_equipped("training_gauntlets")
 	accept(sect_at("weapon_master"), "the_weapon_hall")
+	# The rack hands out what the disciple lacks: the sect's own weapon (the jian, the staff) and the spear, never a
+	# second pair of Uncle Guo's gauntlets (the prototype's polish).
+	check(had_gauntlets >= 1 and c().inventory.count_including_equipped("training_gauntlets") == had_gauntlets
+		and ["training_jian", "training_spear", "training_staff"].all(func(w): return c().inventory.count_including_equipped(w) == 1),
+		"the Weapon Hall's rack hands out the jian, the spear and the staff, once each, and no second pair of gauntlets (%d gauntlets)" % c().inventory.count_including_equipped("training_gauntlets"))
 	var jian: int = c().inventory.first_index("training_jian")
 	check(jian >= 0 and submit({"type": "equip", "index": jian}).get("ok", false), "take the training jian from the rack")
 	var dummies: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "training_dummy")
@@ -506,6 +519,9 @@ func _attack_holds() -> void:
 	if hud_probe == null or me == null or not Unlocks.is_unlocked(c().id, "attack") or not rt.living_enemies().any(func(e): return e.team == "enemy" and e.in_fight()): return
 	var ctx: Dictionary = Game.world.query_context(c())
 	if ctx.is_empty(): return
+	var node: Dictionary = rt.object_def(str(ctx.get("object", ""))) if ctx.has("object") else {}
+	if not node.is_empty() and WorldAuthority.resource_node(node) and not ctx.get("ok", true) and teasers.size() < 20:
+		teasers.append("%s:%s" % [rt.room_id, str(node.id)])
 	hud_probe.player.plane = me.plane
 	hud_probe.context = ctx
 	hud_probe.fight_override = null

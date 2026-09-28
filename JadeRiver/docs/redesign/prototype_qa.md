@@ -16,9 +16,13 @@ pages.
 - **The runs.** Each sect was played from the fair's checkpoint. The findings were looked at shot by shot, fixed
   where they were ours, and the runs were played again for the "after" shots.
 - **Commands.** Run it with
-  `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 --path . res://tools/dev/prototype_qa.tscn -- --out=<dir> [--sect=cloud] [--keep=<dir> --keep-at=<step,…>] [--from=<dir> --start=<step>] [--until=<step>]`.
+  `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 --path . res://tools/dev/prototype_qa.tscn -- --out=<dir> [--sect=cloud] [--keep=<dir> --keep-at=<step,…>] [--from=<dir> --start=<step>] [--until=<step>] [--no-assist]`.
+  `--no-assist` plays every fight on the player's own HP to the end; `qa_log.json` then lists every fall (its room,
+  step, Level and the damage by foe) and every spar.
 - **Where things are.** The shots below are in `docs/redesign/prototype_qa/`. A "before" is from the first runs, or
   from the shot another part of the work took. Each fix has a test, listed with it.
+- **The polish pass.** The findings first left for decisions were then fixed; see "The polish pass" below, with the
+  runs after it.
 
 ## Fixed
 
@@ -366,7 +370,8 @@ The user reported these earlier in the project. Each was looked for in these run
 - **Leaving the first building without opening the Bag.** See above: it is by the user's later cut.
 - **Resources taking the Attack button.** In the Reed Shallows' and Willow Path West's fights the swarm, the herbs and
   the drum moved to ring 2's context slot, and Attack attacked (`21_locked_node_line.png`: "Gather" on ring 2 for the
-  herb beside Old Snapper, the sword on Attack).
+  herb beside Old Snapper, the sword on Attack). Since the polish pass a node not open yet offers nothing at all
+  (fix 23); one that is open still waits on ring 2 in a fight.
 - **Tea effects not shown.** Fix 12: the heal's number, the log line, and the buff with its seconds.
 - **Script errors and warning spam.** None in the last runs' logs. The only engine lines left are the container's own:
   no audio device and no V-Sync.
@@ -382,7 +387,8 @@ The user reported these earlier in the project. Each was looked for in these run
 - **The first crab.**
   - The Training Short Blade drops, and the equip prompt names it whole.
   - One tap wears it, and the figure holds it (fix 10's after, and `32_first_gear.png`).
-- **Crab Trouble.** The Plain Straw Hat is worn and drawn. For the sandals, see "Found and left".
+- **Crab Trouble.** The Plain Straw Hat is worn and drawn, and Aunt Ping's Boar Bone Broth drunk from the Bag: the
+  body level went from 1 to 3 (fix 21). No second pair of Straw Sandals.
 
 | The tea | The gauntlets | The first gear |
 |---|---|---|

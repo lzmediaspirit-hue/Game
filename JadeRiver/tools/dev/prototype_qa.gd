@@ -8,9 +8,11 @@ extends Node
 ## there (a driver's limit, not the game's). A screenshot at every step, and a log (qa_log.json) of what each shows.
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/prototype_qa.tscn \
 ##     -- --out=<dir> [--sect=jade|cloud] [--keep=<dir>] [--keep-at=<step>] [--from=<dir> --start=<step>] [--until=<step>]
+##     [--no-assist]
 ## --keep saves the game into <dir> before the step --keep-at names (by default the sect's choice, both recruiters met);
 ## --from resumes a kept game (Continue on the title) and --start runs on from that step (the second sect's run:
-## --from=<kept> --start=sect_choice --sect=cloud). On saves of its own, never the player's or a test's.
+## --from=<kept> --start=sect_choice --sect=cloud). --no-assist plays every fight on its own HP to the end (the balance
+## check: its log counts the falls, and no fall is covered up). On saves of its own, never the player's or a test's.
 
 const SAVES := "user://prototype_qa_saves/"
 const STICK := Vector2(240, 540)
@@ -23,6 +25,7 @@ var n := 0
 var notes: Array = []
 var finds: Array = []
 var t0 := 0
+var no_assist := false
 
 func _ready() -> void:
 	call_deferred("_main")
@@ -33,6 +36,7 @@ func _main() -> void:
 		if str(a).begins_with("--sect="): sect = str(a).trim_prefix("--sect=")
 		if str(a).begins_with("--keep="): keep_dir = str(a).trim_prefix("--keep=")
 		if str(a).begins_with("--from="): from_dir = str(a).trim_prefix("--from=")
+		if str(a) == "--no-assist": no_assist = true
 	if not out.ends_with("/"): out += "/"
 	DirAccess.make_dir_recursive_absolute(out)
 	t0 = Time.get_ticks_msec()
@@ -65,6 +69,7 @@ func _main() -> void:
 		if not on: continue
 		if keep_dir != "" and step in keep_at.split(","): keep(step)
 		say("step %s" % step)
+		step_now = step
 		# An attentive player breaks through when the bar says "breakthrough ready" (from the boat's first one on).
 		if Game.in_world and c() != null and c().cultivator.realm_key != "mortal": await breakthrough_if_ready("breakthrough_" + step)
 		await call(step)
@@ -90,9 +95,9 @@ func keep(step := "") -> void:
 func finish() -> void:
 	stick(Vector2.ZERO)
 	var f := FileAccess.open(out + "qa_log.json", FileAccess.WRITE)
-	f.store_string(JSON.stringify({"shots": notes, "finds": finds, "minutes": (Time.get_ticks_msec() - t0) / 60000.0}, "  "))
+	f.store_string(JSON.stringify({"shots": notes, "finds": finds, "falls": fall_log, "spars": spars, "minutes": (Time.get_ticks_msec() - t0) / 60000.0}, "  "))
 	f.close()
-	print("QA done: %d shots, %d finds, %.1f min" % [n, finds.size(), (Time.get_ticks_msec() - t0) / 60000.0])
+	print("QA done: %d shots, %d finds, %d falls, %.1f min" % [n, finds.size(), falls, (Time.get_ticks_msec() - t0) / 60000.0])
 	main.queue_free()   # the game let go before the quit, so the exit leaks nothing
 	await frames(3)
 	get_tree().quit()
@@ -509,24 +514,40 @@ func dialogue_through(key := "", value := "") -> bool:
 
 # ------------------------------------------------------------------ fighting
 var kills := {}
+var fall_log: Array = []   # every fall: its room, the walk's step, the Level, and the damage by foe since the last one
+var step_now := ""
+var spars: Array = []      # every spar's end: the opponent and who won
 var hurt_by := {}   # the damage taken since the last fall, by foe: what a death log names
+var blocked := 0    # the player's blows a foe's guard took (the Trial Puppet's), for a fight's report
 func _on_event(nm: String, p: Dictionary) -> void:
 	if nm == "actor_defeated" and str(p.get("victim_kind", "")) == "enemy": kills[str(p.get("def", ""))] = int(kills.get(str(p.get("def", "")), 0)) + 1
 	if nm == "hit_landed" and str(p.get("target_kind", "")) == "player" and str(p.get("attacker", "")).is_valid_int() and Game.room_rt != null:
 		var att = Game.room_rt.enemies.get(int(str(p.attacker)))
 		var key := ("%s%s" % [att.def_id, " (elite)" if att.elite else ""]) if att != null else "?"
 		hurt_by[key] = snappedf(float(hurt_by.get(key, 0.0)) + float(p.get("amount", 0.0)), 0.1)
+	if nm == "hit_blocked" and c() != null and str(p.get("attacker", "")) == c().id: blocked += 1
 	if nm == "player_gravely_wounded":
-		say("fell in %s: the damage taken since the last fall %s (%d kills so far)" % [room(), str(hurt_by), kills.values().reduce(func(a, b): return a + b, 0)])
+		var around: Array = []
+		if Game.room_rt != null and c() != null:
+			for e in Game.room_rt.living_enemies():
+				if e.team == "enemy" and e.in_fight() and e.plane.distance_to(me()) < 320.0: around.append("%s Lv %d" % [e.def_id, e.level])
+		var quick := str(c().inventory.quick_use) if c() != null else ""
+		say("fell in %s: the damage taken since the last fall %s (%d kills so far); at it then: %s; %d %s left in Quick-use" % [room(), str(hurt_by),
+			kills.values().reduce(func(a, b): return a + b, 0), str(around), c().inventory.count(quick) if c() != null and quick != "" else 0, quick])
+		fall_log.append({"room": room(), "step": step_now, "level": ProgressionRules.level(c()) if c() != null else 0, "hurt_by": hurt_by.duplicate()})
 		hurt_by.clear()
 		falls += 1
-		if falls == 3: say("QA assist from here: the QA player keeps its HP up in fights (it is no fighter; the fights were seen)")
+		if falls == 3 and not no_assist: say("QA assist from here: the QA player keeps its HP up in fights (it is no fighter; the fights were seen)")
+	if nm == "spar_ended":
+		spars.append({"opponent": str(p.get("opponent", "")), "winner": str(p.get("winner", "")), "level": ProgressionRules.level(c()) if c() != null else 0})
+		say("a spar with %s ended: %s won (Level %d)" % [str(p.get("opponent", "")), str(p.get("winner", "")), int(spars[-1].level)])
 	if nm == "script_error" or nm == "error": say("event error %s" % str(p))
 
-## After three falls the QA player keeps its HP up in fights, so the walk goes on to what it is for: the screens.
+## After three falls the QA player keeps its HP up in fights, so the walk goes on to what it is for: the screens (never
+## with --no-assist).
 var falls := 0
 func assist() -> void:
-	if falls >= 3 and c() != null and not Game.combat.is_wounded(c().id): c().pools.hp = c().pools.max_hp
+	if not no_assist and falls >= 3 and c() != null and not Game.combat.is_wounded(c().id): c().pools.hp = c().pools.max_hp
 
 ## Fight `count` of a foe as a careful thumb does: one target until it falls (whatever is at you first), a rest out of
 ## the way before a fresh one when hurt, a step out of the lane when it winds up (Evade once it is on the HUD), a
@@ -535,6 +556,8 @@ func assist() -> void:
 func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 	var before := int(kills.get(def_id, 0))
 	var start := now_ms()
+	var blocked0 := blocked
+	var mend_ms := 0
 	var shot_taken := false
 	var target: EnemyState = null
 	var fight_room := room()
@@ -570,7 +593,9 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 			continue
 		# Hurt, and the next one not yet on you: step away and let the body mend first.
 		if c().pools.hp < c().pools.max_hp * 0.8 and target.pools.hp >= target.pools.max_hp and str(target.ai.get("state", "")) in ["idle", "patrol", "return"]:
+			var m0 := now_ms()
 			await mend(target.plane)
+			mend_ms += now_ms() - m0
 			continue
 		var d: float = target.plane.distance_to(me())
 		if d > 44.0:
@@ -588,8 +613,11 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 		if not shot_taken and name != "":
 			shot_taken = true
 			await shot(name, "fighting %s" % def_id)
-		# A player reads the tell: out of the lane of a wind-up (Evade once it is on the HUD, else a step aside).
-		if str(target.ai.get("state", "")) == "windup":
+		# A player reads the tell: out of the lane of a wind-up (Evade once it is on the HUD, else a step aside). A foe
+		# that guards (the Trial Puppet) is open only while it strikes: once its guard has taken a blow, the thumb hits
+		# through its wind-up and recovery instead (a step aside and back is too slow for the opening).
+		var guards := str(target.def.get("ai", {}).get("profile", "")) == "guard_counter"
+		if str(target.ai.get("state", "")) == "windup" and not guards:
 			var lane: Vector2 = target.aim if target.aim.length() > 0.1 else (me() - target.plane).normalized()
 			var aside := Vector2(-lane.y, lane.x)
 			if aside.dot(me() - target.plane) < 0.0: aside = -aside
@@ -602,7 +630,9 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 			await tap(role("quick"), 3, 2)
 		elif c().pools.hp < c().pools.max_hp * 0.3:
 			# Nothing left to drink: back off out of the fight and let the body mend, as a player would.
+			var m1 := now_ms()
 			await mend(target.plane)
+			mend_ms += now_ms() - m1
 			target = null
 			continue
 		var tech: Vector2 = _ready_technique()
@@ -610,6 +640,10 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 		else: await tap(main.hud.attack_center, 5, 2)
 		await frames(6)
 	stick(Vector2.ZERO)
+	if int(kills.get(def_id, 0)) - before < count:
+		var foe := ("%s at %d/%d HP, %s" % [target.def_id, int(target.pools.hp), int(target.pools.max_hp), str(target.ai.get("state", ""))]) if target != null else "none in sight"
+		say("a fight with %s ran out of time: %d of %d down after %d s (%d s mending), %d blows on its guard; HP %d/%d; the foe %s" % [def_id,
+			int(kills.get(def_id, 0)) - before, count, (now_ms() - start) / 1000, mend_ms / 1000, blocked - blocked0, int(c().pools.hp), int(c().pools.max_hp), foe])
 	await pick_up_all()
 	return int(kills.get(def_id, 0)) - before
 
@@ -808,9 +842,12 @@ func p_crabs() -> void:
 	await travel("lf_village")
 	await talk("uncle_guo", "hand_in", "crab_trouble")
 	await settle()
-	for id in ["plain_straw_hat", "straw_sandals"]: await equip_from_bag(id)
-	await shot("hat_sandals_worn", "the Plain Straw Hat and Straw Sandals worn")
-	await look_in_bag("bag_after_crabs", ["training_short_blade", "plain_straw_hat", "straw_sandals"])
+	await look_in_bag("bag_after_crabs", ["training_short_blade", "plain_straw_hat", "boar_bone_broth"])
+	if c().inventory.count_including_equipped("straw_sandals") > 1: await find("a second pair of Straw Sandals", "sandals_twice")
+	await equip_from_bag("plain_straw_hat")
+	var body: int = c().cultivator.body_level
+	await use_from_bag("boar_bone_broth", "broth_drunk")
+	await shot("hat_broth", "the Plain Straw Hat worn and the Boar Bone Broth drunk (body level %d to %d)" % [body, c().cultivator.body_level])
 
 func p_night() -> void:
 	# Evening on the River, the Hollow Night, the River Token.
@@ -857,9 +894,17 @@ func p_willow() -> void:
 	await go("west")
 	await settle()
 	await interact("shrine_wp")
+	var elite_shot := false
 	for i in 16:
 		if not c().quests.is_active("the_willow_path"): break
-		await fight("wild_boarlet", 1, 90.0, "boarlets" if i == 0 else "")
+		# The herd's elite, the step after the five: walked to where it keeps (the west meadow), and its fight shot.
+		var prog: Array = c().quests.active.get("the_willow_path", {}).get("progress", [])
+		var elite_next: bool = prog.size() >= 3 and int(prog[2]) >= 5
+		if elite_next and not elite_shot:
+			for e in Game.room_rt.living_enemies():
+				if e.elite and e.def_id == "wild_boarlet": await walk_to(e.plane + Vector2(160, 0), 40.0, 20.0, false)
+		await fight("wild_boarlet", 1, 90.0, "boarlets" if i == 0 else ("willow_elite" if elite_next and not elite_shot else ""))
+		if elite_next: elite_shot = true
 	await shot("willow_done", "The Willow Path (done %s)" % str(c().quests.is_done("the_willow_path")))
 
 func sell_net() -> void:
@@ -917,6 +962,21 @@ func equip_from_bag(id: String) -> void:
 		await tap_region(bag, "bag", i)
 		await frames(8)
 		if not await tap_region(bag, "equip"): Game.submit({"type": "equip", "index": i})
+	await close_pages()
+
+## The Bag: an item's card, and its Use (a food, a pill), with a shot of the card before the tap.
+func use_from_bag(id: String, name := "") -> void:
+	var i: int = c().inventory.first_index(id)
+	if i < 0: return
+	if not await tap_role("icon:bag"): main.open_page("inventory", {})
+	await frames(20)
+	var bag := page_open("inventory")
+	if bag != null:
+		await tap_region(bag, "bag", i)
+		await frames(8)
+		if name != "": await shot(name, "the %s's card in the Bag" % id)
+		if not await tap_region(bag, "use"): Game.submit({"type": "use_item", "index": i, "confirm": true})
+		await frames(8)
 	await close_pages()
 
 ## Lu's boat: meditate (the Cultivate button), the bar full, the Cultivation page and the breakthrough.
@@ -1028,6 +1088,9 @@ func sect_choice() -> void:
 	await talk("shen_lian", "accept", "fish_gutting_fists", "shen_lian")
 	await talk("shen_lian", "spar", "")
 	await wait_s(1.0)
+	var npc_shown: bool = Game.room_rt.def.get("objects", []).any(func(o): return str(o.get("npc", "")) == "shen_lian" and Game.world.object_visible(c(), o))
+	await shot("spar_begins", "Shen Lian's spar begins (the villager figure shown too: %s; his lesson: %s)" % [npc_shown, main.hud.spar_line("shen_lian", "start")])
+	if npc_shown: await find("Shen Lian stands in the square while his spar partner fights", "two_shen_lians")
 	var start := now_ms()
 	while c().quests.is_active("fish_gutting_fists") and now_ms() - start < 90000:
 		var foe = null
@@ -1043,6 +1106,15 @@ func sect_choice() -> void:
 				await wait_s(1.0)
 			continue
 		assist()
+		# The lesson: when his shoulder drops (the wind-up), a step aside, then back in.
+		if str(foe.ai.get("state", "")) == "windup":
+			var lane: Vector2 = foe.aim if foe.aim.length() > 0.1 else (me() - foe.plane).normalized()
+			var aside := Vector2(-lane.y, lane.x)
+			if aside.dot(me() - foe.plane) < 0.0: aside = -aside
+			stick(aside)
+			await frames(24)
+			stick(Vector2.ZERO)
+			continue
 		if foe.plane.distance_to(me()) > 44.0:
 			stick(foe.plane - me())
 			await frames(2)
@@ -1073,6 +1145,8 @@ func chapter2() -> void:
 	await travel(s("weapon_hall"))
 	await settle()
 	await talk(s("master"), "accept", "the_weapon_hall", "weapon_master")
+	await look_in_bag("bag_weapon_hall", ["training_jian", "training_spear", "training_staff", "training_gauntlets"])
+	if c().inventory.count_including_equipped("training_gauntlets") > 1: await find("a second pair of Training Gauntlets from the rack", "gauntlets_twice")
 	var jian: int = c().inventory.first_index("training_jian")
 	if jian >= 0: Game.submit({"type": "equip", "index": jian})
 	var dummies: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "training_dummy")

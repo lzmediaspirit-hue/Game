@@ -34,6 +34,7 @@ func _main() -> void:
 	auto_path_suite()
 	quest_guidance_suite()
 	chores_after_power_suite()
+	early_rewards_suite()
 	topdown_art_suite()
 	foliage_art_suite()
 	combat_feel_suite()
@@ -1658,6 +1659,50 @@ func chores_after_power_suite() -> void:
 		for r in reqs:
 			var blocked := _req_names(r).filter(func(n): return chores.has(str(n)) or chore_quests.has(str(n)))
 			check(blocked.is_empty(), "item 6: the main story's %s waits on no daily or idle system (%s)" % [q.id, str(blocked)])
+
+## The prototype's polish (research player_motivation P6: every reward is something the player can feel): nothing the
+## early story hands out is a second of what the player already has. Every piece of gear and every tool it gives up to
+## the prototype's end (the starting kit; a prologue, main or guided quest's rewards and what it hands out when taken;
+## the unlocks those quests teach; the pickups in the rooms on the grid) is given once. A hand-out marked `unless_owned`
+## never gives a second (the Weapon Hall's rack). The QA saw Straw Sandals worn from the start, paid by Crab Trouble and
+## found in Old Ma's loft, Training Gauntlets from Uncle Guo and again from the Weapon Hall, and two herb sickles.
+const EARLY_CHAPTERS := ["prologue", "bf1", "bf2", "1", "2"]
+func early_rewards_suite() -> void:
+	var given := {}   # item id -> [where]
+	var gear := func(id: String) -> bool: return str(ContentDB.item(id).get("type", "")) in ["equipment", "tool"]
+	var note := func(id: String, where: String) -> void:
+		if gear.call(id): given[id] = given.get(id, []) + [where]
+	for id in AccountAuthority.STARTING_KIT: note.call(str(id), "the starting kit")
+	var early := {}
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) in ["prologue", "main", "guided"] and (str(q.get("chapter", "")) in EARLY_CHAPTERS or str(q.id) == "the_first_current"):
+			early[str(q.id)] = true
+	var handed := 0
+	for qid in early:
+		var q := ContentDB.entry("quests", str(qid))
+		for e in q.get("rewards", []) + q.get("on_accept", []):
+			if not str(e.get("kind", "")) in ["grant_item", "grant_equipment"]: continue
+			if e.get("unless_owned", false):
+				handed += 1
+				continue
+			note.call(str(e.item), str(qid))
+	for u in ContentDB.all("unlocks"):
+		if not early.has(str(u.get("quest", ""))): continue
+		for e in u.get("effects", []):
+			if str(e.get("kind", "")) == "grant_item": note.call(str(e.item), "unlock " + str(u.id))
+	for rid in ContentDB.rooms:
+		if not TopdownRoom.has_layout(str(rid)): continue
+		for o in ContentDB.room(str(rid)).get("objects", []):
+			if str(o.get("type", "")) == "pickup" and str(o.get("item", "")) != "": note.call(str(o.item), "%s:%s" % [rid, o.id])
+	var twice := {}
+	for id in given:
+		if (given[id] as Array).size() > 1: twice[id] = given[id]
+	check(twice.is_empty() and given.size() >= 6, "early rewards: no piece of gear or tool the early story hands out is a second of one the player has (%d given once, %d rack hand-outs never twice; twice: %s)" % [given.size(), handed, str(twice)])
+	# The Weapon Hall's rack: the sect's own weapons and the spear, never a second of Uncle Guo's gauntlets.
+	var rack: Array = ContentDB.entry("quests", "the_weapon_hall").get("on_accept", []).map(func(e): return str(e.get("item", "")))
+	check(rack.has("training_jian") and rack.has("training_staff") and not rack.has("training_gauntlets")
+		and ContentDB.entry("quests", "the_weapon_hall").get("on_accept", []).all(func(e): return e.get("unless_owned", false)),
+		"early rewards: the Weapon Hall's rack holds the Jade Sect's jian and the Cloud Sect's staff, not a second pair of gauntlets, each handed out only to one who lacks it (%s)" % str(rack))
 
 ## The highest realm a requirement asks for, character or account ("mortal" when none).
 func _req_floor(req: Dictionary) -> String:

@@ -233,11 +233,23 @@ static func label_views(host, at: Vector2, axes := Vector2(1, 0)) -> Array:
 	return views
 
 # ------------------------------------------------------------------ ways out
-## Ask the World authority for a way out (walked through, or taken with the context button); a refusal (a shut door, a
-## step first) rises over the player.
+## Ask the World authority for a way out (walked through, or taken with the context button). A refusal (a shut door,
+## a step first, the prototype's gate) is said once, by the way's own plate lit up at the way (PortalView.touch); only a
+## way with no plate of its own has its line rise over the player instead.
 static func request_portal(host, portal_id: String, crossing := false) -> void:
 	if host.transfer_cooldown > 0.0: return
 	host.transfer_cooldown = 0.6
 	var r := Game.submit({"type": "use_portal", "portal": portal_id, "crossing": crossing})
 	if not r.ok and r.has("text"):
+		if touch_way(host, portal_id): return
 		host.fx_layer().add("text", host.feet() + Vector2(0, -130), {"text": str(r.text), "color": UiKit.MIST, "size": 18, "dur": 1.6})
+
+## Light the plate of the host's way `portal_id` (its refusal); false when the host has no plate for it.
+static func touch_way(host, portal_id: String) -> bool:
+	for pv in host.portal_views:
+		if not is_instance_valid(pv) or str(pv.def.get("id", "")) != portal_id or Game.active() == null: continue
+		pv.state = Game.world.portal_state(Game.active(), pv.def)
+		if str(pv.state.get("text", "")) == "": return false
+		pv.touch()
+		return true
+	return false

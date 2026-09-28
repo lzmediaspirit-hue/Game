@@ -6,10 +6,10 @@
  "name": "Marsh Edge",
  "type": "field",
  "level_range": [
-  4,
-  6
+  3,
+  5
  ],
- "recommended_cp": 39,
+ "recommended_cp": 31,
  "element": "water",
  "qi_density": 1.0,
  "hazards": [],
@@ -250,7 +250,7 @@
     705
    ],
    "loot": "jar_valley_low",
-   "level": 5,
+   "level": 4,
    "hp": 1,
    "respawn_s": 300,
    "alt": 80,
@@ -264,7 +264,7 @@
     705
    ],
    "loot": "jar_valley_low",
-   "level": 5,
+   "level": 4,
    "hp": 1,
    "respawn_s": 300,
    "alt": 80,
@@ -278,7 +278,7 @@
     790
    ],
    "loot": "jar_valley_low",
-   "level": 5,
+   "level": 4,
    "hp": 1,
    "respawn_s": 300
   },
@@ -290,7 +290,7 @@
     700
    ],
    "loot": "jar_valley_low",
-   "level": 5,
+   "level": 4,
    "hp": 1,
    "respawn_s": 300
   },
@@ -302,7 +302,7 @@
     790
    ],
    "loot": "jar_valley_low",
-   "level": 5,
+   "level": 4,
    "hp": 1,
    "respawn_s": 300
   },
@@ -490,8 +490,8 @@
    "max": 3,
    "respawn_s": 12,
    "level": [
-    4,
-    6
+    3,
+    5
    ]
   },
   {
@@ -518,8 +518,8 @@
    "max": 3,
    "respawn_s": 12,
    "level": [
-    5,
-    6
+    4,
+    5
    ]
   },
   {
@@ -534,8 +534,8 @@
    "max": 1,
    "respawn_s": 180,
    "level": [
-    6,
-    6
+    5,
+    5
    ],
    "elite": true
   },
@@ -584,8 +584,8 @@
    "max": 3,
    "respawn_s": 8,
    "level": [
-    4,
-    5
+    3,
+    4
    ],
    "requires": {
     "any": [
@@ -616,8 +616,8 @@
    "max": 2,
    "respawn_s": 12,
    "level": [
-    4,
-    6
+    3,
+    5
    ]
   }
  ],

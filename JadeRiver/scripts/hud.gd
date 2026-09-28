@@ -523,7 +523,21 @@ func obstacle_rects() -> Array:
 	if not equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
 	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
 	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
+	var log_r := log_rect()
+	if log_r.size.x > 0.0: out.append(log_r)
 	return out
+
+## The log's rows as they stand (none when it is empty): the world's labels keep off them while they show (the
+## polish pass saw a boarlet's plate across "Codex: Body training").
+func log_rect() -> Rect2:
+	var lines := log_lines if shown("system_log") else log_lines.filter(func(l): return l.get("always", false))
+	var rows := log_rows(lines)
+	var n := rows.size()
+	if n == 0: return Rect2()
+	var w := 0.0
+	for r in rows: w = maxf(w, float(r.indent) + UiKit.text_width(str(r.text), 16, true))
+	var x := 20.0 if not left_handed else 1280.0 - 20.0 - LOG_W   # where _draw_log draws it
+	return Rect2(x, LOG_FOOT - (n - 1) * 21.0 - 16.0, minf(w, LOG_W), (n - 1) * 21.0 + 22.0)
 
 ## The player panel, one row taller once the Soul bar shows: it draws there, and the whole of it opens Character.
 func panel_rect(c) -> Rect2:
@@ -1159,6 +1173,19 @@ func _caption_worthy(name: String, p: Dictionary) -> bool:
 func _buzz(ms: int) -> void:
 	if Game.account.settings.get("haptics", true) and OS.has_feature("mobile"): Input.vibrate_handheld(ms)
 
+## Does the world in view draw a plate for the way `portal_id` (which says its refusal itself)?
+func _way_plate(portal_id: String) -> bool:
+	if not is_instance_valid(world) or not "portal_views" in world: return false
+	for pv in world.portal_views:
+		if is_instance_valid(pv) and str(pv.def.get("id", "")) == portal_id: return true
+	return false
+
+## What a spar opponent says at a moment of the spar ("start", "won", "lost"), quoted with their name, or "" when they
+## have no line for it (enemies.json `spar_lines`).
+static func spar_line(opponent: String, moment: String) -> String:
+	var line := str(ContentDB.entry("enemies", opponent).get("spar_lines", {}).get(moment, ""))
+	return "" if line == "" else "%s: “%s”" % [ContentDB.name_of("enemies", opponent), line]
+
 func toast(text: String, kind := "unlock", sub := "") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0, "from": _from})
 	while toasts.size() > 3: toasts.pop_front()
@@ -1296,10 +1323,12 @@ func _handle(name: String, p: Dictionary) -> void:
 		"system_log":
 			add_log(str(p.text), UiKit.PAPER)
 		"portal_blocked":
-			# Pushing against a shut way refuses it again and again: its line shows once, kept fresh (the prototype's QA saw
-			# "The road beyond is still being drawn." five times over at the gate).
+			# A shut way says why once, on its own plate at the way (WorldShared.request_portal lights it), not again in the
+			# log (the prototype's QA saw "The road beyond is still being drawn." three times at once at the gate). A way with
+			# no plate in view logs it, once while it repeats.
 			var said := str(p.get("text", ""))
-			if not log_lines.is_empty() and str(log_lines[-1].text) == said and float(log_lines[-1].t) < 5.0: log_lines[-1].t = 0.0
+			if said == "" or _way_plate(str(p.get("portal", ""))): pass
+			elif not log_lines.is_empty() and str(log_lines[-1].text) == said and float(log_lines[-1].t) < 5.0: log_lines[-1].t = 0.0
 			else: add_log(said, UiKit.MIST)
 		"field_boss_spawned", "elite_spawned":
 			var def := ContentDB.entry("enemies", str(p.def))
@@ -1631,8 +1660,13 @@ func _handle(name: String, p: Dictionary) -> void:
 			if str(p.item) != "": add_log(Tx.t("hud.treasure_set") % [ContentDB.item_name(str(p.item)), int(p.slot) + 1], UiKit.PALE_GOLD)
 		"pill_soul_awakened":
 			toast(Tx.t("hud.pill_soul") % Tx.t("hud.pill_soul_effect." + str(p.effect)), "gold")
+		# A spar is a lesson: an opponent with lines of their own (Shen Lian) says what it teaches as it starts and ends.
+		"spar_started":
+			var said := spar_line(str(p.get("opponent", "")), "start")
+			if said != "": toast(Tx.t("hud.spar_begins"), "quest", said)
 		"spar_ended":
-			toast(Tx.t("hud.spar_won") if p.get("winner", "") == "player" else Tx.t("hud.spar_lost_try_again"), "quest")
+			var won: bool = p.get("winner", "") == "player"
+			toast(Tx.t("hud.spar_won") if won else Tx.t("hud.spar_lost_try_again"), "quest", spar_line(str(p.get("opponent", "")), "won" if won else "lost"))
 		"quest_ready":
 			# Only a quest that waits to be handed in says so (one that completes itself, like the fair, is done by now).
 			if str(Game.active().quests.active.get(str(p.quest), {}).get("state", "")) == "ready":
@@ -2748,11 +2782,29 @@ func _draw_log() -> void:
 	# is revealed only the lines that must reach the player (what a consumable did) are drawn.
 	var x := 20.0 if not left_handed else 1280.0 - 20.0 - LOG_W
 	var lines := log_lines if shown("system_log") else log_lines.filter(func(l): return l.get("always", false))
-	var n := lines.size()
+	var rows := log_rows(lines)
+	var n := rows.size()
 	for i in n:
-		var l: Dictionary = lines[i]
-		var a = 1.0 if l.t < 5.0 else 6.0 - l.t
-		UiKit.draw_outlined(self, UiKit.fit(str(l.text), 16, LOG_W, true), Vector2(x, LOG_FOOT - (n - 1 - i) * 21.0), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, LOG_W)
+		var r: Dictionary = rows[i]
+		var col: Color = r.color
+		UiKit.draw_outlined(self, str(r.text), Vector2(x + float(r.indent), LOG_FOOT - (n - 1 - i) * 21.0), 16, col, HORIZONTAL_ALIGNMENT_LEFT, LOG_W - float(r.indent))
+
+## The log's rows, newest at the foot: a line longer than the log's width wraps onto a second row, indented (only a
+## third row's worth ends in "…"; the prototype's QA read "A drop of blood on Plain Straw Hat: it knows…"), and the
+## oldest rows give way so the log never grows past LOG_ROWS toward the tracker.
+const LOG_ROWS := 6
+const LOG_INDENT := 14.0
+func log_rows(lines: Array) -> Array:
+	var out: Array = []
+	for l in lines:
+		var a = 1.0 if float(l.t) < 5.0 else 6.0 - float(l.t)
+		var col := Color(l.color, a)
+		var text := str(l.text)
+		var first := str(UiKit.wrap(text, 16, LOG_W, true)[0])
+		out.append({"text": UiKit.fit(first, 16, LOG_W, true), "indent": 0.0, "color": col})
+		var rest := text.substr(first.length()).strip_edges()
+		if rest != "": out.append({"text": UiKit.fit(rest, 16, LOG_W - LOG_INDENT, true), "indent": LOG_INDENT, "color": col})
+	return out.slice(maxi(0, out.size() - LOG_ROWS))
 
 ## The top centre (P5a), one thing under another so none covers another, from under the party chips (or under the boss
 ## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
@@ -2821,16 +2873,29 @@ func _draw_toasts(y: float) -> float:
 		draw_style_box(UiKit.style("toast"), r)
 		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED_TEXT if tt.kind == "danger" else UiKit.BRIGHT_JADE)
 		UiKit.draw_text(self, UiKit.fit(str(tt.text), 20, 376), r.position + Vector2(16, 31), 20, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 376)
-		if sub != "": UiKit.draw_text(self, UiKit.fit(sub, 18, 376), r.position + Vector2(16, 58), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 376)
+		var row_y := 58.0
+		for row in toast_sub_rows(sub):
+			UiKit.draw_text(self, str(row), r.position + Vector2(16, row_y), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 376)
+			row_y += TOAST_ROW
 		y = r.end.y + 8.0
 		toasts_fit += 1
 	return y
+
+## A toast's second line, wrapped to two rows at most (a spar's lesson, said whole), the second cut if it must be.
+const TOAST_ROW := 22.0
+static func toast_sub_rows(sub: String) -> Array:
+	if sub == "": return []
+	var rows: Array = UiKit.wrap(sub, 18, 376)
+	if rows.size() <= 1: return [UiKit.fit(sub, 18, 376)]
+	var first := str(rows[0])
+	return [first, UiKit.fit(sub.substr(first.length()).strip_edges(), 18, 376)]
 
 ## Where the toasts stand from `y` down: the first always, each next only while it ends above the clear zone.
 func toast_rects(y: float) -> Array:
 	var out: Array = []
 	for tt in toasts:
-		var h := 48.0 if str(tt.get("sub", "")) == "" else 74.0
+		var rows := toast_sub_rows(str(tt.get("sub", ""))).size()
+		var h := 48.0 if rows == 0 else 74.0 + TOAST_ROW * (rows - 1)
 		if not out.is_empty() and y + h > CLEAR_ZONE.position.y: break
 		out.append(Rect2(436, y, 408, h))
 		y += h + 8.0

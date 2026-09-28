@@ -139,7 +139,12 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 	for e in effects:
 		if not (e is Dictionary): continue
 		match str(e.get("kind", "")):
-			"grant_item": inventory.apply_add(actor_id, str(e.item), int(e.get("count", 1)), source, e.get("instance", {}))
+			"grant_item":
+				# `unless_owned`: never a second of what the character already has, in the bag or worn (the Weapon Hall's rack
+				# after Uncle Guo's gauntlets, the prototype's polish).
+				var owner = character(actor_id) if e.get("unless_owned", false) else null
+				if owner == null or owner.inventory.count_including_equipped(str(e.item)) <= 0:
+					inventory.apply_add(actor_id, str(e.item), int(e.get("count", 1)), source, e.get("instance", {}))
 			"remove_item": inventory.apply_remove(actor_id, str(e.item), int(e.get("count", 1)), source)
 			"grant_currency": economy.apply_currency(str(e.get("currency", "silver_tael")), int(e.amount), source)
 			"add_progress": progression.apply_progress(actor_id, float(e.get("amount", 0)), source, float(e.get("pct_of_need", 0)))

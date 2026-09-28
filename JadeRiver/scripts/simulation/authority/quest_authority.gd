@@ -159,6 +159,10 @@ func objective_room(c, def: Dictionary, o: Dictionary) -> String:
 	var target := sect_room(c, def)
 	var places := objective_places(c, o)
 	if places.is_empty() or target in places: return target
+	# Standing in the instanced room the step is done in (the Siege of Two Sects, entered by its rite, its way out held
+	# until it is won): the step leads here, not back to the street the rite was begun in.
+	var here := str(c.position.get("room", "")) if c else ""
+	if here in places and ContentDB.room(here).get("instanced", false): return here
 	var my_sect := str(c.training_sect.get("id", "")) if c else ""
 	var hops := _hops(c)
 	var best := target
@@ -491,7 +495,7 @@ func choose(c, npc: String, choice: Dictionary) -> Dictionary:
 	if choice.has("next") and choice.get("tree", "") != "":
 		var tree2: Dictionary = ContentDB.dialogue.get(str(choice.tree), {})
 		return ok({"dialogue": _tree_node(c, npc, ContentDB.entry("npcs", npc), tree2, str(choice.next))})
-	if choice.has("spar"): return start_spar(c, str(choice.spar))
+	if choice.has("spar"): return start_spar(c, str(choice.spar), -1, npc)
 	return ok()
 
 ## M17 · After a quest is taken or handed in, the conversation ends there (nobody taps "Farewell"), unless the same
@@ -1076,19 +1080,28 @@ func start_set_piece(c, event: String) -> Dictionary:
 func start_spar_from_object(c, o: Dictionary) -> Dictionary:
 	return start_spar(c, str(o.get("opponent", "sparring_disciple")))
 
-## A spar at a set level (-1: the opponent's own; the sparring disciple always matches you).
-func start_spar(c, opponent: String, level := -1) -> Dictionary:
+## A spar at a set level (-1: the opponent's own; an opponent whose `spar_level` is "match", the sparring disciples and
+## Shen Lian, always matches you: a spar is a lesson). Asked of a person (`npc`, the talk's Spar), that person is the
+## one who fights: the partner steps out from where they stand, and they are hidden while the spar goes on
+## (WorldAuthority.object_visible), so there is one of them on the screen, not two (the prototype's QA saw two Shen Lians).
+func start_spar(c, opponent: String, level := -1, npc := "") -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
 	for e in game.room_rt.living_enemies():
 		if e.def.get("spar", false): return fail("spar_running")
 	var st: ActorState = game.actor_state(c.id)
 	var at = st.plane + Vector2(160, 0) if st else Vector2(600, 800)
+	var person := {}
+	if npc != "":
+		for o in game.room_rt.def.get("objects", []):
+			if str(o.get("type", "")) == "npc" and str(o.get("npc", "")) == npc and game.world.object_visible(c, o): person = o
+	if not person.is_empty(): at = Vector2(float(person.at[0]), float(person.at[1]))
 	at.x = clampf(at.x, 80, game.room_rt.width() - 80)
 	# On the height grid the partner steps up on the player's own floor, never into a wall or the water.
 	if game.room_rt.topdown != null and st != null: at = game.room_rt.topdown.place_near(at, st.altitude)
 	var lvl := level
-	if opponent == "sparring_disciple": lvl = maxi(1, ProgressionRules.level(c))
-	game.enemies.start_spar(opponent, at, lvl)
+	if str(ContentDB.entry("enemies", opponent).get("spar_level", "")) == "match": lvl = maxi(1, ProgressionRules.level(c))
+	var e: EnemyState = game.enemies.start_spar(opponent, at, lvl)
+	if e != null and not person.is_empty(): e.ai["partner"] = str(person.get("npc", ""))
 	return ok({"spar": opponent})
 
 ## Timed quests (Race to the Tower) fail back to "offered" when their time runs out.
