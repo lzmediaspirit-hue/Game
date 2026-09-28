@@ -122,27 +122,42 @@ func phase4() -> void:
 	var out := "res://docs/redesign/phase4/"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
 	main.enter_topdown_tutorial(false)
-	await frames(40)
 	var c = Game.active()
-	for s in PHASE4:
-		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
-		GameEvents.flush()
-		await frames(10)
-		w = main.world
-		p = w.player
-		m = p.motor
-		await frames(50)
+	# The Prologue as a new character plays it: waking in the hut, then out through its door (Morning Tide's step),
+	# the village's three parts, and Lu's talk with A Quiet River to hand in, on the real dialogue page over the grid.
+	await at_spot(Vector2(8, 7), 150)
+	await shot("01_fishers_hut", out)
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(20)
+	for s in [["02_village_home_lane", Vector2(12, 18)], ["03_village_square", Vector2(33, 21)], ["04_village_docks", Vector2(58, 26)]]:
+		await at_spot(s[1], 60)
 		await shot(str(s[0]), out)
-	# A quest talk: Lu at the Ferry Docks offers A Quiet River's hand-in, on the real dialogue page over the grid.
-	Game.world.load_room(c, "lf_village", "", Vector2(55.5, 28.5) * TopdownRoom.TILE)
-	GameEvents.flush()
-	await frames(40)
+	await at_spot(Vector2(55, 28), 40)
 	var r := Game.submit({"type": "interact", "object": "npc_lu_boatman"})
 	if r.get("ok", false) and r.has("dialogue"): main.open_page("dialogue", {"convo": r.dialogue})
 	await frames(90)
 	await shot("16_quest_talk_lu", out)
+	main.close_all_pages()
+	# The other rooms, entered through the World authority at a spot that shows each.
+	for s in PHASE4:
+		if str(s[1]) in ["lf_fishers_hut", "lf_village"]: continue
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 120)
+		await shot(str(s[0]), out)
 	print("topdown_capture: phase 4 done")
 	get_tree().quit()
+
+## Stand at a cell of the room on view (its villagers' sheets load in while it waits `n` frames).
+func at_spot(cell: Vector2, n: int) -> void:
+	w = main.world
+	p = w.player
+	m = p.motor
+	m.place((cell + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	m.dir = Vector2.DOWN
+	w._settle_camera()
+	await frames(n)
 
 ## An empty square round `at` with these foes ([def, offset]) turned on the player.
 func arena(at: Vector2, foes: Array) -> void:

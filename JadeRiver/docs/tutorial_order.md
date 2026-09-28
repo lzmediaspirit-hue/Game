@@ -1,7 +1,9 @@
 # Tutorial order: the Prologue and the start of Act I
 
 Checked from a brand-new character, step by step, by `tests/tutorial_order.gd` (the walk below, taken fists-first:
-Uncle Guo before Granny Liu) and `tests/prologue_run.gd` (Granny first). Every quest is taken and handed in on the
+Uncle Guo before Granny Liu) and `tests/prologue_run.gd` (Granny first). `tests/topdown_tutorial.gd` plays the same
+walk, to the same invariants, as a character of the top-down world: the thirteen rooms from the Fisher's Hut to the
+Fairground on the height grid, the rest side-view (`docs/redesign_top_down_plan.md`, "As built: Phase 4"). Every quest is taken and handed in on the
 real dialogue page. `tests/valley_run.gd` holds every main quest of Acts I–III to the same story guidance (the last
 column and "What the walk holds to" below).
 

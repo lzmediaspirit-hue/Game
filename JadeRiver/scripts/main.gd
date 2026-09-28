@@ -93,6 +93,7 @@ var creator: Page
 var topdown := false            ## the world mounted is the top-down prototype room (redesign Phase 1)
 var proto_isolated := false     ## opened from the title screen on PROTO_SAVES; leaving it restores the player's saves
 var _proto_force_was := false
+var _saves_before := "user://"  ## the saves set aside while the top-down game or the prototype runs on its own
 
 # Creator access kept for the engine checks.
 var draft: Dictionary:
@@ -321,7 +322,7 @@ func _handle_preview_args(user_args: Array) -> void:
 				wc.inventory.equipped["weapon"] = wc.inventory.bag[wi]
 				wc.inventory.bag[wi] = was
 				Game.combat.refresh_stats(wc.id)
-				if is_instance_valid(world) and world.player:
+				if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
 					world.player.avatar.outfit = InventoryAuthority.outfit_for(wc)
 					world.player.avatar.last_key = ""
 		if str(a).begins_with("--relic=") and Game.active() != null:
@@ -340,7 +341,7 @@ func _handle_preview_args(user_args: Array) -> void:
 			for fid in ["iron_jian", "iron_spear"]: Game.inventory.apply_add_equipment(rc.id, fid, 10, "common", "debug")
 			Game.inventory.apply_add(rc.id, str(ContentDB.item(ra[0]).get("spirit", {}).get("favourite", "refining_essence")), 3, "debug")
 			Game.combat.refresh_stats(rc.id)
-			if is_instance_valid(world) and world.player:
+			if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
 				world.player.avatar.outfit = InventoryAuthority.outfit_for(rc)
 				world.player.avatar.last_key = ""
 			Game.inventory.speak(rc, rinst, "awake" if str(rinst.spirit) == "awake" else "gift", true)
@@ -360,7 +361,7 @@ func _handle_preview_args(user_args: Array) -> void:
 			Unlocks.force_unlock(kc.id, "smithing")
 			Game.inventory.apply_add(kc.id, "weapon_soul_crystal", 1, "debug")
 			Game.combat.refresh_stats(kc.id)
-			if is_instance_valid(world) and world.player:
+			if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
 				world.player.avatar.outfit = InventoryAuthority.outfit_for(kc)
 				world.player.avatar.last_key = ""
 		if str(a).begins_with("--join=") and Game.active() != null:
@@ -823,6 +824,7 @@ func enter_topdown_tutorial(isolated := true) -> void:
 	_proto_force_was = Unlocks.debug_force_all
 	if isolated:
 		Game.save_all()
+		_saves_before = Saves.repo.root
 		Saves.use_folder(TOPDOWN_SAVES)
 		Game.boot()
 		proto_isolated = true
@@ -835,6 +837,7 @@ func enter_topdown_tutorial(isolated := true) -> void:
 func enter_topdown_proto(isolated: bool) -> void:
 	if isolated:
 		Game.save_all()
+		_saves_before = Saves.repo.root
 		Saves.use_folder(PROTO_SAVES)
 		Game.boot()
 		proto_isolated = true
@@ -850,7 +853,7 @@ func _leave_topdown_proto() -> void:
 	Unlocks.debug_force_all = _proto_force_was
 	if proto_isolated:
 		proto_isolated = false
-		Saves.use_folder("user://")
+		Saves.use_folder(_saves_before)
 		Game.boot()
 
 func return_to_selection() -> void:

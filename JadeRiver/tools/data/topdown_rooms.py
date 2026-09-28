@@ -103,6 +103,14 @@ class Layout:
             p["span"] = span
         self.portals[pid] = p
 
+    def door_path(self, prop_index, to_row, paint="d"):
+        """A path two tiles wide from a building's doorway down to a lane at `to_row` (drawn before the doorway's
+        way is set, so a path always leads to a door)."""
+        p = self.props[prop_index]
+        c0, c1 = DOORS[p["kind"]]
+        fh = TILESET["props"][p["kind"]]["footprint"][1]
+        return self.rect(p["x"] + c0, p["y"] + fh, c1 - c0 + 1, to_row - (p["y"] + fh), None, paint)
+
     def door(self, pid, prop_index, arrive_rows=1.5):
         """A way into a building prop, in the doorway under its door art, walked into northward."""
         p = self.props[prop_index]
@@ -322,11 +330,25 @@ def village(rid="lf_village", night=False):
     r.prop("crates", 10, 13)                      # the way onto its roof
     granny = r.prop("house", 15, 11)              # Granny Liu's Herb Hut: door at x 17-18
     store = r.prop("storehouse", 38, 11)          # Old Ma's Store: door at x 39-40
+    for b in (hut, granny):
+        r.door_path(b, 20)                        # a path from each door down to the lane
+    r.door_path(store, 15, "p")
+    r.rect(1, 23, 4, 2, None, "f")                # flower beds along Home Lane
+    r.rect(9, 24, 5, 2, None, "f")
+    r.rect(1, 12, 2, 2, None, "f")
     r.prop("lantern", 23, 15)
     r.prop("lantern", 46, 15)
     r.prop("barrel", 36, 13)
+    r.prop("shrub", 3, 14)
+    r.prop("shrub", 13, 14)
+    r.prop("shrub", 21, 14)
+    r.prop("shrub", 16, 26)
+    r.prop("bamboo", 19, 25)
+    r.prop("bamboo", 20, 26)
     for x in (2, 8, 14, 26, 33, 44):
         r.prop("reeds", x, 33)
+    r.prop("lotus", 10, 36)
+    r.prop("lotus", 30, 37)
     if night:
         r.spawn = [30, 22]
         r.at("hut_refuge", 6.5, 15)

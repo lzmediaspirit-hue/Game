@@ -278,3 +278,24 @@ func _topdown() -> void:
 	check(foes >= 15 and int(peak.fx) > 0 and per_fight < 16.6, "the top-down room holds 60 fps with %d foes and the fight's effects (%.2f ms)" % [foes, per_fight])
 	main.return_to_selection()
 	await get_tree().process_frame
+	# Phase 4: a top-down character's own game (the title's hidden entry, on its own saves): out of the Fisher's Hut into
+	# Lotus Ferry, the view rebuilt on the grid with the village's people, things and ways, then a walk through it.
+	var saves: String = main.get_script().TOPDOWN_SAVES
+	DirAccess.make_dir_recursive_absolute(saves)
+	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
+	main.enter_topdown_tutorial(true)
+	await get_tree().process_frame
+	var t1 := Time.get_ticks_usec()
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await get_tree().process_frame
+	var ms_room := (Time.get_ticks_usec() - t1) / 1000.0
+	var walker = main.world.player
+	var walk := func(i: int) -> void: walker.movement = Vector2.from_angle(i * 0.04)
+	var per_walk := await _frames(120, walk)
+	var built: int = main.world.npc_views.size() + main.world.object_views.size() + main.world.portal_views.size()
+	print("topdown world: Lotus Ferry entered in %.0f ms (%d people, things and ways), %.2f ms per frame" % [ms_room, built, per_walk])
+	check(main.world is TopdownWorld and main.world.live and Game.room_rt.room_id == "lf_village" and ms_room < 300.0 and per_walk < 16.6,
+		"a top-down character's Lotus Ferry loads in under 0.3 s (%.0f ms, %d built) and runs at 60 fps (%.2f ms)" % [ms_room, built, per_walk])
+	main.return_to_selection()
+	await get_tree().process_frame
+	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)

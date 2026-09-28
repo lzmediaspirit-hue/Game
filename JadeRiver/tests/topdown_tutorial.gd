@@ -35,6 +35,7 @@ func _main() -> void:
 	_layouts()
 	run()
 	_save_on_the_grid()
+	_walk_on_the_grid()
 	check(wrong_view.is_empty(), "every room of the walk was on the grid exactly when it has a layout (%s)" % str(wrong_view))
 	var missed := TUTORIAL_ROOMS.filter(func(r): return not grid_rooms.has(r))
 	check(missed.is_empty(), "every room of the tutorial to the sect choice was played on the grid (%d rooms; missed %s)" % [grid_rooms.size(), str(missed)])
@@ -128,6 +129,52 @@ func _layouts() -> void:
 				for q in sp.get("points", []):
 					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)
 		check(bad.is_empty(), "%s: everything stands on a floor and is reached on foot from every way in and from the spawn (%s)" % [rid, str(bad.slice(0, 6))])
+
+# ------------------------------------------------------------------ 6: the real view drives the body
+## The character's own view (a live TopdownWorld, bound, as main.gd mounts it) moves the body on the grid: the context
+## button offers a talk beside a person; auto-path (the tracker's go button) walks it to the Trial Tower's doorway and
+## in through the door, and back on the Fairground out through its east edge into Artisan Row, the view following.
+func _walk_on_the_grid() -> void:
+	var w := _live_view()
+	var shen: Dictionary = npc_object("shen_lian")
+	var at := Vector2(float(shen.at[0]), float(shen.at[1]))
+	w.player.motor.place(w.room.spot_near(at, float(shen.alt), at + Vector2(-40, 0)))
+	w.player.physics_step(1.0 / 60.0)
+	w._update_context()
+	check(str(w.context.get("type", "")) == "npc" and str(w.context.get("npc", "")) == "shen_lian", "on the grid the context button offers a talk beside Shen Lian (%s)" % str(w.context))
+	check(_auto_path(w, "sf_trial_tower", 40.0), "auto-path walks the body across the Fairground to the Trial Tower's doorway and in (room %s)" % room())
+	_drop_view(w)
+	check(go("entry") and room() == "sf_fairground", "back out of the tower onto the grid")
+	w = _live_view()
+	check(_auto_path(w, "sf_artisan_row", 40.0) and w.room == Game.room_rt.topdown and w.room.id == "sf_artisan_row",
+		"auto-path walks out through the Fairground's east edge into Artisan Row, and the view builds it (room %s)" % room())
+	_drop_view(w)
+
+## The view gone, the walk's own body is the one the authorities move again.
+func _drop_view(w: TopdownWorld) -> void:
+	w.free()
+	if st != null: Game.bind_movement(Game.active_id, st)
+
+func _live_view() -> TopdownWorld:
+	var w := TopdownWorld.new()
+	w.live = true
+	w.sim_frozen = true   # the walk steps it
+	add_child(w)
+	return w
+
+## Auto-path to `target`, stepping the view's body and the simulation as the world does, until it arrives.
+func _auto_path(w: TopdownWorld, target: String, limit_s: float) -> bool:
+	if not submit({"type": "auto_path", "target": target}).get("ok", false): return false
+	var t := 0.0
+	var dt := 1.0 / 60.0
+	while room() != target and t < limit_s:
+		w.player.physics_step(dt)
+		Game.tick(dt)
+		GameEvents.flush()
+		if room() != target: w._check_portals(dt)
+		t += dt
+	play_s += t
+	return room() == target
 
 ## Every cell reached on foot from `from` (the TopdownMotor's rules, as tools/data/topdown_rooms.py checks them):
 ## walking and stairs, any drop, a jump up to one level, and a running jump over a tile of water or a drop.

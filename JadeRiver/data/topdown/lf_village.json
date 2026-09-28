@@ -65,20 +65,20 @@
   "ggggggggggggsssggggggggggggggggggsssgggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssssgg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssssgg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssssgg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssssgg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "gffggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gffggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggddgggggggggddggggggggggggggggggggppggggggggggggggggggggggggggggggg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
   "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
   "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
   "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssgggg",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
-  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "gffffgggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssgggg",
+  "gffffggggfffffggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "gggggggggfffffggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
   "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
   "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
   "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
@@ -199,6 +199,36 @@
    "y": 13
   },
   {
+   "kind": "shrub",
+   "x": 3,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 13,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 21,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "bamboo",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 20,
+   "y": 26
+  },
+  {
    "kind": "reeds",
    "x": 2,
    "y": 33
@@ -227,6 +257,16 @@
    "kind": "reeds",
    "x": 44,
    "y": 33
+  },
+  {
+   "kind": "lotus",
+   "x": 10,
+   "y": 36
+  },
+  {
+   "kind": "lotus",
+   "x": 30,
+   "y": 37
   },
   {
    "kind": "house",

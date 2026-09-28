@@ -65,20 +65,20 @@
   "ggggggggggggsssggggggggggggggggggsssgggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
+  "gffggggggggggggggggggggggggggggggggggggggggggggg",
+  "gffggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggddgggggggggddggggggggggggggggggggppggggggg",
+  "ggggggddgggggggggddgggpppppppppppppppppppppppppp",
+  "ggggggddgggggggggddgggpppppppppppppppppppppppppp",
+  "ggggggddgggggggggddgggpppppppppppppppppppppppppp",
+  "ggggggddgggggggggddgggpppppppppppppppppppppppppp",
+  "ggggggddgggggggggddgggpppppppppppppppppppppppppp",
   "ddddddddddddddddddddddpppppppppppppppppppppppppp",
   "ddddddddddddddddddddddpppppppppppppppppppppppppp",
   "ddddddddddddddddddddddpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
-  "ggggggggggggggggggggggpppppppppppppppppppppppppp",
+  "gffffgggggggggggggggggpppppppppppppppppppppppppp",
+  "gffffggggfffffggggggggpppppppppppppppppppppppppp",
+  "gggggggggfffffggggggggpppppppppppppppppppppppppp",
   "ggggggggggggggggggggggpppppppppppppppppppppppppp",
   "ggggggggggggggggggggggpppppppppppppppppppppppppp",
   "ggggggggggggggggggggggpppppppppppppppppppppppppp",
@@ -191,6 +191,36 @@
    "y": 13
   },
   {
+   "kind": "shrub",
+   "x": 3,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 13,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 21,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "bamboo",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 20,
+   "y": 26
+  },
+  {
    "kind": "reeds",
    "x": 2,
    "y": 33
@@ -219,6 +249,16 @@
    "kind": "reeds",
    "x": 44,
    "y": 33
+  },
+  {
+   "kind": "lotus",
+   "x": 10,
+   "y": 36
+  },
+  {
+   "kind": "lotus",
+   "x": 30,
+   "y": 37
   }
  ],
  "place": {

@@ -2310,8 +2310,8 @@ func _grid_map(grid: TopdownRoom) -> Texture2D:
 		for x in grid.w:
 			var l := grid.level(x, y)
 			var col := Color(UiKit.SURFACE.map_line, 0.10)
-			if l == TopdownRoom.WATER: col = Color(0.30, 0.55, 0.62, 0.55)
-			elif l == TopdownRoom.SOLID: col = Color(0.02, 0.05, 0.06, 0.55)
+			if l == TopdownRoom.WATER: col = Color(UiKit.SKY, 0.45)
+			elif l == TopdownRoom.SOLID: col = Color(UiKit.INK, 0.55)
 			elif not grid.stair_at(x, y).is_empty(): col = Color(UiKit.SURFACE.map_line, 0.45)
 			else: col = Color(UiKit.SURFACE.map_line, clampf(0.16 + 0.12 * l, 0.16, 0.7))
 			img.set_pixel(x, y, col)
