@@ -31,6 +31,7 @@ TOPS = [
     ("roof_top", lambda: tl.roof_top(9)), ("roof_top_b", lambda: tl.roof_top(19)),
     ("wall_top", lambda: tl.wall_top(8)),
     ("stairs", tl.stairs),
+    ("marsh_a", lambda: tl.grass(33, "marsh")), ("marsh_b", lambda: tl.grass(34, "marsh")),
 ]
 
 FACES = [

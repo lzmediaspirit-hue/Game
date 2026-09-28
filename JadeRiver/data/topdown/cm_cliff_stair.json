@@ -1,0 +1,273 @@
+{
+ "schema_version": 1,
+ "id": "cm_cliff_stair",
+ "name": "Cliff Stair",
+ "size": [
+  56,
+  34
+ ],
+ "spawn": [
+  9,
+  31
+ ],
+ "levels": [
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "55555555555555555555555555555555555555554444444444445555",
+  "55555555555555555555555555555555555555554444444444445555",
+  "55555555555555555555555555555555555555554444444444445555",
+  "55555555555555555555555555555555553333334444444444445555",
+  "00000000000000002222222222222222223333334444444444445555",
+  "00000000000000002222222222222222223333334444444444445555",
+  "00000000000000002222222222222222223333330000000000005555",
+  "00000000000000002222222222222222223333330000000000005555",
+  "00000000000000002222222222222222223333330000000000000000",
+  "00000000000000002222222222222222220000000000000000000000",
+  "00000000000000002222222222222222220000000000000000000000",
+  "00000000000000002222222222222222220000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggssssssssssssssssssrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggssssssssssssssssssrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggssssssssssssssssssrrrrrrggggggggggggrrrr",
+  "ggggggggggggggggssssssssssssssssssrrrrrrggggggggggggrrrr",
+  "ggggggggggggggggssssssssssssssssssrrrrrrgggggggggggggggg",
+  "ggggggggggggggggssssssssssssssssssgggggggggggggggggggggg",
+  "ggggggggggggggggssssssssssssssssssgggggggggggggggggggggg",
+  "ggggggggggggggggssssssssssssssssssgggggggggggggggggggggg",
+  "ggffffffffgggggggggggggssssgggggggggggggggggfffffggggggg",
+  "ggffffffffgggggggggggggssssgggggggggggwwwwwwfffffggggggg",
+  "gggggggggggggggggggggggssssgggggggggggwwwwwwgggggggggggg",
+  "gggggggggggggggggggggggssssggggggggggggggggggggggggggggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "gggppppppppppppppppppppppppppppppppppppppppppppppppppggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggdddgggggggggggggggggggffffffffffgggggggggggggggg",
+  "ggggggggdddgggggggggggggggggggffffffffffgggggggggggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggdddggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 23,
+   "y": 14,
+   "w": 4,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 44,
+   "y": 2,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 38,
+   "y": 12,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 6,
+   "y": 29
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 12,
+   "y": 29
+  },
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 22,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 27,
+   "y": 16
+  },
+  {
+   "kind": "pine",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "pine",
+   "x": 11,
+   "y": 10
+  },
+  {
+   "kind": "pine",
+   "x": 54,
+   "y": 13
+  },
+  {
+   "kind": "pine",
+   "x": 2,
+   "y": 30
+  },
+  {
+   "kind": "boulder",
+   "x": 6,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 51,
+   "y": 30
+  }
+ ],
+ "place": {
+  "shrine_cm": [
+   14,
+   19
+  ],
+  "stone_cm": [
+   13,
+   24
+  ],
+  "board_cm": [
+   46,
+   20
+  ],
+  "siege_gong_cm": [
+   51,
+   26
+  ],
+  "npc_cloud_steward": [
+   7,
+   21
+  ],
+  "npc_cloud_deacon": [
+   48,
+   22
+  ],
+  "npc_cloud_disciple_a": [
+   22,
+   22
+  ],
+  "dorm_bed_cm": [
+   42,
+   16
+  ],
+  "sweep_cm_0": [
+   18,
+   24
+  ],
+  "sweep_cm_1": [
+   30,
+   25
+  ],
+  "sweep_cm_2": [
+   11,
+   27
+  ],
+  "cloud_steps_bell": [
+   49,
+   5
+  ],
+  "cloud_steps_stone": [
+   5,
+   26
+  ]
+ },
+ "portals": {
+  "stoneford": {
+   "at": [
+    9,
+    33
+   ],
+   "dir": "s",
+   "arrive": [
+    9,
+    31
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    23
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    23
+   ],
+   "span": 3
+  },
+  "library": {
+   "at": [
+    45.5,
+    5
+   ],
+   "dir": "n",
+   "arrive": [
+    45.5,
+    5.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}
