@@ -4196,7 +4196,6 @@
    ],
    "face": "pave",
    "macro": "pave",
-   "tone": true,
    "top": [
     "paving_a",
     "paving_b",
@@ -4232,7 +4231,6 @@
    ],
    "face": "stone",
    "macro": "stone",
-   "tone": true,
    "top": [
     "stone_top",
     "stone_top",
@@ -5253,37 +5251,37 @@
    16
   ],
   "decal_flowers_0": [
-   336,
-   560,
-   16,
-   16
-  ],
-  "decal_flowers_1": [
-   352,
-   560,
-   16,
-   16
-  ],
-  "decal_flowers_2": [
    368,
    560,
    16,
    16
   ],
-  "decal_flowers_3": [
+  "decal_flowers_1": [
    384,
    560,
    16,
    16
   ],
-  "decal_flowers_4": [
+  "decal_flowers_2": [
    400,
    560,
    16,
    16
   ],
-  "decal_flowers_5": [
+  "decal_flowers_3": [
    416,
+   560,
+   16,
+   16
+  ],
+  "decal_flowers_4": [
+   432,
+   560,
+   16,
+   16
+  ],
+  "decal_flowers_5": [
+   448,
    560,
    16,
    16
@@ -5338,6 +5336,18 @@
   ],
   "decal_grass_16": [
    320,
+   560,
+   16,
+   16
+  ],
+  "decal_grass_17": [
+   336,
+   560,
+   16,
+   16
+  ],
+  "decal_grass_18": [
+   352,
    560,
    16,
    16
@@ -11534,7 +11544,9 @@
     "decal_grass_13",
     "decal_grass_14",
     "decal_grass_15",
-    "decal_grass_16"
+    "decal_grass_16",
+    "decal_grass_17",
+    "decal_grass_18"
    ],
    "marsh": [
     "decal_marsh_0",
@@ -12205,16 +12217,16 @@
     0.282
    ],
    "shade": [
-    0.169,
-    0.227,
-    0.431,
-    0.173
+    0.055,
+    0.29,
+    0.345,
+    0.118
    ],
    "sun": [
-    1.0,
-    0.886,
+    0.867,
+    0.949,
     0.478,
-    0.18
+    0.078
    ]
   },
   "tint_mask": {
