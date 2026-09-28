@@ -12121,13 +12121,19 @@ func _technique_preview_suite(pg, c) -> void:
 	# Another art restarts the loop; a passage casts nothing.
 	var ids: Array = seen.keys().map(func(f): return pick.call(f))
 	for i in 20: st._advance(1.0 / 60.0)
+	var clock_before: float = st.clock
 	pg.on_action("node", ids[0])
 	pg.queue_redraw()
-	await get_tree().process_frame
-	var restarted: bool = st.art == ids[0] and st.clock < 0.1
+	# The preview starts on the frame after a choice (it is deferred off the open), so wait a few frames, not a time.
+	for i in 4:
+		await get_tree().process_frame
+		if st.art == ids[0]: break
+	var restarted: bool = st.art == ids[0] and st.clock < clock_before
 	pg.on_action("node", TechniqueTreeRules.passage("water", "any", 1))
 	pg.queue_redraw()
-	await get_tree().process_frame
+	for i in 4:
+		await get_tree().process_frame
+		if st.art == "": break
 	check(restarted and st.art == "" and st.foes.is_empty(), "another art starts the preview again; a passage casts nothing and no imp stands")
 	# Reduce motion: one frame at the impact, held.
 	Game.account.settings.reduce_motion = true
