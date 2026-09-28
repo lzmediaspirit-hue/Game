@@ -38,6 +38,7 @@ var _eval_t := 0.0
 var _tried: Dictionary = {}       ## scene id -> true: refused by the authority in this room
 var _paused := false
 var _thunder_t := 0.0
+var _drew := false
 
 func _ready() -> void:
 	for r in ContentDB.all("scenes"):
@@ -702,7 +703,8 @@ func _apply_mode(delta: float) -> void:
 		hud.modulate.a = move_toward(hud.modulate.a, 0.0 if cut else 1.0, delta * 4.0)
 	# The names, markers and plates over the world give the stage to the balloons in a cut.
 	if world is TopdownWorld and not headless and float(world.labels_a) != (0.0 if cut else 1.0): world.fade_labels(0.0 if cut else 1.0, delta)
-	if stage: stage.queue_redraw()
+	if stage and (run != null or _drew): stage.queue_redraw()   # once more after a scene, to clear it
+	_drew = run != null
 
 func _end_mode() -> void:
 	if _paused:
