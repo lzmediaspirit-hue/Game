@@ -16,6 +16,38 @@
   brush and thin behind it, and at its tail it has run dry: grey and broken.
 - Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
 
+## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
+
+- **Fourteen more rooms on the grid** (`docs/redesign_top_down_plan.md`, "As built: Phase 4, second part"). They are
+  the rooms the story visits from the sect choice to The Humming Token, for both sects a player can join:
+  - both Entry Trial grounds: a rooftop climb for the Jade Sect and a ledge climb for the Cloud Sect, each to the bell,
+    and a sand ring for the Trial Puppet;
+  - the Jade Sect's Gate Street, Weapon Hall, Pavilion Rooftops (its training yard), East Terrace, Herb Terraces and
+    Elder Hu's Peak;
+  - the Cloud Sect's Cliff Stair, Sword Court, Weapon Hall, Array Court and Elder Sung's Peak;
+  - the Marsh Edge.
+
+  Each keeps its side-view room's people, objects, ways, foes and rules. On the grid they have:
+  - halls on terraces a level apart, with roofs you can climb;
+  - stairs and ledges up to the mentors, the Meditation Rock and the library's cliff door;
+  - the plum-blossom poles, stilt platforms over the marsh water, boardwalks, ponds and gardens.
+- **New art in the approved style:** a sect hall with a red colonnade, pines, weapon racks, the two sects' banners,
+  training stumps, a drained dead tree, grey reeds and boulders, and a wet-meadow tile. **Five new foes**, each in five
+  drawn facings and three mirrored, with all six actions: the Trial Puppet, the reed frog, the marsh leech, the reed
+  otter and the hollowed boarlet.
+- **Fixes:**
+  - A Cloud Sect disciple's chores and Weapon Hall now lead to the Cloud Sect's own rooms. The tracker used to name
+    the Jade Sect's rooms, which a Cloud disciple cannot enter; this was wrong in both views.
+  - The Cloud Steps' finish follows its bell wherever the room puts it.
+- **Tests:**
+  - `topdown_tutorial` (777 checks) plays the Jade walk on the grid through The Humming Token. It then goes back to
+    the fair and plays the whole stretch again as a Cloud disciple, running the Cloud Steps on the way. Every
+    `tutorial_order` invariant holds throughout.
+  - `topdown_rooms.py` also checks that auto-path can reach every way, and `perf_tests` times the Marsh Edge with 25
+    foes fighting.
+  - The walk's sect comes from one table (`SECTS`), and `valley_run` shares the run's checkpoint helpers.
+- **Screenshots:** `docs/redesign/phase4/17`–`32`.
+
 ## Top-down: the real character (decision 32)
 
 - **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
