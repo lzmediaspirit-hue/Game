@@ -141,7 +141,6 @@ func topdown_suite() -> void:
 	var td = load("res://tests/topdown_suite.gd").new()
 	td.run_all(self)
 	await td.run_view(self, get_tree())
-	await td.run_fight(self, get_tree())
 	print("topdown measured: ", td.measured)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
@@ -201,8 +200,7 @@ func ui_suite() -> void:
 	var c = Game.active()
 	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
 		"stones": Game.account.teleports.duplicate(), "inventory": c.inventory.snapshot(), "codex": Game.account.codex.duplicate(),
-		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate(),
-		"companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true)}
+		"collection": Game.account.collection.duplicate(), "pages_done": Game.account.collection_pages_done.duplicate()}
 	# P5: a jian worn and another carried, and pills, so the Bag's card is drawn on each (restored at the end).
 	Game.inventory.apply_add(c.id, "iron_jian", 2, "test")
 	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
@@ -368,8 +366,6 @@ func ui_suite() -> void:
 	Game.account.codex = keep.codex
 	Game.account.collection = keep.collection
 	Game.account.collection_pages_done = keep.pages_done
-	c.companions = keep.companions
-	c.relations.affinity = keep.affinity
 	c.inventory.restore(keep.inventory)
 	Game.combat.refresh_stats(c.id)
 	Game.account.sect = sect_was
@@ -452,14 +448,7 @@ func _ui_contexts(c) -> Dictionary:
 		# P5, the Market family: the chest with and without the Treasury's tray, the stage with its lots drawn up, and the
 		# Shop in its buy-back view.
 		"storage": [{}, {"_setup": func(): Game.account.sect = sect.duplicate(true).merged({"buildings": {"sect_hall": 1, "treasury": 1}}, true)}],
-		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}],
-		# P5, the Bonds family: the gift tray over a talk (the talk's other choices beside it) and on its own; the garden
-		# wall with no one yet, then all four friends, two beside you and one at five hearts.
-		"gift": [{"npc": "elder_hu", "convo": Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})}, {"npc": "tie_niu"}],
-		"companions": [{"_setup": func(): c.companions["roster"] = []}, {"_setup": func():
-			c.companions["roster"] = ContentDB.all("companions").map(func(e): return str(e.id))
-			c.companions["active"] = c.companions.roster.slice(0, 2)
-			c.relations.affinity[str(c.companions.roster[1])] = {"points": 500}}]}
+		"auction": [{"_setup": func(): Game.economy.auction_roll("pavilion")}]}
 
 ## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
 ## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
@@ -555,7 +544,7 @@ func identity_suite() -> void:
 		"P5: a page moves over its opening and a tap finishes it (%s)" % str(off))
 	check(float(on.unfold0) == 1.0 and float(on.alpha0) == 0.0 and float(on.alpha_02) == 1.0, "P5: under Reduce motion nothing moves and the page fades in over 0.2 s (%s)" % str(on))
 	var main_script = load("res://scripts/main.gd")
-	var plain: Page = load(str(main_script.PAGES.menu)).new()
+	var plain: Page = load(str(main_script.PAGES.settings)).new()
 	add_child(plain)
 	plain.open({})
 	await get_tree().process_frame
@@ -572,7 +561,10 @@ func identity_suite() -> void:
 	await _records_two_checks()
 	await _post_checks()
 	await _market_checks()
+	await _beasts_checks()
 	await _bonds_checks()
+	await _sect_checks()
+	await _way_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -895,86 +887,111 @@ func _market_checks() -> void:
 	Game.account.economy = keep.economy
 	Unlocks.debug_force_all = force_was
 
-## P5 (the Bonds family; docs/page_identity.md rows 27, 28 and 42, mockup 21_dialogue_gift): the Gift's lacquered tray is
-## held out over the talk's own strip, the talk's other choices beside it; it holds what the bag can give, what they are
-## known to like first and tagged, and a gift goes through as an intent, the strip answering and Give shutting for the
-## day. The Companions stand one to a moon gate, the chosen friend's actions under their gate alone; bringing a friend
-## along is an intent. The Relations' beam tilts toward the alignment's side, and each tab hangs its boards from it.
-## Every word reads on what it sits on.
-func _bonds_checks() -> void:
+## P5 (the Beasts family; docs/page_identity.md rows 16, 34 and 36, mockup 10): Spirit Animals is the bestiary, the
+## animals beside you on their posts and the stable down the left, the chosen one's leaf in the middle with its foot
+## turning the lower half to Grow, Feed, Teach, Breed and Fuse (and Gear from an empty gear place), the tack wall at the
+## right; choosing a stall and a role go through as intents. The Core Exchange stands your cores on shelves by tier,
+## the chosen one at the urn's mouth with Sell one and Sell all, and counts the day on the tally. The Beast Arena rings
+## its pit with the eleven banners of the ladder, every name whole, and replays the last fight inside it. Every word
+## reads on what it sits on.
+func _beasts_checks() -> void:
 	var c = Game.active()
-	var keep := {"inventory": c.inventory.snapshot(), "companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true),
-		"alignment": c.relations.alignment}
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var keep := {"inventory": c.inventory.snapshot(), "pets": c.pets.duplicate(true), "active": c.active_pet, "party": c.party_pets.duplicate(),
+		"bag": c.pet_bag.duplicate(), "eggs": c.eggs.duplicate(true), "arena": c.beast_arena.duplicate(true), "crafting": c.crafting.duplicate(true)}
 	var dim: Array = []
 	var lost: Array = []
-	# The Gift, from Elder Hu's talk: a Manual Page they are known to like.
-	Game.inventory.apply_add(c.id, "manual_page", 2, "test")
-	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
-	c.relations.affinity["elder_hu"] = {"points": 90, "known": {"manual_page": "liked"}}
-	var talk: Dictionary = Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})
-	var gp: Page = await _open_page("gift", {"npc": "elder_hu", "convo": talk})
-	var giftable := 0
-	for s in c.inventory.bag:
-		if s != null and RelationsAuthority.giftable(s): giftable += 1
-	var picks: Array = gp._regions.filter(func(r): return r.id == "pick")
-	var mp: int = c.inventory.first_index("manual_page")
-	var others: int = (talk.get("choices", []) as Array).filter(func(x): return str(x.get("page", "")) != "gift").size()
-	check(picks.size() == mini(giftable, 10) and int(picks[0].data) == mp and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.tag_liked"))
-		and gp.window_rect().encloses(gp.TRAY) and gp.TRAY.end.y <= Page.WINDOW_DIALOGUE.position.y
-		and gp._regions.filter(func(r): return r.id == "choose").size() == clampi(others, 1, 4) and not gp._regions.any(func(r): return r.id == "_close"),
-		"P5 Gift: the tray is held out over the talk's strip with the talk's other choices beside it, what they like first and tagged (%d of %d)" % [picks.size(), giftable])
-	_identity_view(gp, "gift tray", dim, lost, {}, {})
-	gp.on_action("pick", mp)
-	gp.on_action("give", mp)
-	gp.text_log.clear()
-	gp.queue_redraw()
-	await get_tree().process_frame
-	var a: Dictionary = c.relations.affinity.get("elder_hu", {})
-	var give: Array = gp._regions.filter(func(r): return r.id == "give")
-	check(int(a.get("points", 0)) == 90 + int(Game.relations.acfg().get("liked", 40)) and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.reaction_liked") % "Elder Hu")
-		and give.size() == 1 and not give[0].enabled, "P5 Gift: a gift goes through as an intent; the strip answers, the heart bar moves and Give shuts for the day")
-	_identity_view(gp, "gift answered", dim, lost, {}, {})
-	gp.queue_free()
-	# The Companions: a moon gate each, the chosen friend's actions under their gate alone.
-	var roster: Array = ContentDB.all("companions").map(func(e): return str(e.id))
-	c.companions["roster"] = roster
-	c.companions["active"] = roster.slice(0, 1)
-	var cp: Page = await _open_page("companions", {})
-	var gates: Array = cp._regions.filter(func(r): return r.id == "pick")
-	var toggles: Array = cp._regions.filter(func(r): return r.id == "toggle")
-	check(gates.size() == roster.size() and toggles.size() == 1 and str(toggles[0].data) == roster[0] and cp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.plaster),
-		"P5 Companions: a friend in each moon gate of the whitewashed wall (%d), the chosen one's actions under their gate" % gates.size())
-	_identity_view(cp, "companions", dim, lost, {}, {})
-	cp.on_action("pick", roster[2])
-	cp.on_action("toggle", roster[2])
-	cp.text_log.clear()
-	cp.queue_redraw()
-	await get_tree().process_frame
-	toggles = cp._regions.filter(func(r): return r.id == "toggle")
-	check(toggles.size() == 1 and absf((toggles[0].rect as Rect2).get_center().x - (gates[2].rect as Rect2).get_center().x) < 1.0 and c.companions.get("active", []).has(roster[2]),
-		"P5 Companions: choosing a friend moves the actions under their gate; bringing them along is an intent")
-	_identity_view(cp, "companions chosen", dim, lost, {}, {})
-	cp.queue_free()
-	# The Relations: the beam leans to the alignment's side, every tab's boards hung from it.
-	c.relations.alignment = 60
-	var rp: Page = await _open_page("relations", {})
-	rp.opened = 1.0
-	var right_down: bool = rp._tilt(c) > 0.0 and rp._beam_at(c, 1000.0).y > rp._beam_at(c, 300.0).y
-	c.relations.alignment = -60
-	var left_down: bool = rp._tilt(c) < 0.0
-	for ti in rp.tabs.size():
-		rp.tab = ti
-		rp.text_log.clear()
-		rp.queue_redraw()
+	Game.pets.apply_grant(c.id, "ember_fox")
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var fox: Dictionary = c.pets[c.pets.size() - 2]
+	var otter: Dictionary = c.pets[c.pets.size() - 1]
+	c.active_pet = str(fox.uid)
+	Game.inventory.apply_add(c.id, "fire_core_low", 2, "test")
+	Game.inventory.apply_add(c.id, "water_core_mid", 1, "test")
+	# Spirit Animals: the stable, the leaf and the tack wall.
+	var sp: Page = await _open_page("spirit_animals", {})
+	var stalls: Array = sp._regions.filter(func(r): return r.id == "sel" and (r.rect as Rect2).position.y >= 324.0)
+	var foot: Array = sp._regions.filter(func(r): return r.id == "view" and r.kind == "button")
+	check(sp.sel == str(fox.uid) and stalls.size() == mini(c.pets.size(), 6) and stalls.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP)
+		and foot.size() == 5 and sp._regions.filter(func(r): return r.id == "role").size() >= 3 and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "bestiary_leaf:normal"),
+		"P5 Spirit Animals: the stable a stall a row, the chosen animal's leaf with its five views at the foot, the roles on the tack wall")
+	_identity_view(sp, "spirit animals leaf", dim, lost, {}, {})
+	var views_ok := true
+	for v in ["grow", "feed", "teach", "breed", "fuse", "gear"]:
+		sp.on_action("view", v)
+		sp.text_log.clear()
+		sp.queue_redraw()
 		await get_tree().process_frame
-		_identity_view(rp, "relations %s" % rp.tabs[ti].id, dim, lost, {}, {})
-	check(right_down and left_down, "P5 Relations: the steelyard's beam leans toward righteous or demonic with the alignment")
-	rp.queue_free()
-	check(dim.is_empty() and lost.is_empty(), "P5 Bonds: every word on the Bonds pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+		if v == "feed": views_ok = views_ok and sp._regions.any(func(r): return r.id == "devour" and str(r.data) == "fire_core_low")
+		if v == "fuse": views_ok = views_ok and sp._regions.any(func(r): return r.id == "fuse")
+		_identity_view(sp, "spirit animals " + v, dim, lost, {}, {})
+		sp.on_action("view", v)
+	check(views_ok and sp.view == "", "P5 Spirit Animals: Feed offers the fox its own element's core, Fuse the other animal; each view turns back with its own button")
+	# The nest: an egg warming takes its three inputs; a ready one its Hatch.
+	c.eggs = [{"species": "reed_otter", "hatch_utc": Clock.now_utc() + 3600.0, "inputs": []}]
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	var infusing: int = sp._regions.filter(func(r): return r.id == "infuse").size()
+	_identity_view(sp, "spirit animals nest", dim, lost, {}, {})
+	c.eggs[0].hatch_utc = Clock.now_utc() - 1.0
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(infusing == 3 and sp._regions.any(func(r): return r.id == "hatch"), "P5 Spirit Animals: the nest's egg takes blood, a core or a reroll while it warms, and hatches when ready")
+	c.eggs = []
+	# A combat puppet (S48): its leaf has no bond, growth or views, and its care no roles.
+	Game.pets.apply_grant(c.id, "combat_puppet")
+	sp.on_action("sel", str(c.pets[c.pets.size() - 1].uid))
+	sp.text_log.clear()
+	sp.queue_redraw()
+	await get_tree().process_frame
+	check(not sp._regions.any(func(r): return r.id in ["view", "role"]) and sp.text_log.any(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.pets.skills"))),
+		"P5 Spirit Animals: a construct's leaf names its strikes and how it is kept, with nothing to grow, feed or assign")
+	_identity_view(sp, "spirit animals construct", dim, lost, {}, {})
+	c.pets.pop_back()
+	sp.on_action("sel", str(fox.uid))
+	sp.on_action("role", "gatherer")
+	sp.on_action("sel", str(otter.uid))
+	check(str(fox.role) == "gatherer" and sp.sel == str(otter.uid) and sp.chose_t >= 0.0, "P5 Spirit Animals: a role and a chosen stall go through (the animal walks out onto its leaf)")
+	sp.queue_free()
+	# The Core Exchange.
+	var ce: Page = await _open_page("core_exchange", {})
+	var picks: Array = ce._regions.filter(func(r): return r.id == "pick")
+	check(picks.size() >= 2 and picks.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP) and ce._regions.filter(func(r): return r.id == "sell").size() == 2
+		and ce.chosen != "" and ce.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.cores.tally") % [60 - Game.pets.exchange_left(c), 60]),
+		"P5 Core Exchange: the cores on their shelves by tier, the chosen one at the urn with Sell one and Sell all, the day's tally")
+	_identity_view(ce, "core exchange", dim, lost, {}, {})
+	ce.queue_free()
+	# The Beast Arena: the ladder round the pit, then a fight replayed inside it.
+	c.beast_arena = {}
+	var ar: Page = await _open_page("beast_arena", {})
+	var said: Array = ar.text_log.map(func(tx): return str(tx.get("s", "")))
+	var tamers: Array = Game.pets.arena_cfg().get("tamers", [])
+	check(tamers.all(func(tm): return said.has(str(tm.name))) and said.has("10") and ar._regions.filter(func(r): return r.id == "fight").size() == 2
+		and not said.any(func(s): return s.ends_with("…")), "P5 Beast Arena: the ten tamers' banners round the pit, every name whole, 1v1 and 3v3 at the gate")
+	_identity_view(ar, "beast arena", dim, lost, {}, {})
+	fox.level = 60
+	ar.on_action("fight", "solo")
+	ar.replay_start = ar.t - 100.0
+	ar.text_log.clear()
+	ar.queue_redraw()
+	await get_tree().process_frame
+	var fought: bool = not c.beast_arena.get("last", {}).is_empty()
+	check(fought and ar.text_log.any(func(tx): return str(tx.get("s", "")) == str(fox.name)) and ar.raised_t >= 0.0,
+		"P5 Beast Arena: a challenge goes through and its fight replays in the pit, your banner raised")
+	_identity_view(ar, "beast arena replay", dim, lost, {}, {})
+	ar.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Beasts: every word on the beasts' pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
 	c.inventory.restore(keep.inventory)
-	c.companions = keep.companions
-	c.relations.affinity = keep.affinity
-	c.relations.alignment = keep.alignment
+	c.pets = keep.pets
+	c.active_pet = keep.active
+	c.party_pets = keep.party
+	c.pet_bag = keep.bag
+	c.eggs = keep.eggs
+	c.beast_arena = keep.arena
+	c.crafting = keep.crafting
+	Unlocks.debug_force_all = force_was
 
 func _post_checks() -> void:
 	var c = Game.active()
@@ -12271,3 +12288,320 @@ func techniques_page_suite() -> void:
 	cu.restore(snap)
 	c.inventory.restore(inv_was)
 	c.quests.flags = flags_was
+
+## P5 (the Bonds family; docs/page_identity.md rows 27, 28 and 42, mockup 21_dialogue_gift): the Gift's lacquered tray is
+## held out over the talk's own strip, the talk's other choices beside it; it holds what the bag can give, what they are
+## known to like first and tagged, and a gift goes through as an intent, the strip answering and Give shutting for the
+## day. The Companions stand one to a moon gate, the chosen friend's actions under their gate alone; bringing a friend
+## along is an intent. The Relations' beam tilts toward the alignment's side, and each tab hangs its boards from it.
+## Every word reads on what it sits on.
+func _bonds_checks() -> void:
+	var c = Game.active()
+	var keep := {"inventory": c.inventory.snapshot(), "companions": c.companions.duplicate(true), "affinity": c.relations.affinity.duplicate(true),
+		"alignment": c.relations.alignment}
+	var dim: Array = []
+	var lost: Array = []
+	# The Gift, from Elder Hu's talk: a Manual Page they are known to like.
+	Game.inventory.apply_add(c.id, "manual_page", 2, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test")
+	c.relations.affinity["elder_hu"] = {"points": 90, "known": {"manual_page": "liked"}}
+	var talk: Dictionary = Game.submit({"type": "talk", "npc": "elder_hu"}).get("dialogue", {})
+	var gp: Page = await _open_page("gift", {"npc": "elder_hu", "convo": talk})
+	var giftable := 0
+	for s in c.inventory.bag:
+		if s != null and RelationsAuthority.giftable(s): giftable += 1
+	var picks: Array = gp._regions.filter(func(r): return r.id == "pick")
+	var mp: int = c.inventory.first_index("manual_page")
+	var others: int = (talk.get("choices", []) as Array).filter(func(x): return str(x.get("page", "")) != "gift").size()
+	check(picks.size() == mini(giftable, 10) and int(picks[0].data) == mp and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.tag_liked"))
+		and gp.window_rect().encloses(gp.TRAY) and gp.TRAY.end.y <= Page.WINDOW_DIALOGUE.position.y
+		and gp._regions.filter(func(r): return r.id == "choose").size() == clampi(others, 1, 4) and not gp._regions.any(func(r): return r.id == "_close"),
+		"P5 Gift: the tray is held out over the talk's strip with the talk's other choices beside it, what they like first and tagged (%d of %d)" % [picks.size(), giftable])
+	_identity_view(gp, "gift tray", dim, lost, {}, {})
+	gp.on_action("pick", mp)
+	gp.on_action("give", mp)
+	gp.text_log.clear()
+	gp.queue_redraw()
+	await get_tree().process_frame
+	var a: Dictionary = c.relations.affinity.get("elder_hu", {})
+	var give: Array = gp._regions.filter(func(r): return r.id == "give")
+	check(int(a.get("points", 0)) == 90 + int(Game.relations.acfg().get("liked", 40)) and gp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.gift.reaction_liked") % "Elder Hu")
+		and give.size() == 1 and not give[0].enabled, "P5 Gift: a gift goes through as an intent; the strip answers, the heart bar moves and Give shuts for the day")
+	_identity_view(gp, "gift answered", dim, lost, {}, {})
+	gp.queue_free()
+	# The Companions: a moon gate each, the chosen friend's actions under their gate alone.
+	var roster: Array = ContentDB.all("companions").map(func(e): return str(e.id))
+	c.companions["roster"] = roster
+	c.companions["active"] = roster.slice(0, 1)
+	var cp: Page = await _open_page("companions", {})
+	var gates: Array = cp._regions.filter(func(r): return r.id == "pick")
+	var toggles: Array = cp._regions.filter(func(r): return r.id == "toggle")
+	check(gates.size() == roster.size() and toggles.size() == 1 and str(toggles[0].data) == roster[0] and cp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.plaster),
+		"P5 Companions: a friend in each moon gate of the whitewashed wall (%d), the chosen one's actions under their gate" % gates.size())
+	_identity_view(cp, "companions", dim, lost, {}, {})
+	cp.on_action("pick", roster[2])
+	cp.on_action("toggle", roster[2])
+	cp.text_log.clear()
+	cp.queue_redraw()
+	await get_tree().process_frame
+	toggles = cp._regions.filter(func(r): return r.id == "toggle")
+	check(toggles.size() == 1 and absf((toggles[0].rect as Rect2).get_center().x - (gates[2].rect as Rect2).get_center().x) < 1.0 and c.companions.get("active", []).has(roster[2]),
+		"P5 Companions: choosing a friend moves the actions under their gate; bringing them along is an intent")
+	_identity_view(cp, "companions chosen", dim, lost, {}, {})
+	cp.queue_free()
+	# The Relations: the beam leans to the alignment's side, every tab's boards hung from it.
+	c.relations.alignment = 60
+	var rp: Page = await _open_page("relations", {})
+	rp.opened = 1.0
+	var right_down: bool = rp._tilt(c) > 0.0 and rp._beam_at(c, 1000.0).y > rp._beam_at(c, 300.0).y
+	c.relations.alignment = -60
+	var left_down: bool = rp._tilt(c) < 0.0
+	for ti in rp.tabs.size():
+		rp.tab = ti
+		rp.text_log.clear()
+		rp.queue_redraw()
+		await get_tree().process_frame
+		_identity_view(rp, "relations %s" % rp.tabs[ti].id, dim, lost, {}, {})
+	check(right_down and left_down, "P5 Relations: the steelyard's beam leans toward righteous or demonic with the alignment")
+	rp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 Bonds: every word on the Bonds pages reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	c.inventory.restore(keep.inventory)
+	c.companions = keep.companions
+	c.relations.affinity = keep.affinity
+	c.relations.alignment = keep.alignment
+
+## P5 (the sect family; docs/page_identity.md rows 4, 24, 25 and 32, mockups 03 and 11): the Menu hangs every entry as a
+## tablet in its bay, a locked one answering with what opens it and the ones where something waits sealed (the HUD's
+## Menu seal reads the same); Your Sect stands every building where the room places it, tags that never touch, the card
+## the building tapped and Build's lock saying why, Recruit taking the candidate tapped at the gate, the walls' two rows
+## opening their tabs; the Sect Hall seats a row for every rank, you on your seat, the next rank's trial on its board and
+## the two side doors; the Characters' handscroll paints every open slot, the roll as thick as the slots to come with
+## their gates on tags, the one you play setting its task and another offering Switch. Every word reads on its ground.
+func _sect_checks() -> void:
+	var c = Game.active()
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	var keep := {"sect": Game.account.sect.duplicate(true), "state": c.cultivator.state, "ts": c.training_sect.duplicate(true), "slots": Game.account.slots_unlocked}
+	var dim: Array = []
+	var lost: Array = []
+	# The Menu: five bays of tablets.
+	Unlocks.debug_force_all = false
+	c.cultivator.state = "bottleneck"
+	var mp: Page = await _open_page("menu")
+	var tabs_at: Array = mp._regions.filter(func(r): return r.id == "open")
+	var entries: Array = mp.ENTRIES.map(func(e): return str(e[0]))
+	var in_bay := true
+	for b in mp.BAYS.size():
+		for id in mp.BAYS[b][1]:
+			var reg: Array = tabs_at.filter(func(r): return str(r.data) == str(id))
+			in_bay = in_bay and reg.size() == 1 and (reg[0].rect as Rect2).position.x >= mp._bay_x(b) - 1.0 and (reg[0].rect as Rect2).end.x <= mp._bay_x(b) + mp.BAY_W + 1.0
+	var bayed: Array = []
+	for bay in mp.BAYS: bayed.append_array(bay[1])
+	check(in_bay and tabs_at.size() == entries.size() and bayed.size() == entries.size() and entries.all(func(id): return bayed.has(id))
+		and tabs_at.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP), "P5 Menu: every entry hangs once, as a 48 px tablet in its bay (%d)" % tabs_at.size())
+	var locked_ok: bool = tabs_at.all(func(r):
+		var e: Array = mp.ENTRIES[entries.find(str(r.data))]
+		var shut: bool = str(e[3]) != "" and not Unlocks.is_unlocked(c.id, str(e[3]))
+		return bool(r.enabled) != shut and (not shut or str(r.reason) == Unlocks.locked_text(str(e[3]))))
+	check(locked_ok, "P5 Menu: a locked tablet answers a tap with what opens it")
+	Unlocks.debug_force_all = true
+	mp.text_log.clear()
+	mp.queue_redraw()
+	await get_tree().process_frame
+	var hud = load("res://scripts/hud.gd").new()
+	check(mp.ready_seals(c).has("cultivation") and mp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.menu.bottleneck")) and hud.hub_ready(c),
+		"P5 Menu: the bottleneck seals Cultivation and says so, and the HUD's Menu button carries the seal")
+	hud.free()
+	_identity_view(mp, "menu", dim, lost, {}, {})
+	mp.queue_free()
+	c.cultivator.state = keep.state
+	Unlocks.debug_force_all = true
+	# Your Sect: the courtyard.
+	var ds: Array = []
+	for n in ["Wei", "Lan", "Qiu"]: ds.append({"name": n, "level": 2, "trait": "green_thumb", "strength": 2, "spirit": 3, "craft": 4})
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 2, "prestige": 800, "buildings": {"sect_hall": 1, "treasury": 1}, "queue": [], "disciples": ds,
+		"candidates": [{"name": "Xiu", "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}, {"name": "Tao", "strength": 1, "spirit": 5, "craft": 2, "trait": "green_thumb"}],
+		"expeditions": [], "candidate_day": Clock.reset_day(Clock.now_utc())}
+	var ys: Page = await _open_page("your_sect")
+	ys.opened = 9.0
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var placed: Dictionary = ys.placements()
+	var picks: Array = ys._regions.filter(func(r): return r.id == "pick").map(func(r): return str(r.data))
+	check(placed.size() == ContentDB.all("sect_buildings").size() and placed.keys().all(func(b): return picks.has(b)),
+		"P5 Your Sect: every building stands where the room places it, each a tap (%d of %d)" % [placed.size(), ContentDB.all("sect_buildings").size()])
+	var tag_rects: Array = ys._regions.filter(func(r): return r.id == "pick" and (r.art as Rect2).size.y == 22.0).map(func(r): return r.art)
+	var touching := 0
+	for i in tag_rects.size():
+		for j in range(i + 1, tag_rects.size()):
+			if (tag_rects[i] as Rect2).intersects(tag_rects[j]): touching += 1
+	check(tag_rects.size() == placed.size() and touching == 0 and tag_rects.all(func(tr): return ys.PANO.encloses(tr)),
+		"P5 Your Sect: a tag over every building, inside the painting, none touching another (%d tags, %d touching)" % [tag_rects.size(), touching])
+	ys.on_action("pick", "guest_house")
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var up: Array = ys._regions.filter(func(r): return r.id == "upgrade")
+	var why: Dictionary = Game.sect.upgrade_check(c, "guest_house")
+	check(up.size() == 1 and str(up[0].data) == "guest_house" and bool(up[0].enabled) == why.is_empty() and (why.is_empty() or str(up[0].reason) != "")
+		and ys.text_log.any(func(tx): return str(tx.get("s", "")) == ContentDB.name_of("sect_buildings", "guest_house")),
+		"P5 Your Sect: the card is the building tapped, and Build says why it waits (%s)" % str(why.get("reason", "")))
+	ys.on_action("cand", 1)
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var rec: Array = ys._regions.filter(func(r): return r.id == "recruit")
+	var cands: Array = ys._regions.filter(func(r): return r.id == "cand")
+	check(rec.size() == 1 and int(rec[0].data) == 1 and cands.size() == 2, "P5 Your Sect: a candidate tapped at the gate is the one Recruit takes")
+	var shown: Array = ys.figs.values().filter(func(f): return (f as Node2D).visible)
+	check(shown.size() == 5 and shown.all(func(f): return (f as Node2D).scale == Vector2(0.5, 0.5) and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Your Sect: the three disciples at home in the yard and the two candidates at the gate, at an art pixel a pixel (%d)" % shown.size())
+	_identity_view(ys, "your_sect courtyard", dim, lost, {}, {})
+	ys.on_action("go_tab", "territory")
+	check(str(ys.tabs[ys.tab].id) == "territory", "P5 Your Sect: Territory beyond the walls opens its tab")
+	ys.queue_free()
+	# The Sect Hall.
+	var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+	c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[2])}, true)
+	var sh: Page = await _open_page("training_sect")
+	sh.opened = 9.0
+	sh.queue_redraw()
+	await get_tree().process_frame
+	var said: Array = sh.text_log.map(func(tx): return str(tx.get("s", "")))
+	var doors: Array = sh._regions.filter(func(r): return r.id in ["missions", "shop"] and (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP)
+	var you: Node2D = sh.figs.get("you")
+	check(ranks.all(func(rk): return said.has(ContentDB.rank_name(str(rk)))) and sh._regions.any(func(r): return r.id == "promote") and doors.size() == 2
+		and you != null and you.visible and said.has(Tx.t("ui.training_sect.next_rank") % ContentDB.rank_name(str(ranks[3]))),
+		"P5 Sect: a row of seats for every rank, you on yours, the next rank's trial on its board, Missions and the Sect Shop as doors")
+	_identity_view(sh, "training_sect", dim, lost, {}, {})
+	sh.queue_free()
+	# The Characters' handscroll.
+	var cp: Page = await _open_page("characters")
+	cp.opened = 9.0
+	cp.queue_redraw()
+	await get_tree().process_frame
+	var n: int = Game.account.slots_unlocked
+	var chosen: Array = cp._regions.filter(func(r): return r.id == "choose")
+	var closed: int = AccountState.MAX_SLOTS - n
+	var gates: int = mini(cp.TAGS, (ContentDB.config("account_rules").get("slots", []) as Array).filter(func(rl): return int(rl.slot) > n).size())
+	var tagged: int = cp.text_log.filter(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.characters.slot") % (n + 1))).size()
+	check(chosen.size() == mini(cp.SHOWN, n) and is_equal_approx(cp.roll_w(), 22.0 + 5.0 * closed) and (gates == 0 or tagged == 1),
+		"P5 Characters: a stretch of the scroll for every open slot, the roll as thick as the %d still to come, the next gate on a tag" % closed)
+	var figs: Array = cp.figs.values().filter(func(f): return (f as Node2D).visible)
+	check(figs.size() == Game.characters.size() and figs.all(func(f): return (f as Node2D).scale == Vector2.ONE and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Characters: each disciple painted as its live figure at 2 px an art px, on whole pixels")
+	check(cp._regions.filter(func(r): return r.id == "task" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 5, "P5 Characters: the one you play sets its task under the scroll")
+	_identity_view(cp, "characters", dim, lost, {}, {})
+	cp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 sect family: every word reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 3))])
+	Game.account.sect = keep.sect
+	c.training_sect = keep.ts
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
+
+## P5 (the way family; docs/page_identity.md rows 5, 9, 39 and 40, mockup 04): Cultivation's Overview names every great
+## realm once on its mountain and gives this realm's stair a numbered step for each stage, and the figure climbs when a
+## step is gained while it is open; the Meridian badge's tab still opens on Foundation. Breakthrough hangs one tablet for
+## each requirement, gold-leafed when met, lays a chosen support in a dish on the step and opens its doors on Break
+## Through (0.5 s, then the page closes into moment 05). Revival tells the early grace in full on the first fall before
+## Bone Forging 5, in the lamp's shadow, what is kept in its light, and keeps its choices. Fates hangs a slip on a stick
+## for each card, each with its Take this fate. Every word reads on what it sits on.
+func _way_checks() -> void:
+	var c = Game.active()
+	var cu: CultivatorState = c.cultivator
+	var keep := {"realm": cu.realm_key, "qp": cu.qp, "state": cu.state, "offer": cu.fate_offer.duplicate(), "inventory": c.inventory.snapshot(),
+		"flags": c.quests.flags.duplicate(), "motion": Game.account.settings.get("reduce_motion", false)}
+	Game.account.settings["reduce_motion"] = false
+	var dim: Array = []
+	var lost: Array = []
+	# Cultivation: the mountain and the stair.
+	cu.realm_key = "heart_tempering_4"
+	cu.state = "accumulating"
+	cu.qp = cu.need() * 0.4
+	var cp: Page = await _open_page("cultivation", {})
+	var said: Array = cp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var realms: Array = cp.great_realms()
+	var named: int = realms.filter(func(g): return said.any(func(s): return str(s).begins_with(ContentDB.text("realm_great." + str(g)).left(5)))).size()
+	var steps: Array = cp._steps(cu.realm_key)
+	check(realms.size() == 19 and named == realms.size() and steps.size() == 9 and range(1, 10).all(func(i): return said.has(str(i)))
+		and cp._regions.any(func(r): return r.id == "meditate") and cp._regions.any(func(r): return r.id == "breakthrough"),
+		"P5 Cultivation: the mountain names all %d great realms (%d drawn), the stair numbers this realm's %d steps, Meditate and Break Through at the foot" % [realms.size(), named, steps.size()])
+	_identity_view(cp, "cultivation ascent", dim, lost, {}, {})
+	cu.realm_key = "heart_tempering_5"
+	cp.queue_redraw()
+	await get_tree().process_frame
+	check(not cp._climb.is_empty() and int(cp._climb.from) == 3, "P5 Cultivation: a step gained while the page is open, the figure climbs from the one it sat on")
+	cp.queue_free()
+	var fp: Page = await _open_page("cultivation", {"tab": "foundation"})
+	check(str(fp.tabs[fp.tab].id) == "foundation", "P5 Cultivation: the Meridian badge still opens it on Foundation")
+	fp.queue_free()
+	# Breakthrough: at the gate out of Heart Tempering, every requirement a tablet.
+	cu.realm_key = "heart_tempering_9"
+	cu.state = "bottleneck"
+	cu.qp = cu.need()
+	var support := ""
+	for it in ContentDB.all("items"):
+		if it.has("support") and support == "": support = str(it.id)
+	Game.inventory.apply_add(c.id, support, 1, "test")
+	var bp: Page = await _open_page("breakthrough", {})
+	var q: Dictionary = Game.progression.query_breakthrough(c)
+	var tablets: Array = bp.text_log.filter(func(tx): return str(tx.get("ground", "")).begins_with("stone_tablet") and is_equal_approx((tx.rect as Rect2).position.x, bp.TABLETS.position.x))
+	var lit: int = tablets.filter(func(tx): return str(tx.ground) == "stone_tablet:selected").size()
+	var met: int = (q.results as Array).filter(func(r): return r.ok).size()
+	var buttons: Array = bp._regions.filter(func(r): return r.kind == "button")
+	var clash := false
+	for i in buttons.size():
+		for j in range(i + 1, buttons.size()):
+			var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+			if both.size.x > 0.5 and both.size.y > 0.5: clash = true
+	check(tablets.size() == (q.results as Array).size() and lit == met and not clash and buttons.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP),
+		"P5 Breakthrough: a tablet hangs for each of the %d requirements, %d gold-leafed as met, every Go and Break Through its own 48 px" % [tablets.size(), lit])
+	_identity_view(bp, "breakthrough gate", dim, lost, {}, {})
+	bp.on_action("support", support)
+	bp.text_log.clear()
+	bp.queue_redraw()
+	await get_tree().process_frame
+	check(bp._regions.filter(func(r): return r.id == "support" and str(r.data) == support).size() == 2, "P5 Breakthrough: a chosen support lies in a dish on the step (a tap there takes it back)")
+	_identity_view(bp, "breakthrough offering", dim, lost, {}, {})
+	bp.t = 1.0
+	bp._doors_at = 0.75
+	var half: float = bp.doors_open()
+	bp.on_action("support", support)
+	check(near(half, 0.5, 0.1) and bp.supports.has(support), "P5 Breakthrough: Break Through opens the doors over 0.5 s, and nothing else answers while they open (%.2f)" % half)
+	bp.queue_free()
+	cu.realm_key = "sphere_lord_1"
+	cu.state = "accumulating"
+	var mp: Page = await _open_page("breakthrough", {})
+	check(mp.text_log.any(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.breakthrough.a_minor_step_within_the").left(12))), "P5 Breakthrough: a minor step hangs the one tablet that says so")
+	_identity_view(mp, "breakthrough minor", dim, lost, {}, {})
+	mp.queue_free()
+	# Revival: the first fall before Bone Forging 5, told in full in the lamp's shadow.
+	Unlocks.force_unlock(c.id, "kill_progress")
+	cu.realm_key = "bone_forging_2"
+	c.quests.flags.erase("death_grace_told")
+	var rp: Page = await _open_page("revival", {"actor": c.id})
+	var grace: String = Tx.t("ui.revival.early_grace")
+	var told: Array = rp.text_log.filter(func(tx): return str(tx.get("s", "")) != "" and grace.begins_with(str(tx.s).trim_suffix("…").left(24)) and (tx.rect as Rect2).end.x <= rp.LOST.end.x + 1)
+	check(not told.is_empty() and rp.text_log.any(func(tx): return str(tx.get("s", "")) != "" and Tx.t("ui.revival.kept_progress").begins_with(str(tx.s)) and (tx.rect as Rect2).position.x >= rp.KEPT.position.x - 1) and rp._regions.filter(func(r): return r.id == "choose").size() >= 2,
+		"P5 Revival: the early grace is told in full at the lamp's left, what is kept at its right, the choices under it")
+	_identity_view(rp, "revival grace", dim, lost, {}, {})
+	rp.queue_free()
+	cu.realm_key = "qi_kindling_3"
+	var rp2: Page = await _open_page("revival", {"actor": c.id})
+	check(rp2.text_log.any(func(tx): return tx.get("col", Color.TRANSPARENT) == UiKit.RED_TEXT), "P5 Revival: past the grace, what the fall takes is written in red in the shadow")
+	_identity_view(rp2, "revival", dim, lost, {}, {})
+	rp2.queue_free()
+	# Fates: three slips fanned from the cylinder.
+	cu.fate_offer = ContentDB.all("fates").slice(0, 3).map(func(f): return str(f.id))
+	var fa: Page = await _open_page("fates", {})
+	var takes: Array = fa._regions.filter(func(r): return r.id == "choose")
+	check(takes.size() == 3 and range(3).all(func(i): return str(takes[i].data) == str(cu.fate_offer[i]) and fa.slip_rect(i, 3).encloses(takes[i].art)),
+		"P5 Fates: a slip on its stick for each of the three cards, Take this fate at each slip's foot")
+	_identity_view(fa, "fates", dim, lost, {}, {})
+	fa.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 The way: every word on Cultivation, Breakthrough, Revival and Fates reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 4))])
+	cu.realm_key = keep.realm
+	cu.qp = keep.qp
+	cu.state = keep.state
+	cu.fate_offer = keep.offer
+	c.inventory.restore(keep.inventory)
+	c.quests.flags = keep.flags
+	Game.account.settings["reduce_motion"] = keep.motion

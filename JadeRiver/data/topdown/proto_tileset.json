@@ -5,6 +5,157 @@
   "props": "res://art/topdown/proto_props.png",
   "tiles": "res://art/topdown/proto_tiles.png"
  },
+ "autotile": {
+  "grass_dirt": {
+   "key": "TL TR BL BR, 1 = grass",
+   "mode": "corners",
+   "rule": "a path cell's corner is grass when any cell sharing that corner on the same level is grass",
+   "tiles": {
+    "0000": "grass_dirt_0000",
+    "0001": "grass_dirt_0001",
+    "0010": "grass_dirt_0010",
+    "0011": "grass_dirt_0011",
+    "0100": "grass_dirt_0100",
+    "0101": "grass_dirt_0101",
+    "0110": "grass_dirt_0110",
+    "0111": "grass_dirt_0111",
+    "1000": "grass_dirt_1000",
+    "1001": "grass_dirt_1001",
+    "1010": "grass_dirt_1010",
+    "1011": "grass_dirt_1011",
+    "1100": "grass_dirt_1100",
+    "1101": "grass_dirt_1101",
+    "1110": "grass_dirt_1110",
+    "1111": "grass_dirt_1111"
+   }
+  },
+  "grass_paving": {
+   "key": "TL TR BL BR, 1 = grass",
+   "mode": "corners",
+   "rule": "as grass_dirt",
+   "tiles": {
+    "0000": "grass_paving_0000",
+    "0001": "grass_paving_0001",
+    "0010": "grass_paving_0010",
+    "0011": "grass_paving_0011",
+    "0100": "grass_paving_0100",
+    "0101": "grass_paving_0101",
+    "0110": "grass_paving_0110",
+    "0111": "grass_paving_0111",
+    "1000": "grass_paving_1000",
+    "1001": "grass_paving_1001",
+    "1010": "grass_paving_1010",
+    "1011": "grass_paving_1011",
+    "1100": "grass_paving_1100",
+    "1101": "grass_paving_1101",
+    "1110": "grass_paving_1110",
+    "1111": "grass_paving_1111"
+   }
+  },
+  "shore": {
+   "frame_ms": 250,
+   "key": "bit 1 N, 2 E, 4 S, 8 W = the neighbour is not water",
+   "mode": "sides",
+   "tiles": {
+    "00": [
+     "shore_00_0",
+     "shore_00_1",
+     "shore_00_2",
+     "shore_00_3"
+    ],
+    "01": [
+     "shore_01_0",
+     "shore_01_1",
+     "shore_01_2",
+     "shore_01_3"
+    ],
+    "02": [
+     "shore_02_0",
+     "shore_02_1",
+     "shore_02_2",
+     "shore_02_3"
+    ],
+    "03": [
+     "shore_03_0",
+     "shore_03_1",
+     "shore_03_2",
+     "shore_03_3"
+    ],
+    "04": [
+     "shore_04_0",
+     "shore_04_1",
+     "shore_04_2",
+     "shore_04_3"
+    ],
+    "05": [
+     "shore_05_0",
+     "shore_05_1",
+     "shore_05_2",
+     "shore_05_3"
+    ],
+    "06": [
+     "shore_06_0",
+     "shore_06_1",
+     "shore_06_2",
+     "shore_06_3"
+    ],
+    "07": [
+     "shore_07_0",
+     "shore_07_1",
+     "shore_07_2",
+     "shore_07_3"
+    ],
+    "08": [
+     "shore_08_0",
+     "shore_08_1",
+     "shore_08_2",
+     "shore_08_3"
+    ],
+    "09": [
+     "shore_09_0",
+     "shore_09_1",
+     "shore_09_2",
+     "shore_09_3"
+    ],
+    "10": [
+     "shore_10_0",
+     "shore_10_1",
+     "shore_10_2",
+     "shore_10_3"
+    ],
+    "11": [
+     "shore_11_0",
+     "shore_11_1",
+     "shore_11_2",
+     "shore_11_3"
+    ],
+    "12": [
+     "shore_12_0",
+     "shore_12_1",
+     "shore_12_2",
+     "shore_12_3"
+    ],
+    "13": [
+     "shore_13_0",
+     "shore_13_1",
+     "shore_13_2",
+     "shore_13_3"
+    ],
+    "14": [
+     "shore_14_0",
+     "shore_14_1",
+     "shore_14_2",
+     "shore_14_3"
+    ],
+    "15": [
+     "shore_15_0",
+     "shore_15_1",
+     "shore_15_2",
+     "shore_15_3"
+    ]
+   }
+  }
+ },
  "bank_face": "bank",
  "body": {
   "cell": [
@@ -350,11 +501,19 @@
    }
   }
  },
+ "overlays": {
+  "ao_n": "floor at the foot of a face",
+  "rim_e": "top whose east neighbour is lower",
+  "rim_n": "top whose north neighbour is lower",
+  "rim_w": "top whose west neighbour is lower",
+  "shade_w": "floor whose west neighbour is higher"
+ },
  "paint": {
   "d": {
    "face": "earth",
    "top": [
-    "dirt"
+    "dirt",
+    "dirt_b"
    ]
   },
   "f": {
@@ -367,37 +526,85 @@
    "face": "earth",
    "top": [
     "grass_a",
-    "grass_b"
+    "grass_b",
+    "grass_a",
+    "grass_c",
+    "grass_d"
+   ]
+  },
+  "l": {
+   "face": "wall",
+   "top": [
+    "wall_top"
    ]
   },
   "p": {
-   "face": "stone",
+   "face": "pave",
    "top": [
     "paving_a",
-    "paving_b"
+    "paving_b",
+    "paving_a",
+    "paving_c",
+    "paving_b",
+    "paving_a",
+    "paving_d"
    ]
   },
   "r": {
    "face": "rock",
    "top": [
-    "rock"
+    "rock",
+    "rock_b"
    ]
   },
   "s": {
    "face": "stone",
    "top": [
-    "stone_top"
+    "stone_top",
+    "stone_top",
+    "stone_top_b"
+   ]
+  },
+  "t": {
+   "face": "roof",
+   "top": [
+    "roof_top",
+    "roof_top_b"
    ]
   },
   "w": {
    "face": "wood",
    "keep_face": true,
    "top": [
-    "wood"
+    "wood",
+    "wood_b"
    ]
   }
  },
  "props": {
+  "bamboo": {
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    8,
+    62
+   ],
+   "rect": [
+    128,
+    92,
+    32,
+    64
+   ],
+   "shadow": [
+    14,
+    -2,
+    12,
+    5
+   ],
+   "solid": true
+  },
   "barrel": {
    "footprint": [
     1,
@@ -408,10 +615,16 @@
     18
    ],
    "rect": [
-    168,
+    240,
     0,
     16,
     20
+   ],
+   "shadow": [
+    10,
+    -2,
+    6,
+    3
    ],
    "solid": true
   },
@@ -425,7 +638,7 @@
     18
    ],
    "rect": [
-    16,
+    80,
     92,
     48,
     20
@@ -439,13 +652,19 @@
    ],
    "origin": [
     0,
-    28
+    32
    ],
    "rect": [
-    184,
     0,
+    92,
     32,
-    30
+    34
+   ],
+   "shadow": [
+    31,
+    -4,
+    5,
+    6
    ],
    "solid": true,
    "top": 1
@@ -457,7 +676,7 @@
    ],
    "origin": [
     4,
-    88
+    90
    ],
    "rect": [
     0,
@@ -465,8 +684,37 @@
     104,
     92
    ],
+   "shadow": [
+    100,
+    -8,
+    8,
+    10
+   ],
    "solid": true,
    "top": 2
+  },
+  "incense": {
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    0,
+    26
+   ],
+   "rect": [
+    208,
+    92,
+    16,
+    28
+   ],
+   "shadow": [
+    10,
+    -2,
+    6,
+    3
+   ],
+   "solid": true
   },
   "lantern": {
    "footprint": [
@@ -478,12 +726,58 @@
     30
    ],
    "rect": [
-    152,
+    224,
     0,
     16,
     32
    ],
+   "shadow": [
+    10,
+    -2,
+    6,
+    3
+   ],
    "solid": true
+  },
+  "lantern_red": {
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    0,
+    38
+   ],
+   "rect": [
+    192,
+    92,
+    16,
+    40
+   ],
+   "shadow": [
+    10,
+    -2,
+    6,
+    3
+   ],
+   "solid": true
+  },
+  "lotus": {
+   "footprint": [
+    2,
+    1
+   ],
+   "origin": [
+    0,
+    16
+   ],
+   "rect": [
+    160,
+    92,
+    32,
+    16
+   ],
+   "solid": false
   },
   "notice": {
    "footprint": [
@@ -495,10 +789,16 @@
     30
    ],
    "rect": [
-    216,
-    0,
+    32,
+    92,
     32,
     32
+   ],
+   "shadow": [
+    20,
+    -2,
+    11,
+    3
    ],
    "solid": true
   },
@@ -512,12 +812,35 @@
     18
    ],
    "rect": [
-    0,
+    64,
     92,
     16,
     20
    ],
    "solid": false
+  },
+  "shrub": {
+   "footprint": [
+    1,
+    1
+   ],
+   "origin": [
+    2,
+    16
+   ],
+   "rect": [
+    224,
+    92,
+    20,
+    18
+   ],
+   "shadow": [
+    12,
+    -2,
+    8,
+    3
+   ],
+   "solid": true
   },
   "storehouse": {
    "footprint": [
@@ -526,13 +849,19 @@
    ],
    "origin": [
     4,
-    88
+    90
    ],
    "rect": [
-    64,
-    92,
+    104,
+    0,
     72,
     92
+   ],
+   "shadow": [
+    68,
+    -8,
+    8,
+    10
    ],
    "solid": true,
    "top": 2
@@ -547,26 +876,38 @@
     62
    ],
    "rect": [
-    104,
+    176,
     0,
     48,
     64
    ],
+   "shadow": [
+    12,
+    -2,
+    16,
+    6
+   ],
    "solid": true
   }
  },
- "schema_version": 1,
+ "schema_version": 2,
  "tile": 16,
  "tiles": {
-  "bank_face": [
+  "ao_n": [
+   128,
+   32,
    16,
-   48,
+   16
+  ],
+  "bank_face": [
+   112,
+   16,
    16,
    16
   ],
   "bank_face_top": [
-   0,
-   48,
+   96,
+   16,
    16,
    16
   ],
@@ -576,15 +917,21 @@
    16,
    16
   ],
+  "dirt_b": [
+   96,
+   0,
+   16,
+   16
+  ],
   "earth_face": [
    16,
-   32,
+   16,
    16,
    16
   ],
   "earth_face_top": [
    0,
-   32,
+   16,
    16,
    16
   ],
@@ -600,107 +947,816 @@
    16,
    16
   ],
-  "grass_flowers": [
+  "grass_c": [
    32,
    0,
    16,
    16
   ],
-  "paving_a": [
+  "grass_d": [
    48,
    0,
    16,
    16
   ],
-  "paving_b": [
+  "grass_dirt_0000": [
+   0,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0001": [
+   16,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0010": [
+   32,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0011": [
+   48,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0100": [
+   64,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0101": [
+   80,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0110": [
+   96,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_0111": [
+   112,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1000": [
+   128,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1001": [
+   144,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1010": [
+   160,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1011": [
+   176,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1100": [
+   192,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1101": [
+   208,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1110": [
+   224,
+   48,
+   16,
+   16
+  ],
+  "grass_dirt_1111": [
+   240,
+   48,
+   16,
+   16
+  ],
+  "grass_flowers": [
    64,
    0,
    16,
    16
   ],
-  "rock": [
+  "grass_paving_0000": [
+   0,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0001": [
+   16,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0010": [
+   32,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0011": [
+   48,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0100": [
+   64,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0101": [
+   80,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0110": [
+   96,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_0111": [
    112,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1000": [
+   128,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1001": [
+   144,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1010": [
+   160,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1011": [
+   176,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1100": [
+   192,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1101": [
+   208,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1110": [
+   224,
+   64,
+   16,
+   16
+  ],
+  "grass_paving_1111": [
+   240,
+   64,
+   16,
+   16
+  ],
+  "pave_face": [
+   272,
+   16,
+   16,
+   16
+  ],
+  "pave_face_top": [
+   256,
+   16,
+   16,
+   16
+  ],
+  "paving_a": [
+   112,
+   0,
+   16,
+   16
+  ],
+  "paving_b": [
+   128,
+   0,
+   16,
+   16
+  ],
+  "paving_c": [
+   144,
+   0,
+   16,
+   16
+  ],
+  "paving_d": [
+   160,
+   0,
+   16,
+   16
+  ],
+  "plaster_face_door": [
+   208,
+   16,
+   16,
+   16
+  ],
+  "plaster_face_window": [
+   192,
+   16,
+   16,
+   16
+  ],
+  "rim_e": [
+   96,
+   32,
+   16,
+   16
+  ],
+  "rim_n": [
+   112,
+   32,
+   16,
+   16
+  ],
+  "rim_w": [
+   80,
+   32,
+   16,
+   16
+  ],
+  "rock": [
+   208,
+   0,
+   16,
+   16
+  ],
+  "rock_b": [
+   224,
    0,
    16,
    16
   ],
   "rock_face": [
    80,
-   32,
+   16,
    16,
    16
   ],
   "rock_face_top": [
    64,
+   16,
+   16,
+   16
+  ],
+  "roof_face": [
+   176,
+   16,
+   16,
+   16
+  ],
+  "roof_face_top": [
+   160,
+   16,
+   16,
+   16
+  ],
+  "roof_top": [
+   272,
+   0,
+   16,
+   16
+  ],
+  "roof_top_b": [
+   288,
+   0,
+   16,
+   16
+  ],
+  "shade_w": [
+   144,
    32,
    16,
    16
   ],
-  "stairs": [
+  "shore_00_0": [
+   0,
    80,
    16,
+   16
+  ],
+  "shore_00_1": [
+   16,
+   80,
+   16,
+   16
+  ],
+  "shore_00_2": [
+   32,
+   80,
+   16,
+   16
+  ],
+  "shore_00_3": [
+   48,
+   80,
+   16,
+   16
+  ],
+  "shore_01_0": [
+   64,
+   80,
+   16,
+   16
+  ],
+  "shore_01_1": [
+   80,
+   80,
+   16,
+   16
+  ],
+  "shore_01_2": [
+   96,
+   80,
+   16,
+   16
+  ],
+  "shore_01_3": [
+   112,
+   80,
+   16,
+   16
+  ],
+  "shore_02_0": [
+   128,
+   80,
+   16,
+   16
+  ],
+  "shore_02_1": [
+   144,
+   80,
+   16,
+   16
+  ],
+  "shore_02_2": [
+   160,
+   80,
+   16,
+   16
+  ],
+  "shore_02_3": [
+   176,
+   80,
+   16,
+   16
+  ],
+  "shore_03_0": [
+   192,
+   80,
+   16,
+   16
+  ],
+  "shore_03_1": [
+   208,
+   80,
+   16,
+   16
+  ],
+  "shore_03_2": [
+   224,
+   80,
+   16,
+   16
+  ],
+  "shore_03_3": [
+   240,
+   80,
+   16,
+   16
+  ],
+  "shore_04_0": [
+   256,
+   80,
+   16,
+   16
+  ],
+  "shore_04_1": [
+   272,
+   80,
+   16,
+   16
+  ],
+  "shore_04_2": [
+   288,
+   80,
+   16,
+   16
+  ],
+  "shore_04_3": [
+   304,
+   80,
+   16,
+   16
+  ],
+  "shore_05_0": [
+   320,
+   80,
+   16,
+   16
+  ],
+  "shore_05_1": [
+   336,
+   80,
+   16,
+   16
+  ],
+  "shore_05_2": [
+   352,
+   80,
+   16,
+   16
+  ],
+  "shore_05_3": [
+   368,
+   80,
+   16,
+   16
+  ],
+  "shore_06_0": [
+   384,
+   80,
+   16,
+   16
+  ],
+  "shore_06_1": [
+   400,
+   80,
+   16,
+   16
+  ],
+  "shore_06_2": [
+   416,
+   80,
+   16,
+   16
+  ],
+  "shore_06_3": [
+   432,
+   80,
+   16,
+   16
+  ],
+  "shore_07_0": [
+   448,
+   80,
+   16,
+   16
+  ],
+  "shore_07_1": [
+   464,
+   80,
+   16,
+   16
+  ],
+  "shore_07_2": [
+   480,
+   80,
+   16,
+   16
+  ],
+  "shore_07_3": [
+   496,
+   80,
+   16,
+   16
+  ],
+  "shore_08_0": [
+   0,
+   96,
+   16,
+   16
+  ],
+  "shore_08_1": [
+   16,
+   96,
+   16,
+   16
+  ],
+  "shore_08_2": [
+   32,
+   96,
+   16,
+   16
+  ],
+  "shore_08_3": [
+   48,
+   96,
+   16,
+   16
+  ],
+  "shore_09_0": [
+   64,
+   96,
+   16,
+   16
+  ],
+  "shore_09_1": [
+   80,
+   96,
+   16,
+   16
+  ],
+  "shore_09_2": [
+   96,
+   96,
+   16,
+   16
+  ],
+  "shore_09_3": [
+   112,
+   96,
+   16,
+   16
+  ],
+  "shore_10_0": [
+   128,
+   96,
+   16,
+   16
+  ],
+  "shore_10_1": [
+   144,
+   96,
+   16,
+   16
+  ],
+  "shore_10_2": [
+   160,
+   96,
+   16,
+   16
+  ],
+  "shore_10_3": [
+   176,
+   96,
+   16,
+   16
+  ],
+  "shore_11_0": [
+   192,
+   96,
+   16,
+   16
+  ],
+  "shore_11_1": [
+   208,
+   96,
+   16,
+   16
+  ],
+  "shore_11_2": [
+   224,
+   96,
+   16,
+   16
+  ],
+  "shore_11_3": [
+   240,
+   96,
+   16,
+   16
+  ],
+  "shore_12_0": [
+   256,
+   96,
+   16,
+   16
+  ],
+  "shore_12_1": [
+   272,
+   96,
+   16,
+   16
+  ],
+  "shore_12_2": [
+   288,
+   96,
+   16,
+   16
+  ],
+  "shore_12_3": [
+   304,
+   96,
+   16,
+   16
+  ],
+  "shore_13_0": [
+   320,
+   96,
+   16,
+   16
+  ],
+  "shore_13_1": [
+   336,
+   96,
+   16,
+   16
+  ],
+  "shore_13_2": [
+   352,
+   96,
+   16,
+   16
+  ],
+  "shore_13_3": [
+   368,
+   96,
+   16,
+   16
+  ],
+  "shore_14_0": [
+   384,
+   96,
+   16,
+   16
+  ],
+  "shore_14_1": [
+   400,
+   96,
+   16,
+   16
+  ],
+  "shore_14_2": [
+   416,
+   96,
+   16,
+   16
+  ],
+  "shore_14_3": [
+   432,
+   96,
+   16,
+   16
+  ],
+  "shore_15_0": [
+   448,
+   96,
+   16,
+   16
+  ],
+  "shore_15_1": [
+   464,
+   96,
+   16,
+   16
+  ],
+  "shore_15_2": [
+   480,
+   96,
+   16,
+   16
+  ],
+  "shore_15_3": [
+   496,
+   96,
+   16,
+   16
+  ],
+  "stairs": [
+   320,
+   0,
    16,
    8
   ],
   "stone_face": [
    48,
-   32,
+   16,
    16,
    16
   ],
   "stone_face_top": [
    32,
-   32,
+   16,
    16,
    16
   ],
   "stone_top": [
+   176,
    0,
    16,
+   16
+  ],
+  "stone_top_b": [
+   192,
+   0,
+   16,
+   16
+  ],
+  "wall_face": [
+   240,
+   16,
+   16,
+   16
+  ],
+  "wall_face_top": [
+   224,
+   16,
+   16,
+   16
+  ],
+  "wall_top": [
+   304,
+   0,
    16,
    16
   ],
   "water_0": [
-   16,
-   16,
+   0,
+   32,
    16,
    16
   ],
   "water_1": [
-   32,
    16,
+   32,
    16,
    16
   ],
   "water_2": [
-   48,
-   16,
+   32,
+   32,
    16,
    16
   ],
   "water_3": [
-   64,
-   16,
+   48,
+   32,
    16,
    16
   ],
   "wood": [
-   96,
+   240,
+   0,
+   16,
+   16
+  ],
+  "wood_b": [
+   256,
    0,
    16,
    16
   ],
   "wood_face": [
-   112,
-   32,
+   144,
+   16,
    16,
    16
   ],
   "wood_face_top": [
-   96,
-   32,
+   128,
+   16,
    16,
    16
   ]
- }
+ },
+ "tileset": "res://art/topdown/proto_tiles.tres"
 }

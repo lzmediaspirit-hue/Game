@@ -2,15 +2,27 @@ extends Page
 ## Workshop (S16): the crafts that are not station recipes. Formations, appraisal,
 ## the infirmary, the puppet bench, manual restoration and teaching. Each tab
 ## unlocks with its system; the NPC who opened the page picks the tab.
+## P5 (docs/page_identity.md row 30): the artisan's bench under its tool wall. Each tab is a tool hung on the pegboard
+## over its painted outline (compass, loupe, needle roll, chisel, brush, pointer); choosing one takes it off its hooks,
+## leaves the outline, and lays it on the bench, seen from above, beside the job (the blueprints, the goods under the
+## loupe, the patient's card, the puppet frames, the torn manual, the disciples' slate).
 
 var TABS := [["formations", Tx.t("ui.workshop.formations"), "formations"], ["appraisal", Tx.t("ui.workshop.appraisal"), "appraisal"], ["healing", Tx.t("ui.workshop.infirmary"), "healing"],
 	["puppetry", Tx.t("ui.workshop.puppets"), "puppetry"], ["research", Tx.t("ui.workshop.research"), "research"], ["teaching", Tx.t("ui.workshop.teaching"), "teaching"]]
+## Where the wall and the bench stand, and each tab's tool (build_ui_hd.py workshop_tool).
+const WALL := Rect2(64, 32, 1152, 232)
+const BENCH := Rect2(76, 264, 1128, 416)
+const TOOL := {"formations": "compass", "appraisal": "loupe", "healing": "needles", "puppetry": "chisel", "research": "brush", "teaching": "pointer"}
+## Where the chosen tool lies on the bench, and when it was taken down (it travels there over 0.2 s).
+const LAID := Rect2(1092, 292, 96, 96)
+var took := -9.0
 const NPC_TAB := {"elder_gu": "appraisal", "old_pan": "appraisal", "tinkerer_yu": "puppetry", "jade_librarian": "research",
 	"cloud_librarian": "research", "jade_physician": "healing", "cloud_physician": "healing", "jade_formation_elder": "formations",
 	"cloud_formation_elder": "formations", "elder_hu": "teaching", "elder_sung": "teaching"}
 
 func _init() -> void:
 	title = Tx.t("ui.workshop.workshop")
+	identity = Identity.new("wood", false, "own", "tool_wall_over_bench", 0.2)
 
 func setup() -> void:
 	var ch = c()
@@ -27,6 +39,53 @@ func setup() -> void:
 		if str(tabs[i].locked) == "":
 			tab = i
 			return
+
+func content_rect() -> Rect2:
+	return Rect2(BENCH.position.x + 28, BENCH.position.y + 20, LAID.position.x - BENCH.position.x - 44, BENCH.size.y - 36)
+
+## The pegboard in worked timber with its rows of holes, and the bench top below it seen from above.
+func draw_surface(_r: Rect2) -> void:
+	rounded(WALL.grow(2), 8.0, UiKit.INK)
+	rounded(WALL, 6.0, UiKit.SURFACE.wood)
+	ground(WALL, UiKit.SURFACE.wood)
+	for y in range(int(WALL.position.y) + 20, int(WALL.end.y) - 8, 24):
+		for x in range(int(WALL.position.x) + 20, int(WALL.end.x) - 8, 24):
+			draw_circle(Vector2(x, y), 2.5, Color(UiKit.INK, 0.45))
+	draw_rect(WALL.grow(-4), Color(UiKit.BRONZE, 0.5), false, 2.0)
+	rounded(BENCH.grow(2), 8.0, UiKit.INK)
+	PostKit.planks(self, BENCH, 52.0, false, UiKit.SURFACE.wood_dark)
+	draw_rect(Rect2(BENCH.position.x, BENCH.position.y, BENCH.size.x, 10), Color(UiKit.INK, 0.35))
+	ground(BENCH, UiKit.SURFACE.wood_dark)
+
+func title_rect() -> Rect2:
+	return Rect2(WALL.position.x + 24, WALL.position.y + 12, 300, 52)
+
+func draw_title_mount(r: Rect2) -> void:
+	face(r, "timber_sign")
+
+## The tools hang in a row along the wall, each with its outline painted behind it.
+func tab_rects() -> Array:
+	var out: Array = []
+	var w := (WALL.size.x - 48 - 5 * 12) / 6.0
+	for i in tabs.size(): out.append(Rect2(WALL.position.x + 24 + i * (w + 12), WALL.position.y + 72, w, 148))
+	return out
+
+func draw_tab(r: Rect2, i: int, state: String) -> void:
+	var tool := str(TOOL[tabs[i].id])
+	var at := Rect2(r.get_center().x - 48, r.position.y + 4, 96, 96)
+	var tex := UiKit.hd_texture("workshop_tool", tool)
+	draw_texture_rect(tex, at, false, Color(UiKit.INK, 0.4))   # the painted outline, where the tool hangs
+	for hx in [-28.0, 28.0]: WorkshopKit.peg(self, Vector2(at.get_center().x + hx, at.get_center().y + 2))
+	if state == "selected":
+		# Taken off its hooks and laid on the bench (0.2 s); under Reduce motion it is simply there.
+		var k := 1.0 if UiKit.reduce_motion() else clampf((t - took) / 0.2, 0.0, 1.0)
+		var to := Rect2(at.position.lerp(LAID.position, 1.0 - pow(1.0 - k, 3.0)), at.size)
+		glow(to.grow(10), Color(UiKit.INK, 0.5))
+		draw_texture_rect(tex, to, false)
+		inked(r.position + Vector2(0, 136), str(tabs[i].label), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, false)
+	else:
+		draw_texture_rect(tex, at, false, Color(1, 1, 1, 0.45) if state == "disabled" else Color.WHITE)
+		text(r.position + Vector2(0, 136), str(tabs[i].label), 20, UiKit.HOLLOW if state == "disabled" else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func draw_page() -> void:
 	var ch = c()
@@ -123,9 +182,10 @@ func _puppets(ch) -> void:
 	panel(left)
 	heading(left.position + Vector2(20, 44), Tx.t("ui.workshop.blueprints"), 520)
 	var here: bool = Game.workshop.npc_here(ch, p.get("npcs", []))
-	var y := left.position.y + 70
-	for b in p.get("blueprints", []):
-		var r := Rect2(left.position.x + 14, y, left.size.x - 28, 112)
+	var bps: Array = p.get("blueprints", [])
+	list("puppets", Rect2(left.position.x + 14, left.position.y + 70, left.size.x - 28, left.size.y - 100), bps.size(), 120, func(i: int, rr: Rect2):
+		var b: Dictionary = bps[i]
+		var r := Rect2(rr.position, Vector2(rr.size.x, 112))
 		panel(r, "minor_panel")
 		text(r.position + Vector2(16, 30), str(b.name), 22)
 		var need := ""
@@ -135,7 +195,7 @@ func _puppets(ch) -> void:
 		for yy in b.get("yield", []): yl += "%d %s/h  " % [int(yy.per_hour), ContentDB.item_name(str(yy.item))]
 		text(r.position + Vector2(16, 82), (Tx.t("ui.workshop.gathers") + yl) if b.get("pet", "") == "" else Tx.t("ui.workshop.fights_beside_you"), 16, UiKit.MIST)
 		btn(Rect2(r.end.x - 160, r.position.y + 32, 144, 48), Tx.t("ui.workshop.build"), "build", str(b.id), true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
-		y += 120
+	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	heading(right.position + Vector2(20, 44), Tx.t("ui.workshop.your_puppets"), right.size.x - 40)
@@ -193,6 +253,7 @@ func _teaching(ch) -> void:
 
 func on_action(id: String, data) -> void:
 	match id:
+		"_tab": took = t
 		"place":
 			var r := submit({"type": "place_formation", "formation": str(data)})
 			if r.get("ok", false): flash(Tx.t("ui.workshop.formation_placed_h_of_fuel") % UiKit.span(float(r.get("hours", 0)) * 3600.0))

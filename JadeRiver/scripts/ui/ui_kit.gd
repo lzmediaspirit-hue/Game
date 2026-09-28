@@ -86,6 +86,7 @@ const SURFACE := {
 	"clay": Color("ac663e"),             # BRONZE + 0.25 RED
 	"sky": Color("0d2b2d"),              # JADE_SHADOW + 0.58 INK: the Bag's night at its lightest behind words
 	"sea": Color("27484e"),              # DEEP_TEAL + 0.16 MIST: the sea of cloud under the Bag's sky, at its lightest
+	"niche": Color("1a2429"),            # HOLLOW + 0.85 INK: the Revival's stone niche in the lamp's shadow
 }
 ## Where each text colour is drawn (docs/ui_style_guide.md §1.4): [the token's name, the fills under it, the smallest
 ## size it is drawn at there]. "@page" stands for the five page fills (major_window, minor_panel, slot, toast, currency_pill); a
@@ -169,6 +170,31 @@ const TEXT_ON := [
 	[&"MIST", ["gift_tray"], 14],
 	[&"PALE_GOLD", ["gift_tray"], 14],
 	[&"GOLD", ["gift_tray"], 14],
+	# The way family (Cultivation, Breakthrough, Revival, Fates): the night sky, the mountain's dark, the stone niche,
+	# the cut-stone tablets dark and gold-leafed, and the fate slips' paper.
+	[&"PAPER", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet", "stone_tablet:selected"], 14],
+	[&"MIST", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet"], 14],
+	[&"PALE_GOLD", ["surface:sky_top", "surface:space", "surface:niche", "stone_tablet", "stone_tablet:selected"], 14],
+	[&"PALE_GOLD", ["stone_tablet:selected@ink"], 14],
+	[&"GOLD", ["surface:sky_top", "surface:space", "surface:niche"], 14],
+	[&"HOLLOW", ["surface:space", "surface:niche"], 14],
+	[&"RED_TEXT", ["surface:niche", "surface:space"], 14],
+	[&"BRIGHT_JADE", ["surface:niche", "surface:space"], 14],
+	[&"SOUL_TEXT", ["surface:sky_top"], 14],
+	[&"JADE_SHADOW", ["surface:scroll"], 14],
+	# The Beasts family (Spirit Animals, Core Exchange, Beast Arena): ink on the bestiary leaf, on the arena's sand and on
+	# the straw; the Beast Hall's rough timber and its boards carry PAPER, MIST and PALE_GOLD (the `wood` rows above).
+	[&"PAPER_INK", ["bestiary_leaf", "surface:sand", "surface:straw"], 14],
+	[&"BLOOD", ["bestiary_leaf"], 14],
+	[&"JADE_SHADOW", ["bestiary_leaf"], 14],
+	# The Workshop family (Crafts, Workshop, Garden): the timber sign and tags, the brick hearth and terrace walls, the
+	# garden's soil.
+	[&"PALE_GOLD", ["timber_sign@ink", "timber_tag:selected@ink"], 14],
+	[&"PAPER", ["timber_tag", "surface:soil"], 14],
+	[&"HOLLOW", ["timber_tag"], 20],
+	[&"MIST", ["surface:soil"], 14],
+	[&"PALE_GOLD", ["surface:soil"], 14],
+	[&"GOLD", ["surface:soil"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become
@@ -662,3 +688,34 @@ static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
 	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)
+
+## A rounded pill filling `r` (a count's badge, a number in a ring's corner).
+static func pill(ci: CanvasItem, r: Rect2, col: Color) -> void:
+	var rad := r.size.y * 0.5
+	ci.draw_circle(r.position + Vector2(rad, rad), rad, col)
+	ci.draw_circle(r.end - Vector2(rad, rad), rad, col)
+	ci.draw_rect(Rect2(r.position + Vector2(rad, 0), Vector2(maxf(0.0, r.size.x - rad * 2.0), r.size.y)), col)
+
+## A count on a button or a tablet: the red pill with its number (the kit's .k-badge; the HUD's Mail, the Menu's).
+static func count_badge(ci: CanvasItem, center: Vector2, n: int) -> void:
+	var s := str(mini(99, n))
+	var w := maxf(22.0, text_width(s, 14) + 12.0)
+	pill(ci, Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)).grow(2.0), INK)
+	pill(ci, Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)), RED)
+	draw_text(ci, s, Vector2(center.x - w * 0.5, center.y + 5), 14, PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
+
+## The hub's ready seal (the kit's .k-seal): a small vermilion seal pressed on at a tilt, with a tick; `k` scales it (a
+## seal being pressed on starts larger). Something waits there (the HUD's Menu button, the Menu's tablets).
+static func ready_seal(ci: CanvasItem, center: Vector2, k := 1.0) -> void:
+	ci.draw_set_transform(center, deg_to_rad(-8.0), Vector2.ONE * k)
+	ci.draw_rect(Rect2(-12, -12, 24, 24), INK)
+	ci.draw_rect(Rect2(-10, -10, 20, 20), RED)
+	ci.draw_rect(Rect2(-8, -8, 16, 16), Color(PAPER, 0.35), false, 1.0)
+	draw_text(ci, "✓", Vector2(-10, 5), 14, PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
+	ci.draw_set_transform(Vector2.ZERO)
+
+## Something new waits (the kit's .k-new): a bright jade dot ringed in ink.
+static func new_mark(ci: CanvasItem, center: Vector2) -> void:
+	ci.draw_circle(center, 7.0, INK, true, -1.0, true)
+	ci.draw_circle(center, 5.0, BRIGHT_JADE, true, -1.0, true)
+	ci.draw_circle(center + Vector2(-1.5, -1.5), 1.5, Color(PAPER, 0.7), true, -1.0, true)

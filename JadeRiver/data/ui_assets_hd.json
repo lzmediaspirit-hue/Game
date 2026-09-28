@@ -8,6 +8,15 @@
     ],
     "normal": "res://art/ui/hd/bar_shell__normal.png"
   },
+  "bestiary_leaf": {
+    "margins": [
+      20,
+      14,
+      20,
+      14
+    ],
+    "normal": "res://art/ui/hd/bestiary_leaf__normal.png"
+  },
   "button_primary": {
     "disabled": "res://art/ui/hd/button_primary__disabled.png",
     "margins": [
@@ -50,6 +59,15 @@
     "normal": "res://art/ui/hd/close_button__normal.png",
     "pressed": "res://art/ui/hd/close_button__pressed.png"
   },
+  "core_urn": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/core_urn__normal.png"
+  },
   "currency_pill": {
     "margins": [
       20,
@@ -86,6 +104,15 @@
       16
     ],
     "normal": "res://art/ui/hd/gift_tray__normal.png"
+  },
+  "handscroll": {
+    "margins": [
+      8,
+      24,
+      8,
+      24
+    ],
+    "normal": "res://art/ui/hd/handscroll__normal.png"
   },
   "honour_seal": {
     "blade": "res://art/ui/hd/honour_seal__blade.png",
@@ -307,6 +334,16 @@
     "normal": "res://art/ui/hd/slot__normal.png",
     "selected": "res://art/ui/hd/slot__selected.png"
   },
+  "stone_tablet": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/stone_tablet__normal.png",
+    "selected": "res://art/ui/hd/stone_tablet__selected.png"
+  },
   "storehouse_lid": {
     "margins": [
       0,
@@ -347,6 +384,25 @@
     "wind": "res://art/ui/hd/tech_seal__wind.png",
     "wood": "res://art/ui/hd/tech_seal__wood.png"
   },
+  "timber_sign": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/timber_sign__normal.png"
+  },
+  "timber_tag": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/timber_tag__normal.png",
+    "selected": "res://art/ui/hd/timber_tag__selected.png"
+  },
   "title_plaque": {
     "margins": [
       48,
@@ -373,5 +429,19 @@
       10
     ],
     "normal": "res://art/ui/hd/tooltip__normal.png"
+  },
+  "workshop_tool": {
+    "brush": "res://art/ui/hd/workshop_tool__brush.png",
+    "chisel": "res://art/ui/hd/workshop_tool__chisel.png",
+    "compass": "res://art/ui/hd/workshop_tool__compass.png",
+    "loupe": "res://art/ui/hd/workshop_tool__loupe.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "needles": "res://art/ui/hd/workshop_tool__needles.png",
+    "pointer": "res://art/ui/hd/workshop_tool__pointer.png"
   }
 }

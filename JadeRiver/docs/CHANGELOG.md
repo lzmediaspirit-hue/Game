@@ -1,5 +1,40 @@
 # Changelog
 
+## Top-down redesign, Phase 3 begins: the art direction and the prototype room's terrain
+
+- **An art bible for the top-down world** (`docs/redesign/art_bible.md`, decision 31). It sets:
+  - bright ¾ pixel art in the game's own xianxia river-town theme, original throughout;
+  - seven-step material ramps tied to the Style A palette, with a jade river;
+  - one sun in the upper left, and outlines on props only;
+  - 16 px tiles in a 640×360 view, one level = one 16 px face row, a ~38 px body;
+  - six cues on every raised edge: a lit lip, a contact line, a face at most 0.65× its top's value, shade at the foot,
+    side rims, and the body's shadow;
+  - corner-matched path auto-tiles, side-matched shore auto-tiles, and faces from the height grid;
+  - prop rules, water and foliage animation, and what makes it xianxia.
+- **A deterministic tile and prop build** (`tools/art/topdown/build_tiles.py`; `--check` proves two builds
+  byte-identical). It draws a new `art/topdown/proto_tiles.png`:
+  - tops: grass, path, paving, granite, karst rock, pier planks, grey roof tiles, wall caps;
+  - faces with lips: earth bank, retaining wall, cliff, embankment, pier pilings, roof eave, plaster walls with a
+    window and a red door, courtyard wall;
+  - stairs, four frames of jade water, 16 shore cases × 4 frames, 32 grass-to-path transitions and five light
+    overlays.
+- **A new `proto_props.png`.** The house and storehouse have tiled roofs that read as floors, and the crates have
+  lids that do too (decision 29). Willow, lanterns, barrel, notice board, reeds and boat are redrawn. Bamboo, lotus, a red lantern post, an incense burner and a
+  shrub are new.
+- **A Godot TileSet** (`art/topdown/proto_tiles.tres`): terrains for paths (corners) and water (sides), animated water,
+  and every tile's name as custom data.
+- **The manifest** (`data/topdown/proto_tileset.json`, schema 2) keeps the Phase 2 schema (atlas, paint, prop tops,
+  foes) and adds auto-tile and overlay tables. The room and its view are unchanged and now draw the new art. The auto-tiles, rims and prop shadows are drawn by the
+  reference renderer (`compose.py`) and wait for the loader work.
+- **Review images** are in `docs/redesign/phase3/`:
+  - the square mock at 640×360 and ×2;
+  - the whole room and the water loop;
+  - the tile sheet and props at ×4;
+  - the height-levels test in colour and grey;
+  - the loader in the game.
+- **Tests:** `data_validation` `topdown_art_suite` checks the atlas against the paint table and the view's names, the
+  props against their sheet, and the TileSet (terrain sets, names, animations).
+
 ## Top-down redesign, Phase 2: fights, foes and aiming in the prototype room
 
 - **Riverside Square fights** (`docs/redesign_top_down_plan.md`, "As built: Phase 2"). The room now runs on the same
@@ -1225,6 +1260,77 @@ come next. Where it differs from the plan, the plan's §6 says so.
 - **Screenshots** in `docs/ui_p5/records/`, on copies of this build's valley_run checkpoints `bf5`, `qu5` and `ls6_end`,
   with each mockup above the build and why each difference is there (18's second seal and the seals' gifts were
   proposals the rules do not hold; the build draws the one seal the game keeps).
+### P5 · The Beasts family: Spirit Animals, the Core Exchange, the Beast Arena (mockup 10; decision 14)
+- **Spirit Animals as the bestiary** (row 16, mockup 10). The kit's window keeps its plaque and its tabs, now Stable and
+  Swarm. Down the left, the animals beside you on their posts ("1 of 3"; an open post takes the chosen animal out or
+  beside you, a post not yet commanded is locked with the realm that opens it) and the stable, a stall a row with the
+  animal looking out over its half-door, its level, role and element, a red mark on a wounded one. In the middle the
+  chosen animal's leaf, a sheet between two timber rollers (HD `bestiary_leaf`): its name (a tap renames it), level and
+  lock; what it is; the animal stood on its straw (it walks out onto the leaf when chosen, 0.4 s); its level, its bond as
+  ten hearts and a Grievous Wound or hunger; its growth as stepping stones from Hatchling to Primordial with the next
+  stage's gates ticked and what the stage opens; its bloodline purity with the stops at 50 and 90 named; its skills as
+  chips; its traits and learned skills. The leaf's foot turns its lower half to **Grow** (lit when ready: the gates,
+  Evolve, the two lines at Adult, a breakthrough with its support from Awakened; the aptitude, contract, core and
+  resonance), **Feed** (its foods and its own element's cores), **Teach** (the learned slots and the books you carry),
+  **Breed** and **Fuse**. The tack wall at the right: care (out or at rest, beside you, carried; the roles two or three
+  across; its nature and the +25% a matching role gives), the three gear places (a worn piece comes off with a tap, an
+  empty place lays the bag's pet gear on the leaf to put on), the nest (the egg warming with its three inputs, or its
+  Hatch) and the swarm's chip, which opens the Swarm tab. A construct's leaf names its strikes and its keeping, with no
+  bond, growth or views.
+- **The Core Exchange as the Beast Hall's urn and tally** (row 34). On a wall of rough timber: your cores standing on
+  shelves at the left, a tier a shelf with its price on a board; the glazed urn in the middle (HD `core_urn`, no words on
+  it) with the chosen core at its mouth and Sell one and Sell all under it; your Spirit Stones, what the Exchange will
+  still pay today and the prices at the right, over the heap of stones spilled from the spout; the straw bed in the
+  corner with the wounded animals lying in it and Rest your animals; the day's bamboo tally across the foot, a notch a
+  stone paid. A sold core drops into the urn and a stone clinks out of the spout (0.3 s).
+- **The Beast Arena as the pit seen from the stands** (row 36). An oval sand pit ringed by a fence inside timber
+  stands; the ladder's eleven banners round its rim in rank order from rank 1 at the top, each with its holder's name on
+  a board as long as the name and the tamer's lead animal at the pole, yours in jade and the one you may challenge in
+  gold; inside the pit your rank, the day's fights, what the week pays and who is next, and before any fight the next
+  tamer's two teams and how the arena works; after one, the fight replayed as draining bars between the two sides;
+  Challenge 1v1 and 3v3 at the pit's gate. A challenge raises your banner (0.3 s).
+- **Shared:** `scripts/ui/pages/beast_kit.gd` (rough timber, straw, the rough board and the hung title board, the bar on
+  paper with its stops, the heap of Spirit Stones); the leaf's inks are the Records family's (`RecordsKit`). HD
+  `bestiary_leaf` and `core_urn` in `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for ink on the leaf, on `sand` and on
+  `straw`. Every intent is kept (roles, out and beside, carry, feed, devour, lock, rename, evolve, breakthrough, contracts,
+  teach, pet gear on and off, breed, fuse, hatch and the egg's inputs, the swarm's feeding, core sales, rest, the
+  arena's challenges).
+- **Tests:** `rules_tests` `identity_suite` (the Beasts family: the stable and the leaf with its five views, each view's
+  words on their grounds and its button turning it back, Feed offering the animal's own core and Fuse the other animals,
+  the nest's inputs and Hatch, a construct's leaf, a role and a chosen stall through as intents; the shelves, the urn's
+  Sell one and Sell all and the tally; every tamer's name whole round the pit and a challenge replayed inside it).
+  Screenshots beside mockup 10 in `docs/ui_p5/beasts/`.
+### P5 · The Workshop family: Crafts, Workshop, Garden (mockup 15; decision 14)
+- **Crafts as the hearth** (row 18, mockup 15). The trade's vessel stands centred over its fire on a brick hearth: your
+  own furnace (its icon at 192) or the station's prop at a whole scale (the pot, the anvil, the chart table), the blank
+  plate, the spirit paper; the fire burns in the hearth's arched mouth, hot, steady or banked by trade, in the chosen
+  fire's colour under the furnace, with the array's rings round its foot. The recipe's ingredients sit on the rim above
+  it with what you hold of them (in the furnace also role, nature, stand-ins, Spirit Sense and a tap to swap). The steps
+  run as a strip across the top (the furnace's five or six screens; else Recipe, Materials and the making), each with
+  what it asks; the controls at the right change with the step and nothing else moves: the recipe book with the batch
+  and the craft button, the fire and array, the strike band, and once lit the step's hint, the herb's time and the timed
+  control (Fan the flame, Turn the array, Condense, Raise shield) at the foot. The five-screen game is played on the
+  hearth: the heat gauge at its left, the specks at the furnace's mouth, the essences circling it, the ring closing over
+  it, the storm above it. The Forge's upkeep and the Guild keep their lists on the wall with their modes or guilds on the
+  strip; the Experiment bench lays your herbs on the rim. The vessel settles onto its fire as the page opens; a finished
+  craft lifts out in a puff (0.4 s, none under Reduce motion); the flames hold still under Reduce motion and the battery
+  saver, their height the heat.
+- **The Workshop as the tool wall over the bench** (row 30). The six tabs are six tools hung on a pegboard (HD
+  `workshop_tool`), each over its outline painted in ink; choosing one takes it off its hooks and lays it on the bench
+  (0.2 s), the outline staying. The jobs lie on the dark bench below; the puppet blueprints scroll.
+- **The Garden as terraced beds** (row 29). The beds step down the hillside on stone walls, soil darker the richer the
+  field, each herb at its stage (shoots, then its icon at 32 and at 64, glowing when ready) with its field's grade on a
+  staked tag; the water, Spirit Soil and dew in a basket at the top; the chosen bed's tending on a board at the right;
+  the Racks tab as two bamboo racks with woven trays. The terraces settle into place as the page opens.
+- **Shared:** `scripts/ui/pages/workshop_kit.gd` (the plank wall and beam, the timber board, brick courses, the fire,
+  soil beds, pegs and the tags hung as tabs); HD `timber_sign`, `timber_tag` and `workshop_tool` in
+  `tools/ui/build_ui_hd.py`; `TEXT_ON` rows for the sign, the tags and `soil`. Every intent is kept (cook, refine and the
+  furnace's inputs, forge and the strikes, the Forge's upkeep, inscribe, trace, chart, build, experiments, Deduce, the
+  guild, formations, appraisal, healing, puppets, restoration, teaching, planting, watering, dew, soil, harvest, racks).
+- **Tests:** the `ui_suite` and `identity_suite` measure every word of the three on its ground and hold the new
+  signatures apart; the furnace suite plays the page's five screens as before. Screenshots beside mockup 15 in
+  `docs/ui_p5/workshop/`.
+
 ### P5 · The Market family: Shop, Storage, Exchange, County Hall, Auction (decisions 11, 14 and 24)
 - **The Shop as the merchant's stall** (row 8, mockup 17; `17_shop_buyback` rejected). A red and cream awning with the
   shop's name on a black lacquer sign; the merchant behind her counter at the left (her own layers at 2.5) with her
@@ -1260,6 +1366,81 @@ come next. Where it differs from the plan, the plan's §6 says so.
   the Treasury's tray; the rates and trades; a stick per job and its warrant, the relief ledger's Give per gift; every lot
   on a small pedestal and a tap bringing it up; every word read on its ground), the `ui_suite` with the chest with a
   Treasury and the stage with its lots. Screenshots beside mockup 17 in `docs/ui_p5/market/`.
+
+### P5 · The way family: Cultivation, Breakthrough, Revival, Fates (mockups 04 and 05; decision 14)
+- **Cultivation as the mountain ascent** (row 5, mockup 04). The shared window, plaque and eight tabs stay, as the
+  approved mockup keeps them. The Overview's left is the night mountain: every great realm a waystation on one dashed
+  path from Mortal up. The realms passed are gold and ticked, this one is lit, and the next two are named (the next with
+  what it opens). The far ones fade into the mist. In the middle stands this realm's stair, nine steps, or three, or
+  one, in the Early, Middle, Late and Peak bands with their chips. The step reached is ringed, with its bar inside it
+  and the figure seated on it (the live Avatar, meditating); it climbs when a step is gained while the page is open
+  (0.3 s, none under Reduce motion). The riser to the next step glows at a bottleneck, later steps that open something
+  carry a gold mark, and the gate to the next great realm stands on the last step. At the right: the Level badge, the
+  stage and its band, the method line, the bar, Stored Qi, the body's ledger (the old Overview's rows, kept), the next
+  step with chips of what it opens, the gate's asks from the rules, Meditate and Breakthrough.
+- **Breakthrough as the heaven gate** (row 9). A stone archway against the night: the title on the beam's gold-leafed
+  plaque and the step it leads to in the doorway, with the trial under it. Each requirement hangs from the beam on red
+  cords as a tablet, gold-leafed when met, dark with its Go when not; a minor step hangs one tablet that says so. The
+  risk and the chance are cut into the two pillars. Supports are chosen from the stele at the right, which also lists
+  what weighs on the attempt, and lie in the three jade dishes on the step (a tap takes one back). Core Forging's
+  checklist stands on the left stele. Break Through on the threshold opens the doors (0.5 s; a cross-fade under Reduce
+  motion), then the page closes into moment 05; the gains card and aura of the early-game rewrite are unchanged.
+- **Revival as the life lamp** (row 39). A bronze lamp in a stone niche, its flame guttering and then steady (0.6 s;
+  steady under Reduce motion or the battery saver). What the fall takes is at its left in the shadow: red past the
+  grace, pale gold while a fall costs nothing. The early grace before Bone Forging 5 is told in full on the first fall
+  and in a line after. What you keep is at its right in the light, and the choices are under the lamp.
+- **Fates as fortune sticks** (row 40). A bamboo cylinder low in the centre under the stars, three sticks fanned out
+  of it, each slip with the fate's name, its gift above and its cost below and Take this fate at its foot; the sticks
+  rise one after another inside the opening (a tap shows all).
+- **Shared:** `scripts/ui/pages/way_kit.gd` (the night and its stars, coursed stone, the stone tablet, a red cord, a
+  flame). HD `stone_tablet` (dark and gold-leafed) in `tools/ui/build_ui_hd.py`; the `niche` surface (`HOLLOW` + 0.85
+  `INK`); `TEXT_ON` rows for `sky_top`, `space`, `niche`, `stone_tablet` and the slips' `scroll`. Every intent is kept
+  (meditate, the tabs' intents, start_breakthrough with its supports, choose_revival, choose_fate); the Meridian badge
+  still opens Cultivation on Foundation.
+- **Tests:** `rules_tests` `identity_suite` (the way family: every great realm named once on the mountain and a
+  numbered step for each stage; the figure climbing when a step is gained; Foundation opened by its tab; a tablet for
+  each requirement, as many gold-leafed as are met, no two buttons touching; a chosen support in a dish; the doors
+  opening over 0.5 s with nothing else answering; a minor step's one tablet; the early grace in full at the lamp's left
+  and what is kept at its right; a slip and Take this fate for each card; every word read on its ground). Screenshots
+  beside mockups 04 and 05 in `docs/ui_p5/way/`.
+### P5 · The sect family: Menu, Your Sect, Sect, Characters (decision 14; mockups 03 and 11)
+- **The Menu as the sect's hall of hanging plaques** (row 4, mockup 03, approved). Inside the shared window, a lacquered
+  hall with its lattice frieze and floor; five bays (Self, World, Bonds, Works, System) under their plaques between
+  red-lacquered pillars, each entry a teal lacquer tablet hung on the bay's gold cord: its seal and glyph, its name and,
+  when something waits there, a line (Bottleneck reached, chests to claim, slots set, the rank held, who asks to join,
+  a letter's sender, what opens a locked one). A vermilion ready seal, Mail's count or a new mark sits in the corner;
+  the character line and the purses stand on the floor. The tablets sway once as the page opens, a seal is pressed on.
+  The HUD's Menu seal reads the same entries (`MenuPage.ready_seals`); `UiKit.count_badge`, `ready_seal`, `new_mark`
+  and `pill` are shared by the HUD and the pages.
+- **Your Sect as the courtyard under construction** (row 24, mockup 11). Tabs Courtyard, Expeditions, Territory. The
+  Sect Grounds drawn from the room's own backdrop layers and props, scaled once smoothly: all fourteen buildings where
+  the room places them, raised ones solid, the rest dashed bronze scaffolds, one being raised filling from the ground
+  up; tags (level, "to raise", or the sect level with a lock) placed by the World map's layout pass so none touches;
+  the disciples at home idling in the yard, the day's candidates at the gate. Under it the sect level, prestige and a
+  bar with stops three levels ahead naming what each opens; then the building tapped (what it gives, the next level's
+  cost, what is short, Build with its lock and reason, Repair, Open storage), the disciples (rooms, each disciple, the
+  candidates, Recruit taking the one tapped) and Beyond the Walls (Expeditions and Territory one tap each, the
+  builders). `SectAuthority.upgrade_check` (why a raise would fail, the check `upgrade` itself runs) and
+  `prestige_for`.
+- **The Sect as the hall's seats seen from its door** (row 25). One-point perspective drawn from tokens: walls, beams,
+  floor boards, red pillars, the master's dais and screen; a row of cushions for every rank coloured by rank, nearer
+  rows lower, your seat lit with you sitting on it, the next rank's row lit with its trial on a lacquer board; Missions
+  and the Sect Shop as the side doors. The title is the sect's own name. The Role tab's variants and tree hang as
+  lacquer tablets on two timber boards.
+- **Characters as the roster handscroll** (row 32). On the timber wall between two pillars, the scroll unrolled from
+  its rod (HD `handscroll`): each disciple painted as its live figure at 2 px an art px with its task's sign at its
+  feet and a column of name, realm and task in ink, the one you play under a red "Playing" seal; an open slot a blank
+  stretch; the roll at the end as thick as the slots still to come, the next three gates on paper tags. A tap chooses a
+  disciple: under the scroll the one you play sets its task, another offers Switch. It unrolls as the page opens.
+- **Shared** (`scripts/ui/pages/sect_kit.gd`): pillars, lacquer boards, the title board, the timber wall, live figures
+  and smoothly scaled pixel art. Every intent is kept (open, set_idle_task, switch, promotion, role, tree, shop,
+  missions, found, upgrade, repair, recruit, expeditions, mines); behaviour unchanged (sect membership and guidance,
+  no quest needs a second character, dailies after Qi Kindling 1).
+- **Tests:** `rules_tests` `identity_suite` (the sect family: every Menu entry once in its bay, locked ones saying what
+  opens them, the bottleneck's seal matching the HUD's; every building placed and tagged with no two tags touching,
+  the card and Build's reason, Recruit taking the tapped candidate, the figures at whole pixels; a row per rank, your
+  seat, the trial and the doors; a stretch per open slot, the roll's thickness and gate tags, the task buttons; every
+  word read on its ground). Screenshots beside mockups 03 and 11 in `docs/ui_p5/sect/`.
 
 ### P5 · The Post family: Roll-Call, Works, Welcome Back, Pouches (decisions 11, 14, 21 and 26)
 - **Roll-Call as the sect's duty board** (row 14, mockups 13 and 13_first; decision 11, friendlier and more interactive).
