@@ -8,7 +8,8 @@ extends RefCounted
 ## reads the state and drains `events`.
 
 const STEP := 1.0 / 120.0
-const ROWS := ["s", "se", "e", "ne", "n", "nw", "w", "sw"]   ## at 90° - 45° k on the plane (y down)
+## The body's eight drawn rows and their angles on the ground (east 0, south 90); NW, W and SW mirror NE, E and SE.
+const ROW_ANGLES := {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0, "nw": -135.0, "w": 180.0, "sw": 135.0}
 
 var room: TopdownRoom
 var pos := Vector2.ZERO
@@ -329,16 +330,20 @@ func face(v: Vector2) -> void:
 ## stick sits 10° nearer another row (plan §1.4).
 func _face(axis: Vector2) -> void:
 	dir = axis.normalized()
-	var a := dir.angle()
-	var best := row
-	var best_d := INF
-	for i in ROWS.size():
-		var d := absf(angle_difference(a, deg_to_rad(90.0 - 45.0 * i)))
-		if d < best_d:
-			best_d = d
-			best = ROWS[i]
-	var cur := ROWS.find(row)
-	if cur < 0 or rad_to_deg(absf(angle_difference(a, deg_to_rad(90.0 - 45.0 * cur))) - best_d) >= 10.0: row = best
+	row = nearest_row(dir, row, ROW_ANGLES, 10.0)
+
+## The drawn row of `rows` (name -> its angle on the ground in degrees, east 0, south 90) for direction `v`: the nearest,
+## but `current` stays until another is `band` degrees nearer (the hysteresis of plan §1.4; the foes' eight facings
+## use it too).
+static func nearest_row(v: Vector2, current: String, rows: Dictionary, band := 20.0) -> String:
+	var a := v.angle()
+	var best := current if rows.has(current) else str(rows.keys()[0])
+	for r in rows:
+		if absf(angle_difference(a, deg_to_rad(rows[r]))) < absf(angle_difference(a, deg_to_rad(rows[best]))): best = r
+	if not rows.has(current): return best
+	var cur := absf(rad_to_deg(angle_difference(a, deg_to_rad(rows[current]))))
+	var nxt := absf(rad_to_deg(angle_difference(a, deg_to_rad(rows[best]))))
+	return best if cur - nxt >= band else current
 
 func drain() -> Array:
 	var out := events

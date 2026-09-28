@@ -41,6 +41,10 @@ var aim: Dictionary = {}
 var pose := "idle"
 var impact_t := 0.0
 const IMPACT_S := 0.25
+## While the i-frames blink, the body fades as one image in this group: faded layer by layer, the clothes would show
+## the body through them.
+var ghost: CanvasGroup
+var tint := Color.WHITE   ## this frame's tint: red while flinching
 
 var plane: Vector2:
 	get: return motor.pos
@@ -61,6 +65,13 @@ func bound() -> bool:
 
 func _ready() -> void:
 	figure = TopdownFigure.wearing(outfit())
+	ghost = CanvasGroup.new()
+	ghost.self_modulate = Color(1, 1, 1, 0.6)
+	ghost.visible = false
+	var faded := Node2D.new()
+	faded.draw.connect(func(): draw_body(faded, Vector2(0, screen.y - position.y), tint))
+	ghost.add_child(faded)
+	add_child(ghost)
 	ground = WalkSurface.new({"id": "grid", "rect": [0, 0, world.room.w * TopdownRoom.TILE, world.room.h * TopdownRoom.TILE], "stratum": "ground"})
 	_mirror()
 
@@ -292,6 +303,11 @@ func sync(delta: float) -> void:
 	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART))
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
+	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
+	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
+	tint = Color(1.6, 0.8, 0.8) if hurt else Color.WHITE
+	ghost.visible = inv and int(Time.get_ticks_msec() / 25) % 2 == 0
+	if ghost.visible: ghost.get_child(0).queue_redraw()
 	queue_redraw()
 
 ## A blow's or a technique's pose: its own drawn action (a side-view name resolves to one), or the cast for a
@@ -307,7 +323,4 @@ func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
 	figure.draw(canvas, feet, pose, motor.row, frame, tint)
 
 func _draw() -> void:
-	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
-	var blink := inv and int(Time.get_ticks_msec() / 25) % 2 == 0
-	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
-	draw_body(self, Vector2(0, screen.y - position.y), Color(1, 1, 1, 0.6) if blink else (Color(1.6, 0.8, 0.8) if hurt else Color.WHITE))
+	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)

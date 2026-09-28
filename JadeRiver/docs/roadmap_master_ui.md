@@ -453,9 +453,13 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     copied tiles, sprites or names.
 32. **Top-down art approved** (the Phase 3 mock, in-game square and tile sheet). The prototype's characters use the game's
     real character sprites redrawn for the top-down view (every body, hair, clothing and weapon layer, per `AGENTS.md`),
-    not placeholders.
+    not placeholders. Built (2026-09-28, the plan's "As built: Phase 3, third part"): the body, every creator hair style,
+    garment, hat, cape and dye, and the early weapons, in 21 actions and eight facings; the player wears the save's
+    outfit and the villagers their own. The bow and the later weapon families still need top-down layers.
 33. **Auto-tiled paths and shores, rims and prop shadows go into the game now**, and the rooms are adjusted to them.
-34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished.
+    Built for Riverside Square (the plan's "As built: Phase 3, second part").
+34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished. Built for Riverside
+    Square, with the bamboo and willow swaying and the lotus bobbing.
 35. **Attack-button drag moves** (as proposed in Phase 2): a long drag = the combo's finisher; a drag down in the air =
     Plunge; a hold without a drag = guard / the stance technique. Built (2026-09-28, the plan's "As built: Attack's drag
     moves"):
@@ -463,7 +467,7 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the Plunge is the existing art (its unlock, cooldown and strike);
     - the hold is 0.3 s: the family's guard and parry window, or a slotted counter-stance;
     - each move shows on the button and on the ground, left-handed and under Reduce motion;
-    - the guard and plunge poses fall back to the stand-in cells until the sheet has them.
+    - the guard and plunge poses are the real character's (decision 32).
 36. **The full game logic runs in the top-down prototype first** (NPCs, talk, quests, shops, pickups, gathering, doors,
     saves, the real character), and a study decides which systems live on the map as places rather than in the menu.
     The Beasts page review waits for that. The study is `docs/redesign/systems_as_places.md` (2026-09-28), a proposal:

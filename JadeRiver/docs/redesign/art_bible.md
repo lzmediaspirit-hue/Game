@@ -74,7 +74,8 @@ places the player should look.
 - **South faces** are turned away from the sun. They take the shaded half of their ramp: darker and cooler than any
   top.
 - **Cast shade** falls to the lower right. A raised cell shades the floor east of it (`shade_w`, 5 px, fading). A face
-  darkens the floor at its foot (`ao_n`, 4 px). A prop casts a soft oval to its south-east (the manifest's `shadow`).
+  darkens the floor at its foot (`ao_n`, 4 px). A prop casts a soft oval to its south-east (the manifest's `shadow`,
+  drawn into the prop sheet as a sprite of its own and laid on the floor the prop stands on, §8).
 - **Soft shading without blur.** Every gradient is a few ramp steps in clusters, or a stepped translucent teal. There
   is no dithering noise, no anti-aliasing and no filtering. Scaling is nearest neighbour only.
 
@@ -162,15 +163,31 @@ A foam line breathes at the waterline over the four frames. In the TileSet, a sh
 water and its land sides are left empty. Painting the water layer with terrains picks every shore case by itself (this
 was checked in Godot 4.5.1).
 
+**In the game (decision 33).** `TopdownTerrain` (`scripts/topdown/topdown_terrain.gd`) applies these rules to a room's
+height grid and paint, and the room view draws what it picks. The paint table in the manifest says what each mark takes
+part in:
+
+| Field | Meaning | Marks |
+|---|---|---|
+| `grass` | creeps over a path's edge on its own level | `g`, `f`, `b` |
+| `under` | the corner-matched set grass creeps over it with | `d` (`grass_dirt`), `p` (`grass_paving`) |
+| `keep_face` | keeps its own face over water instead of the granite embankment | `w` (pilings), `g` and `f` (a grassy bank's soil) |
+| `face_below` | the face rows under the first, picked by column | `t` (plaster, a window every third bay) |
+
+`b` is a planted bed: flowers on a dressed-stone planter a level up. The corner, shore, rim, face-end and shadow rules
+are checked on a room made for them (`topdown_suite`, "topdown terrain").
+
 ## 7. Water and foliage animation
 
 - **Water.** Four frames at 250 ms; this is the Phase 1 view's clock. The body is still, jade-teal, with slow swells
   two steps apart. A few ripple dashes cycle, each a quarter-cycle apart: absent, then short and dim, then full with a
   pale glint, then short and shifted a pixel east. That gives a shimmer that drifts, without a conveyor-belt look.
   Foam at the shore breathes on the same clock. `03_square_water.gif` shows it.
-- **Foliage (next step).** Willow strands and bamboo leaf sprays sway 1 px on a slow 4-frame loop (400–600 ms a
-  frame), with different phases per prop so a grove never moves in lockstep. Grass does not animate; a player walking
-  through tall grass parts it (Phase 6 FX). Lotus flowers bob 1 px on the water's clock.
+- **Foliage.** Willow strands and bamboo leaf sprays sway 1 px on a slow 4-frame loop (bamboo 500 ms a frame, willow
+  600 ms): the crown and the culms' upper halves, the strands' lower halves. Each prop starts at its own phase (from its
+  cell), so a grove never moves in lockstep. Grass does not animate; a player walking through tall grass parts it
+  (Phase 6 FX). Lotus flowers and buds bob 1 px on the water's clock (250 ms); the pads stay still. The frames lie side
+  by side in the prop sheet (the manifest's `frames` and `frame_ms`).
 - **Mist (next step).** Morning mist is a translucent mist-blue band over water and low ground, drawn at art resolution
   and scrolled 1 px at a time. It is never blurred.
 - **Lights.** Lanterns carry their glow in the sprite (lantern ramp 4–5). Real `PointLight2D`s come in Phase 6.
@@ -184,7 +201,9 @@ was checked in Godot 4.5.1).
   manifest), and it sorts by its footprint's south edge.
 - **Light.** Props are lit from the upper left, with a 1 px outline (§4). A soft floor shadow is listed in the manifest
   (`shadow`: offset and radii from the footprint corner) and drawn on the floor, not in the sprite, so a body standing
-  in it is never tinted.
+  in it is never tinted. The build draws it as a sprite of its own in the prop sheet (`shadow_rect`, placed at
+  `shadow_at` from the footprint corner). The room view cuts it to the cells of the level the prop stands on, so each
+  floor draws its own piece: a shadow never spills down a face or onto the water.
 - **Life.** Something small and deliberate on each prop: water in the barrel, a red seal on the rice sack, an ember in
   the incense burner, papers on the notice board, a jade finial on the stone lantern.
 - **Colour.** Built things are wood, granite, plaster and grey tile. Red lacquer and gold are kept for doors, posts
@@ -192,6 +211,40 @@ was checked in Godot 4.5.1).
 
 The kit so far: house, storehouse, willow, stone lantern, red lantern post, barrel, crates (standable), notice
 board, reeds, boat, bamboo, lotus, incense burner, shrub.
+
+### Foes
+
+Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row per species and drawn facing:
+
+- **Facings.** Five are drawn (S, SE, E, NE, N); SW, W and NW mirror SE, E and NE in the room view. A foe faces where
+  it walks, else where it aims in a fight, and keeps its facing until another is 12° nearer.
+- **Actions.** The side view's catalogue (`data/creature_art.json`), each at its own rate:
+
+  | Action | Frames | fps | |
+  |---|---|---|---|
+  | idle | 4 | 6 | loops |
+  | walk | 4 | 10 | loops |
+  | windup | 2 | 8 | holds its last frame |
+  | attack | 3 | 12 | the strike on frame 1 (`hit_frame`); holds |
+  | hurt | 2 | 10 | holds |
+  | death | 4 | 8 | holds while the view fades it out |
+
+- **Scale.** The crab and the rat are small (about 24 px across, and 30 px long with its tail); the boarlet is medium
+  (about 28 px long), against the 38 px body. Each has a blob shadow of its own width.
+- **How they are drawn.** Each creature is a small sculpture of ellipsoids in its own frame, posed per action and
+  frame. It is seen from a camera to the south, 35° above the ground, and lit from the upper left like the props.
+  Every pixel takes a step of its material's five-step ramp by its light. A part tucked behind a nearer part goes one
+  step darker along the seam, so legs, claws and bodies separate by value, not by lines. Eyes, noses, tusks, the
+  crab's pale shell patches and the boarlet's dust are marks placed on the surface. The sprite takes the prop outline.
+  No randomness, so the build stays byte-identical.
+- **Recognisable from the side view.** The ramps come from each side-view sheet (`art/creatures/`):
+  - the mud crab: a brown shell with pale patches, black eye stalks, jade-tipped claws held up at its sides. Like
+    its side-view sheet it keeps its broad side to the camera, front or back, and scuttles sideways; it strikes with
+    the claw on the side it faces;
+  - the reed rat: a grey-brown coat, pink ears and feet, red eyes, a green reed tail in segments;
+  - the boarlet: a warm brown hide with pale stripes along its back, a bristle crest, a darker head, a pink snout and
+    small tusks. It lowers its head and paws the ground in its wind-up.
+- **Not yet drawn:** every other creature (Phase 5 by region). The pebble imps do not appear in the prototype room.
 
 ## 9. What makes it xianxia (and Jade River's)
 
@@ -217,41 +270,38 @@ same build.
 |---|---|
 | `tools/art/topdown/palette.py` | the ramps (§2) |
 | `tools/art/topdown/canvas.py` | pixel helpers, a coordinate hash and periodic value noise (no RNG) |
-| `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays |
-| `tools/art/topdown/props.py` | the prop kit and its footprints, origins and shadows |
+| `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) |
+| `tools/art/topdown/props.py` | the prop kit and its footprints, origins, animation frames and floor shadows |
+| `tools/art/topdown/creatures.py` | the foes in eight facings (§8, "Foes") |
 | `tools/art/topdown/atlas.py` | the atlas layout |
-| `tools/art/topdown/compose.py` | the reference renderer: auto-tile rules and light overlays in code |
 | `art/topdown/proto_tiles.png` | the atlas: 32 × 7 cells |
-| `art/topdown/proto_props.png` | the prop kit |
+| `art/topdown/proto_props.png` | the prop kit, its frames and the props' shadows |
+| `art/topdown/foes.png` | the foes: a row per species and drawn facing, the actions along it |
 | `art/topdown/proto_tiles.tres` | a Godot TileSet: terrain set 0 (corners: grass, dirt, paving), terrain set 1 (sides: water), 4-frame water animations, each tile's name in custom data 0 |
-| `data/topdown/proto_tileset.json` | the manifest, schema 2, which the room view reads for everything it draws: `atlas` (the sheets' files), `tiles`, `props` (with `top`, the levels of a standable top: house and storehouse 2, crates 1), `body`, `foes`, `paint` (a mark's tops, face kind and `keep_face`) and `bank_face`, as in Phases 1–2; plus `autotile`, `overlays` and `tileset` for what comes next |
+| `data/topdown/proto_tileset.json` | the manifest, schema 2, which the room view reads for everything it draws: `atlas` (the sheets' files), `tiles`, `props` (with `top`, the levels of a standable top: house and storehouse 2, crates 1; `frames` and `frame_ms`; `shadow_rect` and `shadow_at`), `body`, `foes` (`cell`, `foot`, `dirs`, `mirror`, and per species its `actions` and `shadow`), `paint` (§6) and `bank_face`; plus `autotile`, `overlays` and `tileset` |
 
 **Determinism.** Noise comes from a coordinate hash, and the PNGs are written without metadata. `--check` builds
 twice in memory and fails unless every output is byte-identical. `data_validation` checks the result:
 
-- every tile the Phase 1 loader draws exists;
-- every tile and prop lies inside its sheet;
+- every tile the room view draws exists;
+- every tile, prop frame and prop shadow lies inside its sheet;
+- every foe the room spawns has all six actions in the five drawn facings, inside its sheet;
 - the house keeps its footprint;
 - the TileSet loads with its two terrain sets, every tile named where the manifest puts it, and 17 animated water
   tiles.
 
-**What the room view uses today.** Without code changes, `topdown_world.gd` (Phases 1–2) draws with the new art,
-because it reads everything from the manifest. It uses:
+**The room view** (`scripts/topdown/topdown_world.gd`, with the rules in `topdown_terrain.gd`) draws every rule of
+this page in the game (decision 33):
 
-- each paint mark's first two tops, and its faces;
-- the four water frames and the stairs;
-- the redrawn props, whose roofs and crate lids are standable tops.
+- tops by their paint, every variant, with paths and paving auto-tiled under grass on their own level;
+- water in its shore case, frame by frame;
+- on every top its rims, contact shade and cast shade, on every face its lit and shaded ends, and the stairs' cheeks;
+- each prop's floor shadow, cut to the floor it stands on;
+- animated plants, each at its own phase;
+- the foes in their eight facings.
 
-It does not yet draw:
-
-- the path and shore auto-tiles;
-- the rims, `ao_n`, `shade_w` and face end rims (it draws its own 1 px side rim);
-- the prop shadows;
-- the further top variants.
-
-`compose.py` does all of these. It is the spec for the loader work: either a small patch to `top_tile` / `WaterView`
-once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in Phase 4.
-`07_ingame_square.png` shows the loader today, and `01_square_mock_*.png` shows the target.
+The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_mock_*.png` is the approved target,
+`07_ingame_square.png` the loader before this work, and `08`–`15` the game after it.
 
 ## 11. Checklist for a new tile or prop
 
@@ -260,19 +310,28 @@ once Phase 2 has landed, or the move to `TileMapLayer`s on `proto_tiles.tres` in
 - Tops tile with themselves, and faces tile sideways and downward.
 - A prop has a footprint, an origin, `solid` and a `shadow`, and an outline except on water.
 - It is built by the script, never painted by hand into the PNG. `--check` passes and `data_validation` is green.
-- It is reviewed in `--review`'s images at ×1 and ×2, next to the character.
+- It is reviewed in `--review`'s sheets at ×4, and in the room: `tools/dev/topdown_capture.tscn -- --phase3` draws it
+  in the game.
 
 ## 12. Review images (`docs/redesign/phase3/`)
 
+`build_tiles.py --review` draws the sheets (04, 05, 12). The game draws the rest:
+`xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn -- --phase3`.
+
 | File | What |
 |---|---|
-| `01_square_mock_640x360.png`, `01_square_mock_x2.png` | Riverside Square at the game's spawn camera, with every rule of this page (the target), and the proposed dressing (bamboo, lotus, red lanterns, incense, shrubs) |
-| `02_square_whole_room.png` | the whole 48 × 30 room |
-| `03_square_water.gif` | the four water frames |
+| `01_square_mock_640x360.png`, `01_square_mock_x2.png` | the approved mock (decision 32): Riverside Square at the spawn camera with every rule of this page and the proposed dressing |
+| `02_square_whole_room.png`, `03_square_water.gif` | the approved mock's whole room and its four water frames |
 | `04_tile_sheet_x4.png` | every tile at ×4, named and grouped |
-| `05_props_x4.png` | the prop kit at ×4 |
-| `06_height_levels_test.png` | levels −½ to 4 with a body on each, in colour and in grey, at ×2 |
-| `07_ingame_square.png` | the room view (with the Phase 2 fight) drawing the new art in the game |
+| `05_props_x4.png` | the prop kit at ×4, with its animation frames and floor shadows |
+| `06_height_levels_test.png` | levels −½ to 4 with a body on each (the review room `td_review_heights`), drawn by the game, in colour and by value alone, at ×2 |
+| `07_ingame_square.png` | before: the room view with the new tiles and props, without auto-tiles, rims or shadows |
+| `08_ingame_square_x2.png`, `09_ingame_square_hud.png` | after: the redesigned square in the game at the spawn camera, ×2, and under the HUD |
+| `10_ingame_whole_room.png` | the whole 48 × 30 room in the game |
+| `11_before_after.png` | the mock, the loader before, and the game after, one above the other |
+| `12_foes_x3.png` | the foe sheet at ×3: crab, rat and boarlet, five drawn facings, every action |
+| `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
+| `15_water_frames_x2.png` | the water's four frames round the pond and the pier |
 
 ## 13. The character (decision 32)
 
@@ -281,7 +340,7 @@ The body in the top-down world is the game's own character, redrawn for this vie
 - **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
   from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
 - **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
-  The redesign plan's "As built: Phase 3, second part" has the full pipeline.
+  The redesign plan's "As built: Phase 3, third part" has the full pipeline.
 
 | Rule | Value |
 |---|---|

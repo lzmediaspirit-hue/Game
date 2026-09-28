@@ -42,6 +42,8 @@ func run_all(suite) -> void:
 	_water_skill()
 	_roofs()
 	_aim_rules()
+	_terrain_rules()
+	_square_layout()
 	_drag_zones()
 	_motor_plunge()
 	_finisher_pace()
@@ -344,6 +346,79 @@ func _aim_rules() -> void:
 		and lefty.release() == "aim" and lefty.dir() == Vector2.RIGHT and is_equal_approx(far.reach_k(), 1.0),
 		"topdown: a tap is a tap; held and dragged it aims along the drag (%s); back on the button it cancels; the left-handed button aims the same" % str(aimed.dir()))
 
+# ------------------------------------------------------------------ Phase 3 (decisions 33 and 34)
+## The terrain rules the room view draws by (TopdownTerrain, art bible §3–§6), on a small room made for them: paths
+## take grass's corner-matched edge only from grass on their own level, water its shore case, raised edges their rims,
+## contact shade and cast shade, faces their ends and their kind over water, and a prop's shadow only its own floor.
+func _terrain_rules() -> void:
+	var rows := ["00000000", "01110000", "01110000", "00000000", "~~~~0000", "~~~~0000"]
+	var paint := ["ggggpppp", "gbbbgppp", "gbbbgddd", "gddgpddd", "~~~~wsss", "~~~~wsss"]
+	var tr := TopdownTerrain.new(grid(rows, {"paint": paint, "props": [{"kind": "lantern", "x": 2, "y": 1}, {"kind": "lantern", "x": 6, "y": 0}]}))
+	var edge := tr.top(1, 3)    # dirt with grass to its west on the ground: the grass creeps over its west corners
+	var cut := tr.top(2, 3)     # dirt under the planter's grass (a level up) and beside grass on the ground to its east
+	var plain := tr.top(6, 3)   # dirt with no grass at any corner
+	var shore := tr.water(1, 4)
+	t.check(edge == "grass_dirt_1010" and cut == "grass_dirt_0101" and plain in ["dirt", "dirt_b"] and shore.size() == 4 and str(shore[0]) == "shore_01_0" and tr.shore_sides(3, 5) == 2,
+		"topdown terrain: a path takes grass's corner edge from its own level only (%s, %s, %s); water under land takes its shore case (%s)" % [edge, cut, plain, str(shore[0])])
+	var top_l := tr.overlays(1, 1, 1)
+	var foot := tr.overlays(2, 3, 0)
+	var east := tr.overlays(4, 1, 0)
+	t.check(top_l.has("rim_w") and top_l.has("rim_n") and not top_l.has("rim_e") and foot.has("ao_n") and east.has("shade_w") and tr.overlays(3, 1, 1).has("rim_e"),
+		"topdown terrain: a raised top takes its rims (%s), the floor at a face's foot its contact shade (%s) and the floor east of it the cast shade (%s)" % [str(top_l), str(foot), str(east)])
+	t.check(tr.face(2, 2, 0, false) == "stone_face_top" and tr.face_ends(1, 2, 1, 0) == ["end_w"] and tr.face_ends(3, 2, 1, 0) == ["end_e"]
+		and tr.face(3, 3, 0, true) == "earth_face_top" and tr.face(4, 3, 0, true) == "bank_face_top" and tr.face(4, 4, 0, true) == "wood_face_top",
+		"topdown terrain: a planter's face is stone with its ends lit west and shaded east; over water grass keeps its soil, paving takes the embankment, a pier its pilings")
+	var up: Array = tr.shadow_pieces(1, 1)
+	var up_on_ground: Array = (tr.shadow_pieces(1, 0) + tr.shadow_pieces(2, 0)).filter(func(p): return (p[0] as Rect2).position.x < 64.0)
+	var ground: Array = tr.shadow_pieces(0, 0)
+	t.check(not up.is_empty() and up_on_ground.is_empty() and not ground.is_empty() and up.all(func(p): return (p[0] as Rect2).position.y >= 16.0 and (p[0] as Rect2).end.y <= 32.0),
+		"topdown terrain: a prop's floor shadow lies on its own level's cells, cut to them (%d pieces on the planter, %d beside it on the ground)" % [up.size(), up_on_ground.size()])
+
+## Riverside Square as redesigned for the terrain (decisions 33 and 34): the paved ways lead from the house door, the
+## storehouse door and the stairs' foot to the pier; the terrace's dirt path leads from the stairs' head to the rooftop
+## jump above the storehouse and up to the shrine; the lotus pond is still water inside a curb; the bamboo, lotus and
+## lanterns are placed, the plants animated.
+func _square_layout() -> void:
+	var room := TopdownRoom.load_room("td_proto_square")
+	var find := func(kind: String) -> Dictionary: return room.props.filter(func(q): return q.kind == kind)[0]
+	var house: Dictionary = find.call("house")
+	var store: Dictionary = find.call("storehouse")
+	var door := func(p: Dictionary) -> Vector2i: return Vector2i((p.cell as Vector2i).x + (p.size as Vector2i).x / 2, (p.cell as Vector2i).y + (p.size as Vector2i).y)
+	var to_pier := [door.call(house), door.call(store), Vector2i(15, 14)].map(func(c): return _path_reaches(room, c, "psw", func(q): return room.paint_at(q.x, q.y) == "w"))
+	var sc: Vector2i = store.cell
+	var roof_jump := Vector2i(sc.x + 1, sc.y - 1)
+	var shrine: Dictionary = find.call("incense")
+	var terrace := [_path_reaches(room, Vector2i(15, 11), "d", func(q): return q == roof_jump), _path_reaches(room, Vector2i(15, 11), "d", func(q): return q == (shrine.cell as Vector2i) + Vector2i(0, 1))]
+	measured.layout_routes = to_pier + terrace
+	t.check(to_pier.all(func(ok): return ok) and terrace.all(func(ok): return ok),
+		"topdown square: paved ways lead from the house door, the storehouse door and the stairs to the pier %s; the terrace path leads to the rooftop jump and the shrine %s" % [str(to_pier), str(terrace)])
+	var kinds := {}
+	for p in room.props: kinds[p.kind] = int(kinds.get(p.kind, 0)) + 1
+	var pond := 0
+	for y in range(15, 22):
+		for x in range(8, 16):
+			if room.is_water(x, y) and not room.is_water(x, y - 1) and room.paint_at(x, y - 1) == "s": pond += 1
+	var lotus_in_pond: bool = room.props.any(func(q): return q.kind == "lotus" and room.is_water((q.cell as Vector2i).x, (q.cell as Vector2i).y) and (q.cell as Vector2i).y < 22)
+	t.check(pond >= 3 and lotus_in_pond and int(kinds.get("bamboo", 0)) >= 6 and int(kinds.get("lotus", 0)) >= 5 and int(kinds.get("lantern_red", 0)) >= 4
+		and int(room.tileset.props.bamboo.get("frames", 1)) == 4 and int(room.tileset.props.lotus.get("frames", 1)) == 4,
+		"topdown square: a lotus pond under a curb (%d), %d bamboo, %d lotus, %d red lanterns; bamboo sway and lotus bob in 4 frames" % [pond, int(kinds.get("bamboo", 0)), int(kinds.get("lotus", 0)), int(kinds.get("lantern_red", 0))])
+
+## Does a walk over cells painted with one of `marks` (4-way, on one level, stairs included) from `from` reach a cell
+## `goal` accepts (checked on the path's neighbours too, so a pier or a roof's edge counts when the path meets it)?
+func _path_reaches(room: TopdownRoom, from: Vector2i, marks: String, goal: Callable) -> bool:
+	var seen := {from: true}
+	var todo: Array = [from]
+	while not todo.is_empty():
+		var c: Vector2i = todo.pop_front()
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = c + d
+			if not room.inside(n.x, n.y) or seen.has(n): continue
+			if goal.call(n): return true
+			var stairs := not room.stair_at(n.x, n.y).is_empty() or not room.stair_at(c.x, c.y).is_empty()
+			if room.level(n.x, n.y) == TopdownRoom.SOLID or not marks.contains(room.paint_at(n.x, n.y)) or (room.level(n.x, n.y) != room.level(c.x, c.y) and not stairs): continue
+			seen[n] = true
+			todo.append(n)
+	return false
 ## Decision 35, the thumb on Attack: every drag zone is a 48 px target on both layouts, and each drag reads as its move.
 func _drag_zones() -> void:
 	var dead := float(TopdownAim.cfg("dead_px", 18))
@@ -454,6 +529,14 @@ func run_view(suite, tree: SceneTree) -> void:
 	t.check(levels.has(0) and levels.has(1) and levels.has(TopdownRoom.WATER) and room.stairs.size() >= 1 and room.props.any(func(p): return p.kind == "house"),
 		"topdown: the prototype square has two levels, water, stairs and a house (%s)" % str(levels.keys()))
 	t.check(w.viewport.size == Vector2i(640, 360) and w.container.stretch_shrink == 2 and w.viewport.snap_2d_transforms_to_pixel, "topdown: the world renders at 640x360 shown x2")
+	# Phase 3: the water draws its shore cases, the plants sway on their own clocks.
+	var water_view = w.viewport.get_children().filter(func(n): return n.get("cells") != null)[0]
+	var shores: int = water_view.cells.filter(func(cl): return not str(cl[1][0]).begins_with("water_")).size()
+	var swaying: Array = w.sorted.get_children().filter(func(n): return n.get("frames") is int and int(n.frames) == 4 and n.is_processing())
+	var phases := {}
+	for n in swaying: phases[n.phase] = true
+	t.check(w.terrain != null and shores > 40 and swaying.size() >= 10 and phases.size() >= 2,
+		"topdown: the room view draws %d shore cells and %d swaying or bobbing plants at %d phases" % [shores, swaying.size(), phases.size()])
 	var p = w.player
 	var m: TopdownMotor = p.motor
 	var house: Dictionary = room.props.filter(func(q): return q.kind == "house")[0]
@@ -562,8 +645,9 @@ func run_fight(suite, tree: SceneTree) -> void:
 	var kinds := {}
 	for e in Game.room_rt.enemies.values(): kinds[e.def_id] = true
 	t.check(kinds.has("mudshell_crab") and kinds.has("reedtail_rat") and kinds.has("wild_boarlet") and w.foe_views.size() == Game.room_rt.enemies.size() and w.label_views.size() == Game.room_rt.enemies.size(),
-		"topdown: the room's foes spawn by the Enemies authority, each with a placeholder figure and a label (%s)" % str(kinds.keys()))
+		"topdown: the room's foes spawn by the Enemies authority, each with its figure and a label (%s)" % str(kinds.keys()))
 	var base := Vector2(22.5, 19.5) * 32.0
+	_foe_facings(base)
 	_eight_ways(base)
 	_heights()
 	_shots(base)
@@ -577,6 +661,38 @@ func run_fight(suite, tree: SceneTree) -> void:
 	if is_instance_valid(hud): hud.queue_free()
 	await tree.process_frame
 	Unlocks.debug_force_all = forced
+
+## Phase 3: a foe's figure (art/topdown/foes.png) turns to eight facings, five drawn and three mirrored: where it
+## walks, else where it aims in a fight; a death plays once and holds its last frame.
+func _foe_facings(base: Vector2) -> void:
+	fresh(base)
+	var e := foe("wild_boarlet", base + Vector2(80, 0))
+	frames(1)
+	var fv = w.foe_views.get(e.uid)
+	if fv == null:
+		t.check(false, "topdown: a foe spawned in the room gets its figure")
+		return
+	var seen: Array = []
+	var west_y := -1.0
+	for v in [Vector2(-60, 0), Vector2(40, -40), Vector2(0, 60), Vector2(-40, 40)]:
+		e.velocity = v
+		e.action = "walk"
+		fv.sync(1.0 / 60.0)
+		seen.append("%s%s" % [fv.facing, "*" if fv.flip else ""])
+		if west_y < 0.0: west_y = fv.src.position.y
+	e.velocity = Vector2.ZERO
+	e.aim = Vector2(0, -1)
+	e.ai.state = "windup"
+	e.action = "windup"
+	fv.sync(1.0 / 60.0)
+	seen.append(fv.facing)
+	var acts: Dictionary = w.room.tileset.foes.species.wild_boarlet.actions
+	Game.combat._damage_enemy(e, e.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+	fv.sync(0.1)
+	fv.sync(2.0)
+	var last: Array = acts.death.frames.n.back()
+	t.check(seen == ["w*", "ne", "s", "sw*", "n"] and is_equal_approx(west_y, float(acts.walk.frames.e[0][1])) and not e.alive and fv.src.position == Vector2(float(last[0]), float(last[1])),
+		"topdown: a foe faces where it walks and where it aims (%s; SW, W and NW mirror SE, E and NE), and its death holds its last frame" % str(seen))
 
 ## A blow lands in each of the eight directions it is aimed, and only there.
 func _eight_ways(base: Vector2) -> void:

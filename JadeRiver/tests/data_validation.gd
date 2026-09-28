@@ -1677,9 +1677,10 @@ func _req_names(req: Dictionary) -> Array:
 	return out
 
 ## Top-down redesign, Phase 3 (docs/redesign/art_bible.md): the prototype's terrain atlas, prop kit and TileSet, as
-## built by tools/art/topdown/build_tiles.py. Every tile the Phase 1 loader draws and every prop the room places exists
-## inside its sheet; the TileSet loads, names each tile as the manifest does, animates the water and keeps its two
-## terrain sets (corners for paths, sides for the shore).
+## built by tools/art/topdown/build_tiles.py. Every tile the room view draws and every prop the room places exists
+## inside its sheet (with its animation frames and floor shadow), and so does every frame of every foe the room spawns;
+## the TileSet loads, names each tile as the manifest does, animates the water and keeps its two terrain sets (corners
+## for paths, sides for the shore).
 func topdown_art_suite() -> void:
 	var man = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json"))
 	var room = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/td_proto_square.json"))
@@ -1710,10 +1711,29 @@ func topdown_art_suite() -> void:
 	var props: Dictionary = man.get("props", {})
 	for p in room.get("props", []):
 		if not props.has(str(p.kind)): outside.append("prop " + str(p.kind))
+	var psheet := Rect2i(0, 0, props_img.get_width(), props_img.get_height())
 	for k in props:
 		var r: Array = props[k].rect
-		if not Rect2i(0, 0, props_img.get_width(), props_img.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))): outside.append("prop " + k)
-	check(outside.is_empty(), "topdown art: every tile and prop lies inside its sheet and every placed prop exists (%s)" % str(outside))
+		# Phase 3: an animated prop's frames lie side by side from its rect; its floor shadow is a sprite of its own.
+		if not psheet.encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]) * int(props[k].get("frames", 1)), int(r[3]))): outside.append("prop " + k)
+		var s: Array = props[k].get("shadow_rect", [0, 0, 0, 0])
+		if props[k].has("shadow") != props[k].has("shadow_rect") or not psheet.encloses(Rect2i(int(s[0]), int(s[1]), int(s[2]), int(s[3]))): outside.append("shadow " + k)
+	check(outside.is_empty(), "topdown art: every tile, prop frame and prop shadow lies inside its sheet and every placed prop exists (%s)" % str(outside))
+	# Phase 3: the foes the prototype room spawns each have every action in the five drawn facings, inside the sheet.
+	var foes: Dictionary = man.get("foes", {})
+	var foes_img: Texture2D = load(str(man.get("atlas", {}).get("foes", "")))
+	var cell: Array = foes.get("cell", [0, 0])
+	var missing_foes: Array = []
+	for sp in room.get("spawns", []):
+		var acts: Dictionary = foes.get("species", {}).get(str(sp.enemy), {}).get("actions", {})
+		for act in ["idle", "walk", "windup", "attack", "hurt", "death"]:
+			for d in foes.get("dirs", []):
+				var list: Array = acts.get(act, {}).get("frames", {}).get(d, [])
+				if list.is_empty(): missing_foes.append("%s %s %s" % [sp.enemy, act, d])
+				for at in list:
+					if foes_img == null or not Rect2i(0, 0, foes_img.get_width(), foes_img.get_height()).encloses(Rect2i(int(at[0]), int(at[1]), int(cell[0]), int(cell[1]))): missing_foes.append("%s %s %s outside" % [sp.enemy, act, d])
+	check(missing_foes.is_empty() and foes.get("dirs", []).size() == 5 and foes.get("mirror", {}).size() == 3,
+		"topdown art: every foe in the room has idle, walk, wind-up, strike, hurt and death in five drawn facings, three mirrored (%s)" % str(missing_foes.slice(0, 4)))
 	var house: Dictionary = props.get("house", {})
 	var fp: Array = house.get("footprint", [0, 0])
 	check(int(fp[0]) == 6 and int(fp[1]) == 3 and float(house.get("rect", [0, 0, 0])[2]) > 90.0, "topdown art: the house keeps its 6 x 3 footprint")

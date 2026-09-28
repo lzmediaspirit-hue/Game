@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbfwjbg7om37b"
-path="res://.godot/imported/placeholder_foes.png-127298e177d662631f6a7c9936be5d65.ctex"
+uid="uid://cmtyge8028wtg"
+path="res://.godot/imported/foes.png-8f0678680e785b51acc89855e2e01046.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/topdown/placeholder_foes.png"
-dest_files=["res://.godot/imported/placeholder_foes.png-127298e177d662631f6a7c9936be5d65.ctex"]
+source_file="res://art/topdown/foes.png"
+dest_files=["res://.godot/imported/foes.png-8f0678680e785b51acc89855e2e01046.ctex"]
 
 [params]
 

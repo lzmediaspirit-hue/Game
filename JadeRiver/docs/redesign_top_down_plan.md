@@ -567,7 +567,7 @@ which stay as built. Each uses rules the game already has. Numbers are in `data/
 - The moves are live only while the button attacks: in a fight, or with nothing to talk to or gather at hand. While
   the button offers a context at rest, or during a harvest tap or a channel, a hold lets go as a tap.
 
-**Poses.** The real character (Phase 3, second part) draws both moves:
+**Poses.** The real character (Phase 3, third part) draws both moves:
 
 - the guard, 2 frames held while guarding;
 - the Plunge's tuck and dive while it drops;
@@ -655,10 +655,71 @@ The side view is unchanged.
 - **`compose.py`** is the reference renderer of the rules. It renders the review images in `docs/redesign/phase3/`.
 - **What waits.** The room view draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
   contact shade and prop shadows wait for a loader patch after Phase 2, or for the Phase 4 move to `TileMapLayer`s.
-- **Not started then:** the body in S/E/N, the weapon and hat rig, and the gallery by facing. The second part below
+- **Not started then:** the body in S/E/N, the weapon and hat rig, and the gallery by facing. The third part below
   builds them.
 
-### As built: Phase 3, second part · the real character (decision 32, 2026-09-28)
+### As built: Phase 3, second part · the terrain in the game, the square redesigned, the first foes (2026-09-28)
+
+Decisions 32–34: the art is approved, the mock's auto-tiles, rims and prop shadows go into the game now and the room
+is adjusted to them, and the room gets its bamboo, lotus pond and lanterns.
+
+**The terrain in the game.** `TopdownTerrain` (`scripts/topdown/topdown_terrain.gd`) holds the art bible's rules; the
+room view (`topdown_world.gd`) draws what they pick. Phase 2's combat and collision are untouched.
+
+| Rule | In the game |
+|---|---|
+| Path and paving auto-tiles | a path cell's corner is grass when grass on its own level touches it; the cell takes its corner-matched tile. Every top variant is drawn |
+| Shore | each water cell takes its side-matched case (land N, E, S, W) in the water's four frames |
+| Raised edges | rims where a neighbour drops away, contact shade at a face's foot, the cast shade of a higher west neighbour, a face's lit west end and shaded east end, the stairs' cheeks: all overlay tiles from the atlas, replacing the view's own 1 px rim |
+| Prop shadows | a sprite of each prop's shadow in the prop sheet, cut to the cells of the level the prop stands on, so each floor draws its own piece and a body in it is never tinted |
+| Plants | bamboo and willow sway, lotus bob, each at its own phase |
+
+The paint table says what each mark takes part in (`grass`, `under`, `keep_face`, `face_below`; art bible §6). The
+blob shadow is one function for the body, the foes and the review's stand-ins.
+
+**Riverside Square redesigned** (`data/topdown/td_proto_square.json`):
+
+- **The terrace.** A dirt path runs from the stairs' head east along the terrace to the edge above the storehouse (the
+  rooftop route's jump), with a branch up to a shrine at the cliff's foot: an incense burner between two stone
+  lanterns. Two rock outcrops step the cliff, with bamboo groves before them and a willow in the west.
+- **The square.** Paving leads from the house door (between two red lantern posts), the storehouse door and the
+  stairs' foot to the pier, between lawns that grass creeps over. A lotus pond with a granite curb lies in front of the
+  house, a willow over it. The low wall is now a planted bed (a level up, stone faces, flowers, a shrub).
+- **The river.** The promenade has a notch where the boat is moored. Grassy banks close both ends. Red lantern posts
+  and stone lanterns stand at the pier's head.
+- **Kept:** the storehouse and crates of the rooftop route, the house and its lane, the stairs, the pier's one-tile gap
+  and the landing stages' three-tile gap, the spawn, the foes' spawn points (one crab moved two tiles west, off the pond's
+  curb).
+- **No expected number in `topdown_suite` changed**: every Phase 1–2 check passes on the new layout as written.
+
+**The first foes** (`tools/art/topdown/creatures.py` → `art/topdown/foes.png`, art bible §8 "Foes"): the mud crab,
+reed rat and boarlet, recognisably their side-view selves. Five facings are drawn (S, SE, E, NE, N); SW, W and NW
+mirror. Each has idle 4, walk 4, wind-up 2, strike 3 (the hit on frame 1), hurt 2 and death 4. The placeholder foes and
+their sheet are gone. `FoeView` faces a foe where it walks, else where it aims, with 12° of hysteresis (the motor's
+row picking, shared), plays each action at its own rate, and holds a strike, a flinch and a death on their last frame.
+The pebble imps are not drawn: they do not appear in the prototype room.
+
+**The build and the review images.** `build_tiles.py --check` stays byte-identical over the tiles, props, foes,
+TileSet and manifest. The Python reference renderer (`compose.py`) is gone: the game draws the rules now, so the room's
+review images come from the game (`tools/dev/topdown_capture.tscn -- --phase3`), including the height-levels test on a
+review room of its own (`data/topdown/td_review_heights.json`). The files are listed in the art bible's §12.
+
+**Tests.**
+
+- `rules_tests` `topdown_suite`: 8 new checks.
+  - The terrain rules on a small room: corners from the same level only, shore cases, rims and shades, face kinds
+    over water and face ends, and shadows cut to their level.
+  - The square's routes: paved from both doors and the stairs to the pier; dirt from the stairs' head to the
+    rooftop jump and the shrine.
+  - The pond, bamboo, lotus and red lanterns; the view's shore cells and swaying plants.
+  - The foes' eight facings, the mirrored rows and the held death.
+- `data_validation` `topdown_art_suite`: prop frames and shadows lie inside their sheet, and every foe the room spawns
+  has all six actions in five facings.
+
+**Measured** (`perf_tests`): the room mounts in 104 ms and walks at 6.9 ms a frame, with 74 sorted nodes. With 22
+foes fighting, a frame takes 9.1 ms.
+
+### As built: Phase 3, third part · the real character (decision 32, 2026-09-28)
 
 **What it is.** The prototype's body is now the game's own character, redrawn for the ¾ view. It keeps the side
 view's big-headed build, faces, hair styles, clothes, colours, dyes and weapons, and reads them from the same data:
@@ -769,8 +830,11 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
   view fills them. `TopdownWorld.add_villager` stands one in the room, sorted with it.
 - **What is not drawn is listed.** An outfit piece with no top-down layer goes in `TopdownFigure.missing`, and the
   figure draws without it.
-- **The placeholder body is gone.** `build_topdown_proto.py` draws only the placeholder foes. The tile review
-  (`compose.py`) draws the real figure.
+- **Fading as one.** The i-frames' blink and the occlusion silhouette fade the figure as one image (a `CanvasGroup`).
+  Faded layer by layer, the clothes would show the body through them.
+- **The placeholder body is gone**, with its sheet and the tileset manifest's `body` entry. `build_topdown_proto.py`
+  only runs `build_tiles.py` now. The game's review images (`topdown_capture.tscn -- --phase3`, the height test
+  among them) draw the real character.
 
 **What still needs top-down layers.** All nine villagers of the tutorial (Lotus Ferry) are fully drawn: aunt_ping,
 lu_boatman, little_dou, old_ma, granny_liu, shen_lian_npc, uncle_guo, fisher_wen and washer_mei. So are 124 of the
@@ -826,7 +890,6 @@ A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure d
 
 - Palette-swap dyes (§1.4). Dyes are baked sheets, as in the side view.
 - Thrust streaks. A thrust at the camera relies on the effects layer's line.
-- The top-down creature sheets. The foes are still placeholders.
 
 ### Phase 4 · Room conversion by region (XL)
 

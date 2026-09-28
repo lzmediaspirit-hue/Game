@@ -45,7 +45,7 @@ FACES = [
     ("pave_face_top", lambda: tl.stone_face(20, True, PAVE)), ("pave_face", lambda: tl.stone_face(20, False)),
 ]
 
-OVERLAYS = ["rim_w", "rim_e", "rim_n", "ao_n", "shade_w"]
+OVERLAYS = ["rim_w", "rim_e", "rim_n", "ao_n", "shade_w", "end_w", "end_e", "cheek_w", "cheek_e"]
 
 
 def build() -> tuple[Img, dict, dict]:

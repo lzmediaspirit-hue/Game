@@ -7,7 +7,7 @@ extends RefCounted
 ## and per section one rect [x, y, w, h, ox, oy] per frame, (ox, oy) from the feet. Facings S, SE, E, NE and N are
 ## drawn; SW, W and NW mirror SE, E and NE. Meditation faces the camera only (its other facings redirect to S).
 ## The bow and the later weapon families (heavy sabre, fan, flute, brush, bell) have no top-down layer yet: an outfit
-## that asks for one lists it in `missing` and draws without it (redesign plan, "As built: Phase 3, second part").
+## that asks for one lists it in `missing` and draws without it (redesign plan, "As built: Phase 3, third part").
 
 const MANIFEST := "res://data/topdown/character.json"
 const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon"]

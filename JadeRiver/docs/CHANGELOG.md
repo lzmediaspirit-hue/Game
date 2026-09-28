@@ -5,7 +5,7 @@
 - **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
   faces, hair styles, clothes, colours, dyes and weapons. It reads the same data: `parts.json`'s names, dyes and hair
   colours, and the save's outfit. It replaces the placeholder body, which is removed. Details are in
-  `docs/redesign_top_down_plan.md`, "As built: Phase 3, second part", and `docs/redesign/art_bible.md` §13.
+  `docs/redesign_top_down_plan.md`, "As built: Phase 3, third part", and `docs/redesign/art_bible.md` §13.
 - **Drawn by `tools/art/topdown/build_character.py`.** It is deterministic and byte-identical twice (`--check`). A
   posed doll is ray-cast at 1 art px and shaded in the side view's ramps with the art bible's outlines.
   - The unclothed body comes first; every layer is cast from the same poses over it (`AGENTS.md`).
@@ -24,7 +24,9 @@
   family's) and the later weapon families are left; each goes in `TopdownFigure.missing` and draws nothing.
 - **In the game.** `TopdownFigure` composites the layers. The player wears its equipment and dyes from the save,
   dresses again when they change, and plays each state's action. A blow lands its hit frame on Combat's clock. The
-  facing picks one of eight rows. `TopdownWorld.add_villager` stands an NPC in its own outfit in the room.
+  facing picks one of eight rows. `TopdownWorld.add_villager` stands an NPC in its own outfit in the room. The
+  i-frames' blink and the occlusion silhouette fade the figure as one image, so the body never shows through its
+  clothes.
 - **Tests.**
   - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing ten
     broken manifests.
@@ -32,8 +34,40 @@
     drag moves use the real guard and plunge.
   - `tests/topdown_figure_gallery.tscn` renders the compatibility gallery with the game's own compositor.
 - **Review sheets** are in `docs/redesign/phase3/character/`: the body, an outfit per facing, the weapons, hair,
-  dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The Phase 3 square mocks now
-  show the real character.
+  dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The game's Phase 3 review
+  images (`topdown_capture.tscn -- --phase3`) now draw the real character.
+
+## Top-down redesign, Phase 3: the terrain in the game, Riverside Square redesigned, the first foes in eight facings
+
+- **The terrain draws by the art bible in the game** (decision 33; `scripts/topdown/topdown_terrain.gd`):
+  - paths and paving take grass's corner-matched edge from their own level;
+  - water takes its shore case in each of its four frames;
+  - every raised edge has its rims, contact shade and cast shade, and every face its lit and shaded ends;
+  - stairs have their cheeks;
+  - each prop's floor shadow is cut to the floor it stands on.
+
+  Phase 2's combat and collision are unchanged.
+- **Riverside Square is redesigned for it** (`data/topdown/td_proto_square.json`):
+  - a terrace path from the stairs to the rooftop jump and a cliff-foot shrine;
+  - paving from both doors and the stairs to the pier, between lawns;
+  - a lotus pond with a willow, and a planted bed in place of the low wall;
+  - bamboo groves, and red lantern posts at the house door and the pier;
+  - a boat's notch in the promenade, and grassy banks.
+
+  The rooftop route, both gaps and every `topdown_suite` number are unchanged (decision 34).
+- **Plants move:** bamboo and willow sway a pixel, and lotus flowers bob on the water's clock, each at its own phase.
+- **The first foes** (`tools/art/topdown/creatures.py` → `art/topdown/foes.png`):
+  - the mud crab, reed rat and boarlet, redrawn from their side-view sheets;
+  - five facings drawn and three mirrored;
+  - idle, walk, wind-up, strike, hurt and death at their own rates.
+
+  They replace the placeholder foes. The crab scuttles sideways, broad side to the camera, as in its side-view sheet.
+- **Review images come from the game** (`topdown_capture.tscn -- --phase3`, `docs/redesign/phase3/08`–`15`, a
+  regenerated height test). They include the mock beside the loader before and the game after. The Python reference
+  renderer is retired.
+- **Tests:** `topdown_suite` gains 8 checks (terrain rules, the square's routes and dressing, the foes' facings).
+  `data_validation` checks prop frames, prop shadows and every foe's frames. `build_tiles.py --check` stays
+  byte-identical.
 
 ## Study: which systems live on the map as places (decision 36)
 
