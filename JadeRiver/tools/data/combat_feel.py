@@ -19,9 +19,15 @@ What lives here (CombatFeel reads it; TopdownFx and the top-down views play it):
   run, never the active window; the finisher only after `finisher_after`. The steps' own durations and hit frames stay
   in weapon_families.json: the phases are derived from them (CombatFeel.phases), never kept twice.
 - forms: per technique form, its weight and the top-down pose it plays (the character pipeline's action names).
+- poses: per family, the top-down pose it plays where that is not the side view's own action (the heavy sabre's
+  two-handed cuts, the bell's toll, the fan's throw, the brush writing, the flute at the lips, the bow's draw), for a
+  step's or a technique's action or for a move (a dash attack, a blow in the air, a throw); `moves` the pose of each move
+  for every family that does not name its own (the dash slash, the air strike, the charge's held wind-up, the parry's
+  deflection, the melody), and `melody_loop` the frames the held melody loops (CombatFeel.top_pose,
+  TopdownFigure.resolve).
 - foes: the weight of a foe's blow by its role, and the marks it shows (its tell on the wind-up, its swipe).
-- missing_poses: the poses the character pipeline (decision 37) does not draw yet, each with the stand-in it plays; the
-  pipeline maps the side view's action names itself (TopdownFigure.resolve, data/topdown/character.json aliases).
+- missing_poses: the poses the character pipeline (decision 37) does not draw yet, each with the stand-in it plays.
+  Empty: the full set draws every one (the bow batch).
 """
 from __future__ import annotations
 
@@ -48,9 +54,17 @@ WEIGHTS = {
 ORDER = ["light", "medium", "heavy", "finisher"]
 
 
-def fam(steps, smear_fps, lunge, recovery_after=0.3, finisher_after=0.6, charged="finisher"):
+def fam(steps, smear_fps, lunge, recovery_after=0.3, finisher_after=0.6, charged="finisher", poses=None):
     return {"steps": steps, "charged": charged, "smear_fps": smear_fps, "lunge": lunge, "recovery_after": recovery_after,
-            "finisher_after": finisher_after}
+            "finisher_after": finisher_after, "poses": poses or {}}
+
+
+# A family's own poses (the character catalogue's actions, tools/art/topdown/figure/actions.py): by the side view's
+# action its step or technique names, or by a move. The thrust families' dash attack is their lunging thrust; the ranged
+# families shoot from the dash and in the air as they do on the ground. The heavy sabre cuts two-handed; the bell's first
+# two steps toll it out on both sides (its third is the heavy descending peal, swing_3); the brush writes its third step
+# and every technique that has no blow of its own (its talisman); the fan's thrown step throws it.
+THRUST = {"dash": "thrust_3"}
 
 
 # Light weapons cancel early and lunge short; heavy ones commit (the reference's heavy-attack rule).
@@ -58,16 +72,24 @@ FAMILIES = {
     "fists": fam(["light", "light", "medium"], 24, [10, 10, 16], 0.0, 0.4),
     "gauntlets": fam(["light", "light", "heavy"], 24, [10, 10, 16], 0.0, 0.4),
     "jian": fam(["light", "light", "heavy"], 20, [12, 12, 20], 0.2, 0.5),
-    "spear": fam(["light", "medium", "heavy"], 18, [8, 8, 24], 0.3, 0.6),
-    "short_blade": fam(["light", "light", "medium"], 24, [12, 12, 16], 0.0, 0.3),
-    "staff": fam(["medium", "medium", "heavy"], 18, [8, 8, 16], 0.3, 0.6),
-    "heavy_sabre": fam(["medium", "heavy", "finisher"], 14, [8, 12, 20], 0.5, 0.8),
-    "fan": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5),
-    "flute": fam(["light"], 20, [0], 0.0, 0.5, charged="medium"),
-    "brush": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5),
-    "bell": fam(["light", "light", "medium"], 18, [0, 0, 0], 0.3, 0.6),
-    "bow": fam(["medium"], 20, [0], 0.3, 0.6, charged="heavy"),
+    "spear": fam(["light", "medium", "heavy"], 18, [8, 8, 24], 0.3, 0.6, poses=THRUST),
+    "short_blade": fam(["light", "light", "medium"], 24, [12, 12, 16], 0.0, 0.3, poses=THRUST),
+    "staff": fam(["medium", "medium", "heavy"], 18, [8, 8, 16], 0.3, 0.6, poses=THRUST),
+    "heavy_sabre": fam(["medium", "heavy", "finisher"], 14, [8, 12, 20], 0.5, 0.8,
+                       poses={"swing_1": "two_hand_swing_1", "swing_2": "two_hand_swing_2", "swing_3": "two_hand_swing_3"}),
+    "fan": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5, poses={"throw": "fan_throw"}),
+    "flute": fam(["light"], 20, [0], 0.0, 0.5, charged="medium",
+                 poses={"attack": "flute_play", "dash": "flute_play", "air": "flute_play"}),
+    "brush": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5, poses={"swing_3": "brush_write", "cast": "brush_write"}),
+    "bell": fam(["light", "light", "medium"], 18, [0, 0, 0], 0.3, 0.6, poses={"swing_1": "bell_toll", "swing_2": "bell_toll"}),
+    "bow": fam(["medium"], 20, [0], 0.3, 0.6, charged="heavy", poses={"bow": "bow_draw", "dash": "bow_draw", "air": "bow_draw"}),
 }
+
+# The pose of each move for a family that does not name its own: an attack in or just after a dash (the dash attack), a
+# blow struck in the air, the dragged finisher held armed (its wind-up, before the release), the instant a guard
+# parries, the flute's held melody (its frames `melody_loop`, the note on the second).
+MOVES = {"dash": "dash_slash", "air": "air_strike", "charge": "charge_hold", "parry": "parry_deflect", "melody": "flute_play"}
+MELODY_LOOP = [1, 4]
 
 # Technique forms: the weight of their blow and the pose they play in the top-down catalogue (meditation is drawn facing
 # the camera only, so a cast of a meditate form plays `cast`; the Plunge form plays the plunge; `combo` its family's step).
@@ -80,19 +102,11 @@ FORMS = {
     "swarm": ("medium", "cast"), "seal": ("medium", "cast"), "domain": ("medium", "cast"), "echo": ("heavy", "combo_2"),
 }
 
-# Poses the top-down catalogue does not draw yet: each plays its stand-in until the character pipeline draws it.
-MISSING_POSES = [
-    {"pose": "bow_draw", "stand_in": "cast", "for": "the bow's shot and the aimed (dragged) shot: draw, hold, release (plan §1.4: 7 frames at 12 fps)"},
-    {"pose": "flute_play", "stand_in": "thrust_1", "for": "the flute's note and its held melody"},
-    {"pose": "charge_hold", "stand_in": "combo_3", "for": "the charged (dragged) finisher: a held wind-up before the release"},
-    {"pose": "dash_slash", "stand_in": "thrust_3", "for": "the dash attack of the cutting and palm families (the thrust families use thrust_3)"},
-    {"pose": "air_strike", "stand_in": "jump", "for": "a blow struck in the air"},
-    {"pose": "parry_deflect", "stand_in": "guard", "for": "the instant a guard parries: the blade turning the blow"},
-    {"pose": "two_hand_swing_1..3", "stand_in": "swing_1..3", "for": "the heavy sabre's cuts (swing_1-3 are one-handed, the other hand in a seal)"},
-    {"pose": "bell_toll", "stand_in": "swing_1..3", "for": "the bell rung out on both sides"},
-    {"pose": "fan_throw", "stand_in": "swing_3", "for": "the fan's third step, which throws it"},
-    {"pose": "brush_write", "stand_in": "swing_1..3", "for": "the brush writing its strokes in the air"},
-]
+# Poses the top-down catalogue does not draw yet, each with the stand-in it plays until the character pipeline draws it.
+# None: the bow batch drew the last of them (the bow's draw, the flute at the lips, the charge's wind-up, the dash slash,
+# the air strike, the parry's deflection, the heavy sabre's two-handed cuts, the bell's toll, the fan's throw, the brush
+# writing; `poses` and `moves` above say who plays them).
+MISSING_POSES: list = []
 
 FOES = {"roles": {"normal": "light", "elite": "medium", "boss": "heavy"}, "big_hit_share": 0.15, "big_hit": "heavy",
         "tell": "tell", "swipe": "swipe"}
@@ -113,6 +127,8 @@ def payload() -> dict:
         "dodge_buffer_s": 0.2,
         "families": FAMILIES,
         "forms": {k: {"weight": v[0], "pose": v[1]} for k, v in FORMS.items()},
+        "moves": MOVES,
+        "melody_loop": MELODY_LOOP,
         "technique_recovery_after": 0.3,
         "foes": FOES,
         "missing_poses": MISSING_POSES,

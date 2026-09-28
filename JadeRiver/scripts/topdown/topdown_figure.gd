@@ -7,8 +7,12 @@ extends RefCounted
 ## each built on its own) hold the items: per item, one section per band (back, mid, head, front) with its z, and per
 ## section one rect [x, y, w, h, ox, oy] per frame, (ox, oy) from the feet. Facings S, SE, E, NE and N are
 ## drawn; SW, W and NW mirror SE, E and NE. Meditation faces the camera only (its other facings redirect to S).
-## The bow and the later weapon families (heavy sabre, fan, flute, brush, bell) have no top-down layer yet: an outfit
-## that asks for one lists it in `missing` and draws without it (redesign plan, "As built: Phase 3, third part").
+## The full set is drawn (decision 37): every look the game's data can put on a character, every weapon family (the
+## bow slung on the back and drawn in the left hand), and every action a fight or a staged scene plays: the combos,
+## the charged wind-up, the dash and air strikes, the parry, each family's own (the heavy sabre's two-handed cuts, the
+## bow's draw, the flute at the lips, the bell's toll, the fan's throw, the brush writing) and the story's gestures
+## (salute, kneel, point, startle). An outfit asking for a look with no layer still lists it in `missing` and draws
+## without it (redesign plan, "As built: Phase 3, third part").
 
 const MANIFEST := "res://data/topdown/character.json"
 const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon"]
@@ -95,8 +99,12 @@ func _variant(cat: String, sheets: Dictionary) -> String:
 	if sheets.has(key): return key
 	return "none" if sheets.has("none") else str(sheets.keys()[0])
 
-## A side-view action name (a technique's pose, an old strike family) as the top-down action it plays.
-static func resolve(action: String) -> String:
+## A side-view action name (a technique's pose, an old strike family) as the top-down action it plays. With a weapon
+## family `fam`, that family's own pose for it comes first, and with a `move` (dash, air, throw, charge, parry, melody)
+## the pose of that move (CombatFeel.top_pose, combat_feel.json `poses` and `moves`): the heavy sabre cuts two-handed,
+## the bell tolls, the bow draws.
+static func resolve(action: String, fam := "", move := "") -> String:
+	if fam != "" or move != "": action = CombatFeel.top_pose(fam if fam != "" else "fists", action, move)
 	var man := manifest()
 	if (man.actions as Dictionary).has(action): return action
 	return str((man.aliases as Dictionary).get(action, "idle"))

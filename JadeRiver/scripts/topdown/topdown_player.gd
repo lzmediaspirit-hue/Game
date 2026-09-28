@@ -49,9 +49,12 @@ var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the 
 ## Decision 38, the combat feel (CombatFeel): a dodge refused while a blow is committed waits `dodge_buffer` seconds for
 ## its cancel point; an attack in or just after a dash is a dash attack (its smear, a longer lunge); the body flashes
 ## white as it is struck and hops with a knockback; `action_phase` is the phase of the blow or cast the figure plays
-## (anticipation, active, recovery).
+## (anticipation, active, recovery). Decision 37's drawn moves: the dash attack is the step `dash_combo` that began it; a
+## parried blow plays the parry's deflection for `parry_t`.
 var dodge_buffer := 0.0
 var dash_attack := false
+var dash_combo := -1
+var parry_t := 0.0
 var hurt_t := 99.0
 var knock_t := 0.0
 var knock_s := 0.0
@@ -124,10 +127,20 @@ func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
 	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
 	if r.get("ok", false) and not r.get("queued", false):
+		dash_combo = int(r.get("combo", 0)) if dash_attack else -1
 		if dash_attack: motor.dash_t = 0.0
 		var lunge := CombatFeel.lunge(str(Game.combat.timeline(actor_id).get("family", "fists")), int(r.get("combo", 0)), dash_attack)
 		if lunge > 0.0 and motor.grounded: motor.push(Vector2(r.get("aim", dir)).normalized() * lunge / 0.1, 0.1)
 	return r
+
+## A guard parried a blow (Combat's `parried`): the figure turns it aside, the parry's deflection played once.
+func parried() -> void:
+	var a := TopdownFigure.spec(TopdownFigure.resolve("", _family(), "parry"))
+	parry_t = float(a.frames) / float(a.fps)
+
+## The wielded weapon family (fists when unbound).
+func _family() -> String:
+	return str(StatRules.family(Game.character(actor_id)).get("id", "fists")) if bound() else "fists"
 
 ## Decision 35, a long drag on Attack: the combo's finisher step at once along the drag (snapping as an aim does).
 func finisher(dir: Vector2) -> Dictionary:
@@ -274,6 +287,7 @@ func physics_step(delta: float) -> Array:
 	attack_time = maxf(0.0, attack_time - delta)
 	impact_t = maxf(0.0, impact_t - delta)
 	knock_t = maxf(0.0, knock_t - delta)
+	parry_t = maxf(0.0, parry_t - delta)
 	hurt_t += delta
 	var events := motor.drain()
 	for e in events:
@@ -299,7 +313,8 @@ func _mirror() -> void:
 ## Pick the action and frame from the motor and Combat's timeline, then place the node: x on whole art px, y at the
 ## sort key, the body drawn back down to its whole-pixel screen row (TopdownWorld keeps every key a multiple of 1/64,
 ## so the offset is exact). A blow plays its own pose on Combat's clock, its hit frame on the hit; a technique with no
-## pose of its own plays the hand-seal cast.
+## pose of its own plays the hand-seal cast. Decision 37's drawn moves: a parried blow plays the parry's deflection, the
+## flute's held melody loops the flute at the lips, the finisher armed on Attack holds the charge's wind-up.
 func sync(delta: float) -> void:
 	var m := motor
 	var tl: Dictionary = Game.combat.timeline(actor_id) if bound() else {}
@@ -319,11 +334,14 @@ func sync(delta: float) -> void:
 		next = "strike"
 		pose = "punch_2"
 		f = TopdownFigure.strike_frame(pose, 0.25 - attack_time, 0.25, 0.1)
+	elif parry_t > 0.0: next = "parry"
+	elif bound() and Game.combat.is_playing(actor_id) and m.vel.length() <= 12.0: next = "melody"
 	elif bound() and float(tl.get("flinch", 0.0)) > 0.0: next = "hurt"
 	elif m.dash_t > 0.0: next = "dodge" if m.dash_dir.dot(m.dir) < -0.3 else "dash"
 	elif not m.grounded:
 		next = "jump"
 		f = 0 if m.vz > 340.0 else (1 if m.vz > 140.0 else (2 if m.vz > -140.0 else 3))
+	elif bound() and str(aim.get("move", "")) == "finisher": next = "charge"
 	elif not tl.is_empty() and tl.guard: next = "guard"
 	elif m.land_t > 0.0:
 		next = "jump"
@@ -344,6 +362,12 @@ func sync(delta: float) -> void:
 		"plunge_land":
 			pose = "plunge"
 			f = TopdownFigure.hit_frame(pose)
+		"parry", "charge": pose = TopdownFigure.resolve("", _family(), anim)
+		# The held melody: the flute at the lips, its note frames looping (combat_feel.json `melody_loop`).
+		"melody":
+			pose = TopdownFigure.resolve("", _family(), anim)
+			var loop := CombatFeel.melody_loop()
+			f = int(loop[0]) + int(anim_t * float(TopdownFigure.spec(pose).fps)) % (int(loop[1]) - int(loop[0]) + 1)
 		_: pose = anim
 	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
 	# Decision 38: the phase of the blow or cast under way (CombatFeel), and the hop of a knockback, which lifts the drawn
@@ -362,16 +386,25 @@ func sync(delta: float) -> void:
 	queue_redraw()
 
 ## A blow's or a technique's pose: its own drawn action (a side-view name resolves to one), or the cast for a
-## technique that has no pose of its own.
+## technique that has no pose of its own, each as the wielded family plays it (TopdownFigure.resolve with the family:
+## the heavy sabre cuts two-handed, the bell tolls, the brush writes its talisman, the flute plays at the lips, the bow
+## draws). A basic step struck in the air, out of a dash or thrown plays that move's pose (the air strike, the dash
+## slash or the thrust families' lunge, the fan's throw).
 func _strike_pose(tl: Dictionary) -> String:
+	var fam := _family()
 	if str(tl.technique) != "":
 		var t := ContentDB.entry("techniques", str(tl.technique))
 		var raw = t.get("action")
-		if raw == null or str(raw) in ["", "null", "meditate_burst"]: return "cast"
+		if raw == null or str(raw) in ["", "null", "meditate_burst"]: return TopdownFigure.resolve("cast", fam)
 		# Decision 38: a cast whose own action does not suit a fight seen from above (meditation sits facing the camera,
 		# a jump leaves the floor) plays its form's top-down pose (combat_feel.json).
-		if str(raw) in ["meditate", "jump"]: return TopdownFigure.resolve(CombatFeel.form_pose(t, StatRules.family(Game.character(actor_id))))
-	return TopdownFigure.resolve(str(tl.action))
+		if str(raw) in ["meditate", "jump"]: return TopdownFigure.resolve(CombatFeel.form_pose(t, StatRules.family(Game.character(actor_id))), fam)
+		return TopdownFigure.resolve(str(tl.action), fam)
+	var move := ""
+	if tl.get("air_attack", false): move = "air"
+	elif dash_attack and int(tl.get("combo", -1)) == dash_combo: move = "dash"
+	elif (tl.get("step", {}) as Dictionary).has("throw"): move = "throw"
+	return TopdownFigure.resolve(str(tl.action), str(tl.get("family", fam)), move)
 
 ## Draw the current frame with its feet at `feet` on `canvas` (the silhouette overlay draws the same frame).
 func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:

@@ -13,7 +13,9 @@ FAMILY = "flute"
 SPEC = {"length": 13.6, "behind": 1.6, "radius": 0.72, "nodes": (4.6, 9.4), "node": 0.42, "holes": (6.2, 7.6, 11.0),
         "tassel": 2.8,
         # per stage (the hit frame, the one after): the ripples' radii and half-spans (radians) about the far end
-        "ripples": (((2.4, 5.6, 8.8), (1.0, 0.72, 0.56)), ((4.4, 7.6, 10.8), (0.9, 0.66, 0.5)))}
+        "ripples": (((2.4, 5.6, 8.8), (1.0, 0.72, 0.56)), ((4.4, 7.6, 10.8), (0.9, 0.66, 0.5))),
+        # played at the lips (flute_play), the ripples leave the open end this much smaller, clear of the face
+        "play_ripples": 0.85}
 
 # The side view's jade bamboo (FLUTE: shadow, body, light), its joints (FLUTE_NODE) and the finger holes, and the
 # tassel's red (TASSEL).

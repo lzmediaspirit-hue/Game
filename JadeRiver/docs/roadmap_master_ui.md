@@ -479,9 +479,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the Spirit Animals page stays as built, with a stable yard at home.
 37. **Full player art in top-down:** every body/skin option, creator hair style and face, every clothing and armour
     piece, every weapon family and every dye, in all top-down directions and actions (per `AGENTS.md`), after the
-    starter set; split across parallel batches on one shared pipeline. Started (2026-09-28): everything but six weapon
-    looks and the bow's draw and release is drawn, and the pipeline is split into layer sets that batches build in
-    parallel (`docs/redesign/phase3/character/HOWTO.md`, which lists the four batches left).
+    starter set; split across parallel batches on one shared pipeline (`docs/redesign/phase3/character/HOWTO.md`).
+    **The full set is drawn (2026-09-28):** every look the game's data can put on a character, all twelve weapon
+    families (the bow last, slung on the back and drawn in the left hand), and every action a fight or a staged scene
+    plays, in all eight directions; `FULL_SET` is on, so a new look must land with its layers.
 38. **Full attack and skill animation in top-down, close to Alabaster Dawn's feel:** every weapon family's combo with
     anticipation, strike smears, hit-stop, impact effects, knockback and camera kick in 8 directions; every technique form
     re-animated for the top-down view. **Only the feel and technique come from Alabaster Dawn** (timing, hit-stop, smears,
@@ -495,7 +496,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
       motion), cancel windows, lunges, flashes and knockback hops;
     - 107 ground-plane FX sheets in eight directions: every family's moves, guard, parry, Plunge, impacts, dust, and the
       24 forms × 11 elements;
-    - the poses the character pipeline still lacks are listed for it.
+    - every pose it asked of the character pipeline is drawn (the bow batch, 2026-09-28): the bow's draw and release,
+      the flute at the lips and its melody, the charge's wind-up, the dash slash, the air strike, the parry's
+      deflection, the heavy sabre's two-handed cuts, the bell's toll, the fan's throw and the brush writing.
 39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
     speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
     play through what happens, not through menus. Built (2026-09-28, `docs/redesign/story_staging.md`):

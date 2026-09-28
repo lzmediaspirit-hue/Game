@@ -3156,6 +3156,8 @@
   "ui.settings.reduce_motion": "Reduce motion",
   "ui.settings.topdown_world": "Top-down world (new games)",
   "ui.settings.topdown_world_note": "New characters play the redrawn rooms (the Prologue to the sect choice) top-down; the rest stay side-view.",
+  "ui.settings.world_extras": "Light and particles",
+  "ui.settings.world_extras_note": "The top-down world's colour grade, hours of the day, cloud shadows and drifting particles. Turn off on older phones.",
   "ui.settings.replace_your_saves_with_this": "Replace every save on this device with this export? Your current saves are kept as a backup (.bak).",
   "ui.settings.restore": "Restore",
   "ui.settings.restore_an_export": "Restore an export (moving phones)",

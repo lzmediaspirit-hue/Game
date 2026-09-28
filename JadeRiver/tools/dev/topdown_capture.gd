@@ -3,10 +3,13 @@ extends Node
 ## under the HUD, walking behind the house, jumping the pier's gap and the long jump, and standing on the low wall with
 ## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
-## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder. `-- --combat`:
+## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
+## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
-## saves of their own, so it can run beside another capture).
+## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
+## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
+## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -29,6 +32,7 @@ func _main() -> void:
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
+	TopdownLight.debug_hour = 0.375   # decision 40: every shot at midday, whatever the clock says
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame
@@ -46,6 +50,12 @@ func _main() -> void:
 		return
 	if "--chapter2" in OS.get_cmdline_user_args():
 		await chapter2()
+		return
+	if "--light" in OS.get_cmdline_user_args():
+		await light()
+		return
+	if "--tutorial-foes" in OS.get_cmdline_user_args():
+		await tutorial_foes()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -533,6 +543,102 @@ func chapter2() -> void:
 	await frames(360)   # a new game's first notices come and go before the first shot
 	await room_shots(CHAPTER2, out)
 	print("topdown_capture: chapter 2 done")
+	get_tree().quit()
+
+## Decision 40, runtime light (`-- --light [--light-tag=before|after]`, into docs/redesign/terrain_v2/light/): the
+## village square at midday, the village at night, Jade Gate Street, the Marsh Edge with its foes, the village square at
+## dusk and at the clock's night, each under the real HUD, and the height-levels review room whole (x2). The clock is
+## pinned (midday unless a scene names its hour) and the weather held clear, so a before and an after match.
+const LIGHT := [["village_day", "lf_village", Vector2(33, 21), [], 0.375], ["village_night", "lf_village_night", Vector2(22, 20), [], 0.375],
+	["jade_gate_street", "ja_gate_street", Vector2(24, 15), [], 0.375],
+	["marsh_edge", "rm_marsh_edge", Vector2(30, 14), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)]], 0.375],
+	["village_lane", "lf_village", Vector2(12, 18), [], 0.375], ["village_dusk", "lf_village", Vector2(33, 21), [], 0.68],
+	["village_clock_night", "lf_village", Vector2(33, 21), [], 0.87]]
+
+func light() -> void:
+	var out := "res://docs/redesign/terrain_v2/light/"
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--light-tag="): tag = str(a).trim_prefix("--light-tag=")
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	for s in LIGHT:
+		Clock.simulate(600000.0 * day_s + float(s[4]) * day_s, 0)
+		TopdownLight.debug_hour = float(s[4])
+		await room_shots([[tag + "_" + str(s[0]), s[1], s[2], s[3]]], out)
+		var atmo = main.world.get("atmosphere")
+		if atmo != null:
+			var n := {}
+			for q in atmo.particles: n[q.kind] = int(n.get(q.kind, 0)) + 1
+			print("light: %s at %.2f, %s, %d lights, air %s" % [s[0], float(s[4]), str(atmo.now.hour), atmo.lights.size(), str(n)])
+	# The height-levels review room whole, x2, as the view draws it (the grade is inside the viewport).
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	TopdownLight.debug_hour = 0.375
+	var was: String = Game.active_id
+	Game.active_id = ""
+	var v := TopdownWorld.new()
+	v.room_id = "td_review_heights"
+	add_child(v)
+	await frames(2)
+	v.set_process(false)
+	var size: Vector2 = v.room.art_size()
+	var pad := 64
+	v.container.stretch = false
+	v.viewport.size = Vector2i(int(size.x), int(size.y) + pad)
+	v.camera.position = Vector2(size.x * 0.5, (size.y - pad) * 0.5)
+	v.player.motor.place(HEIGHT_BODIES[0] * 32.0)
+	v.player.sync(0.0)
+	v.shadow.sync()
+	for spot in HEIGHT_BODIES.slice(1): v.sorted.add_child(StandIn.new(v, spot * 32.0))
+	for f in 3: await frames(1)
+	await RenderingServer.frame_post_draw
+	var img: Image = v.viewport.get_texture().get_image()
+	img.resize(img.get_width() * 2, img.get_height() * 2, Image.INTERPOLATE_NEAREST)
+	img.save_png(out + tag + "_heights.png")
+	v.queue_free()
+	Game.active_id = was
+	print("topdown_capture: light done")
+	get_tree().quit()
+
+## The tutorial rooms' other foes in their own figures (`-- --tutorial-foes`, into docs/redesign/phase4/): Lotus Ferry
+## at night, the hollowed eel rising from the river (the night's own event) and hollow minnows swimming through the air
+## at the player; Old Snapper on the Reed Shallows' flats (it comes only after five crab shells, so it is set there);
+## the mossback toads on Willow Path West's pine ridge. Each is shot under the real HUD while they close in and fight,
+## and x4 round the fight ([name, room, cell, foes [def, offset in cells], the close-up's centre from the body]).
+const TUTORIAL_FOES := [["33_night_eel_minnows", "lf_village_night", Vector2(33, 32), [["hollow_minnow", Vector2(-3, -2)], ["hollow_minnow", Vector2(4, -3)]], Vector2(24, 24)],
+	["35_reed_shallows_old_snapper", "lf_reed_shallows", Vector2(51, 17), [["old_snapper", Vector2(3, 2)]], Vector2(24, 12)],
+	["37_willow_path_west_toads", "wp_west", Vector2(17, 7), [["mossback_toad", Vector2(-3, 1)], ["mossback_toad", Vector2(3, 0)]], Vector2(0, 0)]]
+
+func tutorial_foes() -> void:
+	var out := "res://docs/redesign/phase4/"
+	await _topdown_game(out)
+	await frames(360)
+	var n := 33
+	for s in TUTORIAL_FOES:
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 60)
+		for f in s[3]:
+			var at: Vector2 = w.room.nearest_standable((s[2] + f[1] + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+			var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1)
+			e.altitude = w.room.height_at(e.plane)
+			e.threat[Game.active_id] = 1.0
+		for i in 150:   # they close in and fight; the body is kept whole
+			Game.active().pools.hp = Game.active().pools.max_hp
+			await frames(1)
+		await shot(str(s[0]), out)
+		await RenderingServer.frame_post_draw
+		var vi: Image = w.viewport.get_texture().get_image()
+		var at: Vector2i = Vector2i(p.screen - w.camera.position + Vector2(320, 180) + (s[4] as Vector2)) - Vector2i(160, 90)
+		var crop := vi.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(320, 180)), Vector2i(320, 180)))
+		crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+		crop.save_png(out + "%d_%s_x4.png" % [n + 1, str(s[0]).substr(3)])
+		n += 2
+	print("topdown_capture: tutorial foes done")
 	get_tree().quit()
 
 ## Terrain v2 (decision 40, `-- --terrain <name>`): the same views before and after the tile work, the world alone at

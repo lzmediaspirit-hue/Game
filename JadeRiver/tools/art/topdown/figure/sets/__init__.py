@@ -17,18 +17,13 @@ from __future__ import annotations
 import importlib
 import pkgutil
 
-# The full set (decision 37): when every look the game's data can put on a character has its layers, turn this on and
+# The full set (decision 37): every look the game's data can put on a character has its layers, so this is on and
 # data_validation's coverage check fails for any look or action without one.
-FULL_SET = False
+FULL_SET = True
 
 # What is still to draw while FULL_SET is off, by batch (HOWTO.md): the coverage check fails for any missing look or
-# stand-in action that is not listed here. A batch that lands need not edit this; the last one empties it.
-PENDING = {
-    "heavy_sabre": ["weapon:sabre"],
-    "fan_and_brush": ["weapon:fan", "weapon:brush"],
-    "flute_and_bell": ["weapon:flute", "weapon:bell"],
-    "bow": ["weapon:bow", "action:bow"],
-}
+# stand-in action that is not listed here. The bow batch, the last, emptied it: a new look must now be drawn with it.
+PENDING: dict = {}
 
 
 def discover() -> dict:

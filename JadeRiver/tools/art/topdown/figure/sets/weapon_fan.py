@@ -1,7 +1,9 @@
 """The fan family (weapon_families.json `fan`; parts.json weapon `fan`): the iron fan (tools/art/bake_weapons.py
 `fan_frame`), cream paper pleated over brown ribs, a band of teal ink along its rim and a gold rivet, cast by
 figure/kinds/fan.py. It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's
-dive) and folds at rest; its cuts leave the jian's smear of pale jade light."""
+dive, the charged wind-up, the dash and air strikes and the parry) and folds at rest; its third step throws it
+(`fan_throw`: open as it is drawn back and swept round, out of the hand from the release). Its cuts leave the jian's
+smear of pale jade light."""
 from __future__ import annotations
 
 from .. import palettes as P
@@ -22,7 +24,10 @@ SPEC = {
     "length": 10.5, "rivet": 1.3, "spread": 52.0, "leaf": 0.36, "pleats": 8, "band": (0.8, 0.2), "thick": 0.4,
     "least": 50.0, "turn": 0.2, "width": (0.55, 1.0),
     "open": {"swing_1": ALL, "swing_2": ALL, "swing_3": ALL, "thrust_1": ALL, "thrust_2": ALL, "thrust_3": ALL,
-             "punch_1": ALL, "punch_2": ALL, "punch_3": ALL, "guard": ALL, "plunge": [1, 2]},
+             "punch_1": ALL, "punch_2": ALL, "punch_3": ALL, "guard": ALL, "plunge": [1, 2],
+             "charge_hold": ALL, "dash_slash": ALL, "air_strike": ALL, "parry_deflect": ALL, "fan_throw": [0, 1, 2]},
+    # the third step's throw: in flight from the release on (the throw's projectile art draws it)
+    "thrown": {"fan_throw": [3, 4, 5]},
 }
 
 

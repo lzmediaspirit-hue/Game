@@ -726,20 +726,22 @@ and the files on disk are byte-identical.
 
 `data_validation` checks every form's pose against the catalogue.
 
-**Poses the pipeline does not draw yet**, each playing its stand-in (`combat_feel.json` `missing_poses`):
+**Poses the pipeline did not draw, now drawn** (the bow batch, 2026-09-28; `combat_feel.json` `missing_poses` is empty).
+Who plays each is in `combat_feel.json`: a family's `poses` (by the side view's action, or by a move) and `moves` (the
+move's pose for every other family), read by `CombatFeel.top_pose` and `TopdownFigure.resolve(action, family, move)`:
 
-| Pose | For |
-|---|---|
-| `bow_draw` | the bow's draw, hold and release |
-| `flute_play` | the flute's note and its melody |
-| `charge_hold` | the dragged finisher's wind-up |
-| `dash_slash` | the dash attack of the cutting and palm families |
-| `air_strike` | a blow in the air |
-| `parry_deflect` | the instant a guard parries |
-| `two_hand_swing_1`–`3` | the heavy sabre |
-| `bell_toll` | the bell |
-| `fan_throw` | the fan's third step |
-| `brush_write` | the brush |
+| Pose | Frames, fps, hit | Played by |
+|---|---|---|
+| `bow_draw` | 7, 12, 4 | the bow's shot and its 253 techniques (`bow`), from a dash and in the air too: draw, hold, release |
+| `flute_play` | 6, 10, 2 | the flute's note and its techniques (`attack`), from a dash and in the air; the held melody loops frames 1–4 (`melody_loop`) |
+| `charge_hold` | 2, 6, loop | the dragged finisher while it is armed on Attack (`aim.move` = finisher) |
+| `dash_slash` | 5, 16, 2 | the dash attack of the cutting and palm families; the thrust families (spear, staff, short blade) lunge with `thrust_3` |
+| `air_strike` | 4, 14, 2 | a basic blow struck in the air (`air_attack`) |
+| `parry_deflect` | 3, 12, 1 | the instant a guard parries (Combat's `parried`), then the guard again |
+| `two_hand_swing_1`–`3` | 6, 12/11/10, 2/2/3 | the heavy sabre's steps and techniques (`swing_1`–`3`) |
+| `bell_toll` | 6, 12, 2 | the bell's first two steps and its `swing_1`–`2` techniques; the third is the heavy descending peal, `swing_3` |
+| `fan_throw` | 6, 12, 3 | the fan's step that throws it (`throw`); the fan leaves the hand on the release |
+| `brush_write` | 6, 12, 2 | the brush's third step, its `swing_3` techniques and every technique with no blow of its own (its talisman) |
 
 The flowing silk and robe motion of the look rule is the body layers' own (their `drag`).
 
@@ -785,8 +787,7 @@ The flowing silk and robe motion of the look rule is the body layers' own (their
 - **No stagger or break gauge.** The reference's parry follow-up and break window wait for a design decision.
 - **No charge meter.** The charged attack is the dragged finisher (decision 35's one held attack on the touch scheme),
   shown by a gathering of qi while it is armed.
-- **The families without drawn weapons** (the heavy sabre, fan, flute, brush, bell and bow: the character pipeline's
-  pending batches) swing their stand-in poses. Their smears are drawn already.
+- **One figure pose at a time.** The held melody plays at the lips standing; walking with it plays the walk.
 - **Effects of the side view are unchanged.** Its sheets (`art/fx/`) and procedural slashes stay.
 - **Bolts draw over the room,** as a shot in the air does, not sorted with the bodies.
 
@@ -932,7 +933,7 @@ changing row only when the stick is 10° nearer another (§1.4 asked for 20° wi
 A section's z is its band's base (0, 100, 150, 200) plus the side view's category order: body 10, shoes 20,
 trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade changes band as the pose moves it.
 
-**The action catalogue** (`data/topdown/character.json` `actions`; frames per facing, 494 frames in all):
+**The action catalogue** (`data/topdown/character.json` `actions`; frames per facing, 864 frames in all):
 
 | Action | Frames | fps | Loop | Hit | Notes |
 |---|---|---|---|---|---|
@@ -950,13 +951,32 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
 | cast | 5 | 12 | no | 2 | the hand seal, then both palms out |
 | guard | 2 | 4 | yes | | held (decision 35's hold, and the Dodge button's) |
 | plunge | 3 | 12 | no | 2 | tuck, dive, impact (decision 35's drag down) |
+| charge_hold | 2 | 6 | yes | | the dragged finisher's held wind-up: low, the weapon drawn back, the sword-hand seal forward |
+| dash_slash | 5 | 16 | no | 2 | the dash carried into a wide level cut, the free hand flung back |
+| air_strike | 4 | 14 | no | 2 | knees tucked, the weapon raised over the head and cut down |
+| parry_deflect | 3 | 12 | no | 1 | from the guard the weapon snaps out and up, a short smear on the turn |
+| two_hand_swing_1–3 | 6 | 12, 11, 10 | no | 2, 2, 3 | the heavy sabre two-handed: a diagonal cut from over the shoulder, a level sweep back, a leaping chop |
+| bow_draw | 7 | 12 | no | 4 | side-on, the bow arm on the line: nock, draw, full draw, hold, release (the string hums), follow-through, recover |
+| flute_play | 6 | 10 | no | 2 | the dizi to the right of the mouth; the note leaves its open end; frames 1–4 loop for the melody |
+| bell_toll | 6 | 12 | no | 2 | the bell flung out to the right and rung, then back across to the left and rung again |
+| fan_throw | 6 | 12 | no | 3 | drawn back open, swept round, loosed from an open hand |
+| brush_write | 6 | 12 | no | 2 | a level stroke, a falling stroke, a pressed sweep, the left hand holding back the sleeve |
 | meditate | 4 | 3 | yes | | faces S only; the other seven facings redirect to S |
+| salute | 3 | 6 | no | | the wuxia salute: right fist into left palm, elbows rounded, then a bow; held |
+| kneel | 3 | 6 | no | | down on the right knee, the left forearm on the raised knee, the head bowed; held |
+| point | 2 | 6 | no | | the left hand's sword fingers pointing the way; held |
+| startle | 3 | 10 | no | | a jolt and a step back, the hands up open; held |
 
 - **Blows on Combat's clock.** A blow plays its own action, with its hit frame shown the moment the hit lands
   (`TopdownFigure.strike_frame`).
 - **Techniques.** A technique plays its own pose. One with no pose of its own (or `meditate_burst`) plays the cast.
-- **Aliases.** Side-view names still in the data are explicit redirects: `attack` → thrust_1, `swing` → swing_1,
-  `punch` → punch_2, `bow` → cast, `meditate_burst` → cast.
+- **Aliases.** Side-view names still in the data are explicit redirects: `attack` → flute_play (only the flute
+  names it), `swing` → swing_1, `punch` → punch_2, `bow` → bow_draw, `meditate_burst` → cast. None is a stand-in
+  (`stand_ins` is empty).
+- **A family's own actions** (`figure/actions.py` `OWN`: the two-handed cuts, the bow's draw, the flute at the lips,
+  the bell's toll, the fan's throw, the brush writing) are played only by that family (`combat_feel.json` `poses`).
+  Every other weapon is still drawn in them, held as the pose's lines say.
+- **The story's gestures** end in their held pose; a scene's `pose` step with `s` returns to idle after it.
 
 **Layers drawn.** Every item below is drawn in every action and facing:
 
@@ -969,11 +989,12 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
 | shoes | slippers (the start), boots, folded | 1 |
 | hat | straw, headband, tied, guan, weimao | 1 |
 | cape | solid, tattered | 1 |
-| weapon | gauntlets (the starting training gauntlets), dagger (short blade), sword (jian), spear, staff | 1 |
+| weapon | gauntlets (the starting training gauntlets), dagger (short blade), sword (jian), spear, staff, sabre (heavy sabre), fan, brush, flute, bell, bow | 1 |
 
 - **Weapons outside their family's actions.** The jian thrusts, the spear swings, the gauntlets strike in every
   pose. The spear runs through both hands wherever the pose holds it two-handed. A meditating figure lays its weapon
-  on the ground beside it.
+  on the ground beside it. The bow is slung across the back, the string across the chest, and in the left hand only to
+  shoot.
 - **Absent layers are explicit.** A section with nothing to draw in an action and facing has a `hidden` entry with
   its reason (for example, the body's back section when both arms are level with the chest). A frame with nothing
   to draw is an empty rect.
@@ -982,16 +1003,19 @@ trousers 30, shirt 40, hair 60, hat 65, weapon 70. An arm, a tail or a blade cha
 
 - Every frame of every section is trimmed and shelf-packed 512 px wide, and identical frames share a rect.
 - Dyes and hair colours are baked sheets, as in the side view. All the variants of an item share one rect table.
-- There are 162 sheets, about 7 MB. A figure in the starting outfit loads about 3 MB of textures.
+- There are 168 sheets, about 12 MB (the full set, 864 frames). A figure in the starting outfit loads about 4.5 MB
+  of textures.
 
 **Layer sets (decision 37: the full set, drawn by agents in parallel).** The character is drawn in layer sets, each
 built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` says how to add one.
 
 - **A set** (`tools/art/topdown/figure/sets/<set>.py`) holds its looks as specs (a few numbers each) and colours:
   `body`, `hair`, `shirt`, `pants`, `shoes`, `hat`, `cape`, and one per weapon family (`weapon_gauntlets`,
-  `weapon_short_blade`, `weapon_jian`, `weapon_spear`, `weapon_staff`).
+  `weapon_short_blade`, `weapon_jian`, `weapon_spear`, `weapon_staff`, `weapon_heavy_sabre`, `weapon_fan`,
+  `weapon_brush`, `weapon_flute`, `weapon_bell`, `weapon_bow`): eighteen sets.
 - **A generator per layer kind** (`figure/kinds/`) casts a spec: `torso`, `legs`, `feet`, `head`, `back`, `hands`,
-  `hair`, `blade` and `pole`. A family with a shape of its own gets its own generator.
+  `hair`, `blade`, `pole`, and a family's own: `sabre`, `fan`, `brush`, `flute`, `bell` (both ringing with `sound`)
+  and `bow`.
 - **The files.**
   - `--only <set>` builds one set in about ten seconds. It writes that set's manifest,
     `data/topdown/character/<set>.json`, and its sheets.
@@ -1008,7 +1032,8 @@ built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` s
   - every action a family's combo or a technique plays, where a stand-in alias (`stand_ins`) counts as missing.
 
   Until `FULL_SET` is on (`figure/sets/__init__.py`), what is missing must be listed in `PENDING`. After that nothing
-  may be missing. It prints the coverage on every run: 45 of 52 looks and actions today.
+  may be missing. It prints the coverage on every run: 52 of 52 looks and actions, and `FULL_SET` is on (the bow
+  batch).
 - **Villagers load their sheets on threads** (`TopdownFigure.wearing(o, true)`). A room full of new outfits enters
   without a hitch, and each villager appears once all its sheets are in.
 
@@ -1019,8 +1044,11 @@ built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` s
 - **The player** wears `InventoryAuthority.outfit_for` its character: the equipment and dyes from the save. It
   dresses again on `equipment_changed`.
 - **The player's state picks the action:** wounded → knockdown; the Plunge → plunge, and its impact frame after
-  landing; a blow or technique under way → its pose; hurt; the dash or back-step; in the air → jump; guarding →
-  guard; landing → jump's last frame; meditating → meditate; moving → walk or run; else idle.
+  landing; a blow or technique under way → its pose as its family plays it (a basic step in the air → the air strike,
+  out of a dash → the dash slash or a lunging thrust, the fan's thrown step → the throw); a parried blow → the parry's
+  deflection; the flute's held melody, standing → the flute at the lips, looping; hurt; the dash or back-step; in the
+  air → jump; the finisher armed on Attack → the charge's wind-up; guarding → guard; landing → jump's last frame;
+  meditating → meditate; moving → walk or run; else idle. A staged scene's `stage_pose` overrides them all.
 - **Villagers.** `TopdownFigure.for_npc` dresses an NPC in its own outfit, with unset pieces filled as the side
   view fills them. `TopdownPlaces.Person` draws them in every room on the grid (Phase 4's people), and
   `TopdownWorld.add_villager` stands one anywhere, for the prototype and the reviews:
@@ -1037,19 +1065,10 @@ built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` s
   only runs `build_tiles.py` now. The game's review images (`topdown_capture.tscn -- --phase3`, the height test
   among them) draw the real character.
 
-**What still needs top-down layers.** All nine villagers of the tutorial (Lotus Ferry) are fully drawn: aunt_ping,
-lu_boatman, little_dou, old_ma, granny_liu, shen_lian_npc, uncle_guo, fisher_wen and washer_mei. So are 124 of the
-125 NPCs, every creator option, and every garment, hat and cape look in the game's items. What is left is four
-independent batches (HOWTO.md), 62 game items in all:
-
-- **heavy_sabre:** the sabre, 10 items.
-- **fan_and_brush:** the fan and the brush, 21 items.
-- **flute_and_bell:** the flute and the bell, 21 items.
-- **bow:** the bow, 10 items, and qiu_feng's. The bow's draw and release poses are still a stand-in alias to the
-  cast, played by the bow family and 253 techniques. This batch changes the action catalogue, so it runs first or
-  last and rebuilds every set.
-
-A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
+**What still needs top-down layers: nothing** (the full set, 2026-09-28). Every NPC, every creator option, every
+garment, hat and cape look and all twelve weapon families are drawn, and every action a fight or a staged scene plays.
+`FULL_SET` is on and `PENDING` empty, so a new look in the game's data must land with its layers. A piece with no
+top-down layer would go in `TopdownFigure.missing`, and the figure would draw without it.
 
 **Batch flute_and_bell, drawn** (`weapon_flute`, `weapon_bell`; the 21 items above, `PENDING` left for the last batch
 to empty). Both are held in the right fist along the blade line, as the side view draws them along the short blade's
@@ -1091,6 +1110,35 @@ grip; the fist closes over the grip.
   - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
     shoulder, so it never draws as a bar.
   - Review sheet: `03_weapon_sabre.png`.
+
+**Batch bow, the action batch (2026-09-28): the full set.** The last batch; it changed the action catalogue (494 → 864
+frames), so it rebuilt every set.
+
+- **The bow** (`weapon_bow`, `kinds/bow.py`; the 10 bows and qiu_feng's): a recurve wuxia bow in the side view's
+  colours, gold limbs that bend back to the string and flick forward at the ears, dark ears and a wrapped grip, and a
+  string of pale jade light one pixel wide with no ink. It is carried slung across the back, the upper limb over the
+  left shoulder and the string drawn round the chest, and taken into the left hand only to shoot (`bow_draw`): canted
+  out to the left, clear of the face, the string drawn to the chin with an arrow on it (a jade-steel head, red
+  fletching), loosed and humming, shown twice for a frame. Laid down while meditating.
+- **Eighteen actions**, body first (AGENTS.md rule 4), then every layer: the combat moves (`charge_hold`,
+  `dash_slash`, `air_strike`, `parry_deflect`), the families' own (`two_hand_swing_1`–`3`, `bow_draw`, `flute_play`,
+  `bell_toll`, `fan_throw`, `brush_write`) and the story's gestures (`salute`, `kneel`, `point`, `startle`). The
+  table above lists them.
+- **The other weapons in them.** Each pose also says where the blade, the pole and the bow go. In the salute a blade
+  hangs reversed down the forearm and a pole lies across the chest, clear of the face; kneeling, a blade lies across
+  the raised knee and a pole stands upright by the hand.
+- **The families' kinds learned the new actions.** The flute and the bell ring on the new blows (`actions.BLOWS`);
+  played at the lips the flute's note leaves its open end, smaller (`note`, `play_ripples`); the fan opens in the new
+  blows and the parry and leaves the hand on the throw (`open`, `thrown`); the sabre, the jian's blades and the
+  brush leave their smears and strokes where the poses cut.
+- **In the game** (decision 38's table, `combat_feel.json` `poses` and `moves`): `TopdownPlayer.sync` and
+  `_strike_pose`, `TopdownFigure.resolve(action, family, move)`, `CombatFeel.top_pose`, and a foe or companion drawn
+  as a person strikes with its family's first step as that family plays it. The scenes use the gestures
+  (`tools/data/scenes.py`): the recruiters salute the crowd and greet the chosen disciple, who salutes back; Lu points
+  to where the eel rose and kneels by the water; the Hollow Night startles Dou and Granny; Granny kneels to see to
+  the graze; Aunt Ping, Dou, Lu and Courier Lin point the way.
+- **Review:** `10_actions_<facing>.png` (every new move with its weapon, per facing), `11_gestures.png` (the gestures
+  on the player and the scenes' people), `03_weapon_bow.png`, and every other sheet redrawn with the new actions.
 
 **Tests.**
 
@@ -1178,6 +1226,27 @@ and foliage and decor.
 - the paving is warm grey-beige flagstones about a tile across, with crisp joints;
 - the sun and shade patches are a whisper, and paving and granite take none;
 - the value range is wider: deeper cliff bodies, brighter lips, crisper granite.
+
+### As built: Phase 3, fifth part · Terrain v2, runtime light (decision 40, 2026-09-28)
+
+Decision 40's second part is built to the art bible's contract (§14.2), and the art bible records it (§14.11).
+
+- **Cast shadows** are baked once per room (`TopdownShadows`):
+  - tall props cast their silhouette, buildings a block up to their roof, and drops of two levels or more their
+    sweep;
+  - each floor is cut per level, and shadows fall down drops;
+  - the body is 0.41 and a 2 px stepped edge 0.25, kept under the 0.6 stacking cap over the tiles' shade.
+- **The Atmosphere** (`TopdownAtmosphere`) adds:
+  - a grade per area and hour, at most 4% toward the sun or the shadow;
+  - the game's clock outdoors (morning, day, evening and night), with night rooms always at night;
+  - the night tint `#8FA0C8`, lifted by baked light pools: lanterns, fires, embers, jade glows and doorways. This
+    replaces Phase 6's `PointLight2D`s;
+  - drifting cloud shade;
+  - capped particles: pollen, fireflies, leaves and petals, mist and glints.
+- **Tuning.** Every number is in `TopdownLight`.
+- **Settings.** "Light and particles" turns the extras off on weak phones.
+- **Tests.** `topdown_suite` ("topdown light") and `topdown_tutorial` (invariant 11) check it.
+- **Images.** `docs/redesign/terrain_v2/light/`.
 
 ### As built: Phase 3, sixth part · Terrain v2, foliage and decor (decision 40, 2026-09-28)
 
@@ -1387,8 +1456,12 @@ real HUD, with its foes where it has them.
 - **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
   are fixed; a running jump takes their place.
 - **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
-- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) have no
-  top-down figure yet: they stand in with their side-view creature sheet at half size (the third part).
+- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) had no
+  top-down figure: they took the crab's, then stood in with their side-view creature sheet at half size (the third
+  part). They are drawn now ("Then: the tutorial rooms' other foes", after the third part).
+- **The hollowed eel keeps the row it rose in.** It glides by setting its position, with no velocity or aim
+  (`enemy_authority.gd` `_eel`), so the view never turns it from its spawn row (SE, or SW mirrored), and it strikes
+  along its side-view facing. Its figure is drawn in all eight facings for when it does.
 
 ### As built: Phase 4, third part · the gaps closed (2026-09-28)
 
@@ -1501,6 +1574,18 @@ used to keep the last aim and miss a foe behind.
 **Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
 tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
 
+**Then: the tutorial rooms' other foes** (`creatures.py`, art bible §8 "Foes"). Old Snapper, the mossback toad, and
+the night's hollow minnow and hollowed eel have their own figures now, in five drawn facings and three mirrored, with
+all six actions; they had stood in with their side-view sheets at half size. The eel rises out of the river with its
+water drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72
+(feet at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. Every foe
+the grid's rooms spawn now has its own figure; the stand-in stays for a spirit animal, a companion and a species not
+drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (13 more checks) checks every grid
+room's foes, their events' foes too, for their own figures (the tutorial's rooms were skipped before), and
+`topdown_suite` (117 to 118) takes a pebble imp, still undrawn, for its stand-in check and sees Old Snapper drawn by
+its own rows. Screenshots (`tools/dev/topdown_capture.tscn -- --tutorial-foes`):
+`docs/redesign/phase4/33`–`38`, the night, the Reed Shallows and Willow Path West under the HUD and ×4 round the fight.
+
 ### As built: the story staged in the top-down world (decision 39, 2026-09-28)
 
 The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
@@ -1516,6 +1601,9 @@ principles and the full account. In short:
 - **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
   the HUD and the labels over the world (`fade_labels`).
 - **A hand-off gives the controls back** with a prompt over what to do.
+- **Gestures.** The people and the player play the figure's story gestures (`salute`, `kneel`, `point`, `startle`,
+  drawn by the character's last batch): the recruiters salute and the new disciple salutes back, Lu points and kneels,
+  the Hollow Night startles Dou and Granny.
 - **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
 - **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
 - **Screenshots** are in `docs/redesign/phase5/story/`.

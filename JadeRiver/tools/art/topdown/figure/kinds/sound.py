@@ -2,9 +2,10 @@
 
 Not a layer kind of its own; the flute and the bell draw with it:
   stage(sk)    0 on a blow's hit frame, 1 on the frame after (as a cut's smear shows on both), else None. A blow is
-               any punch, swing or thrust in the action catalogue (figure/actions.py): the flute's combo thrusts, the
-               bell's swings, and a technique may play any of them. The frame is known by its pose, so the catalogue
-               needs no key of its own for it.
+               any punch, swing or thrust in the action catalogue (figure/actions.py), or one of its other blows
+               (actions.BLOWS: the flute's note, the bell's toll, the dash and air strikes, the two-handed cuts); a
+               technique may play any of them. The frame is known by its pose, so the catalogue needs no key of its
+               own for it.
   arcs(...)    arcs of light about a point, in the plane that faces the camera, opening along the weapon as it shows
                on screen; a weapon pointed at the camera (or away) closes them into rings. Like the smear, light has no
                ink round it (a `glow` material in the item's Look); the frame after the hit draws them in a fainter
@@ -30,7 +31,7 @@ def _hit_poses() -> list:
         _hits = []
         for name, spec in A.CATALOG.items():
             hit = spec[3]
-            if hit is None or name.split("_")[0] not in BLOWS:
+            if hit is None or (name.split("_")[0] not in BLOWS and name not in A.BLOWS):
                 continue
             ps = A.poses(name)
             _hits.append((ps[hit], 0))
