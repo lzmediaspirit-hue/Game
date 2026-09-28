@@ -79,6 +79,7 @@ var backdrop: Control
 var world: Node2D
 var hud: Control
 var moments: MomentView
+var scenes: SceneDirector   ## decision 39: the staged scenes, played in the rooms on the height grid
 var hud_layer: CanvasLayer
 var page_layer: CanvasLayer
 var shell_layer: CanvasLayer
@@ -769,6 +770,13 @@ func _mount_world() -> void:
 	moments.hud = hud
 	hud.moments = moments
 	add_child(moments)
+	scenes = SceneDirector.new()
+	scenes.headless = false
+	scenes.world = world
+	scenes.hud = hud
+	scenes.moments = moments
+	hud.scenes = scenes
+	add_child(scenes)
 
 ## The view of the room the character stands in: the prototype square, a room of the world on the height grid (the
 ## top-down view, redesign Phase 4), or the side view.
@@ -798,9 +806,14 @@ func _swap_world_view() -> void:
 		hud.player = world.player
 		hud.world = world
 	if is_instance_valid(moments): moments.world = world
+	if is_instance_valid(scenes): scenes.world = world
 
 func _unmount_world() -> void:
 	close_all_pages()
+	if is_instance_valid(scenes):
+		remove_child(scenes)
+		scenes.queue_free()
+	scenes = null
 	if is_instance_valid(moments):
 		remove_child(moments)
 		moments.queue_free()

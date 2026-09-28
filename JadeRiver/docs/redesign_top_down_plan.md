@@ -1079,6 +1079,18 @@ grip; the fist closes over the grip.
   it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
   (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
   and `03_weapon_brush.png`.
+**Batches landed (decision 37).**
+
+- **heavy_sabre (2026-09-28):** the sabre, 10 items, in `weapon_heavy_sabre`, cast by a generator of its own,
+  `figure/kinds/sabre.py`.
+  - The side view's broad dao in its grey steel and bronze: the blade bellies near the point, and the point sweeps
+    back to the spine.
+  - The broad side is turned half way toward the camera (`face`), in the hand and laid beside the meditating figure.
+  - Its cuts leave a heavy crescent of jade light: fat at the blade and brightest along the point's path on the hit
+    frame, a dim wisp on the frame after.
+  - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
+    shoulder, so it never draws as a bar.
+  - Review sheet: `03_weapon_sabre.png`.
 
 **Tests.**
 
@@ -1124,6 +1136,42 @@ grip; the fist closes over the grip.
 
 - Palette-swap dyes (§1.4). Dyes are baked sheets, as in the side view.
 - Thrust streaks. A thrust at the camera relies on the effects layer's line.
+
+### As built: Phase 3, fourth part · Terrain v2, the tiles (decision 40, 2026-09-28)
+
+Decision 40 asks for terrain closer to Alabaster Dawn, in the xianxia theme. Its first part, the tiles, is built. The
+art direction is `docs/redesign/art_bible.md` §14, which is also the contract for the next two parts: runtime light,
+and foliage and decor.
+
+**What changed.**
+
+- **Light and colour.**
+  - One sun from the north-west; every shade is a translucent blue-violet (`#241F4F`).
+  - Every material has a hue-shifted ramp.
+- **Grid and edges.**
+  - Each material is one 64 or 128 px pattern, picked by the cell's place in it.
+  - Scattered decals and positional sun and shade patches break the 16 px grid.
+  - Grass hangs over paths with a soft shadow; the sawtooth is gone.
+- **Faces.**
+  - Cliffs are fluted rock mass under a lit, mossy lip with vines, with a dark foot.
+  - Banks, walls and piers follow the same rules in their own materials.
+- **Water.** Depth tints away from the shore, a sunlit bed in the shallows, foam at every waterline, ripples and
+  glints, and rings round pier pilings.
+- **Paving and buildings.**
+  - The paving is irregular flagstones; granite terraces are big slabs.
+  - Roofs are dark glazed tile, and the house props' roofs sweep up at the ends.
+
+**How.**
+
+- The tiles come from `tools/art/topdown/terrain2.py`, and `tiles.py` keeps every Phase 3 tile name.
+- `TopdownTerrain` draws each cell as layers (`top_layers`, `face_layers`, `water_layers`). `top`, `face`, `water` and
+  `overlays` keep their contract.
+- The room view draws the floor and the water in chunks.
+- The rooms needed no change.
+
+**Tests.** `topdown_suite` and `data_validation` check the layers.
+
+**Images.** Before and after: `docs/redesign/terrain_v2/`.
 
 ### Phase 4 · Room conversion by region (XL)
 
@@ -1446,11 +1494,30 @@ all six actions; they had stood in with their side-view sheets at half size. The
 water drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72
 (feet at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. Every foe
 the grid's rooms spawn now has its own figure; the stand-in stays for a spirit animal, a companion and a species not
-drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (786 to 799 checks) checks every grid
+drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (13 more checks) checks every grid
 room's foes, their events' foes too, for their own figures (the tutorial's rooms were skipped before), and
 `topdown_suite` (117 to 118) takes a pebble imp, still undrawn, for its stand-in check and sees Old Snapper drawn by
 its own rows. Screenshots (`tools/dev/topdown_capture.tscn -- --tutorial-foes`):
 `docs/redesign/phase4/33`–`38`, the night, the Reed Shallows and Willow Path West under the HUD and ×4 round the fight.
+
+### As built: the story staged in the top-down world (decision 39, 2026-09-28)
+
+The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
+principles and the full account. In short:
+
+- **Scenes are data.** `tools/data/scenes.py` builds `data/scenes.json`, fifteen scenes from waking in the Fisher's
+  Hut to the sect choice.
+- **The `SceneDirector` plays them in the rooms on the grid.** It moves the room's people through their own
+  top-down figures (`TopdownWorld.figures`: a `TopdownPlaces.Person` is `staged` while the scene has it, turned to
+  any of the eight rows and played in the figure's own actions). It brings on extras: a person through `TopdownPlaces.person`, a
+  boat through `PropView.place_at`. It drives the camera (`stage_cam`, `stage_zoom`) and holds the body's pose
+  (`stage_pose`).
+- **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
+  the HUD and the labels over the world (`fade_labels`).
+- **A hand-off gives the controls back** with a prompt over what to do.
+- **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
+- **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
+- **Screenshots** are in `docs/redesign/phase5/story/`.
 
 ### Phase 5 · The animation layers (XL)
 

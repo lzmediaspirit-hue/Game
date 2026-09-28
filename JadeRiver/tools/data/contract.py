@@ -20,7 +20,7 @@ CATALOGUE = {
     "World": [
         "loot_dropped", "room_left", "room_entered", "object_interacted", "node_depleted", "node_regrown",
         "hidden_portal_revealed", "teleport_discovered", "zone_entered", "zone_ceiling_reached", "hazard_warned",
-        "hazard_struck"],
+        "hazard_struck", "object_hit"],
     "Enemies": [
         "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated",
         # P9 finding: announced by the Enemies system but missing from the contract, so nothing checked them.
@@ -34,10 +34,13 @@ CATALOGUE = {
         "trait_revealed"],
     "Inventory": [
         "item_added", "item_removed", "bag_full", "overflow_mailed", "equipment_changed", "item_used",
-        "pill_used", "draught_expired"],
+        "pill_used", "draught_expired", "quick_use_changed"],
     "Quest": [
         "quest_offered", "quest_accepted", "objective_progressed", "quest_ready", "quest_completed",
-        "flag_set", "codex_entry_unlocked"],
+        "flag_set", "codex_entry_unlocked",
+        # Decision 39: a staged scene begun, passed a checkpoint, seen (QuestAuthority keeps its progress); and the
+        # events its hand-offs wait on that the catalogue had missed (a page opened, a timed quest failed).
+        "scene_started", "scene_marked", "scene_ended", "page_opened", "quest_failed"],
     "Unlocks": [
         "unlock_offered", "system_unlocked", "hud_element_revealed"],
     "Account": [

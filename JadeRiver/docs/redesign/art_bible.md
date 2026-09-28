@@ -16,6 +16,10 @@ recoloured or rebuilt from another game's tiles or sprites. The reference game s
 
 Built by `tools/art/topdown/build_tiles.py`. The style review images are in `docs/redesign/phase3/` (§12).
 
+**Terrain v2 (decision 40, §14)** redraws the ground, edges, faces, water and buildings closer to Alabaster Dawn. For
+those, §14 replaces the ramps (§2), the shade colour (§3) and the water's look (§7). It is also the contract the
+runtime light and the foliage work follow.
+
 ---
 
 ## 1. The look in one paragraph
@@ -28,6 +32,9 @@ comes from the materials (jade water, green meadows, warm stone, grey tiles), no
 accents (red lacquer, lantern gold, lotus pink) are rare and mark places of interest.
 
 ## 2. Palette
+
+*Terrain v2: the tiles now use the `*2` ramps and the blue-violet shadow of §14.3 and §14.2. The ramps below remain
+the props' ramps.*
 
 The ramps live in `tools/art/topdown/palette.py`. Terrain ramps have seven steps, dark → light: 0 is the deepest shade
 (cracks, the underside of a lip), 3 is the base, 5 the sunlit side and 6 the specular rim. As `docs/art-contracts.md`
@@ -67,6 +74,9 @@ than grey roofs. There, the eave's dark band of tile ends and the shadow it cast
 places the player should look.
 
 ## 3. Light
+
+*Terrain v2: the sun is unchanged. Every shade the tiles and the prop floor shadows cast is now the blue-violet
+`SHADOW` `#241F4F`, with the alphas in §14.2.*
 
 - **One sun, high in the upper left (north-west).** It is the same light as the icons and creatures
   (`docs/art-contracts.md`).
@@ -328,11 +338,12 @@ same build.
 |---|---|
 | `tools/art/topdown/palette.py` | the ramps (§2) |
 | `tools/art/topdown/canvas.py` | pixel helpers, a coordinate hash and periodic value noise (no RNG) |
-| `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) |
+| `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) by their Phase 3 names, drawn by `terrain2.py` |
+| `tools/art/topdown/terrain2.py` | Terrain v2 (§14): the macro patterns, face patterns, positional grass overlays, tint masks, decals, water frames and shore overlays |
 | `tools/art/topdown/props.py` | the prop kit and its footprints, origins, animation frames and floor shadows |
 | `tools/art/topdown/creatures.py` | the foes in eight facings (§8, "Foes") |
 | `tools/art/topdown/atlas.py` | the atlas layout |
-| `art/topdown/proto_tiles.png` | the atlas: 32 × 7 cells |
+| `art/topdown/proto_tiles.png` | the atlas, 32 cells wide: the Phase 3 tiles in rows 0–6, the Terrain v2 sets below |
 | `art/topdown/proto_props.png` | the prop kit, its frames and the props' shadows |
 | `art/topdown/foes.png` | the foes: a row per species and drawn facing, the actions along it |
 | `art/topdown/proto_tiles.tres` | a Godot TileSet: terrain set 0 (corners: grass, dirt, paving), terrain set 1 (sides: water), 4-frame water animations, each tile's name in custom data 0 |
@@ -419,7 +430,266 @@ Check a new layer against it the way §11 checks a tile:
   body in `docs/redesign/phase3/character/`;
 - `data_validation`'s layer contract is green.
 
-## 14. Combat effects (decision 38)
+## 14. Terrain v2 (decision 40)
+
+Decision 40 asks for terrain that looks closer to Alabaster Dawn in Jade River's own xianxia world. The work comes in
+three parts: the tiles (this section, built), then runtime light, then denser foliage and decor. **This section is the
+contract for the other two parts.** Where it differs from §1–§7, it replaces them for the ground, edges, faces, water
+and buildings. The props and the character keep their own rules (§4, §8, §13), except where §14.2 says so.
+
+Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10).
+
+### 14.1 The look
+
+One sun stands high in the north-west. Every lit plane has a warm yellow edge, and every shadow is a cool,
+translucent blue-violet. Nothing is shaded black or grey.
+
+- **Ground.** The ground is rich and varied: meadows with clumps, tufts, clover and wild flowers; worn flagstones
+  with moss in the joints; packed earth with pebbles.
+- **Large patches of light.** Big patches of sun and cloud shade drift across the large areas.
+- **Edges.** Grass hangs over the path in soft tufts and casts a two-step shadow on it.
+- **Cliffs.** Cliffs are rock mass: fluted limestone columns under a bright lip, with moss and vines hanging over it
+  and a dark foot where the face meets the ground.
+- **Water.** Water is deep jade in the middle, lighter over a visible bed at the shore, with foam at every waterline
+  and a slow shimmer of ripples and glints.
+- **Roofs.** Roofs are dark glazed tile whose courses sweep up at the ends.
+
+At a glance, nothing on a 40 × 22-tile screen repeats.
+
+### 14.2 Light: the numbers the lighting and foliage parts must use
+
+| What | Value |
+|---|---|
+| Sun | One light, high in the **north-west** (upper left on screen). Lit: tops, west-facing and north-facing edges. In shade: south faces, east flanks |
+| Sun colour | `SUN` **`#FFE9A6`**, laid translucently on lit edges: a west rim is 0.67 then 0.24 (`rim_w`), a face's west end 0.43 then 0.16 (`end_w`), a stair's west cheek 0.51 then 0.20 |
+| Shadow colour | `SHADOW` **`#241F4F`** (blue-violet), always translucent, never black or grey |
+| Cast-shadow alpha | **0.41** (`SHADOW_A` 104/255) in the body, **0.25** (64/255) on a 2–3 px stepped edge. There is no blur and no dithering |
+| Cast-shadow direction | Toward the lower right. A point at height *h* art px casts its shadow at **(+0.45 h, +0.20 h)** from its foot on screen. So a 16 px step shades about 7 px of floor east of it (`shade_w`) and 3–4 px south of its face |
+| Ambient occlusion | At the foot of every face: **0.59, 0.41, 0.25, 0.12** over 4 px (`AO_STEPS`), then 0.05. It lies on the floor (`ao_n`) and on the face's own last row (`face_ao`) |
+| East rims, face ends | 0.59, 0.27, 0.10 over 3 px (`rim_e`, `end_e`). A stair's east cheek: 0.67, 0.35, 0.14 |
+| Cast shade of a higher west cell | 0.45 → 0.08 over 6 px (`shade_w`: 116, 100, 84, 64, 42, 20) |
+| Grass edge on a path | 0.44 on the first px below the edge, then 0.22; 0.28 east of it |
+| Eave on a wall | 0.71, 0.51, 0.33, 0.18, 0.08 over 5 px under the soffit |
+| Sun patches | `#FFE27A` at **0.18** |
+| Shade patches | `#2B3A6E` at **0.17**. The manifest's `v2.tint` holds the tint colours; the room view reads them there |
+| Water depth | `#0C1B33` at **0.31** from two cells from land, and 0.28 more from four cells |
+| Stacking cap | Where a runtime shadow falls on baked shade (AO, rims, prop shadows, patches), the total darkening stays **at or under 0.6**. Do not stack a runtime shadow on a face: faces are shaded already |
+
+**Baked into the tiles (done, do not redo):**
+
+- the lips and rims;
+- the contact AO under faces and at their foot;
+- the cast shade of a higher west neighbour;
+- the grass edges' shadows, and each decal's own small shadow;
+- the face shading (lit west flanks, shaded east);
+- the eave's shadow band;
+- the sun and shade patches;
+- the water's depth, foam, glints and ripples;
+- each prop's floor shadow, a sprite in the prop sheet. It now uses `SHADOW`, 0.41 in the core and 0.25 at the rim.
+
+**Left to runtime (the next parts):**
+
+- **Cast shadows** from tall props and buildings:
+  - trees, bamboo, lanterns, banners and halls, along the direction above;
+  - on the floor they stand on, cut per level as the prop shadows are (`TopdownTerrain.shadow_pieces`);
+  - never on a body or a face;
+  - on water at 0.25 at most.
+- **Colour grade.** The tiles are graded already. A day grade may lift highlights at most 4% toward `SUN` and push
+  shadows at most 4% toward `SHADOW`. There is no global saturation boost over 5%. The night tint stays `#8FA0C8`.
+- **Light sources.** Lanterns as `PointLight2D`, at most four a room (plan, Phase 6).
+- **Particles** at art resolution, never blurred:
+  - mist over water and low ground in `MIST` `#AFC9D1` at 0.15–0.30;
+  - drifting petals (`PETAL`), pollen and fireflies (`SUN`), 1–2 px.
+
+### 14.3 Ramps (`palette.py`, the `*2` ramps)
+
+Seven steps each, dark → light. Each dark end leans blue-violet or teal and each light end warm yellow, so a lit plane
+and its shade differ in hue as well as value.
+
+| Ramp | Steps (0 → 6) | Use |
+|---|---|---|
+| `GRASS2` | `162B3A 1C4342 25604A 3C7E4C 5C9B4C 8DB955 C6DB7C` | meadow base 4, clumps 3, tips 5, glints 6 |
+| `DIRT2` | `35222E 553535 7A5140 9C7152 B98F63 D3AE7C EACDA0` | paths |
+| `PAVE2` | `2E2A3F 4A4558 696372 8A8388 ABA29C C9BFB1 E4DCCB` | pale town flagstones, stones 4–5 |
+| `STONE2` | `1F2236 31384C 4B5668 6A7682 8D979D B1BAB9 D8DED6` | dressed granite: promenades, terraces, stairs, walls |
+| `ROCK2` | `1E1D33 2F3046 474A5C 62666C 82857F A7A794 CECAAE` | karst: lit planes warm, shade violet |
+| `EARTH2` | `241B2B 3A2932 553A38 714F41 8E684D AA855F C5A47A` | soil banks |
+| `MOSS2` | `13283A 1A3F3E 285B42 3F7845 63964A 90B656 C4D67E` | moss, drapes, vines |
+| `WATER2` | `0C1B33 0F2C44 114350 155C5A 1E7766 2F9575 5DBB93 A9E6C9` | deep → glint (8 steps); body 3 |
+| `BED2` | `2F4A45 4C6F5E 6F9377 95B28C BCCDA2` | the bed seen through the shallows |
+| `ROOF2` | `14131F 1F2131 2B3044 3A4458 4F5C6E 6E7D8C 9BAAB1` | dark glazed roof tile |
+| `PLASTER2`, `TIMBER2`, `WOOD2`, `RED2` | see `palette.py` | walls, frames, planks, lacquer |
+| `LEAFFALL`, `PETAL`, `FLOWER` | see `palette.py` | fallen leaves, blossom, wild flowers (white, gold, pink, blue, coral) |
+
+**Value plan.** Floors sit at 0.5–0.62 mean luminance and the water at 0.28. Faces follow the rule "at most 0.65×
+their top". Measured on the atlas:
+
+| Top | Face | Ratio |
+|---|---|---|
+| grass | earth | 0.55 |
+| rock | cliff | 0.63 |
+| granite | wall | 0.57 |
+| paving | wall | 0.49 |
+
+The ground under a character stays in steps 3–5 of its ramp, so the ink-outlined bodies read on every floor.
+
+### 14.4 Breaking the 16 px grid
+
+Every cell is drawn as **layers**. `TopdownTerrain.top_layers`, `face_layers` and `water_layers` each return
+`[tile, colour]` pairs. The Phase 3 calls (`top`, `face`, `water`, `overlays`) keep their contract and name the
+TileSet's tiles.
+
+1. **Macro patterns.** Each material is one pattern cut into tiles: 4 × 4 tiles (64 px), or 8 × 8 (128 px) for the
+   paving. A cell takes the tile at its place in the pattern, `tiles[(y mod h) × w + (x mod w)]`, so a flagstone, a
+   plank or a clump runs across tile edges.
+   - The patterns hold only fine detail (blades, grain, joints). Anything big enough to be seen repeating comes from
+     the next layers.
+2. **Decals.** Small transparent tiles, drawn over the base tile:
+   - which cells take one: a hash of the cell (`h01(x, y, seed + 5)`) against the mark's `decals` shares, in order;
+   - which decal: a second hash (`seed + 6`);
+   - `seed` comes from the room's id.
+
+   | Set | Decals |
+   |---|---|
+   | grass | clumps, tufts, clover, pebbles, fallen leaves, a few flowers, petals |
+   | flowers | clusters of 3–4 wild flowers |
+   | dirt | stones, pebbles, cracks, leaves, a twig, weeds |
+   | pave | moss cushions, leaves, petals, cracks, weeds, loose pebbles |
+   | stone | lichen, cracks, moss, weeds |
+   | rock | moss, mossy clumps, tufts, pebbles, cracks |
+   | marsh | puddles with reed stubble |
+   | wood | leaves |
+   | roof | moss, a leaf |
+
+   Each decal stays a pixel inside its tile and throws its own small `SHADOW` to the south-east (0.16–0.39).
+3. **Sun and shade patches.**
+   - A value noise over the room's corners, at 7 cells and 3 cells (`TONE_SUN` 0.58, `TONE_SHADE` 0.4), marks each
+     corner sunny, shaded or neither.
+   - It counts only where all four cells round the corner are tops of one level whose mark takes `tone`.
+   - A cell draws the **tint mask** of its corner case and place: a white shape whose edge follows noise periodic in
+     64 px, softened in three alpha steps. The mask is drawn in the tint's colour.
+   - One set of masks serves the sun, the shade and the water's depth.
+4. **Positional grass edges.** A path or paving cell with grass at a corner takes its own base (dirt or paving) under
+   the **grass overlay** of its corner case and place. The overlay's grass is the grass pattern's own pixels, and its
+   edge follows noise periodic in 64 px, so it meets the neighbouring grass exactly and never repeats every 16 px.
+   - **Edge light.** On the sunny north and west sides of the grass, the edge is lit and blade tips poke up. On the
+     south side it is in shade and the tips hang over.
+   - **Shadow on the path.** 0.44 then 0.22 below the edge; 0.28 east of it.
+
+### 14.5 Edges, faces and height
+
+- **Faces** are 64 px patterns in three rows: the first row with its lip, then two body rows that repeat downward. A
+  face takes its tile by column (`x mod 4`) and by row.
+- **Rock (cliffs):**
+  - fluted limestone columns 6–12 px wide, split by dark fissures that wander a pixel either way down the face;
+  - each column is shaded like a prism: a bright west edge, a lit flank, the body, a shaded east flank;
+  - cracks break the columns into blocks whose tops are sunlit ledges, some with moss dripping down;
+  - faint bedding lines run across.
+- **The lip.** Every raised edge opens with the top's rim at its brightest step, then the top's front edge. Grass or
+  moss hangs over it by 1–7 px, in clumps lit on top and shaded underneath, with blade tips, a few leafy vines on
+  cliffs and roots on banks. A contact shadow of 0.63, 0.35 and 0.14 lies under the drape.
+- **The foot.** The last face row over a floor darkens its bottom 4 px (`face_ao`), and the floor in front takes `ao_n`.
+  Over water there is no foot shade: the shore overlay shades the water under the bank instead.
+- **Materials:**
+  - earth banks: wavy soil strata, rounded stones lit from the north-west, roots;
+  - stone and paving walls: ashlar courses under a coping stone with a dark overhang line, moss in the lower joints;
+  - the river embankment: wet dark blocks and an algae line;
+  - piers: pilings lit on the west in the pier's own shadow.
+- **Tops that must not read as walls.** Granite tops are big pale slabs a tile deep, with thin joints, so a terrace
+  never looks like the coursed wall under it.
+
+### 14.6 Water
+
+Water keeps the four frames at 250 ms and is still drawn half a level low.
+
+- **Body.** A calm jade body (`WATER2` 3). On it, ripples on a jittered grid: a lit crest over its trough's shadow. Each
+  ripple swells, peaks with a glint, drifts a pixel east and fades, a quarter-cycle apart from its neighbours. A few
+  glints twinkle one frame each.
+- **Depth.** The tint two and four cells from land, counted over the eight neighbours. The room's edge does not count
+  as land, so rivers run on past it.
+- **Shore overlay**, per side case and frame:
+  - the waterline where each side shows (as in §6);
+  - north and west banks stand between the water and the sun, so their shadow lies on the water;
+  - south and east shallows are sunlit and show the bed (`BED2`), fading out over 6 px;
+  - foam breathes at the waterline, and a ripple line leaves the shore, a pixel further each frame.
+- **Corners.** Foam and a patch of shallows where land touches a cell only at a corner.
+- **Pilings.** Rings spread under a pier's pilings (a water cell under a `w` cell).
+
+### 14.7 Paving and stairs
+
+- **Town paving.** Irregular flagstones, the scholar-garden "cracked ice" laying, 12–28 px across, in a 128 px pattern.
+  - Each stone has its own tint (a warmer or cooler step), a lit north-west bevel, a shaded south-east one, worn
+    rounded corners, grain, and a crack now and then.
+  - The joints are a step darker, with moss growing in some.
+  - Leaves, weeds and cracks are decals, so they never repeat with the pattern.
+- **Stairs.** Treads with a bright nosing and a worn, paler middle; a dark line under each nosing; a riser with a
+  bounce of light at its foot. The west cheek is lit and the east cheek shaded.
+
+### 14.8 Buildings
+
+- **Roofs on the grid (`t`).** Dark glazed cover tiles in 4 px ribs, each a small cylinder with a glint down its sunlit
+  west flank, between shaded channels. It stays an even plane you can land on (decision 29).
+- **Eaves** (`roof_face_top`): round tile ends with a glint each, a dark soffit, and the eave's 5 px blue-violet shadow
+  on the plaster below. Timber rails and posts are lit on the west.
+- **The house, storehouse and hall props** draw their roof the same way:
+  - the courses lap every 6 px, with a lit lip over a shadow line;
+  - the courses, the ridge and the eave sweep up toward both ends by up to 3 px, the curve of a Jade River roof, while
+    the plane stays even;
+  - the far strip beyond the ridge faces the sun, a step lighter;
+  - the ridge is heavy, with openwork, curled ends tipped in gold and, on a house, a jade pearl;
+  - the soffit shows under the swept corners.
+- **Walls.** Plaster, timber frames, lattice windows glowing warm and red lacquer doors, all in the v2 ramps.
+
+### 14.9 For the foliage and decor part
+
+- **Density.** Raise ground density with decals: flat marks up to 14 px, inside the tile, lit from the north-west,
+  with a 0.16–0.39 `SHADOW` to the south-east.
+  - A new decal goes into a set in `terrain2.decals()`, and its share into the paint table (`build_tiles.py`
+    `PAINT[mark]["decals"]`).
+  - Anything taller than about 6 px, or anything a body walks behind, is a prop, with a footprint, an outline (§4) and
+    a floor shadow.
+- **Placement.** By a hash of the cell (`TopdownTerrain.h01` with the room's seed), never a random generator, so a room
+  always looks the same.
+  - Keep paths and doorways readable: no decal darker than step 2 and larger than 3 px on a path.
+  - Leave the ground under the spots where people stand in steps 3–5 of its ramp.
+- **Colours.** Ground cover takes `GRASS2`, `MOSS2`, `FLOWER`, `PETAL` and `LEAFFALL`. Trees and shrubs keep the prop
+  ramps (`LEAF`, `PINE`, `BAMBOO`) under the same sun.
+
+### 14.10 Pipeline and review
+
+- **Where it is built.** `tools/art/topdown/terrain2.py` draws every v2 set, and `tiles.py` keeps the Phase 3 names on
+  top of it. `atlas.py` lays out both: rows 0–6 hold the contract tiles, unchanged in place, and the v2 sets go below
+  them.
+- **The manifest** gains `v2`:
+
+  | Key | What |
+  |---|---|
+  | `macro` | per material: `w`, `h` and `tiles` |
+  | `faces` | per kind: `top` and `body` |
+  | `over` | the grass overlays: 14 cases × 16 places |
+  | `tint_mask` | 15 cases × 16 places |
+  | `tint` | the tint colours |
+  | `decals` | the decal sets |
+  | `water` | `macro` frames, `shore`, `corner`, `ripple` |
+  | `face_ao` | the foot shade |
+
+  Each paint mark gains `macro`, `decals` and `tone`.
+- **The TileSet** still covers the contract tiles only. The v2 sets are layers the room view composes.
+- **The room view** draws the floor and the water in 16 × 12-cell chunks, so the renderer skips the chunks off screen
+  and water chunks off screen skip their redraws.
+- **Determinism.** `build_tiles.py --check` stays byte-identical.
+- **Tests.**
+  - `topdown_suite` ("terrain v2") checks the layers: the pattern by place, the positional overlay, faces by column
+    with the foot shade over a floor and none over water, water's frames and shore, the depth and the patches, and
+    every layer in the atlas.
+  - `data_validation` checks that every tile the v2 sets name is in the atlas and that every mark's pattern, decals and
+    tints exist.
+- **Review images.** The tile sheet at ×4 is `docs/redesign/terrain_v2/10_tile_sheet_x4.png`. The before and after
+  views, drawn by the game (`tools/dev/topdown_capture.tscn -- --terrain <before|after>`), are in
+  `docs/redesign/terrain_v2/before/` and `after/`, and the side-by-side pairs are
+  `docs/redesign/terrain_v2/0N_*_before_after.png`.
+
+## 15. Combat effects (decision 38)
 
 Every blow and technique of the top-down world is drawn by `tools/art/fx/build_fx_topdown.py` into `art/fx/topdown/`
 (the plan's "As built: combat animation and feel"). The rules on this page hold for them, with these additions:

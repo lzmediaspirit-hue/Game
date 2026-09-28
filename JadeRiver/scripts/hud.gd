@@ -1020,6 +1020,10 @@ var blocked := false
 ## A moment holds world input for a moment (P6, at most 1.5 s); kept apart from `blocked` so a page closing never ends it.
 var moment_lock := false
 var moments: Node = null   # the MomentView: a press during its lock goes to it (a tap skips a skippable moment)
+## A staged scene's cut holds the controls (decision 39): every touch, click and key goes to the SceneDirector (a tap
+## moves the talk on, a hold skips to the next hand-off).
+var scene_lock := false
+var scenes: Node = null
 
 func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -1029,8 +1033,16 @@ func set_moment_lock(value: bool) -> void:
 	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	moment_lock = value
 
+## A staged scene's cut takes the controls (held ones let go at once) and gives them back.
+func set_scene_lock(value: bool) -> void:
+	if value and not scene_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	scene_lock = value
+
 func _input(event):
 	if blocked: return
+	if scene_lock:
+		if scenes: scenes.input(event)
+		return
 	if moment_lock:
 		var pressed: bool = (event is InputEventScreenTouch or event is InputEventMouseButton or event is InputEventKey) and event.pressed and not event.is_echo()
 		if pressed and moments: moments.press()

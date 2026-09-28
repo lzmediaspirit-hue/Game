@@ -1,23 +1,26 @@
 """The terrain atlas layout: which tile sits in which 16 x 16 cell of art/topdown/proto_tiles.png.
 
-The atlas is 32 cells wide. Rows:
+The atlas is 32 cells wide. Rows 0-6 hold the Phase 3 contract tiles, at the places they always had (the TileSet and
+the Phase 1 loader draw them):
   0  tops (the Phase 1 loader's names first) and the stairs
   1  faces: the first row under a lip (`*_face_top`) and the rows below it (`*_face`)
   2  plain water frames 0-3, the light overlays
   3  grass over dirt, the 16 corner cases (corner order TL TR BL BR, 1 = grass)
   4  grass over paving, the same 16
   5-6 water with its shore, the 16 side cases (bit 1 N, 2 E, 4 S, 8 W = land) x 4 frames side by side, 8 cases a row
-The names the Phase 1 loader draws (grass_a, grass_b, grass_flowers, paving_a, paving_b, dirt, wood, rock, stone_top,
-water_0-3, stairs, earth/stone/rock/wood/bank _face_top and _face) keep their meaning.
+From row 7 down, the Terrain v2 sets the room view draws (docs/redesign/art_bible.md "Terrain v2"), packed in shelves:
+the material patterns (4 x 4 tiles; the paving 8 x 8), the water pattern's four frames, the face patterns (a first row
+and two body rows of 4), the positional grass overlays and tint masks (a 4 x 4 block per corner case each), the decals,
+the shore overlays in four frames, the inner-corner foam, the pilings' ripples and the face's foot shade.
 """
 from __future__ import annotations
 
+import terrain2 as t2
 import tiles as tl
 from canvas import T, Img
-from palette import DIRT, GRASS, PAVE
 
 COLS = 32
-ROWS = 7
+CONTRACT_ROWS = 7
 
 TOPS = [
     ("grass_a", lambda: tl.grass(1)), ("grass_b", lambda: tl.grass(2)), ("grass_c", lambda: tl.grass(4, "lush")),
@@ -43,21 +46,44 @@ FACES = [
     ("roof_face_top", lambda: tl.eave_face(16)), ("roof_face", lambda: tl.plaster_face(16)),
     ("plaster_face_window", lambda: tl.plaster_face(17, "window")), ("plaster_face_door", lambda: tl.plaster_face(18, "door")),
     ("wall_face_top", lambda: tl.wall_face(19, True)), ("wall_face", lambda: tl.wall_face(19, False)),
-    ("pave_face_top", lambda: tl.stone_face(20, True, PAVE)), ("pave_face", lambda: tl.stone_face(20, False)),
+    ("pave_face_top", lambda: tl.stone_face(20, True, t2.PAVE2)), ("pave_face", lambda: tl.stone_face(20, False, t2.PAVE2)),
 ]
 
 OVERLAYS = ["rim_w", "rim_e", "rim_n", "ao_n", "shade_w", "end_w", "end_e", "cheek_w", "cheek_e"]
 
+# Terrain v2: the materials with a macro pattern, the face kinds with a face pattern, the decal sets.
+MACROS = ["grass", "dirt", "stone", "rock", "wood", "roof", "pave", "wall"]
+FACE_KINDS = ["rock", "earth", "stone", "pave", "bank", "wood", "wall"]
 
-def build() -> tuple[Img, dict, dict]:
-    """The atlas image, the name -> [x, y, w, h] map, and the auto-tile tables."""
-    sheet = Img(COLS * T, ROWS * T)
+
+class Packer:
+    """Shelf packing of blocks (w x h cells) into the atlas, left to right, a new shelf when a block no longer fits."""
+
+    def __init__(self, y0: int):
+        self.x, self.y, self.shelf = 0, y0, 0
+
+    def block(self, w: int, h: int) -> tuple[int, int]:
+        if self.x + w > COLS:
+            self.x, self.y, self.shelf = 0, self.y + self.shelf, 0
+        at = (self.x, self.y)
+        self.x += w
+        self.shelf = max(self.shelf, h)
+        return at
+
+    def rows(self) -> int:
+        return self.y + self.shelf
+
+
+def build() -> tuple[Img, dict, dict, dict]:
+    """The atlas image, the name -> [x, y, w, h] map, the Phase 3 auto-tile tables and the Terrain v2 sets."""
+    placed: list = []
     at: dict = {}
 
     def place(name: str, img: Img, cx: int, cy: int, h: int = T) -> None:
-        sheet.paste(img, cx * T, cy * T)
+        placed.append((img, cx, cy))
         at[name] = [cx * T, cy * T, T, h]
 
+    # ---- rows 0-6: the Phase 3 contract
     for k, (name, fn) in enumerate(TOPS):
         place(name, fn(), k, 0, 8 if name == "stairs" else T)
     for k, (name, fn) in enumerate(FACES):
@@ -66,16 +92,15 @@ def build() -> tuple[Img, dict, dict]:
         place("water_%d" % f, tl.water(f), f, 2)
     for k, name in enumerate(OVERLAYS):
         place(name, tl.overlay(name), 5 + k, 2)
-
-    grass_img, dirt_img, pave_img = tl.grass(1), tl.dirt(6), tl.paving(4, "a")
+    dirt0, pave0 = tl.macro("dirt")[0][0], tl.macro("pave")[0][0]
     auto = {"grass_dirt": {}, "grass_paving": {}, "shore": {}}
     for k, corners in enumerate(tl.CORNER_KEYS):
         key = tl.corner_name(corners)
         name = "grass_dirt_" + key
-        place(name, tl.blend_corners(grass_img, dirt_img, corners, 50 + k, GRASS, DIRT), k, 3)
+        place(name, tl.blend_corners(dirt0, corners), k, 3)
         auto["grass_dirt"][key] = name
         name = "grass_paving_" + key
-        place(name, tl.blend_corners(grass_img, pave_img, corners, 70 + k, GRASS, PAVE), k, 4)
+        place(name, tl.blend_corners(pave0, corners), k, 4)
         auto["grass_paving"][key] = name
     for sides in range(16):
         cx, cy = (sides % 8) * 4, 5 + sides // 8
@@ -85,4 +110,104 @@ def build() -> tuple[Img, dict, dict]:
             place(name, tl.water(f, sides), cx + f, cy)
             names.append(name)
         auto["shore"]["%02d" % sides] = names
-    return sheet, at, auto
+
+    # ---- rows 7-: Terrain v2
+    pk = Packer(CONTRACT_ROWS)
+    v2: dict = {"macro": {}, "faces": {}, "over": {}, "tint_mask": {}, "decals": {}, "water": {}}
+    for kind in MACROS:
+        tiles, w, h = tl.macro(kind)
+        x0, y0 = pk.block(w, h)
+        names = []
+        for i, img in enumerate(tiles):
+            name = "%s_m%d%d" % (kind, i % w, i // w)
+            place(name, img, x0 + i % w, y0 + i // w)
+            names.append(name)
+        v2["macro"][kind] = {"w": w, "h": h, "tiles": names}
+    frames = []
+    for f in range(4):
+        x0, y0 = pk.block(t2.M, t2.M)
+        names = []
+        for i, img in enumerate(tl.water_frames()[f]):
+            name = "water_m%d%d_%d" % (i % t2.M, i // t2.M, f)
+            place(name, img, x0 + i % t2.M, y0 + i // t2.M)
+            names.append(name)
+        frames.append(names)
+    v2["water"]["macro"] = {"w": t2.M, "h": t2.M, "frames": frames}
+    for kind in FACE_KINDS:
+        tops, body = tl.face_set(kind)
+        x0, y0 = pk.block(t2.M, 3)
+        top_names, body_names = [], []
+        for i, img in enumerate(tops):
+            name = "%s_face_top_v%d" % (kind, i)
+            place(name, img, x0 + i, y0)
+            top_names.append(name)
+        for i, img in enumerate(body):
+            name = "%s_face_v%d" % (kind, i)
+            place(name, img, x0 + i % t2.M, y0 + 1 + i // t2.M)
+            body_names.append(name)
+        v2["faces"][kind] = {"top": top_names, "body": body_names}
+    for corners in tl.CORNER_KEYS:
+        if corners in ((0, 0, 0, 0), (1, 1, 1, 1)):
+            continue
+        key = tl.corner_name(corners)
+        x0, y0 = pk.block(t2.M, t2.M)
+        names = []
+        for py in range(t2.M):
+            for px in range(t2.M):
+                name = "over_%s_%d%d" % (key, px, py)
+                place(name, tl.grass_over(corners, (px, py)), x0 + px, y0 + py)
+                names.append(name)
+        v2["over"][key] = names
+    for corners in tl.CORNER_KEYS:
+        if corners == (0, 0, 0, 0):
+            continue
+        key = tl.corner_name(corners)
+        x0, y0 = pk.block(t2.M, t2.M)
+        names = []
+        for py in range(t2.M):
+            for px in range(t2.M):
+                name = "tint_%s_%d%d" % (key, px, py)
+                place(name, t2.tint_mask(corners, (px, py)), x0 + px, y0 + py)
+                names.append(name)
+        v2["tint_mask"][key] = names
+    v2["tint"] = t2.TINTS
+    for kind, imgs in tl.decal_sets().items():
+        x0, y0 = pk.block(len(imgs), 1)
+        names = []
+        for i, img in enumerate(imgs):
+            name = "decal_%s_%d" % (kind, i)
+            place(name, img, x0 + i, y0)
+            names.append(name)
+        v2["decals"][kind] = names
+    shore = {}
+    for sides in range(1, 16):
+        x0, y0 = pk.block(4, 1)
+        names = []
+        for f in range(4):
+            name = "shorefx_%02d_%d" % (sides, f)
+            place(name, tl.shore_overlay(sides, f), x0 + f, y0)
+            names.append(name)
+        shore["%02d" % sides] = names
+    v2["water"]["shore"] = shore
+    corners = {}
+    for c in ("ne", "nw", "se", "sw"):
+        x0, y0 = pk.block(4, 1)
+        corners[c] = []
+        for f in range(4):
+            name = "corner_%s_%d" % (c, f)
+            place(name, t2.inner_corner(c, f), x0 + f, y0)
+            corners[c].append(name)
+    v2["water"]["corner"] = corners
+    x0, y0 = pk.block(5, 1)
+    v2["water"]["ripple"] = []
+    for f in range(4):
+        name = "ripple_%d" % f
+        place(name, t2.post_ripple(f), x0 + f, y0)
+        v2["water"]["ripple"].append(name)
+    place("face_ao", t2.overlay("face_ao"), x0 + 4, y0)
+    v2["face_ao"] = "face_ao"
+
+    sheet = Img(COLS * T, pk.rows() * T)
+    for img, cx, cy in placed:
+        sheet.paste(img, cx * T, cy * T)
+    return sheet, at, auto, v2

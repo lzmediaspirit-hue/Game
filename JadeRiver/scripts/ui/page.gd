@@ -527,18 +527,7 @@ func para(rect: Rect2, s: String, size := 18, col := UiKit.PAPER, max_lines := -
 	return n * lh
 
 func _wrap(s: String, size: int, width: float, display := false) -> Array:
-	var out: Array = []
-	for raw in s.split("\n"):
-		var cur := ""
-		for w in raw.split(" "):
-			var cand := w if cur == "" else cur + " " + w
-			if UiKit.text_width(cand, size, display) > width and cur != "":
-				out.append(cur)
-				cur = w
-			else:
-				cur = cand
-		out.append(cur)
-	return out
+	return UiKit.wrap(s, size, width, display)
 
 ## The words on a bar (Page.bar): a caption on the type scale that sits inside a 22 px bar.
 const BAR_LABEL := 16

@@ -28,6 +28,7 @@ extends Node2D
 const Player := preload("res://scripts/topdown/topdown_player.gd")
 const VIEW := Vector2i(TopdownRoom.VIEW)   ## the world view in art px (TopdownRoom.VIEW)
 const T := 16.0
+const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are drawn in chunks of this many cells
 
 var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
@@ -70,6 +71,12 @@ var tint: CanvasModulate        ## a night room's blue
 var hazards: HazardView
 var transfer_cooldown := 0.0
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
+var figures: Dictionary = {}    ## object id -> its Figure in the sorted layer (a staged scene moves the people)
+## Decision 39: a staged scene's camera (SceneDirector): the point it looks at in world units (null: the body's
+## follow), its zoom, and `stage_snap` to cut there at once (Reduce motion).
+var stage_cam = null
+var stage_zoom := 1.0
+var stage_snap := false
 var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
 ## Decision 38: the combat's effects on the ground plane (smears, forms, impacts, marks, dust) in the sorted layer, and
 ## whether a hit-stop holds the fight (and them) this frame.
@@ -177,12 +184,22 @@ func _build_room() -> void:
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
 	bg.position = -Vector2(VIEW)
-	var water := WaterView.new(self)
-	var ground := FloorView.new(self)
-	for n in [ground, water, bg]:
-		viewport.add_child(n)
-		viewport.move_child(n, 0)   # under the floor marks and everything sorted
-	_room_nodes.append_array([bg, water, ground])
+	# Terrain v2: the floor and the water in chunks, so the renderer skips the ones off screen and the water redraws
+	# only the chunks in view.
+	var under: Array = [bg]
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			var r := Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))
+			var water := WaterView.new(self, r)
+			if not water.cells.is_empty(): under.insert(1, water)
+			else: water.free()
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
+	for i in range(under.size() - 1, -1, -1):
+		viewport.add_child(under[i])
+		viewport.move_child(under[i], 0)   # under the floor marks and everything sorted
+	_room_nodes.append_array(under)
 	for y in room.h:
 		var strip := StripView.new(self, y)
 		if not strip.rects.is_empty():
@@ -199,11 +216,14 @@ func _build_room() -> void:
 	npc_views = {}
 	object_views = {}
 	portal_views = []
+	figures = {}
+	labels_a = 1.0   # the room's new labels are drawn whole; a scene's cut fades them from there
 	if live and Game.room_rt != null:
 		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay, player)
 		npc_views = built.npc_views
 		object_views = built.object_views
 		portal_views = built.portal_views
+		figures = built.figures
 		_room_nodes.append_array(built.nodes)
 		# The hazards' washes, weather and marks draw on the overlay under the names; their parts at a spot (a ring, a
 		# falling rock, a bolt) sort with the room in the viewport.
@@ -262,16 +282,20 @@ func _process(delta: float) -> void:
 	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
 	var goal := _cam_target()
+	if stage_cam != null: goal = _clamp_cam((stage_cam as Vector2) / TopdownRoom.ART)   # a staged scene looks elsewhere
 	if not camera_hold.is_empty():
 		var h := camera_hold
 		h.t = float(h.t) + delta
 		var ends := float(h.in) + float(h.hold) + float(h.out)
 		goal = goal.lerp(h.target, smoothstep(0.0, float(h.in), h.t) * (1.0 - smoothstep(ends - float(h.out), ends, h.t)))
 		if float(h.t) >= ends: camera_hold = {}
-	cam = cam.lerp(goal, k)
+	cam = goal if stage_snap else cam.lerp(goal, k)
+	stage_snap = false
 	camera.position = cam.round()
 	camera.offset = (shake.offset(delta) / TopdownRoom.ART).round()
-	overlay.position = (Vector2(VIEW) * 0.5 - camera.position - camera.offset) * TopdownRoom.ART
+	camera.zoom = Vector2(stage_zoom, stage_zoom)
+	overlay.scale = camera.zoom
+	overlay.position = (Vector2(VIEW) * 0.5 - (camera.position + camera.offset) * stage_zoom) * TopdownRoom.ART
 	if player.bound():
 		if live: _update_context()
 		layout_labels()
@@ -282,6 +306,15 @@ func _process(delta: float) -> void:
 func _cam_target() -> Vector2:
 	var m: TopdownMotor = player.motor
 	return room.camera_for(m.pos, cam_z, m.vel)
+
+## A staged scene's camera point in art px kept inside the room as it is drawn (a ridge on its north edge included), at
+## the view's zoom, or on its middle where the room is smaller.
+func _clamp_cam(t: Vector2) -> Vector2:
+	var b := room.drawn_rect()
+	var half := Vector2(VIEW) * 0.5 / stage_zoom
+	t.x = b.get_center().x if b.size.x <= half.x * 2.0 else clampf(t.x, b.position.x + half.x, b.end.x - half.x)
+	t.y = b.get_center().y if b.size.y <= half.y * 2.0 else clampf(t.y, b.position.y + half.y, b.end.y - half.y)
+	return t
 
 func _sync(delta: float) -> void:
 	player.sync(delta)
@@ -363,6 +396,14 @@ func loot_parent() -> Node2D: return loot_layer
 func view_center() -> Vector2: return (camera.position + camera.offset) * TopdownRoom.ART
 func screen_center() -> Vector2: return view_center()
 func feet_on_screen() -> Vector2: return overlay.get_global_transform_with_canvas() * player_feet()
+
+## Decision 39: the names, markers and plates over the world (the people's, the things', the ways', the foes') fade
+## toward `to` (a staged scene's cut takes them away, and gives them back).
+var labels_a := 1.0
+func fade_labels(to: float, delta: float) -> void:
+	labels_a = move_toward(labels_a, to, delta * 4.0)
+	for v in npc_views.values() + object_views.values() + portal_views + label_views.values():
+		if is_instance_valid(v): v.modulate.a = labels_a
 
 ## A moment's camera move (P6 `camera` layer) to a point in world units: ease there, hold, and ease back.
 func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
@@ -530,15 +571,23 @@ func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
 	var src := tile(name)
 	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)))
 
-## A cell's top at `at`: its tile and the light overlays for its level (art bible §5).
-func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
-	blit(ci, terrain.top(x, y), at)
-	for o in terrain.overlays(x, y, l): blit(ci, o, at)
+## Terrain v2: draw a layer ([tile, colour], TopdownTerrain) at `at`, its top `h` rows only.
+func blit_layer(ci: CanvasItem, layer: Array, at: Vector2, h := T) -> void:
+	var src := tile(str(layer[0]))
+	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)), layer[1])
 
-## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px.
-func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float) -> void:
+## A cell's top at `at`: its layers (Terrain v2: the macro tile or a path under grass, a decal, the sun and shade
+## patches) and the light overlays for its level (art bible §5).
+func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
+	for layer in terrain.top_layers(x, y, l): blit_layer(ci, layer, at)
+
+## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px; with `cols`, only the pieces on those
+## columns of cells (a floor chunk's).
+func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float, cols := Vector2i(-9999, 9999)) -> void:
 	for piece in terrain.shadow_pieces(row, level):
 		var dest: Rect2 = piece[0]
+		var cx := floori(dest.position.x / T)
+		if cx < cols.x or cx >= cols.y: continue
 		ci.draw_texture_rect_region(atlas("props"), Rect2(dest.position + Vector2(0, dy), dest.size), piece[1])
 
 ## A node in the sorted layer sits at its key and draws back to screen rows by `lift` = key.
@@ -551,39 +600,51 @@ class Sorted extends Node2D:
 	func key(k: float) -> void:
 		position = Vector2(0, k)
 
-## The water, half a level under the ground, each cell's shore case in the frame of the 250 ms clock (art bible §6–§7).
+## The water, half a level under the ground, one chunk of cells: each cell's layers (Terrain v2: the water pattern,
+## the depth, its shore case, corner foam, ripples at the pilings) in the frame of the 250 ms clock (art bible §6–§7).
+## A chunk off screen skips its redraws until it comes into view.
 class WaterView extends Node2D:
 	var world
 	var frame := -1
-	var cells: Array = []   ## [screen position, [its tile in frames 0-3]]
-	func _init(w) -> void:
+	var area: Rect2
+	var cells: Array = []   ## [screen position, [its layers in frames 0-3]]
+	func _init(w, chunk: Rect2i) -> void:
 		world = w
 		var r: TopdownRoom = w.room
-		for y in r.h:
-			for x in r.w:
-				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water(x, y)])
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
+				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water_layers(x, y)])
+		area = Rect2(Vector2(chunk.position) * T, Vector2(chunk.size) * T + Vector2(0, T))
 	func _process(_d: float) -> void:
 		var f := int(Time.get_ticks_msec() / 250) % 4
-		if f != frame:
+		if f != frame and _in_view():
 			frame = f
 			queue_redraw()
+	func _in_view() -> bool:
+		var vs := Vector2(world.viewport.size)
+		return area.intersects(Rect2(world.camera.position - vs * 0.5, vs).grow(T))
 	func _draw() -> void:
-		for c in cells: world.blit(self, str(c[1][maxi(0, frame)]), c[0])
+		for c in cells:
+			for layer in c[1][maxi(0, frame)]: world.blit_layer(self, layer, c[0])
 
-## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows: under
-## everything that sorts.
+## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows, one chunk of
+## cells: under everything that sorts.
 class FloorView extends Node2D:
 	var world
-	func _init(w) -> void: world = w
+	var chunk: Rect2i
+	func _init(w, c: Rect2i) -> void:
+		world = w
+		chunk = c
 	func _draw() -> void:
 		var r: TopdownRoom = world.room
 		var tr: TopdownTerrain = world.terrain
-		for y in r.h:
-			for x in r.w:
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
 				if r.levels[y * r.w + x] != 0 or not r.stair_at(x, y).is_empty(): continue
 				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
-				if tr.edge_level(x, y + 1) == TopdownRoom.WATER: world.blit(self, tr.face(x, y, 0, true), Vector2(x * T, (y + 1) * T), T * 0.5)
-		for y in r.h: world.blit_shadows(self, y, 0, 0.0)
+				if tr.edge_level(x, y + 1) == TopdownRoom.WATER:
+					for layer in tr.face_layers(x, y, 0, 0, TopdownRoom.WATER): world.blit_layer(self, layer, Vector2(x * T, (y + 1) * T), T * 0.5)
+		for y in range(chunk.position.y, chunk.end.y): world.blit_shadows(self, y, 0, 0.0, Vector2i(chunk.position.x, chunk.end.x))
 
 ## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
 ## (the face's ends lit or shaded where it turns a corner), and the floor shadows of the props on them. Its key is the
@@ -615,8 +676,7 @@ class StripView extends Sorted:
 				var water: bool = south + k + 1 == 0
 				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
-				world.blit(self, tr.face(x, row, k, water), at, h)
-				for e in tr.face_ends(x, row, l, k): world.blit(self, e, at, h)
+				for layer in tr.face_layers(x, row, l, k, south): world.blit_layer(self, layer, at, h)
 		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
 ## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east
@@ -660,15 +720,20 @@ class PropView extends Sorted:
 		var origin: Array = art.get("origin", [0, 16])
 		src = Rect2(float(rr[0]), float(rr[1]), float(rr[2]), float(rr[3]))
 		var cell: Vector2i = p.cell
-		var south: float = (cell.y + (p.size as Vector2i).y) * T
-		var lvl := int(p.level)
-		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if lvl < 0 else -lvl * T
-		at = Vector2(cell.x * T - float(origin[0]), south + ground - float(origin[1]))
-		rects.append(Rect2(at, src.size))
-		key(south + 0.5)
+		rects.append(Rect2())
+		place_at(Vector2(cell.x * T, (cell.y + (p.size as Vector2i).y) * T), int(p.level), Vector2(float(origin[0]), float(origin[1])))
 		frames = int(art.get("frames", 1))
 		frame_ms = int(art.get("frame_ms", 0))
 		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+	## Stand the footprint's south-west corner at `sw` (art px) on a floor at `level` (a staged scene moves a prop so: a
+	## boat passing on the river).
+	func place_at(sw: Vector2, level: int, origin: Vector2) -> void:
+		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if level < 0 else -level * T
+		sw = sw.round()
+		at = Vector2(sw.x - origin.x, sw.y + ground - origin.y)
+		rects[0] = Rect2(at, src.size)
+		key(sw.y + 0.5)
+		queue_redraw()
 	func _ready() -> void:
 		set_process(frames > 1 and frame_ms > 0)
 	func _process(_d: float) -> void:

@@ -56,6 +56,7 @@ var hurt_t := 99.0
 var knock_t := 0.0
 var knock_s := 0.0
 var action_phase := ""
+var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -329,6 +330,7 @@ func sync(delta: float) -> void:
 		f = 4
 	elif meditating: next = "meditate"
 	elif m.vel.length() > 12.0: next = "run" if m.vel.length() > m.walk * 1.15 else "walk"
+	if stage_pose != "": next = TopdownFigure.resolve(stage_pose)   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next
 		anim_t = 0.0
