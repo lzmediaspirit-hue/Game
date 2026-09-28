@@ -1,12 +1,11 @@
-"""Top-down redesign, Phases 1-2 (docs/redesign_top_down_plan.md): the placeholder body and foes.
+"""Top-down redesign, Phases 1-2 (docs/redesign_top_down_plan.md): the placeholder body.
 
 Draws, at native art resolution (1 art px = 1 px of the 640x360 world viewport, nearest neighbour):
   art/topdown/placeholder_body.png PLACEHOLDER body: S, E, N (W mirrors E) x idle 2, walk 4, jump 3, dash 2, strike 2
-  art/topdown/placeholder_foes.png PLACEHOLDER foes (Phase 2): crab, rat, boarlet, E (W mirrors) x idle, walk, windup, attack, hurt
-The tiles, props, manifest and TileSet moved to tools/art/topdown/build_tiles.py in Phase 3 (docs/redesign/art_bible.md),
-which calls build_body() and build_foes() here; running this script runs that build. Everything is original to Jade
-River. No randomness: noise comes from a coordinate hash, and the PNGs carry no metadata, so a rebuild is byte-identical.
-The body and foes are stand-ins; the layered character set is Phase 5 (AGENTS.md rules 1-4).
+The tiles, props, foes, manifest and TileSet are built by tools/art/topdown/build_tiles.py (Phase 3,
+docs/redesign/art_bible.md), which calls build_body() here; running this script runs that build. Everything is original
+to Jade River. No randomness: noise comes from a coordinate hash, and the PNGs carry no metadata, so a rebuild is
+byte-identical. The body is a stand-in; the layered character set is Phase 5 (AGENTS.md rules 1-4).
 
 Usage: python3 tools/art/build_topdown_proto.py   (same as python3 tools/art/topdown/build_tiles.py)
 """
@@ -171,85 +170,9 @@ def build_body() -> tuple[Sheet, dict]:
     return s, {"placeholder": True, "cell": [CELL_W, CELL_H], "foot": list(FOOT), "frames": frames,
                "note": "PLACEHOLDER body for the Phase 1 controller; the layered set is Phase 5"}
 
-# --------------------------------------------------------------------------------------------- PLACEHOLDER foes (Phase 2)
-FOE_CELL, FOE_FOOT = (32, 24), (16, 21)
-FOE_ANIMS = {"idle": 2, "walk": 2, "windup": 1, "attack": 1, "hurt": 1}
-FOES = ("mudshell_crab", "reedtail_rat", "wild_boarlet")
-
-def _lit(col, hurt: bool):
-    """A hurt frame flashes pale: each colour half-way to paper."""
-    return tuple((a + b) // 2 for a, b in zip(col[:3], PAPER[:3])) + (col[3],) if hurt else col
-
-def foe_frame(s: Sheet, ox: int, oy: int, species: str, anim: str, f: int) -> None:
-    """Stand-in foes seen from the three-quarter view, facing east (west mirrors): a mud crab, a reed rat and a boarlet
-    at the size of their side-view sheets (crab 20 x 13, rat 22 x 11, boarlet 26 x 15). Not final art (Phase 3/5)."""
-    fx, fy = ox + FOE_FOOT[0], oy + FOE_FOOT[1]
-    bob = (0, 1)[f] if anim == "idle" else 0
-    step = (1, -1)[f] if anim == "walk" else 0
-    lunge = {"windup": -2, "attack": 3}.get(anim, 0)
-    h = anim == "hurt"
-    L = lambda col: _lit(col, h)
-    cx = fx + lunge
-    if species == "mudshell_crab":
-        for k in range(3):   # three legs a side, stepping
-            for side in (-1, 1):
-                s.rect(cx - 6 + k * 4 + (step if (k + (side > 0)) % 2 else -step), fy - 3 + (1 if side > 0 else -1), 2, 2, L(EARTH[0]))
-        s.ellipse(cx, fy - 6 + bob, 8, 5, L(c("5A4633")))
-        s.ellipse(cx - 1, fy - 7 + bob, 6, 3, L(c("7C6446")))
-        s.rect(cx - 3, fy - 9 + bob, 4, 1, L(c("9C8260")))
-        claw_y = -3 if anim == "windup" else 0
-        reach = 2 if anim == "attack" else 0
-        for dy in (-9, -3):
-            s.ellipse(cx + 9 + reach, fy + dy + claw_y + bob, 2.6, 2.2, L(c("8A5A3E")))
-            s.put(cx + 11 + reach, fy + dy + claw_y + bob, L(INK))
-        s.put(cx + 4, fy - 11 + bob, L(INK))
-        s.put(cx + 6, fy - 10 + bob, L(INK))
-    elif species == "reedtail_rat":
-        for i in range(7):   # the tail, curling back
-            s.put(cx - 8 - i, fy - 5 - (i * i) // 12 + (step if i > 3 else 0), L(c("B98E7A")))
-        for k, dx in enumerate((-4, 3)):
-            s.rect(cx + dx + (step if k else -step), fy - 2, 2, 2, L(c("2A2320")))
-        s.ellipse(cx - 1, fy - 5 + bob, 7, 4, L(c("6E6258")))
-        s.ellipse(cx - 2, fy - 6 + bob, 5, 2, L(c("8A7E72")))
-        s.ellipse(cx + 6, fy - 6 + bob, 3.5, 3, L(c("7A6E62")))
-        s.put(cx + 5, fy - 10 + bob, L(c("C99A8E")))
-        s.put(cx + 7, fy - 7 + bob, L(INK))
-        s.put(cx + 10, fy - 6 + bob, L(c("D98A8A")))
-        if anim == "attack":
-            s.put(cx + 10, fy - 4 + bob, L(PAPER))
-    else:   # wild_boarlet
-        for k, dx in enumerate((-7, -3, 4, 8)):
-            s.rect(cx + dx + (step if k % 2 else -step), fy - 3, 2, 3, L(c("2B1E16")))
-        s.ellipse(cx - 1, fy - 8 + bob, 10, 6, L(c("6B4A30")))
-        for i in (-6, -2, 2):   # a young boar's stripes
-            s.rect(cx + i, fy - 12 + bob, 2, 6, L(c("8C6A46")))
-        s.ellipse(cx + 8, fy - 8 + bob, 4, 4, L(c("5E4029")))
-        s.rect(cx + 11, fy - 8 + bob, 2, 3, L(c("A77A62")))
-        s.put(cx + 11, fy - 5 + bob, L(PAPER))          # the tusk
-        s.put(cx + 9, fy - 10 + bob, L(INK))
-        s.put(cx + 6, fy - 13 + bob, L(c("4A3222")))   # the ear
-        if anim == "windup":
-            for i in range(3):
-                s.put(cx - 12 - i * 2, fy - 2, L(EARTH[2]))   # pawing the ground
-
-def build_foes() -> tuple[Sheet, dict]:
-    cols = sum(FOE_ANIMS.values())
-    s = Sheet(cols * FOE_CELL[0], len(FOES) * FOE_CELL[1])
-    species = {}
-    for r, sp in enumerate(FOES):
-        col = 0
-        for anim, n in FOE_ANIMS.items():
-            species.setdefault(sp, {})[anim] = [[(col + f) * FOE_CELL[0], r * FOE_CELL[1]] for f in range(n)]
-            for f in range(n):
-                foe_frame(s, (col + f) * FOE_CELL[0], r * FOE_CELL[1], sp, anim, f)
-                s.outline((col + f) * FOE_CELL[0], r * FOE_CELL[1], FOE_CELL[0], FOE_CELL[1])
-            col += n
-    return s, {"placeholder": True, "cell": list(FOE_CELL), "foot": list(FOE_FOOT), "species": species,
-               "note": "PLACEHOLDER foes for the Phase 2 fights (east drawn, west mirrored); the top-down creature sheets are Phase 3/5"}
-
 def main() -> None:
-    """The tiles, props, manifest and TileSet are built by tools/art/topdown/build_tiles.py (Phase 3), which draws the
-    body and the foes through build_body() and build_foes(); running this script runs that build."""
+    """The tiles, props, foes, manifest and TileSet are built by tools/art/topdown/build_tiles.py (Phase 3), which draws
+    the body through build_body(); running this script runs that build."""
     sys.path.insert(0, str(Path(__file__).resolve().parent / "topdown"))
     import build_tiles
     sys.exit(build_tiles.main(sys.argv[1:]))

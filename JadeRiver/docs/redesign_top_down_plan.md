@@ -242,6 +242,9 @@ The HUD layout and its buttons stay (`hud.gd`). What each button does:
 
 ## 3. Systems that could live in the world (item 4)
 
+Decision 36's study, `docs/redesign/systems_as_places.md`, extends this section to every page. It adds research, a
+verdict per system, a set for the prototype and a phased list, for the user to decide.
+
 Rule for every row: **the place opens the same page**. The pages stay the way the user likes them. The place adds a
 reason to walk there, a sight in the world, and on-screen state. Remote access stays wherever the idle loop needs it,
 so a phone player is never forced to travel.
@@ -471,12 +474,12 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
   - It works left-handed (the direction is read from the button's own centre), and nothing animates under Reduce
     motion.
   - No button was added, and nothing is drawn in the HUD's clear zone (the aim draws in the world).
-- **Proposal, not built (open):** drag zones on Attack for more actions, using what exists:
+- **Drag zones on Attack** were a proposal here:
   - a drag past 120 px = the combo's finisher step at once;
   - a drag down (toward the camera) in the air = Plunge;
   - a hold without a drag = guard / the stance technique.
 
-  Each changes combat rules, so it waits for the user.
+  The user took it as decision 35; it is built (see "As built: Attack's drag moves" below).
 
 **Measured.** From `rules_tests` `topdown_suite`, which prints them, and `perf_tests` `_topdown`:
 
@@ -528,6 +531,102 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
 - a knockback that avoids void in safe rooms (the prototype has no void);
 - the position sync to saves (Phase 7).
 
+### As built: Attack's drag moves (decision 35, 2026-09-28)
+
+**What it is.** Three more moves on the Attack button in the top-down room, on top of the tap and the aimed drag,
+which stay as built. Each uses rules the game already has. Numbers are in `data/movement.json` `topdown.aim`
+(built by `tools/data/stats.py`).
+
+| Move | The thumb | What it does | Rules it uses |
+|---|---|---|---|
+| **Finisher** | A drag past the finisher's line, then let go | The combo's last step at once, along the drag (it snaps as an aim does). Mid-chain it comes when the step under way ends, in place of the steps between. On the ground only: an air blow has no chain (S43) | The family's `combo` step: its multiplier, hit frame and duration |
+| **Plunge** | In the air, a drag down (toward the camera) within 35° of straight down and past 48 px, then let go | The body drops straight down at 900, with no steering. The landing strikes for 120% within 60 and stuns for 0.5 s (not bosses), with a ring, dust and a jolt | The Plunge art (the `plunge` secret art, Bone Forging 4), its 4 s cooldown, `CombatAuthority._resolve_plunge` |
+| **Guard** | Held still for 0.3 s (never leaving the 18 px dead circle) | The guard while the thumb stays down; letting go ends it and strikes nothing. With a counter-stance technique slotted and ready (`hold_stance`), the hold casts it instead | The family's `guard` cut (fists 30%) and `parry_s` window (0.15–0.25 s after the guard starts: a frontal blow in it is parried and staggers the foe); a stance's 2 s window turns a parry into a 200% counter |
+
+**Where the lines sit.**
+
+- **The finisher's line** is 120 px from the button's centre, as proposed. On the right-handed layout the button is
+  115 px from the right and bottom edges, so a 120 px line would be out of reach there. Near an edge the line is
+  pulled in so the band from it to the edge stays 48 px deep (`zone_px`): 67 px toward the right and the bottom. It
+  never comes nearer than 66 px (the 18 px dead circle + 48), so the aimed drag keeps a 48 px band too. The
+  left-handed layout mirrors it.
+- **The Plunge's sector** is 55 px wide where it starts (48 px out) and 67 px deep to the bottom edge.
+- **The guard's hold** is 0.3 s. The aim's preview still starts at 0.18 s, so a player can press, pause and still drag
+  to aim. The Dodge/Guard button's hold (0.18 s) is unchanged and stays the quicker guard for parries.
+
+**What shows.**
+
+| Move armed | On the button | On the ground |
+|---|---|---|
+| Finisher | The finisher's line round the button (faint while aiming), lit gold once the drag crosses it; "Finisher" over the button | The aim's arrow turns gold and heavier, with the step's sweep at its head |
+| Plunge | In the air, when the body can plunge, the sector under the button (faint), lit gold with a down chevron when the drag is in it; "Plunge" | The landing ring (60) on the floor straight under the body, joined to it by a dashed drop line |
+| Guard | While held still, a jade ring fills toward the guard; guarding, the button is ringed jade (gold for a stance); "Guard" or "Stance" | A half ring at the feet on the guarded side, jade (gold in a stance), heavier while the parry window is open. It also shows for a guard held on the Dodge button |
+
+- Under Reduce motion nothing pulses: the armed marks hold still.
+- The words sit in the gap between the Attack ring and ring 1, outside the HUD's clear zone.
+- The moves are live only while the button attacks: in a fight, or with nothing to talk to or gather at hand. While
+  the button offers a context at rest, or during a harvest tap or a channel, a hold lets go as a tap.
+
+**Poses.** The body sheet is still the placeholder, with no guard or plunge rows. The player draws the sheet's own
+`guard` and `plunge` rows when a sheet has them: guard 2 frames at 6 fps, held on the last; plunge 3 at 12, the last
+its impact, as §1.4's catalogue sets. Until then it falls back to fixed cells:
+
+- the guard to the idle row's first frame;
+- the drop to the jump's fall frame;
+- the impact to the jump's landing frame, held for 0.25 s.
+
+So the art that is being drawn drops in with no code change.
+
+**Where it lives.**
+
+- `AimGesture.move` reads the thumb, and `holding` says when a hold asks for the guard.
+- `hud.gd` has `armed`, `_tick_hold`, `_release_aim` and `_draw_attack_moves`.
+- `topdown_player.gd` has `finisher`, `plunge` / `plunge_ready`, `hold_guard` / `release_guard`, the plunge's impact
+  and the poses.
+- `TopdownMotor.plunge` drops the body.
+- `CombatAuthority.basic_attack(…, finisher)` and its queue (`finisher_q`).
+- `TopdownWorld` draws the ground marks and the impact.
+
+The side view is unchanged.
+
+**Measured** (`topdown_suite` prints them):
+
+| What | Number |
+|---|---|
+| The finisher's line | 120 px up and left; 67 px right and down (right-handed; mirrored left-handed) |
+| Every drag zone | at least 48 px deep in all 72 directions tested, both layouts |
+| A finisher's pace | at most 5.1% more damage a second than its whole chain (the bell; the check allows 6%). Most families are at or under the chain's |
+| Plunge | from 38–41 units up it lands in 2–3 frames (0.05 s) at 900 |
+| Guard | a blow inside the parry window is parried and staggers the foe. After the window, a landed blow costs 0.70 of an open one: fists' 30% cut, measured over eight blows each way from a boarlet of the character's level, with its crits off |
+
+**Tests.** `topdown_suite` goes from 62 to 75 checks:
+
+- the zones on both layouts; each drag's reading; the hold, a drift, a refused guard;
+- the motor's Plunge; the finisher's pace for every family;
+- through the HUD in the room:
+  - a finisher at once, and one queued mid-chain (steps 0 → 2);
+  - a Plunge that lands, strikes and stuns, with its cooldown and the fallback poses;
+  - a drag down without the art, which stays an air blow;
+  - the guard: its parry, its cut, and its end;
+  - the stance (Silkworm Riposte);
+  - the guard row when a sheet has one;
+  - left-handed, a finisher and a cancel;
+  - Reduce motion.
+
+`rules_tests` runs `run_fight` again. A merge had dropped the call, so Phase 2's fight checks had not run since.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --drag-moves`, in `docs/redesign/drag_moves/`):
+
+- `01_finisher_armed.png`;
+- `02_plunge_armed.png`;
+- `03_plunge_impact.png`;
+- `04_guard.png`.
+
+**Not built.**
+
+- The keyboard keeps J (tap) and K (hold to guard); no finisher or Plunge keys.
+- The flute's held melody (S47) is still not on the top-down Attack button; the hold guards.
+
 ### Phase 3 · The art pipeline (L)
 
 - `docs/art-contracts.md` v2 fixes the rules: the 16-px tile, the ¾ view, faces, overhangs, the character cell,
@@ -561,6 +660,67 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
 - **What waits.** The room view draws the new tops, faces, water and props. The path and shore auto-tiles, rims,
   contact shade and prop shadows wait for a loader patch after Phase 2, or for the Phase 4 move to `TileMapLayer`s.
 - **Not started:** the body in S/E/N, the weapon and hat rig, and the gallery by facing (the rest of Phase 3).
+
+### As built: Phase 3, second part · the terrain in the game, the square redesigned, the first foes (2026-09-28)
+
+Decisions 32–34: the art is approved, the mock's auto-tiles, rims and prop shadows go into the game now and the room
+is adjusted to them, and the room gets its bamboo, lotus pond and lanterns.
+
+**The terrain in the game.** `TopdownTerrain` (`scripts/topdown/topdown_terrain.gd`) holds the art bible's rules; the
+room view (`topdown_world.gd`) draws what they pick. Phase 2's combat and collision are untouched.
+
+| Rule | In the game |
+|---|---|
+| Path and paving auto-tiles | a path cell's corner is grass when grass on its own level touches it; the cell takes its corner-matched tile. Every top variant is drawn |
+| Shore | each water cell takes its side-matched case (land N, E, S, W) in the water's four frames |
+| Raised edges | rims where a neighbour drops away, contact shade at a face's foot, the cast shade of a higher west neighbour, a face's lit west end and shaded east end, the stairs' cheeks: all overlay tiles from the atlas, replacing the view's own 1 px rim |
+| Prop shadows | a sprite of each prop's shadow in the prop sheet, cut to the cells of the level the prop stands on, so each floor draws its own piece and a body in it is never tinted |
+| Plants | bamboo and willow sway, lotus bob, each at its own phase |
+
+The paint table says what each mark takes part in (`grass`, `under`, `keep_face`, `face_below`; art bible §6). The
+blob shadow is one function for the body, the foes and the review's stand-ins.
+
+**Riverside Square redesigned** (`data/topdown/td_proto_square.json`):
+
+- **The terrace.** A dirt path runs from the stairs' head east along the terrace to the edge above the storehouse (the
+  rooftop route's jump), with a branch up to a shrine at the cliff's foot: an incense burner between two stone
+  lanterns. Two rock outcrops step the cliff, with bamboo groves before them and a willow in the west.
+- **The square.** Paving leads from the house door (between two red lantern posts), the storehouse door and the
+  stairs' foot to the pier, between lawns that grass creeps over. A lotus pond with a granite curb lies in front of the
+  house, a willow over it. The low wall is now a planted bed (a level up, stone faces, flowers, a shrub).
+- **The river.** The promenade has a notch where the boat is moored. Grassy banks close both ends. Red lantern posts
+  and stone lanterns stand at the pier's head.
+- **Kept:** the storehouse and crates of the rooftop route, the house and its lane, the stairs, the pier's one-tile gap
+  and the landing stages' three-tile gap, the spawn, the foes' spawn points (one crab moved two tiles west, off the pond's
+  curb).
+- **No expected number in `topdown_suite` changed**: every Phase 1–2 check passes on the new layout as written.
+
+**The first foes** (`tools/art/topdown/creatures.py` → `art/topdown/foes.png`, art bible §8 "Foes"): the mud crab,
+reed rat and boarlet, recognisably their side-view selves. Five facings are drawn (S, SE, E, NE, N); SW, W and NW
+mirror. Each has idle 4, walk 4, wind-up 2, strike 3 (the hit on frame 1), hurt 2 and death 4. The placeholder foes and
+their sheet are gone. `FoeView` faces a foe where it walks, else where it aims, with 12° of hysteresis (the motor's
+row picking, shared), plays each action at its own rate, and holds a strike, a flinch and a death on their last frame.
+The pebble imps are not drawn: they do not appear in the prototype room.
+
+**The build and the review images.** `build_tiles.py --check` stays byte-identical over the tiles, props, foes,
+TileSet and manifest. The Python reference renderer (`compose.py`) is gone: the game draws the rules now, so the room's
+review images come from the game (`tools/dev/topdown_capture.tscn -- --phase3`), including the height-levels test on a
+review room of its own (`data/topdown/td_review_heights.json`). The files are listed in the art bible's §12.
+
+**Tests.**
+
+- `rules_tests` `topdown_suite`: 8 new checks.
+  - The terrain rules on a small room: corners from the same level only, shore cases, rims and shades, face kinds
+    over water and face ends, and shadows cut to their level.
+  - The square's routes: paved from both doors and the stairs to the pier; dirt from the stairs' head to the
+    rooftop jump and the shrine.
+  - The pond, bamboo, lotus and red lanterns; the view's shore cells and swaying plants.
+  - The foes' eight facings, the mirrored rows and the held death.
+- `data_validation` `topdown_art_suite`: prop frames and shadows lie inside their sheet, and every foe the room spawns
+  has all six actions in five facings.
+
+**Measured** (`perf_tests`): the room mounts in 104 ms and walks at 6.9 ms a frame, with 74 sorted nodes. With 22
+foes fighting, a frame takes 9.1 ms.
 
 ### Phase 4 · Room conversion by region (XL)
 
@@ -755,5 +915,6 @@ player build ships only whole acts in the new view.
 6. **Movement review (decision 29, 2026-09-27):** the dash cooldown stays; water stops a walk (walking on it is the
    Water Skimming art's); roofs are floors you stand on and jump off. Built in Phase 2.
 7. **Aiming (decision 30, 2026-09-27):** a tap soft-locks; held and dragged, Attack and techniques aim with a preview
-   of their form on the ground and snap to a foe near the line; back on the button cancels. Built in Phase 2. Still
-   open: extra actions on drag zones of the Attack button (proposal in "As built: Phase 2").
+   of their form on the ground and snap to a foe near the line; back on the button cancels. Built in Phase 2. The
+   extra actions on drag zones of the Attack button became decision 35 and are built ("As built: Attack's drag
+   moves").

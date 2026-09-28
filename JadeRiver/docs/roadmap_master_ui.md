@@ -445,8 +445,8 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     15°, and fires on release; each technique shows its form on the ground (a line for thrust, volley, wave and shots, a
     cone for sweep and arc, a circle at a point within reach for burst, rain and pillar, a circle round the caster for
     domain and ward); dragging back onto the button cancels. It works left-handed and under Reduce motion, adds no new
-    button and draws nothing in the HUD's clear zone. **Still open:** extra actions on drag zones of the Attack button;
-    the proposal is in the plan's "As built: Phase 2" and waits for the user.
+    button and draws nothing in the HUD's clear zone. The extra actions on drag zones of the Attack button were decided
+    as 35.
 31. **Top-down art style:** the map, terrain and world are drawn in a style close to Alabaster Dawn's (bright, detailed ¾
     top-down pixel art with clear height levels, soft shading and lush tiles), but the theme stays xianxia: Jade River's
     own places, palette and motifs (river towns, terraces, pagodas, lotus, mist, jade). Inspiration only: original art, no
@@ -455,10 +455,24 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     real character sprites redrawn for the top-down view (every body, hair, clothing and weapon layer, per `AGENTS.md`),
     not placeholders.
 33. **Auto-tiled paths and shores, rims and prop shadows go into the game now**, and the rooms are adjusted to them.
-34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished.
+    Built for Riverside Square (the plan's "As built: Phase 3, second part").
+34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished. Built for Riverside
+    Square, with the bamboo and willow swaying and the lotus bobbing.
 35. **Attack-button drag moves** (as proposed in Phase 2): a long drag = the combo's finisher; a drag down in the air =
-    Plunge; a hold without a drag = guard / the stance technique.
+    Plunge; a hold without a drag = guard / the stance technique. Built (2026-09-28, the plan's "As built: Attack's drag
+    moves"):
+    - the finisher's line is 120 px, pulled in near the screen's edges so every zone stays 48 px deep;
+    - the Plunge is the existing art (its unlock, cooldown and strike);
+    - the hold is 0.3 s: the family's guard and parry window, or a slotted counter-stance;
+    - each move shows on the button and on the ground, left-handed and under Reduce motion;
+    - the guard and plunge poses fall back to the stand-in cells until the sheet has them.
 36. **The full game logic runs in the top-down prototype first** (NPCs, talk, quests, shops, pickups, gathering, doors,
     saves, the real character), and a study decides which systems live on the map as places rather than in the menu.
-    The Beasts page review waits for that.
+    The Beasts page review waits for that. The study is `docs/redesign/systems_as_places.md` (2026-09-28), a proposal:
+    - most systems get a place and keep their menu entry;
+    - Storage, the Garden's tending and the Crafts queue earn remote access;
+    - the self and the events stay in the menu;
+    - the home is Lotus Ferry, then the Cave Abode;
+    - eight places for the prototype room;
+    - the Spirit Animals page stays as built, with a stable yard at home.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

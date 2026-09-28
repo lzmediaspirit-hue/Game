@@ -12,7 +12,8 @@
  ],
  "legend": {
   "levels": "0-9 height level (1 level = 1 tile = 32 units), ~ water (level -1)",
-  "paint": "g grass, f grass with flowers, d dirt path, p paving, s stone top, w wood deck, r rock, ~ water",
+  "paint": "g grass, f grass with flowers, b a planted bed (flowers on a stone planter), d dirt path, p paving, s stone top, w wood deck, r rock, ~ water",
+  "layout": "Phase 3 (decisions 33-34): the terrace's dirt path runs from the stairs east to the storehouse roof (the rooftop route) with a branch up to the shrine at the cliff's foot; on the square the paving leads to the house door, the storehouse door, the stairs and the pier between lawns, a lotus pond in front of the house, a planted bed (the low wall) and a boat's notch in the promenade; grassy banks at both ends of the river",
   "props": "a prop with a top in the tile set (house, storehouse, crates) is a floor that many levels up: stand on it, jump off it",
   "spawns": "foes by enemy id, their points in tiles (cell centres); the rest as a side-view room spawn",
   "loadout": "techniques the prototype puts in the stand-in character's empty slots, one per aim form (cone, line, point, a shot)"
@@ -21,8 +22,8 @@
   "333333333333333333333333333333333333333333333333",
   "333333333333333333333333333333333333333333333333",
   "333333333333333333333333333333333333333333333333",
-  "111111111111111111111111111111111111111111111111",
-  "111111111111111111111111111111111111111111111111",
+  "333331111111111111111111111111111111111111333333",
+  "333331111111111111111111111111111111111111111111",
   "111111111111111111111111111111111111111111111111",
   "111111111111111111111111111111111111111111111111",
   "111111111111111111111111111111111111111111111111",
@@ -35,13 +36,13 @@
   "000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000",
   "000000000000000000000000000011111000000000000000",
-  "000000000000000000000000000011111000000000000000",
+  "0000000000~~~~0000000000000011111000000000000000",
+  "0000000000~~~~0000000000000000000000000000000000",
+  "0000000000~~~~0000000000000000000000000000000000",
+  "0000000000~~~~0000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000",
-  "~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "00000000000000000000000000000~~~~000000000000000",
+  "0000~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~00000",
   "~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~000~~~000~~~~~~~~~~~~~~~~~~~~~",
@@ -53,27 +54,27 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "gggggfgggggggdddddgggggggggfggggggggggfggggggggg",
-  "gggfgggggggggdddddgggggggfggggggggggfggggggggggf",
-  "gfggggggggggfdddddgggggfggggggggggfggggggggggfgg",
-  "ggggggggggfggdddddgggfggggggggggfggggggggggfgggg",
-  "ggggggggfggggdddddgfggggggggggfggggggggggfgggggg",
-  "ggggggfggggggdddddggggggggggfggggggggggfgggggggg",
-  "ggggfggggggggdddddggggggggfggggggggggfgggggggggg",
-  "ggfggggggggggdddddggggggfggggggggggfggggggggggfg",
-  "fggggggggggfgdddddggggfggggggggggfggggggggggfggg",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "ppppppppppppppppppppppppppppsssssppppppppppppppp",
-  "ppppppppppppppppppppppppppppsssssppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "pppppppppppppppppppppppppppppppppppppppppppppppp",
-  "ssssssssssssssssssssssssssssssssssssssssssssssss",
-  "~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "rrrrrggggfggggggggggggdddggggggggggfggggggrrrrrr",
+  "rrrrrgggggggfgggggggggdddfggggggggggggfggggggggg",
+  "ggfggggggggggggfggggggdddgggfggggggggggggfgggggg",
+  "gggggfggggggggdddddddddddddddddddddddgggggggfggg",
+  "ggggggggfgggggdddddddddddddddddddddddggggggggggf",
+  "gggggggggggfggdddddddddddddddddddddddfgggggggggg",
+  "gfggggggggggggdddggggggggggfggggggdddgggfggggggg",
+  "ggggfgggggggggdddfggggggggggggfgggdddggggggfgggg",
+  "gggggggfggggggdddgggfggggggggggggfdddgggggggggfg",
+  "ggggggggggfggpppppppppgfggggggggggppppppgggggggg",
+  "fggggggggggggpppppppppggggfgggggggppppppgggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppgfggggg",
+  "gggpppppppppppppppppppppppggggggfgpppppppggggfgg",
+  "gggppppppsssssspppppppppppggbbbbbgpppppppggggggg",
+  "gggpppppps~~~~spppppppppppggbbbbbgpppppppggggggg",
+  "ggfpppppps~~~~spppppppppppggfgggggpppppppfgggggg",
+  "gggpppppps~~~~sppppppppppppppppppppppppppppppppp",
+  "gggpppppps~~~~sppppppppppppppppppppppppppppppppp",
+  "gggppppppssssssppppppppppppppppppppppppppppppppp",
+  "gfggggsssssssssssssssssssssss~~~~ssssssssggggggg",
+  "gggg~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~fgggg",
   "~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~www~~~www~~~~~~~~~~~~~~~~~~~~~",
@@ -98,29 +99,59 @@
    "y": 15
   },
   {
-   "kind": "barrel",
-   "x": 10,
-   "y": 17
+   "kind": "lantern_red",
+   "x": 4,
+   "y": 18
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 18
   },
   {
    "kind": "barrel",
-   "x": 10,
+   "x": 2,
    "y": 16
   },
   {
+   "kind": "barrel",
+   "x": 2,
+   "y": 17
+  },
+  {
+   "kind": "bamboo",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "bamboo",
+   "x": 1,
+   "y": 21
+  },
+  {
    "kind": "willow",
-   "x": 7,
-   "y": 6
+   "x": 14,
+   "y": 17
   },
   {
-   "kind": "lantern",
-   "x": 12,
-   "y": 10
+   "kind": "lotus",
+   "x": 10,
+   "y": 18
   },
   {
-   "kind": "lantern",
-   "x": 18,
-   "y": 10
+   "kind": "lotus",
+   "x": 11,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 13,
+   "y": 19
+  },
+  {
+   "kind": "shrub",
+   "x": 9,
+   "y": 15
   },
   {
    "kind": "notice",
@@ -128,54 +159,184 @@
    "y": 13
   },
   {
-   "kind": "crates",
-   "x": 38,
-   "y": 14
-  },
-  {
    "kind": "lantern",
-   "x": 35,
-   "y": 21
-  },
-  {
-   "kind": "barrel",
-   "x": 44,
-   "y": 20
+   "x": 13,
+   "y": 10
   },
   {
    "kind": "lantern",
    "x": 17,
-   "y": 22
+   "y": 10
+  },
+  {
+   "kind": "willow",
+   "x": 8,
+   "y": 6
+  },
+  {
+   "kind": "bamboo",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "bamboo",
+   "x": 3,
+   "y": 7
+  },
+  {
+   "kind": "bamboo",
+   "x": 0,
+   "y": 8
+  },
+  {
+   "kind": "shrub",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "incense",
+   "x": 23,
+   "y": 3
   },
   {
    "kind": "lantern",
-   "x": 23,
-   "y": 22
+   "x": 21,
+   "y": 3
   },
   {
-   "kind": "reeds",
-   "x": 5,
-   "y": 23
+   "kind": "lantern",
+   "x": 25,
+   "y": 3
   },
   {
-   "kind": "reeds",
-   "x": 12,
-   "y": 23
+   "kind": "shrub",
+   "x": 29,
+   "y": 4
   },
   {
-   "kind": "reeds",
-   "x": 30,
-   "y": 23
+   "kind": "shrub",
+   "x": 39,
+   "y": 10
   },
   {
-   "kind": "boat",
-   "x": 34,
-   "y": 25
+   "kind": "bamboo",
+   "x": 44,
+   "y": 5
+  },
+  {
+   "kind": "bamboo",
+   "x": 46,
+   "y": 6
+  },
+  {
+   "kind": "bamboo",
+   "x": 43,
+   "y": 7
   },
   {
    "kind": "storehouse",
    "x": 34,
    "y": 12
+  },
+  {
+   "kind": "crates",
+   "x": 38,
+   "y": 14
+  },
+  {
+   "kind": "barrel",
+   "x": 40,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 31,
+   "y": 16
+  },
+  {
+   "kind": "shrub",
+   "x": 26,
+   "y": 15
+  },
+  {
+   "kind": "shrub",
+   "x": 42,
+   "y": 15
+  },
+  {
+   "kind": "lantern_red",
+   "x": 17,
+   "y": 21
+  },
+  {
+   "kind": "lantern_red",
+   "x": 21,
+   "y": 21
+  },
+  {
+   "kind": "lantern",
+   "x": 16,
+   "y": 22
+  },
+  {
+   "kind": "lantern",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "lantern",
+   "x": 38,
+   "y": 21
+  },
+  {
+   "kind": "boat",
+   "x": 29,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 4,
+   "y": 23
+  },
+  {
+   "kind": "reeds",
+   "x": 5,
+   "y": 24
+  },
+  {
+   "kind": "reeds",
+   "x": 42,
+   "y": 23
+  },
+  {
+   "kind": "reeds",
+   "x": 13,
+   "y": 23
+  },
+  {
+   "kind": "lotus",
+   "x": 8,
+   "y": 26
+  },
+  {
+   "kind": "lotus",
+   "x": 13,
+   "y": 28
+  },
+  {
+   "kind": "lotus",
+   "x": 29,
+   "y": 27
+  },
+  {
+   "kind": "lotus",
+   "x": 36,
+   "y": 25
+  },
+  {
+   "kind": "lotus",
+   "x": 42,
+   "y": 28
   }
  ],
  "type": "field",
@@ -185,7 +346,7 @@
    "enemy": "mudshell_crab",
    "points": [
     [
-     8,
+     6,
      20
     ],
     [
@@ -206,7 +367,7 @@
      7
     ],
     [
-     37,
+     38,
      6
     ]
    ]
