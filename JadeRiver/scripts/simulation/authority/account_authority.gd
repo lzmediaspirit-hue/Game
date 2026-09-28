@@ -92,9 +92,10 @@ func create_character(intent: Dictionary) -> Dictionary:
 	c.skip_prologue = skip
 	var start: Dictionary = ContentDB.config("account_rules").get("skip_start" if skip else "new_start", {})
 	c.position = {"room": str(start.get("room", "lf_fishers_hut")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
-	# Redesign Phase 4: a new game in the top-down world (the Settings toggle, or asked for) starts at its first room's
-	# own spawn on the grid, its later spots saved in that view.
-	if str(intent.get("view", "topdown" if game.account.settings.get("topdown_world", false) else "")) == "topdown":
+	# Redesign Phase 4: a new game in the top-down world starts at its first room's own spawn on the grid, its later
+	# spots saved in that view. Decision 41: the creator asks for it (new_game_view) unless Settings keeps the classic
+	# side view; an intent that names no view (the test walks, the debug characters) makes a side-view one.
+	if str(intent.get("view", "")) == "topdown":
 		c.view = "topdown"
 		c.position.x = 0.0
 		c.position.y = 0.0
@@ -107,6 +108,11 @@ func create_character(intent: Dictionary) -> Dictionary:
 	if skip: _apply_skip_prologue(c, start)
 	game.save_all()
 	return ok({"actor": c.id})
+
+## Decision 41: the view a new game is made in, as the character creator asks for it. The top-down world is the game;
+## Settings → Controls → "Classic side view (new games)" (off by default) keeps the side view as the fallback.
+static func new_game_view(settings: Dictionary) -> String:
+	return "" if bool(settings.get("classic_side_view", false)) else "topdown"
 
 func _apply_skip_prologue(c, start: Dictionary) -> void:
 	# Later characters may skip the Prologue: Bone Forging 2 in Stoneford (S23).

@@ -8,7 +8,7 @@ var TOGGLES := [["left_handed", Tx.t("ui.settings.left_handed_controls")], ["scr
 # moves or shakes, fewer particles, cards that fade instead of sliding), off by default.
 var ACCESS := [["flashes", Tx.t("ui.settings.bright_flashes")], ["haptics", Tx.t("ui.settings.vibration")], ["captions", Tx.t("ui.settings.sound_captions")],
 	["reduce_motion", Tx.t("ui.settings.reduce_motion")]]
-const DEFAULT_OFF := ["left_handed", "captions", "reduce_motion", "topdown_world"]
+const DEFAULT_OFF := ["left_handed", "captions", "reduce_motion", "classic_side_view"]
 var exports: Array = []
 
 func _init() -> void:
@@ -42,9 +42,10 @@ func draw_page() -> void:
 			for tg in TOGGLES.slice(0, 3):
 				_toggle(Vector2(x, y), tg[0], tg[1])
 				y += 60
-			# Redesign Phase 4: the top-down world for the next new character (WorldAuthority.grid_for).
-			_toggle(Vector2(x, y), "topdown_world", Tx.t("ui.settings.topdown_world"))
-			para(Rect2(x + 500, y, 520, 60), Tx.t("ui.settings.topdown_world_note"), 16, UiKit.MIST, 2)
+			# Decision 41: new games start in the top-down world; the classic side view is the fallback for the next new
+			# character (AccountAuthority.new_game_view).
+			_toggle(Vector2(x, y), "classic_side_view", Tx.t("ui.settings.classic_side_view"))
+			para(Rect2(x + 500, y, 520, 60), Tx.t("ui.settings.classic_side_view_note"), 16, UiKit.MIST, 2)
 			y += 60
 			para(Rect2(x, y + 20, 900, 120), Tx.t("ui.settings.keyboard_arrows_wasd_move_space"), 18, UiKit.MIST)
 		"access":

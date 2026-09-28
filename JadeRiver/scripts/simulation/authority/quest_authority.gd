@@ -123,11 +123,32 @@ func objective_places(c, o: Dictionary) -> Array:
 		"win_spar":
 			if not o.has("opponent"): return WorldRules.rooms_with("type=spar_post")
 			return npc_rooms(c, str(o.opponent)) + WorldRules.rooms_with("opponent=" + str(o.opponent))
-		"collect", "gather_node": return WorldRules.rooms_with("item=" + str(o.item)) + WorldRules.rooms_with("drop=" + str(o.item))
+		"collect", "gather_node": return _item_places(c, str(o.item), str(o.kind) == "collect") + WorldRules.rooms_with("drop=" + str(o.item))
 		"catch_fish": return WorldRules.rooms_with("type=fishing_spot")
 		# One object by its id (Race to the Tower's bell), or any of a type.
 		"hit_object", "interact_object": return WorldRules.rooms_with("id=" + str(o.object) if o.has("object") else "type=" + str(o.get("type", "")))
 	return []
+
+## Where an item a step asks for can be taken by this character now: the rooms whose nodes or pickups of it it may
+## take (a herb patch waits on herb gathering, Bone Forging 4). With none, for a collect step, the rooms whose foes
+## drop it (Mei Qing's willow moss from the Marsh Edge's reed frogs, before the herbs open): the tracker never sends
+## the player to herbs they cannot pick. Kept per item while the character's unlocks and realm stand.
+var _places_cache := {}
+func _item_places(c, item: String, foes: bool) -> Array:
+	var key := "%s|%s|%d|%d|%s|%s" % [c.id if c else "", item, c.cultivator.unlocked.size() if c else 0, c.quests.flags.size() if c else 0,
+		c.cultivator.realm_key if c else "", str(foes)]
+	if _places_cache.has(key): return _places_cache[key]
+	var ctx: Dictionary = game.ctx(c) if c != null else {}
+	var out: Array = WorldRules.rooms_with("item=" + item).filter(func(rid): return ContentDB.room(str(rid)).get("objects", []).any(func(ob):
+		return str(ob.get("item", "")) == item and (c == null or (game.world.object_visible(c, ob) and (not ob.has("requires") or RequirementRules.passes(ob.requires, ctx))))))
+	if out.is_empty() and foes:
+		for rid in ContentDB.rooms:
+			for sp in ContentDB.room(str(rid)).get("spawns", []):
+				var e := ContentDB.entry("enemies", str(sp.get("enemy", "")))
+				if not out.has(str(rid)) and LootRules.drops_item(str(e.get("loot", e.get("id", ""))), item): out.append(str(rid))
+	if _places_cache.size() > 64: _places_cache.clear()
+	_places_cache[key] = out
+	return out
 
 var _hops_cache: Dictionary = {}
 
@@ -240,19 +261,21 @@ func step_now(c, def: Dictionary, st: Dictionary) -> int:
 var _hunt_cache := {}
 func hunt_rooms(c) -> Array:
 	var lv := ProgressionRules.level(c)
-	if _hunt_cache.has(lv): return _hunt_cache[lv]
+	# Decision 41: a top-down character hunts only on the grid (the rooms past the prototype's gate are closed to it).
+	var key = lv if not (c != null and str(c.view) == "topdown") else "td%d" % lv
+	if _hunt_cache.has(key): return _hunt_cache[key]
 	var fit: Array = []
 	var outgrown: Array = []
 	for rid in ContentDB.rooms:
 		var room: Dictionary = ContentDB.room(rid)
 		var lr: Array = room.get("level_range", [0, 0])
-		if str(room.get("type", "")) != "field" or lr.size() < 2 or lv < int(lr[0]): continue
+		if str(room.get("type", "")) != "field" or lr.size() < 2 or lv < int(lr[0]) or past_gate(c, str(rid)): continue
 		(fit if lv <= int(lr[1]) else outgrown).append([str(rid), int(lr[0]), int(lr[1])])
 	var toughest := func(a, b): return int(a[2]) > int(b[2]) or (int(a[2]) == int(b[2]) and str(a[0]) < str(b[0]))
 	fit.sort_custom(toughest)
 	outgrown.sort_custom(toughest)
-	_hunt_cache[lv] = fit if not fit.is_empty() else outgrown.slice(0, 2)
-	return _hunt_cache[lv]
+	_hunt_cache[key] = fit if not fit.is_empty() else outgrown.slice(0, 2)
+	return _hunt_cache[key]
 
 func quest_def(c, id: String) -> Dictionary:
 	var d := ContentDB.entry("quests", id)
@@ -793,9 +816,33 @@ func tracker(c) -> Array:
 			lines = [{"text": Tx.t("sim.quest.return_to") % npc_name, "have": 0, "need": 1, "done": false}]
 		var at := step_now(c, def, st) if st.state != "ready" else -1
 		# S49 auto-path: where the quest leads now (its current objective's room, the hand-in NPC's once it is ready).
+		var goal := quest_target(c, def, st)
+		var gate := past_gate(c, goal)
+		# Decision 41: a quest whose step lies past the prototype's gate keeps its steps and leads nowhere, saying so.
+		if gate: lines.append({"text": Tx.t("sim.world.road_being_drawn"), "have": 0, "need": 1, "done": false})
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
-			"target_room": quest_target(c, def, st), "hunt": at >= 0 and str(def.objectives[at].get("kind", "")) == "reach_realm"})
+			"target_room": "" if gate else goal, "hunt": at >= 0 and str(def.objectives[at].get("kind", "")) == "reach_realm", "gate": gate})
 	return out
+
+## Decision 41, the end of the prototype: a room with no top-down layout yet is past the gate for a top-down
+## character (WorldAuthority.prototype_gate closes every way into one), and never where its tracker leads.
+static func past_gate(c, room_id: String) -> bool:
+	return c != null and str(c.view) == "topdown" and room_id != "" and not TopdownRoom.has_layout(room_id)
+
+## A quest of the story that is played past the gate: its own room, or every room its giver stands in, is.
+func beyond_prototype(c, d: Dictionary) -> bool:
+	if c == null or str(c.view) != "topdown" or d.is_empty(): return false
+	if past_gate(c, sect_room(c, d)): return true
+	var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
+	var rooms: Array = npc_rooms(c, giver) if giver != "" else []
+	return not rooms.is_empty() and rooms.all(func(r): return past_gate(c, str(r)))
+
+## The tracker's entry at the end of the prototype, in place of a Next entry that would lead past the gate: the tale
+## rests here, the road beyond is still being drawn, and the prototype ends here. It leads nowhere (no mark, no Go).
+func prototype_end() -> Dictionary:
+	return {"quest": "", "name": Tx.t("sim.quest.tale_rests"), "kind": "next", "ready": false, "hunt": false, "gate": true, "target_room": "",
+		"lines": [{"text": Tx.t("sim.world.road_being_drawn"), "have": 0, "need": 1, "done": false},
+			{"text": Tx.t("sim.quest.tale_rests_end"), "have": 0, "need": 1, "done": false}]}
 
 ## The kinds of quest the story is told in, and the tracker's "next" entry that stands for its next quest: the direction
 ## mark, the tracker and the map lead with them (P1: the main story first).
@@ -858,15 +905,20 @@ func _story_next(c) -> Dictionary:
 		var s := _story_step(c, d, 0)
 		if s.get("active", false): return {}
 		if not s.is_empty() and (best.is_empty() or [int(s.rank), int(s.get("realm_at", 0))] < [int(best.rank), int(best.get("realm_at", 0))]): best = s
+	# Decision 41: the story's next step is played past the prototype's gate. A lesson on offer inside the prototype still
+	# comes first; with none, the prototype's tale rests here.
+	var gated := not best.is_empty() and beyond_prototype(c, ContentDB.entry("quests", str(best.quest)))
 	# With no quest of the story to take now, the lesson its realm opens comes before the Level the story waits on next
 	# (at Bone Forging 3 the Weapon Hall, not the hunt for Bone Forging 4): under way, it leads the tracker itself; on
-	# offer, it is the next step, from its giver.
-	if best.is_empty() or int(best.rank) > 0:
+	# offer, it is the next step, from its giver (never one past the gate).
+	if best.is_empty() or int(best.rank) > 0 or gated:
 		if lesson: return {}
 		for d in story_waiting(c, ["guided"]):
-			if c.quests.offered.has(str(d.id)):
+			if c.quests.offered.has(str(d.id)) and not beyond_prototype(c, d):
 				best = {"quest": str(d.id), "rank": 0}
+				gated = false
 				break
+	if gated: return prototype_end()
 	if best.is_empty(): return {}
 	var d := ContentDB.entry("quests", str(best.quest))
 	var line := ""
@@ -884,6 +936,7 @@ func _story_next(c) -> Dictionary:
 		room = objective_room(c, d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
 		line = str(best.get("text", ""))
 		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
+	if past_gate(c, room): return prototype_end()
 	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
 		"hunt": best.has("realm"), "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
 

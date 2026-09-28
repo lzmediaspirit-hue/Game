@@ -225,6 +225,11 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		var mark := WayMark.new(p)
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
+		# Decision 41: a way past the prototype's gate is closed by a barrier standing in it (TopdownGate).
+		if Game.active() != null and Game.world.prototype_gate(Game.active(), str(def.get("id", Game.room_rt.room_id if Game.room_rt else "")), str(p.get("to", ""))):
+			for g in TopdownGate.make(room, p):
+				sorted.add_child(g)
+				out.nodes.append(g)
 	return out
 
 ## One person: their label view on the overlay and their figure sorted with the room, following it: [NpcView, Figure]

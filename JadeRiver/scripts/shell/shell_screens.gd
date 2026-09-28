@@ -282,6 +282,8 @@ class CreatorScreen extends Page:
 					flash(Tx.t("shell.please_enter_a_name"))
 					name_field.grab_focus()
 					return
+				# Decision 41: a new game is made in the top-down world, unless Settings keeps the classic side view.
 				var r := submit({"type": "create_character", "slot": slot, "name": nm, "origin": origin, "skip_prologue": skip_prologue,
-					"appearance": {"hair": draft.hair, "hair_color": draft.hair_color, "shirt": draft.shirt, "pants": draft.pants, "shoes": draft.shoes}})
+					"appearance": {"hair": draft.hair, "hair_color": draft.hair_color, "shirt": draft.shirt, "pants": draft.pants, "shoes": draft.shoes},
+					"view": AccountAuthority.new_game_view(Game.account.settings)})
 				if r.get("ok", false): created.emit(slot)
