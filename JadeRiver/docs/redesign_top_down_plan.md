@@ -844,8 +844,9 @@ the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
   character walks on into them and the view changes.
 - **Hazards and weather** draw on the overlay, over the figures.
 - **A foe's respawn** out of view still measures only across (x).
-- **Room decor** (decision 34) and the auto-tiled paths and shores (decision 33) are other branches' work. The
-  layouts' paint is ready for them.
+- **Terrain and decor.** The rooms draw by Phase 3's terrain rules (`TopdownTerrain`, rebuilt for each room entered):
+  auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
+  and a room-by-room decor pass (decision 34) is still to come.
 
 ### Phase 5 · The animation layers (XL)
 

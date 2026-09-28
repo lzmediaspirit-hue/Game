@@ -1,7 +1,8 @@
 extends Node
 ## Screenshots and frame strips of the top-down prototype room (redesign Phase 1) for docs/redesign/phase1/: the square
 ## under the HUD, walking behind the house, jumping the pier's gap and the long jump, and standing on the low wall with
-## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves.
+## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
+## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/).
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -328,14 +329,19 @@ const PHASE4 := [["01_fishers_hut", "lf_fishers_hut", Vector2(8, 7)], ["02_villa
 func phase4() -> void:
 	var out := "res://docs/redesign/phase4/"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	# The pages' scripts compile on loading threads from the title screen on (main._warm_pages), where a player spends
+	# those seconds; a villager's outfit sheets queue behind them, so the capture waits for them as the title would.
+	for i in 3600:
+		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
+		await get_tree().process_frame
 	main.enter_topdown_tutorial(false)
 	var c = Game.active()
 	# The Prologue as a new character plays it: waking in the hut, then out through its door (Morning Tide's step),
 	# the village's three parts, and Lu's talk with A Quiet River to hand in, on the real dialogue page over the grid.
-	await at_spot(Vector2(8, 7), 150)
+	await at_spot(Vector2(8, 7), 120)
 	await shot("01_fishers_hut", out)
 	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
-	await frames(20)
+	await frames(120)   # the villagers' outfit sheets load on threads (they appear a moment after the room)
 	for s in [["02_village_home_lane", Vector2(12, 18)], ["03_village_square", Vector2(33, 21)], ["04_village_docks", Vector2(58, 26)]]:
 		await at_spot(s[1], 60)
 		await shot(str(s[0]), out)
