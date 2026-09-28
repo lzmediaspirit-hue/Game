@@ -1,0 +1,246 @@
+{
+ "schema_version": 1,
+ "id": "wp_east",
+ "name": "Willow Path East",
+ "size": [
+  64,
+  26
+ ],
+ "spawn": [
+  60,
+  13
+ ],
+ "levels": [
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000001111111100000000000000000000000000000",
+  "0000000000000000000000000001111111100000000000000000000000000000",
+  "0000000000000000000000000001111111100000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "ggggggggsssgggggggggggggggggggggggggggggggggsssggggggggggggggggg",
+  "ggggggggsssgggggggggggggggggggggggggggggggggsssggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggssgggggggggggggggggggggggggggggggg",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 44,
+   "y": 7,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 8,
+   "y": 7,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 30,
+   "y": 11,
+   "w": 2,
+   "h": 1,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "willow",
+   "x": 5,
+   "y": 3
+  },
+  {
+   "kind": "willow",
+   "x": 16,
+   "y": 3
+  },
+  {
+   "kind": "willow",
+   "x": 38,
+   "y": 3
+  },
+  {
+   "kind": "willow",
+   "x": 54,
+   "y": 3
+  },
+  {
+   "kind": "shrub",
+   "x": 22,
+   "y": 4
+  },
+  {
+   "kind": "shrub",
+   "x": 60,
+   "y": 4
+  },
+  {
+   "kind": "reeds",
+   "x": 4,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 12,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 25,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 36,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 47,
+   "y": 20
+  },
+  {
+   "kind": "reeds",
+   "x": 58,
+   "y": 20
+  },
+  {
+   "kind": "incense",
+   "x": 50,
+   "y": 10
+  }
+ ],
+ "place": {
+  "npc_old_pan_wp": [
+   31,
+   9
+  ],
+  "pan_spot": [
+   34,
+   13
+  ],
+  "herb_1": [
+   33,
+   16
+  ],
+  "jar_2": [
+   48,
+   4
+  ],
+  "crate_3": [
+   33,
+   18
+  ],
+  "jar_4": [
+   52,
+   17
+  ],
+  "sign_wp": [
+   60,
+   11
+  ],
+  "note_lu": [
+   57,
+   11
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    63,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    13
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    10,
+    15
+   ],
+   [
+    20,
+    16
+   ],
+   [
+    26,
+    17
+   ],
+   [
+    44,
+    15
+   ],
+   [
+    51,
+    16
+   ]
+  ]
+ ]
+}

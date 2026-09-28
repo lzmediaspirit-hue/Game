@@ -891,6 +891,23 @@ func _figure(base: Vector2) -> void:
 		and int(seen.blow[2]) == hit and seen.technique == "cast" and seen.back_step == "dodge" and seen.wounded == ["knockdown", 4]
 		and seen.jump[0] == "jump" and int(seen.jump[1]) <= 1 and drawn and mirrored,
 		"topdown figure: each state plays its drawn action and every facing draws, the west mirrored (%s, rows drawn %s, mirrored %s)" % [str(seen), str(drawn), str(mirrored)])
+	# A villager in the same style (TopdownPlaces.Person): the NPC's own outfit, its rest row, turning in the eight rows,
+	# walking, and a meditating one facing the camera from every row.
+	var v: TopdownPlaces.Figure = w.add_villager("aunt_ping", base + Vector2(60, 0), "se")
+	var person: TopdownPlaces.Person = v.art
+	var rest := [person.row, person.action, person.figure.missing.is_empty(), person.figure.outfit.get("shirt", "")]
+	person.look(Vector2(-1, -1))
+	var turned := person.row
+	person.play("walk")
+	person._process(0.3)
+	var walking := [person.action, TopdownFigure.frame_at(person.action, person.t)]
+	var sitter := TopdownPlaces.Person.new({"npc": "aunt_ping", "pose": "meditate", "row": "ne"})
+	var faces := TopdownFigure.frame_of(sitter.action, sitter.row, 0) == TopdownFigure.frame_of("meditate", "s", 0)
+	sitter.free()
+	v.queue_free()
+	t.check(rest[0] == "se" and rest[1] == "idle" and rest[2] and str(rest[3]) == str(ContentDB.entry("npcs", "aunt_ping").outfit.get("shirt", ""))
+		and turned == "nw" and walking[0] == "walk" and int(walking[1]) > 0 and faces,
+		"topdown villager: drawn by the figure in their own outfit, at rest in their row, turning in eight rows, walking, a meditation facing the camera (%s, %s, %s, %s)" % [str(rest), turned, str(walking), str(faces)])
 
 ## Foes chase on the grid, give up past the leash, wait beneath a roof they cannot reach, and a jumper hops a level.
 func _chase_and_leash(base: Vector2) -> void:

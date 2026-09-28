@@ -1,0 +1,300 @@
+{
+ "schema_version": 1,
+ "id": "lf_reed_shallows",
+ "name": "Reed Shallows",
+ "size": [
+  64,
+  30
+ ],
+ "spawn": [
+  3,
+  14
+ ],
+ "levels": [
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggsssgggggggggggggggggggggggggggsssggggggggggg",
+  "ggggggggggggggggggggsssgggggggggggggggggggggggggggsssggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggddddddddgggggggggggggggg",
+  "ggggggggggggggggggggggggggwwwgggggggggggddddddddgggggggggggggggg",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 20,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 50,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "reeds",
+   "x": 3,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 9,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 15,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 33,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 37,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 45,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 52,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 58,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 30,
+   "y": 21
+  },
+  {
+   "kind": "willow",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "willow",
+   "x": 48,
+   "y": 5
+  },
+  {
+   "kind": "shrub",
+   "x": 30,
+   "y": 6
+  },
+  {
+   "kind": "shrub",
+   "x": 60,
+   "y": 6
+  },
+  {
+   "kind": "lotus",
+   "x": 34,
+   "y": 25
+  },
+  {
+   "kind": "lotus",
+   "x": 54,
+   "y": 26
+  }
+ ],
+ "place": {
+  "jar_1": [
+   40,
+   6
+  ],
+  "jar_2": [
+   47,
+   7
+  ],
+  "jar_3": [
+   39,
+   11
+  ],
+  "jar_4": [
+   58,
+   16
+  ],
+  "jar_5": [
+   61,
+   20
+  ],
+  "herb_6": [
+   17,
+   11
+  ],
+  "herb_7": [
+   44,
+   12
+  ],
+  "herb_8": [
+   55,
+   17
+  ],
+  "fish_9": [
+   27,
+   24
+  ],
+  "rift_tear": [
+   35,
+   18
+  ],
+  "swarm_glowfly": [
+   41,
+   19
+  ],
+  "trail_jade_frog": [
+   11,
+   19
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    13,
+    17
+   ],
+   [
+    22,
+    20
+   ],
+   [
+    30,
+    18
+   ],
+   [
+    36,
+    20
+   ],
+   [
+    42,
+    16
+   ],
+   [
+    48,
+    20
+   ]
+  ],
+  [
+   [
+    27,
+    11
+   ],
+   [
+    33,
+    12
+   ],
+   [
+    38,
+    13
+   ],
+   [
+    43,
+    10
+   ]
+  ],
+  [
+   [
+    55,
+    20
+   ]
+  ]
+ ]
+}

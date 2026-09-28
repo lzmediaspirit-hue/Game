@@ -29,6 +29,9 @@ var label_box := Rect2()
 var label_offset := Vector2.ZERO
 var tag: Node2D   # the arrow and the plate, above every figure (WorldLabels.LABEL_Z)
 var shows := ""   # what shows the way (entrance)
+## The top-down view (redesign Phase 4) draws the way itself in its pixel viewport (a building's doorway, the gap in an
+## interior's wall, the marks of an edge); this view then draws only the arrow and the plate, on its overlay.
+var label_only := false
 
 func setup(p: Dictionary, room_def: Dictionary = {}) -> void:
 	def = p
@@ -103,6 +106,7 @@ func _process(delta: float) -> void:
 	tag.queue_redraw()
 
 func _draw() -> void:
+	if label_only: return
 	var type := str(def.get("type", "edge"))
 	var art := art_for(def, state.open, shows)
 	var bob := 0.5 + 0.5 * sin(t * 4.0)

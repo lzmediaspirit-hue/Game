@@ -3,7 +3,7 @@ param([string]$GodotPath = 'godot', [switch]$Long)
 # Act I playthrough (tests/valley_run), which takes several minutes.
 $ErrorActionPreference = 'Stop'
 & (Join-Path $PSScriptRoot 'Validate-Animations.ps1')
-$suites = @('engine_tests', 'data_validation', 'room_sweep', 'visibility_suite', 'rules_tests', 'contract_tests', 'balance_sim', 'perf_tests', 'prologue_run', 'tutorial_order', 'valley_run')
+$suites = @('engine_tests', 'data_validation', 'room_sweep', 'visibility_suite', 'rules_tests', 'contract_tests', 'balance_sim', 'perf_tests', 'prologue_run', 'tutorial_order', 'topdown_tutorial', 'valley_run')
 
 $failed = @()
 foreach ($s in $suites) {

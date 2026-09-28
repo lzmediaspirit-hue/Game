@@ -1,0 +1,477 @@
+{
+ "schema_version": 1,
+ "id": "lf_village",
+ "name": "Lotus Ferry Village",
+ "size": [
+  72,
+  40
+ ],
+ "spawn": [
+  8,
+  17
+ ],
+ "levels": [
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111000111111111111111111000111111111111111111111111111111111111",
+  "111111111111000111111111111111111000111111111111111111111111111111111111",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000333300",
+  "000000000000000000000000000000000000000000000000000000000000000000333300",
+  "000000000000000000000000000000000000000000000000000000000000000000333300",
+  "000000000000000000000000000000000000000000000000000000000000000000333300",
+  "000000000000000000000000000000000000000000000000000000000000000000333300",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggsssggggggggggggggggggsssgggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggsssggggggggggggggggggsssgggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gffggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gffggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggddgggggggggddggggggggggggggggggggppggggggggggggggggggggggggggggggg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ggggggddgggggggggddgggppppppppppppppppppppppppppggggggggggggggggggssssgg",
+  "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
+  "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
+  "ddddddddddddddddddddddppppppppppppppppppppppppppddddddddddddddddddssdddd",
+  "gffffgggggggggggggggggppppppppppppppppppppppppppggggggggggggggggggssgggg",
+  "gffffggggfffffggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "gggggggggfffffggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggppppppppppppppppppppppppppwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwww",
+  "ggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwww",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 12,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 33,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 66,
+   "y": 20,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 3
+  }
+ ],
+ "props": [
+  {
+   "kind": "willow",
+   "x": 3,
+   "y": 5
+  },
+  {
+   "kind": "willow",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "willow",
+   "x": 27,
+   "y": 5
+  },
+  {
+   "kind": "willow",
+   "x": 41,
+   "y": 5
+  },
+  {
+   "kind": "bamboo",
+   "x": 8,
+   "y": 4
+  },
+  {
+   "kind": "bamboo",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "house",
+   "x": 4,
+   "y": 11,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 10,
+   "y": 13
+  },
+  {
+   "kind": "house",
+   "x": 15,
+   "y": 11,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 38,
+   "y": 11,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "lantern",
+   "x": 23,
+   "y": 15
+  },
+  {
+   "kind": "lantern",
+   "x": 46,
+   "y": 15
+  },
+  {
+   "kind": "barrel",
+   "x": 36,
+   "y": 13
+  },
+  {
+   "kind": "shrub",
+   "x": 3,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 13,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 21,
+   "y": 14
+  },
+  {
+   "kind": "shrub",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "bamboo",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 20,
+   "y": 26
+  },
+  {
+   "kind": "reeds",
+   "x": 2,
+   "y": 33
+  },
+  {
+   "kind": "reeds",
+   "x": 8,
+   "y": 33
+  },
+  {
+   "kind": "reeds",
+   "x": 14,
+   "y": 33
+  },
+  {
+   "kind": "reeds",
+   "x": 26,
+   "y": 33
+  },
+  {
+   "kind": "reeds",
+   "x": 33,
+   "y": 33
+  },
+  {
+   "kind": "reeds",
+   "x": 44,
+   "y": 33
+  },
+  {
+   "kind": "lotus",
+   "x": 10,
+   "y": 36
+  },
+  {
+   "kind": "lotus",
+   "x": 30,
+   "y": 37
+  },
+  {
+   "kind": "house",
+   "x": 48,
+   "y": 11,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 55,
+   "y": 11,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 46,
+   "y": 13
+  },
+  {
+   "kind": "boat",
+   "x": 61,
+   "y": 36
+  },
+  {
+   "kind": "lantern_red",
+   "x": 50,
+   "y": 24
+  },
+  {
+   "kind": "lantern_red",
+   "x": 70,
+   "y": 24
+  },
+  {
+   "kind": "barrel",
+   "x": 63,
+   "y": 25
+  },
+  {
+   "kind": "crates",
+   "x": 64,
+   "y": 30
+  }
+ ],
+ "place": {
+  "sign_home": [
+   2,
+   18
+  ],
+  "pings_ladle": [
+   8,
+   11
+  ],
+  "npc_aunt_ping_lane": [
+   11,
+   17
+  ],
+  "npc_washer_mei": [
+   14,
+   31
+  ],
+  "spring_village": [
+   24,
+   26
+  ],
+  "shrine_village": [
+   26,
+   16
+  ],
+  "npc_uncle_guo": [
+   30,
+   22
+  ],
+  "stump_guo": [
+   31,
+   26
+  ],
+  "dummy_guo": [
+   34,
+   26
+  ],
+  "board_village": [
+   36,
+   16
+  ],
+  "storage_village": [
+   43,
+   16
+  ],
+  "npc_little_dou": [
+   44,
+   24
+  ],
+  "cook_village": [
+   46,
+   28
+  ],
+  "kite": [
+   58,
+   12
+  ],
+  "npc_shen_lian_npc": [
+   52,
+   27
+  ],
+  "npc_lu_boatman": [
+   56,
+   28
+  ],
+  "npc_fisher_wen": [
+   64,
+   28
+  ],
+  "fish_docks": [
+   59,
+   37
+  ],
+  "tower_bell": [
+   68,
+   16
+  ],
+  "gull_nest": [
+   69,
+   15
+  ]
+ },
+ "portals": {
+  "hut_door": {
+   "at": [
+    6.5,
+    14
+   ],
+   "dir": "n",
+   "arrive": [
+    6.5,
+    14.5
+   ],
+   "span": 2
+  },
+  "granny_door": {
+   "at": [
+    17.5,
+    14
+   ],
+   "dir": "n",
+   "arrive": [
+    17.5,
+    14.5
+   ],
+   "span": 2
+  },
+  "store_door": {
+   "at": [
+    39.5,
+    14
+   ],
+   "dir": "n",
+   "arrive": [
+    39.5,
+    14.5
+   ],
+   "span": 2
+  },
+  "west_gate": {
+   "at": [
+    0,
+    21
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    21
+   ],
+   "span": 3
+  },
+  "east_gate": {
+   "at": [
+    71,
+    21
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    21
+   ],
+   "span": 3
+  },
+  "boat": {
+   "at": [
+    60,
+    36
+   ],
+   "dir": "e",
+   "arrive": [
+    59,
+    36
+   ],
+   "span": 1.5
+  }
+ },
+ "spawns": []
+}

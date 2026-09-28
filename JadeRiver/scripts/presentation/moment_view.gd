@@ -319,11 +319,11 @@ func _fire(pl: Dictionary, L: Dictionary) -> void:
 		"fx":
 			var fp := fx_params(L, p, pl.slots)
 			e.merge(fp)
-			for pos in at: world.fx.add(str(L.fx), pos, fp)
+			for pos in at: world.fx_layer().add(str(L.fx), pos, fp)
 		"text":
 			e.text = MomentRules.text(L.text, p, pl.slots)
 			for pos in at:
-				world.fx.add("text", pos, {"text": e.text, "color": MomentRules.color(L.color, p, pl.slots), "size": int(L.size), "dur": float(L.get("dur", 2.0))})
+				world.fx_layer().add("text", pos, {"text": e.text, "color": MomentRules.color(L.color, p, pl.slots), "size": int(L.size), "dur": float(L.get("dur", 2.0))})
 		"bark":
 			if world: _bark(str(L.key), float(L.radius), float(L.dur))
 		"fountain":
@@ -353,8 +353,8 @@ func _anchors(L: Dictionary, p: Dictionary) -> Array:
 	if world == null: return []
 	var out: Array = []
 	match str(L.get("at", L.get("to", "actor"))):
-		"actor": if is_instance_valid(world.player): out.append(world.player.position)
-		"camera": out.append(world.camera.position)
+		"actor": if is_instance_valid(world.player): out.append(world.feet())
+		"camera": out.append(world.view_center())
 		"drop": out.append(Vector2(float(p.get("x", 0.0)), float(p.get("y", 0.0))))
 		"enemy":
 			var v = world.enemy_views.get(int(p.get("enemy", 0)))
@@ -384,19 +384,19 @@ func _fountain(p: Dictionary, f: Dictionary) -> void:
 		var rare := MomentRules.is_rare(order[i])
 		for v in views.filter(func(w): return w.uid == int(order[i].uid)): v.launch(drop, i * float(f.gap), apex, flight, "rare_chime" if rare and not chimed else "")
 		chimed = chimed or rare
-	if f.has("flash"): world.fx.add("flash", drop + Vector2(0, -30), {"color": MomentRules.color(f.flash), "radius": 90.0, "dur": 0.3})
+	if f.has("flash"): world.fx_layer().add("flash", drop + Vector2(0, -30), {"color": MomentRules.color(f.flash), "radius": 90.0, "dur": 0.3})
 
 ## The room's views of these loot entries (world.gd builds them in the same frame, before their first draw).
 func _loot_views(items: Array) -> Array:
 	var uids := items.map(func(i): return int(i.get("uid", -1)))
-	return world.room_layer.get_children().filter(func(v): return v is LootView and v.uid in uids)
+	return world.loot_parent().get_children().filter(func(v): return v is LootView and v.uid in uids)
 
 ## The people nearby say something (three lines by `prefix`_0.._2).
 func _bark(prefix: String, radius: float, dur: float) -> void:
 	var n := 0
 	for id in world.npc_views:
 		var nv = world.npc_views[id]
-		if nv.visible and nv.position.distance_to(world.player.position) < radius:
+		if nv.visible and nv.position.distance_to(world.feet()) < radius:
 			nv.bark = Tx.t("%s_%d" % [prefix, n % 3])
 			nv.bark_time = dur
 			n += 1
@@ -539,7 +539,7 @@ func _draw_dim(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, _
 		ci.draw_rect(Rect2(0, 0, 1280, 720), col)
 		return
 	# Lighter round the actor and full from 450 px out (mockup 05's night wash): rings of 32 shaded quads.
-	var at: Vector2 = world.player.get_global_transform_with_canvas().origin + Vector2(0, -80)
+	var at: Vector2 = world.feet_on_screen() + Vector2(0, -80)
 	for j in DIM_RINGS.size() - 1:
 		var c0 := Color(col, col.a * DIM_RINGS[j][1])
 		var c1 := Color(col, col.a * DIM_RINGS[j + 1][1])

@@ -92,6 +92,12 @@ func create_character(intent: Dictionary) -> Dictionary:
 	c.skip_prologue = skip
 	var start: Dictionary = ContentDB.config("account_rules").get("skip_start" if skip else "new_start", {})
 	c.position = {"room": str(start.get("room", "lf_fishers_hut")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
+	# Redesign Phase 4: a new game in the top-down world (the Settings toggle, or asked for) starts at its first room's
+	# own spawn on the grid, its later spots saved in that view.
+	if str(intent.get("view", "topdown" if game.account.settings.get("topdown_world", false) else "")) == "topdown":
+		c.view = "topdown"
+		c.position.x = 0.0
+		c.position.y = 0.0
 	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
 	game.account.characters[str(slot)] = summary(c)

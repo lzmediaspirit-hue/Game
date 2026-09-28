@@ -24,18 +24,65 @@
   family's) and the later weapon families are left; each goes in `TopdownFigure.missing` and draws nothing.
 - **In the game.** `TopdownFigure` composites the layers. The player wears its equipment and dyes from the save,
   dresses again when they change, and plays each state's action. A blow lands its hit frame on Combat's clock. The
-  facing picks one of eight rows. `TopdownWorld.add_villager` stands an NPC in its own outfit in the room. The
-  i-frames' blink and the occlusion silhouette fade the figure as one image, so the body never shows through its
-  clothes.
+  facing picks one of eight rows. The i-frames' blink and the occlusion silhouette fade the figure as one image, so
+  the body never shows through its clothes.
+- **The people of the rooms on the grid are drawn the same way** (`TopdownPlaces.Person`), in place of the side
+  view's avatars at half size facing east or west:
+  - each in their own outfit, at rest three-quarters toward the camera (or meditating, facing it);
+  - turned to the player in the eight rows during a talk, a gift or a shop, then back;
+  - walking the way a route moves them.
+
+  `TopdownWorld.add_villager` stands one anywhere, for the prototype and the reviews.
 - **Tests.**
   - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing ten
     broken manifests.
   - `topdown_suite` checks the outfit from the save, dressing again, each state's action and the eight facings; the
-    drag moves use the real guard and plunge.
+    drag moves use the real guard and plunge. A villager wears their own outfit, turns in eight rows, walks, and
+    meditates facing the camera.
+  - `topdown_tutorial` checks every person of the walk's rooms is drawn this way, fully dressed, and that Shen Lian
+    turns to the player talking to her and back.
   - `tests/topdown_figure_gallery.tscn` renders the compatibility gallery with the game's own compositor.
 - **Review sheets** are in `docs/redesign/phase3/character/`: the body, an outfit per facing, the weapons, hair,
   dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The game's Phase 3 review
   images (`topdown_capture.tscn -- --phase3`) now draw the real character.
+
+## Top-down redesign, Phase 4 begins: the real game on the grid, from the Fisher's Hut to the sect choice
+
+- **The top-down world runs the real game** (decision 36; `docs/redesign_top_down_plan.md`, "As built: Phase 4").
+  A character made for it keeps its own save and quests, and every authority runs as in the side view. That covers:
+  - NPCs, talk, quest offers and hand-ins, gifts and shops;
+  - the tracker, its Next, the direction mark and auto-path;
+  - pickups and loot, gathering, doors and edges between rooms, room events and respawns;
+  - the equip popup and the "+" badges, moments, the night tint, saving and loading, and the fall and revival rules.
+- **Rooms with a layout are played on the grid; the rest stay side-view.** The view changes under the same HUD at the
+  way between them.
+- **Thirteen rooms** are laid out for the top-down world by `tools/data/topdown_rooms.py`: the Fisher's Hut, Lotus
+  Ferry and its night, Old Ma's Store, Granny Liu's Herb Hut, Lu's Boat, the Reed Shallows, both Willow Paths, and
+  Stoneford's Gate, Market Street, Artisan Row and Fairground. They use the approved tile set, with height levels,
+  paths to the doors and water edges. Every id of the side-view rooms is kept.
+- **How to reach it:**
+  - the title screen's hidden entry (five taps on the version) now opens the top-down game on saves of its own,
+    starting the Prologue in the Fisher's Hut the first time;
+  - Settings → Controls → "Top-down world (new games)" makes the next new character a top-down one;
+  - `--topdown` and `--topdown-tutorial` do the same for previews; `--topdown-proto` still opens Riverside Square.
+- **One code path per concern.**
+  - The effects both views play for the game's events, the context button's offer, the names over the world and the
+    request for a way out now live in `WorldShared`.
+  - `NpcView`, `ObjectView` and `PortalView` gained label and art modes, so the top-down view draws the side view's
+    own art in its pixel viewport and its plates at the HUD's resolution.
+  - The autopilot, the minimap, `MomentView` and `HazardView` work in either view.
+- **Tests:**
+  - `topdown_tutorial` (new, 473 checks) plays `tutorial_order`'s whole walk, and every invariant of it, as a
+    top-down character. It adds checks that:
+    - every layout places and reaches everything of its room;
+    - every spot the walk stands at is reached on foot;
+    - the view builds each room;
+    - a save resumes on the grid;
+    - auto-path walks through a door and an edge.
+  - `tools/run_tests.sh` also runs `topdown_rooms.py --check`.
+  - `prologue_run` and `tutorial_order` are view-neutral.
+  - `perf_tests`: Lotus Ferry entered in 63 ms, 7.44 ms a frame.
+- **Screenshots** of every room and of a quest talk are in `docs/redesign/phase4/`.
 
 ## Top-down redesign, Phase 3: the terrain in the game, Riverside Square redesigned, the first foes in eight facings
 

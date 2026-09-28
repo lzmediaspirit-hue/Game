@@ -1,0 +1,342 @@
+{
+ "schema_version": 1,
+ "id": "sf_fairground",
+ "name": "Fairground",
+ "size": [
+  72,
+  30
+ ],
+ "spawn": [
+  68,
+  17
+ ],
+ "levels": [
+  "222222200022222222222222222222222222222222200022222222222222222222222222",
+  "222222200022222222222222222222222222222222200022222222222222222222222222",
+  "222222200022222222222222222222222222222222200022222222222222222222222222",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000111111000000000011111100000000000000000000000000000000000",
+  "000000000000000111111000000000011111100000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggggggggggggggggggggggggggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggwwwwwwggggggggggwwwwwwggggggdddgggggggggggggggggggggggggg",
+  "gggggggdddgggggwwwwwwggggggggggwwwwwwggggggdddgggggggggggggggggggggggggg",
+  "pppppppppppppppppwwppppppppppppppwwppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 17,
+   "y": 13,
+   "w": 2,
+   "h": 1,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 33,
+   "y": 13,
+   "w": 2,
+   "h": 1,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "house",
+   "x": 13,
+   "y": 6,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 26,
+   "y": 6,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 31,
+   "y": 6,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 19,
+   "y": 8
+  },
+  {
+   "kind": "crates",
+   "x": 24,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 12,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 38,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 50,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 60,
+   "y": 12
+  },
+  {
+   "kind": "willow",
+   "x": 3,
+   "y": 5
+  },
+  {
+   "kind": "willow",
+   "x": 56,
+   "y": 5
+  },
+  {
+   "kind": "bamboo",
+   "x": 64,
+   "y": 4
+  },
+  {
+   "kind": "bamboo",
+   "x": 66,
+   "y": 5
+  },
+  {
+   "kind": "crates",
+   "x": 40,
+   "y": 22
+  },
+  {
+   "kind": "barrel",
+   "x": 47,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 5,
+   "y": 25
+  },
+  {
+   "kind": "reeds",
+   "x": 25,
+   "y": 25
+  },
+  {
+   "kind": "reeds",
+   "x": 45,
+   "y": 25
+  },
+  {
+   "kind": "reeds",
+   "x": 65,
+   "y": 25
+  }
+ ],
+ "place": {
+  "npc_recruiter_qing_lan": [
+   18,
+   11
+  ],
+  "npc_recruiter_mo_yun": [
+   34,
+   11
+  ],
+  "npc_shen_lian": [
+   49,
+   17
+  ],
+  "npc_wen_zhao": [
+   57,
+   16
+  ],
+  "npc_fair_vendor_he": [
+   41,
+   18
+  ],
+  "npc_adventurer_rui": [
+   62,
+   18
+  ],
+  "spar_sf": [
+   53,
+   18
+  ],
+  "tower_board_sf": [
+   30,
+   12
+  ],
+  "fair_lantern_0": [
+   28,
+   6
+  ],
+  "fair_lantern_1": [
+   16,
+   6
+  ],
+  "fair_lantern_2": [
+   35,
+   6
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    71,
+    17
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    17
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    17
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    17
+   ],
+   "span": 3
+  },
+  "trial_jade": {
+   "at": [
+    15.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    15.5,
+    9.5
+   ],
+   "span": 2
+  },
+  "tower": {
+   "at": [
+    27.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    27.5,
+    9.5
+   ],
+   "span": 2
+  },
+  "trial_cloud": {
+   "at": [
+    33.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    33.5,
+    9.5
+   ],
+   "span": 2
+  },
+  "jade_road": {
+   "at": [
+    8,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    8,
+    3
+   ],
+   "span": 3
+  },
+  "cloud_road": {
+   "at": [
+    44,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    44,
+    3
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}

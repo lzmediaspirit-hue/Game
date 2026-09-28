@@ -1,11 +1,11 @@
 class_name TopdownWorld
 extends Node2D
 ## Top-down redesign, Phase 1 (docs/redesign_top_down_plan.md §1, §4): the prototype room's view, mounted by main.gd in
-## place of world.gd behind `--topdown-proto` or the title screen's hidden entry. The world renders at 640x360 in its
-## own SubViewport (one art px = one viewport px, snapped to whole pixels) shown x2 under the 1280x720 HUD. Floors and
-## water draw first; raised rows, stairs, props, the body and its shadow sort in one Y-sorted layer by explicit keys
-## (TopdownRoom.sort_key: every node's y is its key and it draws back to its screen row); a silhouette shows the body
-## through whatever covers it. The camera follows the ground underfoot, not the jump arc, and snaps to whole pixels.
+## place of world.gd behind `--topdown-proto`. The world renders at 640x360 in its own SubViewport (one art px = one
+## viewport px, snapped to whole pixels) shown x2 under the 1280x720 HUD. Floors and water draw first; raised rows,
+## stairs, props, the body and its shadow sort in one Y-sorted layer by explicit keys (TopdownRoom.sort_key: every
+## node's y is its key and it draws back to its screen row); a silhouette shows the body through whatever covers it.
+## The camera follows the ground underfoot, not the jump arc, and snaps to whole pixels.
 ##
 ## Phase 2: with a character, the room is entered through the World authority (`enter_grid_room`) and the simulation
 ## runs as in every room: Game.tick after the body's step, the room's foes (PLACEHOLDER sprites, sorted with the rest),
@@ -17,12 +17,20 @@ extends Node2D
 ## paths and shores auto-tiled, rims, contact shade and cast shade on every raised edge, face ends and stair cheeks,
 ## and each prop's floor shadow cut to the floor it stands on. Plants sway and lotus bob in their own frames, and the
 ## foes are the eight-facing sheet (art/topdown/foes.png).
+##
+## Phase 4 (`live`): the world view of a character's own game in every room of the world that has a layout on the grid
+## (WorldAuthority.grid_for; main.gd mounts world.gd for the others). The room is Game.room_rt's and the view rebuilds
+## as each room is entered: its people, things and ways (TopdownPlaces), the ways walked into or taken with the
+## context button, the context's offer, the names over the world and the events' effects as the side view plays them
+## (WorldShared), a night room's tint and the room's hazards and weather (HazardView), and moments (MomentView reads
+## the same anchors of either view).
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
 const VIEW := Vector2i(640, 360)
 const T := 16.0
 
 var room_id := "td_proto_square"
+var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
 var room: TopdownRoom
 var terrain: TopdownTerrain
 var player
@@ -40,7 +48,7 @@ var sim_frozen := false
 # Read and written by hud.gd as on world.gd.
 var context: Dictionary = {}
 var label_obstacles: Array = []
-var hud_minimap := false        ## the HUD's minimap draws side-view rooms; it stays off in the prototype
+var hud_minimap := false        ## the HUD's minimap (the grid's map); off in the prototype square, on in the world
 # Phase 2: the fight.
 var overlay: Node2D             ## screen resolution, world units (1 unit = 1 screen px), following the camera
 var effects: FxLayer
@@ -51,14 +59,29 @@ var label_views: Dictionary = {} ## uid -> EnemyView in label mode (on the overl
 var loot_layer: Node2D
 var aim_view: Node2D
 var _atlases: Dictionary = {}
+# Phase 4: the room's people, things and ways (their label views, as world.gd keeps its views; TopdownPlaces).
+var npc_views: Dictionary = {}
+var object_views: Dictionary = {}
+var portal_views: Array = []
+var enemy_views: Dictionary:    ## MomentView and WorldShared ask for the foes' views by this name
+	get: return label_views
+var floor_layer: Node2D         ## marks on the floor, under everything sorted (the ways out)
+var tint: CanvasModulate        ## a night room's blue
+var hazards: HazardView
+var transfer_cooldown := 0.0
+var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
+var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
+
+signal context_changed(ctx: Dictionary)
 
 func _ready() -> void:
-	# Phase 2: a character enters the room through the World authority; its RoomRuntime carries the grid.
-	if Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
+	if live and Game.room_rt != null and Game.room_rt.topdown != null:
+		room = Game.room_rt.topdown
+	# Phase 2: a character enters the prototype room through the World authority; its RoomRuntime carries the grid.
+	elif Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
 		room = Game.room_rt.topdown
 	else:
 		room = TopdownRoom.load_room(room_id)
-	terrain = TopdownTerrain.new(room)
 	container = SubViewportContainer.new()
 	container.stretch = true
 	container.stretch_shrink = 2
@@ -73,22 +96,15 @@ func _ready() -> void:
 	viewport.snap_2d_transforms_to_pixel = true
 	viewport.snap_2d_vertices_to_pixel = true
 	container.add_child(viewport)
-	var bg := ColorRect.new()
-	bg.color = Color("0A2027")
-	bg.size = room.art_size() + Vector2(VIEW)
-	bg.position = -Vector2(VIEW) * 0.5
-	viewport.add_child(bg)
-	viewport.add_child(WaterView.new(self))
-	viewport.add_child(FloorView.new(self))
+	tint = CanvasModulate.new()
+	viewport.add_child(tint)
+	floor_layer = Node2D.new()
+	floor_layer.name = "Floor"
+	viewport.add_child(floor_layer)
 	sorted = Node2D.new()
 	sorted.name = "Sorted"
 	sorted.y_sort_enabled = true
 	viewport.add_child(sorted)
-	for y in room.h:
-		var strip := StripView.new(self, y)
-		if not strip.rects.is_empty(): sorted.add_child(strip)
-	for st in room.stairs: sorted.add_child(StairsView.new(self, st))
-	for p in room.props: sorted.add_child(PropView.new(self, p))
 	shadow = ShadowView.new(self)
 	sorted.add_child(shadow)
 	player = Player.new()
@@ -119,28 +135,107 @@ func _ready() -> void:
 	overlay.add_child(effects)
 	effects.chest = float(ContentDB.movement("topdown.combat.chest", 40))
 	combat_fx = CombatFx.new(effects, self)
-	var caption := CanvasLayer.new()
-	caption.layer = 4
-	add_child(caption)
-	caption.add_child(Caption.new(self))
+	if not live:
+		var caption := CanvasLayer.new()
+		caption.layer = 4
+		add_child(caption)
+		caption.add_child(Caption.new(self))
+	_build_room()
 	if player.bound():
 		Game.bind_movement(player.actor_id, player.state)
 		GameEvents.event.connect(_on_event)
-		_loadout(Game.active())
+		if not live: _loadout(Game.active())
+		if live: _place_player()
+	_settle_camera()
+
+func _exit_tree() -> void:
+	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
+
+## The room's own nodes: the floor, water and raised rows, stairs and props, its people, things and ways, the foes
+## and the loot lying there. The body, its shadow and the effects stay from room to room.
+func _build_room() -> void:
+	for n in _room_nodes:
+		if is_instance_valid(n): n.queue_free()
+	_room_nodes.clear()
+	for uid in foe_views.keys():
+		if is_instance_valid(foe_views[uid]): foe_views[uid].queue_free()
+	for uid in label_views.keys():
+		if is_instance_valid(label_views[uid]): label_views[uid].queue_free()
+	foe_views.clear()
+	label_views.clear()
+	for l in loot_layer.get_children(): l.queue_free()
+	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
+	var bg := ColorRect.new()
+	bg.color = Color("0A2027")
+	bg.size = room.art_size() + Vector2(VIEW) * 2.0
+	bg.position = -Vector2(VIEW)
+	var water := WaterView.new(self)
+	var ground := FloorView.new(self)
+	for n in [ground, water, bg]:
+		viewport.add_child(n)
+		viewport.move_child(n, 0)   # under the floor marks and everything sorted
+	_room_nodes.append_array([bg, water, ground])
+	for y in room.h:
+		var strip := StripView.new(self, y)
+		if not strip.rects.is_empty():
+			sorted.add_child(strip)
+			_room_nodes.append(strip)
+	for st in room.stairs:
+		var sv := StairsView.new(self, st)
+		sorted.add_child(sv)
+		_room_nodes.append(sv)
+	for p in room.props:
+		var pv := PropView.new(self, p)
+		sorted.add_child(pv)
+		_room_nodes.append(pv)
+	npc_views = {}
+	object_views = {}
+	portal_views = []
+	if live and Game.room_rt != null:
+		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay, player)
+		npc_views = built.npc_views
+		object_views = built.object_views
+		portal_views = built.portal_views
+		_room_nodes.append_array(built.nodes)
+		hazards = HazardView.new()
+		hazards.world = self
+		overlay.add_child(hazards)
+		_room_nodes.append(hazards)
+		for l in Game.room_rt.loot:
+			var lv := LootView.new()
+			lv.setup(l)
+			loot_layer.add_child(lv)
+		hud_minimap = true
+	tint.color = Color("8fa0c8") if live and Game.room_rt != null and bool(Game.room_rt.def.get("night", false)) else Color.WHITE
+	# The body, its shadow and its dust after the room's own nodes, so a tie in the sort goes to the body.
+	for n in [shadow, player, fx]: sorted.move_child(n, -1)
+	if player != null and player.bound():
 		for uid in Game.room_rt.enemies: _add_foe(Game.room_rt.enemies[uid])
+
+## Phase 4: the body where the World authority put the character (a portal's arrival, a shrine, a saved spot).
+func _place_player() -> void:
+	var c = Game.active()
+	player.motor.room = room
+	player.motor.place(Vector2(float(c.position.get("x", room.spawn.x)), float(c.position.get("y", room.spawn.y))))
+	var inward := Vector2(float(c.position.get("facing", 1)), 0.0)
+	var p := Game.room_rt.portal_def(str(c.position.get("portal", "")))
+	if p.has("dir"): inward = -Vector2(float(p.dir[0]), float(p.dir[1]))
+	player.motor.face(inward)
+	player.physics_step(0.0001)
+	transfer_cooldown = 0.4
+
+func _settle_camera() -> void:
 	cam_z = player.motor.z
 	_sync(0.0)
 	cam = _cam_target()
 	camera.position = cam.round()
-
-func _exit_tree() -> void:
-	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
 
 func _physics_process(delta: float) -> void:
 	if sim_frozen or Game.paused: return
 	if player.bound() and Game.combat.hold_for_hitstop(delta): return   # a blow's hit-stop holds the fight still
 	for e in player.physics_step(delta): _feedback(e)
 	if player.bound(): Game.tick(delta)
+	if live: _check_portals(delta)
 
 func _process(delta: float) -> void:
 	_sync(delta)
@@ -148,11 +243,20 @@ func _process(delta: float) -> void:
 	if m.grounded and m.sink_t < 0.0: cam_z = m.z
 	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
-	cam = cam.lerp(_cam_target(), k)
+	var goal := _cam_target()
+	if not camera_hold.is_empty():
+		var h := camera_hold
+		h.t = float(h.t) + delta
+		var ends := float(h.in) + float(h.hold) + float(h.out)
+		goal = goal.lerp(h.target, smoothstep(0.0, float(h.in), h.t) * (1.0 - smoothstep(ends - float(h.out), ends, h.t)))
+		if float(h.t) >= ends: camera_hold = {}
+	cam = cam.lerp(goal, k)
 	camera.position = cam.round()
 	camera.offset = (shake.offset(delta) / TopdownRoom.ART).round()
 	overlay.position = (Vector2(VIEW) * 0.5 - camera.position - camera.offset) * TopdownRoom.ART
-	if player.bound(): layout_labels()
+	if player.bound():
+		if live: _update_context()
+		layout_labels()
 
 ## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room.
 func _cam_target() -> Vector2:
@@ -177,11 +281,11 @@ func _sync(delta: float) -> void:
 
 ## Is the body covered by something sorted after it (a raised row's face, the flight of stairs, a prop)?
 func is_occluded() -> bool:
-	var feet: Vector2 = player.screen
-	var body := Rect2(feet.x - 5, feet.y - 34, 10, 30)
+	var feet_px: Vector2 = player.screen
+	var body := Rect2(feet_px.x - 5, feet_px.y - 34, 10, 30)
 	for n in sorted.get_children():
 		if n == player or n == shadow or n == fx or n.position.y <= player.position.y: continue
-		for r in n.get("rects"):
+		for r in n.get("rects") if n.get("rects") != null else []:
 			if (r as Rect2).intersects(body): return true
 	return false
 
@@ -203,6 +307,47 @@ func _feedback(e: Dictionary) -> void:
 		"splashed":
 			fx.splash(m.pos)
 			Audio.play("water_step")
+
+# ------------------------------------------------------------------ Phase 4: ways, context and the shared host
+## A way out walked into: at the way (the World authority's reach round it) with the stick pushing out through it (an
+## edge's side, into a building's door, out of an interior's), the World authority takes it; a shut one says why. On
+## the grid a door needs no hold: "up" is a real direction (plan §1.7).
+func _check_portals(delta: float) -> void:
+	transfer_cooldown = maxf(0.0, transfer_cooldown - delta)
+	var c = Game.active()
+	if transfer_cooldown > 0.0 or c == null or Game.room_rt == null or not player.motor.grounded: return
+	var axis: Vector2 = player.last_axis
+	if axis.length() < 0.5: return
+	for p in Game.room_rt.def.get("portals", []):
+		if not p.has("dir") or not Game.world.portal_near(c, p): continue
+		if axis.normalized().dot(Vector2(float(p.dir[0]), float(p.dir[1]))) < 0.7: continue
+		if Game.world.portal_state(c, p).get("hidden", false): continue
+		request_portal(str(p.id), true)
+		return
+
+func request_portal(portal_id: String, crossing := false) -> void:
+	WorldShared.request_portal(self, portal_id, crossing)
+
+func _update_context() -> void:
+	var ctx := WorldShared.context(Game.active(), player.motor.pos)
+	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
+	if ctx.hash() != context.hash():
+		context = ctx
+		context_changed.emit(ctx)
+
+## WorldShared's and MomentView's host: the effects layer, the player's feet in its units, the facing, the loot's
+## layer, the middle of the view in world units and the feet on the screen.
+func fx_layer() -> FxLayer: return effects
+func feet() -> Vector2: return player_feet()
+func facing() -> int: return player.facing
+func loot_parent() -> Node2D: return loot_layer
+func view_center() -> Vector2: return (camera.position + camera.offset) * TopdownRoom.ART
+func screen_center() -> Vector2: return view_center()
+func feet_on_screen() -> Vector2: return overlay.get_global_transform_with_canvas() * player_feet()
+
+## A moment's camera move (P6 `camera` layer) to a point in world units: ease there, hold, and ease back.
+func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
+	camera_hold = {"target": target / TopdownRoom.ART, "t": 0.0, "in": in_s, "hold": hold_s, "out": out_s}
 
 # ------------------------------------------------------------------ Phase 2: the fight's views
 ## A point on the plane at height z in the overlay's units (the effects layer's: world units, y lifted by z).
@@ -237,43 +382,36 @@ func _add_foe(e: EnemyState) -> void:
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
 
-## A villager standing at `at` (world units, on the floor there) facing `row`, drawn by TopdownFigure in the NPC's own
-## outfit (Phase 3: the compositor draws NPCs as it draws the player), sorted with the room.
+## A villager standing at `at` (world units, on the floor there) facing `row`, in the NPC's own outfit, sorted with the
+## room: the rooms of the world place theirs (TopdownPlaces); this stands one anywhere, for the prototype and reviews.
 func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
-	var v := VillagerView.new(self, npc_id, at, row)
+	var g: float = room.height_at(at)
+	var o := {"type": "npc", "npc": npc_id, "at": [at.x, at.y], "alt": g if g < INF else 0.0, "row": row}
+	var v := TopdownPlaces.Figure.new(room, o, TopdownPlaces.Person.new(o), null)
 	sorted.add_child(v)
 	return v
 
-## The foes' names and HP bars keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
-## them), nearest the player first.
+## The names over the world keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
+## them), nearest the player first: the foes', and in the world the people's, the ways' and the things'.
 func layout_labels() -> Dictionary:
-	var views: Array = []
-	var px: float = player.motor.pos.x
 	for uid in label_views.keys():
-		var v = label_views[uid]
-		if not is_instance_valid(v):
-			label_views.erase(uid)
-			continue
-		views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": absf(v.position.x - px)})
-	return WorldLabels.place_views(views, overlay.get_global_transform_with_canvas(), label_obstacles)
+		if not is_instance_valid(label_views[uid]): label_views.erase(uid)
+	return WorldLabels.place_views(WorldShared.label_views(self, player.motor.pos.x), overlay.get_global_transform_with_canvas(), label_obstacles)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
+		"room_entered":
+			# Phase 4: the next room on the grid (a room without a layout is world.gd's; main.gd swaps the views).
+			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null and Game.room_rt.topdown != null:
+				room = Game.room_rt.topdown
+				_build_room()
+				_place_player()
+				_settle_camera()
 		"enemy_spawned", "ally_spawned":
 			var e: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", p.get("uid", 0)))) if Game.room_rt else null
 			if e: _add_foe(e)
-		"enemy_aggro":
-			var foe: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
-			if foe and not foe.hidden: effects.label(lifted(foe.plane, foe.altitude) - Vector2(0, foe.height() + 24), "!", UiKit.GOLD, 26)
-		"loot_dropped":
-			for l in p.get("items", []):
-				var lv := LootView.new()
-				lv.setup(l)
-				loot_layer.add_child(lv)
-		"hit_landed": combat_fx.hit(p)
 		"equipment_changed":
 			if str(p.get("actor", "")) == player.actor_id: player.refresh_outfit()
-		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player_feet())
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
 				var aim: Vector2 = p.get("aim", Vector2(int(p.get("facing", 1)), 0))
@@ -295,11 +433,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 					Audio.play("swing")
 			elif p.get("enemy", false):
 				Audio.play("tell")
-		"parried":
-			effects.parry(player_feet(), player.facing)
-			Audio.play("parry")
-		"projectile_ended":
-			effects.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.PAPER, "dur": 0.15})
+		"artifact_spirit_spoke":
+			if str(p.get("actor", "")) == Game.active_id: effects.add("text", player_feet() + Vector2(0, -110), {"text": str(p.get("line", "")), "color": UiKit.PAPER, "size": 17, "dur": 3.0})
+		_:
+			WorldShared.play(self, name, p)
 
 ## World units on the ground plane at height z to the viewport's art px.
 static func to_screen(p: Vector2, z: float) -> Vector2:
@@ -309,7 +446,7 @@ func tile(name: String) -> Rect2:
 	var r: Array = room.tileset.get("tiles", {}).get(name, [0, 0, 16, 16])
 	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
-## An atlas of the tile set (tiles, props, body, foes), loaded once from the file its manifest names.
+## An atlas of the tile set (tiles, props, foes), loaded once from the file its manifest names.
 func atlas(kind: String) -> Texture2D:
 	if not _atlases.has(kind): _atlases[kind] = load(str(room.tileset.get("atlas", {}).get(kind, "")))
 	return _atlases[kind]
@@ -605,30 +742,6 @@ class FoeView extends Sorted:
 		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
-
-## Phase 3: a villager on the floor, the NPC's figure breathing in its idle (TopdownFigure.for_npc), its shadow under it.
-class VillagerView extends Sorted:
-	var figure: TopdownFigure
-	var row := "s"
-	var feet := Vector2.ZERO
-	var t := 0.0
-	func _init(w, npc_id: String, at: Vector2, facing: String) -> void:
-		super(w)
-		figure = TopdownFigure.for_npc(npc_id)
-		row = facing
-		var g: float = w.room.height_at(at)
-		feet = TopdownWorld.to_screen(at, g if g < INF else 0.0).round()
-		key(w.room.sort_key(at, g if g < INF else 0.0))
-		position.x = feet.x
-		rects.append(Rect2(feet + Vector2(-8, -40), Vector2(16, 40)))
-	func _process(delta: float) -> void:
-		t += delta
-		queue_redraw()
-	func _draw() -> void:
-		var sy := feet.y - position.y
-		draw_rect(Rect2(-7, sy - 1, 14, 3), Color(0.01, 0.035, 0.04, 0.45))
-		draw_rect(Rect2(-5, sy - 2, 10, 5), Color(0.01, 0.035, 0.04, 0.45))
-		figure.draw(self, Vector2(0, sy), "idle", row, TopdownFigure.frame_at("idle", t))
 
 ## Phase 2 (decision 30): the aim on the ground, on the overlay in world units. While a thumb aims (the player's
 ## `aim`), its form from the feet: an arrow for a blow, a line, a cone, a circle at its point (joined to the feet) or
