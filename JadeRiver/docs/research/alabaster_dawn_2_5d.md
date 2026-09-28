@@ -4,7 +4,8 @@ Research for the Jade River top-down redesign (`docs/redesign_top_down_plan.md`)
 second game by Radical Fish Games (Hamburg), the makers of CrossCode. The brief asks for two technical breakdowns, deep
 enough to rebuild the core systems: **(A)** its top-down 2.5D graphics system and **(B)** its movement.
 
-Researched 27 September 2026.
+Researched 27 September 2026. Later additions: §3.8 aiming and targeting (decision 30), §3.9 combat animation and feel
+(decision 38, 28 September 2026).
 
 ## How to read this page
 
@@ -322,6 +323,74 @@ thumb near the body is noisy); a held and dragged Attack or technique aims freel
 the drag; a technique's aim is drawn in its form on the ground (a line, a cone, a circle at a point within reach, or a
 circle round the caster); dragging back onto the button cancels. No charged throw and no lock-on switching yet.
 
+### 3.9 Combat animation and feel (added for decision 38)
+
+**The look rule (decision 38, the user's clarification).** Jade River takes only the *feel* and the *technique* from
+Alabaster Dawn: timing, hit-stop, smears, readable impacts, camera kick and knockback. The *look* of every attack and
+skill stays wuxia and xianxia:
+
+- sword-light arcs and qi trails, ink-brush strokes, flowing silk and robe motion, jade and gold qi;
+- elemental Dao imagery: water ripples, wind petals and leaves, thunder talismans, fire lotus, earth stone, metal
+  sword-qi;
+- palm prints, sword formations and calligraphic impact marks.
+
+Nothing sci-fi, technological or generic-fantasy. The FX library's element language (`tools/art/fx/elements.py`) and the
+art bible's palette (`docs/redesign/art_bible.md` §2) stay. The same rule heads `data/combat_feel.json` and
+`data/fx_topdown.json`.
+
+Researched 28 September 2026 with web search only. As in §3.8, no page could be loaded in full (the proxy refuses the
+wikis and stores), so every claim rests on search extracts of the cited pages.
+
+**What the two games do.**
+
+| Question | CrossCode | Alabaster Dawn | Label |
+|---|---|---|---|
+| Combo length and finisher | Lea holds a pose for about a second after each melee hit; a hit inside that pose continues the chain, up to four. The fourth steps forward in a one-and-a-half-turn spin that hits twice for about +25% each, and she cannot move or attack until its pose ends ([F1]) | A three-hit combo whose finisher hits twice ([S20]). Holding Attack mid-combo changes the finisher, and delaying the inputs between hits changes the rest of the chain ([F2]) | Confirmed |
+| Commitment: anticipation and recovery | An attack cancels a dash and a dash cancels an attack ([C9]) | Heavy attacks lock you in for a set number of frames, with no dodge, block or parry in that window. Guides tell you to use them only after a whiff, a break or a projectile pattern ([F3], [S21]) | Confirmed. The frame counts are **not found** for either game |
+| Charged and delayed attacks | Balls charge while held, and the game draws their path ([A4]) | Each weapon's Growth Chart unlocks charge attacks, delayed attacks and special starters ([F3], [F4]) | Confirmed |
+| Dash attack | Dash-cancel, and the speedrun trick jump-attack-dash-cancel ([C9]) | **Not found** as a named move | Inferred (CrossCode) |
+| Guard and parry | A perfect guard is the shield raised a very short time before the hit. It nullifies the blow, shows a "P" instead of a number, and adds nothing to guard break. Against some charged attacks it becomes a guard counter that stuns the attacker. Guard arts charge for about a second of automatic perfect guards ([F5]) | A parry stuns and opens a special follow-up attack that normal combos cannot reach; parries fill the stagger gauge faster ([F2], [S21]) | Confirmed |
+| Break | — | A stagger gauge above HP fills from repeated hits, charged attacks and parries; full, the foe is stunned for a heavy follow-up. Heavy weapons empty it, light ones keep it filled ([F3]) | Confirmed |
+| Hit feedback | — | Reviews describe "a bursting of hit sparks, weapon trails, AOE markers and visual telegraphs" and impact you "can feel", with independently animated limbs ([F6], [F7]). No source names a hit-stop length or a shake | Confirmed (the look of it) / **not found** (the numbers) |
+| How skills read from above | Combat Arts per element and per action ([C9]) | Divine Arts are element finishers (melee, ranged or guard) fed by a Divine Charge built in the fight ([F8], [S22]). Skills show as area markers and telegraphs on the ground ([F6]). The camera zooms in and out for set pieces and sits a little further out in the open ([F9]) | Confirmed |
+
+**Craft numbers from elsewhere** (not Alabaster Dawn; they give the scale):
+
+- **Hit-stop.** Street Fighter V freezes 8, 12 and 15 frames for a light, medium and heavy attack on block ([F10]).
+  Fighting games in general use about 9, 11 and 13 ([F11]). Heavier blows freeze longer.
+- **Screen shake and pauses.** Vlambeer's "Art of Screenshake" talk pauses the action for a frame or two when a foe
+  dies, the player is hit or something explodes, to build weight into the action ([F12]).
+- **Smears and timing.** Every slash needs at least one anticipation frame, the slash, and usually recovery frames.
+  Smear frames are always few and fast. Too much anticipation reads as input lag, and too much recovery makes the
+  character feel sticky. A heavy weapon earns slower anticipation and recovery, never a slower smear ([F13], [F14]).
+- **Knockback and flashes.** Top-down action games sell a hit with a flicker on the struck body, a sound and a shake
+  ([F15]).
+
+**Inferred for a CrossCode-style game at 60 fps** (Speculation, where the table says "not found"): a light step of
+6–10 frames of anticipation, 3–5 of smear and 10–20 of recovery, the chain buffered from the smear on; a heavy finisher
+twice the anticipation, the same smear and a longer recovery; a hit-stop of 2–8 frames, well under a fighting game's,
+because an action RPG lands many more blows a second on a crowd.
+
+**What Jade River takes** (built for decision 38: `data/combat_feel.json` from `tools/data/combat_feel.py`, played by
+`CombatFeel` and `TopdownFx`; the plan's "As built: combat feel"):
+
+- **Phases.** A step's anticipation is its `hit_at` in `weapon_families.json`, its active window is the smear's
+  frames from there, and its recovery is the rest. They are derived from the family's own timing, never kept twice.
+- **Cancels.** A dodge cancels the anticipation (the blow is dropped) or the recovery once part of it has run. Never
+  the active window, and a heavy finisher only late in its recovery: the reference's commitment rule.
+- **Hit-stop by weight.** Light 3 frames, medium 4, heavy 6, finisher 8, a crit 2 more: about a third of a fighting
+  game's.
+- **Camera.** A kick of 2–6 px along the blow for a heavy blow, and a shake only for a finisher, a crit or a heavy
+  blow taken. Under Reduce motion there is no kick, shake or hit-stop.
+- **The foe's body.** Two frames of white, then a tint; a knockback hop of up to 10 art px over the knockback's time;
+  dust where it skids.
+- **Drawn per weapon family and per direction.** Smears for every combo step, the finisher, the charged (dragged)
+  finisher, the dash attack, the air blow, the guard, the parry and the Plunge. Impact marks per element. Dust for a
+  dash, a landing and a skid. Every technique form redrawn on the ground plane in five drawn directions (the west
+  three mirror).
+- **Skills read from above** by the aim's ground preview (Phase 2, the reference's telegraph) and by their forms drawn
+  flat on the floor, at the height they strike.
+
 ---
 
 ## 4. Diagrams and pseudo-code
@@ -557,6 +626,39 @@ Aiming and targeting (§3.8):
 - [A6] Alabaster Dawn Basic Guide and FAQ (Steam guide) — https://steamcommunity.com/sharedfiles/filedetails/?id=3715211886
 - [A7] Touch Control Design: Ways of Playing on Mobile — https://mobilefreetoplay.com/control-mechanics/
 
+Combat animation and feel (§3.9):
+
+- [F1] Melee (Official CrossCode Wiki) — https://crosscode.fandom.com/wiki/Melee
+- [F2] Alabaster Dawn Early Access Review (The Geekly Grind) — https://www.thegeeklygrind.com/all-posts/alabaster-dawn-early-access-review
+- [F3] Alabaster Dawn Beginner Combat Guide (GAMES.GG) — https://games.gg/alabaster-dawn/guides/alabaster-dawn-beginner-combat-guide/
+- [F4] Growth Chart (Alabaster Dawn Wiki) — https://alabasterdawn.wiki.gg/wiki/Growth_Chart
+- [F5] Guarding (Official CrossCode Wiki) — https://crosscode.fandom.com/wiki/Guarding
+- [F6] Alabaster Dawn Early Access Review (Power Up Gaming) — https://powerupgaming.co.uk/2026/05/12/alabaster-dawn-early-access-review/
+- [F7] Alabaster Dawn Hands-On: Modern Retro Done Right (RPGFan) — https://www.rpgfan.com/2026/05/04/alabaster-dawn-hands-on-preview/
+- [F8] Divine Arts (Alabaster Dawn Wiki) — https://alabasterdawn.wiki.gg/wiki/Divine_Arts
+- [F9] Version history (Alabaster Dawn Wiki) — https://alabasterdawn.wiki.gg/wiki/Version_history
+- [F10] Hitstop in Street Fighter V (Shoryuken) — http://shoryuken.com/2016/06/07/hitstop-in-street-fighter-v-kens-not-so-little-secret/
+- [F11] Street Fighter 6 Game Data (SuperCombo Wiki) — https://wiki.supercombo.gg/w/Street_Fighter_6/Game_Data
+- [F12] A Few Experiments Based on Jan Willem Nijman's Art of Screenshake Lecture (Blue Tengu) — https://www.bluetengu.com/2014/12/12/art-of-screenshake-experiments/
+- [F13] Pixelblog 9: Melee Attacks (SLYNYRD) — https://www.slynyrd.com/blog/2018/9/8/pixelblog-9-melee-attacks
+- [F14] Pixel Tutorial: Sword Slash Animation (itch.io) — https://itch.io/t/2489691/pixel-tutorial-sword-slash-animation
+- [F15] Hyper Light Drifter General Discussions: feedback thread — https://steamcommunity.com/app/257850/discussions/0/357284131782677580/
+
+[F1]: https://crosscode.fandom.com/wiki/Melee
+[F2]: https://www.thegeeklygrind.com/all-posts/alabaster-dawn-early-access-review
+[F3]: https://games.gg/alabaster-dawn/guides/alabaster-dawn-beginner-combat-guide/
+[F4]: https://alabasterdawn.wiki.gg/wiki/Growth_Chart
+[F5]: https://crosscode.fandom.com/wiki/Guarding
+[F6]: https://powerupgaming.co.uk/2026/05/12/alabaster-dawn-early-access-review/
+[F7]: https://www.rpgfan.com/2026/05/04/alabaster-dawn-hands-on-preview/
+[F8]: https://alabasterdawn.wiki.gg/wiki/Divine_Arts
+[F9]: https://alabasterdawn.wiki.gg/wiki/Version_history
+[F10]: http://shoryuken.com/2016/06/07/hitstop-in-street-fighter-v-kens-not-so-little-secret/
+[F11]: https://wiki.supercombo.gg/w/Street_Fighter_6/Game_Data
+[F12]: https://www.bluetengu.com/2014/12/12/art-of-screenshake-experiments/
+[F13]: https://www.slynyrd.com/blog/2018/9/8/pixelblog-9-melee-attacks
+[F14]: https://itch.io/t/2489691/pixel-tutorial-sword-slash-animation
+[F15]: https://steamcommunity.com/app/257850/discussions/0/357284131782677580/
 [A1]: https://steamcommunity.com/app/368340/discussions/1/1733213724909838994/
 [A3]: https://steamcommunity.com/app/368340/discussions/0/3806156528944690350/
 [A4]: https://crosscode.fandom.com/wiki/Balls

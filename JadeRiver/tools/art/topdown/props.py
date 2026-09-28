@@ -9,6 +9,7 @@ props (`ANIM`) hold their frames side by side. The kinds the Phase 1 room places
 """
 from __future__ import annotations
 
+import terrain2 as T2
 import tiles as tl
 from canvas import Img, h01
 from palette import (BAMBOO, BARK, BRONZER, CLOUD, DARKWOOD, DIRT, GOLDR, HOLLOW, JADE, BJADE, LANTERN, LEAF, LOTUS,
@@ -88,39 +89,73 @@ def house(s: Img, tw: int = 6, store: bool = False, hall: bool = False) -> None:
         for x in (d0 + 9, d0 + 13, d0 + 17):                   # three gilt characters, unreadable at this size
             s.rect(x, fy - 21, 2, 2, GOLDR[2])
     s.hline(d0 + 1, fy - 3, 26, STONE[5])                      # the threshold
-    for i in range(fx, fx + tw * 16):                          # the eave's shadow on the wall
-        for r, a in enumerate((150, 110, 70, 35)):
-            s.blend(i, fy - 32 + r, c("0B2A30"), a)
-    # Roof plane: 4 px of overhang each side, 50 deep, tiles from the atlas's roof top.
-    roof = tl.roof_top(9)
-    for y in range(R0, fy - 30):
-        for x in range(0, W):
-            s.put(x, y, roof.get(x % 16, (y - R0) % 16))
-    ridge = R0 + 12
-    for y in range(R0, ridge):                                 # the strip beyond the crest leans away: a step darker
-        for x in range(0, W):
-            s.blend(x, y, c("0B2A30"), 70)
-    for y in range(R0, fy - 30):                               # verges: lit west, shaded east
-        s.put(0, y, ROOF[6])
-        s.put(1, y, ROOF[5])
-        s.put(W - 2, y, ROOF[2])
-        s.put(W - 1, y, ROOF[1])
-    s.rect(2, ridge - 2, W - 4, 1, ROOF[5])                    # the crest: stacked tiles with openwork, curled ends
-    s.rect(2, ridge - 1, W - 4, 2, ROOF[3])
-    s.rect(2, ridge + 1, W - 4, 1, ROOF[1])
-    for x in range(6, W - 6, 8):
-        s.put(x, ridge - 1, ROOF[1])
-        s.put(x + 1, ridge - 1, ROOF[1])
-    if not store:
-        s.rect(W // 2 - 2, ridge - 4, 4, 3, JADE)              # a jade pearl at the crest's middle
-        s.put(W // 2 - 1, ridge - 4, BJADE)
-    _curl(s, 2, ridge - 2, -1)
-    _curl(s, W - 3, ridge - 2, 1)
-    eave = tl.eave_face(16)                                    # the eave's front: lit verge and round tile ends
-    for x in range(0, W):
-        for r in range(6):
-            s.put(x, fy - 30 + r, eave.get(x % 16, r))
+    _roof(s, W, R0, fy, store)
     s.outline()
+
+
+def _roof(s: Img, W: int, R0: int, fy: int, store: bool) -> None:
+    """A river-town roof in dark glazed tile (Terrain v2, art bible "Terrain v2" buildings), W wide from row R0 to the
+    eave at fy - 30: rows of round cover tiles (each a small glazed cylinder, a glint down its sunlit west flank) between
+    shaded channels, the courses lapping every 4 px; the courses, the ridge and the eave sweep up toward both ends (a
+    few px, the curve of a Jade River roof) while the plane itself stays even, a floor you can land on (decision 29).
+    The far strip beyond the ridge faces the north-west sun, a step lighter; the verges are lit west and shaded east;
+    the heavy ridge has openwork, curled ends tipped in gold and, on a house, a jade pearl; under the eave's round
+    tile ends the dark soffit and a deep blue-violet shadow band lie on the wall."""
+    ridge = R0 + 12
+    eave_y = fy - 30
+
+    def sweep(x: int) -> int:
+        u = abs(x + 0.5 - W / 2) / (W / 2)
+        return int(u ** 3 * 3.6)
+
+    for i in range(4, W - 4):                                  # the eave's shadow on the wall, under the soffit
+        for r, a in enumerate((180, 130, 85, 45, 20)):
+            s.blend(i, fy - 24 + r, T2.SHADOW, a)
+    for x in range(W):
+        lift = sweep(x)
+        for y in range(R0 - lift, eave_y - lift):
+            yy = y + lift - R0
+            c4, row = x % 4, (yy - 12) % 6
+            far = y + lift < ridge
+            k = (4, 4, 3, 1)[c4]
+            if c4 == 0 and row in (2, 3):
+                k = 6                                          # the glaze's glint down a cover tile's sunlit flank
+            if row == 5 and c4 < 3:
+                k += 1                                         # a tile's lower lip, lit
+            elif row == 0:
+                k = max(0, k - 2) if c4 < 3 else 0             # the shadow under the lap
+            if not far and yy > (eave_y - R0) * 2 // 3 and c4 == 3:
+                k = 0
+            if far:
+                k = min(6, k + 1)
+            if x < 2:
+                k = 6 - x
+            elif x >= W - 2:
+                k = 2 - (x - (W - 2))
+            col = T2.ROOF2[k]
+            if T2.hp(x // 4, yy // 4, 7, 256, 256) < 0.06 and c4 < 3:
+                col = T2.mix(col, T2.SUN, 0.12)
+            s.put(x, y, col)
+        # the ridge: stacked ridge tiles, a lit top, openwork, a dark underside
+        ry = ridge - lift
+        if 2 <= x < W - 2:
+            for r, k in ((-3, 6), (-2, 5), (-1, 3), (0, 3), (1, 1)):
+                s.put(x, ry + r, T2.ROOF2[k])
+        if 6 <= x < W - 6 and (x - 6) % 8 in (0, 1):
+            s.put(x, ry - 1, T2.ROOF2[1])
+        # the eave: round tile ends along the swept line, the dark soffit under them
+        ey = eave_y - lift
+        eave = T2.eave_face(16)
+        for r in range(6):
+            s.put(x, ey + r, eave.get(x % 16, r))
+        for r in range(lift):
+            s.put(x, ey + 6 + r, T2.ROOF2[0])
+    if not store:
+        s.rect(W // 2 - 2, ridge - 6, 4, 3, JADE)              # a jade pearl at the ridge's middle
+        s.put(W // 2 - 1, ridge - 6, BJADE)
+        s.put(W // 2 + 1, ridge - 4, JADE)
+    _curl(s, 2, ridge - 2 - sweep(2), -1)
+    _curl(s, W - 3, ridge - 2 - sweep(W - 3), 1)
 
 
 def storehouse(s: Img) -> None:
@@ -630,9 +665,10 @@ SHEET_W = 512
 
 
 def shadow_sprite(dx: int, dy: int, rx: float, ry: float) -> tuple[Img, list]:
-    """A prop's floor shadow (art bible §3): a translucent deep-teal ellipse centred (dx, dy) from the footprint's
-    south-west corner, denser in its core (two stepped rings, no blur). Returns the sprite and its top-left corner from
-    that footprint corner; the room view lays it on the floor the prop stands on, never on a body."""
+    """A prop's floor shadow (art bible §3, "Terrain v2" light): a translucent ellipse of the world's one shadow colour
+    (blue-violet) centred (dx, dy) from the footprint's south-west corner, denser in its core (two stepped rings, no
+    blur). Returns the sprite and its top-left corner from that footprint corner; the room view lays it on the floor the
+    prop stands on, never on a body."""
     x0, x1 = int(dx - rx) - 1, int(dx + rx) + 2
     y0, y1 = int(dy - ry) - 1, int(dy + ry) + 2
     s = Img(x1 - x0, y1 - y0)
@@ -641,7 +677,7 @@ def shadow_sprite(dx: int, dy: int, rx: float, ry: float) -> tuple[Img, list]:
             u, v = (i + 0.5 - dx) / rx, (j + 0.5 - dy) / ry
             d = u * u + v * v
             if d <= 1.0:
-                s.put(i - x0, j - y0, alpha(SHADE, 60 if d > 0.5 else 105))
+                s.put(i - x0, j - y0, alpha(T2.SHADOW, 64 if d > 0.5 else T2.SHADOW_A))
     return s, [x0, y0]
 
 

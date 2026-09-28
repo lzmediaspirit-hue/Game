@@ -95,3 +95,40 @@ CLOUD = ramp("3A5670", "5E83A3", "8DB2CC", "C4DAE6", "EEF5F7")
 # Cast shadows and contact shade are a translucent deep teal laid over whatever is under them (the hue-shift rule).
 SHADE = c("0B2A30")
 WARM_RIM = c("FFF0C8")
+
+# ==================================================================================================================
+# Terrain v2 (decision 40; docs/redesign/art_bible.md "Terrain v2"). The tiles' own ramps, hue-shifted harder than the
+# kit's: every ramp's dark end leans blue-violet or teal and its light end warm yellow, so a lit plane and its shade
+# differ in hue as well as value (the "32-bit" look). The props and creatures keep the ramps above; these are the
+# ground's, the faces', the water's and the buildings' drawn on the grid (and the house props' roofs and walls).
+# ==================================================================================================================
+# The sun: one light, high in the north-west. Its warm light on lips, west rims and lit planes:
+SUN = c("FFE9A6")
+# The shadow: a cool blue-violet laid translucently over whatever is under it (never black, never grey). Cast shadows
+# use it at SHADOW_A; ambient occlusion steps down from AO_STEPS where a face meets the ground.
+SHADOW = c("241F4F")
+SHADOW_A = 104                      # 0.41: a cast shadow's body
+AO_STEPS = (150, 104, 64, 30)       # 0.59, 0.41, 0.25, 0.12: the 4 px at the foot of a face, nearest first
+# The low-frequency tone patches over big floors: sunlit (warm) and cloud-shaded (cool) (TONE_A each).
+TONE_SUN = c("FFE27A")
+TONE_SHADE = c("2B3A6E")
+TONE_A = (46, 44)                   # sun, shade
+
+GRASS2 = ramp("162B3A", "1C4342", "25604A", "3C7E4C", "5C9B4C", "8DB955", "C6DB7C")   # base 4, clumps 3, tips 5
+DIRT2 = ramp("35222E", "553535", "7A5140", "9C7152", "B98F63", "D3AE7C", "EACDA0")    # base 3-4
+PAVE2 = ramp("2E2A3F", "4A4558", "696372", "8A8388", "ABA29C", "C9BFB1", "E4DCCB")    # pale town stone, base 4-5
+STONE2 = ramp("1F2236", "31384C", "4B5668", "6A7682", "8D979D", "B1BAB9", "D8DED6")   # dressed granite, cooler
+ROCK2 = ramp("1E1D33", "2F3046", "474A5C", "62666C", "82857F", "A7A794", "CECAAE")    # karst: warm lit planes
+EARTH2 = ramp("241B2B", "3A2932", "553A38", "714F41", "8E684D", "AA855F", "C5A47A")   # bank soil
+MOSS2 = ramp("13283A", "1A3F3E", "285B42", "3F7845", "63964A", "90B656", "C4D67E")
+WATER2 = ramp("0C1B33", "0F2C44", "114350", "155C5A", "1E7766", "2F9575", "5DBB93", "A9E6C9")  # deep -> glint
+BED2 = ramp("2F4A45", "4C6F5E", "6F9377", "95B28C", "BCCDA2")                              # the shallows' bed
+FOAM2 = c("E9FBF1")
+ROOF2 = ramp("14131F", "1F2131", "2B3044", "3A4458", "4F5C6E", "6E7D8C", "9BAAB1")    # dark glazed tile
+PLASTER2 = ramp("6F6679", "958D98", "B8B0AE", "D3CBBD", "E7E0CF", "F6F1E3")
+TIMBER2 = ramp("1E1219", "362127", "53342C", "735036", "946D45")
+WOOD2 = ramp("2A1A1C", "46291F", "683F28", "8B5B34", "AD7B46", "CB9C63", "E2BE88")
+RED2 = ramp("3A1026", "661A2E", "922636", "BD3B3C", "D95B49", "EE8B6B")
+LEAFFALL = ramp("6B3A1E", "A5602A", "D69A3C", "F0C862")                                # fallen leaves
+PETAL = ramp("B0628A", "E7A0BE", "F8D2E0")                                              # blossom petals
+FLOWER = [c("F4F0E0"), c("FFE07A"), c("F0A0C0"), c("A8B8F0"), c("F28A6A")]            # white, gold, pink, blue, coral

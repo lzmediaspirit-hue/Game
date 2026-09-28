@@ -31,8 +31,9 @@ extends Node2D
 ## TopdownLight.
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
-const VIEW := Vector2i(640, 360)
+const VIEW := Vector2i(TopdownRoom.VIEW)   ## the world view in art px (TopdownRoom.VIEW)
 const T := 16.0
+const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are drawn in chunks of this many cells
 
 var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
@@ -77,7 +78,17 @@ var atmosphere: TopdownAtmosphere   ## decision 40: grade, night and lights, clo
 var hazards: HazardView
 var transfer_cooldown := 0.0
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
+var figures: Dictionary = {}    ## object id -> its Figure in the sorted layer (a staged scene moves the people)
+## Decision 39: a staged scene's camera (SceneDirector): the point it looks at in world units (null: the body's
+## follow), its zoom, and `stage_snap` to cut there at once (Reduce motion).
+var stage_cam = null
+var stage_zoom := 1.0
+var stage_snap := false
 var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
+## Decision 38: the combat's effects on the ground plane (smears, forms, impacts, marks, dust) in the sorted layer, and
+## whether a hit-stop holds the fight (and them) this frame.
+var tfx: TopdownFx
+var held := false
 
 signal context_changed(ctx: Dictionary)
 
@@ -143,7 +154,10 @@ func _ready() -> void:
 	effects = FxLayer.new()
 	overlay.add_child(effects)
 	effects.chest = float(ContentDB.movement("topdown.combat.chest", 40))
+	effects.forms = false    # decision 38: the forms, bolts and impact marks are TopdownFx's ground-plane sheets
+	effects.sparks = false
 	combat_fx = CombatFx.new(effects, self)
+	tfx = TopdownFx.new(self)
 	if not live:
 		var caption := CanvasLayer.new()
 		caption.layer = 4
@@ -173,20 +187,35 @@ func _build_room() -> void:
 	foe_views.clear()
 	label_views.clear()
 	for l in loot_layer.get_children(): l.queue_free()
+	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
 	bg.position = -Vector2(VIEW)
-	var water := WaterView.new(self)
-	var ground := FloorView.new(self)
-	# Decision 40: the cast shadows, baked once for the room, laid over the water and the ground floor it falls on.
+	# Terrain v2: the floor and the water in chunks, so the renderer skips the ones off screen and the water redraws
+	# only the chunks in view.
+	var under: Array = [bg]
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			var r := Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))
+			var water := WaterView.new(self, r)
+			if not water.cells.is_empty(): under.insert(1, water)
+			else: water.free()
+	# Decision 40: the cast shadows, baked once for the room, laid over the water (after its chunks) and over the ground
+	# floor (after its chunks).
 	shadows = TopdownShadows.new(room)
-	for n in [shadows.view("ground"), ground, shadows.view("water"), water, bg]:
-		if n == null: continue
-		viewport.add_child(n)
-		viewport.move_child(n, 0)   # under the floor marks and everything sorted
-		_room_nodes.append(n)
+	var water_shade := shadows.view("water")
+	if water_shade != null: under.append(water_shade)
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
+	var ground_shade := shadows.view("ground")
+	if ground_shade != null: under.append(ground_shade)
+	for i in range(under.size() - 1, -1, -1):
+		viewport.add_child(under[i])
+		viewport.move_child(under[i], 0)   # under the floor marks and everything sorted
+	_room_nodes.append_array(under)
 	for y in room.h:
 		var strip := StripView.new(self, y)
 		if not strip.rects.is_empty():
@@ -205,14 +234,21 @@ func _build_room() -> void:
 	npc_views = {}
 	object_views = {}
 	portal_views = []
+	figures = {}
+	labels_a = 1.0   # the room's new labels are drawn whole; a scene's cut fades them from there
 	if live and Game.room_rt != null:
 		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay, player)
 		npc_views = built.npc_views
 		object_views = built.object_views
 		portal_views = built.portal_views
+		figures = built.figures
 		_room_nodes.append_array(built.nodes)
+		# The hazards' washes, weather and marks draw on the overlay under the names; their parts at a spot (a ring, a
+		# falling rock, a bolt) sort with the room in the viewport.
 		hazards = HazardView.new()
 		hazards.world = self
+		hazards.room = room
+		hazards.sorted_layer = sorted
 		overlay.add_child(hazards)
 		_room_nodes.append(hazards)
 		for l in Game.room_rt.loot:
@@ -245,8 +281,14 @@ func _settle_camera() -> void:
 	camera.position = cam.round()
 
 func _physics_process(delta: float) -> void:
+	held = false
 	if sim_frozen or Game.paused: return
-	if player.bound() and Game.combat.hold_for_hitstop(delta): return   # a blow's hit-stop holds the fight still
+	# A blow's hit-stop holds the fight still (decision 38: by its weight; none under Reduce motion).
+	if player.bound():
+		if not CombatFeel.hitstop_on(): Game.combat.hitstop = 0.0
+		elif Game.combat.hold_for_hitstop(delta):
+			held = true
+			return
 	for e in player.physics_step(delta): _feedback(e)
 	if player.bound(): Game.tick(delta)
 	if live: _check_portals(delta)
@@ -258,34 +300,46 @@ func _process(delta: float) -> void:
 	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
 	var goal := _cam_target()
+	if stage_cam != null: goal = _clamp_cam((stage_cam as Vector2) / TopdownRoom.ART)   # a staged scene looks elsewhere
 	if not camera_hold.is_empty():
 		var h := camera_hold
 		h.t = float(h.t) + delta
 		var ends := float(h.in) + float(h.hold) + float(h.out)
 		goal = goal.lerp(h.target, smoothstep(0.0, float(h.in), h.t) * (1.0 - smoothstep(ends - float(h.out), ends, h.t)))
 		if float(h.t) >= ends: camera_hold = {}
-	cam = cam.lerp(goal, k)
+	cam = goal if stage_snap else cam.lerp(goal, k)
+	stage_snap = false
 	camera.position = cam.round()
 	camera.offset = (shake.offset(delta) / TopdownRoom.ART).round()
-	overlay.position = (Vector2(VIEW) * 0.5 - camera.position - camera.offset) * TopdownRoom.ART
+	camera.zoom = Vector2(stage_zoom, stage_zoom)
+	overlay.scale = camera.zoom
+	overlay.position = (Vector2(VIEW) * 0.5 - (camera.position + camera.offset) * stage_zoom) * TopdownRoom.ART
 	if player.bound():
 		if live: _update_context()
 		layout_labels()
 
-## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room.
+## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room
+## as it is drawn (a ridge on its north edge included) and never leaving the body out of view (TopdownRoom.camera_for,
+## which the Enemies authority also asks what the player sees).
 func _cam_target() -> Vector2:
 	var m: TopdownMotor = player.motor
-	var t := (Vector2(m.pos.x, m.pos.y - cam_z) + m.vel * float(TopdownMotor.conf("camera_look_ahead", 0.2))) / TopdownRoom.ART + Vector2(0, -12)
-	var size := room.art_size()
-	var half := Vector2(VIEW) * 0.5
-	t.x = size.x * 0.5 if size.x <= VIEW.x else clampf(t.x, half.x, size.x - half.x)
-	t.y = size.y * 0.5 if size.y <= VIEW.y else clampf(t.y, half.y, size.y - half.y)
+	return room.camera_for(m.pos, cam_z, m.vel)
+
+## A staged scene's camera point in art px kept inside the room as it is drawn (a ridge on its north edge included), at
+## the view's zoom, or on its middle where the room is smaller.
+func _clamp_cam(t: Vector2) -> Vector2:
+	var b := room.drawn_rect()
+	var half := Vector2(VIEW) * 0.5 / stage_zoom
+	t.x = b.get_center().x if b.size.x <= half.x * 2.0 else clampf(t.x, b.position.x + half.x, b.end.x - half.x)
+	t.y = b.get_center().y if b.size.y <= half.y * 2.0 else clampf(t.y, b.position.y + half.y, b.end.y - half.y)
 	return t
 
 func _sync(delta: float) -> void:
 	player.sync(delta)
 	shadow.sync()
 	fx.advance(delta)
+	if not held: tfx.advance(delta)
+	_hold_marks()
 	for uid in foe_views.keys():
 		if is_instance_valid(foe_views[uid]): foe_views[uid].sync(delta)
 		else: foe_views.erase(uid)
@@ -307,16 +361,18 @@ func _feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
 		"jumped": Audio.play("jump")
-		"dashed", "plunged": Audio.play("dodge")
+		"dashed", "plunged":
+			Audio.play("dodge")
+			if str(e.type) == "dashed": tfx.dust("dash", m.pos, m.z, m.dash_dir)   # decision 38: the dash's kick-off dust
 		"landed":
-			fx.puff(m.pos, m.z, maxf(float(e.fall), 64.0) if e.get("plunge", false) else float(e.fall))
+			if float(e.fall) > 6.0 or e.get("plunge", false): tfx.dust("land", m.pos, m.z)
 			if e.get("plunge", false):
-				# The Plunge's impact (decision 35): a shock ring the size of its strike, dust and a jolt, as the side view's.
-				var feet := player_feet()
-				effects.add("ring", feet, {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
-				effects.add("dust", feet, {"color": Color(0.8, 0.74, 0.62, 0.7), "dur": 0.4})
+				# The Plunge's impact (decision 35, drawn for decision 38): a crater, cracks and stone on the floor, a shock
+				# ring the size of its strike, and a heavy jolt.
+				tfx.mark("plunge", m.pos, m.z)
+				effects.add("ring", player_feet(), {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
 				Audio.play("rumble")
-				add_shake(0.2)
+				feel("heavy", Vector2.DOWN)
 			elif float(e.fall) > 12.0: Audio.play("land")
 		"splashed":
 			fx.splash(m.pos)
@@ -359,6 +415,14 @@ func view_center() -> Vector2: return (camera.position + camera.offset) * Topdow
 func screen_center() -> Vector2: return view_center()
 func feet_on_screen() -> Vector2: return overlay.get_global_transform_with_canvas() * player_feet()
 
+## Decision 39: the names, markers and plates over the world (the people's, the things', the ways', the foes') fade
+## toward `to` (a staged scene's cut takes them away, and gives them back).
+var labels_a := 1.0
+func fade_labels(to: float, delta: float) -> void:
+	labels_a = move_toward(labels_a, to, delta * 4.0)
+	for v in npc_views.values() + object_views.values() + portal_views + label_views.values():
+		if is_instance_valid(v): v.modulate.a = labels_a
+
 ## A moment's camera move (P6 `camera` layer) to a point in world units: ease there, hold, and ease back.
 func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
 	camera_hold = {"target": target / TopdownRoom.ART, "t": 0.0, "in": in_s, "hold": hold_s, "out": out_s}
@@ -385,6 +449,42 @@ func _loadout(c) -> void:
 func add_shake(s: float, amp := -1.0) -> void:
 	shake.add(s, amp)
 
+# ------------------------------------------------------------------ decision 38: the combat feel
+## The camera's part of a blow of `weight` going along `dir`: a kick the way it went, and a shake for the heaviest
+## (CombatFeel; none under Reduce motion or with Screen shake off).
+func feel(weight: String, dir: Vector2) -> void:
+	var w := CombatFeel.weight(weight)
+	if float(w.get("kick_px", 0)) > 0.0: shake.kick(dir, float(w.kick_px), float(CombatFeel.cfg().get("kick_s", 0.12)))
+	if float(w.get("shake_s", 0.0)) > 0.0: shake.add(float(w.shake_s), float(w.get("shake_px", 0)))
+
+## CombatFx's hook for a blow that landed (a hit_landed payload): its impact mark where it struck, in the blow's
+## direction, the element's colours and the blow's weight, and the camera's kick and shake; a blow on the player flashes
+## the body.
+func feel_hit(p: Dictionary) -> void:
+	if str(p.get("type", "")) == "dot": return
+	var at := Vector2(float(p.get("x", 0)), float(p.get("y", 0)))
+	var from: Vector2 = at - player.motor.dir * 20.0
+	var attacker = Game.room_rt.enemies.get(int(str(p.get("attacker", "")))) if Game.room_rt and str(p.get("attacker", "")).is_valid_int() else null
+	if str(p.get("target_kind", "")) == "player":
+		player.hurt_t = 0.0
+		if attacker != null: from = attacker.plane
+	elif str(p.get("attacker", "")) == Game.active_id: from = player.motor.pos
+	var dir: Vector2 = (at - from).normalized() if at.distance_to(from) > 1.0 else player.motor.dir
+	var weight := str(p.get("weight", "medium"))
+	var floor_z := float(p.get("floor", 0.0))
+	# The mark sits on the struck body at its chest (the hit's height over its floor), keyed with that body.
+	var lift := clampf(float(p.get("alt", 0.0)) - floor_z, 0.0, 60.0) * 0.5
+	tfx.impact(at, floor_z + lift, dir, weight, str(p.get("element", "none")))
+	feel(weight, dir)
+
+## The marks held while a state lasts: the guard's wall of qi while guarding, the charge gathering while a finisher is
+## armed on Attack.
+func _hold_marks() -> void:
+	if not player.bound(): return
+	var m: TopdownMotor = player.motor
+	tfx.hold("guard", bool(Game.combat.timeline(player.actor_id).guard), m.pos, m.z, m.dir)
+	tfx.hold("charge", str(player.aim.get("move", "")) == "finisher", m.pos, m.z, m.dir)
+
 func _add_foe(e: EnemyState) -> void:
 	if foe_views.has(e.uid) and is_instance_valid(foe_views[e.uid]): return
 	var v := FoeView.new(self, e)
@@ -410,7 +510,7 @@ func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 func layout_labels() -> Dictionary:
 	for uid in label_views.keys():
 		if not is_instance_valid(label_views[uid]): label_views.erase(uid)
-	return WorldLabels.place_views(WorldShared.label_views(self, player.motor.pos.x), overlay.get_global_transform_with_canvas(), label_obstacles)
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), overlay.get_global_transform_with_canvas(), label_obstacles)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
@@ -430,23 +530,42 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var aim: Vector2 = p.get("aim", Vector2(int(p.get("facing", 1)), 0))
 				var tech := str(p.get("technique", ""))
+				var m: TopdownMotor = player.motor
 				if tech != "":
-					var at: Vector2 = p.get("at", player.motor.pos)
-					var point := lifted(at, room.height_at(at) if room.height_at(at) < INF else player.motor.z)
+					var at: Vector2 = p.get("at", m.pos)
+					var at_z: float = room.height_at(at) if room.height_at(at) < INF else m.z
+					var point := lifted(at, at_z)
 					# A circle at a point plays where it lands (its form's feet anchor is the point, not the caster).
 					var t := ContentDB.entry("techniques", tech)
 					var on_point := TopdownAim.form_of(t) == "point"
+					var reach := float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t)
 					combat_fx.cast(tech, point if on_point else player_feet(), int(p.facing), SpriteCache.element_color(str(p.get("element", "none"))),
-						float(p.get("windup", -1.0)), point, aim, float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t))
+						float(p.get("windup", -1.0)), point, aim, reach)
+					# Decision 38: the form drawn on the ground plane in its direction, at the caster or where it lands (a form
+					# on a foe lands on the point the aim locked: the foe's, or two thirds of the reach).
+					tfx.form(t, m.pos, m.z, aim, at, at_z, float(p.get("windup", -1.0)), reach)
 					Audio.play("technique")
 				else:
-					# A swing's arc along the aim, so each of the eight directions reads.
-					var f := 1 if aim.x >= 0.0 else -1
-					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -effects.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
-						"turn": (aim * f).angle(), "radius": 22.0, "dur": 0.22, "delay": float(p.get("windup", 0.0)) * 0.6})
+					# Decision 38: the family's smear for this step, in its direction, its contact on the hit.
+					var tl: Dictionary = Game.combat.timeline(player.actor_id)
+					var move := "air" if tl.get("air_attack", false) else ("charged" if p.get("finisher", false) else \
+						("dash" if player.dash_attack else "step_%d" % (int(p.get("combo", 0)) + 1)))
+					tfx.smear(player.actor_id, str(tl.get("family", "fists")), move, aim, m.pos, m.z, float(p.get("windup", 0.0)), 1.0 + float(Game.active().stats.value("attack_speed")))
 					Audio.play("swing")
 			elif p.get("enemy", false):
+				# A foe's wind-up: its tell over it (decision 38; its swipe comes with its blow, FoeView).
+				var e: EnemyState = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt else null
+				if e != null: tfx.mark("tell", e.plane, e.altitude + e.hover)
 				Audio.play("tell")
+		"attack_cancelled":
+			if str(p.get("actor", "")) == Game.active_id: tfx.cancel(Game.active_id)
+		"parried":
+			# Decision 38: the parry's crossed strokes before the body, toward the foe it caught, and a heavy jolt.
+			var pe: EnemyState = Game.room_rt.enemies.get(int(str(p.get("attacker", "0")))) if Game.room_rt else null
+			var pd: Vector2 = (pe.plane - player.motor.pos).normalized() if pe != null and pe.plane.distance_to(player.motor.pos) > 1.0 else player.motor.dir
+			tfx.mark("parry", player.motor.pos, player.motor.z, pd)
+			feel("heavy", pd)
+			WorldShared.play(self, name, p)
 		"artifact_spirit_spoke":
 			if str(p.get("actor", "")) == Game.active_id: effects.add("text", player_feet() + Vector2(0, -110), {"text": str(p.get("line", "")), "color": UiKit.PAPER, "size": 17, "dur": 3.0})
 		_:
@@ -470,15 +589,23 @@ func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
 	var src := tile(name)
 	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)))
 
-## A cell's top at `at`: its tile and the light overlays for its level (art bible §5).
-func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
-	blit(ci, terrain.top(x, y), at)
-	for o in terrain.overlays(x, y, l): blit(ci, o, at)
+## Terrain v2: draw a layer ([tile, colour], TopdownTerrain) at `at`, its top `h` rows only.
+func blit_layer(ci: CanvasItem, layer: Array, at: Vector2, h := T) -> void:
+	var src := tile(str(layer[0]))
+	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)), layer[1])
 
-## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px.
-func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float) -> void:
+## A cell's top at `at`: its layers (Terrain v2: the macro tile or a path under grass, a decal, the sun and shade
+## patches) and the light overlays for its level (art bible §5).
+func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
+	for layer in terrain.top_layers(x, y, l): blit_layer(ci, layer, at)
+
+## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px; with `cols`, only the pieces on those
+## columns of cells (a floor chunk's).
+func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float, cols := Vector2i(-9999, 9999)) -> void:
 	for piece in terrain.shadow_pieces(row, level):
 		var dest: Rect2 = piece[0]
+		var cx := floori(dest.position.x / T)
+		if cx < cols.x or cx >= cols.y: continue
 		ci.draw_texture_rect_region(atlas("props"), Rect2(dest.position + Vector2(0, dy), dest.size), piece[1])
 
 ## A node in the sorted layer sits at its key and draws back to screen rows by `lift` = key.
@@ -491,39 +618,51 @@ class Sorted extends Node2D:
 	func key(k: float) -> void:
 		position = Vector2(0, k)
 
-## The water, half a level under the ground, each cell's shore case in the frame of the 250 ms clock (art bible §6–§7).
+## The water, half a level under the ground, one chunk of cells: each cell's layers (Terrain v2: the water pattern,
+## the depth, its shore case, corner foam, ripples at the pilings) in the frame of the 250 ms clock (art bible §6–§7).
+## A chunk off screen skips its redraws until it comes into view.
 class WaterView extends Node2D:
 	var world
 	var frame := -1
-	var cells: Array = []   ## [screen position, [its tile in frames 0-3]]
-	func _init(w) -> void:
+	var area: Rect2
+	var cells: Array = []   ## [screen position, [its layers in frames 0-3]]
+	func _init(w, chunk: Rect2i) -> void:
 		world = w
 		var r: TopdownRoom = w.room
-		for y in r.h:
-			for x in r.w:
-				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water(x, y)])
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
+				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water_layers(x, y)])
+		area = Rect2(Vector2(chunk.position) * T, Vector2(chunk.size) * T + Vector2(0, T))
 	func _process(_d: float) -> void:
 		var f := int(Time.get_ticks_msec() / 250) % 4
-		if f != frame:
+		if f != frame and _in_view():
 			frame = f
 			queue_redraw()
+	func _in_view() -> bool:
+		var vs := Vector2(world.viewport.size)
+		return area.intersects(Rect2(world.camera.position - vs * 0.5, vs).grow(T))
 	func _draw() -> void:
-		for c in cells: world.blit(self, str(c[1][maxi(0, frame)]), c[0])
+		for c in cells:
+			for layer in c[1][maxi(0, frame)]: world.blit_layer(self, layer, c[0])
 
-## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows: under
-## everything that sorts.
+## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows, one chunk of
+## cells: under everything that sorts.
 class FloorView extends Node2D:
 	var world
-	func _init(w) -> void: world = w
+	var chunk: Rect2i
+	func _init(w, c: Rect2i) -> void:
+		world = w
+		chunk = c
 	func _draw() -> void:
 		var r: TopdownRoom = world.room
 		var tr: TopdownTerrain = world.terrain
-		for y in r.h:
-			for x in r.w:
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
 				if r.levels[y * r.w + x] != 0 or not r.stair_at(x, y).is_empty(): continue
 				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
-				if tr.edge_level(x, y + 1) == TopdownRoom.WATER: world.blit(self, tr.face(x, y, 0, true), Vector2(x * T, (y + 1) * T), T * 0.5)
-		for y in r.h: world.blit_shadows(self, y, 0, 0.0)
+				if tr.edge_level(x, y + 1) == TopdownRoom.WATER:
+					for layer in tr.face_layers(x, y, 0, 0, TopdownRoom.WATER): world.blit_layer(self, layer, Vector2(x * T, (y + 1) * T), T * 0.5)
+		for y in range(chunk.position.y, chunk.end.y): world.blit_shadows(self, y, 0, 0.0, Vector2i(chunk.position.x, chunk.end.x))
 
 ## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
 ## (the face's ends lit or shaded where it turns a corner), and the floor shadows of the props on them. Its key is the
@@ -555,8 +694,7 @@ class StripView extends Sorted:
 				var water: bool = south + k + 1 == 0
 				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
-				world.blit(self, tr.face(x, row, k, water), at, h)
-				for e in tr.face_ends(x, row, l, k): world.blit(self, e, at, h)
+				for layer in tr.face_layers(x, row, l, k, south): world.blit_layer(self, layer, at, h)
 		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
 ## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east
@@ -600,15 +738,20 @@ class PropView extends Sorted:
 		var origin: Array = art.get("origin", [0, 16])
 		src = Rect2(float(rr[0]), float(rr[1]), float(rr[2]), float(rr[3]))
 		var cell: Vector2i = p.cell
-		var south: float = (cell.y + (p.size as Vector2i).y) * T
-		var lvl := int(p.level)
-		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if lvl < 0 else -lvl * T
-		at = Vector2(cell.x * T - float(origin[0]), south + ground - float(origin[1]))
-		rects.append(Rect2(at, src.size))
-		key(south + 0.5)
+		rects.append(Rect2())
+		place_at(Vector2(cell.x * T, (cell.y + (p.size as Vector2i).y) * T), int(p.level), Vector2(float(origin[0]), float(origin[1])))
 		frames = int(art.get("frames", 1))
 		frame_ms = int(art.get("frame_ms", 0))
 		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+	## Stand the footprint's south-west corner at `sw` (art px) on a floor at `level` (a staged scene moves a prop so: a
+	## boat passing on the river).
+	func place_at(sw: Vector2, level: int, origin: Vector2) -> void:
+		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if level < 0 else -level * T
+		sw = sw.round()
+		at = Vector2(sw.x - origin.x, sw.y + ground - origin.y)
+		rects[0] = Rect2(at, src.size)
+		key(sw.y + 0.5)
+		queue_redraw()
 	func _ready() -> void:
 		set_process(frames > 1 and frame_ms > 0)
 	func _process(_d: float) -> void:
@@ -642,11 +785,9 @@ static func draw_blob(ci: CanvasItem, x: float, y: float, rx: float, a: float) -
 	ci.draw_rect(Rect2(x - rx, y - 1, rx * 2, 3), Color(TopdownLight.BLOB, a * TopdownLight.BLOB_RIM))
 	ci.draw_rect(Rect2(x - rx + 2, y - 2, rx * 2 - 4, 5), Color(TopdownLight.BLOB, a * TopdownLight.BLOB_CORE))
 
-## Landing dust and splashes, a few pixels each.
+## Splashes, a few pixels each (the dust of landings, dashes and skids is TopdownFx's, decision 38).
 class FxView extends Sorted:
 	var items: Array = []
-	func puff(p: Vector2, z: float, fall: float) -> void:
-		items.append({"kind": "dust", "at": TopdownWorld.to_screen(p, z).round(), "t": 0.0, "size": clampf(fall / 32.0, 0.5, 2.0), "key": world.room.sort_key(p, z)})
 	func splash(p: Vector2) -> void:
 		items.append({"kind": "splash", "at": TopdownWorld.to_screen(p, TopdownRoom.WATER_Z).round(), "t": 0.0, "size": 1.0, "key": world.room.sort_key(p, 0.0)})
 	func advance(delta: float) -> void:
@@ -658,12 +799,12 @@ class FxView extends Sorted:
 		for it in items:
 			var a: Vector2 = it.at - position
 			var t := float(it.t) / 0.45
-			var col := Color(0.91, 0.88, 0.81, 0.8 * (1.0 - t)) if it.kind == "dust" else Color(0.56, 0.8, 0.8, 0.9 * (1.0 - t))
+			var col := Color(0.56, 0.8, 0.8, 0.9 * (1.0 - t))
 			var spread := roundf((3.0 + 9.0 * t) * float(it.size))
 			for s in [-1, 1]:
 				draw_rect(Rect2(a.x + s * spread - 1, a.y - 1 - roundf(3.0 * t), 2, 2), col)
 				draw_rect(Rect2(a.x + s * roundf(spread * 0.5) - 1, a.y - 2 - roundf(5.0 * t), 1, 1), col)
-			if it.kind == "splash": draw_arc(a, spread, 0, TAU, 12, col, 1.0)
+			draw_arc(a, spread, 0, TAU, 12, col, 1.0)
 
 ## The body drawn flat in jade over whatever covers it (the side-view game's occlusion outline, redone for the grid).
 class Silhouette extends Node2D:
@@ -691,6 +832,9 @@ class Caption extends Control:
 ## under it, a flash when struck and a fade in death. It turns to eight facings (five drawn, SW, W and NW mirrored):
 ## where it walks, else where it aims in a fight, keeping its facing until another is 12 degrees nearer. Each action
 ## plays at its own rate from the manifest; a strike, a flinch and a death play once and hold their last frame.
+## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
+## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
+## figure at half size), placed, sorted and shadowed here the same way.
 class FoeView extends Sorted:
 	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
@@ -707,11 +851,23 @@ class FoeView extends Sorted:
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
+	var art: Node2D = null   ## the stand-in's drawing (no rows in the foe sheet), its feet at its origin
+	# Decision 38: the struck body flashes white, then tinted; a knockback hops it over the floor and leaves a skid.
+	var white := 0.0
+	var kb0 := 0.0
+	var hop := 0.0
+	var state := ""
 	func _init(w, e: EnemyState) -> void:
 		super(w)
 		uid = e.uid
+		add_child(FoeShadow.new(self))   # under the sprite, outside its flash
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
-		var sp: Dictionary = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
+		if e.team == "ally" or not (sheet.get("species", {}) as Dictionary).has(e.def_id):
+			art = TopdownPlaces.stand_in(e)
+			add_child(art)
+			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
+			return
+		var sp: Dictionary = sheet.get("species", {})[e.def_id]
 		acts = sp.get("actions", {})
 		mirror = sheet.get("mirror", {})
 		var c: Array = sheet.get("cell", [48, 40])
@@ -731,7 +887,14 @@ class FoeView extends Sorted:
 		ground_y = TopdownWorld.to_screen(e.plane, g if g < INF else e.altitude).round().y
 		key(room.sort_key(e.plane, e.altitude))
 		position.x = feet.x
-		visible = not e.hidden or e.ai.state == "windup"
+		visible = not e.hidden or (e.ai.state == "windup" and e.team != "ally")
+		if art != null:
+			art.position = Vector2(0, feet.y - position.y)
+			TopdownPlaces.pose(art, e)
+			tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else Color.WHITE
+			queue_redraw()
+			get_child(0).queue_redraw()
+			return
 		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover"]
 		var want := e.velocity if e.velocity.length() > 1.0 else (e.aim if fight else Vector2.ZERO)
 		if e.alive and want != Vector2.ZERO: facing = TopdownMotor.nearest_row(want, facing, FACINGS, 12.0)
@@ -749,13 +912,41 @@ class FoeView extends Sorted:
 		var i := int(t * float(a.get("fps", 6)))
 		var at: Array = list[i % list.size() if a.get("loop", true) else mini(i, list.size() - 1)]
 		src = Rect2(float(at[0]), float(at[1]), cell.x, cell.y)
-		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(1.8, 1.8, 1.8) if e.flash > 0.0 else Color.WHITE)
+		var fl: Dictionary = CombatFeel.cfg().get("flash", {})
+		white = 1.0 if e.alive and e.flash > 0.0 and 0.12 - e.flash < float(fl.get("white_s", 0.05)) else 0.0
+		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(str(fl.get("tint", "#ffb4a0"))) if e.flash > 0.0 else Color.WHITE)
+		# The knockback's hop: up and down over the push, by its strength; a strong one skids dust.
+		var kb := absf(e.knockback)
+		if kb > kb0 + 0.5:
+			kb0 = kb
+			var kn: Dictionary = CombatFeel.cfg().get("knock", {})
+			if kb >= float(kn.get("skid_from", 40)): world.tfx.dust("skid", e.plane, e.altitude, e.knock_dir)
+		if kb <= 0.5: kb0 = 0.0
+		hop = 0.0
+		if kb0 > 0.0:
+			var hmax := minf(float(CombatFeel.cfg().get("knock", {}).get("hop_max_px", 10)), kb0 * float(CombatFeel.weight("heavy").get("hop", 0.08)))
+			hop = roundf(hmax * sin(PI * clampf(1.0 - kb / kb0, 0.0, 1.0)))
+		# A foe's blow: its swipe the moment its wind-up turns into the strike.
+		var st := str(e.ai.get("state", ""))
+		if st == "attack" and state == "windup" and e.team == "enemy": world.tfx.mark("swipe", e.plane, e.altitude + e.hover, e.aim_dir())
+		state = st
+		material = TopdownFx.white_material() if white > 0.0 else null
 		queue_redraw()
+		get_child(0).queue_redraw()
 	func _draw() -> void:
-		TopdownWorld.draw_blob(self, 0.0, ground_y - position.y, shadow_rx, 0.45 * tint.a)
-		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
+		if art != null: return   # the stand-in draws itself; its shadow is the FoeShadow child
+		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
+
+## A foe's blob shadow on the floor, drawn behind its figure and outside the figure's hurt flash.
+class FoeShadow extends Node2D:
+	var foe
+	func _init(f) -> void:
+		foe = f
+		show_behind_parent = true
+	func _draw() -> void:
+		TopdownWorld.draw_blob(self, 0.0, foe.ground_y - foe.position.y, foe.shadow_rx, 0.45 * foe.tint.a)
 
 ## Phase 2 (decision 30): the aim on the ground, on the overlay in world units. While a thumb aims (the player's
 ## `aim`), its form from the feet: an arrow for a blow, a line, a cone, a circle at its point (joined to the feet) or

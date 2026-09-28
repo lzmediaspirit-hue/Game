@@ -623,6 +623,173 @@ The side view is unchanged.
 - The keyboard keeps J (tap) and K (hold to guard); no finisher or Plunge keys.
 - The flute's held melody (S47) is still not on the top-down Attack button; the hold guards.
 
+### As built: combat animation and feel (decision 38, 2026-09-28)
+
+**What it is.** Every blow and technique of the top-down world is timed, weighed and drawn: each weapon family's combo
+steps, its dragged finisher, the dash attack, the air blow, the guard, the parry and the Plunge, and all 24 technique
+forms in every element, on the ground plane in eight directions. Research first: `docs/research/alabaster_dawn_2_5d.md`
+§3.9.
+
+**The look rule** (the user's clarification of decision 38, at the head of the research section, of
+`data/combat_feel.json` and of `data/fx_topdown.json`):
+
+- Only the *feel* comes from the reference game: timing, hit-stop, smears, readable impacts, camera kick and knockback.
+- The *look* stays wuxia: sword-light arcs and qi trails, ink-brush strokes, jade and gold qi, the element's Dao image,
+  palm prints, sword formations, bagua and talisman seals, and calligraphic impact marks.
+- The element language of `tools/art/fx/elements.py` and the art bible's palette are kept.
+- Every sheet was checked against the rule in the review strips (below).
+
+**One table for the feel** (`data/combat_feel.json`, built by `tools/data/combat_feel.py`, which `build_data.py` runs;
+read by `CombatFeel`, `scripts/simulation/rules/combat_feel.gd`):
+
+| Part | What it holds |
+|---|---|
+| Weights | light, medium, heavy, finisher: the hit-stop (3, 4, 6, 8 frames at 60 fps, a crit 2 more), the camera's kick along the blow (0, 2, 4, 6 px), a shake for heavy (0.1 s, 2 px) and finisher (0.18 s, 4 px), the impact mark's weight and the knockback hop |
+| Families | per weapon family: each step's weight, the charged (dragged) finisher's, the lunge per step, the smear's rate and the cancel points (`recovery_after`, `finisher_after`) |
+| Forms | per technique form: its weight and the top-down pose it plays |
+| Foes | a blow's weight by the foe's role (normal light, elite medium, boss heavy; heavy past 15% of the health) |
+| Missing poses | the poses the character pipeline does not draw yet, each with the stand-in it plays |
+
+The steps' durations and hit frames stay in `weapon_families.json`: `CombatFeel.phases` derives each step's phases from
+them, so nothing is kept twice.
+
+- **Anticipation:** up to one smear frame before the hit.
+- **Active:** the smear's three bright frames.
+- **Recovery:** the rest.
+
+At attack speed 1:
+
+| Family | Step 1: anticipation / active / recovery (cancel from) | Last step |
+|---|---|---|
+| fists, gauntlets | 158 / 125 / 137 ms (283) | 238 / 125 / 187 ms (438) |
+| jian | 210 / 150 / 190 ms (398) | 310 / 150 / 260 ms (590) |
+| spear | 244 / 167 / 189 ms (468) | 364 / 167 / 269 ms (692) |
+| short blade | 158 / 125 / 137 ms (283) | 258 / 125 / 167 ms (433) |
+| staff | 284 / 167 / 209 ms (514) | 394 / 167 / 289 ms (734) |
+| heavy sabre | 289 / 214 / 217 ms (611) | 429 / 214 / 307 ms (889) |
+| fan | 190 / 150 / 160 ms (372) | 290 / 150 / 260 ms (570) |
+| brush | 170 / 150 / 140 ms (348) | 250 / 150 / 220 ms (510) |
+| bell | 244 / 167 / 189 ms (468) | 324 / 167 / 259 ms (646) |
+| flute, bow (one step) | 250 / 150 / 200 ms (500); 500 / 150 / 450 ms (920) | — |
+
+**What the fight does now** (on the grid only; the side view is unchanged):
+
+| Feel | Where |
+|---|---|
+| **Hit-stop by weight.** A blow's weight sets it: the family's step, a technique's form, a counter or the Plunge heavy, a crit one weight heavier. A foe's blow on the player holds the fight too. The old flat `combat.hitstop` constants are gone | `CombatAuthority._player_hits_enemy`, `_damage_player`; `hit_landed` carries `weight` and `floor` |
+| **The cancel rule.** A dodge in a blow's anticipation drops it (the combo does not count it). In the active window it is refused (`committed`). In the recovery it waits for the family's cancel point, and the player's dodge waits in a 0.2 s buffer for it | `CombatAuthority.dodge`, `_cancel_blow`, `CombatFeel.dodge_cancel`, `TopdownPlayer.dodge_buffer` |
+| **Lunge and dash attack.** Each step carries the body 6–24 units along its aim. An attack in a dash, or within 0.15 s of one, ends the dash in a dash attack: a longer lunge and its own smear | `TopdownPlayer.aim_attack`, `CombatFeel.lunge` |
+| **Camera.** A kick knocks the view along the blow; heavy blows and finishers shake too. Both follow Screen shake and Reduce motion | `ShakeRig.kick`, `TopdownWorld.feel` / `feel_hit` |
+| **The struck body.** Two frames of white (the shared flash shader), then a warm tint. A knockback hops it up to 10 art px and a strong one skids dust. The player flashes and hops the same way | `TopdownFx.white_material`, `FoeView`, `TopdownPlayer` |
+| **Hit-stop freezes the effects** with the fight | `TopdownWorld._physics_process`, `held` |
+| **Reduce motion.** No hit-stop, no kick and no shake | `CombatFeel.hitstop_on`, `MomentRules.shake_amp` |
+
+**What is drawn** (`tools/art/fx/build_fx_topdown.py` → `art/fx/topdown/`, 107 sheets, 10 MB; `data/fx_topdown.json`).
+Everything is drawn at art resolution on the ground plane of the world's ¾ view (`tools/art/fx/plane.py`): forward,
+side and height projected per direction, never a side-view sprite turned on the screen. Five directions are drawn (E,
+SE, S, NE, N) and the west three mirror, as the body does. `--check` builds twice in memory and fails unless both builds
+and the files on disk are byte-identical.
+
+| Sheets | Drawn by | Rows × frames |
+|---|---|---|
+| `melee_<family>` × 12 | `topdown_melee.py`: jian, spear, short blade and flute in jade sword-light; fists, gauntlets, staff, heavy sabre and bow in gold qi; the brush in ink with a red seal; the fan in wind with lotus petals; the bell in bronze rings of sound. Palms leave palm prints, blades crescents with a qi trail, the heavy sabre a broad stroke edged in ink, the charged finisher a full spin | step 1–3, charged, dash, air × 5 directions; 6 frames, the contact on frame 1 |
+| `form_<form>[_<dir>]` × 72, `bolt_*` × 16 | `topdown_forms.py`: the 24 forms. Among them: a sword-light crescent (strike, echo), a qi line with a spiral ribbon (thrust), a floor-skimming sweep, a crescent and darts (arc, volley), a rain of needles, a pillar on a rune circle, a crest rolling along the floor (wave), a ring with lotus, ripples or stones thrown round it (burst), tendrils rising round the foe (snare), a golden bell over a bagua (ward), rings of song (chorus), a sword formation (release, swarm), a talisman slamming its seal (seal) and a field of runes and trigrams (domain) | band × element (33) × the side view's frames and contact frame |
+| `impact_<dir>` × 5 | a calligraphic mark: an ink dab (light), a brush slash across the blow (heavy), two crossed strokes (finisher), in the element's colours with its motif | weight × element (33) × 6 |
+| `common` | the guard's wall of qi, the parry's crossed strokes, a foe's claw swipe, the Plunge's crater, a charge gathering, a foe's tell | 18 × 8 |
+| `dust` | a dash's kick-off, a skid, a landing, a step, in the path's earth | 12 × 6 |
+
+**How the game plays them** (`TopdownFx`, `scripts/topdown/topdown_fx.gd`):
+
+- Each effect is a node in the world viewport's sorted layer:
+  - an upright one keys just in front of the body at its anchor, or just behind it when facing away;
+  - a flat one keys at its north edge, so bodies standing in it draw over it.
+- A form is scaled by whole steps (1–3) to its technique's reach, anchored at the caster's feet or where it lands. Its
+  contact frame lands on the hit, as the side view's does.
+- A smear plays at the family's smear rate times the attack speed.
+- A thrown form's bolts fly in their direction (`BoltLayer`).
+- At most 72 effects play at once; the oldest one-shot goes first.
+- The HUD-resolution layer (`FxLayer`) keeps the numbers, words, rings and washes. Its `forms` and `sparks` switches are
+  off in the top-down world.
+
+**Poses (decision 37's character pipeline).** This work owns the FX, timing and feel, not the body layers
+(`docs/redesign/phase3/character/HOWTO.md`). The pipeline's catalogue and its names are used as they are:
+
+- a blow plays its own action (`punch_1`–`3`, `swing_1`–`3`, `thrust_1`–`3`), resolved by `TopdownFigure.resolve`;
+- `TopdownFigure.strike_frame` puts the figure's hit frame on the blow's hit, the same instant as the smear's contact
+  frame;
+- a cast of a form whose own action does not suit a fight seen from above plays its form's pose from
+  `combat_feel.json` `forms` (`CombatFeel.form_pose`):
+  - `meditate` would sit facing the camera, so it plays `cast`;
+  - `jump` would leave the floor, so the Plunge plays `plunge`;
+  - a `combo_N` pose is the wielded family's step N;
+- `TopdownPlayer.action_phase` names the phase of the blow under way.
+
+`data_validation` checks every form's pose against the catalogue.
+
+**Poses the pipeline does not draw yet**, each playing its stand-in (`combat_feel.json` `missing_poses`):
+
+| Pose | For |
+|---|---|
+| `bow_draw` | the bow's draw, hold and release |
+| `flute_play` | the flute's note and its melody |
+| `charge_hold` | the dragged finisher's wind-up |
+| `dash_slash` | the dash attack of the cutting and palm families |
+| `air_strike` | a blow in the air |
+| `parry_deflect` | the instant a guard parries |
+| `two_hand_swing_1`–`3` | the heavy sabre |
+| `bell_toll` | the bell |
+| `fan_throw` | the fan's third step |
+| `brush_write` | the brush |
+
+The flowing silk and robe motion of the look rule is the body layers' own (their `drag`).
+
+**Tests.**
+
+- `data_validation` `combat_feel_suite` (new) checks that:
+  - the look rule heads both tables;
+  - every weapon family's phases are positive and add up at attack speeds 1, 1.5 and 2.5, with the cancel point
+    inside the recovery;
+  - every form has a weight, a pose and a sheet per drawn direction (its bolt too), each as big as its rows and frames
+    say;
+  - every technique plays a built form with positive phases;
+  - every foe's blow has a wind-up;
+  - the impact, melee, common and dust sheets hold their rows.
+- `rules_tests` `topdown_suite`, 9 new checks:
+  - a first step holds 3 frames and the dragged finisher 8 (a crit 2 more);
+  - the cancel rule and the buffer;
+  - the lunge and the dash attack;
+  - the smear's direction, row and contact time in the sorted layer, and the impact mark;
+  - each slotted technique's form;
+  - the foe's tell, the dash's dust and the held guard;
+  - the eight directions;
+  - the struck foe's white flash, tint and hop, and the effects frozen in a hit-stop;
+  - under Reduce motion no hit-stop, kick or shake.
+- `perf_tests` counts the ground-plane effects with the overlay's. With 22 foes fighting (blows every 20 frames, a
+  technique every 45), a frame took 9.9 ms with 67 effects at once, on a loaded machine.
+
+**Review images** (`docs/redesign/phase5/combat/`):
+
+- the builder's strips (`build_fx_topdown.py --review`):
+  - `form_NN_<form>.png`: each form's frames in five directions, or five elements for a round form;
+  - `forms_by_element.png`: every form at its contact frame in every element;
+  - `melee_<family>.png`: each family's moves, and step 1 in five directions;
+  - `impacts.png`, `common.png` and `dust.png`;
+- the game's frames (`tools/dev/topdown_capture.tscn -- --combat`), read left to right like a GIF:
+  - `ingame_combo_<family>.png`: a three-step combo of the jian, fists, spear, heavy sabre, brush and bell;
+  - `ingame_finisher_and_dash_attack.png`;
+  - `ingame_techniques.png`;
+  - `ingame_guard_parry_plunge.png`.
+
+**Not built, or different from the brief.**
+
+- **No stagger or break gauge.** The reference's parry follow-up and break window wait for a design decision.
+- **No charge meter.** The charged attack is the dragged finisher (decision 35's one held attack on the touch scheme),
+  shown by a gathering of qi while it is armed.
+- **The families without drawn weapons** (the heavy sabre, fan, flute, brush, bell and bow: the character pipeline's
+  pending batches) swing their stand-in poses. Their smears are drawn already.
+- **Effects of the side view are unchanged.** Its sheets (`art/fx/`) and procedural slashes stay.
+- **Bolts draw over the room,** as a shot in the air does, not sorted with the bodies.
+
 ### Phase 3 · The art pipeline (L)
 
 - `docs/art-contracts.md` v2 fixes the rules: the 16-px tile, the ¾ view, faces, overhangs, the character cell,
@@ -901,6 +1068,30 @@ grip; the fist closes over the grip.
     pose, so the action catalogue and every other set are unchanged.
 - **Review:** `03_weapon_flute.png` and `03_weapon_bell.png`.
 
+**Batches landed (decision 37).**
+
+- **fan_and_brush** (2026-09-28): `weapon_fan` and `weapon_brush`, 21 game items (10 fans, 11 brushes), cast by two
+  new generators, `kinds/fan.py` and `kinds/brush.py`. The iron fan folds at rest and opens in every blow, the guard
+  and the plunge's dive: pleated paper on brown ribs, the side view's teal ink band and a gold rivet. Open, it is
+  turned at least 50° off the camera's line and faces the camera, so its face shows in every facing, and its cuts
+  leave the jian's jade smear. The calligraphy brush has a jointed bamboo shaft, a lacquered cap and collar, and a
+  tuft soaked black to its point. Its cuts leave an ink stroke along the point's arc: broad at the brush, thin behind
+  it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
+  (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
+  and `03_weapon_brush.png`.
+**Batches landed (decision 37).**
+
+- **heavy_sabre (2026-09-28):** the sabre, 10 items, in `weapon_heavy_sabre`, cast by a generator of its own,
+  `figure/kinds/sabre.py`.
+  - The side view's broad dao in its grey steel and bronze: the blade bellies near the point, and the point sweeps
+    back to the spine.
+  - The broad side is turned half way toward the camera (`face`), in the hand and laid beside the meditating figure.
+  - Its cuts leave a heavy crescent of jade light: fat at the blade and brightest along the point's path on the hit
+    frame, a dim wisp on the frame after.
+  - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
+    shoulder, so it never draws as a bar.
+  - Review sheet: `03_weapon_sabre.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
@@ -945,6 +1136,42 @@ grip; the fist closes over the grip.
 
 - Palette-swap dyes (§1.4). Dyes are baked sheets, as in the side view.
 - Thrust streaks. A thrust at the camera relies on the effects layer's line.
+
+### As built: Phase 3, fourth part · Terrain v2, the tiles (decision 40, 2026-09-28)
+
+Decision 40 asks for terrain closer to Alabaster Dawn, in the xianxia theme. Its first part, the tiles, is built. The
+art direction is `docs/redesign/art_bible.md` §14, which is also the contract for the next two parts: runtime light,
+and foliage and decor.
+
+**What changed.**
+
+- **Light and colour.**
+  - One sun from the north-west; every shade is a translucent blue-violet (`#241F4F`).
+  - Every material has a hue-shifted ramp.
+- **Grid and edges.**
+  - Each material is one 64 or 128 px pattern, picked by the cell's place in it.
+  - Scattered decals and positional sun and shade patches break the 16 px grid.
+  - Grass hangs over paths with a soft shadow; the sawtooth is gone.
+- **Faces.**
+  - Cliffs are fluted rock mass under a lit, mossy lip with vines, with a dark foot.
+  - Banks, walls and piers follow the same rules in their own materials.
+- **Water.** Depth tints away from the shore, a sunlit bed in the shallows, foam at every waterline, ripples and
+  glints, and rings round pier pilings.
+- **Paving and buildings.**
+  - The paving is irregular flagstones; granite terraces are big slabs.
+  - Roofs are dark glazed tile, and the house props' roofs sweep up at the ends.
+
+**How.**
+
+- The tiles come from `tools/art/topdown/terrain2.py`, and `tiles.py` keeps every Phase 3 tile name.
+- `TopdownTerrain` draws each cell as layers (`top_layers`, `face_layers`, `water_layers`). `top`, `face`, `water` and
+  `overlays` keep their contract.
+- The room view draws the floor and the water in chunks.
+- The rooms needed no change.
+
+**Tests.** `topdown_suite` and `data_validation` check the layers.
+
+**Images.** Before and after: `docs/redesign/terrain_v2/`.
 
 ### Phase 4 · Room conversion by region (XL)
 
@@ -1061,16 +1288,15 @@ the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
 - **The height grid is not compiled into `ZoneGeometry`.** The rules that ask the side view's geometry get a flat
   stand-in ground; heights, walls and water come from the grid (the motor, the foes, the loot, the tests).
 - **The people are drawn in the top-down style** (Phase 3's third part), in eight rows. The layouts give them no
-  rest facing of their own: each stands three-quarters toward the camera on the side the side view faces them.
-- **Allies and pets** still steer by the side view's rules (on the stand-in ground). The ally follow rule on the plane
-  waits, as in Phase 2.
+  rest facing of their own: each stands three-quarters toward the camera on the side the side view faces them. Their
+  sheets load on threads (within a moment of the room: see the third part).
 - **Rooms past the Fairground stay side-view:** the Entry Trial, the sect roads and everything after. A top-down
   character walks on into them and the view changes. (The second part, below, converts chapter 2's stretch.)
-- **Hazards and weather** draw on the overlay, over the figures.
-- **A foe's respawn** out of view still measures only across (x).
 - **Terrain and decor.** The rooms draw by Phase 3's terrain rules (`TopdownTerrain`, rebuilt for each room entered):
   auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
   and a room-by-room decor pass (decision 34) is still to come.
+- Allies and pets on the plane, hazards and weather layered with the room, and respawn out of the camera's view were
+  gaps here; the third part closes them.
 
 ### As built: Phase 4, second part · chapter 2's stretch: the trials, both sects' grounds and the Marsh Edge (2026-09-28)
 
@@ -1144,8 +1370,138 @@ real HUD, with its foes where it has them.
 - **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
   are fixed; a running jump takes their place.
 - **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
-- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) still take
-  the crab's figure.
+- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) have no
+  top-down figure yet: they stand in with their side-view creature sheet at half size (the third part).
+
+### As built: Phase 4, third part · the gaps closed (2026-09-28)
+
+The known gaps of the first part are closed, and every other place where the grid still read the side view's x-only
+or walk-strip rules was audited and fixed. The side view is unchanged except where noted.
+
+**Allies and pets on the plane** (`AllyBrain`, `TopdownBrain`):
+
+- The rules are the same (follow, fight the owner's nearest foe, retreat, sit while the owner meditates, blink when
+  left behind or stuck for 2 s); on the grid only the steering is the grid's:
+  - an ally comes into the room, and blinks, onto a free spot on its owner's floor, on the owner's side of any wall
+    (`TopdownBrain.spot_by`);
+  - it keeps behind its owner along the owner's facing on the plane, on the owner's floor (`follow_spot`);
+  - it goes there, and closes on a foe, by the grid's path (`TopdownBrain.chase`): walking, stairs, drops, and a hop a
+    level up for one that jumps, on the grid's gravity, as the player jumps. The floor underfoot carries it
+    (`TopdownBrain.fall`);
+  - with no way on foot (a landing stage over the water) it makes no headway, is stuck, and blinks after 2 s.
+- **Height-compatible blows** (`AllyBrain.in_reach`): an ally strikes a foe within reach on the plane and on a height
+  its blow reaches (`TopdownAim`); a foe's blow reaches an ally only on its own height (`_enemy_hits_allies` reads the
+  ally's real height on the grid).
+- **Their figures** (`TopdownPlaces.stand_in`, sorted, placed on their floor and shadowed there by the room's
+  `FoeView`, their labels on the overlay):
+  - a companion is a `TopdownPlaces.Person` in its own outfit (the top-down character's compositor, `TopdownFigure`,
+    unchanged), turned to where it walks or aims in eight rows, walking, striking with its weapon's first strike,
+    flinching and falling (`TopdownPlaces.pose`);
+  - a spirit animal, or a foe the grid's foe sheet has no rows for (Old Snapper, the toads; they were drawn as the mud
+    crab), is the side view's own creature sheet at half size (`EnemyView` in its new art mode: its action, facing,
+    flash and an ally's blink).
+
+**Hazards and weather layered with the room** (`HazardView`):
+
+- Each part tied to a spot sorts with the room in the pixel viewport (`HazardView.Piece`, one node a part):
+  - a flat part (a strike's ring, a scorch, rubble, a pool, a current, a shelter's ring, a boss's blast ring) sorts just
+    over the floor it lies on and under whoever stands on it (`TopdownRoom.decal_key`);
+  - an upright part (a falling rock, a bolt, springing spikes, dust) sorts at its spot's own key.
+
+  A terrace or a wall in front hides them, and a body in front stands over them.
+- The screen's washes and weather (rain, fog, snow, gust lines, the storm's flash, the chill, the Presence's edges)
+  and the warning marks draw on the overlay, under the names, the aim and the effects, and under the HUD.
+- The rings are drawn as the circles they strike (the side view flattens them into its strip).
+- **Effects on the plane** (`WorldAuthority`): strikes fall all round the body on the plane, on floors inside the room,
+  at their floor's height (they fell in the side view's strip, y 660–940); a strike reaches a body only within a level
+  of its floor; pools and currents act on the floor they lie on, and a layout may give their `areas` in cells; a gust's
+  drift carries the top-down body (`TopdownMotor.drift`, as `player.gd` walks with it). The heavens' bolt strikes a
+  circle of its radius, its ring falling anywhere round the body. A foe's burning ground lies along its aim on its own
+  floor and burns only there.
+
+**Respawn out of view against the camera** (`RoomRuntime.out_of_view`, `TopdownRoom.view_rect`):
+
+- A foe comes back only where no part of its figure is inside the camera's rect for the player's position (both axes,
+  clamped to the room as the camera is, grown by the side view's margin: `respawn.offscreen_x` less half the view).
+  Near a wall the camera shows 1280 units of the room, so a spot 768 across is in view; a spot 17 tiles straight south
+  is out of it. The side view keeps its rule (700 across).
+- On the grid a foe is never put on a point another foe stands on: all four of the Reed Shallows' rats had piled onto
+  the one rat point out of the camera's view. The side view picks its points as before.
+- The HUD's notice of a foe that saw you from off the screen asks the same.
+
+**The people with the room** (`PageWarmer`): while a page script compiles on its loading thread every other load waits
+for it, and the title asked for all sixty at once, so a room's people waited seconds for their sheets after launch.
+The pages now warm one at a time (the next once the one before is in), and every sheet of a villager's outfit is asked
+for as the room is populated (`TopdownPlaces.Person`; the side view's `NpcView.figure` too), so they wait at most for
+the page in hand. The pages take about as long in all (7.0 s against 6.4 s headless; on a loaded machine 13–16 s
+against 17–18 s). `perf_tests` now times rooms and pages once they are in (`main.pages_warm`), as a player meets them
+after the title screen: while one compiles, a room or page that needs it waits for it.
+
+**The audit: side-view rules the grid still used, all fixed.**
+
+| Place | What it did on the grid | Now |
+|---|---|---|
+| Camera bounds | clamped to the floor's rect: a body on a ridge along the north edge was off the top of the screen | the room as drawn (`TopdownRoom.drawn_rect`), and never the body out of view (`camera_goal`) |
+| Portal triggers | a 64 × 44 box scaled with the way's span, the same on both axes: an east edge of three tiles reached 3.6 tiles into the room, and a door on a terrace was taken from the square under its face | half the span along the edge or doorway and a tile across, turned with the way (`reach`), and only on its own floor |
+| Pickups magnet | 60 up and down: a drop on a terrace was drawn in from the square below | half a level |
+| Loot spill | a row along x: a drop could lie in a wall, the water, or over a ledge at the ledge's height | on the floor it falls on, else on the spot itself |
+| Auto-path arrival | on the plane only: "there" under a terrace spot | also on the goal's floor |
+| Auto-hunt | the nearest foe, reachable or not; loot only on the ground | only foes and drops there is a way to; the spot to strike from on the foe's own floor |
+| Labels | nearest-first by the distance across | by the distance on the plane |
+| Minimap | the direction mark only left or right; the player's arrow east or west | the mark on the frame's edge the way points; the arrow in eight ways |
+| Enemy attacks | a ranged or close blow chosen by the distance across | by the distance on the plane |
+| Off-screen notice | a foe 640 across | the camera's rect |
+| Rare herb guardian | woke by the distance across; rose at the side view's y 840 (in the water on the grid) | by the approach on the plane; on the ground under the node |
+| Spar partner, summoned adds, ambush | 160 across; adds clamped to y 640–940 | on a free spot of the floor near where they were meant to be (`TopdownRoom.place_near`) |
+| Decals on a raised floor | 12 px up, so under the terrace's own row | `decal_key` |
+| Loot's name | the distance to its lifted spot | to where it lies |
+
+Checked and already right on the grid: the leash (600 from the spawn on the plane), noticing (sight on the plane, a
+level up or down), the context button's reach (on the plane, 48 in height), the foes' patrol (round their spawn on
+their floor).
+
+**The walk's fights aim on the grid.** `prologue_run.fight` and `spar_with` now hand their blows the direction to the
+target on the grid (`aim_at`), as the top-down view turns the body to the stick; the walk has no view, so its blows
+used to keep the last aim and miss a foe behind.
+
+**Tests.**
+
+- `topdown_suite` goes from 87 to 117 checks:
+  - the camera's rect: a ridge drawn over the top, the body kept in view there, a small room centred, out of view on
+    both axes (a spot straight south the old rule saw);
+  - flat marks on a terrace, things put in the water or on a level, the ways' turned reach, the minimap's mark;
+  - a companion: coming in on the player's floor, drawn by its stand-in on its floor; following onto the terrace
+    without a blink; blinking to the landing stage after 2 s; its reach and a foe's by height; a fight on one level;
+    its figure in the top-down style, and stand-ins for a spirit animal and Old Snapper;
+  - hazards: spots all round on floors, a strike by level, a gust's carry, the view's sorted rings and bolts and its
+    overlay washes and marks, the parts freed with the room, the heavens' circle, burning ground by floor;
+  - the audit's respawn by the wall, the off-screen notice, a door by floor, the pickup and spill by floor, auto-path's
+    arrival, the labels' order, the attack choice, the guardian's wake, and a spar partner, adds and an ambush on
+    floors.
+- `topdown_tutorial` (777 to 786 checks) adds a room's people drawn while the pages still warm up, and every way's
+  turned reach, in the chapter 2 rooms too.
+
+**Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
+tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
+
+### As built: the story staged in the top-down world (decision 39, 2026-09-28)
+
+The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
+principles and the full account. In short:
+
+- **Scenes are data.** `tools/data/scenes.py` builds `data/scenes.json`, fifteen scenes from waking in the Fisher's
+  Hut to the sect choice.
+- **The `SceneDirector` plays them in the rooms on the grid.** It moves the room's people through their own
+  top-down figures (`TopdownWorld.figures`: a `TopdownPlaces.Person` is `staged` while the scene has it, turned to
+  any of the eight rows and played in the figure's own actions). It brings on extras: a person through `TopdownPlaces.person`, a
+  boat through `PropView.place_at`. It drives the camera (`stage_cam`, `stage_zoom`) and holds the body's pose
+  (`stage_pose`).
+- **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
+  the HUD and the labels over the world (`fade_labels`).
+- **A hand-off gives the controls back** with a prompt over what to do.
+- **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
+- **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
+- **Screenshots** are in `docs/redesign/phase5/story/`.
 
 ### Phase 5 · The animation layers (XL)
 
@@ -1218,3 +1574,6 @@ player build ships only whole acts in the new view.
    of their form on the ground and snap to a foe near the line; back on the button cancels. Built in Phase 2. The
    extra actions on drag zones of the Attack button became decision 35 and are built ("As built: Attack's drag
    moves").
+8. **Combat animation and feel (decision 38, 2026-09-28):** the reference game's feel (timing, hit-stop, smears,
+   impacts, camera kick, knockback) with a wuxia look; every family's moves and every technique form drawn on the
+   ground plane in eight directions. Built ("As built: combat animation and feel").

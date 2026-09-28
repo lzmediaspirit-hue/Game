@@ -5,7 +5,7 @@ import runpy
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-MODULES = ["realms", "stats", "legends", "posts", "items", "gear", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "moments", "contract"]
+MODULES = ["realms", "stats", "combat_feel", "legends", "posts", "items", "gear", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "moments", "scenes", "contract"]
 
 if __name__ == "__main__":
     only = sys.argv[1:]

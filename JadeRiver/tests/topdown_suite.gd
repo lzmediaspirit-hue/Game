@@ -43,11 +43,13 @@ func run_all(suite) -> void:
 	_roofs()
 	_aim_rules()
 	_terrain_rules()
+	_terrain_v2()
 	_square_layout()
 	_drag_zones()
 	_motor_plunge()
 	_finisher_pace()
 	_light_rules()
+	_view_rules()
 
 func _walk() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(80, 192))
@@ -438,6 +440,51 @@ func _light_rules() -> void:
 		and float(night.motes) == 0.0 and float(rain.motes) == 0.0 and float(rain.clouds) == 0.0 and str(inside.hour) == "lamplit",
 		"topdown light: the grade stays within 4%% toward the sun or the shadow and +5%% saturation at every hour; the marsh leans to the mist, a night room is the story's night in #8FA0C8, the clock's night lit by lamps and fireflies, rain without sun, an interior lamp-lit (within %s)" % within)
 
+## Terrain v2 (decision 40, art bible "Terrain v2"): the layers the room view draws. A top's base is its material's
+## pattern at the cell's place in it, so neighbours differ and still join; a path under grass lies under the positional
+## grass overlay of its corner case; a face's tile follows its column, and its last row over a floor takes the foot
+## shade, never over water; water has four frames, its pattern's tile first, a shore cell its side case's overlay, and
+## wide water the depth tint; the sun and shade patches lie on a real room's meadows. Every layer is a tile of the atlas.
+func _terrain_v2() -> void:
+	var rows := ["00000000", "01110000", "01110000", "00000000", "~~~~0000", "~~~~0000"]
+	var paint := ["ggggpppp", "gbbbgppp", "gbbbgddd", "gddgpddd", "~~~~wsss", "~~~~wsss"]
+	var tr := TopdownTerrain.new(grid(rows, {"paint": paint}))
+	var tiles: Dictionary = tr.room.tileset.get("tiles", {})
+	var a := tr.top_layers(0, 0, 0)
+	var b := tr.top_layers(1, 0, 0)
+	var edge := tr.top_layers(1, 3, 0)
+	t.check(str(a[0][0]).begins_with("grass_m") and str(b[0][0]).begins_with("grass_m") and a[0][0] != b[0][0]
+		and str(edge[0][0]).begins_with("dirt_m") and str(edge[1][0]) == "over_1010_13",
+		"terrain v2: tops take their pattern's tile by place (%s, %s); a path under grass takes the positional overlay (%s over %s)" % [a[0][0], b[0][0], edge[1][0], edge[0][0]])
+	var planter := tr.face_layers(2, 2, 1, 0, 0)
+	var bank := tr.face_layers(0, 3, 0, 0, TopdownRoom.WATER)
+	t.check(str(planter[0][0]) == "stone_face_top_v2" and str(planter[-1][0]) == "face_ao" and str(bank[0][0]) == "earth_face_top_v0"
+		and not bank.any(func(l): return str(l[0]) == "face_ao") and tr.face(2, 2, 0, false) == "stone_face_top",
+		"terrain v2: a face's tile follows its column (%s), with the foot shade over a floor and none over water (%s)" % [planter[0][0], bank[0][0]])
+	var w := tr.water_layers(1, 4)
+	var names: Array = w.map(func(f): return str(f[0][0]))
+	t.check(w.size() == 4 and names.all(func(n): return n.begins_with("water_m")) and str(w[2].back()[0]) == "shorefx_01_2",
+		"terrain v2: water draws its pattern in four frames (%s) and a shore cell its side case's overlay (%s)" % [str(names), w[2].back()[0]])
+	var lake := ["000000000"]
+	for i in 7: lake.append("0~~~~~~~0")
+	lake.append("000000000")
+	var deep: Array = TopdownTerrain.new(grid(lake)).water_layers(4, 4)[0]
+	var square := TopdownTerrain.new(TopdownRoom.load_room("td_proto_square"))
+	var tints := {}
+	var missing: Array = []
+	for y in square.room.h:
+		for x in square.room.w:
+			var l := square.lv(x, y)
+			var layers: Array = square.water_layers(x, y)[1] if l == TopdownRoom.WATER else square.top_layers(x, y, l)
+			for layer in layers:
+				if not tiles.has(str(layer[0])): missing.append(str(layer[0]))
+				if str(layer[0]).begins_with("tint_"): tints[(layer[1] as Color).to_html()] = true
+			for k in range(maxi(0, l)):
+				for layer in square.face_layers(x, y, l, k, 0):
+					if not tiles.has(str(layer[0])): missing.append(str(layer[0]))
+	t.check(deep.any(func(l): return str(l[0]).begins_with("tint_")) and tints.size() >= 3 and missing.is_empty(),
+		"terrain v2: wide water is tinted deep; Riverside Square has sun, shade and depth tints (%d colours); every layer is in the atlas (%s)" % [tints.size(), str(missing.slice(0, 4))])
+
 ## Riverside Square as redesigned for the terrain (decisions 33 and 34): the paved ways lead from the house door, the
 ## storehouse door and the stairs' foot to the pier; the terrace's dirt path leads from the stairs' head to the rooftop
 ## jump above the storehouse and up to the shrine; the lotus pond is still water inside a curb; the bamboo, lotus and
@@ -659,6 +706,9 @@ func fresh(at: Vector2) -> void:
 	rt.projectiles.clear()
 	w.player.motor.place(at)
 	w.player.motor.dir = Vector2.DOWN
+	w.player.motor.dash_t = 0.0
+	w.player.motor.since_dash = 99.0
+	w.player.dodge_buffer = 0.0
 	w.player.physics_step(0.0001)
 	c.pools.hp = c.pools.max_hp
 	c.pools.cooldowns.clear()
@@ -721,6 +771,10 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
 	await _drag_moves(tree, base)
+	await _allies_on_the_grid(tree, base)
+	await _hazards_on_the_grid(tree, base)
+	_audit_on_the_grid(base)
+	await _combat_feel(tree, base)
 	w.queue_free()
 	if is_instance_valid(hud): hud.queue_free()
 	await tree.process_frame
@@ -1290,4 +1344,515 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	Game.account.settings["reduce_motion"] = was
 	t.check(lc.x < 640.0 and left_armed == "finisher" and cancel == "cancel" and idle and g1 == 1.0 and g2 == 1.0,
 		"topdown drag moves: left-handed the finisher reads the same and a drag back cancels (%s, %s); under Reduce motion the armed marks hold still" % [left_armed, cancel])
+
+
+# ------------------------------------------------------------------ Phase 4, third part: the gaps closed
+## What the camera shows (the room as drawn, a ridge on its north edge included, the body always in view) and the rules
+## that ask it (a foe's respawn out of view, on both axes); flat marks on a raised floor; things put on a floor; the
+## ways' reach turned with their direction; the minimap's direction mark on the plane.
+func _view_rules() -> void:
+	var rows := flat(60, 40)
+	rows[0] = "2".repeat(60)
+	rows[1] = "2".repeat(60)
+	var room := grid(rows)
+	var drawn := room.drawn_rect()
+	t.check(drawn.position.y == -32.0 and drawn.end == Vector2(960, 640), "topdown view: a ridge on the room's first rows draws 32 px over its top, and the camera may show it (%s)" % str(drawn))
+	var ridge := Vector2(30.5, 0.5) * 32.0
+	var feet := TopdownWorld.to_screen(ridge, 64.0)
+	var shown := Rect2(room.camera_for(ridge, 64.0) - TopdownRoom.VIEW * 0.5, TopdownRoom.VIEW)
+	t.check(shown.has_point(feet) and shown.has_point(feet - Vector2(0, 38)),
+		"topdown view: standing on the ridge at the room's very top the camera keeps the whole body in view (feet %s, view %s)" % [str(feet), str(shown)])
+	var mid := Vector2(30.0, 20.0) * 32.0
+	var small := grid(flat(10, 8))
+	t.check(room.camera_for(mid, 0.0) == TopdownWorld.to_screen(mid, 0.0) + Vector2(0, -12) and small.camera_for(Vector2(40, 40), 0.0) == Vector2(80, 64),
+		"topdown view: mid-room the camera frames the feet 12 px low; a room smaller than the view is centred")
+	# Out of view (a foe's respawn): the camera's rect on both axes, not the distance across alone.
+	var rt := RoomRuntime.new()
+	rt.topdown = room
+	var side := RoomRuntime.new()
+	var st := ActorState.new()
+	st.plane = mid
+	var south := mid + Vector2(0, 560)
+	t.check(rt.out_of_view(south, 0.0, st, 60.0) and not side.out_of_view(south, 0.0, st, 60.0) and not rt.out_of_view(mid + Vector2(300, 150), 0.0, st, 60.0)
+		and rt.out_of_view(mid + Vector2(760, 0), 0.0, st, 60.0),
+		"topdown view: a spot 17 tiles straight south is out of the camera's view (the side view's rule, across only, saw it), one 10 tiles off is in it, one 24 across is out")
+	# Flat marks: on a terrace over its row and under the bodies on it (the old rule put a decal 12 px up, under the row).
+	var terrace := grid(["1111", "1111", "1111", "0000", "0000", "0000"])
+	var on := Vector2(1.5, 1.5) * 32.0
+	var mark := terrace.decal_key(on, 32.0, 12.0)
+	var low := Vector2(1.5, 4.5) * 32.0
+	t.check(mark > 32.0 and mark < terrace.sort_key(on, 32.0) and terrace.sort_key(on, 32.0) - 12.0 < 32.0 and terrace.decal_key(low, 0.0, 12.0) < terrace.sort_key(low + Vector2(0, -6), 0.0),
+		"topdown sort: a mark flat on a terrace sorts over the terrace's row (%.3f > 32) and under a body on it (%.3f); on the ground under a body standing in it" % [mark, terrace.sort_key(on, 32.0)])
+	# Things put in the room land on a floor: in the water on the bank beside it, asked for on a level on that level.
+	var shore := grid(["0000~~~~0000", "0000~~~~0000", "0000~~~~0000", "111111111111"])
+	var wet := Vector2(5.5, 1.5) * 32.0
+	var put := shore.place_near(wet, 0.0)
+	var up := shore.place_near(Vector2(1.5, 2.5) * 32.0, 32.0)
+	t.check(shore.standable(TopdownRoom.cell_of(put)) and shore.floor_at(put) == 0.0 and put.distance_to(wet) <= 64.0 and TopdownRoom.cell_of(up).y == 3,
+		"topdown place: a thing put in the water lands on the bank beside it (%s), one asked for a level up lands on that level (%s)" % [str(put), str(up)])
+	# A way's reach turns with its direction: along its edge or doorway, a tile across.
+	var ways := TopdownRoom.from_dict({"id": "case", "levels": flat(20, 12), "spawn": [1, 1],
+		"portals": {"east": {"at": [19, 6], "dir": "e", "span": 3}, "hall": {"at": [8, 4], "dir": "n", "span": 2}}}, {})
+	var reach := {}
+	for p in ways.merge_def({"portals": [{"id": "east", "type": "edge"}, {"id": "hall", "type": "door"}]}).portals: reach[str(p.id)] = p.reach
+	t.check(reach.get("east") == [32.0, 48.0] and reach.get("hall") == [32.0, 32.0],
+		"topdown ways: an east edge reaches a tile across and half its three tiles along; a door's two tiles likewise (%s)" % str(reach))
+	# The minimap's direction mark: toward a way that lies south it points south, from the frame's bottom edge.
+	var hud_script = load("res://scripts/hud.gd")
+	var way: Vector2 = hud_script.minimap_way(Vector2(10, 10), Vector2(10, 40))
+	var edge: Vector2 = hud_script._edge_point(Rect2(0, 0, 100, 50), Vector2(50, 25), way)
+	t.check(way == Vector2(0, 1) and edge == Vector2(50, 50), "topdown minimap: the direction mark points south to a way south, on the frame's bottom edge (%s at %s)" % [str(way), str(edge)])
+
+## The companion of the character in the room (spawned again after `fresh` clears the room).
+func _ally() -> EnemyState:
+	Game.companions._spawn_all(c)
+	return Game.room_rt.enemies.get(int(Game.companions.allies.get("lan_yue", -1)))
+
+## A companion on the grid (AllyBrain steering by TopdownBrain): it comes in on the player's floor, follows onto the
+## terrace by the grid's way (the stairs, or a hop a level up as the player jumps), blinks to a landing stage there is
+## no way onto on foot, strikes only a foe on its own height and is struck only on its own height. Its figure is the
+## stand-in (the side view's own avatar at half size), sorted with the room and standing on its floor; a spirit animal
+## and a foe the sheet does not draw get theirs too.
+func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
+	fresh(base)
+	var had: Array = c.companions.active.duplicate()
+	if not c.companions.roster.has("lan_yue"): c.companions.roster.append("lan_yue")
+	c.companions.active = ["lan_yue"]
+	var a := _ally()
+	if a == null:
+		t.check(false, "topdown allies: a companion to follow (%s)" % str(Game.companions.allies))
+		return
+	frames(1)
+	await tree.process_frame
+	var fv = w.foe_views.get(a.uid)
+	var standing: bool = fv != null and fv.art is TopdownPlaces.Person and not fv.art.shadow and fv.position.y == w.room.sort_key(a.plane, a.altitude) \
+		and fv.position.y + fv.art.position.y == TopdownWorld.to_screen(a.plane, a.altitude).round().y
+	t.check(is_equal_approx(a.altitude, w.room.floor_at(a.plane)) and w.room.free_at(a.plane, a.altitude, 8.0) and standing and w.label_views.has(a.uid),
+		"topdown allies: a companion comes in on a free spot of the player's floor, drawn in the top-down style in its outfit, sorted at its key, on its floor, with its label")
+	# Onto the terrace: the player goes up, the companion follows by the grid's way (no blink).
+	var up := Vector2(26.5, 9.5) * 32.0
+	w.player.motor.place(up)
+	w.player.physics_step(0.0001)
+	var hopped := false
+	var stairs := false
+	var blinked := false
+	var stride := 0.0
+	var was := a.plane
+	for i in 420:
+		frames(1)
+		hopped = hopped or not a.hop.is_empty()
+		stairs = stairs or not w.room.stair_at(TopdownRoom.cell_of(a.plane).x, TopdownRoom.cell_of(a.plane).y).is_empty()
+		blinked = blinked or float(a.ai.get("blink_t", 0.0)) > 0.0
+		stride = maxf(stride, a.plane.distance_to(was))
+		was = a.plane
+		if a.altitude == 32.0 and a.hop.is_empty() and a.plane.distance_to(up) < 140.0: break
+	t.check(a.altitude == 32.0 and a.plane.distance_to(up) < 140.0 and (hopped or stairs) and not blinked and stride < 12.0,
+		"topdown allies: the companion follows the player up onto the terrace by the grid's way (hop %s, stairs %s, no blink, longest step %.1f, z %.0f)" % [str(hopped), str(stairs), stride, a.altitude])
+	# Onto the far landing stage (a long jump over the water): no way on foot, so it blinks there after 2 s, on its floor.
+	fresh(Vector2(22.5, 21.5) * 32.0)
+	a = _ally()
+	var stage := Vector2(25.5, 26.5) * 32.0
+	w.player.motor.place(stage)
+	w.player.physics_step(0.0001)
+	var blink_s := -1.0
+	for i in 600:
+		frames(1)
+		if blink_s < 0.0 and float(a.ai.get("blink_t", 0.0)) > 0.0: blink_s = i / 60.0
+		if blink_s >= 0.0 and i / 60.0 > blink_s + 0.2: break
+	t.check(blink_s >= 2.0 and a.plane.distance_to(stage) < 64.0 and w.room.standable(TopdownRoom.cell_of(a.plane)) and a.altitude == 0.0,
+		"topdown allies: with no way onto the landing stage on foot it blinks to the player after %.1f s, onto the stage's floor" % blink_s)
+	# Its blows reach only a foe on its own height; a foe's blow reaches it only on its own height.
+	fresh(base)
+	a = _ally()
+	a.plane = Vector2(26.5 * 32.0, 392.0)
+	a.altitude = 0.0
+	var above := foe("wild_boarlet", Vector2(26.5 * 32.0, 380.0))
+	var level := foe("wild_boarlet", a.plane + Vector2(30, 0))
+	t.check(above.altitude == 32.0 and not AllyBrain.in_reach(w.room, a, above, 60.0, 0.0, 26.0) and AllyBrain.in_reach(null, a, above, 60.0, 0.0, 26.0)
+		and AllyBrain.in_reach(w.room, a, level, 60.0, 0.0, 26.0),
+		"topdown allies: a foe on the terrace 12 units off is out of its reach (the side view's rule reached it), one on its level is in it")
+	var biter := foe("wild_boarlet", Vector2(26.5, 12.5) * 32.0)
+	biter.aim = Vector2.UP
+	a.plane = biter.plane + Vector2(0, -29.0)
+	a.altitude = 32.0
+	a.pools.hp = a.pools.max_hp
+	var bite: Dictionary = biter.def.attacks[0]
+	Game.combat._enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
+	var spared: bool = a.pools.hp == a.pools.max_hp
+	biter.plane = Vector2(26.5, 14.5) * 32.0
+	a.plane = biter.plane + Vector2(0, -29.0)
+	a.altitude = 0.0
+	Game.combat._enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
+	t.check(spared and a.pools.hp < a.pools.max_hp, "topdown allies: a foe's blow from the square spares a companion on the terrace above and reaches one on its own level")
+	# A fight on one level: the companion closes and strikes.
+	fresh(base)
+	a = _ally()
+	var prey := foe("wild_boarlet", a.plane + Vector2(90, 0))
+	frames(180)
+	t.check(hurt(prey), "topdown allies: the companion closes on a foe on its own level and strikes it (hp %.0f / %.0f)" % [prey.pools.hp, prey.pools.max_hp])
+	# A spirit animal and a foe the grid's sheet does not draw (Old Snapper) get stand-ins too, not the crab.
+	fresh(base)
+	var pet := EnemyState.new()
+	pet.uid = Game.room_rt.uid()
+	pet.def_id = "spirit_fox"
+	pet.def = {"name": "Fox", "art": {"creature": "wild_boarlet"}, "half_width": 16, "height": 30, "ally": true}
+	pet.team = "ally"
+	pet.plane = base + Vector2(-40, 0)
+	Game.room_rt.enemies[pet.uid] = pet
+	w._add_foe(pet)
+	var snapper := foe("old_snapper", base + Vector2(60, 0))
+	w._add_foe(snapper)
+	var pv = w.foe_views.get(pet.uid)
+	var sv = w.foe_views.get(snapper.uid)
+	t.check(pv != null and pv.art is EnemyView and pv.art.sprite != null and sv != null and sv.art is EnemyView and sv.art.sprite != null and sv.art.sprite.creature_id == "old_snapper",
+		"topdown allies: a spirit animal and Old Snapper (no rows in the grid's sheet) are drawn by their own creature sheets as stand-ins")
+	fresh(base)
+	c.companions.active = had
+	Game.companions._spawn_all(c)
+
+## Hazards and weather on the grid: their spots fall all round on the plane at their floor's height; a strike reaches
+## only its own level; a gust carries the body; the view sorts each spot's parts with the room (a ring over the terrace
+## it lies on and under the bodies on it, a bolt at its spot's key) and draws the washes and marks on the overlay under
+## the names.
+func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
+	var edge := Vector2(26.5, 12.5) * 32.0
+	fresh(edge)
+	var rt: RoomRuntime = Game.room_rt
+	var st: ActorState = Game.actor_state(c.id)
+	var spots: Array = Game.world._hazard_spots(rt, st, {"kind": "strike", "count": 24, "spread": 320}, Rng.keyed(7, "hazard_test"))
+	var on_floor := spots.all(func(sp): return w.room.standable(TopdownRoom.cell_of(Vector2(float(sp[0]), float(sp[1])))) and float(sp[2]) == w.room.floor_at(Vector2(float(sp[0]), float(sp[1]))))
+	var deep := spots.any(func(sp): return absf(float(sp[1]) - st.plane.y) > 60.0)
+	var raised := spots.any(func(sp): return float(sp[2]) == 32.0)
+	t.check(spots.size() == 24 and on_floor and deep and raised, "topdown hazards: strikes fall all round on the plane (deeper than the side view's strip), on floors, at their floor's height")
+	var h := ContentDB.entry("hazards", "lightning")
+	var struck: Array = []
+	var grab := func(n: String, p: Dictionary) -> void:
+		if n == "hazard_struck": struck.append(p)
+	GameEvents.event.connect(grab)
+	var hs := {"phase": "active", "t": 0.0, "dur": 0.5, "spots": [[edge.x, edge.y - 40.0, 32.0]], "dir": 1, "pulse": 0.0, "inside": false}
+	Game.world._hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_a"), false)
+	GameEvents.flush()
+	var over := struck.is_empty()
+	hs.spots = [[edge.x, edge.y + 20.0, 0.0]]
+	Game.world._hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_b"), false)
+	GameEvents.flush()
+	GameEvents.event.disconnect(grab)
+	t.check(over and struck.size() == 1, "topdown hazards: a bolt on the terrace 40 units off does not strike a body on the square below; one on its own floor does")
+	c.pools.hp = c.pools.max_hp
+	# A gust carries the body on the plane (the World authority's drift, as on the side view's body).
+	fresh(base)
+	rt.hazard_drift = Vector2(120, 0)
+	var x0: float = w.player.motor.pos.x
+	for i in 30: w.player.physics_step(1.0 / 60.0)
+	rt.hazard_drift = Vector2.ZERO
+	var carried: float = w.player.motor.pos.x - x0
+	t.check(carried > 50.0, "topdown hazards: a gust carries the body on the plane (%.0f units in 0.5 s)" % carried)
+	# The view: each spot's parts sort with the room; washes and marks stay on the overlay, under the names.
+	fresh(base)
+	var hv := HazardView.new()
+	hv.world = w
+	hv.room = w.room
+	hv.sorted_layer = w.sorted
+	w.overlay.add_child(hv)
+	var high := Vector2(26.5, 9.5) * 32.0
+	var low := Vector2(22.5, 17.5) * 32.0
+	rt.hazards["lightning"] = {"phase": "warn", "t": 0.5, "dur": 2.0, "spots": [[high.x, high.y, 32.0], [low.x, low.y, 0.0]], "dir": 1, "pulse": 0.0, "inside": false}
+	await tree.process_frame
+	await tree.process_frame
+	var pieces: Array = hv.pieces.filter(func(pc): return pc.visible)
+	var rings: Array = pieces.filter(func(pc): return str(pc.part.kind) == "strike")
+	var bolts: Array = pieces.filter(func(pc): return str(pc.part.kind) == "bolt")
+	var marks: Array = hv._parts(rt).filter(func(pt): return pt.mark)
+	var ring_hi: Array = rings.filter(func(pc): return float(pc.part.z) == 32.0)
+	var ring_lo: Array = rings.filter(func(pc): return float(pc.part.z) == 0.0)
+	var row_key := (floorf(high.y / 32.0) + 1.0) * 16.0
+	var sorted_ok: bool = rings.size() == 2 and bolts.size() == 2 and ring_hi.size() == 1 and ring_lo.size() == 1 \
+		and ring_hi[0].position.y > row_key and ring_hi[0].position.y < w.room.sort_key(high, 32.0) and ring_lo[0].position.y < w.room.sort_key(low, 0.0) \
+		and bolts.all(func(pc): return pc.position.y == w.room.sort_key(pc.part.p, float(pc.part.z))) and pieces.all(func(pc): return pc.get_parent() == w.sorted)
+	t.check(sorted_ok and marks.size() == 2 and not hv.ground.visible and hv.air.z_index < WorldLabels.LABEL_Z and hv.get_parent() == w.overlay and hv.squash > 2.0,
+		"topdown hazards: the rings sort with the room (over the terrace's row, under a body on it) and the bolts at their spots' keys; the washes and the two marks draw on the overlay under the names")
+	rt.hazards.erase("lightning")
+	var made: Array = hv.pieces.duplicate()
+	hv.queue_free()
+	await tree.process_frame
+	t.check(made.all(func(pc): return not is_instance_valid(pc) or pc.is_queued_for_deletion()), "topdown hazards: the room's hazard view takes its sorted parts with it")
+	# The heavens' bolt strikes a circle on the grid (the side view's flattened strip missed a body 60 south of it).
+	fresh(base)
+	var res: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -60), 80.0, 45.0)
+	var res2: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -100), 80.0, 45.0)
+	c.pools.hp = c.pools.max_hp
+	t.check(res.get("hit", false) and not res2.get("hit", false), "topdown hazards: a tribulation bolt 60 units north strikes within its ring of 80; one 100 off does not")
+	# Burning ground (a foe's blow) burns only on its own floor.
+	fresh(Vector2(26.5, 11.5) * 32.0)
+	Game.combat.ground_fires.clear()
+	var hp0: float = c.pools.hp
+	Game.combat.ground_fires.append({"x": edge.x, "y": edge.y - 10.0, "alt": 0.0, "r": 70.0, "t": 5.0, "tick": 0.0, "pct": 0.1, "source": "test"})
+	Game.combat._tick_ground_fires(0.1)
+	var unburnt: bool = c.pools.hp == hp0
+	Game.combat.ground_fires[0].alt = 32.0
+	Game.combat.ground_fires[0].tick = 0.0
+	Game.combat._tick_ground_fires(0.1)
+	var burnt: bool = c.pools.hp < hp0
+	Game.combat.ground_fires.clear()
+	c.pools.hp = c.pools.max_hp
+	t.check(unburnt and burnt, "topdown hazards: burning ground on the square does not burn a body on the terrace above; on its own floor it does")
+
+## The other places where the grid used the side view's x-only or walk-strip rules (the plan's "As built" lists them).
+func _audit_on_the_grid(base: Vector2) -> void:
+	var rt: RoomRuntime = Game.room_rt
+	var st: ActorState = Game.actor_state(c.id)
+	# Respawn out of view against the camera: near the west wall the camera shows x 0-1280, so a spot 768 east is in
+	# view (the old rule said 700 across was enough) and the foe waits; one past the view's east edge comes back.
+	var west := Vector2(3.5, 14.5) * 32.0
+	var east := Vector2(27.5, 14.5) * 32.0
+	var far_east := Vector2(46.5, 14.5) * 32.0
+	fresh(west)
+	var slot := {"spec": {"enemy": "wild_boarlet", "points": [[east.x, east.y]]}, "index": 0, "point": east, "uid": 0, "timer": 0.0, "held": false, "entry": false}
+	var slot2 := {"spec": {"enemy": "wild_boarlet", "points": [[far_east.x, far_east.y]]}, "index": 1, "point": far_east, "uid": 0, "timer": 0.0, "held": false, "entry": false}
+	var in_view: Vector2 = Game.enemies._spawn_point(slot)
+	var out_view: Vector2 = Game.enemies._spawn_point(slot2)
+	var shown := foe("wild_boarlet", east)
+	t.check(not in_view.is_finite() and out_view == far_east and absf(east.x - st.plane.x) >= 700.0 and not hud._caption_worthy("enemy_aggro", {"enemy": shown.uid}),
+		"topdown audit: by the west wall a spot 24 tiles east is on the camera (the old rule, 700 across, called it off screen): no respawn there and no off-screen notice; one past the view's edge respawns")
+	# The ways: reached only on their own floor, along and across as they are turned.
+	fresh(Vector2(26.5, 12.4) * 32.0)
+	var door := {"id": "test_door", "at": [26.5 * 32.0, 11.5 * 32.0], "dir": [0, -1], "reach": [32.0, 32.0], "alt": 32.0}
+	var from_below: bool = Game.world.portal_near(c, door)
+	var side_rule: bool = Game.world.portal_near(c, {"at": door.at})
+	w.player.motor.place(Vector2(26.5, 11.5) * 32.0)
+	w.player.physics_step(0.0001)
+	t.check(not from_below and side_rule and Game.world.portal_near(c, door), "topdown audit: a way on the terrace is not taken from the square below its face (the old reach was), and is on the terrace")
+	# Pickups: a drop on the terrace's edge is not drawn in from the square below; a spill over a ledge stays on its floor.
+	fresh(Vector2(26.5, 12.4) * 32.0)
+	Game.world._drop_loot(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, 32.0, "enemy")
+	frames(40)
+	var left: bool = rt.loot.size() == 1 and float(rt.loot[0].alt) == 32.0
+	w.player.motor.place(Vector2(26.5, 11.4) * 32.0)
+	w.player.physics_step(0.0001)
+	frames(40)
+	var spill: Vector3 = WorldAuthority._loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 32.0, 0.0, 22.0)
+	t.check(left and rt.loot.is_empty() and spill.z == 32.0 and spill.y < 12.0 * 32.0,
+		"topdown audit: a drop on the terrace's edge is not picked up from the square below (the old reach, 60 up, took it), and is on the terrace; a spill over the ledge lies on its own floor")
+	# Auto-path arrives only on the goal's own floor, not under it on the square below.
+	fresh(Vector2(26.5, 12.4) * 32.0)
+	var pilot := Autopilot.new(w.player)
+	var goal := Vector2(26.5, 11.7) * 32.0
+	var going: Vector2 = pilot._toward_grid(goal, 30.0)
+	w.player.motor.place(Vector2(26.5, 11.3) * 32.0)
+	w.player.physics_step(0.0001)
+	t.check(going != Vector2.INF and pilot._toward_grid(goal, 30.0) == Vector2.INF, "topdown audit: auto-path is not there under a terrace spot 22 units off on the plane, only on the terrace")
+	# The names: the nearest keep their rows by the distance on the plane, not across.
+	fresh(base)
+	var north := foe("wild_boarlet", base + Vector2(0, -150))
+	w._add_foe(north)
+	(w.label_views[north.uid] as EnemyView).sync(north, 0.0)
+	var mine: Array = WorldShared.label_views(w, w.player_feet(), Vector2.ONE).filter(func(v): return v.id == "e%d" % north.uid)
+	t.check(not mine.is_empty() and absf(float(mine[0].near) - 150.0) < 4.0, "topdown audit: a foe's name straight north of the player is 150 off for the label order (across it was 0)")
+	# A foe picks its ranged or its close blow by the distance on the plane.
+	var rogue := foe("rogue_cultivator", base + Vector2(0, -300))
+	var pick: int = EnemyBrain._choose_attack(Game.enemies, rogue, rogue.def.attacks)
+	t.check(float(rogue.def.attacks[pick].hitbox.x[1]) > 200.0, "topdown audit: a rogue cultivator 300 north throws its sword Qi (across the distance was 0 and it chose its thrust)")
+	# A rare herb's guardian wakes by the approach on the plane.
+	t.check(not Game.world._guardian_wakes({"at": [base.x, base.y - 600.0], "alt": 0.0}, st) and Game.world._guardian_wakes({"at": [base.x, base.y - 300.0], "alt": 0.0}, st),
+		"topdown audit: a herb's guardian wakes for a body 300 off on the plane, not 600 straight north (across it was 0)")
+	# Things the rules put in the room land on its floors: a spar partner, a summoned add, an ambush.
+	var by_water := Vector2(25.5, 22.5) * 32.0
+	fresh(by_water)
+	Game.quest.start_spar(c, "sparring_disciple")
+	var partner: EnemyState = null
+	for e in rt.living_enemies():
+		if e.def.get("spar", false): partner = e
+	var summoner := foe("wild_boarlet", by_water)
+	Game.enemies.enemy_attack_release(summoner, {"summon": "wild_boarlet"})
+	frames(1)
+	Game.world.spring_ambush(c, {"enemy": "wild_boarlet", "count": 2, "level": [1, 1]})
+	var placed: Array = rt.living_enemies().filter(func(e): return e != summoner)
+	var on_floors: bool = placed.size() >= 5 and placed.all(func(e): return w.room.standable(TopdownRoom.cell_of(e.plane)) and e.altitude == w.room.floor_at(e.plane))
+	t.check(partner != null and on_floors, "topdown audit: a spar partner, two summoned adds and an ambush all land on floors of the grid, at their height (%d placed)" % placed.size())
+	Game.combat.end_spar(c.id)
+	Game.world.ambush_cd.erase(c.id)
+	fresh(base)
+# ------------------------------------------------------------------ decision 38: the combat feel
+## Names of the effect sheets TopdownFx is playing now (their files' base names).
+func _fx_now() -> Array:
+	return w.tfx.nodes.filter(func(n): return is_instance_valid(n)).map(func(n): return (n.tex as Texture2D).resource_path.get_file().get_basename())
+
+## A foe of `def` at `p` that lives through anything (its blows and flinches still show).
+func sturdy(def: String, p: Vector2) -> EnemyState:
+	var e := foe(def, p, 60)
+	e.pools.max_hp = 1.0e15
+	e.pools.hp = e.pools.max_hp
+	return e
+
+## Decision 38 (CombatFeel, TopdownFx): a blow's hit-stop by its weight; the cancel rule (a dodge drops a blow in its
+## anticipation, is refused in its active window and waits in a buffer for its late recovery); the lunge and the dash
+## attack; the step's smear in its direction with its contact on the hit, the technique forms, the impact marks, the
+## foe's tell, the dust and the held guard, all in the world's sorted layer; the eight directions (three mirrored); the
+## struck foe's flash and hop; and under Reduce motion no hit-stop, kick or shake.
+func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
+	var fam: Dictionary = StatRules.family(c)
+	var tl: Dictionary
+	# Weight: the first step of a chain against the dragged (charged) finisher.
+	fresh(base)
+	var dummy := sturdy("wild_boarlet", base + Vector2(30, 0))
+	tl = Game.combat.timeline(c.id)
+	tl.family = str(fam.id)
+	tl.combo = 0
+	tl.charged = false
+	var blow := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "never_miss": true, "source": "basic"}
+	var pv: Dictionary = Game.combat.player_view(c)
+	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	var light: float = Game.combat.hitstop
+	Game.combat.hitstop = 0.0
+	tl.charged = true
+	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	var heavy: float = Game.combat.hitstop
+	tl.charged = false
+	var f := 1.0 / 60.0
+	measured.hitstop_frames = {"step_1": snappedf(light / f, 0.1), "charged": snappedf(heavy / f, 0.1)}
+	t.check(heavy > light and light >= 3 * f - 0.001 and light <= 5 * f + 0.001 and heavy >= 8 * f - 0.001,
+		"topdown feel: a first step holds %.0f frames, the dragged finisher %.0f (a crit two more)" % [light / f, heavy / f])
+	# The cancel rule.
+	fresh(base)
+	var target := sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	frames(1)
+	var ph0 := CombatFeel.phase_of(Game.combat.timeline(c.id), c)
+	var r0: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.LEFT, "facing": 1, "moves": false})
+	frames(40)
+	var dropped: bool = ph0 == "anticipation" and r0.get("ok", false) and not hurt(target) and str(Game.combat.timeline(c.id).action) == ""
+	fresh(base)
+	target = sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	var n := 0
+	while CombatFeel.phase_of(Game.combat.timeline(c.id), c) != "active" and n < 60:
+		frames(1)
+		n += 1
+	var r1: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.LEFT, "facing": 1, "moves": false})
+	w.player.dodge()   # the player's own dodge waits in the buffer for the cancel point
+	var buffered: float = w.player.dodge_buffer
+	var went := false
+	for i in 30:
+		frames(1)
+		if c.pools.cooldown("dodge") > 0.0:
+			went = true
+			break
+	var ph := CombatFeel.phases(fam, 0, 1.0 + c.stats.value("attack_speed"))
+	measured.phases = {"family": str(fam.id), "anticipation": snappedf(float(ph.anticipation), 0.001), "active": snappedf(float(ph.active), 0.001),
+		"recovery": snappedf(float(ph.recovery), 0.001), "cancel_from": snappedf(float(ph.cancel_from), 0.001)}
+	t.check(dropped and str(r1.get("reason", "")) == "committed" and buffered > 0.0 and went and hurt(target),
+		"topdown feel: a dodge drops a blow in its anticipation (%s), is refused in its active window (%s) and waits in the buffer until it may cancel (%s)" % [ph0, str(r1.get("reason", "")), str(went)])
+	# The lunge: a step carries the body toward its aim; out of a dash it is a dash attack.
+	fresh(base)
+	var from: Vector2 = w.player.motor.pos
+	w.player.aim_attack(Vector2.RIGHT)
+	frames(12)
+	var lunged: float = w.player.motor.pos.x - from.x
+	fresh(base)
+	w.player.dodge()
+	frames(3)
+	var r2: Dictionary = w.player.aim_attack(Vector2.RIGHT)
+	var dash_attack: bool = w.player.dash_attack and w.player.motor.dash_t <= 0.0
+	measured.lunge = snappedf(lunged, 0.1)
+	t.check(r2.get("ok", false) and lunged >= CombatFeel.lunge(str(fam.id), 0) * 0.8 and dash_attack,
+		"topdown feel: a step lunges %.0f units along its aim, and one out of a dash is a dash attack that ends the dash" % lunged)
+	# The effects, each in the world's sorted layer.
+	fresh(base)
+	w.tfx.clear()
+	GameEvents.flush()
+	w.player.motor.face(Vector2.RIGHT)
+	target = sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	GameEvents.flush()
+	var smear: Array = w.tfx.nodes.filter(func(x): return (x.tex as Texture2D).resource_path.ends_with("melee_%s.png" % str(fam.id)))
+	var lead: float = float(Game.combat.timeline(c.id).hit_at) - 1.0 / (CombatFeel.smear_fps(str(fam.id)) * (1.0 + c.stats.value("attack_speed")))
+	var smear_ok: bool = smear.size() == 1 and smear[0].row == 0 and not smear[0].flip and smear[0].get_parent() == w.sorted \
+		and absf(-float(smear[0].t) - lead) < 0.002 and float(smear[0].position.y) > w.room.sort_key(w.player.motor.pos, w.player.motor.z)
+	frames(40)
+	GameEvents.flush()
+	var names: Array = _fx_now()
+	t.check(smear_ok and names.has("impact_e"),
+		"topdown feel: a step plays its family's smear toward its aim in the sorted layer, its contact on the hit (lead %.3f s), and the blow leaves its impact mark (%s)" % [lead, str(names)])
+	var forms_seen := {}
+	for slot in 4:
+		fresh(base)
+		w.tfx.clear()
+		sturdy("wild_boarlet", base + Vector2(0, 60))
+		c.pools.qi = c.pools.max_qi
+		var tr: Dictionary = w.player.aim_technique(slot, Vector2.DOWN, 0.5)
+		GameEvents.flush()
+		var form := str(ContentDB.entry("techniques", str(c.cultivator.technique_slots[slot])).get("vfx", {}).get("anim", ""))
+		forms_seen[form] = "refused: " + str(tr.get("reason", "")) if not tr.get("ok", false) else "none"
+		for nm in _fx_now():
+			if str(nm).begins_with("form_" + form): forms_seen[form] = str(nm)
+	t.check(forms_seen.size() == 4 and forms_seen.values().all(func(v): return str(v).begins_with("form_")),
+		"topdown feel: each slotted technique plays its form's ground-plane sheet (%s)" % str(forms_seen))
+	# A foe's tell, a dash's dust, the held guard.
+	fresh(base)
+	w.tfx.clear()
+	var striker := sturdy("wild_boarlet", base + Vector2(30, 0))
+	EnemyBrain.wind_up(Game.enemies, striker, striker.def.attacks, striker.def.attacks[0])
+	GameEvents.flush()
+	var told: bool = _fx_now().has("common")
+	w.player.dodge()
+	for ev in w.player.physics_step(1.0 / 60.0): w._feedback(ev)
+	var dusted: bool = _fx_now().has("dust")
+	Game.submit({"type": "guard_start"})
+	w._hold_marks()
+	var guard_on: bool = w.tfx.guard_node != null and is_instance_valid(w.tfx.guard_node)
+	Game.submit({"type": "guard_end"})
+	w._hold_marks()
+	t.check(told and dusted and guard_on and w.tfx.guard_node == null, "topdown feel: a foe's wind-up shows its tell, a dash kicks dust, and a guard holds its wall of qi while it lasts")
+	# The eight directions, the west three mirrored.
+	var dirs: Array = []
+	for i in 8: dirs.append(TopdownFx.dir_of(Vector2.from_angle(i * PI / 4.0)))
+	t.check(dirs == [["e", false], ["se", false], ["s", false], ["se", true], ["e", true], ["ne", true], ["n", false], ["ne", false]],
+		"topdown feel: an effect takes the nearest of eight directions, drawing E, SE, S, NE and N and mirroring the west three (%s)" % str(dirs))
+	# The struck foe: white, then tinted; a knockback hops it; the effects freeze in a hit-stop.
+	fresh(base)
+	var struck := sturdy("wild_boarlet", base + Vector2(30, 0))
+	GameEvents.flush()
+	var view = w.foe_views.get(struck.uid)
+	Game.combat._player_hits_enemy(c, Game.combat.player_view(c), struck, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1],
+		"never_miss": true, "knockback": 60, "source": "basic"}, 1)
+	view.sync(0.0)
+	var white0: float = view.white
+	var top := 0.0
+	for i in 12:
+		Game.enemies.tick(1.0 / 60.0)
+		view.sync(1.0 / 60.0)
+		top = maxf(top, view.hop)
+	w.tfx.clear()
+	var sm = w.tfx.smear("", str(fam.id), "step_1", Vector2.RIGHT, base, 0.0, -1.0)
+	w.held = true
+	w._sync(0.1)
+	var froze: bool = sm != null and absf(float(sm.t)) < 0.001
+	w.held = false
+	w._sync(0.1)
+	var ran: bool = sm != null and float(sm.t) > 0.09
+	t.check(white0 == 1.0 and view.white == 0.0 and top >= 2.0 and froze and ran,
+		"topdown feel: a struck foe flashes white, then tinted, a knockback hops it %.0f px, and a hit-stop freezes the effects with the fight" % top)
+	# Reduce motion: no hit-stop, no kick, no shake.
+	var was: bool = bool(Game.account.settings.get("reduce_motion", false))
+	Game.account.settings["reduce_motion"] = true
+	var rig := ShakeRig.new()
+	rig.kick(Vector2.RIGHT, 6.0)
+	rig.add(0.2, 4.0)
+	var still: Vector2 = rig.offset(0.01)
+	w.sim_frozen = false
+	Game.combat.hitstop = 0.1
+	w._physics_process(1.0 / 60.0)
+	var off_held: bool = w.held
+	var off_stop: float = Game.combat.hitstop
+	Game.account.settings["reduce_motion"] = was
+	Game.combat.hitstop = 0.1
+	w._physics_process(1.0 / 60.0)
+	var on_held: bool = w.held
+	w.sim_frozen = true
+	Game.combat.hitstop = 0.0
+	var rig2 := ShakeRig.new()
+	rig2.kick(Vector2.RIGHT, 6.0)
+	var kicked: Vector2 = rig2.offset(0.01)
+	t.check(still == Vector2.ZERO and not off_held and off_stop == 0.0 and on_held and kicked.x < -1.0,
+		"topdown feel: under Reduce motion there is no hit-stop, kick or shake; without it a hit-stop holds the fight and a kick knocks the view along the blow (%s)" % str(kicked))
 

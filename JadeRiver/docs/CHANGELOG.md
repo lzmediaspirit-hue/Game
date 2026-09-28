@@ -1,5 +1,174 @@
 # Changelog
 
+## Top-down: Terrain v2, the tiles (decision 40)
+
+- **The top-down world's terrain is redrawn to look closer to Alabaster Dawn, in Jade River's own xianxia world**
+  (`docs/redesign/art_bible.md` §14, the contract for the runtime light and foliage work that follows).
+  - **Light and colour.** One sun from the north-west. Warm lit edges and translucent blue-violet shadows: never
+    black, never grey. Every ground, rock, water and roof material has a hue-shifted ramp.
+  - **No visible grid.** Each material is one 64 or 128 px pattern. Clumps, tufts, flowers, pebbles, leaves, petals,
+    cracks, moss and puddles are scattered as decals. Soft sun and shade patches drift across the big areas.
+  - **Edges.** Grass hangs over paths and paving in soft tufts with a two-step shadow; the sawtooth is gone.
+  - **Cliffs and faces.** Cliffs are fluted limestone under a lit, mossy lip with vines, with a dark foot where they
+    meet the ground. Earth banks, stone walls and piers follow the same rules in their own materials.
+  - **Water.** It is deeper and bluer away from land. The bed shows in the sunlit shallows, foam breathes at every
+    waterline, ripples drift and glints twinkle, and rings spread round the pier pilings. It keeps its four frames.
+  - **Paving and buildings.**
+    - Town squares are irregular flagstones with moss in the joints; granite terraces are big slabs.
+    - Roofs are dark glazed tile with a glint on every rib. The houses' roofs sweep up at the ends, with a heavy
+      ridge and a shadow band under the eaves.
+- **No room had to change.** Every tile name and auto-tile rule stays; the room view draws each cell as layers.
+- **Tests:** `topdown_suite` checks the layers ("terrain v2"); `data_validation` checks that every tile the new sets
+  name is in the atlas.
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/` (the village square, Jade Gate
+  Street, the Marsh Edge, the Reed Shallows, the Fisher's Hut lane, Riverside Square, the height-levels room, the
+  Cloud Sect's cliff stair and Elder Sung's peak), and the new tile sheet at ×4.
+
+## Top-down redesign, Phase 4: the gaps closed (allies, hazards, respawn, the people, and the side view's rules)
+
+See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
+
+- **Companions and spirit animals move on the plane.** They follow behind you along your facing, on your floor, by
+  the grid's paths: stairs, drops, and a hop a level up as you jump. With no way to you on foot they blink to you after
+  2 s, onto your floor on your side of any wall. They strike only a foe on a height their blow reaches, and a foe's
+  blow reaches them only on theirs.
+- **Their figures:** a companion is drawn in the top-down style in its own outfit (`TopdownPlaces.Person`, turning to
+  where it walks or strikes). A spirit animal, and a foe the grid's sheet does not draw yet (Old Snapper, the toads),
+  is its side-view creature sheet at half size instead of the mud crab. Each is sorted and stands on its floor.
+- **Hazards and weather are layered with the room.**
+  - A strike's ring, a scorch, a pool or a current lies on its floor under whoever stands on it.
+  - A falling rock, a bolt or springing spikes sorts at its spot, so a terrace or a wall in front hides it.
+  - Washes, weather and warning marks draw over the room, under the names and the HUD.
+  - Their effects are on the plane:
+    - strikes fall all round you on floors, and reach you only on their own level;
+    - a gust carries the top-down body;
+    - the heavens' bolt strikes a circle;
+    - burning ground burns only on its own floor.
+- **Respawns out of view use the camera's rect**, on both axes (a foe no longer pops in on screen near a room's wall).
+  On the grid two foes are never put on one point.
+- **The people come with the room.** Page scripts now warm up one at a time after launch. While one compiles, every
+  other load waits, and asking for all sixty at once held villagers back for seconds. They now draw within a moment
+  of the room (80 ms headless, with 56 page scripts still to compile). `perf_tests` times rooms and pages once the
+  pages are in.
+- **The side view's x-only and walk-strip rules found on the grid, all fixed:**
+  - camera bounds (a ridge on the north edge, the body always in view);
+  - the ways' reach (turned with each way, on its own floor);
+  - the pickup magnet and loot spill (by floor);
+  - auto-path's arrival and auto-hunt's targets (by floor and reachability);
+  - label order and the minimap's direction mark and arrow;
+  - a foe's choice of ranged or close attack, and the off-screen notice;
+  - a rare herb guardian's wake and spawn, and spar partners, summoned adds and ambushes (placed on floors);
+  - decals on raised floors, and a drop's name distance.
+- **Tests:** `topdown_suite` goes from 87 to 117 checks. `topdown_tutorial` (786 checks) adds a room's people drawn
+  while the pages warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
+
+## Top-down combat animation and feel (decision 38)
+
+- **Research first.** `docs/research/alabaster_dawn_2_5d.md` §3.9 covers how the reference game and CrossCode time and
+  sell their blows. It covers combo length and finishers, commitment, charged and delayed attacks, guard and parry,
+  break, hit feedback and how skills read from above, with fighting-game and pixel-art craft numbers. Every claim is
+  labelled confirmed, inferred or not found.
+- **The look rule.** The user clarified decision 38: only the *feel* comes from the reference game. The look stays
+  wuxia:
+  - sword-light arcs and qi trails, ink-brush strokes, jade and gold qi;
+  - the elements' Dao images;
+  - palm prints, sword formations and calligraphic impact marks.
+
+  The rule heads the research section, the feel table and the FX manifest, and is written into roadmap §6 decision 38.
+- **One table for the feel**, `data/combat_feel.json` (from `tools/data/combat_feel.py`, read by `CombatFeel`):
+  - four blow weights: hit-stop 3, 4, 6 or 8 frames, a crit 2 more; the camera's kick along the blow; a shake for the
+    heaviest; the impact mark and the knockback hop;
+  - per weapon family, its steps' weights, lunges, smear rate and cancel points;
+  - per technique form, its weight and pose;
+  - foes' blows by role.
+
+  The steps' phases (anticipation, active, recovery) are derived from `weapon_families.json`, never kept twice. The old
+  flat hit-stop constants in `stats.json` are gone.
+- **The fight on the grid feels it:**
+  - hit-stop by weight, including a foe's blow on the player;
+  - a dodge cancels a blow's anticipation or late recovery, is refused in its active window, and the player's dodge
+    waits in a short buffer;
+  - each step lunges along its aim, and an attack out of a dash is a dash attack;
+  - the camera kicks and shakes;
+  - struck bodies flash white, then tint, and hop with a knockback over a skid of dust;
+  - effects freeze with the fight in a hit-stop.
+
+  Reduce motion turns off the hit-stop, kick and shake. The side view is unchanged.
+- **Everything drawn on the ground plane in eight directions** (`tools/art/fx/build_fx_topdown.py`, with `plane.py`,
+  `wuxia.py`, `topdown_forms.py` and `topdown_melee.py`; 107 sheets in `art/fx/topdown/`, manifest
+  `data/fx_topdown.json`, byte-identical on every build):
+  - all 12 weapon families' combo steps, the dragged (charged) finisher, the dash attack and the air blow;
+  - the guard, the parry, the Plunge's crater, a charge, a foe's tell and swipe;
+  - all 24 technique forms in 11 elements at three richness bands, with the thrown forms' bolts;
+  - impact marks by weight and element, and dust.
+
+  `TopdownFx` plays them in the world viewport, sorted with the bodies, their contact frames on the hits.
+- **Poses.** The figure's hit frame lands on the blow's hit, the same instant as the smear's contact. A cast of a
+  meditation or jump form plays its form's top-down pose (`cast`, `plunge`). The poses the character pipeline does not
+  draw yet (bow draw, flute, charge hold, dash slash, air strike, parry deflect, two-handed sabre, bell, fan throw,
+  brush) are listed for it in the feel table and the plan.
+- **Tests:**
+  - `data_validation` `combat_feel_suite`: timing tables valid for every family, form, technique and foe; every sheet
+    at its size;
+  - `topdown_suite`: 9 new checks, among them the hit-stop and shake off under Reduce motion;
+  - `perf_tests`: 22 foes fighting with techniques, 9.9 ms a frame.
+- **Review images** in `docs/redesign/phase5/combat/`: the builder's strips per form, family, impact and mark, and the
+  game's own frames of combos, a finisher and a dash attack, techniques, the guard, a parry and the Plunge.
+## The story staged: in-engine scenes and a playable opening (decision 39)
+
+- **Research first.** `docs/redesign/story_staging.md` covers how CrossCode, Alabaster Dawn and other top-down RPGs
+  stage their stories in the engine:
+  - dialogue with portraits, and live side lines;
+  - emotion balloons and scripted events (move, face, emote, speak, camera);
+  - teaching through the story (A Link to the Past's rainy opening, "pick up that can");
+  - hold to skip, and bypassing for accessibility.
+
+  Each claim is marked confirmed or inferred, with sources. Eight principles for Jade River follow from it.
+- **A scene system, data-driven and in one place.** `tools/data/scenes.py` builds `data/scenes.json`, and
+  `SceneDirector` plays it in the rooms on the height grid. A scene's steps are:
+  - **actors:** walk (round obstacles), face, emote, pose, speak in a balloon or on the dialogue page's portrait strip;
+  - **camera:** pan, follow, zoom, shake, letterbox;
+  - **screen:** fade, flash, title card;
+  - **world:** spawn and despawn people and props, open a door, weather, a moment, effects, sounds;
+  - **flow:** wait for time, a tap or an event, branch on the story's state, labels, checkpoints;
+  - **hand-off:** the player acts, with a prompt over the thing, the person, the foe, the way or the HUD control.
+- **How a scene behaves:**
+  - **Modes.** A cut holds the game still under a letterbox, with the HUD and the names faded. A hand-off gives the
+    controls back. A live part plays around the player. A fight turns a cut live, and a cut never starts in one.
+  - **Skipping.** A tap moves a line on. A hold skips to the next hand-off, and the skipped part's checkpoints still
+    apply.
+  - **State.** The Quest authority owns it (`scene_begin`, `scene_mark`, `scene_end`; `QuestState.scenes`). A seen
+    scene never replays, and a scene cut short by quitting resumes at its last checkpoint, its people where the script
+    had put them.
+  - **Reduce motion** makes the camera cut instead of pan, fades the bars and the title instead of sliding them, holds
+    the rain still and drops the shake.
+- **The opening, rewritten as a playable story.** Fifteen scenes run from waking to the sect choice:
+  - Aunt Ping wakes you and hands you the tea, teaching the Bag through a gift, then sends you to the door;
+  - a boat passes, the villagers talk of grey water, and the wind takes Little Dou's kite;
+  - Guo shows the jab on his stump before handing it to you;
+  - Dou shows the way up to his kite, and Shen Lian races you to the tower (sprint, through a chase);
+  - a jar falls in Granny's hut and grazes you, so the Quick-use slot is taught by an injury;
+  - Guo opens the East Gate, and the crabs corner Washer Mei (the first fight);
+  - a storm comes on the Hollow Night;
+  - Lu teaches meditation, and after the first breakthrough shows the palm and gives the reason to leave home;
+  - a thief runs through the market;
+  - the recruiters trade calls at the fair, and the chosen sect welcomes you.
+
+  All writing is original. The quests, gates and tests are unchanged, and each scene runs 10–26 s.
+- **Shared code, nothing copied:**
+  - `MomentView.letterbox`, `draw_title`, `play_row` and `in_fight`;
+  - `UiKit.wrap` (the pages' wrap);
+  - `TopdownPlaces.person` and `figures`;
+  - `PropView.place_at`;
+  - `TopdownWorld` gains `stage_cam`, `stage_zoom` and `fade_labels`.
+- **The event contract gains** the scenes' three events, plus `page_opened`, `quest_failed`, `object_hit` and
+  `quick_use_changed`, which the catalogue had missed.
+- **Tests:**
+  - `story_scenes` is new, in `tools/run_tests.sh`. It checks that every scene validates, the opening in the real view,
+    resuming after a reload, never replaying, skipping, Reduce motion, and a fight breaking a cut.
+  - `topdown_tutorial` plays every scene of the tutorial to its end as the walk reaches it. The cuts count on the play
+    clock, and the first hour's pacing still holds.
+- **Screenshots:** `tools/dev/topdown_capture.tscn -- --story`, in `docs/redesign/phase5/story/`.
 ## Top-down character: the flute and the bell (decision 37)
 
 - **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
@@ -14,6 +183,40 @@
 - **New generators:** `figure/kinds/flute.py`, `bell.py`, and `sound.py`, which draws what a sounding weapon sends out on
   its blows. A blow's frame is known by its pose, so the action catalogue and every other set are unchanged.
 - **Review sheets:** `docs/redesign/phase3/character/03_weapon_flute.png` and `03_weapon_bell.png`.
+## Top-down: the fan and the brush (decision 37)
+
+- **The fan and brush batch is drawn.** `weapon_fan` and `weapon_brush` give the top-down figure the looks of 21 game
+  items (10 fans, 11 brushes), in every action and facing. Two new generators cast them, `figure/kinds/fan.py` and
+  `figure/kinds/brush.py`. No shared file changed, and every other set's files are byte-identical.
+- **The iron fan** is the side view's: cream paper pleated over brown ribs, a teal ink band on its rim, and a gold
+  rivet under the fist.
+  - It folds at rest into a slim bar, brown at the handle and the tip.
+  - It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's dive).
+  - Open, it always shows its face: it is turned at least 50° off the camera's line and faces the camera.
+  - Its cuts leave the jian's smear of jade light. It lies folded beside a meditating figure.
+- **The calligraphy brush** has a jointed bamboo shaft, a lacquered cap and collar, and a tuft pale at the root and
+  soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
+  brush and thin behind it, and at its tail it has run dry: grey and broken.
+- Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
+## Top-down character: the heavy sabre (decision 37, the heavy_sabre batch)
+
+- **The heavy sabre is drawn** in every action and facing (`weapon_heavy_sabre`; parts.json weapon `sabre`). Its ten
+  game items, from the Training Heavy Sabre to the Mountainsplit Sabre, now show on the top-down character instead of
+  going in `TopdownFigure.missing`.
+- **The side view's dao, in its colours.** It has a broad, single-edged blade of grey steel with a pale bevel on the
+  edge. The blade swells to a belly near the point, and the point sweeps back to the spine. It has a bronze oval guard
+  and pommel on a dark grip long enough for the second hand. The broad side is turned part way toward the camera, so
+  the blade reads as wide in every facing and thin only where it points along the view. Laid down while meditating,
+  it lies beside the figure with its breadth showing.
+- **A heavy wuxia arc on its cuts.** The swings (swing_1–3) leave a crescent of pale jade light. On the hit frame the
+  crescent is fat at the blade, thins to a sliver at its tail, and is brightest along the path of the point; on the
+  frame after, a thinner, dimmer wisp trails the blade. The heavy descending cut goes over the top in a full
+  half-round crescent: straight over the head where the facing shows it, else leaning to a shoulder. It never cuts
+  through the body, and it never draws as a flat bar.
+- **Its own files only.** The new generator is `figure/kinds/sabre.py` and the set is
+  `figure/sets/weapon_heavy_sabre.py`. The build writes `data/topdown/character/weapon_heavy_sabre.json`,
+  `art/topdown/character/weapon_sabre.png` and the review sheet `docs/redesign/phase3/character/03_weapon_sabre.png`.
+  The shared index and every other set's files are byte-identical.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 

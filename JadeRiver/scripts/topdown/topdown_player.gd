@@ -46,6 +46,17 @@ const IMPACT_S := 0.25
 var ghost: CanvasGroup
 var tint := Color.WHITE   ## this frame's tint: red while flinching
 var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the stick (S49), on the grid
+## Decision 38, the combat feel (CombatFeel): a dodge refused while a blow is committed waits `dodge_buffer` seconds for
+## its cancel point; an attack in or just after a dash is a dash attack (its smear, a longer lunge); the body flashes
+## white as it is struck and hops with a knockback; `action_phase` is the phase of the blow or cast the figure plays
+## (anticipation, active, recovery).
+var dodge_buffer := 0.0
+var dash_attack := false
+var hurt_t := 99.0
+var knock_t := 0.0
+var knock_s := 0.0
+var action_phase := ""
+var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -93,6 +104,9 @@ func dodge() -> void:
 	if r.get("ok", false):
 		motor.dash_cd = 0.0   # Combat keeps the cooldown
 		_dash = true
+		dodge_buffer = 0.0
+	elif str(r.get("reason", "")) == "committed" and dodge_buffer <= 0.0:
+		dodge_buffer = float(CombatFeel.cfg().get("dodge_buffer_s", 0.2))   # decision 38: it goes when the blow may be cancelled
 
 ## A tap of Attack: the soft lock (the nearest foe in the cone round the stick, else the facing).
 func attack() -> void:
@@ -104,8 +118,15 @@ func attack() -> void:
 ## An attack along `dir` on the plane; `aimed` (a dragged aim) snaps only to a foe within a few degrees. `finisher`
 ## (decision 35, a long drag): the combo's last step at once.
 func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
+	# Decision 38: each step lunges toward its aim; out of a dash it is a dash attack (the dash ends in it, a longer
+	# lunge). Known before the step starts, as its event is played as it is sent.
+	dash_attack = motor.grounded and (motor.dash_t > 0.0 or motor.since_dash <= float(CombatFeel.cfg().get("dash_attack_s", 0.15)))
 	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
+	if r.get("ok", false) and not r.get("queued", false):
+		if dash_attack: motor.dash_t = 0.0
+		var lunge := CombatFeel.lunge(str(Game.combat.timeline(actor_id).get("family", "fists")), int(r.get("combo", 0)), dash_attack)
+		if lunge > 0.0 and motor.grounded: motor.push(Vector2(r.get("aim", dir)).normalized() * lunge / 0.1, 0.1)
 	return r
 
 ## Decision 35, a long drag on Attack: the combo's finisher step at once along the drag (snapping as an aim does).
@@ -237,12 +258,23 @@ func physics_step(delta: float) -> Array:
 		motor.lock_face = Game.combat.is_busy(actor_id)
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
-		if not forced.is_empty(): motor.push(forced.velocity, float(forced.time))
+		if not forced.is_empty():
+			if float(Game.combat.timeline(actor_id).flinch) > 0.0 and knock_t <= 0.0:
+				knock_t = float(forced.time)   # decision 38: struck and knocked back, the body hops
+				knock_s = knock_t
+			motor.push(forced.velocity, float(forced.time))
+		if dodge_buffer > 0.0:
+			dodge_buffer = maxf(0.0, dodge_buffer - delta)
+			if dodge_buffer > 0.0 and CombatFeel.dodge_cancel(Game.combat.timeline(actor_id), c) != "committed": dodge()
+		# Gusts and currents (S17) add their push to walking, as on player.gd; a meditating or wounded body is anchored.
+		motor.drift = Game.world.hazard_drift(actor_id) if not c.cultivator.meditating and not Game.combat.is_wounded(actor_id) else Vector2.ZERO
 	motor.step(delta, move, _jump, _dash)
 	_jump = false
 	_dash = false
 	attack_time = maxf(0.0, attack_time - delta)
 	impact_t = maxf(0.0, impact_t - delta)
+	knock_t = maxf(0.0, knock_t - delta)
+	hurt_t += delta
 	var events := motor.drain()
 	for e in events:
 		if str(e.type) in ["landed", "splashed"] and e.get("plunge", false):
@@ -298,6 +330,7 @@ func sync(delta: float) -> void:
 		f = 4
 	elif meditating: next = "meditate"
 	elif m.vel.length() > 12.0: next = "run" if m.vel.length() > m.walk * 1.15 else "walk"
+	if stage_pose != "": next = TopdownFigure.resolve(stage_pose)   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next
 		anim_t = 0.0
@@ -313,7 +346,13 @@ func sync(delta: float) -> void:
 			f = TopdownFigure.hit_frame(pose)
 		_: pose = anim
 	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
-	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART))
+	# Decision 38: the phase of the blow or cast under way (CombatFeel), and the hop of a knockback, which lifts the drawn
+	# body only.
+	action_phase = CombatFeel.phase_of(tl, Game.character(actor_id)) if anim == "strike" and bound() else ""
+	var hop := 0.0
+	if knock_t > 0.0 and knock_s > 0.0:
+		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
+	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
 	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
 	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
@@ -326,8 +365,12 @@ func sync(delta: float) -> void:
 ## technique that has no pose of its own.
 func _strike_pose(tl: Dictionary) -> String:
 	if str(tl.technique) != "":
-		var raw = ContentDB.entry("techniques", str(tl.technique)).get("action")
+		var t := ContentDB.entry("techniques", str(tl.technique))
+		var raw = t.get("action")
 		if raw == null or str(raw) in ["", "null", "meditate_burst"]: return "cast"
+		# Decision 38: a cast whose own action does not suit a fight seen from above (meditation sits facing the camera,
+		# a jump leaves the floor) plays its form's top-down pose (combat_feel.json).
+		if str(raw) in ["meditate", "jump"]: return TopdownFigure.resolve(CombatFeel.form_pose(t, StatRules.family(Game.character(actor_id))))
 	return TopdownFigure.resolve(str(tl.action))
 
 ## Draw the current frame with its feet at `feet` on `canvas` (the silhouette overlay draws the same frame).
@@ -335,4 +378,6 @@ func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
 	figure.draw(canvas, feet, pose, motor.row, frame, tint)
 
 func _draw() -> void:
+	# Decision 38: the first frames of a blow turn the body white (every layer at once), then the flinch's red tint.
+	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)

@@ -12,6 +12,7 @@ var quality := "common"
 var count := 1
 var fly := {}   # the loot fountain: {from (offset from its place), flight, apex, burst, chime}; t runs from -(wait + flight) to 0
 var beam := {}  # a rare find's beam (P6 rare_drop): {height, width, hz}, until it is picked up
+var ground := Vector2.ZERO   # where it lies on the plane (its position is lifted by its height)
 
 func setup(entry: Dictionary) -> void:
 	uid = int(entry.uid)
@@ -20,6 +21,7 @@ func setup(entry: Dictionary) -> void:
 	count = int(entry.count)
 	quality = str(entry.get("quality", "common"))
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ground = Vector2(float(entry.x), float(entry.y))
 	position = Vector2(float(entry.x), float(entry.y) - float(entry.get("alt", 0.0)))
 	z_index = 1500 + int(float(entry.y))
 
@@ -71,7 +73,7 @@ func _draw() -> void:
 		draw_circle(Vector2(0, -14 + y), 8, col)
 	var c = Game.active()
 	var st: ActorState = Game.actor_state(c.id) if c else null
-	if st and (fine or st.plane.distance_to(Vector2(position.x, position.y)) < 160.0):
+	if st and (fine or st.plane.distance_to(ground) < 160.0):
 		var text := (Tx.plural("view.taels", coins) % coins) if coins > 0 else ContentDB.item_name(item) + (" ×%d" % count if count > 1 else "")
 		UiKit.draw_outlined(self, text, Vector2(-120, -40 + y), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 240)
 

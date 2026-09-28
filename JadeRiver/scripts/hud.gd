@@ -1020,6 +1020,10 @@ var blocked := false
 ## A moment holds world input for a moment (P6, at most 1.5 s); kept apart from `blocked` so a page closing never ends it.
 var moment_lock := false
 var moments: Node = null   # the MomentView: a press during its lock goes to it (a tap skips a skippable moment)
+## A staged scene's cut holds the controls (decision 39): every touch, click and key goes to the SceneDirector (a tap
+## moves the talk on, a hold skips to the next hand-off).
+var scene_lock := false
+var scenes: Node = null
 
 func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -1029,8 +1033,16 @@ func set_moment_lock(value: bool) -> void:
 	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	moment_lock = value
 
+## A staged scene's cut takes the controls (held ones let go at once) and gives them back.
+func set_scene_lock(value: bool) -> void:
+	if value and not scene_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	scene_lock = value
+
 func _input(event):
 	if blocked: return
+	if scene_lock:
+		if scenes: scenes.input(event)
+		return
 	if moment_lock:
 		var pressed: bool = (event is InputEventScreenTouch or event is InputEventMouseButton or event is InputEventKey) and event.pressed and not event.is_echo()
 		if pressed and moments: moments.press()
@@ -1118,7 +1130,7 @@ func _caption_worthy(name: String, p: Dictionary) -> bool:
 	if name == "enemy_aggro":
 		var e2 = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
 		var st = Game.actor_state(Game.active_id)
-		return e2 != null and st != null and absf(e2.plane.x - st.plane.x) > 640.0
+		return e2 != null and st != null and Game.room_rt.out_of_view(e2.plane, e2.altitude, st)
 	return true
 
 ## Vibration on phones, when the player allows it (S40 haptics toggle).
@@ -2293,9 +2305,15 @@ func _draw_minimap(c) -> void:
 		if dir == 0.0: dir = 1.0
 		var ex := r.end.x - 7.0 if dir > 0.0 else r.position.x + 7.0
 		var ey := clampf(gp.y, inner.position.y + 8.0, inner.end.y - 8.0)
-		var bob := sin(t * 4.0) * 2.0 * dir
-		var tip := Vector2(ex + bob, ey)
-		var chev := PackedVector2Array([tip, tip + Vector2(-9.0 * dir, -7.0), tip + Vector2(-9.0 * dir, 7.0)])
+		var way := Vector2(dir, 0.0)
+		var tip := Vector2(ex, ey)
+		if grid != null and me != null:
+			# On the height grid the way may lie north or south too: the chevron sits on the frame's edge the way points.
+			way = minimap_way(to_map.call(me.plane, 0.0), gp)
+			tip = _edge_point(inner.grow(-8.0), inner.get_center(), way)
+		tip += way * sin(t * 4.0) * 2.0
+		var side := Vector2(-way.y, way.x)
+		var chev := PackedVector2Array([tip, tip - way * 9.0 - side * 7.0, tip - way * 9.0 + side * 7.0])
 		draw_colored_polygon(chev, UiKit.GOLD)
 		draw_polyline(chev + PackedVector2Array([chev[0]]), UiKit.INK, 1.5)
 	for o in room.get("objects", []):
@@ -2336,7 +2354,21 @@ func _draw_minimap(c) -> void:
 			var col = UiKit.SKY if e.team == "ally" else (UiKit.GOLD if e.elite or e.is_boss() else UiKit.RED)
 			draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(player.plane, player.altitude)
-	draw_colored_polygon(PackedVector2Array([pp + Vector2(player.facing * 5, 0), pp + Vector2(-player.facing * 3, -4), pp + Vector2(-player.facing * 3, 4)]), Color.WHITE)
+	# The arrow points the way the body faces: along x in the side view, any of eight ways on the height grid.
+	var fv := Vector2(player.facing, 0) if grid == null or player.get("motor") == null else (player.motor.dir as Vector2).normalized()
+	var fs := Vector2(-fv.y, fv.x)
+	draw_colored_polygon(PackedVector2Array([pp + fv * 5.0, pp - fv * 3.0 - fs * 4.0, pp - fv * 3.0 + fs * 4.0]), Color.WHITE)
+
+## Redesign Phase 4: the direction mark's way on a grid room's map, from the player's dot to the goal (east when on it).
+static func minimap_way(from: Vector2, to: Vector2) -> Vector2:
+	return (to - from).normalized() if from.distance_to(to) > 0.5 else Vector2.RIGHT
+
+## Where a ray from `center` along `way` leaves `r` (the direction mark's place on the map's frame).
+static func _edge_point(r: Rect2, center: Vector2, way: Vector2) -> Vector2:
+	var k := INF
+	if absf(way.x) > 0.001: k = minf(k, ((r.end.x if way.x > 0.0 else r.position.x) - center.x) / way.x)
+	if absf(way.y) > 0.001: k = minf(k, ((r.end.y if way.y > 0.0 else r.position.y) - center.y) / way.y)
+	return center + way * (k if k < INF else 0.0)
 
 ## A room on the height grid as a map, one pixel a cell, made once a room (drawn scaled, nearest): water, the floor by
 ## its level (higher is paler), and walls and the props' footprints dark.

@@ -34,6 +34,11 @@ func _main() -> void:
 	Game.submit({"type": "create_character", "slot": 1, "name": "Perf", "appearance": {"hair": "topknot"}})
 	main.enter_world(1)
 	for i in 5: await get_tree().process_frame
+	# The page scripts warm one at a time from launch (PageWarmer); the gates below time rooms and pages once they are in,
+	# as a player meets them after the title screen.
+	var t0 := Time.get_ticks_msec()
+	while not main.pages_warm(): await get_tree().process_frame
+	print("pages warm %d ms after the world is entered" % (Time.get_ticks_msec() - t0))
 	await _rooms()
 	await _pages()
 	await _crowd()
@@ -263,8 +268,10 @@ func _topdown() -> void:
 		e.altitude = w.room.height_at(at)
 		e.threat[Game.active_id] = 1.0
 	var peak := {"fx": 0}
+	# Decision 38: the effects counted are the overlay's (numbers, rings) and the ground-plane sheets TopdownFx plays in
+	# the world (smears, forms, impacts, marks, dust), every blow and technique drawn with its hit-stop and camera kick.
 	var fight := func(i: int) -> void:
-		peak.fx = maxi(int(peak.fx), w.effects.fx.size())
+		peak.fx = maxi(int(peak.fx), w.effects.fx.size() + w.tfx.nodes.size())
 		p.movement = Vector2.from_angle(i * 0.07) * 0.3
 		Game.active().pools.hp = Game.active().pools.max_hp
 		Game.combat.wounded.erase(Game.active_id)

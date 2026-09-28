@@ -507,6 +507,22 @@ static func text_width(text: String, size: int, display := false) -> float:
 	_widths[key] = w
 	return w
 
+## `s` broken into lines no wider than `width` at `size`, at its spaces and its own line breaks (a page's paragraphs, a
+## staged scene's speech balloons).
+static func wrap(s: String, size: int, width: float, display := false) -> Array:
+	var out: Array = []
+	for raw in s.split("\n"):
+		var cur := ""
+		for w in raw.split(" "):
+			var cand := w if cur == "" else cur + " " + w
+			if text_width(cand, size, display) > width and cur != "":
+				out.append(cur)
+				cur = w
+			else:
+				cur = cand
+		out.append(cur)
+	return out
+
 static var _fitted: Dictionary = {}   # fitted lines drawn every frame are shortened once
 
 ## `s` shortened with an ellipsis so it fits `width` at `size`, measured at the size it is drawn (never under MIN_SIZE).

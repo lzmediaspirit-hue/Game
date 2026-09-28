@@ -79,6 +79,7 @@ var backdrop: Control
 var world: Node2D
 var hud: Control
 var moments: MomentView
+var scenes: SceneDirector   ## decision 39: the staged scenes, played in the rooms on the height grid
 var hud_layer: CanvasLayer
 var page_layer: CanvasLayer
 var shell_layer: CanvasLayer
@@ -769,6 +770,13 @@ func _mount_world() -> void:
 	moments.hud = hud
 	hud.moments = moments
 	add_child(moments)
+	scenes = SceneDirector.new()
+	scenes.headless = false
+	scenes.world = world
+	scenes.hud = hud
+	scenes.moments = moments
+	hud.scenes = scenes
+	add_child(scenes)
 
 ## The view of the room the character stands in: the prototype square, a room of the world on the height grid (the
 ## top-down view, redesign Phase 4), or the side view.
@@ -798,9 +806,14 @@ func _swap_world_view() -> void:
 		hud.player = world.player
 		hud.world = world
 	if is_instance_valid(moments): moments.world = world
+	if is_instance_valid(scenes): scenes.world = world
 
 func _unmount_world() -> void:
 	close_all_pages()
+	if is_instance_valid(scenes):
+		remove_child(scenes)
+		scenes.queue_free()
+	scenes = null
 	if is_instance_valid(moments):
 		remove_child(moments)
 		moments.queue_free()
@@ -942,12 +955,18 @@ func _warm_techniques() -> void:
 		_page_script(tp).warm(Game.active())
 
 ## Page scripts compile in a background thread from the title screen on, so the first time a page opens it does
-## not stall a frame compiling itself (S40 performance: a page opens within 0.15 s).
+## not stall a frame compiling itself (S40 performance: a page opens within 0.15 s). One at a time (PageWarmer, ticked
+## in _process), so a room's people never wait behind the whole set.
 var _page_scripts: Dictionary = {}
+var _page_warmer: PageWarmer = null
 
 func _warm_pages() -> void:
-	for path in PAGES.values():
-		if ResourceLoader.exists(str(path)): ResourceLoader.load_threaded_request(str(path))
+	_page_warmer = PageWarmer.new(PAGES.values())
+	_page_warmer.tick()
+
+## True once every page script has been asked for and is in.
+func pages_warm() -> bool:
+	return _page_warmer == null
 
 func _page_script(path: String) -> Script:
 	if _page_scripts.has(path): return _page_scripts[path]
@@ -988,6 +1007,7 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 			open_page("shop", p)
 
 func _process(delta: float) -> void:
+	if _page_warmer != null and not _page_warmer.tick(): _page_warmer = null
 	if fade > 0.0:
 		fade = maxf(0.0, fade - delta / 0.35)
 		fade_rect.color = Color(0, 0, 0, fade)

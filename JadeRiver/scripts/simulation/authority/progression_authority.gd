@@ -553,7 +553,10 @@ func _tick_tribulation(c, delta: float) -> void:
 		var here: Vector2 = st.plane if st else Vector2(float(c.position.get("x", 600)), float(c.position.get("y", 860)))
 		var rng := Rng.stream(c.id, "combat")
 		var spread := float(k.get("spread", 60))
-		var spot := here + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread) * 0.3)
+		# The side view's depth is a shallow strip; on the height grid the ground is seen whole, so the ring may fall
+		# anywhere round the character.
+		var depth_k := 0.3 if game.room_rt.topdown == null else 1.0
+		var spot := here + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread) * depth_k)
 		tr.warn = {"x": spot.x, "y": spot.y, "left": warn_s}
 		emit("tribulation_bolt", {"actor": c.id, "index": int(tr.index), "total": int(tr.total), "phase": "warn", "x": spot.x, "y": spot.y, "warn_s": warn_s})
 	if not (tr.warn as Dictionary).is_empty():
