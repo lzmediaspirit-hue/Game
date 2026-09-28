@@ -929,6 +929,42 @@ A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure d
 - Palette-swap dyes (§1.4). Dyes are baked sheets, as in the side view.
 - Thrust streaks. A thrust at the camera relies on the effects layer's line.
 
+### As built: Phase 3, fourth part · Terrain v2, the tiles (decision 40, 2026-09-28)
+
+Decision 40 asks for terrain closer to Alabaster Dawn, in the xianxia theme. Its first part, the tiles, is built. The
+art direction is `docs/redesign/art_bible.md` §14, which is also the contract for the next two parts: runtime light,
+and foliage and decor.
+
+**What changed.**
+
+- **Light and colour.**
+  - One sun from the north-west; every shade is a translucent blue-violet (`#241F4F`).
+  - Every material has a hue-shifted ramp.
+- **Grid and edges.**
+  - Each material is one 64 or 128 px pattern, picked by the cell's place in it.
+  - Scattered decals and positional sun and shade patches break the 16 px grid.
+  - Grass hangs over paths with a soft shadow; the sawtooth is gone.
+- **Faces.**
+  - Cliffs are fluted rock mass under a lit, mossy lip with vines, with a dark foot.
+  - Banks, walls and piers follow the same rules in their own materials.
+- **Water.** Depth tints away from the shore, a sunlit bed in the shallows, foam at every waterline, ripples and
+  glints, and rings round pier pilings.
+- **Paving and buildings.**
+  - The paving is irregular flagstones; granite terraces are big slabs.
+  - Roofs are dark glazed tile, and the house props' roofs sweep up at the ends.
+
+**How.**
+
+- The tiles come from `tools/art/topdown/terrain2.py`, and `tiles.py` keeps every Phase 3 tile name.
+- `TopdownTerrain` draws each cell as layers (`top_layers`, `face_layers`, `water_layers`). `top`, `face`, `water` and
+  `overlays` keep their contract.
+- The room view draws the floor and the water in chunks.
+- The rooms needed no change.
+
+**Tests.** `topdown_suite` and `data_validation` check the layers.
+
+**Images.** Before and after: `docs/redesign/terrain_v2/`.
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:

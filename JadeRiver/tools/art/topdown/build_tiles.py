@@ -9,7 +9,8 @@ Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no met
                                    and every tile's name as custom data
   data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, foes, the paint table (which
                                    tops, faces and auto-tile sets each mark draws) and the auto-tile tables
-With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4 and the foe sheet at x3.
+With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4 and the foe sheet at x3,
+and into docs/redesign/terrain_v2/ the Terrain v2 tile sheet at x4 (art bible §14).
 The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
 
 Usage: python3 tools/art/topdown/build_tiles.py [--review] [--check]
@@ -48,20 +49,29 @@ REVIEW = ROOT / "docs/redesign/phase3"
 # the first (picked by column), and `keep_face` for a mark whose face stays its own over water (a pier's pilings, a
 # grassy bank's soil; the rest take the granite embankment). `b` is a planted bed: flowers on a dressed-stone planter;
 # `m` a wet meadow of the Reed Marsh, puddles in its grass.
+# Terrain v2 (art bible "Terrain v2") adds what the room view draws the mark with: `macro`, the material pattern its
+# base tile comes from (by the cell's place in it); `decals`, [set, share of cells] in order, picked by a hash of the
+# cell; `tone`, whether the sun and shade patches lie on it. `top` stays the mark's Phase 3 tiles (the TileSet's).
 PAINT = {
-    "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True},
-    "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True},
-    "b": {"top": ["grass_flowers", "grass_d", "grass_a", "grass_flowers", "grass_c"], "face": "stone", "grass": True},
-    "d": {"top": ["dirt", "dirt_b"], "face": "earth", "under": "grass_dirt"},
+    "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True,
+          "macro": "grass", "decals": [["flowers", 0.05], ["grass", 0.5]], "tone": True},
+    "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True,
+          "macro": "grass", "decals": [["flowers", 0.72], ["grass", 0.2]], "tone": True},
+    "b": {"top": ["grass_flowers", "grass_d", "grass_a", "grass_flowers", "grass_c"], "face": "stone", "grass": True,
+          "macro": "grass", "decals": [["flowers", 0.8]], "tone": True},
+    "d": {"top": ["dirt", "dirt_b"], "face": "earth", "under": "grass_dirt",
+          "macro": "dirt", "decals": [["dirt", 0.45]], "tone": True},
     "p": {"top": ["paving_a", "paving_b", "paving_a", "paving_c", "paving_b", "paving_a", "paving_d"], "face": "pave",
-          "under": "grass_paving"},
-    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone"},
-    "w": {"top": ["wood", "wood_b"], "face": "wood", "keep_face": True},
-    "r": {"top": ["rock", "rock_b"], "face": "rock"},
+          "under": "grass_paving", "macro": "pave", "decals": [["pave_hole", 0.012], ["pave", 0.3]], "tone": True},
+    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone", "macro": "stone", "decals": [["stone", 0.2]],
+          "tone": True},
+    "w": {"top": ["wood", "wood_b"], "face": "wood", "keep_face": True, "macro": "wood", "decals": [["wood", 0.05]]},
+    "r": {"top": ["rock", "rock_b"], "face": "rock", "macro": "rock", "decals": [["rock", 0.6]], "tone": True},
     "t": {"top": ["roof_top", "roof_top_b"], "face": "roof",
-          "face_below": ["plaster_face_window", "roof_face", "roof_face"]},
-    "l": {"top": ["wall_top"], "face": "wall"},
-    "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True},
+          "face_below": ["plaster_face_window", "roof_face", "roof_face"], "macro": "roof", "decals": [["roof", 0.06]]},
+    "l": {"top": ["wall_top"], "face": "wall", "macro": "wall"},
+    "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True,
+          "macro": "grass", "decals": [["marsh", 0.16], ["grass", 0.45]], "tone": True},
 }
 
 # Terrain sets of the TileSet (art bible §6).
@@ -76,7 +86,7 @@ def png_bytes(img: Image.Image) -> bytes:
 
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
-    sheet, at, auto = atlas.build()
+    sheet, at, auto, v2 = atlas.build()
     psheet, pat = props.build()
     foes, foes_at = creatures.build()
     manifest = {
@@ -89,6 +99,7 @@ def build_all() -> dict:
         "paint": PAINT,
         "bank_face": "bank",
         "tileset": "res://" + TRES,
+        "v2": v2,
         "autotile": {
             "grass_dirt": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "a path cell's corner is grass "
                            "when any cell sharing that corner on the same level is grass", "tiles": auto["grass_dirt"]},
@@ -101,7 +112,7 @@ def build_all() -> dict:
                      "rim_n": "top whose north neighbour is lower", "ao_n": "floor at the foot of a face",
                      "shade_w": "floor whose west neighbour is higher", "end_w": "a face's west end, turning a corner",
                      "end_e": "a face's east end, turning a corner", "cheek_w": "the west cheek of a flight of stairs",
-                     "cheek_e": "the east cheek of a flight of stairs"},
+                     "cheek_e": "the east cheek of a flight of stairs", "face_ao": "the foot of a face that meets a floor"},
     }
     return {
         TILES_PNG: png_bytes(sheet.img),
@@ -145,7 +156,8 @@ def tileset_tres(at: dict, auto: dict) -> str:
     anim_frames.update(["water_1", "water_2", "water_3"])
     corner_bits = ("top_left_corner", "top_right_corner", "bottom_left_corner", "bottom_right_corner")
     side_bits = ((1, "top_side"), (2, "right_side"), (4, "bottom_side"), (8, "left_side"))
-    cells = sorted(((v[1] // T, v[0] // T), n) for n, v in at.items() if n not in anim_frames)
+    # The Phase 3 contract tiles only (rows 0-6); the Terrain v2 sets are layers the room view composes.
+    cells = sorted(((v[1] // T, v[0] // T), n) for n, v in at.items() if n not in anim_frames and v[1] // T < atlas.CONTRACT_ROWS)
     for (cy, cx), name in cells:
         p = "%d:%d" % (cx, cy)
         if name in shores:
@@ -247,6 +259,101 @@ def review(outputs: dict) -> None:
                fill=(232, 225, 207, 255))
     out.save(REVIEW / "12_foes_x3.png")
     print("review images in", REVIEW.relative_to(ROOT))
+    review_v2(sheet, man, font, head)
+
+
+def review_v2(sheet, man: dict, font, head) -> None:
+    """Terrain v2's tile sheet at x4 (docs/redesign/terrain_v2/10_tile_sheet_x4.png): each material's macro pattern
+    whole, the face patterns (first row, then the two body rows), grass over a path in a few corner cases as the room
+    view lays them (the path's pattern under the positional overlay), the tint masks in their colours over the meadow,
+    the decals on their ground, and the water: its four frames, a shore case in its four frames, the corner foam and
+    the pilings' ripples."""
+    from PIL import ImageDraw
+    v2, tiles = man["v2"], man["tiles"]
+    z = 4
+
+    def crop(name: str) -> Image.Image:
+        r = tiles[name]
+        return sheet.crop((r[0], r[1], r[0] + r[2], r[1] + r[3]))
+
+    def grid(names: list, w: int, base=None, tint=None) -> Image.Image:
+        """Tiles laid w to a row (over `base` tiles, the same count, where given), at 1 px."""
+        h = (len(names) + w - 1) // w
+        img = Image.new("RGBA", (w * T, h * T), (0, 0, 0, 0))
+        for i, n in enumerate(names):
+            t = crop(n)
+            if tint is not None:
+                t = Image.composite(Image.new("RGBA", t.size, tuple(round(c * 255) for c in tint[:3]) + (255,)), Image.new("RGBA", t.size, (0, 0, 0, 0)), t)
+                t.putalpha(t.getchannel("A").point(lambda a: round(a * tint[3])))
+            if base is not None:
+                img.alpha_composite(crop(base[i]), ((i % w) * T, (i // w) * T))
+            img.alpha_composite(t, ((i % w) * T, (i // w) * T))
+        return img
+
+    sections: list = []
+    m = v2["macro"]
+    sections.append(("Macro patterns: each material one pattern, cut into its tiles (grass, dirt, granite, rock, planks, "
+                     "roof, wall cap; the paving 8 x 8)", [grid(m[k]["tiles"], m[k]["w"]) for k in
+                                                           ("grass", "dirt", "stone", "rock", "wood", "roof", "wall", "pave")]))
+    sections.append(("Faces: the first row with its lip, then two body rows that repeat downward (rock, earth, granite, "
+                     "paving wall, embankment, pier, courtyard wall)",
+                     [grid(v2["faces"][k]["top"] + v2["faces"][k]["body"], 4) for k in atlas.FACE_KINDS]))
+    dirt, pave, grass = m["dirt"]["tiles"], m["pave"]["tiles"], m["grass"]["tiles"]
+    cases = ["1100", "0011", "1010", "0101", "1000", "0111"]
+    sections.append(("Grass over a path, as the room view lays it: the path's own pattern under the grass overlay of "
+                     "each corner case and place (TL TR BL BR, 1 = grass): " + ", ".join(cases),
+                     [grid(v2["over"][c], 4, dirt if i % 2 == 0 else [pave[(k // 4) * 8 + k % 4] for k in range(16)])
+                      for i, c in enumerate(cases)]))
+    sections.append(("Sun and shade patches and the water's depth: one set of tint masks drawn in each tint's colour "
+                     "(case 1111, 1000, 0110 over the meadow; depth over the water)",
+                     [grid(v2["tint_mask"][c], 4, grass, v2["tint"][k]) for c, k in (("1111", "sun"), ("1000", "sun"),
+                                                                                       ("0110", "shade"), ("1111", "shade"))]
+                     + [grid(v2["tint_mask"][c], 4, v2["water"]["macro"]["frames"][0], v2["tint"][k])
+                        for c, k in (("1110", "deep"), ("1111", "deeper"))]))
+    ground = {"grass": grass[0], "flowers": grass[1], "dirt": dirt[0], "pave": pave[0], "pave_hole": pave[9],
+              "stone": m["stone"]["tiles"][0],
+              "rock": m["rock"]["tiles"][0], "marsh": grass[2], "wood": m["wood"]["tiles"][0], "roof": m["roof"]["tiles"][0]}
+    sections.append(("Decals on their ground: " + ", ".join(v2["decals"]),
+                     [grid(names, len(names), [ground[k]] * len(names)) for k, names in v2["decals"].items()]))
+    wf = v2["water"]["macro"]["frames"]
+    w0 = wf[0]
+    sections.append(("Water: the pattern's four frames; a shore with land to the north and west (09), to the south "
+                     "(04) and to the east (02), each in its four frames; the corner foam; the pilings' ripples",
+                     [grid(w0, 4), grid(wf[1], 4), grid(wf[2], 4), grid(wf[3], 4)]
+                     + [grid(v2["water"]["shore"][s], 4, [w0[5]] * 4) for s in ("09", "04", "02")]
+                     + [grid([v2["water"]["corner"][c][0] for c in ("nw", "ne", "sw", "se")], 4, [w0[6]] * 4),
+                        grid(v2["water"]["ripple"], 4, [w0[1]] * 4)]))
+    width, pad = 1800, 12
+    rows = []
+    for title, imgs in sections:
+        line, x, lh = [], pad, 0
+        placed = []
+        for im in imgs:
+            w, h = im.width * z, im.height * z
+            if x + w > width - pad and line:
+                placed.append((line, lh))
+                line, x, lh = [], pad, 0
+            line.append((im, x))
+            x += w + pad
+            lh = max(lh, h)
+        placed.append((line, lh))
+        rows.append((title, placed))
+    height = pad + sum(26 + sum(lh + pad for _, lh in placed) for _, placed in rows)
+    out = Image.new("RGBA", (width, height), (22, 30, 34, 255))
+    d = ImageDraw.Draw(out)
+    y = pad
+    for title, placed in rows:
+        d.text((pad, y), title, font=font, fill=(232, 225, 207, 255))
+        y += 26
+        for line, lh in placed:
+            for im, x in line:
+                bg = Image.new("RGBA", im.size, (128, 128, 128, 255))
+                bg.alpha_composite(im)
+                out.alpha_composite(bg.resize((im.width * z, im.height * z), Image.NEAREST), (x, y))
+            y += lh + pad
+    path = ROOT / "docs/redesign/terrain_v2"
+    path.mkdir(parents=True, exist_ok=True)
+    out.save(path / "10_tile_sheet_x4.png")
 
 
 def main(argv: list[str]) -> int:

@@ -43,6 +43,7 @@ func run_all(suite) -> void:
 	_roofs()
 	_aim_rules()
 	_terrain_rules()
+	_terrain_v2()
 	_square_layout()
 	_drag_zones()
 	_motor_plunge()
@@ -373,6 +374,51 @@ func _terrain_rules() -> void:
 	var ground: Array = tr.shadow_pieces(0, 0)
 	t.check(not up.is_empty() and up_on_ground.is_empty() and not ground.is_empty() and up.all(func(p): return (p[0] as Rect2).position.y >= 16.0 and (p[0] as Rect2).end.y <= 32.0),
 		"topdown terrain: a prop's floor shadow lies on its own level's cells, cut to them (%d pieces on the planter, %d beside it on the ground)" % [up.size(), up_on_ground.size()])
+
+## Terrain v2 (decision 40, art bible "Terrain v2"): the layers the room view draws. A top's base is its material's
+## pattern at the cell's place in it, so neighbours differ and still join; a path under grass lies under the positional
+## grass overlay of its corner case; a face's tile follows its column, and its last row over a floor takes the foot
+## shade, never over water; water has four frames, its pattern's tile first, a shore cell its side case's overlay, and
+## wide water the depth tint; the sun and shade patches lie on a real room's meadows. Every layer is a tile of the atlas.
+func _terrain_v2() -> void:
+	var rows := ["00000000", "01110000", "01110000", "00000000", "~~~~0000", "~~~~0000"]
+	var paint := ["ggggpppp", "gbbbgppp", "gbbbgddd", "gddgpddd", "~~~~wsss", "~~~~wsss"]
+	var tr := TopdownTerrain.new(grid(rows, {"paint": paint}))
+	var tiles: Dictionary = tr.room.tileset.get("tiles", {})
+	var a := tr.top_layers(0, 0, 0)
+	var b := tr.top_layers(1, 0, 0)
+	var edge := tr.top_layers(1, 3, 0)
+	t.check(str(a[0][0]).begins_with("grass_m") and str(b[0][0]).begins_with("grass_m") and a[0][0] != b[0][0]
+		and str(edge[0][0]).begins_with("dirt_m") and str(edge[1][0]) == "over_1010_13",
+		"terrain v2: tops take their pattern's tile by place (%s, %s); a path under grass takes the positional overlay (%s over %s)" % [a[0][0], b[0][0], edge[1][0], edge[0][0]])
+	var planter := tr.face_layers(2, 2, 1, 0, 0)
+	var bank := tr.face_layers(0, 3, 0, 0, TopdownRoom.WATER)
+	t.check(str(planter[0][0]) == "stone_face_top_v2" and str(planter[-1][0]) == "face_ao" and str(bank[0][0]) == "earth_face_top_v0"
+		and not bank.any(func(l): return str(l[0]) == "face_ao") and tr.face(2, 2, 0, false) == "stone_face_top",
+		"terrain v2: a face's tile follows its column (%s), with the foot shade over a floor and none over water (%s)" % [planter[0][0], bank[0][0]])
+	var w := tr.water_layers(1, 4)
+	var names: Array = w.map(func(f): return str(f[0][0]))
+	t.check(w.size() == 4 and names.all(func(n): return n.begins_with("water_m")) and str(w[2].back()[0]) == "shorefx_01_2",
+		"terrain v2: water draws its pattern in four frames (%s) and a shore cell its side case's overlay (%s)" % [str(names), w[2].back()[0]])
+	var lake := ["000000000"]
+	for i in 7: lake.append("0~~~~~~~0")
+	lake.append("000000000")
+	var deep: Array = TopdownTerrain.new(grid(lake)).water_layers(4, 4)[0]
+	var square := TopdownTerrain.new(TopdownRoom.load_room("td_proto_square"))
+	var tints := {}
+	var missing: Array = []
+	for y in square.room.h:
+		for x in square.room.w:
+			var l := square.lv(x, y)
+			var layers: Array = square.water_layers(x, y)[1] if l == TopdownRoom.WATER else square.top_layers(x, y, l)
+			for layer in layers:
+				if not tiles.has(str(layer[0])): missing.append(str(layer[0]))
+				if str(layer[0]).begins_with("tint_"): tints[(layer[1] as Color).to_html()] = true
+			for k in range(maxi(0, l)):
+				for layer in square.face_layers(x, y, l, k, 0):
+					if not tiles.has(str(layer[0])): missing.append(str(layer[0]))
+	t.check(deep.any(func(l): return str(l[0]).begins_with("tint_")) and tints.size() >= 3 and missing.is_empty(),
+		"terrain v2: wide water is tinted deep; Riverside Square has sun, shade and depth tints (%d colours); every layer is in the atlas (%s)" % [tints.size(), str(missing.slice(0, 4))])
 
 ## Riverside Square as redesigned for the terrain (decisions 33 and 34): the paved ways lead from the house door, the
 ## storehouse door and the stairs' foot to the pier; the terrace's dirt path leads from the stairs' head to the rooftop

@@ -1,5 +1,29 @@
 # Changelog
 
+## Top-down: Terrain v2, the tiles (decision 40)
+
+- **The top-down world's terrain is redrawn to look closer to Alabaster Dawn, in Jade River's own xianxia world**
+  (`docs/redesign/art_bible.md` §14, the contract for the runtime light and foliage work that follows).
+  - **Light and colour.** One sun from the north-west. Warm lit edges and translucent blue-violet shadows: never
+    black, never grey. Every ground, rock, water and roof material has a hue-shifted ramp.
+  - **No visible grid.** Each material is one 64 or 128 px pattern. Clumps, tufts, flowers, pebbles, leaves, petals,
+    cracks, moss and puddles are scattered as decals. Soft sun and shade patches drift across the big areas.
+  - **Edges.** Grass hangs over paths and paving in soft tufts with a two-step shadow; the sawtooth is gone.
+  - **Cliffs and faces.** Cliffs are fluted limestone under a lit, mossy lip with vines, with a dark foot where they
+    meet the ground. Earth banks, stone walls and piers follow the same rules in their own materials.
+  - **Water.** It is deeper and bluer away from land. The bed shows in the sunlit shallows, foam breathes at every
+    waterline, ripples drift and glints twinkle, and rings spread round the pier pilings. It keeps its four frames.
+  - **Paving and buildings.**
+    - Town squares are irregular flagstones with moss in the joints; granite terraces are big slabs.
+    - Roofs are dark glazed tile with a glint on every rib. The houses' roofs sweep up at the ends, with a heavy
+      ridge and a shadow band under the eaves.
+- **No room had to change.** Every tile name and auto-tile rule stays; the room view draws each cell as layers.
+- **Tests:** `topdown_suite` checks the layers ("terrain v2"); `data_validation` checks that every tile the new sets
+  name is in the atlas.
+- **Screenshots:** before and after, drawn by the game: `docs/redesign/terrain_v2/` (the village square, Jade Gate
+  Street, the Marsh Edge, the Reed Shallows, the Fisher's Hut lane, Riverside Square, the height-levels room, the
+  Cloud Sect's cliff stair and Elder Sung's peak), and the new tile sheet at ×4.
+
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 
 - **Fourteen more rooms on the grid** (`docs/redesign_top_down_plan.md`, "As built: Phase 4, second part"). They are

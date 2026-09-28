@@ -28,6 +28,7 @@ extends Node2D
 const Player := preload("res://scripts/topdown/topdown_player.gd")
 const VIEW := Vector2i(640, 360)
 const T := 16.0
+const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are drawn in chunks of this many cells
 
 var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
@@ -169,12 +170,22 @@ func _build_room() -> void:
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
 	bg.position = -Vector2(VIEW)
-	var water := WaterView.new(self)
-	var ground := FloorView.new(self)
-	for n in [ground, water, bg]:
-		viewport.add_child(n)
-		viewport.move_child(n, 0)   # under the floor marks and everything sorted
-	_room_nodes.append_array([bg, water, ground])
+	# Terrain v2: the floor and the water in chunks, so the renderer skips the ones off screen and the water redraws
+	# only the chunks in view.
+	var under: Array = [bg]
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			var r := Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))
+			var water := WaterView.new(self, r)
+			if not water.cells.is_empty(): under.insert(1, water)
+			else: water.free()
+	for cy in range(0, room.h, CHUNK.y):
+		for cx in range(0, room.w, CHUNK.x):
+			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
+	for i in range(under.size() - 1, -1, -1):
+		viewport.add_child(under[i])
+		viewport.move_child(under[i], 0)   # under the floor marks and everything sorted
+	_room_nodes.append_array(under)
 	for y in room.h:
 		var strip := StripView.new(self, y)
 		if not strip.rects.is_empty():
@@ -456,15 +467,23 @@ func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
 	var src := tile(name)
 	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)))
 
-## A cell's top at `at`: its tile and the light overlays for its level (art bible §5).
-func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
-	blit(ci, terrain.top(x, y), at)
-	for o in terrain.overlays(x, y, l): blit(ci, o, at)
+## Terrain v2: draw a layer ([tile, colour], TopdownTerrain) at `at`, its top `h` rows only.
+func blit_layer(ci: CanvasItem, layer: Array, at: Vector2, h := T) -> void:
+	var src := tile(str(layer[0]))
+	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)), layer[1])
 
-## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px.
-func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float) -> void:
+## A cell's top at `at`: its layers (Terrain v2: the macro tile or a path under grass, a decal, the sun and shade
+## patches) and the light overlays for its level (art bible §5).
+func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
+	for layer in terrain.top_layers(x, y, l): blit_layer(ci, layer, at)
+
+## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px; with `cols`, only the pieces on those
+## columns of cells (a floor chunk's).
+func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float, cols := Vector2i(-9999, 9999)) -> void:
 	for piece in terrain.shadow_pieces(row, level):
 		var dest: Rect2 = piece[0]
+		var cx := floori(dest.position.x / T)
+		if cx < cols.x or cx >= cols.y: continue
 		ci.draw_texture_rect_region(atlas("props"), Rect2(dest.position + Vector2(0, dy), dest.size), piece[1])
 
 ## A node in the sorted layer sits at its key and draws back to screen rows by `lift` = key.
@@ -477,39 +496,51 @@ class Sorted extends Node2D:
 	func key(k: float) -> void:
 		position = Vector2(0, k)
 
-## The water, half a level under the ground, each cell's shore case in the frame of the 250 ms clock (art bible §6–§7).
+## The water, half a level under the ground, one chunk of cells: each cell's layers (Terrain v2: the water pattern,
+## the depth, its shore case, corner foam, ripples at the pilings) in the frame of the 250 ms clock (art bible §6–§7).
+## A chunk off screen skips its redraws until it comes into view.
 class WaterView extends Node2D:
 	var world
 	var frame := -1
-	var cells: Array = []   ## [screen position, [its tile in frames 0-3]]
-	func _init(w) -> void:
+	var area: Rect2
+	var cells: Array = []   ## [screen position, [its layers in frames 0-3]]
+	func _init(w, chunk: Rect2i) -> void:
 		world = w
 		var r: TopdownRoom = w.room
-		for y in r.h:
-			for x in r.w:
-				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water(x, y)])
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
+				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water_layers(x, y)])
+		area = Rect2(Vector2(chunk.position) * T, Vector2(chunk.size) * T + Vector2(0, T))
 	func _process(_d: float) -> void:
 		var f := int(Time.get_ticks_msec() / 250) % 4
-		if f != frame:
+		if f != frame and _in_view():
 			frame = f
 			queue_redraw()
+	func _in_view() -> bool:
+		var vs := Vector2(world.viewport.size)
+		return area.intersects(Rect2(world.camera.position - vs * 0.5, vs).grow(T))
 	func _draw() -> void:
-		for c in cells: world.blit(self, str(c[1][maxi(0, frame)]), c[0])
+		for c in cells:
+			for layer in c[1][maxi(0, frame)]: world.blit_layer(self, layer, c[0])
 
-## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows: under
-## everything that sorts.
+## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows, one chunk of
+## cells: under everything that sorts.
 class FloorView extends Node2D:
 	var world
-	func _init(w) -> void: world = w
+	var chunk: Rect2i
+	func _init(w, c: Rect2i) -> void:
+		world = w
+		chunk = c
 	func _draw() -> void:
 		var r: TopdownRoom = world.room
 		var tr: TopdownTerrain = world.terrain
-		for y in r.h:
-			for x in r.w:
+		for y in range(chunk.position.y, chunk.end.y):
+			for x in range(chunk.position.x, chunk.end.x):
 				if r.levels[y * r.w + x] != 0 or not r.stair_at(x, y).is_empty(): continue
 				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
-				if tr.edge_level(x, y + 1) == TopdownRoom.WATER: world.blit(self, tr.face(x, y, 0, true), Vector2(x * T, (y + 1) * T), T * 0.5)
-		for y in r.h: world.blit_shadows(self, y, 0, 0.0)
+				if tr.edge_level(x, y + 1) == TopdownRoom.WATER:
+					for layer in tr.face_layers(x, y, 0, 0, TopdownRoom.WATER): world.blit_layer(self, layer, Vector2(x * T, (y + 1) * T), T * 0.5)
+		for y in range(chunk.position.y, chunk.end.y): world.blit_shadows(self, y, 0, 0.0, Vector2i(chunk.position.x, chunk.end.x))
 
 ## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
 ## (the face's ends lit or shaded where it turns a corner), and the floor shadows of the props on them. Its key is the
@@ -541,8 +572,7 @@ class StripView extends Sorted:
 				var water: bool = south + k + 1 == 0
 				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
-				world.blit(self, tr.face(x, row, k, water), at, h)
-				for e in tr.face_ends(x, row, l, k): world.blit(self, e, at, h)
+				for layer in tr.face_layers(x, row, l, k, south): world.blit_layer(self, layer, at, h)
 		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
 ## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east

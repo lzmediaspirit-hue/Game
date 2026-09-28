@@ -1753,6 +1753,26 @@ func topdown_art_suite() -> void:
 		if src.get_tile_animation_frames_count(at) == 4: animated += 1
 	check(bad.is_empty() and src.get_tiles_count() >= 90, "topdown art: the TileSet's %d tiles are named as the manifest places them (%s)" % [src.get_tiles_count(), str(bad)])
 	check(animated == 17, "topdown art: the plain water and the 16 shore cases animate in 4 frames (%d)" % animated)
+	# Terrain v2 (decision 40, art bible "Terrain v2"): every tile the v2 sets name is in the atlas; each mark's macro
+	# pattern is whole; the decal sets and the tints the paint table and the room view use exist.
+	var v2: Dictionary = man.get("v2", {})
+	var named: Array = []
+	var collect := func(f, v) -> void:
+		if v is String: named.append(v)
+		elif v is Array or v is Dictionary:
+			for e in (v.values() if v is Dictionary else v): f.call(f, e)
+	for k in v2:
+		if k != "tint": collect.call(collect, v2[k])
+	var gaps: Array = named.filter(func(n): return not tiles.has(n))
+	for mark in paint:
+		var m: Dictionary = v2.get("macro", {}).get(str(paint[mark].get("macro", "grass")), {})
+		if m.is_empty() or (m.get("tiles", []) as Array).size() != int(m.get("w", 0)) * int(m.get("h", 0)): gaps.append("macro of " + mark)
+		for d in paint[mark].get("decals", []):
+			if not v2.get("decals", {}).has(str(d[0])): gaps.append("decals " + str(d[0]))
+	for k in ["sun", "shade", "deep", "deeper"]:
+		if (v2.get("tint", {}).get(k, []) as Array).size() != 4: gaps.append("tint " + k)
+	check(named.size() > 600 and gaps.is_empty() and v2.get("over", {}).size() == 14 and v2.get("tint_mask", {}).size() == 15,
+		"topdown art: the Terrain v2 sets name %d tiles, all in the atlas, with every mark's pattern, decals and tints (%s)" % [named.size(), str(gaps.slice(0, 4))])
 
 ## Top-down redesign, Phase 3 (decision 32): the real character's layers (tools/art/topdown/build_character.py,
 ## data/topdown/character.json), held to AGENTS.md as the side view's are by Validate-Animations.ps1: every action is in
