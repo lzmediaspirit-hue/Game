@@ -135,7 +135,7 @@ func _gui_input(event: InputEvent) -> void:
 ## the cards' composed emblems fill in from then on within a few ms a frame (_emblem_at).
 func _process(delta: float) -> void:
 	super._process(delta)
-	if stage == null and _open_page_step >= 0 and _page_steps > _open_page_step and c() != null: _build_stage()
+	if stage == null and _open_frame >= 0 and Engine.get_process_frames() > _open_frame and c() != null: _build_stage()
 	if view != goal: view = goal if UiKit.reduce_motion() or view.distance_to(goal) < 1.0 else view.lerp(goal, minf(1.0, delta * 12.0))
 
 ## Move the view (clamped to the chart); `now` skips the glide (a drag).

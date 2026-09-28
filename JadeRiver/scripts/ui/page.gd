@@ -96,8 +96,8 @@ var _drag_area := ""
 var _drag_last := 0.0
 var _dragged := false
 var _areas: Dictionary = {}     # area id -> {rect, max}
-var _page_steps := 0            # its process steps so far, and the one it first drew in (first_draw)
-var _open_page_step := -1
+var _open_frame := -1           # the process frame it first drew in (first_draw)
+var _stepped := false           # it has had a process step (see _draw)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -144,7 +144,7 @@ func content_rect() -> Rect2:
 	return Rect2(frame_rect.position.x + INSET, frame_rect.position.y + top, frame_rect.size.x - INSET * 2.0, frame_rect.size.y - top - BOTTOM)
 
 func _process(delta: float) -> void:
-	_page_steps += 1
+	_stepped = true
 	t += delta
 	opened += delta
 	if identity != null: modulate.a = _open_alpha()
@@ -186,7 +186,10 @@ func submit(intent: Dictionary) -> Dictionary:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
-	if _open_page_step < 0: _open_page_step = _page_steps
+	# A page that fades in is not shown before its first step (its alpha is 0): the drawing its opening asks for is left
+	# to the one that step asks for, in the same frame, so it is not drawn twice as it opens.
+	if identity != null and not _stepped: return
+	if _open_frame < 0: _open_frame = Engine.get_process_frames()
 	_regions.clear()
 	_areas.clear()
 	HdStyleBox.base = Transform2D.IDENTITY
@@ -637,7 +640,7 @@ func icon_at(rect: Rect2, icon_id: String, modulate := Color.WHITE) -> void:
 ## loading thread and drawn from the next frame, by when it is in memory or nearly, so opening a page never waits on a
 ## screenful of files (perf_tests: every page opens in under 0.15 s).
 func first_draw() -> bool:
-	return identity != null and (_open_page_step < 0 or _page_steps == _open_page_step)
+	return identity != null and (_open_frame < 0 or Engine.get_process_frames() == _open_frame)
 
 ## An HD kit texture (UiKit.hd_texture), or null on the first frame while it loads.
 func hd_tex(asset: String, state := "normal") -> Texture2D:
