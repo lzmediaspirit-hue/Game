@@ -994,6 +994,12 @@ and foliage and decor.
 
 **Images.** Before and after: `docs/redesign/terrain_v2/`.
 
+**Polish pass** (review of the first after shots against Alabaster Dawn):
+- the grass is a saturated green again, under crisp tufts of blades;
+- the paving is warm grey-beige flagstones about a tile across, with crisp joints;
+- the sun and shade patches are a whisper, and paving and granite take none;
+- the value range is wider: deeper cliff bodies, brighter lips, crisper granite.
+
 ### Phase 4 · Room conversion by region (XL)
 
 - The converter drafts every room, then each is finished by hand, one region at a time:

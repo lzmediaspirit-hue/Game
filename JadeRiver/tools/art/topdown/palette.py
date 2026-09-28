@@ -109,15 +109,16 @@ SUN = c("FFE9A6")
 SHADOW = c("241F4F")
 SHADOW_A = 104                      # 0.41: a cast shadow's body
 AO_STEPS = (150, 104, 64, 30)       # 0.59, 0.41, 0.25, 0.12: the 4 px at the foot of a face, nearest first
-# The low-frequency tone patches over big floors: sunlit (warm) and cloud-shaded (cool) (TONE_A each).
-TONE_SUN = c("FFE27A")
-TONE_SHADE = c("2B3A6E")
-TONE_A = (46, 44)                   # sun, shade
+# The low-frequency tone patches over meadows, earth and rock (never paving or granite): a whisper of sunlit yellow-green
+# and of blue-green shade (TONE_A each), just enough to break a big field without staining it.
+TONE_SUN = c("DDF27A")
+TONE_SHADE = c("0E4A58")
+TONE_A = (20, 30)                   # sun, shade
 
-GRASS2 = ramp("162B3A", "1C4342", "25604A", "3C7E4C", "5C9B4C", "8DB955", "C6DB7C")   # base 4, clumps 3, tips 5
-DIRT2 = ramp("35222E", "553535", "7A5140", "9C7152", "B98F63", "D3AE7C", "EACDA0")    # base 3-4
-PAVE2 = ramp("2E2A3F", "4A4558", "696372", "8A8388", "ABA29C", "C9BFB1", "E4DCCB")    # pale town stone, base 4-5
-STONE2 = ramp("1F2236", "31384C", "4B5668", "6A7682", "8D979D", "B1BAB9", "D8DED6")   # dressed granite, cooler
+GRASS2 = ramp("123040", "144A40", "1B6641", "2B823D", "45A03A", "87C749", "CBE86C")   # base 4, tufts 3, tips 5
+DIRT2 = ramp("35222E", "5A3531", "80523B", "A2704A", "BF8E5C", "D8AE77", "EECB98")    # base 3-4
+PAVE2 = ramp("2A2330", "4A3F44", "6D6057", "8F8170", "AD9E88", "C8BAA0", "E3D8BE")    # warm grey-beige stone, base 4
+STONE2 = ramp("1A1E33", "2A3249", "43506A", "63728A", "8594A6", "ADBAC6", "DDE4E6")   # dressed granite, cooler
 ROCK2 = ramp("1E1D33", "2F3046", "474A5C", "62666C", "82857F", "A7A794", "CECAAE")    # karst: warm lit planes
 EARTH2 = ramp("241B2B", "3A2932", "553A38", "714F41", "8E684D", "AA855F", "C5A47A")   # bank soil
 MOSS2 = ramp("13283A", "1A3F3E", "285B42", "3F7845", "63964A", "90B656", "C4D67E")
