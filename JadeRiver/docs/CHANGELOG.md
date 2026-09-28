@@ -24,7 +24,7 @@
     the Jade Sect's rooms, which a Cloud disciple cannot enter; this was wrong in both views.
   - The Cloud Steps' finish follows its bell wherever the room puts it.
 - **Tests:**
-  - `topdown_tutorial` (775 checks) plays the Jade walk on the grid through The Humming Token. It then goes back to
+  - `topdown_tutorial` (777 checks) plays the Jade walk on the grid through The Humming Token. It then goes back to
     the fair and plays the whole stretch again as a Cloud disciple, running the Cloud Steps on the way. Every
     `tutorial_order` invariant holds throughout.
   - `topdown_rooms.py` also checks that auto-path can reach every way, and `perf_tests` times the Marsh Edge with 25

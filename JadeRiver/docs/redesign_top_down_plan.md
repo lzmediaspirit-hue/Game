@@ -1100,7 +1100,7 @@ stand on terraces a level apart, as their side-view roofs rise.
 - `topdown_rooms.py` also checks that every way is reached by auto-path's own rules (no running jump over a gap), so the
   tracker's go button can cross every room.
 
-**Tests.** `topdown_tutorial`, 473 → 775 checks:
+**Tests.** `topdown_tutorial`, 777 checks (473 before it, and two for the real character's villagers):
 
 - the Jade walk plays its trial, the sect's grounds and the Marsh Edge on the grid, then The Humming Token (five
   Hollowed Boarlets on the Marsh Edge, handed in on the peak), after which the tracker's Next is Mei Qing's Errand at
