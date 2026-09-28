@@ -8,6 +8,8 @@ extends RefCounted
 ## reads the state and drains `events`.
 
 const STEP := 1.0 / 120.0
+## The body's eight drawn rows and their angles on the ground (east 0, south 90); NW, W and SW mirror NE, E and SE.
+const ROW_ANGLES := {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0, "nw": -135.0, "w": 180.0, "sw": 135.0}
 
 var room: TopdownRoom
 var pos := Vector2.ZERO
@@ -24,7 +26,7 @@ var since_dash := 99.0
 var long_jump := false
 var invuln := 0.0
 var dir := Vector2(0, 1)   ## the facing, a unit vector (8-way analog)
-var row := "s"             ## the drawn facing: s, e, n or w (w mirrors e)
+var row := "s"             ## the drawn facing: s, se, e, ne, n, or nw, w, sw (drawn as mirrors of ne, e, se)
 var peak := 0.0            ## the highest z of this airtime
 var land_t := 0.0          ## landing squash left
 var sink_t := -1.0         ## >= 0 while a splash plays, then back to the safe spot
@@ -324,10 +326,11 @@ func _push_out() -> void:
 func face(v: Vector2) -> void:
 	if v.length() > 0.01: _face(v)
 
-## 8-way analog facing; the drawn row (S, E, N, W) changes only when the stick sits 20° nearer another row (plan §1.4).
+## 8-way analog facing; the drawn row (S, SE, E, NE, N, and NW, W, SW that mirror NE, E, SE) changes only when the
+## stick sits 10° nearer another row (plan §1.4).
 func _face(axis: Vector2) -> void:
 	dir = axis.normalized()
-	row = nearest_row(dir, row, {"e": 0.0, "s": 90.0, "w": 180.0, "n": -90.0})
+	row = nearest_row(dir, row, ROW_ANGLES, 10.0)
 
 ## The drawn row of `rows` (name -> its angle on the ground in degrees, east 0, south 90) for direction `v`: the nearest,
 ## but `current` stays until another is `band` degrees nearer (the hysteresis of plan §1.4; the foes' eight facings
