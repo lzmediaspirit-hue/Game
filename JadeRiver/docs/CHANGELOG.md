@@ -34,8 +34,8 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
   - a foe's choice of ranged or close attack, and the off-screen notice;
   - a rare herb guardian's wake and spawn, and spar partners, summoned adds and ambushes (placed on floors);
   - decals on raised floors, and a drop's name distance.
-- **Tests:** `topdown_suite` goes from 83 to 113 checks. `topdown_tutorial` adds a room's people drawn while the pages
-  warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
+- **Tests:** `topdown_suite` goes from 87 to 117 checks. `topdown_tutorial` (786 checks) adds a room's people drawn
+  while the pages warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 

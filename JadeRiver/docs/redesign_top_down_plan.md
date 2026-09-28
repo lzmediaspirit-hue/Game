@@ -1220,7 +1220,7 @@ used to keep the last aim and miss a foe behind.
 
 **Tests.**
 
-- `topdown_suite` goes from 83 to 113 checks:
+- `topdown_suite` goes from 87 to 117 checks:
   - the camera's rect: a ridge drawn over the top, the body kept in view there, a small room centred, out of view on
     both axes (a spot straight south the old rule saw);
   - flat marks on a terrace, things put in the water or on a level, the ways' turned reach, the minimap's mark;
@@ -1232,7 +1232,8 @@ used to keep the last aim and miss a foe behind.
   - the audit's respawn by the wall, the off-screen notice, a door by floor, the pickup and spill by floor, auto-path's
     arrival, the labels' order, the attack choice, the guardian's wake, and a spar partner, adds and an ambush on
     floors.
-- `topdown_tutorial` adds a room's people drawn while the pages still warm up, and every way's turned reach.
+- `topdown_tutorial` (777 to 786 checks) adds a room's people drawn while the pages still warm up, and every way's
+  turned reach, in the chapter 2 rooms too.
 
 **Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
 tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
