@@ -119,6 +119,61 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
   - `perf_tests`: 22 foes fighting with techniques, 9.9 ms a frame.
 - **Review images** in `docs/redesign/phase5/combat/`: the builder's strips per form, family, impact and mark, and the
   game's own frames of combos, a finisher and a dash attack, techniques, the guard, a parry and the Plunge.
+## The story staged: in-engine scenes and a playable opening (decision 39)
+
+- **Research first.** `docs/redesign/story_staging.md` covers how CrossCode, Alabaster Dawn and other top-down RPGs
+  stage their stories in the engine:
+  - dialogue with portraits, and live side lines;
+  - emotion balloons and scripted events (move, face, emote, speak, camera);
+  - teaching through the story (A Link to the Past's rainy opening, "pick up that can");
+  - hold to skip, and bypassing for accessibility.
+
+  Each claim is marked confirmed or inferred, with sources. Eight principles for Jade River follow from it.
+- **A scene system, data-driven and in one place.** `tools/data/scenes.py` builds `data/scenes.json`, and
+  `SceneDirector` plays it in the rooms on the height grid. A scene's steps are:
+  - **actors:** walk (round obstacles), face, emote, pose, speak in a balloon or on the dialogue page's portrait strip;
+  - **camera:** pan, follow, zoom, shake, letterbox;
+  - **screen:** fade, flash, title card;
+  - **world:** spawn and despawn people and props, open a door, weather, a moment, effects, sounds;
+  - **flow:** wait for time, a tap or an event, branch on the story's state, labels, checkpoints;
+  - **hand-off:** the player acts, with a prompt over the thing, the person, the foe, the way or the HUD control.
+- **How a scene behaves:**
+  - **Modes.** A cut holds the game still under a letterbox, with the HUD and the names faded. A hand-off gives the
+    controls back. A live part plays around the player. A fight turns a cut live, and a cut never starts in one.
+  - **Skipping.** A tap moves a line on. A hold skips to the next hand-off, and the skipped part's checkpoints still
+    apply.
+  - **State.** The Quest authority owns it (`scene_begin`, `scene_mark`, `scene_end`; `QuestState.scenes`). A seen
+    scene never replays, and a scene cut short by quitting resumes at its last checkpoint, its people where the script
+    had put them.
+  - **Reduce motion** makes the camera cut instead of pan, fades the bars and the title instead of sliding them, holds
+    the rain still and drops the shake.
+- **The opening, rewritten as a playable story.** Fifteen scenes run from waking to the sect choice:
+  - Aunt Ping wakes you and hands you the tea, teaching the Bag through a gift, then sends you to the door;
+  - a boat passes, the villagers talk of grey water, and the wind takes Little Dou's kite;
+  - Guo shows the jab on his stump before handing it to you;
+  - Dou shows the way up to his kite, and Shen Lian races you to the tower (sprint, through a chase);
+  - a jar falls in Granny's hut and grazes you, so the Quick-use slot is taught by an injury;
+  - Guo opens the East Gate, and the crabs corner Washer Mei (the first fight);
+  - a storm comes on the Hollow Night;
+  - Lu teaches meditation, and after the first breakthrough shows the palm and gives the reason to leave home;
+  - a thief runs through the market;
+  - the recruiters trade calls at the fair, and the chosen sect welcomes you.
+
+  All writing is original. The quests, gates and tests are unchanged, and each scene runs 10–26 s.
+- **Shared code, nothing copied:**
+  - `MomentView.letterbox`, `draw_title`, `play_row` and `in_fight`;
+  - `UiKit.wrap` (the pages' wrap);
+  - `TopdownPlaces.person` and `figures`;
+  - `PropView.place_at`;
+  - `TopdownWorld` gains `stage_cam`, `stage_zoom` and `fade_labels`.
+- **The event contract gains** the scenes' three events, plus `page_opened`, `quest_failed`, `object_hit` and
+  `quick_use_changed`, which the catalogue had missed.
+- **Tests:**
+  - `story_scenes` is new, in `tools/run_tests.sh`. It checks that every scene validates, the opening in the real view,
+    resuming after a reload, never replaying, skipping, Reduce motion, and a fight breaking a cut.
+  - `topdown_tutorial` plays every scene of the tutorial to its end as the walk reaches it. The cuts count on the play
+    clock, and the first hour's pacing still holds.
+- **Screenshots:** `tools/dev/topdown_capture.tscn -- --story`, in `docs/redesign/phase5/story/`.
 ## Top-down character: the flute and the bell (decision 37)
 
 - **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
@@ -148,6 +203,25 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
   soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
   brush and thin behind it, and at its tail it has run dry: grey and broken.
 - Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
+## Top-down character: the heavy sabre (decision 37, the heavy_sabre batch)
+
+- **The heavy sabre is drawn** in every action and facing (`weapon_heavy_sabre`; parts.json weapon `sabre`). Its ten
+  game items, from the Training Heavy Sabre to the Mountainsplit Sabre, now show on the top-down character instead of
+  going in `TopdownFigure.missing`.
+- **The side view's dao, in its colours.** It has a broad, single-edged blade of grey steel with a pale bevel on the
+  edge. The blade swells to a belly near the point, and the point sweeps back to the spine. It has a bronze oval guard
+  and pommel on a dark grip long enough for the second hand. The broad side is turned part way toward the camera, so
+  the blade reads as wide in every facing and thin only where it points along the view. Laid down while meditating,
+  it lies beside the figure with its breadth showing.
+- **A heavy wuxia arc on its cuts.** The swings (swing_1–3) leave a crescent of pale jade light. On the hit frame the
+  crescent is fat at the blade, thins to a sliver at its tail, and is brightest along the path of the point; on the
+  frame after, a thinner, dimmer wisp trails the blade. The heavy descending cut goes over the top in a full
+  half-round crescent: straight over the head where the facing shows it, else leaning to a shoulder. It never cuts
+  through the body, and it never draws as a flat bar.
+- **Its own files only.** The new generator is `figure/kinds/sabre.py` and the set is
+  `figure/sets/weapon_heavy_sabre.py`. The build writes `data/topdown/character/weapon_heavy_sabre.json`,
+  `art/topdown/character/weapon_sabre.png` and the review sheet `docs/redesign/phase3/character/03_weapon_sabre.png`.
+  The shared index and every other set's files are byte-identical.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 

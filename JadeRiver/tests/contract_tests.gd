@@ -167,6 +167,7 @@ const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scrip
 	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
 	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
 	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
+	"res://scripts/presentation/scene_director.gd", "res://scripts/presentation/scene_stage.gd",
 	"res://scripts/core/requirement_rules.gd", "res://scripts/core/unlock_service.gd"]
 const TECH := ["UI", "SFX", "Music", "Ambience", "Master", "MobileHUD", "Room", "HUD"]
 

@@ -1079,6 +1079,18 @@ grip; the fist closes over the grip.
   it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
   (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
   and `03_weapon_brush.png`.
+**Batches landed (decision 37).**
+
+- **heavy_sabre (2026-09-28):** the sabre, 10 items, in `weapon_heavy_sabre`, cast by a generator of its own,
+  `figure/kinds/sabre.py`.
+  - The side view's broad dao in its grey steel and bronze: the blade bellies near the point, and the point sweeps
+    back to the spine.
+  - The broad side is turned half way toward the camera (`face`), in the hand and laid beside the meditating figure.
+  - Its cuts leave a heavy crescent of jade light: fat at the blade and brightest along the point's path on the hit
+    frame, a dim wisp on the frame after.
+  - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
+    shoulder, so it never draws as a bar.
+  - Review sheet: `03_weapon_sabre.png`.
 
 **Tests.**
 
@@ -1477,6 +1489,25 @@ used to keep the last aim and miss a foe behind.
 
 **Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
 tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
+
+### As built: the story staged in the top-down world (decision 39, 2026-09-28)
+
+The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
+principles and the full account. In short:
+
+- **Scenes are data.** `tools/data/scenes.py` builds `data/scenes.json`, fifteen scenes from waking in the Fisher's
+  Hut to the sect choice.
+- **The `SceneDirector` plays them in the rooms on the grid.** It moves the room's people through their own
+  top-down figures (`TopdownWorld.figures`: a `TopdownPlaces.Person` is `staged` while the scene has it, turned to
+  any of the eight rows and played in the figure's own actions). It brings on extras: a person through `TopdownPlaces.person`, a
+  boat through `PropView.place_at`. It drives the camera (`stage_cam`, `stage_zoom`) and holds the body's pose
+  (`stage_pose`).
+- **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
+  the HUD and the labels over the world (`fade_labels`).
+- **A hand-off gives the controls back** with a prompt over what to do.
+- **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
+- **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
+- **Screenshots** are in `docs/redesign/phase5/story/`.
 
 ### Phase 5 · The animation layers (XL)
 

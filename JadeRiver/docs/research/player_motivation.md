@@ -591,6 +591,13 @@ Tracks, The Humming Token), not by minute 60 of this clock. Open point: The Humm
 Level 7–12 (the Grey Pools' band), and the story now reaches them at Level 3–4 (at Level 4 before); valley_run plays
 chapter 2 later, so no suite fights them this early.
 
+**With the story staged** (decision 39, `docs/redesign/story_staging.md`), the top-down walk (`tests/topdown_tutorial.gd`)
+also counts every staged scene's cuts on this clock. That is fifteen scenes of 10–26 s each. The same 49 new things
+then come in about 30 minutes. The rewards keep their order and pacing, but the gaps are tighter. The longest gap to
+minute 20 is about 2.9 minutes, from the Hollow Night to Bone Forging 1: the storm scene, Lu's boat and the
+meditation fall inside it. Stoneford to the fair is 2.7 minutes. Both stay under the 3-minute rule. The scenes are
+trimmed to keep them there.
+
 ---
 
 ## Sources

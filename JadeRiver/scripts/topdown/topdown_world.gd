@@ -71,6 +71,12 @@ var tint: CanvasModulate        ## a night room's blue
 var hazards: HazardView
 var transfer_cooldown := 0.0
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
+var figures: Dictionary = {}    ## object id -> its Figure in the sorted layer (a staged scene moves the people)
+## Decision 39: a staged scene's camera (SceneDirector): the point it looks at in world units (null: the body's
+## follow), its zoom, and `stage_snap` to cut there at once (Reduce motion).
+var stage_cam = null
+var stage_zoom := 1.0
+var stage_snap := false
 var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
 ## Decision 38: the combat's effects on the ground plane (smears, forms, impacts, marks, dust) in the sorted layer, and
 ## whether a hit-stop holds the fight (and them) this frame.
@@ -210,11 +216,14 @@ func _build_room() -> void:
 	npc_views = {}
 	object_views = {}
 	portal_views = []
+	figures = {}
+	labels_a = 1.0   # the room's new labels are drawn whole; a scene's cut fades them from there
 	if live and Game.room_rt != null:
 		var built := TopdownPlaces.build(room, Game.room_rt.def, sorted, floor_layer, overlay, player)
 		npc_views = built.npc_views
 		object_views = built.object_views
 		portal_views = built.portal_views
+		figures = built.figures
 		_room_nodes.append_array(built.nodes)
 		# The hazards' washes, weather and marks draw on the overlay under the names; their parts at a spot (a ring, a
 		# falling rock, a bolt) sort with the room in the viewport.
@@ -273,16 +282,20 @@ func _process(delta: float) -> void:
 	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
 	var goal := _cam_target()
+	if stage_cam != null: goal = _clamp_cam((stage_cam as Vector2) / TopdownRoom.ART)   # a staged scene looks elsewhere
 	if not camera_hold.is_empty():
 		var h := camera_hold
 		h.t = float(h.t) + delta
 		var ends := float(h.in) + float(h.hold) + float(h.out)
 		goal = goal.lerp(h.target, smoothstep(0.0, float(h.in), h.t) * (1.0 - smoothstep(ends - float(h.out), ends, h.t)))
 		if float(h.t) >= ends: camera_hold = {}
-	cam = cam.lerp(goal, k)
+	cam = goal if stage_snap else cam.lerp(goal, k)
+	stage_snap = false
 	camera.position = cam.round()
 	camera.offset = (shake.offset(delta) / TopdownRoom.ART).round()
-	overlay.position = (Vector2(VIEW) * 0.5 - camera.position - camera.offset) * TopdownRoom.ART
+	camera.zoom = Vector2(stage_zoom, stage_zoom)
+	overlay.scale = camera.zoom
+	overlay.position = (Vector2(VIEW) * 0.5 - (camera.position + camera.offset) * stage_zoom) * TopdownRoom.ART
 	if player.bound():
 		if live: _update_context()
 		layout_labels()
@@ -293,6 +306,15 @@ func _process(delta: float) -> void:
 func _cam_target() -> Vector2:
 	var m: TopdownMotor = player.motor
 	return room.camera_for(m.pos, cam_z, m.vel)
+
+## A staged scene's camera point in art px kept inside the room as it is drawn (a ridge on its north edge included), at
+## the view's zoom, or on its middle where the room is smaller.
+func _clamp_cam(t: Vector2) -> Vector2:
+	var b := room.drawn_rect()
+	var half := Vector2(VIEW) * 0.5 / stage_zoom
+	t.x = b.get_center().x if b.size.x <= half.x * 2.0 else clampf(t.x, b.position.x + half.x, b.end.x - half.x)
+	t.y = b.get_center().y if b.size.y <= half.y * 2.0 else clampf(t.y, b.position.y + half.y, b.end.y - half.y)
+	return t
 
 func _sync(delta: float) -> void:
 	player.sync(delta)
@@ -374,6 +396,14 @@ func loot_parent() -> Node2D: return loot_layer
 func view_center() -> Vector2: return (camera.position + camera.offset) * TopdownRoom.ART
 func screen_center() -> Vector2: return view_center()
 func feet_on_screen() -> Vector2: return overlay.get_global_transform_with_canvas() * player_feet()
+
+## Decision 39: the names, markers and plates over the world (the people's, the things', the ways', the foes') fade
+## toward `to` (a staged scene's cut takes them away, and gives them back).
+var labels_a := 1.0
+func fade_labels(to: float, delta: float) -> void:
+	labels_a = move_toward(labels_a, to, delta * 4.0)
+	for v in npc_views.values() + object_views.values() + portal_views + label_views.values():
+		if is_instance_valid(v): v.modulate.a = labels_a
 
 ## A moment's camera move (P6 `camera` layer) to a point in world units: ease there, hold, and ease back.
 func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> void:
@@ -690,15 +720,20 @@ class PropView extends Sorted:
 		var origin: Array = art.get("origin", [0, 16])
 		src = Rect2(float(rr[0]), float(rr[1]), float(rr[2]), float(rr[3]))
 		var cell: Vector2i = p.cell
-		var south: float = (cell.y + (p.size as Vector2i).y) * T
-		var lvl := int(p.level)
-		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if lvl < 0 else -lvl * T
-		at = Vector2(cell.x * T - float(origin[0]), south + ground - float(origin[1]))
-		rects.append(Rect2(at, src.size))
-		key(south + 0.5)
+		rects.append(Rect2())
+		place_at(Vector2(cell.x * T, (cell.y + (p.size as Vector2i).y) * T), int(p.level), Vector2(float(origin[0]), float(origin[1])))
 		frames = int(art.get("frames", 1))
 		frame_ms = int(art.get("frame_ms", 0))
 		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+	## Stand the footprint's south-west corner at `sw` (art px) on a floor at `level` (a staged scene moves a prop so: a
+	## boat passing on the river).
+	func place_at(sw: Vector2, level: int, origin: Vector2) -> void:
+		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if level < 0 else -level * T
+		sw = sw.round()
+		at = Vector2(sw.x - origin.x, sw.y + ground - origin.y)
+		rects[0] = Rect2(at, src.size)
+		key(sw.y + 0.5)
+		queue_redraw()
 	func _ready() -> void:
 		set_process(frames > 1 and frame_ms > 0)
 	func _process(_d: float) -> void:
