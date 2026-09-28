@@ -1,0 +1,115 @@
+{
+ "schema_version": 1,
+ "id": "lf_granny_liu_hut",
+ "name": "Granny Liu's Herb Hut",
+ "size": [
+  18,
+  12
+ ],
+ "spawn": [
+  8,
+  9
+ ],
+ "levels": [
+  "333333333333333333",
+  "322222200000000003",
+  "322222200000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "300000000000000003",
+  "111111110011111111"
+ ],
+ "paint": [
+  "llllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwl",
+  "llllllllwwllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 5,
+   "y": 3,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "crates",
+   "x": 8,
+   "y": 6
+  },
+  {
+   "kind": "incense",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "barrel",
+   "x": 16,
+   "y": 1
+  },
+  {
+   "kind": "barrel",
+   "x": 16,
+   "y": 2
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 9
+  }
+ ],
+ "place": {
+  "npc_granny_liu": [
+   6,
+   6
+  ],
+  "shrine_granny": [
+   14,
+   5
+  ],
+  "jar_1": [
+   1,
+   1
+  ],
+  "jar_2": [
+   2,
+   1
+  ],
+  "moss_bundle": [
+   4,
+   1
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    8.5,
+    11
+   ],
+   "dir": "s",
+   "arrive": [
+    8.5,
+    9.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

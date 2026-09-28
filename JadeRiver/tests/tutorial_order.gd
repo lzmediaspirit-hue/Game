@@ -162,8 +162,7 @@ func _first_weapon_offered() -> void:
 ## reported fight). An armed player can clear the crabs before any rat comes near a herb, so the walk waits by one.
 func _rats() -> void:
 	back_to("lf_reed_shallows")
-	var at: Array = ContentDB.room("lf_reed_shallows").get("objects", []).filter(func(o): return str(o.id) == "herb_7")[0].at
-	var herb := Vector2(float(at[0]), float(at[1]))
+	var herb := obj_at("herb_7")
 	for i in 12:
 		place(herb - Vector2(20, 0))
 		if Game.room_rt.living_enemies().any(func(e): return e.def_id == "reedtail_rat" and e.plane.distance_to(herb) < 200.0): break
@@ -430,8 +429,14 @@ func invariants(label: String) -> void:
 				"%s: %s has foes, and is within reach only once the HP bar and the foes' HP bars are on the HUD" % [label, rid])
 		if doors_seen.has(rid): continue
 		doors_seen[rid] = true
+		# On the height grid (a top-down character's rooms that have a layout) every door stands in a building's doorway
+		# or an interior's wall (TopdownRoom.entrance); in the side view, as PortalView.entrance draws it.
+		var grid: TopdownRoom = Game.world.grid_for(c(), rid)
 		for p in rd.get("portals", []):
-			if p.get("facade", false) or not PortalView.building_front(p, rd).is_empty():
+			if not p.get("facade", false) and PortalView.building_front(p, rd).is_empty(): continue
+			if grid != null:
+				check(grid.entrance(str(p.id)) == "building", "%s: the way into a building %s:%s shows a door on the grid (%s)" % [label, rid, p.id, grid.entrance(str(p.id))])
+			else:
 				check(PortalView.entrance(p, rd) in ["building", "decor"], "%s: the way into a building %s:%s shows a door" % [label, rid, p.id])
 	# Invariant 5, while the steps are open: the controls the steps still to do name are drawn; the healing slot stays
 	# drawn, at rest too, while it holds something to drink (Granny's tea).

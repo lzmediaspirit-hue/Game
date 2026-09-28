@@ -1,0 +1,169 @@
+extends "res://tests/tutorial_order.gd"
+## topdown_tutorial (redesign Phase 4, docs/redesign_top_down_plan.md "As built: Phase 4"): the tutorial walk of
+## tests/tutorial_order.gd, every step and every invariant of it, played by a character made for the top-down world.
+## Every room that has a layout (tools/data/topdown_rooms.py: the Prologue, Lotus Ferry, the Reed Shallows, the Willow
+## Path and Stoneford to the Fairground, where the sect is chosen) is entered on the height grid through the World
+## authority, the rest stay side-view, and the walk runs on in them to Strange Tracks. On top of tutorial_order's
+## invariants (the HP bar before fights, doors shown, the hut door open, quest talks closing, the tracker never blank
+## and leading to the real next place):
+##   1. each room of the walk is on the grid exactly when it has a layout, and every such room of the tutorial is
+##      entered on it;
+##   2. each layout places every NPC, object, way and spawn of its side-view room, on a floor a body can stand on, and
+##      everything is reached on foot (walking, stairs, drops, a jump a level up, a running jump over a tile) from
+##      every way into the room and from where a character wakes in it;
+##   3. every spot the walk stands at in a room on the grid is reached on foot from where the character came in;
+##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
+##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
+##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there.
+## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
+
+const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
+	"lf_lu_boat", "wp_east", "wp_west", "sf_gate", "sf_market", "sf_artisan_row", "sf_fairground"]
+
+var grid_rooms := {}          # rooms entered on the grid
+var wrong_view: Array = []    # rooms entered in the other view than their layout says
+var far: Array = []           # spots stood at that are not reached on foot from where the room was entered
+var reach_here := {}          # cell -> true: reached on foot from where the character came into this room
+var reach_room := ""
+var probe: TopdownWorld = null
+var probe_misses: Array = []
+
+func _main() -> void:
+	add_child(views)
+	create_extra = {"view": "topdown"}
+	GameEvents.event.connect(_on_grid_event)
+	_layouts()
+	run()
+	_save_on_the_grid()
+	check(wrong_view.is_empty(), "every room of the walk was on the grid exactly when it has a layout (%s)" % str(wrong_view))
+	var missed := TUTORIAL_ROOMS.filter(func(r): return not grid_rooms.has(r))
+	check(missed.is_empty(), "every room of the tutorial to the sect choice was played on the grid (%d rooms; missed %s)" % [grid_rooms.size(), str(missed)])
+	check(far.is_empty(), "every spot the walk stood at on the grid is reached on foot from where it came in (%s)" % str(far.slice(0, 8)))
+	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
+	if is_instance_valid(probe): probe.free()
+	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
+	end_suite()
+
+# ------------------------------------------------------------------ 1, 3, 4: each room entered
+func _on_grid_event(n: String, p: Dictionary) -> void:
+	if n != "room_entered" or c() == null or str(p.get("actor", "")) != str(c().id) or Game.room_rt == null: return
+	var rid := room()
+	var on_grid: bool = Game.room_rt.topdown != null
+	if on_grid != TopdownRoom.has_layout(rid): wrong_view.append("%s (grid %s)" % [rid, str(on_grid)])
+	reach_room = ""
+	if not on_grid:
+		if is_instance_valid(probe): probe.free()
+		probe = null
+		return
+	grid_rooms[rid] = true
+	reach_room = rid
+	reach_here = reach(Game.room_rt.topdown, TopdownRoom.cell_of(Vector2(float(c().position.x), float(c().position.y))))
+	_probe_view()
+
+## Stand at a spot, as tutorial_order does; on the grid it must be reached on foot from where the room was entered.
+func place(p: Vector2, alt := 0.0) -> void:
+	super.place(p, alt)
+	if Game.room_rt == null or Game.room_rt.topdown == null or reach_room != room(): return
+	var cell := TopdownRoom.cell_of(st.plane)
+	if not reach_here.has(cell) and far.size() < 20: far.append("%s %s" % [room(), str(cell)])
+
+## 4: the character's own top-down view (unbound: the walk moves the body) built on the room just entered.
+func _probe_view() -> void:
+	if not is_instance_valid(probe):
+		var was: String = Game.active_id
+		Game.active_id = ""   # the view alone: the walk keeps the body (its own ActorState) bound
+		probe = TopdownWorld.new()
+		probe.live = true
+		probe.sim_frozen = true
+		add_child(probe)
+		probe.set_process(false)
+		probe.set_physics_process(false)
+		Game.active_id = was
+	else:
+		probe.room = Game.room_rt.topdown
+		probe._build_room()
+	var def: Dictionary = Game.room_rt.def
+	var npcs: Array = def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "npc")
+	var things: Array = def.get("objects", []).filter(func(o): return not str(o.get("type", "")) in ["npc", "decor"])
+	var figures := probe.sorted.get_children().filter(func(f): return f is TopdownPlaces.Figure and not f.is_queued_for_deletion())
+	var marks := probe.floor_layer.get_children().filter(func(m): return m is TopdownPlaces.WayMark and not m.is_queued_for_deletion())
+	var ok: bool = probe.room == Game.room_rt.topdown and probe.npc_views.size() == npcs.size() and probe.object_views.size() == things.size() \
+		and figures.size() == npcs.size() + things.size() and probe.portal_views.size() == (def.get("portals", []) as Array).size() \
+		and marks.size() == probe.portal_views.size() and probe.hud_minimap
+	if not ok: probe_misses.append("%s: npcs %d/%d things %d/%d figures %d ways %d/%d marks %d" % [room(), probe.npc_views.size(), npcs.size(),
+		probe.object_views.size(), things.size(), figures.size(), probe.portal_views.size(), (def.get("portals", []) as Array).size(), marks.size()])
+
+# ------------------------------------------------------------------ 2: the layouts
+## Every layout of the tutorial: each thing of its side-view room placed on a floor, and reached on foot from every
+## way in and from its spawn.
+func _layouts() -> void:
+	for rid in TUTORIAL_ROOMS:
+		check(TopdownRoom.has_layout(rid), "%s has a top-down layout" % rid)
+		if not TopdownRoom.has_layout(rid): continue
+		var grid := TopdownRoom.load_room(rid)
+		var side := ContentDB.room(rid)
+		var def := grid.merge_def(side)
+		var place_d: Dictionary = grid.def.get("place", {})
+		var ways: Dictionary = grid.def.get("portals", {})
+		var unplaced: Array = side.get("objects", []).filter(func(o): return not place_d.has(str(o.id))).map(func(o): return str(o.id))
+		unplaced.append_array(side.get("portals", []).filter(func(p): return not ways.has(str(p.id))).map(func(p): return "way " + str(p.id)))
+		if (grid.def.get("spawns", []) as Array).size() != (side.get("spawns", []) as Array).size(): unplaced.append("spawns")
+		check(unplaced.is_empty(), "%s: the layout places every NPC, object, way and spawn of the room (unplaced %s)" % [rid, str(unplaced)])
+		var starts: Array = [TopdownRoom.cell_of(grid.spawn)]
+		for p in def.get("portals", []): starts.append(TopdownRoom.cell_of(Vector2(float(p.arrive[0]), float(p.arrive[1]))))
+		var bad: Array = []
+		for s in starts:
+			if not grid.standable(s):
+				bad.append("start %s on no floor" % str(s))
+				continue
+			var r := reach(grid, s)
+			for o in def.get("objects", []):
+				var at := Vector2(float(o.at[0]), float(o.at[1]))
+				if not str(o.get("type", "")) in ["fishing_spot", "rift_tear", "insect_swarm"] and not grid.standable(TopdownRoom.cell_of(at)): bad.append("%s on no floor" % o.id)
+				var spot := TopdownRoom.cell_of(grid.spot_near(at, float(o.alt), at))
+				if not r.has(spot): bad.append("%s from %s" % [o.id, str(s)])
+			for p in def.get("portals", []):
+				if not r.has(TopdownRoom.cell_of(Vector2(float(p.at[0]), float(p.at[1])))): bad.append("way %s from %s" % [p.id, str(s)])
+			for sp in def.get("spawns", []):
+				for q in sp.get("points", []):
+					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)
+		check(bad.is_empty(), "%s: everything stands on a floor and is reached on foot from every way in and from the spawn (%s)" % [rid, str(bad.slice(0, 6))])
+
+## Every cell reached on foot from `from` (the TopdownMotor's rules, as tools/data/topdown_rooms.py checks them):
+## walking and stairs, any drop, a jump up to one level, and a running jump over a tile of water or a drop.
+static func reach(grid: TopdownRoom, from: Vector2i) -> Dictionary:
+	var seen := {from: true}
+	var queue: Array = [from]
+	var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	while not queue.is_empty():
+		var cur: Vector2i = queue.pop_front()
+		var h0 := grid.cell_floor(cur)
+		for d in dirs:
+			var nx: Vector2i = cur + d
+			if not seen.has(nx) and grid.cell_floor(nx) - h0 <= TopdownRoom.LEVEL + 0.5:
+				seen[nx] = true
+				queue.append(nx)
+			var far_c: Vector2i = cur + d * 2
+			var mid := grid.level(nx.x, nx.y)
+			var gap: bool = mid == TopdownRoom.WATER or (grid.cell_floor(nx) < INF and grid.cell_floor(nx) < h0 - 8.0)
+			if gap and not seen.has(far_c) and grid.cell_floor(far_c) - h0 <= 8.0:
+				seen[far_c] = true
+				queue.append(far_c)
+	return seen
+
+# ------------------------------------------------------------------ 5: saved and loaded on the grid
+## A save taken on the grid resumes on the grid: the spot, the room, the view (after the walk, back at the Fairground).
+func _save_on_the_grid() -> void:
+	check(travel("sf_fairground"), "back to the Fairground on the grid (room %s)" % room())
+	var here := room()
+	var at: Vector2 = st.plane
+	for i in 3: step(0.05)   # the World authority keeps the spot the save takes
+	Game.save_all()
+	var saved: Dictionary = c().position.duplicate()
+	Game.boot()
+	Game.autosave_enabled = false
+	check(submit({"type": "enter_character", "slot": 1}).ok and submit({"type": "enter_world"}).ok, "the character enters the world again from its save")
+	st = null
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	check(c().view == "topdown" and room() == here and Game.room_rt.topdown != null and Vector2(float(c().position.x), float(c().position.y)).distance_to(at) < 20.0,
+		"a save taken on the grid resumes on the grid at the same spot (%s at %s; saved %s)" % [room(), str(Vector2(float(c().position.x), float(c().position.y))), str(saved)])

@@ -2675,6 +2675,8 @@
  "ui.settings.off": "Off",
  "ui.settings.on": "On",
  "ui.settings.reduce_motion": "Reduce motion",
+ "ui.settings.topdown_world": "Top-down world (new games)",
+ "ui.settings.topdown_world_note": "A new character plays the rooms already redrawn top-down (the Prologue to the sect choice); the rooms not redrawn yet stay side-view.",
  "ui.settings.replace_your_saves_with_this": "Replace every save on this device with this export? Your current saves are kept as a backup (.bak).",
  "ui.settings.restore": "Restore",
  "ui.settings.restore_an_export": "Restore an export (moving phones)",

@@ -249,11 +249,7 @@ func _check_portals(delta: float) -> void:
 	if axis.y >= -0.6 or absf(axis.x) >= 0.3: up_hold = 0.0
 
 func request_portal(portal_id: String, crossing := false) -> void:
-	if transfer_cooldown > 0.0: return
-	transfer_cooldown = 0.6
-	var r := Game.submit({"type": "use_portal", "portal": portal_id, "crossing": crossing})
-	if not r.ok and r.has("text"):
-		fx.add("text", player.position + Vector2(0, -130), {"text": str(r.text), "color": UiKit.MIST, "size": 18, "dur": 1.6})
+	WorldShared.request_portal(self, portal_id, crossing)
 
 func camera_target() -> Vector2:
 	if not room_mode:
@@ -320,35 +316,17 @@ func _process(delta: float) -> void:
 ## views keep their label boxes at their own offsets by kind; WorldLabels places them on screen in whole rows.
 func layout_labels() -> Dictionary:
 	if not is_inside_tree(): return {}
-	var views: Array = []
-	var px: float = player.position.x if player else 0.0
-	for uid in enemy_views:
-		var v = enemy_views[uid]
-		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": absf(v.position.x - px)})
-	for id in npc_views:
-		var nv = npc_views[id]
-		views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": absf(nv.position.x - px)})
-	for i in portal_views.size(): views.append({"id": "p%d" % i, "view": portal_views[i], "kind": "place", "near": absf(portal_views[i].position.x - px)})
-	for id in object_views: views.append({"id": "o" + str(id), "view": object_views[id], "kind": "place", "near": absf(object_views[id].position.x - px)})
-	return WorldLabels.place_views(views, get_viewport().get_canvas_transform(), label_obstacles)
+	return WorldLabels.place_views(WorldShared.label_views(self, player.position.x if player else 0.0), get_viewport().get_canvas_transform(), label_obstacles)
 
 func _update_context() -> void:
 	var c = Game.active()
-	var ctx: Dictionary = Game.world.query_context(c) if c else {}
-	# S43: a ladder, rope or vine in reach offers "Climb".
-	if ctx.is_empty() and player and player.surface != null and player.state.climbing.is_empty():
+	# S43: a ladder, rope or vine in reach offers "Climb" (when nothing else is offered).
+	var climb := {}
+	if player and player.surface != null and player.state.climbing.is_empty():
 		var near_c: Dictionary = geometry.climbable_near(player.plane, player.altitude, 48.0)
-		if not near_c.is_empty(): ctx = {"type": "climbable", "climbable": str(near_c.id), "label": Tx.t("hud.climb")}
-	# S49: a foe who has yielded to you waits for your judgement.
-	if ctx.is_empty() and player and Game.room_rt:
-		for e in Game.room_rt.living_enemies():
-			if e.ai.get("surrendered", false) and str(e.ai.get("judge", "")) == Game.active_id and e.plane.distance_to(player.plane) < 160.0:
-				ctx = {"type": "mercy", "enemy": e.uid, "def": e.def_id, "label": Tx.t("hud.judge")}
-				break
-	for id in object_views: object_views[id].focus = ctx.get("object", "") == id
-	for id in npc_views:
-		npc_views[id].focus = ctx.get("object", "") == id
-		if ctx.get("object", "") == id: npc_views[id].face(player.position.x)
+		if not near_c.is_empty(): climb = {"type": "climbable", "climbable": str(near_c.id), "label": Tx.t("hud.climb")}
+	var ctx := WorldShared.context(c, player.plane if player else Vector2.ZERO, climb)
+	WorldShared.mark_focus(ctx, object_views, npc_views, player.position.x)
 	if ctx.hash() != context.hash():
 		context = ctx
 		context_changed.emit(ctx)
@@ -428,22 +406,15 @@ func hold_camera(target: Vector2, in_s: float, hold_s: float, out_s: float) -> v
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
 		"room_entered":
-			if str(p.get("actor", "")) == Game.active_id:
+			# A room on the height grid is the top-down view's (main.gd swaps the views); this one leaves it be.
+			if str(p.get("actor", "")) == Game.active_id and Game.room_rt != null and Game.room_rt.topdown == null:
 				_build_room()
 				_place_player()
 				_fame_greeting()
-		"enemy_aggro":
-			var foe: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
-			if foe and not foe.hidden: fx.label(Vector2(foe.plane.x, foe.plane.y - foe.altitude - foe.height() - 24), "!", UiKit.GOLD, 26)
 		"enemy_spawned", "ally_spawned":
 			var uid := int(p.get("enemy", p.get("uid", 0)))
 			var e: EnemyState = Game.room_rt.enemies.get(uid)
 			if e: _add_enemy_view(e)
-		"loot_dropped":
-			for l in p.get("items", []):
-				var lv = LootView.new()
-				lv.setup(l)
-				room_layer.add_child(lv)
 		# S43 traversal feedback.
 		"landed":
 			if str(p.get("actor", "")) == player.actor_id and p.get("plunge", false):
@@ -455,37 +426,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif str(p.get("actor", "")) == player.actor_id and float(p.get("fall_height", 0)) > 120.0:
 				fx.add("ring", player.position, {"color": Color(0.85, 0.8, 0.7, 0.6), "radius": 34.0, "dur": 0.3})
 				Audio.play("land")
-		"art_used":
-			if str(p.get("actor", "")) == player.actor_id:
-				match str(p.get("art", "")):
-					"air_dash": Audio.play("dodge")
-					"glide": fx.add("dust", player.position + Vector2(0, -40), {"color": Color(UiKit.BRIGHT_JADE, 0.5), "dur": 0.3})
-					"water_skimming": Audio.play("water_step")
-					"bounce": Audio.play("land")
-		"volume_entered":
-			if str(p.get("actor", "")) == player.actor_id and str(p.get("kind", "")) in ["water_deep", "rising_water"]: Audio.play("water_step")
-		"wall_kicked":
-			if str(p.get("actor", "")) == player.actor_id:
-				fx.add("spark", player.position + Vector2(-int(p.get("side", 1)) * -14, -50), {"color": UiKit.PAPER, "dur": 0.25})
-		"fell_out":
-			if str(p.get("actor", "")) == player.actor_id:
-				fx.add("text", player.position + Vector2(0, -130), {"text": Tx.t("hud.fell"), "color": UiKit.MIST, "size": 18, "dur": 1.4})
 		"hit_landed":
 			if str(p.get("target_kind", "")) == "player" and str(p.get("target", "")) == player.actor_id: player.knock_off_climb()
-			combat_fx.hit(p)   # P6e: its number and spark at its tier (FxLayer.hit), the shakes and the sound (CombatFx)
-		"hazard_warned":
-			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
-			Audio.play(str(sfx.get(str(p.hazard), "tell")))
-		"hazard_struck":
-			if str(p.get("actor", "")) == Game.active_id:
-				var hname := ContentDB.name_of("hazards", str(p.hazard))
-				var over := player.position + Vector2(0, -130)
-				if p.get("answered", false): fx.label(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
-				elif int(p.get("amount", 0)) == 0: fx.label(over, hname, UiKit.PALE_GOLD, 17)
-		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player.position)
-		"parried":
-			fx.parry(player.position, player.facing)
-			Audio.play("parry")
+			WorldShared.play(self, name, p)
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
 				var tech := str(p.get("technique", ""))
@@ -496,54 +439,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 					Audio.play("swing")
 			elif p.get("enemy", false):
 				Audio.play("tell")
-		"actor_defeated":
-			fx.add("dust", Vector2(float(p.x), float(p.y)), {"dur": 0.5})
-		"object_hit":
-			if object_views.has(str(p.object)): object_views[str(p.object)].hit_flash = 0.15
-			fx.add("spark", Vector2(float(p.x), float(p.y) - 30), {"color": UiKit.PALE_GOLD, "dur": 0.2})
-			Audio.play("hit")
-		"object_broken":
-			var ov = object_views.get(str(p.object))
-			if ov: fx.add("dust", ov.position, {"dur": 0.5})
-			Audio.play("break")
-		# S47: a spare artifact detonated, and the flying sword leaving and returning.
-		"artifact_detonated":
-			fx.add("wave", player.position, {"color": Color("ff9a5a"), "radius": float(ContentDB.stat_const("detonation.radius", 180)), "dur": 0.5})
-			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ffe0a0"), "radius": 90.0, "dur": 0.35})
-			add_shake(0.35)
-			Audio.play("rumble")
-		"talisman_used":
-			# S47: the paper flares and burns away; attack talismans burst where they land.
-			var tat := Vector2(float(p.get("x", player.position.x)), float(p.get("y", player.position.y)) - float(p.get("alt", 0.0)) - 40.0)
-			match str(p.get("kind", "")):
-				"attack":
-					fx.add("wave", tat, {"color": Color("ff8a4a") if str(p.get("item", "")) == "flame_talisman" else Color("9fd8ff"), "radius": 90.0, "dur": 0.45})
-					fx.add("flash", tat, {"color": Color("fff0c0"), "radius": 50.0, "dur": 0.3})
-				"defence": fx.add("wave", player.position + Vector2(0, -50), {"color": Color("c8ccd0"), "radius": 46.0, "dur": 0.6})
-				_: fx.add("spark", player.position + Vector2(0, -70), {"color": Color("e8d99a"), "dur": 0.4})
-			Audio.play("technique")
-		"item_blooded":
-			# S47 blood-drop bind: a bead of blood falls onto a piece worn for the first time.
-			fx.add("spark", player.position + Vector2(0, -70), {"color": Color("c0303a"), "dur": 0.5})
-			fx.add("text", player.position + Vector2(0, -120), {"text": "·", "color": Color("d23a44"), "size": 34, "dur": 0.9})
-		"natal_broken":
-			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
-			add_shake(0.3)
-			Audio.play("break")
-		"array_deployed":
-			var ac: Color = FxLayer.ARRAY_COLOURS.get(str(p.get("kind", "")), FxLayer.ARRAY_COLOURS.guard)
-			fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": ac, "radius": float(p.radius), "dur": 0.5})
-			Audio.play("forge")
 		"artifact_spirit_spoke":
 			if str(p.get("actor", "")) == Game.active_id and player: player.say(str(p.get("line", "")))
-		"artifact_skill_used":
-			if str(p.get("actor", "")) == Game.active_id:
-				var ring := float(p.get("ring", 0.0))
-				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("ffd27a") if p.get("awakened", false) else Color("b18de2"),
-					"radius": ring if ring > 0.0 else 60.0, "dur": 0.4 if ring > 0.0 else 0.3})
-				Audio.play("surge")
-		"array_faded":
-			if str(p.get("actor", "")) == Game.active_id: Audio.play("ui_close")
 		"illusion_cast":
 			if str(p.get("actor", "")) == Game.active_id and player:
 				if is_instance_valid(illusion_view): illusion_view.queue_free()
@@ -563,93 +460,26 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("wave", illusion_view.position, {"color": UiKit.SOUL, "radius": 50.0, "dur": 0.4})
 				illusion_view.queue_free()
 				illusion_view = null
-		"melody_pulse":
-			# S47 v1.1 flute: the melody spreads as a jade ring, notes drifting up from the player.
-			var mat := Vector2(float(p.x), float(p.y))
-			fx.add("ring", mat, {"color": Color(0.56, 0.91, 0.81, 0.8), "radius": float(p.radius), "dur": 0.55})
-			for i in 2:
-				fx.add("note", player.position + Vector2(randf_range(-26, 26), -96 - i * 14), {"color": Color("8fe8cf") if i == 0 else UiKit.PALE_GOLD,
-					"vel": Vector2(randf_range(-10, 10), -46.0), "dur": 1.2, "size": 18 + i * 4, "radius": randf() * 6.0})
-		"melody_changed":
-			if str(p.get("actor", "")) == Game.active_id and p.get("on", false):
-				fx.add("wave", player.position, {"color": Color("8fe8cf"), "radius": 70.0, "dur": 0.5})
-				Audio.play("meditate")
-		"sword_released", "sword_returned":
-			fx.add("spark", player.position + Vector2(0, -100), {"color": Color("dff3ff"), "dur": 0.3})
-			Audio.play("forge")
-		"treasure_used":
-			var at := Vector2(float(p.x), float(p.y))
-			var tr_radius := float(CombatAuthority.treasure_of(str(p.treasure)).get("radius", 150))
-			match str(p.action):
-				"bell":
-					fx.add("wave", player.position, {"color": UiKit.PALE_GOLD, "radius": tr_radius, "dur": 0.6})
-					fx.add("wave", player.position, {"color": UiKit.GOLD, "radius": tr_radius * 0.7, "dur": 0.45})
-					Audio.play("bell")
-				"pagoda":
-					fx.add("pagoda", at, {"color": UiKit.BRIGHT_JADE, "dur": 4.0})
-					Audio.play("forge")
-				"mirror":
-					fx.add("flash", player.position + Vector2(0, -50), {"color": Color("bfe8ff"), "radius": 60.0, "dur": 0.4})
-				"seal":
-					fx.add("seal_slam", player.position, {"color": UiKit.BRIGHT_JADE, "radius": tr_radius, "dur": 0.7})
-					add_shake(0.25)
-					Audio.play("break")
-				"cauldron":
-					fx.add("spiral", at + Vector2(0, -30), {"color": UiKit.QI, "dur": 1.0})
-					Audio.play("technique")
-				"banner", "gourd":
-					fx.add("ring", player.position, {"color": UiKit.QI if str(p.action) == "banner" else UiKit.SOUL, "radius": 110.0, "dur": 0.8})
-					Audio.play("technique")
-				"palm":
-					fx.add("talisman_wave", player.position + Vector2(0, -50), {"color": UiKit.PALE_GOLD, "radius": float(p.get("reach", 540)), "facing": int(p.get("facing", 1)), "dur": 0.6})
-					add_shake(0.3)
-					Audio.play("breakthrough")
-		"wisp_struck":
-			fx.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.QI, "dur": 0.25})
-		"projectile_reflected", "projectile_absorbed":
-			fx.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": Color("bfe8ff") if name == "projectile_reflected" else UiKit.SOUL, "dur": 0.3})
-		"projectile_burst":
-			fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("ffd76a"), "radius": float(p.radius), "dur": 0.4})
-			fx.add("flash", Vector2(float(p.x), float(p.y) - 30.0), {"color": Color("fff0b0"), "radius": 50.0, "dur": 0.25})
-			add_shake(0.15)
-			Audio.play("break")
-		"meditation_tick":
-			if Game.active() and Game.active().pools.max_qi > 0:
-				fx.add("motes", player.position + Vector2(0, -10), {"color": UiKit.QI if not p.get("spring", false) else UiKit.BRIGHT_JADE, "dur": 1.0})
-			elif Game.active():
-				fx.add("motes", player.position + Vector2(0, -10), {"color": Color("f4ecd5"), "dur": 1.0})
-		"item_used":
-			# A tea, a pill, a draught, a food: what it did rises over the player (the heal it gives, the Qi, the buff),
-			# with motes in its colour; a heal at full HP says "HP already full" rather than nothing.
-			if str(p.get("actor", "")) == Game.active_id and player:
-				var parts := UiKit.use_parts(p.get("effects", []), p.get("gains", {}))
-				var k := 0
-				for part in parts:
-					if k >= 3: break
-					fx.label(player.position + Vector2(0, -130 - 24 * k), str(part.get("float", part.text)), part.color, 26 if part.has("float") and k == 0 else 18)
-					k += 1
-				if not parts.is_empty(): fx.add("motes", player.position + Vector2(0, -10), {"color": parts[0].color, "dur": 1.0})
-		"player_revived":
-			fx.add("flash", player.position + Vector2(0, -40), {"color": UiKit.BRIGHT_JADE, "radius": 60, "dur": 0.6})
-		"projectile_ended":
-			fx.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.PAPER, "dur": 0.15})
-		"dodged":
-			fx.add("dust", player.position, {"dur": 0.35})
-			Audio.play("dodge")
-		"node_gathered":
-			var ov2 = object_views.get(str(p.object))
-			if ov2: fx.add("motes", ov2.position, {"color": UiKit.BRIGHT_JADE, "dur": 0.8})
-			Audio.play("pickup")
-		"loot_picked":
-			Audio.play("coin" if int(p.get("coins", 0)) > 0 else "pickup")
 		"equipment_changed":
 			if str(p.get("actor", "")) == Game.active_id and player:
 				player.avatar.outfit = InventoryAuthority.outfit_for(Game.active())
 				player.avatar.last_key = ""
 		"emote_played":
-			var em: Dictionary = ContentDB.entry("emotes", str(p.emote))
-			player.play_emote(em)
-			fx.add("text", player.position + Vector2(0, -150), {"text": str(em.get("text", "...")), "color": UiKit.PAPER, "size": 20, "dur": float(em.get("seconds", 1.8))})
+			player.play_emote(ContentDB.entry("emotes", str(p.emote)))
+			WorldShared.play(self, name, p)
+		_:
+			WorldShared.play(self, name, p)
+
+## WorldShared's host: the player's feet in the effects layer's units (world units, lifted by height), its facing,
+## and where a drop's view goes.
+func feet() -> Vector2: return player.position
+func fx_layer() -> FxLayer: return fx
+func facing() -> int: return player.facing
+func loot_parent() -> Node2D: return room_layer
+## The middle of the screen in world units (a moment's camera anchor), and the player's feet on the screen.
+func view_center() -> Vector2: return camera.position
+func screen_center() -> Vector2: return camera.get_screen_center_position()
+func feet_on_screen() -> Vector2: return player.get_global_transform_with_canvas().origin
 # ------------------------------------------------------------------ shared helpers (legacy API kept)
 func by_id(id: String) -> WalkSurface: return geometry.index.get(id)
 func walk_target(point: Vector2, current_height: float, previous: WalkSurface) -> WalkSurface:

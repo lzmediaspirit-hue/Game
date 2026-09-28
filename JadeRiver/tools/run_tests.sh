@@ -4,12 +4,15 @@
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order valley_run)
+suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial valley_run)
 
 failed=()
 # S43 room lint and reach contract over the built rooms (Part 7).
 echo "== room_lint"
 if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
+# Redesign Phase 4: the top-down layouts are current and every thing in them is placed and reached on foot.
+echo "== topdown_rooms"
+if ! python3 tools/data/topdown_rooms.py --check; then failed+=("topdown_rooms"); fi
 for s in "${suites[@]}"; do
   echo "== $s"
   out="$("$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1)"

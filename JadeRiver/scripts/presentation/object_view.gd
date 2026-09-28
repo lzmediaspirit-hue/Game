@@ -29,6 +29,10 @@ var badge: Node2D   # a pickup's floating item icon, smoothed (icons are 64 px a
 ## P5a (G4): the plate's box (local, at no offset) and the offset in whole rows the world's label pass gives it.
 var label_box := Rect2()
 var label_offset := Vector2.ZERO
+## The top-down view (redesign Phase 4) draws an object twice: "art" in its pixel viewport (the prop, its glow and
+## motes, no words) and "label" on its overlay at the HUD's resolution (the verb plate, a pickup's badge, a sensed
+## herb's time). "" draws both, as the side view does.
+var mode := ""
 
 func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	def = o
@@ -38,7 +42,7 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
 	z_index = depth(o, geo)
-	if str(o.type) == "pickup":
+	if str(o.type) == "pickup" and mode != "art":
 		badge = Node2D.new()
 		badge.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		badge.z_index = 1
@@ -123,6 +127,10 @@ func _process(delta: float) -> void:
 	if badge: badge.queue_redraw()
 
 func _draw() -> void:
+	if mode == "label":
+		_draw_plate()
+		if def.type == "herb_patch" and def.has("ripen"): _draw_sensed()
+		return
 	var st := state_name()
 	var drawn := false
 	if def.type == "pickup":
@@ -165,7 +173,7 @@ func _draw() -> void:
 				draw_circle(Vector2(cos(a) * r, -60.0 + sin(a) * r * 0.7), 2.2, Color(0.85, 0.7, 1.0, 0.9))
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 		if rare and not ripe and st == "ready": draw_circle(Vector2(0, -14), 22.0, Color(0.05, 0.1, 0.1, 0.25))   # still growing
-	if def.type == "herb_patch" and def.has("ripen"): _draw_sensed()
+	if def.type == "herb_patch" and def.has("ripen") and mode == "": _draw_sensed()
 	if def.type == "insect_swarm" and st == "ready": _draw_swarm()
 	_draw_post_flag()
 	if not drawn and def.type != "pickup":
@@ -173,6 +181,10 @@ func _draw() -> void:
 	if def.type == "earth_vent": _draw_earth_fire()
 	if def.type == "spirit_mine": _draw_mine()
 	if def.type == "garden_bed": _draw_bed_herb()
+	if mode == "": _draw_plate()
+
+## The verb plate over the context target (a pickup's plate is its badge's).
+func _draw_plate() -> void:
 	if def.type != "pickup": label_box = Rect2()
 	if focus and def.type != "pickup":
 		var c = Game.active()

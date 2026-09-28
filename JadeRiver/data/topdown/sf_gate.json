@@ -1,0 +1,218 @@
+{
+ "schema_version": 1,
+ "id": "sf_gate",
+ "name": "Stoneford Gate",
+ "size": [
+  56,
+  26
+ ],
+ "spawn": [
+  52,
+  14
+ ],
+ "levels": [
+  "33333333333333300033333333333333333333333333333333333333",
+  "33333333333333300033333333333333333333333333333333333333",
+  "33333333333333300033333333333333333333333333333333333333",
+  "33333333333333300033333333333333333333333333333333333333",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "llllllllllllllldddllllllllllllllllllllllllllllllllllllll",
+  "llllllllllllllldddllllllllllllllllllllllllllllllllllllll",
+  "llllllllllllllldddllllllllllllllllllllllllllllllllllllll",
+  "llllllllllllllldddllllllllllllllllllllllllllllllllllllll",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggdddgggggggggggggggggggggggggggggggggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "house",
+   "x": 46,
+   "y": 6,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "lantern",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 4
+  },
+  {
+   "kind": "lantern_red",
+   "x": 26,
+   "y": 11
+  },
+  {
+   "kind": "lantern_red",
+   "x": 32,
+   "y": 11
+  },
+  {
+   "kind": "willow",
+   "x": 6,
+   "y": 6
+  },
+  {
+   "kind": "willow",
+   "x": 36,
+   "y": 6
+  },
+  {
+   "kind": "barrel",
+   "x": 40,
+   "y": 8
+  },
+  {
+   "kind": "crates",
+   "x": 8,
+   "y": 18
+  },
+  {
+   "kind": "reeds",
+   "x": 4,
+   "y": 21
+  },
+  {
+   "kind": "reeds",
+   "x": 20,
+   "y": 21
+  },
+  {
+   "kind": "reeds",
+   "x": 34,
+   "y": 21
+  },
+  {
+   "kind": "reeds",
+   "x": 50,
+   "y": 21
+  }
+ ],
+ "place": {
+  "shrine_sf_gate": [
+   43,
+   11
+  ],
+  "sign_sf_gate": [
+   52,
+   17
+  ],
+  "npc_guard_hou": [
+   29,
+   11
+  ],
+  "npc_foreman_dong": [
+   13,
+   10
+  ],
+  "npc_adventurer_kai": [
+   37,
+   18
+  ],
+  "tide_gong": [
+   22,
+   10
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    55,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    14
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "quarry_road": {
+   "at": [
+    16,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    16,
+    3
+   ],
+   "span": 3
+  },
+  "county_hall_door": {
+   "at": [
+    48.5,
+    9
+   ],
+   "dir": "n",
+   "arrive": [
+    48.5,
+    9.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

@@ -2214,7 +2214,15 @@ func _draw_minimap(c) -> void:
 	var sy := inner.size.y / maxf(1.0, bottom - top)
 	var to_map := func(pos: Vector2, alt: float) -> Vector2:
 		return inner.position + Vector2(pos.x * sx, (pos.y - alt - top) * sy)
-	for s in Game.room_rt.geometry.surfaces if Game.room_rt else []:
+	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
+	if grid != null:
+		# Redesign Phase 4: a room on the height grid is drawn as its level map, the whole room fitted in the frame
+		# (the plane seen from above); the ways, marks, people and foes below take the same projection.
+		var k := minf(inner.size.x / (grid.w * TopdownRoom.TILE), inner.size.y / (grid.h * TopdownRoom.TILE))
+		var at0 := inner.position + (inner.size - Vector2(grid.w, grid.h) * TopdownRoom.TILE * k) * 0.5
+		to_map = func(pos: Vector2, _alt: float) -> Vector2: return at0 + pos * k
+		draw_texture_rect(_grid_map(grid), Rect2(at0, Vector2(grid.w, grid.h) * TopdownRoom.TILE * k), false)
+	for s in Game.room_rt.geometry.surfaces if Game.room_rt and grid == null else []:
 		if s.disabled: continue
 		var y0: Vector2 = to_map.call(Vector2(s.bounds.position.x, s.bounds.position.y), s.base)
 		var y1: Vector2 = to_map.call(Vector2(s.bounds.end.x, s.bounds.position.y), s.base)
@@ -2291,6 +2299,24 @@ func _draw_minimap(c) -> void:
 			draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(player.plane, player.altitude)
 	draw_colored_polygon(PackedVector2Array([pp + Vector2(player.facing * 5, 0), pp + Vector2(-player.facing * 3, -4), pp + Vector2(-player.facing * 3, 4)]), Color.WHITE)
+
+## A room on the height grid as a map, one pixel a cell, made once a room (drawn scaled, nearest): water, the floor by
+## its level (higher is paler), and walls and the props' footprints dark.
+var _grid_maps: Dictionary = {}
+func _grid_map(grid: TopdownRoom) -> Texture2D:
+	if _grid_maps.has(grid.id): return _grid_maps[grid.id]
+	var img := Image.create(grid.w, grid.h, false, Image.FORMAT_RGBA8)
+	for y in grid.h:
+		for x in grid.w:
+			var l := grid.level(x, y)
+			var col := Color(UiKit.SURFACE.map_line, 0.10)
+			if l == TopdownRoom.WATER: col = Color(0.30, 0.55, 0.62, 0.55)
+			elif l == TopdownRoom.SOLID: col = Color(0.02, 0.05, 0.06, 0.55)
+			elif not grid.stair_at(x, y).is_empty(): col = Color(UiKit.SURFACE.map_line, 0.45)
+			else: col = Color(UiKit.SURFACE.map_line, clampf(0.16 + 0.12 * l, 0.16, 0.7))
+			img.set_pixel(x, y, col)
+	_grid_maps = {grid.id: ImageTexture.create_from_image(img)}
+	return _grid_maps[grid.id]
 
 ## The harvest ring (S45): it shrinks from wide to the button; the gold band is the perfect window for your rank.
 func _draw_tap_ring() -> void:

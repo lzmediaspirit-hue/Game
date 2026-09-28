@@ -38,6 +38,10 @@ var foot := Vector2(16, 46)
 ## The aim the HUD is showing (decision 30): {kind, slot, form, dir, at, reach, half, target (EnemyState or null)}, {}
 ## when no thumb is aiming. The world draws it on the ground.
 var aim: Dictionary = {}
+var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the stick (S49), on the grid
+
+var surface: WalkSurface:
+	get: return state.surface
 
 var plane: Vector2:
 	get: return motor.pos
@@ -147,6 +151,14 @@ func physics_step(delta: float) -> Array:
 	var move := last_axis
 	if bound():
 		var c = Game.character(actor_id)
+		# Phase 4, as on player.gd (S49): auto-path and auto-hunt hold the joystick until you take it; a push cancels
+		# auto-path. The autopilot's stick is the stick the ways out read.
+		if move.length() > 0.2:
+			if Game.world.auto_path_target(c) != "": Game.submit({"type": "auto_path", "target": ""})
+		elif world.get("live") == true:
+			if autopilot == null: autopilot = Autopilot.new(self)
+			move = autopilot.drive(c, delta)
+			last_axis = move
 		if Game.combat.is_wounded(actor_id) or c.pools.blocked("move"): move = Vector2.ZERO
 		if c.pools.has_status("confusion"): move = -move
 		motor.speed_k = Game.combat.move_factor(actor_id) if not Game.combat.is_wounded(actor_id) else 0.0

@@ -1,0 +1,117 @@
+{
+ "schema_version": 1,
+ "id": "lf_fishers_hut",
+ "name": "Fisher's Hut",
+ "size": [
+  20,
+  13
+ ],
+ "spawn": [
+  4,
+  4
+ ],
+ "levels": [
+  "33333333333333333333",
+  "30000000000002222223",
+  "30000000000002222223",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "30000000000000000003",
+  "11111111100111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwl",
+  "lllllllllwwlllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 13,
+   "y": 3,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "crates",
+   "x": 9,
+   "y": 6
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "barrel",
+   "x": 2,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 10
+  }
+ ],
+ "place": {
+  "npc_aunt_ping": [
+   6,
+   6
+  ],
+  "tea_table": [
+   9.5,
+   6
+  ],
+  "net": [
+   16,
+   5
+  ],
+  "lu_float": [
+   15,
+   1
+  ],
+  "tea_loft": [
+   17,
+   1
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    9.5,
+    12
+   ],
+   "dir": "s",
+   "arrive": [
+    9.5,
+    10.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

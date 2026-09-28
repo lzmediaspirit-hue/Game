@@ -25,6 +25,9 @@ func _main() -> void:
 	Saves.use_folder(SAVES)
 	Game.boot()
 	Game.autosave_enabled = false
+	if "--phase4" in OS.get_cmdline_user_args():
+		await phase4()
+		return
 	main.enter_topdown_proto(false)
 	w = main.world
 	p = w.player
@@ -102,6 +105,43 @@ func phase2() -> void:
 	await shot("06_aimed_technique", out)
 	hud.release(91)
 	print("topdown_capture: phase 2 done")
+	get_tree().quit()
+
+## Phase 4 (`-- --phase4`, into docs/redesign/phase4/): a new top-down character's game (the title's hidden entry),
+## each converted room under the real HUD at a spot that shows it, and a quest talk on the dialogue page over the grid.
+const PHASE4 := [["01_fishers_hut", "lf_fishers_hut", Vector2(8, 7)], ["02_village_home_lane", "lf_village", Vector2(12, 18)],
+	["03_village_square", "lf_village", Vector2(33, 21)], ["04_village_docks", "lf_village", Vector2(58, 26)],
+	["05_old_ma_store", "lf_old_ma_store", Vector2(9, 7)], ["06_granny_liu_hut", "lf_granny_liu_hut", Vector2(9, 7)],
+	["07_reed_shallows", "lf_reed_shallows", Vector2(40, 15)], ["08_village_night", "lf_village_night", Vector2(22, 20)],
+	["09_lu_boat", "lf_lu_boat", Vector2(11, 7)], ["10_willow_path_east", "wp_east", Vector2(31, 13)],
+	["11_willow_path_west", "wp_west", Vector2(40, 15)], ["12_stoneford_gate", "sf_gate", Vector2(30, 14)],
+	["13_market_street", "sf_market", Vector2(24, 15)], ["14_artisan_row", "sf_artisan_row", Vector2(30, 15)],
+	["15_fairground", "sf_fairground", Vector2(28, 16)]]
+
+func phase4() -> void:
+	var out := "res://docs/redesign/phase4/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	main.enter_topdown_tutorial(false)
+	await frames(40)
+	var c = Game.active()
+	for s in PHASE4:
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		w = main.world
+		p = w.player
+		m = p.motor
+		await frames(50)
+		await shot(str(s[0]), out)
+	# A quest talk: Lu at the Ferry Docks offers A Quiet River's hand-in, on the real dialogue page over the grid.
+	Game.world.load_room(c, "lf_village", "", Vector2(55.5, 28.5) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(40)
+	var r := Game.submit({"type": "interact", "object": "npc_lu_boatman"})
+	if r.get("ok", false) and r.has("dialogue"): main.open_page("dialogue", {"convo": r.dialogue})
+	await frames(90)
+	await shot("16_quest_talk_lu", out)
+	print("topdown_capture: phase 4 done")
 	get_tree().quit()
 
 ## An empty square round `at` with these foes ([def, offset]) turned on the player.

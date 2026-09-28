@@ -9,6 +9,8 @@ const Backdrop = preload("res://scripts/backdrop.gd")
 const TopdownWorldScript = preload("res://scripts/topdown/topdown_world.gd")
 ## The top-down prototype (redesign Phase 1) from the title screen plays on its own saves, never the player's.
 const PROTO_SAVES := "user://topdown_proto_saves/"
+## The top-down game (redesign Phase 4) from the title screen plays on saves of its own.
+const TOPDOWN_SAVES := "user://topdown_saves/"
 
 const PAGES := {
 	"menu": "res://scripts/ui/pages/menu_page.gd",
@@ -167,6 +169,10 @@ func _exit_tree() -> void:
 func _handle_preview_args(user_args: Array) -> void:
 	# Redesign Phase 1: --topdown-proto opens the top-down prototype room (a preview character, the real HUD).
 	if "--topdown-proto" in user_args: enter_topdown_proto(false)
+	# Redesign Phase 4: --topdown makes the preview's characters top-down ones (the Settings toggle); --topdown-tutorial
+	# opens the top-down game as the title's hidden entry does, on the preview saves.
+	if "--topdown" in user_args: Game.account.settings["topdown_world"] = true
+	if "--topdown-tutorial" in user_args: enter_topdown_tutorial(false)
 	if "--preview-selection" in user_args: show_selection()
 	if "--preview-create" in user_args: show_creation(1)
 	var room := ""
@@ -689,7 +695,7 @@ func _on_title(action: String) -> void:
 			if Game.characters.is_empty(): show_creation(1)
 			else: show_selection()
 		"settings": open_page("settings", {})
-		"topdown_proto": enter_topdown_proto(true)
+		"topdown_proto": enter_topdown_tutorial(true)
 		"quit": save_and_quit()
 
 func show_selection() -> void:
@@ -742,14 +748,7 @@ func enter_world(slot: int) -> void:
 func _mount_world() -> void:
 	_unmount_world()
 	Game.in_world = true
-	if topdown:
-		world = TopdownWorldScript.new()
-	else:
-		world = World.new()
-		world.room_mode = true
-	add_child(world)
-	backdrop.world = null if topdown else world
-	backdrop.visible = not topdown
+	_add_world_view()
 	hud = Hud.new()
 	hud.player = world.player
 	hud.world = world
@@ -770,6 +769,35 @@ func _mount_world() -> void:
 	hud.moments = moments
 	add_child(moments)
 
+## The view of the room the character stands in: the prototype square, a room of the world on the height grid (the
+## top-down view, redesign Phase 4), or the side view.
+func _add_world_view() -> void:
+	if topdown:
+		world = TopdownWorldScript.new()
+	elif Game.room_rt != null and Game.room_rt.topdown != null:
+		world = TopdownWorldScript.new()
+		world.live = true
+	else:
+		world = World.new()
+		world.room_mode = true
+	add_child(world)
+	var side: bool = world is World
+	backdrop.world = world if side else null
+	backdrop.visible = side
+
+## A room entered in the other view (a top-down character walking from a room on the grid into one still side-view, or
+## back): the world view is swapped under the same HUD, pages and moments.
+func _swap_world_view() -> void:
+	if not is_instance_valid(world) or topdown: return
+	if (world is World) == (Game.room_rt.topdown == null): return
+	remove_child(world)
+	world.queue_free()
+	_add_world_view()
+	if is_instance_valid(hud):
+		hud.player = world.player
+		hud.world = world
+	if is_instance_valid(moments): moments.world = world
+
 func _unmount_world() -> void:
 	close_all_pages()
 	if is_instance_valid(moments):
@@ -787,8 +815,23 @@ func _unmount_world() -> void:
 	backdrop.world = null
 	Game.in_world = false
 
-## Redesign Phase 1: the top-down prototype room under the real HUD. From the title (`isolated`) it runs on its own
-## saves with a stand-in character, so the player's are never touched; --topdown-proto uses the preview saves.
+## Redesign Phase 4: the game in the top-down world, from the title screen's hidden entry (five taps on the version) or
+## --topdown-tutorial. It plays on saves of its own (the player's are saved, set aside and restored on leaving it):
+## its character is a real one, made new for the top-down world the first time (the Prologue from the Fisher's Hut),
+## then continued where it was saved.
+func enter_topdown_tutorial(isolated := true) -> void:
+	_proto_force_was = Unlocks.debug_force_all
+	if isolated:
+		Game.save_all()
+		Saves.use_folder(TOPDOWN_SAVES)
+		Game.boot()
+		proto_isolated = true
+	if Game.character("c1") == null:
+		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("sim.account.disciple"), "appearance": {"hair": "topknot"}, "view": "topdown"})
+	enter_world(1)
+
+## Redesign Phase 1: the top-down prototype room under the real HUD, on a stand-in character (--topdown-proto: the
+## preview saves; `isolated`: saves of its own, the player's untouched).
 func enter_topdown_proto(isolated: bool) -> void:
 	if isolated:
 		Game.save_all()
@@ -813,6 +856,14 @@ func _leave_topdown_proto() -> void:
 func return_to_selection() -> void:
 	if topdown:
 		if screen == "world": _unmount_world()
+		_leave_topdown_proto()
+		show_title()
+		return
+	if proto_isolated:   # the top-down game from the title: saved on its own saves, then back to the player's
+		if screen == "world":
+			Game.submit({"type": "app_paused"})
+			Game.save_all()
+			_unmount_world()
 		_leave_topdown_proto()
 		show_title()
 		return
@@ -926,6 +977,7 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 		"room_entered":
 			fade = maxf(fade, 0.9)
 			close_all_pages()
+			if screen == "world" and Game.room_rt != null: _swap_world_view()
 			if screen == "world" and not topdown: _warm_techniques()
 		"player_gravely_wounded":
 			if screen == "world": open_page("revival", p)
