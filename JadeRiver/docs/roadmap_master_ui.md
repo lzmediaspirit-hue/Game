@@ -475,4 +475,7 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the home is Lotus Ferry, then the Cave Abode;
     - eight places for the prototype room;
     - the Spirit Animals page stays as built, with a stable yard at home.
+37. **Full player art in top-down:** every body/skin option, creator hair style and face, every clothing and armour
+    piece, every weapon family and every dye, in all top-down directions and actions (per `AGENTS.md`), after the
+    starter set; split across parallel batches on one shared pipeline.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
