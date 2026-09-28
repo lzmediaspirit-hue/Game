@@ -4,7 +4,9 @@ extends Node
 ## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder. `-- --combat`:
-## decision 38's combat feel in the game (docs/redesign/phase5/combat/).
+## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --terrain <name>`: the Terrain v2 review
+## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
+## saves of their own, so it can run beside another capture).
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -23,15 +25,19 @@ func _ready() -> void:
 	call_deferred("_main")
 
 func _main() -> void:
-	DirAccess.make_dir_recursive_absolute(SAVES)
-	for f in DirAccess.get_files_at(SAVES): DirAccess.remove_absolute(SAVES + f)
+	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
+	DirAccess.make_dir_recursive_absolute(saves)
+	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame
-	Saves.use_folder(SAVES)
+	Saves.use_folder(saves)
 	Game.boot()
 	Game.autosave_enabled = false
+	if "--terrain" in OS.get_cmdline_user_args():
+		await terrain_v2()
+		return
 	if "--phase4" in OS.get_cmdline_user_args():
 		await phase4()
 		return
@@ -527,6 +533,60 @@ func chapter2() -> void:
 	await frames(360)   # a new game's first notices come and go before the first shot
 	await room_shots(CHAPTER2, out)
 	print("topdown_capture: chapter 2 done")
+	get_tree().quit()
+
+## Terrain v2 (decision 40, `-- --terrain <name>`): the same views before and after the tile work, the world alone at
+## x2 (1280 x 720), into docs/redesign/terrain_v2/<name>/: Lotus Ferry's square and the Fisher's Hut's lane, the Jade Gate
+## Street, the Marsh Edge, the Reed Shallows, the Cloud Sect's cliff stair and Elder Sung's peak (cliffs), Riverside
+## Square at its spawn, and the height-levels review room whole.
+const TERRAIN_VIEWS := [["01_village_square", "lf_village", Vector2(33, 21)], ["02_jade_gate_street", "ja_gate_street", Vector2(24, 15)],
+	["03_marsh_edge", "rm_marsh_edge", Vector2(30, 14)], ["04_reed_shallows", "lf_reed_shallows", Vector2(40, 15)],
+	["05_fishers_hut_lane", "lf_village", Vector2(12, 18)], ["08_cliff_stair", "cm_cliff_stair", Vector2(40, 10)],
+	["09_elder_sung_peak", "cm_elder_sung_peak", Vector2(20, 10)]]
+
+func terrain_v2() -> void:
+	var args := OS.get_cmdline_user_args()
+	var i := args.find("--terrain")
+	var out := "res://docs/redesign/terrain_v2/%s/" % (args[i + 1] if i + 1 < args.size() else "after")
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	for s in TERRAIN_VIEWS:
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 120)
+		(await world_shot()).save_png(out + str(s[0]) + ".png")
+	# The views alone (no character enters them): Riverside Square at its spawn, and the height-levels room whole.
+	var was: String = Game.active_id
+	Game.active_id = ""
+	main.hud.visible = false
+	for s in [["06_riverside_square", "td_proto_square"], ["07_height_levels", "td_review_heights"]]:
+		var v := TopdownWorld.new()
+		v.room_id = str(s[1])
+		add_child(v)
+		await frames(2)
+		w = v
+		if str(s[1]) == "td_review_heights":
+			v.set_process(false)
+			v.camera.position = v.room.art_size() * 0.5 - Vector2(0, 24)
+			v.player.motor.place(HEIGHT_BODIES[0] * 32.0)
+			v.player.sync(0.0)
+			v.shadow.sync()
+			for spot in HEIGHT_BODIES.slice(1): v.sorted.add_child(StandIn.new(v, spot * 32.0))
+		for f in 30: await frames(1)
+		(await world_shot()).save_png(out + str(s[0]) + ".png")
+		v.queue_free()
+		await frames(2)
+	Game.active_id = was
+	# With both sets taken, each view's before and after side by side, into docs/redesign/terrain_v2/.
+	var dir := "res://docs/redesign/terrain_v2/"
+	for s in TERRAIN_VIEWS + [["06_riverside_square"], ["07_height_levels"]]:
+		var b := dir + "before/" + str(s[0]) + ".png"
+		var a := dir + "after/" + str(s[0]) + ".png"
+		if not (FileAccess.file_exists(b) and FileAccess.file_exists(a)): continue
+		await panels(dir + str(s[0]) + "_before_after.png", [["Before", Image.load_from_file(ProjectSettings.globalize_path(b))],
+			["After: Terrain v2", Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
+	print("topdown_capture: terrain views done")
 	get_tree().quit()
 
 ## A new top-down character's game (the title's hidden entry), once the pages' scripts have compiled on their loading
