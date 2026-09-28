@@ -316,7 +316,7 @@ func _process(delta: float) -> void:
 ## views keep their label boxes at their own offsets by kind; WorldLabels places them on screen in whole rows.
 func layout_labels() -> Dictionary:
 	if not is_inside_tree(): return {}
-	return WorldLabels.place_views(WorldShared.label_views(self, player.position.x if player else 0.0), get_viewport().get_canvas_transform(), label_obstacles)
+	return WorldLabels.place_views(WorldShared.label_views(self, Vector2(player.position.x if player else 0.0, 0.0)), get_viewport().get_canvas_transform(), label_obstacles)
 
 func _update_context() -> void:
 	var c = Game.active()

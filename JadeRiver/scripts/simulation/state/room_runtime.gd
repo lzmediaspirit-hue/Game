@@ -40,6 +40,23 @@ func portal_def(id: String) -> Dictionary:
 func width() -> float:
 	return float(def.get("bounds", [0, 480, 1280, 480])[2])
 
+## Half the world view in world units: the 1280 x 720 canvas (the top-down view's 640 x 360 art px at 2 units each).
+const HALF_VIEW := TopdownRoom.VIEW * TopdownRoom.ART * 0.5
+## A foe's figure over its feet in world units (half its width, its height), for telling whether any of it shows.
+const FIGURE := Vector2(24, 80)
+
+## Is a figure standing at `p` (height `alt`) out of the view of the body `st`, by at least `margin` world units? The
+## side view scrolls along x only, so it is the distance across; on the height grid it is the camera's own rect for a
+## body there (TopdownRoom.view_rect: both axes, clamped to the room, the ridge at the north edge included) against the
+## figure's rect on the screen's plane.
+func out_of_view(p: Vector2, alt: float, st: ActorState, margin := 0.0) -> bool:
+	if st == null: return true
+	if topdown == null: return absf(p.x - st.plane.x) >= HALF_VIEW.x + margin
+	var ground := topdown.height_at(st.plane)
+	var z: float = ground if ground < INF and ground <= st.altitude + 1.0 else st.altitude
+	var fig := Rect2(p.x - FIGURE.x, p.y - alt - FIGURE.y, FIGURE.x * 2.0, FIGURE.y)
+	return not topdown.view_rect(st.plane, z).grow(margin).intersects(fig)
+
 func living_enemies() -> Array:
 	var out: Array = []
 	for u in enemies:

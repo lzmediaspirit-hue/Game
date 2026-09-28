@@ -14,7 +14,10 @@ extends "res://tests/tutorial_order.gd"
 ##   3. every spot the walk stands at in a room on the grid is reached on foot from where the character came in;
 ##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
 ##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
-##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there.
+##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there;
+##   6. the character's own view drives the body: a talk offered, auto-path through a door and out through an edge;
+##   7. a room's people are drawn within a moment of it while the page scripts still warm up, and every way's reach
+##      is turned with its direction.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -32,6 +35,7 @@ func _main() -> void:
 	add_child(views)
 	create_extra = {"view": "topdown"}
 	GameEvents.event.connect(_on_grid_event)
+	await _people_stream()
 	_layouts()
 	run()
 	_save_on_the_grid()
@@ -94,6 +98,35 @@ func _probe_view() -> void:
 	if not ok: probe_misses.append("%s: npcs %d/%d things %d/%d figures %d ways %d/%d marks %d" % [room(), probe.npc_views.size(), npcs.size(),
 		probe.object_views.size(), things.size(), figures.size(), probe.portal_views.size(), (def.get("portals", []) as Array).size(), marks.size()])
 
+# ------------------------------------------------------------------ 7: the people draw with the room
+## A room's people draw within a moment of it, whatever the pages are doing. From the title screen on the game compiles
+## every page script on a loading thread (main.gd, PageWarmer), and while one compiles every other load waits for it:
+## asked for all at once, they held a villager's sheets back for seconds after launch (the reported late villagers).
+## Warmed one at a time as the title does now, the first run's pages still compiling, Lotus Ferry's people are all drawn
+## within a moment of the room being populated.
+func _people_stream() -> void:
+	var warm := PageWarmer.new(load("res://scripts/main.gd").PAGES.values())
+	warm.tick()   # as the title starts it
+	await get_tree().process_frame
+	var t0 := Time.get_ticks_msec()
+	var figures: Array = []
+	for o in ContentDB.room("lf_village").get("objects", []):
+		if str(o.get("type", "")) == "npc": figures.append(NpcView.figure(o))
+	var waiting := figures.size()
+	while waiting > 0 and Time.get_ticks_msec() - t0 < 5000:
+		await get_tree().process_frame
+		warm.tick()   # as main.gd does each frame
+		waiting = 0
+		for f in figures:
+			f.refresh_entries()
+			if f.entries.is_empty(): waiting += 1
+	var ms := Time.get_ticks_msec() - t0
+	var left := warm.queue.size()
+	for f in figures: f.free()
+	while warm.tick(): await get_tree().process_frame   # the rest of the pages, before the walk
+	check(figures.size() >= 6 and waiting == 0 and ms < 1500 and left > 0,
+		"Lotus Ferry's %d people are all drawn %d ms after the room is populated while the pages still warm up (%d page scripts still to compile)" % [figures.size(), ms, left])
+
 # ------------------------------------------------------------------ 2: the layouts
 ## Every layout of the tutorial: each thing of its side-view room placed on a floor, and reached on foot from every
 ## way in and from its spawn.
@@ -125,6 +158,9 @@ func _layouts() -> void:
 				if not r.has(spot): bad.append("%s from %s" % [o.id, str(s)])
 			for p in def.get("portals", []):
 				if not r.has(TopdownRoom.cell_of(Vector2(float(p.at[0]), float(p.at[1])))): bad.append("way %s from %s" % [p.id, str(s)])
+				# Its reach is turned with it: a tile across the way, along it half its span (WorldAuthority.portal_near).
+				var across := 1 if float(p.dir[0]) == 0.0 else 0
+				if float(p.reach[across]) != TopdownRoom.TILE or float(p.reach[1 - across]) < TopdownRoom.TILE * 0.5: bad.append("way %s reach %s" % [p.id, str(p.reach)])
 			for sp in def.get("spawns", []):
 				for q in sp.get("points", []):
 					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)

@@ -141,9 +141,81 @@ func sort_key(p: Vector2, z: float) -> float:
 	if ground > 0.0 and ground < INF and z >= ground - 1.0: key = maxf(key, south_edge(p) + 0.25)
 	return (floorf(key * 16.0) + clampf(floorf(z / LEVEL), 0.0, 3.0) * 0.25) / 16.0
 
+## The depth-sort key of a mark lying flat on the floor at `p` (height `z`), `half` art px deep (a hazard's ring, a
+## circle of runes): under every body standing on it or behind it, over the floor it lies on. On a raised floor that
+## is just past the floor's own row (its south edge, before the bodies on it at +0.25); on the ground it is the mark's
+## north edge. Multiples of 1/64, as every key.
+func decal_key(p: Vector2, z: float, half := 12.0) -> float:
+	var ground := height_at(p)
+	if ground > 0.0 and ground < INF and z >= ground - 1.0: return south_edge(p) + 0.125
+	return floorf((p.y / ART - half) * 64.0) / 64.0
+
 ## The room's size in art px.
 func art_size() -> Vector2:
 	return Vector2(w, h) * TILE / ART
+
+# ------------------------------------------------------------------ Phase 4: what the camera shows
+## The world view in art px (TopdownWorld's SubViewport): 1280 x 720 world units.
+const VIEW := Vector2(640, 360)
+## A body's figure over its feet in art px (the character cell's 38 px and a little head room), for keeping it in view.
+const BODY_PX := Vector2(16, 44)
+
+var _drawn := Rect2()
+## Where the room draws, in art px: the floor's rect, and above it the tops of raised floors near the north edge (a
+## ridge of level 2 on the first row draws 32 px above the room's top), which the camera may show.
+func drawn_rect() -> Rect2:
+	if _drawn.has_area(): return _drawn
+	var top := 0.0
+	for y in h:
+		if float(y) * TILE / ART - 9.0 * LEVEL / ART > top: break   # no level can reach above the top from here on
+		for x in w:
+			var l := level(x, y)
+			if l > 0 and l != SOLID: top = minf(top, (float(y) * TILE - float(l) * LEVEL) / ART)
+	_drawn = Rect2(0.0, top, float(w) * TILE / ART, float(h) * TILE / ART - top)
+	return _drawn
+
+## The camera's centre (art px) for a goal `t` (art px): inside the drawn room, and a room smaller than the view is
+## centred. `keep` (art px) always stays in view, the camera moving past the room's drawn edge only as far as it must:
+## the body standing on a ridge at the room's very edge.
+func camera_goal(t: Vector2, keep := Rect2()) -> Vector2:
+	var b := drawn_rect()
+	var half := VIEW * 0.5
+	var c := Vector2(b.get_center().x if b.size.x <= VIEW.x else clampf(t.x, b.position.x + half.x, b.end.x - half.x),
+		b.get_center().y if b.size.y <= VIEW.y else clampf(t.y, b.position.y + half.y, b.end.y - half.y))
+	if keep.has_area():
+		c.x = clampf(c.x, keep.end.x - half.x, keep.position.x + half.x)
+		c.y = clampf(c.y, keep.end.y - half.y, keep.position.y + half.y)
+	return c
+
+## The camera's goal for a body at `p` whose ground underfoot is `z`, moving at `vel` (TopdownWorld's camera, plan
+## §1.1): its feet on that ground plus the look-ahead, 12 art px up, the body kept in view.
+func camera_for(p: Vector2, z: float, vel := Vector2.ZERO) -> Vector2:
+	var feet := Vector2(p.x, p.y - z) / ART
+	var t := feet + vel * float(TopdownMotor.conf("camera_look_ahead", 0.2)) / ART + Vector2(0, -12)
+	return camera_goal(t, Rect2(feet - Vector2(BODY_PX.x * 0.5, BODY_PX.y), BODY_PX + Vector2(0, 8)))
+
+## What the camera shows with a body at `p` on the floor at `z`, at rest: a rect in world units on the screen's plane
+## (x, and y lifted by height), 1280 x 720 as the 640 x 360 view is.
+func view_rect(p: Vector2, z: float) -> Rect2:
+	return Rect2(camera_for(p, z) * ART - VIEW, VIEW * 2.0)
+
+# ------------------------------------------------------------------ Phase 4: placing things on the floor
+## The nearest point to `p` a body can stand at on the floor at height `z` (within 8 of it), searching `rings` tiles
+## out; else the nearest standable point. Things put into the room by the rules (a spar partner, a summoned add, an
+## ambush, a guardian, a companion beside you) land on a floor, never in a wall, the water or on another level.
+func place_near(p: Vector2, z: float, rings := 4) -> Vector2:
+	var c0 := cell_of(p)
+	if standable(c0) and absf(floor_at(p) - z) <= 8.0 and free_at(p, floor_at(p), 8.0): return p
+	for r in range(1, rings + 1):
+		var best := Vector2.INF
+		for dy in range(-r, r + 1):
+			for dx in range(-r, r + 1):
+				if maxi(absi(dx), absi(dy)) != r: continue
+				var q := (Vector2(c0 + Vector2i(dx, dy)) + Vector2(0.5, 0.5)) * TILE
+				if not standable(cell_of(q)) or absf(floor_at(q) - z) > 8.0: continue
+				if best == Vector2.INF or q.distance_to(p) < best.distance_to(p): best = q
+		if best != Vector2.INF: return best
+	return nearest_standable(p)
 
 # ------------------------------------------------------------------ Phase 2: foes on the grid
 ## The room as the simulation's RoomRuntime def (WorldAuthority.enter_grid_room): its id, name and kind, and its spawns
@@ -283,8 +355,9 @@ func entrance(portal_id: String) -> String:
 	return "edge"
 
 ## Where a body stands to reach a thing at `p` at height `z` (the World authority answers within 48 of its height):
-## the standable spot within three tiles of it, its floor within 40 of `z`, nearest `from`; else the nearest spot.
-func spot_near(p: Vector2, z: float, from: Vector2) -> Vector2:
+## the standable spot within three tiles of it, its floor within `tol` of `z` (auto-hunt asks for the foe's own floor),
+## nearest `from`; else the nearest spot.
+func spot_near(p: Vector2, z: float, from: Vector2, tol := 40.0) -> Vector2:
 	var c0 := cell_of(p)
 	var best := Vector2.INF
 	for dy in range(-3, 4):
@@ -292,7 +365,7 @@ func spot_near(p: Vector2, z: float, from: Vector2) -> Vector2:
 			var c := c0 + Vector2i(dx, dy)
 			if dx * dx + dy * dy > 9 or not standable(c): continue
 			var q := (Vector2(c) + Vector2(0.5, 0.5)) * TILE
-			if absf(floor_at(q) - z) > 40.0: continue
+			if absf(floor_at(q) - z) > tol: continue
 			if best == Vector2.INF or q.distance_to(from) < best.distance_to(from): best = q
 	return best if best != Vector2.INF else nearest_standable(p)
 
@@ -307,7 +380,8 @@ func geometry_def() -> Dictionary:
 ##   portals  portal id -> {at: the doorway or edge cell, dir: n/s/e/w (the way it is walked into), arrive: the cell
 ##            the body arrives on (default a tile and a half inside), span: tiles along the edge it covers};
 ##   spawns   one list of cells per side-view spawn, in order; event {wave, fixed}: the room event's spawn cells;
-##   routes   object id -> [[cell x, cell y, seconds], ...]: a rooftop thief's run over the grid.
+##   routes   object id -> [[cell x, cell y, seconds], ...]: a rooftop thief's run over the grid;
+##   areas    [{kind, rect: [x, y, w, h] in cells, ...}]: a hazard's pools and currents on the plane.
 func merge_def(side: Dictionary) -> Dictionary:
 	var out := side.duplicate(true)
 	for k in SIDE_ONLY: out.erase(k)
@@ -339,10 +413,13 @@ func merge_def(side: Dictionary) -> Dictionary:
 		p.dir = [dir.x, dir.y]
 		p.arrive = [arrive.x, arrive.y]
 		p.alt = floor_at(at)
-		# The reach round it that counts as at the way (WorldAuthority.PORTAL_RADIUS, 64 x 44): a doorway's own width, an
-		# edge's span.
+		# The reach round it that counts as at the way (WorldAuthority.portal_near): half its span along the edge or the
+		# doorway (a doorway's own width, an edge's span) and a tile across it, turned with the way; its floor's height
+		# within half a level.
 		var span := float(lay.get("span", 2 if str(p.get("type", "edge")) in ["door"] else 3))
-		p.radius_scale = maxf(0.5, span * TILE * 0.5 / 44.0)
+		var along := span * TILE * 0.5
+		p.reach = [along if dir.x == 0.0 else TILE, TILE if dir.x == 0.0 else along]
+		p.erase("radius_scale")
 		p.erase("press_up")
 		p.erase("arrive_offset")
 		p.erase("arrive_dy")
@@ -351,6 +428,13 @@ func merge_def(side: Dictionary) -> Dictionary:
 	for i in mini(specs.size(), spawn_cells.size()):
 		specs[i].points = cell_points(spawn_cells[i])
 		specs[i].erase("surface")
+	# A hazard's areas (a pool, a current; HazardRules.areas) in cells, as world rects on the plane.
+	if def.has("areas"):
+		out.areas = (def.areas as Array).map(func(a):
+			var r: Array = a.rect
+			var wa: Dictionary = (a as Dictionary).duplicate(true)
+			wa.rect = [float(r[0]) * TILE, float(r[1]) * TILE, float(r[2]) * TILE, float(r[3]) * TILE]
+			return wa)
 	var ev: Dictionary = out.get("event", {})
 	var lay_ev: Dictionary = def.get("event", {})
 	if not ev.is_empty() and not lay_ev.is_empty():

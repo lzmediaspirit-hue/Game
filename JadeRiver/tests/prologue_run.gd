@@ -310,6 +310,13 @@ func hit_object(id: String, times: int) -> void:
 	for i in times: Game.world.apply_object_hit(c().id, o)
 	GameEvents.flush()
 
+## Where a blow at a foe standing at `p` aims: on the height grid the stick points at it, as a player's thumb does (the
+## top-down view turns the body to the stick; the walk has no view, so it says so in the intent); none in the side
+## view, where the facing is enough.
+func aim_at(p: Vector2) -> Vector2:
+	if Game.room_rt == null or Game.room_rt.topdown == null or st == null or p.distance_to(st.plane) <= 0.5: return Vector2.ZERO
+	return (p - st.plane).normalized()
+
 ## Fight `count` enemies of one kind with the basic combo, standing beside each.
 ## `careful` = false plays like a new player: no resting before a fight and no stepping out of wind-ups.
 func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, allow_elite := false, careful := true) -> int:
@@ -400,10 +407,11 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			target = null
 			continue
 		# Techniques on cooldown first (a player spends Qi), then the basic combo.
+		var aim_v := aim_at(target.plane)
 		for slot_i in ProgressionRules.technique_slot_count(c()):
 			if c().cultivator.technique_slots[slot_i] != null and str(c().cultivator.technique_slots[slot_i]) != "":
-				if submit({"type": "use_technique", "slot": slot_i, "facing": 1 if target.plane.x >= st.plane.x else -1}).get("ok", false): break
-		var ar := submit({"type": "basic_attack", "facing": 1 if target.plane.x >= st.plane.x else -1})
+				if submit({"type": "use_technique", "slot": slot_i, "facing": 1 if target.plane.x >= st.plane.x else -1, "aim": aim_v}).get("ok", false): break
+		var ar := submit({"type": "basic_attack", "facing": 1 if target.plane.x >= st.plane.x else -1, "aim": aim_v})
 		if verbose and allow_elite and OS.get_cmdline_user_args().has("--trace") and int(t * 10) % 300 == 0:
 			print("    [%ds] %s hp %d  me %d/%d  atk %.0f  injuries %s  statuses %s  target %s" % [int(t), def_id, int(target.pools.hp), int(c().pools.hp), int(c().pools.max_hp), c().stats.value("physical_attack"), str(c().cultivator.injuries.keys()), str(c().pools.statuses.map(func(x): return x.id)), target.def_id])
 		step(0.2)
@@ -778,7 +786,7 @@ func spar_with(start_intent: Callable) -> bool:
 			t += 0.6
 			continue
 		place(foe.plane + Vector2(-34 if st.plane.x <= foe.plane.x else 34, 0))
-		submit({"type": "basic_attack", "facing": 1 if foe.plane.x >= st.plane.x else -1})
+		submit({"type": "basic_attack", "facing": 1 if foe.plane.x >= st.plane.x else -1, "aim": aim_at(foe.plane)})
 		step(0.2)
 		t += 0.2
 	GameEvents.event.disconnect(heard)

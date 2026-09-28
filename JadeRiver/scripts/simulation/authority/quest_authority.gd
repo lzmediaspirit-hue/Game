@@ -949,6 +949,8 @@ func start_spar(c, opponent: String, level := -1) -> Dictionary:
 	var st: ActorState = game.actor_state(c.id)
 	var at = st.plane + Vector2(160, 0) if st else Vector2(600, 800)
 	at.x = clampf(at.x, 80, game.room_rt.width() - 80)
+	# On the height grid the partner steps up on the player's own floor, never into a wall or the water.
+	if game.room_rt.topdown != null and st != null: at = game.room_rt.topdown.place_near(at, st.altitude)
 	var lvl := level
 	if opponent == "sparring_disciple": lvl = maxi(1, ProgressionRules.level(c))
 	game.enemies.start_spar(opponent, at, lvl)

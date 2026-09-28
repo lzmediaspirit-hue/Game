@@ -55,6 +55,7 @@ func _hunt(c) -> Vector2:
 	var best: EnemyState = null
 	for e in Game.room_rt.living_enemies():
 		if e.team != "enemy" or e.def.get("spar", false) or e.ai.get("surrendered", false): continue
+		if not _reachable(e.plane, e.altitude): continue   # on the grid: never a foe on a roof there is no way onto
 		if best == null or here.distance_to(e.plane) < here.distance_to(best.plane): best = e
 	# Between fights (nothing within reach of a few steps), gather what the last ones dropped.
 	if best == null or here.distance_to(best.plane) > 220.0:
@@ -69,7 +70,7 @@ func _hunt(c) -> Vector2:
 	var d: Vector2 = best.plane - here
 	var reach := BOW_REACH if str(StatRules.family(c).get("id", "")) == "bow" else MELEE_REACH
 	var grid: bool = Game.room_rt.topdown != null
-	var same: bool = player.surface != null and (absf(player.altitude - best.altitude) < 12.0 if grid else player.surface.id == best.surface_id)
+	var same: bool = player.surface != null and (TopdownAim.compatible(best.altitude - player.altitude) if grid else player.surface.id == best.surface_id)
 	# On the grid the blow aims at the nearest foe round the stick itself (the soft lock, decision 30).
 	if same and (d.length() <= reach if grid else absf(d.x) <= reach and absf(d.y) <= 24.0):
 		if absf(d.x) > 1.0 and not grid: player.facing = int(signf(d.x))
@@ -82,6 +83,8 @@ func _hunt(c) -> Vector2:
 			tech_cd = 1.2
 		return Vector2.ZERO
 	var stand := best.plane - (d.normalized() * reach * 0.6 if grid else Vector2(signf(d.x) * reach * 0.6, 0.0))
+	# On the grid the spot to strike from is on the foe's own floor (its blows and ours reach only there).
+	if grid: stand = Game.room_rt.topdown.spot_near(stand, best.altitude, here, 8.0)
 	var axis := _toward(stand, best.surface_id, 10.0)
 	return Vector2.ZERO if axis == Vector2.INF else axis
 
@@ -127,9 +130,11 @@ var _grid_path: Array = []
 func _toward_grid(goal: Vector2, near: float) -> Vector2:
 	var room: TopdownRoom = Game.room_rt.topdown
 	var here: Vector2 = player.plane
-	if here.distance_to(goal) <= near: return Vector2.INF
+	var spot := room.nearest_standable(goal)
+	# There when within reach on the plane and on the goal's own floor: not under it on the square below a terrace.
+	if here.distance_to(goal) <= near and absf(player.altitude - room.floor_at(spot)) <= 8.0: return Vector2.INF
 	var cell := TopdownRoom.cell_of(here)
-	var target := TopdownRoom.cell_of(room.nearest_standable(goal))
+	var target := TopdownRoom.cell_of(spot)
 	if target != _grid_goal or (not _grid_path.is_empty() and cell.distance_to(_grid_path[0]) > 1.5):
 		_grid_goal = target
 		_grid_path = room.find_path(cell, target, true)
@@ -144,14 +149,34 @@ func _toward_grid(goal: Vector2, near: float) -> Vector2:
 	var v := aim - here
 	return v.normalized() if v.length() > 0.5 else Vector2.INF
 
-## The nearest drop on the ground within 500 px (not one left on a ledge).
+## The nearest drop within 500 px that can be walked to: on the ground in the side view (not one left on a ledge); on
+## the height grid on any floor there is a way onto.
 func _nearest_loot(here: Vector2) -> Dictionary:
 	var best := {}
 	var best_d := 500.0
+	var grid: bool = Game.room_rt.topdown != null
 	for l in Game.room_rt.loot:
-		if float(l.get("alt", 0.0)) > 10.0: continue
-		var dist := here.distance_to(Vector2(float(l.x), float(l.y)))
-		if dist < best_d:
+		var at := Vector2(float(l.x), float(l.y))
+		if not grid and float(l.get("alt", 0.0)) > 10.0: continue
+		var dist := here.distance_to(at)
+		if dist < best_d and _reachable(at, float(l.get("alt", 0.0))):
 			best_d = dist
 			best = l
 	return best
+
+## Can the body get to a spot at `alt` on foot (the side view's graph handles its own): on the height grid its floor
+## is the body's own within a step, or the grid's path (walks, stairs, drops, a hop a level up) reaches its cell.
+## Asked each frame, so the answer for a cell is kept until the body's own cell changes.
+var _reach_from := ""
+var _reach_cache := {}
+func _reachable(at: Vector2, alt: float) -> bool:
+	var room: TopdownRoom = Game.room_rt.topdown
+	if room == null or absf(alt - player.altitude) <= 8.0: return true
+	var from := TopdownRoom.cell_of(player.plane)
+	var key := "%s%s" % [room.id, str(from)]
+	if key != _reach_from:
+		_reach_from = key
+		_reach_cache.clear()
+	var to := TopdownRoom.cell_of(room.nearest_standable(at))
+	if not _reach_cache.has(to): _reach_cache[to] = to == from or not room.find_path(from, to, true).is_empty()
+	return bool(_reach_cache[to])

@@ -106,7 +106,10 @@ func spring_ambush(c, amb: Dictionary) -> void:
 	for i in n:
 		var side := 1.0 if i % 2 == 0 else -1.0
 		var x := clampf(at.x + side * (off + 90.0 * floorf(i / 2.0)), 120.0, rt.width() - 120.0)
-		game.enemies.spawn_at(str(amb.enemy), Vector2(x, at.y), rng.randi_range(int(lv[0]), int(lv[1])))
+		var spot := Vector2(x, at.y)
+		# On the height grid: on the floor round the player, on its own level (not in a wall, the water or a roof).
+		if rt.topdown != null: spot = rt.topdown.place_near(at + Vector2(side * (off + 90.0 * floorf(i / 2.0)), 0.0), rt.topdown.floor_at(at))
+		game.enemies.spawn_at(str(amb.enemy), spot, rng.randi_range(int(lv[0]), int(lv[1])))
 	emit("ambush_sprung", {"actor": c.id, "room": rt.room_id, "enemy": str(amb.enemy), "count": n, "concealed": c.cultivator.false_realm != ""})
 
 # ------------------------------------------------------------------ rare herbs (S45)
@@ -146,8 +149,9 @@ func _tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
 func _guardian_wakes(o: Dictionary, st: ActorState) -> bool:
 	var g: Dictionary = ContentDB.config("garden").get("guardian", {})
 	var at: Array = o.get("at", [0, 0])
-	return absf(st.plane.x - float(at[0])) <= float(g.get("wake_px", 480)) \
-		and st.altitude >= float(o.get("alt", 0)) - float(g.get("wake_below", 60))
+	# The side view measures across; on the height grid the approach is on the plane, from any side.
+	var d: float = absf(st.plane.x - float(at[0])) if game.room_rt == null or game.room_rt.topdown == null else st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
+	return d <= float(g.get("wake_px", 480)) and st.altitude >= float(o.get("alt", 0)) - float(g.get("wake_below", 60))
 
 ## The guardian rises once per ripening (S45): an elite of the room's roster, on the ground under the node.
 func wake_guardian(c, o: Dictionary, window: int) -> EnemyState:
@@ -159,7 +163,9 @@ func wake_guardian(c, o: Dictionary, window: int) -> EnemyState:
 	if int(mem.guardians.get(str(o.id), -999)) == window: return null
 	mem.guardians[str(o.id)] = window
 	var at: Array = o.get("at", [0, 0])
-	var e: EnemyState = game.enemies.spawn_at(str(gd.enemy), Vector2(float(at[0]), 840.0), int(gd.get("level", -1)), {"elite": gd.get("elite", true)})
+	var under := Vector2(float(at[0]), 840.0)
+	if rt.topdown != null: under = rt.topdown.place_near(Vector2(float(at[0]), float(at[1])), 0.0, 6)   # the ground below the node, on the grid
+	var e: EnemyState = game.enemies.spawn_at(str(gd.enemy), under, int(gd.get("level", -1)), {"elite": gd.get("elite", true)})
 	if e == null: return null
 	rt.guardians[str(o.id)] = e.uid
 	emit("guardian_spawned", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "enemy": str(gd.enemy), "uid": e.uid})
@@ -360,6 +366,11 @@ func portal_near(c, portal: Dictionary) -> bool:
 	if st == null: return true
 	var at: Array = portal.get("at", [0, 0])
 	var r: Vector2 = PORTAL_RADIUS * float(portal.get("radius_scale", 1.0))
+	if portal.has("reach"):
+		# Redesign Phase 4: a way on the height grid reaches along its edge or doorway and a tile across it (turned with
+		# its direction, TopdownRoom.merge_def), and only on its own floor: never from the ground under a terrace's door.
+		r = Vector2(float(portal.reach[0]), float(portal.reach[1]))
+		if absf(st.altitude - float(portal.get("alt", 0.0))) > TopdownRoom.LEVEL * 0.5: return false
 	return absf(st.plane.x - float(at[0])) <= r.x and absf(st.plane.y - float(at[1])) <= r.y
 
 ## The flag a character carries once a hidden way in a room has shown itself to them.
@@ -999,8 +1010,9 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 	var items_out: Array = []
 	for d in drops:
 		var spread := (i - (drops.size() - 1) * 0.5) * 22.0
+		var spot := _loot_spot(rt, at, alt, spread, rng.randf_range(-6, 6))
 		var entry := {"uid": rt.uid(), "item": str(d.get("item", "")), "count": int(d.get("count", 0)), "coins": int(d.get("coins", 0)),
-			"instance": d.get("instance", {}), "x": at.x + spread, "y": _loot_y(rt, at.y + rng.randf_range(-6, 6)), "alt": alt,
+			"instance": d.get("instance", {}), "x": spot.x, "y": spot.y, "alt": spot.z,
 			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
 		entry.quality = str(d.get("instance", {}).get("quality", "common"))
 		if d.get("find", false): entry.find = true   # a rare row marked as a find (an early surprise): the rare-find moment
@@ -1012,9 +1024,15 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) ->
 		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source,
 			"first_weapon": items_out.any(func(it): return it.get("first", false))})
 
-## Where a drop lies in depth: inside the side view's walk strip, anywhere on a top-down room's plane.
-static func _loot_y(rt: RoomRuntime, y: float) -> float:
-	return y if rt.topdown != null else clampf(y, 626, 956)
+## Where one drop of a spill lies: (x, y, height), in a row across the spot, `spread` from it and `jitter` in depth. The
+## side view keeps it inside its walk strip at the spot's height. On the height grid each lies on the floor it falls
+## on, and one that would land in a wall, the water or off the spot's own floor (over a ledge) lies on the spot itself.
+static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3:
+	if rt.topdown == null: return Vector3(at.x + spread, clampf(at.y + jitter, 626, 956), alt)
+	var g := rt.topdown
+	var p := at + Vector2(spread, jitter)
+	if not g.standable(TopdownRoom.cell_of(p)) or absf(g.floor_at(p) - g.floor_at(at)) > 8.0: p = at
+	return Vector3(p.x, p.y, g.floor_at(p))
 
 func pick_up(c, uid: int) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
@@ -1068,10 +1086,13 @@ func tick(delta: float) -> void:
 				os.state = "ready"
 				os.hits = 0
 				emit("node_regrown", {"room": rt.room_id, "object": id})
+	# The pickup's reach in height: the side view's 60 up and down; on the height grid half a level, so a drop on the
+	# terrace is not drawn in from the square below its face.
+	var loot_band := 60.0 if rt.topdown == null else TopdownRoom.LEVEL * 0.5
 	for l in rt.loot.duplicate():
 		l.age = float(l.age) + delta
 		if st != null and not game.combat.is_wounded(c.id) and float(l.age) > 0.45:
-			if Vector2(float(l.x), float(l.y)).distance_to(st.plane) <= PICKUP_RADIUS * (1.6 if game.pets.gatherer_active(c.id) else 1.0) and absf(float(l.alt) - st.altitude) < 60:
+			if Vector2(float(l.x), float(l.y)).distance_to(st.plane) <= PICKUP_RADIUS * (1.6 if game.pets.gatherer_active(c.id) else 1.0) and absf(float(l.alt) - st.altitude) < loot_band:
 				# A stack the bag refused is tried again once the bag changes, not every tick (each try says the bag is full).
 				var bag_now := "%d|%d" % [c.inventory.free_slots(), c.inventory.count(str(l.item))]
 				if str(l.get("refused", "")) != bag_now:
@@ -1346,9 +1367,11 @@ func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictio
 			match str(h.kind):
 				"strike":
 					var r := float(h.get("radius", 60))
+					# A blow lands on its own floor: the side view's reach up and down, one level on the height grid.
+					var band := 90.0 if rt.topdown == null else TopdownRoom.LEVEL
 					for sp in hs.spots:
 						var at := Vector2(float(sp[0]), float(sp[1]))
-						if st.plane.distance_to(at) <= r and absf(st.altitude - float(sp[2])) < 90.0:
+						if st.plane.distance_to(at) <= r and absf(st.altitude - float(sp[2])) < band:
 							_hazard_hit(c, rt, h, calm)
 							break
 				"aura":
@@ -1382,11 +1405,23 @@ func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNu
 	var spread := float(h.get("spread", 0))
 	for i in int(h.get("count", 1)):
 		var reach := spread * (0.35 if i == 0 else 1.0)
+		if rt.topdown != null:
+			# On the height grid the strikes fall all round on the plane, on floors inside the room, at the floor's height.
+			var q: Vector2 = st.plane + Vector2.from_angle(rng.randf() * TAU) * reach * sqrt(rng.randf())
+			var g := rt.topdown.nearest_standable(q.clamp(Vector2.ONE * TopdownRoom.TILE, Vector2(rt.topdown.w - 1, rt.topdown.h - 1) * TopdownRoom.TILE))
+			out.append([g.x, g.y, rt.topdown.floor_at(g)])
+			continue
 		var p := Vector2(clampf(st.plane.x + rng.randf_range(-reach, reach), 80.0, rt.width() - 80.0),
 			clampf(st.plane.y + rng.randf_range(-50.0, 50.0), 660.0, 940.0))
 		var s := _ground_at(rt, p)
 		out.append([p.x, p.y, s.height_at(p) if s else 0.0])
 	return out
+
+## Is the character on the floor of a hazard at `p`: the ground in the side view (below `tol`), on the height grid
+## within `tol` of the floor there, so a pool on the square does not reach a body on the terrace above it.
+func _on_hazard_floor(rt: RoomRuntime, st: ActorState, p: Vector2, tol: float) -> bool:
+	if rt.topdown == null: return st.altitude < tol
+	return absf(st.altitude - rt.topdown.floor_at(p)) < tol
 
 ## Hazards that act for as long as they are active: gusts and currents push, pools pulse.
 func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, delta: float, calm: bool) -> void:
@@ -1400,7 +1435,7 @@ func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Diction
 		"flow":
 			var inside := false
 			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and st.altitude < 2.0:
+				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, st.plane, 2.0):
 					inside = true
 					if not calm:
 						var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
@@ -1414,7 +1449,7 @@ func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Diction
 			if float(hs.pulse) > 0.0: return
 			hs.pulse = float(h.get("pulse", 1.0))
 			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and st.altitude < 10.0:
+				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, st.plane, 10.0):
 					_hazard_hit(c, rt, h, calm)
 					return
 

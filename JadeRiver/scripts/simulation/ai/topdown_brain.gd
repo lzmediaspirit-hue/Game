@@ -128,6 +128,27 @@ static func chase(auth, e: EnemyState, goal: Vector2, goal_alt: float, speed: fl
 		return
 	_walk(auth, e, (next - e.plane).normalized(), speed, delta)
 
+# ------------------------------------------------------------------ Phase 4: allies on the grid (AllyBrain)
+## The floor under a body (its own height while it stands; the floor below while it is in the air).
+static func floor_under(room: TopdownRoom, st: ActorState) -> float:
+	var g := room.height_at(st.plane)
+	return g if g < INF and g <= st.altitude + 1.0 else st.altitude
+
+## A free spot for an ally on the owner's floor toward `want`, on the owner's side of any wall (a clear walk from the
+## owner): `want` itself, else halfway or a quarter of the way there; the owner's own spot when none is.
+static func spot_by(room: TopdownRoom, owner: Vector2, ground: float, want: Vector2) -> Vector2:
+	var r := float(conf("radius", 8.0))
+	for k in [1.0, 0.5, 0.25]:
+		var p := owner.lerp(want, k)
+		if room.free_at(p, ground, r) and absf(room.floor_at(p) - ground) <= 8.0 and line_clear(room, owner, p, ground): return p
+	return owner
+
+## Where an ally keeps while it follows on the grid: `offset` behind the owner along its facing on the plane (`facing`,
+## a direction) and `depth` to its side, on its ground (spot_by).
+static func follow_spot(room: TopdownRoom, owner: Vector2, ground: float, facing: Vector2, offset: float, depth: float) -> Vector2:
+	var f := facing.normalized() if facing.length() > 0.01 else Vector2.RIGHT
+	return spot_by(room, owner, ground, owner - f * offset + Vector2(-f.y, f.x) * depth)
+
 ## Is the straight line from `a` to `b` walkable on the floor at `z` (no wall, prop, water or drop on the way)?
 static func line_clear(room: TopdownRoom, a: Vector2, b: Vector2, z: float) -> bool:
 	var n := ceili(a.distance_to(b) / 10.0)
@@ -143,9 +164,10 @@ static func _walk(auth, e: EnemyState, dir: Vector2, speed: float, delta: float)
 	e.action = "walk" if e.velocity != Vector2.ZERO else "idle"
 	auth.move_enemy(e, delta)
 
-## The grid's move for a foe (EnemyAuthority.move_enemy): along the plane where its footing is free (sliding along a
-## wall on one axis), up stairs and small steps, and off any edge into a fall to the floor below (a knockback can
-## push it off a ledge). A flyer goes where it likes.
+## The grid's move for a foe or an ally (EnemyAuthority.move_enemy): along the plane where its footing is free (sliding
+## along a wall on one axis), up stairs and small steps, and off any edge into a fall to the floor below (a knockback
+## can push it off a ledge). It keeps out of the ways out, as in the side view (one already in a way may walk out of
+## it). A flyer goes where it likes.
 static func move(auth, e: EnemyState, delta: float) -> void:
 	var room: TopdownRoom = auth.game.room_rt.topdown
 	var next := e.plane + e.velocity * delta
@@ -153,9 +175,11 @@ static func move(auth, e: EnemyState, delta: float) -> void:
 		e.plane = next.clamp(Vector2.ZERO, Vector2(room.w, room.h) * TopdownRoom.TILE)
 		return
 	var r := float(conf("radius", 8.0))
-	if room.free_at(next, e.altitude, r): e.plane = next
-	elif room.free_at(Vector2(next.x, e.plane.y), e.altitude, r): e.plane = Vector2(next.x, e.plane.y)
-	elif room.free_at(Vector2(e.plane.x, next.y), e.altitude, r): e.plane = Vector2(e.plane.x, next.y)
+	var in_way: bool = auth._in_portal(e.plane)
+	var ok := func(p: Vector2) -> bool: return room.free_at(p, e.altitude, r) and (in_way or not auth._in_portal(p))
+	if ok.call(next): e.plane = next
+	elif ok.call(Vector2(next.x, e.plane.y)): e.plane = Vector2(next.x, e.plane.y)
+	elif ok.call(Vector2(e.plane.x, next.y)): e.plane = Vector2(e.plane.x, next.y)
 
 ## Follow the floor underfoot, once a tick (EnemyAuthority): stairs and steps at once, a drop under gravity.
 static func fall(room: TopdownRoom, e: EnemyState, delta: float) -> void:

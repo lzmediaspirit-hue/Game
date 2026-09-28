@@ -225,6 +225,8 @@ func physics_step(delta: float) -> Array:
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
 		if not forced.is_empty(): motor.push(forced.velocity, float(forced.time))
+		# Gusts and currents (S17) add their push to walking, as on player.gd; a meditating or wounded body is anchored.
+		motor.drift = Game.world.hazard_drift(actor_id) if not c.cultivator.meditating and not Game.combat.is_wounded(actor_id) else Vector2.ZERO
 	motor.step(delta, move, _jump, _dash)
 	_jump = false
 	_dash = false

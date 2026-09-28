@@ -228,16 +228,22 @@ func tick(delta: float) -> void:
 				e.ai.erase("lifted")
 
 ## Where a spawn point's foe appears: its own point, else another of its spawn's points out of the player's view
-## (stats.json respawn.offscreen_x). A foe coming back while the player is in the room appears only out of view, so the
-## room never refills before their eyes, unless it fills on entry or a kill step asks for it; else it waits (INF).
+## (stats.json respawn.offscreen_x: that far across in the side view, which is half the view and a margin; on the height
+## grid the camera's rect grown by the same margin, RoomRuntime.out_of_view). A foe coming back while the player is in
+## the room appears only out of view, so the room never refills before their eyes, unless it fills on entry or a kill
+## step asks for it; else it waits (INF). Another point is taken only while no foe stands on it, so a pack is never
+## piled onto the one point out of view.
 func _spawn_point(slot: Dictionary) -> Vector2:
 	var point: Vector2 = slot.point
+	var rt: RoomRuntime = game.room_rt
 	var st: ActorState = game.actor_state(game.active_id)
-	var far := float(ContentDB.stat_const("respawn.offscreen_x", 700))
-	if st == null or absf(point.x - st.plane.x) >= far: return point
+	var margin := float(ContentDB.stat_const("respawn.offscreen_x", 700)) - RoomRuntime.HALF_VIEW.x
+	var hidden := func(p: Vector2) -> bool: return rt.out_of_view(p, rt.topdown.floor_at(p) if rt.topdown != null else 0.0, st, margin)
+	var taken := func(p: Vector2) -> bool: return rt.living_enemies().any(func(e): return e.team == "enemy" and e.plane.distance_to(p) < 32.0)
+	if st == null or hidden.call(point): return point
 	for p in slot.spec.get("points", []):
 		var cand := Vector2(float(p[0]), float(p[1]))
-		if absf(cand.x - st.plane.x) >= far: return cand
+		if hidden.call(cand) and not taken.call(cand): return cand
 	if slot.get("entry", false) or int(slot.index) < 0 or _quick(slot.spec, game.active()): return point
 	return Vector2.INF
 
@@ -342,7 +348,10 @@ func enemy_attack_release(e: EnemyState, attack: Dictionary) -> void:
 		e.ai.summon_cd = 12.0
 		for i in 2:
 			var off := Vector2((i * 2 - 1) * 120, rng.randf_range(-30, 30))
-			spawn_at(str(attack.summon), (e.plane + off).clamp(Vector2(60, 640), Vector2(game.room_rt.width() - 60, 940)), int(attack.get("summon_level", -1)))
+			var at := (e.plane + off).clamp(Vector2(60, 640), Vector2(game.room_rt.width() - 60, 940))
+			# On the height grid: beside the summoner on its own floor (the side view's walk strip means nothing there).
+			if game.room_rt.topdown != null: at = game.room_rt.topdown.place_near(e.plane + off, e.altitude)
+			spawn_at(str(attack.summon), at, int(attack.get("summon_level", -1)))
 		emit("enemy_summoned", {"enemy": e.uid})
 		return
 	if attack.has("buff_allies"):

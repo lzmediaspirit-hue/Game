@@ -11,6 +11,41 @@ extends RefCounted
 ## The label views are the ones the shared room presentation works on (WorldShared: focus, flashes, names), and each
 ## figure follows its label twin. A way out draws as a mark on the floor (WayMark) where the layout sets it.
 
+## The hook for the top-down people (the layered body drawn for the grid, Phase 5, made on another branch): a Callable
+## (def: Dictionary) -> Node2D that draws a person at the viewport's own scale (one art px a px, feet at its origin) from
+## an NPC's object or an ally's EnemyState def (`art.avatar`, the outfit). Its node may take `facing` (+1 / -1), `dir` (a
+## direction on the plane) and `play(action)`; the figures set what it has. Until it is set, and for anything it returns
+## null for, the side view's layered avatar stands in at half size.
+static var person_art := Callable()
+
+## A person's drawing in the pixel viewport: the hook's, else the side view's avatar (NpcView.figure) at half size.
+static func person(o: Dictionary) -> Node2D:
+	var own: Node2D = person_art.call(o) if person_art.is_valid() else null
+	if own != null: return own
+	var av := NpcView.figure(o)
+	av.scale = Vector2(0.5, 0.5)
+	return av
+
+## A companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it: the hook's for a
+## person (an outfit), else the side view's own figure (EnemyView in its art mode: the avatar or the creature sheet,
+## its actions, facing and flash) at half size. FoeView places it and draws its shadow.
+static func stand_in(e: EnemyState) -> Node2D:
+	if (e.def.get("art", {}) as Dictionary).has("avatar") and person_art.is_valid():
+		var own: Node2D = person_art.call(e.def)
+		if own != null: return own
+	var v := EnemyView.new()
+	v.art_only = true
+	v.setup(e)
+	v.scale = Vector2(0.5, 0.5)
+	return v
+
+## Hand a figure's drawing where it faces and what it does, as far as the drawing takes them (the side view's avatar
+## takes `facing` and `play`; a top-down drawing may take `dir` too).
+static func pose(art: Node2D, facing: int, dir: Vector2, action: String) -> void:
+	if "facing" in art: art.facing = facing
+	if "dir" in art: art.dir = dir
+	if action != "" and art.has_method("play") and str(art.get("action")) != action: art.play(action)
+
 ## One villager or thing in the sorted layer: a node at its sort key (TopdownRoom.sort_key) holding the side view's
 ## drawing at half size, drawn back to its screen row.
 class Figure extends Node2D:
@@ -27,17 +62,17 @@ class Figure extends Node2D:
 		art = drawing
 		twin = label
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		art.scale = Vector2(0.5, 0.5)
 		add_child(art)
 		var at: Array = o.get("at", [0, 0])
 		place(Vector2(float(at[0]), float(at[1])), float(o.get("alt", 0.0)))
 
 	## Stand at a ground point and height: x on whole art px, y at the sort key, the drawing on its screen row. A flat
-	## thing on the ground (a ripple, a circle of runes, a grey patch) lies under the figures standing on it.
+	## thing on the ground (a ripple, a circle of runes, a grey patch) lies under the figures standing on it, over the
+	## floor it lies on (TopdownRoom.decal_key: on a terrace too, not under the terrace's own row).
 	func place(p: Vector2, z: float) -> void:
 		feet = TopdownWorld.to_screen(p, z).round()
 		var key := room.sort_key(p, z)
-		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key -= 12.0
+		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key = room.decal_key(p, z)
 		position = Vector2(feet.x, key)
 		art.position = Vector2(0, feet.y - key)
 
@@ -45,8 +80,7 @@ class Figure extends Node2D:
 		if not is_instance_valid(twin): return
 		visible = twin.visible
 		if twin is NpcView:
-			art.facing = twin.avatar.facing
-			if art.action != twin.avatar.action: art.play(twin.avatar.action)
+			TopdownPlaces.pose(art, twin.avatar.facing, Vector2(twin.avatar.facing, 0), str(twin.avatar.action))
 			# A rooftop thief on the run is where his route puts him (the label view follows the World authority's clock).
 			if def.has("chase"):
 				var ch: Dictionary = Game.world.chase_view(Game.active()) if Game.active() else {}
@@ -113,7 +147,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			nv.label_only = true
 			nv.setup(o)
 			overlay.add_child(nv)
-			var fig := Figure.new(room, o, NpcView.figure(o), nv)
+			var fig := Figure.new(room, o, TopdownPlaces.person(o), nv)
 			sorted.add_child(fig)
 			out.npc_views[str(o.id)] = nv
 			out.nodes.append_array([nv, fig])
@@ -125,6 +159,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			var art := ObjectView.new()
 			art.mode = "art"
 			art.setup(o)
+			art.scale = Vector2(0.5, 0.5)   # the side view's prop at half size (2 world units per art px)
 			var fig := Figure.new(room, o, art, lv)
 			sorted.add_child(fig)
 			out.object_views[str(o.id)] = lv
