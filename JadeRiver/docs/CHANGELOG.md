@@ -1,5 +1,21 @@
 # Changelog
 
+## Study: which systems live on the map as places (decision 36)
+
+- **`docs/redesign/systems_as_places.md`**, a proposal for the user; nothing is built. It gives every page a verdict:
+  menu, place, both (the place opens the page and the menu keeps it), or earned remote. Each verdict comes with where
+  the place would sit, how interacting looks in the top-down view, what the player gains and loses, what runs while
+  away, and a priority.
+- **Research** on how Final Fantasy XIV, Old School RuneScape, Albion Online, Black Desert Mobile, Genshin Impact,
+  Stardew Valley, Animal Crossing, Pokémon, IdleOn and Sea of Stars split the world from the menu, with links.
+- **Recommended:**
+  - most systems get a place and keep their menu entry;
+  - Storage, the Garden's tending and the Crafts queue earn remote access;
+  - the self and the events stay in the menu;
+  - the home is Lotus Ferry, then the existing Cave Abode;
+  - eight places for the prototype room;
+  - a phased list, and five decisions for the user.
+
 ## Top-down: Attack's drag moves (decision 35)
 
 - **Three new moves on the Attack button in the top-down room.** The tap and the aimed drag work as before. Details

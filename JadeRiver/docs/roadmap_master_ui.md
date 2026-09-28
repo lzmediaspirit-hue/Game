@@ -466,5 +466,11 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the guard and plunge poses fall back to the stand-in cells until the sheet has them.
 36. **The full game logic runs in the top-down prototype first** (NPCs, talk, quests, shops, pickups, gathering, doors,
     saves, the real character), and a study decides which systems live on the map as places rather than in the menu.
-    The Beasts page review waits for that.
+    The Beasts page review waits for that. The study is `docs/redesign/systems_as_places.md` (2026-09-28), a proposal:
+    - most systems get a place and keep their menu entry;
+    - Storage, the Garden's tending and the Crafts queue earn remote access;
+    - the self and the events stay in the menu;
+    - the home is Lotus Ferry, then the Cave Abode;
+    - eight places for the prototype room;
+    - the Spirit Animals page stays as built, with a stable yard at home.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

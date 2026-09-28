@@ -242,6 +242,9 @@ The HUD layout and its buttons stay (`hud.gd`). What each button does:
 
 ## 3. Systems that could live in the world (item 4)
 
+Decision 36's study, `docs/redesign/systems_as_places.md`, extends this section to every page. It adds research, a
+verdict per system, a set for the prototype and a phased list, for the user to decide.
+
 Rule for every row: **the place opens the same page**. The pages stay the way the user likes them. The place adds a
 reason to walk there, a sight in the world, and on-screen state. Remote access stays wherever the idle loop needs it,
 so a phone player is never forced to travel.
