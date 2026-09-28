@@ -1,0 +1,2877 @@
+{
+ "schema_version": 1,
+ "look_rule": "Decision 38: only the feel and technique come from the reference game (timing, hit-stop, smears, impact readability, camera kick, knockback). The look of every attack and skill stays wuxia/xianxia: sword-light arcs and qi trails, ink-brush strokes, flowing silk and robe motion, jade and gold qi, elemental Dao imagery (water ripples, wind petals and leaves, thunder talismans, fire lotus, earth stone, metal sword-qi), palm prints, sword formations and calligraphic impact marks; never sci-fi, tech or generic fantasy. The element language is tools/art/fx/elements.py and the palette the art bible's.",
+ "_note": "Built by tools/art/fx/build_fx_topdown.py; never edit by hand. Sheets are at art resolution (1 art px = 1 px of the 640x360 world). Directed sheets: E, SE, S, NE, N drawn, W/SW/NW mirror. A form's rows are band * 11 + element; a family's move * 5 + direction; an impact sheet's weight * 11 + element.",
+ "dirs": [
+  "e",
+  "se",
+  "s",
+  "ne",
+  "n"
+ ],
+ "mirror": {
+  "w": "e",
+  "sw": "se",
+  "nw": "ne"
+ },
+ "angles_deg": {
+  "e": 0,
+  "se": 45,
+  "s": 90,
+  "ne": -45,
+  "n": -90
+ },
+ "elements": [
+  "water",
+  "wood",
+  "fire",
+  "earth",
+  "metal",
+  "wind",
+  "thunder",
+  "soul",
+  "formless",
+  "space",
+  "time"
+ ],
+ "bands": [
+  [
+   1,
+   2
+  ],
+  [
+   3,
+   4
+  ],
+  [
+   5,
+   6,
+   7
+  ]
+ ],
+ "forms": {
+  "strike": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 3,
+   "span": 34,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_strike_e.png",
+     "cell": [
+      51,
+      68
+     ],
+     "anchor": [
+      -2,
+      39
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_strike_se.png",
+     "cell": [
+      73,
+      54
+     ],
+     "anchor": [
+      20,
+      20
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_strike_s.png",
+     "cell": [
+      85,
+      72
+     ],
+     "anchor": [
+      42,
+      23
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_strike_ne.png",
+     "cell": [
+      75,
+      69
+     ],
+     "anchor": [
+      25,
+      56
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_strike_n.png",
+     "cell": [
+      88,
+      73
+     ],
+     "anchor": [
+      46,
+      70
+     ]
+    }
+   }
+  },
+  "flurry": {
+   "frames": 10,
+   "fps": 16,
+   "impact": 2,
+   "span": 32,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_flurry_e.png",
+     "cell": [
+      37,
+      59
+     ],
+     "anchor": [
+      -5,
+      47
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_flurry_se.png",
+     "cell": [
+      46,
+      60
+     ],
+     "anchor": [
+      7,
+      27
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_flurry_s.png",
+     "cell": [
+      48,
+      48
+     ],
+     "anchor": [
+      25,
+      12
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_flurry_ne.png",
+     "cell": [
+      44,
+      57
+     ],
+     "anchor": [
+      2,
+      63
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_flurry_n.png",
+     "cell": [
+      52,
+      46
+     ],
+     "anchor": [
+      27,
+      64
+     ]
+    }
+   }
+  },
+  "thrust": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 3,
+   "span": 64,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_thrust_e.png",
+     "cell": [
+      81,
+      41
+     ],
+     "anchor": [
+      5,
+      28
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_thrust_se.png",
+     "cell": [
+      69,
+      79
+     ],
+     "anchor": [
+      11,
+      24
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_thrust_s.png",
+     "cell": [
+      40,
+      88
+     ],
+     "anchor": [
+      21,
+      23
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_thrust_ne.png",
+     "cell": [
+      69,
+      69
+     ],
+     "anchor": [
+      7,
+      72
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_thrust_n.png",
+     "cell": [
+      40,
+      86
+     ],
+     "anchor": [
+      18,
+      90
+     ]
+    }
+   }
+  },
+  "lunge": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 3,
+   "span": 44,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_lunge_e.png",
+     "cell": [
+      73,
+      42
+     ],
+     "anchor": [
+      1,
+      35
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_lunge_se.png",
+     "cell": [
+      61,
+      72
+     ],
+     "anchor": [
+      4,
+      28
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_lunge_s.png",
+     "cell": [
+      42,
+      91
+     ],
+     "anchor": [
+      21,
+      27
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_lunge_ne.png",
+     "cell": [
+      60,
+      66
+     ],
+     "anchor": [
+      7,
+      67
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_lunge_n.png",
+     "cell": [
+      42,
+      81
+     ],
+     "anchor": [
+      21,
+      80
+     ]
+    }
+   }
+  },
+  "sweep": {
+   "frames": 8,
+   "fps": 12,
+   "impact": 3,
+   "span": 40,
+   "at": "feet",
+   "layer": "floor",
+   "size": "reach",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_sweep_e.png",
+     "cell": [
+      110,
+      108
+     ],
+     "anchor": [
+      56,
+      58
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_sweep_se.png",
+     "cell": [
+      110,
+      108
+     ],
+     "anchor": [
+      56,
+      57
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_sweep_s.png",
+     "cell": [
+      110,
+      108
+     ],
+     "anchor": [
+      56,
+      57
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_sweep_ne.png",
+     "cell": [
+      110,
+      105
+     ],
+     "anchor": [
+      56,
+      58
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_sweep_n.png",
+     "cell": [
+      110,
+      105
+     ],
+     "anchor": [
+      56,
+      58
+     ]
+    }
+   }
+  },
+  "arc": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 2,
+   "span": 62,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_arc_e.png",
+     "cell": [
+      74,
+      42
+     ],
+     "anchor": [
+      -2,
+      35
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_arc_se.png",
+     "cell": [
+      70,
+      65
+     ],
+     "anchor": [
+      10,
+      20
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_arc_s.png",
+     "cell": [
+      50,
+      81
+     ],
+     "anchor": [
+      28,
+      18
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_arc_ne.png",
+     "cell": [
+      73,
+      62
+     ],
+     "anchor": [
+      10,
+      73
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_arc_n.png",
+     "cell": [
+      50,
+      77
+     ],
+     "anchor": [
+      23,
+      90
+     ]
+    }
+   },
+   "bolt": {
+    "frames": 4,
+    "fps": 12,
+    "dirs": true,
+    "sheets": {
+     "e": {
+      "file": "res://art/fx/topdown/bolt_arc_e.png",
+      "cell": [
+       50,
+       33
+      ],
+      "anchor": [
+       37,
+       28
+      ]
+     },
+     "se": {
+      "file": "res://art/fx/topdown/bolt_arc_se.png",
+      "cell": [
+       43,
+       41
+      ],
+      "anchor": [
+       31,
+       41
+      ]
+     },
+     "s": {
+      "file": "res://art/fx/topdown/bolt_arc_s.png",
+      "cell": [
+       39,
+       51
+      ],
+      "anchor": [
+       24,
+       51
+      ]
+     },
+     "ne": {
+      "file": "res://art/fx/topdown/bolt_arc_ne.png",
+      "cell": [
+       44,
+       46
+      ],
+      "anchor": [
+       27,
+       29
+      ]
+     },
+     "n": {
+      "file": "res://art/fx/topdown/bolt_arc_n.png",
+      "cell": [
+       39,
+       52
+      ],
+      "anchor": [
+       16,
+       29
+      ]
+     }
+    }
+   }
+  },
+  "volley": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 2,
+   "span": 66,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_volley_e.png",
+     "cell": [
+      81,
+      58
+     ],
+     "anchor": [
+      11,
+      45
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_volley_se.png",
+     "cell": [
+      72,
+      77
+     ],
+     "anchor": [
+      12,
+      27
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_volley_s.png",
+     "cell": [
+      53,
+      80
+     ],
+     "anchor": [
+      28,
+      24
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_volley_ne.png",
+     "cell": [
+      77,
+      72
+     ],
+     "anchor": [
+      13,
+      75
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_volley_n.png",
+     "cell": [
+      53,
+      83
+     ],
+     "anchor": [
+      26,
+      88
+     ]
+    }
+   },
+   "bolt": {
+    "frames": 4,
+    "fps": 12,
+    "dirs": true,
+    "sheets": {
+     "e": {
+      "file": "res://art/fx/topdown/bolt_volley_e.png",
+      "cell": [
+       48,
+       23
+      ],
+      "anchor": [
+       42,
+       28
+      ]
+     },
+     "se": {
+      "file": "res://art/fx/topdown/bolt_volley_se.png",
+      "cell": [
+       45,
+       32
+      ],
+      "anchor": [
+       35,
+       41
+      ]
+     },
+     "s": {
+      "file": "res://art/fx/topdown/bolt_volley_s.png",
+      "cell": [
+       21,
+       48
+      ],
+      "anchor": [
+       9,
+       56
+      ]
+     },
+     "ne": {
+      "file": "res://art/fx/topdown/bolt_volley_ne.png",
+      "cell": [
+       32,
+       45
+      ],
+      "anchor": [
+       27,
+       24
+      ]
+     },
+     "n": {
+      "file": "res://art/fx/topdown/bolt_volley_n.png",
+      "cell": [
+       21,
+       50
+      ],
+      "anchor": [
+       12,
+       22
+      ]
+     }
+    }
+   }
+  },
+  "rain": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 5,
+   "span": 26,
+   "at": "target",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_rain.png",
+     "cell": [
+      63,
+      140
+     ],
+     "anchor": [
+      32,
+      110
+     ]
+    }
+   }
+  },
+  "pillar": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 3,
+   "span": 14,
+   "at": "target",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_pillar.png",
+     "cell": [
+      49,
+      128
+     ],
+     "anchor": [
+      25,
+      104
+     ]
+    }
+   }
+  },
+  "wave": {
+   "frames": 8,
+   "fps": 12,
+   "impact": 3,
+   "span": 16,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "travel",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_wave_e.png",
+     "cell": [
+      51,
+      70
+     ],
+     "anchor": [
+      23,
+      51
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_wave_se.png",
+     "cell": [
+      55,
+      70
+     ],
+     "anchor": [
+      28,
+      45
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_wave_s.png",
+     "cell": [
+      57,
+      60
+     ],
+     "anchor": [
+      28,
+      33
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_wave_ne.png",
+     "cell": [
+      59,
+      76
+     ],
+     "anchor": [
+      28,
+      48
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_wave_n.png",
+     "cell": [
+      54,
+      64
+     ],
+     "anchor": [
+      25,
+      40
+     ]
+    }
+   }
+  },
+  "burst": {
+   "frames": 8,
+   "fps": 12,
+   "impact": 2,
+   "span": 40,
+   "at": "feet",
+   "layer": "floor",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_burst.png",
+     "cell": [
+      104,
+      104
+     ],
+     "anchor": [
+      52,
+      57
+     ]
+    }
+   }
+  },
+  "seeker": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 2,
+   "span": 62,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_seeker_e.png",
+     "cell": [
+      66,
+      49
+     ],
+     "anchor": [
+      9,
+      46
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_seeker_se.png",
+     "cell": [
+      64,
+      60
+     ],
+     "anchor": [
+      10,
+      26
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_seeker_s.png",
+     "cell": [
+      48,
+      60
+     ],
+     "anchor": [
+      25,
+      22
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_seeker_ne.png",
+     "cell": [
+      64,
+      69
+     ],
+     "anchor": [
+      10,
+      74
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_seeker_n.png",
+     "cell": [
+      48,
+      74
+     ],
+     "anchor": [
+      25,
+      81
+     ]
+    }
+   },
+   "bolt": {
+    "frames": 4,
+    "fps": 12,
+    "dirs": true,
+    "sheets": {
+     "e": {
+      "file": "res://art/fx/topdown/bolt_seeker_e.png",
+      "cell": [
+       58,
+       27
+      ],
+      "anchor": [
+       49,
+       31
+      ]
+     },
+     "se": {
+      "file": "res://art/fx/topdown/bolt_seeker_se.png",
+      "cell": [
+       49,
+       53
+      ],
+      "anchor": [
+       37,
+       58
+      ]
+     },
+     "s": {
+      "file": "res://art/fx/topdown/bolt_seeker_s.png",
+      "cell": [
+       29,
+       62
+      ],
+      "anchor": [
+       12,
+       67
+      ]
+     },
+     "ne": {
+      "file": "res://art/fx/topdown/bolt_seeker_ne.png",
+      "cell": [
+       51,
+       50
+      ],
+      "anchor": [
+       42,
+       26
+      ]
+     },
+     "n": {
+      "file": "res://art/fx/topdown/bolt_seeker_n.png",
+      "cell": [
+       27,
+       59
+      ],
+      "anchor": [
+       17,
+       23
+      ]
+     }
+    }
+   }
+  },
+  "return": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 3,
+   "span": 60,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_return_e.png",
+     "cell": [
+      80,
+      32
+     ],
+     "anchor": [
+      11,
+      29
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_return_se.png",
+     "cell": [
+      67,
+      63
+     ],
+     "anchor": [
+      13,
+      25
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_return_s.png",
+     "cell": [
+      33,
+      78
+     ],
+     "anchor": [
+      17,
+      23
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_return_ne.png",
+     "cell": [
+      65,
+      66
+     ],
+     "anchor": [
+      13,
+      68
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_return_n.png",
+     "cell": [
+      33,
+      78
+     ],
+     "anchor": [
+      17,
+      81
+     ]
+    }
+   },
+   "bolt": {
+    "frames": 4,
+    "fps": 12,
+    "dirs": false,
+    "sheets": {
+     "all": {
+      "file": "res://art/fx/topdown/bolt_return.png",
+      "cell": [
+       36,
+       45
+      ],
+      "anchor": [
+       14,
+       37
+      ]
+     }
+    }
+   }
+  },
+  "snare": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 4,
+   "span": 24,
+   "at": "target",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_snare.png",
+     "cell": [
+      60,
+      66
+     ],
+     "anchor": [
+      30,
+      38
+     ]
+    }
+   }
+  },
+  "counter": {
+   "frames": 6,
+   "fps": 14,
+   "impact": 1,
+   "span": 16,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_counter.png",
+     "cell": [
+      70,
+      66
+     ],
+     "anchor": [
+      34,
+      42
+     ]
+    }
+   }
+  },
+  "ward": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 4,
+   "span": 24,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_ward.png",
+     "cell": [
+      89,
+      90
+     ],
+     "anchor": [
+      48,
+      49
+     ]
+    }
+   }
+  },
+  "chorus": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 3,
+   "span": 40,
+   "at": "feet",
+   "layer": "floor",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_chorus.png",
+     "cell": [
+      88,
+      97
+     ],
+     "anchor": [
+      45,
+      54
+     ]
+    }
+   }
+  },
+  "blink": {
+   "frames": 8,
+   "fps": 14,
+   "impact": 4,
+   "span": 16,
+   "at": "target",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_blink_e.png",
+     "cell": [
+      100,
+      49
+     ],
+     "anchor": [
+      55,
+      34
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_blink_se.png",
+     "cell": [
+      87,
+      82
+     ],
+     "anchor": [
+      44,
+      56
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_blink_s.png",
+     "cell": [
+      58,
+      102
+     ],
+     "anchor": [
+      28,
+      66
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_blink_ne.png",
+     "cell": [
+      84,
+      94
+     ],
+     "anchor": [
+      44,
+      50
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_blink_n.png",
+     "cell": [
+      59,
+      115
+     ],
+     "anchor": [
+      31,
+      60
+     ]
+    }
+   }
+  },
+  "plunge": {
+   "frames": 8,
+   "fps": 12,
+   "impact": 2,
+   "span": 40,
+   "at": "feet",
+   "layer": "floor",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_plunge.png",
+     "cell": [
+      90,
+      91
+     ],
+     "anchor": [
+      46,
+      47
+     ]
+    }
+   }
+  },
+  "release": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 4,
+   "span": 20,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_release.png",
+     "cell": [
+      45,
+      84
+     ],
+     "anchor": [
+      23,
+      62
+     ]
+    }
+   }
+  },
+  "swarm": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 3,
+   "span": 24,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_swarm.png",
+     "cell": [
+      72,
+      73
+     ],
+     "anchor": [
+      36,
+      55
+     ]
+    }
+   }
+  },
+  "seal": {
+   "frames": 10,
+   "fps": 12,
+   "impact": 3,
+   "span": 16,
+   "at": "target",
+   "layer": "sorted",
+   "size": "fixed",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_seal.png",
+     "cell": [
+      74,
+      97
+     ],
+     "anchor": [
+      36,
+      65
+     ]
+    }
+   }
+  },
+  "domain": {
+   "frames": 12,
+   "fps": 10,
+   "impact": 3,
+   "span": 46,
+   "at": "feet",
+   "layer": "floor",
+   "size": "reach",
+   "dirs": false,
+   "sheets": {
+    "all": {
+     "file": "res://art/fx/topdown/form_domain.png",
+     "cell": [
+      100,
+      105
+     ],
+     "anchor": [
+      51,
+      56
+     ]
+    }
+   }
+  },
+  "echo": {
+   "frames": 12,
+   "fps": 14,
+   "impact": 3,
+   "span": 34,
+   "at": "feet",
+   "layer": "sorted",
+   "size": "reach",
+   "dirs": true,
+   "sheets": {
+    "e": {
+     "file": "res://art/fx/topdown/form_echo_e.png",
+     "cell": [
+      51,
+      69
+     ],
+     "anchor": [
+      -2,
+      43
+     ]
+    },
+    "se": {
+     "file": "res://art/fx/topdown/form_echo_se.png",
+     "cell": [
+      67,
+      58
+     ],
+     "anchor": [
+      19,
+      23
+     ]
+    },
+    "s": {
+     "file": "res://art/fx/topdown/form_echo_s.png",
+     "cell": [
+      79,
+      64
+     ],
+     "anchor": [
+      38,
+      22
+     ]
+    },
+    "ne": {
+     "file": "res://art/fx/topdown/form_echo_ne.png",
+     "cell": [
+      71,
+      68
+     ],
+     "anchor": [
+      22,
+      56
+     ]
+    },
+    "n": {
+     "file": "res://art/fx/topdown/form_echo_n.png",
+     "cell": [
+      83,
+      66
+     ],
+     "anchor": [
+      44,
+      71
+     ]
+    }
+   }
+  }
+ },
+ "melee": {
+  "moves": [
+   "step_1",
+   "step_2",
+   "step_3",
+   "charged",
+   "dash",
+   "air"
+  ],
+  "frames": 6,
+  "fps": 20,
+  "impact": 1,
+  "families": {
+   "fists": {
+    "file": "res://art/fx/topdown/melee_fists.png",
+    "cell": [
+     88,
+     116
+    ],
+    "anchor": [
+     30,
+     78
+    ],
+    "kind": "palm",
+    "qi": "gold",
+    "scale": 1,
+    "reach_px": 23
+   },
+   "gauntlets": {
+    "file": "res://art/fx/topdown/melee_gauntlets.png",
+    "cell": [
+     90,
+     120
+    ],
+    "anchor": [
+     30,
+     80
+    ],
+    "kind": "palm",
+    "qi": "gold",
+    "scale": 1,
+    "reach_px": 25
+   },
+   "jian": {
+    "file": "res://art/fx/topdown/melee_jian.png",
+    "cell": [
+     108,
+     129
+    ],
+    "anchor": [
+     49,
+     84
+    ],
+    "kind": "blade",
+    "qi": "jade",
+    "scale": 1,
+    "reach_px": 39
+   },
+   "spear": {
+    "file": "res://art/fx/topdown/melee_spear.png",
+    "cell": [
+     115,
+     170
+    ],
+    "anchor": [
+     30,
+     99
+    ],
+    "kind": "point",
+    "qi": "jade",
+    "scale": 1,
+    "reach_px": 58
+   },
+   "short_blade": {
+    "file": "res://art/fx/topdown/melee_short_blade.png",
+    "cell": [
+     72,
+     87
+    ],
+    "anchor": [
+     30,
+     59
+    ],
+    "kind": "twin",
+    "qi": "jade",
+    "scale": 1,
+    "reach_px": 26
+   },
+   "staff": {
+    "file": "res://art/fx/topdown/melee_staff.png",
+    "cell": [
+     117,
+     176
+    ],
+    "anchor": [
+     30,
+     89
+    ],
+    "kind": "blunt",
+    "qi": "gold",
+    "scale": 1,
+    "reach_px": 48
+   },
+   "heavy_sabre": {
+    "file": "res://art/fx/topdown/melee_heavy_sabre.png",
+    "cell": [
+     130,
+     151
+    ],
+    "anchor": [
+     60,
+     95
+    ],
+    "kind": "heavy",
+    "qi": "gold",
+    "scale": 1,
+    "reach_px": 46
+   },
+   "fan": {
+    "file": "res://art/fx/topdown/melee_fan.png",
+    "cell": [
+     98,
+     117
+    ],
+    "anchor": [
+     45,
+     78
+    ],
+    "kind": "gust",
+    "qi": "wind",
+    "scale": 2,
+    "reach_px": 35
+   },
+   "flute": {
+    "file": "res://art/fx/topdown/melee_flute.png",
+    "cell": [
+     52,
+     71
+    ],
+    "anchor": [
+     30,
+     44
+    ],
+    "kind": "note",
+    "qi": "jade",
+    "scale": 1,
+    "reach_px": 14
+   },
+   "brush": {
+    "file": "res://art/fx/topdown/melee_brush.png",
+    "cell": [
+     82,
+     99
+    ],
+    "anchor": [
+     37,
+     68
+    ],
+    "kind": "ink",
+    "qi": "ink",
+    "scale": 2,
+    "reach_px": 28
+   },
+   "bell": {
+    "file": "res://art/fx/topdown/melee_bell.png",
+    "cell": [
+     116,
+     116
+    ],
+    "anchor": [
+     58,
+     58
+    ],
+    "kind": "ring",
+    "qi": "bronze",
+    "scale": 2,
+    "reach_px": 40
+   },
+   "bow": {
+    "file": "res://art/fx/topdown/melee_bow.png",
+    "cell": [
+     67,
+     82
+    ],
+    "anchor": [
+     30,
+     55
+    ],
+    "kind": "shot",
+    "qi": "gold",
+    "scale": 1,
+    "reach_px": 18
+   }
+  }
+ },
+ "common": {
+  "file": "res://art/fx/topdown/common.png",
+  "cell": [
+   66,
+   84
+  ],
+  "anchor": [
+   32,
+   52
+  ],
+  "marks": {
+   "guard": {
+    "row": 0,
+    "frames": 4,
+    "fps": 8,
+    "impact": 0,
+    "loop": true,
+    "dirs": true,
+    "qi": "jade"
+   },
+   "parry": {
+    "row": 5,
+    "frames": 6,
+    "fps": 20,
+    "impact": 0,
+    "loop": false,
+    "dirs": true,
+    "qi": "gold"
+   },
+   "swipe": {
+    "row": 10,
+    "frames": 6,
+    "fps": 20,
+    "impact": 1,
+    "loop": false,
+    "dirs": true,
+    "qi": "foe"
+   },
+   "plunge": {
+    "row": 15,
+    "frames": 8,
+    "fps": 16,
+    "impact": 0,
+    "loop": false,
+    "dirs": false,
+    "qi": "dust"
+   },
+   "charge": {
+    "row": 16,
+    "frames": 6,
+    "fps": 12,
+    "impact": 0,
+    "loop": true,
+    "dirs": false,
+    "qi": "jade"
+   },
+   "tell": {
+    "row": 17,
+    "frames": 4,
+    "fps": 12,
+    "impact": 0,
+    "loop": false,
+    "dirs": false,
+    "qi": "foe"
+   }
+  }
+ },
+ "impact": {
+  "weights": [
+   "light",
+   "heavy",
+   "finisher"
+  ],
+  "frames": 6,
+  "fps": 20,
+  "impact": 0,
+  "sheets": {
+   "e": {
+    "file": "res://art/fx/topdown/impact_e.png",
+    "cell": [
+     52,
+     60
+    ],
+    "anchor": [
+     23,
+     30
+    ]
+   },
+   "se": {
+    "file": "res://art/fx/topdown/impact_se.png",
+    "cell": [
+     46,
+     59
+    ],
+    "anchor": [
+     23,
+     26
+    ]
+   },
+   "s": {
+    "file": "res://art/fx/topdown/impact_s.png",
+    "cell": [
+     47,
+     56
+    ],
+    "anchor": [
+     24,
+     23
+    ]
+   },
+   "ne": {
+    "file": "res://art/fx/topdown/impact_ne.png",
+    "cell": [
+     52,
+     52
+    ],
+    "anchor": [
+     23,
+     25
+    ]
+   },
+   "n": {
+    "file": "res://art/fx/topdown/impact_n.png",
+    "cell": [
+     46,
+     54
+    ],
+    "anchor": [
+     23,
+     31
+    ]
+   }
+  }
+ },
+ "dust": {
+  "file": "res://art/fx/topdown/dust.png",
+  "cell": [
+   43,
+   54
+  ],
+  "anchor": [
+   27,
+   31
+  ],
+  "frames": 6,
+  "fps": 16,
+  "kinds": {
+   "dash": {
+    "row": 0,
+    "dirs": true
+   },
+   "skid": {
+    "row": 5,
+    "dirs": true
+   },
+   "land": {
+    "row": 10,
+    "dirs": false
+   },
+   "step": {
+    "row": 11,
+    "dirs": false
+   }
+  }
+ },
+ "_sheets": {
+  "bolt_arc_e": {
+   "file": "res://art/fx/topdown/bolt_arc_e.png",
+   "cell": [
+    50,
+    33
+   ],
+   "anchor": [
+    37,
+    28
+   ]
+  },
+  "bolt_arc_n": {
+   "file": "res://art/fx/topdown/bolt_arc_n.png",
+   "cell": [
+    39,
+    52
+   ],
+   "anchor": [
+    16,
+    29
+   ]
+  },
+  "bolt_arc_ne": {
+   "file": "res://art/fx/topdown/bolt_arc_ne.png",
+   "cell": [
+    44,
+    46
+   ],
+   "anchor": [
+    27,
+    29
+   ]
+  },
+  "bolt_arc_s": {
+   "file": "res://art/fx/topdown/bolt_arc_s.png",
+   "cell": [
+    39,
+    51
+   ],
+   "anchor": [
+    24,
+    51
+   ]
+  },
+  "bolt_arc_se": {
+   "file": "res://art/fx/topdown/bolt_arc_se.png",
+   "cell": [
+    43,
+    41
+   ],
+   "anchor": [
+    31,
+    41
+   ]
+  },
+  "bolt_return": {
+   "file": "res://art/fx/topdown/bolt_return.png",
+   "cell": [
+    36,
+    45
+   ],
+   "anchor": [
+    14,
+    37
+   ]
+  },
+  "bolt_seeker_e": {
+   "file": "res://art/fx/topdown/bolt_seeker_e.png",
+   "cell": [
+    58,
+    27
+   ],
+   "anchor": [
+    49,
+    31
+   ]
+  },
+  "bolt_seeker_n": {
+   "file": "res://art/fx/topdown/bolt_seeker_n.png",
+   "cell": [
+    27,
+    59
+   ],
+   "anchor": [
+    17,
+    23
+   ]
+  },
+  "bolt_seeker_ne": {
+   "file": "res://art/fx/topdown/bolt_seeker_ne.png",
+   "cell": [
+    51,
+    50
+   ],
+   "anchor": [
+    42,
+    26
+   ]
+  },
+  "bolt_seeker_s": {
+   "file": "res://art/fx/topdown/bolt_seeker_s.png",
+   "cell": [
+    29,
+    62
+   ],
+   "anchor": [
+    12,
+    67
+   ]
+  },
+  "bolt_seeker_se": {
+   "file": "res://art/fx/topdown/bolt_seeker_se.png",
+   "cell": [
+    49,
+    53
+   ],
+   "anchor": [
+    37,
+    58
+   ]
+  },
+  "bolt_volley_e": {
+   "file": "res://art/fx/topdown/bolt_volley_e.png",
+   "cell": [
+    48,
+    23
+   ],
+   "anchor": [
+    42,
+    28
+   ]
+  },
+  "bolt_volley_n": {
+   "file": "res://art/fx/topdown/bolt_volley_n.png",
+   "cell": [
+    21,
+    50
+   ],
+   "anchor": [
+    12,
+    22
+   ]
+  },
+  "bolt_volley_ne": {
+   "file": "res://art/fx/topdown/bolt_volley_ne.png",
+   "cell": [
+    32,
+    45
+   ],
+   "anchor": [
+    27,
+    24
+   ]
+  },
+  "bolt_volley_s": {
+   "file": "res://art/fx/topdown/bolt_volley_s.png",
+   "cell": [
+    21,
+    48
+   ],
+   "anchor": [
+    9,
+    56
+   ]
+  },
+  "bolt_volley_se": {
+   "file": "res://art/fx/topdown/bolt_volley_se.png",
+   "cell": [
+    45,
+    32
+   ],
+   "anchor": [
+    35,
+    41
+   ]
+  },
+  "common": {
+   "file": "res://art/fx/topdown/common.png",
+   "cell": [
+    66,
+    84
+   ],
+   "anchor": [
+    32,
+    52
+   ]
+  },
+  "dust": {
+   "file": "res://art/fx/topdown/dust.png",
+   "cell": [
+    43,
+    54
+   ],
+   "anchor": [
+    27,
+    31
+   ]
+  },
+  "form_arc_e": {
+   "file": "res://art/fx/topdown/form_arc_e.png",
+   "cell": [
+    74,
+    42
+   ],
+   "anchor": [
+    -2,
+    35
+   ]
+  },
+  "form_arc_n": {
+   "file": "res://art/fx/topdown/form_arc_n.png",
+   "cell": [
+    50,
+    77
+   ],
+   "anchor": [
+    23,
+    90
+   ]
+  },
+  "form_arc_ne": {
+   "file": "res://art/fx/topdown/form_arc_ne.png",
+   "cell": [
+    73,
+    62
+   ],
+   "anchor": [
+    10,
+    73
+   ]
+  },
+  "form_arc_s": {
+   "file": "res://art/fx/topdown/form_arc_s.png",
+   "cell": [
+    50,
+    81
+   ],
+   "anchor": [
+    28,
+    18
+   ]
+  },
+  "form_arc_se": {
+   "file": "res://art/fx/topdown/form_arc_se.png",
+   "cell": [
+    70,
+    65
+   ],
+   "anchor": [
+    10,
+    20
+   ]
+  },
+  "form_blink_e": {
+   "file": "res://art/fx/topdown/form_blink_e.png",
+   "cell": [
+    100,
+    49
+   ],
+   "anchor": [
+    55,
+    34
+   ]
+  },
+  "form_blink_n": {
+   "file": "res://art/fx/topdown/form_blink_n.png",
+   "cell": [
+    59,
+    115
+   ],
+   "anchor": [
+    31,
+    60
+   ]
+  },
+  "form_blink_ne": {
+   "file": "res://art/fx/topdown/form_blink_ne.png",
+   "cell": [
+    84,
+    94
+   ],
+   "anchor": [
+    44,
+    50
+   ]
+  },
+  "form_blink_s": {
+   "file": "res://art/fx/topdown/form_blink_s.png",
+   "cell": [
+    58,
+    102
+   ],
+   "anchor": [
+    28,
+    66
+   ]
+  },
+  "form_blink_se": {
+   "file": "res://art/fx/topdown/form_blink_se.png",
+   "cell": [
+    87,
+    82
+   ],
+   "anchor": [
+    44,
+    56
+   ]
+  },
+  "form_burst": {
+   "file": "res://art/fx/topdown/form_burst.png",
+   "cell": [
+    104,
+    104
+   ],
+   "anchor": [
+    52,
+    57
+   ]
+  },
+  "form_chorus": {
+   "file": "res://art/fx/topdown/form_chorus.png",
+   "cell": [
+    88,
+    97
+   ],
+   "anchor": [
+    45,
+    54
+   ]
+  },
+  "form_counter": {
+   "file": "res://art/fx/topdown/form_counter.png",
+   "cell": [
+    70,
+    66
+   ],
+   "anchor": [
+    34,
+    42
+   ]
+  },
+  "form_domain": {
+   "file": "res://art/fx/topdown/form_domain.png",
+   "cell": [
+    100,
+    105
+   ],
+   "anchor": [
+    51,
+    56
+   ]
+  },
+  "form_echo_e": {
+   "file": "res://art/fx/topdown/form_echo_e.png",
+   "cell": [
+    51,
+    69
+   ],
+   "anchor": [
+    -2,
+    43
+   ]
+  },
+  "form_echo_n": {
+   "file": "res://art/fx/topdown/form_echo_n.png",
+   "cell": [
+    83,
+    66
+   ],
+   "anchor": [
+    44,
+    71
+   ]
+  },
+  "form_echo_ne": {
+   "file": "res://art/fx/topdown/form_echo_ne.png",
+   "cell": [
+    71,
+    68
+   ],
+   "anchor": [
+    22,
+    56
+   ]
+  },
+  "form_echo_s": {
+   "file": "res://art/fx/topdown/form_echo_s.png",
+   "cell": [
+    79,
+    64
+   ],
+   "anchor": [
+    38,
+    22
+   ]
+  },
+  "form_echo_se": {
+   "file": "res://art/fx/topdown/form_echo_se.png",
+   "cell": [
+    67,
+    58
+   ],
+   "anchor": [
+    19,
+    23
+   ]
+  },
+  "form_flurry_e": {
+   "file": "res://art/fx/topdown/form_flurry_e.png",
+   "cell": [
+    37,
+    59
+   ],
+   "anchor": [
+    -5,
+    47
+   ]
+  },
+  "form_flurry_n": {
+   "file": "res://art/fx/topdown/form_flurry_n.png",
+   "cell": [
+    52,
+    46
+   ],
+   "anchor": [
+    27,
+    64
+   ]
+  },
+  "form_flurry_ne": {
+   "file": "res://art/fx/topdown/form_flurry_ne.png",
+   "cell": [
+    44,
+    57
+   ],
+   "anchor": [
+    2,
+    63
+   ]
+  },
+  "form_flurry_s": {
+   "file": "res://art/fx/topdown/form_flurry_s.png",
+   "cell": [
+    48,
+    48
+   ],
+   "anchor": [
+    25,
+    12
+   ]
+  },
+  "form_flurry_se": {
+   "file": "res://art/fx/topdown/form_flurry_se.png",
+   "cell": [
+    46,
+    60
+   ],
+   "anchor": [
+    7,
+    27
+   ]
+  },
+  "form_lunge_e": {
+   "file": "res://art/fx/topdown/form_lunge_e.png",
+   "cell": [
+    73,
+    42
+   ],
+   "anchor": [
+    1,
+    35
+   ]
+  },
+  "form_lunge_n": {
+   "file": "res://art/fx/topdown/form_lunge_n.png",
+   "cell": [
+    42,
+    81
+   ],
+   "anchor": [
+    21,
+    80
+   ]
+  },
+  "form_lunge_ne": {
+   "file": "res://art/fx/topdown/form_lunge_ne.png",
+   "cell": [
+    60,
+    66
+   ],
+   "anchor": [
+    7,
+    67
+   ]
+  },
+  "form_lunge_s": {
+   "file": "res://art/fx/topdown/form_lunge_s.png",
+   "cell": [
+    42,
+    91
+   ],
+   "anchor": [
+    21,
+    27
+   ]
+  },
+  "form_lunge_se": {
+   "file": "res://art/fx/topdown/form_lunge_se.png",
+   "cell": [
+    61,
+    72
+   ],
+   "anchor": [
+    4,
+    28
+   ]
+  },
+  "form_pillar": {
+   "file": "res://art/fx/topdown/form_pillar.png",
+   "cell": [
+    49,
+    128
+   ],
+   "anchor": [
+    25,
+    104
+   ]
+  },
+  "form_plunge": {
+   "file": "res://art/fx/topdown/form_plunge.png",
+   "cell": [
+    90,
+    91
+   ],
+   "anchor": [
+    46,
+    47
+   ]
+  },
+  "form_rain": {
+   "file": "res://art/fx/topdown/form_rain.png",
+   "cell": [
+    63,
+    140
+   ],
+   "anchor": [
+    32,
+    110
+   ]
+  },
+  "form_release": {
+   "file": "res://art/fx/topdown/form_release.png",
+   "cell": [
+    45,
+    84
+   ],
+   "anchor": [
+    23,
+    62
+   ]
+  },
+  "form_return_e": {
+   "file": "res://art/fx/topdown/form_return_e.png",
+   "cell": [
+    80,
+    32
+   ],
+   "anchor": [
+    11,
+    29
+   ]
+  },
+  "form_return_n": {
+   "file": "res://art/fx/topdown/form_return_n.png",
+   "cell": [
+    33,
+    78
+   ],
+   "anchor": [
+    17,
+    81
+   ]
+  },
+  "form_return_ne": {
+   "file": "res://art/fx/topdown/form_return_ne.png",
+   "cell": [
+    65,
+    66
+   ],
+   "anchor": [
+    13,
+    68
+   ]
+  },
+  "form_return_s": {
+   "file": "res://art/fx/topdown/form_return_s.png",
+   "cell": [
+    33,
+    78
+   ],
+   "anchor": [
+    17,
+    23
+   ]
+  },
+  "form_return_se": {
+   "file": "res://art/fx/topdown/form_return_se.png",
+   "cell": [
+    67,
+    63
+   ],
+   "anchor": [
+    13,
+    25
+   ]
+  },
+  "form_seal": {
+   "file": "res://art/fx/topdown/form_seal.png",
+   "cell": [
+    74,
+    97
+   ],
+   "anchor": [
+    36,
+    65
+   ]
+  },
+  "form_seeker_e": {
+   "file": "res://art/fx/topdown/form_seeker_e.png",
+   "cell": [
+    66,
+    49
+   ],
+   "anchor": [
+    9,
+    46
+   ]
+  },
+  "form_seeker_n": {
+   "file": "res://art/fx/topdown/form_seeker_n.png",
+   "cell": [
+    48,
+    74
+   ],
+   "anchor": [
+    25,
+    81
+   ]
+  },
+  "form_seeker_ne": {
+   "file": "res://art/fx/topdown/form_seeker_ne.png",
+   "cell": [
+    64,
+    69
+   ],
+   "anchor": [
+    10,
+    74
+   ]
+  },
+  "form_seeker_s": {
+   "file": "res://art/fx/topdown/form_seeker_s.png",
+   "cell": [
+    48,
+    60
+   ],
+   "anchor": [
+    25,
+    22
+   ]
+  },
+  "form_seeker_se": {
+   "file": "res://art/fx/topdown/form_seeker_se.png",
+   "cell": [
+    64,
+    60
+   ],
+   "anchor": [
+    10,
+    26
+   ]
+  },
+  "form_snare": {
+   "file": "res://art/fx/topdown/form_snare.png",
+   "cell": [
+    60,
+    66
+   ],
+   "anchor": [
+    30,
+    38
+   ]
+  },
+  "form_strike_e": {
+   "file": "res://art/fx/topdown/form_strike_e.png",
+   "cell": [
+    51,
+    68
+   ],
+   "anchor": [
+    -2,
+    39
+   ]
+  },
+  "form_strike_n": {
+   "file": "res://art/fx/topdown/form_strike_n.png",
+   "cell": [
+    88,
+    73
+   ],
+   "anchor": [
+    46,
+    70
+   ]
+  },
+  "form_strike_ne": {
+   "file": "res://art/fx/topdown/form_strike_ne.png",
+   "cell": [
+    75,
+    69
+   ],
+   "anchor": [
+    25,
+    56
+   ]
+  },
+  "form_strike_s": {
+   "file": "res://art/fx/topdown/form_strike_s.png",
+   "cell": [
+    85,
+    72
+   ],
+   "anchor": [
+    42,
+    23
+   ]
+  },
+  "form_strike_se": {
+   "file": "res://art/fx/topdown/form_strike_se.png",
+   "cell": [
+    73,
+    54
+   ],
+   "anchor": [
+    20,
+    20
+   ]
+  },
+  "form_swarm": {
+   "file": "res://art/fx/topdown/form_swarm.png",
+   "cell": [
+    72,
+    73
+   ],
+   "anchor": [
+    36,
+    55
+   ]
+  },
+  "form_sweep_e": {
+   "file": "res://art/fx/topdown/form_sweep_e.png",
+   "cell": [
+    110,
+    108
+   ],
+   "anchor": [
+    56,
+    58
+   ]
+  },
+  "form_sweep_n": {
+   "file": "res://art/fx/topdown/form_sweep_n.png",
+   "cell": [
+    110,
+    105
+   ],
+   "anchor": [
+    56,
+    58
+   ]
+  },
+  "form_sweep_ne": {
+   "file": "res://art/fx/topdown/form_sweep_ne.png",
+   "cell": [
+    110,
+    105
+   ],
+   "anchor": [
+    56,
+    58
+   ]
+  },
+  "form_sweep_s": {
+   "file": "res://art/fx/topdown/form_sweep_s.png",
+   "cell": [
+    110,
+    108
+   ],
+   "anchor": [
+    56,
+    57
+   ]
+  },
+  "form_sweep_se": {
+   "file": "res://art/fx/topdown/form_sweep_se.png",
+   "cell": [
+    110,
+    108
+   ],
+   "anchor": [
+    56,
+    57
+   ]
+  },
+  "form_thrust_e": {
+   "file": "res://art/fx/topdown/form_thrust_e.png",
+   "cell": [
+    81,
+    41
+   ],
+   "anchor": [
+    5,
+    28
+   ]
+  },
+  "form_thrust_n": {
+   "file": "res://art/fx/topdown/form_thrust_n.png",
+   "cell": [
+    40,
+    86
+   ],
+   "anchor": [
+    18,
+    90
+   ]
+  },
+  "form_thrust_ne": {
+   "file": "res://art/fx/topdown/form_thrust_ne.png",
+   "cell": [
+    69,
+    69
+   ],
+   "anchor": [
+    7,
+    72
+   ]
+  },
+  "form_thrust_s": {
+   "file": "res://art/fx/topdown/form_thrust_s.png",
+   "cell": [
+    40,
+    88
+   ],
+   "anchor": [
+    21,
+    23
+   ]
+  },
+  "form_thrust_se": {
+   "file": "res://art/fx/topdown/form_thrust_se.png",
+   "cell": [
+    69,
+    79
+   ],
+   "anchor": [
+    11,
+    24
+   ]
+  },
+  "form_volley_e": {
+   "file": "res://art/fx/topdown/form_volley_e.png",
+   "cell": [
+    81,
+    58
+   ],
+   "anchor": [
+    11,
+    45
+   ]
+  },
+  "form_volley_n": {
+   "file": "res://art/fx/topdown/form_volley_n.png",
+   "cell": [
+    53,
+    83
+   ],
+   "anchor": [
+    26,
+    88
+   ]
+  },
+  "form_volley_ne": {
+   "file": "res://art/fx/topdown/form_volley_ne.png",
+   "cell": [
+    77,
+    72
+   ],
+   "anchor": [
+    13,
+    75
+   ]
+  },
+  "form_volley_s": {
+   "file": "res://art/fx/topdown/form_volley_s.png",
+   "cell": [
+    53,
+    80
+   ],
+   "anchor": [
+    28,
+    24
+   ]
+  },
+  "form_volley_se": {
+   "file": "res://art/fx/topdown/form_volley_se.png",
+   "cell": [
+    72,
+    77
+   ],
+   "anchor": [
+    12,
+    27
+   ]
+  },
+  "form_ward": {
+   "file": "res://art/fx/topdown/form_ward.png",
+   "cell": [
+    89,
+    90
+   ],
+   "anchor": [
+    48,
+    49
+   ]
+  },
+  "form_wave_e": {
+   "file": "res://art/fx/topdown/form_wave_e.png",
+   "cell": [
+    51,
+    70
+   ],
+   "anchor": [
+    23,
+    51
+   ]
+  },
+  "form_wave_n": {
+   "file": "res://art/fx/topdown/form_wave_n.png",
+   "cell": [
+    54,
+    64
+   ],
+   "anchor": [
+    25,
+    40
+   ]
+  },
+  "form_wave_ne": {
+   "file": "res://art/fx/topdown/form_wave_ne.png",
+   "cell": [
+    59,
+    76
+   ],
+   "anchor": [
+    28,
+    48
+   ]
+  },
+  "form_wave_s": {
+   "file": "res://art/fx/topdown/form_wave_s.png",
+   "cell": [
+    57,
+    60
+   ],
+   "anchor": [
+    28,
+    33
+   ]
+  },
+  "form_wave_se": {
+   "file": "res://art/fx/topdown/form_wave_se.png",
+   "cell": [
+    55,
+    70
+   ],
+   "anchor": [
+    28,
+    45
+   ]
+  },
+  "impact_e": {
+   "file": "res://art/fx/topdown/impact_e.png",
+   "cell": [
+    52,
+    60
+   ],
+   "anchor": [
+    23,
+    30
+   ]
+  },
+  "impact_n": {
+   "file": "res://art/fx/topdown/impact_n.png",
+   "cell": [
+    46,
+    54
+   ],
+   "anchor": [
+    23,
+    31
+   ]
+  },
+  "impact_ne": {
+   "file": "res://art/fx/topdown/impact_ne.png",
+   "cell": [
+    52,
+    52
+   ],
+   "anchor": [
+    23,
+    25
+   ]
+  },
+  "impact_s": {
+   "file": "res://art/fx/topdown/impact_s.png",
+   "cell": [
+    47,
+    56
+   ],
+   "anchor": [
+    24,
+    23
+   ]
+  },
+  "impact_se": {
+   "file": "res://art/fx/topdown/impact_se.png",
+   "cell": [
+    46,
+    59
+   ],
+   "anchor": [
+    23,
+    26
+   ]
+  },
+  "melee_bell": {
+   "file": "res://art/fx/topdown/melee_bell.png",
+   "cell": [
+    116,
+    116
+   ],
+   "anchor": [
+    58,
+    58
+   ]
+  },
+  "melee_bow": {
+   "file": "res://art/fx/topdown/melee_bow.png",
+   "cell": [
+    67,
+    82
+   ],
+   "anchor": [
+    30,
+    55
+   ]
+  },
+  "melee_brush": {
+   "file": "res://art/fx/topdown/melee_brush.png",
+   "cell": [
+    82,
+    99
+   ],
+   "anchor": [
+    37,
+    68
+   ]
+  },
+  "melee_fan": {
+   "file": "res://art/fx/topdown/melee_fan.png",
+   "cell": [
+    98,
+    117
+   ],
+   "anchor": [
+    45,
+    78
+   ]
+  },
+  "melee_fists": {
+   "file": "res://art/fx/topdown/melee_fists.png",
+   "cell": [
+    88,
+    116
+   ],
+   "anchor": [
+    30,
+    78
+   ]
+  },
+  "melee_flute": {
+   "file": "res://art/fx/topdown/melee_flute.png",
+   "cell": [
+    52,
+    71
+   ],
+   "anchor": [
+    30,
+    44
+   ]
+  },
+  "melee_gauntlets": {
+   "file": "res://art/fx/topdown/melee_gauntlets.png",
+   "cell": [
+    90,
+    120
+   ],
+   "anchor": [
+    30,
+    80
+   ]
+  },
+  "melee_heavy_sabre": {
+   "file": "res://art/fx/topdown/melee_heavy_sabre.png",
+   "cell": [
+    130,
+    151
+   ],
+   "anchor": [
+    60,
+    95
+   ]
+  },
+  "melee_jian": {
+   "file": "res://art/fx/topdown/melee_jian.png",
+   "cell": [
+    108,
+    129
+   ],
+   "anchor": [
+    49,
+    84
+   ]
+  },
+  "melee_short_blade": {
+   "file": "res://art/fx/topdown/melee_short_blade.png",
+   "cell": [
+    72,
+    87
+   ],
+   "anchor": [
+    30,
+    59
+   ]
+  },
+  "melee_spear": {
+   "file": "res://art/fx/topdown/melee_spear.png",
+   "cell": [
+    115,
+    170
+   ],
+   "anchor": [
+    30,
+    99
+   ]
+  },
+  "melee_staff": {
+   "file": "res://art/fx/topdown/melee_staff.png",
+   "cell": [
+    117,
+    176
+   ],
+   "anchor": [
+    30,
+    89
+   ]
+  }
+ }
+}

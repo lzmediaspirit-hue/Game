@@ -52,3 +52,34 @@ own on the form.
 
 Review with `--review` and look at `forms_band2_2x.png` (every form × element), the `strip_<form>.png` motion strips
 and `bolts_2x.png` before calling a form done; the in-game look is `--cast=<technique>:<t>` (docs/mockups/fx).
+
+## The top-down sheets (decision 38)
+
+The top-down world draws its combat from sheets of its own: every form, every weapon family's moves, the impact marks,
+the shared marks and the dust, on the ground plane of the world's ¾ view in five drawn directions (the west three
+mirror). **The look rule:** the feel follows the reference game, the look stays wuxia (sword-light, qi trails, ink
+strokes, jade and gold qi, the elements' Dao images, palm prints, sword formations, calligraphic marks).
+
+```
+tools/art/fx/
+  plane.py             the ground plane: forward, side and height projected for each drawn direction (DIRS, MIRROR)
+  wuxia.py             the wuxia marks: brush strokes, palm prints, talismans, jian of qi, lotus, petals, ripples, stones,
+                       and each element's motif
+  topdown_forms.py     the 24 forms redrawn on the ground plane, and TD_FORMS (canvas, anchor, frames, fps, impact, span,
+                       at, layer, dirs, size, bolt)
+  topdown_melee.py     the families' smears (MOVES x DIRS), the shared marks (COMMON), impacts (WEIGHTS) and dust (DUST)
+  build_fx_topdown.py  renders them all at art resolution into art/fx/topdown/ and data/fx_topdown.json
+```
+
+```bash
+python3 tools/art/fx/build_fx_topdown.py                        # every sheet (about a minute on four cores)
+python3 tools/art/fx/build_fx_topdown.py --only form_strike_e   # some sheets
+python3 tools/art/fx/build_fx_topdown.py --check                # two builds in memory, byte-identical, equal to disk
+python3 tools/art/fx/build_fx_topdown.py --review DIR           # strips: docs/redesign/phase5/combat/
+```
+
+A drawer works in the effect's own frame: `pl.pt(f, l, h)` is forward, right and up from the anchor (a point on the
+floor); `pl.arc` tips an arc's plane (a rising cut, an overhead chop). The floor is not squashed (a floor circle is a
+circle, as the tiles are square); heights go straight up. Sheets are cropped to what they draw; the manifest gives each
+sheet's cell and anchor. The game plays them through `TopdownFx` (`scripts/topdown/topdown_fx.gd`), timed and weighed
+by `data/combat_feel.json` (`tools/data/combat_feel.py`).

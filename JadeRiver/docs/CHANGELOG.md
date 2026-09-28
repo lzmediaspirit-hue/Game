@@ -38,6 +38,58 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
 - **Tests:** `topdown_suite` goes from 87 to 117 checks. `topdown_tutorial` (786 checks) adds a room's people drawn
   while the pages warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
 
+## Top-down combat animation and feel (decision 38)
+
+- **Research first.** `docs/research/alabaster_dawn_2_5d.md` §3.9 covers how the reference game and CrossCode time and
+  sell their blows. It covers combo length and finishers, commitment, charged and delayed attacks, guard and parry,
+  break, hit feedback and how skills read from above, with fighting-game and pixel-art craft numbers. Every claim is
+  labelled confirmed, inferred or not found.
+- **The look rule.** The user clarified decision 38: only the *feel* comes from the reference game. The look stays
+  wuxia:
+  - sword-light arcs and qi trails, ink-brush strokes, jade and gold qi;
+  - the elements' Dao images;
+  - palm prints, sword formations and calligraphic impact marks.
+
+  The rule heads the research section, the feel table and the FX manifest, and is written into roadmap §6 decision 38.
+- **One table for the feel**, `data/combat_feel.json` (from `tools/data/combat_feel.py`, read by `CombatFeel`):
+  - four blow weights: hit-stop 3, 4, 6 or 8 frames, a crit 2 more; the camera's kick along the blow; a shake for the
+    heaviest; the impact mark and the knockback hop;
+  - per weapon family, its steps' weights, lunges, smear rate and cancel points;
+  - per technique form, its weight and pose;
+  - foes' blows by role.
+
+  The steps' phases (anticipation, active, recovery) are derived from `weapon_families.json`, never kept twice. The old
+  flat hit-stop constants in `stats.json` are gone.
+- **The fight on the grid feels it:**
+  - hit-stop by weight, including a foe's blow on the player;
+  - a dodge cancels a blow's anticipation or late recovery, is refused in its active window, and the player's dodge
+    waits in a short buffer;
+  - each step lunges along its aim, and an attack out of a dash is a dash attack;
+  - the camera kicks and shakes;
+  - struck bodies flash white, then tint, and hop with a knockback over a skid of dust;
+  - effects freeze with the fight in a hit-stop.
+
+  Reduce motion turns off the hit-stop, kick and shake. The side view is unchanged.
+- **Everything drawn on the ground plane in eight directions** (`tools/art/fx/build_fx_topdown.py`, with `plane.py`,
+  `wuxia.py`, `topdown_forms.py` and `topdown_melee.py`; 107 sheets in `art/fx/topdown/`, manifest
+  `data/fx_topdown.json`, byte-identical on every build):
+  - all 12 weapon families' combo steps, the dragged (charged) finisher, the dash attack and the air blow;
+  - the guard, the parry, the Plunge's crater, a charge, a foe's tell and swipe;
+  - all 24 technique forms in 11 elements at three richness bands, with the thrown forms' bolts;
+  - impact marks by weight and element, and dust.
+
+  `TopdownFx` plays them in the world viewport, sorted with the bodies, their contact frames on the hits.
+- **Poses.** The figure's hit frame lands on the blow's hit, the same instant as the smear's contact. A cast of a
+  meditation or jump form plays its form's top-down pose (`cast`, `plunge`). The poses the character pipeline does not
+  draw yet (bow draw, flute, charge hold, dash slash, air strike, parry deflect, two-handed sabre, bell, fan throw,
+  brush) are listed for it in the feel table and the plan.
+- **Tests:**
+  - `data_validation` `combat_feel_suite`: timing tables valid for every family, form, technique and foe; every sheet
+    at its size;
+  - `topdown_suite`: 9 new checks, among them the hit-stop and shake off under Reduce motion;
+  - `perf_tests`: 22 foes fighting with techniques, 9.9 ms a frame.
+- **Review images** in `docs/redesign/phase5/combat/`: the builder's strips per form, family, impact and mark, and the
+  game's own frames of combos, a finisher and a dash attack, techniques, the guard, a parry and the Plunge.
 ## Top-down character: the flute and the bell (decision 37)
 
 - **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
