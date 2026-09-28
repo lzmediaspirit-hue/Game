@@ -245,6 +245,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 				lv.setup(l)
 				loot_layer.add_child(lv)
 		"hit_landed": combat_fx.hit(p)
+		"equipment_changed":
+			if str(p.get("actor", "")) == player.actor_id: player.refresh_outfit()
 		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player_feet())
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -260,7 +262,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 						float(p.get("windup", -1.0)), point, aim, float(TopdownAim.cfg("point_radius", 48)) if on_point else TopdownAim.reach_of(t))
 					Audio.play("technique")
 				else:
-					# A swing's arc along the aim, so each of the eight directions reads (the placeholder body has one strike pose).
+					# A swing's arc along the aim, so each of the eight directions reads.
 					var f := 1 if aim.x >= 0.0 else -1
 					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -effects.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
 						"turn": (aim * f).angle(), "radius": 22.0, "dur": 0.22, "delay": float(p.get("windup", 0.0)) * 0.6})

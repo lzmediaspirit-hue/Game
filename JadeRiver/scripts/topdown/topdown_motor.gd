@@ -8,6 +8,7 @@ extends RefCounted
 ## reads the state and drains `events`.
 
 const STEP := 1.0 / 120.0
+const ROWS := ["s", "se", "e", "ne", "n", "nw", "w", "sw"]   ## at 90° - 45° k on the plane (y down)
 
 var room: TopdownRoom
 var pos := Vector2.ZERO
@@ -24,7 +25,7 @@ var since_dash := 99.0
 var long_jump := false
 var invuln := 0.0
 var dir := Vector2(0, 1)   ## the facing, a unit vector (8-way analog)
-var row := "s"             ## the drawn facing: s, e, n or w (w mirrors e)
+var row := "s"             ## the drawn facing: s, se, e, ne, n, or nw, w, sw (drawn as mirrors of ne, e, se)
 var peak := 0.0            ## the highest z of this airtime
 var land_t := 0.0          ## landing squash left
 var sink_t := -1.0         ## >= 0 while a splash plays, then back to the safe spot
@@ -298,17 +299,20 @@ func _push_out() -> void:
 func face(v: Vector2) -> void:
 	if v.length() > 0.01: _face(v)
 
-## 8-way analog facing; the drawn row (S, E, N, W) changes only when the stick sits 20° nearer another row (plan §1.4).
+## 8-way analog facing; the drawn row (S, SE, E, NE, N, and NW, W, SW that mirror NE, E, SE) changes only when the
+## stick sits 10° nearer another row (plan §1.4).
 func _face(axis: Vector2) -> void:
 	dir = axis.normalized()
-	var a := rad_to_deg(dir.angle())
-	var rows := {"e": 0.0, "s": 90.0, "w": 180.0, "n": -90.0}
+	var a := dir.angle()
 	var best := row
-	for r in rows:
-		if absf(angle_difference(deg_to_rad(a), deg_to_rad(rows[r]))) < absf(angle_difference(deg_to_rad(a), deg_to_rad(rows[best]))): best = r
-	var cur := absf(rad_to_deg(angle_difference(deg_to_rad(a), deg_to_rad(rows[row]))))
-	var nxt := absf(rad_to_deg(angle_difference(deg_to_rad(a), deg_to_rad(rows[best]))))
-	if cur - nxt >= 20.0: row = best
+	var best_d := INF
+	for i in ROWS.size():
+		var d := absf(angle_difference(a, deg_to_rad(90.0 - 45.0 * i)))
+		if d < best_d:
+			best_d = d
+			best = ROWS[i]
+	var cur := ROWS.find(row)
+	if cur < 0 or rad_to_deg(absf(angle_difference(a, deg_to_rad(90.0 - 45.0 * cur))) - best_d) >= 10.0: row = best
 
 func drain() -> Array:
 	var out := events

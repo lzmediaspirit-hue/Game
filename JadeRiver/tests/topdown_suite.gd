@@ -256,10 +256,11 @@ func _sort_keys() -> void:
 func _facing() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(200, 192))
 	var rows: Array = []
-	for deg in [0.0, 45.0, 60.0, 40.0, 180.0, -90.0, -135.0]:
+	for deg in [0.0, 45.0, 62.0, 82.0, 60.0, 180.0, -90.0, -135.0, 150.0]:
 		m.step(1.0 / 60.0, Vector2.from_angle(deg_to_rad(deg)))
 		rows.append(m.row)
-	t.check(rows == ["e", "e", "s", "s", "w", "n", "n"], "topdown: facing picks S/E/N/W with 20° hysteresis on diagonals (%s)" % str(rows))
+	t.check(rows == ["e", "se", "se", "s", "se", "w", "n", "nw", "sw"],
+		"topdown: facing picks one of 8 rows (S, SE, E, NE, N drawn; NW, W, SW mirrored) with 10° hysteresis (%s)" % str(rows))
 
 # ------------------------------------------------------------------ Phase 2 (decisions 29 and 30)
 ## Walking stops at the water's edge; walking on water is a special skill (Water Skimming), off by default.
