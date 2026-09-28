@@ -60,6 +60,7 @@ static func figure(o: Dictionary) -> Node2D:
 	av.facing = int(o.get("facing", n.get("facing", -1)))
 	av.play(str(o.get("pose", n.get("pose", "idle"))))
 	if n.has("tint"): av.modulate = Color(str(n.tint))
+	av.refresh_entries()   # its sheets are asked for as the room is populated, not at its first draw
 	return av
 
 func _process(delta: float) -> void:

@@ -1,5 +1,43 @@
 # Changelog
 
+## Top-down redesign, Phase 4: the gaps closed (allies, hazards, respawn, the people, and the side view's rules)
+
+See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
+
+- **Companions and spirit animals move on the plane.** They follow behind you along your facing, on your floor, by
+  the grid's paths: stairs, drops, and a hop a level up as you jump. With no way to you on foot they blink to you after
+  2 s, onto your floor on your side of any wall. They strike only a foe on a height their blow reaches, and a foe's
+  blow reaches them only on theirs.
+- **Their figures:** a companion is drawn in the top-down style in its own outfit (`TopdownPlaces.Person`, turning to
+  where it walks or strikes). A spirit animal, and a foe the grid's sheet does not draw yet (Old Snapper, the toads),
+  is its side-view creature sheet at half size instead of the mud crab. Each is sorted and stands on its floor.
+- **Hazards and weather are layered with the room.**
+  - A strike's ring, a scorch, a pool or a current lies on its floor under whoever stands on it.
+  - A falling rock, a bolt or springing spikes sorts at its spot, so a terrace or a wall in front hides it.
+  - Washes, weather and warning marks draw over the room, under the names and the HUD.
+  - Their effects are on the plane:
+    - strikes fall all round you on floors, and reach you only on their own level;
+    - a gust carries the top-down body;
+    - the heavens' bolt strikes a circle;
+    - burning ground burns only on its own floor.
+- **Respawns out of view use the camera's rect**, on both axes (a foe no longer pops in on screen near a room's wall).
+  On the grid two foes are never put on one point.
+- **The people come with the room.** Page scripts now warm up one at a time after launch. While one compiles, every
+  other load waits, and asking for all sixty at once held villagers back for seconds. They now draw within a moment
+  of the room (80 ms headless, with 56 page scripts still to compile). `perf_tests` times rooms and pages once the
+  pages are in.
+- **The side view's x-only and walk-strip rules found on the grid, all fixed:**
+  - camera bounds (a ridge on the north edge, the body always in view);
+  - the ways' reach (turned with each way, on its own floor);
+  - the pickup magnet and loot spill (by floor);
+  - auto-path's arrival and auto-hunt's targets (by floor and reachability);
+  - label order and the minimap's direction mark and arrow;
+  - a foe's choice of ranged or close attack, and the off-screen notice;
+  - a rare herb guardian's wake and spawn, and spar partners, summoned adds and ambushes (placed on floors);
+  - decals on raised floors, and a drop's name distance.
+- **Tests:** `topdown_suite` goes from 87 to 117 checks. `topdown_tutorial` (786 checks) adds a room's people drawn
+  while the pages warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
+
 ## Top-down character: the flute and the bell (decision 37)
 
 - **The jade flute and the warden's hand-bell are drawn** in every action and facing, as two layer sets
