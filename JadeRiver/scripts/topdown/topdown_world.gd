@@ -39,6 +39,7 @@ var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
 var room: TopdownRoom
 var terrain: TopdownTerrain
+var foliage: TopdownFoliage     ## Terrain v2's third part: the room's ground cover and its trees' canopies
 var player
 var viewport: SubViewport
 var container: SubViewportContainer
@@ -189,6 +190,7 @@ func _build_room() -> void:
 	for l in loot_layer.get_children(): l.queue_free()
 	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
+	foliage = TopdownFoliage.new(self)   # decision 40's third part: the ground cover the floor draws, then the canopies
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
@@ -231,6 +233,8 @@ func _build_room() -> void:
 		var pv := PropView.new(self, p)
 		sorted.add_child(pv)
 		_room_nodes.append(pv)
+	viewport.add_child(foliage)
+	_room_nodes.append_array(foliage.build())
 	npc_views = {}
 	object_views = {}
 	portal_views = []
@@ -663,6 +667,7 @@ class FloorView extends Node2D:
 				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
 				if tr.edge_level(x, y + 1) == TopdownRoom.WATER:
 					for layer in tr.face_layers(x, y, 0, 0, TopdownRoom.WATER): world.blit_layer(self, layer, Vector2(x * T, (y + 1) * T), T * 0.5)
+		world.foliage.draw_floor(self, chunk)   # the ground cover, under the props' shadows
 		for y in range(chunk.position.y, chunk.end.y): world.blit_shadows(self, y, 0, 0.0, Vector2i(chunk.position.x, chunk.end.x))
 
 ## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
@@ -696,6 +701,7 @@ class StripView extends Sorted:
 				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
 				for layer in tr.face_layers(x, row, l, k, south): world.blit_layer(self, layer, at, h)
+		world.foliage.draw_row(self, row, lift)
 		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
 ## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east

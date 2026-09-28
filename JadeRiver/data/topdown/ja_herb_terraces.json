@@ -178,6 +178,131 @@
    "kind": "boulder",
    "x": 49,
    "y": 12
+  },
+  {
+   "kind": "hedge_3",
+   "x": 15,
+   "y": 19
+  },
+  {
+   "kind": "hedge_3",
+   "x": 26,
+   "y": 19
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 19
+  },
+  {
+   "kind": "hedge_3",
+   "x": 9,
+   "y": 14
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 18,
+   "y": 14
+  },
+  {
+   "kind": "hedge_4",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 14
+  },
+  {
+   "kind": "hedge_3",
+   "x": 9,
+   "y": 8
+  },
+  {
+   "kind": "bush",
+   "x": 20,
+   "y": 8
+  },
+  {
+   "kind": "hedge_3",
+   "x": 25,
+   "y": 8
+  },
+  {
+   "kind": "bush",
+   "x": 38,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 10,
+   "y": 3
+  },
+  {
+   "kind": "tree_plum",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "tree_maple",
+   "x": 4,
+   "y": 14
+  },
+  {
+   "kind": "tree_pine",
+   "x": 52,
+   "y": 12
+  },
+  {
+   "kind": "tree_plum",
+   "x": 51,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 49,
+   "y": 3
+  },
+  {
+   "kind": "tree_pine",
+   "x": 8,
+   "y": 28
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 32,
+   "y": 28
+  },
+  {
+   "kind": "tree_maple",
+   "x": 42,
+   "y": 28
+  },
+  {
+   "kind": "tree_peach",
+   "x": 50,
+   "y": 29
+  },
+  {
+   "kind": "bush",
+   "x": 26,
+   "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 16,
+   "y": 28
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 37,
+   "y": 27
   }
  ],
  "place": {

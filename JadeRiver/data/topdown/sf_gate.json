@@ -136,6 +136,111 @@
    "kind": "reeds",
    "x": 50,
    "y": 21
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 25,
+   "y": 7
+  },
+  {
+   "kind": "tree_maple",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "bush_wide",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "hedge_3",
+   "x": 30,
+   "y": 6
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 53,
+   "y": 8
+  },
+  {
+   "kind": "bush",
+   "x": 34,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "tree_willow",
+   "x": 8,
+   "y": 20
+  },
+  {
+   "kind": "tree_willow",
+   "x": 19,
+   "y": 20
+  },
+  {
+   "kind": "tree_willow",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 25,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 31,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 35,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 49,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 12,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 28,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 40,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 52,
+   "y": 22
   }
  ],
  "place": {

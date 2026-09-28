@@ -191,26 +191,6 @@
    "y": 13
   },
   {
-   "kind": "shrub",
-   "x": 3,
-   "y": 14
-  },
-  {
-   "kind": "shrub",
-   "x": 13,
-   "y": 14
-  },
-  {
-   "kind": "shrub",
-   "x": 21,
-   "y": 14
-  },
-  {
-   "kind": "shrub",
-   "x": 16,
-   "y": 26
-  },
-  {
    "kind": "bamboo",
    "x": 19,
    "y": 25
@@ -259,6 +239,186 @@
    "kind": "lotus",
    "x": 30,
    "y": 37
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 24,
+   "y": 6
+  },
+  {
+   "kind": "tree_plum",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "tree_maple",
+   "x": 46,
+   "y": 6
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 36,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "bush_wide",
+   "x": 38,
+   "y": 9
+  },
+  {
+   "kind": "hedge_2",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 29,
+   "y": 12
+  },
+  {
+   "kind": "bush_wide",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 26,
+   "y": 13
+  },
+  {
+   "kind": "bush",
+   "x": 43,
+   "y": 12
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 45,
+   "y": 13
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 2,
+   "y": 15
+  },
+  {
+   "kind": "bush",
+   "x": 10,
+   "y": 15
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 14,
+   "y": 15
+  },
+  {
+   "kind": "bush",
+   "x": 21,
+   "y": 17
+  },
+  {
+   "kind": "fence_4",
+   "x": 5,
+   "y": 23
+  },
+  {
+   "kind": "fence_3",
+   "x": 14,
+   "y": 23
+  },
+  {
+   "kind": "tree_peach",
+   "x": 17,
+   "y": 27
+  },
+  {
+   "kind": "tree_willow",
+   "x": 4,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 1,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 7,
+   "y": 30
+  },
+  {
+   "kind": "ferns",
+   "x": 12,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 20,
+   "y": 30
+  },
+  {
+   "kind": "tree_willow",
+   "x": 40,
+   "y": 31
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 30
+  },
+  {
+   "kind": "bush_wide",
+   "x": 30,
+   "y": 30
+  },
+  {
+   "kind": "tall_grass",
+   "x": 35,
+   "y": 31
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 18,
+   "y": 35
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 40,
+   "y": 36
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 3,
+   "y": 37
+  },
+  {
+   "kind": "cattails",
+   "x": 24,
+   "y": 34
+  },
+  {
+   "kind": "cattails",
+   "x": 46,
+   "y": 34
+  },
+  {
+   "kind": "cattails",
+   "x": 12,
+   "y": 34
   }
  ],
  "place": {

@@ -158,6 +158,61 @@
    "kind": "boulder",
    "x": 38,
    "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 8,
+   "y": 6
+  },
+  {
+   "kind": "tree_maple",
+   "x": 18,
+   "y": 5
+  },
+  {
+   "kind": "tree_plum",
+   "x": 28,
+   "y": 6
+  },
+  {
+   "kind": "bush",
+   "x": 35,
+   "y": 8
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 30,
+   "y": 28
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 40,
+   "y": 28
+  },
+  {
+   "kind": "tree_peach",
+   "x": 49,
+   "y": 28
+  },
+  {
+   "kind": "bush_wide",
+   "x": 20,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 35,
+   "y": 26
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 56,
+   "y": 24
   }
  ],
  "place": {

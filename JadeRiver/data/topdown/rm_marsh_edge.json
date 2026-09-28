@@ -272,6 +272,136 @@
    "kind": "shrub",
    "x": 44,
    "y": 10
+  },
+  {
+   "kind": "tree_willow",
+   "x": 19,
+   "y": 11
+  },
+  {
+   "kind": "tree_willow",
+   "x": 57,
+   "y": 11
+  },
+  {
+   "kind": "bush",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "bush_wide",
+   "x": 9,
+   "y": 12
+  },
+  {
+   "kind": "ferns",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 51,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 55,
+   "y": 21
+  },
+  {
+   "kind": "log",
+   "x": 17,
+   "y": 21
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 2,
+   "y": 5
+  },
+  {
+   "kind": "cattails",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "cattails",
+   "x": 22,
+   "y": 5
+  },
+  {
+   "kind": "cattails",
+   "x": 45,
+   "y": 5
+  },
+  {
+   "kind": "cattails",
+   "x": 62,
+   "y": 5
+  },
+  {
+   "kind": "cattails",
+   "x": 5,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 16,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 52,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 60,
+   "y": 23
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 5,
+   "y": 2
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 40,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 20,
+   "y": 27
   }
  ],
  "place": {

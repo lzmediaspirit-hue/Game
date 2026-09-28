@@ -143,6 +143,11 @@ func topdown_suite() -> void:
 	await td.run_view(self, get_tree())
 	await td.run_fight(self, get_tree())
 	print("topdown measured: ", td.measured)
+	# Terrain v2's third part: the foliage and decor on every room with a layout (tests/topdown_foliage_suite.gd).
+	var fs = load("res://tests/topdown_foliage_suite.gd").new()
+	fs.run_all(self)
+	await fs.run_view(self, get_tree())
+	print("topdown foliage measured: ", fs.measured)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the

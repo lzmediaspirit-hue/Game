@@ -204,6 +204,116 @@
    "kind": "reeds",
    "x": 65,
    "y": 25
+  },
+  {
+   "kind": "tree_ribbons",
+   "x": 60,
+   "y": 9
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 51,
+   "y": 6
+  },
+  {
+   "kind": "tree_peach",
+   "x": 69,
+   "y": 8
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 11,
+   "y": 10
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 38,
+   "y": 9
+  },
+  {
+   "kind": "bush_wide",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "bush",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 70,
+   "y": 4
+  },
+  {
+   "kind": "tree_willow",
+   "x": 6,
+   "y": 25
+  },
+  {
+   "kind": "tree_willow",
+   "x": 22,
+   "y": 25
+  },
+  {
+   "kind": "tree_camphor",
+   "x": 36,
+   "y": 25
+  },
+  {
+   "kind": "tree_willow",
+   "x": 55,
+   "y": 25
+  },
+  {
+   "kind": "tree_peach",
+   "x": 66,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 14,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 29,
+   "y": 23
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 44,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 60,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 12,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 32,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 49,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 63,
+   "y": 26
   }
  ],
  "place": {
