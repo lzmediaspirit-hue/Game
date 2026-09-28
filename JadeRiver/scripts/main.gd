@@ -171,9 +171,9 @@ func _exit_tree() -> void:
 func _handle_preview_args(user_args: Array) -> void:
 	# Redesign Phase 1: --topdown-proto opens the top-down prototype room (a preview character, the real HUD).
 	if "--topdown-proto" in user_args: enter_topdown_proto(false)
-	# Redesign Phase 4: --topdown makes the preview's characters top-down ones (the Settings toggle); --topdown-tutorial
-	# opens the top-down game as the title's hidden entry does, on the preview saves.
-	if "--topdown" in user_args: Game.account.settings["topdown_world"] = true
+	# Redesign Phase 4: --topdown makes the preview's character a top-down one (the creator makes top-down ones already,
+	# decision 41); --topdown-tutorial opens the top-down game as the title's hidden entry does, on the preview saves.
+	var preview_view := "topdown" if "--topdown" in user_args else ""
 	if "--topdown-tutorial" in user_args: enter_topdown_tutorial(false)
 	if "--preview-selection" in user_args: show_selection()
 	if "--preview-create" in user_args: show_creation(1)
@@ -185,7 +185,7 @@ func _handle_preview_args(user_args: Array) -> void:
 	var loaded := "--load-slot" in user_args   # --room= with it starts the loaded character in that room
 	if loaded or "--preview-world" in user_args or room != "":
 		if not loaded and Game.character("c1") == null:
-			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}})
+			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}, "view": preview_view})
 		if room != "" and Game.character("c1") != null:
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
@@ -675,10 +675,15 @@ func _handle_preview_args(user_args: Array) -> void:
 		get_tree().quit()
 
 # ------------------------------------------------------------------ shell screens
+## A page or shell screen put away: hidden now and freed at the frame's end. Taken out of the tree at once while the
+## tap that closed it was still being handled, the viewport asked the removed page whether it could process that tap
+## ("Condition !is_inside_tree()" in the log at every close; the prototype's QA).
+static func _put_away(p: Control) -> void:
+	p.hide()
+	p.queue_free()
+
 func _set_shell(p: Page) -> void:
-	if is_instance_valid(shell):
-		shell_layer.remove_child(shell)
-		shell.queue_free()
+	if is_instance_valid(shell): _put_away(shell)
 	shell = p
 	if p != null:
 		shell_layer.add_child(p)
@@ -980,9 +985,7 @@ func _page_script(path: String) -> Script:
 
 func close_page(page: Page) -> void:
 	pages.erase(page)
-	if is_instance_valid(page):
-		page_layer.remove_child(page)
-		page.queue_free()
+	if is_instance_valid(page): _put_away(page)
 	if pages.is_empty() and is_instance_valid(hud): hud.set_blocked(false)
 
 func close_all_pages() -> void:

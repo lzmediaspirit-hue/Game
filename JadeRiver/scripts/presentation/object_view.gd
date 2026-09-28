@@ -191,9 +191,11 @@ func _draw_plate() -> void:
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
 		var label := Game.world._verb(def)
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
+		draw_set_transform(Vector2(label_offset.x, 0.0))   # a crowd's plate may stand half a box aside (WorldLabels)
 		var plate := UiKit.draw_nameplate(self, label if avail.ok else str(avail.get("text", "")), "", -h - 12 + label_offset.y,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, UiKit.MIST, 18)
-		label_box = Rect2(plate.position - label_offset, plate.size)
+		draw_set_transform(Vector2.ZERO)
+		label_box = Rect2(plate.position - Vector2(0.0, label_offset.y), plate.size)
 
 ## Height of a pickup's prop, so its icon floats clear of it.
 func _pickup_top() -> float:
@@ -223,8 +225,10 @@ func _draw_badge() -> void:
 		var avail: Dictionary = Game.world.object_available(who, def) if who else {"ok": true}
 		sub = Game.world._verb(def) if avail.ok else str(avail.get("text", ""))
 		if not avail.ok: col = UiKit.MIST
+	badge.draw_set_transform(Vector2(label_offset.x, 0.0))
 	var plate := UiKit.draw_nameplate(badge, name_text, sub, c.y - 36.0 + label_offset.y, col, UiKit.BRIGHT_JADE if focus else UiKit.MIST, 18 if focus else 16)
-	label_box = Rect2(plate.position - label_offset, plate.size)
+	badge.draw_set_transform(Vector2.ZERO)
+	label_box = Rect2(plate.position - Vector2(0.0, label_offset.y), plate.size)
 
 ## S49 territory: the holder's banner beside the vein; stones waiting glint over it, and a contested mine pulses red.
 func _draw_mine() -> void:

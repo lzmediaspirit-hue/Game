@@ -15,6 +15,7 @@ extends RefCounted
 const ROW_GAP := 2.0
 const ROWS_OUT := 3        # rows tried in a label's own direction ...
 const ROWS_BACK := 2       # ... then the other way
+const ROWS_MORE := 8       # ... then, for a crowd, further rows its own way and half a box aside
 ## A living foe this close to the player (plane px), or any boss in the room, puts the party in a fight (the HUD's
 ## technique ring comes out, the party's HP lines show).
 const FIGHT_NEAR := 560.0
@@ -73,6 +74,19 @@ static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 
 				for k in ROWS_BACK + 1: cands.append(flip - Vector2(0, step * k))
 			else:
 				for k in range(1, ROWS_BACK + 1): cands.append(Vector2(0, -dir * step * k))
+			# A crowd those rows cannot clear (a pack of foes in a fight, the prototype's QA): more rows its own way, then
+			# half a box aside at each of them. Tried last, so a label the rows above clear keeps its place.
+			for k in range(ROWS_OUT + 1, ROWS_MORE + 1): cands.append(Vector2(0, dir * step * k))
+			var aside := r.size.x * 0.5 + 6.0
+			for k in ROWS_MORE + 1:
+				for sx in [-aside, aside]: cands.append(Vector2(sx, dir * step * k))
+			# Then just clear of a HUD control or panel it lies under, beside it (a way's plate at the screen's top edge,
+			# mostly under the minimap, where no row is free of it).
+			for o in obstacles:
+				if not (o as Rect2).intersects(r): continue
+				for sx in [(o as Rect2).position.x - r.end.x - 4.0, (o as Rect2).end.x - r.position.x + 4.0]:
+					cands.append(Vector2(sx, 0))
+					cands.append(Vector2(sx, dir * step))
 		var best: Vector2 = cands[0]
 		var best_cost := INF
 		var base_out := _outside(r, bounds)

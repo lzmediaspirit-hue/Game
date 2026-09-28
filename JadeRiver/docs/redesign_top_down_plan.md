@@ -1290,8 +1290,9 @@ them. The side-view game is unchanged for every side-view character.
   saves of its own (`user://topdown_saves/`). The player's saves are saved, set aside and restored on leaving it. The
   first time it makes a new character and starts the Prologue in the Fisher's Hut. After that it continues where the
   character was saved.
-- **Settings → Controls → "Top-down world (new games)"** (off by default). While it is on, the next character made
-  in the player's own saves is a top-down one.
+- **A new game** (decision 41, "As built: the prototype's default, its gate and its QA"): the character creator makes
+  a top-down character. Settings → Controls → "Classic side view (new games)" (off by default) is the fallback that
+  makes the next one side-view. (Before decision 41 it was the reverse: a "Top-down world (new games)" toggle, off.)
 - **Command-line flags.** `--topdown` makes a preview's characters top-down, and `--topdown-tutorial` opens the
   top-down game on the preview saves. `--topdown-proto` still opens Riverside Square, the Phase 1–2 prototype.
 
@@ -1459,9 +1460,10 @@ real HUD, with its foes where it has them.
 - **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) had no
   top-down figure: they took the crab's, then stood in with their side-view creature sheet at half size (the third
   part). They are drawn now ("Then: the tutorial rooms' other foes", after the third part).
-- **The hollowed eel keeps the row it rose in.** It glides by setting its position, with no velocity or aim
-  (`enemy_authority.gd` `_eel`), so the view never turns it from its spawn row (SE, or SW mirrored), and it strikes
-  along its side-view facing. Its figure is drawn in all eight facings for when it does.
+- **The hollowed eel kept the row it rose in.** It glided by setting its position, with no velocity or aim
+  (`enemy_authority.gd` `_eel`), so the view never turned it from its spawn row. Fixed in the prototype's QA ("As
+  built: the prototype's default, its gate and its QA"): its glide is its velocity and on the grid it lunges along an
+  aim at its target, so the view turns it as it does every foe.
 
 ### As built: Phase 4, third part · the gaps closed (2026-09-28)
 
@@ -1607,6 +1609,106 @@ principles and the full account. In short:
 - **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
 - **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
 - **Screenshots** are in `docs/redesign/phase5/story/`.
+
+### As built: the prototype's default, its gate and its QA (decision 41, 2026-09-28)
+
+Decision 41 makes the top-down game the main direction and the work prototype-first. This part makes the prototype
+the game a new player gets, closes it where the drawn world ends, and plays it through as a new player would. The QA
+playthrough's findings, each with its screenshot, are in `docs/redesign/prototype_qa.md`.
+
+**A new game is top-down.**
+
+- The character creator's create intent names `"view": "topdown"` (`AccountAuthority.new_game_view`). Settings →
+  Controls → "Classic side view (new games)", off by default, is the fallback; it replaces the old "Top-down world
+  (new games)" toggle.
+- A create intent that names no view (the test walks, the debug characters) still makes a side-view character, and a
+  save keeps the view it was made with.
+- The five-tap entry, `--topdown-tutorial` and `--topdown-proto` stay as dev tools.
+
+**The end-of-prototype gate.**
+
+- `WorldAuthority.prototype_gate(c, from, to)`: a top-down character, from a room with a layout, into one without.
+- `portal_state` gives such a way `{"open": false, "gate": true, "text": "The road beyond is still being drawn."}`,
+  after the requirements (a way still hidden stays hidden). `portal_open`, `teleport` and `climb_tower` refuse it
+  with the same line, so no route, auto-path, teleport or tower climb passes it.
+- A side-view character's game is unchanged.
+- There are 18 such ways:
+  - the Marsh Edge's road east to the Grey Pools;
+  - the Fairground's Trial Tower and Caravan Road;
+  - the Stoneford Gate's County Hall and Quarry Road;
+  - Artisan Row's warehouse and the Market's Beast Grove;
+  - the sects' libraries, Alchemy Hall, retreats and cave abodes;
+  - the Array Court's way to the Cloud Herb Terraces.
+- `TopdownGate` draws a barrier in each, in the room's pixel style: timber posts with red-lacquered caps, rails, a
+  cross-brace, a red cord of paper talismans and a notice board. It is one piece across a north or south way and a
+  post per piece down an east or west edge, so the depth sort puts the body in front of or behind each piece.
+  `TopdownPlaces.build` stands it in the way only while the gate holds.
+
+**The tracker never points past the gate.**
+
+- `QuestAuthority.past_gate(c, room)`: a quest step whose room is past the gate keeps its line, gets no target
+  room, and adds the road line.
+- `hunt_rooms` offers only rooms on the grid.
+- `beyond_prototype(c, quest)`: the story's next quest is past the gate when its sect room or every giver's room is.
+  Then `_story_next` offers the prototype's lessons first, and after them `prototype_end()`: "The Tale Rests Here ·
+  The road beyond is still being drawn · The prototype ends here, for now", with no mark and no Go.
+- The Quests page's Next slip reads the same, with its Go button disabled.
+- In the story as it stands, the end comes after The First Current (Bone Forging 7), whose next quest, Bandits on
+  the Road, is on the Caravan Road.
+- A collect step's places (`_item_places`) are the nodes and pickups the character may take now. With none, they are
+  the rooms whose foes drop the item. Mei Qing's willow moss led to herb patches that open only at Bone Forging 4.
+
+**The QA playthrough.**
+
+- `tools/dev/prototype_qa.tscn` plays from the title through the game's own touches (`Input.parse_input_event`, the
+  HUD's stick and buttons at 1280×720). It covers the creator, the opening, the whole tutorial, the fair, a sect (one
+  run per sect), chapter 2's rooms, and on to the gate.
+- It takes a screenshot at every step and notes, per shot, the tracker and any world label still under a HUD control.
+  A player's snag (an item missing, a way that will not open) is logged as a find.
+- Its steps are named (`--start`, `--until`), and it can keep checkpoint saves (`--keep`, `--keep-at`) that a later
+  run starts from (`--from`), so the second sect plays from the fair.
+- It plays as a careful player: one target at a time, a rest before a fresh one, a step out of every wind-up's lane,
+  the breakthroughs the bar asks for. After three falls in a run it keeps its HP up and says so in its log: it is
+  there for the screens, and the falls are findings.
+- Its waits run on the game's own clock (physics ticks), so a slow machine plays as long as a fast one.
+- Fixes in shared code, each with a test:
+  - The clean field: in label mode a foe's full plate shows only for the target the thumb has, a foe in a fight and
+    `EnemyView.ENGAGED_S` after, and elites and bosses (`EnemyView.plate_shown`, `TopdownWorld.focus_labels`).
+    Every other foe has a compact HP bar once hurt or aggroed, and a danger mark when well above the player's Level.
+  - The labels' layout:
+    - plates keep clear of the player's body, and of a door's chevron (`PortalView.arrow_box`);
+    - a crowd takes more rows, then half a box aside (`WorldLabels.ROWS_MORE`), and every view draws that aside
+      offset;
+    - a plate under a HUD control that no row clears steps out just beside it;
+    - the purse and the status row are among the HUD's rects the labels keep off;
+    - a way's plate stays wholly inside the room (`PortalView.label_span`).
+  - Each label stands on the figure's head: the foe sheet's `top`, from `tools/art/topdown/creatures.py`.
+  - The hollowed eel turns: its velocity and aim (`enemy_authority.gd` `_eel`).
+  - World news waits (`HUD.world_news`): it needs the calendar's unlock, no staged scene, and a known place short of
+    the gate.
+  - Staged scenes: the prompt is kept on the screen (`SceneStage.prompt_x`), and a balloon keeps clear of the HUD
+    (`SceneStage.clear_of_hud`). Granny's drink step hands off live and waits a breath, so the heal is seen.
+  - The tracker: at a bottleneck one breakthrough short of the Level the story waits on, the Next entry asks for the
+    breakthrough ("Bottleneck: tap Cultivate to break through"), with no hunt and no Go.
+  - The rest:
+    - a way's refusal shows once in the log, and a floating line stays whole on the screen (`FxLayer.on_screen`);
+    - a moment's band holds the top centre alone (`MomentView.band_on_top`);
+    - the equip prompt's name steps down to fit (`EquipPrompt.name_size`);
+    - a tall prop counts for the silhouette (`TopdownPlaces.Figure`);
+    - the creator's preview wears the starting garments' dyes;
+    - a closed page is freed at the frame's end (`main.gd` `_put_away`).
+- Found and left, each with its reason: see the QA document.
+
+**Tests:**
+
+- `rules_tests` `prototype_suite` covers the default and the fallback, every gated way, the tracker's end, world news,
+  a moment's band, the equip prompt's names, a plate under the minimap, the purse and the status row, and the gate's
+  line. Beside it, the tracker's test
+  covers the Next entry at a bottleneck.
+- `topdown_tutorial` plays on from The Humming Token to the prototype's end and walks into the Marsh Edge's gate.
+- `topdown_suite` covers the clean field, the eel, the dummy, a door's chevron, and a way's long plate.
+- `story_scenes` covers the prompt, the balloon, and the live hand-off.
+- `prologue_run` and `tutorial_order` know the gate.
 
 ### Phase 5 · The animation layers (XL)
 

@@ -113,6 +113,15 @@ func advance(delta: float) -> void:
 func screen_busy() -> bool:
 	return playing != null
 
+## A band or strip is on screen in the top centre, where the HUD's top stack (the room's name, a room event's plate)
+## sits: the stack waits under it rather than show through it (the Hollow Night's band over its own timer).
+const TOP_BAND_Y := 260.0
+func band_on_top() -> bool:
+	if playing == null: return false
+	for L in playing.row.layers:
+		if str(L.kind) in ["band", "strip"] and float(L.get("y", TOP_BAND_Y)) < TOP_BAND_Y and float(playing.st) >= float(L.t): return true
+	return false
+
 ## The active character's numbers a stat rise shows (moments.json `stats`), and the share of HP kept.
 func stats_now() -> Dictionary:
 	var c = Game.active()

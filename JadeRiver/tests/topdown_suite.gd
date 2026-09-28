@@ -776,6 +776,9 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await _hazards_on_the_grid(tree, base)
 	_audit_on_the_grid(base)
 	await _combat_feel(tree, base)
+	await _labels_clean(tree, base)
+	_eel_turns(base)
+	_behind_a_dummy(base)
 	w.queue_free()
 	if is_instance_valid(hud): hud.queue_free()
 	await tree.process_frame
@@ -1927,4 +1930,160 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	var kicked: Vector2 = rig2.offset(0.01)
 	t.check(still == Vector2.ZERO and not off_held and off_stop == 0.0 and on_held and kicked.x < -1.0,
 		"topdown feel: under Reduce motion there is no hit-stop, kick or shake; without it a hit-stop holds the fight and a kick knocks the view along the blow (%s)" % str(kicked))
+
+# ------------------------------------------------------------------ the prototype's QA: a clean field, the eel's turn
+## The field stays clean (docs/redesign/prototype_qa.md): a foe at rest far from the player shows no plate and no bar;
+## the soft-locked target shows its full plate over a compact HP bar; an elite always shows its plate; a foe in a fight
+## (aggroed, or struck) shows it, and it stays ENGAGED_S after the fight; a foe far above the player's Level keeps its
+## danger mark with no plate; a crowd of foes in a fight shows plates that never touch. Each label sits on the top-down
+## figure's head (the foe sheet's `top`), not at the side view's height.
+func _labels_clean(tree: SceneTree, base: Vector2) -> void:
+	fresh(base)
+	var calm := foe("reedtail_rat", base + Vector2(-40, -150))
+	var ahead := foe("mudshell_crab", base + Vector2(0, 56))
+	var strong := foe("reedtail_rat", base + Vector2(40, -150), ProgressionRules.level(c) + 10)
+	var crowned := foe("wild_boarlet", base + Vector2(150, 30))
+	crowned.elite = true
+	frames(2)
+	for i in 3: await tree.process_frame
+	var lv := func(e: EnemyState): return w.label_views.get(e.uid)
+	var box := func(e: EnemyState) -> Rect2: return lv.call(e).label_box if lv.call(e) != null else Rect2()
+	var plate := func(e: EnemyState) -> bool: return lv.call(e) != null and lv.call(e).plate_shown(e)
+	t.check(not plate.call(calm) and box.call(calm).size == Vector2.ZERO and plate.call(ahead) and lv.call(ahead).focused and box.call(ahead).size.y > 20.0
+		and plate.call(crowned) and not plate.call(strong) and box.call(strong).size.y > 0.0,
+		"topdown labels: at rest a foe shows nothing, the soft-locked target its plate over its HP bar, an elite its plate, a foe far above the Level its danger mark alone (calm %s, target %s, strong %s)" % [str(box.call(calm)), str(box.call(ahead)), str(box.call(strong))])
+	calm.ai.state = "aggro"
+	lv.call(calm).sync(calm, 0.05)
+	var in_fight: bool = plate.call(calm) and lv.call(calm).shows_hp_bar(calm)
+	calm.ai.state = "idle"
+	lv.call(calm).sync(calm, 1.0)
+	var after: bool = plate.call(calm)
+	lv.call(calm).sync(calm, EnemyView.ENGAGED_S)
+	t.check(in_fight and after and not plate.call(calm), "topdown labels: a foe in a fight with the player shows its plate and HP bar, and its plate a few seconds after the fight")
+	# The label on the figure's head: the foe sheet's top over its feet, not the side view's height.
+	var sheet: Dictionary = w.room.tileset.foes.species
+	var eel: EnemyState = Game.enemies.spawn_at("hollowed_eel", base + Vector2(-300, 200), 1)
+	frames(1)
+	var eel_top: float = lv.call(eel).figure_top if lv.call(eel) != null else -1.0
+	t.check(is_equal_approx(lv.call(ahead).figure_top, float(sheet.mudshell_crab.top) * TopdownRoom.ART) and is_equal_approx(eel_top, float(sheet.hollowed_eel.top) * TopdownRoom.ART)
+		and eel_top < eel.height(),
+		"topdown labels: a foe's label sits on its top-down figure's head, the hovering eel's too (crab %.0f; eel %.0f over its feet, its side-view height %.0f)" % [lv.call(ahead).figure_top, eel_top, eel.height()])
+	Game.room_rt.enemies.erase(eel.uid)
+	# A crowd in a fight: every plate shows, none touching.
+	fresh(base)
+	var crowd: Array = []
+	for i in 7: crowd.append(foe("reedtail_rat", w.room.nearest_standable(base + Vector2(-60 + i * 20, 40 + (i % 2) * 10))))
+	for e in crowd: e.ai.state = "aggro"
+	frames(2)
+	for i in 3: await tree.process_frame
+	var laid: Dictionary = w.layout_labels()
+	var shown := crowd.filter(func(e): return plate.call(e)).size()
+	var foe_items: Array = laid.items.filter(func(it): return str(it.kind) == "foe")
+	# No plate covers the player's own body (a villager's plate under their feet, a foe's over its head just in front).
+	var body := Rect2(w.feet_on_screen() + Vector2(-14, -64), Vector2(28, 64))
+	var on_body: Array = laid.items.filter(func(it): return Rect2((it.rect as Rect2).position + laid.offsets.get(it.id, Vector2.ZERO), (it.rect as Rect2).size).intersects(body))
+	t.check(on_body.is_empty(), "topdown labels: no plate is laid over the player's body (%s)" % str(on_body.map(func(it): return it.id)))
+	t.check(shown == crowd.size() and foe_items.size() >= crowd.size() and WorldLabels.touching(foe_items, laid.offsets).is_empty(),
+		"topdown labels: seven foes clustered in a fight show their plates, and no two touch (%d shown, %d laid out of %s; %s)" % [shown, foe_items.size(),
+			str(laid.items.map(func(it): return str(it.kind))), str(WorldLabels.touching(foe_items, laid.offsets))])
+	# A plate the layout puts half a box aside is drawn there (its view draws at label_offset.x) and keeps reporting its
+	# box at no offset (the QA's crowd plates were laid aside but drawn where they stood).
+	var lv0 = lv.call(crowd[0])
+	var at_rest: Rect2 = lv0.label_box
+	lv0.label_offset = Vector2(40.0, 0.0)
+	lv0.tag.queue_redraw()
+	await tree.process_frame
+	var aside_box: Rect2 = lv0.label_box
+	lv0.label_offset = Vector2.ZERO
+	t.check(at_rest.size.x > 0.0 and aside_box.is_equal_approx(at_rest),
+		"topdown labels: a plate laid aside keeps reporting its box at no offset, as the layout pass reads it (%s, %s)" % [str(at_rest), str(aside_box)])
+	for e in crowd: e.ai.state = "idle"
+	# A door's chevron keeps other plates off it (Granny Liu's plate lay under her hut door's arrow).
+	fresh(base)
+	var by_door := foe("mudshell_crab", base + Vector2(0, 56))
+	frames(2)
+	for i in 3: await tree.process_frame
+	var dl = lv.call(by_door)
+	var pv := PortalView.new()
+	pv.label_only = true
+	pv.setup({"id": "qa_door", "type": "door", "at": [0, 0], "to": ""}, {})
+	pv.position = dl.position
+	pv.door_top = (dl.label_box as Rect2).get_center().y + 7.0   # the chevron right over the crab's plate
+	w.overlay.add_child(pv)
+	pv.set_process(false)   # after entering the tree (its _ready turns processing on)
+	pv.state = {"open": true, "text": ""}
+	w.portal_views.append(pv)
+	pv.tag.queue_redraw()
+	await tree.process_frame
+	var xf: Transform2D = w.overlay.get_global_transform_with_canvas()
+	var arrow := Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size)
+	var laid_door: Dictionary = w.layout_labels()
+	var crab_id := "e%d" % by_door.uid
+	var crab_at: Array = laid_door.items.filter(func(it): return str(it.id) == crab_id)
+	var crab_rect := Rect2((crab_at[0].rect as Rect2).position + laid_door.offsets.get(crab_id, Vector2.ZERO), (crab_at[0].rect as Rect2).size) if not crab_at.is_empty() else Rect2()
+	t.check(pv.arrow_box.size.x > 0.0 and crab_rect.size.x > 0.0 and not crab_rect.intersects(arrow),
+		"topdown labels: a plate keeps off a door's chevron (the arrow %s, the plate %s)" % [str(arrow), str(crab_rect)])
+	w.portal_views.erase(pv)
+	pv.free()
+	# A way at the room's edge with a long line (the prototype's gate: "The road beyond is still being drawn.") keeps
+	# its whole plate inside the room, so on the screen (it ran off the right edge at the Marsh Edge).
+	var edge := PortalView.new()
+	edge.label_only = true
+	edge.setup({"id": "qa_edge", "type": "edge", "at": [2032, 400], "to": ""}, {"bounds": [0, 0, 2048, 900]})
+	tree.root.add_child(edge)
+	edge.set_process(false)   # after entering the tree (its _ready turns processing on): the state is the test's
+	edge.state = {"open": false, "text": Tx.t("sim.world.road_being_drawn")}
+	edge.near = true
+	for i in 3:
+		edge.tag.queue_redraw()
+		await tree.process_frame
+	var plate_x := Vector2(edge.position.x + edge.label_box.position.x, edge.position.x + edge.label_box.end.x)
+	t.check(edge.label_box.size.x > 200.0 and plate_x.x >= 0.0 and plate_x.y <= 2048.0,
+		"topdown labels: a way's long plate at the room's edge stays wholly inside the room (%s of 2048)" % str(plate_x))
+	edge.free()
+
+## A thing as tall as a body (Guo's training dummy) standing just in front of the player hides them no longer: it counts
+## for the silhouette test, so the body shows through it (the prototype's QA lost the player behind the dummy); a low
+## thing (a jar) and a flat one never do.
+func _behind_a_dummy(base: Vector2) -> void:
+	fresh(base)
+	var made: Array = []
+	var hidden := {}
+	for kind in ["training_dummy", "jar"]:
+		var o := {"id": "qa_" + kind, "type": kind, "at": [base.x, base.y + 6.0], "alt": w.room.height_at(base)}
+		var art := ObjectView.new()
+		art.mode = "art"
+		art.setup(o)
+		var fig := TopdownPlaces.Figure.new(w.room, o, art, null)
+		w.sorted.add_child(fig)
+		w.player.motor.place(base)
+		w.player.physics_step(1.0 / 60.0)
+		w.player.sync(0.0)
+		hidden[kind] = w.is_occluded()
+		fig.free()
+	t.check(hidden.training_dummy and not hidden.jar,
+		"topdown: a body just behind a training dummy shows its silhouette through it, a low jar hides nothing (%s)" % str(hidden))
+
+## The hollowed eel turns as other foes do (the tutorial foes' art QA): it glides along the river by its velocity and
+## lunges at its target along its aim on the grid, so its figure faces where it goes, not its spawn row.
+func _eel_turns(base: Vector2) -> void:
+	fresh(base)
+	var eel: EnemyState = Game.enemies.spawn_at("hollowed_eel", base + Vector2(-200, 0), 1)
+	eel.ai.state = "idle"
+	eel.ai.timer = 0.4
+	frames(2)
+	var fv = w.foe_views.get(eel.uid)
+	if fv == null:
+		t.check(false, "topdown: the hollowed eel has its figure")
+		return
+	var gliding := ""
+	var lunging := ""
+	for i in 90:
+		frames(1)
+		fv.sync(1.0 / 60.0)
+		if gliding == "" and eel.velocity.length() > 1.0: gliding = fv.facing
+		if str(eel.ai.state) == "windup": lunging = "%s %s" % [fv.facing, str(eel.aim.round())]
+	t.check(gliding in ["e", "ne", "se"] and lunging.begins_with("e") and eel.aim.x > 0.9,
+		"topdown: the hollowed eel faces east as it glides toward the player to its east (%s) and lunges along its aim at them (%s)" % [gliding, lunging])
+	Game.room_rt.enemies.erase(eel.uid)
 

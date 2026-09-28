@@ -398,7 +398,7 @@ func leads_to_next(label: String) -> void:
 		if want != "": break
 		if c().quests.active.keys().any(func(q): return str(Game.quest.quest_def(c(), str(q)).get("kind", "")) in kinds): return   # under way here
 		for d in Game.quest.story_waiting(c(), kinds):
-			if not Game.quest.can_offer(c(), d): continue
+			if not Game.quest.can_offer(c(), d) or Game.quest.beyond_prototype(c(), d): continue   # decision 41: none past the gate
 			var giver := QuestAuthority.own_npc(c(), d.get("giver_any", d.get("giver", "")))
 			want = Game.quest.objective_room(c(), d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
 			why = "%s to take from %s" % [d.id, giver]

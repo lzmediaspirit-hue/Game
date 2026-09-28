@@ -168,6 +168,11 @@ func watch_story() -> void:
 			_story_moved = "%s %s" % [n, str(p.get("quest", p.get("realm", p.get("system", ""))))]
 		if n == "sect_joined": _sect_chosen = str(p.get("sect", "")))
 
+## A tracker entry whose lines ask for the breakthrough (the Cultivate button at a bottleneck).
+static func _breakthrough_entry(e: Dictionary) -> bool:
+	var asks := [Tx.t("hud.bottleneck_tap_cultivate_to_break"), Tx.t("hud.bottleneck_reached_see_the_cultivation")]
+	return (e.get("lines", []) as Array).any(func(l): return str(l.get("text", "")) in asks)
+
 func story_guidance() -> void:
 	if not guidance or (_story_moved == "" and _sect_chosen == "") or c() == null or Game.room_rt == null: return
 	var at := "%s, in %s" % [_story_moved if _story_moved != "" else "a sect chosen", room()]
@@ -180,10 +185,19 @@ func story_guidance() -> void:
 		check(not tr.is_empty(), "story guidance (%s): the tracker is not empty" % at)
 	for e in tr:
 		var t := str(e.get("target_room", ""))
+		# Decision 41: past the prototype's gate a top-down character's tracker leads nowhere, and says so.
+		if e.get("gate", false):
+			check(t == "" and str(c().view) == "topdown" and _story_past_gate(), "story guidance (%s): '%s' leads nowhere only at the prototype's end" % [at, e.name])
+			continue
+		# At a bottleneck one breakthrough short of the Level the story waits on, the Next entry is the breakthrough: it
+		# names no room (there is nowhere to go), only what to tap.
+		if str(e.kind) == "next" and t == "" and _breakthrough_entry(e):
+			check(str(c().cultivator.state) == "bottleneck", "story guidance (%s): '%s' asks for a breakthrough only at a bottleneck" % [at, e.name])
+			continue
 		if str(e.kind) == "next": check(t != "", "story guidance (%s): the next entry '%s' names where to go" % [at, e.name])
 		if t == "": continue
 		check(not ContentDB.room(t).is_empty() and _walks_to_room(t), "story guidance (%s): '%s' leads to %s, a room the character can walk to" % [at, e.name, t])
-	if not tr.is_empty() and str(tr[0].kind) == "next":
+	if not tr.is_empty() and str(tr[0].kind) == "next" and not tr[0].get("gate", false) and not (str(tr[0].target_room) == "" and _breakthrough_entry(tr[0])):
 		var nx: Dictionary = tr[0]
 		var t0 := str(nx.target_room)
 		if nx.get("hunt", false):
@@ -208,6 +222,17 @@ func story_guidance() -> void:
 			and (str(first.target_room) == here or Game.world.guide_target(c()) == str(first.target_room)),
 			"story guidance: right after the sect choice its first quest leads the tracker with its target and the mark (%s)" % str(first))
 		_sect_chosen = ""
+
+## Decision 41: the story's next quest (the first of the story waiting, what holds it followed back) is played past the
+## prototype's gate: its own room, or every room its giver stands in, has no top-down layout yet.
+func _story_past_gate() -> bool:
+	var waiting: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS)
+	if waiting.is_empty(): return false
+	var first: Dictionary = waiting[0]
+	for r in first.get("requires", {}).get("all", []):
+		var sub := ContentDB.entry("quests", str(r.get("quest", ""))) if str(r.get("kind", "")) == "quest_done" else {}
+		if not sub.is_empty() and not c().quests.is_done(str(sub.id)): first = sub
+	return Game.quest.beyond_prototype(c(), first)
 
 ## The character can walk there from where it stands: a route through the ways open to it, or as far as the room that
 ## hides the way (Spirit Sense shows it there); a story instance entered by its event counts as there.
@@ -282,6 +307,7 @@ func routes() -> Dictionary:
 			var to := str(p.get("to", ""))
 			if to == "" or prev.has(to) or ContentDB.room(to).is_empty() or ContentDB.room(to).get("instanced", false): continue
 			if p.has("requires") and not RequirementRules.passes(p.requires, Game.ctx()): continue
+			if Game.world.prototype_gate(c(), r, to): continue   # decision 41: a top-down character's gate at the prototype's end
 			prev[to] = [r, str(p.id)]
 			queue.append(to)
 	return prev

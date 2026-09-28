@@ -105,8 +105,10 @@ func face(x: float) -> void:
 ## another plate) the layout pass may lift it over the head instead: `label_flip` is that offset, clear of the marker.
 func _draw_tag() -> void:
 	var col := UiKit.PALE_GOLD if focus else UiKit.PAPER
+	tag.draw_set_transform(Vector2(label_offset.x, 0.0))   # a crowd's plate may stand half a box aside (WorldLabels)
 	var plate := UiKit.draw_nameplate(tag, display_name, title, 26 + label_offset.y, col, UiKit.MIST, 17)
-	label_box = Rect2(plate.position - label_offset, plate.size)
+	tag.draw_set_transform(Vector2.ZERO)
+	label_box = Rect2(plate.position - Vector2(0.0, label_offset.y), plate.size)
 	label_flip = Vector2(0, -136.0 - label_box.end.y)
 
 func _draw() -> void:

@@ -211,7 +211,7 @@ func _process(delta: float) -> void:
 		var n := toasts.size() if not is_visible_in_tree() else maxi(1, toasts_fit)
 		for i in mini(n, toasts.size()): toasts[i].t += delta
 		toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
-	banner.t += delta
+	if not _band_on_top(): banner.t += delta   # the room's name keeps its time for after a band over it
 	vignette.t = float(vignette.t) + delta
 	caption.t = float(caption.t) + delta
 	for k in pulses.keys():
@@ -518,6 +518,8 @@ func obstacle_rects() -> Array:
 	if shown("player_panel"): out.append(panel_rect(c))
 	if shown("minimap"): out.append(minimap_rect)
 	if tracker_rect.size.x > 0.0: out.append(tracker_rect)
+	if purse_rect.size.x > 0.0: out.append(purse_rect)
+	if status_rect.size.x > 0.0 and shown("player_panel"): out.append(status_rect)
 	if not equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
 	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
 	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
@@ -1101,6 +1103,26 @@ func _input(event):
 				Game.submit({"type": "guard_end"})
 
 # ------------------------------------------------------------------ events
+## World news (the calendar's events, the seasons, the Heaven Ranking's shifts, a treasure born elsewhere) reaches the
+## player only once the calendar is theirs (the World menu's unlock, after the Prologue), never while a staged scene
+## holds the stage, and only of a place they know: a room they have been in, and in the top-down world never one past
+## the prototype's gate. The prototype's QA found a late-game event's toast ("The Drowned Shrine Surfaces · Abbot's
+## Sanctum") over a brand-new player's village and the Hollow Night's timer.
+func world_news(room := "") -> bool:
+	var c = Game.active()
+	if c == null or not Unlocks.is_unlocked(c.id, "world_menu"): return false
+	if scene_lock or (scenes != null and scenes.get("run") != null): return false
+	if room != "" and (not Game.account.visited_rooms.has(room) or QuestAuthority.past_gate(c, room)): return false
+	return true
+
+## A calendar event's own room (or the first of its rooms) for world_news: "" when it names none.
+func _event_room(ev: Dictionary) -> String:
+	if str(ev.get("room", "")) != "": return str(ev.room)
+	var rooms: Array = ev.get("rooms", [])
+	for r in rooms:
+		if Game.account.visited_rooms.has(str(r)) and not QuestAuthority.past_gate(Game.active(), str(r)): return str(r)
+	return str(rooms[0]) if not rooms.is_empty() else ""
+
 ## S28 v1.2: raise or lower the Sphere (the reason shows in the log when it cannot be raised).
 func toggle_sphere() -> void:
 	var r := Game.submit({"type": "toggle_sphere"})
@@ -1274,7 +1296,11 @@ func _handle(name: String, p: Dictionary) -> void:
 		"system_log":
 			add_log(str(p.text), UiKit.PAPER)
 		"portal_blocked":
-			add_log(str(p.get("text", "")), UiKit.MIST)
+			# Pushing against a shut way refuses it again and again: its line shows once, kept fresh (the prototype's QA saw
+			# "The road beyond is still being drawn." five times over at the gate).
+			var said := str(p.get("text", ""))
+			if not log_lines.is_empty() and str(log_lines[-1].text) == said and float(log_lines[-1].t) < 5.0: log_lines[-1].t = 0.0
+			else: add_log(said, UiKit.MIST)
 		"field_boss_spawned", "elite_spawned":
 			var def := ContentDB.entry("enemies", str(p.def))
 			toast(Tx.t("hud.appears") % str(def.get("name", "")), "danger")
@@ -1338,19 +1364,23 @@ func _handle(name: String, p: Dictionary) -> void:
 			var ev := CalendarRules.event(str(p.event))
 			var where := str(p.get("room", ""))
 			if str(p.event) == "gathering_trial" and Game.active() != null: where = Game.calendar.trial_room(Game.active())   # your sect's terraces
-			toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold", ContentDB.name_of("rooms", where) if where != "" else "")
+			if world_news(where if where != "" else _event_room(ev)):
+				toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold", ContentDB.name_of("rooms", where) if where != "" else "")
 		"world_event_ended":
-			add_log(Tx.t("hud.world_event_ended") % str(CalendarRules.event(str(p.event)).get("name", p.event)), UiKit.MIST)
+			var ev3 := CalendarRules.event(str(p.event))
+			if world_news(_event_room(ev3)): add_log(Tx.t("hud.world_event_ended") % str(ev3.get("name", p.event)), UiKit.MIST)
 		"world_event_scheduled":
 			var ev2 := CalendarRules.event(str(p.event))
-			Notifier.schedule("world_event", str(ev2.get("name", p.event)), str(ev2.get("desc", "")), float(p.start))
+			if world_news(str(p.get("room", "")) if str(p.get("room", "")) != "" else _event_room(ev2)):
+				Notifier.schedule("world_event", str(ev2.get("name", p.event)), str(ev2.get("desc", "")), float(p.start))
 		"season_changed":
-			toast(Tx.t("hud.season_changed") % ContentDB.name_of("seasons", str(p.season)), "gold")
+			if world_news(): toast(Tx.t("hud.season_changed") % ContentDB.name_of("seasons", str(p.season)), "gold")
 		"weather_changed":
 			if Game.room_rt != null and str(Game.room_rt.def.get("weather", "")) == str(p.region):
 				add_log(Tx.t("hud.weather_" + str(p.weather)), UiKit.MIST)
 		"treasure_birth_announced":
-			add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
+			if world_news(str(p.room)) or (Game.room_rt != null and Game.room_rt.room_id == str(p.room)):
+				add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
 		"treasure_claimed":
 			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
 		# S28 v1.2 the Hollow Tide at full: control lost for a moment, allies turned.
@@ -1459,7 +1489,7 @@ func _handle(name: String, p: Dictionary) -> void:
 		"ranking_changed":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("beaten", "")) != "":
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
-			elif str(p.get("actor", "")) == "":
+			elif str(p.get("actor", "")) == "" and world_news():
 				add_log(Tx.t("hud.ranking_shifts"), UiKit.MIST)
 		"favour_changed":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -1893,6 +1923,7 @@ func _draw():
 		if on: draw_arc(auto_center, 29, fmod(t * 3.0, TAU), fmod(t * 3.0, TAU) + PI * 1.2, 24, UiKit.GOLD, 3.0)
 		glyph("jian", auto_center + Vector2(0, -4), 32)
 		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 23), 14, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
+	purse_rect = Rect2()
 	if shown("currency") and not _boss_arena(): _draw_purse()
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
@@ -1917,6 +1948,11 @@ func _boss_arena() -> bool:
 
 ## The purse (mockup 02): silver and spirit stones on the currency pill under the icon row, growing leftward for large
 ## sums; it rests in boss arenas (mockup 01).
+## The purse as last drawn (none when it is not): the world's labels keep off it (the prototype's QA saw Artisan Row's
+## way plate under it on the Fairground). The status row under the player panel likewise (status_rect).
+var purse_rect := Rect2()
+var status_rect := Rect2()
+
 func _draw_purse() -> void:
 	var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
 	var stones := int(Game.account.currencies.get("spirit_stone", 0))
@@ -1925,6 +1961,7 @@ func _draw_purse() -> void:
 	if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
 	w = maxf(222.0, w)
 	var cr := Rect2(1262 - w, 222, w, 34)
+	purse_rect = cr
 	draw_style_box(UiKit.style("currency_pill"), cr)
 	glyph("coin", cr.position + Vector2(20, 17), 32)
 	UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
@@ -2110,6 +2147,8 @@ func _draw_player_panel(c) -> void:
 	var row_y := r.end.y + 8.0
 	var x := r.position.x + 4.0
 	if meter: x = _draw_hollowing(c, Vector2(r.position.x + 2.0, row_y))
+	# What the row holds, for the world's labels to keep off (a Festival Lantern's plate lay over the Hollowing meter).
+	status_rect = Rect2(r.position.x, row_y - 2.0, minf(r.end.x, x + 28.0 * icons.size()) - r.position.x, 46.0) if meter or not icons.is_empty() else Rect2()
 	for ic in icons.slice(0, 12):
 		if x + 24.0 > r.end.x: break
 		glyph(ic, Vector2(x + 12, row_y + 12), 24)
@@ -2721,8 +2760,9 @@ func _draw_log() -> void:
 func _draw_top_stack(c) -> void:
 	var y := TOP_STACK_BOSS if _boss() != null else TOP_STACK
 	y = _draw_run_banner(c, y)
-	y = _draw_banner(y)
-	y = _draw_event(c, y)
+	if not _band_on_top():   # a moment's band there says the same, and the two drawn together read as neither
+		y = _draw_banner(y)
+		y = _draw_event(c, y)
 	y = _draw_tribulation(c, y)
 	y = _draw_vignette(y)
 	y = _draw_toasts(y)
@@ -2765,6 +2805,9 @@ func _draw_vignette(y0: float) -> float:
 
 func _moment_on_screen() -> bool:
 	return is_instance_valid(moments) and moments.screen_busy()
+
+func _band_on_top() -> bool:
+	return is_instance_valid(moments) and moments.band_on_top()
 
 ## Toasts at the top centre (docs/mockups/20_states: over play, under the chips), 408 wide and 8 apart. The first always
 ## shows; the next only while it stays above the clear zone, and the rest wait their turn.

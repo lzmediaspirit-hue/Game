@@ -525,4 +525,15 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - New games start in the top-down world; a new-game setting keeps the side view as the fallback.
     - Rooms without a top-down layout still open in the side view until they are converted.
     - After the prototype, the next work is converting the remaining rooms (plan Phases 4–7), not the side view.
+    - **The end-of-prototype gate** (the user's choice, replacing the line above for top-down characters): a way from a
+      top-down room into a room with no layout is closed, with a gate and "The road beyond is still being drawn." The
+      side view stays reachable only as the fallback setting, never mid-game.
+    - Built (2026-09-28, the plan's "As built: the prototype's default, its gate and its QA"):
+      - the creator makes top-down characters, and Settings → Controls → "Classic side view (new games)" (off by
+        default) is the fallback; side-view saves keep their view;
+      - the gate stands in all 18 ways off the grid (the Grey Pools, the Trial Tower, the sect rooms the story skips,
+        the Caravan Road…), and no route, auto-path, teleport or tower climb passes it;
+      - the tracker never points past it, and once the story's next quest is past it (after The First Current, and
+        the prototype's lessons) its first entry is "The Tale Rests Here";
+      - a QA playthrough of both sects from the title, `docs/redesign/prototype_qa.md`.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

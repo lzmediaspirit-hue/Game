@@ -43,9 +43,15 @@ class Figure extends Node2D:
 		plane = p
 		feet = TopdownWorld.to_screen(p, z).round()
 		var key := room.sort_key(p, z)
-		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key = room.decal_key(p, z)
+		var pa: Dictionary = SpriteCache.prop(ObjectView.prop_of(def)) if def.get("type", "") != "npc" else {}
+		if bool(pa.get("decal", false)): key = room.decal_key(p, z)
 		position = Vector2(feet.x, key)
 		art.position = Vector2(0, feet.y - key)
+		# A thing as tall as a body (a training dummy, a stump, a shrine) can hide one standing behind it: it counts for
+		# the silhouette test, so the body shows through (the prototype's QA lost the player behind Guo's dummy).
+		var fr: Array = pa.get("frame", [0, 0])
+		var an: Array = pa.get("anchor", fr)
+		rects = [Rect2(feet - Vector2(float(an[0]), float(an[1])) * 0.5, Vector2(float(fr[0]), float(fr[1])) * 0.5)] if float(fr[1]) * 0.5 > 24.0 and not bool(pa.get("decal", false)) else []
 
 	func _process(_d: float) -> void:
 		if not is_instance_valid(twin): return
@@ -228,6 +234,11 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		var mark := WayMark.new(p)
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
+		# Decision 41: a way past the prototype's gate is closed by a barrier standing in it (TopdownGate).
+		if Game.active() != null and Game.world.prototype_gate(Game.active(), str(def.get("id", Game.room_rt.room_id if Game.room_rt else "")), str(p.get("to", ""))):
+			for g in TopdownGate.make(room, p):
+				sorted.add_child(g)
+				out.nodes.append(g)
 	return out
 
 ## One person: their label view on the overlay and their figure sorted with the room, following it: [NpcView, Figure]

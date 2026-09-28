@@ -320,6 +320,7 @@ func _process(delta: float) -> void:
 	overlay.position = (Vector2(VIEW) * 0.5 - (camera.position + camera.offset) * stage_zoom) * TopdownRoom.ART
 	if player.bound():
 		if live: _update_context()
+		focus_labels()
 		layout_labels()
 
 ## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room
@@ -496,6 +497,7 @@ func _add_foe(e: EnemyState) -> void:
 	foe_views[e.uid] = v
 	var lv := EnemyView.new()
 	lv.label_only = true
+	lv.figure_top = v.figure_top(e)   # the label on the top-down figure's head, not at the side view's height
 	lv.setup(e)
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
@@ -509,12 +511,32 @@ func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 	sorted.add_child(v)
 	return v
 
+## The field stays clean (the prototype's QA): the target the thumb has (the foe an aim snaps to, else the soft lock the
+## aim view rings in a fight) is the one foe whose plate shows for that alone (EnemyView.plate_shown).
+func focus_labels() -> void:
+	var m: TopdownMotor = player.motor
+	var a: Dictionary = player.aim
+	var foe = a.get("target") if a.get("target") is EnemyState else null
+	if foe == null and a.is_empty() and Game.room_rt != null and WorldLabels.fight_near(Game.active(), m.pos):
+		foe = TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
+	var uid: int = foe.uid if foe != null else -1
+	for k in label_views:
+		if is_instance_valid(label_views[k]): label_views[k].focused = int(k) == uid
+
 ## The names over the world keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
 ## them), nearest the player first: the foes', and in the world the people's, the ways' and the things'.
 func layout_labels() -> Dictionary:
 	for uid in label_views.keys():
 		if not is_instance_valid(label_views[uid]): label_views.erase(uid)
-	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), overlay.get_global_transform_with_canvas(), label_obstacles)
+	# The player's own body is kept clear as the HUD's controls are: a villager's plate under their feet never covers the
+	# body standing just below them (the prototype's QA, Uncle Guo's plate over the player at his stump).
+	var xf := overlay.get_global_transform_with_canvas()
+	var body := Rect2(feet_on_screen() + Vector2(-14, -64), Vector2(28, 64))
+	# A door's chevron is kept clear too: Granny Liu's plate lay under her hut door's arrow.
+	var arrows: Array = []
+	for pv in portal_views:
+		if is_instance_valid(pv) and pv.visible and pv.arrow_box.size.x > 0.0: arrows.append(Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size))
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), xf, label_obstacles + [body] + arrows)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
@@ -883,6 +905,12 @@ class FoeView extends Sorted:
 		foot = Vector2(float(f[0]), float(f[1]))
 		shadow_rx = float(sp.get("shadow", [8, 3])[0])
 		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
+	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
+	## idle frame facing the camera, tools/art/topdown/creatures.py); a stand-in's is the side view's height at half size.
+	func figure_top(e: EnemyState) -> float:
+		var sp: Dictionary = world.room.tileset.get("foes", {}).get("species", {}).get(e.def_id, {})
+		if art != null or not sp.has("top"): return e.height()
+		return float(sp.top) * TopdownRoom.ART
 	func sync(delta: float) -> void:
 		var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
 		if e == null:

@@ -376,10 +376,21 @@ func portal_near(c, portal: Dictionary) -> bool:
 static func seen_flag(room_id: String, portal_id: String) -> String:
 	return "seen_" + room_id + "_" + portal_id
 
+## Decision 41, the end of the prototype: in a top-down character's game, a way from a room on the height grid into a
+## room with no top-down layout yet is closed by a gate ("The road beyond is still being drawn."), so the side view is
+## never entered mid-game. A way out of a side-view room (a save from before the gate) stays open, back onto the grid.
+func prototype_gate(c, from_room: String, to_room: String) -> bool:
+	return c != null and str(c.view) == "topdown" and to_room != "" and TopdownRoom.has_layout(from_room) and not TopdownRoom.has_layout(to_room)
+
 func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
 		return {"open": false, "text": Tx.t("sim.world.coming_soon")}
+	# The prototype's gate comes before every other lock (the debug tools' too): a way never shown yet stays hidden.
+	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, target):
+		if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
+			return {"open": false, "text": "", "hidden": true}
+		return {"open": false, "text": Tx.t("sim.world.road_being_drawn"), "gate": true}
 	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
@@ -451,6 +462,9 @@ func teleport(c, stone_id: String) -> Dictionary:
 	if not game.account.teleports.has(stone_id): return fail("undiscovered")
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
+	# Decision 41: a stone another character found off the top-down map is past the prototype's gate.
+	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, str(stone.get("room", ""))):
+		return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 	var fee := teleport_fee(stone_id, c)
 	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.plural("sim.world.needs_spirit_stone_shard", fee) % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
@@ -1808,6 +1822,7 @@ func climb_tower(c, f: int) -> Dictionary:
 	if game.room_rt != null and game.room_rt.event.get("active", false): return fail("busy", {"text": Tx.t("sim.world.tower_busy")})
 	var room := str(ContentDB.config("tower").get("room", "sf_trial_tower"))
 	if game.room_rt == null or game.room_rt.room_id != room:
+		if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, room): return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 		var moved := load_room(c, room, "entry")
 		if not moved.get("ok", false): return moved
 	var lv := int(row.level)
@@ -1928,6 +1943,7 @@ func _tick_auto_hunt(c, delta: float) -> void:
 ## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
+	if prototype_gate(c, room_id, str(p.get("to", ""))): return false   # decision 41: no route, mark or hop past the gate
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
 	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
 	return true

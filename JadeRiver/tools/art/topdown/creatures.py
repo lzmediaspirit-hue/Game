@@ -1403,6 +1403,10 @@ def build() -> tuple[Img, dict]:
                     sheet.paste(sprite(sp, action, f, facing), (col + f) * CELL[0], row)
                 col += n
         acts["attack"]["hit_frame"] = HIT_FRAME
-        species[sp] = {"actions": acts, "shadow": SHADOW[sp]}
+        # How far the figure rises over its feet (art px) in its idle frame facing the camera: the view stands the foe's
+        # label (its HP bar and plate) on its head there, not at the side view's height.
+        x0, y0 = acts["idle"]["frames"]["s"][0]
+        box = sheet.img.crop((x0, y0, x0 + CELL[0], y0 + CELL[1])).getchannel("A").getbbox()
+        species[sp] = {"actions": acts, "shadow": SHADOW[sp], "top": FOOT[1] - box[1] if box else FOOT[1]}
     return sheet, {"cell": list(CELL), "foot": list(FOOT), "dirs": DIRS, "mirror": MIRROR, "species": species,
                    "note": "the top-down foes in eight facings (five drawn, three mirrored), built by tools/art/topdown/creatures.py"}

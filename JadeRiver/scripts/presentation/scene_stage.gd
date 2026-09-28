@@ -66,6 +66,10 @@ func _balloon(head: Vector2, a: Dictionary, still: bool, lb_h: float) -> void:
 	var off := not inside.has_point(head)
 	r.position.x = clampf(r.position.x, inside.position.x, inside.end.x - r.size.x)
 	r.position.y = clampf(r.position.y, inside.position.y + (22.0 if off else 0.0), inside.end.y - r.size.y)
+	# Out of a cut the HUD is up: a balloon never lies over its panels (the prototype's QA: Washer Mei's thanks at the
+	# top-left covered the HP bar as Old Snapper appeared). It moves aside of the panel it would cover, else below it.
+	if not director.in_cut() and is_instance_valid(director.hud) and director.hud.modulate.a > 0.5:
+		r = clear_of_hud(r, director.hud.obstacle_rects(), inside)
 	var k := 1.0 if still else clampf(float(a.get("say_t", 1.0)) / 0.15, 0.0, 1.0)
 	_box.bg_color = Color(UiKit.PAPER, 0.96 * k)
 	_box.border_color = Color(UiKit.INK, k)
@@ -83,6 +87,24 @@ func _balloon(head: Vector2, a: Dictionary, still: bool, lb_h: float) -> void:
 	if director.in_cut():
 		var bob := 0.0 if still else roundf(sin(Time.get_ticks_msec() / 160.0) * 2.0)
 		UiKit.draw_text(self, "▼", Vector2(r.end.x - 20.0, r.end.y - 4.0 + bob), 12, Color(UiKit.BRONZE, k), HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+
+## A balloon's box moved clear of the HUD's panels and controls (`hud_rects`, screen rects), inside `inside`: aside of
+## the one it covers (away from its middle), else below it; unchanged when nothing is clear.
+static func clear_of_hud(r: Rect2, hud_rects: Array, inside: Rect2) -> Rect2:
+	var hits := func(b: Rect2) -> bool: return hud_rects.any(func(o): return (o as Rect2).intersects(b))
+	if not hits.call(r): return r
+	for o in hud_rects:
+		if not (o as Rect2).intersects(r): continue
+		var right := (o as Rect2).get_center().x < 640.0
+		var side := Rect2(Vector2((o as Rect2).end.x + 8.0 if right else (o as Rect2).position.x - 8.0 - r.size.x, r.position.y), r.size)
+		if inside.encloses(side) and not hits.call(side): return side
+	# Else the first clear row under a panel.
+	var ys: Array = hud_rects.map(func(o): return (o as Rect2).end.y + 8.0).filter(func(y): return y > r.position.y)
+	ys.sort()
+	for y in ys:
+		var below := Rect2(Vector2(r.position.x, y), r.size)
+		if inside.encloses(below) and not hits.call(below): return below
+	return r
 
 func _name_of(a: Dictionary) -> String:
 	if a.name == "player": return str(Game.active().name) if Game.active() else ""
@@ -120,6 +142,13 @@ func _emote(at: Vector2, kind: String, left: float, still: bool) -> void:
 
 ## The hand-off's prompt: over a thing in the world, a jade chevron bobbing above it and the plate with what to do; at
 ## a HUD control, a ring round it pulsing and the plate above it. Off the screen, the plate docks at the edge.
+## Where a hand-off's prompt plate stands across the screen: by its target, the whole plate on the screen. A long prompt
+## by a control at the edge (the Bag's, top right) was cut off there (the prototype's QA, "Open your Bag: put Herbal
+## Tea in Quick-…").
+static func prompt_x(text: String, x: float) -> float:
+	var half := UiKit.text_width(text, 18, true) * 0.5 + 16.0
+	return clampf(x, half, 1280.0 - half) if half * 2.0 < 1280.0 else 640.0
+
 func _prompt(pr: Dictionary, still: bool) -> void:
 	var t := float(pr.t)
 	var a := clampf(t / 0.25, 0.0, 1.0)
@@ -147,6 +176,7 @@ func _prompt(pr: Dictionary, still: bool) -> void:
 		draw_colored_polygon(PackedVector2Array([c + Vector2(-11, -10), c + Vector2(11, -10), c + Vector2(0, 2)]), Color(UiKit.INK, a))
 		draw_colored_polygon(PackedVector2Array([c + Vector2(-8, -8), c + Vector2(8, -8), c + Vector2(0, -1)]), Color(UiKit.BRIGHT_JADE, a))
 		plate_at.y = c.y - 20.0
+	plate_at.x = prompt_x(str(pr.text), plate_at.x)
 	draw_set_transform(plate_at)
 	UiKit.draw_nameplate(self, str(pr.text), "", 0.0, Color(UiKit.PALE_GOLD, a), UiKit.MIST, 18)
 	draw_set_transform(Vector2.ZERO)

@@ -32,7 +32,11 @@ extends "res://tests/tutorial_order.gd"
 ##      where the first hour's pacing (invariant 14) still holds;
 ##  11. decision 40's runtime light on every room the view builds: its cast shadows baked once as it is built and never
 ##      again while it plays, its particles under their caps by day and at the clock's night, and a night room lit by
-##      its lanterns and doorways over the story's night, which stays night with Settings' extras off.
+##      its lanterns and doorways over the story's night, which stays night with Settings' extras off;
+##  12. the end of the prototype (decision 41): the story played on to The First Current, the lessons inside the
+##      prototype next, then the tracker's first entry is the prototype's end, leading nowhere, and every way off the
+##      grid is closed by a gate that says why (the Marsh Edge's road east, the Trial Tower's door): no route,
+##      auto-path or hop through one; the tracker never leads to herbs the player cannot pick yet.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -69,6 +73,7 @@ func _main() -> void:
 	_layouts()
 	run()
 	_chapter2()
+	_to_the_gate()
 	_scenes_played()
 	_save_on_the_grid()
 	_walk_on_the_grid()
@@ -160,6 +165,125 @@ func step_humming_token() -> void:
 	var nx: Array = Game.quest.tracker(c())
 	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "mei_qings_errand" and str(nx[0].get("target_room", "")) == "sf_artisan_row",
 		"after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row (%s)" % str(nx.slice(0, 1)))
+
+# ------------------------------------------------------------------ 11: the end of the prototype (decision 41)
+## Past The Humming Token, the rest of the story inside the prototype on the grid: Mei Qing's Errand (willow moss from
+## the Marsh Edge's reed frogs, since herbs open only at Bone Forging 4, and grey hides from its Hollowed Boarlets,
+## handed in at Artisan Row), Grey at the Edges (reported to the mentor), the wait for Bone Forging 7 (hunted on the
+## grid; a test shortcut here) and The First Current (Lu, the Lotus Ferry's Qi spring). The story's next quest (Bandits
+## on the Road, on the Caravan Road) is played past the prototype's gate: the lessons on offer inside the prototype lead
+## first, and then the tracker's first entry is the prototype's end, "The Tale Rests Here", the road beyond still being
+## drawn, leading nowhere (no target, no mark). At the prototype's last way east, the Marsh Edge's road to the Grey
+## Pools, the gate is shut and says why: walked into, no route, no auto-path, no hop through it; the view stands the
+## gate in the way.
+func _to_the_gate() -> void:
+	check(travel("sf_artisan_row"), "to Artisan Row for Mei Qing's Errand (room %s)" % room())
+	accept("mei_qing", "mei_qings_errand")
+	invariants("Mei Qing's Errand taken")
+	# Herb gathering opens at Bone Forging 4 (Eyes for Qi): until then the moss comes from the reed frogs, and the
+	# tracker leads to them, never to the herb patches the player cannot pick yet (the Willow Path's).
+	var errand: Array = Game.quest.tracker(c()).filter(func(e): return str(e.get("quest", "")) == "mei_qings_errand")
+	var lead := str(errand[0].get("target_room", "")) if not errand.is_empty() else ""
+	var takes := false
+	for o in ContentDB.room(lead).get("objects", []):
+		if str(o.get("item", "")) == "willow_moss" and Game.world.object_visible(c(), o) and (not o.has("requires") or RequirementRules.passes(o.requires, Game.ctx())): takes = true
+	var drops := false
+	for sp in ContentDB.room(lead).get("spawns", []):
+		if LootRules.drops_item(str(ContentDB.entry("enemies", str(sp.enemy)).get("loot", sp.enemy)), "willow_moss"): drops = true
+	check(not Unlocks.is_unlocked(c().id, "herb_gathering") and lead != "" and (takes or drops),
+		"before herb gathering opens, Mei Qing's willow moss leads where it can be had (%s), never to herbs the player cannot pick yet" % lead)
+	check(travel("rm_marsh_edge"), "to the Marsh Edge for willow moss and grey hides (room %s)" % room())
+	var frogs := 0
+	for i in 30:
+		if c().inventory.count("willow_moss") >= 5: break
+		frogs += fight("reed_frog", 1, 120.0)   # the walk picks up what each fight drops
+	check(c().inventory.count("willow_moss") >= 5, "five Willow Moss from the Marsh Edge's reed frogs on the grid (%d, %d frogs)" % [c().inventory.count("willow_moss"), frogs])
+	var hides := 0
+	for i in 20:
+		if c().inventory.count("grey_hide") >= 3: break
+		hides += fight("hollowed_boarlet", 1, 120.0)   # the walk picks up what each fight drops
+	check(c().inventory.count("grey_hide") >= 3, "three Grey Hides from the Marsh Edge's Hollowed Boarlets (%d, %d fights)" % [c().inventory.count("grey_hide"), hides])
+	# The gate at the Marsh Edge's east way: shut, walked into it says why, no route or auto-path goes through it.
+	var east: Dictionary = Game.room_rt.portal_def("east")
+	var gs: Dictionary = Game.world.portal_state(c(), east)
+	check(gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn"),
+		"the Marsh Edge's way east to the Grey Pools is closed by the prototype's gate, and says so (%s)" % str(gs))
+	stand_by({"at": east.at, "alt": east.get("alt", 0.0)}, Vector2.ZERO, 0.0)
+	var walked := submit({"type": "use_portal", "portal": "east"})
+	check(not walked.get("ok", false) and str(walked.get("text", "")) == Tx.t("sim.world.road_being_drawn") and room() == "rm_marsh_edge",
+		"walked into, the gate stays shut and says the road beyond is still being drawn (%s)" % str(walked))
+	check(Game.world.route(c(), "rm_marsh_edge", "rm_grey_pools").is_empty() and not submit({"type": "auto_path", "target": "rm_grey_pools"}).get("ok", false),
+		"no route and no auto-path go through the gate")
+	var w := _live_view()
+	var gates := w.sorted.get_children().filter(func(n): return n is TopdownGate and not n.is_queued_for_deletion())
+	for g in gates: g._process(0.0)
+	check(gates.size() >= 2 and gates.all(func(g): return g.visible and str(g.def.get("id", "")) == "east"),
+		"the view stands the gate in the way east, drawn post by post down the edge (%d pieces)" % gates.size())
+	_drop_view(w)
+	check(travel("sf_artisan_row"), "back to Mei Qing (room %s)" % room())
+	hand_in("mei_qing", "mei_qings_errand")
+	invariants("Mei Qing's Errand")
+	check(c().quests.is_active("grey_at_the_edges"), "Grey at the Edges under way, to report to the mentor")
+	check(travel(sect_at("peak")), "to the mentor's peak (room %s)" % room())
+	talk(sect_at("mentor"))
+	GameEvents.flush()
+	check(c().quests.is_done("grey_at_the_edges"), "Grey at the Edges reported to the mentor")
+	invariants("Grey at the Edges")
+	# The story waits on Bone Forging 7 for The First Current (Lu, the Lotus Ferry's Qi spring): a hunt on the grid.
+	var wait: Array = Game.quest.tracker(c())
+	check(not wait.is_empty() and str(wait[0].get("quest", "")) == "the_first_current" and wait[0].get("hunt", false)
+		and TopdownRoom.has_layout(str(wait[0].get("target_room", ""))), "then the story waits on a Level, hunted on the grid (%s)" % str(wait.slice(0, 1)))
+	check(climb_to("bone_forging_7"), "Bone Forging 7 (a test shortcut for the hunt: realm %s)" % c().cultivator.realm_key)
+	check(travel("lf_village"), "to Lu at the Lotus Ferry docks (room %s)" % room())
+	accept("lu_boatman", "the_first_current")
+	var spring: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "qi_spring")
+	stand_by(spring[0], Vector2(-20, 10), 0.0)
+	submit({"type": "start_meditation"})
+	step(32.0)
+	submit({"type": "stop_meditation"})
+	hand_in("lu_boatman", "the_first_current")
+	invariants("The First Current")
+	# The story's next quest (Bandits on the Road, on the Caravan Road) is past the gate. The lessons on offer inside the
+	# prototype still come first (Eyes for Qi, the Outer Trial), never one past it (Stone and Sweat, at the quarry).
+	var lessons: Array = []
+	for i in 8:
+		var nx := Game.quest.story_next(c())
+		if nx.get("gate", false) or nx.is_empty(): break
+		var ld := ContentDB.entry("quests", str(nx.get("quest", "")))
+		lessons.append(str(ld.get("id", "")))
+		check(str(ld.get("kind", "")) == "guided" and not Game.quest.beyond_prototype(c(), ld) and TopdownRoom.has_layout(str(nx.get("target_room", ""))),
+			"past the story's end a lesson inside the prototype comes next: %s at %s" % [str(ld.get("id", "")), str(nx.get("target_room", ""))])
+		# A test shortcut: the lesson as done (its play is the fields' and the sect's, as the side-view walk plays them).
+		c().quests.offered.erase(str(ld.id))
+		c().quests.done[str(ld.id)] = 1
+		GameEvents.flush()
+	check(lessons.has("eyes_for_qi") and not lessons.has("stone_and_sweat"), "the lessons on offer inside the prototype led first, none past the gate (%s)" % str(lessons))
+	var tr: Array = Game.quest.tracker(c())
+	var head: Dictionary = tr[0] if not tr.is_empty() else {}
+	check(head.get("gate", false) and str(head.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(head.get("target_room", "x")) == ""
+		and (head.get("lines", []) as Array).any(func(l): return str(l.text) == Tx.t("sim.world.road_being_drawn")),
+		"with the story's next quest past the gate, the tracker's first entry is the prototype's end, leading nowhere (%s)" % str(head))
+	check(Game.world.guide_target(c()) == "" and Game.world.guide_step(c()).is_empty(), "the direction mark leads nowhere past the gate (%s)" % Game.world.guide_target(c()))
+	var side := Game.quest.story_next(c())
+	check(side.get("gate", false), "the Quests page's Next slip is the prototype's end too (%s)" % str(side.get("name", "")))
+	keep("The prototype's end")
+
+## A test shortcut past the Levels the fields are hunted for (the hunting is played in chapter 2's fights): the realm's
+## bar filled and broken through as the HUD asks, to `realm`.
+func climb_to(realm: String) -> bool:
+	for i in 60:
+		if ProgressionRules.at_least(c().cultivator.realm_key, realm): break
+		var cu = c().cultivator
+		if cu.state == "consolidating":
+			cu.consolidation_left = 0.01
+			step(0.5)
+		elif cu.state != "bottleneck":
+			Game.progression.apply_progress(c().id, 0.0, "test_shortcut", 1.0)
+			step(0.2)
+		else:
+			submit({"type": "start_breakthrough", "support_items": []})
+			step(4.0)
+	return ProgressionRules.at_least(c().cultivator.realm_key, realm)
 
 ## The Cloud Steps on the grid: touch the starting stone on the Cliff Stair, climb the grand stair and the ledges to the
 ## bell on the top ledge (the route's finish is its route_finish object, where the layout puts it), and the run ends.
@@ -349,8 +473,9 @@ func _layouts() -> void:
 
 # ------------------------------------------------------------------ 7: the real view drives the body
 ## The character's own view (a live TopdownWorld, bound, as main.gd mounts it) moves the body on the grid: the context
-## button offers a talk beside a person; auto-path (the tracker's go button) walks it to the Trial Tower's doorway and
-## in through the door, and back on the Fairground out through its east edge into Artisan Row, the view following.
+## button offers a talk beside a person; auto-path (the tracker's go button) walks it to the Cloud Sect's road and in
+## through its door (the Trial Tower's door is the prototype's gate), and back on the Fairground out through its east
+## edge into Artisan Row, the view following.
 func _walk_on_the_grid() -> void:
 	var w := _live_view()
 	var shen: Dictionary = npc_object("shen_lian")
@@ -375,9 +500,12 @@ func _walk_on_the_grid() -> void:
 		back = fig.art.row if not fig.twin.focus else "still focused"
 	check(turned == "w" and fig.art.action == fig.art.stand and back == fig.art.rest and back != "w",
 		"Shen Lian's top-down figure turns west to the player talking to her, and back to her rest (%s) when he walks off (turned %s, back %s)" % [fig.art.rest if fig else "-", turned, back])
-	check(_auto_path(w, "sf_trial_tower", 40.0), "auto-path walks the body across the Fairground to the Trial Tower's doorway and in (room %s)" % room())
+	# Decision 41: the Trial Tower has no top-down layout yet, so its door is the prototype's gate: no auto-path to it.
+	check(not submit({"type": "auto_path", "target": "sf_trial_tower"}).get("ok", false) and Game.world.portal_state(c(), Game.room_rt.portal_def("tower")).get("gate", false),
+		"the Trial Tower's door is closed by the prototype's gate, and auto-path finds no way in")
+	check(_auto_path(w, "cm_cliff_stair", 40.0), "auto-path walks the body across the Fairground to the Cloud Sect's road and in through its door (room %s)" % room())
 	_drop_view(w)
-	check(go("entry") and room() == "sf_fairground", "back out of the tower onto the grid")
+	check(go("stoneford") and room() == "sf_fairground", "back down the road onto the Fairground")
 	w = _live_view()
 	check(_auto_path(w, "sf_artisan_row", 40.0) and w.room == Game.room_rt.topdown and w.room.id == "sf_artisan_row",
 		"auto-path walks out through the Fairground's east edge into Artisan Row, and the view builds it (room %s)" % room())

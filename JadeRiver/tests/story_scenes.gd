@@ -41,6 +41,39 @@ func _every_scene_validates() -> void:
 		total += s
 		each.append("%s %.1f" % [row.id, s])
 	check(rows.any(func(r): return (r.steps as Array).any(func(s): return str(s.do) == "handoff")), "the scenes hand the controls to the player")
+	# Every hand-off's prompt plate is whole on the screen, even by a control at its right edge (the prototype's QA: the
+	# Bag's "Open your Bag: put Herbal Tea in Quick-use" ran off it).
+	var cut_off: Array = []
+	for row in rows:
+		for s in row.steps:
+			if str(s.do) != "handoff": continue
+			for x in [1120.0, 1270.0, 10.0]:
+				var px := SceneStage.prompt_x(str(s.prompt), x)
+				var half := UiKit.text_width(str(s.prompt), 18, true) * 0.5 + 10.0
+				if px - half < 0.0 or px + half > 1280.0: cut_off.append("%s: %s" % [row.id, s.prompt])
+	check(cut_off.is_empty(), "every hand-off's prompt stands whole on the screen, by a control at either edge too (%s)" % str(cut_off.slice(0, 3)))
+	# A hand-off that ends on an item used (Granny's tea) keeps the controls and the HUD up, and waits before the next
+	# line, so the item's effect shows: its number over the head and its line in the log (the prototype's QA, and the
+	# user's "tea effects not shown").
+	var hidden_use: Array = []
+	for row in rows:
+		var steps: Array = row.steps
+		for i in steps.size():
+			var s: Dictionary = steps[i]
+			if str(s.do) != "handoff" or not (s.get("until", []) as Array).any(func(u): return str(u.get("event", "")) == "item_used"): continue
+			var next: Dictionary = steps[i + 1] if i + 1 < steps.size() else {}
+			if str(s.get("then", "cut")) != "live" or (not next.is_empty() and not (str(next.do) == "wait" and float(next.get("s", 0.0)) >= 1.0)):
+				hidden_use.append("%s: %s" % [row.id, s.prompt])
+	check(hidden_use.is_empty(), "a hand-off that ends on an item used keeps the HUD up and lets its effect show (%s)" % str(hidden_use))
+	# A balloon out of a cut keeps off the HUD's panels: aside of the player panel, or below it (the prototype's QA:
+	# Washer Mei's thanks covered the HP bar).
+	var panel := Rect2(16, 16, 360, 104)
+	var tracker := Rect2(14, 172, 342, 76)
+	var inside := Rect2(24, 24, 1232, 672)
+	var moved := SceneStage.clear_of_hud(Rect2(30, 60, 300, 60), [panel, tracker], inside)
+	var crowded := SceneStage.clear_of_hud(Rect2(30, 60, 1200, 60), [panel, tracker], inside)
+	check(not moved.intersects(panel) and not moved.intersects(tracker) and inside.encloses(moved) and not crowded.intersects(panel),
+		"a speech balloon out of a cut moves clear of the HUD's panels (%s; a wide one %s)" % [str(moved), str(crowded)])
 	print("staged (s): %s; %d scenes, %.0f s in all" % [", ".join(each), rows.size(), total])
 
 # ------------------------------------------------------------------ 2
