@@ -8,6 +8,10 @@ const PICKUP_RADIUS := 48.0
 const PORTAL_RADIUS := Vector2(64, 44)
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
+## The world's resource nodes: things worked for a yield or a training (a herb, a vein, a pool, a swarm, a trail, a
+## star ring, a bed or plot, a Temper drum). While the craft or the body level they ask is not there yet, they stay in
+## the world as a promise and never take the context button (query_context, resource_node).
+const RESOURCE_NODES := ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm", "beast_trail", "star_sight", "garden_bed", "treasure_plot"]
 const REACH_ALT := 48.0   # an object answers only a body within this height of it (the context button and interact)
 
 ## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
@@ -562,11 +566,20 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 
 func object_visible(c, o: Dictionary) -> bool:
 	if o.has("visible_if") and not RequirementRules.passes(o.visible_if, game.ctx(c)): return false
+	if str(o.get("type", "")) == "npc" and in_spar(str(o.get("npc", ""))): return false
 	if o.has("hidden_if") and RequirementRules.passes(o.hidden_if, game.ctx(c)): return false
 	if str(o.get("type", "")) == "egg_nest" and nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
 	# S43 rule 15: a rooftop thief is on his street until you have chased him today (caught or not).
 	if o.has("chase") and c != null and chase_done_today(c, str(o.id)) and str(chases.get(c.id, {}).get("object", "")) != str(o.id): return false
 	return true
+
+## A person fighting a spar (QuestAuthority.start_spar): their partner figure is them while the spar lasts; at its end
+## the partner is gone at once (EnemyAuthority._finish_spar) and the person stands in their place again.
+func in_spar(npc: String) -> bool:
+	if npc == "" or game.room_rt == null: return false
+	for e in game.room_rt.enemies.values():
+		if e.alive and e.def.get("spar", false) and str(e.ai.get("partner", "")) == npc: return true
+	return false
 
 ## A sealed climbable (S43: library floors, lofts) opens when its requirement is met.
 func climbable_open(c, climbable: Dictionary) -> Dictionary:
@@ -587,7 +600,7 @@ func open_key(o: Dictionary) -> String:
 func object_available(c, o: Dictionary) -> Dictionary:
 	if not object_visible(c, o): return {"ok": false, "text": "", "hidden": true}
 	if o.has("requires") and not RequirementRules.passes(o.requires, game.ctx(c)):
-		return {"ok": false, "text": str(o.get("locked_text", RequirementRules.first_failure_text(o.requires, game.ctx(c))))}
+		return {"ok": false, "locked": true, "text": str(o.get("locked_text", RequirementRules.first_failure_text(o.requires, game.ctx(c))))}
 	var st: Dictionary = game.room_rt.objects.get(str(o.id), {})
 	if st.get("state", "ready") in ["depleted", "broken", "open"]: return {"ok": false, "text": "", "spent": true}
 	# S45: a rare herb out of its season lies dormant (seasons never gate progression).
@@ -791,6 +804,9 @@ func query_context(c) -> Dictionary:
 		if d > float(o.get("radius", 110)) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
 		var avail := object_available(c, o)
 		if avail.get("spent", false): continue
+		# A resource node not open to the character yet offers nothing (the prototype's QA: the Reed Shallows' herbs said
+		# "You don't know which leaves are worth picking yet" from the button in the first fight).
+		if avail.get("locked", false) and resource_node(o): continue
 		var calls: bool = o.type == "npc" and QuestAuthority.marker_calls(game.quest.npc_marker(c, str(o.npc)))
 		var score: float = context_rank(o, calls) * 1000.0 + d
 		if score < best_score:
@@ -805,6 +821,10 @@ func query_context(c) -> Dictionary:
 				best = {"portal": str(p.id), "type": "portal", "label": Tx.t("sim.world.enter"), "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
 				break
 	return best
+
+## A thing worked for a yield or a training (RESOURCE_NODES), or a Temper drum (a body trial's circle).
+static func resource_node(o: Dictionary) -> bool:
+	return str(o.get("type", "")) in RESOURCE_NODES or str(o.get("event", "")).ends_with("_body_trial")
 
 ## Objects the context button offers: not the ones a blow breaks or trains on, nor decor, air pockets or a run's finish.
 static func offers_context(o: Dictionary) -> bool:

@@ -259,9 +259,12 @@ func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	var lv_range: Array = spec.get("level", def.get("level", [1, 1]))
 	e.level = rng.randi_range(int(lv_range[0]), int(lv_range[lv_range.size() - 1]))
 	e.elite = bool(spec.get("elite", false))
-	# An early surprise (world.py early_surprises): a common foe of the first fields sometimes comes as an elite.
-	# Its own stream, so the room's other draws (levels, facings, timers) stay as they were.
+	# An early surprise (world.py early_surprises): a common foe of the first fields sometimes comes as an elite, once
+	# the room's own story fight is done (`elite_after`: the herd The Willow Path asks for is met as the story sets it,
+	# its own elite apart). Its own stream, so the room's other draws (levels, facings, timers) stay as they were.
+	var after := str(spec.get("elite_after", ""))
 	var chanced: bool = not e.elite and float(spec.get("elite_chance", 0.0)) > 0.0 and game.active_id != "" \
+		and (after == "" or (game.active() != null and game.active().quests.is_done(after))) \
 		and Rng.stream(game.active_id, "elites").randf() < float(spec.elite_chance)
 	e.elite = e.elite or chanced
 	e.role = "elite" if e.elite else str(def.get("role", "normal"))
@@ -511,7 +514,9 @@ func end_spar(e: EnemyState, winner_actor: String) -> void:
 ## A spar ends at 10% HP on either side: the opponent bows out and Combat makes the player whole.
 func _finish_spar(e: EnemyState, winner: String) -> void:
 	e.alive = false
-	e.dead_time = 0.8
+	# A person who sparred (QuestAuthority.start_spar's partner) steps straight back into their own place in the room, to
+	# be talked to at once; a sparring post's disciple bows out where it stands.
+	e.dead_time = 1.6 if str(e.ai.get("partner", "")) != "" else 0.8
 	game.combat.end_spar(game.active_id)
 	emit("spar_ended", {"actor": game.active_id, "opponent": e.def_id, "winner": winner, "room": game.room_rt.room_id})
 

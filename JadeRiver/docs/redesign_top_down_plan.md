@@ -1710,6 +1710,64 @@ playthrough's findings, each with its screenshot, are in `docs/redesign/prototyp
 - `story_scenes` covers the prompt, the balloon, and the live hand-off.
 - `prologue_run` and `tutorial_order` know the gate.
 
+### As built: the prototype's polish (decision 41, 2026-09-28)
+
+The last pass before the prototype's APK takes the QA document's findings that were left for decisions and fixes
+them, to the research's aim that the start feels rewarding and not forced (`docs/research/player_motivation.md`). The
+QA document has each with its shots and the runs after (`docs/redesign/prototype_qa.md`, "The polish pass").
+
+**Fair first fights, at the Level the story brings the player.**
+
+- The herd's elite boarlet on Willow Path West stands at Level 1 (the Willow Path is offered at Bone Forging 1), not the
+  herd's top Level 2, and keeps apart at the west meadow (`world.py` `wp_west`: `elite=False` and its own spawn;
+  `topdown_rooms.py` cell 4,21, from 37,21 in the herd's middle). The early surprise (`elite_chance`, player_motivation
+  item 7) of the Reed Shallows and Willow Path West waits until the room's story fight is done: `elite_after` (Crab
+  Trouble, The Willow Path) on the spawn, checked by `EnemyAuthority._spawn`.
+- The Marsh Edge's band is Level 3-5 (reed frogs 3-5, leeches 4-5, the elite frog 5), from 4-6: Strange Tracks sends a
+  Bone Forging 3 player there. The elite frog keeps to the lookout (cell 54,2, a level up, from 37,16 on the path).
+  The Humming Token's grey boarlets are Level 3-4, from the earlier fix's 4-5 (two Level-5 ones charging together took
+  a Level-3 player to 9% of its HP in `balance_sim`'s room fight, 51% now); `balance_sim`'s band check holds either
+  way.
+- A spar opponent whose `spar_level` is "match" spars at the player's Level (`QuestAuthority.start_spar`): the
+  sparring disciples, and now Shen Lian. His fist winds up 0.6 s. `spar_lines` (enemies.json) are said by the HUD as
+  the spar starts and ends (`HUD.spar_line`), a toast's second line wrapping onto a second row (`HUD.toast_sub_rows`,
+  `TOAST_ROW`) so the lesson is said whole.
+
+**One of each person.** `start_spar(c, opponent, level, npc)`: asked of a person (the talk's Spar passes the NPC), the
+partner steps out from where the person stands and carries `ai.partner`; `WorldAuthority.in_spar(npc)` hides the
+person's villager figure while any spar enemy (alive, or bowing out) is theirs, and `TopdownPlaces.stand_in` draws the
+partner in the person's own clothes.
+
+**Rewards.** `grant_item` takes `unless_owned` (never a second of what the character has, bag or worn). The Weapon
+Hall's rack is the jian, the spear and the staff, each `unless_owned`; Crab Trouble pays a Boar Bone Broth in place of
+Straw Sandals (and so does the skip start); Old Ma's loft (`soup_loft`) holds two Riverfish Soups; Eyes for Qi pays two
+Herbal Teas in place of the sickle the unlock hands out. `AccountAuthority.STARTING_KIT` names the kit.
+
+**The creator.** `ShellScreens.TopdownPreview` draws a `TopdownFigure` at 6x, nearest-neighbour: a rest facing the
+camera, then walking in place through the eight facings, a round every 10.4 s; a tap turns it and holds the facing a
+while. The creator uses it unless `AccountAuthority.new_game_view` says side view; the selection screen uses it (at
+3.2x, standing) for a top-down character's card.
+
+**The rest.**
+
+- `WorldAuthority.query_context` skips a resource node (`RESOURCE_NODES`, or a body trial's Temper drum) whose
+  requirement fails (`object_available`'s new `locked`).
+- `WorldLabels.resolve` pulls a label wholly inside the screen's width before it tries its rows (`_pull_in`).
+- `WorldShared.request_portal` lights the way's own plate on a refusal (`PortalView.touch`, 1.8 s, shown even a step
+  away) in place of the floating line; `HUD` logs `portal_blocked` only for a way with no plate in the view.
+- `HUD.log_rows` wraps a log line onto a second, indented row, and keeps the log to `LOG_ROWS` (6).
+- `QuestAuthority.objective_room`: standing in an instanced room a step is done in (the Siege of Two Sects), the step
+  leads there, not to the street its rite began in.
+
+**Tests:** `balance_sim` `_story_rooms_agree`, `_story_duels` (eight fights through the real Combat on the rooms'
+grids, at a thumb's pace: `TAP_S`, `WALK_UPS`) and `_room_fight` (a kill step in its room as it stands, the room's
+other foes joining, walking the grid's paths: the Willow Path's herd and The Humming Token); `data_validation`
+`early_rewards_suite`; `rules_tests` `prototype_suite` (the creator and selection, locked nodes, the spar, a toast's
+long line, the edge pull, the log's wrap, the gate's line, a step in an instanced room) and P7's early surprise
+(waiting for the room's story fight); `prologue_run`,
+`tutorial_order` and `topdown_tutorial` (Crab Trouble's pay, the broth, the rack, no locked node offered in a fight).
+The QA player's `--no-assist` gives the falls without cover, with the foes about and the teas left at each.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

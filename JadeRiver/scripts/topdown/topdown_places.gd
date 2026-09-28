@@ -128,6 +128,12 @@ class Person extends Node2D:
 ## on its floor and draws its shadow there.
 static func stand_in(e: EnemyState) -> Node2D:
 	var art: Dictionary = e.def.get("art", {})
+	# A person sparring with the player (QuestAuthority.start_spar) is that person, in their own clothes, while their
+	# villager figure is hidden.
+	if str(e.ai.get("partner", "")) != "":
+		var own := Person.new({"npc": str(e.ai.partner), "facing": e.facing})
+		own.shadow = false
+		return own
 	if art.has("avatar"):
 		var outfit = art.avatar
 		if outfit is String and outfit == "player": outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()

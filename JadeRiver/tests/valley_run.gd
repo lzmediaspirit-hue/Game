@@ -345,6 +345,11 @@ func gather(item: String, count: int, limit := 20) -> int:
 	return got
 
 func meditate(seconds: float) -> void:
+	# A stun carried in (the Quarry Rim's falling rocks; the travel between rooms is not played out) is waited out first.
+	var guard := 0
+	while Game.combat.is_stunned(c().id) and guard < 40:
+		guard += 1
+		step(0.1)
 	submit({"type": "start_meditation"})
 	step(seconds + 1.0)
 	submit({"type": "stop_meditation"})

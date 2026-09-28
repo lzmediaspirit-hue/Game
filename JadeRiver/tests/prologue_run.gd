@@ -706,9 +706,13 @@ func step_crabs() -> void:
 	check(fight("old_snapper", 1, 120.0, 0.0, false, false) == 1, "Old Snapper defeated without resting or dodging (hp %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
 	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
 	check(travel("lf_village"), "back to the village")
+	var sandals: int = c().inventory.count_including_equipped("straw_sandals")
 	hand_in("uncle_guo", "crab_trouble")
-	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1 and c().inventory.count_including_equipped("straw_sandals") >= 1,
-		"Plain Straw Hat and Straw Sandals received")
+	# Paid in what the player does not have yet: the hat, and Ping's bone broth (the starting kit wears Straw Sandals, so
+	# no second pair; the prototype's polish).
+	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1 and c().inventory.count("boar_bone_broth") >= 1
+		and c().inventory.count_including_equipped("straw_sandals") == sandals,
+		"Plain Straw Hat and a Boar Bone Broth received, and no second pair of Straw Sandals (%d)" % c().inventory.count_including_equipped("straw_sandals"))
 
 ## 10 Evening on the River: dinner, the docks at sunset, and the night falls.
 func step_evening() -> void:

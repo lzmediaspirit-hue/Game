@@ -1,5 +1,91 @@
 # Changelog
 
+## The prototype's polish: fair first fights, rewards that are new, the top-down creator (decision 41)
+
+The last pass before the prototype's APK, on what the QA playthrough (`docs/redesign/prototype_qa.md`) left for
+decisions. The research's aim (`docs/research/player_motivation.md`): the start should feel rewarding, not forced.
+
+- **A new player following the story is not downed again and again.**
+  - **The herd's elite boarlet** (The Willow Path's last fight) is met at the Level the story brings the player there,
+    Level 1 (Bone Forging 1), not the herd's top Level 2: 304 HP and 12 attack, from 425 and 16.2. It keeps apart at
+    Willow Path West's west meadow by the willow, where the herd's walk west ends, instead of charging into the herd's
+    fights from the middle of it. It downed the QA player one to four times a run; see the QA document for the runs
+    after.
+  - **An early surprise waits for the room's story fight.** A common foe of the Reed Shallows and Willow Path West
+    comes as an elite one spawn in twenty-five only once Crab Trouble, and The Willow Path, are done (`elite_after`):
+    a Level-2 surprise elite in The Willow Path's herd downed the QA player twice in one run, where the story's own
+    elite is met alone.
+  - **The Marsh Edge fits the Level the story sends there.** Strange Tracks sends a Bone Forging 3 (Level 3) disciple
+    out of the Weapon Hall; the marsh's band is Level 3-5, from 4-6: its reed frogs 3-5, its leeches 4-5, and its elite
+    frog Level 5 (874 HP, 30.5 attack, from 1053 and 36). The elite frog keeps to the lookout, a level up that it cannot
+    see the path from, guarding the moss there: an optional fight, not one the path walks into.
+  - **The Humming Token's grey boarlets are Level 3-4**, from the earlier fix's 4-5: the story's Level and one over.
+    Three at a time among the marsh's frogs and leeches, two Level-5 ones charging together took a Level-3 player to
+    9% of its HP in `balance_sim`'s room fight (51% now), and the QA player fell there.
+  - **Shen Lian's spar is a lesson.** He spars at the player's own Level (`spar_level: "match"`, as the sparring
+    disciples do; his Level-4 double beat the QA's Level-2 player): at Level 2, 193 HP and 6.9 attack, from 322 and
+    10.8. His fist winds up for 0.6 s, as long as Old Snapper's claw, a tell a thumb can read. He says what the spar
+    teaches: the offer ("every fighter tells you when the blow is coming"), a toast as it starts ("Watch my shoulder.
+    When it drops, step aside, then hit back!"), and another when it ends, won or lost (`spar_lines`,
+    `HUD.spar_line`). A toast's second line too long for one row wraps onto a second now (`HUD.toast_sub_rows`): the
+    lesson was cut at "When it…".
+- **One Shen Lian on the screen.** Asked for a spar, the person is the one who fights: the partner steps out from where
+  they stand, in their own clothes on the grid, and their villager figure is hidden while the spar and its bow last
+  (`QuestAuthority.start_spar`'s `npc`, `WorldAuthority.in_spar`, `TopdownPlaces.stand_in`).
+- **Rewards that are new.** No early reward is a second of what the player has:
+  - Crab Trouble pays 50 taels, the Plain Straw Hat and a **Boar Bone Broth** (+120 body XP: the QA player's body level
+    went from 1 to 3 for good), not Straw Sandals, which the starting kit wears. The skip-the-Prologue start follows.
+  - Old Ma's storeroom loft holds **two Riverfish Soups** (+5% max HP for 20 minutes), not a third pair of sandals.
+  - The Weapon Hall's rack holds each sect's own weapon, the Jade Sect's jian and the Cloud Sect's staff, and the spear,
+    not a second pair of Uncle Guo's gauntlets; each is handed out only to one who lacks it (`unless_owned` on a
+    `grant_item` effect).
+  - Eyes for Qi pays two Herbal Teas in place of a herb sickle: herb gathering's unlock hands out the sickle already.
+- **The creator shows the top-down character.** A new game is top-down, so the preview is the top-down figure
+  (`TopdownFigure`, the layer sets under `art/topdown/character/`) walking in place as it turns through the eight
+  facings, with a rest facing the camera each round; a tap on it turns it by hand, and it follows every change of the
+  look in the starting garments' dyes (`ShellScreens.TopdownPreview`). The side view's avatar shows only with Settings'
+  classic side view on. Character selection draws a top-down character's card in the top-down style too.
+- **Smaller fixes from the QA document:**
+  - **A locked resource node never takes the context button**: a herb before herb gathering, a swarm before the net, a
+    trail before snaring, a Temper drum before its body level stay in the world, and are offered once open
+    (`WorldAuthority.RESOURCE_NODES`, `resource_node`).
+  - **A plate at the screen's side edge is pulled in whole** ("…Crab" at the Reed Shallows' left edge), every row it
+    tries with it; one wider than the screen is left (`WorldLabels._pull_in`).
+  - **The gate's line shows once, near the gate, never under the HUD.** It was on the screen three times at once: the
+    log, the way's plate, and a line floating over the player, partly under the purse. Now a shut way walked into
+    lights its own plate at the way (`PortalView.touch`); nothing floats over the player, and the log keeps quiet
+    where a plate says it (`HUD._way_plate`).
+  - **Log lines wrap** onto a second, indented row instead of ending in "…"; the log keeps to six rows
+    (`HUD.log_rows`).
+  - **Inside an instanced room a step is done in** (the Siege of Two Sects, its way out held until it is won), the
+    step leads there, not back to the street its rite was begun in (`QuestAuthority.objective_room`). `valley_run` met
+    it when a sect mission was finished mid-siege.
+- **Tests:**
+  - `balance_sim` adds the story's rooms (no field the story sends the player into is over the Level it brings them
+    there at) and the story's duels: each fight of the prototype's story fought through the real Combat on the room's
+    own grid, at the story's Level and gear, at a thumb's pace (the herd's elite boarlet trading blows with the first
+    weapon, and with Guo's gauntlets by a careful player; the Entry Trial's puppet; Shen Lian's spar; the Marsh Edge's
+    frogs, leeches and grey boarlets trading blows; its elite frog by a careful player), and the story's room fights:
+    the Willow Path's herd and The Humming Token's grey boarlets killed in their rooms as they stand, the room's other
+    foes joining, won every time with HP never under 40% (66% and 51%).
+  - `data_validation` adds the early rewards: no piece of gear or tool the early story hands out (the starting kit,
+    the quests, their unlocks, the pickups in the rooms on the grid) is given twice, and the Weapon Hall's rack.
+  - `rules_tests` `prototype_suite` adds the creator's top-down preview (fully drawn, all eight facings, the rest,
+    the dyes, following the look, a tap) and the classic side view's avatar, the selection cards, locked nodes, Shen
+    Lian's spar (hidden in the square, stepping out where he stood, his clothes, his Level, his tell, his lines, back
+    after), a toast's long second line, plates pulled in at the edge, the log's wrap, the gate's line (no log line where
+    a plate says it, the plate lit, nothing floating), and a step in an instanced room; its P7 suite, an early
+    surprise waiting for the room's story fight.
+  - `prologue_run` checks Crab Trouble's pay; `tutorial_order` and `topdown_tutorial` drink the broth, check the rack
+    (no second gauntlets), and hold that no locked resource node took the context button in a fight. `valley_run`
+    waits out a stun carried into a room before it meditates (the Quarry Rim's falling rocks, the travel between not
+    played out).
+- **Tools:** the QA player plays with `--no-assist` (every fight on its own HP; its log lists every fall with the
+  damage by foe, the foes about and the teas left, and every spar), drinks the broth, looks in the Bag at the Weapon
+  Hall, follows Shen Lian's lesson in his spar, hits the Trial Puppet while it strikes (it guards otherwise: stepping
+  out of its wind-up, the QA player never landed a blow in 90 s), says why a fight ran out of time, and shoots the
+  herd's elite's fight.
+
 ## The prototype: top-down by default, the end-of-prototype gate, and a QA playthrough (decision 41)
 
 - **New games start in the top-down world.** The character creator makes a top-down character. Settings → Controls →

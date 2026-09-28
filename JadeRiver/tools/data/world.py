@@ -849,7 +849,12 @@ def willow_path():
 
     r = field("wp_west", "Willow Path West", "willow_path", 2, [1, 3], "valley_day", "moss",
               [("wild_boarlet", 5, [1, 2], 10), ("mossback_toad", 3, [2, 3], 12)], herbs=("willow_moss", "willow_moss"), jars=5,
-              gather_tier="valley_low", music="field", ambience="birds_ambience")
+              gather_tier="valley_low", music="field", ambience="birds_ambience", elite=False)
+    # The herd's elite (The Willow Path's last fight, the first tough one): at the Level the story brings the player here
+    # (Bone Forging 1, Level 1), not the herd's top Level, and keeping apart at the meadow's west end, so it is met alone
+    # once the five boarlets are down rather than charging into the herd's fights (the prototype's QA fell to it one to
+    # four times a run).
+    r.spawn("wild_boarlet", [[420, 880]], 1, respawn=180, level=[1, 1], elite=True)
     for i, x in enumerate([700, 820, 940]):
         r.obj("stump_%d" % i, "training_stump", [x, 700 + i * 20])
     r.obj("lift_1", "lifting_stone", [1200, 720])
@@ -1192,16 +1197,19 @@ def valley():
           hidden_if=all_of(flag("journal_tunnel")))
     r.portal("entry", "door", [140, 700], "sq_lower_pit", "tunnel", press_up=True)
 
-    # Reed Marsh (BF4-QK1)
-    r = field("rm_marsh_edge", "Marsh Edge", "reed_marsh", 2, [4, 6], "marsh", "moss",
-              [("reed_frog", 5, [4, 6]), ("marsh_leech", 3, [5, 6])], herbs=("willow_moss", "willow_moss", "riverreed_ginseng_10"),
+    # Reed Marsh (BF3-QK1). The Marsh Edge is chapter 2's first room and the story brings the player here at Bone Forging 3
+    # (Level 3, out of the Weapon Hall): its reed frogs and leeches sit at Level 3-5 round that, not 4-6 over it (the
+    # prototype's QA fell to them before a first kill), and its elite frog keeps to the lookout, off the path.
+    r = field("rm_marsh_edge", "Marsh Edge", "reed_marsh", 2, [3, 5], "marsh", "moss",
+              [("reed_frog", 5, [3, 5]), ("marsh_leech", 3, [4, 5])], herbs=("willow_moss", "willow_moss", "riverreed_ginseng_10"),
               jars=5, element="water", gather_tier="valley_low", music="marsh", ambience="marsh_ambience", trees=("reeds", "dead_tree_grey"),
               platforms=[(800, 700, 180, 70), (1500, 720, 180, 90)], fishing="marsh_edge")
     r.area("shallows", [400, 860, 1700, 100])
     r.spawn("reed_otter", [[1900, 900]], 1, respawn=600, level=[19, 19], wild_pet=True, requires=all_of(unlock("taming")))
     # The grey's first beasts (The Humming Token, Mei Qing's hides): boarlets gone grey among the drained reeds, at the
-    # marsh's own Levels while the story wants them; the Grey Pools keep their Level 7-12 herd.
-    r.spawn("hollowed_boarlet", [[900, 880], [1400, 900], [1800, 870]], 3, respawn=8, level=[4, 5],
+    # story's Level 3 and one over while the story wants them (at 4-5 two charged together took a Level-3 player to a
+    # tenth of its HP, and the QA player fell); the Grey Pools keep their Level 7-12 herd.
+    r.spawn("hollowed_boarlet", [[900, 880], [1400, 900], [1800, 870]], 3, respawn=8, level=[3, 4],
             requires=any_of(qactive("the_humming_token"), qactive("mei_qings_errand")))
     for i, x in enumerate([700, 1300, 2000]):
         r.obj("grey_patch_%d" % i, "inspect", [x, 910], prop="grey_patch", text="The reeds here are grey and brittle, as if the colour was drunk out of them.",
@@ -2970,17 +2978,20 @@ def fruit_trees():
 # Early surprises (docs/research/player_motivation.md item 7): the valley's first fields may turn a common foe into an
 # elite (the existing elite: its marker, its extra loot roll), about one spawn in twenty-five, so one shows in the first
 # hour; and a Spirit Fruit ripens once for each character on Willow Path West when The Willow Path is done (a birth of
-# its own: CalendarAuthority.open_first_fruit, the tree gone once the fruit is taken).
+# its own: CalendarAuthority.open_first_fruit, the tree gone once the fruit is taken). A room's surprise waits until its
+# story fight is done (`elite_after`): a Level-2 surprise in The Willow Path's herd downed the prototype's QA player
+# twice, where the story's own elite is met alone.
 EARLY_ELITE_CHANCE = 0.04
-EARLY_ELITE_ROOMS = ("lf_reed_shallows", "wp_west")
+EARLY_ELITE_ROOMS = {"lf_reed_shallows": "crab_trouble", "wp_west": "the_willow_path"}
 FIRST_FRUIT_ROOM = "wp_west"
 
 
 def early_surprises():
-    for rid in EARLY_ELITE_ROOMS:
+    for rid, story_fight in EARLY_ELITE_ROOMS.items():
         for s in ROOMS[rid].d["spawns"]:
             if not s.get("elite") and not s.get("requires") and s["max"] > 1:
                 s["elite_chance"] = EARLY_ELITE_CHANCE
+                s["elite_after"] = story_fight
     r = ROOMS[FIRST_FRUIT_ROOM]
     r.obj("first_fruit_tree", "treasure_birth", [_dry_x(r, 2090, 800), 800], radius=150, prop="nine_bough_jade_tree", first=True,
           visible_if=all_of(qdone("the_willow_path")), hidden_if=all_of(flag("first_fruit_taken")))

@@ -158,6 +158,34 @@ func topdown_suite() -> void:
 ## auto-path, teleport or tower climb goes through it; the view stands a barrier in the way. The tracker never leads
 ## past it: a quest whose step is past it leads nowhere and says so, and once the story's next quest is past it (and no
 ## lesson inside the prototype is on offer) its first entry is the prototype's end. On its own saves.
+## What the creator `cr` previews: its kind ("topdown", the top-down figure; "side", the side view's avatar) and, for the
+## top-down one, what a few seconds of it show: the facings it walks in, whether it walks and rests facing the camera,
+## the dyes it wears, whether it follows a change of the look (the hair, the robe), and whether a tap turns it.
+func _creator_preview(cr) -> Dictionary:
+	var p = cr.preview
+	if p is ShellScreens.TopdownPreview:
+		var rows := {}
+		var walks := false
+		var rests := false
+		for i in 900:
+			p._process(1.0 / 60.0)
+			rows[p.row] = true
+			if p.action == "walk": walks = true
+			if p.action == "idle" and p.row == "s": rests = true
+		var worn: Dictionary = cr.worn()
+		var dyed: bool = str(p.outfit.get("shirt_dye", "")) == str(worn.get("shirt_dye", "-")) and str(p.outfit.get("pants_dye", "")) == str(worn.get("pants_dye", "-"))
+		var hair := str(p.outfit.get("hair", ""))
+		var robe := str(p.outfit.get("shirt", ""))
+		cr.cycle("hair", 1)
+		cr.cycle("shirt", 1)
+		var follows: bool = str(p.outfit.get("hair", "")) != hair and str(p.outfit.get("shirt", "")) != robe \
+			and p.figure.layers.any(func(l): return str(l.cat) == "hair" and str(l.item) == str(p.outfit.hair)) and p.figure.missing.is_empty()
+		var before := str(p.row)
+		cr.on_action("turn", null)
+		return {"kind": "topdown", "missing": p.figure.missing.duplicate(), "rows": rows.keys(), "walks": walks, "rests": rests, "dyed": dyed,
+			"follows": follows, "turned": str(p.row) != before and p.held > 0.0}
+	return {"kind": "side" if p is Node2D and p.get_script() == ShellScreens.Avatar else "other"}
+
 func prototype_suite() -> void:
 	var folder := "user://prototype_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
@@ -175,21 +203,38 @@ func prototype_suite() -> void:
 		"prototype: Settings' classic side view is a fallback, off by default (the old top-down toggle is gone)")
 	settings_page.free()
 	var made := {}
+	var previews := {}
 	for slot in [1, 2]:
 		if slot == 2: Game.account.settings["classic_side_view"] = true
 		var cr := ShellScreens.CreatorScreen.new()
 		add_child(cr)
 		cr.open({"slot": slot})
+		previews[slot] = _creator_preview(cr)
 		cr.name_field.text = "Proto %d" % slot
 		cr.created.connect(func(s: int): made[s] = true)
 		cr.on_action("begin", null)
 		cr.queue_free()
+	# Decision 41: the creator shows the new character as its game draws it: the top-down figure (TopdownFigure, the
+	# layer sets under art/topdown/character/) walking in place and turning, in the starting garments' dyes, following
+	# every change of the look; the side view's avatar only with the classic side view on.
+	var td_prev: Dictionary = previews[1]
+	check(str(td_prev.kind) == "topdown" and (td_prev.missing as Array).is_empty() and (td_prev.rows as Array).size() == 8 and td_prev.walks and td_prev.rests
+		and td_prev.dyed and td_prev.follows and td_prev.turned,
+		"prototype: the creator's preview is the top-down figure, fully drawn (missing %s), walking in place through all eight facings (%s) with a rest facing the camera, in the starting dyes, following the look's changes, and a tap turns it (%s)"
+		% [str(td_prev.missing), str(td_prev.rows), str(td_prev)])
+	check(str(previews[2].kind) == "side", "prototype: with the classic side view kept in Settings the creator shows the side view's avatar (%s)" % str(previews[2].kind))
 	Game.account.settings.erase("classic_side_view")
 	var td = Game.character("c1")
 	var sv = Game.character("c2")
 	check(made.has(1) and td != null and td.view == "topdown" and str(td.position.room) == "lf_fishers_hut" and float(td.position.x) == 0.0,
 		"prototype: the character creator makes a top-down character by default, waking at its first room's own spawn (%s)" % (str(td.position) if td else "none"))
 	check(made.has(2) and sv != null and sv.view == "", "prototype: with the classic side view kept in Settings the creator makes a side-view one")
+	var sel := ShellScreens.SelectionScreen.new()
+	add_child(sel)
+	sel.open({})
+	check(sel.avatars.get(1) is ShellScreens.TopdownPreview and not sel.avatars.get(2) is ShellScreens.TopdownPreview and sel.avatars.get(2) != null,
+		"prototype: character selection shows each disciple as their own game draws them: a top-down one in the top-down style (%s)" % str(sel.avatars.keys()))
+	sel.queue_free()
 	Game.submit({"type": "create_character", "slot": 3, "name": "No View"})
 	check(Game.character("c3") != null and Game.character("c3").view == "", "prototype: a create intent that names no view (the test walks) keeps the side view")
 	var snap: Dictionary = Game.character("c3").snapshot()
@@ -265,18 +310,56 @@ func prototype_suite() -> void:
 		"prototype: the purse and the status row are HUD rects the world's labels keep off")
 	news.purse_rect = Rect2()
 	news.status_rect = Rect2()
-	# Walked into the gate again and again, its line shows once in the log, and the words over the player stay whole on
-	# the screen at the room's edge (both ran over: five lines, and "…still being drawn" cut at the right).
+	# ... and off the log's rows while they show (a boarlet's plate lay across "Codex: Body training").
+	news.log_lines.clear()
+	var quiet_rect: Rect2 = news.log_rect()
+	news._on_event("system_log", {"text": "Codex: Body training"})
+	news.log_lines[-1]["always"] = true
+	var log_r: Rect2 = news.log_rect()
+	check(quiet_rect.size.x == 0.0 and log_r.size.x > 0.0 and news.obstacle_rects().has(log_r) and log_r.end.x <= 20.0 + news.LOG_W + 0.5,
+		"prototype: the world's labels keep off the log's rows while they show, and not off an empty log (%s)" % str(log_r))
+	news.log_lines.clear()
+	# Walked into the gate again and again, its line is said once, by the way's own plate (lit at the way, below): none in
+	# the log (it was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
+	# in view logs it once while it repeats, and a line floating over the player stays whole on the screen.
 	news.log_lines.clear()
 	for i in 5: news._on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	var plateless: int = news.log_lines.size()
+	var host_src := GDScript.new()
+	host_src.source_code = "extends Node2D\nvar portal_views := []\n"
+	host_src.reload()
+	var host = host_src.new()
+	var gate_pv := PortalView.new()
+	gate_pv.def = {"id": "east", "type": "edge"}
+	host.portal_views.append(gate_pv)
+	news.world = host
+	news.log_lines.clear()
+	for i in 5: news._on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	var plated: int = news.log_lines.size()
+	news.world = null
+	gate_pv.free()
+	host.free()
+	# A log line longer than the log wraps onto a second row, whole ("A drop of blood on Plain Straw Hat: it knows…"), and
+	# the log keeps to its rows, the oldest giving way.
+	news.log_lines.clear()
+	var long_line := "A drop of blood on Plain Straw Hat: it knows you now, and will answer only to you."
+	news.add_log(long_line)
+	var rows: Array = news.log_rows(news.log_lines)
+	var joined := " ".join(PackedStringArray(rows.map(func(r): return str(r.text))))
+	for i in 6: news.add_log(long_line)
+	var capped: int = news.log_rows(news.log_lines).size()
+	check(rows.size() == 2 and joined == long_line and not joined.contains("…") and rows.all(func(r): return UiKit.text_width(str(r.text), 16, true) <= news.LOG_W - float(r.indent) + 0.5)
+		and capped == news.LOG_ROWS,
+		"prototype: a log line longer than the log wraps whole onto a second row, and the log keeps to %d rows (%s; %d)" % [news.LOG_ROWS, str(rows.map(func(r): return r.text)), capped])
+	news.log_lines.clear()
 	var fx_probe := FxLayer.new()
 	add_child(fx_probe)
 	var vw := fx_probe.get_viewport_rect().size.x
 	var road_text := Tx.t("sim.world.road_being_drawn")
 	var road_at := fx_probe.on_screen(road_text, 18, Vector2(vw - 10.0, 300.0))
 	var road_half := UiKit.text_width(road_text, 18) * 0.5
-	check(news.log_lines.size() == 1 and road_at.x + road_half <= vw and road_at.x - road_half >= 0.0,
-		"prototype: the gate's line shows once in the log however often it is walked into, and the words over the player stay on the screen (%d lines, at %.0f of %.0f)" % [news.log_lines.size(), road_at.x, vw])
+	check(plated == 0 and plateless == 1 and road_at.x + road_half <= vw and road_at.x - road_half >= 0.0,
+		"prototype: a shut way's line is not logged where its plate says it (%d lines), a way with no plate logs it once however often it is walked into (%d), and words over the player stay on the screen (at %.0f of %.0f)" % [plated, plateless, road_at.x, vw])
 	fx_probe.free()
 	# A way's plate at the screen's top edge, mostly under the minimap where no row is free of it, steps out beside it
 	# (Willow Path West's way east read "Willow" under the map).
@@ -286,6 +369,17 @@ func prototype_suite() -> void:
 	var edge_at := Rect2(edge_plate.position + edge_off.get("p0", Vector2.ZERO), edge_plate.size)
 	check(not edge_at.intersects(minimap) and Rect2(0, 0, 1280, 720).encloses(edge_at),
 		"prototype: a way's plate under the minimap at the screen's top edge steps out beside it, on the screen (%s)" % str(edge_at))
+	# A foe's or a person's plate at the screen's side edge is pulled in whole ("…Crab" was cut at the Reed Shallows' left
+	# edge), a crowd there still laid round each other; one wider than the screen is left as it is.
+	var cut := [{"id": "e1", "kind": "foe", "rect": Rect2(-60, 300, 150, 22), "prev": Vector2.ZERO, "near": 1.0},
+		{"id": "e2", "kind": "foe", "rect": Rect2(-50, 305, 150, 22), "prev": Vector2.ZERO, "near": 2.0},
+		{"id": "n1", "kind": "npc", "rect": Rect2(1200, 500, 140, 22), "prev": Vector2.ZERO, "near": 3.0},
+		{"id": "w1", "kind": "foe", "rect": Rect2(-10, 600, 1400, 22), "prev": Vector2.ZERO, "near": 4.0}]
+	var cut_off: Dictionary = WorldLabels.resolve(cut, [])
+	var screen := Rect2(0, 0, 1280, 720)
+	var inside: Array = cut.slice(0, 3).filter(func(it): return screen.encloses(Rect2((it.rect as Rect2).position + cut_off.get(it.id, Vector2.ZERO), it.rect.size)))
+	check(inside.size() == 3 and WorldLabels.touching(cut.slice(0, 3), cut_off).is_empty() and (cut_off.get("w1", Vector2.ZERO) as Vector2).x == 0.0,
+		"prototype: a plate at the screen's side edge is pulled in whole, a crowd's still apart, and one wider than the screen left (%s)" % str(cut_off))
 	news.player.free()
 	news.free()
 	# The equip prompt names the early gear whole (it read "Training Short Bl…").
@@ -348,8 +442,89 @@ func prototype_suite() -> void:
 	for g in gates: ways[str(g.def.id)] = true
 	check(ways.has("tower") and ways.has("west") and ways.size() == 2 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
 		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s)" % str(ways.keys()))
+	# Walked into, the gate says its line once, where it is: the tower door's own plate lights up, and nothing floats over
+	# the player (the touch line replaces the label, not stacks under it).
+	var tower_def: Dictionary = Game.room_rt.portal_def("tower")
+	st.plane = Vector2(float(tower_def.at[0]), float(tower_def.at[1]))
+	st.altitude = float(tower_def.get("alt", 0.0))
+	var walked := Game.submit({"type": "use_portal", "portal": "tower", "crossing": true})
+	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds the Fairground again)
+	var tower_pv: PortalView = null
+	for pv in w.portal_views:
+		if str(pv.def.get("id", "")) == "tower": tower_pv = pv
+	var floats_before: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
+	w.transfer_cooldown = 0.0
+	WorldShared.request_portal(w, "tower", true)
+	var floats_after: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
+	check(tower_pv != null and tower_pv.touched > 0.0 and str(tower_pv.state.get("text", "")) == road and floats_after == floats_before,
+		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [tower_pv.touched if tower_pv else -1.0, str(tower_pv.state) if tower_pv else "-", floats_after - floats_before, str(walked)])
 	w.free()
 	Game.bind_movement(td.id, st)
+	# A resource node not open yet (herb gathering before Bone Forging 4, the Temper drum before its body level) stays in
+	# the world but never takes the context button; open, it is offered (the Reed Shallows' herbs offered their locked
+	# line from the button in the first fight).
+	var offered := func(rid: String, oid: String) -> bool:
+		Game.world.load_room(td, rid, "")
+		GameEvents.flush()
+		var o: Dictionary = Game.room_rt.object_def(oid)
+		st.plane = Vector2(float(o.at[0]), float(o.at[1])) + Vector2(12, 0)
+		st.altitude = float(o.get("alt", 0.0))
+		st.surface = null
+		return str(Game.world.query_context(td).get("object", "")) == oid
+	var herb_locked: bool = offered.call("lf_reed_shallows", "herb_6")
+	var drum_locked: bool = offered.call("wp_west", "temper_copper_wp_west")
+	Unlocks.force_unlock(td.id, "herb_gathering")
+	var herb_open: bool = offered.call("lf_reed_shallows", "herb_6")
+	check(not herb_locked and not drum_locked and herb_open and WorldAuthority.resource_node(ContentDB.room("wp_west").objects.filter(func(o): return str(o.id) == "temper_copper_wp_west")[0]),
+		"prototype: a locked resource node (a herb before herb gathering, the Temper drum before its body level) never takes the context button, and is offered once open (herb %s, drum %s, herb open %s)" % [herb_locked, drum_locked, herb_open])
+	# In the instanced room a step is done in (the Siege of Two Sects, its way out held until it is won) the step leads
+	# there, not back to the street its rite was begun in (valley_run saw a daily done mid-siege send the player out).
+	var siege_def: Dictionary = Game.quest.quest_def(td, "the_siege")
+	var siege_st := {"state": "active", "progress": [0], "accepted_tick": 0}
+	var room_was = td.position.get("room", "")
+	td.position["room"] = "si_siege"
+	var siege_inside: String = Game.quest.quest_target(td, siege_def, siege_st)
+	td.position["room"] = "ja_gate_street"
+	var siege_outside: String = Game.quest.quest_target(td, siege_def, siege_st)
+	td.position["room"] = room_was
+	check(siege_inside == "si_siege" and siege_outside not in ["", "si_siege"],
+		"a step done in an instanced room leads there while the player is in it, and to the way in from outside (%s, %s)" % [siege_inside, siege_outside])
+	# Shen Lian's spar is a lesson: asked of him, he is the one who fights (his villager figure hidden while it lasts, his
+	# partner stepping out from where he stands, in his own clothes on the grid), at the player's own Level, winding up
+	# as long as Old Snapper, and saying what the spar teaches; when it is over he stands in the square again (the QA saw
+	# two Shen Lians, and a Level-4 double beat a Level-2 player).
+	Game.world.load_room(td, "sf_fairground", "")
+	GameEvents.flush()
+	td.quests.flags["prologue_done"] = true
+	td.cultivator.realm_key = "bone_forging_2"
+	var shen_o: Dictionary = Game.room_rt.object_def("npc_shen_lian")
+	st.plane = Vector2(float(shen_o.at[0]), float(shen_o.at[1])) + Vector2(-60, 0)
+	st.altitude = float(shen_o.get("alt", 0.0))
+	var shown_before: bool = Game.world.object_visible(td, shen_o)
+	var sp := Game.quest.choose(td, "shen_lian", {"spar": "shen_lian"})
+	GameEvents.flush()
+	var partner: EnemyState = null
+	for e in Game.room_rt.living_enemies(): if e.def.get("spar", false): partner = e
+	var hidden_in_spar: bool = not Game.world.object_visible(td, shen_o)
+	var at_him: bool = partner != null and partner.plane.distance_to(Vector2(float(shen_o.at[0]), float(shen_o.at[1]))) < 96.0
+	var own_look := false
+	if partner != null:
+		var fig = TopdownPlaces.stand_in(partner)
+		own_look = fig is TopdownPlaces.Person and str(fig.figure.outfit.get("shirt_dye", "")) == str(TopdownFigure.DialoguePage.full_outfit(ContentDB.entry("npcs", "shen_lian").get("outfit", {})).get("shirt_dye", "-"))
+		fig.free()
+	var fist: Dictionary = ContentDB.entry("enemies", "shen_lian").attacks[0]
+	var hud_script = load("res://scripts/hud.gd")
+	var lines_ok: bool = hud_script.spar_line("shen_lian", "start") != "" and hud_script.spar_line("shen_lian", "lost") != "" and hud_script.spar_line("wild_boarlet", "start") == ""
+	check(shown_before and sp.get("ok", false) and hidden_in_spar and at_him and own_look and partner.level == ProgressionRules.level(td) and float(fist.windup_s) >= 0.6 and lines_ok,
+		"prototype: Shen Lian's spar: he is the one who fights (hidden in the square %s, stepping out where he stood %s, in his own clothes %s), at the player's Level (%d for %d), his fist's tell %.2f s, and his lesson said (%s)"
+		% [hidden_in_spar, at_him, own_look, partner.level if partner else -1, ProgressionRules.level(td), float(fist.windup_s), lines_ok])
+	if partner != null: Game.enemies.end_spar(partner, "c0")
+	GameEvents.flush()
+	var back_at_once: bool = Game.world.object_visible(td, shen_o)   # to be talked to at once, the quest handed in
+	Game.enemies.tick(0.05)
+	GameEvents.flush()
+	check(back_at_once and Game.room_rt.enemies.values().all(func(e): return not e.def.get("spar", false)),
+		"prototype: the spar over, his partner is gone at once and Shen Lian stands in the square again, to be talked to")
 	# A quest whose step is past the gate leads nowhere and says so.
 	Game.quest.apply_start(td.id, "stone_and_sweat")
 	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == "stone_and_sweat")
@@ -1852,6 +2027,16 @@ func hud_suite() -> void:
 	var from_boss: Array = hud.toast_rects(hud.TOP_STACK_BOSS)
 	check(from_top.size() == 2 and from_boss.size() == 1 and (from_top + from_boss).all(func(r): return (r as Rect2).end.y <= zone.position.y and (r as Rect2).size.x == 408.0),
 		"P5a: toasts stand at the top centre, 408 wide, and stop above the clear zone; the rest wait (%d, %d)" % [from_top.size(), from_boss.size()])
+	# Decision 41: a toast's second line too long for one row (Shen Lian's lesson as his spar begins) wraps onto a
+	# second, said whole, and the toast grows to hold it.
+	var lesson: String = hud.spar_line("shen_lian", "start")
+	var lesson_rows: Array = hud.toast_sub_rows(lesson)
+	hud.toasts = []
+	hud.toast("probe", "quest", lesson)
+	var lesson_rect: Rect2 = hud.toast_rects(hud.TOP_STACK)[0]
+	check(lesson_rows.size() == 2 and " ".join(lesson_rows) == lesson and lesson_rows.all(func(r): return UiKit.text_width(str(r), 18) <= 376.0)
+		and lesson_rect.size.y == 74.0 + hud.TOAST_ROW and hud.toast_sub_rows("a second line").size() == 1,
+		"decision 41: a toast's long second line wraps onto two rows, said whole, and the toast grows to hold them (%s, %s)" % [str(lesson_rows), str(lesson_rect)])
 	hud.toasts = toasts_was
 	# Bound to the character: an empty or locked technique slot, an empty healing slot or treasure and a swap with no
 	# spare are not drawn (G3); the techniques that are there keep their places.
@@ -11903,10 +12088,21 @@ func _early_surprises(c, heard: Array) -> void:
 	for sp in ContentDB.room("lf_reed_shallows").get("spawns", []):
 		if str(sp.enemy) == "mudshell_crab": spec = sp.duplicate(true)
 	spec["elite_chance"] = 1.0
+	# Not while the room's own story fight is under way (the prototype's polish: a Level-2 surprise in The Willow Path's
+	# herd downed the QA player twice): Crab Trouble first on the Reed Shallows, The Willow Path first on its west field.
+	var crabs_done = c.quests.done.get("crab_trouble", null)
+	c.quests.done.erase("crab_trouble")
+	var early: EnemyState = Game.enemies._spawn({"spec": spec, "index": -1, "point": Vector2(1400, 880), "uid": 0, "timer": 0.0}, Vector2(1400, 880))
+	var herd_waits: bool = ContentDB.room("wp_west").get("spawns", []).all(func(sp): return float(sp.get("elite_chance", 0.0)) <= 0.0 or str(sp.get("elite_after", "")) == "the_willow_path")
+	check(str(spec.get("elite_after", "")) == "crab_trouble" and early != null and not early.elite and herd_waits,
+		"an early surprise waits until the room's story fight is done (%s, %s)" % [str(spec.get("elite_after", "")), str(early.elite) if early else "-"])
+	if early != null: Game.room_rt.enemies.erase(early.uid)
+	c.quests.done["crab_trouble"] = crabs_done if crabs_done != null else 1
 	var elite: EnemyState = Game.enemies._spawn({"spec": spec, "index": -1, "point": Vector2(1500, 880), "uid": 0, "timer": 0.0}, Vector2(1500, 880))
 	GameEvents.flush()
 	var es: Dictionary = last.call("elite_spawned")
 	check(elite != null and elite.elite and elite.role == "elite" and bool(es.get("random", false)), "a crab comes as an elite (%s)" % str(es))
+	if crabs_done == null: c.quests.done.erase("crab_trouble")
 	check(moment_for.call("elite_spawned", es) == "elite_appears", "and says so with its moment")
 	check(moment_for.call("elite_spawned", {"room": "wp_west", "enemy": 1, "def": "wild_boarlet", "level": 2, "random": false}) == "", "a placed elite plays no surprise")
 	if elite != null: Game.combat.apply_execute(elite, c.id)

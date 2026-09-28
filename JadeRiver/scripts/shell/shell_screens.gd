@@ -7,6 +7,58 @@ const Avatar = preload("res://scripts/avatar.gd")
 const CharactersPage = preload("res://scripts/ui/pages/characters_page.gd")
 
 
+## Decision 41: a top-down character as the game draws it (TopdownFigure, the layer sets under art/topdown/character/),
+## for the shell's screens: the creator's preview, where it walks in place and turns through the eight facings (a pause
+## facing the camera each round, and a tap turns it by hand), and a top-down character's card on the selection screen,
+## where it stands. Nearest-neighbour pixels at `scale`, its feet at its position.
+class TopdownPreview extends Node2D:
+	const TURN := ["s", "se", "e", "ne", "n", "nw", "w", "sw"]
+	const REST_S := 1.6    ## facing the camera, idle, at the start of each round
+	const FACING_S := 1.1  ## walking in place in each facing
+	const HAND_S := 4.0    ## a tap's facing is held this long before the turning goes on
+	var figure: TopdownFigure
+	var walks := true      ## the creator's: walk in place and turn; a card's stands facing the camera
+	var t := 0.0
+	var row := "s"
+	var action := "idle"
+	var held := 0.0
+	var outfit: Dictionary:
+		get: return figure.outfit
+		set(o): figure.set_outfit(o)
+
+	func _init(o: Dictionary, walking := true) -> void:
+		walks = walking
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		figure = TopdownFigure.wearing(o)
+
+	## A tap on the preview: the next facing round, held a while.
+	func turn() -> void:
+		row = TURN[(TURN.find(row) + 1) % TURN.size()]
+		action = "walk"
+		held = HAND_S
+
+	func _process(delta: float) -> void:
+		t += delta
+		if held > 0.0:
+			held -= delta
+		elif walks:
+			var round_s := REST_S + FACING_S * TURN.size()
+			var k := fmod(t, round_s)
+			if k < REST_S:
+				row = "s"
+				action = "idle"
+			else:
+				row = TURN[mini(TURN.size() - 1, int((k - REST_S) / FACING_S))]
+				action = "walk"
+		queue_redraw()
+
+	func _draw() -> void:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.3))
+		draw_circle(Vector2.ZERO, 11.0, Color(0, 0, 0, 0.35))
+		draw_set_transform(Vector2.ZERO)
+		figure.draw(self, Vector2.ZERO, action, row, TopdownFigure.frame_at(action, t))
+
+
 class TitleScreen extends Page:
 	signal chosen(action: String)
 
@@ -70,10 +122,16 @@ class SelectionScreen extends Page:
 			var slot := page * PER_PAGE + i + 1
 			var ch = Game.character("c%d" % slot)
 			if ch == null: continue
-			var av = Avatar.new()
-			av.outfit = InventoryAuthority.outfit_for(ch)
+			# Each character as its own game draws it: a top-down one in the top-down style (decision 41).
+			var av: Node2D
+			if str(ch.view) == "topdown":
+				av = TopdownPreview.new(InventoryAuthority.outfit_for(ch), false)
+				av.scale = Vector2.ONE * 3.2
+			else:
+				av = Avatar.new()
+				av.outfit = InventoryAuthority.outfit_for(ch)
+				av.scale = Vector2.ONE * 1.6
 			av.position = Vector2(_card(i).get_center().x, _card(i).position.y + 250)
-			av.scale = Vector2.ONE * 1.6
 			add_child(av)
 			avatars[slot] = av
 
@@ -167,12 +225,19 @@ class CreatorScreen extends Page:
 		var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
 		draft = {"body": "light", "hair": str(rules.get("hair", ["topknot"])[1]), "hair_color": 0, "shirt": "disciple", "pants": "loose",
 			"shoes": "slippers", "hat": "none", "cape": "none", "weapon": "none"}
-		preview = Avatar.new()
-		preview.outfit = worn()
-		preview.position = Vector2(330, 500)
-		preview.scale = Vector2.ONE * 3.0
+		# Decision 41: the new character as its game will draw it. A new game is top-down, so the preview is the top-down
+		# figure, walking in place as it turns; the side view's avatar only with Settings' classic side view on.
+		if topdown():
+			preview = TopdownPreview.new(worn())
+			preview.position = Vector2(330, 520)
+			preview.scale = Vector2.ONE * 6.0
+		else:
+			preview = Avatar.new()
+			preview.outfit = worn()
+			preview.position = Vector2(330, 500)
+			preview.scale = Vector2.ONE * 3.0
 		add_child(preview)
-		preview.play("idle")
+		if preview is Avatar: preview.play("idle")
 		name_field = LineEdit.new()
 		name_field.max_length = int(ContentDB.config("account_rules").get("name_max", 24))
 		name_field.placeholder_text = Tx.t("shell.your_name")
@@ -184,6 +249,15 @@ class CreatorScreen extends Page:
 		name_field.add_theme_stylebox_override("normal", UiKit.style("slot"))
 		name_field.add_theme_stylebox_override("focus", UiKit.style("selected_slot_glow"))
 		add_child(name_field)
+
+	## The new game's view (AccountAuthority.new_game_view): top-down unless Settings keeps the classic side view.
+	func topdown() -> bool:
+		return AccountAuthority.new_game_view(Game.account.settings if Game.account else {}) == "topdown"
+
+	## Dress the preview in what the draft will wear (either view's figure).
+	func dress() -> void:
+		preview.outfit = worn()
+		if preview is Avatar: preview.last_key = ""
 
 	## What the new character will wear: the chosen cuts in the starting hemp garments' own dyes (AccountAuthority dresses
 	## a new character in them, S27), so the preview shows what the game does (the prototype's QA: a teal tunic chosen,
@@ -220,13 +294,11 @@ class CreatorScreen extends Page:
 		if row == "origin": origin = v
 		else:
 			draft[row] = v
-			preview.outfit = worn()
-			preview.last_key = ""
+			dress()
 
 	func set_hair_dye(i: int) -> void:
 		draft.hair_color = i
-		preview.outfit = worn()
-		preview.last_key = ""
+		dress()
 
 	func randomize_look() -> void:
 		rng.randomize()
@@ -236,13 +308,15 @@ class CreatorScreen extends Page:
 			if row == "origin": origin = v
 			else: draft[row] = v
 		draft.hair_color = rng.randi_range(0, 5)
-		preview.outfit = worn()
-		preview.last_key = ""
+		dress()
 
 	func draw_page() -> void:
 		UiKit.draw_text(self, Tx.t("shell.create_disciple_2"), Vector2(0, 74), 48, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
 		draw_style_box(UiKit.style("major_window"), Rect2(120, 110, 420, 520))
-		draw_ellipse_shadow(Vector2(330, 500))
+		if preview is TopdownPreview:
+			region(Rect2(160, 150, 340, 420), "turn")   # a tap turns the figure round by hand
+		else:
+			draw_ellipse_shadow(Vector2(330, 500))
 		var panel_r := Rect2(600, 104, 610, 530)
 		draw_style_box(UiKit.style("major_window"), panel_r)
 		text(Vector2(640, 160), Tx.t("shell.name"), 24, UiKit.GOLD)
@@ -284,6 +358,7 @@ class CreatorScreen extends Page:
 			"next": cycle(str(data), 1)
 			"dye": set_hair_dye(int(data))
 			"random": randomize_look()
+			"turn": if preview is TopdownPreview: preview.turn()
 			"skip": skip_prologue = not skip_prologue
 			"back": cancelled.emit()
 			"begin":

@@ -71,9 +71,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Physical Defense 1.9 at iLv 5, Common quality (armour_defence × boots slot share); Appearance slippers
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
-  - Gathering: Pickup "Straw Sandals" in Old Ma's Store (Lotus Ferry)
-  - Reward: Quest Crab Trouble (prologue, from Uncle Guo), reward
-  - Reward: Skip-the-Prologue start
 
 <a id="item-cloth_boots"></a>
 
@@ -1255,7 +1252,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
   - Reward: Quest Fists First (prologue, from Uncle Guo), reward (iLv 1, flawed)
-  - Reward: Quest The Weapon Hall (guided, from Master Kong), on accept
 
 <a id="item-training_heavy_sabre"></a>
 
@@ -1315,6 +1311,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: banded equipment roll, grade Plain: see [Banded equipment drops](#banded-plain)
   - Shop: Stoneford Smith (Smith Bao in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest The Weapon Hall (guided, from Master Kong), on accept
 
 <a id="item-iron_bell"></a>
 
@@ -2731,7 +2728,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > A Reed Frog's leg. Jade-smiths set its spring into a Swift Jade.
 
 - **Sources**:
-  - Drop: [Reed Frog](monsters.md#enemy-reed_frog) (Lv 4–6) · 30% (group 60%, weight 1 of 2)
+  - Drop: [Reed Frog](monsters.md#enemy-reed_frog) (Lv 3–6) · 30% (group 60%, weight 1 of 2)
 
 <a id="item-leech_oil"></a>
 
@@ -2743,7 +2740,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Sources**:
   - Drop: [Blackreed Disciple](monsters.md#enemy-blackreed_disciple) (Lv 14) · 30% (group 60%, weight 1 of 2)
-  - Drop: [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 5–7) · 60% (group)
+  - Drop: [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 4–7) · 60% (group)
   - Reward: Expedition Reed Marsh (4/8 h) ×3
 
 <a id="item-mole_claw"></a>
@@ -3320,7 +3317,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Add progress (pct of need 0.1); Core: {"element": "earth", "qp_pct": 0.1, "rank": 2, "tier": "low"}; Raw: {"toxicity": 12}; Family: accumulation
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 4% (beast core)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 4% (beast core)
   - Drop: [Mud Hound](monsters.md#enemy-mud_hound) (Lv 16–20) · 4%–6% (beast core)
   - Reward: Beast Tide at Stoneford Gate (Stoneford), one of 3 beast cores of a random element at the holder's tier (below Lv 28)
 
@@ -4262,6 +4259,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Effect**: Add body xp (amount 120); Food: {"group": "utility", "pet_food": false}
 - **Sources**:
   - Crafting: Recipe `boar_bone_broth` (Cooking, Plain): Tough Meat ×2
+  - Reward: Quest Crab Trouble (prologue, from Uncle Guo), reward
+  - Reward: Skip-the-Prologue start
 
 <a id="item-herbal_tea"></a>
 
@@ -4282,6 +4281,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Old Ma's Store (Old Ma in Lotus Ferry at Night (Lotus Ferry), Old Ma's Store (Lotus Ferry)) · 6 Silver Taels
   - Shop: Stoneford General Store (Proprietor Fang in Market Street (Stoneford)) · at list price in Silver Taels
   - Shop: Wayfarers' Inn Kitchen (Innkeeper Tang in Wayfarers' Inn (Cloudgate Port)) · at list price in Spirit Stones
+  - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward ×2
   - Reward: Quest Fists First (prologue, from Uncle Guo), reward
   - Reward: Quest Granny's Remedy (prologue, from Granny Liu), reward ×3
   - Reward: Quest Morning Tide (prologue, from Aunt Ping), on accept
@@ -4325,6 +4325,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Add modifier (duration 1200, op pct_add, source riverfish_soup, stat max_hp, value 0.05); Food: {"group": "buff", "pet_food": false}
 - **Sources**:
+  - Gathering: Pickup "Riverfish Soup" ×2 in Old Ma's Store (Lotus Ferry)
   - Crafting: Recipe `riverfish_soup` (Cooking, Plain): River Minnow ×2
   - Shop: Stoneford Tea House (Auntie Rong in Market Street (Stoneford)) · daily rotation (1 of 3)
 
@@ -4546,7 +4547,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Heal (over s 5, pct 0.09); Herb: {"age": 10, "family": "willow_moss"}; Raw: {"toxicity": 10}; Nature: neutral; Roles: ["assistant", "envoy"]
 - **Sources**:
-  - Drop: [Reed Frog](monsters.md#enemy-reed_frog) (Lv 4–6) · 30% (group 60%, weight 1 of 2)
+  - Drop: [Reed Frog](monsters.md#enemy-reed_frog) (Lv 3–6) · 30% (group 60%, weight 1 of 2)
   - Container: Crate in Artisan Row (Stoneford), Collapsed Tunnel (Stonewall Quarry), Lower Pit (Stonewall Quarry), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Willow Path East (Willow Path) (Lv 1–18) · 20% ×1–2 (group 50%, weight 2 of 5)
   - Container: Jar in Collapsed Tunnel (Stonewall Quarry), Granny Liu's Herb Hut (Lotus Ferry), Grey Pools (Reed Marsh), Lotus Ferry Village (Lotus Ferry), Lower Pit (Stonewall Quarry), Marsh Edge (Reed Marsh), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Reed Shallows (Lotus Ferry), Sunken Causeway (Reed Marsh), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove) and 2 more (Lv 1–18) · 20% ×1–2 (group 50%, weight 2 of 5)
   - Gathering: Herb patch, apprentice rank in Cloud Herb Terraces (Cloud Sect Monastery), Grey Pools (Reed Marsh), Herb Terraces (Jade Sect Academy), Marsh Edge (Reed Marsh), Pavilion Rooftops (Jade Sect Academy), Reed Shallows (Lotus Ferry), Whispering Bamboo (Bamboo Grove), Willow Path East (Willow Path), Willow Path West (Willow Path)
@@ -4811,8 +4812,8 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > Hide from a Hollowed beast, grey and cold.
 
 - **Sources**:
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 100% (only during Mei Qing's Errand)
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 60% (group)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 100% (only during Mei Qing's Errand)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 60% (group)
   - Shop: Greyreed Trade Post (Trader Min in Greyreed Hamlet) · at list price in Silver Taels
 
 <a id="item-tiny_hollow_shard"></a>
@@ -4837,7 +4838,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Drop: [Hollow Drone](monsters.md#enemy-hollow_drone) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Drop: [Hollow Stag](monsters.md#enemy-hollow_stag) (Lv 55–59) · 20% (rare)
-  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 12% (rare)
+  - Drop: [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 12% (rare)
   - Drop: [Hollowed Wyrmling](monsters.md#enemy-hollowed_wyrmling) (Lv 88–99) · 20% (group 60%, weight 1 of 3)
   - Reward: Expedition Reed Marsh (4/8 h)
 
@@ -8359,7 +8360,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Shop: Stoneford General Store (Proprietor Fang in Market Street (Stoneford)) · at list price in Silver Taels; needs Bone Forging 4
   - Shop: Tinkerer's Workshop (Tinkerer Yu in Artisan Row (Stoneford)) · at list price in Silver Taels
-  - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward
   - Reward: Unlock: Herb gathering
 
 <a id="item-iron_pickaxe"></a>
@@ -9458,16 +9458,16 @@ Rolled by:
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
 - [Hollow Minnow](monsters.md#enemy-hollow_minnow) (Lv 1) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironclaw Mole](monsters.md#enemy-ironclaw_mole) (Lv 5–7) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
-- [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 5–7) · 1.2%
+- [Marsh Leech](monsters.md#enemy-marsh_leech) (Lv 4–7) · 1.2%
 - [Mossback Toad](monsters.md#enemy-mossback_toad) (Lv 2–3) · 2%
 - [Mudshell Crab](monsters.md#enemy-mudshell_crab) (Lv 1) · 2%
 - [Old Snapper](monsters.md#enemy-old_snapper) (Lv 3) · 25%
 - [Pebble Imp](monsters.md#enemy-pebble_imp) (Lv 4–6) · 1.2%
-- [Reed Frog](monsters.md#enemy-reed_frog) (Lv 4–6) · 1.2%
+- [Reed Frog](monsters.md#enemy-reed_frog) (Lv 3–6) · 1.2%
 - [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2%
 - [Rock Beetle](monsters.md#enemy-rock_beetle) (Lv 4–5) · 1.2%
 - [Stone Tortoise](monsters.md#enemy-stone_tortoise) (Lv 5–7) · 1.2%
@@ -9497,7 +9497,7 @@ Rolled by:
 - [Fruit-Guardian Boar](monsters.md#enemy-fruit_guardian) (Lv 20) · 8%
 - [Green Viper](monsters.md#enemy-green_viper) (Lv 11–14) · 1.2%
 - [Greyfin](monsters.md#enemy-greyfin) (Lv 7–11) · 1.2%
-- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 4–12) · 1.2%
+- [Hollowed Boarlet](monsters.md#enemy-hollowed_boarlet) (Lv 3–12) · 1.2%
 - [Hollowed Eel](monsters.md#enemy-hollowed_eel) (Lv 10) · 1.2%
 - [Ironpine Disciple](monsters.md#enemy-ironpine_disciple) (Lv 10) · 1.2%
 - [Jade Carp](monsters.md#enemy-jade_carp) (Lv 19–22) · 1.2%

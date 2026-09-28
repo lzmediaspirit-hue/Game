@@ -707,7 +707,7 @@ def account_rules():
                                        "the_willow_path"],
                        "flags": ["night_survived", "prologue_done", "dou_safe", "granny_safe", "ma_safe"],
                        "effects": [{"kind": "grant_item", "item": "river_token", "count": 1}, {"kind": "learn_technique", "technique": "flowing_palm"},
-                                   {"kind": "grant_item", "item": "plain_straw_hat", "count": 1}, {"kind": "grant_item", "item": "straw_sandals", "count": 1},
+                                   {"kind": "grant_item", "item": "plain_straw_hat", "count": 1}, {"kind": "grant_item", "item": "boar_bone_broth", "count": 1},
                                    {"kind": "grant_item", "item": "herbal_tea", "count": 5}]},
         "skip_prologue_allowed": True,
         # Missed days bank (player_motivation.md item 6, P4): a day away keeps its sect missions on the board and adds

@@ -586,7 +586,7 @@ def village_night():
 
 
 def old_ma_store():
-    """Old Ma's Store: the counter across the shop with Old Ma behind it, the sandals up in the loft, the sacks by the
+    """Old Ma's Store: the counter across the shop with Old Ma behind it, the soup jars up in the loft, the sacks by the
     west wall with the old net under the shelf."""
     r = Layout("lf_old_ma_store", 18, 12, 0, "w")
     r.walls(0, 0, 18, 12)
@@ -602,7 +602,7 @@ def old_ma_store():
     r.green(("pot_bonsai", 16, 4), ("pot_orchid", 7, 1))   # foliage (decision 40): potted plants
     r.spawn = [8, 9]
     r.at("npc_old_ma", 12, 3)
-    r.at("sandals_loft", 2, 1)
+    r.at("soup_loft", 2, 1)
     r.at("old_net_floor", 3, 9)
     r.way("exit", 8.5, 11, "s", [8.5, 9.5], 2)
     return r
@@ -805,9 +805,12 @@ def willow_path_west():
     r.at("first_fruit_tree", 52, 11)
     r.at("swarm_glowfly", 44, 20)
     r.at("trail_mist_hare", 19, 23)
-    r.spawns = [[[11, 17], [18, 23], [28, 17], [37, 18], [45, 17], [42, 22]],
+    # The herd's elite keeps apart at the west meadow by the willow, where the herd's walk west ends (world.py): the
+    # herd's westmost spawns are 14 cells east of it (one at 11,17, 7 cells off, sent two respawned boarlets into the
+    # elite's fight and the QA player fell).
+    r.spawns = [[[22, 17], [18, 23], [28, 17], [37, 18], [45, 17], [42, 22]],
                 [[15, 5], [17, 6], [19, 5]],
-                [[37, 21]]]
+                [[4, 21]]]
     return r
 
 
@@ -1645,9 +1648,11 @@ def marsh_edge():
     r.at("spirit_fruit_tree", 21, 16)
     r.at("swarm_glowfly", 41, 19)
     r.at("trail_jade_frog", 9, 17)
+    # The elite frog keeps to the lookout (a level up from the path it cannot see from there), guarding its moss: an
+    # optional fight, not one the path walks into (world.py).
     r.spawns = [[[13, 3], [16, 4]],
                 [[10, 16], [21, 12], [35, 18], [54, 16]],
-                [[37, 16]],
+                [[54, 2]],
                 [[43, 20]],
                 [[19, 16], [33, 17], [44, 16]],
                 [[39, 3], [42, 4]]]

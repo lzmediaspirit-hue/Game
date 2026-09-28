@@ -131,7 +131,8 @@ def lotus_ferry(R):
     obj(r, "tower_bell").update({"at": [3660, 656], "alt": 312})
     authored(r)
 
-    # Old Ma's Store: shelves (blocks 110), a storeroom loft (after The Runaway Kite) with Straw Sandals.
+    # Old Ma's Store: shelves (blocks 110), a storeroom loft (after The Runaway Kite) with two jars of Riverfish Soup (it
+    # held Straw Sandals, a second or third pair to a player whose starting kit wears them).
     r = R["lf_old_ma_store"]
     drop_decor(r, "shelf")
     r.solid("shelf_west", [250, 656, 100, 40], 110, kind="table")
@@ -139,8 +140,8 @@ def lotus_ferry(R):
     r.surface("storeroom_loft", [700, 580, 360, 70], 88, kind="balcony")
     r.ladder("storeroom_ladder", 740, 650, 88, top="storeroom_loft", requires=after_kite,
              locked_text="Old Ma: \"The storeroom? Learn to jump first, then we'll talk.\"")
-    r.obj("sandals_loft", "pickup", [960, 612], alt=88, item="straw_sandals", count=1, prop="storage_chest", label="Straw Sandals",
-          hidden_if=all_of(flag("sandals_loft")), set_flag="sandals_loft")
+    r.obj("soup_loft", "pickup", [960, 612], alt=88, item="riverfish_soup", count=2, prop="storage_chest", label="Riverfish Soup",
+          hidden_if=all_of(flag("soup_loft")), set_flag="soup_loft")
     r.obj("old_net_floor", "pickup", [430, 820], item="old_net", count=1, prop="none", label="Old Net",
           requires=all_of(qactive("mas_delivery")), hidden_if=all_of(flag("old_net_found")), set_flag="old_net_found",
           locked_text="A tangle of old net under the shelf.")

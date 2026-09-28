@@ -854,6 +854,7 @@
   "hud.soul_searched_none": "You read its soul; it hid little.",
   "hud.spar_lost_try_again": "Spar lost — try again",
   "hud.spar_won": "Spar won!",
+  "hud.spar_begins": "A spar: first to one knee",
   "hud.sphere_broken": "Your Sphere breaks",
   "hud.sphere_broken_sub": "A meridian tears. Let it mend before you raise it again.",
   "hud.sphere_clash_won": "%s's Sphere breaks",

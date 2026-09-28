@@ -5,6 +5,10 @@ extends Authority
 ## and weekly resets and the app lifecycle. Idle characters never break through,
 ## never die and earn realm progress at the offline factor 0.1.
 
+## What a new character wears from the start (S27, the weaponless start: the creator's look on the hemp garments). The
+## early story never hands out a second of these (data_validation's early rewards).
+const STARTING_KIT := ["starter_gourd", "hemp_robe", "hemp_trousers", "straw_sandals"]
+
 var reset_timer := 0.0
 
 func intents() -> Array:
@@ -82,10 +86,11 @@ func create_character(intent: Dictionary) -> Dictionary:
 	game.characters[c.id] = c
 	game.progression.roll_aptitude(c)
 	# Weaponless start (S27): creator look becomes the starting hemp garments.
-	for s in [["starter_gourd", {}], ["hemp_robe", {"appearance": appearance.shirt}], ["hemp_trousers", {"appearance": appearance.pants}], ["straw_sandals", {"appearance": appearance.shoes}]]:
-		var def := ContentDB.item(s[0])
-		var inst := LootRules.make_instance(s[0], int(def.get("ilv", 1)), "common", null, c.inventory.take_uid())
-		for k in s[1]: inst[k] = s[1][k]
+	var looks := {"hemp_robe": appearance.shirt, "hemp_trousers": appearance.pants, "straw_sandals": appearance.shoes}
+	for id in STARTING_KIT:
+		var def := ContentDB.item(id)
+		var inst := LootRules.make_instance(id, int(def.get("ilv", 1)), "common", null, c.inventory.take_uid())
+		if looks.has(id): inst["appearance"] = looks[id]
 		c.inventory.equipped[str(def.slot)] = inst
 	c.inventory.resize(c.inventory.capacity())
 	var skip = bool(intent.get("skip_prologue", false)) and ContentDB.config("account_rules").get("skip_prologue_allowed", true) and game.characters.size() > 1

@@ -8547,7 +8547,7 @@
    "attacks": [
     {
      "id": "fish_gutting_fist",
-     "windup_s": 0.4,
+     "windup_s": 0.6,
      "active_s": 0.18,
      "recover_s": 0.45,
      "hitbox": {
@@ -8584,6 +8584,12 @@
    "half_width": 18,
    "height": 90,
    "spar": true,
+   "spar_level": "match",
+   "spar_lines": {
+    "start": "Watch my shoulder. When it drops, step aside, then hit back!",
+    "lost": "Again! Step aside when my shoulder drops, then hit back.",
+    "won": "You read my shoulder. Fine, you won. This time."
+   },
    "movement": {
     "jump": 530,
     "climb": true,
@@ -8736,6 +8742,7 @@
    },
    "half_width": 18,
    "height": 90,
+   "spar_level": "match",
    "spar": true,
    "movement": {
     "jump": 530,

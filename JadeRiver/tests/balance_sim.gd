@@ -73,6 +73,8 @@ func _main() -> void:
 	_account_month()
 	_par_checks(c, cfg, hours)
 	_story_fight_bands(hours)
+	_story_rooms_agree(hours)
+	_story_duels(c)
 	_starter_checks(c, cfg)
 	_technique_checks(c, cfg)
 	_codex_seals(c)
@@ -111,6 +113,316 @@ func _story_fight_bands(hours: Dictionary) -> void:
 							int(p.get("attack", 0)), int(p.get("max_hp", 0))])
 	print("story fights in the first %.0f h: %d spawn bands checked against the par Level" % [max_h, seen])
 	check(seen >= 8 and bad.is_empty(), "every story fight of the first %.0f hours is within %d..%+d Levels of the par character at its step (%s)" % [max_h, lo_d, hi_d, "; ".join(bad)])
+
+## The prototype's polish: the field a story quest sends the player into (its target, a room on the height grid) is not
+## over the Level the story brings them there at (the realm the quest is offered at): its band starts at that Level or
+## under, and tops out no more than two over. The Marsh Edge's reed frogs were Level 4-6 when Strange Tracks sends a Bone
+## Forging 3 (Level 3) disciple there; its band is 3-5 now, and The Humming Token's grey boarlets there are Level 3-4
+## (the earlier fix's 4-5 took two charging together to a tenth of the player's HP; _story_fight_bands holds either way).
+func _story_rooms_agree(hours: Dictionary) -> void:
+	var memo := {}
+	var off: Array = []
+	var seen := 0
+	for q in ContentDB.all("quests"):
+		if not str(q.get("kind", "")) in ["prologue", "main", "guided"]: continue
+		var rid := str(q.get("target_room", ""))
+		var room := ContentDB.room(rid)
+		if rid == "" or str(room.get("type", "")) != "field" or not TopdownRoom.has_layout(rid): continue
+		var rk := _offer_realm(q, memo, 0)
+		if rk != "mortal" and (not hours.has(rk) or float(hours[rk]) > 5.0): continue
+		var lv := maxi(1, int(ContentDB.realm(rk).get("level", 0)))
+		var lr: Array = room.get("level_range", [0, 0])
+		seen += 1
+		if int(lr[0]) > lv or int(lr[-1]) > lv + 2: off.append("%s sends Level %d (%s) to %s, Levels %d-%d" % [q.id, lv, rk, rid, int(lr[0]), int(lr[-1])])
+	check(seen >= 5 and off.is_empty(), "story rooms: no field the story sends the player into is over the Level the story brings them there at (%d quests; %s)" % [seen, "; ".join(off)])
+
+# ------------------------------------------------------------------ the story's fights, won at the story's Level
+## The prototype's polish (docs/redesign/prototype_qa.md): a new player following the story is not downed again and
+## again. Each fight the prototype's story asks for is fought through the real Combat, on the room's own height grid,
+## by a character at the Level the story brings them there, in the gear it has handed them by then (the starting kit,
+## Crab Trouble's hat, the first crab's short blade; at the Marsh Edge the Weapon Hall's jian and its art), on fixed
+## seeds. `trade`: standing and trading blows, never stepping out of a wind-up (a new player's thumb); `careful`: a
+## step aside at every wind-up (what the lessons teach). A tea is drunk at a third of HP when `teas` allows.
+##   - The herd's elite boarlet (The Willow Path, Level 1): won trading blows with the short blade, HP to spare; with
+##     Guo's gauntlets alone, won by a careful player with the story's teas. It downed the QA player one to four times.
+##   - The Entry Trial's puppet (Level 2): won trading blows (it guards from the front and is open while it strikes).
+##   - Shen Lian's spar (Level 2): won trading blows. He spars at the player's Level (a Level-4 double beat the QA's
+##     Level-2 player).
+##   - The Marsh Edge (Level 3): its reed frogs and leeches at the top of their band and The Humming Token's grey
+##     boarlets, each won trading blows with HP to spare; its elite frog (on the lookout, optional) by a careful player.
+## Then the kill steps in their rooms as they stand, the room's other foes joining as its rules have them (_room_fight):
+## the Willow Path's five boarlets and The Humming Token's five grey boarlets, won every time, HP never under 40%.
+const DUEL_SEEDS := [11, 22, 33, 44]
+const TAP_S := 0.35      ## a thumb's tap on Attack (or a technique), about three a second
+const WALK_UPS := 150.0  ## the body's walk on the grid, units a second (movement.json topdown.walk)
+func _story_duels(c) -> void:
+	var was_view: String = c.view
+	c.view = "topdown"
+	Game.autosave_enabled = false
+	if not Game.in_world: Game.submit({"type": "enter_world"})
+	Unlocks.grant_prologue(c.id)
+	Unlocks.force_unlock(c.id, "technique_slots_2")
+	var boar := _spawn_level("wp_west", "wild_boarlet", true)
+	var cases := [
+		["the herd's elite boarlet, the short blade, trading blows", 1, "training_short_blade", "common", "wp_west", "wild_boarlet", boar, true, "trade", 3, 4, 0.4],
+		["the herd's elite boarlet, Guo's gauntlets alone, careful", 1, "training_gauntlets", "flawed", "wp_west", "wild_boarlet", boar, true, "careful", 3, 3, 0.0],
+		["the Entry Trial's puppet, the short blade, trading blows", 2, "training_short_blade", "common", "sf_trial_jade", "trial_puppet", _spawn_level("sf_trial_jade", "trial_puppet", false), false, "trade", 3, 4, 0.3],
+		["Shen Lian's spar, trading blows", 2, "training_short_blade", "common", "sf_fairground", "shen_lian", -1, false, "trade", 0, 4, 0.4],
+		["a Marsh Edge reed frog, trading blows", 3, "training_jian", "common", "rm_marsh_edge", "reed_frog", _spawn_level("rm_marsh_edge", "reed_frog", false), false, "trade", 0, 4, 0.5],
+		["a Marsh Edge leech, trading blows", 3, "training_jian", "common", "rm_marsh_edge", "marsh_leech", _spawn_level("rm_marsh_edge", "marsh_leech", false), false, "trade", 0, 4, 0.5],
+		["a grey boarlet of The Humming Token, trading blows", 3, "training_jian", "common", "rm_marsh_edge", "hollowed_boarlet", _spawn_level("rm_marsh_edge", "hollowed_boarlet", false), false, "trade", 0, 4, 0.5],
+		["the Marsh Edge's elite frog, careful", 3, "training_jian", "common", "rm_marsh_edge", "reed_frog", _spawn_level("rm_marsh_edge", "reed_frog", true), true, "careful", 3, 4, 0.2]]
+	for k in cases:
+		var won := 0
+		var lowest := 1.0
+		for seed in DUEL_SEEDS:
+			_story_character(c, int(k[1]), str(k[2]), str(k[3]), int(k[9]))
+			var r := _duel(c, str(k[4]), str(k[5]), int(k[6]), bool(k[7]), str(k[8]), seed)
+			if r.won: won += 1
+			lowest = minf(lowest, float(r.low))
+		print("story duel: %s (Level %d against Level %d): won %d of %d, lowest HP %d%%" % [k[0], int(k[1]), int(k[6]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
+		check(won >= int(k[10]) and (won < DUEL_SEEDS.size() or lowest >= float(k[11])),
+			"story duel: %s at the story's Level %d against Level %d is won %d of %d times (at least %d), HP never under %d%% (%d%%)" % [k[0], int(k[1]), int(k[6]), won,
+			DUEL_SEEDS.size(), int(k[10]), int(100.0 * float(k[11])), int(100.0 * lowest)])
+	# The kill steps in their rooms as they stand, the room's other foes about: the Willow Path's herd (Level 1) and The
+	# Humming Token's grey boarlets among the marsh's frogs and leeches (Level 3), each with three teas. At Level 4-5 the
+	# grey boarlets, two charging together, took the player to 9% of its HP (and the QA player fell there): 3-4 now.
+	var steps := [["the Willow Path's five boarlets and then its elite", 1, "training_short_blade", "wp_west", "wild_boarlet", 5, "the_willow_path", true],
+		["The Humming Token's five grey boarlets", 3, "training_jian", "rm_marsh_edge", "hollowed_boarlet", 5, "the_humming_token", false]]
+	for k in steps:
+		var won := 0
+		var lowest := 1.0
+		for seed in DUEL_SEEDS:
+			_story_character(c, int(k[1]), str(k[2]), "common", 3)
+			var r := _room_fight(c, str(k[3]), str(k[4]), int(k[5]), str(k[6]), seed, bool(k[7]))
+			if r.won: won += 1
+			lowest = minf(lowest, float(r.low))
+		print("story room fight: %s at Level %d: won %d of %d, lowest HP %d%%" % [k[0], int(k[1]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
+		check(won == DUEL_SEEDS.size() and lowest >= 0.4, "story room fight: %s at the story's Level %d, the room's other foes about, won every time with HP never under 40%% (%d of %d; lowest HP %d%%)" % [k[0],
+			int(k[1]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
+	c.view = was_view
+
+## The Level of a room's spawn of `enemy` (its elite, or the top of its band).
+func _spawn_level(room: String, enemy: String, elite: bool) -> int:
+	for sp in ContentDB.room(room).get("spawns", []):
+		if str(sp.get("enemy", "")) == enemy and bool(sp.get("elite", false)) == elite and not sp.get("wild_pet", false):
+			var l = sp.get("level", ContentDB.entry("enemies", enemy).get("level", [1, 1]))
+			return int(l[-1]) if l is Array else int(l)
+	return -1
+
+## The sim's character as the story has it at Level `lv`: the realm's start, no meridians, Dao or tree yet, the starting
+## kit with Crab Trouble's hat, `weapon` in hand, Flowing Palm slotted (and at Bone Forging 3 the Weapon Hall's art for
+## the weapon), `teas` Herbal Teas in the Bag, whole.
+func _story_character(c, lv: int, weapon: String, quality: String, teas: int) -> void:
+	var cu = c.cultivator
+	cu.realm_key = ContentDB.realm_key_for_level(lv)
+	cu.qp = 0.0
+	cu.energy_type = str(ContentDB.realm(cu.realm_key).get("energy", "none"))
+	cu.meridians = {}
+	cu.daos = {}
+	cu.tree = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
+	cu.body_level = 0
+	c.set_meta("extra_modifiers", [])
+	for slot in c.inventory.equipped.keys(): c.inventory.equipped[slot] = null
+	for id in AccountAuthority.STARTING_KIT + ["plain_straw_hat"]:
+		c.inventory.equipped[str(ContentDB.item(id).slot)] = LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, c.inventory.take_uid())
+	c.inventory.equipped["weapon"] = LootRules.make_instance(weapon, 1 if quality == "flawed" else int(ContentDB.item(weapon).get("ilv", 1)), quality, null, c.inventory.take_uid())
+	var arts := ["flowing_palm"]
+	if lv >= 3:
+		var fam := str(ContentDB.item(weapon).get("family", "fists"))
+		for q in ContentDB.all("quests"):
+			if str(q.id) != "the_weapon_hall": continue
+			for e in q.get("rewards", []):
+				if str(e.get("kind", "")) == "learn_technique_for_weapon": arts.append(str(e.options.get(fam, "")))
+	for t in arts:
+		if t != "": Game.progression.apply_learn_technique(c.id, t)
+	for i in cu.technique_slots.size(): cu.technique_slots[i] = arts[i] if i < arts.size() and str(arts[i]) != "" else null
+	for i in c.inventory.bag.size():
+		if c.inventory.bag[i] != null and str(c.inventory.bag[i].id) == "herbal_tea": c.inventory.bag[i] = null
+	if teas > 0: Game.inventory.apply_add(c.id, "herbal_tea", teas, "balance_sim")
+	# Whole, and fresh: no fall, injury, status or cooldown carried over from the fight before.
+	Game.combat.wounded.erase(c.id)
+	Game.combat.spar.erase(c.id)
+	cu.injuries = {}
+	c.pools.statuses.clear()
+	c.pools.cooldowns.clear()
+	c.pools.alive = true
+	StatRules.rebuild(c)
+	c.pools.hp = c.pools.max_hp
+
+## A kill step in its room as the room stands (every spawn there, the step's own waiting on its quest, joining the fight
+## as the room's rules have them), on `seed`: from the first spawn of `enemy`, the nearest foe at the player first, else
+## the next of `enemy`, trading blows at a thumb's pace (walking the grid's paths), a tea at a third of HP, until
+## `count` of `enemy` are down (and then, `then_elite`, the room's elite of it: The Willow Path's last step) or the
+## player falls: {won, low, t}.
+func _room_fight(c, room: String, enemy: String, count: int, quest: String, seed: int, then_elite := false) -> Dictionary:
+	var had: bool = c.quests.active.has(quest)
+	if not had:
+		var progress: Array = []
+		for o in ContentDB.entry("quests", quest).get("objectives", []): progress.append(0)
+		c.quests.active[quest] = {"state": "active", "progress": progress, "accepted_tick": 0}
+	Rng.forget(c.id)
+	Rng.ensure(c.id, seed)
+	Game.enemies.rng.seed = seed
+	# Each seed is a fresh visit: the room forgets the kills of the seed before (the elite slain there would stay away
+	# for its respawn, and the step would wait on it).
+	if c.rooms.has(room): c.rooms[room].erase("slain")
+	Game.world.load_room(c, room, "")
+	GameEvents.flush()
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var st := ActorState.new()
+	Game.bind_movement(c.id, st)
+	var start := Vector2.ZERO
+	for sl in Game.room_rt.spawn_slots:
+		if str(sl.spec.get("enemy", "")) == enemy and not sl.spec.get("elite", false) and start == Vector2.ZERO: start = sl.point
+	st.plane = grid.nearest_standable(start - Vector2(0, 64))
+	st.altitude = grid.floor_at(st.plane)
+	st.velocity = Vector2.ZERO
+	var tally := {"kills": 0, "elite": false, "hurt": {}}
+	var hook := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("def", "")) == enemy:
+			if bool(p.get("elite", false)): tally.elite = true
+			else: tally.kills = int(tally.kills) + 1
+		if n == "hit_landed" and str(p.get("target_kind", "")) == "player" and str(p.get("attacker", "")).is_valid_int():
+			var att = Game.room_rt.enemies.get(int(str(p.attacker)))
+			var key := "%s Lv %d" % [att.def_id, att.level] if att != null else "?"
+			tally.hurt[key] = int(tally.hurt.get(key, 0)) + int(p.get("amount", 0))
+	GameEvents.event.connect(hook)
+	var low := 1.0
+	var out := {"won": false, "low": 0.0, "t": 0.0}
+	var t := 0.0
+	while t < 300.0:
+		GameEvents.flush()
+		low = minf(low, c.pools.hp / c.pools.max_hp)
+		if Game.combat.is_wounded(c.id):
+			out = {"won": false, "low": 0.0, "t": t}
+			break
+		var herd_done := int(tally.kills) >= count
+		if herd_done and (not then_elite or bool(tally.elite)):
+			out = {"won": true, "low": low, "t": t}
+			break
+		var target: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.team != "enemy" or not e.in_fight() or e.plane.distance_to(st.plane) > 200.0: continue
+			if target == null or e.plane.distance_to(st.plane) < target.plane.distance_to(st.plane): target = e
+		if target == null:
+			for e in Game.room_rt.living_enemies():
+				if e.team != "enemy" or e.def_id != enemy or (then_elite and e.elite != herd_done): continue
+				if target == null or e.plane.distance_to(st.plane) < target.plane.distance_to(st.plane): target = e
+		if target != null:
+			var gap: Vector2 = target.plane - st.plane
+			if gap.length() > 40.0:
+				# The grid's own paths (the marsh's boardwalks over its channels), a tap's walk along them.
+				var path: Array = grid.find_path(TopdownRoom.cell_of(st.plane), TopdownRoom.cell_of(target.plane), true)
+				var goal: Vector2 = TopdownRoom.cell_point([path[0].x, path[0].y]) if path.size() > 1 else target.plane
+				var step_v: Vector2 = goal - st.plane
+				st.plane = grid.nearest_standable(st.plane + step_v.normalized() * minf(step_v.length(), WALK_UPS * TAP_S))
+				st.altitude = grid.floor_at(st.plane)
+			else:
+				var aim: Vector2 = gap.normalized() if gap.length() > 0.5 else Vector2.RIGHT
+				var facing := 1 if gap.x >= 0.0 else -1
+				for i in ProgressionRules.technique_slot_count(c):
+					if c.cultivator.technique_slots[i] != null and Game.submit({"type": "use_technique", "slot": i, "facing": facing, "aim": aim}).get("ok", false): break
+				Game.submit({"type": "basic_attack", "facing": facing, "aim": aim})
+				if c.pools.hp < c.pools.max_hp * 0.35 and c.inventory.count("herbal_tea") > 0:
+					Game.submit({"type": "use_item", "index": c.inventory.first_index("herbal_tea"), "confirm": true})
+		var k := 0.0
+		while k < TAP_S:
+			Game.tick(0.05)
+			k += 0.05
+		t += TAP_S
+	GameEvents.event.disconnect(hook)
+	if OS.get_cmdline_user_args().has("--duels"):
+		print("  room fight %s in %s seed %d: %s after %.1f s, %d down (the elite %s); me %d/%d, teas left %d; hurt by %s" % [enemy, room, seed, str(out), t,
+			int(tally.kills), str(tally.elite), int(c.pools.hp), int(c.pools.max_hp), c.inventory.count("herbal_tea"), str(tally.hurt)])
+	if not had: c.quests.active.erase(quest)
+	Game.room_rt.enemies.clear()
+	return out
+
+## One fight in `room` against `enemy` at Level `lv` (a spar opponent through the spar's own start), on `seed`:
+## {won, low: the lowest HP share it came to}.
+func _duel(c, room: String, enemy: String, lv: int, elite: bool, mode: String, seed: int) -> Dictionary:
+	Game.world.load_room(c, room, "")
+	GameEvents.flush()
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var home := Vector2.ZERO
+	for sl in Game.room_rt.spawn_slots:
+		if str(sl.spec.get("enemy", "")) == enemy and bool(sl.spec.get("elite", false)) == elite: home = sl.point
+	Game.room_rt.spawn_slots.clear()
+	Game.room_rt.enemies.clear()
+	Rng.forget(c.id)
+	Rng.ensure(c.id, seed)
+	Game.enemies.rng.seed = seed
+	var st := ActorState.new()
+	Game.bind_movement(c.id, st)
+	var put := func(p: Vector2, alt: float) -> void:
+		st.plane = grid.nearest_standable(p) if grid != null else p
+		st.altitude = grid.floor_at(st.plane) if grid != null else alt
+		st.surface = null
+		st.velocity = Vector2.ZERO
+	if home == Vector2.ZERO:
+		var npc: Dictionary = {}
+		for o in Game.room_rt.def.get("objects", []): if str(o.get("npc", "")) == enemy: npc = o
+		home = Vector2(float(npc.at[0]), float(npc.at[1])) if not npc.is_empty() else Vector2(float(Game.room_rt.def.get("spawn_point", [600, 800])[0]), 600.0)
+	put.call(home - Vector2(110, 0), 0.0)
+	var spar := {"winner": ""}
+	var hook := func(n: String, p: Dictionary): if n == "spar_ended": spar.winner = str(p.get("winner", ""))
+	GameEvents.event.connect(hook)
+	var e: EnemyState = null
+	if ContentDB.entry("enemies", enemy).get("spar", false):
+		Game.quest.start_spar(c, enemy, lv, enemy)
+		for x in Game.room_rt.living_enemies(): e = x
+	else:
+		var at: Vector2 = grid.place_near(home, st.altitude) if grid != null else home
+		e = Game.enemies.spawn_at(enemy, at, lv, {"elite": elite})
+	GameEvents.flush()
+	e.ai.state = "aggro"
+	var low := 1.0
+	var out := {"won": false, "low": 0.0}
+	var t := 0.0
+	while t < 150.0:
+		GameEvents.flush()
+		low = minf(low, c.pools.hp / c.pools.max_hp)
+		if spar.winner != "":
+			out = {"won": spar.winner == "player", "low": low}
+			break
+		if Game.combat.is_wounded(c.id):
+			out = {"won": false, "low": 0.0}
+			break
+		if not e.alive:
+			out = {"won": true, "low": low}
+			break
+		# A thumb's pace: the body walks (WALK_UPS), a tap every TAP_S, a tea at a third of HP when there is one.
+		var step_s := TAP_S
+		var gap: Vector2 = e.plane - st.plane
+		if mode == "careful" and str(e.ai.get("state", "")) == "windup":
+			# A step out of the lane of the wind-up, as the lessons teach, at walking pace.
+			var lane: Vector2 = e.aim if e.aim.length() > 0.1 else -gap.normalized()
+			var side := Vector2(-lane.y, lane.x)
+			if side.dot(st.plane - e.plane) < 0.0: side = -side
+			put.call(st.plane + side * WALK_UPS * 0.45, st.altitude)
+			step_s = 0.45
+		elif gap.length() > 40.0:
+			put.call(st.plane + gap.normalized() * minf(gap.length() - 30.0, WALK_UPS * TAP_S), st.altitude)
+		else:
+			var aim: Vector2 = gap.normalized() if gap.length() > 0.5 else Vector2.RIGHT
+			var facing := 1 if gap.x >= 0.0 else -1
+			for i in ProgressionRules.technique_slot_count(c):
+				if c.cultivator.technique_slots[i] != null and Game.submit({"type": "use_technique", "slot": i, "facing": facing, "aim": aim}).get("ok", false): break
+			Game.submit({"type": "basic_attack", "facing": facing, "aim": aim})
+			if c.pools.hp < c.pools.max_hp * 0.35 and c.inventory.count("herbal_tea") > 0:
+				Game.submit({"type": "use_item", "index": c.inventory.first_index("herbal_tea"), "confirm": true})
+		var k := 0.0
+		while k < step_s:
+			Game.tick(0.05)
+			k += 0.05
+		t += step_s
+	GameEvents.event.disconnect(hook)
+	if OS.get_cmdline_user_args().has("--duels"):
+		print("  duel %s Lv %d seed %d: %s after %.1f s; me %d/%d atk %.1f wounded %s; foe %s hp %d/%d at %s me at %s" % [enemy, lv, seed, str(out), t, int(c.pools.hp),
+			int(c.pools.max_hp), c.stats.value("physical_attack"), Game.combat.is_wounded(c.id), e.def_id, int(e.pools.hp), int(e.pools.max_hp), str(e.plane), str(st.plane)])
+	Game.room_rt.enemies.clear()
+	return out
 
 ## The realm a story quest is offered at: the highest realm among its requirements, its unlock's trigger and those of
 ## every quest it waits on (and the quest whose `next` it is), all the way back.
