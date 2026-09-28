@@ -302,6 +302,38 @@ this page in the game (decision 33):
 The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_mock_*.png` is the approved target,
 `07_ingame_square.png` the loader before this work, and `08`–`15` the game after it.
 
+## 10b. Combat effects (decision 38)
+
+Every blow and technique of the top-down world is drawn by `tools/art/fx/build_fx_topdown.py` into `art/fx/topdown/`
+(the plan's "As built: combat animation and feel"). The rules on this page hold for them, with these additions:
+
+- **The look rule.** Only the feel comes from the reference game: timing, hit-stop, smears, readable impacts, camera
+  kick, knockback. The look is wuxia:
+  - sword-light crescents with a qi trail;
+  - the brush's ink stroke with dry-brush breaks and a red seal;
+  - palm prints for palms;
+  - the bell's rings of sound, the fan's gust with lotus petals;
+  - sword formations, a golden bell over a bagua, talisman seals, runes and trigrams;
+  - calligraphic impact marks;
+  - the elements' Dao images: water ripples, wind petals, thunder talismans, fire lotus, earth stone, metal sword-qi.
+
+  Nothing sci-fi or generic-fantasy: no lasers, no energy grids, no glowing tech.
+- **Colour.** A family's own qi takes this page's ramps:
+  - jade from the river ramp;
+  - gold from the lantern ramp;
+  - ink and paper, with red lacquer for the seal;
+  - wind teal with lotus pink;
+  - bell bronze.
+
+  A technique takes its element's palette (`tools/art/fx/elements.py`). Every effect keeps the ink rim of the FX
+  library, so it reads on grass, paving and water alike.
+- **Projection.** Effects lie on the floor of the ¾ view and rise straight up from it. A floor circle is a circle.
+  Five directions are drawn (E, SE, S, NE, N); the west three mirror, as the body and the foes do.
+- **Pixels.** Effects are drawn at art resolution (1 art px = 1 world px), nearest neighbour, with no blur. A wide
+  technique is drawn at a whole scale (×2 or ×3).
+- **Timing.** A smear is few and fast: a lead-in frame, one bright contact frame, a follow-through, then the qi thins
+  from the tail. The contact frame lands on the blow's hit.
+
 ## 11. Checklist for a new tile or prop
 
 - It uses the palette ramps, or a new ramp added to `palette.py` with its Style A tie.

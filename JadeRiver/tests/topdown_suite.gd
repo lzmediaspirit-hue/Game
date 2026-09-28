@@ -594,6 +594,9 @@ func fresh(at: Vector2) -> void:
 	rt.projectiles.clear()
 	w.player.motor.place(at)
 	w.player.motor.dir = Vector2.DOWN
+	w.player.motor.dash_t = 0.0
+	w.player.motor.since_dash = 99.0
+	w.player.dodge_buffer = 0.0
 	w.player.physics_step(0.0001)
 	c.pools.hp = c.pools.max_hp
 	c.pools.cooldowns.clear()
@@ -655,6 +658,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
 	await _drag_moves(tree, base)
+	await _combat_feel(tree, base)
 	w.queue_free()
 	if is_instance_valid(hud): hud.queue_free()
 	await tree.process_frame
@@ -1124,4 +1128,188 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	Game.account.settings["reduce_motion"] = was
 	t.check(lc.x < 640.0 and left_armed == "finisher" and cancel == "cancel" and idle and g1 == 1.0 and g2 == 1.0,
 		"topdown drag moves: left-handed the finisher reads the same and a drag back cancels (%s, %s); under Reduce motion the armed marks hold still" % [left_armed, cancel])
+
+# ------------------------------------------------------------------ decision 38: the combat feel
+## Names of the effect sheets TopdownFx is playing now (their files' base names).
+func _fx_now() -> Array:
+	return w.tfx.nodes.filter(func(n): return is_instance_valid(n)).map(func(n): return (n.tex as Texture2D).resource_path.get_file().get_basename())
+
+## A foe of `def` at `p` that lives through anything (its blows and flinches still show).
+func sturdy(def: String, p: Vector2) -> EnemyState:
+	var e := foe(def, p, 60)
+	e.pools.max_hp = 1.0e15
+	e.pools.hp = e.pools.max_hp
+	return e
+
+## Decision 38 (CombatFeel, TopdownFx): a blow's hit-stop by its weight; the cancel rule (a dodge drops a blow in its
+## anticipation, is refused in its active window and waits in a buffer for its late recovery); the lunge and the dash
+## attack; the step's smear in its direction with its contact on the hit, the technique forms, the impact marks, the
+## foe's tell, the dust and the held guard, all in the world's sorted layer; the eight directions (three mirrored); the
+## struck foe's flash and hop; and under Reduce motion no hit-stop, kick or shake.
+func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
+	var fam: Dictionary = StatRules.family(c)
+	var tl: Dictionary
+	# Weight: the first step of a chain against the dragged (charged) finisher.
+	fresh(base)
+	var dummy := sturdy("wild_boarlet", base + Vector2(30, 0))
+	tl = Game.combat.timeline(c.id)
+	tl.family = str(fam.id)
+	tl.combo = 0
+	tl.charged = false
+	var blow := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "never_miss": true, "source": "basic"}
+	var pv: Dictionary = Game.combat.player_view(c)
+	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	var light: float = Game.combat.hitstop
+	Game.combat.hitstop = 0.0
+	tl.charged = true
+	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	var heavy: float = Game.combat.hitstop
+	tl.charged = false
+	var f := 1.0 / 60.0
+	measured.hitstop_frames = {"step_1": snappedf(light / f, 0.1), "charged": snappedf(heavy / f, 0.1)}
+	t.check(heavy > light and light >= 3 * f - 0.001 and light <= 5 * f + 0.001 and heavy >= 8 * f - 0.001,
+		"topdown feel: a first step holds %.0f frames, the dragged finisher %.0f (a crit two more)" % [light / f, heavy / f])
+	# The cancel rule.
+	fresh(base)
+	var target := sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	frames(1)
+	var ph0 := CombatFeel.phase_of(Game.combat.timeline(c.id), c)
+	var r0: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.LEFT, "facing": 1, "moves": false})
+	frames(40)
+	var dropped: bool = ph0 == "anticipation" and r0.get("ok", false) and not hurt(target) and str(Game.combat.timeline(c.id).action) == ""
+	fresh(base)
+	target = sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	var n := 0
+	while CombatFeel.phase_of(Game.combat.timeline(c.id), c) != "active" and n < 60:
+		frames(1)
+		n += 1
+	var r1: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.LEFT, "facing": 1, "moves": false})
+	w.player.dodge()   # the player's own dodge waits in the buffer for the cancel point
+	var buffered: float = w.player.dodge_buffer
+	var went := false
+	for i in 30:
+		frames(1)
+		if c.pools.cooldown("dodge") > 0.0:
+			went = true
+			break
+	var ph := CombatFeel.phases(fam, 0, 1.0 + c.stats.value("attack_speed"))
+	measured.phases = {"family": str(fam.id), "anticipation": snappedf(float(ph.anticipation), 0.001), "active": snappedf(float(ph.active), 0.001),
+		"recovery": snappedf(float(ph.recovery), 0.001), "cancel_from": snappedf(float(ph.cancel_from), 0.001)}
+	t.check(dropped and str(r1.get("reason", "")) == "committed" and buffered > 0.0 and went and hurt(target),
+		"topdown feel: a dodge drops a blow in its anticipation (%s), is refused in its active window (%s) and waits in the buffer until it may cancel (%s)" % [ph0, str(r1.get("reason", "")), str(went)])
+	# The lunge: a step carries the body toward its aim; out of a dash it is a dash attack.
+	fresh(base)
+	var from: Vector2 = w.player.motor.pos
+	w.player.aim_attack(Vector2.RIGHT)
+	frames(12)
+	var lunged: float = w.player.motor.pos.x - from.x
+	fresh(base)
+	w.player.dodge()
+	frames(3)
+	var r2: Dictionary = w.player.aim_attack(Vector2.RIGHT)
+	var dash_attack: bool = w.player.dash_attack and w.player.motor.dash_t <= 0.0
+	measured.lunge = snappedf(lunged, 0.1)
+	t.check(r2.get("ok", false) and lunged >= CombatFeel.lunge(str(fam.id), 0) * 0.8 and dash_attack,
+		"topdown feel: a step lunges %.0f units along its aim, and one out of a dash is a dash attack that ends the dash" % lunged)
+	# The effects, each in the world's sorted layer.
+	fresh(base)
+	w.tfx.clear()
+	GameEvents.flush()
+	w.player.motor.face(Vector2.RIGHT)
+	target = sturdy("wild_boarlet", base + Vector2(30, 0))
+	w.player.aim_attack(Vector2.RIGHT)
+	GameEvents.flush()
+	var smear: Array = w.tfx.nodes.filter(func(x): return (x.tex as Texture2D).resource_path.ends_with("melee_%s.png" % str(fam.id)))
+	var lead: float = float(Game.combat.timeline(c.id).hit_at) - 1.0 / (CombatFeel.smear_fps(str(fam.id)) * (1.0 + c.stats.value("attack_speed")))
+	var smear_ok: bool = smear.size() == 1 and smear[0].row == 0 and not smear[0].flip and smear[0].get_parent() == w.sorted \
+		and absf(-float(smear[0].t) - lead) < 0.002 and float(smear[0].position.y) > w.room.sort_key(w.player.motor.pos, w.player.motor.z)
+	frames(40)
+	GameEvents.flush()
+	var names: Array = _fx_now()
+	t.check(smear_ok and names.has("impact_e"),
+		"topdown feel: a step plays its family's smear toward its aim in the sorted layer, its contact on the hit (lead %.3f s), and the blow leaves its impact mark (%s)" % [lead, str(names)])
+	var forms_seen := {}
+	for slot in 4:
+		fresh(base)
+		w.tfx.clear()
+		sturdy("wild_boarlet", base + Vector2(0, 60))
+		c.pools.qi = c.pools.max_qi
+		var tr: Dictionary = w.player.aim_technique(slot, Vector2.DOWN, 0.5)
+		GameEvents.flush()
+		var form := str(ContentDB.entry("techniques", str(c.cultivator.technique_slots[slot])).get("vfx", {}).get("anim", ""))
+		forms_seen[form] = "refused: " + str(tr.get("reason", "")) if not tr.get("ok", false) else "none"
+		for nm in _fx_now():
+			if str(nm).begins_with("form_" + form): forms_seen[form] = str(nm)
+	t.check(forms_seen.size() == 4 and forms_seen.values().all(func(v): return str(v).begins_with("form_")),
+		"topdown feel: each slotted technique plays its form's ground-plane sheet (%s)" % str(forms_seen))
+	# A foe's tell, a dash's dust, the held guard.
+	fresh(base)
+	w.tfx.clear()
+	var striker := sturdy("wild_boarlet", base + Vector2(30, 0))
+	EnemyBrain.wind_up(Game.enemies, striker, striker.def.attacks, striker.def.attacks[0])
+	GameEvents.flush()
+	var told: bool = _fx_now().has("common")
+	w.player.dodge()
+	for ev in w.player.physics_step(1.0 / 60.0): w._feedback(ev)
+	var dusted: bool = _fx_now().has("dust")
+	Game.submit({"type": "guard_start"})
+	w._hold_marks()
+	var guard_on: bool = w.tfx.guard_node != null and is_instance_valid(w.tfx.guard_node)
+	Game.submit({"type": "guard_end"})
+	w._hold_marks()
+	t.check(told and dusted and guard_on and w.tfx.guard_node == null, "topdown feel: a foe's wind-up shows its tell, a dash kicks dust, and a guard holds its wall of qi while it lasts")
+	# The eight directions, the west three mirrored.
+	var dirs: Array = []
+	for i in 8: dirs.append(TopdownFx.dir_of(Vector2.from_angle(i * PI / 4.0)))
+	t.check(dirs == [["e", false], ["se", false], ["s", false], ["se", true], ["e", true], ["ne", true], ["n", false], ["ne", false]],
+		"topdown feel: an effect takes the nearest of eight directions, drawing E, SE, S, NE and N and mirroring the west three (%s)" % str(dirs))
+	# The struck foe: white, then tinted; a knockback hops it; the effects freeze in a hit-stop.
+	fresh(base)
+	var struck := sturdy("wild_boarlet", base + Vector2(30, 0))
+	GameEvents.flush()
+	var view = w.foe_views.get(struck.uid)
+	Game.combat._player_hits_enemy(c, Game.combat.player_view(c), struck, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1],
+		"never_miss": true, "knockback": 60, "source": "basic"}, 1)
+	view.sync(0.0)
+	var white0: float = view.white
+	var top := 0.0
+	for i in 12:
+		Game.enemies.tick(1.0 / 60.0)
+		view.sync(1.0 / 60.0)
+		top = maxf(top, view.hop)
+	w.tfx.clear()
+	var sm = w.tfx.smear("", str(fam.id), "step_1", Vector2.RIGHT, base, 0.0, -1.0)
+	w.held = true
+	w._sync(0.1)
+	var froze: bool = sm != null and absf(float(sm.t)) < 0.001
+	w.held = false
+	w._sync(0.1)
+	var ran: bool = sm != null and float(sm.t) > 0.09
+	t.check(white0 == 1.0 and view.white == 0.0 and top >= 2.0 and froze and ran,
+		"topdown feel: a struck foe flashes white, then tinted, a knockback hops it %.0f px, and a hit-stop freezes the effects with the fight" % top)
+	# Reduce motion: no hit-stop, no kick, no shake.
+	var was: bool = bool(Game.account.settings.get("reduce_motion", false))
+	Game.account.settings["reduce_motion"] = true
+	var rig := ShakeRig.new()
+	rig.kick(Vector2.RIGHT, 6.0)
+	rig.add(0.2, 4.0)
+	var still: Vector2 = rig.offset(0.01)
+	w.sim_frozen = false
+	Game.combat.hitstop = 0.1
+	w._physics_process(1.0 / 60.0)
+	var off_held: bool = w.held
+	var off_stop: float = Game.combat.hitstop
+	Game.account.settings["reduce_motion"] = was
+	Game.combat.hitstop = 0.1
+	w._physics_process(1.0 / 60.0)
+	var on_held: bool = w.held
+	w.sim_frozen = true
+	Game.combat.hitstop = 0.0
+	var rig2 := ShakeRig.new()
+	rig2.kick(Vector2.RIGHT, 6.0)
+	var kicked: Vector2 = rig2.offset(0.01)
+	t.check(still == Vector2.ZERO and not off_held and off_stop == 0.0 and on_held and kicked.x < -1.0,
+		"topdown feel: under Reduce motion there is no hit-stop, kick or shake; without it a hit-stop holds the fight and a kick knocks the view along the blow (%s)" % str(kicked))
 

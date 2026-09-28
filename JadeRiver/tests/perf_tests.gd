@@ -263,8 +263,10 @@ func _topdown() -> void:
 		e.altitude = w.room.height_at(at)
 		e.threat[Game.active_id] = 1.0
 	var peak := {"fx": 0}
+	# Decision 38: the effects counted are the overlay's (numbers, rings) and the ground-plane sheets TopdownFx plays in
+	# the world (smears, forms, impacts, marks, dust), every blow and technique drawn with its hit-stop and camera kick.
 	var fight := func(i: int) -> void:
-		peak.fx = maxi(int(peak.fx), w.effects.fx.size())
+		peak.fx = maxi(int(peak.fx), w.effects.fx.size() + w.tfx.nodes.size())
 		p.movement = Vector2.from_angle(i * 0.07) * 0.3
 		Game.active().pools.hp = Game.active().pools.max_hp
 		Game.combat.wounded.erase(Game.active_id)

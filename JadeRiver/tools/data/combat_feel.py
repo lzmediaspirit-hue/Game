@@ -1,0 +1,150 @@
+"""Decision 38 · the combat feel of the top-down world, one table: data/combat_feel.json.
+
+    python3 tools/data/combat_feel.py            # write it (build_data.py runs it too)
+    python3 tools/data/combat_feel.py --check    # fail unless the file is current
+
+The look rule (decision 38) heads the table: only the feel and technique come from the reference game (timing,
+hit-stop, smears, impact readability, camera kick, knockback); the look of every attack and skill stays wuxia and
+xianxia (the FX sheets of tools/art/fx/build_fx_topdown.py, in the element language of elements.py and the art
+bible's palette). Research: docs/research/alabaster_dawn_2_5d.md §3.9.
+
+What lives here (CombatFeel reads it; TopdownFx and the top-down views play it):
+
+- weights: what a blow of each weight does. Hit-stop in 60 fps frames (about a third of a fighting game's: an action
+  RPG lands many blows a second on a crowd), the camera's kick along the blow and its shake, the impact mark, the hop
+  a knockback gives the struck body.
+- families: per weapon family, each combo step's weight, its lunge toward the target, the rate its smear plays at (the
+  smear's first frame leads the hit by one frame, and its three bright frames are the step's active window), and its
+  cancel rule: a dodge cancels the anticipation (the blow is dropped) or the recovery once `recovery_after` of it has
+  run, never the active window; the finisher only after `finisher_after`. The steps' own durations and hit frames stay
+  in weapon_families.json: the phases are derived from them (CombatFeel.phases), never kept twice.
+- forms: per technique form, its weight and the top-down pose it plays (the character pipeline's action names).
+- foes: the weight of a foe's blow by its role, and the marks it shows (its tell on the wind-up, its swipe).
+- poses: the character pipeline's action for each of the side view's action names, and the poses that pipeline does not
+  draw yet (listed for it; decision 37).
+"""
+from __future__ import annotations
+
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+from common import DATA, write  # noqa: E402
+
+LOOK_RULE = ("Decision 38: only the feel and technique come from the reference game (timing, hit-stop, smears, impact "
+             "readability, camera kick, knockback). The look of every attack and skill stays wuxia/xianxia: sword-light arcs and "
+             "qi trails, ink-brush strokes, flowing silk and robe motion, jade and gold qi, elemental Dao imagery (water ripples, "
+             "wind petals and leaves, thunder talismans, fire lotus, earth stone, metal sword-qi), palm prints, sword formations "
+             "and calligraphic impact marks; never sci-fi, tech or generic fantasy.")
+
+WEIGHTS = {
+    # hitstop_f: frames at 60 fps; kick_px: the camera's jolt along the blow (screen px); shake_s / shake_px: a shake on top;
+    # impact: the mark's weight in the impact sheets; hop: the struck body's knockback hop, art px per knockback unit.
+    "light": {"hitstop_f": 3, "kick_px": 0, "shake_s": 0.0, "shake_px": 0, "impact": "light", "hop": 0.06},
+    "medium": {"hitstop_f": 4, "kick_px": 2, "shake_s": 0.0, "shake_px": 0, "impact": "light", "hop": 0.07},
+    "heavy": {"hitstop_f": 6, "kick_px": 4, "shake_s": 0.1, "shake_px": 2, "impact": "heavy", "hop": 0.08},
+    "finisher": {"hitstop_f": 8, "kick_px": 6, "shake_s": 0.18, "shake_px": 4, "impact": "finisher", "hop": 0.1},
+}
+ORDER = ["light", "medium", "heavy", "finisher"]
+
+
+def fam(steps, smear_fps, lunge, recovery_after=0.3, finisher_after=0.6, charged="finisher"):
+    return {"steps": steps, "charged": charged, "smear_fps": smear_fps, "lunge": lunge, "recovery_after": recovery_after,
+            "finisher_after": finisher_after}
+
+
+# Light weapons cancel early and lunge short; heavy ones commit (the reference's heavy-attack rule).
+FAMILIES = {
+    "fists": fam(["light", "light", "medium"], 24, [10, 10, 16], 0.0, 0.4),
+    "gauntlets": fam(["light", "light", "heavy"], 24, [10, 10, 16], 0.0, 0.4),
+    "jian": fam(["light", "light", "heavy"], 20, [12, 12, 20], 0.2, 0.5),
+    "spear": fam(["light", "medium", "heavy"], 18, [8, 8, 24], 0.3, 0.6),
+    "short_blade": fam(["light", "light", "medium"], 24, [12, 12, 16], 0.0, 0.3),
+    "staff": fam(["medium", "medium", "heavy"], 18, [8, 8, 16], 0.3, 0.6),
+    "heavy_sabre": fam(["medium", "heavy", "finisher"], 14, [8, 12, 20], 0.5, 0.8),
+    "fan": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5),
+    "flute": fam(["light"], 20, [0], 0.0, 0.5, charged="medium"),
+    "brush": fam(["light", "light", "medium"], 20, [6, 6, 10], 0.2, 0.5),
+    "bell": fam(["light", "light", "medium"], 18, [0, 0, 0], 0.3, 0.6),
+    "bow": fam(["medium"], 20, [0], 0.3, 0.6, charged="heavy"),
+}
+
+# Technique forms: the weight of their blow and the pose they play in the top-down catalogue (meditation is drawn facing
+# the camera only, so a cast of a meditate form plays `cast`; the Plunge form plays the plunge; `combo` its family's step).
+FORMS = {
+    "strike": ("heavy", "combo_3"), "flurry": ("medium", "combo_1"), "thrust": ("heavy", "thrust_1"), "lunge": ("heavy", "dash"),
+    "sweep": ("heavy", "combo_3"), "arc": ("medium", "combo_2"), "volley": ("medium", "cast"), "rain": ("medium", "cast"),
+    "pillar": ("heavy", "cast"), "wave": ("heavy", "combo_3"), "burst": ("heavy", "cast"), "seeker": ("medium", "cast"),
+    "return": ("medium", "combo_3"), "snare": ("medium", "cast"), "counter": ("heavy", "guard"), "ward": ("light", "cast"),
+    "chorus": ("light", "cast"), "blink": ("heavy", "dash"), "plunge": ("finisher", "plunge"), "release": ("medium", "cast"),
+    "swarm": ("medium", "cast"), "seal": ("medium", "cast"), "domain": ("medium", "cast"), "echo": ("heavy", "combo_2"),
+}
+
+# The side view's action names (weapon_families.json, techniques.json) -> the top-down catalogue's (the character
+# pipeline, figure/actions.py CATALOG and ALIASES).
+POSES = {
+    "punch_1": "punch_1", "punch_2": "punch_2", "punch_3": "punch_3", "swing_1": "swing_1", "swing_2": "swing_2",
+    "swing_3": "swing_3", "thrust_1": "thrust_1", "thrust_2": "thrust_2", "thrust_3": "thrust_3", "punch": "punch_2",
+    "swing": "swing_1", "attack": "thrust_1", "bow": "cast", "meditate": "cast", "meditate_burst": "cast", "jump": "plunge",
+    "guard": "guard", "plunge": "plunge", "dash": "dash", "cast": "cast", "hurt": "hurt", "knockdown": "knockdown",
+}
+
+# Poses the top-down catalogue does not draw yet: each plays its stand-in until the character pipeline draws it.
+MISSING_POSES = [
+    {"pose": "bow_draw", "stand_in": "cast", "for": "the bow's shot and the aimed (dragged) shot: draw, hold, release (plan §1.4: 7 frames at 12 fps)"},
+    {"pose": "flute_play", "stand_in": "thrust_1", "for": "the flute's note and its held melody"},
+    {"pose": "charge_hold", "stand_in": "combo_3", "for": "the charged (dragged) finisher: a held wind-up before the release"},
+    {"pose": "dash_slash", "stand_in": "thrust_3", "for": "the dash attack of the cutting and palm families (the thrust families use thrust_3)"},
+    {"pose": "air_strike", "stand_in": "jump", "for": "a blow struck in the air"},
+    {"pose": "parry_deflect", "stand_in": "guard", "for": "the instant a guard parries: the blade turning the blow"},
+    {"pose": "two_hand_swing_1..3", "stand_in": "swing_1..3", "for": "the heavy sabre's cuts (swing_1-3 are one-handed, the other hand in a seal)"},
+    {"pose": "bell_toll", "stand_in": "swing_1..3", "for": "the bell rung out on both sides"},
+    {"pose": "fan_throw", "stand_in": "swing_3", "for": "the fan's third step, which throws it"},
+    {"pose": "brush_write", "stand_in": "swing_1..3", "for": "the brush writing its strokes in the air"},
+]
+
+FOES = {"roles": {"normal": "light", "elite": "medium", "boss": "heavy"}, "big_hit_share": 0.15, "big_hit": "heavy",
+        "tell": "tell", "swipe": "swipe"}
+
+
+def payload() -> dict:
+    return {
+        "look_rule": LOOK_RULE,
+        "_note": "Built by tools/data/combat_feel.py; never edit by hand. Decision 38: the combat feel of the top-down world.",
+        "frame_s": round(1.0 / 60.0, 6),
+        "crit_hitstop_f": 2,
+        "kick_s": 0.12,
+        "weights": WEIGHTS,
+        "order": ORDER,
+        "flash": {"white_s": 0.05, "tint": "#ffb4a0", "player_hop_px": 4},
+        "knock": {"hop_max_px": 10, "skid_from": 40},
+        "dash_attack_s": 0.15,
+        "dodge_buffer_s": 0.2,
+        "families": FAMILIES,
+        "forms": {k: {"weight": v[0], "pose": v[1]} for k, v in FORMS.items()},
+        "technique_recovery_after": 0.3,
+        "foes": FOES,
+        "poses": POSES,
+        "missing_poses": MISSING_POSES,
+    }
+
+
+def build(check_only: bool = False) -> bool:
+    path = os.path.join(DATA, "combat_feel.json")
+    if check_only:
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            write("combat_feel.json", payload(), folder=tmp)
+            fresh = open(os.path.join(tmp, "combat_feel.json"), encoding="utf-8").read()
+        current = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
+        if fresh != current:
+            print("data/combat_feel.json is not current: run python3 tools/data/combat_feel.py")
+            return False
+        print("combat_feel.json is current")
+        return True
+    write("combat_feel.json", payload())
+    return True
+
+
+if __name__ == "__main__":
+    sys.exit(0 if build("--check" in sys.argv) else 1)

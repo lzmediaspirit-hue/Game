@@ -46,6 +46,18 @@ const IMPACT_S := 0.25
 ## The stand-in cell for a pose the sheet does not have yet: [row, frame].
 const FALLBACK := {"guard": ["idle", 0], "plunge": ["jump", 1], "plunge_land": ["jump", 2]}
 var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the stick (S49), on the grid
+## Decision 38, the combat feel (CombatFeel): a dodge refused while a blow is committed waits `dodge_buffer` seconds for
+## its cancel point; an attack in or just after a dash is a dash attack (its smear, a longer lunge); the body flashes
+## white as it is struck and hops with a knockback; `action_pose` / `action_phase` are the catalogue action a blow or
+## cast plays (the character pipeline's names) and its phase (anticipation, active, recovery).
+var dodge_buffer := 0.0
+var dash_attack := false
+var hurt_t := 99.0
+var knock_t := 0.0
+var knock_s := 0.0
+var action_pose := ""
+var action_phase := ""
+const FLASH := preload("res://scripts/topdown/flash.gdshader")
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -73,6 +85,8 @@ func _ready() -> void:
 	cell = Vector2(float(body.get("cell", [32, 48])[0]), float(body.get("cell", [32, 48])[1]))
 	foot = Vector2(float(body.get("foot", [16, 46])[0]), float(body.get("foot", [16, 46])[1]))
 	ground = WalkSurface.new({"id": "grid", "rect": [0, 0, world.room.w * TopdownRoom.TILE, world.room.h * TopdownRoom.TILE], "stratum": "ground"})
+	material = ShaderMaterial.new()
+	(material as ShaderMaterial).shader = FLASH
 	_mirror()
 
 func jump() -> void:
@@ -89,6 +103,9 @@ func dodge() -> void:
 	if r.get("ok", false):
 		motor.dash_cd = 0.0   # Combat keeps the cooldown
 		_dash = true
+		dodge_buffer = 0.0
+	elif str(r.get("reason", "")) == "committed" and dodge_buffer <= 0.0:
+		dodge_buffer = float(CombatFeel.cfg().get("dodge_buffer_s", 0.2))   # decision 38: it goes when the blow may be cancelled
 
 ## A tap of Attack: the soft lock (the nearest foe in the cone round the stick, else the facing).
 func attack() -> void:
@@ -100,8 +117,15 @@ func attack() -> void:
 ## An attack along `dir` on the plane; `aimed` (a dragged aim) snaps only to a foe within a few degrees. `finisher`
 ## (decision 35, a long drag): the combo's last step at once.
 func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
+	# Decision 38: each step lunges toward its aim; out of a dash it is a dash attack (the dash ends in it, a longer
+	# lunge). Known before the step starts, as its event is played as it is sent.
+	dash_attack = motor.grounded and (motor.dash_t > 0.0 or motor.since_dash <= float(CombatFeel.cfg().get("dash_attack_s", 0.15)))
 	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
+	if r.get("ok", false) and not r.get("queued", false):
+		if dash_attack: motor.dash_t = 0.0
+		var lunge := CombatFeel.lunge(str(Game.combat.timeline(actor_id).get("family", "fists")), int(r.get("combo", 0)), dash_attack)
+		if lunge > 0.0 and motor.grounded: motor.push(Vector2(r.get("aim", dir)).normalized() * lunge / 0.1, 0.1)
 	return r
 
 ## Decision 35, a long drag on Attack: the combo's finisher step at once along the drag (snapping as an aim does).
@@ -224,12 +248,21 @@ func physics_step(delta: float) -> Array:
 		motor.lock_face = Game.combat.is_busy(actor_id)
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
-		if not forced.is_empty(): motor.push(forced.velocity, float(forced.time))
+		if not forced.is_empty():
+			if float(Game.combat.timeline(actor_id).flinch) > 0.0 and knock_t <= 0.0:
+				knock_t = float(forced.time)   # decision 38: struck and knocked back, the body hops
+				knock_s = knock_t
+			motor.push(forced.velocity, float(forced.time))
+		if dodge_buffer > 0.0:
+			dodge_buffer = maxf(0.0, dodge_buffer - delta)
+			if dodge_buffer > 0.0 and CombatFeel.dodge_cancel(Game.combat.timeline(actor_id), c) != "committed": dodge()
 	motor.step(delta, move, _jump, _dash)
 	_jump = false
 	_dash = false
 	attack_time = maxf(0.0, attack_time - delta)
 	impact_t = maxf(0.0, impact_t - delta)
+	knock_t = maxf(0.0, knock_t - delta)
+	hurt_t += delta
 	var events := motor.drain()
 	for e in events:
 		if str(e.type) in ["landed", "splashed"] and e.get("plunge", false):
@@ -292,7 +325,14 @@ func sync(delta: float) -> void:
 		pose = str(FALLBACK[anim][0])
 		f = int(FALLBACK[anim][1])
 	frame = f
-	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART))
+	# Decision 38: the catalogue action of a blow or cast under way and its phase, for the layered figure to time its
+	# contact on the smear's (CombatFeel.pose_frame).
+	action_pose = CombatFeel.pose(str(tl.action)) if not tl.is_empty() and str(tl.action) != "" and float(tl.t) < float(tl.duration) else ""
+	action_phase = CombatFeel.phase_of(tl, Game.character(actor_id)) if action_pose != "" else ""
+	var hop := 0.0
+	if knock_t > 0.0 and knock_s > 0.0:
+		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
+	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
 	queue_redraw()
 
@@ -320,4 +360,6 @@ func _draw() -> void:
 	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
 	var blink := inv and int(Time.get_ticks_msec() / 25) % 2 == 0
 	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
+	# Decision 38: the first frames of a blow turn the body white, then the flinch's red tint.
+	(material as ShaderMaterial).set_shader_parameter("white", 1.0 if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) else 0.0)
 	draw_body(self, Vector2(0, screen.y - position.y), Color(1, 1, 1, 0.6) if blink else (Color(1.6, 0.8, 0.8) if hurt else Color.WHITE))

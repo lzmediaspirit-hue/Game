@@ -35,6 +35,7 @@ func _main() -> void:
 	quest_guidance_suite()
 	chores_after_power_suite()
 	topdown_art_suite()
+	combat_feel_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -1752,4 +1753,92 @@ func topdown_art_suite() -> void:
 		if src.get_tile_animation_frames_count(at) == 4: animated += 1
 	check(bad.is_empty() and src.get_tiles_count() >= 90, "topdown art: the TileSet's %d tiles are named as the manifest places them (%s)" % [src.get_tiles_count(), str(bad)])
 	check(animated == 17, "topdown art: the plain water and the 16 shore cases animate in 4 frames (%d)" % animated)
+
+## Decision 38 (the combat feel, data/combat_feel.json; the top-down FX, data/fx_topdown.json): the look rule heads both
+## tables; every weapon family has a feel whose phases (derived from its own combo timing) are positive and add up at any
+## attack speed, with a cancel point inside the recovery; every technique form has a weight, a top-down pose and a
+## ground-plane sheet in every drawn direction (its bolt too), each sheet as big as its frames and rows say; every
+## technique's phases are positive; every foe's blow has its wind-up; and the impact, melee, common and dust sheets hold
+## their rows.
+func combat_feel_suite() -> void:
+	var feel: Dictionary = ContentDB.config("combat_feel")
+	var fxt: Dictionary = ContentDB.config("fx_topdown")
+	check(str(feel.get("look_rule", "")).contains("wuxia") and str(fxt.get("look_rule", "")).contains("wuxia"),
+		"combat feel: the look rule (decision 38: the feel from the reference, the look wuxia) heads the feel table and the FX manifest")
+	var els: int = (fxt.get("elements", []) as Array).size()
+	var dirs: Array = fxt.get("dirs", [])
+	check(els == 11 and dirs == ["e", "se", "s", "ne", "n"] and (fxt.get("mirror", {}) as Dictionary).size() == 3,
+		"combat feel: the FX sheets hold eleven elements in five drawn directions, three mirrored")
+	var bad: Array = []
+	var rows_of := func(sheet, want_rows: int, frames: int, where: String) -> void:
+		if not (sheet is Dictionary) or not sheet.has("file"):
+			bad.append(where + " has no sheet")
+			return
+		var tex: Texture2D = load(str(sheet.file)) if ResourceLoader.exists(str(sheet.file)) else null
+		if tex == null or tex.get_width() != frames * int(sheet.cell[0]) or tex.get_height() != want_rows * int(sheet.cell[1]):
+			bad.append("%s: %s is not %d frames by %d rows of %s" % [where, str(sheet.file).get_file(), frames, want_rows, str(sheet.cell)])
+	# The families: their feel, phases and smear sheets.
+	var melee: Dictionary = fxt.get("melee", {})
+	var moves: int = (melee.get("moves", []) as Array).size()
+	for fam in ContentDB.all("weapon_families"):
+		var f: Dictionary = feel.get("families", {}).get(str(fam.id), {})
+		var combo: Array = fam.get("combo", [])
+		if f.is_empty() or (f.get("steps", []) as Array).size() != combo.size() or (f.get("lunge", []) as Array).size() != combo.size():
+			bad.append("family %s: a feel with a weight and a lunge per step" % fam.id)
+		for w in f.get("steps", []) + [f.get("charged", "")]:
+			if not (feel.get("weights", {}) as Dictionary).has(str(w)): bad.append("family %s: weight %s" % [fam.id, w])
+		for speed in [1.0, 1.5, 2.5]:
+			for i in combo.size():
+				for charged in [false, true]:
+					var ph := CombatFeel.phases(fam, i, speed, charged)
+					var sum := float(ph.anticipation) + float(ph.active) + float(ph.recovery)
+					if float(ph.anticipation) <= 0.0 or float(ph.active) <= 0.0 or float(ph.recovery) <= 0.0 or absf(sum - float(ph.duration)) > 0.0001 \
+							or float(ph.cancel_from) < float(ph.anticipation) + float(ph.active) - 0.0001 or float(ph.cancel_from) > float(ph.duration) + 0.0001:
+						bad.append("family %s step %d at speed %.1f: phases %s" % [fam.id, i + 1, speed, str(ph)])
+		rows_of.call(melee.get("families", {}).get(str(fam.id), {}), moves * dirs.size(), int(melee.get("frames", 6)), "family %s smears" % fam.id)
+	# The forms: a weight, a pose, a sheet per drawn direction (or one for a round form), a bolt for a thrown one.
+	var forms: Dictionary = fxt.get("forms", {})
+	check(forms.size() == 24 and (feel.get("forms", {}) as Dictionary).size() == 24, "combat feel: all 24 technique forms have a top-down sheet and a feel (%d, %d)" % [forms.size(), (feel.get("forms", {}) as Dictionary).size()])
+	var poses: Dictionary = feel.get("poses", {})
+	for form in forms:
+		var a: Dictionary = forms[form]
+		var fe: Dictionary = feel.get("forms", {}).get(form, {})
+		if not (feel.get("weights", {}) as Dictionary).has(str(fe.get("weight", ""))) or not (str(fe.get("pose", "")) in poses.values() or str(fe.get("pose", "")).begins_with("combo_")):
+			bad.append("form %s: a weight and a top-down pose" % form)
+		if int(a.impact) < 0 or int(a.impact) >= int(a.frames) or float(a.fps) <= 0.0 or float(a.span) <= 0.0 or not str(a.at) in ["feet", "target"] \
+				or not str(a.layer) in ["sorted", "floor"] or not str(a.get("size", "")) in ["reach", "fixed", "travel"]:
+			bad.append("form %s: its frames, contact, anchor, layer and size rule" % form)
+		for part in [a] + ([a.bolt] if a.has("bolt") else []):
+			var sheets: Dictionary = part.get("sheets", {})
+			for d in (dirs if part.get("dirs", false) else ["all"]):
+				rows_of.call(sheets.get(d), els * 3, int(part.frames), "form %s %s" % [form, d])
+	# Every technique: its form is built, its phases are positive.
+	var tech_bad := 0
+	for t in ContentDB.all("techniques"):
+		var ph := CombatFeel.technique_phases(t)
+		if not forms.has(str(t.get("vfx", {}).get("anim", ""))) or float(ph.anticipation) <= 0.0 or float(ph.active) <= 0.0 or float(ph.recovery) <= 0.0: tech_bad += 1
+	check(tech_bad == 0, "combat feel: every technique plays a built top-down form with positive phases (%d do not)" % tech_bad)
+	# Foes: every blow has its wind-up, strike and recovery.
+	var foe_bad: Array = []
+	for e in ContentDB.all("enemies"):
+		for at in e.get("attacks", []):
+			if float(at.get("windup_s", 0.0)) <= 0.0 or float(at.get("active_s", 0.18)) <= 0.0 or float(at.get("recover_s", 0.45)) <= 0.0: foe_bad.append("%s.%s" % [e.id, at.get("id", "?")])
+	check(foe_bad.is_empty(), "combat feel: every foe's blow has a wind-up, a strike and a recovery (%s)" % str(foe_bad.slice(0, 5)))
+	# The shared sheets.
+	var im: Dictionary = fxt.get("impact", {})
+	for d in dirs: rows_of.call(im.get("sheets", {}).get(d), (im.get("weights", []) as Array).size() * els, int(im.get("frames", 6)), "impact " + d)
+	var common: Dictionary = fxt.get("common", {})
+	var common_rows := 0
+	var common_frames := 0
+	for mk in common.get("marks", {}).values():
+		common_rows += dirs.size() if mk.get("dirs", false) else 1
+		common_frames = maxi(common_frames, int(mk.frames))
+	rows_of.call(common, common_rows, common_frames, "common marks")
+	var dust: Dictionary = fxt.get("dust", {})
+	var dust_rows := 0
+	for kd in dust.get("kinds", {}).values(): dust_rows += dirs.size() if kd.get("dirs", false) else 1
+	rows_of.call(dust, dust_rows, int(dust.get("frames", 6)), "dust")
+	for mk in ["guard", "parry", "swipe", "plunge", "charge", "tell"]:
+		if not (common.get("marks", {}) as Dictionary).has(mk): bad.append("common mark " + mk)
+	check(bad.is_empty(), "combat feel: every family's phases and smears, every form's sheets and the shared sheets are valid (%s)" % str(bad.slice(0, 6)))
 

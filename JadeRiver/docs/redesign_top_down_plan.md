@@ -627,6 +627,168 @@ The side view is unchanged.
 - The keyboard keeps J (tap) and K (hold to guard); no finisher or Plunge keys.
 - The flute's held melody (S47) is still not on the top-down Attack button; the hold guards.
 
+### As built: combat animation and feel (decision 38, 2026-09-28)
+
+**What it is.** Every blow and technique of the top-down world is timed, weighed and drawn: each weapon family's combo
+steps, its dragged finisher, the dash attack, the air blow, the guard, the parry and the Plunge, and all 24 technique
+forms in every element, on the ground plane in eight directions. Research first: `docs/research/alabaster_dawn_2_5d.md`
+§3.9.
+
+**The look rule** (the user's clarification of decision 38, at the head of the research section, of
+`data/combat_feel.json` and of `data/fx_topdown.json`):
+
+- Only the *feel* comes from the reference game: timing, hit-stop, smears, readable impacts, camera kick and knockback.
+- The *look* stays wuxia: sword-light arcs and qi trails, ink-brush strokes, jade and gold qi, the element's Dao image,
+  palm prints, sword formations, bagua and talisman seals, and calligraphic impact marks.
+- The element language of `tools/art/fx/elements.py` and the art bible's palette are kept.
+- Every sheet was checked against the rule in the review strips (below).
+
+**One table for the feel** (`data/combat_feel.json`, built by `tools/data/combat_feel.py`, which `build_data.py` runs;
+read by `CombatFeel`, `scripts/simulation/rules/combat_feel.gd`):
+
+| Part | What it holds |
+|---|---|
+| Weights | light, medium, heavy, finisher: the hit-stop (3, 4, 6, 8 frames at 60 fps, a crit 2 more), the camera's kick along the blow (0, 2, 4, 6 px), a shake for heavy (0.1 s, 2 px) and finisher (0.18 s, 4 px), the impact mark's weight and the knockback hop |
+| Families | per weapon family: each step's weight, the charged (dragged) finisher's, the lunge per step, the smear's rate and the cancel points (`recovery_after`, `finisher_after`) |
+| Forms | per technique form: its weight and the top-down pose it plays |
+| Foes | a blow's weight by the foe's role (normal light, elite medium, boss heavy; heavy past 15% of the health) |
+| Poses | the side view's action names to the character pipeline's, and the poses it does not draw yet |
+
+The steps' durations and hit frames stay in `weapon_families.json`: `CombatFeel.phases` derives each step's phases from
+them, so nothing is kept twice.
+
+- **Anticipation:** up to one smear frame before the hit.
+- **Active:** the smear's three bright frames.
+- **Recovery:** the rest.
+
+At attack speed 1:
+
+| Family | Step 1: anticipation / active / recovery (cancel from) | Last step |
+|---|---|---|
+| fists, gauntlets | 158 / 125 / 137 ms (283) | 238 / 125 / 187 ms (438) |
+| jian | 210 / 150 / 190 ms (398) | 310 / 150 / 260 ms (590) |
+| spear | 244 / 167 / 189 ms (468) | 364 / 167 / 269 ms (692) |
+| short blade | 158 / 125 / 137 ms (283) | 258 / 125 / 167 ms (433) |
+| staff | 284 / 167 / 209 ms (514) | 394 / 167 / 289 ms (734) |
+| heavy sabre | 289 / 214 / 217 ms (611) | 429 / 214 / 307 ms (889) |
+| fan | 190 / 150 / 160 ms (372) | 290 / 150 / 260 ms (570) |
+| brush | 170 / 150 / 140 ms (348) | 250 / 150 / 220 ms (510) |
+| bell | 244 / 167 / 189 ms (468) | 324 / 167 / 259 ms (646) |
+| flute, bow (one step) | 250 / 150 / 200 ms (500); 500 / 150 / 450 ms (920) | — |
+
+**What the fight does now** (on the grid only; the side view is unchanged):
+
+| Feel | Where |
+|---|---|
+| **Hit-stop by weight.** A blow's weight sets it: the family's step, a technique's form, a counter or the Plunge heavy, a crit one weight heavier. A foe's blow on the player holds the fight too. The old flat `combat.hitstop` constants are gone | `CombatAuthority._player_hits_enemy`, `_damage_player`; `hit_landed` carries `weight` and `floor` |
+| **The cancel rule.** A dodge in a blow's anticipation drops it (the combo does not count it). In the active window it is refused (`committed`). In the recovery it waits for the family's cancel point, and the player's dodge waits in a 0.2 s buffer for it | `CombatAuthority.dodge`, `_cancel_blow`, `CombatFeel.dodge_cancel`, `TopdownPlayer.dodge_buffer` |
+| **Lunge and dash attack.** Each step carries the body 6–24 units along its aim. An attack in a dash, or within 0.15 s of one, ends the dash in a dash attack: a longer lunge and its own smear | `TopdownPlayer.aim_attack`, `CombatFeel.lunge` |
+| **Camera.** A kick knocks the view along the blow; heavy blows and finishers shake too. Both follow Screen shake and Reduce motion | `ShakeRig.kick`, `TopdownWorld.feel` / `feel_hit` |
+| **The struck body.** Two frames of white (a shader), then a warm tint. A knockback hops it up to 10 art px and a strong one skids dust. The player flashes and hops the same way | `scripts/topdown/flash.gdshader`, `FoeView`, `TopdownPlayer` |
+| **Hit-stop freezes the effects** with the fight | `TopdownWorld._physics_process`, `held` |
+| **Reduce motion.** No hit-stop, no kick and no shake | `CombatFeel.hitstop_on`, `MomentRules.shake_amp` |
+
+**What is drawn** (`tools/art/fx/build_fx_topdown.py` → `art/fx/topdown/`, 107 sheets, 10 MB; `data/fx_topdown.json`).
+Everything is drawn at art resolution on the ground plane of the world's ¾ view (`tools/art/fx/plane.py`): forward,
+side and height projected per direction, never a side-view sprite turned on the screen. Five directions are drawn (E,
+SE, S, NE, N) and the west three mirror, as the body does. `--check` builds twice in memory and fails unless both builds
+and the files on disk are byte-identical.
+
+| Sheets | Drawn by | Rows × frames |
+|---|---|---|
+| `melee_<family>` × 12 | `topdown_melee.py`: jian, spear, short blade and flute in jade sword-light; fists, gauntlets, staff, heavy sabre and bow in gold qi; the brush in ink with a red seal; the fan in wind with lotus petals; the bell in bronze rings of sound. Palms leave palm prints, blades crescents with a qi trail, the heavy sabre a broad stroke edged in ink, the charged finisher a full spin | step 1–3, charged, dash, air × 5 directions; 6 frames, the contact on frame 1 |
+| `form_<form>[_<dir>]` × 72, `bolt_*` × 16 | `topdown_forms.py`: the 24 forms. Among them: a sword-light crescent (strike, echo), a qi line with a spiral ribbon (thrust), a floor-skimming sweep, a crescent and darts (arc, volley), a rain of needles, a pillar on a rune circle, a crest rolling along the floor (wave), a ring with lotus, ripples or stones thrown round it (burst), tendrils rising round the foe (snare), a golden bell over a bagua (ward), rings of song (chorus), a sword formation (release, swarm), a talisman slamming its seal (seal) and a field of runes and trigrams (domain) | band × element (33) × the side view's frames and contact frame |
+| `impact_<dir>` × 5 | a calligraphic mark: an ink dab (light), a brush slash across the blow (heavy), two crossed strokes (finisher), in the element's colours with its motif | weight × element (33) × 6 |
+| `common` | the guard's wall of qi, the parry's crossed strokes, a foe's claw swipe, the Plunge's crater, a charge gathering, a foe's tell | 18 × 8 |
+| `dust` | a dash's kick-off, a skid, a landing, a step, in the path's earth | 12 × 6 |
+
+**How the game plays them** (`TopdownFx`, `scripts/topdown/topdown_fx.gd`):
+
+- Each effect is a node in the world viewport's sorted layer:
+  - an upright one keys just in front of the body at its anchor, or just behind it when facing away;
+  - a flat one keys at its north edge, so bodies standing in it draw over it.
+- A form is scaled by whole steps (1–3) to its technique's reach, anchored at the caster's feet or where it lands. Its
+  contact frame lands on the hit, as the side view's does.
+- A smear plays at the family's smear rate times the attack speed.
+- A thrown form's bolts fly in their direction (`BoltLayer`).
+- At most 72 effects play at once; the oldest one-shot goes first.
+- The HUD-resolution layer (`FxLayer`) keeps the numbers, words, rings and washes. Its `forms` and `sparks` switches are
+  off in the top-down world.
+
+**Poses (decision 37's character pipeline).** This work owns the FX, timing and feel, not the body layers. The feel
+table maps the side view's action names to the pipeline's catalogue:
+
+- `punch_1`–`3`, `swing_1`–`3`, `thrust_1`–`3`, `cast`, `guard`, `plunge`, `dash`, `hurt` and `knockdown` map to
+  themselves;
+- `meditate` → `cast` (meditation faces the camera only), `bow` → `cast`, `attack` → `thrust_1`, `jump` → `plunge`.
+
+`TopdownPlayer.action_pose` and `action_phase` name the action and phase of the blow under way.
+`CombatFeel.pose_frame` maps a phase to a pose frame, so the figure's contact lands on the smear's.
+
+**Poses the pipeline does not draw yet**, each playing its stand-in (`combat_feel.json` `missing_poses`):
+
+| Pose | For |
+|---|---|
+| `bow_draw` | the bow's draw, hold and release |
+| `flute_play` | the flute's note and its melody |
+| `charge_hold` | the dragged finisher's wind-up |
+| `dash_slash` | the dash attack of the cutting and palm families |
+| `air_strike` | a blow in the air |
+| `parry_deflect` | the instant a guard parries |
+| `two_hand_swing_1`–`3` | the heavy sabre |
+| `bell_toll` | the bell |
+| `fan_throw` | the fan's third step |
+| `brush_write` | the brush |
+
+The flowing silk and robe motion of the look rule is the body layers' own (their `drag`).
+
+**Tests.**
+
+- `data_validation` `combat_feel_suite` (new) checks that:
+  - the look rule heads both tables;
+  - every weapon family's phases are positive and add up at attack speeds 1, 1.5 and 2.5, with the cancel point
+    inside the recovery;
+  - every form has a weight, a pose and a sheet per drawn direction (its bolt too), each as big as its rows and frames
+    say;
+  - every technique plays a built form with positive phases;
+  - every foe's blow has a wind-up;
+  - the impact, melee, common and dust sheets hold their rows.
+- `rules_tests` `topdown_suite`, 9 new checks:
+  - a first step holds 3 frames and the dragged finisher 8 (a crit 2 more);
+  - the cancel rule and the buffer;
+  - the lunge and the dash attack;
+  - the smear's direction, row and contact time in the sorted layer, and the impact mark;
+  - each slotted technique's form;
+  - the foe's tell, the dash's dust and the held guard;
+  - the eight directions;
+  - the struck foe's white flash, tint and hop, and the effects frozen in a hit-stop;
+  - under Reduce motion no hit-stop, kick or shake.
+- `perf_tests` counts the ground-plane effects with the overlay's. With 22 foes fighting (blows every 20 frames, a
+  technique every 45), a frame took 9.9 ms with 67 effects at once, on a loaded machine.
+
+**Review images** (`docs/redesign/phase5/combat/`):
+
+- the builder's strips (`build_fx_topdown.py --review`):
+  - `form_NN_<form>.png`: each form's frames in five directions, or five elements for a round form;
+  - `forms_by_element.png`: every form at its contact frame in every element;
+  - `melee_<family>.png`: each family's moves, and step 1 in five directions;
+  - `impacts.png`, `common.png` and `dust.png`;
+- the game's frames (`tools/dev/topdown_capture.tscn -- --combat`), read left to right like a GIF:
+  - `ingame_combo_<family>.png`: a three-step combo of the jian, fists, spear, heavy sabre, brush and bell;
+  - `ingame_finisher_and_dash_attack.png`;
+  - `ingame_techniques.png`;
+  - `ingame_guard_parry_plunge.png`.
+
+**Not built, or different from the brief.**
+
+- **No stagger or break gauge.** The reference's parry follow-up and break window wait for a design decision.
+- **No charge meter.** The charged attack is the dragged finisher (decision 35's one held attack on the touch scheme),
+  shown by a gathering of qi while it is armed.
+- **The body still draws the placeholder's strike.** The attack poses are the character pipeline's (decision 37).
+  Until they land, the smears, impacts and the struck bodies carry the motion.
+- **Effects of the side view are unchanged.** Its sheets (`art/fx/`) and procedural slashes stay.
+- **Bolts draw over the room,** as a shot in the air does, not sorted with the bodies.
+
 ### Phase 3 · The art pipeline (L)
 
 - `docs/art-contracts.md` v2 fixes the rules: the 16-px tile, the ¾ view, faces, overhangs, the character cell,
@@ -919,3 +1081,6 @@ player build ships only whole acts in the new view.
    of their form on the ground and snap to a foe near the line; back on the button cancels. Built in Phase 2. The
    extra actions on drag zones of the Attack button became decision 35 and are built ("As built: Attack's drag
    moves").
+8. **Combat animation and feel (decision 38, 2026-09-28):** the reference game's feel (timing, hit-stop, smears,
+   impacts, camera kick, knockback) with a wuxia look; every family's moves and every technique form drawn on the
+   ground plane in eight directions. Built ("As built: combat animation and feel").

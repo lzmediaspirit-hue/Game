@@ -335,7 +335,6 @@ func _resolve_plunge(c, st: ActorState) -> void:
 	for o in game.world.hittable_objects(pv, 1, hitbox):
 		game.world.apply_object_hit(c.id, o)
 	emit("system_used", {"actor": c.id, "system": "plunge_strike"})
-	if struck > 0: hitstop = float(ContentDB.stat_const("combat.hitstop_crit", 0.08))
 
 ## Falling Leaf Glide (Qi Kindling 3): Jump held while descending. 2 QI a second while it lasts.
 func glide(c, on: bool) -> Dictionary:
@@ -565,6 +564,7 @@ func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false)
 	tl.facing = facing
 	tl.step = step
 	tl.targets_hit = []
+	tl.charged = finisher   # decision 38: a dragged finisher weighs as the charged blow (CombatFeel)
 	if game.character(c.id).cultivator.meditating: game.progression.stop_meditation(c, "attack")
 	var ev := {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index}
 	if finisher: ev.finisher = true
@@ -729,6 +729,11 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	# Shallow water drags at the feet: no dodging in it (S43 volumes).
 	if st != null and st.surface != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "water_shallow").is_empty():
 		return fail("in_water")
+	# Decision 38 (on the grid): a dodge cancels a blow's anticipation or its late recovery, never its active window.
+	if grid() != null:
+		var rule := CombatFeel.dodge_cancel(tl, c)
+		if rule == "committed": return fail("committed")
+		if rule == "cancel": _cancel_blow(c)
 	if free: treasure_fx[c.id].erase("free_dodge")   # spent only by a dodge that happens
 	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
 	# once per airtime. It shares the dodge's cooldown.
@@ -761,6 +766,23 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
 	emit("dodged", {"actor": c.id, "direction": dir})
 	return ok()
+
+## Decision 38: a dodge out of a blow. In its anticipation the blow is dropped (a combo step does not count, so the next
+## press repeats it); in its late recovery the blow ends there. A combo keeps its window for the next step.
+func _cancel_blow(c) -> void:
+	var tl := timeline(c.id)
+	var phase := CombatFeel.phase_of(tl, c)
+	var basic: bool = tl.technique == ""
+	if not tl.hit_done:
+		tl.hit_done = true
+		if basic: tl.combo = int(tl.combo) - 1
+	var size: int = (ContentDB.entry("weapon_families", str(tl.family)).get("combo", []) as Array).size()
+	tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5)) if basic and int(tl.combo) >= 0 and int(tl.combo) < size - 1 else 0.0
+	if tl.window <= 0.0: tl.combo = -1
+	tl.action = ""
+	tl.queued = 0
+	tl.finisher_q = {}
+	emit("attack_cancelled", {"actor": c.id, "phase": phase})
 
 ## The dodge's cooldown: Swallow's Breath (S48) shortens it, and so does the Agility 25 meridian gate (S10).
 func _dodge_cooldown(c) -> float:
@@ -1212,7 +1234,8 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 				_apply_status_to_enemy(e, applied)
 	if e.alive: _oil_strike(c, e, ev)
 	if e.alive: _weapon_after_hit(c, e, attack)
-	hitstop = float(ContentDB.stat_const("combat.hitstop_crit" if r.crit else "combat.hitstop", 0.05))
+	# Decision 38: the hit-stop by the blow's weight (CombatFeel: a light step 3 frames up to a finisher's 8, a crit 2 more).
+	hitstop = maxf(hitstop, CombatFeel.hitstop_s(CombatFeel.weight_of(attack, timeline(c.id)), r.crit))
 
 ## S47 v1.1 families: the heavy sabre breaks armour (sundered: hits ignore part of its defence); the fan's wind lifts a
 ## foe into the air, helpless until it lands (not a boss, a flyer or anything that cannot be moved).
@@ -1421,7 +1444,8 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 		e.ai["stun_guard"] = float(ContentDB.stat_const("combat.hit_stun_guard_s", 1.6))
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,
 		"crit": crit, "element": element, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height() * 0.8,
-		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", ""))})
+		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", "")),
+		"weight": CombatFeel.weight_of(attack, actors.get(attacker, {}), crit), "floor": e.altitude})
 	# S49: a named foe who yields at a fifth of their health waits on the victor's judgement (spare or kill).
 	if e.def.get("surrenders", false) and e.pools.hp <= e.pools.max_hp * 0.2 and game.character(attacker) != null:
 		e.pools.hp = maxf(1.0, e.pools.max_hp * 0.2)
@@ -1612,9 +1636,12 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		p.hp = p.max_hp * 0.1
 		game.enemies.player_lost_spar()
 		return
+	# Decision 38: a foe's blow weighs by its role, heavy when it takes a big share; on the grid it holds the fight too.
+	var w := CombatFeel.foe_weight(e, amount / maxf(1.0, p.max_hp)) if e != null else "light"
+	if e != null and grid() != null: hitstop = maxf(hitstop, CombatFeel.hitstop_s(w, crit))
 	emit("hit_landed", {"attacker": attacker, "target": c.id, "target_kind": "player", "amount": int(round(amount)), "type": dtype,
 		"crit": crit, "element": str(attack.get("element", "none")), "x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0,
-		"alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": pool})
+		"alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": pool, "weight": w, "floor": st.altitude if st else 0.0})
 	emit("resource_changed", {"actor": c.id, "pool": pool, "value": p.get_value(pool), "max": p.get_max(pool)})
 	# Lotus Heart Breathing (secret art, Spirit Awakening 5): below 30% HP the breath turns inward and
 	# heals 2% a second for 5 s, once a minute.
