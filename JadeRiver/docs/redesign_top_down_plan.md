@@ -597,7 +597,7 @@ The side view is unchanged.
 | Every drag zone | at least 48 px deep in all 72 directions tested, both layouts |
 | A finisher's pace | at most 5.1% more damage a second than its whole chain (the bell; the check allows 6%). Most families are at or under the chain's |
 | Plunge | from 38–41 units up it lands in 2–3 frames (0.05 s) at 900 |
-| Guard | eight blows from a boarlet: 42 guarded after the parry window against 55 open (fists, 30% with the ±10% rolls); a blow inside the window is parried and staggers it |
+| Guard | a blow inside the parry window is parried and staggers the foe. After the window, a landed blow costs 0.70 of an open one: fists' 30% cut, measured over eight blows each way from a boarlet of the character's level, with its crits off |
 
 **Tests.** `topdown_suite` goes from 62 to 75 checks:
 

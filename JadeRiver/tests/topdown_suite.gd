@@ -855,6 +855,8 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	fresh(base)
 	hud.set_state(true)
 	var below := foe("wild_boarlet", base + Vector2(24, 0))
+	below.pools.max_hp = 1.0e15   # it lives through the strike whatever the character's level, so its stun shows
+	below.pools.hp = below.pools.max_hp
 	w.player.jump()
 	frames(8)
 	var z0: float = w.player.motor.z
@@ -880,7 +882,8 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	var fallback_ok: bool = (w.player.pose_frames("plunge") > 0) or (drop_pose == ["plunge", "jump", 1] and land_pose == ["plunge_land", "jump", 2])
 	measured.plunge = {"from": snappedf(z0, 0.1), "frames": n}
 	t.check(ready and armed_as == "plunge" and shown == "plunge" and dropping and hurt(below) and below.pools.has_status("stun") and c.pools.cooldown("plunge") > 3.0 and fallback_ok,
-		"topdown drag moves: a drag down in the air plunges from z %.0f, lands in %d frames and strikes and stuns the foe beside it; the pose falls back to the jump's cells (%s, %s)" % [z0, n, str(drop_pose), str(land_pose)])
+		"topdown drag moves: a drag down in the air plunges from z %.0f, lands in %d frames and strikes and stuns the foe beside it; the pose falls back to the jump's cells (%s, %s; ready %s, %s/%s, dropped %s, hurt %s, stun %s, cooldown %.1f)" % [z0, n, str(drop_pose), str(land_pose),
+			str(ready), armed_as, shown, str(dropping), str(hurt(below)), str(below.pools.has_status("stun")), c.pools.cooldown("plunge")])
 	# Without the art (or on its cooldown) a drag down in the air stays an aimed air blow.
 	c.cultivator.secret_arts.erase("plunge")
 	fresh(base)
@@ -902,7 +905,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	hud.set_state(true)
 	w.player.motor.face(Vector2.RIGHT)
 	frames(1)
-	var striker := foe("wild_boarlet", base + Vector2(30, 0))
+	var striker := foe("wild_boarlet", base + Vector2(30, 0), maxi(1, ProgressionRules.level(c)))   # blows that matter at any level
 	striker.aim = Vector2.LEFT
 	hud.press(50, ac)
 	hud._tick_aims(0.2)
@@ -915,24 +918,30 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	var hp0: float = c.pools.hp
 	Game.combat.enemy_strike(striker, striker.def.attacks[0])
 	var parried: bool = c.pools.hp == hp0 and str(striker.ai.state) == "stagger"
+	# The mean of the blows that land, with no crits, so an evaded blow or a lucky one cannot tip it.
+	striker.stats.crit_chance = 0.0
 	var blows := func(times: int) -> float:
 		var lost := 0.0
+		var landed := 0
 		for i in times:
 			c.pools.hp = c.pools.max_hp
+			Game.combat.wounded.erase(c.id)
 			c.pools.invulnerable = 0.0
 			Game.combat.timeline(c.id).dodge_t = 0.0
 			Game.combat.timeline(c.id).guard_t = 1.0
 			Game.combat.enemy_strike(striker, striker.def.attacks[0])
-			lost += c.pools.max_hp - c.pools.hp
-		return lost
+			if c.pools.hp < c.pools.max_hp:
+				lost += c.pools.max_hp - c.pools.hp
+				landed += 1
+		return lost / maxf(1.0, float(landed))
 	var guarded: float = blows.call(8)
 	hud.release(50)
 	tl = Game.combat.timeline(c.id)
 	var ended: bool = not tl.guard and str(tl.action) == ""
 	var open: float = blows.call(8)
-	measured.guard = {"guarded": snappedf(guarded, 0.1), "open": snappedf(open, 0.1)}
+	measured.guard = {"guarded": snappedf(guarded, 0.1), "open": snappedf(open, 0.1), "ratio": snappedf(guarded / maxf(1.0, open), 0.01)}
 	t.check(not not_yet and guarding and parried and ended and open > 0.0 and guarded < open * 0.9,
-		"topdown drag moves: Attack held still guards at 0.3 s, parries a blow in the window, cuts later ones (%.0f against %.0f open), and let go it ends and strikes nothing" % [guarded, open])
+		"topdown drag moves: Attack held still guards at 0.3 s, parries a blow in the window, cuts later ones (%.0f a landed blow against %.0f open), and let go it ends and strikes nothing" % [guarded, open])
 	# The stance: with a counter-stance slotted and ready, the hold enters it (the technique's cooldown, its stance).
 	fresh(base)
 	hud.set_state(true)
