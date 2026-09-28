@@ -697,6 +697,12 @@
     "world_authority"
    ]
   },
+  "object_hit": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "ambush_sprung": {
    "system": "World",
    "files": [
@@ -1510,6 +1516,12 @@
     "inventory_authority"
    ]
   },
+  "quick_use_changed": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
   "loadout_swapped": {
    "system": "Inventory",
    "files": [
@@ -1597,6 +1609,36 @@
    ]
   },
   "codex_entry_unlocked": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "scene_started": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "scene_marked": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "scene_ended": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "page_opened": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "quest_failed": {
    "system": "Quest",
    "files": [
     "quest_authority"

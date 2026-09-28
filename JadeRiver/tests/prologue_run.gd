@@ -88,6 +88,23 @@ func submit(i: Dictionary) -> Dictionary:
 	story_guidance()
 	return r
 
+## Decision 39: the staged scenes, where a walk plays them (topdown_tutorial, story_scenes): a SceneDirector with no
+## view. `settle_scenes` runs the scene on the stage on the director's clock while it holds the stage (a cut, a live
+## part, a hand-off that ends by itself), a cut's seconds on the play clock (the simulation stands still in a cut, as
+## in the game); it stops at a hand-off that waits on the player, whose deed is the walk's next step.
+var scene_director: SceneDirector = null
+
+func settle_scenes(limit_s := 120.0) -> void:
+	if scene_director == null: return
+	var t := 0.0
+	for next in 6:   # a scene over, the next one waiting may take the stage
+		scene_director.poll()
+		if not scene_director.busy(): return
+		while scene_director.busy() and t < limit_s:
+			if scene_director.in_cut(): play_s += 0.1
+			scene_director.advance(0.1)
+			t += 0.1
+
 # ------------------------------------------------------------------ story guidance
 ## Story guidance (docs/tutorial_order.md): tutorial_order and valley_run hold every step of the story to it. After each
 ## step that moves the story (a quest taken, offered or finished, a realm, an unlock, a sect chosen), once the tracker is

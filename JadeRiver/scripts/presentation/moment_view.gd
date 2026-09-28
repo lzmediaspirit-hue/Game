@@ -90,7 +90,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 	if watched.has(name): pending.append([name, p])
 
 func _process(delta: float) -> void:
-	if not Game.paused: advance(delta)
+	# A staged scene's cut holds the simulation still (decision 39); the moments it plays go on.
+	if not Game.paused or (hud and hud.scene_lock): advance(delta)
 
 ## One frame: the running rows' world layers, then this frame's events, then the screen slot and the lock.
 func advance(delta: float) -> void:
@@ -151,12 +152,16 @@ func press() -> bool:
 
 ## Plays a row with its sample payload (the --moment preview) and, from `at` on, holds it there.
 func preview(id: String, at := -1.0) -> void:
+	hold_at = at
+	play_row(id)
+
+## Plays a row with its sample payload, as its event would (a staged scene's `moment` step, the preview).
+func play_row(id: String) -> void:
 	for r in rows:
 		if str(r.id) == id:
 			var p: Dictionary = (r.sample as Dictionary).duplicate(true)
 			if p.has("actor"): p.actor = Game.active_id
 			if p.has("target"): p.target = Game.active_id
-			hold_at = at
 			pending.append([str(r.event), p])
 
 # ------------------------------------------------------------------ gather, match, merge
@@ -428,7 +433,7 @@ func _run_screen(delta: float) -> void:
 		if float(best.row.get("lock_s", 0.0)) > 0.0 and not _in_fight(): _set_lock(minf(float(best.row.lock_s), float(cfg.get("max_lock_s", 1.5))))
 	if lock > 0.0: _set_lock(0.0 if _in_fight() else maxf(0.0, lock - delta))
 	# While the world is dimmed for a moment the HUD recedes with it, so the band and the stats read clear (mockup 05).
-	if hud:
+	if hud and not hud.scene_lock:   # a staged scene's cut keeps the HUD away (SceneDirector)
 		var dim := _layer(playing, "dim") if playing != null else {}
 		var down := not dim.is_empty() and float(playing.st) < float(dim.get("until", playing.row.duration_s))
 		hud.modulate.a = move_toward(hud.modulate.a, 0.3 if down else 1.0, delta * 3.0)
@@ -463,6 +468,11 @@ func _pages_open() -> bool:
 ## In a fight (§4.4): a living foe within fight_radius is after you, a boss is alive in the room, or a tribulation runs.
 func _in_fight() -> bool:
 	if fight_override != null: return bool(fight_override)
+	return in_fight(float(cfg.get("fight_radius", 400)))
+
+## The active character is in a fight (a staged scene's cut waits for it to end, too): a living foe within `radius` is
+## after it, a boss is alive in the room, or a tribulation runs.
+static func in_fight(radius: float) -> bool:
 	var c = Game.active()
 	if c == null or Game.room_rt == null: return false
 	if Game.progression.is_under_tribulation(c.id): return true
@@ -470,7 +480,7 @@ func _in_fight() -> bool:
 	for e in Game.room_rt.living_enemies():
 		if e.team != "enemy" or e.def.get("passive", false): continue
 		if e.is_boss(): return true
-		if st and str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(st.plane) < float(cfg.get("fight_radius", 400)): return true
+		if st and str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(st.plane) < radius: return true
 	return false
 
 # ------------------------------------------------------------------ the screen layers (§3.3), drawn from each play's time
@@ -572,11 +582,20 @@ func _draw_flash(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float,
 func _draw_letterbox(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float, still: bool) -> void:
 	var h := float(L.get("height", 64))
 	var s := float(L.get("slide_s", 0.3))
-	var k := minf(_in(lt, 0.0, s), clampf((float(pl.row.duration_s) - float(pl.st)) / s, 0.0, 1.0))
+	letterbox(ci, h, minf(_in(lt, 0.0, s), clampf((float(pl.row.duration_s) - float(pl.st)) / s, 0.0, 1.0)), a, still)
+
+## Two INK bars `h` tall, `k` of the way in (sliding, or fading with Reduce motion): a moment's and a staged scene's.
+static func letterbox(ci: CanvasItem, h: float, k: float, a: float, still: bool) -> void:
 	var off := 0.0 if still else h * (1.0 - k)
 	var col := Color(UiKit.INK, a * (k if still else 1.0))
 	ci.draw_rect(Rect2(0, -off, 1280, h), col)
 	ci.draw_rect(Rect2(0, 720 - h + off, 1280, h), col)
+
+## A staged scene's title card (decision 39): the band of mockup 05 with its title and the line under it, `lt` seconds
+## after it began.
+func draw_title(ci: Node2D, title: String, sub: String, lt: float, a: float, still: bool) -> void:
+	var pl := {"p": {"title": title, "sub": sub}, "slots": {}}
+	_draw_band(ci, pl, {"y": 300, "size": 34, "wipe_s": 0.45, "title": {"payload": "payload.title"}, "sub": {"payload": "payload.sub"}}, lt, a, still)
 
 ## The band (mockup 05): a letter-spaced line above, the title written on the ink, a line under it; `y` is the title's top.
 func _band_rect(pl: Dictionary, L: Dictionary) -> Rect2:

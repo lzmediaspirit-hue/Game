@@ -22,6 +22,7 @@ class Figure extends Node2D:
 	var def: Dictionary
 	var feet := Vector2.ZERO
 	var plane := Vector2.ZERO   ## where it stands on the ground plane (world units)
+	var staged := false         ## a staged scene has the person (decision 39): it sets where they face and what they do
 
 	func _init(r: TopdownRoom, o: Dictionary, drawing: Node2D, label: Node2D, body: Node2D = null) -> void:
 		room = r
@@ -49,6 +50,7 @@ class Figure extends Node2D:
 	func _process(_d: float) -> void:
 		if not is_instance_valid(twin): return
 		visible = twin.visible
+		if staged: return
 		if twin is NpcView:
 			var moving := false
 			# A rooftop thief on the run is where his route puts him (the label view follows the World authority's clock),
@@ -189,19 +191,15 @@ class WayMark extends Node2D:
 ## `overlay`. Returns {npc_views, object_views, portal_views} (the label views by id, as the side view keeps them)
 ## and `nodes`: everything made, for the next room to clear.
 static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_layer: Node2D, overlay: Node2D, player: Node2D = null) -> Dictionary:
-	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "nodes": []}
+	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "figures": {}, "nodes": []}
 	for o in def.get("objects", []):
 		var kind := str(o.get("type", ""))
 		if kind == "decor" or not o.has("at"): continue
 		if kind == "npc":
-			var nv := NpcView.new()
-			nv.label_only = true
-			nv.setup(o)
-			overlay.add_child(nv)
-			var fig := Figure.new(room, o, Person.new(o), nv, player)
-			sorted.add_child(fig)
-			out.npc_views[str(o.id)] = nv
-			out.nodes.append_array([nv, fig])
+			var made := person(room, o, sorted, overlay, player)
+			out.npc_views[str(o.id)] = made[0]
+			out.figures[str(o.id)] = made[1]
+			out.nodes.append_array(made)
 		else:
 			var lv := ObjectView.new()
 			lv.mode = "label"
@@ -213,6 +211,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			var fig := Figure.new(room, o, art, lv)
 			sorted.add_child(fig)
 			out.object_views[str(o.id)] = lv
+			out.figures[str(o.id)] = fig
 			out.nodes.append_array([lv, fig])
 	for p in def.get("portals", []):
 		var pv := PortalView.new()
@@ -227,3 +226,14 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
 	return out
+
+## One person: their label view on the overlay and their figure sorted with the room, following it: [NpcView, Figure]
+## (a room's villager, or one a staged scene brings on).
+static func person(room: TopdownRoom, o: Dictionary, sorted: Node2D, overlay: Node2D, player: Node2D = null) -> Array:
+	var nv := NpcView.new()
+	nv.label_only = true
+	nv.setup(o)
+	overlay.add_child(nv)
+	var fig := Figure.new(room, o, Person.new(o), nv, player)
+	sorted.add_child(fig)
+	return [nv, fig]

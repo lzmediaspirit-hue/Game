@@ -1448,6 +1448,25 @@ used to keep the last aim and miss a foe behind.
 **Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
 tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
 
+### As built: the story staged in the top-down world (decision 39, 2026-09-28)
+
+The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
+principles and the full account. In short:
+
+- **Scenes are data.** `tools/data/scenes.py` builds `data/scenes.json`, fifteen scenes from waking in the Fisher's
+  Hut to the sect choice.
+- **The `SceneDirector` plays them in the rooms on the grid.** It moves the room's people through their own
+  top-down figures (`TopdownWorld.figures`: a `TopdownPlaces.Person` is `staged` while the scene has it, turned to
+  any of the eight rows and played in the figure's own actions). It brings on extras: a person through `TopdownPlaces.person`, a
+  boat through `PropView.place_at`. It drives the camera (`stage_cam`, `stage_zoom`) and holds the body's pose
+  (`stage_pose`).
+- **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
+  the HUD and the labels over the world (`fade_labels`).
+- **A hand-off gives the controls back** with a prompt over what to do.
+- **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
+- **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
+- **Screenshots** are in `docs/redesign/phase5/story/`.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

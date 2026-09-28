@@ -498,7 +498,12 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the poses the character pipeline still lacks are listed for it.
 39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
     speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
-    play through what happens, not through menus.
+    play through what happens, not through menus. Built (2026-09-28, `docs/redesign/story_staging.md`):
+    - one data-driven scene system, `data/scenes.json` from `tools/data/scenes.py`, played by the `SceneDirector`;
+    - cuts, hand-offs and live parts, skippable with a hold;
+    - checkpoints kept by the Quest authority, so a scene resumes after a quit;
+    - Reduce motion respected;
+    - fifteen scenes from waking to the sect choice.
 40. **The terrain and world look closer to Alabaster Dawn, in the xianxia theme (2026-09-28):** "better graphics are
     needed". The work comes in three parts:
     - the tiles: one sun from the north-west with hue-shifted ramps, organic edges, cliffs with rock mass and lit lips,
