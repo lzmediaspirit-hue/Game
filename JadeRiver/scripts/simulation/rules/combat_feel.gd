@@ -119,25 +119,17 @@ static func dodge_cancel(tl: Dictionary, c = null) -> String:
 	if phase == "recovery" and float(tl.t) >= float(timeline_phases(tl, c).get("cancel_from", 0.0)): return "cancel"
 	return "committed"
 
+## The top-down pose of a technique's form (combat_feel.json `forms`): an action of the character's catalogue, a
+## `combo_N` being the wielded family's step N.
+static func form_pose(t: Dictionary, fam: Dictionary) -> String:
+	var p := str(cfg().get("forms", {}).get(str(t.get("vfx", {}).get("anim", t.get("form", ""))), {}).get("pose", "cast"))
+	if not p.begins_with("combo_"): return p
+	var combo: Array = fam.get("combo", [])
+	if combo.is_empty(): return "cast"
+	return str(combo[clampi(int(p.trim_prefix("combo_")) - 1, 0, combo.size() - 1)].action)
+
 ## The lunge toward the target a combo step carries (world units), longer for a dash attack.
 static func lunge(fam_id: String, index: int, dash := false) -> float:
 	var l: Array = family(fam_id).get("lunge", [0])
 	var v := float(l[clampi(index, 0, l.size() - 1)]) if not l.is_empty() else 0.0
 	return v * 2.0 + 16.0 if dash else v
-
-## The top-down catalogue's action for a side-view action name (the character pipeline's names).
-static func pose(action: String) -> String:
-	return str(cfg().get("poses", {}).get(action, action))
-
-## The frame of a pose of `frames` frames whose hit is on `hit_frame`, at `t` into a blow of `ph` (phases): the
-## anticipation plays the frames before the hit, the active window holds the hit frame, the recovery the rest, so the
-## figure's contact lands on the smear's.
-static func pose_frame(t: float, ph: Dictionary, frames: int, hit_frame: int) -> int:
-	if ph.is_empty() or frames <= 1: return 0
-	var a := float(ph.anticipation)
-	var act := float(ph.active)
-	if t < a: return clampi(int(t / maxf(a, 0.001) * hit_frame), 0, maxi(0, hit_frame - 1))
-	if t < a + act: return hit_frame
-	var rest := frames - hit_frame - 1
-	if rest <= 0: return frames - 1
-	return clampi(hit_frame + 1 + int((t - a - act) / maxf(float(ph.recovery), 0.001) * rest), hit_frame + 1, frames - 1)

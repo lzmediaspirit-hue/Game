@@ -352,30 +352,6 @@
   "tell": "tell",
   "swipe": "swipe"
  },
- "poses": {
-  "punch_1": "punch_1",
-  "punch_2": "punch_2",
-  "punch_3": "punch_3",
-  "swing_1": "swing_1",
-  "swing_2": "swing_2",
-  "swing_3": "swing_3",
-  "thrust_1": "thrust_1",
-  "thrust_2": "thrust_2",
-  "thrust_3": "thrust_3",
-  "punch": "punch_2",
-  "swing": "swing_1",
-  "attack": "thrust_1",
-  "bow": "cast",
-  "meditate": "cast",
-  "meditate_burst": "cast",
-  "jump": "plunge",
-  "guard": "guard",
-  "plunge": "plunge",
-  "dash": "dash",
-  "cast": "cast",
-  "hurt": "hurt",
-  "knockdown": "knockdown"
- },
  "missing_poses": [
   {
    "pose": "bow_draw",

@@ -14,7 +14,9 @@ extends "res://tests/tutorial_order.gd"
 ##   3. every spot the walk stands at in a room on the grid is reached on foot from where the character came in;
 ##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
 ##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
-##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there.
+##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there;
+##   6. every person of those rooms is drawn in the top-down style (TopdownPlaces.Person, decision 32), fully dressed,
+##      and turns to the player at their side, then back to their rest.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -27,6 +29,7 @@ var reach_here := {}          # cell -> true: reached on foot from where the cha
 var reach_room := ""
 var probe: TopdownWorld = null
 var probe_misses: Array = []
+var people_misses: Array = []   # people not drawn in the top-down style, or wearing a piece with no top-down layer
 
 func _main() -> void:
 	add_child(views)
@@ -41,6 +44,7 @@ func _main() -> void:
 	check(missed.is_empty(), "every room of the tutorial to the sect choice was played on the grid (%d rooms; missed %s)" % [grid_rooms.size(), str(missed)])
 	check(far.is_empty(), "every spot the walk stood at on the grid is reached on foot from where it came in (%s)" % str(far.slice(0, 8)))
 	check(probe_misses.is_empty(), "the top-down view built every room of the walk: a figure and a label for each person and thing, a mark and a plate for each way (%s)" % str(probe_misses.slice(0, 6)))
+	check(people_misses.is_empty(), "every person of the walk's rooms on the grid is drawn in the top-down style, every piece of their outfit with its layer (%s)" % str(people_misses.slice(0, 6)))
 	if is_instance_valid(probe): probe.free()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
 	end_suite()
@@ -93,6 +97,10 @@ func _probe_view() -> void:
 		and marks.size() == probe.portal_views.size() and probe.hud_minimap
 	if not ok: probe_misses.append("%s: npcs %d/%d things %d/%d figures %d ways %d/%d marks %d" % [room(), probe.npc_views.size(), npcs.size(),
 		probe.object_views.size(), things.size(), figures.size(), probe.portal_views.size(), (def.get("portals", []) as Array).size(), marks.size()])
+	for f in figures:
+		if str(f.def.get("type", "")) != "npc": continue
+		if not f.art is TopdownPlaces.Person: people_misses.append("%s: %s is not a top-down figure" % [room(), f.def.id])
+		elif not (f.art.figure.missing as Array).is_empty(): people_misses.append("%s: %s lacks %s" % [room(), f.def.npc, str(f.art.figure.missing)])
 
 # ------------------------------------------------------------------ 2: the layouts
 ## Every layout of the tutorial: each thing of its side-view room placed on a floor, and reached on foot from every
@@ -142,6 +150,22 @@ func _walk_on_the_grid() -> void:
 	w.player.physics_step(1.0 / 60.0)
 	w._update_context()
 	check(str(w.context.get("type", "")) == "npc" and str(w.context.get("npc", "")) == "shen_lian", "on the grid the context button offers a talk beside Shen Lian (%s)" % str(w.context))
+	# Her figure turns to the player at her west side, in the top-down style, and back to her rest when he walks off.
+	var fig: TopdownPlaces.Figure = null
+	for f in w.sorted.get_children():
+		if f is TopdownPlaces.Figure and str(f.def.get("id", "")) == str(shen.id): fig = f
+	var turned := ""
+	var back := ""
+	if fig != null and fig.art is TopdownPlaces.Person:
+		fig._process(0.0)
+		turned = fig.art.row
+		w.player.motor.place(w.room.spawn)
+		w.player.physics_step(1.0 / 60.0)
+		w._update_context()
+		fig._process(0.0)
+		back = fig.art.row if not fig.twin.focus else "still focused"
+	check(turned == "w" and fig.art.action == fig.art.stand and back == fig.art.rest and back != "w",
+		"Shen Lian's top-down figure turns west to the player talking to her, and back to her rest (%s) when he walks off (turned %s, back %s)" % [fig.art.rest if fig else "-", turned, back])
 	check(_auto_path(w, "sf_trial_tower", 40.0), "auto-path walks the body across the Fairground to the Trial Tower's doorway and in (room %s)" % room())
 	_drop_view(w)
 	check(go("entry") and room() == "sf_fairground", "back out of the tower onto the grid")

@@ -453,7 +453,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     copied tiles, sprites or names.
 32. **Top-down art approved** (the Phase 3 mock, in-game square and tile sheet). The prototype's characters use the game's
     real character sprites redrawn for the top-down view (every body, hair, clothing and weapon layer, per `AGENTS.md`),
-    not placeholders.
+    not placeholders. Built (2026-09-28, the plan's "As built: Phase 3, third part"): the body, every creator hair style,
+    garment, hat, cape and dye, and the early weapons, in 21 actions and eight facings; the player wears the save's
+    outfit and the villagers their own. The bow and the later weapon families still need top-down layers.
 33. **Auto-tiled paths and shores, rims and prop shadows go into the game now**, and the rooms are adjusted to them.
     Built for Riverside Square (the plan's "As built: Phase 3, second part").
 34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished. Built for Riverside
@@ -465,7 +467,7 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the Plunge is the existing art (its unlock, cooldown and strike);
     - the hold is 0.3 s: the family's guard and parry window, or a slotted counter-stance;
     - each move shows on the button and on the ground, left-handed and under Reduce motion;
-    - the guard and plunge poses fall back to the stand-in cells until the sheet has them.
+    - the guard and plunge poses are the real character's (decision 32).
 36. **The full game logic runs in the top-down prototype first** (NPCs, talk, quests, shops, pickups, gathering, doors,
     saves, the real character), and a study decides which systems live on the map as places rather than in the menu.
     The Beasts page review waits for that. The study is `docs/redesign/systems_as_places.md` (2026-09-28), a proposal:
@@ -477,7 +479,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - the Spirit Animals page stays as built, with a stable yard at home.
 37. **Full player art in top-down:** every body/skin option, creator hair style and face, every clothing and armour
     piece, every weapon family and every dye, in all top-down directions and actions (per `AGENTS.md`), after the
-    starter set; split across parallel batches on one shared pipeline.
+    starter set; split across parallel batches on one shared pipeline. Started (2026-09-28): everything but six weapon
+    looks and the bow's draw and release is drawn, and the pipeline is split into layer sets that batches build in
+    parallel (`docs/redesign/phase3/character/HOWTO.md`, which lists the four batches left).
 38. **Full attack and skill animation in top-down, close to Alabaster Dawn's feel:** every weapon family's combo with
     anticipation, strike smears, hit-stop, impact effects, knockback and camera kick in 8 directions; every technique form
     re-animated for the top-down view. **Only the feel and technique come from Alabaster Dawn** (timing, hit-stop, smears,

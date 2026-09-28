@@ -36,6 +36,7 @@ func _main() -> void:
 	chores_after_power_suite()
 	topdown_art_suite()
 	combat_feel_suite()
+	topdown_character_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -1701,7 +1702,7 @@ func topdown_art_suite() -> void:
 		needed.append(k + "_face")
 	for n in needed:
 		if not tiles.has(n): missing.append(n)
-	for kind in ["tiles", "props", "body", "foes"]:
+	for kind in ["tiles", "props", "foes"]:
 		if not ResourceLoader.exists(str(man.get("atlas", {}).get(kind, ""))): missing.append("atlas " + kind)
 	check(missing.is_empty() and paint.size() >= 7, "topdown art: every tile the paint table and the loader draw is in the atlas (missing %s)" % str(missing))
 	var outside: Array = []
@@ -1799,11 +1800,11 @@ func combat_feel_suite() -> void:
 	# The forms: a weight, a pose, a sheet per drawn direction (or one for a round form), a bolt for a thrown one.
 	var forms: Dictionary = fxt.get("forms", {})
 	check(forms.size() == 24 and (feel.get("forms", {}) as Dictionary).size() == 24, "combat feel: all 24 technique forms have a top-down sheet and a feel (%d, %d)" % [forms.size(), (feel.get("forms", {}) as Dictionary).size()])
-	var poses: Dictionary = feel.get("poses", {})
+	var catalogue: Dictionary = TopdownFigure.manifest().get("actions", {})   # the character's drawn actions (decision 37)
 	for form in forms:
 		var a: Dictionary = forms[form]
 		var fe: Dictionary = feel.get("forms", {}).get(form, {})
-		if not (feel.get("weights", {}) as Dictionary).has(str(fe.get("weight", ""))) or not (str(fe.get("pose", "")) in poses.values() or str(fe.get("pose", "")).begins_with("combo_")):
+		if not (feel.get("weights", {}) as Dictionary).has(str(fe.get("weight", ""))) or not (catalogue.has(str(fe.get("pose", ""))) or str(fe.get("pose", "")).begins_with("combo_")):
 			bad.append("form %s: a weight and a top-down pose" % form)
 		if int(a.impact) < 0 or int(a.impact) >= int(a.frames) or float(a.fps) <= 0.0 or float(a.span) <= 0.0 or not str(a.at) in ["feet", "target"] \
 				or not str(a.layer) in ["sorted", "floor"] or not str(a.get("size", "")) in ["reach", "fixed", "travel"]:
@@ -1841,4 +1842,204 @@ func combat_feel_suite() -> void:
 	for mk in ["guard", "parry", "swipe", "plunge", "charge", "tell"]:
 		if not (common.get("marks", {}) as Dictionary).has(mk): bad.append("common mark " + mk)
 	check(bad.is_empty(), "combat feel: every family's phases and smears, every form's sheets and the shared sheets are valid (%s)" % str(bad.slice(0, 6)))
+
+## Top-down redesign, Phase 3 (decision 32): the real character's layers (tools/art/topdown/build_character.py,
+## data/topdown/character.json), held to AGENTS.md as the side view's are by Validate-Animations.ps1: every action is in
+## every body, hair, shirt, trousers, shoes and weapon layer in every drawn facing, or explicitly hidden with a reason;
+## the three combo stages of each family are distinct one-shots; every dye and hair colour has its sheet; every rect lies
+## inside its sheet. Then the gate itself is shown to refuse broken manifests, as animation_contract_tests.ps1 does.
+func topdown_character_suite() -> void:
+	var man: Dictionary = TopdownFigure.manifest()
+	check(not man.is_empty(), "topdown character: the manifest parses")
+	if man.is_empty(): return
+	var problems := topdown_figure_problems(man, true)
+	check(problems.is_empty(), "topdown character: the layer contract holds for every item, action and facing (%s)" % str(problems.slice(0, 6)))
+	var sections := 0
+	for cat in man.items:
+		for name in man.items[cat]: sections += (man.items[cat][name].sections as Array).size()
+	check(int(man.frames) >= 400 and sections >= 25, "topdown character: %d frames in %d sections" % [int(man.frames), sections])
+	# The families the early drops belong to strike with drawn actions; every technique's pose plays a drawn action.
+	var fams: Array = []
+	for f in ContentDB.all("weapon_families"):
+		if str(f.id) in ["fists", "gauntlets", "short_blade", "jian", "spear"]:
+			for step in f.combo: fams.append(str(step.action))
+	var undrawn: Array = fams.filter(func(a): return not (man.actions as Dictionary).has(a))
+	var poses: Dictionary = {}
+	for t in ContentDB.all("techniques"):
+		if t.get("action") != null and str(t.action) != "": poses[str(t.action)] = true
+	for a in poses:
+		if not (man.actions as Dictionary).has(TopdownFigure.resolve(str(a))) or (TopdownFigure.resolve(str(a)) == "idle" and a != "idle"): undrawn.append(a)
+	check(fams.size() == 15 and undrawn.is_empty(), "topdown character: the early families' combos and every technique pose play drawn actions (%s)" % str(undrawn))
+	# The early drops and the creator's looks are drawn: the body, the six hair styles, the starting clothes and weapons.
+	var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
+	var want := {"body": ["light"], "hair": rules.get("hair", []), "shirt": ["disciple"], "pants": ["loose"], "shoes": ["slippers"],
+		"weapon": ["gauntlets", "dagger", "sword", "spear"]}
+	var lacking: Array = []
+	for cat in want:
+		for name in want[cat]:
+			if not (man.items.get(cat, {}) as Dictionary).has(str(name)): lacking.append("%s:%s" % [cat, name])
+	check(lacking.is_empty(), "topdown character: the creator's looks, the starting clothes and the early weapons are drawn (%s)" % str(lacking))
+	topdown_coverage(man)
+	# The gate refuses what AGENTS.md forbids (a copy of the manifest broken one way at a time).
+	var cases := {
+		"missing-facing": func(m): (m.actions.walk.start as Dictionary).erase("ne"),
+		"short-rects": func(m): m.items.shirt.disciple.sections[0].rects = (m.items.shirt.disciple.sections[0].rects as PackedInt32Array).slice(0, 60),
+		"missing-dye": func(m): (m.items.pants.loose.sheets as Dictionary).erase("indigo"),
+		"missing-hair-colour": func(m): (m.items.hair.topknot.sheets as Dictionary).erase("3"),
+		"empty-item": func(m): m.items.weapon.spear.sections = [],
+		"hidden-without-reason": func(m): m.items.body.light.sections[0].hidden["idle/s"] = "",
+		"all-sections-hidden": func(m):
+			for sec in m.items.shoes.slippers.sections: sec.hidden["run/e"] = "gone",
+		"repeated-combo": func(m): _copy_action(m, "swing_1", "swing_2"),
+		"looping-combo": func(m): m.actions.thrust_3.loop = true,
+		"bad-redirect": func(m): m.actions.meditate.redirect.erase("w"),
+		"stale-set": func(m): m.stale_sets = ["hair"],
+	}
+	var accepted: Array = []
+	for k in cases:
+		var broken: Dictionary = _dup_manifest(man)
+		cases[k].call(broken)
+		if topdown_figure_problems(broken, false).is_empty(): accepted.append(k)
+	check(accepted.is_empty(), "topdown character: the gate refuses %d broken manifests (accepted %s)" % [cases.size(), str(accepted)])
+
+## A deep copy whose rect tables stay packed arrays.
+func _dup_manifest(man: Dictionary) -> Dictionary:
+	var m: Dictionary = man.duplicate(true)
+	return m
+
+## Make one action's frames the same as another's in every section (a combo stage that repeats another).
+func _copy_action(m: Dictionary, from: String, to: String) -> void:
+	for cat in m.items:
+		for name in m.items[cat]:
+			for sec in m.items[cat][name].sections:
+				var r: PackedInt32Array = sec.rects
+				for d in m.actions[to].start:
+					var a := int(m.actions[from].start[d]) * 6
+					var b := int(m.actions[to].start[d]) * 6
+					for k in int(m.actions[to].frames) * 6: r[b + k] = r[a + mini(k, int(m.actions[from].frames) * 6 - 1)]
+				sec.rects = r
+
+## Decision 37, the full set: every look the game's data can put on a character has its top-down layers (the creator's
+## options, every wearable item in data/artifacts.json, every NPC's outfit, every weapon family's looks), and every
+## action a family's combo or a technique plays is drawn, not a stand-in (the index's `stand_ins`). Until the index's
+## `full_set` is on, what is missing must be listed in its `pending` (tools/art/topdown/figure/sets/__init__.py), so a
+## new look without layers still fails; once it is on, nothing may be missing.
+func topdown_coverage(man: Dictionary) -> void:
+	var wardrobe := {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
+	var want := {}   # "cat:look" -> the game items, NPCs and families that wear it
+	var add := func(cat: String, look: String, who: String) -> void:
+		if look == "" or look == "none": return
+		var k := "%s:%s" % [cat, look]
+		if not want.has(k): want[k] = []
+		(want[k] as Array).append(who)
+	var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
+	for n in ContentDB.parts.get("body", {}): add.call("body", str(n), "creator")
+	for pair in [["hair", "hair"], ["shirt", "robe"], ["pants", "trousers"], ["shoes", "shoes"]]:
+		for look in rules.get(pair[1], []): add.call(pair[0], str(look), "creator")
+	for a in ContentDB.all("artifacts"):
+		var cat := str(wardrobe.get(str(a.get("slot", "")), ""))
+		if cat != "": add.call(cat, str(a.get("appearance", "none")), str(a.id))
+	for n in ContentDB.all("npcs"):
+		var o: Dictionary = n.get("outfit", {})
+		for cat in TopdownFigure.CATEGORIES: add.call(cat, str(o.get(cat, "none")), "npc " + str(n.id))
+	for f in ContentDB.all("weapon_families"):
+		for look in f.get("appearance", []): add.call("weapon", str(look), "family " + str(f.id))
+	var missing: Array = []
+	var items := 0
+	for k in want:
+		var p: PackedStringArray = str(k).split(":")
+		if (man.items.get(p[0], {}) as Dictionary).has(p[1]): continue
+		missing.append(k)
+		items += (want[k] as Array).filter(func(w): return not (str(w).begins_with("npc ") or str(w).begins_with("family ") or w == "creator")).size()
+	var stand: Array = man.get("stand_ins", [])
+	var plays := {}
+	for f in ContentDB.all("weapon_families"):
+		for step in f.get("combo", []): plays[str(step.action)] = true
+	for t in ContentDB.all("techniques"):
+		if t.get("action") != null and str(t.action) != "": plays[str(t.action)] = true
+	for a in plays:
+		if stand.has(a): missing.append("action:" + str(a))
+	missing.sort()
+	var pending: Array = man.get("pending", [])
+	var unlisted := missing.filter(func(m): return not pending.has(m))
+	print("topdown character coverage: %d of %d looks and actions drawn; missing %s (%d game items)" % [want.size() + plays.size() - missing.size(), want.size() + plays.size(), str(missing), items])
+	if bool(man.get("full_set", false)):
+		check(missing.is_empty() and pending.is_empty(), "topdown character: the full set is drawn: every look and action the game's data can put on a character (missing %s)" % str(missing))
+	else:
+		check(unlisted.is_empty(), "topdown character: every look and action without top-down layers is pending in a listed batch (%d of %d looks and actions missing, %d game items; unlisted %s; missing %s)"
+			% [missing.size(), want.size() + plays.size(), items, str(unlisted), str(missing)])
+
+## Every way a top-down character manifest breaks the layer contract (empty when it holds). `sheets` also opens every
+## sheet and checks each rect lies inside it.
+func topdown_figure_problems(man: Dictionary, sheets: bool) -> Array:
+	var out: Array = []
+	for s in man.get("stale_sets", []): out.append("stale set %s (built for another action catalogue: build it again)" % s)
+	var dirs: Array = man.get("dirs", [])
+	var all_rows: Array = dirs + (man.get("mirror", {}) as Dictionary).keys()
+	var n := int(man.get("frames", 0))
+	var acts: Dictionary = man.get("actions", {})
+	for a in acts:
+		var sp: Dictionary = acts[a]
+		if int(sp.get("frames", 0)) < 1 or float(sp.get("fps", 0)) <= 0.0: out.append("timing " + a)
+		if sp.has("facing"):
+			for r in all_rows:
+				if r != sp.facing and str((sp.get("redirect", {}) as Dictionary).get(r, "")) != sp.facing: out.append("redirect %s/%s" % [a, r])
+			if not (sp.start as Dictionary).has(sp.facing): out.append("start %s/%s" % [a, sp.facing])
+		else:
+			for d in dirs:
+				if not (sp.start as Dictionary).has(d): out.append("start %s/%s" % [a, d])
+	for fam in ["punch", "swing", "thrust"]:
+		var seen := {}
+		for stage in 3:
+			var a := "%s_%d" % [fam, stage + 1]
+			if not acts.has(a) or bool(acts[a].get("loop", true)): out.append("combo stage " + a)
+			elif man.items.has("body"):
+				var body: Array = man.items.body.light.sections
+				var sig := ""
+				for sec in body:
+					var r: PackedInt32Array = sec.rects
+					var st := int(acts[a].start.get("e", 0)) * 6
+					sig += str(r.slice(st, st + int(acts[a].frames) * 6))
+				seen[sig] = true
+		if seen.size() != 3: out.append("combo %s repeats a stage" % fam)
+	var dyes: Array = ContentDB.parts.get("_dyes", {}).get("order", [])
+	for cat in ["body", "hair", "shirt", "pants", "shoes", "hat", "cape", "weapon"]:
+		for name in man.get("items", {}).get(cat, {}):
+			var it: Dictionary = man.items[cat][name]
+			var label := "%s/%s" % [cat, name]
+			if not ContentDB.parts.get(cat, {}).has(name): out.append("not in parts.json " + label)
+			if (it.sections as Array).is_empty():
+				out.append("no sections " + label)
+				continue
+			if cat == "hair" and (it.sheets as Dictionary).size() != 6: out.append("hair colours " + label)
+			if cat in ["shirt", "pants"]:
+				for dy in dyes:
+					if not (it.sheets as Dictionary).has(dy): out.append("dye %s %s" % [label, dy])
+			for sec in it.sections:
+				if (sec.rects as PackedInt32Array).size() != n * 6: out.append("rects %s/%s" % [label, sec.band])
+				for k in sec.hidden:
+					if str(sec.hidden[k]) == "": out.append("hidden without reason %s/%s %s" % [label, sec.band, k])
+					var parts: PackedStringArray = str(k).split("/")
+					if parts.size() != 2 or not acts.has(parts[0]): out.append("hidden names no action %s %s" % [label, k])
+			for a in acts:
+				for d in acts[a].start:
+					var key := "%s/%s" % [a, d]
+					if (it.sections as Array).all(func(sec): return (sec.hidden as Dictionary).has(key)): out.append("item absent %s %s" % [label, key])
+			if sheets:
+				var size := Vector2i(-1, -1)
+				for v in it.sheets:
+					var tex: Texture2D = load(str(it.sheets[v]))
+					if tex == null:
+						out.append("sheet %s %s" % [label, v])
+						continue
+					if size.x >= 0 and tex.get_size() != Vector2(size): out.append("sheet size %s %s" % [label, v])
+					size = Vector2i(tex.get_size())
+				for sec in it.sections:
+					var r: PackedInt32Array = sec.rects
+					for i in r.size() / 6:
+						if r[i * 6 + 2] == 0: continue
+						if not Rect2i(Vector2i.ZERO, size).encloses(Rect2i(r[i * 6], r[i * 6 + 1], r[i * 6 + 2], r[i * 6 + 3])):
+							out.append("rect outside %s/%s #%d" % [label, sec.band, i])
+							break
+	return out
 

@@ -2,7 +2,8 @@
 
 This page sets how the top-down world of Jade River is drawn: terrain, height levels, water, plants, buildings and
 props. It serves Phase 3 of `docs/redesign_top_down_plan.md` and decision 31 in `docs/roadmap_master_ui.md` §6.
-Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives only their scale against the tiles.
+Characters follow `docs/art-contracts.md` and `AGENTS.md`; this page gives their scale against the tiles and, in §13, how
+the real character (decision 32) is drawn for this view.
 
 **The brief (decision 31).** The world should look close to Alabaster Dawn's: bright, detailed ¾ top-down pixel art.
 Height levels read at a glance, wall faces stand apart from floor tops, shading is soft, tiles are lush and props are
@@ -95,7 +96,7 @@ places the player should look.
 | World view | 640 × 360 art px (40 × 22.5 tiles), shown ×2 at 1280 × 720 |
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
-| Character | ~38 art px tall in a 64 × 64 cell, feet on the cell's anchor: about 2.4 tiles. The placeholder body is the reference |
+| Character | ~38 art px from sole to crown (40 with a top knot), feet on the anchor: about 2.4 tiles. The real character (§13) is the reference |
 | Doors | 2 tiles wide in the wall, 24–28 px tall, so a 38 px body reads as fitting through |
 | Props | footprint in whole tiles; sprite height free |
 
@@ -302,7 +303,65 @@ this page in the game (decision 33):
 The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_mock_*.png` is the approved target,
 `07_ingame_square.png` the loader before this work, and `08`–`15` the game after it.
 
-## 10b. Combat effects (decision 38)
+## 11. Checklist for a new tile or prop
+
+- It uses the palette ramps, or a new ramp added to `palette.py` with its Style A tie.
+- It is lit from the upper left. Faces are at most 0.65× their top's value, with a lip and a contact line.
+- Tops tile with themselves, and faces tile sideways and downward.
+- A prop has a footprint, an origin, `solid` and a `shadow`, and an outline except on water.
+- It is built by the script, never painted by hand into the PNG. `--check` passes and `data_validation` is green.
+- It is reviewed in `--review`'s sheets at ×4, and in the room: `tools/dev/topdown_capture.tscn -- --phase3` draws it
+  in the game.
+
+## 12. Review images (`docs/redesign/phase3/`)
+
+`build_tiles.py --review` draws the sheets (04, 05, 12). The game draws the rest:
+`xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn -- --phase3`.
+
+| File | What |
+|---|---|
+| `01_square_mock_640x360.png`, `01_square_mock_x2.png` | the approved mock (decision 32): Riverside Square at the spawn camera with every rule of this page and the proposed dressing |
+| `02_square_whole_room.png`, `03_square_water.gif` | the approved mock's whole room and its four water frames |
+| `04_tile_sheet_x4.png` | every tile at ×4, named and grouped |
+| `05_props_x4.png` | the prop kit at ×4, with its animation frames and floor shadows |
+| `06_height_levels_test.png` | levels −½ to 4 with a body on each (the review room `td_review_heights`), drawn by the game, in colour and by value alone, at ×2 |
+| `07_ingame_square.png` | before: the room view with the new tiles and props, without auto-tiles, rims or shadows |
+| `08_ingame_square_x2.png`, `09_ingame_square_hud.png` | after: the redesigned square in the game at the spawn camera, ×2, and under the HUD |
+| `10_ingame_whole_room.png` | the whole 48 × 30 room in the game |
+| `11_before_after.png` | the mock, the loader before, and the game after, one above the other |
+| `12_foes_x3.png` | the foe sheet at ×3: crab, rat and boarlet, five drawn facings, every action |
+| `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
+| `15_water_frames_x2.png` | the water's four frames round the pond and the pier |
+
+## 13. The character (decision 32)
+
+The body in the top-down world is the game's own character, redrawn for this view:
+
+- **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
+  from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
+- **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
+  The redesign plan's "As built: Phase 3, third part" has the full pipeline.
+- **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
+  `docs/redesign/phase3/character/HOWTO.md` says how to add one.
+
+| Rule | Value |
+|---|---|
+| Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
+| Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
+| Light | the world's sun, upper left and a little in front (§3); four lit steps of each ramp, the deepest kept for contact shade |
+| Outline | 1 px, ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side (§4); an edge over the figure itself takes its material's own deep tone, not ink |
+| Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
+| Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored. The side rows turn a little toward the camera, the head in E a little more |
+| Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
+
+Check a new layer against it the way §11 checks a tile:
+
+- it is cast from the same poses as the body;
+- it is reviewed in every action, facing and dye in `tests/topdown_figure_gallery.tscn`'s sheets, and against the
+  body in `docs/redesign/phase3/character/`;
+- `data_validation`'s layer contract is green.
+
+## 14. Combat effects (decision 38)
 
 Every blow and technique of the top-down world is drawn by `tools/art/fx/build_fx_topdown.py` into `art/fx/topdown/`
 (the plan's "As built: combat animation and feel"). The rules on this page hold for them, with these additions:
@@ -333,33 +392,3 @@ Every blow and technique of the top-down world is drawn by `tools/art/fx/build_f
   technique is drawn at a whole scale (×2 or ×3).
 - **Timing.** A smear is few and fast: a lead-in frame, one bright contact frame, a follow-through, then the qi thins
   from the tail. The contact frame lands on the blow's hit.
-
-## 11. Checklist for a new tile or prop
-
-- It uses the palette ramps, or a new ramp added to `palette.py` with its Style A tie.
-- It is lit from the upper left. Faces are at most 0.65× their top's value, with a lip and a contact line.
-- Tops tile with themselves, and faces tile sideways and downward.
-- A prop has a footprint, an origin, `solid` and a `shadow`, and an outline except on water.
-- It is built by the script, never painted by hand into the PNG. `--check` passes and `data_validation` is green.
-- It is reviewed in `--review`'s sheets at ×4, and in the room: `tools/dev/topdown_capture.tscn -- --phase3` draws it
-  in the game.
-
-## 12. Review images (`docs/redesign/phase3/`)
-
-`build_tiles.py --review` draws the sheets (04, 05, 12). The game draws the rest:
-`xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn -- --phase3`.
-
-| File | What |
-|---|---|
-| `01_square_mock_640x360.png`, `01_square_mock_x2.png` | the approved mock (decision 32): Riverside Square at the spawn camera with every rule of this page and the proposed dressing |
-| `02_square_whole_room.png`, `03_square_water.gif` | the approved mock's whole room and its four water frames |
-| `04_tile_sheet_x4.png` | every tile at ×4, named and grouped |
-| `05_props_x4.png` | the prop kit at ×4, with its animation frames and floor shadows |
-| `06_height_levels_test.png` | levels −½ to 4 with a body on each (the review room `td_review_heights`), drawn by the game, in colour and by value alone, at ×2 |
-| `07_ingame_square.png` | before: the room view with the new tiles and props, without auto-tiles, rims or shadows |
-| `08_ingame_square_x2.png`, `09_ingame_square_hud.png` | after: the redesigned square in the game at the spawn camera, ×2, and under the HUD |
-| `10_ingame_whole_room.png` | the whole 48 × 30 room in the game |
-| `11_before_after.png` | the mock, the loader before, and the game after, one above the other |
-| `12_foes_x3.png` | the foe sheet at ×3: crab, rat and boarlet, five drawn facings, every action |
-| `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
-| `15_water_frames_x2.png` | the water's four frames round the pond and the pier |

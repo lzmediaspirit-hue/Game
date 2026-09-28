@@ -20,8 +20,8 @@ What lives here (CombatFeel reads it; TopdownFx and the top-down views play it):
   in weapon_families.json: the phases are derived from them (CombatFeel.phases), never kept twice.
 - forms: per technique form, its weight and the top-down pose it plays (the character pipeline's action names).
 - foes: the weight of a foe's blow by its role, and the marks it shows (its tell on the wind-up, its swipe).
-- poses: the character pipeline's action for each of the side view's action names, and the poses that pipeline does not
-  draw yet (listed for it; decision 37).
+- missing_poses: the poses the character pipeline (decision 37) does not draw yet, each with the stand-in it plays; the
+  pipeline maps the side view's action names itself (TopdownFigure.resolve, data/topdown/character.json aliases).
 """
 from __future__ import annotations
 
@@ -80,15 +80,6 @@ FORMS = {
     "swarm": ("medium", "cast"), "seal": ("medium", "cast"), "domain": ("medium", "cast"), "echo": ("heavy", "combo_2"),
 }
 
-# The side view's action names (weapon_families.json, techniques.json) -> the top-down catalogue's (the character
-# pipeline, figure/actions.py CATALOG and ALIASES).
-POSES = {
-    "punch_1": "punch_1", "punch_2": "punch_2", "punch_3": "punch_3", "swing_1": "swing_1", "swing_2": "swing_2",
-    "swing_3": "swing_3", "thrust_1": "thrust_1", "thrust_2": "thrust_2", "thrust_3": "thrust_3", "punch": "punch_2",
-    "swing": "swing_1", "attack": "thrust_1", "bow": "cast", "meditate": "cast", "meditate_burst": "cast", "jump": "plunge",
-    "guard": "guard", "plunge": "plunge", "dash": "dash", "cast": "cast", "hurt": "hurt", "knockdown": "knockdown",
-}
-
 # Poses the top-down catalogue does not draw yet: each plays its stand-in until the character pipeline draws it.
 MISSING_POSES = [
     {"pose": "bow_draw", "stand_in": "cast", "for": "the bow's shot and the aimed (dragged) shot: draw, hold, release (plan §1.4: 7 frames at 12 fps)"},
@@ -124,7 +115,6 @@ def payload() -> dict:
         "forms": {k: {"weight": v[0], "pose": v[1]} for k, v in FORMS.items()},
         "technique_recovery_after": 0.3,
         "foes": FOES,
-        "poses": POSES,
         "missing_poses": MISSING_POSES,
     }
 
