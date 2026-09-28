@@ -89,6 +89,11 @@ static func frame_of(action: String, row: String, i: int) -> Vector2i:
 	if not (a.start as Dictionary).has(drawn): drawn = "s"
 	return Vector2i(int(a.start[drawn]) + clampi(i, 0, int(a.frames) - 1), 1 if mirror else 0)
 
+## The frame a strike lands on (the last frame for an action without one).
+static func hit_frame(action: String) -> int:
+	var a := spec(action)
+	return int(a.hit) if int(a.hit) >= 0 else int(a.frames) - 1
+
 ## The frame `t` seconds into `action` at its own rate (a loop wraps, a one-shot holds its last frame).
 static func frame_at(action: String, t: float) -> int:
 	var a := spec(action)

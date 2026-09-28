@@ -39,6 +39,9 @@ var push_v := Vector2.ZERO ## a knockback or a technique's dash: this velocity f
 var push_t := 0.0
 var lock_face := false     ## an attack or cast keeps the facing on its aim
 var speed_k := 1.0         ## the combat authority's move factor (an attack on the ground walks at x0.3)
+## Decision 35: the Plunge (the movement art) drops straight down at a fixed speed, no steering; its landing is the
+## strike (the `landed` event carries `plunge`, and Combat resolves it).
+var plunging := false
 
 var walk: float
 var tiptoe_axis: float
@@ -102,6 +105,7 @@ func place(p: Vector2) -> void:
 	vz = 0.0
 	vel = Vector2.ZERO
 	grounded = true
+	plunging = false
 	sink_t = -1.0
 	safe = p
 	safe_z = z
@@ -137,6 +141,21 @@ func push(v: Vector2, secs: float) -> void:
 	push_v = v
 	push_t = secs
 
+## Plunge from anywhere in the air: straight down at `speed` until the floor. False on the ground, sinking or already
+## plunging.
+func plunge(speed: float) -> bool:
+	if grounded or sink_t >= 0.0 or plunging: return false
+	plunging = true
+	vz = -absf(speed)
+	vel = Vector2.ZERO
+	dash_t = 0.0
+	push_t = 0.0
+	long_jump = false
+	buffer = 0.0
+	coyote = 0.0
+	events.append({"type": "plunged", "z": z})
+	return true
+
 func _start_dash(axis: Vector2) -> void:
 	if dash_cd > 0.0 or not can_dash(): return
 	var moving := axis.length() > 0.2
@@ -163,7 +182,9 @@ func _substep(h: float, axis: Vector2) -> void:
 	if buffer > 0.0 and (grounded or coyote > 0.0): _jump()
 	# Horizontal velocity: the dash holds its own; otherwise accelerate toward the stick (tiptoe below 0.6), with a
 	# third of that control in the air, where no input keeps the momentum (and a long jump keeps its carry).
-	if push_t > 0.0:
+	if plunging:
+		vel = Vector2.ZERO
+	elif push_t > 0.0:
 		push_t -= h
 		vel = push_v
 		if push_t <= 0.0: vel = Vector2.ZERO
@@ -176,7 +197,7 @@ func _substep(h: float, axis: Vector2) -> void:
 		var target := axis.normalized() * walk * speed_k * (tiptoe if mag <= tiptoe_axis else 1.0) if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
 		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target, accel * air_control * h)
-	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face: _face(axis)
+	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face and not plunging: _face(axis)
 	_move(Vector2(vel.x * h, 0.0), axis)
 	_move(Vector2(0.0, vel.y * h), axis)
 	_vertical(h)
@@ -210,8 +231,10 @@ func _vertical(h: float) -> void:
 				safe_z = z
 		return
 	coyote = maxf(0.0, coyote - h)
-	z += vz * h - 0.5 * gravity * h * h   # exact within the step, so the apex and airtime match the numbers
-	vz -= gravity * h
+	if plunging: z += vz * h   # the Plunge holds its speed
+	else:
+		z += vz * h - 0.5 * gravity * h * h   # exact within the step, so the apex and airtime match the numbers
+		vz -= gravity * h
 	peak = maxf(peak, z)
 	_push_out()
 	ground = floor_at(pos)
@@ -221,18 +244,21 @@ func _vertical(h: float) -> void:
 
 func _land() -> void:
 	var fall := peak - z
+	var plunged := plunging
 	grounded = true
 	vz = 0.0
 	long_jump = false
+	plunging = false
+	if plunged: buffer = 0.0   # a Jump pressed on the way down does not bounce out of the impact
 	var cp := TopdownRoom.cell_of(pos)
 	if room.is_water(cp.x, cp.y) and not water_walk:
 		sink_t = 0.0
 		vel = Vector2.ZERO
-		events.append({"type": "splashed", "fall": fall})
+		events.append({"type": "splashed", "fall": fall, "plunge": plunged})
 		return
 	land_t = squash_s
-	events.append({"type": "landed", "fall": fall})
-	if buffer > 0.0: _jump()
+	events.append({"type": "landed", "fall": fall, "plunge": plunged})
+	if buffer > 0.0 and not plunged: _jump()
 
 ## A point is clear of the edges when every corner of the foot box is on the same floor as its centre.
 func _clear_ground() -> bool:

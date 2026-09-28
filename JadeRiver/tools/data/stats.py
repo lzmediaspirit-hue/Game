@@ -593,8 +593,13 @@ def build():
             # Aiming (decision 30): a tap soft-locks the nearest foe in a `cone_deg` cone of the facing within `range`;
             # a dragged aim snaps to a foe within `snap_deg`. Each technique form aims as a line, a cone, a circle at a
             # point within its reach, or a circle round the caster (`self`); a projectile always flies as a line.
+            # Attack's drag moves (decision 35): a drag past `long_px` is the combo's finisher at once, pulled in near the
+            # screen's edges so the finisher's band is always `zone_px` deep; a drag down within `plunge_deg` of straight
+            # down and past `plunge_px`, in the air, is the Plunge; held still for `guard_s` it guards, or enters a slotted
+            # stance technique when `hold_stance` and one is ready.
             "aim": {"cone_deg": 120, "snap_deg": 15, "range": 160, "hold_s": 0.18, "dead_px": 18, "cancel_px": 40,
                     "drag_px": 120, "point_radius": 48, "cone_half_deg": 45,
+                    "long_px": 120, "zone_px": 48, "plunge_px": 48, "plunge_deg": 35, "guard_s": 0.3, "hold_stance": True,
                     "forms": {"line": ["thrust", "volley", "wave", "seeker", "return", "swarm", "lunge", "blink", "release"],
                               "point": ["burst", "rain", "pillar", "seal", "snare", "plunge"],
                               "self": ["domain", "ward", "chorus"],
