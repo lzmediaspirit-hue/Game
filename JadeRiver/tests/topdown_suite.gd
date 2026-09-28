@@ -262,10 +262,11 @@ func _sort_keys() -> void:
 func _facing() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(200, 192))
 	var rows: Array = []
-	for deg in [0.0, 45.0, 60.0, 40.0, 180.0, -90.0, -135.0]:
+	for deg in [0.0, 45.0, 62.0, 82.0, 60.0, 180.0, -90.0, -135.0, 150.0]:
 		m.step(1.0 / 60.0, Vector2.from_angle(deg_to_rad(deg)))
 		rows.append(m.row)
-	t.check(rows == ["e", "e", "s", "s", "w", "n", "n"], "topdown: facing picks S/E/N/W with 20° hysteresis on diagonals (%s)" % str(rows))
+	t.check(rows == ["e", "se", "se", "s", "se", "w", "n", "nw", "sw"],
+		"topdown: facing picks one of 8 rows (S, SE, E, NE, N drawn; NW, W, SW mirrored) with 10° hysteresis (%s)" % str(rows))
 
 # ------------------------------------------------------------------ Phase 2 (decisions 29 and 30)
 ## Walking stops at the water's edge; walking on water is a special skill (Water Skimming), off by default.
@@ -652,6 +653,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	_heights()
 	_shots(base)
 	_push_and_dodge(base)
+	_figure(base)
 	await _chase_and_leash(base)
 	await _drops_and_prompt(tree)
 	await _hud_aim(tree, base)
@@ -807,6 +809,109 @@ func _push_and_dodge(base: Vector2) -> void:
 	var again: Dictionary = Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1, "moves": false})
 	t.check(dashed and c.pools.hp == hp0 and str(again.get("reason", "")) == "cooldown" and Game.combat.forced_motion(c.id).is_empty(),
 		"topdown: the dodge is Combat's (its i-frames slip the blow, its 2.5 s cooldown holds) and the motor's dash carries it")
+
+## Phase 3 (decision 32): the body is the real character. Its figure wears the character's look and gear from the save
+## and dresses again when the gear changes; each state plays its drawn action in the body's facing: a blow its family's
+## own pose with the hit frame on the hit, a technique without a pose the hand-seal cast, a back-step the dodge, the
+## wounded body the knock-down; every facing row draws, the west three as mirrors of the east.
+func _figure(base: Vector2) -> void:
+	fresh(base)
+	var p = w.player
+	var fig: TopdownFigure = p.figure
+	var want: Dictionary = InventoryAuthority.outfit_for(c)
+	var worn := {}
+	for l in fig.layers: worn[str(l.cat)] = str(l.item)
+	var dressed := true
+	for cat in ["body", "hair", "shirt", "pants", "shoes"]:
+		var item := str(want.get(cat, "none"))
+		dressed = dressed and (worn.get(cat, "") == item or fig.missing.has("%s:%s" % [cat, item]))
+	t.check(fig.outfit == want and dressed and worn.get("body", "") == "light" and worn.get("hair", "") == str(want.hair),
+		"topdown figure: the body wears the character's look and gear from the save (%s; not drawn yet %s)" % [str(worn), str(fig.missing)])
+	Game.inventory.apply_add(c.id, "training_jian", 1, "topdown_suite")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("training_jian")})
+	var armed := fig.layers.filter(func(l): return l.cat == "weapon").map(func(l): return str(l.item))
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	p.refresh_outfit()
+	t.check(not armed.is_empty() and armed.all(func(n): return n == "sword") and fig.layers.all(func(l): return l.cat != "weapon"),
+		"topdown figure: equipping the training jian dresses the figure in the jian's layers at once, and bare hands again without it (%s)" % str(armed))
+	# The states and their actions (from rest: the last suite's dodge has run out).
+	var seen := {}
+	p.motor.dash_t = 0.0
+	p.motor.vel = Vector2.ZERO
+	p.sync(0.0)
+	seen.idle = p.pose
+	p.movement = Vector2.RIGHT
+	frames(12)
+	p.sync(0.05)
+	seen.walk = [p.pose, p.motor.row]
+	p.movement = Vector2.ZERO
+	fresh(base)
+	p.aim_attack(Vector2.RIGHT, false)
+	var tl: Dictionary = Game.combat.timeline(c.id)
+	frames(1)
+	p.sync(0.0)
+	var early := [p.pose, p.frame]
+	while float(tl.t) < float(tl.hit_at) + 0.01 and Game.combat.is_busy(c.id): frames(1)
+	p.sync(0.0)
+	seen.blow = [early, p.pose, p.frame, str(tl.action)]
+	fresh(base)
+	var silent: Array = ContentDB.all("techniques").filter(func(e): return e.get("action") == null)
+	tl = Game.combat.timeline(c.id)
+	tl.action = "swing_3"
+	tl.technique = str(silent[0].id) if not silent.is_empty() else ""
+	tl.t = 0.05
+	tl.duration = 0.6
+	tl.hit_at = 0.3
+	p.sync(0.0)
+	seen.technique = p.pose
+	Game.combat.actors.erase(c.id)
+	fresh(base)
+	p.dodge()
+	frames(2)
+	p.sync(0.0)
+	seen.back_step = p.pose
+	fresh(base)
+	Game.combat.wounded[c.id] = {"cause": "topdown_suite", "timer": 0.0, "no_penalty": true, "grace": 0.0}
+	p.sync(0.0)
+	p.sync(1.0)
+	seen.wounded = [p.pose, p.frame]
+	Game.combat.wounded.erase(c.id)
+	fresh(base)
+	p.jump()
+	frames(3)
+	p.sync(0.0)
+	seen.jump = [p.pose, p.frame]
+	frames(40)
+	var drawn := true
+	for row in ["s", "se", "e", "ne", "n", "nw", "w", "sw"]:
+		var box: Rect2 = fig.bounds("walk", row, 2)
+		drawn = drawn and box.size.x >= 8.0 and box.size.y >= 34.0 and box.size.y <= 48.0
+	var e_box: Rect2 = fig.bounds("idle", "e", 0)
+	var w_box: Rect2 = fig.bounds("idle", "w", 0)
+	var mirrored: bool = is_equal_approx(w_box.position.x, -e_box.end.x) and w_box.size == e_box.size
+	var hit := TopdownFigure.hit_frame(str(seen.blow[1]))
+	t.check(seen.idle == "idle" and seen.walk == ["walk", "e"] and seen.blow[1] == seen.blow[3] and seen.blow[3] == "punch_1" and int(seen.blow[0][1]) < hit
+		and int(seen.blow[2]) == hit and seen.technique == "cast" and seen.back_step == "dodge" and seen.wounded == ["knockdown", 4]
+		and seen.jump[0] == "jump" and int(seen.jump[1]) <= 1 and drawn and mirrored,
+		"topdown figure: each state plays its drawn action and every facing draws, the west mirrored (%s, rows drawn %s, mirrored %s)" % [str(seen), str(drawn), str(mirrored)])
+	# A villager in the same style (TopdownPlaces.Person): the NPC's own outfit, its rest row, turning in the eight rows,
+	# walking, and a meditating one facing the camera from every row.
+	var v: TopdownPlaces.Figure = w.add_villager("aunt_ping", base + Vector2(60, 0), "se")
+	var person: TopdownPlaces.Person = v.art
+	var rest := [person.row, person.action, person.figure.missing.is_empty(), person.figure.outfit.get("shirt", "")]
+	person.look(Vector2(-1, -1))
+	var turned := person.row
+	person.play("walk")
+	person._process(0.3)
+	var walking := [person.action, TopdownFigure.frame_at(person.action, person.t)]
+	var sitter := TopdownPlaces.Person.new({"npc": "aunt_ping", "pose": "meditate", "row": "ne"})
+	var faces := TopdownFigure.frame_of(sitter.action, sitter.row, 0) == TopdownFigure.frame_of("meditate", "s", 0)
+	sitter.free()
+	v.queue_free()
+	t.check(rest[0] == "se" and rest[1] == "idle" and rest[2] and str(rest[3]) == str(ContentDB.entry("npcs", "aunt_ping").outfit.get("shirt", ""))
+		and turned == "nw" and walking[0] == "walk" and int(walking[1]) > 0 and faces,
+		"topdown villager: drawn by the figure in their own outfit, at rest in their row, turning in eight rows, walking, a meditation facing the camera (%s, %s, %s, %s)" % [str(rest), turned, str(walking), str(faces)])
 
 ## Foes chase on the grid, give up past the leash, wait beneath a roof they cannot reach, and a jumper hops a level.
 func _chase_and_leash(base: Vector2) -> void:
@@ -999,10 +1104,11 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	frames(1)
 	w.player.sync(0.0)
 	var land_pose := [str(w.player.anim), str(w.player.pose), int(w.player.frame)]
-	var fallback_ok: bool = (w.player.pose_frames("plunge") > 0) or (drop_pose == ["plunge", "jump", 1] and land_pose == ["plunge_land", "jump", 2])
+	var hit := TopdownFigure.hit_frame("plunge")
+	var poses_ok: bool = drop_pose[0] == "plunge" and drop_pose[1] == "plunge" and int(drop_pose[2]) < hit and land_pose == ["plunge_land", "plunge", hit]
 	measured.plunge = {"from": snappedf(z0, 0.1), "frames": n}
-	t.check(ready and armed_as == "plunge" and shown == "plunge" and dropping and hurt(below) and below.pools.has_status("stun") and c.pools.cooldown("plunge") > 3.0 and fallback_ok,
-		"topdown drag moves: a drag down in the air plunges from z %.0f, lands in %d frames and strikes and stuns the foe beside it; the pose falls back to the jump's cells (%s, %s; ready %s, %s/%s, dropped %s, hurt %s, stun %s, cooldown %.1f)" % [z0, n, str(drop_pose), str(land_pose),
+	t.check(ready and armed_as == "plunge" and shown == "plunge" and dropping and hurt(below) and below.pools.has_status("stun") and c.pools.cooldown("plunge") > 3.0 and poses_ok,
+		"topdown drag moves: a drag down in the air plunges from z %.0f, lands in %d frames and strikes and stuns the foe beside it; the figure dives in the plunge and holds its impact frame (%s, %s; ready %s, %s/%s, dropped %s, hurt %s, stun %s, cooldown %.1f)" % [z0, n, str(drop_pose), str(land_pose),
 			str(ready), armed_as, shown, str(dropping), str(hurt(below)), str(below.pools.has_status("stun")), c.pools.cooldown("plunge")])
 	# Without the art (or on its cooldown) a drag down in the air stays an aimed air blow.
 	c.cultivator.secret_arts.erase("plunge")
@@ -1081,22 +1187,18 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	Game.submit({"type": "equip_technique", "slot": 3, "id": str(kept)})
 	t.check(eq.get("ok", false) and kind == "stance" and in_stance and out,
 		"topdown drag moves: with a counter-stance slotted the hold enters it (%s, %s)" % [kind, str(eq.get("reason", ""))])
-	# The guard pose: the sheet's own rows when it has them, else the idle cell.
-	var real: Dictionary = w.player.frames
-	var fake: Dictionary = real.duplicate(true)
-	fake["guard"] = {"s": [[0, 96], [32, 96]], "e": [[0, 96], [32, 96]], "n": [[0, 96], [32, 96]]}
+	# The guard pose: the figure's own guard (2 frames, held), drawn in its facing, and idle again once it ends.
 	fresh(base)
 	Game.submit({"type": "guard_start"})
-	w.player.frames = fake
 	w.player.sync(0.0)
-	w.player.sync(0.2)
-	var drawn := [str(w.player.pose), int(w.player.frame), w.player.frame_rect().position]
-	w.player.frames = real
-	w.player.sync(0.0)
-	var stand_in := [str(w.player.pose), int(w.player.frame)]
+	w.player.sync(0.3)
+	var drawn := [str(w.player.pose), int(w.player.frame)]
+	var guard_box: Rect2 = w.player.figure.bounds("guard", w.player.motor.row, int(w.player.frame))
 	Game.submit({"type": "guard_end"})
-	t.check(drawn == ["guard", 1, Vector2(32, 96)] and stand_in == ["idle", 0],
-		"topdown drag moves: the guard draws the sheet's guard row when it has one and the idle cell when not (%s, %s)" % [str(drawn), str(stand_in)])
+	w.player.sync(0.0)
+	var after := [str(w.player.pose), int(w.player.frame)]
+	t.check(drawn == ["guard", 1] and guard_box.size.y > 30.0 and after == ["idle", 0],
+		"topdown drag moves: the guard draws the figure's guard pose while held and idle once let go (%s, %s, %s)" % [str(drawn), str(guard_box), str(after)])
 	# Left-handed: the button moves to the left; a drag to the left edge is the finisher, back on the button cancels.
 	hud.left_handed = true
 	hud._layout()
@@ -1209,10 +1311,10 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	frames(1)
 	await tree.process_frame
 	var fv = w.foe_views.get(a.uid)
-	var standing: bool = fv != null and fv.art is EnemyView and fv.art.art_only and fv.position.y == w.room.sort_key(a.plane, a.altitude) \
+	var standing: bool = fv != null and fv.art is TopdownPlaces.Person and not fv.art.shadow and fv.position.y == w.room.sort_key(a.plane, a.altitude) \
 		and fv.position.y + fv.art.position.y == TopdownWorld.to_screen(a.plane, a.altitude).round().y
 	t.check(is_equal_approx(a.altitude, w.room.floor_at(a.plane)) and w.room.free_at(a.plane, a.altitude, 8.0) and standing and w.label_views.has(a.uid),
-		"topdown allies: a companion comes in on a free spot of the player's floor, drawn by its stand-in sorted at its key, on its floor, with its label")
+		"topdown allies: a companion comes in on a free spot of the player's floor, drawn in the top-down style in its outfit, sorted at its key, on its floor, with its label")
 	# Onto the terrace: the player goes up, the companion follows by the grid's way (no blink).
 	var up := Vector2(26.5, 9.5) * 32.0
 	w.player.motor.place(up)

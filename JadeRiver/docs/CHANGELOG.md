@@ -8,9 +8,9 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, second part".
   the grid's paths: stairs, drops, and a hop a level up as you jump. With no way to you on foot they blink to you after
   2 s, onto your floor on your side of any wall. They strike only a foe on a height their blow reaches, and a foe's
   blow reaches them only on theirs.
-- **Their figures:** the side view's own companion avatar or creature sheet at half size, sorted and standing on their
-  floor. Foes the grid's sheet does not draw yet (Old Snapper, the toads) use theirs too, instead of the mud crab. A
-  hook (`TopdownPlaces.person_art`) takes the top-down people's drawing when it comes.
+- **Their figures:** a companion is drawn in the top-down style in its own outfit (`TopdownPlaces.Person`, turning to
+  where it walks or strikes). A spirit animal, and a foe the grid's sheet does not draw yet (Old Snapper, the toads),
+  is its side-view creature sheet at half size instead of the mud crab. Each is sorted and stands on its floor.
 - **Hazards and weather are layered with the room.**
   - A strike's ring, a scorch, a pool or a current lies on its floor under whoever stands on it.
   - A falling rock, a bolt or springing spikes sorts at its spot, so a terrace or a wall in front hides it.
@@ -36,6 +36,62 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, second part".
   - decals on raised floors, and a drop's name distance.
 - **Tests:** `topdown_suite` goes from 83 to 113 checks. `topdown_tutorial` adds a room's people drawn while the pages
   warm up, and each way's reach. The tutorial walk's blows aim at their target on the grid.
+## Top-down: the real character (decision 32)
+
+- **The prototype's body is the game's own character**, redrawn for the ¾ view: the side view's big-headed build,
+  faces, hair styles, clothes, colours, dyes and weapons. It reads the same data: `parts.json`'s names, dyes and hair
+  colours, and the save's outfit. It replaces the placeholder body, which is removed. Details are in
+  `docs/redesign_top_down_plan.md`, "As built: Phase 3, third part", and `docs/redesign/art_bible.md` §13.
+- **Drawn by `tools/art/topdown/build_character.py`.** It is deterministic and byte-identical twice (`--check`). A
+  posed doll is ray-cast at 1 art px and shaded in the side view's ramps with the art bible's outlines.
+- **Drawn in layer sets, for the full set (decision 37).** The sets are `body`, `hair`, each garment slot and each
+  weapon family.
+  - Each set is its looks' specs, cast by one generator per layer kind (`figure/kinds/`).
+  - `--only <set>` builds one set in about ten seconds into its own manifest, `data/topdown/character/<set>.json`,
+    and its own sheets, so agents can draw sets in parallel.
+  - A stale set, built for another action catalogue, is refused.
+  - Each look lists the game items that wear it.
+  - `data_validation`'s coverage gate fails for any look or action that no pending batch lists, and it fails for any
+    missing one once `FULL_SET` is on.
+  - `docs/redesign/phase3/character/HOWTO.md` says how to add a set. Four batches are left, 62 items: the sabre; the
+    fan and brush; the flute and bell; and the bow with its draw and release.
+  - The unclothed body comes first; every layer is cast from the same poses over it (`AGENTS.md`).
+  - S, SE, E, NE and N are drawn; SW, W and NW mirror. The collar and the weapon hand swap sides in the mirrored
+    facings.
+- **Twenty-one actions, 494 frames:** idle, walk, run, jump, dash, dodge, hurt, knock-down, punch 1–3, swing 1–3,
+  thrust 1–3, cast, guard, plunge and meditate (S only; its other facings redirect to S). A cut leaves a smear of
+  jade light.
+- **Every creator look is drawn,** with every dye and hair colour:
+  - the body and the six hair styles;
+  - all five shirts, five trousers and three shoes;
+  - the five hats and two capes;
+  - the training gauntlets, the short blade, the jian, the spear and the staff.
+
+  124 of the 125 NPCs are fully drawn, and so are all nine of the tutorial's. Only the bow (qiu_feng's, and the bow
+  family's) and the later weapon families are left; each goes in `TopdownFigure.missing` and draws nothing.
+- **In the game.** `TopdownFigure` composites the layers. The player wears its equipment and dyes from the save,
+  dresses again when they change, and plays each state's action. A blow lands its hit frame on Combat's clock. The
+  facing picks one of eight rows. The i-frames' blink and the occlusion silhouette fade the figure as one image, so
+  the body never shows through its clothes.
+- **The people of the rooms on the grid are drawn the same way** (`TopdownPlaces.Person`), in place of the side
+  view's avatars at half size facing east or west:
+  - each in their own outfit, at rest three-quarters toward the camera (or meditating, facing it);
+  - turned to the player in the eight rows during a talk, a gift or a shop, then back;
+  - walking the way a route moves them.
+
+  `TopdownWorld.add_villager` stands one anywhere, for the prototype and the reviews.
+- **Tests.**
+  - `data_validation` holds the layer contract for every item, action and facing, and shows the gate refusing
+    eleven broken manifests.
+  - `topdown_suite` checks the outfit from the save, dressing again, each state's action and the eight facings; the
+    drag moves use the real guard and plunge. A villager wears their own outfit, turns in eight rows, walks, and
+    meditates facing the camera.
+  - `topdown_tutorial` checks every person of the walk's rooms is drawn this way, fully dressed, and that Shen Lian
+    turns to the player talking to her and back.
+  - `tests/topdown_figure_gallery.tscn` renders the compatibility gallery with the game's own compositor.
+- **Review sheets** are in `docs/redesign/phase3/character/`: the body, an outfit per facing, the weapons, hair,
+  dyes, wardrobe and villagers, the mirrored facings, and Riverside Square in the game. The game's Phase 3 review
+  images (`topdown_capture.tscn -- --phase3`) now draw the real character.
 
 ## Top-down redesign, Phase 4 begins: the real game on the grid, from the Fisher's Hut to the sect choice
 

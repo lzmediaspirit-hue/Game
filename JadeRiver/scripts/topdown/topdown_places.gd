@@ -2,66 +2,35 @@ class_name TopdownPlaces
 extends RefCounted
 ## Redesign Phase 4: the people, things and ways of a room of the world on the height grid, for TopdownWorld. Each is
 ## drawn twice, as the side view's own views split in two:
-##   - in the pixel viewport, sorted with the room (Figure): the villager's layered avatar, or the thing's prop (an
-##     ObjectView in "art" mode), the side view's art at half size (2 world units per art px, one art px per viewport
-##     px), its feet on the floor it stands on;
+##   - in the pixel viewport, sorted with the room (Figure), its feet on the floor it stands on: a villager drawn in the
+##     top-down style (Person: TopdownFigure, decision 32, in their own outfit), or the thing's prop (an ObjectView in
+##     "art" mode), the side view's art at half size (2 world units per art px, one art px per viewport px);
 ##   - on the overlay at the HUD's resolution (world units, following the camera): the side view's NpcView, ObjectView
 ##     and PortalView in their label modes, so markers, barks, verb plates, a pickup's badge and a way's plate read
 ##     crisp, placed by WorldLabels as in the side view.
 ## The label views are the ones the shared room presentation works on (WorldShared: focus, flashes, names), and each
 ## figure follows its label twin. A way out draws as a mark on the floor (WayMark) where the layout sets it.
 
-## The hook for the top-down people (the layered body drawn for the grid, Phase 5, made on another branch): a Callable
-## (def: Dictionary) -> Node2D that draws a person at the viewport's own scale (one art px a px, feet at its origin) from
-## an NPC's object or an ally's EnemyState def (`art.avatar`, the outfit). Its node may take `facing` (+1 / -1), `dir` (a
-## direction on the plane) and `play(action)`; the figures set what it has. Until it is set, and for anything it returns
-## null for, the side view's layered avatar stands in at half size.
-static var person_art := Callable()
-
-## A person's drawing in the pixel viewport: the hook's, else the side view's avatar (NpcView.figure) at half size.
-static func person(o: Dictionary) -> Node2D:
-	var own: Node2D = person_art.call(o) if person_art.is_valid() else null
-	if own != null: return own
-	var av := NpcView.figure(o)
-	av.scale = Vector2(0.5, 0.5)
-	return av
-
-## A companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it: the hook's for a
-## person (an outfit), else the side view's own figure (EnemyView in its art mode: the avatar or the creature sheet,
-## its actions, facing and flash) at half size. FoeView places it and draws its shadow.
-static func stand_in(e: EnemyState) -> Node2D:
-	if (e.def.get("art", {}) as Dictionary).has("avatar") and person_art.is_valid():
-		var own: Node2D = person_art.call(e.def)
-		if own != null: return own
-	var v := EnemyView.new()
-	v.art_only = true
-	v.setup(e)
-	v.scale = Vector2(0.5, 0.5)
-	return v
-
-## Hand a figure's drawing where it faces and what it does, as far as the drawing takes them (the side view's avatar
-## takes `facing` and `play`; a top-down drawing may take `dir` too).
-static func pose(art: Node2D, facing: int, dir: Vector2, action: String) -> void:
-	if "facing" in art: art.facing = facing
-	if "dir" in art: art.dir = dir
-	if action != "" and art.has_method("play") and str(art.get("action")) != action: art.play(action)
-
-## One villager or thing in the sorted layer: a node at its sort key (TopdownRoom.sort_key) holding the side view's
-## drawing at half size, drawn back to its screen row.
+## One villager or thing in the sorted layer: a node at its sort key (TopdownRoom.sort_key) holding its drawing (a
+## Person, or the side view's ObjectView at half size), drawn back to its screen row.
 class Figure extends Node2D:
 	var rects: Array = []   ## what it covers for the silhouette test: people and small things never hide the body
-	var art: Node2D         ## an Avatar, or an ObjectView in "art" mode
-	var twin: Node2D        ## its label view on the overlay (NpcView or ObjectView)
+	var art: Node2D         ## a Person, or an ObjectView in "art" mode
+	var twin: Node2D        ## its label view on the overlay (NpcView or ObjectView), or null for a stand-in
+	var player: Node2D      ## the TopdownPlayer a villager turns to while the player is at them
 	var room: TopdownRoom
 	var def: Dictionary
 	var feet := Vector2.ZERO
+	var plane := Vector2.ZERO   ## where it stands on the ground plane (world units)
 
-	func _init(r: TopdownRoom, o: Dictionary, drawing: Node2D, label: Node2D) -> void:
+	func _init(r: TopdownRoom, o: Dictionary, drawing: Node2D, label: Node2D, body: Node2D = null) -> void:
 		room = r
 		def = o
 		art = drawing
 		twin = label
+		player = body
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if not art is TopdownPlaces.Person: art.scale = Vector2(0.5, 0.5)
 		add_child(art)
 		var at: Array = o.get("at", [0, 0])
 		place(Vector2(float(at[0]), float(at[1])), float(o.get("alt", 0.0)))
@@ -70,6 +39,7 @@ class Figure extends Node2D:
 	## thing on the ground (a ripple, a circle of runes, a grey patch) lies under the figures standing on it, over the
 	## floor it lies on (TopdownRoom.decal_key: on a terrace too, not under the terrace's own row).
 	func place(p: Vector2, z: float) -> void:
+		plane = p
 		feet = TopdownWorld.to_screen(p, z).round()
 		var key := room.sort_key(p, z)
 		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key = room.decal_key(p, z)
@@ -80,14 +50,95 @@ class Figure extends Node2D:
 		if not is_instance_valid(twin): return
 		visible = twin.visible
 		if twin is NpcView:
-			TopdownPlaces.pose(art, twin.avatar.facing, Vector2(twin.avatar.facing, 0), str(twin.avatar.action))
-			# A rooftop thief on the run is where his route puts him (the label view follows the World authority's clock).
+			var moving := false
+			# A rooftop thief on the run is where his route puts him (the label view follows the World authority's clock),
+			# walking the way he goes.
 			if def.has("chase"):
 				var ch: Dictionary = Game.world.chase_view(Game.active()) if Game.active() else {}
-				if str(ch.get("object", "")) == str(def.id): place(Vector2(float(ch.x), float(ch.y)), float(ch.alt))
+				if str(ch.get("object", "")) == str(def.id):
+					var was := plane
+					place(Vector2(float(ch.x), float(ch.y)), float(ch.alt))
+					moving = bool(ch.get("moving", false))
+					if moving: art.look(plane - was)
+			# At the player's side (the context's focus: a talk, a gift, a shop), they turn to the player; else they
+			# stand as the room has them.
+			if twin.focus and is_instance_valid(player): art.look(player.plane - plane)
+			elif not moving: art.row = art.rest
+			art.play("walk" if moving else art.stand)
 		elif twin is ObjectView:
 			art.hit_flash = maxf(art.hit_flash, twin.hit_flash)
 			art.focus = twin.focus
+
+## A villager in the top-down style (decision 32): TopdownFigure in their own outfit (npcs.json), in one of the eight
+## rows. At rest they stand in the pose the room gives them (idle, or meditate), three-quarters toward the camera on the
+## side the side view faces them (or the row a layout names); they walk where a route moves them, and Figure turns them
+## to the player at their side. A companion is one too (`outfit` in place of `npc`, redesign Phase 4), placed on its
+## floor and shadowed there by the room's FoeView (`shadow` off).
+class Person extends Node2D:
+	var figure: TopdownFigure
+	var shadow := true      ## its own blob at its feet (a villager's); a companion's falls on the floor under it
+	var rest := "sw"        ## the row they face at rest
+	var row := "sw"
+	var stand := "idle"     ## their pose at rest
+	var action := "idle"
+	var tint := Color.WHITE
+	var t := 0.0
+
+	func _init(o: Dictionary) -> void:
+		var n := ContentDB.entry("npcs", str(o.get("npc", "")))
+		figure = TopdownFigure.for_npc(str(o.get("npc", "")), true) if o.has("npc") else TopdownFigure.wearing(o.get("outfit", {}), true)
+		rest = str(o.get("row", "se" if int(o.get("facing", n.get("facing", -1))) > 0 else "sw"))
+		row = rest
+		stand = TopdownFigure.resolve(str(o.get("pose", n.get("pose", "idle"))))
+		action = stand
+		if n.has("tint"): tint = Color(str(n.tint))
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		# Every sheet of the outfit is asked for as the room is populated (not one a frame from the first draw): they
+		# stream in on loading threads within a few frames (main.gd warms the pages one at a time, PageWarmer).
+		for l in figure.layers: Wardrobe.texture_async(str(l.path))
+
+	## Turn toward a direction on the ground plane, one of the eight rows, as the player's motor turns.
+	func look(dir: Vector2) -> void:
+		if dir.length() > 0.5: row = TopdownMotor.nearest_row(dir, row, TopdownMotor.ROW_ANGLES, 10.0)
+
+	func play(a: String) -> void:
+		if a == action: return
+		action = a
+		t = 0.0
+
+	func _process(delta: float) -> void:
+		t += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		if shadow: TopdownWorld.draw_blob(self, 0.0, 0.0, 7.0, 0.5)
+		figure.draw(self, Vector2.ZERO, action, row, TopdownFigure.frame_at(action, t), tint)
+
+## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
+## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is the side view's own
+## figure at half size (EnemyView in its art mode: the creature sheet, its action, facing and flash). FoeView places it
+## on its floor and draws its shadow there.
+static func stand_in(e: EnemyState) -> Node2D:
+	var art: Dictionary = e.def.get("art", {})
+	if art.has("avatar"):
+		var outfit = art.avatar
+		if outfit is String and outfit == "player": outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()
+		var person := Person.new({"outfit": outfit, "facing": e.facing})
+		person.shadow = false
+		return person
+	var v := EnemyView.new()
+	v.art_only = true
+	v.setup(e)
+	v.scale = Vector2(0.5, 0.5)
+	return v
+
+## A stand-in's pose from its state, each frame (an EnemyView poses itself): a Person turns to where it walks or aims,
+## one of the eight rows, and plays its action (a wind-up and its blow as its weapon's first strike).
+static func pose(art: Node2D, e: EnemyState) -> void:
+	if not art is Person: return
+	art.look(e.velocity if e.velocity.length() > 1.0 else e.aim_dir())
+	var strike := Wardrobe.attack_for(art.figure.outfit) + "_1"
+	art.play(TopdownFigure.resolve(str({"walk": "walk", "windup": strike, "attack": strike, "hurt": "hurt", "death": "knockdown"}.get(str(e.action), "idle"))))
 
 ## A way out on the floor where the layout sets it: jade marks walking out through an edge, a lit threshold before a
 ## door (a building's doorway or the gap in an interior's wall), grey and still when it is shut. The side view's
@@ -137,7 +188,7 @@ class WayMark extends Node2D:
 ## Build the room's people, things and ways: figures into `sorted`, marks into `floor_layer`, label views onto
 ## `overlay`. Returns {npc_views, object_views, portal_views} (the label views by id, as the side view keeps them)
 ## and `nodes`: everything made, for the next room to clear.
-static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_layer: Node2D, overlay: Node2D) -> Dictionary:
+static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_layer: Node2D, overlay: Node2D, player: Node2D = null) -> Dictionary:
 	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "nodes": []}
 	for o in def.get("objects", []):
 		var kind := str(o.get("type", ""))
@@ -147,7 +198,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			nv.label_only = true
 			nv.setup(o)
 			overlay.add_child(nv)
-			var fig := Figure.new(room, o, TopdownPlaces.person(o), nv)
+			var fig := Figure.new(room, o, Person.new(o), nv, player)
 			sorted.add_child(fig)
 			out.npc_views[str(o.id)] = nv
 			out.nodes.append_array([nv, fig])
@@ -159,7 +210,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			var art := ObjectView.new()
 			art.mode = "art"
 			art.setup(o)
-			art.scale = Vector2(0.5, 0.5)   # the side view's prop at half size (2 world units per art px)
 			var fig := Figure.new(room, o, art, lv)
 			sorted.add_child(fig)
 			out.object_views[str(o.id)] = lv
