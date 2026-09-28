@@ -426,13 +426,20 @@ func _eel(e: EnemyState, delta: float) -> void:
 		"idle", "patrol", "aggro":
 			e.action = "idle"
 			e.hover = 40.0
+			var was := e.plane.x
 			if not tgt.is_empty(): e.plane.x = move_toward(e.plane.x, tgt.pos.x, 60.0 * delta)
+			# Its glide is its velocity (the top-down view turns its figure by it, as every other foe's).
+			e.velocity = Vector2((e.plane.x - was) / maxf(delta, 0.001), 0.0)
 			if float(e.ai.timer) <= 0.0 and not tgt.is_empty():
 				e.ai.state = "windup"
 				e.ai.timer = 1.0
 				e.facing = 1 if tgt.pos.x >= e.plane.x else -1
+				# On the height grid it lunges at its target on the plane, and its figure turns to it (its aim).
+				if game.room_rt != null and game.room_rt.topdown != null and (tgt.pos as Vector2).distance_to(e.plane) > 0.5:
+					e.aim = ((tgt.pos as Vector2) - e.plane).normalized()
 				emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": "lunge", "windup": 1.0, "facing": e.facing})
 		"windup":
+			e.velocity = Vector2.ZERO
 			e.action = "windup"
 			if float(e.ai.timer) <= 0.0:
 				e.ai.state = "attack"

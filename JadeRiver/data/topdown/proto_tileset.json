@@ -662,7 +662,8 @@
     "shadow": [
      4,
      2
-    ]
+    ],
+    "top": 13
    },
    "hollowed_boarlet": {
     "actions": {
@@ -1147,7 +1148,8 @@
     "shadow": [
      11,
      3
-    ]
+    ],
+    "top": 25
    },
    "hollowed_eel": {
     "actions": {
@@ -1632,7 +1634,8 @@
     "shadow": [
      9,
      3
-    ]
+    ],
+    "top": 15
    },
    "marsh_leech": {
     "actions": {
@@ -2117,7 +2120,8 @@
     "shadow": [
      11,
      3
-    ]
+    ],
+    "top": 12
    },
    "mossback_toad": {
     "actions": {
@@ -2602,7 +2606,8 @@
     "shadow": [
      10,
      3
-    ]
+    ],
+    "top": 19
    },
    "mudshell_crab": {
     "actions": {
@@ -3087,7 +3092,8 @@
     "shadow": [
      10,
      3
-    ]
+    ],
+    "top": 13
    },
    "old_snapper": {
     "actions": {
@@ -3572,7 +3578,8 @@
     "shadow": [
      17,
      4
-    ]
+    ],
+    "top": 17
    },
    "reed_frog": {
     "actions": {
@@ -4057,7 +4064,8 @@
     "shadow": [
      9,
      3
-    ]
+    ],
+    "top": 10
    },
    "reed_otter": {
     "actions": {
@@ -4542,7 +4550,8 @@
     "shadow": [
      11,
      3
-    ]
+    ],
+    "top": 14
    },
    "reedtail_rat": {
     "actions": {
@@ -5027,7 +5036,8 @@
     "shadow": [
      8,
      2
-    ]
+    ],
+    "top": 16
    },
    "trial_puppet": {
     "actions": {
@@ -5512,7 +5522,8 @@
     "shadow": [
      8,
      3
-    ]
+    ],
+    "top": 36
    },
    "wild_boarlet": {
     "actions": {
@@ -5997,7 +6008,8 @@
     "shadow": [
      11,
      3
-    ]
+    ],
+    "top": 19
    }
   }
  },

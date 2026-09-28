@@ -1467,6 +1467,8 @@
   "sim.quest.next_level": "Reach Level %d (%s)",
   "sim.quest.next_or_quest": "Or: %s · %s",
   "sim.quest.next_or_train": "Or: meditate, and train your body at a stump",
+  "sim.quest.tale_rests": "The Tale Rests Here",
+  "sim.quest.tale_rests_end": "The prototype ends here, for now.",
   "sim.quest.not_now": "Not now",
   "sim.quest.open": "Open",
   "sim.quest.or_defeat_a_field_boss": "Or defeat a field boss",

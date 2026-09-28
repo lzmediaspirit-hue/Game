@@ -1,5 +1,86 @@
 # Changelog
 
+## The prototype: top-down by default, the end-of-prototype gate, and a QA playthrough (decision 41)
+
+- **New games start in the top-down world.** The character creator makes a top-down character. Settings → Controls →
+  "Top-down world (new games)" is replaced by **"Classic side view (new games)"**, off by default: the fallback that
+  makes the next new character side-view. Characters already made keep their own view, and a create intent that names
+  no view (the test walks, the debug characters) still makes a side-view one (`AccountAuthority.new_game_view`). The
+  title's hidden five-tap entry, `--topdown-tutorial` and `--topdown-proto` stay as dev tools; `--topdown` now only
+  makes a preview's character top-down.
+- **The end-of-prototype gate.** In a top-down character's game every way from a room on the height grid into a room
+  with no top-down layout yet is closed (`WorldAuthority.prototype_gate`): the Marsh Edge's road east to the Grey
+  Pools, the Trial Tower's door, the Caravan Road, the Quarry Road, the County Hall, Elder Gu's warehouse, the Beast
+  Grove, the sects' libraries, Alchemy Hall, retreats and cave abodes, and the Cloud Herb Terraces, 18 in all.
+  - A road barrier stands in each (`TopdownGate`, drawn in the room's pixel style: timber posts with red-lacquered
+    caps, rails and a cross-brace, a red cord of paper talismans and a notice board).
+  - Its plate, a touch and the context button say "The road beyond is still being drawn."
+  - No route, direction mark, auto-path, teleport (a stone another character found) or tower climb goes through it.
+    A side-view character's game is unchanged, and a way out of a side-view room stays open.
+- **The tracker never points past the gate.**
+  - A quest whose step lies past it keeps its steps, leads nowhere, and says the road is still being drawn.
+  - Hunting grounds are rooms on the grid.
+  - When the story's next quest is played past it (after The First Current, Bandits on the Road on the Caravan Road)
+    the lessons on offer inside the prototype lead first. Then the tracker's first entry, and the Quests page's Next
+    slip, is the prototype's end: **"The Tale Rests Here · The road beyond is still being drawn · The prototype ends
+    here, for now."** It has no mark and no Go.
+- **Fixes from the QA playthrough** (`docs/redesign/prototype_qa.md`, both sects from the title on a 1280×720 screen
+  with the HUD's touch controls):
+  - **A clean field.** Every foe carried a large "Lv 1 · R1 Mudshell Crab" plate, and a pack's plates overlapped. In
+    the top-down view a foe's full plate now shows only for the target the thumb has (the soft lock, or the foe an aim
+    snaps to), a foe in a fight with the player and three seconds after, and elites and bosses; every other foe keeps
+    a compact HP bar once hurt or aggroed, and a foe well above the player's Level keeps its danger mark. Plates that
+    show never touch: a crowd the label rows cannot clear takes further rows, then half a box aside
+    (`WorldLabels.ROWS_MORE`). Each label sits on the top-down figure's head (the foe sheet's new `top`), not at the
+    side view's height, so the hovering eel's plate no longer floats high above it.
+  - **The hollowed eel turns.** It glides by a velocity and lunges along an aim at its target on the grid, so its
+    figure faces where it goes instead of keeping the row it rose in.
+  - **World news waits for the player.** A late-game calendar event ("The Drowned Shrine Surfaces · Abbot's Sanctum")
+    was toasted over a brand-new player's village and the Hollow Night's timer. World and calendar notices (event
+    toasts and reminders, the season, the Heaven Ranking's shifts, a treasure born elsewhere) now wait for the
+    calendar's unlock, never play during a staged scene, and name only places the player has been, never one past the
+    gate (`HUD.world_news`).
+  - **Mei Qing's willow moss led to herbs the player cannot pick yet** (herb gathering opens at Bone Forging 4). A
+    collect step's places are now those where the item can be had now: nodes and pickups the character may take, and
+    with none, the rooms whose foes drop it (the Marsh Edge's reed frogs).
+  - **The creator's preview wears the starting garments' own dyes**, so the robe chosen is the robe worn (it showed
+    a teal tunic and the game an earth-brown one).
+  - **No log spam on closing a page.** A page or shell screen closed by a tap was taken out of the tree while the tap
+    was still being handled ("Condition !is_inside_tree()" at every close); it is now hidden and freed at the frame's
+    end.
+  - **No plate over the player.** A villager's plate under their feet (Uncle Guo's at his stump) or a foe's over its
+    head just in front lay over the player's body; the body is now kept clear as the HUD's controls are.
+  - **The player is seen behind the training dummy.** A thing as tall as a body (the dummy, a stump) standing in front
+    hid the player entirely; it now counts for the silhouette, so the body shows through it.
+  - **A crowd's plates laid aside are drawn aside.** The layout's half-box moves were computed but every view drew its
+    plate where it stood; the views now draw at the offset's x as well as its row.
+  - **A staged scene's prompt stays on the screen** ("Punch the stump: tap Attack" ran off the right edge over a
+    person near it), and **a speech balloon keeps clear of the HUD** (Granny Liu's line sat over the HP panel): aside,
+    or on the first clear row below.
+  - **The equip prompt names the early gear whole** ("Training Short Bl…"): a long name steps its size down to fit.
+  - **The tea's heal is seen.** Granny's Remedy's drink step handed back the controls under her balloon, so the heal's
+    "+14 HP" and the HP bar filling were hidden by the scene; the hand-off now waits a breath, live, before she speaks.
+  - **A moment's band holds the top of the screen alone.** As the Hollow Night began, the room's name, the night's
+    timer plate and the "The Hollow Night" band were drawn over one another; while a band plays in the top centre the
+    room's name keeps its time and the event's plate waits under it (`MomentView.band_on_top`).
+- **Tests:**
+  - `rules_tests` adds `prototype_suite`: the creator's default and the fallback, side-view saves, every gated way
+    (its state, a touch, the context button, no route), no teleport, auto-path or tower climb past it, the view's
+    barriers, hunting grounds on the grid, a quest past the gate, the tracker's end and a side-view character's Next
+    at the same point, a lesson before the end, the Quests page's slip, world news, the equip prompt's names, and a
+    moment's band over the top stack.
+  - `topdown_suite` adds the clean field (plates, HP bars, the danger mark, a crowd's plates not touching, labels on
+    the figure's head, no plate over the body, a plate laid aside keeping its box), the eel's turn, and the player seen
+    behind the dummy.
+  - `story_scenes` adds the prompt kept on the screen, the balloon kept clear of the HUD, and the drink step's live
+    hand-off.
+  - `topdown_tutorial` plays on past The Humming Token: Mei Qing's Errand (moss from frogs, never locked herbs), Grey
+    at the Edges, The First Current, the lessons inside the prototype, and the prototype's end; the Marsh Edge's gate
+    walked into; the Trial Tower's door gated, and auto-path through the Cloud Sect's road instead.
+  - `prologue_run`'s route search and story guidance, and `tutorial_order`'s "leads to next", know the gate.
+- **Tools:** `tools/dev/prototype_qa.tscn`, the QA playthrough driver: from the title through the game's own touches,
+  a screenshot at every step and a log of what each shows.
+
 ## Top-down: the tutorial rooms' other foes in their own figures
 
 - **Four foes drawn for the grid**, each in five drawn facings and three mirrored, with idle, walk, wind-up, strike,

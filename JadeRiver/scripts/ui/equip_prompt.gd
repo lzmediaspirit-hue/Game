@@ -13,6 +13,13 @@ const CharacterPage = preload("res://scripts/ui/pages/character_page.gd")
 
 ## Under the purse and the auto-hunt toggle's row, left of the toggle, right of the clear zone, above ring 2's context.
 const RECT := Rect2(904, 262, 284, 96)
+
+## The item's name size on the card: 18, a step or more smaller when the name would not fit its 168 px whole (the
+## prototype's QA: the first weapon read "Training Short Bl…").
+static func name_size(item_name: String) -> int:
+	var s := 18
+	while s > 14 and UiKit.text_width(item_name, s) > 168.0: s -= 1
+	return s
 const LIFE_S := 10.0
 const SLIDE_S := 0.25
 const FADE_S := 0.3
@@ -114,7 +121,9 @@ func draw(ci: CanvasItem, still: bool) -> void:
 	var head := Tx.t("hud.equip_prompt.empty" if current.get("empty", false) else "hud.equip_prompt.better") % slot_word
 	SpriteCache.draw_icon(ci, Rect2(r.position + Vector2(12, 12), Vector2(40, 40)), str(current.item), Color(1, 1, 1, a))
 	UiKit.draw_text(ci, UiKit.fit(head, 14, 168), r.position + Vector2(62, 26), 14, Color(UiKit.GOLD, a), HORIZONTAL_ALIGNMENT_LEFT, 168)
-	UiKit.draw_text(ci, UiKit.fit(ContentDB.item_name(str(current.item)), 18, 168), r.position + Vector2(62, 48), 18,
+	var item_name := ContentDB.item_name(str(current.item))
+	var ns := name_size(item_name)
+	UiKit.draw_text(ci, UiKit.fit(item_name, ns, 168), r.position + Vector2(62, 48), ns,
 		Color(UiKit.quality_color(str(current.quality)), a), HORIZONTAL_ALIGNMENT_LEFT, 168)
 	var lines := gain_lines()
 	for i in lines.size(): UiKit.draw_text(ci, UiKit.fit(str(lines[i]), 14, 172), r.position + Vector2(12, 70 + i * 17), 14, Color(UiKit.BRIGHT_JADE, a), HORIZONTAL_ALIGNMENT_LEFT, 172)

@@ -34,6 +34,16 @@ var label_only := false
 ## no label and no shadow: the top-down room's stand-in for a companion, a spirit animal or a foe its foe sheet does not
 ## draw (TopdownPlaces.stand_in), placed and shadowed by the room's FoeView at half size.
 var art_only := false
+## The top-down field stays clean (the prototype's QA, docs/redesign/prototype_qa.md): in label mode a foe's full plate
+## (level, rank, name) shows only for the target the thumb has (`focused`: the soft lock, or the foe an aim snaps to),
+## a foe in a fight with the player (struck or aggroed, and ENGAGED_S after), and elites and bosses; every other foe
+## keeps a compact HP bar once hurt or aggroed, and a foe well above the player's Level its danger mark.
+var focused := false
+var engaged := 0.0
+const ENGAGED_S := 3.0
+## Label mode: the top-down figure's height over its feet on the overlay (TopdownWorld.FoeView.figure_top), so the
+## label sits on its head (a hovering eel's too), not at the side view's height. 0: the side view's `height`.
+var figure_top := 0.0
 
 func setup(e: EnemyState) -> void:
 	uid = e.uid
@@ -123,6 +133,7 @@ func sync(e: EnemyState, delta: float) -> void:
 		modulate.a = death_fade if avatar else 1.0
 	if e.flash > 0.0 or e.pools.hp < e.pools.max_hp: hp_timer = 4.0
 	hp_timer = maxf(0.0, hp_timer - delta)
+	engaged = ENGAGED_S if e.alive and (e.flash > 0.0 or e.in_fight()) else maxf(0.0, engaged - delta)
 	tell = 1.0 if e.ai.state == "windup" and not ally else maxf(0.0, tell - delta * 4.0)
 	queue_redraw()
 	if tag: tag.queue_redraw()
@@ -208,6 +219,8 @@ func _draw_tag() -> void:
 	var e: EnemyState = rt.enemies.get(uid) if rt else null
 	if e == null or burrowed or not e.alive or not visible: return
 	var ci := tag
+	# The layout pass moves a label by whole rows, and a crowd's aside by half a box (label_offset.x): drawn here.
+	ci.draw_set_transform(Vector2(label_offset.x, 0.0))
 	var w := e.half_width()
 	var top := -e.height() - 16.0
 	if avatar: top = -104.0
@@ -218,7 +231,7 @@ func _draw_tag() -> void:
 		if WorldLabels.party_fight:
 			var lw := 40.0 if avatar else 30.0
 			var line := Rect2(-lw * 0.5, (top + 10.0 if avatar else top + 8.0) + label_offset.y, lw, 5)
-			label_box = Rect2(line.position - label_offset, line.size).grow(2.0)
+			label_box = Rect2(line.position - Vector2(0.0, label_offset.y), line.size).grow(2.0)
 			var frac := clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0.0, 1.0)
 			ci.draw_rect(line.grow(1.5), UiKit.INK)
 			ci.draw_rect(line, UiKit.BAR_TROUGH)
@@ -227,6 +240,9 @@ func _draw_tag() -> void:
 	# P5a (G4): the whole label (statuses, level and name, the danger marks or the crown, the HP bar) is one box that the
 	# layout pass moves by whole rows (label_offset) so it never touches another label or sits under a HUD control.
 	label_kind = "boss" if boss else ("elite" if elite else "foe")
+	if label_only:
+		_draw_tag_topdown(e)
+		return
 	var base := top
 	top += label_offset.y
 	if tell > 0.0:
@@ -258,6 +274,66 @@ func _draw_tag() -> void:
 	for s in e.pools.statuses:
 		SpriteCache.draw_icon(ci, Rect2(sx, top - 30, 14, 14), str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
 		sx += 14
+	label_box = box
+
+## Label mode (the top-down view): does the foe show its full plate (level, rank, name)? The target the thumb has, a foe
+## in a fight with the player and a few seconds after, and elites and bosses always; no other.
+func plate_shown(e: EnemyState) -> bool:
+	if not label_only: return true
+	return e != null and e.alive and (boss or elite or focused or engaged > 0.0)
+
+## Label mode (the top-down view): the label on the figure's head. A compact HP bar (once hurt or aggroed, and always on
+## the target the thumb has), over it the full plate where plate_shown says so (the level's colour and danger marks, the
+## elite's crown), over that the statuses; with no plate, a foe well above the player's Level keeps its danger mark.
+## One box for the layout pass (WorldLabels), which stacks the plates that show so no two touch.
+func _draw_tag_topdown(e: EnemyState) -> void:
+	var ci := tag
+	var base := -(figure_top if figure_top > 0.0 else e.height()) - 4.0
+	var top := base + label_offset.y
+	var box := Rect2()
+	if tell > 0.0:
+		UiKit.draw_outlined(ci, "!", Vector2(-40, top - 24), 24, Color(UiKit.RED, tell), HORIZONTAL_ALIGNMENT_CENTER, 80)
+	if (shows_hp_bar(e) or focused) and not boss:
+		var bw := clampf(e.half_width() * 1.4, 26.0, 46.0)
+		var r := Rect2(-bw * 0.5, top - 5.0, bw, 4.0)
+		ci.draw_rect(r.grow(1.5), UiKit.INK)
+		ci.draw_rect(r, Color("3a1418"))
+		ci.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0, 1), r.size.y)), UiKit.RED)
+		box = Rect2(-bw * 0.5 - 2.0, base - 7.0, bw + 4.0, 8.0)
+		base -= 8.0
+		top -= 8.0
+	var col := UiKit.badge_color(badge)
+	if elite: col = UiKit.GOLD
+	if plate_shown(e):
+		var label := "%s  %s" % [level_text, name_text] if not boss else name_text
+		var tw := UiKit.text_width(label, 16, true)
+		box = box.merge(Rect2(-tw * 0.5 - 4.0, base - 18.0, tw + 8.0, 20.0)) if box.size.x > 0.0 else Rect2(-tw * 0.5 - 4.0, base - 18.0, tw + 8.0, 20.0)
+		UiKit.draw_outlined(ci, label, Vector2(-130, top - 2.0), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 260)
+		if not boss:
+			_danger_marks(ci, tw * 0.5 + 8, top - 8, col)
+			if badge in ["orange", "red", "green", "grey"]: box = box.merge(Rect2(tw * 0.5 + 2.0, base - 14.0, 26.0, 12.0))
+		if elite:
+			var cx := -tw * 0.5 - 12
+			box = box.merge(Rect2(cx - 8.0, base - 17.0, 16.0, 12.0))
+			ci.draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 6), Vector2(cx - 7, top - 14), Vector2(cx - 3, top - 10),
+				Vector2(cx, top - 16), Vector2(cx + 3, top - 10), Vector2(cx + 7, top - 14), Vector2(cx + 7, top - 6)]), UiKit.GOLD)
+		base -= 20.0
+		top -= 20.0
+	elif badge in ["orange", "red"]:
+		# No plate: the danger mark alone keeps a tougher foe standing out.
+		var ups := 2 if badge == "red" else 1
+		_danger_marks(ci, -float(ups - 1) * 5.5, top - 6, col)
+		var mark := Rect2(-14.0, base - 12.0, 28.0, 12.0)
+		box = box.merge(mark) if box.size.x > 0.0 else mark
+		base -= 12.0
+		top -= 12.0
+	if not e.pools.statuses.is_empty():
+		var sx := -float(e.pools.statuses.size()) * 7.0
+		var sr := Rect2(sx, base - 14.0, 14.0 * e.pools.statuses.size(), 14.0)
+		box = box.merge(sr) if box.size.x > 0.0 else sr
+		for s in e.pools.statuses:
+			SpriteCache.draw_icon(ci, Rect2(sx, top - 14, 14, 14), str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
+			sx += 14
 	label_box = box
 
 ## Does this foe show its HP: a boss always (on the HUD's boss bar); any other foe once the HUD shows foes' HP (Crab

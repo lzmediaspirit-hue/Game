@@ -144,7 +144,7 @@ func _draw_label(type: String) -> void:
 	var col := UiKit.PALE_GOLD if state.open else UiKit.MIST
 	if not near: col = Color(col, 0.82)
 	var size := 19 if near else 17
-	tag.draw_set_transform(Vector2(label_dx, 0))
+	tag.draw_set_transform(Vector2(label_dx + label_offset.x, 0))   # label_offset.x: a crowd's plate half a box aside
 	var plate := UiKit.draw_nameplate(tag, ("▲ " if state.open and near else "") + label, "", y + label_offset.y, col, UiKit.MIST, size)
 	label_box = Rect2(plate.position + Vector2(label_dx, -label_offset.y), plate.size)
 	tag.draw_set_transform(Vector2.ZERO)

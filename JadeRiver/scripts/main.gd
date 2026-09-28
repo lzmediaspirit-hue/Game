@@ -675,10 +675,15 @@ func _handle_preview_args(user_args: Array) -> void:
 		get_tree().quit()
 
 # ------------------------------------------------------------------ shell screens
+## A page or shell screen put away: hidden now and freed at the frame's end. Taken out of the tree at once while the
+## tap that closed it was still being handled, the viewport asked the removed page whether it could process that tap
+## ("Condition !is_inside_tree()" in the log at every close; the prototype's QA).
+static func _put_away(p: Control) -> void:
+	p.hide()
+	p.queue_free()
+
 func _set_shell(p: Page) -> void:
-	if is_instance_valid(shell):
-		shell_layer.remove_child(shell)
-		shell.queue_free()
+	if is_instance_valid(shell): _put_away(shell)
 	shell = p
 	if p != null:
 		shell_layer.add_child(p)
@@ -980,9 +985,7 @@ func _page_script(path: String) -> Script:
 
 func close_page(page: Page) -> void:
 	pages.erase(page)
-	if is_instance_valid(page):
-		page_layer.remove_child(page)
-		page.queue_free()
+	if is_instance_valid(page): _put_away(page)
 	if pages.is_empty() and is_instance_valid(hud): hud.set_blocked(false)
 
 func close_all_pages() -> void:

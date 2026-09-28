@@ -168,7 +168,7 @@ class CreatorScreen extends Page:
 		draft = {"body": "light", "hair": str(rules.get("hair", ["topknot"])[1]), "hair_color": 0, "shirt": "disciple", "pants": "loose",
 			"shoes": "slippers", "hat": "none", "cape": "none", "weapon": "none"}
 		preview = Avatar.new()
-		preview.outfit = draft
+		preview.outfit = worn()
 		preview.position = Vector2(330, 500)
 		preview.scale = Vector2.ONE * 3.0
 		add_child(preview)
@@ -184,6 +184,16 @@ class CreatorScreen extends Page:
 		name_field.add_theme_stylebox_override("normal", UiKit.style("slot"))
 		name_field.add_theme_stylebox_override("focus", UiKit.style("selected_slot_glow"))
 		add_child(name_field)
+
+	## What the new character will wear: the chosen cuts in the starting hemp garments' own dyes (AccountAuthority dresses
+	## a new character in them, S27), so the preview shows what the game does (the prototype's QA: a teal tunic chosen,
+	## an earth-brown one worn).
+	func worn() -> Dictionary:
+		var o := draft.duplicate()
+		for pair in [["shirt", "hemp_robe"], ["pants", "hemp_trousers"]]:
+			var dye := str(ContentDB.item(str(pair[1])).get("dye", ""))
+			if dye != "": o[str(pair[0]) + "_dye"] = dye
+		return o
 
 	func options(row: String) -> Array:
 		var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
@@ -210,12 +220,12 @@ class CreatorScreen extends Page:
 		if row == "origin": origin = v
 		else:
 			draft[row] = v
-			preview.outfit = draft.duplicate()
+			preview.outfit = worn()
 			preview.last_key = ""
 
 	func set_hair_dye(i: int) -> void:
 		draft.hair_color = i
-		preview.outfit = draft.duplicate()
+		preview.outfit = worn()
 		preview.last_key = ""
 
 	func randomize_look() -> void:
@@ -226,7 +236,7 @@ class CreatorScreen extends Page:
 			if row == "origin": origin = v
 			else: draft[row] = v
 		draft.hair_color = rng.randi_range(0, 5)
-		preview.outfit = draft.duplicate()
+		preview.outfit = worn()
 		preview.last_key = ""
 
 	func draw_page() -> void:

@@ -132,6 +132,7 @@ func _main() -> void:
 	max_character_suite()
 	save_suite()
 	await topdown_suite()
+	await prototype_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -143,6 +144,230 @@ func topdown_suite() -> void:
 	await td.run_view(self, get_tree())
 	await td.run_fight(self, get_tree())
 	print("topdown measured: ", td.measured)
+
+# ------------------------------------------------------------------ decision 41: the prototype's default and its gate
+## New games start in the top-down world; Settings keeps the classic side view as an off-by-default fallback; an intent
+## that names no view (the test walks) and every side-view save keep the side view. In a top-down character's game
+## every way from a room on the height grid into a room with no layout yet is closed by the prototype's gate: it says
+## "The road beyond is still being drawn." on the way's plate, on a touch and on the context button; no route, hop,
+## auto-path, teleport or tower climb goes through it; the view stands a barrier in the way. The tracker never leads
+## past it: a quest whose step is past it leads nowhere and says so, and once the story's next quest is past it (and no
+## lesson inside the prototype is on offer) its first entry is the prototype's end. On its own saves.
+func prototype_suite() -> void:
+	var folder := "user://prototype_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	Game.account.slots_unlocked = 4
+	var road := Tx.t("sim.world.road_being_drawn")
+	# The default: the creator (the new-game flow) makes a top-down character; the fallback setting a side-view one.
+	check(AccountAuthority.new_game_view({}) == "topdown" and AccountAuthority.new_game_view({"classic_side_view": true}) == "",
+		"prototype: a new game is top-down unless Settings keeps the classic side view")
+	var settings_page: Page = load("res://scripts/ui/pages/settings_page.gd").new()
+	check("classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF and not settings_page._is_on("classic_side_view"),
+		"prototype: Settings' classic side view is a fallback, off by default (the old top-down toggle is gone)")
+	settings_page.free()
+	var made := {}
+	for slot in [1, 2]:
+		if slot == 2: Game.account.settings["classic_side_view"] = true
+		var cr := ShellScreens.CreatorScreen.new()
+		add_child(cr)
+		cr.open({"slot": slot})
+		cr.name_field.text = "Proto %d" % slot
+		cr.created.connect(func(s: int): made[s] = true)
+		cr.on_action("begin", null)
+		cr.queue_free()
+	Game.account.settings.erase("classic_side_view")
+	var td = Game.character("c1")
+	var sv = Game.character("c2")
+	check(made.has(1) and td != null and td.view == "topdown" and str(td.position.room) == "lf_fishers_hut" and float(td.position.x) == 0.0,
+		"prototype: the character creator makes a top-down character by default, waking at its first room's own spawn (%s)" % (str(td.position) if td else "none"))
+	check(made.has(2) and sv != null and sv.view == "", "prototype: with the classic side view kept in Settings the creator makes a side-view one")
+	Game.submit({"type": "create_character", "slot": 3, "name": "No View"})
+	check(Game.character("c3") != null and Game.character("c3").view == "", "prototype: a create intent that names no view (the test walks) keeps the side view")
+	var snap: Dictionary = Game.character("c3").snapshot()
+	snap.erase("view")   # a save from before the views
+	var old := GameCharacter.new()
+	old.restore(snap)
+	var again := GameCharacter.new()
+	again.restore(td.snapshot())
+	check(old.view == "" and again.view == "topdown", "prototype: a side-view save (no view saved) keeps its side view, a top-down one its own")
+	# World news (a calendar event, the season) never reaches a brand-new player, nor one in a staged scene, nor of a place
+	# they do not know: the late-game Drowned Shrine's toast was seen over the tutorial village.
+	Game.submit({"type": "enter_character", "slot": 1})
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var news = load("res://scripts/hud.gd").new()
+	news.visible = false
+	news.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(news)
+	news.player = stub_src.new()
+	news.player.actor_id = str(td.id)
+	var told := func(ev: String, room: String) -> int:
+		news.toasts.clear()
+		if ev != "": news._on_event("world_event_started", {"event": ev, "k": 1, "room": room, "ends": Clock.now_utc() + 60.0})
+		else: news._on_event("season_changed", {"season": "summer"})
+		return news.toasts.size()
+	var fresh_told: int = told.call("shrine_reopening", "ds_abbots_sanctum") + told.call("auction_day", "sf_market") + told.call("", "")
+	Unlocks.force_unlock(td.id, "world_menu")
+	Game.account.visited_rooms["sf_market"] = true
+	var far_told: int = told.call("shrine_reopening", "ds_abbots_sanctum")
+	news.scene_lock = true
+	var scene_told: int = told.call("auction_day", "sf_market") + told.call("", "")
+	news.scene_lock = false
+	var known_told: int = told.call("auction_day", "sf_market") + told.call("", "")
+	check(fresh_told == 0 and scene_told == 0 and far_told == 0 and known_told == 2,
+		"prototype: world news waits for the calendar's unlock and a staged scene's end, and names only places the player knows (new %d, scene %d, a late-game place never visited %d, known %d)" % [fresh_told, scene_told, far_told, known_told])
+	# A moment's band in the top centre (the Hollow Night's "trial opens") holds the room's name and the event's plate
+	# under it: the three were drawn over one another as the night began. A band lower down (a quest's story beat) does not.
+	var mv := MomentView.new()
+	add_child(mv)
+	mv.set_process(false)
+	mv.fight_override = false
+	mv.pages_override = false
+	mv.load_rows(ContentDB.all("moments"))
+	news.moments = mv
+	var band_row: Dictionary = ContentDB.entry("moments", "trial_opens")
+	var beat_row: Dictionary = ContentDB.entry("moments", "story_beat")
+	var who := str(Game.active().id) if Game.active() != null else str(td.id)
+	var opens: Dictionary = band_row.sample.duplicate(true)
+	opens.actor = who
+	mv._on_event(str(band_row.event), opens)
+	mv.advance(0.0)
+	var band_on: bool = mv.playing != null and str(mv.playing.row.id) == "trial_opens" and news._band_on_top()
+	for i in int((float(band_row.duration_s) + 0.2) * 60.0): mv.advance(1.0 / 60.0)
+	var band_off: bool = not news._band_on_top()
+	mv.clear()
+	var beat: Dictionary = beat_row.sample.duplicate(true)
+	beat.actor = who
+	beat.chapter_end = true
+	mv._on_event(str(beat_row.event), beat)
+	mv.advance(0.0)
+	var beat_low: bool = mv.playing != null and str(mv.playing.row.id) == "story_beat" and not news._band_on_top()
+	check(band_on and band_off and beat_low,
+		"prototype: a moment's band in the top centre holds the room's name and the event's plate under it, and lets them go when it ends (on %s, off %s, a low band %s)" % [band_on, band_off, beat_low])
+	news.moments = null
+	mv.free()
+	news.player.free()
+	news.free()
+	# The equip prompt names the early gear whole (it read "Training Short Bl…").
+	var cut_names: Array = []
+	for id in ["training_short_blade", "training_gauntlets", "training_jian", "training_spear", "training_staff", "plain_straw_hat", "straw_sandals"]:
+		var nm := ContentDB.item_name(id)
+		if UiKit.text_width(nm, EquipPrompt.name_size(nm)) > 168.0: cut_names.append(nm)
+	check(cut_names.is_empty(), "prototype: the equip prompt names every early piece whole (%s)" % str(cut_names))
+	# The gate, on every way off the grid, for the top-down character only.
+	var st := ActorState.new()
+	Game.bind_movement(td.id, st)
+	var gated: Array = []
+	var wrong: Array = []
+	for rid in ContentDB.rooms:
+		if not TopdownRoom.has_layout(str(rid)): continue
+		for p in ContentDB.room(str(rid)).get("portals", []):
+			if TopdownRoom.has_layout(str(p.get("to", ""))) or ContentDB.room(str(p.get("to", ""))).is_empty(): continue
+			Game.world.load_room(td, str(rid), "")
+			GameEvents.flush()
+			var way: Dictionary = Game.room_rt.portal_def(str(p.id))
+			var ps: Dictionary = Game.world.portal_state(td, way)
+			st.plane = Vector2(float(way.at[0]), float(way.at[1]))
+			st.altitude = float(way.get("alt", 0.0))
+			st.surface = null
+			var tried := Game.submit({"type": "use_portal", "portal": str(p.id), "crossing": true})
+			var ctx: Dictionary = Game.world.query_context(td)
+			var ok: bool = ps.get("gate", false) and not ps.open and str(ps.text) == road and not Game.world.portal_open(td, str(rid), way) \
+				and not tried.get("ok", false) and str(tried.get("text", "")) == road and Game.room_rt.room_id == str(rid) \
+				and Game.world.route(td, str(rid), str(p.to)).is_empty()
+			if str(ctx.get("portal", "")) == str(p.id): ok = ok and not ctx.get("ok", true) and str(ctx.get("text", "")) == road
+			gated.append("%s:%s" % [rid, p.id])
+			if not ok: wrong.append("%s:%s %s %s" % [rid, p.id, str(ps), str(tried)])
+	check(gated.size() >= 15 and gated.has("rm_marsh_edge:east") and gated.has("sf_fairground:tower") and gated.has("ja_gate_street:library") and wrong.is_empty(),
+		"prototype: every way from a room on the grid into one without a layout (%d) is closed by the gate, and says the road beyond is still being drawn on its plate, a touch and the context button; no route through it (%s)" % [gated.size(), str(wrong.slice(0, 3))])
+	# A side-view character in the same room is not gated; a way between two rooms on the grid is open.
+	Game.world.load_room(td, "rm_marsh_edge", "")
+	check(not Game.world.portal_state(sv, Game.room_rt.portal_def("east")).get("gate", false) and not Game.world.portal_state(td, Game.room_rt.portal_def("west")).get("gate", false),
+		"prototype: the gate closes a top-down character's way off the grid only (a side-view character's is as before; a way on the grid is open)")
+	# No teleport, tower climb or auto-path past it.
+	Game.account.teleports["hidden_vale"] = true
+	Game.inventory.apply_add(td.id, "spirit_stone_shard", 50, "prototype_suite")
+	Unlocks.force_unlock(td.id, "teleport_stones")
+	Game.world.load_room(td, "sf_market", "")
+	var tp := Game.submit({"type": "teleport", "stone": "hidden_vale"})
+	var ap := Game.submit({"type": "auto_path", "target": "rm_grey_pools"})
+	Game.world.load_room(td, "sf_fairground", "")
+	var tw := Game.world.climb_tower(td, 1)
+	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
+		and not tw.get("ok", false) and str(tw.get("text", "")) == road,
+		"prototype: no teleport (a stone another character found), auto-path or tower climb goes past the gate (%s; %s; %s)" % [str(tp), str(ap), str(tw)])
+	# The view stands a barrier in each way past the gate: on the Fairground at the tower's door and the Caravan Road.
+	var w := TopdownWorld.new()
+	w.live = true
+	w.sim_frozen = true
+	add_child(w)
+	await get_tree().process_frame
+	var gates := w.sorted.get_children().filter(func(n): return n is TopdownGate)
+	for g in gates: g._process(0.0)
+	var ways := {}
+	for g in gates: ways[str(g.def.id)] = true
+	check(ways.has("tower") and ways.has("west") and ways.size() == 2 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
+		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s)" % str(ways.keys()))
+	w.free()
+	Game.bind_movement(td.id, st)
+	# A quest whose step is past the gate leads nowhere and says so.
+	Game.quest.apply_start(td.id, "stone_and_sweat")
+	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == "stone_and_sweat")
+	check(not entry.is_empty() and entry[0].get("gate", false) and str(entry[0].target_room) == "" and (entry[0].lines as Array).any(func(l): return str(l.text) == road),
+		"prototype: a quest whose step is past the gate (Stone and Sweat, at the quarry) leads nowhere and says the road is still being drawn (%s)" % str(entry))
+	Game.quest.apply_drop(td.id, "stone_and_sweat", false)
+	# The story's end in the prototype: The First Current done, no lesson inside the prototype on offer.
+	for ch in [td, sv]:
+		ch.cultivator.realm_key = "bone_forging_7"
+		for q in ContentDB.all("quests"):
+			var kind := str(q.get("kind", ""))
+			if kind in ["prologue", "main", "guided"] and (str(q.get("chapter", "")) in ["prologue", "1", "2", "bf1", "bf2"] or str(q.id) == "the_first_current" or kind == "guided"):
+				ch.quests.done[str(q.id)] = 1
+		ch.quests.active.clear()
+		ch.quests.offered.clear()
+	var end := Game.quest.story_next(td)
+	var side_next := Game.quest.story_next(sv)
+	check(end.get("gate", false) and str(end.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(end.get("target_room", "x")) == ""
+		and (end.get("lines", []) as Array).any(func(l): return str(l.text) == road),
+		"prototype: with the story's next quest past the gate, the top-down tracker's Next is the prototype's end, leading nowhere (%s)" % str(end))
+	check(not side_next.get("gate", false) and str(side_next.get("quest", "")) != "" and str(side_next.get("target_room", "")) != "",
+		"prototype: a side-view character at the same point is led on as before (%s)" % str(side_next.get("name", "")))
+	var fields: Array = Game.quest.hunt_rooms(td)
+	var side_fields: Array = Game.quest.hunt_rooms(sv)
+	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0]))) and side_fields.any(func(f): return not TopdownRoom.has_layout(str(f[0]))),
+		"prototype: a top-down character's hunting grounds are rooms on the grid (%s; the side view's %s)" % [str(fields), str(side_fields.map(func(f): return f[0]))])
+	# A lesson inside the prototype still comes first; one past the gate never does.
+	td.quests.done.erase("eyes_for_qi")
+	td.quests.offered["eyes_for_qi"] = true
+	td.quests.done.erase("stone_and_sweat")
+	td.quests.offered["stone_and_sweat"] = true
+	Game.quest._story_cache = {}
+	var lesson := Game.quest.story_next(td)
+	check(str(lesson.get("quest", "")) == "eyes_for_qi" and not lesson.get("gate", false), "prototype: a lesson on offer inside the prototype comes before its end, one past the gate never (%s)" % str(lesson.get("name", "")))
+	td.quests.done["eyes_for_qi"] = 1
+	td.quests.offered.erase("eyes_for_qi")
+	Game.quest._story_cache = {}
+	# The Quests page reads the end on its Next slip, with no way to go.
+	var qp: Page = load(str(load("res://scripts/main.gd").PAGES.quests)).new()
+	qp.page_id = "quests"
+	qp.text_log = []
+	add_child(qp)
+	qp.open({})
+	qp.sel = "next"
+	qp.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var said: Array = qp.text_log.map(func(tx): return str(tx.get("s", "")))
+	var go_off: bool = qp._regions.any(func(r): return str(r.id) == "go" and not r.enabled and str(r.reason) == road)
+	check(said.has(Tx.t("sim.quest.tale_rests")) and said.any(func(s): return s.contains(road)) and go_off,
+		"prototype: the Quests page's Next slip is the prototype's end, its Go shut with why (%s)" % str(said.slice(0, 12)))
+	qp.queue_free()
+	await get_tree().process_frame
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the

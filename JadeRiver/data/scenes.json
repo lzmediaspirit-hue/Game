@@ -1002,7 +1002,11 @@
        }
       }
      ],
-     "then": "cut"
+     "then": "live"
+    },
+    {
+     "do": "wait",
+     "s": 1.4
     },
     {
      "do": "emote",

@@ -211,7 +211,7 @@ func _process(delta: float) -> void:
 		var n := toasts.size() if not is_visible_in_tree() else maxi(1, toasts_fit)
 		for i in mini(n, toasts.size()): toasts[i].t += delta
 		toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
-	banner.t += delta
+	if not _band_on_top(): banner.t += delta   # the room's name keeps its time for after a band over it
 	vignette.t = float(vignette.t) + delta
 	caption.t = float(caption.t) + delta
 	for k in pulses.keys():
@@ -1101,6 +1101,26 @@ func _input(event):
 				Game.submit({"type": "guard_end"})
 
 # ------------------------------------------------------------------ events
+## World news (the calendar's events, the seasons, the Heaven Ranking's shifts, a treasure born elsewhere) reaches the
+## player only once the calendar is theirs (the World menu's unlock, after the Prologue), never while a staged scene
+## holds the stage, and only of a place they know: a room they have been in, and in the top-down world never one past
+## the prototype's gate. The prototype's QA found a late-game event's toast ("The Drowned Shrine Surfaces · Abbot's
+## Sanctum") over a brand-new player's village and the Hollow Night's timer.
+func world_news(room := "") -> bool:
+	var c = Game.active()
+	if c == null or not Unlocks.is_unlocked(c.id, "world_menu"): return false
+	if scene_lock or (scenes != null and scenes.get("run") != null): return false
+	if room != "" and (not Game.account.visited_rooms.has(room) or QuestAuthority.past_gate(c, room)): return false
+	return true
+
+## A calendar event's own room (or the first of its rooms) for world_news: "" when it names none.
+func _event_room(ev: Dictionary) -> String:
+	if str(ev.get("room", "")) != "": return str(ev.room)
+	var rooms: Array = ev.get("rooms", [])
+	for r in rooms:
+		if Game.account.visited_rooms.has(str(r)) and not QuestAuthority.past_gate(Game.active(), str(r)): return str(r)
+	return str(rooms[0]) if not rooms.is_empty() else ""
+
 ## S28 v1.2: raise or lower the Sphere (the reason shows in the log when it cannot be raised).
 func toggle_sphere() -> void:
 	var r := Game.submit({"type": "toggle_sphere"})
@@ -1338,19 +1358,23 @@ func _handle(name: String, p: Dictionary) -> void:
 			var ev := CalendarRules.event(str(p.event))
 			var where := str(p.get("room", ""))
 			if str(p.event) == "gathering_trial" and Game.active() != null: where = Game.calendar.trial_room(Game.active())   # your sect's terraces
-			toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold", ContentDB.name_of("rooms", where) if where != "" else "")
+			if world_news(where if where != "" else _event_room(ev)):
+				toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold", ContentDB.name_of("rooms", where) if where != "" else "")
 		"world_event_ended":
-			add_log(Tx.t("hud.world_event_ended") % str(CalendarRules.event(str(p.event)).get("name", p.event)), UiKit.MIST)
+			var ev3 := CalendarRules.event(str(p.event))
+			if world_news(_event_room(ev3)): add_log(Tx.t("hud.world_event_ended") % str(ev3.get("name", p.event)), UiKit.MIST)
 		"world_event_scheduled":
 			var ev2 := CalendarRules.event(str(p.event))
-			Notifier.schedule("world_event", str(ev2.get("name", p.event)), str(ev2.get("desc", "")), float(p.start))
+			if world_news(str(p.get("room", "")) if str(p.get("room", "")) != "" else _event_room(ev2)):
+				Notifier.schedule("world_event", str(ev2.get("name", p.event)), str(ev2.get("desc", "")), float(p.start))
 		"season_changed":
-			toast(Tx.t("hud.season_changed") % ContentDB.name_of("seasons", str(p.season)), "gold")
+			if world_news(): toast(Tx.t("hud.season_changed") % ContentDB.name_of("seasons", str(p.season)), "gold")
 		"weather_changed":
 			if Game.room_rt != null and str(Game.room_rt.def.get("weather", "")) == str(p.region):
 				add_log(Tx.t("hud.weather_" + str(p.weather)), UiKit.MIST)
 		"treasure_birth_announced":
-			add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
+			if world_news(str(p.room)) or (Game.room_rt != null and Game.room_rt.room_id == str(p.room)):
+				add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
 		"treasure_claimed":
 			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
 		# S28 v1.2 the Hollow Tide at full: control lost for a moment, allies turned.
@@ -1459,7 +1483,7 @@ func _handle(name: String, p: Dictionary) -> void:
 		"ranking_changed":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("beaten", "")) != "":
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
-			elif str(p.get("actor", "")) == "":
+			elif str(p.get("actor", "")) == "" and world_news():
 				add_log(Tx.t("hud.ranking_shifts"), UiKit.MIST)
 		"favour_changed":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -2721,8 +2745,9 @@ func _draw_log() -> void:
 func _draw_top_stack(c) -> void:
 	var y := TOP_STACK_BOSS if _boss() != null else TOP_STACK
 	y = _draw_run_banner(c, y)
-	y = _draw_banner(y)
-	y = _draw_event(c, y)
+	if not _band_on_top():   # a moment's band there says the same, and the two drawn together read as neither
+		y = _draw_banner(y)
+		y = _draw_event(c, y)
 	y = _draw_tribulation(c, y)
 	y = _draw_vignette(y)
 	y = _draw_toasts(y)
@@ -2765,6 +2790,9 @@ func _draw_vignette(y0: float) -> float:
 
 func _moment_on_screen() -> bool:
 	return is_instance_valid(moments) and moments.screen_busy()
+
+func _band_on_top() -> bool:
+	return is_instance_valid(moments) and moments.band_on_top()
 
 ## Toasts at the top centre (docs/mockups/20_states: over play, under the chips), 408 wide and 8 apart. The first always
 ## shows; the next only while it stays above the clear zone, and the rest wait their turn.
