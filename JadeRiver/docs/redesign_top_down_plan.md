@@ -884,6 +884,19 @@ independent batches (HOWTO.md), 62 game items in all:
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
+**Batches landed (decision 37).**
+
+- **heavy_sabre (2026-09-28):** the sabre, 10 items, in `weapon_heavy_sabre`, cast by a generator of its own,
+  `figure/kinds/sabre.py`.
+  - The side view's broad dao in its grey steel and bronze: the blade bellies near the point, and the point sweeps
+    back to the spine.
+  - The broad side is turned half way toward the camera (`face`), and laid flat on the ground while meditating.
+  - Its cuts leave a heavy crescent of jade light: fat at the blade and brightest along the point's path on the hit
+    frame, a dim wisp on the frame after.
+  - The heavy descending cut goes over the top: straight over the head where the facing shows it, else leaning to a
+    shoulder, so it never draws as a bar.
+  - Review sheet: `03_weapon_sabre.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
