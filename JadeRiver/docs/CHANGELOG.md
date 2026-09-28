@@ -28,9 +28,46 @@
 - **Review images come from the game** (`topdown_capture.tscn -- --phase3`, `docs/redesign/phase3/08`–`15`, a
   regenerated height test). They include the mock beside the loader before and the game after. The Python reference
   renderer is retired.
-- **Tests:** `topdown_suite` gains 8 checks (terrain rules, the square's routes and dressing, the foes' facings), and
-  `rules_tests` runs its fight part again. `data_validation` checks prop frames, prop shadows and every foe's frames.
-  `build_tiles.py --check` stays byte-identical.
+- **Tests:** `topdown_suite` gains 8 checks (terrain rules, the square's routes and dressing, the foes' facings).
+  `data_validation` checks prop frames, prop shadows and every foe's frames. `build_tiles.py --check` stays
+  byte-identical.
+
+## Study: which systems live on the map as places (decision 36)
+
+- **`docs/redesign/systems_as_places.md`**, a proposal for the user; nothing is built. It gives every page a verdict:
+  menu, place, both (the place opens the page and the menu keeps it), or earned remote. Each verdict comes with where
+  the place would sit, how interacting looks in the top-down view, what the player gains and loses, what runs while
+  away, and a priority.
+- **Research** on how Final Fantasy XIV, Old School RuneScape, Albion Online, Black Desert Mobile, Genshin Impact,
+  Stardew Valley, Animal Crossing, Pokémon, IdleOn and Sea of Stars split the world from the menu, with links.
+- **Recommended:**
+  - most systems get a place and keep their menu entry;
+  - Storage, the Garden's tending and the Crafts queue earn remote access;
+  - the self and the events stay in the menu;
+  - the home is Lotus Ferry, then the existing Cave Abode;
+  - eight places for the prototype room;
+  - a phased list, and five decisions for the user.
+
+## Top-down: Attack's drag moves (decision 35)
+
+- **Three new moves on the Attack button in the top-down room.** The tap and the aimed drag work as before. Details
+  are in `docs/redesign_top_down_plan.md`, "As built: Attack's drag moves".
+  - **A long drag strikes the combo's finisher at once** along the drag. Mid-chain it comes next, in place of the
+    steps between.
+  - **A drag down in the air is the Plunge**: the existing art, with its unlock, 4 s cooldown and its strike and stun
+    where it lands. The body drops straight down at 900. Without the art the drag stays an aimed air blow.
+  - **Holding still for 0.3 s guards**, with the weapon family's damage cut and parry window. With a counter-stance
+    technique slotted and ready, the hold casts that instead. Letting go ends the guard and strikes nothing.
+- **The finisher's line** is 120 px from the button, pulled in near the screen's edges (67 px toward the right and
+  bottom), so every drag zone stays at least 48 px deep on both layouts.
+- **Each armed move shows on the button** (the finisher's line, the Plunge's sector and chevron, the hold's ring, and
+  the move's name) **and on the ground** (a gold arrow, the landing ring under the body, and the guarded half ring).
+  Nothing pulses under Reduce motion.
+- **Guard and plunge poses** come from the body sheet's `guard` and `plunge` rows when it has them. Until then they
+  fall back to the idle and jump cells.
+- **Tests:** `topdown_suite` goes from 62 to 75 checks. `rules_tests` runs the top-down fight checks again; a merge had
+  dropped the call.
+- **Screenshots** are in `docs/redesign/drag_moves/`.
 
 ## Pages, rooms and the top-down room open inside their budgets under load
 

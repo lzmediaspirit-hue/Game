@@ -184,10 +184,17 @@ func _feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
 		"jumped": Audio.play("jump")
-		"dashed": Audio.play("dodge")
+		"dashed", "plunged": Audio.play("dodge")
 		"landed":
-			fx.puff(m.pos, m.z, float(e.fall))
-			if float(e.fall) > 12.0: Audio.play("land")
+			fx.puff(m.pos, m.z, maxf(float(e.fall), 64.0) if e.get("plunge", false) else float(e.fall))
+			if e.get("plunge", false):
+				# The Plunge's impact (decision 35): a shock ring the size of its strike, dust and a jolt, as the side view's.
+				var feet := player_feet()
+				effects.add("ring", feet, {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
+				effects.add("dust", feet, {"color": Color(0.8, 0.74, 0.62, 0.7), "dur": 0.4})
+				Audio.play("rumble")
+				add_shake(0.2)
+			elif float(e.fall) > 12.0: Audio.play("land")
 		"splashed":
 			fx.splash(m.pos)
 			Audio.play("water_step")
@@ -602,6 +609,20 @@ class AimView extends Node2D:
 		var fill := Color(UiKit.BRIGHT_JADE, 0.16)
 		var line := Color(UiKit.BRIGHT_JADE, 0.75)
 		var a: Dictionary = p.aim
+		_guard(m)
+		match str(a.get("move", "")):
+			"plunge":
+				# Decision 35: the Plunge's landing ring on the floor straight under the body, joined to it by a drop line.
+				var o0: Vector2 = TopdownWorld.lifted(m.pos, m.z)
+				var c0: Vector2 = TopdownWorld.lifted(a.at, float(a.ground))
+				var y := o0.y + 6.0
+				while y < c0.y - 6.0:
+					draw_line(Vector2(o0.x, y), Vector2(o0.x, minf(y + 8.0, c0.y - 6.0)), Color(UiKit.GOLD, 0.8), 2.0)
+					y += 14.0
+				draw_circle(c0, float(a.reach), Color(UiKit.GOLD, 0.14))
+				draw_arc(c0, float(a.reach), 0, TAU, 48, Color(UiKit.GOLD, 0.9), 3.0)
+				return
+			"guard": return
 		if a.is_empty():
 			var foe := TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
 			if foe != null and WorldLabels.fight_near(Game.active(), m.pos): _ring(foe, Color(UiKit.PALE_GOLD, 0.45))
@@ -613,8 +634,15 @@ class AimView extends Node2D:
 		match str(a.form) if a.kind == "skill" else "arrow":
 			"arrow":
 				var tip := o + d * (reach + 24.0)
-				draw_line(o + d * 10.0, tip, line, 3.0)
-				draw_colored_polygon(PackedVector2Array([tip + d * 10.0, tip + side * 7.0, tip - side * 7.0]), line)
+				if str(a.get("move", "")) == "finisher":
+					# Decision 35: the finisher armed, a heavier gold arrow with the step's sweep at its head.
+					var gold := Color(UiKit.GOLD, 0.95)
+					draw_line(o + d * 10.0, tip, gold, 5.0)
+					draw_colored_polygon(PackedVector2Array([tip + d * 14.0, tip + side * 10.0, tip - side * 10.0]), gold)
+					draw_arc(o, reach + 30.0, d.angle() - 0.5, d.angle() + 0.5, 16, gold, 3.0)
+				else:
+					draw_line(o + d * 10.0, tip, line, 3.0)
+					draw_colored_polygon(PackedVector2Array([tip + d * 10.0, tip + side * 7.0, tip - side * 7.0]), line)
 			"line":
 				var hw := float(a.half)
 				var poly := PackedVector2Array([o + side * hw, o + side * hw + d * reach, o - side * hw + d * reach, o - side * hw])
@@ -639,6 +667,19 @@ class AimView extends Node2D:
 				draw_circle(o, reach, fill)
 				draw_arc(o, reach, 0, TAU, 56, line, 2.0)
 		if a.target != null and is_instance_valid(a.target) and (a.target as EnemyState).alive: _ring(a.target, UiKit.GOLD)
+	## A guard (Attack held, decision 35, or the Dodge button held): the guarded front as a half ring at the feet, jade
+	## for a guard, gold for a stance; brighter and heavier while the parry window is open. Nothing animates.
+	func _guard(m: TopdownMotor) -> void:
+		var tl: Dictionary = Game.combat.timeline(world.player.actor_id)
+		if not tl.guard: return
+		var stance := float(tl.stance) > 0.0
+		var parry := float(tl.guard_t) <= float(StatRules.family(Game.active()).get("parry_s", 0.18))
+		var col := Color(UiKit.GOLD if stance else UiKit.BRIGHT_JADE, 1.0 if parry else 0.7)
+		var o: Vector2 = TopdownWorld.lifted(m.pos, m.z)
+		draw_set_transform(o, 0.0, Vector2(1, 0.5))
+		draw_arc(Vector2.ZERO, 30.0, m.dir.angle() - PI * 0.5, m.dir.angle() + PI * 0.5, 20, col, 5.0 if parry else 3.0)
+		draw_set_transform(Vector2.ZERO)
+
 	func _ring(e: EnemyState, col: Color) -> void:
 		var at := TopdownWorld.lifted(e.plane, e.altitude)
 		draw_set_transform(at, 0.0, Vector2(1, 0.5))

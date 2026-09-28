@@ -53,6 +53,12 @@
    "drag_px": 120,
    "point_radius": 48,
    "cone_half_deg": 45,
+   "long_px": 120,
+   "zone_px": 48,
+   "plunge_px": 48,
+   "plunge_deg": 35,
+   "guard_s": 0.3,
+   "hold_stance": true,
    "forms": {
     "line": [
      "thrust",

@@ -320,6 +320,9 @@ func finish_tap(timing: float) -> void:
 
 func _notification(what):
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		for id in touches:   # a guard held on Attack (decision 35) ends with its touch
+			var g = touches[id].get("gesture")
+			if g != null and g.guarding and _aims(): player.release_guard()
 		touches.clear()
 		joystick_id = -999
 		mouse_down = false
@@ -735,22 +738,57 @@ func _tick_aims(delta: float) -> void:
 		var g = touches[id].get("gesture")
 		if g == null: continue
 		g.advance(delta)
-		if g.aiming and not shown_aim:
-			player.preview_aim(g.kind, int(touches[id].get("slot", -1)), g.dir(), g.reach_k())
+		if g.kind == "attack": _tick_hold(g)
+		if (g.aiming or g.guarding) and not shown_aim:
+			player.preview_aim(g.kind, int(touches[id].get("slot", -1)), g.dir(), g.reach_k(), armed(g))
 			shown_aim = true
 	if not shown_aim: player.aim = {}
 
+## Decision 35: Attack's drag moves are live while the button attacks (not while it offers a context at rest, a
+## harvest tap or a channel) and the character may attack.
+func _moves_live() -> bool:
+	return bound() and tapping.object == "" and channel.object == "" and (context.is_empty() or attack_first()) \
+		and Unlocks.is_unlocked(Game.active_id, "attack")
+
+## What an Attack or technique touch would do if let go now: tap, aim, cancel, or one of Attack's drag moves
+## (finisher, plunge, guard) while they are live.
+func armed(g: AimGesture) -> String:
+	if g.kind != "attack" or not _aims(): return g.release()
+	if g.guarding: return "guard"
+	if not _moves_live(): return g.release()
+	return g.move(not player.motor.grounded, player.plunge_ready())
+
+## Attack held still past `guard_s`: the guard (or the slotted stance) starts on the ground; in the air it waits for
+## the landing. A refused guard (a weapon that cannot guard), or a button that is not attacking, leaves the let-go a tap.
+func _tick_hold(g: AimGesture) -> void:
+	if not g.holding(): return
+	if not _moves_live():
+		g.refused = true
+		return
+	if not player.motor.grounded: return
+	var got: String = player.hold_guard()
+	if got == "":
+		g.refused = true
+		return
+	g.guarding = true
+	g.guard_kind = got
+
 ## Letting go of an aiming touch: a tap attacks or casts at the soft lock, an aim along its direction, a cancel does
-## nothing.
+## nothing. Attack's drag moves (decision 35): a finisher strikes the combo's last step along the drag, a plunge drops
+## (an aimed blow down if it cannot), and a guard held on the button ends and strikes nothing.
 func _release_aim(info: Dictionary) -> void:
 	var g: AimGesture = info.gesture
-	var what := g.release()
+	var what := armed(g)
 	player.aim = {}
 	if info.role == "attack":
+		var may: bool = bound() and Unlocks.is_unlocked(Game.active_id, "attack")
 		match what:
 			"tap": primary()
-			"aim":
-				if bound() and Unlocks.is_unlocked(Game.active_id, "attack"): player.aim_attack(g.dir())
+			"aim": if may: player.aim_attack(g.dir())
+			"finisher": if may: player.finisher(g.dir())
+			"plunge":
+				if not player.plunge().get("ok", false) and may: player.aim_attack(g.dir())
+			"guard": player.release_guard()
 		_attack_up()
 	elif info.has("slot") and bound():
 		match what:
@@ -2354,6 +2392,64 @@ func _draw_controls(c) -> void:
 			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
 		if channel.object != "":
 			draw_arc(attack_center, 60, -PI / 2, -PI / 2 + TAU * clampf(channel.t / maxf(0.01, channel.dur), 0, 1), 40, UiKit.BRIGHT_JADE, 5)
+	if _aims(): _draw_attack_moves()
+
+## The thumb on Attack's aiming gesture, or null.
+func attack_gesture() -> AimGesture:
+	for id in touches:
+		var g = touches[id].get("gesture")
+		if g != null and g.kind == "attack": return g
+	return null
+
+## How strongly an armed move's mark is lit this frame: a slow pulse, steady under Reduce motion.
+func armed_glow() -> float:
+	return 1.0 if UiKit.reduce_motion() else 0.8 + 0.2 * sin(t * 8.0)
+
+## Decision 35: while a thumb is on Attack in the top-down room the button shows its drag moves. On the ground, once the
+## thumb leaves the dead circle, the finisher's line round the button (pulled in near the screen's edges), lit gold
+## when the drag crosses it. In the air, when the body can plunge, the Plunge's sector under the button, lit gold when
+## the drag is in it. Held still, a ring fills toward the guard; guarding, the button is ringed in jade (gold for a
+## stance). The armed move's name stands over the button, above ring 1's gap. Nothing pulses under Reduce motion.
+func _draw_attack_moves() -> void:
+	var g := attack_gesture()
+	if g == null or not _moves_live(): return
+	var mv := armed(g)
+	var glow := armed_glow()
+	var gold := UiKit.GOLD
+	var jade := UiKit.BRIGHT_JADE
+	var air: bool = not player.motor.grounded
+	if not air and g.strayed and not g.guarding:
+		var pts := PackedVector2Array()
+		for i in 73:
+			var d := Vector2.from_angle(TAU * i / 72.0)
+			pts.append(g.origin + d * g.long_px(d))
+		var lit := mv == "finisher"
+		draw_polyline(pts, Color(gold, 0.95 * glow) if lit else Color(UiKit.PAPER, 0.4), 4.0 if lit else 1.5, true)
+	if air and player.plunge_ready():
+		var half := deg_to_rad(float(TopdownAim.cfg("plunge_deg", 35)))
+		var r0 := float(TopdownAim.cfg("plunge_px", 48))
+		var r1 := g.edge_room(Vector2.DOWN)
+		var sector := PackedVector2Array()
+		for i in 13: sector.append(g.origin + Vector2.DOWN.rotated(lerpf(-half, half, i / 12.0)) * r0)
+		for i in 13: sector.append(g.origin + Vector2.DOWN.rotated(lerpf(half, -half, i / 12.0)) * r1)
+		var lit := mv == "plunge"
+		draw_colored_polygon(sector, Color(gold, 0.3 * glow) if lit else Color(UiKit.PAPER, 0.1))
+		sector.append(sector[0])
+		draw_polyline(sector, Color(gold, 0.95) if lit else Color(UiKit.PAPER, 0.4), 3.0 if lit else 1.5, true)
+		var tip := g.origin + Vector2(0, r0 + 18.0)
+		draw_colored_polygon(PackedVector2Array([tip + Vector2(-9, -6), tip + Vector2(9, -6), tip + Vector2(0, 5)]), Color(gold, 0.95) if lit else Color(UiKit.PAPER, 0.5))
+	var hold_s := float(TopdownAim.cfg("hold_s", 0.18))
+	var guard_s := float(TopdownAim.cfg("guard_s", 0.3))
+	if g.guarding:
+		draw_arc(g.origin, 72.0, 0, TAU, 64, gold if g.guard_kind == "stance" else jade, 5.0)
+	elif not g.strayed and not g.refused and g.t > hold_s:
+		var k := clampf((g.t - hold_s) / maxf(0.01, guard_s - hold_s), 0.0, 1.0)
+		draw_arc(g.origin, 72.0, -PI / 2, -PI / 2 + TAU * k, 48, Color(jade, 0.85), 3.0)
+	var word := str({"finisher": "hud.move_finisher", "plunge": "hud.move_plunge"}.get(mv, ""))
+	if mv == "guard": word = "hud.move_stance" if g.guard_kind == "stance" else "hud.move_guard"
+	if word != "":
+		var col := jade if mv == "guard" and g.guard_kind != "stance" else gold
+		UiKit.draw_outlined(self, Tx.t(word), g.origin + Vector2(-80, -76), 18, col, HORIZONTAL_ALIGNMENT_CENTER, 160)
 
 ## The technique page tab (mockup 01): "1/2" in a small ring; a tap turns the page (so does a swipe on the ring).
 func _draw_page_tab() -> void:

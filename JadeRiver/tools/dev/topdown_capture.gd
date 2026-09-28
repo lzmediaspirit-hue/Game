@@ -40,6 +40,9 @@ func _main() -> void:
 	if "--phase3" in OS.get_cmdline_user_args():
 		await phase3()
 		return
+	if "--drag-moves" in OS.get_cmdline_user_args():
+		await drag_moves()
+		return
 	await shot("01_square")
 	# Walking behind the house, west to east along the lane on its north side.
 	var house: Dictionary = w.room.props.filter(func(q): return q.kind == "house")[0]
@@ -267,6 +270,46 @@ class StandIn extends TopdownWorld.Sorted:
 	func _draw() -> void:
 		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, 8.0, 0.55)
 		world.player.draw_body(self, Vector2(0, feet.y - position.y))
+
+## Decision 35 (`-- --drag-moves`, into docs/redesign/drag_moves/): Attack's drag moves armed under the thumb, each with
+## its mark on the button and on the ground: the finisher (a long drag), the Plunge (a drag down in the air) and its
+## impact, and the guard (held still).
+func drag_moves() -> void:
+	var out := "res://docs/redesign/drag_moves/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	var hud = main.hud
+	var c = Game.active()
+	var base := Vector2(22.5, 19.0) * 32.0
+	await arena(base, [["wild_boarlet", Vector2(-56, -44)], ["reedtail_rat", Vector2(64, 36)]])
+	hud.set_state(true)
+	hud.press(90, hud.attack_center)
+	hud.drag(90, hud.attack_center + Vector2(-100, -80))
+	await frames(12)
+	await shot("01_finisher_armed", out)
+	hud.release(90)
+	await frames(40)
+	if not c.cultivator.secret_arts.has("plunge"): c.cultivator.secret_arts.append("plunge")
+	await arena(base, [["wild_boarlet", Vector2(34, 12)], ["mudshell_crab", Vector2(-36, 18)]])
+	hud.set_state(true)
+	p.jump()
+	await frames(5)
+	hud.press(91, hud.attack_center)
+	hud.drag(91, hud.attack_center + Vector2(0, 80))
+	await frames(2)
+	await shot("02_plunge_armed", out)
+	hud.release(91)
+	await frames(4)
+	await shot("03_plunge_impact", out)
+	await frames(40)
+	await arena(base, [["wild_boarlet", Vector2(44, 0)]])
+	hud.set_state(true)
+	m.face(Vector2.RIGHT)
+	hud.press(92, hud.attack_center)
+	await frames(24)
+	await shot("04_guard", out)
+	hud.release(92)
+	print("topdown_capture: drag moves done")
+	get_tree().quit()
 
 ## An empty square round `at` with these foes ([def, offset]) turned on the player.
 func arena(at: Vector2, foes: Array) -> void:

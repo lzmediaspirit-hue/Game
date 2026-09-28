@@ -86,7 +86,8 @@ func timeline(actor_id: String) -> Dictionary:
 	if not actors.has(actor_id):
 		actors[actor_id] = {"action": "", "t": 0.0, "duration": 0.0, "hit_at": 0.0, "hit_done": true, "combo": -1, "window": 0.0,
 			"queued": 0, "family": "fists", "technique": "", "guard": false, "guard_t": 0.0, "dodge_t": 0.0, "facing": 1,
-			"forced": Vector2.ZERO, "forced_t": 0.0, "flinch": 0.0, "stance": 0.0, "last_attack_facing": 1, "hits": 0, "targets_hit": []}
+			"forced": Vector2.ZERO, "forced_t": 0.0, "flinch": 0.0, "stance": 0.0, "last_attack_facing": 1, "hits": 0, "targets_hit": [],
+			"finisher_q": {}}
 	return actors[actor_id]
 
 func is_busy(actor_id: String) -> bool:
@@ -126,7 +127,8 @@ func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
-		"basic_attack": return basic_attack(c, int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO), bool(intent.get("aimed", false)))
+		"basic_attack": return basic_attack(c, int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO), bool(intent.get("aimed", false)),
+			bool(intent.get("finisher", false)))
 		"use_technique": return use_technique(c, int(intent.get("slot", -1)), int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO),
 			bool(intent.get("aimed", false)), float(intent.get("dist", -1.0)))
 		"guard_start": return guard(c, true)
@@ -504,7 +506,9 @@ func climbing(actor_id: String) -> bool:
 	var st: ActorState = game.actor_state(actor_id)
 	return st != null and not st.climbing.is_empty()
 
-func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false) -> Dictionary:
+## `finisher` (top-down decision 35, a long drag on Attack): the combo's last step at once, on the ground. Mid-chain it
+## waits for the step under way to end, then comes in place of the steps between.
+func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finisher := false) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
 	if climbing(c.id): return fail("climbing")
@@ -518,14 +522,21 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false) -> Dic
 	var combo: Array = fam.get("combo", [])
 	if combo.is_empty(): return fail("no_combo")
 	var in_air := airborne(c.id)
+	finisher = finisher and not in_air and combo.size() > 1
 	if is_busy(c.id):
+		if finisher and tl.technique == "" and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1:
+			tl.finisher_q = {"facing": facing, "aim": aim_in, "aimed": aimed}
+			tl.queued = 0
+			return ok({"queued": true, "finisher": true})
 		if not in_air and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1: tl.queued = mini(int(tl.queued) + 1, combo.size() - 1 - int(tl.combo))
 		return ok({"queued": true})
 	# S43 air attack: one hit, no combo, +10% damage.
 	var index := 0 if in_air else (int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0)
+	if finisher: index = combo.size() - 1
+	tl.finisher_q = {}
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing, aim_in, aimed)
 	if aim.has("aim"): tl.aim = aim.aim
-	_start_step(c, fam, index, int(aim.facing))
+	_start_step(c, fam, index, int(aim.facing), finisher)
 	if palms:
 		tl.step = (tl.step as Dictionary).duplicate()
 		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("sword_release.palm_mult", 0.8))
@@ -535,9 +546,10 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false) -> Dic
 		tl.air_attack = true
 	else:
 		tl.air_attack = false
-	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0))})
+	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0)),
+		"finisher": finisher})
 
-func _start_step(c, fam: Dictionary, index: int, facing: int) -> void:
+func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false) -> void:
 	var tl := timeline(c.id)
 	var step: Dictionary = fam.combo[index]
 	var speed = 1.0 + c.stats.value("attack_speed")
@@ -555,6 +567,7 @@ func _start_step(c, fam: Dictionary, index: int, facing: int) -> void:
 	tl.targets_hit = []
 	if game.character(c.id).cultivator.meditating: game.progression.stop_meditation(c, "attack")
 	var ev := {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index}
+	if finisher: ev.finisher = true
 	if grid() != null: ev.aim = tl.get("aim", Vector2(facing, 0))
 	emit("attack_started", ev)
 
@@ -637,6 +650,7 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	tl.hit_done = false
 	tl.combo = -1
 	tl.queued = 0
+	tl.finisher_q = {}
 	tl.technique = str(tid)
 	tl.facing = int(aim.facing)
 	tl.targets_hit = []
@@ -807,7 +821,14 @@ func _tick_player(c, delta: float) -> void:
 		else: _resolve_basic(c)
 	if float(tl.t) >= float(tl.duration):
 		var fam := ContentDB.entry("weapon_families", str(tl.family))
-		if int(tl.queued) > 0 and tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1:
+		var fq: Dictionary = tl.get("finisher_q", {})
+		if not fq.is_empty() and tl.technique == "":
+			# Decision 35: a finisher asked for mid-chain comes now, in place of the steps between.
+			tl.finisher_q = {}
+			tl.action = ""
+			tl.queued = 0
+			basic_attack(c, int(fq.facing), fq.aim, bool(fq.aimed), true)
+		elif int(tl.queued) > 0 and tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1:
 			tl.queued = int(tl.queued) - 1
 			_start_step(c, fam, int(tl.combo) + 1, int(tl.facing))
 		else:
