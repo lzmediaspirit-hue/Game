@@ -497,4 +497,13 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 
     The tiles go first and write the art direction into `docs/redesign/art_bible.md` ("Terrain v2"), which the other
     two follow. The prototype APK waits for it.
+41. **The top-down game is the main game direction, and the work is prototype-first (2026-09-28):** "focus only on the
+    prototype first. i want it to be the main game direction."
+    - Until the prototype APK ships, only prototype work runs: full player art, the tutorial foes' art, terrain v2
+      (decision 40), combat animation (38), the staged story (39), and the rooms and logic already built.
+    - Paused until then: the side-view P-track work (P4b style families, P5 page families, P13b, the side-view art)
+      and the Beasts page review.
+    - New games start in the top-down world; a new-game setting keeps the side view as the fallback.
+    - Rooms without a top-down layout still open in the side view until they are converted.
+    - After the prototype, the next work is converting the remaining rooms (plan Phases 4–7), not the side view.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
