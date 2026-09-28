@@ -34,6 +34,11 @@ func _main() -> void:
 	Game.submit({"type": "create_character", "slot": 1, "name": "Perf", "appearance": {"hair": "topknot"}})
 	main.enter_world(1)
 	for i in 5: await get_tree().process_frame
+	# The page scripts warm one at a time from launch (PageWarmer); the gates below time rooms and pages once they are in,
+	# as a player meets them after the title screen.
+	var t0 := Time.get_ticks_msec()
+	while not main.pages_warm(): await get_tree().process_frame
+	print("pages warm %d ms after the world is entered" % (Time.get_ticks_msec() - t0))
 	await _rooms()
 	await _pages()
 	await _crowd()

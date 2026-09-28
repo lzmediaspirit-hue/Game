@@ -300,9 +300,9 @@ Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row p
   The cell grows to 64 × 72 with the feet at (32, 40): 38 px over the feet for the puppet and Old Snapper's raised
   crusher, 31 under them for the eel's water, 31 either side for the snapper's slam and the eel's lunge. The earlier
   foes are drawn as before, pixel for pixel.
-- **Not yet drawn:** every other creature (Phase 5 by region). The crab's figure stays the view's fallback for a species
-  not drawn yet (an ambush, a hunter or a summons can bring one onto the grid). The pebble imps do not appear in the
-  prototype room.
+- **Not yet drawn:** every other creature (Phase 5 by region). A species not drawn yet (an ambush, a hunter or a
+  summons can bring one onto the grid) stands in with its side-view sheet at half size (`TopdownPlaces.stand_in`), as
+  spirit animals do. The pebble imps do not appear in the prototype room.
 
 ## 9. What makes it xianxia (and Jade River's)
 

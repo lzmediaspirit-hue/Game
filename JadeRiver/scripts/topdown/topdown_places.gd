@@ -36,12 +36,13 @@ class Figure extends Node2D:
 		place(Vector2(float(at[0]), float(at[1])), float(o.get("alt", 0.0)))
 
 	## Stand at a ground point and height: x on whole art px, y at the sort key, the drawing on its screen row. A flat
-	## thing on the ground (a ripple, a circle of runes, a grey patch) lies under the figures standing on it.
+	## thing on the ground (a ripple, a circle of runes, a grey patch) lies under the figures standing on it, over the
+	## floor it lies on (TopdownRoom.decal_key: on a terrace too, not under the terrace's own row).
 	func place(p: Vector2, z: float) -> void:
 		plane = p
 		feet = TopdownWorld.to_screen(p, z).round()
 		var key := room.sort_key(p, z)
-		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key -= 12.0
+		if def.get("type", "") != "npc" and bool(SpriteCache.prop(ObjectView.prop_of(def)).get("decal", false)): key = room.decal_key(p, z)
 		position = Vector2(feet.x, key)
 		art.position = Vector2(0, feet.y - key)
 
@@ -71,9 +72,11 @@ class Figure extends Node2D:
 ## A villager in the top-down style (decision 32): TopdownFigure in their own outfit (npcs.json), in one of the eight
 ## rows. At rest they stand in the pose the room gives them (idle, or meditate), three-quarters toward the camera on the
 ## side the side view faces them (or the row a layout names); they walk where a route moves them, and Figure turns them
-## to the player at their side.
+## to the player at their side. A companion is one too (`outfit` in place of `npc`, redesign Phase 4), placed on its
+## floor and shadowed there by the room's FoeView (`shadow` off).
 class Person extends Node2D:
 	var figure: TopdownFigure
+	var shadow := true      ## its own blob at its feet (a villager's); a companion's falls on the floor under it
 	var rest := "sw"        ## the row they face at rest
 	var row := "sw"
 	var stand := "idle"     ## their pose at rest
@@ -83,13 +86,16 @@ class Person extends Node2D:
 
 	func _init(o: Dictionary) -> void:
 		var n := ContentDB.entry("npcs", str(o.get("npc", "")))
-		figure = TopdownFigure.for_npc(str(o.get("npc", "")), true)
+		figure = TopdownFigure.for_npc(str(o.get("npc", "")), true) if o.has("npc") else TopdownFigure.wearing(o.get("outfit", {}), true)
 		rest = str(o.get("row", "se" if int(o.get("facing", n.get("facing", -1))) > 0 else "sw"))
 		row = rest
 		stand = TopdownFigure.resolve(str(o.get("pose", n.get("pose", "idle"))))
 		action = stand
 		if n.has("tint"): tint = Color(str(n.tint))
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		# Every sheet of the outfit is asked for as the room is populated (not one a frame from the first draw): they
+		# stream in on loading threads within a few frames (main.gd warms the pages one at a time, PageWarmer).
+		for l in figure.layers: Wardrobe.texture_async(str(l.path))
 
 	## Turn toward a direction on the ground plane, one of the eight rows, as the player's motor turns.
 	func look(dir: Vector2) -> void:
@@ -105,8 +111,34 @@ class Person extends Node2D:
 		queue_redraw()
 
 	func _draw() -> void:
-		TopdownWorld.draw_blob(self, 0.0, 0.0, 7.0, 0.5)
+		if shadow: TopdownWorld.draw_blob(self, 0.0, 0.0, 7.0, 0.5)
 		figure.draw(self, Vector2.ZERO, action, row, TopdownFigure.frame_at(action, t), tint)
+
+## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
+## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is the side view's own
+## figure at half size (EnemyView in its art mode: the creature sheet, its action, facing and flash). FoeView places it
+## on its floor and draws its shadow there.
+static func stand_in(e: EnemyState) -> Node2D:
+	var art: Dictionary = e.def.get("art", {})
+	if art.has("avatar"):
+		var outfit = art.avatar
+		if outfit is String and outfit == "player": outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()
+		var person := Person.new({"outfit": outfit, "facing": e.facing})
+		person.shadow = false
+		return person
+	var v := EnemyView.new()
+	v.art_only = true
+	v.setup(e)
+	v.scale = Vector2(0.5, 0.5)
+	return v
+
+## A stand-in's pose from its state, each frame (an EnemyView poses itself): a Person turns to where it walks or aims,
+## one of the eight rows, and plays its action (a wind-up and its blow as its weapon's first strike).
+static func pose(art: Node2D, e: EnemyState) -> void:
+	if not art is Person: return
+	art.look(e.velocity if e.velocity.length() > 1.0 else e.aim_dir())
+	var strike := Wardrobe.attack_for(art.figure.outfit) + "_1"
+	art.play(TopdownFigure.resolve(str({"walk": "walk", "windup": strike, "attack": strike, "hurt": "hurt", "death": "knockdown"}.get(str(e.action), "idle"))))
 
 ## A way out on the floor where the layout sets it: jade marks walking out through an edge, a lit threshold before a
 ## door (a building's doorway or the gap in an interior's wall), grey and still when it is shut. The side view's

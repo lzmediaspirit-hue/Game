@@ -884,6 +884,35 @@ independent batches (HOWTO.md), 62 game items in all:
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
+**Batch flute_and_bell, drawn** (`weapon_flute`, `weapon_bell`; the 21 items above, `PENDING` left for the last batch
+to empty). Both are held in the right fist along the blade line, as the side view draws them along the short blade's
+grip; the fist closes over the grip.
+
+- **`kinds/flute.py`:** the jade flute, a green bamboo tube with dark joints, finger holes on its upper face and a red
+  tassel hanging from the hand's end.
+- **`kinds/bell.py`:** the warden's hand-bell. It has a bronze bell with a domed crown, a dark band, a flared lip,
+  a shadowed mouth and its clapper, on a dark-wood handle with a red cord. Laid down, it rests on its side.
+- **`kinds/sound.py`:** what a sounding weapon sends out on a blow's hit frame (a punch, swing or thrust), and a step
+  fainter on the frame after.
+  - The flute's note leaves its far end as ripples of pale jade light, arcs opening along the flute that close into
+    rings as it points at the camera or away.
+  - The bell rings out rings of pale-gold qi round its mouth.
+  - They are drawn in the plane facing the camera, with no ink, like a cut's smear. A blow's frame is known by its
+    pose, so the action catalogue and every other set are unchanged.
+- **Review:** `03_weapon_flute.png` and `03_weapon_bell.png`.
+
+**Batches landed (decision 37).**
+
+- **fan_and_brush** (2026-09-28): `weapon_fan` and `weapon_brush`, 21 game items (10 fans, 11 brushes), cast by two
+  new generators, `kinds/fan.py` and `kinds/brush.py`. The iron fan folds at rest and opens in every blow, the guard
+  and the plunge's dive: pleated paper on brown ribs, the side view's teal ink band and a gold rivet. Open, it is
+  turned at least 50° off the camera's line and faces the camera, so its face shows in every facing, and its cuts
+  leave the jian's jade smear. The calligraphy brush has a jointed bamboo shaft, a lacquered cap and collar, and a
+  tuft soaked black to its point. Its cuts leave an ink stroke along the point's arc: broad at the brush, thin behind
+  it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
+  (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
+  and `03_weapon_brush.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
@@ -1044,16 +1073,15 @@ the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
 - **The height grid is not compiled into `ZoneGeometry`.** The rules that ask the side view's geometry get a flat
   stand-in ground; heights, walls and water come from the grid (the motor, the foes, the loot, the tests).
 - **The people are drawn in the top-down style** (Phase 3's third part), in eight rows. The layouts give them no
-  rest facing of their own: each stands three-quarters toward the camera on the side the side view faces them.
-- **Allies and pets** still steer by the side view's rules (on the stand-in ground). The ally follow rule on the plane
-  waits, as in Phase 2.
+  rest facing of their own: each stands three-quarters toward the camera on the side the side view faces them. Their
+  sheets load on threads (within a moment of the room: see the third part).
 - **Rooms past the Fairground stay side-view:** the Entry Trial, the sect roads and everything after. A top-down
   character walks on into them and the view changes. (The second part, below, converts chapter 2's stretch.)
-- **Hazards and weather** draw on the overlay, over the figures.
-- **A foe's respawn** out of view still measures only across (x).
 - **Terrain and decor.** The rooms draw by Phase 3's terrain rules (`TopdownTerrain`, rebuilt for each room entered):
   auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
   and a room-by-room decor pass (decision 34) is still to come.
+- Allies and pets on the plane, hazards and weather layered with the room, and respawn out of the camera's view were
+  gaps here; the third part closes them.
 
 ### As built: Phase 4, second part · chapter 2's stretch: the trials, both sects' grounds and the Marsh Edge (2026-09-28)
 
@@ -1120,16 +1148,6 @@ line: the Marsh Edge enters in 75 ms and holds 11.6 ms a frame with 25 of its fo
 **Screenshots** (`tools/dev/topdown_capture.tscn -- --chapter2`): `docs/redesign/phase4/17`–`32`, each room under the
 real HUD, with its foes where it has them.
 
-**Then: the tutorial rooms' other foes** (`creatures.py`, art bible §8 "Foes"). Old Snapper, the mossback toad, and
-the night's hollow minnow and hollowed eel have their own figures now, in five drawn facings and three mirrored, with
-all six actions; they took the crab's, the view's fallback, before. The eel rises out of the river with its water
-drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72 (feet
-at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. The crab stays
-the fallback only for a species not drawn yet. `topdown_tutorial` now checks every grid room's foes, their events'
-foes too, for their own figures (the tutorial's rooms were skipped before). Screenshots
-(`tools/dev/topdown_capture.tscn -- --tutorial-foes`): `docs/redesign/phase4/33`–`38`, the night, the Reed Shallows
-and Willow Path West under the HUD and x4 round the fight.
-
 **Not yet built, or different from the plan.**
 
 - **The next rooms stay side-view:** the Grey Pools and on, and the sect rooms the stretch does not visit (libraries,
@@ -1137,9 +1155,135 @@ and Willow Path West under the HUD and x4 round the fight.
 - **No moving or crumbling platforms on the grid.** The Jade trial's moving planks and the Cloud trial's crumbling ledge
   are fixed; a running jump takes their place.
 - **A rope bridge is a raised plank walk;** nothing walks under it (bridges stay hand-placed surfaces, §1.2).
+- **The tutorial rooms' other foes** (the hollowed eel and minnow at night, Old Snapper, the mossback toad) had no
+  top-down figure: they took the crab's, then stood in with their side-view creature sheet at half size (the third
+  part). They are drawn now ("Then: the tutorial rooms' other foes", after the third part).
 - **The hollowed eel keeps the row it rose in.** It glides by setting its position, with no velocity or aim
   (`enemy_authority.gd` `_eel`), so the view never turns it from its spawn row (SE, or SW mirrored), and it strikes
   along its side-view facing. Its figure is drawn in all eight facings for when it does.
+
+### As built: Phase 4, third part · the gaps closed (2026-09-28)
+
+The known gaps of the first part are closed, and every other place where the grid still read the side view's x-only
+or walk-strip rules was audited and fixed. The side view is unchanged except where noted.
+
+**Allies and pets on the plane** (`AllyBrain`, `TopdownBrain`):
+
+- The rules are the same (follow, fight the owner's nearest foe, retreat, sit while the owner meditates, blink when
+  left behind or stuck for 2 s); on the grid only the steering is the grid's:
+  - an ally comes into the room, and blinks, onto a free spot on its owner's floor, on the owner's side of any wall
+    (`TopdownBrain.spot_by`);
+  - it keeps behind its owner along the owner's facing on the plane, on the owner's floor (`follow_spot`);
+  - it goes there, and closes on a foe, by the grid's path (`TopdownBrain.chase`): walking, stairs, drops, and a hop a
+    level up for one that jumps, on the grid's gravity, as the player jumps. The floor underfoot carries it
+    (`TopdownBrain.fall`);
+  - with no way on foot (a landing stage over the water) it makes no headway, is stuck, and blinks after 2 s.
+- **Height-compatible blows** (`AllyBrain.in_reach`): an ally strikes a foe within reach on the plane and on a height
+  its blow reaches (`TopdownAim`); a foe's blow reaches an ally only on its own height (`_enemy_hits_allies` reads the
+  ally's real height on the grid).
+- **Their figures** (`TopdownPlaces.stand_in`, sorted, placed on their floor and shadowed there by the room's
+  `FoeView`, their labels on the overlay):
+  - a companion is a `TopdownPlaces.Person` in its own outfit (the top-down character's compositor, `TopdownFigure`,
+    unchanged), turned to where it walks or aims in eight rows, walking, striking with its weapon's first strike,
+    flinching and falling (`TopdownPlaces.pose`);
+  - a spirit animal, or a foe the grid's foe sheet has no rows for (Old Snapper, the toads; they were drawn as the mud
+    crab), is the side view's own creature sheet at half size (`EnemyView` in its new art mode: its action, facing,
+    flash and an ally's blink).
+
+**Hazards and weather layered with the room** (`HazardView`):
+
+- Each part tied to a spot sorts with the room in the pixel viewport (`HazardView.Piece`, one node a part):
+  - a flat part (a strike's ring, a scorch, rubble, a pool, a current, a shelter's ring, a boss's blast ring) sorts just
+    over the floor it lies on and under whoever stands on it (`TopdownRoom.decal_key`);
+  - an upright part (a falling rock, a bolt, springing spikes, dust) sorts at its spot's own key.
+
+  A terrace or a wall in front hides them, and a body in front stands over them.
+- The screen's washes and weather (rain, fog, snow, gust lines, the storm's flash, the chill, the Presence's edges)
+  and the warning marks draw on the overlay, under the names, the aim and the effects, and under the HUD.
+- The rings are drawn as the circles they strike (the side view flattens them into its strip).
+- **Effects on the plane** (`WorldAuthority`): strikes fall all round the body on the plane, on floors inside the room,
+  at their floor's height (they fell in the side view's strip, y 660–940); a strike reaches a body only within a level
+  of its floor; pools and currents act on the floor they lie on, and a layout may give their `areas` in cells; a gust's
+  drift carries the top-down body (`TopdownMotor.drift`, as `player.gd` walks with it). The heavens' bolt strikes a
+  circle of its radius, its ring falling anywhere round the body. A foe's burning ground lies along its aim on its own
+  floor and burns only there.
+
+**Respawn out of view against the camera** (`RoomRuntime.out_of_view`, `TopdownRoom.view_rect`):
+
+- A foe comes back only where no part of its figure is inside the camera's rect for the player's position (both axes,
+  clamped to the room as the camera is, grown by the side view's margin: `respawn.offscreen_x` less half the view).
+  Near a wall the camera shows 1280 units of the room, so a spot 768 across is in view; a spot 17 tiles straight south
+  is out of it. The side view keeps its rule (700 across).
+- On the grid a foe is never put on a point another foe stands on: all four of the Reed Shallows' rats had piled onto
+  the one rat point out of the camera's view. The side view picks its points as before.
+- The HUD's notice of a foe that saw you from off the screen asks the same.
+
+**The people with the room** (`PageWarmer`): while a page script compiles on its loading thread every other load waits
+for it, and the title asked for all sixty at once, so a room's people waited seconds for their sheets after launch.
+The pages now warm one at a time (the next once the one before is in), and every sheet of a villager's outfit is asked
+for as the room is populated (`TopdownPlaces.Person`; the side view's `NpcView.figure` too), so they wait at most for
+the page in hand. The pages take about as long in all (7.0 s against 6.4 s headless; on a loaded machine 13–16 s
+against 17–18 s). `perf_tests` now times rooms and pages once they are in (`main.pages_warm`), as a player meets them
+after the title screen: while one compiles, a room or page that needs it waits for it.
+
+**The audit: side-view rules the grid still used, all fixed.**
+
+| Place | What it did on the grid | Now |
+|---|---|---|
+| Camera bounds | clamped to the floor's rect: a body on a ridge along the north edge was off the top of the screen | the room as drawn (`TopdownRoom.drawn_rect`), and never the body out of view (`camera_goal`) |
+| Portal triggers | a 64 × 44 box scaled with the way's span, the same on both axes: an east edge of three tiles reached 3.6 tiles into the room, and a door on a terrace was taken from the square under its face | half the span along the edge or doorway and a tile across, turned with the way (`reach`), and only on its own floor |
+| Pickups magnet | 60 up and down: a drop on a terrace was drawn in from the square below | half a level |
+| Loot spill | a row along x: a drop could lie in a wall, the water, or over a ledge at the ledge's height | on the floor it falls on, else on the spot itself |
+| Auto-path arrival | on the plane only: "there" under a terrace spot | also on the goal's floor |
+| Auto-hunt | the nearest foe, reachable or not; loot only on the ground | only foes and drops there is a way to; the spot to strike from on the foe's own floor |
+| Labels | nearest-first by the distance across | by the distance on the plane |
+| Minimap | the direction mark only left or right; the player's arrow east or west | the mark on the frame's edge the way points; the arrow in eight ways |
+| Enemy attacks | a ranged or close blow chosen by the distance across | by the distance on the plane |
+| Off-screen notice | a foe 640 across | the camera's rect |
+| Rare herb guardian | woke by the distance across; rose at the side view's y 840 (in the water on the grid) | by the approach on the plane; on the ground under the node |
+| Spar partner, summoned adds, ambush | 160 across; adds clamped to y 640–940 | on a free spot of the floor near where they were meant to be (`TopdownRoom.place_near`) |
+| Decals on a raised floor | 12 px up, so under the terrace's own row | `decal_key` |
+| Loot's name | the distance to its lifted spot | to where it lies |
+
+Checked and already right on the grid: the leash (600 from the spawn on the plane), noticing (sight on the plane, a
+level up or down), the context button's reach (on the plane, 48 in height), the foes' patrol (round their spawn on
+their floor).
+
+**The walk's fights aim on the grid.** `prologue_run.fight` and `spar_with` now hand their blows the direction to the
+target on the grid (`aim_at`), as the top-down view turns the body to the stick; the walk has no view, so its blows
+used to keep the last aim and miss a foe behind.
+
+**Tests.**
+
+- `topdown_suite` goes from 87 to 117 checks:
+  - the camera's rect: a ridge drawn over the top, the body kept in view there, a small room centred, out of view on
+    both axes (a spot straight south the old rule saw);
+  - flat marks on a terrace, things put in the water or on a level, the ways' turned reach, the minimap's mark;
+  - a companion: coming in on the player's floor, drawn by its stand-in on its floor; following onto the terrace
+    without a blink; blinking to the landing stage after 2 s; its reach and a foe's by height; a fight on one level;
+    its figure in the top-down style, and stand-ins for a spirit animal and Old Snapper;
+  - hazards: spots all round on floors, a strike by level, a gust's carry, the view's sorted rings and bolts and its
+    overlay washes and marks, the parts freed with the room, the heavens' circle, burning ground by floor;
+  - the audit's respawn by the wall, the off-screen notice, a door by floor, the pickup and spill by floor, auto-path's
+    arrival, the labels' order, the attack choice, the guardian's wake, and a spar partner, adds and an ambush on
+    floors.
+- `topdown_tutorial` (777 to 786 checks) adds a room's people drawn while the pages still warm up, and every way's
+  turned reach, in the chapter 2 rooms too.
+
+**Not built.** Hazards and weather are layered and act on the plane, but no room on the grid has a hazard yet (the
+tutorial's rooms have none); a layout gives pools and currents their `areas` when one does.
+
+**Then: the tutorial rooms' other foes** (`creatures.py`, art bible §8 "Foes"). Old Snapper, the mossback toad, and
+the night's hollow minnow and hollowed eel have their own figures now, in five drawn facings and three mirrored, with
+all six actions; they had stood in with their side-view sheets at half size. The eel rises out of the river with its
+water drawn under its hovering feet, and the minnow swims through the air at its hover. The foe cell grows to 64 × 72
+(feet at 32, 40) for the snapper's slam and the eel's water; the earlier foes are unchanged pixel for pixel. Every foe
+the grid's rooms spawn now has its own figure; the stand-in stays for a spirit animal, a companion and a species not
+drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (786 to 799 checks) checks every grid
+room's foes, their events' foes too, for their own figures (the tutorial's rooms were skipped before), and
+`topdown_suite` (117 to 118) takes a pebble imp, still undrawn, for its stand-in check and sees Old Snapper drawn by
+its own rows. Screenshots (`tools/dev/topdown_capture.tscn -- --tutorial-foes`):
+`docs/redesign/phase4/33`–`38`, the night, the Reed Shallows and Willow Path West under the HUD and ×4 round the fight.
 
 ### Phase 5 · The animation layers (XL)
 

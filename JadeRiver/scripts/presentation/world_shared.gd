@@ -215,18 +215,21 @@ static func mark_focus(ctx: Dictionary, object_views: Dictionary, npc_views: Dic
 
 # ------------------------------------------------------------------ names over the world
 ## Every name over the room's figures, ways and things, nearest the player first (WorldLabels.place_views places them).
-static func label_views(host, px: float) -> Array:
+## `at` is the player on the labels' plane and `axes` weighs its axes: the side view measures across (Vector2(1, 0)),
+## the top-down view on the whole plane (Vector2.ONE), so the names nearest the player keep their rows.
+static func label_views(host, at: Vector2, axes := Vector2(1, 0)) -> Array:
+	var near := func(v: Node2D) -> float: return ((v.position - at) * axes).length()
 	var views: Array = []
 	for uid in host.enemy_views:
 		var v = host.enemy_views[uid]
-		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": absf(v.position.x - px)})
+		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": near.call(v)})
 	for id in host.npc_views:
 		var nv = host.npc_views[id]
-		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": absf(nv.position.x - px)})
+		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": near.call(nv)})
 	for i in host.portal_views.size():
-		if is_instance_valid(host.portal_views[i]): views.append({"id": "p%d" % i, "view": host.portal_views[i], "kind": "place", "near": absf(host.portal_views[i].position.x - px)})
+		if is_instance_valid(host.portal_views[i]): views.append({"id": "p%d" % i, "view": host.portal_views[i], "kind": "place", "near": near.call(host.portal_views[i])})
 	for id in host.object_views:
-		if is_instance_valid(host.object_views[id]): views.append({"id": "o" + str(id), "view": host.object_views[id], "kind": "place", "near": absf(host.object_views[id].position.x - px)})
+		if is_instance_valid(host.object_views[id]): views.append({"id": "o" + str(id), "view": host.object_views[id], "kind": "place", "near": near.call(host.object_views[id])})
 	return views
 
 # ------------------------------------------------------------------ ways out

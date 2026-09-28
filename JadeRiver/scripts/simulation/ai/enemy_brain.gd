@@ -283,7 +283,11 @@ static func _choose_attack(auth, e: EnemyState, attacks: Array) -> int:
 	if attacks.size() == 1: return 0
 	# Prefer ranged attacks when far, melee when close; summons on a slow timer.
 	var tgt := target_position(auth, e)
-	var dist := absf(tgt.pos.x - e.plane.x) if not tgt.is_empty() else 0.0
+	var dist := 0.0
+	if not tgt.is_empty():
+		# How far the target is: across in the side view; on the height grid, on the plane.
+		var grid: bool = auth.game.room_rt != null and auth.game.room_rt.topdown != null
+		dist = (tgt.pos as Vector2).distance_to(e.plane) if grid else absf(tgt.pos.x - e.plane.x)
 	var best := 0
 	for i in attacks.size():
 		var a: Dictionary = attacks[i]
