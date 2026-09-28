@@ -4,8 +4,7 @@ and Godot TileSet, and optionally the style review images.
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/proto_tiles.png      the terrain atlas (tops, faces, stairs, water frames, overlays, auto-tile sets)
   art/topdown/proto_props.png      the prop kit
-  art/topdown/placeholder_body.png the placeholder body and foes (unchanged; drawn by tools/art/build_topdown_proto.py)
-  art/topdown/placeholder_foes.png
+  art/topdown/placeholder_foes.png the placeholder foes (unchanged; drawn by tools/art/build_topdown_proto.py)
   art/topdown/proto_tiles.tres     a Godot TileSet over the atlas: terrain sets for paths and shores, animated water,
                                    and every tile's name as custom data
   data/topdown/proto_tileset.json  the manifest the Phase 1 loader reads (tiles, props, body), plus the auto-tile
@@ -38,7 +37,6 @@ from canvas import T  # noqa: E402
 
 TILES_PNG = "art/topdown/proto_tiles.png"
 PROPS_PNG = "art/topdown/proto_props.png"
-BODY_PNG = "art/topdown/placeholder_body.png"
 FOES_PNG = "art/topdown/placeholder_foes.png"
 TRES = "art/topdown/proto_tiles.tres"
 MANIFEST = "data/topdown/proto_tileset.json"
@@ -59,20 +57,17 @@ def png_bytes(img: Image.Image) -> bytes:
 
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
-    import build_topdown_proto as proto   # the placeholder body and foes stay where Phases 1-2 drew them
+    import build_topdown_proto as proto   # the placeholder foes stay where Phase 2 drew them
     sheet, at, auto = atlas.build()
     psheet, pat = props.build()
-    body, body_at = proto.build_body()
     foes, foes_at = proto.build_foes()
     manifest = {
         "schema_version": 2,
         "tile": T,
         "tiles": at,
         "props": pat,
-        "body": body_at,
         "foes": foes_at,
-        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "body": "res://" + BODY_PNG,
-                  "foes": "res://" + FOES_PNG},
+        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "foes": "res://" + FOES_PNG},
         "paint": PAINT,
         "bank_face": "bank",
         "tileset": "res://" + TRES,
@@ -91,7 +86,6 @@ def build_all() -> dict:
     return {
         TILES_PNG: png_bytes(sheet.img),
         PROPS_PNG: png_bytes(psheet.img),
-        BODY_PNG: png_bytes(body.img),
         FOES_PNG: png_bytes(foes.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
@@ -223,13 +217,25 @@ HEIGHT_BODIES = [(11.5, 13.6, "s", "idle", 0), (9.5, 8.6, "e", "idle", 0), (6.5,
                  (4.5, 1.8, "s", "idle", 0)]
 
 
+def _figure():
+    """The real character in its starting clothes, from the built sheets on disk (build_character.py), as a callable
+    (facing, action, frame) -> (image, feet) for compose.render."""
+    import review_character as rc
+    figs = rc.Figures(rc.load_built())
+    look = rc.starting()
+
+    def draw(facing: str, action: str, frame: int):
+        return figs.cell(look, action, facing, frame, bg=None), rc.FEET
+    return draw
+
+
 def review(outputs: dict) -> None:
     from PIL import ImageDraw, ImageFont, ImageOps
     REVIEW.mkdir(parents=True, exist_ok=True)
     sheet = Image.open(io.BytesIO(outputs[TILES_PNG])).convert("RGBA")
     psheet = Image.open(io.BytesIO(outputs[PROPS_PNG])).convert("RGBA")
-    body = Image.open(io.BytesIO(outputs[BODY_PNG])).convert("RGBA")
     man = json.loads(outputs[MANIFEST])
+    body = _figure()
     from canvas import Img
     A = compose.Atlas(Img.wrap(sheet), man["tiles"], {k: v["tiles"] for k, v in man["autotile"].items()},
                       Img.wrap(psheet), man["props"])
@@ -243,14 +249,14 @@ def review(outputs: dict) -> None:
     room = json.loads((ROOT / "data/topdown/td_proto_square.json").read_text())
     sp = room.get("spawn", [22, 18])
     bodies = [(sp[0] + 0.5, sp[1] + 0.6, "s", "idle", 0)]
-    full = compose.render(room, A, 0, bodies, DRESSING, body, man["body"]).img
+    full = compose.render(room, A, 0, bodies, DRESSING, body).img
     cx = min(max((sp[0] + 0.5) * T, 320), full.width - 320)
     cy = min(max((sp[1] + 0.5) * T - 12, 180), full.height - 180)
     view = full.crop((int(cx) - 320, int(cy) - 180, int(cx) + 320, int(cy) + 180))
     view.save(REVIEW / "01_square_mock_640x360.png")
     view.resize((1280, 720), Image.NEAREST).save(REVIEW / "01_square_mock_x2.png")
     full.save(REVIEW / "02_square_whole_room.png")
-    frames = [compose.render(room, A, f, bodies, DRESSING, body, man["body"]).img.crop(
+    frames = [compose.render(room, A, f, bodies, DRESSING, body).img.crop(
         (int(cx) - 320, int(cy) - 180, int(cx) + 320, int(cy) + 180)).resize((1280, 720), Image.NEAREST) for f in range(4)]
     frames[0].save(REVIEW / "03_square_water.gif", save_all=True, append_images=frames[1:], duration=250, loop=0)
 
@@ -285,7 +291,7 @@ def review(outputs: dict) -> None:
     pk.resize((psheet.width * 4, psheet.height * 4), Image.NEAREST).save(REVIEW / "05_props_x4.png")
 
     # 3. The height-levels readability test, in colour and by value alone, at x2.
-    hi = compose.render(HEIGHT_TEST, A, 0, HEIGHT_BODIES, None, body, man["body"], pad=5 * T).img
+    hi = compose.render(HEIGHT_TEST, A, 0, HEIGHT_BODIES, None, body, pad=5 * T).img
     hi = hi.crop((0, 16, hi.width, hi.height))
     grey = ImageOps.grayscale(hi.convert("RGB")).convert("RGBA")
     both = Image.new("RGBA", (hi.width * 2 + 8, hi.height), (10, 32, 39, 255))

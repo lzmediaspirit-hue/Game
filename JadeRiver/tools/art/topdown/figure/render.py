@@ -15,8 +15,9 @@ BANDS = ("back", "mid", "head", "front")
 class Look:
     """How an item's materials shade and outline: tone-4 highlights, fixed tones, ink edges, thresholds."""
 
-    def __init__(self, highlight=(), flat=None, ink=(), thresholds=None, line_tone=None):
+    def __init__(self, highlight=(), flat=None, ink=(), thresholds=None, line_tone=None, glow=()):
         self.line_tone = dict(line_tone or {})
+        self.glow = set(glow)
         self.highlight = set(highlight)
         self.flat = dict(flat or {})
         self.ink = set(ink)
@@ -41,6 +42,7 @@ def cast(solids, caster: raster.Caster, look: Look, after=None) -> dict:
 def edge(layers: dict, caster: raster.Caster, look: Look, figure_mask) -> None:
     """Outline each band. `figure_mask(band)` is the figure under that band's edge (for the inner lines)."""
     mode = {caster.mid(m): "ink" for m in look.ink}
+    mode.update({caster.mid(m): "glow" for m in look.glow})
     for b in BANDS:
         raster.outline(layers[b], figure_mask(b), mode)
 

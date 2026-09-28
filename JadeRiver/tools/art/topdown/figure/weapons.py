@@ -17,8 +17,8 @@ from .geom import depth, unit
 from .raster import cone, ellipsoid, sphere
 
 WEAPONS = {
-    "dagger": {"kind": "blade", "blade": 7.2, "width": 0.75, "hilt": 2.4, "guard": 1.3},
-    "sword": {"kind": "blade", "blade": 18.5, "width": 0.62, "hilt": 3.2, "guard": 1.55},
+    "dagger": {"kind": "blade", "blade": 7.2, "width": 0.8, "hilt": 2.4, "guard": 1.3},
+    "sword": {"kind": "blade", "blade": 18.5, "width": 0.68, "hilt": 3.2, "guard": 1.55},
     "spear": {"kind": "pole", "length": 44.0, "head": 5.2},
 }
 # A weapon pointed at the camera (or away) is drawn this much longer on screen than the figure's camera would show it:
@@ -92,11 +92,25 @@ def solids(sk, name: str) -> list:
             a = at(base + spec["blade"] * i / n + 0.15)
             b = at(base + spec["blade"] * (i + 1) / n)
             w0 = spec["width"] * (1.0 - 0.12 * i / n)
-            w1 = spec["width"] * (1.0 - 0.12 * (i + 1) / n) if i < n - 1 else 0.12
-            c = cone(a, b, w0, w1, "blade", k=0.35, side=x, band=_band(sk, (a + b) * 0.5), part="blade",
+            w1 = spec["width"] * (1.0 - 0.12 * (i + 1) / n) if i < n - 1 else 0.3
+            # round, not flat: a blade seen edge-on must still draw a pixel wide
+            c = cone(a, b, w0, w1, "blade", k=0.9, side=x, band=_band(sk, (a + b) * 0.5), part="blade",
                      paint=lambda loc, P, nn, w0=w0: (np.where(loc[:, 0] < -w0 * 0.25, "edge", "blade").astype(object),
                                                       np.zeros(len(loc), dtype=np.int16)))
             S.append(c)
+        # A cut's smear: the arc the blade's outer half swept since the frame before, a pale sheet of jade light, so the
+        # blow reads in every facing even when the blade itself points at the camera.
+        wp = sk.weapon or {}
+        if wp.get("smear_from") is not None:
+            d0 = unit(sk.w(wp["smear_from"]))
+            ang = float(np.degrees(np.arccos(np.clip(d0 @ d, -1.0, 1.0))))
+            steps = max(6, int(ang / 4.0))
+            for j in range(steps):
+                t = (j + 0.5) / steps
+                dj = unit(d0 * (1 - t) + d * t)
+                p0 = _stretch(sk, g, g + dj * (base + spec["blade"] * 0.45))
+                p1 = _stretch(sk, g, g + dj * (base + spec["blade"] * 1.02))
+                S.append(cone(p0, p1, 0.5 + 0.3 * t, 0.75 + 0.35 * t, "smear", band=_band(sk, (p0 + p1) * 0.5), part="smear"))
         return S
     d, butt0 = _pole_line(sk)
     grip = sk.hand_r if not (sk.weapon or {}).get("laid") else butt0
@@ -111,7 +125,7 @@ def solids(sk, name: str) -> list:
     for i in range(n):
         a = at((L - spec["head"]) * i / n)
         b = at((L - spec["head"]) * (i + 1) / n)
-        seg = cone(a, b, 0.5, 0.5, "shaft", band=_band(sk, (a + b) * 0.5), part="shaft",
+        seg = cone(a, b, 0.58, 0.58, "shaft", band=_band(sk, (a + b) * 0.5), part="shaft",
                    paint=lambda loc, P, nn: (np.where(((loc[:, 2] + 0.0) % 2.4) < 0.8, "cord", "shaft").astype(object),
                                              np.zeros(len(loc), dtype=np.int16)))
         S.append(seg)
@@ -120,8 +134,8 @@ def solids(sk, name: str) -> list:
     # the leaf head: widest a third of the way up
     mid = at(L - spec["head"] * 0.65)
     tip = at(L)
-    S.append(cone(at(L - spec["head"] + 0.2), mid, 0.55, 1.05, "blade", k=0.4, side=side, band=_band(sk, mid), part="head",
+    S.append(cone(at(L - spec["head"] + 0.2), mid, 0.6, 1.05, "blade", k=0.7, side=side, band=_band(sk, mid), part="head",
                   paint=lambda loc, P, nn: (np.where(loc[:, 0] < -0.3, "edge", "blade").astype(object), np.zeros(len(loc), dtype=np.int16))))
-    S.append(cone(mid, tip, 1.05, 0.1, "blade", k=0.4, side=side, band=_band(sk, tip), part="head",
+    S.append(cone(mid, tip, 1.05, 0.3, "blade", k=0.7, side=side, band=_band(sk, tip), part="head",
                   paint=lambda loc, P, nn: (np.where(loc[:, 0] < -0.3, "edge", "blade").astype(object), np.zeros(len(loc), dtype=np.int16))))
     return S

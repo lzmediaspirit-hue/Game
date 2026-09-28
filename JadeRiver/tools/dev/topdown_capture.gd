@@ -36,6 +36,9 @@ func _main() -> void:
 	if "--drag-moves" in OS.get_cmdline_user_args():
 		await drag_moves()
 		return
+	if "--character" in OS.get_cmdline_user_args():
+		await character()
+		return
 	await shot("01_square")
 	# Walking behind the house, west to east along the lane on its north side.
 	var house: Dictionary = w.room.props.filter(func(q): return q.kind == "house")[0]
@@ -145,6 +148,44 @@ func drag_moves() -> void:
 	await shot("04_guard", out)
 	hud.release(92)
 	print("topdown_capture: drag moves done")
+	get_tree().quit()
+
+## Phase 3, decision 32 (`-- --character`, into docs/redesign/phase3/character/): the real character in Riverside
+## Square in the jian, with the tutorial's villagers standing about in their own outfits and a foe to fight; then a
+## strip of the character walking, cutting and dashing.
+func character() -> void:
+	var out := "res://docs/redesign/phase3/character/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	var hud = main.hud
+	var c = Game.active()
+	Game.inventory.apply_add(c.id, "training_jian", 1, "capture")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("training_jian")})
+	var base := Vector2(22.5, 18.6) * 32.0
+	for v in [["aunt_ping", Vector2(-150, -50), "se"], ["lu_boatman", Vector2(-104, 30), "e"], ["little_dou", Vector2(-40, -70), "s"],
+			["old_ma", Vector2(190, -40), "w"], ["washer_mei", Vector2(-190, 36), "s"], ["uncle_guo", Vector2(150, 60), "nw"]]:
+		w.add_villager(str(v[0]), base + (v[1] as Vector2), str(v[2]))
+	await frames(300)   # the arrival's banners fade
+	await arena(base, [["wild_boarlet", Vector2(84, 30)]])
+	hud.set_state(true)
+	m.face(Vector2.RIGHT)
+	await frames(10)
+	p.aim_attack(Vector2.RIGHT)
+	await frames(8)
+	await shot("07_ingame_square", out)
+	# the same moment round the body, twice again (art px x4)
+	var img: Image = Image.load_from_file(ProjectSettings.globalize_path(out + "07_ingame_square.png"))
+	var at: Vector2 = (p.screen - w.camera.position + Vector2(320, 180)) * 2.0
+	var r := Rect2i(Vector2i(clampi(int(at.x) - 240, 0, 1280 - 480), clampi(int(at.y) - 180, 0, 720 - 270)), Vector2i(480, 270))
+	var crop := img.get_region(r)
+	crop.resize(960, 540, Image.INTERPOLATE_NEAREST)
+	crop.save_png(out + "07_ingame_closeup.png")
+	await arena(base, [["wild_boarlet", Vector2(90, 0)]])
+	m.face(Vector2.RIGHT)
+	await frames(4)
+	p.aim_attack(Vector2.RIGHT)
+	await strip("07_ingame_strip", Vector2.ZERO, 34, [], [], [0, 5, 10, 16, 34], out)
+	await strip("07_ingame_walk_strip", Vector2(0.7, 0.7).normalized(), 40, [], [22], [0, 8, 16, 24, 40], out)
+	print("topdown_capture: character done")
 	get_tree().quit()
 
 ## An empty square round `at` with these foes ([def, offset]) turned on the player.

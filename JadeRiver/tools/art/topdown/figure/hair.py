@@ -80,7 +80,7 @@ def cap(sk, fringe: bool) -> list:
 
 
 def tail(sk, start, first_dir, length: float, r0: float, r1: float, segs: int = 6, stiff: float = 0.55,
-         mat="hair", part="tail", k=1.0, rings=None) -> list:
+         mat="hair", part="tail", k=1.0, rings=None, ragged=False) -> list:
     """A lock or tail from `start` (world), leaving along `first_dir` (world), bending toward gravity and the drag.
     `rings` = [(fraction, material)] binds it at those points. Each segment is in the back band when it is behind the
     neck, else mid (over the shirt)."""
@@ -104,9 +104,15 @@ def tail(sk, start, first_dir, length: float, r0: float, r1: float, segs: int = 
         ra = r0 + (r1 - r0) * i / segs
         rb = r0 + (r1 - r0) * (i + 1) / segs
         band = "back" if depth((a + b) * 0.5) < ref else "mid"
-        out.append(cone(a, b, ra, rb, mat, k=k, side=side, band=band, part=part))
-        out.append(sphere(b, rb, mat, band=band, part=part) if k == 1.0 else
-                   ellipsoid(b, _frame(b - a, side), (rb, rb * k, rb), mat, band=band, part=part))
+        last = i == segs - 1
+        clip = None
+        if ragged and last:
+            L = float(np.linalg.norm(b - a))
+            clip = (lambda loc, L=L: loc[:, 2] < L * (1.0 - 0.75 * ((np.floor((loc[:, 0] + 8.0) / 1.3) % 2) == 1)))
+        out.append(cone(a, b, ra, rb, mat, k=k, side=side, band=band, part=part, clip=clip))
+        if not (ragged and last):
+            out.append(sphere(b, rb, mat, band=band, part=part) if k == 1.0 else
+                       ellipsoid(b, _frame(b - a, side), (rb, rb * k, rb), mat, band=band, part=part))
     for frac, rm in (rings or []):
         at = min(segs - 1, int(frac * segs))
         p = pts[at] + (pts[at + 1] - pts[at]) * (frac * segs - at)

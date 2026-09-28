@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2t3088rugd1h"
-path="res://.godot/imported/placeholder_body.png-e0af66e8ffb5732c58bfc4cb13ada63c.ctex"
+uid="uid://cak6b4j0aq27r"
+path="res://.godot/imported/shirt_scholar__earth.png-24d5e41fff72e8471ad39187e5dfd2cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/topdown/placeholder_body.png"
-dest_files=["res://.godot/imported/placeholder_body.png-e0af66e8ffb5732c58bfc4cb13ada63c.ctex"]
+source_file="res://art/topdown/character/shirt_scholar__earth.png"
+dest_files=["res://.godot/imported/shirt_scholar__earth.png-24d5e41fff72e8471ad39187e5dfd2cf.ctex"]
 
 [params]
 

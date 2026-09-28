@@ -1700,7 +1700,7 @@ func topdown_art_suite() -> void:
 		needed.append(k + "_face")
 	for n in needed:
 		if not tiles.has(n): missing.append(n)
-	for kind in ["tiles", "props", "body", "foes"]:
+	for kind in ["tiles", "props", "foes"]:
 		if not ResourceLoader.exists(str(man.get("atlas", {}).get(kind, ""))): missing.append("atlas " + kind)
 	check(missing.is_empty() and paint.size() >= 7, "topdown art: every tile the paint table and the loader draw is in the atlas (missing %s)" % str(missing))
 	var outside: Array = []
@@ -1841,7 +1841,7 @@ func topdown_figure_problems(man: Dictionary, sheets: bool) -> Array:
 				seen[sig] = true
 		if seen.size() != 3: out.append("combo %s repeats a stage" % fam)
 	var dyes: Array = ContentDB.parts.get("_dyes", {}).get("order", [])
-	for cat in ["body", "hair", "shirt", "pants", "shoes", "weapon"]:
+	for cat in ["body", "hair", "shirt", "pants", "shoes", "hat", "cape", "weapon"]:
 		for name in man.get("items", {}).get(cat, {}):
 			var it: Dictionary = man.items[cat][name]
 			var label := "%s/%s" % [cat, name]

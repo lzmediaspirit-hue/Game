@@ -225,6 +225,13 @@ func _add_foe(e: EnemyState) -> void:
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
 
+## A villager standing at `at` (world units, on the floor there) facing `row`, drawn by TopdownFigure in the NPC's own
+## outfit (Phase 3: the compositor draws NPCs as it draws the player), sorted with the room.
+func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
+	var v := VillagerView.new(self, npc_id, at, row)
+	sorted.add_child(v)
+	return v
+
 ## The foes' names and HP bars keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
 ## them), nearest the player first.
 func layout_labels() -> Dictionary:
@@ -549,6 +556,30 @@ class FoeView extends Sorted:
 		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
+
+## Phase 3: a villager on the floor, the NPC's figure breathing in its idle (TopdownFigure.for_npc), its shadow under it.
+class VillagerView extends Sorted:
+	var figure: TopdownFigure
+	var row := "s"
+	var feet := Vector2.ZERO
+	var t := 0.0
+	func _init(w, npc_id: String, at: Vector2, facing: String) -> void:
+		super(w)
+		figure = TopdownFigure.for_npc(npc_id)
+		row = facing
+		var g: float = w.room.height_at(at)
+		feet = TopdownWorld.to_screen(at, g if g < INF else 0.0).round()
+		key(w.room.sort_key(at, g if g < INF else 0.0))
+		position.x = feet.x
+		rects.append(Rect2(feet + Vector2(-8, -40), Vector2(16, 40)))
+	func _process(delta: float) -> void:
+		t += delta
+		queue_redraw()
+	func _draw() -> void:
+		var sy := feet.y - position.y
+		draw_rect(Rect2(-7, sy - 1, 14, 3), Color(0.01, 0.035, 0.04, 0.45))
+		draw_rect(Rect2(-5, sy - 2, 10, 5), Color(0.01, 0.035, 0.04, 0.45))
+		figure.draw(self, Vector2(0, sy), "idle", row, TopdownFigure.frame_at("idle", t))
 
 ## Phase 2 (decision 30): the aim on the ground, on the overlay in world units. While a thumb aims (the player's
 ## `aim`), its form from the feet: an arrow for a blow, a line, a cone, a circle at its point (joined to the feet) or

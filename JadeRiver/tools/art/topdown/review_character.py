@@ -9,6 +9,7 @@ so they show what ships.
   05_dyes.png              the starting tunic and trousers in every dye, S, E and N
   06_villagers.png         the tutorial's villagers in their own outfits, S and E (missing layers listed)
   08_mirrored.png          the eight facings of the walk, the west three mirrored
+  09_wardrobe.png          every shirt, trousers, shoes, hat and cape drawn, idle and mid-walk in the five facings
 """
 from __future__ import annotations
 
@@ -90,11 +91,19 @@ class Figures:
                 ox = -ox - w
             canvas.alpha_composite(piece, (feet[0] + ox, feet[1] + oy))
 
-    def cell(self, outfit: dict, action: str, row: str, i: int) -> Image.Image:
-        im = Image.new("RGBA", CELL, BG)
+    def cell(self, outfit: dict, action: str, row: str, i: int, bg=BG) -> Image.Image:
+        im = Image.new("RGBA", CELL, bg or (0, 0, 0, 0))
         layers, _ = self.layers(outfit)
         self.draw(im, FEET, layers, action, row, i)
         return im
+
+
+def load_built() -> dict:
+    """The built manifest and sheets as build_character.build_all returns them, read back from disk."""
+    out = {MANIFEST: (ROOT / MANIFEST).read_bytes()}
+    for p in sorted((ROOT / "art/topdown/character").glob("*.png")):
+        out["art/topdown/character/" + p.name] = p.read_bytes()
+    return out
 
 
 def starting(**kw) -> dict:
@@ -162,6 +171,7 @@ def review(outputs: dict) -> None:
     _dyes(F)
     _villagers(F)
     _mirrored(F)
+    _wardrobe(F)
     print("review sheets in", OUT.relative_to(ROOT))
 
 
@@ -235,6 +245,28 @@ def _villagers(F: Figures) -> None:
         d.text((x0, 44 + ch * s), npcs[nid].get("name", nid), font=_font(12, True), fill=(232, 225, 207, 255))
         d.text((x0, 60 + ch * s), ", ".join(missing) or "all drawn", font=_font(10), fill=(229, 160, 120, 255) if missing else (140, 200, 160, 255))
     im.save(OUT / "06_villagers.png")
+
+
+def _wardrobe(F: Figures) -> None:
+    rows = []
+    for cat in ("shirt", "pants", "shoes", "hat", "cape"):
+        for name in F.man["items"].get(cat, {}):
+            rows.append(("%s: %s" % (cat, F.man["items"][cat][name]["label"]), starting(**{cat: name})))
+    dirs = F.man["dirs"]
+    cw, ch = CELL
+    s = 3
+    im = Image.new("RGBA", (200 + 2 * len(dirs) * cw * s + 20, 40 + len(rows) * (ch * s + 4)), (22, 30, 34, 255))
+    d = ImageDraw.Draw(im)
+    d.text((10, 8), "Every garment drawn, on the starting outfit: idle (left) and mid-walk (right), S SE E NE N",
+           font=_font(16, True), fill=(232, 225, 207, 255))
+    for r, (label, o) in enumerate(rows):
+        y = 40 + r * (ch * s + 4)
+        d.text((10, y + 8), label, font=_font(12), fill=(232, 225, 207, 255))
+        for k, dr in enumerate(dirs):
+            im.alpha_composite(F.cell(o, "idle", dr, 0).resize((cw * s, ch * s), Image.NEAREST), (200 + k * cw * s, y))
+            im.alpha_composite(F.cell(o, "walk", dr, 2).resize((cw * s, ch * s), Image.NEAREST),
+                               (220 + (len(dirs) + k) * cw * s, y))
+    im.save(OUT / "09_wardrobe.png")
 
 
 def _mirrored(F: Figures) -> None:

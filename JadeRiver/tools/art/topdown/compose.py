@@ -126,10 +126,10 @@ def shore_sides(room: Room, x: int, y: int) -> int:
 
 
 def render(d: dict, atlas: Atlas, frame: int = 0, bodies: list | None = None, dressing: list | None = None,
-           body_sheet: Image.Image | None = None, body_frames: dict | None = None, pad: int = 0) -> Img:
+           figure=None, pad: int = 0) -> Img:
     """The whole room at art resolution, `pad` art px taller at the top so raised levels on the north rows show.
     `bodies` are (cell x, cell y as floats, facing, anim, frame) standing on the
-    floor under them; `dressing` adds props for a review without touching the room's data."""
+    floor under them, drawn by `figure(facing, anim, frame) -> (image, feet)`; `dressing` adds props for a review without touching the room's data."""
     global room_auto
     room_auto = atlas.auto
     room = Room(d)
@@ -244,14 +244,8 @@ def render(d: dict, atlas: Atlas, frame: int = 0, bodies: list | None = None, dr
             lvl = max(0, room.lv(cx, cy))
             fx, fy = int(bx * T), int(by * T) - lvl * T
             shadow_ellipse(out, fx, fy, 7, 2.5)
-            if body_sheet is not None:
-                cw, ch = body_frames["cell"]
-                foot = body_frames["foot"]
-                row = "e" if facing == "w" else facing
-                sx, sy = body_frames["frames"][anim][row][f]
-                cell = body_sheet.crop((sx, sy, sx + cw, sy + ch))
-                if facing == "w":
-                    cell = cell.transpose(Image.FLIP_LEFT_RIGHT)
+            if figure is not None:
+                cell, foot = figure(facing, anim, f)
                 out.paste(cell, fx - foot[0], fy - foot[1])
     return out
 

@@ -52,6 +52,25 @@ WRAP = ramp("1f2124", "2c2f33", "3c3f43", "50545a", "6a6f75")           # their 
 SHOE = ramp("2e2013", "4d371e", "5c4127", "7d674c", "9a8058")
 SHOE_TOP = ramp("6e5030", "8a6d3a", "b08d4b", "cdab64", "e2c98a")
 
+# The creator's other clothes, worn by the villagers (side view: shirt_vneck / cardigan / scholar / sleeveless,
+# pants_straight / cuffed / scholar / martial, shoes_folded / boots, hat_straw).
+GREY = ramp("3a3e44", "5a6068", "7e858c", "a3a9ae", "c8ccce")          # the cloud tunic's and scholar coat's sleeves
+PANEL = ramp("8e9496", "b8bcbc", "dcdfda", "f0f1ec", "fbfbf6")         # their white front panels
+ACCENT = ramp("142460", "223a8c", "3354b4", "5a7ad0", "8ea8e6")        # the blue stripe and cloud emblem
+ROBE = ramp("083a32", "0c5446", "13705c", "1f8e74", "48b494")          # the sect robe's and the vest's jade
+TRAVEL = TROUSERS                                                       # travel pants and leg wraps: the same teal
+LEG_WRAP = ramp("2a5040", "3f6e56", "5a9070", "7cb08a", "a6d0aa")      # the leg wraps' pale green
+INK_CLOTH = ramp("0d0f13", "16191f", "21252d", "2e333d", "424856")     # scholar pants
+NAVY = ramp("0e1830", "162648", "21386a", "30508e", "4f72b0")          # martial pants, the greaves' shoes
+STRAW = ramp("5e4520", "8a6a30", "b8924a", "d8b86a", "eed89a")         # the straw hat
+TEAL_CLOTH = ramp("023a36", "04525a", "02645f", "2a8a80", "58b0a4")    # the headband and the tied band
+JADE_STONE = ramp("0e4a42", "125e56", "2c9e8f", "5cc4b0", "8ae6cc")    # the guan's jade
+FELT = ramp("161a22", "20242c", "282c36", "3e4452", "5a6272")          # the weimao's dark felt
+RED_BAND = ramp("4e1414", "6e1c1c", "a42e2a", "c8483e", "e0766a")      # its band
+VEIL = ramp("56606e", "687080", "9aa2ae", "c4cad2", "e6eaee")          # its gauze
+CAPE_GREEN = ramp("02302c", "054b45", "0d6a5e", "1f8a78", "4aa894")    # the solid cape
+CAPE_GREY = ramp("121418", "1b1f26", "21262e", "30363f", "474f5a")     # the tattered cape
+
 # Weapons (side view: weapon_sword / dagger / spear sheets) and the training gauntlets.
 BLADE = ramp("273841", "467075", "5ba69b", "a0d3c1", "e8f2dc")
 HILT = ramp("1d131e", "2b1c1d", "411e05", "62351c", "7d4a2a")
@@ -59,8 +78,28 @@ SHAFT = ramp("62351c", "a08462", "cdbfa2", "e8f2dc", "f6faf0")
 STEEL = ramp("1c1e24", "4e545e", "808892", "bac0c6", "eceef0")
 BRONZE = ramp("4a2a14", "784826", "b0703a", "dea85c", "f2cf8e")
 
-# Which materials a dye recolours, per garment category (the side view dyes shirts and trousers, parts.json _dyes).
-DYEABLE = {"shirt": ["cloth"], "pants": ["cloth"]}
+# Which materials a dye recolours, per garment category (the side view dyes shirts and trousers, parts.json _dyes):
+# `cloth` takes the dye's ramp, `panel` a step lighter and `edge` a step darker, as the side view's luminance bake maps
+# a garment's lighter and darker parts along the dye.
+DYEABLE = {"shirt": ["cloth", "panel", "edge"], "pants": ["cloth"]}
+
+
+def _mix(a, b, t):
+    return tuple(int(round(x + (y - x) * t)) for x, y in zip(a[:3], b[:3])) + (255,)
+
+
+def lighter(r: list) -> list:
+    return [r[1], r[2], r[3], r[4], _mix(r[4], (255, 255, 255), 0.45)]
+
+
+def darker(r: list) -> list:
+    return [_mix(r[0], (0, 0, 0), 0.35), r[0], r[1], r[2], r[3]]
+
+
+def garment(ramp_: list, dye: str | None) -> dict:
+    """A garment's dyeable materials for the undyed original (`ramp_`) or a side-view dye."""
+    base = ramp_ if dye is None else dye_ramp(dye)
+    return {"cloth": base, "panel": lighter(base) if dye is not None else None, "edge": darker(base)}
 
 
 def dye_ramp(name: str) -> list:

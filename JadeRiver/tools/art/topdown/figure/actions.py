@@ -19,8 +19,8 @@ BLADE_IDLE = (0.7, 0.42, -0.58)
 POLE_IDLE = {"dir": (0.14, 0.12, 1.0), "butt": 12.6}
 
 
-def W(blade=None, pole=None, flat=(0.0, 1.0, 0.0), laid=None):
-    return {"blade": blade or BLADE_IDLE, "pole": pole or POLE_IDLE, "flat": flat, "laid": laid}
+def W(blade=None, pole=None, flat=(0.0, 1.0, 0.0), laid=None, smear_from=None):
+    return {"blade": blade or BLADE_IDLE, "pole": pole or POLE_IDLE, "flat": flat, "laid": laid, "smear_from": smear_from}
 
 
 def feet(fl=0.0, fr=0.0, wl=2.2, wr=2.2, ul=1.3, ur=1.3):
@@ -211,6 +211,7 @@ def _swing(k, i):
                dict(left_seal, hand_r=(6.8, 1.2, 15.6), blade=(0.55, 0.0, -0.8), lean=19, pelvis=(0.6, 0.0, 12.4),
                     **feet(3.4, -1.8, 2.0, 2.5)),
                ready]
+    hit = 3 if k == 3 else 2
     out = []
     for j, s in enumerate(seq):
         d = dict(st)
@@ -219,7 +220,9 @@ def _swing(k, i):
         d.update(s)
         d["grip_r"] = "fist"
         d["drag"] = (0.3 if j in (2, 3) else 0.05, 0.0, 0.0)
-        d["weapon"] = W(blade=blade, pole={"dir": blade, "butt": 14.0})
+        # the cut's smear on its hit frame and the one after, from the blade's last place
+        smear = seq[j - 1]["blade"] if j in (hit, hit + 1) else None
+        d["weapon"] = W(blade=blade, pole={"dir": blade, "butt": 14.0}, smear_from=smear)
         out.append(pose(**d))
     return out[i]
 

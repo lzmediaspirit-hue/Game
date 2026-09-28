@@ -328,6 +328,9 @@ def outline(layer: Layer, inner_mask: np.ndarray, line_mode: dict) -> None:
         ink_ids = np.array([k for k, v in line_mode.items() if v == "ink"], dtype=np.int16)
         if ink_ids.size:
             inner &= ~np.isin(nm, ink_ids)
+        glow_ids = np.array([k for k, v in line_mode.items() if v == "glow"], dtype=np.int16)
+        if glow_ids.size:
+            inner |= edge & np.isin(nm, glow_ids)     # light has no ink: its edge is its own deeper tone
     code = np.where(inner, OUT_INNER, code)
     layer.out = np.where(edge, code, OUT_NONE).astype(np.int8)
     layer.out_mat = np.where(edge, nm, -1).astype(np.int16)
