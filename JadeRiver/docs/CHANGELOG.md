@@ -14,6 +14,21 @@
 - **New generators:** `figure/kinds/flute.py`, `bell.py`, and `sound.py`, which draws what a sounding weapon sends out on
   its blows. A blow's frame is known by its pose, so the action catalogue and every other set are unchanged.
 - **Review sheets:** `docs/redesign/phase3/character/03_weapon_flute.png` and `03_weapon_bell.png`.
+## Top-down: the fan and the brush (decision 37)
+
+- **The fan and brush batch is drawn.** `weapon_fan` and `weapon_brush` give the top-down figure the looks of 21 game
+  items (10 fans, 11 brushes), in every action and facing. Two new generators cast them, `figure/kinds/fan.py` and
+  `figure/kinds/brush.py`. No shared file changed, and every other set's files are byte-identical.
+- **The iron fan** is the side view's: cream paper pleated over brown ribs, a teal ink band on its rim, and a gold
+  rivet under the fist.
+  - It folds at rest into a slim bar, brown at the handle and the tip.
+  - It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's dive).
+  - Open, it always shows its face: it is turned at least 50° off the camera's line and faces the camera.
+  - Its cuts leave the jian's smear of jade light. It lies folded beside a meditating figure.
+- **The calligraphy brush** has a jointed bamboo shaft, a lacquered cap and collar, and a tuft pale at the root and
+  soaked black to its point. Its cuts leave an ink stroke along the arc the point swept. The stroke is broad at the
+  brush and thin behind it, and at its tail it has run dry: grey and broken.
+- Review sheets: `docs/redesign/phase3/character/03_weapon_fan.png` and `03_weapon_brush.png`.
 
 ## Top-down redesign, Phase 4 goes on: chapter 2's stretch on the grid, for both sects
 
