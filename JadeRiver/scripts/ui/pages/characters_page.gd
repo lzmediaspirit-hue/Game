@@ -91,7 +91,7 @@ func draw_page() -> void:
 		var slot := page_at + i + 1
 		var sr := stretch_rect(i)
 		var a := clampf((shown_w - (sr.get_center().x - p.position.x)) / 80.0, 0.0, 1.0)
-		_stretch(ch, slot, sr, a, live)
+		_stretch(ch, slot, sr, a, live, p.position.x + shown_w >= sr.end.x)
 	if n > SHOWN:
 		btn(Rect2(p.position.x, 72, 64, 48), "◀", "scroll", -1, false, page_at > 0, "", 20)
 		btn(Rect2(p.end.x - 64, 72, 64, 48), "▶", "scroll", 1, false, page_at + SHOWN < n, "", 20)
@@ -99,8 +99,9 @@ func draw_page() -> void:
 	_below(ch)
 
 ## One disciple's stretch: the figure standing, their sign at their feet, their column in ink; the chosen one washed
-## in gold. An open slot is blank paper waiting for a new disciple.
-func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary) -> void:
+## in gold. An open slot is blank paper waiting for a new disciple. Its words are written once the paper is unrolled past
+## the whole stretch (`open`), so they always sit on the paper.
+func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary, open: bool) -> void:
 	var other = Game.character("c%d" % slot)
 	if slot == chosen:
 		glow(Rect2(r.position.x + 10, r.position.y + 10, r.size.x - 20, r.size.y - 20), Color(UiKit.GOLD, 0.22 * a))
@@ -111,7 +112,7 @@ func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary) -> void:
 		var dash := Color(UiKit.PAPER_INK, 0.35 * a)
 		draw_arc(feet + Vector2(0, -104), 13.0, 0.0, TAU, 24, dash, 2.0, true)
 		PostKit.dashed(self, PackedVector2Array([feet + Vector2(-20, 0), feet + Vector2(-16, -86), feet + Vector2(16, -86), feet + Vector2(20, 0), feet + Vector2(-20, 0)]), dash, 6.0)
-		if a > 0.5:
+		if open:
 			text(Vector2(r.position.x, r.position.y + 190), Tx.t("ui.characters.new_disciple"), 20, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 			para(Rect2(r.position.x + 16, r.position.y + 202, r.size.x - 32, 60), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 14, RecordsKit.BROWN, 3)
 		region(r, "choose", slot)
@@ -120,7 +121,7 @@ func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary) -> void:
 	SectKit.show(fig, feet, live, str(other.id), a, "idle" if other == ch else "meditate" if str(other.idle_task.get("task", "")) in ["seclusion", "rest"] else "idle")
 	var sign := _sign(other)
 	if sign != "" and other != ch: icon_at(Rect2(feet + Vector2(26, -32), Vector2(32, 32)), sign, Color(1, 1, 1, a))
-	if a > 0.5:
+	if open:
 		text(Vector2(r.position.x + 8, r.position.y + 190), str(other.name), 22, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_CENTER, r.size.x - 16, true)
 		text(Vector2(r.position.x + 8, r.position.y + 216), ContentDB.realm_label(other.cultivator.realm_key, ProgressionRules.level(other)), 16, RecordsKit.BROWN, HORIZONTAL_ALIGNMENT_CENTER, r.size.x - 16)
 		para(Rect2(r.position.x + 14, r.position.y + 228, r.size.x - 28, 44), Tx.t("ui.characters.playing") if other == ch else task_line(other), 16, RecordsKit.JADE_INK, 2)
