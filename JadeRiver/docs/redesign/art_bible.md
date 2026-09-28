@@ -446,8 +446,8 @@ At a glance, nothing on a 40 × 22-tile screen repeats.
 | Cast shade of a higher west cell | 0.45 → 0.08 over 6 px (`shade_w`: 116, 100, 84, 64, 42, 20) |
 | Grass edge on a path | 0.44 on the first px below the edge, then 0.22; 0.28 east of it |
 | Eave on a wall | 0.71, 0.51, 0.33, 0.18, 0.08 over 5 px under the soffit |
-| Sun patches | `#FFE27A` at **0.18** |
-| Shade patches | `#2B3A6E` at **0.17**. The manifest's `v2.tint` holds the tint colours; the room view reads them there |
+| Sun patches | `#DDF27A` (yellow-green) at **0.08**, on meadows, earth and rock only |
+| Shade patches | `#0E4A58` (blue-green) at **0.12**, on the same. The manifest's `v2.tint` holds the tint colours; the room view reads them there. *Changed in the polish pass: at 0.18 and 0.17, in yellow and blue-violet, they stained the grass khaki and the paving lavender and yellow. Paving and granite take no patches* |
 | Water depth | `#0C1B33` at **0.31** from two cells from land, and 0.28 more from four cells |
 | Stacking cap | Where a runtime shadow falls on baked shade (AO, rims, prop shadows, patches), the total darkening stays **at or under 0.6**. Do not stack a runtime shadow on a face: faces are shaded already |
 
@@ -484,10 +484,10 @@ and its shade differ in hue as well as value.
 
 | Ramp | Steps (0 → 6) | Use |
 |---|---|---|
-| `GRASS2` | `162B3A 1C4342 25604A 3C7E4C 5C9B4C 8DB955 C6DB7C` | meadow base 4, clumps 3, tips 5, glints 6 |
-| `DIRT2` | `35222E 553535 7A5140 9C7152 B98F63 D3AE7C EACDA0` | paths |
-| `PAVE2` | `2E2A3F 4A4558 696372 8A8388 ABA29C C9BFB1 E4DCCB` | pale town flagstones, stones 4–5 |
-| `STONE2` | `1F2236 31384C 4B5668 6A7682 8D979D B1BAB9 D8DED6` | dressed granite: promenades, terraces, stairs, walls |
+| `GRASS2` | `123040 144A40 1B6641 2B823D 45A03A 87C749 CBE86C` | a saturated meadow: base 4, tuft blades 3, their feet 2, tips 5, glints 6 |
+| `DIRT2` | `35222E 5A3531 80523B A2704A BF8E5C D8AE77 EECB98` | paths |
+| `PAVE2` | `2A2330 4A3F44 6D6057 8F8170 AD9E88 C8BAA0 E3D8BE` | warm grey-beige town flagstones, stones 4 (3–5), joints 1–2 |
+| `STONE2` | `1A1E33 2A3249 43506A 63728A 8594A6 ADBAC6 DDE4E6` | dressed granite, blue-grey: promenades, terraces, stairs, walls |
 | `ROCK2` | `1E1D33 2F3046 474A5C 62666C 82857F A7A794 CECAAE` | karst: lit planes warm, shade violet |
 | `EARTH2` | `241B2B 3A2932 553A38 714F41 8E684D AA855F C5A47A` | soil banks |
 | `MOSS2` | `13283A 1A3F3E 285B42 3F7845 63964A 90B656 C4D67E` | moss, drapes, vines |
@@ -502,10 +502,10 @@ their top". Measured on the atlas:
 
 | Top | Face | Ratio |
 |---|---|---|
-| grass | earth | 0.55 |
-| rock | cliff | 0.63 |
-| granite | wall | 0.57 |
-| paving | wall | 0.49 |
+| grass | earth | 0.61 |
+| rock | cliff | 0.54 |
+| granite | wall | 0.55 |
+| paving | wall | 0.50 |
 
 The ground under a character stays in steps 3–5 of its ramp, so the ink-outlined bodies read on every floor.
 
@@ -518,8 +518,11 @@ TileSet's tiles.
 1. **Macro patterns.** Each material is one pattern cut into tiles: 4 × 4 tiles (64 px), or 8 × 8 (128 px) for the
    paving. A cell takes the tile at its place in the pattern, `tiles[(y mod h) × w + (x mod w)]`, so a flagstone, a
    plank or a clump runs across tile edges.
-   - The patterns hold only fine detail (blades, grain, joints). Anything big enough to be seen repeating comes from
-     the next layers.
+   - The patterns hold only detail at the tuft scale and below (blades, grain, joints). Anything big enough to be seen
+     repeating comes from the next layers.
+   - **Grass** is a clean, saturated green under crisp tufts of blades, about eight to a tile: lit tips over blades
+     in their own shade, a darker foot and a dark root (`TUFTS` in `terrain2.py`). The clump decals are crowds of the
+     same tufts.
 2. **Decals.** Small transparent tiles, drawn over the base tile:
    - which cells take one: a hash of the cell (`h01(x, y, seed + 5)`) against the mark's `decals` shares, in order;
    - which decal: a second hash (`seed + 6`);
@@ -538,7 +541,7 @@ TileSet's tiles.
    | roof | moss, a leaf |
 
    Each decal stays a pixel inside its tile and throws its own small `SHADOW` to the south-east (0.16–0.39).
-3. **Sun and shade patches.**
+3. **Sun and shade patches.** A whisper, on meadows, earth and rock only (paving and granite take none).
    - A value noise over the room's corners, at 7 cells and 3 cells (`TONE_SUN` 0.58, `TONE_SHADE` 0.4), marks each
      corner sunny, shaded or neither.
    - It counts only where all four cells round the corner are tops of one level whose mark takes `tone`.
@@ -571,8 +574,10 @@ TileSet's tiles.
   - stone and paving walls: ashlar courses under a coping stone with a dark overhang line, moss in the lower joints;
   - the river embankment: wet dark blocks and an algae line;
   - piers: pilings lit on the west in the pier's own shadow.
-- **Tops that must not read as walls.** Granite tops are big pale slabs a tile deep, with thin joints, so a terrace
-  never looks like the coursed wall under it.
+- **Granite tops** are big slabs a tile deep and 16–40 px long, in blue-grey granite with a lit top edge and thin
+  joints a step down, so a terrace is crisp but never looks like the darker coursed wall under it.
+- **Value range.** Cliff bodies sit in the dark steps (1–2) with lit flanks at 3–5, so a cliff is the deepest thing
+  on land after the water; every lip's rim is its top's brightest step warmed a third of the way to `SUN`.
 
 ### 14.6 Water
 
@@ -593,10 +598,12 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
 
 ### 14.7 Paving and stairs
 
-- **Town paving.** Irregular flagstones, the scholar-garden "cracked ice" laying, 12–28 px across, in a 128 px pattern.
-  - Each stone has its own tint (a warmer or cooler step), a lit north-west bevel, a shaded south-east one, worn
-    rounded corners, grain, and a crack now and then.
-  - The joints are a step darker, with moss growing in some.
+- **Town paving.** Irregular flagstones, the scholar-garden "cracked ice" laying, in warm grey-beige stone, about a tile
+  across (11–22 px, an 8 × 8 site grid in a 128 px pattern), so a 38 px body stands on two or three of them.
+  - Each stone has its own tone (a few a step lighter or darker, a few with a faint sandy or blue cast), a lit
+    north-west rim, a shaded south-east one, worn rounded corners, grain, and a crack now and then.
+  - The joints are crisp and dark (steps 1–2), with moss and a blade or two of grass in some.
+  - No sun or shade patches lie on paving: the plaza reads as well kept and evenly lit.
   - Leaves, weeds and cracks are decals, so they never repeat with the pattern.
 - **Stairs.** Treads with a bright nosing and a worn, paler middle; a dark line under each nosing; a riser with a
   bounce of light at its foot. The west cheek is lit and the east cheek shaded.
