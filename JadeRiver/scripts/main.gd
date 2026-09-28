@@ -951,6 +951,10 @@ func _warm_pages() -> void:
 	_page_warmer = PageWarmer.new(PAGES.values())
 	_page_warmer.tick()
 
+## True once every page script has been asked for and is in.
+func pages_warm() -> bool:
+	return _page_warmer == null
+
 func _page_script(path: String) -> Script:
 	if _page_scripts.has(path): return _page_scripts[path]
 	var scr: Script = null

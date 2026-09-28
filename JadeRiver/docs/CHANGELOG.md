@@ -24,7 +24,8 @@ See `docs/redesign_top_down_plan.md`, "As built: Phase 4, third part".
   On the grid two foes are never put on one point.
 - **The people come with the room.** Page scripts now warm up one at a time after launch. While one compiles, every
   other load waits, and asking for all sixty at once held villagers back for seconds. They now draw within a moment
-  of the room (80 ms headless, with 56 page scripts still to compile).
+  of the room (80 ms headless, with 56 page scripts still to compile). `perf_tests` times rooms and pages once the
+  pages are in.
 - **The side view's x-only and walk-strip rules found on the grid, all fixed:**
   - camera bounds (a ridge on the north edge, the body always in view);
   - the ways' reach (turned with each way, on its own floor);

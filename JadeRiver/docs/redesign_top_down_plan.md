@@ -1189,7 +1189,9 @@ or walk-strip rules was audited and fixed. The side view is unchanged except whe
 for it, and the title asked for all sixty at once, so a room's people waited seconds for their sheets after launch.
 The pages now warm one at a time (the next once the one before is in), and every sheet of a villager's outfit is asked
 for as the room is populated (`TopdownPlaces.Person`; the side view's `NpcView.figure` too), so they wait at most for
-the page in hand. The pages take about as long in all (7.0 s against 6.4 s headless).
+the page in hand. The pages take about as long in all (7.0 s against 6.4 s headless; on a loaded machine 13–16 s
+against 17–18 s). `perf_tests` now times rooms and pages once they are in (`main.pages_warm`), as a player meets them
+after the title screen: while one compiles, a room or page that needs it waits for it.
 
 **The audit: side-view rules the grid still used, all fixed.**
 
