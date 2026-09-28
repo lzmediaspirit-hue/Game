@@ -884,6 +884,18 @@ independent batches (HOWTO.md), 62 game items in all:
 
 A piece with no top-down layer goes in `TopdownFigure.missing`, and the figure draws without it.
 
+**Batches landed (decision 37).**
+
+- **fan_and_brush** (2026-09-28): `weapon_fan` and `weapon_brush`, 21 game items (10 fans, 11 brushes), cast by two
+  new generators, `kinds/fan.py` and `kinds/brush.py`. The iron fan folds at rest and opens in every blow, the guard
+  and the plunge's dive: pleated paper on brown ribs, the side view's teal ink band and a gold rivet. Open, it is
+  turned at least 50° off the camera's line and faces the camera, so its face shows in every facing, and its cuts
+  leave the jian's jade smear. The calligraphy brush has a jointed bamboo shaft, a lacquered cap and collar, and a
+  tuft soaked black to its point. Its cuts leave an ink stroke along the point's arc: broad at the brush, thin behind
+  it, dry and broken at its tail. A pose carries no action name, so the fan looks its action up by the pose's content
+  (`kinds/fan.py` `frame_of`). No shared file changed. Review: `docs/redesign/phase3/character/03_weapon_fan.png`
+  and `03_weapon_brush.png`.
+
 **Tests.**
 
 - **`data_validation` `topdown_character_suite`** holds the layer contract, as `Validate-Animations.ps1` does for the
