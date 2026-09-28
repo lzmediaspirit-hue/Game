@@ -14,7 +14,11 @@ extends "res://tests/tutorial_order.gd"
 ##   3. every spot the walk stands at in a room on the grid is reached on foot from where the character came in;
 ##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
 ##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
-##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there.
+##   5. the character's spot is saved and loaded on the grid: a save taken in a room on the grid resumes there;
+##   6. the story is staged (decision 39, data/scenes.json): every scene of the tutorial plays to its end on a
+##      SceneDirector with no view as the walk comes to it, the walk's own deeds doing what its hand-offs ask (the
+##      stump punched, the tea drunk, the crab driven off, the door walked through), and its cuts count on the play clock,
+##      where the first hour's pacing (invariant 14) still holds.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
 const TUTORIAL_ROOMS := ["lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_reed_shallows", "lf_village_night",
@@ -32,8 +36,13 @@ func _main() -> void:
 	add_child(views)
 	create_extra = {"view": "topdown"}
 	GameEvents.event.connect(_on_grid_event)
+	scene_director = SceneDirector.new()
+	scene_director.pages_override = false
+	add_child(scene_director)
+	scene_director.set_process(false)
 	_layouts()
 	run()
+	_scenes_played()
 	_save_on_the_grid()
 	_walk_on_the_grid()
 	check(wrong_view.is_empty(), "every room of the walk was on the grid exactly when it has a layout (%s)" % str(wrong_view))
@@ -44,6 +53,33 @@ func _main() -> void:
 	if is_instance_valid(probe): probe.free()
 	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
 	end_suite()
+
+# ------------------------------------------------------------------ 6: the staged scenes
+## Each step of the walk comes to the stage: what a scene staged is played out before the walk goes on (as a cut holds
+## the player in the game), and a hand-off waits for the walk's next deed.
+func submit(i: Dictionary) -> Dictionary:
+	settle_scenes()
+	var r := super(i)
+	settle_scenes()
+	return r
+
+func hit_object(id: String, times: int) -> void:
+	settle_scenes()
+	super(id, times)
+	settle_scenes()
+
+func _watch_fight() -> void:
+	super()
+	scene_director.advance(0.05)
+	settle_scenes()
+
+## Every scene of the tutorial was played to its end, none skipped; the stage is clear.
+func _scenes_played() -> void:
+	var done := {}
+	for f in scene_director.finished: done[str(f.scene)] = not f.skipped
+	var missed: Array = ContentDB.all("scenes").filter(func(r): return r.get("tutorial", false) and not done.get(str(r.id), false)).map(func(r): return str(r.id))
+	check(missed.is_empty() and scene_director.run == null, "every staged scene of the tutorial played to its end as the walk came to it (%d played; missed %s)" % [done.size(), str(missed)])
+	check(not Game.paused, "no scene holds the game still after the walk")
 
 # ------------------------------------------------------------------ 1, 3, 4: each room entered
 func _on_grid_event(n: String, p: Dictionary) -> void:

@@ -25,7 +25,8 @@ const EVENT_KINDS := {
 }
 
 func intents() -> Array:
-	return ["talk", "choose_dialogue", "accept_quest", "hand_in_quest", "track_quest", "abandon_quest", "report_page_opened"]
+	return ["talk", "choose_dialogue", "accept_quest", "hand_in_quest", "track_quest", "abandon_quest", "report_page_opened",
+		"scene_begin", "scene_mark", "scene_end"]
 
 func subscribe() -> void:
 	for ev in EVENT_KINDS:
@@ -63,6 +64,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"report_page_opened":
 			emit("page_opened", {"actor": c.id, "page": str(intent.get("page", ""))})
 			return ok()
+		"scene_begin": return scene_begin(c, str(intent.get("scene", "")))
+		"scene_mark": return scene_mark(c, str(intent.get("scene", "")), int(intent.get("step", -1)))
+		"scene_end": return scene_end(c, str(intent.get("scene", "")), bool(intent.get("skipped", false)))
 	return fail("unknown_intent")
 
 ## Quest roles may name one NPC or a list (the mentor is Elder Hu or Elder Sung by sect).
@@ -916,6 +920,63 @@ func floor_gap(c) -> Dictionary:
 		if str(q.get("kind", "")) == "side" and can_offer(c, q): side += 1
 	return {"quest": str(d.id), "name": str(d.get("name", d.id)), "realm": floor, "level": int(ContentDB.realm(floor).get("level", 0)), "have": ProgressionRules.level(c),
 		"fields": hunt_rooms(c).slice(0, 2), "side": side, "dailies": c.quests.daily.size(), "post": Unlocks.is_unlocked(c.id, "keeping_post")}
+
+# ------------------------------------------------------------------ staged scenes (decision 39)
+## What a staged scene may change through its checkpoints (data/scenes.json `mark` and `handoff` steps): a story flag,
+## a graze (HP lowered, never under SCENE_HP_FLOOR of the most), a heal.
+const SCENE_EFFECTS := ["set_flag", "clear_flag", "restore_resource", "heal"]
+const SCENE_HP_FLOOR := 0.4
+
+## A staged scene (played by the presentation's SceneDirector) begins: it is this character's to see (in its room, its
+## requirement met, not seen before) and its progress is kept on the character, so a scene cut short by quitting
+## resumes at its last checkpoint (`at`). The scene only asks; what it changes, this authority changes.
+func scene_begin(c, id: String) -> Dictionary:
+	var sc := ContentDB.entry("scenes", id)
+	if sc.is_empty(): return fail("unknown_scene")
+	var st: Dictionary = c.quests.scenes.get(id, {})
+	if st.get("done", false) and not sc.get("repeat", false): return fail("seen")
+	if game.room_rt == null or game.room_rt.room_id != str(sc.room): return fail("wrong_room")
+	if not st.has("at"):
+		if not RequirementRules.passes(sc.get("requires", {}), game.ctx(c)): return fail("not_ready")
+		c.quests.scenes[id] = {"at": 0, "applied": []}
+	var at := int(c.quests.scenes[id].at)
+	emit("scene_started", {"actor": c.id, "scene": id, "at": at})
+	return ok({"at": at})
+
+## A scene passes a checkpoint (a `mark` or a `handoff` step): it resumes from here, and the step's effects are applied
+## once, whatever happens to the scene after.
+func scene_mark(c, id: String, step: int) -> Dictionary:
+	var st: Dictionary = c.quests.scenes.get(id, {})
+	var steps: Array = ContentDB.entry("scenes", id).get("steps", [])
+	if not st.has("at"): return fail("not_playing")
+	if step < 0 or step >= steps.size() or not str(steps[step].get("do", "")) in ["mark", "handoff"]: return fail("not_a_checkpoint")
+	st.at = maxi(int(st.at), step)
+	var applied: Array = st.applied
+	if not applied.has(step) and not (steps[step].get("effects", []) as Array).is_empty():
+		applied.append(step)
+		game.apply_effects(c.id, _scene_effects(c, steps[step].effects), "scene:" + id)
+	emit("scene_marked", {"actor": c.id, "scene": id, "step": step})
+	return ok()
+
+## A scene's own effects: the kinds it may use only, and a graze held above the floor.
+func _scene_effects(c, list: Array) -> Array:
+	var out: Array = []
+	for e in list:
+		if not str(e.get("kind", "")) in SCENE_EFFECTS: continue
+		if str(e.kind) == "restore_resource":
+			var most: float = c.pools.get_max("hp")
+			var lose := minf(-float(e.get("pct", 0.0)) * most, c.pools.hp - SCENE_HP_FLOOR * most)
+			if str(e.get("pool", "")) == "hp" and lose > 0.0: out.append({"kind": "restore_resource", "pool": "hp", "amount": -lose})
+			continue
+		out.append(e)
+	return out
+
+## The scene is over, played out or skipped: seen, it never plays again (unless it is a `repeat` one).
+func scene_end(c, id: String, skipped: bool) -> Dictionary:
+	if not c.quests.scenes.has(id): return fail("not_playing")
+	c.quests.scenes[id] = {"done": true, "skipped": skipped}
+	emit("scene_ended", {"actor": c.id, "scene": id, "skipped": skipped})
+	return ok()
 
 # ------------------------------------------------------------------ set pieces, spars, dailies
 func start_set_piece(c, event: String) -> Dictionary:

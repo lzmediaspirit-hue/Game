@@ -1,0 +1,1904 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "opening_dawn",
+   "name": "The River at Dawn",
+   "room": "lf_fishers_hut",
+   "actors": {
+    "ping": {
+     "object": "npc_aunt_ping"
+    }
+   },
+   "steps": [
+    {
+     "do": "fade",
+     "to": "black",
+     "s": 0.01
+    },
+    {
+     "do": "title",
+     "title": "Jade River",
+     "sub": "Lotus Ferry, the hour before dawn",
+     "s": 2.8
+    },
+    {
+     "do": "sound",
+     "sfx": "water_step"
+    },
+    {
+     "do": "fade",
+     "to": "clear",
+     "s": 1.2
+    },
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "note",
+     "wait": false,
+     "s": 1.4
+    },
+    {
+     "do": "pose",
+     "actor": "ping",
+     "pose": "idle",
+     "wait": false
+    },
+    {
+     "do": "face",
+     "actor": "ping",
+     "to": "player"
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "!",
+     "wait": true,
+     "s": 0.9
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "You're up! Good. The river muttered all night and kept me awake with it.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "ping",
+     "to": [
+      [
+       8,
+       5
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "ping",
+     "to": "e"
+    },
+    {
+     "do": "fx",
+     "fx": "motes",
+     "at": "ping",
+     "color": "PALE_GOLD",
+     "count": 6,
+     "dur": 0.6
+    },
+    {
+     "do": "move",
+     "actor": "ping",
+     "to": [
+      [
+       5,
+       5
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "ping",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Here. Tea for the road. It's in your Bag, beside your hand.",
+     "box": "balloon"
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "player",
+     "color": "BRIGHT_JADE",
+     "radius": 24,
+     "dur": 0.5
+    },
+    {
+     "do": "sound",
+     "sfx": "pickup"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Your Bag holds her tea",
+     "at": "hud:icon:bag",
+     "until": [
+      {
+       "event": "page_opened",
+       "when": {
+        "page": "inventory",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut",
+     "s": 3.5
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Your mother stood at that door every dawn, watching the water. You have her stubborn chin.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Lu wants you at the docks. Something about the river. Go on.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Walk to the door: drag the stick",
+     "at": "portal:exit",
+     "until": [
+      {
+       "event": "room_left",
+       "when": {
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "morning_tide"
+     }
+    ]
+   }
+  },
+  {
+   "id": "river_dawn",
+   "name": "Home Lane at Dawn",
+   "room": "lf_village",
+   "actors": {
+    "mei": {
+     "object": "npc_washer_mei"
+    },
+    "ping": {
+     "object": "npc_aunt_ping_lane"
+    },
+    "dou": {
+     "object": "npc_little_dou"
+    },
+    "boat": {
+     "prop": "boat",
+     "at": [
+      -3,
+      36
+     ],
+     "level": -1
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "move",
+     "actor": "boat",
+     "to": [
+      [
+       46,
+       36
+      ]
+     ],
+     "run": false,
+     "wait": false,
+     "speed": 95
+    },
+    {
+     "do": "camera",
+     "to": [
+      24,
+      30
+     ],
+     "s": 2.4,
+     "wait": true
+    },
+    {
+     "do": "camera",
+     "to": "mei",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "mei",
+     "to": "e"
+    },
+    {
+     "do": "say",
+     "actor": "mei",
+     "text": "Grey water by the reeds again. Third morning running.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "ping",
+     "to": [
+      [
+       11,
+       22
+      ],
+      [
+       13,
+       29
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "ping",
+     "to": "mei"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Hush, Mei. Not where the little ones can hear.",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "mei",
+     "emote": "sweat",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "sound",
+     "sfx": "gust"
+    },
+    {
+     "do": "camera",
+     "to": [
+      55,
+      15
+     ],
+     "s": 1.6,
+     "wait": false
+    },
+    {
+     "do": "move",
+     "actor": "dou",
+     "to": [
+      [
+       50,
+       20
+      ],
+      [
+       55,
+       17
+      ]
+     ],
+     "run": true,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "dou",
+     "to": "n"
+    },
+    {
+     "do": "emote",
+     "actor": "dou",
+     "emote": "!",
+     "wait": true,
+     "s": 0.9
+    },
+    {
+     "do": "say",
+     "actor": "dou",
+     "text": "My kite! The wind took it onto the inn roof!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Lu's at the docks, by the boats. Off you go.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_quiet_river"
+     }
+    ]
+   }
+  },
+  {
+   "id": "four_errands",
+   "name": "Four Errands",
+   "room": "lf_village",
+   "actors": {
+    "lu": {
+     "object": "npc_lu_boatman"
+    },
+    "guo": {
+     "object": "npc_uncle_guo"
+    },
+    "dou": {
+     "object": "npc_little_dou"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Four errands, four corners of the village. Look.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "guo",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "guo",
+     "to": "e"
+    },
+    {
+     "do": "pose",
+     "actor": "guo",
+     "pose": "punch_1",
+     "wait": true,
+     "s": 0.35
+    },
+    {
+     "do": "sound",
+     "sfx": "hit"
+    },
+    {
+     "do": "pose",
+     "actor": "guo",
+     "pose": "punch_2",
+     "wait": true,
+     "s": 0.35
+    },
+    {
+     "do": "sound",
+     "sfx": "hit"
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "Hah! Hup!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "dou",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "dou",
+     "emote": "?",
+     "wait": true,
+     "s": 1.2
+    },
+    {
+     "do": "camera",
+     "to": "portal:store_door",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "wait",
+     "s": 0.6
+    },
+    {
+     "do": "camera",
+     "to": "portal:granny_door",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "wait",
+     "s": 0.6
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Any order you like. The river will keep until you're done.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_completed",
+    "when": {
+     "quest": "a_quiet_river",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "guo_fists",
+   "name": "Fists First",
+   "room": "lf_village",
+   "actors": {
+    "guo": {
+     "object": "npc_uncle_guo"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "move",
+     "actor": "guo",
+     "to": [
+      [
+       30,
+       25
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "guo",
+     "to": "e"
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "Watch. Jab, cross, jab. The hip turns, the fist follows.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "guo",
+     "pose": "punch_1",
+     "wait": true,
+     "s": 0.3
+    },
+    {
+     "do": "fx",
+     "fx": "spark",
+     "at": "object:stump_guo",
+     "color": "PALE_GOLD",
+     "count": 6,
+     "dur": 0.3
+    },
+    {
+     "do": "sound",
+     "sfx": "hit"
+    },
+    {
+     "do": "pose",
+     "actor": "guo",
+     "pose": "punch_2",
+     "wait": true,
+     "s": 0.3
+    },
+    {
+     "do": "fx",
+     "fx": "spark",
+     "at": "object:stump_guo",
+     "color": "PALE_GOLD",
+     "count": 6,
+     "dur": 0.3
+    },
+    {
+     "do": "sound",
+     "sfx": "hit"
+    },
+    {
+     "do": "pose",
+     "actor": "guo",
+     "pose": "punch_3",
+     "wait": true,
+     "s": 0.35
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "object:stump_guo",
+     "color": "PALE_GOLD",
+     "radius": 26,
+     "dur": 0.35
+    },
+    {
+     "do": "sound",
+     "sfx": "hit_crit"
+    },
+    {
+     "do": "shake",
+     "s": 0.15,
+     "amp": -1.0
+    },
+    {
+     "do": "face",
+     "actor": "guo",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "Your turn. Five on the stump.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Punch the stump: tap Attack",
+     "at": "object:stump_guo",
+     "until": [
+      {
+       "event": "object_hit",
+       "when": {
+        "object": "stump_guo",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live"
+    },
+    {
+     "do": "emote",
+     "actor": "guo",
+     "emote": "note",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "Elbow in! Good. Keep going.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_accepted",
+    "when": {
+     "quest": "fists_first",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "kite_route",
+   "name": "The Way Up",
+   "room": "lf_village",
+   "actors": {
+    "dou": {
+     "object": "npc_little_dou"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "face",
+     "actor": "dou",
+     "to": "n"
+    },
+    {
+     "do": "say",
+     "actor": "dou",
+     "text": "Up the crates, onto the hall roof, then jump across to the inn!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": [
+      46,
+      14
+     ],
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      46.5,
+      13
+     ],
+     "color": "BRIGHT_JADE",
+     "radius": 22,
+     "dur": 0.6
+    },
+    {
+     "do": "camera",
+     "to": [
+      51,
+      12
+     ],
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "camera",
+     "to": [
+      58,
+      12
+     ],
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "motes",
+     "at": "object:kite",
+     "color": "PALE_GOLD",
+     "count": 8,
+     "dur": 0.8
+    },
+    {
+     "do": "wait",
+     "s": 0.6
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "dou",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "actor": "dou",
+     "text": "It's the best kite in Lotus Ferry. Please hurry!",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_accepted",
+    "when": {
+     "quest": "the_runaway_kite",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "tower_race",
+   "name": "Race to the Tower",
+   "room": "lf_village",
+   "actors": {
+    "shen": {
+     "object": "npc_shen_lian_npc"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "face",
+     "actor": "shen",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "Race you to the watch-tower bell. Loser guts tomorrow's fish.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "On three. One... two...",
+     "box": "balloon"
+    },
+    {
+     "do": "face",
+     "actor": "shen",
+     "to": "e"
+    },
+    {
+     "do": "emote",
+     "actor": "shen",
+     "emote": "!",
+     "wait": false,
+     "s": 0.6
+    },
+    {
+     "do": "move",
+     "actor": "shen",
+     "to": [
+      [
+       60,
+       24
+      ],
+      [
+       65,
+       22
+      ]
+     ],
+     "run": true,
+     "wait": false,
+     "speed": 150
+    },
+    {
+     "do": "handoff",
+     "prompt": "Race him to the bell: push the stick all the way",
+     "at": "object:tower_bell",
+     "until": [
+      {
+       "event": "quest_completed",
+       "when": {
+        "quest": "race_to_the_tower",
+        "actor": "active"
+       }
+      },
+      {
+       "event": "quest_failed",
+       "when": {
+        "quest": "race_to_the_tower",
+        "actor": "active"
+       }
+      },
+      {
+       "event": "object_interacted",
+       "when": {
+        "object": "tower_bell",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    },
+    {
+     "do": "branch",
+     "if": {
+      "kind": "quest_done",
+      "quest": "race_to_the_tower"
+     },
+     "then": "won",
+     "else": "lost"
+    },
+    {
+     "do": "label",
+     "name": "lost"
+    },
+    {
+     "do": "emote",
+     "actor": "shen",
+     "emote": "note",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "Too slow! Tomorrow's fish are yours to gut.",
+     "box": "balloon"
+    },
+    {
+     "do": "goto",
+     "label": "end"
+    },
+    {
+     "do": "label",
+     "name": "won"
+    },
+    {
+     "do": "emote",
+     "actor": "shen",
+     "emote": "anger",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "What?! ...Fine. Don't let it go to your head.",
+     "box": "balloon"
+    },
+    {
+     "do": "label",
+     "name": "end"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_accepted",
+    "when": {
+     "quest": "race_to_the_tower",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "granny_jar",
+   "name": "Granny's Remedy",
+   "room": "lf_granny_liu_hut",
+   "actors": {
+    "granny": {
+     "object": "npc_granny_liu"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "face",
+     "actor": "granny",
+     "to": "n"
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Now where did I put the willow bark...",
+     "box": "balloon"
+    },
+    {
+     "do": "fx",
+     "fx": "dust",
+     "at": [
+      3,
+      3
+     ],
+     "dur": 0.5
+    },
+    {
+     "do": "sound",
+     "sfx": "rockfall"
+    },
+    {
+     "do": "shake",
+     "s": 0.2,
+     "amp": -1.0
+    },
+    {
+     "do": "mark",
+     "effects": [
+      {
+       "kind": "restore_resource",
+       "pool": "hp",
+       "pct": -0.3
+      }
+     ]
+    },
+    {
+     "do": "emote",
+     "actor": "player",
+     "emote": "sweat",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "emote",
+     "actor": "granny",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "move",
+     "actor": "granny",
+     "to": [
+      [
+       7,
+       8
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "granny",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Oh! My clumsy shelves. Hold still, child, you're scratched.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Take a tea from your Bag and put it where your hand finds it: Quick-use.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Open your Bag: put Herbal Tea in Quick-use",
+     "at": "hud:icon:bag",
+     "until": [
+      {
+       "event": "quick_use_changed",
+       "when": {
+        "item": "herbal_tea",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Drink it: tap Quick-use",
+     "at": "hud:quick",
+     "until": [
+      {
+       "event": "item_used",
+       "when": {
+        "item": "herbal_tea",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    },
+    {
+     "do": "emote",
+     "actor": "granny",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Better. Now bow at the shrine in the square. It remembers those who visit.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_accepted",
+    "when": {
+     "quest": "grannys_remedy",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "east_gate",
+   "name": "The East Gate",
+   "room": "lf_village",
+   "actors": {
+    "guo": {
+     "object": "npc_uncle_guo"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "The village is done with you. The shallows aren't.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "portal:east_gate",
+     "s": 1.6,
+     "wait": true
+    },
+    {
+     "do": "door",
+     "portal": "east_gate"
+    },
+    {
+     "do": "wait",
+     "s": 0.8
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "guo",
+     "text": "Reed Shallows, just past the gate. Mind the claws.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_accepted",
+    "when": {
+     "quest": "crab_trouble",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "crabs_mei",
+   "name": "Crabs on the Flats",
+   "room": "lf_reed_shallows",
+   "actors": {
+    "mei": {
+     "npc": "washer_mei",
+     "at": [
+      12,
+      16
+     ]
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "camera",
+     "to": [
+      10,
+      16
+     ],
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "mei",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "actor": "mei",
+     "text": "Shoo! Get back in the river, the lot of you!",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "mei",
+     "to": [
+      [
+       6,
+       14
+      ]
+     ],
+     "run": true,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "mei",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "mei",
+     "text": "They came up out of the water in the night. Dozens!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Drive off a crab: tap Attack",
+     "at": "enemy:mudshell_crab",
+     "until": [
+      {
+       "event": "actor_defeated",
+       "when": {
+        "killer": "active",
+        "def": "mudshell_crab"
+       }
+      }
+     ],
+     "then": "live"
+    },
+    {
+     "do": "emote",
+     "actor": "mei",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.2
+    },
+    {
+     "do": "say",
+     "actor": "mei",
+     "text": "Thank you! It dropped something. A gutting knife? Keep it.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "mei",
+     "to": [
+      [
+       0,
+       14
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "despawn",
+     "actor": "mei"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "crab_trouble"
+     }
+    ]
+   }
+  },
+  {
+   "id": "hollow_rises",
+   "name": "The Hollow Night",
+   "room": "lf_village_night",
+   "actors": {
+    "dou": {
+     "object": "npc_dou_night"
+    },
+    "granny": {
+     "object": "npc_granny_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "title",
+     "title": "That Night",
+     "sub": "",
+     "s": 2.0
+    },
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "weather",
+     "kind": "storm"
+    },
+    {
+     "do": "sound",
+     "sfx": "thunder"
+    },
+    {
+     "do": "flash",
+     "color": "MIST",
+     "s": 0.25
+    },
+    {
+     "do": "camera",
+     "to": [
+      24,
+      34
+     ],
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      14,
+      35
+     ],
+     "color": "MIST",
+     "radius": 40,
+     "dur": 0.8
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      32,
+      36
+     ],
+     "color": "MIST",
+     "radius": 40,
+     "dur": 0.8
+    },
+    {
+     "do": "sound",
+     "sfx": "hiss"
+    },
+    {
+     "do": "emote",
+     "actor": "dou",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "actor": "dou",
+     "text": "Something's in the water! It's coming up!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Child! Get us to your aunt's hut. Quickly now!",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   }
+  },
+  {
+   "id": "river_token",
+   "name": "The River Token",
+   "room": "lf_lu_boat",
+   "actors": {
+    "lu": {
+     "object": "npc_lu_boat"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "weather",
+     "kind": "clear"
+    },
+    {
+     "do": "camera",
+     "to": "lu",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "lu",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "That thing in the water was a Hollowed eel. The grey is spreading.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "You have a gift. I felt it last night. Sit. Breathe as I showed you.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "meditate",
+     "wait": false
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Meditate: tap Cultivate",
+     "at": "hud:meditate",
+     "until": [
+      {
+       "event": "meditation_started",
+       "when": {
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_river_token"
+     }
+    ]
+   }
+  },
+  {
+   "id": "first_breakthrough",
+   "name": "Bone Forging",
+   "room": "lf_lu_boat",
+   "actors": {
+    "lu": {
+     "object": "npc_lu_boat"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "zoom",
+     "z": 1.25,
+     "s": 0.8,
+     "wait": false
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "idle",
+     "wait": false
+    },
+    {
+     "do": "emote",
+     "actor": "lu",
+     "emote": "!",
+     "wait": true,
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "There. You felt the bones take it. Bone Forging: your first step.",
+     "box": "balloon"
+    },
+    {
+     "do": "zoom",
+     "z": 1.0,
+     "s": 0.6,
+     "wait": false
+    },
+    {
+     "do": "handoff",
+     "prompt": "Talk to Lu",
+     "at": "lu",
+     "until": [
+      {
+       "event": "quest_completed",
+       "when": {
+        "quest": "the_river_token",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    },
+    {
+     "do": "move",
+     "actor": "lu",
+     "to": [
+      [
+       12,
+       8
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "lu",
+     "to": "e"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Watch the water. Push, the way the river pushes the boat.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "punch_2",
+     "wait": true,
+     "s": 0.4
+    },
+    {
+     "do": "fx",
+     "fx": "wave",
+     "at": [
+      15,
+      8
+     ],
+     "color": "BRIGHT_JADE",
+     "size": 10,
+     "radius": 60,
+     "dur": 0.6
+    },
+    {
+     "do": "sound",
+     "sfx": "technique"
+    },
+    {
+     "do": "shake",
+     "s": 0.15,
+     "amp": -1.0
+    },
+    {
+     "do": "face",
+     "actor": "lu",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Flowing Palm. The sects are choosing disciples at Stoneford this spring. Go west.",
+     "box": "balloon"
+    },
+    {
+     "do": "zoom",
+     "z": 1.0,
+     "s": 0.2,
+     "wait": false
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "breakthrough_succeeded",
+    "when": {
+     "to": "bone_forging_1",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "market_thief",
+   "name": "A Thief in the Market",
+   "room": "sf_market",
+   "actors": {
+    "rong": {
+     "object": "npc_auntie_rong"
+    },
+    "lin": {
+     "object": "npc_courier_lin"
+    },
+    "thief": {
+     "npc": "rooftop_thief",
+     "at": [
+      33,
+      15
+     ],
+     "hidden": true
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "camera",
+     "to": [
+      32,
+      14
+     ],
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "spawn",
+     "actor": "thief",
+     "at": [
+      33,
+      15
+     ]
+    },
+    {
+     "do": "emote",
+     "actor": "rong",
+     "emote": "anger",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "rong",
+     "text": "My purse! Thief! Stop him!",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "thief",
+     "to": [
+      [
+       20,
+       16
+      ],
+      [
+       1,
+       16
+      ]
+     ],
+     "run": true,
+     "wait": false,
+     "speed": 230
+    },
+    {
+     "do": "camera",
+     "to": [
+      16,
+      16
+     ],
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "despawn",
+     "actor": "thief"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "lin",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "lin",
+     "text": "Quick-Fingered Hou. He lives on the rooftops, that one.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "lin",
+     "text": "Keep your purse close in Stoneford, newcomer.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
+     }
+    ]
+   }
+  },
+  {
+   "id": "fair_arrival",
+   "name": "The Recruitment Fair",
+   "room": "sf_fairground",
+   "actors": {
+    "qing": {
+     "object": "npc_recruiter_qing_lan"
+    },
+    "mo": {
+     "object": "npc_recruiter_mo_yun"
+    },
+    "shen": {
+     "object": "npc_shen_lian"
+    }
+   },
+   "steps": [
+    {
+     "do": "title",
+     "title": "The Recruitment Fair",
+     "sub": "Stoneford",
+     "s": 2.4
+    },
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "camera",
+     "to": "qing",
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "qing",
+     "text": "Jade Sect! The sword that writes, the brush that cuts!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "mo",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "mo",
+     "text": "Cloud Sect! Why walk to the peak when you could fly there?",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "qing",
+     "emote": "anger",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "move",
+     "actor": "shen",
+     "to": [
+      [
+       60,
+       17
+      ]
+     ],
+     "run": true,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "shen",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "You came! Hear them both out, then choose. It's for life.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_not_set",
+      "flag": "prologue_done"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sect_chosen",
+   "name": "The Sect Chosen",
+   "room": "sf_fairground",
+   "actors": {
+    "qing": {
+     "object": "npc_recruiter_qing_lan"
+    },
+    "mo": {
+     "object": "npc_recruiter_mo_yun"
+    },
+    "shen": {
+     "object": "npc_shen_lian"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "branch",
+     "if": {
+      "all": [
+       {
+        "kind": "training_sect",
+        "sect": "cloud_sect"
+       }
+      ]
+     },
+     "then": "cloud",
+     "else": "jade"
+    },
+    {
+     "do": "label",
+     "name": "jade"
+    },
+    {
+     "do": "camera",
+     "to": "qing",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "qing",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "qing",
+     "text": "Welcome to the Jade Sect. Keep your wrist loose and your word firm.",
+     "box": "portrait"
+    },
+    {
+     "do": "title",
+     "title": "The Jade Sect",
+     "sub": "Service Disciple, on trial",
+     "s": 2.2
+    },
+    {
+     "do": "goto",
+     "label": "rival"
+    },
+    {
+     "do": "label",
+     "name": "cloud"
+    },
+    {
+     "do": "camera",
+     "to": "mo",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "mo",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "mo",
+     "text": "Welcome to the Cloud Sect. We'll teach you to fall before we teach you to fly.",
+     "box": "portrait"
+    },
+    {
+     "do": "title",
+     "title": "The Cloud Sect",
+     "sub": "Service Disciple, on trial",
+     "s": 2.2
+    },
+    {
+     "do": "label",
+     "name": "rival"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "emote",
+     "actor": "shen",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "actor": "shen",
+     "text": "Then I'll see you at the top. Or beat you there.",
+     "box": "balloon"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "trigger": {
+    "event": "sect_joined",
+    "when": {
+     "actor": "active"
+    }
+   }
+  }
+ ],
+ "settings": {
+  "walk": 110.0,
+  "run": 210.0,
+  "read_base_s": 1.0,
+  "read_word_s": 0.28,
+  "read_min_s": 2.0,
+  "read_max_s": 5.5,
+  "tap_s": 1.0,
+  "min_s": 10.0,
+  "max_s": 40.0,
+  "skip_hold_s": 0.8,
+  "letterbox_h": 64,
+  "letterbox_s": 0.35,
+  "balloon_w": 380,
+  "emote_s": 1.2,
+  "home_s": 1.6,
+  "resume_back": true
+ }
+}

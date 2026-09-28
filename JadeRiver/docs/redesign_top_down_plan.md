@@ -848,6 +848,24 @@ the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
   auto-tiled paths and shores, rims, shades and prop shadows. Their bamboo, lotus and lanterns are placed sparingly,
   and a room-by-room decor pass (decision 34) is still to come.
 
+### As built: the story staged in the top-down world (decision 39, 2026-09-28)
+
+The tutorial rooms now stage the story as well as hold it. `docs/redesign/story_staging.md` has the research, the
+principles and the full account. In short:
+
+- **Scenes are data.** `tools/data/scenes.py` builds `data/scenes.json`, fifteen scenes from waking in the Fisher's
+  Hut to the sect choice.
+- **The `SceneDirector` plays them in the rooms on the grid.** It moves the room's people through their own
+  `TopdownPlaces` figures (`TopdownWorld.figures`). It brings on extras: a person through `TopdownPlaces.person`, a
+  boat through `PropView.place_at`. It drives the camera (`stage_cam`, `stage_zoom`) and holds the body's pose
+  (`stage_pose`).
+- **A cut holds the game still.** It uses `Game.pause` and the HUD's `scene_lock`, puts up the letterbox, and fades
+  the HUD and the labels over the world (`fade_labels`).
+- **A hand-off gives the controls back** with a prompt over what to do.
+- **The Quest authority keeps each scene's checkpoints and seen state**, so a scene resumes after a quit.
+- **Tests:** `story_scenes` is new, and `topdown_tutorial` plays every scene to its end as it walks.
+- **Screenshots** are in `docs/redesign/phase5/story/`.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

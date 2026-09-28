@@ -104,19 +104,15 @@ class WayMark extends Node2D:
 ## `overlay`. Returns {npc_views, object_views, portal_views} (the label views by id, as the side view keeps them)
 ## and `nodes`: everything made, for the next room to clear.
 static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_layer: Node2D, overlay: Node2D) -> Dictionary:
-	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "nodes": []}
+	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "figures": {}, "nodes": []}
 	for o in def.get("objects", []):
 		var kind := str(o.get("type", ""))
 		if kind == "decor" or not o.has("at"): continue
 		if kind == "npc":
-			var nv := NpcView.new()
-			nv.label_only = true
-			nv.setup(o)
-			overlay.add_child(nv)
-			var fig := Figure.new(room, o, NpcView.figure(o), nv)
-			sorted.add_child(fig)
-			out.npc_views[str(o.id)] = nv
-			out.nodes.append_array([nv, fig])
+			var made := person(room, o, sorted, overlay)
+			out.npc_views[str(o.id)] = made[0]
+			out.figures[str(o.id)] = made[1]
+			out.nodes.append_array(made)
 		else:
 			var lv := ObjectView.new()
 			lv.mode = "label"
@@ -128,6 +124,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			var fig := Figure.new(room, o, art, lv)
 			sorted.add_child(fig)
 			out.object_views[str(o.id)] = lv
+			out.figures[str(o.id)] = fig
 			out.nodes.append_array([lv, fig])
 	for p in def.get("portals", []):
 		var pv := PortalView.new()
@@ -142,3 +139,14 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
 	return out
+
+## One person: their label view on the overlay and their figure sorted with the room, following it: [NpcView, Figure]
+## (a room's villager, or one a staged scene brings on).
+static func person(room: TopdownRoom, o: Dictionary, sorted: Node2D, overlay: Node2D) -> Array:
+	var nv := NpcView.new()
+	nv.label_only = true
+	nv.setup(o)
+	overlay.add_child(nv)
+	var fig := Figure.new(room, o, NpcView.figure(o), nv)
+	sorted.add_child(fig)
+	return [nv, fig]

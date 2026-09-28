@@ -33,6 +33,9 @@ func _main() -> void:
 	if "--phase4" in OS.get_cmdline_user_args():
 		await phase4()
 		return
+	if "--story" in OS.get_cmdline_user_args():
+		await story()
+		return
 	main.enter_topdown_proto(false)
 	w = main.world
 	p = w.player
@@ -361,6 +364,188 @@ func phase4() -> void:
 		await shot(str(s[0]), out)
 	print("topdown_capture: phase 4 done")
 	get_tree().quit()
+
+## Decision 39 (`-- --story`, into docs/redesign/phase5/story/): the staged scenes as a new top-down character meets
+## them, played by the game's own SceneDirector: the opening (its title card, Aunt Ping walking over with the tea, the
+## Bag's and the door's hand-offs), Home Lane at dawn (a boat on the river, the villagers talking, the kite), Lu's four
+## errands, Granny's jar and the Quick-use prompt, the East Gate opening, the crabs on the flats, the Hollow Night's
+## storm, Lu's boat and the first breakthrough, the thief in the market, the fair and the sect chosen. The story is
+## moved on between them as the walk would (the quests' own talks), or set where a capture needs it.
+func story() -> void:
+	var out := "res://docs/redesign/phase5/story/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	for i in 3600:
+		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
+		await get_tree().process_frame
+	main.enter_topdown_tutorial(false)
+	var c = Game.active()
+	# The opening: the title card over the dark, Aunt Ping's first line, her walk to the table and back (a strip), the
+	# Bag's hand-off after the tea, and the door's.
+	await scene_at("opening_dawn", "title", 1.6)
+	await shot("01_opening_title", out)
+	await scene_at("opening_dawn", "say", 1.2)
+	await shot("02_opening_ping_wakes_you", out)
+	await story_strip("03_opening_walk_strip", "opening_dawn", "move", 4, 14, out)
+	await scene_at("opening_dawn", "handoff", 0.6)
+	await shot("04_opening_bag_handoff", out)
+	await scene_at("opening_dawn", "handoff", 0.8, "door")
+	await shot("05_opening_door_handoff", out)
+	# Home Lane at dawn, entered through the door.
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(30)
+	await scene_at("river_dawn", "camera", 2.2)
+	await shot("06_dawn_boat_on_the_river", out)
+	await scene_at("river_dawn", "say", 1.5, "Hush")
+	await shot("07_dawn_villagers_talk", out)
+	await scene_at("river_dawn", "say", 1.2, "kite")
+	await shot("08_dawn_the_kite", out)
+	# Lu's errands, after A Quiet River is handed in on his talk.
+	await until_idle()
+	await choose("npc_lu_boatman", "hand_in", "a_quiet_river")
+	await scene_at("four_errands", "say", 0.8, "Hah")
+	await shot("09_errands_guo_at_his_stump", out)
+	await until_idle()
+	# Granny's Remedy: the jar, the graze, the Bag and the Quick-use prompts.
+	Game.submit({"type": "use_portal", "portal": "granny_door", "crossing": true})
+	await frames(40)
+	await choose("npc_granny_liu", "accept", "grannys_remedy")
+	await scene_at("granny_jar", "say", 1.0, "clumsy")
+	await shot("10_granny_the_jar_falls", out)
+	await scene_at("granny_jar", "handoff", 0.8)
+	await shot("11_granny_bag_handoff", out)
+	Game.submit({"type": "set_quick_use", "item": "herbal_tea"})
+	await scene_at("granny_jar", "handoff", 0.8, "Drink")
+	await shot("12_granny_quick_use_handoff", out)
+	Game.submit({"type": "use_quick"})
+	await until_idle()
+	# Crab Trouble: the lessons done, Guo opens the East Gate; the crabs have Washer Mei on the flats.
+	for q in ["the_runaway_kite", "mas_delivery", "fists_first"]:
+		c.quests.active.erase(q)
+		c.quests.done[q] = 1
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(30)
+	Game.quest.apply_start(c.id, "crab_trouble")
+	await scene_at("east_gate", "wait", 0.4)
+	await shot("13_the_east_gate_opens", out)
+	await until_idle()
+	Game.submit({"type": "use_portal", "portal": "east_gate", "crossing": true})
+	await frames(30)
+	await scene_at("crabs_mei", "say", 1.2, "Shoo")
+	await shot("14_crabs_mei_on_the_flats", out)
+	await scene_at("crabs_mei", "handoff", 0.8)
+	await shot("15_crabs_drive_one_off", out)
+	# The night, set as the story has it after the evening on the river (leaving the flats ends the crabs' scene).
+	for q in ["crab_trouble", "evening_on_the_river"]:
+		c.quests.active.erase(q)
+		c.quests.done[q] = 1
+	Game.apply_effects(c.id, [{"kind": "set_flag", "flag": "night_active"}], "capture")
+	Game.world.load_room(c, "lf_village_night", "")
+	GameEvents.flush()
+	await frames(20)
+	await scene_at("hollow_rises", "title", 1.2)
+	await shot("16_the_hollow_night", out)
+	await scene_at("hollow_rises", "say", 1.2, "water")
+	await shot("17_hollow_night_the_river_boils", out)
+	await until_idle()
+	# Lu's boat after the storm, and the first breakthrough.
+	Game.apply_effects(c.id, [{"kind": "set_flag", "flag": "night_survived"}], "capture")
+	c.quests.active.erase("the_hollow_night")
+	c.quests.done["the_hollow_night"] = 1
+	Game.world.load_room(c, "lf_lu_boat", "")
+	GameEvents.flush()
+	await frames(20)
+	await scene_at("river_token", "say", 1.4, "gift")
+	await shot("18_river_token_lu", out)
+	await scene_at("river_token", "handoff", 0.8)
+	await shot("19_river_token_meditate_handoff", out)
+	Game.submit({"type": "start_meditation"})
+	await until_idle()
+	Game.submit({"type": "stop_meditation"})
+	Game.apply_effects(c.id, [{"kind": "add_progress", "pct_of_need": 1.0}], "capture")
+	Game.submit({"type": "report_page_opened", "page": "cultivation"})
+	Game.submit({"type": "start_breakthrough", "support_items": []})
+	await scene_at("first_breakthrough", "say", 0.3, "Bone Forging", 3600)
+	await shot("20_first_breakthrough", out)
+	await until_idle()
+	# Stoneford: the thief in the market, the fair, the sect chosen.
+	c.quests.done["the_river_token"] = 1
+	c.quests.active.erase("the_river_token")
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	await frames(20)
+	await scene_at("market_thief", "say", 0.8, "purse")
+	await shot("21_market_thief", out)
+	await until_idle()
+	Game.world.load_room(c, "sf_fairground", "")
+	GameEvents.flush()
+	await frames(20)
+	await scene_at("fair_arrival", "title", 1.4)
+	await shot("22_fair_title", out)
+	await scene_at("fair_arrival", "say", 1.2, "Cloud Sect")
+	await shot("23_fair_recruiters", out)
+	await until_idle()
+	main.scenes.queue.append("sect_chosen")
+	await scene_at("sect_chosen", "say", 0.2, "Welcome")
+	await frames(40)
+	await shot("24_sect_chosen_portrait_box", out)
+	main.close_all_pages()
+	await scene_at("sect_chosen", "title", 1.4)
+	await shot("25_sect_chosen", out)
+	await until_idle()
+	print("topdown_capture: story done")
+	get_tree().quit()
+
+## Wait (at most `limit` frames) until the scene plays the step of kind `kind` whose text or prompt holds `has` (the
+## `nth` such step), `after` seconds into it.
+func scene_at(id: String, kind: String, after: float, has := "", nth := 0, limit := 900) -> void:
+	for i in limit:
+		var r = main.scenes.run
+		if r != null and str(r.id) == id and r.begun and int(r.i) < (r.row.steps as Array).size():
+			var st: Dictionary = r.row.steps[r.i]
+			var seen := (r.row.steps as Array).slice(0, int(r.i) + 1).filter(func(s): return str(s.do) == kind and (has == "" or (str(s.get("text", "")) + str(s.get("prompt", "")) + str(s.get("to", ""))).contains(has))).size()
+			if str(st.do) == kind and (has == "" or (str(st.get("text", "")) + str(st.get("prompt", "")) + str(st.get("to", ""))).contains(has)) and seen > nth and float(r.t) >= after: return
+		await frames(1)
+	var r = main.scenes.run
+	print("  capture: %s %s %s not reached (run %s step %s %s)" % [id, kind, has, str(r.id) if r else "none", str(r.i) if r else "", str(r.row.steps[r.i].do) if r and r.i < r.row.steps.size() else ""])
+
+## Wait until no scene holds the stage.
+func until_idle(limit := 1800) -> void:
+	for i in limit:
+		if main.scenes.run == null and not main.scenes.busy(): return
+		if main.scenes.run != null and str(main.scenes.run.mode) == "hand":
+			return
+		await frames(1)
+
+## Talk to a person and pick the choice that takes or hands in a quest, as the dialogue page would.
+func choose(object: String, key: String, quest: String) -> void:
+	var o: Dictionary = Game.room_rt.object_def(object)
+	w = main.world
+	w.player.motor.place(w.room.spot_near(Vector2(float(o.at[0]), float(o.at[1])), float(o.get("alt", 0.0)), Vector2(float(o.at[0]), float(o.at[1]) + 40)))
+	await frames(4)
+	var r := Game.submit({"type": "interact", "object": object})
+	var npc := str(o.get("npc", ""))
+	for ch in r.get("dialogue", {}).get("choices", []):
+		if str(ch.get(key, "")) == quest:
+			Game.submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
+			break
+	await frames(6)
+
+## `n` shots `gap` frames apart from the step of `kind` on, side by side at half size.
+func story_strip(name: String, id: String, kind: String, n: int, gap: int, dir: String) -> void:
+	await scene_at(id, kind, 0.0)
+	var tiles: Array = []
+	for i in n:
+		await RenderingServer.frame_post_draw
+		var img := get_tree().root.get_texture().get_image()
+		img.resize(640, 360, Image.INTERPOLATE_BILINEAR)
+		tiles.append(img)
+		await frames(gap)
+	var strip_img := Image.create(640 * n + 4 * (n - 1), 360, false, Image.FORMAT_RGBA8)
+	strip_img.fill(Color("071015"))
+	for i in n:
+		tiles[i].convert(Image.FORMAT_RGBA8)
+		strip_img.blit_rect(tiles[i], Rect2i(0, 0, 640, 360), Vector2i(i * 644, 0))
+	strip_img.save_png(dir + name + ".png")
 
 ## Stand at a cell of the room on view (its villagers' sheets load in while it waits `n` frames).
 func at_spot(cell: Vector2, n: int) -> void:

@@ -46,6 +46,7 @@ const IMPACT_S := 0.25
 ## The stand-in cell for a pose the sheet does not have yet: [row, frame].
 const FALLBACK := {"guard": ["idle", 0], "plunge": ["jump", 1], "plunge_land": ["jump", 2]}
 var autopilot: Autopilot = null   ## Phase 4: auto-path and auto-hunt drive the stick (S49), on the grid
+var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -271,6 +272,7 @@ func sync(delta: float) -> void:
 		next = "jump"
 		f = 2
 	elif m.vel.length() > 12.0: next = "walk"
+	if stage_pose != "": next = stage_pose   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next
 		anim_t = 0.0

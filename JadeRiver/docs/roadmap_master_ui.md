@@ -483,5 +483,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     re-animated for the top-down view.
 39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
     speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
-    play through what happens, not through menus.
+    play through what happens, not through menus. Built (2026-09-28, `docs/redesign/story_staging.md`):
+    - one data-driven scene system, `data/scenes.json` from `tools/data/scenes.py`, played by the `SceneDirector`;
+    - cuts, hand-offs and live parts, skippable with a hold;
+    - checkpoints kept by the Quest authority, so a scene resumes after a quit;
+    - Reduce motion respected;
+    - fifteen scenes from waking to the sect choice.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

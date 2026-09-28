@@ -35,6 +35,24 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapon Dao (the weapon slot has been open since the start); **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon, five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
 | 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the Reed Marsh's Marsh Edge (the marsh path opens at Bone Forging 2), then the mentor | | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; hand in to the mentor | Next: The Humming Token · Talk to Elder Hu |
 
+**The story is staged** (decision 39, `docs/redesign/story_staging.md`). In the top-down world each step plays as a
+scene in its room, 10–40 s long and skippable. People walk, talk to each other, emote and speak in balloons; the camera
+moves; and a hand-off gives the player the controls to do what the step teaches, with a prompt over the thing to act on:
+
+| Step | Scene | The hand-off |
+|---|---|---|
+| 0–1 | `opening_dawn`: Aunt Ping wakes you and gives you the tea (the Bag) | Walk to the door |
+| 2 | `river_dawn`: a boat on the river, the villagers' talk, the kite lost to the wind; then `four_errands` | — |
+| 3a, 3b, 3e | `guo_fists` (Guo's jab, cross, jab), `kite_route` (the way up), `tower_race` (Shen Lian runs) | Punch the stump; race him to the bell |
+| 3d | `granny_jar`: a jar falls and grazes you | Put the tea in Quick-use; drink it |
+| 4 | `east_gate` (Guo opens the gate), `crabs_mei` (the crabs have Washer Mei on the flats) | Drive off a crab |
+| 6–7 | `hollow_rises` (the storm), `river_token` (Lu), `first_breakthrough` (the palm, and why you leave) | Meditate; talk to Lu |
+| 8–9 | `market_thief`, `fair_arrival`, `sect_chosen` (the welcome on the portrait strip) | — |
+
+The quests, their steps and the doors are unchanged. A scene only asks: the Quest authority keeps its checkpoints and
+whether it has been seen. `tests/topdown_tutorial.gd` plays every one of these scenes to its end as the walk reaches
+it, and its cuts count on the play clock.
+
 Past the table the story goes on the same way: between main quests the Next entry names the giver and where they
 stand, or the Level a chapter waits on ("Reach Level 21 (Qi Unfurling 3)", "➤ Hunt at Bend Shore") and a hunting
 ground whose foes suit the character's Level (the fields P12's gap names on the Quests page). A Level is never the
@@ -110,6 +128,10 @@ demon, and you wake whole at the shrine. The revival page says so in full the fi
   story under way, else one to take now, else a lesson under way or on offer (a guided quest its realm opens), and only
   then the Level the story waits on and a hunting ground for it. At Bone Forging 3, with Strange Tracks waiting on the
   Weapon Hall, that is the Weapon Hall.
+- The story is staged in the top-down walk (decision 39). Every scene of the tutorial plays to its end, none skipped,
+  and the walk's own deeds satisfy each hand-off. No scene holds the game still once the walk has passed it. Every
+  scene's script validates, a hold skips to the next hand-off, and a scene cut short by quitting resumes at its last
+  checkpoint (`tests/story_scenes.gd`).
 - The first hour pays (research player_motivation P1, P2): the story's own quests and fights carry the character to
   every realm the story waits on, Bone Forging 2 by the Entry Trial and 3 by Fish-Gutting Fists, with no test shortcut;
   the first technique is taught at Bone Forging 1 (Flowing Palm, on Lu's boat) and the second at the Weapon Hall; on
