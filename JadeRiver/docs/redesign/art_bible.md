@@ -168,9 +168,9 @@ part in:
 
 | Field | Meaning | Marks |
 |---|---|---|
-| `grass` | creeps over a path's edge on its own level | `g`, `f`, `b` |
+| `grass` | creeps over a path's edge on its own level | `g`, `f`, `b`, `m` |
 | `under` | the corner-matched set grass creeps over it with | `d` (`grass_dirt`), `p` (`grass_paving`) |
-| `keep_face` | keeps its own face over water instead of the granite embankment | `w` (pilings), `g` and `f` (a grassy bank's soil) |
+| `keep_face` | keeps its own face over water instead of the granite embankment | `w` (pilings), `g`, `f` and `m` (a grassy bank's soil) |
 | `face_below` | the face rows under the first, picked by column | `t` (plaster, a window every third bay) |
 
 `b` is a planted bed: flowers on a dressed-stone planter a level up. The corner, shore, rim, face-end and shadow rules
@@ -211,6 +211,24 @@ are checked on a room made for them (`topdown_suite`, "topdown terrain").
 The kit so far: house, storehouse, willow, stone lantern, red lantern post, barrel, crates (standable), notice
 board, reeds, boat, bamboo, lotus, incense burner, shrub.
 
+Chapter 2's stretch (the sects and the Reed Marsh) adds:
+
+| Prop | Footprint | What it is |
+|---|---|---|
+| `hall` | 8 × 3, roof a floor 2 levels up, door columns 3–4 | a sect hall: the house's walls and roof fronted by a red colonnade (a column at every bay, gilt bracket ends under the eave), a dressed granite plinth and a jade name board in a gold frame over the door (§9: the sects' red halls) |
+| `pine` | 1 × 1 | a mountain pine: a straight red-brown trunk, three flat tiers of needles held out to the sides, each lit on its upper-left rim and dark underneath |
+| `weapon_rack` | 2 × 1 | a Weapon Hall's dark-wood rack: a spear with a red tassel, a jian with a gilt guard, a broad dao and a staff |
+| `banner_jade`, `banner_cloud` | 1 × 1 | a sect banner on a tall pole with a gilt finial: the Jade Sect's jade silk with a gold ring, the Cloud Sect's white silk with a sky-blue cloud scroll. The tail stirs a pixel over four frames (450 ms) |
+| `post` | 1 × 1 | a training stump bound with straw rope |
+| `dead_tree` | 1 × 1 | a tree the Hollowing has drained: bare, split, ash grey |
+| `boulder` | 1 × 1 | a karst boulder with moss in its hollows |
+| `grey_reeds` | 1 × 1, walk-through | the reeds drawn by `reeds` in the Hollowing's ash grey, their heads bare |
+
+Two ramps join the palette for them: `PINE` and `BARK`, and `HOLLOW` (colour drained to a cold ash grey with a breath
+of teal in its shade); `CLOUD` is the Cloud Sect's white and sky blue. The paint table gains `m`, a wet meadow of the
+Reed Marsh: the meadow's own grass with small puddles kept off the tile's edges and reed stubble (`marsh_a`,
+`marsh_b`), grass for the path rule, so paths blend into it as into any meadow.
+
 ### Foes
 
 Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row per species and drawn facing:
@@ -243,7 +261,23 @@ Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row p
   - the reed rat: a grey-brown coat, pink ears and feet, red eyes, a green reed tail in segments;
   - the boarlet: a warm brown hide with pale stripes along its back, a bristle crest, a darker head, a pink snout and
     small tusks. It lowers its head and paws the ground in its wind-up.
-- **Not yet drawn:** every other creature (Phase 5 by region). The pebble imps do not appear in the prototype room.
+- **Chapter 2's stretch** adds five, each from its side-view sheet:
+  - the Trial Puppet: a sparring figure of carved timber on brass ball joints, the sect's jade sash across its chest,
+    a jade plate on its back and a jade tuft on its crown. It walks with its fists up, draws its right fist back in the
+    wind-up and drives it out with a ring of Qi at the knuckles. About 34 px tall, a little shorter than a disciple;
+  - the reed frog: leaf green with a gold stripe down each flank, a pale belly and gold eyes set high. It hops as it
+    goes, crouches in its wind-up and leaps;
+  - the marsh leech: an olive slug in soft rings with teal spots and a round pink mouth. It creeps in a travelling
+    ripple, rears in its wind-up and lunges, mouth first;
+  - the reed otter: a sleek brown body, a pale muzzle and throat, whiskers and a thick tapering tail. It bounds, sits up
+    on its haunches in its wind-up and lunges to bite;
+  - the hollowed boarlet: the boarlet's own sculpture with its colour drunk out of it, ash grey with pale stripes,
+    cold white eyes and three grey strands rising and curling from its back.
+
+  The cell grows to 48 × 56 with the feet at (24, 42), so the puppet fits; the first three foes are drawn as before.
+- **Not yet drawn:** every other creature (Phase 5 by region). The tutorial rooms' hollowed eel and minnow (the night),
+  Old Snapper and the mossback toad still take the crab's figure, the view's fallback. The pebble imps do not appear
+  in the prototype room.
 
 ## 9. What makes it xianxia (and Jade River's)
 

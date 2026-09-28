@@ -308,6 +308,7 @@ func geometry_def() -> Dictionary:
 ##            the body arrives on (default a tile and a half inside), span: tiles along the edge it covers};
 ##   spawns   one list of cells per side-view spawn, in order; event {wave, fixed}: the room event's spawn cells;
 ##   routes   object id -> [[cell x, cell y, seconds], ...]: a rooftop thief's run over the grid.
+## A timed route (the Cloud Steps) finishes at its room's route_finish object, where the layout places it.
 func merge_def(side: Dictionary) -> Dictionary:
 	var out := side.duplicate(true)
 	for k in SIDE_ONLY: out.erase(k)
@@ -316,18 +317,24 @@ func merge_def(side: Dictionary) -> Dictionary:
 	out.spawn_point = [spawn.x, spawn.y]
 	var place: Dictionary = def.get("place", {})
 	var routes: Dictionary = def.get("routes", {})
+	var finish := {}
 	for o in out.get("objects", []):
 		var id := str(o.get("id", ""))
 		if place.has(id):
 			var p := cell_point(place[id])
 			o.at = [p.x, p.y]
 			o.alt = floor_at(p)
+			if str(o.get("type", "")) == "route_finish": finish = o
 		if o.has("chase") and routes.has(id):
 			var route: Array = []
 			for q in routes[id]:
 				var rp := cell_point(q)
 				route.append([rp.x, rp.y, floor_at(rp), float(q[2]) if (q as Array).size() > 2 else 0.5])
 			o.chase.route = route
+	for o in out.get("objects", []):
+		if not finish.is_empty() and o.get("route") is Dictionary and (o.route as Dictionary).has("finish"):
+			o.route.finish.at = finish.at
+			o.route.finish.alt = finish.alt
 	var ways: Dictionary = def.get("portals", {})
 	for p in out.get("portals", []):
 		var lay: Dictionary = ways.get(str(p.get("id", "")), {})
