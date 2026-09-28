@@ -455,7 +455,9 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     real character sprites redrawn for the top-down view (every body, hair, clothing and weapon layer, per `AGENTS.md`),
     not placeholders.
 33. **Auto-tiled paths and shores, rims and prop shadows go into the game now**, and the rooms are adjusted to them.
-34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished.
+    Built for Riverside Square (the plan's "As built: Phase 3, second part").
+34. **The room's bamboo, lotus pond and lanterns** are added once the room designs are finished. Built for Riverside
+    Square, with the bamboo and willow swaying and the lotus bobbing.
 35. **Attack-button drag moves** (as proposed in Phase 2): a long drag = the combo's finisher; a drag down in the air =
     Plunge; a hold without a drag = guard / the stance technique.
 36. **The full game logic runs in the top-down prototype first** (NPCs, talk, quests, shops, pickups, gathering, doors,

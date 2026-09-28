@@ -12,6 +12,11 @@ extends Node2D
 ## a blow's hit-stop freezing both. Over the viewport, at the HUD's resolution and following the camera, the overlay
 ## holds what reads best crisp: the effects layer (FxLayer, the technique forms from art/fx/, numbers), the foes'
 ## labels and HP bars (EnemyView in label mode, placed by WorldLabels round the HUD), loot, and the aim (decision 30).
+##
+## Phase 3 (docs/redesign/art_bible.md, decisions 32–34): the terrain draws by the art bible's rules (TopdownTerrain):
+## paths and shores auto-tiled, rims, contact shade and cast shade on every raised edge, face ends and stair cheeks,
+## and each prop's floor shadow cut to the floor it stands on. Plants sway and lotus bob in their own frames, and the
+## foes are the eight-facing sheet (art/topdown/foes.png).
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
 const VIEW := Vector2i(640, 360)
@@ -19,6 +24,7 @@ const T := 16.0
 
 var room_id := "td_proto_square"
 var room: TopdownRoom
+var terrain: TopdownTerrain
 var player
 var viewport: SubViewport
 var container: SubViewportContainer
@@ -52,6 +58,7 @@ func _ready() -> void:
 		room = Game.room_rt.topdown
 	else:
 		room = TopdownRoom.load_room(room_id)
+	terrain = TopdownTerrain.new(room)
 	container = SubViewportContainer.new()
 	container.stretch = true
 	container.stretch_shrink = 2
@@ -281,28 +288,26 @@ func tile(name: String) -> Rect2:
 	var r: Array = room.tileset.get("tiles", {}).get(name, [0, 0, 16, 16])
 	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
-## The top tile a paint mark draws, with a fixed per-cell variant.
-## (The tile set's `paint` table says which tiles each mark draws, decision 31: new art replaces rows, not code.)
-func top_tile(x: int, y: int) -> String:
-	var tops: Array = room.tileset.get("paint", {}).get(room.paint_at(x, y), {}).get("top", ["grass_a"])
-	return str(tops[1 if tops.size() > 1 and (x * 7 + y * 13) % 5 < 2 else 0])
-
-func face_tile(x: int, y: int, first: bool, over_water: bool) -> String:
-	var p: Dictionary = room.tileset.get("paint", {}).get(room.paint_at(x, y), {})
-	var kind := str(p.get("face", "stone"))
-	if over_water and not p.get("keep_face", false): kind = str(room.tileset.get("bank_face", "bank"))
-	return kind + ("_face_top" if first else "_face")
-
 ## An atlas of the tile set (tiles, props, body, foes), loaded once from the file its manifest names.
 func atlas(kind: String) -> Texture2D:
 	if not _atlases.has(kind): _atlases[kind] = load(str(room.tileset.get("atlas", {}).get(kind, "")))
 	return _atlases[kind]
 
-## The level the cell south of an edge shows at that edge: a stair's height where it meets it, water -1.
-func edge_level(x: int, y: int) -> int:
-	if not room.inside(x, y): return 99
-	if not room.stair_at(x, y).is_empty(): return floori(room.height_at(Vector2((x + 0.5) * TopdownRoom.TILE, y * TopdownRoom.TILE + 0.5)) / TopdownRoom.LEVEL + 0.01)
-	return room.levels[y * room.w + x]
+## Draw the named tile at `at` on `ci`, its top `h` rows only (a face over water shows half).
+func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
+	var src := tile(name)
+	ci.draw_texture_rect_region(atlas("tiles"), Rect2(at, Vector2(T, h)), Rect2(src.position, Vector2(src.size.x, h)))
+
+## A cell's top at `at`: its tile and the light overlays for its level (art bible §5).
+func blit_top(ci: CanvasItem, x: int, y: int, l: int, at: Vector2) -> void:
+	blit(ci, terrain.top(x, y), at)
+	for o in terrain.overlays(x, y, l): blit(ci, o, at)
+
+## The prop shadows on row `row`'s floor at `level`, lifted by `dy` art px.
+func blit_shadows(ci: CanvasItem, row: int, level: int, dy: float) -> void:
+	for piece in terrain.shadow_pieces(row, level):
+		var dest: Rect2 = piece[0]
+		ci.draw_texture_rect_region(atlas("props"), Rect2(dest.position + Vector2(0, dy), dest.size), piece[1])
 
 ## A node in the sorted layer sits at its key and draws back to screen rows by `lift` = key.
 class Sorted extends Node2D:
@@ -314,40 +319,46 @@ class Sorted extends Node2D:
 	func key(k: float) -> void:
 		position = Vector2(0, k)
 
+## The water, half a level under the ground, each cell's shore case in the frame of the 250 ms clock (art bible §6–§7).
 class WaterView extends Node2D:
 	var world
 	var frame := -1
-	func _init(w) -> void: world = w
+	var cells: Array = []   ## [screen position, [its tile in frames 0-3]]
+	func _init(w) -> void:
+		world = w
+		var r: TopdownRoom = w.room
+		for y in r.h:
+			for x in r.w:
+				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water(x, y)])
 	func _process(_d: float) -> void:
 		var f := int(Time.get_ticks_msec() / 250) % 4
 		if f != frame:
 			frame = f
 			queue_redraw()
 	func _draw() -> void:
-		var r: TopdownRoom = world.room
-		var src: Rect2 = world.tile("water_%d" % maxi(0, frame))
-		for y in r.h:
-			for x in r.w:
-				if r.levels[y * r.w + x] == TopdownRoom.WATER: draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART, T, T), src)
+		for c in cells: world.blit(self, str(c[1][maxi(0, frame)]), c[0])
 
-## Ground-level tops and the bank faces over water: under everything that sorts.
+## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows: under
+## everything that sorts.
 class FloorView extends Node2D:
 	var world
 	func _init(w) -> void: world = w
 	func _draw() -> void:
 		var r: TopdownRoom = world.room
+		var tr: TopdownTerrain = world.terrain
 		for y in r.h:
 			for x in r.w:
 				if r.levels[y * r.w + x] != 0 or not r.stair_at(x, y).is_empty(): continue
-				draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, y * T, T, T), world.tile(world.top_tile(x, y)))
-				if world.edge_level(x, y + 1) == TopdownRoom.WATER:
-					var src: Rect2 = world.tile(world.face_tile(x, y, true, true))
-					draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, (y + 1) * T, T, T * 0.5), Rect2(src.position, Vector2(T, T * 0.5)))
+				world.blit_top(self, x, y, 0, Vector2(x * T, y * T))
+				if tr.edge_level(x, y + 1) == TopdownRoom.WATER: world.blit(self, tr.face(x, y, 0, true), Vector2(x * T, (y + 1) * T), T * 0.5)
+		for y in r.h: world.blit_shadows(self, y, 0, 0.0)
 
-## One row of raised cells: their tops at their height and their south faces down to the level in front, with a rim
-## on the sides that drop away. Its key is the row's south edge.
+## One row of raised cells: their tops at their height with their light, their south faces down to the level in front
+## (the face's ends lit or shaded where it turns a corner), and the floor shadows of the props on them. Its key is the
+## row's south edge.
 class StripView extends Sorted:
 	var row := 0
+	var levels := {}
 	func _init(w, y: int) -> void:
 		super(w)
 		row = y
@@ -356,26 +367,28 @@ class StripView extends Sorted:
 		for x in r.w:
 			var l := r.levels[y * r.w + x]
 			if l <= 0 or not r.stair_at(x, y).is_empty(): continue
-			var south := mini(l, w.edge_level(x, y + 1))
+			levels[l] = true
+			var south := mini(l, w.terrain.edge_level(x, y + 1))
 			rects.append(Rect2(x * T, (y - l) * T, T, T * (1 + l - maxi(south, -1)) - (T * 0.5 if south < 0 else 0.0)))
 	func _draw() -> void:
 		var r: TopdownRoom = world.room
+		var tr: TopdownTerrain = world.terrain
 		var lift := position.y
 		for x in r.w:
 			var l := r.levels[row * r.w + x]
 			if l <= 0 or not r.stair_at(x, row).is_empty(): continue
-			var top := Rect2(x * T, (row - l) * T - lift, T, T)
-			draw_texture_rect_region(world.atlas("tiles"), top, world.tile(world.top_tile(x, row)))
-			var south := mini(l, world.edge_level(x, row + 1))
+			world.blit_top(self, x, row, l, Vector2(x * T, (row - l) * T - lift))
+			var south := mini(l, tr.edge_level(x, row + 1))
 			for k in range(l - south):
 				var water: bool = south + k + 1 == 0
-				var src: Rect2 = world.tile(world.face_tile(x, row, k == 0, water))
+				var at := Vector2(x * T, (row + 1 - l + k) * T - lift)
 				var h := T * 0.5 if water else T
-				draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, (row + 1 - l + k) * T - lift, T, h), Rect2(src.position, Vector2(T, h)))
-			for side in [-1, 1]:   # the rim where the neighbour drops away (plan §1.5)
-				if world.edge_level(x + side, row) < l: draw_rect(Rect2(top.position.x + (T - 1 if side > 0 else 0), top.position.y, 1, T), Color(1, 0.95, 0.8, 0.35))
+				world.blit(self, tr.face(x, row, k, water), at, h)
+				for e in tr.face_ends(x, row, l, k): world.blit(self, e, at, h)
+		for l in levels: world.blit_shadows(self, row, l, -l * T - lift)
 
-## A flight of stairs, drawn step by step from its top edge to its foot; its key is the flight's south edge.
+## A flight of stairs, drawn step by step from its top edge to its foot, between a lit west cheek and a shaded east
+## one; its key is the flight's south edge.
 class StairsView extends Sorted:
 	var rect: Rect2
 	func _init(w, st: Dictionary) -> void:
@@ -387,21 +400,27 @@ class StairsView extends Sorted:
 		rects.append(rect)
 		key(r.end.y * T)
 	func _draw() -> void:
-		var src: Rect2 = world.tile("stairs")
 		var lift := position.y
 		var y := rect.position.y
 		while y < rect.end.y:
-			for x in int(rect.size.x / T):
-				draw_texture_rect_region(world.atlas("tiles"), Rect2(rect.position.x + x * T, y - lift, T, minf(8.0, rect.end.y - y)), Rect2(src.position, Vector2(T, minf(8.0, rect.end.y - y))))
+			for x in int(rect.size.x / T): world.blit(self, "stairs", Vector2(rect.position.x + x * T, y - lift), minf(8.0, rect.end.y - y))
 			y += 8.0
-		for side in [0.0, rect.size.x - 1.0]:
-			draw_rect(Rect2(rect.position.x + side, rect.position.y - lift, 1, rect.size.y), Color(0.03, 0.06, 0.07, 0.5))
+		y = rect.position.y
+		while y < rect.end.y:
+			world.blit(self, "cheek_w", Vector2(rect.position.x, y - lift), minf(T, rect.end.y - y))
+			world.blit(self, "cheek_e", Vector2(rect.end.x - T, y - lift), minf(T, rect.end.y - y))
+			y += T
 
 ## A prop sprite from the atlas; its footprint's south-west corner sits on the floor it stands on, its key is the
-## footprint's south edge (a little past the row's own, so it draws over the floor it stands on).
+## footprint's south edge (a little past the row's own, so it draws over the floor it stands on). An animated prop
+## (the manifest's `frames`, side by side from its rect) plays on its own clock, each prop at its own phase.
 class PropView extends Sorted:
 	var src: Rect2
 	var at: Vector2
+	var frames := 1
+	var frame_ms := 0
+	var phase := 0
+	var frame := 0
 	func _init(w, p: Dictionary) -> void:
 		super(w)
 		var art: Dictionary = p.art
@@ -415,8 +434,18 @@ class PropView extends Sorted:
 		at = Vector2(cell.x * T - float(origin[0]), south + ground - float(origin[1]))
 		rects.append(Rect2(at, src.size))
 		key(south + 0.5)
+		frames = int(art.get("frames", 1))
+		frame_ms = int(art.get("frame_ms", 0))
+		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+	func _ready() -> void:
+		set_process(frames > 1 and frame_ms > 0)
+	func _process(_d: float) -> void:
+		var f := (int(Time.get_ticks_msec() / frame_ms) + phase) % frames
+		if f != frame:
+			frame = f
+			queue_redraw()
 	func _draw() -> void:
-		draw_texture_rect_region(world.atlas("props"), Rect2(at - position, src.size), src)
+		draw_texture_rect_region(world.atlas("props"), Rect2(at - position, src.size), Rect2(src.position + Vector2(src.size.x * frame, 0), src.size))
 
 ## The blob shadow on the floor under the body; it shrinks and fades with the height above that floor (plan §1.5).
 class ShadowView extends Sorted:
@@ -433,11 +462,13 @@ class ShadowView extends Sorted:
 		position.x = feet.x
 		queue_redraw()
 	func _draw() -> void:
-		var rx := roundf(8.0 * k)
-		var col := Color(0.01, 0.035, 0.04, 0.55 * k)
-		var dy := feet.y - position.y
-		draw_rect(Rect2(-rx, dy - 1, rx * 2, 3), col)
-		draw_rect(Rect2(-rx + 2, dy - 2, rx * 2 - 4, 5), col)
+		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, roundf(8.0 * k), 0.55 * k)
+
+## A body's blob shadow on the floor at (x, y): `rx` wide each way, two stepped layers of deep teal at opacity `a`.
+static func draw_blob(ci: CanvasItem, x: float, y: float, rx: float, a: float) -> void:
+	var col := Color(0.01, 0.035, 0.04, a)
+	ci.draw_rect(Rect2(x - rx, y - 1, rx * 2, 3), col)
+	ci.draw_rect(Rect2(x - rx + 2, y - 2, rx * 2 - 4, 5), col)
 
 ## Landing dust and splashes, a few pixels each.
 class FxView extends Sorted:
@@ -485,16 +516,22 @@ class Caption extends Control:
 	func _draw() -> void:
 		UiKit.draw_outlined(self, Tx.t("topdown.caption"), Vector2(320, 28), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 640)
 
-## Phase 2: one foe on the grid, a PLACEHOLDER sprite (art/topdown/placeholder_foes.png, east drawn, west mirrored)
-## sorted with the room like the body, its shadow on the floor under it, a flash when struck and a fade in death.
+## One foe on the grid (Phase 3: art/topdown/foes.png), sorted with the room like the body, its shadow on the floor
+## under it, a flash when struck and a fade in death. It turns to eight facings (five drawn, SW, W and NW mirrored):
+## where it walks, else where it aims in a fight, keeping its facing until another is 12 degrees nearer. Each action
+## plays at its own rate from the manifest; a strike, a flinch and a death play once and hold their last frame.
 class FoeView extends Sorted:
+	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
-	var frames: Dictionary = {}
-	var cell := Vector2(32, 24)
-	var foot := Vector2(16, 21)
+	var acts: Dictionary = {}
+	var mirror: Dictionary = {}
+	var cell := Vector2(48, 40)
+	var foot := Vector2(24, 27)
+	var shadow_rx := 8.0
 	var feet := Vector2.ZERO
 	var ground_y := 0.0
 	var src := Rect2()
+	var facing := "s"
 	var flip := false
 	var tint := Color.WHITE
 	var t := 0.0
@@ -503,11 +540,15 @@ class FoeView extends Sorted:
 		super(w)
 		uid = e.uid
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
-		frames = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
-		var c: Array = sheet.get("cell", [32, 24])
-		var f: Array = sheet.get("foot", [16, 21])
+		var sp: Dictionary = sheet.get("species", {}).get(e.def_id, sheet.get("species", {}).get("mudshell_crab", {}))
+		acts = sp.get("actions", {})
+		mirror = sheet.get("mirror", {})
+		var c: Array = sheet.get("cell", [48, 40])
+		var f: Array = sheet.get("foot", [24, 27])
 		cell = Vector2(float(c[0]), float(c[1]))
 		foot = Vector2(float(f[0]), float(f[1]))
+		shadow_rx = float(sp.get("shadow", [8, 3])[0])
+		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
 	func sync(delta: float) -> void:
 		var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
 		if e == null:
@@ -520,23 +561,27 @@ class FoeView extends Sorted:
 		key(room.sort_key(e.plane, e.altitude))
 		position.x = feet.x
 		visible = not e.hidden or e.ai.state == "windup"
+		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover"]
+		var want := e.velocity if e.velocity.length() > 1.0 else (e.aim if fight else Vector2.ZERO)
+		if e.alive and want != Vector2.ZERO: facing = TopdownMotor.nearest_row(want, facing, FACINGS, 12.0)
 		var act := str(e.action)
-		if e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]) or act == "death": act = "hurt"
-		if not frames.has(act): act = "idle"
+		if not e.alive: act = "death"
+		elif e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]): act = "hurt"
+		if not acts.has(act): act = "idle"
 		if act != last:
 			last = act
 			t = 0.0
 		t += delta
-		var list: Array = frames.get(act, [[0, 0]])
-		var at: Array = list[int(t * (8.0 if act == "walk" else 2.0)) % list.size()]
+		var a: Dictionary = acts.get(act, {})
+		flip = mirror.has(facing)
+		var list: Array = a.get("frames", {}).get(str(mirror.get(facing, facing)), [[0, 0]])
+		var i := int(t * float(a.get("fps", 6)))
+		var at: Array = list[i % list.size() if a.get("loop", true) else mini(i, list.size() - 1)]
 		src = Rect2(float(at[0]), float(at[1]), cell.x, cell.y)
-		flip = e.facing < 0
 		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(1.8, 1.8, 1.8) if e.flash > 0.0 else Color.WHITE)
 		queue_redraw()
 	func _draw() -> void:
-		var sy := ground_y - position.y
-		draw_rect(Rect2(-7, sy - 1, 14, 3), Color(0.01, 0.035, 0.04, 0.45 * tint.a))
-		draw_rect(Rect2(-5, sy - 2, 10, 5), Color(0.01, 0.035, 0.04, 0.45 * tint.a))
+		TopdownWorld.draw_blob(self, 0.0, ground_y - position.y, shadow_rx, 0.45 * tint.a)
 		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
 		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
