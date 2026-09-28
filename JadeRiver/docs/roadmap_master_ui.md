@@ -488,4 +488,13 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
 39. **The story is staged, not just told:** in-engine cutscenes and scripted scenes (characters walk, face, emote and
     speak in the world, the camera moves, things happen), and the opening plays as a story that teaches the player how to
     play through what happens, not through menus.
+40. **The terrain and world look closer to Alabaster Dawn, in the xianxia theme (2026-09-28):** "better graphics are
+    needed". The work comes in three parts:
+    - the tiles: one sun from the north-west with hue-shifted ramps, organic edges, cliffs with rock mass and lit lips,
+      water with depth, foam and glints, worn paving, shaded roofs, and no visible grid;
+    - runtime light: cast shadows, a colour grade, and particles;
+    - denser foliage and decor.
+
+    The tiles go first and write the art direction into `docs/redesign/art_bible.md` ("Terrain v2"), which the other
+    two follow. The prototype APK waits for it.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

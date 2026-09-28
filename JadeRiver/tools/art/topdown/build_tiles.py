@@ -46,7 +46,8 @@ REVIEW = ROOT / "docs/redesign/phase3"
 # (a fixed pick per cell), its face kind, `grass` for a mark that creeps over a path's edge, `under` for a path or
 # paving that grass creeps over (the corner-matched set it takes, art bible §6), `face_below` for the face rows under
 # the first (picked by column), and `keep_face` for a mark whose face stays its own over water (a pier's pilings, a
-# grassy bank's soil; the rest take the granite embankment). `b` is a planted bed: flowers on a dressed-stone planter.
+# grassy bank's soil; the rest take the granite embankment). `b` is a planted bed: flowers on a dressed-stone planter;
+# `m` a wet meadow of the Reed Marsh, puddles in its grass.
 PAINT = {
     "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True},
     "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True},
@@ -60,6 +61,7 @@ PAINT = {
     "t": {"top": ["roof_top", "roof_top_b"], "face": "roof",
           "face_below": ["plaster_face_window", "roof_face", "roof_face"]},
     "l": {"top": ["wall_top"], "face": "wall"},
+    "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True},
 }
 
 # Terrain sets of the TileSet (art bible §6).
@@ -226,7 +228,7 @@ def review(outputs: dict) -> None:
     # 3. The foes at x3: a row per species and drawn facing, the actions along it, on a meadow tone, labelled.
     fm = man["foes"]
     cw, ch = fm["cell"]
-    z, lw, th = 3, 150, 22
+    z, lw, th = 3, 230, 22
     cols = foes.width // cw
     out = Image.new("RGBA", (lw + cols * cw * z, th + foes.height * z), (22, 30, 34, 255))
     d = ImageDraw.Draw(out)
@@ -241,7 +243,7 @@ def review(outputs: dict) -> None:
             cell.alpha_composite(foes.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch)))
             out.alpha_composite(cell.resize((cw * z, ch * z), Image.NEAREST), (lw + c * cw * z, th + r * ch * z))
         sp, facing = creatures.SPECIES[r // len(fm["dirs"])], fm["dirs"][r % len(fm["dirs"])]
-        d.text((6, th + r * ch * z + ch * z // 2 - 8), "%s %s" % (sp.split("_")[-1], facing.upper()), font=head,
+        d.text((6, th + r * ch * z + ch * z // 2 - 8), "%s %s" % (sp.replace("_", " "), facing.upper()), font=head,
                fill=(232, 225, 207, 255))
     out.save(REVIEW / "12_foes_x3.png")
     print("review images in", REVIEW.relative_to(ROOT))
