@@ -23,8 +23,9 @@ extends "res://tests/tutorial_order.gd"
 ##   7. the character's own view drives the body: a talk offered, auto-path through a door and out through an edge;
 ##   8. a room's people are drawn within a moment of it while the page scripts still warm up, and every way's reach
 ##      is turned with its direction;
-##   9. every foe the rooms of chapter 2's stretch spawn has its own top-down figure (every action in five drawn
-##      facings), and after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row;
+##   9. every foe the rooms of the tutorial and chapter 2's stretch spawn, their events' foes too (the night's minnows
+##      and eel), has its own top-down figure (every action in five drawn facings), none the view's stand-in; and
+##      after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row;
 ##  10. the story is staged (decision 39, data/scenes.json): every scene of the tutorial plays to its end on a
 ##      SceneDirector with no view as the walk comes to it, the walk's own deeds doing what its hand-offs ask (the
 ##      stump punched, the tea drunk, the crab driven off, the door walked through), and its cuts count on the play clock,
@@ -297,7 +298,7 @@ func _people_stream() -> void:
 
 # ------------------------------------------------------------------ 2: the layouts
 ## Every layout of the tutorial and of chapter 2's stretch: each thing of its side-view room placed on a floor, and
-## reached on foot from every way in and from its spawn; in chapter 2's rooms every foe they spawn drawn for the grid.
+## reached on foot from every way in and from its spawn; every foe it spawns, its event's too, drawn for the grid.
 func _layouts() -> void:
 	var rooms: Array = TUTORIAL_ROOMS.duplicate()
 	for sid in CHAPTER2_ROOMS:
@@ -336,10 +337,13 @@ func _layouts() -> void:
 				for q in sp.get("points", []):
 					if not grid.standable(TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))): bad.append("a %s spawn on no floor" % sp.enemy)
 		check(bad.is_empty(), "%s: everything stands on a floor and is reached on foot from every way in and from the spawn (%s)" % [rid, str(bad.slice(0, 6))])
-		if rid in TUTORIAL_ROOMS: continue
 		var species: Dictionary = grid.tileset.get("foes", {}).get("species", {})
 		var dirs: Array = grid.tileset.get("foes", {}).get("dirs", [])
-		var undrawn: Array = side.get("spawns", []).map(func(sp): return str(sp.enemy)).filter(func(e):
+		var foes: Array = side.get("spawns", []).map(func(sp): return str(sp.enemy))
+		var ev: Dictionary = side.get("event", {})
+		if ev.has("wave"): foes.append(str(ev.wave.enemy))
+		for fs in ev.get("fixed_spawns", []): foes.append(str(fs.enemy))
+		var undrawn: Array = foes.filter(func(e):
 			return not species.has(e) or dirs.size() != 5 or FOE_ACTIONS.any(func(a): return dirs.any(func(d): return (species[e].actions.get(a, {}).get("frames", {}).get(d, []) as Array).is_empty())))
 		check(undrawn.is_empty(), "%s: every foe it spawns has its own top-down figure, every action in five drawn facings (undrawn %s)" % [rid, str(undrawn)])
 
