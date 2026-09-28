@@ -1,5 +1,24 @@
 # Changelog
 
+## Pages, rooms and the top-down room open inside their budgets under load
+
+- **Techniques page** (P13b). It keeps the tree's layout across opens, built as the world mounts or a room is entered,
+  and the technique trees' index is built there too. The live preview is built the frame after the page opens. The
+  preview's form sheets load on a thread as an art is chosen. Card emblems compose within 4 ms a frame, and card
+  stills are kept across opens.
+- **Every page that fades in** now draws once as it opens, not twice. On that frame its icons, creature sheets and
+  seals load on threads while the page is still nearly transparent.
+- **Rooms.** A room's backdrop layers and its villagers' outfit sheets load on threads under the entry fade.
+- **perf_tests** frees its 4,350-row fixture outside every timing. Freeing it fell into the top-down room's mount time.
+- **Measured** with 10 perf_tests runs before and 10 after, alternating, at load ~6 (median / max, ms):
+  - Techniques page open: 236 / 314 → 36 / 73.
+  - Slowest page: 230 / 626 → 78 / 114. "Every page opens in under 0.15 s" failed 8 of 10 runs before and 0 after.
+  - Techniques page with sixty composed arts: 107 / 162 → 43 / 81.
+  - Slowest room: 150 / 206 → 116 / 158.
+  - Top-down room mount: 286 / 412 → 86 / 143. Its check failed 4 of 10 runs before and 0 after.
+  - Budgets are unchanged. At that load the 60 fps frame checks and the v1.5 parse ratio still fail at times, before
+    and after.
+
 ## Top-down redesign, Phase 3 begins: the art direction and the prototype room's terrain
 
 - **An art bible for the top-down world** (`docs/redesign/art_bible.md`, decision 31). It sets:
