@@ -37,7 +37,10 @@ const BLOB_CORE := 0.58
 ## The props whose sprite casts its silhouette (the others are flat or on the water). Buildings and crate stacks with a
 ## standable top cast as blocks of their height, like the grid.
 const CASTS := ["bamboo", "banner_cloud", "banner_jade", "barrel", "boulder", "dead_tree", "incense", "lantern", "lantern_red",
-	"notice", "pine", "post", "shrub", "weapon_rack", "willow"]
+	"notice", "pine", "post", "shrub", "weapon_rack", "willow",
+	# The foliage kit's solid pieces (art bible §14.12); its trees are left out, their crowns' shade is baked in the sheet.
+	"bush", "bush_azalea", "bush_wide", "hedge_2", "hedge_3", "hedge_4", "fence_2", "fence_3", "fence_4", "rock_mossy",
+	"rock_small", "shrine_small", "pot_bonsai", "pot_orchid"]
 
 # ------------------------------------------------------------------ colour grade (per area, then per hour)
 ## A grade (§14.2: the tiles are graded already): highlights at most 4% toward `hi` (SUN; the marsh and the peaks
@@ -137,7 +140,11 @@ const PARTICLES := {
 	"glint": {"cap": 6, "life": [0.25, 0.45], "color": Color("eafff6"), "alpha": 0.9},
 }
 ## What falls from which tree: willow and bamboo drop leaves, flowering shrubs petals, the Hollowing's dead trees ash.
-const FALLS := {"willow": Color("9fcf6a"), "bamboo": Color("b4d86c"), "shrub": PETAL, "dead_tree": Color("a9adb0")}
+const FALLS := {"willow": Color("9fcf6a"), "bamboo": Color("b4d86c"), "shrub": PETAL, "dead_tree": Color("a9adb0"),
+	# The foliage kit's trees (§14.12): leaves from the green crowns, red leaves from the maple, petals from the blossom.
+	"tree_camphor": Color("7fb85a"), "tree_ribbons": Color("7fb85a"), "tree_willow": Color("9fcf6a"),
+	"bamboo_grove": Color("b4d86c"), "tree_maple": Color("d8642e"), "tree_plum": Color("f4d6e0"), "tree_peach": PETAL,
+	"bush_azalea": PETAL}
 ## Cloud shade: a few big soft shapes gliding over everything by day (px per second), in the shade patches' tint and
 ## fainter than them (they move).
 const CLOUDS_PER_SCREEN := 1.2
