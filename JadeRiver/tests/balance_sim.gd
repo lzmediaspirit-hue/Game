@@ -264,6 +264,9 @@ func _room_fight(c, room: String, enemy: String, count: int, quest: String, seed
 	Rng.forget(c.id)
 	Rng.ensure(c.id, seed)
 	Game.enemies.rng.seed = seed
+	# Each seed is a fresh visit: the room forgets the kills of the seed before (the elite slain there would stay away
+	# for its respawn, and the step would wait on it).
+	if c.rooms.has(room): c.rooms[room].erase("slain")
 	Game.world.load_room(c, room, "")
 	GameEvents.flush()
 	var grid: TopdownRoom = Game.room_rt.topdown
