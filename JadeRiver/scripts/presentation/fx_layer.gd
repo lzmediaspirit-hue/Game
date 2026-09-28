@@ -27,6 +27,10 @@ var chest := 56.0           # a figure's chest over its feet, where a cast's che
                             # from state; false for a layer staged on a page (the Techniques page's preview)
 var lazy_sheets := false    # a form's sheet not yet in memory loads on a loading thread and its frames wait for it (the
                             # Techniques page's preview, which asks for it as an art is chosen), never stalling a frame
+## Decision 38: the top-down world draws the technique forms, their bolts and the blows' impact marks itself, from the
+## ground-plane sheets (TopdownFx); its layer keeps the rest (numbers, words, rings, washes).
+var forms := true           # draw a cast's form sheet and a technique's bolt here
+var sparks := true          # draw a hit's spark here
 
 func _ready() -> void:
 	z_index = 4000
@@ -115,7 +119,7 @@ func cast(t: Dictionary, at: Vector2, facing: int, col: Color, target: Vector2, 
 	var shape := str(t.get("vfx", {}).get("shape", "strike"))
 	var form := str(t.get("vfx", {}).get("anim", ""))
 	if not form_spec(form).is_empty():
-		_cast_form(t, form, facing, tier, reach, at, target, windup, turn)
+		if forms: _cast_form(t, form, facing, tier, reach, at, target, windup, turn)
 		if shape == "ring": add("wave", at, {"color": col, "radius": reach, "size": n.wave_width, "dur": 0.45})
 		if shape == "domain" and t.has("heal_radius"): add("ring", at, {"color": Color(col, 0.7), "radius": float(t.heal_radius), "dur": 0.6})
 		return
@@ -181,6 +185,7 @@ func hit(pos: Vector2, amount: float, source: String, element: String, dtype: St
 	var tech := ContentDB.entry("techniques", source.trim_prefix("tech:")) if source.begins_with("tech:") else {}
 	if numbers:
 		number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, crit, stack + source if not tech.is_empty() else "", amount)
+	if not sparks: return
 	add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(element), "dur": 0.25,
 		"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,
 		"style": tech.get("vfx", {}).get("particles", MomentRules.particle_style("", element, dtype))})
@@ -687,6 +692,7 @@ func _draw_shot(p: Dictionary, pos: Vector2, dir: float, turn: float, at := Vect
 	if str(p.get("art", "")).begins_with("qi_") and p.has("technique"):
 		var t := ContentDB.entry("techniques", str(p.technique))
 		var a := form_spec(str(t.get("vfx", {}).get("anim", "")))
+		if a.has("bolt") and not forms: return   # the top-down world draws it (TopdownFx's bolts)
 		if a.has("bolt"):
 			var b: Dictionary = a.bolt
 			var band := band_of(int(t.get("vfx", {}).get("tier", 1)))

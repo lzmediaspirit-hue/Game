@@ -4521,8 +4521,6 @@
   "overcharge_chance": 0.05
  },
  "combat": {
-  "hitstop": 0.05,
-  "hitstop_crit": 0.1,
   "knockback_light": 20,
   "knockback_heavy": 80,
   "flinch_pct": 0.2,

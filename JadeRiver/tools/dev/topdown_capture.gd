@@ -4,7 +4,8 @@ extends Node
 ## the shadow in the air. It plays the real room through the HUD's own player fields on its own saves. `-- --phase4`:
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
-## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too.
+## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
+## decision 38's combat feel in the game (docs/redesign/phase5/combat/).
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -54,6 +55,9 @@ func _main() -> void:
 		return
 	if "--drag-moves" in OS.get_cmdline_user_args():
 		await drag_moves()
+		return
+	if "--combat" in OS.get_cmdline_user_args():
+		await combat()
 		return
 	if "--character" in OS.get_cmdline_user_args():
 		await character()
@@ -325,6 +329,112 @@ func drag_moves() -> void:
 	hud.release(92)
 	print("topdown_capture: drag moves done")
 	get_tree().quit()
+
+## Decision 38 (`-- --combat`, into docs/redesign/phase5/combat/): the combat feel in the game. A combo of each of a few
+## weapon families as frame strips round the body (the smears in their directions, the impacts, the hit-stop's held
+## frames, the knockback's hop), the dragged finisher, each slotted technique's form on the ground plane, the guard and a
+## parry, and the Plunge's landing; each strip reads left to right like the frames of a GIF.
+func combat() -> void:
+	var out := "res://docs/redesign/phase5/combat/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	var hud = main.hud
+	var c = Game.active()
+	var base := Vector2(22.5, 19.0) * 32.0
+	hud.visible = false
+	var sturdy := func(e: EnemyState) -> void:
+		e.pools.max_hp = 1.0e12
+		e.pools.hp = e.pools.max_hp
+	for fam in ["jian", "fists", "spear", "heavy_sabre", "brush", "bell"]:
+		c.inventory.equipped["weapon"] = null if fam == "fists" else LootRules.make_instance("training_" + fam, 1, "common", null, 900)
+		Game.combat.refresh_stats(c.id)
+		await arena(base, [["wild_boarlet", Vector2(46, 18)], ["mudshell_crab", Vector2(40, -24)]])
+		for e in Game.room_rt.enemies.values(): sturdy.call(e)
+		m.face(Vector2(1, 0.3))
+		var tiles: Array = []
+		for f in 64:
+			if f in [0, 18, 36]: p.aim_attack(Vector2(1, 0.25))
+			if f % 3 == 1 and tiles.size() < 16: tiles.append(await crop(192, 144))
+			await get_tree().physics_frame
+			await get_tree().process_frame
+		sheet(out + "ingame_combo_%s.png" % fam, tiles, 8)
+	c.inventory.equipped["weapon"] = LootRules.make_instance("training_jian", 1, "common", null, 901)
+	Game.combat.refresh_stats(c.id)
+	# The dragged finisher (the charged blow) and a dash attack, toward the camera and away from it.
+	await arena(base, [["wild_boarlet", Vector2(0, 46)], ["wild_boarlet", Vector2(0, -52)]])
+	for e in Game.room_rt.enemies.values(): sturdy.call(e)
+	var tiles2: Array = []
+	for f in 70:
+		if f == 0: p.finisher(Vector2.DOWN)
+		if f == 36: p.dodge()
+		if f == 40: p.aim_attack(Vector2.UP)
+		if f % 4 == 1 and tiles2.size() < 16: tiles2.append(await crop(192, 144))
+		p.movement = Vector2.UP * 0.9 if f >= 34 and f < 40 else Vector2.ZERO
+		await get_tree().physics_frame
+		await get_tree().process_frame
+	sheet(out + "ingame_finisher_and_dash_attack.png", tiles2, 8)
+	# Each slotted technique (a flurry, a wave, a burst, a seeker) toward a different direction, at its contact, with the
+	# bare hands the prototype's loadout is made for.
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	var panels_img: Array = []
+	var aims := [Vector2(1, 0.4), Vector2(0.2, 1), Vector2.ZERO, Vector2(-1, -0.3)]
+	for slot in 4:
+		await arena(base, [["wild_boarlet", Vector2(70, 20)], ["mudshell_crab", Vector2(-60, -30)], ["reedtail_rat", Vector2(10, 70)]])
+		for e in Game.room_rt.enemies.values(): sturdy.call(e)
+		c.pools.cooldowns.clear()
+		c.pools.qi = c.pools.max_qi
+		var d: Vector2 = aims[slot] if aims[slot] != Vector2.ZERO else Vector2.RIGHT
+		p.aim_technique(slot, d.normalized(), 0.6)
+		for f in 14: await frames(1)
+		panels_img.append(await crop(480, 300))
+	sheet(out + "ingame_techniques.png", panels_img, 2)
+	# The guard's wall of qi, then a parry caught in its window; and the Plunge's landing.
+	var marks: Array = []
+	await arena(base, [["wild_boarlet", Vector2(40, 0)]])
+	m.face(Vector2.RIGHT)
+	Game.submit({"type": "guard_start"})
+	await frames(6)
+	marks.append(await crop(192, 144))
+	var striker: EnemyState = Game.room_rt.enemies.values()[0]
+	striker.aim = Vector2.LEFT
+	Game.submit({"type": "guard_end"})
+	Game.submit({"type": "guard_start"})
+	Game.combat.enemy_strike(striker, striker.def.attacks[0])
+	GameEvents.flush()
+	await frames(2)
+	marks.append(await crop(192, 144))
+	Game.submit({"type": "guard_end"})
+	if not c.cultivator.secret_arts.has("plunge"): c.cultivator.secret_arts.append("plunge")
+	await arena(base, [["wild_boarlet", Vector2(34, 12)], ["mudshell_crab", Vector2(-36, 18)]])
+	p.jump()
+	await frames(6)
+	p.plunge()
+	for f in 5: await frames(1)
+	marks.append(await crop(192, 144))
+	await frames(4)
+	marks.append(await crop(192, 144))
+	sheet(out + "ingame_guard_parry_plunge.png", marks, 4)
+	hud.visible = true
+	print("topdown_capture: combat done")
+	get_tree().quit()
+
+## A crop of the screen (w x h screen px) round the body, at x2 of the world's art px.
+func crop(cw: int, ch: int) -> Image:
+	await RenderingServer.frame_post_draw
+	var img := get_tree().root.get_texture().get_image()
+	var at: Vector2 = (p.screen - w.camera.position + Vector2(320, 180)) * 2.0 + Vector2(0, -30)
+	return img.get_region(Rect2i(Vector2i(clampi(int(at.x) - cw / 2, 0, 1280 - cw), clampi(int(at.y) - ch / 2, 0, 720 - ch)), Vector2i(cw, ch)))
+
+## Images in rows of `cols`, 4 px apart on the night ink, saved as one sheet.
+func sheet(path: String, tiles: Array, cols: int) -> void:
+	if tiles.is_empty(): return
+	var tw: int = (tiles[0] as Image).get_width()
+	var th: int = (tiles[0] as Image).get_height()
+	var rows := ceili(tiles.size() / float(cols))
+	var img := Image.create(cols * (tw + 4) - 4, rows * (th + 4) - 4, false, Image.FORMAT_RGBA8)
+	img.fill(Color("071015"))
+	for i in tiles.size(): img.blit_rect(tiles[i], Rect2i(0, 0, tw, th), Vector2i((i % cols) * (tw + 4), (i / cols) * (th + 4)))
+	img.save_png(path)
 
 ## Phase 3, decision 32 (`-- --character`, into docs/redesign/phase3/character/): the real character in Riverside
 ## Square in the jian, with the tutorial's villagers standing about in their own outfits and a foe to fight; then a
