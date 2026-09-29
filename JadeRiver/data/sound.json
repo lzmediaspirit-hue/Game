@@ -1,0 +1,924 @@
+{
+ "schema_version": 1,
+ "_note": "Built by tools/data/sound.py; never edit by hand. Decision 43: the sound pass (docs/redesign/sound.md).",
+ "hits": {
+  "family_of": {
+   "fists": "fists",
+   "gauntlets": "fists",
+   "jian": "sword",
+   "short_blade": "sword",
+   "spear": "spear",
+   "staff": "spear",
+   "heavy_sabre": "sabre",
+   "fan": "fan",
+   "flute": "flute",
+   "brush": "brush",
+   "bell": "bell",
+   "bow": "bow",
+   "none": "fists",
+   "": "fists"
+  },
+  "foe_family": {
+   "beast": "fists",
+   "human": "sword",
+   "construct": "sabre",
+   "ghost": "flute",
+   "ashborn": "sabre",
+   "undead": "sabre"
+  },
+  "element_of": {
+   "none": "qi",
+   "fire": "fire",
+   "water": "water",
+   "wind": "wind",
+   "thunder": "thunder",
+   "earth": "earth",
+   "metal": "metal",
+   "wood": "wood",
+   "soul": "soul",
+   "space": "space",
+   "time": "time"
+  },
+  "families": {
+   "sword": {
+    "transient": [
+     "hit_sword_a",
+     "hit_sword_b"
+    ],
+    "tail": "hit_tail_sword",
+    "swing": "swing_sword"
+   },
+   "sabre": {
+    "transient": [
+     "hit_sabre_a",
+     "hit_sabre_b"
+    ],
+    "tail": "hit_tail_sabre",
+    "swing": "swing_sabre"
+   },
+   "spear": {
+    "transient": [
+     "hit_spear_a",
+     "hit_spear_b"
+    ],
+    "tail": "hit_tail_spear",
+    "swing": "swing_spear"
+   },
+   "fan": {
+    "transient": [
+     "hit_fan_a",
+     "hit_fan_b"
+    ],
+    "tail": "hit_tail_fan",
+    "swing": "swing_fan"
+   },
+   "brush": {
+    "transient": [
+     "hit_brush_a",
+     "hit_brush_b"
+    ],
+    "tail": "hit_tail_brush",
+    "swing": "swing_brush"
+   },
+   "flute": {
+    "transient": [
+     "hit_flute_a",
+     "hit_flute_b"
+    ],
+    "tail": "hit_tail_flute",
+    "swing": "swing_flute"
+   },
+   "bell": {
+    "transient": [
+     "hit_bell_a",
+     "hit_bell_b"
+    ],
+    "tail": "hit_tail_bell",
+    "swing": "swing_bell"
+   },
+   "bow": {
+    "transient": [
+     "hit_bow_a",
+     "hit_bow_b"
+    ],
+    "tail": "hit_tail_bow",
+    "swing": "swing_bow"
+   },
+   "fists": {
+    "transient": [
+     "hit_fists_a",
+     "hit_fists_b"
+    ],
+    "tail": "hit_tail_fists",
+    "swing": "swing_fists"
+   }
+  },
+  "bodies": {
+   "flesh": [
+    "hit_on_flesh_a",
+    "hit_on_flesh_b"
+   ],
+   "shell": [
+    "hit_on_shell_a",
+    "hit_on_shell_b"
+   ],
+   "wood": [
+    "hit_on_wood_a",
+    "hit_on_wood_b"
+   ],
+   "slime": [
+    "hit_on_slime_a",
+    "hit_on_slime_b"
+   ]
+  },
+  "mix": {
+   "transient_db": 0.0,
+   "body_db": -1.0,
+   "tail_db": -3.0,
+   "accent_db": -1.0,
+   "element_db": -1.0,
+   "player_hurt_db": 0.0
+  },
+  "weight_db": {
+   "light": -3.0,
+   "medium": -1.5,
+   "heavy": 0.0,
+   "finisher": 1.0
+  },
+  "weight_pitch": {
+   "light": 1.04,
+   "medium": 1.0,
+   "heavy": 0.96,
+   "finisher": 0.92
+  },
+  "hitstop_f": {
+   "light": 3,
+   "medium": 4,
+   "heavy": 6,
+   "finisher": 8
+  },
+  "crit_hitstop_f": 2,
+  "pitch_jitter": 0.035,
+  "vol_jitter_db": 1.5,
+  "merge_s": 0.035,
+  "merge_db": 1.5,
+  "merge_max_db": 3.0,
+  "accents": {
+   "crit": "hit_accent_crit",
+   "finisher": "hit_accent_crit",
+   "chain_last": "hit_accent_chain",
+   "weave": "hit_accent_weave"
+  },
+  "player_hurt": "hurt",
+  "object": "hit_on_wood_a"
+ },
+ "steps": {
+  "surfaces": {
+   "grass": {
+    "steps": [
+     "step_grass_a",
+     "step_grass_b",
+     "step_grass_c",
+     "step_grass_d"
+    ],
+    "land": "land_grass"
+   },
+   "dirt": {
+    "steps": [
+     "step_dirt_a",
+     "step_dirt_b",
+     "step_dirt_c",
+     "step_dirt_d"
+    ],
+    "land": "land_dirt"
+   },
+   "stone": {
+    "steps": [
+     "step_stone_a",
+     "step_stone_b",
+     "step_stone_c",
+     "step_stone_d"
+    ],
+    "land": "land_stone"
+   },
+   "wood": {
+    "steps": [
+     "step_wood_a",
+     "step_wood_b",
+     "step_wood_c",
+     "step_wood_d"
+    ],
+    "land": "land_wood"
+   },
+   "sand": {
+    "steps": [
+     "step_sand_a",
+     "step_sand_b",
+     "step_sand_c",
+     "step_sand_d"
+    ],
+    "land": "land_sand"
+   },
+   "water": {
+    "steps": [
+     "step_water_a",
+     "step_water_b",
+     "step_water_c",
+     "step_water_d"
+    ],
+    "land": "land_water"
+   },
+   "reeds": {
+    "steps": [
+     "step_reeds_a",
+     "step_reeds_b",
+     "step_reeds_c",
+     "step_reeds_d"
+    ],
+    "land": "land_reeds"
+   },
+   "roof": {
+    "steps": [
+     "step_roof_a",
+     "step_roof_b",
+     "step_roof_c",
+     "step_roof_d"
+    ],
+    "land": "land_roof"
+   },
+   "snow": {
+    "steps": [
+     "step_snow_a",
+     "step_snow_b",
+     "step_snow_c",
+     "step_snow_d"
+    ],
+    "land": "land_snow"
+   }
+  },
+  "paint": {
+   "g": "grass",
+   "f": "grass",
+   "b": "grass",
+   "m": "reeds",
+   "d": "dirt",
+   "p": "stone",
+   "s": "stone",
+   "r": "stone",
+   "l": "stone",
+   "w": "wood",
+   "t": "roof",
+   "a": "sand",
+   "n": "snow"
+  },
+  "prop_tops": {
+   "crates": "wood",
+   "house": "roof",
+   "hall": "roof",
+   "storehouse": "roof",
+   "boat": "wood"
+  },
+  "materials": {
+   "earth": "dirt",
+   "stone": "stone",
+   "wood": "wood",
+   "sand": "sand",
+   "snow": "snow",
+   "grass": "grass",
+   "water": "water",
+   "marsh": "reeds",
+   "roof": "roof"
+  },
+  "water": "water",
+  "default": "dirt",
+  "contacts": {
+   "walk": [
+    0.0,
+    0.5
+   ],
+   "run": [
+    0.0,
+    0.5
+   ],
+   "tiptoe": [
+    0.0,
+    0.5
+   ]
+  },
+  "gain_db": {
+   "walk": -4.0,
+   "run": 0.0
+  },
+  "pitch": {
+   "walk": 0.97,
+   "run": 1.03
+  },
+  "pitch_jitter": 0.04,
+  "vol_jitter_db": 1.5,
+  "land": {
+   "min_fall": 6.0,
+   "heavy_fall": 40.0,
+   "heavy": "land_heavy",
+   "gain_by_fall": [
+    [
+     6.0,
+     -8.0
+    ],
+    [
+     20.0,
+     -3.0
+    ],
+    [
+     60.0,
+     0.0
+    ],
+    [
+     160.0,
+     2.0
+    ]
+   ]
+  },
+  "jump": "jump",
+  "foe_gain_db": -7.0,
+  "npc_gain_db": -9.0,
+  "foe_min_speed": 18.0,
+  "foe_cadence_s": 0.34,
+  "others_max": 6
+ },
+ "foes": {
+  "body_by_race": {
+   "beast": "flesh",
+   "human": "flesh",
+   "construct": "wood",
+   "ghost": "slime",
+   "ashborn": "flesh",
+   "undead": "shell"
+  },
+  "body_by_nature": {
+   "hollowed": "slime"
+  },
+  "body": {
+   "mudshell_crab": "shell",
+   "old_snapper": "shell",
+   "rock_beetle": "shell",
+   "stone_tortoise": "shell",
+   "ironclaw_mole": "shell",
+   "tide_crab": "shell",
+   "sandstorm_scorpion": "shell",
+   "void_crab": "shell",
+   "boulder_serpent": "shell",
+   "pebble_imp": "shell",
+   "mirror_wisp": "shell",
+   "gravity_golem": "shell",
+   "riverstone_ox": "shell",
+   "hollow_minnow": "slime",
+   "hollowed_eel": "slime",
+   "marsh_leech": "slime",
+   "reed_frog": "slime",
+   "mossback_toad": "slime",
+   "star_jellyfish": "slime",
+   "greyfin": "slime",
+   "jade_carp": "slime",
+   "azure_carp_dragonet": "slime",
+   "nebula_eel": "slime",
+   "dune_worm": "slime",
+   "thousand_eye_toad": "slime",
+   "riverbed_serpent": "slime",
+   "nebula_leviathan": "slime",
+   "trial_puppet": "wood",
+   "paper_talisman_ghost": "wood",
+   "weeping_lantern": "wood",
+   "stone_guardian": "wood",
+   "jade_sentinel": "wood",
+   "river_sentinel": "wood",
+   "terracotta_warden": "wood",
+   "gate_guardian": "wood"
+  },
+  "tell_by_race": {
+   "beast": "tell_beast",
+   "human": "tell_human",
+   "construct": "tell_construct",
+   "ghost": "tell_spirit",
+   "ashborn": "tell_human",
+   "undead": "tell_construct"
+  },
+  "tell_by_nature": {
+   "hollowed": "tell_spirit",
+   "demonic": "tell_beast"
+  },
+  "tell": {
+   "hollow_minnow": "tell_water",
+   "hollowed_eel": "tell_water",
+   "marsh_leech": "tell_water",
+   "reed_frog": "tell_water",
+   "mossback_toad": "tell_water",
+   "star_jellyfish": "tell_water",
+   "greyfin": "tell_water",
+   "jade_carp": "tell_water",
+   "azure_carp_dragonet": "tell_water",
+   "nebula_eel": "tell_water",
+   "dune_worm": "tell_water",
+   "thousand_eye_toad": "tell_water",
+   "riverbed_serpent": "tell_water",
+   "nebula_leviathan": "tell_water",
+   "mudshell_crab": "tell_water",
+   "tide_crab": "tell_water",
+   "old_snapper": "tell_water",
+   "void_crab": "tell_water",
+   "reed_otter": "tell_water"
+  },
+  "tell_tick": "tell",
+  "tell_tick_db": -6.0,
+  "death_by_body": {
+   "flesh": "die_flesh",
+   "shell": "die_shell",
+   "wood": "die_wood",
+   "slime": "die_slime"
+  },
+  "death_by_race": {
+   "ghost": "die_spirit"
+  },
+  "death_by_nature": {
+   "hollowed": "die_spirit"
+  },
+  "role_db": {
+   "normal": 0.0,
+   "elite": 2.0,
+   "trial": 0.0,
+   "event": 0.0,
+   "story_boss": 3.0,
+   "dungeon_boss": 3.0,
+   "field_boss": 3.0
+  },
+  "role_pitch": {
+   "elite": 0.93,
+   "story_boss": 0.86,
+   "dungeon_boss": 0.86,
+   "field_boss": 0.86
+  }
+ },
+ "beds": {
+  "beds": {
+   "river": {
+    "bases": [
+     [
+      "bed_river",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_frogs"
+   },
+   "river_village": {
+    "bases": [
+     [
+      "bed_river",
+      -2.0
+     ],
+     [
+      "bed_town",
+      -9.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_frogs",
+    "night_base_db": -3.0
+   },
+   "marsh": {
+    "bases": [
+     [
+      "bed_marsh",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_frogs"
+   },
+   "bamboo": {
+    "bases": [
+     [
+      "bed_bamboo",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_insects"
+   },
+   "pines": {
+    "bases": [
+     [
+      "bed_pines",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_insects"
+   },
+   "field": {
+    "bases": [
+     [
+      "bed_field",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_insects"
+   },
+   "town": {
+    "bases": [
+     [
+      "bed_town",
+      0.0
+     ]
+    ],
+    "night": "bed_insects",
+    "night_base_db": -9.0
+   },
+   "sect": {
+    "bases": [
+     [
+      "bed_sect",
+      0.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_insects"
+   },
+   "sect_high": {
+    "bases": [
+     [
+      "bed_sect",
+      -2.0
+     ],
+     [
+      "bed_pines",
+      -6.0
+     ]
+    ],
+    "day": "bed_birds",
+    "night": "bed_insects"
+   },
+   "cave": {
+    "bases": [
+     [
+      "bed_cave",
+      0.0
+     ]
+    ]
+   },
+   "interior": {
+    "bases": [
+     [
+      "bed_interior",
+      0.0
+     ]
+    ]
+   }
+  },
+  "hours": {
+   "morning": {
+    "day": 0.0
+   },
+   "day": {
+    "day": -2.0
+   },
+   "evening": {
+    "day": -8.0,
+    "night": -6.0
+   },
+   "dusk": {
+    "day": -8.0,
+    "night": -6.0
+   },
+   "night": {
+    "night": 0.0
+   },
+   "night_story": {
+    "night": 0.0
+   },
+   "lamplit": {}
+  },
+  "rooms": {
+   "lf_village": "river_village",
+   "lf_village_night": "river",
+   "lf_reed_shallows": "marsh",
+   "lf_lu_boat": "river",
+   "lf_fishers_hut": "interior",
+   "lf_granny_liu_hut": "interior",
+   "lf_old_ma_store": "interior",
+   "rm_marsh_edge": "marsh",
+   "ja_weapon_hall": "interior",
+   "cm_weapon_hall": "interior",
+   "cm_cliff_stair": "sect_high",
+   "cm_elder_sung_peak": "sect_high",
+   "ja_elder_hu_peak": "sect_high",
+   "sf_trial_cloud": "sect_high",
+   "sf_trial_jade": "sect"
+  },
+  "ambience": {
+   "river_ambience": "river",
+   "night_ambience": "river",
+   "water_ambience": "river",
+   "waterfall_ambience": "river",
+   "town_ambience": "town",
+   "marsh_ambience": "marsh",
+   "birds_ambience": "field",
+   "bamboo_ambience": "bamboo",
+   "wind_ambience": "pines"
+  },
+  "types": {
+   "town": "town",
+   "sect": "sect",
+   "interior": "interior",
+   "home": "interior",
+   "rest": "interior",
+   "dungeon": "cave",
+   "secret": "cave",
+   "field": "field",
+   "path": "field",
+   "trial": "sect",
+   "insight": "sect",
+   "boss_arena": "field",
+   "story": "field"
+  },
+  "prefix": {
+   "lf_": "river",
+   "rm_": "marsh",
+   "ja_": "sect",
+   "cm_": "sect_high",
+   "sf_": "town",
+   "wp_": "field"
+  },
+  "default": "field",
+  "fade_s": 2.0
+ },
+ "music": {
+  "alias": {
+   "home": "village_day",
+   "reeds_day": "river",
+   "night_hollow": "village_night",
+   "field_earth": "field",
+   "marsh": "river",
+   "marsh_grey": "dungeon",
+   "bamboo": "forest",
+   "fair": "village_day",
+   "trial": "battle",
+   "field_mountain": "peak",
+   "mist": "peak",
+   "summit": "peak",
+   "town": "village_day"
+  },
+  "fight": {
+   "calm_states": [
+    "idle",
+    "patrol",
+    "return",
+    "follow",
+    "downed",
+    "dug_in"
+   ],
+   "radius": 560.0,
+   "enter_fade_beats": 2.0,
+   "leave_after_s": 4.0,
+   "leave_fade_bars": 1.0,
+   "explore_db": -2.0,
+   "fallback": "battle",
+   "fallback_fade_s": 1.2,
+   "check_s": 0.25
+  },
+  "boss": {
+   "old_snapper": "boss_snapper",
+   "hollowed_eel": "boss_eel"
+  },
+  "boss_roles": {
+   "story_boss": "boss",
+   "dungeon_boss": "boss",
+   "field_boss": "boss"
+  },
+  "boss_fade_s": 1.0,
+  "room_fade_s": 1.0
+ },
+ "stingers": {
+  "quest_done": "sting_quest",
+  "breakthrough": "sting_breakthrough",
+  "rare_find": "sting_rare",
+  "unlock": "sting_unlock",
+  "elite": "sting_elite",
+  "victory": "sting_victory"
+ },
+ "stinger_events": {
+  "quest_completed": "quest_done",
+  "system_unlocked": "unlock"
+ },
+ "mix": {
+  "buses": [
+   {
+    "name": "Music",
+    "setting": "music",
+    "default": 0.7
+   },
+   {
+    "name": "Ambience",
+    "setting": "ambience",
+    "default": 0.6
+   },
+   {
+    "name": "SFX",
+    "setting": "sfx",
+    "default": 0.8
+   },
+   {
+    "name": "UI",
+    "setting": "ui",
+    "default": 0.7
+   }
+  ],
+  "master": {
+   "setting": "master",
+   "default": 1.0,
+   "limiter_ceiling_db": -0.5,
+   "limiter_release_s": 0.1,
+   "highpass_hz": 45.0
+  },
+  "duck": {
+   "stinger_db": -10.0,
+   "bark_db": -4.0,
+   "dialogue_db": -6.0,
+   "scene_db": -4.0,
+   "attack_s": 0.08,
+   "release_s": 0.9,
+   "ambience_share": 0.5
+  },
+  "distance": {
+   "near": 96.0,
+   "far": 900.0,
+   "floor_db": -24.0
+  },
+  "voices": {
+   "pool": 24,
+   "ui_pool": 6,
+   "player_bonus": 20,
+   "rules": [
+    [
+     "hurt",
+     95,
+     1,
+     0.08
+    ],
+    [
+     "hit_accent_",
+     85,
+     2,
+     0.05
+    ],
+    [
+     "cast_",
+     80,
+     2,
+     0.05
+    ],
+    [
+     "hit_on_",
+     70,
+     4,
+     0.025
+    ],
+    [
+     "hit_el_",
+     70,
+     3,
+     0.025
+    ],
+    [
+     "hit_tail_",
+     55,
+     3,
+     0.04
+    ],
+    [
+     "hit_",
+     75,
+     4,
+     0.025
+    ],
+    [
+     "hit",
+     70,
+     3,
+     0.03
+    ],
+    [
+     "dodge",
+     66,
+     1,
+     0.05
+    ],
+    [
+     "parry",
+     88,
+     1,
+     0.05
+    ],
+    [
+     "swing_",
+     64,
+     3,
+     0.04
+    ],
+    [
+     "swing",
+     64,
+     3,
+     0.04
+    ],
+    [
+     "land",
+     60,
+     2,
+     0.05
+    ],
+    [
+     "jump",
+     60,
+     1,
+     0.05
+    ],
+    [
+     "die_",
+     62,
+     3,
+     0.05
+    ],
+    [
+     "tell_",
+     50,
+     3,
+     0.08
+    ],
+    [
+     "tell",
+     52,
+     2,
+     0.06
+    ],
+    [
+     "step_",
+     30,
+     5,
+     0.04
+    ],
+    [
+     "splash",
+     58,
+     2,
+     0.08
+    ],
+    [
+     "loot_drop",
+     45,
+     2,
+     0.1
+    ],
+    [
+     "coin",
+     60,
+     2,
+     0.04
+    ],
+    [
+     "pickup",
+     60,
+     2,
+     0.05
+    ],
+    [
+     "door_",
+     70,
+     1,
+     0.2
+    ],
+    [
+     "",
+     45,
+     3,
+     0.03
+    ]
+   ]
+  }
+ },
+ "world": {
+  "door_types": [
+   "interior",
+   "home"
+  ],
+  "door_open": "door_open",
+  "door_close": "door_close",
+  "loot_drop": "loot_drop",
+  "splash": "splash",
+  "talk_open": "talk_open",
+  "talk_next": "talk_next",
+  "bark": "bark",
+  "scene_in": "scene_in",
+  "weave": "hit_accent_weave"
+ }
+}

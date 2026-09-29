@@ -3157,6 +3157,7 @@
   "ui.settings.large": "Large",
   "ui.settings.left_handed_controls": "Left-handed controls",
   "ui.settings.log_copied_to": "Log copied to %s",
+  "ui.settings.master": "All sound",
   "ui.settings.music": "Music",
   "ui.settings.no_exports_yet": "No exports on this device yet.",
   "ui.settings.no_log_yet": "No log file yet.",

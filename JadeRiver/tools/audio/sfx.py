@@ -511,13 +511,18 @@ def s_gong_short(rng):
 
 @sfx("boss_sting")
 def s_boss_sting(rng):
-    """A boss arrives: two drum hits at 55 Hz a quarter second apart, and a low gong at 73 Hz that falls."""
+    """A boss arrives: two drum hits at 55 Hz a quarter second apart, and a low gong at 73 Hz that falls. Decision 43:
+    the drums are driven into harmonics and carry a skin slap, so a phone speaker (nothing under ~200 Hz) hears them."""
     d = 1.4
     y = buf(d)
     for t in (0.0, 0.25):
-        at(y, membrane(55, rng, t60=0.5, drop=0.35, noise_amt=0.3), t, 0.9)
+        m = membrane(55, rng, t60=0.5, drop=0.35, noise_amt=0.6, noise_fc=2200)
+        at(y, np.tanh(3.5 * m) / np.tanh(3.5), t, 0.9)
+        k = nsamp(0.05)
+        at(y, noise(k, rng, bandpass(900, 0.8)) * decay(k, 0.035, 0.0005), t, 0.35)
     at(y, gong(73.0, rng, dur=1.1, pitch=(0, -120), tau=0.5, bloom=0.3, bright=0.55), 0.25, 0.8)
-    return add_reverb(y, rng, t60=1.2, wet=0.25, keep=len(y))
+    at(y, gong(220.0, rng, dur=1.0, pitch=(0, -90), tau=0.4, bloom=0.2, bright=0.75), 0.25, 0.8)
+    return add_reverb(filt(y, highpass(60.0, 0.7))[:len(y)], rng, t60=1.2, wet=0.25, keep=len(y))
 
 
 @sfx("boss_fall")
@@ -663,43 +668,13 @@ def s_frost(rng):
     return y + 0.3 * grains(rng, d, 40, (0.1, 1.2), (5000, 9000), amp=(0.2, 0.8))
 
 
-# ---------------------------------------------------------------- ambience loops (6 s)
-
-AMB_T = 6.0
-
-
-def _amb_len():
-    return nsamp(AMB_T)
+# ---------------------------------------------------------------- helpers the ambient beds share (beds.py)
+# Decision 43 replaced the three 6 s ambience loops (wind, water, crowd) with the beds of beds.py.
 
 
 def _loop_reverb(x, rng, t60=1.2, wet=0.3):
     ir = reverb_ir(rng, t60=t60, predelay=0.02)
     return x + wet * convolve(x, ir, circular=True)
-
-
-@sfx("wind_ambience", loop=True)
-def s_wind_ambience(rng):
-    n = _amb_len()
-    T = n / SR
-    t = tvec(n)
-    body = wind(n, T, rng, base=380, spread=700, width=0.95, cycles=(1, 2, 3, 5, 7), floor=0.5, whistle=0.08)
-    high = wind(n, T, rng, base=1400, spread=1600, width=0.7, cycles=(2, 3, 4, 6, 9), floor=0.15)
-    gust = 0.5 + 0.3 * np.sin(TAU * 3 * t / T + rng.uniform(0, TAU)) + 0.2 * np.sin(TAU * 5 * t / T + rng.uniform(0, TAU))
-    grain = np.abs(pnoise(n, rng, lowpass(25, 0.7)))
-    rustle = pnoise(n, rng, highpass(2800), lowpass(7000)) * grain * gust ** 2
-    y = body + 0.35 * high + 0.1 * rustle
-    return _loop_reverb(filt(y, highpass(60), circular=True), rng, 1.0, 0.2)
-
-
-@sfx("water_ambience", loop=True)
-def s_water_ambience(rng):
-    n = _amb_len()
-    T = n / SR
-    t = tvec(n)
-    brook = stream(n, T, rng, density=45)
-    lap = pnoise(n, rng, lowpass(400, 0.7)) * (1.0 + 0.5 * np.sin(TAU * 3 * t / T + rng.uniform(0, TAU)))
-    y = brook + 0.35 * lap
-    return _loop_reverb(y, rng, 0.9, 0.2)
 
 
 VOWELS = ((730, 1090, 2440), (530, 1840, 2480), (270, 2290, 3010), (570, 840, 2410), (300, 870, 2240),
@@ -746,17 +721,3 @@ def _talker(n, T, rng, level):
 
     y = stft_shape(src, mag, circular=True) * amp
     return level * y / max(rms(y), 1e-9)
-
-
-@sfx("crowd_ambience", loop=True)
-def s_crowd_ambience(rng):
-    n = _amb_len()
-    T = n / SR
-    t = tvec(n)
-    y = np.zeros(n)
-    for _ in range(12):
-        y += _talker(n, T, rng, float(rng.lognormal(0.0, 0.35)))
-    bed = pnoise(n, rng, bandpass(500, 0.5)) * (1.0 + 0.25 * np.sin(TAU * 2 * t / T + rng.uniform(0, TAU)))
-    y = y / max(rms(y), 1e-9) + 0.35 * bed
-    y = filt(y, lowpass(3000, 0.6), highpass(120), circular=True)
-    return _loop_reverb(y, rng, 1.1, 0.35)

@@ -29,7 +29,12 @@ func _init() -> void:
 func window_rect() -> Rect2:
 	return frame_rect.merge(CARD) if not _card_quest().is_empty() else frame_rect
 
+func _exit_tree() -> void:
+	super()
+	Audio.talk(false)
+
 func setup() -> void:
+	Audio.talk(true)   # decision 43: the scroll opens, the music dips while the talk is open
 	convo = args.get("convo", {})
 	line = 0
 	shown_chars = 0.0
@@ -201,6 +206,7 @@ func on_action(id: String, data) -> void:
 			elif not at_end():
 				line += 1
 				shown_chars = 0.0
+				Audio.talk_next()
 			elif (convo.get("choices", []) as Array).is_empty() or ends_on_tap():
 				close()
 		"choose": _choose(int(data))
