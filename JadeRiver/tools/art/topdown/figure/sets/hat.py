@@ -24,10 +24,17 @@ COLOURS = {"straw": P.STRAW, "band": P.RIBBON, "cloth": P.TEAL_CLOTH, "stud": P.
            "gold": P.GOLD, "felt": P.FELT, "veil": P.VEIL}
 
 
+# How the hats' materials resolve at 38 px (decision 42; render.MATS): a cloth band a pixel wide stays one unbroken
+# line; the guan is a crown of jade a few pixels across, so its jade outvotes the gold rim, cap and pin round it (the
+# pin a line a pixel wide, not a thin part that may take two).
+MATS = {"cloth": {"line": True}, "jade": {"weight": 2.2, "line": True},
+        "gold": {"weight": 1.0, "thin": False, "line": True}}
+
+
 def items(L: dict) -> list:
     out = []
     for name, spec in HATS.items():
         pal = dict(COLOURS, band=P.RED_BAND) if name == "weimao" else COLOURS
         out.append(Item("hat", name, L["hat"][name], lambda sk, spec=spec: K.solids(sk, spec),
-                        Look(highlight=("straw", "stud", "jade", "gold")), {"none": pal}, list(COLOURS)))
+                        Look(highlight=("straw", "stud", "jade", "gold"), mats=MATS), {"none": pal}, list(COLOURS)))
     return out

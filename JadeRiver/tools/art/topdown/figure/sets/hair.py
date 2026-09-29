@@ -51,6 +51,25 @@ STYLES = {
                   "k": 0.42, "part": "fall"})]},
 }
 
+# How each style reads at 38 px (decision 42; kinds/hair.py): the cap's broad locks, and the loose locks that break its
+# round silhouette and frame the face, in the head's frame (forward, right, up): the temple strands (kinds/hair.TEMPLE,
+# or a longer one where a fringe falls to the jaw), and forelocks over the brow.
+TUNE = {
+    "topknot": {"locks": 7, "loose": [K.TEMPLE, ((4.9, -1.9, 4.6), (5.9, -2.9, 1.5), 0.95, 0.25),
+                                      ((5.0, 1.2, 4.6), (6.0, 2.0, 1.9), 0.85, 0.25)]},
+    "short_knot": {"locks": 8, "loose": [K.TEMPLE, ((4.9, -2.4, 4.3), (5.8, -2.9, 2.0), 0.9, 0.2),
+                                         ((5.2, -0.2, 4.6), (6.0, 0.3, 2.3), 0.9, 0.2),
+                                         ((5.0, 2.2, 4.4), (5.8, 2.9, 2.2), 0.85, 0.2)]},
+    "ponytail": {"locks": 7, "loose": [K.TEMPLE, ((5.0, -1.4, 4.5), (5.8, -2.3, 2.2), 0.85, 0.2),
+                                       ((5.1, 1.6, 4.4), (5.8, 2.4, 2.3), 0.8, 0.2)]},
+    "high_pony": {"locks": 7, "loose": [K.TEMPLE, ((5.0, -1.4, 4.5), (5.8, -2.3, 2.2), 0.85, 0.2),
+                                        ((5.1, 1.6, 4.4), (5.8, 2.4, 2.3), 0.8, 0.2)]},
+    "long_tied": {"locks": 9, "loose": [((1.6, -5.8, 2.2), (2.2, -6.4, -5.0), 1.15, 0.35)]},
+    "flowing": {"locks": 9, "loose": [((1.6, -5.8, 2.2), (2.2, -6.4, -5.4), 1.2, 0.35)]},
+}
+for _st, _t in TUNE.items():
+    STYLES[_st].update(_t)
+
 
 def items(L: dict) -> list:
     pal = {str(i): {"hair": P.HAIR[i], "ribbon": P.RIBBON, "pin": P.GOLD} for i in range(len(P.HAIR))}

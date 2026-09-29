@@ -91,6 +91,9 @@ places the player should look.
 
 ## 4. Outlines
 
+*Decision 42: the character's outline is now a tint of the material it bounds, not flat ink, with a lighter line where
+a part overlaps the body (§13). Props keep the rules below.*
+
 - **Terrain has no outlines.** Edges come from value: the lit lip over a dark contact line, and joints two steps under
   the stone.
 - **Props and characters** get a 1 px outline. It is ink-teal `0E1A1E` on the shaded (lower-right) side and a softer
@@ -413,8 +416,10 @@ The body in the top-down world is the game's own character, redrawn for this vie
 
 - **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
   from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
-- **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 1 art px per pixel.
-  The redesign plan's "As built: Phase 3, third part" has the full pipeline.
+- **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 4 × 4 samples per art
+  px and resolved into pixels (decision 42: "drawn better" at the same size, option B of
+  `docs/redesign/feedback/character_quality.md`). The redesign plan's "As built: Phase 3, third part" has the full
+  pipeline; `figure/raster.py` and `figure/render.py` hold the rules below.
 - **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
   `docs/redesign/phase3/character/HOWTO.md` says how to add one.
 
@@ -422,15 +427,23 @@ The body in the top-down world is the game's own character, redrawn for this vie
 |---|---|
 | Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
 | Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
-| Light | the world's sun, upper left and a little in front (§3); four lit steps of each ramp, the deepest kept for contact shade |
-| Outline | 1 px, ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side (§4); an edge over the figure itself takes its material's own deep tone, not ink |
+| Coverage | 4 × 4 samples a pixel. A pixel takes the material most of its samples hit (thin trim, pins and blades vote extra, so a gold collar or a belt holds an unbroken line), and is solid from half covered. A `thin` material (trim, a blade, a hilt) is solid from a quarter; a `line` material (a shaft, a bow's limbs, a string, a ripple, a stroke of ink, a smear seen edge on) from a quarter too, unless it is the fainter side of a line its neighbour holds, so a line about a pixel wide stays one pixel wide and unbroken |
+| Light | the world's sun, upper left and a little in front (§3). Tones come from the mean light over a pixel's samples, so tone edges follow the form. Seven steps a ramp (`render.ramp7`: the side view's five plus a core shadow and a bright step), the dark end leaning toward the §14 shadow `#241F4F`, the light end toward the §14 sun `#FFE9A6`: five lit steps, the bright step only for materials allowed it (`hi`), the top step only as a sheen or a glint (`glossy`: hair, silk ribbon, gold, blades, plate) |
+| Rim, bounce, contact | a warm rim (the colour 30% toward the sun, a step up) where a form's edge turns to the sun; a cool bounce toward the sky on a shaded edge facing down; a contact shade a step down under a nearer part and beside one (an arm on the trunk, one leg against the other). Bare steel and a cape trailing flat keep a faint rim, so they keep their colour |
+| Outline | 1 px, a dark tint of the material it bounds (its deepest step toward ink-teal `0E1A1E`) on the shaded lower right, a step lighter on the lit upper left, never flat black. Where a part overlaps the body the edge is the part's own core shadow, lighter than the outer line (skin a step lighter still). Stair-steps: a half-alpha outline pixel where the true edge crosses a stair's inner corner, a softer one at a convex tip; no blur. Light (a smear, a ring of sound, a string) has no outline, only its own edge tone |
+| Face | lit nearly flat (the skin keeps to the shadow and base steps, no rim across it; the neck in the jaw's shade). Eyes 2 px wide and 3 tall: a lash row, the white and the iris, the iris's lower light; the far eye in three quarters 1 px, one eye in profile; a brow, a 1 px mouth, the nose's shade in three quarters, a touch of blush. Shut eyes (hurt, a fall, meditation) are the lash row. Hair and a band hat leave the eyes clear in every pose: their samples are cut from the eyes' box a pixel round (a row higher over shut eyes), so a fringe or a nod never covers them |
+| Hair | broad locks (each a groove and a lit ridge) under a sheen ring broken lock by lock on the sunlit side, a darker crown; knots and ties wound in locks; each tail lock a groove and a lit strand. Loose locks at the temples and forelocks over the brow break the cap's round silhouette, so it never reads as a helmet, and frame the face |
+| Cloth | folds hang from the belt and widen to the hem, gathers over the belt and pulls toward the chest's sides, a crease at the elbow and behind the knee, a zigzag over the ankle wrap: each a groove a step down with a lit ridge beside it on the sunlit west. Only the cloth folds: trim, belts and panels stay clean |
 | Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
-| Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored. The side rows turn a little toward the camera, the head in E a little more |
+| Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored (their light then comes from the upper right). The side rows turn a little toward the camera, the head in E a little more |
 | Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
+| Cost | the same frames, rects and draw calls as the 1-sample build; the sheets hold about 1.05 times the texels (140 MB of RGBA8 for all 168 sheets, from 134). A full build of every set takes about 2.5 minutes on four cores (`--jobs`) |
 
 Check a new layer against it the way §11 checks a tile:
 
 - it is cast from the same poses as the body;
+- each of its materials says how it resolves and takes the light (`render.MATS`, or its Look's `mats`): a part a pixel
+  or two wide is `thin` or a `line`, or it breaks up or doubles;
 - it is reviewed in every action, facing and dye in `tests/topdown_figure_gallery.tscn`'s sheets, and against the
   body in `docs/redesign/phase3/character/`;
 - `data_validation`'s layer contract is green.
