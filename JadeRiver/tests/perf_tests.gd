@@ -247,13 +247,16 @@ func _techniques() -> void:
 ## its chart is tiles kept drawn, which a drag only moves. For a top-down character (the game's), with an art chosen so
 ## its preview casts: while only the preview moves, neither the page nor a tile is drawn again and a frame costs about
 ## what the world's alone does; a finger dragging across the biggest tree draws a few tiles a frame and the page again
-## only as the drag starts and ends, its frame within 2 ms of the world's alone. Medians, so a busy runner's spikes do
-## not decide it (the page drawn every frame, as before, cost 2.5-4 ms a frame here: about 15 on a phone).
+## only as the drag starts and ends, its frame within 2 ms of the world's alone. Medians of frames at the machine's own
+## speed (_median_frames), so a busy runner's spikes and slow stretches do not decide it (the page drawn every frame, as
+## before, cost 2.5-4 ms a frame here: about 15 on a phone).
 func _techniques_redraws(tree: String) -> void:
 	var ch = Game.active()
 	var view_was := str(ch.view)
 	ch.view = "topdown"
 	var base := await _median_frames(90, Callable())
+	var slow := [slow_left_out]
+	var making := [making_frames]
 	main.open_page("techniques", {"tab": tree})
 	for i in 30: await get_tree().process_frame   # its opening fade, the preview built, the tiles in view drawn
 	var pg = main.top_page()
@@ -267,6 +270,8 @@ func _techniques_redraws(tree: String) -> void:
 	var d0: int = pg.draw_count
 	var l0: int = pg.layer_draws
 	var casting := await _median_frames(120, Callable())
+	slow.append(slow_left_out)
+	making.append(making_frames)
 	var page_casting: int = pg.draw_count - d0
 	var layers_casting: int = pg.layer_draws - l0
 	var top_ok: bool = pg.stage.caster is TopdownDoll and not pg.stage.foes.is_empty() and pg.stage.art == art
@@ -292,31 +297,65 @@ func _techniques_redraws(tree: String) -> void:
 		ev.relative = rel
 		pg._gui_input(ev)
 	var dragging := await _median_frames(120, drag)
+	slow.append(slow_left_out)
+	making.append(making_frames)
 	var page_drag: int = pg.draw_count - d1
 	var tiles_cap: int = pg.TILES_A_FRAME * 3 + 3   # the tiles in view a frame, their three layers, and one ahead
 	press.call(false)
 	main.close_all_pages()
 	await get_tree().process_frame
 	ch.view = view_was
-	print("techniques page (top-down): %.2f ms a frame with the preview casting, %.2f dragged, %.2f the world alone; the page drawn %d times in 120 casting frames and %d dragged, %d layers casting, at most %d tiles a frame dragged"
-		% [casting, dragging, base, page_casting, page_drag, layers_casting, int(tiles[1])])
+	print("techniques page (top-down): %.2f ms a frame with the preview casting, %.2f dragged, %.2f the world alone; the page drawn %d times in 120 casting frames and %d dragged, %d layers casting, at most %d tiles a frame dragged; frames left out with the machine slow: %d, %d, %d; with a picture being made: %d, %d, %d"
+		% [casting, dragging, base, page_casting, page_drag, layers_casting, int(tiles[1]), slow[1], slow[2], slow[0], making[1], making[2], making[0]])
 	check(top_ok and page_casting == 0 and layers_casting == 0 and casting - base < 1.5,
 		"decision 42: with its preview casting the Techniques page is not drawn again (%d, %d layers) and a frame costs about the world's alone (%.2f against %.2f ms)" % [page_casting, layers_casting, casting, base])
 	check(page_drag <= 3 and int(tiles[1]) <= tiles_cap and dragging - base < 2.0,
 		"decision 42: a drag across the %s tree draws the page %d times and at most %d tiles a frame, %.2f ms a frame against the world's %.2f" % [tree, page_drag, int(tiles[1]), dragging, base])
 
-## The median ms of `n` ticked and drawn frames (a busy runner's spikes left out); `each` (frame index) runs at the start
-## of each.
+## The median ms of `n` ticked and drawn frames at the machine's own full speed (a busy runner's spikes left out); `each`
+## (frame index) runs at the start of each. A shared runner's CPU slows by half again or more for a second or so at a
+## time (a core busy elsewhere): every frame in such a stretch costs 1.5-2x, whatever this game draws, and one falling in
+## one window and not the other decided the comparisons below. So after each frame a fixed piece of work is timed
+## (_calibrate), and a frame on which it took over SLOW_MACHINE times the fastest seen is left out, unless a technique
+## picture was being made then (a worker's share of the CPU counts against the page); the window runs on, up to three
+## times `n` frames, until at least half of `n` are kept (else every frame counts). `slow_left_out` says how many.
+const SLOW_MACHINE := 1.3
+var slow_left_out := 0
+var making_frames := 0   ## frames of the last window on which a technique picture was being made
+var _cal_best := 1 << 30
+
 func _median_frames(n: int, each: Callable) -> float:
-	var ts: Array = []
-	for i in n:
+	for k in 5: _cal_best = mini(_cal_best, _calibrate())
+	var frames: Array = []   # [ms, calibration µs, a picture being made]
+	var kept := 0
+	var i := 0
+	while i < n or (kept < n / 2 and i < n * 3):
 		var t0 := Time.get_ticks_usec()
 		if each.is_valid(): each.call(i)
 		Game.tick(1.0 / 60.0)
 		await get_tree().process_frame
-		ts.append((Time.get_ticks_usec() - t0) / 1000.0)
+		var ms := (Time.get_ticks_usec() - t0) / 1000.0
+		var cal := _calibrate()
+		_cal_best = mini(_cal_best, cal)
+		var making := not TechniquePicture._pending.is_empty()
+		frames.append([ms, cal, making])
+		if making or cal <= _cal_best * SLOW_MACHINE: kept += 1
+		i += 1
+	var ts: Array = []
+	for f in frames:
+		if bool(f[2]) or int(f[1]) <= _cal_best * SLOW_MACHINE: ts.append(float(f[0]))
+	if ts.size() < n / 2: ts = frames.map(func(f): return float(f[0]))
+	slow_left_out = frames.size() - ts.size()
+	making_frames = frames.filter(func(f): return bool(f[2])).size()
 	ts.sort()
-	return float(ts[n / 2])
+	return float(ts[ts.size() / 2])
+
+## The µs a fixed piece of script work takes now: the machine's speed at this moment.
+func _calibrate() -> int:
+	var t0 := Time.get_ticks_usec()
+	var acc := 0
+	for j in 6000: acc = (acc * 31 + j) % 1000003
+	return Time.get_ticks_usec() - t0 + (acc & 0)
 
 ## Redesign Phase 1: the top-down prototype room under the HUD (its rules are rules_tests' topdown_suite). It mounts
 ## inside the room-load gate and holds the 60 fps budget while the body walks a circle and jumps.
