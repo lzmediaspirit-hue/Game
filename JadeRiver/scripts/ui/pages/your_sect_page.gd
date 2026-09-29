@@ -67,6 +67,7 @@ func draw_page() -> void:
 	var live := {}
 	var r := Rect2(content.position, content.size)
 	var s: Dictionary = Game.sect.sect()
+	tour_mark("pano", PANO)   # decision 43: a tour's anchor
 	if s.is_empty():
 		_courtyard(ch, {}, live)
 		_founding(ch)

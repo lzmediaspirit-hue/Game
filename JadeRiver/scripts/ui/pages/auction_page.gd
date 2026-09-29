@@ -78,6 +78,10 @@ func draw_page() -> void:
 	if ch == null: return
 	var lots := _lots()
 	var board := BOARD
+	# Decision 43: a tour's anchors (the lot on its pedestal, the lot board, the front's small pedestals).
+	tour_mark("lot", Rect2(LOT.position.x - 20, LOT.position.y, LOT.size.x + 40, PEDESTAL.end.y - LOT.position.y))
+	tour_mark("board", BOARD)
+	tour_mark("front", FRONT)
 	MarketKit.lacquer_board(self, board)
 	var x := board.position.x + 24
 	var w := board.size.x - 48
@@ -137,6 +141,7 @@ func _paddles(ch, l: Dictionary, mine: bool, price: int) -> void:
 	var number := str(10 + absi(hash(str(ch.id))) % 90)
 	var need: int = Game.economy.auction_min_bid(l)
 	var big := int(ceil(price * 1.5))
+	tour_mark("paddles", Rect2(840, 180, 312, 240))   # decision 43: a tour's anchor
 	for p in [[Vector2(920, 236), need, true], [Vector2(1072, 236), big, false]]:
 		var c: Vector2 = p[0]
 		var lift := 0.0 if mine else -10.0

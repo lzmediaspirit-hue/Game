@@ -471,6 +471,25 @@ func hit_targets() -> Array:
 	for pb in point_badges(c): add.call("points:" + str(pb.id), pb.center, 16.0, POINTS_PITCH * 0.5)
 	return out
 
+## Decision 43 (docs/redesign/tutorials.md): a tutorial's anchor on the HUD, by name, so a tour never leans on how the HUD
+## is laid out: a round control by its role in hit_targets ("attack", "jump", "skill" for all the technique buttons,
+## "icon:menu", "points:meridian", …) or a plate ("minimap", "portrait", "tracker", "progress", "log"). Rect2() while it
+## is not shown.
+func tour_rect(name: String) -> Rect2:
+	match name:
+		"minimap": return minimap_rect if shown("minimap") else Rect2()
+		"portrait": return panel_rect(Game.active()) if shown("player_panel") else Rect2()
+		"tracker": return tracker_rect if shown("quest_tracker") else Rect2()
+		"progress": return Rect2(0, 704, 1280, 16) if shown("progress_bar") else Rect2()
+		"log": return log_rect()
+	var out := Rect2()
+	for tg in hit_targets():
+		if str(tg.role) != name: continue
+		var d := float(tg.drawn) + 2.0
+		var r := Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0)
+		out = r if out.size == Vector2.ZERO else out.merge(r)
+	return out
+
 ## The points badges showing now, in POINT_SYSTEMS order: {id, count, center, page, tab}. Bound only (the counts are
 ## the character's); a system not yet unlocked or with nothing to spend has none.
 func point_badges(c) -> Array:
@@ -1062,6 +1081,9 @@ var moments: Node = null   # the MomentView: a press during its lock goes to it 
 ## moves the talk on, a hold skips to the next hand-off).
 var scene_lock := false
 var scenes: Node = null
+## Decision 43: the tutorial coach (TutorialCoach): while a tour dims the screen it keeps touches from the HUD but for its
+## spotlight (and a guide's card buttons).
+var coach: Node = null
 
 func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -1077,7 +1099,7 @@ func set_scene_lock(value: bool) -> void:
 	scene_lock = value
 
 func _input(event):
-	if blocked: return
+	if blocked or (coach != null and coach.holds(event)): return
 	if scene_lock:
 		if scenes: scenes.input(event)
 		return

@@ -98,6 +98,11 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	var q: Dictionary = Game.progression.query_breakthrough(ch, supports)
+	# Decision 43: a tour's anchors (the doorway's words, the requirement tablets, the offering dishes, the stele).
+	tour_mark("doorway", Rect2(OPENING.position, Vector2(OPENING.size.x, 76)))
+	tour_mark("tablets", TABLETS)
+	tour_mark("dishes", Rect2(OPENING.get_center().x - 148, DISH_Y - 8, 296, SLOT + 28))
+	tour_mark("supports", RIGHT_STELE)
 	# In the doorway: the step it leads from, and to.
 	text(Vector2(OPENING.position.x, OPENING.position.y + 28), Tx.t("ui.breakthrough.from") % ContentDB.name_of("realms", str(q.from)), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, OPENING.size.x)
 	text(Vector2(OPENING.position.x, OPENING.position.y + 60), ContentDB.name_of("realms", str(q.to)), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, OPENING.size.x - 16, true)
@@ -158,6 +163,8 @@ func _pillars(q: Dictionary) -> void:
 	var pr: Rect2 = PILLARS[1]
 	var a := Rect2(pl.position.x + 10, pl.position.y + 150, pl.size.x - 20, 104)
 	var b := Rect2(pr.position.x + 10, pr.position.y + 150, pr.size.x - 20, 104)
+	tour_mark("pillars", a)   # decision 43: the risk and the chance, a tour's anchor
+	tour_mark("pillars", b)
 	WayKit.tablet(self, a, true)
 	WayKit.tablet(self, b, true)
 	text(Vector2(a.position.x, a.position.y + 30), Tx.t("ui.breakthrough.risk_label"), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, a.size.x)

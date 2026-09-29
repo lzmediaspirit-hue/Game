@@ -321,6 +321,9 @@ func _model(ch) -> Dictionary:
 	for q in quests:
 		var rid := str(z.node_of.get(str(q.target_room), ""))
 		if rid != "" and (view == "objectives" or str(q.target_room) == guide): lanterns[rid] = true
+	# Decision 43: a tutorial leading to a place lights its area's lantern too.
+	var taught := str(z.node_of.get(Game.tutorials.goal_of(ch), ""))
+	if taught != "": lanterns[taught] = true
 	var m := {"z": z, "here": here, "state": state, "events": events, "quests": quests, "lanterns": lanterns, "rings": {}}
 	if view == "resources":
 		var list := _res_list(res_kind)
@@ -512,6 +515,8 @@ func draw_page() -> void:
 		_draw_ranking(ch)
 		return
 	var m := _model(ch)
+	tour_mark("map", MAP)   # decision 43: a tour's anchors
+	tour_mark("card", CARD)
 	_draw_routes(m)
 	var placed := _place(ch, m)
 	for rid in m.z.order:

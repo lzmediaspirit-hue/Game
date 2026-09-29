@@ -74,6 +74,10 @@ func _gui_input(event: InputEvent) -> void:
 		hold = event.pressed
 	super._gui_input(event)
 
+## Decision 43: the tour waits for the first cast to end (it would cost the catch).
+func tour_ready() -> bool:
+	return phase == "done"
+
 func on_action(id: String, _data) -> void:
 	match id:
 		"tap":

@@ -27,6 +27,9 @@ func draw_page() -> void:
 		var why := ""
 		if not known: why = Tx.t("ui.emotes.earned_from") % ContentDB.name_of("achievements", str(e.get("achievement", "")))
 		btn(Rect2(at - Vector2(66, 28), Vector2(132, 56)), str(e.name), "emote", str(e.id), false, known, why, 18)
+		# Decision 43: a tour's anchors (the first emote you know, the first still to earn).
+		var mk := "known" if known else "unknown"
+		if not tour_marks.has(mk): tour_mark(mk, Rect2(at - Vector2(66, 28), Vector2(132, 56)))
 
 func on_action(id: String, data) -> void:
 	if id == "emote":

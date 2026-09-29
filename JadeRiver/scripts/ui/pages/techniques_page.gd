@@ -785,6 +785,7 @@ func _chart_regions() -> void:
 	_areas["chart"] = {"rect": VIS, "max": 0.0, "active": true}
 	var n0 := _regions.size()
 	var vr := Rect2(view, CHART.size)
+	tour_marks.erase("open_node")
 	for it in _items:
 		if not vr.intersects(it.box): continue
 		var s := _on_screen(it.at)
@@ -793,6 +794,8 @@ func _chart_regions() -> void:
 			continue
 		var rect := Rect2(s - Vector2(CARD.x * 0.5, 0), CARD)
 		if rect.intersects(CHART): region(Rect2(rect.position.x + 20, rect.position.y, CARD.x - 40, CARD.y), "node", str(it.id))
+		# Decision 43: the first card in view that may be learned now is the one the Realisation guide points at.
+		if not tour_marks.has("open_node") and VIS.encloses(rect) and str(_state(it).get("state", "")) == "open": tour_mark("open_node", rect)
 	for i in range(n0, _regions.size()): _regions[i].chart = true
 	_areas["chart"].active = false
 
@@ -1026,6 +1029,10 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	if _dirty and _is_tree(): _refresh()
+	# Decision 43: a tour's anchors (the tree's window, the reading and the loadout dock).
+	tour_mark("chart", CHART)
+	tour_mark("reading", RIGHT)
+	tour_mark("dock", DOCK)
 	for pr in [LEFT, RIGHT]: face(pr, "carved_panel")
 	_figure()   # under the chooser, which is laid over its feet
 	match _tab_id():
