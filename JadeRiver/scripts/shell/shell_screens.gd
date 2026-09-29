@@ -126,7 +126,7 @@ class SelectionScreen extends Page:
 			var av: Node2D
 			if str(ch.view) == "topdown":
 				av = TopdownPreview.new(InventoryAuthority.outfit_for(ch), false)
-				av.scale = Vector2.ONE * 3.2
+				av.scale = Vector2.ONE * 4.0   # a portrait: a whole scale, nearest neighbour (decision 42)
 			else:
 				av = Avatar.new()
 				av.outfit = InventoryAuthority.outfit_for(ch)

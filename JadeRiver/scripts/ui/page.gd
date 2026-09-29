@@ -98,6 +98,18 @@ var _dragged := false
 var _areas: Dictionary = {}     # area id -> {rect, max}
 var _open_frame := -1           # the process frame it first drew in (first_draw)
 var _stepped := false           # it has had a process step (see _draw)
+## Decision 42 (the Techniques page's lag): a page that draws the same until something changes sets this, and is drawn
+## again only on a change: an input, a game event, its toast, and the frames its opening loads art in (PAINT_FRAMES).
+## Every other page is drawn every frame.
+var redraw_on_change := false
+const PAINT_FRAMES := 3
+## Art the last drawing left out while it loads (an icon, an HD face, a creature sheet): such a page is drawn again the
+## next frame, until it is in.
+var _waiting := false
+var draw_count := 0             ## how many times it has been drawn (perf_tests: a page that redraws only on a change)
+## A page whose own surface covers the whole screen may leave out the dim over the play screen (the Techniques page,
+## whose chart is drawn behind the page, under it).
+var dims_world := true
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -148,9 +160,10 @@ func _process(delta: float) -> void:
 	t += delta
 	opened += delta
 	if identity != null: modulate.a = _open_alpha()
-	if toast_t > 0.0:
+	var toasting := toast_t > 0.0
+	if toasting:
 		toast_t -= delta
-	queue_redraw()
+	if not redraw_on_change or toasting or _waiting or _open_frame < 0 or Engine.get_process_frames() - _open_frame < PAINT_FRAMES: queue_redraw()
 
 ## How far the page's opening has run, 0 to 1 over `dur` s (the identity's open_s by default), eased out: a page moves
 ## its parts by (1 - unfold()). Under Reduce motion nothing moves, so it is 1 from the first frame and the page only
@@ -190,6 +203,8 @@ func _draw() -> void:
 	# to the one that step asks for, in the same frame, so it is not drawn twice as it opens.
 	if identity != null and not _stepped: return
 	if _open_frame < 0: _open_frame = Engine.get_process_frames()
+	draw_count += 1
+	_waiting = false
 	_regions.clear()
 	_areas.clear()
 	HdStyleBox.base = Transform2D.IDENTITY
@@ -201,7 +216,7 @@ func _draw() -> void:
 		_draw_toast()
 		return
 	# Dim the play screen behind the page.
-	draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.DIM, 0.55 if modal else 0.72))
+	if dims_world: draw_rect(Rect2(Vector2.ZERO, size), Color(UiKit.DIM, 0.55 if modal else 0.72))
 	if identity == null or identity.framed: draw_style_box(UiKit.style("major_window"), frame_rect)
 	if identity != null: draw_surface(frame_rect)
 	if title != "":
@@ -303,6 +318,10 @@ static var _glows: Dictionary = {}
 
 ## A filled rounded rectangle with anti-aliased corners (a surface's rim, a slip), cached per radius and colour.
 func rounded(rect: Rect2, radius: float, col: Color) -> void:
+	rounded_on(self, rect, radius, col)
+
+## rounded() on any canvas item (a page's layer that draws apart from the page: the Techniques chart's tiles).
+static func rounded_on(ci: CanvasItem, rect: Rect2, radius: float, col: Color) -> void:
 	var key := "%d|%s" % [int(radius), col.to_html()]
 	if not _rounds.has(key):
 		var sb := StyleBoxFlat.new()
@@ -310,10 +329,14 @@ func rounded(rect: Rect2, radius: float, col: Color) -> void:
 		sb.set_corner_radius_all(int(radius))
 		sb.anti_aliasing = true
 		_rounds[key] = sb
-	draw_style_box(_rounds[key], rect)
+	ci.draw_style_box(_rounds[key], rect)
 
 ## A soft radial glow of `col` fading out to the rect's edge (an ellipse in a wide rect): a lit centre, a dais, a shadow.
 func glow(rect: Rect2, col: Color) -> void:
+	glow_on(self, rect, col)
+
+## glow() on any canvas item.
+static func glow_on(ci: CanvasItem, rect: Rect2, col: Color) -> void:
 	var key := col.to_html()
 	if not _glows.has(key):
 		var g := Gradient.new()
@@ -327,7 +350,7 @@ func glow(rect: Rect2, col: Color) -> void:
 		tex.width = 128
 		tex.height = 128
 		_glows[key] = tex
-	draw_texture_rect(_glows[key], rect, false)
+	ci.draw_texture_rect(_glows[key], rect, false)
 
 ## Bright glows at 0.3 of their alpha with Settings › Bright flashes off (page_identity §6).
 func _halo() -> float:
@@ -621,6 +644,7 @@ func _pill_glow(rect: Rect2, quality: String) -> void:
 func icon_at(rect: Rect2, icon_id: String, modulate := Color.WHITE) -> void:
 	if first_draw() and not SpriteCache.icon_loaded(icon_id, minf(rect.size.x, rect.size.y)):
 		SpriteCache.icon_prefetch(icon_id)
+		_waiting = true
 		return
 	SpriteCache.draw_icon(self, rect, icon_id, modulate)
 
@@ -633,13 +657,17 @@ func first_draw() -> bool:
 
 ## An HD kit texture (UiKit.hd_texture), or null on the first frame while it loads.
 func hd_tex(asset: String, state := "normal") -> Texture2D:
-	return UiKit.hd_texture_async(asset, state) if first_draw() else UiKit.hd_texture(asset, state)
+	var tx: Texture2D = UiKit.hd_texture_async(asset, state) if first_draw() else UiKit.hd_texture(asset, state)
+	if tx == null: _waiting = true
+	return tx
 
 ## One creature-sheet frame fitted into `rect`, feet on its bottom edge. `action`
 ## loops with the page clock. Returns false when the creature has no sheet.
 func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate := Color.WHITE) -> bool:
 	var file := str(SpriteCache.creature(creature_id).get("file", ""))
-	if first_draw() and SpriteCache.loading(file) and SpriteCache.tex_async(file) == null: return true   # still loading: the slot waits
+	if first_draw() and SpriteCache.loading(file) and SpriteCache.tex_async(file) == null:   # still loading: the slot waits
+		_waiting = true
+		return true
 	return UiKit.draw_creature(self, rect, creature_id, action, t, modulate)
 
 func currency_pill(pos: Vector2, currency: String, amount: int) -> float:
@@ -714,6 +742,7 @@ func _scroll_area_at(p: Vector2) -> String:
 	return ""
 
 func _gui_input(event: InputEvent) -> void:
+	if redraw_on_change and (event is InputEventMouseButton or (event is InputEventMouseMotion and event.button_mask != 0)): queue_redraw()
 	_prev_regions = _regions.duplicate()
 	if event is InputEventMouseButton:
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and event.pressed:
@@ -766,6 +795,7 @@ func _activate(r: Dictionary) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and not event.echo and event.keycode in [KEY_ESCAPE]:
+		queue_redraw()
 		if not confirm.is_empty(): confirm = {}
 		elif frameless: return
 		else: close()

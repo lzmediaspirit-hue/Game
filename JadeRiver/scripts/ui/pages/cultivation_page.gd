@@ -15,6 +15,7 @@ const STAIR_FOOT := 626.0
 const CLIMB_S := 0.3   # a step climbed while the page is open (page_identity §6: a change's motion, 0.3 s at most)
 
 var doll: Node2D           # the figure seated on its step
+const TOP_SCALE := 2      # decision 42: a top-down character's seated figure (TopdownDoll), screen px an art px
 var _seen_realm := ""      # the step the figure sat on at the last draw
 var _climb := {}           # {from: step index, at: page clock} while the figure climbs
 
@@ -37,11 +38,12 @@ func setup() -> void:
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
 	if doll == null:
-		doll = Avatar.new()
+		# Decision 42: the character as its game draws it, seated in meditation facing the camera: the top-down figure for
+		# a top-down character, the side view's for a classic one.
+		doll = TopdownDoll.new() if TopdownDoll.shown(ch) else Avatar.new()
 		doll.visible = false
 		add_child(doll)
-	doll.outfit = InventoryAuthority.outfit_for(ch)
-	doll.last_key = ""
+	TopdownDoll.dress(doll, InventoryAuthority.outfit_for(ch))
 	doll.play("meditate")
 	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 7
 	if page_id == "heart": tab = 3
@@ -49,8 +51,7 @@ func setup() -> void:
 
 func on_event(name: String, _p: Dictionary) -> void:
 	if name == "equipment_changed" and doll != null and c() != null:
-		doll.outfit = InventoryAuthority.outfit_for(c())
-		doll.last_key = ""
+		TopdownDoll.dress(doll, InventoryAuthority.outfit_for(c()))
 	queue_redraw()
 
 func draw_page() -> void:
@@ -257,7 +258,8 @@ func _stair(ch, steps: Array, here: int) -> Vector2:
 		feet = Vector2(fr.get_center().x, fr.position.y + 4).lerp(feet, k) + Vector2(0, -10.0 * sin(k * PI))
 		if k >= 1.0: _climb = {}
 	move()
-	if doll != null: doll.draw_on(self, feet + Vector2(0, lift), 0.75)
+	if doll is TopdownDoll: doll.draw_on(self, feet + Vector2(0, lift - 24), TOP_SCALE)   # seated on the step's top
+	elif doll != null: doll.draw_on(self, feet + Vector2(0, lift), 0.75)
 	# The bands under the steps, each with its chip.
 	var spans := {}
 	for i in n:

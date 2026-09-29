@@ -241,6 +241,82 @@ func _techniques() -> void:
 	print("techniques page, the %s tree (%d nodes): %.2f ms a frame dragged, %.2f still; %d nodes in view" % [biggest, laid, ms_pan, still, drawn])
 	check(laid >= 250 and drawn < 40 and ms_pan - still < 5.0 and ms_pan < 33.3,
 		"the biggest tree's tab (%s, %d nodes) draws only what is in view (%d): dragged %.2f ms a frame against %.2f still" % [biggest, laid, drawn, ms_pan, still])
+	await _techniques_redraws(biggest)
+
+## Decision 42 (the Techniques tree "feels a bit laggy"): the page is drawn again only when something on it changes and
+## its chart is tiles kept drawn, which a drag only moves. For a top-down character (the game's), with an art chosen so
+## its preview casts: while only the preview moves, neither the page nor a tile is drawn again and a frame costs about
+## what the world's alone does; a finger dragging across the biggest tree draws a few tiles a frame and the page again
+## only as the drag starts and ends, its frame within 2 ms of the world's alone. Medians, so a busy runner's spikes do
+## not decide it (the page drawn every frame, as before, cost 2.5-4 ms a frame here: about 15 on a phone).
+func _techniques_redraws(tree: String) -> void:
+	var ch = Game.active()
+	var view_was := str(ch.view)
+	ch.view = "topdown"
+	var base := await _median_frames(90, Callable())
+	main.open_page("techniques", {"tab": tree})
+	for i in 30: await get_tree().process_frame   # its opening fade, the preview built, the tiles in view drawn
+	var pg = main.top_page()
+	var art := ""
+	for it in pg._items:
+		if str(it.kind) == "art" and Rect2(pg.view, pg.CHART.size).intersects(it.box):
+			art = str(it.id)
+			break
+	pg.on_action("node", art)
+	for i in 30: await get_tree().process_frame
+	var d0: int = pg.draw_count
+	var l0: int = pg.layer_draws
+	var casting := await _median_frames(120, Callable())
+	var page_casting: int = pg.draw_count - d0
+	var layers_casting: int = pg.layer_draws - l0
+	var top_ok: bool = pg.stage.caster is TopdownDoll and not pg.stage.foes.is_empty() and pg.stage.art == art
+	# A finger down on the chart, moved every frame (left and right, up and down), and lifted.
+	var at := Vector2(560, 360)
+	var press := func(down: bool) -> void:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = down
+		ev.position = at
+		pg._gui_input(ev)
+	press.call(true)
+	var d1: int = pg.draw_count
+	var tiles := [pg.tile_draws, 0]   # the count a frame ago, the most drawn in one frame
+	var drag := func(i: int) -> void:
+		tiles[1] = maxi(int(tiles[1]), int(pg.tile_draws) - int(tiles[0]))
+		tiles[0] = pg.tile_draws
+		var rel := Vector2(-16.0 if (i / 60) % 2 == 0 else 16.0, -6.0 if (i / 30) % 2 == 0 else 6.0)
+		at += rel
+		var ev := InputEventMouseMotion.new()
+		ev.button_mask = MOUSE_BUTTON_MASK_LEFT
+		ev.position = at
+		ev.relative = rel
+		pg._gui_input(ev)
+	var dragging := await _median_frames(120, drag)
+	var page_drag: int = pg.draw_count - d1
+	var tiles_cap: int = pg.TILES_A_FRAME * 3 + 3   # the tiles in view a frame, their three layers, and one ahead
+	press.call(false)
+	main.close_all_pages()
+	await get_tree().process_frame
+	ch.view = view_was
+	print("techniques page (top-down): %.2f ms a frame with the preview casting, %.2f dragged, %.2f the world alone; the page drawn %d times in 120 casting frames and %d dragged, %d layers casting, at most %d tiles a frame dragged"
+		% [casting, dragging, base, page_casting, page_drag, layers_casting, int(tiles[1])])
+	check(top_ok and page_casting == 0 and layers_casting == 0 and casting - base < 1.5,
+		"decision 42: with its preview casting the Techniques page is not drawn again (%d, %d layers) and a frame costs about the world's alone (%.2f against %.2f ms)" % [page_casting, layers_casting, casting, base])
+	check(page_drag <= 3 and int(tiles[1]) <= tiles_cap and dragging - base < 2.0,
+		"decision 42: a drag across the %s tree draws the page %d times and at most %d tiles a frame, %.2f ms a frame against the world's %.2f" % [tree, page_drag, int(tiles[1]), dragging, base])
+
+## The median ms of `n` ticked and drawn frames (a busy runner's spikes left out); `each` (frame index) runs at the start
+## of each.
+func _median_frames(n: int, each: Callable) -> float:
+	var ts: Array = []
+	for i in n:
+		var t0 := Time.get_ticks_usec()
+		if each.is_valid(): each.call(i)
+		Game.tick(1.0 / 60.0)
+		await get_tree().process_frame
+		ts.append((Time.get_ticks_usec() - t0) / 1000.0)
+	ts.sort()
+	return float(ts[n / 2])
 
 ## Redesign Phase 1: the top-down prototype room under the HUD (its rules are rules_tests' topdown_suite). It mounts
 ## inside the room-load gate and holds the 60 fps budget while the body walks a circle and jumps.

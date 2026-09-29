@@ -117,7 +117,7 @@ func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary, open: bool) -
 			para(Rect2(r.position.x + 16, r.position.y + 202, r.size.x - 32, 60), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 14, RecordsKit.BROWN, 3)
 		region(r, "choose", slot)
 		return
-	var fig := SectKit.figure(self, figs, str(other.id), InventoryAuthority.outfit_for(other), FIG_SCALE)
+	var fig := SectKit.figure(self, figs, str(other.id), InventoryAuthority.outfit_for(other), FIG_SCALE, other)   # each as its own game draws it
 	SectKit.show(fig, feet, live, str(other.id), a, "idle" if other == ch else "meditate" if str(other.idle_task.get("task", "")) in ["seclusion", "rest"] else "idle")
 	var sign := _sign(other)
 	if sign != "" and other != ch: icon_at(Rect2(feet + Vector2(26, -32), Vector2(32, 32)), sign, Color(1, 1, 1, a))

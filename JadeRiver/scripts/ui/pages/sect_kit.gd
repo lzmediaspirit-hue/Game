@@ -44,14 +44,14 @@ static func timber(pg: Page, r: Rect2, pitch := 88.0) -> void:
 	PostKit.planks(pg, r, pitch, true, UiKit.SURFACE.wood_dark)
 	pg.ground(r, UiKit.SURFACE.wood_dark)
 
-## A figure kept on the page: the live Avatar for `key`, made once with `outfit` at `scale` (whole art pixels: the sheets
-## are 2 screen px an art px, so 0.5 draws 1 px an art px and 1.0 draws 2). Show it standing at `feet` with `show`; hide
-## the ones not shown this frame with `hide_rest`.
-static func figure(pg: Page, figs: Dictionary, key: String, outfit: Dictionary, scale: float) -> Node2D:
+## A figure kept on the page: the live figure for `key`, made once with `outfit` at `scale` (whole art pixels: the side
+## view's sheets are 2 screen px an art px, so 0.5 draws 1 px an art px and 1.0 draws 2). Decision 42: drawn as the game
+## of `who` (the active character by default) draws it: the top-down figure (TopdownDoll) at `top_scale` (2 for 0.5, 3
+## for 1.0 unless given) for a top-down character, the side view's Avatar for a classic one. Show it standing at `feet`
+## with `show`; hide the ones not shown this frame with `hide_rest`.
+static func figure(pg: Page, figs: Dictionary, key: String, outfit: Dictionary, scale: float, who = null, top_scale := 0) -> Node2D:
 	if not figs.has(key):
-		var d := Avatar.new()
-		d.outfit = DialoguePage.full_outfit(outfit)
-		d.scale = Vector2.ONE * scale
+		var d := TopdownDoll.figure_for(DialoguePage.full_outfit(outfit), scale, top_scale if top_scale > 0 else maxi(1, roundi(scale * 3.0)), who)
 		pg.add_child(d)
 		d.play("idle")
 		figs[key] = d

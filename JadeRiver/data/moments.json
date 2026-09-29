@@ -2755,6 +2755,8 @@
   "foe": "pebble_imp",
   "foe_scale": 0.75,
   "scale": 1.25,
+  "top_foe": "mudshell_crab",
+  "top_scale": 3,
   "lead_s": 0.4,
   "after_s": 0.9,
   "pause_s": 0.8,
