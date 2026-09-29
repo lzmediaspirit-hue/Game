@@ -2463,9 +2463,13 @@ func _draw_minimap(c) -> void:
 	# Decision 43: the room's places, each a small glyph of its kind (TopdownPlaceArt's things, read at a glance); one
 	# that has something waiting (a new notice, a letter, a ripe bed, a finished batch) wears a gold spark. A tap near
 	# one opens the world map's Places on it, whose card offers the walk there.
+	# The marks are worked out twice a second, or as the room changes (the room's map stays put in between).
 	_place_look -= get_process_delta_time()
-	minimap_places = place_marks(c, Game.room_rt.room_id, to_map, inner.position.y + 6.0) if grid != null else []
-	if _place_look <= 0.0: _place_look = 0.5
+	var mark_room := str(Game.room_rt.room_id) if grid != null else ""
+	if _place_look <= 0.0 or mark_room != _place_room:
+		minimap_places = place_marks(c, mark_room, to_map, inner.position.y + 6.0) if grid != null else []
+		_place_room = mark_room
+		_place_look = 0.5
 	for mk in minimap_places: TopdownPlaceArt.glyph(self, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), t)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
@@ -2483,6 +2487,7 @@ func _draw_minimap(c) -> void:
 var minimap_places: Array = []
 var _place_states := {}
 var _place_look := 0.0
+var _place_room := ""
 
 ## The room's places on the minimap (decision 43): [{id, kind, at (the map's px, by `to_map`), wait}], each place the
 ## character sees (PlaceRules.visible); two a few cells apart would overlap on the small map, so the later one steps

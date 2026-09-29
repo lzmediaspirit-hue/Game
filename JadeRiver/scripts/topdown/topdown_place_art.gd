@@ -43,6 +43,7 @@ var size_cells := Vector2i.ONE
 var bed_key := ""                       ## a bed's "room:object"
 var st: Dictionary = {}                 ## PlaceRules.state, looked at a few times a second
 var _look := 0.0
+var _drawn := -1.0                      ## when it was last drawn (-1: never)
 
 static func motion() -> bool:
 	return not UiKit.reduce_motion()
@@ -115,16 +116,33 @@ static func size_px(cells: Vector2i) -> Vector2:
 func _process(delta: float) -> void:
 	t += delta
 	_look -= delta
+	var changed := _drawn < 0
 	if _look <= 0.0:
 		_look = 0.25
 		var c = Game.active()
 		if c != null and not place.is_empty():
+			var was := st
 			if kind == "bed":
 				var v: Dictionary = Game.crafting.bed_view(c, bed_key)
 				st = {"on": v.ready, "n": 1 if v.ready else 0}
 			else:
 				st = PlaceRules.state(c, place)
-	queue_redraw()
+			changed = changed or st.hash() != was.hash()
+	# Drawn again only while something of it moves (smoke, mist, a flag, a glint, the awning) or its state changes: a
+	# still sight (the shed, a counter) keeps its drawing.
+	if changed or (moving() and motion()):
+		_drawn = t
+		queue_redraw()
+
+## Whether anything of it moves now.
+func moving() -> bool:
+	match kind:
+		"shed", "stall_front": return false
+		"stall_back": return true
+		"letter_box": return bool(st.get("on", false)) or str(def.get("post", "")) == "courier"
+		"board": return int(st.get("new", 0)) > 0
+		"furnace": return bool(st.get("on", false)) or int(st.get("new", 0)) > 0
+	return bool(st.get("on", false))
 
 func _px(p: Vector2, w: float, h: float, col: Color) -> void:
 	draw_rect(Rect2(p.round(), Vector2(w, h)), col)
