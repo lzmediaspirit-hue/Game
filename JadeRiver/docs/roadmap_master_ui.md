@@ -555,4 +555,16 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - **Trading:** the shop and the Bag share one background.
     - **Talk** closes once a quest is given or completed.
     - **Bug:** after cultivation, walking no longer stays in the cultivation pose.
+43. **After build 109 (2026-09-29).** The user's picks from the suggestions list, and more:
+    - **Monsters:** raised to the characters' new quality, with more frames, readable tells, and bigger elites and bosses.
+    - **Sound:** layered hits, footsteps by surface, ambient beds, combat music that comes in with a fight, and stingers.
+    - **A living world:** critters, NPCs at work, grass that parts, smoke, banners, vistas, and interiors.
+    - **Unlock tutorials:** every newly unlocked system teaches itself. For example, the first foundation points lead the
+      player to the page to spend them, and a first open of a page gives a tour of how it works.
+    - **Systems as places:** some systems move from the menu into places in the world
+      (`docs/redesign/systems_as_places.md`).
+    - **Character size:** the characters look a little bigger, about 1.2×.
+    - **HUD skills:** the technique buttons are a little bigger and circular.
+    - **Combat** feels smoother.
+    - **Jumping:** it is easier to control at the sprint speed. A box-to-roof jump must not overshoot the box.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
