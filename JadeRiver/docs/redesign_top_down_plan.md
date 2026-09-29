@@ -1975,9 +1975,9 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   held out and cast; reaching up to hang washing; stirring a pot with a ladle; a pestle ground in a mortar; an axe's
   overhead chop; a one-handed hammer at an anvil; crouching to pick herbs; mending a net seated. A held-tool
   attachment rig (the hands' place per frame) would replace the tools' placement by the figure's bounds.
-- **Cost** (headless, the shared test machine, nine `perf_tests` runs): its own work 0.5-0.7 ms a frame in Lotus
-  Ferry walking and in the Marsh Edge's 25-foe fight; the whole frame +1.1 ms (median; 0.7-1.8) against the same room
-  without it in Lotus Ferry, +1.4 ms (0.7-2.1) in the fight; its build 1.2 ms. `perf_tests` checks both rooms
+- **Cost** (headless, the shared test machine, twelve `perf_tests` runs): its own work 0.5-0.7 ms a frame in Lotus
+  Ferry walking and in the Marsh Edge's 25-foe fight; the whole frame +1.0 ms (median; 0.3-1.8) against the same room
+  without it in Lotus Ferry, +1.3 ms (-0.2-2.1) in the fight; its build 1.2 ms. `perf_tests` checks both rooms
   (interleaved rounds: the least of each side, the median of the rounds' differences) and `topdown_life_suite` its
   own work. Kept cheap by: plain records for critters (typed, no nodes but 12 pooled sorted ones), calm critters
   stepped one frame in three, layers and nodes redrawn only when their pixels change, the grass's pushes in the
@@ -1985,7 +1985,8 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   in `docs/CHANGELOG.md`.
 - **Tests:** `topdown_life_suite` (by `rules_tests`), `data_validation` `life_art_suite`, `topdown_rooms.py --check`.
 - **Review:** `docs/redesign/feedback/living_world/` (`before/`, `after/`, `detail/`, and `pairs/` side by side at
-  the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`.
+  the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`. `after/` and `detail/` are drawn on the
+  build merged with the rest of decision 43, so the people 1.2 times bigger and the places are in them too.
 
 ### Phase 5 · The animation layers (XL)
 
