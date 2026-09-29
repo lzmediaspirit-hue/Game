@@ -34,8 +34,9 @@ the rules.
   any N), and each item's sheet is coloured whole for each dye. A full pass takes about 2.5 minutes on four cores (11
   on one); `--check` builds twice and stays byte-identical.
 - **Rebuilt:** all 18 sets, 168 sheets. The index and its catalogue signature did not change; the frames, rects,
-  hidden entries and draw calls are the same. The sheets hold 1.046 times the texels (140.1 MB of RGBA8 for all 168,
-  from 134.0; the player's starting outfit 5.42 MB, from 5.20).
+  hidden entries and draw calls are the same. The sheets are imported lossless with no mipmaps, so their memory is
+  their texels in RGBA8: 1.046 times as many (140.1 MB for all 168, from 134.0; the player's starting outfit 5.42 MB,
+  from 5.20; the 26 sheets the study's nine people wear 19.9 MB, from 19.3).
 - **In the game, before and after**, the same instants: the village square, Jade Gate Street, a fight with the jian
   frame by frame, and the story's gestures, in `docs/redesign/feedback/character_quality/rollout/`
   (`tools/dev/topdown_capture.tscn -- --quality --quality-tag=<before|after>`, paired by

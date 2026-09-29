@@ -1335,8 +1335,7 @@ func strip(name: String, axis: Vector2, n: int, jumps: Array, dashes: Array, kee
 ## the village square and Jade Gate Street with the player and the study's villagers staged round them
 ## (docs/redesign/feedback/character_quality.md), the story's gestures staged on the square, and a fight with the jian
 ## (the whole view on a cut, and frames of the combo round the body). `boxes.json` has where each body stands on the
-## shots (x2 screen px), for tools/art/topdown/study_quality/rollout.py, which pairs the two, and the renderer's texture
-## memory at each shot.
+## shots (x2 screen px), for tools/art/topdown/study_quality/rollout.py, which pairs the two.
 const QUALITY_SCENES := [
 	{"name": "01_village_square", "room": "lf_village", "spot": Vector2(33.5, 21.5), "player": ["idle", 0, "s"], "people": [
 		["uncle_guo", Vector2(30.3, 22.1), "se", "idle"], ["washer_mei", Vector2(31.9, 24.3), "se", "idle"],
@@ -1427,7 +1426,7 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 	await get_tree().process_frame
 	(await world_shot()).save_png(ProjectSettings.globalize_path(out + sc.name + ".png"))
 	var cam: Vector2 = w.camera.position
-	var bx := {"player": _on_shot(p.screen, cam), "people": {}, "texture_mb": Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1.0e6}
+	var bx := {"player": _on_shot(p.screen, cam), "people": {}}
 	for s in staged: bx.people[s[0]] = _on_shot(s[1].feet, cam)
 	get_tree().paused = false
 	for s in staged: s[1].visible = false
@@ -1478,7 +1477,7 @@ func _quality_fight(out: String) -> Dictionary:
 			await get_tree().process_frame
 			if st[0] == "swing_1" and i == 2:
 				(await world_shot()).save_png(ProjectSettings.globalize_path(out + "03_fight.png"))
-				bx = {"player": _on_shot(p.screen, w.camera.position), "people": {}, "texture_mb": Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1.0e6}
+				bx = {"player": _on_shot(p.screen, w.camera.position), "people": {}}
 			tiles.append(await crop(192, 144))
 	sheet(out + "03_fight_combo.png", tiles, 6)
 	get_tree().paused = false

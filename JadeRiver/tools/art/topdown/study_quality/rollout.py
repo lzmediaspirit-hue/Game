@@ -98,11 +98,6 @@ def main() -> int:
     a, b = Image.open(before / "03_fight_combo.png"), Image.open(after / "03_fight_combo.png")
     _board("The jian's three cuts in the fight, frame by frame (the world at x2)", [("Before", a), ("After", b)], True).save(
         DIR / "03_fight_combo.png")
-    old = json.loads((before / "boxes.json").read_text())
-    for name in SHOTS:
-        a, b = old.get(name, {}).get("texture_mb"), boxes.get(name, {}).get("texture_mb")
-        if a and b:
-            print("%-22s texture memory %.1f MB before, %.1f MB after (%+.1f MB)" % (name, a, b, b - a))
     print("rollout boards in", DIR.relative_to(ROOT))
     return 0
 
