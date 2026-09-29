@@ -593,7 +593,12 @@ def build():
         # `stop_s`, from the sprint. Decision 43 draws the people 1.2 times bigger (46 art px): the foot `box` grows across
         # with them (16 to 19 wide, well inside a one-tile way); its depth on the plane, the feet's, stays 10 (the stairs'
         # side steps and the tops a body lands on are measured by it), and the paces stay the world's measure.
-        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "sprint": 216, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [19, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5,
+        # Decision 43: the jump steered and braked in the air (`air_turn` times the air's pick-up against the motion; let
+        # go, a stop from the walk in `air_brake_s`), and the landing assist: a jump that would carry past a top's far edge
+        # by up to `magnet` units with the stick along it brakes (at most `magnet_decel`) to land `magnet_margin` inside
+        # it, and the top's edge holds the body `magnet_hold_s` after such a landing. The drawn row turns through the rows
+        # between, one every `turn_row_s`.
+        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "sprint": 216, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "air_turn": 2.5, "air_brake_s": 0.5, "magnet": 28, "magnet_margin": 6, "magnet_decel": 2400, "magnet_hold_s": 0.3, "turn_row_s": 0.016, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [19, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5,
             # Phase 2 (decisions 29-30): combat on the plane. A blow lands only between compatible heights: the target's
             # feet within `hit_band` of the attacker's (a jump strike reaches down `air_band`); a shot flies along the
             # ground plane at its thrower's feet and stops at a face higher than `shot_wall` over them. A body's `chest`

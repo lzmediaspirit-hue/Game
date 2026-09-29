@@ -8,6 +8,14 @@ extends RefCounted
 ## doubles as a long jump when Jump follows it, and collision per height level with corner sliding. Ground plane (x,
 ## depth y) plus height z in world units, stepped at 120 Hz; numbers from movement.json `topdown`. Nothing here draws:
 ## the view reads the state and drains `events`.
+##
+## Decision 43 (the jump is hard to control at the sprint's speed: a jump onto a box sails over it): in the air the
+## stick steers at `air_control` of the ground's pick-up, brakes `air_turn` times harder when it pulls against the
+## motion, and let go the body slows to a stop over `air_brake_s` (a dash's long jump keeps its carry unless pulled
+## back); and the landing assist (`magnet`): a jump that would carry past the far edge of a flat top it came onto (a
+## box, a roof: not the floor it left, unless it crossed a gap to it) by no more than `magnet` units, with the stick
+## along the jump, brakes smoothly to land `magnet_margin` inside that edge. The drawn row turns through the rows
+## between, one every `turn_row_s`, when the stick swings round (an aimed blow's `face` turns it at once).
 
 const STEP := 1.0 / 120.0
 ## The body's eight drawn rows and their angles on the ground (east 0, south 90); NW, W and SW mirror NE, E and SE.
@@ -47,6 +55,14 @@ var speed_k := 1.0         ## the combat authority's move factor (an attack on t
 var plunging := false
 ## Phase 4: the push the room's hazards put on the body (a gust, a current), in units a second, added to its step.
 var drift := Vector2.ZERO
+## Decision 43: the floor the airtime began from, whether the body has since passed over a floor lower than it (a gap:
+## a top as high as the one it left is then a new one to land on), and how long the drawn row has held (its turn).
+var takeoff_z := 0.0
+var crossed_low := false
+var row_t := 0.0
+var magnet_on := false   ## the landing assist braked this substep (tests and traces)
+var magnet_used := false ## the landing assist braked in this airtime
+var land_hold := 0.0     ## after an assisted landing: seconds the top's edge still holds a body the stick pushes on
 
 var walk: float
 var tiptoe_axis: float
@@ -58,6 +74,13 @@ var running := false
 var accel: float
 var decel: float
 var air_control: float
+var air_brake: float
+var air_turn: float
+var magnet: float
+var magnet_margin: float
+var magnet_decel: float
+var magnet_hold_s: float
+var turn_row_s: float
 var gravity: float
 var impulse: float
 var step_up: float
@@ -88,6 +111,13 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 	accel = sprint / float(conf("accel_s", 0.08))
 	decel = sprint / float(conf("stop_s", 0.06))
 	air_control = conf("air_control", 0.35)
+	air_brake = walk / maxf(0.01, float(conf("air_brake_s", 0.3)))
+	air_turn = conf("air_turn", 2.5)
+	magnet = conf("magnet", 28.0)
+	magnet_margin = conf("magnet_margin", 6.0)
+	magnet_decel = conf("magnet_decel", 2400.0)
+	magnet_hold_s = conf("magnet_hold_s", 0.3)
+	turn_row_s = conf("turn_row_s", 0.016)
 	gravity = conf("gravity", 1700.0)
 	impulse = conf("impulse", 400.0)
 	step_up = conf("step_up", 8.0)
@@ -119,6 +149,7 @@ func place(p: Vector2) -> void:
 	sink_t = -1.0
 	safe = p
 	safe_z = z
+	_took_off()
 
 ## The jump's apex over its take-off, and its airtime back to the same height (movement numbers, §As built).
 func apex() -> float: return impulse * impulse / (2.0 * gravity)
@@ -180,6 +211,7 @@ func _substep(h: float, axis: Vector2) -> void:
 	dash_cd = maxf(0.0, dash_cd - h)
 	invuln = maxf(0.0, invuln - h)
 	land_t = maxf(0.0, land_t - h)
+	land_hold = maxf(0.0, land_hold - h)
 	buffer = maxf(0.0, buffer - h)
 	since_dash += h
 	if sink_t >= 0.0:
@@ -191,8 +223,10 @@ func _substep(h: float, axis: Vector2) -> void:
 		return
 	if buffer > 0.0 and (grounded or coyote > 0.0): _jump()
 	# Horizontal velocity: the dash holds its own; otherwise accelerate toward the stick (a sprint past the tiptoe band,
-	# the tiptoe within it), with a third of that control in the air, where no input keeps the momentum (and a long jump
-	# keeps its carry) and the stick steers no faster than the walk.
+	# the tiptoe within it), with a third of that control in the air, where the stick steers no faster than the walk,
+	# brakes harder pulled against the motion, and let go slows the body to a stop (decision 43; a long jump keeps its
+	# carry unless the stick pulls it back).
+	magnet_on = false
 	if plunging:
 		vel = Vector2.ZERO
 	elif push_t > 0.0:
@@ -208,8 +242,15 @@ func _substep(h: float, axis: Vector2) -> void:
 		if mag > 0.05 and grounded: running = mag > tiptoe_axis
 		var target := axis.normalized() * (sprint if mag > tiptoe_axis else walk * tiptoe) * speed_k if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
-		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target.limit_length(walk), accel * air_control * h)
+		else:
+			var against := target != Vector2.ZERO and vel.length() > 1.0 and target.normalized().dot(vel.normalized()) < -0.2
+			if _magnet(h, axis): pass   # the landing assist brakes; the stick does not push on along the jump meanwhile
+			elif target != Vector2.ZERO and not long_jump:
+				vel = vel.move_toward(target.limit_length(walk), accel * air_control * (air_turn if against else 1.0) * h)
+			elif against: vel = vel.move_toward(Vector2.ZERO, accel * air_control * air_turn * h)
+			elif target == Vector2.ZERO and not long_jump: vel = vel.move_toward(Vector2.ZERO, air_brake * h)
 	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face and not plunging: _face(axis)
+	_turn_row(h)
 	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
 	# the bank stop it as they stop walking.
 	var v := vel + (drift if not plunging else Vector2.ZERO)
@@ -221,6 +262,7 @@ func _jump() -> void:
 	var carried := dash_t > 0.0 or since_dash <= long_window + dash_distance / dash_speed
 	vz = impulse
 	peak = z
+	if grounded: _took_off()
 	grounded = false
 	coyote = 0.0
 	buffer = 0.0
@@ -232,10 +274,58 @@ func _jump() -> void:
 		vel = vel.limit_length(walk)   # decision 42: a sprint's jump reaches as the walk's did
 	events.append({"type": "jumped", "long": long_jump, "z": z})
 
+## The body leaves the floor it stood on (a jump or a step off an edge): the landing assist keeps that floor apart.
+func _took_off() -> void:
+	takeoff_z = z
+	crossed_low = false
+	magnet_used = false
+	land_hold = 0.0
+
+## Decision 43 · the landing assist. In the air over a flat top (a box, a roof, a ledge; not a stair or the water) that
+## is not the floor the body left (unless it crossed a gap to it), with the body above it and the stick along the jump:
+## when the jump as it goes would carry past the top's far edge before coming down to it, by no more than `magnet`
+## units, it brakes smoothly (at most `magnet_decel`) so the body comes down `magnet_margin` inside that edge; once it
+## has taken hold it holds to the landing. True while it brakes (the stick then does not push on along the jump).
+func _magnet(h: float, axis: Vector2) -> bool:
+	var here := floor_at(pos)
+	if here < takeoff_z - step_up: crossed_low = true
+	if magnet <= 0.0 or plunging or push_t > 0.0 or dash_t > 0.0 or here == INF or here > z + 0.01: return false
+	if absf(here - takeoff_z) <= 0.5 and not crossed_low: return false   # the floor it left
+	var speed := vel.length()
+	if speed < 1.0 or axis.length() < 0.2 or axis.normalized().dot(vel / speed) < 0.3: return false
+	var cp := TopdownRoom.cell_of(pos)
+	if room.is_water(cp.x, cp.y) or not room.stair_at(cp.x, cp.y).is_empty(): return false
+	var t := (vz + sqrt(maxf(0.0, vz * vz + 2.0 * gravity * (z - here)))) / gravity   # to come down to the top
+	if t <= h: return false
+	var d := vel / speed
+	var travel := speed * t
+	var ahead := _run_on(here, d, travel + magnet_margin + 2.0)
+	var keep := ahead - magnet_margin
+	var over := travel - keep
+	if over <= 0.0: return false
+	if not magnet_used and (over > magnet or keep < 0.0): return false   # it takes hold only of a near miss
+	keep = maxf(keep, 0.0)
+	var a := minf(2.0 * (travel - keep) / (t * t), magnet_decel)
+	vel -= d * minf(a * h, speed)
+	magnet_on = true
+	magnet_used = true
+	return true
+
+## How far along `d` from the body the flat top at height `top` goes on (up to `most`), in 2-unit steps.
+func _run_on(top: float, d: Vector2, most: float) -> float:
+	var s := 0.0
+	while s < most:
+		var p := pos + d * (s + 2.0)
+		var cp := TopdownRoom.cell_of(p)
+		if absf(floor_at(p) - top) > 0.5 or not room.stair_at(cp.x, cp.y).is_empty(): return s
+		s += 2.0
+	return most
+
 func _vertical(h: float) -> void:
 	var ground := floor_at(pos)
 	if grounded:
 		if ground < z - step_up:
+			_took_off()
 			grounded = false
 			coyote = coyote_s
 			vz = 0.0
@@ -275,7 +365,12 @@ func _land() -> void:
 		events.append({"type": "splashed", "fall": fall, "plunge": plunged})
 		return
 	land_t = squash_s
-	events.append({"type": "landed", "fall": fall, "plunge": plunged})
+	# Decision 43: a landing on a top the body jumped onto (higher than the floor it left, or across a gap, or the
+	# landing assist's) holds at the top's edge a moment, so a stick still pushed along the jump does not run it off.
+	var assisted := magnet_used
+	if assisted or z >= takeoff_z + step_up or (crossed_low and z >= takeoff_z - 0.5): land_hold = magnet_hold_s
+	magnet_used = false
+	events.append({"type": "landed", "fall": fall, "plunge": plunged, "assisted": assisted})
 	if buffer > 0.0 and not plunged: _jump()
 
 ## A point is clear of the edges when every corner of the foot box is on the same floor as its centre.
@@ -304,6 +399,9 @@ func blocked_at(p: Vector2) -> bool:
 ## only clips: when the stick points mostly along this axis and a small side step clears the way.
 func _move(delta: Vector2, axis: Vector2) -> void:
 	if delta.length() < 0.00001: return
+	# Decision 43: just after an assisted landing the top's edge holds the body a moment, so a stick still pushed along
+	# the jump does not run it off the far side before the thumb lets go.
+	if land_hold > 0.0 and grounded and floor_at(pos + delta) < z - step_up: return
 	if not blocked_at(pos + delta):
 		pos += delta
 		return
@@ -341,13 +439,38 @@ func _push_out() -> void:
 
 ## Turn to face `v` at once (an attack's aim), with the drawn row's hysteresis.
 func face(v: Vector2) -> void:
-	if v.length() > 0.01: _face(v)
+	if v.length() <= 0.01: return
+	dir = v.normalized()
+	row = nearest_row(dir, row, ROW_ANGLES, 10.0)
+	row_t = turn_row_s
 
-## 8-way analog facing; the drawn row (S, SE, E, NE, N, and NW, W, SW that mirror NE, E, SE) changes only when the
-## stick sits 10° nearer another row (plan §1.4).
+## 8-way analog facing from the stick; the drawn row follows in _turn_row.
 func _face(axis: Vector2) -> void:
 	dir = axis.normalized()
-	row = nearest_row(dir, row, ROW_ANGLES, 10.0)
+
+## The drawn row (S, SE, E, NE, N, and NW, W, SW that mirror NE, E, SE) changes only when the facing sits 10° nearer
+## another row (plan §1.4). Decision 43: a swing of more than one row turns through the rows between, one every
+## `turn_row_s` (the first at once), the way past the camera (S) for a half turn, so a turn round reads as a turn.
+func _turn_row(h: float) -> void:
+	var want := nearest_row(dir, row, ROW_ANGLES, 10.0)
+	if want == row:
+		row_t = turn_row_s
+		return
+	row_t += h
+	if turn_row_s <= 0.0:
+		row = want
+		return
+	if row_t < turn_row_s: return
+	row_t = 0.0
+	var order := ["e", "se", "s", "sw", "w", "nw", "n", "ne"]
+	var i := order.find(row)
+	var j := order.find(want)
+	if i < 0 or j < 0:
+		row = want
+		return
+	var d := posmod(j - i, 8)
+	var way := 1 if d < 4 else (-1 if d > 4 else (1 if posmod(2 - i, 8) <= 4 else -1))
+	row = order[posmod(i + way, 8)]
 
 ## The drawn row of `rows` (name -> its angle on the ground in degrees, east 0, south 90) for direction `v`: the nearest,
 ## but `current` stays until another is `band` degrees nearer (the hysteresis of plan §1.4; the foes' eight facings

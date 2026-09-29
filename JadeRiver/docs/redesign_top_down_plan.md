@@ -1871,6 +1871,95 @@ and sprints, and a fix for meditation's pose. Shots: `docs/redesign/feedback/com
 - `data_validation` `combat_feel_suite`: the weave's buffer is short, and every cut in every family, speed and
   technique comes after the hit.
 
+### As built: smoother combat and jumps you can steer (decision 43, 2026-09-29)
+
+The user asked: "Combat should feel more smooth", and "because the player moves fast (that's ok), when I try to jump
+from a box to a roof I jump over the box; it's a bit hard to control the jumping." (The HUD's round technique buttons,
+asked for in the same list, are in `docs/ui_style_guide.md` §9.)
+
+**Finding the rough spots.** `tools/dev/combat_trace.tscn` plays real chains through the world's own loop at 60 fps
+(the hit-stop's hold, the body's step, `Game.tick`, the events, the figure's sync), with the presses the HUD sends, on
+sturdy foes in the prototype square, and logs every frame (the press, the hit-stop, the action, its phase and clock,
+the combo and what waits behind it, the pose, the row, the facing, the speed, the foe's distance) as CSV with a summary
+per chain. Before and after, the same presses:
+
+| Chain (presses) | Before | After |
+|---|---|---|
+| Jian: Attack, Attack, technique, Attack, Attack | swing 1, technique, swing 2, swing 3: the technique cut in ahead of the queued swing 2 and dropped it | swing 1, swing 2, technique, swing 3: in their order |
+| Fists: Attack, Mole Cuts (knockback 80), Attack, Attack | 2 of 4 blows land: the technique knocks the foe from 38 to 96 units, past the fists' 46 | 4 of 4: knocked to 30, in reach |
+| Fists: Attack; the stick turned to a second foe; Attack (queued) | the queued step strikes 111° off, down the first foe's old line | 0° off; the body turns to it |
+| A queued step's lunge | none (only a tapped step lunged) | toward its foe, never nearer than 0.4 of the reach (fists 3.8 units, then held at 18.4) |
+| A light blow's 3-frame hit-stop | held 4 frames (the clock's rounding), 6 held 7: a jian chain's four blows 15 frames | 3 frames: the same chain 12 |
+| Jian: Attack, Attack, then the stick away | the run 46 frames after the push; the second swing lands at 53 units, the body drifting 8.6 away through it | 34 frames (the recovery cut); the swing lands at 31, the feet planted |
+| Fists: the same | 35 frames | 25 frames |
+| Heavy sabre: Dodge pressed as the blow lands | dropped (the 0.2 s buffer ran out 6 frames before the cancel point); the body leaves only when the swing ends | the dash goes at the cancel point, 17 frames after the press |
+| Presses in a hit-stop | kept (2 of 2) | kept (2 of 2) |
+| Dead frames (a press waiting while nothing plays) | 0 | 0 |
+
+**What changed** (`combat_feel.json` `flow`, `tools/data/combat_feel.py` `FLOW`; `balance_sim` holds, as no number of
+the blows themselves moved):
+
+- **The presses in order** (`in_order`, `more_taps`): a technique pressed while a basic step waits queued waits behind
+  it (`CombatFeel.waits_ahead`, `weave` answers "wait"), and its buffer does not run down meanwhile; an Attack tap made
+  while a technique waits in the buffer goes after it; up to two taps are kept behind a buffered press.
+- **The hit-stop** holds exactly its weight's frames (`CombatAuthority.hold_for_hitstop` treats a remainder under a
+  millisecond as spent), and one action adds at most `hitstop_cap_f` 10 frames in all (`_add_hitstop`: a many-hit
+  art's or a volley's blows share it), so it never stalls a chain.
+- **Turns in a chain:** a queued step aims again as it begins (`_aim_queued`: the soft lock round the stick of its
+  press) and the body turns to it and lunges, once, the frame it begins (`TopdownPlayer._follow_steps`, from Combat's
+  `tl.starts`), drawn turned from its first frame. The stick's own turns pass through the rows between, one a frame
+  (`movement.json` `topdown.turn_row_s` 0.016; an aimed blow turns at once).
+- **The pull** (`pull`): each step lunges toward the foe its tap picked, its own lunge or further to come within half
+  the weapon's reach of a foe farther off (by 24 units at most), never nearer than 0.4 of the reach; the families that
+  strike from where they stand (the bow, the flute, the bell) do not move (`CombatFeel.pull`, `TopdownPlayer._lunge`).
+- **Knockback that leaves a follow-up in reach** (`keep_reach` 0.75, `min_knock` 8): a blow the chain goes on from (a
+  step before the last, a technique woven into a chain) knocks its foe no further than three quarters of the weapon's
+  reach; a chain's last blow and a technique on its own keep their whole knockback.
+- **Clean ways out:** a dodge pressed while a blow is committed waits for the blow's cancel point however heavy the
+  blow (`dodge_hold_s` 0.6), never dropped; the stick pushed past its tiptoe band cuts a recovery at that same point
+  when no press waits (`move_cancel`, a Combat intent), so a sprint leaves a chain as a dodge does.
+- **Planted feet** (`plant` 0): the stick does not slide the body through a blow's wind-up and strike on the ground (its
+  lunge carries it); the recovery keeps the attack's walk.
+
+**Jumps you can steer** (`movement.json` `topdown`, `TopdownMotor`). The sprint was already not carried into the air:
+a take-off from 216 keeps the walk's 154 (decision 42). But at 154 a jump flies 57 units before it comes down on a
+one-tile box, so a jump onto the village's crates sailed over them; and the stick held after the landing ran the body
+off their far side.
+
+- **Steer and brake:** in the air the stick steers at `air_control` (0.35) of the ground's pick-up, `air_turn` (2.5)
+  times that pulled against the motion; let go, the body slows to a stop over `air_brake_s` (0.5). A dash's long jump
+  keeps its carry unless pulled back.
+- **The landing assist** (`magnet` 28, `magnet_margin` 6, `magnet_decel` 2400): over a flat top the body came onto (a
+  box, a roof, a ledge; not a stair or the water, nor the floor it left unless it crossed a gap to it), with the stick
+  along the jump, a jump that would carry past the top's far edge by up to 28 units brakes smoothly to come down 6
+  inside it; once it takes hold it holds to the landing, and the stick does not push on meanwhile.
+- **The edge holds** (`magnet_hold_s` 0.3): after a landing on a top the body jumped onto (higher than the floor it
+  left, across a gap, or by the assist) the top's edge holds it that long, so a thumb still pushing does not run it
+  off before it lets go.
+- Coyote time (0.1 s) and the jump buffer (0.12 s) are as they were.
+- Measured (`topdown_suite` `_jump_control`, on the real crates: the village's by the hall, `lf_village` (46-47, 13),
+  and the Jade Sect's by the Weapon Hall, `ja_pavilion_rooftops` (12-13, 8); the stick fully pushed, held 0.2 s after
+  the landing):
+  - from the ground, Jump pressed 2 to 38 units short of the crates: before, 0 of 10 rested on them in each room (a
+    jump pressed close came down 28 units past them); now 10 of 10, each coming down 6 inside the far edge;
+  - from the crates, a sprint and Jump onto the roof: 8 of 8 in each room, before and after;
+  - a running jump off the hall's roof over the gap to the inn's, pressed anywhere in the last half tile or a coyote
+    moment past the edge: 6 of 6, before and after; the dash's long jump still clears three tiles of water (142.5);
+  - on a flat floor from a sprint: the take-off 154, the jump carries 73.2 with the stick held, 27.3 pulled back at
+    the apex, 40.2 let go.
+- `topdown_rooms.py --check`, `room_lint`, `sect_walks`, `room_sweep`, `visibility_suite` and auto-path's tour of the
+  29 rooms (`_route_rooms`: every leg arrives, no stall) hold.
+
+**Tests.**
+
+- `topdown_suite`:
+  - `_jump_control` (above), and `_facing` (the row's turn one a frame; an aimed blow's at once);
+  - `_flow`: the presses in order; a queued step aimed again at the foe the stick turned to and the body turned; the
+    pull (a far foe closed on, a queued step pulling, never nearer than 0.4 of the reach); a woven technique's knockback
+    in reach and a lone one's whole; a hit-stop's exact frames; the stick cutting a recovery (not while a step waits);
+    the planted feet; the heavy sabre's dodge at its cancel point;
+  - `sturdy` foes are sense-locked, so no evasion roll decides a timing check.
+
 ### As built: the monsters at the characters' quality (decision 43, 2026-09-29)
 
 The user chose to bring the foes up to the characters' new quality (decision 42's "B" figure), with more frames,

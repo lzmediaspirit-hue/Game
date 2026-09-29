@@ -389,6 +389,9 @@ func hit(p: Dictionary) -> void:
 		play(str(acc.get("chain_last", "hit_accent_chain")), "SFX", opts.merged({"gain_db": float(m.get("accent_db", -1.0))}))
 	if fam != "":
 		var stop := CombatFeel.hitstop_s(weight, crit) if CombatFeel.hitstop_on() else 0.0
+		# Decision 43: one action's hit-stop has a cap (CombatFeel.hitstop_cap_s); a blow past it holds less, and its
+		# tail waits only for the hold that runs.
+		if stop > 0.0 and Game.combat != null and Game.combat.hitstop > 0.0: stop = minf(stop, Game.combat.hitstop)
 		var tail := str(h.get("families", {}).get(fam, {}).get("tail", ""))
 		var tj := _jitter(h)
 		_later(stop, func(): play(tail, "SFX", opts.merged({"gain_db": wdb + float(m.get("tail_db", -3.0)) + tj.db, "pitch": wp * tj.pitch})), "tail")

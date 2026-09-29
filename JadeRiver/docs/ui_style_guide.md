@@ -619,10 +619,11 @@ From the study (`docs/mockups/icon_study/README.md`, `tools/icons/study/study_li
 The user asked for the skill icons to look like `docs/redesign/feedback/skill_icon_reference.png` (the Techniques
 tree's cards as their phone showed them). One picture, `TechniquePicture` (`scripts/presentation/technique_picture.gd`),
 is every art's face: the tree's cards (72 px inside the frame), the tree's reading (148 px), the HUD's technique
-buttons (50 px) and the Techniques page's loadout bar (42 px). A top-down character is always drawn as the top-down game
-draws it (`TopdownFigure`); the side view's Avatar only for a classic side-view character. Decision 43 draws the world's
-people 46 art px tall; a picture keeps the 38 px figure it was approved at, from the frames the character build casts
-for the pictures' poses at that density (`TopdownFigure.draw` with `picture`; art bible §13).
+buttons (round since decision 43, the picture 58 px across inside the ring) and the Techniques page's loadout bar
+(42 px). A top-down character is always drawn as the top-down game draws it (`TopdownFigure`); the side view's Avatar
+only for a classic side-view character. Decision 43 draws the world's people 46 art px tall; a picture keeps the 38 px
+figure it was approved at, from the frames the character build casts for the pictures' poses at that density
+(`TopdownFigure.draw` with `picture`; art bible §13).
 
 | Part | Rule |
 |---|---|
@@ -632,8 +633,8 @@ for the pictures' poses at that density (`TopdownFigure.draw` with `picture`; ar
 | Pose | The pose a fight casts the art in with the art's own weapon family (the free hand for an art of any hand: a palm is a palm; a family art holds the character's weapon when it is of that family, else the family's own), from `TechniquePreview.top_pose`; seated in meditation for an art cast from a sitting whose form rests round the body (ward, domain, chorus, pillar, rain, release). A weapon's blow on the frame it lands, in profile toward the right (E: the blade reads); the bare hand's just after it lands, three-quarters toward the camera and the right (SE: the face over the hand still out); the hand seal toward the camera (S); a stance or a sitting three-quarters (SE). |
 | Marks | A few marks of the art's form in the light ink with a dark outline, before the hand or round the body: a palm's crescents, a flurry's crescents high and low, a thrust's lines, a lunge's speed lines and chevrons, a ward's dome, a domain's ring on the ground, a pillar's springs rising, a seal's square, a snare's loop, a chorus's notes, a burst's rays, a wave's ripples, a volley's darts, and so on (`TechniquePicture._marks`). |
 | Frame | The caller's: the tree's state colour (jade learned, gold open, slate locked, pale gold chosen), gold in the reading, bright jade on the HUD and the loadout bar; ink outside it. |
-| Rank badge | A known art's mastery tier in a small ink-and-jade diamond ringed in bright jade, its number in pale gold: on the frame's lower right corner of a card, the upper right of a button (its lower right holds the lock and the Qi strip). |
-| A button's size | The HUD's buttons (50 px, the picture 44 px inside the frame) and the loadout bar's slots (the picture 42 px), 59 px and under, are a miniature of the card: the whole figure at x1 (about 38 px tall), top to foot in the middle with a few pixels of margin, nothing of it cut by the frame (a figure taller than the picture would keep its head a pixel under the top and lose its feet, never its head). It faces the camera (S) on the frame before its blow lands, so its face always shows (at the landing a punch turns the head away), its body a little left of the middle (`HEAD_X`). The card's look at that size: the same ink and rim, the element's ground (a fall from 0.34 to 0.26 with the light round the body, a few faint stars high up), and one bold mark of the form clear of the figure on the right, light in a dark outline (a palm's crescent, a flurry's two, a ward's dome, a seal's square, a thrust's arrow, a domain's ring...: `TechniquePicture._marks_small`). The rank badge is small and wholly inside the picture's upper right corner, clear of the face; the cooldown's seconds, the Qi strip along the foot and the lock in the lower right stay inside the frame. The HUD dims a short art to 0.72 and a closed one to 0.45, so the figure still reads under the Qi strip and the lock. |
+| Rank badge | A known art's mastery tier in a small ink-and-jade diamond ringed in bright jade, its number in pale gold: on the frame's lower right corner of a card, the upper right of a button (its lower right holds the lock and the Qi strip); on the HUD's round button, inside the picture's circle at 45° up and right, its middle 8 px in from the circle. |
+| A button's size | The HUD's buttons (decision 43: round, 68 px across, the picture 58 px inside a 5 px rim and ring and cut to its circle; decision 42's were 56 px squares with a 50 px picture) and the loadout bar's slots (the picture 42 px), 59 px and under, are a miniature of the card: the whole figure at x1 (about 38 px tall), top to foot in the middle with a few pixels of margin, nothing of it cut by the frame (a figure taller than the picture would keep its head a pixel under the top and lose its feet, never its head). It faces the camera (S) on the frame before its blow lands, so its face always shows (at the landing a punch turns the head away), its body a little left of the middle (`HEAD_X`). The card's look at that size: the same ink and rim, the element's ground (a fall from 0.34 to 0.26 with the light round the body, a few faint stars high up), and one bold mark of the form clear of the figure on the right, light in a dark outline (a palm's crescent, a flurry's two, a ward's dome, a seal's square, a thrust's arrow, a domain's ring...: `TechniquePicture._marks_small`). The rank badge is small and wholly inside the picture's upper right corner, clear of the face; the cooldown's seconds, the Qi strip along the foot and the lock in the lower right stay inside the frame. The HUD dims a short art to 0.72 and a closed one to 0.45, so the figure still reads under the Qi strip and the lock. |
 
 No frame waits on a picture. Each is a cell of an atlas sheet (a 512 px SubViewport of cells of one size) that the GPU
 draws: the ground, stars and marks are painted on a worker thread; the main thread only makes their two small textures
@@ -727,6 +728,33 @@ once a quest is given or done. Where this changes the table above:
 
 Screenshots before and after (at rest, in a fight, the Techniques page and its loadout bar, the shop, a quest offered
 and taken) are in `docs/redesign/feedback/hud/`, taken by `tools/dev/hud_capture.tscn -- --tag=<before|after>`.
+
+**As built (decision 43, the round technique buttons).** The user asked: "The skills in the HUD should be a little
+bigger and circular." Where this changes decision 42's buttons:
+
+- **Round, 1.21x.** Each technique is a round button 68 px across (`hud.gd` `TILE`; the square was 56): an ink rim, a
+  4 px ring in the frame's colour (bright jade, slate when closed) and the art's picture inside it, 58 px across
+  (`PICTURE`), cut to the circle (`TechniquePicture.draw_round` draws the atlas cell as a textured circle, the element's
+  plain ground under it until it is painted). The picture is still the card's miniature at x1 (59 px and under): the
+  whole figure stands inside the circle, the tightest corner of its box a few pixels in (the hud_suite's picture check
+  holds every picture's box to the circle), and the rank badge sits inside it at 45° up and right.
+- **The thumb's arc.** The buttons stand at 184°, 212° and 240° 146 px out and 270° 128 px out round Attack (1019, 595;
+  1041, 528; 1093, 480; 1165, 477). The bigger circles keep 2-4 px clear of each other, of Jump (64 px, at 150° on
+  ring 1), of Dodge, of ring 2 in a fight (the pinned toggle, the healing slot, the treasures) and of the context's
+  Talk button and its label ("Talk · Lu"), which the last one stands under. Their hit circles are 80 px across (48 px
+  at least, P4); where two overlap a tap goes to the nearer centre. Left-handed mirrors them.
+- **The states on a circle.** Cooling: the radial sweep, an ink pie over the picture for the part still to wait from
+  the top round clockwise, its edge a pale gold hand, the ring dimmed over the same part, the seconds in the middle.
+  Ready again: the ring flares pale gold and a ring of light goes out from it and fades over 0.35 s (`READY_S`), the
+  picture lit a moment (under Reduce motion the ring's flare alone). Short of Qi: the picture at 0.72 and a Qi arc
+  along its foot. Closed: the slate ring, the picture at 0.45 and the lock on its plate at the lower right.
+- The rest state is decision 42's: the four techniques and Attack stay out at rest as in a fight, beside the 64 px
+  Jump and the context's own button. At a 20:9 phone's 2400 x 1080 the screen keeps its 1280 x 720 layout, scaled
+  x1.5 between side bars.
+
+Before and after: `docs/redesign/feedback/hud/<before|after>_round_{rest,fight,cluster,cooldown}.png` at 1280 x 720 and
+`..._phone.png` at 2400 x 1080 (`tools/dev/hud_capture.tscn -- --tag=<before|after> --round`, and
+`--resolution 2400x1080`).
 
 ## 10. The token table (the Theme resource plan, C8)
 
