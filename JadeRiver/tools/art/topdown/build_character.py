@@ -3,9 +3,10 @@ top-down view.
 
 The side-view character (data/parts.json: the body, the creator's hair styles, the clothes, hats and capes, and the
 weapon families, with every dye and hair colour) redrawn for the 3/4 view by tools/art/topdown/figure/: a posed 3D
-doll ray-cast at 1 art px per pixel, cel-shaded in the side view's colours and outlined as docs/redesign/art_bible.md §4
-asks. Every layer is cast from the same poses of the unclothed body (AGENTS.md rules 1-4), in S, SE, E, NE and N (the
-west facings mirror), for every action in figure/actions.py.
+doll ray-cast at 4 x 4 samples per art px and resolved into pixels, shaded in seven-step ramps of the side view's
+colours with a rim, a bounce and contact shade, and outlined in tinted lines (decision 42: drawn better at the same
+38 px; docs/redesign/art_bible.md §13 has the rules). Every layer is cast from the same poses of the unclothed body
+(AGENTS.md rules 1-4), in S, SE, E, NE and N (the west facings mirror), for every action in figure/actions.py.
 
 The character is drawn in layer sets (figure/sets/: body, hair, shirt, pants, shoes, hat, cape, weapon_<family>), each
 built on its own into its own files, so sets can be drawn in parallel (docs/redesign/phase3/character/HOWTO.md).
@@ -21,17 +22,21 @@ Writes (nearest neighbour, no metadata, byte-identical on every build):
 The game's compositor (TopdownFigure) reads the index and every set built for its catalogue.
 With --review it also renders docs/redesign/phase3/character/ (review_character.py) from what is on disk.
 
-Usage: python3 tools/art/topdown/build_character.py [--only <set>[,<set>...]] [--review] [--check] [--list]
+Usage: python3 tools/art/topdown/build_character.py [--only <set>[,<set>...]] [--jobs N] [--review] [--check] [--list]
   --only   builds only those sets (the body is always cast, for the other layers' outlines, but only written with it)
+  --jobs   casts the frames in N processes (default: one per core); the output is the same bytes for any N
   --check  builds twice in memory and fails unless both builds are byte-identical
   --list   lists the sets, their items, and what is still pending
+A full build of every set takes about 40 minutes of one core (about 12 over four); --check doubles it.
 """
 from __future__ import annotations
 
 import hashlib
 import io
 import json
+import os
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -48,7 +53,7 @@ from figure import palettes as P  # noqa: E402
 from figure import raster, sets  # noqa: E402
 from figure.frame import cast_all  # noqa: E402
 from figure.geom import DIRS, MIRROR  # noqa: E402
-from figure.render import BANDS, colourize  # noqa: E402
+from figure.render import BANDS, Paint, colourize  # noqa: E402
 
 ART_DIR = "art/topdown/character"
 MANIFEST = "data/topdown/character.json"
@@ -75,22 +80,46 @@ def frame_list() -> list:
     return out
 
 
+# What a piece keeps of its band layer: everything its colour depends on, so one cast serves every dye.
+FIELDS = ("mat", "tone", "rim", "bounce", "out", "out_mat", "alpha")
+
+
 def _trim(L) -> tuple | None:
-    """A band layer cut to what it draws: (x0, y0, mat, tone, out, out_mat)."""
+    """A band layer cut to what it draws: (x0, y0, mat, tone, rim, bounce, out, out_mat, alpha)."""
     on = (L.mat >= 0) | (L.out > 0)
     if not on.any():
         return None
     ys, xs = np.nonzero(on)
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
-    return (int(x0), int(y0), L.mat[y0:y1, x0:x1].copy(), L.tone[y0:y1, x0:x1].copy(), L.out[y0:y1, x0:x1].copy(),
-            L.out_mat[y0:y1, x0:x1].copy())
+    return (int(x0), int(y0)) + tuple(getattr(L, f)[y0:y1, x0:x1].copy() for f in FIELDS)
 
 
-def _colour(piece, mats, palette, line_tone) -> np.ndarray:
-    _, _, mat, tone, out, out_mat = piece
+def _piece_key(pc) -> str:
+    h = hashlib.sha1()
+    for a in pc[2:]:
+        h.update(a.tobytes())
+        h.update(str(a.shape).encode())
+    return h.hexdigest()[:16]
+
+
+def _sheet_layer(pieces: dict, pos: dict, height: int):
+    """The item's unique pieces packed into one sheet-sized layer (colour is per pixel, so the whole sheet is coloured
+    at once for each variant)."""
     L = raster.Layer.__new__(raster.Layer)
-    L.mat, L.tone, L.out, L.out_mat = mat, tone, out, out_mat
-    return colourize(L, mats, palette, line_tone)
+    shape = (max(1, height), SHEET_W)
+    L.mat = np.full(shape, -1, dtype=np.int16)
+    L.tone = np.zeros(shape, dtype=np.int8)
+    L.rim = np.zeros(shape, dtype=bool)
+    L.bounce = np.zeros(shape, dtype=bool)
+    L.out = np.zeros(shape, dtype=np.int8)
+    L.out_mat = np.full(shape, -1, dtype=np.int16)
+    L.alpha = np.full(shape, 255, dtype=np.uint8)
+    for k, pc in pieces.items():
+        x, y = pos[k]
+        hh, ww = pc[2].shape
+        for f, a in zip(FIELDS, pc[2:]):
+            getattr(L, f)[y:y + hh, x:x + ww] = a
+    return L
 
 
 def _pack(pieces: dict) -> tuple:
@@ -119,29 +148,56 @@ def _dumps(d: dict) -> bytes:
     return (json.dumps(d, sort_keys=True, separators=(",", ":")) + "\n").encode()
 
 
-def cast_everything(items: list) -> tuple:
+# The work a casting process shares with the build (set before the processes fork, so the items' generators, which
+# are closures, need no pickling).
+_WORK: dict = {}
+
+
+def _cast_frame(idx: int) -> list:
+    """One frame of every item: [(item key, [(piece key, piece) or None per band])]."""
+    name, d, i = _WORK["frames"][idx]
+    cr = cast_all(_WORK["poses"][name][i], d, _WORK["items"])
+    out = []
+    for it in _WORK["items"]:
+        L, _ = cr[it.key]
+        row = []
+        for b in BANDS:
+            pc = _trim(L[b])
+            row.append(None if pc is None else (_piece_key(pc), pc))
+        out.append((it.key, row))
+    return out
+
+
+def cast_everything(items: list, jobs: int = 1) -> tuple:
     """Every item's trimmed pieces per band and frame: {key: {band: [piece key or None per frame]}}, {key: {piece
-    key: piece}}."""
+    key: piece}}. With `jobs` > 1 the frames are cast in that many processes; the result is the same, frame by frame
+    in catalogue order."""
     frames = frame_list()
     per = {it.key: {b: [] for b in BANDS} for it in items}
     uniq = {it.key: {} for it in items}
-    poses = {name: A.poses(name) for name in A.CATALOG}
-    for name, d, i in frames:
-        cr = cast_all(poses[name][i], d, items)
-        for it in items:
-            L, _ = cr[it.key]
-            for b in BANDS:
-                pc = _trim(L[b])
-                if pc is None:
-                    per[it.key][b].append(None)
-                    continue
-                h = hashlib.sha1()
-                for a in pc[2:]:
-                    h.update(a.tobytes())
-                    h.update(str(a.shape).encode())
-                k = h.hexdigest()[:16]
-                uniq[it.key].setdefault(k, pc)
-                per[it.key][b].append((k, pc[0] - raster.AX, pc[1] - raster.AY))
+    _WORK.update(frames=frames, items=items, poses={name: A.poses(name) for name in A.CATALOG})
+    if jobs > 1:
+        import multiprocessing as mp
+        pool = mp.get_context("fork").Pool(jobs)
+        results = pool.imap(_cast_frame, range(len(frames)), chunksize=2)
+    else:
+        pool = None
+        results = map(_cast_frame, range(len(frames)))
+    try:
+        for fr in results:
+            for key, row in fr:
+                for b, got in zip(BANDS, row):
+                    if got is None:
+                        per[key][b].append(None)
+                        continue
+                    k, pc = got
+                    uniq[key].setdefault(k, pc)
+                    per[key][b].append((k, pc[0] - raster.AX, pc[1] - raster.AY))
+    finally:
+        if pool is not None:
+            pool.close()
+            pool.join()
+        _WORK.clear()
     return frames, per, uniq
 
 
@@ -189,12 +245,12 @@ def artifacts() -> dict:
     return {k: sorted(v) for k, v in out.items()}
 
 
-def build_all(kinds: list | None = None) -> dict:
+def build_all(kinds: list | None = None, jobs: int = 1) -> dict:
     """Every output of the sets named (all when None), as bytes keyed by path, with the index."""
     found = sets.discover()
     kinds = list(found) if kinds is None else kinds
     items = I.catalog(sorted(set(kinds) | {"body"}))
-    frames, per, uniq = cast_everything(items)
+    frames, per, uniq = cast_everything(items, jobs)
     man = index(frames)
     worn = artifacts()
     outputs = {MANIFEST: _dumps(man)}
@@ -204,14 +260,10 @@ def build_all(kinds: list | None = None) -> dict:
             continue
         pieces = uniq[it.key]
         pos, height = _pack(pieces)
+        sheet = _sheet_layer(pieces, pos, height)
         sheets = {}
         for var in it.variants():
-            img = np.zeros((max(1, height), SHEET_W, 4), dtype=np.uint8)
-            for k, pc in pieces.items():
-                x, y = pos[k]
-                a = _colour(pc, it.mats, it.palettes[var], it.look.line_tone)
-                hh, ww = a.shape[:2]
-                img[y:y + hh, x:x + ww] = a
+            img = colourize(sheet, it.mats, Paint(it.mats, it.palettes[var], it.look))
             fname = "%s/%s%s.png" % (ART_DIR, it.key, "" if var == "none" and len(it.variants()) == 1 else "__" + var)
             outputs[fname] = png_bytes(Image.fromarray(img, "RGBA"))
             sheets[var] = "res://" + fname
@@ -304,9 +356,15 @@ def main(argv: list) -> int:
             if unknown:
                 print("no such set: %s (sets: %s)" % (", ".join(unknown), ", ".join(found)))
                 return 1
-    outputs = build_all(kinds)
+    jobs = os.cpu_count() or 1
+    for a in argv:
+        if a.startswith("--jobs"):
+            jobs = max(1, int(a.split("=", 1)[1] if "=" in a else argv[argv.index(a) + 1]))
+    t0 = time.time()
+    outputs = build_all(kinds, jobs)
+    print("built in %.0f s (%d processes)" % (time.time() - t0, jobs))
     if "--check" in argv:
-        again = build_all(kinds)
+        again = build_all(kinds, jobs)
         diff = [p for p in outputs if outputs[p] != again.get(p)]
         for p in diff:
             print("NOT deterministic:", p)

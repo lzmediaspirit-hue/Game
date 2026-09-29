@@ -909,6 +909,13 @@ The villagers are drawn the same way.
 - **One pose for every layer.** Every layer is cast from the same pose of the unclothed body, so each one stays
   registered to the body in every frame (`AGENTS.md` rules 1–4). The body is drawn first; clothes, hair and weapons
   go over it.
+- **Drawn better (decision 42, 2026-09-29).** The shading and outlines above were the first build. The same doll is now
+  cast at 4 × 4 samples a pixel and resolved into pixels, in seven-step ramps leaning toward the §14 sun and shadow,
+  with a warm rim, a cool bounce and contact shade beside nearer parts, tinted outlines (a lighter line over the body,
+  half-alpha stair corners), faces with 2 × 3 eyes, a mouth and blush, hair in locks with a sheen and loose locks at
+  the temples and brow, and cloth folds. The frames, rects and draw calls did not change; the sheets hold 1.05 times
+  the texels. The art bible's §13 has the rules; `docs/redesign/feedback/character_quality/rollout/` the before and
+  after in the game.
 
 **Facings.** S, SE, E, NE and N are drawn; SW, W and NW mirror SE, E and NE. The motor picks one of the eight rows,
 changing row only when the stick is 10° nearer another (§1.4 asked for 20° with four rows).

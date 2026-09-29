@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 from . import palettes as P
-from .render import Look
+from .render import BLADE_EDGE, Look
 
 ORDER = {"body": 10, "shoes": 20, "pants": 30, "shirt": 40, "cape": 50, "hair": 60, "hat": 65, "weapon": 70}
 BAND_BASE = {"back": 0, "mid": 100, "head": 155, "front": 200}
@@ -53,7 +53,7 @@ def steel_weapon(name: str, label: str, cast) -> Item:
            "smear": P.SMEAR}
     return Item("weapon", name, label, cast,
                 Look(highlight=("blade", "edge", "gold", "shaft"), flat={"smear": 2}, glow=("smear",),
-                     line_tone={"smear": 0}, ink=("blade", "edge", "gold", "hilt", "shaft", "cord")),
+                     line_tone={"smear": 0}, ink=("blade", "edge", "gold", "hilt", "shaft", "cord"), mats=BLADE_EDGE),
                 {"none": pal}, list(pal))
 
 

@@ -23,8 +23,12 @@ family: `weapon_gauntlets`, `weapon_short_blade`, `weapon_jian`, `weapon_spear`,
 Generators (`figure/kinds/`): `torso` (shirts, coats, robes), `legs` (trousers), `feet` (shoes, boots), `head` (hats),
 `back` (capes), `hands` (gauntlets), `hair`, `blade` (a blade in the hand), `pole` (a pole in the hands), `sabre`,
 `fan`, `brush`, `flute`, `bell` and `bow` (slung on the back, drawn in the left hand). `sound` is not a layer: the flute
-and the bell ring with it on a blow's hit frame. Each takes a skeleton and a spec and returns solids.
-`figure/weapons.py` says how a weapon is held.
+and the bell ring with it on a blow's hit frame; `folds` is not one either: it paints the shirts' and trousers' cloth
+folds. Each takes a skeleton and a spec and returns solids. `figure/weapons.py` says how a weapon is held.
+
+How the solids become pixels (decision 42, art bible §13) is shared by every set: `figure/raster.py` casts them at
+4 x 4 samples a pixel and resolves, shades and outlines them; `figure/render.py` holds the materials' table (`MATS`)
+and the colours (seven-step ramps, tinted outlines). A set changes it only through its `Look`.
 
 ## Inputs
 
@@ -59,9 +63,15 @@ and the bell ring with it on a blow's hit frame. Each takes a skeleton and a spe
    - `KIND = "weapon_<family>"`, and `FAMILY` set to the family's id in `weapon_families.json`;
    - `items(L)` returns one `Item` per look. Use `items.steel_weapon(...)` for jade steel and gold, or build an
      `Item` with your own `Look` and palette (see `sets/weapon_gauntlets.py`).
-3. **Build it:** `python3 tools/art/topdown/build_character.py --only weapon_<family> --check`. It takes about ten
-   seconds and builds twice to prove the result is byte-identical. It writes your set's manifest and sheets and the
-   shared index; no other set's files change.
+   - Say how each material resolves and takes the light (decision 42; art bible §13): `render.MATS` has the shared
+     ones by name, and your `Look(mats={...})` overrides them. `hi` lets it reach the bright step, `glossy` the sheen;
+     a part about a pixel wide is a `line` (a shaft, a string, a limb), or `thin` if it may take two (trim, a blade);
+     `weight` makes a small part win its pixels; `rim` below 0.3 keeps bare metal cool. Light (`glow`: a smear, a
+     ring, a ripple) keeps its palette's own colours and is a `line` already.
+3. **Build it:** `python3 tools/art/topdown/build_character.py --only weapon_<family> --check`. It casts the body and
+   your set over every frame at 4 x 4 samples a pixel, one process per core (`--jobs N` to choose; the bytes are the
+   same for any N), about half a minute on four cores, and builds twice to prove the result is byte-identical. It
+   writes your set's manifest and sheets and the shared index; no other set's files change.
 4. **Import:** `godot --headless --path . --import`, then commit the new `.png.import` files with the sheets.
 5. **Look at every frame.** A number cannot certify alignment (AGENTS.md rule 3).
    - `python3 tools/art/topdown/build_character.py --only weapon_<family> --review` redraws
@@ -85,9 +95,13 @@ can put on a character must now land with its layers, or `data_validation`'s cov
   looks already drawn must stay byte-identical: build the whole set and check that `git status` shows only your new
   sheets.
 - **A hair style:** add its pieces to `sets/hair.py` `STYLES`: knots, lumps, ribbons, pins and tails, each placed
-  from the head or an earlier piece. `kinds/hair.py` says what each piece takes.
-- **A skin tone or face:** `sets/body.py` `SKINS`. The eyes and mouth are stamped by `figure/body.py` `face`. A new
-  body variant changes what every other set is cast over, so rebuild every set after it (see below).
+  from the head or an earlier piece. `kinds/hair.py` says what each piece takes. Give it a `TUNE` entry too: the
+  cap's lock count and its loose locks (the temple strands and forelocks that frame the face). The eyes stay clear of
+  it in every pose by themselves (`kinds/hair.keep_eyes_clear`); check a fringe in meditation and a hurt.
+- **A skin tone or face:** `sets/body.py` `SKINS`. The eyes, brows, mouth, nose shade and blush are stamped by
+  `figure/body.py` `face` (`FACE` holds the glyphs, `palettes.py` their colours), and `light_face` keeps the face
+  nearly flat. A new body variant changes what every other set is cast over, so rebuild every set after it (see
+  below).
 
 ## Adding an action (as the bow batch did)
 
@@ -104,8 +118,8 @@ So an action batch runs on its own, never beside other set batches:
    flute and the bell ring on its hit frame), and the fan's `open` and `thrown` lists in `sets/weapon_fan.py` say
    whether it opens (or leaves the hand) in it.
 3. Replace any stand-in alias in `ALIASES`, and drop it from `STAND_INS` (empty today).
-4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about eight minutes for 864 frames
-   (it builds twice).
+4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about five minutes for 864 frames on
+   four cores (it builds twice; one pass takes about 2.5 minutes, or 11 on one core).
 5. Wire the action where the game plays it: a family's step or technique in `tools/data/combat_feel.py` `poses`, a
    move (dash, air, throw, charge, parry, melody) in `MOVES`, then `topdown_player.gd` `sync` and `_strike_pose` and
    `TopdownFigure.resolve(action, family, move)`; a story gesture in `tools/data/scenes.py` (`pose` steps).

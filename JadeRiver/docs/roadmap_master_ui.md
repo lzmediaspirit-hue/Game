@@ -545,7 +545,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - **Combat:** animation canceling, so basic attack, technique, basic attack chains smoothly.
     - **Skill icons** take the Techniques tree's picture style (the character doing the art in a teal frame), on the HUD and in the loadout bar.
     - **Old sprites:** no old side-view character is left anywhere in the top-down game.
-    - **Character art:** the player and the NPCs are drawn at a higher quality. A comparison study comes first, for the user to choose.
+    - **Character art:** the player and the NPCs are drawn at a higher quality. A comparison study came first
+      (`docs/redesign/feedback/character_quality.md`); the user chose B, the same 38 px drawn better. Built: B is the
+      character pipeline for every layer set, action, facing and dye (art bible §13; before and after in
+      `docs/redesign/feedback/character_quality/rollout/`).
     - **Techniques tree lag** is found and fixed.
     - **The Hollow Night** gets action, and its monsters can be killed.
     - **Sect quests** have less monotone walking between places.

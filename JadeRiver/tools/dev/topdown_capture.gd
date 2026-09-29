@@ -6,7 +6,9 @@ extends Node
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
 ## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --decision42` and `-- --decision42-route`:
-## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --terrain <name>`: the Terrain v2 review
+## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --quality
+## --quality-tag=<before|after>`: decision 42's character drawn better, the same instants before and after the rollout
+## (docs/redesign/feedback/character_quality/rollout/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
 ## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
 ## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
@@ -31,6 +33,7 @@ func _ready() -> void:
 func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
+	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -64,6 +67,9 @@ func _main() -> void:
 		return
 	if "--decision42-route" in OS.get_cmdline_user_args():
 		await decision42_route()
+		return
+	if "--quality" in OS.get_cmdline_user_args():
+		await quality()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -1322,3 +1328,158 @@ func strip(name: String, axis: Vector2, n: int, jumps: Array, dashes: Array, kee
 	out.fill(Color("071015"))
 	for i in tiles.size(): out.blit_rect(tiles[i], Rect2i(0, 0, 384, 288), Vector2i(i * 388, 0))
 	out.save_png(dir + name + ".png")
+
+## Decision 42's rollout (`-- --quality --quality-tag=<before|after>`, into
+## docs/redesign/feedback/character_quality/rollout/<tag>/): the figure drawn better at the same 38 px (art bible §13),
+## shot at the same instants before and after the sheets are rebuilt, the world alone at x2 with the tree held still:
+## the village square and Jade Gate Street with the player and the study's villagers staged round them
+## (docs/redesign/feedback/character_quality.md), the story's gestures staged on the square, and a fight with the jian
+## (the whole view on a cut, and frames of the combo round the body). `boxes.json` has where each body stands on the
+## shots (x2 screen px), for tools/art/topdown/study_quality/rollout.py, which pairs the two, and the renderer's texture
+## memory at each shot.
+const QUALITY_SCENES := [
+	{"name": "01_village_square", "room": "lf_village", "spot": Vector2(33.5, 21.5), "player": ["idle", 0, "s"], "people": [
+		["uncle_guo", Vector2(30.3, 22.1), "se", "idle"], ["washer_mei", Vector2(31.9, 24.3), "se", "idle"],
+		["little_dou", Vector2(36.7, 22.7), "sw", "idle"], ["shen_lian_npc", Vector2(38.2, 20.3), "sw", "idle"]]},
+	{"name": "02_jade_gate_street", "room": "ja_gate_street", "spot": Vector2(24.5, 15.6), "player": ["idle", 0, "s"], "people": [
+		["jade_deacon", Vector2(21.2, 14.6), "se", "idle"], ["jade_disciple_b", Vector2(20.6, 17.2), "se", "idle"],
+		["jade_steward", Vector2(26.4, 17.8), "sw", "idle"], ["jade_disciple_a", Vector2(28.0, 15.2), "sw", "idle"]]},
+	# The story's gestures (decision 39): the player and Shen Lian salute, Guo kneels, Mei points the way, Dou starts back.
+	{"name": "04_gestures", "room": "lf_village", "spot": Vector2(33.5, 21.5), "player": ["salute", 2, "se"], "people": [
+		["uncle_guo", Vector2(31.2, 22.3), "se", "kneel"], ["washer_mei", Vector2(31.9, 24.3), "e", "point"],
+		["little_dou", Vector2(36.2, 22.9), "sw", "startle"], ["shen_lian_npc", Vector2(35.6, 20.8), "sw", "salute"]]},
+]
+## The frame each gesture is held on for its shot: the bow over the fist, down on the knee, the arm out, the jolt.
+const QUALITY_HOLD := {"idle": 0, "salute": 2, "kneel": 2, "point": 1, "startle": 1}
+
+func quality() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--quality-tag="): tag = a.substr(14)
+	var out := "res://docs/redesign/feedback/character_quality/rollout/%s/" % tag
+	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
+	main.process_mode = Node.PROCESS_MODE_PAUSABLE
+	await _topdown_game(out)
+	await frames(360)
+	main.hud.visible = false
+	var boxes := {}
+	for sc in QUALITY_SCENES:
+		boxes[sc.name] = await _quality_scene(sc, out)
+	boxes["03_fight"] = await _quality_fight(out)
+	var f := FileAccess.open(ProjectSettings.globalize_path(out + "boxes.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(boxes, "  ", true))
+	f.close()
+	main.hud.visible = true
+	print("topdown_capture: quality done")
+	get_tree().quit()
+
+## One staged shot: the room entered, the player at the spot in their pose, the listed people placed round them in
+## theirs (anyone else in the room hidden), the tree held still, then the world alone at x2.
+func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
+	get_tree().paused = false
+	Game.world.load_room(Game.active(), str(sc.room), "", (sc.spot as Vector2) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	w = main.world
+	p = w.player
+	m = p.motor
+	m.place((sc.spot as Vector2) * TopdownRoom.TILE)
+	m.dir = Vector2.DOWN
+	m.row = "s"
+	w._settle_camera()
+	await frames(120)
+	var found := {}
+	for id in w.figures:
+		var fig = w.figures[id]
+		if not (is_instance_valid(fig) and fig.art is TopdownPlaces.Person): continue
+		var npc := str(fig.def.get("npc", ""))
+		fig.visible = false
+		fig.staged = true
+		for pp in sc.people:
+			if str(pp[0]) == npc and not found.has(npc): found[npc] = fig
+	var staged: Array = []
+	for pp in sc.people:
+		var npc := str(pp[0])
+		var fig = found.get(npc)
+		if fig == null:
+			var made := TopdownPlaces.person(w.room, {"id": "quality_" + npc, "type": "npc", "npc": npc, "at": [0, 0]}, w.sorted, w.overlay, p)
+			fig = made[1]
+			fig.staged = true
+		var at: Vector2 = (pp[1] as Vector2) * TopdownRoom.TILE
+		fig.place(at, w.room.height_at(at))
+		fig.visible = true
+		var act := TopdownFigure.resolve(str(pp[3]))
+		fig.art.rest = str(pp[2])
+		fig.art.row = str(pp[2])
+		fig.art.stand = act
+		fig.art.action = act
+		fig.art.t = (float(QUALITY_HOLD.get(act, 0)) + 0.5) / float(TopdownFigure.spec(act).fps)
+		staged.append([npc, fig])
+	await frames(30)
+	get_tree().paused = true
+	var pl: Array = sc.player
+	p.pose = TopdownFigure.resolve(str(pl[0]))
+	p.frame = int(pl[1])
+	m.row = str(pl[2])
+	p.queue_redraw()
+	for s in staged: s[1].art.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	(await world_shot()).save_png(ProjectSettings.globalize_path(out + sc.name + ".png"))
+	var cam: Vector2 = w.camera.position
+	var bx := {"player": _on_shot(p.screen, cam), "people": {}, "texture_mb": Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1.0e6}
+	for s in staged: bx.people[s[0]] = _on_shot(s[1].feet, cam)
+	get_tree().paused = false
+	for s in staged: s[1].visible = false
+	return bx
+
+## Where a point of the world (art px) lands on a world shot (x2 screen px).
+func _on_shot(pt: Vector2, cam: Vector2) -> Array:
+	var v: Vector2 = (pt - cam + Vector2(TopdownWorld.VIEW) * 0.5) * 2.0
+	return [v.x, v.y]
+
+## A fight on the square with the jian, held still: two boarlets and a crab round the player, the three cuts of the combo
+## played on the body frame by frame; the whole view on the rising cut's hit, and every frame round the body.
+func _quality_fight(out: String) -> Dictionary:
+	var c = Game.active()
+	Game.inventory.apply_add(c.id, "training_jian", 1, "capture")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("training_jian")})
+	var cell := Vector2(34.0, 21.0)
+	Game.world.load_room(c, "lf_village", "", (cell + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(cell, 120)
+	for id in w.figures:
+		var fig = w.figures[id]
+		if is_instance_valid(fig) and fig.art is TopdownPlaces.Person:
+			fig.visible = false
+			fig.staged = true
+	Game.room_rt.enemies.clear()
+	Game.room_rt.spawn_slots.clear()
+	Game.room_rt.loot.clear()
+	main.close_all_pages()
+	await start(m.pos)
+	for f in [["wild_boarlet", Vector2(50, 12)], ["mudshell_crab", Vector2(36, -36)], ["wild_boarlet", Vector2(-46, 20)]]:
+		var e: EnemyState = Game.enemies.spawn_at(str(f[0]), m.pos + (f[1] as Vector2), 1)
+		e.altitude = w.room.height_at(e.plane)
+		e.facing = -1 if (f[1] as Vector2).x > 0 else 1
+	await frames(4)
+	# The fight held still: the three cuts played on the body frame by frame over the foes as they stand.
+	get_tree().paused = true
+	m.face(Vector2(1, 0.2))
+	var tiles: Array = []
+	var bx := {}
+	for st in [["swing_1", 6], ["swing_2", 6], ["swing_3", 6]]:
+		for i in int(st[1]):
+			p.pose = str(st[0])
+			p.frame = i
+			p.queue_redraw()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			if st[0] == "swing_1" and i == 2:
+				(await world_shot()).save_png(ProjectSettings.globalize_path(out + "03_fight.png"))
+				bx = {"player": _on_shot(p.screen, w.camera.position), "people": {}, "texture_mb": Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1.0e6}
+			tiles.append(await crop(192, 144))
+	sheet(out + "03_fight_combo.png", tiles, 6)
+	get_tree().paused = false
+	return bx

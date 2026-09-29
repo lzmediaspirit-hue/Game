@@ -17,6 +17,7 @@ import numpy as np
 from ..body import arm_bands, torso
 from ..geom import unit
 from ..raster import cone, limb, sphere
+from . import folds as F
 
 
 def _chest_paint(sk, spec):
@@ -89,7 +90,7 @@ def _skirt(sk, spec) -> list:
             bias[(np.abs(side) < 0.5) & (ahead > 0.8)] = -1
         return names, bias
     S = [cone(top, top + down * L, 3.9, 4.3 + spec["flare"], "cloth", k=0.74 if not long else 0.8, side=sk.Mp[:, 1],
-              part="skirt", paint=paint)]
+              part="skirt", paint=F.wrap(paint, "cloth", F.skirt(L, long)))]
     if spec.get("apron"):
         a0 = top + fwd * 2.4
         S.append(cone(a0, a0 + down * spec["apron"] + fwd * 0.6, 2.2, 2.5, "panel", k=0.3, side=sk.Mp[:, 1], part="apron",
@@ -100,7 +101,8 @@ def _skirt(sk, spec) -> list:
 
 def solids(sk, spec: dict) -> list:
     bands = arm_bands(sk)
-    S = torso(sk, 0.62, "cloth", "shirt", paint=_chest_paint(sk, spec), frame=(sk.chest, sk.Mc))
+    S = torso(sk, 0.62, "cloth", "shirt", paint=F.wrap(_chest_paint(sk, spec), "cloth", F.chest(sk)),
+              frame=(sk.chest, sk.Mc))
     S += _skirt(sk, spec)
     if spec["belt"]:
         buckle = spec.get("buckle")
@@ -122,13 +124,16 @@ def solids(sk, spec: dict) -> list:
             sh, el, wr = (sk.__dict__[k + "_" + s] for k in ("shoulder", "elbow", "wrist"))
             bu, bf = bands["upper_" + s], bands["fore_" + s]
             S.append(sphere(sh, 2.2, "cloth", band=bu, part="sleeve_" + s))
-            S += limb(sh, el, 1.95, 1.85, "cloth", band=bu, part="sleeve_" + s)
+            upper = limb(sh, el, 1.95, 1.85, "cloth", band=bu, part="sleeve_" + s)
+            upper[0].paint = F.wrap(None, "cloth", F.sleeve(True, float(np.linalg.norm(el - sh))))
+            S += upper
             end = wr - unit(wr - el) * 0.25
             L = float(np.linalg.norm(end - el))
             cuff = spec["cuff"]
             S.append(cone(el, end, 1.85, 2.0, "cloth", band=bf, part="sleeve_" + s,
-                          paint=lambda loc, P, n, L=L, cuff=cuff: (np.where(loc[:, 2] > L - 1.0, cuff, "cloth").astype(object),
-                                                                   np.where(loc[:, 2] > L - 1.0, -1 if cuff == "cloth" else 0, 0).astype(np.int16))))
+                          paint=F.wrap(lambda loc, P, n, L=L, cuff=cuff: (np.where(loc[:, 2] > L - 1.0, cuff, "cloth").astype(object),
+                                                                          np.where(loc[:, 2] > L - 1.0, -1 if cuff == "cloth" else 0, 0).astype(np.int16)),
+                                       "cloth", F.sleeve(False, L))))
             S.append(sphere(el, 1.85, "cloth", band=bf, part="sleeve_" + s))
     else:
         # a vest's armholes: the shoulder seam

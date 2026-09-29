@@ -16,4 +16,8 @@ palettes) unchanged and draws it with a new rasteriser:
   compose.py    the side-by-side boards, the close-ups and the animated strips in docs/redesign/feedback/
 
 The write-up is docs/redesign/feedback/character_quality.md.
+
+The user chose B, and it is now the game's pipeline (figure/raster.py, render.py, kinds/hair.py, kinds/folds.py). This
+code is kept as it was drawn: the generators it reuses now carry B's locks and folds themselves, so its pictures are
+reproduced from the commit before the rollout (89db822). rollout.py pairs the rollout's before and after shots.
 """
