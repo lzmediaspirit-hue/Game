@@ -9,7 +9,8 @@ extends RefCounted
 ## (weapon_families.json): anticipation up to one smear frame before the hit, the active window of the smear's bright
 ## frames, and the recovery; a dodge cancels the anticipation or the late recovery, never the active window. Decision 42
 ## weaves them: a technique cuts a basic step's recovery and a basic attack a technique's, once the blow has landed
-## (`weave`).
+## (`weave`). Decision 43 smooths the chain (`flow`): the presses go in their order, one action's hit-stop has a cap,
+## each step pulls toward its foe, and a blow the chain goes on from leaves its foe in the next step's reach.
 ## Settings: under Reduce motion there is no hit-stop; the kick and shake follow Screen shake and Reduce motion
 ## (MomentRules.shake_amp).
 
