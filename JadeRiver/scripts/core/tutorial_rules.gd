@@ -93,10 +93,15 @@ static func chain_home(e: Dictionary, top_page: String, top_tab: String) -> bool
 	var chain: Array = e.get("chain", [])
 	return not chain.is_empty() and chain_step(e, top_page, top_tab) == chain.size() - 1 and str((chain.back() as Dictionary).get("at", "")) == "page"
 
-## A place of the world a guidance step leads to (data/places.json, the systems-as-places table: {room, object, page,
-## verb}); {} while that table or the row is not there.
-static func place(id: String) -> Dictionary:
-	return ContentDB.entry("places", id) if ContentDB.lists.has("places") else {}
+## A place of the world a guidance step leads to (data/places.json, the systems-as-places table: {id, system, page,
+## room, object, stand, name, verb, ...}): the row of that id, or, for a system (or a page) of that name that lives at
+## places, the one a walk there leads the character to (PlaceRules.home: its own sect's, the home one, the nearest);
+## {} when the table has none.
+static func place(id: String, c = null) -> Dictionary:
+	if not ContentDB.lists.has("places"): return {}
+	var row := ContentDB.entry("places", id)
+	if row.is_empty() and c != null: row = PlaceRules.home(c, PlaceRules.system_of(id))
+	return row
 
 static var _spots: Dictionary = {}
 
@@ -128,10 +133,15 @@ static func _matches(o: Dictionary, m: Dictionary) -> bool:
 ## nearest thing its `match` names by the ways open to the character ({room, object, name}; {} when none is reached).
 static func place_for(c, st: Dictionary) -> Dictionary:
 	if c == null: return {}
-	var row := place(str(st.get("place", "")))
-	if not row.is_empty() and str(row.get("room", "")) != "":
-		return {"room": str(row.room), "object": str(row.get("object", "")), "name": spot_name(str(row.room), str(row.get("object", "")))}
 	var here := str(c.position.get("room", ""))
+	var row := place(str(st.get("place", "")), c)
+	# The table's place, when it is there for the character (the village's board goes up after the prologue) and a way
+	# open to it leads there.
+	if not row.is_empty() and str(row.get("room", "")) != "" and PlaceRules.visible(c, row) \
+			and (str(row.room) == here or not Game.world.route(c, here, str(row.room)).is_empty()):
+		var nm := str(row.get("name", ""))
+		return {"room": str(row.room), "object": str(row.get("object", "")), "place": str(row.get("id", "")),
+			"name": "%s · %s" % [nm.substr(0, 1).to_upper() + nm.substr(1), ContentDB.name_of("rooms", str(row.room))] if nm != "" else spot_name(str(row.room), str(row.get("object", "")))}
 	var best := {}
 	var best_n := 1 << 30
 	for sp in place_spots(st):

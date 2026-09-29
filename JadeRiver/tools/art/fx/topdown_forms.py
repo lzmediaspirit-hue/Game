@@ -30,8 +30,8 @@ from fxpix import (ACCENT, BASE, CORE, DEEP, GLINT, GLOW_BANDS, HAZE, INK, LIGHT
 from plane import Plane
 from wuxia import motif, sword_sliver, talisman
 
-H = 14.0          # the hand's height over the floor (art px): a blade's path
-CHEST = 22.0      # the chest's (a cast's gathering)
+H = 17.0          # the hand's height over the floor (art px): a blade's path (decision 43: the 46 px figure's)
+CHEST = 26.0      # the chest's (a cast's gathering)
 
 
 def _fade_table(u: float):

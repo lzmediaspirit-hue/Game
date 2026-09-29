@@ -901,7 +901,8 @@ The villagers are drawn the same way.
   - a skeleton posed per frame in the figure's own frame (forward, right, up), with two-bone IK for the arms and legs;
   - solids (spheres, ellipsoids, tapered cones) ray-cast at 1 art px per pixel through an orthographic camera 22°
     above the ground;
-  - 0.92 art px per unit, so the body is about 38 art px from sole to crown, 40 with a top knot.
+  - 0.92 art px per unit, so the body is about 38 art px from sole to crown, 40 with a top knot (decision 43 later draws
+    it at 1.104, about 46 px: art bible §13).
 - **Shading.** Each pixel takes a step of its material's five-step ramp from N·L against the upper-left light. The
   deepest step is kept for contact shade, under a nearer part. Orphan pixels are cleaned up.
 - **Outlines.** 1 px, as the art bible's §4 sets: ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side.
@@ -1869,6 +1870,78 @@ and sprints, and a fix for meditation's pose. Shots: `docs/redesign/feedback/com
   - the figure's states (the push runs, a light touch walks).
 - `data_validation` `combat_feel_suite`: the weave's buffer is short, and every cut in every family, speed and
   technique comes after the hit.
+
+### As built: the monsters at the characters' quality (decision 43, 2026-09-29)
+
+The user chose to bring the foes up to the characters' new quality (decision 42's "B" figure), with more frames,
+readable tells, and larger elites and bosses, while the people grow 1.2×. The art bible's §8 "Foes" is the contract.
+Before and after in the game: `docs/redesign/feedback/monsters/before/` and `after/` (`topdown_capture.gd`
+`-- --monsters --monsters-tag=<before|after>`); every sheet at ×3, each species playing its catalogue as a GIF and the
+tells side by side: `docs/redesign/feedback/monsters/sheets/`.
+
+**The renderer.** `tools/art/topdown/creature/sculpt.py` casts a posed sculpture with the character's own rasteriser and
+renderer (`figure/raster.py`: `Caster`, `Fine`, `resolve`, `shade`, `outline`; `figure/render.py`: `Look`, `Paint`,
+`colourize`), read-only, so the foes follow §13 wherever the figure's rules go:
+
+- Parts: ellipsoids, spheres and tapered limbs (`E`, `S`, `L`) in the creature's frame, each with a material, a group,
+  and optionally a paint (a pattern picking the material and a tone bias per sample, in the creature's frame) and a
+  clip (the eel's water). `Pose.squash` squashes and stretches every part, mark and point about a pivot.
+- The camera: the sculpture is tilted by 35° − 22° about the screen's axis before it is cast, which is the foes'
+  35° view through the figure's camera, the sun kept in its place against the view. The feet stand at
+  `sculpt.FOOT` on the raster's canvas (room over them for the puppet's crown and the snapper's raised crusher, under
+  them for the eel's water).
+- The inner line: a foe is one cast, so where a nearer part's edge (by 1.6 units of depth) lies beside a pixel of
+  another group, that pixel takes the nearer part's core shadow (`_inner`). Moss, ferns, strands and fins do not.
+- After the outline: marks on the surface where they show (`Pose.mark`; `Pose.eye`, which an elite draws gold), the
+  dissolve into motes (`Pose.dissolve`), loose points on empty pixels (`fx`), the water round a creature in it
+  (`water_fx`), light over anything (`glow`), and an elite's ring of Qi (`_aura`).
+- An elite: `Look.elite()` darkens every ramp toward the §14 shadow (its accents kept, its eye materials gold), and
+  `_aura` burns pale gold Qi round it: a ring on its outline stronger toward the top with bright specks flickering
+  frame by frame, a fainter ring standing off it, tongues licking up off its back, motes rising.
+
+**The species** (`creature/<module>.py`: `crab`, `rat`, `boar` (both boarlets), `puppet`, `frog`, `leech`, `otter`,
+`snapper`, `toad`, `minnow`, `eel`), each redrawn from the earlier sculpture with fuller anatomy (the boarlet's high
+shoulder and wedge head, the crab's chelae, the leech's flattened rings, the puppet's rope and carved eyes) and posed
+per frame from tables (`motion.pick`), so the spacing of each action is written out. `creature/motion.py` holds the
+catalogue (idle 6, walk 8, windup 4, attack 6 with the hit on frame 1, hurt 3, death 8), the gait and the hashes;
+`creature/mats.py` the ramps and how each material takes the light.
+
+**The catalogue and the sheets** (`tools/art/topdown/creatures.py`, `tools/art/topdown/build_foes.py`):
+
+- `REGISTRY`: per species its module, size, palette, accents, eye materials, whether it has an elite, whether it wears
+  the ring of Qi as a boss (Old Snapper), its blob shadow and its walk cycle's length.
+- `ANGLE`: the drawn facings turned toward the camera as the figure's are (SE 48°, E 14°, NE −36°), the front and back
+  rows a little off the axis (S 80°, N −100°) so a beast facing the camera shows a flank; the crab keeps its broad side
+  to the camera and turns only its aim.
+- Rates: idle 7, attack 20, hurt 12, death 10 fps; the walk by the species' speed (8–16); the wind-up by its shortest
+  `windup_s` in `data/enemies.json`, its last frame up within 70% of it. No fight timing changed, so `balance_sim`
+  stands as it was.
+- A sheet a species, `art/topdown/foes/<species>.png`, and its elite's apart, `<species>_elite.png`: a row per drawn
+  facing, 35 frames along it, in its own cell (the union of its frames; wrapped to more rows past 4096 px, which none
+  needs). Twenty sheets, 11.6 M texels in all, 6.7 M of them the twelve species' own (the old single sheet: 5.3 M,
+  1216 × 4320, over the phones' 4096 limit); the largest is Old Snapper's, 3395 × 490. A room loads only its own
+  species' sheets, an elite's only where one stands: the Reed Shallows' crabs, rats and Old Snapper about 2.2 M texels.
+- `data/topdown/foes.json`: per species its `atlas`, `cell`, `foot`, `shadow`, `top` (its idle figure's height, for the
+  label) and each action's `frames` per facing, `fps` and `loop` (the attack's `hit_frame` 1), an elite's under
+  `elite`. `build_tiles.py` no longer builds the foes; `proto_tileset.json` lost its `foes` block and atlas.
+- `--review` writes the sheets at ×3, the GIFs and `tells_x4.png`; `--check` builds twice and compares; `--only` builds
+  a few species' review images alone.
+
+**The game** (only what the sheets' split needs):
+
+- `TopdownRoom.load_room` lays `foes.json` (read once) into the tile set as its `foes`.
+- `TopdownWorld.FoeView`: the species' own sheet (`foe_sheet`, loaded once), cell and feet; an elite
+  (`EnemyState.elite`) its species' `elite` sheet, cell, feet, shadow and label height where it has one. Still one draw
+  a foe.
+- `TechniquePreview.TopFoe` (the Techniques page's top-down foes) reads `foes.json` and the species' sheet.
+
+**Tests.**
+
+- `data_validation`: every foe drawn has the whole catalogue in five facings, its elite's too, inside its own sheet,
+  the hit on frame 1, no sheet over 4096 px a side; and every foe's wind-up reaches its tell before the blow.
+- `topdown_suite` (in `rules_tests`): an elite foe draws its species' elite sheet in its larger cell, its shadow wider;
+  an elite's label sits on its own larger figure.
+- `topdown_tutorial` checks, as before, that every foe the tutorial rooms spawn has its own figure.
 
 ### As built: the living world (decision 43, 2026-09-29)
 

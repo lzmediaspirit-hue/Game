@@ -8,12 +8,14 @@ extends Node
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --decision42` and `-- --decision42-route`:
 ## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --quality
 ## --quality-tag=<before|after>`: decision 42's character drawn better, the same instants before and after the rollout
-## (docs/redesign/feedback/character_quality/rollout/). `-- --terrain <name>`: the Terrain v2 review
-## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
-## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
-## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. `-- --life
-## --life-tag=<before|after>`: decision 43's living world, into docs/redesign/feedback/living_world/. Every mode shoots at
-## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
+## (docs/redesign/feedback/character_quality/rollout/). `-- --people-scale --people-tag=<before|after>`: decision 43's
+## people drawn bigger, the same instants before and after (docs/redesign/feedback/people_scale/). `-- --terrain
+## <name>`: the Terrain v2 review views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into
+## docs/redesign/terrain_v2/<name>/ (on saves of their own, so it can run beside another capture). `-- --light
+## --light-tag=<before|after>`: decision 40's runtime light, the key rooms by day, at dusk and at night, into
+## docs/redesign/terrain_v2/light/. `-- --life --life-tag=<before|after>`: decision 43's living world, into
+## docs/redesign/feedback/living_world/. Every mode shoots at midday of the game's clock (TopdownLight.debug_hour)
+## unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -35,6 +37,8 @@ func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
+	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
+	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
 	if "--life" in OS.get_cmdline_user_args(): saves = "user://life_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
@@ -75,6 +79,12 @@ func _main() -> void:
 		return
 	if "--quality" in OS.get_cmdline_user_args():
 		await quality()
+		return
+	if "--people-scale" in OS.get_cmdline_user_args():
+		await people_scale()
+		return
+	if "--monsters" in OS.get_cmdline_user_args():
+		await monsters()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -1535,6 +1545,7 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 		for pp in sc.people:
 			if str(pp[0]) == npc and not found.has(npc): found[npc] = fig
 	var staged: Array = []
+	var made_here: Array = []
 	for pp in sc.people:
 		var npc := str(pp[0])
 		var fig = found.get(npc)
@@ -1542,6 +1553,7 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 			var made := TopdownPlaces.person(w.room, {"id": "quality_" + npc, "type": "npc", "npc": npc, "at": [0, 0]}, w.sorted, w.overlay, p)
 			fig = made[1]
 			fig.staged = true
+			made_here.append(made)
 		var at: Vector2 = (pp[1] as Vector2) * TopdownRoom.TILE
 		fig.place(at, w.room.height_at(at))
 		fig.visible = true
@@ -1568,6 +1580,10 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 	for s in staged: bx.people[s[0]] = _on_shot(s[1].feet, cam)
 	get_tree().paused = false
 	for s in staged: s[1].visible = false
+	# The people made for this shot only (not in the room) go with it, so they stand in no later room.
+	for made in made_here:
+		for n in made:
+			if n is Node and is_instance_valid(n): n.queue_free()
 	return bx
 
 ## Where a point of the world (art px) lands on a world shot (x2 screen px).
@@ -1620,3 +1636,211 @@ func _quality_fight(out: String) -> Dictionary:
 	sheet(out + "03_fight_combo.png", tiles, 6)
 	get_tree().paused = false
 	return bx
+
+## Decision 43 (`-- --people-scale --people-tag=<before|after>`, into docs/redesign/feedback/people_scale/<tag>/): the
+## people drawn about 1.2x bigger (art bible §5 and §13), shot at the same instants before and after the sheets are
+## rebuilt. The story's opening in Aunt Ping's hut and the villagers on Home Lane at dawn as the staged scenes play them
+## (the whole screen: the letterbox and the balloons over the heads); then, the world alone at x2 with the tree held
+## still: the player at the hut's door beside a group of villagers, on the neighbour's roof, inside the hut at its
+## door, and a fight with the jian among two boarlets and a crab (the whole view on a cut, and frames round the body).
+const PEOPLE_SCENES := [
+	{"name": "01_door_hut_people", "room": "lf_village", "spot": Vector2(8.3, 15.3), "player": ["idle", 0, "sw"], "people": [
+		["aunt_ping", Vector2(10.3, 16.1), "sw", "idle"], ["washer_mei", Vector2(11.5, 15.4), "sw", "idle"],
+		["little_dou", Vector2(10.9, 17.3), "sw", "idle"], ["uncle_guo", Vector2(12.6, 16.8), "sw", "idle"],
+		["granny_liu", Vector2(15.2, 15.3), "sw", "idle"]]},
+	{"name": "03_roof", "room": "lf_village", "spot": Vector2(18.0, 12.4), "player": ["idle", 0, "s"], "people": [
+		["little_dou", Vector2(16.4, 15.4), "se", "point"], ["washer_mei", Vector2(20.2, 15.8), "sw", "idle"]]},
+	{"name": "05_interior", "room": "lf_fishers_hut", "spot": Vector2(9.5, 10.8), "player": ["idle", 0, "se"], "people": [
+		["aunt_ping", Vector2(6.0, 6.4), "se", "idle"]]},
+]
+
+func people_scale() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--people-tag="): tag = a.substr(13)
+	var out := "res://docs/redesign/feedback/people_scale/%s/" % tag
+	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
+	main.process_mode = Node.PROCESS_MODE_PAUSABLE
+	await _topdown_game(out)
+	# The staged scenes: Aunt Ping wakes you in the hut, and the villagers talk on Home Lane at dawn.
+	await scene_at("opening_dawn", "say", 1.2)
+	await shot("04_scene_hut", out)
+	await scene_at("opening_dawn", "handoff", 0.8, "door")
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(30)
+	await scene_at("river_dawn", "say", 1.5, "Hush")
+	await shot("06_scene_home_lane", out)
+	await until_idle()
+	main.hud.visible = false
+	for sc in PEOPLE_SCENES:
+		await _quality_scene(sc, out)
+	await _quality_fight(out)
+	var f := ProjectSettings.globalize_path(out)
+	DirAccess.rename_absolute(f + "03_fight.png", f + "02_fight.png")
+	DirAccess.rename_absolute(f + "03_fight_combo.png", f + "02_fight_combo.png")
+	main.hud.visible = true
+	print("topdown_capture: people scale done")
+	get_tree().quit()
+
+## Decision 43's monsters (`-- --monsters --monsters-tag=<before|after>`, into docs/redesign/feedback/monsters/<tag>/):
+## every foe drawn for the grid staged round the player on the Reed Shallows' flats and held still, the world alone at
+## x2 and the lineup at x4: each idle facing the camera (01), in its wind-up's tell turned to the player (02), on its
+## strike's hit frame (03), struck (04), falling (05), and the elites beside a plain one (06); the hollowed eel on the
+## Hollow Night's river (07); then live fights under the HUD (08-11): the Willow Path's boarlets and a rat, the Marsh
+## Edge's hollowed boarlet, otter, frog and leech, the Reed Shallows' Old Snapper and crabs, and the Hollow Night's
+## minnows round the player.
+const MONSTER_SPOT := Vector2(51, 17)
+## [def, offset from the player in cells, elite]
+const MONSTER_LINEUP := [["old_snapper", Vector2(-8.5, -3.5), false], ["trial_puppet", Vector2(-4.0, -3.5), false],
+	["mossback_toad", Vector2(-0.5, -3.5), false], ["reed_otter", Vector2(3.0, -3.5), false], ["hollowed_boarlet", Vector2(7.0, -3.5), false],
+	["mudshell_crab", Vector2(-8.0, 0.5), false], ["reedtail_rat", Vector2(-5.0, 0.5), false], ["wild_boarlet", Vector2(3.0, 0.5), false],
+	["reed_frog", Vector2(6.0, 0.5), false], ["marsh_leech", Vector2(8.5, 0.5), false], ["hollow_minnow", Vector2(-2.5, 0.5), false]]
+const MONSTER_ELITES := [["wild_boarlet", Vector2(-7.0, -2.0), false], ["wild_boarlet", Vector2(-4.0, -2.0), true],
+	["reed_frog", Vector2(-0.5, -2.0), false], ["reed_frog", Vector2(2.0, -2.0), true],
+	["mudshell_crab", Vector2(5.0, -2.0), false], ["mudshell_crab", Vector2(8.0, -2.0), true],
+	["mossback_toad", Vector2(-7.0, 1.5), false], ["mossback_toad", Vector2(-4.0, 1.5), true],
+	["reedtail_rat", Vector2(3.0, 1.5), false], ["reedtail_rat", Vector2(5.5, 1.5), true], ["marsh_leech", Vector2(8.0, 1.5), true]]
+const MONSTER_FIGHTS := [["08_fight_willow_path", "wp_east", Vector2(20, 14), [["wild_boarlet", Vector2(3, 2)], ["wild_boarlet", Vector2(-4, 3)], ["reedtail_rat", Vector2(5, -1)]]],
+	["09_fight_marsh_edge", "rm_marsh_edge", Vector2(34, 15), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)], ["reed_frog", Vector2(2, -2)], ["marsh_leech", Vector2(-3, -2)]]],
+	["10_fight_reed_shallows", "lf_reed_shallows", Vector2(51, 17), [["old_snapper", Vector2(3, 2)], ["mudshell_crab", Vector2(-3, 1)], ["mudshell_crab", Vector2(-2, -3)]]],
+	["11_fight_hollow_night", "lf_village_night", Vector2(33, 32), [["hollow_minnow", Vector2(-3, -2)], ["hollow_minnow", Vector2(4, -3)], ["hollow_minnow", Vector2(2, 3)]]]]
+
+func monsters() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--monsters-tag="): tag = a.substr(15)
+	var out := "res://docs/redesign/feedback/monsters/%s/" % tag
+	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
+	main.process_mode = Node.PROCESS_MODE_PAUSABLE
+	await _topdown_game(out)
+	await frames(360)
+	var c = Game.active()
+	get_tree().physics_frame.connect(func(): if Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(MONSTER_SPOT, 90)
+	main.hud.visible = false
+	var foes := await _monster_stage(MONSTER_LINEUP)
+	for st in [["01_idle", "idle", 0, Vector2.DOWN], ["02_tells", "windup", -1, Vector2(1, 1)], ["03_strikes", "attack", 1, Vector2(1, 1)],
+			["04_struck", "hurt", 0, Vector2(1, 1)]]:
+		var d: Vector2 = st[3]
+		for e in foes: _pose_foe(e, str(st[1]), d if e.plane.x <= m.pos.x else Vector2(-d.x, d.y), int(st[2]))
+		await _monster_shot(str(st[0]), out)
+	for e in foes:
+		Game.combat._damage_enemy(e, e.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+		_pose_foe(e, "death", Vector2.DOWN, -3)
+	await _monster_shot("05_falling", out)
+	foes = await _monster_stage(MONSTER_ELITES)
+	for e in foes: _pose_foe(e, "idle", Vector2(1, 1), 0)
+	await _monster_shot("06_elites", out)
+	for e in foes: _pose_foe(e, "windup", Vector2(1, 1), -1)
+	await _monster_shot("06_elites_tells", out)
+	get_tree().paused = false
+	# The hollowed eel on the night's river.
+	Game.world.load_room(c, "lf_village_night", "", (Vector2(33, 32) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(Vector2(33, 32), 120)
+	var eel := _foe("hollowed_eel")
+	if eel == null: eel = Game.enemies.spawn_at("hollowed_eel", Vector2(1500, 950), 2)   # as the night's event raises it
+	if eel != null:
+		var pc := TopdownRoom.cell_of(m.pos)   # in the river straight south of the square
+		for dy in range(1, 24):
+			if w.room.is_water(pc.x, pc.y + dy):
+				eel.plane = (Vector2(pc.x, pc.y + dy + 1) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				break
+		eel.altitude = w.room.height_at(eel.plane)
+		eel.ai.state = "idle"
+		eel.ai.timer = 99.0
+	await frames(30)
+	if eel != null:
+		m.place(w.room.nearest_standable(eel.plane + Vector2(-40, -110)))
+		w._settle_camera()
+		await frames(30)
+		get_tree().paused = true
+		for st in [["07_eel_idle", "idle", 0], ["07_eel_tell", "windup", -1], ["07_eel_strike", "attack", 1]]:
+			_pose_foe(eel, str(st[1]), (m.pos - eel.plane).normalized(), int(st[2]))
+			await get_tree().process_frame
+			await get_tree().process_frame
+			(await world_shot()).save_png(ProjectSettings.globalize_path(out + str(st[0]) + ".png"))
+		get_tree().paused = false
+	main.hud.visible = true
+	# Live fights under the HUD, the body kept whole.
+	for s in MONSTER_FIGHTS:
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 60)
+		for f in s[3]:
+			var at: Vector2 = w.room.nearest_standable((s[2] + f[1] + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+			var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1)
+			e.altitude = w.room.height_at(e.plane)
+			e.threat[Game.active_id] = 1.0
+		for i in 150: await frames(1)
+		await shot(str(s[0]), out)
+		await RenderingServer.frame_post_draw
+		var vi: Image = w.viewport.get_texture().get_image()
+		var at: Vector2i = Vector2i(p.screen - w.camera.position + Vector2(320, 180)) - Vector2i(160, 90)
+		var crop := vi.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(320, 180)), Vector2i(320, 180)))
+		crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+		crop.save_png(ProjectSettings.globalize_path(out + str(s[0]) + "_x4.png"))
+	print("topdown_capture: monsters done")
+	get_tree().quit()
+
+## The lineup ([def, offset in cells, elite]) set round the player on the room's floor, the room's own foes and people
+## cleared, each doing nothing until it is posed; the game is then held still.
+func _monster_stage(list: Array) -> Array:
+	get_tree().paused = false
+	Game.room_rt.enemies.clear()
+	Game.room_rt.spawn_slots.clear()
+	Game.room_rt.loot.clear()
+	for id in w.figures:
+		var fig = w.figures[id]
+		if is_instance_valid(fig) and fig.art is TopdownPlaces.Person:
+			fig.visible = false
+			fig.staged = true
+	m.place((MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	m.dir = Vector2.DOWN
+	m.row = "s"
+	w._settle_camera()
+	var out: Array = []
+	for f in list:
+		var at: Vector2 = w.room.nearest_standable((MONSTER_SPOT + (f[1] as Vector2) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1, {"elite": bool(f[2])})
+		e.altitude = w.room.height_at(e.plane)
+		e.ai.state = "idle"
+		e.ai.timer = 99.0
+		out.append(e)
+	await frames(20)
+	get_tree().paused = true
+	return out
+
+## A foe held on frame `i` of `act` (negative counts from the end), turned toward `dir`.
+func _pose_foe(e: EnemyState, act: String, dir: Vector2, i: int) -> void:
+	var fv = w.foe_views.get(e.uid)
+	if fv == null or fv.art != null: return
+	e.velocity = Vector2.ZERO
+	e.aim = dir.normalized()
+	e.flash = 0.0
+	e.knockback = 0.0
+	if e.alive: e.ai.state = {"hurt": "stagger", "windup": "windup", "attack": "attack"}.get(act, "aggro")
+	e.action = act
+	fv.state = str(e.ai.state)
+	fv.facing = TopdownMotor.nearest_row(dir, "s", fv.FACINGS)
+	fv.last = act
+	var a: Dictionary = fv.acts.get(act, {})
+	var n: int = (a.get("frames", {}).get("s", [[0, 0]]) as Array).size()
+	fv.t = (float(posmod(i, n)) + 0.5) / float(a.get("fps", 6))
+	fv.sync(0.0)
+
+## The world alone at x2, and the lineup round the player at x4.
+func _monster_shot(name: String, out: String) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var img := await world_shot()
+	img.save_png(ProjectSettings.globalize_path(out + name + ".png"))
+	var at := Vector2i((p.screen - w.camera.position + Vector2(320, 180)) * 2.0) - Vector2i(340, 230)
+	var crop := img.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(1280 - 680, 720 - 320)), Vector2i(680, 320)))
+	crop.resize(1360, 640, Image.INTERPOLATE_NEAREST)
+	crop.save_png(ProjectSettings.globalize_path(out + name + "_x4.png"))

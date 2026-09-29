@@ -29,8 +29,9 @@ the grid; before, after and close-ups in `docs/redesign/feedback/living_world/`.
 - **Interiors** furnished to say who lives there: Aunt Ping's stove, bed and nets; Granny Liu's cabinet of jars, drying
   rack, mortar and her cat; Old Ma's goods, sacks and cloth; the weapon halls' forges, plaques and scrolls. The sun
   falls through their windows in shafts onto the floor, with dust turning in them, and the stoves and forges glow warm.
-- **Sound hooks.** Each moment raises a named cue (`life_sparrow_flee`, `life_dog_bark`, `life_work_hammer_hit`, ...)
-  for the sound work to fill.
+- **Sound hooks.** Each moment raises a named cue as a positional world sound (`Audio.world_sound`:
+  `life_sparrow_flee`, `life_dog_bark`, `life_work_hammer_hit`, ...), silent until the sound bank is given them; the
+  people walking between their spots step like the sound pass's walking villagers.
 - **Cost** (headless, on the shared four-core test machine; `perf_tests` run alone, nine runs). Lotus Ferry walking
   (the busiest room: about ten critters in view, seven people at work and two extras, smoke, two vistas): the living
   world's own work 0.50-0.70 ms a frame (median 0.61), and the whole frame with it against without it, in rounds run
@@ -49,6 +50,146 @@ the grid; before, after and close-ups in `docs/redesign/feedback/living_world/`.
 - **Left for the figures' pipeline:** poses drawn for the work (a broom sweep, a shoulder pole, a rod's cast, reaching
   up to hang washing, stirring, a pestle, an axe's chop, a hammer, picking herbs, mending seated) and a held-tool rig;
   the loops use the actions that exist until then.
+
+## The people drawn 1.2 times bigger (decision 43)
+
+The user: "I think the player should look a little bigger." The player and the villagers go from about 38 art px to
+about 46 from sole to crown, drawn with more pixels, never scaled at runtime.
+
+- **Re-rendered at the new size.** The character pipeline (`tools/art/topdown/figure/`) casts every layer at 1.104 art px
+  a unit (`geom.WORLD_SCALE`, from 0.92): every layer set, all 864 frames of the 37 actions in the five drawn facings,
+  every hair colour and dye, with the same proportions, poses, weapons in the hands and outfits. The face has more
+  room: an eye is 3 px wide (a lash row, the white, a pupil and the iris, the iris's lower light) and the mouth 2 px.
+  The working canvas grows to 136 x 124 (the feet at 68, 84), clear of the widest cut and the highest blade.
+- **The technique pictures keep their framing.** The cards, the reading, the HUD's buttons and the loadout bar were
+  approved with the 38 px figure, and a 46 px one no longer fits a 42 px button whole nor a card from the head to the
+  ankles. So the 105 poses a picture draws are cast once more at 0.92 (the index's `pictures`; `TopdownFigure.frame_of`,
+  `draw` and `bounds` with `picture`), and the pictures and the HUD's companion chip draw those. The Character page,
+  the Bag and a shop's merchant draw the figure at x5, as tall as the 38 px one was at x6.
+- **The size pass** (art bible §13, "The scale rule"; `TopdownRoom.PEOPLE`): the foot box 19 world units across (from
+  16; its depth stays 10, which the stairs' side steps are measured by), the player's body for a blow on the grid 17
+  wide each way (from 14), a body's height and chest 92 and 48 (from 76 and 40), a person's talk reach 132 (from 110) on
+  the grid, markers, barks, a lifted plate and the label over a person who fights 16 higher, a staged scene's balloons
+  over the heads at 104 (from 88) and a hand-off's chevron over a person 16 higher, the blob shadows 10 and 8 art px
+  (from 8 and 7), the camera's body box 20 x 52 and its framing 14 px over the feet (from 16 x 44 and 12), the labels'
+  keep-clear box round the body 34 x 77, and the FX sheets' hand and chest at 17 and 26 art px (from 14 and 22;
+  `build_fx_topdown.py` rebuilt). The paces (walk 154, sprint 216), the jumps, the tops a body stands on, a blow's reach
+  and every range stay as they were. Every way is a tile wide or more, so the bigger foot box passes them all
+  (`room_lint`, `topdown_rooms --check`, the sect walks); no room has a bench, bed or seat a person sits on yet.
+- **Cost.** The same draw calls. The 168 sheets hold 207 MB of RGBA8 (from 139; 512 px wide, the tallest 1,446), the
+  player's outfit 8.1 MB (from 5.4); a full build takes about 6 minutes on two cores.
+- **Screenshots** before and after in `docs/redesign/feedback/people_scale/` (`tools/dev/topdown_capture.tscn --
+  --people-scale --people-tag=<before|after>`; the pictures with `tools/dev/picture_capture.tscn -- --tag=<before|after>
+  --dir=people_scale`).
+## The monsters at the characters' quality (decision 43)
+
+The user chose to bring the monsters up to the characters' quality: more frames, tells that read, and bigger elites and
+bosses, beside people growing 1.2×. The art bible's §8 "Foes" holds the rules; the plan's "As built: the monsters at the
+characters' quality" the pipeline.
+
+- **Drawn like the characters.** Every foe drawn for the grid (the mud crab, reed rat, wild boarlet, Trial Puppet, reed
+  frog, marsh leech, reed otter, hollowed boarlet, Old Snapper, mossback toad, hollow minnow and hollowed eel) is now
+  cast by the character's own renderer: 4 × 4 samples a pixel, seven-step ramps leaning toward the art bible's sun and
+  shadow, a warm rim, a cool bounce and contact shade, tinted outlines a step lighter on the lit side with half-alpha
+  stair corners, and a lighter inner line where a leg, a claw or a head stands in front of the body. Each sculpture was
+  redrawn with fuller anatomy: the boarlet's high shoulder, wedge head and pointed ears, the crab's chelae and pale
+  underside, the snapper's plates and moss, the toad's warts, the leech's flattened rings and ochre stripes, the
+  puppet's rope, carved eyes and jade plate, the minnow's scales.
+- **More frames, the principles of animation.** Every species plays idle 6, walk 8, wind-up 4, attack 6, hurt 3 and
+  death 8 frames (from 4, 4, 2, 3, 2, 4): squash and stretch on the lunges, hops and landings, overshoot and settle,
+  trailing tails, strands, weed and ferns, and a death that suits each (the crab and the frog flip onto their backs,
+  the boarlet's forelegs buckle, the puppet's joints give and the jade on its crown goes dark, the hollowed boarlet and
+  the minnow come apart into grey motes, the eel sinks until only its stain and rings are left).
+- **A tell for each.** The wind-up's last frame is its tell, held until the blow: the crab rears and raises both claws
+  wide open; the rat rears on its haunches, teeth bared; the boarlet lowers its head and paws the ground twice in a
+  spurt of dust; the puppet draws its palm back and Qi gathers there in a jade orb; the frog crouches and its throat
+  puffs up pale; the leech rears in an S, its mouth wide; the otter sits up; Old Snapper raises its crusher high over
+  its head; the toad rocks back, cheeks bulging, mouth open; the minnow curls into a C; the eel rears high, jaws wide,
+  eyes flaring. The rate of each wind-up comes from its `windup_s`, so the tell is always up before the blow; the blow
+  still lands on frame 1 of the attack, and no fight timing changed.
+- **Sized to the new people.** Every foe is about 1.2× its earlier size, so a crab still reads as a crab beside a person
+  and a boarlet as a young boar. The Trial Puppet is a head over a disciple (51 px), Old Snapper 1.5× (77 px from its
+  tail to its crusher) and the hollowed eel about 1.4×.
+- **Elites.** An elite draws its own rows: 1.2× larger, darker, gold-eyed, and burning with pale gold Qi (a ring on its
+  outline, tongues licking up off its back, motes rising). The crab, the rat, both boarlets, the frog, the leech, the
+  otter and the toad have them; Old Snapper wears the ring of Qi in its own colours as its boss presence.
+- **A sheet a species.** `art/topdown/foes/<species>.png` (an elite's apart, `<species>_elite.png`), each in its own
+  cell and under 4096 px a side (the old single sheet was 1216 × 4320), indexed by `data/topdown/foes.json` and built by
+  `tools/art/topdown/build_foes.py` (its own build now, apart from the tiles'). A room loads only its own species'
+  sheets, and an elite's only where an elite stands: the Reed Shallows' foes take about 2.2 M texels, from the old
+  sheet's 5.3 M. A foe is still one draw.
+- **Screenshots** before and after in the game (the lineup idle, in its tell, on its hit, struck and falling, the
+  elites, the eel, and fights under the HUD) in `docs/redesign/feedback/monsters/` (`topdown_capture.gd -- --monsters`),
+  and every sheet at ×3, each species playing its catalogue as a GIF and the tells side by side in
+  `docs/redesign/feedback/monsters/sheets/`.
+- **Tests.** `data_validation`: the whole catalogue in five facings for every foe and its elite, inside its sheet, no
+  sheet over 4096 px, every tell up before its blow. `topdown_suite`: an elite draws its own sheet in its larger cell,
+  its label on its larger figure.
+## Systems as places (decision 43)
+
+The user: "don't forget some systems should be moved to the main world map instead." The study
+(`docs/redesign/systems_as_places.md`) was waiting on them; its set for the prototype is built in the top-down game,
+in the rooms the systems belong to. Its "As built" section has the whole account.
+
+- **The place table.** `tools/data/places.py` builds `data/places.json`: 26 places, each with its system, page, room,
+  object (one of the room's, or one it adds on the grid), cell, the cell its user stands on, kind, verb, what it shows,
+  its rule (both, earned, place) and its remote rule. It is checked as it is built: every place is reached by
+  auto-path from every way into its room, what it blocks cuts nothing off, and a system of the prologue or the tutorial
+  has its home place on their path. `PlaceRules` reads it.
+- **In the world** (`TopdownPlaceArt`, original pixel art in the §14 palette): Lotus Ferry's services round its square
+  (the shrine, a new letter box, the notice board, a new Storehouse shed behind the chest, the pot, a meditation mat by
+  the spring), Proprietor Fang's stall on Market Street (a counter with his wares, an awning behind him), a courier
+  post, the furnaces, the beds, the stones and shrines. Each shows its state: papers on the board and a gold "!" when
+  one is new, a red ribbon and the flag up on the letter box while a letter waits, sacks in the shed by what the
+  storehouse holds, Qi mist over the mat, smoke from a furnace at work and a jade wisp when a batch is ready, glints
+  over a ripe bed. Walking up and pressing the verb opens the same page.
+- **Earned remote.** Storage opens from anywhere after a first use at a storehouse and Tailor Xun's pouch; a bed is
+  tended from anywhere after the first harvest; the Crafts queue fills from anywhere after a first batch at a furnace
+  and Qi Unfurling 1. Until then the Menu's new Storage and Garden tablets say where they live ("At the Storehouse")
+  and open a card with Travel there, which walks through the rooms and on to the place (`auto_path` with `place`).
+- **The map.** The world map's fourth view, Places, marks every area that holds the chosen kind of place, and its card
+  names the place, what it shows and its rule, with Go there. The minimap draws each place of the room as a small
+  glyph of its kind, a gold spark where something waits; a tap on one opens the map's Places on it.
+- **A fix from the review:** an object's prop drew at its side-view depth as its z in the top-down view, over every
+  body (a notice board over the head of one standing in front of it); the room now sorts it.
+- **Tests:** `places_tests` (the table, every place opening its page from its user's cell, the three remote rules, the
+  map's and the minimap's marks, the Menu's card and the walk, the unlock order) and `places.py --check`, both in
+  `tools/run_tests.sh`. Screens in `docs/redesign/feedback/places/` (`tools/dev/places_capture.tscn`).
+## The sound pass: layered hits, footsteps by surface, ambient beds, combat music, stingers and a mix (decision 43)
+
+The user's pick after build 109: "layered hits, footsteps by surface, ambient beds, combat music that comes in with a
+fight, and stingers". Every sound is still synthesized in code, original and seeded. `docs/redesign/sound.md` holds
+the audit of what the prototype played before, the design, the review and a listening guide.
+
+- **Layered hits.** A blow is the weapon family's transient (sword, sabre, spear, fan, brush, flute, bell, bow,
+  fists), the struck body (flesh, shell, wood and puppets, slime and water) and the family's tail, played the moment
+  the hit-stop lets go; two takes of each, varied in pitch and level, the weight moving the whole; a crit's or
+  finisher's accent, the chain's last blow, a weave cancel. Blows landing together sound as one. Each family swings
+  its own whoosh (the bow twangs), each element casts and strikes its own sound.
+- **Footsteps by surface**, on the walk's and run's contact frames (fractions of the cycle in the data): grass, dirt,
+  paving and stone, planks, reeds, roof tiles, wading water (sand and snow ready for their tiles), read from the room's
+  paint marks, a prop's top and its water. Landings by surface and height, a splash into water. Foes and villagers step
+  quieter, falling off with distance; foes' tells and deaths by race and body, where they stand.
+- **Ambient beds** per place (the river, the village by it, the marsh, bamboo, pines, fields, the town, the sect, a
+  cave, indoors), 16 s bases with layers of the hour (birds by day, insects and frogs by night) that follow the room's
+  light, crossfaded on a room change. The rooms' beds are a table of their own (`tools/data/sound.py`).
+- **Adaptive music.** The village by day and by night, the field, the river and the sect have a combat stem on their
+  own grid, started with the track and kept in step: it comes in on the next beat when foes near the player turn on it
+  and leaves on a bar line four seconds after the last falls (another track crossfades to the battle theme). Old
+  Snapper and the Hollowed Eel have their own themes. Stingers for a quest done, a new realm, a rare find, a system
+  unlocked, an elite and a victory.
+- **The mix.** An All sound slider over Music, Ambience, Effects and Interface; a high-pass and a limiter on Master;
+  the music ducking under stingers, talks, barks and scenes; 24 voices with priorities and per-sound caps (the
+  fifteen-monster fight peaks at half of them); every new sound levelled by its loudness and kept audible on a phone
+  speaker (`boss_sting` fixed). A talk's scroll and lines, barks, doors, loot hitting the ground, the scene cue, tabs
+  and the missing `ui_confirm` now sound.
+- **Size:** the loops are Ogg Vorbis now: the audio in the APK went from 8.38 MB to 7.04 MB while its sounds went from
+  76 to 233; the sources in the repository from 41 MB to 9.8 MB.
+- **Checks:** `audio_tests` (every sound named in data and code exists; the buses and sliders; footsteps by surface
+  and frame; the layered hit; the combat music entering and leaving on its events and beats, Old Snapper's theme; the
+  beds and hours; the stingers' ducking; the voice limit in the fifteen-monster fight), and `tools/run_tests.sh` checks
+  `data/sound.json` and every audio file's levels, seams and phone band. Review pictures in
+  `docs/redesign/feedback/sound/`.
 
 ## Every newly unlocked system teaches itself (decision 43)
 

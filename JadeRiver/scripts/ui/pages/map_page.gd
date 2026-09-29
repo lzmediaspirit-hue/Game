@@ -27,8 +27,8 @@ const PLATE_TEXT := 16                  # a plate's name
 const RING := 7.0                       # the chosen node's ring, outside its disc
 const TOUCH := 2.0                      # nothing on the painting comes nearer another than this
 const LEADER := 14.0                    # each step farther out a mark or plate may stand, on a leader
-const VIEWS := ["areas", "resources", "objectives"]
-const VIEW_ICON := {"areas": "world_map", "resources": "craft_foraging", "objectives": "quest"}
+const VIEWS := ["areas", "resources", "objectives", "places"]
+const VIEW_ICON := {"areas": "world_map", "resources": "craft_foraging", "objectives": "quest", "places": "shop"}
 ## The gathering kinds: object type -> [its name, its marker, the craft whose rank it asks].
 const KINDS := {"herb_patch": ["ui.map.herbs", "herb_marker", "herb_gathering"], "ore_vein": ["ui.map.ores", "ore_marker", "mining"],
 	"fishing_spot": ["ui.map.fish", "fish_marker", "fishing"]}
@@ -43,12 +43,12 @@ const PLATE_WAYS := ["b", "t", "r", "l", "dr", "dl", "ur", "ul"]
 const SLIDES := [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
 const SLIDE := 6.0
 const MARK_WAYS := {"lantern": ["r", "ur", "dr", "l", "ul", "dl", "t", "b"], "blossom": ["l", "ul", "dl", "r", "ur", "dr", "t", "b"],
-	"wind": ["ur", "ul", "t", "r", "l", "dr", "dl", "b"], "res": ["r", "l", "ur", "ul", "dr", "dl", "t", "b"]}
+	"wind": ["ur", "ul", "t", "r", "l", "dr", "dl", "b"], "res": ["r", "l", "ur", "ul", "dr", "dl", "t", "b"], "place": ["r", "l", "ur", "ul", "dr", "dl", "t", "b"]}
 ## The legend along the foot for each view, and the width of each key's glyph.
 const LEGEND := {"areas": ["available", "here", "locked", "route", "tracked", "event"], "resources": ["available", "here", "holds", "locked", "route"],
-	"objectives": ["tracked", "event", "here", "locked", "route"]}
+	"objectives": ["tracked", "event", "here", "locked", "route"], "places": ["available", "here", "place", "locked", "route"]}
 const LEGEND_W := {"route": 26.0, "locked": 12.0, "tracked": 12.0}
-const MARK_SIZE := {"lantern": Vector2(22, 30), "blossom": Vector2(22, 22), "wind": Vector2(40, 24), "res": Vector2(44, 44)}
+const MARK_SIZE := {"lantern": Vector2(22, 30), "blossom": Vector2(22, 22), "wind": Vector2(40, 24), "res": Vector2(44, 44), "place": Vector2(44, 44)}
 ## The frame's cloud-scroll corner (72 px, drawn at the top left and mirrored): cubic curves in its own px.
 const CURLS := [[Vector2(14, 58), Vector2(14, 34), Vector2(34, 14), Vector2(58, 14)], [Vector2(20, 44), Vector2(20, 34), Vector2(26, 28), Vector2(34, 28)],
 	[Vector2(34, 28), Vector2(40, 28), Vector2(42, 32), Vector2(40, 36)], [Vector2(40, 36), Vector2(38, 40), Vector2(32, 38), Vector2(34, 34)],
@@ -60,6 +60,10 @@ var view := "areas"
 var res_kind := "herb_patch"
 var res_item := ""
 var goal := ""                 # the chosen objective: a quest id, or "@" and an event id
+## Decision 43, the Places view: the kind of place chosen (data/places.json `kind`) and the place itself (its id), the
+## one its card names and its Go there walks to.
+var place_kind := "notice_board"
+var place_id := ""
 var chosen_at := -10.0         # when the chosen area changed: its way lights dot by dot
 ## The last layout pass (drawn from, and read by the tests): {plates: {rid: {rect, far, way, name}}, marks: {id: {rect, kind,
 ## live}}, pins: [Rect2], keep: [Rect2], bounds: Rect2, hidden: [the areas whose plate found no place]}.
@@ -90,6 +94,13 @@ func setup() -> void:
 		if str(tabs[i].id) == zone_id: tab = i
 	var v := str(args.get("view", args.get("tab", "")))
 	if v in VIEWS: view = v
+	# A place named (a tap on its mark on the minimap, decision 43): the Places view on it.
+	var pl := PlaceRules.get_place(str(args.get("place", "")))
+	if not pl.is_empty():
+		view = "places"
+		place_kind = str(pl.kind)
+		place_id = str(pl.id)
+	elif str(args.get("kind", "")) != "": place_kind = str(args.kind)
 	sel = ""
 	_sync_tab()
 
@@ -340,6 +351,27 @@ func _model(ch) -> Dictionary:
 				near = rid
 		m.near = near if near != "" else here
 		m.route = _route(ch, near) if near != "" else {}
+	elif view == "places":
+		# Decision 43: every area that holds a place of the chosen kind wears the ring and its mark; the chosen place
+		# (the one named, else the nearest by the ways open to you, the room you stand in first) has the way lit.
+		var at := _places_of(ch, place_kind)
+		m.places_at = at
+		for rid in at: m.rings[rid] = true
+		var here_room := str(ch.position.get("room", ""))
+		var chosen := {}
+		var best := 1 << 30
+		for rid in at:
+			for r in at[rid]:
+				var n: int = 0 if str(r.room) == here_room else (_route(ch, rid, str(r.room)).get("path", []).size() if not _route(ch, rid, str(r.room)).is_empty() else 1 << 20)
+				if str(r.id) == place_id: n = -1
+				if n < best:
+					best = n
+					chosen = r
+		m.place = chosen
+		if not chosen.is_empty():
+			place_id = str(chosen.id)
+			sel = str(m.z.node_of.get(str(chosen.room), sel))
+		m.route = {} if chosen.is_empty() or str(chosen.room) == here_room else _route(ch, sel, str(chosen.room))
 	elif view == "objectives":
 		m.objectives = _objectives(ch, m)
 		var o: Dictionary = {}
@@ -529,6 +561,11 @@ func draw_page() -> void:
 			"blossom": _blossom(mk.rect.get_center(), mk.live, 1.0)
 			"wind": _wind(mk.rect.position + Vector2(4, 14))
 			"res": _res_disc(mk.rect.get_center(), res_item)
+			"place":
+				# Decision 43: the kind's icon in a gold ring beside each area that holds one; a tap offers the walk there.
+				var prid := str(id).get_slice(":", 1)
+				_res_disc(mk.rect.get_center(), str(PlaceRules.kinds().get(place_kind, {}).get("icon", "")))
+				region(mk.rect, "place_at", prid)
 	for rid in placed.plates:
 		var pl: Dictionary = placed.plates[rid]
 		if int(pl.far) > 0 or str(pl.way).length() == 2: _leader(m.z.anchor[rid], float(NODE_R[m.state[rid]]), pl.rect)
@@ -542,6 +579,7 @@ func draw_page() -> void:
 	match view:
 		"resources": _card_resources(ch, m, CARD)
 		"objectives": _card_objectives(ch, m, CARD)
+		"places": _card_places(ch, m, CARD)
 		_: _card_area(ch, m, CARD)
 	draw_set_transform(Vector2.ZERO)
 	_draw_foot()
@@ -678,6 +716,8 @@ func _place(ch, m: Dictionary) -> Dictionary:
 		var kinds: Array = []
 		if view == "resources":
 			if m.rings.has(rid): kinds.append("res")
+		elif view == "places":
+			if m.rings.has(rid): kinds.append("place")
 		else:
 			if m.lanterns.has(rid): kinds.append("lantern")
 			if m.events.has(rid): kinds.append("blossom")
@@ -690,7 +730,7 @@ func _place(ch, m: Dictionary) -> Dictionary:
 		plates.append({"id": rid, "at": p, "r": r, "sizes": [_plate_size(name)], "ways": PLATE_WAYS, "name": name, "rank": rank})
 	plates.sort_custom(func(a, b): return a.rank < b.rank if a.rank != b.rank else (a.at.y < b.at.y if a.at.y != b.at.y else a.at.x < b.at.x))
 	var bounds := Rect2(EDGE + 3.0, EDGE + 3.0, CARD.position.x - 8.0 - EDGE - 3.0, FOOT - 3.0 - EDGE - 3.0)
-	var key := str([zone_id, view, sel, res_item, UiKit.text_scale(), m.state, m.rings.keys(), marks.map(func(x): return x.id), plates.map(func(x): return [x.id, x.name])])
+	var key := str([zone_id, view, sel, res_item, place_kind, UiKit.text_scale(), m.state, m.rings.keys(), marks.map(func(x): return x.id), plates.map(func(x): return [x.id, x.name])])
 	if key != _layout_key:
 		_layout_key = key
 		var got := place(marks, pins + keep, bounds)
@@ -1093,6 +1133,81 @@ func _card_objectives(ch, m: Dictionary, r: Rect2) -> void:
 		region(rr, "goal", str(o.id)))
 	_track(r, m.route, _why(m, str(g.get("rid", ""))))
 
+# ------------------------------------------------------------------ decision 43: the places
+## The zone's places of a kind, by area: {rid: [rows]} (data/places.json). A sect's places show once it is the
+## character's sect.
+func _places_of(ch, kind: String) -> Dictionary:
+	var key := "places|%s|%s|%s|%d" % [zone_id, kind, str(ch.training_sect.get("id", "")), ch.quests.flags.size()]
+	if _cache.has(key): return _cache[key]
+	var z := _zone(zone_id)
+	var out := {}
+	for r in PlaceRules.all():
+		if str(r.kind) != kind: continue
+		var rid := str(z.node_of.get(str(r.room), ""))
+		var sect := str(r.get("sect", ""))
+		if rid == "" or (sect != "" and sect != str(ch.training_sect.get("id", ""))) or not PlaceRules.visible(ch, r): continue
+		if not out.has(rid): out[rid] = []
+		out[rid].append(r)
+	_cache[key] = out
+	return out
+
+## The kinds of place this zone holds for the character, in the table's order.
+func _place_kinds(ch) -> Array:
+	return PlaceRules.kind_order().filter(func(k): return not _places_of(ch, str(k)).is_empty())
+
+## Places: where each of the game's systems lives in the world (docs/redesign/systems_as_places.md). The chosen place's
+## area in the picture, the kinds of place (a notice board, a stall, the storehouse, a letter box...) to choose from, the
+## chosen place's name and room, what it shows now (its papers, a letter waiting, the beds ripe), how it opens (only
+## there, there and from the Menu, or there first and from anywhere later) and Go there: auto-path through the rooms to
+## the spot its user stands on.
+func _card_places(ch, m: Dictionary, r: Rect2) -> void:
+	var pl: Dictionary = m.get("place", {})
+	var rid := str(m.z.node_of.get(str(pl.get("room", "")), sel)) if not pl.is_empty() else sel
+	_pic(Rect2(r.position + PIC.position, PIC.size), rid, [])
+	var x := r.position.x + 20.0
+	var w := r.size.x - 40.0
+	var kinds := _place_kinds(ch)
+	if not place_kind in kinds and not kinds.is_empty(): place_kind = str(kinds[0])
+	var cw := (w - 6.0) / 2.0
+	var rows := ceili(kinds.size() / 2.0)
+	var y := r.position.y + 166
+	list("place_kinds", Rect2(x, y, w + 8.0, minf(rows, 5) * 40.0), rows, 40, func(ri: int, rr: Rect2):
+		for j in 2:
+			if ri * 2 + j >= kinds.size(): break
+			var k := str(kinds[ri * 2 + j])
+			var cr := Rect2(rr.position.x + j * (cw + 6.0), rr.position.y, cw, rr.size.y - 4.0)
+			_cell(cr, k == place_kind)
+			icon_at(Rect2(cr.position.x + 6, cr.get_center().y - 12, 24, 24), str(PlaceRules.kinds().get(k, {}).get("icon", "")))
+			text(Vector2(cr.position.x + 36, cr.get_center().y + 5), PlaceRules.kind_name(k), 14, UiKit.PALE_GOLD if k == place_kind else UiKit.PAPER,
+				HORIZONTAL_ALIGNMENT_LEFT, cr.size.x - 40, true)
+			region(cr, "pkind", k))
+	y += minf(rows, 5) * 40.0 + 4.0
+	_divider(x, y, w)
+	if pl.is_empty():
+		para(Rect2(x, y + 8, w, 60), Tx.t("ui.map.no_places"), 16, UiKit.MIST)
+		return
+	var here := str(pl.room) == str(ch.position.get("room", ""))
+	text(Vector2(x, y + 24), str(pl.name).substr(0, 1).to_upper() + str(pl.name).substr(1), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, w, true)
+	var st := PlaceRules.state(ch, pl)
+	var runs: Array = [[Tx.t("ui.map.place_rooms") % ContentDB.name_of("rooms", str(pl.room)) + ". ", UiKit.BRIGHT_JADE]]
+	var open := str(pl.system) == "shrines" or Unlocks.is_unlocked(ch.id, str(pl.system))
+	if not open: runs.append([Tx.t("ui.place.locked") + ". ", UiKit.MIST])
+	elif str(st.get("text", "")) != "": runs.append([str(st.text) + (" · " + Tx.t("ui.place.state_new") if int(st.get("new", 0)) > 0 and str(st.state) == "papers" else "") + ". ", UiKit.GOLD if bool(st.get("on", false)) else UiKit.PAPER])
+	runs.append([Tx.t("ui.place.rule_" + str(pl.rule)) + ".", UiKit.MIST])
+	y += 30.0
+	rich(Rect2(x, y, w, 60), runs, 14)
+	# Go there: the walk through the rooms (or, standing in its room, across it) to the spot its user stands on.
+	var b := Rect2(r.position.x + 14, r.end.y - 60, r.size.x - 28, 48)
+	var ok: bool = here or not (m.route as Dictionary).is_empty()
+	btn(b, "", "go_place", str(pl.id), true, ok, Tx.t("sim.world.auto_path_none"))
+	var a := Tx.t("ui.place.walk") if here else Tx.t("ui.map.go_there")
+	var tail := "" if here or not ok else Tx.plural("ui.map.areas_n", maxi(1, m.route.path.filter(func(q): return q != "").size() - 1)) % maxi(1, m.route.path.filter(func(q): return q != "").size() - 1)
+	var wa := UiKit.text_width(a, 22)
+	var wt := UiKit.text_width(tail, 16) + 10.0 if tail != "" else 0.0
+	var x0 := roundf(b.get_center().x - (wa + wt) * 0.5)
+	inked(Vector2(x0, b.position.y + 32), a, 22, UiKit.PALE_GOLD if ok else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+	if tail != "": inked(Vector2(x0 + wa + 10.0, b.position.y + 31), tail, 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
+
 # ------------------------------------------------------------------ the foot: the three views and the legend
 func _draw_foot() -> void:
 	var x := 48.0
@@ -1133,6 +1248,9 @@ func _legend_glyph(k: String, c: Vector2) -> void:
 		"route":
 			for i in 4: draw_circle(c + Vector2(-12 + i * 8, 0), 1.8, UiKit.PALE_GOLD, true, -1.0, true)
 		"tracked": _lantern(c, 0.55)
+		"place":
+			draw_circle(c, 7.0, Color(UiKit.INK, 0.85), true, -1.0, true)
+			draw_arc(c, 7.0, 0.0, TAU, 20, UiKit.GOLD, 1.5, true)
 		"event": _blossom(c, true, 0.7)
 		"holds":
 			draw_arc(c, 6.5, 0.0, TAU, 24, UiKit.INK, 4.0, true)
@@ -1243,12 +1361,27 @@ static func _shrunk(pts: PackedVector2Array, c: Vector2, k: float, off: Vector2)
 # ------------------------------------------------------------------ taps
 func on_action(id: String, data) -> void:
 	match id:
-		"sel":
+		"sel", "place_at":
+			# Decision 43: on Places, a tap on an area (or its mark) that holds the chosen kind chooses its place, whose card
+			# offers the walk there.
+			var ch = c()
+			var at: Array = _places_of(ch, place_kind).get(str(data), []) if view == "places" and ch != null else []
+			if not at.is_empty():
+				if str(at[0].id) != place_id: chosen_at = t
+				place_id = str(at[0].id)
+				sel = str(data)
+				return
 			# A tap on an area shows its card, whichever view was open.
 			if str(data) != sel or view != "areas": chosen_at = t
 			sel = str(data)
 			goal = ""
 			view = "areas"
+		"pkind":
+			place_kind = str(data)
+			place_id = ""
+			chosen_at = t
+		"go_place":
+			if submit({"type": "auto_path", "target": "", "place": str(data)}).get("ok", false): close()
 		"view":
 			view = str(data)
 			chosen_at = t

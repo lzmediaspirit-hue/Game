@@ -4,7 +4,7 @@
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial tutorials story_scenes hollow_night valley_run)
+suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial tutorials story_scenes hollow_night audio_tests valley_run places_tests)
 
 failed=()
 # S43 room lint and reach contract over the built rooms (Part 7).
@@ -16,6 +16,15 @@ if ! python3 tools/data/topdown_rooms.py --check; then failed+=("topdown_rooms")
 # Decision 42: no step of the sect stretch asks for a plain walk over 35 s with nothing on the way, nor a walk out and back.
 echo "== sect_walks"
 if ! python3 tools/data/sect_walks.py --check; then failed+=("sect_walks"); fi
+# Decision 43: the places table is current, and every place stands where auto-path reaches it (tools/data/places.py).
+echo "== places"
+if ! python3 tools/data/places.py --check; then failed+=("places"); fi
+# Decision 43: the sound pass's table is current, and every sound on disk passes its levels, loop seams and phone band.
+echo "== sound"
+if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
+alog="$(mktemp)"
+if ! python3 tools/audio/build_audio.py --check > "$alog" 2>&1; then grep -E "FAIL|MISSING|Error" "$alog" | head -20; failed+=("audio_check"); else tail -1 "$alog"; fi
+rm -f "$alog"
 for s in "${suites[@]}"; do
   echo "== $s"
   out="$("$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1)"

@@ -12,7 +12,7 @@ const Avatar = preload("res://scripts/avatar.gd")
 ## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 2.5 is 5 each), feet on the slips.
 const FIGURE_SCALE := 2.5
 ## Decision 42: a top-down character's figure (TopdownDoll) at 6 screen px an art px, and a friend's face in a chip at 1.
-const TOP_SCALE := 6
+const TOP_SCALE := 5      # decision 43: the 46 px figure at x5 stands as tall as the 38 px one did at x6
 const FEET := Vector2(278, 528)
 ## The worn slots down the slips either side of the figure (each 76 px slot's top-left).
 const WORN := {"hat": Vector2(100, 170), "robe": Vector2(100, 284), "trousers": Vector2(100, 398), "boots": Vector2(100, 512),

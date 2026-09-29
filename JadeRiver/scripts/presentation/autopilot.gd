@@ -27,6 +27,12 @@ func drive(c, delta: float) -> Vector2:
 	tech_cd -= delta
 	if Game.room_rt == null: return Vector2.ZERO
 	var step: Dictionary = Game.world.auto_path_step(c)
+	if not step.is_empty() and step.has("place"):
+		# Decision 43: the walk to a place ends on its user's cell (the grid's route round everything on the way).
+		var to_place := _toward(Vector2(float(step.x), float(step.y)), "", 10.0 if Game.room_rt.topdown != null else 40.0)
+		if to_place != Vector2.INF: return to_place
+		Game.world.auto_path_arrive(c)
+		return Vector2.ZERO
 	if not step.is_empty() and step.has("dock"):
 		var at_dock := _toward(Vector2(float(step.x), float(step.y)), "", 50.0)
 		if at_dock != Vector2.INF: return at_dock

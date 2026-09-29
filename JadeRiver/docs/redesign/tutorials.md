@@ -119,9 +119,13 @@ leads there first, which reuses the quest direction mark:
 
 In the room itself, the hand points at the thing, over its label.
 
-The systems-as-places table (`tools/data/places.py` → `data/places.json`) is another agent's work. When it has a row
-for a step's `place` id, that row's room and object lead instead. The tutorials suite checks the rows once the table
-exists, and prints a SKIP line before then.
+The systems-as-places table (`tools/data/places.py` → `data/places.json`, `docs/redesign/systems_as_places.md` "As
+built") leads the steps of the systems that live at places. A step's `place` id is a row's id, or a system or a page
+of the table (`PlaceRules.system_of`: "storage", "notice_board", "shop", "teleport", "garden"); the row a walk there
+takes then leads (`PlaceRules.home`: the character's own sect's, the home one, the nearest), when the character sees
+it (the village's board goes up after the prologue) and a way open to it leads there. The other steps (the transfer
+array, the pouches, the exchange, fishing) keep the nearest thing they name. The tutorials suite checks that every
+step of a system with places leads to a place that opens the page it teaches.
 
 ## 5. What is covered
 
@@ -159,7 +163,7 @@ exists, and prints a SKIP line before then.
 5. **Save and load:** a tour resumes at its step, and a legacy save queues nothing.
 6. **The queue:** two unlocks at once, by priority; Later.
 7. **Replay:** the "?" replays without recording; Replay tutorials clears what was seen.
-8. **Places:** the nearest thing by route, and the direction mark leads there. The places table check skips cleanly
-   before the table lands.
+8. **Places:** the table's place for a system that lives at places (else the nearest thing by route), and the
+   direction mark leads there; every such step leads to a place that opens its page.
 
 `tools/dev/tutorial_capture.tscn` takes the screenshots in `feedback/tutorials/`.

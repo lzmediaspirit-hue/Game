@@ -1,334 +1,1340 @@
 {
  "music": {
   "ashen_war": {
-   "file": "res://art/audio/music/ashen_war.wav",
+   "bar_beats": 4,
+   "bars": 20,
+   "bpm": 126.0,
+   "file": "res://art/audio/music/ashen_war.ogg",
+   "len_s": 38.095,
    "loop": true,
+   "loop_s": 38.095238,
    "volume_db": -6
   },
   "battle": {
-   "file": "res://art/audio/music/battle.wav",
+   "bar_beats": 4,
+   "bars": 20,
+   "bpm": 132.0,
+   "file": "res://art/audio/music/battle.ogg",
+   "len_s": 36.364,
    "loop": true,
+   "loop_s": 36.363628,
    "volume_db": -6
   },
   "boss": {
-   "file": "res://art/audio/music/boss.wav",
+   "bar_beats": 4,
+   "bars": 24,
+   "bpm": 144.0,
+   "file": "res://art/audio/music/boss.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
+   "volume_db": -6
+  },
+  "boss_eel": {
+   "bar_beats": 6,
+   "bars": 16,
+   "bpm": 132.0,
+   "file": "res://art/audio/music/boss_eel.ogg",
+   "len_s": 43.636,
+   "loop": true,
+   "loop_s": 43.636372,
+   "volume_db": -6
+  },
+  "boss_snapper": {
+   "bar_beats": 4,
+   "bars": 16,
+   "bpm": 96.0,
+   "file": "res://art/audio/music/boss_snapper.ogg",
+   "len_s": 40.0,
+   "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "desert": {
-   "file": "res://art/audio/music/desert.wav",
+   "bar_beats": 4,
+   "bars": 12,
+   "bpm": 72.0,
+   "file": "res://art/audio/music/desert.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "dungeon": {
-   "file": "res://art/audio/music/dungeon.wav",
+   "bar_beats": 4,
+   "bars": 10,
+   "bpm": 60.0,
+   "file": "res://art/audio/music/dungeon.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "field": {
-   "file": "res://art/audio/music/field.wav",
+   "bar_beats": 4,
+   "bars": 16,
+   "bpm": 100.0,
+   "file": "res://art/audio/music/field.ogg",
+   "len_s": 38.4,
    "loop": true,
+   "loop_s": 38.4,
+   "stem": "field_combat",
+   "volume_db": -6
+  },
+  "field_combat": {
+   "bar_beats": 4,
+   "bars": 16,
+   "bpm": 100.0,
+   "file": "res://art/audio/music/field_combat.ogg",
+   "len_s": 38.4,
+   "loop": true,
+   "loop_s": 38.4,
+   "stem_of": "field",
    "volume_db": -6
   },
   "forest": {
-   "file": "res://art/audio/music/forest.wav",
+   "bar_beats": 4,
+   "bars": 12,
+   "bpm": 72.0,
+   "file": "res://art/audio/music/forest.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "hollow_tide": {
-   "file": "res://art/audio/music/hollow_tide.wav",
+   "bar_beats": 4,
+   "bars": 10,
+   "bpm": 54.0,
+   "file": "res://art/audio/music/hollow_tide.ogg",
+   "len_s": 44.444,
    "loop": true,
+   "loop_s": 44.444444,
    "volume_db": -6
   },
   "lantern_harbor": {
-   "file": "res://art/audio/music/lantern_harbor.wav",
+   "bar_beats": 4,
+   "bars": 12,
+   "bpm": 70.0,
+   "file": "res://art/audio/music/lantern_harbor.ogg",
+   "len_s": 41.143,
    "loop": true,
+   "loop_s": 41.142857,
    "volume_db": -6
   },
   "lantern_heart": {
-   "file": "res://art/audio/music/lantern_heart.wav",
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 46.0,
+   "file": "res://art/audio/music/lantern_heart.ogg",
+   "len_s": 41.739,
    "loop": true,
+   "loop_s": 41.739138,
    "volume_db": -6
   },
   "meditation": {
-   "file": "res://art/audio/music/meditation.wav",
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 48.0,
+   "file": "res://art/audio/music/meditation.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "peak": {
-   "file": "res://art/audio/music/peak.wav",
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 52.0,
+   "file": "res://art/audio/music/peak.ogg",
+   "len_s": 36.923,
    "loop": true,
+   "loop_s": 36.923084,
    "volume_db": -6
   },
   "river": {
-   "file": "res://art/audio/music/river.wav",
+   "bar_beats": 6,
+   "bars": 16,
+   "bpm": 150.0,
+   "file": "res://art/audio/music/river.ogg",
+   "len_s": 38.4,
    "loop": true,
+   "loop_s": 38.4,
+   "stem": "river_combat",
+   "volume_db": -6
+  },
+  "river_combat": {
+   "bar_beats": 6,
+   "bars": 16,
+   "bpm": 150.0,
+   "file": "res://art/audio/music/river_combat.ogg",
+   "len_s": 38.4,
+   "loop": true,
+   "loop_s": 38.4,
+   "stem_of": "river",
    "volume_db": -6
   },
   "sect": {
-   "file": "res://art/audio/music/sect.wav",
+   "bar_beats": 4,
+   "bars": 12,
+   "bpm": 72.0,
+   "file": "res://art/audio/music/sect.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
+   "stem": "sect_combat",
+   "volume_db": -6
+  },
+  "sect_combat": {
+   "bar_beats": 4,
+   "bars": 12,
+   "bpm": 72.0,
+   "file": "res://art/audio/music/sect_combat.ogg",
+   "len_s": 40.0,
+   "loop": true,
+   "loop_s": 40.0,
+   "stem_of": "sect",
    "volume_db": -6
   },
   "sky_port": {
-   "file": "res://art/audio/music/sky_port.wav",
+   "bar_beats": 4,
+   "bars": 14,
+   "bpm": 88.0,
+   "file": "res://art/audio/music/sky_port.ogg",
+   "len_s": 38.182,
    "loop": true,
+   "loop_s": 38.181814,
    "volume_db": -6
   },
   "star_field": {
-   "file": "res://art/audio/music/star_field.wav",
+   "bar_beats": 4,
+   "bars": 13,
+   "bpm": 78.0,
+   "file": "res://art/audio/music/star_field.ogg",
+   "len_s": 40.0,
    "loop": true,
+   "loop_s": 40.0,
    "volume_db": -6
   },
   "starsea": {
-   "file": "res://art/audio/music/starsea.wav",
+   "bar_beats": 3,
+   "bars": 16,
+   "bpm": 66.0,
+   "file": "res://art/audio/music/starsea.ogg",
+   "len_s": 43.636,
    "loop": true,
+   "loop_s": 43.636372,
    "volume_db": -6
   },
   "storm_plains": {
-   "file": "res://art/audio/music/storm_plains.wav",
+   "bar_beats": 6,
+   "bars": 16,
+   "bpm": 150.0,
+   "file": "res://art/audio/music/storm_plains.ogg",
+   "len_s": 38.4,
    "loop": true,
+   "loop_s": 38.4,
    "volume_db": -6
   },
   "title": {
-   "file": "res://art/audio/music/title.wav",
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 50.0,
+   "file": "res://art/audio/music/title.ogg",
+   "len_s": 38.4,
    "loop": true,
+   "loop_s": 38.4,
    "volume_db": -6
   },
   "tomb": {
-   "file": "res://art/audio/music/tomb.wav",
+   "bar_beats": 4,
+   "bars": 10,
+   "bpm": 56.0,
+   "file": "res://art/audio/music/tomb.ogg",
+   "len_s": 42.857,
    "loop": true,
+   "loop_s": 42.857143,
    "volume_db": -6
   },
   "village_day": {
-   "file": "res://art/audio/music/village_day.wav",
+   "bar_beats": 3,
+   "bars": 16,
+   "bpm": 76.0,
+   "file": "res://art/audio/music/village_day.ogg",
+   "len_s": 37.895,
    "loop": true,
+   "loop_s": 37.894739,
+   "stem": "village_day_combat",
+   "volume_db": -6
+  },
+  "village_day_combat": {
+   "bar_beats": 3,
+   "bars": 16,
+   "bpm": 76.0,
+   "file": "res://art/audio/music/village_day_combat.ogg",
+   "len_s": 37.895,
+   "loop": true,
+   "loop_s": 37.894739,
+   "stem_of": "village_day",
    "volume_db": -6
   },
   "village_night": {
-   "file": "res://art/audio/music/village_night.wav",
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 52.0,
+   "file": "res://art/audio/music/village_night.ogg",
+   "len_s": 36.923,
    "loop": true,
+   "loop_s": 36.923084,
+   "stem": "village_night_combat",
+   "volume_db": -6
+  },
+  "village_night_combat": {
+   "bar_beats": 4,
+   "bars": 8,
+   "bpm": 52.0,
+   "file": "res://art/audio/music/village_night_combat.ogg",
+   "len_s": 36.923,
+   "loop": true,
+   "loop_s": 36.923084,
+   "stem_of": "village_night",
    "volume_db": -6
   }
  },
  "rooms": {},
- "schema_version": 1,
+ "schema_version": 2,
  "sfx": {
   "alchemy": {
    "file": "res://art/audio/sfx/alchemy.wav",
-   "volume_db": -4
+   "len_s": 1.086,
+   "volume_db": -4.0
   },
   "backlash": {
    "file": "res://art/audio/sfx/backlash.wav",
-   "volume_db": -4
+   "len_s": 1.25,
+   "volume_db": -4.0
+  },
+  "bark": {
+   "file": "res://art/audio/sfx/bark.wav",
+   "len_s": 0.09,
+   "volume_db": -12.5
+  },
+  "bed_bamboo": {
+   "file": "res://art/audio/sfx/bed_bamboo.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -5.5
+  },
+  "bed_birds": {
+   "file": "res://art/audio/sfx/bed_birds.ogg",
+   "len_s": 18.0,
+   "loop": true,
+   "volume_db": -16.5
+  },
+  "bed_cave": {
+   "file": "res://art/audio/sfx/bed_cave.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -3.0
+  },
+  "bed_field": {
+   "file": "res://art/audio/sfx/bed_field.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -10.0
+  },
+  "bed_frogs": {
+   "file": "res://art/audio/sfx/bed_frogs.ogg",
+   "len_s": 20.0,
+   "loop": true,
+   "volume_db": -8.0
+  },
+  "bed_insects": {
+   "file": "res://art/audio/sfx/bed_insects.ogg",
+   "len_s": 14.0,
+   "loop": true,
+   "volume_db": -15.0
+  },
+  "bed_interior": {
+   "file": "res://art/audio/sfx/bed_interior.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": 0.0
+  },
+  "bed_marsh": {
+   "file": "res://art/audio/sfx/bed_marsh.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -7.0
+  },
+  "bed_pines": {
+   "file": "res://art/audio/sfx/bed_pines.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -13.0
+  },
+  "bed_river": {
+   "file": "res://art/audio/sfx/bed_river.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -6.0
+  },
+  "bed_sect": {
+   "file": "res://art/audio/sfx/bed_sect.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -9.0
+  },
+  "bed_town": {
+   "file": "res://art/audio/sfx/bed_town.ogg",
+   "len_s": 16.0,
+   "loop": true,
+   "volume_db": -5.5
   },
   "bell": {
    "file": "res://art/audio/sfx/bell.wav",
-   "volume_db": -4
+   "len_s": 1.971,
+   "volume_db": -4.0
   },
   "boss_fall": {
    "file": "res://art/audio/sfx/boss_fall.wav",
-   "volume_db": -4
+   "len_s": 2.0,
+   "volume_db": -4.0
   },
   "boss_roar": {
    "file": "res://art/audio/sfx/boss_roar.wav",
-   "volume_db": -4
+   "len_s": 1.25,
+   "volume_db": -4.0
   },
   "boss_sting": {
    "file": "res://art/audio/sfx/boss_sting.wav",
-   "volume_db": -4
+   "len_s": 1.4,
+   "volume_db": -4.0
   },
   "break": {
    "file": "res://art/audio/sfx/break.wav",
-   "volume_db": -4
+   "len_s": 0.561,
+   "volume_db": -4.0
   },
   "breakthrough": {
    "file": "res://art/audio/sfx/breakthrough.wav",
-   "volume_db": -4
+   "len_s": 2.6,
+   "volume_db": -4.0
   },
   "brush_stroke": {
    "file": "res://art/audio/sfx/brush_stroke.wav",
-   "volume_db": -4
+   "len_s": 0.5,
+   "volume_db": -4.0
+  },
+  "cast_earth": {
+   "file": "res://art/audio/sfx/cast_earth.wav",
+   "len_s": 0.9,
+   "volume_db": -8.5
+  },
+  "cast_fire": {
+   "file": "res://art/audio/sfx/cast_fire.wav",
+   "len_s": 0.9,
+   "volume_db": -8.5
+  },
+  "cast_metal": {
+   "file": "res://art/audio/sfx/cast_metal.wav",
+   "len_s": 0.9,
+   "volume_db": -8.0
+  },
+  "cast_qi": {
+   "file": "res://art/audio/sfx/cast_qi.wav",
+   "len_s": 0.9,
+   "volume_db": -6.0
+  },
+  "cast_soul": {
+   "file": "res://art/audio/sfx/cast_soul.wav",
+   "len_s": 0.9,
+   "volume_db": -8.5
+  },
+  "cast_space": {
+   "file": "res://art/audio/sfx/cast_space.wav",
+   "len_s": 0.9,
+   "volume_db": -9.5
+  },
+  "cast_thunder": {
+   "file": "res://art/audio/sfx/cast_thunder.wav",
+   "len_s": 0.9,
+   "volume_db": -4.5
+  },
+  "cast_time": {
+   "file": "res://art/audio/sfx/cast_time.wav",
+   "len_s": 0.9,
+   "volume_db": -6.5
+  },
+  "cast_water": {
+   "file": "res://art/audio/sfx/cast_water.wav",
+   "len_s": 0.9,
+   "volume_db": -7.5
+  },
+  "cast_wind": {
+   "file": "res://art/audio/sfx/cast_wind.wav",
+   "len_s": 0.9,
+   "volume_db": -5.5
+  },
+  "cast_wood": {
+   "file": "res://art/audio/sfx/cast_wood.wav",
+   "len_s": 0.9,
+   "volume_db": -5.5
   },
   "charge": {
    "file": "res://art/audio/sfx/charge.wav",
-   "volume_db": -4
+   "len_s": 0.8,
+   "volume_db": -4.0
   },
   "coin": {
    "file": "res://art/audio/sfx/coin.wav",
-   "volume_db": -4
+   "len_s": 0.467,
+   "volume_db": -4.0
   },
   "cook": {
    "file": "res://art/audio/sfx/cook.wav",
-   "volume_db": -4
+   "len_s": 1.05,
+   "volume_db": -4.0
   },
-  "crowd_ambience": {
-   "file": "res://art/audio/sfx/crowd_ambience.wav",
-   "volume_db": -4
+  "die_flesh": {
+   "file": "res://art/audio/sfx/die_flesh.wav",
+   "len_s": 0.642,
+   "volume_db": -0.5
+  },
+  "die_shell": {
+   "file": "res://art/audio/sfx/die_shell.wav",
+   "len_s": 0.756,
+   "volume_db": -2.0
+  },
+  "die_slime": {
+   "file": "res://art/audio/sfx/die_slime.wav",
+   "len_s": 0.9,
+   "volume_db": -3.5
+  },
+  "die_spirit": {
+   "file": "res://art/audio/sfx/die_spirit.wav",
+   "len_s": 0.9,
+   "volume_db": -8.0
+  },
+  "die_wood": {
+   "file": "res://art/audio/sfx/die_wood.wav",
+   "len_s": 0.795,
+   "volume_db": -2.0
   },
   "dodge": {
    "file": "res://art/audio/sfx/dodge.wav",
-   "volume_db": -4
+   "len_s": 0.17,
+   "volume_db": -4.0
+  },
+  "door_close": {
+   "file": "res://art/audio/sfx/door_close.wav",
+   "len_s": 0.113,
+   "volume_db": -0.5
+  },
+  "door_open": {
+   "file": "res://art/audio/sfx/door_open.wav",
+   "len_s": 0.565,
+   "volume_db": -11.0
   },
   "enemy_die": {
    "file": "res://art/audio/sfx/enemy_die.wav",
-   "volume_db": -4
+   "len_s": 0.513,
+   "volume_db": -4.0
   },
   "error": {
    "file": "res://art/audio/sfx/error.wav",
-   "volume_db": -4
+   "len_s": 0.28,
+   "volume_db": -4.0
   },
   "fail": {
    "file": "res://art/audio/sfx/fail.wav",
-   "volume_db": -4
+   "len_s": 0.913,
+   "volume_db": -4.0
   },
   "fish_bite": {
    "file": "res://art/audio/sfx/fish_bite.wav",
-   "volume_db": -4
+   "len_s": 0.199,
+   "volume_db": -4.0
   },
   "forge": {
    "file": "res://art/audio/sfx/forge.wav",
-   "volume_db": -4
+   "len_s": 0.917,
+   "volume_db": -4.0
   },
   "frost": {
    "file": "res://art/audio/sfx/frost.wav",
-   "volume_db": -4
+   "len_s": 1.3,
+   "volume_db": -4.0
   },
   "gather": {
    "file": "res://art/audio/sfx/gather.wav",
-   "volume_db": -4
+   "len_s": 0.319,
+   "volume_db": -4.0
   },
   "gong_short": {
    "file": "res://art/audio/sfx/gong_short.wav",
-   "volume_db": -4
+   "len_s": 0.727,
+   "volume_db": -4.0
   },
   "gust": {
    "file": "res://art/audio/sfx/gust.wav",
-   "volume_db": -4
+   "len_s": 1.4,
+   "volume_db": -4.0
   },
   "hiss": {
    "file": "res://art/audio/sfx/hiss.wav",
-   "volume_db": -4
+   "len_s": 1.0,
+   "volume_db": -4.0
   },
   "hit": {
    "file": "res://art/audio/sfx/hit.wav",
-   "volume_db": -4
+   "len_s": 0.169,
+   "volume_db": -4.0
+  },
+  "hit_accent_chain": {
+   "file": "res://art/audio/sfx/hit_accent_chain.wav",
+   "len_s": 0.404,
+   "volume_db": -9.5
+  },
+  "hit_accent_crit": {
+   "file": "res://art/audio/sfx/hit_accent_crit.wav",
+   "len_s": 0.664,
+   "volume_db": -6.5
+  },
+  "hit_accent_weave": {
+   "file": "res://art/audio/sfx/hit_accent_weave.wav",
+   "len_s": 0.108,
+   "volume_db": -8.0
+  },
+  "hit_bell_a": {
+   "file": "res://art/audio/sfx/hit_bell_a.wav",
+   "len_s": 0.179,
+   "volume_db": -0.5
+  },
+  "hit_bell_b": {
+   "file": "res://art/audio/sfx/hit_bell_b.wav",
+   "len_s": 0.177,
+   "volume_db": 0.0
+  },
+  "hit_bow_a": {
+   "file": "res://art/audio/sfx/hit_bow_a.wav",
+   "len_s": 0.089,
+   "volume_db": 0.0
+  },
+  "hit_bow_b": {
+   "file": "res://art/audio/sfx/hit_bow_b.wav",
+   "len_s": 0.086,
+   "volume_db": 0.0
+  },
+  "hit_brush_a": {
+   "file": "res://art/audio/sfx/hit_brush_a.wav",
+   "len_s": 0.096,
+   "volume_db": -0.5
+  },
+  "hit_brush_b": {
+   "file": "res://art/audio/sfx/hit_brush_b.wav",
+   "len_s": 0.096,
+   "volume_db": 0.0
   },
   "hit_crit": {
    "file": "res://art/audio/sfx/hit_crit.wav",
-   "volume_db": -4
+   "len_s": 0.561,
+   "volume_db": -5.0
+  },
+  "hit_el_earth": {
+   "file": "res://art/audio/sfx/hit_el_earth.wav",
+   "len_s": 0.151,
+   "volume_db": -3.0
+  },
+  "hit_el_fire": {
+   "file": "res://art/audio/sfx/hit_el_fire.wav",
+   "len_s": 0.22,
+   "volume_db": -1.0
+  },
+  "hit_el_metal": {
+   "file": "res://art/audio/sfx/hit_el_metal.wav",
+   "len_s": 0.168,
+   "volume_db": -5.0
+  },
+  "hit_el_qi": {
+   "file": "res://art/audio/sfx/hit_el_qi.wav",
+   "len_s": 0.223,
+   "volume_db": -3.0
+  },
+  "hit_el_soul": {
+   "file": "res://art/audio/sfx/hit_el_soul.wav",
+   "len_s": 0.276,
+   "volume_db": -5.5
+  },
+  "hit_el_space": {
+   "file": "res://art/audio/sfx/hit_el_space.wav",
+   "len_s": 0.221,
+   "volume_db": -12.5
+  },
+  "hit_el_thunder": {
+   "file": "res://art/audio/sfx/hit_el_thunder.wav",
+   "len_s": 0.169,
+   "volume_db": 0.0
+  },
+  "hit_el_time": {
+   "file": "res://art/audio/sfx/hit_el_time.wav",
+   "len_s": 0.221,
+   "volume_db": -4.0
+  },
+  "hit_el_water": {
+   "file": "res://art/audio/sfx/hit_el_water.wav",
+   "len_s": 0.196,
+   "volume_db": -0.5
+  },
+  "hit_el_wind": {
+   "file": "res://art/audio/sfx/hit_el_wind.wav",
+   "len_s": 0.214,
+   "volume_db": -6.5
+  },
+  "hit_el_wood": {
+   "file": "res://art/audio/sfx/hit_el_wood.wav",
+   "len_s": 0.119,
+   "volume_db": -1.5
+  },
+  "hit_fan_a": {
+   "file": "res://art/audio/sfx/hit_fan_a.wav",
+   "len_s": 0.061,
+   "volume_db": 0.0
+  },
+  "hit_fan_b": {
+   "file": "res://art/audio/sfx/hit_fan_b.wav",
+   "len_s": 0.065,
+   "volume_db": 0.0
+  },
+  "hit_fists_a": {
+   "file": "res://art/audio/sfx/hit_fists_a.wav",
+   "len_s": 0.084,
+   "volume_db": 0.0
+  },
+  "hit_fists_b": {
+   "file": "res://art/audio/sfx/hit_fists_b.wav",
+   "len_s": 0.088,
+   "volume_db": 0.0
+  },
+  "hit_flute_a": {
+   "file": "res://art/audio/sfx/hit_flute_a.wav",
+   "len_s": 0.078,
+   "volume_db": 0.0
+  },
+  "hit_flute_b": {
+   "file": "res://art/audio/sfx/hit_flute_b.wav",
+   "len_s": 0.077,
+   "volume_db": 0.0
+  },
+  "hit_on_flesh_a": {
+   "file": "res://art/audio/sfx/hit_on_flesh_a.wav",
+   "len_s": 0.144,
+   "volume_db": -0.5
+  },
+  "hit_on_flesh_b": {
+   "file": "res://art/audio/sfx/hit_on_flesh_b.wav",
+   "len_s": 0.142,
+   "volume_db": -1.5
+  },
+  "hit_on_shell_a": {
+   "file": "res://art/audio/sfx/hit_on_shell_a.wav",
+   "len_s": 0.082,
+   "volume_db": -0.5
+  },
+  "hit_on_shell_b": {
+   "file": "res://art/audio/sfx/hit_on_shell_b.wav",
+   "len_s": 0.088,
+   "volume_db": 0.0
+  },
+  "hit_on_slime_a": {
+   "file": "res://art/audio/sfx/hit_on_slime_a.wav",
+   "len_s": 0.269,
+   "volume_db": -3.0
+  },
+  "hit_on_slime_b": {
+   "file": "res://art/audio/sfx/hit_on_slime_b.wav",
+   "len_s": 0.274,
+   "volume_db": -5.0
+  },
+  "hit_on_wood_a": {
+   "file": "res://art/audio/sfx/hit_on_wood_a.wav",
+   "len_s": 0.135,
+   "volume_db": -1.0
+  },
+  "hit_on_wood_b": {
+   "file": "res://art/audio/sfx/hit_on_wood_b.wav",
+   "len_s": 0.133,
+   "volume_db": -1.0
+  },
+  "hit_sabre_a": {
+   "file": "res://art/audio/sfx/hit_sabre_a.wav",
+   "len_s": 0.104,
+   "volume_db": 0.0
+  },
+  "hit_sabre_b": {
+   "file": "res://art/audio/sfx/hit_sabre_b.wav",
+   "len_s": 0.107,
+   "volume_db": 0.0
+  },
+  "hit_spear_a": {
+   "file": "res://art/audio/sfx/hit_spear_a.wav",
+   "len_s": 0.071,
+   "volume_db": 0.0
+  },
+  "hit_spear_b": {
+   "file": "res://art/audio/sfx/hit_spear_b.wav",
+   "len_s": 0.073,
+   "volume_db": 0.0
+  },
+  "hit_sword_a": {
+   "file": "res://art/audio/sfx/hit_sword_a.wav",
+   "len_s": 0.075,
+   "volume_db": 0.0
+  },
+  "hit_sword_b": {
+   "file": "res://art/audio/sfx/hit_sword_b.wav",
+   "len_s": 0.077,
+   "volume_db": 0.0
+  },
+  "hit_tail_bell": {
+   "file": "res://art/audio/sfx/hit_tail_bell.wav",
+   "len_s": 0.656,
+   "volume_db": -14.5
+  },
+  "hit_tail_bow": {
+   "file": "res://art/audio/sfx/hit_tail_bow.wav",
+   "len_s": 0.171,
+   "volume_db": -6.5
+  },
+  "hit_tail_brush": {
+   "file": "res://art/audio/sfx/hit_tail_brush.wav",
+   "len_s": 0.264,
+   "volume_db": -8.5
+  },
+  "hit_tail_fan": {
+   "file": "res://art/audio/sfx/hit_tail_fan.wav",
+   "len_s": 0.312,
+   "volume_db": -12.0
+  },
+  "hit_tail_fists": {
+   "file": "res://art/audio/sfx/hit_tail_fists.wav",
+   "len_s": 0.233,
+   "volume_db": -10.5
+  },
+  "hit_tail_flute": {
+   "file": "res://art/audio/sfx/hit_tail_flute.wav",
+   "len_s": 0.399,
+   "volume_db": -14.0
+  },
+  "hit_tail_sabre": {
+   "file": "res://art/audio/sfx/hit_tail_sabre.wav",
+   "len_s": 0.316,
+   "volume_db": -11.5
+  },
+  "hit_tail_spear": {
+   "file": "res://art/audio/sfx/hit_tail_spear.wav",
+   "len_s": 0.251,
+   "volume_db": -5.0
+  },
+  "hit_tail_sword": {
+   "file": "res://art/audio/sfx/hit_tail_sword.wav",
+   "len_s": 0.338,
+   "volume_db": -11.0
   },
   "hurt": {
    "file": "res://art/audio/sfx/hurt.wav",
-   "volume_db": -4
+   "len_s": 0.281,
+   "volume_db": -4.0
   },
   "jump": {
    "file": "res://art/audio/sfx/jump.wav",
-   "volume_db": -4
+   "len_s": 0.255,
+   "volume_db": -4.0
   },
   "land": {
    "file": "res://art/audio/sfx/land.wav",
-   "volume_db": -4
+   "len_s": 0.11,
+   "volume_db": -4.0
+  },
+  "land_dirt": {
+   "file": "res://art/audio/sfx/land_dirt.wav",
+   "len_s": 0.189,
+   "volume_db": -3.5
+  },
+  "land_grass": {
+   "file": "res://art/audio/sfx/land_grass.wav",
+   "len_s": 0.195,
+   "volume_db": -5.5
+  },
+  "land_heavy": {
+   "file": "res://art/audio/sfx/land_heavy.wav",
+   "len_s": 0.312,
+   "volume_db": -3.5
+  },
+  "land_reeds": {
+   "file": "res://art/audio/sfx/land_reeds.wav",
+   "len_s": 0.219,
+   "volume_db": -6.5
+  },
+  "land_roof": {
+   "file": "res://art/audio/sfx/land_roof.wav",
+   "len_s": 0.184,
+   "volume_db": -2.5
+  },
+  "land_sand": {
+   "file": "res://art/audio/sfx/land_sand.wav",
+   "len_s": 0.187,
+   "volume_db": -6.0
+  },
+  "land_snow": {
+   "file": "res://art/audio/sfx/land_snow.wav",
+   "len_s": 0.177,
+   "volume_db": -6.0
+  },
+  "land_stone": {
+   "file": "res://art/audio/sfx/land_stone.wav",
+   "len_s": 0.188,
+   "volume_db": -3.5
+  },
+  "land_water": {
+   "file": "res://art/audio/sfx/land_water.wav",
+   "len_s": 0.199,
+   "volume_db": -4.0
+  },
+  "land_wood": {
+   "file": "res://art/audio/sfx/land_wood.wav",
+   "len_s": 0.152,
+   "volume_db": -2.5
   },
   "level": {
    "file": "res://art/audio/sfx/level.wav",
-   "volume_db": -4
+   "len_s": 1.5,
+   "volume_db": -4.0
+  },
+  "loot_drop": {
+   "file": "res://art/audio/sfx/loot_drop.wav",
+   "len_s": 0.305,
+   "volume_db": -3.5
   },
   "mail": {
    "file": "res://art/audio/sfx/mail.wav",
-   "volume_db": -4
+   "len_s": 0.844,
+   "volume_db": -4.0
   },
   "meditate": {
    "file": "res://art/audio/sfx/meditate.wav",
-   "volume_db": -4
+   "len_s": 1.97,
+   "volume_db": -4.0
   },
   "mine": {
    "file": "res://art/audio/sfx/mine.wav",
-   "volume_db": -4
+   "len_s": 0.32,
+   "volume_db": -4.0
   },
   "parry": {
    "file": "res://art/audio/sfx/parry.wav",
-   "volume_db": -4
+   "len_s": 0.988,
+   "volume_db": -4.0
   },
   "pickup": {
    "file": "res://art/audio/sfx/pickup.wav",
-   "volume_db": -4
+   "len_s": 0.758,
+   "volume_db": -4.0
   },
   "portal": {
    "file": "res://art/audio/sfx/portal.wav",
-   "volume_db": -4
+   "len_s": 1.4,
+   "volume_db": -4.0
   },
   "quest_accept": {
    "file": "res://art/audio/sfx/quest_accept.wav",
-   "volume_db": -4
+   "len_s": 0.9,
+   "volume_db": -4.0
   },
   "quest_complete": {
    "file": "res://art/audio/sfx/quest_complete.wav",
-   "volume_db": -4
+   "len_s": 1.4,
+   "volume_db": -4.0
   },
   "rare_chime": {
    "file": "res://art/audio/sfx/rare_chime.wav",
-   "volume_db": -4
+   "len_s": 0.9,
+   "volume_db": -4.0
   },
   "rockfall": {
    "file": "res://art/audio/sfx/rockfall.wav",
-   "volume_db": -4
+   "len_s": 0.655,
+   "volume_db": -4.0
   },
   "rumble": {
    "file": "res://art/audio/sfx/rumble.wav",
-   "volume_db": -4
+   "len_s": 0.9,
+   "volume_db": -4.0
+  },
+  "scene_in": {
+   "file": "res://art/audio/sfx/scene_in.wav",
+   "len_s": 1.6,
+   "volume_db": -10.5
   },
   "seal_press": {
    "file": "res://art/audio/sfx/seal_press.wav",
-   "volume_db": -4
+   "len_s": 0.207,
+   "volume_db": -4.0
+  },
+  "splash": {
+   "file": "res://art/audio/sfx/splash.wav",
+   "len_s": 0.643,
+   "volume_db": -7.0
+  },
+  "step_dirt_a": {
+   "file": "res://art/audio/sfx/step_dirt_a.wav",
+   "len_s": 0.079,
+   "volume_db": -2.0
+  },
+  "step_dirt_b": {
+   "file": "res://art/audio/sfx/step_dirt_b.wav",
+   "len_s": 0.082,
+   "volume_db": -4.0
+  },
+  "step_dirt_c": {
+   "file": "res://art/audio/sfx/step_dirt_c.wav",
+   "len_s": 0.081,
+   "volume_db": -3.5
+  },
+  "step_dirt_d": {
+   "file": "res://art/audio/sfx/step_dirt_d.wav",
+   "len_s": 0.077,
+   "volume_db": -3.5
+  },
+  "step_grass_a": {
+   "file": "res://art/audio/sfx/step_grass_a.wav",
+   "len_s": 0.091,
+   "volume_db": -6.0
+  },
+  "step_grass_b": {
+   "file": "res://art/audio/sfx/step_grass_b.wav",
+   "len_s": 0.094,
+   "volume_db": -4.5
+  },
+  "step_grass_c": {
+   "file": "res://art/audio/sfx/step_grass_c.wav",
+   "len_s": 0.086,
+   "volume_db": -5.0
+  },
+  "step_grass_d": {
+   "file": "res://art/audio/sfx/step_grass_d.wav",
+   "len_s": 0.091,
+   "volume_db": -5.5
+  },
+  "step_reeds_a": {
+   "file": "res://art/audio/sfx/step_reeds_a.wav",
+   "len_s": 0.198,
+   "volume_db": -8.5
+  },
+  "step_reeds_b": {
+   "file": "res://art/audio/sfx/step_reeds_b.wav",
+   "len_s": 0.198,
+   "volume_db": -11.0
+  },
+  "step_reeds_c": {
+   "file": "res://art/audio/sfx/step_reeds_c.wav",
+   "len_s": 0.2,
+   "volume_db": -10.0
+  },
+  "step_reeds_d": {
+   "file": "res://art/audio/sfx/step_reeds_d.wav",
+   "len_s": 0.203,
+   "volume_db": -8.5
+  },
+  "step_roof_a": {
+   "file": "res://art/audio/sfx/step_roof_a.wav",
+   "len_s": 0.065,
+   "volume_db": -4.5
+  },
+  "step_roof_b": {
+   "file": "res://art/audio/sfx/step_roof_b.wav",
+   "len_s": 0.066,
+   "volume_db": -4.0
+  },
+  "step_roof_c": {
+   "file": "res://art/audio/sfx/step_roof_c.wav",
+   "len_s": 0.064,
+   "volume_db": -3.5
+  },
+  "step_roof_d": {
+   "file": "res://art/audio/sfx/step_roof_d.wav",
+   "len_s": 0.067,
+   "volume_db": -4.5
+  },
+  "step_sand_a": {
+   "file": "res://art/audio/sfx/step_sand_a.wav",
+   "len_s": 0.11,
+   "volume_db": -6.0
+  },
+  "step_sand_b": {
+   "file": "res://art/audio/sfx/step_sand_b.wav",
+   "len_s": 0.112,
+   "volume_db": -8.0
+  },
+  "step_sand_c": {
+   "file": "res://art/audio/sfx/step_sand_c.wav",
+   "len_s": 0.111,
+   "volume_db": -3.0
+  },
+  "step_sand_d": {
+   "file": "res://art/audio/sfx/step_sand_d.wav",
+   "len_s": 0.111,
+   "volume_db": -6.0
+  },
+  "step_snow_a": {
+   "file": "res://art/audio/sfx/step_snow_a.wav",
+   "len_s": 0.124,
+   "volume_db": -10.0
+  },
+  "step_snow_b": {
+   "file": "res://art/audio/sfx/step_snow_b.wav",
+   "len_s": 0.123,
+   "volume_db": -8.0
+  },
+  "step_snow_c": {
+   "file": "res://art/audio/sfx/step_snow_c.wav",
+   "len_s": 0.124,
+   "volume_db": -7.0
+  },
+  "step_snow_d": {
+   "file": "res://art/audio/sfx/step_snow_d.wav",
+   "len_s": 0.122,
+   "volume_db": -8.5
+  },
+  "step_stone_a": {
+   "file": "res://art/audio/sfx/step_stone_a.wav",
+   "len_s": 0.09,
+   "volume_db": -2.5
+  },
+  "step_stone_b": {
+   "file": "res://art/audio/sfx/step_stone_b.wav",
+   "len_s": 0.089,
+   "volume_db": -2.0
+  },
+  "step_stone_c": {
+   "file": "res://art/audio/sfx/step_stone_c.wav",
+   "len_s": 0.089,
+   "volume_db": -2.5
+  },
+  "step_stone_d": {
+   "file": "res://art/audio/sfx/step_stone_d.wav",
+   "len_s": 0.089,
+   "volume_db": -1.5
+  },
+  "step_water_a": {
+   "file": "res://art/audio/sfx/step_water_a.wav",
+   "len_s": 0.169,
+   "volume_db": -6.5
+  },
+  "step_water_b": {
+   "file": "res://art/audio/sfx/step_water_b.wav",
+   "len_s": 0.169,
+   "volume_db": -7.0
+  },
+  "step_water_c": {
+   "file": "res://art/audio/sfx/step_water_c.wav",
+   "len_s": 0.169,
+   "volume_db": -5.0
+  },
+  "step_water_d": {
+   "file": "res://art/audio/sfx/step_water_d.wav",
+   "len_s": 0.17,
+   "volume_db": -9.5
+  },
+  "step_wood_a": {
+   "file": "res://art/audio/sfx/step_wood_a.wav",
+   "len_s": 0.108,
+   "volume_db": -4.5
+  },
+  "step_wood_b": {
+   "file": "res://art/audio/sfx/step_wood_b.wav",
+   "len_s": 0.107,
+   "volume_db": -4.5
+  },
+  "step_wood_c": {
+   "file": "res://art/audio/sfx/step_wood_c.wav",
+   "len_s": 0.12,
+   "volume_db": -4.5
+  },
+  "step_wood_d": {
+   "file": "res://art/audio/sfx/step_wood_d.wav",
+   "len_s": 0.107,
+   "volume_db": -4.0
+  },
+  "sting_breakthrough": {
+   "file": "res://art/audio/sfx/sting_breakthrough.wav",
+   "len_s": 3.6,
+   "volume_db": -3.5
+  },
+  "sting_elite": {
+   "file": "res://art/audio/sfx/sting_elite.wav",
+   "len_s": 2.2,
+   "volume_db": -0.5
+  },
+  "sting_quest": {
+   "file": "res://art/audio/sfx/sting_quest.wav",
+   "len_s": 1.9,
+   "volume_db": -2.0
+  },
+  "sting_rare": {
+   "file": "res://art/audio/sfx/sting_rare.wav",
+   "len_s": 2.4,
+   "volume_db": -5.5
+  },
+  "sting_unlock": {
+   "file": "res://art/audio/sfx/sting_unlock.wav",
+   "len_s": 1.89,
+   "volume_db": -2.5
+  },
+  "sting_victory": {
+   "file": "res://art/audio/sfx/sting_victory.wav",
+   "len_s": 2.56,
+   "volume_db": 0.0
   },
   "surge": {
    "file": "res://art/audio/sfx/surge.wav",
-   "volume_db": -4
+   "len_s": 1.2,
+   "volume_db": -4.0
   },
   "swing": {
    "file": "res://art/audio/sfx/swing.wav",
-   "volume_db": -4
+   "len_s": 0.34,
+   "volume_db": -4.0
+  },
+  "swing_bell": {
+   "file": "res://art/audio/sfx/swing_bell.wav",
+   "len_s": 0.364,
+   "volume_db": -6.0
+  },
+  "swing_bow": {
+   "file": "res://art/audio/sfx/swing_bow.wav",
+   "len_s": 0.258,
+   "volume_db": -7.0
+  },
+  "swing_brush": {
+   "file": "res://art/audio/sfx/swing_brush.wav",
+   "len_s": 0.26,
+   "volume_db": -7.0
+  },
+  "swing_fan": {
+   "file": "res://art/audio/sfx/swing_fan.wav",
+   "len_s": 0.3,
+   "volume_db": -5.0
+  },
+  "swing_fists": {
+   "file": "res://art/audio/sfx/swing_fists.wav",
+   "len_s": 0.16,
+   "volume_db": -5.0
+  },
+  "swing_flute": {
+   "file": "res://art/audio/sfx/swing_flute.wav",
+   "len_s": 0.34,
+   "volume_db": -8.0
+  },
+  "swing_sabre": {
+   "file": "res://art/audio/sfx/swing_sabre.wav",
+   "len_s": 0.4,
+   "volume_db": -6.0
+  },
+  "swing_spear": {
+   "file": "res://art/audio/sfx/swing_spear.wav",
+   "len_s": 0.18,
+   "volume_db": -6.0
+  },
+  "swing_sword": {
+   "file": "res://art/audio/sfx/swing_sword.wav",
+   "len_s": 0.22,
+   "volume_db": -6.5
+  },
+  "talk_next": {
+   "file": "res://art/audio/sfx/talk_next.wav",
+   "len_s": 0.349,
+   "volume_db": -7.5
+  },
+  "talk_open": {
+   "file": "res://art/audio/sfx/talk_open.wav",
+   "len_s": 0.331,
+   "volume_db": -5.0
   },
   "technique": {
    "file": "res://art/audio/sfx/technique.wav",
-   "volume_db": -4
+   "len_s": 1.3,
+   "volume_db": -4.0
   },
   "tell": {
    "file": "res://art/audio/sfx/tell.wav",
-   "volume_db": -4
+   "len_s": 0.102,
+   "volume_db": -4.0
+  },
+  "tell_beast": {
+   "file": "res://art/audio/sfx/tell_beast.wav",
+   "len_s": 0.34,
+   "volume_db": -8.5
+  },
+  "tell_construct": {
+   "file": "res://art/audio/sfx/tell_construct.wav",
+   "len_s": 0.4,
+   "volume_db": -8.5
+  },
+  "tell_human": {
+   "file": "res://art/audio/sfx/tell_human.wav",
+   "len_s": 0.278,
+   "volume_db": -7.0
+  },
+  "tell_spirit": {
+   "file": "res://art/audio/sfx/tell_spirit.wav",
+   "len_s": 0.45,
+   "volume_db": -11.0
+  },
+  "tell_water": {
+   "file": "res://art/audio/sfx/tell_water.wav",
+   "len_s": 0.398,
+   "volume_db": -8.0
   },
   "thunder": {
    "file": "res://art/audio/sfx/thunder.wav",
-   "volume_db": -4
+   "len_s": 1.6,
+   "volume_db": -4.0
   },
   "ui_close": {
    "file": "res://art/audio/sfx/ui_close.wav",
-   "volume_db": -4
+   "len_s": 0.22,
+   "volume_db": -4.0
+  },
+  "ui_confirm": {
+   "file": "res://art/audio/sfx/ui_confirm.wav",
+   "len_s": 0.235,
+   "volume_db": -2.0
   },
   "ui_open": {
    "file": "res://art/audio/sfx/ui_open.wav",
-   "volume_db": -4
+   "len_s": 0.26,
+   "volume_db": -4.0
+  },
+  "ui_tab": {
+   "file": "res://art/audio/sfx/ui_tab.wav",
+   "len_s": 0.044,
+   "volume_db": 0.0
   },
   "ui_tap": {
    "file": "res://art/audio/sfx/ui_tap.wav",
-   "volume_db": -4
+   "len_s": 0.049,
+   "volume_db": -4.0
   },
   "unlock": {
    "file": "res://art/audio/sfx/unlock.wav",
-   "volume_db": -4
-  },
-  "water_ambience": {
-   "file": "res://art/audio/sfx/water_ambience.wav",
-   "volume_db": -4
+   "len_s": 1.13,
+   "volume_db": -4.0
   },
   "water_step": {
    "file": "res://art/audio/sfx/water_step.wav",
-   "volume_db": -4
-  },
-  "wind_ambience": {
-   "file": "res://art/audio/sfx/wind_ambience.wav",
-   "volume_db": -4
+   "len_s": 0.147,
+   "volume_db": -4.0
   }
  }
 }

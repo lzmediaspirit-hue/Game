@@ -14,7 +14,7 @@ extends Control
 ##
 ## Decision 42: a top-down character casts as the top-down game draws it: the character is a TopdownDoll playing the
 ## art's top-down pose toward its foes (the pose a fight plays, TechniquePreview.top_pose), the foes are the top-down
-## world's own (art/topdown/foes.png, `top_foe`), all at a whole `top_scale` screen px an art px, and the form plays at
+## world's own (art/topdown/foes/, `top_foe`), all at a whole `top_scale` screen px an art px, and the form plays at
 ## the top-down world's proportion to the body (2 world units an art px). A classic side-view character keeps the side
 ## view's avatar against pebble imps. Only the pieces that moved are drawn again: the caster when its frame changes, a
 ## foe while it moves or its frame changes, the effects while any are alive.
@@ -82,7 +82,7 @@ func _build(top_down: bool) -> void:
 	fx.scale = Vector2.ONE / units
 	fx.number_scale = 0.8 / (stage.scale.x / units)
 	if top:
-		TopFoe.texture()   # the foes' sheet and index start loading now, ahead of the first art chosen
+		TopFoe.texture(str(cfg.get("top_foe", "mudshell_crab")))   # the foe's sheet and index start loading now, ahead of the first art chosen
 		caster = TopdownDoll.new()
 		caster.externally_timed = true
 		caster.position = Vector2(TOP_CASTER_X, TOP_GROUND)
@@ -325,8 +325,8 @@ func _strike(i: int) -> void:
 	for h in mine:
 		fx.hit(at, roundf(amount * (1.0 + 0.07 * h)), src, str(tech.get("element", "none")), str(tech.get("damage_type", "")), false, "foe%d" % i)
 
-## Decision 42: a foe of the top-down world (art/topdown/foes.png; data/topdown/proto_tileset.json `foes`, built by
-## tools/art/topdown/creatures.py) with the few calls the preview makes of a CreatureSprite: play, its clock `t`, a flash
+## Decision 42: a foe of the top-down world (decision 43: its species' sheet in art/topdown/foes/, indexed by
+## data/topdown/foes.json, built by tools/art/topdown/build_foes.py) with the few calls the preview makes of a CreatureSprite: play, its clock `t`, a flash
 ## (white as it is struck, then the fight's tint, TopdownWorld.FoeView's), and its height for the numbers. The sheet's
 ## index is read on a worker thread and its texture on a loading thread, both asked for as the top-down preview is
 ## built, so choosing an art never waits on them (a foe appears the frame they are in).
@@ -334,7 +334,7 @@ class TopFoe extends Node2D:
 	static var _sheet: Dictionary = {}
 	static var _task := -1
 	static var _parsed = null
-	static var _tex: Texture2D
+	static var _texs: Dictionary = {}
 	var species := ""
 	var row := "w"
 	var action := "idle"
@@ -352,21 +352,21 @@ class TopFoe extends Node2D:
 	static func sheet() -> Dictionary:
 		if _sheet.is_empty():
 			if _task == -1:
-				_task = WorkerThreadPool.add_task(func(): TopFoe._parsed = JSON.parse_string(FileAccess.get_file_as_string(TopdownRoom.DIR + "proto_tileset.json")))
+				_task = WorkerThreadPool.add_task(func(): TopFoe._parsed = JSON.parse_string(FileAccess.get_file_as_string(TopdownRoom.DIR + "foes.json")))
 			elif _task >= 0 and WorkerThreadPool.is_task_completed(_task):
 				WorkerThreadPool.wait_for_task_completion(_task)
 				_task = -2
 				var ts = _parsed
 				_parsed = null
-				if ts is Dictionary:
-					_sheet = (ts.get("foes", {}) as Dictionary).duplicate()
-					_sheet.atlas = str(ts.get("atlas", {}).get("foes", ""))
+				if ts is Dictionary: _sheet = ts
 		return _sheet
 
-	## The foes' texture, from its loading thread (null until it is in).
-	static func texture() -> Texture2D:
-		if _tex == null and str(sheet().get("atlas", "")) != "": _tex = SpriteCache.tex_async(str(_sheet.atlas))
-		return _tex
+	## A species' sheet, from its loading thread (null until it is in).
+	static func texture(sp: String) -> Texture2D:
+		var path := str(sheet().get("species", {}).get(sp, {}).get("atlas", ""))
+		if path == "": return null
+		if _texs.get(path) == null: _texs[path] = SpriteCache.tex_async(path)
+		return _texs[path]
 
 	func play(next: String, restart := false) -> void:
 		if next != action or restart:
@@ -382,7 +382,7 @@ class TopFoe extends Node2D:
 
 	## True when what it shows is not what it drew last: its frame moved on, or its sheet came in.
 	func changed() -> bool:
-		return _frame() != _src or texture() != _drawn_tex
+		return _frame() != _src or texture(species) != _drawn_tex
 
 	func _frame() -> Rect2:
 		var sh := sheet()
@@ -392,14 +392,14 @@ class TopFoe extends Node2D:
 		var list: Array = a.get("frames", {}).get(str(mirror.get(row, row)), [[0, 0]])
 		var i := int(t * float(a.get("fps", 6)))
 		var at: Array = list[i % list.size() if a.get("loop", true) else mini(i, list.size() - 1)]
-		var c: Array = sh.get("cell", [64, 72])
+		var c: Array = sh.get("species", {}).get(species, {}).get("cell", [64, 72])
 		return Rect2(float(at[0]), float(at[1]), float(c[0]), float(c[1]))
 
 	func _draw() -> void:
-		_drawn_tex = texture()
+		_drawn_tex = texture(species)
 		_src = _frame()
 		if _drawn_tex == null: return
-		var foot: Array = _sheet.get("foot", [32, 40])
+		var foot: Array = _sheet.get("species", {}).get(species, {}).get("foot", [32, 40])
 		var tint := Color.WHITE if flash <= 0.0 else Color(str(CombatFeel.cfg().get("flash", {}).get("tint", "#ffb4a0")))
 		material = TopdownFx.white_material() if flash > 0.6 else null
 		# A blob shadow under its feet, as the world's FoeShadow.

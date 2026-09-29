@@ -227,6 +227,39 @@ story's gestures, in `character_quality/rollout/`.
 
 ![The story's gestures, before and after, x3](character_quality/rollout/04_gestures_x3.png)
 
+## As built: the people 1.2 times bigger (decision 43)
+
+After build 109 the user asked: "I think the player should look a little bigger." That is D's direction at a little
+less than D's size: B's renderer at 1.104 px a unit (1.2 times, from 0.92), so the people are about 46 art px from sole
+to crown (48 with a top knot), all on the world's one pixel grid. Every pixel is cast at that density: nothing is
+scaled at runtime.
+
+- **The pipeline** (`figure/geom.py` `WORLD_SCALE`): every layer set, all 864 frames in the five drawn facings, every
+  hair colour and dye, rebuilt; the same doll, poses, weapons in the hands and outfits. The working canvas grows to
+  136 x 124 (the feet at 68, 84). The face has more room: an eye is 3 px wide and 3 tall (a lash row, the white, the
+  pupil and the iris, the iris and its lower light), the mouth 2 px; the hair's and hats' eye box follows the glyphs.
+- **The technique pictures keep the approved 38 px figure.** The tree's cards, the reading, the HUD's buttons and the
+  loadout bar were framed for it (a card from the head to the ankles at x2, a button the whole figure at x1 in 42 to
+  50 px), and a 46 px figure fits neither. So the 105 poses a picture draws are cast again at `PICTURE_SCALE` (0.92)
+  with decision 42's face, listed in the index's `pictures` (`build_character.py` `pictures()`, mirroring
+  `TechniquePicture.top_pose`); `TopdownFigure.frame_of`, `draw` and `bounds` take `picture`. The HUD's companion chip
+  draws its head from the same frames.
+- **The pages** that stand the character large (the Character page, the Bag, a shop's merchant) draw it at x5, as tall
+  as the 38 px figure was at x6, with more detail. The smaller dolls (the dialogue's portrait, the Cultivation page's
+  seated figure, the Techniques page's caster) keep their scales and read a little larger.
+- **What is sized against a person** follows the art bible's §13 scale rule (the foot box, the player's body for a blow,
+  the talk reach, the marks and balloons over a head, the shadows, the camera's framing, the FX's hand height). The
+  paces, the jumps, the tops, a blow's reach and the doors and ways stay.
+- **Cost.** The same draw calls. 207 MB of RGBA8 for all 168 sheets (from 139; 512 px wide, the tallest 1,446 px), the
+  player's outfit 8.1 MB (from 5.4), the pictures' frames about a tenth of it. A full build takes about 6 minutes on two
+  cores.
+
+Before and after, the same instants in the game, in `people_scale/` (the pairs `*_pair.png`, the
+shots `before/` and `after/`; `tools/dev/topdown_capture.tscn -- --people-scale --people-tag=<before|after>`, and the
+pictures and pages with `tools/dev/picture_capture.tscn -- --tag=<before|after> --dir=people_scale [--pages]`).
+
+![At the hut door, beside a group of villagers](people_scale/01_door_hut_people_pair.png)
+
 ## Reproduce
 
 The study's code is kept as it was drawn. The pipeline's generators now carry B's locks and folds, so the study's

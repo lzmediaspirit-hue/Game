@@ -92,7 +92,8 @@ const DUST := Color(0.78, 0.66, 0.5, 0.55)
 const SHAFT_A := 0.1
 const PATCH_A := 0.24
 const SHAFT_FALL := Vector2(0.55, 1.25)
-## The sounds a cue raises (Audio.play, silent until a sound is given; `cue` is emitted for any other listener).
+## A cue's sound (Audio.world_sound, silent until the bank has it; `cue_raised` is emitted for any other listener) at
+## most this often for each name.
 const SOUND_GAP := 0.3
 
 signal cue_raised(name: String, at: Vector2)
@@ -1108,13 +1109,15 @@ func _on_event(ev: String, p: Dictionary) -> void:
 				_bits(TopdownWorld.to_screen(at, m.z) + Vector2(0, -3), aim.normalized(), [Color("87c749"), Color("45a03a"), Color("cbe86c")], 6)
 
 ## A sound for a moment of life (a bird's wings, a frog's plop, a hammer on the anvil): the `cue_raised` signal, and
-## Audio.play("life_" + name) while it is in view (silent until the sound is given), each name at most every SOUND_GAP.
+## the world sound "life_" + name where it happens (Audio.world_sound: positional, under the fight's sounds; silent
+## until the sound bank has it) while it is in view, each name at most every SOUND_GAP. The walking people's steps are
+## the sound's own (TopdownSound steps a figure on its walk).
 func raise_cue(cue_name: String, g: Vector2) -> void:
 	cue_raised.emit(cue_name, g)
 	var now := clock
 	if now - float(_sounds.get(cue_name, -99.0)) < SOUND_GAP: return
 	_sounds[cue_name] = now
-	if _view().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.play("life_" + cue_name)
+	if _view().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.world_sound("life_" + cue_name, g)
 
 # ------------------------------------------------------------------ drawing
 ## A sprite of the sheet: frame `f` of `name`, its foot at `at`, mirrored when `flip`, tinted `col`.

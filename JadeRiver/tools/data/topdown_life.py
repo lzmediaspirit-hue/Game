@@ -21,8 +21,9 @@ layout before it is checked, and `extend(rid, d)` adds a room's `vista` to its l
 
 Checked as it is built (`build`, also run by topdown_rooms.py --check): every work spot stands on a floor a body can
 stand on, at its NPC's height, within LEASH tiles of the NPC's own spot (so standing next to a worker the talk is always
-in reach: the World authority's 110 units round the spot), and every leg between spots is walked on that floor with
-nothing in the way; every extra's and animal's spot is standable; every loop's action is one the figures play.
+in reach: the World authority's 110 units round the spot, 132 on the grid with the people drawn 1.2 times bigger), and
+every leg between spots is walked on that floor with nothing in the way; every extra's and animal's spot is standable;
+every loop's action is one the figures play.
 Deterministic: `python3 tools/data/topdown_life.py` writes the file, `--check` proves it current.
 """
 import json
@@ -35,8 +36,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(ROOT, "data", "topdown", "life.json")
 LAYOUTS = os.path.join(ROOT, "data", "topdown")
 
-# A work spot's reach round its NPC's own spot, in tiles: the talk reaches 110 units (3.4 tiles) round the spot, so a
-# player standing beside the worker (a tile off) is always in reach.
+# A work spot's reach round its NPC's own spot, in tiles: the talk reaches 110 units (3.4 tiles; 132 on the grid)
+# round the spot, so a player standing beside the worker (a tile off) is always in reach.
 LEASH = 2.5
 
 # ==================================================================================================================
