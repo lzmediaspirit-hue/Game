@@ -10,8 +10,8 @@ import math
 import numpy as np
 
 from . import mats as M
-from .motion import pick, wave
-from .sculpt import E, L, Pose, S, on, rot, v3
+from .motion import pick
+from .sculpt import E, Pose, on, rot, v3
 
 N = 9          # rings
 

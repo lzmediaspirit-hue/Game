@@ -233,10 +233,6 @@ class View:
         return (int(math.floor(float(q @ geom.SCR_R) * geom.SCALE + raster.AX)),
                 int(math.floor(float(q @ geom.SCR_D) * geom.SCALE + raster.AY)), float(q @ geom.TOWARD))
 
-    def world_z(self, q: np.ndarray) -> np.ndarray:
-        """Heights in the world (art px over the feet) of creature points (N x 3)."""
-        return self.k * (q @ self.Pm.T + self.shift)[:, 2]
-
 
 def _solids(P: Pose, V: View) -> list:
     frame = (V.b, V.Q / V.s)
@@ -387,7 +383,6 @@ def _dissolve(rgba: np.ndarray, P: Pose, f: int) -> None:
 def _water(rgba: np.ndarray, P: Pose, V: View) -> None:
     """The surface round a creature in the water, where nothing else is drawn: each pixel's ray meets the water's plane
     (world height P.water), and water_fx colours that point by where it lies in the creature's frame."""
-    Hh, Ww = rgba.shape[:2]
     jj, ii = np.nonzero(rgba[..., 3] == 0)
     px = (ii + 0.5 - raster.AX) / geom.SCALE
     py = (jj + 0.5 - raster.AY) / geom.SCALE

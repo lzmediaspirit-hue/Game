@@ -272,8 +272,11 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
 - **The camera.** A foe is seen from 35° above the ground, higher than the figure's 22°, so a back, a shell or a crest
   reads. The sculpture is tilted by the difference before it is cast, which is the same picture through the higher
   camera, with the sun in its place against the view.
-- **Facings.** Five are drawn (S, SE, E, NE, N); SW, W and NW mirror SE, E and NE in the room view. A foe faces where
-  it walks, else where it aims in a fight, and keeps its facing until another is 12° nearer.
+- **Facings.** Five are drawn (S, SE, E, NE, N); SW, W and NW mirror SE, E and NE in the room view. As the figure's rows
+  (§13), each is turned a little toward the camera so a face reads (SE 48°, E 14°, NE −36° on the ground, east 0 and
+  south 90), and the front and back rows a little off the axis (S 80°, N −100°), so a beast facing the camera or
+  walking away shows a flank and never reads as a capsule. A foe faces where it walks, else where it aims in a fight,
+  and keeps its facing until another is 12° nearer.
 - **Actions** (`creature/motion.py`), every species the same catalogue:
 
   | Action | Frames | fps | |
@@ -298,16 +301,16 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   | | Size against its sculpture | About |
   |---|---|---|
   | The rule | a foe 1.2× its earlier size | the same share of a person as before |
-  | Mud crab | 1.2 | 30 px across its legs |
-  | Reed rat | 1.32 | 36 px long with its tail |
-  | Wild boarlet, hollowed boarlet | 1.5 | 36 px long, 24 tall at the shoulder |
-  | Reed frog | 1.32 | 20 px long sitting |
-  | Marsh leech, reed otter | 1.44 | 34 and 38 px long |
-  | Mossback toad | 1.56 | 24 px long |
-  | Hollow minnow | 1.62 | 18 px, 26 with its wake |
+  | Mud crab | 1.2 | 32 px across its legs |
+  | Reed rat | 1.26 | 38 px long with its tail |
+  | Wild boarlet, hollowed boarlet | 1.4 | 37 px long, 24 tall |
+  | Reed frog | 1.42 | 21 px long sitting |
+  | Marsh leech, reed otter | 1.44 | 32 and 41 px long |
+  | Mossback toad | 1.56 | 28 px long |
+  | Hollow minnow | 1.5 | 31 px with its wake |
   | **An elite** (any species with elite rows) | 1.2× its species | a head larger than its kin |
-  | **Trial Puppet** (a trial) | 1.7 | 48 px tall: a sparring figure a little taller than a disciple |
-  | **Old Snapper** (an elite by role) | 1.8, 1.5× its earlier size | 70 px from its tail to its beak |
+  | **Trial Puppet** (a trial) | 1.58 | 51 px tall: a sparring figure a head over a disciple |
+  | **Old Snapper** (an elite by role) | 1.8, 1.5× its earlier size | 77 px from its tail to its crusher, 44 tall |
   | **Hollowed eel** (a story boss) | 1.44 | rising about 58 px out of the river |
 
   A foe's blob shadow grows with it (the manifest's `shadow`, an elite's its own). A new foe is sized against the

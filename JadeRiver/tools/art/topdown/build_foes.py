@@ -7,8 +7,9 @@ Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no met
   data/topdown/foes.json           the index: per species its sheet, cell, feet, blob shadow, label height and each
                                    action's frames, rate and loop (TopdownRoom.load_room lays it in as the tile set's
                                    `foes`)
-With --review it also renders each species' sheet at x3 on a meadow tone, labelled, into
-docs/redesign/feedback/monsters/sheets/ (the elite's rows under its own).
+With --review it also renders into docs/redesign/feedback/monsters/sheets/ each species' sheet at x3 on a meadow tone,
+labelled (the elite's rows under its own), each species facing SE playing its whole catalogue at the game's rates as a
+GIF at x4 (its elite beside it), and every species' tell side by side (tells_x4.png).
 
 Usage: python3 tools/art/topdown/build_foes.py [--jobs N] [--review] [--check] [--only sp1,sp2]
   --check  builds twice in memory and fails unless both builds are byte-identical
@@ -82,7 +83,46 @@ def review(sheets: dict, man: dict) -> None:
                     c += 1
             dr.text((6, th + r * ch * z + ch * z // 2 - 8), "%s%s" % (label, d.upper()), font=head, fill=(232, 225, 207, 255))
         out.save(REVIEW / ("%s_x3.png" % sp))
+    anims(sheets, man)
     print("review images in", REVIEW.relative_to(ROOT))
+
+
+def anims(sheets: dict, man: dict) -> None:
+    """Each species facing SE at x4 on a meadow tone, playing its whole catalogue at the game's rates (the loops twice),
+    as a GIF (`<species>_se.gif`, the elite's beside it where it has one); and the tells side by side, every species'
+    wind-up held on its last frame (`tells_x4.png`)."""
+    z = 4
+    tells = []
+    for sp, block in man["species"].items():
+        sheet = sheets["art/topdown/foes/%s.png" % sp]
+        cw, ch = block["cell"]
+        looks = [block] + ([block["elite"]] if "elite" in block else [])
+        frames, durations = [], []
+        for a in creatures.ORDER:
+            act = [lk["actions"][a] for lk in looks]
+            n = len(act[0]["frames"]["se"])
+            for _ in range(2 if act[0]["loop"] else 1):
+                for i in range(n):
+                    im = Image.new("RGBA", (cw * len(looks), ch), (92, 140, 70, 255))
+                    for k, ac in enumerate(act):
+                        at = ac["frames"]["se"][i]
+                        im.alpha_composite(sheet.crop((at[0], at[1], at[0] + cw, at[1] + ch)), (k * cw, 0))
+                    frames.append(im.resize((im.width * z, im.height * z), Image.NEAREST).convert("RGB"))
+                    hold = 400 if not act[0]["loop"] and i == n - 1 else 0
+                    durations.append(int(round(1000.0 / act[0]["fps"] / 10.0)) * 10 + hold)
+        frames[0].save(REVIEW / ("%s_se.gif" % sp), save_all=True, append_images=frames[1:], duration=durations, loop=0,
+                       optimize=False, disposal=1)
+        at = block["actions"]["windup"]["frames"]["se"][-1]
+        tells.append((sheet.crop((at[0], at[1], at[0] + cw, at[1] + ch)), block["foot"][1]))
+    w = sum(t.width for t, _ in tells) + 4 * (len(tells) - 1)
+    base = max(fy for _, fy in tells)
+    h = base + max(t.height - fy for t, fy in tells)
+    strip = Image.new("RGBA", (w, h), (92, 140, 70, 255))
+    x = 0
+    for t, fy in tells:
+        strip.alpha_composite(t, (x, base - fy))       # every foot on one line
+        x += t.width + 4
+    strip.resize((w * z, h * z), Image.NEAREST).save(REVIEW / "tells_x4.png")
 
 
 def main(argv: list[str]) -> int:

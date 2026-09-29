@@ -31,7 +31,10 @@ from creature.motion import FRAMES, HIT_FRAME
 ROOT = Path(__file__).resolve().parents[3]
 DIRS = ["s", "se", "e", "ne", "n"]
 MIRROR = {"sw": "se", "w": "e", "nw": "ne"}
-ANGLE = {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0}   # on the ground: east 0, south 90
+# The drawn facings' turn on the ground (east 0, south 90). As the figure's (figure/geom.py FACINGS), the side and
+# back-diagonal rows are turned a little toward the camera so a face reads; the front and back rows a little off the
+# axis too, so a beast facing the camera or walking away shows a flank and never reads as a capsule.
+ANGLE = {"s": 80.0, "se": 48.0, "e": 14.0, "ne": -36.0, "n": -100.0}
 SPECIES = ["mudshell_crab", "reedtail_rat", "wild_boarlet", "trial_puppet", "reed_frog", "marsh_leech", "reed_otter",
            "hollowed_boarlet", "old_snapper", "mossback_toad", "hollow_minnow", "hollowed_eel"]
 ORDER = ["idle", "walk", "windup", "attack", "hurt", "death"]   # the sheet's column order
@@ -63,9 +66,9 @@ class Spec:
 
 # Sizes (decision 43, art bible §8 "Foes"): the people grow 1.2x (about 46 px from sole to crown) and every foe grows
 # with them, about 1.2x its earlier size, so it keeps its share of a person: the crab about 32 px across its legs, the
-# rat about 39 px long with its tail, the boarlets about 37 px long, the frog 20, the toad 28, the leech 32, the otter 41
-# with its tail, the minnow 31 with its wake. The trial and the bosses grow more: the Trial Puppet about 52 px tall, a
-# head over a disciple; Old Snapper 1.5x, about 75 px from its tail to its beak; the hollowed eel about 1.4x, rising
+# rat about 38 px long with its tail, the boarlets about 37 px long, the frog 20, the toad 28, the leech 32, the otter 41
+# with its tail, the minnow 31 with its wake. The trial and the bosses grow more: the Trial Puppet about 51 px tall, a
+# head over a disciple; Old Snapper 1.5x, about 77 px from its tail to its crusher; the hollowed eel about 1.4x, rising
 # about 60 px out of the river. An elite is ELITE times its species' size.
 REGISTRY = {
     "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
@@ -177,7 +180,7 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
                 for a in ORDER:
                     entry = acts.setdefault(a, {"fps": fps[a], "loop": LOOP.get(a, False), "frames": {}})
                     lst = []
-                    for f in range(FRAMES[a]):
+                    for _ in range(FRAMES[a]):
                         col, r = i % per, (vi * len(DIRS) + di) * rows_per + i // per
                         sheet.paste(Image.fromarray(np.ascontiguousarray(frames[(sp, el, d)][i][y0:y1, x0:x1]), "RGBA"), (col * cw, r * ch))
                         lst.append([col * cw, r * ch])

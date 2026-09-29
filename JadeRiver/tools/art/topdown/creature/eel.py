@@ -19,8 +19,8 @@ import math
 import numpy as np
 
 from . import mats as M
-from .motion import h01, pick, wave
-from .sculpt import E, L, Pose, S, chain, rot, v3
+from .motion import h01, wave
+from .sculpt import E, L, Pose, chain, rot, v3
 
 EEL_LIFT = 20.0
 ELEV = math.radians(35.0)

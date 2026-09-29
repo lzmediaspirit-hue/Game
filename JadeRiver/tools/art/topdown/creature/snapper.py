@@ -16,7 +16,7 @@ import numpy as np
 
 from . import mats as M
 from .motion import gait, h01v, pick, wave
-from .sculpt import E, L, Pose, S, chain, rot, v3
+from .sculpt import E, L, Pose, chain, rot, v3
 
 Z = 6.6
 

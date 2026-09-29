@@ -13,7 +13,7 @@ import numpy as np
 
 from . import mats as M
 from .motion import pick, wave
-from .sculpt import E, L, Pose, S, chain, rot, v3
+from .sculpt import E, Pose, chain, rot, v3
 
 DART = {"windup": (-0.8, -1.6, -2.4, -2.8), "attack": (3.4, 6.0, 6.6, 5.4, 3.2, 1.2), "hurt": (-2.6, -1.6, -0.6)}
 BOB = {"idle": (0.0, -0.4, -0.7, -0.6, -0.3, 0.0), "death": (0.0, -0.5, -1.0, -1.4, -1.8, -2.2, -2.6, -3.0)}
