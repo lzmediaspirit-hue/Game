@@ -48,6 +48,10 @@ func draw_page() -> void:
 	var carry := mails.filter(func(m): return _carries(m)).size()
 	text(Vector2(284, 66), Tx.plural("ui.mail.letters", mails.size()) % mails.size(), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 500)
 	text(Vector2(284, 88), Tx.t("ui.mail.unread_carry") % [unread, carry], 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 500)
+	# Decision 43: a tour's anchors (the envelopes, the open letter and what it carries).
+	tour_mark("stack", STACK)
+	tour_mark("letter", SHEET)
+	tour_mark("parcel", PARCEL)
 	_stack(mails)
 	btn(Rect2(112, 596, 240, 56), Tx.t("ui.mail.claim_all") + (" · %d" % carry if carry > 0 else ""), "claim_all", null, true, carry > 0, Tx.t("ui.mail.nothing_to_claim"))
 	para(Rect2(364, 604, 156, 48), Tx.t("ui.mail.claim_all_note"), 14, UiKit.PAPER, 2)

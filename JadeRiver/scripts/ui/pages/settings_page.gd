@@ -39,6 +39,10 @@ func draw_page() -> void:
 					region(r, "vol", [s[0], step / 10.0])
 				y += 64
 		"controls":
+			# Decision 43: every tour of the pages plays again on its page's next opening (a page's "?" plays its own).
+			if c() != null:
+				btn(Rect2(x + 560, y + 4, 300, 48), Tx.t("ui.settings.replay_tutorials"), "replay_tutorials")
+				para(Rect2(x + 560, y + 64, 400, 48), Tx.t("ui.settings.replay_tutorials_note"), 16, UiKit.MIST, 2)
 			for tg in TOGGLES.slice(0, 3):
 				_toggle(Vector2(x, y), tg[0], tg[1])
 				y += 60
@@ -108,6 +112,8 @@ func on_action(id: String, data) -> void:
 	match id:
 		"vol": set_setting(str(data[0]), float(data[1]))
 		"toggle": _flip(str(data))
+		"replay_tutorials":
+			if submit({"type": "tutorial_replay"}).get("ok", false): flash(Tx.t("ui.settings.tutorials_replayed"))
 		"export":
 			var path := Game.export_save()
 			exports = Saves.list_exports()

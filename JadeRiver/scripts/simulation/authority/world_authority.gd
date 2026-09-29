@@ -2196,6 +2196,9 @@ func guide_step(c) -> Dictionary:
 func guide_target(c) -> String:
 	if c == null: return ""
 	var here := str(c.position.get("room", ""))
+	# Decision 43: a tutorial leading to a place (the coach's guide) takes the direction mark first, while it leads.
+	var taught: String = game.tutorials.goal_of(c) if game.tutorials != null else ""
+	if taught != "" and taught != here: return taught
 	var goal := ""
 	for q in game.quest.tracker(c):
 		var t := str(q.get("target_room", ""))

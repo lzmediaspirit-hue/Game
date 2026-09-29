@@ -42,6 +42,11 @@ func draw_surface(r: Rect2) -> void:
 func title_rect() -> Rect2:
 	return Rect2(92, 38, 300, 48)
 
+## Decision 43: the "?" beside the title (the tabs and purses take the row left of the close button).
+func help_rect() -> Rect2:
+	var tr := title_rect()
+	return Rect2(tr.end.x + 12, roundf(tr.get_center().y - 26), 52, 52)
+
 ## The title cut into the rafter: a sunk panel lined in bronze.
 func draw_title_mount(r: Rect2) -> void:
 	rounded(r.grow(1), 5.0, Color(UiKit.BRONZE, 0.8))
@@ -73,6 +78,7 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	_steelyard(ch)
+	tour_mark("beam", Rect2(PIVOT.x - 420, 150, 840, 150))   # decision 43: the steelyard, a tour's anchor
 	match str(tabs[tab].id):
 		"karma": _karma(ch)
 		"bonds": _bonds(ch)

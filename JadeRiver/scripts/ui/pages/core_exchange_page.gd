@@ -49,6 +49,9 @@ func draw_page() -> void:
 	if ch == null: return
 	var cores := _cores(ch)
 	if not cores.has(chosen): chosen = cores[0] if not cores.is_empty() else ""
+	tour_mark("shelves", SHELF)   # decision 43: a tour's anchors
+	tour_mark("urn", URN)
+	tour_mark("tally", TALLY)
 	_shelves(ch, cores)
 	_urn(ch)
 	_spout(ch)
