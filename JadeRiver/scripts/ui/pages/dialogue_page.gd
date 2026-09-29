@@ -29,7 +29,12 @@ func _init() -> void:
 func window_rect() -> Rect2:
 	return frame_rect.merge(CARD) if not _card_quest().is_empty() else frame_rect
 
+func _exit_tree() -> void:
+	super()
+	Audio.talk(false)
+
 func setup() -> void:
+	Audio.talk(true)   # decision 43: the scroll opens, the music dips while the talk is open
 	convo = args.get("convo", {})
 	line = 0
 	shown_chars = 0.0
@@ -201,6 +206,7 @@ func on_action(id: String, data) -> void:
 			elif not at_end():
 				line += 1
 				shown_chars = 0.0
+				Audio.talk_next()
 			elif (convo.get("choices", []) as Array).is_empty() or ends_on_tap():
 				close()
 		"choose": _choose(int(data))
@@ -236,8 +242,8 @@ func _choose(i: int) -> void:
 	if needs_authority:
 		var r := submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
 		if not r.get("ok", false) and ch.has("hand_in"): return   # a refused hand-in stays open with what is missing flashed
-		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
-			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
+		if r.get("ok", false) and ch.has("accept"):
+			Audio.ui("quest_accept")   # a quest handed in rings its stinger (decision 43: AudioDirector, quest_completed)
 		# The conversation goes on only where the authority hands the next node of a talk back; taking or handing in a
 		# quest always ends it (M17; decision 42: even when the same person has another, QuestAuthority._then), and a
 		# scene the quest starts plays once it is closed.

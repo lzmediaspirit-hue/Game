@@ -277,7 +277,7 @@
     {
      "t": 0.0,
      "kind": "sound",
-     "sfx": "breakthrough"
+     "sfx": "sting_breakthrough"
     },
     {
      "t": 0.0,
@@ -1785,6 +1785,11 @@
      "t": 0.0,
      "kind": "sound",
      "sfx": "boss_fall"
+    },
+    {
+     "t": 0.9,
+     "kind": "sound",
+     "sfx": "sting_victory"
     }
    ],
    "art": [
@@ -1856,6 +1861,11 @@
      "t": 0.0,
      "kind": "sound",
      "sfx": "boss_fall"
+    },
+    {
+     "t": 0.9,
+     "kind": "sound",
+     "sfx": "sting_victory"
     }
    ],
    "art": [
@@ -1961,7 +1971,7 @@
     {
      "t": 0.0,
      "kind": "sound",
-     "sfx": "rare_chime"
+     "sfx": "sting_rare"
     },
     {
      "t": 0.0,
@@ -2018,7 +2028,7 @@
       {
        "t": 0.0,
        "kind": "sound",
-       "sfx": "rare_chime"
+       "sfx": "sting_rare"
       },
       {
        "t": 0.0,
@@ -2277,7 +2287,7 @@
     {
      "t": 0.0,
      "kind": "sound",
-     "sfx": "boss_sting"
+     "sfx": "sting_elite"
     }
    ],
    "art": [

@@ -863,7 +863,7 @@ func _activate(r: Dictionary) -> void:
 		if str(r.reason) != "": flash(str(r.reason))
 		Audio.ui("ui_error")
 		return
-	Audio.ui("ui_tap")
+	Audio.ui("ui_tab" if id == "_tab" else "ui_tap")   # decision 43: a tab turns like a page
 	match id:
 		"_close": close()
 		"_help": navigate.emit("_tour", {"page": page_id, "tab": tab_id()})

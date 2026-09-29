@@ -76,6 +76,7 @@ var floor_layer: Node2D         ## marks on the floor, under everything sorted (
 var tint: CanvasModulate        ## a night room's blue (decision 40: the Atmosphere's night layer does it; kept white)
 var shadows: TopdownShadows     ## decision 40: the room's cast shadows, baked as it is built
 var atmosphere: TopdownAtmosphere   ## decision 40: grade, night and lights, clouds and particles
+var sound: TopdownSound             ## decision 43: the feet, the listener and the hour for the sound pass
 var hazards: HazardView
 var transfer_cooldown := 0.0
 var _array_glow := Color.TRANSPARENT   ## decision 42: the light a transfer array's traveller comes out in, until the room is built
@@ -146,6 +147,8 @@ func _ready() -> void:
 	camera.make_current()
 	atmosphere = TopdownAtmosphere.new(self)
 	viewport.add_child(atmosphere)
+	sound = TopdownSound.new(self)
+	add_child(sound)
 	overlay = Node2D.new()
 	overlay.name = "Overlay"
 	add_child(overlay)
@@ -366,7 +369,7 @@ func is_occluded() -> bool:
 func _feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
-		"jumped": Audio.play("jump")
+		"jumped": sound.jumped()   # decision 43: the push-off on its surface and the jump
 		"dashed", "plunged":
 			Audio.play("dodge")
 			if str(e.type) == "dashed": tfx.dust("dash", m.pos, m.z, m.dash_dir)   # decision 38: the dash's kick-off dust
@@ -379,10 +382,10 @@ func _feedback(e: Dictionary) -> void:
 				effects.add("ring", player_feet(), {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": float(ContentDB.movement("plunge.radius", 60.0)), "dur": 0.35})
 				Audio.play("rumble")
 				feel("heavy", Vector2.DOWN)
-			elif float(e.fall) > 12.0: Audio.play("land")
+			else: sound.landed(float(e.fall))   # decision 43: by its height and the surface under the feet
 		"splashed":
 			fx.splash(m.pos)
-			Audio.play("water_step")
+			sound.splashed(float(e.get("fall", 0.0)))
 
 # ------------------------------------------------------------------ Phase 4: ways, context and the shared host
 ## A way out walked into: at the way (the World authority's reach round it) with the stick pushing out through it (an
@@ -581,19 +584,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 					# Decision 38: the form drawn on the ground plane in its direction, at the caster or where it lands (a form
 					# on a foe lands on the point the aim locked: the foe's, or two thirds of the reach).
 					tfx.form(t, m.pos, m.z, aim, at, at_z, float(p.get("windup", -1.0)), reach)
-					Audio.play("technique")
+					Audio.cast(str(p.get("element", t.get("element", "none"))))   # decision 43: its element's cast
 				else:
 					# Decision 38: the family's smear for this step, in its direction, its contact on the hit.
 					var tl: Dictionary = Game.combat.timeline(player.actor_id)
 					var move := "air" if tl.get("air_attack", false) else ("charged" if p.get("finisher", false) else \
 						("dash" if player.dash_attack else "step_%d" % (int(p.get("combo", 0)) + 1)))
 					tfx.smear(player.actor_id, str(tl.get("family", "fists")), move, aim, m.pos, m.z, float(p.get("windup", 0.0)), 1.0 + float(Game.active().stats.value("attack_speed")))
-					Audio.play("swing")
+					Audio.swing(str(tl.get("family", "fists")), p)   # decision 43: the family's swing
 			elif p.get("enemy", false):
 				# A foe's wind-up: its tell over it (decision 38; its swipe comes with its blow, FoeView).
 				var e: EnemyState = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt else null
 				if e != null: tfx.mark("tell", e.plane, e.altitude + e.hover)
-				Audio.play("tell")
+				if e != null: Audio.foe_tell(e)   # decision 43: its voice and the tick, where it stands
+				else: Audio.play("tell")
 		"attack_cancelled":
 			if str(p.get("actor", "")) == Game.active_id: tfx.cancel(Game.active_id)
 		"parried":

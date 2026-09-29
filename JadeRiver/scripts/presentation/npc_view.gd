@@ -80,6 +80,7 @@ func _process(delta: float) -> void:
 		if not barks.is_empty() and marker == "":
 			bark = str(barks[randi() % barks.size()])
 			bark_time = 4.0
+			if Audio.listener != Vector2.INF: Audio.bark(position)   # decision 43: a pip where they stand, the music dipping
 	bark_time = maxf(0.0, bark_time - delta)
 	queue_redraw()
 	tag.queue_redraw()

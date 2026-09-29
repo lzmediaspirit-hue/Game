@@ -10898,7 +10898,7 @@ func moments_suite() -> void:
 	burst.call()
 	mv.advance(0.0)
 	check(mv.playing != null and mv.playing.row.id == "breakthrough_major" and mv.playing.slots.has("level") and (mv.playing.slots.get("unlocks", []) as Array).size() == 2
-		and mv.logged.filter(func(e): return str(e.get("sfx", "")) == "breakthrough").size() == 1 and not played.call("realm_phenomenon").is_empty()
+		and mv.logged.filter(func(e): return str(e.get("sfx", "")) == "sting_breakthrough").size() == 1 and not played.call("realm_phenomenon").is_empty()
 		and mv.queue.any(func(q): return q.row.id == "title_earned"), "the major breakthrough takes its level and unlocks and rings once; the clouds play; the title waits")
 	run.call(0.5)
 	check(mv.lock_left() > 0.0 and mv.press() and mv.lock_left() == 0.0 and near(float(mv.playing.st), 2.4), "a tap in the breakthrough's first 1.5 s skips to 2.4 s and gives input back")
