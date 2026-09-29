@@ -536,4 +536,20 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
       - the tracker never points past it, and once the story's next quest is past it (after The First Current, and
         the prototype's lessons) its first entry is "The Tale Rests Here";
       - a QA playthrough of both sects from the title, `docs/redesign/prototype_qa.md`.
+42. **Feedback on the prototype APK (build 108, 2026-09-29).** Reference image: `docs/redesign/feedback/skill_icon_reference.png`.
+    - **Controls:**
+      - a bigger Jump button;
+      - the body sprints by default instead of walking;
+      - the Techniques and Attack buttons stay visible at rest.
+    - **Auto-path** walks round objects and sprints.
+    - **Combat:** animation canceling, so basic attack, technique, basic attack chains smoothly.
+    - **Skill icons** take the Techniques tree's picture style (the character doing the art in a teal frame), on the HUD and in the loadout bar.
+    - **Old sprites:** no old side-view character is left anywhere in the top-down game.
+    - **Character art:** the player and the NPCs are drawn at a higher quality. A comparison study comes first, for the user to choose.
+    - **Techniques tree lag** is found and fixed.
+    - **The Hollow Night** gets action, and its monsters can be killed.
+    - **Sect quests** have less monotone walking between places.
+    - **Trading:** the shop and the Bag share one background.
+    - **Talk** closes once a quest is given or completed.
+    - **Bug:** after cultivation, walking no longer stays in the cultivation pose.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
