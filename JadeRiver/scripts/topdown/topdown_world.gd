@@ -532,7 +532,7 @@ func layout_labels() -> Dictionary:
 	# The player's own body is kept clear as the HUD's controls are: a villager's plate under their feet never covers the
 	# body standing just below them (the prototype's QA, Uncle Guo's plate over the player at his stump).
 	var xf := overlay.get_global_transform_with_canvas()
-	var body := Rect2(feet_on_screen() + Vector2(-14, -64), Vector2(28, 64))
+	var body := Rect2(feet_on_screen() + Vector2(-17, -77), Vector2(34, 77))   # decision 43: the 46 px figure
 	# A door's chevron is kept clear too: Granny Liu's plate lay under her hut door's arrow.
 	var arrows: Array = []
 	for pv in portal_views:
@@ -804,6 +804,7 @@ class PropView extends Sorted:
 
 ## The blob shadow on the floor under the body; it shrinks and fades with the height above that floor (plan §1.5).
 class ShadowView extends Sorted:
+	const BLOB_RX := 10.0   ## its half width (art px) on the floor: 8 under the 38 px figure, 1.2 times that (decision 43)
 	var k := 1.0
 	var feet := Vector2.ZERO
 	func sync() -> void:
@@ -817,7 +818,7 @@ class ShadowView extends Sorted:
 		position.x = feet.x
 		queue_redraw()
 	func _draw() -> void:
-		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, roundf(8.0 * k), 0.55 * k)
+		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, roundf(BLOB_RX * k), 0.55 * k)
 
 ## A body's blob shadow on the floor at (x, y): `rx` wide each way, two stepped layers in the cast shadows' colour
 ## (decision 40, TopdownLight.BLOB): its rim and, over it, its core, at fractions of `a`.

@@ -9,7 +9,8 @@ extends Node2D
 
 var director: SceneDirector
 static var _box: StyleBoxFlat
-const HEAD := {"npc": -88.0, "player": -88.0, "prop": -34.0}
+## Where a head's top is over the feet, in world units: a person's 46 art px (decision 43) and a little over it.
+const HEAD := {"npc": -104.0, "player": -104.0, "prop": -34.0}
 const TEXT := 18
 const MARGIN := 16.0
 

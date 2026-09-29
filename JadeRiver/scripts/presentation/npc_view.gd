@@ -26,6 +26,9 @@ var tag: Node2D   # the nameplate's own canvas item, above every figure (WorldLa
 ## The top-down view (redesign Phase 4) draws the figure in its pixel viewport (NpcView.figure) and this view only for
 ## the marker, the bark and the nameplate, on its overlay at the HUD's resolution.
 var label_only := false
+## How much higher than the side view's the head is (world units, up is negative): the top-down figure is drawn 46 art px
+## tall (decision 43), so its marker, its bark and a plate lifted over its head stand that much higher.
+var head_lift := 0.0
 
 func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	def = o
@@ -109,14 +112,14 @@ func _draw_tag() -> void:
 	var plate := UiKit.draw_nameplate(tag, display_name, title, 26 + label_offset.y, col, UiKit.MIST, 17)
 	tag.draw_set_transform(Vector2.ZERO)
 	label_box = Rect2(plate.position - Vector2(0.0, label_offset.y), plate.size)
-	label_flip = Vector2(0, -136.0 - label_box.end.y)
+	label_flip = Vector2(0, -136.0 + head_lift - label_box.end.y)
 
 func _draw() -> void:
 	if not label_only:
 		draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.28))
 		draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
 		draw_set_transform(Vector2.ZERO)
-	var top := -112.0 + sin(t * 3.0) * 3.0
+	var top := -112.0 + head_lift + sin(t * 3.0) * 3.0
 	match marker:
 		"main":
 			draw_colored_polygon(PackedVector2Array([Vector2(0, top - 18), Vector2(11, top - 4), Vector2(0, top + 10), Vector2(-11, top - 4)]), UiKit.INK)
@@ -145,7 +148,7 @@ func _draw() -> void:
 			UiKit.draw_outlined(self, "…", Vector2(-20, top + 4), 24, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	if bark_time > 0.0 and bark != "":
 		var w := minf(300.0, UiKit.text_width(bark, 17) + 22)
-		var r := Rect2(-w * 0.5, -154, w, 30)
+		var r := Rect2(-w * 0.5, -154 + head_lift, w, 30)
 		draw_rect(r, Color(0.9, 0.87, 0.78, minf(1.0, bark_time)))
 		draw_rect(r, Color(UiKit.INK, minf(1.0, bark_time)), false, 2)
 		UiKit.draw_text(self, bark, Vector2(r.position.x + 11, r.position.y + 21), 17, Color(UiKit.INK, minf(1.0, bark_time)), HORIZONTAL_ALIGNMENT_LEFT, w - 22, false)
