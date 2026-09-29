@@ -197,9 +197,14 @@ func _round() -> void:
 	var off := Vector2((float(img_size.x) - 1280.0 * k) * 0.5, 0.0)
 	var to_img := func(r: Rect2) -> Rect2i: return Rect2i(Vector2i((r.position * k + off).round()), Vector2i((r.size * k).round()))
 	var c = Game.active()
+	Game.tutorials._know_all(c)   # the unlock tutorials' coach (decision 43) keeps off the shots: every tour known
 	await _beside("npc_lu_boatman")
 	main.hud.fight_override = false
 	await frames(90)   # the pictures' stills are composed one a frame
+	for i in 6:   # a guide the forced unlocks queued is put off (Later), so the coach stays off the shot
+		if main.get("coach") == null or not bool(main.coach.visible): break
+		main.coach.press("later")
+		await frames(10)
 	_clear_notices()
 	await frames(4)
 	await shot("%s_round_rest%s" % [tag, sfx], FEEDBACK)
