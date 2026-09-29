@@ -31,8 +31,17 @@ the grid; before, after and close-ups in `docs/redesign/feedback/living_world/`.
   falls through their windows in shafts onto the floor, with dust turning in them, and the stoves and forges glow warm.
 - **Sound hooks.** Each moment raises a named cue (`life_sparrow_flee`, `life_dog_bark`, `life_work_hammer_hit`, ...)
   for the sound work to fill.
-- **Cost.** The living world's own work is under 0.5 ms a frame in Lotus Ferry, headless; `perf_tests` keeps its
-  budgets (the numbers below).
+- **Cost** (headless, on the shared four-core test machine; `perf_tests` run alone, nine runs). Lotus Ferry walking
+  (the busiest room: about ten critters in view, seven people at work and two extras, smoke, two vistas): the living
+  world's own work 0.50-0.70 ms a frame (median 0.61), and the whole frame with it against without it, in rounds run
+  back to back, +0.7 to +1.8 ms (median +1.1) on a 6.5-8.6 ms frame. The Marsh Edge with 25 foes fighting: own work
+  0.55-0.75 ms, the frame +0.7 to +2.1 ms (median +1.4) on 14-17 ms. Its build adds 1.2 ms to Lotus Ferry's (0.7 ms
+  to the marsh's); entering Lotus Ferry took 173-264 ms with it and 160-283 ms without it in alternate runs, and the
+  first two seconds' walk 9.4-10.1 ms a frame with it and 8.7-12.6 without. Before any of it (the same suite that
+  morning, a quieter machine): Lotus Ferry entered in 159-247 ms at 8.3-9.2 ms a frame, the marsh's fight 13.3-17.7
+  ms. `perf_tests` checks it in both rooms (its difference within 1 ms and a seventh of the frame, its own work under
+  6% of a 60 fps frame); its other checks fail as they did before on a busy machine (the marsh's 25-foe fight over
+  16.6 ms, the v1.5 rows' load).
 - **Tests.** `topdown_life_suite` (by `rules_tests`): the loops keep to their leash and stop for the player, a quest
   giver stays reachable, critters flee and are dropped off screen, the pools stay bounded, the grass parts, the
   interiors and vistas are there; `data_validation` checks the art and data; `topdown_rooms.py --check` checks the work

@@ -809,8 +809,8 @@ func life() -> void:
 ## edge and one leaping, the grass parting round the player, the people at work, chimney smoke, incense and banners, the
 ## vistas, and the sun in an interior. The critters are set where the shot looks, so every close-up shows its kind.
 const LIFE_DETAIL := [
-	["01_sparrows_pecking", "lf_village", Vector2(35, 29), 0.375, "sparrows", Vector2(50, 0)],
-	["02_sparrows_take_off", "lf_village", Vector2(35, 29), 0.375, "sparrows_flee", Vector2(30, -10)],
+	["01_sparrows_pecking", "lf_village", Vector2(35, 29), 0.375, "sparrows", Vector2(20, -30)],
+	["02_sparrows_take_off", "lf_village", Vector2(35, 29), 0.375, "sparrows_flee", Vector2(20, -40)],
 	["03_hens_and_dog", "lf_village", Vector2(47, 26), 0.375, "", Vector2(0, 0)],
 	["04_fish_dragonfly", "lf_village", Vector2(24, 32), 0.375, "water", Vector2(0, 30)],
 	["05_frogs", "rm_marsh_edge", Vector2(34, 21), 0.375, "frogs", Vector2(0, 10)],
@@ -849,13 +849,13 @@ func life_details(out: String, only := "") -> void:
 		match str(s[4]):
 			"sparrows", "sparrows_flee":
 				for i in 4:
-					var cr: TopdownLife.Critter = life._critter("sparrow", feet + Vector2(150 + i * 26, 6 + (i % 2) * 18))
+					var cr: TopdownLife.Critter = life._critter("sparrow", feet + Vector2(20 + i * 26, -110 - (i % 2) * 18))
 					cr.state = "ground"
 					cr.alpha = 1.0
 					cr.face = -1 if i % 2 else 1
 				await frames(20)
 				if str(s[4]) == "sparrows_flee":
-					p.movement = Vector2.RIGHT * 0.6
+					p.movement = Vector2.UP * 0.6
 					await frames(44)
 					p.movement = Vector2.ZERO
 			"water":

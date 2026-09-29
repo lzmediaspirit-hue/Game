@@ -1117,8 +1117,10 @@ while in view, each name at most every 0.3 s, silent until a sound is given): `s
 `work_stir`, ...) with `work_chop_hit` and `work_hammer_hit` on the blows.
 
 **Cost** (measured headless on the shared test machine; `perf_tests` and `topdown_life_suite`): the living world's own
-work is under 0.5 ms a frame in Lotus Ferry, the busiest room; `perf_tests`' frame and load budgets hold against the
-same runs without it (the plan's "As built: the living world").
+work is 0.5-0.7 ms a frame in Lotus Ferry, the busiest room, and in the Marsh Edge's 25-foe fight; the whole frame
+about a ms more than the same room without it. At most 24 critters, 40 puffs, 32 bits and 18 motes; a calm critter
+steps one frame in three; a layer redraws only when its pixels change (the plan's "As built: the living world", the
+numbers in `docs/CHANGELOG.md`).
 
 **Tests.** `topdown_life_suite` (run by `rules_tests`): every loop of every room keeps to its leash on its floor for
 two minutes and moves; a worker stops for the player and works on; a marker that calls brings its person home to stay;
@@ -1130,8 +1132,9 @@ label follows them. `data_validation` (`life_art_suite`) checks the sheets and t
 
 **Review images** (`docs/redesign/feedback/living_world/`): `before/` and `after/` (the village, a sect, the marsh,
 the peaks, the market, four interiors and two nights, under the HUD at the phone's 1280 × 720, drawn by
-`tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`); `detail/` (close-ups x4 of each thing,
-`-- --life --life-detail`); `sheet_x4.png` and `vistas_x2.png` (`build_life.py --review`).
+`tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`), and `pairs/` (six of them side by side at the
+art's own size); `detail/` (close-ups x4 of each thing, `-- --life --life-detail`); `sheet_x4.png` and
+`vistas_x2.png` (`build_life.py --review`).
 
 ## 15. Combat effects (decision 38)
 

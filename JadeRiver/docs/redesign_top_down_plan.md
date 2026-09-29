@@ -1902,11 +1902,17 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   held out and cast; reaching up to hang washing; stirring a pot with a ladle; a pestle ground in a mortar; an axe's
   overhead chop; a one-handed hammer at an anvil; crouching to pick herbs; mending a net seated. A held-tool
   attachment rig (the hands' place per frame) would replace the tools' placement by the figure's bounds.
-- **Cost:** the living world's own work is under 0.5 ms a frame headless in Lotus Ferry (`topdown_life_suite`);
-  `perf_tests` holds its budgets (the numbers are in `docs/CHANGELOG.md`).
+- **Cost** (headless, the shared test machine, nine `perf_tests` runs): its own work 0.5-0.7 ms a frame in Lotus
+  Ferry walking and in the Marsh Edge's 25-foe fight; the whole frame +1.1 ms (median; 0.7-1.8) against the same room
+  without it in Lotus Ferry, +1.4 ms (0.7-2.1) in the fight; its build 1.2 ms. `perf_tests` checks both rooms
+  (interleaved rounds: the least of each side, the median of the rounds' differences) and `topdown_life_suite` its
+  own work. Kept cheap by: plain records for critters (typed, no nodes but 12 pooled sorted ones), calm critters
+  stepped one frame in three, layers and nodes redrawn only when their pixels change, the grass's pushes in the
+  vertex shader, the rooms' critter cells found once, the shader's uniforms sent only when changed. The numbers are
+  in `docs/CHANGELOG.md`.
 - **Tests:** `topdown_life_suite` (by `rules_tests`), `data_validation` `life_art_suite`, `topdown_rooms.py --check`.
-- **Review:** `docs/redesign/feedback/living_world/` (`before/`, `after/`, `detail/`), drawn by
-  `tools/dev/topdown_capture.tscn -- --life`.
+- **Review:** `docs/redesign/feedback/living_world/` (`before/`, `after/`, `detail/`, and `pairs/` side by side at
+  the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`.
 
 ### Phase 5 · The animation layers (XL)
 
