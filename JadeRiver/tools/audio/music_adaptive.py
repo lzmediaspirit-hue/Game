@@ -17,10 +17,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from music import (PIPA_BODY, R_FAST, R_MID, TRI, SOFT, ZHENG_BODY, Scale, Track, gliss, gliss_len, lane, music, period,
-                   sink_bend, to_flute, pad_note, REED)
-from synth import (SR, TAU, bubble, cymbal, drone, gong, lowpass, membrane, mtof, nsamp, pnoise, tvec, woodblock,
-                   bandpass, highpass, wind)
+from music import (PIPA_BODY, R_FAST, R_MID, TRI, ZHENG_BODY, Scale, Track, gliss, gliss_len, lane, music, period,
+                   to_flute)
+from synth import (TAU, bubble, cymbal, drone, gong, lowpass, membrane, mtof, pnoise, tvec, woodblock, bandpass)
 
 # stem id -> (track, bpm, bar_beats, bars, (gong, mode), chord roots per bar, drum style)
 STEMS = {

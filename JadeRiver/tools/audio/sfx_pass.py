@@ -20,7 +20,7 @@ import numpy as np
 
 from synth import (SR, TAU, add_reverb, bandpass, bell, bubble, chime, click, cymbal, decay, doublets, env_pts,
                    fades, filt, flute, gong, highpass, lowpass, membrane, modal, mtof, noise, nsamp, peak, pluck,
-                   pipa_params, smoothstep, tvec, woodblock, zheng_params, ZHENG_BODY, PIPA_BODY)
+                   pipa_params, smoothstep, tvec, woodblock)
 from sfx import SFX, at, buf, grains, norm, plucks, sfx, tone, whoosh
 
 FAMILIES = ("sword", "sabre", "spear", "fan", "brush", "flute", "bell", "bow", "fists")

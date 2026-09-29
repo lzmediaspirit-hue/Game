@@ -11,7 +11,7 @@ import numpy as np
 from synth import (SR, TAU, ZHENG_BODY, add_reverb, bandpass, bell, bowl, bubble, chime, click,
                    decay, doublets, env_pts, fades, filt, gong, highpass, lowpass, membrane,
                    modal, mtof, noise, nsamp, peak, place, pluck, pnoise, rms, smoothstep, stft_shape,
-                   stream, tvec, wind, woodblock, wrap_add, zheng_params, reverb_ir, convolve)
+                   tvec, woodblock, wrap_add, zheng_params, reverb_ir, convolve)
 
 SFX = {}
 
