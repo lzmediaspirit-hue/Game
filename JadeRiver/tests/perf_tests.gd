@@ -350,26 +350,38 @@ func _median_frames(n: int, each: Callable) -> float:
 	ts.sort()
 	return float(ts[ts.size() / 2])
 
-## Decision 43: the room on view with its living world and without it (TopdownLife.enabled), three rounds each way,
-## `each` driving the body: Vector3(the median ms a frame with it, without it, its own work in ms a frame).
-func _life_ab(w, each: Callable) -> Vector3:
+## Decision 43: the room on view with its living world and without it (TopdownLife.enabled), `LIFE_ROUNDS` short rounds
+## each way in turn (with, without; then without, with), each after a few frames to settle, `each` driving the body.
+## A round's figure is its median frame. Returns [ms a frame with it, without it (each the least of its rounds, since a
+## busy runner's load only ever adds to a round), the difference (the median of the rounds' differences, each round's
+## two halves run back to back, so a load that comes and goes falls on both alike: the shared test machine swung a
+## round's median by 5 ms either way, more than the living world's whole cost), its own work in ms a frame (median)].
+const LIFE_ROUNDS := 6
+## The living world's own work may take this share of a 60 fps frame (16.6 ms), measured headless on the test machine.
+const LIFE_OWN_SHARE := 0.06
+func _life_ab(w, each: Callable) -> Array:
 	var on: Array = []
 	var off: Array = []
-	var own := 0.0
-	for r in 3:
-		for with_life in [true, false]:
+	var own: Array = []
+	var diffs: Array = []
+	for r in LIFE_ROUNDS:
+		for with_life in ([true, false] if r % 2 == 0 else [false, true]):
 			TopdownLife.enabled = with_life
 			w._build_room()
 			w._place_player()
 			w._settle_camera()
-			await get_tree().process_frame
+			for k in 12:
+				if each.is_valid(): each.call(k)
+				Game.tick(1.0 / 60.0)
+				await get_tree().process_frame
 			var us := TopdownLife.spent_us
 			var f0 := Engine.get_process_frames()
-			var ms := await _median_frames(90, each)
+			var ms := await _median_frames(60, each)
 			if with_life:
 				on.append(ms)
-				own += (TopdownLife.spent_us - us) / 1000.0 / maxf(1.0, float(Engine.get_process_frames() - f0))
+				own.append((TopdownLife.spent_us - us) / 1000.0 / maxf(1.0, float(Engine.get_process_frames() - f0)))
 			else: off.append(ms)
+		diffs.append(float(on[-1]) - float(off[-1]))
 	TopdownLife.enabled = true
 	w._build_room()
 	w._place_player()
@@ -377,7 +389,18 @@ func _life_ab(w, each: Callable) -> Vector3:
 	await get_tree().process_frame   # the room drawn as built before anything else moves the world on
 	on.sort()
 	off.sort()
-	return Vector3(float(on[1]), float(off[1]), own / 3.0)
+	own.sort()
+	diffs.sort()
+	return [float(on[0]), float(off[0]), (float(diffs[LIFE_ROUNDS / 2 - 1]) + float(diffs[LIFE_ROUNDS / 2])) / 2.0, float(own[own.size() / 2])]
+
+## The living world's cost in a room: its difference to the frame within a ms and a seventh of the frame without it, and
+## its own work within LIFE_OWN_SHARE of a 60 fps frame.
+func _life_check(what: String, ab: Array) -> void:
+	print("topdown world: %s with the living world %.2f ms a frame, without %.2f ms (the least of %d interleaved rounds); a round's difference %.2f ms (median); its own work %.3f ms a frame"
+		% [what, ab[0], ab[1], LIFE_ROUNDS, ab[2], ab[3]])
+	check(float(ab[2]) < 1.0 + float(ab[1]) * 0.15 and float(ab[3]) < 16.6 * LIFE_OWN_SHARE,
+		"the living world costs %s at most a ms and a seventh of its frame (%.2f ms against %.2f without it) and its own work stays under %d%% of a 60 fps frame (%.3f ms)"
+		% [what, ab[2], ab[1], roundi(LIFE_OWN_SHARE * 100.0), ab[3]])
 
 ## The µs a fixed piece of script work takes now: the machine's speed at this moment.
 func _calibrate() -> int:
@@ -450,10 +473,7 @@ func _topdown() -> void:
 	# Decision 43: the living world's cost in Lotus Ferry (the busiest room: critters, 7 people at work and 2 extras,
 	# smoke, the grass's pushes, the vistas), against the same room built without it, interleaved so the machine's
 	# load falls on both alike; and its own work a frame (its step, its drawing, the loops).
-	var ab := await _life_ab(main.world, walk)
-	print("topdown world: Lotus Ferry with the living world %.2f ms a frame, without %.2f ms (median of interleaved runs); its own work %.3f ms a frame"
-		% [ab.x, ab.y, ab.z])
-	check(ab.x - ab.y < 0.5 + ab.y * 0.12 and ab.z < ab.x * 0.08, "the living world costs Lotus Ferry (at most an eighth of its frame, its own work under 8%%) %.2f ms a frame (%.2f against %.2f without it), its own work %.3f ms" % [ab.x - ab.y, ab.x, ab.y, ab.z])
+	_life_check("Lotus Ferry", await _life_ab(main.world, walk))
 	# Phase 4's second part: chapter 2's region, its Marsh Edge (the stretch's widest room, with the most foes) entered
 	# through the World authority, then its own kinds of foe, fifteen in all, turned on the player there.
 	var t2 := Time.get_ticks_usec()
@@ -481,9 +501,7 @@ func _topdown() -> void:
 		"chapter 2's Marsh Edge loads in under 0.3 s (%.0f ms) and holds 60 fps with %d of its foes fighting (%.2f ms)" % [ms_marsh, marsh_foes, per_marsh])
 	# Decision 43: the same fight with its living world and without it (the grass parting round the foes, frogs, fish,
 	# dragonflies, the watchers at work, the marsh's vista), interleaved.
-	var mab := await _life_ab(mw, hold)
-	print("topdown world: the Marsh Edge's fight with the living world %.2f ms a frame, without %.2f ms; its own work %.3f ms a frame" % [mab.x, mab.y, mab.z])
-	check(mab.x - mab.y < 0.5 + mab.y * 0.12 and mab.z < mab.x * 0.08, "the living world costs the Marsh Edge's fight (at most an eighth, its own work under 8%%) %.2f ms a frame (%.2f against %.2f), its own work %.3f ms" % [mab.x - mab.y, mab.x, mab.y, mab.z])
+	_life_check("the Marsh Edge's fight", await _life_ab(mw, hold))
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)

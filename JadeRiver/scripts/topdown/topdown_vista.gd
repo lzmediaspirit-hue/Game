@@ -46,6 +46,7 @@ func _init(w) -> void:
 	set_process(not edges.is_empty())
 
 func _process(delta: float) -> void:
+	var t0 := Time.get_ticks_usec()
 	var c: Vector2 = world.camera.position.round()
 	var f := int(Time.get_ticks_msec() / 250) % 4
 	_drift += delta * CLOUD_DRIFT * (1.0 + TopdownLife.gust)
@@ -55,6 +56,8 @@ func _process(delta: float) -> void:
 		_frame = f
 		_drawn_drift = dr
 		queue_redraw()
+	TopdownLife.spent_us += Time.get_ticks_usec() - t0
+	TopdownLife.spent_parts.draw += Time.get_ticks_usec() - t0
 
 func _has_cloud() -> bool:
 	return edges.any(func(e): return str(e.kind) == "cloud_sea")
@@ -68,6 +71,7 @@ func _view() -> Rect2:
 
 func _draw() -> void:
 	if edges.is_empty() or tex == null: return
+	var t0 := Time.get_ticks_usec()
 	var view := _view()
 	var dr := room.drawn_rect()
 	for e in edges:
@@ -75,6 +79,8 @@ func _draw() -> void:
 			"n": _north(str(e.kind), dr, view)
 			"s": _south(str(e.kind), view)
 			"all": _water(view, Rect2(Vector2.ZERO, room.art_size()), true)
+	TopdownLife.spent_us += Time.get_ticks_usec() - t0
+	TopdownLife.spent_parts.draw += Time.get_ticks_usec() - t0
 
 ## The layout's reach past `edge` (art px).
 func _pad(edge: String) -> float:
