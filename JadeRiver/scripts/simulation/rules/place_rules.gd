@@ -122,13 +122,14 @@ static var _home_cache := {}
 static func home(c, system: String) -> Dictionary:
 	var rows := of_system(system)
 	if rows.is_empty(): return {}
-	# Asked each frame a page draws (the Menu's lines): the answer holds for a second, or until the character moves on.
-	var key := "%s|%s|%s|%s" % [str(c.id) if c != null else "", system, str(c.position.get("room", "")) if c != null else "", str(c.training_sect.get("id", "")) if c != null else ""]
+	# Asked each frame a page draws (the Menu's lines): the answer holds for 60 frames, or until the character moves.
+	var key := system
+	if c != null: key = "%s|%s|%s|%s" % [str(c.id), system, str(c.position.get("room", "")), str(c.training_sect.get("id", ""))]
 	var hit: Dictionary = _home_cache.get(key, {})
-	if not hit.is_empty() and Time.get_ticks_msec() - int(hit.at) < 1000: return hit.row
+	if not hit.is_empty() and Engine.get_process_frames() - int(hit.at) < 60: return hit.row
 	var found := _home(c, system, rows)
 	if _home_cache.size() > 64: _home_cache.clear()
-	_home_cache[key] = {"at": Time.get_ticks_msec(), "row": found}
+	_home_cache[key] = {"at": Engine.get_process_frames(), "row": found}
 	return found
 
 static func _home(c, system: String, rows: Array) -> Dictionary:

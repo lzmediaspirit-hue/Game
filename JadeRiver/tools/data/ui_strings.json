@@ -2279,7 +2279,7 @@
  "ui.place.state_stock": "%d kinds of things stored",
  "ui.place.state_stock_one": "%d kind of thing stored",
  "ui.place.state_stock_none": "Nothing stored yet",
- "ui.place.state_growth": "%d of %d beds ripe",
+ "ui.place.state_growth": "Beds ripe: %d of %d",
  "ui.place.state_growth_none": "No herbs growing",
  "ui.place.state_smoke": "A batch in the furnace",
  "ui.place.state_ready": "A batch is ready",

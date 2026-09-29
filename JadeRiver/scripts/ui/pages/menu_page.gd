@@ -177,7 +177,7 @@ func _tablet(ch, e: Array, r: Rect2, seals: Dictionary) -> void:
 	icon_at(Rect2(sc - Vector2(16, 16), Vector2(32, 32)), str(e[2]), Color(1, 1, 1, 0.4) if locked else Color.WHITE)
 	if locked: _lock_icon(sc + Vector2(8, 4))
 	var line := Unlocks.locked_text(e[3]) if locked else line_of(ch, id)
-	var at_place := not locked and at_place_line(ch, id) != ""   # decision 43: "At the Storehouse", in jade
+	var at_place := not locked and at_place_line(ch, id) != ""   # decision 43: where it lives, in jade
 	var nx := r.position.x + 60.0
 	var nw := r.end.x - nx - 8.0
 	var ns := 20

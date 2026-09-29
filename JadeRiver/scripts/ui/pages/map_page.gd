@@ -1132,6 +1132,8 @@ func _card_objectives(ch, m: Dictionary, r: Rect2) -> void:
 ## The zone's places of a kind, by area: {rid: [rows]} (data/places.json). A sect's places show once it is the
 ## character's sect.
 func _places_of(ch, kind: String) -> Dictionary:
+	var key := "places|%s|%s|%s|%d" % [zone_id, kind, str(ch.training_sect.get("id", "")), ch.quests.flags.size()]
+	if _cache.has(key): return _cache[key]
 	var z := _zone(zone_id)
 	var out := {}
 	for r in PlaceRules.all():
@@ -1141,6 +1143,7 @@ func _places_of(ch, kind: String) -> Dictionary:
 		if rid == "" or (sect != "" and sect != str(ch.training_sect.get("id", ""))) or not PlaceRules.visible(ch, r): continue
 		if not out.has(rid): out[rid] = []
 		out[rid].append(r)
+	_cache[key] = out
 	return out
 
 ## The kinds of place this zone holds for the character, in the table's order.
