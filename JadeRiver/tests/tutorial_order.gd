@@ -7,7 +7,8 @@ extends "res://tests/prologue_run.gd"
 ##   2. every foe in a fight shows its HP bar, and the player's HP bar shows (the first fight: the Reed Shallows' crabs
 ##      and Reedtail Rats);
 ##   3. every way into a building in the rooms within reach shows a door (PortalView.entrance);
-##   4. taking a quest closes the conversation, unless the same person has the next quest to give or take back;
+##   4. taking or handing in a quest closes the conversation (decision 42: even when the same person has the next quest
+##      to give or take back);
 ##   5. what a quest's steps ask the player to press or open is on the HUD once the quest is taken, and the control is
 ##      drawn (the real HUD asked, at rest) while the step is open; the healing slot stays drawn while it holds something;
 ##   6. no room is left before the steps it holds you to are done: a quest whose step is to leave its room keeps its
@@ -33,6 +34,10 @@ extends "res://tests/prologue_run.gd"
 ##      on the play clock (prologue_run.play_s) something new comes at least every 3 minutes to minute 20 and every 5
 ##      to minute 60 (an item kind, gear worn, a technique, a realm step, a new foe beaten, a title, a choice, coin);
 ##      the first technique is taught at Bone Forging 1 and the second at the Weapon Hall. The timeline is printed.
+##  15. decision 42 (the prototype APK's feedback): at rest, the fan open or closed, the HUD draws Attack and the
+##      techniques as in a fight, each only once it is unlocked (Attack once it is on the HUD, a square for each art in a
+##      slot once the techniques are, Jump and Dodge once theirs are), and nothing before; a person in reach has the
+##      context's own button and never takes Attack's place.
 ## The steps are prologue_run's, in this order; prologue_run keeps its own (Granny first).
 ## Run headless:  godot --headless --path . res://tests/tutorial_order.tscn [-- --verbose] [--keep=<step>,...]
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
@@ -314,13 +319,14 @@ func first_hour() -> void:
 	check(play_s <= 75.0 * 60.0, "the walk from waking to the Weapon Hall's art fits the first hour and a bit (%.0f min)" % (play_s / 60.0))
 
 # ------------------------------------------------------------------ the page
-## Every quest is taken on the real dialogue page, which closes itself (or goes on to the same person's next quest).
+## Every quest is taken on the real dialogue page, which closes itself (decision 42: even when the same person has the
+## next quest to give or take back).
 func accept(npc: String, quest: String) -> void:
-	check(_choose_on_page(npc, "accept", quest), "%s taken from %s on the dialogue page, and the talk closes itself (or goes on to their next quest)" % [quest, npc])
+	check(_choose_on_page(npc, "accept", quest), "%s taken from %s on the dialogue page, and the talk closes itself" % [quest, npc])
 	_needs_on_hud(quest)
 
 func hand_in(npc: String, quest: String) -> void:
-	check(_choose_on_page(npc, "hand_in", quest), "%s handed in to %s on the dialogue page, and the talk closes itself (or goes on to their next quest)" % [quest, npc])
+	check(_choose_on_page(npc, "hand_in", quest), "%s handed in to %s on the dialogue page, and the talk closes itself" % [quest, npc])
 
 ## Invariant 5: what the quest's steps ask for is on the HUD now that it is taken, its controls drawn.
 func _needs_on_hud(quest: String) -> void:
@@ -468,6 +474,29 @@ func invariants(label: String) -> void:
 	for qid in c().quests.active: open.append_array(_step_needs(str(qid), c().quests.active[qid].progress))
 	if Game.is_revealed("hud:quick_use") and c().inventory.count(str(c().inventory.quick_use)) > 0: open.append("hud:quick_use")
 	_controls_drawn(label, open)
+	_rest_controls(label)
+
+## Invariant 15 (decision 42): at rest Attack and the techniques are drawn as they are unlocked, and nothing before;
+## what the world offers in reach has its own button.
+func _rest_controls(label: String) -> void:
+	var wrong: Array = []
+	for open in [false, true]:
+		hud_probe.set_state(false, open)
+		hud_probe.context = {}
+		var roles: Array = hud_probe.hit_targets().map(func(tg): return str(tg.role))
+		var filled: int = range(4).filter(func(i): return hud_probe._slot_filled(i + hud_probe.skill_page * 4)).size()
+		var want_skills: int = filled if Game.is_revealed("hud:skills") else 0
+		if roles.has("attack") != Game.is_revealed("hud:attack"): wrong.append("attack (fan %s)" % open)
+		if roles.count("skill") != want_skills: wrong.append("techniques %d of %d (fan %s)" % [roles.count("skill"), want_skills, open])
+		for el in ["jump", "guard"]:
+			if roles.has(el) != Game.is_revealed("hud:" + el): wrong.append("%s (fan %s)" % [el, open])
+		hud_probe.context = {"type": "npc", "npc": "aunt_ping", "label": "Talk"}
+		var with_ctx: Array = hud_probe.hit_targets().map(func(tg): return str(tg.role))
+		if not with_ctx.has("context") or with_ctx.has("attack") != roles.has("attack") or with_ctx.count("skill") != roles.count("skill"): wrong.append("the context (fan %s)" % open)
+		hud_probe.context = {}
+	hud_probe.set_state(false, hud_probe.fan_rest_open)
+	check(wrong.is_empty(), "%s: at rest Attack (%s) and the techniques are drawn as they are unlocked, nothing before, and a person in reach has its own button (%s)"
+		% [label, "on" if Game.is_revealed("hud:attack") else "not yet", str(wrong)])
 
 ## Foes the room would set on the character now: a spawn that is not passive and whose condition holds, or an event's.
 func hostile(rd: Dictionary) -> bool:
@@ -528,5 +557,5 @@ func _attack_holds() -> void:
 	hud_probe._tick_fight(0.05)
 	offers_in_fight[str(ctx.get("type", ""))] = int(offers_in_fight.get(str(ctx.get("type", "")), 0)) + 1
 	var slot: bool = hud_probe.hit_targets().any(func(tg): return str(tg.role) == "context")
-	if (not hud_probe.attack_first() or hud_probe._ctx_glyph(c()) != "" or not slot) and hijacked.size() < 20:
+	if (not hud_probe.attack_first() or hud_probe.attack_glyph(c()) != str(StatRules.family(c()).get("hud_glyph", "fist")) or not slot) and hijacked.size() < 20:
 		hijacked.append("%s:%s in %s" % [str(ctx.get("type", "")), str(ctx.get("object", ctx.get("portal", ""))), rt.room_id])

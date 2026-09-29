@@ -522,9 +522,9 @@ func _page(convo: Dictionary) -> Dictionary:
 	return out
 
 ## Talk to an NPC by the context button on the real dialogue page, tap to the last line and pick the choice that does
-## `key` (accept or hand_in) for a quest. True when it took, and the page then closed itself or went on to the same
-## person's next quest to take or hand in (M17): after taking a quest nobody has to tap "Farewell", and a trade, a gift
-## or a farewell alone never keeps the conversation open.
+## `key` (accept or hand_in) for a quest. True when it took and the page then closed itself (M17: after taking a quest
+## nobody has to tap "Farewell"; decision 42: even when the same person has another quest to give or take back, which
+## a second talk offers).
 func _choose_on_page(npc: String, key: String, qid: String) -> bool:
 	var talk := interact(str(npc_object(npc).get("id", "")))
 	var on := _page(talk.get("dialogue", {}))
@@ -532,13 +532,11 @@ func _choose_on_page(npc: String, key: String, qid: String) -> bool:
 	var choices: Array = before.get("choices", [])
 	for i in choices.size():
 		if str(choices[i].get(key, "")) == qid and not on.closed: on.page.on_action("choose", i)
-	var now: Dictionary = on.page.convo
-	var went_on: bool = not on.closed and now != before and now.has("quest")
 	on.page.queue_free()
 	story_guidance()
 	var took: bool = (c().quests.is_active(qid) or c().quests.is_done(qid)) if key == "accept" else c().quests.is_done(qid)
-	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else ("went on to %s" % now.get("quest", "") if went_on else "left open")])
-	return took and (on.closed or went_on)
+	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else "left open"])
+	return took and on.closed
 
 # ------------------------------------------------------------------ the steps
 ## A save folder's files copied over another's (the runs' checkpoints).

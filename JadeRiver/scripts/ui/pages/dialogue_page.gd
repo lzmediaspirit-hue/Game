@@ -200,9 +200,17 @@ func on_action(id: String, data) -> void:
 			elif not at_end():
 				line += 1
 				shown_chars = 0.0
-			elif (convo.get("choices", []) as Array).is_empty():
+			elif (convo.get("choices", []) as Array).is_empty() or ends_on_tap():
 				close()
 		"choose": _choose(int(data))
+
+## Decision 42: a talk that itself finished or gave a quest (`quest_moved`: a talk objective, a quest done by talking)
+## closes at its last line's tap like one with nothing to choose, when all it offers besides is a service (Trade, a page,
+## a gift, a spar) or Farewell; those stay a tap away until then.
+func ends_on_tap() -> bool:
+	if not convo.get("quest_moved", false): return false
+	return (convo.get("choices", []) as Array).all(func(ch): return not (ch.has("accept") or ch.has("hand_in") or ch.has("effects") or ch.has("next")
+		or ch.has("intent")))
 
 func _choose(i: int) -> void:
 	var choices: Array = convo.get("choices", [])
@@ -229,9 +237,10 @@ func _choose(i: int) -> void:
 		if not r.get("ok", false) and ch.has("hand_in"): return   # a refused hand-in stays open with what is missing flashed
 		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
 			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
-		# The conversation goes on only where the authority hands one back (the next node, or the same person's next
-		# quest to take or hand in, QuestAuthority._then); taking a quest otherwise ends it (M17).
-		if r.get("ok", false) and r.has("dialogue"):
+		# The conversation goes on only where the authority hands the next node of a talk back; taking or handing in a
+		# quest always ends it (M17; decision 42: even when the same person has another, QuestAuthority._then), and a
+		# scene the quest starts plays once it is closed.
+		if r.get("ok", false) and r.has("dialogue") and not (ch.has("accept") or ch.has("hand_in")):
 			_go_on(r.dialogue)
 			return
 	close()

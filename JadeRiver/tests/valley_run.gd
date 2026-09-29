@@ -598,7 +598,7 @@ func sec_bf5() -> void:
 	GameEvents.event.disconnect(heard)
 	check(int(dodges.n) >= 3, "dodge three attacks (%d)" % int(dodges.n))
 	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "hand_in")), "hand_in", "stone_and_sweat"),
-		"Stone and Sweat handed in on the page, and the conversation closes itself or goes on")
+		"Stone and Sweat handed in on the page, and the conversation closes itself")
 	check(finish("stone_and_sweat"), "Stone and Sweat done")
 	# Item 6 (player_motivation.md): no board, idle task or post before Qi Kindling 1 (sec_qk1 takes them).
 	check(reach("bone_forging_6"), "Bone Forging 6")
@@ -813,14 +813,14 @@ func _dummy_beside_npc() -> void:
 	check(str(talk.get("dialogue", {}).get("npc", "")) == "uncle_guo", "and the context button's answer is Guo's")
 
 ## M17: a conversation closes itself (dialogue_page.gd), on the real page. A last line with nothing to choose after it
-## closes when tapped. Accepting a quest, and later handing it in, close the page (or it goes on to that person's next
-## quest): nobody has to tap "Farewell" (prologue_run._choose_on_page).
+## closes when tapped. Accepting a quest, and later handing it in, close the page (decision 42: even when that person has
+## another quest): nobody has to tap "Farewell" (prologue_run._choose_on_page).
 func _conversations_close() -> void:
 	var wen := _page({"npc": "fisher_wen", "speaker": ContentDB.name_of("npcs", "fisher_wen"), "lines": [ContentDB.entry("npcs", "fisher_wen").lines[0]], "choices": []})
 	check(wen.closed, "a last line with nothing to choose closes the conversation when tapped")
 	wen.page.queue_free()
 	check(_choose_on_page(go_to_npc(givers(quest_def("stone_and_sweat"), "giver")), "accept", "stone_and_sweat"),
-		"Stone and Sweat accepted on the page, and the conversation closes itself or goes on to the next quest")
+		"Stone and Sweat accepted on the page, and the conversation closes itself")
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:

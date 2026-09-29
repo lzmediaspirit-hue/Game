@@ -3,16 +3,17 @@ extends Page
 ## and 24). A red and cream awning with the shop's name on a lacquer sign; the merchant behind the counter at the left with
 ## her nameplate and her bark; the wares on plank shelves, each on a jade mat with a paper price tag (five a shelf, two
 ## shelves in view, the rest a drag away); the deal laid on the counter plank (the ware, what it does, how many, the
-## total, Buy); the purses on the counter's front. Beside the stall "your bag" is a patch of the gourd's heaven, as the
-## Bag page draws it (decision 24): the gourd's spaces floating five across, each with what it sells for, and Sell under
-## them on the sea of cloud. Buying and selling face each other with no tabs; buy-back is a small token in the bag's
-## header (decision 11: no column), which turns the same spaces to the last sales, each with its buy-back price.
+## total, Buy); the purses on the counter's front. Beside the stall "your bag": the gourd's spaces five across, each with
+## what it sells for, and Sell under them, on the stall's own timber wall under the same awning (roadmap decision 42:
+## one background for the shop and the bag; decision 24 had drawn it as a patch of the gourd's heaven). Buying and
+## selling face each other with no tabs; buy-back is a small token in the bag's header (decision 11: no column), which
+## turns the same spaces to the last sales, each with its buy-back price.
 ## Prices come from the Economy authority; a stale price is refused and re-shown. The page submits intents only.
 
 const BagPage = preload("res://scripts/ui/pages/inventory_page.gd")
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
 const Avatar = preload("res://scripts/avatar.gd")
-const SKY := Rect2(808, 0, 472, 720)          # the gourd's heaven beside the stall
+const SKY := Rect2(808, 0, 472, 720)          # the bag's side beside the stall
 const WARES := Rect2(232, 108, 568, 336)      # the shelves: five wares a shelf, two in view
 const WARE := Vector2(110, 168)
 const PER_SHELF := 5
@@ -32,7 +33,6 @@ var sel_back := -1
 var sold := false          # the bag's side shows the last sales, to buy back
 var qty := 1
 var doll: Node2D           # the merchant, drawn behind her counter
-var stars: Array = []
 var bark := ""
 var bought := {}           # the ware on its way down to the counter (MarketKit.fly)
 
@@ -61,7 +61,6 @@ func setup() -> void:
 		doll.play("idle")
 		var barks: Array = who.get("barks", [])
 		if not barks.is_empty(): bark = str(barks[int(Clock.reset_day(Clock.now_utc()) / 86400.0) % barks.size()])
-	stars = BagPage.scatter_stars(90, SKY, [Rect2(SKY.position + Vector2(0, 90), Vector2(SKY.size.x, 600))])
 
 func content_rect() -> Rect2:
 	return Rect2(WARES.position, Vector2(WARES.size.x, FRONT_Y - WARES.position.y))
@@ -80,18 +79,27 @@ func draw_surface(_r: Rect2) -> void:
 		if y > WARES.position.y + 20 and y < COUNTER_Y - 6:
 			draw_rect(Rect2(226, y + 5, 568, 5), Color(UiKit.INK, 0.4))
 			vshade(Rect2(226, y, 568, 8), UiKit.SURFACE.peg, UiKit.SURFACE.wood)
-	# The awning: red and cream stripes and a scalloped valance, dropping into place as the stall opens.
+	# Decision 42 (the user: "when in trading I want the shop and player bag background to be the same"): the bag's side
+	# is the stall's own timber wall under the same awning, where it was a patch of the gourd's night sky.
+	MarketKit.planks(self, Rect2(SKY.position.x, 84, SKY.size.x - 8.0, 720 - 84), UiKit.SURFACE.wood_dark, 58.0)
+	vshade(Rect2(SKY.position.x, 84, SKY.size.x - 8.0, 80), Color(UiKit.INK, 0.55), Color(UiKit.INK, 0.0))
+	vshade(Rect2(SKY.position.x, 560, SKY.size.x - 8.0, 160), Color(UiKit.INK, 0.0), Color(UiKit.INK, 0.35))
+	ground(Rect2(SKY.position.x, 84, SKY.size.x - 8.0, 720 - 84), UiKit.SURFACE.wood_dark)
+	hshade(Rect2(1272, 40, 8, 680), UiKit.SURFACE.wood, UiKit.SURFACE.wood_dark.lerp(UiKit.INK, 0.3))
+	# The awning: red and cream stripes and a scalloped valance over the stall and the bag's side, dropping into place as
+	# the stall opens.
 	var drop := roundf((1.0 - unfold()) * -24.0)
-	for i in 18:
+	for i in 28:
 		var x := 8.0 + i * 46.0
 		var col: Color = UiKit.BLOOD if i % 2 == 0 else UiKit.SURFACE.talisman
-		var w := minf(46.0, 808.0 - x)
+		var w := minf(46.0, 1272.0 - x)
+		if w <= 0.0: break
 		draw_rect(Rect2(x, drop, w, 76), col)
 		var sc := PackedVector2Array()
 		for k in 13: sc.append(Vector2(x + w * 0.5 + cos(PI * k / 12.0) * w * 0.5, 76 + drop + sin(PI * k / 12.0) * 22.0))
 		draw_colored_polygon(sc, col.lerp(UiKit.INK, 0.08))
-	vshade(Rect2(8, drop, 800, 30), Color(UiKit.INK, 0.25), Color(UiKit.INK, 0.0))
-	draw_rect(Rect2(8, 74 + drop, 800, 2), Color(UiKit.INK, 0.3))
+	vshade(Rect2(8, drop, 1264, 30), Color(UiKit.INK, 0.25), Color(UiKit.INK, 0.0))
+	draw_rect(Rect2(8, 74 + drop, 1264, 2), Color(UiKit.INK, 0.3))
 	# The merchant standing behind her counter (her own layers, at 2.5 as the self family's figures).
 	if is_instance_valid(doll): doll.draw_on(self, FEET, 2.5)
 	# The counter plank, its lip and its front.
@@ -103,9 +111,6 @@ func draw_surface(_r: Rect2) -> void:
 	MarketKit.planks(self, Rect2(8, FRONT_Y, 800, 104), UiKit.SURFACE.wood_dark, 100.0)
 	vshade(Rect2(8, FRONT_Y, 800, 16), Color(UiKit.INK, 0.45), Color(UiKit.INK, 0.0))
 	ground(Rect2(8, FRONT_Y, 800, 104), UiKit.SURFACE.wood_dark)
-	# Beside the stall, the gourd's heaven.
-	MarketKit.heaven(self, SKY, stars)
-	BagPage.island(self, Vector2(1252, 420), 44.0, 0.8, 3)
 
 ## The shop's name on a black lacquer sign hung from the awning.
 func title_rect() -> Rect2:

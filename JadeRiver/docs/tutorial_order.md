@@ -109,7 +109,8 @@ demon, and you wake whole at the shrine. The revival page says so in full the fi
 - Every way into a building in the rooms within reach shows a door where it is: the doorway its art draws (a building
   prop's `door` span, a painted hall's doors) or a door set at it (`PortalView.entrance`; `data_validation` holds every
   room to it). A building's door portal stands in its doorway (`Room.building`).
-- Taking a quest closes the conversation, unless the same person has the next quest to give or take back.
+- Taking or handing in a quest closes the conversation, even when the same person has the next quest to give or take
+  back (decision 42; talking again offers it), and a scene the quest starts plays once it is closed.
 - What a quest's steps ask for (a button, a page) is on the HUD when it is taken; Trade appears with Coins and Shops.
   The control a step names is drawn (the real HUD asked, at rest), not only revealed, while the step is open: the
   Quick-use slot while Granny's Remedy asks for it, and afterwards while it holds a tea.
@@ -118,7 +119,9 @@ demon, and you wake whole at the shrine. The revival page says so in full the fi
   plate, and a try to leave answered with the same words. No door is kept shut for a menu lesson: Morning Tide is under
   way from waking, "Step outside" its only step, the hut's door open.
 - In a fight the attack button attacks, whatever is in reach (a herb, a pickup, a person, a door): the offer waits in
-  the context slot on ring 2. At rest the context takes the button.
+  the context slot on ring 2. Decision 42: at rest too; the context has its own button on ring 2 and never takes
+  Attack's place. At rest, the fan open or closed, Attack and the techniques are drawn as they are unlocked, and nothing
+  before (invariant 15).
 - The story's guidance, after every step that moves it: the tracker is never empty; every entry's target (the room
   its step is in, its giver's room, a hunting ground) is a real room the player can walk to, and the direction mark
   leads toward the first story entry's; between main quests the first entry is the Next one (its giver stands where it

@@ -368,8 +368,21 @@ func _objective_open(_c, def: Dictionary, st: Dictionary, i: int) -> bool:
 	return true
 
 # ------------------------------------------------------------------ dialogue
-## Build the conversation for an NPC: hand-in first, then talk objectives, then offers, then default lines.
+## Build the conversation for an NPC (_talk). Decision 42: a talk that itself finished a quest or gave one (a talk
+## objective, a quest done by talking, the next one taken at once) is marked `quest_moved`, and the dialogue page lets
+## its last line's tap close it when nothing but a service or Farewell is left to choose.
 func talk(c, npc: String) -> Dictionary:
+	var before := _quest_marks(c)
+	var r := _talk(c, npc)
+	if r.get("ok", false) and r.has("dialogue") and _quest_marks(c) != before: r.dialogue["quest_moved"] = true
+	return r
+
+## What a talk may move: the quests done (and how often) and the quests under way.
+func _quest_marks(c) -> String:
+	return str(c.quests.done) + "|" + str(c.quests.active.keys())
+
+## The conversation: hand-in first, then talk objectives, then offers, then default lines.
+func _talk(c, npc: String) -> Dictionary:
 	var n := ContentDB.entry("npcs", npc)
 	if n.is_empty(): return fail("unknown_npc")
 	emit("npc_talked", {"actor": c.id, "npc": npc})
@@ -498,13 +511,15 @@ func choose(c, npc: String, choice: Dictionary) -> Dictionary:
 	if choice.has("spar"): return start_spar(c, str(choice.spar), -1, npc)
 	return ok()
 
-## M17 · After a quest is taken or handed in, the conversation ends there (nobody taps "Farewell"), unless the same
-## person has another quest to offer or to take back now: then it goes on to that (`dialogue`). They are spoken to
-## again either way, as a player tapping them again would (a talk objective about them counts).
+## M17 · After a quest is taken or handed in, the conversation ends there (nobody taps "Farewell"). Decision 42 (the
+## prototype APK's feedback, "conversation with NPC should close after getting / completing the quest"): it ends even
+## when the same person has another quest to offer or to take back now (it went on to that before); speaking to them
+## again offers it, and a scene the quest starts plays once the talk is closed. They are spoken to again as a player
+## tapping them again would (a talk objective about them counts), and nothing is handed back to go on with.
 func _then(c, npc: String, r: Dictionary) -> Dictionary:
 	if not r.get("ok", false) or npc == "" or ContentDB.entry("npcs", npc).is_empty(): return r
-	var again: Dictionary = talk(c, npc).get("dialogue", {})
-	if again.has("quest"): r.dialogue = again
+	talk(c, npc)
+	r.erase("dialogue")
 	return r
 
 # ------------------------------------------------------------------ lifecycle
