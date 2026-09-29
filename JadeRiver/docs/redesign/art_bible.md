@@ -110,7 +110,7 @@ a part overlaps the body (§13). Props keep the rules below.*
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
 | Character | ~46 art px from sole to crown (48 with a top knot), feet on the anchor: about 2.9 tiles (decision 43: 1.2 times the 38 px it was first drawn at). The real character (§13) is the reference, and §13's scale rule says what follows its size |
-| Doors | 2 tiles wide in the wall, 24–28 px tall. A body is about 20 px across and its foot box 19 × 12 world units (9.5 × 6 art px), so it fits through every way a tile wide or more, and reads as fitting a door's two tiles |
+| Doors | 2 tiles wide in the wall, 24–28 px tall. A body is about 20 px across and its foot box 19 × 10 world units (9.5 × 5 art px), so it fits through every way a tile wide or more, and reads as fitting a door's two tiles |
 | Props | footprint in whole tiles; sprite height free |
 
 **What makes a height readable.** Every raised edge carries all six of these cues:
@@ -445,7 +445,7 @@ sprint's 216 world units a second, the jumps and the tops a body stands on). Siz
 
 | What | Before (38 px) | Now (46 px) | Where |
 |---|---|---|---|
-| Foot box (collision) | 16 × 10 | 19 × 12 world units | `movement.json` topdown `box` |
+| Foot box (collision) | 16 × 10 | 19 × 10 world units (across only: the feet's depth, which the stairs' side steps and a top's landing are measured by, stays) | `movement.json` topdown `box` |
 | The player's body for a blow on the grid | half width 14 | 17 | `CombatAuthority.body_half_width` |
 | A body's height, its chest (effects) | 76, 40 | 92, 48 world units | `movement.json` topdown.combat |
 | Talk and a person's context reach | 110 | 132 world units | `WorldAuthority.reach_of` |
@@ -458,7 +458,7 @@ sprint's 216 world units a second, the jumps and the tops a body stands on). Siz
 
 The drawn weapons grow with the hands that hold them (they are cast from the same doll); a blow's reach, a technique's
 range and every speed stay the game's measures. Doors, corridors and props keep their size: every way is at least a
-tile (32 world units) wide, and the foot box is 19. The technique pictures and the HUD's companion chip keep the 38 px
+tile (32 world units) wide, and the foot box is 19 across. The technique pictures and the HUD's companion chip keep the 38 px
 figure (`picture` frames), so they stay framed as the user approved them.
 
 Check a new layer against it the way §11 checks a tile:

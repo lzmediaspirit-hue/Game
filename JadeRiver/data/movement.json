@@ -23,7 +23,7 @@
   "long_jump_speed": 300,
   "box": [
    19,
-   12
+   10
   ],
   "corner_nudge": 10,
   "camera_look_ahead": 0.2,

@@ -563,7 +563,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
       player to the page to spend them, and a first open of a page gives a tour of how it works.
     - **Systems as places:** some systems move from the menu into places in the world
       (`docs/redesign/systems_as_places.md`).
-    - **Character size:** the characters look a little bigger, about 1.2×.
+    - **Character size:** the characters look a little bigger, about 1.2×. Built: the people are re-rendered at 46 art
+      px (from 38) for every layer set, action, facing and dye, and what is sized against a person follows them (art
+      bible §13, "The scale rule"); the technique pictures keep the 38 px figure they were approved at. Before and after
+      in `docs/redesign/feedback/people_scale/`.
     - **HUD skills:** the technique buttons are a little bigger and circular.
     - **Combat** feels smoother.
     - **Jumping:** it is easier to control at the sprint speed. A box-to-roof jump must not overshoot the box.
