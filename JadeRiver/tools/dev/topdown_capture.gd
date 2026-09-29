@@ -37,6 +37,7 @@ func _main() -> void:
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
 	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
+	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -76,6 +77,9 @@ func _main() -> void:
 		return
 	if "--people-scale" in OS.get_cmdline_user_args():
 		await people_scale()
+		return
+	if "--monsters" in OS.get_cmdline_user_args():
+		await monsters()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -1539,3 +1543,166 @@ func people_scale() -> void:
 	main.hud.visible = true
 	print("topdown_capture: people scale done")
 	get_tree().quit()
+
+## Decision 43's monsters (`-- --monsters --monsters-tag=<before|after>`, into docs/redesign/feedback/monsters/<tag>/):
+## every foe drawn for the grid staged round the player on the Reed Shallows' flats and held still, the world alone at
+## x2 and the lineup at x4: each idle facing the camera (01), in its wind-up's tell turned to the player (02), on its
+## strike's hit frame (03), struck (04), falling (05), and the elites beside a plain one (06); the hollowed eel on the
+## Hollow Night's river (07); then live fights under the HUD (08-11): the Willow Path's boarlets and a rat, the Marsh
+## Edge's hollowed boarlet, otter, frog and leech, the Reed Shallows' Old Snapper and crabs, and the Hollow Night's
+## minnows round the player.
+const MONSTER_SPOT := Vector2(51, 17)
+## [def, offset from the player in cells, elite]
+const MONSTER_LINEUP := [["old_snapper", Vector2(-8.5, -3.5), false], ["trial_puppet", Vector2(-4.0, -3.5), false],
+	["mossback_toad", Vector2(-0.5, -3.5), false], ["reed_otter", Vector2(3.0, -3.5), false], ["hollowed_boarlet", Vector2(7.0, -3.5), false],
+	["mudshell_crab", Vector2(-8.0, 0.5), false], ["reedtail_rat", Vector2(-5.0, 0.5), false], ["wild_boarlet", Vector2(3.0, 0.5), false],
+	["reed_frog", Vector2(6.0, 0.5), false], ["marsh_leech", Vector2(8.5, 0.5), false], ["hollow_minnow", Vector2(-2.5, 0.5), false]]
+const MONSTER_ELITES := [["wild_boarlet", Vector2(-7.0, -2.0), false], ["wild_boarlet", Vector2(-4.0, -2.0), true],
+	["reed_frog", Vector2(-0.5, -2.0), false], ["reed_frog", Vector2(2.0, -2.0), true],
+	["mudshell_crab", Vector2(5.0, -2.0), false], ["mudshell_crab", Vector2(8.0, -2.0), true],
+	["mossback_toad", Vector2(-7.0, 1.5), false], ["mossback_toad", Vector2(-4.0, 1.5), true],
+	["reedtail_rat", Vector2(3.0, 1.5), false], ["reedtail_rat", Vector2(5.5, 1.5), true], ["marsh_leech", Vector2(8.0, 1.5), true]]
+const MONSTER_FIGHTS := [["08_fight_willow_path", "wp_east", Vector2(20, 14), [["wild_boarlet", Vector2(3, 2)], ["wild_boarlet", Vector2(-4, 3)], ["reedtail_rat", Vector2(5, -1)]]],
+	["09_fight_marsh_edge", "rm_marsh_edge", Vector2(34, 15), [["hollowed_boarlet", Vector2(3, 3)], ["reed_otter", Vector2(-4, 4)], ["reed_frog", Vector2(2, -2)], ["marsh_leech", Vector2(-3, -2)]]],
+	["10_fight_reed_shallows", "lf_reed_shallows", Vector2(51, 17), [["old_snapper", Vector2(3, 2)], ["mudshell_crab", Vector2(-3, 1)], ["mudshell_crab", Vector2(-2, -3)]]],
+	["11_fight_hollow_night", "lf_village_night", Vector2(33, 32), [["hollow_minnow", Vector2(-3, -2)], ["hollow_minnow", Vector2(4, -3)], ["hollow_minnow", Vector2(2, 3)]]]]
+
+func monsters() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--monsters-tag="): tag = a.substr(15)
+	var out := "res://docs/redesign/feedback/monsters/%s/" % tag
+	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
+	main.process_mode = Node.PROCESS_MODE_PAUSABLE
+	await _topdown_game(out)
+	await frames(360)
+	var c = Game.active()
+	get_tree().physics_frame.connect(func(): if Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(MONSTER_SPOT, 90)
+	main.hud.visible = false
+	var foes := await _monster_stage(MONSTER_LINEUP)
+	for st in [["01_idle", "idle", 0, Vector2.DOWN], ["02_tells", "windup", -1, Vector2(1, 1)], ["03_strikes", "attack", 1, Vector2(1, 1)],
+			["04_struck", "hurt", 0, Vector2(1, 1)]]:
+		var d: Vector2 = st[3]
+		for e in foes: _pose_foe(e, str(st[1]), d if e.plane.x <= m.pos.x else Vector2(-d.x, d.y), int(st[2]))
+		await _monster_shot(str(st[0]), out)
+	for e in foes:
+		Game.combat._damage_enemy(e, e.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+		_pose_foe(e, "death", Vector2.DOWN, -3)
+	await _monster_shot("05_falling", out)
+	foes = await _monster_stage(MONSTER_ELITES)
+	for e in foes: _pose_foe(e, "idle", Vector2(1, 1), 0)
+	await _monster_shot("06_elites", out)
+	for e in foes: _pose_foe(e, "windup", Vector2(1, 1), -1)
+	await _monster_shot("06_elites_tells", out)
+	get_tree().paused = false
+	# The hollowed eel on the night's river.
+	Game.world.load_room(c, "lf_village_night", "", (Vector2(33, 32) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(Vector2(33, 32), 120)
+	var eel := _foe("hollowed_eel")
+	if eel == null: eel = Game.enemies.spawn_at("hollowed_eel", Vector2(1500, 950), 2)   # as the night's event raises it
+	if eel != null:
+		var pc := TopdownRoom.cell_of(m.pos)   # in the river straight south of the square
+		for dy in range(1, 24):
+			if w.room.is_water(pc.x, pc.y + dy):
+				eel.plane = (Vector2(pc.x, pc.y + dy + 1) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				break
+		eel.altitude = w.room.height_at(eel.plane)
+		eel.ai.state = "idle"
+		eel.ai.timer = 99.0
+	await frames(30)
+	if eel != null:
+		m.place(w.room.nearest_standable(eel.plane + Vector2(-40, -110)))
+		w._settle_camera()
+		await frames(30)
+		get_tree().paused = true
+		for st in [["07_eel_idle", "idle", 0], ["07_eel_tell", "windup", -1], ["07_eel_strike", "attack", 1]]:
+			_pose_foe(eel, str(st[1]), (m.pos - eel.plane).normalized(), int(st[2]))
+			await get_tree().process_frame
+			await get_tree().process_frame
+			(await world_shot()).save_png(ProjectSettings.globalize_path(out + str(st[0]) + ".png"))
+		get_tree().paused = false
+	main.hud.visible = true
+	# Live fights under the HUD, the body kept whole.
+	for s in MONSTER_FIGHTS:
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 60)
+		for f in s[3]:
+			var at: Vector2 = w.room.nearest_standable((s[2] + f[1] + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+			var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1)
+			e.altitude = w.room.height_at(e.plane)
+			e.threat[Game.active_id] = 1.0
+		for i in 150: await frames(1)
+		await shot(str(s[0]), out)
+		await RenderingServer.frame_post_draw
+		var vi: Image = w.viewport.get_texture().get_image()
+		var at: Vector2i = Vector2i(p.screen - w.camera.position + Vector2(320, 180)) - Vector2i(160, 90)
+		var crop := vi.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(320, 180)), Vector2i(320, 180)))
+		crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+		crop.save_png(ProjectSettings.globalize_path(out + str(s[0]) + "_x4.png"))
+	print("topdown_capture: monsters done")
+	get_tree().quit()
+
+## The lineup ([def, offset in cells, elite]) set round the player on the room's floor, the room's own foes and people
+## cleared, each doing nothing until it is posed; the game is then held still.
+func _monster_stage(list: Array) -> Array:
+	get_tree().paused = false
+	Game.room_rt.enemies.clear()
+	Game.room_rt.spawn_slots.clear()
+	Game.room_rt.loot.clear()
+	for id in w.figures:
+		var fig = w.figures[id]
+		if is_instance_valid(fig) and fig.art is TopdownPlaces.Person:
+			fig.visible = false
+			fig.staged = true
+	m.place((MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	m.dir = Vector2.DOWN
+	m.row = "s"
+	w._settle_camera()
+	var out: Array = []
+	for f in list:
+		var at: Vector2 = w.room.nearest_standable((MONSTER_SPOT + (f[1] as Vector2) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		var e: EnemyState = Game.enemies.spawn_at(str(f[0]), at, 1, {"elite": bool(f[2])})
+		e.altitude = w.room.height_at(e.plane)
+		e.ai.state = "idle"
+		e.ai.timer = 99.0
+		out.append(e)
+	await frames(20)
+	get_tree().paused = true
+	return out
+
+## A foe held on frame `i` of `act` (negative counts from the end), turned toward `dir`.
+func _pose_foe(e: EnemyState, act: String, dir: Vector2, i: int) -> void:
+	var fv = w.foe_views.get(e.uid)
+	if fv == null or fv.art != null: return
+	e.velocity = Vector2.ZERO
+	e.aim = dir.normalized()
+	e.flash = 0.0
+	e.knockback = 0.0
+	if e.alive: e.ai.state = {"hurt": "stagger", "windup": "windup", "attack": "attack"}.get(act, "aggro")
+	e.action = act
+	fv.state = str(e.ai.state)
+	fv.facing = TopdownMotor.nearest_row(dir, "s", fv.FACINGS)
+	fv.last = act
+	var a: Dictionary = fv.acts.get(act, {})
+	var n: int = (a.get("frames", {}).get("s", [[0, 0]]) as Array).size()
+	fv.t = (float(posmod(i, n)) + 0.5) / float(a.get("fps", 6))
+	fv.sync(0.0)
+
+## The world alone at x2, and the lineup round the player at x4.
+func _monster_shot(name: String, out: String) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var img := await world_shot()
+	img.save_png(ProjectSettings.globalize_path(out + name + ".png"))
+	var at := Vector2i((p.screen - w.camera.position + Vector2(320, 180)) * 2.0) - Vector2i(340, 230)
+	var crop := img.get_region(Rect2i(at.clamp(Vector2i.ZERO, Vector2i(1280 - 680, 720 - 320)), Vector2i(680, 320)))
+	crop.resize(1360, 640, Image.INTERPOLATE_NEAREST)
+	crop.save_png(ProjectSettings.globalize_path(out + name + "_x4.png"))

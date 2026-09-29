@@ -16,7 +16,7 @@ extends Node2D
 ## Phase 3 (docs/redesign/art_bible.md, decisions 32–34): the terrain draws by the art bible's rules (TopdownTerrain):
 ## paths and shores auto-tiled, rims, contact shade and cast shade on every raised edge, face ends and stair cheeks,
 ## and each prop's floor shadow cut to the floor it stands on. Plants sway and lotus bob in their own frames, and the
-## foes are the eight-facing sheet (art/topdown/foes.png).
+## foes are the eight-facing sheets (art/topdown/foes/, a sheet a species).
 ##
 ## Phase 4 (`live`): the world view of a character's own game in every room of the world that has a layout on the grid
 ## (WorldAuthority.grid_for; main.gd mounts world.gd for the others). The room is Game.room_rt's and the view rebuilds
@@ -617,10 +617,15 @@ func tile(name: String) -> Rect2:
 	var r: Array = room.tileset.get("tiles", {}).get(name, [0, 0, 16, 16])
 	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
-## An atlas of the tile set (tiles, props, foes), loaded once from the file its manifest names.
+## An atlas of the tile set (tiles, props), loaded once from the file its manifest names.
 func atlas(kind: String) -> Texture2D:
 	if not _atlases.has(kind): _atlases[kind] = load(str(room.tileset.get("atlas", {}).get(kind, "")))
 	return _atlases[kind]
+
+## A foe's sheet (decision 43: a sheet a species, data/topdown/foes.json), loaded once.
+func foe_sheet(path: String) -> Texture2D:
+	if not _atlases.has(path): _atlases[path] = load(path)
+	return _atlases[path]
 
 ## Draw the named tile at `at` on `ci`, its top `h` rows only (a face over water shows half).
 func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
@@ -869,10 +874,12 @@ class Caption extends Control:
 	func _draw() -> void:
 		UiKit.draw_outlined(self, Tx.t("topdown.caption"), Vector2(320, 28), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 640)
 
-## One foe on the grid (Phase 3: art/topdown/foes.png), sorted with the room like the body, its shadow on the floor
-## under it, a flash when struck and a fade in death. It turns to eight facings (five drawn, SW, W and NW mirrored):
-## where it walks, else where it aims in a fight, keeping its facing until another is 12 degrees nearer. Each action
-## plays at its own rate from the manifest; a strike, a flinch and a death play once and hold their last frame.
+## One foe on the grid (Phase 3; decision 43: its species' sheet in art/topdown/foes/), sorted with the room like the
+## body, its shadow on the floor under it, a flash when struck and a fade in death. It turns to eight facings (five
+## drawn, SW, W and NW mirrored): where it walks, else where it aims in a fight, keeping its facing until another is 12
+## degrees nearer. Each action plays at its own rate from the manifest; a strike, a flinch and a death play once and
+## hold their last frame. An elite takes its species' elite sheet where there is one: larger, darker, gold-eyed, in a
+## ring of Qi.
 ## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
 ## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
 ## figure at half size), placed, sorted and shadowed here the same way.
@@ -887,6 +894,8 @@ class FoeView extends Sorted:
 	var feet := Vector2.ZERO
 	var ground_y := 0.0
 	var src := Rect2()
+	var tex: Texture2D = null
+	var top := -1.0          ## its idle figure's height over its feet (art px), from the sheet (its elite's for an elite)
 	var facing := "s"
 	var flip := false
 	var tint := Color.WHITE
@@ -909,23 +918,25 @@ class FoeView extends Sorted:
 			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
 			return
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
-		acts = sp.get("actions", {})
+		var look: Dictionary = sp.get("elite", sp) if e.elite else sp
+		acts = look.get("actions", {})
 		mirror = sheet.get("mirror", {})
-		var c: Array = sheet.get("cell", [48, 40])
-		var f: Array = sheet.get("foot", [24, 27])
+		var c: Array = look.get("cell", sheet.get("cell", [48, 40]))
+		var f: Array = look.get("foot", sheet.get("foot", [24, 27]))
 		cell = Vector2(float(c[0]), float(c[1]))
 		foot = Vector2(float(f[0]), float(f[1]))
-		shadow_rx = float(sp.get("shadow", [8, 3])[0])
+		tex = w.foe_sheet(str(look.get("atlas", "")))
+		top = float(look.get("top", -1))
+		shadow_rx = float(look.get("shadow", [8, 3])[0])
 		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
-	## idle frame facing the camera, tools/art/topdown/creatures.py); a stand-in's is the side view's height at half size,
+	## idle frame facing the camera, tools/art/topdown/build_foes.py); a stand-in's is the side view's height at half size,
 	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
 	## (decision 43, TopdownPlaces.HEAD_LIFT).
 	func figure_top(e: EnemyState) -> float:
-		var sp: Dictionary = world.room.tileset.get("foes", {}).get("species", {}).get(e.def_id, {})
 		if art is TopdownPlaces.Person: return e.height() - TopdownPlaces.HEAD_LIFT
-		if art != null or not sp.has("top"): return e.height()
-		return float(sp.top) * TopdownRoom.ART
+		if art != null or top < 0.0: return e.height()
+		return top * TopdownRoom.ART
 	func sync(delta: float) -> void:
 		var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
 		if e == null:
@@ -986,7 +997,7 @@ class FoeView extends Sorted:
 	func _draw() -> void:
 		if art != null: return   # the stand-in draws itself; its shadow is the FoeShadow child
 		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
+		draw_texture_rect_region(tex, Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
 
 ## A foe's blob shadow on the floor, drawn behind its figure and outside the figure's hurt flash.

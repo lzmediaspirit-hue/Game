@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmtyge8028wtg"
-path="res://.godot/imported/foes.png-8f0678680e785b51acc89855e2e01046.ctex"
+uid="uid://5sd8xapuijdy"
+path="res://.godot/imported/reedtail_rat.png-a9d0e6bc68cefa75a80d2199069afffe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/topdown/foes.png"
-dest_files=["res://.godot/imported/foes.png-8f0678680e785b51acc89855e2e01046.ctex"]
+source_file="res://art/topdown/foes/reedtail_rat.png"
+dest_files=["res://.godot/imported/reedtail_rat.png-a9d0e6bc68cefa75a80d2199069afffe.ctex"]
 
 [params]
 

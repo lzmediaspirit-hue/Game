@@ -30,6 +30,50 @@ about 46 from sole to crown, drawn with more pixels, never scaled at runtime.
 - **Screenshots** before and after in `docs/redesign/feedback/people_scale/` (`tools/dev/topdown_capture.tscn --
   --people-scale --people-tag=<before|after>`; the pictures with `tools/dev/picture_capture.tscn -- --tag=<before|after>
   --dir=people_scale`).
+## The monsters at the characters' quality (decision 43)
+
+The user chose to bring the monsters up to the characters' quality: more frames, tells that read, and bigger elites and
+bosses, beside people growing 1.2×. The art bible's §8 "Foes" holds the rules; the plan's "As built: the monsters at the
+characters' quality" the pipeline.
+
+- **Drawn like the characters.** Every foe drawn for the grid (the mud crab, reed rat, wild boarlet, Trial Puppet, reed
+  frog, marsh leech, reed otter, hollowed boarlet, Old Snapper, mossback toad, hollow minnow and hollowed eel) is now
+  cast by the character's own renderer: 4 × 4 samples a pixel, seven-step ramps leaning toward the art bible's sun and
+  shadow, a warm rim, a cool bounce and contact shade, tinted outlines a step lighter on the lit side with half-alpha
+  stair corners, and a lighter inner line where a leg, a claw or a head stands in front of the body. Each sculpture was
+  redrawn with fuller anatomy: the boarlet's high shoulder, wedge head and pointed ears, the crab's chelae and pale
+  underside, the snapper's plates and moss, the toad's warts, the leech's flattened rings and ochre stripes, the
+  puppet's rope, carved eyes and jade plate, the minnow's scales.
+- **More frames, the principles of animation.** Every species plays idle 6, walk 8, wind-up 4, attack 6, hurt 3 and
+  death 8 frames (from 4, 4, 2, 3, 2, 4): squash and stretch on the lunges, hops and landings, overshoot and settle,
+  trailing tails, strands, weed and ferns, and a death that suits each (the crab and the frog flip onto their backs,
+  the boarlet's forelegs buckle, the puppet's joints give and the jade on its crown goes dark, the hollowed boarlet and
+  the minnow come apart into grey motes, the eel sinks until only its stain and rings are left).
+- **A tell for each.** The wind-up's last frame is its tell, held until the blow: the crab rears and raises both claws
+  wide open; the rat rears on its haunches, teeth bared; the boarlet lowers its head and paws the ground twice in a
+  spurt of dust; the puppet draws its palm back and Qi gathers there in a jade orb; the frog crouches and its throat
+  puffs up pale; the leech rears in an S, its mouth wide; the otter sits up; Old Snapper raises its crusher high over
+  its head; the toad rocks back, cheeks bulging, mouth open; the minnow curls into a C; the eel rears high, jaws wide,
+  eyes flaring. The rate of each wind-up comes from its `windup_s`, so the tell is always up before the blow; the blow
+  still lands on frame 1 of the attack, and no fight timing changed.
+- **Sized to the new people.** Every foe is about 1.2× its earlier size, so a crab still reads as a crab beside a person
+  and a boarlet as a young boar. The Trial Puppet is a head over a disciple (51 px), Old Snapper 1.5× (77 px from its
+  tail to its crusher) and the hollowed eel about 1.4×.
+- **Elites.** An elite draws its own rows: 1.2× larger, darker, gold-eyed, and burning with pale gold Qi (a ring on its
+  outline, tongues licking up off its back, motes rising). The crab, the rat, both boarlets, the frog, the leech, the
+  otter and the toad have them; Old Snapper wears the ring of Qi in its own colours as its boss presence.
+- **A sheet a species.** `art/topdown/foes/<species>.png` (an elite's apart, `<species>_elite.png`), each in its own
+  cell and under 4096 px a side (the old single sheet was 1216 × 4320), indexed by `data/topdown/foes.json` and built by
+  `tools/art/topdown/build_foes.py` (its own build now, apart from the tiles'). A room loads only its own species'
+  sheets, and an elite's only where an elite stands: the Reed Shallows' foes take about 2.2 M texels, from the old
+  sheet's 5.3 M. A foe is still one draw.
+- **Screenshots** before and after in the game (the lineup idle, in its tell, on its hit, struck and falling, the
+  elites, the eel, and fights under the HUD) in `docs/redesign/feedback/monsters/` (`topdown_capture.gd -- --monsters`),
+  and every sheet at ×3, each species playing its catalogue as a GIF and the tells side by side in
+  `docs/redesign/feedback/monsters/sheets/`.
+- **Tests.** `data_validation`: the whole catalogue in five facings for every foe and its elite, inside its sheet, no
+  sheet over 4096 px, every tell up before its blow. `topdown_suite`: an elite draws its own sheet in its larger cell,
+  its label on its larger figure.
 
 ## Every newly unlocked system teaches itself (decision 43)
 
