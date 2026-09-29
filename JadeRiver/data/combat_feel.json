@@ -390,6 +390,12 @@
   4
  ],
  "technique_recovery_after": 0.3,
+ "weave": {
+  "technique_after": 0.0,
+  "basic_after": 0.0,
+  "buffer_s": 0.4,
+  "chain_through": true
+ },
  "foes": {
   "roles": {
    "normal": "light",

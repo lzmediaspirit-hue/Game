@@ -32,6 +32,7 @@ func flat(w := 20, h := 12) -> Array:
 func run_all(suite) -> void:
 	t = suite
 	_walk()
+	_sprint_carry()
 	_jump_levels()
 	_falls_and_windows()
 	_collision()
@@ -50,34 +51,215 @@ func run_all(suite) -> void:
 	_finisher_pace()
 	_light_rules()
 	_view_rules()
+	_route_rooms()
+	_route_cases()
 
 func _walk() -> void:
+	# Decision 42: the stick pushed sprints (the run the sheets draw); a light touch walks at the world's measured pace.
 	var m := TopdownMotor.new(grid(flat()), Vector2(80, 192))
 	var x0 := m.pos.x
 	var to_full := 0.0
-	while m.vel.length() < m.walk - 0.01 and to_full < 1.0:
+	while m.vel.length() < m.sprint - 0.01 and to_full < 1.0:
 		m.step(1.0 / 120.0, Vector2.RIGHT)
 		to_full += 1.0 / 120.0
 	run(m, 1.0, Vector2.RIGHT)
 	var speed := m.vel.length()
 	var x1 := m.pos.x
+	var sprinting := m.running
 	var stop_t := 0.0
 	while m.vel.length() > 0.0 and stop_t < 1.0:
 		m.step(1.0 / 120.0, Vector2.ZERO)
 		stop_t += 1.0 / 120.0
-	measured.walk = speed
+	measured.sprint = speed
 	measured.accel_s = to_full
 	measured.stop_s = stop_t
 	measured.stop_units = m.pos.x - x1
-	t.check(t.near(speed, 154.0) and to_full <= 0.08 + 1.0 / 120.0 and stop_t <= 0.06 + 1.0 / 120.0 and m.pos.x - x1 < 6.0 and x1 > x0,
-		"topdown: walk %.1f u/s (4.8 tiles/s), full speed in %.3f s, stops in %.3f s over %.1f units" % [speed, to_full, stop_t, m.pos.x - x1])
+	t.check(t.near(speed, 216.0) and sprinting and m.running and to_full <= 0.08 + 1.0 / 120.0 and stop_t <= 0.06 + 1.0 / 120.0 and m.pos.x - x1 < 8.0 and x1 > x0,
+		"topdown: the stick pushed sprints %.1f u/s (6.75 tiles/s), full speed in %.3f s, stops in %.3f s over %.1f units" % [speed, to_full, stop_t, m.pos.x - x1])
 	var d := TopdownMotor.new(grid(flat()), Vector2(80, 80))
 	run(d, 0.5, Vector2(1, 1).normalized())
 	var tip := TopdownMotor.new(grid(flat()), Vector2(80, 80))
 	run(tip, 0.5, Vector2(0.5, 0))
 	measured.tiptoe = tip.vel.length()
-	t.check(t.near(d.vel.length(), 154.0) and absf(d.vel.x - d.vel.y) < 0.01 and t.near(tip.vel.length(), 154.0 * 0.45),
-		"topdown: 8-way analog: the diagonal walks at full speed (%.1f), a stick at 0.5 tiptoes at 45%% (%.1f)" % [d.vel.length(), tip.vel.length()])
+	t.check(t.near(d.vel.length(), 216.0) and absf(d.vel.x - d.vel.y) < 0.01 and t.near(tip.vel.length(), 154.0 * 0.45) and not tip.running,
+		"topdown: 8-way analog: the diagonal sprints at full speed (%.1f), a light touch (0.5) walks slowly at 45%% of the world's measured walk (%.1f)" % [d.vel.length(), tip.vel.length()])
+
+## Decision 42: the sprint reaches no further in the air than the walk the world was measured at: a running jump and a
+## step off a ledge carry the same from a sprint as from a walk, and the dash's long jump keeps its own carry.
+func _sprint_carry() -> void:
+	# The reference is the walk the world was measured at: the same motor with its push held to the walk.
+	var reach := {}
+	var top := {}
+	var drop := {}
+	for kind in ["sprint", "walk"]:
+		var r := TopdownMotor.new(grid(flat(30)), Vector2(64, 192))
+		if kind == "walk": r.sprint = r.walk
+		run(r, 0.4, Vector2.RIGHT)
+		var from := r.pos.x
+		r.step(1.0 / 60.0, Vector2.RIGHT, true)
+		var fastest := 0.0
+		while not r.grounded:
+			r.step(1.0 / 120.0, Vector2.RIGHT)
+			fastest = maxf(fastest, r.vel.length())
+		reach[kind] = r.pos.x - from
+		top[kind] = fastest
+		var o := TopdownMotor.new(_ledge_room(), Vector2(320, 120))
+		if kind == "walk": o.sprint = o.walk
+		var edge := 0.0
+		while o.grounded and o.pos.y < 400.0:
+			o.step(1.0 / 120.0, Vector2.DOWN)
+			edge = o.pos.y
+		while not o.grounded: o.step(1.0 / 120.0, Vector2.DOWN)
+		drop[kind] = o.pos.y - edge
+	measured.sprint_jump_reach = reach.sprint
+	measured.sprint_drop = drop.sprint
+	t.check(absf(float(reach.sprint) - float(reach.walk)) < 1.5 and float(top.sprint) <= 154.01 and reach.sprint > 64.0 and reach.sprint < 80.0
+		and absf(float(drop.sprint) - float(drop.walk)) < 1.0,
+		"topdown: a sprint's running jump carries %.1f units (the measured walk's %.1f), no faster than 154 in the air, and a sprint off a ledge lands %.1f past it (the walk %.1f)"
+			% [reach.sprint, reach.walk, drop.sprint, drop.walk])
+
+## Decision 42: auto-path's and auto-hunt's steering (TopdownRoute) in every room with a layout. From where a character
+## wakes, a tour of the room: every way out in turn (auto-path's own goals) and about four of its people and things (as
+## auto-hunt goes anywhere a foe or a drop is), each leg from where the last ended, the motor stepped as the game steps
+## it with the stick fully pushed (so it sprints) and Jump pressed where the way hops a level up. The foot box never
+## touches a solid prop (a trunk, a rock, a fence, a hedge, crates, a lantern, a building's wall), every leg the grid's
+## own way reaches arrives, no leg stalls against a corner or turns back and forth, and it runs at the sprint.
+func _route_rooms() -> void:
+	var rooms: Array = []
+	for f in DirAccess.get_files_at("res://data/topdown/"):
+		if not str(f).ends_with(".json"): continue
+		var d = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f))
+		if d is Dictionary and d.has("levels"): rooms.append(str(f).get_basename())
+	rooms.sort()
+	var tally := {"legs": 0, "arrived": 0, "unreached": 0, "touches": [], "lost": [], "stalls": [], "flips": [], "walls": 0, "top": 0.0, "frames": 0}
+	for rid in rooms:
+		var room := TopdownRoom.load_room(rid)
+		var goals: Array = []   # [label, point, near]
+		for pid in room.def.get("portals", {}):
+			goals.append([str(pid), TopdownRoom.cell_point(room.def.portals[pid].at), 14.0])
+		var places: Array = room.def.get("place", {}).keys()
+		places.sort()
+		for i in range(0, places.size(), maxi(1, ceili(places.size() / 4.0))):
+			goals.append([str(places[i]), TopdownRoom.cell_point(room.def.place[places[i]]), 10.0])
+		var m := TopdownMotor.new(room)
+		var route := TopdownRoute.new(room)
+		for g in goals:
+			var target: Vector2 = g[1]
+			if float(g[2]) == 10.0: target = room.spot_near(target, room.floor_at(target), m.pos)
+			var from := TopdownRoom.cell_of(m.pos)
+			var to := TopdownRoom.cell_of(room.nearest_standable(target))
+			if from != to and TopdownRoute.find(room, from, to, true).is_empty():
+				# A spot only a running jump reaches (auto-path never takes one); a way out must be reached by the grid's own
+				# path search whenever TopdownRoom.find_path reaches it.
+				if float(g[2]) == 14.0 and not room.find_path(from, to, true, 100000).is_empty(): tally.lost.append("%s: %s (no way)" % [rid, g[0]])
+				tally.unreached += 1
+				continue
+			tally.legs += 1
+			_route_leg(room, m, route, target, float(g[2]), "%s: %s" % [rid, g[0]], tally)
+	measured.route = {"rooms": rooms.size(), "legs": tally.legs, "arrived": tally.arrived, "top_speed": snappedf(tally.top, 0.1),
+		"wall_frames": tally.walls, "seconds": snappedf(tally.frames / 60.0, 0.1)}
+	t.check(rooms.size() >= 25 and tally.legs >= 150 and tally.arrived == tally.legs and (tally.lost as Array).is_empty(),
+		"topdown route: auto-path's steering arrives on every leg the grid's way reaches in all %d rooms with a layout (%d of %d legs; %d spots only a running jump reaches; lost %s)"
+			% [rooms.size(), tally.arrived, tally.legs, tally.unreached, str((tally.lost as Array).slice(0, 4))])
+	t.check((tally.touches as Array).is_empty(),
+		"topdown route: its foot box never touches a solid prop, a trunk, rock, fence, hedge, crates, lantern or a building's wall, over %.0f s of legs (%d touches: %s)"
+			% [tally.frames / 60.0, (tally.touches as Array).size(), str((tally.touches as Array).slice(0, 4))])
+	t.check((tally.stalls as Array).is_empty() and (tally.flips as Array).is_empty() and t.near(float(tally.top), 216.0, 0.5),
+		"topdown route: it sprints (%.1f u/s at the most), never stalls against a corner (%s) nor turns back and forth (%s)"
+			% [tally.top, str((tally.stalls as Array).slice(0, 4)), str((tally.flips as Array).slice(0, 4))])
+
+## Decision 42: two cases auto-hunt meets. A drop lying in a trunk's footprint is gone for by the nearest spot a body
+## stands at, where the body stops (the old steering pushed on into the trunk for good); a body knocked against a trunk,
+## off its way, takes the way up again round the trunk without touching it.
+func _route_cases() -> void:
+	var r := grid(flat(), {"props": [{"kind": "tree_pine", "x": 8, "y": 5}, {"kind": "rock_mossy", "x": 10, "y": 6}]})
+	var cases := [["a drop in the trunk's cell", Vector2(3.5, 5.5), Vector2(8.5, 5.5), 24.0], ["knocked against the trunk", Vector2(7.5, 5.5), Vector2(14.5, 5.5), 10.0]]
+	var out := []
+	for k in cases:
+		var m := TopdownMotor.new(r, (k[1] as Vector2) * 32.0)
+		if str(k[0]).begins_with("knocked"): m.pos.x = 8.0 * 32.0 - m.half.x - 2.0   # two units off the trunk's west face
+		var route := TopdownRoute.new(r)
+		var touched := false
+		var still := 0
+		var tt := 0.0
+		while tt < 4.0:
+			var axis := route.steer(m.pos, m.z, m.grounded, (k[2] as Vector2) * 32.0, float(k[3]))
+			if axis == Vector2.INF or axis == Vector2.ZERO:
+				still += 1
+				if still > 10: break
+				axis = Vector2.ZERO
+			for sub in 2:
+				m.step(1.0 / 120.0, axis)
+				touched = touched or not _prop_touched(r, m).is_empty()
+			tt += 1.0 / 60.0
+		out.append([k[0], touched, still > 10, snappedf(m.pos.distance_to(r.nearest_standable((k[2] as Vector2) * 32.0)) if str(k[0]).begins_with("a drop") else m.pos.distance_to((k[2] as Vector2) * 32.0), 0.1)])
+	t.check(out.all(func(o): return not o[1] and o[2] and float(o[3]) <= 24.0),
+		"topdown route: a drop in a trunk's cell is gone for by the spot beside it, where the body stops; a body knocked against a trunk goes round it to its way; neither touches the trunk (%s)" % str(out))
+
+## One leg of the route tour: the motor steered to `target` until it is within `near`, at most the way's length at the
+## walk plus six seconds; the touches, stalls and flips it makes go into `tally`.
+func _route_leg(room: TopdownRoom, m: TopdownMotor, route: TopdownRoute, target: Vector2, near: float, label: String, tally: Dictionary) -> void:
+	var limit := m.pos.distance_to(target) / 150.0 + 8.0
+	var tt := 0.0
+	var hop := 0.0
+	var last := Vector2.ZERO
+	var stuck := 0.0
+	var flips := 0
+	var touched := false
+	var stalled := false
+	while tt < limit:
+		var axis := route.steer(m.pos, m.z, m.grounded and m.sink_t < 0.0, target, near)
+		if axis == Vector2.INF:
+			tally.arrived += 1
+			if flips > 2: tally.flips.append("%s (%d)" % [label, flips])
+			return
+		var jump := route.jump and hop <= 0.0 and m.grounded
+		if jump: hop = 0.5
+		if m.grounded and last != Vector2.ZERO and axis != Vector2.ZERO and last.dot(axis) < -0.5: flips += 1
+		last = axis
+		var was := m.pos
+		for sub in 2:
+			m.step(1.0 / 120.0, axis, jump and sub == 0)
+			var hit := _prop_touched(room, m)
+			if not hit.is_empty() and not touched:
+				touched = true
+				tally.touches.append("%s at %s by %s" % [label, str(hit.cell), hit.kind])
+			if m.grounded and _wall_grazed(room, m): tally.walls += 1
+		m.drain()
+		if m.sink_t >= 0.0:
+			tally.lost.append(label + " (in the water)")
+			while m.sink_t >= 0.0: m.step(1.0 / 60.0, Vector2.ZERO)
+			return
+		if m.grounded: tally.top = maxf(float(tally.top), m.vel.length())
+		# A stall: pushed on the ground yet hardly moving for a tenth of a second (held against something).
+		stuck = stuck + 1.0 / 60.0 if m.grounded and not jump and axis.length() > 0.5 and m.pos.distance_to(was) < 0.5 else 0.0
+		if stuck >= 0.1 and not stalled:
+			stalled = true
+			tally.stalls.append("%s at %s" % [label, str(TopdownRoom.cell_of(m.pos))])
+		hop -= 1.0 / 60.0
+		tt += 1.0 / 60.0
+		tally.frames += 1
+	tally.lost.append(label)
+	if flips > 2: tally.flips.append("%s (%d)" % [label, flips])
+
+## The solid prop the foot box (grown by a unit) touches at the body's height: {kind, cell}, or {} when none.
+func _prop_touched(room: TopdownRoom, m: TopdownMotor) -> Dictionary:
+	var g := m.half + Vector2(1, 1)
+	for corner in [m.pos - g, Vector2(m.pos.x + g.x, m.pos.y - g.y), Vector2(m.pos.x - g.x, m.pos.y + g.y), m.pos + g]:
+		var cp := TopdownRoom.cell_of(corner)
+		if not room.inside(cp.x, cp.y) or room.solid[cp.y * room.w + cp.x] != 1: continue
+		if float(room.level(cp.x, cp.y)) * TopdownRoom.LEVEL <= m.z + 8.0: continue   # a roof or crates' top it stands on
+		for pr in room.props:
+			if Rect2i(pr.cell, pr.size).has_point(cp): return {"kind": str(pr.kind), "cell": cp}
+	return {}
+
+## The foot box (grown by a unit) against a wall of the terrain (a floor higher than a step), not a prop.
+func _wall_grazed(room: TopdownRoom, m: TopdownMotor) -> bool:
+	var g := m.half + Vector2(1, 1)
+	for corner in [m.pos - g, Vector2(m.pos.x + g.x, m.pos.y - g.y), Vector2(m.pos.x - g.x, m.pos.y + g.y), m.pos + g]:
+		var cp := TopdownRoom.cell_of(corner)
+		if room.inside(cp.x, cp.y) and room.solid[cp.y * room.w + cp.x] == 0 and room.height_at(corner) > m.z + 8.0 and room.height_at(corner) < INF: return true
+	return false
 
 func _jump_levels() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(200, 192))
@@ -244,7 +426,7 @@ func _dash() -> void:
 	measured.dash = dash_units
 	measured.back_step = back
 	t.check("dashed" in types(ev) and dash_units > 96.0 and dash_units < 120.0 and absf(back - 48.0) < 3.0 and not "dashed" in types(again),
-		"topdown: a dash covers %.1f (96 dashing, then walking), a standing back-step %.1f, and waits out its %.1f s cooldown" % [dash_units, back, m.dash_cooldown])
+		"topdown: a dash covers %.1f (96 dashing, then sprinting), a standing back-step %.1f, and waits out its %.1f s cooldown" % [dash_units, back, m.dash_cooldown])
 
 ## Sort keys (plan §1.3): behind a raised row sorts before it, on top of it or in front of it after; ties go to the higher.
 func _sort_keys() -> void:
@@ -709,6 +891,7 @@ func fresh(at: Vector2) -> void:
 	w.player.motor.dash_t = 0.0
 	w.player.motor.since_dash = 99.0
 	w.player.dodge_buffer = 0.0
+	w.player.weave = {}
 	w.player.physics_step(0.0001)
 	c.pools.hp = c.pools.max_hp
 	c.pools.cooldowns.clear()
@@ -776,6 +959,8 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await _hazards_on_the_grid(tree, base)
 	_audit_on_the_grid(base)
 	await _combat_feel(tree, base)
+	_weave(base)
+	_meditate_then_walk(base)
 	await _labels_clean(tree, base)
 	_eel_turns(base)
 	_behind_a_dummy(base)
@@ -1031,6 +1216,12 @@ func _figure(base: Vector2) -> void:
 	seen.walk = [p.pose, p.motor.row]
 	p.movement = Vector2.ZERO
 	fresh(base)
+	p.movement = Vector2(0.5, 0)   # decision 42: a light touch walks, the stick pushed runs
+	frames(12)
+	p.sync(0.05)
+	seen.light = p.pose
+	p.movement = Vector2.ZERO
+	fresh(base)
 	p.aim_attack(Vector2.RIGHT, false)
 	var tl: Dictionary = Game.combat.timeline(c.id)
 	frames(1)
@@ -1075,7 +1266,7 @@ func _figure(base: Vector2) -> void:
 	var w_box: Rect2 = fig.bounds("idle", "w", 0)
 	var mirrored: bool = is_equal_approx(w_box.position.x, -e_box.end.x) and w_box.size == e_box.size
 	var hit := TopdownFigure.hit_frame(str(seen.blow[1]))
-	t.check(seen.idle == "idle" and seen.walk == ["walk", "e"] and seen.blow[1] == seen.blow[3] and seen.blow[3] == "punch_1" and int(seen.blow[0][1]) < hit
+	t.check(seen.idle == "idle" and seen.walk == ["run", "e"] and seen.light == "walk" and seen.blow[1] == seen.blow[3] and seen.blow[3] == "punch_1" and int(seen.blow[0][1]) < hit
 		and int(seen.blow[2]) == hit and seen.technique == "cast" and seen.back_step == "dodge" and seen.wounded == ["knockdown", 4]
 		and seen.jump[0] == "jump" and int(seen.jump[1]) <= 1 and drawn and mirrored,
 		"topdown figure: each state plays its drawn action and every facing draws, the west mirrored (%s, rows drawn %s, mirrored %s)" % [str(seen), str(drawn), str(mirrored)])
@@ -1758,6 +1949,122 @@ func sturdy(def: String, p: Vector2) -> EnemyState:
 	e.pools.max_hp = 1.0e15
 	e.pools.hp = e.pools.max_hp
 	return e
+
+## Decision 42 · animation canceling: basic attack, technique, basic attack in one flow, with the stand-in's bare hands
+## and its first technique. The technique, pressed in the step's anticipation, waits in the buffer and cuts the step's
+## recovery the frame its active frames end; the step's blow landed on its own hit frame and none before it. The basic
+## attack, pressed in the technique's wind-up, waits likewise and cuts the technique's recovery once its active frames
+## have played, after the technique's own blow landed on its hit; it is the chain's second step. The figure takes each
+## new action's pose from its first frame. Straight to Combat, a technique in a step's active window is refused (busy)
+## and the step goes on: nothing cuts a blow before it lands.
+func _weave(base: Vector2) -> void:
+	fresh(base)
+	c.pools.qi = c.pools.max_qi
+	var p = w.player
+	var target := sturdy("wild_boarlet", base + Vector2(34, 0))
+	var tl: Dictionary = Game.combat.timeline(c.id)
+	var tech_id := str(c.cultivator.technique_slots[0])
+	var tph := CombatFeel.technique_phases(ContentDB.entry("techniques", tech_id))
+	var hp := target.pools.hp
+	p.aim_attack(Vector2.RIGHT)
+	var step := {"hit_at": float(tl.hit_at), "duration": float(tl.duration), "cut": CombatFeel.weave_from(tl, "technique", c), "action": str(tl.action)}
+	frames(1)
+	var r1: Dictionary = p.aim_technique(0, Vector2.RIGHT, 0.4)
+	var waited1: bool = not r1.get("ok", false) and str(p.weave.get("kind", "")) == "technique"
+	var seen := {"step_hit": -1.0, "cut1": -1.0, "tech_hit": -1.0, "cut2": -1.0, "waited2": false, "combo2": -9, "poses": []}
+	var stage := 0      # 0 the first step, 1 the technique, 2 the second step
+	var prev_t := float(tl.t)
+	var clock := 1.0 / 60.0
+	for i in 150:
+		frames(1)
+		p.sync(1.0 / 60.0)
+		clock += 1.0 / 60.0
+		var hurt_now: bool = target.pools.hp < hp
+		hp = target.pools.hp
+		if stage == 0 and str(tl.technique) == tech_id:
+			stage = 1
+			seen.cut1 = prev_t
+			seen.at_cut1 = clock
+			seen.poses.append([p.pose, p.frame, p.action_phase])
+			p.attack()   # pressed in the technique's wind-up: it waits for the technique's cut
+			seen.waited2 = str(p.weave.get("kind", "")) == "attack" and str(tl.technique) == tech_id
+		elif stage == 1 and str(tl.technique) == "" and str(tl.action) != "":
+			stage = 2
+			seen.cut2 = prev_t
+			seen.at_cut2 = clock
+			seen.combo2 = int(tl.combo)
+			seen.action2 = str(tl.action)
+			seen.poses.append([p.pose, p.frame, p.action_phase])
+			break
+		elif hurt_now and stage == 0 and float(seen.step_hit) < 0.0: seen.step_hit = float(tl.t)
+		elif hurt_now and stage == 1 and float(seen.tech_hit) < 0.0: seen.tech_hit = float(tl.t)
+		prev_t = float(tl.t)
+	var f := 1.0 / 60.0 + 0.0001
+	var basic_cut := float(tph.anticipation) + float(tph.active) + float(tph.recovery) * float(CombatFeel.weave_cfg().get("basic_after", 0.0))
+	measured.weave = {"step": step, "technique": {"hit_at": snappedf(float(tph.hit_at), 0.001), "duration": snappedf(float(tph.duration), 0.001),
+		"cut": snappedf(basic_cut, 0.001)}, "cut1": snappedf(float(seen.cut1), 0.001), "cut2": snappedf(float(seen.cut2), 0.001),
+		"three_starts_s": snappedf(float(seen.get("at_cut2", 0.0)), 0.001), "unwoven_s": snappedf(float(step.duration) + float(tph.duration), 0.001)}
+	var p1: Array = seen.poses[0] if seen.poses.size() > 0 else ["", -1, ""]
+	var p2: Array = seen.poses[1] if seen.poses.size() > 1 else ["", -1, ""]
+	t.check(waited1 and float(seen.step_hit) >= float(step.hit_at) - 0.0001 and float(seen.step_hit) < float(step.hit_at) + f
+		and float(seen.cut1) >= float(step.cut) - 0.0001 and float(seen.cut1) < float(step.cut) + f and float(seen.cut1) < float(step.duration) - 0.05,
+		"topdown weave: a technique pressed in a step's anticipation waits, the step's blow lands on its hit frame (%.3f s, hit at %.3f) and none before, and the technique cuts the step's recovery the frame it begins (%.3f s of %.3f)"
+			% [float(seen.step_hit), float(step.hit_at), float(seen.cut1), float(step.duration)])
+	t.check(seen.waited2 and float(seen.tech_hit) >= float(tph.hit_at) - 0.0001 and float(seen.tech_hit) < float(tph.hit_at) + f
+		and float(seen.cut2) >= basic_cut - 0.0001 and float(seen.cut2) < basic_cut + f and float(seen.cut2) < float(tph.duration) - 0.05
+		and int(seen.combo2) == 1 and str(seen.get("action2", "")) == "punch_2",
+		"topdown weave: a basic attack pressed in the technique's wind-up waits, the technique's blow lands on its hit (%.3f s, at %.3f), and the attack cuts its recovery after its active frames (%.3f s of %.3f) as the chain's second step (%s)"
+			% [float(seen.tech_hit), float(tph.hit_at), float(seen.cut2), float(tph.duration), str(seen.get("action2", ""))])
+	t.check(p1[0] != step.action and int(p1[1]) == 0 and str(p1[2]) == "anticipation" and p2[0] == "punch_2" and int(p2[1]) == 0 and str(p2[2]) == "anticipation"
+		and float(seen.get("at_cut2", 99.0)) < float(step.duration) + float(tph.duration) - 0.2,
+		"topdown weave: the figure takes each new action's pose from its first frame at the cut (%s, %s); basic, technique, basic begin within %.2f s, not %.2f"
+			% [str(p1), str(p2), float(seen.get("at_cut2", 0.0)), float(step.duration) + float(tph.duration)])
+	# Straight to Combat, a technique in the step's active window is refused and the step goes on to land.
+	fresh(base)
+	c.pools.qi = c.pools.max_qi
+	target = sturdy("wild_boarlet", base + Vector2(34, 0))
+	tl = Game.combat.timeline(c.id)   # fresh() starts a new timeline
+	p.aim_attack(Vector2.RIGHT)
+	var n := 0
+	while CombatFeel.phase_of(tl, c) != "active" and n < 60:
+		frames(1)
+		n += 1
+	var early_hurt := hurt(target) and float(tl.t) < float(tl.hit_at)
+	var r2: Dictionary = Game.submit({"type": "use_technique", "slot": 0, "facing": 1, "aim": Vector2.RIGHT, "aimed": false, "dist": -1.0})
+	var still_step: bool = str(tl.technique) == "" and str(tl.action) == str(step.action)
+	frames(20)
+	t.check(str(r2.get("reason", "")) == "busy" and still_step and not early_hurt and hurt(target) and CombatFeel.weave(tl, "technique", c) == "free",
+		"topdown weave: a technique sent in a step's active window is refused (%s), the step lands its blow, and no cut comes before it" % str(r2.get("reason", "")))
+	p.weave = {}
+
+## Decision 42, a bug from the prototype: after meditating, walking kept meditation's seated pose. Moving now ends the
+## meditation at once and the figure runs (a light touch walks); a jump rises from the seat too.
+func _meditate_then_walk(base: Vector2) -> void:
+	var p = w.player
+	var seen := {}
+	for band in [1.0, 0.5]:
+		fresh(base)
+		p.movement = Vector2.ZERO
+		var r: Dictionary = Game.submit({"type": "start_meditation"})
+		frames(2)
+		p.sync(1.0 / 60.0)
+		seen["sat_%s" % band] = [r.get("ok", false), c.cultivator.meditating, p.pose]
+		p.movement = Vector2.RIGHT * band
+		frames(8)
+		p.sync(1.0 / 60.0)
+		seen["moved_%s" % band] = [c.cultivator.meditating, p.pose]
+		p.movement = Vector2.ZERO
+	fresh(base)
+	Game.submit({"type": "start_meditation"})
+	frames(2)
+	p.jump()
+	frames(3)
+	p.sync(1.0 / 60.0)
+	seen.jumped = [c.cultivator.meditating, p.pose]
+	frames(40)
+	t.check(seen["sat_1.0"] == [true, true, "meditate"] and seen["sat_0.5"] == [true, true, "meditate"] and seen["moved_1.0"] == [false, "run"]
+		and seen["moved_0.5"] == [false, "walk"] and seen.jumped == [false, "jump"],
+		"topdown: moving ends meditation at once and the figure runs, or walks at a light touch, never sliding in the seated pose; a jump rises from it (%s)" % str(seen))
 
 ## Decision 38 (CombatFeel, TopdownFx): a blow's hit-stop by its weight; the cancel rule (a dodge drops a blow in its
 ## anticipation, is refused in its active window and waits in a buffer for its late recovery); the lunge and the dash
