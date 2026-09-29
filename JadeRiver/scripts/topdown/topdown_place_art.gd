@@ -104,7 +104,7 @@ static func _sight(room: TopdownRoom, r: Dictionary, what: String, cells: Array,
 	a.position = Vector2(feet.x, float(int(cells[1])) * 16.0 if north else sw.y)
 	a.set_meta("feet_dy", feet.y - a.position.y - (12.0 if north else 0.0))
 	var w := float(a.size_cells.x * 16)
-	if what == "shed": a.rects = [Rect2(feet + Vector2(-w * 0.5 - 2, -62), Vector2(w + 4, 62))]
+	if what == "shed": a.rects = [Rect2(feet + Vector2(-w * 0.5 - 2, -70), Vector2(w + 4, 70))]
 	sorted.add_child(a)
 	return a
 
@@ -142,92 +142,126 @@ func _draw() -> void:
 		"stall_back": _stall_back(o)
 
 # ------------------------------------------------------------------ the letter box
-## A small box of red-lacquered wood on a dark post, under a roof of grey tile with a slot in its face; a courier post
-## carries a jade pennant. While a letter waits a red ribbon is tied round the box and its little flag stands up.
+## A post box of red-lacquered wood on a dark post over a stone footing, under a little roof of grey tile, a slot in its
+## face and a paper plaque over it; a courier post carries a jade pennant beside it. While a letter waits its flag stands
+## up on its east side, a red ribbon is tied round it with a bow, and a gold glint turns over its roof; with none the
+## flag lies folded along its side.
 func _letter_box(f: Vector2) -> void:
 	var waiting := bool(st.get("on", false))
-	# The floor shadow, to the south-east.
-	_px(f + Vector2(-3, -1), 9, 2, SHADOW)
+	# The floor shadow, to the south-east, and the stone footing.
+	_px(f + Vector2(-5, -1), 14, 3, SHADOW)
+	_px(f + Vector2(-4, -3), 8, 3, ROOF[3])
+	_px(f + Vector2(-4, -3), 8, 1, ROOF[5])
+	_px(f + Vector2(3, -3), 1, 3, ROOF[1])
 	# The post.
-	_px(f + Vector2(-1, -14), 3, 14, DARK[2])
-	_px(f + Vector2(-1, -14), 1, 14, DARK[4])
-	_px(f + Vector2(1, -14), 1, 14, LINE)
-	_px(f + Vector2(-2, -1), 5, 1, DARK[1])
-	# The box: its face lit on the west, its side in shade.
-	var b := f + Vector2(-5, -23)
-	_px(b + Vector2(-1, -1), 12, 11, INK)
-	_px(b, 10, 9, RED[2])
-	_px(b, 2, 9, RED[4])
-	_px(b + Vector2(2, 0), 6, 1, RED[3])
-	_px(b + Vector2(8, 0), 2, 9, RED[1])
-	_px(b + Vector2(2, 3), 5, 1, INK)                  # the slot
-	_px(b + Vector2(2, 4), 5, 1, RED[1])
-	_px(b + Vector2(4, 6), 2, 2, GOLD[2])              # the brass latch
-	# Its little roof of grey tile, a lit lip over a shadow line, the ends swept up.
-	_px(b + Vector2(-2, -4), 14, 3, ROOF[3])
-	_px(b + Vector2(-2, -4), 14, 1, ROOF[5])
-	for k in range(0, 14, 3): _px(b + Vector2(-2 + k, -3), 1, 2, ROOF[1])
-	_px(b + Vector2(-3, -5), 2, 2, ROOF[4])
-	_px(b + Vector2(11, -5), 2, 2, ROOF[4])
-	_px(b + Vector2(-2, -1), 14, 1, Color(SHADOW, 0.6))
+	_px(f + Vector2(-2, -17), 4, 14, DARK[2])
+	_px(f + Vector2(-2, -17), 1, 14, DARK[4])
+	_px(f + Vector2(1, -17), 1, 14, LINE)
+	# The box: 16 wide, 13 high; its face lit on the west, its east side in shade, an ink line round it.
+	var b := f + Vector2(-8, -30)
+	_px(b + Vector2(-1, -1), 18, 15, INK)
+	_px(b, 16, 13, RED[2])
+	_px(b, 2, 13, RED[4])
+	_px(b + Vector2(2, 0), 11, 1, RED[3])
+	_px(b + Vector2(13, 0), 3, 13, RED[1])
+	_px(b + Vector2(0, 12), 16, 1, RED[1])
+	# The paper plaque (its name in ink) and the slot under it; the brass latch.
+	_px(b + Vector2(4, 2), 7, 4, PLASTER[4])
+	_px(b + Vector2(4, 5), 7, 1, PLASTER[2])
+	_px(b + Vector2(6, 3), 1, 2, INK)
+	_px(b + Vector2(8, 3), 1, 1, INK)
+	_px(b + Vector2(8, 4), 2, 1, INK)
+	_px(b + Vector2(3, 8), 9, 1, INK)
+	_px(b + Vector2(3, 9), 9, 1, RED[1])
+	_px(b + Vector2(7, 10), 2, 2, GOLD[2])
+	_px(b + Vector2(7, 10), 1, 1, GOLD[3])
+	# Its roof of grey tile: a lit lip over a shadow line, a rib every 3 px, the ends swept up.
+	_px(b + Vector2(-3, -5), 22, 4, ROOF[3])
+	_px(b + Vector2(-3, -5), 22, 1, ROOF[5])
+	for k in range(0, 22, 3): _px(b + Vector2(-3 + k, -4), 1, 3, ROOF[1])
+	_px(b + Vector2(-4, -6), 2, 2, ROOF[4])
+	_px(b + Vector2(18, -6), 2, 2, ROOF[4])
+	_px(b + Vector2(-4, -7), 1, 1, GOLD[2])
+	_px(b + Vector2(19, -7), 1, 1, GOLD[2])
+	_px(b + Vector2(-3, -1), 22, 1, Color(SHADOW, 0.7))
 	if str(def.get("post", "")) == "courier":
-		# A courier post's jade pennant on a thin staff.
-		_px(f + Vector2(-8, -30), 1, 30, DARK[3])
+		# A courier post's jade pennant on a thin staff to the east, clear of the courier beside it.
+		_px(f + Vector2(12, -42), 1, 42, DARK[3])
+		_px(f + Vector2(11, -1), 3, 1, DARK[1])
 		var wave := roundf(sin(t * 3.0)) if motion() else 0.0
-		for k in 5: _px(f + Vector2(-7, -30 + k), 6 - k, 1, JADE[1] if k % 2 else JADE[2])
-		_px(f + Vector2(-2 + wave, -29), 1, 1, JADE[3])
-	# The flag on its east side: up while a letter waits, folded down when none does.
+		for k in 7: _px(f + Vector2(13, -42 + k), 8 - k, 1, JADE[1] if k % 2 else JADE[2])
+		_px(f + Vector2(20 + wave, -41), 1, 2, JADE[3])
+		_px(f + Vector2(11, -43), 3, 1, GOLD[2])
+	# The flag on its east side: up while a letter waits, folded down along the side when none does.
 	if waiting:
 		var flick := roundf(sin(t * 5.0)) if motion() else 0.0
-		_px(b + Vector2(10, -6), 1, 9, DARK[3])
-		_px(b + Vector2(11, -6), 4 + flick, 3, RED[4])
-		_px(b + Vector2(11, -6), 4 + flick, 1, RED[5])
-		# The ribbon round the box, its tails hanging.
-		_px(b + Vector2(0, 6), 10, 1, RED[4])
-		_px(b + Vector2(3, 7), 1, 3 + (1.0 if motion() and fmod(t, 1.2) < 0.6 else 0.0), RED[3])
-		_px(b + Vector2(6, 7), 1, 2, RED[4])
-		# A small glint over it, so a waiting letter reads from across the square.
-		var g := 0.55 + 0.45 * sin(t * 3.0) if motion() else 1.0
-		_px(b + Vector2(4, -10), 2, 2, Color(GOLD[3], g))
-		_px(b + Vector2(3, -9), 4, 1, Color(GOLD[2], g * 0.6))
+		_px(b + Vector2(16, -8), 1, 14, DARK[3])
+		_px(b + Vector2(17, -8), 6 + flick, 4, RED[4])
+		_px(b + Vector2(17, -8), 6 + flick, 1, RED[5])
+		_px(b + Vector2(17, -5), 6 + flick, 1, RED[2])
+		# The ribbon round the box, a bow on its face, the tails hanging.
+		_px(b + Vector2(0, 6), 16, 2, RED[4])
+		_px(b + Vector2(0, 6), 16, 1, RED[5])
+		_px(b + Vector2(5, 5), 2, 4, RED[3])
+		_px(b + Vector2(9, 5), 2, 4, RED[3])
+		_px(b + Vector2(7, 6), 2, 2, RED[5])
+		var sway := 1.0 if motion() and fmod(t, 1.2) < 0.6 else 0.0
+		_px(b + Vector2(6, 9), 1, 4 + sway, RED[3])
+		_px(b + Vector2(9, 9), 1, 3, RED[4])
+		# A gold glint turning over the roof, so a waiting letter reads from across the square.
+		var g := 0.6 + 0.4 * sin(t * 3.0) if motion() else 1.0
+		var gc := b + Vector2(8, -12)
+		_px(gc, 1, 1, Color(GOLD[4], g))
+		_px(gc + Vector2(-1, 0), 3, 1, Color(GOLD[3], g * 0.8))
+		_px(gc + Vector2(0, -1), 1, 3, Color(GOLD[3], g * 0.8))
+		_px(gc + Vector2(-2, 0), 5, 1, Color(GOLD[2], g * 0.35))
+		_px(gc + Vector2(0, -2), 1, 5, Color(GOLD[2], g * 0.35))
 	else:
-		_px(b + Vector2(10, 3), 1, 5, DARK[3])
-		_px(b + Vector2(10, 5), 2, 3, RED[2])
+		_px(b + Vector2(16, 3), 1, 7, DARK[3])
+		_px(b + Vector2(16, 7), 3, 4, RED[2])
+		_px(b + Vector2(16, 7), 1, 4, RED[3])
 
 # ------------------------------------------------------------------ the meditation mat
-## A round mat of woven cattail, lit on its north-west rim, with a cushion of faded red on it; Qi mist drifts over it,
-## the motes thicker as the room's Qi is denser (the spring beside it).
+## A round mat of woven cattail (24 x 12), its rings of weave lit on the north-west rim, with a cushion of faded red on
+## it; Qi mist drifts up over it, the motes thicker as the room's Qi is denser (the spring beside it), and a faint ring of
+## it lies on the mat.
 func _mat(f: Vector2) -> void:
-	# The mat: an ellipse 16 x 8, its weave in rings.
-	var rows := [[-3, 6], [-2, 7], [-1, 8], [0, 8], [1, 7], [2, 6], [3, 4]]
+	var rows := [[-5, 8], [-4, 10], [-3, 11], [-2, 12], [-1, 12], [0, 12], [1, 11], [2, 10], [3, 8], [4, 5]]
+	_px(f + Vector2(-9, 4), 20, 2, Color(SHADOW, 0.8))   # its shade to the south-east
 	for rw in rows:
 		var y: int = rw[0]
 		var hw: int = rw[1]
-		_px(f + Vector2(-hw, y - 1), hw * 2, 1, REED[2] if y < 0 else REED[1])
+		_px(f + Vector2(-hw, y), hw * 2, 1, REED[3] if y < -2 else (REED[2] if y < 2 else REED[1]))
+	# The weave: rings of darker straw every third row, and the stitches between.
 	for rw in rows:
 		var y: int = rw[0]
 		var hw: int = rw[1] - 1
-		for x in range(-hw, hw, 2): _px(f + Vector2(x + (y & 1), y - 1), 1, 1, REED[3] if y <= 0 else REED[2])
-	_px(f + Vector2(-7, -4), 6, 1, REED[4])             # the lit rim to the north-west
-	_px(f + Vector2(-4, 3), 9, 1, Color(SHADOW, 0.7))   # its shade to the south
-	# The cushion.
-	_px(f + Vector2(-3, -5), 7, 4, RED[1])
-	_px(f + Vector2(-3, -5), 7, 1, RED[3])
-	_px(f + Vector2(-3, -4), 2, 2, RED[2])
-	_px(f + Vector2(1, -2), 3, 1, RED[0])
+		if (y + 5) % 3 == 0: _px(f + Vector2(-hw, y), hw * 2, 1, REED[1] if y >= 0 else REED[2])
+		for x in range(-hw + ((y + 5) & 1), hw, 3): _px(f + Vector2(x, y), 1, 1, REED[4] if y < 0 else REED[3])
+	_px(f + Vector2(-10, -4), 7, 1, REED[4])            # the lit rim to the north-west
+	_px(f + Vector2(-6, -5), 6, 1, REED[4])
+	# The cushion: a round zafu of faded red, lit on its top.
+	_px(f + Vector2(-5, -6), 10, 5, RED[1])
+	_px(f + Vector2(-4, -7), 8, 2, RED[3])
+	_px(f + Vector2(-4, -7), 3, 1, RED[4])
+	_px(f + Vector2(-5, -2), 10, 1, RED[0])
+	_px(f + Vector2(-1, -5), 2, 1, RED[2])
 	if not bool(st.get("on", false)): return
 	# The Qi mist: motes drifting up and round, more of them the denser the room's Qi.
-	var n := clampi(int(round(float(st.get("n", 1.0)) * 4.0)), 3, 10)
+	var n := clampi(int(round(float(st.get("n", 1.0)) * 8.0)), 8, 18)
 	for i in n:
-		var ph := fmod(t * 0.35 + i * 0.37, 1.0) if motion() else float(i) / float(n)
+		var ph := fmod(t * 0.3 + i * 0.37, 1.0) if motion() else float(i) / float(n)
 		var a := TAU * (i * 0.618)
-		var p := f + Vector2(cos(a + t * 0.4 * float(motion())) * (6.0 + i % 3 * 3.0), -2.0 - ph * 22.0)
+		var p := f + Vector2(cos(a + t * 0.5 * float(motion())) * (6.0 + float(i % 3) * 4.0), -3.0 - ph * 32.0)
 		var fade := sin(ph * PI)
-		_px(p, 1, 1, Color(QI.lerp(JADE[3], 0.4), 0.85 * fade))
-		if i % 3 == 0: _px(p + Vector2(0, 1), 1, 1, Color(QI, 0.35 * fade))
-	# A faint ring of it lying on the mat.
-	var pulse := 0.12 + 0.06 * sin(t * 2.0) if motion() else 0.15
-	_px(f + Vector2(-8, -2), 16, 1, Color(JADE[2], pulse))
+		_px(p, 2, 2, Color(QI.lerp(JADE[3], 0.35), 0.95 * fade))
+		_px(p, 1, 1, Color(Color.WHITE, 0.9 * fade))
+	# The ring of it lying on the mat.
+	var pulse := 0.4 + 0.15 * sin(t * 2.0) if motion() else 0.45
+	_px(f + Vector2(-11, -1), 22, 1, Color(JADE[2], pulse))
+	_px(f + Vector2(-9, 2), 18, 1, Color(JADE[2], pulse * 0.8))
+	_px(f + Vector2(-12, 0), 1, 2, Color(JADE[2], pulse))
+	_px(f + Vector2(11, 0), 1, 2, Color(JADE[2], pulse))
 
 # ------------------------------------------------------------------ the notice board's papers
 ## Over the board's cork: one paper for each bounty, request and mission posted (six at most), pinned in two rows;
@@ -289,86 +323,96 @@ func _bed_glints() -> void:
 		_px(p + Vector2(0, -1), 1, 3, Color(GOLD[3], a * 0.5))
 
 # ------------------------------------------------------------------ the Storehouse's shed
-## A lean-to storehouse of dark timber on the footprint (three cells by two): a roof of grey glazed tile sweeping up at
-## its ends over an open front, a back wall of boards, a shelf; on it and under it the sacks and jars of what the
-## storehouse holds (none, then one, two, three sacks as it fills). The storehouse chest stands in front of it.
+## A lean-to storehouse of dark timber on the footprint (three cells by two): a roof of grey glazed tile over an open
+## front, its courses lapping, its ribs lit on the west, its corners and ridge ends swept up and tipped in gold; inside, a
+## back wall of boards and a shelf of jars. Sacks stand in it by how much the storehouse holds (none; one, two, then a
+## third on the shelf as it fills), a crate once anything is stored. A name board hangs from the beam. The storehouse
+## chest stands in front of it, so the sacks stand at its sides, clear of the chest.
 func _shed(f: Vector2) -> void:
 	var hw := float(size_cells.x * 16) * 0.5
 	var held := int(st.get("n", 0))
-	var sacks := 0 if held <= 0 else (1 if held <= 8 else (2 if held <= 20 else 3))
-	# The floor shadow to the south-east, on the ground in front.
+	var sacks := 0 if held <= 0 else (1 if held <= 6 else (2 if held <= 16 else 3))
+	# The floor shadow to the south-east.
 	_px(f + Vector2(-hw + 3, 0), hw * 2.0, 2, SHADOW)
-	_px(f + Vector2(hw, -24), 3, 24, SHADOW)
-	# The back wall seen through the open front: dark boards, a lit seam every 5 px.
-	_px(f + Vector2(-hw + 2, -26), hw * 2.0 - 4.0, 24, DARK[1])
-	for x in range(int(-hw) + 4, int(hw) - 3, 5): _px(f + Vector2(x, -26), 1, 24, DARK[2])
-	_px(f + Vector2(-hw + 2, -3), hw * 2.0 - 4.0, 3, EARTH[2])   # its earth floor
+	_px(f + Vector2(hw, -34), 3, 34, SHADOW)
+	# The back wall seen through the open front: dark boards, a lit seam every 5 px; the earth floor.
+	_px(f + Vector2(-hw + 2, -36), hw * 2.0 - 4.0, 34, DARK[1])
+	for x in range(int(-hw) + 4, int(hw) - 3, 5): _px(f + Vector2(x, -36), 1, 34, DARK[2])
+	_px(f + Vector2(-hw + 2, -36), hw * 2.0 - 4.0, 3, Color(INK, 0.45))   # the eave's shade inside
+	_px(f + Vector2(-hw + 2, -3), hw * 2.0 - 4.0, 3, EARTH[2])
 	_px(f + Vector2(-hw + 2, -3), hw * 2.0 - 4.0, 1, EARTH[1])
-	# The shelf across the back, lit on its top.
-	_px(f + Vector2(-hw + 3, -15), hw * 2.0 - 6.0, 2, WOOD[3])
-	_px(f + Vector2(-hw + 3, -15), hw * 2.0 - 6.0, 1, WOOD[5])
-	_px(f + Vector2(-hw + 3, -13), hw * 2.0 - 6.0, 1, WOOD[1])
-	# Jars on the shelf (always), sacks by how much the storehouse holds.
-	for x in [-hw + 6, -hw + 11]:
-		_px(f + Vector2(x, -21), 4, 6, EARTH[4])
-		_px(f + Vector2(x, -21), 1, 6, EARTH[5])
-		_px(f + Vector2(x + 1, -22), 2, 1, EARTH[2])
-	for k in sacks:
-		var sx := -hw + 8.0 + k * 12.0 if k < 2 else hw - 12.0
-		var sy := -3.0 if k != 1 else -15.0
-		_sack(f + Vector2(sx, sy), k)
+	# The shelf across the back, lit on its top, with its jars and (once anything is stored) a crate.
+	_px(f + Vector2(-hw + 3, -22), hw * 2.0 - 6.0, 2, WOOD[3])
+	_px(f + Vector2(-hw + 3, -22), hw * 2.0 - 6.0, 1, WOOD[5])
+	_px(f + Vector2(-hw + 3, -20), hw * 2.0 - 6.0, 1, WOOD[1])
+	for x in [-hw + 5, -hw + 10]:
+		_px(f + Vector2(x, -29), 4, 7, EARTH[4])
+		_px(f + Vector2(x, -29), 1, 7, EARTH[5])
+		_px(f + Vector2(x + 1, -30), 2, 1, EARTH[2])
+		if x > -hw + 6: _px(f + Vector2(x + 1, -30), 2, 1, RED[2])
 	if held > 0:
-		_px(f + Vector2(hw - 9, -21), 5, 6, WOOD[4])      # a crate on the shelf's east end
-		_px(f + Vector2(hw - 9, -21), 5, 1, WOOD[6])
-		_px(f + Vector2(hw - 9, -18), 5, 1, WOOD[2])
+		_px(f + Vector2(hw - 11, -29), 7, 7, WOOD[4])
+		_px(f + Vector2(hw - 11, -29), 7, 1, WOOD[6])
+		_px(f + Vector2(hw - 11, -26), 7, 1, WOOD[2])
+		_px(f + Vector2(hw - 5, -29), 1, 7, WOOD[2])
+	# The sacks: on the floor at the west and the east side, then one on the shelf.
+	var spots := [Vector2(-hw + 3, -2), Vector2(hw - 11, -2), Vector2(-4, -22)]
+	for k in sacks: _sack(f + spots[k], k)
 	# The two front posts and the beam under the eave.
 	for x in [-hw + 1, hw - 4]:
-		_px(f + Vector2(x, -28), 3, 28, WOOD[2])
-		_px(f + Vector2(x, -28), 1, 28, WOOD[4])
-		_px(f + Vector2(x + 2, -28), 1, 28, LINE)
-	_px(f + Vector2(-hw, -30), hw * 2.0, 3, WOOD[2])
-	_px(f + Vector2(-hw, -30), hw * 2.0, 1, WOOD[4])
-	# The roof: courses of grey tile lapping every 5 px from the eave up to the ridge, a rib every 4 px lit on its west
-	# flank, the ends swept up; round tile ends along the eave, the ridge heavy with curled gold-tipped ends.
-	var eave := -30.0
-	var ridge := -58.0
-	_px(f + Vector2(-hw - 3, ridge), hw * 2.0 + 6.0, eave - ridge, ROOF[3])
-	for y in range(int(ridge) + 4, int(eave), 5): _px(f + Vector2(-hw - 3, y), hw * 2.0 + 6.0, 1, ROOF[1])
-	for x in range(int(-hw) - 2, int(hw) + 3, 4):
-		_px(f + Vector2(x, ridge + 2), 1, eave - ridge - 2, ROOF[4])
-		_px(f + Vector2(x + 1, ridge + 2), 1, eave - ridge - 2, ROOF[2])
-	for y in range(int(ridge) + 5, int(eave), 5): _px(f + Vector2(-hw - 3, y - 1), hw * 2.0 + 6.0, 1, ROOF[5])
-	# The far strip beyond the ridge faces the sun, a step lighter.
+		_px(f + Vector2(x, -38), 3, 38, WOOD[2])
+		_px(f + Vector2(x, -38), 1, 38, WOOD[4])
+		_px(f + Vector2(x + 2, -38), 1, 38, LINE)
+	_px(f + Vector2(-hw, -40), hw * 2.0, 3, WOOD[2])
+	_px(f + Vector2(-hw, -40), hw * 2.0, 1, WOOD[4])
+	_px(f + Vector2(-hw, -38), hw * 2.0, 1, WOOD[1])
+	# The roof: the plane from the eave up to the ridge, courses lapping every 6 px (a lit lip over a shadow line), cover
+	# ribs every 4 px lit on the west; round tile ends along the eave; the far strip beyond the ridge a step lighter.
+	var eave := -40.0
+	var ridge := -66.0
+	_px(f + Vector2(-hw - 3, ridge), hw * 2.0 + 6.0, eave - ridge, ROOF[2])
+	for x in range(int(-hw) - 3, int(hw) + 3, 4):
+		_px(f + Vector2(x, ridge + 1), 1, eave - ridge - 1, ROOF[4])
+		_px(f + Vector2(x + 1, ridge + 1), 1, eave - ridge - 1, ROOF[3])
+		_px(f + Vector2(x + 3, ridge + 1), 1, eave - ridge - 1, ROOF[1])
+	for y in range(int(ridge) + 6, int(eave), 6):
+		_px(f + Vector2(-hw - 3, y), hw * 2.0 + 6.0, 1, ROOF[0])
+		_px(f + Vector2(-hw - 3, y - 1), hw * 2.0 + 6.0, 1, ROOF[5])
 	_px(f + Vector2(-hw - 2, ridge - 3), hw * 2.0 + 4.0, 3, ROOF[4])
 	_px(f + Vector2(-hw - 2, ridge - 3), hw * 2.0 + 4.0, 1, ROOF[6])
-	# The ridge and its curled ends.
+	# The ridge and its curled, gold-tipped ends; the eave's corners swept up.
 	_px(f + Vector2(-hw - 4, ridge - 1), hw * 2.0 + 8.0, 3, ROOF[1])
 	_px(f + Vector2(-hw - 4, ridge - 1), hw * 2.0 + 8.0, 1, ROOF[5])
 	for s in [-1.0, 1.0]:
 		var ex: float = (hw + 5.0) * s
 		_px(f + Vector2(ex - 1.0, ridge - 4), 2, 3, ROOF[2])
 		_px(f + Vector2(ex - 1.0, ridge - 5), 2, 1, GOLD[2])
-		_px(f + Vector2((hw + 3.0) * s - 1.0, eave - 3), 2, 3, ROOF[3])   # the eave's corners sweep up
+		_px(f + Vector2((hw + 3.0) * s - 1.0, eave - 3), 2, 3, ROOF[3])
 		_px(f + Vector2((hw + 3.0) * s - 1.0, eave - 4), 2, 1, ROOF[5])
 	for x in range(int(-hw) - 2, int(hw) + 3, 4):
 		_px(f + Vector2(x, eave - 1), 3, 2, ROOF[4])
 		_px(f + Vector2(x, eave - 1), 1, 1, ROOF[6])
-	_px(f + Vector2(-hw - 2, eave + 1), hw * 2.0 + 4.0, 1, Color(SHADOW, 0.8))   # the eave's shade on the beam
-	# A board over the beam: the storehouse's name in two ink strokes on paper, a red seal.
-	_px(f + Vector2(-6, -36), 12, 5, INK)
-	_px(f + Vector2(-5, -35), 10, 3, PLASTER[4])
-	_px(f + Vector2(-3, -35), 1, 3, INK)
-	_px(f + Vector2(0, -35), 1, 3, INK)
-	_px(f + Vector2(3, -34), 1, 1, RED[3])
+	_px(f + Vector2(-hw - 2, eave + 1), hw * 2.0 + 4.0, 1, Color(SHADOW, 0.8))
+	# The name board hung from the beam: ink strokes on paper, a red seal.
+	_px(f + Vector2(-7, -38), 14, 7, INK)
+	_px(f + Vector2(-6, -37), 12, 5, PLASTER[4])
+	_px(f + Vector2(-6, -33), 12, 1, PLASTER[2])
+	_px(f + Vector2(-4, -36), 1, 3, INK)
+	_px(f + Vector2(-2, -36), 2, 1, INK)
+	_px(f + Vector2(-1, -35), 1, 2, INK)
+	_px(f + Vector2(2, -36), 1, 3, INK)
+	_px(f + Vector2(3, -35), 1, 1, INK)
+	_px(f + Vector2(4, -34), 1, 1, RED[3])
 
 func _sack(p: Vector2, k: int) -> void:
 	var col: Color = [EARTH[5], PLASTER[2], EARTH[4]][k % 3]
-	_px(p + Vector2(0, -7), 7, 7, col)
-	_px(p + Vector2(0, -7), 2, 7, col.lightened(0.15))
-	_px(p + Vector2(5, -7), 2, 7, col.darkened(0.25))
-	_px(p + Vector2(2, -9), 3, 2, col.darkened(0.1))
-	_px(p + Vector2(2, -8), 3, 1, WOOD[1])   # the tie
-	if k == 0: _px(p + Vector2(2, -4), 2, 2, RED[3])   # a red seal on the rice sack
+	_px(p + Vector2(0, -9), 8, 9, col)
+	_px(p + Vector2(0, -9), 2, 9, col.lightened(0.15))
+	_px(p + Vector2(6, -9), 2, 9, col.darkened(0.25))
+	_px(p + Vector2(0, -1), 8, 1, col.darkened(0.35))
+	_px(p + Vector2(2, -11), 4, 2, col.darkened(0.1))
+	_px(p + Vector2(2, -10), 4, 1, WOOD[1])   # the tie
+	if k == 0: _px(p + Vector2(3, -6), 2, 2, RED[3])   # a red seal on the rice sack
 
 # ------------------------------------------------------------------ a stall
 ## The front of a stall: a counter of dark wood across its cells, lit on its top, with the keeper's wares set out on it

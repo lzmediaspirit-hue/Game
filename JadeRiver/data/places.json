@@ -127,15 +127,15 @@
     }
    },
    "cell": [
-    34,
+    31,
     16
    ],
    "stand": [
-    34,
+    31,
     17
    ],
    "at": [
-    1104.0,
+    1008.0,
     528.0
    ],
    "verb": "sim.world.read",
@@ -303,7 +303,7 @@
    "page_args": {},
    "room": "lf_old_ma_store",
    "object": "npc_old_ma",
-   "kind": "counter",
+   "kind": "stall",
    "rule": "place",
    "name": "Old Ma's Store",
    "state": "wares",
@@ -477,7 +477,7 @@
    ],
    "verb": "sim.world.talk",
    "icon": "shop",
-   "kind_name": "Stall",
+   "kind_name": "Shop",
    "where": "At Proprietor Fang's Stall",
    "home": false,
    "tutorial": false,
@@ -558,15 +558,15 @@
     }
    },
    "cell": [
-    48,
+    49,
     19
    ],
    "stand": [
-    48,
+    49,
     20
    ],
    "at": [
-    1552.0,
+    1584.0,
     624.0
    ],
    "verb": "sim.world.read",
@@ -814,6 +814,7 @@
     "bed_1",
     "bed_2"
    ],
+   "where": "At the Terraces",
    "added": false,
    "cell": [
     18,
@@ -830,7 +831,6 @@
    "verb": "sim.world.tend",
    "icon": "craft_foraging",
    "kind_name": "Garden",
-   "where": "At the Herb Terraces",
    "tutorial": false,
    "remote": {
     "after": {
@@ -966,6 +966,7 @@
     "bed_cm_1",
     "bed_cm_2"
    ],
+   "where": "At the Array Court",
    "added": false,
    "cell": [
     7,
@@ -982,7 +983,6 @@
    "verb": "sim.world.tend",
    "icon": "craft_foraging",
    "kind_name": "Garden",
-   "where": "At the Array Court Beds",
    "tutorial": false,
    "remote": {
     "after": {
@@ -1051,11 +1051,6 @@
    "verb": "sim.world.read"
   },
   "stall": {
-   "name": "Stall",
-   "icon": "shop",
-   "verb": "sim.world.talk"
-  },
-  "counter": {
    "name": "Shop",
    "icon": "shop",
    "verb": "sim.world.talk"
@@ -1109,7 +1104,6 @@
  "kind_order": [
   "notice_board",
   "stall",
-  "counter",
   "storehouse",
   "letter_box",
   "garden_bed",

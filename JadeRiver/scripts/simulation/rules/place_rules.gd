@@ -130,6 +130,7 @@ static func home(c, system: String) -> Dictionary:
 		if sect != "" and sect != mine and mine != "": continue
 		var score := 0.0
 		if sect != "" and mine == "": score += 1000.0      # a sect's place, before a sect is chosen
+		if not visible(c, r): score += 2000.0              # not up yet (the village board before the prologue's end)
 		if not r.get("home", false): score += 100.0
 		if str(r.room) != here and c != null and Game.world != null:
 			var way: Array = Game.world.route(c, here, str(r.room)) if here != "" else []
@@ -238,6 +239,12 @@ static func state(c, r: Dictionary) -> Dictionary:
 			out.on = true
 			out.text = Tx.t("ui.place.state_sparks")
 	return out
+
+## Is the place there for the character (its object's `hidden_if` / `visible_if`: the village's notice board goes up
+## once the prologue is done)?
+static func visible(c, r: Dictionary) -> bool:
+	var o := _object(r)
+	return o.is_empty() or c == null or Game.world == null or Game.world.object_visible(c, o)
 
 ## The room's own definition of a place's object (the side view's, or the one this table adds).
 static func _object(r: Dictionary) -> Dictionary:

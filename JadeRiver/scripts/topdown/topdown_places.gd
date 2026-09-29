@@ -227,6 +227,10 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 				art = ObjectView.new()
 				art.mode = "art"
 				art.setup(o)
+				# The Figure sorts it with the room: the side view's depth (ObjectView.depth, 1500 and more) as its z drew
+				# every thing over every body, a notice board over the head of one standing in front of it (decision 43's
+				# review).
+				art.z_index = 0
 			var fig := Figure.new(room, o, art, lv)
 			if o.has("place"):
 				art.scale = Vector2.ONE

@@ -42,8 +42,7 @@ TUTORIAL_ROOMS = {"lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_
 # the verb the context button shows (a string key; a keeper's is Talk).
 KINDS = {
     "notice_board": ("Notice Board", "quest", "sim.world.read"),
-    "stall": ("Stall", "shop", "sim.world.talk"),
-    "counter": ("Shop", "shop", "sim.world.talk"),
+    "stall": ("Shop", "shop", "sim.world.talk"),
     "storehouse": ("Storehouse", "storage", "sim.world.open"),
     "garden_bed": ("Garden", "craft_foraging", "sim.world.tend"),
     "furnace": ("Furnace", "alchemy", "sim.world.refine"),
@@ -55,7 +54,7 @@ KINDS = {
     "shrine": ("Shrine", "shrine_marker", "sim.world.pray"),
 }
 # The Menu's order for the places card and the map's Places view.
-KIND_ORDER = ["notice_board", "stall", "counter", "storehouse", "letter_box", "garden_bed", "furnace", "anvil", "cooking_pot",
+KIND_ORDER = ["notice_board", "stall", "storehouse", "letter_box", "garden_bed", "furnace", "anvil", "cooking_pot",
               "meditation_mat", "teleport_stone", "shrine"]
 
 # Earned remote access (systems_as_places.md §0 item 3, §5): the place first, then from anywhere.
@@ -93,7 +92,7 @@ def places():
           art={"kind": "shed", "cells": [42, 14, 3, 2]}, solid=[[42, 14, 3, 2]]),
         P("lf_letter_box", "mail", "mail", "lf_village", "letter_box_village", "letter_box", "both",
           "the Letter Box", "ribbon", home=True, tutorial=True, menu="mail",
-          add={"type": "letter_box", "cell": [34, 16], "label": "Letter Box"}),
+          add={"type": "letter_box", "cell": [31, 16], "label": "Letter Box"}),
         P("lf_meditation_mat", "cultivation", "cultivation", "lf_village", "mat_village", "meditation_mat", "both",
           "the Meditation Mat", "mist", home=True, tutorial=True, menu="cultivation",
           add={"type": "meditation_mat", "cell": [25, 28], "label": "Meditation Mat", "spring": "spring_village"}),
@@ -103,7 +102,7 @@ def places():
           home=True, tutorial=True),
         P("lf_granny_shrine", "shrines", "", "lf_granny_liu_hut", "shrine_granny", "shrine", "place",
           "Granny Liu's Altar", "lit", tutorial=True),
-        P("lf_old_ma_counter", "shop", "shop", "lf_old_ma_store", "npc_old_ma", "counter", "place", "Old Ma's Store",
+        P("lf_old_ma_counter", "shop", "shop", "lf_old_ma_store", "npc_old_ma", "stall", "place", "Old Ma's Store",
           "wares", home=True, tutorial=True, keeper="old_ma", stand=[12, 6]),
         P("wp_shrine", "shrines", "", "wp_west", "shrine_wp", "shrine", "place", "the Wayside Shrine", "lit"),
         # ---- Stoneford: the Market's services round its teleport stone, the Artisan Row's stations.
@@ -117,7 +116,7 @@ def places():
           "the Market Storehouse", "stock"),
         P("sf_courier_post", "mail", "mail", "sf_market", "courier_post_sf", "letter_box", "both",
           "the Courier Post", "ribbon",
-          add={"type": "letter_box", "cell": [48, 19], "label": "Courier Post", "post": "courier"}),
+          add={"type": "letter_box", "cell": [49, 19], "label": "Courier Post", "post": "courier"}),
         P("sf_teleport_stone", "teleport_stones", "teleport", "sf_market", "stone_sf", "teleport_stone", "place",
           "the Market Teleport Stone", "attuned", home=True),
         P("sf_furnace", "alchemy", "alchemy", "sf_artisan_row", "furnace_sf", "furnace", "earned",
@@ -132,7 +131,8 @@ def places():
         P("ja_shrine", "shrines", "", "ja_gate_street", "shrine_ja", "shrine", "place", "the Jade Gate Shrine", "lit",
           sect="jade_sect"),
         P("ja_garden", "herb_garden", "garden", "ja_herb_terraces", "bed_0", "garden_bed", "earned",
-          "the Herb Terraces", "growth", home=True, menu="garden", sect="jade_sect", beds=["bed_0", "bed_1", "bed_2"]),
+          "the Herb Terraces", "growth", home=True, menu="garden", sect="jade_sect", beds=["bed_0", "bed_1", "bed_2"],
+          where="At the Terraces"),
         # ---- The Cloud Sect.
         P("cm_notice_board", "notice_board", "notice_board", "cm_cliff_stair", "board_cm", "notice_board", "place",
           "the Cloud Sect Notice Board", "papers", sect="cloud_sect"),
@@ -142,7 +142,7 @@ def places():
           sect="cloud_sect"),
         P("cm_garden", "herb_garden", "garden", "cm_array_court", "bed_cm_0", "garden_bed", "earned",
           "the Array Court Beds", "growth", home=True, menu="garden", sect="cloud_sect",
-          beds=["bed_cm_0", "bed_cm_1", "bed_cm_2"]),
+          beds=["bed_cm_0", "bed_cm_1", "bed_cm_2"], where="At the Array Court"),
         P("cm_furnace", "alchemy", "alchemy", "cm_array_court", "furnace_cm", "furnace", "earned",
           "the Array Court Furnace", "smoke", sect="cloud_sect"),
     ]
@@ -273,7 +273,7 @@ def build_rows():
             r["verb"] = kind[2]
             r["icon"] = kind[1]
             r["kind_name"] = kind[0]
-            r["where"] = "At " + r["name"]
+            r.setdefault("where", "At " + r["name"])
             r.setdefault("home", False)
             r.setdefault("tutorial", False)
             r.setdefault("menu", "")
