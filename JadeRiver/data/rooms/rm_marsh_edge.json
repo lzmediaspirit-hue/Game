@@ -382,6 +382,113 @@
    }
   },
   {
+   "id": "array_marsh",
+   "type": "transfer_array",
+   "at": [
+    260,
+    930
+   ],
+   "network": "",
+   "name": "Watch Post Array",
+   "prop": "transfer_array_watch",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "transfer_array"
+     }
+    ]
+   },
+   "locked_text": "The array's runes are dark. They wake for a disciple the elders send on the sect's errands."
+  },
+  {
+   "id": "npc_watcher_bo",
+   "type": "npc",
+   "at": [
+    100,
+    800
+   ],
+   "npc": "watcher_bo",
+   "facing": 1,
+   "pose": "meditate"
+  },
+  {
+   "id": "npc_watcher_su",
+   "type": "npc",
+   "at": [
+    330,
+    800
+   ],
+   "npc": "watcher_su",
+   "facing": -1
+  },
+  {
+   "id": "npc_mei_qing_marsh",
+   "type": "npc",
+   "at": [
+    215,
+    780
+   ],
+   "npc": "mei_qing",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall"
+     },
+     {
+      "kind": "quest_not_done",
+      "quest": "mei_qings_errand"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_elder_hu_marsh",
+   "type": "npc",
+   "at": [
+    840,
+    930
+   ],
+   "npc": "elder_hu",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_elder_sung_marsh",
+   "type": "npc",
+   "at": [
+    1480,
+    930
+   ],
+   "npc": "elder_sung",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   }
+  },
+  {
    "id": "rift_tear",
    "type": "rift_tear",
    "at": [
@@ -420,7 +527,7 @@
    "id": "swarm_glowfly",
    "type": "insect_swarm",
    "at": [
-    1602,
+    1752,
     860
    ],
    "item": "glowfly",

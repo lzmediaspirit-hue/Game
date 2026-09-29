@@ -1026,7 +1026,9 @@ func defeat(def_id: String, room_id: String, tries := 4) -> bool:
 	return false
 
 func sec_qk5() -> void:
-	# Main story, Act I chapter 2: the grey in the marsh.
+	# Main story, Act I chapter 2: the grey in the marsh. Decision 42: Strange Tracks is done at the third patch and The
+	# Humming Token begins there; the mentor comes down to the marsh for its hand-in, and Mei Qing's Errand is taken and
+	# handed in at the watch post, where she tends the watchers.
 	check(start("strange_tracks"), "Strange Tracks accepted")
 	check(travel("rm_marsh_edge"), "reach the Marsh Edge")
 	var seen := 0
@@ -1034,17 +1036,18 @@ func sec_qk5() -> void:
 		if seen >= 3: break
 		if interact(str(o.id)).get("ok", false): seen += 1
 	check(finish("strange_tracks"), "Strange Tracks done (inspected %d)" % seen)
-	check(start("the_humming_token"), "The Humming Token accepted")
-	check(travel("rm_marsh_edge"), "reach the Marsh Edge")
+	check(c().quests.is_active("the_humming_token"), "The Humming Token under way at the third patch")
 	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "defeat five Hollowed Boarlets at the Marsh Edge")
+	GameEvents.flush()
+	check(room() == "rm_marsh_edge" and not npc_object(str(QuestAuthority.own_npc(c(), ["elder_hu", "elder_sung"]))).is_empty(),
+		"the mentor has come down to the Marsh Edge for the hand-in")
 	check(finish("the_humming_token"), "The Humming Token done")
-	check(start("mei_qings_errand"), "Mei Qing's Errand accepted")
+	check(room() == "rm_marsh_edge" and start("mei_qings_errand") and room() == "rm_marsh_edge", "Mei Qing's Errand accepted at the watch post")
+	if c().inventory.count("grey_hide") < 3:
+		fight("hollowed_boarlet", 3 - c().inventory.count("grey_hide"), 240.0)
 	if c().inventory.count("willow_moss") < 5:
 		travel("lf_reed_shallows")
 		gather("willow_moss", 5 - c().inventory.count("willow_moss"), 60)
-	if c().inventory.count("copper_ore") < 3:
-		travel("sq_quarry_rim")
-		gather("copper_ore", 3 - c().inventory.count("copper_ore"), 60)
 	check(finish("mei_qings_errand"), "Mei Qing's Errand done")
 	check(start("grey_at_the_edges"), "Grey at the Edges accepted")
 	go_to_npc(["elder_hu", "elder_sung"])

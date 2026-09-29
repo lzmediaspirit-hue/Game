@@ -853,6 +853,67 @@
    "target_room": "ja_gate_street"
   },
   {
+   "id": "tea_for_the_elder",
+   "name": "Tea for the Elder",
+   "kind": "side",
+   "giver": "jade_gardener",
+   "hand_in": "jade_gardener",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Take the lotus root tea up to your mentor",
+     "count": 1,
+     "consume": true,
+     "item": "lotus_root_tea"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "qi_gathering_pill",
+     "count": 1
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 20
+    }
+   ],
+   "offer_text": [
+    "Going up to the elder? Take him this. Lotus root tea, brewed this morning.",
+    "He forgets to drink when he's thinking, and he's always thinking."
+   ],
+   "complete_text": [
+    "Lotus root. The gardener remembers I forget. Here: something for your own cup."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_humming_token"
+     }
+    ]
+   },
+   "chapter": "2",
+   "giver_any": [
+    "jade_gardener",
+    "cloud_gardener"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ja_herb_terraces",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "lotus_root_tea",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "fish_gutting_fists",
    "name": "Fish-Gutting Fists",
    "kind": "main",
@@ -1078,10 +1139,10 @@
    ],
    "offer_text": [
     "Outer disciples are chosen by their fists. Win three spars at the practice posts.",
-    "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show me once, from a roof."
+    "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show the hall master once, from a roof: he keeps the posts."
    ],
    "complete_text": [
-    "Outer Disciple. You'll get a proper robe soon."
+    "Three spars and a Plunge off the roof. Outer Disciple. You'll get a proper robe soon."
    ],
    "offered_by_unlock": true,
    "chapter": "1",
@@ -1090,8 +1151,8 @@
     "elder_sung"
    ],
    "hand_in_any": [
-    "elder_hu",
-    "elder_sung"
+    "jade_hall_master",
+    "cloud_hall_master"
    ],
    "target_room": "ja_pavilion_rooftops",
    "on_accept": [
@@ -5248,7 +5309,7 @@
    "name": "Strange Tracks",
    "kind": "main",
    "giver": "elder_hu",
-   "hand_in": "elder_hu",
+   "hand_in": "",
    "marker": "gold",
    "objectives": [
     {
@@ -5268,10 +5329,10 @@
    ],
    "offer_text": [
     "(A note from your mentor) Disciples report grey patches in the Reed Marsh. Colour drained from the reeds.",
-    "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."
+    "Don't walk half a day to get there: the gate's transfer array will take you to the watch post. Look, but touch nothing."
    ],
    "complete_text": [
-    "Hollowing. It's closer than we hoped."
+    "(The River Token hums against your chest. Where the patches lie, the reeds begin to stir.)"
    ],
    "requires": {
     "all": [
@@ -5294,12 +5355,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "hand_in_any": [
-    "elder_hu",
-    "elder_sung"
-   ],
    "target_room": "rm_marsh_edge",
-   "auto_accept": true
+   "auto_accept": true,
+   "next": "the_humming_token"
   },
   {
    "id": "the_humming_token",
@@ -5333,7 +5391,8 @@
     "You've a weapon in your hands now: the grey will want it."
    ],
    "complete_text": [
-    "Lu's token. It knows the grey. Keep it close."
+    "Hollowing. It's closer than we hoped, and Lu's token knew it before you did. Keep it close.",
+    "Mei Qing is at the watch post with the watchers the grey has touched. Give her your hands. Then come up to my peak."
    ],
    "requires": {
     "all": [
@@ -5356,7 +5415,8 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "rm_marsh_edge"
+   "target_room": "rm_marsh_edge",
+   "auto_accept": true
   },
   {
    "id": "mei_qings_errand",
@@ -5394,10 +5454,11 @@
     }
    ],
    "offer_text": [
-    "The Hollowed wounds need a new salve. Willow moss, and the grey hide of the things that made the wounds."
+    "The watchers' wounds won't close: the grey keeps them open. I need a new salve, and I need it here.",
+    "Willow moss from the frogs on the platforms, and the grey hide of the boarlets that made the wounds. They're still coming up out of the reeds."
    ],
    "complete_text": [
-    "This will save lives. Thank you."
+    "There. The grey comes out of the wound like ink out of water. This will save lives. Thank you."
    ],
    "requires": {
     "all": [
@@ -5412,7 +5473,7 @@
     ]
    },
    "chapter": "2",
-   "target_room": "sf_artisan_row"
+   "target_room": "rm_marsh_edge"
   },
   {
    "id": "grey_at_the_edges",
@@ -5437,10 +5498,18 @@
     {
      "kind": "add_progress",
      "pct_of_need": 0.2
+    },
+    {
+     "kind": "set_flag",
+     "flag": "array_array_ja_peak"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "array_array_cm_peak"
     }
    ],
    "offer_text": [
-    "Tell me everything you saw."
+    "(A note from your mentor) Come up to my peak. Walk the grounds on the way: you've hardly seen them."
    ],
    "requires": {
     "all": [

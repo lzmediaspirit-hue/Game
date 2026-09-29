@@ -20,7 +20,7 @@ var debug_open_ways := false
 
 func intents() -> Array:
 	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor",
-		"set_auto_hunt", "auto_path", "enter_grid_room"]
+		"set_auto_hunt", "auto_path", "enter_grid_room", "array_travel"]
 
 func subscribe() -> void:
 	# S49 mobile conventions: auto-path follows the character room to room and stops at danger.
@@ -240,6 +240,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"auto_path": return start_auto_path(c, str(intent.get("target", "")))
 		"set_sail": return set_sail(c, str(intent.get("route", "")))
 		"enter_grid_room": return enter_grid_room(c, TopdownRoom.load_room(str(intent.get("room", ""))))
+		"array_travel": return array_travel(c, str(intent.get("from", "")), str(intent.get("to", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ rooms
@@ -485,6 +486,93 @@ func _stone_spot(c, stone: Dictionary, stone_id: String) -> Vector2:
 				return TopdownRoom.cell_point(grid.def.place[str(o.id)]) + Vector2(0, TopdownRoom.TILE)
 	return Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10)
 
+# ------------------------------------------------------------------ the sect's transfer arrays (decision 42)
+## A sect keeps transfer arrays at its key places (the gate's plaza by the steward, the mentor's peak) and one at the
+## Marsh Edge's watch post that both sects keep. A disciple's token opens them once the Weapon Hall is done (the unlock
+## `transfer_array`, taught at the gate as Strange Tracks begins). A node answers the token once it knows it: stood on
+## or tapped (the lesson keys the gate's and the watch post's, the mentor his peak's). Tapped, it asks where to among
+## the nodes the token knows; a route (the tracker, auto-path) takes one as a way (WorldRules.ways_out). Free: the
+## sect's own; the teleport stones' shards are for the world beyond.
+const ARRAY_ATTUNE_R := 96.0
+
+static func array_flag(node_id: String) -> String:
+	return "array_" + node_id
+
+func array_attuned(c, node_id: String) -> bool:
+	return c != null and c.quests.has_flag(array_flag(node_id))
+
+## A node of the character's own sect's network, or one both sects keep.
+static func array_mine(c, node: Dictionary) -> bool:
+	var net := str(node.get("network", ""))
+	return net == "" or (c != null and net == str(c.training_sect.get("id", "")))
+
+## May the character take the array at `from_id` (in `from_room`) to `to_id` now: the arrays opened to it, both nodes
+## its sect's and known to its token, and never past the prototype's gate.
+func array_open(c, from_room: String, from_id: String, to_id: String) -> bool:
+	if c == null or not Unlocks.is_unlocked(c.id, "transfer_array"): return false
+	var nodes := WorldRules.array_nodes()
+	var a: Dictionary = nodes.get(from_id, {})
+	var b: Dictionary = nodes.get(to_id, {})
+	if a.is_empty() or b.is_empty() or not array_mine(c, a) or not array_mine(c, b): return false
+	if not array_attuned(c, from_id) or not array_attuned(c, to_id): return false
+	return not prototype_gate(c, from_room, str(b.room))
+
+func attune_array(c, node_id: String) -> void:
+	if c == null or array_attuned(c, node_id) or not Unlocks.is_unlocked(c.id, "transfer_array"): return
+	if not array_mine(c, WorldRules.array_nodes().get(node_id, {})): return
+	game.quest.apply_flag(c.id, array_flag(node_id))
+	emit("array_attuned", {"actor": c.id, "object": node_id})
+
+## Where the array at `node_id` can send the character now: [{id, room, network}] in data order.
+func array_destinations(c, node_id: String) -> Array:
+	var here := str(WorldRules.array_nodes().get(node_id, {}).get("room", ""))
+	return WorldRules.array_links(node_id).filter(func(n): return array_open(c, here, node_id, str(n.id)))
+
+## A node tapped: it learns the token, and asks where to (a destination per choice, each an array_travel intent).
+func array_dialogue(c, o: Dictionary) -> Dictionary:
+	attune_array(c, str(o.id))
+	var choices: Array = []
+	for n in array_destinations(c, str(o.id)):
+		choices.append({"text": str(ContentDB.room(str(n.room)).get("name", n.room)), "intent": {"type": "array_travel", "from": str(o.id), "to": str(n.id)}})
+	var line := Tx.t("sim.world.array_where") if not choices.is_empty() else Tx.t("sim.world.array_alone")
+	choices.append({"text": Tx.t("sim.world.array_stay"), "close": true})
+	return {"npc": "", "speaker": str(o.get("name", Tx.t("sim.world.array_speaker"))), "portrait": {}, "lines": [line], "choices": choices}
+
+## Keep the nodes the character walks onto (the shrines' rule: close by is enough).
+func _attune_arrays(c, rt: RoomRuntime, st: ActorState) -> void:
+	if st == null or not Unlocks.is_unlocked(c.id, "transfer_array"): return
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) != "transfer_array" or array_attuned(c, str(o.id)): continue
+		var at: Array = o.get("at", [0, 0])
+		if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= ARRAY_ATTUNE_R and absf(st.altitude - float(o.get("alt", 0.0))) <= REACH_ALT:
+			attune_array(c, str(o.id))
+
+## Step onto the array at `from_id` and come out on the one at `to_id`.
+func array_travel(c, from_id: String, to_id: String) -> Dictionary:
+	if game.room_rt == null: return fail("no_room")
+	var o: Dictionary = game.room_rt.object_def(from_id)
+	if o.is_empty() or str(o.get("type", "")) != "transfer_array": return fail("unknown_object")
+	var st: ActorState = game.actor_state(c.id)
+	var at: Array = o.get("at", [0, 0])
+	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0: return fail("too_far")
+	if game.combat.is_wounded(c.id): return fail("wounded")
+	attune_array(c, from_id)
+	if not array_open(c, game.room_rt.room_id, from_id, to_id):
+		var node: Dictionary = WorldRules.array_nodes().get(to_id, {})
+		var gate: bool = not node.is_empty() and prototype_gate(c, game.room_rt.room_id, str(node.room))
+		return fail("sealed", {"text": Tx.t("sim.world.road_being_drawn") if gate else Tx.t("sim.world.array_unknown")})
+	var to: Dictionary = WorldRules.array_nodes()[to_id]
+	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
+	emit("array_travelled", {"actor": c.id, "from": from_id, "to": to_id, "room": game.room_rt.room_id, "to_room": str(to.room)})
+	return load_room(c, str(to.room), "", _array_spot(c, to))
+
+## Where an array lands: on the far node, on the grid where its layout sets it; in the side view on its ground.
+func _array_spot(c, node: Dictionary) -> Vector2:
+	var grid := grid_for(c, str(node.room))
+	if grid != null and grid.def.get("place", {}).has(str(node.id)):
+		return TopdownRoom.cell_point(grid.def.place[str(node.id)])
+	return Vector2(float(node.at[0]), float(node.at[1]) + 20.0)
+
 ## Spirit Sense (S17, SA1/SA2): a soul pulse that reveals hidden portals and
 ## fog-hidden monsters within the sense radius.
 func sense_pulse(c) -> Dictionary:
@@ -698,6 +786,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
 				c.stats.value("drop_rate"), c.stats.value("coin_find"))
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
+		"transfer_array":
+			result.dialogue = array_dialogue(c, o)   # decision 42: where the token can go from here
 		"teleport_stone":
 			var sid := str(o.get("stone", object_id))
 			if not game.account.teleports.has(sid):
@@ -865,7 +955,7 @@ func _verb(o: Dictionary) -> String:
 		"alchemy_furnace", "earth_vent": return Tx.t("sim.world.refine")
 		"forge_anvil": return Tx.t("sim.world.forge")
 		"bath_station": return Tx.t("sim.world.bathe")
-		"teleport_stone": return Tx.t("sim.world.travel")
+		"teleport_stone", "transfer_array": return Tx.t("sim.world.travel")
 		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
@@ -1140,6 +1230,7 @@ func tick(delta: float) -> void:
 	_tick_chase(c, rt, st)
 	_tick_run(c, rt, st)
 	_attune_shrines(c, rt, st)
+	_attune_arrays(c, rt, st)
 	_tick_hazards(c, rt, st, delta)
 
 # ------------------------------------------------------------------ rooftop chases and timed routes (S43 rule 15)
@@ -1963,6 +2054,7 @@ func _tick_auto_hunt(c, delta: float) -> void:
 ## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
+	if p.has("array"): return array_open(c, room_id, str(p.id), str(p.array))   # decision 42: a transfer array's link
 	if prototype_gate(c, room_id, str(p.get("to", ""))): return false   # decision 41: no route, mark or hop past the gate
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
 	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
@@ -2089,6 +2181,12 @@ func _auto_path_room(_p: Dictionary) -> void:
 
 ## At a Starsea dock the route boards a vessel; without one (or a chart) it stops there and says why.
 func auto_path_board(c, dock_id: String) -> Dictionary:
+	# Decision 42: a transfer array on the route is taken to the node the route names.
+	for s in auto_paths.get(c.id, {}).get("route", []):
+		if game.room_rt != null and str(s.room) == game.room_rt.room_id and str(s.portal) == dock_id and str(s.get("array", "")) != "":
+			var ra := array_travel(c, dock_id, str(s.array))
+			if not ra.get("ok", false): _end_auto_path(c.id, "dock")
+			return ra
 	var r := interact(c, dock_id)
 	if not r.get("ok", false): _end_auto_path(c.id, "dock")
 	return r

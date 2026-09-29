@@ -130,9 +130,10 @@ func objective_places(c, o: Dictionary) -> Array:
 	return []
 
 ## Where an item a step asks for can be taken by this character now: the rooms whose nodes or pickups of it it may
-## take (a herb patch waits on herb gathering, Bone Forging 4). With none, for a collect step, the rooms whose foes
-## drop it (Mei Qing's willow moss from the Marsh Edge's reed frogs, before the herbs open): the tracker never sends
-## the player to herbs they cannot pick. Kept per item while the character's unlocks and realm stand.
+## take (a herb patch waits on herb gathering, Bone Forging 4), and, for a collect step, the rooms whose foes drop it
+## (Mei Qing's willow moss from the Marsh Edge's reed frogs, before the herbs open): the tracker never sends the player to
+## herbs they cannot pick, and a quest whose own room's foes drop the item is done there (decision 42: Mei Qing's moss
+## beside her at the watch post, not a pickup in Granny Liu's hut and back). Kept per item while the unlocks and realm stand.
 var _places_cache := {}
 func _item_places(c, item: String, foes: bool) -> Array:
 	var key := "%s|%s|%d|%d|%s|%s" % [c.id if c else "", item, c.cultivator.unlocked.size() if c else 0, c.quests.flags.size() if c else 0,
@@ -141,7 +142,7 @@ func _item_places(c, item: String, foes: bool) -> Array:
 	var ctx: Dictionary = game.ctx(c) if c != null else {}
 	var out: Array = WorldRules.rooms_with("item=" + item).filter(func(rid): return ContentDB.room(str(rid)).get("objects", []).any(func(ob):
 		return str(ob.get("item", "")) == item and (c == null or (game.world.object_visible(c, ob) and (not ob.has("requires") or RequirementRules.passes(ob.requires, ctx))))))
-	if out.is_empty() and foes:
+	if foes:
 		for rid in ContentDB.rooms:
 			for sp in ContentDB.room(str(rid)).get("spawns", []):
 				var e := ContentDB.entry("enemies", str(sp.get("enemy", "")))

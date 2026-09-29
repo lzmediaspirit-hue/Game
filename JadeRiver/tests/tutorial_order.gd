@@ -194,10 +194,15 @@ func step_chores() -> void:
 	check(c().inventory.count("spirit_stone_shard") >= 2, "the third spot's cache: two spirit stone shards")
 
 ## Chapter 2 (its floor Bone Forging 2, research §5 change 5) opens the moment the Weapon Hall is done: the mentor's
-## note starts Strange Tracks, three grey patches in the Reed Marsh, then back to the mentor.
+## note starts Strange Tracks, three grey patches in the Reed Marsh. Decision 42 (less walking in the sect stretch): the
+## same moment the disciple's token opens the sect's transfer arrays (the Marsh Edge's watch post keyed to it), and
+## the note is done at the third patch, where the River Token hums and The Humming Token begins on the spot: no walk
+## back up the mentor's peak and down again.
 func step_strange_tracks() -> void:
 	check(str(ContentDB.config("quests").get("chapter_floors", {}).get("2", "")) == "bone_forging_2" and c().quests.is_active("strange_tracks"),
 		"chapter 2's floor is Bone Forging 2, and Strange Tracks is under way the moment the Weapon Hall is done (realm %s)" % c().cultivator.realm_key)
+	check(Unlocks.is_unlocked(c().id, "transfer_array") and c().quests.has_flag("array_array_marsh") and c().quests.has_flag("array_array_ja_gate"),
+		"the Weapon Hall done, the token opens the sect's transfer arrays, the gate's and the Marsh Edge's watch post keyed to it")
 	GameEvents.flush()
 	var nx: Array = Game.quest.tracker(c())
 	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "strange_tracks" and str(nx[0].get("target_room", "")) == "rm_marsh_edge",
@@ -208,8 +213,12 @@ func step_strange_tracks() -> void:
 	for o in Game.room_rt.def.get("objects", []):
 		if seen < 3 and str(o.get("type", "")) == "inspect" and Game.world.object_visible(c(), o) and interact(str(o.id)).get("ok", false): seen += 1
 	check(seen == 3, "three grey patches inspected (%d)" % seen)
-	check(travel(sect_at("peak")), "back to the mentor")
-	hand_in(sect_at("mentor"), "strange_tracks")
+	GameEvents.flush()
+	check(c().quests.is_done("strange_tracks") and c().quests.is_active("the_humming_token"),
+		"Strange Tracks is done at the third patch and The Humming Token under way on the spot, no walk back to the mentor")
+	nx = Game.quest.tracker(c())
+	var token: Array = nx.filter(func(e): return str(e.get("quest", "")) == "the_humming_token")
+	check(not token.is_empty() and str(token[0].get("target_room", "")) == room(), "the tracker keeps the player at the Marsh Edge for the grey boarlets (%s)" % str(token.slice(0, 1)))
 
 ## The gear Crab Trouble paid, worn from the Bag as the equip prompt offers it, and Ping's bone broth drunk (the body a
 ## few levels stronger for good, before the night and the Willow Path).

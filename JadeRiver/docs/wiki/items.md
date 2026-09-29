@@ -2923,7 +2923,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Reedtail Rat](monsters.md#enemy-reedtail_rat) (Lv 2) · 2% (rare)
   - Drop: [Tide Crab](monsters.md#enemy-tide_crab) (Lv 20–23) · 15% (rare)
   - Drop: [Wild Boarlet](monsters.md#enemy-wild_boarlet) (Lv 1–2) · 2% (rare)
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · 40 Silver Taels; needs Heart Tempering 5
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 40 Silver Taels; needs Heart Tempering 5
   - Reward: Expedition Deepwater Bend (4/8 h)
 
 <a id="item-serpent_scale"></a>
@@ -4435,6 +4435,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Stoneford General Store (Proprietor Fang in Market Street (Stoneford)) · at list price in Silver Taels
   - Shop: Stoneford Tea House (Auntie Rong in Market Street (Stoneford)) · at list price in Silver Taels
   - Reward: Quest Auntie Rong's Soup (side, from Auntie Rong), reward ×2
+  - Reward: Quest Tea for the Elder (side, from Gardener Ji), on accept
 
 <a id="item-thunderhead_tea"></a>
 
@@ -4555,7 +4556,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Gathering: Post: Spirit Foraging, gate Lv 1
   - Garden: Garden bed, grown from [Willow Moss Seed](#item-willow_moss_seed), harvested at 10 years
   - Crafting: Puppetry: a Carrier Puppet works 3 an hour
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels
   - Shop: Old Ma's Store (Old Ma in Lotus Ferry at Night (Lotus Ferry), Old Ma's Store (Lotus Ferry)) · daily rotation (1 of 4)
   - Reward: Expedition Willow Path (1/4/8 h) ×3
   - Reward: Quest Seeds of the Valley (guided, from Gardener Ji), reward ×5
@@ -4591,7 +4592,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Gathering: Herb patch, apprentice rank in Bend Shore (Deepwater Bend), Cloud Herb Terraces (Cloud Sect Monastery), Herb Terraces (Jade Sect Academy), Hermit's Stilt House (Reed Marsh), Marsh Edge (Reed Marsh), Sunken Causeway (Reed Marsh), Thicket Heart (Bamboo Grove)
   - Gathering: Post: Spirit Foraging, gate Lv 9
   - Garden: Garden bed, grown from [Riverreed Ginseng Seed](#item-riverreed_ginseng_seed), harvested at 10 years
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels
   - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward
 
 <a id="item-ember_pepper_100"></a>
@@ -4624,7 +4625,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Garden: Garden bed, grown from [Mist Lotus Seed](#item-mist_lotus_seed), harvested at 10 years
   - Shop: Alchemist Guild (Guildmaster Tang in Artisan Row (Stoneford)) · 35 Silver Taels; needs Flag set (flag guild_alchemy_adept)
   - Shop: Apothecary Wu's Cabinet (Apothecary Wu in Port Market (Cloudgate Port)) · at list price in Spirit Stones
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · 35 Silver Taels; needs Heart Tempering 5
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 35 Silver Taels; needs Heart Tempering 5
   - Shop: Old Pan's Wares (Old Pan in Market Street (Stoneford), Willow Path East (Willow Path)) · daily rotation (3 of 7)
   - Reward: Expedition Whitewater Gorge (8 h) ×2
   - Reward: Quest Moon on the Water (side, from Elder Hu), reward ×2
@@ -4661,7 +4662,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Gathering: Post: Spirit Foraging, gate Lv 25
   - Garden: Garden bed, grown from [Cloudtop Orchid Seed](#item-cloudtop_orchid_seed), harvested at 10 years
   - Shop: Apothecary Wu's Cabinet (Apothecary Wu in Port Market (Cloudgate Port)) · at list price in Spirit Stones
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · 120 Silver Taels; needs Cloud Stride 5
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 120 Silver Taels; needs Cloud Stride 5
   - Mail: Karma debt dou_rescue: a letter from Little Dou
 
 <a id="item-mist_lotus_100"></a>
@@ -6904,7 +6905,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Crafting: Recipe `bone_strengthening_pill` (Alchemy, Common): Tortoise Plate ×1, Boar Hide ×1, Riverreed Ginseng (10 yr) ×1
   - Shop: Ironroot Clan Forge (Smith Gang in Clan Hearth (Ironroot Clan Hold)) · at list price in Spirit Stones
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · daily rotation (1 of 3)
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · daily rotation (1 of 3)
 
 <a id="item-cleansing_pill"></a>
 
@@ -6941,7 +6942,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Apothecary Wu's Cabinet (Apothecary Wu in Port Market (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Cloud Sect Mission Hall (Deacon Heng in Cliff Stair (Cloud Sect Monastery)) · at list price in Contribution
   - Shop: Jade Sect Mission Hall (Deacon Rui in Gate Street (Jade Sect Academy)) · at list price in Contribution
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels
   - Shop: Peddler Gou's Packs (Peddler Gou in Port Market (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Peddler Ning's Silk and Sundries (Peddler Ning in Harbor Market (Lanternfall Harbor)) · at list price in Sage Crystals
   - Reward: Daily activity chest at 20 points, reward ×2
@@ -6975,9 +6976,10 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Container: Trial Tower floors 1–12, clear or daily sweep, in Trial Tower (Stoneford) (Lv 4–26) · 25% (group 100%, weight 1 of 4)
   - Crafting: Recipe `qi_gathering_pill` (Alchemy, Common): Riverreed Ginseng (10 yr) ×2, Moss ×2
   - Crafting: appraising a [Sealed Storage Pouch](#item-sealed_storage_pouch) · 6.25% ×2
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels
   - Reward: Achievements: First Current, reward
   - Reward: Quest Eyes for Qi (guided, from Elder Hu), reward
+  - Reward: Quest Tea for the Elder (side, from Gardener Ji), reward
   - Reward: Quest The First Current (main, from Lu), reward ×2
   - Reward: Quest The Wall (guided, from Elder Hu), reward
 
@@ -6999,7 +7001,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Apothecary Wu's Cabinet (Apothecary Wu in Port Market (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Cloud Sect Mission Hall (Deacon Heng in Cliff Stair (Cloud Sect Monastery)) · at list price in Contribution
   - Shop: Jade Sect Mission Hall (Deacon Rui in Gate Street (Jade Sect Academy)) · at list price in Contribution
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels
   - Shop: Oasis of Bones Stores (Keeper Meng in Oasis of Bones (Sunscar Desert)) · at list price in Spirit Stones
   - Shop: Peddler Gou's Packs (Peddler Gou in Port Market (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Peddler Ning's Silk and Sundries (Peddler Ning in Harbor Market (Lanternfall Harbor)) · at list price in Sage Crystals
@@ -7086,7 +7088,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Condensing Hall Stores (Alchemist Fen in Condensing Hall (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Jade Sect Mission Hall (Deacon Rui in Gate Street (Jade Sect Academy)) · at list price in Contribution
   - Shop: Lanternwright Han's Shelf (Lanternwright Han in Star Chandlery (Lanternfall Harbor)) · at list price in Sage Crystals
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · daily rotation (1 of 3)
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · daily rotation (1 of 3)
   - Shop: Navigator Sun's Charts (Navigator Sun in Shipwrights' Yard (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Old Pan's Wares (Old Pan in Market Street (Stoneford), Willow Path East (Willow Path)) · daily rotation (3 of 7)
   - Shop: Peddler Gou's Packs (Peddler Gou in Port Market (Cloudgate Port)) · daily rotation (2 of 4)
@@ -7112,7 +7114,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Crafting: Recipe `foundation_guard_pill` (Alchemy, Earth): Serpent Core ×1, Riverreed Ginseng (100 yr) ×2, Guardian Stone ×1
   - Shop: Cloud Sect Mission Hall (Deacon Heng in Cliff Stair (Cloud Sect Monastery)) · at list price in Contribution; needs Qi Unfurling 1
   - Shop: Jade Sect Mission Hall (Deacon Rui in Gate Street (Jade Sect Academy)) · at list price in Contribution; needs Qi Unfurling 1
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · daily rotation (1 of 3)
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · daily rotation (1 of 3)
   - Reward: The Herb Terraces Trial (calendar event), place 1 ×3
   - Reward: The Herb Terraces Trial (calendar event), place 2
 
@@ -7505,12 +7507,12 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Hong's Stormsteel Forge (Smith Hong in Port Market (Cloudgate Port)) · 40 Spirit Stones; teaches recipe `stormsteel_spear`; needs Sage 1
   - Shop: Hong's Stormsteel Forge (Smith Hong in Port Market (Cloudgate Port)) · 40 Spirit Stones; teaches recipe `stormsteel_staff`; needs Sage 1
   - Shop: Ironroot Clan Forge (Smith Gang in Clan Hearth (Ironroot Clan Hold)) · 60 Spirit Stones; teaches recipe `nine_sword_array`
-  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford)) · 120 Silver Taels; teaches recipe `bone_strengthening_pill`; needs Qi Kindling 3
-  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford)) · 120 Silver Taels; teaches recipe `qi_gathering_pill`; needs Qi Kindling 3
-  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford)) · 150 Silver Taels; teaches recipe `tiger_blood_pill`; needs Qi Kindling 5
-  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford)) · 80 Silver Taels; teaches recipe `viper_antidote`; needs Qi Kindling 3
-  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford)) · 800 Silver Taels; teaches recipe `qi_refining_pill`; needs Heart Tempering 5
-  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford)) · at list price in Silver Taels; teaches recipe `healing_pill`
+  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 120 Silver Taels; teaches recipe `bone_strengthening_pill`; needs Qi Kindling 3
+  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 120 Silver Taels; teaches recipe `qi_gathering_pill`; needs Qi Kindling 3
+  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 150 Silver Taels; teaches recipe `tiger_blood_pill`; needs Qi Kindling 5
+  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 80 Silver Taels; teaches recipe `viper_antidote`; needs Qi Kindling 3
+  - Shop: Mei Qing's Recipe Box (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · 800 Silver Taels; teaches recipe `qi_refining_pill`; needs Heart Tempering 5
+  - Shop: Mei Qing's Stall (Mei Qing in Artisan Row (Stoneford), Marsh Edge (Reed Marsh)) · at list price in Silver Taels; teaches recipe `healing_pill`
   - Shop: Navigator Sun's Charts (Navigator Sun in Shipwrights' Yard (Cloudgate Port)) · 400 Spirit Stones; teaches recipe `star_chart_lantern`; needs Sage Sovereign 3
   - Shop: Stargazer Ming's Star-stones (Stargazer Ming in Observatory (Star Warden Citadel)) · 150 Sage Crystals; teaches recipe `law_condensing_pill`; needs Sphere Lord 3
   - Shop: Stargazer Ming's Star-stones (Stargazer Ming in Observatory (Star Warden Citadel)) · 200 Sage Crystals; teaches recipe `law_touching_pill`; needs Sphere Lord 3

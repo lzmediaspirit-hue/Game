@@ -218,6 +218,14 @@ def npcs():
         ["The river does not hurry, yet it carves the valley.", "Come to me when you hit a wall. Walls are my speciality."], ["Hmm."], tree="mentor", sect="jade_sect")
     npc("elder_sung", "Elder Sung", "Cloud Sect elder", outfit("topknot", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="cloud", pants_dye="ink"),
         ["The wind does not fight the mountain. It goes over.", "Bring me your walls. I'll show you the sky above them."], ["Hm-hm."], tree="mentor", sect="cloud_sect")
+    # Decision 42: the watch post both sects keep at the Marsh Edge, by its transfer array; the grey has touched its two
+    # watchers, and Mei Qing tends them there (Mei Qing's Errand).
+    npc("watcher_bo", "Watcher Bo", "Jade Sect watcher", outfit("short_knot", 2, "disciple", "martial", "boots", shirt_dye="jade", pants_dye="ink"),
+        ["It came up out of the reeds like smoke. Then my arm went grey to the elbow.", "Mei Qing says it'll close. It had better. I'm left-handed."],
+        ["Ow."])
+    npc("watcher_su", "Watcher Su", "Cloud Sect watcher", outfit("ponytail", 4, "disciple", "martial", "boots", shirt_dye="cloud", pants_dye="ink"),
+        ["Our elders and yours keep this post together now. The grey doesn't care whose robe it eats.",
+         "The array at our feet goes home to either sect. Stand in it and see."], ["Watch the reeds."])
     npc("arena_master", "Arena Master Quan", "Arena", outfit("short_knot", 0, "sleeveless", "martial", "boots", cape="solid", shirt_dye="crimson"),
         ["Three wins for the qualifier. No excuses.", "The Valley Tournament crowns one champion a year."], ["Next bout!"], services=["spar:sparring_disciple"],
         service_labels={"spar:sparring_disciple": "Arena match"})
@@ -577,6 +585,12 @@ def unlocks():
     u("sect_hub", "Sect hub and dorm", all_of(qdone("entry_trial")), "a_disciples_chores", [], same_stage_ok=True)
     u("guard", "Guard", all_of(realm("bone_forging_3"), qdone("entry_trial")), "the_weapon_hall", ["hud:guard", "page:equipment"])
     u("weapon_dao", "Weapon Dao", all_of(realm("bone_forging_3"), qdone("entry_trial")), "the_weapon_hall", [], same_stage_ok=True, toast=False)
+    # Decision 42 (less walking in the sect stretch): the Weapon Hall done, the disciple's token opens the sect's transfer
+    # arrays, as Strange Tracks sends them to the marsh: the lesson keys it to the gate's array and to the Marsh Edge's
+    # watch post (a flag each; WorldAuthority.array_open takes only the character's own sect's), and the steward shows
+    # the gate's (scenes.py `array_lesson_*`). The mentor's peak keys its own when he first receives you there.
+    u("transfer_array", "Transfer arrays", all_of(qdone("the_weapon_hall")), "", [], same_stage_ok=True,
+      effects=[{"kind": "set_flag", "flag": f} for f in ("array_array_marsh", "array_array_ja_gate", "array_array_cm_gate")])
     u("herb_gathering", "Herb gathering", all_of(realm("bone_forging_4"), qdone("entry_trial")), "eyes_for_qi", ["page:crafts"],
       effects=[{"kind": "grant_item", "item": "herb_sickle", "count": 1}])
     u("ambient_qi", "Ambient Qi", all_of(realm("bone_forging_4"), qdone("entry_trial")), "eyes_for_qi", [], same_stage_ok=True, toast=False)
@@ -969,6 +983,16 @@ def guided_quests():
                "The grey dust gets everywhere these days. Nobody knows where it blows in from."],
         complete=["Grey under the flagstone, and someone's cache with it? Keep the shards. Tell the elders about the grey.",
                   "Your bunk is in the dorm: rest there any time."])
+    # Decision 42, something on the way: the sect's gardener (the Herb Terraces, the Array Court) asks a favour of a
+    # disciple bound for the mentor's peak, a pot of tea carried where they are going anyway.
+    quest("tea_for_the_elder", "Tea for the Elder", "side", "jade_gardener", [
+        o("deliver", "Take the lotus root tea up to your mentor", item="lotus_root_tea"),
+    ], [item("qi_gathering_pill", 1), taels(20)], requires=all_of(qdone("the_humming_token")), chapter="2",
+        giver_any=["jade_gardener", "cloud_gardener"], hand_in_any=MENTORS, target_room="ja_herb_terraces",
+        on_accept=[item("lotus_root_tea", 1)],
+        offer=["Going up to the elder? Take him this. Lotus root tea, brewed this morning.",
+               "He forgets to drink when he's thinking, and he's always thinking."],
+        complete=["Lotus root. The gardener remembers I forget. Here: something for your own cup."])
     quest("fish_gutting_fists", "Fish-Gutting Fists", "main", "shen_lian", [
         o("win_spar", "Beat Shen Lian in a spar", opponent="shen_lian"),
     ], [taels(40), fx("add_progress", pct_of_need=0.45), fx("grant_title", title="river_rival")], requires=all_of(qdone("entry_trial")), chapter="1",
@@ -1005,11 +1029,13 @@ def guided_quests():
     quest("outer_trial", "Outer Trial", "guided", "elder_hu", [
         o("win_spar", "Win spars at the practice posts", 3),
         o("use_system", "Climb a roof and Plunge to the practice ground", 1, system="plunge"),
-    ], [fx("sect_rank", rank="outer_disciple"), fx("add_contribution", amount=50)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
+    # Decision 42: the training hall's master, who keeps the practice posts, names you Outer Disciple in the yard where the
+    # spars are won, not back up the mentor's peak.
+    ], [fx("sect_rank", rank="outer_disciple"), fx("add_contribution", amount=50)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=HALL_MASTERS,
         target_room="ja_pavilion_rooftops", on_accept=[fx("learn_secret_art", art="plunge")],
         offer=["Outer disciples are chosen by their fists. Win three spars at the practice posts.",
-               "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show me once, from a roof."],
-        complete=["Outer Disciple. You'll get a proper robe soon."])
+               "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show the hall master once, from a roof: he keeps the posts."],
+        complete=["Three spars and a Plunge off the roof. Outer Disciple. You'll get a proper robe soon."])
     # S43 movement arts (Qi Kindling 3 and 7): each guided quest teaches its art on acceptance.
     quest("leaf_on_the_wind", "Leaf on the Wind", "guided", "elder_hu", [
         o("reach_room", "Go to the Falls Pool", room="cf_falls_pool"),
@@ -1516,32 +1542,46 @@ def main_quests():
     M = MENTORS
     quest("strange_tracks", "Strange Tracks", "main", "elder_hu", [
         o("interact_object", "Investigate grey patches in the Reed Marsh", 3, type="inspect", room="rm_marsh_edge"),
-    ], [taels(60)], requires=all_of(realm("bone_forging_2"), qdone("entry_trial"), qdone("the_weapon_hall")), chapter="2", giver_any=M, hand_in_any=M,
+    ], [taels(60)], requires=all_of(realm("bone_forging_2"), qdone("entry_trial"), qdone("the_weapon_hall")), chapter="2", giver_any=M,
         target_room="rm_marsh_edge",
         # Chapter 2 opens the moment the Weapon Hall is done (research player_motivation §3.1): the mentor's note is in
         # hand as the weapon master lets you go, so the walk leads straight to the marsh, not up the peak and back.
-        auto_accept=True,
+        # Decision 42 (less walking in the sect stretch): the gate's transfer array takes you to the marsh watch post, and
+        # the note is done at the third patch, where the River Token hums and The Humming Token begins on the spot (no
+        # walk up the peak and back down to report).
+        auto_accept=True, hand_in="", next="the_humming_token",
         offer=["(A note from your mentor) Disciples report grey patches in the Reed Marsh. Colour drained from the reeds.",
-               "Take your new weapon east past the Reed Shallows. Look, but touch nothing. Then come and tell me."],
-        complete=["Hollowing. It's closer than we hoped."])
+               "Don't walk half a day to get there: the gate's transfer array will take you to the watch post. Look, but touch nothing."],
+        complete=["(The River Token hums against your chest. Where the patches lie, the reeds begin to stir.)"])
     quest("the_humming_token", "The Humming Token", "main", "elder_hu", [
         # Chapter 2 now opens at Bone Forging 3 (Level 3): the grey's first beasts have crept to the Marsh Edge (Level 3-4,
         # world.py), not the Grey Pools' Level 7-12, which the story reaches later (the Grey Pools side quest).
         o("kill", "Defeat the Hollowed Boarlets at the Marsh Edge", 5, enemy="hollowed_boarlet", room="rm_marsh_edge"),
     ], [taels(80), fx("codex", entry="hollowed")], requires=all_of(qdone("strange_tracks")), chapter="2", giver_any=M, hand_in_any=M,
-        target_room="rm_marsh_edge",
+        # Decision 42: it begins where Strange Tracks ends (the token hums at the third patch), and the mentor comes down to
+        # the marsh for it once the fifth boarlet falls (world.py: his placement there while it is ready), instead of the
+        # walk up the peak and back down for it and again for the hand-in.
+        target_room="rm_marsh_edge", auto_accept=True,
         offer=["Your River Token hums when you face the marsh. Follow it. Boarlets have gone grey where you found the patches.",
-               "You've a weapon in your hands now: the grey will want it."], complete=["Lu's token. It knows the grey. Keep it close."])
+               "You've a weapon in your hands now: the grey will want it."],
+        complete=["Hollowing. It's closer than we hoped, and Lu's token knew it before you did. Keep it close.",
+                  "Mei Qing is at the watch post with the watchers the grey has touched. Give her your hands. Then come up to my peak."])
     quest("mei_qings_errand", "Mei Qing's Errand", "main", "mei_qing", [
         o("collect", "Bring Willow Moss", 5, item="willow_moss", consume=True),
         o("collect", "Bring Grey Hides from the Hollowed Boarlets", 3, item="grey_hide", consume=True),
-    ], [item("healing_pill", 3), taels(60)], requires=all_of(qdone("the_humming_token")), chapter="2", target_room="sf_artisan_row",
-        offer=["The Hollowed wounds need a new salve. Willow moss, and the grey hide of the things that made the wounds."],
-        complete=["This will save lives. Thank you."])
+    # Decision 42: Mei Qing tends the watchers at the Marsh Edge's watch post (world.py), so her moss and hides are
+    # gathered and handed in where they are found, not carried back and forth to Artisan Row.
+    ], [item("healing_pill", 3), taels(60)], requires=all_of(qdone("the_humming_token")), chapter="2", target_room="rm_marsh_edge",
+        offer=["The watchers' wounds won't close: the grey keeps them open. I need a new salve, and I need it here.",
+               "Willow moss from the frogs on the platforms, and the grey hide of the boarlets that made the wounds. They're still coming up out of the reeds."],
+        complete=["There. The grey comes out of the wound like ink out of water. This will save lives. Thank you."])
     quest("grey_at_the_edges", "Grey at the Edges", "main", "elder_hu", [
         o("talk_to", "Report to your mentor", npc="elder_hu", npc_any=MENTORS),
-    ], [fx("add_progress", pct_of_need=0.2)], requires=all_of(qdone("mei_qings_errand")), chapter="2", giver_any=M, hand_in_any=M, hand_in="",
-        offer=["Tell me everything you saw."], auto_accept=True)
+    # Decision 42: the first walk up through the sect's grounds (something on the way in each room: scenes.py), and the
+    # mentor keys his peak's array to the token (the peaks' scenes `mentor_peak_*` tell it), so the next trip is a breath.
+    ], [fx("add_progress", pct_of_need=0.2), fx("set_flag", flag="array_array_ja_peak"), fx("set_flag", flag="array_array_cm_peak")],
+        requires=all_of(qdone("mei_qings_errand")), chapter="2", giver_any=M, hand_in_any=M, hand_in="",
+        offer=["(A note from your mentor) Come up to my peak. Walk the grounds on the way: you've hardly seen them."], auto_accept=True)
     quest("bandits_on_the_road", "Bandits on the Road", "main", "guard_hou", [
         o("kill", "Defeat Mudwater Bandits", 10, enemy="mudwater_bandit"),
     ], [taels(150)], requires=all_of(realm("qi_kindling_6")), chapter="3", target_room="cr_caravan_road",

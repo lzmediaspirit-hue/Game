@@ -491,7 +491,7 @@ func check_req(req, where: String) -> void:
 			var k := str(cond.get("kind", ""))
 			check(req_kinds.has(k), "%s: unknown requirement kind '%s'" % [where, k])
 			match k:
-				"quest_done", "quest_active", "quest_accepted", "quest_not_done": check(ContentDB.has_entry("quests", str(cond.quest)), "%s: quest %s" % [where, cond.quest])
+				"quest_done", "quest_active", "quest_accepted", "quest_not_done", "quest_ready", "quest_not_ready": check(ContentDB.has_entry("quests", str(cond.quest)), "%s: quest %s" % [where, cond.quest])
 				"realm_at_least", "realm_below", "account_realm": check(ContentDB.realm_index.has(str(cond.realm)), "%s: realm %s" % [where, cond.realm])
 				"item_owned": check(item_ok(str(cond.item)), "%s: item %s" % [where, cond.item])
 				"unlock": check(ContentDB.has_entry("unlocks", str(cond.system)), "%s: unlock %s" % [where, cond.system])

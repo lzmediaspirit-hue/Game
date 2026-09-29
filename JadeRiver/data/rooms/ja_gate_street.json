@@ -169,6 +169,26 @@
    "stone": "jade_academy"
   },
   {
+   "id": "array_ja_gate",
+   "type": "transfer_array",
+   "at": [
+    820,
+    900
+   ],
+   "network": "jade_sect",
+   "name": "Jade Transfer Array",
+   "prop": "transfer_array",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "transfer_array"
+     }
+    ]
+   },
+   "locked_text": "The array's runes are dark. They wake for a disciple the elders send on the sect's errands."
+  },
+  {
    "id": "board_ja",
    "type": "notice_board",
    "at": [

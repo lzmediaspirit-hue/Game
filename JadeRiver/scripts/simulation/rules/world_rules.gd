@@ -17,6 +17,7 @@ static func route(from_room: String, to_room: String, can_pass: Callable) -> Arr
 			var to := str(p.get("to", ""))
 			if to == "" or prev.has(to) or not can_pass.call(room_id, p): continue
 			prev[to] = {"room": room_id, "portal": str(p.id), "to": to, "dock": p.get("dock", false)}
+			if p.has("array"): prev[to]["array"] = str(p.array)   # decision 42: a transfer array's far node
 			if to == to_room:
 				var out: Array = []
 				var at := to
@@ -28,16 +29,50 @@ static func route(from_room: String, to_room: String, can_pass: Callable) -> Arr
 			queue.append(to)
 	return []
 
-## A room's ways out: its portals, and its Starsea docks as the voyages they sail ({id, to, requires, dock: true}).
+## A room's ways out: its portals, its Starsea docks as the voyages they sail ({id, to, requires, dock: true}), and its
+## sect's transfer array as a way to each other node of its network ({id, to, dock: true, array: the far node's id,
+## network}: decision 42; whether a character may take one is the caller's, WorldAuthority.portal_open).
 static func ways_out(room_id: String) -> Array:
 	var out: Array = (ContentDB.room(room_id).get("portals", []) as Array).duplicate()
 	for o in ContentDB.room(room_id).get("objects", []):
+		if str(o.get("type", "")) == "transfer_array":
+			for node in array_links(str(o.id)):
+				out.append({"id": str(o.id), "to": str(node.room), "dock": true, "array": str(node.id), "network": str(node.network),
+					"at": o.get("at", [0, 0]), "requires": o.get("requires", {})})
+			continue
 		if str(o.get("type", "")) != "starsea_dock": continue
 		var v := ContentDB.entry("voyages", str(o.get("route", "")))
 		if v.is_empty() or v.get("planned", false) or str(v.get("to", "")) == "": continue
 		var way := {"id": str(o.id), "to": str(v.to), "dock": true, "at": o.get("at", [0, 0])}
 		if o.has("requires"): way.requires = o.requires
 		out.append(way)
+	return out
+
+static var _arrays: Dictionary = {}
+
+## Decision 42, a sect's transfer arrays: every node in the world by its object id ({id, room, network, at}). A node's
+## network is its sect's (the gate's and the mentor's peak's), or "" for one both sects keep (the Marsh Edge's watch
+## post), which links to either.
+static func array_nodes() -> Dictionary:
+	if _arrays.is_empty():
+		for rid in ContentDB.rooms:
+			for o in ContentDB.room(str(rid)).get("objects", []):
+				if str(o.get("type", "")) == "transfer_array":
+					_arrays[str(o.id)] = {"id": str(o.id), "room": str(rid), "network": str(o.get("network", "")), "at": o.get("at", [0, 0])}
+	return _arrays
+
+## The nodes a transfer array links to: every other node of its network (a shared node's: every node), never one in its
+## own room, in data order.
+static func array_links(node_id: String) -> Array:
+	var nodes := array_nodes()
+	var me: Dictionary = nodes.get(node_id, {})
+	if me.is_empty(): return []
+	var out: Array = []
+	for id in nodes:
+		var n: Dictionary = nodes[id]
+		if str(id) == node_id or str(n.room) == str(me.room): continue
+		if str(me.network) != "" and str(n.network) != "" and str(n.network) != str(me.network): continue
+		out.append(n)
 	return out
 
 ## A town, sect, home, interior or safe room: where a character may be switched out, or take from the Storehouse.

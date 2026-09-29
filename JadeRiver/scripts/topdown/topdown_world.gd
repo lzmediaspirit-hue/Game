@@ -78,6 +78,7 @@ var shadows: TopdownShadows     ## decision 40: the room's cast shadows, baked a
 var atmosphere: TopdownAtmosphere   ## decision 40: grade, night and lights, clouds and particles
 var hazards: HazardView
 var transfer_cooldown := 0.0
+var _array_glow := Color.TRANSPARENT   ## decision 42: the light a transfer array's traveller comes out in, until the room is built
 var camera_hold := {}           ## a moment's camera move: {target (art px), t, in, hold, out}
 var figures: Dictionary = {}    ## object id -> its Figure in the sorted layer (a staged scene moves the people)
 ## Decision 39: a staged scene's camera (SceneDirector): the point it looks at in world units (null: the body's
@@ -547,6 +548,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 				_build_room()
 				_place_player()
 				_settle_camera()
+				# Decision 42: come out of a transfer array in a column of the sect's light.
+				if _array_glow != Color.TRANSPARENT:
+					effects.add("pillar", player_feet(), {"color": _array_glow, "radius": 18.0, "height": 300.0, "dur": 0.9})
+					effects.add("ring", player_feet(), {"color": _array_glow, "radius": 40.0, "dur": 0.6})
+					Audio.play("portal")
+					_array_glow = Color.TRANSPARENT
+		"array_travelled":
+			if live and str(p.get("actor", "")) == Game.active_id:
+				var net := str(WorldRules.array_nodes().get(str(p.get("to", "")), {}).get("network", ""))
+				_array_glow = UiKit.MIST if net == "cloud_sect" else UiKit.BRIGHT_JADE
 		"enemy_spawned", "ally_spawned":
 			var e: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", p.get("uid", 0)))) if Game.room_rt else null
 			if e: _add_foe(e)

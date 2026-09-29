@@ -128,6 +128,10 @@ func _scenes_played() -> void:
 func _chapter2() -> void:
 	step_humming_token()
 	invariants("The Humming Token")
+	step_mei_qing()
+	invariants("Mei Qing's Errand")
+	step_grey_at_the_edges()
+	invariants("Grey at the Edges")
 	check(resume_checkpoint(run_root() + "cp/fair/", run_root() + "cloud/"), "back at the fair from the checkpoint kept as both recruiters were met (room %s)" % room())
 	sect = "cloud"
 	join_sect()
@@ -152,32 +156,33 @@ func keep(label: String) -> void:
 	super.keep(label)
 	if label == "Both recruiters met": save_checkpoint(run_root() + "cp/fair/")
 
-## The Humming Token (chapter 2's second step): the mentor's quest after Strange Tracks, five Hollowed Boarlets on the
-## Marsh Edge (the grey boarlets where the patches were), handed in on the peak; then the tracker's Next is Mei Qing's
-## Errand at Artisan Row.
+## The Humming Token (chapter 2's second step), decision 42: under way where Strange Tracks ended (the token hummed at
+## the third patch), five Hollowed Boarlets on the Marsh Edge (the grey boarlets where the patches were), and the mentor
+## comes down to the marsh for the hand-in (the scene `mentor_descends_*`), gone again after; then the tracker's Next is
+## Mei Qing's Errand at the Marsh Edge, where she tends the watchers at the post. No walk up the peak and back.
 func step_humming_token() -> void:
-	accept(sect_at("mentor"), "the_humming_token")
-	check(travel("rm_marsh_edge"), "to the Marsh Edge for the grey boarlets (room %s)" % room())
+	check(room() == "rm_marsh_edge" and c().quests.is_active("the_humming_token"), "The Humming Token under way at the Marsh Edge, where Strange Tracks ended (room %s)" % room())
 	check(fight("hollowed_boarlet", 5, 400.0) >= 5, "five Hollowed Boarlets beaten on the Marsh Edge")
-	check(travel(sect_at("peak")), "back to the mentor's peak (room %s)" % room())
-	hand_in(sect_at("mentor"), "the_humming_token")
 	GameEvents.flush()
+	settle_scenes()
+	var mentor := sect_at("mentor")
+	var head: Array = Game.quest.tracker(c()).filter(func(e): return str(e.get("quest", "")) == "the_humming_token")
+	check(not npc_object(mentor).is_empty() and not head.is_empty() and str(head[0].get("target_room", "")) == room(),
+		"the fifth boarlet down, %s has come down to the Marsh Edge for the hand-in, and the tracker says so (%s)" % [mentor, str(head.slice(0, 1))])
+	hand_in(mentor, "the_humming_token")
+	GameEvents.flush()
+	settle_scenes()
+	check(npc_object(mentor).is_empty() and room() == "rm_marsh_edge", "handed in where the fight was, the mentor is gone again (room %s)" % room())
 	var nx: Array = Game.quest.tracker(c())
-	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "mei_qings_errand" and str(nx[0].get("target_room", "")) == "sf_artisan_row",
-		"after The Humming Token the tracker's Next is Mei Qing's Errand at Artisan Row (%s)" % str(nx.slice(0, 1)))
+	check(not nx.is_empty() and str(nx[0].get("quest", "")) == "mei_qings_errand" and str(nx[0].get("target_room", "")) == "rm_marsh_edge"
+		and not npc_object("mei_qing").is_empty(),
+		"after The Humming Token the tracker's Next is Mei Qing's Errand here, at the watch post where she tends the watchers (%s)" % str(nx.slice(0, 1)))
 
-# ------------------------------------------------------------------ 11: the end of the prototype (decision 41)
-## Past The Humming Token, the rest of the story inside the prototype on the grid: Mei Qing's Errand (willow moss from
-## the Marsh Edge's reed frogs, since herbs open only at Bone Forging 4, and grey hides from its Hollowed Boarlets,
-## handed in at Artisan Row), Grey at the Edges (reported to the mentor), the wait for Bone Forging 7 (hunted on the
-## grid; a test shortcut here) and The First Current (Lu, the Lotus Ferry's Qi spring). The story's next quest (Bandits
-## on the Road, on the Caravan Road) is played past the prototype's gate: the lessons on offer inside the prototype lead
-## first, and then the tracker's first entry is the prototype's end, "The Tale Rests Here", the road beyond still being
-## drawn, leading nowhere (no target, no mark). At the prototype's last way east, the Marsh Edge's road to the Grey
-## Pools, the gate is shut and says why: walked into, no route, no auto-path, no hop through it; the view stands the
-## gate in the way.
-func _to_the_gate() -> void:
-	check(travel("sf_artisan_row"), "to Artisan Row for Mei Qing's Errand (room %s)" % room())
+## Mei Qing's Errand, decision 42: taken, gathered and handed in at the Marsh Edge's watch post (willow moss from the
+## reed frogs while herbs are not open yet, grey hides from the Hollowed Boarlets): no carrying to Artisan Row and back.
+## Grey at the Edges follows, to the mentor's peak.
+func step_mei_qing() -> void:
+	check(room() == "rm_marsh_edge", "at the Marsh Edge for Mei Qing (room %s)" % room())
 	accept("mei_qing", "mei_qings_errand")
 	invariants("Mei Qing's Errand taken")
 	# Herb gathering opens at Bone Forging 4 (Eyes for Qi): until then the moss comes from the reed frogs, and the
@@ -190,9 +195,8 @@ func _to_the_gate() -> void:
 	var drops := false
 	for sp in ContentDB.room(lead).get("spawns", []):
 		if LootRules.drops_item(str(ContentDB.entry("enemies", str(sp.enemy)).get("loot", sp.enemy)), "willow_moss"): drops = true
-	check(not Unlocks.is_unlocked(c().id, "herb_gathering") and lead != "" and (takes or drops),
-		"before herb gathering opens, Mei Qing's willow moss leads where it can be had (%s), never to herbs the player cannot pick yet" % lead)
-	check(travel("rm_marsh_edge"), "to the Marsh Edge for willow moss and grey hides (room %s)" % room())
+	check(lead == "rm_marsh_edge" and (takes or drops),
+		"Mei Qing's willow moss leads where it can be had, here (%s), never to herbs the player cannot pick yet" % lead)
 	var frogs := 0
 	for i in 30:
 		if c().inventory.count("willow_moss") >= 5: break
@@ -203,6 +207,89 @@ func _to_the_gate() -> void:
 		if c().inventory.count("grey_hide") >= 3: break
 		hides += fight("hollowed_boarlet", 1, 120.0)   # the walk picks up what each fight drops
 	check(c().inventory.count("grey_hide") >= 3, "three Grey Hides from the Marsh Edge's Hollowed Boarlets (%d, %d fights)" % [c().inventory.count("grey_hide"), hides])
+	hand_in("mei_qing", "mei_qings_errand")
+	check(room() == "rm_marsh_edge" and c().quests.is_active("grey_at_the_edges"),
+		"handed in at the watch post, and Grey at the Edges under way, to report to the mentor (room %s)" % room())
+
+## Grey at the Edges, decision 42: the first walk up through the sect's grounds, from the marsh by the watch post's array
+## to the gate's and on foot from there (the mentor's peak does not know the token yet), with something on the way in the
+## rooms between (a spar offered, two elders overheard, the gardener's favour: the scenes play as the walk comes to them);
+## the tea taken up, the report made, and the peak's array keyed to the token: the way down is one array.
+func step_grey_at_the_edges() -> void:
+	var peak := sect_at("peak")
+	var r: Array = Game.world.route(c(), room(), peak)
+	check(not r.is_empty() and str(r[0].get("array", "")) != "" and r.slice(1).all(func(s): return str(s.get("array", "")) == ""),
+		"the first way up takes the watch post's array to the gate and walks the grounds from there (%s)" % str(r.map(func(s): return s.to)))
+	var favour := "ja_herb_terraces" if sect == "jade" else "cm_array_court"
+	check(travel(favour), "up through the grounds to the gardener (room %s)" % room())
+	accept(own("gardener"), "tea_for_the_elder")
+	check(c().inventory.count("lotus_root_tea") >= 1, "the gardener's tea to carry up")
+	check(travel(peak), "on up to the mentor's peak (room %s)" % room())
+	talk(sect_at("mentor"))
+	GameEvents.flush()
+	check(c().quests.is_done("grey_at_the_edges"), "Grey at the Edges reported to the mentor")
+	hand_in(sect_at("mentor"), "tea_for_the_elder")
+	settle_scenes()
+	var played := {}
+	for f in scene_director.finished: played[str(f.scene)] = true
+	var on_way: Array = ["yard_spar_jade", "terrace_talk_jade", "gardener_favour_jade", "mentor_peak_jade"] if sect == "jade" else \
+		["court_spar_cloud", "gardener_favour_cloud", "array_court_talk_cloud", "mentor_peak_cloud"]
+	check(on_way.all(func(id): return played.has(id)), "something on the way in each room of the first walk up, and the mentor's word at the top (%s)" % str(on_way.filter(func(id): return not played.has(id))))
+	var down: Array = Game.world.route(c(), peak, "rm_marsh_edge")
+	check(down.size() == 1 and str(down[0].get("array", "")) != "", "the peak's array knows the token now: the way down to the marsh is one array (%s)" % str(down))
+
+## Strange Tracks on the grid: the steward's lesson at the gate (the scene `array_lesson_*`) taken, the gate's array to
+## the Marsh Edge's watch post, a breath instead of ten rooms on foot.
+func step_strange_tracks() -> void:
+	var taken := arrays_taken.size()
+	super()
+	check(arrays_taken.slice(taken).has("%s > rm_marsh_edge" % sect_at("gate")),
+		"to the marsh by the gate's transfer array, as the steward shows it (%s)" % str(arrays_taken.slice(taken)))
+
+## The character's own sect's person of a role both sects have (the gardener: Ji or Ren).
+func own(role: String) -> String:
+	return "jade_" + role if sect == "jade" else "cloud_" + role
+
+# ------------------------------------------------------------------ decision 42: the sect's transfer arrays
+var arrays_taken: Array = []   ## "<from room> > <to room>" for each array the walk took
+
+## On the grid the walk goes the way the tracker's go button goes (Game.world.route): through the ways, and onto the
+## sect's transfer array where the route takes one (walked to, tapped, the destination chosen from its choices).
+func travel(target: String) -> bool:
+	if room() == target: return true
+	var r: Array = Game.world.route(c(), room(), target) if Game.room_rt != null and Game.room_rt.topdown != null else []
+	if r.is_empty() or not r.any(func(s): return str(s.get("array", "")) != ""): return super(target)
+	for s in r:
+		if str(s.room) != room(): return false
+		if str(s.get("array", "")) != "":
+			if not take_array(str(s.portal), str(s.array)): return false
+		elif not go(str(s.portal)): return false
+	return room() == target
+
+func take_array(node: String, to: String) -> bool:
+	var from := room()
+	var d: Dictionary = interact(node).get("dialogue", {})
+	var pick: Array = (d.get("choices", []) as Array).filter(func(ch): return ch.has("intent") and str(ch.intent.get("to", "")) == to)
+	check(not pick.is_empty(), "the %s in %s offers %s among where it goes (%s)" % [node, from, to, str((d.get("choices", []) as Array).map(func(ch): return ch.text))])
+	if pick.is_empty(): return false
+	play_s += TAP_S
+	var res := submit(pick[0].intent)
+	if res.get("ok", false): place(Vector2(float(c().position.x), float(c().position.y)))
+	arrays_taken.append("%s > %s" % [from, room()])
+	return res.get("ok", false)
+
+# ------------------------------------------------------------------ 11: the end of the prototype (decision 41)
+## Past The Humming Token, the rest of the story inside the prototype on the grid: Mei Qing's Errand (willow moss from
+## the Marsh Edge's reed frogs, since herbs open only at Bone Forging 4, and grey hides from its Hollowed Boarlets,
+## handed in at Artisan Row), Grey at the Edges (reported to the mentor), the wait for Bone Forging 7 (hunted on the
+## grid; a test shortcut here) and The First Current (Lu, the Lotus Ferry's Qi spring). The story's next quest (Bandits
+## on the Road, on the Caravan Road) is played past the prototype's gate: the lessons on offer inside the prototype lead
+## first, and then the tracker's first entry is the prototype's end, "The Tale Rests Here", the road beyond still being
+## drawn, leading nowhere (no target, no mark). At the prototype's last way east, the Marsh Edge's road to the Grey
+## Pools, the gate is shut and says why: walked into, no route, no auto-path, no hop through it; the view stands the
+## gate in the way.
+func _to_the_gate() -> void:
+	check(room() == "rm_marsh_edge", "the Cloud disciple at the Marsh Edge after The Humming Token (room %s)" % room())
 	# The gate at the Marsh Edge's east way: shut, walked into it says why, no route or auto-path goes through it.
 	var east: Dictionary = Game.room_rt.portal_def("east")
 	var gs: Dictionary = Game.world.portal_state(c(), east)
@@ -220,21 +307,17 @@ func _to_the_gate() -> void:
 	check(gates.size() >= 2 and gates.all(func(g): return g.visible and str(g.def.get("id", "")) == "east"),
 		"the view stands the gate in the way east, drawn post by post down the edge (%d pieces)" % gates.size())
 	_drop_view(w)
-	check(travel("sf_artisan_row"), "back to Mei Qing (room %s)" % room())
-	hand_in("mei_qing", "mei_qings_errand")
-	invariants("Mei Qing's Errand")
-	check(c().quests.is_active("grey_at_the_edges"), "Grey at the Edges under way, to report to the mentor")
-	check(travel(sect_at("peak")), "to the mentor's peak (room %s)" % room())
-	talk(sect_at("mentor"))
-	GameEvents.flush()
-	check(c().quests.is_done("grey_at_the_edges"), "Grey at the Edges reported to the mentor")
-	invariants("Grey at the Edges")
+	step_mei_qing()
+	invariants("Mei Qing's Errand (Cloud)")
+	step_grey_at_the_edges()
+	invariants("Grey at the Edges (Cloud)")
 	# The story waits on Bone Forging 7 for The First Current (Lu, the Lotus Ferry's Qi spring): a hunt on the grid.
 	var wait: Array = Game.quest.tracker(c())
 	check(not wait.is_empty() and str(wait[0].get("quest", "")) == "the_first_current" and wait[0].get("hunt", false)
 		and TopdownRoom.has_layout(str(wait[0].get("target_room", ""))), "then the story waits on a Level, hunted on the grid (%s)" % str(wait.slice(0, 1)))
 	check(climb_to("bone_forging_7"), "Bone Forging 7 (a test shortcut for the hunt: realm %s)" % c().cultivator.realm_key)
-	check(travel("lf_village"), "to Lu at the Lotus Ferry docks (room %s)" % room())
+	var taken := arrays_taken.size()
+	check(travel("lf_village") and arrays_taken.size() == taken + 1, "to Lu at the Lotus Ferry docks, down the peak by its array to the watch post (room %s; %s)" % [room(), str(arrays_taken.slice(taken))])
 	accept("lu_boatman", "the_first_current")
 	var spring: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "qi_spring")
 	stand_by(spring[0], Vector2(-20, 10), 0.0)
@@ -504,6 +587,16 @@ func _walk_on_the_grid() -> void:
 	check(not submit({"type": "auto_path", "target": "sf_trial_tower"}).get("ok", false) and Game.world.portal_state(c(), Game.room_rt.portal_def("tower")).get("gate", false),
 		"the Trial Tower's door is closed by the prototype's gate, and auto-path finds no way in")
 	check(_auto_path(w, "cm_cliff_stair", 40.0), "auto-path walks the body across the Fairground to the Cloud Sect's road and in through its door (room %s)" % room())
+	# Decision 42: the tracker's go button takes the sect's transfer array where its route does: the body walks to the
+	# node and steps onto it, and comes out on the far one (up to the mentor's peak and back down to the gate).
+	var rides: Array = []
+	var heard := func(n: String, p: Dictionary): if n == "array_travelled": rides.append(str(p.get("to_room", "")))
+	GameEvents.event.connect(heard)
+	check(_auto_path(w, "cm_elder_sung_peak", 40.0) and rides == ["cm_elder_sung_peak"] and w.room.id == "cm_elder_sung_peak",
+		"auto-path walks the body to the Cliff Stair's transfer array and up to Elder Sung's peak on it, the view following (room %s; %s)" % [room(), str(rides)])
+	check(_auto_path(w, "cm_cliff_stair", 40.0) and rides.size() == 2 and w.room.id == "cm_cliff_stair",
+		"and back down to the gate on the peak's array (room %s; %s)" % [room(), str(rides)])
+	GameEvents.event.disconnect(heard)
 	_drop_view(w)
 	check(go("stoneford") and room() == "sf_fairground", "back down the road onto the Fairground")
 	w = _live_view()

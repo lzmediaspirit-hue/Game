@@ -1147,6 +1147,7 @@ def jade_gate_street():
     r.door("library", lb)
     r.at("shrine_ja", 4.5, 13)
     r.at("stone_ja", 13, 20)
+    r.at("array_ja_gate", 8, 21)                  # decision 42: the transfer array at the head of the road, by the steward
     r.at("board_ja", 60, 13)
     r.at("siege_gong_ja", 54, 17)
     r.at("npc_jade_steward", 7, 16)
@@ -1382,6 +1383,7 @@ def elder_hu_peak():
     r.way("path", 5.5, 25, "s", [5.5, 23.5], 2)
     r.door("abode", abode)
     r.at("npc_elder_hu", 24, 13)
+    r.at("array_ja_peak", 9, 24)                  # decision 42: the peak's transfer array, beside the path's head
     r.at("spring_hu", 14, 16)
     r.at("insight_hu", 30, 12)
     r.at("rite_reflection", 20, 19)
@@ -1430,6 +1432,7 @@ def cloud_cliff_stair():
     r.door("library", lib)
     r.at("shrine_cm", 14, 19)
     r.at("stone_cm", 13, 24)
+    r.at("array_cm_gate", 9, 25)                  # decision 42: the transfer array by the steward and the stone
     r.at("board_cm", 46, 20)
     r.at("siege_gong_cm", 51, 26)
     r.at("npc_cloud_steward", 7, 21)
@@ -1568,6 +1571,7 @@ def elder_sung_peak():
     r.way("path", 5.5, 27, "s", [5.5, 25.5], 2)
     r.door("abode", abode)
     r.at("npc_elder_sung", 31, 5)                 # on the far peak
+    r.at("array_cm_peak", 11, 26)                 # decision 42: the peak's transfer array, beside the path's head
     r.at("spring_sung", 12, 18)
     r.at("insight_sung", 22, 15)
     r.at("rite_reflection_cm", 18, 21)
@@ -1620,11 +1624,17 @@ def marsh_edge():
     r.prop("willow", 60, 9)
     r.prop("boulder", 9, 10)
     r.prop("shrub", 44, 10)
+    # Decision 42: the watch post both sects keep, on the west meadow south of the path where one arrives (clear of the
+    # tracker's corner of the screen): its transfer array by the path, the two sects' banners, a lantern, its two
+    # watchers (one sitting, his arm gone grey) and Mei Qing tending them.
+    r.prop("banner_jade", 1, 19)
+    r.prop("banner_cloud", 7, 21)
+    r.prop("lantern", 10, 20)
     # Foliage (decision 40): a great willow on the west meadow, cattails in the shallows along every shore, patches of
     # tall grass and a fallen log on the meadows, lotus pads on the open water; round the dead trees the Hollowing has
     # drained the ground (their `blight`: no ground cover grows there).
     r.green(("tree_willow", 19, 11), ("tree_willow", 57, 11), ("bush", 1, 9), ("bush_wide", 9, 12), ("ferns", 31, 10),
-            ("tall_grass", 5, 10), ("tall_grass", 28, 11), ("tall_grass", 51, 11), ("tall_grass", 6, 20),
+            ("tall_grass", 5, 10), ("tall_grass", 28, 11), ("tall_grass", 51, 11), ("tall_grass", 11, 21),
             ("tall_grass", 37, 21), ("tall_grass", 55, 21), ("log", 17, 21), ("rock_small", 43, 21),
             ("cattails", 2, 5), ("cattails", 9, 5), ("cattails", 22, 5), ("cattails", 45, 5), ("cattails", 62, 5),
             ("cattails", 5, 23), ("cattails", 16, 23), ("cattails", 33, 23), ("cattails", 52, 23), ("cattails", 60, 23),
@@ -1648,6 +1658,12 @@ def marsh_edge():
     r.at("spirit_fruit_tree", 21, 16)
     r.at("swarm_glowfly", 41, 19)
     r.at("trail_jade_frog", 9, 17)
+    r.at("array_marsh", 4, 17)                    # decision 42: the watch post
+    r.at("npc_watcher_bo", 3, 20)
+    r.at("npc_mei_qing_marsh", 5, 20)
+    r.at("npc_watcher_su", 8, 19)
+    r.at("npc_elder_hu_marsh", 16, 12)            # where the mentor comes down
+    r.at("npc_elder_sung_marsh", 16, 12)
     # The elite frog keeps to the lookout (a level up from the path it cannot see from there), guarding its moss: an
     # optional fight, not one the path walks into (world.py).
     r.spawns = [[[13, 3], [16, 4]],

@@ -2147,6 +2147,58 @@
    "age": 187
   },
   {
+   "id": "watcher_bo",
+   "name": "Watcher Bo",
+   "title": "Jade Sect watcher",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 2,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "It came up out of the reeds like smoke. Then my arm went grey to the elbow.",
+    "Mei Qing says it'll close. It had better. I'm left-handed."
+   ],
+   "barks": [
+    "Ow."
+   ],
+   "services": []
+  },
+  {
+   "id": "watcher_su",
+   "name": "Watcher Su",
+   "title": "Cloud Sect watcher",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 4,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Our elders and yours keep this post together now. The grey doesn't care whose robe it eats.",
+    "The array at our feet goes home to either sect. Stand in it and see."
+   ],
+   "barks": [
+    "Watch the reeds."
+   ],
+   "services": []
+  },
+  {
    "id": "arena_master",
    "name": "Arena Master Quan",
    "title": "Arena",

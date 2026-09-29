@@ -656,6 +656,81 @@ def rite_circle(state, f):
     return cv
 
 
+# ------------------------------------------------------------------ transfer arrays (ground decals, decision 42)
+def transfer_array(state, f, theme):
+    """A sect's transfer array set flush in the paving: a stone disc with two rune rings, twelve runes between them and
+    four node stones at the quarters. Dark (`idle`) until a disciple's token opens it; `active` its runes glow in the
+    sect's colour (the Jade Sect's jade, the Cloud Sect's cloud-steel; the watch post's both, the two sects' runes
+    alternating), a light running round the ring and motes rising."""
+    W, H = 72, 26
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    on = state == "active"
+    cx, cy = 36, 13
+    disc = m_ellipse(W, H, cx, cy, 34, 12)
+    cv.fill(disc, STONE[2], 0.9)
+    cv.fill(m_ellipse(W, H, cx, cy, 31, 10.6), STONE[3], 0.85)
+    cv.fill(m_ellipse(W, H, cx, cy, 21, 7.0), STONE[2], 0.7)
+    cv.fill(border(disc), STONE[1])
+    th = np.arctan2((yy - cy) / 11.0, (xx - cx) / 32.0)
+
+    def ring(rx, ry):
+        return border(m_ellipse(W, H, cx, cy, rx, ry))
+    lines = ring(30, 10.2) | ring(22, 7.4) | ring(8, 2.8)
+    runes = []
+    for k in range(12):
+        a = k * math.pi / 6 + math.pi / 12
+        mx, my = cx + math.cos(a) * 26, cy + math.sin(a) * 8.8
+        m = m_rect(W, H, round(mx) - 1, round(my), round(mx) + 1, round(my))
+        if k % 3 == 0:
+            m |= m_rect(W, H, round(mx), round(my) - 1, round(mx), round(my) - 1)
+        elif k % 3 == 1:
+            m |= m_rect(W, H, round(mx) - 1, round(my) + 1, round(mx) - 1, round(my) + 1)
+        runes.append(m & disc)
+    nodes = [m_rect(W, H, cx - 32, cy - 1, cx - 30, cy), m_rect(W, H, cx + 30, cy - 1, cx + 32, cy),
+             m_rect(W, H, cx - 1, cy - 11, cx + 1, cy - 10), m_rect(W, H, cx - 1, cy + 10, cx + 1, cy + 11)]
+    ramps = {"jade": (JADE_R, JADE_R), "cloud": (CLOUDSTEEL, CLOUDSTEEL), "watch": (JADE_R, CLOUDSTEEL)}[theme]
+    allr = np.zeros((H, W), bool)
+    for m in runes:
+        allr |= m
+    if on:
+        pal = ramps[0]
+        cv.fill(lines, pal[3])
+        run = (lines | allr) & (np.mod(th / (2 * math.pi) * 3 - f / 4.0, 1.0) < 0.22)
+        for k, m in enumerate(runes):
+            cv.fill(m, ramps[k % 2][-2])
+        cv.fill(run, ramps[0][-1])
+        for k, m in enumerate(nodes):
+            cv.fill(m, ramps[k % 2][-2])
+            cv.put(int(np.argwhere(m)[0][1]), int(np.argwhere(m)[0][0]), WHITE_HOT)
+        glow_c = BRIGHT_JADE if theme != "cloud" else MIST_BLUE
+        glow(cv, cx, cy, 34, 12, glow_c, steps=((1.0, 0.1), (0.7, 0.1), (0.4, 0.12)))
+        motes(cv, 8, 0, 64, 22, f, 4, "array_" + theme, count=9,
+              pal=(ramps[0][-2], ramps[1][-1]) if theme != "cloud" else (CLOUDSTEEL[4], CLOUDSTEEL[5]))
+    else:
+        cv.fill(lines, STONE[1], 0.9)
+        cv.fill(shift(lines, 0, 1) & ~lines & disc, STONE[5], 0.5)
+        cv.fill(allr, STONE[1])
+        for m in nodes:
+            cv.fill(m, ramps[0][2])
+    return cv
+
+
+@prop("transfer_array", 72, 26, states=(("idle", 1, 0), ("active", 4, 6)), ground=0, decal=True)
+def transfer_array_jade(state, f):
+    return transfer_array(state, f, "jade")
+
+
+@prop("transfer_array_cloud", 72, 26, states=(("idle", 1, 0), ("active", 4, 6)), ground=0, decal=True)
+def transfer_array_cloud(state, f):
+    return transfer_array(state, f, "cloud")
+
+
+@prop("transfer_array_watch", 72, 26, states=(("idle", 1, 0), ("active", 4, 6)), ground=0, decal=True)
+def transfer_array_watch(state, f):
+    return transfer_array(state, f, "watch")
+
+
 # ------------------------------------------------------------------ banners
 def banner(theme):
     W, H = 24, 64

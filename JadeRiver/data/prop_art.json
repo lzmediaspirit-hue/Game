@@ -3472,6 +3472,75 @@
       }
     }
   },
+  "transfer_array": {
+    "anchor": [
+      72,
+      52
+    ],
+    "decal": true,
+    "file": "res://art/props/transfer_array.png",
+    "frame": [
+      144,
+      52
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "transfer_array_cloud": {
+    "anchor": [
+      72,
+      52
+    ],
+    "decal": true,
+    "file": "res://art/props/transfer_array_cloud.png",
+    "frame": [
+      144,
+      52
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "transfer_array_watch": {
+    "anchor": [
+      72,
+      52
+    ],
+    "decal": true,
+    "file": "res://art/props/transfer_array_watch.png",
+    "frame": [
+      144,
+      52
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "treasure_plot": {
     "anchor": [
       48,

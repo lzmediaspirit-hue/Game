@@ -14,7 +14,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
 	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle",
 	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein", "insect_swarm": "glowfly_swarm",
-	"beast_trail": "beast_trail", "ancestral_altar": "ancestral_altar", "gravity_switch": "gravity_switch"}
+	"beast_trail": "beast_trail", "ancestral_altar": "ancestral_altar", "gravity_switch": "gravity_switch", "transfer_array": "transfer_array"}
 ## V10 Insect Netting: the colour of each swarm's drifting motes.
 const SWARM_MOTE := {"glowfly": "d8f06a", "reed_cicada": "b8c47a", "jade_scarab": "6fd8a0", "silk_moth": "f2ead0",
 	"thunder_mantis": "9aa8ff", "frost_cricket": "c8f0ff", "ember_locust": "ff9a4a", "starwing_mote": "ffe08a"}
@@ -100,6 +100,8 @@ func state_name() -> String:
 		"training_stump", "training_dummy": return "hit" if hit_flash > 0.0 else "idle"
 		"bell": return "ringing" if s == "open" else "idle"
 		"rite_circle": return "active" if Game.room_rt and Game.room_rt.event.get("active", false) else "idle"
+		# Decision 42: a sect's transfer array wakes (its runes lit and turning) once the disciple's token opens it.
+		"transfer_array": return "active" if c and Unlocks.is_unlocked(c.id, "transfer_array") and WorldAuthority.array_mine(c, def) else "idle"
 		"treasure_plot": return "fruit" if c and _my_tree(c) and bool(Game.crafting.evergreen_state(c).get("ready", false)) else "idle"
 		"inspect":
 			# A door or gate drawn from a flag (the Tomb of Sunscar's gate: sealed, then open).
