@@ -1103,6 +1103,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	_audit_on_the_grid(base)
 	await _combat_feel(tree, base)
 	_weave(base)
+	_flow(base)
 	_meditate_then_walk(base)
 	await _labels_clean(tree, base)
 	_eel_turns(base)
@@ -2086,11 +2087,13 @@ func _audit_on_the_grid(base: Vector2) -> void:
 func _fx_now() -> Array:
 	return w.tfx.nodes.filter(func(n): return is_instance_valid(n)).map(func(n): return (n.tex as Texture2D).resource_path.get_file().get_basename())
 
-## A foe of `def` at `p` that lives through anything (its blows and flinches still show).
+## A foe of `def` at `p` that lives through anything (its blows and flinches still show), its sense locked so a blow
+## that reaches it lands (no evasion roll decides a timing check).
 func sturdy(def: String, p: Vector2) -> EnemyState:
 	var e := foe(def, p, 60)
 	e.pools.max_hp = 1.0e15
 	e.pools.hp = e.pools.max_hp
+	e.pools.statuses.append({"id": "sense_locked", "remaining": 9999.0, "power": 1.0})
 	return e
 
 ## Decision 42 · animation canceling: basic attack, technique, basic attack in one flow, with the stand-in's bare hands
@@ -2182,6 +2185,167 @@ func _weave(base: Vector2) -> void:
 
 ## Decision 42, a bug from the prototype: after meditating, walking kept meditation's seated pose. Moving now ends the
 ## meditation at once and the figure runs (a light touch walks); a jump rises from the seat too.
+## Frames until `done` holds (at most `most`); the frames it took, -1 if it never did.
+func frames_until(done: Callable, most := 120) -> int:
+	for i in most:
+		if done.call(): return i
+		frames(1)
+	return -1
+
+## Decision 43 · the chain's flow (combat_feel.json `flow`, found in tools/dev/combat_trace.tscn's traces), with the
+## stand-in's bare hands unless named: the presses go in their order (Attack, Attack, a technique: step 1, step 2, then
+## the technique, where the technique used to cut in and drop the queued step); a queued step aims again as it begins
+## at the foe the stick turned to, and the body turns to it; each step pulls toward its foe (a far one within reach, a
+## near one never closer than `near` of the reach), a queued step too; a technique woven into a chain knocks its foe back
+## only as far as the next step reaches, alone its whole way; a hit-stop of n frames holds n; a heavy sabre's dodge
+## pressed as its blow lands goes at the blow's cancel point, not dropped; the stick pushed out of a recovery past that
+## point ends the blow (not while a step waits queued); and the feet stay planted through a blow's wind-up and strike.
+func _flow(base: Vector2) -> void:
+	var p = w.player
+	var seen := {}
+	# The presses in order.
+	fresh(base)
+	c.pools.qi = c.pools.max_qi
+	sturdy("wild_boarlet", base + Vector2(30, 0))
+	var tl: Dictionary = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames(4)
+	p.attack()
+	frames(2)
+	p.use_technique(0)
+	var order: Array = []
+	for i in 150:
+		frames(1)
+		var now := str(tl.technique) if str(tl.technique) != "" else str(tl.action)
+		if now != "" and (order.is_empty() or order.back() != now): order.append(now)
+		if str(tl.technique) != "": break
+	seen.order = order
+	# A queued step aims again at the foe the stick turned to.
+	fresh(base)
+	sturdy("wild_boarlet", base + Vector2(30, 0))
+	var below := sturdy("wild_boarlet", base + Vector2(0, 40))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames(3)
+	p.movement = Vector2.DOWN
+	frames(1)
+	p.attack()
+	frames_until(func(): return int(tl.combo) == 1)
+	p.sync(0.0)
+	p.movement = Vector2.ZERO
+	var want: float = (below.plane - p.motor.pos).angle()
+	seen.turn_deg = snappedf(rad_to_deg(absf(angle_difference((tl.aim as Vector2).angle(), want))), 0.1)
+	seen.turn_row = p.motor.row
+	# The pull: a far foe is closed on, a near one never overrun, a queued step pulls too.
+	fresh(base)
+	var far := sturdy("wild_boarlet", base + Vector2(60, 0))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames(8)
+	var d1: float = p.motor.pos.distance_to(far.plane)
+	p.attack()
+	frames_until(func(): return int(tl.combo) == 1)
+	frames(8)
+	var d2: float = p.motor.pos.distance_to(far.plane)
+	var reach := float(StatRules.family(c).get("reach", 46))
+	seen.pull = [snappedf(60.0 - d1, 0.1), snappedf(d1 - d2, 0.1), snappedf(d2, 0.1)]
+	# A technique woven into a chain keeps its foe in reach; alone it knocks it its whole way.
+	var slot0 = c.cultivator.technique_slots[0]
+	c.cultivator.technique_slots[0] = "mole_cuts"
+	var knocked := {}
+	for woven in [true, false]:
+		fresh(base)
+		c.pools.qi = c.pools.max_qi
+		var e := sturdy("wild_boarlet", base + Vector2(30, 0))
+		tl = Game.combat.timeline(c.id)
+		p.motor.face(Vector2.RIGHT)
+		if woven:
+			p.aim_attack(Vector2.RIGHT, false)
+			frames(2)
+		p.use_technique(0)
+		frames_until(func(): return str(tl.technique) == "mole_cuts")
+		frames_until(func(): return bool(tl.hit_done))
+		frames(24)
+		knocked[woven] = snappedf(p.motor.pos.distance_to(e.plane), 0.1)
+	c.cultivator.technique_slots[0] = slot0
+	seen.knocked = knocked
+	# The hit-stop's frames.
+	Game.combat.hitstop = CombatFeel.hitstop_s("light")
+	var held := 0
+	for i in 10:
+		if Game.combat.hold_for_hitstop(1.0 / 60.0): held += 1
+	seen.hitstop = [held, int(CombatFeel.weight("light").hitstop_f)]
+	# The stick out of a recovery; and not while a step waits queued.
+	fresh(base)
+	sturdy("wild_boarlet", base + Vector2(30, 0))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames_until(func(): return CombatFeel.dodge_cancel(tl, c) == "cancel" and CombatFeel.phase_of(tl, c) == "recovery")
+	var cut_at := float(tl.t)
+	var dur := float(tl.duration)
+	p.movement = Vector2.LEFT
+	frames(2)
+	seen.move_cut = [str(tl.action) == "", snappedf(cut_at, 0.001), snappedf(dur, 0.001)]
+	frames(10)
+	seen.move_cut.append(snappedf(p.motor.vel.x, 0.1))
+	p.movement = Vector2.ZERO
+	fresh(base)
+	sturdy("wild_boarlet", base + Vector2(30, 0))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames(3)
+	p.attack()
+	p.movement = Vector2.LEFT
+	frames_until(func(): return int(tl.combo) == 1 or str(tl.action) == "", 60)
+	seen.queued_holds = int(tl.combo) == 1 and str(tl.action) != ""
+	p.movement = Vector2.ZERO
+	# Planted: the stick pulled away through the wind-up and the strike moves the body no further than its lunge.
+	fresh(base)
+	sturdy("wild_boarlet", base + Vector2(30, 0))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	p.movement = Vector2.LEFT
+	frames(7)
+	var after_lunge: Vector2 = p.motor.pos
+	frames_until(func(): return CombatFeel.phase_of(tl, c) == "recovery")
+	seen.planted = snappedf(p.motor.pos.distance_to(after_lunge), 0.1)
+	p.movement = Vector2.ZERO
+	# A heavy sabre's dodge pressed as its blow lands.
+	Game.inventory.apply_add(c.id, "training_heavy_sabre", 1, "topdown_suite")
+	Game.submit({"type": "equip", "index": c.inventory.first_index("training_heavy_sabre")})
+	fresh(base)
+	sturdy("wild_boarlet", base + Vector2(40, 0))
+	tl = Game.combat.timeline(c.id)
+	p.aim_attack(Vector2.RIGHT, false)
+	frames_until(func(): return bool(tl.hit_done))
+	p.movement = Vector2.LEFT
+	p.dodge()
+	var cancel_from := float(CombatFeel.timeline_phases(tl, c).cancel_from)
+	var at_press := float(tl.t)
+	var went := frames_until(func(): return c.pools.cooldown("dodge") > 0.0, 60)
+	seen.heavy_dodge = [went, snappedf(at_press, 0.001), snappedf(cancel_from, 0.001)]
+	p.movement = Vector2.ZERO
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	p.refresh_outfit()
+	fresh(base)
+	measured.flow = seen
+	var tech := str(c.cultivator.technique_slots[0])
+	t.check(seen.order == ["punch_1", "punch_2", tech], "topdown flow (decision 43): Attack, Attack, a technique go in their order (%s)" % str(seen.order))
+	t.check(float(seen.turn_deg) < 20.0 and str(seen.turn_row) in ["s", "se", "sw"],
+		"topdown flow (decision 43): a queued step aims again at the foe the stick turned to (%.1f° off) and the body turns to it (%s)" % [float(seen.turn_deg), str(seen.turn_row)])
+	t.check(float(seen.pull[0]) > 20.0 and float(seen.pull[1]) > 1.0 and float(seen.pull[2]) >= reach * 0.4 - 0.5 and float(seen.pull[2]) <= reach,
+		"topdown flow (decision 43): a step closes on a far foe (%.1f), a queued step pulls in too (%.1f), and never nearer than %.0f (%.1f)" % [float(seen.pull[0]), float(seen.pull[1]), reach * 0.4, float(seen.pull[2])])
+	t.check(float(knocked[true]) <= reach * 0.75 + 4.0 and float(knocked[false]) > 60.0,
+		"topdown flow (decision 43): a technique woven into a chain knocks its foe to %.0f, in the next step's reach (%.0f), and alone to %.0f" % [float(knocked[true]), reach, float(knocked[false])])
+	t.check(seen.hitstop[0] == seen.hitstop[1], "topdown flow (decision 43): a light blow's hit-stop holds its %d frames (%d)" % [int(seen.hitstop[1]), int(seen.hitstop[0])])
+	t.check(bool(seen.move_cut[0]) and float(seen.move_cut[1]) < float(seen.move_cut[2]) - 0.02 and float(seen.move_cut[3]) < -150.0 and seen.queued_holds,
+		"topdown flow (decision 43): the stick pushed out of a recovery ends the blow at its cancel point (%.3f s of %.3f) and the body sprints off (%.0f u/s); a queued step still plays (%s)"
+			% [float(seen.move_cut[1]), float(seen.move_cut[2]), float(seen.move_cut[3]), str(seen.queued_holds)])
+	t.check(float(seen.planted) < 0.5, "topdown flow (decision 43): the feet stay planted through a blow's wind-up and strike with the stick pulled away (%.1f units)" % float(seen.planted))
+	t.check(int(seen.heavy_dodge[0]) > 0 and float(seen.heavy_dodge[1]) + float(seen.heavy_dodge[0]) / 60.0 >= float(seen.heavy_dodge[2]) - 0.02,
+		"topdown flow (decision 43): a heavy sabre's dodge pressed as its blow lands (%.3f s) waits for its cancel point (%.3f s) and goes, %d frames on" % [float(seen.heavy_dodge[1]), float(seen.heavy_dodge[2]), int(seen.heavy_dodge[0])])
+
 func _meditate_then_walk(base: Vector2) -> void:
 	var p = w.player
 	var seen := {}
@@ -2229,6 +2393,7 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
 	var light: float = Game.combat.hitstop
 	Game.combat.hitstop = 0.0
+	tl.stop_spent = 0.0   # the dragged finisher is an action of its own (decision 43: one action's hit-stop has a cap)
 	tl.charged = true
 	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
 	var heavy: float = Game.combat.hitstop

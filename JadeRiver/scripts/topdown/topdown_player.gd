@@ -122,7 +122,7 @@ func dodge() -> void:
 		# Decision 38: it goes when the blow may be cancelled; decision 43: held until that point, however heavy the blow
 		# (up to `flow.dodge_hold_s`), never dropped before it.
 		var tl: Dictionary = Game.combat.timeline(actor_id)
-		var until := float(CombatFeel.timeline_phases(tl, Game.character(actor_id)).get("cancel_from", 0.0)) - float(tl.t) + 0.02
+		var until := float(CombatFeel.timeline_phases(tl, Game.character(actor_id)).get("cancel_from", 0.0)) - float(tl.t) + 3.0 / 60.0
 		dodge_buffer = clampf(until, float(CombatFeel.cfg().get("dodge_buffer_s", 0.2)), float(CombatFeel.flow().get("dodge_hold_s", 0.6)))
 
 ## A tap of Attack: the soft lock (the nearest foe in the cone round the stick, else the facing).
