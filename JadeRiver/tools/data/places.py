@@ -34,6 +34,11 @@ from common import DATA, all_of, entries, flag, realm, unlocked   # noqa: E402
 
 TILE = 32.0
 SCHEMA = 1
+# Decision 43: a person's talk reaches this much further on the grid, as the people are drawn bigger
+# (TopdownRoom.PEOPLE; WorldAuthority's reach); a pickup's reach stays its radius.
+PEOPLE = 1.2
+# How far past a rival's reach a place's standing cell keeps (cells): the cell's centre against the body's rounding.
+REACH_MARGIN = 0.16
 # The rooms of the prologue and the tutorial (Lotus Ferry to the recruitment fair): a system first used there has its home
 # place in one of them, so no place ever stands between a new player and a lesson.
 TUTORIAL_ROOMS = {"lf_fishers_hut", "lf_village", "lf_old_ma_store", "lf_granny_liu_hut", "lf_lu_boat", "lf_reed_shallows",
@@ -121,7 +126,7 @@ def places():
           "the Market Teleport Stone", "attuned", home=True),
         P("sf_furnace", "alchemy", "alchemy", "sf_artisan_row", "furnace_sf", "furnace", "earned",
           "the Artisan Row Furnace", "smoke", home=True),
-        P("sf_anvil", "smithing", "forge", "sf_artisan_row", "anvil_sf", "anvil", "both", "Smith Bao's Anvil", "sparks", stand=[17, 14],
+        P("sf_anvil", "smithing", "forge", "sf_artisan_row", "anvil_sf", "anvil", "both", "Smith Bao's Anvil", "sparks",
           home=True),
         # ---- The Jade Sect.
         P("ja_notice_board", "notice_board", "notice_board", "ja_gate_street", "board_ja", "notice_board", "place",
@@ -177,11 +182,18 @@ def _starts(d):
     return out
 
 
+def _reach(o):
+    """A person's or pickup's reach from its cell, in cells (WorldAuthority: its `radius`, 110 by default, a person's
+    times PEOPLE on the grid), with the margin a standing cell keeps past it."""
+    r = float(o.get("radius", 110)) * (PEOPLE if o.get("type") == "npc" else 1.0)
+    return r / TILE + REACH_MARGIN
+
+
 def _stand(g, c, walked, rivals, on=False):
     """The cell a body stands on to use the thing at `c`: the nearest round it (south first; `on`: the thing itself, a
     mat sat on) within the context button's reach (three cells), on a floor auto-path reaches from every way in, and
-    clear of the reach of every person and pickup of the room (`rivals`), which would take the button from a thing
-    (WorldAuthority.context_rank)."""
+    clear of the reach of every person and pickup of the room (`rivals`: cell x, cell y and reach in cells), which would
+    take the button from a thing (WorldAuthority.context_rank)."""
     cands = sorted((dx * dx + dy * dy + (0.25 if dy < 0 else (0.1 if dy == 0 else 0.0)) + abs(dx) * 0.01, dx, dy) for dy in range(-3, 4) for dx in range(-3, 4)
                    if dx * dx + dy * dy <= 9 and (on or dx or dy))
     fallback = None
@@ -191,7 +203,7 @@ def _stand(g, c, walked, rivals, on=False):
             continue
         if fallback is None:
             fallback = q
-        if all((q[0] - rx) ** 2 + (q[1] - ry) ** 2 > 3.6 ** 2 for rx, ry in rivals):
+        if all((q[0] - rx) ** 2 + (q[1] - ry) ** 2 > reach ** 2 for rx, ry, reach in rivals):
             return [q[0], q[1]]
     return [fallback[0], fallback[1]] if fallback else None
 
@@ -272,7 +284,7 @@ def build_rows():
             c = TR.cell(cell)
             if g.floor(*c) is None and not r.get("art"):
                 errs.append("%s: its cell %s has no floor" % (r["id"], str(c)))
-            rivals = [TR.cell(at) for oid, at in d["place"].items() if oid != r["object"]
+            rivals = [(*TR.cell(at), _reach(side[oid])) for oid, at in d["place"].items() if oid != r["object"]
                       and side.get(oid, {}).get("type") in ("npc", "pickup")]
             stand = r.get("stand") or _stand(g, c, walked, rivals, r["kind"] == "meditation_mat")
             if stand is None or g.floor(*stand) is None or not all(tuple(stand) in w for w in walked):
