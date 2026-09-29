@@ -11,7 +11,9 @@ extends "res://tests/prologue_run.gd"
 ##   3. save-safe: a scene cut short by quitting resumes after a reload at its last checkpoint, its people where the
 ##      script had put them; played out, it is seen and never plays again;
 ##   4. a hold skips a cut to its next hand-off, and what the skipped part asked for still happens (Granny's graze);
-##   5. Reduce motion: the camera cuts instead of panning; a fight breaks a cut into a live part, the controls back.
+##   5. Reduce motion: the camera cuts instead of panning; a fight breaks a cut into a live part, the controls back;
+##   6. decision 42: a talk closes once a quest is taken or handed in, even with another to give, and a talk that itself
+##      finishes a quest closes at its last line; a scene the quest starts plays once it is closed.
 ## Run headless:  godot --headless --path . res://tests/story_scenes.tscn [-- --verbose]
 
 func _main() -> void:
@@ -22,6 +24,7 @@ func _main() -> void:
 	_resumes_after_a_reload()
 	_reduce_motion_and_fights()
 	_skip_keeps_the_checkpoints()
+	_talks_close()
 	if is_instance_valid(scene_director): scene_director.free()
 	Game.pause(false)
 	print("story_scenes: %d checks, %d failures" % [checks, failures])
@@ -212,3 +215,52 @@ func _reduce_motion_and_fights() -> void:
 	d.reduce_override = null
 	settle_scenes()
 	check(d.run == null, "the errands play out")
+
+# ------------------------------------------------------------------ 6
+## Decision 42 (the prototype APK's feedback: "conversation with NPC should close after getting / completing the
+## quest"), in the top-down game on the real dialogue page: taking a quest closes the talk even when the person has a
+## second to give (talking again offers it), and so does handing one in while another waits; a scene the quest starts
+## plays once the talk is closed (Uncle Guo's Fists First); and a talk that itself finishes a quest (Evening on the
+## River's last step is talking to Lu) closes at its last line's tap, with only Farewell or a service left to choose.
+func _talks_close() -> void:
+	var d: SceneDirector = scene_director
+	settle_scenes()
+	if room() != "lf_village": go("exit")
+	check(room() == "lf_village", "back in the village (%s)" % room())
+	# Aunt Ping in the lane with two quests to give: her ladle, and her broth.
+	c().quests.done["the_runaway_kite"] = 1
+	c().quests.offered["aunt_pings_broth"] = true
+	Game.quest._refresh_offers()
+	var first: Dictionary = interact(str(npc_object("aunt_ping").get("id", ""))).get("dialogue", {})
+	var offered: Array = (first.get("choices", []) as Array).filter(func(ch): return ch.has("accept")).map(func(ch): return str(ch.accept))
+	check(offered.has("the_lost_ladle") and offered.has("aunt_pings_broth"), "Aunt Ping has two quests to give (%s)" % str(offered))
+	check(_choose_on_page("aunt_ping", "accept", "the_lost_ladle") and c().quests.offered.has("aunt_pings_broth"),
+		"decision 42: taking one of her two quests closes the talk; the other waits for the next talk")
+	# The ladle ready to hand in, her broth still to give: handing it in closes the talk too.
+	var ladle: Dictionary = Game.quest.quest_def(c(), "the_lost_ladle")
+	for g in QuestAuthority.handover(ladle): Game.inventory.apply_add(c().id, str(g.item), int(g.count), "test")
+	var st_l: Dictionary = c().quests.active.get("the_lost_ladle", {})
+	st_l.progress = (ladle.get("objectives", []) as Array).map(func(o): return int(o.get("count", 1)))
+	st_l.state = "ready"
+	check(_choose_on_page("aunt_ping", "hand_in", "the_lost_ladle") and c().quests.offered.has("aunt_pings_broth"),
+		"decision 42: handing a quest in closes the talk though she has another to give")
+	check(_choose_on_page("aunt_ping", "accept", "aunt_pings_broth"), "talking to her again offers the other, and taking it closes the talk")
+	# A scene the quest starts plays once the talk is closed.
+	var seen_before: bool = c().quests.scenes.get("guo_fists", {}).get("done", false)
+	check(_choose_on_page("uncle_guo", "accept", "fists_first"), "Fists First taken from Uncle Guo on the page, and the talk closes")
+	d.poll()
+	check(seen_before or (d.run != null and str(d.run.id) == "guo_fists"), "the scene Fists First starts plays once the talk is closed (%s)" % str(d.run.id if d.run else "none"))
+	settle_scenes()
+	# A talk that itself finishes a quest: Evening on the River's steps are talking to Aunt Ping and then to Lu.
+	c().quests.offered["evening_on_the_river"] = true
+	check(Game.quest.accept(c(), "evening_on_the_river").get("ok", false), "Evening on the River under way")
+	interact(str(npc_object("aunt_ping").get("id", "")))
+	var lu: Dictionary = interact(str(npc_object("lu_boatman").get("id", ""))).get("dialogue", {})
+	var on := _page(lu)
+	var light: bool = on.page.ends_on_tap()
+	if not on.closed: on.page.on_action("advance", null)
+	check(c().quests.is_done("evening_on_the_river") and lu.get("quest_moved", false) and light and on.closed,
+		"decision 42: the talk that finished Evening on the River closes at its last line's tap (quest_moved %s, choices %s)"
+		% [str(lu.get("quest_moved", false)), str((lu.get("choices", []) as Array).map(func(ch): return str(ch.get("text", ""))))])
+	on.page.queue_free()
+	settle_scenes()

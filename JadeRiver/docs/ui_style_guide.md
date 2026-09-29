@@ -530,6 +530,11 @@ tall (§2.1), compact slots 48, page slots 76.
 In the ring layout of mockup 01 neighbouring hit circles overlap (64 px rings 68 px apart on ring 1 with a hit radius of
 36). Where two circles overlap, the nearest centre wins.
 
+**Decision 42 (the prototype APK's feedback).** Jump is drawn at r 32 (64 px, from 52), hit r 36. The techniques are
+56 px squares (the tree's node pictures, §9), hit r 38, which reaches nearly to their corners. What the world offers in
+reach has its own button, r 30, hit r 34; Attack (r 66, hit r 74) never shows it. The `hud_suite` also checks that no
+two of the cluster's controls touch, in every state, right- and left-handed.
+
 ## 8. Icons
 
 **Decided: Style A, "HD pixel"** (roadmap §6 decision 7; the study in `docs/mockups/icon_study/`, drawn by
@@ -628,7 +633,7 @@ stays open for the fight.
 | Icon row | Menu, Bag, Map, Mail at y 188, 52 px rings; a count on Mail, a ready seal on Menu | 1058, 1116, 1174, 1232 (`hud.gd:43`) | Pitch 56 (§2.1); the seal |
 | Currency pill | (1040, 222, 222 × 34); rests in boss arenas | Grows left from 1262 (`hud.gd:1408`) | Hidden in boss arenas |
 | Attack / context | Centre (1165, 605), 132 ring; the context verb and target under it at y 678 | Same centre (`hud.gd:26`); the label at +50 (`:1741`) | Label at y 678 |
-| Ring 1, R 132 round the attack | Jump 150° (1051, 671); techniques 180° (1033, 605), 210° (1051, 539), 240° (1099, 491), 270° (1165, 473), 64 px; dodge 300° (1231, 491), 52 px. Techniques only while a foe is near; at rest they fold into four beads on the attack ring | Slots on an arc (`hud.gd:25`); jump, cultivate, sense in a row at pitch 92 (`:27-29`) | As approved |
+| Ring 1, R 132 round the attack | Jump 150° (1051, 671); techniques 180° (1033, 605), 210° (1051, 539), 240° (1099, 491), 270° (1165, 473), 64 px; dodge 300° (1231, 491), 52 px. Techniques only while a foe is near; at rest they fold into four beads on the attack ring (retired by decision 42: see below) | Slots on an arc (`hud.gd:25`); jump, cultivate, sense in a row at pitch 92 (`:27-29`) | As approved |
 | Ring 2, R 214 | Fan 160° (964, 678); a held toggle 182° (951, 612); healing 204° (970, 518); Treasure 226° (1016, 451); 52 px; an empty slot is not drawn | Quick-use, Pet, Guard, Treasures, Presence, Sphere at fixed points (`hud.gd:30-38`) | As approved |
 | The fan, open | Five toggles at R 150 from the fan: 180° (814, 678), 202° (825, 622), 224° (856, 574), 246° (903, 541), 268° (959, 528); 52 px; captions 14; a paper fan behind | — | New |
 | Technique page tab | (1240, 672), 48 px, "1/2" | Two dots (`hud.gd:1750`) | As approved |
@@ -651,7 +656,7 @@ table are the reference.
   the second treasure take the next free one; more than six spread evenly over 178°–294°, never closer than 60 px.
 - The fan (decision 20) holds Cultivate, Presence, Sphere, Sense and Pet, packed from 180° in that order; closed, the
   toggles that are on are pinned; open at rest by default (mockup 02), folded in a fight. The healing slot and the
-  treasures show only in a fight; at rest they rest with the techniques' beads.
+  treasures show only in a fight; at rest they rest (the techniques stay out since decision 42).
 - Rest and fight: a fight is a living, unhidden foe within 560 px of the player, a boss in the room or a tribulation
   (`WorldLabels.fight_near`), held two seconds after it ends; the fold takes 0.25 s.
 - The top centre is one stack (a run's timer, the room's name, an event or tribulation, a fortune card, the toasts, a
@@ -666,6 +671,33 @@ table are the reference.
   members show a 40 px HP line (30 for an animal) only in a fight.
 
 Screenshots of the build beside mockups 01 and 02 are in `docs/ui_p5/hud/`.
+
+**As built (decision 42, the prototype APK's feedback).** The user asked for a bigger Jump, the techniques and Attack
+visible at rest, skill icons like the Techniques tree's pictures, one background when trading, and talks that close
+once a quest is given or done. Where this changes the table above:
+
+- **Ring 1.** Jump 150° (1051, 671), 64 px. The techniques no longer fold into beads: they stay out at rest as in a
+  fight, as 56 px squares at 180° (1033, 605), 207° (1047, 545), 243° (1105, 487) and 270° (1165, 473), 27°, 36° and
+  27° apart so the two across the ring's diagonal keep clear of each other's corners. The page tab shows with them.
+- **Attack** keeps the weapon family's glyph always. The context (Talk, Gather, Open, Enter, Climb) has its own 60 px
+  button on ring 2 at 270° (1165, 391), lit gold, its verb and target under it ("Talk · Lu"), at rest as in a fight;
+  mockup 02's context on the big button is retired. The harvest's hold runs round that button and its tap ring
+  shrinks onto it. Keep Post, at rest only, takes 226° (the first treasure's place, in a fight only). Before the Attack
+  lesson there is no Attack button; the J and Enter keys use the context then.
+- **The technique buttons** are the Techniques tree's node pictures (`TechniquePicture`, `scripts/presentation/`):
+  the character in the art's pose (the Avatar's still of `TechniquePreview.pose_of`, the source of the tree's cards,
+  at an art pixel a screen pixel) on the element's ground with the card's glow, in the tree's bright jade frame, framed
+  from the head down with a light rim so it reads on the dark ground at a thumb's size, and the art's emblem as a
+  20 px round seal in the corner (the card's 32 px emblem is too big for a button). States: cooling, an ink sweep with
+  a pale gold hand and the seconds; short of Qi, the picture dimmed and a Qi strip along its foot filled as far as the
+  pool reaches the cost; closed by the weapon in hand, a slate frame, the picture dim and a lock. The Techniques page's
+  loadout bar (Ring I and II) draws the same pictures in its 52 px slots. The stills are composed one a frame and kept
+  (64), the emblem standing in until then.
+- **The shop** draws the bag's side on the stall's own timber wall under the same awning; decision 24's patch of the
+  gourd's heaven beside the stall is gone from the shop (the Storage page keeps it).
+
+Screenshots before and after (at rest, in a fight, the Techniques page and its loadout bar, the shop, a quest offered
+and taken) are in `docs/redesign/feedback/hud/`, taken by `tools/dev/hud_capture.tscn -- --tag=<before|after>`.
 
 ## 10. The token table (the Theme resource plan, C8)
 

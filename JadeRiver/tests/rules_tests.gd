@@ -119,6 +119,7 @@ func _main() -> void:
 	equip_prompt_suite()
 	await points_badges_suite()
 	attack_first_suite()
+	await technique_pictures_suite()
 	await labels_suite()
 	await ui_suite()
 	await identity_suite()
@@ -1233,9 +1234,18 @@ func _market_checks() -> void:
 		"P5 Shop: no tabs; the wares stand on the shelves, five a shelf, two shelves in view (%d of %d)" % [wares.size(), stock.size()])
 	var said: Array = sp.text_log.map(func(tx): return str(tx.get("s", "")))
 	var hp: int = c.inventory.first_index("healing_pill")
-	check(cells.size() == in_view and said.has(UiKit.fmt(LootRules.sell_price("healing_pill"))) and sp.text_log.any(func(tx): return tx.get("ground") == UiKit.SURFACE.sky)
-		and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "sky_token:selected"),
-		"P5 Shop: your bag floats beside the stall in the gourd's heaven (decision 24), each thing with what it sells for")
+	# Decision 42 (the user: "when in trading I want the shop and player bag background to be the same"): the bag's side is
+	# the stall's own timber wall, the same ground as the stall's behind the wares; no patch of the gourd's sky is left.
+	var grounds: Array = sp.text_log.filter(func(tx): return typeof(tx.get("ground")) == TYPE_COLOR and (tx.rect as Rect2).size.x > 200.0)
+	var under := func(p: Vector2):
+		var hit: Array = grounds.filter(func(tx): return (tx.rect as Rect2).has_point(p))
+		return hit.back().ground if not hit.is_empty() else null
+	var stall_ground = under.call(Vector2(500, 300))
+	var bag_ground = under.call(Vector2(1000, 400))
+	check(cells.size() == in_view and said.has(UiKit.fmt(LootRules.sell_price("healing_pill"))) and sp.text_log.any(func(tx): return str(tx.get("ground", "")) == "sky_token:selected"),
+		"P5 Shop: your bag beside the stall, each thing with what it sells for")
+	check(stall_ground != null and stall_ground == UiKit.SURFACE.wood_dark and bag_ground == stall_ground and not grounds.any(func(tx): return tx.ground == UiKit.SURFACE.sky),
+		"decision 42: the shop's stall and the bag beside it share one background, the stall's timber (%s, %s)" % [str(stall_ground), str(bag_ground)])
 	_identity_view(sp, "shop stall", dim, lost, {}, {})
 	sp.on_action("pick", 0)
 	sp.text_log.clear()
@@ -1903,7 +1913,9 @@ func _fill_light(spec: String, cache: Dictionary) -> Color:
 ## 48 x 48; the player panel's whole height opens Character. The right-hand cluster stands where the mockups put it;
 ## no control or panel sits in the lower middle the mockups keep clear round the player at the common camera
 ## positions; the fan opens and closes, folds in a fight, and shows its toggles that are on while closed (decision 20);
-## the techniques fold into beads at rest; an empty or locked slot is not drawn (review G3).
+## an empty or locked slot is not drawn (review G3). Decision 42 (the prototype APK's feedback): the techniques and
+## Attack stay out at rest; Jump is 64 px (from 52) and no two of the cluster's controls touch, right- and left-handed;
+## the techniques are the tree's node pictures (TechniquePicture), on the HUD and the Techniques page's loadout bar.
 func hud_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -1953,12 +1965,29 @@ func hud_suite() -> void:
 	var fight: Array = tables["fight"]
 	var near := func(a: Vector2, b: Vector2) -> bool: return a.distance_to(b) <= 1.5
 	var ring1: Array = at.call("skill", fight)
-	var mock1 := [Vector2(1033, 605), Vector2(1051, 539), Vector2(1099, 491), Vector2(1165, 473)]
+	# Decision 42: the techniques' squares at 180°, 207°, 243° and 270° (mockup 01's rings stood at 180°-270°, 30° apart).
+	var mock1 := [Vector2(1033, 605), Vector2(1047, 545), Vector2(1105, 487), Vector2(1165, 473)]
 	var placed := ring1.size() == 4 and range(4).all(func(i): return near.call(ring1[i], mock1[i]))
 	placed = placed and near.call(at.call("attack", fight)[0], Vector2(1165, 605)) and near.call(at.call("jump", fight)[0], Vector2(1051, 671))
 	placed = placed and near.call(at.call("guard", fight)[0], Vector2(1231, 491)) and near.call(at.call("fan", fight)[0], Vector2(964, 678))
 	placed = placed and near.call(at.call("page", fight)[0], Vector2(1240, 672))
-	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them (%s)" % str(ring1))
+	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them, the techniques as decision 42 spaces them (%s)" % str(ring1))
+	# Decision 42: a bigger Jump (64 px across, from 52) with a hit circle past it, in its place on ring 1.
+	var jumps: Array = fight.filter(func(tg): return str(tg.role) == "jump")
+	check(jumps.size() == 1 and float(jumps[0].drawn) == 32.0 and float(jumps[0].r) >= 36.0 and hud.JUMP_R * 2.0 > 52.0,
+		"decision 42: Jump is drawn 64 px across (from 52), its hit circle %d px across" % (int(jumps[0].r * 2.0) if not jumps.is_empty() else 0))
+	# No two of the cluster's controls touch, in every state, with a context offered (its own button on ring 2): circles
+	# by their drawn radius, the techniques' squares by their sides.
+	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
+	var touching := _cluster_touching(hud, states)
+	hud.left_handed = true
+	hud._layout()
+	var touching_lh := _cluster_touching(hud, states)
+	hud.left_handed = false
+	hud._layout()
+	hud.context = {}
+	check(touching.is_empty() and touching_lh.is_empty(), "decision 42: no two controls of the cluster touch, the bigger Jump and the techniques' squares among them, right- and left-handed (%s; %s)"
+		% [str(touching.slice(0, 4)), str(touching_lh.slice(0, 4))])
 	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick", "home": "quick"}, {"role": "treasure:0", "home": "treasure:0"}])
 	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
 		"P5a: ring 2 as mockup 01: the held Presence pinned beside the fan, the healing slot, the treasure (%s)" % str(r2.map(func(o): return o.center)))
@@ -1970,12 +1999,16 @@ func hud_suite() -> void:
 	var apart := true
 	for i in many.size() - 1: apart = apart and (many[i].center as Vector2).distance_to(many[i + 1].center) >= 60.0
 	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a: eight things on ring 2 keep 60 px apart, on the screen")
-	# Rest and fight: the techniques, the healing slot and the treasures are out only in a fight; the fan folds in a fight
-	# and pins what is on beside it, and opens at rest.
+	# Rest and fight: the healing slot and the treasures are out only in a fight; the fan folds in a fight and pins what is
+	# on beside it, and opens at rest. Decision 42: the techniques, the page tab and Attack are out at rest as in a fight.
 	var rest_roles: Array = tables["rest, the fan closed"].map(func(tg): return str(tg.role))
 	var fight_roles: Array = fight.map(func(tg): return str(tg.role))
-	check(not rest_roles.has("skill") and not rest_roles.has("quick") and not rest_roles.has("treasure:0") and not rest_roles.has("page")
-		and fight_roles.count("skill") == 4 and fight_roles.has("quick"), "P5a: at rest the techniques fold into beads and the healing slot and treasures rest; in a fight they are out")
+	var open_roles: Array = tables["rest, the fan open"].map(func(tg): return str(tg.role))
+	check(not rest_roles.has("quick") and not rest_roles.has("treasure:0") and fight_roles.has("quick"),
+		"P5a: at rest the healing slot and treasures rest; in a fight they are out")
+	check(rest_roles.count("skill") == 4 and open_roles.count("skill") == 4 and fight_roles.count("skill") == 4 and rest_roles.has("page")
+		and rest_roles.has("attack") and open_roles.has("attack"), "decision 42: at rest, the fan open or closed, the four techniques, the page tab and Attack stay out (%d, %d)"
+		% [rest_roles.count("skill"), open_roles.count("skill")])
 	var pinned: Array = at.call("presence", tables["rest, the fan closed"])
 	check(pinned.size() == 1 and near.call(pinned[0], Vector2(951, 612)) and not rest_roles.has("meditate")
 		and near.call(at.call("presence", tables["rest, the fan open"])[0], Vector2(825, 622)), "P5a: closed, the fan shows its toggle that is on pinned beside it; open, the toggle stands in the fan (decision 20)")
@@ -1994,10 +2027,10 @@ func hud_suite() -> void:
 	hud.fan_rest_open = true
 	hud.fight_override = true
 	hud._tick_fight(0.1)
-	var folded: bool = hud.fight and not hud.fan_open and hud.fight_k < 1.0
+	var folded: bool = hud.fight and not hud.fan_open
 	hud.fight_override = false
 	hud._tick_fight(hud.FIGHT_HOLD_S + 0.1)
-	check(folded and not hud.fight and hud.fan_open, "P5a: a foe near folds the fan and brings the ring out; with none near it opens again as it was left")
+	check(folded and not hud.fight and hud.fan_open, "P5a: a foe near folds the fan; with none near it opens again as it was left")
 	# Nothing in the lower middle round the player (the clear zone), in a fight or at rest with the fan closed; the open
 	# fan at rest keeps off the player at the common camera positions (x 640 give or take the look-ahead, feet at 470 to
 	# 640); the panels, the tracker's plate, the log and the top centre's toasts keep out of the zone too.
@@ -2067,6 +2100,20 @@ func hud_suite() -> void:
 	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
 		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
 		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
+	# Decision 42, bound: at rest the same techniques and Attack stay out, the fan open or closed; a person in reach has
+	# the context's own button on ring 2 and Attack keeps the weapon's glyph (it attacks: HUD.attack_first).
+	var rest_skills := {}
+	for open in [false, true]:
+		hud.set_state(false, open)
+		rest_skills[open] = at.call("skill", hud.hit_targets())
+	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
+	var with_talk: Array = hud.hit_targets().map(func(tg): return str(tg.role))
+	var glyph_now: String = hud.attack_glyph(c)
+	hud.context = {}
+	check([false, true].all(func(o): return (rest_skills[o] as Array).size() == expect.size() and range(expect.size()).all(func(k): return near.call(rest_skills[o][k], mock1[expect[k]])))
+		and with_talk.has("attack") and with_talk.has("context") and hud.attack_first() and glyph_now == str(StatRules.family(c).get("hud_glyph", "fist")),
+		"decision 42: at rest the techniques (%d) and Attack stay out; a person in reach takes the context's own button and Attack keeps the %s glyph (%s)"
+		% [(rest_skills[false] as Array).size(), glyph_now, str(with_talk)])
 	# At rest the healing slot stays drawn while it holds something to drink (Granny's tea), in its place, and clear of
 	# the open fan's toggles; empty, it is drawn while a quest step asks for it (Granny's Remedy), not otherwise.
 	c.inventory.quick_use = "herbal_tea"
@@ -2216,6 +2263,123 @@ func points_badges_suite() -> void:
 	await get_tree().process_frame
 	check(opened.size() == rows.size() and wrong.is_empty(), "Points badges: each tap opens its page on the tab where the points are spent (%s)" % str(wrong))
 
+## Decision 42 ("I want the skills icon to look like the attached image", the Techniques tree): the HUD's technique
+## buttons and the Techniques page's loadout bar draw each slotted art as the tree's node picture (TechniquePicture:
+## the character in the art's pose, from the Avatar's still of it, in the tree's bright jade frame), at rest as in a
+## fight; the older round emblem is not drawn at a button's size. Its states read on the picture: cooling (the sweep and
+## its seconds), short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock).
+func technique_pictures_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var slots_was: Array = c.cultivator.technique_slots.duplicate()
+	var known_was: Array = c.cultivator.techniques_known.duplicate()
+	var qi_was := [c.pools.qi, c.pools.max_qi]
+	var fam := str(StatRules.family(c).get("id", "fists"))
+	var other := "jade_thrust" if fam != "spear" else "cloudpiercing_stroke"   # an art of a family not in hand
+	var free_art := ""   # a third art any hand may use
+	for tq in ContentDB.all("techniques"):
+		if free_art == "" and str(tq.get("family", "any")) == "any" and not str(tq.id) in ["flowing_palm", "still_water_focus"]: free_art = str(tq.id)
+	var arts := ["flowing_palm", "still_water_focus", free_art, other]
+	for a in arts:
+		if not c.cultivator.techniques_known.has(a): c.cultivator.techniques_known.append(a)
+	c.cultivator.technique_slots = arts + [null, null, null, null]
+	var look := InventoryAuthority.outfit_for(c)
+	for a in arts: TechniquePicture.still(look, TechniquePreview.pose_of(ContentDB.entry("techniques", a), c, look), true)
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	var hud = load("res://scripts/hud.gd").new()
+	add_child(hud)
+	hud.player = stub
+	# At rest, and then in a fight with the first art cooling and the second short of Qi.
+	var drawn := {}
+	for st in ["rest", "fight"]:
+		hud.set_state(st == "fight", false)
+		if st == "fight":
+			c.pools.cooldowns["tech:" + arts[0]] = 2.0
+			c.pools.max_qi = maxf(c.pools.max_qi, 50.0)
+			c.pools.qi = maxf(0.0, Game.combat.technique_cost(c, ContentDB.entry("techniques", arts[1])) - 1.0)
+		TechniquePicture.draw_log = []
+		SpriteCache.draw_log = []
+		hud.queue_redraw()
+		await get_tree().process_frame
+		drawn[st] = {"pics": TechniquePicture.draw_log.duplicate(), "icons": SpriteCache.draw_log.duplicate()}
+	c.pools.cooldowns.erase("tech:" + arts[0])
+	c.pools.qi = float(qi_was[0])
+	c.pools.max_qi = float(qi_was[1])
+	var bad: Array = []
+	for st in drawn:
+		var pics: Array = (drawn[st].pics as Array).filter(func(d): return str(d.get("where", "")) == "hud")
+		for i in arts.size():
+			var mine: Array = pics.filter(func(d): return str(d.id) == arts[i])
+			if mine.is_empty(): bad.append("%s: %s not drawn as a picture" % [st, arts[i]])
+			elif not ((mine[0].rect as Rect2).get_center().distance_to(hud.slots[i]) < 1.0 and (mine[0].rect as Rect2).size == Vector2(hud.TILE, hud.TILE) and mine[0].figure):
+				bad.append("%s: %s at %s (figure %s)" % [st, arts[i], str(mine[0].rect), str(mine[0].figure)])
+		var at_slot := func(d: Dictionary) -> bool: return hud.slots.any(func(s): return (d.rect as Rect2).get_center().distance_to(s) < 4.0)
+		var round_icons: Array = (drawn[st].icons as Array).filter(func(d): return str(d.id) in arts and (d.rect as Rect2).size.x >= 32.0 and at_slot.call(d))
+		if not round_icons.is_empty(): bad.append("%s: the round emblem drawn at a button (%s)" % [st, str(round_icons.map(func(d): return d.id))])
+	check(bad.is_empty(), "decision 42: the HUD draws each slotted art as the tree's node picture in its square, at rest and in a fight, never the round emblem (%s)" % str(bad.slice(0, 4)))
+	var fight_log: Array = drawn["fight"].pics
+	var state_at := func(kind: String, i: int) -> bool:
+		return fight_log.any(func(d): return str(d.get("state", "")) == kind and (d.rect as Rect2).get_center().distance_to(hud.slots[i]) < 1.0)
+	var closed: Array = fight_log.filter(func(d): return str(d.get("id", "")) == other)
+	check(state_at.call("cooldown", 0) and state_at.call("qi", 1) and not state_at.call("qi", 3) and state_at.call("lock", 3)
+		and not closed.is_empty() and closed[0].frame == UiKit.HOLLOW and float(closed[0].k) < 0.5 and not state_at.call("lock", 0),
+		"decision 42: on the pictures the cooldown sweeps its art, Qi short shows its strip, and an art the weapon in hand cannot use is closed (slate frame, dim, a lock)")
+	# The Techniques page's loadout bar: Ring I's four slots draw the same pictures.
+	TechniquePicture.draw_log = []
+	var tp: Page = await _open_page("techniques", {})
+	for i in 3: await get_tree().process_frame
+	var dock: Array = TechniquePicture.draw_log.filter(func(d): return str(d.get("where", "")) == "dock")
+	var dock_ids := {}
+	for d in dock:
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure: dock_ids[str(d.id)] = true
+	check(arts.all(func(a): return dock_ids.has(a)), "decision 42: the Techniques page's loadout bar draws the slotted arts as the tree's pictures too (%s)" % str(dock_ids.keys()))
+	tp.queue_free()
+	TechniquePicture.draw_log = null
+	SpriteCache.draw_log = null
+	hud.player = null
+	stub.free()
+	hud.free()   # at once: a HUD left for the frame's end would set WorldLabels.party_fight in the next suite's frame
+	c.cultivator.technique_slots = slots_was
+	c.cultivator.techniques_known = known_was
+	Unlocks.debug_force_all = force_was
+
+## Decision 42: the pairs of the right-hand cluster's controls that touch in each of `states` ([in a fight, the fan
+## open]): circles by their drawn radius, a technique's square by its side (hit_targets' `drawn` is its half side).
+func _cluster_touching(hud, states: Dictionary) -> Array:
+	var out: Array = []
+	var cluster := func(tg: Dictionary) -> bool:
+		var role := str(tg.role)
+		return not (role.begins_with("icon:") or role.begins_with("pets:") or role.begins_with("points:") or role == "auto_hunt")
+	for sname in states:
+		hud.set_state(states[sname][0], states[sname][1])
+		var ts: Array = hud.hit_targets().filter(cluster)
+		for i in ts.size():
+			for j in range(i + 1, ts.size()):
+				var a: Dictionary = ts[i]
+				var b: Dictionary = ts[j]
+				var sq_a := str(a.role) == "skill"
+				var sq_b := str(b.role) == "skill"
+				var ra := float(a.drawn)
+				var rb := float(b.drawn)
+				var d: Vector2 = (b.center as Vector2) - (a.center as Vector2)
+				var hit := false
+				if sq_a and sq_b: hit = absf(d.x) < ra + rb and absf(d.y) < ra + rb
+				elif sq_a or sq_b:
+					var sq: Dictionary = a if sq_a else b
+					var ci: Dictionary = b if sq_a else a
+					var h := float(sq.drawn)
+					var near_pt := Vector2(clampf(ci.center.x, sq.center.x - h, sq.center.x + h), clampf(ci.center.y, sq.center.y - h, sq.center.y + h))
+					hit = near_pt.distance_to(ci.center) < float(ci.drawn)
+				else: hit = d.length() < ra + rb
+				if hit: out.append("%s: %s and %s" % [sname, a.role, b.role])
+	return out
+
 func equip_prompt_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -2319,10 +2483,12 @@ func equip_prompt_suite() -> void:
 ## views: two NPCs on the same spot (Elder Gu and Madam Hua in Artisan Row), three foes and a boss in a knot, and the
 ## party (a disciple, the puppet and an animal) at one height in a fight, laid out by WorldLabels.place_views as
 ## world.gd does each frame.
-## The attack button's one rule (HUD.attack_first; a fight beside a herb in the Reed Shallows): with a foe in the fight
-## range, or one engaged anywhere in the room, the button attacks even with a resource under the player, and the
-## resource's action stays a tap away in the context slot on ring 2; with no foe about the context takes the button
-## (mockup 02). Auto-hunt attacks by the player's own attack (Autopilot), never through the context.
+## The attack button's one rule (HUD.attack_first; beside a herb in the Reed Shallows): the button attacks even with a
+## resource under the player, and the resource's action stays a tap away on the context's own button on ring 2: with
+## a foe in the fight range, or one engaged anywhere in the room (the earlier fix: a resource had taken the button
+## mid-fight), and, decision 42, with no foe about too (mockup 02's context on the big button is retired). The
+## harvest's tap lands on the context's button. Auto-hunt attacks by the player's own attack (Autopilot), never through
+## the context.
 func attack_first_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
@@ -2338,7 +2504,7 @@ func attack_first_suite() -> void:
 	var at := Vector2(float(node.at[0]) - 30.0, float(node.at[1]) + 10.0)
 	Game.actor_state(c.id).plane = at
 	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\nvar attacks := 0\nfunc attack() -> void:\n\tattacks += 1\n"
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\nvar attacks := 0\nvar channel_time := 0.0\nvar channel_action := \"\"\nfunc attack() -> void:\n\tattacks += 1\n"
 	stub_src.reload()
 	var stub = stub_src.new()
 	stub.actor_id = str(c.id)
@@ -2353,21 +2519,34 @@ func attack_first_suite() -> void:
 	var tap := func(p: Vector2) -> void:
 		hud.press(9, p)
 		hud.release(9)
-	# No foe about: the context takes the button, and a tap gathers.
+	# Decision 42, no foe about: the button still attacks; the gather has its own button on ring 2, and a tap there
+	# gathers.
 	hud._tick_fight(5.0)
-	var rest_glyph: String = hud._ctx_glyph(c)
+	var rest_slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
 	tap.call(hud.attack_center)
-	check(not hud.attack_first() and rest_glyph == "gather" and not roles.call().has("context") and stub.attacks == 0 and str(hud.channel.object) == str(node.id),
-		"no foe about: the context takes the attack button and a tap gathers (%s, %s)" % [rest_glyph, str(hud.channel)])
+	var rest_attacks: int = stub.attacks
+	var rest_channel := str(hud.channel.object)
+	if not rest_slot.is_empty(): tap.call(rest_slot[0].center)
+	check(not hud.fight and hud.attack_first() and rest_attacks == 1 and rest_channel == "" and rest_slot.size() == 1 and str(hud.channel.object) == str(node.id)
+		and hud.attack_glyph(c) == str(StatRules.family(c).get("hud_glyph", "fist")) and hud._context_glyph() == "gather",
+		"decision 42, no foe about: the attack button attacks beside the herb (attacks %d) and the gather is a tap away on its own button (%s)" % [rest_attacks, str(hud.channel)])
+	# The harvest's tap lands on the context's button, not on Attack.
+	hud.channel.object = ""
+	hud.tapping = {"object": str(node.id), "t": 0.0, "ring": 1.0, "target": 0.7, "window": 0.12}
+	tap.call(hud.attack_center)
+	var tap_waits: bool = str(hud.tapping.object) == str(node.id) and stub.attacks == rest_attacks
+	hud.tapping.t = 0.7
+	if not rest_slot.is_empty(): tap.call(rest_slot[0].center)
+	check(tap_waits and str(hud.tapping.object) == "", "decision 42: the harvest's tap waits for the context's button (Attack does not take it), and lands there")
+	hud.tapping.object = ""
 	hud.channel.object = ""
 	# A foe in the fight range: the button attacks; the gather waits in the context slot on ring 2, a tap away.
 	var foe: EnemyState = Game.enemies.spawn_at("mudshell_crab", at + Vector2(200, 0), 2)
 	hud._tick_fight(0.05)
-	var fight_glyph: String = hud._ctx_glyph(c)
 	tap.call(hud.attack_center)
 	var slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
-	check(hud.attack_first() and fight_glyph == "" and stub.attacks == 1 and str(hud.channel.object) == "" and slot.size() == 1,
-		"a foe in range: the attack button attacks beside the herb, the gather moves to ring 2 (%s; attacks %d; %s)" % [fight_glyph, stub.attacks, str(roles.call())])
+	check(hud.attack_first() and stub.attacks == rest_attacks + 1 and str(hud.channel.object) == "" and slot.size() == 1,
+		"a foe in range: the attack button attacks beside the herb, the gather on ring 2 (attacks %d; %s)" % [stub.attacks, str(roles.call())])
 	if not slot.is_empty(): tap.call(slot[0].center)
 	check(str(hud.channel.object) == str(node.id), "the gather stays reachable from the ring-2 context slot (%s)" % str(hud.channel))
 	hud.channel.object = ""
@@ -2378,7 +2557,7 @@ func attack_first_suite() -> void:
 	hud.fight_left = 0.0
 	hud._tick_fight(0.05)
 	tap.call(hud.attack_center)
-	check(hud.attack_first() and stub.attacks == 2 and str(hud.channel.object) == "", "a foe engaged anywhere in the room: the button still attacks (attacks %d)" % stub.attacks)
+	check(hud.attack_first() and stub.attacks == rest_attacks + 2 and str(hud.channel.object) == "", "a foe engaged anywhere in the room: the button still attacks (attacks %d)" % stub.attacks)
 	Game.room_rt.enemies.erase(foe.uid)
 	hud.player = null
 	stub.free()

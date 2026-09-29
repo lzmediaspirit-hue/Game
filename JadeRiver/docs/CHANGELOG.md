@@ -1,5 +1,46 @@
 # Changelog
 
+## The prototype's feedback: the HUD at rest, the tree's pictures, one stall, talks that close (decision 42)
+
+The user played the prototype APK (build 108) and asked for these (roadmap decision 42). This is the HUD's and the
+pages' part; `docs/ui_style_guide.md` §7 and §9 ("As built, decision 42") hold the layout.
+
+- **"I want the jumping button a bit bigger."** Jump is drawn 64 px across (from 52), hit r 36, in its place on ring 1.
+  The techniques' squares stand at 180°, 207°, 243° and 270° so nothing of the cluster touches: the `hud_suite` checks
+  every pair of controls, in a fight and at rest, the fan open or closed, right- and left-handed.
+- **"I want the player skills to be visible when in rest and the normal attack button visible."**
+  - The technique buttons no longer fold into beads out of a fight; they and Attack stay out at rest.
+  - Attack keeps the weapon's glyph whatever is in reach. What the world offers (Talk, Gather, Open, Enter, Climb) has
+    its own button on ring 2 above the techniques, at rest as in a fight, its verb and target under it. The earlier fix
+    (a resource took the button mid-fight) now holds everywhere: `HUD.attack_first` is simply "the character may
+    attack". The harvest's hold runs round the context's button and its tap lands there.
+  - Nothing shows before it is unlocked: `tutorial_order`'s new invariant 15 walks a new player through the tutorial
+    and checks at every step that Attack, the techniques, Jump and Dodge are drawn exactly as they are revealed.
+- **"I want the skills icon to look like the attached image."** The HUD's technique buttons and the Techniques page's
+  loadout bar (Ring I and II) draw each art as the tree's node picture (`TechniquePicture`): the character in the art's
+  pose from the same source as the tree's cards (the Avatar's still of `TechniquePreview.pose_of`, an art pixel a
+  screen pixel) on its element's ground, in the tree's bright jade frame, its emblem as a round seal in the corner. At
+  a button's size the figure is framed from the head down with a light rim, so it reads on the dark ground. Its states:
+  the cooldown's ink sweep with a pale gold hand and the seconds; short of Qi, the picture dimmed and a Qi strip along
+  its foot; closed by the weapon in hand, a slate frame, dim, and a lock.
+- **"When in trading I want the shop and player bag background to be the same."** The shop's bag side is the stall's
+  own timber wall under the same awning, where it was a patch of the gourd's night sky (decision 24).
+- **"Conversation with NPC should close after getting / completing the quest."** Taking or handing in a quest closes
+  the talk even when the same person has another quest to give or take back (M17 went on to it); talking again offers
+  it, and a scene the quest starts plays once the talk is closed. A talk that itself finishes or gives a quest (a talk
+  objective, a quest done by talking) is marked `quest_moved` and closes at its last line's tap when only a service or
+  Farewell is left to choose.
+- **Screenshots** before and after, at 1280x720 under the real HUD: at rest, in a fight, the Techniques page and its
+  loadout bar, Old Ma's shop, and Aunt Ping's offer then the screen once it is taken, in `docs/redesign/feedback/hud/`
+  (`tools/dev/hud_capture.tscn -- --tag=<before|after>`).
+- **Tests.** `rules_tests`: the hud_suite (the layout, Jump's size, no two controls touching, the techniques and Attack
+  at rest, the context's own button), the attack_first_suite (Attack attacks beside a herb at rest and in a fight, the
+  gather and its tap on the context's button), a technique_pictures_suite (the HUD and the loadout bar draw the tree's
+  pictures, never the round emblem, and their cooldown, Qi and lock states) and the shop's one background;
+  `story_scenes` 6 (talks close after taking and handing in in the top-down game, with a second quest waiting, the
+  scene after, and a talk that finishes a quest); `prologue_run._choose_on_page` (so every accept and hand-in on the
+  page in `tutorial_order` and `valley_run`) now asks that the talk closed.
+
 ## The prototype feedback: animation canceling, sprint by default, auto-path round props, meditation's pose (decision 42)
 
 From the user's play of the prototype APK (build 108; roadmap decision 42). Shots:

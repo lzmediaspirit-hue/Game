@@ -1139,7 +1139,8 @@ func _dock(ch) -> void:
 			var r := Rect2(x0 + k * 56, 662, 52, 52)
 			var tid = cu.technique_slots[i] if i < cu.technique_slots.size() else null
 			_dock_slot(r, i >= n, tid != null and str(tid) == sel, target and i < n and (tid == null or str(tid) != sel))
-			if tid != null: icon_at(r.grow(-2), str(tid))
+			# Decision 42: a slotted art shows the tree's picture of it, as the HUD's button does (TechniquePicture).
+			if tid != null and str(tid) != "": TechniquePicture.draw(self, r.grow(-2), str(tid), ch, pic.outfit, UiKit.BRIGHT_JADE, 1.0, 1.0, "dock")
 			text(r.position + Vector2(4, 15), str(k + 1), 14, UiKit.PALE_GOLD)
 			region(r, "slot", i, i < n, Tx.t("ui.techniques.more_slots_open_with_your"))
 	var open := ProgressionRules.inner_art_slot_count(cu.realm_key)

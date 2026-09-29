@@ -8,10 +8,14 @@ extends Control
 ## page, dodge. Ring 2 (R 214): the fan, which holds the system toggles (Cultivate, Presence, Sphere, Sense, Pet;
 ## roadmap decision 20) and opens and closes with a tap, and beside it what the moment needs: a toggle that is on,
 ## pinned while the fan is closed, and in a fight the healing slot, the Draught and the treasures, then the context or
-## the post chip and the weapon swap. An empty slot is not drawn (review G3). With no foe near the techniques fold into
-## four beads on the attack ring, the healing slot and the treasures rest, and the fan opens again if the player left
-## it open; a foe near brings the ring out and folds the fan. The lower middle stays clear for the fight (CLEAR_ZONE,
-## checked by the hud_suite).
+## the post chip and the weapon swap. An empty slot is not drawn (review G3). With no foe near the healing slot and the
+## treasures rest, and the fan opens again if the player left it open; a foe near folds the fan. The lower middle stays
+## clear for the fight (CLEAR_ZONE, checked by the hud_suite).
+##
+## Decision 42 (the prototype APK's feedback): the Attack button and the technique buttons stay out at rest as in a
+## fight (they no longer fold into beads), and whatever the world offers in reach (talk, gather, open, enter) has its
+## own button on ring 2, never the Attack button's face. The techniques are the Techniques tree's node pictures
+## (TechniquePicture: the character doing the art in a jade frame), TILE px squares on ring 1; Jump is 64 px.
 ##
 ## The QI bar exists only once the character has a QI pool (Bone Forging 7): a
 ## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
@@ -38,21 +42,25 @@ const RING1_R := 132.0
 const RING2_R := 214.0
 const FAN_R := 150.0          # the open fan's toggles round the fan button
 const PAPER_R := 190.0        # the paper fan behind them
-const BEAD_R := 71.0          # the beads on the attack ring at rest
 const JUMP_DEG := 150.0
-const SKILL_DEG := [180.0, 210.0, 240.0, 270.0]
+## Decision 42: the techniques' squares stand 27°, 36° and 27° apart (mockup 01's rings stood 30° apart), so the two
+## across the ring's diagonal keep clear of each other's corners.
+const SKILL_DEG := [180.0, 207.0, 243.0, 270.0]
 const DODGE_DEG := 300.0
 const FAN_DEG := 160.0
-const BEAD_DEG := [190.0, 214.0, 240.0, 264.0]
+## Decision 42: Jump drawn at r 32 (64 px, from 52), a technique a TILE px square, the context's own button at r CTX_R.
+const JUMP_R := 32.0
+const TILE := 56.0
+const CTX_R := 30.0
 ## Ring 2 beside the fan. A pinned toggle, the healing slot, the first treasure, the context and the swap have their
 ## own places; the rest take the next free one.
 const RING2_DEG := [178.0, 204.0, 226.0, 248.0, 270.0, 292.0]
-const RING2_HOME := {"pin": 178.0, "quick": 204.0, "treasure:0": 226.0, "context": 270.0, "post": 270.0, "swap": 292.0}
+## Keep Post (at rest only) takes the first treasure's place (in a fight only); the context holds 270° at rest too.
+const RING2_HOME := {"pin": 178.0, "quick": 204.0, "treasure:0": 226.0, "post": 226.0, "context": 270.0, "swap": 292.0}
 ## The fan's toggles in their order round it when open: only the revealed ones, packed from the first place.
 const FAN_DEG_OPEN := [180.0, 202.0, 224.0, 246.0, 268.0]
 const FAN_TOGGLES := ["cultivate", "presence", "sphere", "sense", "pet"]
 const FAN_ROLE := {"cultivate": "meditate", "presence": "presence", "sphere": "sphere", "sense": "sense", "pet": "pet"}
-const FOLD_S := 0.25          # the techniques fold into beads, and out again, over this long
 const FIGHT_HOLD_S := 2.0     # the fight state holds this long after the last foe leaves, so the ring does not flicker
 ## The lower middle the mockups keep open for the fight: the player and the party stand here at the common camera
 ## positions (the player at x 640 give or take the camera's look-ahead, the feet at y 470 with the camera free and
@@ -93,16 +101,15 @@ var presence_center := Vector2(825, 622)
 var sphere_center := Vector2(856, 574)
 var sense_center := Vector2(903, 541)
 var pet_center := Vector2(959, 528)
-var context_center := Vector2(1165, 391)   # the in-fight context or the post chip on ring 2
+var context_center := Vector2(1165, 391)   # the context's own button on ring 2 (at rest too, decision 42)
 var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the icon row (only where allowed)
 var tracker_paths: Array = []            # S49: [{rect, target}] the tracker's auto-path buttons this frame
 var tracker_rect := Rect2()              # the tracker's plate as last drawn (a tap on it opens Quests)
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1064, 188)], ["bag", Vector2(1120, 188)], ["map", Vector2(1176, 188)], ["mail", Vector2(1232, 188)]]   # pitch 56 (P4 §2.1)
 
-# Rest and fight (P5a): the techniques fold into beads at rest and the fan opens again as the player left it.
+# Rest and fight (P5a): the fan folds in a fight and opens again at rest as the player left it.
 var fight := true             # a foe is near (or was, within FIGHT_HOLD_S)
-var fight_k := 1.0            # 0 at rest (beads) .. 1 in a fight (the ring)
 var fight_left := 0.0
 var fight_override = null     # tests and previews: true or false stands in for the room
 var fan_open := false
@@ -247,8 +254,9 @@ func _process(delta: float) -> void:
 	if bound() and is_instance_valid(world) and "label_obstacles" in world: world.label_obstacles = obstacle_rects()
 	queue_redraw()
 
-## Rest and fight (P5a): a foe near brings the technique ring out and folds the fan; with none near for FIGHT_HOLD_S
-## the techniques fold into beads over FOLD_S and the fan opens again if the player left it open.
+## Rest and fight (P5a): a foe near folds the fan and brings out the healing slot and the treasures; with none near
+## for FIGHT_HOLD_S the fan opens again if the player left it open. The techniques and Attack stay out either way
+## (decision 42).
 func _tick_fight(delta: float) -> void:
 	var near := _fight_now()
 	fight_left = FIGHT_HOLD_S if near else maxf(0.0, fight_left - delta)
@@ -256,12 +264,10 @@ func _tick_fight(delta: float) -> void:
 	if not _settled:
 		_settled = true
 		fight = now
-		fight_k = 1.0 if now else 0.0
 		fan_open = fan_rest_open and not now
 	elif now != fight:
 		fight = now
 		fan_open = false if fight else fan_rest_open
-	fight_k = move_toward(fight_k, 1.0 if fight else 0.0, delta / FOLD_S)
 
 func _fight_now() -> bool:
 	if fight_override != null: return bool(fight_override)
@@ -272,7 +278,6 @@ func _fight_now() -> bool:
 func set_state(in_fight: bool, open := false) -> void:
 	fight_override = in_fight
 	fight = in_fight
-	fight_k = 1.0 if in_fight else 0.0
 	fight_left = 0.0
 	fan_open = open
 	_settled = true
@@ -341,13 +346,13 @@ func _slot_filled(slot: int) -> bool:
 	var tid = c.cultivator.technique_slots[slot]
 	return tid != null and str(tid) != ""
 
-## The techniques are out (a fight), not folded into beads.
+## The techniques are out: once the HUD shows them, at rest as in a fight (decision 42).
 func _skills_live() -> bool:
-	return shown("skills") and fight_k >= 0.5
+	return shown("skills")
 
-## The page tab shows in a fight once the second page is open, while the attack button attacks.
+## The page tab shows with the techniques once the second page is open.
 func _page_tab_shown(c) -> bool:
-	return _skills_live() and (not bound() or Unlocks.is_unlocked(c.id, "technique_page_2")) and _ctx_glyph(c) == ""
+	return _skills_live() and (not bound() or Unlocks.is_unlocked(c.id, "technique_page_2"))
 
 ## The fan's toggles the player has, each with its role and its place while the fan is open.
 func _fan_items() -> Array:
@@ -381,7 +386,8 @@ func _treasure_id(c, slot: int) -> String:
 ## Ring 2 beside the fan as it stands now: [{role, center, deg, toggle}]. While the fan is closed, a toggle that is on;
 ## in a fight, the healing slot, the Draught and the treasures that hold something; at rest, the healing slot while it
 ## holds something to drink or a quest step asks for it (Granny's Remedy: the player must see where the tea goes), clear
-## of the open fan; the context or the post chip; the weapon swap when there is a spare. An empty slot is not drawn
+## of the open fan; the context whenever the world offers something in reach (decision 42: its own button, at rest as in
+## a fight) and, at rest beside a node, the post chip; the weapon swap when there is a spare. An empty slot is not drawn
 ## (mockup 01).
 func _ring2(c) -> Array:
 	var items: Array = []
@@ -396,8 +402,8 @@ func _ring2(c) -> Array:
 			if shown("treasure_%d" % (ti + 1)) and (loose or _treasure_id(c, ti) != ""): items.append({"role": "treasure:%d" % ti, "home": "treasure:%d" % ti})
 	elif not fight and not loose and shown("quick_use") and (c.inventory.count(str(c.inventory.quick_use)) > 0 or _quick_asked(c)):
 		items.append({"role": "quick", "home": "quick"})
-	if _fight_context(): items.append({"role": "context", "home": "context"})
-	elif _post_chip(): items.append({"role": "post", "home": "post"})
+	if _context_shown(): items.append({"role": "context", "home": "context"})
+	if _post_chip(): items.append({"role": "post", "home": "post"})
 	if shown("weapon_swap") and (loose or c.inventory.loadout.get("spare") != null): items.append({"role": "swap", "home": "swap"})
 	var fan_at: Array = _fan_items().map(func(f): return f.center) if fan_open else []
 	return ring2_places(items, RING2_DEG.filter(func(d): return fan_at.any(func(p): return (p as Vector2).distance_to(_on(attack_center, RING2_R, float(d))) < 60.0)))
@@ -437,19 +443,21 @@ func hit_targets() -> Array:
 	var add := func(role: String, center: Vector2, drawn: float, hit := 0.0) -> void:
 		out.append({"role": role, "center": center, "drawn": drawn, "r": maxf(maxf(HIT_MIN, drawn + 4.0), hit)})
 	var c = Game.active()
-	add.call("attack", attack_center, 66.0, 74.0)
-	if shown("jump"): add.call("jump", jump_center, 26.0)
+	if shown("attack"): add.call("attack", attack_center, 66.0, 74.0)
+	if shown("jump"): add.call("jump", jump_center, JUMP_R)
 	if shown("guard"): add.call("guard", guard_center, 26.0)
 	if _skills_live():
+		# A technique's square: `drawn` its half side (its box, for the clear zone and the world's labels), its hit circle
+		# reaching nearly to its corners.
 		for i in slots.size():
-			if _slot_filled(i + skill_page * 4): add.call("skill", slots[i], 32.0, 36.0)
+			if _slot_filled(i + skill_page * 4): add.call("skill", slots[i], TILE * 0.5, TILE * 0.5 + 10.0)
 	if _page_tab_shown(c): add.call("page", page_center, 24.0)
 	var fan := _fan_items()
 	if not fan.is_empty():
 		add.call("fan", fan_center, 26.0)
 		if fan_open:
 			for f in fan: add.call(str(f.role), f.center, 26.0)
-	for it in _ring2(c): add.call(str(it.role), it.center, 26.0)
+	for it in _ring2(c): add.call(str(it.role), it.center, CTX_R if str(it.role) == "context" else 26.0)
 	for ic in icon_row:
 		if shown(ic[0]): add.call("icon:" + str(ic[0]), ic[1], 26.0)
 	for pc in _party_chips(c): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
@@ -522,7 +530,7 @@ func obstacle_rects() -> Array:
 	if status_rect.size.x > 0.0 and shown("player_panel"): out.append(status_rect)
 	if not equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
 	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
-	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
+	if _context_shown(): out.append(context_label_rect())
 	var log_r := log_rect()
 	if log_r.size.x > 0.0: out.append(log_r)
 	return out
@@ -760,11 +768,10 @@ func _tick_aims(delta: float) -> void:
 			shown_aim = true
 	if not shown_aim: player.aim = {}
 
-## Decision 35: Attack's drag moves are live while the button attacks (not while it offers a context at rest, a
-## harvest tap or a channel) and the character may attack.
+## Decision 35: Attack's drag moves are live while the character may attack and is not busy with a harvest tap or a
+## channel (decision 42: a context in reach never takes the button).
 func _moves_live() -> bool:
-	return bound() and tapping.object == "" and channel.object == "" and (context.is_empty() or attack_first()) \
-		and Unlocks.is_unlocked(Game.active_id, "attack")
+	return bound() and tapping.object == "" and channel.object == "" and attack_first()
 
 ## What an Attack or technique touch would do if let go now: tap, aim, cancel, or one of Attack's drag moves
 ## (finisher, plunge, guard) while they are live.
@@ -864,18 +871,15 @@ func tap_cultivate() -> void:
 		return
 	player.meditate()
 
+## The Attack button: it attacks, at rest as in a fight (decision 42); a harvest's hold or its tap (begun from the
+## context's button) keeps the hands busy. Before the Attack lesson there is no button, and the J and Enter keys use the
+## context.
 func primary() -> void:
 	if not bound():
 		player.attack()
 		return
-	if tapping.object != "":
-		finish_tap(float(tapping.t) / maxf(0.01, float(tapping.ring)))
-		return
-	if channel.object != "": return
-	if not context.is_empty() and not attack_first():
-		use_context()
-		return
-	if Unlocks.is_unlocked(Game.active_id, "attack"):
+	if tapping.object != "" or channel.object != "": return
+	if attack_first():
 		player.attack()
 		attack_pressed = true
 		attack_hold = 0.0
@@ -896,7 +900,8 @@ func _attack_up() -> void:
 	attack_hold = 0.0
 	if bound() and Game.combat.is_playing(Game.active_id): Game.submit({"type": "channel_melody", "on": false})
 
-## S43 rule 5: the Attack button shows Climb or Enter only while no enemy is aggroed on the player within 400.
+## S43 rule 5: an enemy aggroed on the player within 400 makes a fight (the Attack button attacks either way since
+## decision 42; Climb and Enter are on the context's own button).
 func _enemy_close() -> bool:
 	if Game.room_rt == null or not is_instance_valid(player): return false
 	for e in Game.room_rt.living_enemies():
@@ -904,27 +909,32 @@ func _enemy_close() -> bool:
 		if str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(player.plane) < 400.0: return true
 	return false
 
-## The attack button's one rule: in a fight it attacks, always. A fight is the P5a rest/fight state (a foe within the
-## fight range, one engaged with you anywhere in the room, which is also one attacking you or struck a moment ago, and
-## FIGHT_HOLD_S after), so a gathering node, a pickup, a person, a door or a ladder beside you never takes the button
-## while foes are about: what the context offers moves to the context slot on ring 2. At rest (or before the Attack
-## lesson) the context takes the big button, as mockup 02 draws it.
+## The attack button's one rule: once the character may attack it attacks, always. A gathering node, a pickup, a
+## person, a door or a ladder beside you never takes it: what the context offers has its own button on ring 2. An
+## earlier fix held to this in a fight (a resource under the player had taken the button mid-fight); decision 42 holds
+## to it at rest too (mockup 02's context on the big button is retired).
 func attack_first() -> bool:
-	return bound() and Unlocks.is_unlocked(Game.active_id, "attack") and (fight or _fight_now())
+	return bound() and Unlocks.is_unlocked(Game.active_id, "attack")
+
+## A fight now: the P5a rest/fight state (a foe within the fight range, one engaged with you anywhere in the room, which
+## is also one attacking you or struck a moment ago, and FIGHT_HOLD_S after).
+func _in_fight() -> bool:
+	return fight or _fight_now()
 
 ## A foe engaged with the player anywhere in the room: turned on them, striking, recovering, fleeing (EnemyState.in_fight).
 func _foe_engaged() -> bool:
 	if Game.room_rt == null: return false
 	return Game.room_rt.living_enemies().any(func(e): return e.team == "enemy" and not e.def.get("passive", false) and e.in_fight())
 
-## The in-fight context slot on ring 2: whatever the context offers while the attack button attacks (attack_first).
-func _fight_context() -> bool:
-	return not context.is_empty() and attack_first()
+## The context's own button on ring 2 (decision 42): whatever the world offers in reach, at rest as in a fight, and a
+## harvest it began while it waits for its tap.
+func _context_shown() -> bool:
+	return not context.is_empty() or tapping.object != ""
 
 ## S50 Keeping Post: beside a node, out of a fight, the Keep Post button shows. One character is enough: the post works
 ## while the game is put away, or for an incense stick burnt at it.
 func _post_chip() -> bool:
-	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not attack_first() \
+	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not _in_fight() \
 		and Unlocks.is_unlocked(Game.active_id, "keeping_post")
 
 ## S50 node plate: beside a gathering node, the Chance a post there would have for its first output (cached).
@@ -948,7 +958,13 @@ func keep_post() -> void:
 		return
 	open_page.emit("posts", {})
 
+## The context's button: what the world offers in reach (talk, gather, open, enter, climb); while a harvest it began
+## shrinks its ring round the button, the tap that lands it.
 func use_context() -> void:
+	if tapping.object != "":
+		finish_tap(float(tapping.t) / maxf(0.01, float(tapping.ring)))
+		return
+	if channel.object != "": return
 	if str(context.get("type", "")) == "climbable":
 		player.climb_hold = 0.0
 		var near_c: Dictionary = player.world.geometry.climbable_near(player.plane, player.altitude, 48.0)
@@ -1087,7 +1103,7 @@ func _input(event):
 			match kc:
 				KEY_SPACE: player.jump()
 				KEY_J, KEY_ENTER: primary()
-				KEY_F: if not context.is_empty(): use_context()
+				KEY_F: if _context_shown(): use_context()
 				KEY_C: if shown("cultivate"): tap_cultivate()
 				KEY_K:
 					if shown("guard"):
@@ -1858,31 +1874,42 @@ func skill_position(index: float) -> Vector2:
 	var low := clampi(int(floor(index)), 0, 2)
 	return slots[low].lerp(slots[low + 1], index - low)
 
-## A technique in its 64 px ring (mockup 01): the HD icon at its native 48, dim when the weapon in hand cannot use it,
-## the cooldown's sweep and seconds, a Qi ring when there is too little Qi. An empty or locked slot is not drawn (G3).
-## While the ring folds into beads the slot shrinks toward its bead (`radius` under 32) and shows no icon.
-func draw_skill_slot(center: Vector2, slot: int, opacity: float, radius := 32.0) -> void:
+## Decision 42: a technique as the Techniques tree's node picture (TechniquePicture), a TILE px square in the tree's
+## bright jade frame: the character doing the art on its element's ground, its emblem as a seal in the corner. Closed
+## (the weapon in hand cannot use it), a slate frame, the picture dim and a lock; cooling, the ink sweep and its
+## seconds; short of Qi, the picture dimmed and a Qi strip along its foot. An empty or locked slot is not drawn (G3).
+func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
+	var r := Rect2(center - Vector2(TILE, TILE) * 0.5, Vector2(TILE, TILE))
 	if not bound():
-		ring(center, radius, false, opacity)
+		TechniquePicture.rounded(self, r, 5.0, Color(UiKit.INK, opacity))
+		TechniquePicture.rounded(self, r.grow(-1.0), 4.0, Color(UiKit.BRIGHT_JADE, opacity))
+		TechniquePicture.rounded(self, r.grow(-3.0), 3.0, Color(UiKit.JADE_SHADOW, opacity))
 		return
 	if not _slot_filled(slot): return
-	ring(center, radius, false, opacity)
-	if radius < 24.0: return
 	var c = Game.active()
-	var tid = c.cultivator.technique_slots[slot]
-	var tdef := ContentDB.entry("techniques", str(tid))
+	var tid := str(c.cultivator.technique_slots[slot])
+	var tdef := ContentDB.entry("techniques", tid)
 	var fam := str(StatRules.family(c).get("id", "fists"))
-	var dim = tdef.get("family", "any") != "any" and not (tdef.family == fam or (tdef.family == "fists" and fam == "gauntlets"))
-	# The technique ring shows an HD icon's native 48, or a legacy icon's 32 art px at 2x (1x is lost in the ring).
-	SpriteCache.draw_icon(self, Rect2(center - Vector2(32, 32), Vector2(64, 64)), str(tid), Color(1, 1, 1, opacity * (0.35 if dim else 1.0)),
-		48.0 if SpriteCache.icon_hd(str(tid)) else 64.0)
-	var cd = c.pools.cooldown("tech:" + str(tid))
+	var closed: bool = str(tdef.get("family", "any")) != "any" and not (str(tdef.family) == fam or (str(tdef.family) == "fists" and fam == "gauntlets"))
+	var cd: float = c.pools.cooldown("tech:" + tid)
+	var cost: float = Game.combat.technique_cost(c, tdef)
+	var short: bool = not closed and cd <= 0.0 and c.pools.max_qi > 0 and c.pools.qi < cost
+	var frame := UiKit.HOLLOW if closed else UiKit.BRIGHT_JADE
+	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.38 if closed else (0.55 if short else 1.0), opacity, "hud")
+	if closed: TechniquePicture.draw_lock(self, r, opacity)
 	if cd > 0.0:
-		var total := float(tdef.get("cooldown_s", 5))
-		_sweep(center, radius - 2.0, clampf(cd / total, 0.0, 1.0), opacity)
-		UiKit.draw_outlined(self, str(int(ceil(cd))), center + Vector2(-20, 7), 18, Color(UiKit.PAPER, opacity), HORIZONTAL_ALIGNMENT_CENTER, 40)
-	elif c.pools.max_qi > 0 and c.pools.qi < Game.combat.technique_cost(c, tdef):
-		draw_arc(center, radius - 2.0, 0, TAU, 32, Color(UiKit.QI, 0.5 * opacity), 3)
+		TechniquePicture.draw_cooldown(self, r, cd / maxf(0.1, float(tdef.get("cooldown_s", 5))), cd, opacity)
+	elif short:
+		TechniquePicture.draw_qi_short(self, r, c.pools.qi / maxf(1.0, cost), opacity)
+
+## The character's look for the techniques' pictures, found once a frame.
+var _look_frame := -1
+var _look_now := {}
+func _look(c) -> Dictionary:
+	if _look_frame != Engine.get_process_frames():
+		_look_frame = Engine.get_process_frames()
+		_look_now = InventoryAuthority.outfit_for(c)
+	return _look_now
 
 ## A cooldown's dark sweep over a ring's face, `frac` of the way round from the top.
 func _sweep(center: Vector2, r: float, frac: float, opacity := 1.0) -> void:
@@ -1891,27 +1918,14 @@ func _sweep(center: Vector2, r: float, frac: float, opacity := 1.0) -> void:
 	for i in 25: pts.append(center + Vector2.from_angle(-PI / 2 + TAU * frac * (i / 24.0)) * r)
 	draw_colored_polygon(pts, Color(UiKit.INK, 0.6 * opacity))
 
-## Where slot `i`'s bead sits on the attack ring at rest (mockup 02).
-func _bead(i: int) -> Vector2:
-	return _on(attack_center, BEAD_R, BEAD_DEG[i])
-
-func _draw_bead(at: Vector2, a: float) -> void:
-	draw_circle(at, 8.5, Color(UiKit.INK, a))
-	draw_circle(at, 6.5, Color(UiKit.JADE, a))
-	draw_circle(at + Vector2(-2, -2), 2.5, Color(UiKit.BRIGHT_JADE, a))
-
-## The techniques of the page: on ring 1 in a fight, folded into beads on the attack ring at rest, and between the two
-## as `k` runs (Reduce motion: they fade in place). A page turn slides both pages along the arc.
-func draw_skill_scroll(k := 1.0) -> void:
-	var still: bool = bound() and Game.account.settings.get("reduce_motion", false)
+## The techniques of the page on ring 1, at rest as in a fight (decision 42). A page turn slides both pages along the
+## arc.
+func draw_skill_scroll() -> void:
 	if scroll_progress >= 1:
 		for i in slots.size():
 			var slot := i + skill_page * 4
 			if bound() and not _slot_filled(slot): continue
-			if k < 1.0: _draw_bead(_bead(i), 1.0 - k)
-			if k <= 0.02: continue
-			var at: Vector2 = slots[i] if still else _bead(i).lerp(slots[i], k)
-			draw_skill_slot(at, slot, k, 32.0 if still else lerpf(8.0, 32.0, k))
+			draw_skill_slot(slots[i], slot, 1.0)
 		return
 	var tt := scroll_progress * scroll_progress * (3 - 2 * scroll_progress)
 	var shift := -scroll_direction * 4.0 * tt
@@ -1921,7 +1935,7 @@ func draw_skill_scroll(k := 1.0) -> void:
 			var index := i + shift + (scroll_direction * 4 if page == 1 else 0)
 			if index < -0.35 or index > 3.35: continue
 			var fade := minf(clampf((index + 0.35) / 0.35, 0, 1), clampf((3.35 - index) / 0.35, 0, 1))
-			draw_skill_slot(skill_position(index), i + (old_page if page == 0 else skill_page) * 4, fade * k)
+			draw_skill_slot(skill_position(index), i + (old_page if page == 0 else skill_page) * 4, fade)
 
 func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String, ahead := 0.0, flash := 0.0) -> void:
 	draw_rect(r.grow(2), UiKit.INK)
@@ -1969,7 +1983,7 @@ func _draw():
 	# The harvest ring (S45) sits over every other control while it runs.
 	if tapping.object != "": _draw_tap_ring()
 	for k in ["tap:perfect", "tap:miss"]:
-		if pulses.has(k): UiKit.draw_outlined(self, Tx.t("hud." + k.replace(":", "_")), attack_center + Vector2(-90, -150), 22,
+		if pulses.has(k): UiKit.draw_outlined(self, Tx.t("hud." + k.replace(":", "_")), context_center + Vector2(-90, -CTX_R - 58), 22,
 			UiKit.GOLD if k == "tap:perfect" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 180)
 	if joystick_id != -999:
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
@@ -2461,36 +2475,39 @@ func _grid_map(grid: TopdownRoom) -> Texture2D:
 	_grid_maps = {grid.id: ImageTexture.create_from_image(img)}
 	return _grid_maps[grid.id]
 
-## The harvest ring (S45): it shrinks from wide to the button; the gold band is the perfect window for your rank.
+## The harvest ring (S45): it shrinks from wide to the context's button, where the harvest began (decision 42); the gold
+## band is the perfect window for your rank.
 func _draw_tap_ring() -> void:
-	var outer := 128.0
-	var inner := 58.0
+	var at := context_center
+	var inner := CTX_R - 6.0
+	var outer := inner + 70.0
 	var f := clampf(float(tapping.t) / maxf(0.01, float(tapping.ring)), 0.0, 1.0)
 	var at_f := func(x: float) -> float: return lerpf(outer, inner, clampf(x, 0.0, 1.0))
 	var lo: float = at_f.call(float(tapping.target) + float(tapping.window) * 0.5)
 	var hi: float = at_f.call(float(tapping.target) - float(tapping.window) * 0.5)
-	draw_circle(attack_center, outer + 6.0, Color(UiKit.PLATE, 0.55))
-	draw_arc(attack_center, outer + 6.0, 0, TAU, 64, Color(UiKit.GOLD, 0.35), 1.5)
-	draw_arc(attack_center, (lo + hi) * 0.5, 0, TAU, 64, Color(UiKit.GOLD, 0.55), maxf(2.0, hi - lo))
-	draw_arc(attack_center, lo, 0, TAU, 64, UiKit.GOLD, 1.5)
-	draw_arc(attack_center, hi, 0, TAU, 64, UiKit.GOLD, 1.5)
+	draw_circle(at, outer + 6.0, Color(UiKit.PLATE, 0.55))
+	draw_arc(at, outer + 6.0, 0, TAU, 64, Color(UiKit.GOLD, 0.35), 1.5)
+	draw_arc(at, (lo + hi) * 0.5, 0, TAU, 64, Color(UiKit.GOLD, 0.55), maxf(2.0, hi - lo))
+	draw_arc(at, lo, 0, TAU, 64, UiKit.GOLD, 1.5)
+	draw_arc(at, hi, 0, TAU, 64, UiKit.GOLD, 1.5)
 	var in_band := f >= float(tapping.target) - float(tapping.window) * 0.5 and f <= float(tapping.target) + float(tapping.window) * 0.5
-	draw_arc(attack_center, at_f.call(f), 0, TAU, 64, UiKit.PALE_GOLD if in_band else UiKit.BRIGHT_JADE, 4)
-	UiKit.draw_outlined(self, Tx.t("hud.tap_now"), attack_center + Vector2(-90, -outer - 18), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
+	draw_arc(at, at_f.call(f), 0, TAU, 64, UiKit.PALE_GOLD if in_band else UiKit.BRIGHT_JADE, 4)
+	UiKit.draw_outlined(self, Tx.t("hud.tap_now"), at + Vector2(-90, -outer - 18), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
 
-## What the attack button does now when it is not an attack: the context's glyph ("" while it attacks: attack_first).
-func _ctx_glyph(_c) -> String:
-	if not bound() or context.is_empty() or attack_first(): return ""
-	return _context_glyph()
-
-## The glyph of what the context offers (talk, gather, enter...): on the big button at rest, in the ring-2 slot in a fight.
+## The glyph of what the context offers (talk, gather, enter...), on its own button on ring 2.
 func _context_glyph() -> String:
+	if context.is_empty() and tapping.object != "": return "gather"
 	return {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
 		"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
 		"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
 		"beast_trail": "gather", "ancestral_altar": "open"}.get(str(context.get("type", "")), "open")
 
-## The verb and its target under the attack button (mockup 02: "Talk · Peddler Ning").
+## The context button's words under it, as wide as the ring leaves them (CTX_LABEL_W).
+const CTX_LABEL_W := 128.0
+func context_label_rect() -> Rect2:
+	return Rect2(context_center.x - CTX_LABEL_W * 0.5, context_center.y + CTX_R + 2.0, CTX_LABEL_W, 18.0)
+
+## The verb and its target under the context's button (mockup 02: "Talk · Peddler Ning").
 func _context_line(c) -> String:
 	var verb := str(context.get("label", ""))
 	var who := ""
@@ -2499,31 +2516,28 @@ func _context_line(c) -> String:
 	return (Tx.t("hud.context_target") % [verb, who] if who != "" and verb != "" else verb) + _node_plate(c)
 
 func _draw_controls(c) -> void:
-	var ctx_glyph := _ctx_glyph(c)
 	_draw_fan(c)
 	_draw_ring2(c)
-	# Ring 1: jump, the techniques (beads at rest), dodge.
+	# Ring 1: jump, the techniques (out at rest as in a fight, decision 42), dodge.
 	if shown("jump"):
-		ring(jump_center, 26, false, 1.0, pulses.has("hud:jump"))
+		ring(jump_center, JUMP_R, false, 1.0, pulses.has("hud:jump"))
 		glyph("jump", jump_center)
 	if shown("guard"):
 		ring(guard_center, 26, Game.combat.timeline(c.id).guard, 1.0, pulses.has("hud:guard"), guard_pressed)
 		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 32)
 		var dcd = c.pools.cooldown("dodge")
 		if dcd > 0: draw_arc(guard_center, 22, -PI / 2, -PI / 2 + TAU * (1.0 - dcd / 2.5), 20, UiKit.MIST, 3)
-	if shown("skills"): draw_skill_scroll(fight_k)
+	if shown("skills"): draw_skill_scroll()
 	if _page_tab_shown(c): _draw_page_tab()
-	# The attack button, or the context's verb with its target under it (mockup 02).
-	if shown("attack") or ctx_glyph != "":
-		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"), attack_pressed)
-		if ctx_glyph != "":
-			glyph(ctx_glyph, attack_center, 64)
-			UiKit.draw_outlined(self, UiKit.fit(_context_line(c), 16, 176, true), Vector2(attack_center.x - 88, 694), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 176)
-		else:
-			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
-		if channel.object != "":
-			draw_arc(attack_center, 60, -PI / 2, -PI / 2 + TAU * clampf(channel.t / maxf(0.01, channel.dur), 0, 1), 40, UiKit.BRIGHT_JADE, 5)
+	# The attack button: the weapon in hand's glyph, always (decision 42: what the world offers has its own button).
+	if shown("attack"):
+		ring(attack_center, 66, Game.combat.is_busy(c.id) or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"), attack_pressed)
+		glyph(attack_glyph(c), attack_center, 64)
 	if _aims(): _draw_attack_moves()
+
+## The Attack button's face: the weapon family's glyph, never a context's (decision 42).
+func attack_glyph(c) -> String:
+	return str(StatRules.family(c).get("hud_glyph", "fist"))
 
 ## The thumb on Attack's aiming gesture, or null.
 func attack_gesture() -> AimGesture:
@@ -2669,10 +2683,15 @@ func _draw_ring2(c) -> void:
 			"draught": _draw_draught(c, at)
 			"treasure:0", "treasure:1": _draw_treasure(c, int(str(it.role).get_slice(":", 1)), at)
 			"context":
+				# Decision 42: its own button, at rest as in a fight, lit gold; a harvest's hold runs round it.
 				context_center = at
-				ring(at, 26, false, 1.0, true)
+				ring(at, CTX_R, false, 1.0, true)
 				glyph(_context_glyph(), at, 32)
-				UiKit.draw_outlined(self, str(context.get("label", "")), at + Vector2(-50, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
+				if channel.object != "":
+					draw_arc(at, CTX_R - 3.0, -PI / 2, -PI / 2 + TAU * clampf(channel.t / maxf(0.01, channel.dur), 0, 1), 32, UiKit.BRIGHT_JADE, 4)
+				var lr := context_label_rect()
+				UiKit.draw_outlined(self, UiKit.fit(_context_line(c), 14, lr.size.x, true), Vector2(lr.position.x, lr.position.y + 14), 14, UiKit.PALE_GOLD,
+					HORIZONTAL_ALIGNMENT_CENTER, lr.size.x)
 			"post":
 				context_center = at
 				var mine: bool = Game.posts.at_post(c) and str(Game.posts.post_of(c).get("object", "")) == str(context.get("object", ""))
@@ -3055,5 +3074,5 @@ func _draw_legacy() -> void:
 		draw_rect(Rect2(77, y + 2, 233 * amount / 100, 12), UiKit.HP if row == 0 else UiKit.QI)
 	draw_skill_scroll()
 	ring(attack_center, 66, player.attack_time > 0)
-	ring(jump_center, 26)
+	ring(jump_center, JUMP_R)
 	ring(fan_center, 26, player.meditating)
