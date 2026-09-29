@@ -674,7 +674,7 @@ func press(id: int, p: Vector2):
 			var er := equip_prompt.equip(Game.active())
 			if not er.get("ok", false) and er.has("text"): add_log(str(er.text), UiKit.MIST)
 		"prompt:close": equip_prompt.dismiss()
-		"minimap": open_page.emit("world_map", {})
+		"minimap": open_page.emit("world_map", minimap_place_at(p))
 		"portrait": open_page.emit("character", {})
 		"tracker": open_page.emit("quests", {})
 		"auto_hunt":
@@ -1599,7 +1599,9 @@ func _handle(name: String, p: Dictionary) -> void:
 				elif why not in ["off", "path"]: add_log(Tx.t("sim.world.auto_hunt_" + why), UiKit.MIST)
 				else: add_log(Tx.t("hud.auto_hunt_off"), UiKit.MIST)
 		"auto_path_started":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auto_path_to") % ContentDB.name_of("rooms", str(p.target)), UiKit.PALE_GOLD)
+			# Decision 43: a walk to a place names the place ("the Storehouse"), else the room.
+			var dest := str(p.get("name", "")) if str(p.get("name", "")) != "" else ContentDB.name_of("rooms", str(p.target))
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auto_path_to") % dest, UiKit.PALE_GOLD)
 		"auto_path_ended":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("reason", "")) != "cancelled":
 				add_log(Tx.t("hud.auto_path_" + str(p.get("reason", "arrived"))), UiKit.PALE_GOLD if str(p.get("reason", "")) == "arrived" else UiKit.MIST)
@@ -2458,7 +2460,7 @@ func _draw_minimap(c) -> void:
 			var mk: String = Game.quest.npc_marker(c, str(o.npc))
 			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else UiKit.PALE_GOLD))
 			if QuestAuthority.marker_calls(mk): draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
-		elif o.type in ["shrine", "qi_spring", "teleport_stone"]:
+		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and (grid == null or PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty()):
 			draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
 		elif o.type == "treasure_birth":
 			# S45: a Spirit Fruit ripening here stands up as a pillar of light on the minimap.
@@ -2481,6 +2483,17 @@ func _draw_minimap(c) -> void:
 			if ripe: draw_arc(mp, 6.5 + sin(t * 5.0), 0, TAU, 12, UiKit.GOLD, 1)
 			if not hs.dormant and not spent:
 				UiKit.draw_text(self, UiKit.span(float(hs.seconds)), mp + Vector2(-30, 14), 14, lc, HORIZONTAL_ALIGNMENT_CENTER, 60)
+	# Decision 43: the room's places, each a small glyph of its kind (TopdownPlaceArt's things, read at a glance); one
+	# that has something waiting (a new notice, a letter, a ripe bed, a finished batch) wears a gold spark. A tap near
+	# one opens the world map's Places on it, whose card offers the walk there.
+	# The marks are worked out twice a second, or as the room changes (the room's map stays put in between).
+	_place_look -= get_process_delta_time()
+	var mark_room := str(Game.room_rt.room_id) if grid != null else ""
+	if _place_look <= 0.0 or mark_room != _place_room:
+		minimap_places = place_marks(c, mark_room, to_map, inner.position.y + 6.0) if grid != null else []
+		_place_room = mark_room
+		_place_look = 0.5
+	for mk in minimap_places: TopdownPlaceArt.glyph(self, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), t)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -2492,6 +2505,41 @@ func _draw_minimap(c) -> void:
 	var fv := Vector2(player.facing, 0) if grid == null or player.get("motor") == null else (player.motor.dir as Vector2).normalized()
 	var fs := Vector2(-fv.y, fv.x)
 	draw_colored_polygon(PackedVector2Array([pp + fv * 5.0, pp - fv * 3.0 - fs * 4.0, pp - fv * 3.0 + fs * 4.0]), Color.WHITE)
+
+## Decision 43: the places drawn on the minimap this frame ({id, at}), and their states, looked at twice a second.
+var minimap_places: Array = []
+var _place_states := {}
+var _place_look := 0.0
+var _place_room := ""
+
+## The room's places on the minimap (decision 43): [{id, kind, at (the map's px, by `to_map`), wait}], each place the
+## character sees (PlaceRules.visible); two a few cells apart would overlap on the small map, so the later one steps
+## above (not over `top`) or below. `wait`: something waits there (a new notice, a letter, a ripe bed, a ready batch).
+func place_marks(c, room_id: String, to_map: Callable, top := -INF) -> Array:
+	var out: Array = []
+	for pl in PlaceRules.of_room(room_id):
+		if not PlaceRules.visible(c, pl): continue
+		var at: Vector2 = to_map.call(PlaceRules.point(pl), 0.0)
+		for k in 2:
+			for other in out:
+				if at.distance_to(other.at) < 15.0: at.y += -14.0 if at.y >= float(other.at.y) and at.y - 14.0 > top else 14.0
+		if _place_look <= 0.0 or not _place_states.has(str(pl.id)): _place_states[str(pl.id)] = PlaceRules.state(c, pl)
+		var ps: Dictionary = _place_states[str(pl.id)]
+		var wait := int(ps.get("new", 0)) > 0 or (str(ps.state) in ["ribbon", "growth"] and bool(ps.get("on", false)))
+		out.append({"id": str(pl.id), "kind": str(pl.kind), "at": at, "wait": wait})
+	return out
+
+## What a tap on the minimap opens the world map on: the Places view on the place nearest the tap (within 16 px of its
+## glyph), else the map as it opens.
+func minimap_place_at(p: Vector2) -> Dictionary:
+	var best := {}
+	var best_d := 16.0
+	for mp in minimap_places:
+		var d := p.distance_to(mp.at)
+		if d < best_d:
+			best_d = d
+			best = {"view": "places", "place": str(mp.id)}
+	return best
 
 ## Redesign Phase 4: the direction mark's way on a grid room's map, from the player's dot to the goal (east when on it).
 static func minimap_way(from: Vector2, to: Vector2) -> Vector2:

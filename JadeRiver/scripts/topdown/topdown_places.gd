@@ -225,10 +225,25 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			lv.mode = "label"
 			lv.setup(o)
 			overlay.add_child(lv)
-			var art := ObjectView.new()
-			art.mode = "art"
-			art.setup(o)
+			var art: Node2D
+			if o.has("place"):
+				art = TopdownPlaceArt.object(o)   # decision 43: a thing the places table adds (a letter box, a mat), drawn by it
+			else:
+				art = ObjectView.new()
+				art.mode = "art"
+				art.setup(o)
+				# The Figure sorts it with the room: the side view's depth (ObjectView.depth, 1500 and more) as its z drew
+				# every thing over every body, a notice board over the head of one standing in front of it (decision 43's
+				# review).
+				art.z_index = 0
 			var fig := Figure.new(room, o, art, lv)
+			if o.has("place"):
+				art.scale = Vector2.ONE
+				if str(o.get("type", "")) == "meditation_mat":
+					# A mat lies flat on the floor: under the bodies sitting on it or behind it.
+					var k := room.decal_key(fig.plane, float(o.get("alt", 0.0)))
+					fig.position.y = k
+					art.position.y = fig.feet.y - k
 			sorted.add_child(fig)
 			out.object_views[str(o.id)] = lv
 			out.figures[str(o.id)] = fig
@@ -250,6 +265,8 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			for g in TopdownGate.make(room, p):
 				sorted.add_child(g)
 				out.nodes.append(g)
+	# Decision 43: the room's places (data/places.json): the sights round them and what each shows.
+	out.nodes.append_array(TopdownPlaceArt.build(room, str(def.get("id", "")), sorted, out.figures))
 	return out
 
 ## One person: their label view on the overlay and their figure sorted with the room, following it: [NpcView, Figure]

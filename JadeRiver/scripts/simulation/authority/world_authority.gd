@@ -237,7 +237,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"climb_tower": return climb_tower(c, int(intent.get("floor", 0)))
 		"sweep_floor": return sweep_tower(c, int(intent.get("floor", -1)))
 		"set_auto_hunt": return set_auto_hunt(c, bool(intent.get("on", false)))
-		"auto_path": return start_auto_path(c, str(intent.get("target", "")))
+		"auto_path": return start_auto_path(c, str(intent.get("target", "")), str(intent.get("place", "")))
 		"set_sail": return set_sail(c, str(intent.get("route", "")))
 		"enter_grid_room": return enter_grid_room(c, TopdownRoom.load_room(str(intent.get("room", ""))))
 		"array_travel": return array_travel(c, str(intent.get("from", "")), str(intent.get("to", "")))
@@ -832,6 +832,11 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":
 			result.open_page = "storage"
+			PlaceRules.note_use(game, c, "storage")   # decision 43: the first use at the place (earned remote access)
+		"letter_box":
+			result.open_page = "mail"   # decision 43: the letter box at home, a courier post in a town
+		"meditation_mat":
+			result.open_page = "cultivation"   # decision 43: sit and cultivate where the Qi gathers
 		"bath_station":
 			# S44: the bath is a seclusion focus, chosen on the Seclusion page.
 			result.open_page = "seclusion"
@@ -840,6 +845,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 				"formation_table": "formations", "garden_bed": "garden", "chart_table": "charts", "shipyard_slip": "vessels"}[o.type]))
 		"notice_board":
 			result.open_page = "notice_board"
+			PlaceRules.read_board(game, c)   # decision 43: its papers read, the gold "!" goes
 		"signpost":
 			result.text = str(o.get("text", ""))
 		"insight_stone":
@@ -981,7 +987,8 @@ func _verb(o: Dictionary) -> String:
 		"forge_anvil": return Tx.t("sim.world.forge")
 		"bath_station": return Tx.t("sim.world.bathe")
 		"teleport_stone", "transfer_array": return Tx.t("sim.world.travel")
-		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
+		"notice_board", "signpost", "inspect", "letter_box": return Tx.t("sim.world.read")
+		"meditation_mat": return Tx.t("sim.world.sit")
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
@@ -2130,20 +2137,29 @@ func portal_open(c, room_id: String, p: Dictionary) -> bool:
 func route(c, from_room: String, to_room: String) -> Array:
 	return WorldRules.route(from_room, to_room, func(room_id: String, p: Dictionary) -> bool: return portal_open(c, room_id, p))
 
-func start_auto_path(c, target: String) -> Dictionary:
+## Decision 43: with `place` (a place's id, data/places.json) the walk goes on inside the place's room to the cell its
+## user stands on (the Menu's and the map's travel to a place), from another room or from this one.
+func start_auto_path(c, target: String, place := "") -> Dictionary:
+	var goal := PlaceRules.get_place(place) if place != "" else {}
+	if not goal.is_empty(): target = str(goal.room)
 	if target == "":
 		_end_auto_path(c.id, "cancelled")
 		return ok()
 	if game.room_rt == null: return fail("no_room")
-	if target == game.room_rt.room_id: return fail("here", {"text": Tx.t("sim.world.auto_path_here")})
-	var r := route(c, game.room_rt.room_id, target)
-	if r.is_empty(): return fail("no_route", {"text": Tx.t("sim.world.auto_path_none")})
+	var r: Array = []
+	if target == game.room_rt.room_id:
+		if goal.is_empty(): return fail("here", {"text": Tx.t("sim.world.auto_path_here")})
+	else:
+		r = route(c, game.room_rt.room_id, target)
+		if r.is_empty(): return fail("no_route", {"text": Tx.t("sim.world.auto_path_none")})
 	_end_auto_hunt(c.id, "path")
 	auto_paths[c.id] = {"target": target, "route": r}
-	emit("auto_path_started", {"actor": c.id, "target": target, "rooms": r.size()})
-	return ok({"route": r})
+	if not goal.is_empty(): auto_paths[c.id].place = place
+	emit("auto_path_started", {"actor": c.id, "target": target, "rooms": r.size(), "place": place, "name": str(goal.get("name", ""))})
+	return ok({"route": r, "place": place})
 
-## Where auto-path is heading in this room: the portal to take ({portal, x, y, press_up}), or {}.
+## Where auto-path is heading in this room: the portal to take ({portal, x, y, press_up}), in the place's own room the
+## cell its user stands on ({place, x, y}), or {}.
 func auto_path_step(c) -> Dictionary:
 	var ap: Dictionary = auto_paths.get(c.id, {}) if c != null else {}
 	if ap.is_empty() or game.room_rt == null: return {}
@@ -2153,7 +2169,22 @@ func auto_path_step(c) -> Dictionary:
 		if at.is_empty(): return {}
 		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": false, "surface": ""}
 		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": bool(at.p.get("press_up", false)), "surface": str(at.p.get("surface", ""))}
+	if ap.has("place") and game.room_rt.room_id == str(ap.target):
+		var pl := PlaceRules.get_place(str(ap.place))
+		var sp := PlaceRules.stand_point(pl) if game.room_rt.topdown != null else PlaceRules.point(pl)
+		if game.room_rt.topdown == null:
+			# A side-view room: the place's object where the side view has it.
+			var o: Dictionary = game.room_rt.object_def(str(pl.get("object", "")))
+			if not o.is_empty(): sp = Vector2(float(o.at[0]), float(o.at[1]))
+		return {"place": str(ap.place), "object": str(pl.get("object", "")), "x": sp.x, "y": sp.y}
 	return {}
+
+## Decision 43: the walk to a place ends at its user's cell.
+func auto_path_arrive(c) -> void:
+	if c == null or not auto_paths.has(c.id): return
+	var pl := PlaceRules.get_place(str(auto_paths[c.id].get("place", "")))
+	_end_auto_path(c.id, "arrived")
+	if not pl.is_empty(): emit("place_reached", {"actor": c.id, "place": str(pl.id), "object": str(pl.object), "room": str(pl.room)})
 
 ## Where a route step starts in this room: its dock object or its portal ({x, y, p: the portal}), {} when it is not here.
 func _step_point(s: Dictionary) -> Dictionary:
@@ -2239,7 +2270,7 @@ func _auto_path_room(_p: Dictionary) -> void:
 	if c == null or not auto_paths.has(c.id) or game.room_rt == null: return
 	var ap: Dictionary = auto_paths[c.id]
 	if game.room_rt.room_id == str(ap.target):
-		_end_auto_path(c.id, "arrived")
+		if not ap.has("place"): _end_auto_path(c.id, "arrived")   # a place's walk goes on to it (auto_path_step)
 		return
 	if (ap.route as Array).any(func(s): return str(s.room) == game.room_rt.room_id): return
 	if game.room_rt.def.get("crossing", false): return   # under sail: the route goes on at the far pier

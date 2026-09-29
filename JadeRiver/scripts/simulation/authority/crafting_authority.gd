@@ -284,7 +284,9 @@ func room_beds(c, room_id: String) -> Array:
 func _bed_check(c, key: String) -> String:
 	if not Unlocks.is_unlocked(c.id, "herb_garden"): return Unlocks.locked_text("herb_garden")
 	if bed_def(key).is_empty(): return Tx.t("sim.crafting.no_such_bed")
-	if game.room_rt == null or game.room_rt.room_id != key.get_slice(":", 0): return Tx.t("sim.crafting.bed_elsewhere")
+	# Decision 43: beds are tended where they grow, and from anywhere after the first harvest (earned remote access).
+	if (game.room_rt == null or game.room_rt.room_id != key.get_slice(":", 0)) and not PlaceRules.remote_open(c, "herb_garden"):
+		return Tx.t("sim.crafting.bed_elsewhere")
 	return ""
 
 func plant_seed(c, key: String, seed: String) -> Dictionary:
@@ -339,6 +341,7 @@ func harvest_bed(c, key: String) -> Dictionary:
 	rec.progress = 0.0
 	add_xp(c, "herb_gathering", float(ContentDB.curve("profession_xp.gather", 5)))
 	emit("herb_harvested", {"actor": c.id, "object": key, "item": herb, "age": HerbRules.item_age(herb), "perfect": false, "early": false, "bed": true})
+	PlaceRules.note_use(game, c, "herb_garden")   # decision 43: the first harvest opens the tending from anywhere
 	return ok({"item": herb, "count": count, "seed": seed})
 
 ## Spirit Soil raises a bed's field grade one step, for good.
@@ -600,13 +603,14 @@ func station_near(c, types: Array) -> bool:
 			if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) < 180.0: return true
 	return false
 
-func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array = []) -> String:
+## `anywhere` (decision 43): the station rule is lifted (the Crafts queue once its remote access is earned).
+func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array = [], anywhere := false) -> String:
 	var r := ContentDB.entry("recipes", recipe_id)
 	if r.is_empty() or str(r.craft) != craft: return Tx.t("sim.crafting.unknown_recipe")
 	if not Unlocks.is_unlocked(c.id, craft): return Unlocks.locked_text(craft)
 	if not knows(c, recipe_id): return Tx.t("sim.crafting.you_have_not_learned_this")
 	var station: Array = STATIONS.get(craft, [])
-	if not station.is_empty() and not station_near(c, station):
+	if not station.is_empty() and not anywhere and not station_near(c, station):
 		return Tx.t("sim.crafting.you_need_a") % [Tx.t("sim.crafting.cooking_pot"), "furnace", "forge", Tx.t("sim.crafting.chart_table"),
 			Tx.t("sim.crafting.slipway")][["cooking", "alchemy", "smithing", "star_charting", "shipwright"].find(craft)]
 	# A vessel needs a smith's hand and a formation master's plates (S16).
@@ -1398,8 +1402,12 @@ func furnace_bonus(c) -> float:
 func queue_auto(c, recipe_id: String, count: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "auto_refine"): return fail("locked")
 	if c.crafting.auto_queue.size() >= 5: return fail("queue_full")
-	var why := recipe_check(c, recipe_id, count, "alchemy")
+	# Decision 43 (systems as places): the queue is filled at a furnace, and from anywhere once its remote access is
+	# earned (a first batch queued at one, then Qi Unfurling: PlaceRules.remote_open).
+	var at_furnace := station_near(c, STATIONS.alchemy)
+	var why := recipe_check(c, recipe_id, count, "alchemy", [], not at_furnace and PlaceRules.remote_open(c, "alchemy"))
 	if why != "": return fail("cannot_craft", {"text": why})
+	if at_furnace: PlaceRules.note_use(game, c, "alchemy")
 	if count > int(furnace_of(c).get("batch", 1)): return fail("batch", {"text": Tx.plural("sim.crafting.furnace_batch", int(furnace_of(c).get("batch", 1))) % [ContentDB.item_name(str(furnace_of(c).get("id", ""))), int(furnace_of(c).get("batch", 1))]})
 	var r := ContentDB.entry("recipes", recipe_id)
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "auto_refine")

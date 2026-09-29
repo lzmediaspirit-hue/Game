@@ -16,8 +16,8 @@ extends Node
 ##      from before the tutorials knows what it has (no flood of lessons);
 ##   6. two unlocks at once queue one after the other, by priority; Later passes a guide by;
 ##   7. a page's "?" plays its tour again (not recorded), and Settings' Replay tutorials clears what was seen;
-##   8. a place step leads the direction mark to the nearest thing it names (and to data/places.json's row once the
-##      systems-as-places table has landed; skipped cleanly before).
+##   8. a place step leads the direction mark to the systems-as-places table's place (data/places.json, PlaceRules.home)
+##      for a system that lives at places, to one that opens the page it teaches; else to the nearest thing it names.
 ## In-game tests never use the Max Tester save. Run headless:  godot --headless --path . res://tests/tutorials.tscn
 
 const TALKS := ["dialogue", "gift", "mercy", "fates", "revival", "welcome"]   ## pages the coach waits out: no tour
@@ -403,6 +403,7 @@ func _replay() -> void:
 func _places() -> void:
 	await fresh(["notice_board"])
 	var ch = c()
+	ch.quests.flags["prologue_done"] = true   # the board opens after the fair: the village's board is up by then
 	unlock(["notice_board"])
 	await frames(4)
 	var e := TutorialRules.entry("notice_board")
@@ -411,23 +412,33 @@ func _places() -> void:
 	check(Game.tutorials.head(ch) == "notice_board" and st.mode == "guide" and str(spot.get("room", "")) != "",
 		"the notice board's guide leads to a place (%s: %s)" % [st.mode, str(spot)])
 	var from := str(ch.position.get("room", ""))
-	var ok_nearest := true
-	var n_best := Game.world.route(ch, from, str(spot.room)).size() if str(spot.room) != from else 0
-	for sp in TutorialRules.place_spots((e.chain as Array)[0]):
-		var way: Array = Game.world.route(ch, from, str(sp[0])) if str(sp[0]) != from else []
-		if (str(sp[0]) == from or not way.is_empty()) and (way.size() if str(sp[0]) != from else 0) < n_best: ok_nearest = false
-	check(ok_nearest, "it is the nearest notice board by the ways open (%s from %s)" % [str(spot.room), from])
-	check(Game.world.guide_target(ch) == str(spot.room) or str(spot.room) == from, "the direction mark leads there first (%s)" % Game.world.guide_target(ch))
-	if ContentDB.lists.has("places"):
-		var rows: Array = ContentDB.all("places")
-		var used := 0
-		for row in rows:
-			for te in TutorialRules.entries():
-				for s in te.get("chain", []):
-					if str(s.get("at", "")) == "place" and str(s.get("place", "")) == str(row.id): used += 1
-		check(used > 0, "the systems-as-places table's rows lead the place steps (%d)" % used)
+	if PlaceRules.system_of("notice_board") != "":
+		# Decision 43's table has the notice boards: the guide leads to the place a walk there takes (PlaceRules.home), one
+		# the character sees (the village's board goes up only after the prologue) by a way open to it.
+		var row := TutorialRules.place("notice_board", ch)
+		check(str(spot.get("place", "")) == str(row.get("id", "-")) and str(spot.room) == str(row.room) and str(spot.object) == str(row.object)
+			and PlaceRules.visible(ch, row) and (str(row.room) == from or not Game.world.route(ch, from, str(row.room)).is_empty()),
+			"it is the systems-as-places table's notice board a walk there takes, one standing for the character (%s from %s)" % [str(spot), from])
 	else:
-		print("tutorials: SKIP data/places.json has not landed; the place steps use the nearest thing they name")
+		var ok_nearest := true
+		var n_best := Game.world.route(ch, from, str(spot.room)).size() if str(spot.room) != from else 0
+		for sp in TutorialRules.place_spots((e.chain as Array)[0]):
+			var way: Array = Game.world.route(ch, from, str(sp[0])) if str(sp[0]) != from else []
+			if (str(sp[0]) == from or not way.is_empty()) and (way.size() if str(sp[0]) != from else 0) < n_best: ok_nearest = false
+		check(ok_nearest, "it is the nearest notice board by the ways open (%s from %s)" % [str(spot.room), from])
+	check(Game.world.guide_target(ch) == str(spot.room) or str(spot.room) == from, "the direction mark leads there first (%s)" % Game.world.guide_target(ch))
+	# The systems-as-places table (data/places.json) leads every place step whose system or page lives at places, to a
+	# place that opens the very page the tutorial teaches.
+	var used := 0
+	var wrong: Array = []
+	for te in TutorialRules.entries():
+		for s in te.get("chain", []):
+			if str(s.get("at", "")) != "place" or PlaceRules.system_of(str(s.get("place", ""))) == "": continue
+			used += 1
+			var prow := TutorialRules.place(str(s.place), ch)
+			if prow.is_empty() or str(prow.get("page", "")) != str(te.get("page", "")): wrong.append("%s: %s" % [te.id, str(prow.get("id", "none"))])
+	check(ContentDB.lists.has("places") and used >= 5 and wrong.is_empty(),
+		"the systems-as-places table's rows lead the place steps of the systems that live at places, each to its page (%d; %s)" % [used, str(wrong)])
 	await tap_button("later")
 	check(Game.world.guide_target(ch) != str(spot.room) or str(spot.room) == from, "the guide passed by, the mark leads back to the story")
 

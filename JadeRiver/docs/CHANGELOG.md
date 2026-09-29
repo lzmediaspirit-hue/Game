@@ -74,6 +74,36 @@ characters' quality" the pipeline.
 - **Tests.** `data_validation`: the whole catalogue in five facings for every foe and its elite, inside its sheet, no
   sheet over 4096 px, every tell up before its blow. `topdown_suite`: an elite draws its own sheet in its larger cell,
   its label on its larger figure.
+## Systems as places (decision 43)
+
+The user: "don't forget some systems should be moved to the main world map instead." The study
+(`docs/redesign/systems_as_places.md`) was waiting on them; its set for the prototype is built in the top-down game,
+in the rooms the systems belong to. Its "As built" section has the whole account.
+
+- **The place table.** `tools/data/places.py` builds `data/places.json`: 26 places, each with its system, page, room,
+  object (one of the room's, or one it adds on the grid), cell, the cell its user stands on, kind, verb, what it shows,
+  its rule (both, earned, place) and its remote rule. It is checked as it is built: every place is reached by
+  auto-path from every way into its room, what it blocks cuts nothing off, and a system of the prologue or the tutorial
+  has its home place on their path. `PlaceRules` reads it.
+- **In the world** (`TopdownPlaceArt`, original pixel art in the §14 palette): Lotus Ferry's services round its square
+  (the shrine, a new letter box, the notice board, a new Storehouse shed behind the chest, the pot, a meditation mat by
+  the spring), Proprietor Fang's stall on Market Street (a counter with his wares, an awning behind him), a courier
+  post, the furnaces, the beds, the stones and shrines. Each shows its state: papers on the board and a gold "!" when
+  one is new, a red ribbon and the flag up on the letter box while a letter waits, sacks in the shed by what the
+  storehouse holds, Qi mist over the mat, smoke from a furnace at work and a jade wisp when a batch is ready, glints
+  over a ripe bed. Walking up and pressing the verb opens the same page.
+- **Earned remote.** Storage opens from anywhere after a first use at a storehouse and Tailor Xun's pouch; a bed is
+  tended from anywhere after the first harvest; the Crafts queue fills from anywhere after a first batch at a furnace
+  and Qi Unfurling 1. Until then the Menu's new Storage and Garden tablets say where they live ("At the Storehouse")
+  and open a card with Travel there, which walks through the rooms and on to the place (`auto_path` with `place`).
+- **The map.** The world map's fourth view, Places, marks every area that holds the chosen kind of place, and its card
+  names the place, what it shows and its rule, with Go there. The minimap draws each place of the room as a small
+  glyph of its kind, a gold spark where something waits; a tap on one opens the map's Places on it.
+- **A fix from the review:** an object's prop drew at its side-view depth as its z in the top-down view, over every
+  body (a notice board over the head of one standing in front of it); the room now sorts it.
+- **Tests:** `places_tests` (the table, every place opening its page from its user's cell, the three remote rules, the
+  map's and the minimap's marks, the Menu's card and the walk, the unlock order) and `places.py --check`, both in
+  `tools/run_tests.sh`. Screens in `docs/redesign/feedback/places/` (`tools/dev/places_capture.tscn`).
 
 ## Every newly unlocked system teaches itself (decision 43)
 
