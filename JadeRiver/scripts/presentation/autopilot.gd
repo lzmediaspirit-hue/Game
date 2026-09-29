@@ -3,7 +3,8 @@ extends RefCounted
 ## S49 mobile conventions: quest auto-path and auto-hunt drive the player's joystick and buttons. The autopilot only
 ## makes input (an axis, a jump, an attack, a technique); the World and Combat authorities decide the rest, and any
 ## touch of the joystick hands the controls back. Within a room it follows the navigation graph (walk, jump, climb,
-## drop) with the plain jump every character has.
+## drop) with the plain jump every character has; on the height grid TopdownRoute steers it round the room's props at
+## the player's sprint (decision 42).
 
 const MOVE := {"jump": MovementSolver.JUMP_IMPULSE, "climb": true, "drop": true}
 const MELEE_REACH := 62.0
@@ -123,31 +124,18 @@ func _toward(goal: Vector2, goal_surface: String, near: float) -> Vector2:
 	if arriving and d.length() <= near: return Vector2.INF
 	return Vector2(d.x, d.y * 1.4).normalized()
 
-## Redesign Phase 4: toward a point on the height grid along its cells (TopdownRoom.find_path: walking, stairs, drops
-## and a jump one level up, which it presses Jump for), the path kept until the goal's cell changes; INF when there.
-var _grid_goal := Vector2i(-1, -1)
-var _grid_path: Array = []
+## Redesign Phase 4, decision 42: toward a point on the height grid by TopdownRoute: the room's cells (walking, stairs,
+## drops and a jump one level up, which it presses Jump for), round every solid prop, wall and bank with the foot box
+## clear of them, in straight runs; the stick fully pushed, so the body sprints as the player's does. INF when there.
+var _route: TopdownRoute = null
 func _toward_grid(goal: Vector2, near: float) -> Vector2:
 	var room: TopdownRoom = Game.room_rt.topdown
-	var here: Vector2 = player.plane
-	var spot := room.nearest_standable(goal)
-	# There when within reach on the plane and on the goal's own floor: not under it on the square below a terrace.
-	if here.distance_to(goal) <= near and absf(player.altitude - room.floor_at(spot)) <= 8.0: return Vector2.INF
-	var cell := TopdownRoom.cell_of(here)
-	var target := TopdownRoom.cell_of(spot)
-	if target != _grid_goal or (not _grid_path.is_empty() and cell.distance_to(_grid_path[0]) > 1.5):
-		_grid_goal = target
-		_grid_path = room.find_path(cell, target, true)
-	while not _grid_path.is_empty() and cell == _grid_path[0]: _grid_path.pop_front()
-	var aim := goal
-	if not _grid_path.is_empty():
-		var next: Vector2i = _grid_path[0]
-		aim = (Vector2(next) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
-		if room.cell_floor(next) > player.altitude + 8.0 and hop_cd <= 0.0 and player.surface != null:
-			player.jump()
-			hop_cd = 0.5
-	var v := aim - here
-	return v.normalized() if v.length() > 0.5 else Vector2.INF
+	if _route == null or _route.room != room: _route = TopdownRoute.new(room)
+	var axis := _route.steer(player.plane, player.altitude, player.surface != null, goal, near)
+	if _route.jump and hop_cd <= 0.0 and player.surface != null:
+		player.jump()
+		hop_cd = 0.5
+	return axis
 
 ## The nearest drop within 500 px that can be walked to: on the ground in the side view (not one left on a ledge); on
 ## the height grid on any floor there is a way onto.
@@ -178,5 +166,5 @@ func _reachable(at: Vector2, alt: float) -> bool:
 		_reach_from = key
 		_reach_cache.clear()
 	var to := TopdownRoom.cell_of(room.nearest_standable(at))
-	if not _reach_cache.has(to): _reach_cache[to] = to == from or not room.find_path(from, to, true).is_empty()
+	if not _reach_cache.has(to): _reach_cache[to] = to == from or not TopdownRoute.find(room, from, to, true).is_empty()
 	return bool(_reach_cache[to])

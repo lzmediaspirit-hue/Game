@@ -87,7 +87,7 @@ func timeline(actor_id: String) -> Dictionary:
 		actors[actor_id] = {"action": "", "t": 0.0, "duration": 0.0, "hit_at": 0.0, "hit_done": true, "combo": -1, "window": 0.0,
 			"queued": 0, "family": "fists", "technique": "", "guard": false, "guard_t": 0.0, "dodge_t": 0.0, "facing": 1,
 			"forced": Vector2.ZERO, "forced_t": 0.0, "flinch": 0.0, "stance": 0.0, "last_attack_facing": 1, "hits": 0, "targets_hit": [],
-			"finisher_q": {}}
+			"finisher_q": {}, "chain": -1}
 	return actors[actor_id]
 
 func is_busy(actor_id: String) -> bool:
@@ -526,6 +526,16 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	if combo.is_empty(): return fail("no_combo")
 	var in_air := airborne(c.id)
 	finisher = finisher and not in_air and combo.size() > 1
+	if is_busy(c.id) and grid() != null and tl.technique != "":
+		# Decision 42 (on the grid): a basic attack cuts a technique's recovery once its active frames have played, and
+		# the chain the technique was woven into carries on; sooner the hands are busy (the player's buffer holds the
+		# press until the cut, CombatFeel.weave).
+		if CombatFeel.weave(tl, "basic", c) != "cancel": return fail("busy")
+		var chain := int(tl.get("chain", -1))
+		_weave_cut(c, "basic")
+		if chain >= 0 and chain < combo.size() - 1:
+			tl.combo = chain
+			tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5))
 	if is_busy(c.id):
 		if finisher and tl.technique == "" and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1:
 			tl.finisher_q = {"facing": facing, "aim": aim_in, "aimed": aimed}
@@ -568,6 +578,7 @@ func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false)
 	tl.facing = facing
 	tl.step = step
 	tl.targets_hit = []
+	tl.chain = -1
 	tl.charged = finisher   # decision 38: a dragged finisher weighs as the charged blow (CombatFeel)
 	if game.character(c.id).cultivator.meditating: game.progression.stop_meditation(c, "attack")
 	var ev := {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index}
@@ -585,7 +596,11 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	if str(t.get("damage_type", "")) == "sword_release": return toggle_sword_release(c)
 	if str(t.get("damage_type", "")) == "sword_swarm": return toggle_sword_swarm(c, t)
 	var tl := timeline(c.id)
-	if is_busy(c.id): return fail("busy")
+	# Decision 42 (on the grid): a technique cuts a basic step's recovery once its blow has landed; sooner the hands are
+	# busy (the player's buffer holds the press until the cut, CombatFeel.weave). The cut is made once the technique is
+	# sure to go, just before it is paid for.
+	var weave: bool = grid() != null and is_busy(c.id) and CombatFeel.weave(tl, "technique", c) == "cancel"
+	if is_busy(c.id) and not weave: return fail("busy")
 	if climbing(c.id) and not t.get("on_climb", false): return fail("climbing")
 	var fam := StatRules.family(c)
 	var tfam := str(t.get("family", "any"))
@@ -613,6 +628,13 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and not breath_only(c) and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
+	# Decision 42: the chain it is woven into (the basic step it cuts, or the one just ended within the combo's window)
+	# carries on after it.
+	var chain := -1
+	if grid() != null and bool(CombatFeel.weave_cfg().get("chain_through", true)) and int(tl.combo) >= 0 \
+			and (weave or (tl.action == "" and float(tl.window) > 0.0)):
+		chain = int(tl.combo)
+	if weave: _weave_cut(c, "technique")
 	# S48 costly arts (Blood Burning): a share of max HP and a body injury, paid up front.
 	if float(t.get("hp_cost_pct", 0.0)) > 0.0:
 		var blood: float = c.pools.max_hp * float(t.hp_cost_pct)
@@ -653,6 +675,7 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	tl.hit_at = float(t.get("windup_s", 0.2))
 	tl.hit_done = false
 	tl.combo = -1
+	tl.chain = chain
 	tl.queued = 0
 	tl.finisher_q = {}
 	tl.technique = str(tid)
@@ -788,6 +811,16 @@ func _cancel_blow(c) -> void:
 	tl.finisher_q = {}
 	emit("attack_cancelled", {"actor": c.id, "phase": phase})
 
+## Decision 42: the blow under way ends in its recovery, cut by the next press (a technique into a basic step's, a basic
+## attack into a technique's; CombatFeel.weave). Its hit has landed, so nothing is dropped; the steps queued after it
+## give way to the press.
+func _weave_cut(c, into: String) -> void:
+	var tl := timeline(c.id)
+	emit("attack_cancelled", {"actor": c.id, "phase": "recovery", "into": into})
+	tl.action = ""
+	tl.queued = 0
+	tl.finisher_q = {}
+
 ## The dodge's cooldown: Swallow's Breath (S48) shortens it, and so does the Agility 25 meridian gate (S10).
 func _dodge_cooldown(c) -> float:
 	var cd: float = float(ContentDB.stat_const("combat", {}).get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
@@ -859,6 +892,11 @@ func _tick_player(c, delta: float) -> void:
 			_start_step(c, fam, int(tl.combo) + 1, int(tl.facing))
 		else:
 			tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5)) if tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1 else 0.0
+			# Decision 42: a technique woven into a chain hands it on: the next basic attack is the step after the one it cut.
+			var chain := int(tl.get("chain", -1)) if tl.technique != "" else -1
+			if chain >= 0 and chain < StatRules.family(c).get("combo", []).size() - 1:
+				tl.combo = chain
+				tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5))
 			tl.action = ""
 			tl.queued = 0
 	if tl.action == "" and float(tl.window) > 0.0:

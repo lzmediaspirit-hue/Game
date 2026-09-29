@@ -5,7 +5,8 @@ extends Node
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
 ## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
-## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --terrain <name>`: the Terrain v2 review
+## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --decision42` and `-- --decision42-route`:
+## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
 ## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
 ## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
@@ -61,6 +62,9 @@ func _main() -> void:
 	if "--tutorial-foes" in OS.get_cmdline_user_args():
 		await tutorial_foes()
 		return
+	if "--decision42-route" in OS.get_cmdline_user_args():
+		await decision42_route()
+		return
 	main.enter_topdown_proto(false)
 	w = main.world
 	p = w.player
@@ -77,6 +81,9 @@ func _main() -> void:
 		return
 	if "--combat" in OS.get_cmdline_user_args():
 		await combat()
+		return
+	if "--decision42" in OS.get_cmdline_user_args():
+		await decision42()
 		return
 	if "--character" in OS.get_cmdline_user_args():
 		await character()
@@ -436,6 +443,147 @@ func combat() -> void:
 	hud.visible = true
 	print("topdown_capture: combat done")
 	get_tree().quit()
+
+## Decision 42 (`-- --decision42`, into docs/redesign/feedback/combat/): the weave in the prototype room, basic attack,
+## technique, basic attack, each pressed early and cutting the last one's recovery once its blow has landed, as labelled
+## frames round the body (every fifth frame, 1/12 s apart) for the bare hands and the jian; then the sprint (the stick
+## pushed) and the light touch's walk as strips.
+func decision42() -> void:
+	var out := "res://docs/redesign/feedback/combat/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	var hud = main.hud
+	var c = Game.active()
+	var base := Vector2(22.5, 19.0) * 32.0
+	hud.visible = false
+	for fam in ["fists", "jian"]:
+		c.inventory.equipped["weapon"] = null if fam == "fists" else LootRules.make_instance("training_" + fam, 1, "common", null, 900)
+		Game.combat.refresh_stats(c.id)
+		await arena(base, [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]])
+		for e in Game.room_rt.enemies.values():
+			e.pools.max_hp = 1.0e12
+			e.pools.hp = e.pools.max_hp
+		c.pools.cooldowns.clear()
+		c.pools.qi = c.pools.max_qi
+		Game.combat.actors.erase(c.id)   # a chain of its own, from the first step
+		m.face(Vector2(1, 0.2))
+		var tl: Dictionary = Game.combat.timeline(c.id)
+		var tiles: Array = []
+		var presses := 0
+		var f0 := Engine.get_physics_frames()
+		var last := -99
+		while true:
+			var f := Engine.get_physics_frames() - f0
+			if f >= 112: break
+			if presses == 0:
+				p.aim_attack(Vector2(1, 0.2))
+				presses = 1
+			elif presses == 1 and f >= 3:
+				p.aim_technique(0, Vector2(1, 0.2), 0.5)   # pressed in the step's anticipation: it waits for the cut
+				presses = 2
+			elif presses == 2 and str(tl.technique) != "":
+				p.attack()   # pressed in the technique's wind-up: it waits for the technique's cut
+				presses = 3
+			if f - last >= 5 and tiles.size() < 20:
+				last = f
+				var now := "tech" if str(tl.technique) != "" else ("basic %d" % (int(tl.combo) + 1) if Game.combat.is_busy(c.id) else "rest")
+				var ph := str({"anticipation": "wind-up", "active": "active", "recovery": "recovery"}.get(CombatFeel.phase_of(tl, c), ""))
+				tiles.append(["%.2fs %s%s" % [f / 60.0, now, (" · " + ph) if ph != "" else ""], await crop(256, 160)])
+			else:
+				await get_tree().physics_frame
+				await get_tree().process_frame
+		await panels(out + "weave_%s.png" % fam, tiles, 4)
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	# The sprint (the stick pushed: the run the sheets draw) and the light touch's careful walk, over the same second.
+	await arena(base + Vector2(-140, -40), [])
+	await strip("sprint_strip", Vector2.RIGHT, 48, [], [], [0, 12, 24, 36, 48], out)
+	await arena(base + Vector2(-140, -40), [])
+	await strip("walk_light_touch_strip", Vector2(0.5, 0), 48, [], [], [0, 12, 24, 36, 48], out)
+	hud.visible = true
+	print("topdown_capture: decision 42 done")
+	get_tree().quit()
+
+## Decision 42 (`-- --decision42-route`, into docs/redesign/feedback/combat/): auto-path's steering (TopdownRoute, as the
+## Autopilot drives it) in Lotus Ferry village, round its trees, fences, hedges, rocks and lanterns at the sprint. The
+## whole room with a tour drawn on it (from Home Lane to every way out and four of its people and things in turn, as
+## topdown_suite's route test runs it): in gold the route the new steering runs, in red the old steering's (cell centre
+## to cell centre by find_path); and frames of the body running the road to the east gate in the game.
+func decision42_route() -> void:
+	var out := "res://docs/redesign/feedback/combat/"
+	await _topdown_game(out)
+	await frames(360)
+	main.hud.visible = false
+	Game.world.load_room(Game.active(), "lf_village", "", (Vector2(9, 18) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(Vector2(9, 18), 150)
+	var start: Vector2 = m.pos
+	var trails := [_tour_trail(w.room, start, false), _tour_trail(w.room, start, true)]
+	var way: Dictionary = Game.room_rt.portal_def("east_gate")
+	var goal := Vector2(float(way.at[0]), float(way.at[1]))
+	var route := TopdownRoute.new(w.room)
+	var tiles: Array = []
+	for f in 1800:
+		var axis := route.steer(m.pos, m.z, m.grounded, goal, 14.0)
+		if axis == Vector2.INF: break
+		if route.jump and m.grounded: p.jump()
+		p.movement = axis
+		if f % 40 == 20 and tiles.size() < 12: tiles.append(["%.2f s  %.0f u/s  %s" % [f / 60.0, m.vel.length(), p.pose], await crop(384, 288)])
+		await get_tree().physics_frame
+		await get_tree().process_frame
+	p.movement = Vector2.ZERO
+	for i in 2:
+		var line := Line2D.new()
+		line.points = trails[i]
+		line.width = 2.0
+		line.default_color = Color(0.9, 0.25, 0.2, 0.85) if i == 1 else Color(1.0, 0.84, 0.35, 1.0)
+		line.z_index = 4000 - i
+		w.viewport.add_child(line)
+	await whole_room(out + "autopath_village_route.png")
+	# A close-up (x2) of the village's east side: the trees by the houses, the lanterns at the jetty, the gate's stair.
+	var whole := Image.load_from_file(ProjectSettings.globalize_path(out + "autopath_village_route.png"))
+	var close := whole.get_region(Rect2i(660, 220, 500, 260))
+	close.resize(1000, 520, Image.INTERPOLATE_NEAREST)
+	close.save_png(out + "autopath_village_route_closeup.png")
+	await panels(out + "autopath_village_frames.png", tiles, 4)
+	main.hud.visible = true
+	print("topdown_capture: decision 42 route done")
+	get_tree().quit()
+
+## The route tour's feet on the room (art px, lifted by height) for a bare motor from `start`: to every way out and four
+## of the room's people and things in turn, steered by TopdownRoute, or (`old`) by the old grid steering: the next cell
+## of find_path's way, its centre, the way popped as each cell is entered.
+func _tour_trail(room: TopdownRoom, start: Vector2, old: bool) -> PackedVector2Array:
+	var goals: Array = []
+	for pid in room.def.get("portals", {}): goals.append([TopdownRoom.cell_point(room.def.portals[pid].at), 14.0])
+	var places: Array = room.def.get("place", {}).keys()
+	places.sort()
+	for i in range(0, places.size(), maxi(1, ceili(places.size() / 4.0))): goals.append([TopdownRoom.cell_point(room.def.place[places[i]]), 10.0])
+	var mo := TopdownMotor.new(room, start)
+	var route := TopdownRoute.new(room)
+	var out := PackedVector2Array()
+	for g in goals:
+		var target: Vector2 = g[0]
+		if float(g[1]) == 10.0: target = room.spot_near(target, room.floor_at(target), mo.pos)
+		var gp: Array = room.find_path(TopdownRoom.cell_of(mo.pos), TopdownRoom.cell_of(room.nearest_standable(target)), true, 100000)
+		for f in 1200:
+			var axis := Vector2.ZERO
+			var hop := false
+			if old:
+				if mo.pos.distance_to(target) <= float(g[1]): break
+				var cell := TopdownRoom.cell_of(mo.pos)
+				while not gp.is_empty() and cell == gp[0]: gp.pop_front()
+				var aim := target if gp.is_empty() else (Vector2(gp[0]) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				axis = (aim - mo.pos).normalized()
+				hop = not gp.is_empty() and room.cell_floor(gp[0]) > mo.z + 8.0 and mo.grounded and f % 30 == 0
+			else:
+				axis = route.steer(mo.pos, mo.z, mo.grounded, target, float(g[1]))
+				if axis == Vector2.INF: break
+				hop = route.jump and mo.grounded and f % 30 == 0
+			for sub in 2: mo.step(1.0 / 120.0, axis, hop and sub == 0)
+			mo.drain()
+			out.append(Vector2(mo.pos.x, mo.pos.y - mo.z) / TopdownRoom.ART)
+	return out
 
 ## A crop of the screen (w x h screen px) round the body, at x2 of the world's art px.
 func crop(cw: int, ch: int) -> Image:
