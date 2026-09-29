@@ -156,16 +156,31 @@ func loaded() -> bool:
 	_all_in = true
 	return true
 
-## Draw the figure with its feet at `feet` on `ci` (a lazy figure draws nothing until its sheets are in).
-func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE) -> void:
+## Draw the figure with its feet at `feet` on `ci` (a lazy figure draws nothing until its sheets are in), `px` screen px
+## an art px (a page's picture draws it larger, at a whole scale), only what falls inside `clip` (ci's space) when one is
+## given (a picture cropped to its frame).
+func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE, px := 1.0, clip := Rect2()) -> void:
 	if not loaded(): return
 	var fm := frame_of(action, row, i)
 	var k := fm.x * 6
-	ci.draw_set_transform(feet, 0.0, Vector2(-1, 1) if fm.y == 1 else Vector2.ONE)
+	var flip := fm.y == 1
+	# The clip in the figure's own art px from its feet (x mirrored with the figure).
+	var cut := Rect2()
+	if clip.has_area():
+		cut = Rect2((clip.position - feet) / px, clip.size / px)
+		if flip: cut.position.x = (feet.x - clip.end.x) / px
+	ci.draw_set_transform(feet, 0.0, Vector2(-px, px) if flip else Vector2(px, px))
 	for l in layers:
 		var r: PackedInt32Array = l.rects
 		if r[k + 2] == 0: continue
-		ci.draw_texture_rect_region(l.tex, Rect2(r[k + 4], r[k + 5], r[k + 2], r[k + 3]), Rect2(r[k], r[k + 1], r[k + 2], r[k + 3]), tint)
+		var dst := Rect2(r[k + 4], r[k + 5], r[k + 2], r[k + 3])
+		var src := Rect2(r[k], r[k + 1], r[k + 2], r[k + 3])
+		if cut.has_area():
+			var keep := dst.intersection(cut)
+			if not keep.has_area(): continue
+			src = Rect2(src.position + keep.position - dst.position, keep.size)
+			dst = keep
+		ci.draw_texture_rect_region(l.tex, dst, src, tint)
 	ci.draw_set_transform(Vector2.ZERO)
 
 ## What the figure covers on screen in that frame, from its feet (for occlusion tests and labels).

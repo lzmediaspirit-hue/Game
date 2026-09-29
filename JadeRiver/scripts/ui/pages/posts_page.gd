@@ -576,9 +576,9 @@ func _figure(id: String) -> Dictionary:
 	var m := Mask.new()
 	m.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	add_child(m)
-	var d := Avatar.new()
-	d.outfit = InventoryAuthority.outfit_for(Game.character(id))
-	d.scale = Vector2.ONE * FIG_SCALE
+	# Decision 42: each character as its own game draws it: the top-down figure (4 px an art px) for a top-down one.
+	var who = Game.character(id)
+	var d := TopdownDoll.figure_for(InventoryAuthority.outfit_for(who), FIG_SCALE, 4, who)
 	m.add_child(d)
 	return {"mask": m, "doll": d}
 

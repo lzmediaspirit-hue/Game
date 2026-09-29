@@ -153,7 +153,7 @@ func _rank(ch, live: Dictionary) -> void:
 	# You, on your seat.
 	if mine >= 0:
 		var seat := _seat(mine, SEATS / 2)
-		var fig := SectKit.figure(self, figs, "you", InventoryAuthority.outfit_for(ch), 0.5 if mine >= 2 else 1.0)
+		var fig := SectKit.figure(self, figs, "you", InventoryAuthority.outfit_for(ch), 0.5 if mine >= 2 else 1.0, ch)
 		SectKit.show(fig, Vector2(seat.get_center().x, seat.position.y + seat.size.y * 0.45), live, "you", clampf(k * 2.0 - 0.5, 0.0, 1.0), "meditate")
 	_next(ch, order, ranks, mine)
 	_door_words(ch)

@@ -40,6 +40,81 @@ pages' part; `docs/ui_style_guide.md` §7 and §9 ("As built, decision 42") hold
   `story_scenes` 6 (talks close after taking and handing in in the top-down game, with a second quest waiting, the
   scene after, and a talk that finishes a quest); `prologue_run._choose_on_page` (so every accept and hand-in on the
   page in `tutorial_order` and `valley_run`) now asks that the talk closed.
+## The Techniques tree without its lag, and the top-down character on every page (decision 42)
+
+Two notes from the prototype APK (build 108): "The Techniques tree feels a bit laggy", and "there are places we still
+use the old sprite character".
+
+- **Why the tree lagged.** The whole page was drawn again every frame, whatever changed: the chart and every card in
+  view, the chooser, the reading, the dock and thirteen seals, about 5-6.5 ms of work a frame here (four to five times
+  that on a phone). The live preview animating, or a finger resting, was enough to redraw it all. On top of that came
+  stalls: a card's picture was composed from the side view's sheets (26 ms each, one a frame), choosing an art loaded
+  the side view's pose sheets for the reading and the preview (60-70 ms), and a new tab laid its tree out in one frame.
+- **What the page does now** (`techniques_page.gd`):
+  - **It is drawn only when something on it changes**: a tap, an event, its toast, art coming in from a loading thread
+    (`Page.redraw_on_change`, a new mode every page may take; the others still draw every frame).
+  - **The chart is drawn apart from the page, in tiles.** Each tile is half a family's column, two rings deep, drawn
+    once in the chart's own space in three layers (ground and routes, passages and gates, cards) and kept. A drag or a
+    glide only moves the sheets that hold them. Tiles are drawn as they come near the view, four a frame at most, and
+    again only when what they show changes: a node chosen or learned, an emblem composed.
+  - The cards' names and tags, the ring numerals and the plaque of the family in view are small layers of their own.
+    They are drawn again only when what they write changes. A word is still written only while it is wholly inside the
+    chart. The chooser lights the family in view once the view comes to rest.
+  - **Idle frames work ahead**: the other trees' shapes are laid out a family at a time (`ShapeJob`), and the nodes'
+    states are asked of the authority nearest the view first.
+  - The preview's caster and foes are drawn again only when their frame changes. The foe sheet's index is read on a
+    worker thread, and its texture on a loading thread.
+- **Measured** with the page's own profile, a top-down character on the Water tree. Two runs before and two after,
+  alternating, on the same machine. Headless frames never go under 6.9 ms here (the engine's idle sleep); the world
+  alone is 6.9 ms.
+
+  | ms a frame (mean / p95, or max) | before | after |
+  |---|---|---|
+  | the preview casting | 11.3-11.7 / 12.8-15.0 | 6.9-7.1 / 7.0-9.4 |
+  | a finger dragging the chart | 11.7-12.0 / 15.1-15.5, max 36-38 | 6.9-7.0 / 8.1-8.6, max 12 |
+  | the wheel's glide | 10.7-11.9 | 6.9 |
+  | nothing chosen | 10.1-10.2 | 6.9 |
+  | the frames after the page opens | 14.7-15.5, max 53-63 | 7.4-7.7, max 23-30 |
+  | the worst frame after choosing an art | 68-70 | 24-25 |
+  | a tab's first frame | 26.5-29.0, max 41-55 | 20.0-20.5, max 25-27 |
+
+  The page's own work a frame, timed inside it, went from 6.5 ms to 0.2 ms with the preview casting, and from 5.8 ms
+  to about 1 ms dragging.
+- **A bug on the way:** a ring's passage that cuts Qi cost read "Cuts the Qi cost of 2 Water arts by …" with a string
+  error: the words' arguments were out of order.
+- **The top-down character on every page.** The top-down figure (`TopdownFigure`, the layer sets under
+  `art/topdown/character/`) is the game's character. A new `TopdownDoll` draws it on a page: one action in one facing,
+  at a whole scale, nearest neighbour. Its sheets load on threads, it redraws only when its frame changes, and it can be
+  cropped. A classic side-view character (Settings' fallback) keeps the side view everywhere. Places changed:
+  - **The Techniques page:**
+    - the preview under the chooser (the side-view swordsman of the reference image). The character plays the art's
+      top-down pose, the one a fight casts it in (`TechniquePreview.top_pose`), toward the top-down world's mud-shell
+      crabs, at 3 px an art px (`moments.json` `technique_preview.top_foe`, `top_scale`);
+    - the reading's picture (the pose on its blow's frame, at 3);
+    - the cards' pictures: the top-down figure doing the art on the element's ground, with the art's emblem in the
+      corner, as the side view's still stood (not composed, so no card waits).
+  - **The Character page:** the figure (6 px an art px), and the friends' faces in the chips beside it.
+  - **The Bag:** the figure on its island (6).
+  - **The dialogue strip:** the speaker's portrait (4), and so the Gift's too.
+  - **The Companions:** each friend in their moon gate (4).
+  - **A shop:** the merchant behind the counter (6).
+  - **The Cultivation stair:** the figure seated in meditation (2), where the breakthrough's climb plays.
+  - **The Notice Board:** the wanted poster's likeness (3).
+  - **The sect hall** (Training Sect), **the Characters roster** and **the Roll-Call:** `SectKit.figure` draws each
+    character as their own game draws them.
+  - **The selection screen:** a top-down character's card at a whole 4 (was 3.2).
+  - Checked and unchanged: the Codex (its beasts are creature sheets), Relations, the Revival lamp and the
+    Breakthrough gate draw no figure.
+  - Not mine to change: the HUD's companion chip still draws a side-view head (`hud.gd` `_draw_face`).
+- **Tests:**
+  - `perf_tests` `_techniques_redraws`: with a top-down character and its preview casting, the page and its tiles
+    are not drawn again, and a frame costs within 1.5 ms of the world's alone. A drag across the biggest tree draws the
+    page at most three times, at most fifteen tile layers a frame, and a frame within 2 ms of the world's alone. Medians.
+    Before this change the page cost about 4 ms over the world's alone with its preview casting (the medians above), so
+    the first would fail.
+  - `rules_tests` `figures_suite`: every page above draws the top-down figure, at a whole scale, for a top-down
+    character, and no side-view avatar; a classic character keeps the side view.
+- Screenshots at 1280×720, before and after, are in `docs/redesign/feedback/sprites/`.
 
 ## The prototype feedback: animation canceling, sprint by default, auto-path round props, meditation's pose (decision 42)
 

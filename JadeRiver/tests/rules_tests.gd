@@ -125,6 +125,7 @@ func _main() -> void:
 	await identity_suite()
 	await map_suite()
 	await techniques_page_suite()
+	await figures_suite()
 	fixes_suite()
 	hand_in_suite()   # on the character fixes_suite made
 	respawn_suite()
@@ -12941,6 +12942,72 @@ func techniques_page_suite() -> void:
 	cu.restore(snap)
 	c.inventory.restore(inv_was)
 	c.quests.flags = flags_was
+
+## Decision 42 ("no old side-view character is left anywhere in the top-down game"): for a top-down character every page
+## that draws a figure draws the top-down one (TopdownDoll, at a whole scale, the side view's Avatar nowhere in it): the
+## Techniques page's cards, reading and preview (the art's top-down pose against the top-down world's foes), the
+## Character page and its friends' chips, the Bag, the dialogue strip's speaker, the Companions' gates, the merchant, the
+## Cultivation stair, the wanted poster, the sect hall, the Characters roster and the Roll-Call. A classic side-view
+## character keeps the side view's.
+func figures_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var view_was := str(c.view)
+	var keep := {"companions": c.companions.duplicate(true), "training_sect": c.training_sect.duplicate(true)}
+	for cid in ["lan_yue", "tie_niu"]:
+		if not (c.companions.get("roster", []) as Array).has(cid): Game.companions.apply_add(c.id, cid)
+	if str(c.training_sect.get("id", "")) == "": Game.training.apply_join(c.id, "jade_sect")
+	var avatar_script = load("res://scripts/avatar.gd")
+	var sides := func(pg: Node) -> int: return pg.find_children("*", "", true, false).filter(func(n): return n.get_script() == avatar_script).size()
+	var whole := func(n: Node2D) -> bool: return is_equal_approx(n.scale.x, roundf(n.scale.x)) and n.scale.x >= 1.0
+	c.view = "topdown"
+	var talk: Dictionary = Game.submit({"type": "talk", "npc": "old_ma"}).get("dialogue", {})
+	var seen := {}
+	for spec in [["techniques", {"tab": "water"}], ["character", {}], ["inventory", {}], ["dialogue", {"convo": talk}], ["companions", {}], ["shop", {"tab": "old_ma"}],
+			["cultivation", {}], ["notice_board", {"tab": "bounties"}], ["training_sect", {}], ["characters", {}], ["posts", {}]]:
+		var pg: Page = await _open_page(str(spec[0]), spec[1])
+		for i in 3: await get_tree().process_frame
+		var figs: Array = []
+		match str(spec[0]):
+			"techniques":
+				pg.on_action("node", "flowing_palm")
+				pg.queue_redraw()
+				for i in 4: await get_tree().process_frame
+				var st: TechniquePreview = pg.stage
+				var t := ContentDB.entry("techniques", "flowing_palm")
+				var poses: Array = pg._pics.values().map(func(v): return str(v.pose))
+				figs = [pg.pic, st.caster]
+				seen["techniques_preview"] = (st.top and st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
+					and not st.foes.is_empty() and st.foes.all(func(f): return f.sprite is TechniquePreview.TopFoe))
+				seen["techniques_cards"] = not poses.is_empty() and poses.all(func(ps): return TopdownFigure.manifest().actions.has(TopdownFigure.resolve(ps)))
+			"character":
+				figs = [pg.doll] + pg.mates
+				seen["character_scale"] = whole.call(pg.doll) and pg.mates.size() >= 1
+			"inventory", "shop", "cultivation": figs = [pg.doll]
+			"dialogue": figs = [pg.portrait]
+			"companions": figs = pg.avatars.values()
+			"notice_board": figs = [pg.likeness] if pg.likeness != null else []
+			"training_sect": figs = pg.figs.values()
+			"characters": figs = [pg.figs.get(c.id)]   # each character as its own game draws it: this one top-down
+			"posts": figs = [pg.figs[c.id].doll] if pg.figs.has(c.id) else []
+		var alone: bool = str(spec[0]) in ["characters", "posts"] or sides.call(pg) == 0   # (other characters may be classic ones)
+		seen[spec[0]] = not figs.is_empty() and figs.all(func(f): return f is TopdownDoll) and alone
+		pg.queue_free()
+		await get_tree().process_frame
+	check(seen.values().all(func(v): return v), "decision 42: every page draws a top-down character as the top-down figure, at a whole scale, and no side-view avatar (%s)" % str(seen))
+	# A classic side-view character keeps the side view's figure.
+	c.view = ""
+	var classic := {}
+	for id in ["character", "techniques"]:
+		var pg2: Page = await _open_page(id, {"tab": "water"} if id == "techniques" else {})
+		for i in 3: await get_tree().process_frame
+		classic[id] = (pg2.doll if id == "character" else pg2.stage.caster).get_script() == avatar_script
+		pg2.queue_free()
+		await get_tree().process_frame
+	check(classic.values().all(func(v): return v), "a classic side-view character keeps the side view's figure (%s)" % str(classic))
+	c.view = view_was
+	c.companions = keep.companions
+	c.training_sect = keep.training_sect
 
 ## P5 (the Bonds family; docs/page_identity.md rows 27, 28 and 42, mockup 21_dialogue_gift): the Gift's lacquered tray is
 ## held out over the talk's own strip, the talk's other choices beside it; it holds what the bag can give, what they are

@@ -25,6 +25,7 @@ const ORBIT := Vector2(234, 406)
 const ORBIT_R := Vector2(134, 224)
 const FEET := Vector2(228, 598)
 const FIGURE_SCALE := 2.5
+const TOP_SCALE := 6      # decision 42: a top-down character's figure (TopdownDoll), screen px an art px
 const CARD_W := 312.0
 const CARD_IN := CARD_W - 28.0
 const KINDS := ["all", "gear", "pills", "materials", "other"]
@@ -57,10 +58,12 @@ func content_rect() -> Rect2:
 	return Rect2(FIELD, Vector2(FIELD_W + GUTTER, 512))
 
 func setup() -> void:
-	doll = Avatar.new()
-	doll.visible = false
-	add_child(doll)
 	var ch = c()
+	# Decision 42: the character as its game draws it (the top-down figure for a top-down character).
+	if not is_instance_valid(doll):
+		doll = TopdownDoll.new() if TopdownDoll.shown(ch) else Avatar.new()
+		doll.visible = false
+		add_child(doll)
 	if ch == null: return
 	_refresh_doll()
 	tier = maxi(0, (ch.inventory.capacity() - ch.inventory.bonus_slots - 25) / 5)
@@ -72,8 +75,7 @@ func setup() -> void:
 
 func _refresh_doll() -> void:
 	if c() == null or not is_instance_valid(doll): return
-	doll.outfit = InventoryAuthority.outfit_for(c())
-	doll.last_key = ""
+	TopdownDoll.dress(doll, InventoryAuthority.outfit_for(c()))
 	doll.play("idle")
 
 func on_event(name: String, _p: Dictionary) -> void:
@@ -260,7 +262,7 @@ func draw_page() -> void:
 	_purses(ch)
 	# The figure on its island, then the worn slots riding in along the orbit as the page opens.
 	glow(Rect2(FEET + Vector2(-64, -10), Vector2(128, 22)), Color(UiKit.INK, 0.45))
-	doll.draw_on(self, FEET, FIGURE_SCALE)
+	doll.draw_on(self, FEET, TOP_SCALE if doll is TopdownDoll else FIGURE_SCALE)
 	var ringed := str(sel.get("slot", ""))
 	var chosen = selected_item()
 	if sel.has("bag") and chosen != null: ringed = str(ContentDB.item(str(chosen.id)).get("slot", ""))

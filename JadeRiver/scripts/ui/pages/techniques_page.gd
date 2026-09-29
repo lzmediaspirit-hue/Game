@@ -11,7 +11,18 @@ extends Page
 ## (decision 19). The dock holds Ring I and II, the Inner Arts and the stance; a tap on an Inner Art or the stance opens
 ## the drawer of known Inner Arts and stances in the reading. The page reads the Progression authority's views
 ## (tree_tabs, tree_view, node_needs, lost_arts_view, lost_unread) and submits intents only. Under the chooser the
-## character casts the chosen art at a pack of imps (TechniquePreview); each card's picture is that art's pose and form.
+## character casts the chosen art at a pack of foes (TechniquePreview); each card's picture is the character doing the
+## art on its element's ground, the art's emblem in its corner.
+##
+## Decision 42 (the tree "feels a bit laggy"): the page is drawn only when something on it changes (Page.redraw_on_change),
+## never every frame for nothing, and the chart is drawn apart from it, behind it: in tiles of the chart's own space (half
+## a family's column, two rings deep, TILE), each in three layers (the ground and the routes, the passages and gates, the
+## cards), drawn once and kept. A drag or a glide only moves the sheets that hold them; a tile is drawn as it comes near
+## the view (a few a frame), and again only when what it shows changes (a node chosen or learned, an emblem composed). The cards' words (each written only while wholly inside the chart) and the ring numerals at the chart's
+## edge are layers of their own, drawn again only when what they write changes. The trees' shapes are laid out a family
+## at a time in the frames the page stands idle (ShapeJob), so a tab opens on a shape already made. A top-down character
+## is drawn as the top-down game draws it (TopdownDoll, decision 42): the cards' and the reading's pictures and the
+## preview's caster; the side view's avatar only for a classic side-view character.
 
 const Avatar = preload("res://scripts/avatar.gd")
 const LEFT := Rect2(12, 70, 216, 580)
@@ -47,23 +58,54 @@ var _rz := {}                 # the Realisations pool: {total, spent, free}
 var _realised_here := 0       # nodes realised on this tree
 var _items: Array = []        # the tree laid out: [{id, kind, at, state, ...}]
 var _by := {}                 # id -> item
+var _trees := {}              # tree -> its laid-out copies {of, items, by}, kept while the page is open
 var _size := Vector2.ZERO     # the chart's size
 var _rows := {}               # ring -> row top; "n<act>" -> the notables' band
 var _dirty := true
 var _pan := false
 var _learned_i := -1
-var _stills := {}             # pose -> the character's still in it, for the cards' pictures
-var _still_frame := -1
 var _emblem_frame := -1       # the frame composing emblems, and the usec spent on them in it (_emblem_at)
 var _emblem_us := 0
 const EMBLEM_BUDGET_US := 4000
+var _pics := {}               # art -> what its card's picture needs (its pose, its element's colour)
+var _fam := {}                # the weapon family in hand (StatRules.family), found once a dressing
+var _stills := {}             # pose -> the side view's still in it, for a classic character's cards
+var _still_frame := -1
 static var _still_cache := {}  # outfit|pose -> a card's still, kept across opens (the character's look rarely changes)
-var _pics := {}               # art -> what its card's picture needs (its row, pose, colour)
+var top := false              # the character is a top-down one: its pictures are the top-down figure (decision 42)
+## The chart apart from the page (decision 42): the page's ground behind everything, the chart's clip over MID and its
+## three sheets of tiles, and the ring numerals' strip.
+const TILE := Vector2(300, 278)          # a tile: half a family's column (FAM_W), two rings deep
+const TILE_AHEAD := Vector2(300, 278)    # tiles this far out of view are drawn ahead of a drag, one a frame
+const PIC_K := 3                         # the reading's top-down figure, screen px an art px
+const CARD_K := 1                        # a card's top-down figure, screen px an art px (cropped to its frame)
+var _back: Control                       # the page's ground, drawn behind the page and the chart
+var _clip: Control                       # the chart's window (MID), clipping its sheets
+var _sheets: Array = []                  # the routes, the marks and the cards: each holds every tile's layer
+var _rings: Layer                        # the ring numerals down the chart's right edge
+var _tiles := {}                         # Vector2i -> {rect, bounds, items, gates, nodes: [3 Layers or null], dirty: [3 bools]}
+var _regions_view := Vector2(-1, -1)     # the view the chart's tap regions were laid for
+var _labels_key := ""                    # what the page's words over the chart say (the family and rings in view)
+var _rings_y := -1.0
+var _tend_view := Vector2(-1, -1)        # the view the tiles were last tended for
+var layer_draws := 0                     ## the layers drawn apart from the page so far, and of them the tiles' (perf_tests)
+var tile_draws := 0
+var _warm_i := 0                         # the nodes asked ahead so far (_warm_states), in _warm_order
+var _warm_order: Array = []
+var _tiles_stale := true                 # some tile waits to be drawn (again)
+var _labels_layer: Layer                 # the family in view on its plaque and the act's rings, over the chart
+var _here := ""                          # the family the chooser lights (the one in view once the view is at rest)
+var _words_layer: Layer                  # the cards' names and tags, in the chart's space, over the cards
+var _words: Array = []                   # what it writes: [node, name?, tag?] (_words_in_view)
+var _words_key := ""
+var _words_view := Vector2(-1, -1)
 
 func _init() -> void:
 	title = Tx.t("ui.techniques.techniques")
 	frame_rect = WINDOW_SCREEN
 	identity = Identity.new("space", false, "own", "seal_rail_chart_three_panels_dock", 0.3)
+	redraw_on_change = true
+	dims_world = false   # the ground (_back) covers the screen, under the chart
 
 func content_rect() -> Rect2:
 	return Rect2(LEFT.position, RIGHT.end - LEFT.position)
@@ -76,10 +118,17 @@ func setup() -> void:
 		tabs.append({"id": str(tb.tree), "label": str(tb.name), "locked": "" if bool(tb.open) else Tx.t("ui.techniques.tree_opens") % lv})
 	tabs.append({"id": "lost", "label": Tx.t("ui.techniques.lost_arts")})
 	tabs.append({"id": "secret", "label": Tx.t("ui.techniques.secret_arts")})
-	pic = Avatar.new()
-	pic.visible = false
-	pic.externally_timed = true
-	add_child(pic)
+	_layers()
+	if pic == null or top != TopdownDoll.shown(ch):
+		if pic != null: pic.queue_free()
+		top = TopdownDoll.shown(ch)
+		if top:
+			pic = TopdownDoll.new()
+		else:
+			pic = Avatar.new()
+			pic.externally_timed = true
+		pic.visible = false
+		add_child(pic)
 	_dress()
 	var want := _first_tab(ch)
 	for i in tabs.size():
@@ -89,12 +138,44 @@ func setup() -> void:
 func _dress() -> void:
 	if c() == null: return
 	pic.outfit = InventoryAuthority.outfit_for(c())
-	pic.last_key = ""
+	if not top: pic.last_key = ""
 	_stills.clear()
 	_pics.clear()
+	_fam = {}
+	_stale_tiles()
+	queue_redraw()
 	if stage == null: return
-	stage.dress(pic.outfit.duplicate())
+	stage.dress(pic.outfit.duplicate(), top)
 	stage.restart()
+
+## The ground behind the page and the chart's window with its sheets and the rings' strip, made once.
+func _layers() -> void:
+	if _back != null: return
+	_back = Control.new()
+	_back.show_behind_parent = true
+	_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_back.size = Vector2(1280, 720)
+	_back.draw.connect(_draw_back)
+	add_child(_back)
+	move_child(_back, 0)
+	_clip = Control.new()
+	_clip.show_behind_parent = true
+	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_clip.clip_contents = true
+	_clip.position = MID.position
+	_clip.size = MID.size
+	add_child(_clip)
+	move_child(_clip, 1)
+	for k in 3:
+		var sheet := Node2D.new()
+		_clip.add_child(sheet)
+		_sheets.append(sheet)
+	_words_layer = Layer.new(self, "words")
+	_clip.add_child(_words_layer)
+	_rings = Layer.new(self, "rings")
+	_clip.add_child(_rings)
+	_labels_layer = Layer.new(self, "labels")
+	add_child(_labels_layer)
 
 ## The live preview, built the frame after the page opens (its character, imps and effects layer are not needed for the
 ## page's first frame, which is all but transparent while the page fades in).
@@ -111,6 +192,21 @@ func on_event(name: String, _p: Dictionary) -> void:
 		if name.begins_with(k): _dirty = true
 	queue_redraw()
 
+## One of the page's layers drawn apart from it (a chart tile's layer, the cards' words, the rings' strip, the labels over
+## the chart): it asks the page to draw it.
+class Layer extends Node2D:
+	var page
+	var kind := ""           ## "tile" (its `layer`: 0 the ground and routes, 1 the passages and gates, 2 the cards), "words", "rings" or "labels"
+	var key := Vector2i.ZERO
+	var layer := 0
+	func _init(pg, k: String, tile := Vector2i.ZERO, which := 0) -> void:
+		page = pg
+		kind = k
+		key = tile
+		layer = which
+	func _draw() -> void:
+		page._draw_layer(self)
+
 func _tab_id() -> String:
 	return str(tabs[tab].id) if tab < tabs.size() else ""
 
@@ -118,6 +214,8 @@ func _is_tree() -> bool:
 	return not _tab_id() in ["lost", "secret", ""]
 
 # ------------------------------------------------------------------ input: the chart pans under a finger
+## A pan moves the chart's sheets only (the page is not drawn again for it); a tap after one finds the cards where they
+## are now (_sync_chart_regions).
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_pan = event.pressed and _is_tree() and CHART.has_point(event.position) and confirm.is_empty()
@@ -125,18 +223,77 @@ func _gui_input(event: InputEvent) -> void:
 		_glide(view + Vector2(0, -90.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 90.0), true)
 		accept_event()
 		return
-	elif event is InputEventMouseMotion and _pan and event.button_mask & MOUSE_BUTTON_MASK_LEFT and (event.position - _press_pos).length() > 10.0:
+	elif event is InputEventMouseMotion and _pan and event.button_mask & MOUSE_BUTTON_MASK_LEFT and (_dragged or (event.position - _press_pos).length() > 10.0):
+		if not _dragged: queue_redraw()   # the card pressed is let go
 		_dragged = true
 		_pressed = -1
 		_glide(view - event.relative, true)
+		accept_event()
+		return
+	if event is InputEventMouseButton: _sync_chart_regions()
 	super._gui_input(event)
 
-## The page's first frame draws its frame, rail, chooser and the chart's nodes; the preview is built on the next, and
-## the cards' composed emblems fill in from then on within a few ms a frame (_emblem_at).
+## The page's first frame draws its frame, rail, chooser and the chart's tiles in view; the preview is built on the
+## next, and the cards' composed emblems fill in from then on within a few ms a frame (_emblem_at). Each frame the
+## chart's sheets follow the view, the tiles near it are drawn (_tend_tiles), the page is drawn again only when its
+## words over the chart change, and an idle frame lays out a little of a tree not yet laid out (_warm_shapes).
 func _process(delta: float) -> void:
 	super._process(delta)
 	if stage == null and _open_frame >= 0 and Engine.get_process_frames() > _open_frame and c() != null: _build_stage()
+	if c() == null: return
+	if _dirty and _is_tree():
+		_refresh()
+		queue_redraw()
 	if view != goal: view = goal if UiKit.reduce_motion() or view.distance_to(goal) < 1.0 else view.lerp(goal, minf(1.0, delta * 12.0))
+	_clip.visible = _is_tree()
+	_labels_layer.visible = _is_tree() and confirm.is_empty()
+	if not _is_tree(): return
+	_follow_view()
+	var busy := _tend_tiles()
+	if not busy and not _pan and view == goal and _open_frame >= 0 and Engine.get_process_frames() - _open_frame > 2:
+		if not _warm_states(1500): _warm_shapes()
+
+## The chart's sheets moved to the view (whole px), the rings' strip drawn again when the rows moved, the page when its
+## words over the chart change, and the tap regions laid again once the view has come to rest.
+func _follow_view() -> void:
+	var at := (CHART.position - MID.position - view).round()
+	for sheet in _sheets: sheet.position = at
+	_words_layer.position = at
+	if _open_frame >= 0 and (view != _words_view or _words_key == ""):
+		_words_view = view
+		var words := _words_in_view()
+		var key := "|" + ",".join(words.map(func(w): return "%s%d%d" % [str(w[0].id), int(w[1]), int(w[2])]))
+		if key != _words_key:
+			_words_key = key
+			_words = words
+			_words_layer.queue_redraw()
+	if view.y != _rings_y:
+		_rings_y = view.y
+		_rings.queue_redraw()
+	if _labels() != _labels_key:
+		_labels_key = _labels()
+		_labels_layer.queue_redraw()
+	if view == goal and not _pan:
+		if _here != _fam_at_view(): queue_redraw()   # the chooser lights the family the view came to rest on
+		if _regions_view != view: _sync_chart_regions()
+
+## What the page writes over the chart for this view: the family in view (the plaque, the chooser's lit row) and the
+## rings in view (the act's line).
+func _labels() -> String:
+	var r := _rings_in_view()
+	return "%s|%s|%d|%d" % [_tab_id(), _fam_at_view(), r.x, r.y]
+
+## The first and last ring whose row is in view (lo > hi when none).
+func _rings_in_view() -> Vector2i:
+	var lo := 99
+	var hi := 0
+	for key in _rows:
+		if str(key).begins_with("n"): continue
+		var y := float(_rows[key]) - view.y + CHART.position.y
+		if y + 60 < VIS.position.y + HEAD or y > VIS.end.y - 20: continue
+		lo = mini(lo, int(key))
+		hi = maxi(hi, int(key))
+	return Vector2i(lo, hi)
 
 ## Move the view (clamped to the chart); `now` skips the glide (a drag).
 func _glide(to: Vector2, now := false) -> void:
@@ -163,33 +320,43 @@ func _refresh() -> void:
 	if _laid != tree: _lay_out(ch, tree)
 	for it in _items:
 		if str(it.kind) != "dao": it.erase("state")
+	_warm_i = 0
 	for d in Game.progression.tree_dao_arts(ch, tree): _by[str(d.id)].state = str(d.state)
 	_rz = Game.progression.realisations(ch)
 	_realised_here = 0
 	for tb in Game.progression.tree_tabs(ch):
 		if str(tb.tree) == tree: _realised_here = int(tb.realised)
+	_stale_tiles()
 
 ## The tab's tree on this page: its shape (_shape, laid out once a run and kept across opens) copied node by node so
 ## what this page learns of each node stays its own, then the character's Dao arts at the gate.
 func _lay_out(ch, tree: String) -> void:
 	_laid = tree
-	_items.clear()
-	_by.clear()
 	var shape := _shape(tree)
 	_rows = shape.rows
 	_size = shape.size
-	for it0 in shape.items:
-		var it: Dictionary = (it0 as Dictionary).duplicate()
-		_items.append(it)
-		_by[str(it.id)] = it
-	var taken: Dictionary = (shape.taken as Dictionary).duplicate()
-	for d in Game.progression.tree_dao_arts(ch, tree):
-		var it2 := {"id": str(d.id), "kind": "dao", "family": str(d.family), "dao": str(d.dao), "dao_tier": int(d.tier), "ring": 0, "state": str(d.state)}
-		_place(it2, it2.family, 0, [-1, 1, 0], taken, _rows)
-		_route_box(it2, tree, _by, _rows)
-		_items.append(it2)
-		_by[str(it2.id)] = it2
+	var kept: Dictionary = _trees.get(tree, {})
+	if not kept.is_empty() and is_same(kept.of, shape):   # a tab shown before on this page: its copies again
+		_items = kept.items
+		_by = kept.by
+	else:
+		_items = []
+		_by = {}
+		for it0 in shape.items:
+			var it: Dictionary = (it0 as Dictionary).duplicate()
+			_items.append(it)
+			_by[str(it.id)] = it
+		var taken: Dictionary = (shape.taken as Dictionary).duplicate()
+		for d in Game.progression.tree_dao_arts(ch, tree):
+			var it2 := {"id": str(d.id), "kind": "dao", "family": str(d.family), "dao": str(d.dao), "dao_tier": int(d.tier), "ring": 0, "state": str(d.state)}
+			_place(it2, it2.family, 0, [-1, 1, 0], taken, _rows)
+			_route_box(it2, tree, _by, _rows)
+			_items.append(it2)
+			_by[str(it2.id)] = it2
+		_trees[tree] = {"of": shape, "items": _items, "by": _by}
 	if goal == Vector2.ZERO and view == Vector2.ZERO: _jump(0, -1.0, true)
+	_cut_tiles()
+	if _back != null: _back.queue_redraw()   # the chart's glow takes the tree's element
 
 ## The shape of the tab the page would open on, built ahead (main.gd calls this as the world mounts and as a room is
 ## entered, under their fades), so the page's first opening does not build it.
@@ -209,92 +376,171 @@ static func _first_tab(ch) -> String:
 ## on its own copies.
 static var _shapes := {}
 
+static var _jobs := {}          # tree -> the ShapeJob laying it out, a family at a time
+
 static func _shape(tree: String) -> Dictionary:
-	var T = TechniqueTreeRules
 	var list: Array = ContentDB.all("techniques")
-	var open_act := int(T.config().get("act_open", 3))
+	var open_act := int(TechniqueTreeRules.config().get("act_open", 3))
 	if _shapes.has(tree) and is_same(_shapes[tree].of, list) and int(_shapes[tree].act) == open_act: return _shapes[tree]
-	var fams: Array = T.sectors()
-	var y := GATE_TOP + ROW_H + 16.0
+	var job: ShapeJob = _jobs.get(tree)
+	if job == null or not is_same(job.list, list) or job.open_act != open_act: job = ShapeJob.new(tree, list, open_act)
+	while not job.step(-1): pass
+	_jobs.erase(tree)
+	_shapes[tree] = job.result()
+	return _shapes[tree]
+
+## What the character has made of the tree's nodes, asked of the authority a few at a time (within `budget_us`) in the
+## frames the page stands idle, nearest the view first, so a drag finds the nodes it brings into view already asked
+## (a node's state costs the authority a learning plan). False once every node is asked.
+func _warm_states(budget_us: int) -> bool:
+	if _warm_i >= _items.size(): return false
+	var t0 := Time.get_ticks_usec()
+	if _warm_i == 0:   # nearest the view first
+		var mid := view + CHART.size * 0.5
+		var keyed: Array = []
+		for i in _items.size(): keyed.append([(_items[i].at as Vector2).distance_squared_to(mid), i])
+		keyed.sort()
+		_warm_order = keyed.map(func(k): return k[1])
+	while _warm_i < _items.size() and Time.get_ticks_usec() - t0 < budget_us:
+		_state(_items[_warm_order[_warm_i]])
+		_warm_i += 1
+	return true
+
+## A little of a tree not yet laid out, in a frame the page stands idle (within 2 ms), so a tab opens on its shape made.
+func _warm_shapes() -> void:
+	var list: Array = ContentDB.all("techniques")
+	var open_act := int(TechniqueTreeRules.config().get("act_open", 3))
+	for tree in TechniqueTreeRules.trees():
+		if _shapes.has(tree) and is_same(_shapes[tree].of, list) and int(_shapes[tree].act) == open_act: continue
+		var job: ShapeJob = _jobs.get(tree)
+		if job == null or not is_same(job.list, list) or job.open_act != open_act:
+			job = ShapeJob.new(tree, list, open_act)
+			_jobs[tree] = job
+		if job.step(2000):
+			_jobs.erase(tree)
+			_shapes[tree] = job.result()
+		return
+
+static func _col(fam: String) -> float:
+	return ShapeJob._col(fam)
+
+static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
+	ShapeJob._place(it, fam, ring, lanes, taken, rows)
+
+static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
+	ShapeJob._route_box(it, tree, by, rows)
+
+## A tree's shape laid out in steps (_shape runs it through at once; an idle frame runs a step of it): the rows and the
+## keystones first, then a family a step, then each node's route and box.
+class ShapeJob:
+	var tree := ""
+	var list: Array = []
+	var open_act := 3
+	var fams: Array = []
 	var rows := {}
-	for r in range(T.first_ring(tree), T.edge_ring(open_act) + 1):
-		rows[r] = y
-		y += ROW_H
-		if T.is_edge(r):
-			rows["n%d" % T.act_of(r)] = y
-			y += NOTE_H
 	var items: Array = []
 	var by := {}
 	var taken := {}
-	var add := func(it: Dictionary) -> void:
+	var y := 0.0
+	var fi := 0          # the next family to lay out
+	var ri := 0          # the next node to route
+
+	func _init(t: String, of: Array, act: int) -> void:
+		tree = t
+		list = of
+		open_act = act
+		var T = TechniqueTreeRules
+		fams = T.sectors()
+		y = GATE_TOP + ROW_H + 16.0
+		for r in range(T.first_ring(tree), T.edge_ring(open_act) + 1):
+			rows[r] = y
+			y += ROW_H
+			if T.is_edge(r):
+				rows["n%d" % T.act_of(r)] = y
+				y += NOTE_H
+		# The open acts' nodes from the cells themselves, keystones first so they take their lane before the arts.
+		for a in range(1, open_act + 1):
+			for kin in ["voice", "edges", "reach", "distance"]:
+				var k: String = T.keystone_at(tree, kin, a)
+				if k == "" or not rows.has(T.edge_ring(a)): continue
+				var kit := {"id": k, "kind": "keystone", "kin": kin, "family": str(T.kin_sectors(kin)[0]), "ring": T.edge_ring(a)}
+				_place(kit, kit.family, kit.ring, [1, -1, 0], taken, rows)
+				_add(kit)
+
+	func _add(it: Dictionary) -> void:
 		items.append(it)
 		by[str(it.id)] = it
-	# The open acts' nodes from the cells themselves, keystones first so they take their lane before the arts.
-	for act in range(1, open_act + 1):
-		for kin in ["voice", "edges", "reach", "distance"]:
-			var k: String = T.keystone_at(tree, kin, act)
-			if k == "" or not rows.has(T.edge_ring(act)): continue
-			var kit := {"id": k, "kind": "keystone", "kin": kin, "family": str(T.kin_sectors(kin)[0]), "ring": T.edge_ring(act)}
-			_place(kit, kit.family, kit.ring, [1, -1, 0], taken, rows)
-			add.call(kit)
-	for f in fams:
-		for ring in rows:
-			if str(ring).begins_with("n"): continue
-			add.call({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows[ring]) - 9.0)})
-			var cl: Dictionary = T.cell(tree, f, ring)
-			var side := -1 if int(ring) % 2 == 0 else 1
-			for slot in ["o", "p"]:
-				for id in cl[slot]:
-					var it := {"id": str(id), "kind": "art", "family": f, "ring": ring}
-					_place(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0], taken, rows)
-					add.call(it)
-			if T.is_edge(ring):
-				add.call({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows["n%d" % T.act_of(ring)]) + 32.0)})
-	for it in items: _route_box(it, tree, by, rows)
-	_shapes[tree] = {"of": list, "act": open_act, "items": items, "rows": rows, "size": Vector2(fams.size() * FAM_W, y + 24.0), "taken": taken}
-	return _shapes[tree]
 
-## A family's column centre on the chart.
-static func _col(fam: String) -> float:
-	return TechniqueTreeRules.sectors().find(fam) * FAM_W + FAM_W * 0.5
+	## One step within `budget_us` (-1: to the end); true once the shape is whole.
+	func step(budget_us: int) -> bool:
+		var T = TechniqueTreeRules
+		var t0 := Time.get_ticks_usec()
+		while fi < fams.size():
+			var f := str(fams[fi])
+			fi += 1
+			for ring in rows:
+				if str(ring).begins_with("n"): continue
+				_add({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows[ring]) - 9.0)})
+				var cl: Dictionary = T.cell(tree, f, ring)
+				var side := -1 if int(ring) % 2 == 0 else 1
+				for slot in ["o", "p"]:
+					for id in cl[slot]:
+						var it := {"id": str(id), "kind": "art", "family": f, "ring": ring}
+						_place(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0], taken, rows)
+						_add(it)
+				if T.is_edge(ring):
+					_add({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows["n%d" % T.act_of(ring)]) + 32.0)})
+			if budget_us >= 0 and Time.get_ticks_usec() - t0 >= budget_us: return false
+		while ri < items.size():
+			_route_box(items[ri], tree, by, rows)
+			ri += 1
+			if budget_us >= 0 and ri % 24 == 0 and Time.get_ticks_usec() - t0 >= budget_us: return false
+		return true
 
-## A node into the first free lane of its family's ring (else two lanes out).
-static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
-	for ln in lanes:
-		if taken.has("%s|%d|%d" % [fam, ring, ln]): continue
-		taken["%s|%d|%d" % [fam, ring, ln]] = true
-		it.at = Vector2(_col(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))
-		break
-	if not it.has("at"): it.at = Vector2(_col(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))
+	func result() -> Dictionary:
+		return {"of": list, "act": open_act, "items": items, "rows": rows, "size": Vector2(fams.size() * FAM_W, y + 24.0), "taken": taken}
 
-## A node's route in (from its passage, the ring before or the gate), the box it and its route fill, and a card's name.
-static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
-	var T = TechniqueTreeRules
-	var fams: Array = T.sectors()
-	var kind := str(it.kind)
-	var pts: Array = []
-	match kind:
-		"passage":
-			# In from the ring before (from under its act's notable after an act's last ring), or from the gate.
-			var r := int(it.ring)
-			var up := Vector2(it.at.x, GATE_TOP + 62.0)
-			if rows.has(r - 1): up = by[T.notable(tree, str(it.family), T.act_of(r - 1)) if T.is_edge(r - 1) else T.passage(tree, str(it.family), r - 1)].at
-			pts = [up, it.at]
-		"notable":
-			pts = [by[T.passage(tree, str(it.family), int(it.ring))].at, it.at]
-			if fams.find(str(it.family)) + 1 < fams.size(): it.chan = true
-		"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(_col(str(it.family)), it.at.y + PIC * 0.5)]
-		_:
-			var pa: Vector2 = by[T.passage(tree, str(it.family) if kind == "art" else str(T.kin_sectors(str(it.kin))[0]), int(it.ring))].at
-			pts = [pa, Vector2(it.at.x, pa.y), it.at - Vector2(0, 3)]
-	it.route = pts
-	var box := Rect2(it.at, Vector2.ZERO)
-	for pt in pts: box = box.expand(pt)
-	if it.get("chan", false): box = box.expand(it.at + Vector2(FAM_W, 0))
-	if not kind in ["passage", "notable"]:
-		box = box.merge(Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD))
-		it.name = str(ContentDB.entry("techniques", str(it.id)).get("name", it.id))
-	it.box = box.grow(14)
+	## A family's column centre on the chart.
+	static func _col(fam: String) -> float:
+		return TechniqueTreeRules.sectors().find(fam) * FAM_W + FAM_W * 0.5
+
+	## A node into the first free lane of its family's ring (else two lanes out).
+	static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
+		for ln in lanes:
+			if taken.has("%s|%d|%d" % [fam, ring, ln]): continue
+			taken["%s|%d|%d" % [fam, ring, ln]] = true
+			it.at = Vector2(ShapeJob._col(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))
+			break
+		if not it.has("at"): it.at = Vector2(ShapeJob._col(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))
+
+	## A node's route in (from its passage, the ring before or the gate), the box it and its route fill, and a card's name.
+	static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
+		var T = TechniqueTreeRules
+		var fams: Array = T.sectors()
+		var kind := str(it.kind)
+		var pts: Array = []
+		match kind:
+			"passage":
+				# In from the ring before (from under its act's notable after an act's last ring), or from the gate.
+				var r := int(it.ring)
+				var up := Vector2(it.at.x, GATE_TOP + 62.0)
+				if rows.has(r - 1): up = by[T.notable(tree, str(it.family), T.act_of(r - 1)) if T.is_edge(r - 1) else T.passage(tree, str(it.family), r - 1)].at
+				pts = [up, it.at]
+			"notable":
+				pts = [by[T.passage(tree, str(it.family), int(it.ring))].at, it.at]
+				if fams.find(str(it.family)) + 1 < fams.size(): it.chan = true
+			"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(ShapeJob._col(str(it.family)), it.at.y + PIC * 0.5)]
+			_:
+				var pa: Vector2 = by[T.passage(tree, str(it.family) if kind == "art" else str(T.kin_sectors(str(it.kin))[0]), int(it.ring))].at
+				pts = [pa, Vector2(it.at.x, pa.y), it.at - Vector2(0, 3)]
+		it.route = pts
+		var box := Rect2(it.at, Vector2.ZERO)
+		for pt in pts: box = box.expand(pt)
+		if it.get("chan", false): box = box.expand(it.at + Vector2(FAM_W, 0))
+		if not kind in ["passage", "notable"]:
+			box = box.merge(Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD))
+			it.name = str(ContentDB.entry("techniques", str(it.id)).get("name", it.id))
+		it.box = box.grow(14)
 
 ## A node as the character stands to it, asked of the authority when it is first drawn after a change: its state, why
 ## it is closed, its cost and what learning it takes; with its tag and a learned art's tier.
@@ -318,23 +564,35 @@ func _fam_at_view() -> String:
 	return str(fams[clampi(int((view.x + CHART.size.x * 0.5) / FAM_W), 0, fams.size() - 1)]) if not fams.is_empty() else "any"
 
 # ------------------------------------------------------------------ the surface: ground, chart, rail
-## The ground and, on a tree tab, the chart with what is in view (drawn here, under the title and the seals, so the
-## rail and the panels' rims close over the chart's edges), then the rail.
+## The ground (drawn behind the page by _back, under the chart: the ground itself, the glow round the tree's panel, the
+## panel, the tree's element glow) is only named here for the words on it; on a tree tab the page writes over the chart
+## (the family in view on its plaque, the act's rings, Learned and Let all go), lays the chart's tap regions, and closes
+## the panel's frame over it; then the rail.
 func draw_surface(r: Rect2) -> void:
-	draw_rect(r, UiKit.SURFACE.space)
 	ground(r, UiKit.SURFACE.space)
-	glow(Rect2(MID.position - Vector2(80, 40), MID.size + Vector2(160, 80)), Color(UiKit.JADE_SHADOW, 0.22))
-	face(MID, "carved_panel")
+	if text_log != null: text_log.append({"rect": MID, "s": "", "button": Rect2(), "ground": "carved_panel:normal"})
 	if c() != null and _is_tree():
 		if _dirty: _refresh()
-		_chart()
-		for m in [Rect2(0, 0, 1280, MID.position.y), Rect2(0, MID.end.y, 1280, 720 - MID.end.y), Rect2(0, 0, MID.position.x, 720), Rect2(MID.end.x, 0, 1280 - MID.end.x, 720)]:
-			draw_rect(m, UiKit.SURFACE.space)
+		ground(CHART, UiKit.SURFACE.space)
+		_chart_regions()
+		if text_log != null: _log_chart()
+		_chart_labels()
 		face(MID, "carved_panel", "frame")
 	_band(Rect2(0, 0, 1280, 64), rail_tone, UiKit.SURFACE.space)
 	draw_line(Vector2(0, 64), Vector2(1280, 64), UiKit.GOLD, 1.0)
 	draw_line(Vector2(0, 65.5), Vector2(1280, 65.5), UiKit.INK, 2.0)
 	ground(Rect2(0, 0, 1280, 64), rail_tone)
+
+## The page's ground behind the page and the chart: the screen, the glow round the tree's panel and the panel, and on a
+## tree tab the tree's element glow.
+func _draw_back() -> void:
+	var r := frame_rect
+	_back.draw_rect(r, UiKit.SURFACE.space)
+	Page.glow_on(_back, Rect2(MID.position - Vector2(80, 40), MID.size + Vector2(160, 80)), Color(UiKit.JADE_SHADOW, 0.22))
+	_back.draw_style_box(UiKit.style("carved_panel"), MID)
+	if _is_tree():
+		var ec := SpriteCache.element_color(str(TechniqueTreeRules.tree_def(_tab_id()).get("element", "none")))
+		Page.glow_on(_back, Rect2(CHART.position + Vector2(-60, 40), CHART.size + Vector2(120, 80)), Color(ec, 0.07))
 
 func _band(r: Rect2, top: Color, foot: Color) -> void:
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]), PackedColorArray([top, top, foot, foot]))
@@ -363,87 +621,268 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 	text(Vector2(r.position.x - 12, r.position.y + 57), str(tabs[i].label), 14, UiKit.PALE_GOLD if state == "selected" else (UiKit.HOLLOW if state == "disabled" else UiKit.MIST),
 		HORIZONTAL_ALIGNMENT_CENTER, r.size.x + 24)
 
-# ------------------------------------------------------------------ the chart
-## The element's own chart under the tree (the Water tab a tide chart: depth contours between the rings, currents
-## down between the lanes, sounded on the right), then the routes, the passages and notables, and the cards in view.
-func _chart() -> void:
-	var tree := _tab_id()
-	var el := str(TechniqueTreeRules.tree_def(tree).get("element", "none"))
-	var ec := SpriteCache.element_color(el)
-	ground(CHART, UiKit.SURFACE.space)
-	glow(Rect2(CHART.position + Vector2(-60, 40), CHART.size + Vector2(120, 80)), Color(ec, 0.07))
-	var ox := fposmod(view.x, FAM_W)
-	for k in 3:
-		for lane in [-0.3, 0.3]:
-			var x: float = CHART.position.x - ox + (k + 0.5 + lane * 0.5) * FAM_W
-			if x < CHART.position.x or x > CHART.end.x: continue
-			var pts := PackedVector2Array()
-			for s in 16:
-				var yy := CHART.position.y + s * CHART.size.y / 15.0
-				pts.append(Vector2(x + sin((yy + view.y) * 0.011 + k) * 12.0, yy))
-			draw_polyline(pts, Color(ec, 0.1), 1.2, true)
-	for key in _rows:
-		var yy := float(_rows[key]) - 24.0 - view.y + CHART.position.y
-		if yy < CHART.position.y or yy > CHART.end.y or str(key).begins_with("n"): continue
-		var pts2 := PackedVector2Array()
-		for s in 27: pts2.append(Vector2(CHART.position.x + s * 25.0, yy + sin((s * 25.0 + view.x) * 0.02) * 3.0))
-		draw_polyline(pts2, Color(UiKit.MIST, 0.16), 1.0, true)
-	var vr := Rect2(view, CHART.size)
-	# Routes first (the passage line down each column, a passage to the arts of its ring, an act's last passage to its
-	# notable, the notables' channels, a kin group's passage to its keystone), then the passages and notables.
-	draw_set_transform(CHART.position - view)
+# ------------------------------------------------------------------ the chart, in tiles
+## The tree's chart cut into tiles (TILE: two a family's column, two rings deep, so a tab's first frame draws about
+## twice what is in view, not four times), each holding the nodes whose place falls in it, the gates on it, and what its
+## nodes and their routes cover. Its three layers are made when it is first drawn.
+func _cut_tiles() -> void:
+	for key in _tiles:
+		for n in _tiles[key].nodes:
+			if n != null: n.queue_free()
+	_tiles.clear()
+	var nx := ceili(_size.x / TILE.x)
+	var ny := ceili(_size.y / TILE.y)
+	for tx in nx:
+		for ty in ny:
+			var rect := Rect2(Vector2(tx, ty) * TILE, TILE)
+			_tiles[Vector2i(tx, ty)] = {"rect": rect, "bounds": rect, "items": [], "gates": [], "nodes": [null, null, null], "dirty": [true, true, true]}
+	for it in _items:
+		var key := Vector2i(clampi(floori(it.at.x / TILE.x), 0, nx - 1), clampi(floori(it.at.y / TILE.y), 0, ny - 1))
+		var tile: Dictionary = _tiles[key]
+		tile.items.append(it)
+		tile.bounds = (tile.bounds as Rect2).merge(it.box)
 	var fams: Array = TechniqueTreeRules.sectors()
-	var seen: Array = _items.filter(func(it): return vr.intersects(it.box))
-	for it in seen: _state(it)
-	for it in seen:
-		_route(it.route, _state_col(it), str(it.state) == "locked", str(it.kind) in ["art", "keystone"])
-		if it.get("chan", false): _route([it.at, it.at + Vector2(FAM_W, 0)], Color(UiKit.GOLD, 0.45), true)
-	for it in seen:
-		if str(it.kind) == "passage": _diamond(it.at, 7.0, it)
-		elif str(it.kind) == "notable": _diamond(it.at, 13.0, it)
-	# Each family's gate: its weapon's sign in a ring at the column's head.
 	for i in fams.size():
 		var g := Vector2(i * FAM_W + FAM_W * 0.5, GATE_TOP + 38.0)
-		if not vr.has_point(g): continue
-		draw_circle(g, 26.0, UiKit.INK, true, -1.0, true)
-		draw_circle(g, 24.0, UiKit.SURFACE.cloth, true, -1.0, true)
-		draw_circle(g, 24.0, UiKit.GOLD, false, 2.0, true)
-	draw_set_transform(Vector2.ZERO)
-	var aid := "chart"
-	_areas[aid] = {"rect": VIS, "max": 0.0, "active": true}
-	for i in fams.size():
-		var g2 := _on_screen(Vector2(i * FAM_W + FAM_W * 0.5, GATE_TOP + 38.0))
-		if VIS.has_point(g2): icon_at(Rect2(g2 - Vector2(16, 16), Vector2(32, 32)), _fam_icon(str(fams[i])))
-	for it in seen:
+		_tiles[Vector2i(clampi(floori(g.x / TILE.x), 0, nx - 1), clampi(floori(g.y / TILE.y), 0, ny - 1))].gates.append(i)
+	_regions_view = Vector2(-1, -1)
+	_tiles_stale = true
+
+## Every tile drawn again (what the character has made of the tree changed), and the cards' words.
+func _stale_tiles() -> void:
+	for key in _tiles: _tiles[key].dirty = [true, true, true]
+	_words_key = ""
+	_tiles_stale = true
+
+## The tiles holding node `id` drawn again (it was chosen, or no longer is): its passages and cards.
+func _stale_node(id: String) -> void:
+	if not _by.has(id): return
+	var it: Dictionary = _by[id]
+	for key in _tiles:
+		if (_tiles[key].items as Array).has(it):
+			_tiles[key].dirty[1] = true
+			_tiles[key].dirty[2] = true
+	_words_key = ""
+	_tiles_stale = true
+
+## The tiles the view needs, drawn a few a frame so no frame draws a whole screenful (a tab's first frames fill its chart
+## in, nearest the view's middle first): up to TILES_A_FRAME stale tiles in view, then, once none waits, one of those
+## just out of view (ahead of a drag); tiles farther out wait until they come near. True while a tile near the view
+## still waits.
+const TILES_A_FRAME := 4
+func _tend_tiles() -> bool:
+	if _open_frame < 0: return true   # the page's first frame is drawn alone; the chart from the next
+	if view == _tend_view and not _tiles_stale: return false
+	_tend_view = view
+	_tiles_stale = false
+	var vr := Rect2(view, CHART.size)
+	var ahead := vr.grow_individual(TILE_AHEAD.x, TILE_AHEAD.y, TILE_AHEAD.x, TILE_AHEAD.y)
+	var mid := vr.get_center()
+	var now: Array = []     # [distance², key] of stale tiles in view
+	var soon: Array = []    # of stale tiles just out of it
+	for key in _tiles:
+		var tile: Dictionary = _tiles[key]
+		var bounds: Rect2 = tile.bounds
+		# (A tile drawn stays shown: out of the chart's window the renderer leaves it out, and one hidden would be drawn
+		# again as it is shown.)
+		if not bounds.intersects(ahead) or not (tile.dirty as Array).has(true): continue
+		(now if bounds.intersects(vr) else soon).append([(tile.rect as Rect2).get_center().distance_squared_to(mid), key])
+	now.sort()
+	soon.sort()
+	var picked: Array = now.slice(0, TILES_A_FRAME)
+	if now.is_empty(): picked = soon.slice(0, 1)
+	for pk in picked:
+		var key: Vector2i = pk[1]
+		var tile: Dictionary = _tiles[key]
+		for k in 3:
+			if not tile.dirty[k]: continue
+			if tile.nodes[k] == null:
+				tile.nodes[k] = Layer.new(self, "tile", key, k)
+				_sheets[k].add_child(tile.nodes[k])
+			tile.dirty[k] = false
+			tile.nodes[k].queue_redraw()
+	var waiting := now.size() + soon.size() > picked.size()
+	if waiting: _tiles_stale = true
+	return waiting
+
+## A layer drawn apart from the page: the rings' strip, the cards' words, or one of a tile's three layers.
+func _draw_layer(cv: Layer) -> void:
+	layer_draws += 1
+	if cv.kind == "tile": tile_draws += 1
+	if c() == null: return
+	if cv.kind == "rings":
+		_draw_rings(cv)
+		return
+	if cv.kind == "words":
+		_draw_words(cv)
+		return
+	if cv.kind == "labels":
+		_draw_labels(cv)
+		return
+	var tile: Dictionary = _tiles.get(cv.key, {})
+	if tile.is_empty(): return
+	var items: Array = tile.items
+	for it in items: _state(it)
+	match cv.layer:
+		0: _draw_ground_routes(cv, tile)
+		1:
+			for it in items:
+				if str(it.kind) == "passage": _diamond(cv, it.at, 7.0, it)
+				elif str(it.kind) == "notable": _diamond(cv, it.at, 13.0, it)
+			for i in tile.gates:
+				var g := Vector2(int(i) * FAM_W + FAM_W * 0.5, GATE_TOP + 38.0)
+				cv.draw_circle(g, 26.0, UiKit.INK, true, -1.0, true)
+				cv.draw_circle(g, 24.0, UiKit.SURFACE.cloth, true, -1.0, true)
+				cv.draw_circle(g, 24.0, UiKit.GOLD, false, 2.0, true)
+				SpriteCache.draw_icon(cv, Rect2(g - Vector2(16, 16), Vector2(32, 32)), _fam_icon(str(TechniqueTreeRules.sectors()[int(i)])))
+		2:
+			for it in items:
+				if not str(it.kind) in ["passage", "notable"]:
+					if not _card(cv, it, Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD)):   # an emblem waits for a later frame
+						tile.dirty[2] = true
+						_tiles_stale = true
+
+## A tile's ground and routes: the element's chart (the Water tab a tide chart: currents down between the lanes and
+## depth contours between the rings, in the chart's own space), then each node's route in, in the colour of the node it
+## leads to, and the notables' channels.
+func _draw_ground_routes(cv: Layer, tile: Dictionary) -> void:
+	var rect: Rect2 = tile.rect
+	var el := str(TechniqueTreeRules.tree_def(_tab_id()).get("element", "none"))
+	var ec := SpriteCache.element_color(el)
+	var col := int(rect.position.x / FAM_W)
+	for lane in [-0.3, 0.3]:
+		var x: float = (col + 0.5 + float(lane) * 0.5) * FAM_W
+		if x < rect.position.x or x >= rect.end.x: continue
+		var pts := PackedVector2Array()
+		for s in 16:
+			var yy := rect.position.y + s * rect.size.y / 15.0
+			pts.append(Vector2(x + sin(yy * 0.011 + col) * 12.0, yy))
+		cv.draw_polyline(pts, Color(ec, 0.1), 1.2, true)
+	for key in _rows:
+		if str(key).begins_with("n"): continue
+		var yy := float(_rows[key]) - 24.0
+		if yy < rect.position.y or yy >= rect.end.y: continue
+		var pts2 := PackedVector2Array()
+		for s in int(rect.size.x / 25.0) + 1: pts2.append(Vector2(rect.position.x + s * 25.0, yy + sin((rect.position.x + s * 25.0) * 0.02) * 3.0))
+		cv.draw_polyline(pts2, Color(UiKit.MIST, 0.16), 1.0, true)
+	for it in tile.items:
+		_route(cv, it.route, _state_col(it), str(it.state) == "locked", str(it.kind) in ["art", "keystone"])
+		if it.get("chan", false): _route(cv, [it.at, it.at + Vector2(FAM_W, 0)], Color(UiKit.GOLD, 0.45), true)
+
+## The ring soundings down the chart's right edge, each written only while it is wholly inside the chart.
+func _draw_rings(cv: Layer) -> void:
+	for key in _rows:
+		if str(key).begins_with("n"): continue
+		var y := float(_rows[key]) - view.y + CHART.position.y
+		if y + 14 < VIS.position.y + HEAD or y + 64 > VIS.end.y: continue
+		var g := str(TechniqueTreeRules.ring_row(int(key)).get("grade", "common"))
+		UiKit.draw_text(cv, ROMAN[int(key)], Vector2(VIS.end.x - 66, y + 40) - MID.position, 26, Color(UiKit.MIST, 0.85), HORIZONTAL_ALIGNMENT_CENTER, 60, true, true)
+		UiKit.draw_text(cv, UiKit.fit(Tx.t("ui.techniques.grade_" + g), 14, 72), Vector2(VIS.end.x - 72, y + 60) - MID.position, 14, UiKit.grade_color(g), HORIZONTAL_ALIGNMENT_CENTER, 72)
+
+## The chart's tap regions for this view: a card's, a passage's and a notable's in view, inside the chart. The page lays
+## them as it draws; a tap after a pan lays them again first (_sync_chart_regions).
+func _chart_regions() -> void:
+	_regions_view = view
+	_areas["chart"] = {"rect": VIS, "max": 0.0, "active": true}
+	var n0 := _regions.size()
+	var vr := Rect2(view, CHART.size)
+	for it in _items:
+		if not vr.intersects(it.box): continue
 		var s := _on_screen(it.at)
 		if str(it.kind) in ["passage", "notable"]:
 			if VIS.has_point(s): region(Rect2(s - Vector2(10, 10), Vector2(20, 20)), "node", str(it.id))
 			continue
 		var rect := Rect2(s - Vector2(CARD.x * 0.5, 0), CARD)
-		if rect.intersects(CHART): _card(it, rect)
-	_areas[aid].active = false
-	_chart_labels(ec)
+		if rect.intersects(CHART): region(Rect2(rect.position.x + 20, rect.position.y, CARD.x - 40, CARD.y), "node", str(it.id))
+	for i in range(n0, _regions.size()): _regions[i].chart = true
+	_areas["chart"].active = false
 
-## The ring soundings down the chart's right edge; over the chart's head, the rings in view, the family in view on its
-## plaque, and at the right Learned (the next learned art) and Let all go (the tree's reset).
-func _chart_labels(_ec: Color) -> void:
-	var T = TechniqueTreeRules
-	var lo := 99
-	var hi := 0
+## The chart's regions laid again for the view it stands at now, without drawing the page.
+func _sync_chart_regions() -> void:
+	if not _is_tree() or c() == null or _regions_view == view: return
+	_regions = _regions.filter(func(r): return not r.get("chart", false))
+	_chart_regions()
+
+## The words the chart's tiles write, named for the ui_suite as if the page wrote them (only those wholly inside the
+## chart): each card's name and tag in view, and the ring soundings.
+func _log_chart() -> void:
+	var vr := Rect2(view, CHART.size)
+	for it in _items:
+		if str(it.kind) in ["passage", "notable"] or not vr.intersects(it.box): continue
+		_state(it)
+		var rect := Rect2(_on_screen(it.at) - Vector2(CARD.x * 0.5, 0), CARD)
+		var st := str(it.state)
+		var learned := st in ["realised", "taught"]
+		var name_r := Rect2(rect.position + Vector2(0, 78), Vector2(CARD.x, 18))
+		if VIS.encloses(name_r):
+			ground(name_r.grow(4), UiKit.SURFACE.space)
+			var nm := fit(str(it.name), 16, CARD.x)
+			_log_text(Vector2(rect.position.x, rect.position.y + 92), nm, 16, HORIZONTAL_ALIGNMENT_CENTER, CARD.x, false, Rect2(),
+				UiKit.PALE_GOLD if sel == str(it.id) else (UiKit.PAPER if st != "locked" else UiKit.HOLLOW))
+		var tag := str(it.tag)
+		var tw := UiKit.text_width(tag, 14) + (22.0 if learned else 36.0)
+		var tr := Rect2(rect.get_center().x - tw * 0.5, rect.position.y + 96, tw, 19)
+		if VIS.encloses(tr):
+			ground(tr, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
+			var mark := 0.0 if learned else 14.0
+			_log_text(Vector2(tr.position.x + mark, tr.position.y + 15), fit(tag, 14, tw - mark), 14, HORIZONTAL_ALIGNMENT_CENTER, tw - mark, false, Rect2(),
+				UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST))
 	for key in _rows:
 		if str(key).begins_with("n"): continue
 		var y := float(_rows[key]) - view.y + CHART.position.y
-		if y + 60 < VIS.position.y + HEAD or y > VIS.end.y - 20: continue
-		lo = mini(lo, int(key))
-		hi = maxi(hi, int(key))
-		var g := str(T.ring_row(int(key)).get("grade", "common"))
-		if y + 14 >= VIS.position.y + HEAD and y + 64 <= VIS.end.y:
-			text(Vector2(VIS.end.x - 66, y + 40), ROMAN[int(key)], 26, Color(UiKit.MIST, 0.85), HORIZONTAL_ALIGNMENT_CENTER, 60, true)
-			text(Vector2(VIS.end.x - 72, y + 60), Tx.t("ui.techniques.grade_" + g), 14, UiKit.grade_color(g), HORIZONTAL_ALIGNMENT_CENTER, 72)
-	_name_plaque(Rect2(VIS.position.x + 135, 78, 302, 28), Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
-	if hi >= lo: text(Vector2(VIS.position.x + 14, 98), Tx.t("ui.techniques.act_rings") % [ROMAN[T.act_of(lo)], ROMAN[lo], ROMAN[hi]], 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 116)
+		if y + 14 < VIS.position.y + HEAD or y + 64 > VIS.end.y: continue
+		var g := str(TechniqueTreeRules.ring_row(int(key)).get("grade", "common"))
+		_log_text(Vector2(VIS.end.x - 66, y + 40), ROMAN[int(key)], 26, HORIZONTAL_ALIGNMENT_CENTER, 60, true, Rect2(), Color(UiKit.MIST, 0.85))
+		_log_text(Vector2(VIS.end.x - 72, y + 60), fit(Tx.t("ui.techniques.grade_" + g), 14, 72), 14, HORIZONTAL_ALIGNMENT_CENTER, 72, false, Rect2(), UiKit.grade_color(g))
+
+## Over the chart's head, at the right: Learned (the next learned art) and Let all go (the tree's reset). The family in
+## view on its plaque and the act's rings in view are the labels layer's (_draw_labels), written again as the view moves
+## without drawing the page; they are named here for the ui_suite.
+func _chart_labels() -> void:
 	btn(Rect2(VIS.end.x - 207, 78, 84, 28), Tx.t("ui.techniques.next_learned"), "next_learned", null, false, not _learned().is_empty(), Tx.t("ui.techniques.none_learned"), 14)
 	btn(Rect2(VIS.end.x - 119, 78, 114, 28), Tx.t("ui.techniques.let_all_go"), "reset", _tab_id(), false, _realised_here > 0, Tx.t("sim.tree.nothing"), 14)
+	if text_log == null: return
+	var pl := _plaque_words()
+	ground(PLAQUE, UiKit.SURFACE.cloth)
+	_log_text(Vector2(PLAQUE.position.x, PLAQUE.get_center().y + int(pl[1]) * 0.36), str(pl[0]), int(pl[1]), HORIZONTAL_ALIGNMENT_CENTER, PLAQUE.size.x, true, Rect2(), UiKit.PALE_GOLD, true)
+	var act := _act_words()
+	if act != "": _log_text(Vector2(VIS.position.x + 14, 98), fit(act, 14, 116), 14, HORIZONTAL_ALIGNMENT_LEFT, 116, false, Rect2(), UiKit.PAPER)
+
+const PLAQUE := Rect2(376, 78, 302, 28)   # the family in view, over the chart (VIS.position.x + 135)
+
+## The plaque's words for the view and their size: "<Family> arts of <Element>", stepped down to fit.
+func _plaque_words() -> Array:
+	var full := Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label)
+	var size := 22
+	while size > 16 and UiKit.text_width(full, size, true) > PLAQUE.size.x - 56: size -= 2
+	return [fit(full, size, PLAQUE.size.x, true), size]
+
+## "Act I · rings I–IV": the act and the rings in view ("" when no ring's row is in view).
+func _act_words() -> String:
+	var r := _rings_in_view()
+	if r.y < r.x: return ""
+	return Tx.t("ui.techniques.act_rings") % [ROMAN[TechniqueTreeRules.act_of(r.x)], ROMAN[r.x], ROMAN[r.y]]
+
+## The labels layer: the family in view on its plaque, and the act's rings in view (drawn over the chart and the page).
+func _draw_labels(cv: Layer) -> void:
+	if not _is_tree() or c() == null: return
+	_name_plaque_on(cv, PLAQUE, Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
+	var act := _act_words()
+	if act != "": UiKit.draw_text(cv, UiKit.fit(act, 14, 116), Vector2(VIS.position.x + 14, 98), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 116)
+
+## A name on its plaque on any canvas item (the labels layer's family in view): _name_plaque's look.
+func _name_plaque_on(cv: CanvasItem, r: Rect2, name: String) -> void:
+	Page.glow_on(cv, r.grow(6), Color(UiKit.INK, 0.5))
+	Page.rounded_on(cv, r.grow(1), 4.0, UiKit.INK)
+	Page.rounded_on(cv, r, 3.0, UiKit.GOLD)
+	Page.rounded_on(cv, r.grow(-1.5), 2.0, UiKit.SURFACE.cloth)
+	var size := 22
+	while size > 16 and UiKit.text_width(name, size, true) > r.size.x - 56: size -= 2
+	var w := minf(UiKit.text_width(name, size, true), r.size.x - 56)
+	for sx in [-1.0, 1.0]:
+		var d := r.get_center() + Vector2(sx * (w * 0.5 + 16), 0)
+		cv.draw_colored_polygon(PackedVector2Array([d + Vector2(0, -5), d + Vector2(5, 0), d + Vector2(0, 5), d + Vector2(-5, 0)]), UiKit.GOLD)
+	UiKit.draw_inked(cv, UiKit.fit(name, size, r.size.x, true), Vector2(r.position.x, r.get_center().y + size * 0.36), size, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
 
 ## A name on its plaque (the tree's family in view, the reading's art): jade in a gold rim, a gold diamond at each end.
 func _name_plaque(r: Rect2, name: String) -> void:
@@ -465,83 +904,125 @@ func _state_col(it: Dictionary) -> Color:
 		"open": return UiKit.GOLD
 	return UiKit.HOLLOW
 
-## A route through `pts` (chart space) in the colour of the node it leads to; dashed while that node is locked, with an
-## arrowhead into a card.
-func _route(pts: Array, col: Color, dashed: bool, arrow := false) -> void:
+## A route through `pts` (chart space) on `cv` in the colour of the node it leads to; dashed while that node is locked,
+## with an arrowhead into a card.
+func _route(cv: CanvasItem, pts: Array, col: Color, dashed: bool, arrow := false) -> void:
 	for i in pts.size() - 1:
 		var a: Vector2 = pts[i]
 		var b: Vector2 = pts[i + 1]
-		draw_line(a, b, UiKit.INK, 5.0)
-		if dashed: draw_dashed_line(a, b, col, 2.4, 6.0)
-		else: draw_line(a, b, col, 2.4, true)
+		cv.draw_line(a, b, UiKit.INK, 5.0)
+		if dashed: cv.draw_dashed_line(a, b, col, 2.4, 6.0)
+		else: cv.draw_line(a, b, col, 2.4, true)
 	if arrow:
 		var tip: Vector2 = pts[-1]
-		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-5, -8), tip + Vector2(5, -8)]), col)
+		cv.draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-5, -8), tip + Vector2(5, -8)]), col)
 
-## A passage (a small diamond) or a notable (a large one, an anchor of the act): jade when realised, gold ringed when
-## open, slate when locked; the chosen one haloed.
-func _diamond(at: Vector2, r: float, it: Dictionary) -> void:
+## A passage (a small diamond) or a notable (a large one, an anchor of the act) on `cv`: jade when realised, gold ringed
+## when open, slate when locked; the chosen one haloed.
+func _diamond(cv: CanvasItem, at: Vector2, r: float, it: Dictionary) -> void:
 	var st := str(it.state)
 	var fill: Color = UiKit.JADE if st == "realised" else (UiKit.SURFACE.cloth if st == "open" else UiKit.SURFACE.space)
 	var pts := PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, 0), at + Vector2(0, r), at + Vector2(-r, 0)])
-	if sel == str(it.id): glow(Rect2(at - Vector2(r, r) * 2.4, Vector2(r, r) * 4.8), Color(UiKit.PALE_GOLD, 0.5))
-	draw_colored_polygon(pts, fill)
+	if sel == str(it.id): Page.glow_on(cv, Rect2(at - Vector2(r, r) * 2.4, Vector2(r, r) * 4.8), Color(UiKit.PALE_GOLD, 0.5))
+	cv.draw_colored_polygon(pts, fill)
 	pts.append(pts[0])
-	draw_polyline(pts, UiKit.INK, 4.0, true)
-	draw_polyline(pts, UiKit.PAPER if st == "realised" else _state_col(it), 1.6, true)
-	if str(it.kind) == "notable": draw_circle(at, r * 0.35, _state_col(it), true, -1.0, true)
+	cv.draw_polyline(pts, UiKit.INK, 4.0, true)
+	cv.draw_polyline(pts, UiKit.PAPER if st == "realised" else _state_col(it), 1.6, true)
+	if str(it.kind) == "notable": cv.draw_circle(at, r * 0.35, _state_col(it), true, -1.0, true)
 
-## A node card: the art's picture in its frame (jade learned, gold open, slate locked, a keystone in a gold double frame),
-## its name and its state under it (a closed one with a lock, an open one with the Realisations mark). Only words wholly
-## inside the chart are written.
-func _card(it: Dictionary, rect: Rect2) -> void:
+## A node card on `cv` (a tile's cards layer, in the chart's space): the art's picture in its frame (jade learned, gold
+## open, slate locked, a keystone in a gold double frame), its name and its state under it (a closed one with a lock, an
+## open one with the Realisations mark). False when its emblem waits for a later frame.
+func _card(cv: CanvasItem, it: Dictionary, rect: Rect2) -> bool:
 	var id := str(it.id)
 	var st := str(it.state)
 	var learned := st in ["realised", "taught"]
 	var p := Rect2(rect.position + Vector2((CARD.x - PIC) * 0.5, 0), Vector2(PIC, PIC))
-	if sel == id: glow(p.grow(22), Color(UiKit.PALE_GOLD, 0.45))
-	rounded(p.grow(1), 5.0, UiKit.INK)
-	rounded(p, 4.0, _state_col(it) if sel != id else UiKit.PALE_GOLD)
-	rounded(p.grow(-2), 3.0, UiKit.INK)
-	if str(it.kind) == "keystone": draw_rect(p.grow(3), UiKit.GOLD, false, 1.5)
-	_card_picture(id, p.grow(-2), st == "locked")
+	if sel == id: Page.glow_on(cv, p.grow(22), Color(UiKit.PALE_GOLD, 0.45))
+	Page.rounded_on(cv, p.grow(1), 5.0, UiKit.INK)
+	Page.rounded_on(cv, p, 4.0, _state_col(it) if sel != id else UiKit.PALE_GOLD)
+	Page.rounded_on(cv, p.grow(-2), 3.0, UiKit.INK)
+	if str(it.kind) == "keystone": cv.draw_rect(p.grow(3), UiKit.GOLD, false, 1.5)
+	var done := _card_picture(cv, id, p.grow(-2), st == "locked")
 	if learned:
-		var tier := int(it.tier)
 		var d := p.end - Vector2(4, 4)
-		draw_colored_polygon(PackedVector2Array([d + Vector2(0, -11), d + Vector2(11, 0), d + Vector2(0, 11), d + Vector2(-11, 0)]), UiKit.JADE_SHADOW)
-		text(d + Vector2(-11, 5), str(tier), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 22)
-	var name_r := Rect2(rect.position + Vector2(0, 78), Vector2(CARD.x, 18))
-	if VIS.encloses(name_r):
-		ground(name_r.grow(4), UiKit.SURFACE.space)
-		text(Vector2(rect.position.x, rect.position.y + 92), str(it.name), 16, UiKit.PALE_GOLD if sel == id else (UiKit.PAPER if st != "locked" else UiKit.HOLLOW), HORIZONTAL_ALIGNMENT_CENTER, CARD.x)
-	var tag := str(it.tag)
-	var tw := UiKit.text_width(tag, 14) + (22.0 if learned else 36.0)
-	var tr := Rect2(rect.get_center().x - tw * 0.5, rect.position.y + 96, tw, 19)
-	if VIS.encloses(tr):
-		rounded(tr, 9.0, UiKit.INK)
-		rounded(tr.grow(-1), 8.0, _state_col(it))
-		rounded(tr.grow(-2), 7.0, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
-		ground(tr, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
-		var mark := 0.0 if learned else 14.0
-		if st == "open": _rz_mark(Vector2(tr.position.x + 14, tr.get_center().y), 0.8)
-		elif not learned: _lock_icon(Vector2(tr.position.x + 8, tr.position.y + 3), 0.8)
-		text(Vector2(tr.position.x + mark, tr.position.y + 15), tag, 14, UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tw - mark)
-	region(Rect2(rect.position.x + 20, rect.position.y, CARD.x - 40, CARD.y), "node", id)
+		cv.draw_colored_polygon(PackedVector2Array([d + Vector2(0, -11), d + Vector2(11, 0), d + Vector2(0, 11), d + Vector2(-11, 0)]), UiKit.JADE_SHADOW)
+		UiKit.draw_text(cv, str(int(it.tier)), d + Vector2(-11, 5), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 22)
+	return done
 
-## A card's picture, as the reading's is: the character in the art's pose on its element's ground, small, with the art's
-## emblem in its corner (3,171 arts, each composed at run time from its pose, its element and its emblem; the forms'
-## sheets are too large to hold them all, so the form plays in the reading and the preview). A closed art's is dimmed.
-func _card_picture(id: String, r: Rect2, dim: bool) -> void:
-	if not _pics.has(id):   # what the picture needs, found once: the art's row, pose and colour
+## Where a card's name and its tag are written (chart space): [name, tag], kept with the node until its tag changes.
+func _word_rects(it: Dictionary) -> Array:
+	if it.get("wr_of", null) == it.tag: return it.wr
+	var rect := Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD)
+	var tw := UiKit.text_width(str(it.tag), 14) + (22.0 if str(it.state) in ["realised", "taught"] else 36.0)
+	it.wr = [Rect2(rect.position + Vector2(0, 78), Vector2(CARD.x, 18)), Rect2(rect.get_center().x - tw * 0.5, rect.position.y + 96, tw, 19)]
+	it.wr_of = it.tag
+	return it.wr
+
+## The words the chart writes for this view: each card's name and tag wholly inside it, as [node, name?, tag?].
+func _words_in_view() -> Array:
+	var out: Array = []
+	var vr := Rect2(view, CHART.size)
+	var inside := Rect2(VIS.position - CHART.position + view, VIS.size)
+	var seen: Array = []
+	for key in _tiles:
+		if (_tiles[key].bounds as Rect2).intersects(vr): seen.append_array(_tiles[key].items)
+	for it in seen:
+		if str(it.kind) in ["passage", "notable"] or not vr.intersects(it.box): continue
+		_state(it)
+		var wr := _word_rects(it)
+		var n: bool = inside.encloses(wr[0])
+		var t: bool = inside.encloses(wr[1])
+		if n or t: out.append([it, n, t])
+	return out
+
+## The cards' words (a layer in the chart's space, over the cards): a card's name and its tag, each only while wholly
+## inside the chart (drawn again when that changes, not as the view moves).
+func _draw_words(cv: Layer) -> void:
+	for w in _words:
+		var it: Dictionary = w[0]
+		var id := str(it.id)
+		var st := str(it.state)
+		var learned := st in ["realised", "taught"]
+		var wr := _word_rects(it)
+		if w[1]:
+			UiKit.draw_text(cv, UiKit.fit(str(it.name), 16, CARD.x), Vector2(wr[0].position.x, wr[0].position.y + 14), 16,
+				UiKit.PALE_GOLD if sel == id else (UiKit.PAPER if st != "locked" else UiKit.HOLLOW), HORIZONTAL_ALIGNMENT_CENTER, CARD.x)
+		if not w[2]: continue
+		var tr: Rect2 = wr[1]
+		Page.rounded_on(cv, tr, 9.0, UiKit.INK)
+		Page.rounded_on(cv, tr.grow(-1), 8.0, _state_col(it))
+		Page.rounded_on(cv, tr.grow(-2), 7.0, UiKit.SURFACE.cloth if learned else UiKit.SURFACE.space)
+		var mark := 0.0 if learned else 14.0
+		if st == "open": _rz_mark_on(cv, Vector2(tr.position.x + 14, tr.get_center().y), 0.8)
+		elif not learned: _lock_on(cv, Vector2(tr.position.x + 8, tr.position.y + 3), 0.8)
+		UiKit.draw_text(cv, UiKit.fit(str(it.tag), 14, tr.size.x - mark), Vector2(tr.position.x + mark, tr.position.y + 15), 14,
+			UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tr.size.x - mark)
+
+## A card's picture: the character doing the art on its element's ground, the art's emblem in its corner. A top-down
+## character is drawn as the top-down game draws it (decision 42): the top-down figure in the pose a fight casts the art
+## in, held on the frame its blow lands, drawn straight from its sheets (every action is on them, so no picture waits on
+## a file or is composed). A classic side-view character keeps the side view's still, composed once a pose (one a frame,
+## once the page has opened). A closed art's is dimmed. False while something in it waits for a later frame.
+func _card_picture(cv: CanvasItem, id: String, r: Rect2, dim: bool) -> bool:
+	if not _pics.has(id):   # what the picture needs, found once: its pose and colour
 		var t0 := ContentDB.entry("techniques", id)
-		_pics[id] = {"t": t0, "pose": _pose(t0), "ec": SpriteCache.element_color(str(t0.get("element", "none")))}
+		_pics[id] = {"pose": _pose(t0), "ec": SpriteCache.element_color(str(t0.get("element", "none")))}
 	var p: Dictionary = _pics[id]
 	var ec: Color = p.ec
-	vshade(r, Color(ec.darkened(0.55), 1.0), UiKit.INK)
-	glow(Rect2(r.position + Vector2(8, 30), Vector2(r.size.x - 16, 40)), Color(ec, 0.3 if not dim else 0.12))
-	draw_line(Vector2(r.position.x + 4, r.end.y - 8), Vector2(r.end.x - 4, r.end.y - 8), Color(ec, 0.5), 1.0)
-	# The figure in the art's pose, composed once a pose into a small still (one a frame, once the page has opened, so
-	# neither opening nor dragging waits on the pose sheets); until then the emblem stands in.
+	cv.draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]),
+		PackedColorArray([Color(ec.darkened(0.55), 1.0), Color(ec.darkened(0.55), 1.0), UiKit.INK, UiKit.INK]))
+	Page.glow_on(cv, Rect2(r.position + Vector2(8, 30), Vector2(r.size.x - 16, 40)), Color(ec, 0.3 if not dim else 0.12))
+	cv.draw_line(Vector2(r.position.x + 4, r.end.y - 8), Vector2(r.end.x - 4, r.end.y - 8), Color(ec, 0.5), 1.0)
+	var tint: Color = UiKit.MIST if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3)
+	var mod := Color.WHITE if not dim else UiKit.MIST
+	if top:
+		if not pic.figure.loaded(): return false
+		_pose_pic(str(p.pose))
+		# At the world's own size, standing on the picture's ground line where the side view's still stood, its blow
+		# across the picture.
+		pic.draw_on(cv, Vector2(r.get_center().x - (4.0 if pic.hold > 0 else 0.0), r.end.y - 8), CARD_K, tint, r.grow(-1))
+		return _emblem_at(cv, Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, mod)   # the emblem in its corner
 	var still = _stills.get(str(p.pose))
 	if still == null:
 		var key := str(pic.outfit) + "|" + str(p.pose)
@@ -557,33 +1038,37 @@ func _card_picture(id: String, r: Rect2, dim: bool) -> void:
 			if _still_cache.size() >= 96: _still_cache.clear()
 			_still_cache[key] = still
 		if still != null: _stills[str(p.pose)] = still
-	if still != null:
-		draw_texture_rect(still, Rect2(Vector2(r.get_center().x - 4, r.end.y - 6) - Vector2(64, 95), Vector2(128, 128)), false,
-			UiKit.MIST if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3))
-	else: _emblem_at(r.grow(-6), id, Color.WHITE if not dim else UiKit.MIST)
-	if still != null: _emblem_at(Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, Color.WHITE if not dim else UiKit.MIST)   # the emblem in its corner
+	if still == null:
+		_emblem_at(cv, r.grow(-6), id, mod)   # until its still is composed, the emblem stands in
+		return false
+	cv.draw_texture_rect(still, Rect2(Vector2(r.get_center().x - 4, r.end.y - 6) - Vector2(64, 95), Vector2(128, 128)), false, tint)
+	return _emblem_at(cv, Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, mod)   # the emblem in its corner
 
 ## A card's emblem. One composed at run time (SpriteCache.emblem, a few ms each) is composed from the page's second
-## frame on, within EMBLEM_BUDGET_US a frame; the rest wait a frame (the page redraws every frame), so neither the
+## frame on, within EMBLEM_BUDGET_US a frame; the rest wait (false: their tile is drawn again next frame), so neither the
 ## opening nor a drag to a new family stalls on a screenful of them. One already composed draws at once.
-func _emblem_at(r: Rect2, id: String, modulate: Color) -> void:
+func _emblem_at(cv: CanvasItem, r: Rect2, id: String, modulate: Color) -> bool:
 	if not SpriteCache.icon_ready(id, minf(r.size.x, r.size.y)):
 		var frame := Engine.get_process_frames()
 		if _emblem_frame != frame:
 			_emblem_frame = frame
 			_emblem_us = 0
-		if first_draw() or _emblem_us >= EMBLEM_BUDGET_US: return
+		if first_draw() or _emblem_us >= EMBLEM_BUDGET_US: return false
 		var t0 := Time.get_ticks_usec()
-		icon_at(r, id, modulate)
+		SpriteCache.draw_icon(cv, r, id, modulate)
 		_emblem_us += Time.get_ticks_usec() - t0
-		return
-	icon_at(r, id, modulate)
+		return true
+	SpriteCache.draw_icon(cv, r, id, modulate)
+	return true
 
 ## An art's form at its impact frame (its sheet in its element's row at its tier's band), the whole cell fitted into `r`
 ## at `most` scale and centred on it: the reading's picture (`async`: once the sheet is in from its loading thread).
 func _form_still(t: Dictionary, r: Rect2, most: float, alpha: float, async := false) -> void:
 	var a := FxLayer.form_spec(str(t.get("vfx", {}).get("anim", "")))
-	if a.is_empty() or (async and SpriteCache.tex_async(str(a.file)) == null): return
+	if a.is_empty(): return
+	if async and SpriteCache.tex_async(str(a.file)) == null:
+		_waiting = true   # drawn again once its sheet is in from its loading thread
+		return
 	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
 	var k := minf(most, minf((r.size.x - 2.0) / cell.x, (r.size.y - 2.0) / cell.y))
 	var at := r.get_center() - (cell * 0.5 - Vector2(float(a.anchor[0]), float(a.anchor[1]))) * k
@@ -676,7 +1161,8 @@ func _chooser_tree(ch) -> void:
 	var rz: Dictionary = _rz if not _rz.is_empty() else {"free": 0, "total": 0}
 	_head(tree, str(tabs[tab].label), Tx.t("ui.techniques.to_place") % [int(rz.free), int(rz.total)], Tx.t("ui.techniques.families_daos"), true)
 	var fams: Array = TechniqueTreeRules.sectors()
-	var here := _fam_at_view()
+	_here = _fam_at_view()
+	var here := _here
 	var el_dao := str(TechniqueTreeRules.tree_def(tree).get("dao", ""))
 	list("fams", Rect2(20, 164, 208, 280), fams.size(), 56, func(i: int, rr: Rect2):
 		var fam := str(fams[i])
@@ -711,14 +1197,30 @@ func _picture(t: Dictionary, action := "") -> void:
 	glow(Rect2(r.position + Vector2(-10, 10), Vector2(170, 150)), Color(ec, 0.35))
 	draw_line(Vector2(r.position.x + 6, r.end.y - 16), Vector2(r.end.x - 6, r.end.y - 16), Color(ec, 0.6), 1.5)
 	pic.play(action if action != "" else _pose(t))
-	pic.elapsed = 0.3
-	# A stroke reaches forward, so its figure stands back to keep the blade in the frame; a still one stands centred.
-	pic.draw_on(self, Vector2(r.position.x + (75.0 if str(pic.action) in ["idle", "meditate"] else 44.0), r.end.y - 18), 1.0)
+	if top:
+		# Decision 42: the top-down figure at a whole PIC_K; a stroke stands back to keep its reach in the frame.
+		_pose_pic(str(pic.action))
+		if not pic.figure.loaded(): _waiting = true   # its sheets are still coming in from their loading threads
+		pic.draw_on(self, Vector2(r.position.x + (75.0 if pic.hold == 0 else 58.0), r.end.y - 14), PIC_K)
+	else:
+		pic.elapsed = 0.3
+		# A stroke reaches forward, so its figure stands back to keep the blade in the frame; a still one stands centred.
+		pic.draw_on(self, Vector2(r.position.x + (75.0 if str(pic.action) in ["idle", "meditate"] else 44.0), r.end.y - 18), 1.0)
 	if action == "": _form_still(t, r.grow(-4), 1.0, 0.85, true)
 
-## The body pose an art is shown in (TechniquePreview.pose_of).
+## The top-down picture's pose: a blow held on the frame it lands, in profile toward the right as the preview casts it;
+## a stance or a sitting on its first frame, three-quarters toward the camera.
+func _pose_pic(pose: String) -> void:
+	pic.play(pose)
+	var still: bool = str(pic.action) in ["idle", "meditate", "kneel", "salute"]
+	pic.row = "se" if still else "e"
+	pic.hold = 0 if still else maxi(1, TopdownFigure.hit_frame(str(pic.action)))
+
+## The body pose an art is shown in: the top-down pose a fight casts it in (TechniquePreview.top_pose) for a top-down
+## character, the side view's (TechniquePreview.pose_of) for a classic one.
 func _pose(t: Dictionary) -> String:
-	return TechniquePreview.pose_of(t, c(), pic.outfit)
+	if _fam.is_empty(): _fam = StatRules.family(c())
+	return TechniquePreview.top_pose(t, c(), _fam) if top else TechniquePreview.pose_of(t, c(), pic.outfit)
 
 ## The facts beside the picture: the emblem, its form and element or family, then the numbers.
 func _facts(id: String, t: Dictionary, lines: Array) -> void:
@@ -804,8 +1306,17 @@ func _learn_btn(it: Dictionary, total: int) -> void:
 	if not ok: text(Vector2(916, 632), why, 14, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 340)
 
 func _rz_mark(at: Vector2, k := 1.0) -> void:
-	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -7) * k, at + Vector2(7, 0) * k, at + Vector2(0, 7) * k, at + Vector2(-7, 0) * k]), UiKit.PALE_GOLD)
-	draw_colored_polygon(PackedVector2Array([at + Vector2(0, -5) * k, at + Vector2(5, 0) * k, at + Vector2(0, 5) * k, at + Vector2(-5, 0) * k]), UiKit.JADE)
+	_rz_mark_on(self, at, k)
+
+## The Realisations mark (a jade diamond in gold) on any canvas item.
+static func _rz_mark_on(cv: CanvasItem, at: Vector2, k := 1.0) -> void:
+	cv.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -7) * k, at + Vector2(7, 0) * k, at + Vector2(0, 7) * k, at + Vector2(-7, 0) * k]), UiKit.PALE_GOLD)
+	cv.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -5) * k, at + Vector2(5, 0) * k, at + Vector2(0, 5) * k, at + Vector2(-5, 0) * k]), UiKit.JADE)
+
+## Page._lock_icon on any canvas item.
+static func _lock_on(cv: CanvasItem, p: Vector2, k := 1.0) -> void:
+	cv.draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
+	cv.draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)
 
 ## A prerequisite row: its sign, what it asks, how far along, and a tick or a cross.
 func _need(y: float, kind: String, what: String, value: String, ok: bool) -> void:
@@ -845,7 +1356,7 @@ func _read_step(ch, it: Dictionary) -> void:
 	var k: Dictionary = TechniqueTreeRules.config().get("passives", {})
 	var what := Tx.t("ui.techniques.gives_damage") % [roundi(float(k.get("notable", 0.03)) * 100), str(tabs[tab].label), fam] if notable \
 		else (Tx.t("ui.techniques.gives_damage") % [roundi(float(k.get("passage_power", 0.01)) * 100), str(tabs[tab].label), fam] if ring % 2 == 1
-		else Tx.t("ui.techniques.gives_cost") % [roundi(-float(k.get("passage_cost", -0.02)) * 100), str(tabs[tab].label), fam])
+		else Tx.t("ui.techniques.gives_cost") % [str(tabs[tab].label), fam, roundi(-float(k.get("passage_cost", -0.02)) * 100)])
 	para(Rect2(920, 150, 332, 120), what + " " + Tx.t("ui.techniques.notable_help" if notable else "ui.techniques.passage_help"), 16, UiKit.PAPER)
 	_rule(362)
 	if str(it.state) == "realised":
@@ -1181,11 +1692,19 @@ func _slot_realm(i: int) -> String:
 	return "spirit_awakening_1"
 
 # ------------------------------------------------------------------ actions
+## Choose node `id`: the tiles holding the one let go and the one chosen are drawn again.
+func _choose(id: String) -> void:
+	if id == sel: return
+	_stale_node(sel)
+	sel = id
+	_stale_node(sel)
+
 func on_action(id: String, data) -> void:
 	var ch = c()
+	queue_redraw()
 	match id:
 		"_tab":
-			sel = ""
+			_choose("")
 			drawer = false
 			goal = Vector2.ZERO
 			view = Vector2.ZERO
@@ -1193,7 +1712,7 @@ func on_action(id: String, data) -> void:
 			last_tab = str(data)
 		"family": _jump(int(data))
 		"node":
-			sel = str(data)
+			_choose(str(data))
 			drawer = false
 			if _is_tree(): last_tab = _tab_id()
 		"next_learned":
@@ -1201,7 +1720,7 @@ func on_action(id: String, data) -> void:
 			if learned.is_empty(): return
 			_learned_i = (_learned_i + 1) % learned.size()
 			var it: Dictionary = learned[_learned_i]
-			sel = str(it.id)
+			_choose(str(it.id))
 			drawer = false
 			_glide(it.at - CHART.size * 0.5 + Vector2(0, CARD.y * 0.5))
 		"learn":
@@ -1217,7 +1736,7 @@ func on_action(id: String, data) -> void:
 			if sel != "" and ch.cultivator.techniques_known.has(sel) and (cur == null or str(cur) != sel):
 				submit({"type": "equip_technique", "slot": int(data), "id": sel})
 			elif cur != null:
-				sel = str(cur)
+				_choose(str(cur))
 				drawer = false
 		"slot_sel":
 			var at := _slot_of(ch, str(data))

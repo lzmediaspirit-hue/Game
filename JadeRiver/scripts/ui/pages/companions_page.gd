@@ -15,6 +15,7 @@ const GATE_R := 110.0
 const THREAD_Y := 466.0
 const COLUMN := 256.0        # the chosen friend's actions under their gate
 const FIGURE_SCALE := 1.6
+const TOP_SCALE := 4          # decision 42: a friend in the top-down game's style (TopdownDoll), screen px an art px
 const LIGHT_S := 0.2
 const TIE_S := 0.3
 
@@ -45,10 +46,10 @@ func draw_title_mount(r: Rect2) -> void:
 
 func _portrait(cid: String, def: Dictionary) -> Node2D:
 	if avatars.has(cid) and is_instance_valid(avatars[cid]): return avatars[cid]
-	var a = Avatar.new()
-	a.outfit = DialoguePageScript.full_outfit(def.get("outfit", {}))
-	a.scale = Vector2.ONE * FIGURE_SCALE
-	a.facing = 1
+	# Decision 42: each friend as the game draws them: the top-down figure in the top-down game, three-quarters toward
+	# the camera; the side view's for a classic side-view character.
+	var a := TopdownDoll.figure_for(DialoguePageScript.full_outfit(def.get("outfit", {})), FIGURE_SCALE, TOP_SCALE)
+	a.set("facing", 1)
 	add_child(a)
 	a.play("idle")
 	avatars[cid] = a
