@@ -70,7 +70,7 @@ def otter(action: str, f: int) -> Pose:
             P.mark(hp((3.2, sd, -1.1)), (0xF4, 0xEE, 0xDC, 255))
     for s in (1, -1):
         shut = action == "hurt" and f == 0 or action == "death" and f >= 4
-        P.mark(hp((1.5, s * 1.65, 1.2)), M.RAMPS["otter"][1] if shut else M.INKY)
+        (P.mark if shut else P.eye)(hp((1.5, s * 1.65, 1.2)), M.RAMPS["otter"][1] if shut else M.INKY)
         if not shut:
             P.mark(hp((1.7, s * 1.5, 1.5)), M.GLINT)
         P.add(S(hp((-0.7, s * 2.2, 1.9)), 0.8, "otter_dark", "ear%d" % s))

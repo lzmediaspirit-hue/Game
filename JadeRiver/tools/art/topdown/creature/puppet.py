@@ -115,18 +115,27 @@ def puppet(action: str, f: int) -> Pose:
               L(elbow, end, 1.2, 1.1, "timber", "arm%d" % s, grain),
               S(elbow + (end - elbow) * 0.82, 1.2, "rope", "arm%d" % s),
               E(end, (1.7, 1.55, 1.55), "timber_dark", "arm%d" % s, tm))
-        # Qi: a jade ring gathering at the drawn palm in the tell, bursting at the knuckles on the blow.
+        # Qi: a jade orb gathering at the drawn palm in the tell (a bright core in a glow, a ring turning round it),
+        # bursting at the knuckles on the blow in a wide ring.
         q = pick(QI, action, f)
         if s < 0 and q > 0.0:
-            rr = 1.6 + q * 1.7
-            n = 10 if q < 1.2 else 16
+            c = end + tm @ v3(1.2 + (0.8 if action == "attack" else 0.0), 0.0, 0.0)
+            core = 0.5 + 0.9 * min(q, 1.0) if action == "windup" or f == 0 else 0.6
+            for dy in np.arange(-core * 2.2, core * 2.2 + 0.01, 0.55):
+                for dz in np.arange(-core * 2.2, core * 2.2 + 0.01, 0.55):
+                    d = math.hypot(dy, dz)
+                    if d <= core * 2.2:
+                        col = M.QI_BRIGHT if d < core * 0.9 else (M.QI if d < core * 1.6 else (0x4C, 0xB6, 0xA2, 150))
+                        P.glow.append((c + tm @ v3(0.0, dy, dz), col))
+            rr = 2.2 + q * 1.8
+            n = 12 if q < 1.2 else 20
             for k in range(n):
                 ang = math.radians(k * 360.0 / n + f * 15.0)
-                col = M.QI_BRIGHT if k % 2 == 0 and q >= 1.0 else (M.QI if k % 2 == 0 else M.QI_DIM)
-                P.glow.append((end + tm @ v3(1.2 + (0.8 if action == "attack" else 0.0), math.cos(ang) * rr, math.sin(ang) * rr), col))
-            if action == "windup" and f >= 2:
-                for k in range(3):
-                    P.glow.append((end + v3(-0.4 + k * 0.6, -1.0 + k, 2.4 + k * 0.9 + f * 0.3), M.QI_DIM))
+                col = M.QI_BRIGHT if k % 2 == 0 and q >= 1.0 else (M.QI if k % 3 else M.QI_DIM)
+                P.glow.append((c + tm @ v3(0.0, math.cos(ang) * rr, math.sin(ang) * rr), col))
+            if action == "windup" and f >= 1:
+                for k in range(4):
+                    P.glow.append((c + v3(-0.6 + k * 0.7, -1.4 + k * 0.9, 3.0 + k * 1.1 + f * 0.5), M.QI_DIM))
     roll = pick(ROLL, action, f)
     if roll:
         P.m = rot("a", roll)

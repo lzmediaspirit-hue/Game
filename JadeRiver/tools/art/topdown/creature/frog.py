@@ -62,7 +62,7 @@ def frog(action: str, f: int) -> Pose:
         eye = at((5.0, s * 2.2, 2.7 * sq))
         P.add(S(eye, 1.55, "frog_eye", "eye%d" % s))
         shut = action == "hurt" and f == 0 or action == "death" and f >= 4
-        P.mark(eye + tm @ v3(1.2, s * 0.5, 0.6), M.RAMPS["frog"][1] if shut else M.INKY)
+        (P.mark if shut else P.eye)(eye + tm @ v3(1.2, s * 0.5, 0.6), M.RAMPS["frog"][1] if shut else M.INKY)
         P.mark(eye + tm @ v3(1.3, s * 0.3, 0.2), M.RAMPS["frog"][1] if shut else M.INKY)
         if not shut:
             P.mark(eye + tm @ v3(0.4, s * 0.1, 1.4), M.GLINT)

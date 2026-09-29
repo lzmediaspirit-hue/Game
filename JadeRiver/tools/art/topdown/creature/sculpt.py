@@ -85,6 +85,15 @@ def L(p0, p1, r0, r1, mat, group, paint=None, clip=None, line=True, caps=True) -
     return Part("limb", mat, group, paint, clip, line, p0=p0, p1=p1, r0=float(r0), r1=float(r1), caps=caps)
 
 
+def on(centre, radii, m, u: float, v: float, out: float = 0.2) -> np.ndarray:
+    """A point just proud of an ellipsoid's surface, `u` degrees round its equator from its front toward its left and
+    `v` up from it, so a mark lands on the part."""
+    cu, su = math.cos(math.radians(u)), math.sin(math.radians(u))
+    cv, sv = math.cos(math.radians(v)), math.sin(math.radians(v))
+    return np.asarray(centre, float) + np.asarray(m, float) @ np.array(((radii[0] + out) * cv * cu, (radii[1] + out) * cv * su,
+                                                                        (radii[2] + out) * sv))
+
+
 def chain(pts, r0: float, r1: float, mat, group, **kw) -> list:
     """Limbs through the points `pts` (a leg, a stalk, a tail), the radius tapering r0 to r1 along them."""
     out = []
@@ -102,6 +111,7 @@ class Pose:
         self.k = 1.0
         self.parts: list = []
         self.marks: list = []     # (point, rgba): a pixel on the surface where it shows
+        self.eyes: list = []      # (point, rgba): marks an elite draws in gold
         self.fx: list = []        # (point, rgba): loose, after the outline, only where nothing is drawn
         self.glow: list = []      # (point, rgba): light, after the outline, over anything
         self.m = IDENT
@@ -120,6 +130,9 @@ class Pose:
 
     def mark(self, at, col) -> None:
         self.marks.append((np.asarray(at, float), col))
+
+    def eye(self, at, col) -> None:
+        self.eyes.append((np.asarray(at, float), col))
 
     def squash(self, sa: float, sb: float, sc: float, pivot=(0.0, 0.0, 0.0)) -> None:
         """Squash and stretch about `pivot` (the feet, or the point that stays put): every part, mark and point scaled
@@ -149,6 +162,7 @@ class Pose:
                 g["p0"], g["p1"] = pt(g["p0"]), pt(g["p1"])
                 g["r0"], g["r1"] = g["r0"] * across, g["r1"] * across
         self.marks = [(pt(a), c) for a, c in self.marks]
+        self.eyes = [(pt(a), c) for a, c in self.eyes]
         self.fx = [(pt(a), c) for a, c in self.fx]
         self.glow = [(pt(a), c) for a, c in self.glow]
 
@@ -159,20 +173,29 @@ class Look:
     and its palette (material -> five-step ramp); `elite` darkens the ramps toward the §14 shadow, keeping `accents`
     (eyes, a claw's jade) as they are."""
 
-    def __init__(self, palette: dict, mats: dict | None = None, accents=(), glow=()):
+    def __init__(self, palette: dict, mats: dict | None = None, accents=(), glow=(), gold=()):
         self.palette = dict(palette)
         self.mats = dict(mats or {})
         self.accents = set(accents)
         self.glow = set(glow)
+        self.gold = set(gold)
 
     def elite(self) -> "Look":
-        out = Look({}, self.mats, self.accents, self.glow)
+        out = Look({}, self.mats, self.accents, self.glow, self.gold)
         for name, r in self.palette.items():
+            if name in self.gold:
+                out.palette[name] = GOLD
+                continue
             if name in self.accents or name in self.glow:
                 out.palette[name] = r
                 continue
             out.palette[name] = [_darken(c, 0.30 - 0.03 * i) for i, c in enumerate(r)]
         return out
+
+
+# An elite's eyes (a material, or the marks a species lays as eyes): gold.
+GOLD = [(0x6E, 0x4A, 0x10, 255), (0xA8, 0x77, 0x1E, 255), (0xE0, 0xB0, 0x30, 255), (0xFF, 0xD8, 0x5A, 255), (0xFF, 0xF2, 0xB0, 255)]
+GOLD_EYE = (0xFF, 0xD0, 0x40, 255)
 
 
 def _darken(c, t: float) -> tuple:
@@ -282,10 +305,10 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
             rgba[sel, :3] = paint.ramp[name][paint.inner[name]]
     # Marks on the surface where it shows.
     on = layer.mat >= 0
-    for at, col in P.marks:
+    for at, col, gold in [(a, c, False) for a, c in P.marks] + [(a, c, True) for a, c in P.eyes]:
         i, j, d = V.pixel(at)
         if 0 <= i < raster.W and 0 <= j < raster.H and on[j, i] and d >= layer.depth[j, i] - 1.0:
-            rgba[j, i] = _rgba(col)
+            rgba[j, i] = _rgba(GOLD_EYE if gold and elite else col)
     if P.dissolve > 0.0:
         _dissolve(rgba, P, frame_no)
     for at, col in P.fx:
@@ -382,30 +405,55 @@ def _water(rgba: np.ndarray, P: Pose, V: View) -> None:
             rgba[jj[n], ii[n]] = _rgba(col)
 
 
+def _grow(on: np.ndarray) -> np.ndarray:
+    pad = np.zeros((on.shape[0] + 2, on.shape[1] + 2), dtype=bool)
+    pad[1:-1, 1:-1] = on
+    return on | pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:]
+
+
 def _aura(rgba: np.ndarray, f: int) -> None:
-    """The elite's mark: a broken ring of pale gold Qi round its outline, flickering frame by frame, and motes rising
-    off its back."""
+    """The elite's mark: Qi burning round it in pale gold. A ring hugs its outline (stronger toward the top, bright
+    specks flickering frame by frame), a fainter one stands off it round its upper part, tongues of it lick up off its
+    back, and motes rise over it."""
     a = rgba[..., 3] > 0
     Hh, Ww = a.shape
-    pad = np.zeros((Hh + 2, Ww + 2), dtype=bool)
-    pad[1:-1, 1:-1] = a
-    ring = ~a & (pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:])
-    ys, xs = np.nonzero(ring)
-    if len(ys) == 0:
+    if not a.any():
         return
-    h = ((xs * 2654435761 + ys * 40503 + f * 97) % 997) / 997.0
-    top = ys.min()
-    keep = h > 0.42
-    for y, x, hv in zip(ys[keep], xs[keep], h[keep]):
-        up = (y - top) / max(1, (ys.max() - top))
-        alpha = int(150 - 70 * up) if hv > 0.8 else int(95 - 40 * up)
-        rgba[y, x] = (255, 226, 140, max(40, alpha))
-    # Motes: a few specks of gold rising over it, a step higher each frame.
-    ay, ax = np.nonzero(a)
-    cx = int(round(ax.mean()))
-    w = max(4, int((ax.max() - ax.min()) * 0.4))
-    for k in range(4):
-        x = cx - w + (k * 2 * w) // 3 + (k * 7 + f * 3) % 3
-        y = int(ay.min()) - 1 - ((f * 2 + k * 5) % 9)
+    g1 = _grow(a)
+    ring1 = g1 & ~a
+    ring2 = _grow(g1) & ~g1
+    ys, xs = np.nonzero(a)
+    top, bot = ys.min(), ys.max()
+    span = max(1, bot - top)
+    for ring, strong in ((ring1, True), (ring2, False)):
+        ry, rx = np.nonzero(ring)
+        h = ((rx * 2654435761 + ry * 40503 + f * 977) % 997) / 997.0
+        up = 1.0 - (ry - top) / span                       # 1 at the top of the figure, 0 at its feet
+        for y, x, hv, u in zip(ry, rx, h, up):
+            if strong:
+                if hv < 0.1:
+                    continue
+                if hv > 0.84:
+                    rgba[y, x] = (255, 244, 196, int(170 + 60 * max(0.0, u)))
+                else:
+                    rgba[y, x] = (255, 214, 110, int(max(70, 95 + 100 * u)))
+            elif u > 0.35 and hv > 0.4:
+                rgba[y, x] = (255, 220, 130, int(40 + 50 * u))
+    # Tongues of Qi licking up off its top edge: a column's highest pixel, lifted a pixel or two, flickering.
+    cols = np.nonzero(a.any(axis=0))[0]
+    for x in cols:
+        y0 = int(np.nonzero(a[:, x])[0].min())
+        hv = ((x * 7919 + f * 104729) % 101) / 101.0
+        n = 2 if hv > 0.8 else (1 if hv > 0.45 else 0)
+        for d in range(n):
+            y = y0 - 3 - d
+            if 0 <= y < Hh and rgba[y, x, 3] == 0:
+                rgba[y, x] = (255, 226, 150, 150 - 50 * d)
+    # Motes rising over it, two px a frame.
+    cx = int(round(xs.mean()))
+    w = max(4, int((xs.max() - xs.min()) * 0.45))
+    for k in range(5):
+        x = cx - w + (k * 2 * w) // 4 + (k * 5 + f) % 3
+        y = int(top) - 2 - ((f * 2 + k * 5) % 7)
         if 0 <= x < Ww and 0 <= y < Hh and rgba[y, x, 3] == 0:
-            rgba[y, x] = (255, 236, 170, 200 if k % 2 else 150)
+            rgba[y, x] = (255, 240, 180, 220 if k % 2 else 160)

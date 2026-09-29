@@ -47,10 +47,10 @@ class Spec:
     size 1, for the walk's rate)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=()):
         self.module, self.fn, self.size, self.palette = module, fn, size, palette
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
-        self.aura, self.sized = aura, sized
+        self.aura, self.sized, self.gold = aura, sized, gold
 
     def pose(self, action: str, f: int, **kw):
         import importlib
@@ -58,38 +58,40 @@ class Spec:
         return getattr(mod, self.fn)(action, f, **kw)
 
     def look(self) -> sculpt.Look:
-        return sculpt.Look(M.palette(*self.palette), M.props(*self.palette), accents=self.accents, glow=self.glow)
+        return sculpt.Look(M.palette(*self.palette), M.props(*self.palette), accents=self.accents, glow=self.glow, gold=self.gold)
 
 
-# Sizes against the 46 px body (decision 43): the crab about 30 px across, the rat about 36 px long with its tail, the
-# boarlet about 36 px long, the frog and the toad small, the leech and the otter medium; Old Snapper about 70 px from
-# its tail to its beak, the hollowed eel rising about 58 px out of the river, the Trial Puppet about 48 px, a sparring
-# figure a head over a disciple.
+# Sizes (decision 43, art bible §8 "Foes"): the people grow 1.2x (about 46 px from sole to crown) and every foe grows
+# with them, about 1.2x its earlier size, so it keeps its share of a person: the crab about 32 px across its legs, the
+# rat about 39 px long with its tail, the boarlets about 37 px long, the frog 20, the toad 28, the leech 32, the otter 41
+# with its tail, the minnow 31 with its wake. The trial and the bosses grow more: the Trial Puppet about 52 px tall, a
+# head over a disciple; Old Snapper 1.5x, about 75 px from its tail to its beak; the hollowed eel about 1.4x, rising
+# about 60 px out of the river. An elite is ELITE times its species' size.
 REGISTRY = {
-    "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
-                         elite=False, shadow=(13, 4), cycle=12.0, sized=True),
+    "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
+                          accents=("claw_tip",), gold=("eye",), shadow=(12, 4), cycle=10.0, sideways=True),
+    "reedtail_rat": Spec("rat", "rat", 1.26, ["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
+                         shadow=(10, 3), cycle=11.0),
+    "wild_boarlet": Spec("boar", "boarlet", 1.4, ["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
+                         accents=("tusk",), shadow=(13, 4), cycle=13.0),
+    "trial_puppet": Spec("puppet", "puppet", 1.58, ["timber", "timber_dark", "brass", "puppet_jade", "rope"],
+                         accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
+    "reed_frog": Spec("frog", "frog", 1.42, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
+                      shadow=(11, 4), cycle=6.0),
+    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_belly", "leech_mouth", "leech_stripe"], accents=("leech_mouth",),
+                        shadow=(13, 4), cycle=8.0),
+    "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0),
+    "hollowed_boarlet": Spec("boar", "hollowed", 1.4, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
+                             accents=("tusk", "strand"), shadow=(13, 4), cycle=13.0),
     "old_snapper": Spec("snapper", "snapper", 1.8, ["snap_shell", "snap_moss", "snap_moss_lit", "snap_skin", "snap_belly", "snap_beak",
                                                    "crusher", "crusher_tip", "weed", "snap_eye", "maw"],
                         accents=("crusher", "snap_eye"), elite=False, aura=True, shadow=(26, 6), cycle=9.0),
-    "trial_puppet": Spec("puppet", "puppet", 1.7, ["timber", "timber_dark", "brass", "puppet_jade", "rope"],
-                         accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
-    "hollow_minnow": Spec("minnow", "minnow", 1.62, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
-                          accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
     "mossback_toad": Spec("toad", "toad", 1.56, ["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
                                                  "toad_eye", "maw"], accents=("toad_eye", "tongue"), shadow=(12, 4), cycle=7.0),
-    "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0),
-    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_belly", "leech_mouth", "leech_stripe"], accents=("leech_mouth",),
-                        shadow=(13, 4), cycle=8.0),
-    "reed_frog": Spec("frog", "frog", 1.32, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
-                      shadow=(11, 4), cycle=6.0),
-    "reedtail_rat": Spec("rat", "rat", 1.32, ["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
-                         shadow=(10, 3), cycle=11.0),
-    "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
-                          accents=("claw_tip", "eye"), shadow=(12, 4), cycle=10.0, sideways=True),
-    "wild_boarlet": Spec("boar", "boarlet", 1.5, ["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
-                         accents=("tusk",), shadow=(13, 4), cycle=13.0),
-    "hollowed_boarlet": Spec("boar", "hollowed", 1.5, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
-                             accents=("tusk", "strand"), shadow=(13, 4), cycle=13.0),
+    "hollow_minnow": Spec("minnow", "minnow", 1.5, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
+                          accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
+    "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
+                         elite=False, shadow=(13, 4), cycle=12.0, sized=True),
 }
 
 

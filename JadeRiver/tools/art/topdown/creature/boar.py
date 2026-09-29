@@ -20,7 +20,7 @@ from figure.geom import ik2
 
 from . import mats as M
 from .motion import gait, pick, wave
-from .sculpt import E, L, Pose, S, chain, rot, v3
+from .sculpt import E, L, Pose, S, chain, on, rot, v3
 
 MATS = {"hide": "hide", "head": "hide_head", "stripe": "stripe", "hoof": "hoof", "snout": "snout", "bristle": "bristle"}
 HOLLOW = {"hide": "h_hide", "head": "h_head", "stripe": "h_stripe", "hoof": "h_bristle", "snout": "h_snout",
@@ -37,7 +37,7 @@ BOB = {"windup": (0.0, -0.3, -0.4, -0.8), "attack": (0.9, 0.2, 0.0, -0.2, 0.0, 0
        "death": (0.4, -0.6, -1.6, -1.8, -1.9, -2.0, -2.0, -2.0)}
 PITCH = {"windup": (-3.0, -5.0, -6.0, -8.0), "attack": (1.0, 4.0, 6.0, 2.0, 0.0, -1.0), "hurt": (5.0, -2.0, 0.0),
          "death": (6.0, -8.0, -12.0, -8.0, -4.0, 0.0, 0.0, 0.0)}
-HEAD = {"idle": (-6.0, -10.0, -16.0, -18.0, -12.0, -7.0), "windup": (-14.0, -24.0, -28.0, -34.0),
+HEAD = {"idle": (-2.0, -5.0, -12.0, -14.0, -8.0, -3.0), "windup": (-14.0, -24.0, -28.0, -34.0),
         "attack": (-22.0, 12.0, 24.0, 10.0, -4.0, -10.0), "hurt": (16.0, -4.0, -8.0),
         "death": (20.0, 8.0, -10.0, -14.0, -16.0, -18.0, -18.0, -18.0)}
 SQUASH = {"windup": ((1.0, 0.99), (0.99, 0.97), (0.98, 0.96), (0.97, 0.92)),
@@ -60,9 +60,9 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     pitch = pick(PITCH, action, f)
     if action == "walk":
         pitch = 1.2 * math.sin(f / 8.0 * 4.0 * math.pi + 0.6)
-    hpitch = pick(HEAD, action, f, -8.0)
+    hpitch = pick(HEAD, action, f, -6.0)
     if action == "walk":
-        hpitch = -10.0 + 4.0 * math.sin(f / 8.0 * 4.0 * math.pi + 1.4)
+        hpitch = -6.0 + 4.0 * math.sin(f / 8.0 * 4.0 * math.pi + 1.4)
     sa, sc = pick(SQUASH, action, f, (1.0, 1.0))
     if action == "idle":
         sc = 1.0 + 0.025 * wave(action, f)
@@ -80,7 +80,7 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         nz = (n @ bm)[:, 2]
         b = np.abs(loc[:, 1])
         a = loc[:, 0]
-        on_back = (nz > 0.2) & (a > -7.0) & (a < 4.6)
+        on_back = (nz > 0.2) & (a > -2.6 - 1.2 * (b < 1.6)) & (a < 4.6)       # fading out over the rump
         stripe = on_back & (((b > 1.0) & (b < 1.55)) | ((b > 2.6) & (b < 3.05)))
         u = a * 0.62 + 0.45 * np.sin(loc[:, 2] * 0.9 + b * 1.7)
         fr = u - np.floor(u)
@@ -90,8 +90,8 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         return names, bias
 
     # The body: a high shoulder, the barrel and the rump, one smooth hide.
-    P.add(E(at((3.2, 0.0, 1.0)), (4.4, 4.5, 5.2), m["hide"], "body", bm, hide),
-          E(at((-0.2, 0.0, 0.0)), (5.9, 4.6, 4.3), m["hide"], "body", bm, hide),
+    P.add(E(at((3.2, 0.0, 1.0)), (4.4, 4.9, 5.2), m["hide"], "body", bm, hide),
+          E(at((-0.2, 0.0, 0.0)), (5.9, 4.9, 4.3), m["hide"], "body", bm, hide),
           E(at((-4.4, 0.0, 0.3)), (3.6, 4.1, 4.0), m["hide"], "body", bm, hide))
     # The bristle crest from the nape down the spine, stirring.
     stir = {"idle": 0.3 * wave(action, f), "walk": 0.4 * wave(action, f, 0.25)}.get(action, 0.0)
@@ -105,11 +105,12 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         tip = base + bm @ v3(lean, 0.0, 1.5 + (0.6 if action in ("windup", "attack") else 0.0) - k * 0.08)
         P.add(L(base, tip, 0.62, 0.22, m["bristle"], "crest", line=False))
     # The head: skull and jowls, a long snout ending in its pink disc, tusks, ears.
-    hm = bm @ rot("b", -8.0 + hpitch)
+    hm = bm @ rot("b", -4.0 + hpitch)
     sniff = 0.25 * wave(action, f, 0.3) if action == "idle" else 0.0
-    hc = at((7.8 + sniff, 0.0, -0.9))
+    hc = at((7.8 + sniff, 0.0, -0.6))
     hp = lambda p: hc + hm @ v3(p)
-    P.add(E(hc, (4.0, 3.6, 3.5), m["head"], "head", hm),
+    skull = (4.2, 3.8, 3.7)
+    P.add(E(hc, skull, m["head"], "head", hm),
           E(hp((0.4, 0.0, -1.5)), (3.2, 3.9, 2.4), m["head"], "head", hm),
           L(hp((2.0, 0.0, -0.6)), hp((6.0, 0.0, -1.4)), 2.3, 1.7, m["head"], "head"))
     P.add(E(hp((6.6, 0.0, -1.5)), (0.8, 1.8, 1.6), m["snout"], "snout", hm))
@@ -119,22 +120,25 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         P.add(L(hp((4.6, s * 1.7, -2.3)), hp((5.8, s * 2.3, -0.8)), 0.45, 0.28, "tusk", "tusk%d" % s))
         # Eyes: a dark bead under the brow with a glint (shut when struck or beaten); the hollowed's cold white.
         shut = action == "hurt" and f == 0 or action == "death" and f >= 5
-        eye = hp((2.1, s * 2.85, 0.9))
+        eye, eye2 = on(hc, skull, hm, s * 50.0, 16.0), on(hc, skull, hm, s * 46.0, 26.0)
         if hollow and not shut:
-            P.mark(eye, M.HOLLOW_EYE)
-            P.mark(hp((1.8, s * 2.9, 1.6)), M.EYE_HALO)
+            P.eye(eye, M.HOLLOW_EYE)
+            P.eye(eye2, M.HOLLOW_EYE)
+            P.mark(on(hc, skull, hm, s * 50.0, 38.0), M.EYE_HALO)
         elif shut:
             P.mark(eye, M.RAMPS[m["head"]][0])
         else:
-            P.mark(eye, M.INKY)
-            P.mark(hp((2.4, s * 2.75, 1.3)), M.GLINT)
+            P.eye(eye, M.INKY)
+            P.eye(eye2, M.INKY)
+            P.mark(on(hc, skull, hm, s * 40.0, 28.0), M.GLINT)
         # Ears: pointed, pricked forward, flicking.
         flick = 18.0 if action == "idle" and f in (3, 4) and s > 0 else 0.0
         if action in ("windup", "attack"):
             flick = -20.0   # laid back
-        em = hm @ rot("a", s * -22.0) @ rot("b", -10.0 + flick)
-        P.add(E(hp((-1.2, s * 2.3, 3.0)), (1.1, 1.0, 2.2), m["head"], "ear%d" % s, em))
-        P.mark(hp((-0.4, s * 2.2, 3.4)), M.RAMPS["pink"][1] if not hollow else M.RAMPS["h_snout"][1])
+        em = hm @ rot("a", s * -32.0) @ rot("b", 4.0 + flick)
+        ear_c = hp((-1.0, s * 2.7, 3.5))
+        P.add(E(ear_c, (1.3, 1.0, 2.8), m["head"], "ear%d" % s, em))
+        P.mark(on(ear_c, (1.3, 1.0, 2.8), em, 0.0, 20.0), M.RAMPS["pink"][1] if not hollow else M.RAMPS["h_snout"][1])
     # Legs: forelegs under the shoulder, hind legs under the rump bent back at the hock, dark hooves.
     legs = (("fl", 3.8, 2.5, 0.0), ("fr", 3.8, -2.5, 0.5), ("hl", -5.0, 2.7, 0.5), ("hr", -5.0, -2.7, 0.0))
     roll = pick(ROLL, action, f)

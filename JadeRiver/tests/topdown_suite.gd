@@ -1000,6 +1000,14 @@ func _foe_facings(base: Vector2) -> void:
 	var last: Array = acts.death.frames.n.back()
 	t.check(seen == ["w*", "ne", "s", "sw*", "n"] and is_equal_approx(west_y, float(acts.walk.frames.e[0][1])) and not e.alive and fv.src.position == Vector2(float(last[0]), float(last[1])),
 		"topdown: a foe faces where it walks and where it aims (%s; SW, W and NW mirror SE, E and NE), and its death holds its last frame" % str(seen))
+	# Decision 43: an elite takes its species' elite rows (larger, darker, in a ring of Qi), from the same sheet.
+	var el: EnemyState = Game.enemies.spawn_at("wild_boarlet", base + Vector2(-80, 0), 1, {"elite": true})
+	el.altitude = w.room.height_at(el.plane)
+	frames(1)
+	var ev = w.foe_views.get(el.uid)
+	var sp: Dictionary = w.room.tileset.foes.species.wild_boarlet
+	t.check(ev != null and ev.acts == sp.elite.actions and fv.acts == sp.actions and ev.tex == fv.tex and ev.shadow_rx > fv.shadow_rx,
+		"topdown: an elite foe draws its species' elite rows from the same sheet, its shadow wider (%s)" % str(ev.shadow_rx if ev != null else -1.0))
 
 ## A blow lands in each of the eight directions it is aimed, and only there.
 func _eight_ways(base: Vector2) -> void:
@@ -2267,15 +2275,19 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 	var after: bool = plate.call(calm)
 	lv.call(calm).sync(calm, EnemyView.ENGAGED_S)
 	t.check(in_fight and after and not plate.call(calm), "topdown labels: a foe in a fight with the player shows its plate and HP bar, and its plate a few seconds after the fight")
-	# The label on the figure's head: the foe sheet's top over its feet, not the side view's height.
+	# The label on the figure's head: the foe sheet's top over its feet, not the side view's height; an elite's on its
+	# own larger figure's (decision 43).
 	var sheet: Dictionary = w.room.tileset.foes.species
 	var eel: EnemyState = Game.enemies.spawn_at("hollowed_eel", base + Vector2(-300, 200), 1)
+	var big: EnemyState = Game.enemies.spawn_at("mudshell_crab", base + Vector2(-260, 150), 1, {"elite": true})
 	frames(1)
 	var eel_top: float = lv.call(eel).figure_top if lv.call(eel) != null else -1.0
+	var big_top: float = lv.call(big).figure_top if lv.call(big) != null else -1.0
 	t.check(is_equal_approx(lv.call(ahead).figure_top, float(sheet.mudshell_crab.top) * TopdownRoom.ART) and is_equal_approx(eel_top, float(sheet.hollowed_eel.top) * TopdownRoom.ART)
-		and eel_top < eel.height(),
-		"topdown labels: a foe's label sits on its top-down figure's head, the hovering eel's too (crab %.0f; eel %.0f over its feet, its side-view height %.0f)" % [lv.call(ahead).figure_top, eel_top, eel.height()])
+		and is_equal_approx(big_top, float(sheet.mudshell_crab.elite.top) * TopdownRoom.ART) and big_top > lv.call(ahead).figure_top,
+		"topdown labels: a foe's label sits on its top-down figure's head, the hovering eel's and an elite's too (crab %.0f, the elite crab %.0f; eel %.0f over its feet, its side-view height %.0f)" % [lv.call(ahead).figure_top, big_top, eel_top, eel.height()])
 	Game.room_rt.enemies.erase(eel.uid)
+	Game.room_rt.enemies.erase(big.uid)
 	# A crowd in a fight: every plate shows, none touching.
 	fresh(base)
 	var crowd: Array = []

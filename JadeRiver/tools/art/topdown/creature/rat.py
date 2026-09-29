@@ -74,7 +74,7 @@ def rat(action: str, f: int) -> Pose:
         P.add(E(hp((-0.8, s * 1.7, 2.3)), (0.8, 1.5, 1.8), "pink", "ear%d" % s, ear_m))
         P.mark(hp((-0.5, s * 1.8, 2.5)), M.RAMPS["pink"][0])
         shut = action == "hurt" and f == 0 or action == "death" and f >= 5
-        P.mark(hp((1.6, s * 1.75, 0.9)), M.RAMPS["fur"][0] if shut else M.RAT_EYE)
+        (P.mark if shut else P.eye)(hp((1.6, s * 1.75, 0.9)), M.RAMPS["fur"][0] if shut else M.RAT_EYE)
         if not shut:
             P.mark(hp((1.8, s * 1.65, 1.2)), M.GLINT)
         for w in range(3):

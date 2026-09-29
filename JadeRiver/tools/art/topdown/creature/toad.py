@@ -76,7 +76,7 @@ def toad(action: str, f: int) -> Pose:
         P.add(S(eye, 1.75, "toad_eye", "eye%d" % s))
         shut = action == "hurt" and f == 0 or action == "death" and f >= 3
         if not shut:
-            P.mark(eye + tm @ v3(1.6, s * 0.4, 0.5), M.INKY)
+            P.eye(eye + tm @ v3(1.6, s * 0.4, 0.5), M.INKY)
             P.mark(eye + tm @ v3(1.3, s * 0.5, 1.0), M.INKY)
             P.mark(eye + tm @ v3(0.8, s * 0.3, 1.5), M.GLINT)
         lid = 1.0 if shut else (0.6 if action == "windup" and f >= 2 else 0.25)

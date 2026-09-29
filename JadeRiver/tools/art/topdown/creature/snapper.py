@@ -187,15 +187,22 @@ def snapper(action: str, f: int) -> Pose:
     sp = pick(SPLASH, action, f)
     if sp > 0:
         imp = pc + cm @ v3(4.2, 0.0, 0.0)
-        rr, hh = 3.2 + 1.3 * sp, 1.2 + 1.4 * sp
-        for k in range(14):
-            ang = math.radians(k * 360.0 / 14 + sp * 11.0)
-            lift = hh * (0.55 + 0.45 * math.sin(ang * 2.0 + sp))
-            P.fx.append((v3(imp[0] + math.cos(ang) * rr, imp[1] + math.sin(ang) * rr * 0.9, 0.3 + lift), M.SPLASH if k % 2 else M.SPLASH_DIM))
-            P.fx.append((v3(imp[0] + math.cos(ang) * (rr + 1.1), imp[1] + math.sin(ang) * (rr + 1.1) * 0.9, 0.0), M.SPLASH_DIM))
-            P.fx.append((v3(imp[0] + math.cos(ang) * (rr - 1.4), imp[1] + math.sin(ang) * (rr - 1.4) * 0.9, 0.2), M.DUST_DIM))
-        for d in ((0.0, 0.0, 4.0), (1.2, 1.0, 3.0), (-1.0, -1.2, 3.4), (0.4, -0.6, 5.2), (-0.6, 0.8, 6.0)):
-            P.fx.append((v3(imp[0], imp[1], hh * 0.8) + v3(*d), M.SPLASH))
+        rr, hh = 3.4 + 2.0 * sp, 1.8 + 2.0 * sp
+        white = (0xEE, 0xF8, 0xF4, 255)
+        mud = (0x5A, 0x4A, 0x30, 200)
+        for k in range(30):
+            ang = math.radians(k * 12.0 + sp * 7.0)
+            ca, sa = math.cos(ang), math.sin(ang) * 0.9
+            lift = hh * (0.5 + 0.5 * math.sin(ang * 3.0 + sp))
+            # The crown of water thrown up, the wet ring on the ground outside it, the mud churned inside it.
+            P.fx.append((v3(imp[0] + ca * rr, imp[1] + sa * rr, 0.3 + lift), white if k % 2 else M.SPLASH))
+            P.fx.append((v3(imp[0] + ca * rr, imp[1] + sa * rr, 0.3 + lift * 0.5), M.SPLASH_DIM))
+            P.fx.append((v3(imp[0] + ca * (rr + 1.3), imp[1] + sa * (rr + 1.3), 0.0), M.SPLASH if k % 2 else M.DUST))
+            if k % 3:
+                P.fx.append((v3(imp[0] + ca * (rr - 1.3), imp[1] + sa * (rr - 1.3), 0.1), mud))
+        for d in ((0.0, 0.0, 4.0), (1.2, 1.0, 3.0), (-1.0, -1.2, 3.4), (0.4, -0.6, 5.2), (-0.6, 0.8, 6.0), (1.6, -1.4, 4.6),
+                  (-1.8, 0.4, 5.4), (0.8, 1.8, 6.4)):
+            P.fx.append((v3(imp[0], imp[1], hh * 0.9) + v3(*d) * v3(1.0, 1.0, 0.6 + 0.3 * sp), white))
     roll = pick(ROLL, action, f)
     if roll:
         P.m = rot("a", roll)

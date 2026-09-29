@@ -11,7 +11,7 @@ import numpy as np
 
 from . import mats as M
 from .motion import pick, wave
-from .sculpt import E, L, Pose, S, rot, v3
+from .sculpt import E, L, Pose, S, on, rot, v3
 
 N = 9          # rings
 
@@ -50,7 +50,7 @@ def leech(action: str, f: int) -> Pose:
         lift = rear * up * up * (3.0 - 2.0 * up)
         r = (1.3 + 2.1 * math.sin(math.pi * (0.12 + 0.7 * u)) ** 0.8) * (1.0 + drink * (1.0 - u) * 0.3)
         side = writhe * 2.2 * math.sin(u * math.pi * 1.6 + f)
-        zc = (r * 0.82 + hump) * (1.0 - flat) + lift
+        zc = (r * 0.6 + hump) * (1.0 - flat) + lift
         segs.append((v3(a - lift * 0.45, side, max(zc, 0.9 * (1.0 - flat) + 0.5)), r))
 
     def skin(q, n):
@@ -63,13 +63,22 @@ def leech(action: str, f: int) -> Pose:
         names = np.where(belly, "leech_belly", np.where(stripe, "leech_stripe", "leech")).astype(object)
         return names, np.where(belly, 0, bias).astype(np.int16)
 
+    # The body: flattened segments along the spine (a leech is broader than it is deep), overlapping into one form.
+    fine = []
     for k in range(N - 1):
         (p0, r0), (p1, r1) = segs[k], segs[k + 1]
-        P.add(L(p0, p1, r0 * (1.0 - flat * 0.3), r1 * (1.0 - flat * 0.3), "leech", "body", skin, caps=True))
-    for k, (p, r) in enumerate(segs[:-1]):
-        if k % 2 == 0:
-            for d in ((0.0, 0.9, r * 0.82), (0.5, 1.1, r * 0.78), (0.6, -1.0, r * 0.8), (1.1, -0.8, r * 0.72)):
-                P.mark(p + v3(*d) * v3(1.0, 1.0, 1.0 - flat * 0.5), M.LEECH_SPOT)
+        for t in (0.0, 0.5):
+            fine.append((p0 + (p1 - p0) * t, r0 + (r1 - r0) * t, p1 - p0))
+    fine.append((segs[-1][0], segs[-1][1], segs[-1][0] - segs[-2][0]))
+    for k, (p, r, d) in enumerate(fine):
+        ln = float(np.linalg.norm(d)) or 1.0
+        ta, tc = d[0] / ln, d[2] / ln
+        m = np.array(((ta, 0.0, -tc), (0.0, 1.0, 0.0), (tc, 0.0, ta)))
+        depth = 0.66 * (1.0 - flat * 0.45)
+        P.add(E(p, (max(r * 0.95, ln * 0.62), r * 1.12, r * depth), "leech", "body", m, skin))
+        if k % 3 == 1 and k < len(fine) - 2:
+            for sd in (1, -1):
+                P.eye(on(p, (r, r * 1.12, r * depth), m, sd * 38.0, 58.0), M.LEECH_SPOT)
     # The mouth: a pink ring at the front, opening wide on its teeth.
     head, r = segs[-1]
     tip = head + v3(r * 0.9, 0.0, 0.2 + rear * 0.12)

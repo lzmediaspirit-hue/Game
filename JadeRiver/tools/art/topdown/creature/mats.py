@@ -41,8 +41,8 @@ RAMPS = {
     "bristle": _r("120B0B", "1C110E", "2B1C17", "422B28", "5C3A28"),
     "tusk": _r("8A7A58", "B8A87E", "E9DCB8", "F4ECD2", "FFF8E6"),
     # hollowed boarlet: the boarlet with its colour drunk out of it, pale ash stripes, grey strands
-    "h_hide": _r("3A4242", "5C6563", "858D89", "A9AEA8", "C8CBC4"),
-    "h_head": _r("2F3636", "4A5251", "6C7471", "8C938E", "A9AEA8"),
+    "h_hide": _r("343C3C", "525A5A", "767E7C", "9AA09C", "BCC0BA"),
+    "h_head": _r("2A3030", "444C4C", "626A68", "828A86", "A0A6A2"),
     "h_stripe": _r("5C6563", "8A928D", "D2D5CD", "E2E3DC", "F0F0EA"),
     "h_snout": _r("4A4E4E", "6A6E6C", "8E908C", "A8AAA4", "C0C2BC"),
     "h_bristle": _r("1A2020", "283030", "3A4444", "505A5A", "687272"),
@@ -80,8 +80,8 @@ RAMPS = {
     "weed": _r("2B3E2A", "425C33", "62803D", "93AE58", "B2C878"),
     "snap_eye": _r("7A4A0A", "B8741A", "F4B73A", "FAD27A", "FFF0B8"),
     # mossback toad: an olive-khaki hide, a mat of moss and fern sprouts on its back, a cream belly and throat sac
-    "toad": _r("3B3A2A", "5D5637", "877A4A", "B9A66A", "CDBC84"),
-    "toad_leg": _r("44412F", "6A6040", "998A55", "C9B67A", "DACB96"),
+    "toad": _r("2E3222", "4A4E30", "6A6C40", "8E8C54", "ACA86C"),
+    "toad_leg": _r("383A28", "56583A", "7A7A4C", "A09C64", "BAB47E"),
     "toad_belly": _r("766A55", "AA9870", "D9C690", "F3E6B8", "F8EFCE"),
     "toad_sac": _r("AD9A70", "D6C28E", "F2E3B2", "FBF3D6", "FCF7E6"),
     "toad_moss": _r("2F5230", "4D7C38", "78A845", "B6D86A", "CCE68A"),
