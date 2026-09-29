@@ -25,12 +25,13 @@ const CHAINS := [
 	["in_stop", "jian", 90, [[0, "attack"], [1, "attack_in_stop"], [40, "tech_in_stop"]]],
 	["turn", "fists", 80, [[0, "attack"], [8, "stick", Vector2(0, 1)], [12, "attack"], [30, "stick", Vector2.ZERO], [32, "attack"]]],
 	["dodge_out", "jian", 70, [[0, "attack"], [18, "attack"], [30, "stick", Vector2(-1, 0)], [30, "dodge"]]],
+	["dodge_heavy", "heavy_sabre", 70, [[0, "attack"], [23, "stick", Vector2(-1, 0)], [23, "dodge"]]],
 	["sprint_out", "jian", 80, [[0, "attack"], [18, "attack"], [30, "stick", Vector2(-1, 0)]]],
 	["sprint_out", "fists", 70, [[0, "attack"], [14, "attack"], [24, "stick", Vector2(-1, 0)]]],
 	["knock", "fists", 110, [[0, "attack"], [16, "attack"], [32, "attack"], [60, "attack"]]],
 	["knock", "jian", 120, [[0, "attack"], [18, "attack"], [36, "attack"], [70, "attack"]]],
 ]
-const WEAPON := {"fists": "", "jian": "training_jian"}
+const WEAPON := {"fists": "", "jian": "training_jian", "heavy_sabre": "training_heavy_sabre"}
 
 var w
 var c
@@ -77,7 +78,7 @@ func _kit(fam: String) -> void:
 	if wid != "":
 		Game.inventory.apply_add(c.id, wid, 1, "trace")
 		Game.submit({"type": "equip", "index": c.inventory.first_index(wid)})
-	c.cultivator.technique_slots[0] = "flowing_palm" if fam == "fists" else "cloudpiercing_stroke"
+	c.cultivator.technique_slots[0] = "cloudpiercing_stroke" if fam == "jian" else "flowing_palm"
 	Game.combat.refresh_stats(c.id)
 
 func _fresh(at: Vector2) -> void:
@@ -216,7 +217,8 @@ func _chain(ch: Array) -> void:
 		var began: bool = act != "" and (prev_action == "" or float(tl.t) < prev_t - 0.0001)
 		if began:
 			var aim: Vector2 = tl.get("aim", Vector2.RIGHT)
-			starts.append([f, act, int(tl.combo), str(tl.technique), snappedf(rad_to_deg(aim.angle()), 0.1)])
+			starts.append([f, act, int(tl.combo), str(tl.technique), snappedf(rad_to_deg(aim.angle()), 0.1),
+				snappedf(rad_to_deg((side.plane - p.motor.pos).angle()), 0.1) if side != null else 0.0])
 			pulls.append({"f": f, "from": p.motor.pos, "d0": p.motor.pos.distance_to(foe.plane)})
 		# Dead frames: a press waits (queued in Combat, in the weave buffer or the dodge buffer) while nothing plays.
 		var waiting: bool = int(tl.get("queued", 0)) > 0 or not p.weave.is_empty() or p.dodge_buffer > 0.0
@@ -264,11 +266,12 @@ func _chain(ch: Array) -> void:
 		gaps.append(gap)
 	var turn := {}
 	if side != null:
-		# The step struck after the stick turned toward the second foe: how far its aim is from that foe.
-		var want := rad_to_deg((side.plane - base).angle())
+		# The step struck after the stick turned toward the second foe: how far its aim is from that foe, as seen from
+		# where the body stood as the step began.
 		for s in starts:
 			if int(s[0]) >= 12:
-				turn = {"step_frame": int(s[0]), "aim": float(s[4]), "want": snappedf(want, 0.1), "off_deg": snappedf(absf(angle_difference(deg_to_rad(float(s[4])), deg_to_rad(want))) * 180.0 / PI, 0.1)}
+				var want := float(s[5])
+				turn = {"step_frame": int(s[0]), "aim": float(s[4]), "want": want, "off_deg": snappedf(absf(angle_difference(deg_to_rad(float(s[4])), deg_to_rad(want))) * 180.0 / PI, 0.1)}
 				break
 	var key := "%s_%s" % [name, fam]
 	summary[key] = {"starts": starts, "press_to_action": lat, "gaps": gaps, "dead_frames": dead, "hitstop_frames": hs_frames,
