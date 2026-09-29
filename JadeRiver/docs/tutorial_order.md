@@ -26,7 +26,7 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 4 | Crab Trouble | Village Square (Uncle Guo), then the Reed Shallows | Loot and Log: system log, foes' HP bars, elite marker; the East Gate opens; starter gear: the first kill drops the first weapon (a Training Short Blade: "Your first weapon" and its beam, the equip prompt offers it). The fourth lesson done, Guo has it at once: no walk back to Lu (A Quiet River (Return) is merged into it) | the first fight: three crab shells, which drop every kill while Guo wants them; Reedtail Rats; Old Snapper, beside the shore's herbs (the attack button attacks; the herb waits on ring 2) | Next: Evening on the River · Talk to Lu |
 | 4+ | (Crab Trouble done) | | Equipment page | the Plain Straw Hat, worn, and Ping's Boar Bone Broth (+120 body XP, a few body levels for good); no second pair of the Straw Sandals the start wears | |
 | 5 | Evening on the River | Ferry Docks (Lu) | Menu button | dinner with Aunt Ping, Lu at sunset | The Hollow Night |
-| 6 | The Hollow Night (auto) | Lotus Ferry at Night | | three villagers to the hut, hold out 60 s | The River Token |
+| 6 | The Hollow Night (auto) | Lotus Ferry at Night | the event timer, the boss card and the boss bar with its phase mark; a fall wakes you at Aunt Ping's door and the night begins again | the first real fight, two to four minutes: three villagers to Aunt Ping's door through the grey minnows (one-blow foes that dart after a short tell), the schools up the lane, then the Hollowed Eel (Level 2): step out of its line as it rears, strike it while it lies on the bank; below half its HP Lu comes and his palm pins it (the palm he teaches next). The eel's fang (a rare find), a pearl, taels, 15 Fame and the title Guardian of Lotus Ferry; held until the timer ends, the night is won too | The River Token |
 | 7 | The River Token (auto) | Lu's Boat (Lu) | Cultivate button, progress bar, realm badge, Cultivation page, Codex, Breakthrough; **skill ring and Techniques page** | meditate (the bar starts 98% full), look inward, Bone Forging 1 (the breakthrough card shows what it gave, and the jade aura appears); Lu hands over the token and **teaches Flowing Palm** (the technique's own moment), slotted, costing no Qi in the body stages | The Willow Path: ➤ Willow Path West |
 | 8 | The Willow Path (auto, once Lu has handed you the token) | Willow Path West; the West Gate opens | World map, Mail, Foundation page; body training (optional, with its own counter), progress from fights, shrines remember you | strike with Flowing Palm, five Wild Boarlets and the herd's elite boarlet (at the player's Level 1, apart at the west meadow); no stump quota | Next: The Recruitment Fair · Talk to Qing Lan (Fairground) |
 | 8+ | (early surprises) | Willow Path East on the way in; Willow Path West as The Willow Path is done | a fortune card, the Remnant Soul in a Ring (sure the first time, meter or not, with its moment); a Spirit Fruit tree ripens, announced with its moment | reach for the fruit: its guardian alone, at the room's Level; the fruit is yours once. The first fields' foes sometimes come as elites, and the first monsters can drop a pearl or a manual page (a rare find) | (as before it) |
@@ -67,7 +67,8 @@ moves; and a hand-off gives the player the controls to do what the step teaches,
 | 3a, 3b, 3e | `guo_fists` (Guo's jab, cross, jab), `kite_route` (the way up), `tower_race` (Shen Lian runs) | Punch the stump; race him to the bell |
 | 3d | `granny_jar`: a jar falls and grazes you | Put the tea in Quick-use; drink it |
 | 4 | `east_gate` (Guo opens the gate), `crabs_mei` (the crabs have Washer Mei on the flats) | Drive off a crab |
-| 6–7 | `hollow_rises` (the storm), `river_token` (Lu), `first_breakthrough` (the palm, and why you leave) | Meditate; talk to Lu |
+| 6 | `hollow_rises` (the storm, Dou among the minnows), `night_ma_goes`, `night_granny_goes`, `night_dou_runs` (each villager runs for the door), `grey_spreads` (the lane), `eel_rises`, `lu_arrives` (the climax), `grey_lifts` | Strike the grey minnows; step aside from the eel, then strike it on the bank; strike the pinned eel |
+| 7 | `river_token` (Lu), `first_breakthrough` (the palm, and why you leave) | Meditate; talk to Lu |
 | 8–9 | `market_thief`, `fair_arrival`, `sect_chosen` (the welcome on the portrait strip) | — |
 | 13 | `array_lesson_*` (the steward shows the gate's transfer array), `grey_rises` (the token hums at the third patch) | Step onto the array: tap Travel |
 | 14 | `mentor_descends_*` (the mentor comes down to the marsh in a column of light) | Talk to the mentor |
@@ -90,7 +91,7 @@ the points it stands at at 150 px/s (a thumb on the joystick; the run speed is 2
 first time, 3 s to read a line of dialogue and 1.5 s a tap, 2 s an interaction and 0.45 s a blow on a stump. It is a
 floor for a focused new player, not a measurement. On it, something new comes at least every 3 minutes to minute 20
 and every 5 to minute 60 (invariant 14); the suite prints the timeline, and docs/research/player_motivation.md "As
-built" keeps it.
+built" keeps it. The Hollow Night is the longest stretch without a new thing: from Granny's healing pill to the eel's fall and its rewards, 2.6 minutes.
 
 **The chores come after the power** (`docs/research/player_motivation.md` item 6). Nothing daily, idle or kept at a
 post opens before Qi Kindling 1, and each is optional when it does. Every such unlock row carries `obligation`, and

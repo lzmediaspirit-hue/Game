@@ -170,6 +170,78 @@ quest." The full measurement, the before and after trip tables, and the screensh
   - `valley_run` follows the new places.
   - The tracker's Next after The Humming Token is Mei Qing's Errand at the Marsh Edge, where she now is, not Artisan
     Row.
+## The Hollow Night as a set piece, and its foes can be killed (decision 42)
+
+The QA note: "The Hollow Night quest feels boring with no action, also there is a bug that I can't kill the monsters".
+
+- **The bug.** Neither of the night's foes could be killed on the height grid, by a basic attack or a technique.
+  - **The grey minnows** hovered where the side view puts its flyers: 40-56 px over their feet, which is inside the
+    side view's melee window (+60, S43). On the grid a blow lands only between feet inside the hit band
+    (`movement.json` `topdown.combat.hit_band`, ±12), so every blow passed under them, and their bites passed over
+    the player. A flyer on the grid now skims under the band's top over the floor it hunts on, with a bob and a swoop
+    as it strikes (`EnemyAuthority._hover`). Flyers chase in a straight line on the grid, not along the ground's paths
+    (`TopdownBrain.chase`).
+  - **The Hollowed Eel** was invulnerable by design (`_eel`: "cannot be hurt"), and the quest was a 60 s timer.
+- **The night is a fight in beats**, two to four minutes long (about 3 minutes on the play clock), deterministic, and
+  fair at the story's Level and gear (Level 0, about 80 HP, the crab's short blade or Guo's gauntlets, three teas).
+  1. **The river boils.** A cut with the title "That Night": a storm, the river rings, Dou's cry among the minnows,
+     Granny's call, Aunt Ping at her door with the lamp lit. The hand-off: "Strike the grey minnows: tap Attack".
+  2. **Get them in.** Two minnows are about each villager, and one more leaps up the bank every 6 s (two at most).
+     Each villager sent in runs for Ping's door in a live scene (Granny gives you a healing pill). The minnows are
+     one-blow foes that dart after a short tell, so a combo swung through a school fells several. Ping's lamplight is
+     a refuge: within 150 px of her door the minnows let you be (`sanctuary`).
+  3. **The grey spreads.** Once all three are in, schools pour up the lane from both ends for 24 s and hunt you
+     (`hunt`). Ping: "Too many of them? Come into my lamplight."
+  4. **The eel rises**, 14 s after the villagers are in. It gets the boss card ("Hollowed Eel · Level 2") and the boss
+     bar with its phase mark. It glides in the river, out of reach and unhurt. It rears up (the tell, 1.1 s) and lunges
+     onto the bank where you stood, then lies stranded there for 2.4 s, open to every blow, before it slides back.
+     The hand-off: "It rears before it lunges: step aside, then strike it on the bank".
+  5. **The climax.** Below half its HP it dives, and Lu's boat comes up the river. From then on every lunge is the
+     great lunge (a 1.8 s tell and a heavier blow). As the first one lands, Lu's palm pins it to the bank for 5.5 s
+     (3.5 s after that). The hand-off: "Strike the pinned eel". It is the palm he teaches on the boat.
+  6. **The grey lifts.** Lu: "You held the bank, child. Not one of them lost. ... The palm you saw? I'll teach it to
+     you. Come, to my boat." The night's way on (`leave`) takes you to Lu's boat.
+
+  If you hold out until the 200 s timer ends, the night is also won (`timeout_wins`: Lu comes), but the eel's fang is
+  not earned. If you fall, you wake at Ping's door and the night begins again (`refuge`).
+- **Rewards.**
+  - The eel drops a **Hollowed Eel Fang** the first time (a rare find with its own icon, worth 80 taels to a trader),
+    a river pearl, about 80 taels and 15 Fame (a story boss felled).
+  - Holding the night earns the title **Guardian of Lotus Ferry** (+2% Hollow ward).
+  - Each minnow has a 25% chance of a Tiny Hollow Shard.
+  - An untouched night adds two Herbal Teas.
+  - Lu's palm is the hint of the technique he teaches next (Flowing Palm).
+  - Evening on the River heals you fully before the night.
+  - The low soul core's only source was the old Level-10 eel, so Broker Mu now sells it (under the counter, to the
+    shadowed).
+- **The room event** (`WorldAuthority`) gains:
+  - `requires`, `for_s`, `delay_s` and `latest_s` on waves and timed spawns (a part that waits on the story), and
+    `hunt` on waves;
+  - `timeout_wins`;
+  - `leave` (after a win: the loot swept up, then effects, such as the teleport to Lu's boat);
+  - a room's `refuge`, and an object's `sanctuary` radius (`EnemyBrain.in_sanctuary`).
+
+  The top-down layout gives every wave point and timed spawn its cell. `room_event_completed` joins the event contract.
+- **Staged scenes** (`tools/data/scenes.py`): the night has 8 scenes where it had one: `hollow_rises`, `night_ma_goes`,
+  `night_granny_goes`, `night_dou_runs`, `grey_spreads`, `eel_rises`, `lu_arrives` and `grey_lifts`. The eel's scene
+  waits for the lane's (the `grey_spread` flag), so the beats keep their order in the game's own time.
+- **Tests.**
+  - **`hollow_night`** (new, in `tools/run_tests.sh`):
+    - each night foe killed by a basic attack and by a technique, on the grid, through the real combat path;
+    - the night played through on a headless director: its length, its beats in order, all 8 scenes, HP never under
+      a quarter, the rewards, and the boat's meditation after it;
+    - the lamplight refuge and the timeout win;
+    - a fall and the restart at the door.
+  - **`balance_sim`** "story night": the eel at the story's Level, won with HP to spare. The figures are the lowest
+    HP over four seeds:
+    - the short blade, played carefully: 61%, won in at most 64 s (at least 50% required);
+    - Guo's Flawed gauntlets alone: 18%, won in at most 114 s (at least 10%);
+    - the short blade, trading blows: 71% (at least 35%).
+  - **`prologue_run`** fights the night through: it reads the eel's tell and strikes it in its windows.
+  - **`topdown_tutorial`** invariant 9 checks the event's waves and timed spawns too.
+  - **`tutorial_order`**: the first hour's longest gap is 2.6 min, the night's (from Granny's healing pill to the eel's fall).
+- **Screenshots** (`tools/dev/topdown_capture.tscn -- --night`, in `docs/redesign/feedback/hollow_night/`): 01-17,
+  from the storm to Lu's boat.
 
 ## The prototype feedback: animation canceling, sprint by default, auto-path round props, meditation's pose (decision 42)
 

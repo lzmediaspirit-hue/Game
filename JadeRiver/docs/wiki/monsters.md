@@ -1863,9 +1863,28 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy)
 - **Level band**: Lv 1 in `enemies.json`
 - **Stats**: Lv 1: HP 5, Attack 6, Physical Defense 3, Accuracy 13
-- **Behaviour**: AI flyer; aggro range 200; move speed 80; patrol 140; moves: fly; flying; hollowing 1. Attacks: nibble×0.8 (windup 0.45s)
+- **Behaviour**: AI flyer; aggro range 150; move speed 85; patrol 140; moves: fly; flying; hollowing 1. Attacks: dart×0.6 (windup 0.55s)
 - **Drops** (loot table `hollow_minnow`):
+  - [Tiny Hollow Shard](items.md#item-tiny_hollow_shard): 25% (rare)
   - equipment: 1.2%, a banded piece of Plain (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
+
+<a id="enemy-hollowed_eel"></a>
+
+### Hollowed Eel
+
+`hollowed_eel` · Story boss · Lv 2 · Hollow · beast · energy none · beast rank 1
+
+- **Sheet**: creature sheet `hollowed_eel` ([art/creatures/hollowed_eel.png](../../art/creatures/hollowed_eel.png), 256 px cells, flying)
+- **Spawns**: no room spawns it
+- **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (win on kill)
+- **Level band**: Lv 2 in `enemies.json`
+- **Stats**: Lv 2: HP 386, Attack 7, Physical Defense 9, Accuracy 16
+- **Behaviour**: AI event_eel; aggro range 200; move speed 90; patrol 140; moves: fly; flying; hollowing 2. Attacks: lunge×1 (windup 1.1s, knockback 80); great_lunge×1.35 (windup 1.8s, knockback 120). Phases: below 50% HP: action climax
+- **Drops** (loot table `hollowed_eel`):
+  - [Pearl](items.md#item-pearl): 100% (guaranteed)
+  - [Hollowed Eel Fang](items.md#item-hollow_eel_fang): 100% (first defeat, once per character)
+  - coins: 100%, ×40 the Level's purse, in the zone's everyday currency
+  - equipment: 100%, a banded piece of Plain (min quality superior; see [Banded equipment drops](items.md#banded-equipment-drops))
 
 <a id="enemy-shen_lian"></a>
 
@@ -1881,22 +1900,6 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Behaviour**: AI duelist; aggro range 200; move speed 90; patrol 140; moves: climb, drop, jump 530; spar. Attacks: fish_gutting_fist×1 (windup 0.6s)
 - **Drops** (loot table `shen_lian`):
   - equipment: none (spar)
-
-<a id="enemy-hollowed_eel"></a>
-
-### Hollowed Eel
-
-`hollowed_eel` · Event · Lv 10 · Hollow · beast · energy none · beast rank 2
-
-- **Sheet**: creature sheet `hollowed_eel` ([art/creatures/hollowed_eel.png](../../art/creatures/hollowed_eel.png), 256 px cells, flying)
-- **Spawns**: no room spawns it
-- **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy)
-- **Level band**: Lv 10 in `enemies.json`
-- **Stats**: Lv 10: HP 116, Attack 42, Physical Defense 16, Accuracy 40
-- **Behaviour**: AI event_eel; aggro range 200; move speed 90; patrol 140; moves: fly; flying; invulnerable. Attacks: lunge×0.5 (windup 1s, knockback 80)
-- **Drops** (loot table `hollowed_eel`):
-  - [Low Soul Core](items.md#item-soul_core_low): 4% (beast core, Lv 10)
-  - equipment: 1.2%, a banded piece of Plain or Common (min quality flawed; see [Banded equipment drops](items.md#banded-equipment-drops))
 
 <a id="enemy-ironpine_disciple"></a>
 

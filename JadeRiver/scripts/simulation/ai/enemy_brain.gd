@@ -20,15 +20,17 @@ static func target_position(auth, e: EnemyState) -> Dictionary:
 	return {"id": c.id, "pos": st.plane, "alt": st.altitude}
 
 ## Shrines are sanctuaries: monsters neither aggro on nor chase a player standing by one,
-## so nobody is killed again while resting after a revival.
+## so nobody is killed again while resting after a revival. A room's object can hold one too, of its own
+## `sanctuary` radius (the Hollow Night's lamp at Aunt Ping's door).
 static func in_sanctuary(auth, p: Vector2) -> bool:
 	var rt = auth.game.room_rt
 	if rt == null: return false
 	var r := float(ContentDB.stat_const("combat.shrine_sanctuary", 240))
 	for o in rt.def.get("objects", []):
-		if str(o.get("type", "")) == "shrine":
+		var sr := r if str(o.get("type", "")) == "shrine" else float(o.get("sanctuary", 0.0))
+		if sr > 0.0:
 			var at: Array = o.get("at", [0, 0])
-			if p.distance_to(Vector2(float(at[0]), float(at[1]))) <= r: return true
+			if p.distance_to(Vector2(float(at[0]), float(at[1]))) <= sr: return true
 	return false
 
 ## Sight aggro stops at a crowd: a phone screen cannot read a pile of foes at once. While an elite or boss is

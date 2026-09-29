@@ -3335,6 +3335,17 @@
    "desc": "Hide from a Hollowed beast, grey and cold."
   },
   {
+   "id": "hollow_eel_fang",
+   "name": "Hollowed Eel Fang",
+   "type": "hollow",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "hollow_eel_fang",
+   "desc": "The Hollowed eel's fang, from the night of the storm: hooked, grey to the root, still cold. A trader would give 80 taels for it.",
+   "value_override": 80
+  },
+  {
    "id": "river_minnow",
    "name": "River Minnow",
    "type": "fish",

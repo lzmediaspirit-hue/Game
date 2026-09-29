@@ -245,6 +245,8 @@ static func clear_cells(r: TopdownRoom) -> Dictionary:
 	var ev: Dictionary = d.get("event", {})
 	foes.append_array(ev.get("wave", []))
 	foes.append_array(ev.get("fixed", []))
+	for list in ev.get("waves", []): foes.append_array(list)
+	foes.append_array(ev.get("timed", []))
 	for q in foes: _ring(out, TopdownRoom.cell_of(TopdownRoom.cell_point(q)), int(ring.get("foe", 0)))
 	return out
 

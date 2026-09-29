@@ -200,7 +200,111 @@ func _story_duels(c) -> void:
 		print("story room fight: %s at Level %d: won %d of %d, lowest HP %d%%" % [k[0], int(k[1]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
 		check(won == DUEL_SEEDS.size() and lowest >= 0.4, "story room fight: %s at the story's Level %d, the room's other foes about, won every time with HP never under 40%% (%d of %d; lowest HP %d%%)" % [k[0],
 			int(k[1]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
+	# Decision 42: the Hollow Night, the tutorial's first real danger, played whole in its room at the story's Level (a
+	# Mortal, Level 0, before Flowing Palm): the minnows about the villagers, the three sent in, the lane's schools, then
+	# the Hollowed eel until it falls. `careful`: out of the eel's line when it rears (what Aunt Ping and the scenes
+	# teach), with the first crab's short blade or Guo's gauntlets alone; `trade`: a thumb that never steps aside, with
+	# the short blade. Each with the story's three teas; the eel must fall to the player every time, HP to spare.
+	var nights := [["the Hollow Night, the short blade, careful", "training_short_blade", "common", "careful", 0.5],
+		["the Hollow Night, Guo's gauntlets alone, careful", "training_gauntlets", "flawed", "careful", 0.1],
+		["the Hollow Night, the short blade, trading blows", "training_short_blade", "common", "trade", 0.35]]
+	for k in nights:
+		var won := 0
+		var lowest := 1.0
+		var longest := 0.0
+		for seed in DUEL_SEEDS:
+			_story_character(c, 0, str(k[1]), str(k[2]), 3, false)
+			var r := _night_fight(c, seed, str(k[3]))
+			if r.won: won += 1
+			lowest = minf(lowest, float(r.low))
+			longest = maxf(longest, float(r.t))
+		print("story night: %s (Level 0): won %d of %d, lowest HP %d%%, the longest night %.0f s" % [k[0], won, DUEL_SEEDS.size(), int(100.0 * lowest), longest])
+		check(won == DUEL_SEEDS.size() and lowest >= float(k[4]), "story night: %s at the story's Level 0, won every time (the eel falls to the player) with HP never under %d%% (%d of %d; lowest HP %d%%)"
+			% [k[0], int(100.0 * float(k[4])), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
 	c.view = was_view
+
+## The Hollow Night whole on `seed` (world.py lf_village_night, its event): the villagers nearest first, each one's
+## minnows fought and the villager sent in (their flag, as the talk sets it), then whatever is in the fight nearest,
+## the eel as `mode` has it (EnemyAuthority._eel: `careful` steps out of its line while it rears, `trade` never does),
+## at a thumb's pace, walking the grid, a tea at a third of HP, until the night is won or the player falls:
+## {won: the eel fell to the player, low, t: the night's seconds}.
+func _night_fight(c, seed: int, mode: String) -> Dictionary:
+	Rng.forget(c.id)
+	Rng.ensure(c.id, seed)
+	Game.enemies.rng.seed = seed
+	for f in ["night_survived", "dou_safe", "granny_safe", "ma_safe", "grey_spread", "lu_on_the_bank"]: c.quests.flags.erase(f)
+	c.quests.flags["night_active"] = true
+	Game.world.load_room(c, "lf_village_night", "")
+	GameEvents.flush()
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var st := ActorState.new()
+	Game.bind_movement(c.id, st)
+	st.plane = grid.nearest_standable(Vector2(float(c.position.x), float(c.position.y)))
+	st.altitude = grid.floor_at(st.plane)
+	var tally := {"eel": false, "done": false}
+	var hook := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("def", "")) == "hollowed_eel" and str(p.get("killer", "")) == str(c.id): tally.eel = true
+		if n == "room_event_completed" and str(p.get("event", "")) == "hollow_night": tally.done = true
+	GameEvents.event.connect(hook)
+	var walk_to := func(goal: Vector2) -> void:
+		var path: Array = grid.find_path(TopdownRoom.cell_of(st.plane), TopdownRoom.cell_of(goal), true)
+		var to: Vector2 = TopdownRoom.cell_point([path[1].x, path[1].y]) if path.size() > 2 else goal
+		var v: Vector2 = to - st.plane
+		st.plane = grid.nearest_standable(st.plane + v.normalized() * minf(v.length(), WALK_UPS * TAP_S))
+		st.altitude = grid.floor_at(st.plane)
+	var low := 1.0
+	var t := 0.0
+	var dodged := Vector2.INF
+	var villagers := [["old_ma", "ma_safe"], ["granny_liu", "granny_safe"], ["little_dou", "dou_safe"]]
+	while t < 300.0 and not tally.done:
+		GameEvents.flush()
+		low = minf(low, c.pools.hp / c.pools.max_hp)
+		if Game.combat.is_wounded(c.id): break
+		var eel: EnemyState = null
+		var near: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.team != "enemy": continue
+			if e.def_id == "hollowed_eel": eel = e
+			elif e.in_fight() and e.plane.distance_to(st.plane) < 200.0 and (near == null or e.plane.distance_to(st.plane) < near.plane.distance_to(st.plane)): near = e
+		var todo: Array = villagers.filter(func(v): return not c.quests.has_flag(str(v[1])))
+		var step_s := TAP_S
+		if eel != null and mode == "careful" and str(eel.ai.state) == "windup" and eel.ai.get("land", Vector2.INF) != dodged:
+			# Out of its line, at a walk: the step across its aim a thumb makes in the tell.
+			var land: Vector2 = eel.ai.land
+			st.plane = grid.nearest_standable(land + Vector2(-eel.aim.y, eel.aim.x) * 72.0)
+			st.altitude = grid.floor_at(st.plane)
+			dodged = land
+			step_s = 0.45
+		elif near != null or (eel != null and str(eel.ai.state) in ["attack", "beached"]):
+			var tgt: EnemyState = eel if near == null else near
+			var gap: Vector2 = tgt.plane - st.plane
+			if gap.length() > 40.0: walk_to.call(tgt.plane)
+			else:
+				var aim: Vector2 = gap.normalized() if gap.length() > 0.5 else Vector2.RIGHT
+				Game.submit({"type": "basic_attack", "facing": 1 if gap.x >= 0.0 else -1, "aim": aim})
+		elif not todo.is_empty():
+			var o: Dictionary = {}
+			for ob in Game.room_rt.def.get("objects", []): if str(ob.get("npc", "")) == str(todo[0][0]) and str(ob.get("type", "")) == "npc": o = ob
+			var at := Vector2(float(o.at[0]), float(o.at[1]))
+			if st.plane.distance_to(at) > 48.0: walk_to.call(at)
+			else: Game.quest.apply_flag(c.id, str(todo[0][1]))   # the talk: sent to Aunt Ping's door
+		elif eel != null:
+			# The bank above it, within its reach.
+			var bank := grid.nearest_standable(eel.plane + Vector2(0, -96))
+			if st.plane.distance_to(bank) > 24.0: walk_to.call(bank)
+		if c.pools.hp < c.pools.max_hp * 0.35 and c.inventory.count("herbal_tea") > 0:
+			Game.submit({"type": "use_item", "index": c.inventory.first_index("herbal_tea"), "confirm": true})
+		var k := 0.0
+		while k < step_s:
+			Game.tick(0.05)
+			k += 0.05
+		t += step_s
+	GameEvents.event.disconnect(hook)
+	var out := {"won": bool(tally.eel), "low": low if bool(tally.eel) else 0.0, "t": t}
+	if OS.get_cmdline_user_args().has("--duels"):
+		print("  night %s seed %d: %s; me %d/%d, teas left %d" % [mode, seed, str(out), int(c.pools.hp), int(c.pools.max_hp), c.inventory.count("herbal_tea")])
+	Game.room_rt.enemies.clear()
+	return out
 
 ## The Level of a room's spawn of `enemy` (its elite, or the top of its band).
 func _spawn_level(room: String, enemy: String, elite: bool) -> int:
@@ -211,9 +315,9 @@ func _spawn_level(room: String, enemy: String, elite: bool) -> int:
 	return -1
 
 ## The sim's character as the story has it at Level `lv`: the realm's start, no meridians, Dao or tree yet, the starting
-## kit with Crab Trouble's hat, `weapon` in hand, Flowing Palm slotted (and at Bone Forging 3 the Weapon Hall's art for
-## the weapon), `teas` Herbal Teas in the Bag, whole.
-func _story_character(c, lv: int, weapon: String, quality: String, teas: int) -> void:
+## kit with Crab Trouble's hat, `weapon` in hand, Flowing Palm slotted (`palm`; before the boat, as at the Hollow Night,
+## none) and at Bone Forging 3 the Weapon Hall's art for the weapon, `teas` Herbal Teas in the Bag, whole.
+func _story_character(c, lv: int, weapon: String, quality: String, teas: int, palm := true) -> void:
 	var cu = c.cultivator
 	cu.realm_key = ContentDB.realm_key_for_level(lv)
 	cu.qp = 0.0
@@ -227,7 +331,8 @@ func _story_character(c, lv: int, weapon: String, quality: String, teas: int) ->
 	for id in AccountAuthority.STARTING_KIT + ["plain_straw_hat"]:
 		c.inventory.equipped[str(ContentDB.item(id).slot)] = LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, c.inventory.take_uid())
 	c.inventory.equipped["weapon"] = LootRules.make_instance(weapon, 1 if quality == "flawed" else int(ContentDB.item(weapon).get("ilv", 1)), quality, null, c.inventory.take_uid())
-	var arts := ["flowing_palm"]
+	var arts := ["flowing_palm"] if palm else []
+	if not palm: cu.techniques_known.erase("flowing_palm")
 	if lv >= 3:
 		var fam := str(ContentDB.item(weapon).get("family", "fists"))
 		for q in ContentDB.all("quests"):

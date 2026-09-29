@@ -921,14 +921,18 @@ def prologue_quests():
     quest("evening_on_the_river", "Evening on the River", "prologue", "lu_boatman", [
         o("talk_to", "Have dinner with Aunt Ping", npc="aunt_ping"),
         o("talk_to", "Meet Lu at the docks at sunset", npc="lu_boatman"),
-    ], [fx("set_flag", flag="night_active"), fx("teleport", target="lf_village_night", portal="")], hand_in="", sequential=True,
+    # Aunt Ping's congee sets you up for the night: you go into the Hollow Night whole, whatever the crabs took.
+    ], [fx("heal", pct=1.0), fx("set_flag", flag="night_active"), fx("teleport", target="lf_village_night", portal="")], hand_in="", sequential=True,
         requires=all_of(qdone("crab_trouble")), target_room="lf_village", chapter="prologue",
         offer=["Eat with your aunt tonight. Then come to the docks at sunset. There's something I want to show you on the water."])
+    # The Hollow Night (decision 42, docs/redesign/story_staging.md): three villagers to Aunt Ping's door through the
+    # minnows, then the Hollowed eel on the bank until Lu comes. The room's event (world.py lf_village_night) is won by
+    # beating the eel or holding out; its way on sets night_survived (the last step) as it takes you to Lu's boat.
     quest("the_hollow_night", "The Hollow Night", "main", "lu_boatman", [
         o("set_flag", "Get Little Dou to the hut", flag="dou_safe"),
         o("set_flag", "Get Granny Liu to the hut", flag="granny_safe"),
         o("set_flag", "Get Old Ma to the hut", flag="ma_safe"),
-        o("survive_timer", "Survive until Lu comes", event="hollow_night"),
+        o("set_flag", "Hold the bank against the Hollow until Lu comes", flag="night_survived"),
     ], [], hand_in="", auto_accept=True, requires=all_of(flag("night_active"), noflag("night_survived")), target_room="lf_village_night", chapter="prologue")
     quest("the_river_token", "The River Token", "main", "lu_boatman", [
         o("meditate_seconds", "Meditate on the boat", 15),
@@ -2449,8 +2453,10 @@ def dialogue():
          {"night": {"lines": ["The water's grey! There's something in it!"],
                     "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "deed", "deed": "rescue_dou"}, {"kind": "record_debt", "id": "dou_rescue"}], "close": True}]}})
     tree("granny_liu", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("granny_safe")), "node": "night"}],
+         # The herbalist sent in presses a healing pill on you for the fight to come (a new thing mid-night, research P2).
          {"night": {"lines": ["My old legs... help me, child."],
-                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "deed", "deed": "rescue_granny"}], "close": True}]}})
+                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "deed", "deed": "rescue_granny"},
+                                                                                      {"kind": "grant_item", "item": "healing_pill", "count": 1}], "close": True}]}})
     tree("old_ma", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("ma_safe")), "node": "night"}],
          {"night": {"lines": ["My shop! My stock!"],
                     "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "deed", "deed": "rescue_ma"}], "close": True}]}})
@@ -2462,9 +2468,14 @@ def dialogue():
              {"choose": {"lines": [pitch, "Will you join the %s?" % sname],
                          "choices": [{"text": "Join the %s" % sname, "effects": [{"kind": "join_sect", "sect": s}, {"kind": "set_flag", "flag": "joined_" + s}], "close": True},
                                      {"text": "Let me think", "close": True}]}})
-    tree("aunt_ping", [{"requires": all_of(qactive("evening_on_the_river")), "node": "dinner"}],
+    tree("aunt_ping", [{"requires": all_of(qactive("evening_on_the_river")), "node": "dinner"},
+                       # The Hollow Night: she holds the hut's door with her lamp while you bring the others in.
+                       {"requires": all_of({"kind": "in_room", "room": "lf_village_night"}), "node": "night"}],
          {"dinner": {"lines": ["Sit, sit. Fish congee. Your favourite.", "...Lu took you out on the water tonight? Be careful. The river's been strange."],
-                     "choices": [{"text": "I'll be careful.", "close": True}]}})
+                     "choices": [{"text": "I'll be careful.", "close": True}]},
+          "night": {"lines": ["I'll hold the door and keep the lamp lit. The grey things shy from it.",
+                              "Bring them to me, child. And keep off the bank when the water heaves."],
+                    "choices": [{"text": "I'll bring them.", "close": True}]}})
     tree("lu", [], {})
     # Flavour trees speak only once the NPC has no quest to give (a tree entry outranks quest offers).
     tree("warden_cao", [{"requires": all_of(qdone("a_sky_full_of_toll_roads")), "node": "toll"}],

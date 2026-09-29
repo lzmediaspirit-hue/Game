@@ -94,6 +94,12 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 static func chase(auth, e: EnemyState, goal: Vector2, goal_alt: float, speed: float, delta: float, hunt := true) -> void:
 	var ai := e.ai
 	var room: TopdownRoom = auth.game.room_rt.topdown
+	# A flyer goes straight over water, props and drops (TopdownBrain.move): it is never out of reach.
+	if bool(e.def.get("flying", false)):
+		ai.unreach = 0.0
+		ai.path = []
+		_walk(auth, e, (goal - e.plane).normalized() if goal.distance_to(e.plane) > 1.0 else Vector2.ZERO, speed, delta)
+		return
 	if absf(goal_alt - e.altitude) <= 8.0 and line_clear(room, e.plane, goal, e.altitude):
 		ai.unreach = 0.0
 		ai.path = []

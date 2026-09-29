@@ -703,6 +703,12 @@
     "world_authority"
    ]
   },
+  "room_event_completed": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "ambush_sprung": {
    "system": "World",
    "files": [

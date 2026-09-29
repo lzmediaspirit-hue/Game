@@ -704,6 +704,16 @@ def viper_fang_hd(p, g):
     p.decal(c.circle(39.5, 55, 0.9), VENOM, 3)
 
 
+def hollow_eel_fang_hd(p, g):
+    """The Hollowed eel's fang from the Hollow Night: one long hooked fang gone grey to the root, the root still in a
+    scrap of the eel's dark gum, a bead of the grey on its point."""
+    c = p.c
+    fang_hd(p, g, (17, 13), (47, 16), (41, 51), 12.0, HOLLOW, root=INKM, loop=(11, 9))
+    d = S.drop(c, 40.5, 57.5, 3.0, 7)
+    p.part(d, HOLLOW_GLASS, 'sphere', base=0, sep=True, tex='glass')
+    p.decal(c.circle(39.8, 56.8, 0.9), HOLLOW_GLASS, 3)
+
+
 def hound_fang_hd(p, g):
     """A Mud Hound's fang, the big one strung between two small ones on a cord, a leather knot at its root."""
     c = p.c
@@ -1301,6 +1311,7 @@ PARTS_HD = [
     ('hollow_antler', 'mystic', '#EEF3F2', hollow_antler_hd),
     ('viper_fang', 'common', None, viper_fang_hd),
     ('hound_fang', 'common', None, hound_fang_hd),
+    ('hollow_eel_fang', 'common', None, hollow_eel_fang_hd),
     ('mole_claw', 'plain', None, mole_claw_hd),
     ('snapper_claw', 'common', None, snapper_claw_hd),
     # shells and plates

@@ -3733,6 +3733,18 @@
      "price": 36
     },
     {
+     "item": "soul_core_low",
+     "price": 20,
+     "requires": {
+      "all": [
+       {
+        "kind": "alignment_at_most",
+        "value": -20
+       }
+      ]
+     }
+    },
+    {
      "item": "soul_core_mid",
      "price": 45,
      "requires": {

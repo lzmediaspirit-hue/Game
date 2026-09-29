@@ -14,6 +14,17 @@
       ]
      },
      "node": "dinner"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "in_room",
+        "room": "lf_village_night"
+       }
+      ]
+     },
+     "node": "night"
     }
    ],
    "nodes": {
@@ -25,6 +36,18 @@
      "choices": [
       {
        "text": "I'll be careful.",
+       "close": true
+      }
+     ]
+    },
+    "night": {
+     "lines": [
+      "I'll hold the door and keep the lamp lit. The grey things shy from it.",
+      "Bring them to me, child. And keep off the bank when the water heaves."
+     ],
+     "choices": [
+      {
+       "text": "I'll bring them.",
        "close": true
       }
      ]

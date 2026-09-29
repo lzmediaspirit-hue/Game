@@ -465,6 +465,10 @@
    ],
    "rewards": [
     {
+     "kind": "heal",
+     "pct": 1.0
+    },
+    {
      "kind": "set_flag",
      "flag": "night_active"
     },
@@ -516,10 +520,10 @@
      "flag": "ma_safe"
     },
     {
-     "kind": "survive_timer",
-     "text": "Survive until Lu comes",
+     "kind": "set_flag",
+     "text": "Hold the bank against the Hollow until Lu comes",
      "count": 1,
-     "event": "hollow_night"
+     "flag": "night_survived"
     }
    ],
    "rewards": [],

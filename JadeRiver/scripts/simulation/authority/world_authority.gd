@@ -443,6 +443,14 @@ func apply_teleport(actor_id: String, target: String, portal := "") -> void:
 func apply_return_to_shrine(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
+	# A story set piece there is no walking back into (the Hollow Night, instanced) wakes you inside it at its `refuge`
+	# (Aunt Ping's door), and its event begins again: a fall there never leaves you in the day with the night unfinished.
+	var here: RoomRuntime = game.room_rt
+	if here != null and str(here.def.get("refuge", "")) != "":
+		var ro: Dictionary = here.object_def(str(here.def.refuge))
+		var ra: Array = ro.get("at", here.def.get("spawn_point", [200, 800]))
+		load_room(c, here.room_id, "", Vector2(float(ra[0]), float(ra[1])))
+		return
 	if c.last_shrine.is_empty():
 		var start := str(ContentDB.zone("jade_river_valley").get("start_room", "lf_fishers_hut"))
 		var sr = c.last_town if c.last_town != "" else start
@@ -1227,6 +1235,7 @@ func tick(delta: float) -> void:
 				game.inventory.apply_overflow(c.id, [{"item": l.item, "count": l.count, "instance": l.instance}])
 			emit("loot_expired", {"uid": l.uid})
 	if rt.event.get("active", false): _tick_event(c, rt, delta)
+	elif rt.event.has("leaving"): _tick_leave(c, rt, delta)
 	_tick_chase(c, rt, st)
 	_tick_run(c, rt, st)
 	_attune_shrines(c, rt, st)
@@ -1712,11 +1721,16 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	var ev: Dictionary = rt.event
 	ev.remaining = float(ev.remaining) - delta
 	var rng := Rng.stream(c.id, "world")
+	var elapsed := float(ev.duration) - float(ev.remaining)
 	for i in (ev.waves as Array).size():
 		var w: Dictionary = ev.waves[i]
+		# A wave that waits on the story (`requires`: the Hollow Night's villagers in the hut) starts when it first holds,
+		# and runs `for_s` from then.
+		var since := _part_since(c, ev, "wave%d" % i, w, elapsed)
+		if since < 0.0 or (w.has("for_s") and elapsed - since > float(w.for_s)): continue
 		ev.wave_timers[i] = float(ev.wave_timers[i]) - delta
 		if float(ev.wave_timers[i]) > 0.0: continue
-		if w.has("until_s") and float(ev.duration) - float(ev.remaining) > float(w.until_s): continue   # its part of the event is over
+		if w.has("until_s") and elapsed > float(w.until_s): continue   # its part of the event is over
 		ev.wave_timers[i] = float(w.get("every_s", 4.0))
 		var alive := 0
 		for e in rt.living_enemies():
@@ -1724,11 +1738,17 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		if alive < int(w.get("max", 6)):
 			var pts: Array = w.get("points", [[400, 800]])
 			var p: Array = pts[rng.randi_range(0, pts.size() - 1)]
-			game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), event_level(c, w))
-	var elapsed := float(ev.duration) - float(ev.remaining)
+			var we: EnemyState = game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), event_level(c, w))
+			# A wave that `hunt`s comes for the player wherever they stand (the Hollow Night's minnows up the bank and the lane).
+			if we != null and w.get("hunt", false): we.threat[c.id] = 1.0
 	var timed: Array = ev.get("timed_spawns", [])
 	for i in timed.size():
-		if i in ev.timed_done or elapsed < float(timed[i].get("after_s", 0.0)): continue
+		if i in ev.timed_done: continue
+		# A timed spawn arrives `after_s` into the event; one that waits on the story, `delay_s` after its `requires` first
+		# holds, and at `latest_s` whatever the story (the Hollow Night's eel, should the villagers never reach the hut).
+		var ts := _part_since(c, ev, "timed%d" % i, timed[i], elapsed)
+		var due := ts >= 0.0 and elapsed >= maxf(float(timed[i].get("after_s", 0.0)), ts + float(timed[i].get("delay_s", 0.0)))
+		if not due and not (timed[i].has("latest_s") and elapsed >= float(timed[i].latest_s)): continue
 		ev.timed_done.append(i)
 		game.enemies.spawn_at(str(timed[i].enemy), Vector2(float(timed[i].at[0]), float(timed[i].at[1])), int(timed[i].get("level", -1)))
 		emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(timed[i].enemy),
@@ -1751,11 +1771,35 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 			_end_event(c, rt, false, "ground")
 			return
 	if float(ev.remaining) <= 0.0:
-		# A kill-to-win event (a trial) that runs out of time is failed, not passed.
-		if ev.has("win_on_kill") or ev.has("kill_count"):
+		# A kill-to-win event (a trial) that runs out of time is failed, not passed; one whose foe can also be outlasted
+		# (`timeout_wins`: the Hollow Night, where Lu comes at its end) is won either way.
+		if (ev.has("win_on_kill") or ev.has("kill_count")) and not ev.get("timeout_wins", false):
 			_end_event(c, rt, false, "time")
 		else:
-			_end_event(c, rt, true)
+			_end_event(c, rt, true, "time" if ev.get("timeout_wins", false) else "")
+
+## When a part of an event (a wave, a timed spawn) that waits on the story opened: the event's elapsed seconds its
+## `requires` first held at (0 without one), and -1 while it has not.
+func _part_since(c, ev: Dictionary, key: String, part: Dictionary, elapsed: float) -> float:
+	if not part.has("requires"): return 0.0
+	var opened: Dictionary = ev.get("opened", {})
+	if not opened.has(key):
+		if not RequirementRules.passes(part.requires, game.ctx(c)): return -1.0
+		opened[key] = elapsed
+		ev.opened = opened
+	return float(opened[key])
+
+## A won event's way on (the Hollow Night's: to Lu's boat), `leave` {after_s, grid_after_s, requires, effects}: its
+## effects once its requirement holds (the scene after the fight has played) or its seconds of the room's time have
+## passed, whichever comes first. The room keeps it while the event's cut holds the game still.
+func _tick_leave(c, rt: RoomRuntime, delta: float) -> void:
+	var lv: Dictionary = rt.event.get("leave", {})
+	rt.event.leaving = float(rt.event.leaving) - delta
+	if float(rt.event.leaving) > 0.0 and not (lv.has("requires") and RequirementRules.passes(lv.requires, game.ctx(c))): return
+	rt.event.erase("leaving")
+	# What the fight left on the ground goes with you (the eel's fang, its pearl and taels), gathered up as you leave.
+	for l in rt.loot.duplicate(): _collect(c, l)
+	game.apply_effects(c.id, lv.get("effects", []), "event:" + str(rt.event.get("id", "")) + ":leave")
 
 ## One step of the lantern's light (0-100): true when it has gone out.
 func _tick_lantern(c, rt: RoomRuntime, ev: Dictionary, delta: float) -> bool:
@@ -1895,6 +1939,10 @@ func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void:
 	if won and int(ev.get("hits_taken", 0)) == 0 and not ev.get("on_flawless", []).is_empty():
 		emit("room_event_flawless", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
 		game.apply_effects(c.id, ev.on_flawless, "event:" + str(ev.get("id", "")) + ":flawless")
+	# On the height grid, where the scene after the fight plays (behind whatever moments the win brings), the way on waits
+	# for it longer (`grid_after_s`); in the side view, which stages no scenes, `after_s`.
+	if won and ev.get("leave") is Dictionary and game.room_rt == rt:
+		ev.leaving = float(ev.leave.get("grid_after_s" if rt.topdown != null else "after_s", ev.leave.get("after_s", 0.0)))
 
 ## A kill-to-win event ends the moment its foe falls.
 func _event_kill(p: Dictionary) -> void:

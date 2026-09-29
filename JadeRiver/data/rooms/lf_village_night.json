@@ -116,8 +116,27 @@
     386,
     704
    ],
-   "text": "Aunt Ping has the door open. Get everyone inside!",
-   "prop": "none"
+   "text": "Aunt Ping has the door open and her lamp lit. The grey things shy from it.",
+   "prop": "none",
+   "sanctuary": 150
+  },
+  {
+   "id": "npc_ping_night",
+   "type": "npc",
+   "at": [
+    506,
+    760
+   ],
+   "npc": "aunt_ping",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "in_room",
+      "room": "lf_village_night"
+     }
+    ]
+   }
   },
   {
    "id": "npc_dou_night",
@@ -251,61 +270,226 @@
  "instanced": true,
  "night": true,
  "custom_ground": true,
+ "refuge": "hut_refuge",
  "event": {
   "id": "hollow_night",
-  "duration": 60,
-  "wave": {
-   "enemy": "hollow_minnow",
-   "every_s": 2.5,
-   "max": 7,
-   "points": [
-    [
-     300,
-     880
-    ],
-    [
-     900,
-     930
-    ],
-    [
-     1400,
-     900
-    ],
-    [
-     2000,
-     930
-    ],
-    [
-     2400,
-     880
-    ]
-   ]
-  },
+  "duration": 200,
+  "win_on_kill": "hollowed_eel",
+  "timeout_wins": true,
   "fixed_spawns": [
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     2180,
+     860
+    ],
+    "level": 1
+   },
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     2320,
+     850
+    ],
+    "level": 1
+   },
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     940,
+     800
+    ],
+    "level": 1
+   },
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     1070,
+     790
+    ],
+    "level": 1
+   },
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     1660,
+     810
+    ],
+    "level": 1
+   },
+   {
+    "enemy": "hollow_minnow",
+    "at": [
+     1790,
+     800
+    ],
+    "level": 1
+   }
+  ],
+  "waves": [
+   {
+    "enemy": "hollow_minnow",
+    "every_s": 6.0,
+    "first_s": 10.0,
+    "max": 2,
+    "level": 1,
+    "hunt": true,
+    "points": [
+     [
+      300,
+      880
+     ],
+     [
+      900,
+      890
+     ],
+     [
+      1400,
+      890
+     ],
+     [
+      2000,
+      890
+     ],
+     [
+      2400,
+      880
+     ]
+    ]
+   },
+   {
+    "enemy": "hollow_minnow",
+    "every_s": 2.5,
+    "first_s": 1.0,
+    "max": 4,
+    "level": 1,
+    "requires": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "dou_safe"
+      },
+      {
+       "kind": "flag_set",
+       "flag": "granny_safe"
+      },
+      {
+       "kind": "flag_set",
+       "flag": "ma_safe"
+      }
+     ]
+    },
+    "for_s": 24,
+    "hunt": true,
+    "points": [
+     [
+      120,
+      800
+     ],
+     [
+      140,
+      740
+     ],
+     [
+      2440,
+      800
+     ],
+     [
+      2420,
+      740
+     ],
+     [
+      1300,
+      880
+     ],
+     [
+      1560,
+      880
+     ]
+    ]
+   }
+  ],
+  "timed_spawns": [
    {
     "enemy": "hollowed_eel",
     "at": [
-     1900,
-     940
+     1500,
+     950
     ],
-    "level": 10
+    "level": 2,
+    "requires": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "dou_safe"
+      },
+      {
+       "kind": "flag_set",
+       "flag": "granny_safe"
+      },
+      {
+       "kind": "flag_set",
+       "flag": "ma_safe"
+      }
+     ]
+    },
+    "delay_s": 14,
+    "latest_s": 110,
+    "text": "The river heaves. Something long and grey rises out of it."
    }
   ],
   "on_complete": [
    {
     "kind": "set_flag",
-    "flag": "night_survived"
+    "flag": "dou_safe"
    },
    {
-    "kind": "clear_flag",
-    "flag": "night_active"
+    "kind": "set_flag",
+    "flag": "granny_safe"
    },
    {
-    "kind": "teleport",
-    "target": "lf_lu_boat",
-    "portal": "deck"
+    "kind": "set_flag",
+    "flag": "ma_safe"
+   },
+   {
+    "kind": "grant_title",
+    "title": "ferry_guardian"
    }
   ],
+  "on_flawless": [
+   {
+    "kind": "grant_item",
+    "item": "herbal_tea",
+    "count": 2
+   }
+  ],
+  "leave": {
+   "after_s": 6.0,
+   "grid_after_s": 30.0,
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "lu_on_the_bank"
+     }
+    ]
+   },
+   "effects": [
+    {
+     "kind": "set_flag",
+     "flag": "night_survived"
+    },
+    {
+     "kind": "clear_flag",
+     "flag": "night_active"
+    },
+    {
+     "kind": "teleport",
+     "target": "lf_lu_boat",
+     "portal": "deck"
+    }
+   ]
+  },
   "requires": {
    "all": [
     {

@@ -214,8 +214,7 @@ func tick(delta: float) -> void:
 		if e.def.get("ai", {}).get("profile", "") == "burrower":
 			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0 and not e.pools.has_status("sense_locked")
 		if bool(e.def.get("flying", false)):
-			# Flyers hover within a grounded fighter's melee band (+60, S43) and swoop lower to strike.
-			e.hover = 48.0 + sin(game.sim_time * 2.0 + e.uid) * 8.0 - (32.0 if e.ai.state in ["attack"] else 0.0)
+			_hover(rt, e, delta)
 		else:
 			# S47 v1.1: a foe the fan's wind has launched rises and falls in an arc until it lands.
 			var la: Dictionary = e.pools.status("launched")
@@ -226,6 +225,24 @@ func tick(delta: float) -> void:
 			elif e.ai.get("lifted", false):
 				e.hover = 0.0
 				e.ai.erase("lifted")
+
+## A flyer's height over the ground, with a slow bob and a swoop as it strikes. The side view's fighter strikes an
+## altitude window up to +60 over its feet (S43), so there a flyer hovers inside it. On the height grid a blow lands only
+## between feet within the hit band (TopdownAim, movement.json topdown.combat.hit_band), so there it skims under the
+## band's top over the floor it hunts on (the target's in a fight, like the side view's flyers, else its home's): it
+## strikes and is struck. At the side view's 40-56 the Hollow Night's minnows were out of every blow's reach on the
+## grid, and their own blows out of the player's.
+func _hover(rt: RoomRuntime, e: EnemyState, delta: float) -> void:
+	var bob := sin(game.sim_time * 2.0 + e.uid)
+	var striking: bool = e.ai.state in ["attack"]
+	if rt.topdown == null:
+		e.hover = 48.0 + bob * 8.0 - (32.0 if striking else 0.0)
+		return
+	var tgt := EnemyBrain.target_position(self, e) if e.in_fight() else {}
+	var ground := float(tgt.alt) if not tgt.is_empty() else rt.topdown.height_at(e.spawn_point)
+	if ground < INF: e.altitude = move_toward(e.altitude, ground, 120.0 * delta)
+	var top := float(TopdownAim.band(false)[1]) - 2.0
+	e.hover = clampf(top * 0.5 + bob * top * 0.35 - (top * 0.5 if striking else 0.0), 0.0, top)
 
 ## Where a spawn point's foe appears: its own point, else another of its spawn's points out of the player's view
 ## (stats.json respawn.offscreen_x: that far across in the side view, which is half the view and a margin; on the height
@@ -420,39 +437,142 @@ func _phase_summon(e: EnemyState, ph: Dictionary) -> String:
 		if a.has("summon"): return str(a.summon)
 	return "paper_talisman_ghost"
 
+## The Hollowed Eel, the Hollow Night's great foe (tools/data/enemies.py, its `eel` row; docs/redesign/story_staging.md).
+## It glides in the river toward the player's stretch of the bank, out of reach and unhurt; rears up out of the water
+## (the tell: its wind-up); lunges onto the bank at the spot the player stood on when it reared, striking there; then
+## lies stranded on the bank, open to every blow (the window), until it slides back into the river. Below half its HP
+## (its phase: the fight's climax) it dives, and every lunge after is the great lunge: a longer tell, a heavier blow and
+## a longer window (the night's story has Lu's palm pin it to the bank). Deterministic on the Enemies stream; the side
+## view plays the same states along its walk strip. On the height grid its feet are the floor under it: the water's
+## surface in the river (out of any blow's band from the bank), the bank's own floor once it is ashore (inside it).
 func _eel(e: EnemyState, delta: float) -> void:
-	# The Hollowed Eel cannot be hurt; it surfaces from the river and lunges.
-	e.invulnerable = true
-	e.ai.timer = float(e.ai.timer) - delta
+	var cfg: Dictionary = e.def.get("eel", {})
+	var ai := e.ai
+	var grid: TopdownRoom = game.room_rt.topdown
+	ai.timer = float(ai.timer) - delta
 	var tgt := EnemyBrain.target_position(self, e)
-	match str(e.ai.state):
-		"idle", "patrol", "aggro":
+	var lane: Vector2 = ai.get("lane", e.spawn_point)
+	var reach := float(cfg.get("reach", 190))
+	var climax: bool = int(ai.get("phase", -1)) >= 0
+	e.hidden = false
+	# The climax begins wherever the fight stands: it throws itself back into the river, then rears for the great lunge.
+	if climax and not ai.get("climax_begun", false) and str(ai.state) in ["glide", "beached", "retreat"]:
+		ai.climax_begun = true
+		ai.state = "dive"
+		ai.timer = float(cfg.get("dive_s", 1.4))
+		ai.from = e.plane
+	match str(ai.state):
+		"idle", "patrol", "aggro", "return":
+			# It has risen: its first sight of the player begins the fight (the boss's entrance), then it glides.
 			e.action = "idle"
-			e.hover = 40.0
-			var was := e.plane.x
-			if not tgt.is_empty(): e.plane.x = move_toward(e.plane.x, tgt.pos.x, 60.0 * delta)
+			e.invulnerable = true
+			_eel_depth(e, grid, 40.0)
+			if tgt.is_empty(): return
+			ai.lane = e.plane
+			emit("enemy_aggro", {"enemy": e.uid, "target": str(tgt.id), "def": e.def_id})
+			ai.state = "glide"
+		"glide":
+			e.invulnerable = true
+			_eel_depth(e, grid, 40.0)
+			var lo: float = TopdownRoom.TILE * 3.0 if grid != null else 60.0
+			var hi: float = (float(grid.w) - 3.0) * TopdownRoom.TILE if grid != null else float(game.room_rt.width()) - 60.0
+			var goal := Vector2(clampf(float(tgt.pos.x) if not tgt.is_empty() else lane.x, lo, hi), lane.y)
+			var was := e.plane
+			e.plane = e.plane.move_toward(goal, float(cfg.get("glide_speed", 70)) * delta)
 			# Its glide is its velocity (the top-down view turns its figure by it, as every other foe's).
-			e.velocity = Vector2((e.plane.x - was) / maxf(delta, 0.001), 0.0)
-			if float(e.ai.timer) <= 0.0 and not tgt.is_empty():
-				e.ai.state = "windup"
-				e.ai.timer = 1.0
-				e.facing = 1 if tgt.pos.x >= e.plane.x else -1
-				# On the height grid it lunges at its target on the plane, and its figure turns to it (its aim).
-				if game.room_rt != null and game.room_rt.topdown != null and (tgt.pos as Vector2).distance_to(e.plane) > 0.5:
-					e.aim = ((tgt.pos as Vector2) - e.plane).normalized()
-				emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": "lunge", "windup": 1.0, "facing": e.facing})
+			e.velocity = (e.plane - was) / maxf(delta, 0.001)
+			if absf(e.velocity.x) > 1.0: e.facing = 1 if e.velocity.x > 0.0 else -1
+			e.action = "walk" if e.velocity.length() > 1.0 else "idle"
+			if float(ai.timer) <= 0.0 and not tgt.is_empty() and (tgt.pos as Vector2).distance_to(e.plane) <= reach + 24.0:
+				_eel_rear(e, tgt, climax, reach)
 		"windup":
+			# The tell: reared up out of the water, its aim fixed on where the player stood.
 			e.velocity = Vector2.ZERO
 			e.action = "windup"
-			if float(e.ai.timer) <= 0.0:
-				e.ai.state = "attack"
-				e.ai.timer = 0.5
-				game.combat.enemy_strike(e, e.def.attacks[0])
+			e.invulnerable = true
+			if float(ai.timer) <= 0.0:
+				ai.state = "attack"
+				ai.timer = float(cfg.get("lunge_s", 0.28))
+				ai.from = e.plane
+				ai.hit_done = false
 		"attack":
+			# The lunge: out of the water onto the bank, the blow landing where it comes down.
 			e.action = "attack"
-			if float(e.ai.timer) <= 0.0:
-				e.ai.state = "idle"
-				e.ai.timer = rng.randf_range(3.0, 5.0)
+			var ls := float(cfg.get("lunge_s", 0.28))
+			var k := 1.0 - clampf(float(ai.timer) / maxf(ls, 0.01), 0.0, 1.0)
+			var land: Vector2 = ai.get("land", e.plane)
+			e.plane = (ai.from as Vector2).lerp(land, k)
+			e.velocity = (land - (ai.from as Vector2)) / maxf(ls, 0.01)
+			_eel_depth(e, grid, 0.0)
+			e.invulnerable = false
+			if float(ai.timer) <= 0.0:
+				e.plane = land
+				e.velocity = Vector2.ZERO
+				if not ai.hit_done:
+					ai.hit_done = true
+					game.combat.enemy_strike(e, e.def.attacks[int(ai.get("attack", 0))])
+				var great := int(ai.get("attack", 0)) > 0
+				ai.state = "beached"
+				ai.timer = float(cfg.get("beached_s", 2.4))
+				if great:
+					ai.timer = float(cfg.get("pinned_again_s", 3.5) if ai.get("pinned_once", false) else cfg.get("pinned_s", 5.5))
+					ai.pinned_once = true
+				ai.pinned = great
+		"beached":
+			# The window: stranded on the bank, thrashing, open to every blow.
+			e.velocity = Vector2.ZERO
+			e.action = "hurt"
+			e.invulnerable = false
+			_eel_depth(e, grid, 0.0)
+			if float(ai.timer) <= 0.0:
+				ai.state = "retreat"
+				ai.timer = float(cfg.get("retreat_s", 0.5))
+				ai.from = e.plane
+				ai.pinned = false
+		"retreat", "dive":
+			# Back into the river along its lane (the climax's dive then holds there a moment, the river boiling).
+			var span := float(cfg.get("retreat_s", 0.5))
+			var hold := float(cfg.get("dive_s", 1.4)) - span if str(ai.state) == "dive" else 0.0
+			var k2 := 1.0 - clampf((float(ai.timer) - hold) / maxf(span, 0.01), 0.0, 1.0)
+			var back := Vector2((ai.from as Vector2).x, lane.y)
+			var was2 := e.plane
+			e.plane = (ai.from as Vector2).lerp(back, k2)
+			e.velocity = (e.plane - was2) / maxf(delta, 0.001)
+			e.action = "walk" if e.velocity.length() > 1.0 else "hurt"
+			e.invulnerable = k2 >= 0.5
+			_eel_depth(e, grid, 40.0 if k2 >= 0.5 else 0.0)
+			if float(ai.timer) <= 0.0:
+				e.plane = back
+				e.velocity = Vector2.ZERO
+				e.invulnerable = true
+				var rest: Array = cfg.get("climax_rest_s" if climax else "rest_s", [1.6, 2.6])
+				ai.state = "glide"
+				ai.timer = rng.randf_range(float(rest[0]), float(rest[-1]))
+
+## The eel rears up: its tell, the spot it will come down on (where the player stands now, within its reach) and its aim.
+func _eel_rear(e: EnemyState, tgt: Dictionary, great: bool, reach: float) -> void:
+	var i := 1 if great and (e.def.attacks as Array).size() > 1 else 0
+	var a: Dictionary = e.def.attacks[i]
+	var to: Vector2 = (tgt.pos as Vector2) - e.plane
+	e.ai.attack = i
+	e.ai.state = "windup"
+	e.ai.timer = float(a.windup_s)
+	e.ai.land = e.plane + to.limit_length(reach)
+	e.facing = 1 if to.x >= 0.0 else -1
+	# On the height grid it lunges at its target on the plane, and its figure turns to it (its aim).
+	if to.length() > 0.5: e.aim = to.normalized()
+	e.velocity = Vector2.ZERO
+	emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": str(a.id), "windup": float(a.windup_s), "facing": e.facing})
+
+## The eel's feet: on the height grid the floor under it (the water's surface in the river, the bank's floor ashore); in
+## the side view the walk strip's, lifted `side_hover` over the river (its old look there).
+func _eel_depth(e: EnemyState, grid: TopdownRoom, side_hover: float) -> void:
+	if grid == null:
+		e.hover = side_hover
+		return
+	var g := grid.height_at(e.plane)
+	if g < INF: e.altitude = g
+	e.hover = 0.0
 
 ## Defeat (Combat calls this when HP reaches 0 and announces actor_defeated with the
 ## payload returned here). World rolls loot on actor_defeated; Enemies then marks field bosses.

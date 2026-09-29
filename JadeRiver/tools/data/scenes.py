@@ -24,7 +24,7 @@ step's `effects` once. Cells are the layouts' cells (fractions allowed). SceneRu
 the rooms, the people, the tile set, the event contract and the sounds; the suites hold every scene to none.
 Every name, place and line here is Jade River's own.
 """
-from common import entries, all_of, qactive, qdone, flag, noflag, sect
+from common import entries, all_of, any_of, qactive, qdone, flag, noflag, sect
 
 SETTINGS = {
     "walk": 110.0, "run": 210.0,                   # an actor's pace, world units a second
@@ -387,27 +387,145 @@ def crabs():
 
 
 # -------------------------------------------------------------------- the night and the boat (steps 6-7)
+def wait_event(*events, s=0.0):
+    d = {"do": "wait_event", "until": list(events)}
+    if s:
+        d["s"] = s
+    return d
+
+
 def night():
-    # The Hollow Night: a storm, the river boils, something grey rises; Granny calls for the hut.
+    # The Hollow Night (decision 42, docs/redesign/story_staging.md "The Hollow Night"): the tutorial's first real danger,
+    # an action set piece in beats. The room's event (world.py lf_village_night) and the foes' AI (EnemyAuthority: the
+    # minnows' dart, the eel's tell, lunge and window) are the fight; these scenes stage it around the player, live
+    # while the fight is on (a cut never starts in one): the storm and the first minnows, each villager running for
+    # Aunt Ping's door, the grey spreading up the lane, the eel rising, Lu coming at the climax with the palm he teaches
+    # on the boat, and the grey lifting after.
+    villagers_in = all_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe"))
+    night_on = all_of(qactive("the_hollow_night"))
+    ping = {"object": "npc_ping_night"}
     scene("hollow_rises", "The Hollow Night", "lf_village_night", [
         title("That Night", "", 2.0),
         letterbox(True),
         weather("storm"),
         sound("thunder"),
         flash("MIST", 0.25),
-        camera((24, 34), 1.4),
+        camera((24, 34), 1.2),
+        shake(0.4),
+        sound("rumble"),
         fx("ring", (14, 35), color="MIST", radius=40, dur=0.8),
-        fx("ring", (32, 36), color="MIST", radius=40, dur=0.8),
+        fx("ring", (30, 36), color="MIST", radius=52, dur=0.9),
+        fx("ring", (41, 35), color="MIST", radius=40, dur=0.8),
         sound("hiss"),
+        fx("spark", (44, 27), color="MIST", count=10, dur=0.6),
+        camera("dou", 0.9),
         emote("dou", "!", 0.8),
         pose("dou", "startle", 2.4),
-        pose("granny", "startle", 2.4),
-        say("dou", "Something's in the water! It's coming up!"),
-        camera("player", 1.0),
+        say("dou", "Fish! Grey fish, jumping out of the river! They bite!"),
+        camera("granny", 1.0),
         pose("granny", "point", 2.0),
         say("granny", "Child! Get us to your aunt's hut. Quickly now!"),
-    ], actors={"dou": {"object": "npc_dou_night"}, "granny": {"object": "npc_granny_night"}},
-        requires=all_of(qactive("the_hollow_night")))
+        camera("ping", 1.0),
+        say("ping", "In here, all of you! The door's open and the lamp is lit!"),
+        camera("player", 0.8),
+        handoff("Strike the grey minnows: tap Attack", "enemy:hollow_minnow",
+                until("actor_defeated", False, killer="active", **{"def": "hollow_minnow"}),
+                done_if=any_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe")), then="live"),
+        say("ping", "Bring them to my door! The grey things shy from the lamp."),
+    ], actors={"dou": {"object": "npc_dou_night"}, "granny": {"object": "npc_granny_night"}, "ping": ping}, requires=night_on)
+
+    # Each villager sent in runs (or hobbles) through the night to Aunt Ping's door.
+    for sid, name, flag_id, npc, at, path, run, line, ping_line in [
+            ("night_dou_runs", "Little Dou Runs", "dou_safe", "little_dou", (44, 25), [(44, 21), (8, 21), (6.5, 15.5)], True,
+             "I'm going! Don't let them bite you!", "Dou! In, in, by the stove. Who's next?"),
+            ("night_granny_goes", "Granny Liu Goes In", "granny_safe", "granny_liu", (18, 23), [(17.5, 21), (8, 21), (6.5, 15.5)], False,
+             "Bless you, child. There's a healing pill in your hand now: swallow it if that thing bites.", "Granny Liu, lean on me. Go on, child, the others!"),
+            ("night_ma_goes", "Old Ma Leaves Her Shop", "ma_safe", "old_ma", (38, 18), [(38, 21), (8, 21), (6.5, 15.5)], True,
+             "My stock can drown for all I care. I'm going, I'm going!", "Ma! Mind the step. Inside with you!")]:
+        scene(sid, name, "lf_village_night", [
+            spawn("who"),
+            face("who", "player"),
+            say("who", line),
+            move("who", *path, run=run),
+            despawn("who"),
+            emote("ping", "heart", 1.0),
+            say("ping", ping_line),
+        ], actors={"who": {"npc": npc, "at": list(at), "hidden": True}, "ping": ping}, requires=night_on,
+            trigger=on("flag_set", flag=flag_id), live=True)
+
+    # The villagers in, the grey spreads: schools pour up the lane from both ends, and Ping shows where her lamplight is
+    # a refuge. Its last step marks it played (the flag grey_spread): the eel's scene waits on it, so the lane's beat
+    # always comes first however long the last villager's run took (the eel rises 14 s after they are in, in the game's
+    # time; the scenes are live, so the eel may already be out, and no line here speaks of the river).
+    scene("grey_spreads", "The Grey Spreads", "lf_village_night", [
+        shake(0.35),
+        sound("rumble"),
+        say("ping", "That's all of them. Now you, child, get in here!"),
+        fx("ring", (2, 21), color="MIST", radius=56, dur=0.9),
+        fx("ring", (45, 21), color="MIST", radius=56, dur=0.9),
+        sound("hiss"),
+        emote("ping", "!", 1.0),
+        pose("ping", "point", 2.0),
+        say("ping", "The lane! They're coming up both ends of it!"),
+        wait(1.0),
+        fx("ring", (8.5, 16.5), color="PALE_GOLD", radius=90, dur=1.2),
+        say("ping", "Too many of them? Come into my lamplight. They won't follow you here!"),
+        mark({"kind": "set_flag", "flag": "grey_spread"}),
+    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), villagers_in), live=True)
+
+    # The eel rises (its boss card plays first): the tell taught while it circles, once the lane's beat has played.
+    scene("eel_rises", "The Thing in the River", "lf_village_night", [
+        sound("surge"),
+        shake(0.5),
+        say("ping", "Heaven help us, look at it! Child, when it rears up, get out of its line!"),
+        handoff("It rears before it lunges: step aside, then strike it on the bank", "enemy:hollowed_eel", s=8.0, then="live"),
+        say("ping", "Hit it while it's stranded, before it slides back!"),
+        wait(1.0),
+        say("ping", "It's only a beast, for all it's grey. It bleeds!"),
+    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), flag("grey_spread")),
+        trigger={"event": "enemy_aggro", "when": {"def": "hollowed_eel"}}, live=True)
+
+    # The climax (the eel below half its HP): Lu's boat comes up the river, he leaps ashore, and as the eel's great lunge
+    # lands, his palm pins it to the bank: the palm he teaches on the boat.
+    scene("lu_arrives", "Lu Comes", "lf_village_night", [
+        move("boat", (38, 36.5), wait=False, speed=160),
+        sound("water_step"),
+        say("ping", "A lamp on the water... it's Lu!"),
+        spawn("lu"),
+        fx("dust", "lu", color="PAPER", count=8, dur=0.5),
+        sound("land"),
+        face("lu", "player"),
+        wait_event(until("attack_started", False, attack="great_lunge"), s=6.0),
+        say("lu", "Down, child! Out of its line!"),
+        pose("lu", "punch_2", 0.5, wait=True),
+        fx("wave", "enemy:hollowed_eel", color="BRIGHT_JADE", size=10, radius=70, dur=0.6),
+        sound("surge"),
+        shake(0.35),
+        say("lu", "It's pinned! Strike now, while it cannot turn!"),
+        handoff("Strike the pinned eel: tap Attack", "enemy:hollowed_eel",
+                until("actor_defeated", False, killer="active", **{"def": "hollowed_eel"}), s=20.0, then="live"),
+    ], actors={"lu": {"npc": "lu_boatman", "at": [36, 33], "hidden": True}, "boat": {"prop": "boat", "at": [52, 36.5], "level": -1},
+               "ping": ping}, requires=night_on, trigger={"event": "boss_phase", "when": {"action": "climax"}}, live=True)
+
+    # The night won (the eel beaten, or the bank held until Lu came): the storm passes and Lu walks up from the river.
+    # Its last checkpoint sets lu_on_the_bank, and the event's way on takes you to his boat.
+    scene("grey_lifts", "The Grey Lifts", "lf_village_night", [
+        letterbox(True),
+        weather("clear"),
+        sound("gust"),
+        spawn("lu"),
+        camera((34, 33), 1.2),
+        fx("motes", (30, 36), color="PALE_GOLD", count=14, dur=1.2),
+        say("lu", "It's done. A river eel, gone grey... in our own river."),
+        move("lu", (33, 31)),
+        face("lu", "player"),
+        say("lu", "You held the bank, child. Not one of them lost."),
+        say("ping", "Lu! Is it over?"),
+        say("lu", "For tonight. The palm you saw? I'll teach it to you. Come, to my boat."),
+        mark({"kind": "set_flag", "flag": "lu_on_the_bank"}),
+        fade("black", 0.8),
+    ], actors={"lu": {"npc": "lu_boatman", "at": [36, 33], "hidden": True}, "ping": ping}, requires=night_on,
+        trigger={"event": "room_event_completed", "when": {"event": "hollow_night", "actor": "active"}})
 
     # Lu's boat after the storm: who Lu thinks you are. Sit, and breathe (the Cultivate button by doing).
     scene("river_token", "The River Token", "lf_lu_boat", [
