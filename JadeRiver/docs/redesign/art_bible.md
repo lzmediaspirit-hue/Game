@@ -1146,8 +1146,8 @@ shadow, the puffs and the rings have none.
 | watch, read, sell, pray, write, play, meditate | idle and looking round, point, salute, brush_write, run, meditate | | |
 
 - **The leash.** Every spot lies within 2.5 tiles of the person's own spot, on their floor, each leg walked with
-  nothing in the way (checked as `life.json` is built). The World authority's talk reaches 110 units round the spot,
-  so a player standing beside a worker can always talk to them. The name, the marker and the barks follow the figure.
+  nothing in the way (checked as `life.json` is built). The World authority's talk reaches 110 units round the spot
+  (132 on the grid, the people drawn 1.2 times bigger), so a player standing beside a worker can always talk to them. The name, the marker and the barks follow the figure.
 - **For the player.** At the player's side (the context's offer, a talk) or with the player within 72 units, a worker
   stops, sets down what they carry and turns to the player; they take up the work again 1.2 s after the player leaves.
 - **A quest waiting.** Someone whose marker calls (`QuestAuthority.marker_calls`) walks back to their first spot (their

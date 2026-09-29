@@ -1109,15 +1109,16 @@ func _on_event(ev: String, p: Dictionary) -> void:
 				_bits(TopdownWorld.to_screen(at, m.z) + Vector2(0, -3), aim.normalized(), [Color("87c749"), Color("45a03a"), Color("cbe86c")], 6)
 
 ## A sound for a moment of life (a bird's wings, a frog's plop, a hammer on the anvil): the `cue_raised` signal, and
-## the world sound "life_" + name where it happens (Audio.world_sound: positional, under the fight's sounds; silent
-## until the sound bank has it) while it is in view, each name at most every SOUND_GAP. The walking people's steps are
+## the world sound "life_" + name where it happens (Audio.world_sound: positional, under the fight's sounds) while it
+## is in view and the sound bank has it, each name at most every SOUND_GAP. The walking people's steps are
 ## the sound's own (TopdownSound steps a figure on its walk).
 func raise_cue(cue_name: String, g: Vector2) -> void:
 	cue_raised.emit(cue_name, g)
 	var now := clock
 	if now - float(_sounds.get(cue_name, -99.0)) < SOUND_GAP: return
 	_sounds[cue_name] = now
-	if _view().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.world_sound("life_" + cue_name, g)
+	var id := "life_" + cue_name
+	if SoundBank.has_sound(id) and _view().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.world_sound(id, g)
 
 # ------------------------------------------------------------------ drawing
 ## A sprite of the sheet: frame `f` of `name`, its foot at `at`, mirrored when `flip`, tinted `col`.
@@ -1241,9 +1242,11 @@ static func _height(figure: TopdownFigure, action: String, row: String, f: int) 
 ## with its line and float.
 static func draw_tool(ci: CanvasItem, tool: String, row: String, figure: TopdownFigure, action: String, f: int, t: float, working: String, back: bool) -> void:
 	var hgt := _height(figure, action, row, f)
+	# The hands' reach out from the body grows with the figure (36 px to the head's top at the 38 px size).
+	var wk := hgt / 36.0
 	var away := row in ["n", "ne", "nw"]
 	var west := row in ["w", "sw", "nw"]
-	var side := -1.0 if west else 1.0
+	var side := (-1.0 if west else 1.0) * wk
 	var bob := 1.0 if f % 2 == 1 and action in ["walk", "run"] else 0.0
 	match tool:
 		"broom":
@@ -1255,8 +1258,8 @@ static func draw_tool(ci: CanvasItem, tool: String, row: String, figure: Topdown
 			if row in ["e", "w", "se", "sw", "ne", "nw"]:
 				if not back: blit(ci, "pole_side", 0, Vector2(0, -hgt * 0.62 + bob), false)
 			else:
-				if back: blit(ci, "pole_back", 0, Vector2(side * 1.0, -hgt * 0.8 + bob), false)
-				else: blit(ci, "pole_front", 0, Vector2(side * 1.0, -hgt * 0.4 + bob), false)
+				if back: blit(ci, "pole_back", 0, Vector2(signf(side), -hgt * 0.8 + bob), false)
+				else: blit(ci, "pole_front", 0, Vector2(signf(side), -hgt * 0.4 + bob), false)
 		"basket":
 			if back != away: return
 			blit(ci, "laundry_basket", 0, Vector2(side * 7.0, -hgt * 0.30 + bob), false)
@@ -1265,9 +1268,10 @@ static func draw_tool(ci: CanvasItem, tool: String, row: String, figure: Topdown
 			var hands := Vector2(side * 4.0, -hgt * 0.45)
 			var reach: Vector2 = {"s": Vector2(4, 6), "se": Vector2(12, 0), "e": Vector2(16, -8), "ne": Vector2(10, -16), "n": Vector2(2, -18),
 				"nw": Vector2(-10, -16), "w": Vector2(-16, -8), "sw": Vector2(-12, 0)}.get(row, Vector2(4, 6))
-			var tip := hands + reach
+			var tip := hands + reach * wk
 			var float_at: Vector2 = {"s": Vector2(6, 16), "se": Vector2(20, 12), "e": Vector2(26, 2), "ne": Vector2(16, -10), "n": Vector2(2, -14),
 				"nw": Vector2(-16, -10), "w": Vector2(-26, 2), "sw": Vector2(-20, 12)}.get(row, Vector2(6, 16))
+			float_at *= wk
 			float_at.y += 1.0 if int(t * 1.6) % 3 == 0 and working == "fish" else 0.0
 			_line(ci, hands, tip, Color("8b5b34"))
 			_line(ci, tip, float_at, Color(0.9, 0.93, 0.9, 0.55))

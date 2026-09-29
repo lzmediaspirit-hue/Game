@@ -1955,7 +1955,7 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   (sweep, carry, laundry, forms with the sword, staff, spear or fists, herbs, cook, grind, chop, hammer, fish, mend,
   watch, read, sell, pray, write, play, meditate), with a broom, a shoulder pole, a basket or a rod
   (`scripts/topdown/topdown_work.gd`). The spots keep within 2.5 tiles of the person's own spot, so the World
-  authority's talk (110 units round the spot) always reaches a player beside them; they stop and turn to the player; a
+  authority's talk (110 units round the spot, 132 on the grid) always reaches a player beside them; they stop and turn to the player; a
   quest waiting (the marker calls) keeps them at their own spot. Nothing in the simulation moves: the loops are the
   view's.
 - **Grass that parts** round every body in view, on the GPU; the walk-through plants lean; a slash throws blades.
