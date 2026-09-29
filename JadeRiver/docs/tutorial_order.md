@@ -74,7 +74,7 @@ the points it stands at at 150 px/s (a thumb on the joystick; the run speed is 2
 first time, 3 s to read a line of dialogue and 1.5 s a tap, 2 s an interaction and 0.45 s a blow on a stump. It is a
 floor for a focused new player, not a measurement. On it, something new comes at least every 3 minutes to minute 20
 and every 5 to minute 60 (invariant 14); the suite prints the timeline, and docs/research/player_motivation.md "As
-built" keeps it. The Hollow Night is the longest stretch without a new thing: from Granny's healing pill to the eel's fall and its rewards, 2.8 minutes.
+built" keeps it. The Hollow Night is the longest stretch without a new thing: from Granny's healing pill to the eel's fall and its rewards, 2.6 minutes.
 
 **The chores come after the power** (`docs/research/player_motivation.md` item 6). Nothing daily, idle or kept at a
 post opens before Qi Kindling 1, and each is optional when it does. Every such unlock row carries `obligation`, and

@@ -62,12 +62,14 @@ The QA note: "The Hollow Night quest feels boring with no action, also there is 
       a quarter, the rewards, and the boat's meditation after it;
     - the lamplight refuge and the timeout win;
     - a fall and the restart at the door.
-  - **`balance_sim`** "story night": the eel at the story's Level with HP to spare. The short blade, played carefully,
-    ends with 72% HP (at least 50% required). Guo's Flawed gauntlets end with 16% (at least 10%). Trading blows with
-    the short blade ends with 74% (at least 35%).
+  - **`balance_sim`** "story night": the eel at the story's Level, won with HP to spare. The figures are the lowest
+    HP over four seeds:
+    - the short blade, played carefully: 61%, won in at most 64 s (at least 50% required);
+    - Guo's Flawed gauntlets alone: 18%, won in at most 114 s (at least 10%);
+    - the short blade, trading blows: 71% (at least 35%).
   - **`prologue_run`** fights the night through: it reads the eel's tell and strikes it in its windows.
   - **`topdown_tutorial`** invariant 9 checks the event's waves and timed spawns too.
-  - **`tutorial_order`**: the first hour's longest gap is 2.8 min.
+  - **`tutorial_order`**: the first hour's longest gap is 2.6 min, the night's (from Granny's healing pill to the eel's fall).
 - **Screenshots** (`tools/dev/topdown_capture.tscn -- --night`, in `docs/redesign/feedback/hollow_night/`): 01-17,
   from the storm to Lu's boat.
 
