@@ -2008,19 +2008,20 @@ func hud_suite() -> void:
 	var fight: Array = tables["fight"]
 	var near := func(a: Vector2, b: Vector2) -> bool: return a.distance_to(b) <= 1.5
 	var ring1: Array = at.call("skill", fight)
-	# Decision 42: the techniques' squares at 180°, 207°, 243° and 270° (mockup 01's rings stood at 180°-270°, 30° apart).
-	var mock1 := [Vector2(1033, 605), Vector2(1047, 545), Vector2(1105, 487), Vector2(1165, 473)]
+	# Decision 43: the techniques' round buttons at 184°, 212° and 240° 146 out and 270° 128 out (decision 42's squares
+	# stood at 180°, 207°, 243° and 270° on ring 1).
+	var mock1 := [Vector2(1019, 595), Vector2(1041, 528), Vector2(1093, 480), Vector2(1165, 477)]
 	var placed := ring1.size() == 4 and range(4).all(func(i): return near.call(ring1[i], mock1[i]))
 	placed = placed and near.call(at.call("attack", fight)[0], Vector2(1165, 605)) and near.call(at.call("jump", fight)[0], Vector2(1051, 671))
 	placed = placed and near.call(at.call("guard", fight)[0], Vector2(1231, 491)) and near.call(at.call("fan", fight)[0], Vector2(964, 678))
 	placed = placed and near.call(at.call("page", fight)[0], Vector2(1240, 672))
-	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them, the techniques as decision 42 spaces them (%s)" % str(ring1))
+	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them, the techniques as decision 43 spaces them (%s)" % str(ring1))
 	# Decision 42: a bigger Jump (64 px across, from 52) with a hit circle past it, in its place on ring 1.
 	var jumps: Array = fight.filter(func(tg): return str(tg.role) == "jump")
 	check(jumps.size() == 1 and float(jumps[0].drawn) == 32.0 and float(jumps[0].r) >= 36.0 and hud.JUMP_R * 2.0 > 52.0,
 		"decision 42: Jump is drawn 64 px across (from 52), its hit circle %d px across" % (int(jumps[0].r * 2.0) if not jumps.is_empty() else 0))
 	# No two of the cluster's controls touch, in every state, with a context offered (its own button on ring 2): circles
-	# by their drawn radius, the techniques' squares by their sides.
+	# by their drawn radius (decision 43: the techniques are round too), and the context's label clear of the techniques.
 	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
 	var touching := _cluster_touching(hud, states)
 	hud.left_handed = true
@@ -2029,7 +2030,7 @@ func hud_suite() -> void:
 	hud.left_handed = false
 	hud._layout()
 	hud.context = {}
-	check(touching.is_empty() and touching_lh.is_empty(), "decision 42: no two controls of the cluster touch, the bigger Jump and the techniques' squares among them, right- and left-handed (%s; %s)"
+	check(touching.is_empty() and touching_lh.is_empty(), "decision 42, 43: no two controls of the cluster touch, the bigger Jump and the round techniques among them, right- and left-handed (%s; %s)"
 		% [str(touching.slice(0, 4)), str(touching_lh.slice(0, 4))])
 	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick", "home": "quick"}, {"role": "treasure:0", "home": "treasure:0"}])
 	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
@@ -2350,7 +2351,7 @@ func technique_pictures_suite() -> void:
 	add_child(hud)
 	hud.player = stub
 	# The pictures are begun a few a frame and painted off the main thread: they come in within a few frames.
-	var inner := int(hud.TILE) - 6
+	var inner := int(hud.PICTURE)
 	var waited := 0
 	for i in 120:
 		hud.queue_redraw()
@@ -2396,6 +2397,28 @@ func technique_pictures_suite() -> void:
 	# button loses its feet).
 	var cut_heads: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and (cl.spec.body as Rect2).position.y < 0.0).map(func(cl): return cl.key)
 	check(cut_heads.is_empty(), "decision 42: a button's picture never cuts the figure's head (%s)" % str(cut_heads.slice(0, 3)))
+	# Decision 43: the HUD's buttons are round: each picture's whole figure (its box, every corner) stands inside the
+	# circle the picture is cut to, and so does the rank badge (inside its upper right); the ring and the rim outside it.
+	var round_out: Array = []
+	var margin := 99.0
+	var round_n := 0
+	for cl in TechniquePicture._cells.values():
+		if not (bool(cl.spec.small) and bool(cl.spec.top) and int(cl.spec.s) == int(hud.PICTURE)): continue
+		round_n += 1
+		var b: Rect2 = cl.spec.body
+		var mid := Vector2(float(cl.spec.w), float(cl.spec.w)) * 0.5
+		var worst := 99.0
+		for q in [b.position, Vector2(b.end.x, b.position.y), Vector2(b.position.x, b.end.y), b.end]: worst = minf(worst, mid.x - (q - mid).length())
+		margin = minf(margin, worst)
+		if worst < 0.0: round_out.append([cl.key, b])
+	var pr: float = hud.TILE * 0.5 - TechniquePicture.RING
+	var badge_far: float = (pr - 8.0) + 6.0   # the badge's middle 8 in from the circle at 45°, its diamond 6 out from its middle
+	var round_log: Array = (drawn["rest"].pics as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.get("round", false))
+	print("round technique buttons: %d pictures %d px, the tightest corner of a figure's box %.1f px inside the circle" % [round_n, hud.PICTURE, margin])
+	check(round_n >= arts.size() and round_out.is_empty() and badge_far <= pr and int(pr * 2.0) == hud.PICTURE and round_log.size() >= arts.size()
+		and round_log.all(func(d): return float(d.radius) == hud.TILE * 0.5),
+		"decision 43: the HUD's technique buttons are round (%d px across), each picture (%d px, the card's miniature at x1) cut to its circle with the whole figure inside it (%d pictures, the tightest corner %.1f px in; %s) and the rank badge inside it"
+			% [int(hud.TILE), hud.PICTURE, round_n, margin, str(round_out.slice(0, 3))])
 	var fight_log: Array = drawn["fight"].pics
 	var state_at := func(kind: String, i: int) -> bool:
 		return fight_log.any(func(d): return str(d.get("state", "")) == kind and (d.rect as Rect2).get_center().distance_to(hud.slots[i]) < 1.0)
@@ -2466,7 +2489,8 @@ func technique_pictures_suite() -> void:
 	Unlocks.debug_force_all = force_was
 
 ## Decision 42: the pairs of the right-hand cluster's controls that touch in each of `states` ([in a fight, the fan
-## open]): circles by their drawn radius, a technique's square by its side (hit_targets' `drawn` is its half side).
+## open]): circles by their drawn radius (decision 43: the techniques' buttons are round as well); with a context
+## offered, a technique over the context's label.
 func _cluster_touching(hud, states: Dictionary) -> Array:
 	var out: Array = []
 	var cluster := func(tg: Dictionary) -> bool:
@@ -2479,8 +2503,8 @@ func _cluster_touching(hud, states: Dictionary) -> Array:
 			for j in range(i + 1, ts.size()):
 				var a: Dictionary = ts[i]
 				var b: Dictionary = ts[j]
-				var sq_a := str(a.role) == "skill"
-				var sq_b := str(b.role) == "skill"
+				var sq_a := false   # decision 43: the techniques are round buttons (decision 42 drew them square)
+				var sq_b := false
 				var ra := float(a.drawn)
 				var rb := float(b.drawn)
 				var d: Vector2 = (b.center as Vector2) - (a.center as Vector2)
@@ -2494,6 +2518,12 @@ func _cluster_touching(hud, states: Dictionary) -> Array:
 					hit = near_pt.distance_to(ci.center) < float(ci.drawn)
 				else: hit = d.length() < ra + rb
 				if hit: out.append("%s: %s and %s" % [sname, a.role, b.role])
+		if hud._context_shown():
+			var lr: Rect2 = hud.context_label_rect()
+			for tg in ts:
+				if str(tg.role) != "skill": continue
+				var near_pt := Vector2(clampf(tg.center.x, lr.position.x, lr.end.x), clampf(tg.center.y, lr.position.y, lr.end.y))
+				if near_pt.distance_to(tg.center) < float(tg.drawn): out.append("%s: skill and the context's label" % sname)
 	return out
 
 func equip_prompt_suite() -> void:

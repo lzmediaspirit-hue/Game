@@ -30,6 +30,9 @@ What lives here (CombatFeel reads it; TopdownFx and the top-down views play it):
   into a basic step's recovery, and a basic attack into a technique's, once that blow's active frames have played
   (its hit has landed by then: it lands one smear frame into the active window); a press that comes early waits in a
   short buffer for that point. The chain carries through a technique woven into it (CombatFeel.weave).
+- flow (decision 43): the chain's flow: presses kept and taken in order, a cap on one action's hit-stop, the dodge's and
+  the stick's clean cancel out of a blow, the feet planted through a blow, the pull toward the foe the stick picks at
+  every step, and a knockback that leaves the chain's next step in reach (CombatFeel.flow).
 - missing_poses: the poses the character pipeline (decision 37) does not draw yet, each with the stand-in it plays.
   Empty: the full set draws every one (the bow batch).
 """
@@ -126,6 +129,29 @@ MISSING_POSES: list = []
 # one it cut (basic 1, technique, basic 2), within the combo's window as the chain always is.
 WEAVE = {"technique_after": 0.0, "basic_after": 0.0, "buffer_s": 0.4, "chain_through": True}
 
+# Decision 43 · the chain's flow ("combat should feel more smooth"), found in frame-by-frame traces of real chains
+# (tools/dev/combat_trace.tscn; docs/redesign_top_down_plan.md, "As built: decision 43"). Each press is kept and goes
+# in its order, the body turns and closes on the foe the stick picks at every step, and the chain lets go cleanly:
+# - `in_order`: a technique pressed while a basic step waits queued goes after that step (it cut the step before and
+#   dropped the queued press); the buffer does not run down while presses ahead of it wait. `more_taps`: Attack taps
+#   made while one waits in the buffer are kept (each the chain's next step after it), up to this many.
+# - `hitstop_cap_f`: the most hit-stop one action adds in all (a many-hit art's blows share it), so hit-stop never
+#   stalls a chain; each blow's own frames stay its weight's.
+# - `dodge_hold_s`: a dodge pressed while a blow is committed waits for the blow's cancel point up to this long (the
+#   0.2 s `dodge_buffer_s` let a heavy weapon's dodge drop); `move_cancel`: the stick pushed past its tiptoe band cuts a
+#   blow's recovery at that same cancel point when no press waits, so a sprint leaves a chain as a dodge does.
+# - `plant`: the stick's share of the move on the ground through a blow's anticipation and active frames (the feet
+#   planted; its lunge carries it); the recovery keeps the attack's walk (stats move.attack_factor).
+# - `pull`: each step lunges toward the foe the tap soft-locks (the nearest in the stick's cone): its own lunge, or
+#   further to come within `stand` of the weapon's reach of a foe farther off (by `extra` at most), never closer to it
+#   than `near` of the reach (nor `gap`, the two bodies), over `time_s`; a queued step aims again as it starts, at the foe
+#   its press's stick picked. The families that strike from where they stand (no lunge of their own) do not move.
+# - `keep_reach`, `min_knock`: a blow the chain goes on from (a step before the last, a technique woven into a chain)
+#   knocks its foe back no further than `keep_reach` of the weapon's reach (at least `min_knock`), so the next step
+#   reaches it; a chain's last blow and a technique on its own keep their whole knockback.
+FLOW = {"in_order": True, "more_taps": 2, "hitstop_cap_f": 10, "dodge_hold_s": 0.6, "move_cancel": True, "plant": 0.0,
+        "pull": {"stand": 0.5, "near": 0.4, "extra": 24, "gap": 16, "time_s": 0.1}, "keep_reach": 0.75, "min_knock": 8}
+
 FOES = {"roles": {"normal": "light", "elite": "medium", "boss": "heavy"}, "big_hit_share": 0.15, "big_hit": "heavy",
         "tell": "tell", "swipe": "swipe"}
 
@@ -149,6 +175,7 @@ def payload() -> dict:
         "melody_loop": MELODY_LOOP,
         "technique_recovery_after": 0.3,
         "weave": WEAVE,
+        "flow": FLOW,
         "foes": FOES,
         "missing_poses": MISSING_POSES,
     }

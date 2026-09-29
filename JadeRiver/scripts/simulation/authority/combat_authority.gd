@@ -16,7 +16,7 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
-		"plunge", "glide", "toggle_sword_release", "self_detonate", "channel_melody"]
+		"plunge", "glide", "toggle_sword_release", "self_detonate", "channel_melody", "move_cancel"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
@@ -134,6 +134,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"guard_start": return guard(c, true)
 		"guard_end": return guard(c, false)
 		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)), bool(intent.get("moves", true)))
+		"move_cancel": return move_cancel(c)
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
 		"start_flight": return start_flight(c)
 		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
@@ -419,11 +420,24 @@ func away(from: Vector2, to: Vector2) -> Vector2:
 	return Vector2(signf(to.x - from.x), 0)
 
 ## Hit-stop (redesign Phase 2): a view that freezes the fight for the blow's hitstop asks here each physics frame; while
-## it runs the frame is spent (true) and the view holds the simulation still.
+## it runs the frame is spent (true) and the view holds the simulation still. Decision 43: a hit-stop of n frames holds n
+## frames (the clock's rounding held one more before).
 func hold_for_hitstop(delta: float) -> bool:
-	if hitstop <= 0.0: return false
+	if hitstop <= HITSTOP_EPS:
+		hitstop = 0.0
+		return false
 	hitstop -= delta
 	return true
+
+const HITSTOP_EPS := 0.001
+
+## Decision 43: a blow's hit-stop, within what its action may still add (CombatFeel.hitstop_cap_s: a many-hit art's
+## blows share one cap, so hit-stop never stalls a chain); each blow's own frames stay its weight's.
+func _add_hitstop(tl: Dictionary, want: float) -> void:
+	var left := CombatFeel.hitstop_cap_s() - float(tl.get("stop_spent", 0.0))
+	var before := hitstop
+	hitstop = maxf(hitstop, minf(want, maxf(0.0, left)))
+	tl.stop_spent = float(tl.get("stop_spent", 0.0)) + (hitstop - before)
 
 ## Redesign Phase 2: the body's facing on the plane, from its controller; between blows it is where a guard faces and
 ## where the next tap aims from.
@@ -546,7 +560,11 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 			tl.finisher_q = {"facing": facing, "aim": aim_in, "aimed": aimed}
 			tl.queued = 0
 			return ok({"queued": true, "finisher": true})
-		if not in_air and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1: tl.queued = mini(int(tl.queued) + 1, combo.size() - 1 - int(tl.combo))
+		if not in_air and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1:
+			tl.queued = mini(int(tl.queued) + 1, combo.size() - 1 - int(tl.combo))
+			# Decision 43: the queued step aims again as it starts, from the stick of the latest press (_aim_queued).
+			tl.queue_aim = aim_in
+			tl.queue_aimed = aimed
 		return ok({"queued": true})
 	# S43 air attack: one hit, no combo, +10% damage.
 	var index := 0 if in_air else (int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0)
@@ -554,6 +572,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	tl.finisher_q = {}
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing, aim_in, aimed)
 	if aim.has("aim"): tl.aim = aim.aim
+	tl.target_at = aim.get("at", null)   # decision 43: where the foe it picked stands (the step's pull toward it)
 	_start_step(c, fam, index, int(aim.facing), finisher)
 	if palms:
 		tl.step = (tl.step as Dictionary).duplicate()
@@ -565,7 +584,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	else:
 		tl.air_attack = false
 	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0)),
-		"finisher": finisher})
+		"finisher": finisher, "at": aim.get("at", null)})
 
 func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false) -> void:
 	var tl := timeline(c.id)
@@ -585,6 +604,8 @@ func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false)
 	tl.targets_hit = []
 	tl.chain = -1
 	tl.charged = finisher   # decision 38: a dragged finisher weighs as the charged blow (CombatFeel)
+	tl.starts = int(tl.get("starts", 0)) + 1   # decision 43: the player's view follows each new step once (its turn, its pull)
+	tl.stop_spent = 0.0
 	if game.character(c.id).cultivator.meditating: game.progression.stop_meditation(c, "attack")
 	var ev := {"actor": c.id, "action": tl.action, "technique": "", "windup": tl.hit_at, "duration": tl.duration, "facing": facing, "combo": index}
 	if finisher: ev.finisher = true
@@ -687,6 +708,8 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	tl.facing = int(aim.facing)
 	tl.targets_hit = []
 	tl.step = {}
+	tl.starts = int(tl.get("starts", 0)) + 1
+	tl.stop_spent = 0.0
 	if t.has("dash"):
 		tl.forced = aim_of(tl, tl.facing) * float(t.dash) / 0.2 if grid() != null else Vector2(tl.facing * float(t.dash) / 0.2, 0)
 		tl.forced_t = 0.2
@@ -799,6 +822,26 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	emit("dodged", {"actor": c.id, "direction": dir})
 	return ok()
 
+## Decision 43: the stick pushed out of a blow (the player's view asks when it is pushed past its tiptoe band and no
+## press waits): past the blow's cancel point (the dodge's, CombatFeel.dodge_cancel), in its recovery, with no step queued
+## after it, the blow ends there and the body moves off; sooner the blow goes on.
+func move_cancel(c) -> Dictionary:
+	if grid() == null or not bool(CombatFeel.flow().get("move_cancel", true)): return fail("off")
+	var tl := timeline(c.id)
+	if CombatFeel.phase_of(tl, c) != "recovery" or CombatFeel.dodge_cancel(tl, c) != "cancel": return fail("committed")
+	if CombatFeel.waits_ahead(tl): return fail("queued")
+	_cancel_blow(c)
+	return ok()
+
+## Decision 43: a queued step aims again as it starts, at the foe the stick of its press picks (the soft lock round it,
+## as a tap aims), so a chain turns with the stick; the player's view turns the body and pulls it in (tl.starts).
+func _aim_queued(c, fam: Dictionary, tl: Dictionary) -> Dictionary:
+	if grid() == null: return {"facing": int(tl.facing)}
+	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), int(tl.facing), tl.get("queue_aim", Vector2.ZERO), bool(tl.get("queue_aimed", false)))
+	if aim.has("aim"): tl.aim = aim.aim
+	tl.target_at = aim.get("at", null)
+	return aim
+
 ## Decision 38: a dodge out of a blow. In its anticipation the blow is dropped (a combo step does not count, so the next
 ## press repeats it); in its late recovery the blow ends there. A combo keeps its window for the next step.
 func _cancel_blow(c) -> void:
@@ -834,7 +877,7 @@ func _dodge_cooldown(c) -> float:
 # ------------------------------------------------------------------ tick
 func tick(delta: float) -> void:
 	if hitstop > 0.0:
-		hitstop -= delta
+		hitstop = maxf(0.0, hitstop - delta)
 	var c = game.active()
 	if c != null:
 		_tick_player(c, delta)
@@ -894,7 +937,7 @@ func _tick_player(c, delta: float) -> void:
 			basic_attack(c, int(fq.facing), fq.aim, bool(fq.aimed), true)
 		elif int(tl.queued) > 0 and tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1:
 			tl.queued = int(tl.queued) - 1
-			_start_step(c, fam, int(tl.combo) + 1, int(tl.facing))
+			_start_step(c, fam, int(tl.combo) + 1, int(_aim_queued(c, fam, tl).facing))
 		else:
 			tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5)) if tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1 else 0.0
 			# Decision 42: a technique woven into a chain hands it on: the next basic attack is the step after the one it cut.
@@ -1269,6 +1312,12 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	# S48 Mercy (a vow): a foe that has turned to flee is never struck down; it gets away with its life.
 	if e.ai.get("fled", false) and amount >= e.pools.hp and game.progression.vow_forbids(c, "fleeing_kill") != "":
 		amount = maxf(0.0, e.pools.hp - 1.0)
+	# Decision 43: a blow the chain goes on from knocks its foe back no further than the chain's next step reaches.
+	if grid() != null and float(attack.get("knockback", 0.0)) > 0.0 and CombatFeel.chain_follows(timeline(c.id)):
+		var keep := CombatFeel.follow_knock(float(StatRules.family(c).get("reach", 46)), Vector2(float(pv.x), float(pv.y)).distance_to(e.plane))
+		if keep < float(attack.knockback):
+			attack = attack.duplicate()
+			attack.knockback = keep
 	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing, away(Vector2(float(pv.x), float(pv.y)), e.plane) if grid() != null else Vector2.ZERO)
 	_lifesteal(c, amount, attack)
 	_feed_intent(c, e, attack)
@@ -1281,8 +1330,9 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 				_apply_status_to_enemy(e, applied)
 	if e.alive: _oil_strike(c, e, ev)
 	if e.alive: _weapon_after_hit(c, e, attack)
-	# Decision 38: the hit-stop by the blow's weight (CombatFeel: a light step 3 frames up to a finisher's 8, a crit 2 more).
-	hitstop = maxf(hitstop, CombatFeel.hitstop_s(CombatFeel.weight_of(attack, timeline(c.id)), r.crit))
+	# Decision 38: the hit-stop by the blow's weight (CombatFeel: a light step 3 frames up to a finisher's 8, a crit 2 more),
+	# within the action's cap (decision 43).
+	_add_hitstop(timeline(c.id), CombatFeel.hitstop_s(CombatFeel.weight_of(attack, timeline(c.id)), r.crit))
 
 ## S47 v1.1 families: the heavy sabre breaks armour (sundered: hits ignore part of its defence); the fan's wind lifts a
 ## foe into the air, helpless until it lands (not a boss, a flyer or anything that cannot be moved).

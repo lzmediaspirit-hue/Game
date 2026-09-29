@@ -1,5 +1,43 @@
 # Changelog
 
+## Round technique buttons, smoother combat, jumps you can steer (decision 43)
+
+The user asked: "The skills in the HUD should be a little bigger and circular", "Combat should feel more smooth", and
+"because the player moves fast (that's ok), when I try to jump from a box to a roof I jump over the box; it's a bit hard
+to control the jumping." `docs/ui_style_guide.md` §9 and `docs/redesign_top_down_plan.md` ("As built: smoother combat
+and jumps you can steer") hold the details and the numbers.
+
+- **Round technique buttons, 1.21x.** Each technique on the HUD is a round button 68 px across (from a 56 px square):
+  an ink rim, the bright jade ring (slate when the weapon in hand cannot use the art) and the art's picture cut to the
+  circle. The picture is still the card's miniature: the whole figure at x1 stands inside the circle and the rank badge
+  sits inside it at the upper right. The four stand in the thumb's arc round Attack, clear of each other, of the 64 px
+  Jump, of ring 2 and of the context's Talk button and its label; their touch targets are 80 px. Cooling, a radial
+  sweep runs round from the top (an ink pie over the picture, the ring dim over the part still to wait, a pale gold
+  hand, the seconds); ready again, the ring flares and a ring of light goes out from it (the flare alone under Reduce
+  motion). Short of Qi, a Qi arc along the foot. The techniques and Attack stay out at rest. Shots before and after at
+  1280 x 720 and at a 20:9 phone's 2400 x 1080: `docs/redesign/feedback/hud/*_round_*.png`.
+- **Smoother combat,** found in frame-by-frame traces of real chains (`tools/dev/combat_trace.tscn`) and fixed in data
+  (`combat_feel.json` `flow`):
+  - the presses go in their order: Attack, Attack, technique no longer drops the second Attack (the technique cut in
+    ahead of it); taps made while a technique waits are kept behind it;
+  - a queued step aims again as it begins, at the foe the stick has turned to (it struck 111° off), turns the body and
+    lunges toward it; every step pulls toward its foe, a far one within reach, a near one never overrun;
+  - a technique woven into a chain knocks its foe back only as far as the next step reaches (a Mole Cuts knocked a foe
+    to 96 units, past the fists' 46, and the next two blows missed: now 4 of 4 land); a chain's last blow and a lone
+    technique keep their whole knockback;
+  - a hit-stop holds exactly its frames (each held one more), and one action adds at most 10 in all;
+  - a dodge pressed while a heavy blow is committed goes at the blow's cancel point (the heavy sabre's was dropped);
+    the stick pushed out of a recovery cuts it at the same point when no press waits, so a sprint leaves a chain 10-12
+    frames sooner; the feet stay planted through a blow's wind-up and strike (the stick slid the body 8.6 units through
+    a swing); the stick's turns pass through the rows between, one a frame.
+- **Jumps you can steer.** The stick steers in the air and brakes hard pulled back; let go, the body slows. A landing
+  assist brings a jump that would carry a few pixels past a box or a roof it came onto down on it, and the top's edge
+  holds the body a moment after it lands on something it jumped onto, so a thumb still pushing does not run it off. On
+  the village's crates by the hall and the Jade Sect's by the Weapon Hall, a sprint and Jump 2 to 38 units short of the
+  crates now lands and rests on them 10 times of 10 (0 of 10 before); from the crates onto the roof and off the hall's
+  roof over the gap to the inn's, every jump still lands. The sprint was already not carried into the air (a take-off
+  keeps the walk's 154); coyote time and the jump buffer are as they were.
+
 ## The people drawn 1.2 times bigger (decision 43)
 
 The user: "I think the player should look a little bigger." The player and the villagers go from about 38 art px to

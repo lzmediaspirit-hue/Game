@@ -9,7 +9,8 @@ extends RefCounted
 ## (weapon_families.json): anticipation up to one smear frame before the hit, the active window of the smear's bright
 ## frames, and the recovery; a dodge cancels the anticipation or the late recovery, never the active window. Decision 42
 ## weaves them: a technique cuts a basic step's recovery and a basic attack a technique's, once the blow has landed
-## (`weave`).
+## (`weave`). Decision 43 smooths the chain (`flow`): the presses go in their order, one action's hit-stop has a cap,
+## each step pulls toward its foe, and a blow the chain goes on from leaves its foe in the next step's reach.
 ## Settings: under Reduce motion there is no hit-stop; the kick and shake follow Screen shake and Reduce motion
 ## (MomentRules.shake_amp).
 
@@ -146,8 +147,48 @@ static func weave(tl: Dictionary, kind: String, c = null) -> String:
 	var basic_now := str(tl.get("technique", "")) == ""
 	if kind == "basic" and basic_now: return "chain"
 	if kind == "technique" and not basic_now: return "wait"
+	# Decision 43: a technique goes after a basic step already queued (the presses in their order).
+	if kind == "technique" and waits_ahead(tl): return "wait"
 	if phase != "recovery" or not bool(tl.get("hit_done", false)): return "wait"
 	return "cancel" if float(tl.t) >= weave_from(tl, kind, c) - 0.0001 else "wait"
+
+## Decision 43 · the chain's flow (combat_feel.json `flow`).
+static func flow() -> Dictionary:
+	return cfg().get("flow", {})
+
+## A basic step (or a dragged finisher) waits queued behind the blow under way: a press after it goes after it.
+static func waits_ahead(tl: Dictionary) -> bool:
+	return bool(flow().get("in_order", true)) and str(tl.get("technique", "")) == "" \
+		and (int(tl.get("queued", 0)) > 0 or not (tl.get("finisher_q", {}) as Dictionary).is_empty())
+
+## The most hit-stop one action adds in all, seconds.
+static func hitstop_cap_s() -> float:
+	return float(flow().get("hitstop_cap_f", 10)) * float(cfg().get("frame_s", 1.0 / 60.0))
+
+## A lunge toward a foe `d` units off (the step's own lunge `own`, the weapon's `reach`): the step's own lunge, or
+## further to come within `stand` of the reach of a foe farther off (by `extra` at most), never closer to it than `near`
+## of the reach (and `gap`, the two bodies); no foe (d < 0): the step's own lunge.
+static func pull(own: float, reach: float, d: float) -> float:
+	if d < 0.0: return own
+	var p: Dictionary = flow().get("pull", {})
+	var most := own + float(p.get("extra", 24))
+	var want := clampf(d - reach * float(p.get("stand", 0.5)), own, most)
+	var closest := maxf(float(p.get("gap", 16)), reach * float(p.get("near", 0.4)))
+	return clampf(minf(want, d - closest), 0.0, most)
+
+## Does the chain go on from the blow under way: a basic step before the combo's last (not a dragged finisher), or a
+## technique woven into a chain whose next step is not past the last.
+static func chain_follows(tl: Dictionary) -> bool:
+	if str(tl.get("action", "")) == "": return false
+	var size: int = (ContentDB.entry("weapon_families", str(tl.get("family", "fists"))).get("combo", []) as Array).size()
+	if str(tl.get("technique", "")) != "": return int(tl.get("chain", -1)) >= 0 and int(tl.chain) < size - 1
+	return not bool(tl.get("charged", false)) and int(tl.get("combo", -1)) >= 0 and int(tl.combo) < size - 1
+
+## The knockback a blow the chain goes on from may give a foe `d` units off: the rest of `keep_reach` of the weapon's
+## `reach`, at least `min_knock`.
+static func follow_knock(reach: float, d: float) -> float:
+	var f := flow()
+	return maxf(float(f.get("min_knock", 8)), reach * float(f.get("keep_reach", 0.75)) - d)
 
 ## The top-down pose of a technique's form (combat_feel.json `forms`): an action of the character's catalogue, a
 ## `combo_N` being the wielded family's step N.

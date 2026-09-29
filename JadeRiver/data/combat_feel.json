@@ -396,6 +396,23 @@
   "buffer_s": 0.4,
   "chain_through": true
  },
+ "flow": {
+  "in_order": true,
+  "more_taps": 2,
+  "hitstop_cap_f": 10,
+  "dodge_hold_s": 0.6,
+  "move_cancel": true,
+  "plant": 0.0,
+  "pull": {
+   "stand": 0.5,
+   "near": 0.4,
+   "extra": 24,
+   "gap": 16,
+   "time_s": 0.1
+  },
+  "keep_reach": 0.75,
+  "min_knock": 8
+ },
  "foes": {
   "roles": {
    "normal": "light",
