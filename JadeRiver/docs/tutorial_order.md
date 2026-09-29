@@ -4,7 +4,7 @@ Checked from a brand-new character, step by step, by `tests/tutorial_order.gd` (
 Uncle Guo before Granny Liu) and `tests/prologue_run.gd` (Granny first). `tests/topdown_tutorial.gd` plays the same
 walk, to the same invariants, as a character of the top-down world: every room of it on the height grid, from the
 Fisher's Hut through the Fairground, the Entry Trial, the sect's grounds and the Marsh Edge, then on to The Humming
-Token (step 14), and then the sect stretch again from the fair as a Cloud Sect disciple on the Cloud Sect's grounds
+Token, Mei Qing's Errand and Grey at the Edges (steps 14-16), and then the sect stretch again from the fair as a Cloud Sect disciple on the Cloud Sect's grounds
 (`docs/redesign_top_down_plan.md`, "As built: Phase 4", both parts). Every quest is taken and handed in on the
 real dialogue page. `tests/valley_run.gd` holds every main quest of Acts I–III to the same story guidance (the last
 column and "What the walk holds to" below).
@@ -35,12 +35,26 @@ direction mark on the minimap and the tracker's go button lead to it.
 | 11 | Fish-Gutting Fists | Stoneford Fairground (Shen Lian) | the title River Rival | beat Shen Lian in a spar, a lesson: he spars at the player's Level, his fist's wind-up long enough to read, and says what to watch for; he is the one who fights (one Shen Lian on the screen). It fills Bone Forging 2, so Bone Forging 3 follows by itself | Next: The Weapon Hall (the weapon master, Weapon Hall) |
 | 11b | A Disciple's Chores (side) | Gate Street or Cliff Stair (the sect steward) | sect hub and dorm | two spots to sweep and a grey stain by the gate: under it the grey goes into the earth, and a cache of two spirit stone shards | (as before it) |
 | 12 | The Weapon Hall (Bone Forging 3) | the sect's Weapon Hall (weapon master) | Guard button, Equipment page; weapon Dao (the weapon slot has been open since the start); **the second technique** | at Bone Forging 3 the tracker's Next is The Weapon Hall (the weapon master, Weapon Hall), not a hunt; a training weapon from the rack (the jian, the spear and the staff: each sect's own and the spear, never a second of Guo's gauntlets), five on the dummies, raise the guard; done, the master teaches the first art of the family in hand (the jian's Cloudpiercing Stroke, the spear's Jade Thrust, fists' and gauntlets' Tiger Rush, and so on) | Strange Tracks: ➤ Marsh Edge |
-| 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the Reed Marsh's Marsh Edge (the marsh path opens at Bone Forging 2), then the mentor | | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; hand in to the mentor | Next: The Humming Token · Talk to Elder Hu |
-| 14 | The Humming Token (topdown_tutorial) | the mentor's peak, then the Marsh Edge | | five Hollowed Boarlets where the grey patches were; hand in to the mentor | Next: Mei Qing's Errand · Talk to Mei Qing (Artisan Row) |
+| 13 | Strange Tracks (auto, the mentor's note, the moment the Weapon Hall is done) | the sect's gate, where the steward shows its transfer array, to the Marsh Edge's watch post (decision 42) | Transfer arrays: the gate's and the watch post's keyed to the token | chapter 2 (its floor Bone Forging 2): three grey patches, a Reed Frog on the way; done at the third, where the River Token hums | The Humming Token: ➤ Marsh Edge (here) |
+| 14 | The Humming Token (auto, at the third patch) | the Marsh Edge | | five Hollowed Boarlets where the grey patches were; the mentor comes down to the marsh for the hand-in | Next: Mei Qing's Errand · Talk to Mei Qing (Marsh Edge) |
+| 15 | Mei Qing's Errand (topdown_tutorial) | the Marsh Edge's watch post (Mei Qing, tending the watchers) | | willow moss from the reed frogs, grey hides from the boarlets, handed in at the post | Grey at the Edges: ➤ the mentor's peak |
+| 16 | Grey at the Edges (auto, topdown_tutorial) | the watch post's array to the gate, then the first walk up through the sect's grounds to the mentor | the mentor's peak array keyed to the token | something on the way in each room: a spar offered, two elders overheard, the gardener's tea to carry up (Tea for the Elder, side) | Next: The First Current · Reach Level 7 (Bone Forging 7) |
 
 The sect's rooms are its own: the Jade Sect's trial ground, Gate Street, Weapon Hall and Elder Hu's peak, or the Cloud
 Sect's trial ground, Cliff Stair, Weapon Hall and Elder Sung's far peak. A sect role's quest (the chores, the Weapon
 Hall) leads each disciple to its own sect's grounds.
+
+**Less walking in the sect stretch** (decision 42, `docs/redesign/feedback/sect_walking.md`):
+
+- **The sect's transfer arrays.** There is one on the gate's plaza, one on the mentor's peak, and one at the Marsh
+  Edge's watch post, which both sects keep. They open with the Weapon Hall. The steward shows the gate's; the mentor
+  keys his peak's when he first receives you. The tracker's route, its go button and auto-path take one once the token
+  knows both ends.
+- **The marsh's errands are one visit.** Strange Tracks is done at the third patch, The Humming Token begins there, the
+  mentor comes down to the marsh for it, and Mei Qing's Errand is taken and handed in at the watch post.
+- **The Outer Trial is handed in** to the training hall's master in the yard.
+- **The rule.** No step asks for a plain walk over 35 s with nothing on the way, nor a walk out and straight back
+  (`tools/data/sect_walks.py --check`).
 
 **The story is staged** (decision 39, `docs/redesign/story_staging.md`). In the top-down world each step plays as a
 scene in its room, 10–40 s long and skippable. People walk, talk to each other, emote and speak in balloons; the camera
@@ -55,6 +69,9 @@ moves; and a hand-off gives the player the controls to do what the step teaches,
 | 4 | `east_gate` (Guo opens the gate), `crabs_mei` (the crabs have Washer Mei on the flats) | Drive off a crab |
 | 6–7 | `hollow_rises` (the storm), `river_token` (Lu), `first_breakthrough` (the palm, and why you leave) | Meditate; talk to Lu |
 | 8–9 | `market_thief`, `fair_arrival`, `sect_chosen` (the welcome on the portrait strip) | — |
+| 13 | `array_lesson_*` (the steward shows the gate's transfer array), `grey_rises` (the token hums at the third patch) | Step onto the array: tap Travel |
+| 14 | `mentor_descends_*` (the mentor comes down to the marsh in a column of light) | Talk to the mentor |
+| 16 | on the way up: `yard_spar_jade` / `court_spar_cloud`, `terrace_talk_jade` / `array_court_talk_cloud`, `gardener_favour_*`; at the top `mentor_peak_*` (his peak's array keyed) | Spar at the post, or walk on; talk to the gardener |
 
 The quests, their steps and the doors are unchanged. A scene only asks: the Quest authority keeps its checkpoints and
 whether it has been seen. `tests/topdown_tutorial.gd` plays every one of these scenes to its end as the walk reaches

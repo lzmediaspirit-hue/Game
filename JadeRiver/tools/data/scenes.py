@@ -24,7 +24,7 @@ step's `effects` once. Cells are the layouts' cells (fractions allowed). SceneRu
 the rooms, the people, the tile set, the event contract and the sounds; the suites hold every scene to none.
 Every name, place and line here is Jade River's own.
 """
-from common import entries, all_of, qactive, qdone, flag, noflag
+from common import entries, all_of, qactive, qdone, flag, noflag, sect
 
 SETTINGS = {
     "walk": 110.0, "run": 210.0,                   # an actor's pace, world units a second
@@ -514,6 +514,157 @@ def stoneford():
                "shen": {"object": "npc_shen_lian"}}, trigger=on("sect_joined"))
 
 
+# -------------------------------------------------------------------- the sect stretch (decision 42: less walking)
+SECTS = {"jade_sect": {"tag": "jade", "gate": "ja_gate_street", "steward": "npc_jade_steward", "array": "array_ja_gate",
+                       "peak": "ja_elder_hu_peak", "mentor": "npc_elder_hu", "peak_array": "array_ja_peak", "elder": "Elder Hu",
+                       "down": "npc_elder_hu_marsh", "glow": "BRIGHT_JADE", "stand": (6, 19), "look": (8, 20)},
+         "cloud_sect": {"tag": "cloud", "gate": "cm_cliff_stair", "steward": "npc_cloud_steward", "array": "array_cm_gate",
+                        "peak": "cm_elder_sung_peak", "mentor": "npc_elder_sung", "peak_array": "array_cm_peak", "elder": "Elder Sung",
+                        "down": "npc_elder_sung_marsh", "glow": "MIST", "stand": (7, 23), "look": (9, 24)}}
+
+
+def sect_stretch():
+    for sid, s in SECTS.items():
+        mine = {"kind": "training_sect", "sect": sid}
+        # The sect's transfer array, taught at the gate as Strange Tracks begins: the steward stops you on your way out
+        # and shows you the ring (the watch post at the marsh keeps its twin). A breath, not half a day's walk.
+        scene("array_lesson_" + s["tag"], "The Transfer Array", s["gate"], [
+            letterbox(True),
+            emote("steward", "!", 0.8),
+            face("steward", "player"),
+            say("steward", "%s's note? Then you're for the marsh. That's half a day on foot." % s["elder"]),
+            move("steward", s["stand"]),
+            camera("object:" + s["array"], 1.2),
+            fx("ring", "object:" + s["array"], color=s["glow"], radius=44, dur=0.9),
+            sound("portal"),
+            face("steward", s["look"]),
+            pose("steward", "point", 2.2),
+            say("steward", "The sect's transfer array. The watch post at the marsh keeps its twin."),
+            say("steward", "Stand in the ring and hold up your token. It answers disciples on the sect's errands."),
+            camera("player", 1.0),
+            handoff("Step onto the array: tap Travel", "object:" + s["array"], until("object_interacted", object=s["array"]), then="live"),
+        ], actors={"steward": {"object": s["steward"]}}, requires=all_of(mine, qactive("strange_tracks")))
+
+        # The Humming Token's five boarlets down, the mentor comes to the marsh on the light of his peak's array: the
+        # hand-in is taken where the fight was, and he sends you to Mei Qing at the watch post, a few steps away.
+        scene("mentor_descends_" + s["tag"], "%s Comes Down" % s["elder"], "rm_marsh_edge", [
+            camera("elder", 0.8),
+            fx("pillar", "elder", color=s["glow"], radius=20, height=320, dur=1.1),
+            sound("surge"),
+            shake(0.2),
+            fx("wave", "elder", color=s["glow"], size=8, radius=56, dur=0.6),
+            emote("elder", "...", 1.0, wait=True),
+            face("elder", "player"),
+            say("elder", "I felt the token hum from my peak. So the grey came up to meet you."),
+            pose("elder", "point", 2.0),
+            say("elder", "Five of them, and you still standing. Come, tell me, while it's fresh."),
+            camera("player", 0.8),
+            handoff("Talk to %s" % s["elder"], "elder", until("quest_completed", quest="the_humming_token")),
+            fx("pillar", "elder", color=s["glow"], radius=16, height=320, dur=0.8),
+            sound("portal"),
+        ], actors={"elder": {"object": s["down"]}}, live=True,
+            requires=all_of(mine, {"kind": "quest_ready", "quest": "the_humming_token"}),
+            trigger=on("quest_ready", quest="the_humming_token"))
+
+        # Grey at the Edges, the first time up the mentor's peak: what the grey means, and his peak's array keyed to the
+        # token (the next trip up is a breath).
+        scene("mentor_peak_" + s["tag"], "%s's Peak" % s["elder"], s["peak"], [
+            letterbox(True),
+            face("elder", "player"),
+            say("elder", "Mei Qing's salve draws the grey out of a wound. Then it can be fought, and it will have to be."),
+            say("elder", "It is coming down the river from somewhere. Keep Lu's token on you: it hums when the grey is near."),
+            camera("object:" + s["peak_array"], 1.2),
+            fx("ring", "object:" + s["peak_array"], color=s["glow"], radius=44, dur=0.9),
+            sound("portal"),
+            say("elder", "My peak's array knows your token now. The sect is yours to cross in a breath."),
+            camera("player", 1.0),
+        ], actors={"elder": {"object": s["mentor"]}}, trigger=on("quest_completed", quest="grey_at_the_edges"),
+            requires=all_of(mine))
+
+    # At the third grey patch the River Token hums: grey shapes rise where the patches were, and The Humming Token is
+    # under way on the spot (no walk up the peak and back down).
+    scene("grey_rises", "The Token Hums", "rm_marsh_edge", [
+        fx("ring", "player", color="BRIGHT_JADE", radius=30, dur=0.7),
+        sound("rare_chime"),
+        emote("player", "!", 0.9),
+        say("player", "(The River Token hums against your chest, the way it did on Lu's boat.)"),
+        camera((33, 17), 1.4),
+        fx("converge", (19, 16), color="MIST", radius=60, count=16, dur=1.0),
+        fx("converge", (33, 17), color="MIST", radius=60, count=16, dur=1.0),
+        fx("converge", (44, 16), color="MIST", radius=60, count=16, dur=1.0),
+        sound("hiss"),
+        wait(1.0),
+        camera("player", 1.0),
+        say("player", "(Grey shapes shoulder up out of the reeds where the patches were.)"),
+    ], live=True, trigger=on("quest_completed", quest="strange_tracks"))
+
+    # Something on the way, the first walk up through the sect's grounds (Grey at the Edges): a spar offered in the
+    # training yard, two elders overheard on the terrace, a gardener's favour.
+    up = qactive("grey_at_the_edges")
+    scene("yard_spar_jade", "A Round at the Post", "ja_pavilion_rooftops", [
+        emote("master", "!", 0.8),
+        face("master", "player"),
+        say("master", "The disciple back from the marsh! One round at the post before you climb?"),
+        pose("master", "point", 2.0),
+        say("master", "Mind the wind-up. Every disciple on the posts telegraphs the big swing."),
+        say("master", "Win and the yard will know your name. Lose and you sweep it."),
+        handoff("Spar at the post, or walk on", "object:spar_jp", until("object_interacted", object="spar_jp"), s=8.0, then="live"),
+    ], actors={"master": {"object": "npc_jade_hall_master"}}, live=True, requires=all_of(sect("jade_sect"), up))
+    scene("terrace_talk_jade", "Overheard on the Terrace", "ja_east_terrace", [
+        move("physician", (26, 15)),
+        face("physician", "elder"),
+        face("elder", "physician"),
+        say("physician", "Three watchers came back from the marsh grey to the elbow."),
+        say("elder", "Mei Qing's salve drew it out. But grey doesn't blow in from nowhere."),
+        emote("physician", "?", 1.0),
+        say("physician", "The old maps mark a shrine under the river at Deepwater Bend..."),
+        say("elder", "Drowned before either sect was founded. Hush. The new one's listening."),
+        emote("elder", "!", 0.8),
+        face("elder", "player"),
+    ], actors={"elder": {"object": "npc_jade_formation_elder"}, "physician": {"object": "npc_jade_physician"}}, live=True,
+        requires=all_of(sect("jade_sect"), up))
+    scene("gardener_favour_jade", "A Pot of Tea", "ja_herb_terraces", [
+        emote("gardener", "!", 0.8, wait=True),
+        move("gardener", (12, 24)),
+        face("gardener", "player"),
+        say("gardener", "Going up to the elder? Wait, wait!"),
+        pose("gardener", "point", 2.0),
+        say("gardener", "Take him my lotus root tea. He forgets to drink when he's thinking, and he's always thinking."),
+        handoff("Talk to Gardener Ji", "gardener", until("quest_accepted", quest="tea_for_the_elder"), s=8.0, then="live"),
+    ], actors={"gardener": {"object": "npc_jade_gardener"}}, live=True, requires=all_of(sect("jade_sect"), up))
+    scene("court_spar_cloud", "A Round at the Post", "cm_sword_court", [
+        emote("master", "!", 0.8),
+        face("master", "player"),
+        say("master", "Back from the marsh already? Then a round at the post before you climb."),
+        pose("master", "point", 2.0),
+        say("master", "Or try the plum-blossom poles. Fall off and you sweep the court."),
+        say("master", "Mind the wind-up. Every disciple on the posts telegraphs the big swing."),
+        handoff("Spar at the post, or walk on", "object:spar_cm", until("object_interacted", object="spar_cm"), s=8.0, then="live"),
+    ], actors={"master": {"object": "npc_cloud_hall_master"}}, live=True, requires=all_of(sect("cloud_sect"), up))
+    scene("gardener_favour_cloud", "A Pot of Tea", "cm_array_court", [
+        emote("gardener", "!", 0.8, wait=True),
+        move("gardener", (10, 18)),
+        face("gardener", "player"),
+        say("gardener", "Going up to the elder? Wait, wait!"),
+        pose("gardener", "point", 2.0),
+        say("gardener", "Take him my lotus root tea. He forgets to drink when he's thinking, and he's always thinking."),
+        handoff("Talk to Gardener Ren", "gardener", until("quest_accepted", quest="tea_for_the_elder"), s=8.0, then="live"),
+    ], actors={"gardener": {"object": "npc_cloud_gardener"}}, live=True, requires=all_of(sect("cloud_sect"), up))
+    scene("array_court_talk_cloud", "Overheard in the Array Court", "cm_array_court", [
+        move("physician", (31, 16)),
+        face("physician", "elder"),
+        face("elder", "physician"),
+        say("physician", "Two watchers back from the marsh, grey to the elbow."),
+        say("elder", "Mei Qing's salve drew it out. But grey doesn't rise out of reeds by itself."),
+        emote("physician", "?", 1.0),
+        say("physician", "The old maps mark a shrine under the river at Deepwater Bend..."),
+        say("elder", "Drowned before either sect was founded. Hush. The new one's listening."),
+        emote("elder", "!", 0.8),
+        face("elder", "player"),
+    ], actors={"elder": {"object": "npc_cloud_formation_elder"}, "physician": {"object": "npc_cloud_physician"}}, live=True,
+        requires=all_of(sect("cloud_sect"), up))
+
+
 def build():
     del S[:]
     opening()
@@ -521,6 +672,7 @@ def build():
     crabs()
     night()
     stoneford()
+    sect_stretch()
     entries("scenes", S, settings=SETTINGS)
 
 

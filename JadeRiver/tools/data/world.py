@@ -718,7 +718,9 @@ def stoneford():
     r.npc("old_scribe_bai", [1700, 880], facing=-1)   # S47: the talisman craft (Qi Kindling 6)
     r.npc("elder_gu", [1120, 760], facing=1, hidden_if=all_of(flag("gu_fled")))
     r.npc("madam_hua", [1120, 760], oid="npc_madam_hua", visible_if=all_of(flag("gu_fled")), facing=1)
-    r.npc("mei_qing", [1960, 760], facing=-1)
+    # Decision 42: from the Weapon Hall's end until her errand is done, Mei Qing is at the Marsh Edge's watch post with the
+    # watchers the grey has touched (sects(), MARSH_WINDOW), not here.
+    r.npc("mei_qing", [1960, 760], facing=-1, visible_if=any_of({"kind": "quest_not_done", "quest": "the_weapon_hall"}, qdone("mei_qings_errand")))
     r.npc("apprentice_tao", [1500, 900], facing=-1)
     r.npc("array_master_ren", [1380, 800], facing=1, visible_if=all_of(realm("heart_tempering_5")))   # S49 the Formation Guild
     # S44: the Alchemist Guild's corner of the Row: Guildmaster Tang, his stall and the commission board.
@@ -865,6 +867,24 @@ def willow_path():
     r.edge("west", "west", "sf_gate", "east", y=850)
 
 
+# Decision 42 (less walking in the sect stretch). Each sect keeps a transfer array at its gate's plaza (by the steward and
+# the teleport stone, where the everyday services cluster) and on its mentor's peak, and both sects keep one at the Marsh
+# Edge's watch post. A disciple's token opens them once the Weapon Hall is done (the unlock `transfer_array`); a node
+# answers the token once it knows it (WorldAuthority.array_open). The mentor stays on his peak but for the moment he comes
+# down to the marsh for The Humming Token (while it waits to be handed in); Mei Qing tends the watchers at the post from
+# the Weapon Hall's end until her errand is done.
+ARRAY_NAMES = {"jade_sect": "Jade Transfer Array", "cloud_sect": "Cloud Transfer Array", "": "Watch Post Array"}
+ARRAY_PROPS = {"jade_sect": "transfer_array", "cloud_sect": "transfer_array_cloud", "": "transfer_array_watch"}
+MENTOR_HOME = all_of({"kind": "quest_not_ready", "quest": "the_humming_token"})
+MARSH_WINDOW = all_of(qdone("the_weapon_hall"), {"kind": "quest_not_done", "quest": "mei_qings_errand"})
+
+
+def transfer_array(r, oid, at, network):
+    return r.obj(oid, "transfer_array", at, network=network, name=ARRAY_NAMES[network], prop=ARRAY_PROPS[network],
+                 requires=all_of(unlock("transfer_array")),
+                 locked_text="The array's runes are dark. They wake for a disciple the elders send on the sect's errands.")
+
+
 def sects():
     # Jade Sect Academy: the v0.13 street becomes Gate Street and Pavilion Rooftops.
     street = json.load(open(os.path.join(DATA, "world.json")))
@@ -885,6 +905,7 @@ def sects():
             r.d["scenery"].append(o)
     r.obj("shrine_ja", "shrine", [700, 700])
     r.obj("stone_ja", "teleport_stone", [520, 880], stone="jade_academy")
+    transfer_array(r, "array_ja_gate", [820, 900], "jade_sect")
     r.obj("board_ja", "notice_board", [2690, 740])
     r.obj("siege_gong_ja", "rite_circle", [2500, 900], event="siege_of_two_sects", prop="small_bell",
           visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
@@ -962,7 +983,8 @@ def sects():
 
     r = Room("ja_elder_hu_peak", "Elder Hu's Peak", "sect", "jade_sect", 1, backdrop="mist_peak", material="stone", music="meditation",
              sect="jade_sect", qi=1.6, spawn_point=[200, 820], town=True)
-    r.npc("elder_hu", [760, 780], facing=-1)
+    r.npc("elder_hu", [760, 780], facing=-1, visible_if=MENTOR_HOME)
+    transfer_array(r, "array_ja_peak", [190, 930], "jade_sect")
     r.obj("spring_hu", "qi_spring", [480, 880], spring=True, requires=all_of(unlock("qi_springs")), locked_text="The spring is still to you.")
     r.obj("insight_hu", "insight_stone", [1000, 720], element="wood", requires=all_of(unlock("insight_sites")), locked_text="An old carved stone.")
     r.obj("rite_reflection", "rite_circle", [640, 900], event="trial_of_reflections", requires=all_of(realm("heart_tempering_9")),
@@ -1012,6 +1034,7 @@ def sects():
     r.surface("ledge_top", [1900, 610, 300, 70], 300, kind="rock_ledge")
     r.obj("shrine_cm", "shrine", [1300, 880])
     r.obj("stone_cm", "teleport_stone", [460, 880], stone="cloud_monastery")
+    transfer_array(r, "array_cm_gate", [700, 910], "cloud_sect")
     r.obj("board_cm", "notice_board", [1800, 880])
     r.obj("siege_gong_cm", "rite_circle", [2200, 900], event="siege_of_two_sects", prop="small_bell",
           visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
@@ -1078,7 +1101,8 @@ def sects():
 
     r = Room("cm_elder_sung_peak", "Elder Sung's Peak", "sect", "cloud_sect", 1, backdrop="mist_peak", material="stone", music="meditation",
              sect="cloud_sect", qi=1.6, spawn_point=[200, 820], town=True)
-    r.npc("elder_sung", [760, 780], facing=-1)
+    r.npc("elder_sung", [760, 780], facing=-1, visible_if=MENTOR_HOME)
+    transfer_array(r, "array_cm_peak", [190, 930], "cloud_sect")
     r.obj("spring_sung", "qi_spring", [480, 880], spring=True, requires=all_of(unlock("qi_springs")), locked_text="The spring is still to you.")
     r.obj("insight_sung", "insight_stone", [1000, 720], element="wind", requires=all_of(unlock("insight_sites")), locked_text="An old carved stone.")
     r.obj("rite_reflection_cm", "rite_circle", [640, 900], event="trial_of_reflections", requires=all_of(realm("heart_tempering_9")),
@@ -1214,6 +1238,16 @@ def valley():
     for i, x in enumerate([700, 1300, 2000]):
         r.obj("grey_patch_%d" % i, "inspect", [x, 910], prop="grey_patch", text="The reeds here are grey and brittle, as if the colour was drunk out of them.",
               set_flag="grey_patch_%d" % i, visible_if=all_of(qactive("strange_tracks")))
+    # Decision 42: the watch post both sects keep on the west meadow, its transfer array (answering either sect's token),
+    # its two watchers the grey has touched, Mei Qing tending them (MARSH_WINDOW), and the mentor, come down to the marsh
+    # while The Humming Token waits to be handed in (the scene `mentor_descends_*` brings him).
+    transfer_array(r, "array_marsh", [260, 930], "")
+    r.npc("watcher_bo", [100, 800], facing=1, pose="meditate")
+    r.npc("watcher_su", [330, 800], facing=-1)
+    r.npc("mei_qing", [215, 780], oid="npc_mei_qing_marsh", facing=1, visible_if=MARSH_WINDOW)
+    for mentor, sid, x in (("elder_hu", "jade_sect", 840), ("elder_sung", "cloud_sect", 1480)):
+        r.npc(mentor, [x, 930], oid="npc_%s_marsh" % mentor, facing=-1,
+              visible_if=all_of(sect(sid), {"kind": "quest_ready", "quest": "the_humming_token"}))
     r.edge("west", "west", "lf_reed_shallows", "east", y=820)
     r.edge("east", "east", "rm_grey_pools", "west", y=850)
     r = field("rm_grey_pools", "Grey Pools", "reed_marsh", 2, [7, 12], "marsh", "moss",

@@ -2026,6 +2026,1303 @@
      "actor": "active"
     }
    }
+  },
+  {
+   "id": "array_lesson_jade",
+   "name": "The Transfer Array",
+   "room": "ja_gate_street",
+   "actors": {
+    "steward": {
+     "object": "npc_jade_steward"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "emote",
+     "actor": "steward",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "steward",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "Elder Hu's note? Then you're for the marsh. That's half a day on foot.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "steward",
+     "to": [
+      [
+       6,
+       19
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "camera",
+     "to": "object:array_ja_gate",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "object:array_ja_gate",
+     "color": "BRIGHT_JADE",
+     "radius": 44,
+     "dur": 0.9
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    },
+    {
+     "do": "face",
+     "actor": "steward",
+     "to": [
+      8,
+      20
+     ]
+    },
+    {
+     "do": "pose",
+     "actor": "steward",
+     "pose": "point",
+     "wait": false,
+     "s": 2.2
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "The sect's transfer array. The watch post at the marsh keeps its twin.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "Stand in the ring and hold up your token. It answers disciples on the sect's errands.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Step onto the array: tap Travel",
+     "at": "object:array_ja_gate",
+     "until": [
+      {
+       "event": "object_interacted",
+       "when": {
+        "object": "array_ja_gate",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "strange_tracks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mentor_descends_jade",
+   "name": "Elder Hu Comes Down",
+   "room": "rm_marsh_edge",
+   "actors": {
+    "elder": {
+     "object": "npc_elder_hu_marsh"
+    }
+   },
+   "steps": [
+    {
+     "do": "camera",
+     "to": "elder",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "pillar",
+     "at": "elder",
+     "color": "BRIGHT_JADE",
+     "radius": 20,
+     "height": 320,
+     "dur": 1.1
+    },
+    {
+     "do": "sound",
+     "sfx": "surge"
+    },
+    {
+     "do": "shake",
+     "s": 0.2,
+     "amp": -1.0
+    },
+    {
+     "do": "fx",
+     "fx": "wave",
+     "at": "elder",
+     "color": "BRIGHT_JADE",
+     "size": 8,
+     "radius": 56,
+     "dur": 0.6
+    },
+    {
+     "do": "emote",
+     "actor": "elder",
+     "emote": "...",
+     "wait": true,
+     "s": 1.0
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "I felt the token hum from my peak. So the grey came up to meet you.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "elder",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Five of them, and you still standing. Come, tell me, while it's fresh.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Talk to Elder Hu",
+     "at": "elder",
+     "until": [
+      {
+       "event": "quest_completed",
+       "when": {
+        "quest": "the_humming_token",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    },
+    {
+     "do": "fx",
+     "fx": "pillar",
+     "at": "elder",
+     "color": "BRIGHT_JADE",
+     "radius": 16,
+     "height": 320,
+     "dur": 0.8
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "quest_ready",
+    "when": {
+     "quest": "the_humming_token",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "mentor_peak_jade",
+   "name": "Elder Hu's Peak",
+   "room": "ja_elder_hu_peak",
+   "actors": {
+    "elder": {
+     "object": "npc_elder_hu"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Mei Qing's salve draws the grey out of a wound. Then it can be fought, and it will have to be.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "It is coming down the river from somewhere. Keep Lu's token on you: it hums when the grey is near.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "object:array_ja_peak",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "object:array_ja_peak",
+     "color": "BRIGHT_JADE",
+     "radius": 44,
+     "dur": 0.9
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "My peak's array knows your token now. The sect is yours to cross in a breath.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "quest_completed",
+    "when": {
+     "quest": "grey_at_the_edges",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "array_lesson_cloud",
+   "name": "The Transfer Array",
+   "room": "cm_cliff_stair",
+   "actors": {
+    "steward": {
+     "object": "npc_cloud_steward"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "emote",
+     "actor": "steward",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "steward",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "Elder Sung's note? Then you're for the marsh. That's half a day on foot.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "steward",
+     "to": [
+      [
+       7,
+       23
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "camera",
+     "to": "object:array_cm_gate",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "object:array_cm_gate",
+     "color": "MIST",
+     "radius": 44,
+     "dur": 0.9
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    },
+    {
+     "do": "face",
+     "actor": "steward",
+     "to": [
+      9,
+      24
+     ]
+    },
+    {
+     "do": "pose",
+     "actor": "steward",
+     "pose": "point",
+     "wait": false,
+     "s": 2.2
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "The sect's transfer array. The watch post at the marsh keeps its twin.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "steward",
+     "text": "Stand in the ring and hold up your token. It answers disciples on the sect's errands.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Step onto the array: tap Travel",
+     "at": "object:array_cm_gate",
+     "until": [
+      {
+       "event": "object_interacted",
+       "when": {
+        "object": "array_cm_gate",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live"
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "strange_tracks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mentor_descends_cloud",
+   "name": "Elder Sung Comes Down",
+   "room": "rm_marsh_edge",
+   "actors": {
+    "elder": {
+     "object": "npc_elder_sung_marsh"
+    }
+   },
+   "steps": [
+    {
+     "do": "camera",
+     "to": "elder",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "pillar",
+     "at": "elder",
+     "color": "MIST",
+     "radius": 20,
+     "height": 320,
+     "dur": 1.1
+    },
+    {
+     "do": "sound",
+     "sfx": "surge"
+    },
+    {
+     "do": "shake",
+     "s": 0.2,
+     "amp": -1.0
+    },
+    {
+     "do": "fx",
+     "fx": "wave",
+     "at": "elder",
+     "color": "MIST",
+     "size": 8,
+     "radius": 56,
+     "dur": 0.6
+    },
+    {
+     "do": "emote",
+     "actor": "elder",
+     "emote": "...",
+     "wait": true,
+     "s": 1.0
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "I felt the token hum from my peak. So the grey came up to meet you.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "elder",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Five of them, and you still standing. Come, tell me, while it's fresh.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Talk to Elder Sung",
+     "at": "elder",
+     "until": [
+      {
+       "event": "quest_completed",
+       "when": {
+        "quest": "the_humming_token",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "cut"
+    },
+    {
+     "do": "fx",
+     "fx": "pillar",
+     "at": "elder",
+     "color": "MIST",
+     "radius": 16,
+     "height": 320,
+     "dur": 0.8
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "quest_ready",
+    "when": {
+     "quest": "the_humming_token",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "mentor_peak_cloud",
+   "name": "Elder Sung's Peak",
+   "room": "cm_elder_sung_peak",
+   "actors": {
+    "elder": {
+     "object": "npc_elder_sung"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Mei Qing's salve draws the grey out of a wound. Then it can be fought, and it will have to be.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "It is coming down the river from somewhere. Keep Lu's token on you: it hums when the grey is near.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "object:array_cm_peak",
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "object:array_cm_peak",
+     "color": "MIST",
+     "radius": 44,
+     "dur": 0.9
+    },
+    {
+     "do": "sound",
+     "sfx": "portal"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "My peak's array knows your token now. The sect is yours to cross in a breath.",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "quest_completed",
+    "when": {
+     "quest": "grey_at_the_edges",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "grey_rises",
+   "name": "The Token Hums",
+   "room": "rm_marsh_edge",
+   "actors": {},
+   "steps": [
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "player",
+     "color": "BRIGHT_JADE",
+     "radius": 30,
+     "dur": 0.7
+    },
+    {
+     "do": "sound",
+     "sfx": "rare_chime"
+    },
+    {
+     "do": "emote",
+     "actor": "player",
+     "emote": "!",
+     "wait": false,
+     "s": 0.9
+    },
+    {
+     "do": "say",
+     "actor": "player",
+     "text": "(The River Token hums against your chest, the way it did on Lu's boat.)",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": [
+      33,
+      17
+     ],
+     "s": 1.4,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "converge",
+     "at": [
+      19,
+      16
+     ],
+     "color": "MIST",
+     "radius": 60,
+     "count": 16,
+     "dur": 1.0
+    },
+    {
+     "do": "fx",
+     "fx": "converge",
+     "at": [
+      33,
+      17
+     ],
+     "color": "MIST",
+     "radius": 60,
+     "count": 16,
+     "dur": 1.0
+    },
+    {
+     "do": "fx",
+     "fx": "converge",
+     "at": [
+      44,
+      16
+     ],
+     "color": "MIST",
+     "radius": 60,
+     "count": 16,
+     "dur": 1.0
+    },
+    {
+     "do": "sound",
+     "sfx": "hiss"
+    },
+    {
+     "do": "wait",
+     "s": 1.0
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "player",
+     "text": "(Grey shapes shoulder up out of the reeds where the patches were.)",
+     "box": "balloon"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "trigger": {
+    "event": "quest_completed",
+    "when": {
+     "quest": "strange_tracks",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "yard_spar_jade",
+   "name": "A Round at the Post",
+   "room": "ja_pavilion_rooftops",
+   "actors": {
+    "master": {
+     "object": "npc_jade_hall_master"
+    }
+   },
+   "steps": [
+    {
+     "do": "emote",
+     "actor": "master",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "master",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "The disciple back from the marsh! One round at the post before you climb?",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "master",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "Mind the wind-up. Every disciple on the posts telegraphs the big swing.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "Win and the yard will know your name. Lose and you sweep it.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Spar at the post, or walk on",
+     "at": "object:spar_jp",
+     "until": [
+      {
+       "event": "object_interacted",
+       "when": {
+        "object": "spar_jp",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live",
+     "s": 8.0
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "terrace_talk_jade",
+   "name": "Overheard on the Terrace",
+   "room": "ja_east_terrace",
+   "actors": {
+    "elder": {
+     "object": "npc_jade_formation_elder"
+    },
+    "physician": {
+     "object": "npc_jade_physician"
+    }
+   },
+   "steps": [
+    {
+     "do": "move",
+     "actor": "physician",
+     "to": [
+      [
+       26,
+       15
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "physician",
+     "to": "elder"
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "physician"
+    },
+    {
+     "do": "say",
+     "actor": "physician",
+     "text": "Three watchers came back from the marsh grey to the elbow.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Mei Qing's salve drew it out. But grey doesn't blow in from nowhere.",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "physician",
+     "emote": "?",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "physician",
+     "text": "The old maps mark a shrine under the river at Deepwater Bend...",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Drowned before either sect was founded. Hush. The new one's listening.",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "elder",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "gardener_favour_jade",
+   "name": "A Pot of Tea",
+   "room": "ja_herb_terraces",
+   "actors": {
+    "gardener": {
+     "object": "npc_jade_gardener"
+    }
+   },
+   "steps": [
+    {
+     "do": "emote",
+     "actor": "gardener",
+     "emote": "!",
+     "wait": true,
+     "s": 0.8
+    },
+    {
+     "do": "move",
+     "actor": "gardener",
+     "to": [
+      [
+       12,
+       24
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "gardener",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "gardener",
+     "text": "Going up to the elder? Wait, wait!",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "gardener",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "gardener",
+     "text": "Take him my lotus root tea. He forgets to drink when he's thinking, and he's always thinking.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Talk to Gardener Ji",
+     "at": "gardener",
+     "until": [
+      {
+       "event": "quest_accepted",
+       "when": {
+        "quest": "tea_for_the_elder",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live",
+     "s": 8.0
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "court_spar_cloud",
+   "name": "A Round at the Post",
+   "room": "cm_sword_court",
+   "actors": {
+    "master": {
+     "object": "npc_cloud_hall_master"
+    }
+   },
+   "steps": [
+    {
+     "do": "emote",
+     "actor": "master",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "master",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "Back from the marsh already? Then a round at the post before you climb.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "master",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "Or try the plum-blossom poles. Fall off and you sweep the court.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "master",
+     "text": "Mind the wind-up. Every disciple on the posts telegraphs the big swing.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Spar at the post, or walk on",
+     "at": "object:spar_cm",
+     "until": [
+      {
+       "event": "object_interacted",
+       "when": {
+        "object": "spar_cm",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live",
+     "s": 8.0
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "gardener_favour_cloud",
+   "name": "A Pot of Tea",
+   "room": "cm_array_court",
+   "actors": {
+    "gardener": {
+     "object": "npc_cloud_gardener"
+    }
+   },
+   "steps": [
+    {
+     "do": "emote",
+     "actor": "gardener",
+     "emote": "!",
+     "wait": true,
+     "s": 0.8
+    },
+    {
+     "do": "move",
+     "actor": "gardener",
+     "to": [
+      [
+       10,
+       18
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "gardener",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "gardener",
+     "text": "Going up to the elder? Wait, wait!",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "gardener",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "gardener",
+     "text": "Take him my lotus root tea. He forgets to drink when he's thinking, and he's always thinking.",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Talk to Gardener Ren",
+     "at": "gardener",
+     "until": [
+      {
+       "event": "quest_accepted",
+       "when": {
+        "quest": "tea_for_the_elder",
+        "actor": "active"
+       }
+      }
+     ],
+     "then": "live",
+     "s": 8.0
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "array_court_talk_cloud",
+   "name": "Overheard in the Array Court",
+   "room": "cm_array_court",
+   "actors": {
+    "elder": {
+     "object": "npc_cloud_formation_elder"
+    },
+    "physician": {
+     "object": "npc_cloud_physician"
+    }
+   },
+   "steps": [
+    {
+     "do": "move",
+     "actor": "physician",
+     "to": [
+      [
+       31,
+       16
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "physician",
+     "to": "elder"
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "physician"
+    },
+    {
+     "do": "say",
+     "actor": "physician",
+     "text": "Two watchers back from the marsh, grey to the elbow.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Mei Qing's salve drew it out. But grey doesn't rise out of reeds by itself.",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "physician",
+     "emote": "?",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "physician",
+     "text": "The old maps mark a shrine under the river at Deepwater Bend...",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "elder",
+     "text": "Drowned before either sect was founded. Hush. The new one's listening.",
+     "box": "balloon"
+    },
+    {
+     "do": "emote",
+     "actor": "elder",
+     "emote": "!",
+     "wait": false,
+     "s": 0.8
+    },
+    {
+     "do": "face",
+     "actor": "elder",
+     "to": "player"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "grey_at_the_edges"
+     }
+    ]
+   }
   }
  ],
  "settings": {

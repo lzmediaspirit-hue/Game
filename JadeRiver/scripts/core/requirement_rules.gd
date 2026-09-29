@@ -152,6 +152,11 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"quest_not_done":
 			ok = c != null and not c.quests.is_done(str(cond.quest))
 			text = Tx.t("req.before") % ContentDB.name_of("quests", str(cond.quest))
+		# Decision 42: a quest's steps all done and waiting to be handed in (the mentor comes down to the marsh for it).
+		"quest_ready", "quest_not_ready":
+			var ready: bool = c != null and str(c.quests.active.get(str(cond.quest), {}).get("state", "")) == "ready"
+			ok = ready == (kind == "quest_ready")
+			text = Tx.t("req.on") % ContentDB.name_of("quests", str(cond.quest))
 		"flag_set":
 			ok = c != null and c.quests.has_flag(str(cond.flag))
 			text = str(cond.get("text", ContentDB.text("flag." + str(cond.flag))))

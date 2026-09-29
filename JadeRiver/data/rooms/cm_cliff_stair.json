@@ -156,6 +156,26 @@
    "stone": "cloud_monastery"
   },
   {
+   "id": "array_cm_gate",
+   "type": "transfer_array",
+   "at": [
+    700,
+    910
+   ],
+   "network": "cloud_sect",
+   "name": "Cloud Transfer Array",
+   "prop": "transfer_array_cloud",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "transfer_array"
+     }
+    ]
+   },
+   "locked_text": "The array's runes are dark. They wake for a disciple the elders send on the sect's errands."
+  },
+  {
    "id": "board_cm",
    "type": "notice_board",
    "at": [

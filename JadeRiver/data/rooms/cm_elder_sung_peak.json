@@ -143,7 +143,35 @@
    ],
    "npc": "elder_sung",
    "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_not_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   },
    "alt": 300
+  },
+  {
+   "id": "array_cm_peak",
+   "type": "transfer_array",
+   "at": [
+    190,
+    930
+   ],
+   "network": "cloud_sect",
+   "name": "Cloud Transfer Array",
+   "prop": "transfer_array_cloud",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "transfer_array"
+     }
+    ]
+   },
+   "locked_text": "The array's runes are dark. They wake for a disciple the elders send on the sect's errands."
   },
   {
    "id": "spring_sung",

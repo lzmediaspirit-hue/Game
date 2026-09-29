@@ -115,6 +115,61 @@ use the old sprite character".
   - `rules_tests` `figures_suite`: every page above draws the top-down figure, at a whole scale, for a top-down
     character, and no side-view avatar; a classic character keeps the side view.
 - Screenshots at 1280×720, before and after, are in `docs/redesign/feedback/sprites/`.
+## Less walking in the sect stretch: transfer arrays, errands that come to you, something on the way (decision 42)
+
+The user played the prototype APK (build 108): "There should be less monotone walking between places in the sect
+quest." The full measurement, the before and after trip tables, and the screenshots are in
+`docs/redesign/feedback/sect_walking.md`.
+
+- **Measured first.** `tools/data/sect_walks.py` walks every trip of the sect stretch the way the tracker's go button
+  does, at the sprint pace (216 a second, the new default). Build 108 asked for 18–20 minutes of plain walking per
+  sect, twelve trips of them over 35 seconds and up to two minutes. It had five back-and-forths: up the mentor's peak and
+  back down to the marsh twice, Artisan Row to the marsh and back, and the lessons up the peak and back. The Jade
+  Sect's East Terrace and Herb Terraces were each crossed eleven times with nothing in them, and Stoneford and the
+  Willow Path ten times. Now it is about three minutes, no trip is over 20 seconds, and there is no back-and-forth.
+- **The sect's transfer arrays.** Each sect has one on its gate's plaza and one on its mentor's peak, and both keep one
+  at the Marsh Edge's watch post.
+  - They open with the Weapon Hall (`transfer_array`). The steward shows the gate's as Strange Tracks begins (the scene
+    `array_lesson_*`). The lesson keys the token to the gate's array and the watch post's; the mentor keys his peak's
+    when he first receives you (`mentor_peak_*`).
+  - Stand in the ring and tap Travel. The array asks where to, among the arrays the token knows, and you come out in a
+    column of the sect's light. It is free. The teleport stones keep their shards and Qi Kindling 3.
+  - The route, the minimap's mark, the tracker's go button and auto-path all take an array. It is a way in
+    `WorldRules.ways_out`, open to the sect's own disciple once the token knows both ends (`WorldAuthority.array_open`).
+    Auto-path walks onto the array and steps through (`auto_path_board`). No array leads past the end-of-prototype gate.
+  - New prop art: `transfer_array`, `_cloud` and `_watch`. Each is dark until the token opens it, then its runes glow
+    and turn in the sect's colour.
+- **The errands come to the player.**
+  - Strange Tracks is done at the third grey patch. The River Token hums (`grey_rises`) and The Humming Token begins on
+    the spot.
+  - The mentor comes down to the marsh in a column of light for the hand-in (`mentor_descends_*`). He stands there
+    only while the quest waits for him: two new requirement kinds, `quest_ready` and `quest_not_ready`.
+  - Mei Qing tends the watch post's two watchers from the Weapon Hall's end until her errand is done. The errand is
+    taken, gathered and handed in there.
+  - A collect step's places now include the rooms whose foes drop the item, so her moss leads to the frogs beside her,
+    not a bundle in Granny Liu's hut.
+  - The Outer Trial is handed in to the training hall's master in the yard where it is won.
+- **Something on the way.** The first walk up through the grounds (Grey at the Edges) has a live scene in each room,
+  and the player keeps the controls:
+  - the hall master offers a round at the practice post, and the Cloud master adds the plum-blossom poles;
+  - the formation elder and the physician are overheard on the grey and on a drowned shrine at Deepwater Bend;
+  - the gardener asks you to carry lotus root tea up to the elder. This is a new side quest, Tea for the Elder, handed
+    in where you are going anyway.
+  - The Marsh Edge's watch post has its two watchers, Watcher Bo and Watcher Su, one of them sitting with his arm gone
+    grey.
+- **The rule.** `tools/run_tests.sh` now runs `sect_walks.py --check`. No step of the stretch may ask for a plain walk
+  over 35 s with nothing on the way, nor a walk out and straight back. Every stop is checked against the built data.
+- **Tests.**
+  - `tutorial_order`: Strange Tracks now ends at the marsh, with no report up the peak.
+  - `topdown_tutorial` plays both sects to the gate by the new route:
+    - the lesson, and the gate's array to the marsh;
+    - the hand-in to the mentor who came down, and Mei Qing's Errand at the post;
+    - the Jade disciple's walk up now too;
+    - the peak's array to The First Current;
+    - auto-path onto an array and back.
+  - `valley_run` follows the new places.
+  - The tracker's Next after The Humming Token is Mei Qing's Errand at the Marsh Edge, where she now is, not Artisan
+    Row.
 
 ## The prototype feedback: animation canceling, sprint by default, auto-path round props, meditation's pose (decision 42)
 

@@ -129,7 +129,35 @@
     780
    ],
    "npc": "elder_hu",
-   "facing": -1
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_not_ready",
+      "quest": "the_humming_token"
+     }
+    ]
+   }
+  },
+  {
+   "id": "array_ja_peak",
+   "type": "transfer_array",
+   "at": [
+    190,
+    930
+   ],
+   "network": "jade_sect",
+   "name": "Jade Transfer Array",
+   "prop": "transfer_array",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "transfer_array"
+     }
+    ]
+   },
+   "locked_text": "The array's runes are dark. They wake for a disciple the elders send on the sect's errands."
   },
   {
    "id": "spring_hu",

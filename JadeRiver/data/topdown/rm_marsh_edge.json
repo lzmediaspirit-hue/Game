@@ -274,6 +274,21 @@
    "y": 10
   },
   {
+   "kind": "banner_jade",
+   "x": 1,
+   "y": 19
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 7,
+   "y": 21
+  },
+  {
+   "kind": "lantern",
+   "x": 10,
+   "y": 20
+  },
+  {
    "kind": "tree_willow",
    "x": 19,
    "y": 11
@@ -315,8 +330,8 @@
   },
   {
    "kind": "tall_grass",
-   "x": 6,
-   "y": 20
+   "x": 11,
+   "y": 21
   },
   {
    "kind": "tall_grass",
@@ -468,6 +483,30 @@
   "trail_jade_frog": [
    9,
    17
+  ],
+  "array_marsh": [
+   4,
+   17
+  ],
+  "npc_watcher_bo": [
+   3,
+   20
+  ],
+  "npc_mei_qing_marsh": [
+   5,
+   20
+  ],
+  "npc_watcher_su": [
+   8,
+   19
+  ],
+  "npc_elder_hu_marsh": [
+   16,
+   12
+  ],
+  "npc_elder_sung_marsh": [
+   16,
+   12
   ]
  },
  "portals": {

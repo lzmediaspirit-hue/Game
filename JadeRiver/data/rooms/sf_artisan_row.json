@@ -281,7 +281,19 @@
     760
    ],
    "npc": "mei_qing",
-   "facing": -1
+   "facing": -1,
+   "visible_if": {
+    "any": [
+     {
+      "kind": "quest_not_done",
+      "quest": "the_weapon_hall"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "mei_qings_errand"
+     }
+    ]
+   }
   },
   {
    "id": "npc_apprentice_tao",

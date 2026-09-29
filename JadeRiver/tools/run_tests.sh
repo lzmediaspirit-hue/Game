@@ -13,6 +13,9 @@ if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
 # Redesign Phase 4: the top-down layouts are current and every thing in them is placed and reached on foot.
 echo "== topdown_rooms"
 if ! python3 tools/data/topdown_rooms.py --check; then failed+=("topdown_rooms"); fi
+# Decision 42: no step of the sect stretch asks for a plain walk over 35 s with nothing on the way, nor a walk out and back.
+echo "== sect_walks"
+if ! python3 tools/data/sect_walks.py --check; then failed+=("sect_walks"); fi
 for s in "${suites[@]}"; do
   echo "== $s"
   out="$("$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1)"

@@ -678,6 +678,35 @@
    "toast": false
   },
   {
+   "id": "transfer_array",
+   "label": "Transfer arrays",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "set_flag",
+     "flag": "array_array_marsh"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "array_array_ja_gate"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "array_array_cm_gate"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "herb_gathering",
    "label": "Herb gathering",
    "trigger": {
