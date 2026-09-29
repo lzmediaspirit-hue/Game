@@ -36,6 +36,11 @@
         {
          "kind": "deed",
          "deed": "rescue_granny"
+        },
+        {
+         "kind": "grant_item",
+         "item": "healing_pill",
+         "count": 1
         }
        ],
        "close": true

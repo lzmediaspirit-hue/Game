@@ -156,19 +156,41 @@
     "chance": 0.012,
     "min_quality": "flawed"
    },
-   "rare": [],
+   "rare": [
+    {
+     "item": "tiny_hollow_shard",
+     "chance": 0.25,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
    "guaranteed": []
   },
   {
    "id": "hollowed_eel",
    "groups": [],
-   "coins": {},
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
    "equipment": {
-    "chance": 0.012,
-    "min_quality": "flawed"
+    "chance": 1.0,
+    "min_quality": "superior"
    },
    "rare": [],
-   "guaranteed": []
+   "guaranteed": [
+    {
+     "item": "pearl",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "trial_puppet",

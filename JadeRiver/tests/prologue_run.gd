@@ -723,15 +723,95 @@ func step_evening() -> void:
 	check(room() == "lf_village_night", "the night falls (room %s)" % room())
 	check(c().quests.is_active("the_hollow_night"), "The Hollow Night begins")
 
-## P4 The night: three villagers to the hut, then hold out until Lu comes.
+## P4 The Hollow Night (decision 42, docs/redesign/story_staging.md): the grey minnows about each villager fought off
+## and the three sent to Aunt Ping's door, the lane's schools once they are in, then the Hollowed eel on the bank, its
+## tell read and its windows struck until it falls; the scene after it, and Lu's boat.
 func step_night() -> void:
-	for npc in ["little_dou", "granny_liu", "old_ma"]:
+	var night := {"minnows": 0}
+	var count := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("def", "")) == "hollow_minnow" and str(p.get("killer", "")) == str(c().id): night.minnows = int(night.minnows) + 1
+	GameEvents.event.connect(count)
+	# Nearest first from where the night begins (the square): Old Ma at her store, Granny Liu by her hut, Little Dou.
+	for npc in ["old_ma", "granny_liu", "little_dou"]:
+		var o := npc_object(npc)
+		if o.is_empty(): continue
+		stand_by(o, Vector2(-40, 30), 0.0)
+		fight("hollow_minnow", 2, 40.0, 0.0, false, false)
 		talk_choose(npc, "effects")
-	check(c().quests.has_flag("dou_safe") and c().quests.has_flag("granny_safe") and c().quests.has_flag("ma_safe"), "villagers guided to the hut")
-	place(obj_at("hut_refuge") + Vector2(14, -4))   # at the hut's door
-	step(62.0)
-	check(c().quests.has_flag("night_survived"), "survived the night")
+	check(c().quests.has_flag("dou_safe") and c().quests.has_flag("granny_safe") and c().quests.has_flag("ma_safe"), "villagers guided to the hut through the minnows")
+	# The grey spreads up the lane, then the eel rises out of the river.
+	var t := 0.0
+	while _night_foe("hollowed_eel") == null and Game.room_rt.event.get("active", false) and t < 60.0:
+		if fight("hollow_minnow", 1, 4.0, 0.0, false, false) == 0:
+			step(0.5)
+			t += 0.5
+		t += 1.0
+	GameEvents.event.disconnect(count)
+	check(int(night.minnows) >= 6, "the grey minnows fall to the player's blows (%d cut down)" % int(night.minnows))
+	check(_night_foe("hollowed_eel") != null, "the Hollowed eel rises once the villagers are in (%.0f s on)" % t)
+	check(fight_eel(150.0), "the Hollowed eel beaten on the bank: its tell read, its windows struck (HP %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
+	var w := 0.0
+	while room() == "lf_village_night" and w < 30.0:
+		step(0.5)
+		w += 0.5
+	step(1.0)   # a breath on the deck: the last blow of the night is done
+	check(c().quests.has_flag("night_survived") and c().quests.is_done("the_hollow_night"), "the night won: The Hollow Night done")
 	check(room() == "lf_lu_boat", "carried to Lu's boat (room %s)" % room())
+
+## A living foe of the night's of this kind, or null.
+func _night_foe(def_id: String) -> EnemyState:
+	if Game.room_rt == null: return null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == def_id and e.team == "enemy": return e
+	return null
+
+## The Hollowed eel as a player who has read its tell fights it (EnemyAuthority._eel): on the bank above it while it
+## glides; out of its line while it rears; beside it, striking (a technique first when one is slotted), while it lies
+## ashore; a minnow that comes close cut down between; a tea at 40% HP. True when it falls to the player.
+func fight_eel(limit_s: float) -> bool:
+	var won := {"done": false}
+	var heard := func(n: String, p: Dictionary):
+		if n == "actor_defeated" and str(p.get("def", "")) == "hollowed_eel" and str(p.get("killer", "")) == str(c().id): won.done = true
+	GameEvents.event.connect(heard)
+	var t := 0.0
+	var dodged := Vector2.INF
+	while not won.done and t < limit_s and Game.room_rt != null and room() == "lf_village_night":
+		var e := _night_foe("hollowed_eel")
+		if e == null: break
+		if Game.combat.is_wounded(c().id): break
+		var s := str(e.ai.get("state", ""))
+		var step_s := 0.2
+		if s == "windup":
+			# Out of its line: a long step across its aim, once each time it rears.
+			var land: Vector2 = e.ai.get("land", e.plane)
+			if land != dodged:
+				var lane: Vector2 = e.aim if e.aim.length() > 0.1 else Vector2(e.facing, 0)
+				place(land + Vector2(-lane.y, lane.x) * 72.0)
+				dodged = land
+		elif s in ["attack", "beached"]:
+			var side := -30.0 if st.plane.x <= e.plane.x else 30.0
+			if st.plane.distance_to(e.plane) > 40.0: place(e.plane + Vector2(side, 0))
+			var aim := aim_at(e.plane)
+			var facing := 1 if e.plane.x >= st.plane.x else -1
+			for slot_i in ProgressionRules.technique_slot_count(c()):
+				if c().cultivator.technique_slots[slot_i] != null and str(c().cultivator.technique_slots[slot_i]) != "":
+					if submit({"type": "use_technique", "slot": slot_i, "facing": facing, "aim": aim}).get("ok", false): break
+			submit({"type": "basic_attack", "facing": facing, "aim": aim})
+		else:
+			var near := _night_foe("hollow_minnow")
+			if near != null and near.plane.distance_to(st.plane) < 60.0:
+				submit({"type": "basic_attack", "facing": 1 if near.plane.x >= st.plane.x else -1, "aim": aim_at(near.plane)})
+			elif st.plane.distance_to(e.plane) > 120.0:
+				# The bank above it, within its reach (it rears only at a foe it can reach).
+				var bank := Vector2(e.plane.x, e.plane.y - 96.0)
+				place(Game.room_rt.topdown.nearest_standable(bank) if Game.room_rt.topdown != null else bank)
+		if c().pools.hp < c().pools.max_hp * 0.4 and Unlocks.is_unlocked(c().id, "quick_use") and c().inventory.count("herbal_tea") > 0:
+			submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
+		step(step_s)
+		t += step_s
+	GameEvents.event.disconnect(heard)
+	for l in (Game.room_rt.loot.duplicate() if Game.room_rt != null else []): submit({"type": "pick_up", "uid": int(l.uid)})
+	return bool(won.done)
 
 ## P5 Lu's Boat: the first breakthrough.
 func step_river_token() -> void:
@@ -739,13 +819,14 @@ func step_river_token() -> void:
 	check(Game.is_revealed("hud:cultivate") and Game.is_revealed("hud:progress_bar"), "Cultivate and progress bar revealed")
 	check(c().cultivator.methods_known.has("riverbreath_fragment"), "Riverbreath method learned")
 	place(obj_at("boat_spring") + Vector2(0, -10))   # at the spring on the deck
-	submit({"type": "start_meditation"})
+	var sm := submit({"type": "start_meditation"})
 	var med := 0.0
 	while c().cultivator.state != "bottleneck" and med < 600.0:
 		step(1.0)
 		med += 1.0
 	submit({"type": "stop_meditation"})
-	check(c().cultivator.state == "bottleneck", "progress bar full after %ds of meditation" % int(med))
+	check(c().cultivator.state == "bottleneck", "progress bar full after %ds of meditation (%s; paused %s, %.0f%%)" % [int(med), str(sm), str(Game.paused),
+		100.0 * c().cultivator.progress_fraction()])
 	submit({"type": "report_page_opened", "page": "cultivation"})
 	var b := submit({"type": "start_breakthrough", "support_items": []})
 	check(b.ok, "start the first breakthrough %s" % str(b))

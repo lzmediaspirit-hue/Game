@@ -564,15 +564,36 @@ def lotus_ferry():
     r.edge("east", "east", "rm_marsh_edge", "west", y=820, ptype="sealed", requires=all_of(realm("bone_forging_2")),
            locked_text="The marsh path is too dangerous before Bone Forging 2.")
 
-    # P4 Night in the village (instanced set piece; survival 60 s)
+    # P4 The Hollow Night (docs/redesign/story_staging.md "The Hollow Night", decision 42): an instanced set piece of two
+    # to four minutes in three beats. The river boils: grey minnows about each of the three villagers and more leaping up
+    # the bank now and then, while you get each to Aunt Ping's door. The grey spreads: once they are in, schools pour up
+    # the lane from both ends for half a minute. The Hollowed eel rises (the boss, EnemyAuthority._eel: its tell, its
+    # lunge, its window; below half its HP the climax, when Lu comes and his palm pins it). The eel beaten, or the bank
+    # held until Lu comes (the timer), the night is won: the scene after it plays (its last step sets lu_on_the_bank),
+    # then Lu's boat. A fall wakes you at the hut's door and the night begins again (`refuge`). Each position here has
+    # its cell in the top-down layout (topdown_rooms.py village(night=True), in the same order).
+    villagers_in = all_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe"))
     r = Room("lf_village_night", "Lotus Ferry at Night", "story", "lotus_ferry", 2, material="earth", backdrop="valley_night",
              music="night_hollow", ambience="night_ambience", spawn_point=[1500, 820], instanced=True, safe=False,
-             tint="#8fa0b8", night=True, custom_ground=True, levels=[1, 1],
-             event={"id": "hollow_night", "duration": 60, "wave": {"enemy": "hollow_minnow", "every_s": 2.5, "max": 7,
-                                                                   "points": [[300, 880], [900, 930], [1400, 900], [2000, 930], [2400, 880]]},
-                    "fixed_spawns": [{"enemy": "hollowed_eel", "at": [1900, 940], "level": 10}],
-                    "on_complete": [{"kind": "set_flag", "flag": "night_survived"}, {"kind": "clear_flag", "flag": "night_active"},
-                                    {"kind": "teleport", "target": "lf_lu_boat", "portal": "deck"}],
+             tint="#8fa0b8", night=True, custom_ground=True, levels=[1, 1], refuge="hut_refuge",
+             event={"id": "hollow_night", "duration": 200, "win_on_kill": "hollowed_eel", "timeout_wins": True,
+                    "fixed_spawns": [{"enemy": "hollow_minnow", "at": at, "level": 1}
+                                     for at in ([2180, 860], [2320, 850], [940, 800], [1070, 790], [1660, 810], [1790, 800])],
+                    "waves": [
+                        # The river boils all night: a minnow leaps up the bank now and then, never more than two about.
+                        {"enemy": "hollow_minnow", "every_s": 6.0, "first_s": 10.0, "max": 2, "level": 1, "hunt": True,
+                         "points": [[300, 880], [900, 890], [1400, 890], [2000, 890], [2400, 880]]},
+                        # The grey spreads up the lane once the villagers are in: schools from both ends, for half a minute.
+                        {"enemy": "hollow_minnow", "every_s": 2.5, "first_s": 1.0, "max": 4, "level": 1, "requires": villagers_in, "for_s": 24,
+                         "hunt": True, "points": [[120, 800], [140, 740], [2440, 800], [2420, 740], [1300, 880], [1560, 880]]}],
+                    "timed_spawns": [{"enemy": "hollowed_eel", "at": [1500, 950], "level": 2, "requires": villagers_in, "delay_s": 14, "latest_s": 110,
+                                      "text": "The river heaves. Something long and grey rises out of it."}],
+                    "on_complete": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "set_flag", "flag": "granny_safe"},
+                                    {"kind": "set_flag", "flag": "ma_safe"}, {"kind": "grant_title", "title": "ferry_guardian"}],
+                    "on_flawless": [{"kind": "grant_item", "item": "herbal_tea", "count": 2}],
+                    "leave": {"after_s": 6.0, "grid_after_s": 30.0, "requires": all_of(flag("lu_on_the_bank")),
+                              "effects": [{"kind": "set_flag", "flag": "night_survived"}, {"kind": "clear_flag", "flag": "night_active"},
+                                          {"kind": "teleport", "target": "lf_lu_boat", "portal": "deck"}]},
                     "requires": all_of(noflag("night_survived"))})
     r.surface("ground", [0, GROUND_Y, 2560, 280], 0, kind="ground", stratum="ground")
     r.area("river", [0, 900, 2560, 120])
@@ -580,7 +601,12 @@ def lotus_ferry():
     r.building("granny_hut_n", "herb_hut", 1000, front=690, tint="#7d8ca8")
     r.building("old_ma_store_n", "village_store", 1720, front=690, tint="#7d8ca8")
     r.painted("village_hall_n", "hall", 2150, 420, 110, 88, front=690, tint="#7d8ca8")
-    r.obj("hut_refuge", "inspect", hut_door, text="Aunt Ping has the door open. Get everyone inside!", prop="none")
+    # The grey things shy from Aunt Ping's lamp: by her door the minnows let you be (EnemyBrain.in_sanctuary; not the eel).
+    r.obj("hut_refuge", "inspect", hut_door, text="Aunt Ping has the door open and her lamp lit. The grey things shy from it.",
+          prop="none", sanctuary=150)
+    # Aunt Ping holds the hut's door open with her lamp all night: the refuge the villagers run to.
+    # Only while you stand in the night: the story never looks for her here (QuestAuthority.npc_rooms), as in the lane.
+    r.npc("aunt_ping", [hut_door[0] + 120, 760], oid="npc_ping_night", facing=1, visible_if=all_of({"kind": "in_room", "room": "lf_village_night"}))
     r.npc("little_dou", [2250, 820], oid="npc_dou_night", pose="idle", hidden_if=all_of(flag("dou_safe")), facing=-1)
     r.npc("granny_liu", [1000, 740], oid="npc_granny_night", hidden_if=all_of(flag("granny_safe")), facing=1)
     r.npc("old_ma", [1720, 760], oid="npc_ma_night", hidden_if=all_of(flag("ma_safe")), facing=-1)

@@ -248,15 +248,15 @@
    "energy": "none",
    "ai": {
     "profile": "flyer",
-    "aggro_range": 200,
+    "aggro_range": 150,
     "flee_below": 0.0,
-    "move_speed": 80,
+    "move_speed": 85,
     "patrol": 140
    },
    "attacks": [
     {
-     "id": "nibble",
-     "windup_s": 0.45,
+     "id": "dart",
+     "windup_s": 0.55,
      "active_s": 0.18,
      "recover_s": 0.45,
      "hitbox": {
@@ -270,7 +270,8 @@
        60
       ]
      },
-     "mult": 0.8
+     "mult": 0.6,
+     "dash": 60
     }
    ],
    "loot": "hollow_minnow",
@@ -298,10 +299,10 @@
    "id": "hollowed_eel",
    "name": "Hollowed Eel",
    "level": [
-    10,
-    10
+    2,
+    2
    ],
-   "role": "event",
+   "role": "story_boss",
    "element": "hollow",
    "race": "beast",
    "energy": "none",
@@ -315,42 +316,100 @@
    "attacks": [
     {
      "id": "lunge",
-     "windup_s": 1.0,
+     "windup_s": 1.1,
      "active_s": 0.18,
      "recover_s": 0.45,
      "hitbox": {
       "x": [
        -6,
-       120
+       34
       ],
-      "depth": 60,
+      "depth": 40,
       "alt": [
        -30,
        60
       ]
      },
-     "mult": 0.5,
+     "mult": 1.0,
      "knockback": 80
+    },
+    {
+     "id": "great_lunge",
+     "windup_s": 1.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       44
+      ],
+      "depth": 64,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.35,
+     "knockback": 120
     }
    ],
    "loot": "hollowed_eel",
-   "drops": [],
+   "drops": [
+    {
+     "item": "pearl",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
    "tameable": false,
    "collection": null,
    "art": {
     "creature": "hollowed_eel"
    },
-   "half_width": 60,
-   "height": 120,
-   "invulnerable": true,
+   "half_width": 26,
+   "height": 60,
    "flying": true,
+   "hollowing": 2,
+   "hp_mult": 0.3,
+   "attack_mult": 0.3,
+   "phases": [
+    {
+     "below": 0.5,
+     "action": "climax"
+    }
+   ],
+   "first_defeat": [
+    "hollow_eel_fang"
+   ],
+   "eel": {
+    "glide_speed": 70,
+    "reach": 190,
+    "lunge_s": 0.28,
+    "beached_s": 2.4,
+    "pinned_s": 5.5,
+    "pinned_again_s": 3.5,
+    "retreat_s": 0.5,
+    "dive_s": 1.4,
+    "rest_s": [
+     1.6,
+     2.6
+    ],
+    "climax_rest_s": [
+     1.0,
+     1.6
+    ]
+   },
    "movement": {
     "jump": 0,
     "climb": false,
     "fly": true,
     "drop": false
    },
-   "beast_rank": 2,
+   "beast_rank": 1,
    "nature": "spirit"
   },
   {

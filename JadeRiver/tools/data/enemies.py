@@ -215,6 +215,8 @@ NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.0
 # (sold for coin) and a manual page. `find` marks a rare find: its drop plays the rare-find moment (MomentRules.is_rare).
 _EARLY = [{"item": "pearl", "chance": 0.02, "count": [1, 1], "find": True}, {"item": "manual_page", "chance": 0.005, "count": [1, 1], "find": True}]
 EARLY_FINDS = {"mudshell_crab": _EARLY, "reedtail_rat": _EARLY, "wild_boarlet": _EARLY, "mossback_toad": _EARLY}
+# The Hollow Night's minnows leave a grey sliver behind now and then: the first Hollow shard the story puts in your hand.
+EARLY_FINDS["hollow_minnow"] = [{"item": "tiny_hollow_shard", "chance": 0.25, "count": [1, 1]}]
 
 
 # P12 par times in seconds (research §6.2 and docs/boss_design.md §2.4).
@@ -235,10 +237,24 @@ def build():
             # Tuned for a Mortal with bare fists (83 HP, no defence): about 135 HP and a 9-point claw, so a player who
             # never steps out of the slam still wins with a tea or two, and one who reads the tell barely gets touched.
             hp_mult=0.24, attack_mult=0.33),
-        mob("hollow_minnow", 1, "event", "hollow", None, [], [atk("nibble", 0.45, 30, 0.8)], ai="flyer", speed=80,
-            hp_override=5, width=14, height=18, flying=True, hollowing=1),
-        mob("hollowed_eel", 10, "event", "hollow", None, [], [atk("lunge", 1.0, 120, 0.5, depth=60, knockback=80)],
-            ai="event_eel", invulnerable=True, width=60, height=120, flying=True),
+        # The Hollow Night (docs/redesign/story_staging.md "The Hollow Night"): grey minnows leap out of the river and dart
+        # at you in schools, a short tell and then a dash along the ground. One blow fells one, so a combo swung through a
+        # school fells several. On the height grid they skim under the blow's band (EnemyAuthority._hover). Those about a
+        # villager turn on you only as you come to the villager (a short sight); the event's waves hunt you (`hunt`).
+        mob("hollow_minnow", 1, "event", "hollow", None, [], [atk("dart", 0.55, 30, 0.6, depth=26, dash=60)], ai="flyer", speed=85,
+            hp_override=5, width=14, height=18, flying=True, hollowing=1, aggro=150),
+        # The night's great foe (EnemyAuthority._eel): it rears out of the river (the tell), lunges onto the bank where you
+        # stood, and lies stranded there, open to blows, until it slides back. Below half its HP the climax: every lunge
+        # is the great lunge, a longer tell and a longer window (Lu's palm pins it to the bank). Tuned for the story's
+        # Mortal (Level 0, about 80 HP, the first crab's short blade or Guo's gauntlets, no technique yet): a lunge takes
+        # about an eighth of that, the great lunge about a sixth; the short blade fells it in four or five of its windows,
+        # Guo's gauntlets alone in about twice as many (tests/balance_sim.gd, "story night").
+        mob("hollowed_eel", 2, "story_boss", "hollow", None, [d("pearl", 1.0)],
+            [atk("lunge", 1.1, 34, 1.0, depth=40, knockback=80), atk("great_lunge", 1.8, 44, 1.35, depth=64, knockback=120)],
+            ai="event_eel", width=26, height=60, flying=True, hollowing=2, hp_mult=0.3, attack_mult=0.3,
+            phases=[{"below": 0.5, "action": "climax"}], first_defeat=["hollow_eel_fang"],
+            eel={"glide_speed": 70, "reach": 190, "lunge_s": 0.28, "beached_s": 2.4, "pinned_s": 5.5, "pinned_again_s": 3.5,
+                 "retreat_s": 0.5, "dive_s": 1.4, "rest_s": [1.6, 2.6], "climax_rest_s": [1.0, 1.6]}),
         mob("trial_puppet", 2, "trial", "none", None, [d("entry_token", 1.0)], [atk("counter_palm", 0.5, 44, 1.0)],
             ai="guard_counter", speed=60, width=22, height=60, knockback_immune=True, no_death_penalty=True),
         mob("wild_boarlet", (1, 2), "normal", "earth", "willow_path", [d("boar_hide", 0.5), d("tough_meat", 0.5)],

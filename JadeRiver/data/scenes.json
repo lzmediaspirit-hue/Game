@@ -1273,6 +1273,9 @@
     },
     "granny": {
      "object": "npc_granny_night"
+    },
+    "ping": {
+     "object": "npc_ping_night"
     }
    },
    "steps": [
@@ -1305,8 +1308,17 @@
       24,
       34
      ],
-     "s": 1.4,
+     "s": 1.2,
      "wait": true
+    },
+    {
+     "do": "shake",
+     "s": 0.4,
+     "amp": -1.0
+    },
+    {
+     "do": "sound",
+     "sfx": "rumble"
     },
     {
      "do": "fx",
@@ -1323,8 +1335,19 @@
      "do": "fx",
      "fx": "ring",
      "at": [
-      32,
+      30,
       36
+     ],
+     "color": "MIST",
+     "radius": 52,
+     "dur": 0.9
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      41,
+      35
      ],
      "color": "MIST",
      "radius": 40,
@@ -1333,6 +1356,23 @@
     {
      "do": "sound",
      "sfx": "hiss"
+    },
+    {
+     "do": "fx",
+     "fx": "spark",
+     "at": [
+      44,
+      27
+     ],
+     "color": "MIST",
+     "count": 10,
+     "dur": 0.6
+    },
+    {
+     "do": "camera",
+     "to": "dou",
+     "s": 0.9,
+     "wait": true
     },
     {
      "do": "emote",
@@ -1349,21 +1389,14 @@
      "s": 2.4
     },
     {
-     "do": "pose",
-     "actor": "granny",
-     "pose": "startle",
-     "wait": false,
-     "s": 2.4
-    },
-    {
      "do": "say",
      "actor": "dou",
-     "text": "Something's in the water! It's coming up!",
+     "text": "Fish! Grey fish, jumping out of the river! They bite!",
      "box": "balloon"
     },
     {
      "do": "camera",
-     "to": "player",
+     "to": "granny",
      "s": 1.0,
      "wait": true
     },
@@ -1379,6 +1412,61 @@
      "actor": "granny",
      "text": "Child! Get us to your aunt's hut. Quickly now!",
      "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "ping",
+     "s": 1.0,
+     "wait": true
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "In here, all of you! The door's open and the lamp is lit!",
+     "box": "balloon"
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.8,
+     "wait": true
+    },
+    {
+     "do": "handoff",
+     "prompt": "Strike the grey minnows: tap Attack",
+     "at": "enemy:hollow_minnow",
+     "until": [
+      {
+       "event": "actor_defeated",
+       "when": {
+        "killer": "active",
+        "def": "hollow_minnow"
+       }
+      }
+     ],
+     "then": "live",
+     "done_if": {
+      "any": [
+       {
+        "kind": "flag_set",
+        "flag": "dou_safe"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "granny_safe"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "ma_safe"
+       }
+      ]
+     }
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Bring them to my door! The grey things shy from the lamp.",
+     "box": "balloon"
     }
    ],
    "live": false,
@@ -1390,6 +1478,754 @@
       "quest": "the_hollow_night"
      }
     ]
+   }
+  },
+  {
+   "id": "night_dou_runs",
+   "name": "Little Dou Runs",
+   "room": "lf_village_night",
+   "actors": {
+    "who": {
+     "npc": "little_dou",
+     "at": [
+      44,
+      25
+     ],
+     "hidden": true
+    },
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "spawn",
+     "actor": "who"
+    },
+    {
+     "do": "face",
+     "actor": "who",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "who",
+     "text": "I'm going! Don't let them bite you!",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "who",
+     "to": [
+      [
+       44,
+       21
+      ],
+      [
+       8,
+       21
+      ],
+      [
+       6.5,
+       15.5
+      ]
+     ],
+     "run": true,
+     "wait": true
+    },
+    {
+     "do": "despawn",
+     "actor": "who"
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Dou! In, in, by the stove. Who's next?",
+     "box": "balloon"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "flag_set",
+    "when": {
+     "flag": "dou_safe",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "night_granny_goes",
+   "name": "Granny Liu Goes In",
+   "room": "lf_village_night",
+   "actors": {
+    "who": {
+     "npc": "granny_liu",
+     "at": [
+      18,
+      23
+     ],
+     "hidden": true
+    },
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "spawn",
+     "actor": "who"
+    },
+    {
+     "do": "face",
+     "actor": "who",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "who",
+     "text": "Bless you, child. There's a healing pill in your hand now: swallow it if that thing bites.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "who",
+     "to": [
+      [
+       17.5,
+       21
+      ],
+      [
+       8,
+       21
+      ],
+      [
+       6.5,
+       15.5
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "despawn",
+     "actor": "who"
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Granny Liu, lean on me. Go on, child, the others!",
+     "box": "balloon"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "flag_set",
+    "when": {
+     "flag": "granny_safe",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "night_ma_goes",
+   "name": "Old Ma Leaves Her Shop",
+   "room": "lf_village_night",
+   "actors": {
+    "who": {
+     "npc": "old_ma",
+     "at": [
+      38,
+      18
+     ],
+     "hidden": true
+    },
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "spawn",
+     "actor": "who"
+    },
+    {
+     "do": "face",
+     "actor": "who",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "who",
+     "text": "My stock can drown for all I care. I'm going, I'm going!",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "who",
+     "to": [
+      [
+       38,
+       21
+      ],
+      [
+       8,
+       21
+      ],
+      [
+       6.5,
+       15.5
+      ]
+     ],
+     "run": true,
+     "wait": true
+    },
+    {
+     "do": "despawn",
+     "actor": "who"
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "heart",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Ma! Mind the step. Inside with you!",
+     "box": "balloon"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "flag_set",
+    "when": {
+     "flag": "ma_safe",
+     "actor": "active"
+    }
+   }
+  },
+  {
+   "id": "grey_spreads",
+   "name": "The Grey Spreads",
+   "room": "lf_village_night",
+   "actors": {
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "shake",
+     "s": 0.35,
+     "amp": -1.0
+    },
+    {
+     "do": "sound",
+     "sfx": "rumble"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "That's all of them. Now you, child, get in here!",
+     "box": "balloon"
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      2,
+      21
+     ],
+     "color": "MIST",
+     "radius": 56,
+     "dur": 0.9
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      45,
+      21
+     ],
+     "color": "MIST",
+     "radius": 56,
+     "dur": 0.9
+    },
+    {
+     "do": "sound",
+     "sfx": "hiss"
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "!",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "pose",
+     "actor": "ping",
+     "pose": "point",
+     "wait": false,
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "The lane! They're coming up both ends of it!",
+     "box": "balloon"
+    },
+    {
+     "do": "wait",
+     "s": 1.0
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": [
+      8.5,
+      16.5
+     ],
+     "color": "PALE_GOLD",
+     "radius": 90,
+     "dur": 1.2
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Too many of them? Come into my lamplight. They won't follow you here!",
+     "box": "balloon"
+    },
+    {
+     "do": "mark",
+     "effects": [
+      {
+       "kind": "set_flag",
+       "flag": "grey_spread"
+      }
+     ]
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     },
+     {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "dou_safe"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "granny_safe"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "ma_safe"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "eel_rises",
+   "name": "The Thing in the River",
+   "room": "lf_village_night",
+   "actors": {
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "sound",
+     "sfx": "surge"
+    },
+    {
+     "do": "shake",
+     "s": 0.5,
+     "amp": -1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Heaven help us, look at it! Child, when it rears up, get out of its line!",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "It rears before it lunges: step aside, then strike it on the bank",
+     "at": "enemy:hollowed_eel",
+     "until": [],
+     "then": "live",
+     "s": 8.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Hit it while it's stranded, before it slides back!",
+     "box": "balloon"
+    },
+    {
+     "do": "wait",
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "It's only a beast, for all it's grey. It bleeds!",
+     "box": "balloon"
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     },
+     {
+      "kind": "flag_set",
+      "flag": "grey_spread"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "enemy_aggro",
+    "when": {
+     "def": "hollowed_eel"
+    }
+   }
+  },
+  {
+   "id": "lu_arrives",
+   "name": "Lu Comes",
+   "room": "lf_village_night",
+   "actors": {
+    "lu": {
+     "npc": "lu_boatman",
+     "at": [
+      36,
+      33
+     ],
+     "hidden": true
+    },
+    "boat": {
+     "prop": "boat",
+     "at": [
+      52,
+      36.5
+     ],
+     "level": -1
+    },
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "move",
+     "actor": "boat",
+     "to": [
+      [
+       38,
+       36.5
+      ]
+     ],
+     "run": false,
+     "wait": false,
+     "speed": 160
+    },
+    {
+     "do": "sound",
+     "sfx": "water_step"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "A lamp on the water... it's Lu!",
+     "box": "balloon"
+    },
+    {
+     "do": "spawn",
+     "actor": "lu"
+    },
+    {
+     "do": "fx",
+     "fx": "dust",
+     "at": "lu",
+     "color": "PAPER",
+     "count": 8,
+     "dur": 0.5
+    },
+    {
+     "do": "sound",
+     "sfx": "land"
+    },
+    {
+     "do": "face",
+     "actor": "lu",
+     "to": "player"
+    },
+    {
+     "do": "wait_event",
+     "until": [
+      {
+       "event": "attack_started",
+       "when": {
+        "attack": "great_lunge"
+       }
+      }
+     ],
+     "s": 6.0
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Down, child! Out of its line!",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "punch_2",
+     "wait": true,
+     "s": 0.5
+    },
+    {
+     "do": "fx",
+     "fx": "wave",
+     "at": "enemy:hollowed_eel",
+     "color": "BRIGHT_JADE",
+     "size": 10,
+     "radius": 70,
+     "dur": 0.6
+    },
+    {
+     "do": "sound",
+     "sfx": "surge"
+    },
+    {
+     "do": "shake",
+     "s": 0.35,
+     "amp": -1.0
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "It's pinned! Strike now, while it cannot turn!",
+     "box": "balloon"
+    },
+    {
+     "do": "handoff",
+     "prompt": "Strike the pinned eel: tap Attack",
+     "at": "enemy:hollowed_eel",
+     "until": [
+      {
+       "event": "actor_defeated",
+       "when": {
+        "killer": "active",
+        "def": "hollowed_eel"
+       }
+      }
+     ],
+     "then": "live",
+     "s": 20.0
+    }
+   ],
+   "live": true,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "boss_phase",
+    "when": {
+     "action": "climax"
+    }
+   }
+  },
+  {
+   "id": "grey_lifts",
+   "name": "The Grey Lifts",
+   "room": "lf_village_night",
+   "actors": {
+    "lu": {
+     "npc": "lu_boatman",
+     "at": [
+      36,
+      33
+     ],
+     "hidden": true
+    },
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "weather",
+     "kind": "clear"
+    },
+    {
+     "do": "sound",
+     "sfx": "gust"
+    },
+    {
+     "do": "spawn",
+     "actor": "lu"
+    },
+    {
+     "do": "camera",
+     "to": [
+      34,
+      33
+     ],
+     "s": 1.2,
+     "wait": true
+    },
+    {
+     "do": "fx",
+     "fx": "motes",
+     "at": [
+      30,
+      36
+     ],
+     "color": "PALE_GOLD",
+     "count": 14,
+     "dur": 1.2
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "It's done. A river eel, gone grey... in our own river.",
+     "box": "balloon"
+    },
+    {
+     "do": "move",
+     "actor": "lu",
+     "to": [
+      [
+       33,
+       31
+      ]
+     ],
+     "run": false,
+     "wait": true
+    },
+    {
+     "do": "face",
+     "actor": "lu",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "You held the bank, child. Not one of them lost.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Lu! Is it over?",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "For tonight. The palm you saw? I'll teach it to you. Come, to my boat.",
+     "box": "balloon"
+    },
+    {
+     "do": "mark",
+     "effects": [
+      {
+       "kind": "set_flag",
+       "flag": "lu_on_the_bank"
+      }
+     ]
+    },
+    {
+     "do": "fade",
+     "to": "black",
+     "s": 0.8
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "room_event_completed",
+    "when": {
+     "event": "hollow_night",
+     "actor": "active"
+    }
    }
   },
   {

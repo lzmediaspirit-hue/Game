@@ -20,7 +20,9 @@ CATALOGUE = {
     "World": [
         "loot_dropped", "room_left", "room_entered", "object_interacted", "node_depleted", "node_regrown",
         "hidden_portal_revealed", "teleport_discovered", "zone_entered", "zone_ceiling_reached", "hazard_warned",
-        "hazard_struck", "object_hit"],
+        "hazard_struck", "object_hit",
+        # Decision 42: a room's timed event won (the Hollow Night's scene after the fight waits on it).
+        "room_event_completed"],
     "Enemies": [
         "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated",
         # P9 finding: announced by the Enemies system but missing from the contract, so nothing checked them.

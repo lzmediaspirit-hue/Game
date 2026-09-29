@@ -565,6 +565,9 @@ def build_items():
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))
+    # The Hollow Night's trophy: the eel's first defeat (enemies.py first_defeat), a rare find when it drops.
+    rows.append(item("hollow_eel_fang", "hollow", "common", 99, "The Hollowed eel's fang, from the night of the storm: hooked, grey to "
+                     "the root, still cold. A trader would give 80 taels for it.", name="Hollowed Eel Fang", value_override=80))
     for f, g in FISH:
         rows.append(item(f, "fish", g, 99, FISH_DESC.get(f, "A fish from the Jade River."), name="Jade Carp" if f == "jade_carp_fish" else None))
     for (sid, grade, desc) in [("manual_page", "common", "A loose technique manual page. Raises mastery beyond tier 3."),

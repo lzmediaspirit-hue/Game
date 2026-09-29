@@ -466,7 +466,8 @@ func _layouts() -> void:
 		var foes: Array = side.get("spawns", []).map(func(sp): return str(sp.enemy))
 		var ev: Dictionary = side.get("event", {})
 		if ev.has("wave"): foes.append(str(ev.wave.enemy))
-		for fs in ev.get("fixed_spawns", []): foes.append(str(fs.enemy))
+		for fs in ev.get("fixed_spawns", []) + ev.get("waves", []) + ev.get("timed_spawns", []): foes.append(str(fs.enemy))
+		check(rid != "lf_village_night" or foes.has("hollowed_eel") and foes.has("hollow_minnow"), "%s: the night's minnows and its eel are among the foes checked (%s)" % [rid, str(foes)])
 		var undrawn: Array = foes.filter(func(e):
 			return not species.has(e) or dirs.size() != 5 or FOE_ACTIONS.any(func(a): return dirs.any(func(d): return (species[e].actions.get(a, {}).get("frames", {}).get(d, []) as Array).is_empty())))
 		check(undrawn.is_empty(), "%s: every foe it spawns has its own top-down figure, every action in five drawn facings (undrawn %s)" % [rid, str(undrawn)])

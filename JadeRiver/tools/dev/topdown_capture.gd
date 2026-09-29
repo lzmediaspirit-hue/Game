@@ -29,6 +29,7 @@ func _ready() -> void:
 
 func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
+	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -47,6 +48,9 @@ func _main() -> void:
 		return
 	if "--story" in OS.get_cmdline_user_args():
 		await story()
+		return
+	if "--night" in OS.get_cmdline_user_args():
+		await hollow_night()
 		return
 	if "--chapter2" in OS.get_cmdline_user_args():
 		await chapter2()
@@ -826,7 +830,7 @@ func story() -> void:
 	await frames(20)
 	await scene_at("hollow_rises", "title", 1.2)
 	await shot("16_the_hollow_night", out)
-	await scene_at("hollow_rises", "say", 1.2, "water")
+	await scene_at("hollow_rises", "say", 1.2, "river")
 	await shot("17_hollow_night_the_river_boils", out)
 	await until_idle()
 	# Lu's boat after the storm, and the first breakthrough.
@@ -876,6 +880,185 @@ func story() -> void:
 	await until_idle()
 	print("topdown_capture: story done")
 	get_tree().quit()
+
+## Decision 42 (`-- --night`, into docs/redesign/feedback/hollow_night/): the Hollow Night reworked as an action set
+## piece, played in the game with its own director and moments by a character the story has brought there (the short
+## blade, the straw hat, three teas): the storm and the river boiling, Dou among the minnows, the first strike's
+## hand-off, a school cut down, a villager running for Aunt Ping's door, the grey spreading up the lane, the eel's
+## entrance, its tell, its window ashore under the boss bar, the climax as Lu comes and his palm pins it, its fall,
+## and the grey lifting.
+func hollow_night() -> void:
+	var out := "res://docs/redesign/feedback/hollow_night/"
+	await _topdown_game(out)
+	await frames(240)
+	var c = Game.active()
+	for q in ["morning_tide", "a_quiet_river", "the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first", "crab_trouble"]:
+		c.quests.active.erase(q)
+		c.quests.done[q] = 1
+	Unlocks.evaluate(c.id)
+	c.inventory.equipped["weapon"] = LootRules.make_instance("training_short_blade", 1, "common", null, 910)
+	c.inventory.equipped["hat"] = LootRules.make_instance("plain_straw_hat", 1, "common", null, 911)
+	Game.inventory.apply_add(c.id, "herbal_tea", 3, "capture")
+	Game.combat.refresh_stats(c.id)
+	Game.apply_effects(c.id, ContentDB.entry("quests", "evening_on_the_river").get("rewards", []), "capture")
+	GameEvents.flush()
+	await frames(20)
+	w = main.world
+	p = w.player
+	m = p.motor
+	# The body is kept whole all night (the shots are of the night, not of a fall).
+	get_tree().physics_frame.connect(func(): if Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	# The storm, the river boiling, Dou's cry among the minnows.
+	await scene_at("hollow_rises", "title", 1.0)
+	await shot("01_that_night_the_storm", out)
+	await scene_at("hollow_rises", "camera", 0.15, "dou")
+	await shot("02_the_river_boils", out)
+	await scene_at("hollow_rises", "say", 1.4, "Grey fish")
+	await shot("03_dou_among_the_minnows", out)
+	await scene_at("hollow_rises", "say", 1.4, "lamp is lit")
+	await shot("04_aunt_ping_at_her_door", out)
+	await scene_at("hollow_rises", "handoff", 0.8)
+	await shot("05_strike_the_minnows_handoff", out)
+	# Old Ma's two minnows cut down (a school struck through), and Ma sent running for the hut.
+	await _strike_at("npc_ma_night", "hollow_minnow", 2, out, "06_a_school_cut_down")
+	await _send_in("npc_ma_night")
+	await scene_at("night_ma_goes", "move", 1.4)
+	await shot("07_old_ma_runs_for_the_hut", out)
+	# Each run seen through before the next villager is sent in (as a player fighting the minnows on the way would).
+	await until_idle()
+	await _strike_at("npc_granny_night", "hollow_minnow", 2, out, "")
+	await _send_in("npc_granny_night")
+	await until_idle()
+	await _strike_at("npc_dou_night", "hollow_minnow", 2, out, "")
+	await _send_in("npc_dou_night")
+	# The fight on the towpath off the square's west end, between the reeds (the eel glides to the player's stretch).
+	m.place(w.room.nearest_standable(TopdownRoom.cell_point([19, 33])))
+	# The grey spreading up the lane, and the eel's entrance (its boss card), whichever comes first.
+	var got := {"lane": false, "card": false}
+	for i in 3600:
+		var r = main.scenes.run
+		if not got.lane and r != null and str(r.id) == "grey_spreads" and r.begun and str(r.row.steps[r.i].get("text", "")).contains("The lane") and float(r.t) >= 1.2:
+			await shot("08_the_grey_spreads_up_the_lane", out)
+			got.lane = true
+		var pl = main.moments.playing
+		if not got.card and pl != null and str(pl.row.get("id", "")) == "boss_intro" and float(pl.st) >= 0.8:
+			await shot("09_the_eel_rises", out)
+			got.card = true
+		if got.lane and got.card: break
+		var near: EnemyState = _foe("hollow_minnow")
+		if near != null and near.plane.distance_to(m.pos) < 50.0 and i % 12 == 0: p.aim_attack((near.plane - m.pos).normalized())
+		await frames(1)
+	if not got.card: print("  capture: the eel's card not caught")
+	for i in 1200:
+		if _foe("hollowed_eel") != null: break
+		await frames(1)
+	var eel: EnemyState = _foe("hollowed_eel")
+	for e in Game.room_rt.living_enemies(): if e.def_id == "hollow_minnow": Game.enemies.release(e)
+	Game.room_rt.event.waves = []
+	await _eel_bank(eel)
+	for i in 600:
+		c.pools.hp = c.pools.max_hp
+		if str(eel.ai.state) == "windup" and float(eel.ai.timer) < 0.6: break
+		await frames(1)
+	await shot("10_the_eel_rears_its_tell", out)
+	var land: Vector2 = eel.ai.get("land", eel.plane)
+	m.place(w.room.nearest_standable(land + Vector2(-eel.aim.y, eel.aim.x) * 72.0))
+	for i in 600:
+		if str(eel.ai.state) == "beached": break
+		await frames(1)
+	await _strike_eel(eel, 40)
+	await shot("11_the_eel_ashore_its_window", out)
+	# The climax: below half its HP it dives, Lu comes up the river and his palm pins it as its great lunge lands.
+	eel.pools.hp = eel.pools.max_hp * 0.52
+	for i in 900:
+		c.pools.hp = c.pools.max_hp
+		if str(eel.ai.state) == "beached": await _strike_eel(eel, 4)
+		elif str(eel.ai.state) != "windup" and eel.plane.distance_to(m.pos) > 130.0: await _eel_bank(eel)
+		if int(eel.ai.get("phase", -1)) >= 0: break
+		await frames(1)
+	await scene_at("lu_arrives", "say", 1.0, "Lu!", 0, 1200)
+	await shot("12_the_climax_lu_comes", out)
+	for i in 900:
+		c.pools.hp = c.pools.max_hp
+		var r = main.scenes.run
+		if r != null and str(r.id) == "lu_arrives" and r.begun and str(r.row.steps[r.i].do) in ["fx", "sound", "shake", "say"] and int(r.i) > 10: break
+		if str(eel.ai.state) == "windup" and eel.ai.get("land", Vector2.INF) != land:
+			land = eel.ai.land
+			m.place(w.room.nearest_standable(land + Vector2(-eel.aim.y, eel.aim.x) * 72.0))
+		await frames(1)
+	await frames(3)
+	await shot("13_lus_palm_pins_the_eel", out)
+	eel.pools.hp = minf(eel.pools.hp, 20.0)
+	for i in 600:
+		c.pools.hp = c.pools.max_hp
+		if not eel.alive: break
+		if str(eel.ai.state) in ["attack", "beached"]: await _strike_eel(eel, 2)
+		await frames(1)
+	await frames(60)
+	await shot("14_the_eel_falls", out)
+	await scene_at("grey_lifts", "say", 1.6, "held the bank", 0, 1800)
+	await shot("15_the_grey_lifts_lu", out)
+	await scene_at("grey_lifts", "say", 1.6, "teach it", 0, 900)
+	await shot("16_the_palm_you_saw", out)
+	await until_idle()
+	await frames(90)
+	await shot("17_on_lus_boat", out)
+	print("topdown_capture: the Hollow Night done")
+	get_tree().quit()
+
+func _foe(def_id: String) -> EnemyState:
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == def_id and e.team == "enemy": return e
+	return null
+
+## Beside a villager, strike at their minnows until `n` fall (the body kept whole); a shot mid-fight when named.
+func _strike_at(object: String, def_id: String, n: int, out: String, name: String) -> void:
+	var o: Dictionary = Game.room_rt.object_def(object)
+	if o.is_empty(): return
+	var at := Vector2(float(o.at[0]), float(o.at[1]))
+	m.place(w.room.spot_near(at, float(o.get("alt", 0.0)), at + Vector2(-40, 30)))
+	var down := 0
+	var shot_taken := name == ""
+	for i in 900:
+		Game.active().pools.hp = Game.active().pools.max_hp
+		var near: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == def_id and e.plane.distance_to(at) < 220.0 and (near == null or e.plane.distance_to(m.pos) < near.plane.distance_to(m.pos)): near = e
+		if near == null: break
+		if near.plane.distance_to(m.pos) > 44.0: m.place(w.room.nearest_standable(near.plane + (m.pos - near.plane).normalized() * 30.0))
+		if i % 12 == 0: p.aim_attack((near.plane - m.pos).normalized())
+		if not shot_taken and i % 12 == 7:
+			await shot(name, out)
+			shot_taken = true
+		await frames(1)
+
+## Talk to a villager and send them to the hut (the choice with the night's effects).
+func _send_in(object: String) -> void:
+	var o: Dictionary = Game.room_rt.object_def(object)
+	if o.is_empty(): return
+	var at := Vector2(float(o.at[0]), float(o.at[1]))
+	m.place(w.room.spot_near(at, float(o.get("alt", 0.0)), at + Vector2(0, 40)))
+	await frames(4)
+	var r := Game.submit({"type": "interact", "object": object})
+	for ch in r.get("dialogue", {}).get("choices", []):
+		if ch.has("effects"):
+			Game.submit({"type": "choose_dialogue", "npc": str(o.get("npc", "")), "choice": ch})
+			break
+	main.close_all_pages()
+	await frames(6)
+
+## On the bank above the eel, where it can reach.
+func _eel_bank(eel: EnemyState) -> void:
+	m.place(w.room.nearest_standable(eel.plane + Vector2(0, -96)))
+	await frames(2)
+
+## Beside the eel ashore, striking for `n` frames' worth of taps.
+func _strike_eel(eel: EnemyState, n: int) -> void:
+	if eel.plane.distance_to(m.pos) > 44.0: m.place(w.room.nearest_standable(eel.plane + Vector2(-30 if m.pos.x <= eel.plane.x else 30, 0)))
+	for i in n:
+		if i % 10 == 0: p.aim_attack((eel.plane - m.pos).normalized())
+		Game.active().pools.hp = Game.active().pools.max_hp
+		await frames(1)
 
 ## Wait (at most `limit` frames) until the scene plays the step of kind `kind` whose text or prompt holds `has` (the
 ## `nth` such step), `after` seconds into it.

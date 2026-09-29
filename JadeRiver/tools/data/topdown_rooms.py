@@ -248,8 +248,13 @@ def check(lay, d):
     if len(d["spawns"]) != len(s.get("spawns", [])):
         errs.append("spawns: %d lists for %d side-view spawns" % (len(d["spawns"]), len(s.get("spawns", []))))
     ev = s.get("event", {})
-    if ev.get("wave") and len(d.get("event", {}).get("wave", [])) == 0:
+    lay_ev = d.get("event", {})
+    if ev.get("wave") and len(lay_ev.get("wave", [])) == 0:
         errs.append("event wave not placed")
+    # Every wave, fixed and timed spawn of the event has its cells, in the side view's order (TopdownRoom.merge_def).
+    for key, lay_key in (("waves", "waves"), ("fixed_spawns", "fixed"), ("timed_spawns", "timed")):
+        if len(ev.get(key, [])) != len(lay_ev.get(lay_key, [])) and (ev.get(key) or lay_ev.get(lay_key)):
+            errs.append("event %s: %d placed for %d" % (key, len(lay_ev.get(lay_key, [])), len(ev.get(key, []))))
     starts = [cell(d["spawn"])]
     for pid, p in d["portals"].items():
         a = p.get("arrive")
@@ -333,7 +338,9 @@ def clear_cells(d):
         for x in range(st["x"] - 1, st["x"] + st["w"] + 1):
             out.add((x, st["y"] + st["h"]))
             out.add((x, st["y"] - 1))
-    foes = [q for lst in d.get("spawns", []) for q in lst] + d.get("event", {}).get("wave", []) + d.get("event", {}).get("fixed", [])
+    lay_ev = d.get("event", {})
+    foes = [q for lst in d.get("spawns", []) for q in lst] + lay_ev.get("wave", []) + lay_ev.get("fixed", []) + \
+        [q for lst in lay_ev.get("waves", []) for q in lst] + lay_ev.get("timed", [])
     for q in foes:
         add(cell(q), ring["foe"])
     return out
@@ -532,10 +539,16 @@ def village(rid="lf_village", night=False):
     if night:
         r.spawn = [30, 22]
         r.at("hut_refuge", 6.5, 15)
+        r.at("npc_ping_night", 8.5, 16.5)          # Aunt Ping at the hut's door with her lamp
         r.at("npc_dou_night", 44, 25)
         r.at("npc_granny_night", 18, 23)
         r.at("npc_ma_night", 38, 18)
-        r.event = {"wave": [[5, 31], [15, 32], [25, 31], [35, 32], [44, 31]], "fixed": [[36, 36]]}
+        # The Hollow Night's event (world.py, in its order): two minnows about each villager; the river's minnows up the
+        # bank; the lane's schools from both ends once the villagers are in; the eel rising mid-river off the square.
+        r.event = {"fixed": [[42, 26.5], [46, 26], [16, 25], [20.5, 24.5], [36, 20], [40.5, 20]],
+                   "waves": [[[5, 31], [15, 32], [25, 31], [35, 32], [44, 31]],
+                             [[1, 20.5], [1.5, 22], [46.5, 20.5], [46, 22], [24, 31], [32, 31]]],
+                   "timed": [[30, 36.5]]}
         return r
     hall = r.prop("house", 48, 11)                # the village hall
     inn = r.prop("house", 55, 11)                 # the Ferry Inn, a tile's jump beyond the hall

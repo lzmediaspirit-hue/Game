@@ -24,6 +24,17 @@
    ]
   },
   {
+   "id": "ferry_guardian",
+   "name": "Guardian of Lotus Ferry",
+   "modifiers": [
+    {
+     "stat": "hollow_ward",
+     "op": "flat",
+     "value": 0.02
+    }
+   ]
+  },
+  {
    "id": "thief_catcher",
    "name": "Thief-Catcher",
    "modifiers": [

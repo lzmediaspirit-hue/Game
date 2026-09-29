@@ -134,14 +134,19 @@ their quests, gates and tests as they were. Staged times are measured by `SceneR
 | 3d | `granny_jar` | A jar falls from the herb loft and grazes you (a real graze, through a checkpoint) | Bag → Quick-use, then drink: the healing slot, taught by an injury |
 | 4 | `east_gate` | Guo opens the East Gate (the camera goes to the gate, which glows) | Where the fight is |
 | 4 | `crabs_mei` (Reed Shallows) | The crabs have Washer Mei backed against the reeds. She thanks you and walks home | The first fight: "Drive off a crab" (its drop, the first weapon, is hers to point at) |
-| 6 | `hollow_rises` (the night) | Title "That Night", a storm, the river boils, Dou's cry, Granny's call for the hut | The night's task |
+| 6 | `hollow_rises` (the night) | Title "That Night", a storm, the river boils, Dou's cry among the grey minnows, Granny's call, Aunt Ping at her lit door | The first strike: "Strike the grey minnows: tap Attack" |
+| 6 | `night_ma_goes`, `night_granny_goes`, `night_dou_runs` (live) | Each villager sent in runs (or hobbles) through the night to Ping's door, and she takes them in | The night's task, one villager at a time |
+| 6 | `grey_spreads` (live) | The schools pour up the lane from both ends; Ping points to her lamplight | The refuge: the minnows let you be by her door |
+| 6 | `eel_rises` (live, after its boss card) | Ping: "when it rears up, get out of its line!" | The tell: "It rears before it lunges: step aside, then strike it on the bank" |
+| 6 | `lu_arrives` (live, the climax) | Lu's boat comes up the river; he leaps ashore, and as the great lunge lands his palm pins the eel | "Strike the pinned eel"; the palm he teaches on the boat |
+| 6 | `grey_lifts` | The grey lifts; Lu: "You held the bank, child. Not one of them lost." He will teach you the palm | The way on to Lu's boat |
 | 7 | `river_token` (Lu's Boat) | Lu names the Hollowed eel and your gift, then sits to meditate | Cultivate: "Meditate: tap Cultivate" |
 | 7 | `first_breakthrough` | After the breakthrough's moment: a zoom, and Lu's "Bone Forging: your first step". Handed the token, he shows Flowing Palm on the river and says why you leave: the sects choose at Stoneford this spring. Go west | The breakthrough as a scene; the reason to leave home |
 | 8 | `market_thief` (Market Street) | A purse snatched at the tea house, the thief gone over the west road | The rooftop thief, foretold |
 | 9 | `fair_arrival` (Fairground) | Title "The Recruitment Fair". The recruiters call over each other; Shen Lian finds you | The choice ahead |
 | 9 | `sect_chosen` | Your sect's recruiter welcomes you and its name is written over the crowd; Shen Lian's rivalry begins | The choice, marked |
 
-There are 15 scenes, each 10–26 s staged. In the top-down walk, the first hour's clock includes their cuts and still
+There are 22 scenes, each 10–26 s staged. In the top-down walk, the first hour's clock includes their cuts and still
 meets its pacing (`tests/tutorial_order.gd` invariant 14).
 
 ### 3.3 Tests
@@ -158,6 +163,8 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
 - **`topdown_tutorial`** plays every scene of the tutorial to its end on a headless director as the walk reaches it.
   The walk's own actions satisfy the hand-offs. The cut time counts on the play clock, and every earlier invariant
   and check still passes.
+- **`hollow_night`** (decision 42) plays the Hollow Night through on a headless director. It checks that all 8 of
+  its scenes play to their end, in the order of its beats (3.5).
 - **The event contract** gains `scene_started`, `scene_marked`, `scene_ended`, and four events the hand-offs wait on
   that it had missed: `page_opened`, `quest_failed`, `object_hit` and `quick_use_changed`.
 
@@ -169,7 +176,7 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
 - 10–12: Granny's jar and prompts;
 - 13: the gate;
 - 14–15: the crabs;
-- 16–17: the night;
+- 16–17: the night (the Hollow Night's own set: see 3.5);
 - 18–20: Lu's boat and the breakthrough;
 - 21: the thief;
 - 22–25: the fair, the portrait box and the sect chosen.
@@ -189,6 +196,49 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
   where a resumed scene's script puts them.
 - **The portrait box is the dialogue page's own strip.** It is used once, for the recruiter's welcome in
   `sect_chosen`. Every other line is a balloon, which keeps the scenes short.
+
+### 3.5 The Hollow Night (decision 42)
+
+The QA playthrough found the night dull, and its foes impossible to kill. On the height grid the minnows hovered above
+every blow's band, and the eel was invulnerable (see `docs/CHANGELOG.md`). The night is now the Prologue's first
+action set piece: two to four minutes, deterministic, and fair at the story's Level and gear. Its fight is the room's
+event (`tools/data/world.py` `lf_village_night`) and the foes' AI (`EnemyAuthority._hover`, `_eel`). The scenes stage
+the fight live around the player.
+
+| Beat | What the player does | The fight | The scene |
+|---|---|---|---|
+| The river boils | Strike the first minnow | Two grey minnows about each villager; one more leaps up the bank every 6 s (two at most) | `hollow_rises` (a cut, then a hand-off) |
+| Get them in | Clear each villager's minnows, talk, send them in | One-blow foes that dart after a 0.55 s tell; Ping's lamplight (150 px) is a refuge | `night_*` (live), one per villager |
+| The grey spreads | Hold the lane | Schools from both ends every 2.5 s for 24 s, four at most, hunting the player | `grey_spreads` (live) |
+| The eel rises | Read its tell; strike it ashore | 14 s after the villagers are in. Boss card and bar. It glides out of reach, rears (1.1 s), lunges where you stood and lies on the bank for 2.4 s | `eel_rises` (live; waits for `grey_spreads`) |
+| The climax | Step aside from the great lunge, then strike the pinned eel | Below half its HP it dives. Great lunges only (a 1.8 s tell), and Lu's palm pins it for 5.5 s (3.5 s after that) | `lu_arrives` (live) |
+| The grey lifts | Listen; go to the boat | The event is won (the eel down, or the 200 s held) | `grey_lifts` (a cut; its last step lets the night's way on take you to Lu's boat) |
+
+**Fairness.** A lunge takes about an eighth of the story's 80 HP, and the great lunge about a sixth. Evening on the
+River heals you fully first, Granny gives you a healing pill, and three teas come with the night. `balance_sim` holds
+that a careful player with the crab's short blade ends with at least half their HP. If you fall, you wake at Ping's
+door and the night begins again.
+
+**Rewards:**
+
+- the eel's first-defeat fang (a rare find);
+- a pearl, taels and 15 Fame;
+- the title Guardian of Lotus Ferry;
+- the minnows' shards;
+- two teas for an untouched night;
+- the palm Lu teaches on the boat.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --night`, in `docs/redesign/feedback/hollow_night/`):
+
+- 01–05: the storm, the river boiling, Dou among the minnows, Aunt Ping at her door, the first hand-off;
+- 06–07: a school cut down, and Old Ma running for the hut;
+- 08: the grey spreading up the lane;
+- 09: the eel's boss card;
+- 10–11: its tell, and its window ashore;
+- 12–13: the climax: Lu comes, and his palm pins it;
+- 14: the eel's fall, with its loot;
+- 15–16: the grey lifting, and Lu's promise;
+- 17: on Lu's boat.
 
 ## Sources
 

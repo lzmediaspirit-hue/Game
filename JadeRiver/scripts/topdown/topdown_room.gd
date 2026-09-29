@@ -455,4 +455,11 @@ func merge_def(side: Dictionary) -> Dictionary:
 		for i in mini((ev.get("fixed_spawns", []) as Array).size(), fixed.size()):
 			var fp := cell_point(fixed[i])
 			ev.fixed_spawns[i].at = [fp.x, fp.y]
+		# Several waves (each its own cells, in order) and the timed spawns (a cell each), as the Hollow Night has them.
+		var waves: Array = lay_ev.get("waves", [])
+		for i in mini((ev.get("waves", []) as Array).size(), waves.size()): ev.waves[i].points = cell_points(waves[i])
+		var timed: Array = lay_ev.get("timed", [])
+		for i in mini((ev.get("timed_spawns", []) as Array).size(), timed.size()):
+			var tp := cell_point(timed[i])
+			ev.timed_spawns[i].at = [tp.x, tp.y]
 	return out

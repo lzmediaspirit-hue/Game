@@ -276,6 +276,9 @@ def shops():
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
          "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36),
                    # S49 alignment: what Broker Mu keeps under the counter for the shadowed.
+                   # The low soul core's only beast was the Hollow Night's eel at Level 10; at the story's Level 2 it
+                   # carries none (rank 1), so it is sold here beside the mid one.
+                   s("soul_core_low", price=20, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("soul_core_mid", price=45, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("beast_essence_blood", price=25, requires=all_of({"kind": "alignment_at_most", "value": -20}))],
          "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
@@ -1069,6 +1072,8 @@ def achievements():
         {"id": "fleet_footed", "name": "Fleet-Footed", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
         # Fish-Gutting Fists: Shen Lian beaten in a spar (research player_motivation §3.1, "a rival, and a title").
         {"id": "river_rival", "name": "River Rival", "modifiers": [{"stat": "coin_find", "op": "flat", "value": 0.01}]},
+        # The Hollow Night held (the bank kept until Lu came, the villagers in the hut): the grey takes a little less hold.
+        {"id": "ferry_guardian", "name": "Guardian of Lotus Ferry", "modifiers": [{"stat": "hollow_ward", "op": "flat", "value": 0.02}]},
         # S43 rule 15: the rooftop thieves and the Cloud Steps.
         {"id": "thief_catcher", "name": "Thief-Catcher", "modifiers": [{"stat": "coin_find", "op": "flat", "value": 0.02}]},
         {"id": "cloud_stepper", "name": "Cloud Stepper", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
