@@ -11,7 +11,8 @@ extends Node
 ## (docs/redesign/feedback/character_quality/rollout/). `-- --terrain <name>`: the Terrain v2 review
 ## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
 ## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
-## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
+## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. `-- --life
+## --life-tag=<before|after>`: decision 43's living world, into docs/redesign/feedback/living_world/. Every mode shoots at
 ## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
@@ -34,6 +35,7 @@ func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
+	if "--life" in OS.get_cmdline_user_args(): saves = "user://life_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -61,6 +63,9 @@ func _main() -> void:
 		return
 	if "--light" in OS.get_cmdline_user_args():
 		await light()
+		return
+	if "--life" in OS.get_cmdline_user_args():
+		await life()
 		return
 	if "--tutorial-foes" in OS.get_cmdline_user_args():
 		await tutorial_foes()
@@ -759,6 +764,42 @@ func light() -> void:
 	v.queue_free()
 	Game.active_id = was
 	print("topdown_capture: light done")
+	get_tree().quit()
+
+## Decision 43, the living world (`-- --life [--life-tag=before|after]`, into docs/redesign/feedback/living_world/<tag>/):
+## the village's square, docks and Home Lane, a sect's street and court, the Herb Terraces, the Marsh Edge, a peak and the
+## Cliff Stair at their edges, the market, four interiors, and the village and the marsh at the clock's night, each under
+## the real HUD at the phone's 1280 x 720. The clock is pinned per shot and the weather held clear, so a before and an
+## after match; the room plays a few seconds first, so its people are at work and its critters about.
+const LIFE := [["01_village_square", "lf_village", Vector2(33, 21), 0.375], ["02_village_docks", "lf_village", Vector2(58, 28), 0.375],
+	["03_village_lane", "lf_village", Vector2(12, 21), 0.375], ["04_sect_gate_street", "ja_gate_street", Vector2(30, 16), 0.375],
+	["05_sect_sword_court", "cm_sword_court", Vector2(12, 14), 0.375], ["06_herb_terraces", "ja_herb_terraces", Vector2(20, 22), 0.375],
+	["07_marsh_edge", "rm_marsh_edge", Vector2(10, 16), 0.375], ["08_peak_vista", "ja_elder_hu_peak", Vector2(24, 23), 0.375],
+	["09_cliff_stair", "cm_cliff_stair", Vector2(28, 30), 0.375], ["10_market", "sf_market", Vector2(30, 16), 0.375],
+	["11_interior_granny_liu", "lf_granny_liu_hut", Vector2(9, 9), 0.375], ["12_interior_fishers_hut", "lf_fishers_hut", Vector2(8, 9), 0.375],
+	["13_interior_store", "lf_old_ma_store", Vector2(8, 9), 0.375], ["14_interior_weapon_hall", "ja_weapon_hall", Vector2(12, 10), 0.375],
+	["15_village_night", "lf_village", Vector2(33, 21), 0.87], ["16_marsh_night", "rm_marsh_edge", Vector2(10, 16), 0.87],
+	["17_village_story_night", "lf_village_night", Vector2(22, 20), 0.375]]
+
+func life() -> void:
+	var out := "res://docs/redesign/feedback/living_world/"
+	var tag := "after"
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--life-tag="): tag = str(a).trim_prefix("--life-tag=")
+		if str(a).begins_with("--life-only="): only = str(a).trim_prefix("--life-only=")   # one shot while iterating
+	out += tag + "/"
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	for s in LIFE:
+		if only != "" and not str(s[0]).contains(only): continue
+		Clock.simulate(600000.0 * day_s + float(s[3]) * day_s, 0)
+		TopdownLight.debug_hour = float(s[3])
+		await room_shots([[str(s[0]), s[1], s[2]]], out)
+	print("topdown_capture: life done")
 	get_tree().quit()
 
 ## The tutorial rooms' other foes in their own figures (`-- --tutorial-foes`, into docs/redesign/phase4/): Lotus Ferry
