@@ -1768,6 +1768,101 @@ long line, the edge pull, the log's wrap, the gate's line, a step in an instance
 `tutorial_order` and `topdown_tutorial` (Crab Trouble's pay, the broth, the rack, no locked node offered in a fight).
 The QA player's `--no-assist` gives the falls without cover, with the foes about and the teas left at each.
 
+### As built: controls and combat flow from the prototype's feedback (decision 42, 2026-09-29)
+
+The user's play of build 108 asked for animation canceling, a sprint by default, an auto-path that goes round things
+and sprints, and a fix for meditation's pose. Shots: `docs/redesign/feedback/combat/` (`topdown_capture.gd`
+`--decision42`, `--decision42-route`, with `--fixed-fps 60`).
+
+**Animation canceling (the weave).**
+
+- `combat_feel.json` `weave` (`tools/data/combat_feel.py` `WEAVE`): `technique_after` 0, `basic_after` 0, `buffer_s`
+  0.4, `chain_through`.
+- `CombatFeel.weave(tl, kind, c)` says what a press does to the action under way:
+  - "free": nothing is under way;
+  - "cancel": a technique during a basic step, or a basic attack during a technique, once the blow has landed
+    (`hit_done`) and the timeline has reached `weave_from`, the end of its active frames plus `<kind>_after` of its
+    recovery;
+  - "wait": before that, or a technique during a technique;
+  - "chain": a basic attack during a basic step (the combo's own queue).
+- `CombatAuthority` (on the grid only):
+  - `use_technique` cuts a step there (`_weave_cut`, an `attack_cancelled` with `into`) once the technique is sure to
+    go, just before it is paid for;
+  - `basic_attack` cuts a technique there and is refused as `busy` before it;
+  - a technique woven into a chain (or cast in the combo's window) keeps it in `tl.chain`, and the basic attack after
+    it, cut or not, is the step after (basic 1, technique, basic 2).
+- `TopdownPlayer`:
+  - a press refused as `busy` waits in `weave` and goes the frame `CombatFeel.weave` answers cancel or free;
+  - the wait counts down only while the cut is not yet there, so a press 0.4 s early still lands;
+  - a dodge that goes clears it, and a held guard never waits to enter its stance.
+- The figure plays the new action from its first frame (`sync` draws the strike on Combat's clock).
+- The fists' first step (0.42 s) is cut at 0.28 s, and a default technique (0.65 s) at 0.40 s. With the stand-in's
+  attack speed, basic, technique, basic begin within 0.67 s against 0.99 s unwoven.
+
+**Sprint by default.**
+
+- `movement.json` `topdown` (`tools/data/stats.py`):
+  - `sprint` 216;
+  - the stick past `tiptoe_axis` (0.6) sprints, and within it walks at `tiptoe` (0.45) of `walk`, 69, as before;
+  - `walk` stays 154, the pace the world was measured at.
+- `TopdownMotor`:
+  - accelerates to the sprint in `accel_s` and stops in `stop_s`;
+  - `running` holds the band the body last moved in (the figure plays `run` or `walk`, its cycle paced by the sprint
+    or the walk);
+  - in the air the body carries no more than `walk`: at a jump's take-off, at a step off a ledge (not a dash or a
+    push), and on the stick's steering in the air; a long jump keeps `long_jump_speed`.
+- 216 is the run sheets' own pace: 8 frames at 14 fps cover per cycle what the walk's 8 at 10 fps cover at 154.
+- Measured (topdown_suite):
+  - the sprint 216.0, full speed in 0.083 s, a stop in 0.067 s over 5.6 units;
+  - the light touch 69.3;
+  - a sprint's running jump 73.2 units (the measured walk's 73.2);
+  - a sprint off a one-level ledge lands 30.8 past it (the walk 30.8);
+  - the long jump 142.5, the dash 111.2 (96, then the sprint).
+- The camera's look-ahead (0.2 s) leads a sprint by 21.6 art px (15.4 at the walk).
+- `topdown_rooms.py --check` and `room_lint` hold unchanged; their rules are the tile rules the air carry keeps.
+
+**Auto-path round props, at the sprint.**
+
+- `TopdownRoute` (`scripts/topdown/topdown_route.gd`), which the Autopilot's `_toward_grid` and `_reachable` use:
+  - **the way:** `TopdownRoom.find_path`'s rules on a binary heap with no search limit (the old search gave up after
+    700 cells and walked straight at the goal). A cell beside a prop, a wall or the water costs `HUG` 0.5 more.
+    `step_rise` measures a step onto or off a stair's side at the edge, where the motor's own step (8) holds.
+  - **the line:** the stick aims at the farthest of up to `LOOK` 8 cells ahead that a straight line reaches on one
+    floor with the foot box grown by `MARGIN` 6 clear of every blocking cell. `NEAR_MARGIN` 2 is enough for the very
+    next cell, a lane a cell wide. The line is checked a margin apart.
+  - **waypoints:** with no clear line, it goes by the side cell that turns a diagonal into two straight steps, or by
+    its own cell's centre, and keeps the waypoint until it is there, easing the stick to the walk within 24 units.
+  - **hops:** a hop up is aimed at straight and pressed from the cell before the face.
+  - **arriving:** it is there within reach of the target, or of the spot beside a target no body stands on.
+  - **timing:** the aim is looked for again every 3 frames, a lost way every 15.
+- The Autopilot's stick is fully pushed, so it sprints.
+- Measured (topdown_suite `_route_rooms`: all 29 rooms, a tour from the spawn to every way out and four people and
+  things in turn):
+  - 154 legs, all arrived; 4 spots only a running jump reaches are skipped;
+  - over 7 minutes of running, no touch of a solid prop, no stall, no back-and-forth, at 216.
+- The old steering over the same tour (for comparison): 152 arrived, 2 stalled against a stair's side, and one leg
+  brushed a bamboo.
+
+**Meditation's pose.**
+
+- `TopdownPlayer.physics_step` stops meditation (`moved`) when the stick or the autopilot moves the body, unless the
+  Agility 100 gate `move_keeps_cultivate`. `jump` stops it (`jump`).
+- `sync` checks movement before meditation, so a moving body never plays `meditate`.
+
+**Tests.**
+
+- `topdown_suite`:
+  - `_walk` (the sprint, the light touch);
+  - `_sprint_carry` (jump and drop reach against the walk);
+  - `_route_rooms` and `_route_cases` (a drop in a trunk's cell, a body knocked against a trunk);
+  - `_weave`: the technique pressed in a step's anticipation waits and cuts its recovery; the step's hit lands on its
+    hit frame and none before; the basic attack cuts the technique's recovery as step 2; the poses from frame 0;
+    Combat refuses a technique in a step's active window;
+  - `_meditate_then_walk`;
+  - the figure's states (the push runs, a light touch walks).
+- `data_validation` `combat_feel_suite`: the weave's buffer is short, and every cut in every family, speed and
+  technique comes after the hit.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

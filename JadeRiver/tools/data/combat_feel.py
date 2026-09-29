@@ -26,6 +26,10 @@ What lives here (CombatFeel reads it; TopdownFx and the top-down views play it):
   deflection, the melody), and `melody_loop` the frames the held melody loops (CombatFeel.top_pose,
   TopdownFigure.resolve).
 - foes: the weight of a foe's blow by its role, and the marks it shows (its tell on the wind-up, its swipe).
+- weave (decision 42): animation canceling, the action RPG's weave of basic attacks and techniques. A technique cuts
+  into a basic step's recovery, and a basic attack into a technique's, once that blow's active frames have played
+  (its hit has landed by then: it lands one smear frame into the active window); a press that comes early waits in a
+  short buffer for that point. The chain carries through a technique woven into it (CombatFeel.weave).
 - missing_poses: the poses the character pipeline (decision 37) does not draw yet, each with the stand-in it plays.
   Empty: the full set draws every one (the bow batch).
 """
@@ -108,6 +112,20 @@ FORMS = {
 # writing; `poses` and `moves` above say who plays them).
 MISSING_POSES: list = []
 
+# Decision 42 · animation canceling (the weave, as Alabaster Dawn and the action RPGs play it): basic attack, technique,
+# basic attack in one flow. A technique pressed during a basic step cuts into that step's recovery `technique_after` of
+# the way through it (0: its first frame, the instant the active frames end), and a basic attack pressed during a
+# technique cuts into the technique's recovery `basic_after` of the way through it. Never sooner: the blow under way has
+# landed by then (a step's hit lands one smear frame into its active window, a technique's at the end of its wind-up), so
+# a cancel neither drops a hit nor lands one early. A press that comes early (still in the anticipation or the active
+# window) waits `buffer_s` for that point, then goes; a technique pressed during a technique waits for it to end. 0.4 s
+# holds a tap from the first frames of a light or middling step (the fists' cut comes 0.28 s in, the jian's 0.36 s, the
+# spear's 0.41 s) and of a technique (its cut comes 0.4 s in), while a heavy sabre's first moments still commit (its
+# cut comes 0.5 s in). With
+# `chain_through`, the combo carries through a technique woven into it: the basic attack after it is the step after the
+# one it cut (basic 1, technique, basic 2), within the combo's window as the chain always is.
+WEAVE = {"technique_after": 0.0, "basic_after": 0.0, "buffer_s": 0.4, "chain_through": True}
+
 FOES = {"roles": {"normal": "light", "elite": "medium", "boss": "heavy"}, "big_hit_share": 0.15, "big_hit": "heavy",
         "tell": "tell", "swipe": "swipe"}
 
@@ -130,6 +148,7 @@ def payload() -> dict:
         "moves": MOVES,
         "melody_loop": MELODY_LOOP,
         "technique_recovery_after": 0.3,
+        "weave": WEAVE,
         "foes": FOES,
         "missing_poses": MISSING_POSES,
     }

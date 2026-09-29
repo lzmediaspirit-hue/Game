@@ -7,7 +7,9 @@ extends RefCounted
 ## A blow has a weight (light, medium, heavy, finisher) that sets its hit-stop, the camera's kick and shake, its impact
 ## mark and the hop its knockback gives. A combo step has three phases derived from its family's own timing
 ## (weapon_families.json): anticipation up to one smear frame before the hit, the active window of the smear's bright
-## frames, and the recovery; a dodge cancels the anticipation or the late recovery, never the active window.
+## frames, and the recovery; a dodge cancels the anticipation or the late recovery, never the active window. Decision 42
+## weaves them: a technique cuts a basic step's recovery and a basic attack a technique's, once the blow has landed
+## (`weave`).
 ## Settings: under Reduce motion there is no hit-stop; the kick and shake follow Screen shake and Reduce motion
 ## (MomentRules.shake_amp).
 
@@ -118,6 +120,34 @@ static func dodge_cancel(tl: Dictionary, c = null) -> String:
 	if phase == "anticipation": return "cancel"
 	if phase == "recovery" and float(tl.t) >= float(timeline_phases(tl, c).get("cancel_from", 0.0)): return "cancel"
 	return "committed"
+
+## Decision 42 · animation canceling (combat_feel.json `weave`).
+static func weave_cfg() -> Dictionary:
+	return cfg().get("weave", {})
+
+## When in the blow under way a press of `kind` ("technique" or "basic") may cut it: the start of its recovery (the end
+## of its active frames, after its hit) plus `<kind>_after` of the recovery; INF when nothing is under way.
+static func weave_from(tl: Dictionary, kind: String, c = null) -> float:
+	var ph := timeline_phases(tl, c)
+	if ph.is_empty(): return INF
+	var share := clampf(float(weave_cfg().get("technique_after" if kind == "technique" else "basic_after", 0.0)), 0.0, 1.0)
+	return float(ph.anticipation) + float(ph.active) + maxf(0.0, float(ph.recovery)) * share
+
+## What a press of `kind` does to the action under way (decision 42, the weave of basic attacks and techniques):
+##   "free"   nothing is under way;
+##   "cancel" a technique during a basic step, or a basic attack during a technique, once that blow has landed and its
+##            recovery has run to its cut (weave_from): it ends there and the press begins at once;
+##   "wait"   before that (the anticipation, the active window), or a technique during a technique: the press waits in
+##            the player's buffer (`buffer_s`) and goes when the answer changes;
+##   "chain"  a basic attack during a basic step: the combo's own queue (the next step after this one).
+static func weave(tl: Dictionary, kind: String, c = null) -> String:
+	var phase := phase_of(tl, c)
+	if phase == "": return "free"
+	var basic_now := str(tl.get("technique", "")) == ""
+	if kind == "basic" and basic_now: return "chain"
+	if kind == "technique" and not basic_now: return "wait"
+	if phase != "recovery" or not bool(tl.get("hit_done", false)): return "wait"
+	return "cancel" if float(tl.t) >= weave_from(tl, kind, c) - 0.0001 else "wait"
 
 ## The top-down pose of a technique's form (combat_feel.json `forms`): an action of the character's catalogue, a
 ## `combo_N` being the wielded family's step N.
