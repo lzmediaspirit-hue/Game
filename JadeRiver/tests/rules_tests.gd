@@ -2414,6 +2414,7 @@ func technique_pictures_suite() -> void:
 	var pr: float = hud.TILE * 0.5 - TechniquePicture.RING
 	var badge_far: float = (pr - 8.0) + 6.0   # the badge's middle 8 in from the circle at 45°, its diamond 6 out from its middle
 	var round_log: Array = (drawn["rest"].pics as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.get("round", false))
+	print("round technique buttons: %d pictures %d px, the tightest corner of a figure's box %.1f px inside the circle" % [round_n, hud.PICTURE, margin])
 	check(round_n >= arts.size() and round_out.is_empty() and badge_far <= pr and int(pr * 2.0) == hud.PICTURE and round_log.size() >= arts.size()
 		and round_log.all(func(d): return float(d.radius) == hud.TILE * 0.5),
 		"decision 43: the HUD's technique buttons are round (%d px across), each picture (%d px, the card's miniature at x1) cut to its circle with the whole figure inside it (%d pictures, the tightest corner %.1f px in; %s) and the rank badge inside it"
