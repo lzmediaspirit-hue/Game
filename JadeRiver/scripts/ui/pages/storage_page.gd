@@ -77,6 +77,8 @@ func draw_page() -> void:
 	if ch == null: return
 	var items: Array = Game.account.storage.get("items", [])
 	var bag: Array = ch.inventory.bag
+	tour_mark("gourd", SKY)   # decision 43: a tour's anchors
+	tour_mark("chest", CHEST)
 	var cap: int = Game.accounts.storage_size()
 	# The gourd's side: its token, the hint and its spaces.
 	var inv: InventoryState = ch.inventory

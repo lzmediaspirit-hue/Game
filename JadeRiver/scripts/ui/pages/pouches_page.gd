@@ -58,6 +58,7 @@ func draw_page() -> void:
 	for i in CATS.size():
 		var row: Vector2 = ROWS[0 if i < 4 else 1]
 		_pattern(ch, str(CATS[i]), Rect2(row + Vector2(PITCH * (i if i < 4 else i - 4), 0), CARD), rows)
+		tour_mark("pouches", Rect2(row + Vector2(PITCH * (i if i < 4 else i - 4), 0), CARD))   # decision 43: a tour's anchor
 
 ## A pattern's size across at `tier` of `tiers`: a deeper pouch is chalked larger.
 static func size_of(tier: int, tiers: int) -> float:

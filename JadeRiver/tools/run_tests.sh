@@ -4,7 +4,7 @@
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial story_scenes hollow_night audio_tests valley_run)
+suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial tutorials story_scenes hollow_night audio_tests valley_run)
 
 failed=()
 # S43 room lint and reach contract over the built rooms (Part 7).

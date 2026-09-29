@@ -54,6 +54,9 @@ var collection_first_kills: Dictionary = {}
 var starter_drops: Dictionary = {}
 var dungeon_lockouts: Dictionary = {} # boss -> reset day
 var swarm: Dictionary = {}           # v1.2 the Copperjaw Beetle swarm: {pop, food, queen, rolled_h, since_utc} (Pet authority)
+## Decision 43: the unlock tutorials (Tutorial authority): {seen: tours played or skipped, guided: guides done, queue:
+## guides waiting in turn, at: tour -> the step it stands at}. A save from before them restores {"legacy": true}.
+var tutorials: Dictionary = {"seen": {}, "guided": {}, "queue": [], "at": {}}
 
 func level() -> int:
 	return ProgressionRules.level(self)
@@ -74,7 +77,7 @@ func snapshot() -> Dictionary:
 		"skip_prologue": skip_prologue, "view": view, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
 		"collection_first_kills": collection_first_kills.duplicate(), "starter_drops": starter_drops.duplicate(), "dungeon_lockouts": dungeon_lockouts.duplicate(),
-		"swarm": swarm.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
+		"swarm": swarm.duplicate(true), "tutorials": tutorials.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
 
 func restore(d: Dictionary) -> void:
 	slot = int(d.get("slot", slot))
@@ -123,6 +126,7 @@ func restore(d: Dictionary) -> void:
 	starter_drops = d.get("starter_drops", {"first": true, "closed": true}).duplicate() if d.get("starter_drops", {}) is Dictionary else {}
 	dungeon_lockouts = d.get("dungeon_lockouts", {}).duplicate()
 	swarm = d.get("swarm", {}).duplicate(true) if d.get("swarm") is Dictionary else {}
+	tutorials = d.get("tutorials", {}).duplicate(true) if d.get("tutorials") is Dictionary else {"legacy": true}
 	var r: Dictionary = d.get("rng", {})
 	rng_seed = int(str(r.get("seed", "0")))
 	rng_state = r.duplicate(true)

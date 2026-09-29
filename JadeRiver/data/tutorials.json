@@ -1,0 +1,2420 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "menu",
+   "page": "menu",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "menu"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "content",
+     "text": "ui.tutorial.menu.1"
+    },
+    {
+     "anchor": "bay:0",
+     "text": "ui.tutorial.menu.2"
+    },
+    {
+     "anchor": "bay:1",
+     "text": "ui.tutorial.menu.3"
+    },
+    {
+     "anchor": "locked",
+     "text": "ui.tutorial.menu.4"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.menu.5"
+    }
+   ],
+   "priority": 9,
+   "hint": "ui.tutorial.menu.hint",
+   "prologue": true
+  },
+  {
+   "id": "bag",
+   "page": "inventory",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "bag",
+     "text": "ui.tutorial.bag.1"
+    },
+    {
+     "anchor": "slot",
+     "text": "ui.tutorial.bag.2"
+    },
+    {
+     "anchor": "kind",
+     "text": "ui.tutorial.bag.3"
+    },
+    {
+     "anchor": "sort",
+     "text": "ui.tutorial.bag.4"
+    },
+    {
+     "anchor": "tab:key",
+     "text": "ui.tutorial.bag.5"
+    }
+   ],
+   "priority": 0,
+   "prologue": true
+  },
+  {
+   "id": "gear",
+   "page": "inventory",
+   "tab": "",
+   "trigger": {
+    "kind": "item",
+    "bag_kind": "gear"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:bag"
+    },
+    {
+     "at": "page",
+     "page": "inventory",
+     "anchor": "gear",
+     "try": {
+      "event": "equipment_changed"
+     },
+     "element": true,
+     "text": "ui.tutorial.gear.do"
+    }
+   ],
+   "tour": [],
+   "priority": 8,
+   "hint": "ui.tutorial.gear.hint",
+   "prologue": true
+  },
+  {
+   "id": "quests",
+   "page": "quests",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "navigation"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "tracker"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "story|sel",
+     "text": "ui.tutorial.quests.1"
+    },
+    {
+     "anchor": "read",
+     "text": "ui.tutorial.quests.2"
+    },
+    {
+     "anchor": "go",
+     "text": "ui.tutorial.quests.3"
+    },
+    {
+     "anchor": "track|read",
+     "text": "ui.tutorial.quests.4"
+    },
+    {
+     "anchor": "tab:done",
+     "text": "ui.tutorial.quests.5"
+    }
+   ],
+   "priority": 7,
+   "hint": "ui.tutorial.quests.hint",
+   "prologue": true
+  },
+  {
+   "id": "cultivate",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "cultivate"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "meditate",
+     "text": "ui.tutorial.cultivate.1"
+    },
+    {
+     "anchor": "progress",
+     "text": "ui.tutorial.cultivate.2"
+    },
+    {
+     "anchor": "portrait",
+     "text": "ui.tutorial.cultivate.3"
+    }
+   ],
+   "priority": 6,
+   "prologue": true
+  },
+  {
+   "id": "cultivation",
+   "page": "cultivation",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "cultivation"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "mountain",
+     "text": "ui.tutorial.cultivation.1"
+    },
+    {
+     "anchor": "stair",
+     "text": "ui.tutorial.cultivation.2"
+    },
+    {
+     "anchor": "next",
+     "text": "ui.tutorial.cultivation.3"
+    },
+    {
+     "anchor": "meditate",
+     "text": "ui.tutorial.cultivation.4"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.cultivation.5"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.cultivation.hint",
+   "prologue": true
+  },
+  {
+   "id": "codex",
+   "page": "codex",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "codex"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:codex",
+     "name": "ui.menu.codex"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.codex.1"
+    },
+    {
+     "anchor": "sel|book",
+     "text": "ui.tutorial.codex.2"
+    },
+    {
+     "anchor": "corner|book",
+     "text": "ui.tutorial.codex.3"
+    },
+    {
+     "anchor": "tab:collection",
+     "text": "ui.tutorial.codex.4"
+    },
+    {
+     "anchor": "tab:achievements",
+     "text": "ui.tutorial.codex.5"
+    }
+   ],
+   "priority": 2,
+   "hint": "ui.tutorial.codex.hint",
+   "prologue": true
+  },
+  {
+   "id": "foundation",
+   "page": "cultivation",
+   "tab": "foundation",
+   "trigger": {
+    "kind": "points",
+    "points": "meridian",
+    "unlock": "foundation"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:foundation",
+     "name": "ui.cultivation.foundation"
+    },
+    {
+     "anchor": "meridian",
+     "try": {
+      "event": "attributes_changed"
+     },
+     "at": "page",
+     "page": "cultivation",
+     "element": true,
+     "tab": "foundation",
+     "text": "ui.tutorial.foundation.do"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "points",
+     "text": "ui.tutorial.foundation.1"
+    },
+    {
+     "anchor": "meridians",
+     "text": "ui.tutorial.foundation.2"
+    },
+    {
+     "anchor": "bars",
+     "text": "ui.tutorial.foundation.3"
+    },
+    {
+     "anchor": "reset_meridians",
+     "text": "ui.tutorial.foundation.4"
+    }
+   ],
+   "priority": 8,
+   "hint": "ui.tutorial.foundation.hint"
+  },
+  {
+   "id": "techniques",
+   "page": "techniques",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "technique_slots_2"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:techniques",
+     "name": "ui.menu.techniques"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.techniques.1"
+    },
+    {
+     "anchor": "chart",
+     "text": "ui.tutorial.techniques.2"
+    },
+    {
+     "anchor": "family",
+     "text": "ui.tutorial.techniques.3"
+    },
+    {
+     "anchor": "reading",
+     "text": "ui.tutorial.techniques.4"
+    },
+    {
+     "anchor": "dock",
+     "text": "ui.tutorial.techniques.5"
+    },
+    {
+     "anchor": "next_learned",
+     "text": "ui.tutorial.techniques.6"
+    }
+   ],
+   "priority": 7,
+   "hint": "ui.tutorial.techniques.hint"
+  },
+  {
+   "id": "realisation",
+   "page": "techniques",
+   "tab": "",
+   "trigger": {
+    "kind": "points",
+    "points": "realisation",
+    "unlock": "technique_slots_2"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:techniques",
+     "name": "ui.menu.techniques"
+    },
+    {
+     "anchor": "open_node|node",
+     "try": {
+      "event": "tree_node_realised"
+     },
+     "at": "page",
+     "page": "techniques",
+     "element": true,
+     "text": "ui.tutorial.realisation.do"
+    }
+   ],
+   "tour": [],
+   "priority": 6,
+   "hint": "ui.tutorial.realisation.hint"
+  },
+  {
+   "id": "skills",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "technique",
+    "unlock": "technique_slots_2"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "skill",
+     "text": "ui.tutorial.skills.1"
+    },
+    {
+     "anchor": "attack",
+     "text": "ui.tutorial.skills.2"
+    }
+   ],
+   "priority": 5
+  },
+  {
+   "id": "map",
+   "page": "world_map",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "world_menu"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:map"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "map",
+     "text": "ui.tutorial.map.1"
+    },
+    {
+     "anchor": "sel",
+     "text": "ui.tutorial.map.2"
+    },
+    {
+     "anchor": "walk",
+     "text": "ui.tutorial.map.3"
+    },
+    {
+     "anchor": "view",
+     "text": "ui.tutorial.map.4"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.map.5"
+    }
+   ],
+   "priority": 6,
+   "hint": "ui.tutorial.map.hint"
+  },
+  {
+   "id": "calendar",
+   "page": "calendar",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "seasons",
+     "text": "ui.tutorial.calendar.1"
+    },
+    {
+     "anchor": "week",
+     "text": "ui.tutorial.calendar.2"
+    },
+    {
+     "anchor": "event",
+     "text": "ui.tutorial.calendar.3"
+    },
+    {
+     "anchor": "go",
+     "text": "ui.tutorial.calendar.4"
+    },
+    {
+     "anchor": "weather",
+     "text": "ui.tutorial.calendar.5"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "mail",
+   "page": "mail",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "mail"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:mail"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "stack",
+     "text": "ui.tutorial.mail.1"
+    },
+    {
+     "anchor": "letter",
+     "text": "ui.tutorial.mail.2"
+    },
+    {
+     "anchor": "parcel",
+     "text": "ui.tutorial.mail.3"
+    },
+    {
+     "anchor": "claim_all",
+     "text": "ui.tutorial.mail.4"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.mail.hint"
+  },
+  {
+   "id": "character",
+   "page": "character",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "character_menu"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "portrait"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "figure",
+     "text": "ui.tutorial.character.1"
+    },
+    {
+     "anchor": "worn",
+     "text": "ui.tutorial.character.2"
+    },
+    {
+     "anchor": "register",
+     "text": "ui.tutorial.character.3"
+    },
+    {
+     "anchor": "titles",
+     "text": "ui.tutorial.character.4"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.character.5"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.character.hint"
+  },
+  {
+   "id": "sect",
+   "page": "training_sect",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "sect_choice"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:training_sect",
+     "name": "ui.menu.sect"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "hall",
+     "text": "ui.tutorial.sect.1"
+    },
+    {
+     "anchor": "seat",
+     "text": "ui.tutorial.sect.2"
+    },
+    {
+     "anchor": "next_rank",
+     "text": "ui.tutorial.sect.3"
+    },
+    {
+     "anchor": "tab:role",
+     "text": "ui.tutorial.sect.4"
+    }
+   ],
+   "priority": 6,
+   "hint": "ui.tutorial.sect.hint"
+  },
+  {
+   "id": "shop",
+   "page": "shop",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "town_hub"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "shop",
+     "match": {
+      "npc_service": "shop"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "wares",
+     "text": "ui.tutorial.shop.1"
+    },
+    {
+     "anchor": "counter",
+     "text": "ui.tutorial.shop.2"
+    },
+    {
+     "anchor": "bag_side",
+     "text": "ui.tutorial.shop.3"
+    },
+    {
+     "anchor": "purse",
+     "text": "ui.tutorial.shop.4"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.shop.hint"
+  },
+  {
+   "id": "notice_board",
+   "page": "notice_board",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "notice_board"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "notice_board",
+     "match": {
+      "object_type": "notice_board"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "board",
+     "text": "ui.tutorial.notice_board.1"
+    },
+    {
+     "anchor": "tab:bounties",
+     "text": "ui.tutorial.notice_board.2"
+    },
+    {
+     "anchor": "poster|bounty|to_tab",
+     "text": "ui.tutorial.notice_board.3"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.notice_board.hint"
+  },
+  {
+   "id": "transfer_array",
+   "page": "transfer_array",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "transfer_array"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "transfer_array",
+     "match": {
+      "object_type": "transfer_array"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "title",
+     "text": "ui.tutorial.transfer_array.1"
+    },
+    {
+     "anchor": "go|content",
+     "text": "ui.tutorial.transfer_array.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.transfer_array.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.transfer_array.hint"
+  },
+  {
+   "id": "crafts",
+   "page": "crafts",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "herb_gathering"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.crafts.1"
+    },
+    {
+     "anchor": "sel|strip",
+     "text": "ui.tutorial.crafts.2"
+    },
+    {
+     "anchor": "hearth",
+     "text": "ui.tutorial.crafts.3"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.crafts.4"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.crafts.hint"
+  },
+  {
+   "id": "breakthrough",
+   "page": "breakthrough",
+   "tab": "",
+   "trigger": {
+    "kind": "bottleneck",
+    "unlock": "breakthrough"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:overview",
+     "name": "ui.cultivation.overview"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "breakthrough",
+     "tab": "overview"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "doorway",
+     "text": "ui.tutorial.breakthrough.1"
+    },
+    {
+     "anchor": "tablets",
+     "text": "ui.tutorial.breakthrough.2"
+    },
+    {
+     "anchor": "pillars",
+     "text": "ui.tutorial.breakthrough.3"
+    },
+    {
+     "anchor": "dishes",
+     "text": "ui.tutorial.breakthrough.4"
+    },
+    {
+     "anchor": "go",
+     "text": "ui.tutorial.breakthrough.5"
+    }
+   ],
+   "priority": 9,
+   "hint": "ui.tutorial.breakthrough.hint"
+  },
+  {
+   "id": "settings",
+   "page": "settings",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.settings.1"
+    },
+    {
+     "anchor": "tab:access",
+     "text": "ui.tutorial.settings.2"
+    },
+    {
+     "anchor": "tab:controls",
+     "try": {
+      "tab": "controls"
+     },
+     "text": "ui.tutorial.settings.3"
+    },
+    {
+     "anchor": "replay_tutorials",
+     "text": "ui.tutorial.settings.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "emotes",
+   "page": "emotes",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "known|emote",
+     "text": "ui.tutorial.emotes.1"
+    },
+    {
+     "anchor": "unknown|emote",
+     "text": "ui.tutorial.emotes.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.emotes.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "guard",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "guard"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "guard",
+     "text": "ui.tutorial.guard.1"
+    },
+    {
+     "anchor": "attack",
+     "text": "ui.tutorial.guard.2"
+    }
+   ],
+   "priority": 5
+  },
+  {
+   "id": "qi_pool",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "qi_pool"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "portrait",
+     "text": "ui.tutorial.qi_pool.1"
+    },
+    {
+     "anchor": "skill|attack",
+     "text": "ui.tutorial.qi_pool.2"
+    }
+   ],
+   "priority": 5
+  },
+  {
+   "id": "collection",
+   "page": "collection",
+   "tab": "collection",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "collection_book"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:codex",
+     "name": "ui.menu.codex"
+    },
+    {
+     "at": "page",
+     "page": "codex",
+     "anchor": "tab:collection",
+     "name": "ui.codex.collection"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "contents",
+     "text": "ui.tutorial.collection.1"
+    },
+    {
+     "anchor": "leaf|corner",
+     "text": "ui.tutorial.collection.2"
+    },
+    {
+     "anchor": "seals",
+     "text": "ui.tutorial.collection.3"
+    },
+    {
+     "anchor": "tab:achievements",
+     "text": "ui.tutorial.collection.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.collection.hint"
+  },
+  {
+   "id": "achievements",
+   "page": "achievements",
+   "tab": "achievements",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "leaf|book",
+     "text": "ui.tutorial.achievements.1"
+    },
+    {
+     "anchor": "corner",
+     "text": "ui.tutorial.achievements.2"
+    },
+    {
+     "anchor": "tab:paths_above",
+     "text": "ui.tutorial.achievements.3"
+    },
+    {
+     "anchor": "tab:seasons",
+     "text": "ui.tutorial.achievements.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "seasons",
+   "page": "seasons",
+   "tab": "seasons",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "book",
+     "text": "ui.tutorial.seasons.1"
+    },
+    {
+     "anchor": "tab:codex",
+     "text": "ui.tutorial.seasons.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.seasons.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "storage",
+   "page": "storage",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "storage"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "storage",
+     "match": {
+      "object_type": "storage_chest"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "gourd",
+     "text": "ui.tutorial.storage.1"
+    },
+    {
+     "anchor": "chest",
+     "text": "ui.tutorial.storage.2"
+    },
+    {
+     "anchor": "deposit|chest",
+     "text": "ui.tutorial.storage.3"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.storage.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.storage.hint"
+  },
+  {
+   "id": "characters",
+   "page": "characters",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "idle_tasks"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:characters",
+     "name": "ui.menu.characters"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "scroll",
+     "text": "ui.tutorial.characters.1"
+    },
+    {
+     "anchor": "choose",
+     "text": "ui.tutorial.characters.2"
+    },
+    {
+     "anchor": "task",
+     "text": "ui.tutorial.characters.3"
+    },
+    {
+     "anchor": "switch|choose",
+     "text": "ui.tutorial.characters.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.characters.hint"
+  },
+  {
+   "id": "posts",
+   "page": "posts",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "keeping_post"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:posts",
+     "name": "ui.menu.roll_call"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "tablets",
+     "text": "ui.tutorial.posts.1"
+    },
+    {
+     "anchor": "turn",
+     "text": "ui.tutorial.posts.2"
+    },
+    {
+     "anchor": "settle_all",
+     "text": "ui.tutorial.posts.3"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.posts.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.posts.hint"
+  },
+  {
+   "id": "bench",
+   "page": "posts",
+   "tab": "bench",
+   "trigger": {
+    "kind": "points",
+    "points": "bench",
+    "unlock": "apprentice_bench"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:posts",
+     "name": "ui.menu.roll_call"
+    },
+    {
+     "at": "page",
+     "page": "posts",
+     "anchor": "tab:bench",
+     "name": "ui.posts.tab_bench"
+    },
+    {
+     "anchor": "bench_point",
+     "try": {
+      "event": "bench_assigned"
+     },
+     "at": "page",
+     "page": "posts",
+     "element": true,
+     "tab": "bench",
+     "text": "ui.tutorial.bench.do"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "bench_point",
+     "text": "ui.tutorial.bench.1"
+    },
+    {
+     "anchor": "bench_next",
+     "text": "ui.tutorial.bench.2"
+    },
+    {
+     "anchor": "bench_collect",
+     "text": "ui.tutorial.bench.3"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.bench.hint"
+  },
+  {
+   "id": "pouches",
+   "page": "pouches",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "pouch_sewing"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "pouches",
+     "match": {
+      "npc_service": "page:pouches"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "pouches",
+     "text": "ui.tutorial.pouches.1"
+    },
+    {
+     "anchor": "sew",
+     "text": "ui.tutorial.pouches.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.pouches.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.pouches.hint"
+  },
+  {
+   "id": "works",
+   "page": "works",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "post_arts"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:works",
+     "name": "ui.menu.works"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "cabinet",
+     "text": "ui.tutorial.works.1"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.works.2"
+    },
+    {
+     "anchor": "tray",
+     "text": "ui.tutorial.works.3"
+    },
+    {
+     "anchor": "slip",
+     "text": "ui.tutorial.works.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.works.hint"
+  },
+  {
+   "id": "post_art",
+   "page": "works",
+   "tab": "arts",
+   "trigger": {
+    "kind": "points",
+    "points": "post_art",
+    "unlock": "post_arts"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:works",
+     "name": "ui.menu.works"
+    },
+    {
+     "at": "page",
+     "page": "works",
+     "anchor": "tab:arts",
+     "name": "ui.works.tab_arts"
+    },
+    {
+     "anchor": "art",
+     "try": {
+      "event": "post_art_learned"
+     },
+     "at": "page",
+     "page": "works",
+     "element": true,
+     "tab": "arts",
+     "text": "ui.tutorial.post_art.do"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "art",
+     "text": "ui.tutorial.post_art.1"
+    },
+    {
+     "anchor": "slip",
+     "text": "ui.tutorial.post_art.2"
+    },
+    {
+     "anchor": "art_reset",
+     "text": "ui.tutorial.post_art.3"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.post_art.hint"
+  },
+  {
+   "id": "teleport",
+   "page": "teleport",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "teleport_stones"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "teleport",
+     "match": {
+      "object_type": "teleport_stone"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "title",
+     "text": "ui.tutorial.teleport.1"
+    },
+    {
+     "anchor": "go",
+     "text": "ui.tutorial.teleport.2"
+    },
+    {
+     "anchor": "cost|close",
+     "text": "ui.tutorial.teleport.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.teleport.hint"
+  },
+  {
+   "id": "your_sect",
+   "page": "your_sect",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "your_sect"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:your_sect",
+     "name": "ui.menu.your_sect"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.your_sect.1"
+    },
+    {
+     "anchor": "found|pick",
+     "text": "ui.tutorial.your_sect.2"
+    },
+    {
+     "anchor": "pano|content",
+     "text": "ui.tutorial.your_sect.3"
+    },
+    {
+     "anchor": "tab:expeditions",
+     "text": "ui.tutorial.your_sect.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.your_sect.hint"
+  },
+  {
+   "id": "spirit_animals",
+   "page": "spirit_animals",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "spirit_animals"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:spirit_animals",
+     "name": "ui.menu.spirit_animals"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "stalls",
+     "text": "ui.tutorial.spirit_animals.1"
+    },
+    {
+     "anchor": "leaf",
+     "text": "ui.tutorial.spirit_animals.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.spirit_animals.3"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.spirit_animals.4"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.spirit_animals.hint"
+  },
+  {
+   "id": "pet",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "spirit_animals"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "pet|fan",
+     "text": "ui.tutorial.pet.1"
+    }
+   ],
+   "priority": 3
+  },
+  {
+   "id": "companions",
+   "page": "companions",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "companions"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:companions",
+     "name": "ui.menu.companions"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "gates",
+     "text": "ui.tutorial.companions.1"
+    },
+    {
+     "anchor": "pick|gates",
+     "text": "ui.tutorial.companions.2"
+    },
+    {
+     "anchor": "thread",
+     "text": "ui.tutorial.companions.3"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.companions.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.companions.hint"
+  },
+  {
+   "id": "beast_arena",
+   "page": "beast_arena",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "pit",
+     "text": "ui.tutorial.beast_arena.1"
+    },
+    {
+     "anchor": "ladder",
+     "text": "ui.tutorial.beast_arena.2"
+    },
+    {
+     "anchor": "fight",
+     "text": "ui.tutorial.beast_arena.3"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.beast_arena.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "core_exchange",
+   "page": "core_exchange",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "shelves",
+     "text": "ui.tutorial.core_exchange.1"
+    },
+    {
+     "anchor": "urn",
+     "text": "ui.tutorial.core_exchange.2"
+    },
+    {
+     "anchor": "tally",
+     "text": "ui.tutorial.core_exchange.3"
+    },
+    {
+     "anchor": "rest",
+     "text": "ui.tutorial.core_exchange.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "relations",
+   "page": "relations",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.relations.1"
+    },
+    {
+     "anchor": "beam",
+     "text": "ui.tutorial.relations.2"
+    },
+    {
+     "anchor": "tab:bonds",
+     "text": "ui.tutorial.relations.3"
+    },
+    {
+     "anchor": "tab:fame",
+     "text": "ui.tutorial.relations.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "tower",
+   "page": "tower",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "sel",
+     "text": "ui.tutorial.tower.1"
+    },
+    {
+     "anchor": "floor",
+     "text": "ui.tutorial.tower.2"
+    },
+    {
+     "anchor": "climb",
+     "text": "ui.tutorial.tower.3"
+    },
+    {
+     "anchor": "sweep|close",
+     "text": "ui.tutorial.tower.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "county",
+   "page": "county",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "banner",
+     "text": "ui.tutorial.county.1"
+    },
+    {
+     "anchor": "stick|tube",
+     "text": "ui.tutorial.county.2"
+    },
+    {
+     "anchor": "warrant",
+     "text": "ui.tutorial.county.3"
+    },
+    {
+     "anchor": "tab:relief",
+     "text": "ui.tutorial.county.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "guqin",
+   "page": "guqin",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "strings",
+     "text": "ui.tutorial.guqin.1"
+    },
+    {
+     "anchor": "play",
+     "text": "ui.tutorial.guqin.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.guqin.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "chess",
+   "page": "chess",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "board",
+     "text": "ui.tutorial.chess.1"
+    },
+    {
+     "anchor": "pick",
+     "text": "ui.tutorial.chess.2"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.chess.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "exchange",
+   "page": "exchange",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "currency_exchange"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "exchange",
+     "match": {
+      "opens": "exchange"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "rates",
+     "text": "ui.tutorial.exchange.1"
+    },
+    {
+     "anchor": "ex",
+     "text": "ui.tutorial.exchange.2"
+    },
+    {
+     "anchor": "purses",
+     "text": "ui.tutorial.exchange.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.exchange.hint"
+  },
+  {
+   "id": "auction",
+   "page": "auction",
+   "tab": "",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "lot",
+     "text": "ui.tutorial.auction.1"
+    },
+    {
+     "anchor": "board",
+     "text": "ui.tutorial.auction.2"
+    },
+    {
+     "anchor": "paddles|bid",
+     "text": "ui.tutorial.auction.3"
+    },
+    {
+     "anchor": "front",
+     "text": "ui.tutorial.auction.4"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "garden",
+   "page": "garden",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "herb_garden"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "garden",
+     "match": {
+      "object_type": "garden_bed"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "terraces",
+     "text": "ui.tutorial.garden.1"
+    },
+    {
+     "anchor": "basket",
+     "text": "ui.tutorial.garden.2"
+    },
+    {
+     "anchor": "tend",
+     "text": "ui.tutorial.garden.3"
+    },
+    {
+     "anchor": "tab:racks",
+     "text": "ui.tutorial.garden.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.garden.hint"
+  },
+  {
+   "id": "fishing",
+   "page": "fishing",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "fishing"
+   },
+   "chain": [
+    {
+     "at": "place",
+     "place": "fishing",
+     "match": {
+      "object_type": "fishing_spot"
+     }
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "content",
+     "text": "ui.tutorial.fishing.1"
+    },
+    {
+     "anchor": "content",
+     "text": "ui.tutorial.fishing.2"
+    },
+    {
+     "anchor": "again|close",
+     "text": "ui.tutorial.fishing.3"
+    }
+   ],
+   "priority": 2,
+   "hint": "ui.tutorial.fishing.hint"
+  },
+  {
+   "id": "seclusion",
+   "page": "seclusion",
+   "tab": "seclusion",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "seclusion"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:seclusion",
+     "name": "ui.cultivation.seclusion"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "focus",
+     "text": "ui.tutorial.seclusion.1"
+    },
+    {
+     "anchor": "away",
+     "text": "ui.tutorial.seclusion.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.seclusion.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.seclusion.hint"
+  },
+  {
+   "id": "body",
+   "page": "body",
+   "tab": "body",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "body_training"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:body",
+     "name": "ui.cultivation.body_tab"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "body_level",
+     "text": "ui.tutorial.body.1"
+    },
+    {
+     "anchor": "rungs",
+     "text": "ui.tutorial.body.2"
+    },
+    {
+     "anchor": "hint",
+     "text": "ui.tutorial.body.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.body.hint"
+  },
+  {
+   "id": "heart",
+   "page": "heart",
+   "tab": "heart",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "heart_panel|content",
+     "text": "ui.tutorial.heart.1"
+    },
+    {
+     "anchor": "relations|content",
+     "text": "ui.tutorial.heart.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.heart.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "dao",
+   "page": "cultivation",
+   "tab": "dao",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "dao_tree"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:dao",
+     "name": "ui.cultivation.dao"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "daos|content",
+     "text": "ui.tutorial.dao.1"
+    },
+    {
+     "anchor": "contemplate|content",
+     "text": "ui.tutorial.dao.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.dao.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.dao.hint"
+  },
+  {
+   "id": "vows",
+   "page": "cultivation",
+   "tab": "vows",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "vows"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:vows",
+     "name": "ui.cultivation.paths"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "paths",
+     "text": "ui.tutorial.vows.1"
+    },
+    {
+     "anchor": "vow_on|vow_off",
+     "text": "ui.tutorial.vows.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.vows.3"
+    }
+   ],
+   "priority": 2,
+   "hint": "ui.tutorial.vows.hint"
+  },
+  {
+   "id": "methods",
+   "page": "cultivation",
+   "tab": "methods",
+   "trigger": {
+    "kind": "page"
+   },
+   "chain": [],
+   "tour": [
+    {
+     "anchor": "methods|content",
+     "text": "ui.tutorial.methods.1"
+    },
+    {
+     "anchor": "switch|content",
+     "text": "ui.tutorial.methods.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.methods.3"
+    }
+   ],
+   "priority": 0
+  },
+  {
+   "id": "cooking",
+   "page": "cooking",
+   "tab": "cooking",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "cooking"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    },
+    {
+     "at": "page",
+     "page": "crafts",
+     "anchor": "tab:cooking",
+     "name": "craft.cooking"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "sel|strip",
+     "text": "ui.tutorial.cooking.1"
+    },
+    {
+     "anchor": "hearth",
+     "text": "ui.tutorial.cooking.2"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.cooking.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.cooking.hint"
+  },
+  {
+   "id": "alchemy",
+   "page": "alchemy",
+   "tab": "alchemy",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "alchemy"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    },
+    {
+     "at": "page",
+     "page": "crafts",
+     "anchor": "tab:alchemy",
+     "name": "craft.alchemy"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "sel|strip",
+     "text": "ui.tutorial.alchemy.1"
+    },
+    {
+     "anchor": "hearth",
+     "text": "ui.tutorial.alchemy.2"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.alchemy.3"
+    },
+    {
+     "anchor": "close",
+     "text": "ui.tutorial.alchemy.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.alchemy.hint"
+  },
+  {
+   "id": "smithing",
+   "page": "forge",
+   "tab": "smithing",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "smithing"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    },
+    {
+     "at": "page",
+     "page": "crafts",
+     "anchor": "tab:smithing",
+     "name": "craft.smithing"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "forge_mode",
+     "text": "ui.tutorial.smithing.1"
+    },
+    {
+     "anchor": "sel|strip",
+     "text": "ui.tutorial.smithing.2"
+    },
+    {
+     "anchor": "hearth",
+     "text": "ui.tutorial.smithing.3"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.smithing.4"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.smithing.hint"
+  },
+  {
+   "id": "talisman",
+   "page": "talisman",
+   "tab": "talisman",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "talisman"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    },
+    {
+     "at": "page",
+     "page": "crafts",
+     "anchor": "tab:talisman",
+     "name": "craft.talisman"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "strip",
+     "text": "ui.tutorial.talisman.1"
+    },
+    {
+     "anchor": "hearth",
+     "text": "ui.tutorial.talisman.2"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.talisman.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.talisman.hint"
+  },
+  {
+   "id": "guild",
+   "page": "guild",
+   "tab": "guild",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "alchemist_guild"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:crafts",
+     "name": "ui.menu.crafts"
+    },
+    {
+     "at": "page",
+     "page": "crafts",
+     "anchor": "tab:guild",
+     "name": "ui.crafts.guild"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "guild_pick|strip",
+     "text": "ui.tutorial.guild.1"
+    },
+    {
+     "anchor": "exam|hearth",
+     "text": "ui.tutorial.guild.2"
+    },
+    {
+     "anchor": "side",
+     "text": "ui.tutorial.guild.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.guild.hint"
+  },
+  {
+   "id": "workshop",
+   "page": "workshop",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "appraisal"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:workshop",
+     "name": "ui.menu.workshop"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "wall",
+     "text": "ui.tutorial.workshop.1"
+    },
+    {
+     "anchor": "bench",
+     "text": "ui.tutorial.workshop.2"
+    },
+    {
+     "anchor": "tabs",
+     "text": "ui.tutorial.workshop.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.workshop.hint"
+  },
+  {
+   "id": "formations",
+   "page": "formations",
+   "tab": "formations",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "formations"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:menu"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:workshop",
+     "name": "ui.menu.workshop"
+    },
+    {
+     "at": "page",
+     "page": "workshop",
+     "anchor": "tab:formations",
+     "name": "craft.formations"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "place|bench",
+     "text": "ui.tutorial.formations.1"
+    },
+    {
+     "anchor": "bench",
+     "text": "ui.tutorial.formations.2"
+    },
+    {
+     "anchor": "wall",
+     "text": "ui.tutorial.formations.3"
+    }
+   ],
+   "priority": 3,
+   "hint": "ui.tutorial.formations.hint"
+  }
+ ],
+ "page_scripts": {
+  "menu": "menu_page",
+  "inventory": "inventory_page",
+  "character": "character_page",
+  "cultivation": "cultivation_page",
+  "breakthrough": "breakthrough_page",
+  "techniques": "techniques_page",
+  "quests": "quest_page",
+  "world_map": "map_page",
+  "codex": "codex_page",
+  "collection": "codex_page",
+  "seasons": "codex_page",
+  "mail": "mail_page",
+  "shop": "shop_page",
+  "storage": "storage_page",
+  "characters": "characters_page",
+  "settings": "settings_page",
+  "dialogue": "dialogue_page",
+  "welcome": "welcome_page",
+  "posts": "posts_page",
+  "pouches": "pouches_page",
+  "works": "works_page",
+  "revival": "revival_page",
+  "teleport": "teleport_page",
+  "transfer_array": "array_page",
+  "emotes": "emotes_page",
+  "notice_board": "notice_page",
+  "training_sect": "training_sect_page",
+  "your_sect": "your_sect_page",
+  "spirit_animals": "pets_page",
+  "beast_arena": "beast_arena_page",
+  "relations": "relations_page",
+  "gift": "gift_page",
+  "mercy": "mercy_page",
+  "calendar": "calendar_page",
+  "tower": "tower_page",
+  "county": "county_page",
+  "guqin": "guqin_page",
+  "chess": "chess_page",
+  "companions": "companions_page",
+  "crafts": "crafts_page",
+  "cooking": "crafts_page",
+  "alchemy": "crafts_page",
+  "forge": "crafts_page",
+  "formations": "workshop_page",
+  "workshop": "workshop_page",
+  "talisman": "crafts_page",
+  "guild": "crafts_page",
+  "arrays": "crafts_page",
+  "charts": "crafts_page",
+  "vessels": "crafts_page",
+  "garden": "garden_page",
+  "core_exchange": "core_exchange_page",
+  "fishing": "fishing_page",
+  "seclusion": "cultivation_page",
+  "heart": "cultivation_page",
+  "body": "cultivation_page",
+  "fates": "fates_page",
+  "library": "shop_page",
+  "exchange": "exchange_page",
+  "auction": "auction_page",
+  "achievements": "codex_page"
+ },
+ "points": {
+  "meridian": [
+   "progression",
+   "meridian_points_free"
+  ],
+  "realisation": [
+   "progression",
+   "realisations_free"
+  ],
+  "bench": [
+   "posts",
+   "bench_points_free"
+  ],
+  "post_art": [
+   "posts",
+   "art_points_free"
+  ]
+ }
+}

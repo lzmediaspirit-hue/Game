@@ -145,6 +145,10 @@ func draw_page() -> void:
 	if ch == null: return
 	var craft := str(tabs[tab].id)
 	hot_rects.clear()
+	# Decision 43: a tour's anchors (the recipe strip, the hearth where the work is done, the board beside it).
+	tour_mark("strip", STRIP)
+	tour_mark("hearth", HEARTH)
+	tour_mark("side", SIDE)
 	if str(tabs[tab].get("locked", "")) != "":
 		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 22, UiKit.MIST)
 		return

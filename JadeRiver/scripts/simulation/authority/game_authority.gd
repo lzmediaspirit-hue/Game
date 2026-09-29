@@ -43,6 +43,7 @@ var relations: RelationsAuthority
 var calendar: CalendarAuthority
 var field: FieldAuthority
 var posts: PostAuthority
+var tutorials: TutorialAuthority   ## decision 43: the unlock tutorials' progress (the coach shows them)
 
 func _ready() -> void:
 	build_authorities()
@@ -70,8 +71,9 @@ func build_authorities() -> void:
 	calendar = CalendarAuthority.new(self)
 	field = FieldAuthority.new(self)
 	posts = PostAuthority.new(self)
+	tutorials = TutorialAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect, workshop, relations, calendar, field, posts]
+		achievements, pets, companions, sect, workshop, relations, calendar, field, posts, tutorials]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
@@ -281,7 +283,7 @@ func tick(delta: float) -> void:
 	progression.tick(delta)
 	enemies.tick(delta)
 	world.tick(delta)
-	for a in [crafting, companions, pets, quest, economy, accounts, sect, training, achievements, mail, inventory, relations, calendar]:
+	for a in [crafting, companions, pets, quest, economy, accounts, sect, training, achievements, mail, inventory, relations, calendar, tutorials]:
 		a.tick(delta)
 	_after_pass()
 	if autosave_enabled:
