@@ -18,13 +18,13 @@ about 46 from sole to crown, drawn with more pixels, never scaled at runtime.
 - **The size pass** (art bible §13, "The scale rule"; `TopdownRoom.PEOPLE`): the foot box 19 world units across (from
   16; its depth stays 10, which the stairs' side steps are measured by), the player's body for a blow on the grid 17
   wide each way (from 14), a body's height and chest 92 and 48 (from 76 and 40), a person's talk reach 132 (from 110) on
-  the grid, markers, barks and a lifted plate 16 higher, a staged scene's balloons over the heads at 104 (from 88) and a
-  hand-off's chevron over a person 16 higher, the blob shadows 10 and 8 art px (from 8 and 7), the camera's body box 20
-  x 52 and its framing 14 px over the feet (from 16 x 44 and 12), the labels' keep-clear box round the body 34 x 77, and
-  the FX sheets' hand and chest at 17 and 26 art px (from 14 and 22; `build_fx_topdown.py` rebuilt). The paces (walk
-  154, sprint 216), the jumps, the tops a body stands on, a blow's reach and every range stay as they were. Every way is
-  a tile wide or more, so the bigger foot box passes them all (`room_lint`, `topdown_rooms --check`, the sect walks); no
-  room has a bench, bed or seat a person sits on yet.
+  the grid, markers, barks, a lifted plate and the label over a person who fights 16 higher, a staged scene's balloons
+  over the heads at 104 (from 88) and a hand-off's chevron over a person 16 higher, the blob shadows 10 and 8 art px
+  (from 8 and 7), the camera's body box 20 x 52 and its framing 14 px over the feet (from 16 x 44 and 12), the labels'
+  keep-clear box round the body 34 x 77, and the FX sheets' hand and chest at 17 and 26 art px (from 14 and 22;
+  `build_fx_topdown.py` rebuilt). The paces (walk 154, sprint 216), the jumps, the tops a body stands on, a blow's reach
+  and every range stay as they were. Every way is a tile wide or more, so the bigger foot box passes them all
+  (`room_lint`, `topdown_rooms --check`, the sect walks); no room has a bench, bed or seat a person sits on yet.
 - **Cost.** The same draw calls. The 168 sheets hold 207 MB of RGBA8 (from 139; 512 px wide, the tallest 1,446), the
   player's outfit 8.1 MB (from 5.4); a full build takes about 6 minutes on two cores.
 - **Screenshots** before and after in `docs/redesign/feedback/people_scale/` (`tools/dev/topdown_capture.tscn --

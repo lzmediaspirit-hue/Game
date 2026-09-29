@@ -918,9 +918,12 @@ class FoeView extends Sorted:
 		shadow_rx = float(sp.get("shadow", [8, 3])[0])
 		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
-	## idle frame facing the camera, tools/art/topdown/creatures.py); a stand-in's is the side view's height at half size.
+	## idle frame facing the camera, tools/art/topdown/creatures.py); a stand-in's is the side view's height at half size,
+	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
+	## (decision 43, TopdownPlaces.HEAD_LIFT).
 	func figure_top(e: EnemyState) -> float:
 		var sp: Dictionary = world.room.tileset.get("foes", {}).get("species", {}).get(e.def_id, {})
+		if art is TopdownPlaces.Person: return e.height() - TopdownPlaces.HEAD_LIFT
 		if art != null or not sp.has("top"): return e.height()
 		return float(sp.top) * TopdownRoom.ART
 	func sync(delta: float) -> void:

@@ -450,6 +450,7 @@ sprint's 216 world units a second, the jumps and the tops a body stands on). Siz
 | A body's height, its chest (effects) | 76, 40 | 92, 48 world units | `movement.json` topdown.combat |
 | Talk and a person's context reach | 110 | 132 world units | `WorldAuthority.reach_of` |
 | Marker, bark and a lifted plate over a villager | as the side view's | 16 world units higher | `TopdownPlaces.HEAD_LIFT` |
+| The label over a person who fights (a companion, a bandit) | the side view's height | 16 world units higher | `FoeView.figure_top` |
 | A staged scene's balloon and emote over a head | 88 | 104 world units | `SceneStage.HEAD` |
 | Blob shadow half width, the player's / a villager's | 8 / 7 | 10 / 8 art px | `ShadowView`, `Person.BLOB_RX` |
 | The body kept in view, the camera's framing | 16 × 44, feet 12 px low | 20 × 52, 14 px low | `TopdownRoom.BODY_PX`, `camera_for` |
