@@ -1,11 +1,13 @@
 class_name TopdownMotor
 extends RefCounted
 ## Top-down redesign, Phase 1 (docs/redesign_top_down_plan.md §1.6): the character controller on a TopdownRoom.
-## 8-way analog walking with acceleration and a tiptoe band, a Jump button (decision 28: jumping is always on the
-## button) that clears one level, falls down any open edge, coyote time and an input buffer, a dash that doubles as a
-## long jump when Jump follows it, and collision per height level with corner sliding. Ground plane (x, depth y) plus
-## height z in world units, stepped at 120 Hz; numbers from movement.json `topdown`. Nothing here draws: the view
-## reads the state and drains `events`.
+## 8-way analog movement with acceleration: the stick pushed past its tiptoe band sprints (decision 42), a light touch
+## walks slowly (the tiptoe, for a careful step to a ledge); in the air the body carries no more than the walk the world
+## was measured at (154), so every jump, drop and gap reaches as it was measured. A Jump button (decision 28: jumping is
+## always on the button) that clears one level, falls down any open edge, coyote time and an input buffer, a dash that
+## doubles as a long jump when Jump follows it, and collision per height level with corner sliding. Ground plane (x,
+## depth y) plus height z in world units, stepped at 120 Hz; numbers from movement.json `topdown`. Nothing here draws:
+## the view reads the state and drains `events`.
 
 const STEP := 1.0 / 120.0
 ## The body's eight drawn rows and their angles on the ground (east 0, south 90); NW, W and SW mirror NE, E and SE.
@@ -49,6 +51,10 @@ var drift := Vector2.ZERO
 var walk: float
 var tiptoe_axis: float
 var tiptoe: float
+var sprint: float
+## Decision 42: the stick's band the body last moved in: true while it sprints (the run the sheets draw), false while a
+## light touch walks. Kept through a stop, so the figure does not flick to the walk as it slows.
+var running := false
 var accel: float
 var decel: float
 var air_control: float
@@ -78,8 +84,9 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 	walk = conf("walk", 154.0)
 	tiptoe_axis = conf("tiptoe_axis", 0.6)
 	tiptoe = conf("tiptoe", 0.45)
-	accel = walk / float(conf("accel_s", 0.08))
-	decel = walk / float(conf("stop_s", 0.06))
+	sprint = conf("sprint", walk)
+	accel = sprint / float(conf("accel_s", 0.08))
+	decel = sprint / float(conf("stop_s", 0.06))
 	air_control = conf("air_control", 0.35)
 	gravity = conf("gravity", 1700.0)
 	impulse = conf("impulse", 400.0)
@@ -183,8 +190,9 @@ func _substep(h: float, axis: Vector2) -> void:
 			events.append({"type": "reset"})
 		return
 	if buffer > 0.0 and (grounded or coyote > 0.0): _jump()
-	# Horizontal velocity: the dash holds its own; otherwise accelerate toward the stick (tiptoe below 0.6), with a
-	# third of that control in the air, where no input keeps the momentum (and a long jump keeps its carry).
+	# Horizontal velocity: the dash holds its own; otherwise accelerate toward the stick (a sprint past the tiptoe band,
+	# the tiptoe within it), with a third of that control in the air, where no input keeps the momentum (and a long jump
+	# keeps its carry) and the stick steers no faster than the walk.
 	if plunging:
 		vel = Vector2.ZERO
 	elif push_t > 0.0:
@@ -194,12 +202,13 @@ func _substep(h: float, axis: Vector2) -> void:
 	elif dash_t > 0.0:
 		dash_t -= h
 		vel = dash_dir * dash_speed
-		if dash_t <= 0.0 and grounded: vel = dash_dir * walk if axis.length() > 0.2 else Vector2.ZERO
+		if dash_t <= 0.0 and grounded: vel = dash_dir * (sprint if axis.length() > tiptoe_axis else walk * tiptoe) if axis.length() > 0.2 else Vector2.ZERO
 	else:
 		var mag := minf(1.0, axis.length())
-		var target := axis.normalized() * walk * speed_k * (tiptoe if mag <= tiptoe_axis else 1.0) if mag > 0.05 else Vector2.ZERO
+		if mag > 0.05 and grounded: running = mag > tiptoe_axis
+		var target := axis.normalized() * (sprint if mag > tiptoe_axis else walk * tiptoe) * speed_k if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
-		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target, accel * air_control * h)
+		elif target != Vector2.ZERO and not long_jump: vel = vel.move_toward(target.limit_length(walk), accel * air_control * h)
 	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face and not plunging: _face(axis)
 	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
 	# the bank stop it as they stop walking.
@@ -219,6 +228,8 @@ func _jump() -> void:
 		long_jump = true
 		vel = dash_dir * long_speed
 		dash_t = 0.0
+	else:
+		vel = vel.limit_length(walk)   # decision 42: a sprint's jump reaches as the walk's did
 	events.append({"type": "jumped", "long": long_jump, "z": z})
 
 func _vertical(h: float) -> void:
@@ -229,6 +240,7 @@ func _vertical(h: float) -> void:
 			coyote = coyote_s
 			vz = 0.0
 			peak = z
+			if dash_t <= 0.0 and push_t <= 0.0: vel = vel.limit_length(walk)   # a sprint off a ledge drops as the walk did
 			events.append({"type": "fell", "z": z})
 		else:
 			z = ground   # stairs and small steps follow the floor

@@ -60,6 +60,11 @@ var knock_t := 0.0
 var knock_s := 0.0
 var action_phase := ""
 var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
+## Decision 42, animation canceling (CombatFeel.weave): a technique pressed during a basic step, or a basic attack during
+## a technique, cuts the blow's recovery once it has landed; pressed early, it waits here (combat_feel.json
+## `weave.buffer_s`) and goes at the cut: {kind: "attack" | "technique", dir, aimed, finisher, slot, k, left}.
+var weave := {}
+var _no_buffer := false
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -95,6 +100,7 @@ func _ready() -> void:
 
 func jump() -> void:
 	if bound() and (Game.combat.is_wounded(actor_id) or Game.character(actor_id).pools.blocked("move")): return
+	if bound() and meditating: Game.submit({"type": "stop_meditation", "reason": "jump"})   # decision 42: a jump rises from the seat
 	_jump = true
 
 ## A tap of Dodge: Combat's dodge (its cooldown, second charge, i-frames), carried by the motor's dash.
@@ -108,6 +114,7 @@ func dodge() -> void:
 		motor.dash_cd = 0.0   # Combat keeps the cooldown
 		_dash = true
 		dodge_buffer = 0.0
+		weave = {}   # the dodge goes instead of a press waiting for its cut
 	elif str(r.get("reason", "")) == "committed" and dodge_buffer <= 0.0:
 		dodge_buffer = float(CombatFeel.cfg().get("dodge_buffer_s", 0.2))   # decision 38: it goes when the blow may be cancelled
 
@@ -125,6 +132,7 @@ func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
 	# lunge). Known before the step starts, as its event is played as it is sent.
 	dash_attack = motor.grounded and (motor.dash_t > 0.0 or motor.since_dash <= float(CombatFeel.cfg().get("dash_attack_s", 0.15)))
 	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher})
+	if not r.get("ok", false) and str(r.get("reason", "")) == "busy": _buffer({"kind": "attack", "dir": dir, "aimed": aimed, "finisher": finisher})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
 	if r.get("ok", false) and not r.get("queued", false):
 		dash_combo = int(r.get("combo", 0)) if dash_attack else -1
@@ -166,7 +174,10 @@ func hold_guard() -> String:
 	if not bound(): return ""
 	if bool(TopdownAim.cfg("hold_stance", true)):
 		var s := stance_slot()
-		if s >= 0 and use_technique(s).get("ok", false): return "stance"
+		_no_buffer = true   # a held guard does not wait to enter its stance later
+		var entered: bool = s >= 0 and use_technique(s).get("ok", false)
+		_no_buffer = false
+		if entered: return "stance"
 	return "guard" if Game.submit({"type": "guard_start"}).get("ok", false) else ""
 
 func release_guard() -> void:
@@ -192,8 +203,31 @@ func aim_technique(slot: int, dir: Vector2, k := -1.0, aimed := true) -> Diction
 	var t := _technique(slot)
 	var dist := k * TopdownAim.reach_of(t) if k >= 0.0 else -1.0
 	var r := Game.submit({"type": "use_technique", "slot": slot, "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "dist": dist})
+	if not r.get("ok", false) and str(r.get("reason", "")) == "busy": _buffer({"kind": "technique", "slot": slot, "dir": dir, "k": k, "aimed": aimed})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
 	return r
+
+## Decision 42: a press the hands are too busy for waits for the cut of the blow under way (CombatFeel.weave), unless
+## it is the buffered press going now. A newer press takes the place of an older one.
+func _buffer(press: Dictionary) -> void:
+	if _no_buffer: return
+	press.left = float(CombatFeel.weave_cfg().get("buffer_s", 0.4))
+	weave = press
+
+## The buffered press goes the moment the blow under way may be cut (or has ended); else it runs out.
+func _tick_weave(delta: float) -> void:
+	if weave.is_empty(): return
+	var kind := "technique" if str(weave.kind) == "technique" else "basic"
+	if not CombatFeel.weave(Game.combat.timeline(actor_id), kind, Game.character(actor_id)) in ["cancel", "free"]:
+		weave.left = float(weave.left) - delta
+		if float(weave.left) <= 0.0: weave = {}
+		return
+	var b := weave
+	weave = {}
+	_no_buffer = true
+	if kind == "technique": aim_technique(int(b.slot), b.dir, float(b.k), bool(b.aimed))
+	else: aim_attack(b.dir, bool(b.aimed), bool(b.finisher))
+	_no_buffer = false
 
 func _technique(slot: int) -> Dictionary:
 	var c = Game.character(actor_id)
@@ -245,7 +279,8 @@ func meditate() -> void:
 	if bound(): Game.submit({"type": "toggle_meditation"})
 func reset_sprint() -> void: pass
 
-## The stick, or WASD / arrows on a keyboard (Alt walks slowly, as the tiptoe band).
+## The stick, or WASD / arrows on a keyboard: pushed, the body sprints (decision 42); Alt walks slowly, as a light touch
+## of the stick does (the motor's tiptoe band).
 func axis() -> Vector2:
 	if joystick_engaged or movement != Vector2.ZERO: return movement
 	var k := Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)) - float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)),
@@ -265,6 +300,10 @@ func physics_step(delta: float) -> Array:
 			if autopilot == null: autopilot = Autopilot.new(self)
 			move = autopilot.drive(c, delta)
 			last_axis = move
+		# Decision 42: moving rises from meditation at once, as the side view's stick does (unless the Agility gate lets
+		# the body cultivate on the move); the figure walks, never sits sliding.
+		if move.length() > 0.05 and c.cultivator.meditating and not StatRules.gate_flag(c, "move_keeps_cultivate"):
+			Game.submit({"type": "stop_meditation", "reason": "moved"})
 		if Game.combat.is_wounded(actor_id) or c.pools.blocked("move"): move = Vector2.ZERO
 		if c.pools.has_status("confusion"): move = -move
 		motor.speed_k = Game.combat.move_factor(actor_id) if not Game.combat.is_wounded(actor_id) else 0.0
@@ -279,6 +318,7 @@ func physics_step(delta: float) -> Array:
 		if dodge_buffer > 0.0:
 			dodge_buffer = maxf(0.0, dodge_buffer - delta)
 			if dodge_buffer > 0.0 and CombatFeel.dodge_cancel(Game.combat.timeline(actor_id), c) != "committed": dodge()
+		_tick_weave(delta)
 		# Gusts and currents (S17) add their push to walking, as on player.gd; a meditating or wounded body is anchored.
 		motor.drift = Game.world.hazard_drift(actor_id) if not c.cultivator.meditating and not Game.combat.is_wounded(actor_id) else Vector2.ZERO
 	motor.step(delta, move, _jump, _dash)
@@ -346,13 +386,19 @@ func sync(delta: float) -> void:
 	elif m.land_t > 0.0:
 		next = "jump"
 		f = 4
+	# Decision 42: the stick past its tiptoe band sprints (the run the sheets draw), a light touch walks; a body on the
+	# move never sits in meditation's pose (moving ends the meditation, physics_step).
+	elif m.vel.length() > 12.0: next = "run" if m.running else "walk"
 	elif meditating: next = "meditate"
-	elif m.vel.length() > 12.0: next = "run" if m.vel.length() > m.walk * 1.15 else "walk"
 	if stage_pose != "": next = TopdownFigure.resolve(stage_pose)   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next
 		anim_t = 0.0
-	anim_t += delta * (clampf(m.vel.length() / m.walk, 0.5, 1.2) if anim == "walk" else 1.0)
+	# The feet keep to the ground: the walk's cycle at the walk's pace, the run's at the sprint's.
+	var pace := 1.0
+	if anim == "walk": pace = clampf(m.vel.length() / m.walk, 0.5, 1.2)
+	elif anim == "run": pace = clampf(m.vel.length() / m.sprint, 0.5, 1.2)
+	anim_t += delta * pace
 	match anim:
 		"strike": pass
 		# Decision 35: the Plunge drops tucked, then dives (frames 0-1 on its clock); landed, its impact frame holds.

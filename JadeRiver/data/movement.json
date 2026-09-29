@@ -3,6 +3,7 @@
  "topdown": {
   "_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.",
   "walk": 154,
+  "sprint": 216,
   "tiptoe_axis": 0.6,
   "tiptoe": 0.45,
   "accel_s": 0.08,

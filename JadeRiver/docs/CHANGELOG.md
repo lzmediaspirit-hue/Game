@@ -7,8 +7,8 @@ quest." The full measurement, the before and after trip tables, and the screensh
 `docs/redesign/feedback/sect_walking.md`.
 
 - **Measured first.** `tools/data/sect_walks.py` walks every trip of the sect stretch the way the tracker's go button
-  does, at the sprint pace (about 1.4 times today's walk). Build 108 asked for 18–20 minutes of plain walking per sect,
-  twelve trips of them over 35 seconds and up to two minutes. It had five back-and-forths: up the mentor's peak and
+  does, at the sprint pace (216 a second, the new default). Build 108 asked for 18–20 minutes of plain walking per
+  sect, twelve trips of them over 35 seconds and up to two minutes. It had five back-and-forths: up the mentor's peak and
   back down to the marsh twice, Artisan Row to the marsh and back, and the lessons up the peak and back. The Jade
   Sect's East Terrace and Herb Terraces were each crossed eleven times with nothing in them, and Stoneford and the
   Willow Path ten times. Now it is about three minutes, no trip is over 20 seconds, and there is no back-and-forth.
@@ -55,6 +55,46 @@ quest." The full measurement, the before and after trip tables, and the screensh
   - `valley_run` follows the new places.
   - The tracker's Next after The Humming Token is Mei Qing's Errand at the Marsh Edge, where she now is, not Artisan
     Row.
+
+## The prototype feedback: animation canceling, sprint by default, auto-path round props, meditation's pose (decision 42)
+
+From the user's play of the prototype APK (build 108; roadmap decision 42). Shots:
+`docs/redesign/feedback/combat/`.
+
+- **Animation canceling: basic attack, technique, basic attack in one flow.** The Alabaster Dawn and action-RPG weave:
+  - **A technique cuts a basic step's recovery**, and **a basic attack cuts a technique's recovery**, the frame the
+    blow's active frames end. A step's hit lands one smear frame into its active window, and a technique's hit at the
+    end of its wind-up, so a cut never drops a hit and never lands one early.
+  - **A press that comes early waits** (0.4 s) and goes at the cut. That covers a light or middling step from its
+    first frame (the fists' cut comes 0.28 s in, the jian's 0.36 s) and a technique's wind-up (0.4 s). A heavy sabre's
+    first moments still commit.
+  - **The combo carries through the technique:** basic 1, technique, basic 2. With the bare hands, basic, technique,
+    basic begin within 0.67 s, not the 0.99 s that waiting out each takes.
+  - **The figure takes each new action's pose from its first frame.**
+  - The numbers are in `tools/data/combat_feel.py` (`WEAVE`). It runs on the grid only; the side view is unchanged.
+- **The body sprints by default.** The stick pushed runs at 216 units a second (6.75 tiles a second, 40% over the
+  walk), playing the run the character sheets draw. A light touch (the stick at 0.6 or under) is still the careful
+  walk at 69, for a step to a ledge or a jump onto a top one tile deep. Keyboard: WASD sprints, Alt walks.
+  - **The world keeps its measure.** In the air the body carries no more than the 154 of the walk the world was
+    measured at:
+    - a running jump from a sprint reaches 73 units, as the walk's did (one tile's gap, not three);
+    - a step off a ledge lands 31 units past it, as before;
+    - the dash's long jump keeps its 142.
+  - Full speed comes in 0.08 s and a stop takes 0.07 s over 6 units. The camera leads a sprint by 22 art px (15 at the
+    walk). The rooms' reach checks, `room_lint` and the tutorial walks hold.
+- **Auto-path and auto-hunt go round props, at the sprint** (`TopdownRoute`, which the Autopilot steers by):
+  - **Round what blocks:** tree trunks, rocks, fences, hedges, crates, lanterns, buildings' walls and the water's bank.
+  - **The way:** find_path's own rules on a binary heap, with no search limit, keeping to open lanes.
+  - **The line:** it aims at the farthest cell of the way that a straight line reaches with the foot box kept 6 units
+    clear, so the grid's steps become straight runs and corners are rounded with room to spare.
+  - **No getting stuck:** a push that leaves it hugging a wall, or a diagonal onto a stair's side, goes by a waypoint.
+    A drop lying in a trunk's cell is picked up from the spot beside it; it used to push into the trunk forever.
+  - Over a tour of all 29 rooms (154 legs, 7 minutes of running), every leg arrives. It never touches a prop, never
+    stalls and never turns back and forth. The old steering stalled twice against a stair's side and brushed a
+    bamboo.
+- **Fixed: after cultivating, walking stayed in the cultivation pose.** Moving now ends meditation at once, and the
+  figure runs, or walks at a light touch. A jump rises from the seat too. The Agility gate that lets a body cultivate
+  on the move still does, and still walks.
 
 ## The prototype's polish: fair first fights, rewards that are new, the top-down creator (decision 41)
 
