@@ -62,6 +62,7 @@ static var _mats: Dictionary = {}     # ramp key -> ShaderMaterial
 static var _ramps: Dictionary = {}    # ramp key -> [deep, mid, light]
 static var _boxes: Dictionary = {}    # radius|colour -> StyleBoxFlat
 static var _looks: Dictionary = {}    # outfit hash|family -> [family, the outfit the art is pictured in] (art_look)
+static var _look_memo: Dictionary = {}   # art|size|muted|top -> [the outfit, the character, its look] (_look)
 static var _frame := -1               # the frame the budget below is for
 static var _spent_us := 0
 static var _started := 0
@@ -180,19 +181,28 @@ static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 	UiKit.draw_text(ci, str(rank), Vector2(c.x - 10.0, c.y + fs * 0.36), fs, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 20.0, false)
 
 # ------------------------------------------------------------------ the cells
-## What a picture is kept by, [key, top, pose]: the art, the look, which figure draws it (top-down or the side view's),
-## its pose [action, facing, frame], the size and the ink.
-## For a top-down character the figure wears the art's look (art_look); a classic side-view character keeps its own, in
-## the pose its side view casts the art in. [key, top, pose, outfit].
+## What a picture is kept by, [key, top, pose, outfit]: the art, the look, which figure draws it (top-down or the side
+## view's), its pose [action, facing, frame], the size and the ink. For a top-down character the figure wears the art's
+## look (art_look), and its pose depends on the art, that look and the size alone; a classic side-view character keeps
+## its own look, in the pose its side view casts the art in with the weapon in its hand. Found once and remembered while
+## the look it was found for is worn (a HUD draws its buttons every frame: this is a lookup and a comparison then).
 static func _look(tid: String, t: Dictionary, who, outfit: Dictionary, s: int, muted: bool) -> Array:
 	var top := TopdownDoll.shown(who)
-	var pose: Array = [TechniquePreview.pose_of(t, who, outfit), "e", 0]
+	var mk := "%s|%d|%d|%d" % [tid, s, int(muted), int(top)]
+	var m = _look_memo.get(mk)
+	if m != null and m[0] == outfit and (top or is_same(m[1], who)): return m[2]
+	var pose: Array
 	var o := outfit
 	if top:
 		var al := art_look(t, outfit)
 		o = al[1]
 		pose = top_pose(t, who, al[0], s <= SMALL)
-	return ["%s|%d|%s|%s,%s,%d|%d|%d" % [tid, hash(o), "t" if top else "s", pose[0], pose[1], pose[2], s, int(muted)], top, pose, o]
+	else:
+		pose = [TechniquePreview.pose_of(t, who, outfit), "e", 0]
+	var look := ["%s|%d|%s|%s,%s,%d|%d|%d" % [tid, hash(o), "t" if top else "s", pose[0], pose[1], pose[2], s, int(muted)], top, pose, o]
+	if _look_memo.size() >= 512: _look_memo.clear()
+	_look_memo[mk] = [outfit.duplicate(), who, look]
+	return look
 
 ## `tid`'s cell for this look and size: kept, or begun now when the frame's budget allows ({} when it must wait).
 static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bool) -> Dictionary:
@@ -363,6 +373,7 @@ static func _release() -> void:
 	_figs.clear()
 	_mats.clear()
 	_looks.clear()
+	_look_memo.clear()
 
 ## A cell's canvas item in its sheet: it draws its painted ground, the figure and the marks through the ink.
 class Cell extends Node2D:

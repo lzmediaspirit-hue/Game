@@ -22,7 +22,8 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   worker thread, and the main thread only makes two small textures and a canvas item, at most six a frame within
   1.5 ms; the figure and the ink are the GPU's (`technique_picture_ink.gdshader`). A picture shows in its place as it
   is painted, so the tree's kept tiles are not drawn again for it, and the page's redraw-on-change holds
-  (`perf_tests`' `_techniques_redraws`).
+  (`perf_tests`' `_techniques_redraws`). A picture's look (its pose, its outfit, its cell's key) is found once and
+  remembered while that look is worn, so the HUD's buttons cost a lookup a frame (about 5 µs a button, from 36).
 - **A readability pass at a button's size** (the HUD's 50 px, the loadout bar's 42 px; the cards and the reading are
   as above): the first pictures there were dark and muddy and read worse than the old side-view busts. Now the figure
   faces the camera on the frame before its blow lands (its face always shows; the back of the head never fills the
