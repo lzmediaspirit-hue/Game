@@ -1915,10 +1915,11 @@ catalogue (idle 6, walk 8, windup 4, attack 6 with the hit on frame 1, hurt 3, d
 - Rates: idle 7, attack 20, hurt 12, death 10 fps; the walk by the species' speed (8–16); the wind-up by its shortest
   `windup_s` in `data/enemies.json`, its last frame up within 70% of it. No fight timing changed, so `balance_sim`
   stands as it was.
-- A sheet a species, `art/topdown/foes/<species>.png`: a row per drawn facing (then the elite's), 35 frames along it,
-  in the species' own cell (the union of its frames; wrapped to more rows past 4096 px, which none needs). Twelve
-  sheets, 14.6 M texels in all (the old single sheet: 5.3 M, 1216 × 4320, over the phones' 4096 limit); the largest is
-  Old Snapper's, 3430 × 500. A room loads only its own species'.
+- A sheet a species, `art/topdown/foes/<species>.png`, and its elite's apart, `<species>_elite.png`: a row per drawn
+  facing, 35 frames along it, in its own cell (the union of its frames; wrapped to more rows past 4096 px, which none
+  needs). Twenty sheets, 11.6 M texels in all, 6.7 M of them the twelve species' own (the old single sheet: 5.3 M,
+  1216 × 4320, over the phones' 4096 limit); the largest is Old Snapper's, 3395 × 490. A room loads only its own
+  species' sheets, an elite's only where one stands: the Reed Shallows' crabs, rats and Old Snapper about 2.2 M texels.
 - `data/topdown/foes.json`: per species its `atlas`, `cell`, `foot`, `shadow`, `top` (its idle figure's height, for the
   label) and each action's `frames` per facing, `fps` and `loop` (the attack's `hit_frame` 1), an elite's under
   `elite`. `build_tiles.py` no longer builds the foes; `proto_tileset.json` lost its `foes` block and atlas.
@@ -1929,15 +1930,15 @@ catalogue (idle 6, walk 8, windup 4, attack 6 with the hit on frame 1, hurt 3, d
 
 - `TopdownRoom.load_room` lays `foes.json` (read once) into the tile set as its `foes`.
 - `TopdownWorld.FoeView`: the species' own sheet (`foe_sheet`, loaded once), cell and feet; an elite
-  (`EnemyState.elite`) its species' `elite` rows, shadow and label height where the sheet has them. Still one draw a
-  foe.
+  (`EnemyState.elite`) its species' `elite` sheet, cell, feet, shadow and label height where it has one. Still one draw
+  a foe.
 - `TechniquePreview.TopFoe` (the Techniques page's top-down foes) reads `foes.json` and the species' sheet.
 
 **Tests.**
 
 - `data_validation`: every foe drawn has the whole catalogue in five facings, its elite's too, inside its own sheet,
   the hit on frame 1, no sheet over 4096 px a side; and every foe's wind-up reaches its tell before the blow.
-- `topdown_suite` (in `rules_tests`): an elite foe draws its species' elite rows from the same sheet, its shadow wider;
+- `topdown_suite` (in `rules_tests`): an elite foe draws its species' elite sheet in its larger cell, its shadow wider;
   an elite's label sits on its own larger figure.
 - `topdown_tutorial` checks, as before, that every foe the tutorial rooms spawn has its own figure.
 

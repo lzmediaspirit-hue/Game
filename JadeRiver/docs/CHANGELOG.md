@@ -32,15 +32,17 @@ characters' quality" the pipeline.
 - **Elites.** An elite draws its own rows: 1.2× larger, darker, gold-eyed, and burning with pale gold Qi (a ring on its
   outline, tongues licking up off its back, motes rising). The crab, the rat, both boarlets, the frog, the leech, the
   otter and the toad have them; Old Snapper wears the ring of Qi in its own colours as its boss presence.
-- **A sheet a species.** `art/topdown/foes/<species>.png`, each in its own cell and under 4096 px a side (the old single
-  sheet was 1216 × 4320), indexed by `data/topdown/foes.json` and built by `tools/art/topdown/build_foes.py` (its own
-  build now, apart from the tiles'). A room loads only its own species' sheets; a foe is still one draw.
+- **A sheet a species.** `art/topdown/foes/<species>.png` (an elite's apart, `<species>_elite.png`), each in its own
+  cell and under 4096 px a side (the old single sheet was 1216 × 4320), indexed by `data/topdown/foes.json` and built by
+  `tools/art/topdown/build_foes.py` (its own build now, apart from the tiles'). A room loads only its own species'
+  sheets, and an elite's only where an elite stands: the Reed Shallows' foes take about 2.2 M texels, from the old
+  sheet's 5.3 M. A foe is still one draw.
 - **Screenshots** before and after in the game (the lineup idle, in its tell, on its hit, struck and falling, the
   elites, the eel, and fights under the HUD) in `docs/redesign/feedback/monsters/` (`topdown_capture.gd -- --monsters`),
   and every sheet at ×3, each species playing its catalogue as a GIF and the tells side by side in
   `docs/redesign/feedback/monsters/sheets/`.
 - **Tests.** `data_validation`: the whole catalogue in five facings for every foe and its elite, inside its sheet, no
-  sheet over 4096 px, every tell up before its blow. `topdown_suite`: an elite draws its elite rows from the same sheet,
+  sheet over 4096 px, every tell up before its blow. `topdown_suite`: an elite draws its own sheet in its larger cell,
   its label on its larger figure.
 
 ## The technique pictures like the reference, the last side-view figures, the array's travel picker (decision 42)

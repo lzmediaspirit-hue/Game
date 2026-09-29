@@ -10,11 +10,11 @@ the body 46 px): SIZE is each species' size against its sculpture's art px; an e
 darker, gold-eyed, in a ring of Qi (`creature.sculpt`), and the bosses (Old Snapper, the hollowed eel, the Trial Puppet)
 are drawn larger by their own SIZE.
 
-Each species has its own sheet (art/topdown/foes/<species>.png): a row per drawn facing (then the elite's), the frames
-of every action along it, in a cell of its own size (the union of its frames); `build` returns the sheets and the
-manifest block the room view reads (data/topdown/foes.json). The rates: idle and hurt fixed, the walk by the species'
-speed, the wind-up by its shortest wind-up (enemies.json) so the tell's last frame is up before the blow, the attack
-fast enough that its follow-through shows before the recovery. No randomness: a rebuild is byte-identical.
+Each species has its own sheet (art/topdown/foes/<species>.png, its elite's apart in <species>_elite.png): a row per
+drawn facing, the frames of every action along it, in a cell of its own size (the union of its frames); `build`
+returns the sheets and the manifest block the room view reads (data/topdown/foes.json). The rates: idle and hurt
+fixed, the walk by the species' speed, the wind-up by its shortest wind-up (enemies.json) so the tell's last frame is
+up before the blow, the attack fast enough that its follow-through shows before the recovery. No randomness: a rebuild is byte-identical.
 """
 from __future__ import annotations
 
@@ -45,9 +45,11 @@ MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
 
 
 class Spec:
-    """A species: its pose function (action, frame) -> Pose, its size, palette, the materials its elite keeps (eyes and
-    accents), whether it has an elite (and whether it wears the elite's ring of Qi in its own colours, a boss's presence), its blob shadow (rx, ry art px), and how far one walk cycle carries it (art px at
-    size 1, for the walk's rate)."""
+    """A species: its pose function (action, frame) -> Pose, its size, palette, the materials its elite keeps (accents)
+    or turns gold (`gold`: its eyes), whether it has an elite, whether it wears the elite's ring of Qi in its own colours
+    (`aura`, a boss's presence), its blob shadow (rx, ry art px), how far one walk cycle carries it (art px at size 1,
+    for the walk's rate), whether it keeps its broad side to the camera (`sideways`, the crab) and whether it is posed
+    at its size (`sized`, the eel against its water)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
                  cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=()):
@@ -158,22 +160,21 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
     for sp in SPECIES:
         if sp not in REGISTRY or (only is not None and sp not in only):
             continue
-        variants = [False, True] if REGISTRY[sp].elite else [False]
-        al = np.zeros(frames[(sp, False, DIRS[0])][0].shape[:2], dtype=bool)
-        for el in variants:
+        fps = rates(sp, enemies)
+        block: dict = {}
+        for el in ([False, True] if REGISTRY[sp].elite else [False]):
+            # Its own sheet and cell (the union of its frames): an elite's rows load only where an elite stands.
+            al = np.zeros(frames[(sp, el, DIRS[0])][0].shape[:2], dtype=bool)
             for d in DIRS:
                 for im in frames[(sp, el, d)]:
                     al |= im[..., 3] > 0
-        ys, xs = np.nonzero(al)
-        x0, x1 = xs.min() - 1, xs.max() + 2
-        y0, y1 = ys.min() - 1, ys.max() + 2
-        cw, ch = int(x1 - x0), int(y1 - y0)
-        per = max(1, min(n, MAX_SIDE // cw))
-        rows_per = -(-n // per)
-        sheet = Image.new("RGBA", (per * cw, len(variants) * len(DIRS) * rows_per * ch), (0, 0, 0, 0))
-        fps = rates(sp, enemies)
-        block: dict = {}
-        for vi, el in enumerate(variants):
+            ys, xs = np.nonzero(al)
+            x0, x1 = xs.min() - 1, xs.max() + 2
+            y0, y1 = ys.min() - 1, ys.max() + 2
+            cw, ch = int(x1 - x0), int(y1 - y0)
+            per = max(1, min(n, MAX_SIDE // cw))
+            rows_per = -(-n // per)
+            sheet = Image.new("RGBA", (per * cw, len(DIRS) * rows_per * ch), (0, 0, 0, 0))
             acts: dict = {}
             for di, d in enumerate(DIRS):
                 i = 0
@@ -181,7 +182,7 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
                     entry = acts.setdefault(a, {"fps": fps[a], "loop": LOOP.get(a, False), "frames": {}})
                     lst = []
                     for _ in range(FRAMES[a]):
-                        col, r = i % per, (vi * len(DIRS) + di) * rows_per + i // per
+                        col, r = i % per, di * rows_per + i // per
                         sheet.paste(Image.fromarray(np.ascontiguousarray(frames[(sp, el, d)][i][y0:y1, x0:x1]), "RGBA"), (col * cw, r * ch))
                         lst.append([col * cw, r * ch])
                         i += 1
@@ -194,15 +195,15 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             top = int(sculpt.FOOT[1] - iy.min()) if len(iy) else int(sculpt.FOOT[1] - y0)
             k = ELITE if el else 1.0
             shadow = [int(round(REGISTRY[sp].shadow[0] * k)), int(round(REGISTRY[sp].shadow[1] * k))]
-            v = {"actions": acts, "shadow": shadow, "top": top}
+            path = "art/topdown/foes/%s%s.png" % (sp, "_elite" if el else "")
+            v = {"actions": acts, "shadow": shadow, "top": top, "atlas": "res://" + path, "cell": [cw, ch],
+                 "foot": [int(sculpt.FOOT[0] - x0), int(sculpt.FOOT[1] - y0)]}
+            sheets[path] = sheet
             if el:
                 block["elite"] = v
             else:
                 block.update(v)
-        path = "art/topdown/foes/%s.png" % sp
-        block.update({"atlas": "res://" + path, "cell": [cw, ch], "foot": [int(sculpt.FOOT[0] - x0), int(sculpt.FOOT[1] - y0)]})
-        sheets[path] = sheet
         species[sp] = block
     return sheets, {"dirs": DIRS, "mirror": MIRROR, "species": species,
-                    "note": "the top-down foes in eight facings (five drawn, three mirrored), a sheet a species, built by "
-                            "tools/art/topdown/build_foes.py"}
+                    "note": "the top-down foes in eight facings (five drawn, three mirrored), a sheet a species (its elite's "
+                            "apart), built by tools/art/topdown/build_foes.py"}

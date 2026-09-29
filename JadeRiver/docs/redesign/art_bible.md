@@ -314,17 +314,18 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   | **Hollowed eel** (a story boss) | 1.44 | rising about 58 px out of the river |
 
   A foe's blob shadow grows with it (the manifest's `shadow`, an elite's its own). A new foe is sized against the
-  46 px person the same way: a small beast about half a person's height long, a medium one a person's height long, an
-  elite 1.2× its kin, a boss by its presence.
-- **Elites.** An elite (`EnemyState.elite`, a story's elite or an early surprise) draws its species' elite rows: 1.2×
+  46 px person the same way: a small beast (a frog, a toad, a crab) half to two thirds of a person's height across, a
+  medium one (a boarlet, an otter) about four fifths of it long, an elite 1.2× its kin, a boss by its presence.
+- **Elites.** An elite (`EnemyState.elite`, a story's elite or an early surprise) draws its species' elite sheet: 1.2×
   larger, its ramps darkened toward the §14 shadow, gold eyes, and Qi burning round it in pale gold (a ring hugging its
   outline, stronger toward its top and flickering frame by frame, a fainter ring standing off it, tongues licking up
-  off its back and motes rising). Every beast that can be an elite on the grid has them: the crab, the rat, both
+  off its back and motes rising). Every beast that can be an elite on the grid has one: the crab, the rat, both
   boarlets, the frog, the leech, the otter and the toad. The Trial Puppet, Old Snapper, the minnow and the eel have
   none; Old Snapper wears the ring of Qi in its own colours as its boss presence.
-- **Sheets.** A sheet a species (`art/topdown/foes/<species>.png`): a row per drawn facing (then the elite's), the 35
-  frames of every action along it, in a cell of the species' own size (the union of its frames). Every sheet is under
-  4096 px a side (phones' texture limit); a room loads only its own species' sheets. The index is
+- **Sheets.** A sheet a species (`art/topdown/foes/<species>.png`), and its elite's apart
+  (`<species>_elite.png`): a row per drawn facing, the 35 frames of every action along it, in a cell of its own size
+  (the union of its frames). Every sheet is under 4096 px a side (phones' texture limit; the largest, Old Snapper's, is
+  3395 × 490); a room loads only its own species' sheets, and an elite's only where an elite stands. The index is
   `data/topdown/foes.json` (per species its sheet, cell, feet, shadow, label height and each action's frames, rate and
   loop; an elite's under `elite`), laid into the tile set as its `foes` (`TopdownRoom.load_room`). The room view
   (`TopdownWorld.FoeView`) still draws a foe with one call.

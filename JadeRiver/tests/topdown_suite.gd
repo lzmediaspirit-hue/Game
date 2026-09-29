@@ -1000,14 +1000,15 @@ func _foe_facings(base: Vector2) -> void:
 	var last: Array = acts.death.frames.n.back()
 	t.check(seen == ["w*", "ne", "s", "sw*", "n"] and is_equal_approx(west_y, float(acts.walk.frames.e[0][1])) and not e.alive and fv.src.position == Vector2(float(last[0]), float(last[1])),
 		"topdown: a foe faces where it walks and where it aims (%s; SW, W and NW mirror SE, E and NE), and its death holds its last frame" % str(seen))
-	# Decision 43: an elite takes its species' elite rows (larger, darker, in a ring of Qi), from the same sheet.
+	# Decision 43: an elite takes its species' elite sheet (larger, darker, in a ring of Qi), loaded only for an elite.
 	var el: EnemyState = Game.enemies.spawn_at("wild_boarlet", base + Vector2(-80, 0), 1, {"elite": true})
 	el.altitude = w.room.height_at(el.plane)
 	frames(1)
 	var ev = w.foe_views.get(el.uid)
 	var sp: Dictionary = w.room.tileset.foes.species.wild_boarlet
-	t.check(ev != null and ev.acts == sp.elite.actions and fv.acts == sp.actions and ev.tex == fv.tex and ev.shadow_rx > fv.shadow_rx,
-		"topdown: an elite foe draws its species' elite rows from the same sheet, its shadow wider (%s)" % str(ev.shadow_rx if ev != null else -1.0))
+	t.check(ev != null and ev.acts == sp.elite.actions and fv.acts == sp.actions and ev.tex != null and ev.tex != fv.tex
+		and ev.tex.resource_path == str(sp.elite.atlas) and ev.cell.y > fv.cell.y and ev.shadow_rx > fv.shadow_rx,
+		"topdown: an elite foe draws its species' elite sheet, in its larger cell, its shadow wider (%s)" % str(ev.shadow_rx if ev != null else -1.0))
 
 ## A blow lands in each of the eight directions it is aimed, and only there.
 func _eight_ways(base: Vector2) -> void:

@@ -1767,8 +1767,8 @@ func topdown_art_suite() -> void:
 		if props[k].has("shadow") != props[k].has("shadow_rect") or not psheet.encloses(Rect2i(int(s[0]), int(s[1]), int(s[2]), int(s[3]))): outside.append("shadow " + k)
 	check(outside.is_empty(), "topdown art: every tile, prop frame and prop shadow lies inside its sheet and every placed prop exists (%s)" % str(outside))
 	# Phase 3, decision 43: every foe drawn for the grid (the prototype room's first) has every action of the catalogue
-	# in the five drawn facings, its elite's too where it has one, each frame inside its own sheet, and no sheet is over
-	# 4096 px on a side (phones' texture limit).
+	# in the five drawn facings, its elite's too where it has one, each frame inside its own sheet (an elite's apart), and
+	# no sheet is over 4096 px on a side (phones' texture limit).
 	var foes = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/foes.json"))
 	foes = foes if foes is Dictionary else {}
 	var catalogue := {"idle": 6, "walk": 8, "windup": 4, "attack": 6, "hurt": 3, "death": 8}
@@ -1779,13 +1779,13 @@ func topdown_art_suite() -> void:
 		if not drawn.has(str(sp.enemy)): missing_foes.append(str(sp.enemy))
 	for id in drawn:
 		var block: Dictionary = drawn[id]
-		var img: Texture2D = load(str(block.get("atlas", ""))) if ResourceLoader.exists(str(block.get("atlas", ""))) else null
-		var cell: Array = block.get("cell", [0, 0])
-		if img == null:
-			missing_foes.append("%s sheet" % id)
-			continue
-		if img.get_width() > 4096 or img.get_height() > 4096: big.append("%s %dx%d" % [id, img.get_width(), img.get_height()])
 		for look in [block] + ([block.elite] if block.has("elite") else []):
+			var img: Texture2D = load(str(look.get("atlas", ""))) if ResourceLoader.exists(str(look.get("atlas", ""))) else null
+			var cell: Array = look.get("cell", [0, 0])
+			if img == null:
+				missing_foes.append("%s sheet" % id)
+				continue
+			if img.get_width() > 4096 or img.get_height() > 4096: big.append("%s %dx%d" % [id, img.get_width(), img.get_height()])
 			var acts: Dictionary = look.get("actions", {})
 			for act in catalogue:
 				for d in foes.get("dirs", []):

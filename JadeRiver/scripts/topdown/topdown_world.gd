@@ -877,8 +877,8 @@ class Caption extends Control:
 ## body, its shadow on the floor under it, a flash when struck and a fade in death. It turns to eight facings (five
 ## drawn, SW, W and NW mirrored): where it walks, else where it aims in a fight, keeping its facing until another is 12
 ## degrees nearer. Each action plays at its own rate from the manifest; a strike, a flinch and a death play once and
-## hold their last frame. An elite takes its species' elite rows where the sheet has them: larger, darker, gold-eyed,
-## in a ring of Qi.
+## hold their last frame. An elite takes its species' elite sheet where there is one: larger, darker, gold-eyed, in a
+## ring of Qi.
 ## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
 ## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
 ## figure at half size), placed, sorted and shadowed here the same way.
@@ -920,11 +920,11 @@ class FoeView extends Sorted:
 		var look: Dictionary = sp.get("elite", sp) if e.elite else sp
 		acts = look.get("actions", {})
 		mirror = sheet.get("mirror", {})
-		var c: Array = sp.get("cell", sheet.get("cell", [48, 40]))
-		var f: Array = sp.get("foot", sheet.get("foot", [24, 27]))
+		var c: Array = look.get("cell", sheet.get("cell", [48, 40]))
+		var f: Array = look.get("foot", sheet.get("foot", [24, 27]))
 		cell = Vector2(float(c[0]), float(c[1]))
 		foot = Vector2(float(f[0]), float(f[1]))
-		tex = w.foe_sheet(str(sp.get("atlas", "")))
+		tex = w.foe_sheet(str(look.get("atlas", "")))
 		top = float(look.get("top", -1))
 		shadow_rx = float(look.get("shadow", [8, 3])[0])
 		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
