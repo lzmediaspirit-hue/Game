@@ -901,7 +901,8 @@ The villagers are drawn the same way.
   - a skeleton posed per frame in the figure's own frame (forward, right, up), with two-bone IK for the arms and legs;
   - solids (spheres, ellipsoids, tapered cones) ray-cast at 1 art px per pixel through an orthographic camera 22°
     above the ground;
-  - 0.92 art px per unit, so the body is about 38 art px from sole to crown, 40 with a top knot.
+  - 0.92 art px per unit, so the body is about 38 art px from sole to crown, 40 with a top knot (decision 43 later draws
+    it at 1.104, about 46 px: art bible §13).
 - **Shading.** Each pixel takes a step of its material's five-step ramp from N·L against the upper-left light. The
   deepest step is kept for contact shade, under a nearer part. Orphan pixels are cleaned up.
 - **Outlines.** 1 px, as the art bible's §4 sets: ink-teal `0E1A1E` on the shaded side and `26363A` on the lit side.
