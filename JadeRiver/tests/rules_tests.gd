@@ -479,6 +479,7 @@ func prototype_suite() -> void:
 	var herb_open: bool = offered.call("lf_reed_shallows", "herb_6")
 	check(not herb_locked and not drum_locked and herb_open and WorldAuthority.resource_node(ContentDB.room("wp_west").objects.filter(func(o): return str(o.id) == "temper_copper_wp_west")[0]),
 		"prototype: a locked resource node (a herb before herb gathering, the Temper drum before its body level) never takes the context button, and is offered once open (herb %s, drum %s, herb open %s)" % [herb_locked, drum_locked, herb_open])
+	await _array_picker_checks(td, st, road)
 	# In the instanced room a step is done in (the Siege of Two Sects, its way out held until it is won) the step leads
 	# there, not back to the street its rite was begun in (valley_run saw a daily done mid-siege send the player out).
 	var siege_def: Dictionary = Game.quest.quest_def(td, "the_siege")
@@ -584,6 +585,47 @@ func prototype_suite() -> void:
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the
 ## player every ordinary one does. A foe that is struck, an elite, or a summoned add always comes.
+## Decision 42 (the sect's transfer array asked "where to" on the dialogue page, beside an empty portrait): tapped, the
+## array opens its own small travel picker, not a talk; the picker names the array and gives a button a destination,
+## by the far room's name, for the arrays its token knows only (the watch post's keyed, the mentor's peak not yet, the
+## other sect's never), and never one past the prototype's gate (a node of the network in a room off the grid, keyed,
+## is not offered and cannot be taken); once the peak is keyed it joins.
+func _array_picker_checks(td, st: ActorState, road: String) -> void:
+	var sect_was: Dictionary = td.training_sect.duplicate(true)
+	td.training_sect = {"id": "jade_sect", "rank": "outer_disciple", "contribution": 0, "reputation": {"jade_sect": 10}}
+	Unlocks.force_unlock(td.id, "transfer_array")
+	Game.quest.apply_flag(td.id, "array_array_marsh")
+	Game.quest.apply_flag(td.id, "array_array_cm_gate")   # the other sect's: never offered to a Jade disciple
+	Game.world.load_room(td, "ja_gate_street", "")
+	GameEvents.flush()
+	var arr: Dictionary = Game.room_rt.object_def("array_ja_gate")
+	st.plane = Vector2(float(arr.at[0]), float(arr.at[1]))
+	st.altitude = float(arr.get("alt", 0.0))
+	st.surface = null
+	var tap := Game.submit({"type": "interact", "object": "array_ja_gate"})
+	var nodes := WorldRules.array_nodes()
+	var shut := ""   # a room off the grid: a node of the sect's network there would lie past the gate
+	for rid in ContentDB.rooms:
+		if shut == "" and not TopdownRoom.has_layout(str(rid)) and str(ContentDB.room(str(rid)).get("region", "")) == "jade_sect": shut = str(rid)
+	nodes["array_test_past_gate"] = {"id": "array_test_past_gate", "room": shut, "network": "jade_sect", "at": [0, 0]}
+	Game.quest.apply_flag(td.id, "array_array_test_past_gate")
+	var view: Dictionary = Game.world.array_view(td, "array_ja_gate")
+	var picker: Page = await _open_page(str(tap.get("open_page", "transfer_array")), tap.get("page_args", {"object": "array_ja_gate"}))
+	var buttons: Array = picker._regions.filter(func(g): return str(g.id) == "go").map(func(g): return str(g.data))
+	var words: Array = picker.text_log.map(func(l): return str(l.get("s", "")))
+	var past := Game.submit({"type": "array_travel", "from": "array_ja_gate", "to": "array_test_past_gate"})
+	nodes.erase("array_test_past_gate")
+	check(tap.get("ok", false) and str(tap.get("open_page", "")) == "transfer_array" and not tap.has("dialogue") and picker.title == str(arr.name)
+		and buttons == ["array_marsh"] and words.has(ContentDB.name_of("rooms", "rm_marsh_edge")) and shut != ""
+		and not past.get("ok", false) and str(past.get("text", "")) == road and Game.room_rt.room_id == "ja_gate_street",
+		"decision 42: the transfer array opens its own travel picker (%s), named for the array (%s), a button for each array the token knows by its room's name and no other (%s), none past the gate (%s: %s)"
+		% [str(tap.get("open_page", tap)), picker.title, str(buttons), shut, str(past)])
+	picker.queue_free()
+	Game.quest.apply_flag(td.id, "array_array_ja_peak")
+	var keyed: Array = Game.world.array_view(td, "array_ja_gate").destinations.map(func(d): return str(d.id))
+	check(keyed == ["array_ja_peak", "array_marsh"] or keyed == ["array_marsh", "array_ja_peak"], "decision 42: once the mentor's peak is keyed, the picker offers it too (%s)" % str(keyed))
+	td.training_sect = sect_was
+
 func aggro_cap_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
@@ -2264,16 +2306,25 @@ func points_badges_suite() -> void:
 	await get_tree().process_frame
 	check(opened.size() == rows.size() and wrong.is_empty(), "Points badges: each tap opens its page on the tab where the points are spent (%s)" % str(wrong))
 
-## Decision 42 ("I want the skills icon to look like the attached image", the Techniques tree): the HUD's technique
-## buttons and the Techniques page's loadout bar draw each slotted art as the tree's node picture (TechniquePicture:
-## the character in the art's pose, from the Avatar's still of it, in the tree's bright jade frame), at rest as in a
-## fight; the older round emblem is not drawn at a button's size. Its states read on the picture: cooling (the sweep and
-## its seconds), short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock).
+## Decision 42 ("I want the skills icon to look like the attached image", docs/redesign/feedback/skill_icon_reference.png;
+## "there are places we still use the old sprite character, we need to fix it"): one technique picture everywhere
+## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, its form's marks,
+## the rank badge). For a top-down character every picture draws the top-down figure at a whole scale: the HUD's
+## buttons and the loadout bar its upper body at x2, the tree's cards at x2, the reading at x3; a companion's chip shows
+## the top-down figure's head. A classic side-view character's pictures are the side view's. Each slotted art is its
+## picture at rest as in a fight, never the round emblem, and its states read on it: cooling (the sweep and its seconds),
+## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
+## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
+## makes their textures and a canvas item, a few a frame (the old side-view stills took 10-30 ms each on it).
 func technique_pictures_suite() -> void:
 	var c = Game.active()
 	if c == null: return
 	var force_was: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
+	var view_was := str(c.view)
+	c.view = "topdown"
+	var party_was: Array = c.companions.active.duplicate()
+	c.companions.active = ["lan_yue"]
 	var slots_was: Array = c.cultivator.technique_slots.duplicate()
 	var known_was: Array = c.cultivator.techniques_known.duplicate()
 	var qi_was := [c.pools.qi, c.pools.max_qi]
@@ -2287,7 +2338,8 @@ func technique_pictures_suite() -> void:
 		if not c.cultivator.techniques_known.has(a): c.cultivator.techniques_known.append(a)
 	c.cultivator.technique_slots = arts + [null, null, null, null]
 	var look := InventoryAuthority.outfit_for(c)
-	for a in arts: TechniquePicture.still(look, TechniquePreview.pose_of(ContentDB.entry("techniques", a), c, look), true)
+	TechniquePicture.build_us_max = 0
+	TechniquePicture.frame_us_max = 0
 	var stub_src := GDScript.new()
 	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
 	stub_src.reload()
@@ -2296,6 +2348,15 @@ func technique_pictures_suite() -> void:
 	var hud = load("res://scripts/hud.gd").new()
 	add_child(hud)
 	hud.player = stub
+	# The pictures are begun a few a frame and painted off the main thread: they come in within a few frames.
+	var inner := int(hud.TILE) - 6
+	var waited := 0
+	for i in 120:
+		hud.queue_redraw()
+		await get_tree().process_frame
+		waited = i
+		if arts.all(func(a): return TechniquePicture.painted(a, c, look, inner)) and (hud._faces.get("top|lan_yue") as TopdownFigure).loaded(): break
+	var face_top: bool = hud._faces.get("top|lan_yue") is TopdownFigure and not hud._faces.has("lan_yue")
 	# At rest, and then in a fight with the first art cooling and the second short of Qi.
 	var drawn := {}
 	for st in ["rest", "fight"]:
@@ -2323,7 +2384,13 @@ func technique_pictures_suite() -> void:
 		var at_slot := func(d: Dictionary) -> bool: return hud.slots.any(func(s): return (d.rect as Rect2).get_center().distance_to(s) < 4.0)
 		var round_icons: Array = (drawn[st].icons as Array).filter(func(d): return str(d.id) in arts and (d.rect as Rect2).size.x >= 32.0 and at_slot.call(d))
 		if not round_icons.is_empty(): bad.append("%s: the round emblem drawn at a button (%s)" % [st, str(round_icons.map(func(d): return d.id))])
-	check(bad.is_empty(), "decision 42: the HUD draws each slotted art as the tree's node picture in its square, at rest and in a fight, never the round emblem (%s)" % str(bad.slice(0, 4)))
+	check(bad.is_empty(), "decision 42: the HUD draws each slotted art as its picture in its square, painted within %d frames, at rest and in a fight, never the round emblem (%s)" % [waited, str(bad.slice(0, 4))])
+	var hud_pics: Array = []   # each art once (a frame may draw the HUD twice)
+	for d in drawn["rest"].pics:
+		if str(d.get("where", "")) == "hud" and not hud_pics.any(func(e): return str(e.id) == str(d.id)): hud_pics.append(d)
+	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 2 and int(d.size) == inner and int(d.rank) >= 1) and face_top,
+		"decision 42: for a top-down character the HUD's pictures are the top-down figure's upper body at x2 with the art's rank, and a companion's chip its head (%s; face %s)"
+		% [str(hud_pics.map(func(d): return [d.id, d.top, d.scale, d.rank])), face_top])
 	var fight_log: Array = drawn["fight"].pics
 	var state_at := func(kind: String, i: int) -> bool:
 		return fight_log.any(func(d): return str(d.get("state", "")) == kind and (d.rect as Rect2).get_center().distance_to(hud.slots[i]) < 1.0)
@@ -2331,16 +2398,48 @@ func technique_pictures_suite() -> void:
 	check(state_at.call("cooldown", 0) and state_at.call("qi", 1) and not state_at.call("qi", 3) and state_at.call("lock", 3)
 		and not closed.is_empty() and closed[0].frame == UiKit.HOLLOW and float(closed[0].k) < 0.5 and not state_at.call("lock", 0),
 		"decision 42: on the pictures the cooldown sweeps its art, Qi short shows its strip, and an art the weapon in hand cannot use is closed (slate frame, dim, a lock)")
-	# The Techniques page's loadout bar: Ring I's four slots draw the same pictures.
+	# The Techniques page: the Water tree's cards, Flowing Palm's reading and the loadout bar, all the top-down figure.
 	TechniquePicture.draw_log = []
-	var tp: Page = await _open_page("techniques", {})
-	for i in 3: await get_tree().process_frame
-	var dock: Array = TechniquePicture.draw_log.filter(func(d): return str(d.get("where", "")) == "dock")
+	var tp: Page = await _open_page("techniques", {"tab": "water"})
+	tp.on_action("node", "flowing_palm")
+	var shown: Array = []   # [id, size, muted] of each picture the page drew
+	for i in 120:
+		tp.queue_redraw()
+		await get_tree().process_frame
+		for d in TechniquePicture.draw_log:
+			if not d.has("id") or not d.has("size"): continue
+			var k := [str(d.id), int(d.size), bool(d.get("muted", false))]
+			if not shown.has(k): shown.append(k)
+		if i > 10 and shown.all(func(k): return TechniquePicture.painted(k[0], c, look, k[1], k[2])): break
+	var page_log: Array = TechniquePicture.draw_log.duplicate()
+	var by_where := func(w: String) -> Array: return page_log.filter(func(d): return str(d.get("where", "")) == w)
+	var cards: Array = by_where.call("tree")
+	var reading: Array = by_where.call("reading")
+	var dock: Array = by_where.call("dock")
 	var dock_ids := {}
 	for d in dock:
-		if (d.rect as Rect2).position.y >= 656.0 and d.figure: dock_ids[str(d.id)] = true
-	check(arts.all(func(a): return dock_ids.has(a)), "decision 42: the Techniques page's loadout bar draws the slotted arts as the tree's pictures too (%s)" % str(dock_ids.keys()))
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 2: dock_ids[str(d.id)] = true
+	var unpainted: Array = shown.filter(func(k): return not TechniquePicture.painted(k[0], c, look, k[1], k[2]))
+	# (A picture drawn before its turn came has no cell yet, scale 0: the plain ground stood in for it that frame.)
+	check(not cards.is_empty() and cards.all(func(d): return d.top and int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
+		and reading.all(func(d): return d.top and str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
+		and arts.all(func(a): return dock_ids.has(a)) and unpainted.is_empty(),
+		"decision 42: on the Techniques page the tree's cards (%d, x2), the reading (x3) and the loadout bar (%s, x2) all draw the top-down figure, each painted (%s)"
+		% [cards.size(), str(dock_ids.keys()), str(unpainted.slice(0, 4))])
 	tp.queue_free()
+	# A classic side-view character keeps the side view's pictures (the fallback).
+	c.view = ""
+	TechniquePicture.draw_log = []
+	hud.queue_redraw()
+	await get_tree().process_frame
+	var side: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.has("top"))
+	check(not side.is_empty() and side.all(func(d): return not d.top), "decision 42: a classic side-view character's pictures are the side view's (%d)" % side.size())
+	c.view = "topdown"
+	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us" % [TechniquePicture.build_us_max, TechniquePicture.build_worst, TechniquePicture.frame_us_max])
+	# About 1 ms and 2 ms on an idle desktop runner; the bounds leave room for a busy one.
+	check(TechniquePicture.build_us_max <= 4000 and TechniquePicture.frame_us_max <= 8000,
+		"decision 42: no technique picture is built on the main thread past a small budget: one start, finish or paint %.1f ms at most (4; %s), a frame's %.1f ms (8); the side view's stills took 10-30"
+		% [TechniquePicture.build_us_max / 1000.0, TechniquePicture.build_worst, TechniquePicture.frame_us_max / 1000.0])
 	TechniquePicture.draw_log = null
 	SpriteCache.draw_log = null
 	hud.player = null
@@ -2348,6 +2447,8 @@ func technique_pictures_suite() -> void:
 	hud.free()   # at once: a HUD left for the frame's end would set WorldLabels.party_fight in the next suite's frame
 	c.cultivator.technique_slots = slots_was
 	c.cultivator.techniques_known = known_was
+	c.companions.active = party_was
+	c.view = view_was
 	Unlocks.debug_force_all = force_was
 
 ## Decision 42: the pairs of the right-hand cluster's controls that touch in each of `states` ([in a fight, the fan
@@ -12962,6 +13063,7 @@ func figures_suite() -> void:
 	var whole := func(n: Node2D) -> bool: return is_equal_approx(n.scale.x, roundf(n.scale.x)) and n.scale.x >= 1.0
 	c.view = "topdown"
 	var talk: Dictionary = Game.submit({"type": "talk", "npc": "old_ma"}).get("dialogue", {})
+	TechniquePicture.draw_log = []
 	var seen := {}
 	for spec in [["techniques", {"tab": "water"}], ["character", {}], ["inventory", {}], ["dialogue", {"convo": talk}], ["companions", {}], ["shop", {"tab": "old_ma"}],
 			["cultivation", {}], ["notice_board", {"tab": "bounties"}], ["training_sect", {}], ["characters", {}], ["posts", {}]]:
@@ -12975,11 +13077,11 @@ func figures_suite() -> void:
 				for i in 4: await get_tree().process_frame
 				var st: TechniquePreview = pg.stage
 				var t := ContentDB.entry("techniques", "flowing_palm")
-				var poses: Array = pg._pics.values().map(func(v): return str(v.pose))
+				var cards: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "tree")
 				figs = [pg.pic, st.caster]
 				seen["techniques_preview"] = (st.top and st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
 					and not st.foes.is_empty() and st.foes.all(func(f): return f.sprite is TechniquePreview.TopFoe))
-				seen["techniques_cards"] = not poses.is_empty() and poses.all(func(ps): return TopdownFigure.manifest().actions.has(TopdownFigure.resolve(ps)))
+				seen["techniques_cards"] = not cards.is_empty() and cards.all(func(d): return d.top)   # the cards' pictures: the top-down figure (TechniquePicture)
 			"character":
 				figs = [pg.doll] + pg.mates
 				seen["character_scale"] = whole.call(pg.doll) and pg.mates.size() >= 1
@@ -12995,6 +13097,7 @@ func figures_suite() -> void:
 		pg.queue_free()
 		await get_tree().process_frame
 	check(seen.values().all(func(v): return v), "decision 42: every page draws a top-down character as the top-down figure, at a whole scale, and no side-view avatar (%s)" % str(seen))
+	TechniquePicture.draw_log = null
 	# A classic side-view character keeps the side view's figure.
 	c.view = ""
 	var classic := {}

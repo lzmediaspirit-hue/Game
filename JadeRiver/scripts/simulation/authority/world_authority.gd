@@ -536,15 +536,21 @@ func array_destinations(c, node_id: String) -> Array:
 	var here := str(WorldRules.array_nodes().get(node_id, {}).get("room", ""))
 	return WorldRules.array_links(node_id).filter(func(n): return array_open(c, here, node_id, str(n.id)))
 
-## A node tapped: it learns the token, and asks where to (a destination per choice, each an array_travel intent).
-func array_dialogue(c, o: Dictionary) -> Dictionary:
-	attune_array(c, str(o.id))
-	var choices: Array = []
-	for n in array_destinations(c, str(o.id)):
-		choices.append({"text": str(ContentDB.room(str(n.room)).get("name", n.room)), "intent": {"type": "array_travel", "from": str(o.id), "to": str(n.id)}})
-	var line := Tx.t("sim.world.array_where") if not choices.is_empty() else Tx.t("sim.world.array_alone")
-	choices.append({"text": Tx.t("sim.world.array_stay"), "close": true})
-	return {"npc": "", "speaker": str(o.get("name", Tx.t("sim.world.array_speaker"))), "portrait": {}, "lines": [line], "choices": choices}
+## What the travel picker shows at the node `node_id` (decision 42: its own small page, not a talk): the array's name,
+## the room it stands in, a line, and where the token can go from it ([{id, room, name}] in data order: the nodes of its
+## network the token knows, never one past the prototype's gate, array_destinations).
+func array_view(c, node_id: String) -> Dictionary:
+	var node: Dictionary = WorldRules.array_nodes().get(node_id, {})
+	var here := str(node.get("room", ""))
+	var label := Tx.t("sim.world.array_speaker")
+	for o in ContentDB.room(here).get("objects", []):
+		if str(o.get("id", "")) == node_id: label = str(o.get("name", label))
+	var dests: Array = []
+	if c != null and not node.is_empty():
+		for n in array_destinations(c, node_id):
+			dests.append({"id": str(n.id), "room": str(n.room), "name": ContentDB.name_of("rooms", str(n.room))})
+	return {"id": node_id, "name": label, "room": here, "room_name": ContentDB.name_of("rooms", here) if here != "" else "",
+		"line": Tx.t("sim.world.array_where") if not dests.is_empty() else Tx.t("sim.world.array_alone"), "destinations": dests}
 
 ## Keep the nodes the character walks onto (the shrines' rule: close by is enough).
 func _attune_arrays(c, rt: RoomRuntime, st: ActorState) -> void:
@@ -795,7 +801,10 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 				c.stats.value("drop_rate"), c.stats.value("coin_find"))
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
 		"transfer_array":
-			result.dialogue = array_dialogue(c, o)   # decision 42: where the token can go from here
+			# Decision 42: the node learns the token, and the travel picker asks where to (array_view).
+			attune_array(c, object_id)
+			result.open_page = "transfer_array"
+			result.page_args = {"object": object_id}
 		"teleport_stone":
 			var sid := str(o.get("stone", object_id))
 			if not game.account.teleports.has(sid):

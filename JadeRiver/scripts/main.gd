@@ -36,6 +36,7 @@ const PAGES := {
 	"works": "res://scripts/ui/pages/works_page.gd",
 	"revival": "res://scripts/ui/pages/revival_page.gd",
 	"teleport": "res://scripts/ui/pages/teleport_page.gd",
+	"transfer_array": "res://scripts/ui/pages/array_page.gd",
 	"emotes": "res://scripts/ui/pages/emotes_page.gd",
 	"notice_board": "res://scripts/ui/pages/notice_page.gd",
 	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
