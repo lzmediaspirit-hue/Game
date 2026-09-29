@@ -448,5 +448,12 @@
    "span": 3
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
 }

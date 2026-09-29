@@ -1,5 +1,57 @@
 # Changelog
 
+## A living world: critters, people at work, grass that parts, smoke, banners, vistas and interiors (decision 43)
+
+The user's picks after build 109 asked for "a living world: critters, NPCs at work, grass that parts, smoke, banners,
+vistas, and interiors", in the spirit of Alabaster Dawn. Built to `docs/redesign/art_bible.md` §14.13 in every room on
+the grid; before, after and close-ups in `docs/redesign/feedback/living_world/`.
+
+- **Critters that notice you.** Sparrows fly in, hop and peck, and the flock goes up as you come near; butterflies
+  flutter at the flowers and dragonflies over the water; fish glide as shadows under the river and rise in rings, and
+  dart off from the bank; frogs call at the marsh's edge and leap into the water; the village's hens scatter, its cat
+  wakes and walks off, its dog comes to greet you; fireflies drift away at night. Cheap: at most 24, pooled, dropped
+  off screen, no physics, spawned from each area's table and each room's own animals.
+- **People at work.** 52 villagers and disciples in 21 rooms work short loops of their own actions between two to four
+  spots: Aunt Ping sweeps her lane and cooks at her stove, Washer Mei washes at the river and hangs her washing, Uncle
+  Guo trains his fists, Shen Lian carries baskets on a shoulder pole, Fisher Wen mends his nets, Little Dou plays and
+  scatters the hens, disciples sweep and practise sword and staff forms, the smiths hammer and stoke their forges,
+  gardeners and physicians tend herbs, vendors call their goods. Five people with no part in the story fish, chop wood
+  and sweep where a room has the work. They stop and turn to you at your side, and someone with a quest waiting stays
+  at their own spot, so the marker and the talk are where the tracker points.
+- **Grass that parts** round you, the foes and the people walking, rustling faster at a sprint; tall grass and
+  cattails lean aside; a slash over grass throws cut blades.
+- **One wind** for all of it: the grass leans in its gusts, chimney smoke and incense drift along it, the sect banners,
+  the washing and the red paper lanterns flap and swing on it (and the lantern's night flame swings with it), and
+  the cook fires, stoves and forges steam and spark.
+- **Vistas** past 22 rooms' edges: karst peaks rising behind the sects, the valley's hills behind the village, the
+  marsh going on, the river flowing on past the south bank, the sects' edges falling away in a cliff into a drifting
+  sea of cloud with peaks standing out of it (the path's stairs going on down), and the river all round Lu's boat.
+- **Interiors** furnished to say who lives there: Aunt Ping's stove, bed and nets; Granny Liu's cabinet of jars, drying
+  rack, mortar and her cat; Old Ma's goods, sacks and cloth; the weapon halls' forges, plaques and scrolls. The sun
+  falls through their windows in shafts onto the floor, with dust turning in them, and the stoves and forges glow warm.
+- **Sound hooks.** Each moment raises a named cue as a positional world sound (`Audio.world_sound`:
+  `life_sparrow_flee`, `life_dog_bark`, `life_work_hammer_hit`, ...), silent until the sound bank is given them; the
+  people walking between their spots step like the sound pass's walking villagers.
+- **Cost** (headless, on the shared four-core test machine; `perf_tests` run alone, twelve runs, the last three after
+  merging the other decision-43 pieces). Lotus Ferry walking (the busiest room: about ten critters in view, seven
+  people at work and two extras, smoke, two vistas): the living world's own work 0.48-0.70 ms a frame (median 0.6),
+  and the whole frame with it against without it, in rounds run back to back, +0.3 to +1.8 ms (median +1.0) on a
+  6.5-8.8 ms frame. The Marsh Edge with 25 foes fighting: own work 0.53-0.75 ms, the frame -0.2 to +2.1 ms (median
+  +1.3) on 13-17 ms. Its build adds 1.2 ms to Lotus Ferry's (0.7 ms to the marsh's); entering Lotus Ferry took
+  173-264 ms with it and 160-283 ms without it in alternate runs, and the first two seconds' walk 9.4-10.1 ms a frame
+  with it and 8.7-12.6 without. Before any of it (the same suite that morning, a quieter machine): Lotus Ferry
+  entered in 159-247 ms at 8.3-9.2 ms a frame, the marsh's fight 13.3-17.7 ms; after the merge, 187-287 ms at
+  11.2-11.9 and 16.9-20.1 ms. `perf_tests` checks it in both rooms (its difference within 1 ms and a seventh of the frame, its own work under
+  6% of a 60 fps frame); its other checks fail as they did before on a busy machine (the marsh's 25-foe fight over
+  16.6 ms, the crowd under the breakthrough, the v1.5 rows' load).
+- **Tests.** `topdown_life_suite` (by `rules_tests`): the loops keep to their leash and stop for the player, a quest
+  giver stays reachable, critters flee and are dropped off screen, the pools stay bounded, the grass parts, the
+  interiors and vistas are there; `data_validation` checks the art and data; `topdown_rooms.py --check` checks the work
+  spots, furnishings and `life.json`.
+- **Left for the figures' pipeline:** poses drawn for the work (a broom sweep, a shoulder pole, a rod's cast, reaching
+  up to hang washing, stirring, a pestle, an axe's chop, a hammer, picking herbs, mending seated) and a held-tool rig;
+  the loops use the actions that exist until then.
+
 ## Round technique buttons, smoother combat, jumps you can steer (decision 43)
 
 The user asked: "The skills in the HUD should be a little bigger and circular", "Combat should feel more smooth", and

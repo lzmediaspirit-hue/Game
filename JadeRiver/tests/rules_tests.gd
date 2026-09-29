@@ -151,6 +151,12 @@ func topdown_suite() -> void:
 	fs.run_all(self)
 	await fs.run_view(self, get_tree())
 	print("topdown foliage measured: ", fs.measured)
+	# Decision 43, the living world: critters, people at work, grass that parts, interiors and vistas
+	# (tests/topdown_life_suite.gd).
+	var ls = load("res://tests/topdown_life_suite.gd").new()
+	ls.run_all(self)
+	await ls.run_view(self, get_tree())
+	print("topdown life measured: ", ls.measured)
 
 # ------------------------------------------------------------------ decision 41: the prototype's default and its gate
 ## New games start in the top-down world; Settings keeps the classic side view as an off-by-default fallback; an intent

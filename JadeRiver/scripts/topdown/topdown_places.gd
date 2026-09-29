@@ -27,6 +27,9 @@ class Figure extends Node2D:
 	var feet := Vector2.ZERO
 	var plane := Vector2.ZERO   ## where it stands on the ground plane (world units)
 	var staged := false         ## a staged scene has the person (decision 39): it sets where they face and what they do
+	## Decision 43: the person's work loop (TopdownWork, TopdownLife gives it), or null; an extra at work has no twin.
+	var work: TopdownWork = null
+	var _was_staged := false
 
 	func _init(r: TopdownRoom, o: Dictionary, drawing: Node2D, label: Node2D, body: Node2D = null) -> void:
 		room = r
@@ -58,10 +61,24 @@ class Figure extends Node2D:
 		rects = [Rect2(feet - Vector2(float(an[0]), float(an[1])) * 0.5, Vector2(float(fr[0]), float(fr[1])) * 0.5)] if float(fr[1]) * 0.5 > 24.0 and not bool(pa.get("decal", false)) else []
 
 	func _process(_d: float) -> void:
+		if work != null and twin == null:
+			_work(_d, false, false)   # decision 43: an extra at work, with no label and no talk
+			return
 		if not is_instance_valid(twin): return
 		visible = twin.visible
-		if staged: return
+		if staged:
+			_was_staged = work != null
+			return
 		if twin is NpcView:
+			# Decision 43: at work between the spots of their loop, stopping for the player; the label follows them.
+			if work != null and not def.has("chase"):
+				if _was_staged:
+					_was_staged = false
+					work.pos = plane
+					work.paused = 0.0
+					work._resume()
+				_work(_d, twin.focus, QuestAuthority.marker_calls(str(twin.marker)))
+				return
 			var moving := false
 			# A rooftop thief on the run is where his route puts him (the label view follows the World authority's clock),
 			# walking the way he goes.
@@ -81,6 +98,23 @@ class Figure extends Node2D:
 			art.hit_flash = maxf(art.hit_flash, twin.hit_flash)
 			art.focus = twin.focus
 
+	## Decision 43: a step of the work loop: where they stand, face and what they do, what they hold; the label with them.
+	func _work(delta: float, focus: bool, calls: bool) -> void:
+		var t0 := Time.get_ticks_usec()
+		var at: Vector2 = player.plane if is_instance_valid(player) and player.get("motor") != null else Vector2.INF
+		work.advance(delta, at, focus, calls)
+		if work.pos != plane: place(work.pos, work.alt)
+		if is_instance_valid(twin): twin.position = Vector2(plane.x, plane.y - work.alt)
+		if art is Person:
+			art.row = work.facing()
+			art.play(work.action)
+			art.frame_override = work.frame()
+			art.tool = work.tool
+			art.tool_down = work.tool_down
+			art.working = work.step_cue
+		TopdownLife.spent_us += Time.get_ticks_usec() - t0
+		TopdownLife.spent_parts.work += Time.get_ticks_usec() - t0
+
 ## A villager in the top-down style (decision 32): TopdownFigure in their own outfit (npcs.json), in one of the eight
 ## rows. At rest they stand in the pose the room gives them (idle, or meditate), three-quarters toward the camera on the
 ## side the side view faces them (or the row a layout names); they walk where a route moves them, and Figure turns them
@@ -96,6 +130,12 @@ class Person extends Node2D:
 	var action := "idle"
 	var tint := Color.WHITE
 	var t := 0.0
+	## Decision 43: at work (TopdownWork): the frame the loop's clock gives (-1: the action's own), the tool in hand and
+	## the one set down (TopdownLife draws them), and the step's cue (a broom swishes while sweeping).
+	var frame_override := -1
+	var tool := ""
+	var tool_down := ""
+	var working := ""
 
 	func _init(o: Dictionary) -> void:
 		var n := ContentDB.entry("npcs", str(o.get("npc", "")))
@@ -125,7 +165,12 @@ class Person extends Node2D:
 
 	func _draw() -> void:
 		if shadow: TopdownWorld.draw_blob(self, 0.0, 0.0, BLOB_RX, 0.5)
-		figure.draw(self, Vector2.ZERO, action, row, TopdownFigure.frame_at(action, t), tint)
+		var f := frame_override if frame_override >= 0 else TopdownFigure.frame_at(action, t)
+		# Decision 43: a tool set down lies beside them; one in hand is drawn behind the body facing away, else before it.
+		if tool_down != "": TopdownLife.draw_tool_down(self, tool_down, row)
+		if tool != "": TopdownLife.draw_tool(self, tool, row, figure, action, f, t, working, true)
+		figure.draw(self, Vector2.ZERO, action, row, f, tint)
+		if tool != "": TopdownLife.draw_tool(self, tool, row, figure, action, f, t, working, false)
 
 ## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
 ## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is the side view's own

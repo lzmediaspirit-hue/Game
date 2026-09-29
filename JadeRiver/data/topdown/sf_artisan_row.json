@@ -252,6 +252,16 @@
    "kind": "cattails",
    "x": 47,
    "y": 24
+  },
+  {
+   "kind": "woodpile",
+   "x": 5,
+   "y": 15
+  },
+  {
+   "kind": "chop_block",
+   "x": 8,
+   "y": 16
   }
  ],
  "place": {
@@ -354,5 +364,17 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
 }

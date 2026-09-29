@@ -13,8 +13,9 @@ extends Node
 ## <name>`: the Terrain v2 review views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into
 ## docs/redesign/terrain_v2/<name>/ (on saves of their own, so it can run beside another capture). `-- --light
 ## --light-tag=<before|after>`: decision 40's runtime light, the key rooms by day, at dusk and at night, into
-## docs/redesign/terrain_v2/light/. Every mode shoots at midday of the game's clock (TopdownLight.debug_hour) unless it
-## names its hour.
+## docs/redesign/terrain_v2/light/. `-- --life --life-tag=<before|after>`: decision 43's living world, into
+## docs/redesign/feedback/living_world/. Every mode shoots at midday of the game's clock (TopdownLight.debug_hour)
+## unless it names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -38,6 +39,7 @@ func _main() -> void:
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
 	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
 	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
+	if "--life" in OS.get_cmdline_user_args(): saves = "user://life_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -65,6 +67,9 @@ func _main() -> void:
 		return
 	if "--light" in OS.get_cmdline_user_args():
 		await light()
+		return
+	if "--life" in OS.get_cmdline_user_args():
+		await life()
 		return
 	if "--tutorial-foes" in OS.get_cmdline_user_args():
 		await tutorial_foes()
@@ -770,6 +775,139 @@ func light() -> void:
 	Game.active_id = was
 	print("topdown_capture: light done")
 	get_tree().quit()
+
+## Decision 43, the living world (`-- --life [--life-tag=before|after]`, into docs/redesign/feedback/living_world/<tag>/):
+## the village's square, docks and Home Lane, a sect's street and court, the Herb Terraces, the Marsh Edge, a peak and the
+## Cliff Stair at their edges, the market, four interiors, and the village and the marsh at the clock's night, each under
+## the real HUD at the phone's 1280 x 720. The clock is pinned per shot and the weather held clear, so a before and an
+## after match; the room plays a few seconds first, so its people are at work and its critters about.
+const LIFE := [["01_village_square", "lf_village", Vector2(33, 21), 0.375], ["02_village_docks", "lf_village", Vector2(58, 28), 0.375],
+	["03_village_lane", "lf_village", Vector2(12, 21), 0.375], ["04_sect_gate_street", "ja_gate_street", Vector2(30, 16), 0.375],
+	["05_sect_sword_court", "cm_sword_court", Vector2(12, 14), 0.375], ["06_herb_terraces", "ja_herb_terraces", Vector2(20, 22), 0.375],
+	["07_marsh_edge", "rm_marsh_edge", Vector2(10, 16), 0.375], ["08_peak_vista", "ja_elder_hu_peak", Vector2(24, 23), 0.375],
+	["09_cliff_stair", "cm_cliff_stair", Vector2(28, 30), 0.375], ["10_market", "sf_market", Vector2(30, 16), 0.375],
+	["11_interior_granny_liu", "lf_granny_liu_hut", Vector2(9, 9), 0.375], ["12_interior_fishers_hut", "lf_fishers_hut", Vector2(8, 9), 0.375],
+	["13_interior_store", "lf_old_ma_store", Vector2(8, 9), 0.375], ["14_interior_weapon_hall", "ja_weapon_hall", Vector2(12, 10), 0.375],
+	["15_village_night", "lf_village", Vector2(33, 21), 0.87], ["16_marsh_night", "rm_marsh_edge", Vector2(10, 16), 0.87],
+	["17_village_story_night", "lf_village_night", Vector2(22, 20), 0.375]]
+
+func life() -> void:
+	var out := "res://docs/redesign/feedback/living_world/"
+	var tag := "after"
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--life-tag="): tag = str(a).trim_prefix("--life-tag=")
+		if str(a).begins_with("--life-only="): only = str(a).trim_prefix("--life-only=")   # one shot while iterating
+	out += tag + "/"
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	for s in LIFE:
+		if (only != "" and not str(s[0]).contains(only)) or "--life-skip-rooms" in OS.get_cmdline_user_args(): continue
+		Clock.simulate(600000.0 * day_s + float(s[3]) * day_s, 0)
+		TopdownLight.debug_hour = float(s[3])
+		await room_shots([[str(s[0]), s[1], s[2]]], out)
+	if "--life-detail" in OS.get_cmdline_user_args(): await life_details("res://docs/redesign/feedback/living_world/detail/", only)
+	print("topdown_capture: life done")
+	get_tree().quit()
+
+## Decision 43's close-ups (`-- --life --life-detail`, into docs/redesign/feedback/living_world/detail/): each a quarter of
+## the phone's screen round the thing, x2 (so one art px is four screen px): a flock pecking and the same flock taking
+## off as the player walks up, the hens and the dog at the docks, fish and a dragonfly at the bank, frogs at the marsh's
+## edge and one leaping, the grass parting round the player, the people at work, chimney smoke, incense and banners, the
+## vistas, and the sun in an interior. The critters are set where the shot looks, so every close-up shows its kind.
+const LIFE_DETAIL := [
+	["01_sparrows_pecking", "lf_village", Vector2(35, 29), 0.375, "sparrows", Vector2(20, -30)],
+	["02_sparrows_take_off", "lf_village", Vector2(35, 29), 0.375, "sparrows_flee", Vector2(20, -40)],
+	["03_hens_and_dog", "lf_village", Vector2(47, 26), 0.375, "", Vector2(0, 0)],
+	["04_fish_dragonfly", "lf_village", Vector2(24, 32), 0.375, "water", Vector2(0, 30)],
+	["05_frogs", "rm_marsh_edge", Vector2(34, 21), 0.375, "frogs", Vector2(0, 10)],
+	["06_butterflies", "ja_gate_street", Vector2(14, 23), 0.375, "butterflies", Vector2(0, 0)],
+	["07_grass_parts", "lf_village", Vector2(5.5, 26.2), 0.375, "", Vector2(0, -10)],
+	["08_work_carry_mend", "lf_village", Vector2(58, 25), 0.375, "", Vector2(10, 20)],
+	["09_work_laundry_fish", "lf_village", Vector2(16, 30), 0.375, "", Vector2(0, 10)],
+	["10_work_chop", "lf_village", Vector2(61, 20), 0.375, "", Vector2(20, -20)],
+	["10b_chimney_smoke", "lf_village", Vector2(18, 8), 0.375, "", Vector2(0, 20)],
+	["11_work_forms", "lf_village", Vector2(32, 24), 0.375, "", Vector2(-20, -10)],
+	["12_work_sword_hammer", "ja_weapon_hall", Vector2(13, 9), 0.375, "", Vector2(10, -50)],
+	["13_work_sweep", "ja_gate_street", Vector2(31, 18), 0.375, "", Vector2(-20, -20)],
+	["14_interior_sun", "lf_fishers_hut", Vector2(9, 9), 0.375, "", Vector2(0, -60)],
+	["15_interior_granny", "lf_granny_liu_hut", Vector2(9, 9), 0.375, "", Vector2(-40, -50)],
+	["16_incense_banners", "ja_gate_street", Vector2(6, 16), 0.375, "", Vector2(0, -40)],
+	["17_vista_peak", "ja_elder_hu_peak", Vector2(24, 25), 0.375, "", Vector2(0, 50)],
+	["18_vista_north", "cm_sword_court", Vector2(30, 4), 0.375, "", Vector2(0, -60)],
+	["19_vista_river", "lf_village", Vector2(30, 33), 0.375, "", Vector2(0, 60)],
+	["20_lanterns_night", "lf_village", Vector2(64, 27), 0.87, "", Vector2(-40, -10)],
+	["21_boat_on_the_river", "lf_lu_boat", Vector2(12, 8), 0.375, "", Vector2(0, 0)],
+]
+
+func life_details(out: String, only := "") -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
+	var day_s := Clock.game_day_s()
+	for s in LIFE_DETAIL:
+		if only != "" and not str(s[0]).contains(only): continue
+		Clock.simulate(600000.0 * day_s + float(s[3]) * day_s, 0)
+		TopdownLight.debug_hour = float(s[3])
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 150)
+		var life: TopdownLife = w.life
+		var feet: Vector2 = p.motor.pos
+		match str(s[4]):
+			"sparrows", "sparrows_flee":
+				for i in 4:
+					var cr: TopdownLife.Critter = life._critter("sparrow", feet + Vector2(20 + i * 26, -110 - (i % 2) * 18))
+					cr.state = "ground"
+					cr.alpha = 1.0
+					cr.face = -1 if i % 2 else 1
+				await frames(20)
+				if str(s[4]) == "sparrows_flee":
+					p.movement = Vector2.UP * 0.6
+					await frames(44)
+					p.movement = Vector2.ZERO
+			"water":
+				for i in 3:
+					var cr: TopdownLife.Critter = life._critter("fish", feet + Vector2(-40 + i * 50, 80 + i * 14))
+					cr.floor = TopdownRoom.WATER_Z
+					cr.alpha = 1.0
+					cr.v = Vector2(12, 3)
+					cr.anchor = cr.g
+				var df: TopdownLife.Critter = life._critter("dragonfly", feet + Vector2(30, 60))
+				df.anchor = df.g
+				df.z = 9.0
+				df.alpha = 1.0
+				life._ring(feet + Vector2(-40, 80))
+				await frames(12)
+			"frogs":
+				for i in 3:
+					var cr: TopdownLife.Critter = life._critter("frog", feet + Vector2(-50 + i * 44, 18 + (i % 2) * 8))
+					cr.state = "sit"
+					cr.alpha = 1.0
+					cr.water = Vector2.DOWN
+				await frames(12)
+			"butterflies":
+				for i in 4:
+					var cr: TopdownLife.Critter = life._critter("butterfly", feet + Vector2(-60 + i * 36, -20 + (i % 2) * 20))
+					cr.anchor = cr.g
+					cr.variant = ["white", "gold", "blue", "coral"][i]
+					cr.z = 10.0
+					cr.alpha = 1.0
+				await frames(30)
+		await shot_detail(str(s[0]), s[5], out)
+	TopdownLight.debug_hour = 0.375
+
+## A quarter of the screen round the player's feet (moved by `off` screen px), x2.
+func shot_detail(name: String, off: Vector2, out: String) -> void:
+	await RenderingServer.frame_post_draw
+	var img := get_tree().root.get_texture().get_image()
+	var c: Vector2 = (p.screen - w.camera.position + Vector2(320, 180)) * 2.0 + off * 2.0 + Vector2(0, -30)
+	var r := Rect2i(Vector2i(clampi(int(c.x) - 320, 0, 640), clampi(int(c.y) - 180, 0, 360)), Vector2i(640, 360))
+	var crop := img.get_region(r)
+	crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+	crop.save_png(out + name + ".png")
 
 ## The tutorial rooms' other foes in their own figures (`-- --tutorial-foes`, into docs/redesign/phase4/): Lotus Ferry
 ## at night, the hollowed eel rising from the river (the night's own event) and hollow minnows swimming through the air

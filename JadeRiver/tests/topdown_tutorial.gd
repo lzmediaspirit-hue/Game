@@ -427,7 +427,8 @@ func _probe_view() -> void:
 	var def: Dictionary = Game.room_rt.def
 	var npcs: Array = def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "npc")
 	var things: Array = def.get("objects", []).filter(func(o): return not str(o.get("type", "")) in ["npc", "decor"])
-	var figures := probe.sorted.get_children().filter(func(f): return f is TopdownPlaces.Figure and not f.is_queued_for_deletion())
+	# The room's own people and things (decision 43's extras at work are figures with no label and no part in the room).
+	var figures := probe.sorted.get_children().filter(func(f): return f is TopdownPlaces.Figure and f.twin != null and not f.is_queued_for_deletion())
 	var marks := probe.floor_layer.get_children().filter(func(m): return m is TopdownPlaces.WayMark and not m.is_queued_for_deletion())
 	var ok: bool = probe.room == Game.room_rt.topdown and probe.npc_views.size() == npcs.size() and probe.object_views.size() == things.size() \
 		and figures.size() == npcs.size() + things.size() and probe.portal_views.size() == (def.get("portals", []) as Array).size() \

@@ -119,7 +119,9 @@ const LIGHT_KINDS := {
 	"jade": {"color": Color("88e8c8"), "radius": 30, "bands": [[0.4, 0.62], [1.0, 0.28]], "flame": Color("c8fff0")},
 }
 ## Props that give light: the kind and where the flame sits in the sprite (px from its top-left).
-const PROP_LIGHTS := {"lantern": ["lantern", 8, 12], "lantern_red": ["lantern_red", 12, 15], "incense": ["ember", 8, 9]}
+const PROP_LIGHTS := {"lantern": ["lantern", 8, 12], "lantern_red": ["lantern_red", 12, 15], "incense": ["ember", 8, 9],
+	# Decision 43's furnishings (tools/art/topdown/furnish.py): a stove's fire mouth, a forge's bed of coals.
+	"stove": ["fire", 16, 25], "forge": ["fire", 13, 7]}
 ## Things of the room (by type, or by the prop they show) that give light, lifted this many art px over their spot.
 const OBJECT_LIGHTS := {"cooking_pot": ["fire", 6], "alchemy_furnace": ["fire", 10], "forge_anvil": ["fire", 6], "shrine": ["ember", 12],
 	"qi_spring": ["jade", 4], "teleport_stone": ["jade", 14], "lotus_lantern": ["lantern", 6]}

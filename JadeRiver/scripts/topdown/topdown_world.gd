@@ -92,6 +92,7 @@ var _room_nodes: Array = []     ## what the room built, cleared when the next on
 ## whether a hit-stop holds the fight (and them) this frame.
 var tfx: TopdownFx
 var held := false
+var life: TopdownLife       ## decision 43: the room's critters, work, smoke, the sun's shafts and its vista
 
 signal context_changed(ctx: Dictionary)
 
@@ -195,24 +196,27 @@ func _build_room() -> void:
 	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
 	foliage = TopdownFoliage.new(self)   # decision 40's third part: the ground cover the floor draws, then the canopies
+	life = TopdownLife.new(self) if TopdownLife.enabled else null   # decision 43: what lives in the room
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
 	bg.position = -Vector2(VIEW)
 	# Terrain v2: the floor and the water in chunks, so the renderer skips the ones off screen and the water redraws
 	# only the chunks in view.
-	var under: Array = [bg]
+	var life_under: Array = life.under_nodes() if life != null else []   # decision 43: [the vista, the water's layer]
+	var under: Array = [bg] + life_under.slice(0, 1)
 	for cy in range(0, room.h, CHUNK.y):
 		for cx in range(0, room.w, CHUNK.x):
 			var r := Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))
 			var water := WaterView.new(self, r)
-			if not water.cells.is_empty(): under.insert(1, water)
+			if not water.cells.is_empty(): under.insert(1 if life == null else 2, water)
 			else: water.free()
 	# Decision 40: the cast shadows, baked once for the room, laid over the water (after its chunks) and over the ground
 	# floor (after its chunks).
 	shadows = TopdownShadows.new(room)
 	var water_shade := shadows.view("water")
 	if water_shade != null: under.append(water_shade)
+	under.append_array(life_under.slice(1))
 	for cy in range(0, room.h, CHUNK.y):
 		for cx in range(0, room.w, CHUNK.x):
 			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
@@ -264,6 +268,9 @@ func _build_room() -> void:
 			lv.setup(l)
 			loot_layer.add_child(lv)
 		hud_minimap = true
+	if life != null:
+		viewport.add_child(life)
+		_room_nodes.append_array(life.build(figures))   # decision 43: critters, work, smoke, the sun's shafts
 	atmosphere.enter_room()   # decision 40: the room's grade, night and lights, clouds and particles
 	# The body, its shadow and its dust after the room's own nodes, so a tie in the sort goes to the body.
 	for n in [shadow, player, fx]: sorted.move_child(n, -1)
@@ -780,8 +787,13 @@ class PropView extends Sorted:
 	var frame_ms := 0
 	var phase := 0
 	var frame := 0
+	var kind := ""
+	var windy := false   ## decision 43: its frames turn on the wind's clock (banners, washing, red lanterns)
+	var bend := 0        ## decision 43: a walk-through plant leaning aside from a body among it (px, signed)
 	func _init(w, p: Dictionary) -> void:
 		super(w)
+		kind = str(p.get("kind", ""))
+		windy = kind in TopdownLife.WINDY
 		var art: Dictionary = p.art
 		var rr: Array = art.get("rect", [0, 0, 16, 16])
 		var origin: Array = art.get("origin", [0, 16])
@@ -792,24 +804,33 @@ class PropView extends Sorted:
 		frames = int(art.get("frames", 1))
 		frame_ms = int(art.get("frame_ms", 0))
 		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+		if kind in TopdownLife.FLAT: rects.clear()   # decision 43: a mat lies flat, it hides no one
 	## Stand the footprint's south-west corner at `sw` (art px) on a floor at `level` (a staged scene moves a prop so: a
 	## boat passing on the river).
 	func place_at(sw: Vector2, level: int, origin: Vector2) -> void:
 		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if level < 0 else -level * T
 		sw = sw.round()
 		at = Vector2(sw.x - origin.x, sw.y + ground - origin.y)
-		rects[0] = Rect2(at, src.size)
+		if not rects.is_empty(): rects[0] = Rect2(at, src.size)
 		key(sw.y + 0.5)
 		queue_redraw()
 	func _ready() -> void:
 		set_process(frames > 1 and frame_ms > 0)
 	func _process(_d: float) -> void:
-		var f := (int(Time.get_ticks_msec() / frame_ms) + phase) % frames
+		var f := TopdownLife.wind_frame(frames, frame_ms, phase) if windy else (int(Time.get_ticks_msec() / frame_ms) + phase) % frames
 		if f != frame:
 			frame = f
 			queue_redraw()
 	func _draw() -> void:
-		draw_texture_rect_region(world.atlas("props"), Rect2(at - position, src.size), Rect2(src.position + Vector2(src.size.x * frame, 0), src.size))
+		var from := src.position + Vector2(src.size.x * frame, 0)
+		if bend == 0:
+			draw_texture_rect_region(world.atlas("props"), Rect2(at - position, src.size), Rect2(from, src.size))
+			return
+		# Decision 43: leaning aside, the upper part pushed a pixel or two away from the body among it, the roots still.
+		var still := floorf(src.size.y * 0.45)
+		var top := src.size.y - still
+		draw_texture_rect_region(world.atlas("props"), Rect2(at - position + Vector2(0, top), Vector2(src.size.x, still)), Rect2(from + Vector2(0, top), Vector2(src.size.x, still)))
+		draw_texture_rect_region(world.atlas("props"), Rect2(at - position + Vector2(bend, 1 if absi(bend) > 1 else 0), Vector2(src.size.x, top)), Rect2(from, Vector2(src.size.x, top)))
 
 ## The blob shadow on the floor under the body; it shrinks and fades with the height above that floor (plan §1.5).
 class ShadowView extends Sorted:

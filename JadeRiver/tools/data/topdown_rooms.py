@@ -24,6 +24,8 @@ import os
 import sys
 from collections import deque
 
+import topdown_life as LIFE   # decision 43, the living world: furnishings, stations and vistas (its own module)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(ROOT, "data", "topdown")
@@ -301,6 +303,7 @@ def check(lay, d):
             if g.floor(*c) is None:
                 errs.append("spawn %d point %s: no floor" % (k, str(c)))
     errs += list(dict.fromkeys(check_foliage(lay, d, g)))
+    errs += LIFE.check_furnish(lay.id, d, g, clear_cells(d))   # decision 43: furnishings and stations
     if errs:
         raise SystemExit("%s:\n  " % lay.id + "\n  ".join(errs))
 
@@ -1699,7 +1702,9 @@ def build(check_only=False):
     failed = []
     for make in LAYOUTS:
         lay = make()
+        LIFE.dress(lay)            # decision 43 (tools/data/topdown_life.py): an interior's furnishings, a station's props
         d = lay.dict()
+        LIFE.extend(lay.id, d)     # and the land past the room's edge the camera may show
         try:
             check(lay, d)
         except SystemExit as e:
@@ -1720,6 +1725,7 @@ def build(check_only=False):
         raise SystemExit("\n".join(failed))
     if stale:
         raise SystemExit("stale top-down layouts (run tools/data/topdown_rooms.py): " + ", ".join(stale))
+    LIFE.build(check_only)         # decision 43: data/topdown/life.json, its work spots checked on these layouts
 
 
 if __name__ == "__main__":

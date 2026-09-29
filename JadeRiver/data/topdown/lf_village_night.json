@@ -528,5 +528,17 @@
     36.5
    ]
   ]
- }
+ },
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 40
+  }
+ ]
 }

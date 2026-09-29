@@ -92,16 +92,43 @@ func _sways(list: Array) -> bool:
 
 ## The shader that sways a piece's upper part a pixel east and back (0, 1, 1, 0 over four frames): the part is drawn
 ## with a colour whose blue carries its phase and whose alpha is whole (a tile's tint never is), and is drawn white.
+## Decision 43 (TopdownLife): the wind's gust holds the lean east, and the grass parts round the bodies in view: the
+## part's red and green carry its foot on the screen (whole px, modulo 256; the vertex's own place gives the rest), and
+## a piece within a body's reach leans away from it, two px and pressed down a px close in, shivering under a runner.
 static func sway_material() -> ShaderMaterial:
 	if _sway_mat == null:
 		_sway_mat = ShaderMaterial.new()
 		_sway_mat.shader = Shader.new()
 		_sway_mat.shader.code = """shader_type canvas_item;
 uniform float period = %s;
+uniform float gust = 0.0;
+uniform vec4 bodies[8];
+uniform int body_count = 0;
 void vertex() {
 	if (COLOR.a > 0.999 && COLOR.b < 0.99) {
-		float f = mod(floor(TIME / period + COLOR.b * 4.0), 4.0);
-		VERTEX.x += (f > 0.5 && f < 2.5) ? 1.0 : 0.0;
+		float ph = COLOR.b;
+		vec2 wv = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+		vec2 enc = floor(COLOR.rg * 255.0 + 0.5);
+		vec2 foot = wv + mod(enc - wv + 128.0, 256.0) - 128.0;
+		float f = mod(floor(TIME / period + ph * 4.0), 4.0);
+		float dx = (f > 0.5 && f < 2.5) || (gust > 0.72 && f > 2.5) ? 1.0 : 0.0;
+		float dy = 0.0;
+		for (int i = 0; i < 8; i++) {
+			if (i >= body_count) break;
+			vec4 b = bodies[i];
+			vec2 d = foot - b.xy;
+			if (abs(d.x) <= b.z && d.y > -5.0 && d.y < 7.0) {
+				float side = d.x >= 0.0 ? 1.0 : -1.0;
+				bool close = abs(d.x) <= b.z * 0.5;
+				dx = side * (close ? 2.0 : 1.0);
+				dy = close ? 1.0 : 0.0;
+				if (b.w > 1.5) dx += side * mod(floor(TIME * 12.0 + ph * 5.0), 2.0);
+				else if (b.w > 0.5 && !close) dx = side * (1.0 + mod(floor(TIME * 6.0 + ph * 5.0), 2.0));
+				break;
+			}
+		}
+		VERTEX.x += dx;
+		VERTEX.y += dy;
 		COLOR = vec4(1.0);
 	}
 }
@@ -127,7 +154,11 @@ func _draw_item(ci: CanvasItem, k: int, dy: float) -> void:
 		return
 	var still := Vector2(src.size.x, src.size.y - sway)
 	ci.draw_texture_rect_region(tex, Rect2(at + Vector2(0, sway), still), Rect2(src.position + Vector2(0, sway), still))
-	ci.draw_texture_rect_region(tex, Rect2(at, Vector2(src.size.x, sway)), Rect2(src.position, Vector2(src.size.x, sway)), Color(1, 1, float(it[4]), 1))
+	# Decision 43: the swaying part carries its foot on the screen (the piece's foot lifted by its floor), for the shader
+	# that parts the grass round a body.
+	var foot := Vector2(float(it[0]), float(it[1]) - float(it[3]) * T)
+	ci.draw_texture_rect_region(tex, Rect2(at, Vector2(src.size.x, sway)), Rect2(src.position, Vector2(src.size.x, sway)),
+		Color(fposmod(foot.x, 256.0) / 255.0, fposmod(foot.y, 256.0) / 255.0, float(it[4]), 1))
 
 # ------------------------------------------------------------------ the scatter
 ## The room's ground cover: [foot x, foot y, sprite index, level, phase] per piece, back to front. A pure function of

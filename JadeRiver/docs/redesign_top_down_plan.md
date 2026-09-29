@@ -2032,6 +2032,51 @@ catalogue (idle 6, walk 8, windup 4, attack 6 with the hit on frame 1, hurt 3, d
   an elite's label sits on its own larger figure.
 - `topdown_tutorial` checks, as before, that every foe the tutorial rooms spawn has its own figure.
 
+### As built: the living world (decision 43, 2026-09-29)
+
+Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in the 27 rooms on the grid.
+
+- **Critters** that notice the player: sparrows, butterflies, dragonflies, fish (shadows and rings), frogs, hens, a cat
+  and a dog, and fireflies that drift off. At most 24 at once, plain records spawned round the view from the room's
+  area table and its own animals, 12 pooled sorted nodes for the ones on the ground, dropped once off screen; no
+  physics (`scripts/topdown/topdown_life.gd`).
+- **People at work**: 52 villagers and disciples in 21 rooms and 5 extras work loops of the figures' own actions
+  (sweep, carry, laundry, forms with the sword, staff, spear or fists, herbs, cook, grind, chop, hammer, fish, mend,
+  watch, read, sell, pray, write, play, meditate), with a broom, a shoulder pole, a basket or a rod
+  (`scripts/topdown/topdown_work.gd`). The spots keep within 2.5 tiles of the person's own spot, so the World
+  authority's talk (110 units round the spot, 132 on the grid) always reaches a player beside them; they stop and turn to the player; a
+  quest waiting (the marker calls) keeps them at their own spot. Nothing in the simulation moves: the loops are the
+  view's.
+- **Grass that parts** round every body in view, on the GPU; the walk-through plants lean; a slash throws blades.
+- **One wind** for the grass, the smoke, the banners, the washing, the red lanterns and the vistas' cloud; chimney
+  smoke, incense, steam and sparks.
+- **Vistas** past 22 rooms' edges (`TopdownVista`; the layout's `vista`, `TopdownRoom.shown_rect` lets the camera that
+  far): peaks, hills, the marsh's horizon, the river going on, the drop into a sea of cloud, the river round Lu's boat.
+- **Interiors** furnished (Aunt Ping's, Granny Liu's, Old Ma's store, both weapon halls), their walls hung, the sun
+  through their windows in shafts with dust; stoves and forges are fires.
+- **Data and art:** `tools/data/topdown_life.py` → `data/topdown/life.json` (built by `build_data.py` and by
+  `topdown_rooms.py`, whose `--check` checks it; its `dress` and `extend` hooks add the furnishings and vistas to the
+  layouts, so `topdown_rooms.py` keeps its own lines); `tools/art/topdown/life.py` and `build_life.py` →
+  `art/topdown/life.png`, `vista.png`, `data/topdown/life_art.json`; the furnishings `tools/art/topdown/furnish.py` in
+  the prop sheet; the red lantern gains four frames of swing.
+- **Poses left for the figures' pipeline.** The loops use the actions that exist. These would read better drawn (on
+  the body first, per `AGENTS.md`): a two-handed broom sweep; a shoulder pole steadied by one hand while walking; a rod
+  held out and cast; reaching up to hang washing; stirring a pot with a ladle; a pestle ground in a mortar; an axe's
+  overhead chop; a one-handed hammer at an anvil; crouching to pick herbs; mending a net seated. A held-tool
+  attachment rig (the hands' place per frame) would replace the tools' placement by the figure's bounds.
+- **Cost** (headless, the shared test machine, twelve `perf_tests` runs): its own work 0.5-0.7 ms a frame in Lotus
+  Ferry walking and in the Marsh Edge's 25-foe fight; the whole frame +1.0 ms (median; 0.3-1.8) against the same room
+  without it in Lotus Ferry, +1.3 ms (-0.2-2.1) in the fight; its build 1.2 ms. `perf_tests` checks both rooms
+  (interleaved rounds: the least of each side, the median of the rounds' differences) and `topdown_life_suite` its
+  own work. Kept cheap by: plain records for critters (typed, no nodes but 12 pooled sorted ones), calm critters
+  stepped one frame in three, layers and nodes redrawn only when their pixels change, the grass's pushes in the
+  vertex shader, the rooms' critter cells found once, the shader's uniforms sent only when changed. The numbers are
+  in `docs/CHANGELOG.md`.
+- **Tests:** `topdown_life_suite` (by `rules_tests`), `data_validation` `life_art_suite`, `topdown_rooms.py --check`.
+- **Review:** `docs/redesign/feedback/living_world/` (`before/`, `after/`, `detail/`, and `pairs/` side by side at
+  the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`. `after/` and `detail/` are drawn on the
+  build merged with the rest of decision 43, so the people 1.2 times bigger and the places are in them too.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

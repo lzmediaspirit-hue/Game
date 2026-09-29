@@ -10,6 +10,7 @@ props (`ANIM`) hold their frames side by side. The kinds the Phase 1 room places
 from __future__ import annotations
 
 import foliage as FL
+import furnish as FU
 import terrain2 as T2
 import tiles as tl
 from canvas import Img, h01
@@ -225,8 +226,11 @@ def lantern(s: Img) -> None:
     s.outline()
 
 
-def lantern_red(s: Img) -> None:
-    """A red lacquer post with a bracket and a round paper lantern, footprint 1 x 1. 16 x 40; base corner (0, 38)."""
+def lantern_red(s: Img, f: int = 0) -> None:
+    """A red lacquer post with a bracket and a round paper lantern, footprint 1 x 1. 16 x 40; base corner (0, 38).
+    Decision 43: four frames of the lantern swinging on its cord in the wind (still, a pixel east, still, a pixel west;
+    the room view turns them on the wind's clock), its tassel trailing a frame behind."""
+    d = (0, 1, 0, -1)[f]
     s.rect(3, 35, 8, 3, STONE[3])
     s.hline(3, 35, 8, STONE[5])
     s.rect(5, 4, 3, 31, RED[2])
@@ -235,12 +239,15 @@ def lantern_red(s: Img) -> None:
     s.rect(4, 3, 5, 2, GOLDR[2])
     s.rect(7, 7, 7, 2, DARKWOOD[2])
     s.hline(7, 7, 7, DARKWOOD[4])
-    s.vline(12, 9, 2, DARKWOOD[1])
-    s.ellipse(12.5, 16, 3.6, 4.6, LANTERN[2], (LANTERN[4], LANTERN[0]))
-    s.rect(11, 14, 2, 3, LANTERN[5])
-    s.hline(10, 11, 5, GOLDR[1])
-    s.hline(10, 20, 5, GOLDR[1])
-    s.vline(12, 21, 3, GOLDR[2])
+    s.put(12, 9, DARKWOOD[1])
+    s.put(12 + d, 10, DARKWOOD[1])
+    s.ellipse(12.5 + d, 16, 3.6, 4.6, LANTERN[2], (LANTERN[4], LANTERN[0]))
+    s.rect(11 + d, 14, 2, 3, LANTERN[5])
+    s.hline(10 + d, 11, 5, GOLDR[1])
+    s.hline(10 + d, 20, 5, GOLDR[1])
+    t = (0, 1, 1, -1)[f] if f else 0
+    s.vline(12 + d, 21, 2, GOLDR[2])
+    s.put(12 + d + t, 23, GOLDR[2])
     s.outline()
 
 
@@ -654,6 +661,9 @@ PROPS = {
 }
 # Terrain v2's third part, the foliage and garden kit (tools/art/topdown/foliage.py; art bible "Foliage and decor").
 PROPS.update(FL.PROPS)
+# Decision 43, the living world: the huts', shop's and halls' furnishings and the stations villagers work at
+# (tools/art/topdown/furnish.py; art bible §14.13).
+PROPS.update(FU.PROPS)
 
 
 # Props whose top is a floor you stand on, in levels over their ground (decision 29; TopdownRoom reads `top`).
@@ -662,8 +672,10 @@ TOPS = {"house": 2, "storehouse": 2, "crates": 1, "hall": 2}
 # Animated props (art bible §7): frames side by side from `rect`, and each frame's time. Plants sway on a slow loop
 # (the room view starts each prop at its own phase, so a grove never moves in lockstep); lotus flowers bob on the
 # water's 250 ms clock; a banner's tail stirs.
-ANIM = {"bamboo": (4, 500), "willow": (4, 600), "lotus": (4, 250), "banner_jade": (4, 450), "banner_cloud": (4, 450)}
+ANIM = {"bamboo": (4, 500), "willow": (4, 600), "lotus": (4, 250), "banner_jade": (4, 450), "banner_cloud": (4, 450),
+        "lantern_red": (4, 700)}   # decision 43: the paper lantern swings on the wind
 ANIM.update({k: v for k, v in FL.ANIM.items() if k not in FL.STILL_TRUNK})
+ANIM.update(FU.ANIM)
 SWAY = (0, 1, 1, 0)
 SHEET_W = 512
 

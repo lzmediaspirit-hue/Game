@@ -83,6 +83,36 @@
    "kind": "pot_bonsai",
    "x": 12,
    "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "drying_rack",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "stove",
+   "x": 2,
+   "y": 5
+  },
+  {
+   "kind": "mortar",
+   "x": 3,
+   "y": 7
+  },
+  {
+   "kind": "bed",
+   "x": 13,
+   "y": 9
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 11,
+   "y": 7
   }
  ],
  "place": {
