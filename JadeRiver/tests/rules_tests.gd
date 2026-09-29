@@ -2310,10 +2310,10 @@ func points_badges_suite() -> void:
 ## "there are places we still use the old sprite character, we need to fix it"): one technique picture everywhere
 ## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, its form's marks,
 ## the rank badge). For a top-down character every picture draws the top-down figure at a whole scale: the HUD's
-## buttons and the loadout bar its upper body at x2 facing the camera (the face shows), the tree's cards at x2, the
-## reading at x3; a companion's chip shows the top-down figure's head. A classic side-view character's pictures are the
-## side view's. Each slotted art is its picture at rest as in a fight, never the round emblem, and its states read on
-## it: cooling (the sweep and its seconds),
+## buttons and the loadout bar a miniature of the card (the whole figure at x1 facing the camera), the tree's cards at
+## x2, the reading at x3; a companion's chip shows the top-down figure's head. A classic side-view character's pictures
+## are the side view's. Each slotted art is its picture at rest as in a fight, never the round emblem, and its states
+## read on it: cooling (the sweep and its seconds),
 ## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
 ## makes their textures and a canvas item, a few a frame (the old side-view stills took 10-30 ms each on it).
@@ -2389,9 +2389,13 @@ func technique_pictures_suite() -> void:
 	var hud_pics: Array = []   # each art once (a frame may draw the HUD twice)
 	for d in drawn["rest"].pics:
 		if str(d.get("where", "")) == "hud" and not hud_pics.any(func(e): return str(e.id) == str(d.id)): hud_pics.append(d)
-	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 2 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
-		"decision 42: for a top-down character the HUD's pictures are the top-down figure's upper body at x2 facing the camera (the face shows) with the art's rank, and a companion's chip its head (%s; face %s)"
+	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 1 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
+		"decision 42: for a top-down character the HUD's pictures are the whole top-down figure at x1 facing the camera (a miniature of the card) with the art's rank, and a companion's chip its head (%s; face %s)"
 		% [str(hud_pics.map(func(d): return [d.id, d.top, d.scale, d.rank])), face_top])
+	# A miniature: the whole figure inside its picture, its head never cut by the frame (only a figure taller than the
+	# button loses its feet).
+	var cut_heads: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and (cl.spec.body as Rect2).position.y < 0.0).map(func(cl): return cl.key)
+	check(cut_heads.is_empty(), "decision 42: a button's picture never cuts the figure's head (%s)" % str(cut_heads.slice(0, 3)))
 	var fight_log: Array = drawn["fight"].pics
 	var state_at := func(kind: String, i: int) -> bool:
 		return fight_log.any(func(d): return str(d.get("state", "")) == kind and (d.rect as Rect2).get_center().distance_to(hud.slots[i]) < 1.0)
@@ -2419,14 +2423,23 @@ func technique_pictures_suite() -> void:
 	var dock: Array = by_where.call("dock")
 	var dock_ids := {}
 	for d in dock:
-		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 2 and str(d.facing) == "s": dock_ids[str(d.id)] = true
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 1 and str(d.facing) == "s": dock_ids[str(d.id)] = true
 	var unpainted: Array = shown.filter(func(k): return not TechniquePicture.painted(k[0], c, look, k[1], k[2]))
 	# (A picture drawn before its turn came has no cell yet, scale 0: the plain ground stood in for it that frame.)
 	check(not cards.is_empty() and cards.all(func(d): return d.top and int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
 		and reading.all(func(d): return d.top and str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
 		and arts.all(func(a): return dock_ids.has(a)) and unpainted.is_empty(),
-		"decision 42: on the Techniques page the tree's cards (%d, x2), the reading (x3) and the loadout bar (%s, x2) all draw the top-down figure, each painted (%s)"
+		"decision 42: on the Techniques page the tree's cards (%d, x2), the reading (x3) and the loadout bar (%s, x1) all draw the top-down figure, each painted (%s)"
 		% [cards.size(), str(dock_ids.keys()), str(unpainted.slice(0, 4))])
+	# The HUD's and the loadout bar's pictures (44 and 42 px inside their frames) hold the whole figure with a margin.
+	var in_frame := func(cl) -> bool:
+		var b: Rect2 = cl.spec.body
+		return b.position.x >= 0.0 and b.position.y >= 1.0 and b.end.x <= float(cl.spec.w) and b.end.y <= float(cl.spec.w) - 1.0
+	var small_top: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and bool(cl.spec.top))
+	var small_sizes := {}
+	for cl in small_top: small_sizes[int(cl.spec.s)] = true
+	var cut: Array = small_top.filter(func(cl): return not in_frame.call(cl)).map(func(cl): return [cl.key, cl.spec.body, cl.spec.w])
+	check(cut.is_empty() and small_sizes.size() >= 2, "decision 42: at the HUD's and the loadout bar's size (%s px) the whole top-down figure stands inside its picture, a pixel clear of the top and the foot, nothing cut by the frame (%d pictures; a classic side-view one, taller than a button, loses only its feet) (%s)" % [str(small_sizes.keys()), small_top.size(), str(cut.slice(0, 3))])
 	tp.queue_free()
 	# A classic side-view character keeps the side view's pictures (the fallback).
 	c.view = ""

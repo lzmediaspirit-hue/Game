@@ -8,7 +8,7 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
 
 - **One technique picture** (`TechniquePicture`), the reference's look, for the tree's cards, the tree's reading, the
   HUD's technique buttons and the Techniques page's loadout bar. A square of deep starry ground in the art's element's
-  ink; the character large (x2 on a card and a button, x3 in the reading) in the art's pose, drawn in that one ink as a
+  ink; the character large (x2 on a card, x3 in the reading, whole at x1 in a button) in the art's pose, drawn in that one ink as a
   dark shape with light touches and a light rim; a few marks of the art's form round it (a palm's crescents, a ward's
   dome, a domain's ring, a pillar's springs, a seal's square, a snare's loop, a chorus's notes...); the frame; and a
   small rank badge (the art's mastery tier). The figure is the top-down one (`TopdownFigure`) for a top-down character:
@@ -24,13 +24,26 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   is painted, so the tree's kept tiles are not drawn again for it, and the page's redraw-on-change holds
   (`perf_tests`' `_techniques_redraws`). A picture's look (its pose, its outfit, its cell's key) is found once and
   remembered while that look is worn, so the HUD's buttons cost a lookup a frame (about 5 µs a button, from 36).
-- **A readability pass at a button's size** (the HUD's 50 px, the loadout bar's 42 px; the cards and the reading are
-  as above): the first pictures there were dark and muddy and read worse than the old side-view busts. Now the figure
-  faces the camera on the frame before its blow lands (its face always shows; the back of the head never fills the
-  button), head and shoulders at x2; its tone is lifted well clear of a calm dark ground (a smooth fall, a faint light
-  behind the head, no stars) with no rim; one bold, simple mark of its form stands beside the face; the rank badge
-  keeps the upper right corner, clear of the face. The HUD dims a Qi-short art to 0.72 (from 0.55) and a closed one to
-  0.45 (from 0.38), so the figure reads under the Qi strip and the lock.
+- **A button is a miniature of its card** (the HUD's 50 px buttons, the loadout bar's 42 px pictures; the cards and the
+  reading are as above). The first pictures there were dark and muddy; a readability pass cropped them to head and
+  shoulders at x2, and then "the skills icon don't fit right in the HUD buttons". Now the whole figure stands in the
+  button at x1 (about 38 px tall), top to foot with a few pixels of margin and nothing cut by the frame, facing the
+  camera on the frame before its blow lands (its face always shows), a little left of the middle; on the card's
+  ground in the element's ink with a few faint stars, in the card's ink and rim; one bold mark of its form clear of the
+  figure on the right. The rank badge is small and wholly inside the upper right corner, clear of the face; the
+  cooldown's seconds, the Qi strip and the lock stay inside the frame. The HUD dims a Qi-short art to 0.72 (from 0.55)
+  and a closed one to 0.45 (from 0.38), so the figure reads under the Qi strip and the lock.
+- **Painting is quicker, and the Techniques check steadier.** A picture's ground, stars and marks are painted with the
+  image's own fills, blends and blits instead of a script loop over its pixels: a card's in about 0.3 ms of a worker's
+  time (from 2.5), a button's in 0.3 (from 0.5). A picture's rounded plates keep their style boxes by radius and colour, with
+  no key written out each draw (a HUD button's picture costs about 25 µs a frame). `perf_tests`' decision 42 check ("with its preview casting
+  the Techniques page is not drawn again and a frame costs about the world's alone") failed now and then on a quiet
+  runner, though the pictures do no work while the preview casts (none drawn, no page or tile drawn again, none being
+  painted): the runner's CPU runs half again slower or more for a second or so at a time, the same fixed piece of
+  script work timed after each frame 1.7x slower in exactly those frames, and one such stretch in the casting window
+  and none in the world's alone decided it (12.3 against 9.95 ms). Its windows now count the frames at the machine's
+  own speed (`_median_frames`: a frame the fixed work shows slow is left out, unless a picture was being made then),
+  and the line says how many were left out.
 - **The companion's chip** on the HUD shows the top-down figure's head (the bare body's crown under the chip's top),
   where it showed a side-view head.
 - **The sect's Transfer Array** asks where to on its own small travel picker (`array_page.gd`, `transfer_array`), not
@@ -42,7 +55,7 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   (`tools/dev/picture_capture.tscn -- --tag=<before|after>`).
 - **Tests.** `rules_tests`: the technique_pictures_suite (every picture of a top-down character is the top-down figure
   at its whole scale, the HUD's buttons, the loadout bar, the tree's cards and the reading, painted within a few frames;
-  a companion's chip its head; a classic character's the side view's; the states; no main-thread piece past 4 ms nor
+  a button's the whole figure at x1 facing the camera, its head never cut; a companion's chip its head; a classic character's the side view's; the states; no main-thread piece past 4 ms nor
   a frame's past 8), the figures_suite (the cards), and the prototype suite's travel picker (only known arrays, by
   room name, none past the gate).
 

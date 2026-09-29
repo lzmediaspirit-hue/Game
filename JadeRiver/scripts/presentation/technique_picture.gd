@@ -7,10 +7,10 @@ extends RefCounted
 ## Avatar only for a classic side-view character); a few marks of the art's form round it in the same ink (a palm's
 ## crescents, a ward's dome, a domain's ring, a pillar's springs, a seal's square); the frame; and a small rank badge
 ## (the art's mastery tier) when the character knows it. A card shows the figure from the head to about the ankles, the
-## reading whole on its floor. A button's size (under 60 px: the HUD's, the loadout bar's) has its own pass, so it reads
-## at a glance: the head and shoulders facing the camera (the face always shows), lifted well clear of a calm dark
-## ground with no stars and no rim, and one bold mark of the form beside the face. docs/ui_style_guide.md §8.4,
-## "Technique pictures".
+## reading whole on its floor. A button (under 60 px: the HUD's, the loadout bar's) is a miniature of its card: the
+## whole figure at x1 facing the camera (the face always shows) with a margin inside the frame, on the element's
+## ground, one bold mark of the form clear of it on the right, the badge inside the upper right corner; nothing is cut
+## at the head. docs/ui_style_guide.md §8.4, "Technique pictures".
 ##
 ## No frame waits on a picture. Each is a cell of an atlas sheet (a SubViewport, SHEET px square, a grid of cells of one
 ## size) that the GPU draws: the ground, its stars and the form's marks are painted as lightness at the figure's art
@@ -44,14 +44,8 @@ const SIDE_BOX := Rect2(-12, -48, 26, 48)
 const PAINTED := Color(0, 1, 1, 1)
 const RIM_INK := Color(1, 0, 1, 1)
 const RIM := [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]
-## The figure's tone in the ink shader, [cut, base, gain, rim]: a pixel's lightness l becomes base + gain * l (below
-## `cut`, an outline pixel, it stays l), its rim `rim`. A card presses the figure toward the dark on a mid ground; a
-## button (SMALL px and under) lifts it well clear of its dark ground, so it reads at a glance.
-const TONE_KEYS := ["cut", "base", "gain", "rim"]
-const CARD_TONE := [0.0, -0.182, 1.3, 0.9]
-const SMALL_TONE := [0.13, 0.1, 1.1, 1.0]
-const SMALL := 59                 ## a picture this many px across or fewer is a button's: its upper body, its own tone
-const HEAD_X := 0.42              ## where a button's head stands across it (its mark has the right side)
+const SMALL := 59                 ## a picture this many px across or fewer is a button's: a miniature of the card
+const HEAD_X := 0.36              ## where a button's figure stands across it (the form's mark has the right side)
 
 static var _holder: Node
 static var _sheets: Array = []        # [{vp, tex, s, side, cols, slots: [key or ""], used}]
@@ -60,7 +54,7 @@ static var _pending: Array = []       # keys still being painted or waiting on t
 static var _figs: Dictionary = {}     # "t|<outfit>" -> TopdownFigure; "s|<outfit>" -> Avatar (a classic character)
 static var _mats: Dictionary = {}     # ramp key -> ShaderMaterial
 static var _ramps: Dictionary = {}    # ramp key -> [deep, mid, light]
-static var _boxes: Dictionary = {}    # radius|colour -> StyleBoxFlat
+static var _boxes: Dictionary = {}    # radius -> {colour -> StyleBoxFlat}
 static var _looks: Dictionary = {}    # outfit hash|family -> [family, the outfit the art is pictured in] (art_look)
 static var _look_memo: Dictionary = {}   # art|size|muted|top -> [the outfit, the character, its look] (_look)
 static var _frame := -1               # the frame the budget below is for
@@ -166,18 +160,19 @@ static func _rank(who, tid: String) -> int:
 	if who == null or not who.cultivator.techniques_known.has(tid): return 0
 	return int(who.cultivator.mastery.get(tid, {}).get("tier", 1))
 
-## The rank badge: a small ink diamond ringed in pale gold with the rank in it, in the lower right corner of a card (the
-## reference), the upper right of a button (its lower right holds the lock and the Qi strip).
+## The rank badge: a small ink diamond ringed in bright jade with the rank in pale gold, on the lower right corner of a
+## card (the reference); on a button, smaller and wholly inside its picture in the upper right corner, clear of the face
+## (the lower right holds the lock and the Qi strip).
 static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 	var big := p.size.x >= 60.0
-	var h := 9.0 if big else 6.0
-	var c := (Vector2(p.end.x, p.end.y) if big else Vector2(p.end.x, p.position.y + h * 1.1)) - Vector2(h * 0.6, h * 0.6 if big else 0.0)
+	var h := 9.0 if big else 5.0
+	var c := p.end - Vector2(h * 0.6, h * 0.6) if big else Vector2(p.end.x - h - 2.0, p.position.y + h + 2.0)
 	var pts := PackedVector2Array([c + Vector2(0, -h - 1), c + Vector2(h + 1, 0), c + Vector2(0, h + 1), c + Vector2(-h - 1, 0)])
 	ci.draw_colored_polygon(pts, Color(UiKit.INK, a))
 	pts = PackedVector2Array([c + Vector2(0, -h), c + Vector2(h, 0), c + Vector2(0, h), c + Vector2(-h, 0), c + Vector2(0, -h)])
 	ci.draw_colored_polygon(pts.slice(0, 4), Color(UiKit.JADE_SHADOW, a))
 	ci.draw_polyline(pts, Color(UiKit.BRIGHT_JADE, a), 1.5, true)
-	var fs := 13 if big else 11
+	var fs := 13 if big else 10
 	UiKit.draw_text(ci, str(rank), Vector2(c.x - 10.0, c.y + fs * 0.36), fs, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 20.0, false)
 
 # ------------------------------------------------------------------ the cells
@@ -228,9 +223,9 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	var form := str(t.get("vfx", {}).get("anim", ""))
 	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body") if top and bool(kb[1]) else Rect2()
 	var feet := _place(box, w, bool(kb[1]), form, bare)
-	var spec := {"w": w, "k": K, "s": s, "bust": kb[1], "feet": feet, "body": Rect2(Vector2(feet) + box.position, box.size), "form": form,
+	var spec := {"w": w, "k": K, "s": s, "small": kb[1], "feet": feet, "body": Rect2(Vector2(feet) + box.position, box.size), "form": form,
 		"seated": str(pose[0]) == "meditate", "seed": hash(tid), "top": top, "action": str(pose[0]), "row": str(pose[1]), "at": int(pose[2]),
-		"fig": _fig_key(worn, top), "mat": _material(str(t.get("element", "none")), muted, s <= SMALL), "bare": Rect2(Vector2(feet) + bare.position, bare.size)}
+		"fig": _fig_key(worn, top), "mat": _material(str(t.get("element", "none")), muted), "bare": Rect2(Vector2(feet) + bare.position, bare.size)}
 	var cols: int = sheet.cols
 	cell = {"key": key, "sheet": sheet, "slot": slot, "rect": Rect2(Vector2(slot % cols, slot / cols) * s, Vector2(s, s)), "spec": spec, "state": "painting",
 		"out": {}}
@@ -243,26 +238,28 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	_spend(t0, "start " + key)
 	return cell
 
-## [scale, bust] for a picture `s` px across: the whole scale that fills it with the figure, and whether it is framed
-## from the head down (a button's size shows the upper body).
+## [scale, small] for a picture `s` px across: the whole scale that fills a card with the figure, and whether it is a
+## button's miniature of the card (the whole figure at x1, SMALL px and under).
 static func _scale_for(s: int) -> Array:
 	if s >= 120: return [3, false]
-	if s >= 60: return [2, false]
-	return [2, true]
+	if s > SMALL: return [2, false]
+	return [1, true]
 
 ## Where the figure's feet stand in a cell `w` art px across (its box `box` from the feet): its middle a little left of
 ## the cell's when its form's marks stand before the hand, never its left edge (the body's side of a blow) cut; its feet
-## on the ground line when it fits, else its head just under the top and its feet cut. A button's upper body (`bust`,
-## `bare` the bare body's box from the feet) puts the crown of the head under the top (a topknot or a hat may be cut)
-## and the head a little left of the middle (HEAD_X), so the shoulders and the hands' work show under the face and the
-## form's mark has the right side.
-static func _place(box: Rect2, w: int, bust: bool, form: String, bare := Rect2()) -> Vector2i:
-	if bust and bare.has_area():
-		return Vector2i(int(roundf(w * HEAD_X - bare.get_center().x)), int(2.0 - bare.position.y))
+## on the ground line when it fits, else its head just under the top and its feet cut. A button's miniature (`small`,
+## `bare` the bare body's box from the feet) stands the body a little left of the middle (HEAD_X), the form's mark to its
+## right, and the whole figure in the middle top to foot with a margin; one taller than the button keeps its head a
+## pixel under the top and loses its feet, never its head.
+static func _place(box: Rect2, w: int, small: bool, form: String, bare := Rect2()) -> Vector2i:
+	if small:
+		var sx := roundf(w * HEAD_X - (bare.get_center().x if bare.has_area() else box.get_center().x))
+		var top := floorf((w - box.size.y) * 0.5) if box.size.y + 2.0 <= w else 1.0
+		return Vector2i(int(sx), int(top - box.position.y))
 	var fx := roundf(w * 0.5 - box.get_center().x - (roundf(w * 0.06) if form in AHEAD else 0.0))
 	fx = maxf(fx, 1.0 - box.position.x) if box.size.x > w - 2.0 else clampf(fx, 1.0 - box.position.x, w - 1.0 - box.end.x)
 	var fy := 2.0 - box.position.y
-	if not bust and box.size.y + 4.0 <= w: fy = w - 2.0 - box.end.y
+	if box.size.y + 4.0 <= w: fy = w - 2.0 - box.end.y
 	return Vector2i(int(fx), int(fy))
 
 ## A free cell for pictures `s` px across: a sheet of that size with room, a new sheet, or the least used sheet (not one
@@ -436,7 +433,7 @@ static func _draw_cell(node: Node2D, cell: Dictionary) -> void:
 			f.play(str(sp.action))
 			f.elapsed = 0.3
 			f.facing = 1
-		for d in ([Vector2.ZERO] if bool(sp.bust) else RIM + [Vector2.ZERO]):   # a button's figure has no rim: its own dark outline on the dark ground
+		for d in RIM + [Vector2.ZERO]:
 			var tint := RIM_INK if d != Vector2.ZERO else Color.WHITE
 			if bool(sp.top): (f as TopdownFigure).draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst)
 			else: f.draw_on(node, feet + d * K, K * 0.5, tint)
@@ -484,11 +481,9 @@ static func _ramp(el: String, muted: bool) -> Array:
 		_ramps[key] = r
 	return _ramps[key]
 
-## The ink's material for an element (`muted`: the grey ramp) and a picture's tone: a card's (`small` false) presses the
-## figure toward the dark on the mid ground; a button's (`small`, under 60 px) lifts it a long way over its dark ground,
-## the figure's outline pixels kept dark and its rim at the light's end, so it reads at a glance at a thumb's size.
-static func _material(el: String, muted: bool, small := false) -> ShaderMaterial:
-	var key := el + ("|muted" if muted else "") + ("|small" if small else "")
+## The ink's material for an element (`muted`: the grey ramp), shared by every picture in it.
+static func _material(el: String, muted: bool) -> ShaderMaterial:
+	var key := el + ("|muted" if muted else "")
 	if not _mats.has(key):
 		var r := _ramp(el, muted)
 		var m := ShaderMaterial.new()
@@ -496,8 +491,6 @@ static func _material(el: String, muted: bool, small := false) -> ShaderMaterial
 		m.set_shader_parameter("deep", r[0])
 		m.set_shader_parameter("mid", r[1])
 		m.set_shader_parameter("light", r[2])
-		var tone: Array = SMALL_TONE if small else CARD_TONE
-		for i in TONE_KEYS.size(): m.set_shader_parameter(TONE_KEYS[i], tone[i])
 		_mats[key] = m
 	return _mats[key]
 
@@ -507,26 +500,17 @@ static func _material(el: String, muted: bool, small := false) -> ShaderMaterial
 ## feet, and the marks behind the figure) and out.front (the marks before it). A mark is light with a dark outline, as
 ## the reference draws them. Runs on a worker thread: it reads `spec` and writes only `out` and its own images.
 static func _paint_images(spec: Dictionary, out: Dictionary) -> void:
-	if bool(spec.bust):
+	if bool(spec.small):
 		_paint_small(spec, out)
 		return
 	var w: int = spec.w
 	var body: Rect2 = spec.body
 	var mid := Vector2(body.get_center().x, body.position.y + body.size.y * 0.45)
-	var floor_y := int(body.end.y) - 1 if not bool(spec.bust) else w + 1
-	var half := (w - 1) * 0.5
-	var back := Image.create(w, w, false, Image.FORMAT_RGBA8)
-	for y in w:
-		var base := lerpf(0.34, 0.27, float(y) / maxf(1.0, w - 1.0))
-		for x in w:
-			var v := 0.0
-			if y > floor_y: v = 0.2
-			elif y == floor_y: v = 0.5
-			else:
-				var g := maxf(0.0, 1.0 - Vector2(x, y).distance_to(mid) / (w * 0.6))
-				var e := maxf(absf(x - half), absf(y - half)) / (w * 0.5)
-				v = base + 0.28 * g * g - 0.14 * maxf(0.0, e - 0.55) / 0.45
-			back.set_pixel(x, y, Color(v, v, v))
+	var floor_y := int(body.end.y) - 1
+	var back := _ground(w, 0.34, 0.27, mid, w * 0.6, 0.12, 0.09)
+	if floor_y < w:
+		back.fill_rect(Rect2i(0, floor_y, w, 1), Color(0.5, 0.5, 0.5))
+		if floor_y + 1 < w: back.fill_rect(Rect2i(0, floor_y + 1, w, w - floor_y - 1), Color(0.2, 0.2, 0.2))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(spec.seed)
 	for i in int(w * w / 55.0):
@@ -548,28 +532,62 @@ static func _paint_images(spec: Dictionary, out: Dictionary) -> void:
 	out.back = back
 	out.front = front
 
-## A button's picture (the readability pass): a calm, dark ground, a smooth fall from its top to its foot with a soft
-## light behind the head and no stars, so the lifted figure stands clear of it; and one bold, simple mark of the form
-## on the right side (_marks_small), light in a dark outline, clear of the face and of the rank badge's corner.
+## A button's miniature of its card: the card's ground (a fall from top to foot, a light behind the figure, the edges a
+## shade darker, a few stars high up) and one bold, simple mark of the form on the right side (_marks_small), light in a
+## dark outline, a pixel thicker at x1, clear of the figure and of the badge's corner.
 static func _paint_small(spec: Dictionary, out: Dictionary) -> void:
 	var w: int = spec.w
-	var bare: Rect2 = spec.bare
-	var head := Vector2(bare.get_center().x, bare.position.y + 7.0)
-	var back := Image.create(w, w, false, Image.FORMAT_RGBA8)
-	for y in w:
-		var base := lerpf(0.17, 0.09, float(y) / maxf(1.0, w - 1.0))
-		for x in w:
-			var g := maxf(0.0, 1.0 - Vector2(x, y).distance_to(head) / (w * 0.6))
-			var v := base + 0.06 * g * g
-			back.set_pixel(x, y, Color(v, v, v))
+	var body: Rect2 = spec.body
+	var back := _ground(w, 0.34, 0.26, body.get_center(), w * 0.5, 0.1, 0.08)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(spec.seed)
+	for i in 3:   # a few faint stars, as the card's ground has, clear of the figure's middle
+		_dot(back, Vector2(rng.randi_range(1, w - 2), rng.randi_range(1, int(w * 0.3))), 0.8)
 	var front := Image.create(w, w, false, Image.FORMAT_RGBA8)
 	_marks_small(front, spec)
+	_thicken(front)
 	_outline(front)
 	out.back = back
 	out.front = front
 
-## A button's mark of the form, bold and simple, centred on `m` (the right side, level with the face) and `r` across:
-## a palm's crescents, a flurry's three, an echo's rings, a counter's shield, a thrust's arrow, a lunge's chevrons, a
+## A ground `w` px square painted as lightness with the image's own filling and blending (no pixel loop): a fall from
+## `top` to `foot`, rings of light round `mid` out to `reach` (each adding `glow`, so it is lightest at the middle), and
+## the edges `edge` darker in three steps.
+static func _ground(w: int, top: float, foot: float, mid: Vector2, reach: float, glow: float, edge: float) -> Image:
+	var img := Image.create(w, w, false, Image.FORMAT_RGBA8)
+	for y in w:
+		var v := lerpf(top, foot, float(y) / maxf(1.0, w - 1.0))
+		img.fill_rect(Rect2i(0, y, w, 1), Color(v, v, v))
+	var row := Image.create(w, 1, false, Image.FORMAT_RGBA8)
+	row.fill(Color(1, 1, 1, glow))
+	for ring in 4:
+		var r := reach * (1.0 - ring * 0.22)
+		for dy in range(-int(r), int(r) + 1):
+			var y := int(roundf(mid.y)) + dy
+			if y < 0 or y >= w: continue
+			var half := sqrt(maxf(0.0, r * r - dy * dy))
+			var x0 := maxi(0, int(roundf(mid.x - half)))
+			var x1 := mini(w, int(roundf(mid.x + half)) + 1)
+			if x1 > x0: img.blend_rect(row, Rect2i(0, 0, x1 - x0, 1), Vector2i(x0, y))
+	if edge > 0.0:
+		var shade := Image.create(w, w, false, Image.FORMAT_RGBA8)
+		shade.fill(Color(0, 0, 0, edge))
+		for k in 3:
+			var n := w - k * 2
+			img.blend_rect(shade, Rect2i(0, 0, n, 1), Vector2i(k, k))
+			img.blend_rect(shade, Rect2i(0, 0, n, 1), Vector2i(k, w - 1 - k))
+			img.blend_rect(shade, Rect2i(0, 0, 1, n - 2), Vector2i(k, k + 1))
+			img.blend_rect(shade, Rect2i(0, 0, 1, n - 2), Vector2i(w - 1 - k, k + 1))
+	return img
+
+## A layer's marks a pixel bolder (each drawn pixel spread right and down), for a button's miniature at x1.
+static func _thicken(img: Image) -> void:
+	var rect := Rect2i(Vector2i.ZERO, img.get_size())
+	var src := img.duplicate()
+	for d in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]: img.blit_rect_mask(src, src, rect, d)
+
+## A button's mark of the form, bold and simple, centred on `m` (the right side, level with the chest) and `r` across:
+## a palm's crescents, a flurry's two, an echo's rings, a counter's shield, a thrust's arrow, a lunge's chevrons, a
 ## volley's darts, a seeker's orb, an arc's bolt, a blink's star, a swarm's motes, a return's circling arrow, a ward's
 ## dome over the head, a domain's ring and a pillar's springs at the foot, a rain's drops, a release's rays, a burst's
 ## star, a seal's square, a snare's loop, a chorus's note, a wave's ripples, a sweep's arc, a plunge's falling arrow.
@@ -577,10 +595,10 @@ static func _marks_small(img: Image, spec: Dictionary) -> void:
 	var w := float(spec.w)
 	var bare: Rect2 = spec.bare
 	var m := Vector2(roundf(w - w * 0.2), roundf(w * 0.46))
-	var r := maxf(3.0, roundf(w * 0.17))
+	var r := maxf(3.0, roundf(w * 0.13))
 	match str(spec.form):
 		"flurry":
-			for j in [-1, 0, 1]: _crescent(img, m + Vector2(-r + absf(j) * 2.0 - 1.0, j * (r + 1.0)), r * 0.7 + 1.0, 1.0)
+			for j in [-1, 1]: _crescent(img, m + Vector2(-r * 0.6, j * (r * 0.8 + 1.0)), r * 0.8, 1.0)   # two palms, high and low
 		"echo":
 			for i in 3: _arc(img, m - Vector2(r + 1.0, 0), 1.0 + i * (r * 0.6 + 0.5), 1.0 + i * (r * 0.6 + 0.5), -1.1, 1.1, 1.0)
 		"counter":
@@ -670,20 +688,15 @@ static func _marks_small(img: Image, spec: Dictionary) -> void:
 			_crescent(img, m - Vector2(r - 2.0, 0), r + 1.0, 1.0)
 
 ## A dark outline round every mark of `img` (a transparent layer): each empty pixel beside one drawn goes dark.
+## (With the image's own blits: the marks' silhouette in the dark, laid a pixel out each way, and the marks over it.)
 static func _outline(img: Image) -> void:
-	var w := img.get_width()
-	var h := img.get_height()
-	var edge: Array = []
-	for y in h:
-		for x in w:
-			if img.get_pixel(x, y).a > 0.0: continue
-			for d in RIM:
-				var nx := x + int(d.x)
-				var ny := y + int(d.y)
-				if nx >= 0 and ny >= 0 and nx < w and ny < h and img.get_pixel(nx, ny).a > 0.5:
-					edge.append(Vector2i(x, y))
-					break
-	for p in edge: img.set_pixel(p.x, p.y, Color(0.02, 0.02, 0.02, 1.0))
+	var rect := Rect2i(Vector2i.ZERO, img.get_size())
+	var dark := Image.create(rect.size.x, rect.size.y, false, Image.FORMAT_RGBA8)
+	dark.fill(Color(0.02, 0.02, 0.02, 1.0))
+	var ring := Image.create(rect.size.x, rect.size.y, false, Image.FORMAT_RGBA8)
+	for d in RIM: ring.blit_rect_mask(dark, img, rect, Vector2i(d))
+	ring.blend_rect(img, rect, Vector2i.ZERO)
+	img.copy_from(ring)
 
 ## The form's marks round the figure (docs/ui_style_guide.md, "Technique pictures"): `hand` just before the body at the
 ## chest, `chest` the body's middle, `ground` its feet (the cell's foot for a button's upper body).
@@ -900,22 +913,27 @@ static func draw_qi_short(ci: CanvasItem, r: Rect2, frac: float, a := 1.0) -> vo
 	ci.draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(frac, 0.0, 1.0), strip.size.y)), Color(UiKit.QI, a))
 	if draw_log != null: draw_log.append({"state": "qi", "rect": r, "frac": clampf(frac, 0.0, 1.0)})
 
-## Closed: a lock in the lower right corner, bronze on an ink plate.
+## Closed: a lock in the lower right corner, bronze on an ink plate, inside the picture.
 static func draw_lock(ci: CanvasItem, r: Rect2, a := 1.0) -> void:
 	if draw_log != null: draw_log.append({"state": "lock", "rect": r})
-	var at := r.end - Vector2(19, 21)
+	var at := r.end - Vector2(22, 24)
 	rounded(ci, Rect2(at - Vector2(3, 3), Vector2(20, 22)), 4.0, Color(UiKit.INK, 0.85 * a))
 	ci.draw_arc(at + Vector2(7, 7), 4.5, PI, TAU, 10, Color(UiKit.BRONZE, a), 2.5)
 	ci.draw_rect(Rect2(at + Vector2(0, 7), Vector2(14, 10)), Color(UiKit.BRONZE, a))
 	ci.draw_rect(Rect2(at + Vector2(6, 10), Vector2(2, 4)), Color(UiKit.INK, a))
 
+## A rounded plate. Its style box is kept by the radius and the colour themselves (a HUD draws a few a button every
+## frame: a lookup, with no key written out).
 static func rounded(ci: CanvasItem, rect: Rect2, radius: float, col: Color) -> void:
-	var key := "%d|%s" % [int(radius), col.to_html()]
-	if not _boxes.has(key):
-		var sb := StyleBoxFlat.new()
+	var r := int(radius)
+	var by: Dictionary = _boxes.get(r, {})
+	var sb: StyleBoxFlat = by.get(col)
+	if sb == null:
+		sb = StyleBoxFlat.new()
 		sb.bg_color = col
-		sb.set_corner_radius_all(int(radius))
+		sb.set_corner_radius_all(r)
 		sb.anti_aliasing = true
-		if _boxes.size() > 256: _boxes.clear()
-		_boxes[key] = sb
-	ci.draw_style_box(_boxes[key], rect)
+		if by.size() > 128: by.clear()   # a page's fade passes through many opacities
+		by[col] = sb
+		_boxes[r] = by
+	ci.draw_style_box(sb, rect)
