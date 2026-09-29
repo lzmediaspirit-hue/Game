@@ -410,6 +410,10 @@ func _crowd() -> void:
 		e.altitude = w.room.height_at(at)
 		e.threat[Game.active_id] = 1.0
 	var pool := int(SoundBank.section("mix").get("voices", {}).get("pool", 24))
+	# What Master puts out, after its limiter, recorded for the fight (the dummy driver mixes headless too).
+	var rec := AudioEffectRecord.new()
+	AudioServer.add_bus_effect(0, rec)
+	rec.set_recording_active(true)
 	Audio.stats.peak = 0
 	Audio.stats.peak_rule = {}
 	var played0: int = Audio.stats.played
@@ -426,6 +430,19 @@ func _crowd() -> void:
 			for e in Game.room_rt.living_enemies(): Game.combat.apply_execute(e, Game.active_id)
 		await get_tree().process_frame
 		worst = maxi(worst, Audio.voices_playing())
+	rec.set_recording_active(false)
+	var wav := rec.get_recording()
+	AudioServer.remove_bus_effect(0, AudioServer.get_bus_effect_count(0) - 1)
+	var data: PackedByteArray = wav.data if wav != null else PackedByteArray()
+	var loud := 0
+	var over_ceiling := 0
+	var ceiling := db_to_linear(float(SoundBank.section("mix").get("master", {}).get("limiter_ceiling_db", -0.5))) * 32768.0 + 64.0
+	for i in range(0, data.size() - 1, 2):
+		var s := absi(data.decode_s16(i))
+		loud = maxi(loud, s)
+		if s > ceiling: over_ceiling += 1
+	print("audio crowd: Master recorded %d samples, peak %.1f dBFS" % [data.size() / 2, linear_to_db(maxf(loud, 1) / 32768.0)])
+	check(data.size() > 1000 and loud > 100 and over_ceiling == 0, "the fifteen-monster fight never passes the limiter's ceiling on Master (peak %.1f dBFS over %d samples)" % [linear_to_db(maxf(loud, 1) / 32768.0), data.size() / 2])
 	var over: Array = []
 	for r in SoundBank.section("mix").get("voices", {}).get("rules", []):
 		var key := str(r[0])

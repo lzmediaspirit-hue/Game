@@ -49,11 +49,11 @@ eleventh sound dropped whatever it was; ±5 % pitch on everything; nothing quiet
 - **Hits:** one hit for a jian, a heavy sabre and a bell, on a crab or a boar; nothing tied to the hit-stop; nothing
   for the chain's last blow, a finisher or a weave cancel. One whoosh for every weapon.
 - **Techniques:** one sound for fire, water, thunder and the rest.
-- **Foes:** one tell and one death for every kind; tells at full level across the room; fifteen foes filled the ten
-  players and a blow of the player's own could find none free.
+- **Foes:** one tell and one death for every kind; tells at full level across the room; fifteen foes could fill the ten
+  players, and then a blow of the player's own found none free.
 - **The world:** a hut's door sounded like a transfer array; loot hitting the ground was silent; a talk opening, its
   lines, barks and a staged scene's letterbox were silent.
-- **Beds:** six-second loops (the repetition is plain within a minute), no hour, most rooms silent.
+- **Beds:** six-second loops (the repetition is plain within a minute), no hour, 76 rooms silent.
 - **Music:** nothing changed when a fight started; Old Snapper and the Hollowed Eel played their room's tune; the
   stingers were few (`rare_chime`, `boss_sting`, `unlock`).
 - **The mix:** no limiter, no voice priorities; `boss_sting` lived almost wholly under 100 Hz (-23 dB above 300 Hz,
@@ -124,7 +124,8 @@ of the walk or run cycle where a foot lands (`steps.contacts`: a fraction of the
 in `tools/art/topdown/figure/actions.py`; frames 0 and 4 of eight, so a cycle redrawn with more frames keeps them).
 The run's steps are 4 dB louder and 6 % brighter than the walk's. **Landings** by surface (both feet 22 ms apart),
 silent under a 6-unit hop, rising from -8 dB to +2 dB with the height fallen, the body's weight (`land_heavy`, a
-thump and the robe settling) over them from 40 units; a fall into water splashes (`splash`).
+thump and the robe settling) over them from 40 units; a fall into water splashes (`splash`). A jump scuffs the
+surface it leaves under its whoosh.
 
 **Others' feet:** a foe that walks steps at the halves of its sheet's walk cycle (by its named `walk` action, not its
 frame numbers, so the monsters' new frames keep it; a cadence of 0.34 s without one), 7 dB under the player's, a
@@ -194,8 +195,9 @@ insects or frogs; a lamplit interior has neither); in the side view the clock's 
   limiter at -0.5 dBFS.
 - **Levels by loudness.** Each new sound's level (`data/audio.json` `volume_db`) is set by the builder from its
   loudness (the loudest 400 ms of a one-shot, the integrated loudness of a loop; `build_audio.py` `VOLUME`), not its
-  peak, so a tick and a roar of one category sound alike: the hit's transient at -24 LUFS, its body -25, its tail -30,
-  steps -30, swings -27, casts -23, tells and deaths -25, stingers -18, the beds -29 (their layers -34 to -35).
+  peak, so a tick and a roar of one category sound alike: the hit's transient at -25 LUFS, its body -26, its tail -31,
+  steps -30, swings -25, casts -23, tells -25, deaths -23, stingers -18, the beds -29 (their layers -34 to -35); a
+  sound quieter than its target stays at full level (its peak at -3 dBFS).
 - **Ducking:** the music dips 10 dB under a stinger, 6 dB while a talk is open, 4 dB under a bark or a staged scene;
   the beds half as much; 80 ms down, 0.9 s back.
 - **Voices:** 24 players for the SFX and the world, 6 for the interface. Each sound's rule (`mix.voices.rules`) gives
@@ -252,7 +254,9 @@ first quarter second, the red line where it joins).
 | a landing | -27.5 | -26.9 (on stone) |
 | wading | -29.3 (one `water_step`) | -27.0 (the sprint's four splashes) |
 
-No sound clips: every file's peak is at -3 dBFS before its level (the loops' at -1 dBFS after the limiter and within
+No sound clips. What Master puts out in the fifteen-monster fight (recorded after its limiter by `audio_tests`, the
+music, the bed and every voice at the default sliders) peaks at -2.7 dBFS, under the limiter's -0.5. Every file's peak
+is at -3 dBFS before its level (the loops' at -1 dBFS after the limiter and within
 0.6 dB of it once decoded), no composite pictured passes -0.9 dBFS before the bus, and the Master limiter holds
 -0.5 dBFS whatever sums. The phone band: every new sound keeps -12 dB or more above 300 Hz (the lowest, `land_heavy`
 -9.6, `hit_el_earth` -10.3, the stems -6 to -9); `boss_sting` went from -22.9 to -11.1.
