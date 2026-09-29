@@ -13,10 +13,12 @@ extends Node
 
 const SAVES := "user://combat_trace_saves/"
 const DT := 1.0 / 60.0
-## Each chain: [name, family, frames, presses]; a press is [frame, kind, arg]: "attack", "tech" (slot), "dodge",
-## "stick" (a Vector2 held from that frame), "attack_in_stop" (Attack the first frame a hit-stop holds), "tech_in_stop".
+## Each chain: [name, family, frames, presses, the art in slot 0 (optional)]; a press is [frame, kind, arg]: "attack",
+## "tech" (slot), "dodge", "stick" (a Vector2 held from that frame), "attack_in_stop" (Attack the first frame a
+## hit-stop holds), "tech_in_stop".
 const CHAINS := [
 	["weave", "fists", 100, [[0, "attack"], [16, "attack"], [32, "tech", 0], [50, "attack"], [66, "attack"]]],
+	["weave_knock", "fists", 110, [[0, "attack"], [30, "tech", 0], [60, "attack"], [76, "attack"]], "mole_cuts"],
 	["weave", "jian", 110, [[0, "attack"], [18, "attack"], [36, "tech", 0], [56, "attack"], [74, "attack"]]],
 	["mash", "fists", 90, [[0, "attack"], [6, "attack"], [12, "attack"], [18, "attack"], [24, "attack"], [30, "attack"], [36, "attack"]]],
 	["late_taps", "jian", 110, [[0, "attack"], [40, "attack"], [80, "attack"]]],
@@ -134,6 +136,9 @@ func _chain(ch: Array) -> void:
 	var n := int(ch[2])
 	var presses: Array = ch[3]
 	_kit(fam)
+	if ch.size() > 4:
+		if not c.cultivator.techniques_known.has(str(ch[4])): c.cultivator.techniques_known.append(str(ch[4]))
+		c.cultivator.technique_slots[0] = str(ch[4])
 	var base := Vector2(22.5, 19.5) * 32.0
 	_fresh(base)
 	var reach := float(StatRules.family(c).get("reach", 46))
@@ -228,7 +233,8 @@ func _chain(ch: Array) -> void:
 			prev_row = p.motor.row
 		if int(leave.press) >= 0:
 			if int(leave.dash) < 0 and p.motor.dash_t > 0.0: leave.dash = f - int(leave.press)
-			if int(leave.fast) < 0 and p.motor.vel.length() >= p.motor.sprint * 0.5 and p.motor.dash_t <= 0.0: leave.fast = f - int(leave.press)
+			if int(leave.fast) < 0 and p.motor.vel.length() >= p.motor.sprint * 0.5 and p.motor.dash_t <= 0.0 and p.motor.push_t <= 0.0 \
+					and not Game.combat.is_busy(c.id): leave.fast = f - int(leave.press)
 			if int(leave.run) < 0 and p.anim in ["run", "walk", "dash", "dodge"]: leave.run = f - int(leave.press)
 		for pl in pulls:
 			if int(pl.f) + 8 == f: pl.pulled = snappedf(float(pl.d0) - p.motor.pos.distance_to(foe.plane), 0.1)

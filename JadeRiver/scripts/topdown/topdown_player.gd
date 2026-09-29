@@ -65,6 +65,9 @@ var stage_pose := ""              ## decision 39: the pose a staged scene holds 
 ## `weave.buffer_s`) and goes at the cut: {kind: "attack" | "technique", dir, aimed, finisher, slot, k, left}.
 var weave := {}
 var _no_buffer := false
+## Decision 43, the chain's flow (CombatFeel.flow): the last step Combat began that the body has turned to and lunged
+## for (a tapped step does both as it is sent; a queued one, or a finisher asked for mid-chain, as it begins).
+var _step_seen := -1
 
 var surface: WalkSurface:
 	get: return state.surface
@@ -116,7 +119,11 @@ func dodge() -> void:
 		dodge_buffer = 0.0
 		weave = {}   # the dodge goes instead of a press waiting for its cut
 	elif str(r.get("reason", "")) == "committed" and dodge_buffer <= 0.0:
-		dodge_buffer = float(CombatFeel.cfg().get("dodge_buffer_s", 0.2))   # decision 38: it goes when the blow may be cancelled
+		# Decision 38: it goes when the blow may be cancelled; decision 43: held until that point, however heavy the blow
+		# (up to `flow.dodge_hold_s`), never dropped before it.
+		var tl: Dictionary = Game.combat.timeline(actor_id)
+		var until := float(CombatFeel.timeline_phases(tl, Game.character(actor_id)).get("cancel_from", 0.0)) - float(tl.t) + 0.02
+		dodge_buffer = clampf(until, float(CombatFeel.cfg().get("dodge_buffer_s", 0.2)), float(CombatFeel.flow().get("dodge_hold_s", 0.6)))
 
 ## A tap of Attack: the soft lock (the nearest foe in the cone round the stick, else the facing).
 func attack() -> void:
@@ -128,6 +135,10 @@ func attack() -> void:
 ## An attack along `dir` on the plane; `aimed` (a dragged aim) snaps only to a foe within a few degrees. `finisher`
 ## (decision 35, a long drag): the combo's last step at once.
 func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
+	# Decision 43: a tap made while a technique waits in the buffer goes after it (the presses in their order).
+	if not _no_buffer and str(weave.get("kind", "")) == "technique" and not finisher:
+		_buffer({"kind": "attack", "dir": dir, "aimed": aimed, "finisher": false})
+		return {"ok": false, "reason": "busy", "buffered": true}
 	# Decision 38: each step lunges toward its aim; out of a dash it is a dash attack (the dash ends in it, a longer
 	# lunge). Known before the step starts, as its event is played as it is sent.
 	dash_attack = motor.grounded and (motor.dash_t > 0.0 or motor.since_dash <= float(CombatFeel.cfg().get("dash_attack_s", 0.15)))
@@ -137,9 +148,34 @@ func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
 	if r.get("ok", false) and not r.get("queued", false):
 		dash_combo = int(r.get("combo", 0)) if dash_attack else -1
 		if dash_attack: motor.dash_t = 0.0
-		var lunge := CombatFeel.lunge(str(Game.combat.timeline(actor_id).get("family", "fists")), int(r.get("combo", 0)), dash_attack)
-		if lunge > 0.0 and motor.grounded: motor.push(Vector2(r.get("aim", dir)).normalized() * lunge / 0.1, 0.1)
+		_step_seen = int(Game.combat.timeline(actor_id).get("starts", 0))
+		_lunge(Vector2(r.get("aim", dir)), int(r.get("combo", 0)), r.get("at"))
 	return r
+
+## Decision 43: a step lunges toward the foe its aim picked (CombatFeel.pull: to half the weapon's reach from it, a
+## little further than the step's own lunge at most, never into it), else its own lunge along the aim (decision 38).
+func _lunge(aim: Vector2, combo: int, at) -> void:
+	if not motor.grounded or aim.length() < 0.01: return
+	var fam := str(Game.combat.timeline(actor_id).get("family", "fists"))
+	var own := CombatFeel.lunge(fam, combo, dash_attack and combo == dash_combo)
+	if own <= 0.0: return   # the families that strike from where they stand (the bow, the flute, the bell)
+	var reach := float(ContentDB.entry("weapon_families", fam).get("reach", 46))
+	var length := CombatFeel.pull(own, reach, motor.pos.distance_to(at) if at is Vector2 else -1.0)
+	var secs := float(CombatFeel.flow().get("pull", {}).get("time_s", 0.1))
+	if length > 0.0: motor.push(aim.normalized() * length / secs, secs)
+
+## Decision 43: a step Combat began on its own (a queued step, aimed again as it began; a finisher asked for mid-chain)
+## turns the body to its aim and lunges as a tapped step does, once, the frame it begins.
+func _follow_steps() -> void:
+	var tl: Dictionary = Game.combat.timeline(actor_id)
+	var n := int(tl.get("starts", 0))
+	if n == _step_seen: return
+	_step_seen = n
+	if str(tl.get("action", "")) == "" or str(tl.get("technique", "")) != "": return
+	var aim: Vector2 = tl.get("aim", motor.dir)
+	motor.face(aim)
+	dash_combo = -1
+	_lunge(aim, int(tl.get("combo", 0)), tl.get("target_at"))
 
 ## A guard parried a blow (Combat's `parried`): the figure turns it aside, the parry's deflection played once.
 func parried() -> void:
@@ -208,18 +244,26 @@ func aim_technique(slot: int, dir: Vector2, k := -1.0, aimed := true) -> Diction
 	return r
 
 ## Decision 42: a press the hands are too busy for waits for the cut of the blow under way (CombatFeel.weave), unless
-## it is the buffered press going now. A newer press takes the place of an older one.
+## it is the buffered press going now. A newer technique takes the place of an older press; decision 43: Attack taps
+## made while a press waits are kept behind it (`more`, up to `flow.more_taps`), each the chain's next step after it.
 func _buffer(press: Dictionary) -> void:
 	if _no_buffer: return
-	press.left = float(CombatFeel.weave_cfg().get("buffer_s", 0.4))
+	var secs := float(CombatFeel.weave_cfg().get("buffer_s", 0.4))
+	if not weave.is_empty() and str(press.kind) == "attack" and not bool(press.get("finisher", false)):
+		weave.more = mini(int(weave.get("more", 0)) + 1, int(CombatFeel.flow().get("more_taps", 2)))
+		weave.left = maxf(float(weave.left), secs)
+		return
+	press.left = secs
 	weave = press
 
-## The buffered press goes the moment the blow under way may be cut (or has ended); else it runs out.
+## The buffered press goes the moment the blow under way may be cut (or has ended); else it runs out, but not while a
+## step queued ahead of it has still to play (decision 43: the presses in their order). The taps kept behind it follow.
 func _tick_weave(delta: float) -> void:
 	if weave.is_empty(): return
 	var kind := "technique" if str(weave.kind) == "technique" else "basic"
-	if not CombatFeel.weave(Game.combat.timeline(actor_id), kind, Game.character(actor_id)) in ["cancel", "free"]:
-		weave.left = float(weave.left) - delta
+	var tl: Dictionary = Game.combat.timeline(actor_id)
+	if not CombatFeel.weave(tl, kind, Game.character(actor_id)) in ["cancel", "free"]:
+		if not CombatFeel.waits_ahead(tl): weave.left = float(weave.left) - delta
 		if float(weave.left) <= 0.0: weave = {}
 		return
 	var b := weave
@@ -228,6 +272,7 @@ func _tick_weave(delta: float) -> void:
 	if kind == "technique": aim_technique(int(b.slot), b.dir, float(b.k), bool(b.aimed))
 	else: aim_attack(b.dir, bool(b.aimed), bool(b.finisher))
 	_no_buffer = false
+	for i in int(b.get("more", 0)): attack()
 
 func _technique(slot: int) -> Dictionary:
 	var c = Game.character(actor_id)
@@ -306,7 +351,17 @@ func physics_step(delta: float) -> Array:
 			Game.submit({"type": "stop_meditation", "reason": "moved"})
 		if Game.combat.is_wounded(actor_id) or c.pools.blocked("move"): move = Vector2.ZERO
 		if c.pools.has_status("confusion"): move = -move
+		_follow_steps()
+		var tl: Dictionary = Game.combat.timeline(actor_id)
+		# Decision 43: the stick pushed past its tiptoe band cuts a blow's recovery at its cancel point when no press waits
+		# on it (CombatAuthority.move_cancel), so a sprint leaves a chain as cleanly as a dodge.
+		if move.length() > motor.tiptoe_axis and Game.combat.is_busy(actor_id) and weave.is_empty() and dodge_buffer <= 0.0 \
+				and CombatFeel.phase_of(tl, c) == "recovery" and CombatFeel.dodge_cancel(tl, c) == "cancel":
+			Game.submit({"type": "move_cancel"})
 		motor.speed_k = Game.combat.move_factor(actor_id) if not Game.combat.is_wounded(actor_id) else 0.0
+		# Decision 43: the feet are planted through a blow's anticipation and active frames on the ground (its lunge
+		# carries it; the recovery keeps the attack's walk).
+		if motor.grounded and CombatFeel.phase_of(tl, c) in ["anticipation", "active"]: motor.speed_k *= float(CombatFeel.flow().get("plant", 0.0))
 		motor.lock_face = Game.combat.is_busy(actor_id)
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
@@ -357,6 +412,7 @@ func _mirror() -> void:
 ## flute's held melody loops the flute at the lips, the finisher armed on Attack holds the charge's wind-up.
 func sync(delta: float) -> void:
 	var m := motor
+	if bound(): _follow_steps()   # decision 43: a step Combat began this frame is drawn turned to its aim from its first frame
 	var tl: Dictionary = Game.combat.timeline(actor_id) if bound() else {}
 	var next := "idle"
 	var f := -1    # -1: the action's own clock
