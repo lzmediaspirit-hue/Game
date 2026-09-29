@@ -4,16 +4,19 @@ top-down view.
 The side-view character (data/parts.json: the body, the creator's hair styles, the clothes, hats and capes, and the
 weapon families, with every dye and hair colour) redrawn for the 3/4 view by tools/art/topdown/figure/: a posed 3D
 doll ray-cast at 4 x 4 samples per art px and resolved into pixels, shaded in seven-step ramps of the side view's
-colours with a rim, a bounce and contact shade, and outlined in tinted lines (decision 42: drawn better at the same
-38 px; docs/redesign/art_bible.md §13 has the rules). Every layer is cast from the same poses of the unclothed body
-(AGENTS.md rules 1-4), in S, SE, E, NE and N (the west facings mirror), for every action in figure/actions.py.
+colours with a rim, a bounce and contact shade, and outlined in tinted lines (decision 42: drawn better; decision 43:
+at 46 px, 1.2 times the 38 it was drawn at; docs/redesign/art_bible.md §13 has the rules). Every layer is cast from the
+same poses of the unclothed body (AGENTS.md rules 1-4), in S, SE, E, NE and N (the west facings mirror), for every
+action in figure/actions.py. The poses the technique pictures draw are cast once more at 38 px (`pictures`), so a card,
+the HUD's buttons and the loadout bar keep the framing the user approved.
 
 The character is drawn in layer sets (figure/sets/: body, hair, shirt, pants, shoes, hat, cape, weapon_<family>), each
 built on its own into its own files, so sets can be drawn in parallel (docs/redesign/phase3/character/HOWTO.md).
 
 Writes (nearest neighbour, no metadata, byte-identical on every build):
   data/topdown/character.json            the index every set shares: actions, facings, bands, z order, dyes, hair
-                                         colours, the action catalogue's signature, and the full set's gate
+                                         colours, the action catalogue's signature, the full set's gate, and the
+                                         pictures' frames (after the catalogue's: `pictures`)
   data/topdown/character/<set>.json      a set's items: per item and section one rect [x, y, w, h, ox, oy] per frame
                                          (offset from the feet), an explicit hidden entry wherever a section is
                                          absent, its sheets, and the game items (data/artifacts.json) that wear it
@@ -27,7 +30,7 @@ Usage: python3 tools/art/topdown/build_character.py [--only <set>[,<set>...]] [-
   --jobs   casts the frames in N processes (default: one per core); the output is the same bytes for any N
   --check  builds twice in memory and fails unless both builds are byte-identical
   --list   lists the sets, their items, and what is still pending
-A full build of every set takes about 40 minutes of one core (about 12 over four); --check doubles it.
+A full build of every set takes about 11 minutes of one core (about 6 over two); --check doubles it.
 """
 from __future__ import annotations
 
@@ -50,7 +53,7 @@ from PIL import Image  # noqa: E402
 from figure import actions as A  # noqa: E402
 from figure import items as I  # noqa: E402
 from figure import palettes as P  # noqa: E402
-from figure import raster, sets  # noqa: E402
+from figure import geom, raster, sets  # noqa: E402
 from figure.frame import cast_all  # noqa: E402
 from figure.geom import DIRS, MIRROR  # noqa: E402
 from figure.render import BANDS, Paint, colourize  # noqa: E402
@@ -70,13 +73,42 @@ WARDROBE = {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "w
 
 
 def frame_list() -> list:
-    """Every drawn frame in catalogue order: (action, facing, index)."""
+    """Every drawn frame in catalogue order: (action, facing, index); then the technique pictures' frames (`pictures`),
+    (action, facing, index, "picture")."""
     out = []
     for name, spec in A.CATALOG.items():
         n, lock = spec[0], spec[6]
         for d in ([lock] if lock else DIRS):
             for i in range(n):
                 out.append((name, d, i))
+    return out + pictures()
+
+
+# Decision 43: the people are drawn 1.2 times bigger in the world, but the technique pictures keep the figure they were
+# approved at (docs/redesign/feedback/skill_icon_reference.png, decision 42): a card from the head to about the ankles,
+# a button the whole figure at x1. So the poses a picture draws (scripts/presentation/technique_picture.gd `top_pose`)
+# are cast again at geom.PICTURE_SCALE (38 px): a button's, facing the camera on the frame before its blow lands (the
+# first for a stance, a sitting or the Plunge); a card's, three quarters on the first frame for a stance or a sitting,
+# the hand seal in S on its hit, a weapon's blow in E on its hit and the bare hand's in SE just after it.
+STILL = ("idle", "meditate", "kneel", "salute")
+
+
+def pictures() -> list:
+    out = []
+    for name, spec in A.CATALOG.items():
+        n, hit, lock = spec[0], spec[3], spec[6]
+        h = max(1, n - 1 if hit is None or hit < 0 else hit)      # TopdownFigure.hit_frame, at least the second frame
+        want = [("s", 0 if name in STILL + ("plunge",) else h - 1)]
+        if name in STILL:
+            want.append(("se", 0))
+        elif name == "cast":
+            want.append(("s", h))
+        else:
+            want += [("se", min(h + 1, n - 1)), ("e", h)]
+        for d, i in want:
+            f = (name, lock or d, i, "picture")
+            if f not in out:
+                out.append(f)
     return out
 
 
@@ -154,9 +186,15 @@ _WORK: dict = {}
 
 
 def _cast_frame(idx: int) -> list:
-    """One frame of every item: [(item key, [(piece key, piece) or None per band])]."""
-    name, d, i = _WORK["frames"][idx]
-    cr = cast_all(_WORK["poses"][name][i], d, _WORK["items"])
+    """One frame of every item: [(item key, [(piece key, piece) or None per band])], cast at the world's density or, for
+    a technique picture's frame, the pictures'."""
+    fr = _WORK["frames"][idx]
+    name, d, i = fr[:3]
+    geom.SCALE = geom.PICTURE_SCALE if len(fr) > 3 else geom.WORLD_SCALE
+    try:
+        cr = cast_all(_WORK["poses"][name][i], d, _WORK["items"])
+    finally:
+        geom.SCALE = geom.WORLD_SCALE
     out = []
     for it in _WORK["items"]:
         L, _ = cr[it.key]
@@ -205,8 +243,12 @@ def index(frames: list) -> dict:
     """The index every set shares. `catalog` signs the action catalogue and the frame layout: a set built for another
     one is stale, and the game and the tests refuse it until it is built again."""
     starts = {}
-    for idx, (name, d, i) in enumerate(frames):
-        if i == 0:
+    pics = {}
+    for idx, fr in enumerate(frames):
+        name, d, i = fr[:3]
+        if len(fr) > 3:
+            pics["%s/%s/%d" % (name, d, i)] = idx
+        elif i == 0:
             starts.setdefault(name, {})[d] = idx
     actions = {}
     for name, (n, fps, loop, hit, label, _fn, lock) in A.CATALOG.items():
@@ -227,9 +269,12 @@ def index(frames: list) -> dict:
         "dyes": ["none"] + P.dye_names(), "hair_colors": P.HAIR_NAMES,
         "sets_dir": "res://" + SET_DIR + "/",
         "full_set": sets.FULL_SET, "pending": sets.pending(),
+        # decision 43: the technique pictures' poses at the density they were approved at, "<action>/<facing>/<frame>"
+        # -> the frame drawn for it (TopdownFigure.frame_of with `picture`)
+        "pictures": {"scale": geom.PICTURE_SCALE, "world_scale": geom.WORLD_SCALE, "frames": pics},
     }
     man["catalog"] = hashlib.sha1(_dumps({k: man[k] for k in ("canvas", "anchor", "dirs", "mirror", "frames", "bands",
-                                                              "actions")})).hexdigest()[:16]
+                                                              "actions", "pictures")})).hexdigest()[:16]
     return man
 
 

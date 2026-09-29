@@ -27,7 +27,7 @@ from forms import THIN_BANDS, star
 from fxpix import (ACCENT, BASE, CORE, DEEP, GLINT, HAZE, INK, LIGHT, STROKE_BANDS, ease_out, lerp, px_hash)
 from wuxia import INK_BANDS, brush_stroke, motif, palm_print, stone
 
-H = 14.0
+H = 17.0             # the hand's height over the floor (art px): the 46 px figure's (decision 43), where a smear sweeps
 SMEAR = 6            # frames of a smear: 0 the lead-in, 1 the contact, 2 the follow-through, 3-5 the qi fading
 SMEAR_FPS = 20
 SMEAR_IMPACT = 1

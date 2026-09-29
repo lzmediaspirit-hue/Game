@@ -23,8 +23,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..body import FACE, SKULL
-from ..geom import LIGHT, SCALE, SCR_D, SCR_R, TOWARD, depth, project, unit, vec
+from .. import geom
+from ..body import SKULL, glyphs
+from ..geom import LIGHT, SCR_D, SCR_R, TOWARD, depth, project, unit, vec
 from ..raster import AX, AY, cone, ellipsoid, sphere
 
 CAP_GROW = (0.65, 0.6, 0.7)
@@ -134,13 +135,14 @@ def eye_box(sk):
         if float(unit(p - sk.head) @ TOWARD) < 0.05:
             continue
         sx, sy = project(p)
-        w = len(FACE["eye_front"][0])
+        F = glyphs()
+        w = len(F["eye_front"][0])
         if 24 < abs(yaw) <= 66 and ((sg > 0) == (yaw > 0)):
-            w = len(FACE["eye_far"][0])                # the far eye in three quarters is narrower
+            w = len(F["eye_far"][0])                   # the far eye in three quarters is narrower
         elif abs(yaw) > 66:
             if (sg > 0) == (yaw > 0):
                 continue                               # in profile only the near eye shows
-            w = len(FACE["eye_side"][0])
+            w = len(F["eye_side"][0])
             sx += -1 if yaw < 0 else 1
         x0 = np.floor(sx + AX - (w - 1) * 0.5)
         cols += [x0, x0 + w]
@@ -159,7 +161,7 @@ def clear_of_eyes(box, o, M, clip=None):
 
     def cut(loc):
         P = o + loc @ M.T
-        x, y = P @ SCR_R * SCALE, P @ SCR_D * SCALE
+        x, y = P @ SCR_R * geom.SCALE, P @ SCR_D * geom.SCALE
         keep = ~((y >= lim) & (x >= xa) & (x < xb))
         return keep if clip is None else keep & clip(loc)
     return cut

@@ -1,5 +1,5 @@
 """Ray-cast solids into a layer, cast at SS x SS samples a pixel, and resolve, shade and outline them (decision 42: the
-figure drawn better at the same 38 px).
+figure drawn better; decision 43: at 46 px, geom.SCALE).
 
 A layer (one item's band in one frame) holds, per pixel, the material most of its samples hit, its tone, part and
 outline. Solids are spheres, ellipsoids and tapered elliptic cones (limbs, sleeves, trouser legs, skirts), each with an
@@ -26,9 +26,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .geom import LIGHT, SCALE, SCR_D, SCR_R, TOWARD
+from . import geom
+from .geom import LIGHT, SCR_D, SCR_R, TOWARD
 
-W, H = 136, 124          # the working canvas
+W, H = 136, 124          # the working canvas (the 46 px figure's widest cut and highest blade, with a margin)
 AX, AY = 68, 84          # the feet (the anchor) on it
 SS = 4                   # samples per pixel on a side
 
@@ -165,7 +166,7 @@ class Caster:
         return self.parts[name]
 
     def cast(self, fine: Fine, s: Solid) -> None:
-        S = SCALE * SS
+        S = geom.SCALE * SS
         FAX, FAY = AX * SS, AY * SS
         FH, FW = fine.mat.shape
         c, rad = s.bound()
@@ -283,7 +284,7 @@ def smooth_normals(fine: Fine, part_id: int, centre, M, radii) -> None:
     sel = fine.part == part_id
     if not sel.any():
         return
-    S = SCALE * SS
+    S = geom.SCALE * SS
     jj, ii = np.nonzero(sel)
     px = (ii + 0.5 - AX * SS) / S
     py = (jj + 0.5 - AY * SS) / S

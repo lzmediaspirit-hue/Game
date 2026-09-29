@@ -2,8 +2,9 @@
 
 World axes: x east (screen right), y south (toward the camera on the ground), z up. The camera is orthographic and
 looks down from the south at ELEV degrees (lower than the world's own oblique view, as sprites in a 3/4 view are drawn,
-so the face shows), so a sphere stays round on screen; SCALE art px per unit makes the standing figure about 38 art px
-from the soles to the crown.
+so the face shows), so a sphere stays round on screen; SCALE art px per unit makes the standing figure about 46 art px
+from the soles to the crown (decision 43: WORLD_SCALE, 1.2 times the 38 px of decision 42). The technique pictures'
+frames are cast at PICTURE_SCALE, the density they were approved at (build_character.py sets SCALE for each frame).
 
 The figure's own frame (a pose's coordinates) is (f, r, u): forward, the character's right hand side, up. A facing
 turns it into the world: forward F on the ground, right R = (-F.y, F.x), up z.
@@ -15,7 +16,9 @@ import math
 import numpy as np
 
 ELEV = math.radians(22.0)
-SCALE = 1.104                                                       # art px per figure unit
+WORLD_SCALE = 1.104                                                 # art px per figure unit: the 46 px figure
+PICTURE_SCALE = 0.92                                                # the technique pictures' figure (38 px)
+SCALE = WORLD_SCALE                                                 # the density a frame is cast at now
 SCR_R = np.array([1.0, 0.0, 0.0])                                 # screen right in the world
 SCR_D = np.array([0.0, math.sin(ELEV), -math.cos(ELEV)])           # screen down in the world
 TOWARD = np.array([0.0, math.cos(ELEV), math.sin(ELEV)])           # from the figure toward the camera

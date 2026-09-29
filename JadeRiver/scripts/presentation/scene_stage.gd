@@ -150,6 +150,16 @@ static func prompt_x(text: String, x: float) -> float:
 	var half := UiKit.text_width(text, 18, true) * 0.5 + 16.0
 	return clampf(x, half, 1280.0 - half) if half * 2.0 < 1280.0 else 640.0
 
+## True when a hand-off points at a person (a scene's actor who is no prop, or a person of the room): its chevron stands
+## over the 46 px figure's head (decision 43), 16 px higher than over a thing.
+func _person(at) -> bool:
+	if at is Array: return false
+	var s := str(at)
+	var run = director.run
+	if run != null and run.actors.has(s): return str(run.actors[s].get("prop", "")) == ""
+	if s.begins_with("object:") and Game.room_rt != null: return str(Game.room_rt.object_def(s.get_slice(":", 1)).get("type", "")) == "npc"
+	return false
+
 func _prompt(pr: Dictionary, still: bool) -> void:
 	var t := float(pr.t)
 	var a := clampf(t / 0.25, 0.0, 1.0)
@@ -168,7 +178,7 @@ func _prompt(pr: Dictionary, still: bool) -> void:
 					break
 	else:
 		var w := director.where(at)
-		if w != Vector2.INF: target = director.world.overlay.get_global_transform_with_canvas() * w + Vector2(0, -64)
+		if w != Vector2.INF: target = director.world.overlay.get_global_transform_with_canvas() * w + Vector2(0, -80.0 if _person(at) else -64.0)
 	var inside := Rect2(40, 90, 1200, 520)
 	var plate_at := Vector2(640, 600) if target == Vector2.INF else Vector2(clampf(target.x, inside.position.x + 120, inside.end.x - 120), clampf(target.y - (56.0 if hud_ring else 26.0), inside.position.y, inside.end.y))
 	if target != Vector2.INF and not hud_ring and inside.has_point(target):

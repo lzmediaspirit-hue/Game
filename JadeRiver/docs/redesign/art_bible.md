@@ -109,8 +109,8 @@ a part overlaps the body (§13). Props keep the rules below.*
 | World view | 640 × 360 art px (40 × 22.5 tiles), shown ×2 at 1280 × 720 |
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
-| Character | ~38 art px from sole to crown (40 with a top knot), feet on the anchor: about 2.4 tiles. The real character (§13) is the reference |
-| Doors | 2 tiles wide in the wall, 24–28 px tall, so a 38 px body reads as fitting through |
+| Character | ~46 art px from sole to crown (48 with a top knot), feet on the anchor: about 2.9 tiles (decision 43: 1.2 times the 38 px it was first drawn at). The real character (§13) is the reference, and §13's scale rule says what follows its size |
+| Doors | 2 tiles wide in the wall, 24–28 px tall. A body is about 20 px across and its foot box 19 × 12 world units (9.5 × 6 art px), so it fits through every way a tile wide or more, and reads as fitting a door's two tiles |
 | Props | footprint in whole tiles; sprite height free |
 
 **What makes a height readable.** Every raised edge carries all six of these cues:
@@ -207,8 +207,8 @@ are checked on a room made for them (`topdown_suite`, "topdown terrain").
 
 ## 8. Props
 
-- **Scale.** Props are built for the 38 px body. A lantern is 30 px (chest-high plus cap), a barrel 18, a door 25,
-  bamboo 60, a willow 62.
+- **Scale.** Props were built for the 38 px body and stay as they are for the 46 px one (decision 43): a lantern is 30 px
+  (now about shoulder-high), a barrel 18, a door 25, bamboo 60, a willow 62.
 - **Form.** Every prop shows its top surface and its south face in the same ¾ view as the terrain: a barrel shows its
   lid, a crate its lid and front, a bench its seat. Its south-west footprint corner stands on the floor (`origin` in the
   manifest), and it sorts by its footprint's south edge.
@@ -417,8 +417,8 @@ The body in the top-down world is the game's own character, redrawn for this vie
 - **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
   from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
 - **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 4 × 4 samples per art
-  px and resolved into pixels (decision 42: "drawn better" at the same size, option B of
-  `docs/redesign/feedback/character_quality.md`). The redesign plan's "As built: Phase 3, third part" has the full
+  px and resolved into pixels (decision 42: "drawn better", option B of `docs/redesign/feedback/character_quality.md`;
+  decision 43: 1.2 times bigger, "I think the player should look a little bigger"). The redesign plan's "As built: Phase 3, third part" has the full
   pipeline; `figure/raster.py` and `figure/render.py` hold the rules below.
 - **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
   `docs/redesign/phase3/character/HOWTO.md` says how to add one.
@@ -426,18 +426,40 @@ The body in the top-down world is the game's own character, redrawn for this vie
 | Rule | Value |
 |---|---|
 | Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
-| Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
+| Size | 1.104 art px per unit (`geom.WORLD_SCALE`; decision 43, 1.2 times decision 42's 0.92): about 46 art px from sole to crown, 48 with a top knot. Every pixel is cast at that density, never scaled at runtime. The technique pictures keep the 38 px figure they were approved at: the poses a picture draws (105 frames) are cast again at 0.92 (`geom.PICTURE_SCALE`, the index's `pictures`) |
 | Coverage | 4 × 4 samples a pixel. A pixel takes the material most of its samples hit (thin trim, pins and blades vote extra, so a gold collar or a belt holds an unbroken line), and is solid from half covered. A `thin` material (trim, a blade, a hilt) is solid from a quarter; a `line` material (a shaft, a bow's limbs, a string, a ripple, a stroke of ink, a smear seen edge on) from a quarter too, unless it is the fainter side of a line its neighbour holds, so a line about a pixel wide stays one pixel wide and unbroken |
 | Light | the world's sun, upper left and a little in front (§3). Tones come from the mean light over a pixel's samples, so tone edges follow the form. Seven steps a ramp (`render.ramp7`: the side view's five plus a core shadow and a bright step), the dark end leaning toward the §14 shadow `#241F4F`, the light end toward the §14 sun `#FFE9A6`: five lit steps, the bright step only for materials allowed it (`hi`), the top step only as a sheen or a glint (`glossy`: hair, silk ribbon, gold, blades, plate) |
 | Rim, bounce, contact | a warm rim (the colour 30% toward the sun, a step up) where a form's edge turns to the sun; a cool bounce toward the sky on a shaded edge facing down; a contact shade a step down under a nearer part and beside one (an arm on the trunk, one leg against the other). Bare steel and a cape trailing flat keep a faint rim, so they keep their colour |
 | Outline | 1 px, a dark tint of the material it bounds (its deepest step toward ink-teal `0E1A1E`) on the shaded lower right, a step lighter on the lit upper left, never flat black. Where a part overlaps the body the edge is the part's own core shadow, lighter than the outer line (skin a step lighter still). Stair-steps: a half-alpha outline pixel where the true edge crosses a stair's inner corner, a softer one at a convex tip; no blur. Light (a smear, a ring of sound, a string) has no outline, only its own edge tone |
-| Face | lit nearly flat (the skin keeps to the shadow and base steps, no rim across it; the neck in the jaw's shade). Eyes 2 px wide and 3 tall: a lash row, the white and the iris, the iris's lower light; the far eye in three quarters 1 px, one eye in profile; a brow, a 1 px mouth, the nose's shade in three quarters, a touch of blush. Shut eyes (hurt, a fall, meditation) are the lash row. Hair and a band hat leave the eyes clear in every pose: their samples are cut from the eyes' box a pixel round (a row higher over shut eyes), so a fringe or a nod never covers them |
+| Face | lit nearly flat (the skin keeps to the shadow and base steps, no rim across it; the neck in the jaw's shade). Eyes 3 px wide and 3 tall: a lash row, the white, the pupil and the iris, the iris and its lower light; the far eye in three quarters and the eye in profile narrower; a brow, a 2 px mouth, the nose's shade in three quarters, a touch of blush (the pictures' 38 px figure keeps decision 42's face: eyes 2 px wide, a 1 px mouth). Shut eyes (hurt, a fall, meditation) are the lash row. Hair and a band hat leave the eyes clear in every pose: their samples are cut from the eyes' box a pixel round (a row higher over shut eyes), so a fringe or a nod never covers them |
 | Hair | broad locks (each a groove and a lit ridge) under a sheen ring broken lock by lock on the sunlit side, a darker crown; knots and ties wound in locks; each tail lock a groove and a lit strand. Loose locks at the temples and forelocks over the brow break the cap's round silhouette, so it never reads as a helmet, and frame the face |
 | Cloth | folds hang from the belt and widen to the hem, gathers over the belt and pulls toward the chest's sides, a crease at the elbow and behind the knee, a zigzag over the ankle wrap: each a groove a step down with a lit ridge beside it on the sunlit west. Only the cloth folds: trim, belts and panels stay clean |
 | Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
 | Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored (their light then comes from the upper right). The side rows turn a little toward the camera, the head in E a little more |
 | Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
-| Cost | the same frames, rects and draw calls as the 1-sample build; the sheets hold about 1.05 times the texels (140 MB of RGBA8 for all 168 sheets, from 134). A full build of every set takes about 2.5 minutes on four cores (`--jobs`) |
+| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. A full build of every set takes about 6 minutes on two cores (`--jobs 2`) |
+
+**The scale rule (decision 43).** The people are drawn 1.2 times the 38 px they were (`TopdownRoom.PEOPLE`), and
+what is sized against a person follows them; the world's measures do not (a tile, a level, the walk's 154 and the
+sprint's 216 world units a second, the jumps and the tops a body stands on). Sized against a person:
+
+| What | Before (38 px) | Now (46 px) | Where |
+|---|---|---|---|
+| Foot box (collision) | 16 × 10 | 19 × 12 world units | `movement.json` topdown `box` |
+| The player's body for a blow on the grid | half width 14 | 17 | `CombatAuthority.body_half_width` |
+| A body's height, its chest (effects) | 76, 40 | 92, 48 world units | `movement.json` topdown.combat |
+| Talk and a person's context reach | 110 | 132 world units | `WorldAuthority.reach_of` |
+| Marker, bark and a lifted plate over a villager | as the side view's | 16 world units higher | `TopdownPlaces.HEAD_LIFT` |
+| A staged scene's balloon and emote over a head | 88 | 104 world units | `SceneStage.HEAD` |
+| Blob shadow half width, the player's / a villager's | 8 / 7 | 10 / 8 art px | `ShadowView`, `Person.BLOB_RX` |
+| The body kept in view, the camera's framing | 16 × 44, feet 12 px low | 20 × 52, 14 px low | `TopdownRoom.BODY_PX`, `camera_for` |
+| The labels' keep-clear box round the body | 28 × 64 | 34 × 77 screen px | `TopdownWorld.layout_labels` |
+| A smear's and a form's hand, a cast's chest (FX sheets) | 14, 22 | 17, 26 art px | `tools/art/fx/topdown_melee.py`, `topdown_forms.py` |
+
+The drawn weapons grow with the hands that hold them (they are cast from the same doll); a blow's reach, a technique's
+range and every speed stay the game's measures. Doors, corridors and props keep their size: every way is at least a
+tile (32 world units) wide, and the foot box is 19. The technique pictures and the HUD's companion chip keep the 38 px
+figure (`picture` frames), so they stay framed as the user approved them.
 
 Check a new layer against it the way §11 checks a tile:
 
@@ -642,7 +664,7 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
 ### 14.7 Paving and stairs
 
 - **Town paving.** Irregular flagstones, the scholar-garden "cracked ice" laying, in warm grey-beige stone, about a tile
-  across (11–22 px, an 8 × 8 site grid in a 128 px pattern), so a 38 px body stands on two or three of them.
+  across (11–22 px, an 8 × 8 site grid in a 128 px pattern), so a body stands on two or three of them.
   - Each stone has its own tone (a few a step lighter or darker, a few with a faint sandy or blue cast), a lit
     north-west rim, a shaded south-east one, worn rounded corners, grain, and a crack now and then.
   - The joints are crisp and dark (steps 1–2), with moss and a blade or two of grass in some.

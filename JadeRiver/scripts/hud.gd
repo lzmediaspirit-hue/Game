@@ -2116,7 +2116,8 @@ func _draw_party(c) -> void:
 ## A fellow disciple's face for their chip: the head of their figure as the game draws them. Decision 42 (no old
 ## side-view character left in the top-down game): for a top-down character, the top-down figure's head (its idle
 ## frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads: the chip is empty the frames
-## they take); the side view's head and shoulders only for a classic side-view character.
+## they take; the frame cast for the pictures at 38 px, decision 43, so the chip keeps the head it was framed for); the
+## side view's head and shoulders only for a classic side-view character.
 func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 	var box := Vector2(FACE_BOX, FACE_BOX)
 	if TopdownDoll.shown():
@@ -2125,10 +2126,10 @@ func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 			fig = TopdownFigure.wearing(_face_outfit(cid), true)
 			_faces["top|" + cid] = fig
 		if not fig.loaded(): return
-		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body")   # the bare body: its head under any hair
+		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
 		var head := Vector2(roundf(b.get_center().x), b.position.y + FACE_TOP_HEAD)   # the head's middle, art px from the feet
 		fig.draw(self, (center - head * FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), FACE_TOP_K,
-			Rect2(center - box * 0.5, box))
+			Rect2(center - box * 0.5, box), true)
 		return
 	if not _faces.has(cid):
 		var av = Avatar.new()

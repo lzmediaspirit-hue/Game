@@ -8,7 +8,8 @@ extends "res://tools/dev/hud_capture.gd"
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/picture_capture.tscn \
 ##     -- --tag=<before|after>
 ## `--dir=<folder under docs/redesign/feedback/>` shoots into that folder instead, on saves of its own (decision 43's
-## people drawn bigger: `--dir=people_scale`).
+## people drawn bigger: `--dir=people_scale`); `--pages` adds the pages that show the character (the Character page, the
+## Bag, the Cultivation page, Old Ma's shop and a talk's portrait strip).
 
 const PICTURES := "res://docs/redesign/feedback/pictures/"
 const PIC_SAVES := "user://picture_capture_saves/"
@@ -45,6 +46,7 @@ func _main() -> void:
 	await _pic_tree("water", true)
 	await _pic_tree("fire", false)
 	await _pic_travel()
+	if "--pages" in OS.get_cmdline_user_args(): await _pic_pages()
 	print("picture_capture: %s done" % tag)
 	get_tree().quit()
 
@@ -117,3 +119,25 @@ func _pic_travel() -> void:
 	await shot("%s_travel_picker" % tag, pics)
 	main.close_all_pages()
 	await frames(10)
+
+## Decision 43: the pages that show the character, each once it has drawn (their dolls' sheets load on threads).
+func _pic_pages() -> void:
+	for pg in [["character", {}], ["inventory", {}], ["cultivation", {}], ["shop", {"shop": "old_ma", "npc": "old_ma"}]]:
+		main.open_page(str(pg[0]), pg[1])
+		await frames(120)
+		await shot("%s_page_%s" % [tag, pg[0]], pics)
+		main.close_all_pages()
+		await frames(10)
+	await _beside("npc_aunt_ping_lane")
+	_clear_notices()
+	var r := Game.submit({"type": "interact", "object": "npc_aunt_ping_lane"})
+	if r.has("dialogue"):
+		main.open_page("dialogue", {"convo": r.dialogue})
+		await frames(20)
+		var dp = main.top_page()
+		dp.line = maxi(0, dp.lines().size() - 1)
+		dp.shown_chars = 9999.0
+		await frames(60)
+		await shot("%s_page_dialogue" % tag, pics)
+		main.close_all_pages()
+		await frames(10)

@@ -22,8 +22,8 @@
   "long_jump_window_s": 0.12,
   "long_jump_speed": 300,
   "box": [
-   16,
-   10
+   19,
+   12
   ],
   "corner_nudge": 10,
   "camera_look_ahead": 0.2,
@@ -40,9 +40,9 @@
     12
    ],
    "shot_wall": 24,
-   "chest": 40,
+   "chest": 48,
    "knock_s": 0.15,
-   "body_height": 76
+   "body_height": 92
   },
   "aim": {
    "cone_deg": 120,

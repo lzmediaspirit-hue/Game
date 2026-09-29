@@ -590,13 +590,15 @@ def build():
         # top one tile deep). `walk` is the pace the world was measured at, and in the air the body carries no more than
         # it: a sprint's running jump reaches as far as the walk's did (one tile's gap, not three), a step off a ledge
         # lands where it did, and the dash's long jump keeps its own `long_jump_speed`. Full speed in `accel_s`, a stop in
-        # `stop_s`, from the sprint.
-        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "sprint": 216, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [16, 10], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5,
+        # `stop_s`, from the sprint. Decision 43 draws the people 1.2 times bigger (46 art px): the foot `box` grows with
+        # them (16 x 10 to 19 x 12, still well inside a one-tile way), and the paces stay the world's measure.
+        "topdown": {"_note": "Top-down redesign Phase 1 (docs/redesign_top_down_plan.md 1.6): TopdownMotor reads these. Units: 1 art px = 2, 1 tile = 1 level = 32.", "walk": 154, "sprint": 216, "tiptoe_axis": 0.6, "tiptoe": 0.45, "accel_s": 0.08, "stop_s": 0.06, "air_control": 0.35, "gravity": 1700, "impulse": 400, "step_up": 8, "mantle": 12, "coyote_s": 0.1, "buffer_s": 0.12, "dash_distance": 96, "dash_speed": 430, "back_step": 48, "dash_invuln_s": 0.15, "long_jump_window_s": 0.12, "long_jump_speed": 300, "box": [19, 12], "corner_nudge": 10, "camera_look_ahead": 0.2, "camera_settle_s": 0.3, "land_squash_s": 0.1, "water_reset_s": 0.5,
             # Phase 2 (decisions 29-30): combat on the plane. A blow lands only between compatible heights: the target's
             # feet within `hit_band` of the attacker's (a jump strike reaches down `air_band`); a shot flies along the
-            # ground plane at its thrower's feet and stops at a face higher than `shot_wall` over them.
-            "combat": {"hit_band": [-12, 12], "air_band": [-56, 12], "shot_wall": 24, "chest": 40, "knock_s": 0.15,
-                       "body_height": 76},
+            # ground plane at its thrower's feet and stops at a face higher than `shot_wall` over them. A body's `chest`
+            # (where an effect on it is anchored) and `body_height` are the 46 art px figure's (decision 43: 1.2 times).
+            "combat": {"hit_band": [-12, 12], "air_band": [-56, 12], "shot_wall": 24, "chest": 48, "knock_s": 0.15,
+                       "body_height": 92},
             # Aiming (decision 30): a tap soft-locks the nearest foe in a `cone_deg` cone of the facing within `range`;
             # a dragged aim snaps to a foe within `snap_deg`. Each technique form aims as a line, a cone, a circle at a
             # point within its reach, or a circle round the caster (`self`); a projectile always flies as a line.
