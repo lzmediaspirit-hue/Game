@@ -14,7 +14,7 @@ import numpy as np
 from ..body import SKULL
 from ..geom import vec
 from ..raster import cone, ellipsoid, sphere
-from .hair import CAP_AT, CAP_GROW, tail
+from .hair import CAP_AT, CAP_GROW, keep_eyes_clear, tail
 
 
 def solids(sk, spec: dict) -> list:
@@ -50,7 +50,7 @@ def solids(sk, spec: dict) -> list:
             for dr in (-0.8, 0.8):
                 S += tail(sk, knot + Mh @ vec(0, dr * 0.5, 0), -Mh[:, 0] * 0.6 + Mh[:, 1] * dr * 0.4 - up * 0.8, 5.5, 0.55,
                           0.4, segs=3, stiff=0.5, mat="cloth", part="hat_tail")
-        return S
+        return keep_eyes_clear(sk, S)       # a band pulled down by a nod leaves the eyes clear, as the fringe does
     if kind == "crown":
         base = sk.head + up * 6.6 - Mh[:, 0] * 0.8
         top = base + up * 2.2

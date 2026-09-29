@@ -27,8 +27,12 @@ EYE_WHITE = c("f2f7f8")
 IRIS = c("5686ae")
 IRIS_LIGHT = c("57cee4")
 EYE_DARK = c("2a3c49")
-MOUTH = c("b0604c")
-BLUSH = c("f0b49a")
+# The face's small marks (decision 42): a mouth a step deeper than the lips' side-view pink so one pixel reads, a warm
+# brow, the nose's shade in three quarters, and a touch of blush under the eye.
+MOUTH = c("934536")
+BLUSH = c("f3a58c")
+BROW = c("3a2b2c")
+NOSE = c("c98062")
 
 # Hair: the creator's six colours in parts.json order, as the side view shows them (dark, muted), lifted a step for the
 # brighter top-down world. Tone 2 is the colour's body.

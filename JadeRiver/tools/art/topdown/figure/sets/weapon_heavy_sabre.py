@@ -10,7 +10,7 @@ from __future__ import annotations
 from .. import palettes as P
 from ..items import Item
 from ..kinds import sabre as K
-from ..render import Look
+from ..render import BLADE_EDGE, Look
 
 KIND = "weapon_heavy_sabre"
 FAMILY = "heavy_sabre"
@@ -25,9 +25,12 @@ def items(L: dict) -> list:
            "smear": P.SMEAR, "smear_hi": P.SMEAR, "smear_mid": P.SMEAR, "smear_lo": P.SMEAR}
     smear = ("smear", "smear_hi", "smear_mid", "smear_lo")
     # The flat is the side view's mid grey, its dark band in shade and its light grey only where the sun strikes it
-    # full (never the steel's deepest tone, which is the ink's); the edge's bevel takes the usual light.
+    # full (never the steel's core shadow, which is near the ink's), a glint only from the rim, which stays cool on the
+    # bare steel (a warm one turns a flat seen from above cream); the edge's bevel takes the usual light. The broad blade
+    # is no thin line: it is solid from half a pixel, as a body is.
     look = Look(highlight=("blade", "edge", "bronze"), flat={"smear": 3, "smear_hi": 4, "smear_mid": 2, "smear_lo": 1},
-                thresholds={"blade": (-0.3, 0.75, 2.0)}, glow=smear, line_tone={m: 0 for m in smear},
-                ink=("blade", "edge", "bronze", "hilt"))
+                thresholds={"blade": (-2.0, -0.3, 0.75, 2.0)}, glow=smear, line_tone={m: 0 for m in smear},
+                ink=("blade", "edge", "bronze", "hilt"),
+                mats={"blade": {"thin": False, "rim": 0.08}, "edge": dict(BLADE_EDGE["edge"], rim=0.08)})
     return [Item("weapon", "sabre", L["weapon"]["sabre"], lambda sk: K.solids(sk, SPEC), look, {"none": pal},
                  list(pal))]

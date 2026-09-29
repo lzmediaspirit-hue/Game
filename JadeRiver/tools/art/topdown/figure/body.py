@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .geom import SCALE, TOWARD, depth, project, vec
+from .geom import TOWARD, depth, project, vec
 from .raster import AX, AY, cone, ellipsoid, limb, sphere
 
 # Head and body radii (figure units).
@@ -76,17 +76,34 @@ def foot_solid(sk, s: str, radii, mat, part, **kw):
     return ellipsoid(sk.__dict__["foot_" + s], M, radii, mat, part=part, **kw)
 
 
-# Face glyphs, rows top to bottom, left to right on screen: K lash, I iris, L light iris, W white. `.` leaves skin.
-EYE_FRONT_L = ["KK", "WI"]
-EYE_FRONT_R = ["KK", "IW"]
-EYE_NARROW = ["K", "I"]
-EYE_SIDE = ["KK", "I."]
-EYE_SHUT = ["KK"]
-GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "M": "mouth"}
+# The face (decision 42), stamped on the head's resolved pixels before shading. Glyphs, rows top to bottom, left to
+# right as seen on screen for the eye on the screen's left (the other eye mirrors): K lash, W white, I iris, L the
+# iris's lower light, B brow, M mouth, N the nose's shade, P blush. `.` leaves skin. An eye is 2 px wide and 3 tall.
+FACE = {
+    "eye_front": ["KK", "WI", ".L"], "eye_near": ["KK", "WI", ".L"], "eye_far": ["K", "I"], "eye_side": ["KK", ".I"],
+    "eye_shut": ["KK"], "brow": ["BB"], "brow_far": ["B"], "brow_dy": -2,
+    "mouth_front": ["M"], "mouth_near": ["M"], "nose_side": ["N"], "blush": ["P"], "blush_dy": 2, "blush_dx": -1,
+}
+GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "B": "brow", "N": "nose",
+             "M": "mouth", "P": "blush"}
+FACE_MATS = ["eye_dark", "iris", "iris_light", "eye_white", "brow", "nose", "mouth", "blush"]
+# One ellipsoid round the skull and the jaw, in the head's frame: the face shades as one form (raster.smooth_normals).
+HEAD_AT = (0.4, 0.0, -0.9)
+HEAD_R = (5.9, 6.1, 7.4)
+
+
+def smooth_head(sk, fines, caster) -> None:
+    """The skull and the jaw shaded as one form, so the seam where they meet does not crease the face."""
+    if "head" in caster.parts:
+        from .raster import smooth_normals
+        smooth_normals(fines["head"], caster.parts["head"], sk.head + sk.Mh @ np.array(HEAD_AT), sk.Mh, HEAD_R)
 
 
 def face(sk, layer, caster) -> None:
-    """Stamp the eyes and mouth on the head in the body's mid layer, where the head shows and faces the camera."""
+    """Stamp the eyes, brows, mouth, nose and blush on the head where it shows and faces the camera: both eyes from the
+    front, the near one full and the far one narrow in three quarters, the near one alone in profile; shut in a hurt,
+    a fall and meditation."""
+    F = FACE
     Mh = sk.Mh
     yaw = sk.fr.yaw_to_camera(Mh[:, 0])
     a = abs(yaw)
@@ -94,40 +111,78 @@ def face(sk, layer, caster) -> None:
         return
     head_id = caster.parts.get("head", -9)
     near = "r" if yaw < 0 else "l"
+    hx, _ = project(sk.head)
+    shut = sk.eyes == "shut"
     for s, sg in (("l", -1.0), ("r", 1.0)):
         p = sk.head + Mh @ vec(4.95, sg * 2.2, 1.0)
-        n = (p - sk.head)
-        n = n / np.linalg.norm(n)
+        n = (p - sk.head) / np.linalg.norm(p - sk.head)
         if float(n @ TOWARD) < 0.05:
             continue
-        if sk.eyes == "shut":
-            g = EYE_SHUT
-        elif a <= 24:
-            g = EYE_FRONT_L if project(p)[0] < project(sk.head)[0] else EYE_FRONT_R
+        sx, sy = project(p)
+        on_left = sx < hx
+        if shut:
+            _stamp(layer, caster, sx, sy, F["eye_shut"], head_id, mirror=not on_left)
+            continue
+        if a <= 24:
+            glyph, brow, mir = F["eye_front"], F["brow"], not on_left
         elif a <= 66:
-            g = (EYE_FRONT_L if yaw > 0 else EYE_FRONT_R) if s == near else EYE_NARROW
+            if s == near:
+                glyph, brow, mir = F["eye_near"], F["brow"], yaw > 0
+            else:
+                glyph, brow, mir = F["eye_far"], F["brow_far"], yaw > 0
         else:
             if s != near:
                 continue
-            g = EYE_SIDE if yaw < 0 else [row[::-1] for row in EYE_SIDE]
-            # a profile's eye sits a pixel in from the face's edge
-            _stamp(layer, caster, p, g, head_id, dx=-1 if yaw < 0 else 1)
-            continue
-        _stamp(layer, caster, p, g, head_id)
-    if a <= 70 and sk.eyes != "shut":
-        p = sk.head + Mh @ vec(5.0, 0.0, -2.4)
-        _stamp(layer, caster, p, ["M"], head_id, dy=0)
+            glyph, brow, mir = F["eye_side"], F["brow_far"], yaw > 0
+            sx += -1 if yaw < 0 else 1          # a profile's eye sits a pixel in from the face's edge
+        _stamp(layer, caster, sx, sy + F["brow_dy"], brow, head_id, mirror=mir)
+        _stamp(layer, caster, sx, sy, glyph, head_id, mirror=mir)
+        if a <= 66 and (a <= 24 or s == near):
+            bx = sx + F["blush_dx"] * (1 if on_left else -1)
+            _stamp(layer, caster, bx, sy + F["blush_dy"], F["blush"], head_id, mirror=mir)
+    if shut or a > 80:
+        return
+    mx, my = project(sk.head + Mh @ vec(5.0, 0.0, -2.4))
+    _stamp(layer, caster, mx, my, F["mouth_front"] if a <= 24 else F["mouth_near"], head_id, mirror=yaw > 0)
+    if a > 24:
+        nx, ny = project(sk.head + Mh @ vec(5.6, 0.25, -0.9))
+        _stamp(layer, caster, nx + (1 if yaw < 0 else -1), ny, F["nose_side"], head_id)
 
 
-def _stamp(layer, caster, p, glyph, head_id, dx=0, dy=0) -> None:
-    sx, sy = project(p)
+def _stamp(layer, caster, sx, sy, glyph, head_id, mirror=False) -> None:
     w = len(glyph[0])
-    x0 = int(np.floor(sx + AX - (w - 1) * 0.5 + 0.0)) + dx
-    y0 = int(np.floor(sy + AY)) + dy
+    x0 = int(np.floor(sx + AX - (w - 1) * 0.5))
+    y0 = int(np.floor(sy + AY))
     for j, row in enumerate(glyph):
+        if mirror:
+            row = row[::-1]
         for i, ch in enumerate(row):
             if ch == ".":
                 continue
             x, y = x0 + i, y0 + j
-            if 0 <= y < layer.mat.shape[0] and 0 <= x < layer.mat.shape[1] and layer.part[y, x] == head_id:
+            if 0 <= y < layer.mat.shape[0] and 0 <= x < layer.mat.shape[1] and layer.part[y, x] == head_id \
+                    and layer.mat[y, x] >= 0:
                 layer.mat[y, x] = caster.mid(GLYPH_MAT[ch])
+
+
+def light_face(layers, caster) -> None:
+    """A face reads best nearly flat: the head's skin keeps to the shadow and the base step, with no rim or bounce
+    across it; the neck sits in the jaw's shade, one flat step, with a line of the core shadow along the jaw."""
+    R = layers["head"]
+    if "head" not in caster.parts:
+        return
+    skin = caster.mid("skin")
+    face_px = (R.part == caster.parts["head"]) & (R.mat == skin)
+    R.tone = np.where(face_px, np.clip(R.tone, 2, 3), R.tone).astype(np.int8)
+    R.rim &= ~face_px
+    R.bounce &= ~face_px
+    if "neck" in caster.parts:
+        neck = (R.part == caster.parts["neck"]) & (R.mat == skin)
+        hd = R.part == caster.parts["head"]
+        by = np.zeros_like(hd)
+        by[1:] |= hd[:-1]
+        by[:, 1:] |= hd[:, :-1]
+        by[:, :-1] |= hd[:, 1:]
+        R.tone = np.where(neck, np.where(by, 1, 2), R.tone).astype(np.int8)
+        R.rim &= ~neck
+        R.bounce &= ~neck

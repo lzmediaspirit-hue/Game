@@ -1,5 +1,5 @@
 """The unclothed body (parts.json `body`: the creator's one skin tone), the base every other set is cast over: skin in
-the side view's ramp, the face's eyes and mouth stamped flat (figure/body.py)."""
+the side view's ramp, the face's eyes, brows, mouth, nose shade and blush stamped flat (figure/body.py `face`)."""
 from __future__ import annotations
 
 from .. import body as B
@@ -14,8 +14,9 @@ def _flat(col):
     return [col] * 5
 
 
-EYE_MATS = {"eye_dark": _flat(P.EYE_DARK), "iris": _flat(P.IRIS), "iris_light": _flat(P.IRIS_LIGHT),
-            "eye_white": _flat(P.EYE_WHITE), "mouth": _flat(P.MOUTH)}
+FACE = {"eye_dark": P.EYE_DARK, "iris": P.IRIS, "iris_light": P.IRIS_LIGHT, "eye_white": P.EYE_WHITE, "brow": P.BROW,
+        "nose": P.NOSE, "mouth": P.MOUTH, "blush": P.BLUSH}
+EYE_MATS = {m: _flat(FACE[m]) for m in B.FACE_MATS}
 SKINS = {"light": P.SKIN}
 
 

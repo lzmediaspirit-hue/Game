@@ -200,7 +200,37 @@ its figure pixels land on 1.5 device pixels at 1080p. It mixes pixel scales with
 costs about four times the world's fill and 3.6× the character memory, and pulls the foe and effect art into a 2×
 redraw.
 
+## The choice, rolled out (B)
+
+The user chose **B**. It is now the game's character pipeline (`tools/art/topdown/figure/raster.py`, `render.py`; the
+art bible's §13 has the rules): every layer set, all 864 frames of every action in the five drawn facings, every hair
+colour and dye, and the villagers with them. Moving it from the study to the pipeline:
+
+- The rasteriser, the materials' table and the faces moved into `figure/`; the hair's locks and sheen into
+  `kinds/hair.py` (each style's lock count and loose locks in `sets/hair.py` `TUNE`); the cloth folds into
+  `kinds/folds.py`.
+- What the full set needed beyond the study's subset:
+  - a `line` coverage rule, so a part about a pixel wide (a spear's shaft, the bow's limbs and string, the flute, a
+    ripple, the brush's stroke of ink seen edge on) stays one unbroken pixel wide;
+  - hair and a band hat leave the eyes clear in every pose (a nod, a hurt, meditation), a row higher over shut eyes.
+    Before, a fringe or a nod hid the eyes in 2,818 of 9,702 hair, hat, action and facing cases; now in 21, all lying
+    face down in a knock-down;
+  - the guan's jade outvotes its gold rim; bare steel and a trailing cape keep a faint rim, so they keep their colour.
+- The same frames, rects and draw calls. The sheets hold 1.05 times the texels (140 MB of RGBA8 for all 168 sheets,
+  from 134). A full build takes about 2.5 minutes on four cores (`build_character.py --jobs`).
+
+**In the game, before and after** (`tools/dev/topdown_capture.tscn -- --quality --quality-tag=<before|after>`, paired
+by `tools/art/topdown/study_quality/rollout.py`): the village square, Jade Gate Street, a fight with the jian, and the
+story's gestures, in `character_quality/rollout/`.
+
+![The village square, before and after, x3](character_quality/rollout/01_village_square_x3.png)
+
+![The story's gestures, before and after, x3](character_quality/rollout/04_gestures_x3.png)
+
 ## Reproduce
+
+The study's code is kept as it was drawn. The pipeline's generators now carry B's locks and folds, so the study's
+pictures are reproduced from the commit before the rollout (`89db822`).
 
 ```sh
 python3 tools/art/topdown/study_quality/build_study.py B C D   # sheets into study_quality/build/ (ignored by git and Godot)

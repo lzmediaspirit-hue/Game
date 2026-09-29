@@ -45,6 +45,51 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   a frame's past 8), the figures_suite (the cards), and the prototype suite's travel picker (only known arrays, by
   room name, none past the gate).
 
+## The player and the NPCs drawn better (decision 42)
+
+"I want the player and the NPCs to be drawn in higher quality." The study (`docs/redesign/feedback/character_quality.md`)
+showed four options; the user chose **B**: the same 38 px figure, drawn better. It is now the game's character
+pipeline, for every layer set, action, facing, hair colour and dye, so the villagers follow. The art bible's §13 has
+the rules.
+
+- **How the doll becomes pixels** (`tools/art/topdown/figure/raster.py`, `render.py`):
+  - 4 x 4 samples a pixel; a pixel takes the material most of its samples hit (trim, pins and blades vote extra) and
+    the mean light over them. Materials say how they resolve (`render.MATS`, a set's `Look(mats=...)`): `thin` parts
+    are solid from a quarter covered; a new `line` rule keeps a part about a pixel wide (a shaft, a bow's limbs and
+    string, a flute, a ripple, the brush's stroke of ink seen edge on) one unbroken pixel wide.
+  - Seven-step ramps leaning toward the §14 sun and shadow; a warm rim, a cool bounce, contact shade under and beside
+    nearer parts. Light (smears, rings, strings, ink) keeps its own colours.
+  - Tinted outlines, a step lighter on the lit side; lighter inner lines over the body; half-alpha pixels at stair
+    corners and softer convex tips.
+  - Faces (`figure/body.py`): 2 x 3 eyes, a brow, a mouth, the nose's shade in three quarters, blush, lit nearly flat.
+  - Hair (`kinds/hair.py`, `sets/hair.py` `TUNE`): broad locks, a broken sheen ring, a darker crown, locks wound round
+    knots and down tails, and loose locks at the temples and brow so the cap no longer reads as a helmet.
+  - Cloth (`kinds/folds.py`): folds from the belt to the hem, gathers over the belt, creases at the elbow and knee, a
+    zigzag over the ankle wrap.
+- **Fixed on the way**, found in the review:
+  - A fringe, the forelocks or a band hat covered the eyes whenever the head nodded (meditation, a bow, a hurt): hair
+    and band hats now leave the eyes' box clear in every pose, a row higher over shut eyes. Eyes hidden under hair or a
+    hat, over every style, the headband and tied band, action and facing: 2,818 of 9,702 cases before, 21 now (all
+    face down in a knock-down).
+  - The brush's stroke of ink seen edge on (the leaping chop) broke up at 4 x 4: the `line` rule.
+  - The guan's gold hid its jade crown; the heavy sabre's flat turned cream under a warm rim, and the tattered cape
+    trailing in the run turned the colour of the paving: the guan's jade outvotes its gold, and bare steel (the sabre,
+    the gauntlets, the greaves' plates) and capes keep a faint rim.
+- **The build** (`build_character.py`): the frames are cast in one process per core (`--jobs N`; the same bytes for
+  any N), and each item's sheet is coloured whole for each dye. A full pass takes about 2.5 minutes on four cores (11
+  on one); `--check` builds twice and stays byte-identical.
+- **Rebuilt:** all 18 sets, 168 sheets. The index and its catalogue signature did not change; the frames, rects,
+  hidden entries and draw calls are the same. The sheets are imported lossless with no mipmaps, so their memory is
+  their texels in RGBA8: 1.046 times as many (140.1 MB for all 168, from 134.0; the player's starting outfit 5.42 MB,
+  from 5.20; the 26 sheets the study's nine people wear 19.9 MB, from 19.3).
+- **In the game, before and after**, the same instants: the village square, Jade Gate Street, a fight with the jian
+  frame by frame, and the story's gestures, in `docs/redesign/feedback/character_quality/rollout/`
+  (`tools/dev/topdown_capture.tscn -- --quality --quality-tag=<before|after>`, paired by
+  `tools/art/topdown/study_quality/rollout.py`). The review sheets in `docs/redesign/phase3/character/` are redrawn.
+- **Tests:** `tools/run_tests.sh` green with no SCRIPT ERROR: 14 suites, 73,262 checks (`data_validation`'s layer
+  contract and coverage gate among them), and the room lint, layouts and sect walks. `perf_tests` missed a frame
+  budget in one run beside another agent's suite, and passed alone and in the final run.
+
 ## The prototype's feedback: the HUD at rest, the tree's pictures, one stall, talks that close (decision 42)
 
 The user played the prototype APK (build 108) and asked for these (roadmap decision 42). This is the HUD's and the
