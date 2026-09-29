@@ -59,6 +59,14 @@ def smooth(t: float) -> float:
     return t * t * (3.0 - 2.0 * t)
 
 
+def h01v(x, y, s: int = 0):
+    """h01 over arrays of integers (floats floored)."""
+    import numpy as np
+    n = (np.asarray(x).astype(np.int64) * 374761393 + np.asarray(y).astype(np.int64) * 668265263 + s * 2246822519) & 0xFFFFFFFF
+    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
+    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0
+
+
 def h01(x: int, y: int, s: int = 0) -> float:
     """A hash of integers to [0, 1) (canvas.h01's)."""
     n = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF

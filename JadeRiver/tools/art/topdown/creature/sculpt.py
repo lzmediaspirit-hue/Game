@@ -249,9 +249,10 @@ def _solids(P: Pose, V: View) -> list:
     return out
 
 
-def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0) -> np.ndarray:
+def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0, aura: bool = False) -> np.ndarray:
     """The posed creature seen facing `yaw_deg` on the ground (east 0, south 90): RGBA on the working canvas, its feet
-    on FOOT."""
+    on FOOT. An elite takes the darker ramp and the ring of Qi; `aura` gives the ring alone (a boss in its own
+    colours)."""
     V = View(P, yaw_deg)
     lk = look.elite() if elite else look
     rlook = render.Look(mats=lk.mats, glow=lk.glow)
@@ -297,7 +298,7 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
         i, j, _ = V.pixel(at)
         if 0 <= i < raster.W and 0 <= j < raster.H:
             rgba[j, i] = _over(rgba[j, i], _rgba(col))
-    if elite:
+    if elite or aura:
         _aura(rgba, frame_no)
     return rgba
 

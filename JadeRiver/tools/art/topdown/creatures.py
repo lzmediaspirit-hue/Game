@@ -43,13 +43,14 @@ MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
 
 class Spec:
     """A species: its pose function (action, frame) -> Pose, its size, palette, the materials its elite keeps (eyes and
-    accents), whether it has an elite, its blob shadow (rx, ry art px), and how far one walk cycle carries it (art px at
+    accents), whether it has an elite (and whether it wears the elite's ring of Qi in its own colours, a boss's presence), its blob shadow (rx, ry art px), and how far one walk cycle carries it (art px at
     size 1, for the walk's rate)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=()):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False):
         self.module, self.fn, self.size, self.palette = module, fn, size, palette
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
+        self.aura, self.sized = aura, sized
 
     def pose(self, action: str, f: int, **kw):
         import importlib
@@ -65,6 +66,26 @@ class Spec:
 # its tail to its beak, the hollowed eel rising about 58 px out of the river, the Trial Puppet about 48 px, a sparring
 # figure a head over a disciple.
 REGISTRY = {
+    "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
+                         elite=False, shadow=(13, 4), cycle=12.0, sized=True),
+    "old_snapper": Spec("snapper", "snapper", 1.8, ["snap_shell", "snap_moss", "snap_moss_lit", "snap_skin", "snap_belly", "snap_beak",
+                                                   "crusher", "crusher_tip", "weed", "snap_eye", "maw"],
+                        accents=("crusher", "snap_eye"), elite=False, aura=True, shadow=(26, 6), cycle=9.0),
+    "trial_puppet": Spec("puppet", "puppet", 1.7, ["timber", "timber_dark", "brass", "puppet_jade", "rope"],
+                         accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
+    "hollow_minnow": Spec("minnow", "minnow", 1.62, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
+                          accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
+    "mossback_toad": Spec("toad", "toad", 1.56, ["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
+                                                 "toad_eye", "maw"], accents=("toad_eye", "tongue"), shadow=(12, 4), cycle=7.0),
+    "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0),
+    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_belly", "leech_mouth", "leech_stripe"], accents=("leech_mouth",),
+                        shadow=(13, 4), cycle=8.0),
+    "reed_frog": Spec("frog", "frog", 1.32, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
+                      shadow=(11, 4), cycle=6.0),
+    "reedtail_rat": Spec("rat", "rat", 1.32, ["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
+                         shadow=(10, 3), cycle=11.0),
+    "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
+                          accents=("claw_tip", "eye"), shadow=(12, 4), cycle=10.0, sideways=True),
     "wild_boarlet": Spec("boar", "boarlet", 1.5, ["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
                          accents=("tusk",), shadow=(13, 4), cycle=13.0),
     "hollowed_boarlet": Spec("boar", "hollowed", 1.5, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
@@ -83,9 +104,12 @@ def draw(species: str, action: str, f: int, facing: str, elite: bool = False) ->
         yaw = 90.0 if facing in ("s", "se", "e") else -90.0
         g, y = math.radians(ANGLE[facing]), math.radians(yaw)
         kw["aim"] = (math.cos(g - y), -math.sin(g - y))
+    k = sp.size * (ELITE if elite else 1.0)
+    if sp.sized:
+        kw["k"] = k            # a creature laid out against a fixed world height (the eel's water) is posed at its size
     P = sp.pose(action, f, **kw)
-    P.k = sp.size * (ELITE if elite else 1.0)
-    return sculpt.picture(P, yaw, sp.look(), elite, f)
+    P.k = k
+    return sculpt.picture(P, yaw, sp.look(), elite, f, sp.aura)
 
 
 def _enemies() -> dict:

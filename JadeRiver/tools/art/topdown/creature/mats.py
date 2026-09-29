@@ -19,9 +19,9 @@ def _r(*h):
 
 RAMPS = {
     # mud crab
-    "shell": _r("40303A", "634739", "8E6444", "B58A5C", "D4BD92"),
+    "shell": _r("3A2A30", "5A4034", "7E5A3E", "A07A52", "C4A276"),
     "shell_rim": _r("2E2226", "453235", "634739", "7C5A40", "8E6444"),
-    "shell_pale": _r("5A4538", "8E6E52", "B8966C", "D4BD92", "EAD9B4"),
+    "shell_pale": _r("6A5040", "927254", "B09068", "C8AA80", "DEC89E"),
     "crab_leg": _r("2E2226", "453235", "684B3B", "8E6444", "A9805A"),
     "claw": _r("40303A", "684B3B", "8E6444", "B08158", "C9A07A"),
     "claw_tip": _r("124F4A", "257F78", "46BAA6", "7FDCC6", "A4F2DC"),
@@ -60,7 +60,8 @@ RAMPS = {
     "frog_sac": _r("8A8A40", "B8B45C", "E2DA8A", "F2ECB4", "FBF6D8"),
     "frog_eye": _r("6A5010", "A8861E", "E0C040", "F2DA60", "FFF0A0"),
     # marsh leech: an olive slug in soft rings, teal spots, a round pink mouth
-    "leech": _r("1E2A12", "34461E", "53672C", "7A8A3C", "9CAA52"),
+    "leech": _r("161C0E", "26301A", "3A4624", "55632E", "74803C"),
+    "leech_stripe": _r("5A3A12", "8A5A1E", "B8802E", "D8A448", "ECC878"),
     "leech_belly": _r("3A3A1E", "5A5A2E", "7C7A44", "9C9860", "B8B27C"),
     "leech_mouth": _r("4A1E26", "7E3440", "B05A62", "D88A8A", "F2B8B0"),
     # reed otter: a sleek brown coat, a pale muzzle and throat
@@ -69,8 +70,8 @@ RAMPS = {
     "otter_dark": _r("1A100A", "2A1A10", "3E2616", "56361E", "6E4426"),
     # Old Snapper: a dark green shell grown over with moss, khaki skin, a pale hooked beak, the red crusher claw
     "snap_shell": _r("111A16", "1A2621", "2A392C", "3D5034", "61784A"),
-    "snap_moss": _r("2F4A26", "3C5A2B", "5B7C36", "80A445", "B3D066"),
-    "snap_moss_lit": _r("3C5A2B", "5B7C36", "80A445", "A6C65C", "C6DE82"),
+    "snap_moss": _r("24401E", "335024", "4A6A2C", "6A8C3A", "92B452"),
+    "snap_moss_lit": _r("335024", "4A6A2C", "6A8C3A", "8CAE4C", "B0CE6E"),
     "snap_skin": _r("33372F", "4F4F3E", "736E4F", "A29A6C", "BDB587"),
     "snap_belly": _r("4F493C", "786C52", "A7966B", "D0C08E", "E6D9AC"),
     "snap_beak": _r("5C5242", "958561", "CBB98A", "F0E2B6", "F8EDCB"),
@@ -89,7 +90,7 @@ RAMPS = {
     "toad_eye": _r("7A5A14", "B8861E", "E0A830", "F2C145", "FBE08A"),
     "maw": _r("1E0E12", "35191E", "4E242A", "6A3238", "8A4A4E"),
     # hollowed eel: a huge river eel drained grey, darker than the minnow so its bulk is no white blob; a pale belly
-    "eel": _r("36424A", "4E5B64", "6F7C84", "9AA6AA", "CBD3D1"),
+    "eel": _r("2A343C", "3E4A54", "58646E", "7A868E", "A2ACB0"),
     "eel_belly": _r("76838A", "9FABAD", "C9D0CD", "E0E5E0", "EEF0E9"),
     "eel_fin": _r("2F3840", "3F4A52", "58646C", "78848B", "A9B3B7"),
     "eel_mouth": _r("141A20", "1F2830", "2E3A44", "46545E", "6A7880"),
@@ -103,7 +104,7 @@ RAMPS = {
 
 # How each material takes the light and resolves (render.MATS's keys).
 PROPS = {
-    "shell": {"hi": True, "glossy": True}, "shell_pale": {"hi": True}, "shell_rim": {"hi": True},
+    "shell": {"glossy": True}, "shell_pale": {}, "shell_rim": {"hi": True},
     "crab_leg": {"hi": True, "thin": True}, "claw": {"hi": True, "glossy": True}, "claw_tip": {"hi": True, "glossy": True},
     "eye": {"hi": True, "glossy": True, "weight": 1.6},
     "fur": {"hi": True}, "fur_light": {"hi": True}, "pink": {"hi": True, "weight": 1.3},
@@ -117,7 +118,7 @@ PROPS = {
     "puppet_jade": {"hi": True, "glossy": True, "weight": 1.5}, "rope": {"hi": True, "weight": 1.3},
     "frog": {"hi": True, "glossy": True}, "frog_belly": {"hi": True}, "frog_stripe": {"hi": True, "weight": 1.4},
     "frog_sac": {"hi": True, "glossy": True}, "frog_eye": {"hi": True, "glossy": True, "weight": 1.6},
-    "leech": {"hi": True, "glossy": True}, "leech_belly": {"hi": True}, "leech_mouth": {"hi": True, "weight": 1.5},
+    "leech": {"hi": True, "glossy": True}, "leech_stripe": {"hi": True, "weight": 1.4}, "leech_belly": {"hi": True}, "leech_mouth": {"hi": True, "weight": 1.5},
     "otter": {"hi": True, "glossy": True}, "otter_pale": {"hi": True}, "otter_dark": {"hi": True},
     "snap_shell": {"hi": True, "glossy": True}, "snap_moss": {"hi": True}, "snap_moss_lit": {"hi": True},
     "snap_skin": {"hi": True}, "snap_belly": {"hi": True}, "snap_beak": {"hi": True, "glossy": True, "weight": 1.3},
@@ -126,7 +127,7 @@ PROPS = {
     "toad": {"hi": True}, "toad_leg": {"hi": True}, "toad_belly": {"hi": True}, "toad_sac": {"hi": True, "glossy": True},
     "toad_moss": {"hi": True}, "toad_fern": {"hi": True, "line": True}, "tongue": {"hi": True, "glossy": True, "weight": 1.5},
     "toad_eye": {"hi": True, "glossy": True, "weight": 1.6}, "maw": {"weight": 1.4},
-    "eel": {"hi": True, "glossy": True}, "eel_belly": {"hi": True}, "eel_fin": {"hi": True, "thin": True},
+    "eel": {"glossy": True}, "eel_belly": {"hi": True}, "eel_fin": {"hi": True, "thin": True},
     "eel_mouth": {"weight": 1.3},
     "minnow": {"hi": True, "glossy": True}, "minnow_back": {"hi": True}, "minnow_belly": {"hi": True},
     "minnow_fin": {"hi": True, "thin": True}, "mist": {"hi": True},
