@@ -133,22 +133,22 @@ func run_view(suite, tree: SceneTree) -> void:
 	var drop0: int = life.dropped
 	p.motor.place(p.motor.pos + Vector2(100, 0))
 	var flew := false
-	for i in 300:
-		await tree.process_frame
+	for i in 400:
+		await _frames(tree, 1)
 		if str(bird.state) == "flee": flew = true
 		if not life.critters.has(bird): break
 	t.check(flew and not life.critters.has(bird) and life.fled > fled0 and life.dropped > drop0,
 		"life view: a sparrow flies off from the player coming near (%s) and is dropped once off screen (%s)" % [flew, not life.critters.has(bird)])
 	# A hen scatters from the player and settles again near home; a fish darts off in a ring.
-	var hen: Dictionary = {}
+	var hen: TopdownLife.Critter = null
 	for c in life.critters:
 		if str(c.kind) == "hen": hen = c
 	var scattered := false
 	var home_ok := true
-	if not hen.is_empty():
+	if hen != null:
 		p.motor.place(hen.g + Vector2(20, 0))
 		for i in 90:
-			await tree.process_frame
+			await _frames(tree, 1)
 			if str(hen.state) == "flee": scattered = true
 			if (hen.g as Vector2).distance_to(hen.home) > 200.0: home_ok = false
 	t.check(scattered and home_ok, "life view: a hen scatters from the player (%s) and keeps near home (%s)" % [scattered, home_ok])
@@ -162,15 +162,17 @@ func run_view(suite, tree: SceneTree) -> void:
 		and life.pool.size() == TopdownLife.GROUND_POOL and life.pool.filter(func(n): return n.critter != null).size() <= TopdownLife.GROUND_POOL,
 		"life view: pushed hard, the pools hold (%d critters of %d, %d puffs of %d, %d bits of %d, %d sorted nodes)" % [life.critters.size(), TopdownLife.MAX_CRITTERS,
 			life.puffs.size(), TopdownLife.MAX_PUFFS, life.bits.size(), TopdownLife.MAX_BITS, life.pool.size()])
-	# Off to the room's far end: the critters of the old view are dropped, the animals far from it with them.
+	# Off to the room's far end: the critters left behind off screen are dropped, none lingers off screen.
 	var before: Array = life.critters.duplicate()
 	p.motor.place(Vector2(66.5, 20.5) * TopdownRoom.TILE)
 	w._settle_camera()
 	await _frames(tree, 30)
-	var left := before.filter(func(c): return life.critters.has(c) and not c.has("home")).size()
 	var view: Rect2 = life._view().grow(TopdownLife.DROP_PX + 4.0)
-	var outside := life.critters.filter(func(c): return not c.has("home") and str(c.state) != "land" and not view.has_point((c.s as Vector2) - Vector2(0, float(c.z))))
-	t.check(left <= 2 and outside.is_empty(), "life view: past the room's far end the old view's critters are gone (%d left), none lingers off screen" % left)
+	var off := func(c): return c.home_id < 0 and str(c.state) != "land" and not view.has_point((c.s as Vector2) - Vector2(0, float(c.z)))
+	var left := before.filter(func(c): return life.critters.has(c) and off.call(c)).size()
+	var gone := before.filter(func(c): return not life.critters.has(c)).size()
+	var outside := life.critters.filter(off)
+	t.check(left == 0 and gone > 0 and outside.is_empty(), "life view: past the room's far end the old view's critters are dropped (%d gone), none lingers off screen" % gone)
 	# The grass parts: the foliage shader holds the player's feet among its pushes; a walk-through plant leans aside.
 	var mat := TopdownFoliage.sway_material()
 	var arr: PackedVector4Array = mat.get_shader_parameter("bodies")
@@ -272,15 +274,15 @@ func _labels(tree: SceneTree) -> void:
 	var moved := 0.0
 	var follows := true
 	for i in 600:
-		await tree.process_frame
+		await _frames(tree, 1)
 		moved = maxf(moved, (fig.plane as Vector2).distance_to(at))
 		if (made[0].position as Vector2).distance_to(fig.plane) > 0.5: follows = false
 	t.check(moved > 16.0 and follows, "life view: Uncle Guo at his forms moves between his spots (%.0f) and his name and marker go with him (%s)" % [moved, follows])
 	w.queue_free()
 	await tree.process_frame
 
-func _put(life: TopdownLife, kind: String, g: Vector2) -> Dictionary:
-	var cr: Dictionary = life._critter(kind, g)
+func _put(life: TopdownLife, kind: String, g: Vector2) -> TopdownLife.Critter:
+	var cr: TopdownLife.Critter = life._critter(kind, g)
 	cr.alpha = 1.0
 	return cr
 

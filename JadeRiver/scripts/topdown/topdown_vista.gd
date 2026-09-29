@@ -21,6 +21,8 @@ const PARALLAX := {"peaks_far": 0.1, "peaks_mid": 0.25, "cloud_sea": 0.45, "hill
 const SKY := [Color("8fb4c8"), Color("a3c2d2"), Color("b6cfda"), Color("c8dbe1"), Color("d8e5e6")]
 const HAZE := Color("d4e2e4")
 const DEEP := Color(0.047, 0.106, 0.2, 0.31)   ## the water's depth tint past the edge (§14.2's #0C1B33 at 0.31)
+## The sea of cloud drifts with the wind (TopdownLife.WIND), this many px a second at its calm, faster in a gust.
+const CLOUD_DRIFT := 2.5
 
 var world
 var room: TopdownRoom
@@ -29,6 +31,8 @@ var tex: Texture2D
 var strips: Dictionary = {}
 var _cam := Vector2.INF
 var _frame := -1
+var _drift := 0.0
+var _drawn_drift := -1
 
 func _init(w) -> void:
 	world = w
@@ -41,13 +45,19 @@ func _init(w) -> void:
 	if not edges.is_empty() and a.has("vista_sheet"): tex = load(str(a.vista_sheet))
 	set_process(not edges.is_empty())
 
-func _process(_d: float) -> void:
+func _process(delta: float) -> void:
 	var c: Vector2 = world.camera.position.round()
 	var f := int(Time.get_ticks_msec() / 250) % 4
-	if c != _cam or (f != _frame and _has_water()):
+	_drift += delta * CLOUD_DRIFT * (1.0 + TopdownLife.gust)
+	var dr := int(_drift)
+	if c != _cam or (f != _frame and _has_water()) or (dr != _drawn_drift and _has_cloud()):
 		_cam = c
 		_frame = f
+		_drawn_drift = dr
 		queue_redraw()
+
+func _has_cloud() -> bool:
+	return edges.any(func(e): return str(e.kind) == "cloud_sea")
 
 func _has_water() -> bool:
 	return edges.any(func(e): return str(e.kind) in ["river", "water"])
@@ -66,15 +76,22 @@ func _draw() -> void:
 			"s": _south(str(e.kind), view)
 			"all": _water(view, Rect2(Vector2.ZERO, room.art_size()), true)
 
-## A strip laid across the view with its bottom at `bottom`, sliding by its parallax factor.
-func _strip(name: String, bottom: float, view: Rect2) -> void:
+## The layout's reach past `edge` (art px).
+func _pad(edge: String) -> float:
+	for e in edges:
+		if str(e.edge) == edge: return float(e.get("pad", 0))
+	return 0.0
+
+## A strip laid across the view with its bottom at `bottom`, sliding by its parallax factor (or `k`).
+func _strip(name: String, bottom: float, view: Rect2, k := -1.0) -> void:
 	if not strips.has(name): return
 	var r: Array = strips[name]
 	var w := float(r[2])
 	var h := float(r[3])
-	var k := float(PARALLAX.get(name, 0.3))
-	# The strip is fixed to the camera less its factor: a far one hardly moves on the screen as the camera pans.
-	var base := roundf(world.camera.position.x * (1.0 - k))
+	if k < 0.0: k = float(PARALLAX.get(name, 0.3))
+	# The strip is fixed to the camera less its factor: a far one hardly moves on the screen as the camera pans; the sea
+	# of cloud drifts on the wind besides.
+	var base := roundf(world.camera.position.x * (1.0 - k)) + (float(_drawn_drift) * (1.0 + k) if name == "cloud_sea" else 0.0)
 	var x := base + floorf((view.position.x - base) / w) * w
 	while x < view.end.x:
 		draw_texture_rect_region(tex, Rect2(x, bottom - h, w, h), Rect2(float(r[0]), float(r[1]), w, h))
@@ -111,10 +128,17 @@ func _south(kind: String, view: Rect2) -> void:
 			_water(view, Rect2(Vector2.ZERO, room.art_size()), false)
 			_strip("river_bank", bottom + T * 2.0 + 36.0, view)
 		"cloud_sea":
-			# Below the cliff, haze and the peaks standing out of the sea of cloud; then the cliff over them.
-			draw_rect(Rect2(view.position.x, bottom, view.size.x, view.end.y - bottom), HAZE)
-			_strip("peaks_mid", bottom + 64.0, view)
-			_strip("cloud_sea", bottom + 72.0, view)
+			# Below the cliff, the haze deepening down, far peaks standing out of a sea of cloud, nearer ones out of its
+			# nearer bank; then the cliff over them.
+			var pad := _pad("s")
+			var y := bottom
+			for i in SKY.size():
+				draw_rect(Rect2(view.position.x, y, view.size.x, pad / SKY.size() + 1.0), SKY[SKY.size() - 1 - i].lerp(HAZE, 0.5))
+				y += pad / SKY.size()
+			_strip("peaks_far", bottom + pad + 34.0, view)
+			_strip("cloud_sea", bottom + pad + 18.0, view)
+			_strip("peaks_mid", bottom + pad + 52.0, view)
+			_strip("cloud_sea", bottom + pad + 34.0, view, 0.65)
 			var faces: Dictionary = v2.get("faces", {}).get("rock", {})
 			var lanes := _lanes("s")
 			var x0 := maxi(0, floori(view.position.x / T))
@@ -125,15 +149,14 @@ func _south(kind: String, view: Rect2) -> void:
 				var at := Vector2(x * T, bottom - l * T)
 				if lanes.has(x):
 					# The way down: the path's stairs going on into the haze.
-					for k in 3: world.blit(self, "stairs", at + Vector2(0, k * T), T)
+					for k in 2: world.blit(self, "stairs", at + Vector2(0, k * T), T)
 					continue
 				if faces.is_empty(): continue
 				world.blit_layer(self, [str(faces.top[posmod(x, 4)]), Color.WHITE], at)
 				world.blit_layer(self, [str(faces.body[posmod(x, 4)]), Color.WHITE], at + Vector2(0, T))
-				world.blit_layer(self, [str(faces.body[4 + posmod(x, 4)]), Color.WHITE], at + Vector2(0, T * 2.0))
-			# The cliff's foot fades into the cloud.
+			# The cliff's foot, and the stairs', lost in the cloud: stepped bands, thicker down.
 			for k in 4:
-				draw_rect(Rect2(view.position.x, bottom + T * 2.5 + k * 3.0, view.size.x, 3.0), Color(HAZE, 0.25 + k * 0.2))
+				draw_rect(Rect2(view.position.x, bottom + T * 1.5 + k * 3.0, view.size.x, 3.0), Color(HAZE, 0.3 + k * 0.2))
 
 ## The columns of the room's `edge` a way leaves by (its lane, as wide as its span).
 func _lanes(edge: String) -> Dictionary:

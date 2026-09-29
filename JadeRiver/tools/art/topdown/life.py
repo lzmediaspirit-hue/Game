@@ -54,23 +54,26 @@ def strip(frames: list) -> Img:
 
 
 # ============================================================================================================ birds
-SPARROW = {"C": DARKWOOD[2], "c": WOOD[3], "E": LINE, "K": GOLDR[0], "M": WOOD[3], "D": WOOD[2], "L": WOOD[5],
-           "W": PAPER, "w": PLASTER[2], "T": DARKWOOD[1], "F": DARKWOOD[1]}
+SPARROW = {"C": c("7A3A22"), "c": c("9C5230"), "E": LINE, "K": DARKWOOD[1], "M": WOOD[3], "D": WOOD[2], "L": WOOD[5],
+           "W": PAPER, "w": c("D8C8A8"), "T": DARKWOOD[2], "F": DARKWOOD[1]}
 
 
 def sparrow() -> dict:
-    """A tree sparrow facing east: a chestnut cap, a pale cheek, a streaked brown back lit on top. 9 x 7 cells."""
-    stand = [".....cC..", "....cCEK.", ".LLMMCw..", "TDMMDww..", ".DDDww...", "...F.F...", "........."]
-    stand2 = [".....cC..", "....cCEK.", ".LLMMCw..", "TDMMDww..", "TDDDww...", "...F.F...", "........."]
-    peck = [".........", ".LLMM....", "TDMMDcC..", ".DDDwCEK.", "...wwF...", "...F.....", "........."]
-    peck2 = [".........", ".LLMM....", "TDMMDcC..", ".DDDwCE..", "...wwFK..", "...F.....", "........."]
-    hop = [".....cC..", "....cCEK.", ".LLMMCw..", "TDMMDww..", ".DDDww...", "...FF....", "........."]
-    fly_up = ["..LL.....", "..MLL....", ".TMMDcC..", "TDMMCcEK.", "..Dwww...", ".........", "........."]
-    fly_mid = [".........", ".........", ".TLMDcC..", "TDMMMcEK.", "..DwMM...", ".........", "........."]
-    fly_down = [".........", ".........", ".TMMDcC..", "TDMMCcEK.", "..DwMD...", "...DL....", "....L...."]
+    """A tree sparrow facing east: a chestnut cap over a white cheek with its black spot, a streaked brown back lit on
+    top, a buff breast, a dark tail cocked up; outlined, so it reads on paving and grass alike. Standing (its tail
+    flicks), pecking, a hop, and four frames of flight. 13 x 9 cells with the outline."""
+    stand = ["......CCc..", ".....CCEWK.", "...LMMCWW..", "TTMMLMDWWw.", ".TDMMDDwWw.", "...DDDww...", "....F.F...."]
+    stand2 = ["......CCc..", ".....CCEWK.", "...LMMCWW..", ".TMMLMDWWw.", "TTDMMDDwWw.", "...DDDww...", "....F.F...."]
+    peck = ["...........", "T..........", "TTLMM......", ".TMMLMCC...", "..DMMDCEWK.", "...DDwwW...", "....F.F...."]
+    peck2 = ["...........", "T..........", "TTLMM......", ".TMMLMCC...", "..DMMDCEW..", "...DDwwWK..", "....F.F...."]
+    hop = ["......CCc..", ".....CCEWK.", "...LMMCWW..", "TTMMLMDWWw.", ".TDMMDDwWw.", "...DDDww...", "..........."]
+    fly_up = ["...LL......", "...MLL.....", "....MLL.CC.", ".TTMMMMCEWK", "TT.DDwwWW..", "...........", "..........."]
+    fly_mid = ["...........", "...........", ".....LL.CC.", ".TTLMMMCEWK", "TT.DDMMWW..", "....DD.....", "..........."]
+    fly_down = ["...........", "...........", "........CC.", ".TTMMMMCEWK", "TT.DDMwWW..", "....DMM....", ".....DL...."]
     g = SPARROW
-    return {"stand": [pix(stand, g), pix(stand2, g)], "peck": [pix(peck, g), pix(peck2, g)], "hop": [pix(hop, g)],
-            "fly": [pix(fly_up, g), pix(fly_mid, g), pix(fly_down, g), pix(fly_mid, g)]}
+    o = True
+    return {"stand": [pix(stand, g, o), pix(stand2, g, o)], "peck": [pix(peck, g, o), pix(peck2, g, o)], "hop": [pix(hop, g, o)],
+            "fly": [pix(fly_up, g, o), pix(fly_mid, g, o), pix(fly_down, g, o), pix(fly_mid, g, o)]}
 
 
 # ============================================================================================================ insects
@@ -257,18 +260,23 @@ def _basket(s: Img, x: int, y: int, full: str = "rice") -> None:
 
 def pole_side() -> Img:
     """A shoulder pole carried along the way one walks, seen from the side (a carrier facing east or west): the bamboo
-    pole bowing a pixel under its load, a rope from each end to a basket of rice. 30 x 17; the shoulder at (15, 0)."""
-    s = Img(30, 17)
+    pole bowing a pixel under its load (lit on top, a dark line under it, no heavier outline, so it never reads as a
+    rail), a rope from each end to a basket (rice and greens), the baskets outlined as props. 30 x 20; the shoulder at
+    (15, 1)."""
+    s = Img(30, 20)
     for i in range(30):
-        y = 1 if 4 < i < 26 else 0
-        s.put(i, y, BAMBOO[4])
+        y = 1 if 5 < i < 25 else 0
+        s.put(i, y, BAMBOO[4] if 0 < i < 29 else BAMBOO[2])
         s.put(i, y + 1, BAMBOO[2])
+        s.put(i, y + 2, LINE)
     for x in (2, 27):
-        for j in range(2, 10):
+        for j in range(3, 12):
             s.put(x, j, DIRT[4] if j % 2 else DIRT[3])
-    _basket(s, 0, 10, "rice")
-    _basket(s, 23, 10, "greens")
-    s.outline()
+    for x0, load in ((0, "rice"), (23, "greens")):
+        b = Img(9, 7)
+        _basket(b, 1, 1, load)
+        b.outline()
+        s.paste(b, x0 - 1, 11)
     return s
 
 

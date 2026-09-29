@@ -37,6 +37,7 @@ func _main() -> void:
 	early_rewards_suite()
 	topdown_art_suite()
 	foliage_art_suite()
+	life_art_suite()
 	combat_feel_suite()
 	topdown_character_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
@@ -1870,6 +1871,67 @@ func foliage_art_suite() -> void:
 			elif props[str(p.kind)].get("foliage", false): placed[str(p.kind)] = true
 	check(bad.is_empty() and trees >= 8 and sprites.size() >= 40 and placed.size() >= 20,
 		"foliage art: %d trees with canopies, %d pieces of ground cover in %d sets, %d kinds placed; all inside their sheets and named (%s)" % [trees, sprites.size(), sets.size(), placed.size(), str(bad.slice(0, 4))])
+
+## Decision 43, the living world (docs/redesign/art_bible.md §14.13): the sheet of critters, puffs, tools and hangings and
+## the vista strips (tools/art/topdown/build_life.py) hold every sprite the room view draws, each inside its sheet with
+## its frames; every room's life (data/topdown/life.json) names a room with a layout, loops that exist, poses the figures
+## play, animals and hangings the sheet has, vista kinds the view draws; the furnishings are in the prop kit.
+func life_art_suite() -> void:
+	var art = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/life_art.json"))
+	var life = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/life.json"))
+	var bad: Array = []
+	if not (art is Dictionary and life is Dictionary):
+		check(false, "life art: data/topdown/life_art.json and life.json read")
+		return
+	var sheet: Texture2D = load(str(art.get("sheet", "")))
+	var vsheet: Texture2D = load(str(art.get("vista_sheet", "")))
+	var sprites: Dictionary = art.get("sprites", {})
+	for n in sprites:
+		var r: Array = sprites[n].rect
+		var size: Array = sprites[n].size
+		if sheet == null or not Rect2i(0, 0, sheet.get_width(), sheet.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))) \
+				or int(size[0]) * int(sprites[n].frames) != int(r[2]):
+			bad.append("sprite " + n)
+	for n in art.get("vistas", {}):
+		var r: Array = art.vistas[n]
+		if vsheet == null or not Rect2i(0, 0, vsheet.get_width(), vsheet.get_height()).encloses(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3]))): bad.append("vista " + n)
+	# What the view draws by name (TopdownLife, TopdownVista).
+	var drawn := ["sparrow_stand", "sparrow_peck", "sparrow_hop", "sparrow_fly", "butterfly_white", "butterfly_gold", "butterfly_blue",
+		"butterfly_coral", "dragonfly", "fish", "ring", "frog_sit", "frog_leap", "hen_stand", "hen_peck", "hen_walk", "hen_flap",
+		"hen_brown_stand", "hen_brown_peck", "hen_brown_walk", "hen_brown_flap", "cat_sit", "cat_walk", "cat_sleep", "dog_lie", "dog_sit",
+		"dog_trot", "puff_0", "puff_1", "puff_2", "puff_3", "broom", "pole_side", "pole_back", "pole_front", "laundry_basket"]
+	for n in drawn:
+		if not sprites.has(n): bad.append("missing " + n)
+	for n in TopdownVista.PARALLAX:
+		if not art.get("vistas", {}).has(n): bad.append("missing vista " + n)
+	var acts: Dictionary = TopdownFigure.manifest().get("actions", {})
+	var loops: Dictionary = life.get("loops", {})
+	for k in loops:
+		for st in loops[k].get("at", []) + (loops[k].get("steps", {}) as Dictionary).values().reduce(func(a, b): return a + b, []):
+			if not acts.has(TopdownFigure.resolve(str(st[0]))) or TopdownFigure.resolve(str(st[0])) != str(st[0]): bad.append("loop %s: pose %s" % [k, st[0]])
+		if str(loops[k].get("tool", "")) not in ["", "broom", "pole", "rod", "basket"]: bad.append("loop %s: tool" % k)
+	var props: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json")).get("props", {})
+	var rooms := 0
+	for rid in life.get("rooms", {}):
+		rooms += 1
+		var r: Dictionary = life.rooms[rid]
+		if not FileAccess.file_exists("res://data/topdown/%s.json" % rid): bad.append("room " + rid)
+		for oid in r.get("work", {}):
+			if not loops.has(str(r.work[oid].loop)): bad.append("%s %s: loop" % [rid, oid])
+		for e in r.get("extras", []):
+			if not loops.has(str(e.loop)): bad.append("%s %s: loop" % [rid, e.id])
+		for a in r.get("animals", []):
+			if not sprites.has(str(a[0]) + "_stand") and not sprites.has(str(a[0]).get_slice("_", 0) + "_sit"): bad.append("%s: animal %s" % [rid, a[0]])
+		for h in r.get("hangings", []):
+			if not sprites.has("hang_" + str(h[0])): bad.append("%s: hanging %s" % [rid, h[0]])
+		for v in r.get("vista", []):
+			if str(v.kind) not in ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]: bad.append("%s: vista %s" % [rid, v.kind])
+	for k in ["bed", "stove", "cabinet", "sacks", "tea_table", "mat", "mortar", "drying_rack", "cloth_bolts", "water_jar", "forge", "laundry_line",
+			"woodpile", "chop_block", "net_rack", "wash_tub", "herb_baskets", "fish_basket"]:
+		if not props.has(k): bad.append("prop " + k)
+	check(bad.is_empty() and sprites.size() >= 40 and rooms >= 20,
+		"life art: %d sprites and %d vista strips inside their sheets, every one the view draws; %d rooms' life names loops, poses, animals, hangings and vistas that exist (%s)" % [sprites.size(),
+			art.get("vistas", {}).size(), rooms, str(bad.slice(0, 4))])
 
 ## Decision 38 (the combat feel, data/combat_feel.json; the top-down FX, data/fx_topdown.json): the look rule heads both
 ## tables; every weapon family has a feel whose phases (derived from its own combo timing) are positive and add up at any

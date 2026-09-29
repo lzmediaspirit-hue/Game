@@ -350,6 +350,35 @@ func _median_frames(n: int, each: Callable) -> float:
 	ts.sort()
 	return float(ts[ts.size() / 2])
 
+## Decision 43: the room on view with its living world and without it (TopdownLife.enabled), three rounds each way,
+## `each` driving the body: Vector3(the median ms a frame with it, without it, its own work in ms a frame).
+func _life_ab(w, each: Callable) -> Vector3:
+	var on: Array = []
+	var off: Array = []
+	var own := 0.0
+	for r in 3:
+		for with_life in [true, false]:
+			TopdownLife.enabled = with_life
+			w._build_room()
+			w._place_player()
+			w._settle_camera()
+			await get_tree().process_frame
+			var us := TopdownLife.spent_us
+			var f0 := Engine.get_process_frames()
+			var ms := await _median_frames(90, each)
+			if with_life:
+				on.append(ms)
+				own += (TopdownLife.spent_us - us) / 1000.0 / maxf(1.0, float(Engine.get_process_frames() - f0))
+			else: off.append(ms)
+	TopdownLife.enabled = true
+	w._build_room()
+	w._place_player()
+	w._settle_camera()
+	await get_tree().process_frame   # the room drawn as built before anything else moves the world on
+	on.sort()
+	off.sort()
+	return Vector3(float(on[1]), float(off[1]), own / 3.0)
+
 ## The µs a fixed piece of script work takes now: the machine's speed at this moment.
 func _calibrate() -> int:
 	var t0 := Time.get_ticks_usec()
@@ -418,6 +447,13 @@ func _topdown() -> void:
 	print("topdown world: Lotus Ferry entered in %.0f ms (%d people, things and ways), %.2f ms per frame" % [ms_room, built, per_walk])
 	check(main.world is TopdownWorld and main.world.live and Game.room_rt.room_id == "lf_village" and ms_room < 300.0 and per_walk < 16.6,
 		"a top-down character's Lotus Ferry loads in under 0.3 s (%.0f ms, %d built) and runs at 60 fps (%.2f ms)" % [ms_room, built, per_walk])
+	# Decision 43: the living world's cost in Lotus Ferry (the busiest room: critters, 7 people at work and 2 extras,
+	# smoke, the grass's pushes, the vistas), against the same room built without it, interleaved so the machine's
+	# load falls on both alike; and its own work a frame (its step, its drawing, the loops).
+	var ab := await _life_ab(main.world, walk)
+	print("topdown world: Lotus Ferry with the living world %.2f ms a frame, without %.2f ms (median of interleaved runs); its own work %.3f ms a frame"
+		% [ab.x, ab.y, ab.z])
+	check(ab.x - ab.y < 0.5 + ab.y * 0.12 and ab.z < ab.x * 0.08, "the living world costs Lotus Ferry (at most an eighth of its frame, its own work under 8%%) %.2f ms a frame (%.2f against %.2f without it), its own work %.3f ms" % [ab.x - ab.y, ab.x, ab.y, ab.z])
 	# Phase 4's second part: chapter 2's region, its Marsh Edge (the stretch's widest room, with the most foes) entered
 	# through the World authority, then its own kinds of foe, fifteen in all, turned on the player there.
 	var t2 := Time.get_ticks_usec()
@@ -443,6 +479,11 @@ func _topdown() -> void:
 	print("topdown world: the Marsh Edge entered in %.0f ms, %d foes fighting at %.2f ms per frame" % [ms_marsh, marsh_foes, per_marsh])
 	check(mw is TopdownWorld and Game.room_rt.room_id == "rm_marsh_edge" and ms_marsh < 300.0 and marsh_foes >= 15 and per_marsh < 16.6,
 		"chapter 2's Marsh Edge loads in under 0.3 s (%.0f ms) and holds 60 fps with %d of its foes fighting (%.2f ms)" % [ms_marsh, marsh_foes, per_marsh])
+	# Decision 43: the same fight with its living world and without it (the grass parting round the foes, frogs, fish,
+	# dragonflies, the watchers at work, the marsh's vista), interleaved.
+	var mab := await _life_ab(mw, hold)
+	print("topdown world: the Marsh Edge's fight with the living world %.2f ms a frame, without %.2f ms; its own work %.3f ms a frame" % [mab.x, mab.y, mab.z])
+	check(mab.x - mab.y < 0.5 + mab.y * 0.12 and mab.z < mab.x * 0.08, "the living world costs the Marsh Edge's fight (at most an eighth, its own work under 8%%) %.2f ms a frame (%.2f against %.2f), its own work %.3f ms" % [mab.x - mab.y, mab.x, mab.y, mab.z])
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)

@@ -456,7 +456,7 @@ contract for the other two parts.** Where it differs from §1–§7, it replaces
 and buildings. The props and the character keep their own rules (§4, §8, §13), except where §14.2 says so.
 
 Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10). The third part, foliage and decor, is built
-to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`.
+to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`. The living world (decision 43) is §14.13.
 
 ### 14.1 The look
 
@@ -988,6 +988,150 @@ and leaves on the ground. This part closes that gap and keeps every path readabl
   pairs are `NN_*_before_after.png`.
 - `after/rooms/`: every room on the grid whole at 1 art px.
 - `props_x2.png` and `decor_x4.png`: the kit and the ground cover (`build_decor.py --review`).
+
+### 14.13 The living world (decision 43, built)
+
+Decision 43 asks for a world that feels alive, in the spirit of Alabaster Dawn: critters, people at work, grass that
+parts, smoke, banners, vistas and interiors. Everything here keeps §14's sun (high in the north-west, lit tops and west
+flanks, blue-violet shade to the south-east), its ramps, the pixel grid and nearest-neighbour drawing. Nothing here is
+traced from another game.
+
+| Part | Where | What |
+|---|---|---|
+| The room's life | `scripts/topdown/topdown_life.gd` (`TopdownLife`) | the wind, critters, smoke and fire, the grass's pushes, an interior's wall and sun; every number in its const block |
+| Work loops | `scripts/topdown/topdown_work.gd` (`TopdownWork`) | a person's loop between work spots, their tools, stopping for the player |
+| Vistas | `scripts/topdown/topdown_vista.gd` (`TopdownVista`) | the land past a room's edge, under the room |
+| The data | `tools/data/topdown_life.py` → `data/topdown/life.json` | loops, who works where, extras, animals, the area's critters, hangings, vistas; the furnishings (`dress`) |
+| The art | `tools/art/topdown/life.py`, `furnish.py`; `build_life.py` → `art/topdown/life.png`, `vista.png`, `data/topdown/life_art.json` | critters, puffs, tools, hangings, vista strips; the furnishings in the prop sheet |
+
+**One wind.** It blows toward the east-south-east, the way the cloud shade glides (`TopdownLife.WIND`). Its gust
+(0..1) rises and falls on two slow waves. The grass's sway holds its lean in a gust; smoke drifts along it; the
+banners, the laundry line and the red paper lanterns turn their frames on the wind's clock (`wind_frame`), faster in
+a gust; the sea of cloud in a vista drifts with it. A red lantern's four frames swing it a pixel either way on its
+cord, and its night flame (§14.11) swings with it.
+
+**Critters.** Original sprites at art resolution, facing east (the view mirrors them), lit from the north-west. The
+village animals and the frog carry the prop outline (§4) so they read on paving and grass; the insects, the fish's
+shadow, the puffs and the rings have none.
+
+| Kind | Where | What it does |
+|---|---|---|
+| Sparrows (13 × 9) | flocks of 2–4 on grass, paths and paving, by day | fly in from past the view's side and glide down, hop and peck; a body within 34 px (x1.5 under a runner) sends the flock up and away, and they are dropped once off screen |
+| Butterflies (7 × 4, four colours) | round the flower beds, azaleas, blossom trees, orchids, by day | flutter on a loose loop, bobbing; flee up and away |
+| Dragonflies (9 × 5) | over the water by the shore, by day | hover, dart; flee in a long dart |
+| Fish (a shadow, 11 × 3) | under any water | glide and turn slowly, rise in a ring now and then, dart off in a ring from a body at the bank |
+| Frogs (9 × 5) | at the water's edge (the marsh most) | sit, their throats puffing; leap into the water in a ring (more at night) |
+| Hens, white and russet (12 × 11) | the village's, round their home | wander and peck; scatter flapping from a body, then settle |
+| A cat (14 × 10) | the village, Granny Liu's hut, the market's row | asleep; wakes and sits as the player comes, walks off if they come close, goes back to sleep |
+| A dog (16 × 9) | the docks, the market, the gate, the fair | lies; sits up and wags, trots to greet the player and sits, goes home |
+| Fireflies | §14.11's particles at night | drift off from the player walking among them |
+
+- **Cheap.** At most 24 critters (`MAX_CRITTERS`), plain records with no physics and no node each: the ones on the
+  ground borrow one of 12 pooled sorted nodes (so a house or a tree hides them, and they never hide the player); the
+  rest draw on three shared layers (the water, the floor for the shadows of things in the air, the air). They spawn
+  inside the view from the room's area table (`life.json` `critters`, by backdrop) and its own animals, and are dropped
+  once 56 px off screen (an animal once its home is 150 px off). A camera jump fills the new view at once.
+- **The bodies** they notice are the player, the foes in view and the people walking about (a child at play scatters
+  the hens).
+
+**People at work.** Villagers and disciples work a short loop between two to four spots, a few character actions each
+(`life.json` `loops`, the figures' own actions and weapons; no new animation):
+
+| Loop | Poses | Held or set down | Cue |
+|---|---|---|---|
+| sweep | guard, idle; walks slowly | a broom that swishes | dust |
+| carry | kneel, idle; walks | a shoulder pole with two baskets, set down at each spot | dust |
+| laundry | kneel (wash), cast (hang), idle | a basket | splashes |
+| fists, sword, staff, spear | the family's combo, guard, salute | the loop's weapon (a training sword, a staff, a spear) | |
+| herbs, mend, grind | kneel, idle | | leaves |
+| cook | brush_write (stirring), idle | | steam |
+| chop | the heavy sabre's leaping chop | a chopper (the sabre) | chips on the blow |
+| hammer | swing_3 at the anvil, kneel at the forge | | sparks on the blow, at the forge |
+| fish | idle, cast | a rod, its line and a bobbing float | a ring on the recast |
+| watch, read, sell, pray, write, play, meditate | idle and looking round, point, salute, brush_write, run, meditate | | |
+
+- **The leash.** Every spot lies within 2.5 tiles of the person's own spot, on their floor, each leg walked with
+  nothing in the way (checked as `life.json` is built). The World authority's talk reaches 110 units round the spot,
+  so a player standing beside a worker can always talk to them. The name, the marker and the barks follow the figure.
+- **For the player.** At the player's side (the context's offer, a talk) or with the player within 72 units, a worker
+  stops, sets down what they carry and turns to the player; they take up the work again 1.2 s after the player leaves.
+- **A quest waiting.** Someone whose marker calls (`QuestAuthority.marker_calls`) walks back to their first spot (their
+  own) and works there without leaving it, so the marker and the talk are where the quest's tracker points.
+- **Extras** with no part in the story work where a room has a job and no one to do it: a fisherman on the village's
+  bank and one at the marsh, a woodcutter by the watch-tower, a sweeper in the Jade street, a pupil at sword forms in
+  the Cloud court. They have no label and no talk, and stop for the player like the rest.
+- **Tools** are small sprites drawn with the figure (behind it when it faces away): a broom, a shoulder pole seen side
+  on or end on, a laundry basket, a rod drawn as a pixel line. They are placed by the figure's own frame bounds (the
+  shoulder at 0.62 of its height, the hands at 0.42), so they follow a figure drawn at another size.
+
+**Grass that parts.** The foliage's sway shader (§14.12) also takes the bodies in view (at most 8): the player, the foes
+and the people walking. A piece whose foot is within 8 px of a body's feet leans away from it, 2 px and pressed down a
+pixel close in, 1 px further out; under a walking body the outer ring rustles, under a runner the whole push shivers.
+Each swaying part carries its own foot on the screen in its colour's red and green (modulo 256; the vertex's own
+place gives the rest), so there is still no node and no redraw per piece. The walk-through plants (tall grass,
+cattails, reeds) lean their upper part a pixel or two aside from a body among them. A slash over grass throws a few
+cut blades.
+
+**Smoke and fire.** Puffs are round, lit on their north-west rim and shaded on the south-east, a 1 px checker thinning
+the rim, in four sizes, tinted and faded by the view:
+
+- chimney smoke over most houses and storehouses (a hash of their place), a puff every 0.55 s, rising 11 px a second
+  and drifting with the wind as it grows and thins (3–5 s);
+- incense: a thread 14 px high from every burner, wayside shrine and shrine, swaying and bent by the wind;
+- steam and sparks over the cook fire, the stoves and the furnaces; smoke and sparks at the forges;
+- at most 40 puffs and 32 bits (sparks, chips, blades, drops) at once.
+
+**Interiors.** The huts, the shop and the weapon halls are furnished to say who lives there (`furnish.py`):
+
+- Aunt Ping's: a stove, a bed, a water jar, the day's fish, rice sacks; nets and drying fish on the wall;
+- Granny Liu's: a cabinet of jars, a drying rack, a stove, a mortar, a bed, baskets of herbs; bundles of herbs and a
+  scroll on the wall, and her cat by the shrine;
+- Old Ma's store: two cabinets of goods, sacks, bolts of cloth, a water jar; a plaque over the counter;
+- the weapon halls: a forge hearth and a quench jar, a meditation mat; the hall's plaque, scrolls and a silk hanging.
+
+The back wall's hangings sort just after the wall's row, so the people in front cover them. A window lets the sun in: a
+faint warm beam (`SUN` at 0.1, added) falls from it to a patch on the floor well into the room (the window's panes, its
+lattice's bars left dark), and up to 18 dust motes turn in the beams. The stoves and the forges are fires (§14.11), so
+the lamplit rooms glow warm round them.
+
+**Vistas.** A room's layout names the edges the camera may look past and how far (`vista`, from `topdown_life.py`;
+`TopdownRoom.shown_rect`). The vista draws under the room, over the backdrop, and only where no room is:
+
+- **north** (hills, peaks, the marsh): a sky paling in bands toward the horizon, and ranges rising behind the room's
+  ridge in layers that slide slower than the room as the camera pans (parallax 0.1–0.4): karst pillars past a sect
+  (pines on the nearer crowns), the valley's hills, the marsh's line of trees and its reeds;
+- **south**, the river going on under its far bank; or a **drop** (the sects and peaks): the edge falls away in two
+  rows of the terrain's own rock face (its lip and moss), into a sea of cloud with karst peaks standing out of it, the
+  cloud drifting on the wind; where a way leaves by that edge its stairs go on down into the haze;
+- **all round** (Lu's boat): the river's own water tiles, deepened.
+
+The strips are 320 px wide and tile across; the farther, the paler and bluer, as §14.1's light asks. The drifting cloud
+shade (§14.11) passes over the vista too.
+
+**Settings.** "Light and particles" off keeps the critters (halved), the work and the vistas and drops the smoke's
+extras, the dust, the motes and the bits; Reduce motion halves them.
+
+**Sound.** Every moment of life raises a cue (`TopdownLife.cue_raised(name, at)`, and `Audio.play("life_" + name)`
+while in view, each name at most every 0.3 s, silent until a sound is given): `sparrow_flee`, `fish_flee`,
+`frog_leap`, `frog_plop`, `hen_flap`, `cat_wake`, `dog_bark`, and `work_<cue>` for each step begun (`work_sweep`,
+`work_stir`, ...) with `work_chop_hit` and `work_hammer_hit` on the blows.
+
+**Cost** (measured headless on the shared test machine; `perf_tests` and `topdown_life_suite`): the living world's own
+work is under 0.5 ms a frame in Lotus Ferry, the busiest room; `perf_tests`' frame and load budgets hold against the
+same runs without it (the plan's "As built: the living world").
+
+**Tests.** `topdown_life_suite` (run by `rules_tests`): every loop of every room keeps to its leash on its floor for
+two minutes and moves; a worker stops for the player and works on; a marker that calls brings its person home to stay;
+the view fills with critters, a sparrow flees and is dropped off screen, a hen scatters and stays near home; pushed
+hard, the pools hold; the grass parts round the player and a tall plant leans; the washing turns on the wind; an
+interior hangs its wall and lets the sun in; a peak's camera looks past its edge by the pad and no further; a worker's
+label follows them. `data_validation` (`life_art_suite`) checks the sheets and the data's names; `topdown_rooms.py
+--check` checks the spots, the furnishings and that `life.json` is current.
+
+**Review images** (`docs/redesign/feedback/living_world/`): `before/` and `after/` (the village, a sect, the marsh,
+the peaks, the market, four interiors and two nights, under the HUD at the phone's 1280 × 720, drawn by
+`tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`); `detail/` (close-ups x4 of each thing,
+`-- --life --life-detail`); `sheet_x4.png` and `vistas_x2.png` (`build_life.py --review`).
 
 ## 15. Combat effects (decision 38)
 

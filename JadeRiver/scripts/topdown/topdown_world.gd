@@ -193,27 +193,27 @@ func _build_room() -> void:
 	if tfx != null: tfx.clear()
 	terrain = TopdownTerrain.new(room)   # Phase 3's tile rules, per room
 	foliage = TopdownFoliage.new(self)   # decision 40's third part: the ground cover the floor draws, then the canopies
-	life = TopdownLife.new(self)         # decision 43: what lives in the room (its vista and water layer lie under the floor)
+	life = TopdownLife.new(self) if TopdownLife.enabled else null   # decision 43: what lives in the room
 	var bg := ColorRect.new()
 	bg.color = Color("0A2027")
 	bg.size = room.art_size() + Vector2(VIEW) * 2.0
 	bg.position = -Vector2(VIEW)
 	# Terrain v2: the floor and the water in chunks, so the renderer skips the ones off screen and the water redraws
 	# only the chunks in view.
-	var life_under := life.under_nodes()   # decision 43: [the vista past the edge, the fish and rings on the water]
-	var under: Array = [bg, life_under[0]]
+	var life_under: Array = life.under_nodes() if life != null else []   # decision 43: [the vista, the water's layer]
+	var under: Array = [bg] + life_under.slice(0, 1)
 	for cy in range(0, room.h, CHUNK.y):
 		for cx in range(0, room.w, CHUNK.x):
 			var r := Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))
 			var water := WaterView.new(self, r)
-			if not water.cells.is_empty(): under.insert(2, water)
+			if not water.cells.is_empty(): under.insert(1 if life == null else 2, water)
 			else: water.free()
 	# Decision 40: the cast shadows, baked once for the room, laid over the water (after its chunks) and over the ground
 	# floor (after its chunks).
 	shadows = TopdownShadows.new(room)
 	var water_shade := shadows.view("water")
 	if water_shade != null: under.append(water_shade)
-	under.append(life_under[1])
+	under.append_array(life_under.slice(1))
 	for cy in range(0, room.h, CHUNK.y):
 		for cx in range(0, room.w, CHUNK.x):
 			under.append(FloorView.new(self, Rect2i(Vector2i(cx, cy), CHUNK).intersection(Rect2i(0, 0, room.w, room.h))))
@@ -265,8 +265,9 @@ func _build_room() -> void:
 			lv.setup(l)
 			loot_layer.add_child(lv)
 		hud_minimap = true
-	viewport.add_child(life)
-	_room_nodes.append_array(life.build(figures, npc_views))   # decision 43: critters, work, smoke, the sun's shafts
+	if life != null:
+		viewport.add_child(life)
+		_room_nodes.append_array(life.build(figures))   # decision 43: critters, work, smoke, the sun's shafts
 	atmosphere.enter_room()   # decision 40: the room's grade, night and lights, clouds and particles
 	# The body, its shadow and its dust after the room's own nodes, so a tie in the sort goes to the body.
 	for n in [shadow, player, fx]: sorted.move_child(n, -1)
@@ -794,13 +795,14 @@ class PropView extends Sorted:
 		frames = int(art.get("frames", 1))
 		frame_ms = int(art.get("frame_ms", 0))
 		phase = (cell.x * 3 + cell.y * 5) % maxi(1, frames)
+		if kind in TopdownLife.FLAT: rects.clear()   # decision 43: a mat lies flat, it hides no one
 	## Stand the footprint's south-west corner at `sw` (art px) on a floor at `level` (a staged scene moves a prop so: a
 	## boat passing on the river).
 	func place_at(sw: Vector2, level: int, origin: Vector2) -> void:
 		var ground := TopdownRoom.WATER_Z / TopdownRoom.ART * -1.0 if level < 0 else -level * T
 		sw = sw.round()
 		at = Vector2(sw.x - origin.x, sw.y + ground - origin.y)
-		rects[0] = Rect2(at, src.size)
+		if not rects.is_empty(): rects[0] = Rect2(at, src.size)
 		key(sw.y + 0.5)
 		queue_redraw()
 	func _ready() -> void:

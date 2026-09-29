@@ -96,6 +96,7 @@ class Figure extends Node2D:
 
 	## Decision 43: a step of the work loop: where they stand, face and what they do, what they hold; the label with them.
 	func _work(delta: float, focus: bool, calls: bool) -> void:
+		var t0 := Time.get_ticks_usec()
 		var at: Vector2 = player.plane if is_instance_valid(player) and player.get("motor") != null else Vector2.INF
 		work.advance(delta, at, focus, calls)
 		if work.pos != plane: place(work.pos, work.alt)
@@ -107,6 +108,8 @@ class Figure extends Node2D:
 			art.tool = work.tool
 			art.tool_down = work.tool_down
 			art.working = work.step_cue
+		TopdownLife.spent_us += Time.get_ticks_usec() - t0
+		TopdownLife.spent_parts.work += Time.get_ticks_usec() - t0
 
 ## A villager in the top-down style (decision 32): TopdownFigure in their own outfit (npcs.json), in one of the eight
 ## rows. At rest they stand in the pose the room gives them (idle, or meditate), three-quarters toward the camera on the

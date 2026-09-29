@@ -288,19 +288,24 @@ def woodpile(s: Img) -> None:
 
 
 def chop_block(s: Img) -> None:
-    """A chopping block (a thick round of trunk) with a split log standing on it and chips round its foot. Footprint
-    1 x 1. 16 x 20; corner (0, 18)."""
-    s.ellipse(8, 14, 6, 3.5, WOOD[2])
-    s.rect(2, 9, 12, 6, WOOD[3])
-    s.vline(2, 9, 6, WOOD[4])
-    s.vline(13, 9, 6, WOOD[2])
-    s.ellipse(8, 9, 6, 2.6, WOOD2[5], (WOOD2[6], WOOD2[4]))
-    s.ellipse(8, 9, 3, 1.2, WOOD2[4])
-    s.rect(6, 3, 4, 6, WOOD[4])
-    s.vline(6, 3, 6, WOOD[5])
-    s.hline(6, 3, 4, WOOD2[6])
+    """A chopping block, a squat round of trunk with its rings on top and a cleft in it, a split half-log lying against it
+    and chips round its foot. Footprint 1 x 1. 16 x 16; corner (0, 14)."""
+    s.ellipse(8, 12, 7, 3, WOOD[1])
+    s.rect(2, 7, 12, 5, WOOD[3])
+    s.vline(2, 7, 5, WOOD[4])
+    s.vline(3, 7, 5, WOOD[4])
+    s.vline(12, 7, 5, WOOD[2])
+    s.vline(13, 7, 5, WOOD[2])
+    for x in (5, 9):
+        s.vline(x, 8, 4, WOOD[2])
+    s.ellipse(8, 7, 6, 2.6, WOOD2[5], (WOOD2[6], WOOD2[4]))
+    s.ellipse(8, 7, 3.5, 1.4, WOOD2[4])
+    s.put(8, 7, WOOD2[3])
+    s.hline(6, 6, 4, WOOD[2])                                  # the cleft
+    s.rect(10, 11, 5, 2, WOOD2[5])                             # a split half-log against it
+    s.hline(10, 11, 5, WOOD2[6])
     s.outline()
-    for x, y in ((0, 17), (14, 16), (3, 17)):
+    for x, y in ((0, 14), (15, 13), (3, 15), (13, 15)):
         s.put(x, y, WOOD2[5])
 
 
@@ -372,7 +377,7 @@ PROPS = {
     "forge": (forge, 32, 34, 2, 1, [0, 32], True, [20, -2, 15, 3]),
     "laundry_line": (laundry_line, 48, 34, 3, 1, [0, 32], False, [26, -2, 22, 2]),
     "woodpile": (woodpile, 32, 24, 2, 1, [0, 22], True, [20, -2, 15, 3]),
-    "chop_block": (chop_block, 16, 20, 1, 1, [0, 18], True, [10, -2, 7, 3]),
+    "chop_block": (chop_block, 16, 16, 1, 1, [0, 14], True, [10, -2, 7, 3]),
     "net_rack": (net_rack, 32, 30, 2, 1, [0, 28], True, [20, -2, 15, 3]),
     "wash_tub": (wash_tub, 16, 16, 1, 1, [0, 14], True, [10, -2, 7, 3]),
     "herb_baskets": (herb_baskets, 16, 14, 1, 1, [0, 12], True, [10, -2, 7, 2]),

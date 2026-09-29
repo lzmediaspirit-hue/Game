@@ -35,10 +35,14 @@ const T := 16.0
 const WIND := Vector2(0.894, 0.447)
 const CALM := 0.65
 const GUSTY := 0.9
+## The props that flower (butterflies keep to them).
+const FLOWERING := ["bush_azalea", "tree_peach", "tree_plum", "shrub", "pot_orchid", "tree_ribbons"]
 ## The props whose frames turn on the wind's clock, not their own.
 const WINDY := ["banner_jade", "banner_cloud", "laundry_line", "lantern_red"]
 ## The walk-through plants a body leans aside.
 const PLANTS := ["tall_grass", "cattails", "reeds", "grey_reeds"]
+## The props that lie flat on the floor and hide no one behind them (no silhouette).
+const FLAT := ["mat"]
 ## Caps: critters at once, the sorted nodes the ones on the ground borrow, puffs of smoke and steam, cut blades, chips
 ## and sparks, dust motes in the window shafts, and the bodies the grass parts for.
 const MAX_CRITTERS := 24
@@ -50,6 +54,10 @@ const MAX_BODIES := 8
 ## A critter within this many art px of a body flees (x SPRINT_K under a running body); the dog comes instead.
 const FLEE := {"sparrow": 34.0, "butterfly": 20.0, "dragonfly": 24.0, "fish": 22.0, "frog": 26.0, "hen": 28.0, "cat": 30.0}
 const SPRINT_K := 1.5
+## The critters that live on the ground (they borrow a sorted node), and the states a critter moves fast in (stepped
+## every frame; the calm ones every other).
+const GROUNDED := {"hen": true, "cat": true, "dog": true, "frog": true}
+const FAST := {"flee": true, "land": true, "leap": true, "trot": true, "walk": true}
 ## The view's margin: critters spawn inside it and are dropped past DROP_PX of it; animals wake and sleep with their
 ## home within ANIMAL_PX of the view.
 const MARGIN := 24.0
@@ -62,16 +70,16 @@ const SPEED := {"sparrow_fly": 70.0, "sparrow_hop": 14.0, "butterfly": 14.0, "bu
 ## Smoke: a chimney's puff every CHIMNEY_S, rising at RISE px a second, drifting DRIFT px a second along the wind (more in
 ## a gust), living PUFF_LIFE seconds; its colour, and steam's.
 const CHIMNEY_S := 0.55
-const RISE := 7.0
+const RISE := 11.0
 const DRIFT := 5.0
 const PUFF_LIFE := [3.2, 4.6]
-const SMOKE := Color(0.86, 0.88, 0.9, 0.62)
+const SMOKE := Color(0.88, 0.9, 0.92, 0.78)
 const STEAM := Color(0.96, 0.97, 0.97, 0.5)
 const DUST := Color(0.78, 0.66, 0.5, 0.55)
 ## The sun through a window: its beam's and its patch's strength (added), and the patch's place from the window by its
 ## height over the floor (a steep, stylised fall so the patch lies well into the room).
-const SHAFT_A := 0.075
-const PATCH_A := 0.16
+const SHAFT_A := 0.1
+const PATCH_A := 0.24
 const SHAFT_FALL := Vector2(0.55, 1.25)
 ## The sounds a cue raises (Audio.play, silent until a sound is given; `cue` is emitted for any other listener).
 const SOUND_GAP := 0.3
@@ -84,6 +92,12 @@ static var _tex: Texture2D
 static var gust := 0.0          ## the wind's gust now (0..1)
 static var wind_phase := 0.0    ## the wind's clock (seconds at the calm rate): banners, washing and lanterns turn on it
 static var clock := 0.0
+## The living world on (perf_tests turns it off to measure a room against itself without it, interleaved).
+static var enabled := true
+## Its own work so far, in µs: each frame's step and the drawing of its layers and critters (perf_tests reads it).
+static var spent_us := 0
+## The same by part (µs): the frame's step, the layers' and critters' drawing, the work loops.
+static var spent_parts := {"step": 0, "draw": 0, "work": 0}
 
 var world
 var room: TopdownRoom
@@ -116,6 +130,11 @@ var _spawn_t := 0.0
 var _sounds: Dictionary = {}
 var _fresh := true
 var _cam := Vector2.INF
+var _sig := {"w": -1, "f": -1, "a": -1}
+var _tick := 0
+var animals: Array = []         ## the room's animals: [kind, home (world units), home on screen]
+var _awake := {}                ## index into animals -> true while it is about
+var _sig_light := 0
 var vista: TopdownVista
 # The layers.
 var water_layer: Layer
@@ -160,7 +179,7 @@ static func wind_frame(frames: int, frame_ms: int, phase: int) -> int:
 
 # ------------------------------------------------------------------ the room
 ## Built with the room (TopdownWorld._build_room), after its figures: returns the nodes it adds, for the room to clear.
-func build(figures: Dictionary, npc_views: Dictionary) -> Array:
+func build(figures: Dictionary) -> Array:
 	room = world.room
 	def = Game.room_rt.def if world.live and Game.room_rt != null and Game.room_rt.topdown == room else room.def
 	life = room_life(room.id)
@@ -189,7 +208,7 @@ func build(figures: Dictionary, npc_views: Dictionary) -> Array:
 		pool.append(n)
 		out.append(n)
 	_collect()
-	_attach_work(figures, npc_views)
+	_attach_work(figures)
 	for e in life.get("extras", []): out.append_array(_extra(e))
 	_hangings()
 	if not hangings.is_empty():
@@ -213,35 +232,15 @@ func _exit_tree() -> void:
 
 ## Where the room's critters can be and what in it smokes, the plants that part and the props on the wind's clock.
 func _collect() -> void:
-	var flowers := {}
-	for p in room.props:
-		var kind := str(p.kind)
-		var c: Vector2i = p.cell
-		if kind in ["bush_azalea", "tree_peach", "tree_plum", "shrub", "pot_orchid", "tree_ribbons"]:
-			for dy in range(-1, 3):
-				for dx in range(-1, (p.size as Vector2i).x + 1): flowers[c + Vector2i(dx, dy)] = true
-	for y in room.h:
-		for x in room.w:
-			var i := y * room.w + x
-			var l := room.levels[i]
-			var pt := char(room.paint[i])
-			var cp := Vector2((x + 0.5) * TopdownRoom.TILE, (y + 0.5) * TopdownRoom.TILE)
-			if l == TopdownRoom.WATER:
-				if room.solid[i] == 1: continue
-				water_cells.append(cp)
-				for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-					if room.inside(x + d.x, y + d.y) and room.levels[(y + d.y) * room.w + x + d.x] >= 0:
-						shore_cells.append(cp)
-						break
-				continue
-			if room.solid[i] == 1 or room.stair_of[i] > 0: continue
-			if pt in "gdpfbsmw": ground_cells.append(cp)
-			if pt in "fb" or flowers.has(Vector2i(x, y)): flower_cells.append(cp)
-			if pt in "gmf":
-				for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-					if room.is_water(x + d.x, y + d.y) and (pt == "m" or area == "marsh" or rng.randf() < 0.5):
-						frog_cells.append(cp)
-						break
+	var cells := places(room, area)
+	ground_cells = cells[0]
+	flower_cells = cells[1]
+	water_cells = cells[2]
+	shore_cells = cells[3]
+	frog_cells = cells[4]
+	for a in life.get("animals", []):
+		var home := TopdownRoom.cell_point([a[1], a[2]])
+		animals.append([str(a[0]), home, TopdownWorld.to_screen(home, room.floor_at(home))])
 	# Emitters: chimneys over houses, incense at burners, fire and steam at stoves and forges; the furnishings'.
 	for p in room.props:
 		var kind := str(p.kind)
@@ -254,7 +253,7 @@ func _collect() -> void:
 		match kind:
 			"house", "storehouse":
 				# Not every house has its fire lit: a hash of its place.
-				if TopdownTerrain.h01(c.x, c.y, 43) < 0.7: emitters.append({"kind": "smoke", "at": top_left + Vector2(float(rr[2]) * 0.72, 12.0), "t": rng.randf()})
+				if TopdownTerrain.h01(c.x, c.y, 43) < 0.7: emitters.append({"kind": "smoke", "at": top_left + Vector2(float(rr[2]) * 0.72, 8.0), "t": rng.randf()})
 			"incense": emitters.append({"kind": "incense", "at": top_left + Vector2(8, 9), "t": 0.0})
 			"shrine_small": emitters.append({"kind": "incense", "at": top_left + Vector2(12, 17), "t": 0.0})
 			"stove": emitters.append({"kind": "steam", "at": top_left + Vector2(9, 5), "t": rng.randf()})
@@ -271,8 +270,56 @@ func _collect() -> void:
 			"alchemy_furnace": emitters.append({"kind": "forge", "at": at + Vector2(0, -22), "t": 0.0})
 			"shrine": emitters.append({"kind": "incense", "at": at + Vector2(0, -14), "t": 0.0})
 
+static var _places := {}
+## Where a room's critters can be, cell centres (world units): [ground (sparrows), by flowers (butterflies), water
+## (fish), water by land (dragonflies), land at the water's edge (frogs)]. A pure function of the room (a hash picks the
+## frogs' edge cells outside the marsh), found once and kept by the room's id.
+static func places(r: TopdownRoom, area_name: String) -> Array:
+	var ck := "%s:%d:%s" % [r.id, r.props.size(), area_name]
+	if _places.has(ck): return _places[ck]
+	var ground := PackedVector2Array()
+	var flower := PackedVector2Array()
+	var water := PackedVector2Array()
+	var shore := PackedVector2Array()
+	var frog := PackedVector2Array()
+	var flowers := {}
+	for p in r.props:
+		var c: Vector2i = p.cell
+		if str(p.kind) in FLOWERING:
+			for dy in range(-1, 3):
+				for dx in range(-1, (p.size as Vector2i).x + 1): flowers[c + Vector2i(dx, dy)] = true
+	# Paint marks by their byte: g d p f b s m w.
+	var on_ground := {103: true, 100: true, 112: true, 102: true, 98: true, 115: true, 109: true, 119: true}
+	var marsh := area_name == "marsh"
+	for y in r.h:
+		for x in r.w:
+			var i := y * r.w + x
+			var pt := r.paint[i]
+			var cp := Vector2((x + 0.5) * TopdownRoom.TILE, (y + 0.5) * TopdownRoom.TILE)
+			if r.levels[i] == TopdownRoom.WATER:
+				if r.solid[i] == 1: continue
+				water.append(cp)
+				if _by(r, x, y, false): shore.append(cp)
+				continue
+			if r.solid[i] == 1 or r.stair_of[i] > 0: continue
+			if on_ground.has(pt): ground.append(cp)
+			if pt == 102 or pt == 98 or flowers.has(Vector2i(x, y)): flower.append(cp)
+			if (pt == 103 or pt == 109 or pt == 102) and _by(r, x, y, true) and (pt == 109 or marsh or TopdownTerrain.h01(x, y, 77) < 0.5):
+				frog.append(cp)
+	_places[ck] = [ground, flower, water, shore, frog]
+	return _places[ck]
+
+## Has the cell a side neighbour that is water (`water`), or land (not)?
+static func _by(r: TopdownRoom, x: int, y: int, water: bool) -> bool:
+	for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+		var nx: int = x + d.x
+		var ny: int = y + d.y
+		if not r.inside(nx, ny): continue
+		if water == (r.levels[ny * r.w + nx] == TopdownRoom.WATER and r.solid[ny * r.w + nx] == 0): return true
+	return false
+
 ## The work loops of the room's people (life.json `work`); a quest's staged people keep theirs while a scene has them.
-func _attach_work(figures: Dictionary, npc_views: Dictionary) -> void:
+func _attach_work(figures: Dictionary) -> void:
 	workers.clear()
 	var loops: Dictionary = data().get("loops", {})
 	for oid in life.get("work", {}):
@@ -332,6 +379,7 @@ func _hangings() -> void:
 # ------------------------------------------------------------------ each frame
 func _process(delta: float) -> void:
 	if room == null: return
+	var t0 := Time.get_ticks_usec()
 	clock += delta
 	gust = gust_at(clock)
 	wind_phase += delta * (CALM + GUSTY * gust) / (CALM + GUSTY * 0.5)
@@ -347,10 +395,7 @@ func _process(delta: float) -> void:
 	_step_work(delta)
 	_step_motes(delta)
 	_fresh = false
-	air.queue_redraw()
-	floor_layer.queue_redraw()
-	if not water_cells.is_empty(): water_layer.queue_redraw()
-	if not shafts.is_empty(): light_layer.queue_redraw()
+	_redraw_layers(view)
 	# The foliage's sway shader: the gust and the bodies it parts for.
 	var mat := TopdownFoliage.sway_material()
 	mat.set_shader_parameter("gust", gust)
@@ -361,6 +406,43 @@ func _process(delta: float) -> void:
 	arr.resize(MAX_BODIES)
 	mat.set_shader_parameter("bodies", arr)
 	mat.set_shader_parameter("body_count", mini(bodies.size(), MAX_BODIES))
+	spent_us += Time.get_ticks_usec() - t0
+	spent_parts.step += Time.get_ticks_usec() - t0
+
+## Each layer redraws only when what it shows has changed on the pixel grid (a signature of its items' whole-pixel
+## places and frames), and once more to clear what it showed: most frames most of them hold still.
+func _redraw_layers(view: Rect2) -> void:
+	var sig_w := 0
+	var sig_f := 0
+	var sig_a := 0
+	var busy_a := false
+	for cr: Critter in critters:
+		var s: Vector2 = cr.s
+		var k := cr.kind
+		var at := Vector2i((s - Vector2(0, cr.z)).round())
+		var f := int(cr.t * 20.0)
+		if k == "fish": sig_w = sig_w * 31 + at.x * 7 + at.y * 13 + int(cr.t * (10.0 if cr.state == "flee" else 4.0)) % 3 + int(cr.alpha * 8.0)
+		elif cr.z >= 2.0 and not (k == "sparrow" and cr.state == "ground"):
+			sig_f = sig_f * 31 + at.x * 7 + at.y * 13
+			sig_a = sig_a * 31 + at.x * 7 + at.y * 13 + f
+			busy_a = true
+	for p in puffs:
+		var at := Vector2i((p.at as Vector2).round())
+		var k := float(p.t) / float(p.life)
+		if str(p.kind) == "ring": sig_w = sig_w * 31 + at.x + at.y * 3 + int(k * 4.0)
+		else: sig_a = sig_a * 31 + at.x * 7 + at.y * 13 + int(k * 24.0)
+	for b in bits: sig_a = sig_a * 31 + int((b.at as Vector2).x) * 7 + int((b.at as Vector2).y) * 13
+	busy_a = busy_a or not bits.is_empty()
+	for e in emitters:
+		if str(e.kind) == "incense" and view.grow(24.0).has_point(e.at):
+			sig_a = sig_a * 31 + int(clock * 12.0) + int(gust * 4.0)   # a thread sways on its own clock
+	if sig_w != _sig.w: water_layer.queue_redraw()
+	if sig_f != _sig.f: floor_layer.queue_redraw()
+	if sig_a != _sig.a: air.queue_redraw()
+	_sig = {"w": sig_w, "f": sig_f, "a": sig_a}
+	if not shafts.is_empty() and (not motes.is_empty() or _sig_light != 1):
+		light_layer.queue_redraw()
+		_sig_light = 1
 
 func _view() -> Rect2:
 	var vs := Vector2(world.viewport.size) if world.viewport != null else Vector2(640, 360)
@@ -370,6 +452,8 @@ func _view() -> Rect2:
 ## The bodies in view the critters and the grass answer: the player, the foes, the people walking about.
 func _bodies(view: Rect2) -> void:
 	bodies.clear()
+	_body_g.clear()
+	_body_run.clear()
 	var p = world.player
 	if p != null and p.get("motor") != null:
 		var m: TopdownMotor = p.motor
@@ -388,6 +472,11 @@ func _bodies(view: Rect2) -> void:
 		if not is_instance_valid(fig) or fig.work == null or not fig.work.walking: continue
 		if not view.grow(16.0).has_point(fig.feet): continue
 		bodies.append({"g": fig.plane, "s": fig.feet as Vector2, "run": str(fig.work.action) == "run", "moving": true, "player": false, "z": 0.0})
+	# The same, packed, for the critters' nearest-body test (the player first when there is one).
+	_has_player = not bodies.is_empty() and bool(bodies[0].player)
+	for b in bodies:
+		_body_g.append(b.g)
+		_body_run.append(1 if b.run else 0)
 
 ## The walk-through plants lean aside from a body among them (and shiver under a runner).
 func _bend(view: Rect2) -> void:
@@ -429,12 +518,10 @@ func wanted(kind: String) -> int:
 func _spawn_critters(delta: float, view: Rect2) -> void:
 	_spawn_t -= delta
 	# The animals of the room: awake while their home is near the view.
-	for a in life.get("animals", []):
-		var home := TopdownRoom.cell_point([a[1], a[2]])
-		var hs := TopdownWorld.to_screen(home, room.floor_at(home))
-		var near := view.grow(ANIMAL_PX).has_point(hs)
-		var have := critters.any(func(c): return c.get("home_id", -1) == int(hash(str(a))))
-		if near and not have and critters.size() < MAX_CRITTERS: _add_animal(str(a[0]), home, int(hash(str(a))))
+	var near_view := view.grow(ANIMAL_PX)
+	for i in animals.size():
+		var a: Array = animals[i]
+		if near_view.has_point(a[2]) and not _awake.has(i) and critters.size() < MAX_CRITTERS: _add_animal(str(a[0]), a[1], i)
 	if _spawn_t > 0.0 and not _fresh: return
 	_spawn_t = SPAWN_S
 	var tries := 8 if _fresh else 1
@@ -442,12 +529,13 @@ func _spawn_critters(delta: float, view: Rect2) -> void:
 		for k in tries:
 			var n := wanted(kind)
 			var have := critters.filter(func(c): return str(c.kind) == kind).size()
-			if kind == "sparrow": have = critters.filter(func(c): return str(c.kind) == kind and c.get("lead", false)).size()
+			if kind == "sparrow": have = critters.filter(func(c): return str(c.kind) == kind and c.lead).size()
 			if have >= n or critters.size() >= MAX_CRITTERS: break
 			_add_wild(kind, view)
 
-## A new wild critter round the view (the first frame of a room fills its view at once).
+## A new wild critter round the view (the first frame of a room fills its view at once); none past the cap.
 func _add_wild(kind: String, view: Rect2) -> void:
+	if critters.size() >= MAX_CRITTERS: return
 	match kind:
 		"sparrow":
 			var c := _pick(ground_cells, view.grow(-MARGIN))
@@ -498,21 +586,30 @@ func _add_wild(kind: String, view: Rect2) -> void:
 			var cc := TopdownRoom.cell_of(c)
 			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 				if room.is_water(cc.x + d.x, cc.y + d.y): cr.water = Vector2(d)
-			cr.face = 1 if float(cr.get("water", Vector2.RIGHT).x) >= 0.0 else -1
+			cr.face = 1 if cr.water.x >= 0.0 else -1
 
 func _add_animal(kind: String, home: Vector2, id: int) -> void:
+	if critters.size() >= MAX_CRITTERS: return
 	var base := kind.get_slice("_", 0)
 	var cr := _critter(base, home)
+	_awake[id] = true
 	cr.variant = kind
 	cr.home = home
+	cr.hs = animals[id][2]
 	cr.home_id = id
 	cr.state = {"hen": "wander", "cat": "sleep", "dog": "lie"}.get(base, "wander")
 	cr.face = 1 if (id & 1) == 0 else -1
 
-func _critter(kind: String, g: Vector2) -> Dictionary:
-	var cr := {"kind": kind, "g": g, "floor": room.floor_at(g), "z": 0.0, "v": Vector2.ZERO, "t": rng.randf() * 3.0, "st": 0.0,
-		"state": "idle", "face": 1, "alpha": 0.0 if not _fresh else 1.0, "node": null, "variant": "",
-		"s": TopdownWorld.to_screen(g, room.floor_at(g))}
+func _critter(kind: String, g: Vector2) -> Critter:
+	var cr := Critter.new()
+	cr.kind = kind
+	cr.g = g
+	cr.floor = room.floor_at(g)
+	cr.t = rng.randf() * 3.0
+	cr.alpha = 0.0 if not _fresh else 1.0
+	cr.s = TopdownWorld.to_screen(g, cr.floor)
+	cr.anchor = g
+	cr.target = g
 	critters.append(cr)
 	spawned += 1
 	return cr
@@ -533,54 +630,73 @@ func _body_near(g: Vector2, px: float) -> bool:
 ## in `last_run`.
 var last_run := false
 var last_player := false
+var _body_g := PackedVector2Array()
+var _body_run := PackedByteArray()
+var _has_player := false
 func _nearest(g: Vector2) -> Vector3:
 	var best := Vector3(INF, 0, 0)
 	last_run = false
 	last_player = false
-	for b in bodies:
-		var d: Vector2 = g - (b.g as Vector2)
-		var px := d.length() / TopdownRoom.ART
-		if px < best.x:
-			var away := d.normalized() if d.length() > 0.1 else Vector2.RIGHT
-			best = Vector3(px, away.x, away.y)
-			last_run = bool(b.run)
-			last_player = bool(b.player)
-	return best
+	var bi := -1
+	var bd := INF
+	for i in _body_g.size():
+		var d2 := g.distance_squared_to(_body_g[i])
+		if d2 < bd:
+			bd = d2
+			bi = i
+	if bi < 0: return best
+	var d := g - _body_g[bi]
+	var away := d.normalized() if d.length() > 0.1 else Vector2.RIGHT
+	last_run = _body_run[bi] == 1
+	last_player = bi == 0 and _has_player
+	return Vector3(d.length() / TopdownRoom.ART, away.x, away.y)
 
 func _step_critters(delta: float, view: Rect2) -> void:
 	var keep: Array = []
-	for cr in critters:
-		cr.t = float(cr.t) + delta
-		cr.st = float(cr.st) + delta
-		cr.alpha = minf(1.0, float(cr.alpha) + delta * 2.0)
+	_tick += 1
+	var near_view := view.grow(DROP_PX)
+	var home_view := view.grow(ANIMAL_PX + DROP_PX)
+	for i in critters.size():
+		var cr: Critter = critters[i]
+		# A calm critter steps on every other frame (its half of the list), twice as far: the same on the pixel grid at
+		# half the cost; one on the move (fleeing, landing, darting, leaping) steps every frame.
+		cr.skip += delta
+		if (i + _tick) % 2 == 1 and not (cr.state in FAST):
+			keep.append(cr)
+			continue
+		var dt := cr.skip
+		cr.skip = 0.0
+		cr.t = cr.t + dt
+		cr.st = cr.st + dt
+		cr.alpha = minf(1.0, cr.alpha + dt * 2.0)
 		var alive := true
-		match str(cr.kind):
-			"sparrow": alive = _sparrow(cr, delta)
-			"butterfly", "dragonfly": alive = _insect(cr, delta)
-			"fish": alive = _fish(cr, delta)
-			"frog": alive = _frog(cr, delta)
-			"hen": _hen(cr, delta)
-			"cat": _cat(cr, delta)
-			"dog": _dog(cr, delta)
-		var s := TopdownWorld.to_screen(cr.g, float(cr.floor))
+		match cr.kind:
+			"sparrow": alive = _sparrow(cr, dt)
+			"butterfly", "dragonfly": alive = _insect(cr, dt)
+			"fish": alive = _fish(cr, dt)
+			"frog": alive = _frog(cr, dt)
+			"hen": _hen(cr, dt)
+			"cat": _cat(cr, dt)
+			"dog": _dog(cr, dt)
+		var s := TopdownWorld.to_screen(cr.g, cr.floor)
 		cr.s = s
 		# Dropped once well off the view (an animal with its home far from it).
-		if cr.has("home"):
-			var hs := TopdownWorld.to_screen(cr.home, room.floor_at(cr.home))
-			if not view.grow(ANIMAL_PX + DROP_PX).has_point(hs): alive = false
-		elif not view.grow(DROP_PX).has_point(s - Vector2(0, float(cr.z))) and str(cr.state) != "land":
+		if cr.home_id >= 0:
+			if not home_view.has_point(cr.hs): alive = false
+		elif not near_view.has_point(s - Vector2(0, cr.z)) and cr.state != "land":
 			alive = false
 		if not alive:
 			dropped += 1
 			_release(cr)
+			if cr.home_id >= 0: _awake.erase(cr.home_id)
 			continue
 		keep.append(cr)
 		_seat(cr)
 	critters = keep
 
 ## A critter on the ground borrows a sorted node (so a house hides it); one in the air or the water draws on a layer.
-func _seat(cr: Dictionary) -> void:
-	var on_ground := str(cr.kind) in ["hen", "cat", "dog", "frog"] or (str(cr.kind) == "sparrow" and str(cr.state) == "ground")
+func _seat(cr: Critter) -> void:
+	var on_ground := cr.state == "ground" if cr.kind == "sparrow" else cr.kind in GROUNDED
 	if on_ground and cr.node == null:
 		for n in pool:
 			if n.critter == null:
@@ -592,19 +708,19 @@ func _seat(cr: Dictionary) -> void:
 		_release(cr)
 	if cr.node != null: cr.node.sync(room)
 
-func _release(cr: Dictionary) -> void:
+func _release(cr: Critter) -> void:
 	if cr.node != null and is_instance_valid(cr.node):
 		cr.node.critter = null
 		cr.node.visible = false
 	cr.node = null
 
-func _flee_from(cr: Dictionary) -> Vector3:
+func _flee_from(cr: Critter) -> Vector3:
 	var near := _nearest(cr.g)
-	var r := float(FLEE.get(str(cr.kind), 24.0)) * (SPRINT_K if last_run else 1.0)
+	var r := float(FLEE.get(cr.kind, 24.0)) * (SPRINT_K if last_run else 1.0)
 	return near if near.x < r else Vector3(INF, 0, 0)
 
-func _sparrow(cr: Dictionary, delta: float) -> bool:
-	match str(cr.state):
+func _sparrow(cr: Critter, delta: float) -> bool:
+	match cr.state:
 		"land":
 			var to: Vector2 = cr.target
 			var d: Vector2 = to - cr.g
@@ -616,7 +732,7 @@ func _sparrow(cr: Dictionary, delta: float) -> bool:
 				cr.st = 0.0
 			else:
 				cr.g += d.normalized() * sp * delta
-				cr.z = clampf(d.length() / TopdownRoom.ART * 0.3, 1.0, float(cr.z))   # gliding down as it comes in
+				cr.z = clampf(d.length() / TopdownRoom.ART * 0.3, 1.0, cr.z)   # gliding down as it comes in
 				cr.face = 1 if d.x >= 0.0 else -1
 		"ground":
 			var f := _flee_from(cr)
@@ -628,35 +744,35 @@ func _sparrow(cr: Dictionary, delta: float) -> bool:
 						_flee(o, Vector2(f.y, f.z).rotated(rng.randf_range(-0.5, 0.5)), "")
 				return true
 			# Hop a step now and then, peck between.
-			if float(cr.st) > 0.6 + fmod(float(cr.t) * 0.37, 0.8):
+			if cr.st > 0.6 + fmod(cr.t * 0.37, 0.8):
 				cr.st = 0.0
 				var hop := Vector2(rng.randf_range(-1, 1), rng.randf_range(-0.6, 0.6)).normalized() * SPEED.sparrow_hop * 0.4 * TopdownRoom.ART
-				var to := (cr.g as Vector2) + hop
-				if room.standable(TopdownRoom.cell_of(to)) and absf(room.floor_at(to) - float(cr.floor)) < 4.0:
+				var to := cr.g + hop
+				if room.standable(TopdownRoom.cell_of(to)) and absf(room.floor_at(to) - cr.floor) < 4.0:
 					cr.g = to
 					cr.face = 1 if hop.x >= 0.0 else -1
 					cr.hop_t = 0.18
-			cr.hop_t = maxf(0.0, float(cr.get("hop_t", 0.0)) - delta)
+			cr.hop_t = maxf(0.0, cr.hop_t - delta)
 		"flee":
-			cr.g += (cr.v as Vector2) * delta
-			cr.z = float(cr.z) + 46.0 * delta
+			cr.g += cr.v * delta
+			cr.z = cr.z + 46.0 * delta
 	return true
 
-func _flee(cr: Dictionary, away: Vector2, sound: String) -> void:
+func _flee(cr: Critter, away: Vector2, sound: String) -> void:
 	cr.state = "flee"
 	cr.st = 0.0
 	fled += 1
-	var sp: float = SPEED.get(str(cr.kind) + "_flee", SPEED.get(str(cr.kind) + "_fly", 50.0))
+	var sp: float = SPEED.get(cr.kind + "_flee", SPEED.get(cr.kind + "_fly", 50.0))
 	cr.v = (away + Vector2(0, -0.3)).normalized() * sp * TopdownRoom.ART
 	cr.face = 1 if away.x >= 0.0 else -1
 	if sound != "": raise_cue(sound + "_flee", cr.g)
 
-func _insect(cr: Dictionary, delta: float) -> bool:
-	var dart := str(cr.kind) == "dragonfly"
-	if str(cr.state) == "flee":
-		cr.g += (cr.v as Vector2) * delta
-		cr.z = float(cr.z) + 18.0 * delta
-		return float(cr.st) < 3.0
+func _insect(cr: Critter, delta: float) -> bool:
+	var dart := cr.kind == "dragonfly"
+	if cr.state == "flee":
+		cr.g += cr.v * delta
+		cr.z = cr.z + 18.0 * delta
+		return cr.st < 3.0
 	var f := _flee_from(cr)
 	if f.x < INF:
 		_flee(cr, Vector2(f.y, f.z), "")
@@ -664,30 +780,30 @@ func _insect(cr: Dictionary, delta: float) -> bool:
 	var anchor: Vector2 = cr.anchor
 	if dart:
 		# Hover, then dart to a new place over the water near its anchor.
-		if float(cr.st) > 1.1 + fmod(float(cr.t), 0.9):
+		if cr.st > 1.1 + fmod(cr.t, 0.9):
 			cr.st = 0.0
 			cr.target = anchor + Vector2(rng.randf_range(-40, 40), rng.randf_range(-24, 24))
-		var to: Vector2 = cr.get("target", anchor)
-		var d := to - (cr.g as Vector2)
+		var to: Vector2 = cr.target
+		var d := to - cr.g
 		var sp := (SPEED.dragonfly_dart if d.length() > 6.0 else SPEED.dragonfly) * TopdownRoom.ART * 0.5
 		cr.g += d.limit_length(sp * delta)
 		if absf(d.x) > 1.0: cr.face = 1 if d.x > 0.0 else -1
-		cr.z = 9.0 + sin(float(cr.t) * 3.0) * 2.0
+		cr.z = 9.0 + sin(cr.t * 3.0) * 2.0
 	else:
 		# Flutter on a loose loop round the flowers, bobbing.
-		var a := float(cr.t) * 0.9 + float(hash(cr.variant) % 7)
+		var a := cr.t * 0.9 + float(hash(cr.variant) % 7)
 		var to := anchor + Vector2(cos(a) * 18.0 + sin(a * 2.3) * 8.0, sin(a * 1.3) * 12.0) * TopdownRoom.ART
-		var d := to - (cr.g as Vector2)
+		var d := to - cr.g
 		cr.g += d.limit_length(SPEED.butterfly * TopdownRoom.ART * delta)
 		if absf(d.x) > 1.0: cr.face = 1 if d.x > 0.0 else -1
-		cr.z = 8.0 + sin(float(cr.t) * 2.1) * 4.0 + sin(float(cr.t) * 7.0) * 1.0
+		cr.z = 8.0 + sin(cr.t * 2.1) * 4.0 + sin(cr.t * 7.0) * 1.0
 	return true
 
-func _fish(cr: Dictionary, delta: float) -> bool:
-	if str(cr.state) == "flee":
-		cr.g += (cr.v as Vector2) * delta
-		cr.v = (cr.v as Vector2) * (1.0 - delta * 1.5)
-		if (cr.v as Vector2).length() < 20.0: cr.state = "swim"
+func _fish(cr: Critter, delta: float) -> bool:
+	if cr.state == "flee":
+		cr.g += cr.v * delta
+		cr.v = cr.v * (1.0 - delta * 1.5)
+		if cr.v.length() < 20.0: cr.state = "swim"
 	else:
 		var f := _flee_from(cr)
 		if f.x < INF:
@@ -695,68 +811,68 @@ func _fish(cr: Dictionary, delta: float) -> bool:
 			_ring(cr.g)
 			return true
 		# Glide, turning slowly; rise now and then in a ring.
-		cr.v = (cr.v as Vector2).rotated(sin(float(cr.t) * 0.7 + float(hash(str(cr.g.x)) % 5)) * 0.6 * delta)
-		if float(cr.st) > 5.0 + fmod(float(cr.t) * 1.7, 5.0):
+		cr.v = cr.v.rotated(sin(cr.t * 0.7 + float(hash(str(cr.g.x)) % 5)) * 0.6 * delta)
+		if cr.st > 5.0 + fmod(cr.t * 1.7, 5.0):
 			cr.st = 0.0
 			_ring(cr.g)
-	var to: Vector2 = (cr.g as Vector2) + (cr.v as Vector2) * delta
+	var to: Vector2 = cr.g + cr.v * delta
 	var c := TopdownRoom.cell_of(to)
 	if room.is_water(c.x, c.y): cr.g = to
-	else: cr.v = -(cr.v as Vector2)
-	if (cr.v as Vector2).length() > 0.1: cr.face = 1 if (cr.v as Vector2).x >= 0.0 else -1
+	else: cr.v = -cr.v
+	if cr.v.length() > 0.1: cr.face = 1 if cr.v.x >= 0.0 else -1
 	return true
 
-func _frog(cr: Dictionary, delta: float) -> bool:
-	match str(cr.state):
+func _frog(cr: Critter, delta: float) -> bool:
+	match cr.state:
 		"sit":
 			var f := _flee_from(cr)
 			if f.x < INF:
 				cr.state = "leap"
 				cr.st = 0.0
 				fled += 1
-				var w: Vector2 = cr.get("water", Vector2(f.y, f.z))
+				var w: Vector2 = cr.water if cr.water != Vector2.ZERO else Vector2(f.y, f.z)
 				cr.v = w * 34.0 * TopdownRoom.ART
 				cr.face = 1 if w.x >= 0.0 else -1
 				raise_cue("frog_leap", cr.g)
 		"leap":
-			cr.g += (cr.v as Vector2) * delta
-			cr.z = maxf(0.0, sin(clampf(float(cr.st) / 0.45, 0.0, 1.0) * PI) * 9.0)
-			if float(cr.st) >= 0.45:
+			cr.g += cr.v * delta
+			cr.z = maxf(0.0, sin(clampf(cr.st / 0.45, 0.0, 1.0) * PI) * 9.0)
+			if cr.st >= 0.45:
 				_ring(cr.g)
 				raise_cue("frog_plop", cr.g)
 				return false
 	return true
 
-func _hen(cr: Dictionary, delta: float) -> void:
+func _hen(cr: Critter, delta: float) -> void:
 	var f := _flee_from(cr)
-	if f.x < INF and str(cr.state) != "flee":
+	if f.x < INF and cr.state != "flee":
 		cr.state = "flee"
 		cr.st = 0.0
 		fled += 1
 		cr.v = Vector2(f.y, f.z) * SPEED.hen_flee * TopdownRoom.ART
 		raise_cue("hen_flap", cr.g)
-	match str(cr.state):
+	match cr.state:
 		"flee":
 			_walk_home(cr, cr.v, delta)
-			if float(cr.st) > 0.7:
+			if cr.st > 0.7:
 				cr.state = "wander"
 				cr.st = 0.0
 		"wander":
-			if float(cr.st) > 1.8:
+			if cr.st > 1.8:
 				cr.st = 0.0
 				cr.state = "peck"
 			var home: Vector2 = cr.home
-			var to: Vector2 = home + Vector2(sin(float(cr.t) * 0.4 + float(cr.home_id % 5)), cos(float(cr.t) * 0.31)) * 26.0 * TopdownRoom.ART
-			var d := to - (cr.g as Vector2)
+			var to: Vector2 = home + Vector2(sin(cr.t * 0.4 + float(cr.home_id % 5)), cos(cr.t * 0.31)) * 26.0 * TopdownRoom.ART
+			var d := to - cr.g
 			_walk_home(cr, d.limit_length(SPEED.hen * TopdownRoom.ART), delta)
 		"peck":
-			if float(cr.st) > 1.4:
+			if cr.st > 1.4:
 				cr.st = 0.0
 				cr.state = "wander"
 
-func _cat(cr: Dictionary, delta: float) -> void:
+func _cat(cr: Critter, delta: float) -> void:
 	var near := _nearest(cr.g)
-	match str(cr.state):
+	match cr.state:
 		"sleep":
 			if near.x < 44.0 and last_player:
 				cr.state = "sit"
@@ -768,46 +884,46 @@ func _cat(cr: Dictionary, delta: float) -> void:
 				cr.st = 0.0
 				fled += 1
 				cr.v = Vector2(near.y, near.z) * SPEED.cat * TopdownRoom.ART
-			elif near.x > 90.0 and float(cr.st) > 3.0:
+			elif near.x > 90.0 and cr.st > 3.0:
 				cr.state = "home"
 		"walk":
 			_walk_home(cr, cr.v, delta)
-			if float(cr.st) > 1.6:
+			if cr.st > 1.6:
 				cr.state = "sit"
 				cr.st = 0.0
 		"home":
-			var d: Vector2 = (cr.home as Vector2) - cr.g
+			var d: Vector2 = cr.home - cr.g
 			if d.length() < 3.0:
 				cr.state = "sleep"
 			else:
 				_walk_home(cr, d.limit_length(SPEED.cat * 0.6 * TopdownRoom.ART), delta)
 			if near.x < 44.0: cr.state = "sit"
 
-func _dog(cr: Dictionary, delta: float) -> void:
+func _dog(cr: Critter, delta: float) -> void:
 	var near := _nearest(cr.g)
 	var player_near := near.x < 70.0 and last_player
-	match str(cr.state):
+	match cr.state:
 		"lie":
 			if player_near:
 				cr.state = "sit"
 				cr.st = 0.0
 		"sit":
-			if near.x > 26.0 and near.x < 70.0 and float(cr.st) > 0.8 and last_player:
+			if near.x > 26.0 and near.x < 70.0 and cr.st > 0.8 and last_player:
 				cr.state = "trot"
 				cr.st = 0.0
 				raise_cue("dog_bark", cr.g)
-			elif near.x > 110.0 and float(cr.st) > 2.0:
+			elif near.x > 110.0 and cr.st > 2.0:
 				cr.state = "home"
 		"trot":
 			# To the player, stopping short to sit and wag.
 			var toward := -Vector2(near.y, near.z)
-			if near.x < 22.0 or not last_player or (cr.g as Vector2).distance_to(cr.home) > 110.0 * TopdownRoom.ART:
+			if near.x < 22.0 or not last_player or cr.g.distance_to(cr.home) > 110.0 * TopdownRoom.ART:
 				cr.state = "sit"
 				cr.st = 0.0
 			else:
 				_walk_home(cr, toward * SPEED.dog * TopdownRoom.ART, delta)
 		"home":
-			var d: Vector2 = (cr.home as Vector2) - cr.g
+			var d: Vector2 = cr.home - cr.g
 			if d.length() < 3.0:
 				cr.state = "lie"
 			else:
@@ -815,12 +931,14 @@ func _dog(cr: Dictionary, delta: float) -> void:
 			if player_near: cr.state = "sit"
 
 ## An animal steps along `v` (world units a second) where a body may stand on its floor, turning back where it may not.
-func _walk_home(cr: Dictionary, v: Vector2, delta: float) -> void:
-	var to: Vector2 = (cr.g as Vector2) + v * delta
-	if room.standable(TopdownRoom.cell_of(to)) and absf(room.floor_at(to) - float(cr.floor)) < 4.0:
+func _walk_home(cr: Critter, v: Vector2, delta: float) -> void:
+	var to: Vector2 = cr.g + v * delta
+	# The floor is asked only when the step crosses into another cell.
+	var same := TopdownRoom.cell_of(to) == TopdownRoom.cell_of(cr.g)
+	if same or (room.standable(TopdownRoom.cell_of(to)) and absf(room.floor_at(to) - cr.floor) < 4.0):
 		cr.g = to
 	else:
-		cr.v = -(cr.v as Vector2)
+		cr.v = -cr.v
 	if absf(v.x) > 0.5: cr.face = 1 if v.x > 0.0 else -1
 	cr.moving = v.length() > 1.0
 
@@ -986,18 +1104,21 @@ static func blit(ci: CanvasItem, sprite: String, f: int, at: Vector2, flip := fa
 		ci.draw_texture_rect_region(sheet(), dst, src, col)
 
 func draw_layer(ci: CanvasItem, which: String) -> void:
+	var t0 := Time.get_ticks_usec()
 	match which:
 		"water": _draw_water(ci)
 		"floor": _draw_floor(ci)
 		"air": _draw_air(ci)
 		"light": _draw_light(ci)
+	spent_us += Time.get_ticks_usec() - t0
+	spent_parts.draw += Time.get_ticks_usec() - t0
 
 func _draw_water(ci: CanvasItem) -> void:
-	for cr in critters:
-		if str(cr.kind) != "fish": continue
+	for cr: Critter in critters:
+		if cr.kind != "fish": continue
 		var s: Vector2 = cr.s
-		var f := int(float(cr.t) * (10.0 if str(cr.state) == "flee" else 4.0)) % 3
-		blit(ci, "fish", f, s.round(), int(cr.face) < 0, Color(1, 1, 1, float(cr.alpha)))
+		var f := int(cr.t * (10.0 if cr.state == "flee" else 4.0)) % 3
+		blit(ci, "fish", f, s.round(), cr.face < 0, Color(1, 1, 1, cr.alpha))
 	for p in puffs:
 		if str(p.kind) != "ring": continue
 		var k := float(p.t) / float(p.life)
@@ -1005,11 +1126,11 @@ func _draw_water(ci: CanvasItem) -> void:
 
 ## On the floor: the small shadows of things in the air (a bird, a butterfly), and the sun's patches in an interior.
 func _draw_floor(ci: CanvasItem) -> void:
-	for cr in critters:
-		var z := float(cr.z)
-		if z < 2.0 or str(cr.kind) == "fish" or str(cr.state) == "land" and z > 40.0: continue
+	for cr: Critter in critters:
+		var z := cr.z
+		if z < 2.0 or cr.kind == "fish" or cr.state == "land" and z > 40.0: continue
 		var s: Vector2 = cr.s
-		var a := clampf(0.3 - z / 200.0, 0.08, 0.3) * float(cr.alpha)
+		var a := clampf(0.3 - z / 200.0, 0.08, 0.3) * cr.alpha
 		var at := (s + Vector2(z * 0.45, z * 0.2)).round()
 		ci.draw_rect(Rect2(at - Vector2(1, 0), Vector2(3, 1)), Color(TopdownLight.SHADOW, a))
 
@@ -1020,7 +1141,7 @@ func _draw_air(ci: CanvasItem) -> void:
 		if kind == "ring": continue
 		var k := float(p.t) / float(p.life)
 		var col: Color = SMOKE if kind == "smoke" else (STEAM if kind == "steam" else DUST)
-		var size := mini(3, int(k * 3.2) + (1 if kind == "smoke" else 0))
+		var size := mini(3, int(k * 3.4) + (1 if kind == "smoke" else 0))
 		if kind == "dust": size = mini(1, int(k * 2.0))
 		var a := col.a * clampf(k * 6.0, 0.0, 1.0) * clampf((1.0 - k) * 1.8, 0.0, 1.0)
 		blit(ci, "puff_%d" % size, 0, (p.at as Vector2).round(), false, Color(col, a))
@@ -1039,19 +1160,19 @@ func _draw_air(ci: CanvasItem) -> void:
 		var a := clampf((1.0 - float(b.t) / float(b.life)) * 2.0, 0.0, 1.0)
 		ci.draw_rect(Rect2((b.at as Vector2).round(), Vector2.ONE), Color(col, col.a * a))
 	# Critters in the air: sparrows flying, butterflies, dragonflies.
-	for cr in critters:
-		var kind := str(cr.kind)
+	for cr: Critter in critters:
+		var kind := cr.kind
 		var s: Vector2 = cr.s
-		var at := (s - Vector2(0, float(cr.z))).round()
-		var col := Color(1, 1, 1, float(cr.alpha))
+		var at := (s - Vector2(0, cr.z)).round()
+		var col := Color(1, 1, 1, cr.alpha)
 		match kind:
 			"sparrow":
-				if str(cr.state) == "ground": continue
-				blit(ci, "sparrow_fly", int(float(cr.t) * 14.0), at, int(cr.face) < 0, col)
+				if cr.state == "ground": continue
+				blit(ci, "sparrow_fly", int(cr.t * 14.0), at, cr.face < 0, col)
 			"butterfly":
-				blit(ci, "butterfly_" + str(cr.variant), int(float(cr.t) * (16.0 if str(cr.state) == "flee" else 10.0)), at, false, col)
+				blit(ci, "butterfly_" + cr.variant, int(cr.t * (16.0 if cr.state == "flee" else 10.0)), at, false, col)
 			"dragonfly":
-				blit(ci, "dragonfly", int(float(cr.t) * 20.0), at, int(cr.face) < 0, col)
+				blit(ci, "dragonfly", int(cr.t * 20.0), at, cr.face < 0, col)
 
 ## The sun through an interior's windows: a faint beam, its patch on the floor with the lattice's bars in it, and the
 ## dust turning in it (added over the room).
@@ -1060,10 +1181,12 @@ func _draw_light(ci: CanvasItem) -> void:
 		ci.draw_colored_polygon(s.beam, Color(TopdownLight.SUN, SHAFT_A))
 		# The patch: the window's panes, its lattice's bars left dark between them.
 		var patch: Rect2 = s.patch
-		for x in range(int(patch.position.x), int(patch.end.x)):
-			if (x - int(patch.position.x)) % 4 == 3: continue
-			ci.draw_rect(Rect2(x, patch.position.y, 1, 4), Color(TopdownLight.SUN, PATCH_A))
-			ci.draw_rect(Rect2(x, patch.position.y + 5, 1, patch.size.y - 5), Color(TopdownLight.SUN, PATCH_A))
+		var x := patch.position.x
+		while x < patch.end.x:
+			var w := minf(3.0, patch.end.x - x)
+			ci.draw_rect(Rect2(x, patch.position.y, w, 4), Color(TopdownLight.SUN, PATCH_A))
+			ci.draw_rect(Rect2(x, patch.position.y + 5, w, patch.size.y - 5), Color(TopdownLight.SUN, PATCH_A))
+			x += 4.0
 	for m in motes:
 		var tw := 0.5 + 0.5 * sin(float(m.t) * 2.3 + (m.at as Vector2).x)
 		var k := clampf(float(m.t) / 0.8, 0.0, 1.0) * clampf((float(m.life) - float(m.t)) / 1.0, 0.0, 1.0)
@@ -1094,10 +1217,10 @@ static func draw_tool(ci: CanvasItem, tool: String, row: String, figure: Topdown
 			blit(ci, "broom", swish, hands + Vector2(0, 0), not west and row not in ["s", "n"])
 		"pole":
 			if row in ["e", "w", "se", "sw", "ne", "nw"]:
-				if not back: blit(ci, "pole_side", 0, Vector2(0, -hgt * 0.74 + bob), false)
+				if not back: blit(ci, "pole_side", 0, Vector2(0, -hgt * 0.62 + bob), false)
 			else:
-				if back: blit(ci, "pole_back", 0, Vector2(side * 1.0, -hgt * 0.92 + bob), false)
-				else: blit(ci, "pole_front", 0, Vector2(side * 1.0, -hgt * 0.42 + bob), false)
+				if back: blit(ci, "pole_back", 0, Vector2(side * 1.0, -hgt * 0.8 + bob), false)
+				else: blit(ci, "pole_front", 0, Vector2(side * 1.0, -hgt * 0.4 + bob), false)
 		"basket":
 			if back != away: return
 			blit(ci, "laundry_basket", 0, Vector2(side * 7.0, -hgt * 0.30 + bob), false)
@@ -1131,6 +1254,38 @@ static func _line(ci: CanvasItem, a: Vector2, b: Vector2, col: Color) -> void:
 		ci.draw_rect(Rect2(p, Vector2.ONE), col)
 
 # ------------------------------------------------------------------ the nodes
+## A critter: a plain record (no node of its own, no physics), typed for speed.
+class Critter extends RefCounted:
+	var kind := ""
+	var state := "idle"
+	var g := Vector2.ZERO           ## on the ground plane (world units)
+	var floor := 0.0                ## the floor it is on (world units; the water's for a fish)
+	var z := 0.0                    ## its height over that floor (art px)
+	var v := Vector2.ZERO
+	var t := 0.0                    ## its own clock
+	var st := 0.0                   ## seconds in this state
+	var face := 1
+	var alpha := 1.0
+	var node = null                 ## the sorted node it borrows while on the ground
+	var variant := ""
+	var s := Vector2.ZERO           ## its feet on the screen (art px)
+	var anchor := Vector2.ZERO      ## where it keeps to (flowers, water)
+	var target := Vector2.ZERO      ## where it goes (a landing, a dart)
+	var home := Vector2.ZERO        ## an animal's home (world units)
+	var hs := Vector2.ZERO          ## and on the screen
+	var home_id := -1               ## an animal's index in the room's list; -1 for a wild one
+	var lead := false               ## a flock's first
+	var hop_t := 0.0
+	var water := Vector2.ZERO       ## the way to the water, for a frog
+	var moving := false
+	var skip := 0.0                 ## the time since its last step (a calm one steps every other frame)
+
+static var _frames := {}
+## How many frames a sprite of the sheet has (looked up once).
+static func frames_of(sprite: String) -> int:
+	if not _frames.has(sprite): _frames[sprite] = maxi(1, int(art().get("sprites", {}).get(sprite, {}).get("frames", 1)))
+	return int(_frames[sprite])
+
 class Layer extends Node2D:
 	var life
 	var which := ""
@@ -1146,40 +1301,56 @@ class Layer extends Node2D:
 class CritterNode extends TopdownWorld.Sorted:
 	var critter = null
 	var feet := Vector2.ZERO
+	var sprite := ""
+	var frame := 0
+	var _drawn := 0
+	var _g := Vector2.INF
+	## Where it stands, its sort key, and its pose: redrawn only when one of them has changed.
 	func sync(r: TopdownRoom) -> void:
-		var cr: Dictionary = critter
-		feet = (cr.s as Vector2).round()
-		key(r.sort_key(cr.g, float(cr.floor)))
+		var cr: TopdownLife.Critter = critter
+		feet = cr.s.round()
+		if cr.g != _g:
+			_g = cr.g
+			# On the ground floor the key is its row (TopdownRoom.sort_key's own rule there), with no floor to ask.
+			key(floorf(cr.g.y / TopdownRoom.ART * 16.0) / 16.0 if cr.floor == 0.0 else r.sort_key(cr.g, cr.floor))
 		position.x = feet.x
-		queue_redraw()
+		_pose(cr)
+		var sig := sprite.hash() + frame * 7919 + int(feet.x) * 131 + int(feet.y) * 65537 + int(cr.z) * 3 + cr.face * 17 + int(cr.alpha * 8.0) * 1009
+		if sig != _drawn:
+			_drawn = sig
+			queue_redraw()
+	func _pose(cr: TopdownLife.Critter) -> void:
+		var t := cr.t
+		match cr.kind:
+			"sparrow":
+				sprite = "sparrow_" + ("hop" if cr.hop_t > 0.0 else ("peck" if int(t * 1.3) % 3 == 0 else "stand"))
+				frame = int(t * 4.0)
+			"frog":
+				sprite = "frog_leap" if cr.state == "leap" else "frog_sit"
+				frame = (0 if cr.st < 0.25 else 1) if cr.state == "leap" else (1 if fmod(t, 3.0) > 2.4 else 0)
+			"hen":
+				var act := "flap" if cr.state == "flee" else ("peck" if cr.state == "peck" else ("walk" if cr.moving else "stand"))
+				sprite = ("hen_brown_" if cr.variant.ends_with("brown") else "hen_") + act
+				frame = int(t * (8.0 if act == "flap" else 3.0))
+			"cat":
+				var act: String = {"sleep": "sleep", "sit": "sit", "walk": "walk", "home": "walk"}.get(cr.state, "sit")
+				sprite = "cat_" + act
+				frame = int(t * (6.0 if act == "walk" else 1.2))
+			"dog":
+				var act: String = {"lie": "lie", "sit": "sit", "trot": "trot", "home": "trot"}.get(cr.state, "lie")
+				sprite = "dog_" + act
+				frame = int(t * (7.0 if act == "trot" else (4.0 if act == "sit" else 0.8)))
+		frame = posmod(frame, TopdownLife.frames_of(sprite))
 	func _draw() -> void:
 		if critter == null: return
-		var cr: Dictionary = critter
-		var kind := str(cr.kind)
-		var at := Vector2(0, feet.y - position.y - float(cr.z))
-		var flip := int(cr.face) < 0
-		var col := Color(1, 1, 1, float(cr.alpha))
-		var t := float(cr.t)
-		# A small contact shadow under the ones that sit on the ground.
-		var rx: float = {"hen": 5.0, "cat": 6.0, "dog": 7.0, "frog": 3.0, "sparrow": 2.0}.get(kind, 3.0)
-		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, rx, 0.35 * float(cr.alpha))
-		match kind:
-			"sparrow":
-				var act := "hop" if float(cr.get("hop_t", 0.0)) > 0.0 else ("peck" if int(t * 1.3) % 3 == 0 else "stand")
-				TopdownLife.blit(self, "sparrow_" + act, int(t * 4.0), at, flip, col)
-			"frog":
-				if str(cr.state) == "leap": TopdownLife.blit(self, "frog_leap", 0 if float(cr.st) < 0.25 else 1, at, flip, col)
-				else: TopdownLife.blit(self, "frog_sit", 1 if fmod(t, 3.0) > 2.4 else 0, at, flip, col)
-			"hen":
-				var base := "hen_brown" if str(cr.variant).ends_with("brown") else "hen"
-				var act := "flap" if str(cr.state) == "flee" else ("peck" if str(cr.state) == "peck" else ("walk" if cr.get("moving", false) else "stand"))
-				TopdownLife.blit(self, base + "_" + act, int(t * (8.0 if act == "flap" else 3.0)), at, flip, col)
-			"cat":
-				var act: String = {"sleep": "sleep", "sit": "sit", "walk": "walk", "home": "walk"}.get(str(cr.state), "sit")
-				TopdownLife.blit(self, "cat_" + act, int(t * (6.0 if act == "walk" else 1.2)), at, flip, col)
-			"dog":
-				var act: String = {"lie": "lie", "sit": "sit", "trot": "trot", "home": "trot"}.get(str(cr.state), "lie")
-				TopdownLife.blit(self, "dog_" + act, int(t * (7.0 if act == "trot" else (4.0 if act == "sit" else 0.8))), at, flip, col)
+		var t0 := Time.get_ticks_usec()
+		var cr: TopdownLife.Critter = critter
+		# A small contact shadow under the ones that sit on the ground, then the critter.
+		var rx: float = {"hen": 5.0, "cat": 6.0, "dog": 7.0, "frog": 3.0, "sparrow": 2.0}.get(cr.kind, 3.0)
+		TopdownWorld.draw_blob(self, 0.0, feet.y - position.y, rx, 0.35 * cr.alpha)
+		TopdownLife.blit(self, sprite, frame, Vector2(0, feet.y - position.y - cr.z), cr.face < 0, Color(1, 1, 1, cr.alpha))
+		TopdownLife.spent_us += Time.get_ticks_usec() - t0
+		TopdownLife.spent_parts.draw += Time.get_ticks_usec() - t0
 
 ## What hangs on an interior's back wall: sorted just after the wall's row, so the people in front cover it.
 class Hangings extends TopdownWorld.Sorted:

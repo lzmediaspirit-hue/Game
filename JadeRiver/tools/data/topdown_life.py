@@ -175,7 +175,7 @@ EXTRAS = {
     "lf_village": [
         {"id": "x_bank_fisher", "outfit": dict(VILLAGER, hair_color=5, shirt_dye="grey"), "loop": "fish", "spots": [[38.5, 33.25, "s"]]},
         {"id": "x_woodcutter", "outfit": dict(VILLAGER, hat="none", shirt="sleeveless", shirt_dye="ochre", pants="loose"),
-         "loop": "chop", "spots": [[56.2, 10.0, "w"]]},
+         "loop": "chop", "spots": [[65.1, 18.0, "w"]]},
     ],
     "ja_gate_street": [
         {"id": "x_ja_sweeper", "outfit": {"body": "light", "hair": "ponytail", "hair_color": 3, "shirt": "disciple", "pants": "martial",
@@ -229,7 +229,7 @@ DAY_ONLY = ["sparrow", "butterfly", "dragonfly"]
 # ==================================================================================================================
 FURNISH = {
     "lf_village": [("laundry_line", 10, 29), ("wash_tub", 15, 33), ("net_rack", 65, 26), ("fish_basket", 54, 25),
-                   ("woodpile", 52, 10), ("chop_block", 55, 10)],
+                   ("woodpile", 62, 17), ("chop_block", 64, 18)],
     "lf_fishers_hut": [("stove", 3, 8), ("bed", 15, 10), ("water_jar", 7, 1), ("fish_basket", 12, 8), ("sacks", 17, 7)],
     "lf_granny_liu_hut": [("cabinet", 8, 1), ("drying_rack", 10, 1), ("stove", 2, 5), ("mortar", 3, 7), ("bed", 13, 9),
                           ("herb_baskets", 11, 7)],
@@ -266,17 +266,17 @@ VISTAS = {
     "sf_artisan_row": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "sf_fairground": [{"edge": "s", "kind": "river", "pad": 32}],
     "rm_marsh_edge": [{"edge": "n", "kind": "marsh", "pad": 40}],
-    "ja_gate_street": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "ja_pavilion_rooftops": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "ja_east_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "ja_herb_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "ja_elder_hu_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 72}],
-    "cm_cliff_stair": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "cm_sword_court": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "cm_array_court": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 64}],
-    "cm_elder_sung_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 72}],
-    "sf_trial_jade": [{"edge": "s", "kind": "cloud_sea", "pad": 48}],
-    "sf_trial_cloud": [{"edge": "s", "kind": "cloud_sea", "pad": 48}],
+    "ja_gate_street": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ja_pavilion_rooftops": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ja_east_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ja_herb_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ja_elder_hu_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "cm_cliff_stair": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "cm_sword_court": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "cm_array_court": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "cm_elder_sung_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sf_trial_jade": [{"edge": "s", "kind": "cloud_sea", "pad": 64}],
+    "sf_trial_cloud": [{"edge": "s", "kind": "cloud_sea", "pad": 64}],
     "lf_lu_boat": [{"edge": "all", "kind": "water", "pad": 0}],
 }
 DROPS = ["cloud_sea"]

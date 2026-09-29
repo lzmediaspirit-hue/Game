@@ -570,7 +570,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -643,7 +643,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -709,7 +709,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 72
+     "pad": 88
     }
    ],
    "work": {
@@ -766,7 +766,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -890,7 +890,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -961,7 +961,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 72
+     "pad": 88
     }
    ],
    "work": {
@@ -1023,7 +1023,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -1109,7 +1109,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -1145,7 +1145,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 64
+     "pad": 80
     }
    ],
    "work": {
@@ -1510,8 +1510,8 @@
      },
      "spots": [
       [
-       56.2,
-       10.0,
+       65.1,
+       18.0,
        "w"
       ]
      ]
@@ -2109,7 +2109,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 48
+     "pad": 64
     }
    ]
   },
@@ -2118,7 +2118,7 @@
     {
      "edge": "s",
      "kind": "cloud_sea",
-     "pad": 48
+     "pad": 64
     }
    ]
   },
