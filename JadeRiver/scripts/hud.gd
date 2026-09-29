@@ -2463,22 +2463,10 @@ func _draw_minimap(c) -> void:
 	# Decision 43: the room's places, each a small glyph of its kind (TopdownPlaceArt's things, read at a glance); one
 	# that has something waiting (a new notice, a letter, a ripe bed, a finished batch) wears a gold spark. A tap near
 	# one opens the world map's Places on it, whose card offers the walk there.
-	minimap_places.clear()
-	if grid != null:
-		_place_look -= get_process_delta_time()
-		for pl in PlaceRules.of_room(Game.room_rt.room_id):
-			if not PlaceRules.visible(c, pl): continue
-			var gp2: Vector2 = to_map.call(PlaceRules.point(pl), 0.0)
-			# Two places a few cells apart would overlap on the small map: the later one steps above or below.
-			for k in 2:
-				for other in minimap_places:
-					if gp2.distance_to(other.at) < 15.0: gp2.y += -14.0 if gp2.y >= float(other.at.y) and gp2.y - 14.0 > inner.position.y + 6.0 else 14.0
-			if _place_look <= 0.0 or not _place_states.has(str(pl.id)): _place_states[str(pl.id)] = PlaceRules.state(c, pl)
-			var ps: Dictionary = _place_states[str(pl.id)]
-			var wait := int(ps.get("new", 0)) > 0 or (str(ps.state) in ["ribbon", "growth"] and bool(ps.get("on", false)))
-			place_glyph(self, gp2.round(), str(pl.kind), wait, t)
-			minimap_places.append({"id": str(pl.id), "at": gp2})
-		if _place_look <= 0.0: _place_look = 0.5
+	_place_look -= get_process_delta_time()
+	minimap_places = place_marks(c, Game.room_rt.room_id, to_map, inner.position.y + 6.0) if grid != null else []
+	if _place_look <= 0.0: _place_look = 0.5
+	for mk in minimap_places: place_glyph(self, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), t)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -2495,6 +2483,23 @@ func _draw_minimap(c) -> void:
 var minimap_places: Array = []
 var _place_states := {}
 var _place_look := 0.0
+
+## The room's places on the minimap (decision 43): [{id, kind, at (the map's px, by `to_map`), wait}], each place the
+## character sees (PlaceRules.visible); two a few cells apart would overlap on the small map, so the later one steps
+## above (not over `top`) or below. `wait`: something waits there (a new notice, a letter, a ripe bed, a ready batch).
+func place_marks(c, room_id: String, to_map: Callable, top := -INF) -> Array:
+	var out: Array = []
+	for pl in PlaceRules.of_room(room_id):
+		if not PlaceRules.visible(c, pl): continue
+		var at: Vector2 = to_map.call(PlaceRules.point(pl), 0.0)
+		for k in 2:
+			for other in out:
+				if at.distance_to(other.at) < 15.0: at.y += -14.0 if at.y >= float(other.at.y) and at.y - 14.0 > top else 14.0
+		if _place_look <= 0.0 or not _place_states.has(str(pl.id)): _place_states[str(pl.id)] = PlaceRules.state(c, pl)
+		var ps: Dictionary = _place_states[str(pl.id)]
+		var wait := int(ps.get("new", 0)) > 0 or (str(ps.state) in ["ribbon", "growth"] and bool(ps.get("on", false)))
+		out.append({"id": str(pl.id), "kind": str(pl.kind), "at": at, "wait": wait})
+	return out
 
 ## What a tap on the minimap opens the world map on: the Places view on the place nearest the tap (within 16 px of its
 ## glyph), else the map as it opens.

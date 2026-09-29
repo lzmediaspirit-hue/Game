@@ -116,12 +116,12 @@ def places():
           "the Market Storehouse", "stock"),
         P("sf_courier_post", "mail", "mail", "sf_market", "courier_post_sf", "letter_box", "both",
           "the Courier Post", "ribbon",
-          add={"type": "letter_box", "cell": [49, 19], "label": "Courier Post", "post": "courier"}),
+          add={"type": "letter_box", "cell": [33, 19], "label": "Courier Post", "post": "courier"}),
         P("sf_teleport_stone", "teleport_stones", "teleport", "sf_market", "stone_sf", "teleport_stone", "place",
           "the Market Teleport Stone", "attuned", home=True),
         P("sf_furnace", "alchemy", "alchemy", "sf_artisan_row", "furnace_sf", "furnace", "earned",
           "the Artisan Row Furnace", "smoke", home=True),
-        P("sf_anvil", "smithing", "forge", "sf_artisan_row", "anvil_sf", "anvil", "both", "Smith Bao's Anvil", "sparks",
+        P("sf_anvil", "smithing", "forge", "sf_artisan_row", "anvil_sf", "anvil", "both", "Smith Bao's Anvil", "sparks", stand=[17, 14],
           home=True),
         # ---- The Jade Sect.
         P("ja_notice_board", "notice_board", "notice_board", "ja_gate_street", "board_ja", "notice_board", "place",
@@ -177,15 +177,23 @@ def _starts(d):
     return out
 
 
-def _stand(g, c, walked):
-    """The cell a body stands on to use the thing at `c`: itself or the nearest round it (south first), on a floor
-    auto-path reaches from every way in, within the context button's reach (three cells)."""
-    order = [(0, 1), (0, 0), (-1, 1), (1, 1), (-1, 0), (1, 0), (0, 2), (0, -1), (-1, 2), (1, 2), (-2, 1), (2, 1)]
-    for dx, dy in order:
+def _stand(g, c, walked, rivals, on=False):
+    """The cell a body stands on to use the thing at `c`: the nearest round it (south first; `on`: the thing itself, a
+    mat sat on) within the context button's reach (three cells), on a floor auto-path reaches from every way in, and
+    clear of the reach of every person and pickup of the room (`rivals`), which would take the button from a thing
+    (WorldAuthority.context_rank)."""
+    cands = sorted((dx * dx + dy * dy + (0.25 if dy < 0 else (0.1 if dy == 0 else 0.0)) + abs(dx) * 0.01, dx, dy) for dy in range(-3, 4) for dx in range(-3, 4)
+                   if dx * dx + dy * dy <= 9 and (on or dx or dy))
+    fallback = None
+    for _, dx, dy in cands:
         q = (c[0] + dx, c[1] + dy)
-        if g.floor(*q) is not None and all(q in r for r in walked):
+        if g.floor(*q) is None or not all(q in r for r in walked):
+            continue
+        if fallback is None:
+            fallback = q
+        if all((q[0] - rx) ** 2 + (q[1] - ry) ** 2 > 3.6 ** 2 for rx, ry in rivals):
             return [q[0], q[1]]
-    return None
+    return [fallback[0], fallback[1]] if fallback else None
 
 
 def check_room(room, rows):
@@ -264,7 +272,9 @@ def build_rows():
             c = TR.cell(cell)
             if g.floor(*c) is None and not r.get("art"):
                 errs.append("%s: its cell %s has no floor" % (r["id"], str(c)))
-            stand = r.get("stand") or _stand(g, c, walked)
+            rivals = [TR.cell(at) for oid, at in d["place"].items() if oid != r["object"]
+                      and side.get(oid, {}).get("type") in ("npc", "pickup")]
+            stand = r.get("stand") or _stand(g, c, walked, rivals, r["kind"] == "meditation_mat")
             if stand is None or g.floor(*stand) is None or not all(tuple(stand) in w for w in walked):
                 errs.append("%s: no cell by it that auto-path reaches from every way in (%s)" % (r["id"], str(stand)))
                 stand = stand or [c[0], c[1]]
