@@ -398,6 +398,7 @@ func _layout() -> void:
 	var lines := _lines()
 	var text_h := lines.size() * UiKit.line_height(TEXT)
 	var names: Array = ["skip", "next"]
+	if mode == "tour" and step + 1 >= (TutorialRules.entry(entry_id).get("tour", []) as Array).size(): names = ["next"]   # the last: Done alone
 	if mode != "tour":
 		names = ["later"]
 		# The element at the chain's end (the node to spend on) may be passed over with Next, to the page's tour.
