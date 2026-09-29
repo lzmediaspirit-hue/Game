@@ -36,6 +36,11 @@ func _main() -> void:
 	GameEvents.flush()
 	await frames(20)
 	await _no_scenes()
+	if "--round" in OS.get_cmdline_user_args():
+		await _round()
+		print("hud_capture: %s round done" % tag)
+		get_tree().quit()
+		return
 	await _rest()
 	await _fight()
 	await _techniques()
@@ -178,3 +183,64 @@ func _beside(object: String) -> void:
 	m.dir = Vector2.UP
 	w._settle_camera()
 	await frames(30)
+
+## Decision 43 (`-- --round`): the technique buttons, round and a little bigger, into
+## docs/redesign/feedback/hud/<tag>_round_*.png: the HUD at rest beside Lu and in a fight (Flowing Palm cooling,
+## Cloudpiercing Stroke short of Qi, Jade Thrust closed by the jian, Still Water Focus ready), the right thumb's cluster
+## cropped at x2, and one button through its cooldown's turn to the ready flash (x3). Run once at 1280x720 and once at a
+## 20:9 phone's 2400x1080 (`--resolution 2400x1080`: the `_phone` shots, the cluster at the phone's own pixels).
+func _round() -> void:
+	var img_size := get_tree().root.get_texture().get_image().get_size()
+	var phone := img_size.x > 1280
+	var sfx := "_phone" if phone else ""
+	var k := float(img_size.y) / 720.0
+	var off := Vector2((float(img_size.x) - 1280.0 * k) * 0.5, 0.0)
+	var to_img := func(r: Rect2) -> Rect2i: return Rect2i(Vector2i((r.position * k + off).round()), Vector2i((r.size * k).round()))
+	var c = Game.active()
+	await _beside("npc_lu_boatman")
+	main.hud.fight_override = false
+	await frames(90)   # the pictures' stills are composed one a frame
+	_clear_notices()
+	await frames(4)
+	await shot("%s_round_rest%s" % [tag, sfx], FEEDBACK)
+	main.hud.fight_override = true
+	await arena(w.player.motor.pos + Vector2(0, 40), [["wild_boarlet", Vector2(150, -30)], ["wild_boarlet", Vector2(190, 60)]])
+	c.pools.qi = maxf(0.0, Game.combat.technique_cost(c, ContentDB.entry("techniques", "cloudpiercing_stroke")) - 4.0)
+	c.pools.cooldowns["tech:flowing_palm"] = 2.4
+	await frames(30)
+	_clear_notices()
+	c.pools.cooldowns["tech:flowing_palm"] = 2.4
+	await frames(2)
+	await RenderingServer.frame_post_draw
+	var img := get_tree().root.get_texture().get_image()
+	img.save_png(FEEDBACK + "%s_round_fight%s.png" % [tag, sfx])
+	var cluster: Image = img.get_region(to_img.call(Rect2(900, 380, 380, 340)))
+	if not phone: cluster.resize(cluster.get_width() * 2, cluster.get_height() * 2, Image.INTERPOLATE_NEAREST)
+	cluster.save_png(FEEDBACK + "%s_round_cluster%s.png" % [tag, sfx])
+	# One button (Flowing Palm, slot 0) through its cooldown: most of it left, half, a little, then the instant it is
+	# ready and a few frames on (the ready flash), each x3 side by side, the Qi full.
+	c.pools.qi = c.pools.max_qi
+	var cd := float(ContentDB.entry("techniques", "flowing_palm").get("cooldown_s", 5))
+	var tiles: Array = []
+	var box := Rect2(main.hud.slots[0] - Vector2(44, 44), Vector2(88, 88))
+	for left in [0.9, 0.5, 0.15, 0.02]:
+		c.pools.cooldowns["tech:flowing_palm"] = cd * left
+		await frames(1)
+		c.pools.cooldowns["tech:flowing_palm"] = cd * left
+		await RenderingServer.frame_post_draw
+		tiles.append(get_tree().root.get_texture().get_image().get_region(to_img.call(box)))
+	c.pools.cooldowns.erase("tech:flowing_palm")
+	for n in [1, 3, 3]:
+		await frames(n)
+		await RenderingServer.frame_post_draw
+		tiles.append(get_tree().root.get_texture().get_image().get_region(to_img.call(box)))
+	var tw: int = tiles[0].get_width()
+	var th: int = tiles[0].get_height()
+	var strip_img := Image.create(tw * tiles.size() + 2 * (tiles.size() - 1), th, false, Image.FORMAT_RGBA8)
+	strip_img.fill(Color("071015"))
+	for i in tiles.size(): strip_img.blit_rect(tiles[i], Rect2i(Vector2i.ZERO, Vector2i(tw, th)), Vector2i(i * (tw + 2), 0))
+	if not phone: strip_img.resize(strip_img.get_width() * 3, strip_img.get_height() * 3, Image.INTERPOLATE_NEAREST)
+	strip_img.save_png(FEEDBACK + "%s_round_cooldown%s.png" % [tag, sfx])
+	Game.room_rt.enemies.clear()
+	c.pools.qi = c.pools.max_qi
+	main.hud.fight_override = null
