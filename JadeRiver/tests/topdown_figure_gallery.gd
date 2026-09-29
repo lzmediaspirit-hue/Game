@@ -6,8 +6,8 @@ extends Node
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tests/topdown_figure_gallery.tscn -- [--out=DIR] [--only=cat|set]
 ## Sheets go to DIR (default user://topdown_gallery/), named <cat>_<item>__<variant>.png.
 
-const CELL := Vector2i(56, 64)
-const FEET := Vector2(28, 54)
+const CELL := Vector2i(68, 76)   # decision 43: the 46 px figure (review_character.py's cell)
+const FEET := Vector2(34, 62)
 const ROWS := ["s", "se", "e", "ne", "n", "nw", "w", "sw"]
 const LABEL_W := 96
 
