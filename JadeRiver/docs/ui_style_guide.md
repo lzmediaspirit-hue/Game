@@ -620,8 +620,10 @@ The user asked for the skill icons to look like `docs/redesign/feedback/skill_ic
 tree's cards as their phone showed them). One picture, `TechniquePicture` (`scripts/presentation/technique_picture.gd`),
 is every art's face: the tree's cards (72 px inside the frame), the tree's reading (148 px), the HUD's technique
 buttons (round since decision 43, the picture 58 px across inside the ring) and the Techniques page's loadout bar
-(42 px). A top-down character is always drawn as the top-down game
-draws it (`TopdownFigure`); the side view's Avatar only for a classic side-view character.
+(42 px). A top-down character is always drawn as the top-down game draws it (`TopdownFigure`); the side view's Avatar
+only for a classic side-view character. Decision 43 draws the world's people 46 art px tall; a picture keeps the 38 px
+figure it was approved at, from the frames the character build casts for the pictures' poses at that density
+(`TopdownFigure.draw` with `picture`; art bible §13).
 
 | Part | Rule |
 |---|---|

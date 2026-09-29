@@ -12,7 +12,7 @@ const Avatar = preload("res://scripts/avatar.gd")
 ## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 2.5 is 5 each), feet on the slips.
 const FIGURE_SCALE := 2.5
 ## Decision 42: a top-down character's figure (TopdownDoll) at 6 screen px an art px, and a friend's face in a chip at 1.
-const TOP_SCALE := 6
+const TOP_SCALE := 5      # decision 43: the 46 px figure at x5 stands as tall as the 38 px one did at x6
 const FEET := Vector2(278, 528)
 ## The worn slots down the slips either side of the figure (each 76 px slot's top-left).
 const WORN := {"hat": Vector2(100, 170), "robe": Vector2(100, 284), "trousers": Vector2(100, 398), "boots": Vector2(100, 512),
@@ -114,6 +114,11 @@ func draw_surface(r: Rect2) -> void:
 func title_rect() -> Rect2:
 	return Rect2(180, 40, 220, 50)
 
+## Decision 43: the "?" beside the title (the tabs and purses take the row left of the close button).
+func help_rect() -> Rect2:
+	var tr := title_rect()
+	return Rect2(tr.end.x + 12, roundf(tr.get_center().y - 26), 52, 52)
+
 ## The title on a jade tag knotted to the upper cord.
 func draw_title_mount(r: Rect2) -> void:
 	draw_line(Vector2(r.get_center().x, r.end.y - 4), Vector2(r.get_center().x, CORDS[0] + 2), UiKit.GOLD, 3.0)
@@ -145,6 +150,10 @@ func draw_page() -> void:
 		"wardrobe": _wardrobe(ch, content)
 
 func _overview(ch) -> void:
+	# Decision 43: a tour's anchors (the figure's slips, the register and the titles).
+	tour_mark("figure", PAINTED)
+	tour_mark("register", Rect2(REG - 8, 112, 684, 430))
+	tour_mark("titles", Rect2(REG - 8, 540, 684, 140))
 	# The name written down the figure's slips, the figure's shadow, the worn slots either side, who walks beside.
 	text(Vector2(196, 138), str(ch.name), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180, true)
 	var sect_id := str(ch.training_sect.get("id", ""))

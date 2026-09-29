@@ -20,7 +20,7 @@ const PER_SHELF := 5
 const COUNTER_Y := 452.0
 const FRONT_Y := 616.0
 const FEET := Vector2(146, 520)
-const TOP_SCALE := 6      # decision 42: a top-down merchant (TopdownDoll), screen px an art px
+const TOP_SCALE := 5      # a top-down merchant (TopdownDoll), screen px an art px (decision 43: 46 px at x5)
 const BAG_AT := Vector2(812, 164)             # the gourd's spaces
 const BAG_COLS := 5
 const BAG_PITCH := 104.0                      # a space and its price under it
@@ -131,6 +131,11 @@ func draw_page() -> void:
 	var shop := ContentDB.entry("shops", shop_id)
 	var currency := str(shop.get("currency", "silver_tael"))
 	var stock: Array = Game.economy.stock(ch, shop_id)
+	# Decision 43: a tour's anchors (the shelves, the counter plank, the purses on its front, and the bag's side).
+	tour_mark("wares", WARES)
+	tour_mark("counter", Rect2(40, COUNTER_Y, 760, FRONT_Y - COUNTER_Y))
+	tour_mark("purse", Rect2(40, FRONT_Y, 760, 80))
+	tour_mark("bag_side", SKY)
 	_merchant()
 	_shelves(ch, stock)
 	_counter(ch, stock)

@@ -149,6 +149,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	tour_mark("book", BOOK)   # decision 43: a tour's anchors ("corner": the leaf turning to the next spread)
 	match _id():
 		"codex": _codex()
 		"collection": _collection()
@@ -197,6 +198,7 @@ func _turn(count: int, back: String, on: String) -> void:
 		_curl(Vector2(1172, 632), false)
 		text(Vector2(964, 680), on + " ▸", 16, BROWN, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 		region(Rect2(968, 632, 248, 56), "leaf", 1)
+		tour_mark("corner", Rect2(968, 632, 248, 56))
 
 ## A page corner curled up: the cover under it and the lifted flap.
 func _curl(p: Vector2, left: bool) -> void:
@@ -444,6 +446,7 @@ func _seal(r: Rect2, page: String, n: int) -> void:
 ## The page's seals (decision 27, mockup 18): each with its rule, its gift, its cards on an ink bar, and Claim once
 ## earned (the Account authority's claim_collection_seal); a claimed seal is stamped and says so.
 func _page_seals(page: String) -> void:
+	tour_mark("seals", Rect2(RIGHT_X - 8, 480, TEXT_W + 16, 150))   # decision 43: a tour's anchor
 	_rule(RIGHT_X, 476, TEXT_W)
 	text(Vector2(RIGHT_X, 504), Tx.t("ui.codex.seal_head"), 26, INK, HORIZONTAL_ALIGNMENT_LEFT, TEXT_W, true)
 	for n in [1, 2]:

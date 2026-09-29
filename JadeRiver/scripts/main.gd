@@ -81,6 +81,7 @@ var world: Node2D
 var hud: Control
 var moments: MomentView
 var scenes: SceneDirector   ## decision 39: the staged scenes, played in the rooms on the height grid
+var coach: TutorialCoach    ## decision 43: the unlock tutorials' guides and tours (docs/redesign/tutorials.md)
 var hud_layer: CanvasLayer
 var page_layer: CanvasLayer
 var shell_layer: CanvasLayer
@@ -126,6 +127,13 @@ func _ready() -> void:
 	shell_layer = CanvasLayer.new()
 	shell_layer.layer = 15
 	add_child(shell_layer)
+	# Decision 43: the tutorial coach over the HUD and the pages, under the fade.
+	var coach_layer := CanvasLayer.new()
+	coach_layer.layer = 25
+	add_child(coach_layer)
+	coach = TutorialCoach.new()
+	coach.main = self
+	coach_layer.add_child(coach)
 	var fade_layer := CanvasLayer.new()
 	fade_layer.layer = 30
 	add_child(fade_layer)
@@ -764,6 +772,7 @@ func _mount_world() -> void:
 	hud.open_page.connect(open_page)
 	hud.dialogue_requested.connect(func(convo: Dictionary): open_page("dialogue", {"convo": convo}))
 	hud.fishing_requested.connect(func(obj: String): open_page("fishing", {"object": obj}))
+	hud.coach = coach
 	hud_layer.add_child(hud)
 	if topdown:   # no moments in the prototype room (no side-view rig to play them on); the fan starts folded
 		hud.fan_open = false
@@ -909,6 +918,10 @@ func open_page(id: String, a: Dictionary) -> void:
 		return
 	if id == "_exit":
 		return_to_selection()
+		return
+	if id == "_tour":
+		# Decision 43: a page's "?" plays its tour again.
+		if is_instance_valid(coach): coach.replay_tour(str(a.get("page", "")), str(a.get("tab", "")))
 		return
 	if id == "_import":
 		# S40: replace the saves with an export (the current files are saved first and kept as .bak).

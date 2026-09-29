@@ -1,7 +1,8 @@
 extends Page
 ## Settings (S35, Part 9.6): audio, controls, display, accessibility, notifications, data.
 
-var SLIDERS := [["music", Tx.t("ui.settings.music")], ["ambience", Tx.t("ui.settings.ambience")], ["sfx", Tx.t("ui.settings.effects")], ["ui", Tx.t("ui.settings.interface")]]
+# Decision 43: All sound drives the Master bus over the four (AudioDirector.apply_settings).
+var SLIDERS := [["master", Tx.t("ui.settings.master")], ["music", Tx.t("ui.settings.music")], ["ambience", Tx.t("ui.settings.ambience")], ["sfx", Tx.t("ui.settings.effects")], ["ui", Tx.t("ui.settings.interface")]]
 var TOGGLES := [["left_handed", Tx.t("ui.settings.left_handed_controls")], ["screen_shake", Tx.t("ui.settings.screen_shake")], ["damage_numbers", Tx.t("ui.settings.damage_numbers")],
 	["notifications", Tx.t("ui.settings.notifications")], ["minimap", Tx.t("ui.settings.show_minimap")], ["auto_pickup", Tx.t("ui.settings.auto_pick_up")]]
 # Accessibility (S40): flashes, haptics and captions for sound-only cues; captions start off. P6: Reduce motion (no camera
@@ -28,7 +29,7 @@ func draw_page() -> void:
 	match str(tabs[tab].id):
 		"audio":
 			for s in SLIDERS:
-				var v := float(setting(s[0], 0.7))
+				var v := float(setting(s[0], AccountState.default_settings().get(s[0], 0.7)))
 				text(Vector2(x, y + 32), s[1], 22)
 				for step in 11:
 					var r := Rect2(x + 220 + step * 56, y + 2, 48, 48)
@@ -39,6 +40,10 @@ func draw_page() -> void:
 					region(r, "vol", [s[0], step / 10.0])
 				y += 64
 		"controls":
+			# Decision 43: every tour of the pages plays again on its page's next opening (a page's "?" plays its own).
+			if c() != null:
+				btn(Rect2(x + 560, y + 4, 300, 48), Tx.t("ui.settings.replay_tutorials"), "replay_tutorials")
+				para(Rect2(x + 560, y + 64, 400, 48), Tx.t("ui.settings.replay_tutorials_note"), 16, UiKit.MIST, 2)
 			for tg in TOGGLES.slice(0, 3):
 				_toggle(Vector2(x, y), tg[0], tg[1])
 				y += 60
@@ -108,6 +113,8 @@ func on_action(id: String, data) -> void:
 	match id:
 		"vol": set_setting(str(data[0]), float(data[1]))
 		"toggle": _flip(str(data))
+		"replay_tutorials":
+			if submit({"type": "tutorial_replay"}).get("ok", false): flash(Tx.t("ui.settings.tutorials_replayed"))
 		"export":
 			var path := Game.export_save()
 			exports = Saves.list_exports()

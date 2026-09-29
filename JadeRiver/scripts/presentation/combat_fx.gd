@@ -37,7 +37,7 @@ func hit(p: Dictionary) -> void:
 	else:
 		if kind == "player" and Game.active() != null and amount > Game.active().pools.max_hp * 0.15: host.add_shake(0.25)
 		if p.get("crit", false): host.add_shake(0.12)
-	Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
+	Audio.hit(p)   # decision 43: the weapon, the struck body and the tail as one layered hit
 
 ## A blow that did not land says so where it happened: Miss over the target, Immune over it, Evade over the player
 ## (at `player_at`, its figure's feet). Returns whether `name` was one of these.

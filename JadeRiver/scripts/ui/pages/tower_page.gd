@@ -23,6 +23,7 @@ func draw_page() -> void:
 	var right := Rect2(left.end.x + 16, content.position.y, content.end.x - left.end.x - 16, content.size.y)
 	panel(left)
 	panel(right)
+	tour_mark("floor", right)   # decision 43: a tour's anchor
 	# Left: every floor, the highest first; cleared ones marked, the next one bright, the rest dim.
 	list("floors", Rect2(left.position.x + 10, left.position.y + 10, left.size.x - 20, left.size.y - 96), floors.size(), 64, func(i: int, rr: Rect2):
 		var row: Dictionary = floors[floors.size() - 1 - i]

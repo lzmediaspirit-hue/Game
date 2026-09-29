@@ -69,6 +69,9 @@ func draw_page() -> void:
 	var rank := int(a.rank)
 	var unranked := int(cfg.get("unranked", 11))
 	var opp: Dictionary = Game.pets.arena_opponent(ch)
+	# Decision 43: a tour's anchors (the pit, and the ladder's banners round its rim).
+	tour_mark("pit", Rect2(PIT_C - PIT_R * 0.72, PIT_R * 1.44))
+	tour_mark("ladder", Rect2(PIT_C - PIT_R - Vector2(40, 60), (PIT_R + Vector2(40, 60)) * 2.0))
 	_banners(ch, cfg, rank, unranked, opp)
 	_standing(cfg, a, rank, unranked, opp)
 	if a.get("last", {}).is_empty(): _help(opp)

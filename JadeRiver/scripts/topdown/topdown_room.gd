@@ -10,6 +10,9 @@ extends RefCounted
 const TILE := 32.0
 const LEVEL := 32.0
 const ART := 2.0          ## world units per art px
+## Decision 43: the people (the player, the villagers, a companion in their outfit) are drawn this many times the
+## 38 art px they were first drawn at: about 46 art px from sole to crown. What is sized against a person follows it.
+const PEOPLE := 1.2
 const WATER := -1
 const WATER_Z := -16.0    ## the water's surface: half a level under the ground, so a narrow gap still shows water
 const SOLID := 99
@@ -33,7 +36,18 @@ var def: Dictionary = {}             ## the room's own file, for its spawns and 
 static func load_room(room_id: String) -> TopdownRoom:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(DIR + room_id + ".json"))
 	var ts = JSON.parse_string(FileAccess.get_file_as_string(DIR + "proto_tileset.json"))
+	if ts is Dictionary: ts["foes"] = foes()
 	return from_dict(d if d is Dictionary else {}, ts if ts is Dictionary else {})
+
+static var _foes = null
+## Decision 43: the foes' index (data/topdown/foes.json, built by tools/art/topdown/build_foes.py: a sheet, a cell and
+## the frames of every action per species, an elite's rows beside its own), read once and laid into the tile set as its
+## `foes`.
+static func foes() -> Dictionary:
+	if _foes == null:
+		var f = JSON.parse_string(FileAccess.get_file_as_string(DIR + "foes.json"))
+		_foes = f if f is Dictionary else {}
+	return _foes
 
 static var _layouts: Dictionary = {}
 ## Phase 4: a room of the world redrawn on the grid has a layout of its own id in data/topdown/ (built by
@@ -79,6 +93,11 @@ static func from_dict(d: Dictionary, ts: Dictionary = {}) -> TopdownRoom:
 					if not r.inside(cell.x + x, cell.y + y): continue
 					r.solid[(cell.y + y) * r.w + cell.x + x] = 1
 					if art.has("top"): r.top_of[(cell.y + y) * r.w + cell.x + x] = r.props.size()
+	# Decision 43: a place's sight blocks its cells as a prop's footprint does (a stall's counter, the Storehouse's shed).
+	for s in PlaceRules.solids(r.id):
+		for y in (s as Rect2i).size.y:
+			for x in (s as Rect2i).size.x:
+				if r.inside(s.position.x + x, s.position.y + y): r.solid[(s.position.y + y) * r.w + s.position.x + x] = 1
 	var sp: Array = d.get("spawn", [1, 1])
 	r.spawn = Vector2((float(sp[0]) + 0.5) * TILE, (float(sp[1]) + 0.5) * TILE)
 	return r
@@ -157,8 +176,9 @@ func art_size() -> Vector2:
 # ------------------------------------------------------------------ Phase 4: what the camera shows
 ## The world view in art px (TopdownWorld's SubViewport): 1280 x 720 world units.
 const VIEW := Vector2(640, 360)
-## A body's figure over its feet in art px (the character cell's 38 px and a little head room), for keeping it in view.
-const BODY_PX := Vector2(16, 44)
+## A body's figure over its feet in art px (the character's 46 px, decision 43, and a little head room), for keeping it
+## in view.
+const BODY_PX := Vector2(20, 52)
 
 var _drawn := Rect2()
 ## Where the room draws, in art px: the floor's rect, and above it the tops of raised floors near the north edge (a
@@ -191,7 +211,7 @@ func camera_goal(t: Vector2, keep := Rect2()) -> Vector2:
 ## §1.1): its feet on that ground plus the look-ahead, 12 art px up, the body kept in view.
 func camera_for(p: Vector2, z: float, vel := Vector2.ZERO) -> Vector2:
 	var feet := Vector2(p.x, p.y - z) / ART
-	var t := feet + vel * float(TopdownMotor.conf("camera_look_ahead", 0.2)) / ART + Vector2(0, -12)
+	var t := feet + vel * float(TopdownMotor.conf("camera_look_ahead", 0.2)) / ART + Vector2(0, -14)
 	return camera_goal(t, Rect2(feet - Vector2(BODY_PX.x * 0.5, BODY_PX.y), BODY_PX + Vector2(0, 8)))
 
 ## What the camera shows with a body at `p` on the floor at `z`, at rest: a rect in world units on the screen's plane
@@ -462,4 +482,12 @@ func merge_def(side: Dictionary) -> Dictionary:
 		for i in mini((ev.get("timed_spawns", []) as Array).size(), timed.size()):
 			var tp := cell_point(timed[i])
 			ev.timed_spawns[i].at = [tp.x, tp.y]
+	# Decision 43 (systems as places): the objects the places table adds to this room (a letter box, a meditation mat),
+	# each on its cell's floor (data/places.json; PlaceRules).
+	var added := PlaceRules.added_objects(id)
+	if not added.is_empty():
+		if not out.has("objects"): out.objects = []
+		for o in added:
+			o.alt = floor_at(Vector2(float(o.at[0]), float(o.at[1])))
+			out.objects.append(o)
 	return out

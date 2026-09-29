@@ -109,8 +109,8 @@ a part overlaps the body (§13). Props keep the rules below.*
 | World view | 640 × 360 art px (40 × 22.5 tiles), shown ×2 at 1280 × 720 |
 | Level | 1 level = 16 art px = one tile row of face |
 | Water | half a level (8 px) under the ground, so a one-tile gap still shows water |
-| Character | ~38 art px from sole to crown (40 with a top knot), feet on the anchor: about 2.4 tiles. The real character (§13) is the reference |
-| Doors | 2 tiles wide in the wall, 24–28 px tall, so a 38 px body reads as fitting through |
+| Character | ~46 art px from sole to crown (48 with a top knot), feet on the anchor: about 2.9 tiles (decision 43: 1.2 times the 38 px it was first drawn at). The real character (§13) is the reference, and §13's scale rule says what follows its size |
+| Doors | 2 tiles wide in the wall, 24–28 px tall. A body is about 20 px across and its foot box 19 × 10 world units (9.5 × 5 art px), so it fits through every way a tile wide or more, and reads as fitting a door's two tiles |
 | Props | footprint in whole tiles; sprite height free |
 
 **What makes a height readable.** Every raised edge carries all six of these cues:
@@ -207,8 +207,8 @@ are checked on a room made for them (`topdown_suite`, "topdown terrain").
 
 ## 8. Props
 
-- **Scale.** Props are built for the 38 px body. A lantern is 30 px (chest-high plus cap), a barrel 18, a door 25,
-  bamboo 60, a willow 62.
+- **Scale.** Props were built for the 38 px body and stay as they are for the 46 px one (decision 43): a lantern is 30 px
+  (now about shoulder-high), a barrel 18, a door 25, bamboo 60, a willow 62.
 - **Form.** Every prop shows its top surface and its south face in the same ¾ view as the terrain: a barrel shows its
   lid, a crate its lid and front, a bench its seat. Its south-west footprint corner stands on the floor (`origin` in the
   manifest), and it sorts by its footprint's south edge.
@@ -248,77 +248,149 @@ Reed Marsh: the meadow's own grass with small puddles kept off the tile's edges 
 
 ### Foes
 
-Built by `tools/art/topdown/creatures.py` into `art/topdown/foes.png`, one row per species and drawn facing:
+Decision 43 brought the foes up to the character's quality (§13): the same renderer, more frames drawn to the
+principles of animation, a tell of its own for each species, and larger elites and bosses. Built by
+`tools/art/topdown/build_foes.py` from `tools/art/topdown/creatures.py` (the catalogue and the sheets) and
+`tools/art/topdown/creature/` (the renderer's foe side, `sculpt.py`; the timing, `motion.py`; the ramps, `mats.py`;
+a module a species). Before and after, in the game, and every sheet at x3: `docs/redesign/feedback/monsters/`.
 
-- **Facings.** Five are drawn (S, SE, E, NE, N); SW, W and NW mirror SE, E and NE in the room view. A foe faces where
-  it walks, else where it aims in a fight, and keeps its facing until another is 12° nearer.
-- **Actions.** The side view's catalogue (`data/creature_art.json`), each at its own rate:
+- **How they are drawn.** Each creature is a small sculpture in its own frame (ellipsoids, spheres and tapered limbs,
+  each with a material and a group), posed per action and frame, and cast by the character's own rasteriser and
+  renderer (`figure/raster.py`, `figure/render.py`), so a foe gets all of §13's rules:
+  - 4 × 4 samples a pixel, thin parts (a leg, a tusk, a strand) held unbroken;
+  - the seven-step ramps leaning toward the §14 sun and shadow, from each species' side-view colours;
+  - the warm rim, the cool bounce and the contact shade;
+  - the outline as a dark tint of the material it bounds, a step lighter on the lit side, with half-alpha stair
+    corners;
+  - the lighter inner line: where a part stands in front of another (a leg over the belly, a claw over the shell, the
+    head over the shoulders), the pixel behind its edge takes the nearer part's core shadow. A foe is one cast, not
+    bands, so the line is found by depth.
+  Patterns are painted in the creature's own frame, so they stay on the body as it rolls over: the boarlet's stripes,
+  the crab's pale patches and pale underside, the snapper's plates and moss, the toad's warts, the leech's rings, the
+  minnow's scales. Eyes, nostrils, tusks' glints and teeth are marks on the surface where it shows. Loose drops, dust,
+  splashes and motes are laid on after the outline and take none; light (a ring of Qi, a glint) lies over anything.
+- **The camera.** A foe is seen from 35° above the ground, higher than the figure's 22°, so a back, a shell or a crest
+  reads. The sculpture is tilted by the difference before it is cast, which is the same picture through the higher
+  camera, with the sun in its place against the view.
+- **Facings.** Five are drawn (S, SE, E, NE, N); SW, W and NW mirror SE, E and NE in the room view. As the figure's rows
+  (§13), each is turned a little toward the camera so a face reads (SE 48°, E 14°, NE −36° on the ground, east 0 and
+  south 90), and the front and back rows a little off the axis (S 80°, N −100°), so a beast facing the camera or
+  walking away shows a flank and never reads as a capsule. A foe faces where it walks, else where it aims in a fight,
+  and keeps its facing until another is 12° nearer.
+- **Actions** (`creature/motion.py`), every species the same catalogue:
 
   | Action | Frames | fps | |
   |---|---|---|---|
-  | idle | 4 | 6 | loops |
-  | walk | 4 | 10 | loops |
-  | windup | 2 | 8 | holds its last frame |
-  | attack | 3 | 12 | the strike on frame 1 (`hit_frame`); holds |
-  | hurt | 2 | 10 | holds |
-  | death | 4 | 8 | holds while the view fades it out |
+  | idle | 6 | 7 | loops: a breath, a look about, a twitch of the ears or claws |
+  | walk | 8 | 8–16, by the species' speed | loops: its gait (a trot, a scuttle, a hop, a creep, a swim) |
+  | windup | 4 | by its shortest wind-up | the tell, held from its last frame until the blow |
+  | attack | 6 | 20 | 0 the launch (stretched), 1 the hit (`hit_frame`, squashed on the impact), 2 the impact held, 3–4 the follow-through, 5 settling; holds |
+  | hurt | 3 | 12 | the flinch (squashed, knocked back), the recoil, the recovery; holds |
+  | death | 8 | 10 | a fall that suits it, or a coming apart into motes; holds while the view fades it out |
 
-- **Scale.** The crab and the rat are small (about 24 px across, and 30 px long with its tail); the boarlet is medium
-  (about 28 px long), against the 38 px body. Old Snapper, the tutorial's tough foe, is the big one: about 44 px from
-  tail to beak and 32 across. Each has a blob shadow of its own width.
-- **How they are drawn.** Each creature is a small sculpture of ellipsoids in its own frame, posed per action and
-  frame. It is seen from a camera to the south, 35° above the ground, and lit from the upper left like the props.
-  Every pixel takes a step of its material's five-step ramp by its light. A part tucked behind a nearer part goes one
-  step darker along the seam, so legs, claws and bodies separate by value, not by lines. Eyes, noses, tusks, the
-  crab's pale shell patches and the boarlet's dust are marks placed on the surface. The sprite takes the prop outline.
-  Loose drops and motes (a splash, a dissolving body) are laid on after it and take none. A creature in the water is
-  cut off at its surface, and the water round it (a stain, foam, rings, a wake) is laid on without an outline, like the
-  lotus pads (§4). No randomness, so the build stays byte-identical.
-- **Recognisable from the side view.** The ramps come from each side-view sheet (`art/creatures/`):
-  - the mud crab: a brown shell with pale patches, black eye stalks, jade-tipped claws held up at its sides. Like
-    its side-view sheet it keeps its broad side to the camera, front or back, and scuttles sideways; it strikes with
-    the claw on the side it faces;
-  - the reed rat: a grey-brown coat, pink ears and feet, red eyes, a green reed tail in segments;
-  - the boarlet: a warm brown hide with pale stripes along its back, a bristle crest, a darker head, a pink snout and
-    small tusks. It lowers its head and paws the ground in its wind-up.
-- **Chapter 2's stretch** adds five, each from its side-view sheet:
-  - the Trial Puppet: a sparring figure of carved timber on brass ball joints, the sect's jade sash across its chest,
-    a jade plate on its back and a jade tuft on its crown. It walks with its fists up, draws its right fist back in the
-    wind-up and drives it out with a ring of Qi at the knuckles. About 34 px tall, a little shorter than a disciple;
-  - the reed frog: leaf green with a gold stripe down each flank, a pale belly and gold eyes set high. It hops as it
-    goes, crouches in its wind-up and leaps;
-  - the marsh leech: an olive slug in soft rings with teal spots and a round pink mouth. It creeps in a travelling
-    ripple, rears in its wind-up and lunges, mouth first;
-  - the reed otter: a sleek brown body, a pale muzzle and throat, whiskers and a thick tapering tail. It bounds, sits up
-    on its haunches in its wind-up and lunges to bite;
-  - the hollowed boarlet: the boarlet's own sculpture with its colour drunk out of it, ash grey with pale stripes,
-    cold white eyes and three grey strands rising and curling from its back.
+  The wind-up's rate comes from the data: its last frame (the tell) shows within 70% of the species' shortest
+  `windup_s` (`enemies.json`), so the tell is always up before the blow (`data_validation` checks it). The blow lands
+  when the attack starts (`EnemyBrain`), so its hit is frame 1, 50 ms in, and its follow-through plays before the
+  recovery turns it back to idle. No timing in the fight changed.
+- **Squash, stretch and follow-through.** A lunge stretches along the way it goes and squashes on the impact; a hop
+  squashes as it crouches and lands; the recovery overshoots and settles; hair-like parts (strands, weed, ferns, tails)
+  trail the motion.
+- **Scale (decision 43).** The people grow 1.2× (about 46 px from sole to crown, §13), and the foes grow with them, so a
+  crab still reads as a crab beside a person and a boarlet as a young boar:
 
-  The cell grows to 48 × 56 with the feet at (24, 42), so the puppet fits; the first three foes are drawn as before.
-- **The tutorial rooms' other foes** complete the set, so every foe the rooms on the grid spawn has its own figure:
+  | | Size against its sculpture | About |
+  |---|---|---|
+  | The rule | a foe 1.2× its earlier size | the same share of a person as before |
+  | Mud crab | 1.2 | 32 px across its legs |
+  | Reed rat | 1.26 | 38 px long with its tail |
+  | Wild boarlet, hollowed boarlet | 1.4 | 37 px long, 24 tall |
+  | Reed frog | 1.42 | 21 px long sitting |
+  | Marsh leech, reed otter | 1.44 | 32 and 41 px long |
+  | Mossback toad | 1.56 | 28 px long |
+  | Hollow minnow | 1.5 | 31 px with its wake |
+  | **An elite** (any species with elite rows) | 1.2× its species | a head larger than its kin |
+  | **Trial Puppet** (a trial) | 1.58 | 51 px tall: a sparring figure a head over a disciple |
+  | **Old Snapper** (an elite by role) | 1.8, 1.5× its earlier size | 77 px from its tail to its crusher, 44 tall |
+  | **Hollowed eel** (a story boss) | 1.44 | rising about 58 px out of the river |
+
+  A foe's blob shadow grows with it (the manifest's `shadow`, an elite's its own). A new foe is sized against the
+  46 px person the same way: a small beast (a frog, a toad, a crab) half to two thirds of a person's height across, a
+  medium one (a boarlet, an otter) about four fifths of it long, an elite 1.2× its kin, a boss by its presence.
+- **Elites.** An elite (`EnemyState.elite`, a story's elite or an early surprise) draws its species' elite sheet: 1.2×
+  larger, its ramps darkened toward the §14 shadow, gold eyes, and Qi burning round it in pale gold (a ring hugging its
+  outline, stronger toward its top and flickering frame by frame, a fainter ring standing off it, tongues licking up
+  off its back and motes rising). Every beast that can be an elite on the grid has one: the crab, the rat, both
+  boarlets, the frog, the leech, the otter and the toad. The Trial Puppet, Old Snapper, the minnow and the eel have
+  none; Old Snapper wears the ring of Qi in its own colours as its boss presence.
+- **Sheets.** A sheet a species (`art/topdown/foes/<species>.png`), and its elite's apart
+  (`<species>_elite.png`): a row per drawn facing, the 35 frames of every action along it, in a cell of its own size
+  (the union of its frames). Every sheet is under 4096 px a side (phones' texture limit; the largest, Old Snapper's, is
+  3395 × 490); a room loads only its own species' sheets, and an elite's only where an elite stands. The index is
+  `data/topdown/foes.json` (per species its sheet, cell, feet, shadow, label height and each action's frames, rate and
+  loop; an elite's under `elite`), laid into the tile set as its `foes` (`TopdownRoom.load_room`). The room view
+  (`TopdownWorld.FoeView`) still draws a foe with one call.
+- **Recognisable from the side view.** The ramps come from each side-view sheet (`art/creatures/`), and each has its own
+  tell:
+  - the mud crab: a brown shell with pale patches and a raised brow, black eyes on stalks, jade-tipped claws held up
+    at its sides. Like its side-view sheet it keeps its broad side to the camera, front or back, and scuttles sideways
+    on alternating sets of three legs. **Tell:** it rears back on its legs and raises both claws high and wide open,
+    eyes up. It slams them shut before it (the struck side's furthest) and drags them back; beaten, it flips onto its
+    pale back, its legs curling;
+  - the reed rat: a grey-brown coat with a paler belly, pink ears, nose and feet, red eyes, whiskers and a green reed
+    tail in segments. It scurries in bounds. **Tell:** it rears up on its haunches, forepaws up, mouth open on its
+    teeth, tail lashing high. It lunges to bite and shakes its head; beaten, it topples onto its side;
+  - the boarlet: a warm brown hide with the pale stripes of its youth along its back and flanks (fading over the
+    rump), a high shoulder, a bristle crest, a darker head with a long snout, a pink snout disc, small tusks and
+    pointed ears. It trots on diagonal pairs. **Tell:** it lowers its head and paws the ground, scraping the near
+    forehoof back twice in a spurt of dust, then crouches coiled with its crest up and its ears laid back. It charges,
+    tosses its tusks up on the hit and skids; beaten, its forelegs buckle and it rolls onto its side.
+- **Chapter 2's stretch:**
+  - the Trial Puppet: a sparring figure of carved timber on brass ball joints, rope at the wrists, the sect's jade
+    sash across its chest, a jade plate on its back, a jade tuft on its crown and carved slits for eyes. It sways on
+    guard and marches with its fists up. **Tell:** it twists back, drawing its right palm to its hip while the left
+    reaches out, and Qi gathers in a jade ring at the drawn palm. It steps in and drives the palm out, the ring bursting
+    at the knuckles; beaten, its joints give: the head drops, the knees fold, it topples, and the jade on its crown goes
+    dark;
+  - the reed frog: leaf green with a gold stripe down each flank and darker spots, a pale belly and gold eyes set high.
+    It goes in hops: a crouch, a stretched leap, the landing squashed. **Tell:** it crouches low, hind legs coiled, and
+    its throat sac puffs up big and pale. It leaps at its prey, forefeet reaching; beaten, it flips onto its back;
+  - the marsh leech: a flattened olive slug in soft rings, two ochre stripes and teal spots down its back, a paler belly
+    and a round pink mouth. It creeps like an inchworm, a hump travelling down it. **Tell:** it rears its front half up
+    in an S, the mouth opening wide on its ring of teeth. It lunges and latches, pulsing as it drinks; beaten, it writhes
+    and sags flat;
+  - the reed otter: a long, sleek brown body, darker paws, a pale muzzle, throat and chest, whiskers and a thick
+    tapering tail. It runs in a bounding lope, its back arching and stretching. **Tell:** it sits up on its haunches
+    (as its side-view sheet does), forepaws tucked, head up, teeth bared. It drops and lunges to bite; beaten, it curls
+    up on its side;
+  - the hollowed boarlet: the boarlet's own sculpture with its colour drunk out of it, ash grey with pale stripes, cold
+    white eyes in a pale halo and three grey strands rising and curling from its back. Beaten, it falls and comes
+    apart into grey motes.
+- **The tutorial rooms' other foes:**
   - Old Snapper: an ancient snapping turtle, a high domed shell grown over with moss along three knobbed keels, dark
     green plates on its flanks, barnacles on the rim and river weed trailing behind; a khaki head with a pale hooked
-    beak and amber eyes, and on its right the great red crusher claw with dark tips (the side view's crab's gift). It
-    works the pincer while idle, lumbers with its shell rocking, raises the crusher over its head in the wind-up and
-    slams it down before it in a splash; struck, it pulls its head in; beaten, it rolls onto its plated plastron;
-  - the mossback toad: a fat, flat toad in olive khaki with a mat of moss and three curled fiddlehead ferns on its back,
-    golden eyes on top of its head, a cream belly and throat sac. It hops heavily, puffs its throat and cheeks in the
-    wind-up and lashes a long pink tongue, a glint at its tip on the hit;
+    beak and amber eyes that glow, and on its right the great red crusher claw with dark tips. It breathes heavily,
+    works the pincer and lumbers with its shell rocking. **Tell:** it rears its front up and raises the crusher high
+    over its head, gaping, the pincer wide. It slams it down in a burst of water and mud, the whole shell jolting;
+    struck, it pulls its head in; beaten, it rolls onto its plated plastron, its legs pawing slower and slower;
+  - the mossback toad: a fat, warty toad in olive khaki with a mat of moss and three curled fiddlehead ferns on its
+    back, golden eyes under heavy lids, a cream belly and throat sac. It hops heavily. **Tell:** it rocks back on its
+    haunches, cheeks and throat bulging, lids narrowing, ferns standing up, its mouth opening on its dark maw. It lashes
+    a long pink tongue, a glint at its tip on the hit, and reels it in; beaten, it flops onto its back, ferns drooping;
   - the hollow minnow and the hollowed eel, the night's Hollow things, in the hollowing look: colour drunk out, grey,
     empty white eyes, grey strands. The minnow flies (the game hovers it about 24 px over the ground), so it is drawn
-    round its feet, swimming through the air with two grey strands trailing as its wake; beaten, it turns belly-up and
-    comes apart into mist. The eel rises in an S-curve out of the river, winding sideways too so it reads from every
-    side, with a pale belly, a torn fin, strands curling off its back, and a loop of its back breaking the surface
-    beside it; foam rings its body, rings spread from it and a wake trails when it glides. The game hovers it 20 art px
-    over the water and the view draws a foe's feet at its hover, so its water is drawn that far under its feet, where
-    its shadow falls; in death it sinks until only the stain and the rings are left.
-
-  The cell grows to 64 × 72 with the feet at (32, 40): 38 px over the feet for the puppet and Old Snapper's raised
-  crusher, 31 under them for the eel's water, 31 either side for the snapper's slam and the eel's lunge. The earlier
-  foes are drawn as before, pixel for pixel.
+    round its feet, swimming through the air with two grey strands trailing as its wake. **Tell:** it curls into a C,
+    tail bent hard back, and gapes. It darts in straight as a needle; beaten, it turns belly-up and comes apart into
+    mist. The eel rises in an S-curve out of the river, winding sideways too so it reads from every side, with a pale
+    belly, a torn fin, strands curling off its back and shedding motes of mist, and a loop of its back breaking the
+    surface beside it; foam rings its body, rings spread from it and a wake trails when it glides. **Tell:** it rears
+    back high, the S drawn tight, its jaws gaping wide and its eyes flaring in their halo. It lunges head-down and snaps;
+    beaten, it convulses and sinks until only the stain and the rings are left. The game hovers it 20 art px over the
+    water and the view draws a foe's feet at its hover, so its water is drawn that far under its feet, where its shadow
+    falls.
 - **Not yet drawn:** every other creature (Phase 5 by region). A species not drawn yet (an ambush, a hunter or a
   summons can bring one onto the grid) stands in with its side-view sheet at half size (`TopdownPlaces.stand_in`), as
-  spirit animals do. The pebble imps do not appear in the prototype room.
+  spirit animals do. The pebble imps do not appear in the prototype room. A new species is a module in
+  `creature/` and a row of `creatures.REGISTRY`, drawn in the whole catalogue with a tell of its own.
 
 ## 9. What makes it xianxia (and Jade River's)
 
@@ -406,7 +478,7 @@ The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_
 | `08_ingame_square_x2.png`, `09_ingame_square_hud.png` | after: the redesigned square in the game at the spawn camera, ×2, and under the HUD |
 | `10_ingame_whole_room.png` | the whole 48 × 30 room in the game |
 | `11_before_after.png` | the mock, the loader before, and the game after, one above the other |
-| `12_foes_x3.png` | the foe sheet at ×3: every drawn foe, five drawn facings, every action |
+| `12_foes_x3.png` | the Phase 3 foe sheet at ×3, before decision 43 (the foes' sheets since: `docs/redesign/feedback/monsters/sheets/`, §8 "Foes") |
 | `13_fight_hud.png`, `14_fight_x4.png` | a fight with two crabs, a rat and a boarlet, under the HUD and ×4 round the player |
 | `15_water_frames_x2.png` | the water's four frames round the pond and the pier |
 
@@ -417,8 +489,8 @@ The body in the top-down world is the game's own character, redrawn for this vie
 - **Same person.** The side view's big-headed build, faces, hair styles, clothes and colours, dyes and weapons, read
   from the same data (`data/parts.json` and the save's outfit). The villagers are drawn the same way.
 - **The build.** `tools/art/topdown/build_character.py` builds it, from a posed doll ray-cast at 4 × 4 samples per art
-  px and resolved into pixels (decision 42: "drawn better" at the same size, option B of
-  `docs/redesign/feedback/character_quality.md`). The redesign plan's "As built: Phase 3, third part" has the full
+  px and resolved into pixels (decision 42: "drawn better", option B of `docs/redesign/feedback/character_quality.md`;
+  decision 43: 1.2 times bigger, "I think the player should look a little bigger"). The redesign plan's "As built: Phase 3, third part" has the full
   pipeline; `figure/raster.py` and `figure/render.py` hold the rules below.
 - **Layer sets.** It is drawn in sets (the body, hair, each garment slot, each weapon family), each built on its own.
   `docs/redesign/phase3/character/HOWTO.md` says how to add one.
@@ -426,18 +498,41 @@ The body in the top-down world is the game's own character, redrawn for this vie
 | Rule | Value |
 |---|---|
 | Camera | orthographic, 22° above the ground: lower than the world's oblique, as ¾ sprites are drawn, so the face shows |
-| Size | 0.92 art px per unit: about 38 art px from sole to crown, 40 with a top knot |
+| Size | 1.104 art px per unit (`geom.WORLD_SCALE`; decision 43, 1.2 times decision 42's 0.92): about 46 art px from sole to crown, 48 with a top knot. Every pixel is cast at that density, never scaled at runtime. The technique pictures keep the 38 px figure they were approved at: the poses a picture draws (105 frames) are cast again at 0.92 (`geom.PICTURE_SCALE`, the index's `pictures`) |
 | Coverage | 4 × 4 samples a pixel. A pixel takes the material most of its samples hit (thin trim, pins and blades vote extra, so a gold collar or a belt holds an unbroken line), and is solid from half covered. A `thin` material (trim, a blade, a hilt) is solid from a quarter; a `line` material (a shaft, a bow's limbs, a string, a ripple, a stroke of ink, a smear seen edge on) from a quarter too, unless it is the fainter side of a line its neighbour holds, so a line about a pixel wide stays one pixel wide and unbroken |
 | Light | the world's sun, upper left and a little in front (§3). Tones come from the mean light over a pixel's samples, so tone edges follow the form. Seven steps a ramp (`render.ramp7`: the side view's five plus a core shadow and a bright step), the dark end leaning toward the §14 shadow `#241F4F`, the light end toward the §14 sun `#FFE9A6`: five lit steps, the bright step only for materials allowed it (`hi`), the top step only as a sheen or a glint (`glossy`: hair, silk ribbon, gold, blades, plate) |
 | Rim, bounce, contact | a warm rim (the colour 30% toward the sun, a step up) where a form's edge turns to the sun; a cool bounce toward the sky on a shaded edge facing down; a contact shade a step down under a nearer part and beside one (an arm on the trunk, one leg against the other). Bare steel and a cape trailing flat keep a faint rim, so they keep their colour |
 | Outline | 1 px, a dark tint of the material it bounds (its deepest step toward ink-teal `0E1A1E`) on the shaded lower right, a step lighter on the lit upper left, never flat black. Where a part overlaps the body the edge is the part's own core shadow, lighter than the outer line (skin a step lighter still). Stair-steps: a half-alpha outline pixel where the true edge crosses a stair's inner corner, a softer one at a convex tip; no blur. Light (a smear, a ring of sound, a string) has no outline, only its own edge tone |
-| Face | lit nearly flat (the skin keeps to the shadow and base steps, no rim across it; the neck in the jaw's shade). Eyes 2 px wide and 3 tall: a lash row, the white and the iris, the iris's lower light; the far eye in three quarters 1 px, one eye in profile; a brow, a 1 px mouth, the nose's shade in three quarters, a touch of blush. Shut eyes (hurt, a fall, meditation) are the lash row. Hair and a band hat leave the eyes clear in every pose: their samples are cut from the eyes' box a pixel round (a row higher over shut eyes), so a fringe or a nod never covers them |
+| Face | lit nearly flat (the skin keeps to the shadow and base steps, no rim across it; the neck in the jaw's shade). Eyes 3 px wide and 3 tall: a lash row, the white, the pupil and the iris, the iris and its lower light; the far eye in three quarters and the eye in profile narrower; a brow, a 2 px mouth, the nose's shade in three quarters, a touch of blush (the pictures' 38 px figure keeps decision 42's face: eyes 2 px wide, a 1 px mouth). Shut eyes (hurt, a fall, meditation) are the lash row. Hair and a band hat leave the eyes clear in every pose: their samples are cut from the eyes' box a pixel round (a row higher over shut eyes), so a fringe or a nod never covers them |
 | Hair | broad locks (each a groove and a lit ridge) under a sheen ring broken lock by lock on the sunlit side, a darker crown; knots and ties wound in locks; each tail lock a groove and a lit strand. Loose locks at the temples and forelocks over the brow break the cap's round silhouette, so it never reads as a helmet, and frame the face |
 | Cloth | folds hang from the belt and widen to the hem, gathers over the belt and pulls toward the chest's sides, a crease at the elbow and behind the knee, a zigzag over the ankle wrap: each a groove a step down with a lit ridge beside it on the sunlit west. Only the cloth folds: trim, belts and panels stay clean |
 | Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
 | Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored (their light then comes from the upper right). The side rows turn a little toward the camera, the head in E a little more |
 | Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
-| Cost | the same frames, rects and draw calls as the 1-sample build; the sheets hold about 1.05 times the texels (140 MB of RGBA8 for all 168 sheets, from 134). A full build of every set takes about 2.5 minutes on four cores (`--jobs`) |
+| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. A full build of every set takes about 6 minutes on two cores (`--jobs 2`) |
+
+**The scale rule (decision 43).** The people are drawn 1.2 times the 38 px they were (`TopdownRoom.PEOPLE`), and
+what is sized against a person follows them; the world's measures do not (a tile, a level, the walk's 154 and the
+sprint's 216 world units a second, the jumps and the tops a body stands on). Sized against a person:
+
+| What | Before (38 px) | Now (46 px) | Where |
+|---|---|---|---|
+| Foot box (collision) | 16 × 10 | 19 × 10 world units (across only: the feet's depth, which the stairs' side steps and a top's landing are measured by, stays) | `movement.json` topdown `box` |
+| The player's body for a blow on the grid | half width 14 | 17 | `CombatAuthority.body_half_width` |
+| A body's height, its chest (effects) | 76, 40 | 92, 48 world units | `movement.json` topdown.combat |
+| Talk and a person's context reach | 110 | 132 world units | `WorldAuthority.reach_of` |
+| Marker, bark and a lifted plate over a villager | as the side view's | 16 world units higher | `TopdownPlaces.HEAD_LIFT` |
+| The label over a person who fights (a companion, a bandit) | the side view's height | 16 world units higher | `FoeView.figure_top` |
+| A staged scene's balloon and emote over a head | 88 | 104 world units | `SceneStage.HEAD` |
+| Blob shadow half width, the player's / a villager's | 8 / 7 | 10 / 8 art px | `ShadowView`, `Person.BLOB_RX` |
+| The body kept in view, the camera's framing | 16 × 44, feet 12 px low | 20 × 52, 14 px low | `TopdownRoom.BODY_PX`, `camera_for` |
+| The labels' keep-clear box round the body | 28 × 64 | 34 × 77 screen px | `TopdownWorld.layout_labels` |
+| A smear's and a form's hand, a cast's chest (FX sheets) | 14, 22 | 17, 26 art px | `tools/art/fx/topdown_melee.py`, `topdown_forms.py` |
+
+The drawn weapons grow with the hands that hold them (they are cast from the same doll); a blow's reach, a technique's
+range and every speed stay the game's measures. Doors, corridors and props keep their size: every way is at least a
+tile (32 world units) wide, and the foot box is 19 across. The technique pictures and the HUD's companion chip keep the 38 px
+figure (`picture` frames), so they stay framed as the user approved them.
 
 Check a new layer against it the way §11 checks a tile:
 
@@ -642,7 +737,7 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
 ### 14.7 Paving and stairs
 
 - **Town paving.** Irregular flagstones, the scholar-garden "cracked ice" laying, in warm grey-beige stone, about a tile
-  across (11–22 px, an 8 × 8 site grid in a 128 px pattern), so a 38 px body stands on two or three of them.
+  across (11–22 px, an 8 × 8 site grid in a 128 px pattern), so a body stands on two or three of them.
   - Each stone has its own tone (a few a step lighter or darker, a few with a faint sandy or blue cast), a lit
     north-west rim, a shaded south-east one, worn rounded corners, grain, and a crack now and then.
   - The joints are crisp and dark (steps 1–2), with moss and a blade or two of grass in some.

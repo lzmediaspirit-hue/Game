@@ -376,13 +376,18 @@ func _tick_glide(c, delta: float) -> void:
 	_air_distance(c, delta)
 
 # ------------------------------------------------------------------ views
+## Half the player's body across, for a blow to land on it: the side view's 14, on the height grid as much wider as the
+## people there are drawn (decision 43, TopdownRoom.PEOPLE: 17).
+func body_half_width() -> float:
+	return roundf(14.0 * TopdownRoom.PEOPLE) if grid() != null else 14.0
+
 func player_view(c) -> Dictionary:
 	var tl := timeline(c.id)
 	var st: ActorState = game.actor_state(c.id)
 	var v := CombatRules.fighter(c)
 	v.merge({"id": c.id, "vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
 		"guarding": c.stats.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
-		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0})
+		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": body_half_width(), "height": 88.0})
 	v.crit_chance = float(v.crit_chance) + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
 	v.penetration = float(v.penetration) + intent_penetration(c)
 	if grid() != null:   # redesign Phase 2: its blows go along its aim, between compatible heights
@@ -1459,7 +1464,7 @@ func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Di
 	var c = game.active()
 	if c == null or not decoys.has(c.id): return
 	var d: Dictionary = decoys[c.id]
-	var view := {"x": float(d.x), "y": float(d.y), "alt": float(d.alt), "half_width": 14.0, "height": 60.0}
+	var view := {"x": float(d.x), "y": float(d.y), "alt": float(d.alt), "half_width": body_half_width(), "height": 60.0}
 	if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): return
 	d.hits = int(d.hits) + 1
 	emit("hit_landed", {"attacker": str(e.uid), "target": "decoy", "target_kind": "decoy", "amount": 0, "type": "physical",
