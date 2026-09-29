@@ -34,6 +34,7 @@ func run_all(suite) -> void:
 	_walk()
 	_sprint_carry()
 	_jump_levels()
+	_jump_control()
 	_falls_and_windows()
 	_collision()
 	_water_and_gaps()
@@ -312,6 +313,132 @@ func _jump_levels() -> void:
 	run(side, 1.0, Vector2.LEFT)
 	t.check(side.pos.x > 11.0 * 32.0 and side.z == 0.0, "topdown: the stairs' high side blocks a walk from the level below (x %.1f)" % side.pos.x)
 
+## The motor as it was before decision 43's jump control: no landing assist and no hold at the top's edge after a
+## landing, the air's pick-up the same with the stick pulled back, no brake with it let go, and the drawn row turned at
+## once (the before numbers of `measured.jump_control`).
+func _assist_off(m: TopdownMotor) -> void:
+	m.magnet = 0.0
+	m.air_turn = 1.0
+	m.air_brake = 0.0
+	m.turn_row_s = 0.0
+	m.magnet_hold_s = 0.0
+
+## A jump pressed on the frame the stick-held body reaches `at` (its test), then the stick held along the jump through
+## the landing and `hold` s after it (the thumb's reaction), then let go. The first landing's {z, pos} and where the
+## body rests.
+func _jump_at(m: TopdownMotor, stick: Vector2, at: Callable, hold := 0.2) -> Dictionary:
+	var n := 0
+	while not at.call(m) and n < 600:
+		m.step(1.0 / 120.0, stick)
+		n += 1
+	m.drain()
+	m.step(1.0 / 60.0, stick, true)
+	var first := {}
+	var since := -1.0   # seconds since the first landing (-1 before it)
+	n = 0
+	while n < 600 and since < hold + 0.3:
+		m.step(1.0 / 120.0, stick if since < hold else Vector2.ZERO)
+		for e in m.drain():
+			if str(e.type) in ["landed", "splashed"] and first.is_empty():
+				first = {"z": m.z, "pos": m.pos, "assisted": e.get("assisted", false)}
+				since = 0.0
+		if since >= 0.0: since += 1.0 / 120.0
+		n += 1
+	if first.is_empty(): first = {"z": -99.0, "pos": m.pos}
+	first.rest_z = m.z
+	first.rest = m.pos
+	return first
+
+## Decision 43 (the jump is hard to control at the sprint's speed: "when I try to jump from a box to a roof I jump over
+## the box"). On the real rooms, the stick fully pushed (the sprint), the thumb holding it a moment after the landing:
+## the village's crates beside the hall (lf_village: crates one level up at (46-47, 13), one tile deep; the hall's roof
+## two levels up at (48-53, 11-13); the inn's roof beyond a one-tile gap at 55-60) and the Jade Sect's by the Weapon
+## Hall (ja_pavilion_rooftops: crates at (12-13, 8), the roof at 14-21).
+##  - From the ground south of the crates, Jump pressed 2 to 38 units short of them lands on them and rests there every
+##    time (before, a jump pressed close sailed over them to the ground beyond).
+##  - From the crates, a sprint east and Jump anywhere along them lands on the roof and rests there.
+##  - A running jump off the hall's roof clears the gap to the inn's roof, pressed anywhere in the last half tile or a
+##    coyote moment past the edge; the dash's long jump keeps its reach (_water_and_gaps).
+##  - In the air the stick steers and brakes: pulled back at the apex the jump comes down short, let go it slows, and the
+##    sprint is not carried (the take-off keeps the walk's 154).
+func _jump_control() -> void:
+	var village := TopdownRoom.load_room("lf_village")
+	var sect := TopdownRoom.load_room("ja_pavilion_rooftops")
+	# [name, room, the crates' west cell, the roof's west cell, the column the run up to the crates comes by]
+	var sites := [["village", village, Vector2i(46, 13), Vector2i(48, 11), 47], ["sect", sect, Vector2i(12, 8), Vector2i(14, 6), 12]]
+	var report := {}
+	var ok := {}
+	for assist in [false, true]:
+		var tag := "after" if assist else "before"
+		for s in sites:
+			var room: TopdownRoom = s[1]
+			var cc: Vector2i = s[2]
+			var face := (cc.y + 1) * 32.0   # the crates' south face
+			# Ground onto the crates, northward.
+			var on_box := 0
+			var tries := 0
+			var worst := -999.0
+			for d in range(2, 40, 4):
+				var m := TopdownMotor.new(room, Vector2((float(s[4]) + 0.5) * 32.0, (cc.y + 3.5) * 32.0))
+				if not assist: _assist_off(m)
+				var r := _jump_at(m, Vector2.UP, func(b: TopdownMotor) -> bool: return b.pos.y - b.half.y <= face + float(d))
+				tries += 1
+				if float(r.z) == 32.0 and float(r.rest_z) == 32.0 and room.height_at(r.rest) == 32.0: on_box += 1
+				worst = maxf(worst, cc.y * 32.0 - (r.pos as Vector2).y)   # past the crates' north edge
+			report["%s_%s_ground_to_box" % [tag, s[0]]] = "%d/%d, farthest landing %.0f units past the far edge" % [on_box, tries, worst]
+			ok["%s_%s_box" % [tag, s[0]]] = on_box == tries
+			# The crates onto the roof, eastward.
+			var on_roof := 0
+			var roof_tries := 0
+			var wall: float = float((s[3] as Vector2i).x) * 32.0
+			for x in range(int(cc.x * 32.0 + 10.0), int(wall - 8.0), 6):
+				var m := TopdownMotor.new(room, Vector2(cc.x * 32.0 + 9.0, (cc.y + 0.5) * 32.0))
+				if not assist: _assist_off(m)
+				var r := _jump_at(m, Vector2.RIGHT, func(b: TopdownMotor) -> bool: return b.pos.x >= float(x))
+				roof_tries += 1
+				if float(r.z) == 64.0 and float(r.rest_z) == 64.0: on_roof += 1
+			report["%s_%s_box_to_roof" % [tag, s[0]]] = "%d/%d" % [on_roof, roof_tries]
+			ok["%s_%s_roof" % [tag, s[0]]] = on_roof == roof_tries
+		# The village: the hall's roof over the gap to the inn's.
+		var across := 0
+		var gap_tries := 0
+		for e in [0.0, 4.0, 8.0, 12.0, 16.0, -6.0]:
+			var m := TopdownMotor.new(village, Vector2(50.5 * 32.0, 12.5 * 32.0))
+			if not assist: _assist_off(m)
+			var r := _jump_at(m, Vector2.RIGHT, func(b: TopdownMotor) -> bool: return b.pos.x + b.half.x >= 54.0 * 32.0 - e if e >= 0.0 else b.pos.x >= 54.0 * 32.0 - e)
+			gap_tries += 1
+			if float(r.z) == 64.0 and (r.pos as Vector2).x >= 55.0 * 32.0 and float(r.rest_z) == 64.0: across += 1
+		report["%s_roof_gap" % tag] = "%d/%d" % [across, gap_tries]
+		ok["%s_gap" % tag] = across == gap_tries
+	# Steering and braking in the air, on a flat floor from a sprint.
+	var reach := {}
+	for how in ["held", "back", "let_go"]:
+		var m := TopdownMotor.new(grid(flat(30)), Vector2(64, 192))
+		run(m, 0.4, Vector2.RIGHT)
+		var from := m.pos.x
+		m.step(1.0 / 60.0, Vector2.RIGHT, true)
+		var took := m.vel.length()
+		var air := 0.0
+		while not m.grounded and air < 2.0:
+			var stick := Vector2.RIGHT
+			if how == "back" and m.vz <= 0.0: stick = Vector2.LEFT
+			if how == "let_go": stick = Vector2.ZERO
+			m.step(1.0 / 120.0, stick)
+			air += 1.0 / 120.0
+		reach[how] = snappedf(m.pos.x - from, 0.1)
+		reach[how + "_takeoff"] = snappedf(took, 0.1)
+	report.air = reach
+	measured.jump_control = report
+	t.check(ok.after_village_box and ok.after_sect_box and not (ok.before_village_box and ok.before_sect_box),
+		"topdown jump (decision 43): a sprint onto the crates lands and rests on them, Jump pressed 2 to 38 units short (village %s, sect %s; before the landing assist %s, %s)"
+			% [report.after_village_ground_to_box, report.after_sect_ground_to_box, report.before_village_ground_to_box, report.before_sect_ground_to_box])
+	t.check(ok.after_village_roof and ok.after_sect_roof and ok.after_gap,
+		"topdown jump (decision 43): from the crates a sprint and Jump lands on the roof (village %s, sect %s), and a running jump off the hall's roof clears the gap to the inn's (%s; before %s)"
+			% [report.after_village_box_to_roof, report.after_sect_box_to_roof, report.after_roof_gap, report.before_roof_gap])
+	t.check(float(reach.held_takeoff) <= 154.01 and float(reach.back) < float(reach.held) - 20.0 and float(reach.let_go) < float(reach.held) - 15.0 and float(reach.held) > 64.0,
+		"topdown jump (decision 43): the sprint takes off at the walk's %.0f, carries %.0f with the stick held, %.0f pulled back at the apex, %.0f let go"
+			% [float(reach.held_takeoff), float(reach.held), float(reach.back), float(reach.let_go)])
+
 func _ledge_room(lv := 1) -> TopdownRoom:
 	var rows: Array = []
 	for y in 12: rows.append(str(lv).repeat(20) if y < 6 else "0".repeat(20))
@@ -447,10 +574,26 @@ func _facing() -> void:
 	var m := TopdownMotor.new(grid(flat()), Vector2(200, 192))
 	var rows: Array = []
 	for deg in [0.0, 45.0, 62.0, 82.0, 60.0, 180.0, -90.0, -135.0, 150.0]:
-		m.step(1.0 / 60.0, Vector2.from_angle(deg_to_rad(deg)))
+		for f in 6: m.step(1.0 / 60.0, Vector2.from_angle(deg_to_rad(deg)))
 		rows.append(m.row)
 	t.check(rows == ["e", "se", "se", "s", "se", "w", "n", "nw", "sw"],
 		"topdown: facing picks one of 8 rows (S, SE, E, NE, N drawn; NW, W, SW mirrored) with 10° hysteresis (%s)" % str(rows))
+	# Decision 43: a swing of the stick turns the drawn row through the rows between, one a frame (the first at once), the
+	# way past the camera for a half turn; one row over is at once; an aimed blow's facing turns it at once.
+	var turn := TopdownMotor.new(grid(flat()), Vector2(200, 192))
+	turn.face(Vector2.RIGHT)
+	var seen: Array = []
+	for f in 5:
+		turn.step(1.0 / 60.0, Vector2.LEFT)
+		seen.append(turn.row)
+	var near := TopdownMotor.new(grid(flat()), Vector2(200, 192))
+	near.face(Vector2.RIGHT)
+	near.step(1.0 / 60.0, Vector2(1, 1))
+	var aimed := TopdownMotor.new(grid(flat()), Vector2(200, 192))
+	aimed.face(Vector2.RIGHT)
+	aimed.face(Vector2.LEFT)
+	t.check(seen == ["se", "s", "sw", "w", "w"] and near.row == "se" and aimed.row == "w",
+		"topdown: a half turn of the stick turns the body through the rows between, one a frame (%s); one row over (%s) and an aimed blow (%s) turn at once" % [str(seen), near.row, aimed.row])
 
 # ------------------------------------------------------------------ Phase 2 (decisions 29 and 30)
 ## Walking stops at the water's edge; walking on water is a special skill (Water Skimming), off by default.
