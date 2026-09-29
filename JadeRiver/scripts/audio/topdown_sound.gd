@@ -63,11 +63,18 @@ func _player_feet() -> void:
 	var frame := int(pl.frame)
 	if anim == last_anim and frame == last_frame: return
 	var entering := anim != last_anim
+	var from := last_frame
 	last_anim = anim
 	last_frame = frame
 	var frames := int(TopdownFigure.spec(str(pl.pose)).get("frames", 8))
-	if frame in SoundBank.contact_frames(anim, frames) and not (entering and frame != 0):
-		Audio.step(surface(m.pos, m.z), Vector2.INF, "player", anim)
+	if entering:
+		if frame == 0: Audio.step(surface(m.pos, m.z), Vector2.INF, "player", anim)
+		return
+	# a contact frame reached since the last frame drawn (a slow frame may skip past it: it still steps, once)
+	for c in SoundBank.contact_frames(anim, frames):
+		if posmod(int(c) - from - 1, frames) < posmod(frame - from, frames):
+			Audio.step(surface(m.pos, m.z), Vector2.INF, "player", anim)
+			return
 
 ## Foes that walk: a step at each half of their walk cycle (the foe sheet's walk action; a cadence without one),
 ## at their place; none for the ones that fly or hover.
@@ -112,10 +119,21 @@ func _people_feet() -> void:
 			npc_frame.erase(key)
 			continue
 		var fr := TopdownFigure.frame_at("walk", float(art.t))
-		if int(npc_frame.get(key, -1)) == fr: continue
+		var from := int(npc_frame.get(key, -1))
+		if from == fr: continue
 		npc_frame[key] = fr
-		if fr in SoundBank.contact_frames("walk", int(TopdownFigure.spec("walk").get("frames", 8))):
-			Audio.step_at(surface(f.plane), f.plane, "npc")
+		if from < 0: continue
+		var n := int(TopdownFigure.spec("walk").get("frames", 8))
+		for c in SoundBank.contact_frames("walk", n):
+			if posmod(int(c) - from - 1, n) < posmod(fr - from, n):
+				Audio.step_at(surface(f.plane), f.plane, "npc")
+				break
+
+## A jump: the push-off scuffs the surface it leaves, under the jump's own whoosh.
+func jumped() -> void:
+	var m: TopdownMotor = world.player.motor
+	Audio.play(str(SoundBank.section("steps").get("jump", "jump")), "SFX", {"player": true})
+	Audio.step(surface(m.pos, m.z), Vector2.INF, "player", "walk")
 
 ## The motor's landing: by its height and the surface under the feet.
 func landed(fall: float) -> void:

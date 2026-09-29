@@ -369,7 +369,7 @@ func is_occluded() -> bool:
 func _feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
-		"jumped": Audio.play("jump")
+		"jumped": sound.jumped()   # decision 43: the push-off on its surface and the jump
 		"dashed", "plunged":
 			Audio.play("dodge")
 			if str(e.type) == "dashed": tfx.dust("dash", m.pos, m.z, m.dash_dir)   # decision 38: the dash's kick-off dust

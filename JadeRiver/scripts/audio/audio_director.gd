@@ -69,6 +69,7 @@ var pending: Array = []            ## [{t, fn, what}]: sounds and music moves wa
 # hits
 var last_hit_t := -9.0
 var hit_merge := 0
+var last_hit_voice: AudioStreamPlayer   ## the last hit's transient, raised a little by each blow merged into it
 var rr: Dictionary = {}             ## round robins: key -> next index
 # music
 var explore: Lane                   ## the room's track
@@ -251,7 +252,7 @@ func play(id: String, bus := "SFX", opts := {}) -> AudioStreamPlayer:
 	vinfo[slot] = {"id": id, "rule": key, "prio": prio, "start": clock, "gain": gain}
 	last_start[key] = clock
 	stats.played += 1
-	_remember(id, gain, bus)
+	_remember(id, gain, bus, bool(opts.get("player", false)))
 	var n := 0
 	var nr := 0
 	for v in pool:
@@ -276,15 +277,15 @@ func _weakest(list: Array, prio: int) -> AudioStreamPlayer:
 			best = v
 	return best
 
-func _remember(id: String, gain: float, bus: String) -> void:
-	history.append({"id": id, "t": clock, "gain": gain, "bus": bus})
+func _remember(id: String, gain: float, bus: String, mine := false) -> void:
+	history.append({"id": id, "t": clock, "gain": gain, "bus": bus, "player": mine})
 	if history.size() > 256: history.pop_front()
 
 ## The ids played since `since` (the director's clock) that start with `prefix`.
-func played(prefix := "", since := -INF) -> Array:
+func played(prefix := "", since := -INF, mine_only := false) -> Array:
 	var out: Array = []
 	for h in history:
-		if float(h.t) >= since and str(h.id).begins_with(prefix): out.append(str(h.id))
+		if float(h.t) >= since and str(h.id).begins_with(prefix) and (not mine_only or h.player): out.append(str(h.id))
 	return out
 
 ## How many voices sound now (the audio suite's voice limit).
@@ -356,6 +357,9 @@ func hit(p: Dictionary) -> void:
 	if clock - last_hit_t < float(h.get("merge_s", 0.035)):
 		hit_merge += 1
 		stats.merged += 1
+		if is_instance_valid(last_hit_voice) and last_hit_voice.playing and vinfo.has(last_hit_voice):
+			var boost := minf(float(h.get("merge_max_db", 3.0)), float(h.get("merge_db", 1.5)) * hit_merge)
+			last_hit_voice.volume_db = float(vinfo[last_hit_voice].gain) + boost
 		return
 	last_hit_t = clock
 	hit_merge = 0
@@ -371,10 +375,10 @@ func hit(p: Dictionary) -> void:
 	var tl: Dictionary = Game.combat.timeline(attacker) if Game.combat != null and Game.character(attacker) != null else {}
 	if src.begins_with("tech:"):
 		var el := SoundBank.element_sound(str(p.get("element", "none")))
-		play("hit_el_" + el, "SFX", opts.merged({"gain_db": wdb + float(m.get("element_db", -1.0)) + j.db, "pitch": wp * j.pitch}))
+		last_hit_voice = play("hit_el_" + el, "SFX", opts.merged({"gain_db": wdb + float(m.get("element_db", -1.0)) + j.db, "pitch": wp * j.pitch}))
 	else:
 		fam = SoundBank.family_sound(str(tl.get("family", "fists"))) if not tl.is_empty() else "fists"
-		play(_next("hit:" + fam, h.get("families", {}).get(fam, {}).get("transient", [])), "SFX",
+		last_hit_voice = play(_next("hit:" + fam, h.get("families", {}).get(fam, {}).get("transient", [])), "SFX",
 			opts.merged({"gain_db": wdb + float(m.get("transient_db", 0.0)) + j.db, "pitch": wp * j.pitch}))
 	var jb := _jitter(h)
 	play(_next("body:" + body, h.get("bodies", {}).get(body, [])), "SFX", opts.merged({"gain_db": wdb + float(m.get("body_db", -1.0)) + jb.db, "pitch": wp * jb.pitch}))
@@ -822,8 +826,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var doors: Array = SoundBank.section("world").get("door_types", [])
 			var was := str(ContentDB.room(last_room).get("type", "")) if last_room != "" else ""
 			if last_room != "" and rid != last_room:
-				if str(room.get("type", "")) in doors: play(str(SoundBank.section("world").get("door_open", "door_open")))
-				elif was in doors: play(str(SoundBank.section("world").get("door_close", "door_close")))
+				var w: Dictionary = SoundBank.section("world")
+				# through a door (into a room indoors or out of one): it opens, and shuts behind the one leaving
+				if str(room.get("type", "")) in doors or was in doors:
+					play(str(w.get("door_open", "door_open")))
+					if was in doors: _later(0.55, func(): play(str(w.get("door_close", "door_close")), "SFX", {"gain_db": -5.0}), "door")
 				else: play("portal", "SFX", {"gain_db": -4.0})
 			last_room = rid
 			listener = Vector2.INF

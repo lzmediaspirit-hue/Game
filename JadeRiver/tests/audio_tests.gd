@@ -205,7 +205,7 @@ func _feet() -> void:
 		surfaces[SoundBank.surface_at(w.room, p.motor.pos, p.motor.z)] = true
 		await get_tree().process_frame
 	p.movement = Vector2.ZERO
-	var steps: Array = Audio.played("step_", start)
+	var steps: Array = Audio.played("step_", start, true)   # the player's own (the room's foes walk too)
 	var secs: float = Audio.clock - start
 	var spec: Dictionary = TopdownFigure.spec("run")
 	var expect: float = secs * float(spec.get("fps", 14.0)) / float(spec.get("frames", 8)) * 2.0
@@ -238,8 +238,10 @@ func _hits() -> void:
 	Audio.hit({"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "x": e.plane.x, "y": e.plane.y, "weight": "heavy", "crit": true, "source": "basic", "element": "none"})
 	var merged0: int = Audio.stats.merged
 	Audio.hit({"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "x": e.plane.x, "y": e.plane.y, "weight": "heavy", "crit": false, "source": "basic", "element": "none"})
-	check(Audio.played("hit_accent_crit", t1).size() == 1 and Audio.stats.merged > merged0 and Audio.played("hit_sword_", t1).size() == 1,
-		"a crit rings its accent, and a second blow in the same instant merges into the first")
+	var lv: AudioStreamPlayer = Audio.last_hit_voice
+	var raised: bool = lv != null and Audio.vinfo.has(lv) and lv.volume_db > float(Audio.vinfo[lv].gain) + 1.0
+	check(Audio.played("hit_accent_crit", t1).size() == 1 and Audio.stats.merged > merged0 and Audio.played("hit_sword_", t1).size() == 1 and raised,
+		"a crit rings its accent, and a second blow in the same instant merges into the first, a little louder")
 	var t2: float = Audio.clock + 0.2
 	Audio.advance(0.2)
 	Audio.hit({"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "x": e.plane.x, "y": e.plane.y, "weight": "medium", "crit": false, "source": "tech:flowing_palm", "element": "water"})

@@ -37,7 +37,7 @@ Every call to `Audio` in the prototype's code and data at build 109, and when it
 | quests, mail, meditation, crafts, shops | `quest_accept`, `quest_complete` (twice on a hand-in's button), `mail`, `meditate`, `forge`, `coin` | `EVENT_SFX`, the pages |
 | the interface | `ui_tap` on every press (tabs too), `ui_open`, `ui_close`, `error`; `ui_confirm` was asked for and did not exist | `page.gd`, `hud.gd` |
 | music | the room's mood, one track, a 1 s crossfade on a room change | `audio_director.gd` |
-| ambience | three 6 s loops (water, wind, crowd) for nine moods; 76 of the 108 rooms had none; no day or night | same |
+| ambience | three 6 s loops (water, wind, crowd) for nine moods; 76 of the 168 rooms had none; no day or night | same |
 
 The mix: four buses and their sliders, no Master slider, no limiter; ten SFX players, the first free one taken and an
 eleventh sound dropped whatever it was; ±5 % pitch on everything; nothing quieter with distance; nothing ducked.
@@ -219,4 +219,91 @@ insects or frogs; a lamplit interior has neither); in the side view the clock's 
 
 ## 8. The review
 
-(filled in below: the pictures, the loudness table, the loop seams, the size)
+Nobody can listen during the build, so the pass was checked by analysis (`tools/audio/review_pass.sh BEFORE`, which
+runs `tools/audio/review.py` over a copy of `art/audio` from before the pass). Every picture shows a sound at its
+level as the game plays it (its `volume_db`, a layer's mix level), before the bus: the title, the waveform (peak dim,
+RMS bright, the 0 and -3 dBFS lines), the spectrogram (40 Hz to 11 kHz, log), and for a loop the seam (its last and
+first quarter second, the red line where it joins).
+
+- **Before | after pairs** (`docs/redesign/feedback/sound/before_after/`): the hit as a sword on flesh, a sabre on a
+  shell, fists on flesh, a spear on wood, a brush on slime and a sword's crit; the swing of the sword, the sabre and
+  the bow; the tell (a beast's); a death (a shell's); a landing on stone; wading; the river, bamboo and town beds
+  against the old 6 s loops; the field's track with its stem coming in against the old battle theme; the eel's theme
+  against the old boss theme; `boss_sting` before and after its phone fix.
+- **The new sounds** (`docs/redesign/feedback/sound/new/`): `steps.png` (eight surfaces at the sprint's cadence,
+  landings, the splash), `hits.png` (more families and bodies, the chain's and the weave's accents, element hits),
+  `casts.png` (the eleven elements), `foes.png` (the tells and deaths), `world.png` (doors, loot, the interface, talk,
+  barks, the scene cue), `stingers.png`, `beds.png` (every bed and layer; the river and the marsh at night),
+  `music.png` (the five stems, the two boss themes, the village at night and the river with their stems coming in).
+- **Tables:** `docs/redesign/feedback/sound/table_before_after.md` and `table_new.md` (length, peak, RMS, integrated
+  and momentary loudness, the phone band, clipped samples, the loop seam of every sound pictured).
+
+**Loudness, as played** (the momentary maximum of a one-shot, LUFS, before the bus):
+
+| | before | after |
+|---|---:|---:|
+| a hit | -24.9 (`hit`, every weapon) | -22.4 to -24.9 (a sword on flesh -23.6, a sabre on a shell -24.0, fists on flesh -23.4, a spear on wood -24.9, a brush on slime -22.6) |
+| a crit | -24.0 | -22.4 (the sword's, its accent over it) |
+| a swing | -21.2 (louder than the hit it led to) | -24.8 to -25.2 (just under the hit) |
+| a tell | -28.2 (a tick) | -24.8 (a beast's growl and the tick; less with distance) |
+| a death | -20.6 | -22.9 (a shell's) |
+| a landing | -27.5 | -26.9 (on stone) |
+| wading | -29.3 (one `water_step`) | -27.0 (the sprint's four splashes) |
+
+No sound clips: every file's peak is at -3 dBFS before its level (the loops' at -1 dBFS after the limiter and within
+0.6 dB of it once decoded), no composite pictured passes -0.9 dBFS before the bus, and the Master limiter holds
+-0.5 dBFS whatever sums. The phone band: every new sound keeps -12 dB or more above 300 Hz (the lowest, `land_heavy`
+-9.6, `hit_el_earth` -10.3, the stems -6 to -9); `boss_sting` went from -22.9 to -11.1.
+
+**Loop seams** (`build_audio.py --check`, on the decoded Vorbis the game plays): every loop's jump across its seam is
+under the 99.9th percentile of its own sample-to-sample steps (the music from 0.0000 to 0.063 against 0.063 to 0.34;
+the beds from 0.0013 to 0.097 against 0.10 to 0.53), and its level across the seam steps by under 6 dB for the music
+(the 15 ms before its first downbeat) and 16 dB for a sparse bed layer (a bird call can sit on one side). Each stem is
+sample for sample as long as its track (the builder fails a drift).
+
+**Size** (`tools/audio/apk_size.py` after `godot --headless --import`):
+
+| | before | after |
+|---|---:|---:|
+| in the APK | 8.38 MB, 76 files (all QOA) | 7.04 MB, 233 files |
+| &nbsp;&nbsp;music | 7.3 MB, 22 loops | 5.22 MB, 29 loops (22 tracks, 5 stems, 2 boss themes; Vorbis q0.15, about 32 kbps) |
+| &nbsp;&nbsp;beds | 0.16 MB, 3 loops of 6 s | 0.89 MB, 12 loops of 14-20 s (Vorbis q0.1) |
+| &nbsp;&nbsp;one-shots | 0.9 MB, 51 | 0.93 MB, 192 (QOA; silent tails trimmed at -60 dB) |
+| sources in the repository | 41.3 MB of WAVs | 9.8 MB |
+
+The loops went to Ogg Vorbis (`soundfile`/libsndfile; each stream's serial number is set from its id so a build
+writes the same bytes), the one-shots stay WAVs Godot packs as QOA (instant to start, no decoding).
+
+## 9. A listening guide
+
+Where to hear the pass on the phone, and what to listen for.
+
+- **Out of the Fisher's Hut into Lotus Ferry** (a top-down character's start): the hut's door opens (a latch, a creak,
+  the air moving) and thuds shut behind you; outside the river's soft rush and babble with the village murmuring under it and birds by day,
+  frogs at night. Sprint: your steps change as the ground does, a hollow knock on the jetty's planks, a soft scuff on
+  the lane, a swishy crunch in the grass, a splash wading; walk (a light touch) and they soften. Jump off a roof: two
+  feet land, and from a height a thump of the body.
+- **Crab Trouble in the reed shallows:** the marsh's lapping and hissing reeds under the river tune; when the crabs
+  turn on you the tune gains war drums and a driving pipa on its next beat (the tune dips a little under them); your jian's cut is a thin slice and a steel kiss, the crab's shell
+  a hard click-crack with chips, and a beat later (as the freeze lets go) the blade rings. The crabs' wind-ups gurgle
+  with the wooden tick you know; the third blow of your chain rings a little zing, a crit a deep boom under a bright
+  double ring. A crab dies in a crack and a clatter. Four seconds after the last one, on a bar line, the drums leave.
+- **Other weapons:** the heavy sabre chops dark and heavy with a low whoosh after; the spear clicks and its shaft
+  buzzes; the fan slaps like paper; the brush flicks ink; the flute taps and breathes a note; the bell clangs and hums;
+  the bow twangs and the arrow thwacks; fists punch dull with a puff of air. A technique sounds its element as it is
+  cast (fire roars and crackles, water swirls and bubbles, thunder crackles to a snap, earth rumbles, metal rings).
+- **The Hollow Night:** the night village with the river and frogs; the minnows bring the night tune's drums; when the
+  Hollowed Eel rises its own theme comes in on the beat, a rolling 6/8 with a sinking xiao and water dripping; when it
+  falls, the victory stinger (da-da-DUM and a bright guzheng cadence home).
+- **Old Snapper in the reed shallows:** when the old turtle joins the fight its own theme comes in on the beat,
+  lumbering heavy drums with the clack of its jaw in the woodblocks; a hit on its shell cracks rather than thuds.
+- **The Marsh Edge:** the marsh bed (lapping, reeds hissing in the gusts, a warbler far off); wet squelching steps in
+  the marsh grass.
+- **The sects:** a hushed courtyard with wind chimes and a temple bell far up the mountain; on the Cloud sect's cliffs
+  the pines' long sigh under it.
+- **Stingers:** hand in a quest (a guzheng figure rising home), reach a new realm (a gong swells, a dizi climbs, chimes
+  cascade), a rare drop (a sweep up the strings into bright bells), a system unlocked (two bronze bells), an elite
+  appearing (war drums and a clashing tremolo). The music ducks under each.
+- **Talk:** a talk opens with a scroll unrolled, each next line a soft high pluck, and the music dips while it is open;
+  a villager's bark over their head pips where they stand.
+- **Settings, Audio:** All sound over Music, Ambience, Effects and Interface.

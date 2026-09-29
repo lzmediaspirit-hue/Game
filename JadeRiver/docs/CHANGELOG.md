@@ -1,5 +1,41 @@
 # Changelog
 
+## The sound pass: layered hits, footsteps by surface, ambient beds, combat music, stingers and a mix (decision 43)
+
+The user's pick after build 109: "layered hits, footsteps by surface, ambient beds, combat music that comes in with a
+fight, and stingers". Every sound is still synthesized in code, original and seeded. `docs/redesign/sound.md` holds
+the audit of what the prototype played before, the design, the review and a listening guide.
+
+- **Layered hits.** A blow is the weapon family's transient (sword, sabre, spear, fan, brush, flute, bell, bow,
+  fists), the struck body (flesh, shell, wood and puppets, slime and water) and the family's tail, played the moment
+  the hit-stop lets go; two takes of each, varied in pitch and level, the weight moving the whole; a crit's or
+  finisher's accent, the chain's last blow, a weave cancel. Blows landing together sound as one. Each family swings
+  its own whoosh (the bow twangs), each element casts and strikes its own sound.
+- **Footsteps by surface**, on the walk's and run's contact frames (fractions of the cycle in the data): grass, dirt,
+  paving and stone, planks, reeds, roof tiles, wading water (sand and snow ready for their tiles), read from the room's
+  paint marks, a prop's top and its water. Landings by surface and height, a splash into water. Foes and villagers step
+  quieter, falling off with distance; foes' tells and deaths by race and body, where they stand.
+- **Ambient beds** per place (the river, the village by it, the marsh, bamboo, pines, fields, the town, the sect, a
+  cave, indoors), 16 s bases with layers of the hour (birds by day, insects and frogs by night) that follow the room's
+  light, crossfaded on a room change. The rooms' beds are a table of their own (`tools/data/sound.py`).
+- **Adaptive music.** The village by day and by night, the field, the river and the sect have a combat stem on their
+  own grid, started with the track and kept in step: it comes in on the next beat when foes near the player turn on it
+  and leaves on a bar line four seconds after the last falls (another track crossfades to the battle theme). Old
+  Snapper and the Hollowed Eel have their own themes. Stingers for a quest done, a new realm, a rare find, a system
+  unlocked, an elite and a victory.
+- **The mix.** An All sound slider over Music, Ambience, Effects and Interface; a high-pass and a limiter on Master;
+  the music ducking under stingers, talks, barks and scenes; 24 voices with priorities and per-sound caps (the
+  fifteen-monster fight peaks at half of them); every new sound levelled by its loudness and kept audible on a phone
+  speaker (`boss_sting` fixed). A talk's scroll and lines, barks, doors, loot hitting the ground, the scene cue, tabs
+  and the missing `ui_confirm` now sound.
+- **Size:** the loops are Ogg Vorbis now: the audio in the APK went from 8.38 MB to 7.04 MB while its sounds went from
+  76 to 233; the sources in the repository from 41 MB to 9.8 MB.
+- **Checks:** `audio_tests` (every sound named in data and code exists; the buses and sliders; footsteps by surface
+  and frame; the layered hit; the combat music entering and leaving on its events and beats, Old Snapper's theme; the
+  beds and hours; the stingers' ducking; the voice limit in the fifteen-monster fight), and `tools/run_tests.sh` checks
+  `data/sound.json` and every audio file's levels, seams and phone band. Review pictures in
+  `docs/redesign/feedback/sound/`.
+
 ## The technique pictures like the reference, the last side-view figures, the array's travel picker (decision 42)
 
 The user asked again: "I want the skills icon to look like the attached image"
