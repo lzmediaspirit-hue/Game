@@ -39,7 +39,7 @@ from topdown_rooms import Grid, WATER  # noqa: E402
 
 TILE = 32.0
 SPRINT_K = 1.4        # decision 42: the body sprints by default, about 1.4x the walk (when movement.json names no sprint)
-PLAIN_MAX_S = 35.0    # the longest plain walk a step may ask for (build 108: 12 of 30 trips past it, up to 118 s)
+PLAIN_MAX_S = 35.0    # the longest plain walk a step may ask for (build 108: 12 of 30 trips past it, up to 117 s)
 BACK_MIN_S = 20.0     # a trip out and straight back, both at least this long, is a back-and-forth
 SECT_NAMES = {"jade_sect": "The Jade Sect", "cloud_sect": "The Cloud Sect"}
 

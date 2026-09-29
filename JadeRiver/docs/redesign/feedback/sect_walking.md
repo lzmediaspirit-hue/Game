@@ -58,7 +58,7 @@ The stretch after the sect choice, as the quests led it:
 | 12 | Strange Tracks | the first grey patch | Weapon Hall and Forge → … (9 rooms) → Marsh Edge | 78 s |
 | 13 | Strange Tracks | the second | Marsh Edge | 3 s |
 | 14 | Strange Tracks | the third | Marsh Edge | 3 s |
-| 15 | Strange Tracks | hand in to the mentor | Marsh Edge → … (12 rooms) → Elder Hu's Peak | 118 s |
+| 15 | Strange Tracks | hand in to the mentor | Marsh Edge → … (12 rooms) → Elder Hu's Peak | 117 s |
 | 16 | The Humming Token | the Hollowed Boarlets | Elder Hu's Peak → … (12 rooms) → Marsh Edge | 114 s |
 | 17 | The Humming Token | hand in to the mentor | Marsh Edge → … (12 rooms) → Elder Hu's Peak | 115 s |
 | 18 | Mei Qing's Errand | Mei Qing | Elder Hu's Peak → … (5 rooms) → Artisan Row | 55 s |
@@ -75,7 +75,7 @@ The stretch after the sect choice, as the quests led it:
 | 29 | Outer Trial (lesson) | three spars | Elder Hu's Peak → … (2 rooms) → Pavilion Rooftops | 25 s |
 | 30 | Outer Trial (lesson) | hand in to the mentor | Pavilion Rooftops → … (2 rooms) → Elder Hu's Peak | 26 s |
 
-Total plain walking 1199 s (20.0 min) over 30 trips and 165 rooms walked; 12 trips over 35 s; the longest 118 s; back-and-forth: 15-16 (Marsh Edge ↔ Elder Hu's Peak), 16-17 (Elder Hu's Peak ↔ Marsh Edge), 19-20 (Artisan Row ↔ Marsh Edge), 27-28 (Elder Hu's Peak ↔ Reed Shallows), 29-30 (Elder Hu's Peak ↔ Pavilion Rooftops).
+Total plain walking 1197 s (19.9 min) over 30 trips and 165 rooms walked; 12 trips over 35 s; the longest 117 s; back-and-forth: 15-16 (Marsh Edge ↔ Elder Hu's Peak), 16-17 (Elder Hu's Peak ↔ Marsh Edge), 19-20 (Artisan Row ↔ Marsh Edge), 27-28 (Elder Hu's Peak ↔ Reed Shallows), 29-30 (Elder Hu's Peak ↔ Pavilion Rooftops).
 
 ### The Cloud Sect, before
 
@@ -96,23 +96,23 @@ Total plain walking 1199 s (20.0 min) over 30 trips and 165 rooms walked; 12 tri
 | 13 | Strange Tracks | the second | Marsh Edge | 3 s |
 | 14 | Strange Tracks | the third | Marsh Edge | 3 s |
 | 15 | Strange Tracks | hand in to the mentor | Marsh Edge → … (11 rooms) → Elder Sung's Peak | 106 s |
-| 16 | The Humming Token | the Hollowed Boarlets | Elder Sung's Peak → … (11 rooms) → Marsh Edge | 102 s |
+| 16 | The Humming Token | the Hollowed Boarlets | Elder Sung's Peak → … (11 rooms) → Marsh Edge | 101 s |
 | 17 | The Humming Token | hand in to the mentor | Marsh Edge → … (11 rooms) → Elder Sung's Peak | 103 s |
-| 18 | Mei Qing's Errand | Mei Qing | Elder Sung's Peak → … (4 rooms) → Artisan Row | 43 s |
+| 18 | Mei Qing's Errand | Mei Qing | Elder Sung's Peak → … (4 rooms) → Artisan Row | 42 s |
 | 19 | Mei Qing's Errand | reed frogs (moss), boarlets (hides) | Artisan Row → … (6 rooms) → Marsh Edge | 59 s |
 | 20 | Mei Qing's Errand | hand in | Marsh Edge → … (6 rooms) → Artisan Row | 59 s |
 | 21 | Grey at the Edges | report to the mentor | Artisan Row → … (4 rooms) → Elder Sung's Peak | 44 s |
-| 22 | (the Level) | hunt to Bone Forging 7 | Elder Sung's Peak → … (11 rooms) → Marsh Edge | 102 s |
+| 22 | (the Level) | hunt to Bone Forging 7 | Elder Sung's Peak → … (11 rooms) → Marsh Edge | 101 s |
 | 23 | The First Current | Lu | Marsh Edge → Reed Shallows → Lotus Ferry Village | 17 s |
 | 24 | The First Current | the Qi spring | Lotus Ferry Village | 5 s |
 | 25 | The First Current | hand in | Lotus Ferry Village | 5 s |
 | 26 | Eyes for Qi (lesson) | the mentor | Lotus Ferry Village → … (9 rooms) → Elder Sung's Peak | 87 s |
 | 27 | Eyes for Qi (lesson) | meditate, moss | Elder Sung's Peak → … (10 rooms) → Reed Shallows | 92 s |
-| 28 | Eyes for Qi (lesson) | hand in | Reed Shallows → … (10 rooms) → Elder Sung's Peak | 94 s |
+| 28 | Eyes for Qi (lesson) | hand in | Reed Shallows → … (10 rooms) → Elder Sung's Peak | 93 s |
 | 29 | Outer Trial (lesson) | three spars | Elder Sung's Peak → Array Court → Sword Court | 19 s |
 | 30 | Outer Trial (lesson) | hand in to the mentor | Sword Court → Array Court → Elder Sung's Peak | 20 s |
 
-Total plain walking 1079 s (18.0 min) over 30 trips and 156 rooms walked; 12 trips over 35 s; the longest 106 s; back-and-forth: 15-16 (Marsh Edge ↔ Elder Sung's Peak), 16-17 (Elder Sung's Peak ↔ Marsh Edge), 19-20 (Artisan Row ↔ Marsh Edge), 27-28 (Elder Sung's Peak ↔ Reed Shallows).
+Total plain walking 1077 s (17.9 min) over 30 trips and 156 rooms walked; 12 trips over 35 s; the longest 106 s; back-and-forth: 15-16 (Marsh Edge ↔ Elder Sung's Peak), 16-17 (Elder Sung's Peak ↔ Marsh Edge), 19-20 (Artisan Row ↔ Marsh Edge), 27-28 (Elder Sung's Peak ↔ Reed Shallows).
 
 <!-- /BEFORE -->
 
@@ -287,13 +287,13 @@ Total plain walking 187 s (3.1 min) over 33 trips and 56 rooms walked; 0 trips o
 | 26 | The First Current | Lu | Marsh Edge → Reed Shallows → Lotus Ferry Village | 17 s |
 | 27 | The First Current | the Qi spring | Lotus Ferry Village | 5 s |
 | 28 | The First Current | hand in | Lotus Ferry Village | 5 s |
-| 29 | Eyes for Qi (lesson) | the mentor | Lotus Ferry Village → … (2 rooms) → Elder Sung's Peak (by array) | 19 s |
+| 29 | Eyes for Qi (lesson) | the mentor | Lotus Ferry Village → … (2 rooms) → Elder Sung's Peak (by array) | 18 s |
 | 30 | Eyes for Qi (lesson) | meditate, moss | Elder Sung's Peak → Marsh Edge → Reed Shallows (by array) | 10 s |
 | 31 | Eyes for Qi (lesson) | hand in | Reed Shallows → Marsh Edge → Elder Sung's Peak (by array) | 12 s |
 | 32 | Outer Trial (lesson) | three spars | Elder Sung's Peak → Array Court → Sword Court | 19 s |
 | 33 | Outer Trial (lesson) | hand in to the hall master | Sword Court | 4 s |
 
-Total plain walking 205 s (3.4 min) over 33 trips and 57 rooms walked; 0 trips over 35 s; the longest 19 s; back-and-forth: none.
+Total plain walking 204 s (3.4 min) over 33 trips and 57 rooms walked; 0 trips over 35 s; the longest 19 s; back-and-forth: none.
 
 <!-- /AFTER -->
 
