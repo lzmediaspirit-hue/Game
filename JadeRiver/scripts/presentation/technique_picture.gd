@@ -107,6 +107,61 @@ static func draw(ci: CanvasItem, r: Rect2, tid: String, who, outfit: Dictionary,
 			"scale": int(cell.spec.k) if not cell.is_empty() else 0, "rank": rank, "muted": muted})
 	return not cell.is_empty()
 
+## Decision 43 (the HUD's technique buttons, round and a little bigger): the picture in a round frame `radius` px round
+## `center`: an ink rim, a `RING` px ring in the frame's colour, and inside it the art's button picture, `(radius - RING)
+## x 2` px across and so still the card's miniature (the whole figure at x1, 59 px and under), cut to the circle (the
+## cell drawn as a textured circle, the element's ground under it until it is painted), and the rank badge inside the
+## circle's upper right. `rect` in the draw log is the button's square; `round` marks it.
+const RING := 5.0
+static func draw_round(ci: CanvasItem, center: Vector2, radius: float, tid: String, who, outfit: Dictionary, frame := UiKit.BRIGHT_JADE, k := 1.0, a := 1.0, where := "", rank := -1) -> bool:
+	var c := center.round()
+	var t := ContentDB.entry("techniques", tid)
+	var pr := radius - RING
+	var s := int(pr * 2.0)
+	var sq := Rect2(c - Vector2(s, s) * 0.5, Vector2(s, s))
+	ci.draw_circle(c, radius, Color(UiKit.INK, a))
+	var cell := {}
+	var look: Array = []
+	if not t.is_empty():
+		var ramp := _ramp(str(t.get("element", "none")), false)
+		var dim := Color(k, k, k, a)
+		var top_c: Color = ramp[0].lerp(ramp[1], 0.7) * dim
+		var foot_c: Color = ramp[0].lerp(ramp[1], 0.4) * dim
+		var pts := _circle(c, pr + 0.5)
+		var cols := PackedColorArray()
+		for p in pts: cols.append(top_c.lerp(foot_c, clampf((p.y - sq.position.y) / float(s), 0.0, 1.0)))
+		ci.draw_polygon(pts, cols)
+		look = _look(tid, t, who, outfit, s, false)
+		cell = _cell_for(tid, t, look, s, false)
+		if not cell.is_empty():
+			cell.sheet.used = Engine.get_process_frames()
+			var side := float(cell.sheet.side)
+			var uvs := PackedVector2Array()
+			for p in pts: uvs.append(((cell.rect as Rect2).position + (p - sq.position)) / side)
+			ci.draw_polygon(pts, PackedColorArray([dim]), uvs, cell.sheet.tex)
+	ci.draw_arc(c, radius - 1.0 - (RING - 1.0) * 0.5, 0.0, TAU, 64, Color(frame, a), RING - 1.0, true)
+	if not t.is_empty():
+		if rank < 0: rank = _rank(who, tid)
+		if rank > 0: _badge_at(ci, c + Vector2(1, -1).normalized() * (pr - 8.0), rank, a)
+	if draw_log != null:
+		var e := {"id": tid, "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "where": where, "round": true, "radius": radius,
+			"picture": pr, "frame": frame, "k": k, "figure": not cell.is_empty() and str(cell.state) == "ready", "rank": rank}
+		if not look.is_empty():
+			e.merge({"top": bool(look[1]), "facing": str(look[2][1]), "size": s, "scale": int(cell.spec.k) if not cell.is_empty() else 0, "muted": false})
+		draw_log.append(e)
+	return not cell.is_empty()
+
+## A circle's outline as a polygon (48 sides) round `c`.
+static func _circle(c: Vector2, r: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in 48: pts.append(c + Vector2.from_angle(TAU * i / 48.0) * r)
+	return pts
+
+## The round button's rank badge (the button's small diamond) with its middle at `at`.
+static func _badge_at(ci: CanvasItem, at: Vector2, rank: int, a: float) -> void:
+	var h := 5.0
+	_badge(ci, Rect2(Vector2(at.x + h + 2.0, at.y - h - 2.0) - Vector2(40, 0), Vector2(40, 40)), rank, a)
+
 ## True once `tid`'s picture for `who` wearing `outfit`, `size` px across inside its frame, is painted, figure and all.
 static func painted(tid: String, who, outfit: Dictionary, size: int, muted := false) -> bool:
 	var t := ContentDB.entry("techniques", tid)
@@ -921,6 +976,54 @@ static func draw_lock(ci: CanvasItem, r: Rect2, a := 1.0) -> void:
 	ci.draw_arc(at + Vector2(7, 7), 4.5, PI, TAU, 10, Color(UiKit.BRONZE, a), 2.5)
 	ci.draw_rect(Rect2(at + Vector2(0, 7), Vector2(14, 10)), Color(UiKit.BRONZE, a))
 	ci.draw_rect(Rect2(at + Vector2(6, 10), Vector2(2, 4)), Color(UiKit.INK, a))
+
+## Decision 43 · the round button's states (draw_round's frame, `radius` round `center`). The cooldown: the radial sweep,
+## an ink pie over the picture for the `frac` still to wait, from the top round clockwise, its edge a pale gold hand; the
+## ring dimmed over that part and bright over the part come back; the seconds left in the middle.
+static func draw_cooldown_round(ci: CanvasItem, center: Vector2, radius: float, frac: float, seconds: float, a := 1.0) -> void:
+	var c := center.round()
+	var f := clampf(frac, 0.0, 1.0)
+	var pr := radius - RING
+	var mid := radius - 1.0 - (RING - 1.0) * 0.5
+	if f > 0.02:
+		var pie := PackedVector2Array([c])
+		var n := maxi(2, int(48.0 * f))
+		for i in n + 1: pie.append(c + Vector2.from_angle(-PI / 2.0 + TAU * f * (float(i) / n)) * (pr + 0.5))
+		ci.draw_colored_polygon(pie, Color(UiKit.INK, 0.72 * a))
+		ci.draw_arc(c, mid, -PI / 2.0, -PI / 2.0 + TAU * f, maxi(4, n), Color(UiKit.INK, 0.6 * a), RING - 1.0, true)
+		ci.draw_line(c, c + Vector2.from_angle(-PI / 2.0 + TAU * f) * pr, Color(UiKit.PALE_GOLD, 0.85 * a), 1.5)
+	UiKit.draw_outlined(ci, str(int(ceil(seconds))), Vector2(c.x - 20.0, c.y + 8.0), 22, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, 40)
+	if draw_log != null: draw_log.append({"state": "cooldown", "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "frac": f, "round": true})
+
+## Short of Qi on the round button: an arc along the picture's foot, the pool's reach toward the cost in Qi blue on an
+## ink trough, filled from the left.
+static func draw_qi_short_round(ci: CanvasItem, center: Vector2, radius: float, frac: float, a := 1.0) -> void:
+	var c := center.round()
+	var r := radius - RING - 4.0
+	var from := PI * 0.8
+	var span := -PI * 0.6
+	ci.draw_arc(c, r, from, from + span, 24, Color(UiKit.INK, a), 7.0, true)
+	var f := clampf(frac, 0.0, 1.0)
+	if f > 0.0: ci.draw_arc(c, r, from, from + span * f, maxi(2, int(24 * f)), Color(UiKit.QI, a), 4.0, true)
+	if draw_log != null: draw_log.append({"state": "qi", "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "frac": f, "round": true})
+
+## Closed on the round button: the lock on its ink plate at the lower right, over the ring.
+static func draw_lock_round(ci: CanvasItem, center: Vector2, radius: float, a := 1.0) -> void:
+	var c := center.round()
+	if draw_log != null: draw_log.append({"state": "lock", "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "round": true})
+	draw_lock(ci, Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0).grow(-6.0), a)
+
+## The instant an art is ready again (`k` 0 to 1 over the flash): the ring flares pale gold and a ring of light goes out
+## from it and fades, the picture lit a moment; under Reduce motion only the ring's flare, fading in place.
+static func draw_ready_round(ci: CanvasItem, center: Vector2, radius: float, k: float, a := 1.0, still := false) -> void:
+	var c := center.round()
+	var f := clampf(k, 0.0, 1.0)
+	var fade := 1.0 - f
+	ci.draw_arc(c, radius - 1.0 - (RING - 1.0) * 0.5, 0.0, TAU, 64, Color(UiKit.PALE_GOLD, fade * a), RING - 1.0, true)
+	if not still:
+		ci.draw_circle(c, radius - RING, Color(1, 1, 1, 0.28 * fade * fade * a))
+		ci.draw_arc(c, radius + 2.0 + 10.0 * f, 0.0, TAU, 64, Color(UiKit.PALE_GOLD, 0.8 * fade * a), 2.0, true)
+	if draw_log != null: draw_log.append({"state": "ready", "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "k": f, "round": true})
 
 ## A rounded plate. Its style box is kept by the radius and the colour themselves (a HUD draws a few a button every
 ## frame: a lookup, with no key written out).

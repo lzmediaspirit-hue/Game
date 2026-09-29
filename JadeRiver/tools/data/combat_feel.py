@@ -130,8 +130,8 @@ MISSING_POSES: list = []
 WEAVE = {"technique_after": 0.0, "basic_after": 0.0, "buffer_s": 0.4, "chain_through": True}
 
 # Decision 43 · the chain's flow ("combat should feel more smooth"), found in frame-by-frame traces of real chains
-# (tools/dev/combat_trace.tscn; docs/redesign/feedback/combat_flow.md). Each press is kept and goes in its order, the
-# body turns and closes on the foe the stick picks at every step, and the chain lets go cleanly:
+# (tools/dev/combat_trace.tscn; docs/redesign_top_down_plan.md, "As built: decision 43"). Each press is kept and goes
+# in its order, the body turns and closes on the foe the stick picks at every step, and the chain lets go cleanly:
 # - `in_order`: a technique pressed while a basic step waits queued goes after that step (it cut the step before and
 #   dropped the queued press); the buffer does not run down while presses ahead of it wait. `more_taps`: Attack taps
 #   made while one waits in the buffer are kept (each the chain's next step after it), up to this many.

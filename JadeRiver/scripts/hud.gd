@@ -16,8 +16,8 @@ extends Control
 ## fight (they no longer fold into beads), and whatever the world offers in reach (talk, gather, open, enter) has its
 ## own button on ring 2, never the Attack button's face. The techniques are the Techniques tree's node pictures
 ## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, at a button's size
-## its upper body, in a jade frame), TILE px squares on ring 1; Jump is 64 px. A companion's chip shows the top-down
-## figure's head for a top-down character (_draw_face).
+## its upper body, in a jade frame), round TILE px buttons in the thumb's arc (decision 43); Jump is 64 px. A
+## companion's chip shows the top-down figure's head for a top-down character (_draw_face).
 ##
 ## The QI bar exists only once the character has a QI pool (Bone Forging 7): a
 ## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
@@ -45,14 +45,20 @@ const RING2_R := 214.0
 const FAN_R := 150.0          # the open fan's toggles round the fan button
 const PAPER_R := 190.0        # the paper fan behind them
 const JUMP_DEG := 150.0
-## Decision 42: the techniques' squares stand 27°, 36° and 27° apart (mockup 01's rings stood 30° apart), so the two
-## across the ring's diagonal keep clear of each other's corners.
-const SKILL_DEG := [180.0, 207.0, 243.0, 270.0]
+## Decision 43: the techniques are round buttons TILE px across (from decision 42's 56 px squares) in the thumb's arc
+## round Attack, 28-30° apart and a little further out than ring 1 (SKILL_R) so the bigger circles keep a few pixels
+## clear of each other, of Jump and of ring 2; the last comes in to stand clear under the context's label.
+const SKILL_DEG := [184.0, 212.0, 240.0, 270.0]
+const SKILL_R := [146.0, 146.0, 144.0, 128.0]
 const DODGE_DEG := 300.0
 const FAN_DEG := 160.0
-## Decision 42: Jump drawn at r 32 (64 px, from 52), a technique a TILE px square, the context's own button at r CTX_R.
+## Decision 42: Jump drawn at r 32 (64 px, from 52), the context's own button at r CTX_R. Decision 43: a technique a round
+## button TILE px across (x1.21 of the old square), its picture PICTURE px across inside the ring (the card's miniature,
+## TechniquePicture.draw_round), the ready flash READY_S long.
 const JUMP_R := 32.0
-const TILE := 56.0
+const TILE := 68.0
+const PICTURE := 58
+const READY_S := 0.35
 const CTX_R := 30.0
 ## Ring 2 beside the fan. A pinned toggle, the healing slot, the first treasure, the context and the swap have their
 ## own places; the rest take the next free one.
@@ -98,7 +104,7 @@ const POINTS_POP_S := 0.3     # a badge appears with a small pop (none with Redu
 var attack_center := Vector2(1165, 605)
 var jump_center := Vector2(1051, 671)
 var guard_center := Vector2(1231, 491)     # dodge on a tap, guard on a hold (ring 1 at 300°)
-var slots := [Vector2(1033, 605), Vector2(1051, 539), Vector2(1099, 491), Vector2(1165, 473)]
+var slots := [Vector2(1019, 595), Vector2(1041, 528), Vector2(1093, 480), Vector2(1165, 477)]
 var fan_center := Vector2(964, 678)
 var page_center := Vector2(1240, 672)      # the technique page tab, "1/2"
 # The fan's toggles where they stand while it is open (set with the fan each frame; the pet wheel opens round Pet).
@@ -182,7 +188,7 @@ func _layout() -> void:
 	attack_center = _mirror_x(Vector2(1165, 605))
 	jump_center = _on(attack_center, RING1_R, JUMP_DEG)
 	guard_center = _on(attack_center, RING1_R, DODGE_DEG)
-	slots = SKILL_DEG.map(func(d): return _on(attack_center, RING1_R, float(d)))
+	slots = range(SKILL_DEG.size()).map(func(i): return _on(attack_center, float(SKILL_R[i]), float(SKILL_DEG[i])))
 	fan_center = _on(attack_center, RING2_R, FAN_DEG)
 	page_center = _mirror_x(Vector2(1240, 672))
 
@@ -453,10 +459,9 @@ func hit_targets() -> Array:
 	if shown("jump"): add.call("jump", jump_center, JUMP_R)
 	if shown("guard"): add.call("guard", guard_center, 26.0)
 	if _skills_live():
-		# A technique's square: `drawn` its half side (its box, for the clear zone and the world's labels), its hit circle
-		# reaching nearly to its corners.
+		# A technique's round button (decision 43): `drawn` its radius, its hit circle a little past it.
 		for i in slots.size():
-			if _slot_filled(i + skill_page * 4): add.call("skill", slots[i], TILE * 0.5, TILE * 0.5 + 10.0)
+			if _slot_filled(i + skill_page * 4): add.call("skill", slots[i], TILE * 0.5, TILE * 0.5 + 6.0)
 	if _page_tab_shown(c): add.call("page", page_center, 24.0)
 	var fan := _fan_items()
 	if not fan.is_empty():
@@ -1880,17 +1885,19 @@ func skill_position(index: float) -> Vector2:
 	var low := clampi(int(floor(index)), 0, 2)
 	return slots[low].lerp(slots[low + 1], index - low)
 
-## Decision 42: a technique as the Techniques tree's node picture (TechniquePicture), a TILE px square in the tree's
-## bright jade frame: the character's upper body in the art's pose in its element's ink, the form's marks round it and its
-## rank badge in the upper right corner. Closed (the weapon in hand cannot use it), a slate frame, the picture dim and a
-## lock; cooling, the ink sweep and its seconds; short of Qi, the picture dimmed and a Qi strip along its foot. An empty
-## or locked slot is not drawn (G3).
+## Decision 42: a technique as the Techniques tree's node picture (TechniquePicture), the card's miniature: the whole
+## character at x1 in the art's pose in its element's ink, the form's mark beside it and its rank badge. Decision 43: a
+## round button TILE px across (TechniquePicture.draw_round: an ink rim, the bright jade ring, the picture cut to the
+## circle, the badge inside it). Closed (the weapon in hand cannot use it), a slate ring, the picture dim and a lock;
+## cooling, the radial sweep (an ink pie from the top round, the ring dim over the part to wait) and its seconds, then a
+## flash of the ring as it is ready again (READY_S); short of Qi, the picture dimmed and a Qi arc along its foot. An
+## empty or locked slot is not drawn (G3).
 func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
-	var r := Rect2(center - Vector2(TILE, TILE) * 0.5, Vector2(TILE, TILE))
+	var rad := TILE * 0.5
 	if not bound():
-		TechniquePicture.rounded(self, r, 5.0, Color(UiKit.INK, opacity))
-		TechniquePicture.rounded(self, r.grow(-1.0), 4.0, Color(UiKit.BRIGHT_JADE, opacity))
-		TechniquePicture.rounded(self, r.grow(-3.0), 3.0, Color(UiKit.JADE_SHADOW, opacity))
+		draw_circle(center, rad, Color(UiKit.INK, opacity))
+		draw_arc(center, rad - 3.0, 0.0, TAU, 48, Color(UiKit.BRIGHT_JADE, opacity), TechniquePicture.RING - 1.0, true)
+		draw_circle(center, rad - TechniquePicture.RING, Color(UiKit.JADE_SHADOW, opacity))
 		return
 	if not _slot_filled(slot): return
 	var c = Game.active()
@@ -1902,12 +1909,22 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var cost: float = Game.combat.technique_cost(c, tdef)
 	var short: bool = not closed and cd <= 0.0 and c.pools.max_qi > 0 and c.pools.qi < cost
 	var frame := UiKit.HOLLOW if closed else UiKit.BRIGHT_JADE
-	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.45 if closed else (0.72 if short else 1.0), opacity, "hud")
-	if closed: TechniquePicture.draw_lock(self, r, opacity)
+	TechniquePicture.draw_round(self, center, rad, tid, c, _look(c), frame, 0.45 if closed else (0.72 if short else 1.0), opacity, "hud")
+	if closed: TechniquePicture.draw_lock_round(self, center, rad, opacity)
 	if cd > 0.0:
-		TechniquePicture.draw_cooldown(self, r, cd / maxf(0.1, float(tdef.get("cooldown_s", 5))), cd, opacity)
-	elif short:
-		TechniquePicture.draw_qi_short(self, r, c.pools.qi / maxf(1.0, cost), opacity)
+		_cooling[tid] = true
+		TechniquePicture.draw_cooldown_round(self, center, rad, cd / maxf(0.1, float(tdef.get("cooldown_s", 5))), cd, opacity)
+	else:
+		if _cooling.has(tid):
+			_cooling.erase(tid)
+			_ready_at[tid] = t
+		if short: TechniquePicture.draw_qi_short_round(self, center, rad, c.pools.qi / maxf(1.0, cost), opacity)
+		var since := t - float(_ready_at.get(tid, -99.0))
+		if since < READY_S and not closed: TechniquePicture.draw_ready_round(self, center, rad, since / READY_S, opacity, UiKit.reduce_motion())
+
+## Decision 43: the arts seen cooling, and when each was ready again (the HUD's clock), for the ready flash.
+var _cooling := {}
+var _ready_at := {}
 
 ## The character's look for the techniques' pictures, found once a frame.
 var _look_frame := -1
