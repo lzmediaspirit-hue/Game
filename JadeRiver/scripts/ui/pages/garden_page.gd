@@ -29,6 +29,13 @@ func setup() -> void:
 	var obj := str(args.get("object", ""))
 	if obj != "" and Game.room_rt: sel = Game.room_rt.room_id + ":" + obj
 
+## The room whose beds the page shows: the room it was opened in when it has beds, else (decision 43: tended from
+## anywhere once the first harvest is in) the garden a walk there would lead to (PlaceRules.home).
+func beds_room(ch) -> String:
+	var here := str(Game.room_rt.room_id) if Game.room_rt else ""
+	if not Game.crafting.room_beds(ch, here).is_empty() or not PlaceRules.remote_open(ch, "herb_garden"): return here
+	return str(PlaceRules.home(ch, "herb_garden").get("room", here))
+
 func content_rect() -> Rect2:
 	return Rect2(TERRACES.position.x, TERRACES.position.y, TEND.end.x - TERRACES.position.x, TERRACES.size.y)
 
@@ -63,7 +70,7 @@ func draw_page() -> void:
 	if str(tabs[tab].id) == "racks":
 		_racks(ch)
 		return
-	var keys: Array = Game.crafting.room_beds(ch, Game.room_rt.room_id)
+	var keys: Array = Game.crafting.room_beds(ch, beds_room(ch))
 	if keys.is_empty():
 		para(Rect2(content.position + Vector2(20, 30), Vector2(content.size.x - 40, 80)), Tx.t("ui.garden.no_beds"), 20, UiKit.MIST)
 		return

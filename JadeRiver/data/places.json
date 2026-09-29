@@ -1,0 +1,1142 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "lf_notice_board",
+   "system": "notice_board",
+   "page": "notice_board",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "board_village",
+   "kind": "notice_board",
+   "rule": "place",
+   "name": "the Village Notice Board",
+   "state": "papers",
+   "home": true,
+   "tutorial": true,
+   "added": false,
+   "cell": [
+    36,
+    16
+   ],
+   "stand": [
+    36,
+    17
+   ],
+   "at": [
+    1168.0,
+    528.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "quest",
+   "kind_name": "Notice Board",
+   "where": "At the Village Notice Board",
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_storehouse",
+   "system": "storage",
+   "page": "storage",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "storage_village",
+   "kind": "storehouse",
+   "rule": "earned",
+   "name": "the Storehouse",
+   "state": "stock",
+   "home": true,
+   "menu": "storage",
+   "art": {
+    "kind": "shed",
+    "cells": [
+     42,
+     14,
+     3,
+     2
+    ]
+   },
+   "solid": [
+    [
+     42,
+     14,
+     3,
+     2
+    ]
+   ],
+   "added": false,
+   "cell": [
+    43,
+    16
+   ],
+   "stand": [
+    43,
+    17
+   ],
+   "at": [
+    1392.0,
+    528.0
+   ],
+   "verb": "sim.world.open",
+   "icon": "storage",
+   "kind_name": "Storehouse",
+   "where": "At the Storehouse",
+   "tutorial": false,
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "pouch_sewing"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Opens from anywhere once Tailor Xun has sewn you a pouch (A Pouch for the Road)."
+   }
+  },
+  {
+   "id": "lf_letter_box",
+   "system": "mail",
+   "page": "mail",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "letter_box_village",
+   "kind": "letter_box",
+   "rule": "both",
+   "name": "the Letter Box",
+   "state": "ribbon",
+   "home": true,
+   "tutorial": true,
+   "menu": "mail",
+   "added": true,
+   "object_def": {
+    "id": "letter_box_village",
+    "type": "letter_box",
+    "label": "Letter Box",
+    "place": "lf_letter_box",
+    "requires": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "mail"
+      }
+     ]
+    }
+   },
+   "cell": [
+    34,
+    16
+   ],
+   "stand": [
+    34,
+    17
+   ],
+   "at": [
+    1104.0,
+    528.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "mail",
+   "kind_name": "Letter Box",
+   "where": "At the Letter Box",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_meditation_mat",
+   "system": "cultivation",
+   "page": "cultivation",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "mat_village",
+   "kind": "meditation_mat",
+   "rule": "both",
+   "name": "the Meditation Mat",
+   "state": "mist",
+   "home": true,
+   "tutorial": true,
+   "menu": "cultivation",
+   "added": true,
+   "object_def": {
+    "id": "mat_village",
+    "type": "meditation_mat",
+    "label": "Meditation Mat",
+    "place": "lf_meditation_mat",
+    "spring": "spring_village",
+    "requires": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "cultivation"
+      }
+     ]
+    }
+   },
+   "cell": [
+    25,
+    28
+   ],
+   "stand": [
+    25,
+    29
+   ],
+   "at": [
+    816.0,
+    912.0
+   ],
+   "verb": "sim.world.sit",
+   "icon": "meditating",
+   "kind_name": "Meditation Mat",
+   "where": "At the Meditation Mat",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_cooking_pot",
+   "system": "cooking",
+   "page": "cooking",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "cook_village",
+   "kind": "cooking_pot",
+   "rule": "both",
+   "name": "the Village Cooking Pot",
+   "state": "steam",
+   "home": true,
+   "added": false,
+   "cell": [
+    46,
+    28
+   ],
+   "stand": [
+    46,
+    29
+   ],
+   "at": [
+    1488.0,
+    912.0
+   ],
+   "verb": "sim.world.cook",
+   "icon": "cook",
+   "kind_name": "Cooking Pot",
+   "where": "At the Village Cooking Pot",
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "lf_village",
+   "object": "shrine_village",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Village Shrine",
+   "state": "lit",
+   "home": true,
+   "tutorial": true,
+   "added": false,
+   "cell": [
+    26,
+    16
+   ],
+   "stand": [
+    26,
+    17
+   ],
+   "at": [
+    848.0,
+    528.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At the Village Shrine",
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_granny_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "lf_granny_liu_hut",
+   "object": "shrine_granny",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "Granny Liu's Altar",
+   "state": "lit",
+   "tutorial": true,
+   "added": false,
+   "cell": [
+    14,
+    5
+   ],
+   "stand": [
+    14,
+    6
+   ],
+   "at": [
+    464.0,
+    176.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At Granny Liu's Altar",
+   "home": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lf_old_ma_counter",
+   "system": "shop",
+   "page": "shop",
+   "page_args": {},
+   "room": "lf_old_ma_store",
+   "object": "npc_old_ma",
+   "kind": "counter",
+   "rule": "place",
+   "name": "Old Ma's Store",
+   "state": "wares",
+   "home": true,
+   "tutorial": true,
+   "keeper": "old_ma",
+   "stand": [
+    12,
+    6
+   ],
+   "added": false,
+   "cell": [
+    12,
+    3
+   ],
+   "at": [
+    400.0,
+    112.0
+   ],
+   "verb": "sim.world.talk",
+   "icon": "shop",
+   "kind_name": "Shop",
+   "where": "At Old Ma's Store",
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "wp_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "wp_west",
+   "object": "shrine_wp",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Wayside Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    58,
+    12
+   ],
+   "stand": [
+    58,
+    13
+   ],
+   "at": [
+    1872.0,
+    400.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At the Wayside Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sf_gate",
+   "object": "shrine_sf_gate",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Gate Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    43,
+    11
+   ],
+   "stand": [
+    43,
+    12
+   ],
+   "at": [
+    1392.0,
+    368.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At the Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_notice_board",
+   "system": "notice_board",
+   "page": "notice_board",
+   "page_args": {},
+   "room": "sf_market",
+   "object": "board_sf",
+   "kind": "notice_board",
+   "rule": "place",
+   "name": "the Market Notice Board",
+   "state": "papers",
+   "tutorial": true,
+   "added": false,
+   "cell": [
+    20,
+    13
+   ],
+   "stand": [
+    20,
+    14
+   ],
+   "at": [
+    656.0,
+    432.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "quest",
+   "kind_name": "Notice Board",
+   "where": "At the Market Notice Board",
+   "home": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_general_stall",
+   "system": "shop",
+   "page": "shop",
+   "page_args": {},
+   "room": "sf_market",
+   "object": "npc_storekeeper_fang",
+   "kind": "stall",
+   "rule": "place",
+   "name": "Proprietor Fang's Stall",
+   "state": "wares",
+   "keeper": "storekeeper_fang",
+   "art": {
+    "kind": "stall",
+    "cells": [
+     12,
+     14,
+     3,
+     1
+    ]
+   },
+   "solid": [
+    [
+     12,
+     14,
+     3,
+     1
+    ]
+   ],
+   "stand": [
+    13,
+    15
+   ],
+   "added": false,
+   "cell": [
+    13,
+    13
+   ],
+   "at": [
+    432.0,
+    432.0
+   ],
+   "verb": "sim.world.talk",
+   "icon": "shop",
+   "kind_name": "Stall",
+   "where": "At Proprietor Fang's Stall",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_storehouse",
+   "system": "storage",
+   "page": "storage",
+   "page_args": {},
+   "room": "sf_market",
+   "object": "storage_sf",
+   "kind": "storehouse",
+   "rule": "earned",
+   "name": "the Market Storehouse",
+   "state": "stock",
+   "added": false,
+   "cell": [
+    27,
+    13
+   ],
+   "stand": [
+    27,
+    14
+   ],
+   "at": [
+    880.0,
+    432.0
+   ],
+   "verb": "sim.world.open",
+   "icon": "storage",
+   "kind_name": "Storehouse",
+   "where": "At the Market Storehouse",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "pouch_sewing"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Opens from anywhere once Tailor Xun has sewn you a pouch (A Pouch for the Road)."
+   }
+  },
+  {
+   "id": "sf_courier_post",
+   "system": "mail",
+   "page": "mail",
+   "page_args": {},
+   "room": "sf_market",
+   "object": "courier_post_sf",
+   "kind": "letter_box",
+   "rule": "both",
+   "name": "the Courier Post",
+   "state": "ribbon",
+   "added": true,
+   "object_def": {
+    "id": "courier_post_sf",
+    "type": "letter_box",
+    "label": "Courier Post",
+    "place": "sf_courier_post",
+    "post": "courier",
+    "requires": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "mail"
+      }
+     ]
+    }
+   },
+   "cell": [
+    48,
+    19
+   ],
+   "stand": [
+    48,
+    20
+   ],
+   "at": [
+    1552.0,
+    624.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "mail",
+   "kind_name": "Letter Box",
+   "where": "At the Courier Post",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "sf_market",
+   "object": "stone_sf",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Market Teleport Stone",
+   "state": "attuned",
+   "home": true,
+   "added": false,
+   "cell": [
+    37,
+    18
+   ],
+   "stand": [
+    37,
+    19
+   ],
+   "at": [
+    1200.0,
+    592.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "where": "At the Market Teleport Stone",
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sf_furnace",
+   "system": "alchemy",
+   "page": "alchemy",
+   "page_args": {},
+   "room": "sf_artisan_row",
+   "object": "furnace_sf",
+   "kind": "furnace",
+   "rule": "earned",
+   "name": "the Artisan Row Furnace",
+   "state": "smoke",
+   "home": true,
+   "added": false,
+   "cell": [
+    52,
+    12
+   ],
+   "stand": [
+    52,
+    13
+   ],
+   "at": [
+    1680.0,
+    400.0
+   ],
+   "verb": "sim.world.refine",
+   "icon": "alchemy",
+   "kind_name": "Furnace",
+   "where": "At the Artisan Row Furnace",
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "realm_at_least",
+       "realm": "qi_unfurling_1"
+      }
+     ]
+    },
+    "first_use": true,
+    "scope": "queue",
+    "text": "Queue batches from anywhere from Qi Unfurling 1; refine by hand at a furnace."
+   }
+  },
+  {
+   "id": "sf_anvil",
+   "system": "smithing",
+   "page": "forge",
+   "page_args": {},
+   "room": "sf_artisan_row",
+   "object": "anvil_sf",
+   "kind": "anvil",
+   "rule": "both",
+   "name": "Smith Bao's Anvil",
+   "state": "sparks",
+   "home": true,
+   "added": false,
+   "cell": [
+    16,
+    13
+   ],
+   "stand": [
+    16,
+    14
+   ],
+   "at": [
+    528.0,
+    432.0
+   ],
+   "verb": "sim.world.forge",
+   "icon": "forge_marker",
+   "kind_name": "Forge",
+   "where": "At Smith Bao's Anvil",
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "ja_notice_board",
+   "system": "notice_board",
+   "page": "notice_board",
+   "page_args": {},
+   "room": "ja_gate_street",
+   "object": "board_ja",
+   "kind": "notice_board",
+   "rule": "place",
+   "name": "the Jade Sect Notice Board",
+   "state": "papers",
+   "sect": "jade_sect",
+   "added": false,
+   "cell": [
+    60,
+    13
+   ],
+   "stand": [
+    60,
+    14
+   ],
+   "at": [
+    1936.0,
+    432.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "quest",
+   "kind_name": "Notice Board",
+   "where": "At the Jade Sect Notice Board",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "ja_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "ja_gate_street",
+   "object": "stone_ja",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Jade Gate Teleport Stone",
+   "state": "attuned",
+   "sect": "jade_sect",
+   "added": false,
+   "cell": [
+    13,
+    20
+   ],
+   "stand": [
+    13,
+    21
+   ],
+   "at": [
+    432.0,
+    656.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "where": "At the Jade Gate Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "ja_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "ja_gate_street",
+   "object": "shrine_ja",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Jade Gate Shrine",
+   "state": "lit",
+   "sect": "jade_sect",
+   "added": false,
+   "cell": [
+    4.5,
+    13
+   ],
+   "stand": [
+    5,
+    14
+   ],
+   "at": [
+    160.0,
+    432.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At the Jade Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "ja_garden",
+   "system": "herb_garden",
+   "page": "garden",
+   "page_args": {},
+   "room": "ja_herb_terraces",
+   "object": "bed_0",
+   "kind": "garden_bed",
+   "rule": "earned",
+   "name": "the Herb Terraces",
+   "state": "growth",
+   "home": true,
+   "menu": "garden",
+   "sect": "jade_sect",
+   "beds": [
+    "bed_0",
+    "bed_1",
+    "bed_2"
+   ],
+   "added": false,
+   "cell": [
+    18,
+    17
+   ],
+   "stand": [
+    18,
+    18
+   ],
+   "at": [
+    592.0,
+    560.0
+   ],
+   "verb": "sim.world.tend",
+   "icon": "craft_foraging",
+   "kind_name": "Garden",
+   "where": "At the Herb Terraces",
+   "tutorial": false,
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "place_used:herb_garden"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Tend your beds from anywhere after your first harvest."
+   }
+  },
+  {
+   "id": "cm_notice_board",
+   "system": "notice_board",
+   "page": "notice_board",
+   "page_args": {},
+   "room": "cm_cliff_stair",
+   "object": "board_cm",
+   "kind": "notice_board",
+   "rule": "place",
+   "name": "the Cloud Sect Notice Board",
+   "state": "papers",
+   "sect": "cloud_sect",
+   "added": false,
+   "cell": [
+    46,
+    20
+   ],
+   "stand": [
+    46,
+    21
+   ],
+   "at": [
+    1488.0,
+    656.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "quest",
+   "kind_name": "Notice Board",
+   "where": "At the Cloud Sect Notice Board",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "cm_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "cm_cliff_stair",
+   "object": "stone_cm",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Cliff Stair Teleport Stone",
+   "state": "attuned",
+   "sect": "cloud_sect",
+   "added": false,
+   "cell": [
+    13,
+    24
+   ],
+   "stand": [
+    13,
+    25
+   ],
+   "at": [
+    432.0,
+    784.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "where": "At the Cliff Stair Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "cm_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "cm_cliff_stair",
+   "object": "shrine_cm",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Cliff Stair Shrine",
+   "state": "lit",
+   "sect": "cloud_sect",
+   "added": false,
+   "cell": [
+    14,
+    19
+   ],
+   "stand": [
+    14,
+    20
+   ],
+   "at": [
+    464.0,
+    624.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "where": "At the Cliff Stair Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {}
+  },
+  {
+   "id": "cm_garden",
+   "system": "herb_garden",
+   "page": "garden",
+   "page_args": {},
+   "room": "cm_array_court",
+   "object": "bed_cm_0",
+   "kind": "garden_bed",
+   "rule": "earned",
+   "name": "the Array Court Beds",
+   "state": "growth",
+   "home": true,
+   "menu": "garden",
+   "sect": "cloud_sect",
+   "beds": [
+    "bed_cm_0",
+    "bed_cm_1",
+    "bed_cm_2"
+   ],
+   "added": false,
+   "cell": [
+    7,
+    25
+   ],
+   "stand": [
+    7,
+    26
+   ],
+   "at": [
+    240.0,
+    816.0
+   ],
+   "verb": "sim.world.tend",
+   "icon": "craft_foraging",
+   "kind_name": "Garden",
+   "where": "At the Array Court Beds",
+   "tutorial": false,
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "place_used:herb_garden"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Tend your beds from anywhere after your first harvest."
+   }
+  },
+  {
+   "id": "cm_furnace",
+   "system": "alchemy",
+   "page": "alchemy",
+   "page_args": {},
+   "room": "cm_array_court",
+   "object": "furnace_cm",
+   "kind": "furnace",
+   "rule": "earned",
+   "name": "the Array Court Furnace",
+   "state": "smoke",
+   "sect": "cloud_sect",
+   "added": false,
+   "cell": [
+    45,
+    12
+   ],
+   "stand": [
+    45,
+    13
+   ],
+   "at": [
+    1456.0,
+    400.0
+   ],
+   "verb": "sim.world.refine",
+   "icon": "alchemy",
+   "kind_name": "Furnace",
+   "where": "At the Array Court Furnace",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "realm_at_least",
+       "realm": "qi_unfurling_1"
+      }
+     ]
+    },
+    "first_use": true,
+    "scope": "queue",
+    "text": "Queue batches from anywhere from Qi Unfurling 1; refine by hand at a furnace."
+   }
+  }
+ ],
+ "kinds": {
+  "notice_board": {
+   "name": "Notice Board",
+   "icon": "quest",
+   "verb": "sim.world.read"
+  },
+  "stall": {
+   "name": "Stall",
+   "icon": "shop",
+   "verb": "sim.world.talk"
+  },
+  "counter": {
+   "name": "Shop",
+   "icon": "shop",
+   "verb": "sim.world.talk"
+  },
+  "storehouse": {
+   "name": "Storehouse",
+   "icon": "storage",
+   "verb": "sim.world.open"
+  },
+  "garden_bed": {
+   "name": "Garden",
+   "icon": "craft_foraging",
+   "verb": "sim.world.tend"
+  },
+  "furnace": {
+   "name": "Furnace",
+   "icon": "alchemy",
+   "verb": "sim.world.refine"
+  },
+  "anvil": {
+   "name": "Forge",
+   "icon": "forge_marker",
+   "verb": "sim.world.forge"
+  },
+  "cooking_pot": {
+   "name": "Cooking Pot",
+   "icon": "cook",
+   "verb": "sim.world.cook"
+  },
+  "teleport_stone": {
+   "name": "Teleport Stone",
+   "icon": "teleport_marker",
+   "verb": "sim.world.travel"
+  },
+  "meditation_mat": {
+   "name": "Meditation Mat",
+   "icon": "meditating",
+   "verb": "sim.world.sit"
+  },
+  "letter_box": {
+   "name": "Letter Box",
+   "icon": "mail",
+   "verb": "sim.world.read"
+  },
+  "shrine": {
+   "name": "Shrine",
+   "icon": "shrine_marker",
+   "verb": "sim.world.pray"
+  }
+ },
+ "kind_order": [
+  "notice_board",
+  "stall",
+  "counter",
+  "storehouse",
+  "letter_box",
+  "garden_bed",
+  "furnace",
+  "anvil",
+  "cooking_pot",
+  "meditation_mat",
+  "teleport_stone",
+  "shrine"
+ ],
+ "rules": {
+  "both": "the place opens the page; the Menu or the HUD keeps it too",
+  "earned": "the first uses at the place; remote.after (and a first use, remote.first_use) opens it from anywhere",
+  "place": "only at the place"
+ },
+ "tutorial_rooms": [
+  "lf_fishers_hut",
+  "lf_granny_liu_hut",
+  "lf_lu_boat",
+  "lf_old_ma_store",
+  "lf_reed_shallows",
+  "lf_village",
+  "sf_artisan_row",
+  "sf_fairground",
+  "sf_gate",
+  "sf_market",
+  "wp_east",
+  "wp_west"
+ ]
+}

@@ -79,6 +79,11 @@ static func from_dict(d: Dictionary, ts: Dictionary = {}) -> TopdownRoom:
 					if not r.inside(cell.x + x, cell.y + y): continue
 					r.solid[(cell.y + y) * r.w + cell.x + x] = 1
 					if art.has("top"): r.top_of[(cell.y + y) * r.w + cell.x + x] = r.props.size()
+	# Decision 43: a place's sight blocks its cells as a prop's footprint does (a stall's counter, the Storehouse's shed).
+	for s in PlaceRules.solids(r.id):
+		for y in (s as Rect2i).size.y:
+			for x in (s as Rect2i).size.x:
+				if r.inside(s.position.x + x, s.position.y + y): r.solid[(s.position.y + y) * r.w + s.position.x + x] = 1
 	var sp: Array = d.get("spawn", [1, 1])
 	r.spawn = Vector2((float(sp[0]) + 0.5) * TILE, (float(sp[1]) + 0.5) * TILE)
 	return r
@@ -462,4 +467,12 @@ func merge_def(side: Dictionary) -> Dictionary:
 		for i in mini((ev.get("timed_spawns", []) as Array).size(), timed.size()):
 			var tp := cell_point(timed[i])
 			ev.timed_spawns[i].at = [tp.x, tp.y]
+	# Decision 43 (systems as places): the objects the places table adds to this room (a letter box, a meditation mat),
+	# each on its cell's floor (data/places.json; PlaceRules).
+	var added := PlaceRules.added_objects(id)
+	if not added.is_empty():
+		if not out.has("objects"): out.objects = []
+		for o in added:
+			o.alt = floor_at(Vector2(float(o.at[0]), float(o.at[1])))
+			out.objects.append(o)
 	return out

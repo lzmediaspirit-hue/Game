@@ -1577,7 +1577,9 @@ func _handle(name: String, p: Dictionary) -> void:
 				elif why not in ["off", "path"]: add_log(Tx.t("sim.world.auto_hunt_" + why), UiKit.MIST)
 				else: add_log(Tx.t("hud.auto_hunt_off"), UiKit.MIST)
 		"auto_path_started":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auto_path_to") % ContentDB.name_of("rooms", str(p.target)), UiKit.PALE_GOLD)
+			# Decision 43: a walk to a place names the place ("the Storehouse"), else the room.
+			var dest := str(p.get("name", "")) if str(p.get("name", "")) != "" else ContentDB.name_of("rooms", str(p.target))
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auto_path_to") % dest, UiKit.PALE_GOLD)
 		"auto_path_ended":
 			if str(p.get("actor", "")) == Game.active_id and str(p.get("reason", "")) != "cancelled":
 				add_log(Tx.t("hud.auto_path_" + str(p.get("reason", "arrived"))), UiKit.PALE_GOLD if str(p.get("reason", "")) == "arrived" else UiKit.MIST)
