@@ -1956,6 +1956,24 @@ func combat_feel_suite() -> void:
 		var ph := CombatFeel.technique_phases(t)
 		if not forms.has(str(t.get("vfx", {}).get("anim", ""))) or float(ph.anticipation) <= 0.0 or float(ph.active) <= 0.0 or float(ph.recovery) <= 0.0: tech_bad += 1
 	check(tech_bad == 0, "combat feel: every technique plays a built top-down form with positive phases (%d do not)" % tech_bad)
+	# Decision 42, the weave: a short buffer, and every cut after the blow it cuts has landed and within it.
+	var wv: Dictionary = feel.get("weave", {})
+	var weave_bad: Array = []
+	var t_share := float(wv.get("technique_after", -1.0))
+	var b_share := float(wv.get("basic_after", -1.0))
+	if float(wv.get("buffer_s", 0.0)) <= 0.0 or float(wv.get("buffer_s", 0.0)) > 0.6 or t_share < 0.0 or t_share > 1.0 or b_share < 0.0 or b_share > 1.0:
+		weave_bad.append("table %s" % str(wv))
+	for fam in ContentDB.all("weapon_families"):
+		for speed in [1.0, 1.5, 2.5]:
+			for i in (fam.get("combo", []) as Array).size():
+				var ph := CombatFeel.phases(fam, i, speed)
+				var cut := float(ph.anticipation) + float(ph.active) + float(ph.recovery) * t_share
+				if cut < float(ph.hit_at) or cut > float(ph.duration) + 0.0001: weave_bad.append("%s step %d at %.1f: cut %.3f" % [fam.id, i + 1, speed, cut])
+	for t in ContentDB.all("techniques"):
+		var tp := CombatFeel.technique_phases(t)
+		var cut := float(tp.anticipation) + float(tp.active) + float(tp.recovery) * b_share
+		if cut < float(tp.hit_at) or cut > float(tp.duration) + 0.0001: weave_bad.append("technique %s: cut %.3f" % [t.id, cut])
+	check(weave_bad.is_empty(), "combat feel: the weave's buffer is short and every cut (a technique into a step's recovery, a basic attack into a technique's) comes after the blow it cuts has landed (%s)" % str(weave_bad.slice(0, 4)))
 	# Foes: every blow has its wind-up, strike and recovery.
 	var foe_bad: Array = []
 	for e in ContentDB.all("enemies"):
