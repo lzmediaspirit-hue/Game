@@ -185,13 +185,13 @@ func _letter_box(f: Vector2) -> void:
 	_px(b + Vector2(19, -7), 1, 1, GOLD[2])
 	_px(b + Vector2(-3, -1), 22, 1, Color(SHADOW, 0.7))
 	if str(def.get("post", "")) == "courier":
-		# A courier post's jade pennant on a thin staff to the east, clear of the courier beside it.
-		_px(f + Vector2(12, -42), 1, 42, DARK[3])
-		_px(f + Vector2(11, -1), 3, 1, DARK[1])
+		# A courier post's jade pennant on a thin staff to the west (its flag is on the east).
+		_px(f + Vector2(-13, -42), 1, 42, DARK[3])
+		_px(f + Vector2(-14, -1), 3, 1, DARK[1])
 		var wave := roundf(sin(t * 3.0)) if motion() else 0.0
-		for k in 7: _px(f + Vector2(13, -42 + k), 8 - k, 1, JADE[1] if k % 2 else JADE[2])
-		_px(f + Vector2(20 + wave, -41), 1, 2, JADE[3])
-		_px(f + Vector2(11, -43), 3, 1, GOLD[2])
+		for k in 7: _px(f + Vector2(-20 + k, -42 + k), 7 - k, 1, JADE[1] if k % 2 else JADE[2])
+		_px(f + Vector2(-21 + wave, -41), 1, 2, JADE[3])
+		_px(f + Vector2(-14, -43), 3, 1, GOLD[2])
 	# The flag on its east side: up while a letter waits, folded down along the side when none does.
 	if waiting:
 		var flick := roundf(sin(t * 5.0)) if motion() else 0.0
@@ -284,7 +284,7 @@ func _board_papers() -> void:
 		_px(p + Vector2(2, -1), 2, 1, RED[3] if i % 2 == 0 else RED[2])   # its pin
 	if int(st.get("new", 0)) <= 0: return
 	var bob := roundf(sin(t * 3.5) * 1.5) if motion() else 0.0
-	var c := Vector2(0, -52 + bob)
+	var c := Vector2(14, -47 + bob)   # over the roof's east corner, clear of whatever stands behind the board
 	_px(c + Vector2(-2, -1), 5, 11, INK)
 	_px(c + Vector2(-1, 0), 3, 6, GOLD[2])
 	_px(c + Vector2(-1, 0), 1, 6, GOLD[3])
@@ -296,31 +296,42 @@ func _board_papers() -> void:
 ## one is ready to take a jade wisp curls over it.
 func _furnace_smoke() -> void:
 	if not bool(st.get("on", false)) and int(st.get("new", 0)) <= 0: return
-	var top := Vector2(0, -40)
-	for i in 5:
-		var ph := fmod(t * 0.45 + i * 0.2, 1.0) if motion() else i * 0.2
-		var p := top + Vector2(sin(ph * 5.0 + i) * 2.0 + ph * 5.0, -ph * 26.0)
-		var r := 1.0 + ph * 3.0
-		var a := 0.6 * (1.0 - ph)
-		_px(p - Vector2(r, r * 0.8), r * 2.0, r * 1.6, Color(PLASTER[2], a))
-		_px(p - Vector2(r - 1.0, r * 0.8), maxf(1.0, r * 2.0 - 2.0), 1, Color(PLASTER[5], a))
+	var top := Vector2(1, -41)
+	# Puffs of smoke rising from the lid, growing and thinning as they climb and drift east; each lit on its north-west
+	# rim, its shade to the south-east.
+	for i in 6:
+		var ph := fmod(t * 0.4 + i / 6.0, 1.0) if motion() else i / 6.0
+		var p := top + Vector2(sin(ph * 4.0 + i) * 2.0 + ph * 7.0, -ph * 34.0)
+		var r := roundf(2.0 + ph * 4.0)
+		var a := 0.85 * (1.0 - ph * 0.8)
+		_px(p - Vector2(r, r - 1.0), r * 2.0, r * 2.0 - 1.0, Color(PLASTER[2], a))
+		_px(p - Vector2(r - 1.0, r), r * 2.0 - 2.0, 1, Color(PLASTER[5], a))
+		_px(p - Vector2(r, r - 2.0), 1, r - 1.0, Color(PLASTER[4], a))
+		_px(p + Vector2(-r + 1.0, r - 2.0), r * 2.0 - 2.0, 1, Color(PLASTER[0], a * 0.8))
 	if int(st.get("new", 0)) > 0:
-		# The wisp: a small curl of jade light over the lid.
-		for k in 8:
-			var a2 := t * 3.0 + k * 0.7 if motion() else k * 0.7
-			var q := top + Vector2(cos(a2) * (5.0 - k * 0.5), -10.0 - k * 1.6 + sin(a2) * 1.5)
-			_px(q, 1, 1, Color(JADE[2].lerp(JADE[3], k / 8.0), 0.95))
+		# The wisp: a flame of jade light curling up over the lid, a glow round it, the batch ready to take.
+		var g := 0.7 + 0.3 * sin(t * 4.0) if motion() else 1.0
+		for k in 10:
+			var a2 := t * 2.5 + k * 0.6 if motion() else k * 0.6
+			var q := top + Vector2(cos(a2) * (4.0 - k * 0.3), -6.0 - k * 2.2)
+			var w := 3.0 if k < 4 else (2.0 if k < 8 else 1.0)
+			_px(q - Vector2(w * 0.5, 0), w, 2, Color(JADE[2], 0.9 * g))
+			_px(q, 1, 1, Color(JADE[3], g))
+		_px(top + Vector2(-4, -8), 9, 1, Color(JADE[2], 0.35 * g))
+		_px(top + Vector2(-2, -32), 5, 2, Color(JADE[3], 0.6 * g))
 
 # ------------------------------------------------------------------ a ripe bed's glints
+## Over a ripe bed, gold glints rise and wink: the herb is ready to take.
 func _bed_glints() -> void:
 	if not bool(st.get("on", false)): return
-	for i in 3:
-		var ph := fmod(t * 0.6 + i * 0.33, 1.0) if motion() else i * 0.33
-		var p := Vector2(-9.0 + i * 9.0, -8.0 - ph * 14.0)
+	for i in 4:
+		var ph := fmod(t * 0.5 + i * 0.25, 1.0) if motion() else i * 0.25
+		var p := Vector2(-12.0 + i * 8.0, -10.0 - ph * 18.0).round()
 		var a := sin(ph * PI)
 		_px(p, 1, 1, Color(GOLD[4], a))
-		_px(p + Vector2(-1, 0), 3, 1, Color(GOLD[3], a * 0.5))
-		_px(p + Vector2(0, -1), 1, 3, Color(GOLD[3], a * 0.5))
+		_px(p + Vector2(-2, 0), 5, 1, Color(GOLD[3], a * 0.7))
+		_px(p + Vector2(0, -2), 1, 5, Color(GOLD[3], a * 0.7))
+		_px(p + Vector2(-1, -1), 3, 3, Color(GOLD[2], a * 0.35))
 
 # ------------------------------------------------------------------ the Storehouse's shed
 ## A lean-to storehouse of dark timber on the footprint (three cells by two): a roof of grey glazed tile over an open
@@ -498,3 +509,76 @@ func _shop() -> String:
 	for s in n.get("services", []):
 		if str(s).begins_with("shop:"): return str(s).trim_prefix("shop:")
 	return ""
+
+# ------------------------------------------------------------------ the minimap's glyph
+## A place's glyph on the minimap (decision 43), 9 x 9 px in the HUD's pixels, on a dark disc so it reads over the map:
+## a board with its paper, a stall's striped awning, a storehouse's roof, a letter, a sprout, a furnace's flame, an
+## anvil, a pot, a stele, a mat's ring, a shrine's red roof. `wait`: a gold spark at its corner.
+static func glyph(ci: CanvasItem, c: Vector2, kind: String, wait: bool, t := 0.0) -> void:
+	var px := func(x: float, y: float, w: float, h: float, col: Color) -> void: ci.draw_rect(Rect2(c + Vector2(x, y), Vector2(w, h)), col)
+	ci.draw_circle(c, 7.5, Color(UiKit.INK, 0.85), true, -1.0, true)
+	ci.draw_arc(c, 7.5, 0.0, TAU, 20, Color(UiKit.PALE_GOLD, 0.55), 1.0, true)
+	var paper := UiKit.PAPER
+	var wood := Color("875a33")
+	match kind:
+		"notice_board":
+			px.call(-4, -4, 8, 6, wood)
+			px.call(-3, -3, 3, 3, paper)
+			px.call(1, -3, 2, 4, paper)
+			px.call(-4, 2, 1, 3, wood)
+			px.call(3, 2, 1, 3, wood)
+		"stall", "counter":
+			for i in 4: px.call(-4 + i * 2, -4, 2, 3, Color("c23d37") if i % 2 == 0 else paper)
+			px.call(-4, 0, 8, 4, wood)
+			px.call(-4, 0, 8, 1, Color("cb9c64"))
+		"storehouse":
+			px.call(-5, -4, 10, 3, Color("7d8c90"))
+			px.call(-4, -1, 8, 5, Color("623e23"))
+			px.call(-1, 0, 2, 4, Color("241508"))
+		"letter_box":
+			px.call(-4, -3, 8, 6, paper)
+			px.call(-4, -3, 8, 1, Color("c9bfa5"))
+			px.call(-3, -2, 1, 1, Color("7a705b"))
+			px.call(2, -2, 1, 1, Color("7a705b"))
+			px.call(-2, -1, 1, 1, Color("7a705b"))
+			px.call(1, -1, 1, 1, Color("7a705b"))
+			px.call(-1, 0, 2, 1, Color("c23d37"))
+		"garden_bed":
+			px.call(-4, 2, 8, 2, Color("745035"))
+			px.call(0, -3, 1, 5, Color("63aa4c"))
+			px.call(-3, -2, 3, 2, Color("8fc65c"))
+			px.call(1, -4, 3, 2, Color("8fc65c"))
+		"furnace":
+			px.call(-4, -1, 8, 5, Color("5e6d74"))
+			px.call(-3, -1, 6, 1, Color("a3b0b0"))
+			px.call(-1, -4, 2, 3, Color("f58a3a"))
+			px.call(0, -5, 1, 2, Color("ffc35e"))
+		"anvil":
+			px.call(-4, -2, 8, 2, Color("83949a"))
+			px.call(-1, 0, 3, 2, Color("405058"))
+			px.call(-3, 2, 7, 2, Color("405058"))
+		"cooking_pot":
+			px.call(-4, -1, 8, 4, Color("2a353b"))
+			px.call(-4, -1, 8, 1, Color("5e6f76"))
+			px.call(-2, -4, 1, 2, Color(paper, 0.8))
+			px.call(1, -5, 1, 3, Color(paper, 0.8))
+		"teleport_stone":
+			px.call(-2, -5, 4, 9, Color("2c9e8f"))
+			px.call(-2, -5, 1, 9, Color("67d6bd"))
+			px.call(-1, -2, 2, 2, Color("c8f4e6"))
+		"meditation_mat":
+			ci.draw_arc(c + Vector2(0, 1), 3.5, 0.0, TAU, 14, Color("c4bc62"), 2.0, true)
+			px.call(-1, -4, 2, 2, Color("32bed1"))
+		"shrine":
+			px.call(-5, -4, 10, 2, Color("c23d37"))
+			px.call(-4, -2, 8, 1, Color("962a2f"))
+			px.call(-3, -1, 1, 5, Color("962a2f"))
+			px.call(2, -1, 1, 5, Color("962a2f"))
+			px.call(-1, 0, 2, 3, Color("e5b84c"))
+		_:
+			px.call(-2, -2, 4, 4, UiKit.BRIGHT_JADE)
+	if wait:
+		var k := 0.6 + 0.4 * sin(t * 5.0) if not UiKit.reduce_motion() else 1.0
+		ci.draw_circle(c + Vector2(6, -6), 3.0, Color(UiKit.INK, 0.9), true, -1.0, true)
+		ci.draw_circle(c + Vector2(6, -6), 2.0, Color(UiKit.GOLD, k), true, -1.0, true)
+

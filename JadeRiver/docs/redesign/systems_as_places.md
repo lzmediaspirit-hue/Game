@@ -2,7 +2,8 @@
 
 Roadmap decision 36 (`docs/roadmap_master_ui.md` §6) runs the full game logic in the top-down prototype first. It also
 asks for a study of which systems should live on the map as places rather than in the player's menu. This is that
-study. It is a proposal for the user to decide; nothing here is built.
+study. It was a proposal for the user to decide. Roadmap decision 43 is the user's go-ahead ("don't forget some
+systems should be moved to the main world map instead"); what was built is in "As built" at the end.
 
 It extends `docs/redesign_top_down_plan.md` §3 ("Systems that could live in the world") in four ways:
 
@@ -397,6 +398,142 @@ A training dummy for trying the aim forms and the drag moves would be a cheap ni
 4. **Tribulation terraces:** flavour only, where the Cultivate button's route leads (recommended), or a rule for major
    steps.
 5. **When fishing moves into the world:** Phase 6b (recommended) or sooner.
+
+---
+
+## As built (decision 43, 2026-09-29)
+
+The user's go-ahead: "don't forget some systems should be moved to the main world map instead." The study's set for
+the prototype is built in the top-down game (every room on the height grid), with its rules, in the rooms the systems
+belong to rather than one test square. The pages do not change.
+
+### The place table
+
+`tools/data/places.py` builds `data/places.json` (run by `build_data.py`; `python3 tools/data/places.py --check` in
+`tools/run_tests.sh`). One row per place. The fields are stable, so other readers (the unlock tutorials' "go to the
+place" step) may rely on them:
+
+| Field | What |
+|---|---|
+| `id` | the place's id (`lf_storehouse`) |
+| `system` | the unlock id of the system it serves (`storage`, `mail`, `herb_garden`, `alchemy`, `notice_board`, `shop`, `teleport_stones`, `cultivation`, `cooking`, `smithing`, `shrines`) |
+| `page`, `page_args` | the page it opens (`scripts/main.gd` `PAGES`; `""` for a shrine, which heals) and what on |
+| `room`, `object` | the room (with a layout on the grid) and the object in it that is the place: one of the side view's, or one the table adds |
+| `added`, `object_def` | the table adds the object to the room on the grid (`TopdownRoom.merge_def`; never to the side view): its definition |
+| `cell`, `at` | the object's cell on the room's grid, and its centre in world units |
+| `stand` | the cell a body stands on to use it: within the context button's reach and clear of every person's and pickup's (which would take the button); auto-path reaches it from every way into the room |
+| `kind`, `kind_name`, `icon` | what it is in the world (`notice_board`, `stall`, `storehouse`, `letter_box`, `garden_bed`, `furnace`, `anvil`, `cooking_pot`, `meditation_mat`, `teleport_stone`, `shrine`), its name, its icon on the world map |
+| `name`, `where` | its name ("the Storehouse") and the Menu's line while its system lives there ("At the Storehouse") |
+| `verb` | the string key of the context button's verb there |
+| `state` | what its sight shows: `papers`, `wares`, `stock`, `growth`, `smoke`, `sparks`, `steam`, `attuned`, `mist`, `ribbon`, `lit` |
+| `rule` | `both`, `earned` or `place` (§0) |
+| `remote` | for `earned`: `after` (requirements, as an unlock's trigger), `first_use` (a first use at a place of the system too), `text` |
+| `menu` | the Menu tablet that says where the system lives (`""` for none) |
+| `home` | the system's first place: a walk there and the tutorials lead to it (`PlaceRules.home` prefers the character's own sect's, then the home one, then the nearest) |
+| `tutorial` | the system is first used in the prologue or the tutorial, so its home place is on their path |
+| `sect` | a sect's place (shown once the character is of that sect) |
+| `art`, `solid` | a sight built round it (the Storehouse's shed, a stall) and the cells it blocks like a prop's footprint |
+| `keeper`, `beds` | a stall's keeper; a garden's beds |
+
+The table is checked as it is built: its cell stands on a floor, auto-path reaches its `stand` from every way in, what
+it blocks leaves every thing and way of its room reached, and a tutorial system's home place is in a room of the
+prologue or the tutorial (`tutorial_rooms`). The walk to a place is `{"type": "auto_path", "target": <room>, "place":
+<id>}`; `PlaceRules` (`scripts/simulation/rules/place_rules.gd`) reads the table.
+
+### What lives where
+
+| System | Place (room) | Rule | What the world shows |
+|---|---|---|---|
+| Notice Board | the village board (Lotus Ferry), the Market's, both sects' | place | one paper per bounty, request and mission (six at most); a gold "!" while one is new since the last reading |
+| Shop | Proprietor Fang's stall (Market Street): a counter with his wares, an awning and a rack behind him; Old Ma's counter (her store) | place | the wares on the counter, in the shop's colour |
+| Storage | the Storehouse (Lotus Ferry): a lean-to shed of dark timber and grey tile behind the chest; the Market Storehouse | earned | the shed's sacks by what the storehouse holds (none, one, two, three), a crate once anything is stored |
+| Mail | the letter box (Lotus Ferry, by the board) and a courier post (Market Street), added objects | both | a red ribbon with a bow, the flag up and a gold glint while a letter waits; the flag folded when none does |
+| Meditation | the meditation mat by the village spring, an added object (Sit opens Cultivation) | both | the Qi mist rising over it, thicker as the room's Qi is denser |
+| Garden | the Herb Terraces' beds (Jade), the Array Court's (Cloud) | earned | each bed's herb by its stage (as before), gold glints over a ripe one |
+| Alchemy | the Artisan Row furnace, the Array Court's | earned (the queue) | smoke while a batch is in it, a jade wisp once one is ready |
+| Forge, Cooking | Smith Bao's anvil, the village pot | both | their props' sparks and steam |
+| Teleport | the Market's stone, both sects' | place | attuned or not (its prop's states) |
+| Revival | the shrines of the prologue, the tutorial and the sects | place | the last shrine lit (its prop's state) |
+
+The Lotus Ferry services stand round the square within one screen (rule 4): the shrine, the letter box, the notice
+board, the Storehouse and the cooking pot.
+
+### Earned remote access
+
+`PlaceRules.remote_open(c, system)`; a first use at a place sets the flag `place_used:<system>`.
+
+- **Storage**: at a storehouse chest until Tailor Xun has sewn the character a pouch (`pouch_sewing`, A Pouch for the
+  Road) and it has been opened at one. Before that the Menu's Storage says "At the Storehouse".
+- **The Garden's tending**: a bed is tended in its own room (`CraftingAuthority._bed_check`) until the first harvest;
+  then from anywhere, and the Garden page opened away from beds shows the home garden's (`garden_page.gd` `beds_room`).
+- **The Crafts queue** (auto-refine): queued at a furnace (the station rule) until a first batch has been queued at one
+  and the character is at Qi Unfurling 1; then from anywhere (`queue_auto`, `recipe_check`'s `anywhere`). Refining by
+  hand still needs the furnace.
+
+### The Menu, the map and the walk
+
+- **The Menu** gains Storage (the Self bay) and the Garden (the Works bay). While the system lives at its place the
+  tablet's line says where in jade ("At the Storehouse"), and a tap opens a card: what it is, where ("At the Storehouse
+  · Lotus Ferry Village"), how it comes to open from anywhere, and Travel there (Walk there in the same area), which
+  closes the Menu and starts the walk. Once it opens from anywhere the tablet opens the page.
+- **The walk** (`WorldAuthority.start_auto_path` with `place`): through the rooms by the ways open to the character,
+  then on inside the place's room to its `stand` cell by the grid's route (TopdownRoute, round everything on the way),
+  where it ends ("Auto-path: on the way to the Storehouse", then "you have arrived"; `place_reached`). The context
+  button then offers the place's verb.
+- **The world map** gains a fourth view, Places: the kinds of place on the card (Notice Board, Shop, Storehouse,
+  Letter Box, Garden, Furnace, Forge, Cooking Pot, Meditation Mat, Teleport Stone, Shrine); every area that holds the
+  chosen kind wears the ring and the kind's icon in a gold disc; a tap on an area or its disc chooses its place; the
+  card names it, its room, what it shows now ("8 notices posted", "12 kinds of things stored"), its rule, and Go there
+  (or Walk there).
+- **The minimap** draws each place of the room as a small glyph of its kind (a board with its paper, a striped awning,
+  a roof over a box, a letter, a sprout, a flame, an anvil, a pot, a stele, a mat's ring, a red roof) on a dark disc; a
+  place where something waits (a new notice, a letter, a ripe bed, a ready batch) wears a gold spark. Places a few
+  cells apart step apart on the small map. A tap near one opens the world map's Places on it, whose card offers the
+  walk.
+
+### The world
+
+`TopdownPlaceArt` (`scripts/topdown/topdown_place_art.gd`) draws what the places add, in the room's pixel viewport, one
+art px a px, in the palette of `tools/art/topdown/palette.py` with the sun in the north-west (art bible §14), original
+art drawn pixel by pixel, nearest-neighbour: the added objects whole (the letter box, the mat), the overlays on the
+side view's objects (the board's papers and "!", the furnace's smoke and wisp, a ripe bed's glints), and the sights
+sorted with the room at their footprint's edge (the shed, the stall's counter in front of its keeper and its awning
+behind him). Under Reduce motion the state stays and the motion stops.
+
+A fix found in the review: an object's prop was drawn at its side-view depth as its z (1500 and more) in the top-down
+view, so every thing drew over every body; a notice board covered the head of one standing in front of it. The Figure
+now sorts it with the room (`TopdownPlaces.build`).
+
+### The unlock order
+
+No place stands between a new player and a lesson. The systems of the prologue and the tutorial (Mail, Shop, the
+Notice Board, Cultivation, the shrines) have their home place on their path (Lotus Ferry, Old Ma's store, Granny Liu's
+hut, Market Street) and are never earned-remote; the systems bound to a place (Storage, the Garden, the Crafts queue)
+open after the prototype's story. The added cells block nothing the rooms' scenes walk through.
+
+### Tests and screens
+
+- `places_tests` (`tests/places_suite.gd`, in `tools/run_tests.sh`): the table (every place built in its room, its
+  sight's cells blocked, its user's cell reached by auto-path from every way in; the study's set), every place opening
+  its page from its user's cell with the context button offering it (a keeper's talk offering the trade), the three
+  remote rules before and after their milestones, the map's marks for every place and the minimap's with the tap, the
+  Menu's line, card and Travel through the rooms to the place, and the unlock order.
+- `tools/data/places.py --check` in `tools/run_tests.sh`.
+- Screens in `docs/redesign/feedback/places/` (`tools/dev/places_capture.tscn`): the Lotus Ferry services with and
+  without anything waiting, the mat, the minimap, the Market's stall, board, storehouse and courier post, walking up to
+  a board, the furnace working and ready, the beds, the world map's Places, the Menu's Storage and its card, and the
+  walk arrived.
+
+### Left for later (the study's phases)
+
+- The interact poses (the body turning to the place and playing open, tend, sit, pray): the catalogue's `interact`
+  pose is not drawn yet (AGENTS.md: a new animation needs every layer).
+- Lotus Ferry's calendar board, the post markers of the Roll-Call, the Qi mist at every spring (Phase 4).
+- The Cave Abode as the home with its stable yard, tool bench and home stone; the Sect Grounds' buildings as places;
+  the duty board (Phase 6a).
+- The Trial Tower's floors and the Beast Arena's pit as rooms, fishing cast in the world, tribulation terraces, the
+  auction's crowd (Phase 6b).
+- The Your Sect page's Open Storage (from Qi Unfurling 1, after the pouch) is kept as it was.
 
 ---
 

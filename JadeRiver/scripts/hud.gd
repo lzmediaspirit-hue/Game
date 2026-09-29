@@ -2466,7 +2466,7 @@ func _draw_minimap(c) -> void:
 	_place_look -= get_process_delta_time()
 	minimap_places = place_marks(c, Game.room_rt.room_id, to_map, inner.position.y + 6.0) if grid != null else []
 	if _place_look <= 0.0: _place_look = 0.5
-	for mk in minimap_places: place_glyph(self, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), t)
+	for mk in minimap_places: TopdownPlaceArt.glyph(self, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), t)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -2512,77 +2512,6 @@ func minimap_place_at(p: Vector2) -> Dictionary:
 			best_d = d
 			best = {"view": "places", "place": str(mp.id)}
 	return best
-
-## A place's glyph on the minimap (decision 43), 9 x 9 px in the HUD's pixels, on a dark disc so it reads over the map:
-## a board with its paper, a stall's striped awning, a storehouse's roof, a letter, a sprout, a furnace's flame, an
-## anvil, a pot, a stele, a mat's ring, a shrine's red roof. `wait`: a gold spark at its corner.
-static func place_glyph(ci: CanvasItem, c: Vector2, kind: String, wait: bool, t := 0.0) -> void:
-	var px := func(x: float, y: float, w: float, h: float, col: Color) -> void: ci.draw_rect(Rect2(c + Vector2(x, y), Vector2(w, h)), col)
-	ci.draw_circle(c, 7.5, Color(UiKit.INK, 0.85), true, -1.0, true)
-	ci.draw_arc(c, 7.5, 0.0, TAU, 20, Color(UiKit.PALE_GOLD, 0.55), 1.0, true)
-	var paper := UiKit.PAPER
-	var wood := Color("875a33")
-	match kind:
-		"notice_board":
-			px.call(-4, -4, 8, 6, wood)
-			px.call(-3, -3, 3, 3, paper)
-			px.call(1, -3, 2, 4, paper)
-			px.call(-4, 2, 1, 3, wood)
-			px.call(3, 2, 1, 3, wood)
-		"stall", "counter":
-			for i in 4: px.call(-4 + i * 2, -4, 2, 3, Color("c23d37") if i % 2 == 0 else paper)
-			px.call(-4, 0, 8, 4, wood)
-			px.call(-4, 0, 8, 1, Color("cb9c64"))
-		"storehouse":
-			px.call(-5, -4, 10, 3, Color("7d8c90"))
-			px.call(-4, -1, 8, 5, Color("623e23"))
-			px.call(-1, 0, 2, 4, Color("241508"))
-		"letter_box":
-			px.call(-4, -3, 8, 6, paper)
-			px.call(-4, -3, 8, 1, Color("c9bfa5"))
-			px.call(-3, -2, 1, 1, Color("7a705b"))
-			px.call(2, -2, 1, 1, Color("7a705b"))
-			px.call(-2, -1, 1, 1, Color("7a705b"))
-			px.call(1, -1, 1, 1, Color("7a705b"))
-			px.call(-1, 0, 2, 1, Color("c23d37"))
-		"garden_bed":
-			px.call(-4, 2, 8, 2, Color("745035"))
-			px.call(0, -3, 1, 5, Color("63aa4c"))
-			px.call(-3, -2, 3, 2, Color("8fc65c"))
-			px.call(1, -4, 3, 2, Color("8fc65c"))
-		"furnace":
-			px.call(-4, -1, 8, 5, Color("5e6d74"))
-			px.call(-3, -1, 6, 1, Color("a3b0b0"))
-			px.call(-1, -4, 2, 3, Color("f58a3a"))
-			px.call(0, -5, 1, 2, Color("ffc35e"))
-		"anvil":
-			px.call(-4, -2, 8, 2, Color("83949a"))
-			px.call(-1, 0, 3, 2, Color("405058"))
-			px.call(-3, 2, 7, 2, Color("405058"))
-		"cooking_pot":
-			px.call(-4, -1, 8, 4, Color("2a353b"))
-			px.call(-4, -1, 8, 1, Color("5e6f76"))
-			px.call(-2, -4, 1, 2, Color(paper, 0.8))
-			px.call(1, -5, 1, 3, Color(paper, 0.8))
-		"teleport_stone":
-			px.call(-2, -5, 4, 9, Color("2c9e8f"))
-			px.call(-2, -5, 1, 9, Color("67d6bd"))
-			px.call(-1, -2, 2, 2, Color("c8f4e6"))
-		"meditation_mat":
-			ci.draw_arc(c + Vector2(0, 1), 3.5, 0.0, TAU, 14, Color("c4bc62"), 2.0, true)
-			px.call(-1, -4, 2, 2, Color("32bed1"))
-		"shrine":
-			px.call(-5, -4, 10, 2, Color("c23d37"))
-			px.call(-4, -2, 8, 1, Color("962a2f"))
-			px.call(-3, -1, 1, 5, Color("962a2f"))
-			px.call(2, -1, 1, 5, Color("962a2f"))
-			px.call(-1, 0, 2, 3, Color("e5b84c"))
-		_:
-			px.call(-2, -2, 4, 4, UiKit.BRIGHT_JADE)
-	if wait:
-		var k := 0.6 + 0.4 * sin(t * 5.0) if not UiKit.reduce_motion() else 1.0
-		ci.draw_circle(c + Vector2(6, -6), 3.0, Color(UiKit.INK, 0.9), true, -1.0, true)
-		ci.draw_circle(c + Vector2(6, -6), 2.0, Color(UiKit.GOLD, k), true, -1.0, true)
 
 ## Redesign Phase 4: the direction mark's way on a grid room's map, from the player's dot to the goal (east when on it).
 static func minimap_way(from: Vector2, to: Vector2) -> Vector2:

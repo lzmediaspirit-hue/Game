@@ -67,13 +67,13 @@ func _main() -> void:
 	# Lotus Ferry, the first home: its services round the square (shrine, letter box, notice board, the Storehouse).
 	await at("lf_village", Vector2(35, 19), 120)
 	await shot("01_lotus_ferry_services")
-	await detail("02_lotus_ferry_services_detail", Vector2(37, 13.5), Vector2(440, 200))
+	await detail("02_lotus_ferry_services_detail", Vector2(38.5, 13.5), Vector2(520, 200))
 	# The same corner quiet: the letter read, the board read, the storehouse emptied.
 	for m in Game.account.mail: m["read"] = true
 	PlaceRules.read_board(Game, c)
 	Game.account.storage["items"] = []
 	await frames(40)
-	await detail("03_lotus_ferry_services_quiet", Vector2(37, 13.5), Vector2(440, 200))
+	await detail("03_lotus_ferry_services_quiet", Vector2(38.5, 13.5), Vector2(520, 200))
 	Game.account.storage["items"] = stock.duplicate(true)
 	Game.mail.apply_send(c.id, "places_review", [], {})
 	# The meditation mat by the spring, its Qi mist over it.
@@ -91,17 +91,17 @@ func _main() -> void:
 	await shot("07_market_stall_board_storehouse")
 	await detail("08_market_stall_detail", Vector2(15.5, 12), Vector2(360, 200))
 	await at("sf_market", Vector2(44, 17), 60)
-	await detail("09_market_courier_post_teleport_stone", Vector2(44, 17), Vector2(420, 190))
+	await detail("09_market_courier_post_teleport_stone", Vector2(35, 18), Vector2(420, 190))
 	# Walking up to a place: the body in front of the notice board, the board behind it (never over its head).
 	await at("sf_market", Vector2(20, 14), 40)
 	await detail("10_walked_up_to_the_board", Vector2(20, 12.5), Vector2(220, 170))
 	# The Artisan Row furnace: smoke while a batch is in it, a jade wisp once one is ready.
 	c.crafting["auto_queue"] = [{"recipe": "healing_pill", "count": 2, "done_utc": Clock.now_utc() + 900.0, "quality": "common"}]
 	await at("sf_artisan_row", Vector2(47, 15), 90)
-	await detail("11_artisan_row_furnace_working", Vector2(51.5, 10), Vector2(220, 180))
+	await detail("11_artisan_row_furnace_working", Vector2(52, 9.5), Vector2(220, 200))
 	c.crafting["auto_queue"] = [{"recipe": "healing_pill", "count": 2, "done_utc": Clock.now_utc() - 5.0, "quality": "common"}]
 	await frames(60)
-	await detail("12_artisan_row_furnace_ready", Vector2(51.5, 10), Vector2(220, 180))
+	await detail("12_artisan_row_furnace_ready", Vector2(52, 9.5), Vector2(220, 200))
 	c.crafting["auto_queue"] = []
 	# The Herb Terraces: one bed ripe (its glints), one growing, one bare.
 	var fams: Dictionary = ContentDB.config("garden").get("families", {})
@@ -113,7 +113,7 @@ func _main() -> void:
 		rec.updated = Clock.now_utc()
 		rec.grow_s = 360000.0
 	await at("ja_herb_terraces", Vector2(21, 16), 90)
-	await detail("13_herb_terraces_beds", Vector2(23, 14), Vector2(520, 260))
+	await detail("13_herb_terraces_beds", Vector2(20, 15.5), Vector2(420, 220))
 	# The world map's Places view: the notice boards, then the storehouses with the chosen one's card.
 	await at("lf_village", Vector2(12, 20), 30)
 	main.open_page("world_map", {"view": "places", "kind": "notice_board"})
