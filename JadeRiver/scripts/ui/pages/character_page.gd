@@ -114,6 +114,11 @@ func draw_surface(r: Rect2) -> void:
 func title_rect() -> Rect2:
 	return Rect2(180, 40, 220, 50)
 
+## Decision 43: the "?" beside the title (the tabs and purses take the row left of the close button).
+func help_rect() -> Rect2:
+	var tr := title_rect()
+	return Rect2(tr.end.x + 12, roundf(tr.get_center().y - 26), 52, 52)
+
 ## The title on a jade tag knotted to the upper cord.
 func draw_title_mount(r: Rect2) -> void:
 	draw_line(Vector2(r.get_center().x, r.end.y - 4), Vector2(r.get_center().x, CORDS[0] + 2), UiKit.GOLD, 3.0)
@@ -145,6 +150,10 @@ func draw_page() -> void:
 		"wardrobe": _wardrobe(ch, content)
 
 func _overview(ch) -> void:
+	# Decision 43: a tour's anchors (the figure's slips, the register and the titles).
+	tour_mark("figure", PAINTED)
+	tour_mark("register", Rect2(REG - 8, 112, 684, 430))
+	tour_mark("titles", Rect2(REG - 8, 540, 684, 140))
 	# The name written down the figure's slips, the figure's shadow, the worn slots either side, who walks beside.
 	text(Vector2(196, 138), str(ch.name), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180, true)
 	var sect_id := str(ch.training_sect.get("id", ""))

@@ -221,6 +221,11 @@ static func island(pg: Page, at: Vector2, w: float, depth: float, k: int) -> voi
 func title_rect() -> Rect2:
 	return Rect2(68, 44, ceilf(UiKit.text_width(title, UiKit.D_TITLE, true)) + 24, 48)
 
+## Decision 43: the "?" beside the title (the tabs and purses take the row left of the close button).
+func help_rect() -> Rect2:
+	var tr := title_rect()
+	return Rect2(tr.end.x + 12, roundf(tr.get_center().y - 26), 52, 52)
+
 ## No mount: the title floats in the night, a little ink behind it.
 func draw_title_mount(r: Rect2) -> void:
 	glow(r.grow(16), Color(UiKit.INK, 0.45))
@@ -364,6 +369,8 @@ func _row(ch, spaces: Array, row: int, at: Vector2, live: bool) -> void:
 			var chosen := int(sel.get(id, -1)) == i
 			slot_box(r, str(s.id), int(s.get("count", 1)), str(s.get("quality", "")), id if live else "", i, chosen,
 				not key and inv.locked.has(int(s.get("uid", -1))))
+			# Decision 43: the first piece of gear in view is the one the first-gear guide points at.
+			if not key and live and not tour_marks.has("gear") and InventoryAuthority.bag_kind(str(s.id)) == "gear": tour_mark("gear", r)
 			if not key:
 				pill_marks(r, int(s.get("marks", 0)))
 				if inv.new_items.has(str(s.id)): draw_circle(r.position + Vector2(SLOT - 8, 8), 5, UiKit.BRIGHT_JADE)

@@ -149,6 +149,9 @@ func _ready_now(id: String) -> bool:
 
 # ------------------------------------------------------------------ drawing
 func draw_page() -> void:
+	tour_mark("cabinet", CABINET)   # decision 43: a tour's anchors
+	tour_mark("tray", TRAY)
+	tour_mark("slip", SLIP)
 	_draw_slip()
 	var id := str(tabs[tab].id)
 	heading(TRAY.position + Vector2(16, 28), Tx.t("ui.works.head_" + id), 260)

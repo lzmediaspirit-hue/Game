@@ -20,6 +20,10 @@ func _init() -> void:
 func setup() -> void:
 	if str(args.get("tab", "")) == "play": _start()   # debug tools: --open-page=guqin:play
 
+## Decision 43: no tour while a piece is played.
+func tour_ready() -> bool:
+	return not playing
+
 func _cfg() -> Dictionary:
 	return ContentDB.config("chess").get("guqin", {})
 
@@ -97,6 +101,7 @@ func draw_page() -> void:
 	text(Vector2(r.position.x + 28, r.position.y + 44), Tx.t("ui.guqin.how"), 18, UiKit.MIST)
 	# The instrument: a long lacquered body, five silk strings, the bridge near the pegs.
 	var b := _body()
+	tour_mark("strings", b)   # decision 43: a tour's anchor
 	draw_rect(b, UiKit.SURFACE.wood_dark)
 	draw_rect(b.grow(-6), UiKit.SURFACE.wood)
 	var bridge_x := b.position.x + 110.0

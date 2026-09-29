@@ -76,6 +76,7 @@ func draw_page() -> void:
 	var k := unfold()
 	var p := paper_rect()
 	var shown_w := p.size.x * k
+	tour_mark("scroll", p)   # decision 43: a tour's anchor
 	# The rod at the scroll's start, its knobs past the paper.
 	var rod := Rect2(ROD_X, p.position.y - 12, 12, p.size.y + 24)
 	rounded(rod.grow(1), 5.0, UiKit.INK)

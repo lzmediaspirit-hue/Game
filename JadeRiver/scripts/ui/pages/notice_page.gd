@@ -81,6 +81,7 @@ func draw_page() -> void:
 		_bounties(ch)
 		_handbills(ch, CORNER, true)
 	else:
+		tour_mark("board", Rect2(96, 120, 720, 548))   # decision 43: a tour's anchor
 		_handbills(ch, Rect2(96, 120, 720, 548), false)
 		_posters_corner(ch)
 

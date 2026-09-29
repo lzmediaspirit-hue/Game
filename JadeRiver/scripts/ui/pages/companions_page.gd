@@ -66,6 +66,9 @@ func draw_page() -> void:
 	if ch == null: return
 	var roster: Array = ch.companions.get("roster", [])
 	var active: Array = ch.companions.get("active", [])
+	# Decision 43: a tour's anchors (the moon gates, the red thread of hearts under them).
+	tour_mark("gates", Rect2(frame_rect.position.x + 24, GATE_Y - GATE_R - 16, frame_rect.size.x - 48, GATE_R * 2.0 + 32))
+	tour_mark("thread", Rect2(frame_rect.position.x + 24, THREAD_Y - 24, frame_rect.size.x - 48, 48))
 	if roster.is_empty():
 		for i in 3: _moon_gate(_gate(i, 3), false)
 		para(Rect2(frame_rect.position.x + 200, 440, frame_rect.size.x - 400, 80), Tx.t("ui.companions.fellow_disciples_join_you_from"), 22, BondsKit.INK, 3)

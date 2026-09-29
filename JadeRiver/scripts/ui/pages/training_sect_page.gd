@@ -132,6 +132,7 @@ func _rank(ch, live: Dictionary) -> void:
 	var ts: Dictionary = ch.training_sect
 	if str(ts.get("id", "")) == "":
 		var board := Rect2(360, 360, 560, 150)
+		tour_mark("hall", board)   # decision 43: before joining, the tour speaks to the board
 		SectKit.lacquer(self, board)
 		para(Rect2(board.position + Vector2(24, 20), board.size - Vector2(48, 40)), Tx.t("ui.training_sect.you_are_unaffiliated_the_jade"), 22, UiKit.PAPER)
 		return
@@ -150,9 +151,13 @@ func _rank(ch, live: Dictionary) -> void:
 	for j in range(order.size() - 1, -1, -1):
 		var a := clampf(k * 1.6 - (float(j) / order.size()) * 0.6, 0.0, 1.0) if k < 1.0 else 1.0
 		_row(j, order, mine, a)
+	# Decision 43: a tour's anchors (the hall's rows, your seat, the next rank's board).
+	tour_mark("hall", Rect2(420, 100, 440, 560))
+	tour_mark("next_rank", NEXT_CARD)
 	# You, on your seat.
 	if mine >= 0:
 		var seat := _seat(mine, SEATS / 2)
+		tour_mark("seat", seat.grow(24))
 		var fig := SectKit.figure(self, figs, "you", InventoryAuthority.outfit_for(ch), 0.5 if mine >= 2 else 1.0, ch)
 		SectKit.show(fig, Vector2(seat.get_center().x, seat.position.y + seat.size.y * 0.45), live, "you", clampf(k * 2.0 - 0.5, 0.0, 1.0), "meditate")
 	_next(ch, order, ranks, mine)
