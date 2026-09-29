@@ -242,8 +242,8 @@ func _choose(i: int) -> void:
 	if needs_authority:
 		var r := submit({"type": "choose_dialogue", "npc": npc, "choice": ch})
 		if not r.get("ok", false) and ch.has("hand_in"): return   # a refused hand-in stays open with what is missing flashed
-		if r.get("ok", false) and (ch.has("accept") or ch.has("hand_in")):
-			Audio.ui("quest_accept" if ch.has("accept") else "quest_complete")
+		if r.get("ok", false) and ch.has("accept"):
+			Audio.ui("quest_accept")   # a quest handed in rings its stinger (decision 43: AudioDirector, quest_completed)
 		# The conversation goes on only where the authority hands the next node of a talk back; taking or handing in a
 		# quest always ends it (M17; decision 42: even when the same person has another, QuestAuthority._then), and a
 		# scene the quest starts plays once it is closed.

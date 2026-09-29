@@ -50,7 +50,7 @@ MUSIC_VOLUME_DB = -6
 SFX_VOLUME_DB = -4
 SFX_PEAK_DB = -3.0
 MUSIC_LEN = (32.0, 48.0)
-OGG_QUALITY = {"music": 0.25, "sfx": 0.2}   # Vorbis quality: ~37 kbps for music, ~33 kbps for beds (mono 22 kHz)
+OGG_QUALITY = {"music": 0.15, "sfx": 0.1}   # Vorbis quality: ~32 kbps for music, ~28 kbps for the beds (mono 22 kHz)
 TRIM_DB = -60.0                              # a one-shot's silent tail below this (re its peak) is cut off
 PHONE_MIN_DB = -12.0                         # a new sound's share above 300 Hz (what a phone speaker plays)
 
@@ -58,9 +58,9 @@ PHONE_MIN_DB = -12.0                         # a new sound's share above 300 Hz 
 # one-shot, the integrated loudness of a loop), so a sparse tick and a dense roar of the same category sound as loud.
 # (prefix, target LUFS before the bus): the first matching prefix wins; ids that match none keep SFX_VOLUME_DB.
 VOLUME = [
-    ("hit_accent_", -27.0), ("hit_tail_", -30.0), ("hit_on_", -25.0), ("hit_el_", -26.0), ("hit_", -24.0),
-    ("swing_", -27.0), ("cast_", -23.0), ("step_", -30.0), ("land_heavy", -27.0), ("land_", -27.0),
-    ("tell_", -25.0), ("die_", -25.0), ("sting_", -18.0), ("bed_birds", -34.0), ("bed_insects", -35.0),
+    ("hit_accent_", -27.0), ("hit_tail_", -31.0), ("hit_on_", -26.0), ("hit_el_", -26.0), ("hit_", -25.0),
+    ("swing_", -25.0), ("cast_", -23.0), ("step_", -30.0), ("land_heavy", -27.0), ("land_", -27.0),
+    ("tell_", -25.0), ("die_", -23.0), ("sting_", -18.0), ("bed_birds", -34.0), ("bed_insects", -35.0),
     ("bed_frogs", -34.0), ("bed_", -29.0), ("door_", -25.0), ("loot_drop", -26.0), ("splash", -24.0),
     ("ui_confirm", -24.0), ("ui_tab", -28.0), ("talk_", -26.0), ("bark", -28.0), ("scene_in", -24.0),
 ]
@@ -422,6 +422,9 @@ def main(argv=None):
     ap.add_argument("--verbose", "-v", action="store_true", help="print per-bus levels of music tracks")
     args = ap.parse_args(argv)
 
+    import fnmatch   # an id may be a pattern: 'hit_*', 'step_grass_?'
+    args.ids = [k for i in args.ids for k in ([i] if not any(c in i for c in "*?[") else
+                                              fnmatch.filter(list(MUSIC) + list(SFX), i) or [i])]
     unknown = [i for i in args.ids if i not in MUSIC and i not in SFX]
     if unknown:
         ap.error("unknown ids: " + ", ".join(unknown))
@@ -433,6 +436,11 @@ def main(argv=None):
     if args.check:
         for kind, aid in todo:
             path = path_for(kind, aid)
+            if not path.exists() and path_for(kind, aid, ".ogg").exists():
+                path = path_for(kind, aid, ".ogg")
+            if path.suffix == ".ogg" and soundfile is None:
+                print(f"skip {path.relative_to(ROOT)}: decoding Ogg needs the soundfile module")
+                continue
             if not path.exists():
                 print(f"MISSING {path}")
                 missing += 1

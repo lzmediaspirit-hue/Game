@@ -75,12 +75,15 @@ func _ids() -> void:
 	check(named.is_empty() and SoundBank.named_ids().size() > 100, "every sound data/sound.json names exists (%d named; missing %s)" % [SoundBank.named_ids().size(), named])
 	var layers: Array = []
 	for row in ContentDB.config("moments").get("entries", []):
-		for L in row.get("layers", []) + (row.get("variants", []).reduce(func(a, v): return a + v.get("layers", []), [])):
+		var all: Array = row.get("layers", []).duplicate()
+		for v in row.get("variants", []): all.append_array(v.get("layers", []))
+		for L in all:
 			if str(L.get("kind", "")) == "sound" and not _has(str(L.sfx)): layers.append(str(L.sfx))
 	check(layers.is_empty(), "every moment's sound layer has a sound (missing %s)" % [layers])
 	var ev: Array = Audio.EVENT_SFX.values().filter(func(id): return not _has(str(id)))
 	for k in SoundBank.section("stinger_events"):
-		if not _has(str(SoundBank.section("stingers").get(str(SoundBank.section("stinger_events")[k]), "")): ev.append(k)
+		var sid := str(SoundBank.section("stingers").get(str(SoundBank.section("stinger_events")[k]), ""))
+		if not _has(sid): ev.append(k)
 	for k in SoundBank.section("stingers"):
 		if not _has(str(SoundBank.section("stingers")[k])): ev.append(k)
 	check(ev.is_empty(), "the director's event sounds and every stinger exist (missing %s)" % [ev])
@@ -208,7 +211,7 @@ func _feet() -> void:
 	var expect: float = secs * float(spec.get("fps", 14.0)) / float(spec.get("frames", 8)) * 2.0
 	var own := steps.filter(func(id): return surfaces.keys().any(func(s): return str(id).begins_with("step_" + str(s) + "_")))
 	check(steps.size() >= 2 and absf(steps.size() - expect) <= maxf(3.0, expect * 0.35) and own.size() == steps.size(),
-		"a sprint steps on the run's contact frames, on its surface (%d steps in %.2f s, the cycle gives %.1f; surfaces %s)" % [steps.size(), secs, expect, surfaces.keys()])
+		"a sprint steps on the run's contact frames, on its surface (%d steps in %.2f s, the cycle gives %.1f; surfaces %s; %s)" % [steps.size(), secs, expect, surfaces.keys(), steps])
 
 # ------------------------------------------------------------------ 4. hits
 func _hits() -> void:
@@ -291,7 +294,8 @@ func _fight_music() -> void:
 	var calm := _foes("wild_boarlet", 3, 90.0, "idle")
 	_run(1.0, calm, "idle")
 	check(Audio.music_state().mode == "explore", "foes near but calm bring no fight music")
-	var far := _foes("wild_boarlet", 2, float(ms.get("fight", {}).get("radius", 560)) + 300.0)
+	var far := _foes("wild_boarlet", 2, 100.0)
+	for e in far: e.plane = Audio.listener + Vector2(float(ms.get("fight", {}).get("radius", 560)) + 300.0, 0.0)   # past the fight's reach
 	_run(1.0, far)
 	check(Audio.music_state().mode == "explore", "foes fighting out of reach bring no fight music")
 	_clear_foes()
@@ -351,6 +355,7 @@ func _beds_and_stingers() -> void:
 		got[rid] = SoundBank.bed_of(rid, ContentDB.room(rid))
 		ok = ok and got[rid] == want[rid]
 	check(ok, "each top-down room takes its bed: the village by the river, the marsh, the town, the sect, the path, indoors (%s)" % [got])
+	Audio.hour_check_t = 999.0   # the test sets the hour itself
 	Audio.bed("marsh", "day")
 	_run(2.5)
 	var roles := {}
@@ -370,6 +375,9 @@ func _beds_and_stingers() -> void:
 	_run(3.0)
 	check(Audio.bed_lanes.all(func(l): return str(l.player.get_meta("bed", "")) == "town"), "the old bed's players are gone once faded")
 	# stingers duck the music
+	Audio.sting.player.stop()
+	Audio.sting_queue = ""
+	_run(2.0)
 	var d0: float = Audio.duck_db
 	Audio.stinger("sting_quest")
 	_run(0.5)

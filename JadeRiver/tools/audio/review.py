@@ -12,8 +12,11 @@ one event, rendered here the way scripts/audio/audio_director.gd layers it:
   hit:<family>:<material>[:crit|:chain]   the weapon's transient, the struck body, the weapon's tail after the
                                           hit-stop (data/sound.json `hits`)
   step:<surface>                          four footsteps of the surface at the sprint's cadence
-  bed:<bed>[:day|:night]                  an ambient bed with its layer of the hour
-  combat:<track>                          the exploration track with its combat stem over it (stem from 50 %)
+  bed:<bed>[:<hour>]                      an ambient bed with the layer of that hour (data/sound.json `beds`)
+  combat:<track>                          the exploration track with its combat stem coming in at 45-55 %
+
+Every sound is shown at its level as the game plays it (its data/audio.json volume_db, a layer's mix level),
+before the bus: so a before and an after compare as heard, and a peak near 0 dBFS would clip.
 
 Loudness is an approximation of ITU-R BS.1770 (K-weighting as a +4 dB shelf over 1.5 kHz and a 38 Hz high-pass,
 400 ms blocks, gated): integrated LUFS for loops, the loudest 400 ms block (momentary max) for one-shots. "Phone"
@@ -87,6 +90,14 @@ def _table():
         return {}
 
 
+def _manifest(root, kind="sfx"):
+    """The manifest beside an art/audio folder (<root>/../../data/audio.json): each sound's level."""
+    try:
+        return json.loads((Path(root).parents[1] / "data" / "audio.json").read_text(encoding="utf-8")).get(kind, {})
+    except (OSError, ValueError):
+        return {}
+
+
 def _add(y, x, at, gain=1.0):
     i = int(round(at * sy.SR))
     if i + len(x) > len(y):
@@ -105,44 +116,66 @@ def compose(spec, root=AUDIO):
         hits = snd.get("hits", {})
         f = hits.get("families", {}).get(fam, {})
         weight = "finisher" if extra in ("crit", "chain") else str(f.get("weight", "medium"))
-        stop = float(hits.get("hitstop_f", {}).get(weight, 4)) / 60.0
+        stop = (float(hits.get("hitstop_f", {}).get(weight, 4)) + (float(hits.get("crit_hitstop_f", 2)) if extra == "crit" else 0.0)) / 60.0
+        mix = hits.get("mix", {})
+        lv = _manifest(root)
+
+        def gain(sid, key, fallback):   # as the director plays it: the layer's mix level over the sound's own level
+            return sy.undb(float(mix.get(key, fallback)) + float(lv.get(sid, {}).get("volume_db", 0.0)))
+
         y = np.zeros(1)
-        y = _add(y, load(find(f"hit_{fam}_a", root)), 0.0, sy.undb(float(hits.get("mix", {}).get("transient_db", 0))))
-        y = _add(y, load(find(f"hit_on_{mat}_a", root)), 0.0, sy.undb(float(hits.get("mix", {}).get("body_db", -2))))
-        y = _add(y, load(find(f"hit_tail_{fam}", root)), stop, sy.undb(float(hits.get("mix", {}).get("tail_db", -6))))
-        if extra:
-            y = _add(y, load(find("hit_accent_" + extra, root)), 0.0, sy.undb(float(hits.get("mix", {}).get("accent_db", -3))))
-        return y, False, f"hit {fam} on {mat}{' ' + extra if extra else ''} (hit-stop {stop * 1000:.0f} ms)"
+        for sid, at, key, fb in ((f"hit_{fam}_a", 0.0, "transient_db", 0), (f"hit_on_{mat}_a", 0.0, "body_db", -1),
+                                 (f"hit_tail_{fam}", stop, "tail_db", -3)) + (((f"hit_accent_{extra}", 0.0, "accent_db", -1),) if extra else ()):
+            y = _add(y, load(find(sid, root)), at, gain(sid, key, fb))
+        return y, False, f"hit {fam} on {mat}{' ' + extra if extra else ''} (tail after the {stop * 1000:.0f} ms hit-stop; levels as played)"
     if len(parts) > 1 and parts[0] == "step":
         sid = parts[1]
         y = np.zeros(1)
-        cadence = 60.0 / 14.0 * 4.0 / 8.0   # the run's contacts: frames 0 and 4 of 8 at 14 fps
+        cadence = 8.0 / 14.0 / 2.0   # the run's contacts: frames 0 and 4 of its 8 at 14 fps
+        lv = _manifest(root)
         for k, v in enumerate("abcd"):
             p = find(f"step_{sid}_{v}", root)
             if p is not None:
-                y = _add(y, load(p), k * cadence, 1.0)
+                y = _add(y, load(p), k * cadence, sy.undb(float(lv.get(p.stem, {}).get("volume_db", 0.0))))
         return y, False, f"4 steps on {sid} at the sprint's cadence ({cadence * 1000:.0f} ms)"
     if len(parts) > 1 and parts[0] == "bed":
-        base = load(find(f"bed_{parts[1]}", root))
-        label = f"bed {parts[1]}"
-        if len(parts) > 2:
-            lay = find(f"bed_{parts[2]}_{parts[1]}", root) or find(f"bed_{parts[2]}", root)
-            if lay is not None:
-                x = load(lay)
-                n = min(len(base), len(x))
-                base = base[:n] + sy.undb(-4.0) * x[:n]
-                label += f" + {lay.stem}"
-        return base, True, label
+        # a bed as the director lays it (data/sound.json `beds`): its bases and the hour's layer at their levels
+        beds = snd.get("beds", {})
+        bed = beds.get("beds", {}).get(parts[1], {})
+        levels = _manifest(root)
+        hour = parts[2] if len(parts) > 2 else ""
+        gains = beds.get("hours", {}).get(hour, {}) if hour else {}
+        night = "night" in gains and "day" not in gains
+        y = None
+        names = []
+        items = [(str(b[0]), float(b[1]) + (float(bed.get("night_base_db", 0.0)) if night else 0.0)) for b in bed.get("bases", [])]
+        items += [(str(bed[r]), float(gains[r])) for r in ("day", "night") if r in gains and bed.get(r)]
+        for sid, db in items:
+            x = load(find(sid, root)) * sy.undb(db + float(levels.get(sid, {}).get("volume_db", 0.0)))
+            if y is None:
+                y = x
+            else:
+                x = np.resize(x, len(y))           # a layer of its own length, laid over the base's 16 s
+                y = y + x
+            names.append(sid)
+        return y, len(names) == 1, f"bed {parts[1]}{' at ' + hour if hour else ''}: " + " + ".join(names) + " (levels as played)"
     if len(parts) > 1 and parts[0] == "combat":
         a = load(find(parts[1], root))
         b = load(find(parts[1] + "_combat", root))
         n = min(len(a), len(b))
         k = np.clip((np.arange(n) / n - 0.45) / 0.1, 0, 1)
-        return a[:n] * sy.undb(-3.0 * k) + b[:n] * k, True, f"{parts[1]} with its combat stem entering at 45-55 %"
+        mus = _manifest(root, "music")
+        ga = sy.undb(float(mus.get(parts[1], {}).get("volume_db", 0.0)))
+        gb = sy.undb(float(mus.get(parts[1] + "_combat", {}).get("volume_db", 0.0)))
+        under = float(snd.get("music", {}).get("fight", {}).get("explore_db", -2.0))
+        return (a[:n] * ga * sy.undb(under * k) + b[:n] * gb * k, True,
+                f"{parts[1]} with its combat stem coming in at 45-55 % (levels as played)")
     p = find(spec, root)
     if p is None:
         raise SystemExit(f"no audio for {spec} under {root}")
-    return load(p), is_loop(spec, root), f"{spec}{p.suffix}"
+    kind = "music" if p.parent.name == "music" else "sfx"
+    vol = float(_manifest(root, kind).get(spec, {}).get("volume_db", 0.0))
+    return load(p) * sy.undb(vol), is_loop(spec, root), f"{spec}{p.suffix} (at its level, {vol:+.1f} dB)"
 
 
 # ---------------------------------------------------------------- analysis
@@ -230,7 +263,7 @@ def spec_img(x, width, height, fmin=40.0, floor=-80.0):
     return _cmap(L[::-1])
 
 
-def panel(x, loop, title, W=640, H=200, WAVE=90):
+def panel(x, loop, title, W=560, H=150, WAVE=80):
     """One sound: a title, its waveform (peak dim, RMS bright, -3 dBFS and 0 dBFS lines), its spectrogram, and for a
     loop the seam (the last 0.25 s | the first 0.25 s, the red line where the loop joins)."""
     from PIL import Image, ImageDraw
@@ -289,6 +322,12 @@ def stack(images, cols=1, gap=8, bg=(10, 10, 12)):
     return out
 
 
+def save_png(im, path):
+    """A 48-colour palette PNG: the pictures stay readable at a quarter of the size."""
+    from PIL import Image
+    im.convert("RGB").quantize(colors=48, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(path, optimize=True)
+
+
 def safe(name):
     return name.replace(":", "_").replace("/", "_")
 
@@ -303,6 +342,7 @@ def main(argv=None):
     ap.add_argument("--pair", metavar="OLD_ROOT", help="ids are before=after; before is read from OLD_ROOT")
     ap.add_argument("--table", action="store_true", help="print a markdown loudness table")
     ap.add_argument("--sheet", default="sheet.png", help="the contact sheet's name")
+    ap.add_argument("--no-singles", action="store_true", help="write only the contact sheet")
     args = ap.parse_args(argv)
     rows = []
     shots = []
@@ -323,10 +363,11 @@ def main(argv=None):
             name = safe(spec)
         if args.out:
             Path(args.out).mkdir(parents=True, exist_ok=True)
-            im.save(Path(args.out) / f"{name}.png")
+            if not args.no_singles:
+                save_png(im, Path(args.out) / f"{name}.png")
             shots.append(im)
     if args.out and shots and args.sheet:
-        stack(shots, cols=1 if args.pair else 2).save(Path(args.out) / args.sheet)
+        save_png(stack(shots, cols=1 if args.pair else 2), Path(args.out) / args.sheet)
     if args.table or not args.out:
         print(table(rows))
     return 0

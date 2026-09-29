@@ -399,7 +399,7 @@ func _chain_last(tl: Dictionary, src: String) -> bool:
 func swing(weapon_family: String, p := {}) -> void:
 	var fam := SoundBank.family_sound(weapon_family)
 	var combo := int(p.get("combo", 0))
-	var pitch := [1.0, 1.05, 0.95][combo % 3] * (0.9 if p.get("finisher", false) else 1.0) * randf_range(0.97, 1.03)
+	var pitch: float = [1.0, 1.05, 0.95][combo % 3] * (0.9 if p.get("finisher", false) else 1.0) * randf_range(0.97, 1.03)
 	var id := str(SoundBank.section("hits").get("families", {}).get(fam, {}).get("swing", "swing"))
 	play(id if SoundBank.has_sound(id) else "swing", "SFX", {"player": true, "pitch": pitch, "gain_db": 1.5 if p.get("finisher", false) else 0.0})
 
@@ -533,6 +533,7 @@ func music(id: String) -> void:
 		stem.base_db = _vol("music", stem_id, -6.0)
 		stem.k = 0.0
 		stem.target = 0.0
+		stem.stop_at_zero = false
 		stem.player.play()     # the same frame as its track: they start in the same mix and stay in step
 	_apply_levels()
 
@@ -582,7 +583,7 @@ func scan_fight() -> Dictionary:
 	for e in Game.room_rt.living_enemies():
 		if e.team != "enemy" or e.def.get("passive", false) or e.ai.get("surrendered", false): continue
 		if str(e.ai.get("state", "idle")) in calm: continue
-		var boss := e.is_boss() or bosses.has(e.def_id)
+		var boss: bool = e.is_boss() or bosses.has(e.def_id)
 		if not boss and (e.hidden or (listener != Vector2.INF and e.plane.distance_to(listener) > radius)): continue
 		out.fighting = true
 		if bosses.has(e.def_id): out.boss = str(bosses[e.def_id])

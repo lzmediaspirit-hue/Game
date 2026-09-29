@@ -499,27 +499,27 @@
   "die_flesh": {
    "file": "res://art/audio/sfx/die_flesh.wav",
    "len_s": 0.642,
-   "volume_db": -2.5
+   "volume_db": -0.5
   },
   "die_shell": {
    "file": "res://art/audio/sfx/die_shell.wav",
    "len_s": 0.756,
-   "volume_db": -4.0
+   "volume_db": -2.0
   },
   "die_slime": {
    "file": "res://art/audio/sfx/die_slime.wav",
    "len_s": 0.9,
-   "volume_db": -5.5
+   "volume_db": -3.5
   },
   "die_spirit": {
    "file": "res://art/audio/sfx/die_spirit.wav",
    "len_s": 0.9,
-   "volume_db": -10.0
+   "volume_db": -8.0
   },
   "die_wood": {
    "file": "res://art/audio/sfx/die_wood.wav",
    "len_s": 0.795,
-   "volume_db": -4.0
+   "volume_db": -2.0
   },
   "dodge": {
    "file": "res://art/audio/sfx/dodge.wav",
@@ -609,7 +609,7 @@
   "hit_bell_a": {
    "file": "res://art/audio/sfx/hit_bell_a.wav",
    "len_s": 0.179,
-   "volume_db": 0.0
+   "volume_db": -0.5
   },
   "hit_bell_b": {
    "file": "res://art/audio/sfx/hit_bell_b.wav",
@@ -629,7 +629,7 @@
   "hit_brush_a": {
    "file": "res://art/audio/sfx/hit_brush_a.wav",
    "len_s": 0.096,
-   "volume_db": 0.0
+   "volume_db": -0.5
   },
   "hit_brush_b": {
    "file": "res://art/audio/sfx/hit_brush_b.wav",
@@ -639,7 +639,7 @@
   "hit_crit": {
    "file": "res://art/audio/sfx/hit_crit.wav",
    "len_s": 0.561,
-   "volume_db": -4.0
+   "volume_db": -5.0
   },
   "hit_el_earth": {
    "file": "res://art/audio/sfx/hit_el_earth.wav",
@@ -729,17 +729,17 @@
   "hit_on_flesh_a": {
    "file": "res://art/audio/sfx/hit_on_flesh_a.wav",
    "len_s": 0.144,
-   "volume_db": 0.0
+   "volume_db": -0.5
   },
   "hit_on_flesh_b": {
    "file": "res://art/audio/sfx/hit_on_flesh_b.wav",
    "len_s": 0.142,
-   "volume_db": -0.5
+   "volume_db": -1.5
   },
   "hit_on_shell_a": {
    "file": "res://art/audio/sfx/hit_on_shell_a.wav",
    "len_s": 0.082,
-   "volume_db": 0.0
+   "volume_db": -0.5
   },
   "hit_on_shell_b": {
    "file": "res://art/audio/sfx/hit_on_shell_b.wav",
@@ -749,22 +749,22 @@
   "hit_on_slime_a": {
    "file": "res://art/audio/sfx/hit_on_slime_a.wav",
    "len_s": 0.269,
-   "volume_db": -2.0
+   "volume_db": -3.0
   },
   "hit_on_slime_b": {
    "file": "res://art/audio/sfx/hit_on_slime_b.wav",
    "len_s": 0.274,
-   "volume_db": -4.0
+   "volume_db": -5.0
   },
   "hit_on_wood_a": {
    "file": "res://art/audio/sfx/hit_on_wood_a.wav",
    "len_s": 0.135,
-   "volume_db": 0.0
+   "volume_db": -1.0
   },
   "hit_on_wood_b": {
    "file": "res://art/audio/sfx/hit_on_wood_b.wav",
    "len_s": 0.133,
-   "volume_db": 0.0
+   "volume_db": -1.0
   },
   "hit_sabre_a": {
    "file": "res://art/audio/sfx/hit_sabre_a.wav",
@@ -799,47 +799,47 @@
   "hit_tail_bell": {
    "file": "res://art/audio/sfx/hit_tail_bell.wav",
    "len_s": 0.656,
-   "volume_db": -13.5
+   "volume_db": -14.5
   },
   "hit_tail_bow": {
    "file": "res://art/audio/sfx/hit_tail_bow.wav",
    "len_s": 0.171,
-   "volume_db": -5.5
+   "volume_db": -6.5
   },
   "hit_tail_brush": {
    "file": "res://art/audio/sfx/hit_tail_brush.wav",
    "len_s": 0.264,
-   "volume_db": -7.5
+   "volume_db": -8.5
   },
   "hit_tail_fan": {
    "file": "res://art/audio/sfx/hit_tail_fan.wav",
    "len_s": 0.312,
-   "volume_db": -11.0
+   "volume_db": -12.0
   },
   "hit_tail_fists": {
    "file": "res://art/audio/sfx/hit_tail_fists.wav",
    "len_s": 0.233,
-   "volume_db": -9.5
+   "volume_db": -10.5
   },
   "hit_tail_flute": {
    "file": "res://art/audio/sfx/hit_tail_flute.wav",
    "len_s": 0.399,
-   "volume_db": -13.0
+   "volume_db": -14.0
   },
   "hit_tail_sabre": {
    "file": "res://art/audio/sfx/hit_tail_sabre.wav",
    "len_s": 0.316,
-   "volume_db": -10.5
+   "volume_db": -11.5
   },
   "hit_tail_spear": {
    "file": "res://art/audio/sfx/hit_tail_spear.wav",
    "len_s": 0.251,
-   "volume_db": -4.0
+   "volume_db": -5.0
   },
   "hit_tail_sword": {
    "file": "res://art/audio/sfx/hit_tail_sword.wav",
    "len_s": 0.338,
-   "volume_db": -10.0
+   "volume_db": -11.0
   },
   "hurt": {
    "file": "res://art/audio/sfx/hurt.wav",
@@ -1209,47 +1209,47 @@
   "swing_bell": {
    "file": "res://art/audio/sfx/swing_bell.wav",
    "len_s": 0.364,
-   "volume_db": -8.0
+   "volume_db": -6.0
   },
   "swing_bow": {
    "file": "res://art/audio/sfx/swing_bow.wav",
    "len_s": 0.258,
-   "volume_db": -9.0
+   "volume_db": -7.0
   },
   "swing_brush": {
    "file": "res://art/audio/sfx/swing_brush.wav",
    "len_s": 0.26,
-   "volume_db": -9.0
+   "volume_db": -7.0
   },
   "swing_fan": {
    "file": "res://art/audio/sfx/swing_fan.wav",
    "len_s": 0.3,
-   "volume_db": -7.0
+   "volume_db": -5.0
   },
   "swing_fists": {
    "file": "res://art/audio/sfx/swing_fists.wav",
    "len_s": 0.16,
-   "volume_db": -7.0
+   "volume_db": -5.0
   },
   "swing_flute": {
    "file": "res://art/audio/sfx/swing_flute.wav",
    "len_s": 0.34,
-   "volume_db": -10.0
+   "volume_db": -8.0
   },
   "swing_sabre": {
    "file": "res://art/audio/sfx/swing_sabre.wav",
    "len_s": 0.4,
-   "volume_db": -8.0
+   "volume_db": -6.0
   },
   "swing_spear": {
    "file": "res://art/audio/sfx/swing_spear.wav",
    "len_s": 0.18,
-   "volume_db": -8.0
+   "volume_db": -6.0
   },
   "swing_sword": {
    "file": "res://art/audio/sfx/swing_sword.wav",
    "len_s": 0.22,
-   "volume_db": -8.5
+   "volume_db": -6.5
   },
   "talk_next": {
    "file": "res://art/audio/sfx/talk_next.wav",
