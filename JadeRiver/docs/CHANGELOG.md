@@ -1,5 +1,51 @@
 # Changelog
 
+## The technique pictures like the reference, the last side-view figures, the array's travel picker (decision 42)
+
+The user asked again: "I want the skills icon to look like the attached image"
+(`docs/redesign/feedback/skill_icon_reference.png`, the tree's cards as their phone showed them), and "there are places
+we still use the old sprite character, we need to fix it". `docs/ui_style_guide.md` §8.4 holds the picture's style.
+
+- **One technique picture** (`TechniquePicture`), the reference's look, for the tree's cards, the tree's reading, the
+  HUD's technique buttons and the Techniques page's loadout bar. A square of deep starry ground in the art's element's
+  ink; the character large (x2 on a card and a button, x3 in the reading) in the art's pose, drawn in that one ink as a
+  dark shape with light touches and a light rim; a few marks of the art's form round it (a palm's crescents, a ward's
+  dome, a domain's ring, a pillar's springs, a seal's square, a snare's loop, a chorus's notes...); the frame; and a
+  small rank badge (the art's mastery tier). The figure is the top-down one (`TopdownFigure`) for a top-down character:
+  the pose a fight casts the art in with the art's own weapon family (a free-hand art's palm with no blade in hand), a
+  weapon's blow on the frame it lands in profile, the bare hand's just after it lands three-quarters (the face shows),
+  the hand seal toward the camera, and an art cast from a sitting whose form rests round the body seated in
+  meditation. At a button's size it has its own pass (below). A locked art on the tree is in a grey ink. The side view's Avatar is drawn only for a classic side-view character.
+  The cards lose the big emblem in their corner; the cooldown's sweep, the Qi-short strip and the lock stay.
+- **No stutter.** No picture is built on the main thread any more (the side view's stills took 10-30 ms each there).
+  Each picture is a cell of an atlas sheet (a SubViewport) the GPU draws: its ground, stars and marks are painted on a
+  worker thread, and the main thread only makes two small textures and a canvas item, at most six a frame within
+  1.5 ms; the figure and the ink are the GPU's (`technique_picture_ink.gdshader`). A picture shows in its place as it
+  is painted, so the tree's kept tiles are not drawn again for it, and the page's redraw-on-change holds
+  (`perf_tests`' `_techniques_redraws`). A picture's look (its pose, its outfit, its cell's key) is found once and
+  remembered while that look is worn, so the HUD's buttons cost a lookup a frame (about 5 µs a button, from 36).
+- **A readability pass at a button's size** (the HUD's 50 px, the loadout bar's 42 px; the cards and the reading are
+  as above): the first pictures there were dark and muddy and read worse than the old side-view busts. Now the figure
+  faces the camera on the frame before its blow lands (its face always shows; the back of the head never fills the
+  button), head and shoulders at x2; its tone is lifted well clear of a calm dark ground (a smooth fall, a faint light
+  behind the head, no stars) with no rim; one bold, simple mark of its form stands beside the face; the rank badge
+  keeps the upper right corner, clear of the face. The HUD dims a Qi-short art to 0.72 (from 0.55) and a closed one to
+  0.45 (from 0.38), so the figure reads under the Qi strip and the lock.
+- **The companion's chip** on the HUD shows the top-down figure's head (the bare body's crown under the chip's top),
+  where it showed a side-view head.
+- **The sect's Transfer Array** asks where to on its own small travel picker (`array_page.gd`, `transfer_array`), not
+  the dialogue page with an empty portrait: the array's name on the plaque, the room it stands in, its line, and one
+  button a destination its token knows by the far room's name, with the array's rune ring (`WorldAuthority.array_view`;
+  never an array the token has not keyed, of the other sect, or past the prototype's gate).
+- **Screenshots** before and after at 1280x720 in `docs/redesign/feedback/pictures/`: the Water and Fire trees, the
+  HUD at rest and in a fight, the loadout bar at x2 and the travel picker, and the reference beside the result
+  (`tools/dev/picture_capture.tscn -- --tag=<before|after>`).
+- **Tests.** `rules_tests`: the technique_pictures_suite (every picture of a top-down character is the top-down figure
+  at its whole scale, the HUD's buttons, the loadout bar, the tree's cards and the reading, painted within a few frames;
+  a companion's chip its head; a classic character's the side view's; the states; no main-thread piece past 4 ms nor
+  a frame's past 8), the figures_suite (the cards), and the prototype suite's travel picker (only known arrays, by
+  room name, none past the gate).
+
 ## The player and the NPCs drawn better (decision 42)
 
 "I want the player and the NPCs to be drawn in higher quality." The study (`docs/redesign/feedback/character_quality.md`)

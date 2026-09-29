@@ -614,6 +614,33 @@ From the study (`docs/mockups/icon_study/README.md`, `tools/icons/study/study_li
 11. Palette tokens first (`docs/art-contracts.md`); art keeps a 1 px margin inside the canvas; no stray pixels; builds are
     deterministic and byte-identical.
 
+### 8.4 Technique pictures (decision 42)
+
+The user asked for the skill icons to look like `docs/redesign/feedback/skill_icon_reference.png` (the Techniques
+tree's cards as their phone showed them). One picture, `TechniquePicture` (`scripts/presentation/technique_picture.gd`),
+is every art's face: the tree's cards (72 px inside the frame), the tree's reading (148 px), the HUD's technique
+buttons (50 px) and the Techniques page's loadout bar (42 px). A top-down character is always drawn as the top-down game
+draws it (`TopdownFigure`); the side view's Avatar only for a classic side-view character.
+
+| Part | Rule |
+|---|---|
+| Ink | One ramp a picture from its element's colour (`SpriteCache.element_color`): deep (the colour darkened 90%) at lightness 0, mid (darkened 55%) at 0.4, light (lightened 55%) at 1. Every pixel of the picture is a lightness on it (`technique_picture_ink.gdshader`). A locked art on the tree is in a grey ramp. |
+| Ground | Mid ink, lighter round the body (a soft halo) and darker toward the edges; small stars in the light ink (a pixel each, one or two five-pixel sparkles); a card with room under the feet (the reading) a floor line and a few strokes on it. Painted at the figure's art pixel, so it is pixel art of one grid with the figure. |
+| Figure | The character large at a whole scale: x2 on a card (from the head to about the ankles), x3 in the reading (whole, on its floor), x2 at a button's size framed from the crown of the head (its upper body, where the pose still reads). Its own lightness pressed toward the dark, so it reads as a dark shape with light touches (the face, highlights) on the mid ground, and a light rim an art pixel out all round. |
+| Pose | The pose a fight casts the art in with the art's own weapon family (the free hand for an art of any hand: a palm is a palm; a family art holds the character's weapon when it is of that family, else the family's own), from `TechniquePreview.top_pose`; seated in meditation for an art cast from a sitting whose form rests round the body (ward, domain, chorus, pillar, rain, release). A weapon's blow on the frame it lands, in profile toward the right (E: the blade reads); the bare hand's just after it lands, three-quarters toward the camera and the right (SE: the face over the hand still out); the hand seal toward the camera (S); a stance or a sitting three-quarters (SE). |
+| Marks | A few marks of the art's form in the light ink with a dark outline, before the hand or round the body: a palm's crescents, a flurry's crescents high and low, a thrust's lines, a lunge's speed lines and chevrons, a ward's dome, a domain's ring on the ground, a pillar's springs rising, a seal's square, a snare's loop, a chorus's notes, a burst's rays, a wave's ripples, a volley's darts, and so on (`TechniquePicture._marks`). |
+| Frame | The caller's: the tree's state colour (jade learned, gold open, slate locked, pale gold chosen), gold in the reading, bright jade on the HUD and the loadout bar; ink outside it. |
+| Rank badge | A known art's mastery tier in a small ink-and-jade diamond ringed in bright jade, its number in pale gold: on the frame's lower right corner of a card, the upper right of a button (its lower right holds the lock and the Qi strip). |
+| A button's size | The HUD's 50 px and the loadout bar's 42 px (59 px and under) have their own pass, so they read at a glance at a thumb's size. The figure faces the camera (S) on the frame before its blow lands, framed from the crown of the head at x2 with the head a little left of the middle: its face always shows (at the landing a punch turns the head away), never the back of the head. Its tone is lifted (lightness 0.1 + 1.1 l, its outline pixels kept dark) over a calm dark ground (a smooth fall from 0.17 to 0.09 with a faint light behind the head, no stars), with no rim: the value gap does the work. One bold, simple mark of the form on the right side, level with the face, light in a dark outline (a palm's two crescents, a ward's dome over the head, a seal's square, a thrust's arrow, a domain's ring at the foot...: `TechniquePicture._marks_small`). The HUD dims a short art to 0.72 and a closed one to 0.45, so the figure still reads under the Qi strip and the lock. |
+
+No frame waits on a picture. Each is a cell of an atlas sheet (a 512 px SubViewport of cells of one size) that the GPU
+draws: the ground, stars and marks are painted on a worker thread; the main thread only makes their two small textures
+and the cell's canvas item, at most six a frame within 1.5 ms. Until a cell is painted the element's plain ground shows
+under its region, so a caller that keeps its drawing (the tree's tiles) is not drawn again for it. Cells are kept by
+their look; when all ten sheets are full, the least used starts again and `TechniquePicture.generation` moves on (the
+tree draws its tiles again). Screenshots, before and after beside the reference, are in
+`docs/redesign/feedback/pictures/` (`tools/dev/picture_capture.tscn -- --tag=<before|after>`).
+
 ## 9. The HUD spec
 
 Mockups 01 (a fight) and 02 (at rest) as approved, with no portrait roundel: the name, realm and bars take the panel's
@@ -684,15 +711,15 @@ once a quest is given or done. Where this changes the table above:
   mockup 02's context on the big button is retired. The harvest's hold runs round that button and its tap ring
   shrinks onto it. Keep Post, at rest only, takes 226° (the first treasure's place, in a fight only). Before the Attack
   lesson there is no Attack button; the J and Enter keys use the context then.
-- **The technique buttons** are the Techniques tree's node pictures (`TechniquePicture`, `scripts/presentation/`):
-  the character in the art's pose (the Avatar's still of `TechniquePreview.pose_of`, the source of the tree's cards,
-  at an art pixel a screen pixel) on the element's ground with the card's glow, in the tree's bright jade frame, framed
-  from the head down with a light rim so it reads on the dark ground at a thumb's size, and the art's emblem as a
-  20 px round seal in the corner (the card's 32 px emblem is too big for a button). States: cooling, an ink sweep with
-  a pale gold hand and the seconds; short of Qi, the picture dimmed and a Qi strip along its foot filled as far as the
-  pool reaches the cost; closed by the weapon in hand, a slate frame, the picture dim and a lock. The Techniques page's
-  loadout bar (Ring I and II) draws the same pictures in its 52 px slots. The stills are composed one a frame and kept
-  (64), the emblem standing in until then.
+- **The technique buttons** are the technique pictures of §8.4 (`TechniquePicture`, `scripts/presentation/`), the
+  look the Techniques tree's cards and the loadout bar share, in its button-size pass (§8.4): at 50 px, the top-down
+  figure's head and shoulders at x2 facing the camera in the art's pose, light over a calm dark ground in its
+  element's ink, one bold mark of its form beside the face and the rank badge in the upper right corner, in the tree's
+  bright jade frame. States: cooling, an ink sweep with a pale gold hand and the seconds; short of Qi,
+  the picture dimmed and a Qi strip along its foot filled as far as the pool reaches the cost; closed by the weapon in
+  hand, a slate frame, the picture dim and a lock. The Techniques page's loadout bar (Ring I and II) draws the same
+  pictures in its 52 px slots. A companion's party chip shows the top-down figure's head (a classic side-view
+  character keeps the side view's).
 - **The shop** draws the bag's side on the stall's own timber wall under the same awning; decision 24's patch of the
   gourd's heaven beside the stall is gone from the shop (the Storage page keeps it).
 

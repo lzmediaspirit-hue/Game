@@ -266,14 +266,17 @@ func travel(target: String) -> bool:
 		elif not go(str(s.portal)): return false
 	return room() == target
 
+## Tapped, the array opens its travel picker (decision 42: its own page, not a talk), which offers what the World
+## authority's view of it lists; the destination's button submits array_travel.
 func take_array(node: String, to: String) -> bool:
 	var from := room()
-	var d: Dictionary = interact(node).get("dialogue", {})
-	var pick: Array = (d.get("choices", []) as Array).filter(func(ch): return ch.has("intent") and str(ch.intent.get("to", "")) == to)
-	check(not pick.is_empty(), "the %s in %s offers %s among where it goes (%s)" % [node, from, to, str((d.get("choices", []) as Array).map(func(ch): return ch.text))])
+	var tap := interact(node)
+	var dests: Array = Game.world.array_view(c(), node).get("destinations", []) if str(tap.get("open_page", "")) == "transfer_array" else []
+	var pick: Array = dests.filter(func(d): return str(d.id) == to)
+	check(not pick.is_empty(), "the %s in %s opens its travel picker offering %s among where it goes (%s)" % [node, from, to, str(dests.map(func(d): return d.name))])
 	if pick.is_empty(): return false
 	play_s += TAP_S
-	var res := submit(pick[0].intent)
+	var res := submit({"type": "array_travel", "from": node, "to": to})
 	if res.get("ok", false): place(Vector2(float(c().position.x), float(c().position.y)))
 	arrays_taken.append("%s > %s" % [from, room()])
 	return res.get("ok", false)

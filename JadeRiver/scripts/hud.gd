@@ -15,7 +15,9 @@ extends Control
 ## Decision 42 (the prototype APK's feedback): the Attack button and the technique buttons stay out at rest as in a
 ## fight (they no longer fold into beads), and whatever the world offers in reach (talk, gather, open, enter) has its
 ## own button on ring 2, never the Attack button's face. The techniques are the Techniques tree's node pictures
-## (TechniquePicture: the character doing the art in a jade frame), TILE px squares on ring 1; Jump is 64 px.
+## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, at a button's size
+## its upper body, in a jade frame), TILE px squares on ring 1; Jump is 64 px. A companion's chip shows the top-down
+## figure's head for a top-down character (_draw_face).
 ##
 ## The QI bar exists only once the character has a QI pool (Bone Forging 7): a
 ## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
@@ -76,6 +78,10 @@ const LOG_W := 356.0
 ## The party chips' face crop: this far above the feet on the idle frame, this big.
 const FACE_AT := Vector2(2, -80)
 const FACE_BOX := 30.0
+## Decision 42: a top-down companion's face, its figure at x2 and its face's middle this far under the top of its bare
+## body's idle frame (the head's crown).
+const FACE_TOP_K := 2
+const FACE_TOP_HEAD := 10.0
 ## Points to spend: one row a point system the player spends by hand. The HUD reads its count from its authority
 ## ([authority, getter], given the character), shows the badge `points_<id>` (tools/icons, its own colour, shape and
 ## symbol) at the top right of the player panel while the unlock is open and the count is above 0, and a tap asks the
@@ -151,7 +157,7 @@ const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var equip_prompt := EquipPrompt.new()   # a better piece picked up or received, offered at the right for 10 s
 var t := 0.0
-var _faces: Dictionary = {}        # companion id -> its idle frame's layers, for the party chips
+var _faces: Dictionary = {}        # companion id -> its idle frame's layers (a classic character's); "top|id" -> its TopdownFigure
 var _points_seen: Dictionary = {}  # points badge id -> HUD time it appeared (its pop)
 var _points_primed := false        # the badges showing when the HUD was bound pop but write no log line
 var points_override: Dictionary = {}   # tests and previews: points badge id -> the count to show in place of its getter
@@ -1875,9 +1881,10 @@ func skill_position(index: float) -> Vector2:
 	return slots[low].lerp(slots[low + 1], index - low)
 
 ## Decision 42: a technique as the Techniques tree's node picture (TechniquePicture), a TILE px square in the tree's
-## bright jade frame: the character doing the art on its element's ground, its emblem as a seal in the corner. Closed
-## (the weapon in hand cannot use it), a slate frame, the picture dim and a lock; cooling, the ink sweep and its
-## seconds; short of Qi, the picture dimmed and a Qi strip along its foot. An empty or locked slot is not drawn (G3).
+## bright jade frame: the character's upper body in the art's pose in its element's ink, the form's marks round it and its
+## rank badge in the upper right corner. Closed (the weapon in hand cannot use it), a slate frame, the picture dim and a
+## lock; cooling, the ink sweep and its seconds; short of Qi, the picture dimmed and a Qi strip along its foot. An empty
+## or locked slot is not drawn (G3).
 func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var r := Rect2(center - Vector2(TILE, TILE) * 0.5, Vector2(TILE, TILE))
 	if not bound():
@@ -1895,7 +1902,7 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var cost: float = Game.combat.technique_cost(c, tdef)
 	var short: bool = not closed and cd <= 0.0 and c.pools.max_qi > 0 and c.pools.qi < cost
 	var frame := UiKit.HOLLOW if closed else UiKit.BRIGHT_JADE
-	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.38 if closed else (0.55 if short else 1.0), opacity, "hud")
+	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.45 if closed else (0.72 if short else 1.0), opacity, "hud")
 	if closed: TechniquePicture.draw_lock(self, r, opacity)
 	if cd > 0.0:
 		TechniquePicture.draw_cooldown(self, r, cd / maxf(0.1, float(tdef.get("cooldown_s", 5))), cd, opacity)
@@ -2106,26 +2113,43 @@ func _draw_party(c) -> void:
 			nm = Tx.t("hud.walk") if c.riding else Tx.t("hud.ride")
 		UiKit.draw_outlined(self, UiKit.fit(nm, 14, 58, true), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
 
-## A fellow disciple's face for their chip: the head and shoulders of their idle frame, from their own sprite layers.
+## A fellow disciple's face for their chip: the head of their figure as the game draws them. Decision 42 (no old
+## side-view character left in the top-down game): for a top-down character, the top-down figure's head (its idle
+## frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads: the chip is empty the frames
+## they take); the side view's head and shoulders only for a classic side-view character.
 func _draw_face(center: Vector2, cid: String, dim := false) -> void:
+	var box := Vector2(FACE_BOX, FACE_BOX)
+	if TopdownDoll.shown():
+		var fig: TopdownFigure = _faces.get("top|" + cid)
+		if fig == null:
+			fig = TopdownFigure.wearing(_face_outfit(cid), true)
+			_faces["top|" + cid] = fig
+		if not fig.loaded(): return
+		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body")   # the bare body: its head under any hair
+		var head := Vector2(roundf(b.get_center().x), b.position.y + FACE_TOP_HEAD)   # the head's middle, art px from the feet
+		fig.draw(self, (center - head * FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), FACE_TOP_K,
+			Rect2(center - box * 0.5, box))
+		return
 	if not _faces.has(cid):
-		var def := ContentDB.entry("companions", cid)
-		var o: Dictionary = def.get("outfit", {}).duplicate()
-		for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
-			if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")
-		if not o.has("hair_color"): o.hair_color = 0
-		o.weapon = "none"
 		var av = Avatar.new()
-		av.outfit = o
+		av.outfit = _face_outfit(cid)
 		av.refresh_entries()
 		_faces[cid] = av.entries.duplicate()
 		av.free()
-	var box := Vector2(FACE_BOX, FACE_BOX)
 	for en in _faces[cid]:
 		var cell := int(en.cell)
 		var off := (cell - 256) * 0.5
 		var src := Rect2(Vector2(128.0 + off, cell + 190.0 + off) + FACE_AT - box * 0.5, box)
 		draw_texture_rect_region(en.texture, Rect2(center - box * 0.5, box), src, Color(1, 1, 1, 0.45 if dim else 1.0))
+
+## A companion's look for their face: their outfit, its unset pieces a disciple's, no weapon.
+func _face_outfit(cid: String) -> Dictionary:
+	var o: Dictionary = ContentDB.entry("companions", cid).get("outfit", {}).duplicate()
+	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
+		if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")
+	if not o.has("hair_color"): o.hair_color = 0
+	o.weapon = "none"
+	return o
 
 func _draw_player_panel(c) -> void:
 	if not shown("player_panel"): return

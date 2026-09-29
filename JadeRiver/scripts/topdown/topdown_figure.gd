@@ -183,12 +183,14 @@ func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, ti
 		ci.draw_texture_rect_region(l.tex, dst, src, tint)
 	ci.draw_set_transform(Vector2.ZERO)
 
-## What the figure covers on screen in that frame, from its feet (for occlusion tests and labels).
-func bounds(action: String, row: String, i: int) -> Rect2:
+## What the figure covers on screen in that frame, from its feet (for occlusion tests and labels); with `cat`, only that
+## category's layers (the body alone: where the head is under any hair or hat, for a face's crop).
+func bounds(action: String, row: String, i: int, cat := "") -> Rect2:
 	var fm := frame_of(action, row, i)
 	var k := fm.x * 6
 	var out := Rect2()
 	for l in layers:
+		if cat != "" and str(l.cat) != cat: continue
 		var r: PackedInt32Array = l.rects
 		if r[k + 2] == 0: continue
 		var box := Rect2(r[k + 4], r[k + 5], r[k + 2], r[k + 3])

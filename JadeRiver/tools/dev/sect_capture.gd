@@ -64,7 +64,7 @@ func run_sect(sect: String) -> void:
 	# On the array: where it goes (the watch post, the gate's twin; the peak's is not keyed yet).
 	await at_spot(s.array_cell, 30)
 	var r := Game.submit({"type": "interact", "object": str(s.array)})
-	main.open_page("dialogue", {"convo": r.get("dialogue", {})})
+	main.open_page(str(r.get("open_page", "transfer_array")), r.get("page_args", {"object": str(s.array)}))   # the travel picker
 	await frames(240)
 	await shot(tag + "03_the_array_asks_where_to", SECT_OUT)
 	main.close_all_pages()

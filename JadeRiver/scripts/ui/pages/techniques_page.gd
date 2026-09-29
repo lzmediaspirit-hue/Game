@@ -18,11 +18,13 @@ extends Page
 ## never every frame for nothing, and the chart is drawn apart from it, behind it: in tiles of the chart's own space (half
 ## a family's column, two rings deep, TILE), each in three layers (the ground and the routes, the passages and gates, the
 ## cards), drawn once and kept. A drag or a glide only moves the sheets that hold them; a tile is drawn as it comes near
-## the view (a few a frame), and again only when what it shows changes (a node chosen or learned, an emblem composed). The cards' words (each written only while wholly inside the chart) and the ring numerals at the chart's
-## edge are layers of their own, drawn again only when what they write changes. The trees' shapes are laid out a family
-## at a time in the frames the page stands idle (ShapeJob), so a tab opens on a shape already made. A top-down character
-## is drawn as the top-down game draws it (TopdownDoll, decision 42): the cards' and the reading's pictures and the
-## preview's caster; the side view's avatar only for a classic side-view character.
+## the view (a few a frame), and again only when what it shows changes (a node chosen or learned; a card's picture is
+## painted into its place with no draw again, TechniquePicture). The cards' words (each written only while wholly inside
+## the chart) and the ring numerals at the chart's edge are layers of their own, drawn again only when what they write
+## changes. The trees' shapes are laid out a family at a time in the frames the page stands idle (ShapeJob), so a tab
+## opens on a shape already made. A top-down character is drawn as the top-down game draws it (decision 42): the cards'
+## and the reading's pictures (TechniquePicture, the look the HUD's buttons and the loadout bar share) and the preview's
+## caster (TopdownDoll); the side view's avatar only for a classic side-view character.
 
 const Avatar = preload("res://scripts/avatar.gd")
 const LEFT := Rect2(12, 70, 216, 580)
@@ -64,21 +66,14 @@ var _rows := {}               # ring -> row top; "n<act>" -> the notables' band
 var _dirty := true
 var _pan := false
 var _learned_i := -1
-var _emblem_frame := -1       # the frame composing emblems, and the usec spent on them in it (_emblem_at)
-var _emblem_us := 0
-const EMBLEM_BUDGET_US := 4000
-var _pics := {}               # art -> what its card's picture needs (its pose, its element's colour)
 var _fam := {}                # the weapon family in hand (StatRules.family), found once a dressing
-var _stills := {}             # pose -> the side view's still in it, for a classic character's cards
-var _still_frame := -1
-static var _still_cache := {}  # outfit|pose -> a card's still, kept across opens (the character's look rarely changes)
+var _pic_gen := -1            # TechniquePicture.generation the tiles were drawn in (a sheet started again: draw them again)
 var top := false              # the character is a top-down one: its pictures are the top-down figure (decision 42)
 ## The chart apart from the page (decision 42): the page's ground behind everything, the chart's clip over MID and its
 ## three sheets of tiles, and the ring numerals' strip.
 const TILE := Vector2(300, 278)          # a tile: half a family's column (FAM_W), two rings deep
 const TILE_AHEAD := Vector2(300, 278)    # tiles this far out of view are drawn ahead of a drag, one a frame
 const PIC_K := 3                         # the reading's top-down figure, screen px an art px
-const CARD_K := 1                        # a card's top-down figure, screen px an art px (cropped to its frame)
 var _back: Control                       # the page's ground, drawn behind the page and the chart
 var _clip: Control                       # the chart's window (MID), clipping its sheets
 var _sheets: Array = []                  # the routes, the marks and the cards: each holds every tile's layer
@@ -139,8 +134,6 @@ func _dress() -> void:
 	if c() == null: return
 	pic.outfit = InventoryAuthority.outfit_for(c())
 	if not top: pic.last_key = ""
-	_stills.clear()
-	_pics.clear()
 	_fam = {}
 	_stale_tiles()
 	queue_redraw()
@@ -234,11 +227,17 @@ func _gui_input(event: InputEvent) -> void:
 	super._gui_input(event)
 
 ## The page's first frame draws its frame, rail, chooser and the chart's tiles in view; the preview is built on the
-## next, and the cards' composed emblems fill in from then on within a few ms a frame (_emblem_at). Each frame the
-## chart's sheets follow the view, the tiles near it are drawn (_tend_tiles), the page is drawn again only when its
-## words over the chart change, and an idle frame lays out a little of a tree not yet laid out (_warm_shapes).
+## next, and the cards' pictures are begun from then on, a few a frame, and painted off the main thread
+## (TechniquePicture). Each frame the chart's sheets follow the view, the tiles near it are drawn (_tend_tiles), the page
+## is drawn again only when its words over the chart change, and an idle frame lays out a little of a tree not yet laid
+## out (_warm_shapes). When the pictures' atlas starts a sheet again, the tiles and the page are drawn again.
 func _process(delta: float) -> void:
 	super._process(delta)
+	if TechniquePicture.generation != _pic_gen:
+		if _pic_gen >= 0:
+			_stale_tiles()
+			queue_redraw()
+		_pic_gen = TechniquePicture.generation
 	if stage == null and _open_frame >= 0 and Engine.get_process_frames() > _open_frame and c() != null: _build_stage()
 	if c() == null: return
 	if _dirty and _is_tree():
@@ -738,7 +737,7 @@ func _draw_layer(cv: Layer) -> void:
 		2:
 			for it in items:
 				if not str(it.kind) in ["passage", "notable"]:
-					if not _card(cv, it, Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD)):   # an emblem waits for a later frame
+					if not _card(cv, it, Rect2(it.at - Vector2(CARD.x * 0.5, 0), CARD)):   # a picture waits its turn
 						tile.dirty[2] = true
 						_tiles_stale = true
 
@@ -930,25 +929,20 @@ func _diamond(cv: CanvasItem, at: Vector2, r: float, it: Dictionary) -> void:
 	cv.draw_polyline(pts, UiKit.PAPER if st == "realised" else _state_col(it), 1.6, true)
 	if str(it.kind) == "notable": cv.draw_circle(at, r * 0.35, _state_col(it), true, -1.0, true)
 
-## A node card on `cv` (a tile's cards layer, in the chart's space): the art's picture in its frame (jade learned, gold
-## open, slate locked, a keystone in a gold double frame), its name and its state under it (a closed one with a lock, an
-## open one with the Realisations mark). False when its emblem waits for a later frame.
+## A node card on `cv` (a tile's cards layer, in the chart's space): the art's picture (TechniquePicture, the one look
+## the HUD's buttons and the loadout bar share: the character large in the art's pose in its element's ink on a starry
+## ground, its form's marks round it, a learned art's rank badge) in its frame (jade learned, gold open, slate locked, a
+## keystone in a gold double frame; a locked art's picture in a grey ink); its name and its state are the words layer's.
+## False while its picture waits its turn to be begun (the tile is drawn again next frame).
 func _card(cv: CanvasItem, it: Dictionary, rect: Rect2) -> bool:
 	var id := str(it.id)
 	var st := str(it.state)
 	var learned := st in ["realised", "taught"]
 	var p := Rect2(rect.position + Vector2((CARD.x - PIC) * 0.5, 0), Vector2(PIC, PIC))
 	if sel == id: Page.glow_on(cv, p.grow(22), Color(UiKit.PALE_GOLD, 0.45))
-	Page.rounded_on(cv, p.grow(1), 5.0, UiKit.INK)
-	Page.rounded_on(cv, p, 4.0, _state_col(it) if sel != id else UiKit.PALE_GOLD)
-	Page.rounded_on(cv, p.grow(-2), 3.0, UiKit.INK)
 	if str(it.kind) == "keystone": cv.draw_rect(p.grow(3), UiKit.GOLD, false, 1.5)
-	var done := _card_picture(cv, id, p.grow(-2), st == "locked")
-	if learned:
-		var d := p.end - Vector2(4, 4)
-		cv.draw_colored_polygon(PackedVector2Array([d + Vector2(0, -11), d + Vector2(11, 0), d + Vector2(0, 11), d + Vector2(-11, 0)]), UiKit.JADE_SHADOW)
-		UiKit.draw_text(cv, str(int(it.tier)), d + Vector2(-11, 5), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 22)
-	return done
+	return TechniquePicture.draw(cv, p.grow(1), id, c(), pic.outfit, _state_col(it) if sel != id else UiKit.PALE_GOLD, 1.0, 1.0, "tree",
+		st == "locked", int(it.tier) if learned else 0)
 
 ## Where a card's name and its tag are written (chart space): [name, tag], kept with the node until its tag changes.
 func _word_rects(it: Dictionary) -> Array:
@@ -998,68 +992,6 @@ func _draw_words(cv: Layer) -> void:
 		elif not learned: _lock_on(cv, Vector2(tr.position.x + 8, tr.position.y + 3), 0.8)
 		UiKit.draw_text(cv, UiKit.fit(str(it.tag), 14, tr.size.x - mark), Vector2(tr.position.x + mark, tr.position.y + 15), 14,
 			UiKit.BRIGHT_JADE if learned else (UiKit.PALE_GOLD if st == "open" else UiKit.MIST), HORIZONTAL_ALIGNMENT_CENTER, tr.size.x - mark)
-
-## A card's picture: the character doing the art on its element's ground, the art's emblem in its corner. A top-down
-## character is drawn as the top-down game draws it (decision 42): the top-down figure in the pose a fight casts the art
-## in, held on the frame its blow lands, drawn straight from its sheets (every action is on them, so no picture waits on
-## a file or is composed). A classic side-view character keeps the side view's still, composed once a pose (one a frame,
-## once the page has opened). A closed art's is dimmed. False while something in it waits for a later frame.
-func _card_picture(cv: CanvasItem, id: String, r: Rect2, dim: bool) -> bool:
-	if not _pics.has(id):   # what the picture needs, found once: its pose and colour
-		var t0 := ContentDB.entry("techniques", id)
-		_pics[id] = {"pose": _pose(t0), "ec": SpriteCache.element_color(str(t0.get("element", "none")))}
-	var p: Dictionary = _pics[id]
-	var ec: Color = p.ec
-	cv.draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]),
-		PackedColorArray([Color(ec.darkened(0.55), 1.0), Color(ec.darkened(0.55), 1.0), UiKit.INK, UiKit.INK]))
-	Page.glow_on(cv, Rect2(r.position + Vector2(8, 30), Vector2(r.size.x - 16, 40)), Color(ec, 0.3 if not dim else 0.12))
-	cv.draw_line(Vector2(r.position.x + 4, r.end.y - 8), Vector2(r.end.x - 4, r.end.y - 8), Color(ec, 0.5), 1.0)
-	var tint: Color = UiKit.MIST if dim else Color.WHITE.lerp(ec.lightened(0.3), 0.3)
-	var mod := Color.WHITE if not dim else UiKit.MIST
-	if top:
-		if not pic.figure.loaded(): return false
-		_pose_pic(str(p.pose))
-		# At the world's own size, standing on the picture's ground line where the side view's still stood, its blow
-		# across the picture.
-		pic.draw_on(cv, Vector2(r.get_center().x - (4.0 if pic.hold > 0 else 0.0), r.end.y - 8), CARD_K, tint, r.grow(-1))
-		return _emblem_at(cv, Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, mod)   # the emblem in its corner
-	var still = _stills.get(str(p.pose))
-	if still == null:
-		var key := str(pic.outfit) + "|" + str(p.pose)
-		still = _still_cache.get(key)
-		if still == null and opened > 0.3 and _still_frame != Engine.get_process_frames():
-			_still_frame = Engine.get_process_frames()
-			var a := Avatar.new()
-			a.outfit = pic.outfit
-			a.play(str(p.pose))
-			a.elapsed = 0.3
-			still = ImageTexture.create_from_image(a.still_image())
-			a.free()
-			if _still_cache.size() >= 96: _still_cache.clear()
-			_still_cache[key] = still
-		if still != null: _stills[str(p.pose)] = still
-	if still == null:
-		_emblem_at(cv, r.grow(-6), id, mod)   # until its still is composed, the emblem stands in
-		return false
-	cv.draw_texture_rect(still, Rect2(Vector2(r.get_center().x - 4, r.end.y - 6) - Vector2(64, 95), Vector2(128, 128)), false, tint)
-	return _emblem_at(cv, Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), id, mod)   # the emblem in its corner
-
-## A card's emblem. One composed at run time (SpriteCache.emblem, a few ms each) is composed from the page's second
-## frame on, within EMBLEM_BUDGET_US a frame; the rest wait (false: their tile is drawn again next frame), so neither the
-## opening nor a drag to a new family stalls on a screenful of them. One already composed draws at once.
-func _emblem_at(cv: CanvasItem, r: Rect2, id: String, modulate: Color) -> bool:
-	if not SpriteCache.icon_ready(id, minf(r.size.x, r.size.y)):
-		var frame := Engine.get_process_frames()
-		if _emblem_frame != frame:
-			_emblem_frame = frame
-			_emblem_us = 0
-		if first_draw() or _emblem_us >= EMBLEM_BUDGET_US: return false
-		var t0 := Time.get_ticks_usec()
-		SpriteCache.draw_icon(cv, r, id, modulate)
-		_emblem_us += Time.get_ticks_usec() - t0
-		return true
-	SpriteCache.draw_icon(cv, r, id, modulate)
-	return true
 
 ## An art's form at its impact frame (its sheet in its element's row at its tier's band), the whole cell fitted into `r`
 ## at `most` scale and centred on it: the reading's picture (`async`: once the sheet is in from its loading thread).
@@ -1187,9 +1119,14 @@ func _plaque(name: String, runs: Array) -> void:
 	_name_plaque(Rect2(RIGHT.position.x + 20, 80, 324, 30), name)
 	rich(Rect2(RIGHT.position.x + 16, 118, 332, 20), runs, 14, true)
 
-## The picture: the character in the art's pose on its element's ground, in a gold frame.
+## The picture: the character in the art's pose on its element's ground, in a gold frame. A technique's is its card's
+## look at the reading's size (TechniquePicture: the whole figure at x3); the other pictures (a lost art's, a secret
+## art's) keep the figure over the element's glow.
 func _picture(t: Dictionary, action := "") -> void:
 	var r := Rect2(922, 142, 150, 150)
+	if action == "" and ContentDB.has_entry("techniques", str(t.get("id", ""))):
+		if not TechniquePicture.draw(self, r.grow(2), str(t.id), c(), pic.outfit, UiKit.GOLD, 1.0, 1.0, "reading"): _waiting = true
+		return
 	rounded(r.grow(2), 5.0, UiKit.INK)
 	rounded(r, 4.0, UiKit.GOLD)
 	rounded(r.grow(-3), 3.0, UiKit.INK)
@@ -1651,7 +1588,8 @@ func _dock(ch) -> void:
 			var tid = cu.technique_slots[i] if i < cu.technique_slots.size() else null
 			_dock_slot(r, i >= n, tid != null and str(tid) == sel, target and i < n and (tid == null or str(tid) != sel))
 			# Decision 42: a slotted art shows the tree's picture of it, as the HUD's button does (TechniquePicture).
-			if tid != null and str(tid) != "": TechniquePicture.draw(self, r.grow(-2), str(tid), ch, pic.outfit, UiKit.BRIGHT_JADE, 1.0, 1.0, "dock")
+			if tid != null and str(tid) != "" and not TechniquePicture.draw(self, r.grow(-2), str(tid), ch, pic.outfit, UiKit.BRIGHT_JADE, 1.0, 1.0, "dock"):
+				_waiting = true   # its turn to be begun comes in a later frame
 			text(r.position + Vector2(4, 15), str(k + 1), 14, UiKit.PALE_GOLD)
 			region(r, "slot", i, i < n, Tx.t("ui.techniques.more_slots_open_with_your"))
 	var open := ProgressionRules.inner_art_slot_count(cu.realm_key)
