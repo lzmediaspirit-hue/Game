@@ -1,7 +1,7 @@
 """The unclothed body (AGENTS.md rule 4: every movement is drawn on it first) and the face.
 
 Proportions follow the side-view body (a large round head, about two and a half heads tall, short legs), at the top-down
-plan's scale: about 38 art px from the soles to the crown.
+plan's scale: about 46 art px from the soles to the crown (decision 43: 1.2 times the 38 px it was first drawn at).
 """
 from __future__ import annotations
 
@@ -76,17 +76,19 @@ def foot_solid(sk, s: str, radii, mat, part, **kw):
     return ellipsoid(sk.__dict__["foot_" + s], M, radii, mat, part=part, **kw)
 
 
-# The face (decision 42), stamped on the head's resolved pixels before shading. Glyphs, rows top to bottom, left to
-# right as seen on screen for the eye on the screen's left (the other eye mirrors): K lash, W white, I iris, L the
-# iris's lower light, B brow, M mouth, N the nose's shade, P blush. `.` leaves skin. An eye is 2 px wide and 3 tall.
+# The face (decision 42; decision 43 draws it for the 46 px figure), stamped on the head's resolved pixels before
+# shading. Glyphs, rows top to bottom, left to right as seen on screen for the eye on the screen's left (the other eye
+# mirrors): K lash, W white, D pupil, I iris, L the iris's lower light, B brow, M mouth, N the nose's shade, P blush.
+# `.` leaves skin. An eye is 3 px wide and 3 tall: the lash row, the white, the pupil and the iris, the iris and its
+# lower light; the far eye in three quarters and the eye in profile are narrower.
 FACE = {
-    "eye_front": ["KK", "WI", ".L"], "eye_near": ["KK", "WI", ".L"], "eye_far": ["K", "I"], "eye_side": ["KK", ".I"],
-    "eye_shut": ["KK"], "brow": ["BB"], "brow_far": ["B"], "brow_dy": -2,
-    "mouth_front": ["M"], "mouth_near": ["M"], "nose_side": ["N"], "blush": ["P"], "blush_dy": 2, "blush_dx": -1,
+    "eye_front": ["KKK", "WDI", ".IL"], "eye_near": ["KKK", "WDI", ".IL"], "eye_far": ["K", "D", "I"],
+    "eye_side": ["KK", ".D", ".I"], "eye_shut": ["KKK"], "brow": ["BB."], "brow_far": ["B"], "brow_dy": -2,
+    "mouth_front": ["MM"], "mouth_near": ["M"], "nose_side": ["N"], "blush": ["P"], "blush_dy": 3, "blush_dx": -1,
 }
-GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "B": "brow", "N": "nose",
+GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "D": "pupil", "B": "brow", "N": "nose",
              "M": "mouth", "P": "blush"}
-FACE_MATS = ["eye_dark", "iris", "iris_light", "eye_white", "brow", "nose", "mouth", "blush"]
+FACE_MATS = ["eye_dark", "iris", "iris_light", "eye_white", "pupil", "brow", "nose", "mouth", "blush"]
 # One ellipsoid round the skull and the jaw, in the head's frame: the face shades as one form (raster.smooth_normals).
 HEAD_AT = (0.4, 0.0, -0.9)
 HEAD_R = (5.9, 6.1, 7.4)

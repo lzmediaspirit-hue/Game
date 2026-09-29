@@ -7,24 +7,31 @@ extends "res://tools/dev/hud_capture.gd"
 ## loadout bar cropped at x2 from the first), and the Jade Transfer Array asking where to at the sect's gate.
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/picture_capture.tscn \
 ##     -- --tag=<before|after>
+## `--dir=<folder under docs/redesign/feedback/>` shoots into that folder instead, on saves of its own (decision 43's
+## people drawn bigger: `--dir=people_scale`).
 
 const PICTURES := "res://docs/redesign/feedback/pictures/"
 const PIC_SAVES := "user://picture_capture_saves/"
+var pics := PICTURES
+var pic_saves := PIC_SAVES
 
 func _main() -> void:
 	for a in OS.get_cmdline_user_args():
 		if str(a).begins_with("--tag="): tag = str(a).trim_prefix("--tag=")
-	DirAccess.make_dir_recursive_absolute(PIC_SAVES)
-	for f in DirAccess.get_files_at(PIC_SAVES): DirAccess.remove_absolute(PIC_SAVES + f)
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PICTURES))
+		if str(a).begins_with("--dir="):
+			pics = "res://docs/redesign/feedback/%s/" % str(a).trim_prefix("--dir=")
+			pic_saves = "user://picture_capture_%s_saves/" % str(a).trim_prefix("--dir=")
+	DirAccess.make_dir_recursive_absolute(pic_saves)
+	for f in DirAccess.get_files_at(pic_saves): DirAccess.remove_absolute(pic_saves + f)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(pics))
 	TopdownLight.debug_hour = 0.375
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame
-	Saves.use_folder(PIC_SAVES)
+	Saves.use_folder(pic_saves)
 	Game.boot()
 	Game.autosave_enabled = false
-	await _topdown_game(PICTURES)
+	await _topdown_game(pics)
 	await frames(30)
 	await _no_scenes()
 	_weapon_hall_stage()
@@ -48,7 +55,7 @@ func _pic_rest() -> void:
 	await frames(90)
 	_clear_notices()
 	await frames(4)
-	await shot("%s_hud_rest" % tag, PICTURES)
+	await shot("%s_hud_rest" % tag, pics)
 
 ## In a fight on the square: Flowing Palm cooling, Cloudpiercing Stroke short of Qi, Jade Thrust closed (a spear art).
 func _pic_fight() -> void:
@@ -61,7 +68,7 @@ func _pic_fight() -> void:
 	_clear_notices()
 	c.pools.cooldowns["tech:flowing_palm"] = 2.4
 	await frames(2)
-	await shot("%s_hud_fight" % tag, PICTURES)
+	await shot("%s_hud_fight" % tag, pics)
 	Game.room_rt.enemies.clear()
 	c.pools.cooldowns.erase("tech:flowing_palm")
 	c.pools.qi = c.pools.max_qi
@@ -77,11 +84,11 @@ func _pic_tree(tree: String, bar: bool) -> void:
 	await frames(240)
 	await RenderingServer.frame_post_draw
 	var img := get_tree().root.get_texture().get_image()
-	img.save_png(PICTURES + "%s_tree_%s.png" % [tag, tree])
+	img.save_png(pics + "%s_tree_%s.png" % [tag, tree])
 	if bar:
 		var strip_img := img.get_region(Rect2i(0, 648, 660, 72))
 		strip_img.resize(1320, 144, Image.INTERPOLATE_NEAREST)
-		strip_img.save_png(PICTURES + "%s_loadout_bar.png" % tag)
+		strip_img.save_png(pics + "%s_loadout_bar.png" % tag)
 	main.close_all_pages()
 	await frames(10)
 
@@ -107,6 +114,6 @@ func _pic_travel() -> void:
 	else:
 		print("picture_capture: the array did not ask (%s)" % str(r))
 	await frames(120)
-	await shot("%s_travel_picker" % tag, PICTURES)
+	await shot("%s_travel_picker" % tag, pics)
 	main.close_all_pages()
 	await frames(10)

@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..body import SKULL
+from ..body import FACE, SKULL
 from ..geom import LIGHT, SCALE, SCR_D, SCR_R, TOWARD, depth, project, unit, vec
 from ..raster import AX, AY, cone, ellipsoid, sphere
 
@@ -134,12 +134,13 @@ def eye_box(sk):
         if float(unit(p - sk.head) @ TOWARD) < 0.05:
             continue
         sx, sy = project(p)
-        w = 2
+        w = len(FACE["eye_front"][0])
         if 24 < abs(yaw) <= 66 and ((sg > 0) == (yaw > 0)):
-            w = 1                                      # the far eye in three quarters is a pixel wide
+            w = len(FACE["eye_far"][0])                # the far eye in three quarters is narrower
         elif abs(yaw) > 66:
             if (sg > 0) == (yaw > 0):
                 continue                               # in profile only the near eye shows
+            w = len(FACE["eye_side"][0])
             sx += -1 if yaw < 0 else 1
         x0 = np.floor(sx + AX - (w - 1) * 0.5)
         cols += [x0, x0 + w]

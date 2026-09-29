@@ -28,8 +28,8 @@ import numpy as np
 
 from .geom import LIGHT, SCALE, SCR_D, SCR_R, TOWARD
 
-W, H = 128, 112          # the working canvas
-AX, AY = 64, 80          # the feet (the anchor) on it
+W, H = 136, 124          # the working canvas
+AX, AY = 68, 84          # the feet (the anchor) on it
 SS = 4                   # samples per pixel on a side
 
 # Mean N.L at each lit step: below the first, step 1 (the core shadow); from the last, step 5 (bright).

@@ -31,8 +31,8 @@ OUT = ROOT / "docs/redesign/phase3/character"
 MANIFEST = "data/topdown/character.json"
 SET_DIR = "data/topdown/character/"
 BG = (72, 92, 84, 255)
-CELL = (56, 64)          # a frame's crop round the feet: 56 wide, 64 tall
-FEET = (28, 54)          # the feet in that crop
+CELL = (68, 76)          # a frame's crop round the feet: 68 wide, 76 tall (decision 43: the 46 px figure)
+FEET = (34, 62)          # the feet in that crop
 TUTORIAL_NPCS = ["aunt_ping", "lu_boatman", "little_dou", "old_ma", "granny_liu", "shen_lian_npc", "uncle_guo",
                  "fisher_wen", "washer_mei"]
 ACTION_WEAPON = {"punch": "gauntlets", "swing": "sword", "thrust": "spear"}

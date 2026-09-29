@@ -14,8 +14,8 @@ def _flat(col):
     return [col] * 5
 
 
-FACE = {"eye_dark": P.EYE_DARK, "iris": P.IRIS, "iris_light": P.IRIS_LIGHT, "eye_white": P.EYE_WHITE, "brow": P.BROW,
-        "nose": P.NOSE, "mouth": P.MOUTH, "blush": P.BLUSH}
+FACE = {"eye_dark": P.EYE_DARK, "iris": P.IRIS, "iris_light": P.IRIS_LIGHT, "eye_white": P.EYE_WHITE, "pupil": P.PUPIL,
+        "brow": P.BROW, "nose": P.NOSE, "mouth": P.MOUTH, "blush": P.BLUSH}
 EYE_MATS = {m: _flat(FACE[m]) for m in B.FACE_MATS}
 SKINS = {"light": P.SKIN}
 

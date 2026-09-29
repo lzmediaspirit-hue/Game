@@ -15,7 +15,7 @@ import math
 import numpy as np
 
 ELEV = math.radians(22.0)
-SCALE = 0.92                                                        # art px per figure unit
+SCALE = 1.104                                                       # art px per figure unit
 SCR_R = np.array([1.0, 0.0, 0.0])                                 # screen right in the world
 SCR_D = np.array([0.0, math.sin(ELEV), -math.cos(ELEV)])           # screen down in the world
 TOWARD = np.array([0.0, math.cos(ELEV), math.sin(ELEV)])           # from the figure toward the camera
