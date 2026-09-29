@@ -631,6 +631,7 @@ draws it (`TopdownFigure`); the side view's Avatar only for a classic side-view 
 | Marks | A few marks of the art's form in the light ink with a dark outline, before the hand or round the body: a palm's crescents, a flurry's crescents high and low, a thrust's lines, a lunge's speed lines and chevrons, a ward's dome, a domain's ring on the ground, a pillar's springs rising, a seal's square, a snare's loop, a chorus's notes, a burst's rays, a wave's ripples, a volley's darts, and so on (`TechniquePicture._marks`). |
 | Frame | The caller's: the tree's state colour (jade learned, gold open, slate locked, pale gold chosen), gold in the reading, bright jade on the HUD and the loadout bar; ink outside it. |
 | Rank badge | A known art's mastery tier in a small ink-and-jade diamond ringed in bright jade, its number in pale gold: on the frame's lower right corner of a card, the upper right of a button (its lower right holds the lock and the Qi strip). |
+| A button's size | The HUD's 50 px and the loadout bar's 42 px (59 px and under) have their own pass, so they read at a glance at a thumb's size. The figure faces the camera (S) on the frame before its blow lands, framed from the crown of the head at x2 with the head a little left of the middle: its face always shows (at the landing a punch turns the head away), never the back of the head. Its tone is lifted (lightness 0.1 + 1.1 l, its outline pixels kept dark) over a calm dark ground (a smooth fall from 0.17 to 0.09 with a faint light behind the head, no stars), with no rim: the value gap does the work. One bold, simple mark of the form on the right side, level with the face, light in a dark outline (a palm's two crescents, a ward's dome over the head, a seal's square, a thrust's arrow, a domain's ring at the foot...: `TechniquePicture._marks_small`). The HUD dims a short art to 0.72 and a closed one to 0.45, so the figure still reads under the Qi strip and the lock. |
 
 No frame waits on a picture. Each is a cell of an atlas sheet (a 512 px SubViewport of cells of one size) that the GPU
 draws: the ground, stars and marks are painted on a worker thread; the main thread only makes their two small textures
@@ -711,9 +712,10 @@ once a quest is given or done. Where this changes the table above:
   shrinks onto it. Keep Post, at rest only, takes 226° (the first treasure's place, in a fight only). Before the Attack
   lesson there is no Attack button; the J and Enter keys use the context then.
 - **The technique buttons** are the technique pictures of §8.4 (`TechniquePicture`, `scripts/presentation/`), the
-  look the Techniques tree's cards and the loadout bar share: at a button's 50 px, the top-down figure's upper body at
-  x2 in the art's pose and its element's ink, the form's marks round it and the rank badge in the upper right corner,
-  in the tree's bright jade frame. States: cooling, an ink sweep with a pale gold hand and the seconds; short of Qi,
+  look the Techniques tree's cards and the loadout bar share, in its button-size pass (§8.4): at 50 px, the top-down
+  figure's head and shoulders at x2 facing the camera in the art's pose, light over a calm dark ground in its
+  element's ink, one bold mark of its form beside the face and the rank badge in the upper right corner, in the tree's
+  bright jade frame. States: cooling, an ink sweep with a pale gold hand and the seconds; short of Qi,
   the picture dimmed and a Qi strip along its foot filled as far as the pool reaches the cost; closed by the weapon in
   hand, a slate frame, the picture dim and a lock. The Techniques page's loadout bar (Ring I and II) draws the same
   pictures in its 52 px slots. A companion's party chip shows the top-down figure's head (a classic side-view

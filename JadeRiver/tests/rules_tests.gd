@@ -2310,9 +2310,10 @@ func points_badges_suite() -> void:
 ## "there are places we still use the old sprite character, we need to fix it"): one technique picture everywhere
 ## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, its form's marks,
 ## the rank badge). For a top-down character every picture draws the top-down figure at a whole scale: the HUD's
-## buttons and the loadout bar its upper body at x2, the tree's cards at x2, the reading at x3; a companion's chip shows
-## the top-down figure's head. A classic side-view character's pictures are the side view's. Each slotted art is its
-## picture at rest as in a fight, never the round emblem, and its states read on it: cooling (the sweep and its seconds),
+## buttons and the loadout bar its upper body at x2 facing the camera (the face shows), the tree's cards at x2, the
+## reading at x3; a companion's chip shows the top-down figure's head. A classic side-view character's pictures are the
+## side view's. Each slotted art is its picture at rest as in a fight, never the round emblem, and its states read on
+## it: cooling (the sweep and its seconds),
 ## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
 ## makes their textures and a canvas item, a few a frame (the old side-view stills took 10-30 ms each on it).
@@ -2388,8 +2389,8 @@ func technique_pictures_suite() -> void:
 	var hud_pics: Array = []   # each art once (a frame may draw the HUD twice)
 	for d in drawn["rest"].pics:
 		if str(d.get("where", "")) == "hud" and not hud_pics.any(func(e): return str(e.id) == str(d.id)): hud_pics.append(d)
-	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 2 and int(d.size) == inner and int(d.rank) >= 1) and face_top,
-		"decision 42: for a top-down character the HUD's pictures are the top-down figure's upper body at x2 with the art's rank, and a companion's chip its head (%s; face %s)"
+	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 2 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
+		"decision 42: for a top-down character the HUD's pictures are the top-down figure's upper body at x2 facing the camera (the face shows) with the art's rank, and a companion's chip its head (%s; face %s)"
 		% [str(hud_pics.map(func(d): return [d.id, d.top, d.scale, d.rank])), face_top])
 	var fight_log: Array = drawn["fight"].pics
 	var state_at := func(kind: String, i: int) -> bool:
@@ -2418,7 +2419,7 @@ func technique_pictures_suite() -> void:
 	var dock: Array = by_where.call("dock")
 	var dock_ids := {}
 	for d in dock:
-		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 2: dock_ids[str(d.id)] = true
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 2 and str(d.facing) == "s": dock_ids[str(d.id)] = true
 	var unpainted: Array = shown.filter(func(k): return not TechniquePicture.painted(k[0], c, look, k[1], k[2]))
 	# (A picture drawn before its turn came has no cell yet, scale 0: the plain ground stood in for it that frame.)
 	check(not cards.is_empty() and cards.all(func(d): return d.top and int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)

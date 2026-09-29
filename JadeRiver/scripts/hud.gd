@@ -1902,7 +1902,7 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var cost: float = Game.combat.technique_cost(c, tdef)
 	var short: bool = not closed and cd <= 0.0 and c.pools.max_qi > 0 and c.pools.qi < cost
 	var frame := UiKit.HOLLOW if closed else UiKit.BRIGHT_JADE
-	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.38 if closed else (0.55 if short else 1.0), opacity, "hud")
+	TechniquePicture.draw(self, r, tid, c, _look(c), frame, 0.45 if closed else (0.72 if short else 1.0), opacity, "hud")
 	if closed: TechniquePicture.draw_lock(self, r, opacity)
 	if cd > 0.0:
 		TechniquePicture.draw_cooldown(self, r, cd / maxf(0.1, float(tdef.get("cooldown_s", 5))), cd, opacity)

@@ -14,8 +14,8 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   small rank badge (the art's mastery tier). The figure is the top-down one (`TopdownFigure`) for a top-down character:
   the pose a fight casts the art in with the art's own weapon family (a free-hand art's palm with no blade in hand), a
   weapon's blow on the frame it lands in profile, the bare hand's just after it lands three-quarters (the face shows),
-  the hand seal toward the camera, and an art cast from a sitting whose form rests round the body seated in meditation. At a button's size it is framed from the crown of the head, its upper body.
-  A locked art on the tree is in a grey ink. The side view's Avatar is drawn only for a classic side-view character.
+  the hand seal toward the camera, and an art cast from a sitting whose form rests round the body seated in
+  meditation. At a button's size it has its own pass (below). A locked art on the tree is in a grey ink. The side view's Avatar is drawn only for a classic side-view character.
   The cards lose the big emblem in their corner; the cooldown's sweep, the Qi-short strip and the lock stay.
 - **No stutter.** No picture is built on the main thread any more (the side view's stills took 10-30 ms each there).
   Each picture is a cell of an atlas sheet (a SubViewport) the GPU draws: its ground, stars and marks are painted on a
@@ -23,6 +23,13 @@ we still use the old sprite character, we need to fix it". `docs/ui_style_guide.
   1.5 ms; the figure and the ink are the GPU's (`technique_picture_ink.gdshader`). A picture shows in its place as it
   is painted, so the tree's kept tiles are not drawn again for it, and the page's redraw-on-change holds
   (`perf_tests`' `_techniques_redraws`).
+- **A readability pass at a button's size** (the HUD's 50 px, the loadout bar's 42 px; the cards and the reading are
+  as above): the first pictures there were dark and muddy and read worse than the old side-view busts. Now the figure
+  faces the camera on the frame before its blow lands (its face always shows; the back of the head never fills the
+  button), head and shoulders at x2; its tone is lifted well clear of a calm dark ground (a smooth fall, a faint light
+  behind the head, no stars) with no rim; one bold, simple mark of its form stands beside the face; the rank badge
+  keeps the upper right corner, clear of the face. The HUD dims a Qi-short art to 0.72 (from 0.55) and a closed one to
+  0.45 (from 0.38), so the figure reads under the Qi strip and the lock.
 - **The companion's chip** on the HUD shows the top-down figure's head (the bare body's crown under the chip's top),
   where it showed a side-view head.
 - **The sect's Transfer Array** asks where to on its own small travel picker (`array_page.gd`, `transfer_array`), not

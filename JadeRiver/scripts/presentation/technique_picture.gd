@@ -7,8 +7,10 @@ extends RefCounted
 ## Avatar only for a classic side-view character); a few marks of the art's form round it in the same ink (a palm's
 ## crescents, a ward's dome, a domain's ring, a pillar's springs, a seal's square); the frame; and a small rank badge
 ## (the art's mastery tier) when the character knows it. A card shows the figure from the head to about the ankles, the
-## reading whole on its floor; a button's size (under 60 px) its upper body, where the pose still reads.
-## docs/ui_style_guide.md §8.4, "Technique pictures".
+## reading whole on its floor. A button's size (under 60 px: the HUD's, the loadout bar's) has its own pass, so it reads
+## at a glance: the head and shoulders facing the camera (the face always shows), lifted well clear of a calm dark
+## ground with no stars and no rim, and one bold mark of the form beside the face. docs/ui_style_guide.md §8.4,
+## "Technique pictures".
 ##
 ## No frame waits on a picture. Each is a cell of an atlas sheet (a SubViewport, SHEET px square, a grid of cells of one
 ## size) that the GPU draws: the ground, its stars and the form's marks are painted as lightness at the figure's art
@@ -42,6 +44,14 @@ const SIDE_BOX := Rect2(-12, -48, 26, 48)
 const PAINTED := Color(0, 1, 1, 1)
 const RIM_INK := Color(1, 0, 1, 1)
 const RIM := [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]
+## The figure's tone in the ink shader, [cut, base, gain, rim]: a pixel's lightness l becomes base + gain * l (below
+## `cut`, an outline pixel, it stays l), its rim `rim`. A card presses the figure toward the dark on a mid ground; a
+## button (SMALL px and under) lifts it well clear of its dark ground, so it reads at a glance.
+const TONE_KEYS := ["cut", "base", "gain", "rim"]
+const CARD_TONE := [0.0, -0.182, 1.3, 0.9]
+const SMALL_TONE := [0.13, 0.1, 1.1, 1.0]
+const SMALL := 59                 ## a picture this many px across or fewer is a button's: its upper body, its own tone
+const HEAD_X := 0.42              ## where a button's head stands across it (its mark has the right side)
 
 static var _holder: Node
 static var _sheets: Array = []        # [{vp, tex, s, side, cols, slots: [key or ""], used}]
@@ -61,7 +71,7 @@ static var generation := 0
 static var build_us_max := 0
 static var build_worst := ""           ## which piece took build_us_max
 static var frame_us_max := 0
-## Tests: each picture drawn, [{id, rect, where, figure, top, frame, k, size, scale, rank}] (null: off).
+## Tests: each picture drawn, [{id, rect, where, figure, top, facing, frame, k, size, scale, rank, muted}] (null: off).
 static var draw_log = null
 
 # ------------------------------------------------------------------ drawing a picture
@@ -98,7 +108,7 @@ static func draw(ci: CanvasItem, r: Rect2, tid: String, who, outfit: Dictionary,
 	if rank > 0: _badge(ci, sq, rank, a)
 	if draw_log != null:
 		draw_log.append({"id": tid, "rect": r, "where": where, "figure": not cell.is_empty() and str(cell.state) == "ready",
-			"top": bool(look[1]), "frame": frame, "k": k, "size": s,
+			"top": bool(look[1]), "facing": str(look[2][1]), "frame": frame, "k": k, "size": s,
 			"scale": int(cell.spec.k) if not cell.is_empty() else 0, "rank": rank, "muted": muted})
 	return not cell.is_empty()
 
@@ -113,14 +123,18 @@ static func painted(tid: String, who, outfit: Dictionary, size: int, muted := fa
 ## the move reads: a weapon's blow held on the frame it lands in profile toward the right (E: the blade, the draw); the
 ## bare hand's three-quarters toward the camera and the right just after it lands (SE: the face over the hand still
 ## out, where at the landing the head turns away); the hand seal on its frame toward the camera (S: the face over the
-## joined hands); a stance or a sitting on its first frame, three-quarters (SE; a sitting faces the camera).
-static func top_pose(t: Dictionary, who, fam := {}) -> Array:
+## joined hands); a stance or a sitting on its first frame, three-quarters (SE; a sitting faces the camera). At a
+## button's size (`small`) every pose faces the camera (S) on the frame before its blow lands, the hands and the blade
+## gathered under the face (at the landing a punch turns the head, and a plunge's leap bows it: it keeps its first
+## frame), so the face always shows and the back of the head never fills the button.
+static func top_pose(t: Dictionary, who, fam := {}, small := false) -> Array:
 	var raw = t.get("action")
 	var act := ""
 	if (raw == null or str(raw) in ["", "null", "meditate_burst", "meditate"]) and str(t.get("vfx", {}).get("anim", "")) in SEATED:
 		act = "meditate"
 	else:
 		act = TechniquePreview.top_pose(t, who, fam)
+	if small: return [act, "s", 0 if act in ["idle", "meditate", "kneel", "salute", "plunge"] else maxi(1, TopdownFigure.hit_frame(act)) - 1]
 	if act in ["idle", "meditate", "kneel", "salute"]: return [act, "se", 0]
 	var hit := maxi(1, TopdownFigure.hit_frame(act))
 	if act == "cast": return [act, "s", hit]
@@ -155,7 +169,7 @@ static func _rank(who, tid: String) -> int:
 ## reference), the upper right of a button (its lower right holds the lock and the Qi strip).
 static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 	var big := p.size.x >= 60.0
-	var h := 9.0 if big else 7.0
+	var h := 9.0 if big else 6.0
 	var c := (Vector2(p.end.x, p.end.y) if big else Vector2(p.end.x, p.position.y + h * 1.1)) - Vector2(h * 0.6, h * 0.6 if big else 0.0)
 	var pts := PackedVector2Array([c + Vector2(0, -h - 1), c + Vector2(h + 1, 0), c + Vector2(0, h + 1), c + Vector2(-h - 1, 0)])
 	ci.draw_colored_polygon(pts, Color(UiKit.INK, a))
@@ -177,7 +191,7 @@ static func _look(tid: String, t: Dictionary, who, outfit: Dictionary, s: int, m
 	if top:
 		var al := art_look(t, outfit)
 		o = al[1]
-		pose = top_pose(t, who, al[0])
+		pose = top_pose(t, who, al[0], s <= SMALL)
 	return ["%s|%d|%s|%s,%s,%d|%d|%d" % [tid, hash(o), "t" if top else "s", pose[0], pose[1], pose[2], s, int(muted)], top, pose, o]
 
 ## `tid`'s cell for this look and size: kept, or begun now when the frame's budget allows ({} when it must wait).
@@ -202,11 +216,11 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	var box: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2])) if top else SIDE_BOX
 	if box.size.x <= 0.0: box = SIDE_BOX
 	var form := str(t.get("vfx", {}).get("anim", ""))
-	var crown: float = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body").position.y if top and bool(kb[1]) else NAN
-	var feet := _place(box, w, bool(kb[1]), form, crown)
+	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body") if top and bool(kb[1]) else Rect2()
+	var feet := _place(box, w, bool(kb[1]), form, bare)
 	var spec := {"w": w, "k": K, "s": s, "bust": kb[1], "feet": feet, "body": Rect2(Vector2(feet) + box.position, box.size), "form": form,
 		"seated": str(pose[0]) == "meditate", "seed": hash(tid), "top": top, "action": str(pose[0]), "row": str(pose[1]), "at": int(pose[2]),
-		"fig": _fig_key(worn, top), "mat": _material(str(t.get("element", "none")), muted)}
+		"fig": _fig_key(worn, top), "mat": _material(str(t.get("element", "none")), muted, s <= SMALL), "bare": Rect2(Vector2(feet) + bare.position, bare.size)}
 	var cols: int = sheet.cols
 	cell = {"key": key, "sheet": sheet, "slot": slot, "rect": Rect2(Vector2(slot % cols, slot / cols) * s, Vector2(s, s)), "spec": spec, "state": "painting",
 		"out": {}}
@@ -228,15 +242,17 @@ static func _scale_for(s: int) -> Array:
 
 ## Where the figure's feet stand in a cell `w` art px across (its box `box` from the feet): its middle a little left of
 ## the cell's when its form's marks stand before the hand, never its left edge (the body's side of a blow) cut; its feet
-## on the ground line when it fits, else its head just under the top and its feet cut. A button's upper body (`bust`)
-## puts the crown of the head (`crown`, the bare body's top: a topknot or a hat may be cut) under the top, so the arms
-## and the hands' work show under the face.
-static func _place(box: Rect2, w: int, bust: bool, form: String, crown := NAN) -> Vector2i:
+## on the ground line when it fits, else its head just under the top and its feet cut. A button's upper body (`bust`,
+## `bare` the bare body's box from the feet) puts the crown of the head under the top (a topknot or a hat may be cut)
+## and the head a little left of the middle (HEAD_X), so the shoulders and the hands' work show under the face and the
+## form's mark has the right side.
+static func _place(box: Rect2, w: int, bust: bool, form: String, bare := Rect2()) -> Vector2i:
+	if bust and bare.has_area():
+		return Vector2i(int(roundf(w * HEAD_X - bare.get_center().x)), int(2.0 - bare.position.y))
 	var fx := roundf(w * 0.5 - box.get_center().x - (roundf(w * 0.06) if form in AHEAD else 0.0))
 	fx = maxf(fx, 1.0 - box.position.x) if box.size.x > w - 2.0 else clampf(fx, 1.0 - box.position.x, w - 1.0 - box.end.x)
 	var fy := 2.0 - box.position.y
-	if bust and not is_nan(crown): fy = 2.0 - crown
-	elif not bust and box.size.y + 4.0 <= w: fy = w - 2.0 - box.end.y
+	if not bust and box.size.y + 4.0 <= w: fy = w - 2.0 - box.end.y
 	return Vector2i(int(fx), int(fy))
 
 ## A free cell for pictures `s` px across: a sheet of that size with room, a new sheet, or the least used sheet (not one
@@ -332,6 +348,21 @@ class Host extends Node:
 	func _notification(what: int) -> void:
 		if what in [NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN]:
 			for sh in TechniquePicture._sheets: sh.vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+	## Leaving the tree (the game quits): the workers waited for and every kept picture, figure and ink let go, before
+	## the rendering server closes.
+	func _exit_tree() -> void:
+		TechniquePicture._release()
+
+static func _release() -> void:
+	for key in _pending:
+		var cell: Dictionary = _cells.get(key, {})
+		if str(cell.get("state", "")) == "painting": WorkerThreadPool.wait_for_task_completion(int(cell.task))
+	_pending.clear()
+	_cells.clear()
+	_sheets.clear()
+	_figs.clear()
+	_mats.clear()
+	_looks.clear()
 
 ## A cell's canvas item in its sheet: it draws its painted ground, the figure and the marks through the ink.
 class Cell extends Node2D:
@@ -394,7 +425,7 @@ static func _draw_cell(node: Node2D, cell: Dictionary) -> void:
 			f.play(str(sp.action))
 			f.elapsed = 0.3
 			f.facing = 1
-		for d in RIM + [Vector2.ZERO]:
+		for d in ([Vector2.ZERO] if bool(sp.bust) else RIM + [Vector2.ZERO]):   # a button's figure has no rim: its own dark outline on the dark ground
 			var tint := RIM_INK if d != Vector2.ZERO else Color.WHITE
 			if bool(sp.top): (f as TopdownFigure).draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst)
 			else: f.draw_on(node, feet + d * K, K * 0.5, tint)
@@ -442,8 +473,11 @@ static func _ramp(el: String, muted: bool) -> Array:
 		_ramps[key] = r
 	return _ramps[key]
 
-static func _material(el: String, muted: bool) -> ShaderMaterial:
-	var key := el + ("|muted" if muted else "")
+## The ink's material for an element (`muted`: the grey ramp) and a picture's tone: a card's (`small` false) presses the
+## figure toward the dark on the mid ground; a button's (`small`, under 60 px) lifts it a long way over its dark ground,
+## the figure's outline pixels kept dark and its rim at the light's end, so it reads at a glance at a thumb's size.
+static func _material(el: String, muted: bool, small := false) -> ShaderMaterial:
+	var key := el + ("|muted" if muted else "") + ("|small" if small else "")
 	if not _mats.has(key):
 		var r := _ramp(el, muted)
 		var m := ShaderMaterial.new()
@@ -451,6 +485,8 @@ static func _material(el: String, muted: bool) -> ShaderMaterial:
 		m.set_shader_parameter("deep", r[0])
 		m.set_shader_parameter("mid", r[1])
 		m.set_shader_parameter("light", r[2])
+		var tone: Array = SMALL_TONE if small else CARD_TONE
+		for i in TONE_KEYS.size(): m.set_shader_parameter(TONE_KEYS[i], tone[i])
 		_mats[key] = m
 	return _mats[key]
 
@@ -460,6 +496,9 @@ static func _material(el: String, muted: bool) -> ShaderMaterial:
 ## feet, and the marks behind the figure) and out.front (the marks before it). A mark is light with a dark outline, as
 ## the reference draws them. Runs on a worker thread: it reads `spec` and writes only `out` and its own images.
 static func _paint_images(spec: Dictionary, out: Dictionary) -> void:
+	if bool(spec.bust):
+		_paint_small(spec, out)
+		return
 	var w: int = spec.w
 	var body: Rect2 = spec.body
 	var mid := Vector2(body.get_center().x, body.position.y + body.size.y * 0.45)
@@ -497,6 +536,127 @@ static func _paint_images(spec: Dictionary, out: Dictionary) -> void:
 	back.blend_rect(marks, Rect2i(0, 0, w, w), Vector2i.ZERO)
 	out.back = back
 	out.front = front
+
+## A button's picture (the readability pass): a calm, dark ground, a smooth fall from its top to its foot with a soft
+## light behind the head and no stars, so the lifted figure stands clear of it; and one bold, simple mark of the form
+## on the right side (_marks_small), light in a dark outline, clear of the face and of the rank badge's corner.
+static func _paint_small(spec: Dictionary, out: Dictionary) -> void:
+	var w: int = spec.w
+	var bare: Rect2 = spec.bare
+	var head := Vector2(bare.get_center().x, bare.position.y + 7.0)
+	var back := Image.create(w, w, false, Image.FORMAT_RGBA8)
+	for y in w:
+		var base := lerpf(0.17, 0.09, float(y) / maxf(1.0, w - 1.0))
+		for x in w:
+			var g := maxf(0.0, 1.0 - Vector2(x, y).distance_to(head) / (w * 0.6))
+			var v := base + 0.06 * g * g
+			back.set_pixel(x, y, Color(v, v, v))
+	var front := Image.create(w, w, false, Image.FORMAT_RGBA8)
+	_marks_small(front, spec)
+	_outline(front)
+	out.back = back
+	out.front = front
+
+## A button's mark of the form, bold and simple, centred on `m` (the right side, level with the face) and `r` across:
+## a palm's crescents, a flurry's three, an echo's rings, a counter's shield, a thrust's arrow, a lunge's chevrons, a
+## volley's darts, a seeker's orb, an arc's bolt, a blink's star, a swarm's motes, a return's circling arrow, a ward's
+## dome over the head, a domain's ring and a pillar's springs at the foot, a rain's drops, a release's rays, a burst's
+## star, a seal's square, a snare's loop, a chorus's note, a wave's ripples, a sweep's arc, a plunge's falling arrow.
+static func _marks_small(img: Image, spec: Dictionary) -> void:
+	var w := float(spec.w)
+	var bare: Rect2 = spec.bare
+	var m := Vector2(roundf(w - w * 0.2), roundf(w * 0.46))
+	var r := maxf(3.0, roundf(w * 0.17))
+	match str(spec.form):
+		"flurry":
+			for j in [-1, 0, 1]: _crescent(img, m + Vector2(-r + absf(j) * 2.0 - 1.0, j * (r + 1.0)), r * 0.7 + 1.0, 1.0)
+		"echo":
+			for i in 3: _arc(img, m - Vector2(r + 1.0, 0), 1.0 + i * (r * 0.6 + 0.5), 1.0 + i * (r * 0.6 + 0.5), -1.1, 1.1, 1.0)
+		"counter":
+			_arc(img, m + Vector2(r, 0), r + 1.0, r + 1.0, PI - 1.2, PI + 1.2, 1.0)
+			_arc(img, m + Vector2(r + 1.0, 0), r + 1.0, r + 1.0, PI - 0.7, PI + 0.7, 1.0)
+		"thrust":
+			_line(img, m - Vector2(r + 1.0, 0), m + Vector2(r, 0), 1.0)
+			_line(img, m + Vector2(r - 2.0, -2), m + Vector2(r, 0), 1.0)
+			_line(img, m + Vector2(r - 2.0, 2), m + Vector2(r, 0), 1.0)
+		"lunge":
+			for i in 2:
+				var c := m + Vector2(-2.0 + i * 3.0, 0)
+				_line(img, c + Vector2(-1, -r + 1.0), c + Vector2(r * 0.6, 0), 1.0)
+				_line(img, c + Vector2(r * 0.6, 0), c + Vector2(-1, r - 1.0), 1.0)
+		"volley":
+			for j in [-1, 0, 1]:
+				var y: float = m.y + float(j) * (r * 0.7 + 1.0)
+				_line(img, Vector2(m.x - r + 1.0, y), Vector2(m.x + r - 1.0, y), 1.0)
+				_dot(img, Vector2(m.x + r - 2.0, y - 1.0), 1.0)
+				_dot(img, Vector2(m.x + r - 2.0, y + 1.0), 1.0)
+		"seeker":
+			for d in [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1), Vector2(-1, 0), Vector2(0, -1), Vector2(2, 0), Vector2(0, 2)]:
+				_dot(img, m + Vector2(1, -1) + d, 1.0)
+			_arc(img, m + Vector2(-r * 0.5, r * 0.5), r * 0.8, r * 0.8, PI * 0.5, PI * 1.1, 1.0)
+		"arc":
+			var pts := [m + Vector2(1, -r - 1.0), m + Vector2(-2, -1), m + Vector2(2, 0), m + Vector2(-1, r + 1.0)]
+			for i in pts.size() - 1: _line(img, pts[i], pts[i + 1], 1.0)
+		"blink":
+			_line(img, m - Vector2(0, r + 1.0), m + Vector2(0, r + 1.0), 1.0)
+			_line(img, m - Vector2(r + 1.0, 0), m + Vector2(r + 1.0, 0), 1.0)
+			_sparkle(img, m, 1.0)
+		"swarm":
+			for d in [Vector2(-2, -3), Vector2(2, -2), Vector2(-1, 1), Vector2(3, 2), Vector2(0, 4)]: _sparkle(img, m + d, 1.0)
+		"return":
+			_arc(img, m, r, r, -PI * 0.1, PI * 1.45, 1.0)
+			var tip := m + Vector2.from_angle(-PI * 0.1) * r
+			_line(img, tip, tip + Vector2(-2, -1), 1.0)
+			_line(img, tip, tip + Vector2(0, 2), 1.0)
+		"ward":
+			var c := Vector2(roundf(bare.get_center().x), roundf(bare.position.y + 12.0))
+			_arc(img, c, bare.size.x * 0.5 + 3.0, 13.0, PI, TAU, 1.0)
+		"domain":
+			_arc(img, Vector2(w * 0.5, w - 3.0), w * 0.44, 2.0, 0.0, TAU, 1.0)
+			_sparkle(img, Vector2(w * 0.5 + w * 0.3, w - 3.0), 1.0)
+		"pillar":
+			for x in [2.0, w - 3.0]:
+				_line(img, Vector2(x, w - 1.0), Vector2(x, w * 0.4), 1.0)
+				_line(img, Vector2(x + 1.0, w - 1.0), Vector2(x + 1.0, w * 0.4), 1.0)
+				_sparkle(img, Vector2(x, w * 0.4 - 2.0), 1.0)
+		"rain":
+			for d in [Vector2(-2, -3), Vector2(2, -1), Vector2(-1, 2), Vector2(3, 4)]:
+				_line(img, m + d, m + d + Vector2(-1, 2), 1.0)
+		"release":
+			for ang in [-PI * 0.5, -PI * 0.3, -PI * 0.1]:
+				var d := Vector2.from_angle(ang)
+				_line(img, m + Vector2(-2, 3) + d * 2.0, m + Vector2(-2, 3) + d * (r + 3.0), 1.0)
+		"burst":
+			for i in 8:
+				var d := Vector2.from_angle(TAU * i / 8.0)
+				_line(img, m + d * 1.5, m + d * (r + (1.0 if i % 2 == 0 else 0.0)), 1.0)
+		"seal":
+			var o := (m - Vector2(r, r)).round()
+			_rect(img, Rect2(o, Vector2(r * 2.0, r * 2.0)), 1.0)
+			_line(img, o + Vector2(r, 2), o + Vector2(r, r * 2.0 - 2.0), 1.0)
+			_line(img, o + Vector2(2, r), o + Vector2(r * 2.0 - 2.0, r), 1.0)
+		"snare":
+			_arc(img, m, r, r, 0.0, TAU, 1.0)
+			_line(img, m + Vector2(-r - 1.0, r), m + Vector2(-r * 0.6, r * 0.6), 1.0)
+		"chorus":
+			for d in [Vector2(-1, 1), Vector2(0, 1), Vector2(-1, 2), Vector2(0, 2), Vector2(1, 2), Vector2(-1, 3), Vector2(0, 3)]: _dot(img, m + d, 1.0)
+			_line(img, m + Vector2(1, 2), m + Vector2(1, -r - 1.0), 1.0)
+			_line(img, m + Vector2(1, -r - 1.0), m + Vector2(r * 0.8 + 1.0, -r * 0.4), 1.0)
+		"wave":
+			for j in 2:
+				var x := m.x - r - 1.0
+				while x <= m.x + r + 1.0:
+					_dot(img, Vector2(x, m.y + j * 3.0 + sin(x * 1.1) * 1.2), 1.0)
+					x += 1.0
+		"sweep":
+			_arc(img, Vector2(w * 0.5, w * 0.62), w * 0.42, w * 0.22, 0.25, PI - 0.25, 1.0)
+		"plunge":
+			_line(img, m - Vector2(0, r + 1.0), m + Vector2(0, r), 1.0)
+			_line(img, m + Vector2(-2, r - 2.0), m + Vector2(0, r), 1.0)
+			_line(img, m + Vector2(2, r - 2.0), m + Vector2(0, r), 1.0)
+		_:   # a strike: the palm's two crescents
+			_crescent(img, m - Vector2(r + 1.0, 0), r + 1.0, 1.0)
+			_crescent(img, m - Vector2(r - 2.0, 0), r + 1.0, 1.0)
 
 ## A dark outline round every mark of `img` (a transparent layer): each empty pixel beside one drawn goes dark.
 static func _outline(img: Image) -> void:
