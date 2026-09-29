@@ -252,8 +252,14 @@ func _draw_help() -> void:
 	if TutorialRules.tour_for(page_id, tab_id()) == "" or c() == null: return
 	var r := help_rect()
 	_register(r, "_help", null, true, "", "button")
-	draw_style_box(UiKit.style("close_button", "pressed" if _is_pressed("_help") else "normal"), r)
-	UiKit.draw_outlined(self, "?", r.position + Vector2(0, r.size.y * 0.5 + 9), 26, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	# A round jade button rimmed in gold, like the close button's face, with its "?" inked.
+	var cc := r.get_center()
+	var pressed := _is_pressed("_help")
+	draw_circle(cc, 25.0, UiKit.INK, true, -1.0, true)
+	draw_circle(cc, 23.0, UiKit.GOLD.lerp(UiKit.BRONZE, 0.35), true, -1.0, true)
+	draw_circle(cc, 20.0, UiKit.JADE_SHADOW.lerp(UiKit.INK, 0.45 if pressed else 0.2), true, -1.0, true)
+	draw_circle(cc + Vector2(-5, -6), 9.0, Color(UiKit.JADE, 0.2), true, -1.0, true)
+	UiKit.draw_inked(self, "?", Vector2(r.position.x, cc.y + 10 + (2 if pressed else 0)), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 ## Where the "?" sits: left of the close button. A page whose own parts stand there gives another place.
 func help_rect() -> Rect2:

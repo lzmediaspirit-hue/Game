@@ -1,5 +1,56 @@
 # Changelog
 
+## Every newly unlocked system teaches itself (decision 43)
+
+The user asked: "I want the game to teach the player how to use new systems that unlocked. For example, when the
+player first gets foundation points the game should navigate the player to the right screen to spend those points, or
+when he unlocks the techniques page, the player should get a tutorial for each new system he unlocks and understand
+how this system page works." The design note is `docs/redesign/tutorials.md`.
+
+- **Guides.** A system opening starts one: an unlock, the first foundation points, Realisations, Bench or Post Art
+  points, the first piece of gear in the bag, or the first bottleneck.
+  - A hand, a pulsing ring and a small card with Later lead the player there, step by step: the HUD button (with a red
+    "!" badge), the page, its tab, and the element to use.
+  - With the first foundation points: the Menu button, Cultivation, the Foundation tab, then the +1. Spending a point
+    through it ends the guide.
+  - Each step is found from what is on screen, so a shortcut (the points badge) works too.
+  - A place-only system leads to the nearest thing of its kind in the world, through the quest direction mark (the
+    minimap's gold exit and chevron) and the World map's lantern.
+- **Tours.** A page's (or a tab's) first opening plays one: 3 to 6 steps, each lighting one part of the page in a
+  spotlight over a dim, with a line of at most two lines, Next and Skip.
+  - A "try it" step lets taps through its spotlight and moves on when done.
+  - The HUD's own controls get short tours: meditate, the technique buttons, dodge and guard, the Qi bar, the animal's
+    button.
+  - Every page of `PAGES` has one, except the talks and events. The prototype's pages came first.
+- **The coach waits.** It never shows in a fight (a foe near, or blows in the last 8 s), a staged scene, a moment, a
+  talk, a page's own question, or while a page is a game in play (fishing, the guqin).
+  - Guides queue one at a time, by priority.
+  - One tour plays each time a page opens.
+- **The "?"** beside each page's close button plays its tour again. **Settings → Controls → Replay tutorials** makes
+  every tour play again on its page's next opening.
+- **Saves.** Progress is kept per character in the save, and a tour resumes at its step after a reload. A save from
+  before this, or a character that skipped the Prologue, counts what it has as known.
+- **Data.** `tools/data/tutorials.py` → `data/tutorials.json` (64 entries: the trigger, the chain, the tour). The
+  words are in `tools/data/ui_strings.json` (`ui.tutorial.*`).
+- **Runtime.**
+  - The Tutorial authority keeps the progress (`tutorial_step`, `tutorial_done`, `tutorial_replay`, `tutorial_goal`).
+  - `TutorialRules` holds the rules and `TutorialCoach` is the overlay (`scripts/ui/tutorial_coach.gd`).
+  - Tours point at named anchors that the pages and the HUD give, never at node paths. A page's tap regions name
+    themselves by action, its tabs and shared parts have names, and a page adds its own with `tour_mark`. The HUD names
+    its controls by role (`HUD.tour_rect`).
+- **Fixed on the way:** the tap that opened a page from the HUD also reached the new page. When the button stood
+  outside the page's window (the Mail button), its release closed the page as it opened (`Page._gui_input`).
+- **Screenshots** at the phone layout are in `docs/redesign/feedback/tutorials/`: the foundation path step by step,
+  the Techniques page's tour and the Quests page's (`tools/dev/tutorial_capture.tscn`).
+- **Tests.** A new suite, `tutorials`, registered in `tools/run_tests.sh`. It checks:
+  - the data;
+  - every tour and guide anchor on its page or the HUD;
+  - the foundation path end to end through real taps;
+  - that the coach waits in a fight, a scene and a talk;
+  - the queue, Later, the "?" and Replay;
+  - the save and reload, and a legacy save;
+  - the place steps. They skip cleanly until the systems-as-places table lands.
+
 ## The technique pictures like the reference, the last side-view figures, the array's travel picker (decision 42)
 
 The user asked again: "I want the skills icon to look like the attached image"

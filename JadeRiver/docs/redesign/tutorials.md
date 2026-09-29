@@ -43,7 +43,9 @@ The coach never starts or shows in these cases; it waits and shows once they are
 - while a page is a game in play (fishing, the guqin).
 
 Only one guide shows at a time. The others wait in a queue, highest priority first. Only one tour plays on each
-opening of a page.
+opening of a page. A tab's own tour waits until its system is open (a craft's tab shows only why it is shut until then).
+A guide to a passing state that has passed (the points spent another way, the bottleneck broken) leaves the queue. A
+guide whose page the player opened first is done when it opens.
 
 ## 2. Data: `tools/data/tutorials.py` → `data/tutorials.json`
 
@@ -92,6 +94,7 @@ Tours use anchor names only, never node paths.
 - While a tour dims the screen, the coach takes every touch except in the spotlight (and only there when the step has
   a try). It also keeps those touches from the HUD's own `_input` (`hud.coach`).
 - A guide takes only its card's buttons.
+- A tour that dims the play screen lets go of whatever the thumbs held, such as the stick or a guard.
 
 **Saving.** The record is saved per character in the character's save.
 - A tour in progress keeps its step, so a reload resumes it.

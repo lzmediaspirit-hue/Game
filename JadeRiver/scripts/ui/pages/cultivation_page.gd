@@ -406,6 +406,7 @@ func _foundation(ch) -> void:
 	text(r.position + Vector2(24, 40), Tx.t("ui.cultivation.unspent_meridian_points") % cu.unspent_meridian_points, 22, UiKit.PALE_GOLD)
 	tour_mark("points", Rect2(r.position + Vector2(16, 8), Vector2(420, 44)))   # decision 43: a tour's anchors
 	tour_mark("bars", Rect2(r.position.x + 462, r.position.y + 70, 376, 5 * 64 - 16))
+	tour_mark("meridians", Rect2(r.position.x + 16, r.position.y + 62, 448, 5 * 64 - 4))
 	var names := {"body": Tx.t("ui.cultivation.body"), "agility": Tx.t("ui.cultivation.agility"), "essence": Tx.t("ui.cultivation.essence"), "spirit": Tx.t("ui.cultivation.spirit"), "insight": Tx.t("ui.cultivation.insight")}
 	var desc := {"body": Tx.t("ui.cultivation.hp_defence_body_training"), "agility": Tx.t("ui.cultivation.speed_evasion_accuracy"), "essence": Tx.t("ui.cultivation.qi_qi_attack"), "spirit": Tx.t("ui.cultivation.soul_sense_will"),
 		"insight": Tx.t("ui.cultivation.insight_mastery_crafting")}

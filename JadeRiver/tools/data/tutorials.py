@@ -140,7 +140,7 @@ def prototype():
     entry("gear", "inventory", {"kind": "item", "bag_kind": "gear"}, [],
           chain=[hud("icon:bag"), on("inventory", "gear", element=True, try_={"event": "equipment_changed"})],
           priority=8, prologue=True)
-    entry("quests", "quests", unlock("navigation"), [t("story|sel"), t("read"), t("go"), t("track"), t("tab:done")],
+    entry("quests", "quests", unlock("navigation"), [t("story|sel"), t("read"), t("go"), t("track|read"), t("tab:done")],
           chain=[hud("tracker")], priority=7, prologue=True)
     entry("cultivate", "hud", unlock("cultivate"), [t("meditate"), t("progress"), t("portrait")], priority=6, prologue=True)
     entry("cultivation", "cultivation", unlock("cultivation"),
@@ -150,7 +150,7 @@ def prototype():
           chain=via_menu("codex"), priority=2, prologue=True)
     # After the Prologue.
     entry("foundation", "cultivation", points("meridian", "foundation"),
-          [t("points"), t("meridian"), t("bars"), t("reset_meridians")], tab="foundation",
+          [t("points"), t("meridians"), t("bars"), t("reset_meridians")], tab="foundation",
           chain=via_menu("cultivation", "foundation", "ui.cultivation.foundation",
                          element("meridian", {"event": "attributes_changed"})), priority=8)
     entry("techniques", "techniques", unlock("technique_slots_2"),

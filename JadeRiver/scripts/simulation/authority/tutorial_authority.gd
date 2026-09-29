@@ -94,6 +94,12 @@ func evaluate(c) -> void:
 	if c == null or Unlocks.debug_force_all: return
 	var st := state(c)
 	var added := false
+	# A guide to a passing state (points to spend, a bottleneck, a thing in the bag) that has passed is not needed.
+	for id in (st.queue as Array).duplicate():
+		var qe := TutorialRules.entry(str(id))
+		if str(qe.get("trigger", {}).get("kind", "")) in ["points", "bottleneck", "item"] and not TutorialRules.triggered(c, qe):
+			st.queue.erase(id)
+			st.guided[str(id)] = 1
 	for e in TutorialRules.entries():
 		var id := str(e.id)
 		if st.guided.has(id) or st.queue.has(id) or st.seen.has(id): continue

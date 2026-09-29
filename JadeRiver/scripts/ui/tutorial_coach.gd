@@ -13,7 +13,7 @@ extends Control
 ## paths. Progress goes to the authority through intents (tutorial_step, tutorial_done, tutorial_replay), so it is saved
 ## per character and resumes after a reload. A tour played again from a page's "?" is not recorded.
 
-const CARD_W := 560.0
+const CARD_W := 560.0         ## a tour's card
 const TEXT := 20              ## the card's line (UiKit.T_BODY), at most two lines on a phone
 const TEXT_W := CARD_W - 48.0
 const BTN_W := 136.0
@@ -43,7 +43,8 @@ var _missing := 0.0
 var _toured: Dictionary = {}  ## page instance id -> true: a tour played (or was skipped) on that opening
 var _tried := false           ## the step's "try it" was done
 var _tab_was := ""
-var _hand: ImageTexture = null
+var _hand: ImageTexture = null       ## the finger up (under the anchor)
+var _hand_down: ImageTexture = null  ## the finger down (over it)
 var _pressed := ""
 var _in_hole := false
 var _goal := ""               ## the room the direction mark was asked to lead to (tutorial_goal)
@@ -53,13 +54,14 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	GameEvents.event.connect(_on_game_event)
-	_hand = _hand_texture()
+	_hand = _hand_texture(false)
+	_hand_down = _hand_texture(true)
 
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_game_event): GameEvents.event.disconnect(_on_game_event)
 
-## The pointing hand, drawn from HAND (ink edge, paper hand, a jade sleeve).
-static func _hand_texture() -> ImageTexture:
+## The pointing hand, drawn from HAND (ink edge, paper hand, a jade sleeve), its finger up or turned down.
+static func _hand_texture(down: bool) -> ImageTexture:
 	var img := Image.create(HAND[0].length(), HAND.size(), false, Image.FORMAT_RGBA8)
 	for y in HAND.size():
 		for x in (HAND[y] as String).length():
@@ -67,6 +69,7 @@ static func _hand_texture() -> ImageTexture:
 			if ch == "#": img.set_pixel(x, y, UiKit.INK)
 			elif ch == "W": img.set_pixel(x, y, UiKit.PAPER)
 			elif ch == "S": img.set_pixel(x, y, UiKit.JADE)
+	if down: img.flip_y()
 	return ImageTexture.create_from_image(img)
 
 # ------------------------------------------------------------------ what shows
@@ -103,9 +106,11 @@ func _update(delta: float) -> void:
 		_show("guide", head, (he.chain as Array).size() - 1)
 		_resolve(delta)
 		return
-	# A guide whose page (and tab) is open now is done: its tour, if unseen, plays next.
-	if head != "" and top != null and _arrived(he, pid, tab):
-		Game.submit({"type": "tutorial_done", "id": head, "stage": "guide"})
+	# A guide whose page (and tab) is open now is done, whether it led there or the player came first: its tour, if
+	# unseen, plays next.
+	if top != null:
+		for q in (c.tutorials.get("queue", []) as Array).duplicate():
+			if _arrived(TutorialRules.entry(str(q)), pid, tab): Game.submit({"type": "tutorial_done", "id": str(q), "stage": "guide"})
 		head = Game.tutorials.head(c)
 		he = TutorialRules.entry(head)
 	# 3. A tour of the page on top: one in progress, else an unseen one on its first opening.
@@ -164,9 +169,15 @@ func _page_tour(c, top: Page, pid: String, tab: String) -> String:
 		var id := str(e.id)
 		if Game.tutorials.in_progress(c, id) and not Game.tutorials.seen(c, id) and TutorialRules.same_page(str(e.get("page", "")), pid):
 			return id
-	if _toured.has(top.get_instance_id()): return ""
+	# One tour an opening; none by itself while every system is forced open (the Max Tester, previews): the "?" still plays.
+	if _toured.has(top.get_instance_id()) or Unlocks.debug_force_all: return ""
 	for id in TutorialRules.tours_for(pid, tab):
-		if not Game.tutorials.seen(c, str(id)): return str(id)
+		if Game.tutorials.seen(c, str(id)): continue
+		# A tab's own tour waits for its system (a craft's tab shows only why it is shut until then).
+		var e := TutorialRules.entry(str(id))
+		var gate := str(e.get("trigger", {}).get("unlock", ""))
+		if str(e.get("tab", "")) != "" and gate != "" and not Unlocks.is_unlocked(c.id, gate): continue
+		return str(id)
 	return ""
 
 func _show(m: String, id: String, i: int) -> void:
@@ -174,6 +185,10 @@ func _show(m: String, id: String, i: int) -> void:
 		_tried = false
 		_missing = 0.0
 		_pressed = ""
+	# A tour dimming the play screen takes the controls: whatever the thumbs held (the stick, a guard) is let go.
+	if m == "tour" and mode != "tour" and main != null and main.top_page() == null:
+		var hud = main.get("hud")
+		if is_instance_valid(hud): hud.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	mode = m
 	entry_id = id
 	step = i
@@ -373,48 +388,85 @@ func press(which: String) -> void:
 			_finish(true)
 
 # ------------------------------------------------------------------ layout
+## The card's lines: wrapped at TEXT_W (at most two lines, the tutorials suite holds every line to it).
+func _lines() -> Array:
+	return UiKit.wrap(line, TEXT, TEXT_W)
+
+## A tour's card: the words over the step count, Skip and Next. A guide's: one row, the words and its buttons beside them
+## (Later, and Next on the element to use), as narrow as its words.
 func _layout() -> void:
-	var lines := UiKit.wrap(line, TEXT, TEXT_W)
-	var h := PAD + lines.size() * UiKit.line_height(TEXT) + 12.0 + BTN_H + PAD
-	var sz := Vector2(CARD_W if mode == "tour" else 440.0, h)
-	card = _card_place(sz)
-	buttons = {}
-	var y := card.end.y - PAD - BTN_H
-	if mode == "tour":
-		buttons["next"] = Rect2(card.end.x - PAD - BTN_W, y, BTN_W, BTN_H)
-		buttons["skip"] = Rect2(card.end.x - PAD * 1.5 - BTN_W * 2.0, y, BTN_W, BTN_H)
-	else:
-		buttons["later"] = Rect2(card.end.x - PAD - BTN_W, y, BTN_W, BTN_H)
+	var lines := _lines()
+	var text_h := lines.size() * UiKit.line_height(TEXT)
+	var names: Array = ["skip", "next"]
+	if mode != "tour":
+		names = ["later"]
 		# The element at the chain's end (the node to spend on) may be passed over with Next, to the page's tour.
 		var e := TutorialRules.entry(entry_id)
-		if _element_step(e) and step == (e.get("chain", []) as Array).size() - 1:
-			buttons["next"] = Rect2(card.end.x - PAD * 1.5 - BTN_W * 2.0, y, BTN_W, BTN_H)
+		if _element_step(e) and step == (e.get("chain", []) as Array).size() - 1: names = ["next", "later"]
+	var sz: Vector2
+	if mode == "tour":
+		sz = Vector2(CARD_W, PAD + text_h + 12.0 + BTN_H + PAD)
+	else:
+		var tw := 0.0
+		for ln in lines: tw = maxf(tw, UiKit.text_width(str(ln), TEXT))
+		sz = Vector2(24.0 + ceilf(tw) + 16.0 + names.size() * (BTN_W + 12.0) + 8.0, maxf(text_h, BTN_H) + PAD * 2.0)
+	card = _card_place(sz)
+	buttons = {}
+	var x := card.end.x - PAD
+	var y := card.end.y - PAD - BTN_H if mode == "tour" else card.get_center().y - BTN_H * 0.5
+	for i in range(names.size() - 1, -1, -1):
+		x -= BTN_W
+		buttons[names[i]] = Rect2(x, y, BTN_W, BTN_H)
+		x -= 12.0
 
-## Where the card stands: under the anchor, else over it, else beside it, inside the safe area and clear of it (and of
-## the hand); in the middle of the lower half with no anchor.
+## Where the card stands: of the places round the anchor (under, over, beside) and in the screen's thirds, the first that
+## keeps inside the safe area, off the anchor and the hand, and off the page's title, close and "?" (the one that covers
+## them least); in the lower middle with no anchor.
 func _card_place(sz: Vector2) -> Rect2:
 	var safe := Rect2(24, 16, 1232, 688)
-	if target.size == Vector2.ZERO: return Rect2(Vector2(640 - sz.x * 0.5, 440), sz)
-	var keep := target.grow(8.0 + HAND.size() * HAND_K)
+	var mid := Rect2(Vector2(640 - sz.x * 0.5, 452), sz)
+	if target.size == Vector2.ZERO: return mid
+	var avoid: Array = []
+	var top: Page = main.top_page() if main != null else null
+	if top != null and not on_hud:
+		for n in ["close", "help", "title"]:
+			var r := top.tour_rect(n)
+			if r.size != Vector2.ZERO: avoid.append(r)
+	var hr := hand_rect() if _hand_shown() else Rect2()
+	if hr.size != Vector2.ZERO: avoid.append(hr)
 	var cx := clampf(target.get_center().x - sz.x * 0.5, safe.position.x, safe.end.x - sz.x)
 	var cy := clampf(target.get_center().y - sz.y * 0.5, safe.position.y, safe.end.y - sz.y)
-	var tries := [Vector2(cx, keep.end.y + 4), Vector2(cx, keep.position.y - sz.y - 4),
-		Vector2(keep.position.x - sz.x - 4, cy), Vector2(keep.end.x + 4, cy)]
-	for p in tries:
-		var r := Rect2(p, sz)
-		if safe.encloses(r) and not r.intersects(target.grow(6)): return r
-	# Nowhere clear: the half of the screen away from the anchor.
-	return Rect2(Vector2(640 - sz.x * 0.5, 80 if target.get_center().y > 360 else 720 - 80 - sz.y), sz)
+	var gap := 14.0
+	var below := (hr.end.y if hr.size != Vector2.ZERO and hr.position.y > target.position.y else target.end.y) + gap
+	var above := (hr.position.y if hr.size != Vector2.ZERO and hr.position.y < target.position.y else target.position.y) - gap - sz.y
+	var tries := [Vector2(cx, below), Vector2(cx, above), Vector2(target.position.x - gap - sz.x, cy), Vector2(target.end.x + gap, cy),
+		mid.position, Vector2(640 - sz.x * 0.5, 96), Vector2(safe.position.x, safe.end.y - sz.y), Vector2(safe.end.x - sz.x, safe.end.y - sz.y)]
+	var best := Rect2()
+	var best_cost := INF
+	for i in tries.size():
+		var r := Rect2(tries[i], sz)
+		if not safe.encloses(r) or r.intersects(target.grow(6)): continue
+		var cost := float(i)
+		for a in avoid: cost += (r.intersection(a) as Rect2).get_area() * 0.05
+		if cost < best_cost:
+			best_cost = cost
+			best = r
+	return best if best.size != Vector2.ZERO else Rect2(Vector2(640 - sz.x * 0.5, 80 if target.get_center().y > 360 else 720 - 80 - sz.y), sz)
 
-## Where the hand points from, and which way: under the anchor pointing up, or over it pointing down, bobbing.
+## The hand shows where something is to be tapped: every guide step, and a tour step with a "try it".
+func _hand_shown() -> bool:
+	return target.size != Vector2.ZERO and (mode == "guide" or not (current().get("try", {}) as Dictionary).is_empty())
+
+## Where the hand stands: over the anchor with its finger down, or under it with its finger up near the screen's top,
+## bobbing toward it (still under Reduce motion).
 func hand_rect() -> Rect2:
 	if target.size == Vector2.ZERO: return Rect2()
 	var hs := Vector2(HAND[0].length(), HAND.size()) * HAND_K
-	var bob := 0.0 if UiKit.reduce_motion() else roundf(sin(t * 5.0) * 5.0)
-	var up := target.get_center().y > 200.0 or target.end.y + hs.y + 12 > 720
-	var x := clampf(target.get_center().x - hs.x * 0.3, 0, 1280 - hs.x)
-	if up: return Rect2(Vector2(x, target.position.y - hs.y - 6 - bob), hs)   # over it, the finger down
-	return Rect2(Vector2(x, target.end.y + 6 + bob), hs)
+	var bob := 0.0 if UiKit.reduce_motion() else roundf(sin(t * 5.0) * 4.0)
+	var down := target.position.y - hs.y - 8 > 0 and target.get_center().y > 200.0
+	var x := clampf(target.get_center().x - hs.x * 0.4, 0, 1280 - hs.x)
+	if down: return Rect2(Vector2(x, target.position.y - hs.y - 4 - bob), hs)
+	return Rect2(Vector2(x, target.end.y + 4 + bob), hs)
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
@@ -422,33 +474,41 @@ func _draw() -> void:
 	var pulse := 0.0 if UiKit.reduce_motion() else 0.5 + 0.5 * sin(t * 4.0)
 	if _dims():
 		var hole := target.grow(8) if target.size != Vector2.ZERO else Rect2(640, 360, 0, 0)
-		var dim := Color(UiKit.DIM, 0.62)
+		var dim := Color(UiKit.DIM, 0.66)
 		draw_rect(Rect2(0, 0, 1280, hole.position.y), dim)
 		draw_rect(Rect2(0, hole.end.y, 1280, 720 - hole.end.y), dim)
 		draw_rect(Rect2(0, hole.position.y, hole.position.x, hole.size.y), dim)
 		draw_rect(Rect2(hole.end.x, hole.position.y, 1280 - hole.end.x, hole.size.y), dim)
 	if target.size != Vector2.ZERO:
 		var ring := target.grow(8.0 + pulse * 3.0)
-		draw_rect(ring.grow(2), Color(UiKit.INK, 0.8), false, 5.0)
-		draw_rect(ring, Color(UiKit.GOLD, 0.75 + 0.25 * pulse), false, 3.0)
+		if on_hud and absf(target.size.x - target.size.y) < 4.0:
+			# A round HUD control: a round ring, and on a guide the pulsing "!" badge at its top right.
+			var rc := target.get_center()
+			var rr := target.size.x * 0.5 + 6.0 + pulse * 3.0
+			draw_arc(rc, rr + 1.0, 0.0, TAU, 48, Color(UiKit.INK, 0.8), 6.0, true)
+			draw_arc(rc, rr, 0.0, TAU, 48, Color(UiKit.GOLD, 0.75 + 0.25 * pulse), 3.0, true)
+		else:
+			draw_rect(ring.grow(2), Color(UiKit.INK, 0.8), false, 5.0)
+			draw_rect(ring, Color(UiKit.GOLD, 0.75 + 0.25 * pulse), false, 3.0)
 		if mode == "guide" and on_hud:
-			# The pulsing badge on the HUD button: a vermilion "!" at its top right.
-			var bc := Vector2(target.end.x - 2, target.position.y + 2)
+			var bc := Vector2(target.end.x, target.position.y)
 			draw_circle(bc, 12.0 + pulse * 1.5, UiKit.INK, true, -1.0, true)
 			draw_circle(bc, 10.0 + pulse * 1.5, UiKit.RED, true, -1.0, true)
 			UiKit.draw_text(self, "!", bc + Vector2(-10, 6), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
-		var hr := hand_rect()
-		var up := hr.position.y < target.position.y
-		draw_texture_rect(_hand, Rect2(hr.position + Vector2(0, hr.size.y) if up else hr.position, Vector2(hr.size.x, -hr.size.y) if up else hr.size), false)
+		if _hand_shown():
+			var hr := hand_rect()
+			draw_texture_rect(_hand_down if hr.position.y < target.position.y else _hand, hr, false)
 	_draw_card()
 
 func _draw_card() -> void:
 	if card.size == Vector2.ZERO: return
 	draw_style_box(UiKit.style("minor_panel"), card)
-	var y := card.position.y + PAD + TEXT * UiKit.text_scale()
-	for ln in UiKit.wrap(line, TEXT, TEXT_W):
+	var lines := _lines()
+	var lh := UiKit.line_height(TEXT)
+	var y := card.position.y + PAD + TEXT * UiKit.text_scale() if mode == "tour" else card.get_center().y - lines.size() * lh * 0.5 + TEXT * UiKit.text_scale() - 2.0
+	for ln in lines:
 		UiKit.draw_text(self, str(ln), Vector2(card.position.x + 24, y), TEXT, UiKit.PAPER)
-		y += UiKit.line_height(TEXT)
+		y += lh
 	if mode == "tour":
 		var n := (TutorialRules.entry(entry_id).get("tour", []) as Array).size()
 		UiKit.draw_text(self, "%d / %d" % [step + 1, n], Vector2(card.position.x + 24, card.end.y - PAD - 16), 16, UiKit.MIST)

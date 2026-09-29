@@ -131,7 +131,7 @@
      "text": "ui.tutorial.quests.3"
     },
     {
-     "anchor": "track",
+     "anchor": "track|read",
      "text": "ui.tutorial.quests.4"
     },
     {
@@ -305,7 +305,7 @@
      "text": "ui.tutorial.foundation.1"
     },
     {
-     "anchor": "meridian",
+     "anchor": "meridians",
      "text": "ui.tutorial.foundation.2"
     },
     {

@@ -347,6 +347,24 @@ func _queue() -> void:
 	check(ch.tutorials.seen.get("mail", 0) == 2 and coach().state().mode == "", "Skip ends a tour, seen")
 	main.close_all_pages()
 	await frames(3)
+	# A HUD control's tour: on the play screen, dimmed, the HUD's touches held but for the card.
+	ch.tutorials.guided.erase("guard")
+	ch.tutorials.seen.erase("guard")
+	unlock(["guard"])
+	await frames(4)
+	var st: Dictionary = coach().state()
+	var guard_btn: Rect2 = main.hud.tour_rect("guard")
+	var away := InputEventMouseButton.new()
+	away.position = Vector2(300, 400)
+	away.pressed = true
+	var on_next := InputEventMouseButton.new()
+	on_next.position = (st.buttons.get("next", Rect2()) as Rect2).get_center()
+	on_next.pressed = true
+	check(st.mode == "tour" and st.entry == "guard" and st.on_hud and st.rect == guard_btn and guard_btn.size.x > 0 and coach().holds(away) and coach().holds(on_next),
+		"a HUD tour lights the control on the play screen and holds the HUD's touches (%s)" % str(st))
+	for i in 3: await tap_button("next")
+	check(ch.tutorials.seen.has("guard") and ch.tutorials.guided.has("guard") and not ch.tutorials.queue.has("guard") and not coach().holds(away),
+		"played through, it is seen and the HUD is free again")
 
 # ------------------------------------------------------------------ 7: "?" and Replay
 func _replay() -> void:

@@ -221,6 +221,11 @@ static func island(pg: Page, at: Vector2, w: float, depth: float, k: int) -> voi
 func title_rect() -> Rect2:
 	return Rect2(68, 44, ceilf(UiKit.text_width(title, UiKit.D_TITLE, true)) + 24, 48)
 
+## Decision 43: the "?" beside the title (the tabs and purses take the row left of the close button).
+func help_rect() -> Rect2:
+	var tr := title_rect()
+	return Rect2(tr.end.x + 12, roundf(tr.get_center().y - 26), 52, 52)
+
 ## No mount: the title floats in the night, a little ink behind it.
 func draw_title_mount(r: Rect2) -> void:
 	glow(r.grow(16), Color(UiKit.INK, 0.45))
