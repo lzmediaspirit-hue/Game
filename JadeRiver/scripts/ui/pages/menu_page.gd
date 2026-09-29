@@ -101,6 +101,7 @@ func draw_page() -> void:
 		draw_line(Vector2(x + BAY_W * 0.5, top + PLAQUE_H), Vector2(x + BAY_W * 0.5, cord_end), Color(UiKit.INK, 0.6), 4.0)
 		draw_line(Vector2(x + BAY_W * 0.5, top + PLAQUE_H), Vector2(x + BAY_W * 0.5, cord_end), UiKit.GOLD.lerp(UiKit.BRONZE, 0.5), 2.0)
 		var plaque := Rect2(x, top, BAY_W, PLAQUE_H)
+		tour_mark("bay:%d" % b, Rect2(x, top, BAY_W, PLAQUE_H + 16.0 + ids.size() * TABLET_PITCH))   # decision 43: a tour's anchors
 		face(plaque, "title_plaque")
 		inked(Vector2(x, top + PLAQUE_H * 0.5 + 11), Tx.t(str(BAYS[b][0])), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, BAY_W)
 		for j in ids.size():
@@ -176,6 +177,7 @@ func _tablet(ch, e: Array, r: Rect2, seals: Dictionary) -> void:
 	draw_circle(sc + Vector2(-5, -6), 11.0, Color(UiKit.JADE, 0.18 if not locked else 0.0), true, -1.0, true)
 	icon_at(Rect2(sc - Vector2(16, 16), Vector2(32, 32)), str(e[2]), Color(1, 1, 1, 0.4) if locked else Color.WHITE)
 	if locked: _lock_icon(sc + Vector2(8, 4))
+	if locked and not tour_marks.has("locked"): tour_mark("locked", r)   # the first shut tablet
 	var line := Unlocks.locked_text(e[3]) if locked else line_of(ch, id)
 	var at_place := not locked and at_place_line(ch, id) != ""   # decision 43: where it lives, in jade
 	var nx := r.position.x + 60.0

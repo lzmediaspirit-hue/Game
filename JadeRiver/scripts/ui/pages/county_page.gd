@@ -101,6 +101,10 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	# Decision 43: a tour's anchors (the favour banner, the warrant tube, the warrant hung to read).
+	tour_mark("banner", BANNER)
+	tour_mark("tube", TUBE)
+	tour_mark("warrant", READ)
 	_banner(ch)
 	var jobs: Array = ch.relations.mortal.get("jobs", [])
 	if chosen < 0 or chosen >= jobs.size():

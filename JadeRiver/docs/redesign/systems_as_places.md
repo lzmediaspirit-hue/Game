@@ -504,6 +504,14 @@ A fix found in the review: an object's prop was drawn at its side-view depth as 
 view, so every thing drew over every body; a notice board covered the head of one standing in front of it. The Figure
 now sorts it with the room (`TopdownPlaces.build`).
 
+### The unlock tutorials
+
+The tutorials' "go to the place" step (`docs/redesign/tutorials.md` §4) reads the table: a step's `place` names a row,
+or a system or a page of the table (`PlaceRules.system_of`: "storage", "notice_board", "shop", "teleport", "garden"),
+and the place a walk there takes leads (`TutorialRules.place_for` → `PlaceRules.home`), when the character sees it and
+a way open to it leads there; the direction mark and the hand go there. The `tutorials` suite checks that every such
+step leads to a place that opens the page it teaches.
+
 ### The unlock order
 
 No place stands between a new player and a lesson. The systems of the prologue and the tutorial (Mail, Shop, the

@@ -211,6 +211,7 @@ func _sub(ch, q: String, d: Dictionary) -> String:
 ## tracker's Next entry, else the story quest on offer.
 func _story(ch, b: Dictionary) -> void:
 	var r := Rect2(96, 116, 318, 100)
+	tour_mark("story", r)   # decision 43: a tour's anchor
 	var q := ""
 	if not b.story.is_empty() and ch.quests.is_active(str(b.story[0])): q = str(b.story[0])
 	var nx := _next(ch) if q == "" else {}
@@ -444,6 +445,7 @@ func _done(ch) -> void:
 func _reading(ch) -> void:
 	if sel == "": return
 	var r := READ
+	tour_mark("read", r)
 	var lift := 1.0 if lifted_at < 0.0 or UiKit.reduce_motion() else clampf((t - lifted_at) / 0.2, 0.0, 1.0)
 	move(Vector2(-(1.0 - lift) * 48.0, (1.0 - lift) * 20.0))
 	rounded(Rect2(r.position + Vector2(10, 14), r.size - Vector2(4, 4)), 4.0, Color(UiKit.INK, 0.45))

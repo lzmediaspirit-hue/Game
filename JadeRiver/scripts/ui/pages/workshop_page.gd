@@ -90,6 +90,8 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	tour_mark("wall", WALL)   # decision 43: a tour's anchors
+	tour_mark("bench", BENCH)
 	if str(tabs[tab].get("locked", "")) != "":
 		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 22, UiKit.MIST)
 		return

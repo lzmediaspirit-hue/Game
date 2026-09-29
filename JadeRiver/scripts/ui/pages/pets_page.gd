@@ -57,6 +57,8 @@ func draw_page() -> void:
 	for p in ch.pets:
 		if str(p.uid) == sel: pet = Game.pets.filled(p)
 	_command_line(ch)
+	tour_mark("stalls", Rect2(84, 180, LEAF.position.x - 96, 480))   # decision 43: a tour's anchors
+	tour_mark("leaf", LEAF)
 	_posts(ch, pet)
 	_stable(ch)
 	_leaf(ch, pet)

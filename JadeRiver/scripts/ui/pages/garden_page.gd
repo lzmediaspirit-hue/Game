@@ -66,6 +66,10 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null or Game.room_rt == null: return
+	# Decision 43: a tour's anchors.
+	tour_mark("terraces", TERRACES)
+	tour_mark("basket", BASKET)
+	tour_mark("tend", TEND)
 	_basket(ch)
 	if str(tabs[tab].id) == "racks":
 		_racks(ch)

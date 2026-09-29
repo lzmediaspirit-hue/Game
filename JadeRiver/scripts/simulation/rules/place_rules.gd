@@ -47,6 +47,14 @@ static func of_system(system: String) -> Array:
 	_index()
 	return _by_system.get(system, [])
 
+## The system a name stands for: a system that lives at places, or the system of the places that open a page of that
+## name (the tutorials' place steps name "teleport", "garden"); "" for none.
+static func system_of(name: String) -> String:
+	if not of_system(name).is_empty(): return name
+	for r in all():
+		if str(r.get("page", "")) == name: return str(r.system)
+	return ""
+
 ## The place an object of a room is, or {}.
 static func at_object(room_id: String, object_id: String) -> Dictionary:
 	for r in of_room(room_id):
