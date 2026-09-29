@@ -145,6 +145,10 @@ func draw_page() -> void:
 		"wardrobe": _wardrobe(ch, content)
 
 func _overview(ch) -> void:
+	# Decision 43: a tour's anchors (the figure's slips, the register and the titles).
+	tour_mark("figure", PAINTED)
+	tour_mark("register", Rect2(REG - 8, 112, 684, 430))
+	tour_mark("titles", Rect2(REG - 8, 540, 684, 140))
 	# The name written down the figure's slips, the figure's shadow, the worn slots either side, who walks beside.
 	text(Vector2(196, 138), str(ch.name), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180, true)
 	var sect_id := str(ch.training_sect.get("id", ""))

@@ -73,6 +73,7 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	_steelyard(ch)
+	tour_mark("beam", Rect2(PIVOT.x - 420, 150, 840, 150))   # decision 43: the steelyard, a tour's anchor
 	match str(tabs[tab].id):
 		"karma": _karma(ch)
 		"bonds": _bonds(ch)

@@ -69,6 +69,10 @@ func draw_page() -> void:
 
 func _overview(ch) -> void:
 	var cu: CultivatorState = ch.cultivator
+	# Decision 43: a tour's anchors.
+	tour_mark("mountain", MOUNTAIN)
+	tour_mark("stair", STAIR)
+	tour_mark("next", RIGHT)
 	var steps := _steps(cu.realm_key)
 	var here := steps.find(cu.realm_key)
 	# A step climbed while the page is open: the figure climbs from the one it sat on (none under Reduce motion).
@@ -400,6 +404,8 @@ func _foundation(ch) -> void:
 	var r := Rect2(content.position.x, content.position.y, content.size.x, content.size.y)
 	panel(r)
 	text(r.position + Vector2(24, 40), Tx.t("ui.cultivation.unspent_meridian_points") % cu.unspent_meridian_points, 22, UiKit.PALE_GOLD)
+	tour_mark("points", Rect2(r.position + Vector2(16, 8), Vector2(420, 44)))   # decision 43: a tour's anchors
+	tour_mark("bars", Rect2(r.position.x + 462, r.position.y + 70, 376, 5 * 64 - 16))
 	var names := {"body": Tx.t("ui.cultivation.body"), "agility": Tx.t("ui.cultivation.agility"), "essence": Tx.t("ui.cultivation.essence"), "spirit": Tx.t("ui.cultivation.spirit"), "insight": Tx.t("ui.cultivation.insight")}
 	var desc := {"body": Tx.t("ui.cultivation.hp_defence_body_training"), "agility": Tx.t("ui.cultivation.speed_evasion_accuracy"), "essence": Tx.t("ui.cultivation.qi_qi_attack"), "spirit": Tx.t("ui.cultivation.soul_sense_will"),
 		"insight": Tx.t("ui.cultivation.insight_mastery_crafting")}
@@ -425,6 +431,9 @@ func _body(ch) -> void:
 	text(Vector2(x, y + 30), Tx.t("ui.cultivation.mortal_body") if here == 0 else ContentDB.name_of("body_tiers", cu.body_tier), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 300, true)
 	var need := ProgressionRules.body_xp_needed(cu.body_level)
 	bar(Rect2(x + 320, y + 8, 440, 32), cu.body_xp / maxf(1.0, need), UiKit.JADE, Tx.t("ui.cultivation.body_level_bar") % [cu.body_level, int(100.0 * cu.body_xp / maxf(1.0, need))])
+	tour_mark("body_level", Rect2(x - 8, y, 776, 48))   # decision 43: a tour's anchors
+	tour_mark("hint", Rect2(x - 8, y + 48, r.size.x - 32, 48))
+	tour_mark("rungs", Rect2(x - 8, y + 100, r.size.x - 32, r.end.y - y - 116))
 	# B18: the hint wraps to a second line (one line lost "and a full soak in its bath.").
 	y += 52 + para(Rect2(x, y + 46, r.size.x - 48, 44), Tx.t("ui.cultivation.body_hint"), 16, UiKit.MIST, 2)
 	var tiers := ContentDB.all("body_tiers")
@@ -464,6 +473,7 @@ func _vows(ch) -> void:
 	# B17: the path cards take the room the intro leaves, tall enough for five lines of description.
 	var cards_y := r.position.y + 22 + intro
 	_path_cards(ch, Rect2(r.position.x + 20, cards_y, r.size.x - 40, 196))
+	tour_mark("paths", Rect2(r.position.x + 20, cards_y, r.size.x - 40, 196))   # decision 43: a tour's anchor
 	var top := cards_y + 206
 	var h := (r.end.y - top - 12) / float(maxi(1, vows.size()))
 	for i in vows.size():
@@ -539,6 +549,7 @@ func _heart(ch) -> void:
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(left)
 	panel(right)
+	tour_mark("heart_panel", left)   # decision 43: a tour's anchor
 	var x := left.position.x + 24
 	var y := left.position.y + 44
 	heading(Vector2(x, y), Tx.t("ui.cultivation.heart_demons"), left.size.x - 48)
@@ -616,6 +627,7 @@ func _methods(ch) -> void:
 	if cu.methods_known.is_empty():
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.cultivation.you_know_no_cultivation_method"), 22, UiKit.MIST)
 		return
+	tour_mark("methods", r.grow(-14))   # decision 43: a tour's anchor
 	list("methods", r.grow(-14), cu.methods_known.size(), 112, func(i: int, rr: Rect2):
 		var mid := str(cu.methods_known[i])
 		var m := ProgressionRules.method(mid)
@@ -638,6 +650,7 @@ func _dao(ch) -> void:
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.cultivation.no_dao_insight_yet_use"), 22, UiKit.MIST)
 		return
 	var tiers := [Tx.t("ui.cultivation.unaware"), Tx.t("ui.cultivation.observation"), Tx.t("ui.cultivation.imitation"), Tx.t("ui.cultivation.reliable_execution"), Tx.t("ui.cultivation.explanation"), Tx.t("ui.cultivation.adaptation"), Tx.t("ui.cultivation.original_application")]
+	tour_mark("daos", r.grow(-14))   # decision 43: a tour's anchor
 	list("daos", r.grow(-14), ids.size(), 80, func(i: int, rr: Rect2):
 		var d := str(ids[i])
 		var st: Dictionary = cu.daos[d]
@@ -659,6 +672,7 @@ func _seclusion(ch) -> void:
 	var room: Dictionary = Game.room_rt.def if Game.room_rt else {}
 	var cap := Game.progression.seclusion_cap(room)
 	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), Tx.plural("ui.cultivation.choose_what_to_cultivate_while", int(cap)) % int(cap), 20, UiKit.PAPER)
+	tour_mark("away", Rect2(r.position + Vector2(16, 12), Vector2(r.size.x - 32, 96)))   # decision 43: a tour's anchor
 	var foci := [["accumulate", Tx.t("ui.cultivation.accumulate"), Tx.t("ui.cultivation.realm_progress"), "seclusion"], ["temper_body", Tx.t("ui.cultivation.temper_body"), Tx.t("ui.cultivation.body_training"), "seclusion"],
 		["heal", Tx.t("ui.cultivation.heal"), Tx.t("ui.cultivation.treat_injuries"), "seclusion"], ["contemplate", Tx.t("ui.cultivation.contemplate"), Tx.t("ui.cultivation.dao_insight"), "insight_sites"],
 		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"]]

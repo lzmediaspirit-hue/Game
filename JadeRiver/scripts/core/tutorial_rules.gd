@@ -67,6 +67,10 @@ static func triggered(c, e: Dictionary) -> bool:
 				if s != null and InventoryAuthority.bag_kind(str(s.id)) == kind: return true
 			return false
 		"bottleneck": return c.cultivator.state == "bottleneck"
+		"technique":
+			for s in c.cultivator.technique_slots:
+				if s != null and str(s) != "": return true
+			return false
 	return false
 
 # ------------------------------------------------------------------ the guidance chain
@@ -93,3 +97,61 @@ static func chain_home(e: Dictionary, top_page: String, top_tab: String) -> bool
 ## verb}); {} while that table or the row is not there.
 static func place(id: String) -> Dictionary:
 	return ContentDB.entry("places", id) if ContentDB.lists.has("places") else {}
+
+static var _spots: Dictionary = {}
+
+## Every thing of the world a place step's `match` names, [room, object]: {object_type}, {opens} the page an object
+## opens, {npc_service} a person whose services hold it ("shop" any shop, "page:pouches" that one).
+static func place_spots(st: Dictionary) -> Array:
+	var m: Dictionary = st.get("match", {})
+	var key := JSON.stringify(m)
+	if _spots.has(key): return _spots[key]
+	var out: Array = []
+	var ids: Array = ContentDB.rooms.keys()
+	ids.sort()
+	for rid in ids:
+		for o in ContentDB.room(str(rid)).get("objects", []):
+			if _matches(o, m): out.append([str(rid), str(o.get("id", ""))])
+	_spots[key] = out
+	return out
+
+static func _matches(o: Dictionary, m: Dictionary) -> bool:
+	if m.has("object_type"): return str(o.get("type", "")) == str(m.object_type)
+	if m.has("opens"): return str(o.get("open_page", "")) == str(m.opens)
+	if m.has("npc_service") and str(o.get("type", "")) == "npc":
+		var want := str(m.npc_service)
+		for s in ContentDB.entry("npcs", str(o.get("npc", ""))).get("services", []):
+			if str(s) == want or str(s).begins_with(want + ":"): return true
+	return false
+
+## Where a place step leads the character now: data/places.json's row for its place when the table has one, else the
+## nearest thing its `match` names by the ways open to the character ({room, object, name}; {} when none is reached).
+static func place_for(c, st: Dictionary) -> Dictionary:
+	if c == null: return {}
+	var row := place(str(st.get("place", "")))
+	if not row.is_empty() and str(row.get("room", "")) != "":
+		return {"room": str(row.room), "object": str(row.get("object", "")), "name": spot_name(str(row.room), str(row.get("object", "")))}
+	var here := str(c.position.get("room", ""))
+	var best := {}
+	var best_n := 1 << 30
+	for sp in place_spots(st):
+		var n := 0
+		if str(sp[0]) != here:
+			var way: Array = Game.world.route(c, here, str(sp[0]))
+			if way.is_empty(): continue
+			n = way.size()
+		if n < best_n:
+			best_n = n
+			best = {"room": str(sp[0]), "object": str(sp[1]), "name": spot_name(str(sp[0]), str(sp[1]))}
+	return best
+
+## A thing's name as the world shows it: its own, or its person's, and the room it stands in.
+static func spot_name(room: String, obj: String) -> String:
+	var rd := ContentDB.room(room)
+	for o in rd.get("objects", []):
+		if str(o.get("id", "")) != obj: continue
+		var nm := str(o.get("name", ""))
+		if nm == "" and str(o.get("type", "")) == "npc": nm = ContentDB.name_of("npcs", str(o.get("npc", "")))
+		if nm == "": break
+		return "%s · %s" % [nm, str(rd.get("name", room))]
+	return str(rd.get("name", room))

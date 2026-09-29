@@ -117,6 +117,7 @@ var draw_count := 0             ## how many times it has been drawn (perf_tests:
 var dims_world := true
 
 func _ready() -> void:
+	_born = Engine.get_process_frames()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -258,6 +259,10 @@ func _draw_help() -> void:
 func help_rect() -> Rect2:
 	return Rect2(frame_rect.end.x - 132, frame_rect.position.y + 16, 52, 52)
 
+## Whether a tour may dim the page now: a page that is a game in play (fishing, the guqin) waits until it rests.
+func tour_ready() -> bool:
+	return true
+
 ## The id of the tab shown ("" for a page with none).
 func tab_id() -> String:
 	return str(tabs[tab].get("id", "")) if tab >= 0 and tab < tabs.size() else ""
@@ -276,6 +281,12 @@ func tour_rect(name: String) -> Rect2:
 		"title": return title_rect() if title != "" and not frameless else Rect2()
 		"content": return content
 		"window": return window_rect()
+	if name == "tabs":
+		var all := Rect2()
+		var trs := tab_rects()
+		for i in mini(tabs.size(), trs.size()):
+			if tab_shown(i): all = (trs[i] as Rect2) if all.size == Vector2.ZERO else all.merge(trs[i])
+		return all
 	if name.begins_with("tab:"):
 		var rects := tab_rects()
 		for i in tabs.size():
@@ -793,7 +804,22 @@ func _scroll_area_at(p: Vector2) -> String:
 		if r.kind == "scroll" and (r.rect as Rect2).has_point(p): return str(r.data)
 	return ""
 
+## The tap that opened the page (a HUD button, handled in the HUD's _input) goes on to the page just made, in the same
+## frame; it and its release are not the page's (its release, outside the window, closed the Mail as it opened: the
+## Mail button stands right of the window, decision 43's guide found it).
+var _born := -1
+var _stray := false
+
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed and Engine.get_process_frames() == _born:
+			_stray = true
+			accept_event()
+			return
+		if not event.pressed and _stray:
+			_stray = false
+			accept_event()
+			return
 	if redraw_on_change and (event is InputEventMouseButton or (event is InputEventMouseMotion and event.button_mask != 0)): queue_redraw()
 	_prev_regions = _regions.duplicate()
 	if event is InputEventMouseButton:

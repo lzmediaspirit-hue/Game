@@ -245,7 +245,7 @@
      "text": "ui.tutorial.codex.2"
     },
     {
-     "anchor": "corner",
+     "anchor": "corner|book",
      "text": "ui.tutorial.codex.3"
     },
     {
@@ -856,11 +856,11 @@
    "chain": [],
    "tour": [
     {
-     "anchor": "emote",
+     "anchor": "known|emote",
      "text": "ui.tutorial.emotes.1"
     },
     {
-     "anchor": "wheel",
+     "anchor": "unknown|emote",
      "text": "ui.tutorial.emotes.2"
     },
     {
@@ -1797,15 +1797,15 @@
    ],
    "tour": [
     {
-     "anchor": "water",
+     "anchor": "content",
      "text": "ui.tutorial.fishing.1"
     },
     {
-     "anchor": "line",
+     "anchor": "content",
      "text": "ui.tutorial.fishing.2"
     },
     {
-     "anchor": "close",
+     "anchor": "again|close",
      "text": "ui.tutorial.fishing.3"
     }
    ],

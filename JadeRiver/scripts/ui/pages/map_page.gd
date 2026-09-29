@@ -515,6 +515,8 @@ func draw_page() -> void:
 		_draw_ranking(ch)
 		return
 	var m := _model(ch)
+	tour_mark("map", MAP)   # decision 43: a tour's anchors
+	tour_mark("card", CARD)
 	_draw_routes(m)
 	var placed := _place(ch, m)
 	for rid in m.z.order:

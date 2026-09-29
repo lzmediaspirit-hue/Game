@@ -84,6 +84,7 @@ func draw_page() -> void:
 	var mid := frame_rect.get_center().x
 	# The rates, chalked on the board's lower rail: one line a pair.
 	var y := frame_rect.position.y + 96
+	tour_mark("rates", Rect2(fx + INSET, y - 22, frame_rect.size.x - INSET * 2.0, 26 * pairs.size() + 8))   # decision 43
 	for pair in pairs:
 		var lo := str(pair[0])
 		var hi := str(pair[1])
@@ -99,6 +100,7 @@ func draw_page() -> void:
 	var px: float = mid - float(widths.reduce(func(a, b): return a + b, 0.0)) * 0.5 + 8.0
 	for i in curs.size():
 		currency_pill(Vector2(roundf(px), SLOT_Y + 32), str(curs[i]), Game.economy.balance(str(curs[i]), ch))
+		tour_mark("purses", Rect2(Vector2(roundf(px), SLOT_Y + 32), Vector2(float(widths[i]) - 16, 34)))   # decision 43
 		px += float(widths[i])
 	# The trades under the slot: one row an amount, the lower currency up and the higher back down.
 	y = SLOT_Y + 84

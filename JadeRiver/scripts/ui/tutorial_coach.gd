@@ -144,11 +144,13 @@ func blocked(c) -> String:
 		if is_instance_valid(p) and str(p.page_id) in HIDE_ON: return "dialogue"
 	var top: Page = main.top_page()
 	if top != null and not top.confirm.is_empty(): return "confirm"
+	if top != null and not top.tour_ready(): return "busy"
 	return ""
 
+## The chain ends on an element of the entry's own page to use (the node to spend on), not only at the page.
 func _element_step(e: Dictionary) -> bool:
 	var chain: Array = e.get("chain", [])
-	return not chain.is_empty() and str((chain.back() as Dictionary).get("at", "")) == "page" and TutorialRules.same_page(str(chain.back().page), str(e.page))
+	return not chain.is_empty() and bool((chain.back() as Dictionary).get("element", false))
 
 ## A guide has come home: its page is on top, on its tab when it names one, and it has no element step left to show.
 func _arrived(e: Dictionary, pid: String, tab: String) -> bool:
@@ -179,7 +181,7 @@ func _show(m: String, id: String, i: int) -> void:
 	var goal := ""
 	if m == "guide":
 		var st := current()
-		if str(st.get("at", "")) == "place": goal = str(TutorialRules.place(str(st.get("place", ""))).get("room", ""))
+		if str(st.get("at", "")) == "place": goal = str(spot(st).get("room", ""))
 	if goal != _goal and Game.active() != null:
 		_goal = goal
 		Game.submit({"type": "tutorial_goal", "room": goal})
@@ -205,7 +207,7 @@ func _resolve(delta: float) -> void:
 	var e := TutorialRules.entry(entry_id)
 	on_hud = mode == "guide" and str(st.get("at", "")) in ["hud", "place"] or mode == "tour" and bool(st.get("hud", TutorialRules.hud_entry(e)))
 	target = _find(str(st.get("anchor", "")), on_hud)
-	if mode == "guide" and str(st.get("at", "")) == "place": target = _place_target(str(st.get("place", "")))
+	if mode == "guide" and str(st.get("at", "")) == "place": target = _place_target(st)
 	_missing = 0.0 if target.size != Vector2.ZERO else _missing + delta
 	line = _words(e, st)
 	var top: Page = main.top_page()
@@ -231,9 +233,20 @@ func _find(names: String, hud_side: bool) -> Rect2:
 		if r.size != Vector2.ZERO and Rect2(0, 0, 1280, 720).intersects(r): return r.intersection(Rect2(0, 0, 1280, 720))
 	return Rect2()
 
+## Where a place step leads now ({room, object, name}), found again as the character changes rooms.
+var _spot_key := ""
+var _spot := {}
+func spot(st: Dictionary) -> Dictionary:
+	var c = Game.active()
+	var key := "%s|%d|%s" % [entry_id, step, str(c.position.get("room", "")) if c != null else ""]
+	if key != _spot_key:
+		_spot_key = key
+		_spot = TutorialRules.place_for(c, st)
+	return _spot
+
 ## A place's thing in the world, where the room shows it now (its label's spot over it); Rect2() in another room.
-func _place_target(place_id: String) -> Rect2:
-	var pl := TutorialRules.place(place_id)
+func _place_target(st: Dictionary) -> Rect2:
+	var pl := spot(st)
 	var w = main.get("world")
 	if pl.is_empty() or Game.room_rt == null or str(Game.room_rt.room_id) != str(pl.get("room", "")) or not is_instance_valid(w): return Rect2()
 	var obj := str(pl.get("object", ""))
@@ -250,8 +263,10 @@ func _words(e: Dictionary, st: Dictionary) -> String:
 	match str(st.get("at", "")):
 		"hud": return Tx.t(str(e.get("hint", "ui.tutorial.go.open")))
 		"place":
-			var pl := TutorialRules.place(str(st.get("place", "")))
-			return Tx.t("ui.tutorial.go.place") % str(pl.get("name", Tx.t(str(st.get("name", "ui.tutorial.go.there")))))
+			var hint := Tx.t(str(e.get("hint", ""))) if str(e.get("hint", "")) != "" else ""
+			var pl := spot(st)
+			if pl.is_empty() or (Game.room_rt != null and str(Game.room_rt.room_id) == str(pl.room)): return hint
+			return Tx.t("ui.tutorial.go.place") % str(pl.get("name", Tx.t("ui.tutorial.go.there")))
 		"page":
 			var nm := Tx.t(str(st.get("name", ""))) if str(st.get("name", "")) != "" else ""
 			if str(st.get("anchor", "")).begins_with("tab:"): return Tx.t("ui.tutorial.go.tab") % nm

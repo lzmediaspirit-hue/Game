@@ -43,6 +43,10 @@ func draw_page() -> void:
 	_draw_week(ch, now, slips)
 	_chosen(ch, now, slips)
 	_weather(now)
+	# Decision 43: a tour's anchors.
+	tour_mark("seasons", Rect2(92, 112, 1096, 136))
+	tour_mark("week", WEEK)
+	tour_mark("weather", Rect2(748, 524, 440, 140))
 
 func _key(o: Dictionary) -> String:
 	return "%s:%d" % [o.id, int(o.k)]

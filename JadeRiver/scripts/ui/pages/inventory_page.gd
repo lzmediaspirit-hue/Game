@@ -364,6 +364,8 @@ func _row(ch, spaces: Array, row: int, at: Vector2, live: bool) -> void:
 			var chosen := int(sel.get(id, -1)) == i
 			slot_box(r, str(s.id), int(s.get("count", 1)), str(s.get("quality", "")), id if live else "", i, chosen,
 				not key and inv.locked.has(int(s.get("uid", -1))))
+			# Decision 43: the first piece of gear in view is the one the first-gear guide points at.
+			if not key and live and not tour_marks.has("gear") and InventoryAuthority.bag_kind(str(s.id)) == "gear": tour_mark("gear", r)
 			if not key:
 				pill_marks(r, int(s.get("marks", 0)))
 				if inv.new_items.has(str(s.id)): draw_circle(r.position + Vector2(SLOT - 8, 8), 5, UiKit.BRIGHT_JADE)

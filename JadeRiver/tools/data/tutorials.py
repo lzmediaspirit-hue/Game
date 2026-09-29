@@ -146,7 +146,7 @@ def prototype():
     entry("cultivation", "cultivation", unlock("cultivation"),
           [t("mountain"), t("stair"), t("next"), t("meditate"), t("tabs")], chain=via_menu("cultivation"), priority=5,
           prologue=True)
-    entry("codex", "codex", unlock("codex"), [t("tabs"), t("sel|book"), t("corner"), t("tab:collection"), t("tab:achievements")],
+    entry("codex", "codex", unlock("codex"), [t("tabs"), t("sel|book"), t("corner|book"), t("tab:collection"), t("tab:achievements")],
           chain=via_menu("codex"), priority=2, prologue=True)
     # After the Prologue.
     entry("foundation", "cultivation", points("meridian", "foundation"),
@@ -182,7 +182,7 @@ def prototype():
           priority=9)
     entry("settings", "settings", first_open(), [t("tabs"), t("tab:access"), t("tab:controls", {"tab": "controls"}),
                                                  t("replay_tutorials")])
-    entry("emotes", "emotes", first_open(), [t("emote"), t("wheel"), t("close")])
+    entry("emotes", "emotes", first_open(), [t("known|emote"), t("unknown|emote"), t("close")])
     # HUD controls that open after the Prologue.
     entry("guard", "hud", unlock("guard"), [t("guard"), t("attack")], priority=5)
     entry("qi_pool", "hud", unlock("qi_pool"), [t("portrait"), t("skill|attack")], priority=5)
@@ -231,7 +231,7 @@ def later():
     entry("auction", "auction", first_open(), [t("lot"), t("board"), t("paddles|bid"), t("front")])
     entry("garden", "garden", unlock("herb_garden"), [t("terraces"), t("basket"), t("tend"), t("tab:racks")],
           chain=[place("garden", object_type="garden_bed")], priority=3)
-    entry("fishing", "fishing", unlock("fishing"), [t("water"), t("line"), t("close")],
+    entry("fishing", "fishing", unlock("fishing"), [t("content"), t("content"), t("again|close")],
           chain=[place("fishing", object_type="fishing_spot")], priority=2)
     # The Cultivation page's tabs.
     entry("seclusion", "seclusion", unlock("seclusion"), [t("focus"), t("away"), t("tabs")], tab="seclusion",
