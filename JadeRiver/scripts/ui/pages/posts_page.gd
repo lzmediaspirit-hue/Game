@@ -153,6 +153,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 	else: text(r.position + Vector2(50, r.size.y * 0.5 + 6), str(tabs[i].label), 18, col)
 
 func draw_page() -> void:
+	tour_mark("tablets", Rect2(BOARD.position.x + 12, RAIL.position.y, RAIL.size.x + 24, SHELF.position.y - RAIL.position.y))   # decision 43
 	_draw_right()
 	match str(tabs[tab].id):
 		"roll": _draw_roll()

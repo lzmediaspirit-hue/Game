@@ -21,6 +21,7 @@ func draw_page() -> void:
 	var right := Rect2(left.end.x + 16, content.position.y, content.end.x - left.end.x - 16, content.size.y)
 	panel(left)
 	panel(right)
+	tour_mark("board", left)   # decision 43: a tour's anchor
 	# The board: warm wood, a nine-line grid, the star points, the stones and the lettered points.
 	var n := int(ContentDB.config("chess").get("size", 9))
 	var wood := left.grow(-22)

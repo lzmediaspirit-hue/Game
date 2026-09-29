@@ -98,6 +98,11 @@ var _dragged := false
 var _areas: Dictionary = {}     # area id -> {rect, max}
 var _open_frame := -1           # the process frame it first drew in (first_draw)
 var _stepped := false           # it has had a process step (see _draw)
+## Decision 43 (docs/redesign/tutorials.md): the named places a tour points at, so a tour never leans on a node path.
+## Every tap region is one by its action ("meridian", and "meridian:body" for the one with that data), every tab is
+## "tab:<id>", and "close", "help", "title", "content" and "window" name the shared parts (tour_rect); a page names
+## anything else it wants shown with tour_mark(). The marks are made again with each drawing.
+var tour_marks: Dictionary = {}
 ## Decision 42 (the Techniques page's lag): a page that draws the same until something changes sets this, and is drawn
 ## again only on a change: an input, a game event, its toast, and the frames its opening loads art in (PAINT_FRAMES).
 ## Every other page is drawn every frame.
@@ -112,6 +117,7 @@ var draw_count := 0             ## how many times it has been drawn (perf_tests:
 var dims_world := true
 
 func _ready() -> void:
+	_born = Engine.get_process_frames()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -207,6 +213,7 @@ func _draw() -> void:
 	_waiting = false
 	_regions.clear()
 	_areas.clear()
+	tour_marks.clear()
 	HdStyleBox.base = Transform2D.IDENTITY
 	if text_log != null: text_log.clear()
 	_layout()
@@ -236,8 +243,70 @@ func _draw() -> void:
 	_draw_x(close_rect.get_center(), 11, UiKit.PAPER)
 	if not tabs.is_empty(): _draw_tabs()
 	draw_page()
+	_draw_help()
 	if not confirm.is_empty(): _draw_confirm()
 	_draw_toast()
+
+## Decision 43: the "?" beside the close button, while the page (on its tab) has a tour: a tap plays it again.
+func _draw_help() -> void:
+	if TutorialRules.tour_for(page_id, tab_id()) == "" or c() == null: return
+	var r := help_rect()
+	_register(r, "_help", null, true, "", "button")
+	# A round jade button rimmed in gold, like the close button's face, with its "?" inked.
+	var cc := r.get_center()
+	var pressed := _is_pressed("_help")
+	draw_circle(cc, 25.0, UiKit.INK, true, -1.0, true)
+	draw_circle(cc, 23.0, UiKit.GOLD.lerp(UiKit.BRONZE, 0.35), true, -1.0, true)
+	draw_circle(cc, 20.0, UiKit.JADE_SHADOW.lerp(UiKit.INK, 0.45 if pressed else 0.2), true, -1.0, true)
+	draw_circle(cc + Vector2(-5, -6), 9.0, Color(UiKit.JADE, 0.2), true, -1.0, true)
+	UiKit.draw_inked(self, "?", Vector2(r.position.x, cc.y + 10 + (2 if pressed else 0)), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+
+## Where the "?" sits: left of the close button. A page whose own parts stand there gives another place.
+func help_rect() -> Rect2:
+	return Rect2(frame_rect.end.x - 132, frame_rect.position.y + 16, 52, 52)
+
+## Whether a tour may dim the page now: a page that is a game in play (fishing, the guqin) waits until it rests.
+func tour_ready() -> bool:
+	return true
+
+## The id of the tab shown ("" for a page with none).
+func tab_id() -> String:
+	return str(tabs[tab].get("id", "")) if tab >= 0 and tab < tabs.size() else ""
+
+## Decision 43: name a place on the page for a tour (added to any of that name already made this drawing).
+func tour_mark(name: String, rect: Rect2) -> void:
+	tour_marks[name] = (tour_marks[name] as Rect2).merge(rect) if tour_marks.has(name) else rect
+
+## A tour's anchor on this page, as it was last drawn: a mark the page named, a shared part, a tab, or the tap regions of
+## an action ("id" all of them together, "id:data" one). Rect2() when the page shows no such thing now.
+func tour_rect(name: String) -> Rect2:
+	if tour_marks.has(name): return tour_marks[name]
+	match name:
+		"close": return Rect2() if frameless else Rect2(frame_rect.end.x - 72, frame_rect.position.y + 16, 52, 52)
+		"help": return help_rect() if _regions.any(func(r): return r.id == "_help") else Rect2()
+		"title": return title_rect() if title != "" and not frameless else Rect2()
+		"content": return content
+		"window": return window_rect()
+	if name == "tabs":
+		var all := Rect2()
+		var trs := tab_rects()
+		for i in mini(tabs.size(), trs.size()):
+			if tab_shown(i): all = (trs[i] as Rect2) if all.size == Vector2.ZERO else all.merge(trs[i])
+		return all
+	if name.begins_with("tab:"):
+		var rects := tab_rects()
+		for i in tabs.size():
+			if str(tabs[i].get("id", "")) == name.trim_prefix("tab:") and tab_shown(i) and i < rects.size(): return rects[i]
+		return Rect2()
+	var id := name.get_slice(":", 0)
+	var one := name.contains(":")
+	var want := name.substr(id.length() + 1)
+	var out := Rect2()
+	for r in _regions:
+		if str(r.id) != id or r.kind == "scroll": continue
+		if one and not (r.data is String or r.data is StringName or r.data is int) or (one and str(r.data) != want): continue
+		out = (r.rect as Rect2) if out.size == Vector2.ZERO else out.merge(r.rect)
+	return out
 
 func _draw_toast() -> void:
 	if toast_t > 0.0 and toast != "":
@@ -741,7 +810,22 @@ func _scroll_area_at(p: Vector2) -> String:
 		if r.kind == "scroll" and (r.rect as Rect2).has_point(p): return str(r.data)
 	return ""
 
+## The tap that opened the page (a HUD button, handled in the HUD's _input) goes on to the page just made, in the same
+## frame; it and its release are not the page's (its release, outside the window, closed the Mail as it opened: the
+## Mail button stands right of the window, decision 43's guide found it).
+var _born := -1
+var _stray := false
+
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed and Engine.get_process_frames() == _born:
+			_stray = true
+			accept_event()
+			return
+		if not event.pressed and _stray:
+			_stray = false
+			accept_event()
+			return
 	if redraw_on_change and (event is InputEventMouseButton or (event is InputEventMouseMotion and event.button_mask != 0)): queue_redraw()
 	_prev_regions = _regions.duplicate()
 	if event is InputEventMouseButton:
@@ -782,6 +866,7 @@ func _activate(r: Dictionary) -> void:
 	Audio.ui("ui_tap")
 	match id:
 		"_close": close()
+		"_help": navigate.emit("_tour", {"page": page_id, "tab": tab_id()})
 		"_tab":
 			tab = int(r.data)
 			scroll.clear()
