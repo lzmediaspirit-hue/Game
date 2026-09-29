@@ -723,7 +723,14 @@ func bed(id: String, hour := "") -> void:
 	bed_id = id
 	current_ambience = id
 	var fade := float(SoundBank.section("beds").get("fade_s", 2.0))
-	for l in bed_lanes:
+	# The bed before fades out; one still fading from an earlier change (or never heard: rooms changed within a frame)
+	# goes at once, so a burst of room changes never piles players up.
+	for l in bed_lanes.duplicate():
+		if l.free_at_zero or l.k <= 0.0:
+			bed_lanes.erase(l)
+			l.player.stop()
+			l.player.free()
+			continue
 		l.fade(0.0, fade, true)
 		l.free_at_zero = true
 	if def.is_empty(): return

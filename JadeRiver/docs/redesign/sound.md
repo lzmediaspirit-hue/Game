@@ -129,7 +129,9 @@ thump and the robe settling) over them from 40 units; a fall into water splashes
 **Others' feet:** a foe that walks steps at the halves of its sheet's walk cycle (by its named `walk` action, not its
 frame numbers, so the monsters' new frames keep it; a cadence of 0.34 s without one), 7 dB under the player's, a
 villager a route walks on its walk's contact frames, 9 dB under; both where they stand, falling off with distance
-(0 dB within 96 units, -24 dB at 900, silent past it). Nothing that flies or hovers steps.
+(0 dB within 96 units, -24 dB at 900, silent past it). Only the six nearest walking foes step aloud (a crowd's feet
+are a blur, and the voices are the fight's); nothing that flies or hovers steps. A step still lands when a slow
+frame skips past its contact frame.
 
 ## 4. Ambient beds
 

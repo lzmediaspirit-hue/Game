@@ -83,12 +83,23 @@ func _foe_feet(delta: float) -> void:
 	var st := SoundBank.section("steps")
 	var species: Dictionary = world.room.tileset.get("foes", {}).get("species", {})
 	var min_speed := float(st.get("foe_min_speed", 18.0))
+	var far := float(SoundBank.section("mix").get("distance", {}).get("far", 900.0))
 	var seen := {}
+	var walking: Array = []
 	for e in Game.room_rt.living_enemies():
 		seen[e.uid] = true
-		if e.hover > 2.0 or bool(e.def.get("movement", {}).get("fly", false)) or str(e.action) != "walk" or e.velocity.length() < min_speed:
+		if e.hover > 2.0 or bool(e.def.get("movement", {}).get("fly", false)) or str(e.action) != "walk" or e.velocity.length() < min_speed \
+				or e.plane.distance_to(Audio.listener) >= far:
 			foe_phase.erase(e.uid)
 			continue
+		walking.append(e)
+	# only the nearest few step aloud (a crowd's feet are a blur; the voice pool is for the fight)
+	var most := int(st.get("others_max", 6))
+	if walking.size() > most:
+		walking.sort_custom(func(a, b): return a.plane.distance_squared_to(Audio.listener) < b.plane.distance_squared_to(Audio.listener))
+	for r in walking.size():
+		var e: EnemyState = walking[r]
+		var loud := r < most
 		var cycle := float(st.get("foe_cadence_s", 0.34)) * 2.0
 		var walk: Dictionary = species.get(e.def_id, {}).get("actions", {}).get("walk", {})
 		if not walk.is_empty():
@@ -104,7 +115,7 @@ func _foe_feet(delta: float) -> void:
 			if float(ph[0]) >= float(contacts[i]): at = i
 		if at != int(ph[1]):
 			ph[1] = at
-			if at >= 0: Audio.step(surface(e.plane, e.altitude), e.plane, "foe", "walk")
+			if at >= 0 and loud: Audio.step(surface(e.plane, e.altitude), e.plane, "foe", "walk")
 		foe_phase[e.uid] = ph
 	for uid in foe_phase.keys():
 		if not seen.has(uid): foe_phase.erase(uid)
