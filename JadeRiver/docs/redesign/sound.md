@@ -277,6 +277,11 @@ sample for sample as long as its track (the builder fails a drift).
 | &nbsp;&nbsp;one-shots | 0.9 MB, 51 | 0.93 MB, 192 (QOA; silent tails trimmed at -60 dB) |
 | sources in the repository | 41.3 MB of WAVs | 9.8 MB |
 
+**Frame time** (`perf_tests` alone, three runs each of the base and the pass, alternating, on the shared machine;
+medians in ms a frame): the side view's crowd 15.97 before, 14.27 after; the prototype's 22-foe fight 15.22, 12.98;
+Lotus Ferry 14.37, 11.07; the Marsh Edge with 25 foes 21.03, 21.06 (over budget in every run of both). The noise is
+several ms; the pass costs nothing measurable. Act I's `valley_run` took 260 s before and 264 s after.
+
 The loops went to Ogg Vorbis (`soundfile`/libsndfile; each stream's serial number is set from its id so a build
 writes the same bytes), the one-shots stay WAVs Godot packs as QOA (instant to start, no decoding).
 
