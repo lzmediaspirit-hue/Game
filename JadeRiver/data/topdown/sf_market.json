@@ -276,6 +276,16 @@
    "kind": "cattails",
    "x": 53,
    "y": 24
+  },
+  {
+   "kind": "sacks",
+   "x": 10,
+   "y": 15
+  },
+  {
+   "kind": "fish_basket",
+   "x": 23,
+   "y": 16
   }
  ],
  "place": {
@@ -426,5 +436,12 @@
     0.5
    ]
   ]
- }
+ },
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
 }

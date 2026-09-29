@@ -1,0 +1,2162 @@
+{
+ "critters": {
+  "": {
+   "butterfly": 2,
+   "fish": 2,
+   "sparrow": 1
+  },
+  "interior": {},
+  "marsh": {
+   "butterfly": 2,
+   "dragonfly": 4,
+   "fish": 3,
+   "frog": 5,
+   "sparrow": 1
+  },
+  "mist_peak": {
+   "butterfly": 3,
+   "fish": 2,
+   "sparrow": 1
+  },
+  "sect_cloud": {
+   "butterfly": 3,
+   "fish": 2,
+   "sparrow": 1
+  },
+  "sect_jade": {
+   "butterfly": 4,
+   "dragonfly": 2,
+   "fish": 3,
+   "sparrow": 2
+  },
+  "valley_day": {
+   "butterfly": 4,
+   "dragonfly": 3,
+   "fish": 4,
+   "frog": 1,
+   "sparrow": 2
+  },
+  "valley_dusk": {
+   "dragonfly": 1,
+   "fish": 4
+  },
+  "valley_night": {
+   "fish": 2,
+   "frog": 3
+  }
+ },
+ "cues": [
+  "sweep",
+  "set_down",
+  "scrub",
+  "hang",
+  "pick",
+  "stir",
+  "grind",
+  "chop",
+  "hammer",
+  "stoke",
+  "fish",
+  "recast",
+  "mend",
+  "look",
+  "write",
+  "breathe"
+ ],
+ "day_only": [
+  "sparrow",
+  "butterfly",
+  "dragonfly"
+ ],
+ "drops": [
+  "cloud_sea"
+ ],
+ "leash": 2.5,
+ "loops": {
+  "carry": {
+   "at": [
+    [
+     "kneel",
+     1.4,
+     "set_down"
+    ],
+    [
+     "idle",
+     1.0
+    ]
+   ],
+   "speed": 40,
+   "tool": "pole",
+   "walk": "walk"
+  },
+  "chop": {
+   "at": [
+    [
+     "two_hand_swing_3",
+     1.15,
+     "chop"
+    ],
+    [
+     "two_hand_swing_3",
+     1.15,
+     "chop"
+    ],
+    [
+     "idle",
+     1.4
+    ]
+   ],
+   "speed": 40,
+   "walk": "walk",
+   "weapon": "sabre"
+  },
+  "cook": {
+   "at": [
+    [
+     "brush_write",
+     1.6,
+     "stir"
+    ],
+    [
+     "brush_write",
+     1.6,
+     "stir"
+    ],
+    [
+     "idle",
+     1.2
+    ]
+   ],
+   "speed": 36,
+   "walk": "walk"
+  },
+  "fish": {
+   "at": [
+    [
+     "idle",
+     6.5,
+     "fish"
+    ],
+    [
+     "cast",
+     1.0,
+     "recast"
+    ]
+   ],
+   "speed": 36,
+   "tool": "rod",
+   "walk": "walk"
+  },
+  "fists": {
+   "at": [
+    [
+     "punch_1",
+     0.45
+    ],
+    [
+     "punch_2",
+     0.45
+    ],
+    [
+     "punch_3",
+     0.6
+    ],
+    [
+     "guard",
+     0.9
+    ],
+    [
+     "punch_1",
+     0.45
+    ],
+    [
+     "punch_3",
+     0.6
+    ],
+    [
+     "salute",
+     1.3
+    ],
+    [
+     "idle",
+     0.8
+    ]
+   ],
+   "speed": 48,
+   "walk": "walk"
+  },
+  "grind": {
+   "at": [
+    [
+     "idle",
+     2.0
+    ]
+   ],
+   "speed": 30,
+   "steps": {
+    "cook": [
+     [
+      "brush_write",
+      1.6,
+      "stir"
+     ],
+     [
+      "brush_write",
+      1.6,
+      "stir"
+     ],
+     [
+      "idle",
+      0.8
+     ]
+    ],
+    "grind": [
+     [
+      "kneel",
+      3.2,
+      "grind"
+     ],
+     [
+      "idle",
+      0.6
+     ]
+    ]
+   },
+   "walk": "walk"
+  },
+  "hammer": {
+   "at": [
+    [
+     "idle",
+     1.5
+    ]
+   ],
+   "speed": 40,
+   "steps": {
+    "anvil": [
+     [
+      "swing_3",
+      0.9,
+      "hammer"
+     ],
+     [
+      "swing_3",
+      0.9,
+      "hammer"
+     ],
+     [
+      "swing_3",
+      0.9,
+      "hammer"
+     ],
+     [
+      "idle",
+      1.0
+     ]
+    ],
+    "forge": [
+     [
+      "kneel",
+      2.4,
+      "stoke"
+     ],
+     [
+      "idle",
+      0.8
+     ]
+    ]
+   },
+   "walk": "walk"
+  },
+  "herbs": {
+   "at": [
+    [
+     "kneel",
+     3.4,
+     "pick"
+    ],
+    [
+     "idle",
+     0.8
+    ]
+   ],
+   "speed": 34,
+   "walk": "walk"
+  },
+  "laundry": {
+   "at": [
+    [
+     "idle",
+     1.0
+    ]
+   ],
+   "speed": 38,
+   "steps": {
+    "hang": [
+     [
+      "cast",
+      1.1,
+      "hang"
+     ],
+     [
+      "idle",
+      0.5
+     ],
+     [
+      "cast",
+      1.1,
+      "hang"
+     ]
+    ],
+    "wash": [
+     [
+      "kneel",
+      4.2,
+      "scrub"
+     ],
+     [
+      "idle",
+      0.6
+     ]
+    ]
+   },
+   "tool": "basket",
+   "walk": "walk"
+  },
+  "meditate": {
+   "at": [
+    [
+     "meditate",
+     14.0,
+     "breathe"
+    ]
+   ],
+   "speed": 30,
+   "walk": "walk"
+  },
+  "mend": {
+   "at": [
+    [
+     "kneel",
+     4.0,
+     "mend"
+    ],
+    [
+     "idle",
+     1.2
+    ]
+   ],
+   "speed": 34,
+   "walk": "walk"
+  },
+  "play": {
+   "at": [
+    [
+     "startle",
+     0.5
+    ],
+    [
+     "idle",
+     0.9
+    ]
+   ],
+   "speed": 92,
+   "walk": "run"
+  },
+  "pray": {
+   "at": [
+    [
+     "salute",
+     1.6
+    ],
+    [
+     "idle",
+     2.4
+    ]
+   ],
+   "speed": 30,
+   "walk": "walk"
+  },
+  "read": {
+   "at": [
+    [
+     "idle",
+     2.6
+    ],
+    [
+     "point",
+     1.2
+    ],
+    [
+     "idle",
+     1.6
+    ]
+   ],
+   "speed": 32,
+   "walk": "walk"
+  },
+  "sell": {
+   "at": [
+    [
+     "point",
+     1.0
+    ],
+    [
+     "idle",
+     2.2
+    ],
+    [
+     "salute",
+     1.2
+    ],
+    [
+     "idle",
+     2.0
+    ]
+   ],
+   "speed": 34,
+   "walk": "walk"
+  },
+  "spear": {
+   "at": [
+    [
+     "thrust_1",
+     0.55
+    ],
+    [
+     "thrust_3",
+     0.7
+    ],
+    [
+     "thrust_2",
+     0.55
+    ],
+    [
+     "guard",
+     1.0
+    ],
+    [
+     "idle",
+     1.0
+    ]
+   ],
+   "speed": 44,
+   "walk": "walk",
+   "weapon": "spear"
+  },
+  "staff": {
+   "at": [
+    [
+     "thrust_1",
+     0.55
+    ],
+    [
+     "thrust_2",
+     0.55
+    ],
+    [
+     "thrust_3",
+     0.7
+    ],
+    [
+     "guard",
+     0.9
+    ],
+    [
+     "salute",
+     1.2
+    ],
+    [
+     "idle",
+     0.6
+    ]
+   ],
+   "speed": 48,
+   "walk": "walk",
+   "weapon": "staff"
+  },
+  "sweep": {
+   "at": [
+    [
+     "guard",
+     3.6,
+     "sweep"
+    ],
+    [
+     "idle",
+     0.8
+    ]
+   ],
+   "speed": 26,
+   "sweep_walk": true,
+   "tool": "broom",
+   "walk": "walk"
+  },
+  "sword": {
+   "at": [
+    [
+     "swing_1",
+     0.5
+    ],
+    [
+     "swing_2",
+     0.5
+    ],
+    [
+     "thrust_1",
+     0.55
+    ],
+    [
+     "swing_3",
+     0.75
+    ],
+    [
+     "guard",
+     0.8
+    ],
+    [
+     "salute",
+     1.3
+    ],
+    [
+     "idle",
+     0.6
+    ]
+   ],
+   "speed": 48,
+   "walk": "walk",
+   "weapon": "sword"
+  },
+  "watch": {
+   "at": [
+    [
+     "idle",
+     3.2,
+     "look"
+    ],
+    [
+     "idle",
+     1.0
+    ]
+   ],
+   "speed": 32,
+   "walk": "walk"
+  },
+  "write": {
+   "at": [
+    [
+     "brush_write",
+     1.4,
+     "write"
+    ],
+    [
+     "idle",
+     1.2
+    ]
+   ],
+   "speed": 30,
+   "walk": "walk",
+   "weapon": "brush"
+  }
+ },
+ "rooms": {
+  "cm_array_court": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_cloud_formation_elder": {
+     "loop": "read",
+     "spots": [
+      [
+       26,
+       13,
+       "s"
+      ],
+      [
+       24,
+       13,
+       "w"
+      ]
+     ]
+    },
+    "npc_cloud_gardener": {
+     "loop": "herbs",
+     "spots": [
+      [
+       16,
+       21,
+       "s"
+      ],
+      [
+       16,
+       23,
+       "s"
+      ],
+      [
+       16,
+       19,
+       "n"
+      ]
+     ]
+    },
+    "npc_cloud_physician": {
+     "loop": "cook",
+     "spots": [
+      [
+       38,
+       18,
+       "s"
+      ],
+      [
+       36,
+       18,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
+  "cm_cliff_stair": {
+   "animals": [
+    [
+     "cat",
+     35.4,
+     18.6
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_cloud_deacon": {
+     "loop": "read",
+     "spots": [
+      [
+       48,
+       22,
+       "s"
+      ],
+      [
+       46.8,
+       21.0,
+       "n"
+      ]
+     ]
+    },
+    "npc_cloud_disciple_a": {
+     "loop": "sweep",
+     "spots": [
+      [
+       22,
+       22,
+       "sw"
+      ],
+      [
+       20.4,
+       23.0,
+       "w"
+      ],
+      [
+       23.8,
+       23.2,
+       "s"
+      ]
+     ]
+    },
+    "npc_cloud_steward": {
+     "loop": "pray",
+     "spots": [
+      [
+       7,
+       21,
+       "s"
+      ],
+      [
+       8.4,
+       19.6,
+       "n"
+      ]
+     ]
+    }
+   }
+  },
+  "cm_elder_sung_peak": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 72
+    }
+   ],
+   "work": {
+    "npc_elder_sung": {
+     "loop": "meditate",
+     "spots": [
+      [
+       31,
+       5,
+       "s"
+      ]
+     ]
+    }
+   }
+  },
+  "cm_sword_court": {
+   "extras": [
+    {
+     "id": "x_cm_pupil",
+     "loop": "sword",
+     "outfit": {
+      "body": "light",
+      "cape": "none",
+      "hair": "high_pony",
+      "hair_color": 0,
+      "hat": "none",
+      "pants": "martial",
+      "pants_dye": "cloud",
+      "shirt": "disciple",
+      "shirt_dye": "cloud",
+      "shoes": "boots",
+      "weapon": "sword"
+     },
+     "spots": [
+      [
+       24,
+       15,
+       "s"
+      ],
+      [
+       26,
+       15.6,
+       "s"
+      ]
+     ]
+    }
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_arena_cm": {
+     "loop": "watch",
+     "spots": [
+      [
+       47,
+       20,
+       "s"
+      ],
+      [
+       46,
+       19,
+       "nw"
+      ],
+      [
+       48,
+       21,
+       "e"
+      ]
+     ]
+    },
+    "npc_cloud_hall_master": {
+     "loop": "staff",
+     "spots": [
+      [
+       10,
+       15,
+       "s"
+      ],
+      [
+       9,
+       14,
+       "nw"
+      ],
+      [
+       11,
+       16,
+       "se"
+      ]
+     ]
+    }
+   }
+  },
+  "cm_weapon_hall": {
+   "hangings": [
+    [
+     "plaque",
+     176,
+     -28
+    ],
+    [
+     "window",
+     300,
+     -22
+    ],
+    [
+     "scroll",
+     214,
+     -22
+    ],
+    [
+     "window",
+     40,
+     -22
+    ]
+   ],
+   "work": {
+    "npc_cloud_smith": {
+     "loop": "hammer",
+     "spots": [
+      [
+       17.9,
+       6.9,
+       "e",
+       "anvil"
+      ],
+      [
+       18.9,
+       4.6,
+       "ne",
+       "forge"
+      ],
+      [
+       17,
+       5,
+       "s"
+      ]
+     ]
+    },
+    "npc_cloud_weapon_master": {
+     "loop": "staff",
+     "spots": [
+      [
+       10,
+       5,
+       "s"
+      ],
+      [
+       11.8,
+       6.2,
+       "s"
+      ],
+      [
+       8.4,
+       6.0,
+       "se"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_east_terrace": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_arena_master": {
+     "loop": "watch",
+     "spots": [
+      [
+       48,
+       15,
+       "s"
+      ],
+      [
+       48,
+       17,
+       "s"
+      ],
+      [
+       48,
+       13,
+       "n"
+      ]
+     ]
+    },
+    "npc_jade_formation_elder": {
+     "loop": "read",
+     "spots": [
+      [
+       22,
+       14,
+       "s"
+      ],
+      [
+       21,
+       15,
+       "sw"
+      ]
+     ]
+    },
+    "npc_jade_physician": {
+     "loop": "herbs",
+     "spots": [
+      [
+       34,
+       17,
+       "s"
+      ],
+      [
+       36,
+       17,
+       "e"
+      ],
+      [
+       32,
+       17,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_elder_hu_peak": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 72
+    }
+   ],
+   "work": {
+    "npc_elder_hu": {
+     "loop": "meditate",
+     "spots": [
+      [
+       24,
+       13,
+       "s"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_gate_street": {
+   "extras": [
+    {
+     "id": "x_ja_sweeper",
+     "loop": "sweep",
+     "outfit": {
+      "body": "light",
+      "cape": "none",
+      "hair": "ponytail",
+      "hair_color": 3,
+      "hat": "none",
+      "pants": "martial",
+      "pants_dye": "jade",
+      "shirt": "disciple",
+      "shirt_dye": "jade",
+      "shoes": "boots",
+      "weapon": "none"
+     },
+     "spots": [
+      [
+       47,
+       19.5,
+       "w"
+      ],
+      [
+       45.4,
+       20.2,
+       "w"
+      ],
+      [
+       48.6,
+       20.6,
+       "sw"
+      ]
+     ]
+    }
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_jade_deacon": {
+     "loop": "read",
+     "spots": [
+      [
+       57,
+       15,
+       "s"
+      ],
+      [
+       58.8,
+       14.2,
+       "ne"
+      ]
+     ]
+    },
+    "npc_jade_disciple_a": {
+     "loop": "sweep",
+     "spots": [
+      [
+       29,
+       15,
+       "sw"
+      ],
+      [
+       27.4,
+       16.2,
+       "w"
+      ],
+      [
+       30.8,
+       16.4,
+       "s"
+      ]
+     ]
+    },
+    "npc_jade_disciple_b": {
+     "loop": "sword",
+     "spots": [
+      [
+       40,
+       17,
+       "s"
+      ],
+      [
+       41.8,
+       17.6,
+       "se"
+      ],
+      [
+       38.4,
+       18.2,
+       "s"
+      ]
+     ]
+    },
+    "npc_jade_steward": {
+     "loop": "pray",
+     "spots": [
+      [
+       7,
+       16,
+       "s"
+      ],
+      [
+       5.4,
+       14.8,
+       "n"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_herb_terraces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_jade_gardener": {
+     "loop": "herbs",
+     "spots": [
+      [
+       20,
+       24,
+       "s"
+      ],
+      [
+       21,
+       23,
+       "n"
+      ],
+      [
+       19,
+       25,
+       "nw"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_pavilion_rooftops": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 64
+    }
+   ],
+   "work": {
+    "npc_jade_hall_master": {
+     "loop": "fists",
+     "spots": [
+      [
+       15,
+       18,
+       "s"
+      ],
+      [
+       15,
+       20,
+       "s"
+      ],
+      [
+       15,
+       16,
+       "n"
+      ]
+     ]
+    },
+    "npc_jade_wm_yard": {
+     "loop": "sword",
+     "spots": [
+      [
+       20,
+       20,
+       "s"
+      ],
+      [
+       19,
+       21,
+       "w"
+      ],
+      [
+       21,
+       19,
+       "ne"
+      ]
+     ]
+    }
+   }
+  },
+  "ja_weapon_hall": {
+   "hangings": [
+    [
+     "plaque",
+     176,
+     -28
+    ],
+    [
+     "window",
+     300,
+     -22
+    ],
+    [
+     "scroll",
+     214,
+     -22
+    ],
+    [
+     "ribbon_banner",
+     150,
+     -26
+    ],
+    [
+     "window",
+     40,
+     -22
+    ]
+   ],
+   "work": {
+    "npc_jade_smith": {
+     "loop": "hammer",
+     "spots": [
+      [
+       17.9,
+       6.9,
+       "e",
+       "anvil"
+      ],
+      [
+       18.9,
+       4.6,
+       "ne",
+       "forge"
+      ],
+      [
+       17,
+       5,
+       "s"
+      ]
+     ]
+    },
+    "npc_jade_weapon_master": {
+     "loop": "sword",
+     "spots": [
+      [
+       10,
+       5,
+       "s"
+      ],
+      [
+       11.8,
+       6.2,
+       "s"
+      ],
+      [
+       8.4,
+       6.0,
+       "se"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_fishers_hut": {
+   "hangings": [
+    [
+     "window",
+     56,
+     -22
+    ],
+    [
+     "nets",
+     84,
+     -20
+    ],
+    [
+     "window",
+     136,
+     -22
+    ],
+    [
+     "drying_fish",
+     176,
+     -24
+    ]
+   ],
+   "work": {
+    "npc_aunt_ping": {
+     "loop": "cook",
+     "spots": [
+      [
+       6,
+       6,
+       "sw"
+      ],
+      [
+       5.2,
+       8.1,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_granny_liu_hut": {
+   "animals": [
+    [
+     "cat",
+     12.4,
+     6.6
+    ]
+   ],
+   "hangings": [
+    [
+     "window",
+     190,
+     -22
+    ],
+    [
+     "herbs",
+     120,
+     -26
+    ],
+    [
+     "scroll",
+     230,
+     -24
+    ],
+    [
+     "herbs",
+     248,
+     -26
+    ]
+   ],
+   "work": {
+    "npc_granny_liu": {
+     "loop": "grind",
+     "spots": [
+      [
+       6,
+       6,
+       "sw"
+      ],
+      [
+       4.3,
+       5.6,
+       "w",
+       "cook"
+      ],
+      [
+       4.2,
+       7.4,
+       "w",
+       "grind"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_lu_boat": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 0
+    }
+   ],
+   "work": {
+    "npc_lu_boat": {
+     "loop": "watch",
+     "spots": [
+      [
+       10,
+       8,
+       "s"
+      ],
+      [
+       8.2,
+       8.6,
+       "s"
+      ],
+      [
+       11.8,
+       8.4,
+       "se"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_old_ma_store": {
+   "hangings": [
+    [
+     "window",
+     104,
+     -22
+    ],
+    [
+     "plaque",
+     180,
+     -28
+    ],
+    [
+     "window",
+     236,
+     -22
+    ]
+   ],
+   "work": {
+    "npc_old_ma": {
+     "loop": "sell",
+     "spots": [
+      [
+       12,
+       3,
+       "s"
+      ],
+      [
+       13.5,
+       2.2,
+       "n"
+      ],
+      [
+       10.8,
+       2.6,
+       "s"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_reed_shallows": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "lf_village": {
+   "animals": [
+    [
+     "hen",
+     44.6,
+     26.9
+    ],
+    [
+     "hen_brown",
+     46.9,
+     25.3
+    ],
+    [
+     "hen",
+     43.3,
+     27.5
+    ],
+    [
+     "cat",
+     5.0,
+     16.4
+    ],
+    [
+     "dog",
+     61.6,
+     27.2
+    ]
+   ],
+   "extras": [
+    {
+     "id": "x_bank_fisher",
+     "loop": "fish",
+     "outfit": {
+      "body": "light",
+      "cape": "none",
+      "hair": "short_knot",
+      "hair_color": 5,
+      "hat": "straw",
+      "pants": "cuffed",
+      "shirt": "vneck",
+      "shirt_dye": "grey",
+      "shoes": "folded",
+      "weapon": "none"
+     },
+     "spots": [
+      [
+       38.5,
+       33.25,
+       "s"
+      ]
+     ]
+    },
+    {
+     "id": "x_woodcutter",
+     "loop": "chop",
+     "outfit": {
+      "body": "light",
+      "cape": "none",
+      "hair": "short_knot",
+      "hair_color": 0,
+      "hat": "none",
+      "pants": "loose",
+      "shirt": "sleeveless",
+      "shirt_dye": "ochre",
+      "shoes": "folded",
+      "weapon": "none"
+     },
+     "spots": [
+      [
+       56.2,
+       10.0,
+       "w"
+      ]
+     ]
+    }
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 40
+    }
+   ],
+   "work": {
+    "npc_aunt_ping_lane": {
+     "loop": "sweep",
+     "spots": [
+      [
+       11,
+       17,
+       "w"
+      ],
+      [
+       9.2,
+       17.6,
+       "w"
+      ],
+      [
+       12.6,
+       18.3,
+       "sw"
+      ]
+     ]
+    },
+    "npc_fisher_wen": {
+     "loop": "mend",
+     "spots": [
+      [
+       64.4,
+       27.2,
+       "ne"
+      ],
+      [
+       66.2,
+       27.6,
+       "n"
+      ]
+     ]
+    },
+    "npc_little_dou": {
+     "loop": "play",
+     "spots": [
+      [
+       44,
+       24,
+       "s"
+      ],
+      [
+       45.8,
+       25.4,
+       "se"
+      ],
+      [
+       42.6,
+       25.6,
+       "sw"
+      ],
+      [
+       44.8,
+       26.2,
+       "s"
+      ]
+     ]
+    },
+    "npc_lu_boatman": {
+     "loop": "watch",
+     "spots": [
+      [
+       56,
+       28,
+       "s"
+      ],
+      [
+       57.8,
+       28.8,
+       "s"
+      ]
+     ]
+    },
+    "npc_shen_lian_npc": {
+     "loop": "carry",
+     "spots": [
+      [
+       52,
+       27,
+       "e"
+      ],
+      [
+       54.2,
+       26.2,
+       "ne"
+      ],
+      [
+       50.2,
+       26.4,
+       "w"
+      ]
+     ]
+    },
+    "npc_uncle_guo": {
+     "loop": "fists",
+     "spots": [
+      [
+       30,
+       22,
+       "se"
+      ],
+      [
+       31.6,
+       23.3,
+       "s"
+      ],
+      [
+       28.8,
+       23.4,
+       "e"
+      ]
+     ]
+    },
+    "npc_washer_mei": {
+     "loop": "laundry",
+     "spots": [
+      [
+       14.1,
+       33.2,
+       "e",
+       "wash"
+      ],
+      [
+       12.0,
+       30.4,
+       "n",
+       "hang"
+      ]
+     ]
+    }
+   }
+  },
+  "lf_village_night": {
+   "animals": [
+    [
+     "cat",
+     5.0,
+     16.4
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 40
+    }
+   ]
+  },
+  "rm_marsh_edge": {
+   "extras": [
+    {
+     "id": "x_marsh_fisher",
+     "loop": "fish",
+     "outfit": {
+      "body": "light",
+      "cape": "none",
+      "hair": "short_knot",
+      "hair_color": 0,
+      "hat": "straw",
+      "pants": "cuffed",
+      "shirt": "vneck",
+      "shirt_dye": "indigo",
+      "shoes": "folded",
+      "weapon": "none"
+     },
+     "spots": [
+      [
+       33.4,
+       22.3,
+       "s"
+      ]
+     ]
+    }
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "marsh",
+     "pad": 40
+    }
+   ],
+   "work": {
+    "npc_watcher_bo": {
+     "loop": "watch",
+     "spots": [
+      [
+       3,
+       20,
+       "s"
+      ],
+      [
+       2,
+       19,
+       "nw"
+      ],
+      [
+       2,
+       21,
+       "w"
+      ]
+     ]
+    },
+    "npc_watcher_su": {
+     "loop": "watch",
+     "spots": [
+      [
+       8,
+       19,
+       "s"
+      ],
+      [
+       8,
+       21,
+       "s"
+      ],
+      [
+       7,
+       18,
+       "nw"
+      ]
+     ]
+    }
+   }
+  },
+  "sf_artisan_row": {
+   "animals": [
+    [
+     "cat",
+     23.5,
+     14.4
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ],
+   "work": {
+    "npc_apprentice_tao": {
+     "loop": "carry",
+     "spots": [
+      [
+       37,
+       17,
+       "s"
+      ],
+      [
+       37,
+       19,
+       "s"
+      ],
+      [
+       37,
+       15,
+       "n"
+      ]
+     ]
+    },
+    "npc_old_scribe_bai": {
+     "loop": "write",
+     "spots": [
+      [
+       42,
+       17,
+       "s"
+      ],
+      [
+       44,
+       17,
+       "e"
+      ]
+     ]
+    },
+    "npc_smith_bao": {
+     "loop": "hammer",
+     "spots": [
+      [
+       14.8,
+       13.2,
+       "e",
+       "anvil"
+      ],
+      [
+       13,
+       13,
+       "s"
+      ]
+     ]
+    },
+    "npc_tinkerer_yu": {
+     "loop": "mend",
+     "spots": [
+      [
+       21,
+       17,
+       "s"
+      ],
+      [
+       19,
+       17,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
+  "sf_fairground": {
+   "animals": [
+    [
+     "dog",
+     26.5,
+     16.6
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ],
+   "work": {
+    "npc_adventurer_rui": {
+     "loop": "watch",
+     "spots": [
+      [
+       62,
+       18,
+       "s"
+      ],
+      [
+       61,
+       19,
+       "w"
+      ],
+      [
+       63,
+       17,
+       "ne"
+      ]
+     ]
+    },
+    "npc_fair_vendor_he": {
+     "loop": "sell",
+     "spots": [
+      [
+       41,
+       18,
+       "s"
+      ],
+      [
+       39,
+       18,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
+  "sf_gate": {
+   "animals": [
+    [
+     "dog",
+     33.5,
+     12.6
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ],
+   "work": {
+    "npc_adventurer_kai": {
+     "loop": "sword",
+     "spots": [
+      [
+       37,
+       18,
+       "s"
+      ],
+      [
+       38,
+       19,
+       "e"
+      ]
+     ]
+    },
+    "npc_foreman_dong": {
+     "loop": "carry",
+     "spots": [
+      [
+       13,
+       10,
+       "s"
+      ],
+      [
+       12,
+       9,
+       "w"
+      ],
+      [
+       14,
+       11,
+       "se"
+      ]
+     ]
+    },
+    "npc_guard_hou": {
+     "loop": "spear",
+     "spots": [
+      [
+       29,
+       11,
+       "s"
+      ],
+      [
+       29,
+       9,
+       "n"
+      ],
+      [
+       29,
+       13,
+       "s"
+      ]
+     ]
+    }
+   }
+  },
+  "sf_market": {
+   "animals": [
+    [
+     "dog",
+     36.5,
+     15.4
+    ],
+    [
+     "hen",
+     4.5,
+     16.5
+    ],
+    [
+     "hen_brown",
+     3.2,
+     17.3
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ],
+   "work": {
+    "npc_adventurer_su": {
+     "loop": "watch",
+     "spots": [
+      [
+       6,
+       18,
+       "s"
+      ],
+      [
+       5,
+       19,
+       "w"
+      ],
+      [
+       7,
+       17,
+       "ne"
+      ]
+     ]
+    },
+    "npc_auntie_rong": {
+     "loop": "cook",
+     "spots": [
+      [
+       32,
+       13,
+       "s"
+      ],
+      [
+       33,
+       12,
+       "ne"
+      ]
+     ]
+    },
+    "npc_courier_lin": {
+     "loop": "carry",
+     "spots": [
+      [
+       47,
+       19,
+       "s"
+      ],
+      [
+       49,
+       19,
+       "ne"
+      ],
+      [
+       45,
+       19,
+       "nw"
+      ]
+     ]
+    },
+    "npc_keeper_shi": {
+     "loop": "sell",
+     "spots": [
+      [
+       41,
+       13,
+       "s"
+      ],
+      [
+       42,
+       14,
+       "se"
+      ]
+     ]
+    },
+    "npc_storekeeper_fang": {
+     "loop": "sell",
+     "spots": [
+      [
+       13,
+       13,
+       "s"
+      ],
+      [
+       13,
+       11,
+       "n"
+      ]
+     ]
+    },
+    "npc_tailor_xun": {
+     "loop": "sell",
+     "spots": [
+      [
+       26,
+       18,
+       "s"
+      ],
+      [
+       26,
+       20,
+       "s"
+      ]
+     ]
+    }
+   }
+  },
+  "sf_trial_cloud": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 48
+    }
+   ]
+  },
+  "sf_trial_jade": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 48
+    }
+   ]
+  },
+  "wp_east": {
+   "animals": [
+    [
+     "hen",
+     26.5,
+     10.2
+    ],
+    [
+     "hen_brown",
+     28.2,
+     9.4
+    ]
+   ],
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "wp_west": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  }
+ },
+ "schema_version": 1
+}

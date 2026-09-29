@@ -187,5 +187,12 @@
     16
    ]
   ]
+ ],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 48
+  }
  ]
 }

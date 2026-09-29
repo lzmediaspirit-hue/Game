@@ -303,6 +303,16 @@
    "kind": "rock_mossy",
    "x": 37,
    "y": 27
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 23,
+   "y": 22
+  },
+  {
+   "kind": "drying_rack",
+   "x": 13,
+   "y": 22
   }
  ],
  "place": {
@@ -357,5 +367,17 @@
    "span": 3
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 64
+  }
+ ]
 }

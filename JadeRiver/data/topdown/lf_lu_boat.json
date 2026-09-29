@@ -137,5 +137,12 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "all",
+   "kind": "water",
+   "pad": 0
+  }
+ ]
 }

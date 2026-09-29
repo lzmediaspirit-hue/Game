@@ -299,5 +299,17 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 64
+  }
+ ]
 }

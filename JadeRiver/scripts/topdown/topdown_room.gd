@@ -174,11 +174,24 @@ func drawn_rect() -> Rect2:
 	_drawn = Rect2(0.0, top, float(w) * TILE / ART, float(h) * TILE / ART - top)
 	return _drawn
 
-## The camera's centre (art px) for a goal `t` (art px): inside the drawn room, and a room smaller than the view is
-## centred. `keep` (art px) always stays in view, the camera moving past the room's drawn edge only as far as it must:
-## the body standing on a ridge at the room's very edge.
-func camera_goal(t: Vector2, keep := Rect2()) -> Vector2:
+## Decision 43: what the camera may show, the drawn room and the land past its edges its layout's `vista` opens
+## (TopdownVista draws it; tools/data/topdown_life.py sets how far past each edge).
+func shown_rect() -> Rect2:
 	var b := drawn_rect()
+	for v in def.get("vista", []):
+		var pad := float(v.get("pad", 0))
+		match str(v.get("edge", "")):
+			"n": b = b.grow_individual(0.0, pad, 0.0, 0.0)
+			"s": b = b.grow_individual(0.0, 0.0, 0.0, pad)
+			"w": b = b.grow_individual(pad, 0.0, 0.0, 0.0)
+			"e": b = b.grow_individual(0.0, 0.0, pad, 0.0)
+	return b
+
+## The camera's centre (art px) for a goal `t` (art px): inside the drawn room (and the vista past its edges, decision
+## 43), and a room smaller than the view is centred. `keep` (art px) always stays in view, the camera moving past the
+## room's drawn edge only as far as it must: the body standing on a ridge at the room's very edge.
+func camera_goal(t: Vector2, keep := Rect2()) -> Vector2:
+	var b := shown_rect()
 	var half := VIEW * 0.5
 	var c := Vector2(b.get_center().x if b.size.x <= VIEW.x else clampf(t.x, b.position.x + half.x, b.end.x - half.x),
 		b.get_center().y if b.size.y <= VIEW.y else clampf(t.y, b.position.y + half.y, b.end.y - half.y))

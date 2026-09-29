@@ -1,0 +1,805 @@
+{
+ "schema_version": 1,
+ "sheet": "res://art/topdown/life.png",
+ "sprites": {
+  "broom": {
+   "foot": [
+    7,
+    1
+   ],
+   "frames": 3,
+   "rect": [
+    110,
+    36,
+    30,
+    13
+   ],
+   "size": [
+    10,
+    13
+   ]
+  },
+  "butterfly_blue": {
+   "foot": [
+    3,
+    2
+   ],
+   "frames": 4,
+   "rect": [
+    143,
+    0,
+    28,
+    4
+   ],
+   "size": [
+    7,
+    4
+   ]
+  },
+  "butterfly_coral": {
+   "foot": [
+    3,
+    2
+   ],
+   "frames": 4,
+   "rect": [
+    172,
+    0,
+    28,
+    4
+   ],
+   "size": [
+    7,
+    4
+   ]
+  },
+  "butterfly_gold": {
+   "foot": [
+    3,
+    2
+   ],
+   "frames": 4,
+   "rect": [
+    114,
+    0,
+    28,
+    4
+   ],
+   "size": [
+    7,
+    4
+   ]
+  },
+  "butterfly_white": {
+   "foot": [
+    3,
+    2
+   ],
+   "frames": 4,
+   "rect": [
+    85,
+    0,
+    28,
+    4
+   ],
+   "size": [
+    7,
+    4
+   ]
+  },
+  "cat_sit": {
+   "foot": [
+    8,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    87,
+    22,
+    32,
+    13
+   ],
+   "size": [
+    16,
+    13
+   ]
+  },
+  "cat_sleep": {
+   "foot": [
+    8,
+    9
+   ],
+   "frames": 2,
+   "rect": [
+    153,
+    22,
+    32,
+    10
+   ],
+   "size": [
+    16,
+    10
+   ]
+  },
+  "cat_walk": {
+   "foot": [
+    8,
+    10
+   ],
+   "frames": 2,
+   "rect": [
+    120,
+    22,
+    32,
+    11
+   ],
+   "size": [
+    16,
+    11
+   ]
+  },
+  "dog_lie": {
+   "foot": [
+    9,
+    10
+   ],
+   "frames": 2,
+   "rect": [
+    186,
+    22,
+    36,
+    11
+   ],
+   "size": [
+    18,
+    11
+   ]
+  },
+  "dog_sit": {
+   "foot": [
+    9,
+    11
+   ],
+   "frames": 2,
+   "rect": [
+    0,
+    36,
+    36,
+    12
+   ],
+   "size": [
+    18,
+    12
+   ]
+  },
+  "dog_trot": {
+   "foot": [
+    9,
+    10
+   ],
+   "frames": 2,
+   "rect": [
+    37,
+    36,
+    36,
+    11
+   ],
+   "size": [
+    18,
+    11
+   ]
+  },
+  "dragonfly": {
+   "foot": [
+    4,
+    2
+   ],
+   "frames": 2,
+   "rect": [
+    201,
+    0,
+    18,
+    5
+   ],
+   "size": [
+    9,
+    5
+   ]
+  },
+  "fish": {
+   "foot": [
+    5,
+    1
+   ],
+   "frames": 3,
+   "rect": [
+    220,
+    0,
+    33,
+    3
+   ],
+   "size": [
+    11,
+    3
+   ]
+  },
+  "frog_leap": {
+   "foot": [
+    5,
+    6
+   ],
+   "frames": 2,
+   "rect": [
+    84,
+    8,
+    22,
+    7
+   ],
+   "size": [
+    11,
+    7
+   ]
+  },
+  "frog_sit": {
+   "foot": [
+    5,
+    6
+   ],
+   "frames": 2,
+   "rect": [
+    61,
+    8,
+    22,
+    7
+   ],
+   "size": [
+    11,
+    7
+   ]
+  },
+  "hang_drying_fish": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    82,
+    54,
+    22,
+    9
+   ],
+   "size": [
+    22,
+    9
+   ]
+  },
+  "hang_herbs": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    0,
+    54,
+    20,
+    11
+   ],
+   "size": [
+    20,
+    11
+   ]
+  },
+  "hang_nets": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    221,
+    36,
+    22,
+    13
+   ],
+   "size": [
+    22,
+    13
+   ]
+  },
+  "hang_plaque": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    30,
+    54,
+    24,
+    8
+   ],
+   "size": [
+    24,
+    8
+   ]
+  },
+  "hang_ribbon_banner": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    105,
+    54,
+    10,
+    18
+   ],
+   "size": [
+    10,
+    18
+   ]
+  },
+  "hang_scroll": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    21,
+    54,
+    8,
+    16
+   ],
+   "size": [
+    8,
+    16
+   ]
+  },
+  "hang_shelf": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    55,
+    54,
+    26,
+    13
+   ],
+   "size": [
+    26,
+    13
+   ]
+  },
+  "hang_window": {
+   "foot": [
+    0,
+    0
+   ],
+   "frames": 1,
+   "rect": [
+    204,
+    36,
+    16,
+    13
+   ],
+   "size": [
+    16,
+    13
+   ]
+  },
+  "hen_brown_flap": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    58,
+    22,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_brown_peck": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    0,
+    22,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_brown_stand": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    223,
+    8,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_brown_walk": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    29,
+    22,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_flap": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    194,
+    8,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_peck": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    136,
+    8,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_stand": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    107,
+    8,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "hen_walk": {
+   "foot": [
+    7,
+    12
+   ],
+   "frames": 2,
+   "rect": [
+    165,
+    8,
+    28,
+    13
+   ],
+   "size": [
+    14,
+    13
+   ]
+  },
+  "laundry_basket": {
+   "foot": [
+    5,
+    5
+   ],
+   "frames": 1,
+   "rect": [
+    192,
+    36,
+    11,
+    6
+   ],
+   "size": [
+    11,
+    6
+   ]
+  },
+  "pole_back": {
+   "foot": [
+    5,
+    1
+   ],
+   "frames": 1,
+   "rect": [
+    172,
+    36,
+    9,
+    8
+   ],
+   "size": [
+    9,
+    8
+   ]
+  },
+  "pole_front": {
+   "foot": [
+    5,
+    1
+   ],
+   "frames": 1,
+   "rect": [
+    182,
+    36,
+    9,
+    8
+   ],
+   "size": [
+    9,
+    8
+   ]
+  },
+  "pole_side": {
+   "foot": [
+    16,
+    1
+   ],
+   "frames": 1,
+   "rect": [
+    141,
+    36,
+    30,
+    17
+   ],
+   "size": [
+    30,
+    17
+   ]
+  },
+  "puff_0": {
+   "foot": [
+    2,
+    2
+   ],
+   "frames": 1,
+   "rect": [
+    74,
+    36,
+    5,
+    5
+   ],
+   "size": [
+    5,
+    5
+   ]
+  },
+  "puff_1": {
+   "foot": [
+    3,
+    3
+   ],
+   "frames": 1,
+   "rect": [
+    80,
+    36,
+    7,
+    7
+   ],
+   "size": [
+    7,
+    7
+   ]
+  },
+  "puff_2": {
+   "foot": [
+    4,
+    4
+   ],
+   "frames": 1,
+   "rect": [
+    88,
+    36,
+    9,
+    9
+   ],
+   "size": [
+    9,
+    9
+   ]
+  },
+  "puff_3": {
+   "foot": [
+    5,
+    5
+   ],
+   "frames": 1,
+   "rect": [
+    98,
+    36,
+    11,
+    11
+   ],
+   "size": [
+    11,
+    11
+   ]
+  },
+  "ring": {
+   "foot": [
+    7,
+    3
+   ],
+   "frames": 4,
+   "rect": [
+    0,
+    8,
+    60,
+    7
+   ],
+   "size": [
+    15,
+    7
+   ]
+  },
+  "sparrow_fly": {
+   "foot": [
+    4,
+    6
+   ],
+   "frames": 4,
+   "rect": [
+    48,
+    0,
+    36,
+    7
+   ],
+   "size": [
+    9,
+    7
+   ]
+  },
+  "sparrow_hop": {
+   "foot": [
+    4,
+    6
+   ],
+   "frames": 1,
+   "rect": [
+    38,
+    0,
+    9,
+    7
+   ],
+   "size": [
+    9,
+    7
+   ]
+  },
+  "sparrow_peck": {
+   "foot": [
+    4,
+    6
+   ],
+   "frames": 2,
+   "rect": [
+    19,
+    0,
+    18,
+    7
+   ],
+   "size": [
+    9,
+    7
+   ]
+  },
+  "sparrow_stand": {
+   "foot": [
+    4,
+    6
+   ],
+   "frames": 2,
+   "rect": [
+    0,
+    0,
+    18,
+    7
+   ],
+   "size": [
+    9,
+    7
+   ]
+  }
+ },
+ "vista_sheet": "res://art/topdown/vista.png",
+ "vistas": {
+  "cloud_sea": [
+   0,
+   180,
+   320,
+   40
+  ],
+  "hills_far": [
+   0,
+   220,
+   320,
+   56
+  ],
+  "hills_near": [
+   0,
+   276,
+   320,
+   44
+  ],
+  "marsh_reeds": [
+   0,
+   350,
+   320,
+   26
+  ],
+  "marsh_trees": [
+   0,
+   320,
+   320,
+   30
+  ],
+  "peaks_far": [
+   0,
+   0,
+   320,
+   96
+  ],
+  "peaks_mid": [
+   0,
+   96,
+   320,
+   84
+  ],
+  "river_bank": [
+   0,
+   376,
+   320,
+   36
+  ]
+ }
+}

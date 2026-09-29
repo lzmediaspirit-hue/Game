@@ -535,6 +535,36 @@
    "kind": "crates",
    "x": 64,
    "y": 30
+  },
+  {
+   "kind": "laundry_line",
+   "x": 10,
+   "y": 29
+  },
+  {
+   "kind": "wash_tub",
+   "x": 15,
+   "y": 33
+  },
+  {
+   "kind": "net_rack",
+   "x": 65,
+   "y": 26
+  },
+  {
+   "kind": "fish_basket",
+   "x": 54,
+   "y": 25
+  },
+  {
+   "kind": "woodpile",
+   "x": 52,
+   "y": 10
+  },
+  {
+   "kind": "chop_block",
+   "x": 55,
+   "y": 10
   }
  ],
  "place": {
@@ -693,5 +723,17 @@
    "span": 1.5
   }
  },
- "spawns": []
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 40
+  }
+ ]
 }

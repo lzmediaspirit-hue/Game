@@ -197,7 +197,9 @@ func _collect() -> void:
 		var kind := str(p.kind)
 		if TopdownLight.PROP_LIGHTS.has(kind):
 			var pl: Array = TopdownLight.PROP_LIGHTS[kind]
-			lights.append([str(pl[0]), at + Vector2(float(pl[1]), float(pl[2]))])
+			# Decision 43: a paper lantern's flame swings with it on the wind's clock (its prop's own phase).
+			var swing := (c.x * 3 + c.y * 5) % 4 if kind in TopdownLife.WINDY else -1
+			lights.append([str(pl[0]), at + Vector2(float(pl[1]), float(pl[2])), swing])
 		if (p.door as Array).size() == 2:
 			var door: Array = p.door
 			lights.append([TopdownLight.DOOR_LIGHT, Vector2((c.x + (float(door[0]) + float(door[1]) + 1.0) * 0.5) * T, south + ground + 2.0)])
@@ -382,6 +384,10 @@ func _step(delta: float, view: Rect2) -> void:
 			"mote": p.p += (p.v as Vector2) * delta + Vector2(0.0, sin(t * 1.3 + float(p.phase)) * 3.0 * delta)
 			"firefly":
 				p.v = (p.v as Vector2).rotated(sin(t * 0.9 + float(p.phase)) * 1.6 * delta)
+				# Decision 43: fireflies drift off from the player walking among them.
+				if world.player != null:
+					var away: Vector2 = (p.p as Vector2) - (world.player.screen as Vector2) + Vector2(0, 10)
+					if away.length() < 28.0: p.v = ((p.v as Vector2) + away.normalized() * 40.0 * delta).limit_length(14.0)
 				p.p += (p.v as Vector2) * delta
 			"leaf":
 				if (p.p as Vector2).y < float(p.ground):
@@ -437,6 +443,7 @@ func draw_layer(ci: CanvasItem, which: String) -> void:
 			var lk: Dictionary = TopdownLight.LIGHT_KINDS.get(str(l[0]), {})
 			if not lk.has("flame"): continue
 			var at: Vector2 = (l[1] as Vector2).round()
+			if l.size() > 2 and int(l[2]) >= 0: at.x += [0, 1, 0, -1][TopdownLife.wind_frame(4, 700, int(l[2]))]
 			var flick := 0.8 + 0.2 * sin(t * 7.0 + at.x * 0.37) * sin(t * 3.1 + at.y * 0.21)
 			var fc: Color = lk.flame
 			ci.draw_rect(Rect2(at - Vector2(1, 1), Vector2(2, 2)), Color(fc, 0.55 * lit * flick))

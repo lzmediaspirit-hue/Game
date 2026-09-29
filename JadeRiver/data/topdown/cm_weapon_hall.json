@@ -117,6 +117,21 @@
    "kind": "pot_bonsai",
    "x": 17,
    "y": 1
+  },
+  {
+   "kind": "forge",
+   "x": 19,
+   "y": 3
+  },
+  {
+   "kind": "water_jar",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "mat",
+   "x": 13,
+   "y": 9
   }
  ],
  "place": {

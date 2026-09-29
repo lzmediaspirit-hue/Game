@@ -88,6 +88,36 @@
    "kind": "pot_orchid",
    "x": 7,
    "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 13,
+   "y": 1
+  },
+  {
+   "kind": "sacks",
+   "x": 15,
+   "y": 7
+  },
+  {
+   "kind": "sacks",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "cloth_bolts",
+   "x": 15,
+   "y": 5
+  },
+  {
+   "kind": "water_jar",
+   "x": 1,
+   "y": 5
   }
  ],
  "place": {
