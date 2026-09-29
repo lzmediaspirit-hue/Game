@@ -27,6 +27,7 @@ EYE_WHITE = c("f2f7f8")
 IRIS = c("5686ae")
 IRIS_LIGHT = c("57cee4")
 EYE_DARK = c("2a3c49")
+PUPIL = c("1c2632")      # decision 43: the pupil, a step under the lash line, in the 3-wide eye of the 46 px figure
 # The face's small marks (decision 42): a mouth a step deeper than the lips' side-view pink so one pixel reads, a warm
 # brow, the nose's shade in three quarters, and a touch of blush under the eye.
 MOUTH = c("934536")

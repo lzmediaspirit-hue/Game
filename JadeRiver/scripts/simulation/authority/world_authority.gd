@@ -568,7 +568,7 @@ func array_travel(c, from_id: String, to_id: String) -> Dictionary:
 	if o.is_empty() or str(o.get("type", "")) != "transfer_array": return fail("unknown_object")
 	var st: ActorState = game.actor_state(c.id)
 	var at: Array = o.get("at", [0, 0])
-	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0: return fail("too_far")
+	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > reach_of(o) + 20.0: return fail("too_far")
 	if game.combat.is_wounded(c.id): return fail("wounded")
 	attune_array(c, from_id)
 	if not array_open(c, game.room_rt.room_id, from_id, to_id):
@@ -753,7 +753,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 	if o.is_empty(): return fail("unknown_object")
 	var st: ActorState = game.actor_state(c.id)
 	var at: Array = o.get("at", [0, 0])
-	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0:
+	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > reach_of(o) + 20.0:
 		return fail("too_far")
 	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT:
 		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
@@ -894,6 +894,14 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 	emit("object_interacted", {"actor": c.id, "object": object_id, "type": o.type, "room": game.room_rt.room_id})
 	return result
 
+## How far from a thing the context button offers it and interact takes it: its `radius`; a person's on the height grid
+## as much further as the people there are drawn bigger (decision 43, TopdownRoom.PEOPLE), so a talk starts from the same
+## gap between two bodies.
+func reach_of(o: Dictionary) -> float:
+	var r := float(o.get("radius", 110))
+	if str(o.get("type", "")) == "npc" and game.room_rt != null and game.room_rt.topdown != null: r *= TopdownRoom.PEOPLE
+	return r
+
 ## Context action for the Attack button (Part 9.9): quest target → NPC → loot → gather → travel.
 func query_context(c) -> Dictionary:
 	if game.room_rt == null or c == null: return {}
@@ -908,7 +916,7 @@ func query_context(c) -> Dictionary:
 		var at: Array = o.get("at", [0, 0])
 		var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
 		# M18: a chest on the ledge above never takes the button from the herb at your feet (interact would refuse it).
-		if d > float(o.get("radius", 110)) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
+		if d > reach_of(o) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
 		var avail := object_available(c, o)
 		if avail.get("spent", false): continue
 		# A resource node not open to the character yet offers nothing (the prototype's QA: the Reed Shallows' herbs said

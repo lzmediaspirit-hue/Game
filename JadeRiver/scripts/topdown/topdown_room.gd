@@ -10,6 +10,9 @@ extends RefCounted
 const TILE := 32.0
 const LEVEL := 32.0
 const ART := 2.0          ## world units per art px
+## Decision 43: the people (the player, the villagers, a companion in their outfit) are drawn this many times the
+## 38 art px they were first drawn at: about 46 art px from sole to crown. What is sized against a person follows it.
+const PEOPLE := 1.2
 const WATER := -1
 const WATER_Z := -16.0    ## the water's surface: half a level under the ground, so a narrow gap still shows water
 const SOLID := 99
@@ -157,8 +160,9 @@ func art_size() -> Vector2:
 # ------------------------------------------------------------------ Phase 4: what the camera shows
 ## The world view in art px (TopdownWorld's SubViewport): 1280 x 720 world units.
 const VIEW := Vector2(640, 360)
-## A body's figure over its feet in art px (the character cell's 38 px and a little head room), for keeping it in view.
-const BODY_PX := Vector2(16, 44)
+## A body's figure over its feet in art px (the character's 46 px, decision 43, and a little head room), for keeping it
+## in view.
+const BODY_PX := Vector2(20, 52)
 
 var _drawn := Rect2()
 ## Where the room draws, in art px: the floor's rect, and above it the tops of raised floors near the north edge (a
@@ -191,7 +195,7 @@ func camera_goal(t: Vector2, keep := Rect2()) -> Vector2:
 ## §1.1): its feet on that ground plus the look-ahead, 12 art px up, the body kept in view.
 func camera_for(p: Vector2, z: float, vel := Vector2.ZERO) -> Vector2:
 	var feet := Vector2(p.x, p.y - z) / ART
-	var t := feet + vel * float(TopdownMotor.conf("camera_look_ahead", 0.2)) / ART + Vector2(0, -12)
+	var t := feet + vel * float(TopdownMotor.conf("camera_look_ahead", 0.2)) / ART + Vector2(0, -14)
 	return camera_goal(t, Rect2(feet - Vector2(BODY_PX.x * 0.5, BODY_PX.y), BODY_PX + Vector2(0, 8)))
 
 ## What the camera shows with a body at `p` on the floor at `z`, at rest: a rect in world units on the screen's plane

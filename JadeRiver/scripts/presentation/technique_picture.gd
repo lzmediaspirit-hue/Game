@@ -3,7 +3,8 @@ extends RefCounted
 ## Decision 42 ("I want the skills icon to look like the attached image", docs/redesign/feedback/skill_icon_reference.png):
 ## an art's picture, one look wherever it shows (the Techniques tree's cards and its reading, the HUD's technique
 ## buttons, the Techniques page's loadout bar). A square of deep starry ground in the art's element's ink; the character
-## large in the art's pose, drawn in that one ink (the top-down figure, TopdownFigure, at a whole scale; the side view's
+## large in the art's pose, drawn in that one ink (the top-down figure, TopdownFigure, at a whole scale, in the frames
+## cast for the pictures at the 38 px they were approved at, decision 43, while the world's people are 46; the side view's
 ## Avatar only for a classic side-view character); a few marks of the art's form round it in the same ink (a palm's
 ## crescents, a ward's dome, a domain's ring, a pillar's springs, a seal's square); the frame; and a small rank badge
 ## (the art's mastery tier) when the character knows it. A card shows the figure from the head to about the ankles, the
@@ -218,10 +219,10 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	var kb := _scale_for(s)
 	var K: int = kb[0]
 	var w := ceili(float(s) / K)
-	var box: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2])) if top else SIDE_BOX
+	var box: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "", true) if top else SIDE_BOX
 	if box.size.x <= 0.0: box = SIDE_BOX
 	var form := str(t.get("vfx", {}).get("anim", ""))
-	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body") if top and bool(kb[1]) else Rect2()
+	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body", true) if top and bool(kb[1]) else Rect2()
 	var feet := _place(box, w, bool(kb[1]), form, bare)
 	var spec := {"w": w, "k": K, "s": s, "small": kb[1], "feet": feet, "body": Rect2(Vector2(feet) + box.position, box.size), "form": form,
 		"seated": str(pose[0]) == "meditate", "seed": hash(tid), "top": top, "action": str(pose[0]), "row": str(pose[1]), "at": int(pose[2]),
@@ -435,7 +436,7 @@ static func _draw_cell(node: Node2D, cell: Dictionary) -> void:
 			f.facing = 1
 		for d in RIM + [Vector2.ZERO]:
 			var tint := RIM_INK if d != Vector2.ZERO else Color.WHITE
-			if bool(sp.top): (f as TopdownFigure).draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst)
+			if bool(sp.top): (f as TopdownFigure).draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst, true)
 			else: f.draw_on(node, feet + d * K, K * 0.5, tint)
 	node.draw_texture_rect_region(cell.front, dst, src, PAINTED)
 	_spend(t0, "paint " + str(cell.key))

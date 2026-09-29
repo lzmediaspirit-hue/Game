@@ -12,7 +12,9 @@ extends RefCounted
 ## the charged wind-up, the dash and air strikes, the parry, each family's own (the heavy sabre's two-handed cuts, the
 ## bow's draw, the flute at the lips, the bell's toll, the fan's throw, the brush writing) and the story's gestures
 ## (salute, kneel, point, startle). An outfit asking for a look with no layer still lists it in `missing` and draws
-## without it (redesign plan, "As built: Phase 3, third part").
+## without it (redesign plan, "As built: Phase 3, third part"). Decision 43 draws the people 46 art px tall, 1.2 times the
+## 38 they were; the technique pictures keep the 38 px figure they were approved at: the index's `pictures` names the
+## frame cast at that density for each pose a picture draws (`picture` in frame_of, draw and bounds).
 
 const MANIFEST := "res://data/topdown/character.json"
 const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon"]
@@ -114,8 +116,9 @@ static func spec(action: String) -> Dictionary:
 	return acts.get(resolve(action), acts.idle)
 
 ## The drawn frame for `action` in facing `row` at frame `i`: x the frame's index in every section, y 1 when the
-## facing mirrors a drawn one.
-static func frame_of(action: String, row: String, i: int) -> Vector2i:
+## facing mirrors a drawn one. With `picture`, the frame a technique picture draws (decision 43: the pose cast at the
+## pictures' 38 px), the world's own where none was cast for that pose.
+static func frame_of(action: String, row: String, i: int, picture := false) -> Vector2i:
 	var man := manifest()
 	var a := spec(action)
 	var mirror: bool = (man.mirror as Dictionary).has(row)
@@ -124,7 +127,11 @@ static func frame_of(action: String, row: String, i: int) -> Vector2i:
 		drawn = str(a.facing)
 		mirror = false
 	if not (a.start as Dictionary).has(drawn): drawn = "s"
-	return Vector2i(int(a.start[drawn]) + clampi(i, 0, int(a.frames) - 1), 1 if mirror else 0)
+	var k := clampi(i, 0, int(a.frames) - 1)
+	if picture:
+		var at = man.get("pictures", {}).get("frames", {}).get("%s/%s/%d" % [resolve(action), drawn, k])
+		if at != null: return Vector2i(int(at), 1 if mirror else 0)
+	return Vector2i(int(a.start[drawn]) + k, 1 if mirror else 0)
 
 ## The frame a strike lands on (the last frame for an action without one).
 static func hit_frame(action: String) -> int:
@@ -158,10 +165,10 @@ func loaded() -> bool:
 
 ## Draw the figure with its feet at `feet` on `ci` (a lazy figure draws nothing until its sheets are in), `px` screen px
 ## an art px (a page's picture draws it larger, at a whole scale), only what falls inside `clip` (ci's space) when one is
-## given (a picture cropped to its frame).
-func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE, px := 1.0, clip := Rect2()) -> void:
+## given (a picture cropped to its frame); a technique picture's frame with `picture` (frame_of).
+func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE, px := 1.0, clip := Rect2(), picture := false) -> void:
 	if not loaded(): return
-	var fm := frame_of(action, row, i)
+	var fm := frame_of(action, row, i, picture)
 	var k := fm.x * 6
 	var flip := fm.y == 1
 	# The clip in the figure's own art px from its feet (x mirrored with the figure).
@@ -184,9 +191,10 @@ func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, ti
 	ci.draw_set_transform(Vector2.ZERO)
 
 ## What the figure covers on screen in that frame, from its feet (for occlusion tests and labels); with `cat`, only that
-## category's layers (the body alone: where the head is under any hair or hat, for a face's crop).
-func bounds(action: String, row: String, i: int, cat := "") -> Rect2:
-	var fm := frame_of(action, row, i)
+## category's layers (the body alone: where the head is under any hair or hat, for a face's crop); a technique picture's
+## frame with `picture`.
+func bounds(action: String, row: String, i: int, cat := "", picture := false) -> Rect2:
+	var fm := frame_of(action, row, i, picture)
 	var k := fm.x * 6
 	var out := Rect2()
 	for l in layers:

@@ -1261,7 +1261,7 @@ func _figure(base: Vector2) -> void:
 	var drawn := true
 	for row in ["s", "se", "e", "ne", "n", "nw", "w", "sw"]:
 		var box: Rect2 = fig.bounds("walk", row, 2)
-		drawn = drawn and box.size.x >= 8.0 and box.size.y >= 34.0 and box.size.y <= 48.0
+		drawn = drawn and box.size.x >= 10.0 and box.size.y >= 41.0 and box.size.y <= 58.0   # decision 43: 46 px
 	var e_box: Rect2 = fig.bounds("idle", "e", 0)
 	var w_box: Rect2 = fig.bounds("idle", "w", 0)
 	var mirrored: bool = is_equal_approx(w_box.position.x, -e_box.end.x) and w_box.size == e_box.size
@@ -1621,12 +1621,12 @@ func _view_rules() -> void:
 	var ridge := Vector2(30.5, 0.5) * 32.0
 	var feet := TopdownWorld.to_screen(ridge, 64.0)
 	var shown := Rect2(room.camera_for(ridge, 64.0) - TopdownRoom.VIEW * 0.5, TopdownRoom.VIEW)
-	t.check(shown.has_point(feet) and shown.has_point(feet - Vector2(0, 38)),
+	t.check(shown.has_point(feet) and shown.has_point(feet - Vector2(0, 46)),
 		"topdown view: standing on the ridge at the room's very top the camera keeps the whole body in view (feet %s, view %s)" % [str(feet), str(shown)])
 	var mid := Vector2(30.0, 20.0) * 32.0
 	var small := grid(flat(10, 8))
-	t.check(room.camera_for(mid, 0.0) == TopdownWorld.to_screen(mid, 0.0) + Vector2(0, -12) and small.camera_for(Vector2(40, 40), 0.0) == Vector2(80, 64),
-		"topdown view: mid-room the camera frames the feet 12 px low; a room smaller than the view is centred")
+	t.check(room.camera_for(mid, 0.0) == TopdownWorld.to_screen(mid, 0.0) + Vector2(0, -14) and small.camera_for(Vector2(40, 40), 0.0) == Vector2(80, 64),
+		"topdown view: mid-room the camera frames the feet 14 px low (the 46 px body's middle); a room smaller than the view is centred")
 	# Out of view (a foe's respawn): the camera's rect on both axes, not the distance across alone.
 	var rt := RoomRuntime.new()
 	rt.topdown = room

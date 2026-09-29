@@ -8,11 +8,13 @@ extends Node
 ## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --decision42` and `-- --decision42-route`:
 ## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --quality
 ## --quality-tag=<before|after>`: decision 42's character drawn better, the same instants before and after the rollout
-## (docs/redesign/feedback/character_quality/rollout/). `-- --terrain <name>`: the Terrain v2 review
-## views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into docs/redesign/terrain_v2/<name>/ (on
-## saves of their own, so it can run beside another capture). `-- --light --light-tag=<before|after>`: decision 40's
-## runtime light, the key rooms by day, at dusk and at night, into docs/redesign/terrain_v2/light/. Every mode shoots at
-## midday of the game's clock (TopdownLight.debug_hour) unless it names its hour.
+## (docs/redesign/feedback/character_quality/rollout/). `-- --people-scale --people-tag=<before|after>`: decision 43's
+## people drawn bigger, the same instants before and after (docs/redesign/feedback/people_scale/). `-- --terrain
+## <name>`: the Terrain v2 review views (docs/redesign/art_bible.md "Terrain v2"), the world alone at x2, into
+## docs/redesign/terrain_v2/<name>/ (on saves of their own, so it can run beside another capture). `-- --light
+## --light-tag=<before|after>`: decision 40's runtime light, the key rooms by day, at dusk and at night, into
+## docs/redesign/terrain_v2/light/. Every mode shoots at midday of the game's clock (TopdownLight.debug_hour) unless it
+## names its hour.
 ## Needs a renderer:
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn
 
@@ -34,6 +36,7 @@ func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
+	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -70,6 +73,9 @@ func _main() -> void:
 		return
 	if "--quality" in OS.get_cmdline_user_args():
 		await quality()
+		return
+	if "--people-scale" in OS.get_cmdline_user_args():
+		await people_scale()
 		return
 	main.enter_topdown_proto(false)
 	w = main.world
@@ -1397,6 +1403,7 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 		for pp in sc.people:
 			if str(pp[0]) == npc and not found.has(npc): found[npc] = fig
 	var staged: Array = []
+	var made_here: Array = []
 	for pp in sc.people:
 		var npc := str(pp[0])
 		var fig = found.get(npc)
@@ -1404,6 +1411,7 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 			var made := TopdownPlaces.person(w.room, {"id": "quality_" + npc, "type": "npc", "npc": npc, "at": [0, 0]}, w.sorted, w.overlay, p)
 			fig = made[1]
 			fig.staged = true
+			made_here.append(made)
 		var at: Vector2 = (pp[1] as Vector2) * TopdownRoom.TILE
 		fig.place(at, w.room.height_at(at))
 		fig.visible = true
@@ -1430,6 +1438,10 @@ func _quality_scene(sc: Dictionary, out: String) -> Dictionary:
 	for s in staged: bx.people[s[0]] = _on_shot(s[1].feet, cam)
 	get_tree().paused = false
 	for s in staged: s[1].visible = false
+	# The people made for this shot only (not in the room) go with it, so they stand in no later room.
+	for made in made_here:
+		for n in made:
+			if n is Node and is_instance_valid(n): n.queue_free()
 	return bx
 
 ## Where a point of the world (art px) lands on a world shot (x2 screen px).
@@ -1482,3 +1494,48 @@ func _quality_fight(out: String) -> Dictionary:
 	sheet(out + "03_fight_combo.png", tiles, 6)
 	get_tree().paused = false
 	return bx
+
+## Decision 43 (`-- --people-scale --people-tag=<before|after>`, into docs/redesign/feedback/people_scale/<tag>/): the
+## people drawn about 1.2x bigger (art bible §5 and §13), shot at the same instants before and after the sheets are
+## rebuilt. The story's opening in Aunt Ping's hut and the villagers on Home Lane at dawn as the staged scenes play them
+## (the whole screen: the letterbox and the balloons over the heads); then, the world alone at x2 with the tree held
+## still: the player at the hut's door beside a group of villagers, on the neighbour's roof, inside the hut at its
+## door, and a fight with the jian among two boarlets and a crab (the whole view on a cut, and frames round the body).
+const PEOPLE_SCENES := [
+	{"name": "01_door_hut_people", "room": "lf_village", "spot": Vector2(8.3, 15.3), "player": ["idle", 0, "sw"], "people": [
+		["aunt_ping", Vector2(10.3, 16.1), "sw", "idle"], ["washer_mei", Vector2(11.5, 15.4), "sw", "idle"],
+		["little_dou", Vector2(10.9, 17.3), "sw", "idle"], ["uncle_guo", Vector2(12.6, 16.8), "sw", "idle"],
+		["granny_liu", Vector2(15.2, 15.3), "sw", "idle"]]},
+	{"name": "03_roof", "room": "lf_village", "spot": Vector2(18.0, 12.4), "player": ["idle", 0, "s"], "people": [
+		["little_dou", Vector2(16.4, 15.4), "se", "point"], ["washer_mei", Vector2(20.2, 15.8), "sw", "idle"]]},
+	{"name": "05_interior", "room": "lf_fishers_hut", "spot": Vector2(9.5, 10.8), "player": ["idle", 0, "se"], "people": [
+		["aunt_ping", Vector2(6.0, 6.4), "se", "idle"]]},
+]
+
+func people_scale() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--people-tag="): tag = a.substr(13)
+	var out := "res://docs/redesign/feedback/people_scale/%s/" % tag
+	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
+	main.process_mode = Node.PROCESS_MODE_PAUSABLE
+	await _topdown_game(out)
+	# The staged scenes: Aunt Ping wakes you in the hut, and the villagers talk on Home Lane at dawn.
+	await scene_at("opening_dawn", "say", 1.2)
+	await shot("04_scene_hut", out)
+	await scene_at("opening_dawn", "handoff", 0.8, "door")
+	Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
+	await frames(30)
+	await scene_at("river_dawn", "say", 1.5, "Hush")
+	await shot("06_scene_home_lane", out)
+	await until_idle()
+	main.hud.visible = false
+	for sc in PEOPLE_SCENES:
+		await _quality_scene(sc, out)
+	await _quality_fight(out)
+	var f := ProjectSettings.globalize_path(out)
+	DirAccess.rename_absolute(f + "03_fight.png", f + "02_fight.png")
+	DirAccess.rename_absolute(f + "03_fight_combo.png", f + "02_fight_combo.png")
+	main.hud.visible = true
+	print("topdown_capture: people scale done")
+	get_tree().quit()

@@ -1,12 +1,13 @@
 """The unclothed body (AGENTS.md rule 4: every movement is drawn on it first) and the face.
 
 Proportions follow the side-view body (a large round head, about two and a half heads tall, short legs), at the top-down
-plan's scale: about 38 art px from the soles to the crown.
+plan's scale: about 46 art px from the soles to the crown (decision 43: 1.2 times the 38 px it was first drawn at).
 """
 from __future__ import annotations
 
 import numpy as np
 
+from . import geom
 from .geom import TOWARD, depth, project, vec
 from .raster import AX, AY, cone, ellipsoid, limb, sphere
 
@@ -76,17 +77,30 @@ def foot_solid(sk, s: str, radii, mat, part, **kw):
     return ellipsoid(sk.__dict__["foot_" + s], M, radii, mat, part=part, **kw)
 
 
-# The face (decision 42), stamped on the head's resolved pixels before shading. Glyphs, rows top to bottom, left to
-# right as seen on screen for the eye on the screen's left (the other eye mirrors): K lash, W white, I iris, L the
-# iris's lower light, B brow, M mouth, N the nose's shade, P blush. `.` leaves skin. An eye is 2 px wide and 3 tall.
+# The face (decision 42; decision 43 draws it for the 46 px figure), stamped on the head's resolved pixels before
+# shading. Glyphs, rows top to bottom, left to right as seen on screen for the eye on the screen's left (the other eye
+# mirrors): K lash, W white, D pupil, I iris, L the iris's lower light, B brow, M mouth, N the nose's shade, P blush.
+# `.` leaves skin. At 46 px (FACE) an eye is 3 px wide and 3 tall: the lash row, the white, the pupil and the iris, the
+# iris and its lower light; the far eye in three quarters and the eye in profile are narrower. The technique pictures'
+# 38 px figure keeps decision 42's face (FACE_38): an eye 2 px wide and 3 tall, a 1 px mouth.
 FACE = {
+    "eye_front": ["KKK", "WDI", ".IL"], "eye_near": ["KKK", "WDI", ".IL"], "eye_far": ["K", "D", "I"],
+    "eye_side": ["KK", ".D", ".I"], "eye_shut": ["KKK"], "brow": ["BB."], "brow_far": ["B"], "brow_dy": -2,
+    "mouth_front": ["MM"], "mouth_near": ["M"], "nose_side": ["N"], "blush": ["P"], "blush_dy": 3, "blush_dx": -1,
+}
+FACE_38 = {
     "eye_front": ["KK", "WI", ".L"], "eye_near": ["KK", "WI", ".L"], "eye_far": ["K", "I"], "eye_side": ["KK", ".I"],
     "eye_shut": ["KK"], "brow": ["BB"], "brow_far": ["B"], "brow_dy": -2,
     "mouth_front": ["M"], "mouth_near": ["M"], "nose_side": ["N"], "blush": ["P"], "blush_dy": 2, "blush_dx": -1,
 }
-GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "B": "brow", "N": "nose",
+
+
+def glyphs() -> dict:
+    """The face's glyphs at the density a frame is cast at (geom.SCALE)."""
+    return FACE if geom.SCALE > 1.0 else FACE_38
+GLYPH_MAT = {"K": "eye_dark", "I": "iris", "L": "iris_light", "W": "eye_white", "D": "pupil", "B": "brow", "N": "nose",
              "M": "mouth", "P": "blush"}
-FACE_MATS = ["eye_dark", "iris", "iris_light", "eye_white", "brow", "nose", "mouth", "blush"]
+FACE_MATS = ["eye_dark", "iris", "iris_light", "eye_white", "pupil", "brow", "nose", "mouth", "blush"]
 # One ellipsoid round the skull and the jaw, in the head's frame: the face shades as one form (raster.smooth_normals).
 HEAD_AT = (0.4, 0.0, -0.9)
 HEAD_R = (5.9, 6.1, 7.4)
@@ -103,7 +117,7 @@ def face(sk, layer, caster) -> None:
     """Stamp the eyes, brows, mouth, nose and blush on the head where it shows and faces the camera: both eyes from the
     front, the near one full and the far one narrow in three quarters, the near one alone in profile; shut in a hurt,
     a fall and meditation."""
-    F = FACE
+    F = glyphs()
     Mh = sk.Mh
     yaw = sk.fr.yaw_to_camera(Mh[:, 0])
     a = abs(yaw)

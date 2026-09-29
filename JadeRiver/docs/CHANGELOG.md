@@ -1,5 +1,36 @@
 # Changelog
 
+## The people drawn 1.2 times bigger (decision 43)
+
+The user: "I think the player should look a little bigger." The player and the villagers go from about 38 art px to
+about 46 from sole to crown, drawn with more pixels, never scaled at runtime.
+
+- **Re-rendered at the new size.** The character pipeline (`tools/art/topdown/figure/`) casts every layer at 1.104 art px
+  a unit (`geom.WORLD_SCALE`, from 0.92): every layer set, all 864 frames of the 37 actions in the five drawn facings,
+  every hair colour and dye, with the same proportions, poses, weapons in the hands and outfits. The face has more
+  room: an eye is 3 px wide (a lash row, the white, a pupil and the iris, the iris's lower light) and the mouth 2 px.
+  The working canvas grows to 136 x 124 (the feet at 68, 84), clear of the widest cut and the highest blade.
+- **The technique pictures keep their framing.** The cards, the reading, the HUD's buttons and the loadout bar were
+  approved with the 38 px figure, and a 46 px one no longer fits a 42 px button whole nor a card from the head to the
+  ankles. So the 105 poses a picture draws are cast once more at 0.92 (the index's `pictures`; `TopdownFigure.frame_of`,
+  `draw` and `bounds` with `picture`), and the pictures and the HUD's companion chip draw those. The Character page,
+  the Bag and a shop's merchant draw the figure at x5, as tall as the 38 px one was at x6.
+- **The size pass** (art bible §13, "The scale rule"; `TopdownRoom.PEOPLE`): the foot box 19 world units across (from
+  16; its depth stays 10, which the stairs' side steps are measured by), the player's body for a blow on the grid 17
+  wide each way (from 14), a body's height and chest 92 and 48 (from 76 and 40), a person's talk reach 132 (from 110) on
+  the grid, markers, barks, a lifted plate and the label over a person who fights 16 higher, a staged scene's balloons
+  over the heads at 104 (from 88) and a hand-off's chevron over a person 16 higher, the blob shadows 10 and 8 art px
+  (from 8 and 7), the camera's body box 20 x 52 and its framing 14 px over the feet (from 16 x 44 and 12), the labels'
+  keep-clear box round the body 34 x 77, and the FX sheets' hand and chest at 17 and 26 art px (from 14 and 22;
+  `build_fx_topdown.py` rebuilt). The paces (walk 154, sprint 216), the jumps, the tops a body stands on, a blow's reach
+  and every range stay as they were. Every way is a tile wide or more, so the bigger foot box passes them all
+  (`room_lint`, `topdown_rooms --check`, the sect walks); no room has a bench, bed or seat a person sits on yet.
+- **Cost.** The same draw calls. The 168 sheets hold 207 MB of RGBA8 (from 139; 512 px wide, the tallest 1,446), the
+  player's outfit 8.1 MB (from 5.4); a full build takes about 6 minutes on two cores.
+- **Screenshots** before and after in `docs/redesign/feedback/people_scale/` (`tools/dev/topdown_capture.tscn --
+  --people-scale --people-tag=<before|after>`; the pictures with `tools/dev/picture_capture.tscn -- --tag=<before|after>
+  --dir=people_scale`).
+
 ## Every newly unlocked system teaches itself (decision 43)
 
 The user asked: "I want the game to teach the player how to use new systems that unlocked. For example, when the
