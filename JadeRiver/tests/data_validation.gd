@@ -1725,8 +1725,8 @@ func _req_names(req: Dictionary) -> Array:
 
 ## Top-down redesign, Phase 3 (docs/redesign/art_bible.md): the prototype's terrain atlas, prop kit and TileSet, as
 ## built by tools/art/topdown/build_tiles.py. Every tile the room view draws and every prop the room places exists
-## inside its sheet (with its animation frames and floor shadow), and so does every frame of every foe the room spawns;
-## the TileSet loads, names each tile as the manifest does, animates the water and keeps its two terrain sets (corners
+## inside its sheet (with its animation frames and floor shadow), and so does every frame of every foe the room spawns
+## (decision 43: a sheet a species, data/topdown/foes.json, built by tools/art/topdown/build_foes.py); the TileSet loads, names each tile as the manifest does, animates the water and keeps its two terrain sets (corners
 ## for paths, sides for the shore).
 func topdown_art_suite() -> void:
 	var man = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json"))
@@ -1748,7 +1748,7 @@ func topdown_art_suite() -> void:
 		needed.append(k + "_face")
 	for n in needed:
 		if not tiles.has(n): missing.append(n)
-	for kind in ["tiles", "props", "foes"]:
+	for kind in ["tiles", "props"]:
 		if not ResourceLoader.exists(str(man.get("atlas", {}).get(kind, ""))): missing.append("atlas " + kind)
 	check(missing.is_empty() and paint.size() >= 7, "topdown art: every tile the paint table and the loader draw is in the atlas (missing %s)" % str(missing))
 	var outside: Array = []
@@ -1766,21 +1766,44 @@ func topdown_art_suite() -> void:
 		var s: Array = props[k].get("shadow_rect", [0, 0, 0, 0])
 		if props[k].has("shadow") != props[k].has("shadow_rect") or not psheet.encloses(Rect2i(int(s[0]), int(s[1]), int(s[2]), int(s[3]))): outside.append("shadow " + k)
 	check(outside.is_empty(), "topdown art: every tile, prop frame and prop shadow lies inside its sheet and every placed prop exists (%s)" % str(outside))
-	# Phase 3: the foes the prototype room spawns each have every action in the five drawn facings, inside the sheet.
-	var foes: Dictionary = man.get("foes", {})
-	var foes_img: Texture2D = load(str(man.get("atlas", {}).get("foes", "")))
-	var cell: Array = foes.get("cell", [0, 0])
+	# Phase 3, decision 43: every foe drawn for the grid (the prototype room's first) has every action of the catalogue
+	# in the five drawn facings, its elite's too where it has one, each frame inside its own sheet, and no sheet is over
+	# 4096 px on a side (phones' texture limit).
+	var foes = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/foes.json"))
+	foes = foes if foes is Dictionary else {}
+	var catalogue := {"idle": 6, "walk": 8, "windup": 4, "attack": 6, "hurt": 3, "death": 8}
 	var missing_foes: Array = []
+	var big: Array = []
+	var drawn: Dictionary = foes.get("species", {})
 	for sp in room.get("spawns", []):
-		var acts: Dictionary = foes.get("species", {}).get(str(sp.enemy), {}).get("actions", {})
-		for act in ["idle", "walk", "windup", "attack", "hurt", "death"]:
-			for d in foes.get("dirs", []):
-				var list: Array = acts.get(act, {}).get("frames", {}).get(d, [])
-				if list.is_empty(): missing_foes.append("%s %s %s" % [sp.enemy, act, d])
-				for at in list:
-					if foes_img == null or not Rect2i(0, 0, foes_img.get_width(), foes_img.get_height()).encloses(Rect2i(int(at[0]), int(at[1]), int(cell[0]), int(cell[1]))): missing_foes.append("%s %s %s outside" % [sp.enemy, act, d])
-	check(missing_foes.is_empty() and foes.get("dirs", []).size() == 5 and foes.get("mirror", {}).size() == 3,
-		"topdown art: every foe in the room has idle, walk, wind-up, strike, hurt and death in five drawn facings, three mirrored (%s)" % str(missing_foes.slice(0, 4)))
+		if not drawn.has(str(sp.enemy)): missing_foes.append(str(sp.enemy))
+	for id in drawn:
+		var block: Dictionary = drawn[id]
+		var img: Texture2D = load(str(block.get("atlas", ""))) if ResourceLoader.exists(str(block.get("atlas", ""))) else null
+		var cell: Array = block.get("cell", [0, 0])
+		if img == null:
+			missing_foes.append("%s sheet" % id)
+			continue
+		if img.get_width() > 4096 or img.get_height() > 4096: big.append("%s %dx%d" % [id, img.get_width(), img.get_height()])
+		for look in [block] + ([block.elite] if block.has("elite") else []):
+			var acts: Dictionary = look.get("actions", {})
+			for act in catalogue:
+				for d in foes.get("dirs", []):
+					var list: Array = acts.get(act, {}).get("frames", {}).get(d, [])
+					if list.size() != int(catalogue[act]): missing_foes.append("%s %s %s: %d frames" % [id, act, d, list.size()])
+					for at in list:
+						if not Rect2i(0, 0, img.get_width(), img.get_height()).encloses(Rect2i(int(at[0]), int(at[1]), int(cell[0]), int(cell[1]))): missing_foes.append("%s %s %s outside" % [id, act, d])
+			if int(acts.get("attack", {}).get("hit_frame", -1)) != 1: missing_foes.append("%s hit frame" % id)
+	check(missing_foes.is_empty() and big.is_empty() and drawn.size() >= 12 and foes.get("dirs", []).size() == 5 and foes.get("mirror", {}).size() == 3,
+		"topdown art: every foe drawn (%d) has idle 6, walk 8, wind-up 4, strike 6 (the blow on frame 1), hurt 3 and death 8 frames in five drawn facings, three mirrored, its elite's too, inside sheets of at most 4096 px a side (%s; %s)" % [drawn.size(), str(missing_foes.slice(0, 4)), str(big)])
+	# Decision 43: a foe's tell is up before its blow: the wind-up's last frame shows within its shortest wind-up.
+	var late: Array = []
+	for id in drawn:
+		var wu: Dictionary = drawn[id].actions.get("windup", {})
+		var at_s := float((wu.get("frames", {}).get("s", []) as Array).size() - 1) / maxf(1.0, float(wu.get("fps", 1)))
+		for a in ContentDB.entry("enemies", id).get("attacks", []):
+			if at_s > float(a.get("windup_s", 0.0)) + 0.001: late.append("%s %s %.2f > %.2f" % [id, a.id, at_s, float(a.windup_s)])
+	check(late.is_empty(), "topdown art: every foe's wind-up reaches its tell (its last frame) before its blow (%s)" % str(late))
 	var house: Dictionary = props.get("house", {})
 	var fp: Array = house.get("footprint", [0, 0])
 	check(int(fp[0]) == 6 and int(fp[1]) == 3 and float(house.get("rect", [0, 0, 0])[2]) > 90.0, "topdown art: the house keeps its 6 x 3 footprint")

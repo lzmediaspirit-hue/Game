@@ -33,7 +33,18 @@ var def: Dictionary = {}             ## the room's own file, for its spawns and 
 static func load_room(room_id: String) -> TopdownRoom:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(DIR + room_id + ".json"))
 	var ts = JSON.parse_string(FileAccess.get_file_as_string(DIR + "proto_tileset.json"))
+	if ts is Dictionary: ts["foes"] = foes()
 	return from_dict(d if d is Dictionary else {}, ts if ts is Dictionary else {})
+
+static var _foes = null
+## Decision 43: the foes' index (data/topdown/foes.json, built by tools/art/topdown/build_foes.py: a sheet, a cell and
+## the frames of every action per species, an elite's rows beside its own), read once and laid into the tile set as its
+## `foes`.
+static func foes() -> Dictionary:
+	if _foes == null:
+		var f = JSON.parse_string(FileAccess.get_file_as_string(DIR + "foes.json"))
+		_foes = f if f is Dictionary else {}
+	return _foes
 
 static var _layouts: Dictionary = {}
 ## Phase 4: a room of the world redrawn on the grid has a layout of its own id in data/topdown/ (built by

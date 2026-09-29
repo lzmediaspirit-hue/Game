@@ -1,16 +1,15 @@
-"""Top-down redesign, Phase 3 (docs/redesign/art_bible.md): build the prototype room's terrain atlas, prop kit, foes,
-manifest and Godot TileSet, and optionally the sheets' review images.
+"""Top-down redesign, Phase 3 (docs/redesign/art_bible.md): build the prototype room's terrain atlas, prop kit,
+manifest and Godot TileSet, and optionally the sheets' review images. The foes have their own build (decision 43:
+tools/art/topdown/build_foes.py, art/topdown/foes/ and data/topdown/foes.json).
 
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/proto_tiles.png      the terrain atlas (tops, faces, stairs, water frames, overlays, auto-tile sets)
   art/topdown/proto_props.png      the prop kit, its animation frames and the props' floor shadows
-  art/topdown/foes.png             the foes in eight facings (tools/art/topdown/creatures.py)
   art/topdown/proto_tiles.tres     a Godot TileSet over the atlas: terrain sets for paths and shores, animated water,
                                    and every tile's name as custom data
-  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, foes, the paint table (which
+  data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, the paint table (which
                                    tops, faces and auto-tile sets each mark draws) and the auto-tile tables
-With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4 and the foe sheet at x3,
-and into docs/redesign/terrain_v2/ the Terrain v2 tile sheet at x4 (art bible §14).
+With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4, and into docs/redesign/terrain_v2/ the Terrain v2 tile sheet at x4 (art bible §14).
 The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
 
 Usage: python3 tools/art/topdown/build_tiles.py [--review] [--check]
@@ -32,13 +31,11 @@ sys.path.insert(0, str(HERE.parent))
 from PIL import Image  # noqa: E402
 
 import atlas  # noqa: E402
-import creatures  # noqa: E402
 import props  # noqa: E402
 from canvas import T  # noqa: E402
 
 TILES_PNG = "art/topdown/proto_tiles.png"
 PROPS_PNG = "art/topdown/proto_props.png"
-FOES_PNG = "art/topdown/foes.png"
 TRES = "art/topdown/proto_tiles.tres"
 MANIFEST = "data/topdown/proto_tileset.json"
 REVIEW = ROOT / "docs/redesign/phase3"
@@ -87,14 +84,12 @@ def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
     sheet, at, auto, v2 = atlas.build()
     psheet, pat = props.build()
-    foes, foes_at = creatures.build()
     manifest = {
         "schema_version": 2,
         "tile": T,
         "tiles": at,
         "props": pat,
-        "foes": foes_at,
-        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG, "foes": "res://" + FOES_PNG},
+        "atlas": {"tiles": "res://" + TILES_PNG, "props": "res://" + PROPS_PNG},
         "paint": PAINT,
         "bank_face": "bank",
         "tileset": "res://" + TRES,
@@ -116,7 +111,6 @@ def build_all() -> dict:
     return {
         TILES_PNG: png_bytes(sheet.img),
         PROPS_PNG: png_bytes(psheet.img),
-        FOES_PNG: png_bytes(foes.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
     }
@@ -191,12 +185,11 @@ def tileset_tres(at: dict, auto: dict) -> str:
 
 # ============================================================================================================ review
 def review(outputs: dict) -> None:
-    """The sheets for review: every tile at x4, named and grouped; the prop kit at x4; the foes at x3."""
+    """The sheets for review: every tile at x4, named and grouped; the prop kit at x4."""
     from PIL import ImageDraw, ImageFont
     REVIEW.mkdir(parents=True, exist_ok=True)
     sheet = Image.open(io.BytesIO(outputs[TILES_PNG])).convert("RGBA")
     psheet = Image.open(io.BytesIO(outputs[PROPS_PNG])).convert("RGBA")
-    foes = Image.open(io.BytesIO(outputs[FOES_PNG])).convert("RGBA")
     man = json.loads(outputs[MANIFEST])
     try:
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
@@ -236,27 +229,6 @@ def review(outputs: dict) -> None:
     pk.alpha_composite(psheet)
     pk.resize((psheet.width * 4, psheet.height * 4), Image.NEAREST).save(REVIEW / "05_props_x4.png")
 
-    # 3. The foes at x3: a row per species and drawn facing, the actions along it, on a meadow tone, labelled.
-    fm = man["foes"]
-    cw, ch = fm["cell"]
-    z, lw, th = 3, 230, 22
-    cols = foes.width // cw
-    out = Image.new("RGBA", (lw + cols * cw * z, th + foes.height * z), (22, 30, 34, 255))
-    d = ImageDraw.Draw(out)
-    x = lw
-    for act, (n, _, _) in creatures.ACTIONS.items():   # the sheet's column order
-        d.text((x + 4, 4), "%s (%d)" % (act, n), font=head, fill=(232, 225, 207, 255))
-        x += n * cw * z
-    for r in range(foes.height // ch):
-        for c in range(cols):
-            tone = (99, 150, 76, 255) if (r + c) % 2 else (92, 140, 70, 255)
-            cell = Image.new("RGBA", (cw, ch), tone)
-            cell.alpha_composite(foes.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch)))
-            out.alpha_composite(cell.resize((cw * z, ch * z), Image.NEAREST), (lw + c * cw * z, th + r * ch * z))
-        sp, facing = creatures.SPECIES[r // len(fm["dirs"])], fm["dirs"][r % len(fm["dirs"])]
-        d.text((6, th + r * ch * z + ch * z // 2 - 8), "%s %s" % (sp.replace("_", " "), facing.upper()), font=head,
-               fill=(232, 225, 207, 255))
-    out.save(REVIEW / "12_foes_x3.png")
     print("review images in", REVIEW.relative_to(ROOT))
     review_v2(sheet, man, font, head)
 
