@@ -34,7 +34,7 @@ NUMBERS = {"stack_s": 0.3, "step_s": 0.06, "step_px": 18, "sway_px": 12, "cap": 
 # (screen px a room px), the loop's beats (s), Battery saver's step rate and pause, how many imps each form strikes (a
 # single strike one, a multi-hit or area form a pack) and how the imps meet the forms that are not plain blows.
 # Decision 42: a top-down character casts in the top-down style, at a whole `top_scale` against the top-down world's own
-# foes (`top_foe`, art/topdown/foes.png): the first the story meets.
+# foes (`top_foe`, its sheet in art/topdown/foes/): the first the story meets.
 TECHNIQUE_PREVIEW = {"foe": "pebble_imp", "foe_scale": 0.75, "scale": 1.25, "top_foe": "mudshell_crab", "top_scale": 3, "lead_s": 0.4, "after_s": 0.9, "pause_s": 0.8,
                      "battery_pause_s": 1.6, "battery_fps": 30,
                      "foes": {"strike": 1, "thrust": 2, "lunge": 2, "blink": 1, "pillar": 1, "echo": 2, "counter": 1, "seal": 1,

@@ -969,7 +969,7 @@ func run_fight(suite, tree: SceneTree) -> void:
 	await tree.process_frame
 	Unlocks.debug_force_all = forced
 
-## Phase 3: a foe's figure (art/topdown/foes.png) turns to eight facings, five drawn and three mirrored: where it
+## Phase 3: a foe's figure (its sheet in art/topdown/foes/) turns to eight facings, five drawn and three mirrored: where it
 ## walks, else where it aims in a fight; a death plays once and holds its last frame.
 func _foe_facings(base: Vector2) -> void:
 	fresh(base)
