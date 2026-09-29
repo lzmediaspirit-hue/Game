@@ -70,7 +70,7 @@ and the colours (seven-step ramps, tinted outlines). A set changes it only throu
      ring, a ripple) keeps its palette's own colours and is a `line` already.
 3. **Build it:** `python3 tools/art/topdown/build_character.py --only weapon_<family> --check`. It casts the body and
    your set over every frame at 4 x 4 samples a pixel, one process per core (`--jobs N` to choose; the bytes are the
-   same for any N), about half a minute on four cores, and builds twice to prove the result is byte-identical. It
+   same for any N), about twenty seconds on four cores, and builds twice to prove the result is byte-identical. It
    writes your set's manifest and sheets and the shared index; no other set's files change.
 4. **Import:** `godot --headless --path . --import`, then commit the new `.png.import` files with the sheets.
 5. **Look at every frame.** A number cannot certify alignment (AGENTS.md rule 3).

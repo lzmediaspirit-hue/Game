@@ -43,7 +43,7 @@ the rules.
   `tools/art/topdown/study_quality/rollout.py`). The review sheets in `docs/redesign/phase3/character/` are redrawn.
 - **Tests:** `tools/run_tests.sh` green with no SCRIPT ERROR: 14 suites, 73,262 checks (`data_validation`'s layer
   contract and coverage gate among them), and the room lint, layouts and sect walks. `perf_tests` missed a frame
-  budget once under the suite's load and passes alone (16 checks).
+  budget in one run beside another agent's suite, and passed alone and in the final run.
 
 ## The prototype's feedback: the HUD at rest, the tree's pictures, one stall, talks that close (decision 42)
 
