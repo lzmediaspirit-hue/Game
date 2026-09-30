@@ -9,9 +9,9 @@ extends Node2D
 ## own layers. Its sheets load on threads, so no page waits on them (the doll appears the frame they are in), and it
 ## redraws only when its drawn frame changes (an idle's four frames a second), never every frame for nothing.
 ##
-## `shown()` says which figure a page draws: this one whenever the character shown plays the top-down game (the active
-## one, or the one a card is for); the side view's Avatar only for a classic side-view character (decision 41's
-## fallback setting).
+## Figures says which figure a page draws and makes it (Figures.for_character, for_outfit): this one whenever the
+## character shown plays the top-down game (the active one, or the one a card is for); the side view's Avatar only for a
+## classic side-view character (decision 41's fallback setting).
 
 ## A portrait's facing: three-quarters toward the camera, turned to the right.
 const PORTRAIT_ROW := "se"
@@ -45,35 +45,12 @@ var facing: int:
 		row = "se" if f >= 0 else "sw"
 		queue_redraw()
 
-## True when the character shown plays the top-down game: `ch`, or the active character.
-static func shown(ch = null) -> bool:
-	if ch == null: ch = Game.active()
-	return ch != null and str(ch.view) == "topdown"
-
 ## A doll wearing `o`, facing `row`, its sheets loading on threads.
 static func wearing(o: Dictionary, facing_row := PORTRAIT_ROW) -> TopdownDoll:
 	var d := TopdownDoll.new()
 	d.figure = TopdownFigure.wearing(o, true)
 	d.row = facing_row
 	return d
-
-## The figure a page shows wearing `o`, its feet at its position: this doll at `top_k` (a whole number) when `ch` (the
-## active character by default) plays the top-down game, else the side view's Avatar at `side_k`. Either takes the
-## Avatar's calls a page makes: outfit, play, facing, draw_on.
-static func figure_for(o: Dictionary, side_k: float, top_k: int, ch = null, facing_row := PORTRAIT_ROW) -> Node2D:
-	if shown(ch):
-		var d := wearing(o, facing_row)
-		d.scale = Vector2.ONE * top_k
-		return d
-	var a = load("res://scripts/avatar.gd").new()
-	a.outfit = o
-	a.scale = Vector2.ONE * side_k
-	return a
-
-## Dress a page's figure (this doll or the side view's Avatar) in `o`.
-static func dress(fig: Node2D, o: Dictionary) -> void:
-	fig.set("outfit", o)
-	if not fig is TopdownDoll: fig.set("last_key", "")
 
 func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST

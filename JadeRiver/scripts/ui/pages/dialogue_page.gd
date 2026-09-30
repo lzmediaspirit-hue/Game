@@ -8,7 +8,6 @@ extends Page
 ## ready to hand in) is pinned above the choices as a small scroll, what it asks and what it gives read before choosing;
 ## it unrolls downward (0.2 s). A talk ends by its own choices, a tap on its last line or Esc: it has no close button.
 
-const Avatar = preload("res://scripts/avatar.gd")
 
 var convo: Dictionary = {}
 var line := 0
@@ -45,8 +44,8 @@ func setup() -> void:
 	if not outfit.is_empty():
 		# Decision 42: the speaker as the game draws them: in the top-down game the top-down figure, at 4 px an art px,
 		# three-quarters toward the camera; a classic side-view character's talks keep the side view's portrait.
-		portrait = TopdownDoll.figure_for(full_outfit(outfit), 1.35, TOP_SCALE)
-		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - (24 if portrait is TopdownDoll else 12))
+		portrait = Figures.for_outfit(full_outfit(outfit), 1.35, TOP_SCALE)
+		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - Figures.pick(portrait, 24, 12))
 		portrait.set("facing", 1)
 		add_child(portrait)
 		portrait.play("idle")

@@ -4,7 +4,6 @@ extends Node2D
 ## companions). Reads state every frame; never changes it. Creatures use their
 ## sprite sheet; humanoids use the layered avatar (the player-creation engine).
 
-const Avatar = preload("res://scripts/avatar.gd")
 
 var uid := 0
 var sprite: CreatureSprite
@@ -57,7 +56,7 @@ func setup(e: EnemyState) -> void:
 	var art: Dictionary = e.def.get("art", {"creature": e.def_id})
 	if label_only: pass   # the top-down room draws the figure itself (redesign Phase 2)
 	elif art.has("avatar"):
-		avatar = Avatar.new()
+		avatar = Figures.side_avatar()
 		var outfit = art.avatar
 		if outfit is String and outfit == "player":
 			outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()

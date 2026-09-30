@@ -5,10 +5,6 @@ extends RefCounted
 ## draws on the page it is given, from tokens, and names the ground its words sit on (Page.ground), so the ui_suite
 ## measures them.
 
-## A steady scatter: the same n-th number between 0 and 1 for the same seed on every frame.
-static func noise(seed_: int, n: int) -> float:
-	return fposmod(sin(float(seed_) * 12.9898 + float(n) * 78.233) * 43758.5453, 1.0)
-
 ## Rough timber over `r` (the Beast Hall's wall, a fence rail): boards of uneven width running down, each seam dark, with
 ## a knot here and there. Words on it read on `wood`.
 static func timber(pg: Page, r: Rect2, seed_ := 0) -> void:
@@ -17,14 +13,14 @@ static func timber(pg: Page, r: Rect2, seed_ := 0) -> void:
 	var x := r.position.x
 	var k := 0
 	while x < r.end.x - 4.0:
-		var w := 44.0 + 30.0 * noise(seed_, k)
+		var w := 44.0 + 30.0 * HashNoise.scatter(seed_, k)
 		var board := Rect2(x, r.position.y, minf(w, r.end.x - x), r.size.y)
 		pg.draw_rect(Rect2(board.position.x + 3, board.position.y, board.size.x * 0.4, board.size.y), Color(face.lerp(UiKit.BRONZE, 0.18), 0.6))
 		for g in 3:   # the grain
-			var gx := board.position.x + board.size.x * (0.2 + 0.28 * g + 0.1 * noise(seed_ + 7, k * 3 + g))
+			var gx := board.position.x + board.size.x * (0.2 + 0.28 * g + 0.1 * HashNoise.scatter(seed_ + 7, k * 3 + g))
 			pg.draw_line(Vector2(gx, board.position.y), Vector2(gx, board.end.y), Color(UiKit.SURFACE.wood_dark, 0.35), 1.0)
-		if noise(seed_ + 3, k) > 0.45:
-			var knot := Vector2(board.position.x + board.size.x * (0.3 + 0.4 * noise(seed_ + 5, k)), r.position.y + r.size.y * noise(seed_ + 9, k))
+		if HashNoise.scatter(seed_ + 3, k) > 0.45:
+			var knot := Vector2(board.position.x + board.size.x * (0.3 + 0.4 * HashNoise.scatter(seed_ + 5, k)), r.position.y + r.size.y * HashNoise.scatter(seed_ + 9, k))
 			pg.draw_circle(knot, 5.0, UiKit.SURFACE.wood_dark, true, -1.0, true)
 			pg.draw_arc(knot, 8.0, 0.0, TAU, 20, Color(UiKit.SURFACE.wood_dark, 0.5), 1.5, true)
 		x += w
@@ -39,9 +35,9 @@ static func straw(pg: Page, r: Rect2, seed_ := 0, stalks := -1) -> void:
 	pg.rounded(r, 10.0, base)
 	var n := stalks if stalks >= 0 else int(r.size.x * r.size.y / 180.0)
 	for i in n:
-		var at := r.position + Vector2(8, 6) + Vector2((r.size.x - 16) * noise(seed_, i * 2), (r.size.y - 12) * noise(seed_, i * 2 + 1))
-		var dir := Vector2.from_angle((noise(seed_ + 1, i) - 0.5) * 1.4 + (PI if i % 2 == 0 else 0.0))
-		var ln := 8.0 + 12.0 * noise(seed_ + 2, i)
+		var at := r.position + Vector2(8, 6) + Vector2((r.size.x - 16) * HashNoise.scatter(seed_, i * 2), (r.size.y - 12) * HashNoise.scatter(seed_, i * 2 + 1))
+		var dir := Vector2.from_angle((HashNoise.scatter(seed_ + 1, i) - 0.5) * 1.4 + (PI if i % 2 == 0 else 0.0))
+		var ln := 8.0 + 12.0 * HashNoise.scatter(seed_ + 2, i)
 		var col := base.lerp(UiKit.PALE_GOLD, 0.35) if i % 3 == 0 else base.lerp(UiKit.BRONZE, 0.45)
 		pg.draw_line(at, at + dir * ln, col, 1.5, true)
 	pg.ground(r, base)
@@ -86,7 +82,7 @@ static func stones(pg: Page, at: Vector2, n: int, from := Vector2.ZERO, falling 
 	for row in 5:
 		for i in 5 - row:
 			if k >= mini(n, 15): break
-			var p := at + Vector2((i - (4 - row) * 0.5) * 22.0 + (noise(3, k) - 0.5) * 6.0, -row * 13.0)
+			var p := at + Vector2((i - (4 - row) * 0.5) * 22.0 + (HashNoise.scatter(3, k) - 0.5) * 6.0, -row * 13.0)
 			pg.icon_at(Rect2(p.round() - Vector2(16, 16), Vector2(32, 32)), icon)
 			k += 1
 	for j in falling:

@@ -1,90 +1,176 @@
 extends Node
-## S01 · Content database. Loads every data file once, validates cross references
-## and serves read-only lookups by stable ID. Nothing here changes after boot.
+## S01 · Content database. Reads the data files, validates cross references and serves read-only lookups by stable ID.
+## Nothing here changes once read.
 ##
 ## File shapes: a list table is {"schema_version": n, "entries": [{"id": ...}, ...]};
 ## a config table is {"schema_version": n, ...fields}. Rooms live in data/rooms/,
 ## dialogue trees in data/dialogue/, player-facing text in data/strings/en.json.
+##
+## BUG-11 (decision 45, S4): a table is read when it is first asked for, not at boot (techniques.json alone took 133 to
+## 191 ms). Boot reads only the realms, the recipes (their indexes) and the strings; once the first frame is drawn, a
+## loading thread reads the rest one table at a time, and a lookup that comes first reads its table there and then (or
+## waits for the one the thread has in hand). Every lookup answers as it did when boot read everything: the same rows,
+## the same order, the same errors. Reading `tables`, `lists`, `configs` or `load_errors` whole reads every table first.
 
 const DATA_DIR := "res://data/"
 ## Files that belong to the v0.13 engine and keep their original shape.
 const LEGACY_FILES := ["parts.json", "poses.json", "world.json", "map_themes.json", "surface_masks.json", "movement_contracts.json"]
+## The tables boot reads: the ladder's and the recipes' indexes are built from them (realm_order, used_in).
+const AT_BOOT := ["realms", "recipes"]
+## The groups read whole, beside the tables (named so that no data file can be).
+const ROOMS := "@rooms"
+const DIALOGUE := "@dialogue"
+const PARTS := "@parts"
 
-var tables: Dictionary = {}      # table -> {id: entry}
-var lists: Dictionary = {}       # table -> [entry] in authored order
-var configs: Dictionary = {}     # table -> Dictionary
-var rooms: Dictionary = {}       # room id -> room data
-var dialogue: Dictionary = {}    # dialogue id -> tree
+var tables: Dictionary:          # table -> {id: entry}
+	get:
+		_read_all()
+		return _tables
+var lists: Dictionary:           # table -> [entry] in authored order
+	get:
+		_read_all()
+		return _lists
+var configs: Dictionary:         # table -> Dictionary
+	get:
+		_read_all()
+		return _configs
+var rooms: Dictionary:           # room id -> room data
+	get:
+		if _unread.has(ROOMS): _read(ROOMS)
+		return _rooms
+var dialogue: Dictionary:        # dialogue id -> tree
+	get:
+		if _unread.has(DIALOGUE): _read(DIALOGUE)
+		return _dialogue
 var strings: Dictionary = {}     # key -> text
-var parts: Dictionary = {}       # appearance catalogue (parts.json)
+var parts: Dictionary:           # appearance catalogue (parts.json)
+	get:
+		if _unread.has(PARTS): _read(PARTS)
+		return _parts
 var realm_order: Array = []      # realm sub-level keys in ladder order
 var realm_index: Dictionary = {} # key -> position in realm_order
 var _realm_for_level: Dictionary = {} # level -> realm_key_for_level (a foe's stats ask it at every blow)
-var room_zone: Dictionary = {}   # room id -> zone id
+var room_zone: Dictionary:       # room id -> zone id
+	get:
+		if _unread.has(ROOMS): _read(ROOMS)
+		return _room_zone
 var used_in: Dictionary = {}     # item id -> [recipe ids]
-var load_errors: Array[String] = []
+var load_errors: Array[String]:
+	get:
+		_read_all()
+		return _load_errors
 var loaded := false
+
+var _tables: Dictionary = {}
+var _lists: Dictionary = {}
+var _configs: Dictionary = {}
+var _rooms: Dictionary = {}
+var _dialogue: Dictionary = {}
+var _parts: Dictionary = {}
+var _room_zone: Dictionary = {}
+var _load_errors: Array[String] = []
+var _files: Array = []           # the tables in the data folder's order (a whole read keeps them in it)
+var _unread: Dictionary = {}     # table or group -> true until it is read
+var _reader: _Reader = null      # the loading thread's work, while it runs
+var _frames := 0
 
 func _ready() -> void:
 	load_all()
 
+## Forget every table and start reading again (boot): AT_BOOT's tables and the strings now, the rest when asked for or
+## on the loading thread once the first frame is drawn.
 func load_all() -> void:
-	tables.clear(); lists.clear(); configs.clear(); rooms.clear(); dialogue.clear()
-	strings.clear(); load_errors.clear(); realm_order.clear(); realm_index.clear(); _realm_for_level.clear()
+	_stop_reader()
+	_tables.clear(); _lists.clear(); _configs.clear(); _rooms.clear(); _dialogue.clear(); _parts = {}
+	strings.clear(); _load_errors.clear(); realm_order.clear(); realm_index.clear(); _realm_for_level.clear()
 	_stats_at.clear(); _movement_at.clear(); _curves_at.clear()
-	room_zone.clear(); used_in.clear()
-	parts = _read_json(DATA_DIR + "parts.json")
+	_room_zone.clear(); used_in.clear(); _files.clear(); _unread.clear()
 	for file in DirAccess.get_files_at(DATA_DIR):
 		if not file.ends_with(".json") or file in LEGACY_FILES: continue
-		var data = _read_json(DATA_DIR + file)
-		if not (data is Dictionary):
-			load_errors.append("Unreadable data file: " + file)
-			continue
-		var table := file.get_basename()
-		if data.has("entries"):
-			var by_id := {}
-			var ordered: Array = []
-			var defaults: Dictionary = data.get("defaults", {})
-			var memo := {}   # the table's merged pairs of layers (expand)
-			for entry in data.entries:
-				if not (entry is Dictionary) or not entry.has("id"):
-					load_errors.append("%s: entry without id" % table)
-					continue
-				if not defaults.is_empty(): entry = expand(entry, defaults, memo)
-				if by_id.has(entry.id): load_errors.append("%s: duplicate id %s" % [table, entry.id])
-				by_id[entry.id] = entry
-				ordered.append(entry)
-			tables[table] = by_id
-			lists[table] = ordered
-			configs[table] = data   # a table's own constants sit beside its entries (tribulations.json, fates.json)
-		else:
-			configs[table] = data
-	for file in DirAccess.get_files_at(DATA_DIR + "rooms/"):
-		if not file.ends_with(".json"): continue
-		var room = _read_json(DATA_DIR + "rooms/" + file)
-		if room is Dictionary and room.has("id"):
-			if rooms.has(room.id): load_errors.append("Duplicate room id " + room.id)
-			rooms[room.id] = room
-			room_zone[room.id] = str(room.get("zone", ""))
-		else:
-			load_errors.append("Unreadable room file: " + file)
-	if DirAccess.dir_exists_absolute(DATA_DIR + "dialogue/"):
-		for file in DirAccess.get_files_at(DATA_DIR + "dialogue/"):
-			if not file.ends_with(".json"): continue
-			var tree = _read_json(DATA_DIR + "dialogue/" + file)
-			if tree is Dictionary:
-				for id in tree.get("trees", {}):
-					dialogue[id] = tree.trees[id]
-	var en = _read_json(DATA_DIR + "strings/en.json")
+		_files.append(file.get_basename())
+		_unread[file.get_basename()] = true
+	for group in [PARTS, ROOMS, DIALOGUE]: _unread[group] = true
+	for table in AT_BOOT: _read(table)
+	var errors: Array[String] = []
+	var en = _parse(DATA_DIR + "strings/en.json", errors)
+	_load_errors.append_array(errors)
 	if en is Dictionary: strings = en.get("strings", {})
-	for entry in lists.get("realms", []):
+	for entry in _lists.get("realms", []):
 		realm_index[entry.key] = realm_order.size()
 		realm_order.append(entry.key)
-	for recipe in lists.get("recipes", []):
+	for recipe in _lists.get("recipes", []):
 		for input in recipe.get("inputs", []):
 			if not used_in.has(input.item): used_in[input.item] = []
 			used_in[input.item].append(recipe.id)
+	_frames = 0
+	set_process(true)
 	loaded = true
+
+## The loading thread starts once the first frame is drawn; each frame after, what it has read is handed over.
+func _process(_delta: float) -> void:
+	_frames += 1
+	if _frames < 2: return
+	if _reader == null:
+		if _unread.is_empty():
+			set_process(false)
+			return
+		_reader = _Reader.new()
+		if _unread.has("techniques"): _reader.todo.append("techniques")   # the largest first
+		for t in _files: if _unread.has(t) and t != "techniques": _reader.todo.append(t)
+		for g in [ROOMS, DIALOGUE, PARTS]: if _unread.has(g): _reader.todo.append(g)
+		_reader.thread.start(_work.bind(_reader), Thread.PRIORITY_LOW)
+	var got := _reader.take()
+	for t in got: _install(t, got[t])
+	if _reader.finished():
+		_stop_reader()
+		set_process(false)
+
+func _exit_tree() -> void:
+	_stop_reader()
+
+func _stop_reader() -> void:
+	if _reader == null: return
+	_reader.stop()
+	if _reader.thread.is_started(): _reader.thread.wait_to_finish()
+	var got := _reader.take()
+	for t in got: _install(t, got[t])
+	_reader = null
+
+## Read `table` (or a group) now: the loading thread's copy when it has it (waited for while the thread reads it), else
+## read here.
+func _read(table: String) -> void:
+	if not _unread.has(table): return
+	var got = _reader.claim(table) if _reader != null else null
+	_install(table, got if got != null else _read_table(table))
+
+## Every table read (a whole `tables`, `lists`, `configs` or `load_errors` was asked for).
+func _read_all() -> void:
+	if _unread.is_empty(): return
+	for t in _files: _read(t)
+	for g in [PARTS, ROOMS, DIALOGUE]: _read(g)
+
+func _install(table: String, got: Dictionary) -> void:
+	if not _unread.has(table): return
+	_unread.erase(table)
+	_load_errors.append_array(got.errors)
+	match table:
+		ROOMS:
+			_rooms.merge(got.rooms)
+			_room_zone.merge(got.room_zone)
+		DIALOGUE: _dialogue.merge(got.dialogue)
+		PARTS: _parts = got.parts if got.parts is Dictionary else {}
+		_:
+			if got.has("by_id"):
+				_tables[table] = got.by_id
+				_lists[table] = got.ordered
+			if got.has("config"): _configs[table] = got.config
+	# The last one in: the tables are kept in the data folder's order, as a boot that read everything left them.
+	if _unread.is_empty():
+		for d in [_tables, _lists, _configs]:
+			var by_file := {}
+			for t in _files: if d.has(t): by_file[t] = d[t]
+			d.clear()
+			d.merge(by_file)
 
 ## P13a compact rows (technique_plan §7): a table may carry `defaults`, {key: {value: layer}}; each entry is its layers
 ## (the one its own `key` names, in order; dictionaries merge) with the entry's own keys over them, a dictionary of the
@@ -136,29 +222,179 @@ static func _merge(into: Dictionary, src: Dictionary) -> void:
 		else:
 			into[k] = v.duplicate(true) if v is Dictionary or v is Array else v
 
-func _read_json(path: String):
+static func _parse(path: String, errors: Array[String]):
 	if not FileAccess.file_exists(path): return null
 	var parser := JSON.new()
 	if parser.parse(FileAccess.get_file_as_string(path)) != OK:
-		load_errors.append("%s: JSON error line %d: %s" % [path, parser.get_error_line(), parser.get_error_message()])
+		errors.append("%s: JSON error line %d: %s" % [path, parser.get_error_line(), parser.get_error_message()])
 		return null
 	return parser.data
 
+## One table (or group) read from its files, as boot read it: a list table's rows expanded and indexed, with the errors
+## met. Run on the loading thread (_work) or the game's own (_read): it touches nothing but its files.
+static func _read_table(t: String) -> Dictionary:
+	var errors: Array[String] = []
+	var got := {"errors": errors}
+	match t:
+		ROOMS:
+			var rooms := {}
+			var zones := {}
+			for file in DirAccess.get_files_at(DATA_DIR + "rooms/"):
+				if not file.ends_with(".json"): continue
+				var room = _parse(DATA_DIR + "rooms/" + file, errors)
+				if room is Dictionary and room.has("id"):
+					if rooms.has(room.id): errors.append("Duplicate room id " + room.id)
+					rooms[room.id] = room
+					zones[room.id] = str(room.get("zone", ""))
+				else:
+					errors.append("Unreadable room file: " + file)
+			got.rooms = rooms
+			got.room_zone = zones
+		DIALOGUE:
+			var trees := {}
+			if DirAccess.dir_exists_absolute(DATA_DIR + "dialogue/"):
+				for file in DirAccess.get_files_at(DATA_DIR + "dialogue/"):
+					if not file.ends_with(".json"): continue
+					var tree = _parse(DATA_DIR + "dialogue/" + file, errors)
+					if tree is Dictionary:
+						for id in tree.get("trees", {}):
+							trees[id] = tree.trees[id]
+			got.dialogue = trees
+		PARTS:
+			got.parts = _parse(DATA_DIR + "parts.json", errors)
+		_:
+			var data = _parse(DATA_DIR + t + ".json", errors)
+			if not (data is Dictionary):
+				errors.append("Unreadable data file: " + t + ".json")
+				return got
+			if data.has("entries"):
+				var by_id := {}
+				var ordered: Array = []
+				var defaults: Dictionary = data.get("defaults", {})
+				var memo := {}   # the table's merged pairs of layers (expand)
+				for entry in data.entries:
+					if not (entry is Dictionary) or not entry.has("id"):
+						errors.append("%s: entry without id" % t)
+						continue
+					if not defaults.is_empty(): entry = expand(entry, defaults, memo)
+					if by_id.has(entry.id): errors.append("%s: duplicate id %s" % [t, entry.id])
+					by_id[entry.id] = entry
+					ordered.append(entry)
+				got.by_id = by_id
+				got.ordered = ordered
+			got.config = data   # a table's own constants sit beside its entries (tribulations.json, fates.json)
+	return got
+
+## The loading thread: the reader's list read one table at a time, each skipped when the game has claimed it.
+static func _work(reader: _Reader) -> void:
+	while true:
+		var t := reader.next()
+		if t == "": break
+		reader.put(t, _read_table(t))
+
+## What the loading thread and the game share, under one lock: the thread's list, what each side has claimed, what the
+## thread has read and not handed over yet, and the table it has in hand.
+class _Reader extends RefCounted:
+	var thread := Thread.new()
+	var todo: Array = []
+	var _mutex := Mutex.new()
+	var _claimed := {}      # table -> true: read, or being read, by one side
+	var _done := {}         # table -> what the thread read
+	var _busy := ""         # the table the thread reads now
+	var _stop := false
+	var _over := false
+
+	## The thread's next table to read ("" when there is none left, or it was told to stop).
+	func next() -> String:
+		_mutex.lock()
+		var t := ""
+		while not _stop and not todo.is_empty():
+			var n: String = todo.pop_front()
+			if _claimed.has(n): continue
+			_claimed[n] = true
+			t = n
+			break
+		_busy = t
+		_over = t == ""
+		_mutex.unlock()
+		return t
+
+	func put(t: String, got: Dictionary) -> void:
+		_mutex.lock()
+		_done[t] = got
+		_busy = ""
+		_mutex.unlock()
+
+	func stop() -> void:
+		_mutex.lock()
+		_stop = true
+		_mutex.unlock()
+
+	func finished() -> bool:
+		_mutex.lock()
+		var f := _over
+		_mutex.unlock()
+		return f
+
+	## What the thread has read, handed over (and forgotten here).
+	func take() -> Dictionary:
+		_mutex.lock()
+		var d := _done
+		_done = {}
+		_mutex.unlock()
+		return d
+
+	## The game wants `t` now: the thread's copy (waited for while the thread reads it), or null when the game is to read
+	## it itself (the thread then never will).
+	func claim(t: String):
+		while true:
+			_mutex.lock()
+			if _done.has(t):
+				var got: Dictionary = _done[t]
+				_done.erase(t)
+				_mutex.unlock()
+				return got
+			if _busy != t:
+				_claimed[t] = true
+				_mutex.unlock()
+				return null
+			_mutex.unlock()
+			OS.delay_usec(200)
+		return null
+
 # ---------------------------------------------------------------- lookups
 func entry(table: String, id: String) -> Dictionary:
-	return tables.get(table, {}).get(id, {})
+	var t = _tables.get(table)
+	if t == null:
+		if not _unread.has(table): return {}
+		_read(table)
+		t = _tables.get(table, {})
+	return t.get(id, {})
 
 func has_entry(table: String, id: String) -> bool:
-	return tables.get(table, {}).has(id)
+	var t = _tables.get(table)
+	if t == null:
+		if not _unread.has(table): return false
+		_read(table)
+		t = _tables.get(table, {})
+	return t.has(id)
 
 func all(table: String) -> Array:
-	return lists.get(table, [])
+	if _unread.has(table): _read(table)
+	return _lists.get(table, [])
+
+## Whether the data holds a list table of that name (lists.has, reading only that table).
+func has_table(table: String) -> bool:
+	if _unread.has(table): _read(table)
+	return _lists.has(table)
 
 func config(name: String) -> Dictionary:
-	return configs.get(name, {})
+	if _unread.has(name): _read(name)
+	return _configs.get(name, {})
 
 func room(id: String) -> Dictionary:
-	return rooms.get(id, {})
+	if _unread.has(ROOMS): _read(ROOMS)
+	return _rooms.get(id, {})
 
 ## Decision 27: a collection page's seal `seal` (1 or 2) from account_rules.json: its condition, its gift's modifiers
 ## and effects. Empty for a page or seal the data does not hold.
@@ -171,10 +407,11 @@ func zone(id: String) -> Dictionary:
 	return entry("zones", id)
 
 func zone_of_room(room_id: String) -> Dictionary:
-	return zone(room_zone.get(room_id, ""))
+	if _unread.has(ROOMS): _read(ROOMS)
+	return zone(_room_zone.get(room_id, ""))
 
 func realm(key: String) -> Dictionary:
-	return tables.get("realms", {}).get(key, {})
+	return entry("realms", key)
 
 func level_of(key: String) -> int:
 	return int(realm(key).get("level", 0))

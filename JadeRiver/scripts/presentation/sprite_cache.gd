@@ -12,8 +12,7 @@ static func tex(path: String) -> Texture2D:
 		_textures[path] = load(path) if ResourceLoader.exists(path) else null
 	return _textures[path]
 
-static var _slice_frame := -1
-static var _slice_us := 0
+static var _slice := FrameMemo.new(1, false)   ## "us": the load time spent this frame
 const SLICE_BUDGET_US := 12000
 
 ## Pages ask for sheets this way: sheets not yet in memory load within a 12 ms budget per frame
@@ -21,14 +20,11 @@ const SLICE_BUDGET_US := 12000
 ## page full of creatures never stalls a frame.
 static func tex_sliced(path: String) -> Texture2D:
 	if path == "" or _textures.has(path): return tex(path)
-	var frame := Engine.get_process_frames()
-	if frame != _slice_frame:
-		_slice_frame = frame
-		_slice_us = 0
-	if _slice_us >= SLICE_BUDGET_US: return null
+	var spent := _slice.table()
+	if int(spent.get("us", 0)) >= SLICE_BUDGET_US: return null
 	var t0 := Time.get_ticks_usec()
 	var texture := tex(path)
-	_slice_us += Time.get_ticks_usec() - t0
+	spent.us = int(spent.get("us", 0)) + Time.get_ticks_usec() - t0
 	return texture
 
 ## A sheet loaded on a loading thread: null until it is in memory (asked for on the first call), then the sheet.

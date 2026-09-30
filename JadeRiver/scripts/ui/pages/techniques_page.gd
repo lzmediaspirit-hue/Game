@@ -26,7 +26,6 @@ extends Page
 ## and the reading's pictures (TechniquePicture, the look the HUD's buttons and the loadout bar share) and the preview's
 ## caster (TopdownDoll); the side view's avatar only for a classic side-view character.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const LEFT := Rect2(12, 70, 216, 580)
 const MID := Rect2(236, 70, 660, 580)
 const RIGHT := Rect2(904, 70, 364, 580)
@@ -114,14 +113,11 @@ func setup() -> void:
 	tabs.append({"id": "lost", "label": Tx.t("ui.techniques.lost_arts")})
 	tabs.append({"id": "secret", "label": Tx.t("ui.techniques.secret_arts")})
 	_layers()
-	if pic == null or top != TopdownDoll.shown(ch):
+	if pic == null or top != Figures.top_down(ch):
 		if pic != null: pic.queue_free()
-		top = TopdownDoll.shown(ch)
-		if top:
-			pic = TopdownDoll.new()
-		else:
-			pic = Avatar.new()
-			pic.externally_timed = true
+		top = Figures.top_down(ch)
+		pic = Figures.for_view(top)
+		pic.externally_timed = not top   # the side view's avatar is posed by the page (_pose_pic), the doll plays
 		pic.visible = false
 		add_child(pic)
 	_dress()
@@ -132,8 +128,7 @@ func setup() -> void:
 
 func _dress() -> void:
 	if c() == null: return
-	pic.outfit = InventoryAuthority.outfit_for(c())
-	if not top: pic.last_key = ""
+	Figures.dress(pic, InventoryAuthority.outfit_for(c()))
 	_fam = {}
 	_stale_tiles()
 	queue_redraw()
