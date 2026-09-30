@@ -10,8 +10,11 @@ same poses of the unclothed body (AGENTS.md rules 1-4), in S, SE, E, NE and N (t
 action in figure/actions.py. The poses the technique pictures draw are cast once more at 38 px (`pictures`), so a card,
 the HUD's buttons and the loadout bar keep the framing the user approved.
 
-The character is drawn in layer sets (figure/sets/: body, hair, shirt, pants, shoes, hat, cape, weapon_<family>), each
-built on its own into its own files, so sets can be drawn in parallel (docs/redesign/phase3/character/HOWTO.md).
+The character is drawn in layer sets (figure/sets/: body, hair, shirt, pants, shoes, hat, cape, weapon_<family>, and
+decision 44's tool: the villagers' work tools), each built on its own into its own files, so sets can be drawn in
+parallel (docs/redesign/phase3/character/HOWTO.md). Decision 44's work actions (figure/work.py) put the weapon away (an
+explicit hidden entry, STOWED) and a tool is hidden in every action but its own (NOT_HELD); the index marks them
+(`work`, `stow`, `rest`, `place`), and no technique picture draws them.
 
 Writes (nearest neighbour, no metadata, byte-identical on every build):
   data/topdown/character.json            the index every set shares: actions, facings, bands, z order, dyes, hair

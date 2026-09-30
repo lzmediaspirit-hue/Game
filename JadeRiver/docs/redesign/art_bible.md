@@ -534,6 +534,45 @@ range and every speed stay the game's measures. Doors, corridors and props keep 
 tile (32 world units) wide, and the foot box is 19 across. The technique pictures and the HUD's companion chip keep the 38 px
 figure (`picture` frames), so they stay framed as the user approved them.
 
+**Work and place poses (decision 44).** The villagers' work and the player's use of a place are actions of the
+figure's own (`figure/work.py`), drawn on the unclothed body first and cast for every layer in the five drawn facings
+(AGENTS.md rules 2 and 4), each a short loop with a readable key pose, an anticipation before it and a follow-through
+after it:
+
+| Action | Frames, fps | The key pose (the contact frame, where there is one) | Tool (`tool` layer) |
+|---|---|---|---|
+| `work_sweep` | 6, 6 (loop) | the push across the front, the bristles pressed and splayed (2); drawn back first, followed through to the left, lifted back | broom, both hands |
+| `work_carry` | 8, 10 (loop) | the walk's own legs under a load on the right shoulder, both hands up at it, the load bobbing a beat behind the step | shoulder pole and two baskets; or the washing's basket |
+| `work_rod` | 4, 2 (loop) | the rod held out at 38° and off to the right, its tip nodding, the line to a red float | rod and line |
+| `work_cast` | 6, 6 | the flick (3): lifted, back over the right shoulder, flicked forward, the line flying out, landing | rod and line |
+| `work_hang` | 6, 6 | reaching up on the toes with a cloth to the line (3): taken up, shaken out, lifted, laid over, smoothed | washing |
+| `work_stir` | 4, 5 (loop) | the ladle round the pot held on the left arm | ladle and clay pot |
+| `work_grind` | 4, 5 (loop) | kneeling, the pestle driven down (2) and ground round, the left hand on the mortar | pestle and stone mortar |
+| `work_chop` | 6, 6 (loop) | the axe down in the block (3); up past the shoulder, over the head on the toes, wrenched free | axe, both hands |
+| `work_hammer` | 6, 6 (loop) | the blow on the hot bar (3), the tongs in the left hand; raised by the ear, the rebound, the bar turned | hammer, anvil on its stump, tongs |
+| `work_pick` | 6, 5 (loop) | crouched, a sprig plucked (2) and dropped in the basket before the feet | herb basket |
+| `work_mend` | 4, 4 (loop) | seated, the netting needle drawn out and the knot pulled tight (2) | net and needle |
+| `open` | 4, 10 | the left hand lifts a lid, a letter box's flap or a door (2) and holds it; the weapon stays in the right | (the weapon) |
+| `tend` | 4, 8 (loop) | crouched, the left hand working the ground or the fire | (the weapon along the thigh) |
+| `sit` | 4, 10 | down on the mat cross-legged, hands on the knees; the weapon laid beside it once down, as in meditation | (the weapon, laid) |
+
+- **The weapon is put away** in every work action: the index's `stow` names the weapon for them and every weapon
+  section has an explicit hidden entry for each ("Put away: the hands hold this work action's tool"). A place's pose
+  keeps the weapon as its lines say, like the story's gestures.
+- **The tool layer** (`figure/sets/tool.py`, cast by `figure/kinds/tool.py`) is a rig on the same skeleton: each tool
+  is fitted to the fists the pose puts on it (a haft through both fists, cut away inside them so the fists close over
+  it), and what stands on the ground stands on it (the anvil, the mortar, the net's heap, the bristles pressed to the
+  floor). It is drawn only in its own actions (`actions` in its set; the broom, the rod, the axe and the herb basket
+  are carried in the idle and walk poses too) and explicitly hidden in every other ("Not held in this action"). Its
+  colours are the §14 world's (the wood, bamboo, reed, stone, clay and plaster ramps of `palette.py`), shaded and
+  outlined by the figure's rules above: haft and rod lines a pixel wide, iron with a cool rim, the fishing line and the
+  hot bar light with no ink. A worker wears their loop's tools in the `tool` slot (a list: the grinder holds both the
+  ladle and the pestle, each only in its own action).
+- **No technique picture** draws a work or place pose (the `pictures` frames skip them).
+- **Cost.** The same draw calls: a worker's held tool is its tool layer's rect where the old sprite blit was, and the
+  weapon draws nothing while put away. The catalogue grows from 864 to 1,224 world frames (+360); the sheets grow
+  with it (the numbers are in the plan's "As built: work and place poses").
+
 Check a new layer against it the way §11 checks a tile:
 
 - it is cast from the same poses as the body;
@@ -1097,7 +1136,7 @@ traced from another game.
 | Work loops | `scripts/topdown/topdown_work.gd` (`TopdownWork`) | a person's loop between work spots, their tools, stopping for the player |
 | Vistas | `scripts/topdown/topdown_vista.gd` (`TopdownVista`) | the land past a room's edge, under the room |
 | The data | `tools/data/topdown_life.py` → `data/topdown/life.json` | loops, who works where, extras, animals, the area's critters, hangings, vistas; the furnishings (`dress`) |
-| The art | `tools/art/topdown/life.py`, `furnish.py`; `build_life.py` → `art/topdown/life.png`, `vista.png`, `data/topdown/life_art.json` | critters, puffs, tools, hangings, vista strips; the furnishings in the prop sheet |
+| The art | `tools/art/topdown/life.py`, `furnish.py`; `build_life.py` → `art/topdown/life.png`, `vista.png`, `data/topdown/life_art.json` | critters, puffs, the loads set down (decision 44: a tool in hand is the figure's `tool` layer), hangings, vista strips; the furnishings in the prop sheet |
 
 **One wind.** It blows toward the east-south-east, the way the cloud shade glides (`TopdownLife.WIND`). Its gust
 (0..1) rises and falls on two slow waves. The grass's sway holds its lean in a gust; smoke drifts along it; the
@@ -1130,19 +1169,24 @@ shadow, the puffs and the rings have none.
   the hens).
 
 **People at work.** Villagers and disciples work a short loop between two to four spots, a few character actions each
-(`life.json` `loops`, the figures' own actions and weapons; no new animation):
+(`life.json` `loops`). Decision 44 draws the work: each step plays a work action of the figure's own (§13, "Work and
+place poses"), the tool in the hands on every frame (the `tool` layer), the weapon put away; a working step runs a
+whole number of its action's cycles, so a blow lands on the drawn contact frame every cycle (checked as `life.json` is
+built, and by `topdown_life_suite`):
 
-| Loop | Poses | Held or set down | Cue |
+| Loop | Poses | Held (the `tool` layer) or set down | Cue |
 |---|---|---|---|
-| sweep | guard, idle; walks slowly | a broom that swishes | dust |
-| carry | kneel, idle; walks | a shoulder pole with two baskets, set down at each spot | dust |
-| laundry | kneel (wash), cast (hang), idle | a basket | splashes |
+| sweep | `work_sweep`, idle; walks with the broom | a broom, carried upright between the spots | dust |
+| carry | `work_carry` on the way, `tend` to set down, idle | a shoulder pole with two baskets, set down at each spot | dust |
+| laundry | `tend` (wash), `work_hang`, idle; `work_carry` on the way | the washing's basket on the shoulder, a cloth to hang | splashes |
 | fists, sword, staff, spear | the family's combo, guard, salute | the loop's weapon (a training sword, a staff, a spear) | |
-| herbs, mend, grind | kneel, idle | | leaves |
-| cook | brush_write (stirring), idle | | steam |
-| chop | the heavy sabre's leaping chop | a chopper (the sabre) | chips on the blow |
-| hammer | swing_3 at the anvil, kneel at the forge | | sparks on the blow, at the forge |
-| fish | idle, cast | a rod, its line and a bobbing float | a ring on the recast |
+| herbs | `work_pick`, idle | a herb basket (on the ground, carried in the left hand) | leaves |
+| cook | `work_stir`, its rest frame | a clay pot on the left arm and a ladle | steam |
+| grind | `work_stir` at the stove, `work_grind` at the mortar | the ladle and pot, a pestle and a stone mortar | leaves |
+| chop | `work_chop` | an axe (carried hanging between the spots) | chips on the blow |
+| hammer | `work_hammer` at the anvil, `tend` at the forge | a hammer, the anvil on its stump, tongs and the hot bar | sparks on the blow, at the forge |
+| fish | `work_rod`, `work_cast` | a rod, its line and a red float | a ring on the recast |
+| mend | `work_mend` (seated) | a fishing net over the lap, a netting needle | |
 | watch, read, sell, pray, write, play, meditate | idle and looking round, point, salute, brush_write, run, meditate | | |
 
 - **The leash.** Every spot lies within 2.5 tiles of the person's own spot, on their floor, each leg walked with
@@ -1155,9 +1199,11 @@ shadow, the puffs and the rings have none.
 - **Extras** with no part in the story work where a room has a job and no one to do it: a fisherman on the village's
   bank and one at the marsh, a woodcutter by the watch-tower, a sweeper in the Jade street, a pupil at sword forms in
   the Cloud court. They have no label and no talk, and stop for the player like the rest.
-- **Tools** are small sprites drawn with the figure (behind it when it faces away): a broom, a shoulder pole seen side
-  on or end on, a laundry basket, a rod drawn as a pixel line. They are placed by the figure's own frame bounds (the
-  shoulder at 0.62 of its height, the hands at 0.42), so they follow a figure drawn at another size.
+- **Tools** are the figure's own `tool` layer (decision 44; §13, "Work and place poses"): cast from the same poses as
+  the body, so each is in the hands on every frame of its action and facing. Only a load set down at a spot (the
+  pole's two baskets, the laundry basket) is a small sprite beside the figure (`life.png`). A worker stopped by the
+  player stands idle, a tool that is carried still in hand (the broom, the rod, the axe, the herb basket), or keeps
+  their work pose's rest frame where the loop `pause`s on `hold` (the cook, the grinder, the smith, the net mender).
 
 **Grass that parts.** The foliage's sway shader (§14.12) also takes the bodies in view (at most 8): the player, the foes
 and the people walking. A piece whose foot is within 8 px of a body's feet leans away from it, 2 px and pressed down a

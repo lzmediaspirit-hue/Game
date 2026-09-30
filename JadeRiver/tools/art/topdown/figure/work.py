@@ -218,12 +218,12 @@ def _chop(i):
     4 wrenched free, 5 back to the ready. Both hands on the haft, the left at its butt."""
     seq = [
         # right hand (the upper), left hand (the butt), lean, pelvis, the heels' lift, the haft's direction
-        ((4.6, 0.6, 15.4), (2.6, 0.2, 13.8), 8.0, (0.2, 0.0, 12.8), 0.0, (0.72, 0.1, -0.68)),
+        ((5.6, 0.5, 13.2), (3.4, 0.3, 14.4), 10.0, (0.2, 0.0, 12.8), 0.0, (0.86, 0.08, -0.47)),
         ((2.4, 3.4, 23.6), (1.0, 2.4, 20.6), -2.0, (0.0, 0.0, 13.3), 0.0, (0.1, 0.5, 0.86)),
-        ((0.2, 0.9, 32.4), (0.4, 0.3, 29.6), -10.0, (-0.2, 0.0, 13.9), 0.8, (-0.62, 0.05, 0.78)),
-        ((6.8, 0.5, 13.8), (4.4, 0.3, 15.0), 22.0, (0.6, 0.0, 11.6), 0.0, (0.88, 0.05, -0.46)),
-        ((5.6, 0.5, 15.2), (3.4, 0.3, 15.6), 16.0, (0.5, 0.0, 12.0), 0.0, (0.84, 0.05, -0.54)),
-        ((4.8, 0.6, 15.6), (2.8, 0.2, 14.0), 10.0, (0.3, 0.0, 12.6), 0.0, (0.76, 0.1, -0.64)),
+        ((-0.6, 0.6, 31.6), (0.8, 0.3, 29.6), -10.0, (-0.2, 0.0, 13.9), 0.8, (-0.6, 0.0, 0.8)),
+        ((6.4, 0.5, 12.4), (4.0, 0.3, 13.6), 24.0, (0.6, 0.0, 11.4), 0.0, (0.88, 0.05, -0.46)),
+        ((5.4, 0.5, 14.6), (3.2, 0.3, 15.4), 16.0, (0.5, 0.0, 12.0), 0.0, (0.93, 0.08, -0.34)),
+        ((5.4, 0.5, 13.6), (3.2, 0.3, 14.8), 12.0, (0.3, 0.0, 12.6), 0.0, (0.86, 0.08, -0.47)),
     ]
     hr, hl, ln, pel, heel, haft = seq[i]
     return pose(pelvis=pel, lean=ln, head_pitch=[10.0, -2.0, -6.0, 14.0, 12.0, 10.0][i],
@@ -242,13 +242,14 @@ def _hammer(i):
     the bar), 1 raised by the ear (the anticipation), 2 at the top, 3 the blow (the contact), 4 the rebound, 5 turning
     the bar (the tongs roll it) as the hammer comes back."""
     seq = [
-        # the right hand, the hammer's handle direction (from the hand to the head), lean, twist
-        ((5.4, 2.2, 13.6), (0.5, -0.35, 0.3), 12.0, 4.0),
-        ((2.6, 4.2, 20.2), (0.1, -0.2, 0.97), 4.0, 12.0),
-        ((0.8, 4.0, 24.4), (-0.45, -0.1, 0.88), 0.0, 16.0),
-        ((5.2, 1.8, 11.2), (0.8, -0.45, -0.1), 16.0, 0.0),
-        ((4.8, 2.2, 14.2), (0.55, -0.35, 0.45), 12.0, 4.0),
-        ((4.6, 2.6, 15.8), (0.4, -0.3, 0.6), 10.0, 6.0),
+        # the right hand, the hammer's handle direction (from the hand to the head), lean, twist; the head lands on the
+        # bar on the anvil's face (ANVIL_AT, 9.2 up) on the blow
+        ((1.7, 3.0, 13.4), (0.82, -0.41, -0.41), 12.0, 4.0),
+        ((2.2, 4.2, 21.0), (0.05, -0.2, 0.98), 4.0, 12.0),
+        ((1.0, 4.2, 23.8), (-0.45, -0.1, 0.88), 0.0, 16.0),
+        ((2.9, 2.6, 13.3), (0.6, -0.35, -0.72), 16.0, 0.0),
+        ((2.1, 3.0, 14.7), (0.78, -0.46, -0.39), 12.0, 4.0),
+        ((1.9, 3.0, 14.9), (0.77, -0.41, -0.53), 10.0, 6.0),
     ]
     hr, d, ln, tw = seq[i]
     return pose(pelvis=(0.1, 0.0, 12.9), lean=ln, twist=tw, head_pitch=16.0, **feet(1.2, -1.0, 2.5, 2.6),
@@ -357,7 +358,7 @@ def _sit(i):
 WORK_CATALOG = {
     "work_sweep": (6, 6.0, True, 2, "Work: broom sweep", _sweep, None),
     "work_carry": (8, 10.0, True, None, "Work: shoulder pole (walking)", _carry, None),
-    "work_rod": (4, 3.0, True, None, "Work: rod held out", _rod, None),
+    "work_rod": (4, 2.0, True, None, "Work: rod held out", _rod, None),
     "work_cast": (6, 6.0, False, 3, "Work: rod cast", _cast_rod, None),
     "work_hang": (6, 6.0, False, 3, "Work: hang washing", _hang, None),
     "work_stir": (4, 5.0, True, None, "Work: ladle and pot", _stir, None),

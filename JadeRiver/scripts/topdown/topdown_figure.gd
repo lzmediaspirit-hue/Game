@@ -14,10 +14,13 @@ extends RefCounted
 ## (salute, kneel, point, startle). An outfit asking for a look with no layer still lists it in `missing` and draws
 ## without it (redesign plan, "As built: Phase 3, third part"). Decision 43 draws the people 46 art px tall, 1.2 times the
 ## 38 they were; the technique pictures keep the 38 px figure they were approved at: the index's `pictures` names the
-## frame cast at that density for each pose a picture draws (`picture` in frame_of, draw and bounds).
+## frame cast at that density for each pose a picture draws (`picture` in frame_of, draw and bounds). Decision 44 adds
+## the villagers' work (a broom sweep, a shoulder pole, a rod, washing, a ladle, a pestle, an axe, a hammer, herbs, a net:
+## the index's `work` actions, the weapon put away in each, `stow`) and the player's places (open, tend, sit); a worker
+## wears the tools of their loop in the `tool` slot, a list, each tool drawn only in the actions that hold it.
 
 const MANIFEST := "res://data/topdown/character.json"
-const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon"]
+const CATEGORIES := ["body", "shoes", "pants", "shirt", "cape", "hair", "hat", "weapon", "tool"]
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
 
 static var _man: Dictionary = {}
@@ -80,16 +83,19 @@ func set_outfit(o: Dictionary) -> void:
 	_all_in = false
 	var items: Dictionary = manifest().get("items", {})
 	for cat in CATEGORIES:
-		var name := str(o.get(cat, "none"))
-		if name == "none" or name == "": continue
-		var item: Dictionary = items.get(cat, {}).get(name, {})
-		if item.is_empty():
-			missing.append("%s:%s" % [cat, name])
-			continue
-		var path := str(item.sheets[_variant(cat, item.sheets)])
-		var tex: Texture2D = null if lazy else Wardrobe.texture(path)
-		for sec in item.sections:
-			layers.append({"z": int(sec.z), "tex": tex, "path": path, "rects": sec.rects, "hidden": sec.hidden, "cat": cat, "item": name})
+		# Decision 44: a worker's tools are a list (each drawn only in the actions that hold it); a look is one name.
+		var names: Array = o.get(cat) if o.get(cat) is Array else [str(o.get(cat, "none"))]
+		for n in names:
+			var name := str(n)
+			if name == "none" or name == "": continue
+			var item: Dictionary = items.get(cat, {}).get(name, {})
+			if item.is_empty():
+				missing.append("%s:%s" % [cat, name])
+				continue
+			var path := str(item.sheets[_variant(cat, item.sheets)])
+			var tex: Texture2D = null if lazy else Wardrobe.texture(path)
+			for sec in item.sections:
+				layers.append({"z": int(sec.z), "tex": tex, "path": path, "rects": sec.rects, "hidden": sec.hidden, "cat": cat, "item": name})
 	layers.sort_custom(func(a, b): return a.z < b.z)
 
 ## The sheet an item wears: its hair colour or dye, the undyed original for a dye it was not drawn in (the side view's
@@ -114,6 +120,14 @@ static func resolve(action: String, fam := "", move := "") -> String:
 static func spec(action: String) -> Dictionary:
 	var acts: Dictionary = manifest().actions
 	return acts.get(resolve(action), acts.idle)
+
+## Decision 44: a villager's work action (the weapon put away, a tool in the hands: the index's `work`), and the frame
+## it rests on (a worker stopped by the player holds it, the tool still in hand).
+static func is_work(action: String) -> bool:
+	return bool(spec(action).get("work", false))
+
+static func rest_frame(action: String) -> int:
+	return int(spec(action).get("rest", 0))
 
 ## The drawn frame for `action` in facing `row` at frame `i`: x the frame's index in every section, y 1 when the
 ## facing mirrors a drawn one. With `picture`, the frame a technique picture draws (decision 43: the pose cast at the

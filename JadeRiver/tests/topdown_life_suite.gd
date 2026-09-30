@@ -17,6 +17,64 @@ func run_all(suite) -> void:
 	t = suite
 	_work_rules()
 	_stop_for_talk()
+	_drawn_work()
+
+## Decision 44: the work is drawn. Every step of a loop that wears tools plays an action one of its tools is drawn in
+## (or a place's crouch, idle or the walk they carry them in), the stand-ins are gone (no combat pose, kneel or cast for
+## work, no weapon for the woodcutter), and a blow lands on its action's contact frame on every cycle: run for a minute
+## at 60 frames a second, every chop and hammer hit falls on the drawn contact frame. A smith stopped by the player keeps
+## the hammer in hand (the work pose's rest frame).
+func _drawn_work() -> void:
+	var loops: Dictionary = TopdownLife.data().get("loops", {})
+	var tools: Dictionary = TopdownFigure.manifest().get("items", {}).get("tool", {})
+	var bad: Array = []
+	for k in loops:
+		var lp: Dictionary = loops[k]
+		var worn: Array = lp.get("tools", [])
+		var steps: Array = (lp.get("at", []) as Array).duplicate()
+		for v in (lp.get("steps", {}) as Dictionary).values(): steps.append_array(v)
+		steps.append([str(lp.get("walk", "walk")), 0.0])
+		for st in steps:
+			var a := str(st[0])
+			if TopdownFigure.is_work(a) and not worn.any(func(tl): return (tools.get(str(tl), {}).get("actions", []) as Array).has(a)):
+				bad.append("%s: %s holds no tool it wears" % [k, a])
+			if not worn.is_empty() and a in ["kneel", "cast", "guard", "two_hand_swing_3", "swing_3", "brush_write"]:
+				bad.append("%s: stand-in %s" % [k, a])
+	if str(loops.get("chop", {}).get("weapon", "")) != "": bad.append("chop wears a weapon")
+	t.check(bad.is_empty() and tools.size() >= 10, "life: every work step plays a drawn work action holding a tool its loop wears, no stand-ins (%d tools; %s)" % [tools.size(), str(bad.slice(0, 4))])
+	# The blows on their contact frames, every cycle.
+	var hits := {"chop": 0, "hammer": 0}
+	var off: Array = []
+	var cases := [["lf_village", "x_woodcutter", "chop"], ["sf_artisan_row", "npc_smith_bao", "hammer"]]
+	for cs in cases:
+		var life := TopdownLife.room_life(str(cs[0]))
+		var entry: Dictionary = {}
+		for e in life.get("extras", []):
+			if str(e.id) == str(cs[1]): entry = e
+		if entry.is_empty(): entry = life.get("work", {}).get(str(cs[1]), {})
+		if entry.is_empty():
+			off.append("no %s" % cs[1])
+			continue
+		var w := TopdownWork.new(entry, loops, TopdownRoom.cell_point(entry.spots[0]), 0.0, str(cs[1]))
+		for i in 3600:
+			w.advance(1.0 / 60.0, Vector2.INF, false, false)
+			if not w.hit: continue
+			hits[cs[2]] += 1
+			var want := TopdownFigure.hit_frame(w.action)
+			if w.frame() != want or w.step_cue != str(cs[2]): off.append("%s: hit on frame %d of %s (contact %d, cue %s)" % [cs[1], w.frame(), w.action, want, w.step_cue])
+	t.check(off.is_empty() and int(hits.chop) >= 25 and int(hits.hammer) >= 15,
+		"life: the woodcutter's chops (%d) and the smith's hammer blows (%d) in a minute each land on their action's drawn contact frame (%s)" % [hits.chop, hits.hammer, str(off.slice(0, 3))])
+	# Stopped by the player at the anvil: the hammer stays in hand, the work pose's rest frame.
+	var smith: Dictionary = TopdownLife.room_life("sf_artisan_row").get("work", {}).get("npc_smith_bao", {})
+	var held := false
+	if not smith.is_empty():
+		var w2 := TopdownWork.new(smith, loops, TopdownRoom.cell_point(smith.spots[0]), 0.0, "npc_smith_bao")
+		for i in 40:
+			w2.advance(0.05, Vector2.INF, false, false)
+		var was := w2.action
+		w2.advance(0.05, w2.pos + Vector2(30, 0), true, false)
+		held = was == "work_hammer" and w2.action == "work_hammer" and w2.frame() == TopdownFigure.rest_frame("work_hammer")
+	t.check(held, "life: a smith stopped by the player at the anvil keeps the hammer in hand (the work pose's rest frame)")
 
 ## Every loop of every room, run for two minutes with no one about: never past its leash, always on its floor, moving
 ## between its spots; its spots within the World authority's talk reach of the person's own spot less a body.

@@ -2,9 +2,10 @@
 The items themselves are declared by the layer sets (sets/): `catalog()` gathers them.
 
 Layer order (the side view's, redesign plan §1.4): body, shoes, trousers, shirt, cape, hair, hat, weapon, and the
-work tools over them (decision 44: the tool a worker holds, sets/tool.py), within each of four bands: back (behind the chest: the far arm, a tail behind the neck, a blade behind the back), mid (the trunk,
-legs, clothes), head (the body's head and neck, over the shirt's collar and under the hair) and front (an arm or blade
-in front of the chest). A section's z is its band's base plus its category's order.
+work tools over them (decision 44: the tool a worker holds, sets/tool.py), within each of four bands: back (behind the
+chest: the far arm, a tail behind the neck, a blade behind the back), mid (the trunk, legs, clothes), head (the body's
+head and neck, over the shirt's collar and under the hair) and front (an arm or blade in front of the chest). A
+section's z is its band's base plus its category's order.
 """
 from __future__ import annotations
 

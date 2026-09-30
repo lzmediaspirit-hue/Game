@@ -17,8 +17,10 @@ says how to add one. The pipeline is in the redesign plan, "As built: Phase 3, t
 
 Sets today (the full set, decision 37): `body`, `hair`, `shirt`, `pants`, `shoes`, `hat`, `cape`, and one per weapon
 family: `weapon_gauntlets`, `weapon_short_blade`, `weapon_jian`, `weapon_spear`, `weapon_staff`, `weapon_heavy_sabre`,
-`weapon_fan`, `weapon_brush`, `weapon_flute`, `weapon_bell` and `weapon_bow`. `python3 tools/art/topdown/build_character.py
---list` lists them, with what each draws and what is still pending (nothing).
+`weapon_fan`, `weapon_brush`, `weapon_flute`, `weapon_bell` and `weapon_bow`; and `tool` (decision 44): the villagers'
+work tools, no wardrobe look (they are in no parts.json category), each drawn only in the actions its `ACTIONS` names
+and explicitly hidden in every other. `python3 tools/art/topdown/build_character.py --list` lists them, with what each
+draws and what is still pending (nothing).
 
 Generators (`figure/kinds/`): `torso` (shirts, coats, robes), `legs` (trousers), `feet` (shoes, boots), `head` (hats),
 `back` (capes), `hands` (gauntlets), `hair`, `blade` (a blade in the hand), `pole` (a pole in the hands), `sabre`,
@@ -123,8 +125,16 @@ So an action batch runs on its own, never beside other set batches:
 5. Wire the action where the game plays it: a family's step or technique in `tools/data/combat_feel.py` `poses`, a
    move (dash, air, throw, charge, parry, melody) in `MOVES`, then `topdown_player.gd` `sync` and `_strike_pose` and
    `TopdownFigure.resolve(action, family, move)`; a story gesture in `tools/data/scenes.py` (`pose` steps).
-6. Look at every frame on every layer: `--review` (`10_actions_<facing>.png`, `11_gestures.png`, the weapon sheets)
-   and the gallery.
+6. Look at every frame on every layer: `--review` (`10_actions_<facing>.png`, `11_gestures.png`, `12_work.png`, the
+   weapon sheets) and the gallery.
+
+A work action (decision 44) goes in `figure/work.py` `WORK_CATALOG`: it puts the weapon away (`actions.STOW`, an
+explicit hidden entry in every weapon section) and says where its tool goes in `W(stow=True, tools={name: {...}})`;
+the tool's generator is `figure/kinds/tool.py` and the set's `ACTIONS` lists it for the tool. A place's pose goes in
+`PLACE_CATALOG` and keeps the weapon's lines. `python3 tools/art/topdown/review_character.py --work` draws a sheet per
+work and place action (every facing, hair colour, look, dye and weapon) into `docs/redesign/feedback/work_poses/`.
+The loops that play them are `tools/data/topdown_life.py` `LOOPS` (a working step a whole number of the action's
+cycles), the places' poses `tools/data/places.py` `POSES`.
 
 ## Merging
 

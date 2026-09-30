@@ -109,7 +109,6 @@ class Figure extends Node2D:
 			art.row = work.facing()
 			art.play(work.action)
 			art.frame_override = work.frame()
-			art.tool = work.tool
 			art.tool_down = work.tool_down
 			art.working = work.step_cue
 		TopdownLife.spent_us += Time.get_ticks_usec() - t0
@@ -130,10 +129,10 @@ class Person extends Node2D:
 	var action := "idle"
 	var tint := Color.WHITE
 	var t := 0.0
-	## Decision 43: at work (TopdownWork): the frame the loop's clock gives (-1: the action's own), the tool in hand and
-	## the one set down (TopdownLife draws them), and the step's cue (a broom swishes while sweeping).
+	## Decision 43: at work (TopdownWork): the frame the loop's clock gives (-1: the action's own), the load set down
+	## beside them (TopdownLife draws it), and the step's cue. Decision 44: the tool in hand is the figure's own `tool`
+	## layer, cast with the body in every frame of its action.
 	var frame_override := -1
-	var tool := ""
 	var tool_down := ""
 	var working := ""
 
@@ -166,11 +165,9 @@ class Person extends Node2D:
 	func _draw() -> void:
 		if shadow: TopdownWorld.draw_blob(self, 0.0, 0.0, BLOB_RX, 0.5)
 		var f := frame_override if frame_override >= 0 else TopdownFigure.frame_at(action, t)
-		# Decision 43: a tool set down lies beside them; one in hand is drawn behind the body facing away, else before it.
+		# Decision 43: a load set down lies beside them (decision 44: what is in hand is the figure's tool layer).
 		if tool_down != "": TopdownLife.draw_tool_down(self, tool_down, row)
-		if tool != "": TopdownLife.draw_tool(self, tool, row, figure, action, f, t, working, true)
 		figure.draw(self, Vector2.ZERO, action, row, f, tint)
-		if tool != "": TopdownLife.draw_tool(self, tool, row, figure, action, f, t, working, false)
 
 ## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
 ## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is the side view's own

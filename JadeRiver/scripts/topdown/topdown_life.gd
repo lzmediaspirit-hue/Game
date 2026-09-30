@@ -340,7 +340,7 @@ func _attach_work(figures: Dictionary) -> void:
 		if fig == null or not is_instance_valid(fig) or not fig.art is TopdownPlaces.Person: continue
 		var w: Dictionary = life.work[oid]
 		fig.work = TopdownWork.new(w, loops, fig.plane, float(fig.def.get("alt", 0.0)), str(oid))
-		_wear(fig.art, str(loops.get(str(w.loop), {}).get("weapon", "")))
+		_wear(fig.art, loops.get(str(w.loop), {}))
 		workers.append(fig)
 
 ## An extra at work: a figure in its own outfit with a loop, no label and no talk.
@@ -353,16 +353,20 @@ func _extra(e: Dictionary) -> Array:
 	var person := TopdownPlaces.Person.new(o)
 	var fig := TopdownPlaces.Figure.new(room, o, person, null, world.player)
 	fig.work = TopdownWork.new(e, loops, at, z, str(e.id))
-	_wear(person, str(loops.get(str(e.loop), {}).get("weapon", "")))
+	_wear(person, loops.get(str(e.loop), {}))
 	world.sorted.add_child(fig)
 	workers.append(fig)
 	return [fig]
 
-## A loop's weapon worn (a disciple's training sword, the woodcutter's chopper), its sheets asked for on threads.
-static func _wear(person, weapon: String) -> void:
-	if weapon == "" or str(person.figure.outfit.get("weapon", "none")) == weapon: return
+## A loop's weapon worn (a disciple's training sword) and its tools (decision 44: the broom, the axe, the hammer...,
+## the figure's `tool` layer, each drawn only in the actions that hold it), their sheets asked for on threads.
+static func _wear(person, lp: Dictionary) -> void:
+	var weapon := str(lp.get("weapon", ""))
+	var tools: Array = lp.get("tools", [])
 	var o: Dictionary = person.figure.outfit.duplicate()
-	o.weapon = weapon
+	if weapon != "": o.weapon = weapon
+	if not tools.is_empty(): o.tool = tools.duplicate()
+	if o == person.figure.outfit: return
 	person.figure.set_outfit(o)
 	person.figure.lazy = true
 	for l in person.figure.layers: Wardrobe.texture_async(str(l.path))
@@ -1049,12 +1053,14 @@ func _step_work(delta: float) -> void:
 		var cue := w.step_cue
 		if w.cue != "": raise_cue("work_" + w.cue, fig.plane)
 		if w.hit:
+			# Decision 44: on the contact frame, where the drawn tool lands: the axe's head in the block (about 18 art px
+			# before the feet, a block's height up), the hammer's face on the bar on the anvil (7 px before, 10 up).
 			match cue:
 				"chop":
-					_bits(front + Vector2(0, -3), dir, [Color("e2be88"), Color("ad7b46"), Color("cb9c63")], 5)
+					_bits((fig.feet as Vector2) + dir * Vector2(18, 7) + Vector2(0, -6), dir, [Color("e2be88"), Color("ad7b46"), Color("cb9c63")], 5)
 					raise_cue("work_chop_hit", fig.plane)
 				"hammer":
-					_spark(front + Vector2(0, -6), Color("ffd070"), 5, 44.0)
+					_spark((fig.feet as Vector2) + dir * Vector2(7, 3.5) + Vector2(0, -10), Color("ffd070"), 5, 44.0)
 					raise_cue("work_hammer_hit", fig.plane)
 		if not extras_on: continue
 		var tick := fmod(w.t, 0.5) < delta
@@ -1069,7 +1075,6 @@ func _step_work(delta: float) -> void:
 				if tick: _spark(front + Vector2(0, -10), Color("ffc070"), 2, 36.0)
 			"pick", "grind":
 				if fmod(w.t, 0.9) < delta: _bits(front, Vector2.UP, [Color("87c749"), Color("45a03a")], 2)
-		if w.walking and str(w.loop.get("tool", "")) == "broom" and fmod(w.t, 0.4) < delta: _puff("dust", front)
 
 # ------------------------------------------------------------------ interiors: the sun's motes
 func _step_motes(delta: float) -> void:
@@ -1229,55 +1234,10 @@ func _draw_light(ci: CanvasItem) -> void:
 		var k := clampf(float(m.t) / 0.8, 0.0, 1.0) * clampf((float(m.life) - float(m.t)) / 1.0, 0.0, 1.0)
 		ci.draw_rect(Rect2((m.at as Vector2).round(), Vector2.ONE), Color(TopdownLight.SUN, 0.55 * tw * k))
 
-# ------------------------------------------------------------------ the tools people hold
-## A body's height over its feet in its frame (art px), from the figure's own bounds, so the tools sit where its hands
-## and shoulders are at any size.
-static func _height(figure: TopdownFigure, action: String, row: String, f: int) -> float:
-	var b := figure.bounds(action, row, f)
-	return maxf(20.0, -b.position.y) if b.size.y > 0.0 else 36.0
-
-## Draw a held tool round a body (feet at the origin): `back` is the pass before the body. A broom sweeps across the
-## ground before them; a shoulder pole runs along the way they walk, its baskets either side (seen end on, one peeks
-## over the shoulder and one hangs before the knees); a laundry basket rides the hip; a rod reaches out over the water
-## with its line and float.
-static func draw_tool(ci: CanvasItem, tool: String, row: String, figure: TopdownFigure, action: String, f: int, t: float, working: String, back: bool) -> void:
-	var hgt := _height(figure, action, row, f)
-	# The hands' reach out from the body grows with the figure (36 px to the head's top at the 38 px size).
-	var wk := hgt / 36.0
-	var away := row in ["n", "ne", "nw"]
-	var west := row in ["w", "sw", "nw"]
-	var side := (-1.0 if west else 1.0) * wk
-	var bob := 1.0 if f % 2 == 1 and action in ["walk", "run"] else 0.0
-	match tool:
-		"broom":
-			if back != away: return
-			var swish: int = [0, 1, 2, 1][int(t * 5.0) % 4] if working == "sweep" or action == "walk" else 1
-			var hands := Vector2(side * (3.0 if row in ["s", "n"] else 5.0), -hgt * 0.42)
-			blit(ci, "broom", swish, hands + Vector2(0, 0), not west and row not in ["s", "n"])
-		"pole":
-			if row in ["e", "w", "se", "sw", "ne", "nw"]:
-				if not back: blit(ci, "pole_side", 0, Vector2(0, -hgt * 0.62 + bob), false)
-			else:
-				if back: blit(ci, "pole_back", 0, Vector2(signf(side), -hgt * 0.8 + bob), false)
-				else: blit(ci, "pole_front", 0, Vector2(signf(side), -hgt * 0.4 + bob), false)
-		"basket":
-			if back != away: return
-			blit(ci, "laundry_basket", 0, Vector2(side * 7.0, -hgt * 0.30 + bob), false)
-		"rod":
-			if back != away: return
-			var hands := Vector2(side * 4.0, -hgt * 0.45)
-			var reach: Vector2 = {"s": Vector2(4, 6), "se": Vector2(12, 0), "e": Vector2(16, -8), "ne": Vector2(10, -16), "n": Vector2(2, -18),
-				"nw": Vector2(-10, -16), "w": Vector2(-16, -8), "sw": Vector2(-12, 0)}.get(row, Vector2(4, 6))
-			var tip := hands + reach * wk
-			var float_at: Vector2 = {"s": Vector2(6, 16), "se": Vector2(20, 12), "e": Vector2(26, 2), "ne": Vector2(16, -10), "n": Vector2(2, -14),
-				"nw": Vector2(-16, -10), "w": Vector2(-26, 2), "sw": Vector2(-20, 12)}.get(row, Vector2(6, 16))
-			float_at *= wk
-			float_at.y += 1.0 if int(t * 1.6) % 3 == 0 and working == "fish" else 0.0
-			_line(ci, hands, tip, Color("8b5b34"))
-			_line(ci, tip, float_at, Color(0.9, 0.93, 0.9, 0.55))
-			ci.draw_rect(Rect2(float_at.round() - Vector2(0, 1), Vector2(1, 2)), Color("d95b49"))
-
-## A tool set down beside a body: the pole's two baskets either side, or the laundry basket at its feet.
+# ------------------------------------------------------------------ the loads set down
+## Decision 44: what a worker holds is the figure's own tool layer (TopdownFigure's `tool` slot, cast with the body in
+## every frame of its action); what is drawn here is only a load carried on the shoulder and set down at a spot: the
+## pole's two baskets either side, or the laundry basket at their feet.
 static func draw_tool_down(ci: CanvasItem, tool: String, row: String) -> void:
 	match tool:
 		"pole":
@@ -1285,13 +1245,6 @@ static func draw_tool_down(ci: CanvasItem, tool: String, row: String) -> void:
 			blit(ci, "pole_back", 0, Vector2(10, 1), false)
 		"basket":
 			blit(ci, "laundry_basket", 0, Vector2(9, 1), false)
-
-## A pixel line (whole art px, no smoothing).
-static func _line(ci: CanvasItem, a: Vector2, b: Vector2, col: Color) -> void:
-	var n := int(maxf(absf(b.x - a.x), absf(b.y - a.y)))
-	for i in n + 1:
-		var p := a.lerp(b, float(i) / maxf(1.0, n)).round()
-		ci.draw_rect(Rect2(p, Vector2.ONE), col)
 
 # ------------------------------------------------------------------ the nodes
 ## A critter: a plain record (no node of its own, no physics), typed for speed.

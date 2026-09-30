@@ -1922,7 +1922,7 @@ func life_art_suite() -> void:
 	var drawn := ["sparrow_stand", "sparrow_peck", "sparrow_hop", "sparrow_fly", "butterfly_white", "butterfly_gold", "butterfly_blue",
 		"butterfly_coral", "dragonfly", "fish", "ring", "frog_sit", "frog_leap", "hen_stand", "hen_peck", "hen_walk", "hen_flap",
 		"hen_brown_stand", "hen_brown_peck", "hen_brown_walk", "hen_brown_flap", "cat_sit", "cat_walk", "cat_sleep", "dog_lie", "dog_sit",
-		"dog_trot", "puff_0", "puff_1", "puff_2", "puff_3", "broom", "pole_side", "pole_back", "pole_front", "laundry_basket"]
+		"dog_trot", "puff_0", "puff_1", "puff_2", "puff_3", "pole_back", "pole_front", "laundry_basket"]
 	for n in drawn:
 		if not sprites.has(n): bad.append("missing " + n)
 	for n in TopdownVista.PARALLAX:
@@ -1932,7 +1932,10 @@ func life_art_suite() -> void:
 	for k in loops:
 		for st in loops[k].get("at", []) + (loops[k].get("steps", {}) as Dictionary).values().reduce(func(a, b): return a + b, []):
 			if not acts.has(TopdownFigure.resolve(str(st[0]))) or TopdownFigure.resolve(str(st[0])) != str(st[0]): bad.append("loop %s: pose %s" % [k, st[0]])
-		if str(loops[k].get("tool", "")) not in ["", "broom", "pole", "rod", "basket"]: bad.append("loop %s: tool" % k)
+		# Decision 44: the tools a loop wears are drawn tool layers; the load it sets down is one the view draws.
+		for tl in loops[k].get("tools", []):
+			if not (TopdownFigure.manifest().get("items", {}).get("tool", {}) as Dictionary).has(str(tl)): bad.append("loop %s: tool %s" % [k, tl])
+		if str(loops[k].get("load", "")) not in ["", "pole", "basket"]: bad.append("loop %s: load" % k)
 	var props: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json")).get("props", {})
 	var rooms := 0
 	for rid in life.get("rooms", {}):
@@ -2134,6 +2137,10 @@ func topdown_character_suite() -> void:
 		"looping-combo": func(m): m.actions.thrust_3.loop = true,
 		"bad-redirect": func(m): m.actions.meditate.redirect.erase("w"),
 		"stale-set": func(m): m.stale_sets = ["hair"],
+		# Decision 44: a work action that keeps the weapon, a tool drawn outside its own actions, one missing from them.
+		"work-keeps-weapon": func(m): (m.actions.work_chop as Dictionary).erase("stow"),
+		"tool-drawn-elsewhere": func(m): m.items.tool.broom.actions = ["idle", "walk"],
+		"tool-missing-in-own": func(m): (m.items.tool.axe.actions as Array).append("run"),
 	}
 	var accepted: Array = []
 	for k in cases:
@@ -2141,6 +2148,22 @@ func topdown_character_suite() -> void:
 		cases[k].call(broken)
 		if topdown_figure_problems(broken, false).is_empty(): accepted.append(k)
 	check(accepted.is_empty(), "topdown character: the gate refuses %d broken manifests (accepted %s)" % [cases.size(), str(accepted)])
+	# Decision 44: every work action holds a tool drawn for it; the three place poses are drawn; no technique picture
+	# draws either kind.
+	var held := {}
+	for tn in man.items.get("tool", {}):
+		for a in man.items.tool[tn].get("actions", []): held[str(a)] = true
+	var unheld: Array = []
+	var works := 0
+	for a in man.actions:
+		if not bool(man.actions[a].get("work", false)): continue
+		works += 1
+		if not held.has(a): unheld.append(a)
+	var places: Array = ["open", "tend", "sit"].filter(func(a): return (man.actions as Dictionary).has(a) and bool(man.actions[a].get("place", false)))
+	var pics: Array = (man.get("pictures", {}).get("frames", {}) as Dictionary).keys().filter(func(k): return str(k).begins_with("work_") or str(k).get_slice("/", 0) in ["open", "tend", "sit"])
+	check(works >= 10 and (man.items.get("tool", {}) as Dictionary).size() >= 10 and unheld.is_empty() and places.size() == 3 and pics.is_empty(),
+		"topdown character: %d work actions, each holding a drawn tool (%d tools; unheld %s), the place poses drawn (%s), none a technique picture (%s)" % [works,
+			(man.items.get("tool", {}) as Dictionary).size(), str(unheld), str(places), str(pics.slice(0, 3))])
 
 ## A deep copy whose rect tables stay packed arrays.
 func _dup_manifest(man: Dictionary) -> Dictionary:
@@ -2243,11 +2266,18 @@ func topdown_figure_problems(man: Dictionary, sheets: bool) -> Array:
 				seen[sig] = true
 		if seen.size() != 3: out.append("combo %s repeats a stage" % fam)
 	var dyes: Array = ContentDB.parts.get("_dyes", {}).get("order", [])
-	for cat in ["body", "hair", "shirt", "pants", "shoes", "hat", "cape", "weapon"]:
+	# Decision 44: a work action puts the weapon away (`stow`); the index says so for every one of them.
+	for a in acts:
+		if bool(acts[a].get("work", false)) and not (acts[a].get("stow", []) as Array).has("weapon"): out.append("work %s keeps the weapon" % a)
+	for cat in ["body", "hair", "shirt", "pants", "shoes", "hat", "cape", "weapon", "tool"]:
 		for name in man.get("items", {}).get(cat, {}):
 			var it: Dictionary = man.items[cat][name]
 			var label := "%s/%s" % [cat, name]
-			if not ContentDB.parts.get(cat, {}).has(name): out.append("not in parts.json " + label)
+			# A tool (decision 44) is no wardrobe look: it names the actions that hold it, each one the catalogue has.
+			var own: Array = it.get("actions", [])
+			if cat == "tool":
+				if own.is_empty() or own.any(func(x): return not acts.has(str(x))): out.append("tool actions " + label)
+			elif not ContentDB.parts.get(cat, {}).has(name): out.append("not in parts.json " + label)
 			if (it.sections as Array).is_empty():
 				out.append("no sections " + label)
 				continue
@@ -2262,9 +2292,15 @@ func topdown_figure_problems(man: Dictionary, sheets: bool) -> Array:
 					var parts: PackedStringArray = str(k).split("/")
 					if parts.size() != 2 or not acts.has(parts[0]): out.append("hidden names no action %s %s" % [label, k])
 			for a in acts:
+				# Absent from a whole action only where that is the rule, explicitly: a category the action puts away, a
+				# tool outside its own actions; and then it must be absent (a stowed weapon or a tool out of its actions
+				# drawn is a substitution AGENTS.md rule 1 forbids).
+				var away: bool = (acts[a].get("stow", []) as Array).has(cat) or (cat == "tool" and not own.has(a))
 				for d in acts[a].start:
 					var key := "%s/%s" % [a, d]
-					if (it.sections as Array).all(func(sec): return (sec.hidden as Dictionary).has(key)): out.append("item absent %s %s" % [label, key])
+					var absent: bool = (it.sections as Array).all(func(sec): return (sec.hidden as Dictionary).has(key))
+					if absent and not away: out.append("item absent %s %s" % [label, key])
+					elif away and not absent: out.append("item drawn where it is away %s %s" % [label, key])
 			if sheets:
 				var size := Vector2i(-1, -1)
 				for v in it.sheets:

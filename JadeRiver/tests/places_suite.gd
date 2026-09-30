@@ -34,6 +34,7 @@ func run_all(suite, tree: SceneTree) -> void:
 	for sc in ContentDB.all("scenes"): c.quests.scenes[str(sc.id)] = {"done": true, "skipped": true}
 	_table()
 	_opens_pages()
+	_poses(tree)
 	_remote_rules()
 	await _marks(tree)
 	_travel()
@@ -120,6 +121,64 @@ func _opens_pages() -> void:
 	var lb := {"type": "letter_box"}
 	var mat := {"type": "meditation_mat"}
 	check(Game.world._verb(lb) == Tx.t("sim.world.read") and Game.world._verb(mat) == Tx.t("sim.world.sit"), "places: the letter box's verb is Read, the mat's Sit")
+
+# ------------------------------------------------------------------ decision 44: the place poses
+## Using a place plays its pose before its page (the HUD): the storehouse's and the letter box's `open`, a garden bed's
+## and a furnace's `tend`, the mat's `sit`; the page opens after the pose (HUD.PLACE_POSE_S, snappy: at most half a
+## second), at once on a second tap of the context button; the body holds the pose while the page is open and rises
+## when it closes; a place with no pose (a notice board, a shop) opens its page at once. Walked up to and pressed, each
+## still reaches its page.
+func _poses(tree: SceneTree) -> void:
+	var hud = load("res://scripts/hud.gd").new()
+	tree.root.add_child(hud)
+	hud.visible = false
+	var src := GDScript.new()
+	src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar posed: Array = []\nfunc play_place_pose(p: String) -> void:\n\tposed.append(p)\nfunc end_place_pose() -> void:\n\tposed.append(\"end\")\n"
+	src.reload()
+	var stub = src.new()
+	stub.actor_id = c.id
+	hud.player = stub
+	var asked: Array = []
+	# as main.gd does: a page opened blocks the HUD until it closes
+	hud.open_page.connect(func(pg: String, _a: Dictionary):
+		asked.append(pg)
+		hud.set_blocked(true))
+	var want_of := {"storehouse": "open", "letter_box": "open", "garden_bed": "tend", "furnace": "tend", "meditation_mat": "sit"}
+	var bad: Array = []
+	var tried := {}
+	for r in PlaceRules.all():
+		var want := str(want_of.get(str(r.kind), ""))
+		if str(r.get("pose", "")) != want: bad.append("%s: pose %s" % [r.id, r.get("pose", "")])
+		if tried.has(str(r.kind)) or str(r.page) == "": continue
+		tried[str(r.kind)] = true
+		c.training_sect = {"id": str(r.get("sect", "")) if str(r.get("sect", "")) != "" else "jade_sect", "rank": "outer", "contribution": 0}
+		enter(str(r.room), PlaceRules.stand_point(r))
+		if not Game.world.interact(c, str(r.object)).has("open_page"):
+			tried.erase(str(r.kind))   # a keeper's talk, a shrine's blessing: no page of its own to pose before
+			continue
+		for skip in [false, true]:
+			asked.clear()
+			stub.posed.clear()
+			hud.set_blocked(false)
+			stub.posed.clear()
+			hud._after_interact(Game.world.interact(c, str(r.object)), str(r.object))
+			if want == "":
+				if asked != [str(r.page)]: bad.append("%s: no pose, page %s" % [r.id, str(asked)])
+				break
+			if not asked.is_empty() or stub.posed != [want]: bad.append("%s: pose first (%s, %s)" % [r.id, str(stub.posed), str(asked)])
+			if skip:
+				hud.use_context()   # the second tap
+			else:
+				hud._tick_place_pose(hud.PLACE_POSE_S * 0.5)
+				if not asked.is_empty(): bad.append("%s: page before the pose ends" % r.id)
+				hud._tick_place_pose(hud.PLACE_POSE_S * 0.5 + 0.01)
+			if asked != [str(r.page)]: bad.append("%s: page after the pose (skip %s): %s" % [r.id, skip, str(asked)])
+			if stub.posed.has("end"): bad.append("%s: rose while the page is open" % r.id)
+			hud.set_blocked(false)
+			if stub.posed.back() != "end": bad.append("%s: did not rise as the page closed" % r.id)
+	hud.queue_free()
+	check(bad.is_empty() and tried.size() >= 8 and hud.PLACE_POSE_S <= 0.5,
+		"places: using a place plays its pose (open, tend, sit) then opens its page (%.1f s, a second tap at once), held while it is open; a place with no pose opens at once (%d kinds; %s)" % [hud.PLACE_POSE_S, tried.size(), str(bad.slice(0, 4))])
 
 # ------------------------------------------------------------------ the remote rules
 func _remote_rules() -> void:
