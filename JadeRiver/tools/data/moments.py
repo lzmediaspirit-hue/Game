@@ -299,7 +299,7 @@ def rows():
         row("boss_phase", "boss_phase", {"staged": False}, 90, 1.2,
             [band(0.0, 176, key("moment.numeral.", suffix="payload.phase"), 40, "GOLD", wipe_s=0.2),
              shake(0.0, 0.3), sound(0.0, "boss_roar")],
-            {"enemy": 1, "phase": 2, "action": "summon", "staged": False}, "P6c", stale_s=1.0),
+            {"enemy": 1, "phase": 2, "action": "summon", "staged": False, "def": "hollowed_eel"}, "P6c", stale_s=1.0),
         row("boss_defeated", "boss_defeated", {}, 70, 2.4,
             [{"t": 0.0, "kind": "flash", "color": "PALE_GOLD", "alpha": 0.35, "dur": 0.25},
              band(0.0, 230, {"name_of": "enemies", "id": "payload.enemy"}, 44, "PALE_GOLD", wipe_s=0.3, sub=key("moment.boss.defeated"),

@@ -1806,7 +1806,8 @@ func topdown_art_suite() -> void:
 		if not drawn.has(str(sp.enemy)): missing_foes.append(str(sp.enemy))
 	for id in drawn:
 		var block: Dictionary = drawn[id]
-		for look in [block] + ([block.elite] if block.has("elite") else []):
+		# Decision 45: a boss's awakened look (the first boss's second phase) is held to the same rules.
+		for look in [block] + ([block.elite] if block.has("elite") else []) + ([block.awakened] if block.has("awakened") else []):
 			var img: Texture2D = load(str(look.get("atlas", ""))) if ResourceLoader.exists(str(look.get("atlas", ""))) else null
 			var cell: Array = look.get("cell", [0, 0])
 			if img == null:
@@ -1824,12 +1825,14 @@ func topdown_art_suite() -> void:
 			if int(acts.get("attack", {}).get("hit_frame", -1)) != 1: missing_foes.append("%s hit frame" % id)
 	check(missing_foes.is_empty() and big.is_empty() and drawn.size() >= 12 and foes.get("dirs", []).size() == 5 and foes.get("mirror", {}).size() == 3,
 		"topdown art: every foe drawn (%d) has idle 6, walk 8, wind-up 4, strike 6 (the blow on frame 1), hurt 3 and death 8 frames in five drawn facings, three mirrored, its elite's too, inside sheets of at most 4096 px a side (%s; %s)" % [drawn.size(), str(missing_foes.slice(0, 4)), str(big)])
-	# Decision 43: a foe's tell is up before its blow: the wind-up's last frame shows within its shortest wind-up.
+	# Decision 43: a foe's tell is up before its blow: the wind-up's last frame shows within its shortest wind-up. Decision
+	# 45: an attack of a boss's second phase (`awake`) is drawn in its awakened look, at that look's rates.
 	var late: Array = []
 	for id in drawn:
-		var wu: Dictionary = drawn[id].actions.get("windup", {})
-		var at_s := float((wu.get("frames", {}).get("s", []) as Array).size() - 1) / maxf(1.0, float(wu.get("fps", 1)))
 		for a in ContentDB.entry("enemies", id).get("attacks", []):
+			var look: Dictionary = drawn[id].get("awakened", drawn[id]) if a.get("awake", false) else drawn[id]
+			var wu: Dictionary = look.get("actions", {}).get("windup", {})
+			var at_s := float((wu.get("frames", {}).get("s", []) as Array).size() - 1) / maxf(1.0, float(wu.get("fps", 1)))
 			if at_s > float(a.get("windup_s", 0.0)) + 0.001: late.append("%s %s %.2f > %.2f" % [id, a.id, at_s, float(a.windup_s)])
 	check(late.is_empty(), "topdown art: every foe's wind-up reaches its tell (its last frame) before its blow (%s)" % str(late))
 	var house: Dictionary = props.get("house", {})

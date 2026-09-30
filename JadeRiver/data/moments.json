@@ -1710,7 +1710,8 @@
     "enemy": 1,
     "phase": 2,
     "action": "summon",
-    "staged": false
+    "staged": false,
+    "def": "hollowed_eel"
    },
    "step": "P6c"
   },
