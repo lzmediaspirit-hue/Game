@@ -191,8 +191,9 @@ func _surfaces() -> void:
 	for f in DirAccess.get_files_at("res://data/topdown/"):
 		var rid := f.get_basename()
 		if not f.ends_with(".json") or not TopdownRoom.has_layout(rid): continue
+		var lay = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f))
+		if not (lay is Dictionary and lay.get("levels") is Array): continue   # the tile set, decor and life files
 		var room := TopdownRoom.load_room(rid)
-		if room.w == 0: continue
 		for y in room.h:
 			for x in room.w:
 				if room.level(x, y) == TopdownRoom.SOLID: continue
