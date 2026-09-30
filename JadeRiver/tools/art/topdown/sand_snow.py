@@ -268,12 +268,6 @@ def beach_fx(sides: int, frame: int) -> Img:
 
 
 # ============================================================================================================ snow
-def _slope(x: int, y: int, seed: int) -> float:
-    """How much the drifts' surface faces the north-west sun at a px (their height's rise toward the south-east)."""
-    cells, wts = (16, 8), (0.65, 0.35)
-    return fbm(x + 1, y + 1, seed, cells, wts) - fbm(x - 1, y - 1, seed, cells, wts)
-
-
 def snow_macro(seed: int = 1501) -> Img:
     """Fresh snow, 64 x 64 and periodic: an even sunlit white (step 5) with a faint grain of cool pixels, broad soft
     swells a step lit where they face the north-west, and small wind crescents on a jittered grid, each a lit lip over a

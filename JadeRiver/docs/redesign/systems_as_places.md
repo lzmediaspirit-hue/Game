@@ -527,7 +527,7 @@ open after the prototype's story. The added cells block nothing the rooms' scene
   remote rules before and after their milestones, the map's marks for every place and the minimap's with the tap, the
   Menu's line, card and Travel through the rooms to the place, and the unlock order.
 - `tools/data/places.py --check` in `tools/run_tests.sh`.
-- Screens in `docs/redesign/feedback/places/` (`tools/dev/places_capture.tscn`): the Lotus Ferry services with and
+- Screens in `docs/redesign/feedback/places/` (`tools/dev/capture/capture.tscn -- places`): the Lotus Ferry services with and
   without anything waiting, the mat, the minimap, the Market's stall, board, storehouse and courier post, walking up to
   a board, the furnace working and ready, the beds, the world map's Places, the Menu's Storage and its card, and the
   walk arrived.

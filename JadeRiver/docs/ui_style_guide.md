@@ -642,7 +642,7 @@ and the cell's canvas item, at most six a frame within 1.5 ms. Until a cell is p
 under its region, so a caller that keeps its drawing (the tree's tiles) is not drawn again for it. Cells are kept by
 their look; when all ten sheets are full, the least used starts again and `TechniquePicture.generation` moves on (the
 tree draws its tiles again). Screenshots, before and after beside the reference, are in
-`docs/redesign/feedback/pictures/` (`tools/dev/picture_capture.tscn -- --tag=<before|after>`).
+`docs/redesign/feedback/pictures/` (`tools/dev/capture/capture.tscn -- pictures --tag=<before|after>`).
 
 ## 9. The HUD spec
 
@@ -731,7 +731,7 @@ once a quest is given or done. Where this changes the table above:
   gourd's heaven beside the stall is gone from the shop (the Storage page keeps it).
 
 Screenshots before and after (at rest, in a fight, the Techniques page and its loadout bar, the shop, a quest offered
-and taken) are in `docs/redesign/feedback/hud/`, taken by `tools/dev/hud_capture.tscn -- --tag=<before|after>`.
+and taken) are in `docs/redesign/feedback/hud/`, taken by `tools/dev/capture/capture.tscn -- hud --tag=<before|after>`.
 
 **As built (decision 43, the round technique buttons).** The user asked: "The skills in the HUD should be a little
 bigger and circular." Where this changes decision 42's buttons:
@@ -757,7 +757,7 @@ bigger and circular." Where this changes decision 42's buttons:
   x1.5 between side bars.
 
 Before and after: `docs/redesign/feedback/hud/<before|after>_round_{rest,fight,cluster,cooldown}.png` at 1280 x 720 and
-`..._phone.png` at 2400 x 1080 (`tools/dev/hud_capture.tscn -- --tag=<before|after> --round`, and
+`..._phone.png` at 2400 x 1080 (`tools/dev/capture/capture.tscn -- hud_round --tag=<before|after>`, and
 `--resolution 2400x1080`).
 
 ## 10. The token table (the Theme resource plan, C8)

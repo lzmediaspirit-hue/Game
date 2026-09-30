@@ -18,7 +18,6 @@ Usage: python3 tools/art/topdown/build_foes.py [--jobs N] [--review] [--check] [
 from __future__ import annotations
 
 import hashlib
-import io
 import json
 import sys
 from pathlib import Path
@@ -31,21 +30,16 @@ sys.path.insert(0, str(HERE.parent))
 from PIL import Image  # noqa: E402
 
 import creatures  # noqa: E402
+import sheet as SH  # noqa: E402
 
 MANIFEST = "data/topdown/foes.json"
 FOES_DIR = "art/topdown/foes"
 REVIEW = ROOT / "docs/redesign/feedback/monsters/sheets"
 
 
-def png_bytes(img: Image.Image) -> bytes:
-    buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=False)
-    return buf.getvalue()
-
-
 def build_all(jobs: int, only=None) -> tuple[dict, dict]:
     sheets, man = creatures.build(jobs, only)
-    out = {p: png_bytes(im) for p, im in sheets.items()}
+    out = {p: SH.png_bytes(im) for p, im in sheets.items()}
     out[MANIFEST] = (json.dumps(man, indent=1, sort_keys=True) + "\n").encode()
     return out, sheets
 

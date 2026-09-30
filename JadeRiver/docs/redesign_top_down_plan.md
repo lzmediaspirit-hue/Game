@@ -402,7 +402,7 @@ unless one of these two entries is used.
 
 `perf_tests` `_topdown` holds the mount under 0.3 s and the frame under 16.6 ms.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn` under `xvfb-run`, in `docs/redesign/phase1/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- phase1` under `xvfb-run`, in `docs/redesign/phase1/`):
 
 - `01_square.png`: the square under the HUD;
 - `02_behind_house_strip.png` and `02_behind_house.png`: walking behind the house;
@@ -512,7 +512,7 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
 - the HUD's aimed attack with its snap, an unsnapped drag, each technique's form and its cancel;
 - the fight/rest ring.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --phase2`, in `docs/redesign/phase2/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- phase2`, in `docs/redesign/phase2/`):
 
 - `01_fight_three_foes.png`;
 - `02_technique_strip.png` (a line: the rolling wave) and `02_technique.png` (a burst at its point);
@@ -611,7 +611,7 @@ The side view is unchanged.
 
 `rules_tests` runs `run_fight` again. A merge had dropped the call, so Phase 2's fight checks had not run since.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --drag-moves`, in `docs/redesign/drag_moves/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- drag_moves`, in `docs/redesign/drag_moves/`):
 
 - `01_finisher_armed.png`;
 - `02_plunge_armed.png`;
@@ -776,7 +776,7 @@ The flowing silk and robe motion of the look rule is the body layers' own (their
   - `forms_by_element.png`: every form at its contact frame in every element;
   - `melee_<family>.png`: each family's moves, and step 1 in five directions;
   - `impacts.png`, `common.png` and `dust.png`;
-- the game's frames (`tools/dev/topdown_capture.tscn -- --combat`), read left to right like a GIF:
+- the game's frames (`tools/dev/capture/capture.tscn -- combat`), read left to right like a GIF:
   - `ingame_combo_<family>.png`: a three-step combo of the jian, fists, spear, heavy sabre, brush and bell;
   - `ingame_finisher_and_dash_attack.png`;
   - `ingame_techniques.png`;
@@ -869,7 +869,7 @@ The pebble imps are not drawn: they do not appear in the prototype room.
 
 **The build and the review images.** `build_tiles.py --check` stays byte-identical over the tiles, props, foes,
 TileSet and manifest. The Python reference renderer (`compose.py`) is gone: the game draws the rules now, so the room's
-review images come from the game (`tools/dev/topdown_capture.tscn -- --phase3`), including the height-levels test on a
+review images come from the game (`tools/dev/capture/capture.tscn -- phase3`), including the height-levels test on a
 review room of its own (`data/topdown/td_review_heights.json`). The files are listed in the art bible's §12.
 
 **Tests.**
@@ -1070,7 +1070,7 @@ built on its own into its own files. `docs/redesign/phase3/character/HOWTO.md` s
 - **Fading as one.** The i-frames' blink and the occlusion silhouette fade the figure as one image (a `CanvasGroup`).
   Faded layer by layer, the clothes would show the body through them.
 - **The placeholder body is gone**, with its sheet and the tileset manifest's `body` entry. `build_topdown_proto.py`
-  only runs `build_tiles.py` now. The game's review images (`topdown_capture.tscn -- --phase3`, the height test
+  only ran `build_tiles.py` from then on (decision 45 removed it). The game's review images (`capture.tscn -- phase3`, the height test
   among them) draw the real character.
 
 **What still needs top-down layers: nothing** (the full set, 2026-09-28). Every NPC, every creator option, every
@@ -1175,8 +1175,8 @@ frames), so it rebuilt every set.
   per item and dye or hair colour, with every action in all eight facings, drawn by the game's own compositor over
   the starting outfit.
 
-**Review sheets** (`docs/redesign/phase3/character/`, from `--review` and `tools/dev/topdown_capture.tscn --
---character`):
+**Review sheets** (`docs/redesign/phase3/character/`, from `--review` and `tools/dev/capture/capture.tscn --
+character`):
 
 - `01_body.png`: the unclothed body;
 - `02_outfit_<facing>.png`: the starting outfit, one sheet per facing;
@@ -1374,7 +1374,7 @@ content and connections, redesigned for the grid with height levels, paths to th
   (`TopdownRoom.spot_near` on the grid), and at the hut's refuge and the boat's spring by their objects.
 - **`perf_tests`:** a top-down character's Lotus Ferry loads and runs within budget.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --phase4`, in `docs/redesign/phase4/`): every converted room under
+**Screenshots** (`tools/dev/capture/capture.tscn -- phase4`, in `docs/redesign/phase4/`): every converted room under
 the real HUD (01–15), and Lu's talk on the dialogue page over the grid (16).
 
 **Not yet built, or different from the plan.**
@@ -1455,7 +1455,7 @@ checkpoints use `prologue_run`'s shared `save_checkpoint` and `resume_checkpoint
 line: the Marsh Edge enters in 75 ms and holds 11.6 ms a frame with 25 of its foes fighting (budgets 300 ms and
 16.6 ms).
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --chapter2`): `docs/redesign/phase4/17`–`32`, each room under the
+**Screenshots** (`tools/dev/capture/capture.tscn -- chapter2`): `docs/redesign/phase4/17`–`32`, each room under the
 real HUD, with its foes where it has them.
 
 **Not yet built, or different from the plan.**
@@ -1593,7 +1593,7 @@ the grid's rooms spawn now has its own figure; the stand-in stays for a spirit a
 drawn yet (an ambush, a hunter or a summons can bring one). `topdown_tutorial` (13 more checks) checks every grid
 room's foes, their events' foes too, for their own figures (the tutorial's rooms were skipped before), and
 `topdown_suite` (117 to 118) takes a pebble imp, still undrawn, for its stand-in check and sees Old Snapper drawn by
-its own rows. Screenshots (`tools/dev/topdown_capture.tscn -- --tutorial-foes`):
+its own rows. Screenshots (`tools/dev/capture/capture.tscn -- tutorial_foes`):
 `docs/redesign/phase4/33`–`38`, the night, the Reed Shallows and Willow Path West under the HUD and ×4 round the fight.
 
 ### As built: the story staged in the top-down world (decision 39, 2026-09-28)
@@ -1779,8 +1779,8 @@ The QA player's `--no-assist` gives the falls without cover, with the foes about
 ### As built: controls and combat flow from the prototype's feedback (decision 42, 2026-09-29)
 
 The user's play of build 108 asked for animation canceling, a sprint by default, an auto-path that goes round things
-and sprints, and a fix for meditation's pose. Shots: `docs/redesign/feedback/combat/` (`topdown_capture.gd`
-`--decision42`, `--decision42-route`, with `--fixed-fps 60`).
+and sprints, and a fix for meditation's pose. Shots: `docs/redesign/feedback/combat/` (`capture.tscn` sets
+`decision42` and `decision42_route`, with `--fixed-fps 60`).
 
 **Animation canceling (the weave).**
 
@@ -1964,8 +1964,8 @@ off their far side.
 
 The user chose to bring the foes up to the characters' new quality (decision 42's "B" figure), with more frames,
 readable tells, and larger elites and bosses, while the people grow 1.2×. The art bible's §8 "Foes" is the contract.
-Before and after in the game: `docs/redesign/feedback/monsters/before/` and `after/` (`topdown_capture.gd`
-`-- --monsters --monsters-tag=<before|after>`); every sheet at ×3, each species playing its catalogue as a GIF and the
+Before and after in the game: `docs/redesign/feedback/monsters/before/` and `after/` (`capture.tscn`
+`-- monsters --tag=<before|after>`); every sheet at ×3, each species playing its catalogue as a GIF and the
 tells side by side: `docs/redesign/feedback/monsters/sheets/`.
 
 **The renderer.** `tools/art/topdown/creature/sculpt.py` casts a posed sculpture with the character's own rasteriser and
@@ -2075,7 +2075,7 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   in `docs/CHANGELOG.md`.
 - **Tests:** `topdown_life_suite` (by `rules_tests`), `data_validation` `life_art_suite`, `topdown_rooms.py --check`.
 - **Review:** `docs/redesign/feedback/living_world/` (`before/`, `after/`, `detail/`, and `pairs/` side by side at
-  the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`. `after/` and `detail/` are drawn on the
+  the art's own size), drawn by `tools/dev/capture/capture.tscn -- life --detail`. `after/` and `detail/` are drawn on the
   build merged with the rest of decision 43, so the people 1.2 times bigger and the places are in them too.
 
 ### As built: the Marsh Edge fight back inside its frame (decision 43 follow-up, 2026-09-30)
@@ -2175,7 +2175,7 @@ for the poses and a held-tool rig; the places asked for a pose when the player u
   and `places.py --check`.
 - **Review:** `docs/redesign/feedback/work_poses/`: `action_<name>.png` (every frame in the eight facings, a row per
   hair style and colour, garment, dye and weapon, and the people who do it; `tools/art/topdown/review_character.py
-  --work`), `ingame_*.png` (`tools/dev/topdown_capture.tscn -- --work-poses`); `docs/redesign/phase3/character/
+  --work`), `ingame_*.png` (`tools/dev/capture/capture.tscn -- work_poses`); `docs/redesign/phase3/character/
   12_work.png`; the gallery (`tests/topdown_figure_gallery.tscn`).
 
 ### Phase 5 · The animation layers (XL)
