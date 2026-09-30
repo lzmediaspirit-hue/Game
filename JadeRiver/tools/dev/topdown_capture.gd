@@ -908,13 +908,13 @@ func life_details(out: String, only := "") -> void:
 ## on), the village and a sect's court at work (whole screens under the HUD), and the player using a place: opening the
 ## letter box, tending a garden bed, sitting on the mat, each shot mid-pose before its page opens.
 const WORK_SHOTS := [
-	["ingame_01_village_sweep", "lf_village", "npc_aunt_ping_lane"], ["ingame_02_village_carry", "lf_village", "npc_shen_lian_npc"],
-	["ingame_03_village_laundry", "lf_village", "npc_washer_mei"], ["ingame_04_village_fisher", "lf_village", "x_bank_fisher"],
-	["ingame_05_village_woodcutter", "lf_village", "x_woodcutter"], ["ingame_06_village_net", "lf_village", "npc_fisher_wen"],
-	["ingame_07_hut_cook", "lf_fishers_hut", "npc_aunt_ping"], ["ingame_08_hut_grind", "lf_granny_liu_hut", "npc_granny_liu"],
-	["ingame_09_sect_smith", "ja_weapon_hall", "npc_jade_smith"], ["ingame_10_sect_sweeper", "ja_gate_street", "x_ja_sweeper"],
-	["ingame_11_sect_herbs", "ja_herb_terraces", "npc_jade_gardener"], ["ingame_12_market_carry", "sf_market", "npc_courier_lin"],
-	["ingame_13_artisan_smith", "sf_artisan_row", "npc_smith_bao"], ["ingame_14_marsh_fisher", "rm_marsh_edge", "x_marsh_fisher"],
+	["ingame_01_village_sweep", "lf_village", "npc_aunt_ping_lane", "work_sweep"], ["ingame_02_village_carry", "lf_village", "npc_shen_lian_npc", "work_carry"],
+	["ingame_03_village_laundry", "lf_village", "npc_washer_mei", "work_hang"], ["ingame_04_village_fisher", "lf_village", "x_bank_fisher", "work_rod"],
+	["ingame_05_village_woodcutter", "lf_village", "x_woodcutter", "work_chop"], ["ingame_06_village_net", "lf_village", "npc_fisher_wen", "work_mend"],
+	["ingame_07_hut_cook", "lf_fishers_hut", "npc_aunt_ping", "work_stir"], ["ingame_08_hut_grind", "lf_granny_liu_hut", "npc_granny_liu", "work_grind"],
+	["ingame_09_sect_smith", "ja_weapon_hall", "npc_jade_smith", "work_hammer"], ["ingame_10_sect_sweeper", "ja_gate_street", "x_ja_sweeper", "work_sweep"],
+	["ingame_11_sect_herbs", "ja_herb_terraces", "npc_jade_gardener", "work_pick"], ["ingame_12_market_cook", "sf_market", "npc_auntie_rong", "work_stir"],
+	["ingame_13_artisan_smith", "sf_artisan_row", "npc_smith_bao", "work_hammer"], ["ingame_14_marsh_fisher_cast", "rm_marsh_edge", "x_marsh_fisher", "work_cast"],
 ]
 const WORK_WIDE := [["ingame_20_village_at_work", "lf_village", Vector2(55, 22)], ["ingame_21_sect_at_work", "ja_gate_street", Vector2(38, 20)],
 	["ingame_22_weapon_hall_at_work", "ja_weapon_hall", Vector2(13, 10)]]
@@ -931,10 +931,9 @@ func work_poses() -> void:
 	await frames(360)
 	var c = Game.active()
 	c.training_sect = {"id": "jade_sect", "rank": "outer", "contribution": 0}
-	for s in ["mail", "cultivation", "herb_garden", "storage"]: Unlocks.force_unlock(c.id, s)
 	for s in WORK_SHOTS:
 		if only != "" and not str(s[0]).contains(only): continue
-		await _worker_shot(str(s[0]), str(s[1]), str(s[2]), out)
+		await _worker_shot(str(s[0]), str(s[1]), str(s[2]), str(s[3]), out)
 	for s in WORK_WIDE:
 		if only != "" and not str(s[0]).contains(only): continue
 		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
@@ -942,15 +941,19 @@ func work_poses() -> void:
 		await frames(10)
 		await at_spot(s[2], 240)
 		await shot(str(s[0]), out)
+	# the places' systems opened for the character, their notices given time to go before the shots
+	for s in ["mail", "cultivation", "herb_garden", "storage"]: Unlocks.force_unlock(c.id, s)
+	await frames(420)
 	for s in [["ingame_30_player_open_letter_box", "letter_box"], ["ingame_31_player_tend_bed", "garden_bed"], ["ingame_32_player_sit_mat", "meditation_mat"]]:
 		if only != "" and not str(s[0]).contains(only): continue
 		await _place_shot(str(s[0]), str(s[1]), out)
 	print("topdown_capture: work poses done")
 	get_tree().quit()
 
-## A worker in its loop, the player standing four tiles off (out of its notice) and the shot on the worker, once it is at
-## a work action (or after a few seconds).
-func _worker_shot(name: String, room: String, who: String, out: String) -> void:
+## A worker in its loop, the player standing four and a half tiles off (out of its notice) and the shot on the worker
+## once it plays `action` (at its contact frame, or its second frame), or after half a minute whatever it does. A worker
+## the story does not show yet is left out, and said so.
+func _worker_shot(name: String, room: String, who: String, action: String, out: String) -> void:
 	var life: Dictionary = TopdownLife.room_life(room)
 	var home := Vector2.ZERO
 	for e in life.get("extras", []):
@@ -965,20 +968,33 @@ func _worker_shot(name: String, room: String, who: String, out: String) -> void:
 	w = main.world
 	p = w.player
 	m = p.motor
-	m.place(w.room.nearest_standable(far))
+	# out of the worker's notice (72 units): the first side of them the player can stand on well away (by a river bank
+	# the south is water, and the nearest standable cell there would be at the worker's elbow)
+	var stand: Vector2 = w.room.nearest_standable(far)
+	for off in [Vector2(0, 4.5), Vector2(0, -4.5), Vector2(4.5, 0), Vector2(-4.5, 0), Vector2(3.5, 3.5), Vector2(-3.5, -3.5)]:
+		var q: Vector2 = w.room.nearest_standable(home + off * TopdownRoom.TILE)
+		if q.distance_to(home) > 100.0:
+			stand = q
+			break
+	m.place(stand)
 	m.dir = Vector2.UP
 	w._settle_camera()
 	await frames(60)
 	var fig = null
 	for f in w.life.workers:
 		if is_instance_valid(f) and str(f.def.get("id", "")) == who: fig = f
-	if fig == null:
-		print("topdown_capture: no worker ", who, " in ", room)
+	if fig == null or not fig.visible:
+		print("topdown_capture: no worker ", who, " shown in ", room, " at this point of the story")
 		return
-	for i in 600:
-		if TopdownFigure.is_work(fig.work.action) and not fig.work.walking and fig.work.hold < 0: break
+	var want := TopdownFigure.hit_frame(action) if int(TopdownFigure.spec(action).hit) >= 0 else 1
+	var got := false
+	for i in 1800:
+		if fig.work.action == action and fig.work.hold < 0 and (fig.work.walking or fig.work.frame() == want):
+			got = true
+			break
 		await frames(1)
-	await frames(8)
+	if not got: print("topdown_capture: ", who, " did not play ", action, " in half a minute (", fig.work.action, ")")
+	await RenderingServer.frame_post_draw
 	await shot_detail(name, (fig.feet as Vector2) - p.screen + Vector2(0, 14), out)
 
 ## The player using a place of the table (the first of its kind the character reaches): stood on its user's cell, facing

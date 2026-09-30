@@ -36,7 +36,7 @@ hands on every frame; and using a place plays a pose before its page opens. As b
   of its action's cycles; `topdown_life_suite` checks every chop and hammer hit falls on its contact frame for a minute;
   `places_tests` walks up to each kind of place and checks the pose, the delay, the second tap and the hold.
 - **Sheets and memory** (RGBA8, as imported): 168 sheets and 206.8 MB before, the tallest 512 x 1,446; 178 sheets and
-  294.9 MB after (the ten tool sheets 0.8 MB of it), the tallest 512 x 2,073, all under 4,096 so none is split. The
+  294.7 MB after (the ten tool sheets 0.8 MB of it), the tallest 512 x 2,075, all under 4,096 so none is split. The
   player's outfit 8.1 MB before, 11.2 after; a villager 7.5 before, 10.8 after. PNG on disk 25.3 MB before, 35.7
   after. The same draw calls a figure: a held tool is its layer's rect where the old sprite blit was, and the weapon
   draws nothing while put away.

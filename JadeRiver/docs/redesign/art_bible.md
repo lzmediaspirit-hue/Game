@@ -509,7 +509,7 @@ The body in the top-down world is the game's own character, redrawn for this vie
 | Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
 | Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored (their light then comes from the upper right). The side rows turn a little toward the camera, the head in E a little more |
 | Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
-| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. A full build of every set takes about 6 minutes on two cores (`--jobs 2`) |
+| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. Decision 44's work and place poses (+360 frames a set) and the ten tool sheets bring it to 178 sheets and 294.7 MB (the tallest 2,075 px), the player's outfit 11.2 MB. A full build of every set takes about 16-20 minutes on two cores of the shared machine (`--jobs 2`) |
 
 **The scale rule (decision 43).** The people are drawn 1.2 times the 38 px they were (`TopdownRoom.PEOPLE`), and
 what is sized against a person follows them; the world's measures do not (a tile, a level, the walk's 154 and the

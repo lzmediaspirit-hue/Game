@@ -121,7 +121,8 @@ So an action batch runs on its own, never beside other set batches:
    whether it opens (or leaves the hand) in it.
 3. Replace any stand-in alias in `ALIASES`, and drop it from `STAND_INS` (empty today).
 4. Rebuild every set: `python3 tools/art/topdown/build_character.py --check`, about five minutes for 864 frames on
-   four cores (it builds twice; one pass takes about 2.5 minutes, or 11 on one core).
+   four cores (it builds twice; one pass takes about 2.5 minutes, or 11 on one core). With decision 44's work and place
+   poses the catalogue is 1,224 world frames: one pass takes 15-20 minutes on two cores of a shared machine.
 5. Wire the action where the game plays it: a family's step or technique in `tools/data/combat_feel.py` `poses`, a
    move (dash, air, throw, charge, parry, melody) in `MOVES`, then `topdown_player.gd` `sync` and `_strike_pose` and
    `TopdownFigure.resolve(action, family, move)`; a story gesture in `tools/data/scenes.py` (`pose` steps).

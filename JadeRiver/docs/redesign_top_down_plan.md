@@ -2144,8 +2144,9 @@ for the poses and a held-tool rig; the places asked for a pose when the player u
   down at a spot; a working step runs a whole number of its action's cycles (checked as the data is built), and
   `TopdownWork` fires a blow on each cycle's contact frame, so `life_work_chop_hit` and `life_work_hammer_hit` land on
   the drawn contact; a loop that `pause`s on `hold` keeps the work pose's rest frame when the player stops them. The
-  woodcutter stands back from his block (65.1, 18), 1.1 tiles off, where the axe lands in it; the washer hangs facing north-west so the
-  cloth shows beside her head. The held-tool sprites (`broom`, `pole_side`) left `life.png`.
+  woodcutter stands 1.1 tiles off his block and a little south of it (65.1, 18.3), where the axe lands on its top; the
+  washer hangs facing north-west so the cloth shows beside her head. The held-tool sprites (`broom`, `pole_side`) left
+  `life.png`.
 - **Places:** `data/places.json` names each place's `pose` (`tools/data/places.py` `POSES`: the storehouse and the
   letter box open, a garden bed and a furnace tend, the mat sits). The HUD plays it for 0.4 s (`PLACE_POSE_S`), raising
   `place_open`, `place_tend` or `place_sit` (`Audio.world_sound`, skipped until the bank has them), then opens the
@@ -2156,8 +2157,8 @@ for the poses and a held-tool rig; the places asked for a pose when the player u
 - **Sheets and memory** (RGBA8 in memory, as imported): the catalogue grows from 864 to 1,224 world frames a layer
   (the 105 technique-picture frames stay), so the sheets grow with it. Before: 168 sheets, 206.8 MB for all of them,
   the tallest 512 x 1,446 (the body), 25.3 MB of PNG; the player's outfit (the starting clothes and a jian) 8.1 MB, a
-  villager 7.5 MB. After: 178 sheets (the ten tools', 0.8 MB together, the tallest the rod's 512 x 107), 294.9 MB for
-  all, the tallest 512 x 2,073 (the body; every sheet under the 4,096 limit, so none is split), 35.7 MB of PNG; the
+  villager 7.5 MB. After: 178 sheets (the ten tools', 0.8 MB together, the tallest the rod's 512 x 107), 294.7 MB for
+  all, the tallest 512 x 2,075 (the body; every sheet under the 4,096 limit, so none is split), 35.7 MB of PNG; the
   player's outfit 11.2 MB, a villager 10.8 MB and their tools 0.03-0.2 MB more. Only the worn sheets load.
 - **Draw cost:** the same draw calls a figure: a worker's tool is its tool layer's rect where the old sprite blit was;
   the weapon draws nothing while put away; the player wears no tool.
