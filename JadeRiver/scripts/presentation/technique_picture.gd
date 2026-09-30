@@ -27,7 +27,6 @@ extends RefCounted
 ## strip along its foot filled as far as the pool reaches the cost; closed (the weapon in hand cannot use it), a slate
 ## frame, the picture dim and a lock in the corner. A locked art on the tree is `muted`: its picture in a grey ink.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const INK_SHADER = preload("res://scripts/presentation/technique_picture_ink.gdshader")
 const SHEET := 512                ## an atlas sheet's side, px
 const MAX_SHEETS := 10            ## sheets kept at most (a full set starts its least used one again)
@@ -238,7 +237,7 @@ static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 ## its own look, in the pose its side view casts the art in with the weapon in its hand. Found once and remembered while
 ## the look it was found for is worn (a HUD draws its buttons every frame: this is a lookup and a comparison then).
 static func _look(tid: String, t: Dictionary, who, outfit: Dictionary, s: int, muted: bool) -> Array:
-	var top := TopdownDoll.shown(who)
+	var top := Figures.top_down(who)
 	var mk := "%s|%d|%d|%d" % [tid, s, int(muted), int(top)]
 	var m = _look_memo.get(mk)
 	if m != null and m[0] == outfit and (top or is_same(m[1], who)): return m[2]
@@ -508,8 +507,7 @@ static func _figure(outfit: Dictionary, top: bool):
 		if top:
 			_figs[fk] = TopdownFigure.wearing(outfit, true)
 		else:
-			var av = Avatar.new()
-			av.outfit = outfit.duplicate()
+			var av = Figures.side_avatar(outfit.duplicate())
 			av.lazy_sheets = true
 			av.externally_timed = true
 			av.visible = false

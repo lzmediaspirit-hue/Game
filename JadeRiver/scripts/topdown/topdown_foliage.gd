@@ -217,30 +217,30 @@ static func scatter(r: TopdownRoom) -> Array:
 			var lit: String = litter.get(Vector2i(x, y), "") if not litter.is_empty() else ""
 			if lit == "blight": continue   # round a dead tree the Hollowing has drained the ground
 			var picks: Array = []
-			var hsh := TopdownTerrain.h01(x, y, seed)
+			var hsh := HashNoise.cell(x, y, seed)
 			if lit != "" and hsh < lshare:
 				picks.append(lit)
-				if TopdownTerrain.h01(x, y, seed + 1) < 0.35: picks.append(lit)
+				if HashNoise.cell(x, y, seed + 1) < 0.35: picks.append(lit)
 			elif b.has("shore") and hsh < float(b.shore) and _shore(r, x, y):
 				picks.append("reeds")
-			elif b.has("patch") and TopdownTerrain.vnoise(x / float(b.patch.scale), y / float(b.patch.scale), seed + 2) > float(b.patch.above):
-				for n in 1 + int(TopdownTerrain.h01(x, y, seed + 3) * float(b.patch.count)): picks.append(str(b.patch.set))
+			elif b.has("patch") and HashNoise.value(x / float(b.patch.scale), y / float(b.patch.scale), seed + 2) > float(b.patch.above):
+				for n in 1 + int(HashNoise.cell(x, y, seed + 3) * float(b.patch.count)): picks.append(str(b.patch.set))
 			elif hsh < float(b.share):
-				picks.append(_weighted(b.sets, TopdownTerrain.h01(x, y, seed + 4)))
+				picks.append(_weighted(b.sets, HashNoise.cell(x, y, seed + 4)))
 			for n in picks.size():
 				var list: Array = sets.get(picks[n], [])
 				if list.is_empty(): continue
-				var k := int(list[int(TopdownTerrain.h01(x, y, seed + 10 + n) * list.size())])
+				var k := int(list[int(HashNoise.cell(x, y, seed + 10 + n) * list.size())])
 				var sz: Vector2 = size[k]
 				var fx: float = foot_x[k]
 				# The foot inside the cell, the piece never above the cell's top edge, and inside its floor chunk
 				# sideways (a chunk's pieces draw with its tiles).
-				var px := x * T + 2.0 + floorf(TopdownTerrain.h01(x, y, seed + 20 + n) * 12.0)
+				var px := x * T + 2.0 + floorf(HashNoise.cell(x, y, seed + 20 + n) * 12.0)
 				var c0 := float((x / chunk.x) * chunk.x) * T
 				px = clampf(px, c0 + fx, minf(c0 + chunk.x * T, r.w * T) - (sz.x - fx))
-				var py := maxf(y * T + 15.0 - floorf(TopdownTerrain.h01(x, y, seed + 30 + n) * maxf(0.0, 16.0 - sz.y)), y * T + sz.y - 1.0)
+				var py := maxf(y * T + 15.0 - floorf(HashNoise.cell(x, y, seed + 30 + n) * maxf(0.0, 16.0 - sz.y)), y * T + sz.y - 1.0)
 				keys.append((int(py) << 32) | (int(px) << 16) | raw.size())
-				raw.append([int(px), int(py), k, l, snappedf(TopdownTerrain.h01(x, y, seed + 40 + n) * 0.96, 0.01)])
+				raw.append([int(px), int(py), k, l, snappedf(HashNoise.cell(x, y, seed + 40 + n) * 0.96, 0.01)])
 	# Back to front by the foot's row, then west to east (a native sort of packed keys).
 	keys.sort()
 	for key in keys: out.append(raw[key & 0xFFFF])

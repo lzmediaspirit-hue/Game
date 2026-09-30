@@ -3,7 +3,6 @@ extends Node2D
 ## A villager, vendor, mentor or recruiter drawn with the layered avatar (the
 ## same engine that builds the player) plus a name tag, quest marker and barks.
 
-const Avatar = preload("res://scripts/avatar.gd")
 
 var object_id := ""
 var npc_id := ""
@@ -53,7 +52,7 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 ## The villager's figure: the layered avatar in their outfit, pose, facing and tint (npcs.json), for either view.
 static func figure(o: Dictionary) -> Node2D:
 	var n := ContentDB.entry("npcs", str(o.npc))
-	var av = Avatar.new()
+	var av = Figures.side_avatar()
 	av.lazy_sheets = true   # a room full of new outfits draws each villager once its sheets are in, not on entry
 	var outfit: Dictionary = n.get("outfit", {}).duplicate()
 	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:

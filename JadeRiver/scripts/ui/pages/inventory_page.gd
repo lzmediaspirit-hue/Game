@@ -9,7 +9,6 @@ extends Page
 ## beside its space: what it is, what it does or what wearing it would make of your own totals (StatRules.equip_change),
 ## and two or three actions, the rest under "···". The page submits intents only.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const CharacterPage = preload("res://scripts/ui/pages/character_page.gd")
 const COLS := 10
 const PITCH := 80.0                        # a 76 px slot and its gap
@@ -61,7 +60,7 @@ func setup() -> void:
 	var ch = c()
 	# Decision 42: the character as its game draws it (the top-down figure for a top-down character).
 	if not is_instance_valid(doll):
-		doll = TopdownDoll.new() if TopdownDoll.shown(ch) else Avatar.new()
+		doll = Figures.for_character(ch)
 		doll.visible = false
 		add_child(doll)
 	if ch == null: return
@@ -75,17 +74,13 @@ func setup() -> void:
 
 func _refresh_doll() -> void:
 	if c() == null or not is_instance_valid(doll): return
-	TopdownDoll.dress(doll, InventoryAuthority.outfit_for(c()))
+	Figures.dress(doll, InventoryAuthority.outfit_for(c()))
 	doll.play("idle")
 
 func on_event(name: String, _p: Dictionary) -> void:
 	if name in ["equipment_changed", "item_added", "item_removed"]: _refresh_doll()
 	if name in ["equipment_changed", "item_added", "item_removed", "bag_changed", "stats_changed"]: change_of = -1
 	queue_redraw()
-
-## A steady scatter in [0, 1) for the sky's stars and islands (the same sky every time the page opens).
-static func _hash(i: int, k: int) -> float:
-	return fposmod(sin(i * 12.9898 + k * 78.233) * 43758.5453, 1.0)
 
 # ------------------------------------------------------------------ the sky's pieces, shared (page_identity §8.6)
 ## "Your bag" beside another page (the Shop, the Storage; decision 24) is a patch of this same heaven, drawn from these.
@@ -94,11 +89,11 @@ static func _hash(i: int, k: int) -> float:
 static func scatter_stars(n: int, area: Rect2, clear: Array) -> Array:
 	var out: Array = []
 	for i in n:
-		var s := _hash(i, 3)
-		var at := area.position + Vector2(_hash(i, 1) * area.size.x, pow(_hash(i, 2), 1.35) * area.size.y)
+		var s := HashNoise.scatter(i, 3)
+		var at := area.position + Vector2(HashNoise.scatter(i, 1) * area.size.x, pow(HashNoise.scatter(i, 2), 1.35) * area.size.y)
 		var bright := s > 0.985 and not clear.any(func(r): return (r as Rect2).has_point(at))
 		out.append([at, 1.4 if s > 0.9 else (1.0 if s > 0.6 else 0.7),
-			Color([UiKit.PALE_GOLD, UiKit.PAPER, UiKit.MIST][0 if s > 0.8 else (1 if s > 0.4 else 2)], 0.25 + _hash(i, 4) * 0.6), bright])
+			Color([UiKit.PALE_GOLD, UiKit.PAPER, UiKit.MIST][0 if s > 0.8 else (1 if s > 0.4 else 2)], 0.25 + HashNoise.scatter(i, 4) * 0.6), bright])
 	return out
 
 ## The night over `r`: deepening from INK to the gourd's jade-dark and down to the sky's lightest.
@@ -180,11 +175,11 @@ static func island(pg: Page, at: Vector2, w: float, depth: float, k: int) -> voi
 	var cols := PackedColorArray()
 	for i in 10:
 		var t := i / 9.0
-		top.append(at + Vector2(w * (t - 0.5), -sin(PI * t) * w * 0.07 - (_hash(k * 31 + i, 5) - 0.5) * w * 0.02))
+		top.append(at + Vector2(w * (t - 0.5), -sin(PI * t) * w * 0.07 - (HashNoise.scatter(k * 31 + i, 5) - 0.5) * w * 0.02))
 	outline.append_array(top)
 	for i in range(8, 0, -1):
 		var u := i / 9.0
-		outline.append(at + Vector2(w * (u - 0.5) + (_hash(k * 31 + i, 6) - 0.5) * w * 0.05, sin(PI * u) * w * 0.62 * (0.55 + _hash(k * 31 + i, 7) * 0.45)))
+		outline.append(at + Vector2(w * (u - 0.5) + (HashNoise.scatter(k * 31 + i, 6) - 0.5) * w * 0.05, sin(PI * u) * w * 0.62 * (0.55 + HashNoise.scatter(k * 31 + i, 7) * 0.45)))
 	var rock_top: Color = UiKit.SURFACE.silk.lerp(UiKit.SURFACE.sky, depth * 0.5)
 	for i in outline.size(): cols.append(Color(rock_top if i < 10 else UiKit.SURFACE.space, a))
 	pg.glow(Rect2(at + Vector2(-w * 0.6, w * 0.16), Vector2(w * 1.2, w * 0.32)), Color(UiKit.JADE, 0.05 + (1.0 - depth) * 0.05))
@@ -204,8 +199,8 @@ static func island(pg: Page, at: Vector2, w: float, depth: float, k: int) -> voi
 		return
 	pg.draw_polyline(top, Color(UiKit.JADE, a), maxf(2.0, w * 0.035), true)
 	for t in maxi(1, roundi(w / 60.0)):
-		var tx := at.x - w * 0.3 + _hash(k * 7 + t, 8) * w * 0.6
-		var th := w * (0.12 + _hash(k * 7 + t, 9) * 0.08)
+		var tx := at.x - w * 0.3 + HashNoise.scatter(k * 7 + t, 8) * w * 0.6
+		var th := w * (0.12 + HashNoise.scatter(k * 7 + t, 9) * 0.08)
 		var tree := PackedVector2Array([Vector2(tx, at.y - th), Vector2(tx + th * 0.35, at.y - 1), Vector2(tx - th * 0.35, at.y - 1)])
 		pg.draw_colored_polygon(tree, Color(UiKit.JADE_SHADOW, a))
 		tree.append(tree[0])
@@ -267,7 +262,7 @@ func draw_page() -> void:
 	_purses(ch)
 	# The figure on its island, then the worn slots riding in along the orbit as the page opens.
 	glow(Rect2(FEET + Vector2(-64, -10), Vector2(128, 22)), Color(UiKit.INK, 0.45))
-	doll.draw_on(self, FEET, TOP_SCALE if doll is TopdownDoll else FIGURE_SCALE)
+	Figures.draw_on(doll, self, FEET, TOP_SCALE, FEET, FIGURE_SCALE)
 	var ringed := str(sel.get("slot", ""))
 	var chosen = selected_item()
 	if sel.has("bag") and chosen != null: ringed = str(ContentDB.item(str(chosen.id)).get("slot", ""))
