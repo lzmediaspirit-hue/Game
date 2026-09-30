@@ -34,6 +34,7 @@ import music_adaptive  # noqa: E402,F401  (decision 43: the combat stems and the
 from sfx import SFX  # noqa: E402
 import sfx_pass  # noqa: E402,F401  (decision 43: layered hits, steps, foes, the world, stingers)
 import beds  # noqa: E402,F401  (decision 43: the ambient beds)
+import life  # noqa: E402,F401  (decision 44: the living world's critters and work, the places)
 import review  # noqa: E402
 
 try:
@@ -63,6 +64,14 @@ VOLUME = [
     ("tell_", -25.0), ("die_", -23.0), ("sting_", -18.0), ("bed_birds", -34.0), ("bed_insects", -35.0),
     ("bed_frogs", -34.0), ("bed_", -29.0), ("door_", -25.0), ("loot_drop", -26.0), ("splash", -24.0),
     ("ui_confirm", -24.0), ("ui_tab", -28.0), ("talk_", -26.0), ("bark", -28.0), ("scene_in", -24.0),
+    # decision 44: the living world, ambience under the fight (and falling off with distance): the tool's blow a little
+    # over the rest of the work, its swing, a look about, a brush and a breath well under it; the smith's light tap
+    # between blows under his blows; the critters a touch over the work; the player's own use of a place near a door's
+    ("life_work_breathe", -41.0), ("life_work_look", -39.0), ("life_work_write", -37.0), ("life_work_hammer_hit_c", -35.0),
+    ("life_work_pick", -35.0),
+    ("life_work_chop_hit", -30.0), ("life_work_hammer_hit", -30.0), ("life_work_chop", -37.0), ("life_work_hammer", -37.0),
+    ("life_work_", -33.0), ("life_frog_leap", -35.0), ("life_fish_flee", -34.0), ("life_cat_wake", -34.0),
+    ("life_dog_bark", -31.0), ("life_", -32.0), ("place_open", -28.0), ("place_", -30.0),
 ]
 
 
