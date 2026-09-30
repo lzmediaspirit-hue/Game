@@ -133,7 +133,8 @@ func _poses(tree: SceneTree) -> void:
 	tree.root.add_child(hud)
 	hud.visible = false
 	var src := GDScript.new()
-	src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar posed: Array = []\nfunc play_place_pose(p: String) -> void:\n\tposed.append(p)\nfunc end_place_pose() -> void:\n\tposed.append(\"end\")\n"
+	# the player's fields a page blocking the HUD lets go of (HUD._notification), and the place pose's two calls
+	src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar movement := Vector2.ZERO\nvar joystick_engaged := false\nvar posed: Array = []\nfunc reset_sprint() -> void:\n\tpass\nfunc play_place_pose(p: String) -> void:\n\tposed.append(p)\nfunc end_place_pose() -> void:\n\tposed.append(\"end\")\n"
 	src.reload()
 	var stub = src.new()
 	stub.actor_id = c.id
