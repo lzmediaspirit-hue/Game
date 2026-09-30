@@ -630,7 +630,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floor 12; Trial Tower guardian, floor 10; summoned by [Drowned Abbot](#enemy-drowned_abbot)
 - **Level band**: Lv 22–26 in `enemies.json`
 - **Stats**: Lv 22: HP 1208, Attack 174, Physical Defense 86, Accuracy 76; Lv 26: HP 1792, Attack 248, Physical Defense 114, Accuracy 88
-- **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying; weak to fire; phases walls. Attacks: talisman_throw×1 (windup 0.5s, damage type soul)
+- **Behaviour**: AI flyer_ranged; aggro range 200; move speed 70; patrol 140; moves: fly; flying; phases walls. Attacks: talisman_throw×1 (windup 0.5s, damage type soul)
 - **Drops** (loot table `paper_talisman_ghost`):
   - [Talisman Paper](items.md#item-talisman_paper): 30% (group 60%, weight 1 of 2)
   - [Ink](items.md#item-ink): 30% (group 60%, weight 1 of 2)
@@ -692,7 +692,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: Calendar: The Drowned Shrine Surfaces (boss)
 - **Level band**: Lv 27 in `enemies.json`
 - **Stats**: Lv 27: HP 272340, Attack 670, Physical Defense 228, Accuracy 91
-- **Behaviour**: AI boss_abbot; aggro range 200; move speed 90; patrol 140; weak to fire. Attacks: bell_shockwave×1.2 (windup 0.7s, knockback 80); summon_ghosts×0 (windup 1.2s, summon paper_talisman_ghost). Phases: below 66% HP: action flood; below 33% HP: action summon
+- **Behaviour**: AI boss_abbot; aggro range 200; move speed 90; patrol 140. Attacks: bell_shockwave×1.2 (windup 0.7s, knockback 80); summon_ghosts×0 (windup 1.2s, summon paper_talisman_ghost). Phases: below 66% HP: action flood; below 33% HP: action summon
 - **Drops** (loot table `drowned_abbot`):
   - [Riverbreath Scroll](items.md#item-riverbreath_scroll): 100% (guaranteed)
   - [Riverlight Hilt](items.md#item-riverlight_hilt): 100% (only during Riverlight Jian)
@@ -1411,7 +1411,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: summoned by [Tomb King](#enemy-tomb_king)
 - **Level band**: Lv 77 in `enemies.json`
 - **Stats**: Lv 77: HP 128310, Attack 13174, Physical Defense 2861, Accuracy 241
-- **Behaviour**: AI slow_melee; aggro range 200; move speed 70; patrol 140; moves: drop; weak to water. Attacks: ge_chop×1.3 (windup 0.8s, knockback 90)
+- **Behaviour**: AI slow_melee; aggro range 200; move speed 70; patrol 140; moves: drop. Attacks: ge_chop×1.3 (windup 0.8s, knockback 90)
 - **Drops** (loot table `terracotta_warden`):
   - [Terracotta Shard](items.md#item-terracotta_shard): 30% (group 60%, weight 1 of 2)
   - [Storm Shard](items.md#item-storm_shard): 30% ×1–2 (group 60%, weight 1 of 2)
@@ -1431,7 +1431,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 - **Also appears**: Lost arts: sand_throne_sweep (enemy)
 - **Level band**: Lv 77 in `enemies.json`
 - **Stats**: Lv 77: HP 16767000, Attack 26348, Physical Defense 5364, Accuracy 241
-- **Behaviour**: AI boss_king; aggro range 200; move speed 90; patrol 140; weak to water. Attacks: glaive_sweep×1.35 (windup 0.75s, knockback 120); sand_crescent×1.2 (windup 0.9s, damage type qi); sun_flare×1.5 (windup 1.1s, damage type qi, status {"chance": 0.5, "duration_s": 4, "id": "burn", "power": 0.01}). Phases: below 60% HP: action summon, summon terracotta_warden, summon level 74; below 30% HP: action enrage, cooldown 0.65, damage 1.3
+- **Behaviour**: AI boss_king; aggro range 200; move speed 90; patrol 140. Attacks: glaive_sweep×1.35 (windup 0.75s, knockback 120); sand_crescent×1.2 (windup 0.9s, damage type qi); sun_flare×1.5 (windup 1.1s, damage type qi, status {"chance": 0.5, "duration_s": 4, "id": "burn", "power": 0.01}). Phases: below 60% HP: action summon, summon terracotta_warden, summon level 74; below 30% HP: action enrage, cooldown 0.65, damage 1.3
 - **Drops** (loot table `tomb_king`):
   - [Sun Crown Fragment](items.md#item-sun_crown_fragment): 100% ×2–3 (guaranteed)
   - [Storm Shard](items.md#item-storm_shard): 100% ×12–18 (guaranteed)

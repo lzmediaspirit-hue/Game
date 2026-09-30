@@ -9,7 +9,7 @@ quality:, dao:), never hex; text is a string key or a data name, never literal w
 import json
 import os
 
-from common import DATA, write, run_cli
+from common import DATA, TESTS_DATA, rows as table_rows, run_cli, write
 from techniques import PARTICLES, TIER_BY_REALM, VFX_SHAPES
 
 SETTINGS = {"max_lock_s": 1.5, "queue_max": 4, "stale_s": 6.0, "cut_fade_s": 0.15, "flash_gap_s": 1.0, "shake_amp_per_s": 16,
@@ -67,7 +67,7 @@ BOSS_ROLES = ["field_boss", "dungeon_boss", "story_boss"]
 
 
 def _entries(name):
-    return json.load(open(os.path.join(DATA, name + ".json"), encoding="utf-8"))["entries"]
+    return table_rows(name, TESTS_DATA if name == "legendary_chains" else DATA)
 
 
 def rare():

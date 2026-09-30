@@ -17,6 +17,9 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATA = os.path.join(ROOT, "data")
+# Tables the game never reads, only the checks and the tools (balance_sim's pacing table, the legendary chains' record,
+# the art bible's review room): out of data/, which ContentDB loads whole and the export ships (audit 45).
+TESTS_DATA = os.path.join(ROOT, "tests", "data")
 SCHEMA_VERSION = 1
 
 
@@ -89,7 +92,7 @@ def write(name, payload, folder=DATA):
     return emit(os.path.join(folder, name), json.dumps(ordered, indent=1, ensure_ascii=False) + "\n")
 
 
-def entries(name, rows, **extra):
+def entries(name, rows, folder=DATA, **extra):
     """A list table: its rows under `entries` (each with its own `id`, none twice), its constants beside them."""
     if not name.endswith(".json"):
         name += ".json"
@@ -100,7 +103,7 @@ def entries(name, rows, **extra):
         ids.add(r["id"])
     payload = {"entries": rows}
     payload.update(extra)
-    return write(name, payload)
+    return write(name, payload, folder)
 
 
 def clear(folder, suffix=".json"):

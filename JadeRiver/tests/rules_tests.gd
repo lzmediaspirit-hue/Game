@@ -4403,7 +4403,7 @@ func awaken_legend_suite() -> void:
 	var en := Game.submit({"type": "enhance", "uid": int(sp.uid)})
 	check(en.get("ok", false) and int(sp.get("enhance", 0)) == 10 and c.quests.has_flag("forged_plus10"), "forging a Heaven weapon to +10 is what Smith Hong asks (%s)" % str(en))
 	# Legendary chains: one per weapon family, three pieces each, an Expert restore and the legend's own skill.
-	var chains := ContentDB.all("legendary_chains")
+	var chains: Array = (JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/legendary_chains.json")) as Dictionary).entries
 	var fams := {}
 	for ch in chains: fams[str(ch.family)] = true
 	check(chains.size() == 9 and not fams.has("fists") and fams.has("gauntlets") and fams.has("flute"), "nine legendary chains, one per weapon family (%d)" % chains.size())

@@ -5,7 +5,6 @@
    "id": "old_ma",
    "name": "Old Ma's Store",
    "currency": "silver_tael",
-   "buys_all": true,
    "stock": [
     {
      "item": "herbal_tea",
@@ -138,7 +137,6 @@
    "id": "stoneford_general",
    "name": "Stoneford General Store",
    "currency": "silver_tael",
-   "buys_all": true,
    "stock": [
     {
      "item": "cinnabar",
@@ -737,7 +735,6 @@
    "id": "stoneford_smith",
    "name": "Stoneford Smith",
    "currency": "silver_tael",
-   "buys_all": true,
    "stock": [
     {
      "item": "training_jian"
@@ -2394,7 +2391,6 @@
    "id": "greyreed",
    "name": "Greyreed Trade Post",
    "currency": "silver_tael",
-   "buys_all": true,
    "stock": [
     {
      "item": "rice"
@@ -2656,7 +2652,6 @@
    "id": "port_peddler",
    "name": "Peddler Gou's Packs",
    "currency": "spirit_stone",
-   "buys_all": true,
    "stock": [
     {
      "item": "healing_pill"
@@ -2719,7 +2714,6 @@
    "id": "stormsteel_smith",
    "name": "Hong's Stormsteel Forge",
    "currency": "spirit_stone",
-   "buys_all": true,
    "stock": [
     {
      "item": "stormsteel_ore"
@@ -2926,7 +2920,6 @@
    "id": "lanternfall_goods",
    "name": "Peddler Ning's Silk and Sundries",
    "currency": "sage_crystal",
-   "buys_all": true,
    "stock": [
     {
      "item": "healing_pill"
@@ -3687,7 +3680,6 @@
    "id": "shipwright",
    "name": "Lao's Slipway Stores",
    "currency": "spirit_stone",
-   "buys_all": true,
    "stock": [
     {
      "item": "spirit_wood",
@@ -3705,7 +3697,6 @@
    "id": "oasis_keeper",
    "name": "Oasis of Bones Stores",
    "currency": "spirit_stone",
-   "buys_all": true,
    "stock": [
     {
      "item": "herbal_tea"
@@ -3954,7 +3945,6 @@
    "id": "ironroot_clan",
    "name": "Ironroot Clan Forge",
    "currency": "spirit_stone",
-   "buys_all": true,
    "discount": {
     "flag": "clan_ironroot",
     "pct": 0.15
@@ -4123,7 +4113,6 @@
    "id": "herders_camp",
    "name": "Herders' Camp",
    "currency": "spirit_stone",
-   "buys_all": true,
    "stock": [
     {
      "item": "tough_meat"

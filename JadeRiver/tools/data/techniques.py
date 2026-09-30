@@ -74,8 +74,7 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
            "soul_cost": f.pop("soul", 0), "composure_cost": f.pop("composure", 0), "dao": f.pop("dao", {
                "fists": "fist", "jian": "sword", "spear": "spear", "short_blade": "blade", "staff": "staff", "bow": "bow",
                "heavy_sabre": "blade", "fan": "fan", "flute": "music", "brush": "brush", "bell": "music"}.get(family, element)),
-           "unlock": unlock, "source": source, "desc": extra, "action": action, "icon": id,
-           "mastery": {"dmg_per_tier": 0.08, "cost_per_tier": -0.05}}
+           "unlock": unlock, "source": source, "desc": extra, "action": action, "icon": id}
     row.update(f)
     return row
 

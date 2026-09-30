@@ -57,7 +57,7 @@ def shops():
         return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)
                 if not a.get("legacy") and not a.get("lost")]
     rows = [
-        {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
+        {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael",
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
                    s("bonding_offering_common", requires=all_of(realm("qi_unfurling_5"))),
                    s("sealing_gourd", price=900, requires=all_of(realm("spirit_awakening_1")))],
@@ -69,7 +69,7 @@ def shops():
                    s("calm_incense", requires=all_of(realm("qi_unfurling_9"))),
                    # S45 seeds (Part 8): the common three, for the garden beds.
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
-        {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael", "buys_all": True,
+        {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael",
          "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("spirit_spade", price=900, requires=all_of(realm("cloud_stride_1"))), s("rice_wine", price=12),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
@@ -120,7 +120,7 @@ def shops():
                    s("ore_dust", price=8, requires=all_of(flag("guild_formations_adept"))),
                    s("killing_array_plate", price=260, requires=all_of(flag("guild_formations_expert"))),
                    s("binding_array_plate", price=260, requires=all_of(flag("guild_formations_expert")))]},
-        {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael", "buys_all": True,
+        {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael",
          "stock": [s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
                    s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_gauntlets", requires=all_of(realm("qi_kindling_1"))), s("iron_short_blade", requires=all_of(realm("qi_kindling_1"))),
@@ -181,7 +181,7 @@ def shops():
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4, sealed=True), s("manual_page", price=6), s("spirit_egg", price=12,
                    requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
-        {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael", "buys_all": True,
+        {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael",
          "stock": [s("rice"), s("rice_ball"), s("marsh_mist_tea", price=30), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
@@ -202,12 +202,12 @@ def shops():
                    s("stormsteel_bow"), s("stormsilk_hat"), s("stormsilk_robe"), s("stormsilk_trousers"), s("stormsilk_boots"),
                    s("stormsteel_gourd", requires=all_of(realm("sage_1")))],
          "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
-        {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone", "buys_all": True,
+        {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone",
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
                    s("thunderhead_tea", price=3),
                    s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("mistjade_gourd")],
          "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
-        {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone", "buys_all": True,
+        {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone",
          "stock": [s("stormsteel_ore"), s("mystic_ore"),
                    s("recipe_scroll", learn="stormsteel_jian", price=40, requires=all_of(realm("sage_1"))),
                    s("recipe_scroll", learn="stormsteel_spear", price=40, requires=all_of(realm("sage_1"))),
@@ -226,7 +226,7 @@ def shops():
          "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3"))),
                    s("sovereign_settling_pill", price=120, requires=all_of(realm("sage_sovereign_1")))]},
         # Act III · Lanternfall Harbor (v1.2). Sage Crystal prices come from tael prices at the crystal's tael value.
-        {"id": "lanternfall_goods", "name": "Peddler Ning's Silk and Sundries", "currency": "sage_crystal", "buys_all": True,
+        {"id": "lanternfall_goods", "name": "Peddler Ning's Silk and Sundries", "currency": "sage_crystal",
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("revival_talisman"),
                    s("rice_ball"), s("will_tempering_pill", price=6)]
                   # P7b (item_plan §2.10): star and space cores for star-tier animals hatched young, two a day each.
@@ -270,9 +270,9 @@ def shops():
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
                                                                    requires=all_of(realm("sage_sovereign_3")))]},
-        {"id": "shipwright", "name": "Lao's Slipway Stores", "currency": "spirit_stone", "buys_all": True,
+        {"id": "shipwright", "name": "Lao's Slipway Stores", "currency": "spirit_stone",
          "stock": [s("spirit_wood", price=40), s("formation_stone"), s("stormsteel_ore")]},
-        {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone", "buys_all": True,
+        {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone",
          "stock": [s("herbal_tea"), s("rice_ball"), s("viper_antidote"), s("qi_restoration_pill"), s("storm_blood_pill"), s("cactus_water", price=12),
                    s("tough_meat")]},
         # A back-room market (gap report G1 karma): every purchase is a small sin.
@@ -299,7 +299,7 @@ def shops():
                    s("technique_manual", learn="crimson_palm", price=600, requires=all_of(realm("heart_tempering_1"), {"kind": "alignment_at_most", "value": -20})),
                    s("technique_manual", learn="blood_river_slash", price=1400, requires=all_of(realm("heart_tempering_5"), {"kind": "alignment_at_most", "value": -20})),
                    s("technique_manual", learn="sanguine_lotus", price=3200, requires=all_of(realm("cloud_stride_1"), {"kind": "alignment_at_most", "value": -20}))]},
-        {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,
+        {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone",
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
                    s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
@@ -315,7 +315,7 @@ def shops():
                    s("sunsilk_robe", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsteel_gourd", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
-        {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone", "buys_all": True,
+        {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone",
          "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill"),
                    s("beast_bag_star", price=160, requires=all_of(realm("sage_1")))]},
     ]
@@ -1253,8 +1253,7 @@ def strings():
         "event.mine_assault": "Taking the Mine", "event.mine_defence": "Holding the Mine",
         "event.starsea_crossing": "The Starsea Crossing", "event.hollow_tide_battle": "The Tide Breaks: the Tidebreak Bastion", "event.greyfall_stand": "The Greyfall Stand",
         "flag.night_survived": "Survived the night",
-        "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",
-        "ui.unaffiliated": "Unaffiliated", "ui.locked": "Locked",
+        "ui.unaffiliated": "Unaffiliated",
     })
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])

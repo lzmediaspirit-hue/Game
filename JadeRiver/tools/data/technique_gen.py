@@ -270,7 +270,7 @@ def keystone_row(tree, kin, act, name, template, desc):
     dtype = "soul" if element == "soul" else "qi"
     row = {"id": snake(name), "name": name, "family": "any", "kin": kin, "element": element, "ring": ring, "kind": "keystone",
            "template": template, "heavy": True, "action": "meditate_burst", "dao": G.TREES[tree][2] or "none", "desc": desc,
-           "windup_s": 0.3, "active_s": 0.3, "soul_cost": 0, "composure_cost": 0, "mastery": MASTERY}
+           "windup_s": 0.3, "active_s": 0.3, "soul_cost": 0, "composure_cost": 0}
     ctrl = verb_fields("snare", element)
     if template == "constructs":
         row.update(damage_type=dtype, mult=[round(0.36 * b, 3), round(0.44 * b, 3)], hits=9, max_targets=1, cooldown_s=24, qi_cost=28,
@@ -301,7 +301,6 @@ def keystone_row(tree, kin, act, name, template, desc):
     return row
 
 
-MASTERY = {"dmg_per_tier": 0.08, "cost_per_tier": -0.05}
 TEMPLATE_SHAPE = {"constructs": "bolt", "field": "domain", "avatar": "domain", "finisher": "pillar", "mirror": "domain", "procession": "domain"}
 FAMILY_COMBO = {}
 
@@ -318,7 +317,7 @@ def form_defaults():
                 takes[pose(f, fam)] = takes.get(pose(f, fam), 0) + 1
         action = sorted(takes.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
         out[f] = {"damage_type": dtype, "hits": F["hits"], "max_targets": F["targets"], "cooldown_s": F["cd"], "qi_cost": F["qi"],
-                  "windup_s": 0.2, "active_s": 0.2, "soul_cost": 0, "composure_cost": 0, "mastery": MASTERY,
+                  "windup_s": 0.2, "active_s": 0.2, "soul_cost": 0, "composure_cost": 0,
                   "mult": [0, 0] if F["mult"][0] == 0 else list(F["mult"]),
                   "hitbox": {"depth": F["extra"].get("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
                   "action": action, "vfx": {"shape": F["shape"], "anim": f, "pose": pose_of({"action": action})}}   # the form's FX
