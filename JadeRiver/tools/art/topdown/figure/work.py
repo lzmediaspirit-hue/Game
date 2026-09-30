@@ -234,29 +234,32 @@ def _chop(i):
 
 
 # ------------------------------------------------------------------ the hammer
-ANVIL_AT = (6.4, 0.6, 0.0)          # the anvil's stump on the ground before the feet
+# The smiths work at their room's own anvil (the Forge place's forge_anvil prop): each one's spot stands it a tile east
+# of the feet and 0.4 of a tile south (tools/data/topdown_life.py), so its face, 21 art px over its foot, comes to the
+# chest. BAR_AT is the hot ingot on that face in the figure's frame, facing e: 15.5 art px right of the feet, 16 up.
+BAR_AT = (14.6, 0.6, 17.4)
 
 
 def _hammer(i):
-    """At the anvil, the tongs in the left hand holding the hot bar on it: 0 the rest (the hammer lifted a little over
-    the bar), 1 raised by the ear (the anticipation), 2 at the top, 3 the blow (the contact), 4 the rebound, 5 turning
-    the bar (the tongs roll it) as the hammer comes back."""
+    """At the room's anvil, the tongs in the left hand holding the hot bar on its face: 0 the rest (the hammer lifted a
+    little over the bar), 1 raised by the ear (the anticipation), 2 at the top, 3 the blow (the contact: the face on
+    the bar), 4 the rebound, 5 turning the bar (the tongs roll it) as the hammer comes back."""
     seq = [
-        # the right hand, the hammer's handle direction (from the hand to the head), lean, twist; the head lands on the
-        # bar on the anvil's face (ANVIL_AT, 9.2 up) on the blow
-        ((1.7, 3.0, 13.4), (0.82, -0.41, -0.41), 12.0, 4.0),
-        ((2.2, 4.2, 21.0), (0.05, -0.2, 0.98), 4.0, 12.0),
-        ((1.0, 4.2, 23.8), (-0.45, -0.1, 0.88), 0.0, 16.0),
-        ((2.9, 2.6, 13.3), (0.6, -0.35, -0.72), 16.0, 0.0),
-        ((2.1, 3.0, 14.7), (0.78, -0.46, -0.39), 12.0, 4.0),
-        ((1.9, 3.0, 14.9), (0.77, -0.41, -0.53), 10.0, 6.0),
+        # the right wrist, the hammer's handle direction (from the hand to the head), lean, twist; solved so the
+        # hammer's face lands on the bar (BAR_AT) on the blow and hangs 2 to 3 over it either side of it
+        ((9.35, 2.21, 23.72), (0.84, -0.2, -0.5), 14.0, 4.0),
+        ((8.61, 3.61, 24.9), (0.32, -0.12, 0.94), 12.0, 8.0),
+        ((7.44, 3.87, 25.69), (0.05, -0.12, 0.99), 12.0, 12.0),
+        ((9.46, 2.13, 21.44), (0.9, -0.15, -0.42), 18.0, 0.0),
+        ((9.14, 2.39, 23.59), (0.82, -0.2, -0.36), 14.0, 4.0),
+        ((10.12, 1.7, 25.02), (0.8, -0.2, -0.5), 12.0, 6.0),
     ]
     hr, d, ln, tw = seq[i]
-    return pose(pelvis=(0.1, 0.0, 12.9), lean=ln, twist=tw, head_pitch=16.0, **feet(1.2, -1.0, 2.5, 2.6),
+    return pose(pelvis=(0.4, 0.0, 12.9), lean=ln, twist=tw, head_pitch=10.0, **feet(1.2, -1.0, 2.5, 2.6),
                 foot_yaw_r=14.0, hand_r=hr, elbow_r=(-0.6, 1.0, -0.2) if i in (1, 2) else (-0.6, 1.0, -0.5),
-                grip_r="fist", hand_l=(5.0, -1.8, 12.4 + (0.3 if i == 5 else 0.0)), elbow_l=(-0.6, -1.0, -0.4),
+                grip_r="fist", hand_l=(7.37, -1.37, 18.71 + (0.3 if i == 5 else 0.0)), elbow_l=(-0.6, -1.0, -0.4),
                 grip_l="fist", drag=([0.0, 0.1, 0.2, -0.4, -0.1, 0.0][i], 0.0, 0.0),
-                weapon=stow(hammer={"dir": _unit(d), "anvil": ANVIL_AT, "turn": i == 5}))
+                weapon=stow(hammer={"dir": _unit(d), "bar": BAR_AT, "turn": i == 5}))
 
 
 # ------------------------------------------------------------------ the herb basket

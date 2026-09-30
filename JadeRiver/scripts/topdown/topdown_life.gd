@@ -1054,13 +1054,13 @@ func _step_work(delta: float) -> void:
 		if w.cue != "": raise_cue("work_" + w.cue, fig.plane)
 		if w.hit:
 			# Decision 44: on the contact frame, where the drawn tool lands: the axe's head in the block (about 18 art px
-			# before the feet, a block's height up), the hammer's face on the bar on the anvil (7 px before, 10 up).
+			# before the feet, a block's height up), the hammer's face on the hot bar on the room's anvil (15 px before, 16 up).
 			match cue:
 				"chop":
 					_bits((fig.feet as Vector2) + dir * Vector2(18, 7) + Vector2(0, -6), dir, [Color("e2be88"), Color("ad7b46"), Color("cb9c63")], 5)
 					raise_cue("work_chop_hit", fig.plane)
 				"hammer":
-					_spark((fig.feet as Vector2) + dir * Vector2(7, 3.5) + Vector2(0, -10), Color("ffd070"), 5, 44.0)
+					_spark((fig.feet as Vector2) + dir * Vector2(15, 6) + Vector2(0, -16), Color("ffd070"), 5, 44.0)
 					raise_cue("work_hammer_hit", fig.plane)
 		if not extras_on: continue
 		var tick := fmod(w.t, 0.5) < delta

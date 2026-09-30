@@ -509,7 +509,7 @@ The body in the top-down world is the game's own character, redrawn for this vie
 | Colour | the side view's ramps: skin, blue eyes, the hair's six colours, the disciple tunic's navy and gold, the trousers' teal, the weapons' jade steel and gold; the dyes are the side view's own |
 | Facings | S, SE, E, NE, N drawn; SW, W, NW mirrored (their light then comes from the upper right). The side rows turn a little toward the camera, the head in E a little more |
 | Motion | a cut leaves a smear of pale jade light on its hit frame (no ink round it); hair and cloth trail the motion |
-| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. Decision 44's work and place poses (+360 frames a set) and the ten tool sheets bring it to 178 sheets and 294.7 MB (the tallest 2,075 px), the player's outfit 11.2 MB. A full build of every set takes about 16-20 minutes on two cores of the shared machine (`--jobs 2`) |
+| Cost | the same draw calls a figure (one a layer). At 46 px the 168 sheets hold 207 MB of RGBA8 (from 139 at 38 px; 512 px wide, the tallest 1,446 px, well under the 4,096 limit), the player's outfit 8.1 MB (from 5.4); the pictures' 105 frames a set are about a tenth of that. Decision 44's work and place poses (+360 frames a set) and the ten tool sheets bring it to 178 sheets and 293.7 MB (the tallest 2,072 px), the player's outfit 11.2 MB. A full build of every set takes about 16-20 minutes on two cores of the shared machine (`--jobs 2`) |
 
 **The scale rule (decision 43).** The people are drawn 1.2 times the 38 px they were (`TopdownRoom.PEOPLE`), and
 what is sized against a person follows them; the world's measures do not (a tile, a level, the walk's 154 and the
@@ -549,7 +549,7 @@ after it:
 | `work_stir` | 4, 5 (loop) | the ladle round the pot held on the left arm | ladle and clay pot |
 | `work_grind` | 4, 5 (loop) | kneeling, the pestle driven down (2) and ground round, the left hand on the mortar | pestle and stone mortar |
 | `work_chop` | 6, 6 (loop) | the axe down in the block (3); up past the shoulder, over the head on the toes, wrenched free | axe, both hands |
-| `work_hammer` | 6, 6 (loop) | the blow on the hot bar (3), the tongs in the left hand; raised by the ear, the rebound, the bar turned | hammer, anvil on its stump, tongs |
+| `work_hammer` | 6, 6 (loop) | the blow on the hot bar on the room's anvil (3), the tongs in the left hand; raised before the face, the rebound, the bar turned | hammer, tongs and the hot bar (the anvil is the room's) |
 | `work_pick` | 6, 5 (loop) | crouched, a sprig plucked (2) and dropped in the basket before the feet | herb basket |
 | `work_mend` | 4, 4 (loop) | seated, the netting needle drawn out and the knot pulled tight (2) | net and needle |
 | `open` | 4, 10 | the left hand lifts a lid, a letter box's flap or a door (2) and holds it; the weapon stays in the right | (the weapon) |
@@ -561,8 +561,10 @@ after it:
   keeps the weapon as its lines say, like the story's gestures.
 - **The tool layer** (`figure/sets/tool.py`, cast by `figure/kinds/tool.py`) is a rig on the same skeleton: each tool
   is fitted to the fists the pose puts on it (a haft through both fists, cut away inside them so the fists close over
-  it), and what stands on the ground stands on it (the anvil, the mortar, the net's heap, the bristles pressed to the
-  floor). It is drawn only in its own actions (`actions` in its set; the broom, the rod, the axe and the herb basket
+  it), and what stands on the ground stands on it (the mortar, the net's heap, the bristles pressed to the floor). A
+  station the room already has is the room's: the smith hammers on the Forge place's own anvil, his spot standing it
+  a tile before him and 0.4 of a tile south (`topdown_life.py` checks each smith's), where the pose puts the hot bar
+  on its face (`work.py` `BAR_AT`). It is drawn only in its own actions (`actions` in its set; the broom, the rod, the axe and the herb basket
   are carried in the idle and walk poses too) and explicitly hidden in every other ("Not held in this action"). Its
   colours are the §14 world's (the wood, bamboo, reed, stone, clay and plaster ramps of `palette.py`), shaded and
   outlined by the figure's rules above: haft and rod lines a pixel wide, iron with a cool rim, the fishing line and the
@@ -1184,7 +1186,7 @@ built, and by `topdown_life_suite`):
 | cook | `work_stir`, its rest frame | a clay pot on the left arm and a ladle | steam |
 | grind | `work_stir` at the stove, `work_grind` at the mortar | the ladle and pot, a pestle and a stone mortar | leaves |
 | chop | `work_chop` | an axe (carried hanging between the spots) | chips on the blow |
-| hammer | `work_hammer` at the anvil, `tend` at the forge | a hammer, the anvil on its stump, tongs and the hot bar | sparks on the blow, at the forge |
+| hammer | `work_hammer` at the room's anvil, `tend` at the forge | a hammer, tongs and the hot bar | sparks on the blow, at the forge |
 | fish | `work_rod`, `work_cast` | a rod, its line and a red float | a ring on the recast |
 | mend | `work_mend` (seated) | a fishing net over the lap, a netting needle | |
 | watch, read, sell, pray, write, play, meditate | idle and looking round, point, salute, brush_write, run, meditate | | |
@@ -1225,7 +1227,8 @@ the rim, in four sizes, tinted and faded by the view:
 **Interiors.** The huts, the shop and the weapon halls are furnished to say who lives there (`furnish.py`):
 
 - Aunt Ping's: a stove, a bed, a water jar, the day's fish, rice sacks; nets and drying fish on the wall;
-- Granny Liu's: a cabinet of jars, a drying rack, a stove, a mortar, a bed, baskets of herbs; bundles of herbs and a
+- Granny Liu's: a cabinet of jars, a drying rack, a stove, a bed, baskets of herbs (her mortar is her own, in her
+  hands as she grinds: the `pestle` tool); bundles of herbs and a
   scroll on the wall, and her cat by the shrine;
 - Old Ma's store: two cabinets of goods, sacks, bolts of cloth, a water jar; a plaque over the counter;
 - the weapon halls: a forge hearth and a quench jar, a meditation mat; the hall's plaque, scrolls and a silk hanging.

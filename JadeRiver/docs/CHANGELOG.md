@@ -19,14 +19,15 @@ hands on every frame; and using a place plays a pose before its page opens. As b
   bed or a furnace, crouched) and `sit` (the mat, redrawn on the body), the weapon kept as their lines say.
 - **The held-tool rig:** a `tool` layer set (`figure/sets/tool.py`, `figure/kinds/tool.py`) cast from the same
   skeleton: broom, shoulder pole with its baskets, rod with line and float, washing (a basket on the shoulder, a
-  cloth), ladle and pot, pestle and mortar, axe, hammer with anvil and tongs, herb basket, net and needle; each fitted
+  cloth), ladle and pot, pestle and mortar, axe, hammer with tongs and the hot bar, herb basket, net and needle; each fitted
   to the fists the pose puts on it (cut away inside them), in the §14 palette and the figure's lighting, nearest
   neighbour; drawn only in its own actions (the broom, rod, axe and herb basket carried in idle and walk) and
   explicitly hidden elsewhere.
 - **The living world wired to them:** every stand-in replaced (the woodcutter swings an axe, not the sabre); a working
   step runs whole cycles so `life_work_chop_hit` and `life_work_hammer_hit` land on the drawn contact frame on every
   blow; a worker wears their loop's tools; a cook, a grinder, a smith and a net mender stopped by the player keep their
-  work pose's rest frame, the tool in hand. The held-tool sprites (`broom`, `pole_side`) left the life sheet; the loads
+  work pose's rest frame, the tool in hand. The smiths hammer on their room's own anvil (each spot stands it where the
+  blow meets its hot ingot, checked as the data is built); Granny Liu grinds by her stove in her own mortar. The held-tool sprites (`broom`, `pole_side`) left the life sheet; the loads
   set down at a spot stay.
 - **Places:** the HUD plays the pose for 0.4 s, raising `place_open`, `place_tend` or `place_sit`, then opens the page;
   a second tap opens it at once; the body keeps the pose while the page is open (seated through the Cultivation page)
@@ -36,7 +37,7 @@ hands on every frame; and using a place plays a pose before its page opens. As b
   of its action's cycles; `topdown_life_suite` checks every chop and hammer hit falls on its contact frame for a minute;
   `places_tests` walks up to each kind of place and checks the pose, the delay, the second tap and the hold.
 - **Sheets and memory** (RGBA8, as imported): 168 sheets and 206.8 MB before, the tallest 512 x 1,446; 178 sheets and
-  294.7 MB after (the ten tool sheets 0.8 MB of it), the tallest 512 x 2,075, all under 4,096 so none is split. The
+  293.7 MB after (the ten tool sheets 0.8 MB of it), the tallest 512 x 2,072, all under 4,096 so none is split. The
   player's outfit 8.1 MB before, 11.2 after; a villager 7.5 before, 10.8 after. PNG on disk 25.3 MB before, 35.7
   after. The same draw calls a figure: a held tool is its layer's rect where the old sprite blit was, and the weapon
   draws nothing while put away.

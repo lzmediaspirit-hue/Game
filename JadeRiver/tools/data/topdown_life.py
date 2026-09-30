@@ -100,6 +100,8 @@ CUES = ["sweep", "set_down", "scrub", "hang", "pick", "stir", "grind", "chop", "
 # ==================================================================================================================
 # The rooms. A spot is [x, y, facing, steps key?] in cells (fractions allowed); "auto": n picks n spots round the NPC
 # on its own floor by a hash of the room and the NPC (see auto_spots). Facing: n, ne, e, se, s, sw, w, nw.
+# A smith's "anvil" spot stands the room's anvil (the Forge place) a tile east of the feet and 0.4 of a tile south, in
+# front: the hammer's pose (figure/work.py BAR_AT) meets its hot ingot there (check_work holds every smith to it).
 # ==================================================================================================================
 WORK = {
     "lf_village": {
@@ -112,16 +114,16 @@ WORK = {
         "npc_lu_boatman": {"loop": "watch", "spots": [[56, 28, "s"], [57.8, 28.8, "s"]]},
     },
     "lf_fishers_hut": {"npc_aunt_ping": {"loop": "cook", "spots": [[6, 6, "sw"], [5.2, 8.1, "w"]]}},
-    "lf_granny_liu_hut": {"npc_granny_liu": {"loop": "grind", "spots": [[6, 6, "sw"], [4.3, 5.6, "w", "cook"], [7.2, 7.6, "s", "grind"]]}},
+    "lf_granny_liu_hut": {"npc_granny_liu": {"loop": "grind", "spots": [[6, 6, "sw"], [4.3, 5.6, "w", "cook"], [4.2, 7.4, "w", "grind"]]}},
     "lf_old_ma_store": {"npc_old_ma": {"loop": "sell", "spots": [[12, 3, "s"], [13.5, 2.2, "n"], [10.8, 2.6, "s"]]}},
     "lf_lu_boat": {"npc_lu_boat": {"loop": "watch", "spots": [[10, 8, "s"], [8.2, 8.6, "s"], [11.8, 8.4, "se"]]}},
     "ja_weapon_hall": {
         "npc_jade_weapon_master": {"loop": "sword", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_jade_smith": {"loop": "hammer", "spots": [[17.9, 6.9, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
+        "npc_jade_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
     },
     "cm_weapon_hall": {
         "npc_cloud_weapon_master": {"loop": "staff", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_cloud_smith": {"loop": "hammer", "spots": [[17.9, 6.9, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
+        "npc_cloud_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
     },
     "ja_gate_street": {
         "npc_jade_disciple_a": {"loop": "sweep", "spots": [[29, 15, "sw"], [27.4, 16.2, "w"], [30.8, 16.4, "s"]]},
@@ -169,7 +171,7 @@ WORK = {
         "npc_adventurer_su": {"loop": "watch", "auto": 2},
     },
     "sf_artisan_row": {
-        "npc_smith_bao": {"loop": "hammer", "spots": [[14.8, 13.2, "e", "anvil"], [13, 13, "s"]]},
+        "npc_smith_bao": {"loop": "hammer", "spots": [[15.0, 12.6, "e", "anvil"], [13, 13, "s"]]},
         "npc_apprentice_tao": {"loop": "carry", "auto": 2},
         "npc_old_scribe_bai": {"loop": "write", "auto": 1},
         "npc_tinkerer_yu": {"loop": "mend", "auto": 1},
@@ -247,7 +249,7 @@ FURNISH = {
     "lf_village": [("laundry_line", 10, 29), ("wash_tub", 15, 33), ("net_rack", 65, 26), ("fish_basket", 54, 25),
                    ("woodpile", 62, 17), ("chop_block", 64, 18)],
     "lf_fishers_hut": [("stove", 3, 8), ("bed", 15, 10), ("water_jar", 7, 1), ("fish_basket", 12, 8), ("sacks", 17, 7)],
-    "lf_granny_liu_hut": [("cabinet", 8, 1), ("drying_rack", 10, 1), ("stove", 2, 5), ("mortar", 3, 7), ("bed", 13, 9),
+    "lf_granny_liu_hut": [("cabinet", 8, 1), ("drying_rack", 10, 1), ("stove", 2, 5), ("bed", 13, 9),
                           ("herb_baskets", 11, 7)],
     "lf_old_ma_store": [("cabinet", 8, 1), ("cabinet", 13, 1), ("sacks", 15, 7), ("sacks", 14, 9), ("cloth_bolts", 15, 5),
                         ("water_jar", 1, 5)],
@@ -485,6 +487,28 @@ def check_work(errs: list) -> None:
                                 % (name, st[0], cycles))
 
 
+ANVIL_OFF = (1.0, 0.4)   # the room's anvil from a smith's "anvil" spot, in cells (figure/work.py BAR_AT)
+
+
+def check_anvil(where: str, d: dict, side: dict, spots: list) -> list:
+    """A smith's "anvil" spot faces e with the room's anvil (its forge_anvil) ANVIL_OFF from the feet, where the
+    hammer's pose puts the hot bar on its face."""
+    errs = []
+    for s in spots:
+        if len(s) < 4 or s[3] != "anvil":
+            continue
+        anvils = [oid for oid, o in side.items() if o.get("type") == "forge_anvil" and oid in d["place"]]
+        if len(anvils) != 1:
+            errs.append(where + ": %d anvils in the room" % len(anvils))
+            continue
+        ax, ay = d["place"][anvils[0]][:2]
+        off = (float(ax) - float(s[0]), float(ay) - float(s[1]))
+        if s[2] != "e" or abs(off[0] - ANVIL_OFF[0]) > 0.01 or abs(off[1] - ANVIL_OFF[1]) > 0.01:
+            errs.append(where + ": the anvil at %s from the spot facing %s (the hammer wants %s facing e)"
+                        % (str(off), s[2], str(ANVIL_OFF)))
+    return errs
+
+
 def room_side(rid: str) -> dict:
     return json.load(open(os.path.join(ROOT, "data", "rooms", rid + ".json")))
 
@@ -531,6 +555,7 @@ def build_rooms() -> tuple:
                 errs.append(where + ": no work spot found")
                 continue
             errs += check_spots(where, g, d["place"][oid], spots, LOOPS[w["loop"]])
+            errs += check_anvil(where, d, side, spots)
             work[oid] = {"loop": w["loop"], "spots": spots}
         if work:
             out["work"] = work

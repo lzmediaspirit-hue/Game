@@ -387,18 +387,18 @@ def _axe_solids(sk, butt, d, g, hands, spec, carry=False):
 # ------------------------------------------------------------------ the hammer
 def hammer(sk, t: dict) -> list:
     """The smith's hammer, the tongs in the left hand holding the hot bar on the anvil's face. The anvil is the room's
-    own (every smith works at a Forge place, drawn by TopdownPlaceArt): `anvil` is where it stands, its face 9.2 up."""
-    A = sk.pt(t["anvil"])
+    own (every smith works at a Forge place's forge_anvil, which the smith's spot stands a tile before the feet): `bar`
+    is the middle of its hot ingot, the bar lying along it toward the smith, its near end in the tongs' jaws."""
+    B = sk.pt(t["bar"])
     hand = sk.hand_r
     d = unit(sk.w(t["dir"]))
     S = []
-    x = unit(sk.w((0.0, -1.0, 0.0)))
-    bar0 = A + UP * 9.15 - x * 0.2
-    bar1 = bar0 + x * (2.2 if not t.get("turn") else 2.0) + sk.fwd * (0.0 if not t.get("turn") else 0.4)
-    S.append(cone(bar0, bar1, 0.34, 0.3, "hot", band=ground_band(sk, A), part="bar"))
+    bar0 = B - sk.fwd * 3.4                                   # the near end, in the jaws
+    bar1 = B + sk.fwd * 2.2 + (UP * 0.3 if t.get("turn") else 0.0)
+    S.append(cone(bar0, bar1, 0.36, 0.32, "hot", band=band_of(sk, B), part="bar"))
     hl = sk.hand_l
     for sg in (-1.0, 1.0):
-        j = bar1 + UP * 0.25 * sg
+        j = bar0 + sk.fwd * 0.5 + UP * 0.3 * sg
         S += _line_pieces(sk, [hl + UP * 0.2 * sg, (hl + j) * 0.5 + UP * 0.35 * sg, j], 0.22, "tongs", "tongs")
     # the hammer: a short haft through the fist, an iron head square to it, its face leading the blow
     head_c = hand + d * 5.8
