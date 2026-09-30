@@ -7,7 +7,7 @@ extends TopdownFigure
 var density := 2.0
 
 ## Draw the figure with its feet at `feet`, as TopdownFigure.draw does, at 1/density scale.
-func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE) -> void:
+func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, tint := Color.WHITE, _px := 1.0, _clip := Rect2(), _picture := false) -> void:
 	if not loaded(): return
 	var fm := frame_of(action, row, i)
 	var k := fm.x * 6
@@ -20,6 +20,6 @@ func draw(ci: CanvasItem, feet: Vector2, action: String, row: String, i: int, ti
 	ci.draw_set_transform(Vector2.ZERO)
 
 ## What the figure covers from its feet, in the world's art px.
-func bounds(action: String, row: String, i: int) -> Rect2:
+func bounds(action: String, row: String, i: int, _cat := "", _picture := false) -> Rect2:
 	var b := super.bounds(action, row, i)
 	return Rect2(b.position / density, b.size / density)
