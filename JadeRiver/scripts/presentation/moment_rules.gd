@@ -35,6 +35,7 @@ static func matches(when: Dictionary, p: Dictionary, ctx: Dictionary) -> bool:
 			"rare": ok = bool(want) == (p.get("items", []) as Array).any(func(i): return is_rare(i))
 			"source_in": ok = str(p.get("source", "")) in want
 			"level_mod": ok = int(p.get("level", 0)) % maxi(1, int(want)) == 0
+			"staged": ok = bool(p.get("staged", false)) == bool(want)   # decision 45: a phase a scene stages itself (unset: not)
 			_: ok = p.get(k) == want
 		if not ok: return false
 	return true
