@@ -27,7 +27,7 @@ quests and pills should give a fixed amount instead of a percentage; three quick
   cores, raw herbs and the Spirit Fruit pay a number by their grade and say it ("+420 cultivation"); the River's dream
   +150; a chess problem before any Dao +120. Losses (a grave wound, a failed breakthrough, a method switch) stay a share
   of the stage, as a penalty should. `data_validation` refuses a share in any content.
-- **Three quick slots** on ring 2 at 204°, 226° and 248° round Attack (`quick:0`–`quick:2`), each drawn while it holds
+- **Three quick slots** on ring 2 at 204°, 226° and 244° round Attack (`quick:0`–`quick:2`), each drawn while it holds
   something, with its own cooldown and count; set from the Bag's Quick 1, 2, 3; saved (an old save's one slot is the
   first). Past ring 2's six places the rest stand on an outer row. Tours find them as `quick:0`–`quick:2`, or `quick`
   for all.

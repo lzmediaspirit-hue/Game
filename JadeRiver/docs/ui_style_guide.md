@@ -681,11 +681,12 @@ table are the reference.
 
 - Places come from rings and angles (`RING1_R`, `RING2_R`, `FAN_R`, `_layout`, `_on`), so the left-handed option
   mirrors them. The pinned toggle stands at 178° (the mockup's point, 951, 612; the table's "182°" is the same point
-  measured the other way round). Ring 2's places are 178°, 204°, 226°, 248°, 270° and 292°: the pin, the three quick
-  slots (decision 45: `quick:0`, the healing slot, at 204°, `quick:1` at 226°, `quick:2` at 248°), the first treasure,
-  the context (or Keep Post) and the swap have their own, the first to be drawn keeping a shared one; the second pin,
-  the Draught and the second treasure take the next free one; past six, the rest stand on an outer row at R 276
-  (216°, 233°, 250°, 267°), every place of both rows at least 62 px from every other.
+  measured the other way round). Ring 2's places are 178°, 204°, 226°, 244° (248° before decision 45: 244° keeps
+  clear of the Talk label), 270° and 292°: the pin, the three quick slots (decision 45: `quick:0`, the healing slot,
+  at 204°, `quick:1` at 226°, `quick:2` at 244°), the first treasure, the context (or Keep Post) and the swap have
+  their own, the first to be drawn keeping a shared one; the second pin, the Draught and the second treasure take the
+  next free one; past six, the rest stand on an outer row at R 276 (216°, 233°, 250°, 267°), every place of both rows
+  at least 62 px from every other.
 - The fan (decision 20) holds Cultivate, Presence, Sphere, Sense and Pet, packed from 180° in that order; closed, the
   toggles that are on are pinned; open at rest by default (mockup 02), folded in a fight. The quick slots show while
   they hold something, at rest as in a fight; the treasures show only in a fight (the techniques stay out since

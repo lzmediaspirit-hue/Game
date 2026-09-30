@@ -83,8 +83,7 @@ func _overview(ch) -> void:
 	var steps := _steps(cu.realm_key)
 	var here := steps.find(cu.realm_key)
 	if speed_open:
-		_speed(ch, Rect2(MOUNTAIN.position, Vector2(STAIR.end.x - MOUNTAIN.position.x, MOUNTAIN.size.y)))
-		_stage(ch, steps, here)
+		_speed(ch, Rect2(MOUNTAIN.position, Vector2(RIGHT.end.x - MOUNTAIN.position.x, MOUNTAIN.size.y)))
 		return
 	# A step climbed while the page is open: the figure climbs from the one it sat on (none under Reduce motion).
 	if _seen_realm != "" and _seen_realm != cu.realm_key and steps.has(_seen_realm) and not UiKit.reduce_motion():
@@ -407,53 +406,53 @@ func _stage(ch, steps: Array, here: int) -> void:
 	btn(Rect2(x + 188, RIGHT.end.y - 56, w - 188, 56), Tx.t("ui.cultivation.breakthrough"), "breakthrough", null, cu.state == "bottleneck",
 		Unlocks.is_unlocked(ch.id, "breakthrough"), Unlocks.locked_text("breakthrough"))
 
-## Decision 45: the cultivation speed, over the mountain and the stair: what meditation gathers here a minute, each term
-## that multiplies the base to it (ProgressionAuthority.speed_breakdown) with the bonuses that add up to one of them, and
-## the ways to cultivate faster, each lit once it is open to the character and greyed with where it opens before that.
+## Decision 45: the cultivation speed, across the Overview (Back returns to it): at the left what meditation gathers here
+## a minute and each term that multiplies the base to it (ProgressionAuthority.speed_breakdown), with the bonuses that
+## add up to one of them and the time left on each; at the right the ways to cultivate faster, each lit once it is open
+## to the character and greyed with the realm it opens at before that.
 func _speed(ch, r: Rect2) -> void:
 	panel(r)
 	tour_mark("speed_list", r)
 	var sp: Dictionary = Game.progression.speed_breakdown(ch)
 	var x := r.position.x + 24.0
-	var w := r.size.x - 48.0
-	var vx := r.end.x - 24.0 - 140.0   # the values' column
+	var half := (r.size.x - 72.0) * 0.5   # two columns with a 24 px gutter
+	var vx := x + half - 110.0             # the values' column, at the left column's right edge
 	var y := r.position.y + 24.0
-	heading(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_title"), w - 130.0)
-	btn(Rect2(r.end.x - 24.0 - 110.0, y - 4.0, 110.0, 44.0), Tx.t("ui.cultivation.speed_back"), "speed", null, false, true, "", 18)
-	y += 44.0
+	heading(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_title"), half)
+	btn(Rect2(r.end.x - 24.0 - 120.0, y - 4.0, 120.0, 48.0), Tx.t("ui.cultivation.speed_back"), "speed", null, false, true, "", 18)
+	y += 48.0
 	if sp.has("no_method"):
-		para(Rect2(x, y, w, 60), Tx.t("ui.cultivation.speed_no_method"), 18, UiKit.MIST)
-		return
-	text(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_total") % [UiKit.fmt(float(sp.rate)), float(sp.mult), int(sp.base)], 20, UiKit.QI, HORIZONTAL_ALIGNMENT_LEFT, w)
-	y += 32.0
-	for f in sp.factors:
-		var xv := float(f.x)
-		var col: Color = UiKit.PAPER if absf(xv - 1.0) < 0.005 else (UiKit.BRIGHT_JADE if xv > 1.0 else UiKit.WARNING)
-		text(Vector2(x, y + 18), str(f.label), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vx - x - 8.0)
-		text(Vector2(vx, y + 18), "×%.2f" % xv, 16, col, HORIZONTAL_ALIGNMENT_RIGHT, 140.0)
-		y += 24.0
-		if str(f.id) == "bonus":
-			for b in sp.bonus:
-				var left := float(b.get("left", -1.0))
-				var tail := ("  · " + UiKit.span(left)) if left > 0.0 else ""
-				text(Vector2(x + 24.0, y + 16), "%+d%%  %s%s" % [int(round(float(b.pct) * 100.0)), str(b.label), tail], 14,
-					UiKit.BRIGHT_JADE if float(b.pct) > 0.0 else UiKit.WARNING, HORIZONTAL_ALIGNMENT_LEFT, w - 24.0)
-				y += 20.0
-	y += 10.0
-	heading(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_more"), w)
-	y += 34.0
-	var col_w := (w - 16.0) * 0.5
-	var i := 0
+		para(Rect2(x, y, half, 60), Tx.t("ui.cultivation.speed_no_method"), 18, UiKit.MIST)
+	else:
+		text(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_total") % [UiKit.fmt(float(sp.rate)), float(sp.mult), int(sp.base)], 20, UiKit.QI, HORIZONTAL_ALIGNMENT_LEFT, half)
+		y += 36.0
+		for f in sp.factors:
+			var xv := float(f.x)
+			var col: Color = UiKit.PAPER if absf(xv - 1.0) < 0.005 else (UiKit.BRIGHT_JADE if xv > 1.0 else UiKit.WARNING)
+			text(Vector2(x, y + 18), str(f.label), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vx - x - 8.0)
+			text(Vector2(vx, y + 18), "×%.2f" % xv, 16, col, HORIZONTAL_ALIGNMENT_RIGHT, 110.0)
+			y += 26.0
+			if str(f.id) == "bonus":
+				for b in sp.bonus:
+					if y + 20.0 > r.end.y - 8.0: break
+					var left := float(b.get("left", -1.0))
+					var tail := ("  · " + UiKit.span(left)) if left > 0.0 else ""
+					text(Vector2(x + 24.0, y + 16), "%+d%%  %s%s" % [int(round(float(b.pct) * 100.0)), str(b.label), tail], 14,
+						UiKit.BRIGHT_JADE if float(b.pct) > 0.0 else UiKit.WARNING, HORIZONTAL_ALIGNMENT_LEFT, half - 24.0)
+					y += 22.0
+	var wx := x + half + 24.0
+	var wy := r.position.y + 24.0 + 48.0
+	heading(Vector2(wx, wy + 20), Tx.t("ui.cultivation.speed_more"), half)
+	wy += 38.0
 	for way in SPEED_WAYS:
+		if wy + 26.0 > r.end.y - 8.0: break
 		var gate := str(way[2])
 		var open: bool = (str(way[1]) == "" or Unlocks.is_unlocked(ch.id, str(way[1]))) and (gate == "" or ProgressionRules.at_least(ch.cultivator.realm_key, gate))
-		var at := Vector2(x + (col_w + 16.0) * (i % 2), y + 22.0 * (i / 2))
-		if at.y + 20.0 > r.end.y - 8.0: break
 		var words := Tx.t("ui.cultivation.speed_way." + str(way[0]))
 		if not open: words += " · " + Tx.t("ui.cultivation.speed_opens") % ContentDB.name_of("realms", gate)
-		draw_circle(at + Vector2(5, 10), 3.5, UiKit.BRIGHT_JADE if open else UiKit.HOLLOW)
-		text(at + Vector2(14, 15), words, 14, UiKit.PAPER if open else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, col_w - 14.0)
-		i += 1
+		draw_circle(Vector2(wx + 5, wy + 11), 4.0, UiKit.BRIGHT_JADE if open else UiKit.HOLLOW)
+		text(Vector2(wx + 16, wy + 17), words, 16, UiKit.PAPER if open else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, half - 16.0)
+		wy += 30.0
 
 ## One ask of a breakthrough: a dot (jade met, red a hard need, amber a soft one) and its words, with why it matters.
 func _ask(at: Vector2, r: Dictionary, w: float) -> void:

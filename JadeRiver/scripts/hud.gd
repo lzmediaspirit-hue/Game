@@ -62,11 +62,13 @@ const READY_S := 0.35
 const CTX_R := 30.0
 ## Ring 2 beside the fan. A pinned toggle, the quick slots, the first treasure, the context and the swap have their
 ## own places; the rest take the next free one.
-const RING2_DEG := [178.0, 204.0, 226.0, 248.0, 270.0, 292.0]
+## Decision 45: the fourth place at 244° (from 248°), so a circle there keeps clear of the context's label ("Talk · Lu",
+## CTX_LABEL_W under the 270° button) as well as of the 240° technique.
+const RING2_DEG := [178.0, 204.0, 226.0, 244.0, 270.0, 292.0]
 ## Keep Post (at rest only) takes the first treasure's place (in a fight only); the context holds 270° at rest too.
-## Decision 45: three quick slots ("quick:0" the healing slot where mockup 01 has it, then 226° and 248°, an arc over
+## Decision 45: three quick slots ("quick:0" the healing slot where mockup 01 has it, then 226° and 244°, an arc over
 ## the techniques under the thumb); a quick slot drawn first keeps its home and a treasure takes the next free place.
-const RING2_HOME := {"pin": 178.0, "quick:0": 204.0, "quick:1": 226.0, "quick:2": 248.0, "treasure:0": 226.0, "post": 226.0,
+const RING2_HOME := {"pin": 178.0, "quick:0": 204.0, "quick:1": 226.0, "quick:2": 244.0, "treasure:0": 226.0, "post": 226.0,
 	"context": 270.0, "swap": 292.0}
 ## Decision 45: more than ring 2's six places hold (three quick slots, the Draught, two treasures, a pin, the context and
 ## the swap late in the game) go on an outer row R3 round Attack, clear of ring 2, the screen's edge, the purse and the

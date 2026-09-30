@@ -36,7 +36,10 @@ func _main() -> void:
 	for it in [["healing_pill", 2], ["qi_gathering_incense", 3], ["rice_ball", 4], ["riverreed_ginseng_10", 2], ["qi_gathering_pill", 1]]:
 		Game.inventory.apply_add(c.id, str(it[0]), int(it[1]), "capture")
 	c.inventory.quick = QUICK.duplicate()
-	Game.tutorials._know_all(c)   # the unlock tutorials' coach keeps off the shots
+	# The Weapon Hall's stage has the realm without the method a real Bone Forging 7 disciple learnt on Lu's boat.
+	Game.progression.apply_learn_method(c.id, "riverbreath_fragment")
+	c.cultivator.method_id = "riverbreath_fragment"
+	Unlocks.force_unlock(c.id, "qi_springs")   # Bone Forging 7's own
 	Game.world.load_room(c, "lf_village", "", Vector2.ZERO)
 	GameEvents.flush()
 	await frames(20)
@@ -51,11 +54,16 @@ func _main() -> void:
 	print("progression_capture: done (%s)" % ("phone" if phone else "1280x720"))
 	get_tree().quit()
 
+## The unlock tutorials' coach keeps off the shots: every tour known, the queue empty, a card on show put off (Later).
 func _coach_off() -> void:
+	var c = Game.active()
+	Game.tutorials._know_all(c)
+	if c.tutorials.has("queue"): c.tutorials.queue.clear()
 	for i in 6:
 		if main.get("coach") == null or not bool(main.coach.visible): break
 		main.coach.press("later")
 		await frames(10)
+	if main.get("coach") != null: main.coach.visible = false
 
 ## The HUD with its three quick slots: at rest beside Lu (the Talk button on ring 2 too) and in a fight on the square,
 ## and the right thumb's cluster.
@@ -74,6 +82,7 @@ func _quick_hud(phone: bool) -> void:
 	main.hud.fight_override = true
 	await arena(w.player.motor.pos + Vector2(0, 40), [["wild_boarlet", Vector2(150, -30)], ["wild_boarlet", Vector2(190, 60)]])
 	await frames(30)
+	await _coach_off()
 	_clear_notices()
 	await frames(2)
 	await RenderingServer.frame_post_draw
@@ -97,6 +106,7 @@ func _bag() -> void:
 	pg.sel = {"bag": c.inventory.first_index("healing_pill")}
 	pg.queue_redraw()
 	await frames(40)
+	await _coach_off()
 	await shot("bag_50", PROG)
 	print("progression_capture: bag %d / %d spaces" % [c.inventory.bag.size() - c.inventory.free_slots(), c.inventory.capacity()])
 	main.close_all_pages()
@@ -109,11 +119,13 @@ func _cultivation() -> void:
 	Game.submit({"type": "use_item", "index": c.inventory.first_index("qi_gathering_incense"), "confirm": true})
 	main.open_page("cultivation", {})
 	await frames(90)
+	await _coach_off()
 	await shot("cultivation_overview", PROG)
 	var pg = main.top_page()
 	pg.speed_open = true
 	pg.queue_redraw()
 	await frames(20)
+	await _coach_off()
 	await shot("cultivation_speed", PROG)
 	var sp: Dictionary = Game.progression.speed_breakdown(c)
 	print("progression_capture: speed %.0f a minute, x%.2f: %s" % [float(sp.rate), float(sp.mult), str(sp.factors.map(func(f): return [f.label, snappedf(float(f.x), 0.01)]))])
@@ -124,20 +136,48 @@ func _cultivation() -> void:
 ## while both numbers rise: the charged one bigger and named ("Charged ×2.3"). A crop round the player at x2.
 func _charged_text() -> void:
 	var c = Game.active()
-	await arena(w.player.motor.pos + Vector2(0, 40), [["wild_boarlet", Vector2(-56, 0)], ["wild_boarlet", Vector2(56, 0)]])
-	for e in Game.room_rt.enemies.values():
-		e.pools.max_hp = 1e7
-		e.pools.hp = 1e7
+	await at_spot(Vector2(33, 21), 30)   # the village square, open ground
+	await arena(m.pos, [["wild_boarlet", Vector2(64, 0)]])
+	var foe: EnemyState = Game.room_rt.enemies.values()[0]
+	foe.pools.max_hp = 1e7
+	foe.pools.hp = 1e7
+	Game.enemies.stagger(foe, 60.0)   # it stands for the shots
+	# No crits for the comparison: a crit's gold number would stand for a different thing.
+	c.stats.add_modifier({"stat": "crit_chance", "op": "flat", "value": -1.0, "source": "capture_no_crit"})
+	Game.combat.refresh_stats(c.id)
 	c.pools.cooldowns.clear()
+	await _coach_off()
 	_clear_notices()
-	p.aim_attack(Vector2.LEFT, true)
-	await frames(6)
-	p.finisher(Vector2.RIGHT, 1.0)
-	for i in 70:
+	# A basic first step, its number shot once it has risen clear of the blow.
+	var basic: Dictionary = await _hit_and_shoot(func(): p.aim_attack(Vector2.RIGHT, true), false, "combat_basic")
+	await frames(90)   # its number gone
+	var charged: Dictionary = await _hit_and_shoot(func(): p.finisher(Vector2.RIGHT, 1.0), true, "combat_charged")
+	# The two side by side: the basic hit at the left, the charged one at the right.
+	var a := Image.load_from_file(ProjectSettings.globalize_path(PROG + "combat_basic.png"))
+	var b := Image.load_from_file(ProjectSettings.globalize_path(PROG + "combat_charged.png"))
+	var sheet := Image.create(a.get_width() + b.get_width() + 8, a.get_height(), false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("071015"))
+	sheet.blit_rect(a, Rect2i(Vector2i.ZERO, a.get_size()), Vector2i.ZERO)
+	sheet.blit_rect(b, Rect2i(Vector2i.ZERO, b.get_size()), Vector2i(a.get_width() + 8, 0))
+	sheet.save_png(PROG + "combat_basic_vs_charged.png")
+	print("progression_capture: basic hit %d, charged hit %d (x%.2f; its charge x%.2f)" % [int(basic.get("amount", 0)), int(charged.get("amount", 0)),
+		float(charged.get("amount", 0)) / maxf(1.0, float(basic.get("amount", 0))), float(charged.get("charge", 0.0))])
+
+## Strike with `strike`, wait for its hit (and, charged, its words), let the number rise half a second, and shoot round the
+## player at x2 as `name`. Returns the hit_landed payload.
+func _hit_and_shoot(strike: Callable, charged: bool, name: String) -> Dictionary:
+	var got := {"p": {}}
+	var listen := func(n: String, pl: Dictionary):
+		if n == "hit_landed" and str(pl.get("source", "")) == "basic" and got.p.is_empty(): got.p = pl
+	GameEvents.event.connect(listen)
+	strike.call()
+	for i in 90:
 		await frames(1)
-		if _charged_shown(): break
-	await frames(4)
-	await shot_detail("combat_basic_vs_charged", Vector2(0, -20), PROG)
+		if not got.p.is_empty() and (not charged or _charged_shown()): break
+	GameEvents.event.disconnect(listen)
+	await frames(30)
+	await shot_detail(name, Vector2(32, -40), PROG)
+	return got.p
 
 func _charged_shown() -> bool:
 	for e in main.world.effects.fx:

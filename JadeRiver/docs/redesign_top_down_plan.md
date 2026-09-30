@@ -2249,7 +2249,7 @@ step's multiplier with the charge on its hit); `topdown_suite`'s finisher pace (
 Prologue teaches); a save with one keeps it in the first. The Bag's card of a usable thing has a row of Quick 1, 2, 3
 (each lit where it holds this thing; a tap on a lit one clears it, on another moves it there); `set_quick_use` with
 `slot` 0–2, or none (the first empty). On the HUD they are ring 2's `quick:0`, `quick:1`, `quick:2` at 204°, 226° and
-248° round Attack: an arc over the techniques under the thumb, clear of the technique buttons, Jump, Dodge, the context
+244° round Attack: an arc over the techniques under the thumb, clear of the technique buttons, Jump, Dodge, the context
 (Talk, 270°) and Attack's hit circle. Each shows while it holds something (in a fight and at rest), its own cooldown's
 shade and its count; `use_quick` takes `slot`. More than ring 2's six places hold (late: a pin, three quick slots, the
 Draught, two treasures, the context, the swap) go on an outer row at R 276 (216°, 233°, 250°, 267°), every place of

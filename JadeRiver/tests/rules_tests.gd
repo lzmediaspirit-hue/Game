@@ -2043,13 +2043,13 @@ func hud_suite() -> void:
 	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick:0", "home": "quick:0"}, {"role": "treasure:0", "home": "treasure:0"}])
 	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
 		"P5a: ring 2 as mockup 01: the held Presence pinned beside the fan, the healing slot, the treasure (%s)" % str(r2.map(func(o): return o.center)))
-	# Decision 45: three quick slots in an arc over the techniques (204°, 226°, 248° on ring 2), the treasure on the next
+	# Decision 45: three quick slots in an arc over the techniques (204°, 226°, 244° on ring 2), the treasure on the next
 	# free place, and past ring 2's six the outer row; every place of both 62 px from every other.
 	var q3: Array = hud.ring2_places([{"role": "quick:0", "home": "quick:0"}, {"role": "quick:1", "home": "quick:1"}, {"role": "quick:2", "home": "quick:2"},
 		{"role": "treasure:0", "home": "treasure:0"}, {"role": "context", "home": "context"}])
-	check(near.call(q3[0].center, Vector2(970, 518)) and near.call(q3[1].center, Vector2(1016, 451)) and near.call(q3[2].center, Vector2(1085, 407))
+	check(near.call(q3[0].center, Vector2(970, 518)) and near.call(q3[1].center, Vector2(1016, 451)) and near.call(q3[2].center, Vector2(1071, 413))
 		and near.call(q3[4].center, Vector2(1165, 391)) and float(q3[3].deg) == 178.0,
-		"decision 45: the three quick slots stand at 204°, 226° and 248° of ring 2, the treasure on the next free place, the context at 270° (%s)"
+		"decision 45: the three quick slots stand at 204°, 226° and 244° of ring 2, the treasure on the next free place, the context at 270° (%s)"
 		% str(q3.map(func(o): return [o.role, o.center])))
 	var all_places: Array = []
 	for d in hud.RING2_DEG: all_places.append(hud._on(hud.attack_center, hud.RING2_R, float(d)))
@@ -2070,6 +2070,25 @@ func hud_suite() -> void:
 	for i in many.size():
 		for j in range(i + 1, many.size()): apart = apart and (many[i].center as Vector2).distance_to(many[j].center) >= 60.0
 	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a, decision 45: ten things on ring 2 and its outer row keep 60 px apart, on the screen")
+	# Decision 45: with Talk on offer, no quick slot and nothing on the outer row touches the context's label. (The swap's
+	# own place, 292°, grazes its right end by 3 px: as it stood before decision 45, left to the HUD's owner.)
+	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
+	var on_label: Array = []
+	for sname in states:
+		hud.set_state(states[sname][0], states[sname][1])
+		var r2now: Array = hud._ring2(c)
+		var ctx_at := Vector2.INF
+		for it in r2now:
+			if str(it.role) == "context": ctx_at = it.center
+		if ctx_at == Vector2.INF: continue
+		var lab := Rect2(ctx_at.x - hud.CTX_LABEL_W * 0.5, ctx_at.y + hud.CTX_R + 2.0, hud.CTX_LABEL_W, 18.0)
+		for it in r2now:
+			var outer: bool = (it.center as Vector2).distance_to(hud.attack_center) > hud.RING2_R + 10.0
+			if not (str(it.role).begins_with("quick:") or outer): continue
+			var cp := Vector2(clampf(it.center.x, lab.position.x, lab.end.x), clampf(it.center.y, lab.position.y, lab.end.y))
+			if cp.distance_to(it.center) < 26.0: on_label.append("%s: %s" % [sname, it.role])
+	hud.context = {}
+	check(on_label.is_empty(), "decision 45: with Talk on offer, no quick slot and nothing on the outer row touches its label, in any state (%s)" % str(on_label))
 	# Rest and fight: the healing slot and the treasures are out only in a fight; the fan folds in a fight and pins what is
 	# on beside it, and opens at rest. Decision 42: the techniques, the page tab and Attack are out at rest as in a fight.
 	var rest_roles: Array = tables["rest, the fan closed"].map(func(tg): return str(tg.role))
@@ -2218,7 +2237,7 @@ func hud_suite() -> void:
 		hud.set_state(st[0], st[1])
 		var qt: Array = hud.hit_targets()
 		q_places[st[0]] = [at.call("quick:0", qt), at.call("quick:1", qt), at.call("quick:2", qt)]
-	var three := [Vector2(970, 518), Vector2(1016, 451), Vector2(1085, 407)]
+	var three := [Vector2(970, 518), Vector2(1016, 451), Vector2(1071, 413)]
 	var q_ok := true
 	for fight_now in [true, false]:
 		for k in 3: q_ok = q_ok and (q_places[fight_now][k] as Array).size() == 1 and near.call(q_places[fight_now][k][0], three[k])
@@ -2229,7 +2248,7 @@ func hud_suite() -> void:
 	hud.release(9)
 	var rice1: int = c.inventory.count("rice_ball")
 	c.inventory.quick = three_was
-	check(q_ok and rice1 == rice0 - 1, "decision 45: the three quick slots are drawn at 204°, 226° and 248° in a fight and at rest (%s); a tap on the third eats a rice ball (%d -> %d)"
+	check(q_ok and rice1 == rice0 - 1, "decision 45: the three quick slots are drawn at 204°, 226° and 244° in a fight and at rest (%s); a tap on the third eats a rice ball (%d -> %d)"
 		% [str(q_places[true]), rice0, rice1])
 	c.cultivator.technique_slots = slots_was
 	c.inventory.quick_use = quick_was
