@@ -2163,7 +2163,10 @@ for the poses and a held-tool rig; the places asked for a pose when the player u
   all, the tallest 512 x 2,072 (the body; every sheet under the 4,096 limit, so none is split), 35.7 MB of PNG; the
   player's outfit 11.2 MB, a villager 10.8 MB and their tools 0.03-0.2 MB more. Only the worn sheets load.
 - **Draw cost:** the same draw calls a figure: a worker's tool is its tool layer's rect where the old sprite blit was;
-  the weapon draws nothing while put away; the player wears no tool.
+  the weapon draws nothing while put away; the player wears no tool. `perf_tests` alone, three rounds each,
+  interleaved with the branch it was built on: the living world's cost in Lotus Ferry 0.73-1.14 ms a frame (before:
+  0.40-1.03), its own work 0.50-0.56 ms (0.52-0.55); in the Marsh Edge's fight 0.40-1.35 ms (0.53-1.33), its own work
+  0.38-0.47 ms (0.45-0.47); the village entered in 229-362 ms (217-270). The same within the shared machine's noise.
 - **Tests:** the layer contract (`data_validation`: a work action keeps no weapon, a tool is drawn in exactly its own
   actions, every work action holds a drawn tool, no technique picture draws the new actions, and the gate refuses the
   three new breakages), `topdown_life_suite` (every work step holds a tool its loop wears, no stand-ins, a minute of
