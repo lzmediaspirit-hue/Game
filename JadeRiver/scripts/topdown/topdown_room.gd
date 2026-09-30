@@ -33,8 +33,9 @@ var spawn := Vector2.ZERO            ## world units
 var tileset: Dictionary = {}
 var def: Dictionary = {}             ## the room's own file, for its spawns and kind
 
-static func load_room(room_id: String) -> TopdownRoom:
-	var d = JSON.parse_string(FileAccess.get_file_as_string(DIR + room_id + ".json"))
+## A room's layout from `dir` (data/topdown/; a review room the tools draw sits outside data/, which ships).
+static func load_room(room_id: String, dir := DIR) -> TopdownRoom:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(dir + room_id + ".json"))
 	var ts = JSON.parse_string(FileAccess.get_file_as_string(DIR + "proto_tileset.json"))
 	if ts is Dictionary: ts["foes"] = foes()
 	return from_dict(d if d is Dictionary else {}, ts if ts is Dictionary else {})

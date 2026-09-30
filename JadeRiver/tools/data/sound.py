@@ -1,7 +1,7 @@
 """Decision 43 · the sound pass's tables, one file: data/sound.json (docs/redesign/sound.md).
 
     python3 tools/data/sound.py            # write it (build_data.py runs it too)
-    python3 tools/data/sound.py --check    # fail unless the file is current
+    python3 tools/data/sound.py --check    # fail unless the file is current (tools/data/README.md)
 
 The sounds themselves are synthesized by tools/audio (build_audio.py writes data/audio.json, every id's file, level
 and length); this table says which of them the game plays when, and how the mix treats them. AudioDirector (the
@@ -36,7 +36,8 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from common import DATA, ROOT, write  # noqa: E402
+import common  # noqa: E402
+from common import DATA, ROOT, run_cli, write  # noqa: E402
 import combat_feel  # noqa: E402
 import topdown_life  # noqa: E402  (decision 44: the work cues, CUES)
 
@@ -84,15 +85,11 @@ SURFACES = ["grass", "dirt", "stone", "wood", "sand", "water", "reeds", "roof", 
 PAINT_SURFACE = {"g": "grass", "f": "grass", "b": "grass", "m": "reeds", "d": "dirt", "p": "stone", "s": "stone",
                  "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow", "k": "snow"}
 PROP_TOP_SURFACE = {"crates": "wood", "house": "roof", "hall": "roof", "storehouse": "roof", "boat": "wood"}
-# The side view's ground materials (rooms' `ground.material`), for a room drawn without a height grid.
-MATERIAL_SURFACE = {"earth": "dirt", "stone": "stone", "wood": "wood", "sand": "sand", "snow": "snow", "grass": "grass",
-                    "water": "water", "marsh": "reeds", "roof": "roof"}
 
 STEPS = {
     "surfaces": {s: {"steps": [f"step_{s}_{v}" for v in "abcd"], "land": f"land_{s}"} for s in SURFACES},
     "paint": PAINT_SURFACE,
     "prop_tops": PROP_TOP_SURFACE,
-    "materials": MATERIAL_SURFACE,
     "water": "water",
     "default": "dirt",
     # where a foot lands in each cycle, as fractions of it (the walk and the run: frames 0 and 4 of 8, left then right;
@@ -392,27 +389,16 @@ def sound_ids(node=None) -> set:
     return out
 
 
-def build(check_only: bool = False) -> bool:
-    path = os.path.join(DATA, "sound.json")
+def build():
+    """The table; the living world's sounds are checked with it (a missing one warns as it is written, fails --check)."""
     life = check_life()
     for e in life:
-        print(("FAIL: " if check_only else "warning: ") + e)
-    if check_only:
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            write("sound.json", payload(), folder=tmp)
-            fresh = open(os.path.join(tmp, "sound.json"), encoding="utf-8").read()
-        current = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
-        if fresh != current:
-            print("data/sound.json is not current: run python3 tools/data/sound.py")
-            return False
-        if life:
-            return False
-        print(f"sound.json is current; each of the living world's {len(life_ids())} sounds and their takes exists")
-        return True
+        print(("FAIL: " if common.RUN.check else "warning: ") + e)
     write("sound.json", payload())
-    return True
+    if life and common.RUN.check:
+        raise SystemExit("sound: the living world's sounds are not all there")
+    return f"each of the living world's {len(life_ids())} sounds and their takes exists" if not life else None
 
 
 if __name__ == "__main__":
-    sys.exit(0 if build("--check" in sys.argv) else 1)
+    raise SystemExit(run_cli(build))

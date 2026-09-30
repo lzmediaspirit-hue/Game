@@ -71,6 +71,9 @@ class Data:
         self.t = {}
         for path in sorted(glob.glob(os.path.join(DATA, "*.json"))):
             self.t[os.path.basename(path)[:-5]] = read(path)
+        # The tables the game does not read (the legendary chains' record) sit in tests/data (audit 45).
+        for path in sorted(glob.glob(os.path.join(ROOT, "tests", "data", "*.json"))):
+            self.t[os.path.basename(path)[:-5]] = read(path)
         self.rooms = {}
         for path in sorted(glob.glob(os.path.join(DATA, "rooms", "*.json"))):
             r = read(path)

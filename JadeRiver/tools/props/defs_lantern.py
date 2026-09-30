@@ -1344,77 +1344,6 @@ def orbit_stone(state, f):
     return cv
 
 
-# ------------------------------------------------------------------ Orbit Ruins: the broken ring
-@prop("broken_ring", 120, 90, ground=4)
-def broken_ring(state, f):
-    """A great stone ring of the Orbit Ruins standing on its edge in a footing of dressed blocks,
-    carved round with a band of star-runes; a section broke out of its upper right long ago, one
-    piece still hanging in the air beside the gap and the rest lying in the rubble at its foot."""
-    W, H = 120, 90
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 86
-    cx, cy, ro, ri = 57.5, 44.0, 40.0, 29.0
-    nz = vnoise(W, H, 3, seed_of("broken_ring"), 2)
-    ground_shadow(cv, 60, gy, 56, 2.0)
-    d = np.hypot(xx - cx, yy - cy)
-    ang = np.degrees(np.arctan2(yy - cy, xx - cx))
-    jag = (nz - 0.5) * 16
-    gap = (ang > -62 + jag) & (ang < -18 + jag)
-    band = (d <= ro) & (d >= ri) & ~gap & (yy <= 80)
-    shade(cv, band, STONE, contour=True, R=3, strength=2.4, base=0.55, gain=1.3, noise=nz, namp=0.18)
-    # raised rims and the rune band between them
-    for rr, c_hi, c_lo in ((ro - 2.5, STONE[5], STONE[2]), (ri + 2.5, STONE[2], STONE[5])):
-        rim = ellipse_ring(W, H, cx, cy, rr, rr) & band & erode(band)
-        cv.fill(rim & (xx + yy < cx + cy), c_hi)
-        cv.fill(rim & (xx + yy >= cx + cy), c_lo)
-    mid = (d > ri + 3.5) & (d < ro - 3.5) & band
-    for k in range(28):
-        a = 2 * math.pi * k / 28
-        gx, gy2 = cx + math.cos(a) * 34.5, cy + math.sin(a) * 34.5
-        ta = (-math.sin(a), math.cos(a))
-        if k % 3 == 0:
-            pts = [(gx - ta[0] * 1.5, gy2 - ta[1] * 1.5), (gx + ta[0] * 1.5, gy2 + ta[1] * 1.5)]
-        elif k % 3 == 1:
-            pts = [(gx - math.cos(a) * 1.5, gy2 - math.sin(a) * 1.5), (gx + math.cos(a) * 1.5, gy2 + math.sin(a) * 1.5)]
-        else:
-            pts = [(gx, gy2)]
-        gm = m_line(W, H, pts) & mid
-        cv.fill(gm, STONE[1])
-        cv.fill(shift(gm, 1, 1) & mid & ~gm, STONE[5])
-        if k % 5 == 2:
-            cv.fill(gm, STARLIGHT[3])
-    # broken faces at the gap
-    edge = band & dilate(gap) & ~gap
-    cv.fill(edge, STONE[4])
-    cv.fill(edge & (nz > 0.55), STONE[2])
-    cracks = m_line(W, H, [(cx - 30, cy + 20), (cx - 27, cy + 24), (cx - 29, cy + 28)]) & erode(band)
-    cv.fill(cracks, STONE[1])
-    # the hovering fragment beside the gap
-    frag = m_poly(W, H, [(98, 6), (106, 10), (104, 19), (97, 17), (95, 11)])
-    shade(cv, frag, STONE, contour=True, R=2, base=0.55, gain=1.2, noise=nz, namp=0.15)
-    cv.fill(m_line(W, H, [(99, 10), (103, 13)]) & frag, STARLIGHT[3])
-    # footing blocks, lichen and the rubble of the fallen section
-    for (x0, x1, y0, y1) in ((20, 95, 80, gy), (28, 87, 74, 79)):
-        blk = m_rect(W, H, x0, y0, x1, y1)
-        shade(cv, blk, STONE, contour=True, R=1, base=0.5, gain=1.1, noise=nz, namp=0.15)
-        cv.fill(m_rect(W, H, x0, y0, x1, y0), STONE[5])
-        cv.fill(m_rect(W, H, x0, y0, x0, y1), STONE[4])
-        for jx in range(x0 + 10, x1 - 3, 12):
-            cv.fill(m_rect(W, H, jx, y0 + 1, jx, y1), STONE[2])
-    lich = band & (vnoise(W, H, 4, seed_of("ring_lichen"), 2) > 0.66) & (ang < -90) & (ang > -170)
-    cv.fill(lich, MOSS[2])
-    cv.fill(lich & shift(~lich, 0, 1), MOSS[4])
-    _chunk(cv, [(96, gy), (99, 77), (110, 75), (114, gy)], "ring_c1", pal=STONE, base=0.5)
-    _chunk(cv, [(104, gy), (107, 80), (117, 81), (118, gy)], "ring_c2", pal=STONE, base=0.45)
-    _chunk(cv, [(6, gy), (8, 81), (16, 80), (18, gy)], "ring_c3", pal=STONE, base=0.55)
-    grass_tuft(cv, 22, gy, "ring_g1", h=4, n=3)
-    grass_tuft(cv, 93, gy, "ring_g2", h=3, n=2)
-    outline(cv, skip=(d < ri - 1) & ~cv.solid)
-    glow(cv, 100, 12, 8, 8, STARLIGHT[4], steps=((1.0, 0.06),))
-    return cv
-
-
 # ------------------------------------------------------------------ Ashen Reach: the Ashborn war camp
 ASH = ramp("#1b1918", "#2d2927", "#433d3a", "#5d5651", "#7b736c", "#9d958c", "#c1b9ae")
 ASH_RED = ramp("#260809", "#4a1110", "#741c15", "#a02a1a", "#c94121", "#e8683a")
@@ -1659,63 +1588,6 @@ def cinder_tent(state, f):
     return cv
 
 
-@prop("war_drum", 44, 46, ground=3)
-def war_drum(state, f):
-    """An Ashborn war drum: a big barrel drum hung in a crossed timber frame, both heads of dark
-    hide laced on with red cord and studded round the rim, the flame sigil daubed on the head,
-    and a pair of heavy mallets propped against the frame."""
-    W, H = 44, 46
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 43
-    ground_shadow(cv, 22, gy, 20, 1.6)
-    # the stands: an X of timbers at each side of the drum, behind it, joined by a sill
-    for (xa, xb, base) in ((3, 13, 0.55), (29, 39, 0.4)):
-        for (x0, x1) in ((xa, xb), (xb, xa)):
-            leg = tube(W, H, [(x0, gy), (x1, 12)], 1.3)
-            shade(cv, leg, WOOD, contour=True, R=1, base=base, gain=1.1)
-        cv.fill(m_rect(W, H, (xa + xb) // 2 - 2, 25, (xa + xb) // 2 + 1, 28), ROPE[2])
-    sill = m_rect(W, H, 3, gy - 3, 40, gy - 1)
-    shade(cv, sill, CHAR, contour=True, R=1, base=0.5, gain=1.0)
-    cv.fill(m_rect(W, H, 3, gy - 3, 40, gy - 3), CHAR[4])
-    # the drum body seen three-quarters: the shell curving back to the right of the near head
-    body = m_ellipse(W, H, 25, 24, 13, 15) | m_rect(W, H, 18, 9, 25, 39)
-    shade(cv, body, ASH_RED, contour=True, mode="cyl", base=0.45, gain=1.2)
-    for k, by in enumerate((12, 36)):
-        cv.fill(body & (np.abs(yy - by) < 1) & (xx > 18), IRON[3])
-    # cords laced from head to head
-    for k in range(6):
-        y0 = 11 + k * 5
-        cv.fill(m_line(W, H, [(21, y0), (33, y0 + 2.5), (21, y0 + 5)]) & body, ROPE[4] if k % 2 else ROPE[3])
-    # the near head: a hide disc, darker toward the rim, studs round it, the sigil in the middle
-    head = m_ellipse(W, H, 17, 24, 10.5, 15)
-    shade(cv, head, HIDE, contour=True, mode="sphere", base=0.62, gain=0.9)
-    rim = ellipse_ring(W, H, 17, 24, 10.5, 15) | ellipse_ring(W, H, 17, 24, 9.5, 14)
-    cv.fill(rim, ASH_RED[2])
-    cv.fill(ellipse_ring(W, H, 17, 24, 10.5, 15) & (xx + yy < 38), ASH_RED[4])
-    for k in range(14):
-        a = 2 * math.pi * k / 14
-        sx, sy = 17 + math.cos(a) * 9.8, 24 + math.sin(a) * 14.3
-        cv.put(int(round(sx)), int(round(sy)), GOLD[5] if math.cos(a) + math.sin(a) < 0 else GOLD[3])
-    sig = _flame_sigil(W, H, 17, 25, 1.7)
-    cv.fill(sig, ASH_RED[3])
-    cv.fill(sig & shift(~sig, 1, 0), ASH_RED[5])
-    cv.fill(m_ellipse(W, H, 15, 18, 2.2, 3.5) & head & ~sig, HIDE[5])
-    # the yoke timbers that the drum hangs from, across the top of both stands
-    yoke = m_rect(W, H, 5, 8, 37, 10)
-    shade(cv, yoke, WOOD, contour=True, R=1, base=0.55, gain=1.1)
-    cv.fill(m_rect(W, H, 5, 8, 37, 8), WOOD[5])
-    for hx in (12, 30):
-        cv.fill(m_rect(W, H, hx, 11, hx, 13), ROPE[2])
-    # the mallets propped against the frame
-    for (x0, y0, x1, y1) in ((34, gy - 3, 38, 29), (37, gy - 3, 40, 31)):
-        cv.fill(m_line(W, H, [(x0, y0), (x1, y1)]), WOOD[4])
-        hd = m_ellipse(W, H, x1, y1 - 1, 1.9, 2.3)
-        shade(cv, hd, ASH_RED, contour=True, mode="sphere", base=0.55, gain=1.0)
-    outline(cv)
-    return cv
-
-
 # ------------------------------------------------------------------ Tidebreak Front: the bastion and the Hollow
 BASTION = ramp("#141a1f", "#222b31", "#323e44", "#46545a", "#5e6d70", "#7c8a89", "#a1ada7")
 CORRUPT = ramp("#1a191f", "#2b2932", "#3e3b47", "#54505e", "#6c6777", "#8a8494", "#afa9b8")
@@ -1924,7 +1796,6 @@ def drone_hive(state, f):
 # ------------------------------------------------------------------ Nebula Deep
 NEB_TEAL = ramp("#062a30", "#0b4a50", "#137270", "#20a094", "#4fcdb8", "#a8f0dc")
 NEB_MAGENTA = ramp("#2a0a2c", "#4f1250", "#7c1f74", "#aa3496", "#d65cb6", "#f5a0d8")
-NEB_BONE = ramp("#262b3a", "#454c5f", "#6d7385", "#9c9ea8", "#c7c7c2", "#e9e7dc")
 VOID = ramp("#05040c", "#0c0a1c", "#161236", "#241c52", "#35286e")
 
 
@@ -1978,143 +1849,11 @@ def nebula_coral(state, f):
     return cv
 
 
-@prop("void_geode", 36, 30, ground=3)
-def void_geode(state, f):
-    """A geode split open on the floor of the Nebula Deep: a rough grey shell, a rim of violet
-    crystal teeth, and inside, instead of crystal, a small night sky of stars and a smudge of
-    nebula. The other half lies tipped over beside it."""
-    W, H = 36, 30
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 27
-    ground_shadow(cv, 18, gy, 16, 1.5)
-    # the other half, tipped on its back to the right, its rough outside up
-    rock(cv, 28, gy, 6, 5, "geode_half", pal=STONE, R=2, base=0.45, facets=2)
-    # the standing half: a shell with the cut face turned to us
-    shell = m_ellipse(W, H, 15, 16, 12, 11) & (yy <= gy)
-    nz = vnoise(W, H, 2, seed_of("geode"), 2)
-    shade(cv, shell, STONE, contour=True, R=2, base=0.5, gain=1.3, noise=nz, namp=0.3)
-    teeth = m_ellipse(W, H, 15.5, 16, 9, 8.3)
-    cv.fill(teeth, VIOLET[3])
-    g = rng("geode_teeth")
-    for k in range(22):
-        a = 2 * math.pi * k / 22
-        tx, ty = 15.5 + math.cos(a) * 8.3, 16 + math.sin(a) * 7.6
-        ix, iy = 15.5 + math.cos(a) * 6.4, 16 + math.sin(a) * 5.8
-        tooth = m_line(W, H, [(tx, ty), (ix, iy)])
-        lit = math.cos(a) + math.sin(a) > 0.3
-        cv.fill(tooth, VIOLET[5] if lit else VIOLET[2])
-    space = m_ellipse(W, H, 15.5, 16, 6.8, 6.2)
-    d = np.hypot((xx - 15.5) / 6.8, (yy - 16) / 6.2)
-    _idx_fill(cv, space, VOID, np.clip(4.2 - d * 4, 0, 4))
-    neb = space & (vnoise(W, H, 3, seed_of("geode_neb"), 2) > 0.58)
-    cv.fill(neb & (xx < 16), NEB_MAGENTA[2])
-    cv.fill(neb & (xx >= 16), NEB_TEAL[2])
-    for (sx, sy, c) in ((12, 13, WHITE_HOT), (18, 18, STARLIGHT[6]), (14, 19, STARLIGHT[5]), (19, 13, STARLIGHT[5]),
-                        (11, 17, STARLIGHT[4]), (16, 15, WHITE_HOT), (20, 16, STARLIGHT[4])):
-        cv.put(sx, sy, c)
-    cv.fill(m_rect(W, H, 15, 15, 17, 15) | m_rect(W, H, 16, 14, 16, 16), STARLIGHT[5])
-    cv.put(16, 15, WHITE_HOT)
-    outline(cv)
-    glow(cv, 15.5, 16, 9, 8, VIOLET[4], steps=((1.0, 0.05), (0.6, 0.08)))
-    return cv
-
-
-@prop("leviathan_bones", 180, 70, ground=4)
-def leviathan_bones(state, f):
-    """The bones of a sky leviathan on the floor of the Nebula Deep: a long spine arching low over
-    the ground with its tail sinking into it, great ribs curving down on both sides, and the long
-    skull resting on its jaw at the right; teal and magenta star-crystal has grown at the joints
-    and a thin nebula mist lies round the bones."""
-    W, H = 180, 70
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 66
-    ground_shadow(cv, 90, gy, 88, 2.2)
-    nz = vnoise(W, H, 3, seed_of("leviathan"), 2)
-    spine_pts = [(4, gy - 1), (18, 47), (40, 26), (70, 15), (100, 14), (126, 21), (144, 33)]
-    sp = _spline(spine_pts)
-
-    def spine_y(x):
-        return min(sp, key=lambda p: abs(p[0] - x))[1]
-
-    def bone(m, base=0.6, gain=1.3):
-        shade(cv, m, NEB_BONE, contour=True, R=2, base=base, gain=gain, noise=nz, namp=0.2)
-        return m
-
-    ribs = [(34, 0.8), (48, 1.0), (62, 1.15), (76, 1.2), (90, 1.2), (104, 1.1), (118, 0.95), (130, 0.8)]
-
-    def rib(sx, sc, far):
-        sy = spine_y(sx) + 1
-        dx = 5 if far else 0
-        bot = gy - 1 if not far else gy - 4
-        reach = (bot - sy)
-        pts = [(sx + dx, sy - (1 if far else 0)), (sx - 6 * sc + dx, sy + reach * 0.25),
-               (sx - 10 * sc + dx, sy + reach * 0.6), (sx - 9 * sc + dx, bot)]
-        m = tube(W, H, pts, 2.0 if far else 2.6, 1.1 if far else 1.6)
-        bone(m, base=0.25 if far else 0.58, gain=1.0 if far else 1.3)
-        return m
-
-    for sx, sc in ribs:
-        rib(sx, sc, True)
-    spine = tube(W, H, spine_pts, 2.0, 3.4)
-    bone(spine, base=0.6)
-    for i, (px, py) in enumerate(sp[8::12]):
-        if not 10 < px < 140:
-            continue
-        cv.fill(m_rect(W, H, px, py - 2, px, py + 2) & erode(spine), NEB_BONE[2])
-        ln = 3 + 4 * math.exp(-((px - 80) / 40.0) ** 2)
-        spur = m_poly(W, H, [(px - 1.5, py - 2), (px - 0.5 - ln * 0.4, py - 2 - ln), (px + 1, py - 2)])
-        bone(spur, base=0.65, gain=1.0)
-    for sx, sc in ribs:
-        rib(sx, sc, False)
-    # the skull: a long wedge resting on its lower jaw, a heavy brow over an empty socket, a horn
-    horn = tube(W, H, [(147, 29), (137, 23), (126, 21), (120, 23)], 2.6, 0.7)
-    bone(horn, base=0.62)
-    skull = m_poly(W, H, [(137, 34), (143, 27), (153, 26), (160, 30), (175, 45), (176, 49), (168, 50), (150, 50),
-                          (141, 46)])
-    bone(skull, base=0.58)
-    brow = m_poly(W, H, [(147, 30), (158, 30), (162, 34), (150, 33)])
-    bone(brow, base=0.72, gain=1.0)
-    eye = m_poly(W, H, [(150, 34), (158, 34), (159, 38), (153, 40), (149, 37)])
-    cv.fill(eye, VOID[1])
-    cv.fill(eye & shift(~eye, 0, 1), NEB_BONE[0])
-    cv.put(157, 36, NEB_TEAL[4])
-    for (x0, x1) in ((162, 171), (165, 174)):
-        cv.fill(m_line(W, H, [(x0, 38 + (x0 - 162) * 0.5), (x1, 44)]) & erode(skull), NEB_BONE[2])
-    cv.fill(m_line(W, H, [(173, 46), (175, 46)]), VOID[1])
-    jaw = m_poly(W, H, [(143, 52), (175, 53), (176, 56), (162, gy - 1), (148, gy - 2), (141, 57)])
-    bone(jaw, base=0.48, gain=1.2)
-    for tx in range(150, 174, 3):
-        cv.fill(m_poly(W, H, [(tx, 50), (tx + 1.6, 50), (tx + 0.8, 52.5)]), NEB_BONE[5])
-        cv.fill(m_poly(W, H, [(tx + 1, 53), (tx + 2.4, 53), (tx + 1.7, 51)]), NEB_BONE[4])
-    cv.fill(m_rect(W, H, 146, 50, 176, 50) & ~skull, VOID[1])
-    # star-crystal grown at the joints, and a few loose vertebrae
-    g = rng("leviathan_crystal")
-    for (cx, cy) in ((40, 26), (71, 14), (100, 13), (126, 20), (61, 52), (150, 27)):
-        for k in range(3):
-            pal = NEB_TEAL if k % 2 == 0 else NEB_MAGENTA
-            _glass_shard(cv, cx + (k - 1) * 3, cy + 1, int(g.integers(3, 7)), 2, (k - 1) * 1.5, see=0.0, pal=pal)
-    for (vx, vy) in ((12, gy - 2), (24, gy - 1)):
-        v = m_ellipse(W, H, vx, vy - 1.5, 2.6, 2) & (yy <= gy)
-        bone(v, base=0.55, gain=1.0)
-    rock(cv, 100, gy, 7, 3, "lev_r1", pal=STONE_DARK, R=1, facets=1)
-    rock(cv, 60, gy, 5, 2.5, "lev_r2", pal=STONE_DARK, R=1, facets=1)
-    outline(cv)
-    # thin nebula mist lying round the bones
-    mist = (yy > gy - 8) & (yy <= gy) & (vnoise(W, H, 6, seed_of("lev_mist"), 2) > 0.55)
-    cv.fill(mist & ~cv.solid & (xx < 90), NEB_MAGENTA[3], 0.18)
-    cv.fill(mist & ~cv.solid & (xx >= 90), NEB_TEAL[3], 0.2)
-    glow(cv, 153, 36, 5, 5, NEB_TEAL[4], steps=((1.0, 0.1),))
-    return cv
-
-
 # ------------------------------------------------------------------ gathering nodes (same layout as Act II's)
 from defs_nature import HERB_STATES, _crack_path, cut_stems  # noqa: E402
 from parts import herb_sparkle  # noqa: E402
 
 STAR_PETAL = ramp("#6b5220", "#a88a3c", "#d6bb68", "#f0dc9a", "#fbf0c8", "#fffcee")
-VOID_PETAL = ramp("#07050e", "#130d24", "#22183e", "#352660", "#4f3a86", "#7a5cb8")
 VOID_LEAF = ramp("#0a1418", "#10262a", "#17393a", "#22504b", "#35705f", "#58927a")
 
 
@@ -2158,52 +1897,6 @@ def star_lotus_patch(state, f):
             cv.put(tx, ty - 1, WHITE_HOT if (k + f) % 3 == 0 else STARFIRE[5])
         glow(cv, 14, 11, 10, 7, STAR_HALO, steps=((1.0, 0.08 + 0.03 * (f % 2)),))
         herb_sparkle(cv, f, [(6, 8), (22, 8), (14, 3)], c1=STARFIRE[5])
-    return cv
-
-
-@prop("void_orchid_patch", 28, 22, states=HERB_STATES)
-def void_orchid_patch(state, f):
-    """A void orchid: violet-black blooms on arching stems whose petals hold a starfield instead of a
-    pattern, over dark strap leaves on a clump of Nebula Deep rock."""
-    W, H = 28, 22
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    ground_shadow(cv, 14, 20, 12, 1.4)
-    rock(cv, 14, 19, 10, 4, "vo_rock", pal=STONE_DARK, R=2)
-    rock(cv, 22, 19, 4, 2.5, "vo_rock2", pal=STONE_DARK, R=1)
-    for (x0, y0, x1, y1, x2, y2) in ((13, 17, 8, 12, 3, 14), (15, 17, 20, 11, 25, 13), (14, 17, 11, 11, 9, 9),
-                                     (14, 17, 18, 13, 22, 17), (13, 17, 9, 15, 5, 18)):
-        a = m_curve(W, H, [(x0, y0), (x1, y1), (x2, y2)])
-        b = m_curve(W, H, [(x0, y0 + 1), (x1, y1 + 1.4), ((x2 + x1) / 2, (y2 + y1) / 2 + 1)])
-        cv.fill(a | b, VOID_LEAF[2])
-        cv.fill(a & ~b, VOID_LEAF[4])
-        cv.fill(b & ~a, VOID_LEAF[1])
-    blooms = []
-    if state == "ready":
-        for spray in (((14, 15), (15, 9), (18, 5)), ((13, 15), (11, 10), (7, 6))):
-            cv.fill(m_curve(W, H, list(spray)), VOID_LEAF[3])
-        for (bx, by, big) in ((18, 5, True), (7, 6, True), (11, 9, False)):
-            r = 2.6 if big else 1.8
-            fl = (m_ellipse(W, H, bx - r * 0.8, by, r * 0.8, r * 0.55) | m_ellipse(W, H, bx + r * 0.8, by, r * 0.8, r * 0.55)
-                  | m_ellipse(W, H, bx, by - r * 0.7, r * 0.55, r * 0.8) | m_ellipse(W, H, bx, by + r * 0.8, r * 0.6, r * 0.9))
-            cv.fill(fl, VOID_PETAL[2])
-            cv.fill(border(fl), VOID_PETAL[4])
-            cv.fill(border(fl) & (xx + yy < bx + by), VOID_PETAL[5])
-            cv.fill(m_rect(W, H, bx, by, bx, by + 1), VOID_PETAL[0])
-            blooms.append((bx, by, r))
-    else:
-        cut_stems(cv, [(14, 15), (13, 15)], pal=VOID_LEAF, h=3)
-    outline(cv)
-    if state == "ready":
-        g = rng("void_orchid_stars", f % 3)
-        for (bx, by, r) in blooms:
-            for _ in range(3 if r > 2 else 2):
-                sx = int(round(bx + g.uniform(-r, r) * 0.8))
-                sy = int(round(by + g.uniform(-r, r) * 0.6))
-                if cv.solid[sy, sx] and np.allclose(cv.rgb[sy, sx], VOID_PETAL[2]):
-                    cv.put(sx, sy, WHITE_HOT if g.random() < 0.4 else STARLIGHT[5])
-        glow(cv, 13, 6, 10, 6, VIOLET[4], steps=((1.0, 0.06 + 0.02 * (f % 2)),))
-        herb_sparkle(cv, f, [(20, 2), (5, 4), (12, 7)], c1=VIOLET[5])
     return cv
 
 
@@ -2272,30 +1965,6 @@ def _driftglass_ore(cv, m, inner, cracked, spots):
         _glass_shard(cv, 17, y0 + 8, 9, 4, 1, see=0.3)
 
 
-def _star_iron_ore(cv, m, inner, cracked, spots):
-    W, H = cv.w, cv.h
-    nzo = vnoise(W, H, 3, seed_of("star_iron", cracked), 2)
-    ore = np.zeros((H, W), bool)
-    for (sx, sy), pm in spots:
-        band = dilate(pm) & inner & ~pm
-        if cracked:
-            band = dilate(band) & inner & ~pm
-        ore |= band & (nzo > 0.3)
-    cv.fill(ore, IRON[2])
-    cv.fill(ore & shift(~ore, 0, 1), IRON[4])
-    cv.fill(ore & shift(~ore, 1, 0) & ~shift(~ore, 0, 1), IRON[5])
-    cv.fill(ore & shift(~ore, 0, -1), IRON[1])
-    sp = vnoise(W, H, 1, seed_of("star_iron_specks", cracked), 1)
-    cv.fill(ore & (sp > (0.72 if cracked else 0.8)), STAR_CRYSTAL[4])
-    cv.fill(ore & (sp > 0.93), WHITE_HOT)
-    for i, ((sx, sy), pm) in enumerate(spots[: (6 if cracked else 3)]):
-        x, y = int(round(sx)) + 1, int(round(sy))
-        if inner[min(H - 1, y), min(W - 1, x)]:
-            cv.fill(m_rect(W, H, x - 1, y - 1, x + (1 if cracked else 0), y), IRON[3])
-            cv.put(x - 1, y - 1, IRON[6])
-            cv.put(x, y, STAR_CRYSTAL[5])
-
-
 def _reg_lantern_vein(pid, stone, ore_fn, debris_c):
     @prop(pid, 36, 28, states=(("full", 1, 0), ("cracked", 1, 0), ("depleted", 1, 0)))
     def _d(state, f, _pid=pid):
@@ -2305,4 +1974,3 @@ def _reg_lantern_vein(pid, stone, ore_fn, debris_c):
 
 
 _reg_lantern_vein("driftglass_vein", STONE_DARK, _driftglass_ore, DRIFTGLASS[4])
-_reg_lantern_vein("star_iron_vein", STONE_DARK, _star_iron_ore, STAR_CRYSTAL[4])

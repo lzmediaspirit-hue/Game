@@ -12,7 +12,6 @@
    "effects": [],
    "scope": "character",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -23,7 +22,6 @@
    "effects": [],
    "scope": "character",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -36,8 +34,7 @@
    "effects": [],
    "scope": "character",
    "quest": "morning_tide",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "navigation",
@@ -58,8 +55,7 @@
    "effects": [],
    "scope": "character",
    "quest": "a_quiet_river",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "jump",
@@ -78,8 +74,7 @@
    "effects": [],
    "scope": "character",
    "quest": "the_runaway_kite",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "shop",
@@ -98,8 +93,7 @@
    "effects": [],
    "scope": "character",
    "quest": "mas_delivery",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "quick_use",
@@ -120,8 +114,7 @@
    "effects": [],
    "scope": "character",
    "quest": "grannys_remedy",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "shrines",
@@ -139,7 +132,6 @@
    "scope": "character",
    "quest": "grannys_remedy",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -157,8 +149,7 @@
    "effects": [],
    "scope": "character",
    "quest": "race_to_the_tower",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "attack",
@@ -178,8 +169,7 @@
    "effects": [],
    "scope": "character",
    "quest": "fists_first",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "weapons",
@@ -197,7 +187,6 @@
    "scope": "character",
    "quest": "fists_first",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -231,8 +220,7 @@
    "effects": [],
    "scope": "character",
    "quest": "crab_trouble",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "equipment",
@@ -250,8 +238,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "menu",
@@ -270,8 +257,7 @@
    "effects": [],
    "scope": "character",
    "quest": "evening_on_the_river",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "cultivate",
@@ -292,8 +278,7 @@
    "effects": [],
    "scope": "character",
    "quest": "the_river_token",
-   "prologue": true,
-   "same_stage_ok": true
+   "prologue": true
   },
   {
    "id": "cultivation",
@@ -313,7 +298,6 @@
    "scope": "character",
    "quest": "the_river_token",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -332,7 +316,6 @@
    "scope": "character",
    "quest": "the_river_token",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -353,7 +336,6 @@
    "scope": "character",
    "quest": "the_river_token",
    "prologue": true,
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -373,8 +355,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "the_river_token",
-   "same_stage_ok": true
+   "quest": "the_river_token"
   },
   {
    "id": "qi_pool",
@@ -393,7 +374,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_river_token",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -435,7 +415,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_willow_path",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -457,7 +436,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_willow_path",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -481,8 +459,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "the_willow_path",
-   "same_stage_ok": true
+   "quest": "the_willow_path"
   },
   {
    "id": "foundation",
@@ -505,7 +482,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_willow_path",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -528,8 +504,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "the_willow_path",
-   "same_stage_ok": true
+   "quest": "the_willow_path"
   },
   {
    "id": "sect_choice",
@@ -566,7 +541,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_recruitment_fair",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -587,8 +561,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "entry_trial",
-   "same_stage_ok": true
+   "quest": "entry_trial"
   },
   {
    "id": "return_charm",
@@ -609,7 +582,6 @@
    "effects": [],
    "scope": "character",
    "quest": "entry_trial",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -632,8 +604,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "entry_trial",
-   "same_stage_ok": true
+   "quest": "entry_trial"
   },
   {
    "id": "sect_hub",
@@ -649,8 +620,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "a_disciples_chores",
-   "same_stage_ok": true
+   "quest": "a_disciples_chores"
   },
   {
    "id": "guard",
@@ -694,7 +664,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_weapon_hall",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -723,8 +692,7 @@
      "flag": "array_array_cm_gate"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "herb_gathering",
@@ -773,7 +741,6 @@
    "effects": [],
    "scope": "character",
    "quest": "eyes_for_qi",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -794,8 +761,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "outer_trial",
-   "same_stage_ok": true
+   "quest": "outer_trial"
   },
   {
    "id": "mining",
@@ -833,8 +799,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "stone_and_sweat",
-   "same_stage_ok": true
+   "quest": "stone_and_sweat"
   },
   {
    "id": "collection_book",
@@ -853,7 +818,6 @@
    "effects": [],
    "scope": "character",
    "quest": "stone_and_sweat",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -903,7 +867,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_first_current",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -947,8 +910,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "aunt_pings_broth",
-   "same_stage_ok": true
+   "quest": "aunt_pings_broth"
   },
   {
    "id": "daily_missions",
@@ -969,7 +931,6 @@
    "effects": [],
    "scope": "character",
    "quest": "earning_your_keep",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -991,7 +952,6 @@
    "effects": [],
    "scope": "character",
    "quest": "earning_your_keep",
-   "same_stage_ok": true,
    "toast": false,
    "obligation": true
   },
@@ -1010,7 +970,6 @@
    "effects": [],
    "scope": "character",
    "quest": "earning_your_keep",
-   "same_stage_ok": true,
    "toast": false,
    "obligation": true
   },
@@ -1029,7 +988,6 @@
    "effects": [],
    "scope": "character",
    "quest": "earning_your_keep",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1068,7 +1026,6 @@
    "effects": [],
    "scope": "character",
    "quest": "a_second_path",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1111,7 +1068,6 @@
    ],
    "scope": "character",
    "quest": "glowflies",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1135,7 +1091,6 @@
    "effects": [],
    "scope": "character",
    "quest": "a_pouch_for_the_road",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1163,7 +1118,6 @@
    ],
    "scope": "character",
    "quest": "snares_before_swords",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1191,7 +1145,6 @@
    ],
    "scope": "character",
    "quest": "the_ancestors_regard",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1213,7 +1166,6 @@
    "effects": [],
    "scope": "character",
    "quest": "an_apprentices_hands",
-   "same_stage_ok": true,
    "obligation": true
   },
   {
@@ -1236,8 +1188,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "an_idle_art",
-   "same_stage_ok": true
+   "quest": "an_idle_art"
   },
   {
    "id": "seal_scripts",
@@ -1259,8 +1210,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "seals_in_red_ink",
-   "same_stage_ok": true
+   "quest": "seals_in_red_ink"
   },
   {
    "id": "guardian_steles",
@@ -1282,8 +1232,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "the_guardian_stones",
-   "same_stage_ok": true
+   "quest": "the_guardian_stones"
   },
   {
    "id": "magistrates_favours",
@@ -1305,8 +1254,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "the_county_tribute",
-   "same_stage_ok": true
+   "quest": "the_county_tribute"
   },
   {
    "id": "calcination",
@@ -1332,8 +1280,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "fire_and_salt",
-   "same_stage_ok": true
+   "quest": "fire_and_salt"
   },
   {
    "id": "formation_flags",
@@ -1355,8 +1302,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "flags_over_the_posts",
-   "same_stage_ok": true
+   "quest": "flags_over_the_posts"
   },
   {
    "id": "mirror_of_echoes",
@@ -1382,8 +1328,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "echoes_in_bronze",
-   "same_stage_ok": true
+   "quest": "echoes_in_bronze"
   },
   {
    "id": "bottleneck_panel",
@@ -1418,7 +1363,6 @@
    "effects": [],
    "scope": "character",
    "quest": "the_wall",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -1542,7 +1486,6 @@
    "effects": [],
    "scope": "character",
    "quest": "listening_to_the_waterfall",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -1577,8 +1520,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "two_hands_full",
-   "same_stage_ok": true
+   "quest": "two_hands_full"
   },
   {
    "id": "appraisal",
@@ -1655,8 +1597,7 @@
     }
    ],
    "scope": "character",
-   "quest": "batch_work",
-   "same_stage_ok": true
+   "quest": "batch_work"
   },
   {
    "id": "forge_guild",
@@ -1682,8 +1623,7 @@
      "entry": "forge_guild"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "formation_guild",
@@ -1709,8 +1649,7 @@
      "entry": "formation_guild"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "experiments",
@@ -1735,7 +1674,6 @@
     }
    ],
    "scope": "character",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -1784,8 +1722,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "after_the_cleansing",
-   "same_stage_ok": true
+   "quest": "after_the_cleansing"
   },
   {
    "id": "retreat_room",
@@ -1802,7 +1739,6 @@
    "effects": [],
    "scope": "character",
    "quest": "after_the_cleansing",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -1947,8 +1883,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "calming_the_wild",
-   "same_stage_ok": true
+   "quest": "calming_the_wild"
   },
   {
    "id": "tournament",
@@ -2027,8 +1962,7 @@
     }
    ],
    "scope": "character",
-   "quest": "a_treasure_in_hand",
-   "same_stage_ok": true
+   "quest": "a_treasure_in_hand"
   },
   {
    "id": "perfect_timing",
@@ -2045,7 +1979,6 @@
    "effects": [],
    "scope": "character",
    "quest": "lines_in_the_sand",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2062,7 +1995,6 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2083,8 +2015,7 @@
      "entry": "vows"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "dual_loadout",
@@ -2101,8 +2032,7 @@
     "hud:weapon_swap"
    ],
    "effects": [],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "talisman",
@@ -2120,8 +2050,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "ink_and_paper",
-   "same_stage_ok": true
+   "quest": "ink_and_paper"
   },
   {
    "id": "natal",
@@ -2136,8 +2065,7 @@
    },
    "reveals": [],
    "effects": [],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "medicinal_bath",
@@ -2161,8 +2089,7 @@
      "recipe": "marrow_washing_bath"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "wardrobe",
@@ -2178,7 +2105,6 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2233,8 +2159,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "the_warm_egg",
-   "same_stage_ok": true
+   "quest": "the_warm_egg"
   },
   {
    "id": "second_companion",
@@ -2306,8 +2231,7 @@
      "entry": "core_forging"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "flight",
@@ -2339,8 +2263,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "riding_the_wind",
-   "same_stage_ok": true
+   "quest": "riding_the_wind"
   },
   {
    "id": "core_rank",
@@ -2360,8 +2283,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "the_bracket",
-   "same_stage_ok": true
+   "quest": "the_bracket"
   },
   {
    "id": "refine_qi",
@@ -2498,8 +2420,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "a_lake_inside",
-   "same_stage_ok": true
+   "quest": "a_lake_inside"
   },
   {
    "id": "hidden_portals",
@@ -2582,8 +2503,7 @@
    },
    "reveals": [],
    "effects": [],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "pet_breeding",
@@ -2598,8 +2518,7 @@
    },
    "reveals": [],
    "effects": [],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "natural_treasures",
@@ -2701,8 +2620,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "going_once",
-   "same_stage_ok": true
+   "quest": "going_once"
   },
   {
    "id": "clans",
@@ -2722,8 +2640,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "ironroot_blood",
-   "same_stage_ok": true
+   "quest": "ironroot_blood"
   },
   {
    "id": "appraisal_eye",
@@ -2743,8 +2660,7 @@
      "art": "appraisal_eye"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "breath_control",
@@ -2764,8 +2680,7 @@
      "art": "breath_control"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "wind_blink",
@@ -2785,8 +2700,7 @@
      "art": "wind_blink"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "glide",
@@ -2803,7 +2717,6 @@
    "effects": [],
    "scope": "character",
    "quest": "leaf_on_the_wind",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2821,7 +2734,6 @@
    "effects": [],
    "scope": "character",
    "quest": "swallow_dart",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2839,7 +2751,6 @@
    "effects": [],
    "scope": "character",
    "quest": "cloud_ladder",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2857,7 +2768,6 @@
    "effects": [],
    "scope": "character",
    "quest": "between_two_walls",
-   "same_stage_ok": true,
    "toast": false
   },
   {
@@ -2878,8 +2788,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "a_chart_of_ones_own",
-   "same_stage_ok": true
+   "quest": "a_chart_of_ones_own"
   },
   {
    "id": "shipwright",
@@ -2899,8 +2808,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "keel_and_ward",
-   "same_stage_ok": true
+   "quest": "keel_and_ward"
   },
   {
    "id": "starsea",
@@ -2919,8 +2827,7 @@
    },
    "reveals": [],
    "effects": [],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "paired_cultivation",
@@ -2940,8 +2847,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "two_breaths",
-   "same_stage_ok": true
+   "quest": "two_breaths"
   },
   {
    "id": "elder_token",
@@ -2968,8 +2874,7 @@
      "template": "elder_token"
     }
    ],
-   "scope": "character",
-   "same_stage_ok": true
+   "scope": "character"
   },
   {
    "id": "storm_ward",
@@ -2989,8 +2894,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "storm_in_the_blood",
-   "same_stage_ok": true
+   "quest": "storm_in_the_blood"
   },
   {
    "id": "starsea_endurance",
@@ -3010,8 +2914,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "salt_of_the_stars",
-   "same_stage_ok": true
+   "quest": "salt_of_the_stars"
   },
   {
    "id": "presence",
@@ -3033,8 +2936,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "a_presence_of_ones_own",
-   "same_stage_ok": true
+   "quest": "a_presence_of_ones_own"
   },
   {
    "id": "star_beasts",
@@ -3054,8 +2956,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "star_tier_beasts",
-   "same_stage_ok": true
+   "quest": "star_tier_beasts"
   },
   {
    "id": "sphere",
@@ -3077,8 +2978,7 @@
    ],
    "effects": [],
    "scope": "character",
-   "quest": "a_sphere_of_ones_own",
-   "same_stage_ok": true
+   "quest": "a_sphere_of_ones_own"
   },
   {
    "id": "beetle_swarm",
@@ -3102,8 +3002,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "the_copperjaw_box",
-   "same_stage_ok": true
+   "quest": "the_copperjaw_box"
   },
   {
    "id": "confucian_path",
@@ -3123,8 +3022,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "the_written_word",
-   "same_stage_ok": true
+   "quest": "the_written_word"
   }
  ]
 }

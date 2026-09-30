@@ -42,7 +42,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from common import DATA, write  # noqa: E402
+from common import run_cli, write  # noqa: E402
 
 LOOK_RULE = ("Decision 38: only the feel and technique come from the reference game (timing, hit-stop, smears, impact "
              "readability, camera kick, knockback). The look of every attack and skill stays wuxia/xianxia: sword-light arcs and "
@@ -196,22 +196,9 @@ def payload() -> dict:
     }
 
 
-def build(check_only: bool = False) -> bool:
-    path = os.path.join(DATA, "combat_feel.json")
-    if check_only:
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            write("combat_feel.json", payload(), folder=tmp)
-            fresh = open(os.path.join(tmp, "combat_feel.json"), encoding="utf-8").read()
-        current = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
-        if fresh != current:
-            print("data/combat_feel.json is not current: run python3 tools/data/combat_feel.py")
-            return False
-        print("combat_feel.json is current")
-        return True
+def build():
     write("combat_feel.json", payload())
-    return True
 
 
 if __name__ == "__main__":
-    sys.exit(0 if build("--check" in sys.argv) else 1)
+    raise SystemExit(run_cli(build))

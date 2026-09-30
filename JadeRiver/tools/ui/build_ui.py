@@ -38,8 +38,6 @@ INNER_SHADOW = hexc("#06161b")
 JADE_TOP = hexc("#3fb3a2")
 SLOT_FILL = hexc("#0c2830")
 TROUGH = hexc("#0b171c")
-GREY_RIM = hexc("#84958c")
-GREY_INNER = hexc("#344d52")
 BRONZE_HI = hexc("#c8923e")
 BRONZE_LO = hexc("#6a4318")
 DIS_RIM = hexc("#5d6663")
@@ -236,31 +234,6 @@ def slot(state):
     return cv
 
 
-def slot_empty_motif(state):
-    """Faint auspicious-cloud curl to sit inside an empty slot (transparent background)."""
-    from pixlib import m_line, m_rect
-    cv = canvas(64, 64)
-    W, H = cv.w, cv.h
-    c = hexc("#1f4a4c")
-    c_hi = hexc("#285c5c")
-
-    def spiral(cx, cy, r0, turns, sgn, start):
-        pts = []
-        n = 40
-        for i in range(n):
-            t = i / (n - 1)
-            a = start + sgn * t * turns * 2 * math.pi
-            r = r0 * (1 - t * 0.78)
-            pts.append((cx + math.cos(a) * r, cy + math.sin(a) * r * 0.9))
-        return m_line(W, H, pts)
-    m = spiral(13.5, 15.0, 6.5, 1.35, 1, math.pi * 0.5)
-    m |= spiral(21.5, 18.0, 4.2, 1.2, -1, math.pi * 0.5)
-    m |= m_line(W, H, [(9, 22), (26, 22)])
-    cv.fill(m, c, 0.95)
-    cv.fill(m & (np.roll(m, 1, 0) == False), c_hi, 0.95)
-    return cv
-
-
 def selected_slot_glow(state):
     cv = canvas(72, 72)
     d, s = ring_field(cv.w, cv.h, 4)
@@ -430,48 +403,6 @@ def close_button(state):
     return cv
 
 
-def hud_circle(size, state):
-    cv = canvas(size, size)
-    W = cv.w
-    big = W >= 60
-    d0, s0 = ring_field(W, W, W / 2.0)
-    d = d0 - 2  # leave 2 art px for the active glow
-    s = s0
-    fill_a = 0.9
-    if state == "normal":
-        rings = [(INK, 0.9), bev(hexc("#a9b8ae"), GREY_RIM, hexc("#5f7069"))]
-        if big:
-            rings.append(bev(GREY_RIM, hexc("#6f8079"), hexc("#4f5f59")))
-        rings += [(INK, 0.9), (GREY_INNER, 1.0)]
-        fill = hexc("#091d24")
-    elif state == "pressed":
-        rings = [(INK, 0.95), bev(hexc("#5f7069"), hexc("#6f8079"), hexc("#84958c"))]
-        if big:
-            rings.append(bev(hexc("#4f5f59"), hexc("#5f7069"), hexc("#6f8079")))
-        rings += [(INK, 0.95), (hexc("#223538"), 1.0), (INNER_SHADOW, 0.95)]
-        fill = hexc("#061418")
-        fill_a = 0.95
-    else:
-        rings = [(INK, 0.95), bev(PALE_GOLD, WARM_GOLD, AGED_BRONZE)]
-        if big:
-            rings.append(bev(WARM_GOLD, GOLD[3], AGED_BRONZE))
-        rings += [(INK, 0.95), (JADE, 1.0)]
-        fill = hexc("#0b2830")
-    k = np.floor(d).astype(int)
-    for i, spec in enumerate(rings):
-        m = (k == i) & (d >= 0)
-        if isinstance(spec, dict):
-            for si, key in enumerate(("t", "r", "b", "l")):
-                cv.fill(m & (s == si), spec[key])
-        else:
-            cv.fill(m, spec[0], spec[1])
-    cv.fill((k >= len(rings)) & (d >= 0), fill, fill_a)
-    if state == "active":
-        cv.fill((d < 0) & (d >= -1), WARM_GOLD, 0.45)
-        cv.fill((d < -1) & (d >= -2), WARM_GOLD, 0.18)
-    return cv
-
-
 def dialogue_box(state):
     cv = canvas(256, 128)
     d, s = ring_field(cv.w, cv.h, 2)
@@ -523,7 +454,6 @@ ASSETS = {
     "minor_panel": (minor_panel, ["normal"], [12, 12, 12, 12]),
     "tooltip": (tooltip, ["normal"], [10, 10, 10, 10]),
     "slot": (slot, ["normal", "selected", "disabled"], [8, 8, 8, 8]),
-    "slot_empty_motif": (slot_empty_motif, ["normal"], [0, 0, 0, 0]),
     "selected_slot_glow": (selected_slot_glow, ["normal"], [12, 12, 12, 12]),
     "button_primary": (lambda st: button("primary", st), ["normal", "pressed", "disabled"], [16, 14, 16, 14]),
     "button_secondary": (lambda st: button("secondary", st), ["normal", "pressed", "disabled"], [14, 12, 14, 12]),
@@ -533,9 +463,6 @@ ASSETS = {
     "title_plaque": (title_plaque, ["normal"], [48, 16, 48, 16]),
     "currency_pill": (currency_pill, ["normal"], [20, 10, 20, 10]),
     "close_button": (close_button, ["normal", "pressed"], [0, 0, 0, 0]),
-    "hud_circle_large": (lambda st: hud_circle(132, st), ["normal", "pressed", "active"], [0, 0, 0, 0]),
-    "hud_circle": (lambda st: hud_circle(64, st), ["normal", "pressed", "active"], [0, 0, 0, 0]),
-    "hud_circle_small": (lambda st: hud_circle(52, st), ["normal", "pressed", "active"], [0, 0, 0, 0]),
     "dialogue_box": (dialogue_box, ["normal"], [24, 24, 24, 24]),
     "portrait_frame": (portrait_frame, ["normal"], [16, 16, 16, 16]),
     "minimap_frame": (minimap_frame, ["normal"], [24, 24, 24, 24]),
@@ -543,10 +470,9 @@ ASSETS = {
 }
 
 SIZES = {"major_window": (256, 256), "minor_panel": (128, 128), "tooltip": (96, 96), "slot": (64, 64),
-         "slot_empty_motif": (64, 64), "selected_slot_glow": (72, 72), "button_primary": (192, 64),
+         "selected_slot_glow": (72, 72), "button_primary": (192, 64),
          "button_secondary": (160, 56), "tab": (128, 48), "toast": (256, 64), "bar_shell": (256, 32),
          "title_plaque": (384, 72), "currency_pill": (160, 40), "close_button": (52, 52),
-         "hud_circle_large": (132, 132), "hud_circle": (64, 64), "hud_circle_small": (52, 52),
          "dialogue_box": (256, 128), "portrait_frame": (96, 96), "minimap_frame": (232, 140), "realm_badge": (64, 24)}
 
 

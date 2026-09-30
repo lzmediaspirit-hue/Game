@@ -897,6 +897,33 @@ Every slice below rebases onto those changes. The ones that touch the same files
 helpers (FrameMemo, Figures, the suite base). The splits come before the engines so E6's notice table lands in a small
 `hud/notices.gd` rather than inside a 3,266-line file.
 
+### Status: S5 (generator hygiene), done
+
+- **DUP-11, the generator command line: done.** `tools/data/common.py` has `emit()` (every generated file, written
+  only when it changed, or compared with `--check`) and `run_cli()`: every module of `build_data.py`'s list and
+  `topdown_rooms.py` take `--write`, `--check` and `--only`, with exit codes 0, 1 and 2 (`tools/data/README.md`).
+  `sect_walks.py` and `room_lint.py` are checks, not generators, and keep their own flags.
+- **DUP-10, the grid's walking rules: done.** The Python Grid reads `step_up` and the jump from `data/movement.json`.
+  `topdown_rooms.py --check` compares it with the game's `TopdownRoom` and `TopdownRoute.reach`, through
+  `tools/data/grid_parity.tscn`, on every layout: 27 layouts, 95 starts, all equal.
+  - Still copied: `tests/topdown_tutorial.gd` `reach()` repeats the Grid's on-foot rules, with 32.5 and 8.0 written
+    in. The game has no discrete form of a running jump to call instead.
+  - The room graph route (`sect_walks` against `WorldRules.route`) is unchanged.
+- **DUP-08, the pixel libraries: done for new work.** `tools/lib/pix.py`, with `--check` against its sources. The
+  hash and noise copies in `canvas.py`, `creature/motion.py`, `fxpix.py` and `topdown_life.py` import it.
+  - The four old libraries stay with their art. `pixlib` samples pixel corners and draws polygons through PIL, and
+    its `shift` moves a mask where the icons' reads a neighbour, so moving their art onto `pix` is a redraw.
+- **DEAD-12, data the game never reads: done.**
+  - `balance.json`, `legendary_chains.json` and `td_review_heights.json` moved to `tests/data/`. Their readers
+    changed to match: `balance_sim`, `data_validation`, `rules_tests`, the wiki, `moments.py` and `topdown_capture`.
+  - The dropped fields: techniques' `mastery`, shops' `buys_all`, enemies' `weak_to` and `equipment_chance`, zones'
+    `laws` and `exit`, and `same_stage_ok` on unlocks and quests (its check moved into `story.validate`).
+  - S1 removed the readers of the NPCs' `age` and of `sound.json`'s `steps.materials`, so those went too.
+  - Kept: `named.archetype` and the sets' `archetype`, which `data_validation`'s item-plan checks and the wiki read.
+  - `core.qp_pct` had already gone in phase 1.
+- **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),
+  and so are the 51 `ui.*` string keys. The 11 `world_view.*` keys stay.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:

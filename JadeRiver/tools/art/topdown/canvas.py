@@ -5,38 +5,19 @@ viewport). Noise comes from a coordinate hash, never from a random generator, so
 """
 from __future__ import annotations
 
+import os
+import sys
+
 from PIL import Image
 
 from palette import CLEAR, LINE, LINE_SOFT
 
 T = 16
-
-
-def h01(x: int, y: int, s: int = 0) -> float:
-    """A hash of integer coordinates to [0, 1)."""
-    n = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
-    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0
-
-
-def _smooth(t: float) -> float:
-    return t * t * (3.0 - 2.0 * t)
-
-
-def vnoise(i: float, j: float, seed: int, cx: int = 4, cy: int | None = None, period: int = T) -> float:
-    """Value noise on a lattice of cx x cy px that repeats every `period` px, so a tile built from it tiles."""
-    cy = cy or cx
-    nx, ny = max(1, period // cx), max(1, period // cy)
-    fx, fy = i / cx, j / cy
-    x0, y0 = int(fx // 1), int(fy // 1)
-    tx, ty = _smooth(fx - x0), _smooth(fy - y0)
-
-    def g(a: int, b: int) -> float:
-        return h01(a % nx, b % ny, seed)
-
-    top = g(x0, y0) * (1 - tx) + g(x0 + 1, y0) * tx
-    bot = g(x0, y0 + 1) * (1 - tx) + g(x0 + 1, y0 + 1) * tx
-    return top * (1 - ty) + bot * ty
+# h01(x, y, s): a hash of integer coordinates to [0, 1). vnoise(i, j, seed, cx=4, cy=None, period=T): value noise on a
+# lattice of cx x cy px that repeats every `period` px, so a tile built from it tiles.
+# The coordinate hash and the tileable noise are the one pixel library's (tools/lib/pix.py, audit 45): the same code, one copy.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from lib.pix import h01, vnoise  # noqa: E402,F401
 
 
 class Img:

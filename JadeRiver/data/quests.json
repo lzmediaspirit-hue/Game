@@ -1245,7 +1245,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk3",
-   "same_stage_ok": true,
    "giver_any": [
     "elder_hu",
     "elder_sung"
@@ -1295,7 +1294,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk7",
-   "same_stage_ok": true,
    "giver_any": [
     "jade_librarian",
     "cloud_librarian"
@@ -2971,7 +2969,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "cs1",
-   "same_stage_ok": true,
    "tier": "cloud_stride_1",
    "cultivation": 1200
   },
@@ -3184,7 +3181,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qu6",
-   "same_stage_ok": true,
    "giver_any": [
     "jade_librarian",
     "cloud_librarian"
@@ -3239,7 +3235,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht4",
-   "same_stage_ok": true,
    "giver_any": [
     "elder_hu",
     "elder_sung"
@@ -3289,7 +3284,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht1",
-   "same_stage_ok": true,
    "giver_any": [
     "elder_hu",
     "elder_sung"
@@ -3382,7 +3376,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht5",
-   "same_stage_ok": true,
    "giver_any": [
     "jade_formation_elder",
     "cloud_formation_elder"
@@ -3502,7 +3495,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht5",
-   "same_stage_ok": true,
    "on_accept": [
     {
      "kind": "grant_item",
@@ -3751,7 +3743,6 @@
    ],
    "offered_by_unlock": true,
    "chapter": "cs1",
-   "same_stage_ok": true,
    "tier": "cloud_stride_1",
    "cultivation": 1200
   },
