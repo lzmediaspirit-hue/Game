@@ -96,11 +96,11 @@
     "tools/data/places.py",
     "tools/data/room_lint.py"
    ],
-   "home": "tools/data/rooms/ (engine.py, biomes.py, specs/<zone>.py)",
+   "home": "tools/content/rooms/ (engine.py, biomes.py, specs/<zone>.py)",
    "id": "E1",
-   "migration": "1) The engine emits Layout calls, so a spec can reproduce an existing room exactly with `pins` (cells, props, places); migrate the 29 layouts one by one until `topdown_rooms --check` shows no diff. 2) Convert the 139 side-view rooms from their world.py template (which already lists the ids) plus a 10-20 line shape spec. 3) Hand-tweaks stay as pins in the spec, never edits to the JSON.",
+   "migration": "1) The engine emits Layout calls, so a spec can reproduce an existing room exactly with `pins` (cells, props, places); migrate the 27 layouts one by one until `topdown_rooms --check` shows no diff. 2) Convert the 141 side-view rooms from their world.py template (which already lists the ids) plus a 10-20 line shape spec. 3) Hand-tweaks stay as pins in the spec, never edits to the JSON.",
    "name": "Room engine",
-   "saves": "wp_east is 44 hand lines (~600 tokens) and about 60 placed coordinates; its spec is ~15 lines (~220 tokens) with 8 anchors. Across the 139 rooms left: ~8,000-15,000 hand lines at today's rate against ~2,000-2,800 spec lines.",
+   "saves": "wp_east is 44 hand lines (~600 tokens) and about 60 placed coordinates; its spec is ~15 lines (~220 tokens) with 8 anchors. Across the 141 rooms left: ~8,500-15,500 hand lines at today's rate against ~2,100-2,800 spec lines.",
    "spec_example": {
     "anchors": {
      "crate_3": "bank@33",
@@ -655,7 +655,7 @@
    "method": "tools/run_tests.sh and Test.ps1 suite lists; each run with godot -s (tools/dev/audit/run_legacy.py)",
    "severity": null,
    "slice": "S2",
-   "title": "27 SceneTree scripts under tests/ that no suite runs (1,634 lines); 16 were imported with v0.13 and never touched since",
+   "title": "27 SceneTree scripts under tests/ that no suite runs (1,634 lines); 22 were imported with v0.13 and never touched since",
    "where": [
     "tests/combo_tests.gd",
     "tests/landing_matrix.gd",
@@ -702,7 +702,7 @@
    "confidence": "medium",
    "evidence": "",
    "id": "DEAD-11",
-   "lines": 3200,
+   "lines": 2889,
    "method": "tools/dev/audit/py_graph.py (imports, entry points, names outside Python) and mentions.py",
    "severity": null,
    "slice": "S3",
@@ -713,7 +713,7 @@
     "tools/bake_hat_cape_combos.gd",
     "tools/art/build_creatures.py",
     "tools/art/build_topdown_proto.py (22 lines, superseded by build_tiles.py)",
-    "tools/art/topdown/study_quality/ (decision 42 study, 1,400 lines, copies raster.py and folds.py)",
+    "tools/art/topdown/study_quality/ (decision 42 study, 1,857 lines, copies raster.py and folds.py)",
     "tools/icons/study/technique_cards.py (594 lines, no caller)"
    ]
   },
@@ -835,7 +835,7 @@
    "title": "Five copies of the sin-hash noise and one integer hash",
    "where": [
     "scripts/presentation/fx_layer.gd:682 _hash",
-    "scripts/presentation/hazard_view.gd",
+    "scripts/presentation/hazard_view.gd:179 _h",
     "scripts/ui/pages/map_page.gd:1308 _rnd",
     "scripts/ui/pages/beast_kit.gd:9 noise",
     "scripts/ui/pages/inventory_page.gd:87 _hash",
@@ -857,15 +857,15 @@
     "scripts/ui/pages/character_page.gd",
     "scripts/ui/pages/shop_page.gd",
     "scripts/ui/pages/inventory_page.gd",
-    "scripts/shell/shell_screens.gd",
-    "scripts/ui/pages/dialogue_page.gd",
-    "scripts/ui/pages/companions_page.gd",
-    "scripts/ui/pages/notice_page.gd",
-    "scripts/ui/pages/posts_page.gd",
-    "scripts/ui/pages/sect_kit.gd",
-    "scripts/ui/pages/techniques_page.gd",
     "scripts/ui/pages/cultivation_page.gd",
-    "scripts/presentation/technique_preview.gd"
+    "scripts/ui/pages/techniques_page.gd",
+    "scripts/shell/shell_screens.gd",
+    "scripts/presentation/technique_picture.gd",
+    "scripts/presentation/technique_preview.gd",
+    "scripts/presentation/npc_view.gd",
+    "scripts/presentation/enemy_view.gd",
+    "scripts/player.gd",
+    "scripts/hud.gd"
    ]
   },
   {
@@ -878,9 +878,9 @@
    "method": "function sizes (tools/dev/audit/funcs.py); count of GameEvents.event.connect (11)",
    "severity": null,
    "slice": "S6",
-   "title": "Event -> presentation switches: hud.gd _handle (234 branches, 620 lines, 134 add_log + 124 toast calls), WorldShared.play (147 lines), world.gd and topdown_world.gd _on_event (70 lines each), audio_director, moment_view, scene_director, tutorial_coach, page, atmosphere, life: 11 listeners each run their own match on every event",
+   "title": "Event -> presentation switches: hud.gd _handle (234 branches, 615 lines, 134 add_log + 124 toast calls), WorldShared.play (147 lines), world.gd and topdown_world.gd _on_event (70 lines each), audio_director, moment_view, scene_director, tutorial_coach, page, atmosphere, life: 11 listeners each run their own match on every event",
    "where": [
-    "scripts/hud.gd:1349-1968",
+    "scripts/hud.gd:1349-1963",
     "scripts/presentation/world_shared.gd:82-228",
     "scripts/world.gd:406",
     "scripts/topdown/topdown_world.gd:576"
@@ -896,7 +896,7 @@
    "method": "grep for room_rt.topdown ==/!= null, is World, grid ==/!= null, TopdownDoll.shown",
    "severity": null,
    "slice": "S12",
-   "title": "Parallel side-view and top-down implementations with 60 `topdown == null` checks in 20 shared files",
+   "title": "Parallel side-view and top-down implementations with 74 `topdown == null` checks in 20 shared files",
    "where": [
     "scripts/world.gd vs scripts/topdown/topdown_world.gd (_build_room 92/97 lines, _on_event 69/72)",
     "scripts/player.gd vs scripts/topdown/topdown_player.gd",
@@ -1040,23 +1040,21 @@
    ]
   },
   {
-   "action": "a ContentDB.recipe_output(id) that returns '' for an unknown id, and a save migration that drops unknown recipe ids",
+   "action": "ContentDB.recipe_output(id) returning '' for an unknown id, and a save-load sweep that drops unknown recipe ids from the queues",
    "category": "bug",
-   "confidence": "high",
+   "confidence": "medium",
    "evidence": "",
    "id": "BUG-01",
    "lines": 0,
-   "method": "grep ContentDB.(entry|item|room|config)(...).<field> without .get (12 sites); the ids come from GameCharacter state",
-   "severity": "medium",
+   "method": "grep ContentDB.(entry|item|room|config)(...).<field> without .get (12 sites), each traced to where its id comes from; crafting_authority.gd:1991 and :1043 read ids from data and are safe",
+   "severity": "low",
    "slice": "S1",
-   "title": "Recipe ids from the save are dotted into ContentDB with no check: a recipe renamed or removed in data crashes the daily commission roll and the Crafts page for old saves",
+   "title": "Recipe ids read from the save are dotted into ContentDB with no check: after a recipe is renamed or removed in data, a save with it in the auto-refine queue or a refine in progress crashes the Crafts page (no load-time sweep drops unknown ids)",
    "where": [
-    "scripts/simulation/authority/crafting_authority.gd:1991",
-    "scripts/ui/pages/crafts_page.gd:716",
-    "scripts/ui/pages/crafts_page.gd:810",
-    "scripts/ui/pages/crafts_page.gd:957",
-    "scripts/ui/pages/crafts_page.gd:1528",
-    "scripts/simulation/authority/crafting_authority.gd:1043 (garden racks)"
+    "scripts/ui/pages/crafts_page.gd:810 (ch.crafting.auto_queue)",
+    "scripts/ui/pages/crafts_page.gd:1528 (the refine in progress)",
+    "scripts/ui/pages/crafts_page.gd:716 (the selected talisman recipe)",
+    "scripts/ui/pages/crafts_page.gd:957 (a guild exam task)"
    ]
   },
   {
@@ -1277,6 +1275,24 @@
    ]
   }
  ],
+ "legacy_tests": {
+  "tests/combo_tests.gd": "pass 2057/2057",
+  "tests/gauntlet_review.gd": "timeout",
+  "tests/generated_runtime.gd": "timeout",
+  "tests/landing_matrix.gd": "pass 1354/1354",
+  "tests/map_generation.gd": "pass 76/76",
+  "tests/movement_review_v09.gd": "exit 1 (run, line 52)",
+  "tests/movement_v07.gd": "pass 30/30",
+  "tests/obstacle_review.gd": "compile error: Identifier not found: GameEvents",
+  "tests/pixel_input.gd": "exit 2: needs a window",
+  "tests/platform_contact.gd": "compile error: Identifier not found: GameEvents",
+  "tests/release_review.gd": "timeout",
+  "tests/room_gates.gd": "pass 276/276",
+  "tests/support_review_v08.gd": "timeout (opens a review window)",
+  "tests/upward_landing.gd": "compile error: Identifier not found: GameEvents",
+  "tests/visual_checks.gd": "timeout",
+  "tests/weapon_combo_outlines.gd": "timeout"
+ },
  "scans": {
   "assets": {
    "summary": {
@@ -6160,12 +6176,12 @@
     "tools/dev": {
      "ext": {
       ".gd": 10,
-      ".py": 19,
+      ".py": 5,
       ".tscn": 9
      },
-     "files": 38,
-     "funcs": 376,
-     "lines": 9673
+     "files": 24,
+     "funcs": 327,
+     "lines": 7467
     },
     "tools/icons": {
      "ext": {
@@ -6221,12 +6237,12 @@
       ".gif": 15,
       ".html": 52,
       ".js": 2,
-      ".json": 2,
-      ".md": 93,
+      ".json": 3,
+      ".md": 94,
       ".png": 1804
      },
-     "bytes": 334784386,
-     "files": 1978
+     "bytes": 335029810,
+     "files": 1980
     }
    },
    "largest": [
@@ -6594,8 +6610,8 @@
    "totals": {
     "gd_files": 258,
     "gd_lines": 110305,
-    "py_files": 308,
-    "py_lines": 122002
+    "py_files": 294,
+    "py_lines": 119796
    }
   },
   "manifests": {
@@ -6660,13 +6676,9 @@
    },
    "ui_assets_hd": {
     "ids": 44,
-    "sample": [
-     "hud_ring_132",
-     "hud_ring_48",
-     "hud_ring_64"
-    ],
-    "unnamed": 3,
-    "unnamed_bytes": 248660
+    "sample": [],
+    "unnamed": 0,
+    "unnamed_bytes": 0
    }
   },
   "py_graph": {
@@ -6677,7 +6689,7 @@
      "imported_by": [],
      "lines": 27,
      "main": false,
-     "named_outside": 3,
+     "named_outside": 4,
      "path": "tools/dev/fix_infer.py",
      "writes": []
     }
@@ -6685,8 +6697,8 @@
    "summary": {
     "cli_lines": 0,
     "cli_modules_named_nowhere": 0,
-    "lines": 122310,
-    "modules": 308,
+    "lines": 120090,
+    "modules": 294,
     "orphan_lines": 27,
     "orphan_modules": 1,
     "unreferenced_top_defs": 21,
@@ -7311,7 +7323,7 @@
    "notes": "hud.gd and tutorial_coach.gd edits wait for the tutorial and quick-slot jobs",
    "owns": [
     "the files in DEAD-01/02/05/06/07",
-    "crafting_authority.gd:1991 and crafts_page.gd lookups (BUG-01)"
+    "crafts_page.gd lookups and a save-load sweep for unknown recipe ids (BUG-01)"
    ],
    "risk": "low",
    "size": "~300 lines removed, ~40 changed",
@@ -7366,7 +7378,7 @@
     "scripts/equipment_rig.gd"
    ],
    "risk": "low (no game code)",
-   "size": "moves ~35,000 lines, rewrites ~2,000 (captures)",
+   "size": "moves ~32,000 lines, rewrites ~2,000 (captures)",
    "tests": [
     "each moved generator still builds byte-identical output (run once before and after)"
    ],
@@ -7573,7 +7585,7 @@
    "id": "E1",
    "notes": "",
    "owns": [
-    "tools/data/rooms/ (new)",
+    "tools/content/rooms/ (new)",
     "tools/data/topdown_rooms.py"
    ],
    "risk": "medium",
@@ -7582,7 +7594,7 @@
     "topdown_rooms/places/room_lint/sect_walks --check",
     "topdown_tutorial"
    ],
-   "title": "Room engine, then migrate the 29 layouts (round-trip), then new rooms",
+   "title": "Room engine, then migrate the 27 layouts (round-trip), then new rooms",
    "wave": 3
   },
   {

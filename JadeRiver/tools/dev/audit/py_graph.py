@@ -28,7 +28,7 @@ def rel(p):
 
 def py_files():
     for dp, dns, fns in os.walk(TOOLS):
-        dns[:] = [d for d in dns if d != "__pycache__"]
+        dns[:] = [d for d in dns if d not in ("__pycache__", "audit")]
         for fn in fns:
             if fn.endswith(".py"):
                 yield os.path.join(dp, fn)

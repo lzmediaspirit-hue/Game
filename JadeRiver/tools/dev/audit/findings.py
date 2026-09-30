@@ -36,6 +36,20 @@ BASELINE = {
             "330 ms, crowd 18 ms, techniques.json 191 ms, the wood tree drag, Lotus Ferry 473 ms). Every other suite passed.",
 }
 
+# The tests no suite runs, each run once with `godot --headless -s` (tools/dev/audit/run_legacy.py, 180 s limit).
+LEGACY_RUN = {
+    "tests/combo_tests.gd": "pass 2057/2057", "tests/landing_matrix.gd": "pass 1354/1354", "tests/map_generation.gd": "pass 76/76",
+    "tests/movement_v07.gd": "pass 30/30", "tests/room_gates.gd": "pass 276/276",
+    "tests/movement_review_v09.gd": "exit 1 (run, line 52)",
+    "tests/obstacle_review.gd": "compile error: Identifier not found: GameEvents",
+    "tests/platform_contact.gd": "compile error: Identifier not found: GameEvents",
+    "tests/upward_landing.gd": "compile error: Identifier not found: GameEvents",
+    "tests/pixel_input.gd": "exit 2: needs a window",
+    "tests/support_review_v08.gd": "timeout (opens a review window)", "tests/generated_runtime.gd": "timeout",
+    "tests/gauntlet_review.gd": "timeout", "tests/release_review.gd": "timeout", "tests/visual_checks.gd": "timeout",
+    "tests/weapon_combo_outlines.gd": "timeout",
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 F = []
 
@@ -81,7 +95,7 @@ finding("DEAD-08", "test_only_api", "42 game-code symbols used only by tests or 
         ["see symbols[status=not_used_by_game] in this file"], GREP, "medium",
         "keep the deliberate test hooks (a suite needs them) but mark them `## test hook`; delete the rest with their tests (map_generator.generate, equipment_rig.render_sheet)",
         "S1", lines=439)
-finding("DEAD-09", "stale_test", "27 SceneTree scripts under tests/ that no suite runs (1,634 lines); 16 were imported with v0.13 and never touched since",
+finding("DEAD-09", "stale_test", "27 SceneTree scripts under tests/ that no suite runs (1,634 lines); 22 were imported with v0.13 and never touched since",
         ["tests/combo_tests.gd", "tests/landing_matrix.gd", "tests/map_generation.gd", "tests/movement_v07.gd", "tests/room_gates.gd",
          "tests/movement_review_v09.gd", "tests/obstacle_review.gd", "tests/platform_contact.gd", "tests/upward_landing.gd",
          "tests/support_review_v08.gd", "tests/generated_runtime.gd", "tests/review_visual_v08.gd", "tests/review_visual_v09.gd",
@@ -98,11 +112,11 @@ finding("DEAD-10", "stale_probe", "tools/dev probes and captures no runner, doc 
 finding("DEAD-11", "stale_generator", "Side-view art generators frozen since decision 41 (paused side-view art); several one-off bakes nothing runs",
         ["tools/art/bake_act2_hats.py (named nowhere)", "tools/art/bake_straw_hat.py", "tools/bake_hat_cape_combos.gd",
          "tools/art/build_creatures.py", "tools/art/build_topdown_proto.py (22 lines, superseded by build_tiles.py)",
-         "tools/art/topdown/study_quality/ (decision 42 study, 1,400 lines, copies raster.py and folds.py)",
+         "tools/art/topdown/study_quality/ (decision 42 study, 1,857 lines, copies raster.py and folds.py)",
          "tools/icons/study/technique_cards.py (594 lines, no caller)"],
         "tools/dev/audit/py_graph.py (imports, entry points, names outside Python) and mentions.py", "medium",
         "move the side-view pipeline (tools/art/creatures, pixel.py, helpers_batch_*, bake_*, tools/backdrops) under tools/art/sideview/ with a README saying it is frozen; delete build_topdown_proto.py and the study copies once the study's pictures are archived",
-        "S3", lines=3200)
+        "S3", lines=2889)
 finding("DEAD-12", "dead_data", "Data the game never reads",
         ["data/balance.json (tests/balance_sim.gd only)", "data/legendary_chains.json (tests and wiki only)",
          "data/topdown/td_review_heights.json (tools only)",
@@ -136,20 +150,21 @@ finding("DUP-01", "duplication", "Seven hand-rolled per-frame caches keyed on En
         "grep get_process_frames() in scripts/ (22 uses)", "high",
         "one FrameMemo (scripts/core/frame_memo.gd): memo(owner, key, callable, ttl_frames=1, on_revision=true)", "S4", lines=80)
 finding("DUP-02", "duplication", "Five copies of the sin-hash noise and one integer hash",
-        ["scripts/presentation/fx_layer.gd:682 _hash", "scripts/presentation/hazard_view.gd", "scripts/ui/pages/map_page.gd:1308 _rnd",
+        ["scripts/presentation/fx_layer.gd:682 _hash", "scripts/presentation/hazard_view.gd:179 _h", "scripts/ui/pages/map_page.gd:1308 _rnd",
          "scripts/ui/pages/beast_kit.gd:9 noise", "scripts/ui/pages/inventory_page.gd:87 _hash", "scripts/topdown/topdown_terrain.gd:230 h01"],
         "grep 12.9898 (5 files) and 374761393", "high", "scripts/core/noise.gd: Noise.h01(i, salt), Noise.cell(x, y, s), Noise.value(x, y, s)", "S4", lines=30)
 finding("DUP-03", "duplication", "`TopdownDoll.new() if TopdownDoll.shown() else Avatar.new()` and its dress/draw branches in 12 files (18 sites)",
-        ["scripts/ui/pages/character_page.gd", "scripts/ui/pages/shop_page.gd", "scripts/ui/pages/inventory_page.gd", "scripts/shell/shell_screens.gd",
-         "scripts/ui/pages/dialogue_page.gd", "scripts/ui/pages/companions_page.gd", "scripts/ui/pages/notice_page.gd", "scripts/ui/pages/posts_page.gd",
-         "scripts/ui/pages/sect_kit.gd", "scripts/ui/pages/techniques_page.gd", "scripts/ui/pages/cultivation_page.gd", "scripts/presentation/technique_preview.gd"],
+        ["scripts/ui/pages/character_page.gd", "scripts/ui/pages/shop_page.gd", "scripts/ui/pages/inventory_page.gd", "scripts/ui/pages/cultivation_page.gd",
+         "scripts/ui/pages/techniques_page.gd", "scripts/shell/shell_screens.gd", "scripts/presentation/technique_picture.gd",
+         "scripts/presentation/technique_preview.gd", "scripts/presentation/npc_view.gd", "scripts/presentation/enemy_view.gd",
+         "scripts/player.gd", "scripts/hud.gd"],
         "grep TopdownDoll.shown|Avatar.new()", "high", "Figures.for_character(ch) / Figures.for_outfit(o, top_down): one factory, one draw_on", "S4", lines=90)
-finding("DUP-04", "duplication", "Event -> presentation switches: hud.gd _handle (234 branches, 620 lines, 134 add_log + 124 toast calls), WorldShared.play (147 lines), world.gd and topdown_world.gd _on_event (70 lines each), audio_director, moment_view, scene_director, tutorial_coach, page, atmosphere, life: 11 listeners each run their own match on every event",
-        ["scripts/hud.gd:1349-1968", "scripts/presentation/world_shared.gd:82-228", "scripts/world.gd:406", "scripts/topdown/topdown_world.gd:576"],
+finding("DUP-04", "duplication", "Event -> presentation switches: hud.gd _handle (234 branches, 615 lines, 134 add_log + 124 toast calls), WorldShared.play (147 lines), world.gd and topdown_world.gd _on_event (70 lines each), audio_director, moment_view, scene_director, tutorial_coach, page, atmosphere, life: 11 listeners each run their own match on every event",
+        ["scripts/hud.gd:1349-1963", "scripts/presentation/world_shared.gd:82-228", "scripts/world.gd:406", "scripts/topdown/topdown_world.gd:576"],
         "function sizes (tools/dev/audit/funcs.py); count of GameEvents.event.connect (11)", "high",
         "a Notice table (data/hud_notices.json: event -> log|toast, key, args from payload, colour, filter actor==active) replaces the one-line cases of hud._handle (about 180 of 234); a Cue table (data/cues.json: event -> fx, sound, shake) replaces WorldShared.play's simple cases; a dispatcher Dictionary(name -> Callable) replaces the match chains",
         "S6", lines=900)
-finding("DUP-05", "duplication", "Parallel side-view and top-down implementations with 60 `topdown == null` checks in 20 shared files",
+finding("DUP-05", "duplication", "Parallel side-view and top-down implementations with 74 `topdown == null` checks in 20 shared files",
         ["scripts/world.gd vs scripts/topdown/topdown_world.gd (_build_room 92/97 lines, _on_event 69/72)",
          "scripts/player.gd vs scripts/topdown/topdown_player.gd", "scripts/simulation/ai/enemy_brain.gd vs topdown_brain.gd",
          "scripts/simulation/authority/world_authority.gd (21 checks)", "scripts/simulation/authority/enemy_authority.gd (10)",
@@ -188,11 +203,11 @@ finding("DUP-12", "duplication", "Atlas packing and sheet writing repeated in bu
         "tools/dev/audit/dupes.py", "high", "tools/art/topdown/atlas.py grows pack(sheets) -> (png, manifest); delete study_quality after archiving", "S3", lines=160)
 
 # ---- bugs and smells
-finding("BUG-01", "bug", "Recipe ids from the save are dotted into ContentDB with no check: a recipe renamed or removed in data crashes the daily commission roll and the Crafts page for old saves",
-        ["scripts/simulation/authority/crafting_authority.gd:1991", "scripts/ui/pages/crafts_page.gd:716", "scripts/ui/pages/crafts_page.gd:810",
-         "scripts/ui/pages/crafts_page.gd:957", "scripts/ui/pages/crafts_page.gd:1528", "scripts/simulation/authority/crafting_authority.gd:1043 (garden racks)"],
-        "grep ContentDB.(entry|item|room|config)(...).<field> without .get (12 sites); the ids come from GameCharacter state", "high",
-        "a ContentDB.recipe_output(id) that returns '' for an unknown id, and a save migration that drops unknown recipe ids", "S1", severity="medium")
+finding("BUG-01", "bug", "Recipe ids read from the save are dotted into ContentDB with no check: after a recipe is renamed or removed in data, a save with it in the auto-refine queue or a refine in progress crashes the Crafts page (no load-time sweep drops unknown ids)",
+        ["scripts/ui/pages/crafts_page.gd:810 (ch.crafting.auto_queue)", "scripts/ui/pages/crafts_page.gd:1528 (the refine in progress)",
+         "scripts/ui/pages/crafts_page.gd:716 (the selected talisman recipe)", "scripts/ui/pages/crafts_page.gd:957 (a guild exam task)"],
+        "grep ContentDB.(entry|item|room|config)(...).<field> without .get (12 sites), each traced to where its id comes from; crafting_authority.gd:1991 and :1043 read ids from data and are safe", "medium",
+        "ContentDB.recipe_output(id) returning '' for an unknown id, and a save-load sweep that drops unknown recipe ids from the queues", "S1", severity="low")
 finding("BUG-02", "perf", "Every event is string-matched by 11 listeners, the HUD's through 234 branches: GDScript match tests them in order",
         ["scripts/hud.gd:1349", "scripts/core/game_events.gd:77 event.emit"], "reading; count of listeners", "high",
         "handler Dictionaries (DUP-04)", "S6", severity="medium")
@@ -240,7 +255,7 @@ finding("BUG-14", "god_object", "God objects: hud.gd (3,266 lines, 168 funcs: la
 
 # ---------------------------------------------------------------------------------------------------------------------
 ENGINES = [
-    {"id": "E1", "name": "Room engine", "home": "tools/data/rooms/ (engine.py, biomes.py, specs/<zone>.py)",
+    {"id": "E1", "name": "Room engine", "home": "tools/content/rooms/ (engine.py, biomes.py, specs/<zone>.py)",
      "builds_on": ["tools/data/topdown_rooms.py Layout DSL and Grid checks", "tools/data/world.py field()/town() side-view templates (ids of NPCs, objects, portals, spawns)",
                    "tools/data/topdown_life.py dress()/extend() (furnishings, vistas, work spots)", "tools/data/places.py", "tools/data/room_lint.py"],
      "spec_example": {
@@ -255,8 +270,8 @@ ENGINES = [
                    "stream": ["tree_willow", "tall_grass", "cattails", "lotus_pads"], "density": 0.3},
          "props": {"willow": {"along": "terrace", "every": 11}, "reeds": {"along": "stream.edge", "every": 10}, "incense": [50, 10]},
          "ground": {"sand": "stream.coves"}, "foes": {"verge": 5}, "pins": {}},
-     "migration": "1) The engine emits Layout calls, so a spec can reproduce an existing room exactly with `pins` (cells, props, places); migrate the 29 layouts one by one until `topdown_rooms --check` shows no diff. 2) Convert the 139 side-view rooms from their world.py template (which already lists the ids) plus a 10-20 line shape spec. 3) Hand-tweaks stay as pins in the spec, never edits to the JSON.",
-     "saves": "wp_east is 44 hand lines (~600 tokens) and about 60 placed coordinates; its spec is ~15 lines (~220 tokens) with 8 anchors. Across the 139 rooms left: ~8,000-15,000 hand lines at today's rate against ~2,000-2,800 spec lines.",
+     "migration": "1) The engine emits Layout calls, so a spec can reproduce an existing room exactly with `pins` (cells, props, places); migrate the 27 layouts one by one until `topdown_rooms --check` shows no diff. 2) Convert the 141 side-view rooms from their world.py template (which already lists the ids) plus a 10-20 line shape spec. 3) Hand-tweaks stay as pins in the spec, never edits to the JSON.",
+     "saves": "wp_east is 44 hand lines (~600 tokens) and about 60 placed coordinates; its spec is ~15 lines (~220 tokens) with 8 anchors. Across the 141 rooms left: ~8,500-15,500 hand lines at today's rate against ~2,100-2,800 spec lines.",
      "tests": ["determinism: build twice, byte-identical", "topdown_rooms --check, places --check, room_lint, sect_walks --check", "round-trip: every migrated room's JSON unchanged",
                "tests/topdown_tutorial.gd reach checks in the game", "a golden picture per biome in the capture registry"]},
     {"id": "E2", "name": "Monster engine", "home": "tools/content/monsters.py (+ tools/art/topdown/creature/plans/)",
@@ -315,7 +330,7 @@ ENGINES = [
 ]
 
 SLICES = [
-    {"id": "S1", "wave": 1, "title": "Delete dead code and fix the save-id crash", "owns": ["the files in DEAD-01/02/05/06/07", "crafting_authority.gd:1991 and crafts_page.gd lookups (BUG-01)"],
+    {"id": "S1", "wave": 1, "title": "Delete dead code and fix the save-id crash", "owns": ["the files in DEAD-01/02/05/06/07", "crafts_page.gd lookups and a save-load sweep for unknown recipe ids (BUG-01)"],
      "size": "~300 lines removed, ~40 changed", "risk": "low", "tests": ["run_tests.sh", "contract_tests strings gate"],
      "after_phase1": ["hud.gd", "tutorial_coach.gd"], "notes": "hud.gd and tutorial_coach.gd edits wait for the tutorial and quick-slot jobs"},
     {"id": "S2", "wave": 1, "title": "Tests hygiene: a suite base, the side-view suite, a steadier perf gate, data-method rule",
@@ -325,7 +340,7 @@ SLICES = [
      "notes": "the phase-1 jobs add checks to these suites: rebase onto them"},
     {"id": "S3", "wave": 1, "title": "Tools housekeeping: capture registry, side-view pipeline moved under tools/art/sideview, study copies archived",
      "owns": ["tools/dev/*capture*", "tools/dev/prototype_qa.gd", "tools/art/creatures", "tools/art/pixel.py", "tools/art/helpers_batch_*", "tools/art/bake_*", "tools/backdrops", "tools/art/topdown/study_quality", "scripts/combo_rig.gd", "scripts/equipment_rig.gd"],
-     "size": "moves ~35,000 lines, rewrites ~2,000 (captures)", "risk": "low (no game code)", "tests": ["each moved generator still builds byte-identical output (run once before and after)"],
+     "size": "moves ~32,000 lines, rewrites ~2,000 (captures)", "risk": "low (no game code)", "tests": ["each moved generator still builds byte-identical output (run once before and after)"],
      "after_phase1": ["tools/dev/topdown_capture.gd (the boss job adds shots)"], "notes": ""},
     {"id": "S4", "wave": 1, "title": "Shared runtime utilities: FrameMemo, Noise, Figures factory, lazy ContentDB tables, GameEvents sets, TopdownFx cap",
      "owns": ["scripts/core/frame_memo.gd (new)", "scripts/core/noise.gd (new)", "scripts/presentation/figures.gd (new)", "scripts/core/content_db.gd", "scripts/core/game_events.gd", "scripts/topdown/topdown_fx.gd", "the 12 pages of DUP-03 (one line each)"],
@@ -359,7 +374,7 @@ SLICES = [
      "owns": ["scripts/world.gd", "scripts/player.gd", "scripts/backdrop.gd", "the DEAD-15 list", "the topdown==null checks in world_authority/enemy_authority/ally_brain"],
      "size": "~400 changed, 2,233 moved", "risk": "medium-high", "tests": ["side_view_suite (S2)", "engine_tests", "visibility_suite", "room_sweep", "valley_run"],
      "after_phase1": [], "notes": "optional; only if the fallback setting stays. If the product retires it, delete instead"},
-    {"id": "E1", "wave": 3, "title": "Room engine, then migrate the 29 layouts (round-trip), then new rooms", "owns": ["tools/data/rooms/ (new)", "tools/data/topdown_rooms.py"],
+    {"id": "E1", "wave": 3, "title": "Room engine, then migrate the 27 layouts (round-trip), then new rooms", "owns": ["tools/content/rooms/ (new)", "tools/data/topdown_rooms.py"],
      "size": "~900 new; the 1,778-line layouts file becomes specs", "risk": "medium", "tests": ["topdown_rooms/places/room_lint/sect_walks --check", "topdown_tutorial"], "after_phase1": [], "notes": ""},
     {"id": "E2", "wave": 3, "title": "Monster engine: plans from the 12 species, data+art+sound from one spec", "owns": ["tools/content/monsters.py (new)", "tools/art/topdown/creature/plans/ (new)", "tools/art/topdown/creatures.py", "tools/data/enemies.py"],
      "size": "~1,200 new", "risk": "medium (visual)", "tests": ["build_foes determinism", "data_validation", "gallery review"], "after_phase1": ["hollowed_eel (the boss job)"], "notes": ""},
@@ -416,7 +431,7 @@ def trim(scans):
 
 def main():
     out_path = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else os.path.join(ROOT, "docs", "architecture", "audit_45.json")
-    doc = {"schema_version": 1, "decision": 45, "baseline": BASELINE, "findings": F, "engines": ENGINES, "slices": SLICES,
+    doc = {"schema_version": 1, "decision": 45, "baseline": BASELINE, "legacy_tests": LEGACY_RUN, "findings": F, "engines": ENGINES, "slices": SLICES,
            "tools": "tools/dev/audit/*.py (read-only; rerun with python3 tools/dev/audit/findings.py)"}
     if "--no-scan" not in sys.argv:
         with tempfile.TemporaryDirectory() as tmp:

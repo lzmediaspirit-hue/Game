@@ -11,7 +11,7 @@ import sys
 from collections import defaultdict
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-SKIP_DIRS = {".godot", ".git", "__pycache__"}
+SKIP_DIRS = {".godot", ".git", "__pycache__", "audit"}   # audit: these scans themselves
 CODE_EXT = {".gd", ".py", ".sh", ".ps1", ".gdshader", ".tscn"}
 
 FUNC_GD = re.compile(r"^\s*(?:static\s+)?func\s+([A-Za-z_]\w*)")
